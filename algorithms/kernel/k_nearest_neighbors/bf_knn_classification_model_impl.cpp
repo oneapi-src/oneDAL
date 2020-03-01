@@ -15,9 +15,9 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/bf_knn_classification_model_ucapi_impl.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/kernel/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -40,12 +40,12 @@ Model::~Model()
     _impl = nullptr;
 }
 
-Model::Model(size_t nFeatures, services::Status &st) : _impl(new ModelImpl(nFeatures))
+Model::Model(size_t nFeatures, services::Status & st) : _impl(new ModelImpl(nFeatures))
 {
     DAAL_CHECK_COND_ERROR(_impl, st, services::ErrorMemoryAllocationFailed);
 }
 
-services::Status Model::serializeImpl(data_management::InputDataArchive  * arch)
+services::Status Model::serializeImpl(data_management::InputDataArchive * arch)
 {
     daal::algorithms::classifier::Model::serialImpl<data_management::InputDataArchive, false>(arch);
     return _impl->serialImpl<data_management::InputDataArchive, false>(arch);

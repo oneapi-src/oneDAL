@@ -21,7 +21,7 @@
 //--
 */
 
-#include "implicit_als_predict_ratings_types.h"
+#include "algorithms/implicit_als/implicit_als_predict_ratings_types.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -47,7 +47,7 @@ namespace interface1
 template <typename algorithmFPType>
 DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const InputIface * algInput    = static_cast<const InputIface *>(input);
+    const InputIface * algInput = static_cast<const InputIface *>(input);
 
     size_t nUsers = algInput->getNumberOfUsers();
     size_t nItems = algInput->getNumberOfItems();

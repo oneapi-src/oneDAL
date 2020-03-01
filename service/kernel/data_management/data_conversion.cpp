@@ -21,9 +21,9 @@
 //--
 */
 
-#include "daal_kernel_defines.h"
-#include "service_dispatch.h"
-#include "data_conversion_cpu.h"
+#include "services/daal_kernel_defines.h"
+#include "externals/service_dispatch.h"
+#include "service/kernel/data_management/data_conversion_cpu.h"
 #include "data_management/data/internal/conversion.h"
 
 namespace daal
@@ -32,38 +32,69 @@ namespace data_management
 {
 namespace internal
 {
-
-template<typename T1, typename T2>
-static void vectorConvertFunc(size_t n, const void *src, void *dst)
+/* only for AVX512 architecture with using intrinsics */
+#if defined(__INTEL_COMPILER)
+template <typename T>
+static bool tryToCopyFuncAVX512(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 * arrOffsets)
 {
-    #define DAAL_VECTOR_CONVERT_CPU(cpuId, ...) \
-        vectorConvertFuncCpu<T1, T2, cpuId>(__VA_ARGS__);
+    typedef void (*funcType)(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 * arrOffsets);
+    static funcType ptr = NULL;
+
+    if (!ptr)
+    {
+        int cpuid = (int)daal::services::Environment::getInstance()->getCpuId();
+
+        switch (cpuid)
+        {
+    #ifdef DAAL_KERNEL_AVX512
+        case avx512: DAAL_KERNEL_AVX512_ONLY_CODE(ptr = vectorCopy<T, avx512>); break;
+    #endif
+    #ifdef DAAL_KERNEL_AVX512_MIC
+        case avx512_mic: DAAL_KERNEL_AVX512_MIC_ONLY_CODE(ptr = vectorCopy<T, avx512_mic>); break;
+    #endif
+        default: return false;
+        }
+    }
+
+    ptr(nrows, ncols, dst, ptrMin, arrOffsets);
+    return true;
+}
+#else
+template <typename T>
+static bool tryToCopyFuncAVX512(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 * arrOffsets)
+{
+    return false;
+}
+#endif
+
+template <typename T1, typename T2>
+static void vectorConvertFunc(size_t n, const void * src, void * dst)
+{
+#define DAAL_VECTOR_CONVERT_CPU(cpuId, ...) vectorConvertFuncCpu<T1, T2, cpuId>(__VA_ARGS__);
 
     DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_VECTOR_CONVERT_CPU, n, src, dst);
 
-    #undef DAAL_VECTOR_CONVERT_CPU
+#undef DAAL_VECTOR_CONVERT_CPU
 }
 
 template <typename T1, typename T2>
 static void vectorStrideConvertFunc(size_t n, const void * src, size_t srcByteStride, void * dst, size_t dstByteStride)
 {
-    #define DAAL_VECTOR_STRIDE_CONVERT_CPU(cpuId, ...) \
-        vectorStrideConvertFuncCpu<T1, T2, cpuId>(__VA_ARGS__);
+#define DAAL_VECTOR_STRIDE_CONVERT_CPU(cpuId, ...) vectorStrideConvertFuncCpu<T1, T2, cpuId>(__VA_ARGS__);
 
     DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_VECTOR_STRIDE_CONVERT_CPU, n, src, srcByteStride, dst, dstByteStride);
 
-    #undef DAAL_VECTOR_STRIDE_CONVERT_CPU
+#undef DAAL_VECTOR_STRIDE_CONVERT_CPU
 }
 
 template <typename T>
 DAAL_EXPORT void vectorAssignValueToArray(T * const dataPtr, const size_t n, const T value)
 {
-    #define DAAL_VECTOR_ASSIGN_VALUE_TO_ARRAY_CPU(cpuId, ...) \
-        vectorAssignValueToArrayCpu<T, cpuId>(__VA_ARGS__);
+#define DAAL_VECTOR_ASSIGN_VALUE_TO_ARRAY_CPU(cpuId, ...) vectorAssignValueToArrayCpu<T, cpuId>(__VA_ARGS__);
 
     DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_VECTOR_ASSIGN_VALUE_TO_ARRAY_CPU, dataPtr, n, &value);
 
-    #undef DAAL_VECTOR_ASSIGN_VALUE_TO_ARRAY_CPU
+#undef DAAL_VECTOR_ASSIGN_VALUE_TO_ARRAY_CPU
 }
 
 #define DAAL_REGISTER_VECTOR_ASSIGN(Type) \
@@ -97,6 +128,30 @@ DAAL_REGISTER_WITH_HOMOGEN_NT_TYPES(DAAL_REGISTER_VECTOR_ASSIGN)
             DAAL_TABLE_DOWN_ENTRY(F, DAAL_INT64), DAAL_TABLE_DOWN_ENTRY(F, DAAL_UINT64), DAAL_TABLE_DOWN_ENTRY(F, char),                          \
             DAAL_TABLE_DOWN_ENTRY(F, unsigned char), DAAL_TABLE_DOWN_ENTRY(F, short), DAAL_TABLE_DOWN_ENTRY(F, unsigned short),                   \
     }
+
+template <typename T>
+DAAL_EXPORT vectorCopy2vFuncType getVector()
+{
+    return tryToCopyFuncAVX512<T>;
+}
+
+template <>
+DAAL_EXPORT vectorCopy2vFuncType getVector<float>()
+{
+    return tryToCopyFuncAVX512<float>;
+}
+
+template <>
+DAAL_EXPORT vectorCopy2vFuncType getVector<double>()
+{
+    return tryToCopyFuncAVX512<double>;
+}
+
+template <>
+DAAL_EXPORT vectorCopy2vFuncType getVector<int>()
+{
+    return NULL; /* no implementation for integer */
+}
 
 DAAL_EXPORT vectorConvertFuncType getVectorUpCast(int idx1, int idx2)
 {

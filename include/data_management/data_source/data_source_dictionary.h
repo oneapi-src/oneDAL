@@ -63,7 +63,7 @@ public:
     /**
      *  Constructor of a data feature
      */
-    DataSourceFeature() : name(NULL), name_length(0), cat_dict(NULL) {}
+    DataSourceFeature() : name_length(0), name(NULL), cat_dict(NULL) {}
 
     /**
      *  Copy constructor for a data feature
@@ -172,7 +172,7 @@ public:
                 /* Make sure that dictionary is allocated */
                 getCategoricalDictionary();
                 /* Make sure that dictionary is empty */
-                cat_dict->empty();
+                cat_dict->clear();
             }
 
             size_t size = cat_dict->size();

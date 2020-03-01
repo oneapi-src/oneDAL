@@ -32,13 +32,13 @@
 #ifndef __MULTICLASSCLASSIFIER_PREDICT_MCCWU_IMPL_I__
 #define __MULTICLASSCLASSIFIER_PREDICT_MCCWU_IMPL_I__
 
-#include "multi_class_classifier_model.h"
-#include "threading.h"
-#include "service_math.h"
-#include "service_memory.h"
-#include "service_data_utils.h"
-#include "service_error_handling.h"
-#include "service_numeric_table.h"
+#include "algorithms/multi_class_classifier/multi_class_classifier_model.h"
+#include "algorithms/threading/threading.h"
+#include "externals/service_math.h"
+#include "externals/service_memory.h"
+#include "service/kernel/service_data_utils.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;
@@ -249,7 +249,7 @@ services::Status SubTask<algorithmFPType, ClsType, cpu>::getBlockOfRowsOfResults
         algorithmFPType maxProb = p[0];
         DAAL_CHECK(nonEmptyClassMap[0] <= services::internal::MaxVal<int>::get(), services::ErrorIncorrectNumberOfClasses)
         label = (int)nonEmptyClassMap[0];
-        for (int j = 1; j < nClasses; j++)
+        for (size_t j = 1; j < nClasses; j++)
         {
             if (p[j] > maxProb)
             {

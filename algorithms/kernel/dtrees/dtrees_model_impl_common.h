@@ -24,7 +24,7 @@
 #ifndef __DTREES_MODEL_IMPL_COMMON__
 #define __DTREES_MODEL_IMPL_COMMON__
 
-#include "dtrees_model_impl.h"
+#include "algorithms/kernel/dtrees/dtrees_model_impl.h"
 
 namespace daal
 {
@@ -102,6 +102,10 @@ bool visitSplit(size_t iRowInTable, size_t level, TDescriptor & descSplit, const
 template <typename TVisitor, typename TDescriptor>
 bool visitLeaf(size_t iRowInTable, size_t level, TDescriptor & descLeaf, const DecisionTreeNode * aNode, const double * imp,
                const int * nodeSamplesCount, TVisitor & visitor);
+
+template <typename TVisitor, typename TDescriptor>
+bool visitLeaf(const size_t iRowInTable, const size_t level, TDescriptor & descLeaf, const DecisionTreeNode * const aNode, const double * const imp,
+               const int * const nodeSamplesCount, TVisitor & visitor, const double * const modelProb, const size_t nClasses);
 
 template <typename OnSplitFunctor, typename OnLeafFunctor>
 bool traverseNodeDF(size_t level, size_t iRowInTable, const DecisionTreeNode * aNode, OnSplitFunctor & visitSplit, OnLeafFunctor & visitLeaf)

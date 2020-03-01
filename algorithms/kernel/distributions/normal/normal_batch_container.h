@@ -24,8 +24,8 @@
 #ifndef __NORMAL_BATCH_CONTAINER_H__
 #define __NORMAL_BATCH_CONTAINER_H__
 
-#include "distributions/normal/normal.h"
-#include "normal_kernel.h"
+#include "algorithms/distributions/normal/normal.h"
+#include "algorithms/kernel/distributions/normal/normal_kernel.h"
 
 namespace daal
 {

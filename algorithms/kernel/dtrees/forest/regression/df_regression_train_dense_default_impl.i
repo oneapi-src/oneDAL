@@ -25,11 +25,11 @@
 #ifndef __DF_REGRESSION_TRAIN_DENSE_DEFAULT_IMPL_I__
 #define __DF_REGRESSION_TRAIN_DENSE_DEFAULT_IMPL_I__
 
-#include "df_train_dense_default_impl.i"
-#include "df_regression_train_kernel.h"
-#include "df_regression_model_impl.h"
-#include "dtrees_predict_dense_default_impl.i"
-#include "df_regression_training_types_result.h"
+#include "algorithms/kernel/dtrees/forest/df_train_dense_default_impl.i"
+#include "algorithms/kernel/dtrees/forest/regression/df_regression_train_kernel.h"
+#include "algorithms/kernel/dtrees/forest/regression/df_regression_model_impl.h"
+#include "algorithms/kernel/dtrees/dtrees_predict_dense_default_impl.i"
+#include "algorithms/kernel/dtrees/forest/regression/df_regression_training_types_result.h"
 
 namespace daal
 {
@@ -392,7 +392,7 @@ bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(const 
 #endif
     algorithmFPType vBest = split.impurityDecrease < 0 ? daal::services::internal::MaxVal<algorithmFPType>::get() :
                                                          (curImpurity.var - split.impurityDecrease) * algorithmFPType(n);
-    IndexType iBest            = -1;
+    IndexType iBest = -1;
     for (size_t i = 1; i < (n - nMinSplitPart + 1); ++i)
     {
         const bool bSameFeaturePrev(featureVal[i] <= featureVal[i - 1] + accuracy);

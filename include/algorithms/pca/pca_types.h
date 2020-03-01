@@ -272,7 +272,7 @@ template <>
 class DAAL_EXPORT PartialResult<daal::algorithms::pca::correlationDense> : public PartialResultBase
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(PartialResult<daal::algorithms::pca::correlationDense>);
+    DECLARE_SERIALIZABLE_CAST(PartialResult<daal::algorithms::pca::correlationDense>)
     PartialResult();
 
     /**
@@ -350,7 +350,7 @@ template <>
 class DAAL_EXPORT PartialResult<daal::algorithms::pca::svdDense> : public PartialResultBase
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(PartialResult<daal::algorithms::pca::svdDense>);
+    DECLARE_SERIALIZABLE_CAST(PartialResult<daal::algorithms::pca::svdDense>)
     PartialResult();
 
     /**
@@ -733,7 +733,7 @@ public:
 class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
     Result(const Result & o);
     Result();
 
@@ -822,6 +822,9 @@ protected:
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
+
+private:
+    Result & operator=(const Result &);
 };
 typedef services::SharedPtr<Result> ResultPtr;
 

@@ -18,9 +18,9 @@
 #include "services/error_handling.h"
 #include "data_management/features/defines.h"
 
-#include "threading.h"
-#include "service_string_utils.h"
-#include "service_error_handling.h"
+#include "algorithms/threading/threading.h"
+#include "service/kernel/service_string_utils.h"
+#include "algorithms/kernel/service_error_handling.h"
 
 namespace daal
 {
@@ -927,6 +927,7 @@ void ErrorMessageCollection::parseResourceFile()
     // Other errors: -100000..
     add(ErrorObjectDoesNotSupportSerialization, "SerializationIface is not implemented or implemented incorrectly");
     add(ErrorExecutionContext, "Execution context error");
+    add(ErrorHashTableCollision, "Hash table collision happened. Please, increase the buffer size.");
 
     add(ErrorCouldntAttachCurrentThreadToJavaVM, "Couldn't attach current thread to Java VM");
     add(ErrorCouldntCreateGlobalReferenceToJavaObject, "Couldn't create global reference to Java object");

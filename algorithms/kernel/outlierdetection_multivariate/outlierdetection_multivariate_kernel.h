@@ -24,10 +24,10 @@
 #ifndef __OUTLIERDETECTION_MULTIVARIATE_KERNEL_H__
 #define __OUTLIERDETECTION_MULTIVARIATE_KERNEL_H__
 
-#include "outlier_detection_multivariate.h"
-#include "kernel.h"
-#include "service_numeric_table.h"
-#include "service_math.h"
+#include "algorithms/outlier_detection/outlier_detection_multivariate.h"
+#include "algorithms/kernel/kernel.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_math.h"
 
 using namespace daal::internal;
 using namespace daal::data_management;

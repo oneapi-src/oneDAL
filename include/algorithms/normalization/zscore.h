@@ -154,6 +154,9 @@ protected:
         _in     = &input;
     }
     virtual BatchImpl * cloneImpl() const DAAL_C11_OVERRIDE = 0;
+
+private:
+    BatchImpl & operator=(const BatchImpl &);
 };
 
 /**
@@ -236,6 +239,9 @@ protected:
     }
 
     void initialize() { Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env); }
+
+private:
+    Batch & operator=(const Batch &);
 };
 
 /** @} */

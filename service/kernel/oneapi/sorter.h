@@ -18,10 +18,9 @@
 #ifndef __SORTER_H__
 #define __SORTER_H__
 
-#include "math_service_types.h"
+#include "service/kernel/oneapi/math_service_types.h"
 #include "services/buffer.h"
-#include "cl_kernels/radix_sort.cl"
-#include "service_defines_oneapi.h"
+#include "service/kernel/oneapi/cl_kernels/radix_sort.cl"
 #include "oneapi/internal/types_utils.h"
 #include "oneapi/internal/execution_context.h"
 
@@ -33,17 +32,17 @@ namespace internal
 {
 namespace sort
 {
-
 class RadixSort
 {
 public:
-    static void sort(const UniversalBuffer& input, const UniversalBuffer& output,  const UniversalBuffer& buffer,
-                     uint32_t nVectors, uint32_t vectorSize, uint32_t vectorOffset, services::Status* status);
+    static void sort(const UniversalBuffer & input, const UniversalBuffer & output, const UniversalBuffer & buffer, uint32_t nVectors,
+                     uint32_t vectorSize, uint32_t vectorOffset, services::Status * status);
+
 private:
     RadixSort();
 };
 
-} // namespace math
+} // namespace sort
 } // namespace internal
 } // namespace oneapi
 } // namespace daal

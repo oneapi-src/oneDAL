@@ -24,17 +24,15 @@
 #ifndef __MATH_CL__
 #define __MATH_CL__
 
-#define DECLARE_SOURCE(name, src) static const char* name = #src;
+#define DECLARE_SOURCE(name, src) static const char * name = #src;
 
-DECLARE_SOURCE(clKernelMath,
+DECLARE_SOURCE(
+    clKernelMath,
 
-__kernel void vLog(
-    const __global algorithmFPType* const x,
-    __global algorithmFPType* result)
-{
-    const uint i = get_global_id(0);
-    result[i] = log(x[i]);
-}
+    __kernel void vLog(const __global algorithmFPType * const x, __global algorithmFPType * result) {
+        const uint i = get_global_id(0);
+        result[i]    = log(x[i]);
+    }
 
 );
 

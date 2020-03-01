@@ -16,10 +16,10 @@
 *******************************************************************************/
 
 #include "oneapi/internal/math/reference_lapack.h"
-#include "service_lapack.h"
-#include "error_handling.h"
-#include "blas_gpu.h"
-#include "cl_kernels/kernel_blas.cl"
+#include "externals/service_lapack.h"
+#include "services/error_handling.h"
+#include "service/kernel/oneapi/blas_gpu.h"
+#include "service/kernel/oneapi/cl_kernels/kernel_blas.cl"
 
 namespace daal
 {
@@ -33,7 +33,7 @@ namespace interface1
 {
 using namespace daal::internal;
 
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 services::Status ReferencePotrf<algorithmFPType>::operator()(const math::UpLo uplo, const size_t n, services::Buffer<algorithmFPType> & a_buffer,
                                                              const size_t lda)
 {

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "implicit_als_train_init_parameter.h"
+#include "algorithms/kernel/implicit_als/implicit_als_train_init_parameter.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

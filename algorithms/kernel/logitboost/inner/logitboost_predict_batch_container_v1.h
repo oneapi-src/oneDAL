@@ -26,8 +26,8 @@
 #ifndef __LOGITBOOST_PREDICT_BATCH_CONTAINER_V1__
 #define __LOGITBOOST_PREDICT_BATCH_CONTAINER_V1__
 
-#include "logitboost_predict.h"
-#include "logitboost_predict_dense_default_kernel_v1.h"
+#include "algorithms/boosting/logitboost_predict.h"
+#include "algorithms/kernel/logitboost/inner/logitboost_predict_dense_default_kernel_v1.h"
 
 namespace daal
 {

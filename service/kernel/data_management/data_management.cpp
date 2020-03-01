@@ -15,9 +15,9 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "collection.h"
-#include "data_collection.h"
-#include "memory_block.h"
+#include "services/collection.h"
+#include "data_management/data/data_collection.h"
+#include "data_management/data/memory_block.h"
 
 namespace daal
 {

@@ -237,6 +237,9 @@ protected:
         _partialResult.reset(new PartialResult<correlationDense>());
         _result.reset(new ResultType());
     }
+
+private:
+    Online & operator=(const Online &);
 };
 
 /**
@@ -357,6 +360,9 @@ protected:
         _partialResult.reset(new PartialResult<svdDense>());
         _result.reset(new ResultType());
     }
+
+private:
+    Online & operator=(const Online &);
 };
 /** @} */
 } // namespace interface1

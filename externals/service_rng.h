@@ -24,9 +24,9 @@
 #ifndef __SERVICE_RNG_H__
 #define __SERVICE_RNG_H__
 
-#include "daal_defines.h"
-#include "service_memory.h"
-#include "service_rng_mkl.h"
+#include "services/daal_defines.h"
+#include "externals/service_memory.h"
+#include "externals/service_rng_mkl.h"
 
 using namespace daal::services;
 

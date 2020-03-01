@@ -22,11 +22,11 @@
 */
 
 #include "algorithms/kmeans/kmeans_init_types.h"
-#include "daal_defines.h"
-#include "kmeans_init_impl.h"
-#include "memory_block.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "services/daal_defines.h"
+#include "algorithms/kernel/kmeans/kmeans_init_impl.h"
+#include "data_management/data/memory_block.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -129,7 +129,7 @@ services::Status PartialResult::check(const daal::algorithms::Parameter * par, i
     if (pPartialClusters.get())
     {
         const size_t nRows = pPartialClusters->getNumberOfRows();
-        DAAL_CHECK_EX(nRows <= kmPar->nClusters, ErrorIncorrectNumberOfRows, ArgumentName, partialClustersStr());
+        DAAL_CHECK_EX(nRows <= nClusters, ErrorIncorrectNumberOfRows, ArgumentName, partialClustersStr());
         s = checkNumericTable(pPartialClusters.get(), partialClustersStr(), unexpectedLayouts);
     }
     return s;

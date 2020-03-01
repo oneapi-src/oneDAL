@@ -21,11 +21,11 @@
 //--
 */
 
-#include "service_ittnotify.h"
+#include "externals/service_ittnotify.h"
 DAAL_ITTNOTIFY_DOMAIN(covariance.dense.batch.oneapi);
 
-#include "covariance_container.h"
-#include "oneapi/covariance_dense_batch_oneapi_impl.i"
+#include "algorithms/kernel/covariance/covariance_container.h"
+#include "algorithms/kernel/covariance/oneapi/covariance_dense_batch_oneapi_impl.i"
 
 namespace daal
 {

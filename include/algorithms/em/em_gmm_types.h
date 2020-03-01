@@ -28,8 +28,8 @@
 #include "data_management/data/numeric_table.h"
 #include "services/daal_defines.h"
 #include "algorithms/covariance/covariance_batch.h"
-#include "em_gmm_covariance_storage_id.h"
-#include "em_gmm_init_types.h"
+#include "algorithms/em/em_gmm_covariance_storage_id.h"
+#include "algorithms/em/em_gmm_init_types.h"
 
 namespace daal
 {
@@ -227,7 +227,7 @@ public:
 class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
     /** Default constructor */
     Result();
 

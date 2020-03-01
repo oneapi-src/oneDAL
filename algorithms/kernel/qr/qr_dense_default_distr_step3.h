@@ -23,7 +23,7 @@
 #ifndef __QR_DENSE_DEFAULT_DISTR_STEP3__
 #define __QR_DENSE_DEFAULT_DISTR_STEP3__
 
-#include "qr_types.h"
+#include "algorithms/qr/qr_types.h"
 
 using namespace daal::services;
 

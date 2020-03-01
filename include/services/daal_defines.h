@@ -99,16 +99,14 @@
 #endif
 
 #ifdef DAAL_SYCL_INTERFACE
-#if (defined(__SYCL_COMPILER_VERSION) && (__SYCL_COMPILER_VERSION >= 20191001))
-    #define DAAL_SYCL_INTERFACE_USM
-#endif
-#if (defined(__SYCL_COMPILER_VERSION) && (__SYCL_COMPILER_VERSION >= 20191024))
-    #define DAAL_SYCL_INTERFACE_REVERSED_RANGE
-#elif (defined(COMPUTECPP_VERSION_MAJOR) && (COMPUTECPP_VERSION_MAJOR >= 1) && \
-                                            (COMPUTECPP_VERSION_MINOR >= 1) && \
-                                            (COMPUTECPP_VERSION_PATCH >= 6))
-    #define DAAL_SYCL_INTERFACE_REVERSED_RANGE
-#endif
+    #if (defined(__SYCL_COMPILER_VERSION) && (__SYCL_COMPILER_VERSION >= 20191001))
+        #define DAAL_SYCL_INTERFACE_USM
+    #endif
+    #if (defined(__SYCL_COMPILER_VERSION) && (__SYCL_COMPILER_VERSION >= 20191024))
+        #define DAAL_SYCL_INTERFACE_REVERSED_RANGE
+    #elif (defined(COMPUTECPP_VERSION_MAJOR) && (COMPUTECPP_VERSION_MAJOR >= 1) && (COMPUTECPP_VERSION_MINOR >= 1) && (COMPUTECPP_VERSION_PATCH >= 6))
+        #define DAAL_SYCL_INTERFACE_REVERSED_RANGE
+    #endif
 #endif
 
 /**
@@ -401,15 +399,15 @@ const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP12_ID = 121200;
 const int SERIALIZATION_DBSCAN_DISTRIBUTED_RESULT_STEP13_ID         = 121300;
 const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP13_ID = 121310;
 
-}; // namespace daal
+} // namespace daal
 
-#define DAAL_NEW_DELETE()                                                                       \
-    static void * operator new(std::size_t sz) { return daal::services::daal_calloc(sz); }      \
-    static void * operator new[](std::size_t sz) { return daal::services::daal_calloc(sz); }    \
-    static void * operator new(std::size_t sz, void * where) { return where; }                  \
-    static void * operator new[](std::size_t sz, void * where) { return where; }                \
-    static void operator delete(void * ptr, std::size_t sz) { daal::services::daal_free(ptr); } \
-    static void operator delete[](void * ptr, std::size_t sz) { daal::services::daal_free(ptr); }
+#define DAAL_NEW_DELETE()                                                                           \
+    static void * operator new(std::size_t sz) { return daal::services::daal_calloc(sz); }          \
+    static void * operator new[](std::size_t sz) { return daal::services::daal_calloc(sz); }        \
+    static void * operator new(std::size_t /*sz*/, void * where) { return where; }                  \
+    static void * operator new[](std::size_t /*sz*/, void * where) { return where; }                \
+    static void operator delete(void * ptr, std::size_t /*sz*/) { daal::services::daal_free(ptr); } \
+    static void operator delete[](void * ptr, std::size_t /*sz*/) { daal::services::daal_free(ptr); }
 
 #define DAAL_CAST_OPERATOR(ClassName)                                            \
     template <class U>                                                           \
@@ -436,9 +434,11 @@ const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP13_ID = 121310;
 
 #ifdef DEBUG_ASSERT
     #include <assert.h>
-    #define DAAL_ASSERT(cond) assert(cond);
+    #define DAAL_ASSERT(cond)     assert(cond);
+    #define DAAL_ASSERT_DECL(var) var
 #else
     #define DAAL_ASSERT(cond)
+    #define DAAL_ASSERT_DECL(var)
 #endif
 
 #define DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(type, op1, op2)                                     \
@@ -456,6 +456,21 @@ const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP13_ID = 121310;
         type r = (op1) + (op2);                                                               \
         r -= (op1);                                                                           \
         if (!(r == (op2))) return services::Status(services::ErrorBufferSizeIntegerOverflow); \
+    }
+
+#define DAAL_CHECK_STATUS_PTR(statusPtr)              \
+    {                                                 \
+        if (statusPtr != nullptr && !statusPtr->ok()) \
+        {                                             \
+            return;                                   \
+        }                                             \
+    }
+#define DAAL_CHECK_STATUS_RETURN_IF_FAIL(statusPtr, return_obj) \
+    {                                                           \
+        if (statusPtr != nullptr && !statusPtr->ok())           \
+        {                                                       \
+            return return_obj;                                  \
+        }                                                       \
     }
 
 #define DAAL_CHECK(cond, error) \

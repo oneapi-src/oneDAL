@@ -21,6 +21,7 @@
 //--
 */
 
+#include "data_management/data/numeric_table_sycl_homogen.h"
 #include "algorithms/linear_model/linear_model_predict_types.h"
 #include "data_management/data/homogen_numeric_table.h"
 
@@ -42,7 +43,18 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const
     size_t nVectors            = in->get(data)->getNumberOfRows();
     size_t nDependentVariables = in->get(model)->getNumberOfResponses();
     Status st;
-    set(prediction, HomogenNumericTable<algorithmFPType>::create(nDependentVariables, nVectors, NumericTable::doAllocate, &st));
+
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
+
+    if (deviceInfo.isCpu)
+    {
+        set(prediction, HomogenNumericTable<algorithmFPType>::create(nDependentVariables, nVectors, NumericTable::doAllocate, &st));
+    }
+    else
+    {
+        set(prediction, SyclHomogenNumericTable<algorithmFPType>::create(nDependentVariables, nVectors, NumericTable::doAllocate, &st));
+    }
     return st;
 }
 

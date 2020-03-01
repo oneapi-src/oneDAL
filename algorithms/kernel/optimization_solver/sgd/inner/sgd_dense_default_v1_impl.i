@@ -24,12 +24,12 @@
 #ifndef __SGD_DENSE_DEFAULT_IMPL_V1_I__
 #define __SGD_DENSE_DEFAULT_IMPL_V1_I__
 
-#include "service_micro_table.h"
-#include "service_numeric_table.h"
-#include "service_math.h"
-#include "service_utils.h"
-#include "iterative_solver_kernel.h"
-#include "threading.h"
+#include "service/kernel/data_management/service_micro_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_math.h"
+#include "service/kernel/service_utils.h"
+#include "algorithms/kernel/optimization_solver/iterative_solver_kernel.h"
+#include "algorithms/threading/threading.h"
 
 using namespace daal::internal;
 using namespace daal::services;
@@ -180,7 +180,7 @@ services::Status I1SGDKernel<algorithmFPType, defaultDense, cpu>::compute(HostAp
                 DAAL_CHECK_BLOCK_STATUS_THR(ntGradientBD);
                 const algorithmFPType * gradientLocal = ntGradientBD.get();
                 PRAGMA_VECTOR_ALWAYS
-                for (int j = 0; j < nRowsInBlock; j++)
+                for (size_t j = 0; j < nRowsInBlock; j++)
                 {
                     workLocal[j] = workLocal[j] - learningRate * gradientLocal[j];
                 }

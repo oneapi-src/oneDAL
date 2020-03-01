@@ -25,10 +25,7 @@
 package com.intel.daal.algorithms.optimization_solver;
 
 import com.intel.daal.utils.*;
-import com.intel.daal.algorithms.AnalysisBatch;
-import com.intel.daal.algorithms.Precision;
 import com.intel.daal.services.DaalContext;
-import com.intel.daal.algorithms.ComputeMode;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__OPTIMIZATION_SOLVER__BATCH"></a>

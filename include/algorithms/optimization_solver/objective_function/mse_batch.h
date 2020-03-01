@@ -29,8 +29,8 @@
 #include "data_management/data/numeric_table.h"
 #include "data_management/data/homogen_numeric_table.h"
 #include "services/daal_defines.h"
-#include "sum_of_functions_batch.h"
-#include "mse_types.h"
+#include "algorithms/optimization_solver/objective_function/sum_of_functions_batch.h"
+#include "algorithms/optimization_solver/objective_function/mse_types.h"
 
 namespace daal
 {
@@ -164,6 +164,9 @@ protected:
 public:
     InputType input;         /*!< %Input data structure */
     ParameterType parameter; /*!< %Parameter data structure */
+
+private:
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface1
@@ -295,6 +298,9 @@ protected:
 
 public:
     InputType input; /*!< %Input data structure */
+
+private:
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface2

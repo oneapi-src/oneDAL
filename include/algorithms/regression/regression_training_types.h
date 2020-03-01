@@ -122,7 +122,7 @@ class DAAL_EXPORT PartialResult : public daal::algorithms::PartialResult
     DECLARE_SERIALIZABLE_IMPL();
 
 public:
-    DAAL_CAST_OPERATOR(PartialResult);
+    DAAL_CAST_OPERATOR(PartialResult)
 
     /**
      * Constructs the partial results of the regression training algorithm
@@ -149,7 +149,7 @@ class DAAL_EXPORT Result : public daal::algorithms::Result
     DECLARE_SERIALIZABLE_IMPL();
 
 public:
-    DAAL_CAST_OPERATOR(Result);
+    DAAL_CAST_OPERATOR(Result)
 
     /**
      * Constructs the results of the regression training algorithm

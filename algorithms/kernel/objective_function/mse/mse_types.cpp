@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/optimization_solver/objective_function/mse_types.h"
-#include "numeric_table.h"
-#include "daal_strings.h"
+#include "data_management/data/numeric_table.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 

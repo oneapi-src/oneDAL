@@ -65,7 +65,7 @@ int main(int argc, char * argv[])
         pcaAlgorithm.parameter.resultsToCompute = pca::mean | pca::variance | pca::eigenvalue;
 
         /* Compute results of the PCA algorithm*/
-        pcaAlgorithm.parameter.isDeterministic  = true;
+        pcaAlgorithm.parameter.isDeterministic = true;
         pcaAlgorithm.compute();
         pca::ResultPtr pcaResult = pcaAlgorithm.getResult();
 
@@ -85,7 +85,6 @@ int main(int argc, char * argv[])
         /* Output transformed data */
         pca::transform::ResultPtr pcaTransformResult = pcaTransform.getResult();
         printNumericTable(pcaTransformResult->get(pca::transform::transformedData), "Transformed data:");
-
     }
 
     return 0;

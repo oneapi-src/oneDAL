@@ -28,7 +28,7 @@
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
 #include "services/daal_defines.h"
-#include "multinomial_naive_bayes_predict_types.h"
+#include "algorithms/naive_bayes/multinomial_naive_bayes_predict_types.h"
 #include "algorithms/classifier/classifier_predict.h"
 
 namespace daal
@@ -157,6 +157,9 @@ protected:
         _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, interface1::BatchContainer, algorithmFPType, method)(&_env);
         _par = &parameter;
     }
+
+private:
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface1
@@ -233,7 +236,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> & other) : classifier::prediction::Batch(other), parameter(other.parameter), input(other.input)
+    Batch(const Batch<algorithmFPType, method> & other) : classifier::prediction::Batch(other), input(other.input), parameter(other.parameter)
     {
         initialize();
     }
@@ -275,6 +278,9 @@ protected:
         _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
         _par = &parameter;
     }
+
+private:
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface2

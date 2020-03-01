@@ -17,10 +17,8 @@
 
 #include <jni.h>
 
-#include "com_intel_daal_algorithms_AnalysisBatch.h"
-#include "daal_defines.h"
-#include "algorithm.h"
 #include "daal.h"
+#include "com_intel_daal_algorithms_AnalysisBatch.h"
 #include "common_helpers_functions.h"
 
 using namespace daal;

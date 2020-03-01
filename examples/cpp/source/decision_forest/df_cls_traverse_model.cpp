@@ -34,6 +34,7 @@
 using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
+using namespace daal::data_management;
 using namespace daal::algorithms::decision_forest::classification;
 
 /* Input data set parameters */
@@ -113,7 +114,12 @@ public:
     {
         for (size_t i = 0; i < desc.level; ++i) std::cout << "  ";
         std::cout << "Level " << desc.level << ", leaf node. Response value = " << desc.label << ", Impurity = " << desc.impurity
-                  << ", Number of samples = " << desc.nNodeSampleCount << std::endl;
+                  << ", Number of samples = " << desc.nNodeSampleCount << ", Probabilities = { ";
+        for (size_t indexClass = 0; indexClass < nClasses; ++indexClass)
+        {
+            std::cout << desc.prob[indexClass] << ' ';
+        }
+        std::cout << "}" << std::endl;
         return true;
     }
 

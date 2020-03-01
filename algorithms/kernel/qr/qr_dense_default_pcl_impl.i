@@ -798,7 +798,6 @@ static void tsapplyq(algorithmFPType * A, const size_t nrows, const size_t ncols
         algorithmFPType * R2_local = R2 + tid * ncols;
         size_t start               = tid * rows_per_thread;
         algorithmFPType * A_local  = A + start * ncols;
-        algorithmFPType * C_local  = A + start * ncols;
 
         // Fill "R_local" buffer with stacked upper triangular matrices
         for (size_t j = 0; j < ncols; j++)

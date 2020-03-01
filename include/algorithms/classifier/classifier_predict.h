@@ -77,7 +77,7 @@ public:
      *                  and parameters of the algorithm
      * \DAAL_DEPRECATED
      */
-    Batch(const Batch & other) { initialize(); }
+    Batch(const Batch & /*other*/) { initialize(); }
 
     virtual ~Batch() {}
 
@@ -118,6 +118,9 @@ protected:
     void initialize() { _result.reset(new ResultType()); }
     virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
     interface1::ResultPtr _result;
+
+private:
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface1
@@ -159,7 +162,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch & other) { initialize(); }
+    Batch(const Batch & /*other*/) { initialize(); }
 
     virtual ~Batch() {}
 
@@ -212,6 +215,9 @@ protected:
     void initialize() { _result.reset(new ResultType()); }
     virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
     ResultPtr _result;
+
+private:
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface2

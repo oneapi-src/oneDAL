@@ -24,17 +24,17 @@
 #ifndef __COVARIANCE_IMPL_I__
 #define __COVARIANCE_IMPL_I__
 
-#include "numeric_table.h"
-#include "csr_numeric_table.h"
-#include "service_memory.h"
-#include "service_math.h"
-#include "service_blas.h"
-#include "service_spblas.h"
-#include "service_stat.h"
-#include "service_numeric_table.h"
-#include "service_error_handling.h"
-#include "threading.h"
-#include "service_ittnotify.h"
+#include "data_management/data/numeric_table.h"
+#include "data_management/data/csr_numeric_table.h"
+#include "externals/service_memory.h"
+#include "externals/service_math.h"
+#include "externals/service_blas.h"
+#include "externals/service_spblas.h"
+#include "externals/service_stat.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "algorithms/threading/threading.h"
+#include "externals/service_ittnotify.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;
@@ -206,11 +206,11 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
             {
                 DAAL_ITTNOTIFY_SCOPED_TASK(cumputeSums.local);
                 /* Sum input array elements in case of non-normalized data */
-                for (int i = 0; i < nVectors_local; i++)
+                for (DAAL_INT i = 0; i < nVectors_local; i++)
                 {
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
-                    for (int j = 0; j < nFeatures_local; j++)
+                    for (DAAL_INT j = 0; j < nFeatures_local; j++)
                     {
                         sums_local[j] += dataBlock_local[i * nFeatures_local + j];
                     }
@@ -240,7 +240,7 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
                 {
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
-                    for (int i = 0; i < nFeatures; i++)
+                    for (size_t i = 0; i < nFeatures; i++)
                     {
                         sums[i] += tls_data_local->sums[i];
                     }
@@ -254,11 +254,11 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
         if (!isNormalized)
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(gemmSums);
-            for (int i = 0; i < nFeatures; i++)
+            for (size_t i = 0; i < nFeatures; i++)
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (int j = 0; j < nFeatures; j++)
+                for (size_t j = 0; j < nFeatures; j++)
                 {
                     crossProduct[i * nFeatures + j] -= (nVectorsInv * sums[i] * sums[j]);
                 }

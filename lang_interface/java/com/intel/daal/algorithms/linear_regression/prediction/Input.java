@@ -27,7 +27,6 @@
 package com.intel.daal.algorithms.linear_regression.prediction;
 
 import com.intel.daal.utils.*;
-import com.intel.daal.algorithms.Precision;
 import com.intel.daal.algorithms.linear_regression.Model;
 import com.intel.daal.data_management.data.Factory;
 import com.intel.daal.data_management.data.NumericTable;

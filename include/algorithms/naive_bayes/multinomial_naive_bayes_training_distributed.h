@@ -26,7 +26,7 @@
 #define __NAIVE_BAYES_TRAINING_DISTRIBUTED_H__
 
 #include "algorithms/algorithm.h"
-#include "multinomial_naive_bayes_training_types.h"
+#include "algorithms/naive_bayes/multinomial_naive_bayes_training_types.h"
 
 namespace daal
 {
@@ -157,6 +157,9 @@ protected:
     {
         return new interface1::Distributed<step1Local, algorithmFPType, method>(*this);
     }
+
+private:
+    Distributed & operator=(const Distributed &);
 };
 
 /**
@@ -311,6 +314,9 @@ protected:
         _result.reset(new ResultType());
         _partialResult.reset(new PartialResultType());
     }
+
+private:
+    Distributed & operator=(const Distributed &);
 };
 /** @} */
 } // namespace interface1
@@ -435,6 +441,9 @@ protected:
     {
         return new Distributed<step1Local, algorithmFPType, method>(*this);
     }
+
+private:
+    Distributed & operator=(const Distributed &);
 };
 
 /**
@@ -475,7 +484,7 @@ public:
      *                  and parameters of the algorithm
      */
     Distributed(const Distributed<step2Master, algorithmFPType, method> & other)
-        : Training<distributed>(other), input(other.input), parameter(other.parameter)
+        : Training<distributed>(other), parameter(other.parameter), input(other.input)
     {
         initialize();
     }
@@ -589,6 +598,9 @@ protected:
         _result.reset(new ResultType());
         _partialResult.reset(new PartialResultType());
     }
+
+private:
+    Distributed & operator=(const Distributed &);
 };
 /** @} */
 } // namespace interface2

@@ -106,7 +106,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    BatchImpl(const BatchImpl & other) : parameter(other.parameter), input(other.input) { initialize(); }
+    BatchImpl(const BatchImpl & other) : input(other.input), parameter(other.parameter) { initialize(); }
 
     /**
      * Returns the structure that contains moments of low order
@@ -148,6 +148,9 @@ protected:
         _par = &parameter;
     }
     virtual BatchImpl * cloneImpl() const DAAL_C11_OVERRIDE = 0;
+
+private:
+    BatchImpl & operator=(const BatchImpl &);
 };
 
 /**
@@ -214,6 +217,9 @@ protected:
     }
 
     void initialize() { this->_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env); }
+
+private:
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface1

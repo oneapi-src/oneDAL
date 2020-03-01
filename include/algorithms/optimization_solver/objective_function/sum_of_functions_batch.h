@@ -28,8 +28,8 @@
 #include "data_management/data/numeric_table.h"
 #include "data_management/data/homogen_numeric_table.h"
 #include "services/daal_defines.h"
-#include "objective_function_batch.h"
-#include "sum_of_functions_types.h"
+#include "algorithms/optimization_solver/objective_function/objective_function_batch.h"
+#include "algorithms/optimization_solver/objective_function/sum_of_functions_types.h"
 
 namespace daal
 {
@@ -72,7 +72,7 @@ public:
      *  Main constructor
      */
     Batch(size_t numberOfTerms, InputType * sumOfFunctionsInput, ParameterType * sumOfFunctionsParameter)
-        : sumOfFunctionsInput(sumOfFunctionsInput), sumOfFunctionsParameter(sumOfFunctionsParameter)
+        : sumOfFunctionsParameter(sumOfFunctionsParameter), sumOfFunctionsInput(sumOfFunctionsInput)
     {
         initialize();
         if (sumOfFunctionsParameter != NULL)
@@ -87,7 +87,8 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch & other) : sumOfFunctionsInput(other.sumOfFunctionsInput), sumOfFunctionsParameter(other.sumOfFunctionsParameter)
+    Batch(const Batch & other)
+        : objective_function::Batch(), sumOfFunctionsParameter(other.sumOfFunctionsParameter), sumOfFunctionsInput(other.sumOfFunctionsInput)
     {
         initialize();
     }
@@ -108,6 +109,9 @@ protected:
     virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
 
     void initialize() {}
+
+private:
+    Batch & operator=(const Batch &);
 };
 typedef services::SharedPtr<Batch> BatchPtr;
 
@@ -147,7 +151,7 @@ public:
      *  Main constructor
      */
     Batch(size_t numberOfTerms, InputType * sumOfFunctionsInput, ParameterType * sumOfFunctionsParameter)
-        : sumOfFunctionsInput(sumOfFunctionsInput), sumOfFunctionsParameter(sumOfFunctionsParameter)
+        : sumOfFunctionsParameter(sumOfFunctionsParameter), sumOfFunctionsInput(sumOfFunctionsInput)
     {
         initialize();
         if (sumOfFunctionsParameter != NULL)
@@ -162,7 +166,8 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch & other) : sumOfFunctionsInput(other.sumOfFunctionsInput), sumOfFunctionsParameter(other.sumOfFunctionsParameter)
+    Batch(const Batch & other)
+        : objective_function::Batch(), sumOfFunctionsParameter(other.sumOfFunctionsParameter), sumOfFunctionsInput(other.sumOfFunctionsInput)
     {
         initialize();
     }
@@ -183,6 +188,9 @@ protected:
     virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
 
     void initialize() {}
+
+private:
+    Batch & operator=(const Batch &);
 };
 typedef services::SharedPtr<Batch> BatchPtr;
 

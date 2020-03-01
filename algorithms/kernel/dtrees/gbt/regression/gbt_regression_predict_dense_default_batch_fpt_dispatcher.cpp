@@ -23,14 +23,13 @@
 //--
 */
 
-#include "gbt_regression_predict_container.h"
+#include "algorithms/kernel/dtrees/gbt/regression/gbt_regression_predict_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(gbt::regression::prediction::BatchContainer, batch,\
-    DAAL_FPTYPE, gbt::regression::prediction::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(gbt::regression::prediction::BatchContainer, batch, DAAL_FPTYPE, gbt::regression::prediction::defaultDense)
 namespace gbt
 {
 namespace regression

@@ -28,7 +28,7 @@
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
 #include "services/daal_defines.h"
-#include "outlier_detection_univariate_types.h"
+#include "algorithms/outlier_detection/outlier_detection_univariate_types.h"
 
 namespace daal
 {
@@ -158,6 +158,8 @@ public:
 
 private:
     ResultPtr _result;
+
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface1

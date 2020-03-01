@@ -22,7 +22,7 @@
 //--
 */
 
-#include "kmeans_container.h"
+#include "algorithms/kernel/kmeans/kmeans_container.h"
 
 namespace daal
 {

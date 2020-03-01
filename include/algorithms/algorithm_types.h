@@ -206,7 +206,7 @@ public:
      * \param[in] parameter     Pointer to the parameters of the algorithm
      * \param[in] method        Computation method
      */
-    virtual services::Status check(const Parameter * parameter, int method) const { return services::Status(); }
+    virtual services::Status check(const Parameter * /*parameter*/, int /*method*/) const { return services::Status(); }
 
 protected:
     /**
@@ -260,14 +260,14 @@ public:
      * \param[in] parameter     Pointer to the parameters of the algorithm
      * \param[in] method        Computation method
      */
-    virtual services::Status check(const Input * input, const Parameter * parameter, int method) const { return services::Status(); }
+    virtual services::Status check(const Input * /*input*/, const Parameter * /*parameter*/, int /*method*/) const { return services::Status(); }
 
     /**
     * Checks the correctness of the partial results structure
     * \param[in] parameter     Pointer to the parameters of the algorithm
     * \param[in] method        Computation method
     */
-    virtual services::Status check(const Parameter * parameter, int method) const { return services::Status(); }
+    virtual services::Status check(const Parameter * /*parameter*/, int /*method*/) const { return services::Status(); }
 
 private:
     bool _initFlag;
@@ -283,8 +283,8 @@ protected:
 
         return services::Status();
     }
-    virtual services::Status serializeImpl(data_management::InputDataArchive * archive) { return services::Status(); }
-    virtual services::Status deserializeImpl(const data_management::OutputDataArchive * archive) { return services::Status(); }
+    virtual services::Status serializeImpl(data_management::InputDataArchive * /*archive*/) { return services::Status(); }
+    virtual services::Status deserializeImpl(const data_management::OutputDataArchive * /*archive*/) { return services::Status(); }
 };
 
 /**
@@ -319,7 +319,7 @@ public:
      * \param[in] parameter     Pointer to the parameters of the algorithm
      * \param[in] method        Computation method
      */
-    virtual services::Status check(const Input * input, const Parameter * parameter, int method) const { return services::Status(); }
+    virtual services::Status check(const Input * /*input*/, const Parameter * /*parameter*/, int /*method*/) const { return services::Status(); }
 
     /**
     * Checks the correctness of the partial result structure
@@ -327,7 +327,10 @@ public:
     * \param[in] parameter     Pointer to the parameters of the algorithm
     * \param[in] method        Computation method
     */
-    virtual services::Status check(const PartialResult * partialResult, const Parameter * parameter, int method) const { return services::Status(); }
+    virtual services::Status check(const PartialResult * /*partialResult*/, const Parameter * /*parameter*/, int /*method*/) const
+    {
+        return services::Status();
+    }
 
 protected:
     /** \private */
@@ -338,8 +341,8 @@ protected:
 
         return services::Status();
     }
-    virtual services::Status serializeImpl(data_management::InputDataArchive * archive) { return services::Status(); }
-    virtual services::Status deserializeImpl(const data_management::OutputDataArchive * archive) { return services::Status(); }
+    virtual services::Status serializeImpl(data_management::InputDataArchive * /*archive*/) { return services::Status(); }
+    virtual services::Status deserializeImpl(const data_management::OutputDataArchive * /*archive*/) { return services::Status(); }
 };
 
 /**
@@ -349,7 +352,7 @@ protected:
 class DAAL_EXPORT OptionalArgument : public SerializableArgument
 {
 public:
-    DECLARE_SERIALIZABLE_TAG();
+    DECLARE_SERIALIZABLE_TAG()
 
     /** Default constructor. Constructs empty argument */
     OptionalArgument() : SerializableArgument(0) {}

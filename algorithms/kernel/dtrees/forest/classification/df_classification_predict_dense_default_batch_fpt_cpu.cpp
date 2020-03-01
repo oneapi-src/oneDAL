@@ -21,9 +21,9 @@
 //--
 */
 
-#include "df_classification_predict_dense_default_batch.h"
-#include "df_classification_predict_dense_default_batch_impl.i"
-#include "df_classification_predict_dense_default_batch_container.h"
+#include "algorithms/kernel/dtrees/forest/classification/df_classification_predict_dense_default_batch.h"
+#include "algorithms/kernel/dtrees/forest/classification/df_classification_predict_dense_default_batch_impl.i"
+#include "algorithms/kernel/dtrees/forest/classification/df_classification_predict_dense_default_batch_container.h"
 
 namespace daal
 {
@@ -35,7 +35,7 @@ namespace classification
 {
 namespace prediction
 {
-namespace interface2
+namespace interface3
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }

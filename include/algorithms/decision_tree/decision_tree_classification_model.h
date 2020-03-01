@@ -29,7 +29,7 @@
 #include "data_management/data/aos_numeric_table.h"
 #include "data_management/data/soa_numeric_table.h"
 #include "data_management/data/homogen_numeric_table.h"
-#include "decision_tree_model.h"
+#include "algorithms/decision_tree/decision_tree_model.h"
 #include "algorithms/tree_utils/tree_utils_classification.h"
 
 namespace daal
@@ -86,10 +86,10 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::interface1::
      */
     DAAL_DEPRECATED Parameter(size_t nClasses = 2)
         : daal::algorithms::classifier::interface1::Parameter(nClasses),
+          splitCriterion(infoGain),
           pruning(reducedErrorPruning),
           maxTreeDepth(0),
-          minObservationsInLeafNodes(1),
-          splitCriterion(infoGain)
+          minObservationsInLeafNodes(1)
     {}
 
     /**
@@ -173,6 +173,18 @@ public:
     *  Perform Depth First Traversal of tree
     *  \param[in] visitor  This object gets notified when tree nodes are visited
     */
+    void traverseDFS(tree_utils::classification::interface1::TreeNodeVisitor & visitor) const;
+
+    /**
+    *  Perform Breadth First Traversal of tree
+    *  \param[in] visitor  This object gets notified when tree nodes are visited
+    */
+    void traverseBFS(tree_utils::classification::interface1::TreeNodeVisitor & visitor) const;
+
+    /**
+    *  Perform Depth First Traversal of tree
+    *  \param[in] visitor  This object gets notified when tree nodes are visited
+    */
     void traverseDFS(tree_utils::classification::TreeNodeVisitor & visitor) const;
 
     /**
@@ -237,12 +249,12 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
      */
     services::Status check() const DAAL_C11_OVERRIDE;
 
-    SplitCriterion splitCriterion;     /*!< Split criterion for Decision tree classification */
     Pruning pruning;                   /*!< Pruning method for Decision tree */
     size_t maxTreeDepth;               /*!< Maximum tree depth. 0 means unlimited depth. */
     size_t minObservationsInLeafNodes; /*!< Minimum number of observations in the leaf node. Can be any positive number. */
     size_t nBins;                      /*!< The number of bins used to compute probabilities of the observations belonging to the class.
                                              The only supported value for current version of the library is 1. */
+    SplitCriterion splitCriterion;     /*!< Split criterion for Decision tree classification */
 };
 /* [Parameter source code] */
 } // namespace interface2

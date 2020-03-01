@@ -183,6 +183,9 @@ protected:
         _in = &input;
         _result.reset(new ResultType());
     }
+
+private:
+    Batch & operator=(const Batch &);
 };
 } // namespace interface1
 using interface1::BatchContainer;

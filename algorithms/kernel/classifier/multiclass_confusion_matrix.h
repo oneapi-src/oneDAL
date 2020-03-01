@@ -24,7 +24,7 @@
 #ifndef __MULTICLASS_CONFUSION_MATRIX_H__
 #define __MULTICLASS_CONFUSION_MATRIX_H__
 
-#include "multiclass_confusion_matrix_types.h"
+#include "algorithms/classifier/multiclass_confusion_matrix_types.h"
 
 namespace daal
 {

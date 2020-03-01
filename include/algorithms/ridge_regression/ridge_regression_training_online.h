@@ -179,6 +179,9 @@ protected:
         _partialResult.reset(new PartialResultType());
         _result.reset(new ResultType());
     }
+
+private:
+    Online & operator=(const Online &);
 }; // class : Online
 /** @} */
 } // namespace interface1

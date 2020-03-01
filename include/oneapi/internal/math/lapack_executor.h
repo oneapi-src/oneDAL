@@ -25,13 +25,13 @@
 */
 
 #if (!defined(ONEAPI_DAAL_NO_MKL_GPU_FUNC) && defined(__SYCL_COMPILER_VERSION))
-    #include "mkl_lapack.h"
+    #include "oneapi/internal/math/mkl_lapack.h"
 #endif
 
 #include "oneapi/internal/types_utils.h"
 #include "services/internal/error_handling_helpers.h"
-#include "reference_lapack.h"
-#include "types.h"
+#include "oneapi/internal/math/reference_lapack.h"
+#include "oneapi/internal/math/types.h"
 
 #include <CL/sycl.hpp>
 
@@ -115,7 +115,7 @@ private:
 
         explicit Execute(cl::sycl::queue & queue, const math::UpLo uplo, const size_t n, const size_t ny, UniversalBuffer & a_buffer,
                          const size_t lda, UniversalBuffer & b_buffer, const size_t ldb, services::Status * status)
-            : queue(queue), uplo(uplo), ny(ny), n(n), a_buffer(a_buffer), lda(lda), b_buffer(b_buffer), ldb(ldb), status(status)
+            : queue(queue), uplo(uplo), n(n), ny(ny), a_buffer(a_buffer), lda(lda), b_buffer(b_buffer), ldb(ldb), status(status)
         {}
 
         template <typename T>

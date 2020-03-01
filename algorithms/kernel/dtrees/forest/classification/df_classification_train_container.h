@@ -24,12 +24,12 @@
 #ifndef __DF_CLASSIFICATION_TRAIN_CONTAINER_H__
 #define __DF_CLASSIFICATION_TRAIN_CONTAINER_H__
 
-#include "kernel.h"
-#include "decision_forest_classification_training_types.h"
-#include "decision_forest_classification_training_batch.h"
-#include "df_classification_train_kernel.h"
-#include "df_classification_model_impl.h"
-#include "service_algo_utils.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/decision_forest/decision_forest_classification_training_types.h"
+#include "algorithms/decision_forest/decision_forest_classification_training_batch.h"
+#include "algorithms/kernel/dtrees/forest/classification/df_classification_train_kernel.h"
+#include "algorithms/kernel/dtrees/forest/classification/df_classification_model_impl.h"
+#include "service/kernel/service_algo_utils.h"
 
 namespace daal
 {
@@ -65,6 +65,8 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     NumericTable * y = input->get(classifier::training::labels).get();
 
     decision_forest::classification::Model * m = result->get(classifier::training::model).get();
+
+    m->setNFeatures(x->getNumberOfColumns());
 
     const decision_forest::classification::training::Parameter * par = static_cast<decision_forest::classification::training::Parameter *>(_par);
     daal::services::Environment::env & env                           = *_env;

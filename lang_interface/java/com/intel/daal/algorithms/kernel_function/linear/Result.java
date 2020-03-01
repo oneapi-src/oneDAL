@@ -22,7 +22,6 @@
 package com.intel.daal.algorithms.kernel_function.linear;
 
 import com.intel.daal.utils.*;
-import com.intel.daal.algorithms.Precision;
 import com.intel.daal.algorithms.kernel_function.ResultId;
 import com.intel.daal.data_management.data.Factory;
 import com.intel.daal.data_management.data.NumericTable;

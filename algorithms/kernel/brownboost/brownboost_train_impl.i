@@ -31,18 +31,18 @@
 #ifndef __BROWNBOOST_TRAIN_IMPL_I__
 #define __BROWNBOOST_TRAIN_IMPL_I__
 
-#include "algorithm.h"
-#include "numeric_table.h"
-#include "threading.h"
-#include "daal_defines.h"
-#include "service_math.h"
-#include "service_memory.h"
-#include "service_numeric_table.h"
+#include "algorithms/algorithm.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/threading/threading.h"
+#include "services/daal_defines.h"
+#include "externals/service_math.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
-#include "weak_learner_model.h"
-#include "classifier_model.h"
-#include "brownboost_model.h"
-#include "brownboost_train_kernel.h"
+#include "algorithms/weak_learner/weak_learner_model.h"
+#include "algorithms/classifier/classifier_model.h"
+#include "algorithms/boosting/brownboost_model.h"
+#include "algorithms/kernel/brownboost/brownboost_train_kernel.h"
 
 namespace daal
 {

@@ -28,7 +28,7 @@
 #include "data_management/data/numeric_table.h"
 #include "data_management/data/homogen_numeric_table.h"
 #include "services/daal_defines.h"
-#include "objective_function_types.h"
+#include "algorithms/optimization_solver/objective_function/objective_function_types.h"
 
 namespace daal
 {
@@ -74,7 +74,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch & other) { initialize(); }
+    Batch(const Batch & /*other*/) { initialize(); }
 
     /** Destructor */
     virtual ~Batch() {}
@@ -113,6 +113,9 @@ protected:
 
 protected:
     objective_function::ResultPtr _result;
+
+private:
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface1

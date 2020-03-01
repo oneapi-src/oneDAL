@@ -21,7 +21,7 @@
 //--
 */
 
-#include "svd_dense_default_distr_step3.h"
+#include "algorithms/kernel/svd/svd_dense_default_distr_step3.h"
 namespace daal
 {
 namespace algorithms

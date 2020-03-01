@@ -60,7 +60,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    KernelIface(const KernelIface & other) { initialize(); }
+    KernelIface(const KernelIface & /*other*/) { initialize(); }
 
     /**
      * Get input objects for the kernel function algorithm
@@ -105,6 +105,9 @@ protected:
     void initialize() { _result = ResultPtr(new kernel_function::Result()); }
     virtual KernelIface * cloneImpl() const DAAL_C11_OVERRIDE = 0;
     ResultPtr _result;
+
+private:
+    KernelIface & operator=(const KernelIface &);
 };
 typedef services::SharedPtr<KernelIface> KernelIfacePtr;
 /** @} */

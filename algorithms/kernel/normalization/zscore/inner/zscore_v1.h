@@ -25,11 +25,11 @@
 #ifndef __ZSCORE_V1_H__
 #define __ZSCORE_V1_H__
 
-#include "zscore.h"
+#include "algorithms/normalization/zscore.h"
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
 #include "services/daal_defines.h"
-#include "zscore_types_v1.h"
+#include "algorithms/kernel/normalization/zscore/inner/zscore_types_v1.h"
 
 namespace daal
 {

@@ -24,12 +24,12 @@
 #ifndef __KERNEL_FUNCTION_LINEAR_DENSE_DEFAULT_IMPL_I__
 #define __KERNEL_FUNCTION_LINEAR_DENSE_DEFAULT_IMPL_I__
 
-#include "kernel_function_types_linear.h"
+#include "algorithms/kernel_function/kernel_function_types_linear.h"
 
-#include "service_blas.h"
-#include "service_stat.h"
-#include "threading.h"
-#include "service_error_handling.h"
+#include "externals/service_blas.h"
+#include "externals/service_stat.h"
+#include "algorithms/threading/threading.h"
+#include "algorithms/kernel/service_error_handling.h"
 
 namespace daal
 {

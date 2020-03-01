@@ -15,9 +15,9 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/select_indexed.h"
+#include "service/kernel/oneapi/select_indexed.h"
 #include "oneapi/internal/utils.h"
-#include "service_ittnotify.h"
+#include "externals/service_ittnotify.h"
 
 namespace daal
 {
@@ -27,37 +27,22 @@ namespace internal
 {
 namespace selection
 {
-
 DAAL_ITTNOTIFY_DOMAIN(daal.oneapi.internal.select.select_indexed);
 
-void buildProgram(ClKernelFactoryIface& kernelFactory,
-                  const TypeId& vectorTypeId)
+void buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId & vectorTypeId)
 {
     services::String fptype_name = getKeyFPType(vectorTypeId);
-    auto build_options = fptype_name;
+    auto build_options           = fptype_name;
     build_options.add("-cl-std=CL1.2 ");
 
     services::String cachekey("__daal_oneapi_internal_select_indexed_");
     cachekey.add(fptype_name);
-    kernelFactory.build(ExecutionTargetIds::device,
-                        cachekey.c_str(),
-                        quick_select_simd,
-                        build_options.c_str());
+    kernelFactory.build(ExecutionTargetIds::device, cachekey.c_str(), quick_select_simd, build_options.c_str());
 }
 
-
-void run_quick_select_simd( ExecutionContextIface& context,
-                            ClKernelFactoryIface& kernelFactory,
-                            const UniversalBuffer& dataVectors,
-                            const UniversalBuffer& indexVectors,
-                            const UniversalBuffer& rndSeq,
-                            uint32_t nRndSeq,
-                            uint32_t K,
-                            uint32_t nVectors,
-                            uint32_t vectorSize,
-                            uint32_t vectorOffset,
-                            QuickSelectIndexed::Result& result,
-                            services::Status* status)
+void run_quick_select_simd(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & dataVectors,
+                           const UniversalBuffer & indexVectors, const UniversalBuffer & rndSeq, uint32_t nRndSeq, uint32_t K, uint32_t nVectors,
+                           uint32_t vectorSize, uint32_t vectorOffset, QuickSelectIndexed::Result & result, services::Status * status)
 {
     auto sum_kernel = kernelFactory.getKernel("quick_select_group");
 
@@ -66,8 +51,10 @@ void run_quick_select_simd( ExecutionContextIface& context,
     KernelRange globalRange(nVectors, maxWorkItemsPerGroup);
 
     KernelNDRange range(2);
-    range.global(globalRange, status); DAAL_CHECK_STATUS_PTR(status);
-    range.local(localRange, status);   DAAL_CHECK_STATUS_PTR(status);
+    range.global(globalRange, status);
+    DAAL_CHECK_STATUS_PTR(status);
+    range.local(localRange, status);
+    DAAL_CHECK_STATUS_PTR(status);
 
     KernelArguments args(9);
     args.set(0, dataVectors, AccessModeIds::read);
@@ -83,48 +70,39 @@ void run_quick_select_simd( ExecutionContextIface& context,
     context.run(range, sum_kernel, args, status);
 }
 
-QuickSelectIndexed::Result QuickSelectIndexed::select(const UniversalBuffer& dataVectors, const UniversalBuffer& indexVectors,
-                        const UniversalBuffer& rndSeq, uint32_t nRndSeq,
-                        uint32_t K, uint32_t nVectors, uint32_t vectorSize,
-                        uint32_t vectorOffset, services::Status* status)
+QuickSelectIndexed::Result QuickSelectIndexed::select(const UniversalBuffer & dataVectors, const UniversalBuffer & indexVectors,
+                                                      const UniversalBuffer & rndSeq, uint32_t nRndSeq, uint32_t K, uint32_t nVectors,
+                                                      uint32_t vectorSize, uint32_t vectorOffset, services::Status * status)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(QuickSelectIndexed.select);
 
-    auto& context = oneapi::internal::getDefaultContext();
-    auto& kernelFactory = context.getClKernelFactory();
+    auto & context       = oneapi::internal::getDefaultContext();
+    auto & kernelFactory = context.getClKernelFactory();
 
     Result result(context, K, nVectors, dataVectors.type(), indexVectors.type(), status);
 
     buildProgram(kernelFactory, dataVectors.type());
-    run_quick_select_simd(context, kernelFactory,
-                       dataVectors, indexVectors, rndSeq,
-                       nRndSeq, K, nVectors, vectorSize,
-                       vectorOffset, result, status);
+    run_quick_select_simd(context, kernelFactory, dataVectors, indexVectors, rndSeq, nRndSeq, K, nVectors, vectorSize, vectorOffset, result, status);
     return result;
 }
 
-
-QuickSelectIndexed::Result& QuickSelectIndexed::select(const UniversalBuffer& dataVectors, const UniversalBuffer& indexVectors,
-                        const UniversalBuffer& rndSeq, uint32_t nRndSeq,
-                        uint32_t K, uint32_t nVectors, uint32_t vectorSize,
-                        uint32_t vectorOffset, Result& result, services::Status* status)
+QuickSelectIndexed::Result & QuickSelectIndexed::select(const UniversalBuffer & dataVectors, const UniversalBuffer & indexVectors,
+                                                        const UniversalBuffer & rndSeq, uint32_t nRndSeq, uint32_t K, uint32_t nVectors,
+                                                        uint32_t vectorSize, uint32_t vectorOffset, Result & result, services::Status * status)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(QuickSelectIndexed.select);
 
-    auto& context = oneapi::internal::getDefaultContext();
-    auto& kernelFactory = context.getClKernelFactory();
+    auto & context       = oneapi::internal::getDefaultContext();
+    auto & kernelFactory = context.getClKernelFactory();
 
     buildProgram(kernelFactory, dataVectors.type());
 
-    run_quick_select_simd(context, kernelFactory,
-                       dataVectors, indexVectors, rndSeq,
-                       nRndSeq, K, nVectors, vectorSize,
-                       vectorOffset, result, status);
+    run_quick_select_simd(context, kernelFactory, dataVectors, indexVectors, rndSeq, nRndSeq, K, nVectors, vectorSize, vectorOffset, result, status);
 
     return result;
 }
 
-} // namespace math
+} // namespace selection
 } // namespace internal
 } // namespace oneapi
 } // namespace daal

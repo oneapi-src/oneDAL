@@ -21,8 +21,8 @@
 //--
 */
 
-#include "pca_transform_container.h"
-#include "oneapi/pca_transform_dense_default_batch_oneapi_impl.i"
+#include "algorithms/kernel/pca/transform/pca_transform_container.h"
+#include "algorithms/kernel/pca/transform/oneapi/pca_transform_dense_default_batch_oneapi_impl.i"
 
 namespace daal
 {
@@ -36,7 +36,6 @@ namespace oneapi
 {
 namespace internal
 {
-
 template class TransformKernelOneAPI<DAAL_FPTYPE, defaultDense>;
 
 } // namespace internal

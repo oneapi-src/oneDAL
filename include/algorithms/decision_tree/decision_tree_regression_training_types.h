@@ -146,7 +146,7 @@ protected:
 class DAAL_EXPORT Result : public algorithms::regression::training::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
     Result();
 
     /**

@@ -25,8 +25,7 @@
 #ifndef __LINEAR_REGRESSION_TRAIN_DENSE_NORMEQ_ONEAPI_IMPL_I__
 #define __LINEAR_REGRESSION_TRAIN_DENSE_NORMEQ_ONEAPI_IMPL_I__
 
-#include "linear_regression_train_kernel_oneapi.h"
-#include "data_management/data/numeric_table_sycl_homogen.h" //to delete
+#include "algorithms/kernel/linear_regression/oneapi/linear_regression_train_kernel_oneapi.h"
 
 namespace daal
 {
@@ -45,6 +44,21 @@ services::Status BatchKernelOneAPI<algorithmFPType, training::normEqDense>::comp
     services::Status status = UpdateKernelType::compute(x, y, xtx, xty, interceptFlag);
     if (status) status = FinalizeKernelType::compute(xtx, xty, xtx, xty, beta, interceptFlag, KernelHelperOneAPI<algorithmFPType>());
     return status;
+}
+
+template <typename algorithmFPType>
+services::Status OnlineKernelOneAPI<algorithmFPType, training::normEqDense>::compute(NumericTable & x, NumericTable & y, NumericTable & xtx,
+                                                                                     NumericTable & xty, bool interceptFlag) const
+{
+    return UpdateKernelType::compute(x, y, xtx, xty, interceptFlag);
+}
+
+template <typename algorithmFPType>
+services::Status OnlineKernelOneAPI<algorithmFPType, training::normEqDense>::finalizeCompute(NumericTable & xtx, NumericTable & xty,
+                                                                                             NumericTable & xtxFinal, NumericTable & xtyFinal,
+                                                                                             NumericTable & beta, bool interceptFlag) const
+{
+    return FinalizeKernelType::compute(xtx, xty, xtxFinal, xtyFinal, beta, interceptFlag, KernelHelperOneAPI<algorithmFPType>());
 }
 
 } // namespace internal

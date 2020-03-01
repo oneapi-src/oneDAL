@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "bf_knn_classification_training_result.h"
+#include "algorithms/kernel/k_nearest_neighbors/bf_knn_classification_training_result.h"
 
 namespace daal
 {
@@ -25,10 +25,9 @@ namespace bf_knn_classification
 {
 namespace training
 {
-
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const Parameter * parameter, int method);
 
-}// namespace training
-}// namespace bf_knn_classification
-}// namespace algorithms
-}// namespace daal
+} // namespace training
+} // namespace bf_knn_classification
+} // namespace algorithms
+} // namespace daal

@@ -24,10 +24,10 @@
 #ifndef _KMEANS_FPK_H
 #define _KMEANS_FPK_H
 
-#include "kmeans_types.h"
+#include "algorithms/kmeans/kmeans_types.h"
 //#include "kmeans_batch.h"
-#include "kernel.h"
-#include "numeric_table.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;
 

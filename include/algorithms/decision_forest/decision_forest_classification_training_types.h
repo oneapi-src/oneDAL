@@ -134,7 +134,7 @@ namespace interface1
 class DAAL_EXPORT Result : public classifier::training::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
 
     Result();
     virtual ~Result() DAAL_C11_OVERRIDE;
@@ -210,6 +210,8 @@ public:
 
 private:
     ResultImpl * _impl;
+
+    Result & operator=(const Result &);
 };
 typedef services::SharedPtr<Result> ResultPtr;
 

@@ -24,11 +24,11 @@
 #ifndef __BACONOUTLIER_DETECTION_DENSE_BACON_IMPL_I__
 #define __BACONOUTLIER_DETECTION_DENSE_BACON_IMPL_I__
 
-#include "numeric_table.h"
-#include "outlier_detection_bacon_types.h"
-#include "service_numeric_table.h"
-#include "service_math.h"
-#include "service_stat.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/outlier_detection/outlier_detection_bacon_types.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_math.h"
+#include "externals/service_stat.h"
 
 namespace daal
 {

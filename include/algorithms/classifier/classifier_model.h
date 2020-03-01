@@ -120,7 +120,7 @@ namespace interface1
 class DAAL_EXPORT Model : public daal::algorithms::Model
 {
 public:
-    DAAL_CAST_OPERATOR(Model);
+    DAAL_CAST_OPERATOR(Model)
 
     virtual ~Model() DAAL_C11_OVERRIDE {}
 
@@ -142,7 +142,7 @@ public:
      *  \DAAL_DEPRECATED
      *  \param[in]  nFeatures  Number of features in the dataset was used on the training stage
      */
-    virtual void setNFeatures(size_t nFeatures) {}
+    virtual void setNFeatures(size_t /*nFeatures*/) {}
 };
 /** @} */
 typedef services::SharedPtr<Model> ModelPtr;

@@ -71,7 +71,7 @@ namespace interface1
 class DAAL_EXPORT Result : public daal::algorithms::weak_learner::training::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
     Result();
 
     virtual ~Result() {}

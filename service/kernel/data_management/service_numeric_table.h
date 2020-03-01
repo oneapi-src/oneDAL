@@ -24,12 +24,12 @@
 #ifndef __SERVICE_NUMERIC_TABLE_H__
 #define __SERVICE_NUMERIC_TABLE_H__
 
-#include "homogen_numeric_table.h"
-#include "csr_numeric_table.h"
-#include "symmetric_matrix.h"
-#include "service_defines.h"
-#include "service_memory.h"
-#include "service_arrays.h"
+#include "data_management/data/homogen_numeric_table.h"
+#include "data_management/data/csr_numeric_table.h"
+#include "data_management/data/symmetric_matrix.h"
+#include "service/kernel/service_defines.h"
+#include "externals/service_memory.h"
+#include "service/kernel/service_arrays.h"
 
 using namespace daal::data_management;
 
@@ -247,7 +247,8 @@ class HomogenNumericTableCPU<int, cpu> : public HomogenNumericTable<int>
 {
 public:
     HomogenNumericTableCPU(int * const ptr, size_t featnum, size_t obsnum, services::Status & st)
-        : HomogenNumericTable<int>(services::SharedPtr<NumericTableDictionaryCPU<cpu> >(new NumericTableDictionaryCPU<cpu>(featnum)), st), _cpuDict(nullptr)
+        : HomogenNumericTable<int>(services::SharedPtr<NumericTableDictionaryCPU<cpu> >(new NumericTableDictionaryCPU<cpu>(featnum)), st),
+          _cpuDict(nullptr)
     {
         NumericTableFeature df;
         df.setType<int>();
@@ -265,7 +266,8 @@ public:
     }
 
     HomogenNumericTableCPU(size_t featnum, size_t obsnum, services::Status & st)
-        : HomogenNumericTable<int>(services::SharedPtr<NumericTableDictionaryCPU<cpu> >(new NumericTableDictionaryCPU<cpu>(featnum)), st), _cpuDict(nullptr)
+        : HomogenNumericTable<int>(services::SharedPtr<NumericTableDictionaryCPU<cpu> >(new NumericTableDictionaryCPU<cpu>(featnum)), st),
+          _cpuDict(nullptr)
     {
         NumericTableFeature df;
         df.setType<int>();

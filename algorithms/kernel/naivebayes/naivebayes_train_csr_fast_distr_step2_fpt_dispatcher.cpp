@@ -22,7 +22,7 @@
 //--
 */
 
-#include "naivebayes_train_container.h"
+#include "algorithms/kernel/naivebayes/naivebayes_train_container.h"
 
 namespace daal
 {

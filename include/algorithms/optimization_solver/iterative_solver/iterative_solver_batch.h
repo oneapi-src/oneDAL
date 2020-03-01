@@ -66,7 +66,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch & other) {}
+    Batch(const Batch & /*other*/) {}
 
     ~Batch() DAAL_C11_OVERRIDE {}
 
@@ -106,6 +106,9 @@ protected:
     virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
 
     ResultPtr _result;
+
+private:
+    Batch & operator=(const Batch &);
 };
 /** @} */
 typedef services::SharedPtr<Batch> BatchPtr;
@@ -140,7 +143,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch & other) {}
+    Batch(const Batch & /*other*/) {}
 
     ~Batch() DAAL_C11_OVERRIDE {}
 
@@ -180,6 +183,9 @@ protected:
     virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
 
     ResultPtr _result;
+
+private:
+    Batch & operator=(const Batch &);
 };
 /** @} */
 typedef services::SharedPtr<Batch> BatchPtr;

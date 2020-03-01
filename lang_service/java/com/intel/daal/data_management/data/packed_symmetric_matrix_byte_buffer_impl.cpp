@@ -18,8 +18,8 @@
 #include <jni.h>
 
 #include "com_intel_daal_data_management_data_PackedSymmetricMatrixByteBufferImpl.h"
-#include "numeric_table.h"
-#include "symmetric_matrix.h"
+#include "data_management/data/numeric_table.h"
+#include "data_management/data/symmetric_matrix.h"
 #include "common_helpers_functions.h"
 
 using namespace daal;

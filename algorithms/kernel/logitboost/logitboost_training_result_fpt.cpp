@@ -21,7 +21,7 @@
 //--
 */
 
-#include "logitboost_training_result.h"
+#include "algorithms/kernel/logitboost/logitboost_training_result.h"
 
 namespace daal
 {

@@ -26,7 +26,6 @@ import com.intel.daal.data_management.data.Factory;
 import com.intel.daal.data_management.data.NumericTable;
 import com.intel.daal.services.DaalContext;
 import com.intel.daal.algorithms.decision_tree.regression.prediction.PredictionResultId;
-import com.intel.daal.algorithms.Precision;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_TREE__REGRESSION__PREDICTION__PREDICTIONRESULT"></a>

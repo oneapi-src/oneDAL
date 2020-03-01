@@ -42,8 +42,8 @@ namespace interface1
 class DAAL_EXPORT SyclSOANumericTable : public SyclNumericTable
 {
 public:
-    DECLARE_SERIALIZABLE_TAG();
-    DECLARE_SERIALIZABLE_IMPL();
+    DECLARE_SERIALIZABLE_TAG()
+    DECLARE_SERIALIZABLE_IMPL()
 
     /**
      *  Constructs an empty Numeric Table
@@ -535,7 +535,7 @@ private:
 
             auto colSharedPtr = buffer.toHost(readOnly, &st);
             DAAL_CHECK_STATUS_VAR(st);
-            T * colPtr        = colSharedPtr.get();
+            T * colPtr = colSharedPtr.get();
 
             for (size_t i = 0; i < nrows; i++)
             {
@@ -560,9 +560,9 @@ private:
             auto blockBuffer    = block.getBuffer();
             auto blockSharedPtr = blockBuffer.toHost(readOnly, &st);
             DAAL_CHECK_STATUS_VAR(st);
-            T * blockPtr        = blockSharedPtr.get();
+            T * blockPtr = blockSharedPtr.get();
 
-            auto & context = getDefaultContext();
+            auto & context  = getDefaultContext();
             auto tempColumn = context.allocate(TypeIds::id<T>(), nrows, &st);
             DAAL_CHECK_STATUS_VAR(st);
 
@@ -571,7 +571,7 @@ private:
                 {
                     auto tempColumnSharedPtr = tempColumn.template get<T>().toHost(readWrite, &st);
                     DAAL_CHECK_STATUS_VAR(st);
-                    T * tempColumnPtr        = tempColumnSharedPtr.get();
+                    T * tempColumnPtr = tempColumnSharedPtr.get();
 
                     for (size_t i = 0; i < nrows; i++)
                     {
@@ -596,7 +596,7 @@ private:
     {
         using namespace oneapi::internal;
 
-        const size_t nobs  = getNumberOfRows();
+        const size_t nobs = getNumberOfRows();
         block.setDetails(feat_idx, idx, rwFlag);
 
         if (idx >= nobs)

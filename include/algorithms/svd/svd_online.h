@@ -217,6 +217,8 @@ protected:
 private:
     PartialResultPtr _partialResult;
     ResultPtr _result;
+
+    Online & operator=(const Online &);
 };
 /** @} */
 } // namespace interface1

@@ -1,4 +1,4 @@
-/* file: java_csr_numeric_table.h */
+/* file: java_data_management/data/csr_numeric_table.h */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -28,7 +28,7 @@
 #include <tbb/tbb.h>
 
 #include "java_numeric_table.h"
-#include "csr_numeric_table.h"
+#include "data_management/data/csr_numeric_table.h"
 #include "common_defines.i"
 
 using namespace daal::data_management;

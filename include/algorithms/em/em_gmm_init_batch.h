@@ -27,7 +27,7 @@
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
 #include "services/daal_defines.h"
-#include "em_gmm_init_types.h"
+#include "algorithms/em/em_gmm_init_types.h"
 
 namespace daal
 {
@@ -150,13 +150,15 @@ public:
 
 private:
     ResultPtr _result;
+
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface1
 using interface1::BatchContainer;
 using interface1::Batch;
 
-}; // namespace init
+} // namespace init
 } // namespace em_gmm
 } // namespace algorithms
 } // namespace daal

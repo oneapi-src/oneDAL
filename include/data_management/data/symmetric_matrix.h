@@ -106,8 +106,8 @@ template <NumericTableIface::StorageLayout packedLayout, typename DataType = DAA
 class DAAL_EXPORT PackedSymmetricMatrix : public NumericTable, public PackedArrayNumericTableIface
 {
 public:
-    DECLARE_SERIALIZABLE_TAG();
-    DECLARE_SERIALIZABLE_IMPL();
+    DECLARE_SERIALIZABLE_TAG()
+    DECLARE_SERIALIZABLE_IMPL()
 
     /**
      *  Typedef that stores the datatype used for template instantiation
@@ -493,7 +493,7 @@ protected:
         st |= assign(constValue);
     }
 
-    services::Status allocateDataMemoryImpl(daal::MemType type = daal::dram) DAAL_C11_OVERRIDE
+    services::Status allocateDataMemoryImpl(daal::MemType /*type*/ = daal::dram) DAAL_C11_OVERRIDE
     {
         freeDataMemoryImpl();
 
@@ -755,10 +755,10 @@ protected:
     {
         if ((block.getRWFlag() & (int)writeOnly) && !IsSameType<T, DataType>::value)
         {
-            const size_t nDim    = getNumberOfColumns();
-            const size_t nSize   = (nDim * (nDim + 1)) / 2;
-            T * buffer           = block.getBlockPtr();
-            DataType * ptr       = (DataType *)_ptr.get();
+            const size_t nDim  = getNumberOfColumns();
+            const size_t nSize = (nDim * (nDim + 1)) / 2;
+            T * buffer         = block.getBlockPtr();
+            DataType * ptr     = (DataType *)_ptr.get();
 
             for (size_t i = 0; i < nSize; i++)
             {
@@ -801,7 +801,7 @@ template <NumericTableIface::StorageLayout packedLayout, typename DataType = DAA
 class DAAL_EXPORT PackedTriangularMatrix : public NumericTable, public PackedArrayNumericTableIface
 {
 public:
-    DECLARE_SERIALIZABLE_TAG();
+    DECLARE_SERIALIZABLE_TAG()
 
     /**
      *  Typedef that stores the data type used for template instantiation
@@ -1187,7 +1187,7 @@ public:
 protected:
     services::SharedPtr<byte> _ptr;
 
-    services::Status allocateDataMemoryImpl(daal::MemType type = daal::dram) DAAL_C11_OVERRIDE
+    services::Status allocateDataMemoryImpl(daal::MemType /*type*/ = daal::dram) DAAL_C11_OVERRIDE
     {
         freeDataMemoryImpl();
 
@@ -1444,10 +1444,10 @@ protected:
     {
         if ((block.getRWFlag() & (int)writeOnly) && !IsSameType<T, DataType>::value)
         {
-            const size_t nDim    = getNumberOfColumns();
-            const size_t nSize   = (nDim * (nDim + 1)) / 2;
-            T * buffer           = block.getBlockPtr();
-            DataType * ptr       = (DataType *)_ptr.get();
+            const size_t nDim  = getNumberOfColumns();
+            const size_t nSize = (nDim * (nDim + 1)) / 2;
+            T * buffer         = block.getBlockPtr();
+            DataType * ptr     = (DataType *)_ptr.get();
 
             for (size_t i = 0; i < nSize; i++)
             {

@@ -24,9 +24,9 @@
 #ifndef __LOW_ORDER_MOMENTS_KERNEL_ONLINE_ONEAPI_H__
 #define __LOW_ORDER_MOMENTS_KERNEL_ONLINE_ONEAPI_H__
 
-#include "numeric_table.h"
-#include "algorithm_base_common.h"
-#include "low_order_moments_types.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/algorithm_base_common.h"
+#include "algorithms/moments/low_order_moments_types.h"
 
 using namespace daal::services;
 using namespace daal::data_management;
@@ -146,7 +146,7 @@ private:
     unsigned int nVectors;
     unsigned int nFeatures;
 
-    const unsigned int maxWorkItemsPerGroup = 256;
+    const unsigned int maxWorkItemsPerGroup        = 256;
     const unsigned int maxWorkItemsPerGroupToMerge = 16;
 
     unsigned int nRowsBlocks;

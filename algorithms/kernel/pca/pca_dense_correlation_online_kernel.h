@@ -24,10 +24,10 @@
 #ifndef __PCA_DENSE_CORRELATION_ONLINE_KERNEL_H__
 #define __PCA_DENSE_CORRELATION_ONLINE_KERNEL_H__
 
-#include "pca_types.h"
-#include "service_defines.h"
+#include "algorithms/pca/pca_types.h"
+#include "service/kernel/service_defines.h"
 #include "services/error_handling.h"
-#include "pca_dense_correlation_base.h"
+#include "algorithms/kernel/pca/pca_dense_correlation_base.h"
 
 namespace daal
 {

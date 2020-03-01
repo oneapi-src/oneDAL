@@ -19,7 +19,7 @@
 #define __IMPLICIT_ALS_TRAIN_UTILS_H__
 
 #include "services/env_detect.h"
-#include "error_handling.h"
+#include "services/error_handling.h"
 
 namespace daal
 {

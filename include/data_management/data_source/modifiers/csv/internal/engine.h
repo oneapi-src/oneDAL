@@ -46,7 +46,7 @@ using data_management::internal::CSVFeaturesInfo;
 class InputFeatureInfo : public modifiers::internal::InputFeatureInfo
 {
 public:
-    InputFeatureInfo() : _detectedFeatureType(features::DAAL_CATEGORICAL), _token() {}
+    InputFeatureInfo() : _token(), _detectedFeatureType(features::DAAL_CATEGORICAL) {}
 
     explicit InputFeatureInfo(features::FeatureType detectedFeatureType) : _detectedFeatureType(detectedFeatureType) {}
 

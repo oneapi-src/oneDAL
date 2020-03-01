@@ -23,7 +23,7 @@
 
 #include "algorithms/linear_regression/linear_regression_predict_types.h"
 #include "algorithms/linear_model/linear_model_predict.h"
-#include "serialization_utils.h"
+#include "service/kernel/serialization_utils.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

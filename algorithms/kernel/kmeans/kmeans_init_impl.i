@@ -21,15 +21,15 @@
 //--
 */
 
-#include "algorithm.h"
-#include "numeric_table.h"
-#include "threading.h"
-#include "daal_defines.h"
-#include "service_memory.h"
-#include "service_numeric_table.h"
-#include "uniform_kernel.h"
-#include "uniform_impl.i"
-#include "service_data_utils.h"
+#include "algorithms/algorithm.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/threading/threading.h"
+#include "services/daal_defines.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/distributions/uniform/uniform_kernel.h"
+#include "algorithms/kernel/distributions/uniform/uniform_impl.i"
+#include "service/kernel/service_data_utils.h"
 
 namespace daal
 {
@@ -81,8 +81,8 @@ Status init(size_t p, size_t n, size_t nRowsTotal, size_t nClusters, algorithmFP
             DAAL_ASSERT(nRowsTotal <= services::internal::MaxVal<int>::get())
             DAAL_CHECK_STATUS(s, (UniformKernelDefault<int, cpu>::compute(i, (int)nRowsTotal, engine, 1, indices + i)));
             DAAL_ASSERT(indices[i] >= 0)
-            size_t c  = (size_t)indices[i];
-            int value = indices[i];
+            size_t c    = (size_t)indices[i];
+            int & value = indices[i];
             for (size_t j = i; j > 0; j--)
             {
                 if (value == indices[j - 1])

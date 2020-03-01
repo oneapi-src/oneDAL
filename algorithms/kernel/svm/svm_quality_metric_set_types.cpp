@@ -21,7 +21,7 @@
 //--
 */
 
-#include "svm_quality_metric_set_types.h"
+#include "algorithms/svm/svm_quality_metric_set_types.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

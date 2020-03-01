@@ -23,8 +23,6 @@ package com.intel.daal.algorithms.implicit_als.training.init;
 
 import com.intel.daal.utils.*;
 import com.intel.daal.services.DaalContext;
-import com.intel.daal.data_management.data.Factory;
-import com.intel.daal.data_management.data.NumericTable;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__IMPLICIT_ALS__TRAINING__INIT__INITPARAMETER"></a>

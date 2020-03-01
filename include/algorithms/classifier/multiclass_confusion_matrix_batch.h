@@ -171,6 +171,8 @@ protected:
 
 private:
     ResultPtr _result;
+
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface1

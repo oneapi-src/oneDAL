@@ -24,15 +24,15 @@
 #ifndef __SVD_KERNEL_BATCH_IMPL_I__
 #define __SVD_KERNEL_BATCH_IMPL_I__
 
-#include "service_memory.h"
-#include "service_math.h"
-#include "service_defines.h"
-#include "service_numeric_table.h"
-#include "service_error_handling.h"
+#include "externals/service_memory.h"
+#include "externals/service_math.h"
+#include "service/kernel/service_defines.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
 
-#include "svd_dense_default_impl.i"
+#include "algorithms/kernel/svd/svd_dense_default_impl.i"
 
-#include "threading.h"
+#include "algorithms/threading/threading.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;
@@ -46,7 +46,7 @@ namespace svd
 {
 namespace internal
 {
-#include "./../qr/qr_dense_default_pcl_impl.i"
+#include "algorithms/kernel/qr/qr_dense_default_pcl_impl.i"
 
 /**
  *  \brief Kernel for SVD calculation
@@ -307,10 +307,10 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
                 return;
             }
             /* Get transposed Q from A */
-            for (int i = 0; i < cols_local; i++)
+            for (size_t i = 0; i < cols_local; i++)
             {
                 PRAGMA_IVDEP
-                for (int j = 0; j < brows_local; j++)
+                for (size_t j = 0; j < brows_local; j++)
                 {
                     QT_local[i * brows_local + j] = A_block[i + j * cols_local];
                 }
@@ -325,19 +325,19 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
             }
 
             /* Transpose Q */
-            for (int i = 0; i < cols_local; i++)
+            for (size_t i = 0; i < cols_local; i++)
             {
                 PRAGMA_IVDEP
-                for (int j = 0; j < brows_local; j++)
+                for (size_t j = 0; j < brows_local; j++)
                 {
                     Q_block[i + j * cols_local] = QT_local[i * brows_local + j];
                 }
             }
 
             /* Transpose R and zero lower values */
-            for (int i = 0; i < cols_local; i++)
+            for (size_t i = 0; i < cols_local; i++)
             {
-                int j;
+                size_t j;
                 PRAGMA_IVDEP
                 for (j = 0; j <= i; j++)
                 {
@@ -388,10 +388,10 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
         if (svdPar->rightSingularMatrix == requiredInPackedForm)
         {
             /* Transpose result R and save to V output */
-            for (int i = 0; i < cols; i++)
+            for (size_t i = 0; i < cols; i++)
             {
                 PRAGMA_IVDEP
-                for (int j = 0; j < nComponents; j++)
+                for (size_t j = 0; j < nComponents; j++)
                 {
                     V_output[i + j * cols] = V_buff[i * cols + j];
                 }
@@ -426,30 +426,30 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
                 return;
             }
             /* Transpose RB */
-            for (int i = 0; i < cols_local; i++)
+            for (size_t i = 0; i < cols_local; i++)
             {
                 PRAGMA_IVDEP
-                for (int j = 0; j < cols_local; j++)
+                for (size_t j = 0; j < cols_local; j++)
                 {
                     RT_block[i * cols_local + j] = R_buff[j * cols_local * blocks + k * cols_local + i];
                 }
             }
 
             /* Transpose Q to QT */
-            for (int i = 0; i < cols_local; i++)
+            for (size_t i = 0; i < cols_local; i++)
             {
                 PRAGMA_IVDEP
-                for (int j = 0; j < brows_local; j++)
+                for (size_t j = 0; j < brows_local; j++)
                 {
                     QT_local[i * brows_local + j] = Q_block[i + j * cols_local];
                 }
             }
 
             /* Transpose R to RT */
-            for (int i = 0; i < cols_local; i++)
+            for (size_t i = 0; i < cols_local; i++)
             {
                 PRAGMA_IVDEP
-                for (int j = 0; j < cols_local; j++)
+                for (size_t j = 0; j < cols_local; j++)
                 {
                     RT_local[i * cols_local + j] = RT_block[i + j * cols_local];
                 }
@@ -460,10 +460,10 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
                                                                brows_local);
 
             /* Transpose result Q */
-            for (int i = 0; i < cols_local; i++)
+            for (size_t i = 0; i < cols_local; i++)
             {
                 PRAGMA_IVDEP
-                for (int j = 0; j < brows_local; j++)
+                for (size_t j = 0; j < brows_local; j++)
                 {
                     U_block[i + j * cols_local] = QT_result_local[i * brows_local + j];
                 }

@@ -18,8 +18,8 @@
 #include <jni.h>
 #include "com_intel_daal_data_management_data_source_ColumnFilter.h"
 
-#include "csv_feature_manager.h"
-#include "data_collection.h"
+#include "data_management/data_source/csv_feature_manager.h"
+#include "data_management/data/data_collection.h"
 
 using namespace daal;
 using namespace daal::data_management;
@@ -83,7 +83,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_1source_ColumnF
     size_t n    = env->GetArrayLength(valid);
     jlong * arr = env->GetLongArrayElements(valid, 0);
     services::Collection<size_t> collection(n);
-    for (int i = 0; i < n; i++)
+    for (size_t i = 0; i < n; i++)
     {
         collection[i] = (size_t)arr[i];
     }

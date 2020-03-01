@@ -24,7 +24,7 @@
 #ifndef __BINARY_CONFUSION_MATRIX_H__
 #define __BINARY_CONFUSION_MATRIX_H__
 
-#include "binary_confusion_matrix_types.h"
+#include "algorithms/classifier/binary_confusion_matrix_types.h"
 
 namespace daal
 {

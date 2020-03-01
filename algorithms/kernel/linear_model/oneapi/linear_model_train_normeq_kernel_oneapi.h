@@ -24,9 +24,9 @@
 #ifndef __LINEAR_MODEL_TRAIN_NORMEQ_KERNEL_ONEAPI_H__
 #define __LINEAR_MODEL_TRAIN_NORMEQ_KERNEL_ONEAPI_H__
 
-#include "env_detect.h"
-#include "numeric_table.h"
-#include "service_numeric_table.h"
+#include "services/env_detect.h"
+#include "data_management/data/numeric_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 namespace daal
 {
@@ -132,8 +132,8 @@ public:
     static services::Status compute(NumericTable & x, NumericTable & y, NumericTable & xtx, NumericTable & xty, bool interceptFlag);
 
 private:
-    static services::Status copyReduceResultsY(const services::Buffer<algorithmFPType> & src, const size_t srcSize,
-                                               services::Buffer<algorithmFPType> & dst, const size_t nColsDst);
+    static services::Status reduceResults(services::Buffer<algorithmFPType> & dst, size_t dstOffset, size_t dstStride,
+                                          const services::Buffer<algorithmFPType> & src, size_t srcOffset, size_t srcStride, size_t count);
 };
 
 } // namespace internal

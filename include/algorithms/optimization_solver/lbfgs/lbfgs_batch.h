@@ -29,7 +29,7 @@
 #include "data_management/data/numeric_table.h"
 #include "services/daal_defines.h"
 #include "algorithms/optimization_solver/iterative_solver/iterative_solver_batch.h"
-#include "lbfgs_types.h"
+#include "algorithms/optimization_solver/lbfgs/lbfgs_types.h"
 
 namespace daal
 {
@@ -182,6 +182,9 @@ protected:
         _in                  = &input;
         _result.reset(new ResultType());
     }
+
+private:
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface1
@@ -328,6 +331,9 @@ protected:
         _in                  = &input;
         _result.reset(new ResultType());
     }
+
+private:
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface2

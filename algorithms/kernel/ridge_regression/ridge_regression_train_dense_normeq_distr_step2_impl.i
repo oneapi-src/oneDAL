@@ -25,7 +25,7 @@
 #ifndef __RIDGE_REGRESSION_TRAIN_DENSE_NORMEQ_DISTR_STEP2_IMPL_I__
 #define __RIDGE_REGRESSION_TRAIN_DENSE_NORMEQ_DISTR_STEP2_IMPL_I__
 
-#include "ridge_regression_train_kernel.h"
+#include "algorithms/kernel/ridge_regression/ridge_regression_train_kernel.h"
 
 namespace daal
 {

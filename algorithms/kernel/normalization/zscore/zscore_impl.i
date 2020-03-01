@@ -22,7 +22,7 @@
 #ifndef __ZSCORE_IMPL_I__
 #define __ZSCORE_IMPL_I__
 
-#include "zscore_base.h"
+#include "algorithms/kernel/normalization/zscore/zscore_base.h"
 
 namespace daal
 {
@@ -69,11 +69,11 @@ Status ZScoreKernelBase<algorithmFPType, cpu>::common_compute(NumericTable & inp
                 DAAL_CHECK_BLOCK_STATUS_THR(normDataTableBD);
                 algorithmFPType * normDataArray_local = normDataTableBD.get();
 
-                for (int i = 0; i < _nRows; i++)
+                for (size_t i = 0; i < _nRows; i++)
                 {
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
-                    for (int j = 0; j < _nFeatures; j++)
+                    for (size_t j = 0; j < _nFeatures; j++)
                     {
                         normDataArray_local[i * _nFeatures + j] = dataArray_local[i * _nFeatures + j];
                     }
@@ -117,11 +117,11 @@ Status ZScoreKernelBase<algorithmFPType, cpu>::common_compute(NumericTable & inp
             DAAL_CHECK_BLOCK_STATUS_THR(normDataTableBD);
             algorithmFPType * normDataArray_local = normDataTableBD.get();
 
-            for (int i = 0; i < _nRows; i++)
+            for (size_t i = 0; i < _nRows; i++)
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (int j = 0; j < _nFeatures; j++)
+                for (size_t j = 0; j < _nFeatures; j++)
                 {
                     normDataArray_local[i * _nFeatures + j] = (algorithmFPType)(dataArray_local[i * _nFeatures + j] - mean_total[j]) * invSigmas[j];
                 }
@@ -143,11 +143,11 @@ Status ZScoreKernelBase<algorithmFPType, cpu>::common_compute(NumericTable & inp
             DAAL_CHECK_BLOCK_STATUS_THR(normDataTableBD);
             algorithmFPType * normDataArray_local = normDataTableBD.get();
 
-            for (int i = 0; i < _nRows; i++)
+            for (size_t i = 0; i < _nRows; i++)
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (int j = 0; j < _nFeatures; j++)
+                for (size_t j = 0; j < _nFeatures; j++)
                 {
                     normDataArray_local[i * _nFeatures + j] = dataArray_local[i * _nFeatures + j] - mean_total[j];
                 }

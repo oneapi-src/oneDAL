@@ -28,25 +28,28 @@ namespace services
 {
 namespace internal
 {
-
 /** @ingroup services_internal
  * @{
  */
 
-template <typename T> class HostBuffer;
-template <typename T> class UsmBufferIface;
-template <typename T> class SyclBufferIface;
+template <typename T>
+class HostBuffer;
+template <typename T>
+class UsmBufferIface;
+template <typename T>
+class SyclBufferIface;
 
 /**
  *  <a name="DAAL-CLASS-SERVICES-INTERNAL__BUFFERVISITOR"></a>
  *  \brief Visitor pattern implementation for Buffer class
  */
 template <typename T>
-class BufferVisitor : public Base {
- public:
-  virtual void operator()(const HostBuffer<T> &buffer) { }
-  virtual void operator()(const UsmBufferIface<T> &buffer) { }
-  virtual void operator()(const SyclBufferIface<T> &buffer) { }
+class BufferVisitor : public Base
+{
+public:
+    virtual void operator()(const HostBuffer<T> & /*buffer*/) {}
+    virtual void operator()(const UsmBufferIface<T> & /*buffer*/) {}
+    virtual void operator()(const SyclBufferIface<T> & /*buffer*/) {}
 };
 
 /**
@@ -57,10 +60,10 @@ template <typename T>
 class BufferIface
 {
 public:
-    virtual ~BufferIface() { }
-    virtual size_t size() const = 0;
-    virtual void apply(BufferVisitor<T> &visitor) const = 0;
-    virtual BufferIface<T> *getSubBuffer(size_t offset, size_t size) const = 0;
+    virtual ~BufferIface() {}
+    virtual size_t size() const                                             = 0;
+    virtual void apply(BufferVisitor<T> & visitor) const                    = 0;
+    virtual BufferIface<T> * getSubBuffer(size_t offset, size_t size) const = 0;
 };
 
 /**
@@ -72,10 +75,10 @@ template <typename T>
 class ConvertableToHostIface
 {
 public:
-    virtual ~ConvertableToHostIface() { }
-    virtual SharedPtr<T> getHostRead(Status *status = NULL) const = 0;
-    virtual SharedPtr<T> getHostWrite(Status *status = NULL) const = 0;
-    virtual SharedPtr<T> getHostReadWrite(Status *status = NULL) const = 0;
+    virtual ~ConvertableToHostIface() {}
+    virtual SharedPtr<T> getHostRead(Status * status = NULL) const      = 0;
+    virtual SharedPtr<T> getHostWrite(Status * status = NULL) const     = 0;
+    virtual SharedPtr<T> getHostReadWrite(Status * status = NULL) const = 0;
 };
 
 /**
@@ -83,10 +86,10 @@ public:
  *  \brief Common interface for USM-backed buffer
  */
 template <typename T>
-class UsmBufferIface : public BufferIface<T>,
-                       public ConvertableToHostIface<T> {
+class UsmBufferIface : public BufferIface<T>, public ConvertableToHostIface<T>
+{
 public:
-    virtual const SharedPtr<T> &get() const = 0;
+    virtual const SharedPtr<T> & get() const = 0;
 };
 
 /**
@@ -94,38 +97,32 @@ public:
  *  \brief Common interface for SYCL*-backed buffer
  */
 template <typename T>
-class SyclBufferIface : public BufferIface<T>,
-                        public ConvertableToHostIface<T> { };
+class SyclBufferIface : public BufferIface<T>, public ConvertableToHostIface<T>
+{};
 
 /**
  *  <a name="DAAL-CLASS-SERVICES-INTERNAL__HOSTBUFFER"></a>
  *  \brief BufferIface implementation based on host pointer
  */
 template <typename T>
-class HostBuffer : public Base,
-                   public BufferIface<T>
+class HostBuffer : public Base, public BufferIface<T>
 {
 public:
-    explicit HostBuffer(const SharedPtr<T> &data, size_t size)
-        : _data(data), _size(size) { }
+    explicit HostBuffer(const SharedPtr<T> & data, size_t size) : _data(data), _size(size) {}
 
-    explicit HostBuffer(T* data, size_t size)
-        : _data(data, services::EmptyDeleter()), _size(size) { }
+    explicit HostBuffer(T * data, size_t size) : _data(data, services::EmptyDeleter()), _size(size) {}
 
-    size_t size() const DAAL_C11_OVERRIDE
-    { return _size; }
+    size_t size() const DAAL_C11_OVERRIDE { return _size; }
 
-    void apply(BufferVisitor<T> &visitor) const DAAL_C11_OVERRIDE
-    { visitor(*this); }
+    void apply(BufferVisitor<T> & visitor) const DAAL_C11_OVERRIDE { visitor(*this); }
 
-    HostBuffer<T> *getSubBuffer(size_t offset, size_t size) const DAAL_C11_OVERRIDE
+    HostBuffer<T> * getSubBuffer(size_t offset, size_t size) const DAAL_C11_OVERRIDE
     {
-        DAAL_ASSERT( offset + size <= _size );
+        DAAL_ASSERT(offset + size <= _size);
         return new HostBuffer<T>(SharedPtr<T>(_data, _data.get() + offset), size);
     }
 
-    const SharedPtr<T> &get() const
-    { return _data; }
+    const SharedPtr<T> & get() const { return _data; }
 
 private:
     SharedPtr<T> _data;
@@ -136,38 +133,32 @@ private:
  *  <a name="DAAL-CLASS-SERVICES-INTERNAL__CONVERTTOHOST"></a>
  *  \brief BufferVisitor that converters any buffer to host pointer
  */
-template<typename T>
+template <typename T>
 class ConvertToHost : public BufferVisitor<T>
 {
 public:
-    explicit ConvertToHost(const data_management::ReadWriteMode& rwFlag)
-        : _rwFlag(rwFlag) { }
+    explicit ConvertToHost(const data_management::ReadWriteMode & rwFlag) : _rwFlag(rwFlag) {}
 
-    void operator()(const HostBuffer<T> &buffer) DAAL_C11_OVERRIDE
-    { _hostSharedPtr = buffer.get(); }
+    void operator()(const HostBuffer<T> & buffer) DAAL_C11_OVERRIDE { _hostSharedPtr = buffer.get(); }
 
-    void operator()(const UsmBufferIface<T> &buffer) DAAL_C11_OVERRIDE
-    { _hostSharedPtr = convertToHost(buffer); }
+    void operator()(const UsmBufferIface<T> & buffer) DAAL_C11_OVERRIDE { _hostSharedPtr = convertToHost(buffer); }
 
-    void operator()(const SyclBufferIface<T> &buffer) DAAL_C11_OVERRIDE
-    { _hostSharedPtr = convertToHost(buffer); }
+    void operator()(const SyclBufferIface<T> & buffer) DAAL_C11_OVERRIDE { _hostSharedPtr = convertToHost(buffer); }
 
-    const SharedPtr<T> &get() const
-    { return _hostSharedPtr; }
+    const SharedPtr<T> & get() const { return _hostSharedPtr; }
 
-    Status getStatus() const
-    { return _status; }
+    Status getStatus() const { return _status; }
 
 private:
     template <typename Buffer>
-    SharedPtr<T> convertToHost(const Buffer &buffer)
+    SharedPtr<T> convertToHost(const Buffer & buffer)
     {
         using namespace daal::data_management;
         switch (_rwFlag)
         {
-            case readOnly:  return buffer.getHostRead(&_status);
-            case writeOnly: return buffer.getHostWrite(&_status);
-            case readWrite: return buffer.getHostReadWrite(&_status);
+        case readOnly: return buffer.getHostRead(&_status);
+        case writeOnly: return buffer.getHostWrite(&_status);
+        case readWrite: return buffer.getHostReadWrite(&_status);
         }
         DAAL_ASSERT(!"Unexpected read/write flag");
         return SharedPtr<T>();
@@ -186,9 +177,7 @@ template <typename T>
 class HostBufferConverter
 {
 public:
-    SharedPtr<T> toHost(const internal::BufferIface<T> &buffer,
-                        const data_management::ReadWriteMode& rwMode,
-                        Status *status = NULL)
+    SharedPtr<T> toHost(const internal::BufferIface<T> & buffer, const data_management::ReadWriteMode & rwMode, Status * status = NULL)
     {
         ConvertToHost<T> action(rwMode);
         buffer.apply(action);

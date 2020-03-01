@@ -418,8 +418,13 @@ protected:
         }
     }
 
-    Dictionary(services::Status & st) : _nfeat(0), _dict(0), _featuresEqual(DictionaryIface::notEqual), _errors(new services::KernelErrorCollection())
+    Dictionary(services::Status & /*st*/)
+        : _nfeat(0), _featuresEqual(DictionaryIface::notEqual), _dict(0), _errors(new services::KernelErrorCollection())
     {}
+
+private:
+    Dictionary(const Dictionary &);
+    Dictionary & operator=(const Dictionary &);
 };
 typedef Dictionary<NumericTableFeature, SERIALIZATION_DATADICTIONARY_NT_ID> NumericTableDictionary;
 typedef services::SharedPtr<NumericTableDictionary> NumericTableDictionaryPtr;

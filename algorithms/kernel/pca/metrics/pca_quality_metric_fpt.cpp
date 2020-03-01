@@ -21,7 +21,7 @@
 //--
 */
 
-#include "pca_quality_metric.h"
+#include "algorithms/kernel/pca/metrics/pca_quality_metric.h"
 
 namespace daal
 {

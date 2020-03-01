@@ -39,7 +39,7 @@ namespace interface1
 class DAAL_EXPORT SyclNumericTable : public NumericTable
 {
 public:
-    DAAL_CAST_OPERATOR(SyclNumericTable);
+    DAAL_CAST_OPERATOR(SyclNumericTable)
 
 protected:
     explicit SyclNumericTable(size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual, services::Status & st)

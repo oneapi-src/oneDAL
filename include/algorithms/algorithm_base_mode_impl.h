@@ -53,7 +53,9 @@ public:
     /** Deafult constructor */
     AlgorithmImpl() : wasSetup(false), resetFlag(true), wasFinalizeSetup(false), resetFinalizeFlag(true) {}
 
-    AlgorithmImpl(const AlgorithmImpl & other) : wasSetup(false), resetFlag(true), wasFinalizeSetup(false), resetFinalizeFlag(true) {}
+    AlgorithmImpl(const AlgorithmImpl & /*other*/)
+        : Algorithm<mode>(), wasSetup(false), resetFlag(true), wasFinalizeSetup(false), resetFinalizeFlag(true)
+    {}
 
     virtual ~AlgorithmImpl()
     {
@@ -213,6 +215,8 @@ private:
     bool resetFlag;
     bool wasFinalizeSetup;
     bool resetFinalizeFlag;
+
+    AlgorithmImpl & operator=(const AlgorithmImpl &);
 };
 
 /**
@@ -226,7 +230,7 @@ public:
     /** Deafult constructor */
     AlgorithmImpl() : wasSetup(false), resetFlag(true) {}
 
-    AlgorithmImpl(const AlgorithmImpl & other) : wasSetup(false), resetFlag(true) {}
+    AlgorithmImpl(const AlgorithmImpl & /*other*/) : Algorithm<batch>(), wasSetup(false), resetFlag(true) {}
 
     virtual ~AlgorithmImpl() { resetCompute(); }
 
@@ -307,6 +311,8 @@ public:
 private:
     bool wasSetup;
     bool resetFlag;
+
+    AlgorithmImpl & operator=(const AlgorithmImpl &);
 };
 /** @} */
 } // namespace interface1

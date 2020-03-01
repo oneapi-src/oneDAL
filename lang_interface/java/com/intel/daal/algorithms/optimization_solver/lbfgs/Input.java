@@ -22,10 +22,6 @@
 package com.intel.daal.algorithms.optimization_solver.lbfgs;
 
 import com.intel.daal.utils.*;
-import com.intel.daal.algorithms.ComputeMode;
-import com.intel.daal.algorithms.ComputeStep;
-import com.intel.daal.algorithms.Precision;
-import com.intel.daal.algorithms.OptionalArgument;
 import com.intel.daal.data_management.data.Factory;
 import com.intel.daal.data_management.data.NumericTable;
 import com.intel.daal.services.DaalContext;

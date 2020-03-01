@@ -24,10 +24,10 @@
 #ifndef __PCA_DENSE_SVD_BATCH_CONTAINER_H__
 #define __PCA_DENSE_SVD_BATCH_CONTAINER_H__
 
-#include "kernel.h"
-#include "pca_batch.h"
-#include "pca_dense_svd_batch_kernel.h"
-#include "pca_dense_svd_container.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/pca/pca_batch.h"
+#include "algorithms/kernel/pca/pca_dense_svd_batch_kernel.h"
+#include "algorithms/kernel/pca/pca_dense_svd_container.h"
 
 namespace daal
 {

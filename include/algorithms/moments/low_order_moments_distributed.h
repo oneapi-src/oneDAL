@@ -164,6 +164,9 @@ protected:
     {
         return new Distributed<step1Local, algorithmFPType, method>(*this);
     }
+
+private:
+    Distributed & operator=(const Distributed &);
 };
 
 /**
@@ -202,7 +205,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step2Master, algorithmFPType, method> & other) : parameter(other.parameter), input(other.input) { initialize(); }
+    Distributed(const Distributed<step2Master, algorithmFPType, method> & other) : input(other.input), parameter(other.parameter) { initialize(); }
 
     /**
     * Returns method of the algorithm
@@ -292,6 +295,8 @@ protected:
 private:
     PartialResultPtr _partialResult;
     ResultPtr _result;
+
+    Distributed & operator=(const Distributed &);
 };
 /** @} */
 } // namespace interface1

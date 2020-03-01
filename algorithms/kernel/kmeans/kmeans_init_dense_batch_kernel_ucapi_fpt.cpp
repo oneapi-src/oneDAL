@@ -21,8 +21,8 @@
 //--
 */
 
-#include "oneapi/kmeans_init_dense_batch_kernel_ucapi.h"
-#include "oneapi/kmeans_init_dense_batch_kernel_ucapi_impl.i"
+#include "algorithms/kernel/kmeans/oneapi/kmeans_init_dense_batch_kernel_ucapi.h"
+#include "algorithms/kernel/kmeans/oneapi/kmeans_init_dense_batch_kernel_ucapi_impl.i"
 
 namespace daal
 {

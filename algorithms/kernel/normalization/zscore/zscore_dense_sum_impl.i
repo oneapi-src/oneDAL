@@ -54,7 +54,7 @@ Status ZScoreKernel<algorithmFPType, sumDense, cpu>::computeMeanVariance_thr(Num
     /* Compute means from sums */
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
-    for (int j = 0; j < nFeatures; j++)
+    for (size_t j = 0; j < nFeatures; j++)
     {
         resultMean[j]     = sumArray[j] * invN;
         resultVariance[j] = 0;
@@ -87,11 +87,11 @@ Status ZScoreKernel<algorithmFPType, sumDense, cpu>::computeMeanVariance_thr(Num
         DAAL_CHECK_BLOCK_STATUS_THR(dataTableBD);
         const algorithmFPType * dataArray_local = dataTableBD.get();
 
-        for (int i = 0; i < _nRows; i++)
+        for (size_t i = 0; i < _nRows; i++)
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (int j = 0; j < nFeatures; j++)
+            for (size_t j = 0; j < nFeatures; j++)
             {
                 algorithmFPType _v = dataArray_local[i * nFeatures + j] - resultMean[j];
                 pVariances[j] += (_v * _v);
@@ -105,7 +105,7 @@ Status ZScoreKernel<algorithmFPType, sumDense, cpu>::computeMeanVariance_thr(Num
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (int j = 0; j < nFeatures; j++)
+            for (size_t j = 0; j < nFeatures; j++)
             {
                 resultVariance[j] += pVariances[j];
             }
@@ -116,7 +116,7 @@ Status ZScoreKernel<algorithmFPType, sumDense, cpu>::computeMeanVariance_thr(Num
 
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
-    for (int j = 0; j < nFeatures; j++)
+    for (size_t j = 0; j < nFeatures; j++)
     {
         resultVariance[j] *= invNm1;
     }

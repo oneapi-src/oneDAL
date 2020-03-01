@@ -28,8 +28,8 @@
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
 #include "services/daal_defines.h"
-#include "sum_of_functions_batch.h"
-#include "cross_entropy_loss_types.h"
+#include "algorithms/optimization_solver/objective_function/sum_of_functions_batch.h"
+#include "algorithms/optimization_solver/objective_function/cross_entropy_loss_types.h"
 
 namespace daal
 {
@@ -186,6 +186,9 @@ protected:
 
 public:
     InputType input; /*!< %Input data structure */
+
+private:
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface1
@@ -325,6 +328,9 @@ protected:
 
 public:
     InputType input; /*!< %Input data structure */
+
+private:
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface2

@@ -158,7 +158,11 @@ public:
      */
     AlgorithmDispatchContainer(daal::services::Environment::env * daalEnv);
 
-    virtual ~AlgorithmDispatchContainer() { delete _cntr; }
+    virtual ~AlgorithmDispatchContainer()
+    {
+        delete _cntr;
+        _cntr = 0;
+    }
 
     virtual services::Status compute() DAAL_C11_OVERRIDE
     {

@@ -27,7 +27,7 @@
 #include "services/env_detect.h"
 #include "oneapi/internal/execution_context.h"
 #include "oneapi/internal/types_utils.h"
-#include "oneapi/math_service_types.h"
+#include "service/kernel/oneapi/math_service_types.h"
 #include "services/buffer.h"
 #include "oneapi/internal/math/types.h"
 
@@ -78,6 +78,18 @@ struct BlasGpu
         {
             ctx.syrk(upper_lower, trans, k, n, alpha, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC, &status);
         }
+
+        return status;
+    }
+
+    static services::Status xaxpy(const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx, UniversalBuffer y_buffer,
+                                  const int incy)
+    {
+        services::Status status;
+
+        ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
+
+        ctx.axpy(n, a, x_buffer, incx, y_buffer, incy, &status);
 
         return status;
     }

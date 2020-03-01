@@ -21,7 +21,7 @@
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_model.h"
 #include "data_management/data/numeric_table_sycl_homogen.h"
 
-#include "daal_defines.h"
+#include "services/daal_defines.h"
 
 namespace daal
 {
@@ -31,7 +31,6 @@ namespace bf_knn_classification
 {
 namespace interface1
 {
-
 class Model::ModelImpl
 {
 public:
@@ -41,7 +40,7 @@ public:
 
     data_management::NumericTablePtr getData() { return _data; }
 
-    template<typename Archive, bool onDeserialize>
+    template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)
     {
         arch->setSharedPtrObj(_data);
@@ -67,10 +66,10 @@ public:
     }
 
     size_t getNumberOfFeatures() const { return _nFeatures; }
+
 protected:
     template <typename algorithmFPType>
-    DAAL_FORCEINLINE services::Status setTable(const data_management::NumericTablePtr & value,
-                                                data_management::NumericTablePtr & dest, bool copy)
+    DAAL_FORCEINLINE services::Status setTable(const data_management::NumericTablePtr & value, data_management::NumericTablePtr & dest, bool copy)
     {
         if (!copy)
         {
@@ -79,29 +78,28 @@ protected:
         else
         {
             services::Status status;
-            dest = data_management::SyclHomogenNumericTable<algorithmFPType>::create(value->getNumberOfColumns(),
-                                    value->getNumberOfRows(), data_management::NumericTable::doAllocate, &status);
+            dest = data_management::SyclHomogenNumericTable<algorithmFPType>::create(value->getNumberOfColumns(), value->getNumberOfRows(),
+                                                                                     data_management::NumericTable::doAllocate, &status);
             DAAL_CHECK_STATUS_VAR(status);
             data_management::BlockDescriptor<algorithmFPType> destBD, srcBD;
             DAAL_CHECK_STATUS_VAR(dest->getBlockOfRows(0, dest->getNumberOfRows(), data_management::writeOnly, destBD));
             DAAL_CHECK_STATUS_VAR(value->getBlockOfRows(0, value->getNumberOfRows(), data_management::readOnly, srcBD));
-            auto source = srcBD.getBuffer();
+            auto source      = srcBD.getBuffer();
             auto destination = destBD.getBuffer();
-            auto& context = services::Environment::getInstance()->getDefaultExecutionContext();
+            auto & context   = services::Environment::getInstance()->getDefaultExecutionContext();
             context.copy(destination, 0, source, 0, source.size(), &status);
             DAAL_CHECK_STATUS_VAR(status);
             DAAL_CHECK_STATUS_VAR(dest->releaseBlockOfRows(destBD));
             DAAL_CHECK_STATUS_VAR(value->releaseBlockOfRows(srcBD));
         }
         return services::Status();
-
     }
+
 private:
     size_t _nFeatures;
     data_management::NumericTablePtr _data;
     data_management::NumericTablePtr _labels;
 };
-
 
 } // namespace interface1
 } // namespace bf_knn_classification

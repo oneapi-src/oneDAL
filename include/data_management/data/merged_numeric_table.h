@@ -46,8 +46,8 @@ namespace interface1
 class DAAL_EXPORT MergedNumericTable : public NumericTable
 {
 public:
-    DECLARE_SERIALIZABLE_TAG();
-    DECLARE_SERIALIZABLE_IMPL();
+    DECLARE_SERIALIZABLE_TAG()
+    DECLARE_SERIALIZABLE_IMPL()
 
     /**
      *  Constructor for an empty merge Numeric Table
@@ -347,7 +347,7 @@ protected:
     services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
         services::Status s;
-        size_t nobs  = getNumberOfRows();
+        size_t nobs = getNumberOfRows();
         block.setDetails(feat_idx, idx, rwFlag);
 
         if (idx >= nobs)

@@ -20,14 +20,14 @@
 //  Implementation of logloss algorithm
 //--
 */
-#include "service_data_utils.h"
-#include "service_math.h"
-#include "service_utils.h"
-#include "service_ittnotify.h"
+#include "service/kernel/service_data_utils.h"
+#include "externals/service_math.h"
+#include "service/kernel/service_utils.h"
+#include "externals/service_ittnotify.h"
 
 DAAL_ITTNOTIFY_DOMAIN(logistic_loss.dense.default.batch);
 
-#include "common/objective_function_utils.i"
+#include "algorithms/kernel/objective_function/common/objective_function_utils.i"
 
 namespace daal
 {
@@ -169,7 +169,7 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
         }
 
         prox[0] = b[0];
-        for (int i = 1; i < nBeta; i++)
+        for (size_t i = 1; i < nBeta; i++)
         {
             if (b[i] > parameter->penaltyL1)
             {
@@ -207,7 +207,7 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
             for (size_t i = startRow; i < finishRow; i++)
             {
                 curentNorm = 0;
-                for (int j = 0; j < p; j++)
+                for (size_t j = 0; j < p; j++)
                 {
                     curentNorm += x[i * p + j] * x[i * p + j];
                 }
@@ -342,7 +342,7 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
                 DAAL_CHECK_BLOCK_STATUS(gr);
                 g = gr.get();
             }
-            g[0] = 0;
+            g[0]                = 0;
             char trans          = 'T';
             char notrans        = 'N';
             algorithmFPType one = 1.0;
@@ -382,7 +382,7 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
                         ps[i] += py[i];
                     }
                 });
-                for(size_t j = 0; j < p; j++) g[j + 1] = gradsPtr[j];
+                for (size_t j = 0; j < p; j++) g[j + 1] = gradsPtr[j];
                 for (size_t i = 1; i < nDataBlocks; i++)
                     for (size_t j = 0; j < p; j++) g[j + 1] += gradsPtr[i * p + j];
             }

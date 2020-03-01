@@ -7,62 +7,68 @@ trigger:
 - master
 
 jobs:
+- job: 'ClangFormat'
+  pool:
+    vmImage: 'ubuntu-18.04'
+  steps:
+    - script: |
+        .ci/env/clang.sh
+      displayName: 'apt-get'
+    - script: |
+        .ci/scripts/clang-format.sh
+      displayName: 'clang-format check'
+      failOnStderr: true
 - job: Linux
   timeoutInMinutes: 0
+  variables:
+    release.dir: '__release_lnx_gnu'
   pool:
     vmImage: 'ubuntu-18.04'
   strategy:
     matrix:
       lnx32:
         platform.type : 'lnx32'
-        with_gpu      : 'false'
       lnx32e:
         platform.type : 'lnx32e'
-        with_gpu      : 'true'
     maxParallel: 2
   steps:
   - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib openjdk-8-jdk
     displayName: 'apt-get'
   - script: |
-      scripts/mklfpk.sh with_gpu=$(with_gpu)
-      scripts/tbb.sh
-      export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-      export PATH=$JAVA_HOME/bin:$PATH
-      export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/linux:$CPATH 
-      make daal -j4 PLAT=$(platform.type) COMPILER=gnu REQCPU="avx2"
+      .ci/scripts/build.sh --platform $(platform.type)
     displayName: 'make'
   - script: |
-      cp -R __release_lnx_gnu $(Build.ArtifactStagingDirectory)/
+      cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
     displayName: 'Copy build'
   - task: PublishPipelineArtifact@0
     inputs:
       artifactName: '$(platform.type) build'
-      targetPath: '__release_lnx_gnu'
+      targetPath: '$(release.dir)'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type)
+    displayName: 'examples'  
 - job: macOS
   timeoutInMinutes: 0
-  pool:
-    vmImage: 'macOS-10.14'
+  variables:
+    release.dir: '__release_mac_clang'
+  pool: 
+    vmImage:  'macOS-10.15'
   strategy:
     matrix:
       mac32e:
         platform.type : 'mac32e'
-        with_gpu      : 'false'
   steps:
   - script: |
-      scripts/mklfpk.sh with_gpu=$(with_gpu)
-      scripts/tbb.sh
-      export JAVA_HOME=$(/usr/libexec/java_home -v 12)
-      export PATH=$JAVA_HOME/bin:$PATH
-      export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/darwin:$CPATH
-      make daal -j4 PLAT=$(platform.type) COMPILER=clang REQCPU="avx2"
+      .ci/scripts/build.sh --platform $(platform.type)
     displayName: 'make'
   - script: |
-      cp -R __release_mac_clang $(Build.ArtifactStagingDirectory)/
+      cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
     displayName: 'Copy build'
   - task: PublishPipelineArtifact@0
     inputs:
       artifactName: 'Mac build'
-      targetPath: '__release_mac_clang'
+      targetPath: '$(release.dir)'
+
 # Windows build is temporary disabled
 #- job: Windows
 #  pool:

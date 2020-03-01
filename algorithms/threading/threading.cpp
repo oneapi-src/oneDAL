@@ -21,8 +21,8 @@
 //--
 */
 
-#include "threading.h"
-#include "daal_memory.h"
+#include "algorithms/threading/threading.h"
+#include "services/daal_memory.h"
 
 #if defined(__DO_TBB_LAYER__)
     #include <stdlib.h> // malloc and free
@@ -30,7 +30,7 @@
     #include <tbb/spin_mutex.h>
     #include "tbb/scalable_allocator.h"
 #else
-    #include "service_service.h"
+    #include "externals/service_service.h"
 #endif
 
 DAAL_EXPORT void * _threaded_scalable_malloc(const size_t size, const size_t alignment)
@@ -195,8 +195,8 @@ DAAL_EXPORT void _daal_parallel_reduce_tls(void * tlsPtr, void * a, daal::tls_re
         {
             size_t i = 0;
             for (auto it = p->begin(); it != p->end(); ++it) aDataPtr[i++] = *it;
-            tbb::parallel_for(tbb::blocked_range<int>(0, n, 1), [&](tbb::blocked_range<int> r) {
-                for (int i = r.begin(); i < r.end(); i++) func(aDataPtr[i], a);
+            tbb::parallel_for(tbb::blocked_range<size_t>(0, n, 1), [&](tbb::blocked_range<size_t> r) {
+                for (size_t i = r.begin(); i < r.end(); i++) func(aDataPtr[i], a);
             });
             ::free(aDataPtr);
         }

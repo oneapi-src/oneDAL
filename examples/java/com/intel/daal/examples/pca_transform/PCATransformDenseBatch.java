@@ -83,9 +83,6 @@ class PCATransformDenseBatch {
         Service.printNumericTable("Means kv:",result.get(ResultId.means));
         Service.printNumericTable("Variances kv:",result.get(ResultId.variances));
 
-        long a=2;
-        TransformInput inputDataAlg =  new TransformInput(context, a);
-
         KeyValueDataCollection dataCollection = new KeyValueDataCollection(context);
 
         /* Create a PCA transform algorithm */

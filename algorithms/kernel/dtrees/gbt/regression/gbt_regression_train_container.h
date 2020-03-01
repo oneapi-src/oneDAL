@@ -24,13 +24,13 @@
 #ifndef __GBT_REGRESSION_TRAIN_CONTAINER_H__
 #define __GBT_REGRESSION_TRAIN_CONTAINER_H__
 
-#include "kernel.h"
-#include "gbt_regression_training_types.h"
-#include "gbt_regression_training_batch.h"
-#include "gbt_regression_train_kernel.h"
-#include "oneapi/gbt_regression_train_kernel_oneapi.h"
-#include "gbt_regression_model_impl.h"
-#include "service_algo_utils.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/gradient_boosted_trees/gbt_regression_training_types.h"
+#include "algorithms/gradient_boosted_trees/gbt_regression_training_batch.h"
+#include "algorithms/kernel/dtrees/gbt/regression/gbt_regression_train_kernel.h"
+#include "algorithms/kernel/dtrees/gbt/regression/oneapi/gbt_regression_train_kernel_oneapi.h"
+#include "algorithms/kernel/dtrees/gbt/regression/gbt_regression_model_impl.h"
+#include "service/kernel/service_algo_utils.h"
 
 namespace daal
 {
@@ -49,8 +49,8 @@ namespace training
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto& context = services::Environment::getInstance()->getDefaultExecutionContext();
-    auto& deviceInfo = context.getInfoDevice();
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)
     {
@@ -79,11 +79,11 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    auto& context = services::Environment::getInstance()->getDefaultExecutionContext();
-    auto& deviceInfo = context.getInfoDevice();
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
 
-    Input *input = static_cast<Input *>(_in);
-    Result *result = static_cast<Result *>(_res);
+    Input * input   = static_cast<Input *>(_in);
+    Result * result = static_cast<Result *>(_res);
 
     const NumericTable * x = input->get(data).get();
     const NumericTable * y = input->get(dependentVariable).get();
@@ -97,14 +97,13 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     if (deviceInfo.isCpu)
     {
-        __DAAL_CALL_KERNEL(env, internal::RegressionTrainBatchKernel,
-            __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, daal::services::internal::hostApp(*input), x, y, *m, *result, *par, *engine);
+        __DAAL_CALL_KERNEL(env, internal::RegressionTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+                           daal::services::internal::hostApp(*input), x, y, *m, *result, *par, *engine);
     }
     else
     {
-         __DAAL_CALL_KERNEL_SYCL(env, internal::RegressionTrainBatchKernelOneAPI,
-                                 __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),
-                                 compute, daal::services::internal::hostApp(*input), x, y, *m, *result, *par, *engine);
+        __DAAL_CALL_KERNEL_SYCL(env, internal::RegressionTrainBatchKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+                                daal::services::internal::hostApp(*input), x, y, *m, *result, *par, *engine);
     }
 }
 

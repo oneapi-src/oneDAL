@@ -20,8 +20,8 @@
 //--
 
 #include "algorithms/engines/mcg59/mcg59.h"
-#include "service_dispatch.h"
-#include "mcg59_batch_impl.h"
+#include "externals/service_dispatch.h"
+#include "algorithms/kernel/engines/mcg59/mcg59_batch_impl.h"
 
 namespace daal
 {
@@ -40,12 +40,11 @@ template <typename algorithmFPType, Method method>
 SharedPtr<Batch<algorithmFPType, method> > Batch<algorithmFPType, method>::create(size_t seed)
 {
     SharedPtr<Batch<algorithmFPType, method> > engPtr;
-    #define DAAL_CREATE_ENGINE_CPU(cpuId, ...) \
-        engPtr.reset(new BatchImpl<cpuId, algorithmFPType, method>(__VA_ARGS__));
+#define DAAL_CREATE_ENGINE_CPU(cpuId, ...) engPtr.reset(new BatchImpl<cpuId, algorithmFPType, method>(__VA_ARGS__));
 
     DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_CREATE_ENGINE_CPU, seed);
 
-    #undef DAAL_CREATE_ENGINE_CPU
+#undef DAAL_CREATE_ENGINE_CPU
     return engPtr;
 }
 

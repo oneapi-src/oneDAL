@@ -24,12 +24,12 @@
 #ifndef __COVARIANCE_CONTAINER_H__
 #define __COVARIANCE_CONTAINER_H__
 
-#include "kernel.h"
-#include "covariance_batch.h"
-#include "covariance_online.h"
-#include "covariance_distributed.h"
-#include "covariance_kernel.h"
-#include "oneapi/covariance_kernel_oneapi.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/covariance/covariance_batch.h"
+#include "algorithms/covariance/covariance_online.h"
+#include "algorithms/covariance/covariance_distributed.h"
+#include "algorithms/kernel/covariance/covariance_kernel.h"
+#include "algorithms/kernel/covariance/oneapi/covariance_kernel_oneapi.h"
 
 #undef __DAAL_CONCAT
 #define __DAAL_CONCAT(x, y) x##y

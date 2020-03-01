@@ -25,11 +25,11 @@
 #ifndef __LINEAR_REGRESSION_TRAIN_KERNEL_ONEAPI_H__
 #define __LINEAR_REGRESSION_TRAIN_KERNEL_ONEAPI_H__
 
-#include "numeric_table.h"
-#include "algorithm_base_common.h"
-#include "linear_regression_training_types.h"
-#include "oneapi/linear_model_train_normeq_kernel_oneapi.h"
-#include "algorithm_kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/algorithm_base_common.h"
+#include "algorithms/linear_regression/linear_regression_training_types.h"
+#include "algorithms/kernel/linear_model/oneapi/linear_model_train_normeq_kernel_oneapi.h"
+#include "algorithms/algorithm_kernel.h"
 
 namespace daal
 {
@@ -41,8 +41,6 @@ namespace training
 {
 namespace internal
 {
-// using namespace daal::algorithms::linear_model::normal_equations::training::internal;
-
 template <typename algorithmFPType, training::Method method>
 class BatchKernelOneAPI
 {};
@@ -66,6 +64,22 @@ class BatchKernelOneAPI<algorithmFPType, training::normEqDense> : public daal::a
 public:
     services::Status compute(NumericTable & x, NumericTable & y, NumericTable & xtx, NumericTable & xty, NumericTable & beta,
                              bool interceptFlag) const;
+};
+
+template <typename algorithmFPType, training::Method method>
+class OnlineKernelOneAPI
+{};
+
+template <typename algorithmFPType>
+class OnlineKernelOneAPI<algorithmFPType, training::normEqDense> : public daal::algorithms::Kernel
+{
+    typedef linear_model::normal_equations::training::internal::UpdateKernelOneAPI<algorithmFPType> UpdateKernelType;
+    typedef linear_model::normal_equations::training::internal::FinalizeKernelOneAPI<algorithmFPType> FinalizeKernelType;
+
+public:
+    services::Status compute(NumericTable & x, NumericTable & y, NumericTable & xtx, NumericTable & xty, bool interceptFlag) const;
+    services::Status finalizeCompute(NumericTable & xtx, NumericTable & xty, NumericTable & xtxFinal, NumericTable & xtyFinal, NumericTable & beta,
+                                     bool interceptFlag) const;
 };
 
 } // namespace internal

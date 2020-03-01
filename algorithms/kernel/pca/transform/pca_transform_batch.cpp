@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/pca/transform/pca_transform_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

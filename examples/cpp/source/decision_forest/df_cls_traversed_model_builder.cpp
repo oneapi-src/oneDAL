@@ -36,6 +36,7 @@
 using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
+using namespace daal::data_management;
 using namespace daal::algorithms::decision_forest::classification;
 
 /* Input data set parameters */
@@ -107,6 +108,7 @@ int main(int argc, char * argv[])
     else
     {
         std::cout << "Model was built not correctly" << std::endl;
+        return 1;
     }
     return 0;
 }
@@ -127,7 +129,7 @@ daal::algorithms::decision_forest::classification::ModelPtr buildModel(Tree * tr
         buildTree(i, trees[i].root, isRoot, builder, parentMap);
         parentMap.erase(parentMap.begin(), parentMap.end());
     }
-
+    builder.setNFeatures(nFeatures);
     return builder.getModel();
 }
 
@@ -189,7 +191,7 @@ double testModel(daal::algorithms::decision_forest::classification::ModelPtr mod
     /* Pass a testing data set and the trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
     algorithm.input.set(classifier::prediction::model, modelPtr);
-
+    algorithm.parameter().votingMethod = prediction::unweighted;
     /* Predict values of decision forest classification */
     algorithm.compute();
 

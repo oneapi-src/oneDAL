@@ -21,10 +21,10 @@
 //--
 */
 
-#include "library_version_info.h"
-#include "_daal_version.h"
-#include "service_defines.h"
-#include "env_detect.h"
+#include "services/library_version_info.h"
+#include "service/kernel/_daal_version.h"
+#include "service/kernel/service_defines.h"
+#include "services/env_detect.h"
 #include "mkl_daal.h"
 
 static const char * cpu_long_names[] = { "Generic",

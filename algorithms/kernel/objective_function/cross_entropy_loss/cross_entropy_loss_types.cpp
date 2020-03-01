@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/optimization_solver/objective_function/cross_entropy_loss_types.h"
-#include "numeric_table.h"
-#include "daal_strings.h"
+#include "data_management/data/numeric_table.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 
@@ -48,10 +48,10 @@ namespace interface2
  */
 Parameter::Parameter(size_t numClasses, size_t numberOfTerms, data_management::NumericTablePtr batchIndices, const DAAL_UINT64 resultsToCompute)
     : sum_of_functions::Parameter(numberOfTerms, batchIndices, resultsToCompute),
-      nClasses(numClasses),
+      interceptFlag(true),
       penaltyL1(0),
       penaltyL2(0),
-      interceptFlag(true)
+      nClasses(numClasses)
 {}
 
 /**
@@ -60,10 +60,10 @@ Parameter::Parameter(size_t numClasses, size_t numberOfTerms, data_management::N
  */
 Parameter::Parameter(const Parameter & other)
     : sum_of_functions::Parameter(other),
-      nClasses(other.nClasses),
+      interceptFlag(other.interceptFlag),
       penaltyL1(other.penaltyL1),
       penaltyL2(other.penaltyL2),
-      interceptFlag(other.interceptFlag)
+      nClasses(other.nClasses)
 {}
 
 /**

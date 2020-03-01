@@ -18,7 +18,7 @@
 #ifndef __KERNEL_DATA_MANAGEMENT_DATA_CONVERSION_CPU_H__
 #define __KERNEL_DATA_MANAGEMENT_DATA_CONVERSION_CPU_H__
 
-#include "service_defines.h"
+#include "service/kernel/service_defines.h"
 
 namespace daal
 {
@@ -26,6 +26,15 @@ namespace data_management
 {
 namespace internal
 {
+/* only for AVX512 architecture with using intrinsics */
+#if defined(__INTEL_COMPILER)
+template <typename T, CpuType cpu>
+void vectorCopy(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 * arrOffsets);
+
+template <typename T>
+void vectorCopyInternal(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 * arrOffsets);
+#endif
+
 template <typename T1, typename T2, CpuType cpu>
 void vectorConvertFuncCpu(size_t n, const void * src, void * dst);
 

@@ -26,10 +26,10 @@
 #ifndef __PCA_TRANSFORM_CONTAINER_H__
 #define __PCA_TRANSFORM_CONTAINER_H__
 
-#include "pca_transform_batch.h"
-#include "pca_transform_kernel.h"
+#include "algorithms/pca/transform/pca_transform_batch.h"
+#include "algorithms/kernel/pca/transform/pca_transform_kernel.h"
 #include "oneapi/internal/utils.h"
-#include "oneapi/pca_transform_dense_default_batch_oneapi.h"
+#include "algorithms/kernel/pca/transform/oneapi/pca_transform_dense_default_batch_oneapi.h"
 
 namespace daal
 {
@@ -85,10 +85,8 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     else
     {
         __DAAL_CALL_KERNEL_SYCL(env, oneapi::internal::TransformKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                                *(input->get(data)), *(input->get(eigenvectors)), pMeans, pVariances, pEigenvalues,
-                                *(result->get(transformedData)));
+                                *(input->get(data)), *(input->get(eigenvectors)), pMeans, pVariances, pEigenvalues, *(result->get(transformedData)));
     }
-
 }
 
 } // namespace transform

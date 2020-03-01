@@ -24,10 +24,10 @@
 #ifndef __IMPICIT_ALS_TRAIN_INIT_CONTAINER_H__
 #define __IMPICIT_ALS_TRAIN_INIT_CONTAINER_H__
 
-#include "implicit_als_training_init_batch.h"
-#include "implicit_als_training_init_distributed.h"
-#include "implicit_als_train_init_kernel.h"
-#include "service_numeric_table.h"
+#include "algorithms/implicit_als/implicit_als_training_init_batch.h"
+#include "algorithms/implicit_als/implicit_als_training_init_distributed.h"
+#include "algorithms/kernel/implicit_als/implicit_als_train_init_kernel.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 namespace daal
 {

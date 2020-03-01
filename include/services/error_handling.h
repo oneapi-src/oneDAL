@@ -28,9 +28,9 @@
     #include <exception>
 #endif
 
-#include "daal_string.h"
-#include "error_indexes.h"
-#include "error_id.h"
+#include "services/daal_string.h"
+#include "services/error_indexes.h"
+#include "services/error_id.h"
 #include "services/collection.h"
 
 namespace daal
@@ -194,6 +194,8 @@ protected:
 private:
     ErrorID _id;
     ErrorDetail * _details;
+
+    Error & operator=(const Error &);
 };
 typedef SharedPtr<Error> ErrorPtr;
 
@@ -576,5 +578,5 @@ inline Status checkForNullByteInjection(const char * begin, const char * const e
 }
 } // namespace internal
 } // namespace services
-}; // namespace daal
+} // namespace daal
 #endif

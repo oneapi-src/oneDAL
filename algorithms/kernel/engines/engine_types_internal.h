@@ -22,9 +22,9 @@
 #ifndef __ENGINE_TYPES_INTERNAL_H__
 #define __ENGINE_TYPES_INTERNAL_H__
 
-#include "engines/engine_batch_impl.h"
+#include "algorithms/kernel/engines/engine_batch_impl.h"
 #include "algorithms/engines/engine_family.h"
-#include "service_arrays.h"
+#include "service/kernel/service_arrays.h"
 
 namespace daal
 {

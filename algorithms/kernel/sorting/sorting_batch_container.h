@@ -24,10 +24,10 @@
 #ifndef __SORTING_BATCH_CONTAINER_H__
 #define __SORTING_BATCH_CONTAINER_H__
 
-#include "sorting_batch.h"
-#include "sorting_kernel.h"
-#include "kernel.h"
-#include "homogen_numeric_table.h"
+#include "algorithms/sorting/sorting_batch.h"
+#include "algorithms/kernel/sorting/sorting_kernel.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/homogen_numeric_table.h"
 
 namespace daal
 {

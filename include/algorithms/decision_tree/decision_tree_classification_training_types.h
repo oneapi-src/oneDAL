@@ -127,7 +127,7 @@ typedef services::SharedPtr<const Input> InputConstPtr;
 class DAAL_EXPORT Result : public classifier::training::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
     Result();
 
     /**

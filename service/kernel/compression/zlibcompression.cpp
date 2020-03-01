@@ -22,8 +22,8 @@
 */
 
 #include "daal_zlib.h"
-#include "zlibcompression.h"
-#include "daal_memory.h"
+#include "data_management/compression/zlibcompression.h"
+#include "services/daal_memory.h"
 
 namespace daal
 {

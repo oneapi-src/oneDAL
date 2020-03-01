@@ -16,8 +16,9 @@
 *******************************************************************************/
 
 #include "oneapi/internal/math/reference_gemm.h"
-#include "blas_gpu.h"
-#include "cl_kernels/kernel_blas.cl"
+#include "oneapi/internal/math/reference_axpy.h"
+#include "service/kernel/oneapi/blas_gpu.h"
+#include "service/kernel/oneapi/cl_kernels/kernel_blas.cl"
 
 namespace daal
 {
@@ -42,7 +43,7 @@ services::Status ReferenceGemm<algorithmFPType>::operator()(const Transpose tran
     ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
     ClKernelFactoryIface & factory = ctx.getClKernelFactory();
     services::String options       = getKeyFPType<algorithmFPType>();
-    services::String cacheKey      = "__daal_blas_";
+    services::String cacheKey      = "__daal_gemm_";
     cacheKey.add(options);
 
     factory.build(ExecutionTargetIds::device, cacheKey.c_str(), clKernelGemm, options.c_str());
@@ -73,7 +74,6 @@ services::Status ReferenceGemm<algorithmFPType>::operator()(const Transpose tran
         args.set(4, (uint32_t)lda);
         args.set(7, one);
         args.set(8, (uint32_t)ldb);
-
     }
     else if (transa == Transpose::Trans && transb == Transpose::NoTrans)
     {
@@ -106,6 +106,41 @@ services::Status ReferenceGemm<algorithmFPType>::operator()(const Transpose tran
 
 template class ReferenceGemm<float>;
 template class ReferenceGemm<double>;
+
+template <typename algorithmFPType>
+services::Status ReferenceAxpy<algorithmFPType>::operator()(const int n, const algorithmFPType a, const services::Buffer<algorithmFPType> & x_buffer,
+                                                            const int incx, services::Buffer<algorithmFPType> & y_buffer, const int incy)
+{
+    services::Status status;
+
+    ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+    ClKernelFactoryIface & factory = ctx.getClKernelFactory();
+    services::String options       = getKeyFPType<algorithmFPType>();
+    services::String cacheKey      = "__daal_axpy_";
+    cacheKey.add(options);
+
+    factory.build(ExecutionTargetIds::device, cacheKey.c_str(), clKernelAxpy, options.c_str());
+
+    KernelPtr blas_axpy = factory.getKernel("blas_axpy");
+
+    KernelArguments args(5);
+
+    args.set(0, a);
+    args.set(1, x_buffer, AccessModeId::read);
+    args.set(2, incx);
+    args.set(3, y_buffer, AccessModeId::readwrite);
+    args.set(4, incy);
+
+    KernelRange range(n);
+
+    ctx.run(range, blas_axpy, args, &status);
+    DAAL_CHECK_STATUS_VAR(status);
+
+    return status;
+}
+
+template class ReferenceAxpy<float>;
+template class ReferenceAxpy<double>;
 
 } // namespace interface1
 } // namespace math

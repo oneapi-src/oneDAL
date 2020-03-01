@@ -26,9 +26,9 @@
 
 #include "algorithms/algorithm.h"
 #include "services/daal_defines.h"
-#include "objective_function_batch.h"
-#include "sum_of_functions_batch.h"
-#include "precomputed_types.h"
+#include "algorithms/optimization_solver/objective_function/objective_function_batch.h"
+#include "algorithms/optimization_solver/objective_function/sum_of_functions_batch.h"
+#include "algorithms/optimization_solver/objective_function/precomputed_types.h"
 
 namespace daal
 {
@@ -180,6 +180,9 @@ protected:
         _par                 = &parameter;
         _result              = objective_function::ResultPtr(new ResultType());
     }
+
+private:
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface1
@@ -323,6 +326,9 @@ protected:
         _par                 = &parameter;
         _result              = objective_function::ResultPtr(new ResultType());
     }
+
+private:
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface2

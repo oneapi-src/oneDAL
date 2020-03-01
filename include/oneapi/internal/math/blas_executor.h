@@ -25,13 +25,14 @@
 */
 
 #if (!defined(ONEAPI_DAAL_NO_MKL_GPU_FUNC) && defined(__SYCL_COMPILER_VERSION))
-    #include "mkl_blas.h"
+    #include "oneapi/internal/math/mkl_blas.h"
 #endif
 
+#include "oneapi/internal/math/types.h"
 #include "oneapi/internal/types_utils.h"
-#include "types.h"
 #include "services/internal/error_handling_helpers.h"
-#include "reference_gemm.h"
+#include "oneapi/internal/math/reference_gemm.h"
+#include "oneapi/internal/math/reference_axpy.h"
 
 #include <CL/sycl.hpp>
 
@@ -210,12 +211,75 @@ public:
     }
 };
 
+/**
+ *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__AXPYEXECUTOR"></a>
+ *  \brief Adapter for AXPY routine
+ */
+class AxpyExecutor
+{
+private:
+    template <typename algorithmFPType>
+    static bool checkSize(const int n, const services::Buffer<algorithmFPType> & buffer, const int inc)
+    {
+        if ((n - 1) * inc >= static_cast<int>(buffer.size())) return true;
+        return false;
+    }
+
+    struct Execute
+    {
+        cl::sycl::queue & queue;
+        const uint32_t n;
+        const double a;
+        const UniversalBuffer & x_buffer;
+        const int incx;
+        UniversalBuffer & y_buffer;
+        const int incy;
+        services::Status * status;
+
+        explicit Execute(cl::sycl::queue & queue, const uint32_t n, const double a, const UniversalBuffer & x_buffer, const int incx,
+                         UniversalBuffer & y_buffer, const int incy, services::Status * status = NULL)
+            : queue(queue), n(n), a(a), x_buffer(x_buffer), incx(incx), y_buffer(y_buffer), incy(incy), status(status)
+        {}
+
+        template <typename algorithmFPType>
+        void operator()(Typelist<algorithmFPType>)
+        {
+            auto x_buffer_t = x_buffer.template get<algorithmFPType>();
+            auto y_buffer_t = y_buffer.template get<algorithmFPType>();
+
+            if (checkSize(n, x_buffer_t, incx) || checkSize(n, y_buffer_t, incy))
+            {
+                if (status) status->add(services::ErrorIncorrectIndex);
+                return;
+            }
+
+            services::Status statusAxpy;
+#ifdef ONEAPI_DAAL_NO_MKL_GPU_FUNC
+            ReferenceAxpy<algorithmFPType> functor;
+#else
+            MKLAxpy<algorithmFPType> functor(queue);
+#endif
+            statusAxpy = functor(n, (algorithmFPType)a, x_buffer_t, incx, y_buffer_t, incy);
+            services::internal::tryAssignStatus(status, statusAxpy);
+        }
+    };
+
+public:
+    static void run(cl::sycl::queue & queue, const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx,
+                    UniversalBuffer y_buffer, const int incy, services::Status * status = NULL)
+    {
+        Execute op(queue, n, a, x_buffer, incx, y_buffer, incy, status);
+        TypeDispatcher::floatDispatch(x_buffer.type(), op);
+    }
+};
+
 /** @} */
 
 } // namespace interface1
 
 using interface1::GemmExecutor;
 using interface1::SyrkExecutor;
+using interface1::AxpyExecutor;
 
 } // namespace math
 } // namespace internal

@@ -83,14 +83,14 @@ public:
  *      - \ref bf_knn_classification::interface1::Model "bf_knn_classification::Model" class
  *      - \ref prediction::interface1::Batch "prediction::Batch" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public classifier::training::Batch
 {
 public:
     typedef classifier::training::Batch super;
 
-    typedef typename super::InputType                               InputType;
-    typedef algorithms::bf_knn_classification::Parameter        ParameterType;
+    typedef typename super::InputType InputType;
+    typedef algorithms::bf_knn_classification::Parameter ParameterType;
     typedef algorithms::bf_knn_classification::training::Result ResultType;
 
     /** Default constructor */
@@ -105,7 +105,8 @@ public:
     Batch(const Batch<algorithmFPType, method> & other);
 
     /** Destructor */
-    ~Batch() {
+    ~Batch()
+    {
         delete _par;
         _par = NULL;
     }
@@ -114,25 +115,25 @@ public:
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    virtual ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    virtual ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    virtual const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    virtual const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
      * Get input objects for the BF kNN prediction algorithm
      * \return %Input objects for the BF kNN prediction algorithm
      */
-    InputType * getInput() DAAL_C11_OVERRIDE { return static_cast<InputType*>(_in); }
+    InputType * getInput() DAAL_C11_OVERRIDE { return static_cast<InputType *>(_in); }
 
     /**
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains the result of BF kNN model-based training
@@ -157,35 +158,32 @@ public:
      * in the batch processing mode
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 public:
     InputType input; /*!< %Input objects of the algorithm */
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         const ResultPtr res = getResult();
         DAAL_CHECK(_result, services::ErrorNullResult);
-        services::Status s = res->template allocate<algorithmFPType>((classifier::training::InputIface *)(_in), (ParameterType*)_par, (int)method);
-        _res = _result.get();
+        services::Status s = res->template allocate<algorithmFPType>((classifier::training::InputIface *)(_in), (ParameterType *)_par, (int)method);
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
-        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
+        _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
         _result.reset(new ResultType());
         _in = &input;
     }
+
+private:
+    Batch & operator=(const Batch &);
 };
 
 /** @} */

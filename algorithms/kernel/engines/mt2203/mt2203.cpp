@@ -20,8 +20,8 @@
 //--
 
 #include "algorithms/engines/mt2203/mt2203.h"
-#include "service_dispatch.h"
-#include "mt2203_batch_impl.h"
+#include "externals/service_dispatch.h"
+#include "algorithms/kernel/engines/mt2203/mt2203_batch_impl.h"
 
 namespace daal
 {
@@ -41,12 +41,11 @@ SharedPtr<Batch<algorithmFPType, method> > Batch<algorithmFPType, method>::creat
 {
     SharedPtr<Batch<algorithmFPType, method> > engPtr;
 
-    #define DAAL_CREATE_ENGINE_CPU(cpuId, ...) \
-        engPtr.reset(new BatchImpl<cpuId, algorithmFPType, method>(__VA_ARGS__));
+#define DAAL_CREATE_ENGINE_CPU(cpuId, ...) engPtr.reset(new BatchImpl<cpuId, algorithmFPType, method>(__VA_ARGS__));
 
     DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_CREATE_ENGINE_CPU, seed, st);
 
-    #undef DAAL_CREATE_ENGINE_CPU
+#undef DAAL_CREATE_ENGINE_CPU
     return engPtr;
 }
 

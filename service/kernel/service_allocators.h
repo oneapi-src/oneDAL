@@ -18,9 +18,9 @@
 #ifndef __SERVICE_ALLOCATORS_H__
 #define __SERVICE_ALLOCATORS_H__
 
-#include "service_utils.h"
-#include "service_memory.h"
-#include "service_type_traits.h"
+#include "service/kernel/service_utils.h"
+#include "externals/service_memory.h"
+#include "service/kernel/service_type_traits.h"
 
 namespace daal
 {

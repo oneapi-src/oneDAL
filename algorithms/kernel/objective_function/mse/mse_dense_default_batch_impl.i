@@ -20,7 +20,7 @@
 //  Implementation of mse algorithm
 //--
 */
-#include "service_math.h"
+#include "externals/service_math.h"
 
 namespace daal
 {
@@ -249,7 +249,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                             tlsData.reduce([&](algorithmFPType * localHes) {
                                 PRAGMA_IVDEP
                                 PRAGMA_VECTOR_ALWAYS
-                                for (int j = 0; j < nTheta; j++)
+                                for (size_t j = 0; j < nTheta; j++)
                                 {
                                     hessianDiagonalPtr[j] += localHes[j];
                                 }
@@ -276,7 +276,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                             tlsData.reduce([&](algorithmFPType * localHes) {
                                 PRAGMA_IVDEP
                                 PRAGMA_VECTOR_ALWAYS
-                                for (int j = 0; j < nTheta; j++)
+                                for (size_t j = 0; j < nTheta; j++)
                                 {
                                     hessianDiagonalPtr[j] += localHes[j];
                                 }
@@ -430,13 +430,13 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     tlsData.reduce([&](algorithmFPType * local) {
                         PRAGMA_IVDEP
                         PRAGMA_VECTOR_ALWAYS
-                        for (int j = 0; j < dim * yDim; j++)
+                        for (size_t j = 0; j < dim * yDim; j++)
                         {
                             XYPtr[j] += local[j];
                         }
                         PRAGMA_IVDEP
                         PRAGMA_VECTOR_ALWAYS
-                        for (int j = 0; j < dim * dim; j++)
+                        for (size_t j = 0; j < dim * dim; j++)
                         {
                             gramMatrixPtr[j] += local[j + disp];
                         }
@@ -641,7 +641,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
         algorithmFPType * p       = prox.get();
         const algorithmFPType * b = beta.get();
 
-        for (int i = 0; i < nBeta; i++)
+        for (size_t i = 0; i < nBeta; i++)
         {
             p[i] = b[i];
         }
@@ -672,7 +672,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
             for (size_t i = startRow; i < finishRow; i++)
             {
                 curentNorm = 0;
-                for (int j = 0; j < p; j++)
+                for (size_t j = 0; j < p; j++)
                 {
                     curentNorm += x[i * p + j] * x[i * p + j];
                 }

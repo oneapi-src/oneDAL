@@ -24,15 +24,15 @@
 #ifndef __SGD_BATCH_CONTAINER_H__
 #define __SGD_BATCH_CONTAINER_H__
 
-#include "sgd_batch.h"
-#include "sgd_dense_default_kernel.h"
-#include "sgd_dense_minibatch_kernel.h"
-#include "sgd_dense_momentum_kernel.h"
-#include "service_algo_utils.h"
-#include "oneapi/sgd_dense_kernel_oneapi.h"
-#include "oneapi/sgd_dense_momentum_kernel_oneapi.h"
-#include "oneapi/sgd_dense_minibatch_kernel_oneapi.h"
-#include "oneapi/sgd_dense_default_kernel_oneapi.h"
+#include "algorithms/optimization_solver/sgd/sgd_batch.h"
+#include "algorithms/kernel/optimization_solver/sgd/sgd_dense_default_kernel.h"
+#include "algorithms/kernel/optimization_solver/sgd/sgd_dense_minibatch_kernel.h"
+#include "algorithms/kernel/optimization_solver/sgd/sgd_dense_momentum_kernel.h"
+#include "service/kernel/service_algo_utils.h"
+#include "algorithms/kernel/optimization_solver/sgd/oneapi/sgd_dense_kernel_oneapi.h"
+#include "algorithms/kernel/optimization_solver/sgd/oneapi/sgd_dense_momentum_kernel_oneapi.h"
+#include "algorithms/kernel/optimization_solver/sgd/oneapi/sgd_dense_minibatch_kernel_oneapi.h"
+#include "algorithms/kernel/optimization_solver/sgd/oneapi/sgd_dense_default_kernel_oneapi.h"
 
 namespace daal
 {

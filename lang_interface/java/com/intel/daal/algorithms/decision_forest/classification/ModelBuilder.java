@@ -87,6 +87,18 @@ public class ModelBuilder extends SerializableBase {
     }
 
     /**
+     * Create Leaf node and add it to certain tree
+     * @param treeId        Tree to which new node is added
+     * @param parentId      Parent node to which new node is added (use noParent for root node)
+     * @param position      Position in parent (e.g. 0 for left and 1 for right child in a binary tree)
+     * @param proba         Probabilities distribution for node
+     * @return              Positive number node identifier
+     */
+    public long addLeafNodeByProba(long treeId, long parentId, long position, double[] proba) {
+        return cAddLeafNodeByProba(this.cObject, treeId, parentId, position, proba);
+    }
+
+    /**
      * Get built model of decision forest classification
      * @return Model of decision forest classification
      */
@@ -94,11 +106,20 @@ public class ModelBuilder extends SerializableBase {
         return new Model(getContext(), cGetModel(this.cObject));
     }
 
+    /**
+     * Set number of features of decision forest model
+     * @param nFeatures   Number of features
+     */
+    public void setNFeatures(long nFeatures) {
+        cSetNFeatures(this.cObject, nFeatures);
+    }
 
     private native long cInit(long nClasses, long nTrees);
     private native long cCreateTree(long algAddr, long nNodes);
     private native long cAddSplitNode(long algAddr, long treeId, long parentId, long position, long featureIndex, double featureValue);
     private native long cAddLeafNode(long algAddr, long treeId, long parentId, long position, long classLabel);
+    private native long cAddLeafNodeByProba(long algAddr, long treeId, long parentId, long position, double[] proba);
     private native long cGetModel(long algAddr);
+    private native void cSetNFeatures(long algAddr, long nFeatures);
 }
 /** @} */

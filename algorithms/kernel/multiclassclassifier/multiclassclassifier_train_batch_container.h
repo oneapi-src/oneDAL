@@ -22,10 +22,10 @@
 //--
 */
 
-#include "multi_class_classifier_train.h"
-#include "multiclassclassifier_train_kernel.h"
-#include "multiclassclassifier_train_oneagainstone_kernel.h"
-#include "kernel.h"
+#include "algorithms/multi_class_classifier/multi_class_classifier_train.h"
+#include "algorithms/kernel/multiclassclassifier/multiclassclassifier_train_kernel.h"
+#include "algorithms/kernel/multiclassclassifier/multiclassclassifier_train_oneagainstone_kernel.h"
+#include "algorithms/kernel/kernel.h"
 
 using namespace daal::data_management;
 

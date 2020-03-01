@@ -24,8 +24,8 @@
 #ifndef __COVARIANCE_DENSE_ONLINE_ONEAPI_IMPL_I__
 #define __COVARIANCE_DENSE_ONLINE_ONEAPI_IMPL_I__
 
-#include "covariance_kernel_oneapi.h"
-#include "covariance_oneapi_impl.i"
+#include "algorithms/kernel/covariance/oneapi/covariance_kernel_oneapi.h"
+#include "algorithms/kernel/covariance/oneapi/covariance_oneapi_impl.i"
 #include <iostream>
 
 using namespace daal::oneapi::internal;
@@ -58,9 +58,9 @@ services::Status CovarianceDenseOnlineKernelOneAPI<algorithmFPType, method>::com
     algorithmFPType * nObservations      = nullptr;
     algorithmFPType partialNObservations = 0.0;
 
-    const size_t nFeatures  = dataTable->getNumberOfColumns();
-    const size_t nVectors   = dataTable->getNumberOfRows();
-    partialNObservations    = static_cast<algorithmFPType>(nVectors);
+    const size_t nFeatures = dataTable->getNumberOfColumns();
+    const size_t nVectors  = dataTable->getNumberOfRows();
+    partialNObservations   = static_cast<algorithmFPType>(nVectors);
 
     BlockDescriptor<algorithmFPType> dataBlock;
     BlockDescriptor<algorithmFPType> sumBlock;

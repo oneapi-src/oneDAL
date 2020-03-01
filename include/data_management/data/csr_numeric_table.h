@@ -363,8 +363,8 @@ public:
 class DAAL_EXPORT CSRNumericTable : public NumericTable, public CSRNumericTableIface
 {
 public:
-    DECLARE_SERIALIZABLE_TAG();
-    DECLARE_SERIALIZABLE_IMPL();
+    DECLARE_SERIALIZABLE_TAG()
+    DECLARE_SERIALIZABLE_IMPL()
 
     DAAL_CAST_OPERATOR(CSRNumericTable)
     /**
@@ -637,7 +637,7 @@ public:
      *  \param[in]    dataSize     Number of non-zero values
      *  \param[in]    type         Memory type
      */
-    services::Status allocateDataMemory(size_t dataSize, daal::MemType type = daal::dram)
+    services::Status allocateDataMemory(size_t dataSize, daal::MemType /*type*/ = daal::dram)
     {
         freeDataMemoryImpl();
 
@@ -705,7 +705,7 @@ protected:
         st |= _ddict->setAllFeatures(_defaultFeature);
     }
 
-    services::Status allocateDataMemoryImpl(daal::MemType type = daal::dram) DAAL_C11_OVERRIDE
+    services::Status allocateDataMemoryImpl(daal::MemType /*type*/ = daal::dram) DAAL_C11_OVERRIDE
     {
         return services::Status(services::ErrorMethodNotSupported);
     }
@@ -782,7 +782,7 @@ protected:
         }
 
         const NumericTableFeature & f = (*_ddict)[0];
-        const int indexType = f.indexType;
+        const int indexType           = f.indexType;
 
         T * buffer;
         T * castingBuffer;
@@ -842,7 +842,7 @@ protected:
     template <typename T>
     services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
-        size_t nobs  = getNumberOfRows();
+        size_t nobs = getNumberOfRows();
         block.setDetails(feat_idx, idx, rwFlag);
         size_t * rowOffsets = _rowOffsets.get();
 
@@ -857,7 +857,7 @@ protected:
         if (!block.resizeBuffer(1, nrows)) return services::Status(services::ErrorMemoryAllocationFailed);
 
         const NumericTableFeature & f = (*_ddict)[0];
-        const int indexType = f.indexType;
+        const int indexType           = f.indexType;
         if (data_management::features::DAAL_OTHER_T == indexType) return services::Status(services::ErrorDataTypeNotSupported);
 
         char * rowCursor       = (char *)_ptr.get() + (rowOffsets[idx] - 1) * f.typeSize;
@@ -910,7 +910,7 @@ protected:
         nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
 
         const NumericTableFeature & f = (*_ddict)[0];
-        const int indexType = f.indexType;
+        const int indexType           = f.indexType;
 
         size_t nValues = rowOffsets[idx + nrows] - rowOffsets[idx];
 
@@ -961,7 +961,7 @@ protected:
         if (block.getRWFlag() & (int)writeOnly)
         {
             NumericTableFeature & f = (*_ddict)[0];
-            const int indexType = f.indexType;
+            const int indexType     = f.indexType;
 
             if (data_management::features::DAAL_OTHER_T == indexType && features::internal::getIndexNumType<T>() != indexType)
             {

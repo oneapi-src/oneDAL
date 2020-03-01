@@ -25,7 +25,7 @@
 #define __GBT_REGRESSION_TREE_IMPL__
 
 #include "data_management/data/aos_numeric_table.h"
-#include "gbt_model_impl.h"
+#include "algorithms/kernel/dtrees/gbt/gbt_model_impl.h"
 
 namespace daal
 {
@@ -37,10 +37,9 @@ namespace regression
 {
 namespace internal
 {
-
 using namespace daal::algorithms::dtrees::internal;
 
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 struct TableRecord
 {
     typedef int FeatureType;
@@ -54,40 +53,38 @@ struct TableRecord
     // leaf fields
     ResponseType response;
 
-    size_t    level;
-    size_t    nid;
-    size_t    n;
-    size_t    iStart;
+    size_t level;
+    size_t nid;
+    size_t n;
+    size_t iStart;
 
-    char      nodeState;
-    char      isFinalized;
+    char nodeState;
+    char isFinalized;
 
     algorithmFPType gTotal;
     algorithmFPType hTotal;
-    size_t          nTotal;
+    size_t nTotal;
 };
 
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 struct SplitRecord
 {
     // 2 x ptr on record
-    SplitRecord(): first(nullptr), second(nullptr) {}
-    SplitRecord(TableRecord<algorithmFPType> *_first): first(_first), second(nullptr) {}
-    SplitRecord(TableRecord<algorithmFPType> *_first, TableRecord<algorithmFPType> *_second): first(_first), second(_second) {}
+    SplitRecord() : first(nullptr), second(nullptr) {}
+    SplitRecord(TableRecord<algorithmFPType> * _first) : first(_first), second(nullptr) {}
+    SplitRecord(TableRecord<algorithmFPType> * _first, TableRecord<algorithmFPType> * _second) : first(_first), second(_second) {}
 
-    TableRecord<algorithmFPType> *first;
-    TableRecord<algorithmFPType> *second;
+    TableRecord<algorithmFPType> * first;
+    TableRecord<algorithmFPType> * second;
 };
 
-
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 class TreeTableConnector
 {
     typedef TableRecord<algorithmFPType> TableRecordType;
     typedef SplitRecord<algorithmFPType> SplitRecordType;
 
 public:
-
     enum NodeState
     {
         leaf,
@@ -95,7 +92,7 @@ public:
         badSplit
     };
 
-    static services::SharedPtr<AOSNumericTable> createGBTree(size_t maxTreeDepth, services::Status *status = NULL)
+    static services::SharedPtr<AOSNumericTable> createGBTree(size_t maxTreeDepth, services::Status * status = NULL)
     {
         DAAL_ASSERT(maxTreeDepth >= 0);
 
@@ -108,36 +105,37 @@ public:
             return services::SharedPtr<AOSNumericTable>();
         }
 
-        table->template setFeature<typename TableRecordType::FeatureType> ( 0, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, featureValue    ));
-        table->template setFeature<int>                                   ( 1, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, featureIdx      ));
-        table->template setFeature<char>                                  ( 2, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, featureUnordered));
-        table->template setFeature<typename TableRecordType::ResponseType>( 3, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, response        ));
-        table->template setFeature<size_t>                                ( 4, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, level           ));
-        table->template setFeature<size_t>                                ( 5, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, nid             ));
-        table->template setFeature<size_t>                                ( 6, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, n               ));
-        table->template setFeature<size_t>                                ( 7, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, iStart          ));
-        table->template setFeature<char>                                  ( 8, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, nodeState       ));
-        table->template setFeature<char>                                  ( 9, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, isFinalized     ));
-        table->template setFeature<algorithmFPType>                       (10, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, gTotal          ));
-        table->template setFeature<algorithmFPType>                       (11, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, hTotal          ));
-        table->template setFeature<size_t>                                (12, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, nTotal          ));
+        table->template setFeature<typename TableRecordType::FeatureType>(0, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, featureValue));
+        table->template setFeature<int>(1, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, featureIdx));
+        table->template setFeature<char>(2, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, featureUnordered));
+        table->template setFeature<typename TableRecordType::ResponseType>(3, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, response));
+        table->template setFeature<size_t>(4, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, level));
+        table->template setFeature<size_t>(5, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, nid));
+        table->template setFeature<size_t>(6, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, n));
+        table->template setFeature<size_t>(7, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, iStart));
+        table->template setFeature<char>(8, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, nodeState));
+        table->template setFeature<char>(9, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, isFinalized));
+        table->template setFeature<algorithmFPType>(10, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, gTotal));
+        table->template setFeature<algorithmFPType>(11, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, hTotal));
+        table->template setFeature<size_t>(12, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, nTotal));
 
         table->allocateDataMemory();
 
-        services::internal::service_memset<char, sse2>((char*)table->getArray(), (char)0, sizeof(TableRecordType) * nNodes);
+        services::internal::service_memset<char, sse2>((char *)table->getArray(), (char)0, sizeof(TableRecordType) * nNodes);
 
         return table;
     }
 
-    TreeTableConnector(AOSNumericTable * table): _table(table) {
-        _records = (TableRecordType*)_table->getArray();
+    TreeTableConnector(AOSNumericTable * table) : _table(table)
+    {
+        _records = (TableRecordType *)_table->getArray();
         getSplitLevel(0);
     }
 
     bool getSplitLevel(size_t nid)
     {
         DAAL_ASSERT(nid < _table->getNumberOfRows());
-        const TableRecordType& record = _records[nid];
+        const TableRecordType & record = _records[nid];
 
         if (record.nodeState == split)
         {
@@ -154,15 +152,12 @@ public:
         return false;
     }
 
-    void setSplitLevel(size_t splitLevel)
-    {
-        _splitLevel = splitLevel;
-    }
+    void setSplitLevel(size_t splitLevel) { _splitLevel = splitLevel; }
 
-    void getSplitNodes(size_t nid, Collection<TableRecordType *>& nodesForSplit)
+    void getSplitNodes(size_t nid, Collection<TableRecordType *> & nodesForSplit)
     {
         DAAL_ASSERT(nid < _table->getNumberOfRows());
-        TableRecordType& record = _records[nid];
+        TableRecordType & record = _records[nid];
 
         if (record.nodeState == split)
         {
@@ -172,8 +167,8 @@ public:
             }
             else
             {
-                TableRecordType& leftChild  = _records[2 * nid + 1];
-                TableRecordType& rightChild = _records[2 * nid + 2];
+                TableRecordType & leftChild  = _records[2 * nid + 1];
+                TableRecordType & rightChild = _records[2 * nid + 2];
 
                 if (leftChild.nodeState == split)
                 {
@@ -187,7 +182,7 @@ public:
         }
     }
 
-    void getSplitNodesMerged(size_t nid, Collection<SplitRecordType>& nodesForSplit, bool addEmpty = true)
+    void getSplitNodesMerged(size_t nid, Collection<SplitRecordType> & nodesForSplit, bool addEmpty = true)
     {
         DAAL_ASSERT(nid < _table->getNumberOfRows());
         TableRecordType & record = _records[nid];
@@ -198,8 +193,7 @@ public:
             splitRecord.first = &record;
             nodesForSplit << splitRecord;
         }
-        else
-        if (record.nodeState != leaf)
+        else if (record.nodeState != leaf)
         {
             if (record.nodeState == badSplit)
             {
@@ -244,10 +238,10 @@ public:
         }
     }
 
-    void getLeafNodes(size_t nid, Collection<TableRecordType *>& leaves)
+    void getLeafNodes(size_t nid, Collection<TableRecordType *> & leaves)
     {
         DAAL_ASSERT(nid < _table->getNumberOfRows());
-        TableRecordType& record = _records[nid];
+        TableRecordType & record = _records[nid];
 
         if (record.nodeState == split)
         {
@@ -260,25 +254,23 @@ public:
         }
     }
 
-    TableRecordType* get(size_t nid)
-    {
-        return &(_records[nid]);
-    }
+    TableRecordType * get(size_t nid) { return &(_records[nid]); }
 
-    void createNode(size_t level, size_t nid, size_t n, size_t iStart, algorithmFPType gTotal, algorithmFPType hTotal, size_t nTotal, const training::Parameter &par)
+    void createNode(size_t level, size_t nid, size_t n, size_t iStart, algorithmFPType gTotal, algorithmFPType hTotal, size_t nTotal,
+                    const training::Parameter & par)
     {
         DAAL_ASSERT(nid < _table->getNumberOfRows());
 
-        TableRecordType& record = _records[nid];
+        TableRecordType & record = _records[nid];
 
-        record.level = level;
-        record.nid = nid;
-        record.n = n;
-        record.iStart = iStart;
+        record.level       = level;
+        record.nid         = nid;
+        record.n           = n;
+        record.iStart      = iStart;
         record.isFinalized = false;
-        record.gTotal = gTotal;
-        record.hTotal = hTotal;
-        record.nTotal = nTotal;
+        record.gTotal      = gTotal;
+        record.hTotal      = hTotal;
+        record.nTotal      = nTotal;
 
         if ((nTotal < 2 * par.minObservationsInLeafNode) || ((par.maxTreeDepth > 0) && (level >= par.maxTreeDepth))) // terminate criteria
         {
@@ -290,9 +282,9 @@ public:
         }
     }
 
-    void getMaxLevel(size_t nid, size_t &maxLevel)
+    void getMaxLevel(size_t nid, size_t & maxLevel)
     {
-        const TableRecordType& record = _records[nid];
+        const TableRecordType & record = _records[nid];
 
         if (record.level > maxLevel)
         {
@@ -308,7 +300,7 @@ public:
 
     size_t getNNodes(size_t nid)
     {
-        const TableRecordType& record = _records[nid];
+        const TableRecordType & record = _records[nid];
 
         if (record.nodeState == split)
         {
@@ -318,43 +310,42 @@ public:
         return 1;
     }
 
-    template<CpuType cpu>
-    void convertToGbtDecisionTree(algorithmFPType **binValues, const size_t nNodes, const size_t maxLevel,
-                                  gbt::internal::GbtDecisionTree *tree, double *impVals, int *nNodeSamplesVals,
-                                  const algorithmFPType initialF, const training::Parameter &par)
+    template <CpuType cpu>
+    void convertToGbtDecisionTree(algorithmFPType ** binValues, const size_t nNodes, const size_t maxLevel, gbt::internal::GbtDecisionTree * tree,
+                                  double * impVals, int * nNodeSamplesVals, const algorithmFPType initialF, const training::Parameter & par)
     {
-        services::Collection<TableRecordType*> sonsArr(nNodes + 1);
-        services::Collection<TableRecordType*> parentsArr(nNodes + 1);
+        services::Collection<TableRecordType *> sonsArr(nNodes + 1);
+        services::Collection<TableRecordType *> parentsArr(nNodes + 1);
 
-        TableRecordType** sons = sonsArr.data();
-        TableRecordType** parents = parentsArr.data();
+        TableRecordType ** sons    = sonsArr.data();
+        TableRecordType ** parents = parentsArr.data();
 
-        gbt::prediction::internal::ModelFPType* const splitPoints = tree->getSplitPoints();
-        gbt::prediction::internal::FeatureIndexType* const featureIndexes = tree->getFeatureIndexesForSplit();
+        gbt::prediction::internal::ModelFPType * const splitPoints         = tree->getSplitPoints();
+        gbt::prediction::internal::FeatureIndexType * const featureIndexes = tree->getFeatureIndexesForSplit();
 
-        for(size_t i = 0; i < nNodes; ++i)
+        for (size_t i = 0; i < nNodes; ++i)
         {
-            sons[i] = nullptr;
+            sons[i]    = nullptr;
             parents[i] = nullptr;
         }
 
-        size_t nParents = 1;
-        parents[0] = get(0);
+        size_t nParents   = 1;
+        parents[0]        = get(0);
         size_t idxInTable = 0;
 
-        for(size_t level = 0; level < maxLevel + 1; level++)
+        for (size_t level = 0; level < maxLevel + 1; level++)
         {
             size_t nSons = 0;
-            for(size_t iParent = 0; iParent < nParents; iParent++)
+            for (size_t iParent = 0; iParent < nParents; iParent++)
             {
-                TableRecordType* p = parents[iParent];
+                TableRecordType * p = parents[iParent];
 
-                if(p->nodeState == split)
+                if (p->nodeState == split)
                 {
-                    sons[nSons++] = get(p->nid * 2 + 1);
-                    sons[nSons++] = get(p->nid * 2 + 2);
+                    sons[nSons++]              = get(p->nid * 2 + 1);
+                    sons[nSons++]              = get(p->nid * 2 + 2);
                     featureIndexes[idxInTable] = p->featureIdx;
-                    splitPoints[idxInTable] = binValues[p->featureIdx][p->featureValue];
+                    splitPoints[idxInTable]    = binValues[p->featureIdx][p->featureValue];
                 }
                 else
                 {
@@ -364,18 +355,18 @@ public:
                         sons[nSons++] = p;
                     }
                     featureIndexes[idxInTable] = 0;
-                    splitPoints[idxInTable] = initialF + p->response;
+                    splitPoints[idxInTable]    = initialF + p->response;
                 }
                 DAAL_ASSERT(featureIndexes[idxInTable] >= 0);
                 nNodeSamplesVals[idxInTable] = (int)p->nTotal;
-                impVals[idxInTable] = (p->gTotal / (p->hTotal + par.lambda))*p->gTotal;
+                impVals[idxInTable]          = (p->gTotal / (p->hTotal + par.lambda)) * p->gTotal;
 
                 idxInTable++;
             }
 
             if (level < maxLevel)
             {
-                const size_t size = nSons*sizeof(TableRecordType*);
+                const size_t size = nSons * sizeof(TableRecordType *);
                 daal::services::daal_memcpy_s(parents, size, sons, size);
                 nParents = nSons;
             }

@@ -1,6 +1,6 @@
-/* file: copy_reduce_results.cl */
+/* file: finiteness_checker.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,28 +15,23 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of copy kernels.
-//--
-*/
+#ifndef __DATA_MANAGEMENT_DATA_INTERNAL_FINITENESS_CHECKER_H__
+#define __DATA_MANAGEMENT_DATA_INTERNAL_FINITENESS_CHECKER_H__
 
-#ifndef __COPY_REDUCE_RESULTS_CL__
-#define __COPY_REDUCE_RESULTS_CL__
+#include "data_management/data/numeric_table.h"
+#include "services/daal_defines.h"
 
-#include <string.h>
-
-#define DECLARE_SOURCE(name, src) static const char* name = #src;
-
-DECLARE_SOURCE(clKernelCopy,
-
-__kernel void copyReduceResults(const __global algorithmFPType *src, uint nCols, __global algorithmFPType *dst)
+namespace daal
 {
-    uint rowIdx = get_global_id(0);
+namespace data_management
+{
+namespace internal
+{
+template <typename DataType>
+DAAL_EXPORT bool allValuesAreFinite(NumericTable & table, bool allowNaN);
 
-    dst[nCols*rowIdx + nCols - 1] = src[rowIdx];
-}
+} // namespace internal
+} // namespace data_management
+} // namespace daal
 
-);
-
-#endif // __COPY_REDUCE_RESULTS_CL__
+#endif

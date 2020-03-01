@@ -25,7 +25,7 @@
 #define __DAAL_STRING__
 
 #include <string>
-#include "base.h"
+#include "services/base.h"
 
 namespace daal
 {
@@ -96,6 +96,16 @@ public:
      * Assigment operator
      */
     String & operator=(const String & other);
+
+    /**
+     * Comparison operators: equal to
+     */
+    bool operator==(const String & other);
+
+    /**
+     * Comparison operators: not equal to
+     */
+    bool operator!=(const String & other);
 
     /**
      * Returns the number of characters in the string

@@ -205,6 +205,9 @@ protected:
     {
         return new Distributed<step1Local, algorithmFPType, method>(*this);
     }
+
+private:
+    Distributed & operator=(const Distributed &);
 };
 
 /**
@@ -332,6 +335,9 @@ protected:
         _partialResult.reset(new PartialResult<correlationDense>());
         _result.reset(new ResultType());
     }
+
+private:
+    Distributed & operator=(const Distributed &);
 };
 
 /**
@@ -449,6 +455,9 @@ protected:
         _partialResult.reset(new PartialResult<svdDense>());
         _result.reset(new ResultType());
     }
+
+private:
+    Distributed & operator=(const Distributed &);
 };
 /** @} */
 } // namespace interface1

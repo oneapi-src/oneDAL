@@ -21,7 +21,7 @@
 //--
 */
 
-#include "svm_train_batch_container.h"
+#include "algorithms/kernel/svm/svm_train_batch_container.h"
 
 namespace daal
 {

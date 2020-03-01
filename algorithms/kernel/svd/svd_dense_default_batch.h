@@ -23,7 +23,7 @@
 #ifndef __SVD_DENSE_DEFAULT_BATCH__
 #define __SVD_DENSE_DEFAULT_BATCH__
 
-#include "svd_types.h"
+#include "algorithms/svd/svd_types.h"
 
 using namespace daal::services;
 using namespace daal::data_management;

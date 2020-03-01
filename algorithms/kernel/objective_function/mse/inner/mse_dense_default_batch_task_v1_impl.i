@@ -21,8 +21,8 @@
 //--
 */
 
-#include "mse_dense_default_batch_kernel_v1.h"
-#include "service_blas.h"
+#include "algorithms/kernel/objective_function/mse/inner/mse_dense_default_batch_kernel_v1.h"
+#include "externals/service_blas.h"
 
 namespace daal
 {

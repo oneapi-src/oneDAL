@@ -26,7 +26,7 @@
 #define __NAIVE_BAYES_TRAINING_ONLINE_H__
 
 #include "algorithms/algorithm.h"
-#include "multinomial_naive_bayes_training_types.h"
+#include "algorithms/naive_bayes/multinomial_naive_bayes_training_types.h"
 #include "algorithms/classifier/classifier_training_online.h"
 
 namespace daal
@@ -212,6 +212,9 @@ protected:
         _result.reset(new ResultType());
         _partialResult.reset(new PartialResultType());
     }
+
+private:
+    Online & operator=(const Online &);
 };
 /** @} */
 } // namespace interface1
@@ -288,7 +291,7 @@ public:
      * Default constructor
      * \param nClasses  Number of classes
      */
-    Online(size_t nClasses) : parameter(nClasses), input() { initialize(); }
+    Online(size_t nClasses) : input(), parameter(nClasses) { initialize(); }
 
     /**
      * Constructs multinomial naive Bayes training algorithm by copying input objects and parameters
@@ -296,7 +299,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Online(const Online<algorithmFPType, method> & other) : super(other), parameter(other.parameter), input(other.input) { initialize(); }
+    Online(const Online<algorithmFPType, method> & other) : super(other), input(other.input), parameter(other.parameter) { initialize(); }
 
     virtual ~Online() {}
 
@@ -392,6 +395,9 @@ protected:
         _result.reset(new ResultType());
         _partialResult.reset(new PartialResultType());
     }
+
+private:
+    Online & operator=(const Online &);
 };
 /** @} */
 } // namespace interface2

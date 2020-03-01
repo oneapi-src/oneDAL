@@ -21,10 +21,10 @@
 #include "oneapi/internal/math/types.h"
 #include "oneapi/internal/types.h"
 #include "oneapi/internal/execution_context.h"
-#include "env_detect.h"
+#include "services/env_detect.h"
 #include "services/buffer.h"
 #include "services/error_handling.h"
-#include "cl_kernels/math.cl"
+#include "service/kernel/oneapi/cl_kernels/math.cl"
 
 namespace daal
 {

@@ -33,13 +33,11 @@ namespace daal
 {
 namespace algorithms
 {
-
 /**
  * \brief Contains classes of the BF kNN algorithm
  */
 namespace bf_knn_classification
 {
-
 /**
  * @defgroup bf_knn_classification_training Training
  * \copydoc daal::algorithms::bf_knn_classification::training
@@ -51,7 +49,6 @@ namespace bf_knn_classification
  */
 namespace training
 {
-
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__BF_KNN_CLASSIFICATION__TRAINING__METHOD"></a>
  * \brief Computation methods for BF kNN model-based training
@@ -66,7 +63,6 @@ enum Method
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__BF_KNN_CLASSIFICATION__TRAINING__RESULT"></a>
  * \brief Provides methods to access the result obtained with the compute() method of BF kNN model-based training
@@ -74,7 +70,7 @@ namespace interface1
 class DAAL_EXPORT Result : public classifier::training::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
     Result();
 
     /**
@@ -90,13 +86,13 @@ public:
      * \param[in] parameter %Parameter of BF kNN model-based training
      * \param[in] method Computation method for the algorithm
      */
-    template<typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const Parameter *parameter, int method);
+    template <typename algorithmFPType>
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const Parameter * parameter, int method);
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return classifier::training::Result::serialImpl<Archive, onDeserialize>(arch);
     }

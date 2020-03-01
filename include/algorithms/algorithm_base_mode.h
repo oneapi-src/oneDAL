@@ -111,6 +111,10 @@ protected:
     PartialResult * _pres;
     Result * _res;
     Parameter * _par;
+
+private:
+    Algorithm(const Algorithm &);
+    Algorithm & operator=(const Algorithm &);
 };
 
 /**
@@ -159,6 +163,10 @@ protected:
     Parameter * _par;
     Input * _in;
     Result * _res;
+
+private:
+    Algorithm(const Algorithm &);
+    Algorithm & operator=(const Algorithm &);
 };
 
 /** @} */

@@ -24,10 +24,10 @@
 #ifndef __IMPLICIT_ALS_TRAIN_DENSE_DEFAULT_BATCH_IMPL_I__
 #define __IMPLICIT_ALS_TRAIN_DENSE_DEFAULT_BATCH_IMPL_I__
 
-#include "threading.h"
-#include "service_blas.h"
-#include "service_lapack.h"
-#include "service_error_handling.h"
+#include "algorithms/threading/threading.h"
+#include "externals/service_blas.h"
+#include "externals/service_lapack.h"
+#include "algorithms/kernel/service_error_handling.h"
 
 namespace daal
 {
@@ -128,7 +128,7 @@ Status ImplicitALSTrainKernelBase<algorithmFPType, cpu>::computeFactors(size_t n
             algorithmFPType * lhs_local = lhs.local();
             algorithmFPType * rhs       = rowFactors + (offset + j) * nFactors;
 
-            for (int f = 0; f < nFactors; f++)
+            for (size_t f = 0; f < nFactors; f++)
             {
                 rhs[f] = 0.0;
             }

@@ -45,7 +45,7 @@ namespace interface1
 inline services::String getOpenClErrorDescription(cl_int clError)
 {
 #define OPENCL_ERROR_CASE(x) \
-    case x: return services::String(#x);
+case x: return services::String(#x);
     switch (clError)
     {
         OPENCL_ERROR_CASE(CL_BUILD_PROGRAM_FAILURE);

@@ -21,12 +21,12 @@
 //--
 */
 
-#include "daal_defines.h"
+#include "services/daal_defines.h"
 
 #if !(defined DAAL_CPU_TOPO_DISABLED)
 
-    #include "service_memory.h"
-    #include "service_topo.h"
+    #include "externals/service_memory.h"
+    #include "service/kernel/service_topo.h"
 
     #ifdef __FreeBSD__
 static int sched_setaffinity(pid_t pid, size_t cpusetsize, cpu_set_t * mask)
@@ -934,8 +934,8 @@ static int __internal_daal_findEachCacheIndex(DWORD maxCPUID, unsigned cache_sub
     }
 
     __internal_daal_cpuid_(&info4, 4, cache_subleaf);
-    type       = __internal_daal_getBitsFromDWORD(info4.EAX, 0, 4);
-    cap = __internal_daal_getCacheTotalLize(info4);
+    type = __internal_daal_getBitsFromDWORD(info4.EAX, 0, 4);
+    cap  = __internal_daal_getCacheTotalLize(info4);
 
     if (type > 0)
     {
@@ -1879,8 +1879,8 @@ unsigned _internal_daal_GetCoreCountPerEachCache(unsigned subleaf, unsigned cach
 
 unsigned _internal_daal_GetLogicalProcessorQueue(int * queue)
 {
-    const int cpus  = _internal_daal_GetSysLogicalProcessorCount();
-    int cores = _internal_daal_GetSysProcessorCoreCount();
+    const int cpus = _internal_daal_GetSysLogicalProcessorCount();
+    int cores      = _internal_daal_GetSysProcessorCoreCount();
 
     if (cores == 0) cores = 1;
 
@@ -1950,13 +1950,13 @@ void glktsn::FreeArrays()
 
     if (glbl_obj.cpuid_values)
     {
-        for (int i = 0; i <= glbl_obj.OSProcessorCount; i++)
+        for (unsigned int i = 0; i <= glbl_obj.OSProcessorCount; i++)
         {
             _INTERNAL_DAAL_FREE(glbl_obj.cpuid_values[i].subleaf[0]);
 
             if ((i == 0x4 || i == 0xb))
             {
-                for (int j = 1; j < glbl_obj.cpuid_values[i].subleaf_max; j++)
+                for (unsigned int j = 1; j < glbl_obj.cpuid_values[i].subleaf_max; j++)
                 {
                     _INTERNAL_DAAL_FREE(glbl_obj.cpuid_values[i].subleaf[j]);
                 }

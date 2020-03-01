@@ -188,8 +188,9 @@ MKLFPKDIR:= $(if $(wildcard $(DIR)/externals/mklfpk/$(_OS)/*),$(DIR)/externals/m
 MKLFPKDIR.include := $(MKLFPKDIR)/include $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/include
 MKLFPKDIR.libia   := $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/lib/$(_IA)
 
-topf = $(shell echo $1 | sed 's/Program Files (x86)/ProgramFilesx86/' | sed 's/\\/\//g' )
-frompf = $(shell echo $1 | sed 's/ProgramFilesx86/Program\\ Files\\ (x86)/')
+topf = $(shell echo $1 | sed 's/ /111/g' | sed 's/(/222/g' | sed 's/)/333/g' | sed 's/\\/\//g')
+frompf = $(shell echo $1 | sed 's/111/ /g' | sed 's/222/(/g' | sed 's/333/)/g')
+frompf1 = $(shell echo $1 | sed 's/111/\\ /g' | sed 's/222/(/g' | sed 's/333/)/g')
 
 
 #============================= TBB folders =====================================
@@ -201,11 +202,10 @@ TBBDIR.include := $(if $(TBBDIR),$(TBBDIR)/include/tbb $(TBBDIR)/include)
 
 TBBDIR.libia.prefix := $(TBBDIR.2)/lib
 
-TBBDIR.libia.win.vc1  := $(if $(OS_is_win),$(if $(wildcard $(TBBDIR.libia.prefix)/$(_IA)/vc_mt),$(TBBDIR.libia.prefix)/$(_IA)/vc_mt))
-TBBDIR.libia.win.vc2  := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc1),,$(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB))))))
+TBBDIR.libia.win.vc1  := $(if $(OS_is_win),$(if $(wildcard $(call frompf1,$(TBBDIR.libia.prefix))/$(_IA)/vc_mt),$(TBBDIR.libia.prefix)/$(_IA)/vc_mt))
+TBBDIR.libia.win.vc2  := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc1),,$(firstword $(filter $(call topf,$$TBBROOT)%,$(subst ;,$(space),$(call topf,$$LIB))))))
 TBBDIR.libia.win.vc22 := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc2),$(wildcard $(TBBDIR.libia.win.vc2)/tbb.dll)))
-TBBDIR.libia.win:= $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc22),$(TBBDIR.libia.win.vc2),$(if $(TBBDIR.libia.win.vc1),$(TBBDIR.libia.win.vc1),$(error Can`t find TBB libs nether in $(TBBDIR.libia.prefix)/$(_IA)/vc_mt not in $(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB)))).))))
-TBBDIR.libia.win:= $(subst \,/,$(TBBDIR.libia.win))
+TBBDIR.libia.win:= $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc22),$(TBBDIR.libia.win.vc2),$(if $(TBBDIR.libia.win.vc1),$(TBBDIR.libia.win.vc1),$(error Can`t find TBB libs nether in $(call frompf,$(TBBDIR.libia.prefix))/$(_IA)/vc_mt not in $(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB)))).))))
 
 TBBDIR.libia.lnx.gcc1 := $(if $(OS_is_lnx),$(if $(wildcard $(TBBDIR.libia.prefix)/$(_IA)/gcc4.8/*),$(TBBDIR.libia.prefix)/$(_IA)/gcc4.8))
 TBBDIR.libia.lnx.gcc2  := $(if $(OS_is_lnx),$(if $(TBBDIR.libia.lnx.gcc1),,$(firstword $(filter $(TBBROOT)%,$(subst :,$(space),$(LD_LIBRARY_PATH))))))
@@ -221,8 +221,7 @@ TBBDIR.libia.fbsd := $(if $(OS_is_fbsd),$(TBBDIR.libia.prefix))
 TBBDIR.libia := $(TBBDIR.libia.$(_OS))
 
 TBBDIR.soia.prefix := $(TBBDIR.2)/
-TBBDIR.soia.win  := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc22),$(TBBDIR.libia.win.vc2),$(if $(wildcard $(TBBDIR.soia.prefix)/redist/$(_IA)/vc_mt/*),$(TBBDIR.soia.prefix)/redist/$(_IA)/vc_mt,$(error Can`t find TBB runtimes nether in $(TBBDIR.soia.prefix)/redist/$(_IA)/vc_mt not in $(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB)))).))))
-TBBDIR.soia.win  := $(subst \,/,$(TBBDIR.soia.win))
+TBBDIR.soia.win  := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc22),$(TBBDIR.libia.win.vc2),$(if $(wildcard $(call frompf1,$(TBBDIR.soia.prefix))redist/$(_IA)/vc_mt/*),$(TBBDIR.soia.prefix)redist/$(_IA)/vc_mt,$(error Can`t find TBB runtimes nether in $(TBBDIR.soia.prefix)redist/$(_IA)/vc_mt not in $(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB)))).))))
 TBBDIR.soia.lnx  := $(if $(OS_is_lnx),$(TBBDIR.libia.lnx))
 TBBDIR.soia.mac  := $(if $(OS_is_mac),$(TBBDIR.libia.mac))
 TBBDIR.soia.fbsd := $(if $(OS_is_fbsd),$(TBBDIR.soia.prefix)/lib)
@@ -271,16 +270,16 @@ release.JARS = $(daal_jar)
 daaldep.lnx32e.mkl.thr := $(MKLFPKDIR.libia)/$(plib)daal_mkl_thread.$a
 daaldep.lnx32e.mkl.seq := $(MKLFPKDIR.libia)/$(plib)daal_mkl_sequential.$a
 daaldep.lnx32e.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core.$a
-daaldep.lnx32e.vml := 
+daaldep.lnx32e.vml :=
 daaldep.lnx32e.ipp := $(if $(COV.libia),$(COV.libia)/libcov.a)
 daaldep.lnx32e.rt.thr := -L$(RELEASEDIR.tbb.soia) -ltbb -ltbbmalloc -lpthread $(daaldep.lnx32e.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov.a)
 daaldep.lnx32e.rt.seq := -lpthread $(daaldep.lnx32e.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov.a)
 daaldep.lnx32e.threxport := export_lnx32e.def
 
-daaldep.lnx32.mkl.thr := $(MKLFPKDIR.libia)/$(plib)daal_mkl_thread.$a    
+daaldep.lnx32.mkl.thr := $(MKLFPKDIR.libia)/$(plib)daal_mkl_thread.$a
 daaldep.lnx32.mkl.seq := $(MKLFPKDIR.libia)/$(plib)daal_mkl_sequential.$a
 daaldep.lnx32.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core.$a
-daaldep.lnx32.vml := 
+daaldep.lnx32.vml :=
 daaldep.lnx32.ipp := $(if $(COV.libia),$(COV.libia)/libcov32.a)
 daaldep.lnx32.rt.thr := -L$(RELEASEDIR.tbb.soia) -ltbb -ltbbmalloc -lpthread $(daaldep.lnx32.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov32.a)
 daaldep.lnx32.rt.seq := -lpthread $(daaldep.lnx32.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov32.a)
@@ -292,8 +291,8 @@ daaldep.lnx.threxport.create = grep -v -E '^(EXPORTS|;|$$)' $< $(USECPUS.out.gre
 daaldep.win32e.mkl.thr := $(MKLFPKDIR.libia)/daal_mkl_thread.$a
 daaldep.win32e.mkl.seq := $(MKLFPKDIR.libia)/daal_mkl_sequential.$a
 daaldep.win32e.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core.$a
-daaldep.win32e.vml := 
-daaldep.win32e.ipp := 
+daaldep.win32e.vml :=
+daaldep.win32e.ipp :=
 daaldep.win32e.rt.thr  := -LIBPATH:$(RELEASEDIR.tbb.libia) tbb.lib tbbmalloc.lib libcpmt.lib libcmt.lib $(if $(CHECK_DLL_SIG),Wintrust.lib)
 daaldep.win32e.rt.seq  := libcpmt.lib libcmt.lib $(if $(CHECK_DLL_SIG),Wintrust.lib)
 daaldep.win32e.threxport := export_lnx32e.def
@@ -301,8 +300,8 @@ daaldep.win32e.threxport := export_lnx32e.def
 daaldep.win32.mkl.thr := $(MKLFPKDIR.libia)/daal_mkl_thread.$a
 daaldep.win32.mkl.seq := $(MKLFPKDIR.libia)/daal_mkl_sequential.$a
 daaldep.win32.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core.$a
-daaldep.win32.vml := 
-daaldep.win32.ipp := 
+daaldep.win32.vml :=
+daaldep.win32.ipp :=
 daaldep.win32.rt.thr := -LIBPATH:$(RELEASEDIR.tbb.libia) tbb.lib tbbmalloc.lib libcpmt.lib libcmt.lib $(if $(CHECK_DLL_SIG),Wintrust.lib)
 daaldep.win32.rt.seq := libcpmt.lib libcmt.lib $(if $(CHECK_DLL_SIG),Wintrust.lib)
 daaldep.win32.threxport := export.def
@@ -310,11 +309,11 @@ daaldep.win32.threxport := export.def
 daaldep.win.threxport.create = grep -v -E '^(;|$$)' $< $(USECPUS.out.grep.filter)
 
 
-daaldep.mac32e.mkl.thr := $(MKLFPKDIR.libia)/$(plib)daal_mkl_thread.$a    
+daaldep.mac32e.mkl.thr := $(MKLFPKDIR.libia)/$(plib)daal_mkl_thread.$a
 daaldep.mac32e.mkl.seq := $(MKLFPKDIR.libia)/$(plib)daal_mkl_sequential.$a
 daaldep.mac32e.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core.$a
-daaldep.mac32e.vml := 
-daaldep.mac32e.ipp := 
+daaldep.mac32e.vml :=
+daaldep.mac32e.ipp :=
 daaldep.mac32e.rt.thr := -L$(RELEASEDIR.tbb.soia) -ltbb -ltbbmalloc $(daaldep.mac32e.rt.$(COMPILER))
 daaldep.mac32e.rt.seq := $(daaldep.mac32e.rt.$(COMPILER))
 daaldep.mac32e.threxport := export_mac.def
@@ -418,12 +417,9 @@ CORE.srcdirs  := $(CORE.SERV.srcdir) $(CORE.srcdir)                  \
                  $(CORE.SERV.COMPILER.srcdir) $(EXTERNALS.srcdir)    \
                  $(CORE.SERV.srcdir)/oneapi
 
-CORE.incdirs.rel  := $(addprefix $(RELEASEDIR.include)/,$(addprefix algorithms/,$(CORE.ALGORITHMS.INC)) algorithms data_management/compression data_management/data_source data_management/data services)
-CORE.incdirs.thr    := $(THR.srcdir)
-CORE.incdirs.core   := $(CORE.SERV.srcdir) $(addprefix $(CORE.SERV.srcdir)/, $(CORE.SERVICES)) $(CORE.srcdir) $(addprefix $(CORE.srcdir)/, $(CORE.ALGORITHMS.FULL)) ## change CORE.ALGORITHMS.FULL --> CORE.ALGORITHMS
-CORE.incdirs.common := $(RELEASEDIR.include) $(WORKDIR)
-CORE.incdirs.thirdp := $(EXTERNALS.srcdir) $(MKLFPKDIR.include) $(TBBDIR.include)
-CORE.incdirs := $(CORE.incdirs.rel) $(CORE.incdirs.thr) $(CORE.incdirs.core) $(CORE.incdirs.common) $(CORE.incdirs.thirdp)
+CORE.incdirs.common := $(RELEASEDIR.include) $(DIR) $(WORKDIR)
+CORE.incdirs.thirdp := $(MKLFPKDIR.include) $(TBBDIR.include)
+CORE.incdirs := $(CORE.incdirs.common) $(CORE.incdirs.thirdp)
 
 containing = $(foreach v,$2,$(if $(findstring $1,$v),$v))
 notcontaining = $(foreach v,$2,$(if $(findstring $1,$v),,$v))
@@ -474,7 +470,7 @@ ifdef OS_is_win
 $(WORKDIR.lib)/$(core_y:%.dll=%_dll.lib): $(WORKDIR.lib)/$(core_y)
 endif
 $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt): $(CORE.objs_y) $(if $(OS_is_win),$(CORE.tmpdir_y)/dll.res,) | $(CORE.tmpdir_y)/. ; $(WRITE.PREREQS)
-$(WORKDIR.lib)/$(core_y):                   $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt); $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
+$(WORKDIR.lib)/$(core_y):                   $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt) $(if $(PLAT_is_win32e),$(CORE.srcdir)/export_win32e.def); $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
 $(CORE.objs_a): $(CORE.tmpdir_a)/inc_a_folders.txt
 $(CORE.objs_a): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC)
@@ -581,7 +577,7 @@ $(THR.objs_a): COPT += @$(THR.tmpdir_a)/thr_inc_a_folders.txt
 
 $(THR.objs_y): $(THR.tmpdir_y)/thr_inc_y_folders.txt
 $(THR.objs_y): COPT += @$(THR.tmpdir_y)/thr_inc_y_folders.txt
-$(THR.objs_y): COPT += -D__DAAL_IMPLEMENTATION 
+$(THR.objs_y): COPT += -D__DAAL_IMPLEMENTATION
 
 $(THR.tmpdir_a)/thr_inc_a_folders.txt: makefile.lst | $(THR.tmpdir_a)/. $(CORE.incdirs) ; $(call WRITE.PREREQS,$(addprefix -I, $(CORE.incdirs)),$(space))
 $(THR.tmpdir_y)/thr_inc_y_folders.txt: makefile.lst | $(THR.tmpdir_y)/. $(CORE.incdirs) ; $(call WRITE.PREREQS,$(addprefix -I, $(CORE.incdirs)),$(space))
@@ -649,7 +645,7 @@ $(JNI.objs): $(WORKDIR.lib)/$(daal_jar)
 $(JNI.objs): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC) -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED
 $(JNI.objs): COPT += @$(JNI.tmpdir)/inc_j_folders.txt
 
-$(JNI.tmpdir)/inc_j_folders.txt: makefile.lst | $(JNI.tmpdir)/. ; $(call WRITE.PREREQS,$(addprefix -I,$(JNI.tmpdir) $(CORE.incdirs.rel) $(CORE.incdirs.common) $(CORE.incdirs.thirdp) $(JNI.srcdir.full)/include),$(space))
+$(JNI.tmpdir)/inc_j_folders.txt: makefile.lst | $(JNI.tmpdir)/. ; $(call WRITE.PREREQS,$(addprefix -I,$(JNI.tmpdir) $(CORE.incdirs.common) $(CORE.incdirs.thirdp) $(JNI.srcdir.full)/include),$(space))
 
 $(JNI.objs): $(JNI.tmpdir)/%.$o: $(JNI.srcdir)/%.cpp; mkdir -p $(@D); $(C.COMPILE)
 
@@ -759,7 +755,7 @@ $(RELEASEDIR.tbb.libia) $(RELEASEDIR.tbb.soia): _release_common
 
 define .release.t
 _release_common: $2/$(notdir $1)
-$2/$(notdir $1): $(call frompf,$1) | $2/. ; $(value cpy)
+$2/$(notdir $1): $(call frompf1,$1) | $2/. ; $(value cpy)
 endef
 $(foreach t,$(releasetbb.LIBS_Y),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.soia))))
 $(foreach t,$(releasetbb.LIBS_A),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.libia))))

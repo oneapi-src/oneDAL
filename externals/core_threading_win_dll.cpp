@@ -23,9 +23,9 @@
 
 #include <windows.h>
 #include <stdio.h>
-#include "threading.h"
-#include "service_thread_pinner.h"
-#include "env_detect.h"
+#include "algorithms/threading/threading.h"
+#include "algorithms/threading/service_thread_pinner.h"
+#include "services/env_detect.h"
 #include "mkl_daal.h"
 #include "vmlvsl.h"
 
@@ -141,7 +141,7 @@ static HMODULE WINAPI _daal_LoadLibrary(LPTSTR filename)
                filename);
         break;
 
-    default: printf("Intel DAAL FATAL ERROR: %s. Error code is 0x%x.\n", filename, sverif); break;
+    default: printf("Intel DAAL FATAL ERROR: %s. Error code is 0x%x.\n", filename, (unsigned int)sverif); break;
     }
 
     pWVTData.dwStateAction = WTD_STATEACTION_CLOSE;
@@ -230,6 +230,7 @@ FARPROC load_daal_thr_func(char * ordinal)
     FuncAddress = GetProcAddress(daal_thr_dll_handle, ordinal);
     if (FuncAddress == NULL)
     {
+        printf("GetLastError error code is %lx\n", GetLastError());
         printf("Intel DAAL FATAL ERROR: Cannot load \"%s\" function.\n", ordinal);
         exit(1);
     }

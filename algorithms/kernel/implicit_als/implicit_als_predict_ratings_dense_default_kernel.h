@@ -25,10 +25,10 @@
 #ifndef __IMPLICIT_ALS_PREDICT_RATINGS_DENSE_DEFAULT_KERNEL_H__
 #define __IMPLICIT_ALS_PREDICT_RATINGS_DENSE_DEFAULT_KERNEL_H__
 
-#include "implicit_als_predict_ratings_batch.h"
-#include "implicit_als_predict_ratings_distributed.h"
-#include "implicit_als_model.h"
-#include "kernel.h"
+#include "algorithms/implicit_als/implicit_als_predict_ratings_batch.h"
+#include "algorithms/implicit_als/implicit_als_predict_ratings_distributed.h"
+#include "algorithms/implicit_als/implicit_als_model.h"
+#include "algorithms/kernel/kernel.h"
 
 using namespace daal::data_management;
 

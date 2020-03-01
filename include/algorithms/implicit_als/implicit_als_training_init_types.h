@@ -312,7 +312,7 @@ public:
 class DAAL_EXPORT PartialResultBase : public daal::algorithms::PartialResult
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(PartialResultBase);
+    DECLARE_SERIALIZABLE_CAST(PartialResultBase)
 
     /**
      * Constructs partial result of the implicit ALS initialization algorithm
@@ -373,7 +373,7 @@ protected:
 class DAAL_EXPORT PartialResult : public PartialResultBase
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(PartialResult);
+    DECLARE_SERIALIZABLE_CAST(PartialResult)
     /** Default constructor */
     PartialResult();
 
@@ -450,7 +450,7 @@ protected:
 class DAAL_EXPORT DistributedPartialResultStep2 : public PartialResultBase
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(DistributedPartialResultStep2);
+    DECLARE_SERIALIZABLE_CAST(DistributedPartialResultStep2)
     /** Default constructor */
     DistributedPartialResultStep2();
 
@@ -505,7 +505,7 @@ protected:
 class DAAL_EXPORT Result : public daal::algorithms::implicit_als::training::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
 
     /**
      * Returns the result of the implicit ALS initialization algorithm

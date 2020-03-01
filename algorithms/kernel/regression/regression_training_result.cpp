@@ -23,8 +23,8 @@
 
 #include "services/daal_defines.h"
 #include "algorithms/regression/regression_training_types.h"
-#include "daal_strings.h"
-#include "daal_strings.h"
+#include "service/kernel/daal_strings.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -53,7 +53,7 @@ void Result::set(ResultId id, const regression::ModelPtr & value)
 
 Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
-    const ModelConstPtr m           = get(model);
+    const ModelConstPtr m = get(model);
 
     DAAL_CHECK(m, ErrorNullModel);
 

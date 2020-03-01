@@ -22,9 +22,9 @@
 */
 
 #include "algorithms/optimization_solver/iterative_solver/iterative_solver_types.h"
-#include "numeric_table.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "data_management/data/numeric_table.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -61,6 +61,25 @@ Parameter::Parameter(const Parameter & other)
     {
         function = other.function->clone();
     }
+}
+
+Parameter & Parameter::operator=(const Parameter & other)
+{
+    nIterations            = other.nIterations;
+    accuracyThreshold      = other.accuracyThreshold;
+    optionalResultRequired = other.optionalResultRequired;
+    batchSize              = other.batchSize;
+
+    if (other.function)
+    {
+        function = other.function->clone();
+    }
+    else
+    {
+        function.reset();
+    }
+
+    return *this;
 }
 
 services::Status Parameter::check() const

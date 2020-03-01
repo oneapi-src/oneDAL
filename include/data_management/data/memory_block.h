@@ -36,9 +36,9 @@ namespace interface1
 class DAAL_EXPORT MemoryBlock : public SerializationIface
 {
 public:
-    DECLARE_SERIALIZABLE_TAG();
+    DECLARE_SERIALIZABLE_TAG()
 
-    DAAL_CAST_OPERATOR(MemoryBlock);
+    DAAL_CAST_OPERATOR(MemoryBlock)
 
     /** Default constructor */
     MemoryBlock() : _size(0), _value(NULL) {}

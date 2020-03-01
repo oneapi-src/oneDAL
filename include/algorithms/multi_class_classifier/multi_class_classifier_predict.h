@@ -183,6 +183,9 @@ protected:
         _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, pmethod, tmethod)(&_env);
         _par = &parameter;
     }
+
+private:
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface1
@@ -279,7 +282,7 @@ public:
      *                  and parameters of the algorithm
      */
     Batch(const Batch<algorithmFPType, pmethod, tmethod> & other)
-        : classifier::prediction::Batch(other), parameter(other.parameter), input(other.input)
+        : classifier::prediction::Batch(other), input(other.input), parameter(other.parameter)
     {
         initialize();
     }
@@ -327,6 +330,9 @@ protected:
         _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, pmethod, tmethod)(&_env);
         _par = &parameter;
     }
+
+private:
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface2

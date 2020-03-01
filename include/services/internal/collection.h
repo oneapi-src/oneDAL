@@ -29,7 +29,6 @@ namespace services
 {
 namespace internal
 {
-
 /**
  * <a name="DAAL-CLASS-SERVICES__INTERNAL__PRIMITIVECOLLECTION"></a>
  * \brief  Class that provides simple memory management routines for handling blocks
@@ -38,45 +37,46 @@ namespace internal
  *         and deallocates memory. In case of objects consider Collection or ObjectPtrCollection
  * \tparam T Type of elements which are stored in the buffer
  */
-template<typename T>
+template <typename T>
 class PrimitiveCollection : public Base
 {
 public:
-    PrimitiveCollection() :
-        _buffer(NULL),
-        _size(0) { }
+    PrimitiveCollection() : _buffer(NULL), _size(0) {}
 
-    explicit PrimitiveCollection(size_t size, services::Status *status = NULL)
+    explicit PrimitiveCollection(size_t size, services::Status * status = NULL)
     {
         services::Status localStatus = reallocate(size);
         services::internal::tryAssignStatusAndThrow(status, localStatus);
     }
 
-    virtual ~PrimitiveCollection()
-    {
-        destroy();
-    }
+    virtual ~PrimitiveCollection() { destroy(); }
 
     void destroy()
     {
         services::daal_free((void *)_buffer);
         _buffer = NULL;
-        _size = 0;
+        _size   = 0;
     }
 
     services::Status reallocate(size_t size, bool copy = false)
     {
         if (_size == size)
-        { return services::Status(); }
+        {
+            return services::Status();
+        }
 
-        T *buffer = (T *)services::daal_malloc( sizeof(T) * size );
+        T * buffer = (T *)services::daal_malloc(sizeof(T) * size);
         if (!buffer)
-        { return services::throwIfPossible(services::ErrorMemoryAllocationFailed); }
+        {
+            return services::throwIfPossible(services::ErrorMemoryAllocationFailed);
+        }
 
         if (copy)
         {
             for (size_t i = 0; i < _size; i++)
-            { _buffer[i] = buffer[i]; }
+            {
+                _buffer[i] = buffer[i];
+            }
         }
 
         destroy();
@@ -86,50 +86,38 @@ public:
         return services::Status();
     }
 
-    services::Status enlarge(size_t factor = 2, bool copy = false)
-    {
-        return reallocate(_size * factor, copy);
-    }
+    services::Status enlarge(size_t factor = 2, bool copy = false) { return reallocate(_size * factor, copy); }
 
-    size_t size() const
-    {
-        return _size;
-    }
+    size_t size() const { return _size; }
 
-    T *data() const
-    {
-        return _buffer;
-    }
+    T * data() const { return _buffer; }
 
-    T *offset(size_t elementsOffset) const
+    T * offset(size_t elementsOffset) const
     {
-        DAAL_ASSERT( elementsOffset <= _size );
+        DAAL_ASSERT(elementsOffset <= _size);
         return _buffer + elementsOffset;
     }
 
-    T &operator [] (size_t index)
+    T & operator[](size_t index)
     {
-        DAAL_ASSERT( index < _size );
+        DAAL_ASSERT(index < _size);
         return _buffer[index];
     }
 
-    const T &operator [] (size_t index) const
+    const T & operator[](size_t index) const
     {
-        DAAL_ASSERT( index < _size );
+        DAAL_ASSERT(index < _size);
         return _buffer[index];
     }
 
-    services::BufferView<T> view() const
-    {
-        return services::BufferView<T>(_buffer, _size);
-    }
+    services::BufferView<T> view() const { return services::BufferView<T>(_buffer, _size); }
 
 private:
     PrimitiveCollection(const PrimitiveCollection &);
-    PrimitiveCollection &operator = (const PrimitiveCollection &);
+    PrimitiveCollection & operator=(const PrimitiveCollection &);
 
 private:
-    T *_buffer;
+    T * _buffer;
     size_t _size;
 };
 

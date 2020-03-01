@@ -22,9 +22,6 @@
 package com.intel.daal.algorithms.svd;
 
 import com.intel.daal.utils.*;
-import com.intel.daal.algorithms.ComputeMode;
-import com.intel.daal.algorithms.ComputeStep;
-import com.intel.daal.algorithms.Precision;
 import com.intel.daal.data_management.data.DataCollection;
 import com.intel.daal.data_management.data.KeyValueDataCollection;
 import com.intel.daal.services.DaalContext;

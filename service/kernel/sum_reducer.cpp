@@ -15,9 +15,9 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/sum_reducer.h"
+#include "service/kernel/oneapi/sum_reducer.h"
 #include "services/env_detect.h"
-#include "service_ittnotify.h"
+#include "externals/service_ittnotify.h"
 
 namespace daal
 {

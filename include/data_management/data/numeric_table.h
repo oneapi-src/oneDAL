@@ -57,7 +57,7 @@ class DAAL_EXPORT BlockDescriptor
 {
 public:
     /** \private */
-    BlockDescriptor() : _ptr(), _buffer(), _capacity(0), _ncols(0), _nrows(0), _colsOffset(0), _rowsOffset(0), _rwFlag(0), _pPtr(0), _rawPtr(0) {}
+    BlockDescriptor() : _ptr(), _nrows(0), _ncols(0), _colsOffset(0), _rowsOffset(0), _rwFlag(0), _buffer(), _capacity(0), _pPtr(0), _rawPtr(0) {}
 
     /** \private */
     ~BlockDescriptor() { freeBuffer(); }
@@ -418,7 +418,7 @@ public:
      *  \param[in] ddict Pointer to the data dictionary
      *  \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual services::Status setDictionary(NumericTableDictionary * ddict) { return services::Status(); }
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status setDictionary(NumericTableDictionary * /*ddict*/) { return services::Status(); }
 
     /**
      *  Returns a pointer to a data dictionary
@@ -647,7 +647,7 @@ public:
 class DAAL_EXPORT NumericTable : public SerializationIface, public NumericTableIface, public DenseNumericTableIface
 {
 public:
-    DAAL_CAST_OPERATOR(NumericTable);
+    DAAL_CAST_OPERATOR(NumericTable)
 
     /**
      *  Constructor for a Numeric Table with predefined dictionary
@@ -906,12 +906,12 @@ protected:
     services::Status _status;
 
 protected:
-    NumericTable(NumericTableDictionaryPtr ddict, services::Status & st)
-        : _obsnum(0), _ddict(ddict), _layout(layout_unknown), _memStatus(notAllocated), _normalizationFlag(NumericTable::nonNormalized)
+    NumericTable(NumericTableDictionaryPtr ddict, services::Status & /*st*/)
+        : _ddict(ddict), _obsnum(0), _memStatus(notAllocated), _layout(layout_unknown), _normalizationFlag(NumericTable::nonNormalized)
     {}
 
     NumericTable(size_t featnum, size_t obsnum, DictionaryIface::FeaturesEqual featuresEqual, services::Status & st)
-        : _obsnum(obsnum), _layout(layout_unknown), _memStatus(notAllocated), _normalizationFlag(NumericTable::nonNormalized)
+        : _obsnum(obsnum), _memStatus(notAllocated), _layout(layout_unknown), _normalizationFlag(NumericTable::nonNormalized)
     {
         _ddict = NumericTableDictionary::create(featnum, featuresEqual, &st);
         if (!st) return;
@@ -925,7 +925,7 @@ protected:
         return services::Status();
     }
 
-    virtual services::Status allocateDataMemoryImpl(daal::MemType type = daal::dram) { return services::Status(); }
+    virtual services::Status allocateDataMemoryImpl(daal::MemType /*type*/ = daal::dram) { return services::Status(); }
 
     virtual void freeDataMemoryImpl() {}
 

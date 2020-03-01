@@ -23,9 +23,9 @@
 //--
 */
 
-#include "decision_forest_regression_predict.h"
-#include "df_regression_predict_dense_default_batch.h"
-#include "service_algo_utils.h"
+#include "algorithms/decision_forest/decision_forest_regression_predict.h"
+#include "algorithms/kernel/dtrees/forest/regression/df_regression_predict_dense_default_batch.h"
+#include "service/kernel/service_algo_utils.h"
 
 namespace daal
 {

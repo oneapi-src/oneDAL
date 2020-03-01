@@ -24,9 +24,9 @@
 #ifndef __MULTICLASS_CONFUSION_MATRIX_DENSE_DEFAULT_BATCH_KERNEL_H__
 #define __MULTICLASS_CONFUSION_MATRIX_DENSE_DEFAULT_BATCH_KERNEL_H__
 
-#include "multiclass_confusion_matrix_types.h"
-#include "kernel.h"
-#include "numeric_table.h"
+#include "algorithms/classifier/multiclass_confusion_matrix_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;
 

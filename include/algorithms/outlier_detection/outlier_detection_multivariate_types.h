@@ -124,8 +124,8 @@ struct DAAL_EXPORT DefaultInit : public InitIface
     * \param[in] scatter       Measure of spread, the variance-covariance matrix of size p x p
     * \param[in] threshold     Limit that defines the outlier region, the array of size 1 x 1 containing a non-negative number
     */
-    virtual void operator()(data_management::NumericTable * data, data_management::NumericTable * location, data_management::NumericTable * scatter,
-                            data_management::NumericTable * threshold) DAAL_C11_OVERRIDE
+    virtual void operator()(data_management::NumericTable * /*data*/, data_management::NumericTable * /*location*/,
+                            data_management::NumericTable * /*scatter*/, data_management::NumericTable * /*threshold*/) DAAL_C11_OVERRIDE
     {}
 };
 
@@ -164,7 +164,7 @@ struct DAAL_EXPORT Parameter<defaultDense> : public daal::algorithms::Parameter
 template <>
 struct DAAL_EXPORT Parameter<baconDense> : public daal::algorithms::Parameter
 {
-    Parameter(BaconInitializationMethod initMethod = baconMedian, double alpha = 0.05, double toleranceToConverge = 0.005) {}
+    Parameter(BaconInitializationMethod /*initMethod*/ = baconMedian, double /*alpha*/ = 0.05, double /*toleranceToConverge*/ = 0.005) {}
 
     BaconInitializationMethod initMethod; /*!< Initialization method, \ref BaconInitializationMethod */
     double alpha;                         /*!< One-tailed probability that defines the \f$(1 - \alpha)\f$ quantile
@@ -219,7 +219,7 @@ public:
 class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
     Result();
 
     virtual ~Result() {};

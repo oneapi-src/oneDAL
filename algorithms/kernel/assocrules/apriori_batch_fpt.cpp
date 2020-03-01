@@ -21,7 +21,7 @@
 //--
 */
 
-#include "apriori_batch.h"
+#include "algorithms/kernel/assocrules/apriori_batch.h"
 
 namespace daal
 {

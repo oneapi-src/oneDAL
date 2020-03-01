@@ -24,7 +24,7 @@
 #ifndef __PCA_TRANSFORM_DENSE_DEFAULT_BATCH_ONEAPI_IMPL_I__
 #define __PCA_TRANSFORM_DENSE_DEFAULT_BATCH_ONEAPI_IMPL_I__
 
-#include "cl_kernels/pca_transform_cl_kernels.cl"
+#include "algorithms/kernel/pca/transform/oneapi/cl_kernels/pca_transform_cl_kernels.cl"
 
 using namespace daal::services;
 using namespace daal::oneapi::internal;
@@ -42,23 +42,20 @@ namespace oneapi
 {
 namespace internal
 {
-
 using namespace daal::oneapi::internal;
 
-template<typename algorithmFPType, transform::Method method>
-void TransformKernelOneAPI<algorithmFPType, method>::computeTransformedBlock
-        (const uint32_t numRows, const uint32_t numFeatures, const uint32_t numComponents,
-         UniversalBuffer & dataBlock, UniversalBuffer & eigenvectors,
-         const services::Buffer<algorithmFPType> & resultBlock)
+template <typename algorithmFPType, transform::Method method>
+void TransformKernelOneAPI<algorithmFPType, method>::computeTransformedBlock(const uint32_t numRows, const uint32_t numFeatures,
+                                                                             const uint32_t numComponents, UniversalBuffer & dataBlock,
+                                                                             UniversalBuffer & eigenvectors,
+                                                                             const services::Buffer<algorithmFPType> & resultBlock)
 {
     BlasGpu<algorithmFPType>::xgemm(math::Layout::ColMajor, math::Transpose::Trans, math::Transpose::NoTrans, numComponents, numRows, numFeatures,
-        1.0, eigenvectors, numFeatures, 0, dataBlock, numFeatures, 0, 0.0, resultBlock, numComponents, 0);
+                                    1.0, eigenvectors, numFeatures, 0, dataBlock, numFeatures, 0, 0.0, resultBlock, numComponents, 0);
 }
 
-
-template<typename algorithmFPType, transform::Method method>
-services::Status TransformKernelOneAPI<algorithmFPType, method>::computeInvSigmas(ExecutionContextIface& ctx,
-                                                                                  NumericTable* variances,
+template <typename algorithmFPType, transform::Method method>
+services::Status TransformKernelOneAPI<algorithmFPType, method>::computeInvSigmas(ExecutionContextIface & ctx, NumericTable * variances,
                                                                                   const services::Buffer<algorithmFPType> & invSigmas,
                                                                                   const uint32_t numFeatures)
 {
@@ -68,7 +65,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::computeInvSigma
     buildKernel(ctx, factory);
 
     const char * const computeInvSigmasKernel = "computeInvSigmas";
-    KernelPtr kernel = factory.getKernel(computeInvSigmasKernel);
+    KernelPtr kernel                          = factory.getKernel(computeInvSigmasKernel);
     BlockDescriptor<algorithmFPType> varBlock;
     variances->getBlockOfRows(0, numFeatures, readOnly, varBlock);
 
@@ -81,14 +78,10 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::computeInvSigma
     return status;
 }
 
-template<typename algorithmFPType, transform::Method method>
-services::Status TransformKernelOneAPI<algorithmFPType, method>::normalize(ExecutionContextIface& ctx,
-                                                                           UniversalBuffer & copyBlock,
-                                                                           UniversalBuffer & rawMeans,
-                                                                           UniversalBuffer & invSigmas,
-                                                                           uint32_t numMeans,
-                                                                           uint32_t numInvSigmas,
-                                                                           const uint32_t numFeatures,
+template <typename algorithmFPType, transform::Method method>
+services::Status TransformKernelOneAPI<algorithmFPType, method>::normalize(ExecutionContextIface & ctx, UniversalBuffer & copyBlock,
+                                                                           UniversalBuffer & rawMeans, UniversalBuffer & invSigmas, uint32_t numMeans,
+                                                                           uint32_t numInvSigmas, const uint32_t numFeatures,
                                                                            const uint32_t numVectors)
 {
     services::Status status;
@@ -97,7 +90,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::normalize(Execu
     buildKernel(ctx, factory);
 
     const char * const normalizeKernel = "normalize";
-    KernelPtr kernel = factory.getKernel(normalizeKernel);
+    KernelPtr kernel                   = factory.getKernel(normalizeKernel);
 
     const unsigned int workItemsPerGroup = (numFeatures > maxWorkItemsPerGroup) ? maxWorkItemsPerGroup : numFeatures;
     KernelArguments args(7);
@@ -123,11 +116,10 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::normalize(Execu
     return status;
 }
 
-template<typename algorithmFPType, transform::Method method>
-services::Status TransformKernelOneAPI<algorithmFPType, method>::whitening(ExecutionContextIface& ctx,
+template <typename algorithmFPType, transform::Method method>
+services::Status TransformKernelOneAPI<algorithmFPType, method>::whitening(ExecutionContextIface & ctx,
                                                                            const services::Buffer<algorithmFPType> & transformedBlock,
-                                                                           UniversalBuffer & invEigenvalues,
-                                                                           const uint32_t numComponents,
+                                                                           UniversalBuffer & invEigenvalues, const uint32_t numComponents,
                                                                            const uint32_t numVectors)
 {
     services::Status status;
@@ -136,7 +128,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::whitening(Execu
     buildKernel(ctx, factory);
 
     const char * const whiteningKernel = "whitening";
-    KernelPtr kernel = factory.getKernel(whiteningKernel);
+    KernelPtr kernel                   = factory.getKernel(whiteningKernel);
 
     const unsigned int workItemsPerGroup = (numComponents > maxWorkItemsPerGroup) ? maxWorkItemsPerGroup : numComponents;
     KernelArguments args(4);
@@ -159,27 +151,23 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::whitening(Execu
     return status;
 }
 
-
-template<typename algorithmFPType, transform::Method method>
-services::Status TransformKernelOneAPI<algorithmFPType, method>::allocateBuffer(ExecutionContextIface& ctx,
-                                                                                UniversalBuffer& returnBuffer,
+template <typename algorithmFPType, transform::Method method>
+services::Status TransformKernelOneAPI<algorithmFPType, method>::allocateBuffer(ExecutionContextIface & ctx, UniversalBuffer & returnBuffer,
                                                                                 uint32_t bufferSize)
 {
     services::Status status;
 
     const algorithmFPType zero = 0.0;
-    returnBuffer = ctx.allocate(TypeIds::id<algorithmFPType>(), bufferSize, &status);
+    returnBuffer               = ctx.allocate(TypeIds::id<algorithmFPType>(), bufferSize, &status);
     DAAL_CHECK_STATUS_VAR(status);
     ctx.fill(returnBuffer, zero, &status);
 
     return status;
 }
 
-template<typename algorithmFPType, transform::Method method>
-services::Status TransformKernelOneAPI<algorithmFPType, method>::copyBufferByRef(ExecutionContextIface& ctx,
-                                                                                 UniversalBuffer& returnBuffer,
-                                                                                 NumericTable& data,
-                                                                                 uint32_t nRows, uint32_t nCols)
+template <typename algorithmFPType, transform::Method method>
+services::Status TransformKernelOneAPI<algorithmFPType, method>::copyBufferByRef(ExecutionContextIface & ctx, UniversalBuffer & returnBuffer,
+                                                                                 NumericTable & data, uint32_t nRows, uint32_t nCols)
 
 {
     services::Status status;
@@ -192,15 +180,14 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::copyBufferByRef
     return status;
 }
 
-template<typename algorithmFPType, transform::Method method>
-services::Status TransformKernelOneAPI<algorithmFPType, method>::checkVariances(NumericTable & pVariances,
-                                                                                uint32_t numRows)
+template <typename algorithmFPType, transform::Method method>
+services::Status TransformKernelOneAPI<algorithmFPType, method>::checkVariances(NumericTable & pVariances, uint32_t numRows)
 {
     services::Status status;
 
     BlockDescriptor<algorithmFPType> varBlock;
     DAAL_CHECK_STATUS(status, pVariances.getBlockOfRows(0, numRows, ReadWriteMode::readOnly, varBlock));
-    for(size_t i = 0; i < numRows; i++)
+    for (size_t i = 0; i < numRows; i++)
     {
         if (varBlock.getBlockPtr()[i] < 0)
         {
@@ -211,13 +198,12 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::checkVariances(
     return status;
 }
 
-template<typename algorithmFPType, transform::Method method>
-services::Status TransformKernelOneAPI<algorithmFPType, method>::buildKernel(ExecutionContextIface& ctx,
-                                                                             ClKernelFactoryIface & factory)
+template <typename algorithmFPType, transform::Method method>
+services::Status TransformKernelOneAPI<algorithmFPType, method>::buildKernel(ExecutionContextIface & ctx, ClKernelFactoryIface & factory)
 {
     services::Status status;
 
-    auto fptype_name = oneapi::internal::getKeyFPType<algorithmFPType>();
+    auto fptype_name   = oneapi::internal::getKeyFPType<algorithmFPType>();
     auto build_options = fptype_name;
 
     const services::String options = getKeyFPType<algorithmFPType>();
@@ -228,19 +214,17 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::buildKernel(Exe
     return status;
 }
 
-template<typename algorithmFPType, transform::Method method>
-services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(NumericTable& data, NumericTable& eigenvectors,
-                                                                         NumericTable *pMeans, NumericTable *pVariances,
-                                                                         NumericTable *pEigenvalues, NumericTable &transformedData)
+template <typename algorithmFPType, transform::Method method>
+services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(NumericTable & data, NumericTable & eigenvectors, NumericTable * pMeans,
+                                                                         NumericTable * pVariances, NumericTable * pEigenvalues,
+                                                                         NumericTable & transformedData)
 {
     services::Status status;
-    ExecutionContextIface &ctx = services::Environment::getInstance()->getDefaultExecutionContext();
+    ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
 
-    const uint32_t numVectors  = data.getNumberOfRows();
-    const uint32_t numFeatures = data.getNumberOfColumns();
+    const uint32_t numVectors    = data.getNumberOfRows();
+    const uint32_t numFeatures   = data.getNumberOfColumns();
     const uint32_t numComponents = transformedData.getNumberOfColumns();
-
-    const algorithmFPType zero = 0.0;
 
     /* Calculating invSigmas and invEigenValues*/
     UniversalBuffer invSigmas;
@@ -281,8 +265,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
 
     if (isNormalize)
     {
-        DAAL_CHECK_STATUS(status, normalize(ctx, copyBlock, rawMeans, invSigmas, numMeans, numInvSigmas,
-                          numFeatures, numVectors));
+        DAAL_CHECK_STATUS(status, normalize(ctx, copyBlock, rawMeans, invSigmas, numMeans, numInvSigmas, numFeatures, numVectors));
     }
 
     /* Retrieve data associated with coefficients */
@@ -293,12 +276,10 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
     BlockDescriptor<algorithmFPType> transformedBlock;
     DAAL_CHECK_STATUS(status, transformedData.getBlockOfRows(0, transformedData.getNumberOfRows(), ReadWriteMode::readWrite, transformedBlock));
 
-
-    computeTransformedBlock(numVectors, numFeatures, numComponents, copyBlock,
-       basis, transformedBlock.getBuffer());
+    computeTransformedBlock(numVectors, numFeatures, numComponents, copyBlock, basis, transformedBlock.getBuffer());
 
     /* compute whitening to unit variance of transformed data if required */
-    if(isWhitening)
+    if (isWhitening)
     {
         DAAL_CHECK_STATUS(status, whitening(ctx, transformedBlock.getBuffer(), invEigenvalues, numComponents, numVectors));
     }

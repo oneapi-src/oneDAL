@@ -21,7 +21,7 @@
 //--
 */
 
-#include "quantiles_batch_container.h"
+#include "algorithms/kernel/quantiles/quantiles_batch_container.h"
 
 namespace daal
 {

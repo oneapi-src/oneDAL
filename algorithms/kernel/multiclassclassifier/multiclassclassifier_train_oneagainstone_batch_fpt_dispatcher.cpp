@@ -21,8 +21,8 @@
 //--
 */
 
-#include "multi_class_classifier_train.h"
-#include "multiclassclassifier_train_batch_container.h"
+#include "algorithms/multi_class_classifier/multi_class_classifier_train.h"
+#include "algorithms/kernel/multiclassclassifier/multiclassclassifier_train_batch_container.h"
 
 namespace daal
 {

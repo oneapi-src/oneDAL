@@ -20,14 +20,14 @@
 //  Implementation of cross-entropy loss algorithm
 //--
 */
-#include "service_math.h"
-#include "service_utils.h"
-#include "service_environment.h"
-#include "service_ittnotify.h"
+#include "externals/service_math.h"
+#include "service/kernel/service_utils.h"
+#include "service/kernel/service_environment.h"
+#include "externals/service_ittnotify.h"
 
 DAAL_ITTNOTIFY_DOMAIN(cross_entropy_loss.dense.default.batch);
 
-#include "common/objective_function_utils.i"
+#include "algorithms/kernel/objective_function/common/objective_function_utils.i"
 
 namespace daal
 {
@@ -263,7 +263,7 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
 
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (int j = 0; j < p; j++)
+                for (size_t j = 0; j < p; j++)
                 {
                     curentNorm += x[i * p + j] * x[i * p + j];
                 }
@@ -294,8 +294,8 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
         //f = softmax(f)
         softmaxThreaded(f.get(), f.get(), n, nClasses);
 
-        const bool bL1          = (parameter->penaltyL1 > 0);
-        const bool bL2          = (parameter->penaltyL2 > 0);
+        const bool bL1 = (parameter->penaltyL1 > 0);
+        const bool bL2 = (parameter->penaltyL2 > 0);
 
         const algorithmFPType div = algorithmFPType(1) / algorithmFPType(n);
         if (valueNT)
@@ -305,9 +305,9 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
 
             WriteRows<algorithmFPType, cpu> vr(valueNT, 0, 1);
             DAAL_CHECK_BLOCK_STATUS(vr);
-            algorithmFPType & value               = *vr.get();
-            value                                 = 0.0;
-            const algorithmFPType * lp            = logP.get();
+            algorithmFPType & value    = *vr.get();
+            value                      = 0.0;
+            const algorithmFPType * lp = logP.get();
 
             for (size_t i = 0; i < n; ++i)
             {

@@ -25,7 +25,7 @@
 
 #include <jni.h>
 #include <tbb/tbb.h>
-#include "daal_string.h"
+#include "services/daal_string.h"
 
 namespace daal
 {
@@ -312,7 +312,7 @@ protected:
 #endif
 
 private:
-    JavaCallback& operator=(const JavaCallback&);
+    JavaCallback & operator=(const JavaCallback &);
 };
 } // namespace services
 } // namespace daal

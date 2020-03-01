@@ -21,17 +21,16 @@
 //--
 */
 
-#include "cl_kernels/kmeans_init_cl_kernels.cl"
-#include "execution_context.h"
-#include "oneapi/service_defines_oneapi.h"
+#include "algorithms/kernel/kmeans/oneapi/cl_kernels/kmeans_init_cl_kernels.cl"
+#include "oneapi/internal/execution_context.h"
 #include "oneapi/internal/types.h"
 
-#include "numeric_table.h"
-#include "daal_defines.h"
-#include "service_memory.h"
-#include "service_numeric_table.h"
-#include "uniform_kernel.h"
-#include "uniform_impl.i"
+#include "data_management/data/numeric_table.h"
+#include "services/daal_defines.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/distributions/uniform/uniform_kernel.h"
+#include "algorithms/kernel/distributions/uniform/uniform_impl.i"
 
 namespace daal
 {

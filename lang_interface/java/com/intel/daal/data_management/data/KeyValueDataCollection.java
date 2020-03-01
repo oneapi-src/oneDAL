@@ -22,7 +22,6 @@
 package com.intel.daal.data_management.data;
 
 import com.intel.daal.utils.*;
-import com.intel.daal.services.ContextClient;
 import com.intel.daal.services.DaalContext;
 
 /**

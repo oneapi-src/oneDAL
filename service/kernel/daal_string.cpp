@@ -18,8 +18,8 @@
 #include <cstring>
 
 #include "services/daal_string.h"
-#include "service_defines.h"
-#include "service_service.h"
+#include "service/kernel/service_defines.h"
+#include "externals/service_service.h"
 
 namespace daal
 {
@@ -102,6 +102,18 @@ String & String::operator=(const String & other)
         initialize(other.c_str(), other.length());
     }
     return *this;
+}
+
+bool String::operator==(const String & other)
+{
+    if (this == &other) return true;
+    if (this->length() != other.length()) return false;
+    return strncmp(this->c_str(), other.c_str(), this->length()) == 0;
+}
+
+bool String::operator!=(const String & other)
+{
+    return !(*this == other);
 }
 
 size_t String::length() const

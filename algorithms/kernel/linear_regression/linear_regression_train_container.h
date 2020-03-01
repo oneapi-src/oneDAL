@@ -24,17 +24,17 @@
 #ifndef __LINEAR_REGRESSION_TRAIN_CONTAINER_H__
 #define __LINEAR_REGRESSION_TRAIN_CONTAINER_H__
 
-#include "kernel.h"
-#include "linear_regression_training_batch.h"
-#include "linear_regression_training_online.h"
-#include "linear_regression_training_distributed.h"
-#include "linear_regression_train_kernel.h"
-#include "linear_regression_ne_model.h"
-#include "linear_regression_qr_model.h"
-#include "service_numeric_table.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/linear_regression/linear_regression_training_batch.h"
+#include "algorithms/linear_regression/linear_regression_training_online.h"
+#include "algorithms/linear_regression/linear_regression_training_distributed.h"
+#include "algorithms/kernel/linear_regression/linear_regression_train_kernel.h"
+#include "algorithms/linear_regression/linear_regression_ne_model.h"
+#include "algorithms/linear_regression/linear_regression_qr_model.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 #include "oneapi/internal/utils.h"
 
-#include "oneapi/linear_regression_train_kernel_oneapi.h"
+#include "algorithms/kernel/linear_regression/oneapi/linear_regression_train_kernel_oneapi.h"
 
 namespace daal
 {
@@ -127,7 +127,17 @@ Status BatchContainer<algorithmFPType, method, cpu>::compute()
 template <typename algorithmFPType, training::Method method, CpuType cpu>
 OnlineContainer<algorithmFPType, method, cpu>::OnlineContainer(Environment::env * daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::OnlineKernel, algorithmFPType, method);
+    auto & context    = oneapi::internal::getDefaultContext();
+    auto & deviceInfo = context.getInfoDevice();
+
+    if ((method == training::normEqDense) && (!deviceInfo.isCpu))
+    {
+        __DAAL_INITIALIZE_KERNELS_SYCL(internal::OnlineKernelOneAPI, algorithmFPType, training::normEqDense);
+    }
+    else
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::OnlineKernel, algorithmFPType, method);
+    }
 }
 
 template <typename algorithmFPType, training::Method method, CpuType cpu>
@@ -153,11 +163,24 @@ Status OnlineContainer<algorithmFPType, method, cpu>::compute()
 
     Environment::env & env = *_env;
 
+    auto & context    = oneapi::internal::getDefaultContext();
+    auto & deviceInfo = context.getInfoDevice();
+
     if (method == training::normEqDense)
     {
         linear_regression::ModelNormEqPtr m = linear_regression::ModelNormEq::cast(partialResult->get(training::partialModel));
-        __DAAL_CALL_KERNEL(env, internal::OnlineKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, training::normEqDense), compute, *(input->get(data)),
-                           *(input->get(dependentVariables)), *(m->getXTXTable()), *(m->getXTYTable()), par->interceptFlag);
+
+        if (deviceInfo.isCpu)
+        {
+            __DAAL_CALL_KERNEL(env, internal::OnlineKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, training::normEqDense), compute,
+                               *(input->get(data)), *(input->get(dependentVariables)), *(m->getXTXTable()), *(m->getXTYTable()), par->interceptFlag);
+        }
+        else
+        {
+            __DAAL_CALL_KERNEL_SYCL(env, internal::OnlineKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, training::normEqDense), compute,
+                                    *(input->get(data)), *(input->get(dependentVariables)), *(m->getXTXTable()), *(m->getXTYTable()),
+                                    par->interceptFlag);
+        }
     }
     else
     {
@@ -184,12 +207,26 @@ Status OnlineContainer<algorithmFPType, method, cpu>::finalizeCompute()
     Parameter * par               = static_cast<Parameter *>(_par);
     Environment::env & env        = *_env;
 
+    auto & context    = oneapi::internal::getDefaultContext();
+    auto & deviceInfo = context.getInfoDevice();
+
     if (method == training::normEqDense)
     {
         linear_regression::ModelNormEqPtr pm = linear_regression::ModelNormEq::cast(partialResult->get(training::partialModel));
         linear_regression::ModelNormEqPtr m  = linear_regression::ModelNormEq::cast(result->get(training::model));
-        __DAAL_CALL_KERNEL(env, internal::OnlineKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, training::normEqDense), finalizeCompute,
-                           *(pm->getXTXTable()), *(pm->getXTYTable()), *(m->getXTXTable()), *(m->getXTYTable()), *(m->getBeta()), par->interceptFlag);
+
+        if (deviceInfo.isCpu)
+        {
+            __DAAL_CALL_KERNEL(env, internal::OnlineKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, training::normEqDense), finalizeCompute,
+                               *(pm->getXTXTable()), *(pm->getXTYTable()), *(m->getXTXTable()), *(m->getXTYTable()), *(m->getBeta()),
+                               par->interceptFlag);
+        }
+        else
+        {
+            __DAAL_CALL_KERNEL_SYCL(env, internal::OnlineKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, training::normEqDense),
+                                    finalizeCompute, *(pm->getXTXTable()), *(pm->getXTYTable()), *(m->getXTXTable()), *(m->getXTYTable()),
+                                    *(m->getBeta()), par->interceptFlag);
+        }
     }
     else
     {

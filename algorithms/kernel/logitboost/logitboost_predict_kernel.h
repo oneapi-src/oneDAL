@@ -25,9 +25,9 @@
 #ifndef __LOGITBOOST_PREDICT_KERNEL_H__
 #define __LOGITBOOST_PREDICT_KERNEL_H__
 
-#include "logitboost_predict.h"
-#include "kernel.h"
-#include "service_numeric_table.h"
+#include "algorithms/boosting/logitboost_predict.h"
+#include "algorithms/kernel/kernel.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::data_management;
 

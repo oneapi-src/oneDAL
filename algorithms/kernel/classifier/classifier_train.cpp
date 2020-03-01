@@ -21,9 +21,9 @@
 //--
 */
 
-#include "classifier_training_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/classifier/classifier_training_types.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 #include "data_management/data/numeric_table.h"
 #include "data_management/data/numeric_types.h"
 
@@ -91,9 +91,8 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
 
 services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter) const
 {
-    services::Status s;   // Error status
-    int nClasses = 0;     // Number of classes
-    bool flag    = false; // Flag indicates error in table of labels
+    services::Status s; // Error status
+    bool flag = false;  // Flag indicates error in table of labels
 
     data_management::NumericTablePtr dataTable = get(data);
     DAAL_CHECK_STATUS(s, data_management::checkNumericTable(dataTable.get(), dataStr()));
@@ -122,7 +121,7 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter)
         {
             DAAL_CHECK_EX((algParameter2->nClasses > 1) && (algParameter2->nClasses < INT_MAX), services::ErrorIncorrectParameter,
                           services::ParameterName, nClassesStr());
-            nClasses = static_cast<int>(algParameter2->nClasses);
+            int nClasses = static_cast<int>(algParameter2->nClasses);
 
             data_management::BlockDescriptor<int> yBD;
             const_cast<data_management::NumericTable *>(labelsTable.get())->getBlockOfRows(0, nRows, data_management::readOnly, yBD);

@@ -17,8 +17,8 @@
 
 #include "com_intel_daal_data_management_data_source_FileDataSource.h"
 
-#include "file_data_source.h"
-#include "csv_feature_manager.h"
+#include "data_management/data_source/file_data_source.h"
+#include "data_management/data_source/csv_feature_manager.h"
 #include "common_helpers_functions.h"
 
 using namespace daal;

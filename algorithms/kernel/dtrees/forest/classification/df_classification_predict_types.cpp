@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/decision_forest/decision_forest_classification_predict_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -95,9 +95,25 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     DAAL_CHECK_STATUS(s, checkNumericTable(dataTable.get(), dataStr()));
 
     const decision_forest::classification::ModelPtr m = get(classifier::prediction::model);
-    if (!m.get()) s.add(ErrorNullModel);
-    //TODO: check input model
+
+    if (!m.get())
+    {
+        s.add(ErrorNullModel);
+        //TODO: check input model
+    }
+    else
+    {
+        const auto nFeatures      = dataTable->getNumberOfColumns();
+        const auto nFeaturesModel = m->getNFeatures();
+
+        DAAL_CHECK(nFeaturesModel == nFeatures, services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
+    }
     return s;
+}
+
+services::Status Parameter::check() const
+{
+    return daal::algorithms::classifier::interface2::Parameter::check();
 }
 
 } // namespace interface1

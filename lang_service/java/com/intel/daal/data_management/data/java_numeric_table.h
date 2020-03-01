@@ -29,7 +29,7 @@
 
 #include "services/daal_defines.h"
 #include "data_management/data/data_serialize.h"
-#include "numeric_table.h"
+#include "data_management/data/numeric_table.h"
 #include "java_threading_helper.h"
 
 using namespace daal::data_management;

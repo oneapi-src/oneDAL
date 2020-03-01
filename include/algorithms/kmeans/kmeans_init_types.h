@@ -362,7 +362,7 @@ protected:
 class DAAL_EXPORT PartialResult : public daal::algorithms::PartialResult
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(PartialResult);
+    DECLARE_SERIALIZABLE_CAST(PartialResult)
     PartialResult();
 
     virtual ~PartialResult() {};
@@ -429,7 +429,7 @@ typedef services::SharedPtr<PartialResult> PartialResultPtr;
 class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
     Result();
 
     virtual ~Result() {};
@@ -800,7 +800,7 @@ public:
 class DAAL_EXPORT DistributedStep2LocalPlusPlusPartialResult : public daal::algorithms::PartialResult
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(DistributedStep2LocalPlusPlusPartialResult);
+    DECLARE_SERIALIZABLE_CAST(DistributedStep2LocalPlusPlusPartialResult)
     DistributedStep2LocalPlusPlusPartialResult();
 
     virtual ~DistributedStep2LocalPlusPlusPartialResult() {};
@@ -882,7 +882,7 @@ typedef services::SharedPtr<DistributedStep2LocalPlusPlusPartialResult> Distribu
 class DAAL_EXPORT DistributedStep3MasterPlusPlusPartialResult : public daal::algorithms::PartialResult
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(DistributedStep3MasterPlusPlusPartialResult);
+    DECLARE_SERIALIZABLE_CAST(DistributedStep3MasterPlusPlusPartialResult)
     DistributedStep3MasterPlusPlusPartialResult();
 
     virtual ~DistributedStep3MasterPlusPlusPartialResult() {};
@@ -966,7 +966,7 @@ typedef services::SharedPtr<DistributedStep3MasterPlusPlusPartialResult> Distrib
 class DAAL_EXPORT DistributedStep4LocalPlusPlusPartialResult : public daal::algorithms::PartialResult
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(DistributedStep4LocalPlusPlusPartialResult);
+    DECLARE_SERIALIZABLE_CAST(DistributedStep4LocalPlusPlusPartialResult)
     DistributedStep4LocalPlusPlusPartialResult();
 
     virtual ~DistributedStep4LocalPlusPlusPartialResult() {};
@@ -1026,7 +1026,7 @@ typedef services::SharedPtr<DistributedStep4LocalPlusPlusPartialResult> Distribu
 class DAAL_EXPORT DistributedStep5MasterPlusPlusPartialResult : public daal::algorithms::PartialResult
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(DistributedStep5MasterPlusPlusPartialResult);
+    DECLARE_SERIALIZABLE_CAST(DistributedStep5MasterPlusPlusPartialResult)
     DistributedStep5MasterPlusPlusPartialResult();
 
     virtual ~DistributedStep5MasterPlusPlusPartialResult() {};

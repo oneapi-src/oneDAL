@@ -21,7 +21,7 @@
 //--
 */
 
-#include "pca_onlineparameter_svd.h"
+#include "algorithms/kernel/pca/pca_onlineparameter_svd.h"
 
 namespace daal
 {

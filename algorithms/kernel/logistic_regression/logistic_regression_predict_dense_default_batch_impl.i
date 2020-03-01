@@ -24,22 +24,22 @@
 #ifndef __LOGISTIC_REGRESSION_PREDICT_DENSE_DEFAULT_BATCH_IMPL_I__
 #define __LOGISTIC_REGRESSION_PREDICT_DENSE_DEFAULT_BATCH_IMPL_I__
 
-#include "algorithm.h"
-#include "numeric_table.h"
-#include "logistic_regression_predict_kernel.h"
-#include "threading.h"
-#include "daal_defines.h"
-#include "logistic_regression_model_impl.h"
-#include "service_numeric_table.h"
-#include "service_error_handling.h"
-#include "service_memory.h"
-#include "service_math.h"
-#include "service_data_utils.h"
-#include "service_algo_utils.h"
-#include "service_environment.h"
-#include "service_blas.h"
-#include "objective_function/cross_entropy_loss/cross_entropy_loss_dense_default_batch_kernel.h"
-#include "objective_function/logistic_loss/logistic_loss_dense_default_batch_kernel.h"
+#include "algorithms/algorithm.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/kernel/logistic_regression/logistic_regression_predict_kernel.h"
+#include "algorithms/threading/threading.h"
+#include "services/daal_defines.h"
+#include "algorithms/kernel/logistic_regression/logistic_regression_model_impl.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "externals/service_memory.h"
+#include "externals/service_math.h"
+#include "service/kernel/service_data_utils.h"
+#include "service/kernel/service_algo_utils.h"
+#include "service/kernel/service_environment.h"
+#include "externals/service_blas.h"
+#include "algorithms/kernel/objective_function/cross_entropy_loss/cross_entropy_loss_dense_default_batch_kernel.h"
+#include "algorithms/kernel/objective_function/logistic_loss/logistic_loss_dense_default_batch_kernel.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;
@@ -220,9 +220,9 @@ struct TlsData
 template <typename algorithmFPType, CpuType cpu>
 services::Status PredictMulticlassTask<algorithmFPType, cpu>::run(const NumericTable & beta, services::HostAppIface * pHostApp)
 {
-    const size_t nRowsTotal    = _data->getNumberOfRows();
-    const size_t nCols         = _data->getNumberOfColumns();
-    const size_t nClasses      = beta.getNumberOfRows();
+    const size_t nRowsTotal = _data->getNumberOfRows();
+    const size_t nCols      = _data->getNumberOfColumns();
+    const size_t nClasses   = beta.getNumberOfRows();
     DAAL_ASSERT(beta.getNumberOfColumns() == nCols + 1);
     const size_t nYPerRow            = nClasses;
     const size_t nRowsInBlockDefault = 500;

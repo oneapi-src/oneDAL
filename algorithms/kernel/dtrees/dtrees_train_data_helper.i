@@ -25,15 +25,15 @@
 #ifndef __DTREES_TRAIN_DATA_HELPER_I__
 #define __DTREES_TRAIN_DATA_HELPER_I__
 
-#include "service_memory.h"
-#include "daal_defines.h"
-#include "service_memory.h"
-#include "service_rng.h"
-#include "service_numeric_table.h"
-#include "service_data_utils.h"
-#include "service_sort.h"
-#include "service_math.h"
-#include "dtrees_feature_type_helper.i"
+#include "externals/service_memory.h"
+#include "services/daal_defines.h"
+#include "externals/service_memory.h"
+#include "externals/service_rng.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "service/kernel/service_data_utils.h"
+#include "algorithms/kernel/service_sort.h"
+#include "externals/service_math.h"
+#include "algorithms/kernel/dtrees/dtrees_feature_type_helper.i"
 
 typedef int IndexType;
 
@@ -263,8 +263,8 @@ public:
     {
         if (!_aResponse.size()) return;
 
-        size_t idx                 = _aResponse[0].idx;
-        size_t iDst                = 0;
+        size_t idx  = _aResponse[0].idx;
+        size_t iDst = 0;
         for (; iDst < idx; dst[iDst] = iDst, ++iDst)
             ;
 

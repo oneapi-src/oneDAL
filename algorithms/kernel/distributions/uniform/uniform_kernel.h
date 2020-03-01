@@ -22,15 +22,15 @@
 #ifndef __UNIFORM_KERNEL_H__
 #define __UNIFORM_KERNEL_H__
 
-#include "distributions/uniform/uniform.h"
+#include "algorithms/distributions/uniform/uniform.h"
 
-#include "kernel.h"
-#include "numeric_table.h"
-#include "engine_batch_impl.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/kernel/engines/engine_batch_impl.h"
 
-#include "service_rng.h"
-#include "service_unique_ptr.h"
-#include "service_numeric_table.h"
+#include "externals/service_rng.h"
+#include "service/kernel/service_unique_ptr.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::services;
 using namespace daal::internal;
