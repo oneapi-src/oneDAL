@@ -79,7 +79,7 @@ DAAL_FORCEINLINE void internalAdjustMaxHeap(RandomAccessIterator first, RandomAc
 template <CpuType cpu, typename RandomAccessIterator, typename Diff>
 DAAL_FORCEINLINE void internalAdjustMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Diff count, Diff i)
 {
-    using Type            = typename RemovePointer<RandomAccessIterator>::type;
+    using Type            = typename RemovePointer<cpu, RandomAccessIterator>::type;
     const auto comparator = [](const Type & a, const Type & b) -> bool { return a < b; };
     internalAdjustMaxHeap(first, last, count, i, comparator);
 }
@@ -138,10 +138,6 @@ DAAL_FORCEINLINE void sortMaxHeap(RandomAccessIterator first, RandomAccessIterat
     const auto comparator = [](const Type & a, const Type & b) -> bool { return a < b; };
     sortMaxHeap<cpu>(first, last, comparator);
 }
-
-/*
-    Cut from kdtree_knn_classification_predict_dense_default_batch.i to provide more consistent access
-*/
 
 template <CpuType cpu, typename RandomAccessIterator, typename Addr>
 DAAL_FORCEINLINE void maxHeapUpdate(RandomAccessIterator first, Addr & prev, const Addr i)

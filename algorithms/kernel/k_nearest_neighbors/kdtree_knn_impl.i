@@ -148,10 +148,6 @@ private:
         _size       = size;
         _sizeMinus1 = static_cast<size_t>(_size - 1);
     }
-    /*
-        There was a strong assumption that stack can be initialized by only powers of 2.
-        Due to the usage scenario it's true but wrong in general. This function should fix it.
-    */
     DAAL_FORCEINLINE size_t greaterOrEqualPowerOf2(size_t x)
     {
         //Checking if the input value is already power of 2
