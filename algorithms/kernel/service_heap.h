@@ -26,7 +26,7 @@
 
 #include "services/daal_defines.h"
 #include "service/kernel/service_utils.h"
-#include "service/kernel/"
+#include "service/kernel/service_type_traits.h"
 
 namespace daal
 {
