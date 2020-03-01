@@ -42,6 +42,8 @@
     #define DAAL_ALIGNAS(n) alignas(n)
 #endif
 
+#include <cstdio>
+
 namespace daal
 {
 namespace algorithms
@@ -97,21 +99,21 @@ public:
 
     bool init(size_t size)
     {
-        if ((long)size < 0L) return false;
-        size = size ? nextPowerOf2(size) : 1; //Handles both cases size == 0 and size != 0
+        size = size ? greaterOrEqualPowerOf2(size) : 1; //Handles both cases size == 0 and size != 0
         setSize(size);
         _data = static_cast<T *>(services::internal::service_malloc<T, cpu>(_size * sizeof(T)));
         reset();
-        return (_data == nullptr) ? false : true;
+        printf("Allocated %i\n", (int) size);
+        return !(_data == nullptr);
     }
 
-    void reset() { _top = -1L; }
+    void reset() { _top = static_cast<size_t>(-1); }
 
     DAAL_FORCEINLINE services::Status push(const T & value)
     {
         services::Status status;
         //Check if the pushing value can be written into _data
-        if (_top + 2L >= _sizeMinus1)
+        if (size() >= _size)
         {
             status = grow();
             DAAL_CHECK_STATUS_VAR(status)
@@ -122,9 +124,9 @@ public:
 
     DAAL_FORCEINLINE T pop() { return _data[_top--]; }
 
-    bool empty() const { return (_top == -1L); }
+    bool empty() const { return (size() == 0); }
 
-    DAAL_FORCEINLINE size_t size() const { return (size_t)(_top + 1L); }
+    DAAL_FORCEINLINE size_t size() const { return (_top + 1); }
 
     services::Status grow()
     {
@@ -140,20 +142,20 @@ public:
     }
 
 private:
-    T * _data;
-    long _top;
-    long _sizeMinus1;
-    size_t _size;
-    void setSize(size_t size)
+    T * _data = nullptr;
+    size_t _top = 0;
+    size_t _sizeMinus1 = 0;
+    size_t _size = 0;
+    DAAL_FORCEINLINE void setSize(size_t size)
     {
         _size       = size;
-        _sizeMinus1 = (long)_size - 1L;
+        _sizeMinus1 = static_cast<size_t>(_size - 1);
     }
     /*
         There was a strong assumption that stack can be initialized by only powers of 2.
         Due to the usage scenario it's true but wrong in general. This function should fix it.
     */
-    size_t nextPowerOf2(size_t x)
+    DAAL_FORCEINLINE size_t greaterOrEqualPowerOf2(size_t x)
     {
         //Checking if the input value is already power of 2
         if (x && !(x & (x - 1))) return x;

@@ -40,6 +40,8 @@
 #include "service_utils.h"
 #include "../service_heap.h"
 
+#include <cstdio>
+
 namespace daal
 {
 namespace algorithms
@@ -263,10 +265,11 @@ Function that reduces code duplication
 template <CpuType cpu, typename algorithmFpType>
 inline void distance_comp(const algorithmFpType * const vec, const algorithmFpType & val, algorithmFpType * out, const size_t length)
 {
+    algorithmFpType feature_delta;
     for (size_t i = 0; i < length; i++)
     {
-        const auto de = vec[i] - val;
-        out[i] += de * de;
+        feature_delta = vec[i] - val;
+        out[i] += feature_delta * feature_delta;
     }
 }
 
@@ -288,7 +291,7 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
     const size_t xColumnCount = data.getNumberOfColumns();
 
     DAAL_ALIGNAS(256) algorithmFpType distance[__KDTREE_LEAF_BUCKET_SIZE + 1];
-    size_t start, end;
+    size_t start, end, length;
 
     data_management::BlockDescriptor<algorithmFpType> xBD[2];
     size_t curBDIdx, nextBDIdx;
@@ -299,6 +302,8 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
         {
             start = node->leftIndex;
             end   = node->rightIndex;
+            length = end - start;
+
             for (i = start; i < end; ++i)
             {
                 distance[i - start] = 0;
@@ -316,7 +321,7 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
                 DAAL_PREFETCH_READ_T0(nx);
                 DAAL_PREFETCH_READ_T0(nx + 16);
 
-                distance_comp<cpu, algorithmFpType>(dx, query[j - 1], distance, (size_t)(end - start));
+                distance_comp<cpu, algorithmFpType>(dx, query[j - 1], distance, length);
 
                 const_cast<NumericTable &>(data).releaseBlockOfColumnValues(xBD[curBDIdx]);
 
@@ -325,7 +330,7 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
             {
                 const algorithmFpType * const dx = xBD[curBDIdx].getBlockPtr();
 
-                distance_comp<cpu, algorithmFpType>(dx, query[j - 1], distance, (size_t)(end - start));
+                distance_comp<cpu, algorithmFpType>(dx, query[j - 1], distance, length);
                 const_cast<NumericTable &>(data).releaseBlockOfColumnValues(xBD[curBDIdx]);
             }
 
@@ -398,6 +403,11 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
 {
     const size_t heapSize = heap.size();
     if (heapSize < 1) return services::Status();
+
+    for(size_t i = 0; (i < k) && (i < heapSize); ++i)
+    {
+        printf("Node: %zu %f \n", (size_t) heap[i].index, (float) heap[i].distance);
+    }
 
     struct Voting
     {
