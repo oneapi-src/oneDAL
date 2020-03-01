@@ -42,8 +42,6 @@
     #define DAAL_ALIGNAS(n) alignas(n)
 #endif
 
-#include <cstdio>
-
 namespace daal
 {
 namespace algorithms
@@ -103,7 +101,6 @@ public:
         setSize(size);
         _data = static_cast<T *>(services::internal::service_malloc<T, cpu>(_size * sizeof(T)));
         reset();
-        printf("Allocated %i\n", (int) size);
         return !(_data == nullptr);
     }
 
@@ -142,10 +139,10 @@ public:
     }
 
 private:
-    T * _data = nullptr;
-    size_t _top = 0;
+    T * _data          = nullptr;
+    size_t _top        = 0;
     size_t _sizeMinus1 = 0;
-    size_t _size = 0;
+    size_t _size       = 0;
     DAAL_FORCEINLINE void setSize(size_t size)
     {
         _size       = size;

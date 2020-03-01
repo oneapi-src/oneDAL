@@ -25,6 +25,36 @@ namespace services
 namespace internal
 {
 template <CpuType cpu, typename T>
+struct RemovePointer
+{
+    typedef T type;
+};
+
+template <CpuType cpu, typename T>
+struct RemovePointer<cpu, T *>
+{
+    typedef T type;
+};
+
+template <CpuType cpu, typename T>
+struct RemovePointer<cpu, T * const>
+{
+    typedef T type;
+};
+
+template <CpuType cpu, typename T>
+struct RemovePointer<cpu, T * volatile>
+{
+    typedef T type;
+};
+
+template <CpuType cpu, typename T>
+struct RemovePointer<cpu, T * const volatile>
+{
+    typedef T type;
+};
+
+template <CpuType cpu, typename T>
 struct RemoveReference
 {
     typedef T type;

@@ -26,6 +26,7 @@
 
 #include "daal_defines.h"
 #include "service_utils.h"
+#include "service_type_traits.h"
 
 namespace daal
 {
@@ -75,6 +76,14 @@ DAAL_FORCEINLINE void internalAdjustMaxHeap(RandomAccessIterator first, RandomAc
     }
 }
 
+template <CpuType cpu, typename RandomAccessIterator, typename Diff>
+DAAL_FORCEINLINE void internalAdjustMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Diff count, Diff i)
+{
+    using Type            = typename RemovePointer<RandomAccessIterator>::type;
+    const auto comparator = [](const Type & a, const Type & b) -> bool { return a < b; };
+    internalAdjustMaxHeap(first, last, count, i, comparator);
+}
+
 template <CpuType cpu, typename RandomAccessIterator, typename Compare>
 void popMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare compare)
 {
@@ -84,6 +93,14 @@ void popMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare c
         iterSwap<cpu>(first, last);
         internalAdjustMaxHeap<cpu>(first, last, last - first, first - first, compare);
     }
+}
+
+template <CpuType cpu, typename RandomAccessIterator>
+void popMaxHeap(RandomAccessIterator first, RandomAccessIterator last)
+{
+    using Type            = typename RemovePointer<cpu, RandomAccessIterator>::type;
+    const auto comparator = [](const Type & a, const Type & b) -> bool { return a < b; };
+    popMaxHeap<cpu>(first, last, comparator);
 }
 
 template <CpuType cpu, typename RandomAccessIterator, typename Compare>
@@ -97,6 +114,14 @@ void makeMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare 
     }
 }
 
+template <CpuType cpu, typename RandomAccessIterator>
+void makeMaxHeap(RandomAccessIterator first, RandomAccessIterator last)
+{
+    using Type            = typename RemovePointer<cpu, RandomAccessIterator>::type;
+    const auto comparator = [](const Type & a, const Type & b) -> bool { return a < b; };
+    makeMaxHeap<cpu>(first, last, comparator);
+}
+
 template <CpuType cpu, typename RandomAccessIterator, typename Compare>
 DAAL_FORCEINLINE void sortMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare compare)
 {
@@ -106,8 +131,16 @@ DAAL_FORCEINLINE void sortMaxHeap(RandomAccessIterator first, RandomAccessIterat
     }
 }
 
+template <CpuType cpu, typename RandomAccessIterator>
+DAAL_FORCEINLINE void sortMaxHeap(RandomAccessIterator first, RandomAccessIterator last)
+{
+    using Type            = typename RemovePointer<cpu, RandomAccessIterator>::type;
+    const auto comparator = [](const Type & a, const Type & b) -> bool { return a < b; };
+    sortMaxHeap<cpu>(first, last, comparator);
+}
+
 /*
-Cut from kdtree_knn_classification_predict_dense_default_batch.i to provide more consistent access
+    Cut from kdtree_knn_classification_predict_dense_default_batch.i to provide more consistent access
 */
 
 template <CpuType cpu, typename RandomAccessIterator, typename Addr>
@@ -136,6 +169,14 @@ void pushMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare 
         }
         *(first + prev) = newItem;
     }
+}
+
+template <CpuType cpu, typename RandomAccessIterator>
+void pushMaxHeap(RandomAccessIterator first, RandomAccessIterator last)
+{
+    using Type            = typename RemovePointer<cpu, RandomAccessIterator>::type;
+    const auto comparator = [](const Type & a, const Type & b) -> bool { return a < b; };
+    pushMaxHeap<cpu>(first, last, comparator);
 }
 
 } // namespace internal

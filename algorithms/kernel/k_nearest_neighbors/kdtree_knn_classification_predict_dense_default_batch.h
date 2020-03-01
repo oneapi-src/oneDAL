@@ -51,12 +51,10 @@ using namespace daal::data_management;
 
 template <typename algorithmFpType, CpuType cpu>
 struct GlobalNeighbors;
-template <typename T, CpuType cpu, typename Comparator>
+template <typename T, CpuType cpu>
 class Heap;
 template <typename algorithmFpType>
 struct SearchNode;
-template<CpuType cpu, typename algorithmFpType>
-struct GlobalNeighborComparator;
 
 template <typename algorithmFpType, prediction::Method method, CpuType cpu>
 class KNNClassificationPredictKernel : public daal::algorithms::Kernel
@@ -69,11 +67,11 @@ public:
     services::Status compute(const NumericTable * x, const classifier::Model * m, NumericTable * y, const daal::algorithms::Parameter * par);
 
 protected:
-    void findNearestNeighbors(const algorithmFpType * query, Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu, GlobalNeighborComparator<cpu, algorithmFpType> > & heap,
+    void findNearestNeighbors(const algorithmFpType * query, Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap,
                               kdtree_knn_classification::internal::Stack<SearchNode<algorithmFpType>, cpu> & stack, size_t k, algorithmFpType radius,
                               const KDTreeTable & kdTreeTable, size_t rootTreeNodeIndex, const NumericTable & data);
 
-    services::Status predict(algorithmFpType & predictedClass, const Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu, GlobalNeighborComparator<cpu, algorithmFpType> > & heap,
+    services::Status predict(algorithmFpType & predictedClass, const Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap,
                              const NumericTable & labels, size_t k);
 };
 

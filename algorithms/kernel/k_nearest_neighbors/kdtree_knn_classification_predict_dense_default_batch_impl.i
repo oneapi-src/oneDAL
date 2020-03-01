@@ -40,8 +40,6 @@
 #include "service_utils.h"
 #include "../service_heap.h"
 
-#include <cstdio>
-
 namespace daal
 {
 namespace algorithms
@@ -74,19 +72,7 @@ struct SearchNode
     algorithmFpType minDistance;
 };
 
-/*
-Functor to provide compare operator fot GlobalNeighbor
-We use such structure to provide as small as possible overhead on forwarding comparator
-*/
-
-template <CpuType cpu, typename algorithmFpType>
-struct GlobalNeighborComparator
-{
-    typedef GlobalNeighbors<algorithmFpType, cpu> GN;
-    static DAAL_FORCEINLINE bool comp(const GN & left, const GN & right) { return left.distance < right.distance; }
-};
-
-template <typename T, CpuType cpu, typename Comparator>
+template <typename T, CpuType cpu>
 class Heap
 {
 public:
@@ -121,15 +107,15 @@ public:
         _elements[_count++] = e;
         if (_count == k)
         {
-            makeMaxHeap<cpu>(_elements, _elements + _count, Comparator::comp);
+            makeMaxHeap<cpu>(_elements, _elements + _count);
         }
     }
 
     void replaceMax(const T & e)
     {
-        popMaxHeap<cpu>(_elements, _elements + _count, Comparator::comp);
+        popMaxHeap<cpu>(_elements, _elements + _count);
         _elements[_count - 1] = e;
-        pushMaxHeap<cpu>(_elements, _elements + _count, Comparator::comp);
+        pushMaxHeap<cpu>(_elements, _elements + _count);
     }
 
     size_t size() const { return _count; }
@@ -150,7 +136,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     Status status;
 
     typedef GlobalNeighbors<algorithmFpType, cpu> Neighbors;
-    typedef Heap<Neighbors, cpu, GlobalNeighborComparator<cpu, algorithmFpType> > MaxHeap;
+    typedef Heap<Neighbors, cpu> MaxHeap;
     typedef kdtree_knn_classification::internal::Stack<SearchNode<algorithmFpType>, cpu> SearchStack;
     typedef daal::services::internal::MaxVal<algorithmFpType> MaxVal;
     typedef daal::internal::Math<algorithmFpType, cpu> Math;
@@ -275,7 +261,7 @@ inline void distance_comp(const algorithmFpType * const vec, const algorithmFpTy
 
 template <typename algorithmFpType, CpuType cpu>
 void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNearestNeighbors(
-    const algorithmFpType * query, Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu, GlobalNeighborComparator<cpu, algorithmFpType> > & heap,
+    const algorithmFpType * query, Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap,
     kdtree_knn_classification::internal::Stack<SearchNode<algorithmFpType>, cpu> & stack, size_t k, algorithmFpType radius,
     const KDTreeTable & kdTreeTable, size_t rootTreeNodeIndex, const NumericTable & data)
 {
@@ -300,8 +286,8 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
         node = static_cast<const KDTreeNode *>(kdTreeTable.getArray()) + cur.nodeIndex;
         if (node->dimension == __KDTREE_NULLDIMENSION)
         {
-            start = node->leftIndex;
-            end   = node->rightIndex;
+            start  = node->leftIndex;
+            end    = node->rightIndex;
             length = end - start;
 
             for (i = start; i < end; ++i)
@@ -398,16 +384,10 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
 
 template <typename algorithmFpType, CpuType cpu>
 services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::predict(
-    algorithmFpType & predictedClass, const Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu, GlobalNeighborComparator<cpu, algorithmFpType> > & heap,
-    const NumericTable & labels, size_t k)
+    algorithmFpType & predictedClass, const Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap, const NumericTable & labels, size_t k)
 {
     const size_t heapSize = heap.size();
     if (heapSize < 1) return services::Status();
-
-    for(size_t i = 0; (i < k) && (i < heapSize); ++i)
-    {
-        printf("Node: %zu %f \n", (size_t) heap[i].index, (float) heap[i].distance);
-    }
 
     struct Voting
     {
