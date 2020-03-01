@@ -38,6 +38,20 @@ DECLARE_SOURCE(
         variances[tid] = covariance[tid * nFeatures + tid];
     }
 
+    __kernel void sortEigenvectorsDescending(__global algorithmFPType * fullEigenvectors, __global algorithmFPType * fullEigenvalues) {
+        const int nFeatures = get_global_size(1);
+        const int i = get_global_id(0);
+        const int j = get_global_id(1);
+
+        algorithmFPType tmp = fullEigenvalues[i];
+        fullEigenvalues[i]                 = fullEigenvalues[nFeatures - 1 - i];
+        fullEigenvalues[nFeatures - 1 - i] = tmp;
+
+        tmp = fullEigenvectors[i * nFeatures + j];
+        fullEigenvectors[i * nFeatures + j] = fullEigenvectors[(nFeatures - 1 - i) * nFeatures + j];
+        fullEigenvectors[(nFeatures - 1 - i) * nFeatures + j] =  tmp;
+    }
+
 );
 
 #endif

@@ -46,11 +46,22 @@ enum class UpLo
     Lower
 };
 
+enum class Job
+{
+    novec,
+    vec,
+    updatevec,
+    allvec,
+    somevec,
+    overwritevec
+};
+
 } // namespace interface1
 
 using interface1::Layout;
 using interface1::Transpose;
 using interface1::UpLo;
+using interface1::Job;
 
 } // namespace math
 } // namespace internal

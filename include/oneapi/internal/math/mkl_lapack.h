@@ -103,12 +103,49 @@ private:
     cl::sycl::queue & _queue;
 };
 
+/**
+ *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__MKLXSYEVD></a>
+ *  \brief Adapter for MKL XSYEVD routine
+ */
+template <typename algorithmFPType>
+struct MKLXsyevd
+{
+    MKLXsyevd(cl::sycl::queue & queue) : _queue(queue) {}
+
+    services::Status operator()(const math::Job jobz, const math::UpLo uplo, const int64_t n, services::Buffer<algorithmFPType> & a,
+                                const int64_t lda, services::Buffer<algorithmFPType> & w, services::Buffer<algorithmFPType> & work,
+                                const int64_t lwork, services::Buffer<int64_t> & iwork, const int64_t liwork)
+    {
+        services::Status status;
+
+        const fpk::uplo uplomkl                             = uplo == math::UpLo::Upper ? fpk::uplo::upper : fpk::uplo::lower;
+        const fpk::job jobmkl                               = fpk::job(jobz);
+        cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff    = a.toSycl();
+        cl::sycl::buffer<algorithmFPType, 1> w_sycl_buff    = w.toSycl();
+        cl::sycl::buffer<algorithmFPType, 1> work_sycl_buff = work.toSycl();
+        cl::sycl::buffer<int64_t, 1> iwork_sycl_buff        = iwork.toSycl();
+
+        cl::sycl::buffer<int64_t, 1> info(cl::sycl::range<1>(1));
+        fpk::lapack::syevd(_queue, jobmkl, uplomkl, n, a_sycl_buff, lda, w_sycl_buff, work_sycl_buff, lwork, iwork_sycl_buff, liwork, info);
+
+        _queue.wait();
+        /** TODO: Check info buffer for containing errors. Now it is not supported.:
+         *  https://software.intel.com/en-us/oneapi-mkl-dpcpp-developer-reference-potrs
+        */
+        return status;
+    }
+
+private:
+    cl::sycl::queue & _queue;
+};
+
 /** @} */
 
 } // namespace interface1
 
 using interface1::MKLPotrf;
 using interface1::MKLPotrs;
+using interface1::MKLXsyevd;
 
 } // namespace math
 } // namespace internal

@@ -59,8 +59,21 @@ private:
     services::Status correlationFromCovarianceTable(uint32_t nObservations, data_management::NumericTable & covariance,
                                                     const services::Buffer<algorithmFPType> & variances);
 
+    services::Status computeCorrelationEigenvalues(oneapi::internal::ExecutionContextIface & context, data_management::NumericTable & correlation,
+                                                   data_management::NumericTable & eigenvectors, data_management::NumericTable & eigenvalues);
+
+    services::Status computeEigenvectorsInplace(oneapi::internal::ExecutionContextIface & context, const size_t nFeatures,
+                                                    oneapi::internal::UniversalBuffer & fullEigenvectors, oneapi::internal::UniversalBuffer & fullEigenvalues);
+
+    services::Status sortEigenvectorsDescending(oneapi::internal::ExecutionContextIface & context, const size_t nFeatures,
+                                                const oneapi::internal::UniversalBuffer & fullEigenvectors,
+                                                const oneapi::internal::UniversalBuffer & fullEigenvalues);
+
+
 private:
     PCACorrelationBaseIfacePtr _host_impl;
+    oneapi::internal::KernelPtr calculateVariancesKernel;
+    oneapi::internal::KernelPtr sortEigenvectorsDescendingKernel;
 };
 
 } // namespace internal

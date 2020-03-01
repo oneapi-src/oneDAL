@@ -346,6 +346,9 @@ public:
 
     virtual void potrs(math::UpLo uplo, size_t n, size_t ny, UniversalBuffer & a_buffer, size_t lda, UniversalBuffer & b_buffer, size_t ldb,
                        services::Status * status = NULL) = 0;
+    virtual void xsyevd(const math::Job jobz, const math::UpLo uplo, const int64_t n, UniversalBuffer & a, const int64_t lda, UniversalBuffer & w,
+                UniversalBuffer & work, const int64_t lwork, UniversalBuffer & iwork, const int64_t liwork,
+                services::Status * status = NULL) = 0;
 
     virtual void copy(UniversalBuffer dest, size_t desOffset, UniversalBuffer src, size_t srcOffset, size_t count, services::Status * status) = 0;
 
@@ -431,6 +434,13 @@ public:
 
     void potrs(math::UpLo /*uplo*/, size_t /*n*/, size_t /*ny*/, UniversalBuffer & /*a_buffer*/, size_t /*lda*/, UniversalBuffer & /*b_buffer*/,
                size_t /*ldb*/, services::Status * status = NULL) DAAL_C11_OVERRIDE
+    {
+        services::internal::tryAssignStatus(status, services::ErrorMethodNotImplemented);
+    }
+
+    void xsyevd(const math::Job jobz, const math::UpLo uplo, const int64_t n, UniversalBuffer & a, const int64_t lda, UniversalBuffer & w,
+                UniversalBuffer & work, const int64_t lwork, UniversalBuffer & iwork, const int64_t liwork,
+                services::Status * status = NULL) DAAL_C11_OVERRIDE
     {
         services::internal::tryAssignStatus(status, services::ErrorMethodNotImplemented);
     }

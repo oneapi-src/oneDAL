@@ -216,6 +216,13 @@ public:
         math::PotrsExecutor::run(_deviceQueue, uplo, n, ny, a_buffer, lda, b_buffer, ldb, status);
     }
 
+    void xsyevd(const math::Job jobz, const math::UpLo uplo, const int64_t n, UniversalBuffer & a, const int64_t lda, UniversalBuffer & w,
+                UniversalBuffer & work, const int64_t lwork, UniversalBuffer & iwork, const int64_t liwork,
+                services::Status * status = nullptr) DAAL_C11_OVERRIDE
+    {
+        math::XsyevdExecutor::run(_deviceQueue, jobz, uplo, n, a, lda, w, work, lwork, iwork, liwork, status);
+    }
+
     UniversalBuffer allocate(TypeId type, size_t bufferSize, services::Status * status = nullptr) DAAL_C11_OVERRIDE
     {
         // TODO: Thread safe?
