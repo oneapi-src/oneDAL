@@ -30,6 +30,7 @@
 #include "algorithms/kernel/dtrees/forest/regression/df_regression_model_impl.h"
 #include "algorithms/kernel/dtrees/dtrees_predict_dense_default_impl.i"
 #include "algorithms/kernel/dtrees/forest/regression/df_regression_training_types_result.h"
+#include "algorithms/kernel/decision_tree/decision_tree_regression_split_criterion.i"
 
 namespace daal
 {
