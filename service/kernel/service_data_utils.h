@@ -131,83 +131,69 @@ void vectorConvertFuncCpu(size_t n, void * src, void * dst);
 template <typename T1, typename T2, CpuType cpu>
 void vectorStrideConvertFuncCpu(size_t n, void * src, size_t srcByteStride, void * dst, size_t dstByteStride);
 
-template<CpuType cpu, typename T, size_t size = sizeof(T)>
-struct __clz
+template <CpuType cpu, typename T, size_t size = sizeof(T)>
+struct CounterOfLeadingZeros
 {
     size_t operator()(T x)
     {
-        constexpr size_t bit_size = 8 * size;
+        constexpr size_t bit_size  = 8 * size;
         constexpr size_t minus_one = -1;
-        constexpr size_t one = 1;
+        constexpr size_t one       = 1;
         size_t i;
-        for(i = bit_size; (i != minus_one) && !(x & (one << i)); --i);
+        for (i = bit_size; (i != minus_one) && !(x & (one << i)); --i)
+            ;
         return bit_size - i - 1;
     }
 };
 
-template<CpuType cpu, typename T = size_t>
+template <CpuType cpu, typename T = size_t>
 size_t greaterOrEqualPowerOf2Proto(T x)
 {
     constexpr size_t bit_size = 8 * sizeof(T);
-    constexpr size_t one = 1;
-    const size_t leading_ones = __clz<cpu, T, sizeof(T)>()(x);
+    constexpr size_t one      = 1;
+    const size_t leading_ones = CounterOfLeadingZeros<cpu, T, sizeof(T)>()(x);
     return one << (bit_size - leading_ones);
 }
 
 #if defined(__INTEL_COMPILER) || defined(_MSC_VER)
-#define CLZ_BUILTINS
-#include <immintrin.h>
+    #define CLZ_BUILTINS
+    #include <immintrin.h>
 
-template<CpuType cpu, typename T>
-struct __clz<cpu, T, 4>
+template <CpuType cpu, typename T>
+struct CounterOfLeadingZeros<cpu, T, 4>
 {
-    size_t operator()(T x)
-    {
-        return _lzcnt_u32(x);
-    }
+    size_t operator()(T x) { return _lzcnt_u32(x); }
 };
 
-template<CpuType cpu, typename T>
-struct __clz<cpu, T, 8>
+template <CpuType cpu, typename T>
+struct CounterOfLeadingZeros<cpu, T, 8>
 {
-    size_t operator()(T x)
-    {
-        return _lzcnt_u64(x);
-    }
+    size_t operator()(T x) { return _lzcnt_u64(x); }
 };
 
 #elif (defined(__GNUC__) || defined(__clang__)) && !CLZ_BUILTINS
-#define CLZ_BUILTINS
-template<CpuType cpu>
-struct __clz<cpu, unsigned int, sizeof(unsigned int)>
+    #define CLZ_BUILTINS
+template <CpuType cpu>
+struct CounterOfLeadingZeros<cpu, unsigned int, sizeof(unsigned int)>
 {
-    size_t operator()(unsigned int x)
-    {
-        return __builtin_clz(x);
-    }
+    size_t operator()(unsigned int x) { return __builtin_clz(x); }
 };
-template<CpuType cpu>
-struct __clz<cpu, unsigned long, sizeof(unsigned long)>
+template <CpuType cpu>
+struct CounterOfLeadingZeros<cpu, unsigned long, sizeof(unsigned long)>
 {
-    size_t operator()(unsigned long x)
-    {
-        return __builtin_clzl(x);
-    }
+    size_t operator()(unsigned long x) { return __builtin_clzl(x); }
 };
-template<CpuType cpu>
-struct __clz<cpu, unsigned long long, sizeof(unsigned long long)>
+template <CpuType cpu>
+struct CounterOfLeadingZeros<cpu, unsigned long long, sizeof(unsigned long long)>
 {
-    size_t operator()(unsigned long long x)
-    {
-        return __builtin_clzll(x);
-    }
+    size_t operator()(unsigned long long x) { return __builtin_clzll(x); }
 };
 #endif
 
-template<CpuType cpu>
+template <CpuType cpu>
 size_t greaterOrEqualPowerOf2(size_t x)
 {
-    return (!(x & (x - 1))) ? x : greaterOrEqualPowerOf2Proto<cpu>(x); 
+    return (!(x & (x - 1))) ? x : greaterOrEqualPowerOf2Proto<cpu>(x);
 }
 
 } // namespace internal
