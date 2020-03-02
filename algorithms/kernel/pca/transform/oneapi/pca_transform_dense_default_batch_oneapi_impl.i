@@ -85,9 +85,8 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::computeInvSigma
 
 template <typename algorithmFPType, transform::Method method>
 services::Status TransformKernelOneAPI<algorithmFPType, method>::normalize(ExecutionContextIface & ctx, UniversalBuffer & copyBlock,
-                                                                           UniversalBuffer & rawMeans, UniversalBuffer & invSigmas,
-                                                                           unsigned char hasMeans, unsigned char hasInvSigmas,
-                                                                           const uint32_t numFeatures, const uint32_t numVectors)
+                                                                           UniversalBuffer & rawMeans, UniversalBuffer & invSigmas, bool hasMeans,
+                                                                           bool hasInvSigmas, const uint32_t numFeatures, const uint32_t numVectors)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(pca.transform.compute.normalize);
     services::Status status;
@@ -103,8 +102,8 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::normalize(Execu
     args.set(0, copyBlock, AccessModeIds::readwrite);
     args.set(1, rawMeans, AccessModeIds::read);
     args.set(2, invSigmas, AccessModeIds::read);
-    args.set(3, hasMeans);
-    args.set(4, hasInvSigmas);
+    args.set(3, static_cast<unsigned char>(hasMeans));
+    args.set(4, static_cast<unsigned char>(hasInvSigmas));
     args.set(5, maxWorkItemsPerGroup);
     args.set(6, numFeatures);
 
@@ -257,11 +256,10 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
 
     initBuffers(ctx, data, numFeatures, numComponents, numVectors);
 
-    unsigned char hasInvSigmas = 0;
+    bool hasInvSigmas = false;
     if (pVariances != nullptr)
     {
-        hasInvSigmas = 1;
-
+        hasInvSigmas = true;
         DAAL_CHECK_STATUS(status, checkVariances(*pVariances, numFeatures));
         DAAL_CHECK_STATUS(status, computeInvSigmas(ctx, pVariances, invSigmas.template get<algorithmFPType>(), numFeatures));
     }
@@ -271,11 +269,10 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
         DAAL_CHECK_STATUS(status, computeInvSigmas(ctx, pEigenvalues, invEigenvalues.template get<algorithmFPType>(), numComponents));
     }
 
-    unsigned char hasMeans = 0;
-
+    bool hasMeans = false;
     if (pMeans != nullptr)
     {
-        hasMeans = 1;
+        hasMeans = true;
         DAAL_CHECK_STATUS(status, copyBuffer(ctx, rawMeans, *pMeans, numFeatures, 1));
     }
 

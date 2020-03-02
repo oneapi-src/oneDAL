@@ -67,8 +67,8 @@ private:
                                       const services::Buffer<algorithmFPType> & invSigmas, const uint32_t numFeatures);
 
     services::Status normalize(daal::oneapi::internal::ExecutionContextIface & context, daal::oneapi::internal::UniversalBuffer & copyBlock,
-                               daal::oneapi::internal::UniversalBuffer & rawMeans, daal::oneapi::internal::UniversalBuffer & invSigmas,
-                               unsigned char hasMeans, unsigned char hasInvSigmas, const uint32_t numFeatures, const uint32_t numVectors);
+                               daal::oneapi::internal::UniversalBuffer & rawMeans, daal::oneapi::internal::UniversalBuffer & invSigmas, bool hasMeans,
+                               bool hasInvSigmas, const uint32_t numFeatures, const uint32_t numVectors);
 
     services::Status whitening(daal::oneapi::internal::ExecutionContextIface & context, const services::Buffer<algorithmFPType> & transformedBlock,
                                daal::oneapi::internal::UniversalBuffer & invEigenvalues, const uint32_t numComponents, const uint32_t numVectors);
