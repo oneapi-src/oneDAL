@@ -390,57 +390,68 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     XY.reset(dim * yDim);
                     XYPtr = XY.get();
 
-                    PRAGMA_IVDEP
-                    PRAGMA_VECTOR_ALWAYS
-                    for (size_t i = 0; i < dim * yDim; i++) XYPtr[i] = 0;
-
-                    PRAGMA_IVDEP
-                    PRAGMA_VECTOR_ALWAYS
-                    for (size_t i = 0; i < dim * dim; i++) gramMatrixPtr[i] = 0;
                     char uplo = 'L';
 
                     const size_t blockSize = 256;
-                    DAAL_INT blockSizeDim  = (DAAL_INT)blockSize;
-                    size_t nBlocks         = nDataRows / blockSize;
-                    nBlocks += (nBlocks * blockSize != nDataRows);
-                    TlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> > tlsData(dim * yDim + (nTheta) * (nTheta));
-                    const size_t disp = dim * yDim;
-                    daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
-                        algorithmFPType * localXY   = tlsData.local();
-                        algorithmFPType * localGram = localXY + disp;
-                        const size_t startRow       = iBlock * blockSize;
-                        DAAL_INT localBlockSizeDim  = (((iBlock + 1) == nBlocks) ? (nDataRows - startRow) : blockSizeDim);
+                    const size_t disp      = dim * yDim;
+                    const size_t len       = dim * yDim + nTheta * nTheta;
 
-                        if (transposedData)
+                    algorithmFPType * total = static_cast<algorithmFPType *>(daal::parallel_deterministic_reduce(nDataRows, blockSize,
+                        [&] (void ** value)
                         {
-                            daal::internal::Blas<algorithmFPType, cpu>::xxgemm(&notrans, &notrans, &yDim, &dim, &localBlockSizeDim, &one,
-                                                                               Y + startRow * yDim, &yDim, X + startRow, &n, &one, localXY, &yDim);
-                            Blas<algorithmFPType, cpu>::xxsyrk(&uplo, &trans, &dim, &localBlockSizeDim, &one, X + startRow, &n, &one, localGram,
-                                                               &dim);
-                        }
-                        else
+                            *value = static_cast<void *>(services::internal::service_scalable_calloc<algorithmFPType, cpu>(len));
+                        }, [&] (void ** value)
                         {
-                            daal::internal::Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &yDim, &dim, &localBlockSizeDim, &one,
-                                                                               Y + startRow * yDim, &yDim, X + startRow * dim, &dim, &one, localXY,
-                                                                               &yDim);
-                            Blas<algorithmFPType, cpu>::xxsyrk(&uplo, &notrans, &dim, &localBlockSizeDim, &one, X + startRow * dim, &dim, &one,
-                                                               localGram, &dim);
-                        }
-                    });
-                    tlsData.reduce([&](algorithmFPType * local) {
-                        PRAGMA_IVDEP
-                        PRAGMA_VECTOR_ALWAYS
-                        for (size_t j = 0; j < dim * yDim; j++)
+                            services::internal::service_scalable_free<algorithmFPType, cpu>(static_cast<algorithmFPType *>(*value));
+                        }, [&] (void * local, size_t begin, size_t end)
                         {
-                            XYPtr[j] += local[j];
-                        }
-                        PRAGMA_IVDEP
-                        PRAGMA_VECTOR_ALWAYS
-                        for (size_t j = 0; j < dim * dim; j++)
+                            algorithmFPType * localXY = static_cast<algorithmFPType*>(local);
+                            daal::services::internal::service_memset_seq<algorithmFPType, cpu>(localXY, 0, len);
+
+                            algorithmFPType * localGram = localXY + disp;
+                            const size_t startRow = begin;
+                            DAAL_INT localBlockSizeDim = end - begin;
+
+                            if(transposedData)
+                            {
+                                daal::internal::Blas<algorithmFPType, cpu>::xxgemm(&notrans, &notrans, &yDim, &dim, &localBlockSizeDim, &one, Y + startRow*yDim, &yDim,X  + startRow,
+                                                                                   &n, &one, localXY, &yDim);
+                                Blas<algorithmFPType, cpu>::xxsyrk(&uplo, &trans, &dim, &localBlockSizeDim, &one, X + startRow, &n, &one, localGram, &dim);
+                            }
+                            else
+                            {
+                                daal::internal::Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &yDim, &dim, &localBlockSizeDim, &one, Y + startRow*yDim, &yDim, X + startRow*dim,
+                                                                                      &dim, &one, localXY, &yDim);
+                                Blas<algorithmFPType, cpu>::xxsyrk(&uplo, &notrans, &dim, &localBlockSizeDim, &one, X + startRow*dim, &dim, &one, localGram, &dim);
+                            }
+                        }, [&] (void * lhs_, void * rhs_)
                         {
-                            gramMatrixPtr[j] += local[j + disp];
+                            algorithmFPType * lhs = static_cast<algorithmFPType *>(lhs_);
+                            algorithmFPType * rhs = static_cast<algorithmFPType *>(rhs_);
+
+                            PRAGMA_IVDEP
+                            PRAGMA_VECTOR_ALWAYS
+                            for (size_t i = 0; i < len; ++i)
+                            {
+                                lhs[i] += rhs[i];
+                            }
                         }
-                    });
+                    ));
+
+                    PRAGMA_IVDEP
+                    PRAGMA_VECTOR_ALWAYS
+                    for(int j = 0; j < dim * yDim; ++j)
+                    {
+                        XYPtr[j] = total[j];
+                    }
+
+                    PRAGMA_IVDEP
+                    PRAGMA_VECTOR_ALWAYS
+                    for(int j = 0; j < dim * dim; ++j)
+                    {
+                        gramMatrixPtr[j] = total[j + disp];
+                    }
+
                     const size_t dimension = dim;
                     for (size_t i = 0; i < dimension; i++)
                     {
