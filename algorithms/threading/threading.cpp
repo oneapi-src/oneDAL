@@ -633,5 +633,73 @@ DAAL_EXPORT void _daal_wait_task_group(void * taskGroupPtr) {}
 
 #endif
 
+DAAL_EXPORT void * _daal_parallel_deterministic_reduce(size_t n, size_t grain_size,
+                                                       const void * a, const void * b, const void * c, const void * d,
+                                                       daal::init_functype init_func, daal::delete_functype delete_func,
+                                                       daal::loop_functype loop_func, daal::reduce_functype reduce_func)
+{
+    void * total = nullptr;
+
+  #if defined(__DO_TBB_LAYER__)
+    tbb::enumerable_thread_specific<void *> tls([] { return nullptr; });
+    total = tbb::parallel_deterministic_reduce(tbb::blocked_range<size_t>(0, n, grain_size), static_cast<void *>(nullptr),
+        [&] (const tbb::blocked_range<size_t> & range, void * value)
+        {
+            void *& local = tls.local();
+
+            if (local)
+            {
+                value = local;
+                local = nullptr;
+            }
+            else
+            {
+                init_func(&value, a);
+            }
+
+            loop_func(value, range.begin(), range.end(), c);
+
+            return value;
+        }, [&] (const void * lhs, const void * rhs)
+        {
+            reduce_func(const_cast<void *>(lhs), const_cast<void *>(rhs), d);
+
+            void *& local = tls.local();
+            if (local)
+            {
+                delete_func(&local, b);
+            }
+            local = const_cast<void *>(rhs);
+
+            return const_cast<void *>(lhs);
+        }
+    );
+
+    for (auto it = tls.begin(); it != tls.end(); ++it)
+    {
+        if (*it)
+        {
+            delete_func(&*it, b);
+            *it = nullptr;
+        }
+    }
+  #elif defined(__DO_SEQ_LAYER__)
+    void * local = nullptr;
+
+    init_func(&total, a);
+    init_func(&local, a);
+
+    for (int i = 0; i < n; ++i)
+    {
+        loop_func(local, i, i + 1, c);
+        reduce_func(total, local, d);
+    }
+
+    delete_func(&local, b);
+  #endif
+
+    return total;
+}
+
 namespace daal
 {}
