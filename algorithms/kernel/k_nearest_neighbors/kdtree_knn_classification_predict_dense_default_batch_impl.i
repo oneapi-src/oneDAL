@@ -437,5 +437,5 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
 } // namespace kdtree_knn_classification
 } // namespace algorithms
 } // namespace daal
-
 #endif
+

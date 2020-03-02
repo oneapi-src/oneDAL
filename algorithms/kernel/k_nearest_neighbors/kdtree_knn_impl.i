@@ -20,7 +20,6 @@
 //  Common functions for K-Nearest Neighbors
 //--
 */
-
 #ifndef __KDTREE_KNN_IMPL_I__
 #define __KDTREE_KNN_IMPL_I__
 
@@ -41,6 +40,8 @@
 #else
     #define DAAL_ALIGNAS(n) alignas(n)
 #endif
+
+#include "service/kernel/service_data_utils.h"
 
 namespace daal
 {
@@ -64,6 +65,8 @@ namespace internal
 #define __SIMDWIDTH                                   8
 
 #define __KDTREE_NULLDIMENSION (static_cast<size_t>(-1))
+
+using namespace daal::services::internal;
 
 template <CpuType cpu, typename T>
 inline const T & min(const T & a, const T & b)
@@ -97,7 +100,7 @@ public:
 
     bool init(size_t size)
     {
-        size = size ? greaterOrEqualPowerOf2(size) : 1; //Handles both cases size == 0 and size != 0
+        size = size ? greaterOrEqualPowerOf2<cpu>(size) : 1; //Handles both cases size == 0 and size != 0
         setSize(size);
         _data = static_cast<T *>(services::internal::service_malloc<T, cpu>(_size * sizeof(T)));
         reset();
@@ -146,15 +149,7 @@ private:
     DAAL_FORCEINLINE void setSize(size_t size)
     {
         _size       = size;
-        _sizeMinus1 = static_cast<size_t>(_size - 1);
-    }
-    DAAL_FORCEINLINE size_t greaterOrEqualPowerOf2(size_t x)
-    {
-        //Checking if the input value is already power of 2
-        if (x && !(x & (x - 1))) return x;
-        size_t power = 0;
-        for (; x != 0; power++) x >>= 1;
-        return 1 << power;
+        _sizeMinus1 = _size - 1;
     }
 };
 
