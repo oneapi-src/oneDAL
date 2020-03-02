@@ -50,14 +50,14 @@ public:
                              data_management::NumericTable * pEigenvalues, data_management::NumericTable & transformedData);
 
     void computeTransformedBlock(uint32_t numRows, uint32_t numFeatures, uint32_t numComponents, daal::oneapi::internal::UniversalBuffer & dataBlock,
-                                 daal::oneapi::internal::UniversalBuffer & eigenvectors, const services::Buffer<algorithmFPType> & resultBlock);
+                                 const services::Buffer<algorithmFPType> & eigenvectors, const services::Buffer<algorithmFPType> & resultBlock);
 
 private:
     services::Status allocateBuffer(daal::oneapi::internal::ExecutionContextIface & context, daal::oneapi::internal::UniversalBuffer & returnBuffer,
                                     uint32_t bufferSize);
 
-    services::Status copyBufferByRef(daal::oneapi::internal::ExecutionContextIface & context, daal::oneapi::internal::UniversalBuffer & returnBuffer,
-                                     data_management::NumericTable & data, const uint32_t nRows, const uint32_t nCols);
+    services::Status copyBuffer(daal::oneapi::internal::ExecutionContextIface & context, daal::oneapi::internal::UniversalBuffer & returnBuffer,
+                                data_management::NumericTable & data, const uint32_t nRows, const uint32_t nCols);
 
     services::Status buildKernel(daal::oneapi::internal::ExecutionContextIface & context, daal::oneapi::internal::ClKernelFactoryIface & factory);
 
@@ -67,14 +67,21 @@ private:
                                       const services::Buffer<algorithmFPType> & invSigmas, const uint32_t numFeatures);
 
     services::Status normalize(daal::oneapi::internal::ExecutionContextIface & context, daal::oneapi::internal::UniversalBuffer & copyBlock,
-                               daal::oneapi::internal::UniversalBuffer & rawMeans, daal::oneapi::internal::UniversalBuffer & invSigmas,
-                               uint32_t numMeans, uint32_t numInvSigmas, const uint32_t numFeatures, const uint32_t numVectors);
+                               daal::oneapi::internal::UniversalBuffer & rawMeans, daal::oneapi::internal::UniversalBuffer & invSigmas, bool hasMeans,
+                               bool hasInvSigmas, const uint32_t numFeatures, const uint32_t numVectors);
 
     services::Status whitening(daal::oneapi::internal::ExecutionContextIface & context, const services::Buffer<algorithmFPType> & transformedBlock,
                                daal::oneapi::internal::UniversalBuffer & invEigenvalues, const uint32_t numComponents, const uint32_t numVectors);
 
+    services::Status initBuffers(daal::oneapi::internal::ExecutionContextIface & ctx, data_management::NumericTable & data,
+                                 const uint32_t numFeatures, const uint32_t numComponents, const uint32_t numVectors);
+
 private:
     const unsigned int maxWorkItemsPerGroup = 256;
+    daal::oneapi::internal::UniversalBuffer invSigmas;
+    daal::oneapi::internal::UniversalBuffer invEigenvalues;
+    daal::oneapi::internal::UniversalBuffer rawMeans;
+    daal::oneapi::internal::UniversalBuffer copyBlock;
 };
 
 } // namespace internal
