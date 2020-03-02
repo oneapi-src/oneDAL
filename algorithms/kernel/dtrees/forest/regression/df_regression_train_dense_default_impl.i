@@ -54,14 +54,12 @@ template <typename algorithmFPType, CpuType cpu>
 void subtractImpurity(algorithmFPType var, algorithmFPType mean, algorithmFPType var1, algorithmFPType mean1, size_t n1, algorithmFPType & var2,
                       algorithmFPType & mean2, size_t n2)
 {
-    mean2                   = mean + (algorithmFPType(n1) * (mean - mean1)) / algorithmFPType(n2);
-    const algorithmFPType a = (var + mean * mean);
-    //const algorithmFPType a1 = (var1 + mean1*mean1);
-    const algorithmFPType b = algorithmFPType(n1) / algorithmFPType(n2);
-    //var2 = a + (a - a1)*b - mean2*mean2;
-    //var2 = var + mean*mean - mean2*mean2 + (var - var1 + mean*mean - mean1*mean1)*b;
-    var2 = var + (mean - mean2) * (mean + mean2) + (var - var1 + (mean - mean1) * (mean + mean1)) * b;
-    if (var2 < 0) var2 = 0;
+    typedef decision_tree::regression::training::internal::MSEDataStatistics<algorithmFPType, cpu> MSEDataStatistics;
+
+    const size_t count = n1 + n2;
+    mean2              = MSEDataStatistics::subtractMean(count, mean, n1, n2, mean1);
+    var2               = MSEDataStatistics::subtractMSE(var, var1, count, mean, n1, n2, mean1);
+    DAAL_ASSERT(var2 >= algorithmFPType(0));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
