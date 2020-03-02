@@ -495,18 +495,18 @@ private:
     /* the method checks for the fact that all columns have the same data type and this type is double or float. */
     bool isHomogeneousFloatOrDouble() const
     {
-        const size_t ncols             = getNumberOfColumns();
-        const NumericTableFeature & f0 = (*_ddict)[0];
-        const auto indexType           = f0.indexType;
+        const size_t ncols                                      = getNumberOfColumns();
+        const NumericTableFeature & f0                          = (*_ddict)[0];
+        daal::data_management::features::IndexNumType indexType = f0.indexType;
 
         for (size_t i = 0; i < ncols; ++i)
         {
-            NumericTableFeature & f1 = (*_ddict)[i];
+            const NumericTableFeature & f1 = (*_ddict)[i];
             if (f1.indexType != indexType) return false;
         }
 
-        return daal::data_management::features::IndexNumType::DAAL_FLOAT32 == indexType
-               || daal::data_management::features::IndexNumType::DAAL_FLOAT64 == indexType;
+        return indexType == daal::data_management::features::getIndexNumType<float>()
+               || indexType == daal::data_management::features::getIndexNumType<double>();
     }
 
     template <typename T>
@@ -538,7 +538,7 @@ private:
         {
             NumericTableFeature & f = (*_ddict)[0];
 
-            if ((int)internal::getConversionDataType<T>() == (int)f.indexType)
+            if (daal::data_management::features::getIndexNumType<T>() == f.indexType)
             {
                 T const * ptrMin = (T *)(_arrays[_index].get()) + idx;
                 computed         = data_management::internal::getVector<T>()(nrows, ncols, buffer, ptrMin, _wrapOffsets.get());
