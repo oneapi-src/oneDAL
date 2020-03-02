@@ -111,8 +111,8 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 class DAAL_EXPORT Input : public daal::algorithms::Input
 {
 public:
-    DAAL_CAST_OPERATOR(Input);
-    DAAL_DOWN_CAST_OPERATOR(Input, daal::algorithms::Input);
+    DAAL_CAST_OPERATOR(Input)
+    DAAL_DOWN_CAST_OPERATOR(Input, daal::algorithms::Input)
 
     /** Default constructor */
     Input();
@@ -151,8 +151,8 @@ typedef services::SharedPtr<Input> InputPtr;
 class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
-    DAAL_DOWN_CAST_OPERATOR(Result, daal::algorithms::Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
+    DAAL_DOWN_CAST_OPERATOR(Result, daal::algorithms::Result)
 
     Result();
 

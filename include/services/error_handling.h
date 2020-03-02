@@ -578,5 +578,5 @@ inline Status checkForNullByteInjection(const char * begin, const char * const e
 }
 } // namespace internal
 } // namespace services
-}; // namespace daal
+} // namespace daal
 #endif

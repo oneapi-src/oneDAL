@@ -282,7 +282,7 @@ public:
      *                  and parameters of the algorithm
      */
     Batch(const Batch<algorithmFPType, pmethod, tmethod> & other)
-        : classifier::prediction::Batch(other), parameter(other.parameter), input(other.input)
+        : classifier::prediction::Batch(other), input(other.input), parameter(other.parameter)
     {
         initialize();
     }

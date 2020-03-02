@@ -139,7 +139,7 @@ public:
 class DAAL_EXPORT Result : public linear_model::prediction::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
     Result();
 
     /**

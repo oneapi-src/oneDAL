@@ -46,8 +46,8 @@ namespace interface1
 class DAAL_EXPORT RowMergedNumericTable : public NumericTable
 {
 public:
-    DECLARE_SERIALIZABLE_TAG();
-    DECLARE_SERIALIZABLE_IMPL();
+    DECLARE_SERIALIZABLE_TAG()
+    DECLARE_SERIALIZABLE_IMPL()
 
     /**
      *  Constructor for an empty merge Numeric Table
@@ -117,7 +117,10 @@ public:
         return setNumberOfRowsImpl(_obsnum + obs);
     }
 
-    services::Status resize(size_t nrows) DAAL_C11_OVERRIDE { return services::Status(services::throwIfPossible(services::ErrorMethodNotSupported)); }
+    services::Status resize(size_t /*nrows*/) DAAL_C11_OVERRIDE
+    {
+        return services::Status(services::throwIfPossible(services::ErrorMethodNotSupported));
+    }
 
     MemoryStatus getDataMemoryStatus() const DAAL_C11_OVERRIDE
     {

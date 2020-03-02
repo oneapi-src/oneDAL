@@ -171,7 +171,7 @@ public:
 class DAAL_EXPORT Result : public optimization_solver::iterative_solver::interface1::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
     typedef optimization_solver::iterative_solver::interface1::Result super;
 
     DAAL_DEPRECATED Result() {}
@@ -323,7 +323,7 @@ public:
 class DAAL_EXPORT Result : public optimization_solver::iterative_solver::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
     typedef optimization_solver::iterative_solver::Result super;
 
     Result() {}

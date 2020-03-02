@@ -488,7 +488,7 @@ void printPackedNumericTable(daal::data_management::NumericTable * dataTable, si
 
 void printPackedNumericTable(daal::data_management::NumericTable & dataTable, size_t nFeatures, const char * message = "", size_t interval = 10)
 {
-    printPackedNumericTable(&dataTable, nFeatures, message);
+    printPackedNumericTable(&dataTable, nFeatures, message, interval);
 }
 
 /**

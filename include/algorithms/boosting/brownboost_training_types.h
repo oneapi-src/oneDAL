@@ -72,7 +72,7 @@ namespace interface1
 class DAAL_EXPORT Result : public classifier::training::interface1::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
 
     DAAL_DEPRECATED_VIRTUAL virtual ~Result() {}
 
@@ -120,7 +120,7 @@ namespace interface2
 class DAAL_EXPORT Result : public classifier::training::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
 
     virtual ~Result() {}
 

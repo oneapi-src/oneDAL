@@ -66,12 +66,12 @@ public:
 
 protected:
     template <typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive * arch)
+    services::Status serialImpl(Archive * /*arch*/)
     {
         return services::Status();
     }
 
-    DECLARE_SERIALIZABLE_IMPL();
+    DECLARE_SERIALIZABLE_IMPL()
 };
 typedef services::SharedPtr<Model> ModelPtr;
 /** @} */

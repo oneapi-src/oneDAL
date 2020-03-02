@@ -106,7 +106,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    BatchImpl(const BatchImpl & other) : parameter(other.parameter), input(other.input) { initialize(); }
+    BatchImpl(const BatchImpl & other) : input(other.input), parameter(other.parameter) { initialize(); }
 
     /**
      * Returns the structure that contains moments of low order

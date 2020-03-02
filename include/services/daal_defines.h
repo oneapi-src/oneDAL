@@ -399,15 +399,15 @@ const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP12_ID = 121200;
 const int SERIALIZATION_DBSCAN_DISTRIBUTED_RESULT_STEP13_ID         = 121300;
 const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP13_ID = 121310;
 
-}; // namespace daal
+} // namespace daal
 
-#define DAAL_NEW_DELETE()                                                                       \
-    static void * operator new(std::size_t sz) { return daal::services::daal_calloc(sz); }      \
-    static void * operator new[](std::size_t sz) { return daal::services::daal_calloc(sz); }    \
-    static void * operator new(std::size_t sz, void * where) { return where; }                  \
-    static void * operator new[](std::size_t sz, void * where) { return where; }                \
-    static void operator delete(void * ptr, std::size_t sz) { daal::services::daal_free(ptr); } \
-    static void operator delete[](void * ptr, std::size_t sz) { daal::services::daal_free(ptr); }
+#define DAAL_NEW_DELETE()                                                                           \
+    static void * operator new(std::size_t sz) { return daal::services::daal_calloc(sz); }          \
+    static void * operator new[](std::size_t sz) { return daal::services::daal_calloc(sz); }        \
+    static void * operator new(std::size_t /*sz*/, void * where) { return where; }                  \
+    static void * operator new[](std::size_t /*sz*/, void * where) { return where; }                \
+    static void operator delete(void * ptr, std::size_t /*sz*/) { daal::services::daal_free(ptr); } \
+    static void operator delete[](void * ptr, std::size_t /*sz*/) { daal::services::daal_free(ptr); }
 
 #define DAAL_CAST_OPERATOR(ClassName)                                            \
     template <class U>                                                           \
@@ -434,9 +434,11 @@ const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP13_ID = 121310;
 
 #ifdef DEBUG_ASSERT
     #include <assert.h>
-    #define DAAL_ASSERT(cond) assert(cond);
+    #define DAAL_ASSERT(cond)     assert(cond);
+    #define DAAL_ASSERT_DECL(var) var
 #else
     #define DAAL_ASSERT(cond)
+    #define DAAL_ASSERT_DECL(var)
 #endif
 
 #define DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(type, op1, op2)                                     \

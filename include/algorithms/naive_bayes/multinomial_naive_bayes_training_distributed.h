@@ -484,7 +484,7 @@ public:
      *                  and parameters of the algorithm
      */
     Distributed(const Distributed<step2Master, algorithmFPType, method> & other)
-        : Training<distributed>(other), input(other.input), parameter(other.parameter)
+        : Training<distributed>(other), parameter(other.parameter), input(other.input)
     {
         initialize();
     }

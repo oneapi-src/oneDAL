@@ -97,7 +97,7 @@ struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter
 class DAAL_EXPORT Result : public classifier::training::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
 
     DAAL_DEPRECATED Result();
     DAAL_DEPRECATED_VIRTUAL virtual ~Result() {}
@@ -191,7 +191,7 @@ struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter
 class DAAL_EXPORT Result : public classifier::training::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
 
     Result();
     virtual ~Result() {}

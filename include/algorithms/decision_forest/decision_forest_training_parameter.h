@@ -104,12 +104,12 @@ public:
           maxTreeDepth(0),
           minObservationsInLeafNode(0),
           seed(77),
+          engine(engines::mt2203::Batch<>::create()),
           impurityThreshold(0.),
           varImportance(none),
           resultsToCompute(0),
           memorySavingMode(false),
-          bootstrap(true),
-          engine(engines::mt2203::Batch<>::create())
+          bootstrap(true)
     {}
 
     size_t nTrees;                        /*!< Number of trees in the forest. Default is 10 */

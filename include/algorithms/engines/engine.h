@@ -94,10 +94,10 @@ public:
     services::SharedPtr<BatchBase> clone() const { return services::SharedPtr<BatchBase>(cloneImpl()); }
 
 protected:
-    virtual services::Status saveStateImpl(byte * dest) const { return services::Status(); }
-    virtual services::Status loadStateImpl(const byte * src) { return services::Status(); }
-    virtual services::Status leapfrogImpl(size_t threadNum, size_t nThreads) { return services::Status(services::ErrorMethodNotSupported); }
-    virtual services::Status skipAheadImpl(size_t nSkip) { return services::Status(); }
+    virtual services::Status saveStateImpl(byte * /*dest*/) const { return services::Status(); }
+    virtual services::Status loadStateImpl(const byte * /*src*/) { return services::Status(); }
+    virtual services::Status leapfrogImpl(size_t /*threadNum*/, size_t /*nThreads*/) { return services::Status(services::ErrorMethodNotSupported); }
+    virtual services::Status skipAheadImpl(size_t /*nSkip*/) { return services::Status(); }
     virtual BatchBase * cloneImpl() const = 0;
 };
 typedef services::SharedPtr<BatchBase> EnginePtr;

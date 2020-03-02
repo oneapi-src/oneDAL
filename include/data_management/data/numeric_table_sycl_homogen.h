@@ -48,8 +48,8 @@ template <typename DataType = DAAL_DATA_TYPE>
 class DAAL_EXPORT SyclHomogenNumericTable : public SyclNumericTable
 {
 public:
-    DECLARE_SERIALIZABLE_TAG();
-    DECLARE_SERIALIZABLE_IMPL();
+    DECLARE_SERIALIZABLE_TAG()
+    DECLARE_SERIALIZABLE_IMPL()
 
     DAAL_CAST_OPERATOR(SyclHomogenNumericTable)
 
