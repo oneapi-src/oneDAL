@@ -47,7 +47,7 @@ DECLARE_SOURCE(
     }
 
     __kernel void normalize(__global algorithmFPType * copyBlock, __global const algorithmFPType * rawMeans,
-                            __global const algorithmFPType * invSigmas, uint numMeans, uint numInvSigmas, const uint maxWorkItemsPerGroup,
+                            __global const algorithmFPType * invSigmas, const char hasMeans, const char hasInvSigmas, const uint maxWorkItemsPerGroup,
                             const uint numFeatures) {
         const int glid                 = get_global_id(0);
         const int numWorkItemsPerGroup = get_local_size(0);
@@ -61,11 +61,11 @@ DECLARE_SOURCE(
             const int meansId = dataId % numFeatures;
             if (dataId < numFeatures * numVec)
             {
-                if (numMeans != 0)
+                if (hasMeans)
                 {
                     copyBlock[dataId] = copyBlock[dataId] - rawMeans[meansId];
                 }
-                if (numInvSigmas != 0)
+                if (hasInvSigmas)
                 {
                     copyBlock[dataId] = copyBlock[dataId] * invSigmas[meansId];
                 }

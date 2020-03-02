@@ -85,9 +85,9 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::computeInvSigma
 
 template <typename algorithmFPType, transform::Method method>
 services::Status TransformKernelOneAPI<algorithmFPType, method>::normalize(ExecutionContextIface & ctx, UniversalBuffer & copyBlock,
-                                                                           UniversalBuffer & rawMeans, UniversalBuffer & invSigmas, uint32_t numMeans,
-                                                                           uint32_t numInvSigmas, const uint32_t numFeatures,
-                                                                           const uint32_t numVectors)
+                                                                           UniversalBuffer & rawMeans, UniversalBuffer & invSigmas,
+                                                                           unsigned char hasMeans, unsigned char hasInvSigmas,
+                                                                           const uint32_t numFeatures, const uint32_t numVectors)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(pca.transform.compute.normalize);
     services::Status status;
@@ -103,8 +103,8 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::normalize(Execu
     args.set(0, copyBlock, AccessModeIds::readwrite);
     args.set(1, rawMeans, AccessModeIds::read);
     args.set(2, invSigmas, AccessModeIds::read);
-    args.set(3, numMeans);
-    args.set(4, numInvSigmas);
+    args.set(3, hasMeans);
+    args.set(4, hasInvSigmas);
     args.set(5, maxWorkItemsPerGroup);
     args.set(6, numFeatures);
 
@@ -257,10 +257,10 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
 
     initBuffers(ctx, data, numFeatures, numComponents, numVectors);
 
-    uint32_t numInvSigmas = 0;
+    unsigned char hasInvSigmas = 0;
     if (pVariances != nullptr)
     {
-        numInvSigmas = numFeatures;
+        hasInvSigmas = 1;
 
         DAAL_CHECK_STATUS(status, checkVariances(*pVariances, numFeatures));
         DAAL_CHECK_STATUS(status, computeInvSigmas(ctx, pVariances, invSigmas.template get<algorithmFPType>(), numFeatures));
@@ -271,12 +271,12 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
         DAAL_CHECK_STATUS(status, computeInvSigmas(ctx, pEigenvalues, invEigenvalues.template get<algorithmFPType>(), numComponents));
     }
 
-    uint32_t numMeans = 0;
+    unsigned char hasMeans = 0;
 
     if (pMeans != nullptr)
     {
-        numMeans = numFeatures;
-        DAAL_CHECK_STATUS(status, copyBuffer(ctx, rawMeans, *pMeans, numMeans, 1));
+        hasMeans = 1;
+        DAAL_CHECK_STATUS(status, copyBuffer(ctx, rawMeans, *pMeans, numFeatures, 1));
     }
 
     bool isWhitening = pEigenvalues != nullptr;
@@ -284,7 +284,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
 
     if (isNormalize)
     {
-        DAAL_CHECK_STATUS(status, normalize(ctx, copyBlock, rawMeans, invSigmas, numMeans, numInvSigmas, numFeatures, numVectors));
+        DAAL_CHECK_STATUS(status, normalize(ctx, copyBlock, rawMeans, invSigmas, hasMeans, hasInvSigmas, numFeatures, numVectors));
     }
 
     BlockDescriptor<algorithmFPType> transformedBlock;
