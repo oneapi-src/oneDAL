@@ -109,7 +109,7 @@ void testModel(const training::ResultPtr & trainingResult)
     algorithm.input.set(classifier::prediction::data, testData);
     algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
     algorithm.parameter().votingMethod = prediction::weighted;
-    algorithm.parameter().resultsToEvaluate |= classifier::computeClassProbabilities;
+    algorithm.parameter().resultsToEvaluate |= static_cast<DAAL_UINT64>(classifier::computeClassProbabilities);
     /* Predict values of decision forest classification */
     algorithm.compute();
 

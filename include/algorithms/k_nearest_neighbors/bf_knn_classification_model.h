@@ -86,6 +86,22 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
     {}
 
     /**
+     *  Parameter copy constructor
+     *  \param[in] other             Object to copy
+     */
+    Parameter & operator=(const Parameter & other)
+    {
+        if (this != &other)
+        {
+            daal::algorithms::classifier::Parameter::operator=(other);
+            k                                                = other.k;
+            dataUseInModel                                   = other.dataUseInModel;
+            engine                                           = other.engine->clone();
+        }
+        return *this;
+    }
+
+    /**
      * Checks a parameter of the BF kNN algorithm
      */
     services::Status check() const DAAL_C11_OVERRIDE;

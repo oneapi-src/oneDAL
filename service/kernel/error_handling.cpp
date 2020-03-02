@@ -345,7 +345,18 @@ ErrorPtr Error::create(ErrorID id, ErrorDetailID det, const String & value)
     return ptr;
 }
 
-KernelErrorCollection::KernelErrorCollection(const KernelErrorCollection & other) : super(other), _description(0) {}
+KernelErrorCollection::KernelErrorCollection(const KernelErrorCollection & other) : super(other), _description(nullptr) {}
+
+KernelErrorCollection & KernelErrorCollection::operator=(const KernelErrorCollection & other)
+{
+    if (&other != this)
+    {
+        super::operator=(other);
+        _description   = nullptr;
+    }
+
+    return *this;
+}
 
 Error & KernelErrorCollection::add(const ErrorID & id)
 {

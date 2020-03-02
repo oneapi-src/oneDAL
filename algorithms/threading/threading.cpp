@@ -590,6 +590,9 @@ DAAL_EXPORT void _daal_run_task_group(void * taskGroupPtr, daal::task * t)
         void operator()() const { _t.run(); }
         daal::task & _t;
         RefCounterType * _nRefs;
+
+    private:
+        shared_task & operator=(const shared_task &);
     };
     tbb::task_group * group = (tbb::task_group *)taskGroupPtr;
     group->run(shared_task(*t));
