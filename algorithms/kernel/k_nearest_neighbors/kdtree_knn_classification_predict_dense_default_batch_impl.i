@@ -249,7 +249,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
 Function that reduces code duplication
 */
 template <CpuType cpu, typename algorithmFpType>
-inline void distance_comp(const algorithmFpType * const vec, const algorithmFpType & val, algorithmFpType * out, const size_t length)
+DAAL_FORCEINLINE void distance_comp(const algorithmFpType * const vec, const algorithmFpType & val, algorithmFpType * out, const size_t length)
 {
     algorithmFpType feature_delta;
     for (size_t i = 0; i < length; i++)
