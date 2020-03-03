@@ -130,18 +130,13 @@ public:
 };
 
 template <typename algorithmFPType, CpuType cpu, typename F>
-algorithmFPType * parallel_deterministic_sum(size_t n, size_t grain_size, size_t len, const F & lambda) // lambda must have the prototype: void(void *, size_t, size_t)
+algorithmFPType * parallel_deterministic_sum(size_t n, size_t grain_size, size_t len,
+                                             const F & lambda) // lambda must have the prototype: void(void *, size_t, size_t)
 {
-    return static_cast<algorithmFPType *>(daal::parallel_deterministic_reduce(n, grain_size,
-        [&] (void ** value)
-        {
-            *value = static_cast<void *>(services::internal::service_scalable_calloc<algorithmFPType, cpu>(len));
-        }, [&] (void ** value)
-        {
-            services::internal::service_scalable_free<algorithmFPType, cpu>(static_cast<algorithmFPType *>(*value));
-        }, lambda,
-        [&] (void * lhs_, void * rhs_)
-        {
+    return static_cast<algorithmFPType *>(daal::parallel_deterministic_reduce(
+        n, grain_size, [&](void ** value) { *value = static_cast<void *>(services::internal::service_scalable_calloc<algorithmFPType, cpu>(len)); },
+        [&](void ** value) { services::internal::service_scalable_free<algorithmFPType, cpu>(static_cast<algorithmFPType *>(*value)); }, lambda,
+        [&](void * lhs_, void * rhs_) {
             algorithmFPType * lhs = static_cast<algorithmFPType *>(lhs_);
             algorithmFPType * rhs = static_cast<algorithmFPType *>(rhs_);
 
@@ -151,8 +146,7 @@ algorithmFPType * parallel_deterministic_sum(size_t n, size_t grain_size, size_t
             {
                 lhs[i] += rhs[i];
             }
-        }
-    ));
+        }));
 }
 
 } // namespace daal

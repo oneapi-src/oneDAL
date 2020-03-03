@@ -224,9 +224,8 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
 
                         if (transposedData)
                         {
-                            total = daal::parallel_deterministic_sum<algorithmFPType, cpu>(nDataRows, blockSize, nTheta,
-                                [&] (void * local_, size_t begin, size_t end)
-                                {
+                            total = daal::parallel_deterministic_sum<algorithmFPType, cpu>(
+                                nDataRows, blockSize, nTheta, [&](void * local_, size_t begin, size_t end) {
                                     algorithmFPType * local = static_cast<algorithmFPType *>(local_);
                                     daal::services::internal::service_memset_seq<algorithmFPType, cpu>(local, 0, nTheta);
 
@@ -239,14 +238,12 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                                             local[j] += X[j * n + i] * X[j * n + i]; /*USE DOTPRODUCT or parallel computation*/
                                         }
                                     }
-                                }
-                            );
+                                });
                         }
                         else
                         {
-                            total = daal::parallel_deterministic_sum<algorithmFPType, cpu>(nDataRows, blockSize, nTheta,
-                                [&] (void * local_, size_t begin, size_t end)
-                                {
+                            total = daal::parallel_deterministic_sum<algorithmFPType, cpu>(
+                                nDataRows, blockSize, nTheta, [&](void * local_, size_t begin, size_t end) {
                                     algorithmFPType * local = static_cast<algorithmFPType *>(local_);
                                     daal::services::internal::service_memset_seq<algorithmFPType, cpu>(local, 0, nTheta);
 
@@ -259,8 +256,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                                             local[j] += X[i * dim + j] * X[i * dim + j]; /*USE DOTPRODUCT or parallel computation*/
                                         }
                                     }
-                                }
-                            );
+                                });
                         }
 
                         PRAGMA_IVDEP
@@ -377,41 +373,43 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     const size_t disp      = dim * yDim;
                     const size_t len       = dim * yDim + nTheta * nTheta;
 
-                    algorithmFPType * total = daal::parallel_deterministic_sum<algorithmFPType, cpu>(nDataRows, blockSize, len,
-                        [&] (void * local, size_t begin, size_t end)
-                        {
-                            algorithmFPType * localXY = static_cast<algorithmFPType*>(local);
+                    algorithmFPType * total = daal::parallel_deterministic_sum<algorithmFPType, cpu>(
+                        nDataRows, blockSize, len, [&](void * local, size_t begin, size_t end) {
+                            algorithmFPType * localXY = static_cast<algorithmFPType *>(local);
                             daal::services::internal::service_memset_seq<algorithmFPType, cpu>(localXY, 0, len);
 
                             algorithmFPType * localGram = localXY + disp;
-                            const size_t startRow = begin;
-                            DAAL_INT localBlockSizeDim = end - begin;
+                            const size_t startRow       = begin;
+                            DAAL_INT localBlockSizeDim  = end - begin;
 
-                            if(transposedData)
+                            if (transposedData)
                             {
-                                daal::internal::Blas<algorithmFPType, cpu>::xxgemm(&notrans, &notrans, &yDim, &dim, &localBlockSizeDim, &one, Y + startRow*yDim, &yDim,X  + startRow,
-                                                                                   &n, &one, localXY, &yDim);
-                                Blas<algorithmFPType, cpu>::xxsyrk(&uplo, &trans, &dim, &localBlockSizeDim, &one, X + startRow, &n, &one, localGram, &dim);
+                                daal::internal::Blas<algorithmFPType, cpu>::xxgemm(&notrans, &notrans, &yDim, &dim, &localBlockSizeDim, &one,
+                                                                                   Y + startRow * yDim, &yDim, X + startRow, &n, &one, localXY,
+                                                                                   &yDim);
+                                Blas<algorithmFPType, cpu>::xxsyrk(&uplo, &trans, &dim, &localBlockSizeDim, &one, X + startRow, &n, &one, localGram,
+                                                                   &dim);
                             }
                             else
                             {
-                                daal::internal::Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &yDim, &dim, &localBlockSizeDim, &one, Y + startRow*yDim, &yDim, X + startRow*dim,
-                                                                                      &dim, &one, localXY, &yDim);
-                                Blas<algorithmFPType, cpu>::xxsyrk(&uplo, &notrans, &dim, &localBlockSizeDim, &one, X + startRow*dim, &dim, &one, localGram, &dim);
+                                daal::internal::Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &yDim, &dim, &localBlockSizeDim, &one,
+                                                                                   Y + startRow * yDim, &yDim, X + startRow * dim, &dim, &one,
+                                                                                   localXY, &yDim);
+                                Blas<algorithmFPType, cpu>::xxsyrk(&uplo, &notrans, &dim, &localBlockSizeDim, &one, X + startRow * dim, &dim, &one,
+                                                                   localGram, &dim);
                             }
-                        }
-                    );
+                        });
 
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
-                    for(int j = 0; j < dim * yDim; ++j)
+                    for (int j = 0; j < dim * yDim; ++j)
                     {
                         XYPtr[j] = total[j];
                     }
 
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
-                    for(int j = 0; j < dim * dim; ++j)
+                    for (int j = 0; j < dim * dim; ++j)
                     {
                         gramMatrixPtr[j] = total[j + disp];
                     }

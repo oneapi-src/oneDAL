@@ -77,10 +77,9 @@ extern "C"
     DAAL_EXPORT void * _threaded_scalable_malloc(const size_t size, const size_t alignment);
     DAAL_EXPORT void _threaded_scalable_free(void * ptr);
 
-    DAAL_EXPORT void* _daal_parallel_deterministic_reduce(size_t n, size_t grain_size,
-                                                          const void * a, const void * b, const void * c, const void * d,
-                                                          daal::init_functype init_func, daal::delete_functype delete_func,
-                                                          daal::loop_functype loop_func, daal::reduce_functype reduce_func);
+    DAAL_EXPORT void * _daal_parallel_deterministic_reduce(size_t n, size_t grain_size, const void * a, const void * b, const void * c,
+                                                           const void * d, daal::init_functype init_func, daal::delete_functype delete_func,
+                                                           daal::loop_functype loop_func, daal::reduce_functype reduce_func);
 }
 
 namespace daal
@@ -327,37 +326,36 @@ inline bool is_in_parallel()
     return _daal_is_in_parallel();
 }
 
-template<typename F>
+template <typename F>
 inline void init_func(void ** value, const void * a)
 {
     const F & lambda = *static_cast<const F *>(a);
     lambda(value);
 }
 
-template<typename F>
+template <typename F>
 inline void delete_func(void ** value, const void * a)
 {
     const F & lambda = *static_cast<const F *>(a);
     lambda(value);
 }
 
-template<typename F>
+template <typename F>
 inline void loop_func(void * local, size_t begin, size_t end, const void * a)
 {
     const F & lambda = *static_cast<const F *>(a);
     lambda(local, begin, end);
 }
 
-template<typename F>
+template <typename F>
 inline void reduce_func(void * lhs, void * rhs, const void * a)
 {
     const F & lambda = *static_cast<const F *>(a);
     lambda(lhs, rhs);
 }
 
-template<typename F1, typename F2, typename F3, typename F4>
-inline void * parallel_deterministic_reduce(size_t n, size_t grain_size,
-                                            const F1 & init_function, const F2 & delete_function,
+template <typename F1, typename F2, typename F3, typename F4>
+inline void * parallel_deterministic_reduce(size_t n, size_t grain_size, const F1 & init_function, const F2 & delete_function,
                                             const F3 & loop_function, const F4 & reduce_function)
 {
     const void * a = static_cast<const void *>(&init_function);

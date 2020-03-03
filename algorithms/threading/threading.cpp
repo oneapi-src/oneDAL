@@ -633,18 +633,17 @@ DAAL_EXPORT void _daal_wait_task_group(void * taskGroupPtr) {}
 
 #endif
 
-DAAL_EXPORT void * _daal_parallel_deterministic_reduce(size_t n, size_t grain_size,
-                                                       const void * a, const void * b, const void * c, const void * d,
+DAAL_EXPORT void * _daal_parallel_deterministic_reduce(size_t n, size_t grain_size, const void * a, const void * b, const void * c, const void * d,
                                                        daal::init_functype init_func, daal::delete_functype delete_func,
                                                        daal::loop_functype loop_func, daal::reduce_functype reduce_func)
 {
     void * total = nullptr;
 
-  #if defined(__DO_TBB_LAYER__)
+#if defined(__DO_TBB_LAYER__)
     tbb::enumerable_thread_specific<void *> tls([] { return nullptr; });
-    total = tbb::parallel_deterministic_reduce(tbb::blocked_range<size_t>(0, n, grain_size), static_cast<void *>(nullptr),
-        [&] (const tbb::blocked_range<size_t> & range, void * value)
-        {
+    total = tbb::parallel_deterministic_reduce(
+        tbb::blocked_range<size_t>(0, n, grain_size), static_cast<void *>(nullptr),
+        [&](const tbb::blocked_range<size_t> & range, void * value) {
             void *& local = tls.local();
 
             if (local)
@@ -660,8 +659,8 @@ DAAL_EXPORT void * _daal_parallel_deterministic_reduce(size_t n, size_t grain_si
             loop_func(value, range.begin(), range.end(), c);
 
             return value;
-        }, [&] (const void * lhs, const void * rhs)
-        {
+        },
+        [&](const void * lhs, const void * rhs) {
             reduce_func(const_cast<void *>(lhs), const_cast<void *>(rhs), d);
 
             void *& local = tls.local();
@@ -672,8 +671,7 @@ DAAL_EXPORT void * _daal_parallel_deterministic_reduce(size_t n, size_t grain_si
             local = const_cast<void *>(rhs);
 
             return const_cast<void *>(lhs);
-        }
-    );
+        });
 
     for (auto it = tls.begin(); it != tls.end(); ++it)
     {
@@ -683,7 +681,7 @@ DAAL_EXPORT void * _daal_parallel_deterministic_reduce(size_t n, size_t grain_si
             *it = nullptr;
         }
     }
-  #elif defined(__DO_SEQ_LAYER__)
+#elif defined(__DO_SEQ_LAYER__)
     void * local = nullptr;
 
     init_func(&total, a);
@@ -696,7 +694,7 @@ DAAL_EXPORT void * _daal_parallel_deterministic_reduce(size_t n, size_t grain_si
     }
 
     delete_func(&local, b);
-  #endif
+#endif
 
     return total;
 }

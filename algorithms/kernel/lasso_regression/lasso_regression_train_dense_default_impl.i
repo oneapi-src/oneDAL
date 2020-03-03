@@ -147,9 +147,8 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
 
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, sizeof(algorithmFPType));
 
-        algorithmFPType * total = daal::parallel_deterministic_sum<algorithmFPType, cpu>(nRows, blockSize, nFeatures,
-            [&] (void * local_, size_t begin, size_t end)
-            {
+        algorithmFPType * total =
+            daal::parallel_deterministic_sum<algorithmFPType, cpu>(nRows, blockSize, nFeatures, [&](void * local_, size_t begin, size_t end) {
                 algorithmFPType * local = static_cast<algorithmFPType *>(local_);
                 daal::services::internal::service_memset_seq<algorithmFPType, cpu>(local, 0, nFeatures);
 
@@ -157,17 +156,16 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
                 {
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
-                    for(size_t j = 0; j < nFeatures; ++j)
+                    for (size_t j = 0; j < nFeatures; ++j)
                     {
                         local[j] += xPtr[it * nFeatures + j];
                     }
                 }
-            }
-        );
+            });
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for(size_t i = 0; i < nFeatures; ++i)
+        for (size_t i = 0; i < nFeatures; ++i)
         {
             xMeansPtr[i] = total[i] * inversedNRows;
         }
