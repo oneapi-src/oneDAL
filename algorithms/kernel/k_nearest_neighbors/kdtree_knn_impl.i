@@ -85,7 +85,7 @@ class Stack
 {
 public:
     Stack() : _data(nullptr) {}
-    
+
     ~Stack() { clear(); }
 
     void clear()
