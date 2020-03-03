@@ -34,7 +34,7 @@ void vectorCopyInternal()
 }
 
 template <>
-void vectorCopyInternal<float>(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 * arrOffsets)
+void vectorCopyInternal<float>(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 const * arrOffsets)
 {
     float * pd           = static_cast<float *>(dst);
     float const * pmin   = static_cast<float const *>(ptrMin);
@@ -58,7 +58,7 @@ void vectorCopyInternal<float>(const size_t nrows, const size_t ncols, void * ds
 }
 
 template <>
-void vectorCopyInternal<double>(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 * arrOffsets)
+void vectorCopyInternal<double>(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 const * arrOffsets)
 {
     double * pd          = static_cast<double *>(dst);
     double const * pmin  = static_cast<double const *>(ptrMin);
@@ -82,35 +82,35 @@ void vectorCopyInternal<double>(const size_t nrows, const size_t ncols, void * d
 }
 
 template <typename T, CpuType cpu>
-void vectorCopy(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 * arrOffsets)
+void vectorCopy(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 const * arrOffsets)
 {
     vectorCopy<T, cpu>(nrows, ncols, dst, ptrMin, arrOffsets);
 }
 
 /* Convert float to float from columnar to row major format using AVX512 architecture */
 template <>
-void vectorCopy<float, avx512>(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 * arrOffsets)
+void vectorCopy<float, avx512>(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 const * arrOffsets)
 {
     vectorCopyInternal<float>(nrows, ncols, dst, ptrMin, arrOffsets);
 }
 
 /* Convert double to double from columnar to row major format using AVX512 architecture */
 template <>
-void vectorCopy<double, avx512>(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 * arrOffsets)
+void vectorCopy<double, avx512>(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 const * arrOffsets)
 {
     vectorCopyInternal<double>(nrows, ncols, dst, ptrMin, arrOffsets);
 }
 
 /* Convert float to float from columnar to row major format using AVX512 architecture */
 template <>
-void vectorCopy<float, avx512_mic>(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 * arrOffsets)
+void vectorCopy<float, avx512_mic>(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 const * arrOffsets)
 {
     vectorCopyInternal<float>(nrows, ncols, dst, ptrMin, arrOffsets);
 }
 
 /* Convert double to double from columnar to row major format using AVX512 architecture */
 template <>
-void vectorCopy<double, avx512_mic>(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 * arrOffsets)
+void vectorCopy<double, avx512_mic>(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 const * arrOffsets)
 {
     vectorCopyInternal<double>(nrows, ncols, dst, ptrMin, arrOffsets);
 }

@@ -256,11 +256,46 @@ protected:
      */
     class WrappedRawPointer
     {
-    protected:
-        DAAL_INT64 * _arrOffsets;
-        size_t _count;
-
     public:
+        WrappedRawPointer() : _arrOffsets(NULL), _count(0) {};
+        WrappedRawPointer(const WrappedRawPointer & wrapper)
+        {
+            allocate(wrapper._count);
+            const size_t size = _count * sizeof(DAAL_INT64);
+            const int result  = daal::services::internal::daal_memcpy_s(_arrOffsets, size, wrapper._arrOffsets, size);
+        }
+
+        ~WrappedRawPointer() { deallocate(); }
+
+        WrappedRawPointer & operator=(WrappedRawPointer const & wrapper)
+        {
+            if (this == &wrapper) return *this;
+
+            if (_count < wrapper._count)
+            {
+                deallocate();
+                _arrOffsets = (DAAL_INT64 *)daal::services::daal_malloc(wrapper._count * sizeof(DAAL_INT64));
+                if (_arrOffsets)
+                {
+                    _count = wrapper._count;
+                }
+                else
+                {
+                    _count = 0;
+                    return *this;
+                }
+            }
+            else
+            {
+                _count = wrapper._count;
+            }
+
+            const size_t size = _count * sizeof(DAAL_INT64);
+            const int result  = daal::services::internal::daal_memcpy_s(_arrOffsets, size, wrapper._arrOffsets, size);
+
+            return *this;
+        }
+
         services::Status allocate(size_t count)
         {
             deallocate();
@@ -280,24 +315,12 @@ protected:
             }
         }
 
-        WrappedRawPointer() : _arrOffsets(NULL), _count(0) {};
-        ~WrappedRawPointer() { deallocate(); }
+        DAAL_INT64 const * get() const { return _arrOffsets; }
+        void SetupOffset(size_t index, DAAL_INT64 value) { _arrOffsets[index] = value; }
 
-        DAAL_INT64 * get() const { return _arrOffsets; }
-
-        WrappedRawPointer & operator=(WrappedRawPointer const & wrapper)
-        {
-            if (this == &wrapper) return *this;
-
-            allocate(wrapper._count);
-
-            for (size_t i = 0; i < _count; ++i)
-            {
-                _arrOffsets[i] = wrapper._arrOffsets[i];
-            }
-
-            return *this;
-        }
+    protected:
+        DAAL_INT64 * _arrOffsets;
+        size_t _count;
     };
 
     SOANumericTable(size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual, services::Status & st);
@@ -486,7 +509,7 @@ private:
         {
             char * pv = (char *)(_arrays[i].get());
             DAAL_ASSERT(static_cast<DAAL_UINT64>(pv - ptrMin) <= MaxVal<long long>::get())
-            _wrapOffsets.get()[i] = static_cast<DAAL_INT64>(pv - ptrMin);
+            _wrapOffsets.SetupOffset(i, static_cast<DAAL_INT64>(pv - ptrMin));
         }
 
         return services::Status();
@@ -499,7 +522,7 @@ private:
         const NumericTableFeature & f0                          = (*_ddict)[0];
         daal::data_management::features::IndexNumType indexType = f0.indexType;
 
-        for (size_t i = 0; i < ncols; ++i)
+        for (size_t i = 1; i < ncols; ++i)
         {
             const NumericTableFeature & f1 = (*_ddict)[i];
             if (f1.indexType != indexType) return false;
