@@ -73,7 +73,14 @@ public:
      */
     DAAL_DEPRECATED Online(const Online & other) : input(other.input) { initialize(); }
 
-    DAAL_DEPRECATED_VIRTUAL virtual ~Online() {}
+    /* DAAL_DEPRECATED_VIRTUAL was removed because it gives
+     *  warning #1478: function "daal::algorithms::classifier::training::interface1::Online::~Online" (declared at line 77 of
+     *  "__release_lnx/daal/latest/include/algorithms/classifier/classifier_training_online.h") was declared deprecated
+     *  void operator()(const void * ptr) DAAL_C11_OVERRIDE { delete (const T *)(ptr); }
+     *                                                               ^
+     *  DAAL_DEPRECATED_VIRTUAL virtual ~Online() {}
+     */
+    virtual ~Online() {}
 
     /**
      * Registers user-allocated memory for storing partial training results

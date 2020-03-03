@@ -637,6 +637,8 @@ public:
      *  \param[in]    dataSize     Number of non-zero values
      *  \param[in]    type         Memory type
      */
+    using daal::data_management::interface1::NumericTableIface::allocateDataMemory;
+
     services::Status allocateDataMemory(size_t dataSize, daal::MemType /*type*/ = daal::dram)
     {
         freeDataMemoryImpl();
