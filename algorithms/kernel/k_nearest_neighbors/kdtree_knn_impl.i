@@ -85,6 +85,8 @@ class Stack
 {
 public:
     Stack() : _data(nullptr) {}
+    
+    ~Stack() { clear(); }
 
     void clear()
     {
@@ -95,8 +97,6 @@ public:
             _data = nullptr;
         }
     }
-
-    ~Stack() { clear(); }
 
     bool init(size_t size)
     {
