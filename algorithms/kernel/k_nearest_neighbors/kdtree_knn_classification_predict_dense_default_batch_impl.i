@@ -307,16 +307,16 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
                 DAAL_PREFETCH_READ_T0(nx);
                 DAAL_PREFETCH_READ_T0(nx + 16);
 
-                distance_comp<cpu, algorithmFpType>(dx, query[j - 1], distance, length);
+                distance_comp<cpu>(dx, query[j - 1], distance, length);
 
                 const_cast<NumericTable &>(data).releaseBlockOfColumnValues(xBD[curBDIdx]);
 
-                daal::services::internal::swap<cpu, size_t>(curBDIdx, nextBDIdx);
+                daal::services::internal::swap<cpu>(curBDIdx, nextBDIdx);
             }
             {
                 const algorithmFpType * const dx = xBD[curBDIdx].getBlockPtr();
 
-                distance_comp<cpu, algorithmFpType>(dx, query[j - 1], distance, length);
+                distance_comp<cpu>(dx, query[j - 1], distance, length);
                 const_cast<NumericTable &>(data).releaseBlockOfColumnValues(xBD[curBDIdx]);
             }
 
