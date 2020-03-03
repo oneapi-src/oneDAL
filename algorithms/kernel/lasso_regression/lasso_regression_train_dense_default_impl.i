@@ -147,14 +147,8 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
 
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, sizeof(algorithmFPType));
 
-        algorithmFPType * total = static_cast<algorithmFPType*>(daal::parallel_deterministic_reduce(nRows, blockSize,
-            [&] (void** value)
-            {
-                *value = static_cast<void *>(services::internal::service_scalable_calloc<algorithmFPType, cpu>(nFeatures));
-            }, [&] (void ** value)
-            {
-                services::internal::service_scalable_free<algorithmFPType, cpu>(static_cast<algorithmFPType *>(*value));
-            }, [&] (void * local_, size_t begin, size_t end)
+        algorithmFPType * total = daal::parallel_deterministic_sum<algorithmFPType, cpu>(nRows, blockSize, nFeatures,
+            [&] (void * local_, size_t begin, size_t end)
             {
                 algorithmFPType * local = static_cast<algorithmFPType *>(local_);
                 daal::services::internal::service_memset_seq<algorithmFPType, cpu>(local, 0, nFeatures);
@@ -168,19 +162,8 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
                         local[j] += xPtr[it * nFeatures + j];
                     }
                 }
-            }, [&] (void * lhs_, void * rhs_)
-            {
-                algorithmFPType * lhs = static_cast<algorithmFPType *>(lhs_);
-                algorithmFPType * rhs = static_cast<algorithmFPType *>(rhs_);
-
-                PRAGMA_IVDEP
-                PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < nFeatures; ++i)
-                {
-                    lhs[i] += rhs[i];
-                }
             }
-        ));
+        );
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS

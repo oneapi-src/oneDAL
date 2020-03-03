@@ -224,16 +224,11 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
 
                         if (transposedData)
                         {
-                            total = static_cast<algorithmFPType *>(daal::parallel_deterministic_reduce(nDataRows, blockSize,
-                                [&] (void ** value)
-                                {
-                                    *value = static_cast<void *>(services::internal::service_scalable_calloc<algorithmFPType, cpu>(nTheta));
-                                }, [&] (void ** value)
-                                {
-                                    services::internal::service_scalable_free<algorithmFPType, cpu>(static_cast<algorithmFPType *>(*value));
-                                }, [&] (void * local_, size_t begin, size_t end)
+                            total = daal::parallel_deterministic_sum<algorithmFPType, cpu>(nDataRows, blockSize, nTheta,
+                                [&] (void * local_, size_t begin, size_t end)
                                 {
                                     algorithmFPType * local = static_cast<algorithmFPType *>(local_);
+                                    daal::services::internal::service_memset_seq<algorithmFPType, cpu>(local, 0, nTheta);
 
                                     for (size_t j = 0; j < nTheta; ++j)
                                     {
@@ -241,35 +236,19 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                                         PRAGMA_VECTOR_ALWAYS
                                         for (size_t i = begin; i < end; ++i)
                                         {
-                                            local[j] = X[j * n + i] * X[j * n + i]; /*USE DOTPRODUCT or parallel computation*/
+                                            local[j] += X[j * n + i] * X[j * n + i]; /*USE DOTPRODUCT or parallel computation*/
                                         }
                                     }
-                                }, [&] (void * lhs_, void * rhs_)
-                                {
-                                    algorithmFPType * lhs = static_cast<algorithmFPType *>(lhs_);
-                                    algorithmFPType * rhs = static_cast<algorithmFPType *>(rhs_);
-
-                                    PRAGMA_IVDEP
-                                    PRAGMA_VECTOR_ALWAYS
-                                    for (size_t i = 0; i < nTheta; ++i)
-                                    {
-                                        lhs[i] += rhs[i];
-                                    }
                                 }
-                            ));
+                            );
                         }
                         else
                         {
-                            total = static_cast<algorithmFPType *>(daal::parallel_deterministic_reduce(nDataRows, blockSize,
-                                [&] (void ** value)
-                                {
-                                    *value = static_cast<void *>(services::internal::service_scalable_calloc<algorithmFPType, cpu>(nTheta));
-                                }, [&] (void ** value)
-                                {
-                                    services::internal::service_scalable_free<algorithmFPType, cpu>(static_cast<algorithmFPType *>(*value));
-                                }, [&] (void * local_, size_t begin, size_t end)
+                            total = daal::parallel_deterministic_sum<algorithmFPType, cpu>(nDataRows, blockSize, nTheta,
+                                [&] (void * local_, size_t begin, size_t end)
                                 {
                                     algorithmFPType * local = static_cast<algorithmFPType *>(local_);
+                                    daal::services::internal::service_memset_seq<algorithmFPType, cpu>(local, 0, nTheta);
 
                                     for (size_t i = begin; i < end; ++i)
                                     {
@@ -277,22 +256,11 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                                         PRAGMA_VECTOR_ALWAYS
                                         for (size_t j = 0; j < nTheta; ++j)
                                         {
-                                            local[j] = X[i * dim + j] * X[i * dim + j]; /*USE DOTPRODUCT or parallel computation*/
+                                            local[j] += X[i * dim + j] * X[i * dim + j]; /*USE DOTPRODUCT or parallel computation*/
                                         }
                                     }
-                                }, [&] (void * lhs_, void * rhs_)
-                                {
-                                    algorithmFPType * lhs = static_cast<algorithmFPType *>(lhs_);
-                                    algorithmFPType * rhs = static_cast<algorithmFPType *>(rhs_);
-
-                                    PRAGMA_IVDEP
-                                    PRAGMA_VECTOR_ALWAYS
-                                    for (size_t i = 0; i < nTheta; ++i)
-                                    {
-                                        lhs[i] += rhs[i];
-                                    }
                                 }
-                            ));
+                            );
                         }
 
                         PRAGMA_IVDEP
@@ -409,14 +377,8 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     const size_t disp      = dim * yDim;
                     const size_t len       = dim * yDim + nTheta * nTheta;
 
-                    algorithmFPType * total = static_cast<algorithmFPType *>(daal::parallel_deterministic_reduce(nDataRows, blockSize,
-                        [&] (void ** value)
-                        {
-                            *value = static_cast<void *>(services::internal::service_scalable_calloc<algorithmFPType, cpu>(len));
-                        }, [&] (void ** value)
-                        {
-                            services::internal::service_scalable_free<algorithmFPType, cpu>(static_cast<algorithmFPType *>(*value));
-                        }, [&] (void * local, size_t begin, size_t end)
+                    algorithmFPType * total = daal::parallel_deterministic_sum<algorithmFPType, cpu>(nDataRows, blockSize, len,
+                        [&] (void * local, size_t begin, size_t end)
                         {
                             algorithmFPType * localXY = static_cast<algorithmFPType*>(local);
                             daal::services::internal::service_memset_seq<algorithmFPType, cpu>(localXY, 0, len);
@@ -437,19 +399,8 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                                                                                       &dim, &one, localXY, &yDim);
                                 Blas<algorithmFPType, cpu>::xxsyrk(&uplo, &notrans, &dim, &localBlockSizeDim, &one, X + startRow*dim, &dim, &one, localGram, &dim);
                             }
-                        }, [&] (void * lhs_, void * rhs_)
-                        {
-                            algorithmFPType * lhs = static_cast<algorithmFPType *>(lhs_);
-                            algorithmFPType * rhs = static_cast<algorithmFPType *>(rhs_);
-
-                            PRAGMA_IVDEP
-                            PRAGMA_VECTOR_ALWAYS
-                            for (size_t i = 0; i < len; ++i)
-                            {
-                                lhs[i] += rhs[i];
-                            }
                         }
-                    ));
+                    );
 
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
