@@ -273,17 +273,7 @@ protected:
 
             if (_count < wrapper._count)
             {
-                deallocate();
-                _arrOffsets = (DAAL_INT64 *)daal::services::daal_malloc(wrapper._count * sizeof(DAAL_INT64));
-                if (_arrOffsets)
-                {
-                    _count = wrapper._count;
-                }
-                else
-                {
-                    _count = 0;
-                    return *this;
-                }
+                if (allocate(wrapper._count) != services::Status()) return *this;
             }
             else
             {
@@ -507,8 +497,8 @@ private:
         /* compute offsets */
         for (size_t i = 0; i < ncols; ++i)
         {
-            char * pv = (char *)(_arrays[i].get());
-            DAAL_ASSERT(static_cast<DAAL_UINT64>(pv - ptrMin) <= MaxVal<long long>::get())
+            char const * pv = (char *)(_arrays[i].get());
+            DAAL_ASSERT(static_cast<DAAL_UINT64>(pv - ptrMin) <= static_cast<DAAL_UINT64>(LLONG_MAX))
             _wrapOffsets.SetupOffset(i, static_cast<DAAL_INT64>(pv - ptrMin));
         }
 
