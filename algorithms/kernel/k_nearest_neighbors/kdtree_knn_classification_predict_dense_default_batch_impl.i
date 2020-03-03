@@ -107,15 +107,15 @@ public:
         _elements[_count++] = e;
         if (_count == k)
         {
-            makeMaxHeap<cpu>(_elements, _elements + _count);
+            makeMaxHeap<cpu, T *>(_elements, _elements + _count);
         }
     }
 
     void replaceMax(const T & e)
     {
-        popMaxHeap<cpu>(_elements, _elements + _count);
+        popMaxHeap<cpu, T *>(_elements, _elements + _count);
         _elements[_count - 1] = e;
-        pushMaxHeap<cpu>(_elements, _elements + _count);
+        pushMaxHeap<cpu, T *>(_elements, _elements + _count);
     }
 
     size_t size() const { return _count; }

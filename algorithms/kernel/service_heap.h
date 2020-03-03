@@ -36,6 +36,13 @@ namespace internal
 {
 using namespace services::internal;
 
+template<CpuType cpu, typename RandomAccessIterator>
+struct StandardComparator
+{
+    using Type = typename RemovePointer<cpu, RandomAccessIterator>::type;
+    DAAL_FORCEINLINE bool operator() (const Type& left, const Type& right) const { return left < right; }
+};
+
 template <CpuType cpu, typename T>
 DAAL_FORCEINLINE T heapLeftChildIndex(T index)
 {
@@ -52,8 +59,8 @@ DAAL_FORCEINLINE T heapParentIndex(T index)
     return (index - 1) / 2;
 }
 
-template <CpuType cpu, typename RandomAccessIterator, typename Diff, typename Compare>
-DAAL_FORCEINLINE void internalAdjustMaxHeap(RandomAccessIterator first, RandomAccessIterator /*last*/, Diff count, Diff i, Compare compare)
+template <CpuType cpu, typename RandomAccessIterator, typename Diff, typename Compare = StandardComparator<cpu, RandomAccessIterator> >
+DAAL_FORCEINLINE void internalAdjustMaxHeap(RandomAccessIterator first, RandomAccessIterator /*last*/, Diff count, Diff i, Compare compare = StandardComparator<cpu, RandomAccessIterator>())
 {
     for (auto largest = i;; i = largest)
     {
@@ -76,67 +83,35 @@ DAAL_FORCEINLINE void internalAdjustMaxHeap(RandomAccessIterator first, RandomAc
     }
 }
 
-template <CpuType cpu, typename RandomAccessIterator, typename Diff>
-DAAL_FORCEINLINE void internalAdjustMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Diff count, Diff i)
-{
-    using Type            = typename RemovePointer<cpu, RandomAccessIterator>::type;
-    const auto comparator = [](const Type & a, const Type & b) -> bool { return a < b; };
-    internalAdjustMaxHeap(first, last, count, i, comparator);
-}
-
-template <CpuType cpu, typename RandomAccessIterator, typename Compare>
-void popMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare compare)
+template <CpuType cpu, typename RandomAccessIterator, typename Compare = StandardComparator<cpu, RandomAccessIterator> >
+void popMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare compare = StandardComparator<cpu, RandomAccessIterator>())
 {
     if (1 < last - first)
     {
         --last;
         iterSwap<cpu>(first, last);
-        internalAdjustMaxHeap<cpu>(first, last, last - first, first - first, compare);
+        internalAdjustMaxHeap<cpu, RandomAccessIterator, decltype(last - first), Compare>(first, last, last - first, first - first, compare);
     }
 }
 
-template <CpuType cpu, typename RandomAccessIterator>
-void popMaxHeap(RandomAccessIterator first, RandomAccessIterator last)
-{
-    using Type            = typename RemovePointer<cpu, RandomAccessIterator>::type;
-    const auto comparator = [](const Type & a, const Type & b) -> bool { return a < b; };
-    popMaxHeap<cpu>(first, last, comparator);
-}
-
-template <CpuType cpu, typename RandomAccessIterator, typename Compare>
-void makeMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare compare)
+template <CpuType cpu, typename RandomAccessIterator, typename Compare = StandardComparator<cpu, RandomAccessIterator> >
+void makeMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare compare = StandardComparator<cpu, RandomAccessIterator>())
 {
     const auto count = last - first;
     auto i           = count / 2;
     while (0 < i)
     {
-        internalAdjustMaxHeap<cpu>(first, last, count, --i, compare);
+        internalAdjustMaxHeap<cpu, RandomAccessIterator, decltype(last - first), Compare>(first, last, count, --i, compare);
     }
 }
 
-template <CpuType cpu, typename RandomAccessIterator>
-void makeMaxHeap(RandomAccessIterator first, RandomAccessIterator last)
-{
-    using Type            = typename RemovePointer<cpu, RandomAccessIterator>::type;
-    const auto comparator = [](const Type & a, const Type & b) -> bool { return a < b; };
-    makeMaxHeap<cpu>(first, last, comparator);
-}
-
-template <CpuType cpu, typename RandomAccessIterator, typename Compare>
-DAAL_FORCEINLINE void sortMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare compare)
+template <CpuType cpu, typename RandomAccessIterator, typename Compare = StandardComparator<cpu, RandomAccessIterator> >
+DAAL_FORCEINLINE void sortMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare compare = StandardComparator<cpu, RandomAccessIterator>())
 {
     while (1 < last - first)
     {
-        popMaxHeap<cpu>(first, --last, compare);
+        popMaxHeap<cpu, RandomAccessIterator, Compare>(first, --last, compare);
     }
-}
-
-template <CpuType cpu, typename RandomAccessIterator>
-DAAL_FORCEINLINE void sortMaxHeap(RandomAccessIterator first, RandomAccessIterator last)
-{
-    using Type            = typename RemovePointer<cpu, RandomAccessIterator>::type;
-    const auto comparator = [](const Type & a, const Type & b) -> bool { return a < b; };
-    sortMaxHeap<cpu>(first, last, comparator);
 }
 
 template <CpuType cpu, typename RandomAccessIterator, typename Addr>
@@ -146,8 +121,8 @@ DAAL_FORCEINLINE void maxHeapUpdate(RandomAccessIterator first, Addr & prev, con
     prev            = i;
 }
 
-template <CpuType cpu, typename RandomAccessIterator, typename Compare>
-void pushMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare compare)
+template <CpuType cpu, typename RandomAccessIterator, typename Compare = StandardComparator<cpu, RandomAccessIterator> >
+void pushMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare compare = StandardComparator<cpu, RandomAccessIterator>())
 {
     auto i = last - first - 1;
     if (0 < i)
@@ -165,14 +140,6 @@ void pushMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare 
         }
         *(first + prev) = newItem;
     }
-}
-
-template <CpuType cpu, typename RandomAccessIterator>
-void pushMaxHeap(RandomAccessIterator first, RandomAccessIterator last)
-{
-    using Type            = typename RemovePointer<cpu, RandomAccessIterator>::type;
-    const auto comparator = [](const Type & a, const Type & b) -> bool { return a < b; };
-    pushMaxHeap<cpu>(first, last, comparator);
 }
 
 } // namespace internal
