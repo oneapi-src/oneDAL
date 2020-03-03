@@ -36,11 +36,11 @@ namespace internal
 {
 using namespace services::internal;
 
-template<CpuType cpu, typename RandomAccessIterator>
+template <CpuType cpu, typename RandomAccessIterator>
 struct StandardComparator
 {
     using Type = typename RemovePointer<cpu, RandomAccessIterator>::type;
-    DAAL_FORCEINLINE bool operator() (const Type& left, const Type& right) const { return left < right; }
+    DAAL_FORCEINLINE bool operator()(const Type & left, const Type & right) const { return left < right; }
 };
 
 template <CpuType cpu, typename T>
@@ -60,7 +60,8 @@ DAAL_FORCEINLINE T heapParentIndex(T index)
 }
 
 template <CpuType cpu, typename RandomAccessIterator, typename Diff, typename Compare = StandardComparator<cpu, RandomAccessIterator> >
-DAAL_FORCEINLINE void internalAdjustMaxHeap(RandomAccessIterator first, RandomAccessIterator /*last*/, Diff count, Diff i, Compare compare = StandardComparator<cpu, RandomAccessIterator>())
+DAAL_FORCEINLINE void internalAdjustMaxHeap(RandomAccessIterator first, RandomAccessIterator /*last*/, Diff count, Diff i,
+                                            Compare compare = StandardComparator<cpu, RandomAccessIterator>())
 {
     for (auto largest = i;; i = largest)
     {
@@ -106,7 +107,8 @@ void makeMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare 
 }
 
 template <CpuType cpu, typename RandomAccessIterator, typename Compare = StandardComparator<cpu, RandomAccessIterator> >
-DAAL_FORCEINLINE void sortMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare compare = StandardComparator<cpu, RandomAccessIterator>())
+DAAL_FORCEINLINE void sortMaxHeap(RandomAccessIterator first, RandomAccessIterator last,
+                                  Compare compare = StandardComparator<cpu, RandomAccessIterator>())
 {
     while (1 < last - first)
     {
