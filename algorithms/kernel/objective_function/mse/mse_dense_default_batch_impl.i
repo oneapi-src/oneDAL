@@ -220,73 +220,86 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                         hessianDiagonal.reset(nTheta);
                         hessianDiagonalPtr           = hessianDiagonal.get();
                         algorithmFPType inverseNData = (algorithmFPType)(1.0) / nDataRows;
-
-                        PRAGMA_IVDEP
-                        PRAGMA_VECTOR_ALWAYS
-                        for (size_t j = 0; j < nTheta; j++)
-                        {
-                            hessianDiagonalPtr[j] = 0; /*USE DOTPRODUCT or parallel computation*/
-                        }
+                        algorithmFPType * total      = nullptr;
 
                         if (transposedData)
                         {
-                            TlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> > tlsData(nTheta);
-                            daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
-                                algorithmFPType * hessianDiagonalLocal = tlsData.local();
-                                const size_t startRow                  = iBlock * blockSize;
-                                const size_t finishRow                 = (iBlock + 1 == nBlocks ? nDataRows : (iBlock + 1) * blockSize);
-
-                                for (size_t j = 0; j < nTheta; j++)
+                            total = static_cast<algorithmFPType *>(daal::parallel_deterministic_reduce(nDataRows, blockSize,
+                                [&] (void ** value)
                                 {
+                                    *value = static_cast<void *>(services::internal::service_scalable_calloc<algorithmFPType, cpu>(nTheta));
+                                }, [&] (void ** value)
+                                {
+                                    services::internal::service_scalable_free<algorithmFPType, cpu>(static_cast<algorithmFPType *>(*value));
+                                }, [&] (void * local_, size_t begin, size_t end)
+                                {
+                                    algorithmFPType * local = static_cast<algorithmFPType *>(local_);
+
+                                    for (size_t j = 0; j < nTheta; ++j)
+                                    {
+                                        PRAGMA_IVDEP
+                                        PRAGMA_VECTOR_ALWAYS
+                                        for (size_t i = begin; i < end; ++i)
+                                        {
+                                            local[j] = X[j * n + i] * X[j * n + i]; /*USE DOTPRODUCT or parallel computation*/
+                                        }
+                                    }
+                                }, [&] (void * lhs_, void * rhs_)
+                                {
+                                    algorithmFPType * lhs = static_cast<algorithmFPType *>(lhs_);
+                                    algorithmFPType * rhs = static_cast<algorithmFPType *>(rhs_);
+
                                     PRAGMA_IVDEP
                                     PRAGMA_VECTOR_ALWAYS
-                                    for (size_t i = startRow; i < finishRow; i++)
+                                    for (size_t i = 0; i < nTheta; ++i)
                                     {
-                                        hessianDiagonalLocal[j] += X[j * n + i] * X[j * n + i]; /*USE DOTPRODUCT or parallel computation*/
+                                        lhs[i] += rhs[i];
                                     }
                                 }
-                            });
-                            tlsData.reduce([&](algorithmFPType * localHes) {
-                                PRAGMA_IVDEP
-                                PRAGMA_VECTOR_ALWAYS
-                                for (size_t j = 0; j < nTheta; j++)
-                                {
-                                    hessianDiagonalPtr[j] += localHes[j];
-                                }
-                            });
+                            ));
                         }
                         else
                         {
-                            TlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> > tlsData(nTheta);
-                            daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
-                                algorithmFPType * hessianDiagonalLocal = tlsData.local();
-                                const size_t startRow                  = iBlock * blockSize;
-                                const size_t finishRow                 = (iBlock + 1 == nBlocks ? nDataRows : (iBlock + 1) * blockSize);
-
-                                for (size_t i = startRow; i < finishRow; i++)
+                            total = static_cast<algorithmFPType *>(daal::parallel_deterministic_reduce(nDataRows, blockSize,
+                                [&] (void ** value)
                                 {
+                                    *value = static_cast<void *>(services::internal::service_scalable_calloc<algorithmFPType, cpu>(nTheta));
+                                }, [&] (void ** value)
+                                {
+                                    services::internal::service_scalable_free<algorithmFPType, cpu>(static_cast<algorithmFPType *>(*value));
+                                }, [&] (void * local_, size_t begin, size_t end)
+                                {
+                                    algorithmFPType * local = static_cast<algorithmFPType *>(local_);
+
+                                    for (size_t i = begin; i < end; ++i)
+                                    {
+                                        PRAGMA_IVDEP
+                                        PRAGMA_VECTOR_ALWAYS
+                                        for (size_t j = 0; j < nTheta; ++j)
+                                        {
+                                            local[j] = X[i * dim + j] * X[i * dim + j]; /*USE DOTPRODUCT or parallel computation*/
+                                        }
+                                    }
+                                }, [&] (void * lhs_, void * rhs_)
+                                {
+                                    algorithmFPType * lhs = static_cast<algorithmFPType *>(lhs_);
+                                    algorithmFPType * rhs = static_cast<algorithmFPType *>(rhs_);
+
                                     PRAGMA_IVDEP
                                     PRAGMA_VECTOR_ALWAYS
-                                    for (size_t j = 0; j < nTheta; j++)
+                                    for (size_t i = 0; i < nTheta; ++i)
                                     {
-                                        hessianDiagonalLocal[j] += X[i * dim + j] * X[i * dim + j]; /*USE DOTPRODUCT or parallel computation*/
+                                        lhs[i] += rhs[i];
                                     }
                                 }
-                            });
-                            tlsData.reduce([&](algorithmFPType * localHes) {
-                                PRAGMA_IVDEP
-                                PRAGMA_VECTOR_ALWAYS
-                                for (size_t j = 0; j < nTheta; j++)
-                                {
-                                    hessianDiagonalPtr[j] += localHes[j];
-                                }
-                            });
+                            ));
                         }
+
                         PRAGMA_IVDEP
                         PRAGMA_VECTOR_ALWAYS
                         for (size_t j = 0; j < nTheta; j++)
                         {
-                            hessianDiagonalPtr[j] *= inverseNData;
+                            hessianDiagonalPtr[j] = total[j] * inverseNData;
                         }
                     }
                 }
