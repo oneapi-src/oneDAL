@@ -44,6 +44,8 @@ float initialPoint[nFeatures + 1] = { 0, 0, 0, 0 };
 
 int main(int argc, char * argv[])
 {
+    checkArguments(argc, argv, 1, &datasetFileName);
+
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
     FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
