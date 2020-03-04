@@ -69,6 +69,7 @@ DAAL  = assoc_rules_apriori_batch             \
         dt_reg_traverse_model                 \
         cor_dist_dense_batch                  \
         cos_dist_dense_batch                  \
+        elastic_net_dense_batch               \
         em_gmm_dense_batch                    \
         gbt_cls_dense_batch                   \
         gbt_reg_dense_batch                   \
