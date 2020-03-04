@@ -71,7 +71,7 @@ public:
      */
     AlgorithmContainerIfaceImpl(daal::services::Environment::env * daalEnv) : _env(daalEnv), _kernel(NULL) {}
 
-    virtual ~AlgorithmContainerIfaceImpl() {}
+    virtual ~AlgorithmContainerIfaceImpl() DAAL_C11_OVERRIDE {}
 
     /**
      * Sets the information about the environment
