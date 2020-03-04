@@ -481,8 +481,8 @@ private:
         const size_t ncols = getNumberOfColumns();
 
         DAAL_CHECK_MALLOC(_wrapOffsets.allocate(ncols));
-        _index        = 0;
-        char * ptrMin = (char *)_arrays[0].get();
+        _index              = 0;
+        char const * ptrMin = (char *)_arrays[0].get();
 
         /* search index for min pointer */
         for (size_t i = 1; i < ncols; ++i)
@@ -497,7 +497,7 @@ private:
         /* compute offsets */
         for (size_t i = 0; i < ncols; ++i)
         {
-            char const * pv = (char *)(_arrays[i].get());
+            char const * const pv = (char *)(_arrays[i].get());
             DAAL_ASSERT(static_cast<DAAL_UINT64>(pv - ptrMin) <= static_cast<DAAL_UINT64>(LLONG_MAX))
             _wrapOffsets.SetupOffset(i, static_cast<DAAL_INT64>(pv - ptrMin));
         }
