@@ -44,9 +44,10 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                                                                          NumericTable * componentOfHessianDiagonal,
                                                                          NumericTable * componentOfProximalProjection, Parameter * parameter)
 {
-    const size_t nDataRows = dataNT->getNumberOfRows();
-    int result             = 0;
-    if (componentOfGradient || componentOfHessianDiagonal || componentOfProximalProjection)
+    const size_t nDataRows           = dataNT->getNumberOfRows();
+    int result                       = 0;
+    const bool flagOfHessianDiagonal = static_cast<bool>(parameter->resultsToCompute & objective_function::componentOfHessianDiagonal);
+    if (componentOfGradient || (componentOfHessianDiagonal && flagOfHessianDiagonal) || componentOfProximalProjection)
     {
         const size_t id     = parameter->featureId;
         const size_t nTheta = dataNT->getNumberOfColumns();
@@ -57,7 +58,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
             previousFeatureValuesPtr = previousFeatureValues.get();
         }
 
-        if (componentOfGradient || componentOfHessianDiagonal)
+        if (componentOfGradient || (componentOfHessianDiagonal && flagOfHessianDiagonal))
         {
             if (xNT != dataNT)
             {
@@ -215,7 +216,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                         });
                     }
 
-                    if (componentOfHessianDiagonal)
+                    if (componentOfHessianDiagonal && flagOfHessianDiagonal)
                     {
                         hessianDiagonal.reset(nTheta);
                         hessianDiagonalPtr           = hessianDiagonal.get();
@@ -496,7 +497,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                 }
             }
         }
-        if (componentOfHessianDiagonal)
+        if (componentOfHessianDiagonal && flagOfHessianDiagonal)
         {
             WriteRows<algorithmFPType, cpu> hessianPtr;
             if (hesDiagonalNT != componentOfHessianDiagonal)
@@ -585,6 +586,15 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
             }
             float l1 = penaltyL1Ptr[0];
 
+            ReadRows<float, cpu> penaltyL2BD;
+            if (penaltyL2NT != parameter->penaltyL2.get())
+            {
+                penaltyL2NT = parameter->penaltyL2.get();
+                penaltyL2BD.set(*parameter->penaltyL2, 0, 1);
+                penaltyL2Ptr = const_cast<float *>(penaltyL2BD.get());
+            }
+            float l2 = penaltyL2Ptr[0];
+
             WriteRows<algorithmFPType, cpu> proxBD;
             if (proxNT != componentOfProximalProjection)
             {
@@ -626,6 +636,25 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     {
                         p[i] = 0;
                     }
+                }
+            }
+            if (l2)
+            {
+                if (componentOfHessianDiagonal)
+                {
+                    WriteRows<algorithmFPType, cpu> hessianPtr;
+                    DAAL_ASSERT(componentOfHessianDiagonal->getNumberOfRows() == 1);
+                    hessianPtr.set(componentOfHessianDiagonal, 0, 1);
+                    for (size_t i = 0; i < proxSize; i++) p[i] *= 1.0 / (1.0 + l2 / hessianPtr.get()[0]);
+                }
+                else
+                {
+                    HomogenNumericTable<algorithmFPType> * hmgDataPtr = dynamic_cast<HomogenNumericTable<algorithmFPType> *>(dataNT);
+                    algorithmFPType * X                               = hmgDataPtr->getArray();
+                    algorithmFPType norm                              = 0.0;
+                    for (size_t i = 0; i < nDataRows; i++) norm += X[i * nTheta + (id - 1)] * X[i * nTheta + (id - 1)];
+
+                    for (size_t i = 0; i < proxSize; i++) p[i] *= 1.0 / (1.0 + l2 * nDataRows / norm);
                 }
             }
         }

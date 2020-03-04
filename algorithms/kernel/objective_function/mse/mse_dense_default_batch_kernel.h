@@ -207,6 +207,8 @@ public:
           h(nullptr),
           penaltyL1NT(nullptr),
           penaltyL1Ptr(nullptr),
+          penaltyL2NT(nullptr),
+          penaltyL2Ptr(nullptr),
           proxNT(nullptr),
           proxPtr(nullptr),
           transposedData(false) {};
@@ -252,6 +254,8 @@ private:
 
     NumericTable * penaltyL1NT;
     float * penaltyL1Ptr;
+    NumericTable * penaltyL2NT;
+    float * penaltyL2Ptr;
     NumericTable * proxNT;
     algorithmFPType * proxPtr;
     ReadRows<algorithmFPType, cpu> XPtr;
