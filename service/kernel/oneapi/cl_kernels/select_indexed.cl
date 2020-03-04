@@ -29,9 +29,9 @@
 DECLARE_SOURCE(
     quick_select_simd,
 
-    algorithmFPType get_rnd(__global const algorithmFPType * rnd_seq, int RndPeriod, int * count) {
+    algorithmFPType get_rnd(__global const algorithmFPType * rnd_seq, int rnd_eriod, int * count) {
         algorithmFPType ret = rnd_seq[(*count)++];
-        if (*count >= RndPeriod)
+        if (*count >= rnd_eriod)
         {
             *count = 0;
         }
@@ -227,12 +227,12 @@ DECLARE_SOURCE(
         __global int * local_ind_out             = &indices_out[global_id * __K__];
         __global algorithmFPType * local_val_out = &values_out[global_id * __K__];
 
-        for (int i = local_id; i < array_size; i++)
+        for (int i = local_id; i < array_size; i += local_size)
         {
             local_ind_out[i] = final_indices[i];
         }
 
-        for (int i = local_id; i < array_size; i++)
+        for (int i = local_id; i < array_size; i += local_size)
         {
             local_val_out[i] = final_values[i];
         }

@@ -36,7 +36,7 @@ namespace selection
 DAAL_ITTNOTIFY_DOMAIN(daal.oneapi.internal.select.select_indexed);
 
 void run_quick_select_simd(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & dataVectors,
-                           const UniversalBuffer & indexVectors, const UniversalBuffer & rndSeq, uint32_t nRndSeq, uint32_t K, uint32_t nVectors,
+                           const UniversalBuffer & indexVectors, const UniversalBuffer & rndSeq, uint32_t nRndSeq, uint32_t nK, uint32_t nVectors,
                            uint32_t vectorSize, uint32_t lastVectorSize, uint32_t vectorOffset, QuickSelectIndexed::Result & result,
                            services::Status * status)
 {
@@ -62,13 +62,13 @@ void run_quick_select_simd(ExecutionContextIface & context, ClKernelFactoryIface
     args.set(5, nRndSeq);
     args.set(6, vectorSize);
     args.set(7, lastVectorSize);
-    args.set(8, K);
+    args.set(8, nK);
     args.set(9, vectorOffset);
 
     context.run(range, func_kernel, args, status);
 }
 
-void run_direct_select_simd(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & dataVectors, uint32_t K,
+void run_direct_select_simd(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & dataVectors, uint32_t nK,
                             uint32_t nVectors, uint32_t vectorSize, uint32_t lastVectorSize, uint32_t vectorOffset,
                             QuickSelectIndexed::Result & result, services::Status * status)
 {
@@ -130,29 +130,8 @@ void QuickSelectIndexed::buildProgram(ClKernelFactoryIface & kernelFactory, cons
     kernelFactory.build(ExecutionTargetIds::device, cachekey.c_str(), quick_select_simd, build_options.c_str(), status);
 }
 
-SelectIndexed::Result QuickSelectIndexed::selectIndices(const UniversalBuffer & dataVectors, const UniversalBuffer & tempIndices,
-                                                        const UniversalBuffer & rndSeq, uint32_t nRndSeq, uint32_t K, uint32_t nVectors,
-                                                        uint32_t vectorSize, uint32_t lastVectorSize, uint32_t vectorOffset,
-                                                        services::Status * status)
-{
-    DAAL_ITTNOTIFY_SCOPED_TASK(QuickSelectIndexed.select);
-
-    auto & context       = oneapi::internal::getDefaultContext();
-    auto & kernelFactory = context.getClKernelFactory();
-
-    Result result(context, K, nVectors, dataVectors.type(), status);
-    DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, result);
-
-    buildProgram(kernelFactory, dataVectors.type(), status);
-    DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, result);
-
-    run_quick_select_simd(context, kernelFactory, dataVectors, tempIndices, rndSeq, nRndSeq, K, nVectors, vectorSize, lastVectorSize, vectorOffset,
-                          result, status);
-    return result;
-}
-
 SelectIndexed::Result & QuickSelectIndexed::selectIndices(const UniversalBuffer & dataVectors, const UniversalBuffer & tempIndices,
-                                                          const UniversalBuffer & rndSeq, uint32_t nRndSeq, uint32_t K, uint32_t nVectors,
+                                                          const UniversalBuffer & rndSeq, uint32_t nRndSeq, uint32_t nK, uint32_t nVectors,
                                                           uint32_t vectorSize, uint32_t lastVectorSize, uint32_t vectorOffset, Result & result,
                                                           services::Status * status)
 {
@@ -164,7 +143,7 @@ SelectIndexed::Result & QuickSelectIndexed::selectIndices(const UniversalBuffer 
     buildProgram(kernelFactory, dataVectors.type(), status);
     DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, result);
 
-    run_quick_select_simd(context, kernelFactory, dataVectors, tempIndices, rndSeq, nRndSeq, K, nVectors, vectorSize, lastVectorSize, vectorOffset,
+    run_quick_select_simd(context, kernelFactory, dataVectors, tempIndices, rndSeq, nRndSeq, nK, nVectors, vectorSize, lastVectorSize, vectorOffset,
                           result, status);
     return result;
 }
@@ -232,13 +211,14 @@ SelectIndexed * QuickSelectIndexed::create(Params & par, daal::services::Status 
     return ret;
 }
 
-void DirectSelectIndexed::buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId & vectorTypeId, uint32_t K, daal::services::Status * status)
+void DirectSelectIndexed::buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId & vectorTypeId, uint32_t nK,
+                                       daal::services::Status * status)
 {
     services::String fptype_name = getKeyFPType(vectorTypeId);
     auto build_options           = fptype_name;
     build_options.add("-cl-std=CL1.2 -D __K__=");
     char buffer[DAAL_MAX_STRING_SIZE];
-    daal::services::daal_int_to_string(buffer, DAAL_MAX_STRING_SIZE, K);
+    daal::services::daal_int_to_string(buffer, DAAL_MAX_STRING_SIZE, nK);
     build_options.add(buffer);
 
     services::String cachekey("__daal_oneapi_internal_dselect_indexed_");
@@ -246,7 +226,7 @@ void DirectSelectIndexed::buildProgram(ClKernelFactoryIface & kernelFactory, con
     kernelFactory.build(ExecutionTargetIds::device, cachekey.c_str(), direct_select_simd, build_options.c_str(), status);
 }
 
-SelectIndexed::Result & DirectSelectIndexed::selectIndices(const UniversalBuffer & dataVectors, uint32_t K, uint32_t nVectors, uint32_t vectorSize,
+SelectIndexed::Result & DirectSelectIndexed::selectIndices(const UniversalBuffer & dataVectors, uint32_t nK, uint32_t nVectors, uint32_t vectorSize,
                                                            uint32_t lastVectorSize, uint32_t vectorOffset, Result & result, services::Status * status)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(QuickSelectIndexed.select);
@@ -254,28 +234,10 @@ SelectIndexed::Result & DirectSelectIndexed::selectIndices(const UniversalBuffer
     auto & context       = oneapi::internal::getDefaultContext();
     auto & kernelFactory = context.getClKernelFactory();
 
-    buildProgram(kernelFactory, dataVectors.type(), K, status);
+    buildProgram(kernelFactory, dataVectors.type(), nK, status);
     DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, result);
 
-    run_direct_select_simd(context, kernelFactory, dataVectors, K, nVectors, vectorSize, lastVectorSize, vectorOffset, result, status);
-    return result;
-}
-
-SelectIndexed::Result DirectSelectIndexed::selectIndices(const UniversalBuffer & dataVectors, uint32_t K, uint32_t nVectors, uint32_t vectorSize,
-                                                         uint32_t lastVectorSize, uint32_t vectorOffset, services::Status * status)
-{
-    DAAL_ITTNOTIFY_SCOPED_TASK(QuickSelectIndexed.select);
-
-    auto & context       = oneapi::internal::getDefaultContext();
-    auto & kernelFactory = context.getClKernelFactory();
-
-    Result result(context, K, nVectors, dataVectors.type(), status);
-    DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, result);
-
-    buildProgram(kernelFactory, dataVectors.type(), K, status);
-    DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, result);
-
-    run_direct_select_simd(context, kernelFactory, dataVectors, K, nVectors, vectorSize, lastVectorSize, vectorOffset, result, status);
+    run_direct_select_simd(context, kernelFactory, dataVectors, nK, nVectors, vectorSize, lastVectorSize, vectorOffset, result, status);
     return result;
 }
 
@@ -296,10 +258,10 @@ SelectIndexedFactory::SelectIndexedFactory()
     _entries << makeEntry<QuickSelectIndexed>();
 }
 
-SelectIndexed * SelectIndexedFactory::create(int K, SelectIndexed::Params & par, Status * st)
+SelectIndexed * SelectIndexedFactory::create(int nK, SelectIndexed::Params & par, Status * st)
 {
     for (size_t i = 0; i < _entries.size(); i++)
-        if (_entries[i].inRange(K))
+        if (_entries[i].inRange(nK))
         {
             return _entries[i].createMethod(par, st);
         }

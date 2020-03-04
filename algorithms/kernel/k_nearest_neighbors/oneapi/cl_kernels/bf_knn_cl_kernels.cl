@@ -38,9 +38,9 @@ DECLARE_SOURCE(
         distances[global_id_0 + global_id_1 * N] = dataSq[global_id_0];
     }
 
-    __kernel void gather_partial_selection(__global const algorithmFPType * distances, __global const int * categories,
-                                           __global algorithmFPType * partialDistances, __global int * partialCategories, int K, int Part,
-                                           int TotalParts) {
+    __kernel void copy_partial_selection(__global const algorithmFPType * distances, __global const int * categories,
+                                         __global algorithmFPType * partialDistances, __global int * partialCategories, int K, int Part,
+                                         int TotalParts) {
         const int global_id_0 = get_global_id(0);
         const int global_id_1 = get_global_id(1);
 

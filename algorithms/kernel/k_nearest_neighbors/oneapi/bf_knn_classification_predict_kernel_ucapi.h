@@ -42,21 +42,25 @@ class KNNClassificationPredictKernelUCAPI : public daal::algorithms::Kernel
 public:
     services::Status compute(const NumericTable * x, const classifier::Model * m, NumericTable * y, const daal::algorithms::Parameter * par);
 
-    void copyPartialSelections(oneapi::internal::ExecutionContextIface & context, const oneapi::internal::UniversalBuffer & distances,
-                               const oneapi::internal::UniversalBuffer & categories, oneapi::internal::UniversalBuffer & partialDistances,
-                               oneapi::internal::UniversalBuffer & partialLabels, uint32_t curQueryBlockRows, uint32_t nK, uint32_t nChunk,
-                               uint32_t totalNumberOfChunks, services::Status * st);
-    void scatterSumOfSquares(oneapi::internal::ExecutionContextIface & context, const oneapi::internal::UniversalBuffer & dataSumOfSquares,
-                             oneapi::internal::UniversalBuffer & distances, uint32_t dataBlockRows, uint32_t queryBlockRows, services::Status * st);
+private:
+    services::Status copyPartialDistancesAndLabels(oneapi::internal::ExecutionContextIface & context,
+                                                   const oneapi::internal::UniversalBuffer & distances,
+                                                   const oneapi::internal::UniversalBuffer & labels,
+                                                   oneapi::internal::UniversalBuffer & partialDistances,
+                                                   oneapi::internal::UniversalBuffer & partialLabels, uint32_t curQueryBlockRows, uint32_t k,
+                                                   uint32_t nChunk, uint32_t totalNumberOfChunks);
+    services::Status scatterSumOfSquares(oneapi::internal::ExecutionContextIface & context,
+                                         const oneapi::internal::UniversalBuffer & dataSumOfSquares, uint32_t dataBlockRowCount,
+                                         uint32_t queryBlockRowCount, oneapi::internal::UniversalBuffer & distances);
 
-    void computeDistances(oneapi::internal::ExecutionContextIface & context, const services::Buffer<algorithmFpType> & data,
-                          const services::Buffer<algorithmFpType> & query, oneapi::internal::UniversalBuffer & distances, uint32_t dataBlockRows,
-                          uint32_t queryBlockRows, uint32_t nFeatures, services::Status * st);
+    services::Status computeDistances(oneapi::internal::ExecutionContextIface & context, const services::Buffer<algorithmFpType> & data,
+                                      const services::Buffer<algorithmFpType> & query, oneapi::internal::UniversalBuffer & distances,
+                                      uint32_t dataBlockRowCount, uint32_t queryBlockRowCount, uint32_t nFeatures);
 
-    void computeWinners(oneapi::internal::ExecutionContextIface & context, const oneapi::internal::UniversalBuffer & categories,
-                        oneapi::internal::UniversalBuffer & classes, uint32_t queryBlockRows, uint32_t nK, services::Status * st);
+    services::Status computeWinners(oneapi::internal::ExecutionContextIface & context, const oneapi::internal::UniversalBuffer & labels,
+                                    uint32_t queryBlockRowCount, uint32_t k, oneapi::internal::UniversalBuffer labelsOut);
 
-    void buildProgram(oneapi::internal::ClKernelFactoryIface & kernel_factory, services::Status * st);
+    services::Status buildProgram(oneapi::internal::ClKernelFactoryIface & kernel_factory);
 };
 
 } // namespace internal
