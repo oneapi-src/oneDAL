@@ -333,7 +333,6 @@ public:
         for (size_t i = 0; i < nTrees; i++)
         {
             roots[i].root = new Node;
-            Node * root   = roots[i].root;
         }
         treeId = 0;
     }
