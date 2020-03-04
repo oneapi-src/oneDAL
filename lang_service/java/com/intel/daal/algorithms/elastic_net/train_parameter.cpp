@@ -47,55 +47,53 @@ JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_
 
 /*
  * Class:     com_intel_daal_algorithms_elastic_net_TrainParameter
- * Method:    cSetElasticNetL1Parameters
+ * Method:    cSetPenaltyL1
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_TrainParameter_cSetElasticNetL1Parameters(JNIEnv * env,
-                                                                                                             jobject thisObj,
-                                                                                                             jlong parAddr,
-                                                                                                             jlong cElasticNetL1Parameters)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_TrainParameter_cSetPenaltyL1(JNIEnv * env,
+                                                                                                jobject thisObj,
+                                                                                                jlong parAddr,
+                                                                                                jlong cPenaltyL1)
 {
-    SerializationIfacePtr * const ntShPtr                                 = (SerializationIfacePtr *)cElasticNetL1Parameters;
-    ((elastic_net::training::Parameter *)parAddr)->elasticNetL1Parameters = staticPointerCast<NumericTable, SerializationIface>(*ntShPtr);
+    SerializationIfacePtr * const ntShPtr                    = (SerializationIfacePtr *)cPenaltyL1;
+    ((elastic_net::training::Parameter *)parAddr)->penaltyL1 = staticPointerCast<NumericTable, SerializationIface>(*ntShPtr);
 }
 
 /*
  * Class:     com_intel_daal_algorithms_elastic_net_TrainParameter
- * Method:    cSetElasticNetL2Parameters
+ * Method:    cSetPenaltyL2
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_TrainParameter_cSetElasticNetL2Parameters(JNIEnv * env,
-                                                                                                             jobject thisObj,
-                                                                                                             jlong parAddr,
-                                                                                                             jlong cElasticNetL2Parameters)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_TrainParameter_cSetPenaltyL2(JNIEnv * env,
+                                                                                                jobject thisObj,
+                                                                                                jlong parAddr,
+                                                                                                jlong cPenaltyL2)
 {
-    SerializationIfacePtr * const ntShPtr                                 = (SerializationIfacePtr *)cElasticNetL2Parameters;
-    ((elastic_net::training::Parameter *)parAddr)->elasticNetL2Parameters = staticPointerCast<NumericTable, SerializationIface>(*ntShPtr);
+    SerializationIfacePtr * const ntShPtr                    = (SerializationIfacePtr *)cPenaltyL2;
+    ((elastic_net::training::Parameter *)parAddr)->penaltyL2 = staticPointerCast<NumericTable, SerializationIface>(*ntShPtr);
 }
 
 /*
  * Class:     com_intel_daal_algorithms_elastic_net_TrainParameter
- * Method:    cGetElasticNetL1Parameters
+ * Method:    cGetPenaltyL1
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_TrainParameter_cGetElasticNetL1Parameters(JNIEnv * env, jobject thisObj,
-                                                                                                              jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_TrainParameter_cGetPenaltyL1(JNIEnv * env, jobject thisObj, jlong parAddr)
 {
     NumericTablePtr * const ntShPtr = new NumericTablePtr();
-    *ntShPtr                        = ((elastic_net::training::Parameter *)parAddr)->elasticNetL1Parameters;
+    *ntShPtr                        = ((elastic_net::training::Parameter *)parAddr)->penaltyL1;
     return (jlong)ntShPtr;
 }
 
 /*
  * Class:     com_intel_daal_algorithms_elastic_net_TrainParameter
- * Method:    cGetElasticNetL2Parameters
+ * Method:    cGetPenaltyL2
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_TrainParameter_cGetElasticNetL2Parameters(JNIEnv * env, jobject thisObj,
-                                                                                                              jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_TrainParameter_cGetPenaltyL2(JNIEnv * env, jobject thisObj, jlong parAddr)
 {
     NumericTablePtr * const ntShPtr = new NumericTablePtr();
-    *ntShPtr                        = ((elastic_net::training::Parameter *)parAddr)->elasticNetL2Parameters;
+    *ntShPtr                        = ((elastic_net::training::Parameter *)parAddr)->penaltyL2;
     return (jlong)ntShPtr;
 }
 

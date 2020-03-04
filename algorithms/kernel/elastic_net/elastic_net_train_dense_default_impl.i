@@ -219,8 +219,8 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
     objFunc->input.set(mse::dependentVariables, yTrain);
     objFunc->parameter().interceptFlag = false;
 
-    objFunc->parameter().penaltyL1 = par.elasticNetL1Parameters;
-    objFunc->parameter().penaltyL2 = par.elasticNetL2Parameters;
+    objFunc->parameter().penaltyL1 = par.penaltyL1;
+    objFunc->parameter().penaltyL2 = par.penaltyL2;
 
     pSolver->getParameter()->function = objFunc;
 
