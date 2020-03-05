@@ -21,6 +21,7 @@
 #include "algorithms/engines/engine.h"
 #include "services/buffer.h"
 #include "services/daal_defines.h"
+#include "services/internal/error_handling_helpers.h"
 #include "oneapi/internal/types_utils.h"
 #include "oneapi/internal/execution_context.h"
 
@@ -107,14 +108,18 @@ public:
     virtual Result & selectIndices(const UniversalBuffer & dataVectors, uint32_t nK, uint32_t nVectors, uint32_t vectorSize, uint32_t lastVectorSize,
                                    uint32_t vectorOffset, Result & result, services::Status * status)
     {
-        adjustIndexBuffer(nVectors, vectorSize, status);
-        DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, result);
+        services::Status st = adjustIndexBuffer(nVectors, vectorSize);
+        services::internal::tryAssignStatus(status, st);
+        if(!st.ok())
+        {
+            return result;
+        }
         return selectIndices(dataVectors, _indices, _rndSeq, _nRndSeq, nK, nVectors, vectorSize, lastVectorSize, vectorOffset, result, status);
     }
 
 private:
     QuickSelectIndexed() {}
-    void adjustIndexBuffer(uint32_t number, uint32_t size, services::Status * status);
+    services::Status adjustIndexBuffer(uint32_t number, uint32_t size);
     static Result & selectIndices(const UniversalBuffer & dataVectors, const UniversalBuffer & tempIndices, const UniversalBuffer & rndSeq,
                                   uint32_t nRndSeq, uint32_t nK, uint32_t nVectors, uint32_t vectorSize, uint32_t lastVectorSize,
                                   uint32_t vectorOffset, Result & result, services::Status * status);

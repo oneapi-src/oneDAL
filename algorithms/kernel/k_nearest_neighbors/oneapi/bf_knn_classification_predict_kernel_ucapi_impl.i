@@ -22,6 +22,7 @@
 #include "service/kernel/oneapi/sum_reducer.h"
 #include "service/kernel/oneapi/select_indexed.h"
 #include "service/kernel/oneapi/sorter.h"
+#include "services/daal_defines.h"
 
 #include "algorithms/kernel/k_nearest_neighbors/oneapi/bf_knn_classification_predict_kernel_ucapi.h"
 #include "algorithms/kernel/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"

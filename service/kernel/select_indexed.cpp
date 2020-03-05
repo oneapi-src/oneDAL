@@ -15,6 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "services/daal_defines.h"
 #include "service/kernel/oneapi/select_indexed.h"
 #include "service/kernel/oneapi/cl_kernels/select_indexed.cl"
 #include "oneapi/internal/utils.h"
@@ -148,16 +149,18 @@ SelectIndexed::Result & QuickSelectIndexed::selectIndices(const UniversalBuffer 
     return result;
 }
 
-void QuickSelectIndexed::adjustIndexBuffer(uint32_t number, uint32_t size, Status * status)
+Status QuickSelectIndexed::adjustIndexBuffer(uint32_t number, uint32_t size)
 {
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION_PTR(uint32_t, size, number, status);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, size, number);
     uint32_t newSize = size * number;
+    Status st;
     if (_indexSize < newSize)
     {
         auto & context = Environment::getInstance()->getDefaultExecutionContext();
-        _indices       = context.allocate(TypeIds::id<int>(), newSize, status);
+        _indices       = context.allocate(TypeIds::id<int>(), newSize, &st);
         _indexSize     = newSize;
     }
+    return st;
 }
 
 Status QuickSelectIndexed::init(Params & par)
