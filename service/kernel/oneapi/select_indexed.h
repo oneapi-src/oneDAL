@@ -110,7 +110,7 @@ public:
     {
         services::Status st = adjustIndexBuffer(nVectors, vectorSize);
         services::internal::tryAssignStatus(status, st);
-        if(!st.ok())
+        if (!st.ok())
         {
             return result;
         }
