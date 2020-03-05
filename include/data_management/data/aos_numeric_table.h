@@ -134,7 +134,7 @@ public:
      *  \return Numeric table with user-allocated memory
      */
     template <typename StructDataType>
-    static services::SharedPtr<AOSNumericTable> create(StructDataType * ptr, size_t ncol, size_t nrow = 0, services::Status * stat = NULL)
+    static services::SharedPtr<AOSNumericTable> create(StructDataType * ptr, size_t ncol, size_t nrow = 0, services::Status * /*stat*/ = NULL)
     {
         return create(services::SharedPtr<StructDataType>(ptr, services::EmptyDeleter()), ncol, nrow);
     }
