@@ -82,7 +82,7 @@ public:
         const size_t nVectorsBeta = _nClasses == 2 ? 1 : _nClasses;
         _modelPtr->getBeta()->getBlockOfRows(0, nVectorsBeta, data_management::readWrite, pBlock);
         modelFPType * sp = pBlock.getBlockPtr();
-        if (((size_t)(last - first) == ((_nFeatures) * nVectorsBeta)) && (last > first))
+        if (((size_t)(last - first) == ((_nFeatures)*nVectorsBeta)) && (last > first))
         {
             setInterceptFlag(false);
             size_t i = 0;
