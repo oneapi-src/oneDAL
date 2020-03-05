@@ -88,9 +88,7 @@ public:
     template <typename RandomIterator>
     void setSupportVectors(RandomIterator first, RandomIterator last)
     {
-        DAAL_ASSERT(first > last);
-
-        if ((size_t)(last - first) != _nSupportVectors * _nFeatures)
+        if (((size_t)(last - first) != _nSupportVectors * _nFeatures) || (last < first))
         {
             services::throwIfPossible(services::Status(services::ErrorIncorrectParameter));
         }
@@ -106,9 +104,7 @@ public:
     template <typename RandomIterator>
     void setSupportIndices(RandomIterator first, RandomIterator last)
     {
-        DAAL_ASSERT(first > last);
-
-        if ((size_t)(last - first) != _nSupportVectors)
+        if (((size_t)(last - first) != _nSupportVectors) || (last < first))
         {
             services::throwIfPossible(services::Status(services::ErrorIncorrectParameter));
         }
@@ -124,9 +120,7 @@ public:
     template <typename RandomIterator>
     void setClassificationCoefficients(RandomIterator first, RandomIterator last)
     {
-        DAAL_ASSERT(first > last);
-
-        if ((size_t)(last - first) != _nSupportVectors)
+        if (((size_t)(last - first) != _nSupportVectors) || (last < first))
         {
             services::throwIfPossible(services::Status(services::ErrorIncorrectParameter));
         }

@@ -75,12 +75,10 @@ public:
     template <typename RandomIterator>
     void setBeta(RandomIterator first, RandomIterator last)
     {
-        DAAL_ASSERT(first > last);
-
         data_management::BlockDescriptor<modelFPType> pBlock;
         _modelPtr->getBeta()->getBlockOfRows(0, _nResponses, data_management::readWrite, pBlock);
         modelFPType * sp = pBlock.getBlockPtr();
-        if ((size_t)(last - first) == ((_nFeatures)*_nResponses))
+        if (((size_t)(last - first) == ((_nFeatures)*_nResponses)) && (last > first))
         {
             setInterceptFlag(false);
             size_t i = 0;
@@ -96,7 +94,7 @@ public:
                 ++i;
             }
         }
-        else if ((size_t)(last - first) == ((_nFeatures + 1) * _nResponses))
+        else if (((size_t)(last - first) == ((_nFeatures + 1) * _nResponses)) && (last > first))
         {
             setInterceptFlag(true);
             while (first != last)
