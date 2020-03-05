@@ -306,7 +306,8 @@ protected:
         }
 
         DAAL_INT64 const * get() const { return _arrOffsets; }
-        void SetupOffset(size_t index, DAAL_INT64 value) { _arrOffsets[index] = value; }
+        DAAL_INT64 * get() { return _arrOffsets; }
+        size_t count() const { return _count; }
 
     protected:
         DAAL_INT64 * _arrOffsets;
@@ -494,12 +495,15 @@ private:
             }
         }
 
+        DAAL_ASSERT(_wrapOffsets.count() >= ncols)
+
         /* compute offsets */
         for (size_t i = 0; i < ncols; ++i)
         {
             char const * const pv = (char *)(_arrays[i].get());
+            /* unsigned long long is equal to DAAL_UINT64 and LLONG_MAX is always fit to unsigned long long */
             DAAL_ASSERT(static_cast<DAAL_UINT64>(pv - ptrMin) <= static_cast<DAAL_UINT64>(LLONG_MAX))
-            _wrapOffsets.SetupOffset(i, static_cast<DAAL_INT64>(pv - ptrMin));
+            _wrapOffsets.get()[i] = static_cast<DAAL_INT64>(pv - ptrMin);
         }
 
         return services::Status();
