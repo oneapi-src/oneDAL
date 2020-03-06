@@ -33,7 +33,7 @@ using namespace daal::data_management;
 
 std::string wrongDatasetFileName = "../data/batch/wrong.csv";
 
-int main(int argc, char * argv[])
+int main()
 {
     try
     {

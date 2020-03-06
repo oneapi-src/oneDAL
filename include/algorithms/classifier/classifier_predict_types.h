@@ -206,6 +206,8 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
+    using daal::algorithms::Result::check;
+
     Result(size_t n);
     services::Status checkImpl(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter) const;
 
@@ -269,6 +271,8 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
+    using daal::algorithms::Result::check;
+
     Result(const size_t n);
     services::Status checkImpl(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter) const;
 

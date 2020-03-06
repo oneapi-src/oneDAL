@@ -766,7 +766,7 @@ public:
         else
         {
             /* If no dictionary was set, all features are considered numeric */
-            return -1;
+            return (size_t)-1;
         }
     }
 

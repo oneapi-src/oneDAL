@@ -156,6 +156,8 @@ public:
                                    int method) const DAAL_C11_OVERRIDE;
 
 protected:
+    using daal::algorithms::Result::check;
+
     /** \private */
     template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)

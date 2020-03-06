@@ -216,6 +216,9 @@ public:
      */
     virtual services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
                                    int method) const DAAL_C11_OVERRIDE;
+
+protected:
+    using daal::algorithms::interface1::Result::check;
 };
 typedef services::SharedPtr<daal::algorithms::pca::transform::interface1::Result> ResultPtr;
 

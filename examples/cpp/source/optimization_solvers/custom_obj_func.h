@@ -346,6 +346,8 @@ daal::services::Status BatchContainer<algorithmFPType>::compute()
     {
         NumericTable * hessianTable = result->get(daal::algorithms::optimization_solver::objective_function::hessianIdx).get();
         /* Hessian computations to go here */
+
+        delete hessianTable;
     }
 
     return daal::services::Status();
