@@ -262,7 +262,7 @@ protected:
         {
             allocate(wrapper._count);
             const size_t size = _count * sizeof(DAAL_INT64);
-            const int result  = daal::services::internal::daal_memcpy_s(_arrOffsets, size, wrapper._arrOffsets, size);
+            daal::services::internal::daal_memcpy_s(_arrOffsets, size, wrapper._arrOffsets, size);
         }
 
         ~WrappedRawPointer() { deallocate(); }
@@ -281,7 +281,7 @@ protected:
             }
 
             const size_t size = _count * sizeof(DAAL_INT64);
-            const int result  = daal::services::internal::daal_memcpy_s(_arrOffsets, size, wrapper._arrOffsets, size);
+            daal::services::internal::daal_memcpy_s(_arrOffsets, size, wrapper._arrOffsets, size);
 
             return *this;
         }
