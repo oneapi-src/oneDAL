@@ -234,6 +234,8 @@ public:
     engines::EnginePtr get(ResultEngineId id) const;
 
 protected:
+    using daal::algorithms::interface1::Result::check;
+
     /** \private */
     template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)

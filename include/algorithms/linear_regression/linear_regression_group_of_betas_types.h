@@ -216,6 +216,8 @@ public:
     int getSerializationTag() const DAAL_C11_OVERRIDE { return SERIALIZATION_LINEAR_REGRESSION_GROUP_OF_BETAS_RESULT_ID; }
 
 protected:
+    using daal::algorithms::interface1::Result::check;
+
     /** \private */
     template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)

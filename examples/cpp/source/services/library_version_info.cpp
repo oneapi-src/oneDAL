@@ -32,7 +32,7 @@
 using namespace std;
 using namespace daal::services;
 
-int main(int argc, char * argv[])
+int main()
 {
     LibraryVersionInfo ver;
 

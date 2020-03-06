@@ -87,6 +87,8 @@ static void runKmeans(const NumericTablePtr & inputData, size_t nClusters, const
 
 int main(int argc, char * argv[])
 {
+    checkArguments(argc, argv, 1, &datasetFileName);
+
     /* Initialize FileDataSource to retrieve the input data from a .csv file */
     FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
