@@ -31,23 +31,16 @@
 DECLARE_SOURCE(
     bf_knn_cl_kernels,
 
-    __kernel void init_distances(__global const algorithmFPType * dataSq, __global algorithmFPType * distances, int N) {
+    __kernel void scatter_row(__global const algorithmFPType * dataSq, __global algorithmFPType * distances, int N) {
         const int global_id_0 = get_global_id(0);
         const int global_id_1 = get_global_id(1);
 
         distances[global_id_0 + global_id_1 * N] = dataSq[global_id_0];
     }
 
-    __kernel void init_categories(__global const int * labels, __global int * categories, int N, int offset) {
-        const int global_id_0 = get_global_id(0);
-        const int global_id_1 = get_global_id(1);
-
-        categories[global_id_0 + global_id_1 * N] = labels[offset + global_id_0];
-    }
-
-    __kernel void gather_partial_selection(__global const algorithmFPType * distances, __global const int * categories,
-                                           __global algorithmFPType * partialDistances, __global int * partialCategories, int K, int Part,
-                                           int TotalParts) {
+    __kernel void copy_partial_selection(__global const algorithmFPType * distances, __global const int * categories,
+                                         __global algorithmFPType * partialDistances, __global int * partialCategories, int K, int Part,
+                                         int TotalParts) {
         const int global_id_0 = get_global_id(0);
         const int global_id_1 = get_global_id(1);
 
