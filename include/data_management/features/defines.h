@@ -60,6 +60,30 @@ enum IndexNumType
     DAAL_OTHER_T = 10
 };
 
+/**
+ * \return IndexNumType numeric type
+ */
+template <typename T>
+inline IndexNumType getIndexNumType()
+{
+    return DAAL_OTHER_T;
+}
+template <>
+inline IndexNumType getIndexNumType<int>()
+{
+    return DAAL_INT32_S;
+}
+template <>
+inline IndexNumType getIndexNumType<double>()
+{
+    return DAAL_FLOAT64;
+}
+template <>
+inline IndexNumType getIndexNumType<float>()
+{
+    return DAAL_FLOAT32;
+}
+
 enum PMMLNumType
 {
     DAAL_GEN_FLOAT   = 0,
