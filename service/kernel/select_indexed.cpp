@@ -22,9 +22,11 @@
 #include "externals/service_rng.h"
 #include "algorithms/kernel/engines/engine_batch_impl.h"
 #include "services/daal_string.h"
+#include "service/kernel/service_arrays.h"
 #include "externals/service_ittnotify.h"
 
 using namespace daal::data_management;
+using namespace daal::services::internal;
 
 namespace daal
 {
@@ -111,26 +113,24 @@ void SelectIndexed::convertIndicesToLabels(const UniversalBuffer & indices, cons
     Status st;
     auto index2labels = labels.template get<int>().toHost(ReadWriteMode::readOnly, &st);
     services::internal::tryAssignStatus(status, st);
-    if(!st.ok())
+    if (!st.ok())
     {
         return;
     }
     auto index2labelsPtr = index2labels.get();
-    if(!index2labelsPtr)
-        return;
+    if (!index2labelsPtr) return;
     auto outIndex = indices.template get<int>().toHost(ReadWriteMode::readWrite, &st);
     services::internal::tryAssignStatus(status, st);
-    if(!st.ok())
+    if (!st.ok())
     {
         return;
     }
     auto outIndexPtr = outIndex.get();
-    if(!outIndexPtr)
-        return;
+    if (!outIndexPtr) return;
     for (size_t vec = 0; vec < nVectors; vec++)
         for (size_t k = 0; k < vectorSize; k++)
         {
-            int index                            = outIndexPtr[vec * vectorSize + k];
+            int index                         = outIndexPtr[vec * vectorSize + k];
             outIndexPtr[vec * vectorSize + k] = index2labelsPtr[vec * vectorOffset + index];
         }
 }
@@ -183,16 +183,20 @@ Status QuickSelectIndexed::init(Params & par)
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.RNG);
     Status st;
     const uint32_t maxSeqLength = 64 * 1024;
-    _nRndSeq                    = (par.dataSize > maxSeqLength || par.dataSize < 1) ? maxSeqLength : par.dataSize;
+    _nRndSeq                    = (par.dataSize > maxSeqLength || par.dataSize < 2) ? maxSeqLength : par.dataSize;
     auto engineImpl             = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl *>(&(*par.engine));
     if (!engineImpl)
     {
         return Status(ErrorIncorrectEngineParameter);
     }
     daal::internal::RNGs<size_t, sse2> rng;
-    const uint32_t tempArraySize = _nRndSeq;
-    size_t numbers[tempArraySize];
-    float values[tempArraySize];
+    TArray<size_t, sse2> numberArray(_nRndSeq);
+    DAAL_CHECK_MALLOC(numberArray.get());
+    size_t * const numbers = numberArray.get();
+    TArray<float, sse2> valuesArray(_nRndSeq);
+    DAAL_CHECK_MALLOC(valuesArray.get());
+    float * const values = valuesArray.get();
+
     rng.uniform(_nRndSeq, numbers, engineImpl->getState(), 0, (size_t)(_nRndSeq - 1));
     for (uint32_t i = 0; i < _nRndSeq; i++)
     {
