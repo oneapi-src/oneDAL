@@ -51,7 +51,7 @@ where :math:`F(\theta)` is a smooth and :math:`M(\theta)` is a non-smooth functi
 
 .. toctree::
    :maxdepth: 1
-   :caption: Iterative solvers
+   :caption: Objective functions
 
    objective-functions/computation.rst
    objective-functions/sum-of-functions.rst
