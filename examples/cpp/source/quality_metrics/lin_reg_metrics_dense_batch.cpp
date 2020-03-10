@@ -131,7 +131,7 @@ NumericTablePtr predictResults(NumericTablePtr & data)
     return predictionResult->get(prediction::prediction);
 }
 
-NumericTablePtr predictReducedModelResults(NumericTablePtr & data)
+NumericTablePtr predictReducedModelResults()
 {
     ModelPtr model = trainingResult->get(training::model);
 
@@ -185,7 +185,7 @@ void testModelQuality()
     ModelPtr model = trainingResult->get(training::model);
 
     /* Predict results with the reduced model */
-    NumericTablePtr predictedReducedModelResults = predictReducedModelResults(trainData);
+    NumericTablePtr predictedReducedModelResults = predictReducedModelResults();
     printNumericTable(predictedReducedModelResults, "Responses predicted with reduced model (first 20 rows):", 20);
 
     /* Create a quality metric set object to compute quality metrics of the linear regression algorithm */

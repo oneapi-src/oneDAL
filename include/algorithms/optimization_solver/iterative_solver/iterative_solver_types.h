@@ -296,6 +296,8 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
+    using daal::algorithms::interface1::Result::check;
+
     /** \private */
     template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)
@@ -506,6 +508,8 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
+    using daal::algorithms::interface1::Result::check;
+
     /** \private */
     template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)
