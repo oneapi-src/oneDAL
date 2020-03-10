@@ -25,6 +25,10 @@
 #define __SERVICE_DATA_UTILS_H__
 
 #include "service/kernel/service_defines.h"
+#include <climits>
+#include <cfloat>
+#include <limits>
+
 
 namespace daal
 {

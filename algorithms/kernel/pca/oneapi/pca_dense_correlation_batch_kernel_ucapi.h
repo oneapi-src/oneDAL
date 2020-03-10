@@ -62,12 +62,16 @@ private:
     services::Status computeCorrelationEigenvalues(oneapi::internal::ExecutionContextIface & context, data_management::NumericTable & correlation,
                                                    data_management::NumericTable & eigenvectors, data_management::NumericTable & eigenvalues);
 
-    services::Status computeEigenvectorsInplace(oneapi::internal::ExecutionContextIface & context, const size_t nFeatures,
+    services::Status computeEigenvectorsInplace(oneapi::internal::ExecutionContextIface & context, size_t nFeatures,
                                                     oneapi::internal::UniversalBuffer & fullEigenvectors, oneapi::internal::UniversalBuffer & fullEigenvalues);
 
-    services::Status sortEigenvectorsDescending(oneapi::internal::ExecutionContextIface & context, const size_t nFeatures,
+    services::Status sortEigenvectorsDescending(oneapi::internal::ExecutionContextIface & context,
+                                                size_t nFeatures,
+                                                size_t nComponents,
                                                 const oneapi::internal::UniversalBuffer & fullEigenvectors,
-                                                const oneapi::internal::UniversalBuffer & fullEigenvalues);
+                                                const oneapi::internal::UniversalBuffer & fullEigenvalues,
+                                                oneapi::internal::UniversalBuffer & eigenvectors,
+                                                oneapi::internal::UniversalBuffer & eigenvalues);
 
 
 private:

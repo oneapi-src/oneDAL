@@ -113,7 +113,7 @@ Status PCACorrelationKernelUCAPI<algorithmFPType>::compute(bool isCorrelation, b
 
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation.eigenvalues);
-            DAAL_CHECK_STATUS(st, _host_impl->computeCorrelationEigenvalues(dataTable, eigenvectors, eigenvalues));
+            DAAL_CHECK_STATUS(st, computeCorrelationEigenvalues(context, dataTable, eigenvectors, eigenvalues));
         }
     }
     else
@@ -247,6 +247,14 @@ services::Status PCACorrelationKernelUCAPI<algorithmFPType>::computeCorrelationE
     correlation.getBlockOfRows(0, nFeatures * nFeatures, readOnly, corrBlock);
     services::Buffer<algorithmFPType> correlationBuffer = corrBlock.getBuffer();
 
+    BlockDescriptor<algorithmFPType> eigenvectorsBlock;
+    eigenvectors.getBlockOfRows(0, nComponents * nFeatures, writeOnly, eigenvectorsBlock);
+    UniversalBuffer eigenvectorsBuffer(eigenvectorsBlock.getBuffer());
+
+    BlockDescriptor<algorithmFPType> eigenvaluesBlock;
+    eigenvalues.getBlockOfRows(0, nComponents, writeOnly, eigenvaluesBlock);
+    UniversalBuffer eigenvaluesBuffer(eigenvaluesBlock.getBuffer());
+
     auto fullEigenvectors = context.allocate(TypeIds::id<algorithmFPType>(), nFeatures * nFeatures, &status);
     DAAL_CHECK_STATUS_VAR(status);
     context.copy(fullEigenvectors, 0, correlationBuffer, 0, nFeatures * nFeatures, &status);
@@ -257,41 +265,20 @@ services::Status PCACorrelationKernelUCAPI<algorithmFPType>::computeCorrelationE
 
     status |= computeEigenvectorsInplace(context, nFeatures, fullEigenvectors, fullEigenvalues);
     DAAL_CHECK_STATUS_VAR(status);
-    status |= sortEigenvectorsDescending(context, nFeatures, fullEigenvectors, fullEigenvalues);
+    status |= sortEigenvectorsDescending(context, nFeatures, nComponents, fullEigenvectors, fullEigenvalues, eigenvectorsBuffer, eigenvaluesBuffer);
     DAAL_CHECK_STATUS_VAR(status);
-
-    {
-        BlockDescriptor<algorithmFPType> eigenvectorsBlock;
-        eigenvectors.getBlockOfRows(0, nFeatures * nComponents, writeOnly, eigenvectorsBlock);
-        services::Buffer<algorithmFPType> eigenvectorsBuffer = eigenvectorsBlock.getBuffer();
-
-        context.copy(eigenvectorsBuffer, 0, fullEigenvectors, 0, nFeatures * nComponents, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-
-        status |= eigenvectors.releaseBlockOfRows(eigenvectorsBlock);
-        DAAL_CHECK_STATUS_VAR(status);
-    }
-
-    {
-        BlockDescriptor<algorithmFPType> eigenvaluesBlock;
-        eigenvalues.getBlockOfRows(0, nComponents, writeOnly, eigenvaluesBlock);
-        services::Buffer<algorithmFPType> eigenvaluesBuffer = eigenvaluesBlock.getBuffer();
-
-        context.copy(eigenvaluesBuffer, 0, fullEigenvalues, 0, nComponents, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-
-        status |= eigenvalues.releaseBlockOfRows(eigenvaluesBlock);
-        DAAL_CHECK_STATUS_VAR(status);
-    }
 
     status |= correlation.releaseBlockOfRows(corrBlock);
     DAAL_CHECK_STATUS_VAR(status);
-
+    status |= eigenvectors.releaseBlockOfRows(eigenvectorsBlock);
+    DAAL_CHECK_STATUS_VAR(status);
+    status |= eigenvalues.releaseBlockOfRows(eigenvaluesBlock);
     return status;
 }
 
 template <typename algorithmFPType>
-services::Status PCACorrelationKernelUCAPI<algorithmFPType>::computeEigenvectorsInplace(ExecutionContextIface & context, const size_t nFeatures,
+services::Status PCACorrelationKernelUCAPI<algorithmFPType>::computeEigenvectorsInplace(ExecutionContextIface & context,
+                                                                                        size_t nFeatures,
                                                                                         UniversalBuffer & fullEigenvectors,
                                                                                         UniversalBuffer & fullEigenvalues)
 {
@@ -309,28 +296,29 @@ services::Status PCACorrelationKernelUCAPI<algorithmFPType>::computeEigenvectors
     DAAL_CHECK_STATUS_VAR(status);
 
     context.xsyevd(jobz, uplo, nFeatures, fullEigenvectors, nFeatures, fullEigenvalues, work, lwork, iwork, liwork, &status);
-
-    DAAL_CHECK_STATUS_VAR(status);
-
     return status;
 }
 
 template <typename algorithmFPType>
-services::Status PCACorrelationKernelUCAPI<algorithmFPType>::sortEigenvectorsDescending(ExecutionContextIface & context, const size_t nFeatures,
+services::Status PCACorrelationKernelUCAPI<algorithmFPType>::sortEigenvectorsDescending(ExecutionContextIface & context,
+                                                                                        size_t nFeatures,
+                                                                                        size_t nComponents,
                                                                                         const UniversalBuffer & fullEigenvectors,
-                                                                                        const UniversalBuffer & fullEigenvalues)
+                                                                                        const UniversalBuffer & fullEigenvalues,
+                                                                                        UniversalBuffer & eigenvectors,
+                                                                                        UniversalBuffer & eigenvalues)
 {
     services::Status status;
 
-    KernelArguments args(2);
-    args.set(0, fullEigenvectors, AccessModeIds::readwrite);
-    args.set(1, fullEigenvalues, AccessModeIds::readwrite);
+    KernelArguments args(4);
+    args.set(0, fullEigenvectors, AccessModeIds::read);
+    args.set(1, fullEigenvalues, AccessModeIds::read);
+    args.set(2, eigenvectors, AccessModeIds::write);
+    args.set(3, eigenvalues, AccessModeIds::write);
 
-    KernelRange range(nFeatures / 2, nFeatures);
+    KernelRange range(nComponents, nFeatures);
 
     context.run(range, sortEigenvectorsDescendingKernel, args, &status);
-    DAAL_CHECK_STATUS_VAR(status);
-
     return status;
 }
 

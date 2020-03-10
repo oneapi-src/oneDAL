@@ -21,6 +21,7 @@
 #include "service/kernel/oneapi/blas_gpu.h"
 #include "service/kernel/oneapi/cl_kernels/kernel_blas.cl"
 #include "service/kernel/service_arrays.h"
+#include "service/kernel/service_data_utils.h"
 
 namespace daal
 {
@@ -88,7 +89,15 @@ services::Status ReferenceXsyevd<algorithmFPType>::operator()(const math::Job jo
 {
     services::Status status;
 
-    char up = uplo == math::UpLo::Upper ? 'U' : 'L';
+    char up;
+    switch (uplo)
+    {
+        case math::UpLo::Upper: up = 'U'; break;
+        case math::UpLo::Lower: up = 'L'; break;
+
+        default: status.add(services::UnknownError); break;
+    }
+
     char job;
     switch (jobz)
     {
@@ -103,6 +112,13 @@ services::Status ReferenceXsyevd<algorithmFPType>::operator()(const math::Job jo
     }
     DAAL_CHECK_STATUS_VAR(status);
 
+    if (n > services::internal::MaxVal<DAAL_INT>::get() ||
+        lda > services::internal::MaxVal<DAAL_INT>::get() ||
+        lwork > services::internal::MaxVal<DAAL_INT>::get() ||
+        liwork > services::internal::MaxVal<DAAL_INT>::get()) {
+            status.add(services::ErrorID::ErrorIncorrectSizeOfArray);
+            return status;
+        }
     DAAL_INT nInt      = static_cast<DAAL_INT>(n);
     DAAL_INT ldaInt    = static_cast<DAAL_INT>(lda);
     DAAL_INT lworkInt  = static_cast<DAAL_INT>(lwork);
