@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _lbfgs_solver:
+
 Limited-Memory Broyden-Fletcher-Goldfarb-Shanno Algorithm
 =========================================================
 
