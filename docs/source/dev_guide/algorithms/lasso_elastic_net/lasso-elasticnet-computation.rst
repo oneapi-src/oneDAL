@@ -26,7 +26,8 @@ LASSO and Elastic Net algorithms follow the general workflow described in
 Training
 --------
 
-For a description of common input and output parameters, refer to Usage Model: Training and Prediction.
+For a description of common input and output parameters, refer to
+`Regression Usage Model <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction>`_.
 Both LASSO and Elastic Net algorithms have the following input parameters in addition to the common input parameters:
 
 .. list-table::
@@ -205,7 +206,8 @@ In addition, both LASSO and Elastic Net algorithms have the following optional r
 Prediction
 ----------
 
-For a description of the input and output, refer to Usage Model:Training and Prediction.
+For a description of the input and output, refer to
+`Regression Usage Model <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction>`_.
 
 At the prediction stage, LASSO and Elastic Net algorithms have the following parameters:
 
