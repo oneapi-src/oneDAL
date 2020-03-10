@@ -130,7 +130,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
     Parameter(const Parameter & other);
 
     /**
-    * Copy an Parameter by copying input objects and parameters of another Parameter
+    * Copy a Parameter by copying input objects and parameters of another Parameter
     * \param[in] other An object to be used as the source to initialize object
     */
     Parameter & operator=(const Parameter & other);
@@ -336,7 +336,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
               bool optionalResultReq_ = false, size_t batchSize_ = 1);
 
     /**
-    * Constructs an Parameter by copying input objects and parameters of another Parameter
+    * Constructs a Parameter by copying input objects and parameters of another Parameter
     * \param[in] other An object to be used as the source to initialize object
     */
     Parameter(const Parameter & other);

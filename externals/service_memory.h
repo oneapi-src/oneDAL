@@ -44,8 +44,8 @@ T * service_calloc(size_t size, size_t alignment = 64)
         return NULL;
     }
 
-    char * cptr        = (char *)ptr;
-    size_t sizeInBytes = size * sizeof(T);
+    char * const cptr        = (char *)ptr;
+    const size_t sizeInBytes = size * sizeof(T);
 
     for (size_t i = 0; i < sizeInBytes; i++)
     {
@@ -58,19 +58,13 @@ T * service_calloc(size_t size, size_t alignment = 64)
 template <typename T, CpuType cpu>
 T * service_malloc(size_t size, size_t alignment = 64)
 {
-    T * ptr = (T *)daal::services::daal_malloc(size * sizeof(T), alignment);
-    if (ptr == NULL)
-    {
-        return NULL;
-    }
-    return ptr;
+    return (T *)daal::services::daal_malloc(size * sizeof(T), alignment);
 }
 
 template <typename T, CpuType cpu>
 void service_free(T * ptr)
 {
     daal::services::daal_free(ptr);
-    return;
 }
 
 template <typename T, CpuType cpu>
@@ -83,8 +77,8 @@ T * service_scalable_calloc(size_t size, size_t alignment = 64)
         return NULL;
     }
 
-    char * cptr        = (char *)ptr;
-    size_t sizeInBytes = size * sizeof(T);
+    char * const cptr        = (char *)ptr;
+    const size_t sizeInBytes = size * sizeof(T);
 
     for (size_t i = 0; i < sizeInBytes; i++)
     {
@@ -97,19 +91,13 @@ T * service_scalable_calloc(size_t size, size_t alignment = 64)
 template <typename T, CpuType cpu>
 T * service_scalable_malloc(size_t size, size_t alignment = 64)
 {
-    T * ptr = (T *)threaded_scalable_malloc(size * sizeof(T), alignment);
-    if (ptr == NULL)
-    {
-        return NULL;
-    }
-    return ptr;
+    return (T *)threaded_scalable_malloc(size * sizeof(T), alignment);
 }
 
 template <typename T, CpuType cpu>
 void service_scalable_free(T * ptr)
 {
     threaded_scalable_free(ptr);
-    return;
 }
 
 template <typename T, CpuType cpu>
