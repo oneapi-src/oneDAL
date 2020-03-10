@@ -51,6 +51,7 @@ list of features and documentation are available at |daal-docs|_.
    :maxdepth: 2
    :caption: Developer Guide
 
+   dev_guide/usage/index.rst
    dev_guide/data-management/data-management.rst
    dev_guide/analysis.rst
    dev_guide/training-prediction.rst

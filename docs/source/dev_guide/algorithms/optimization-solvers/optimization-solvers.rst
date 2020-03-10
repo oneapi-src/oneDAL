@@ -14,24 +14,21 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. _analysis:
+Optimization Solvers
+====================
 
-Analysis
-========
+An optimization solver is an algorithm to solve an optimization problem, that is, 
+to find the maximum or minimum of an objective function in the presence of constraints on its variables.
+In |short_name| the optimization solver represents the interface of algorithms that search
+for the argument :math:`\theta_{*}` that minimizes the function :math:`K(\theta)`:
 
-.. toctree::
-   :maxdepth: 1
+.. math::
 
-   algorithms/kmeans/k-means-clustering.rst
-   algorithms/covariance/correlation-and-variance-covariance-matrices.rst
-   algorithms/pca/principal-component-analysis.rst
-   algorithms/svd/singular-value-decomposition.rst
-   algorithms/association_rules/association-rules.rst
-   algorithms/kernel_function/kernel-functions.rst
-   algorithms/em/expectation-maximization.rst
+    \theta_{*} = \text{argmin}_{\theta \in \Theta} K(\theta)
+
 
 .. toctree::
-   :maxdepth: 3
-   :caption: Optimization Solvers
+   :maxdepth: 2
 
-   algorithms/optimization-solvers/optimization-solvers.rst
+   objective-function.rst
+   iterative-solver.rst

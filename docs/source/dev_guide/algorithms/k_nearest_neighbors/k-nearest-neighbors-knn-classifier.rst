@@ -117,7 +117,8 @@ updated during the tree traverse.
 Batch Processing
 ================
 
-kNN classification follows the general workflow described in Usage Model: Training and Prediction.
+kNN classification follows the general workflow described in
+`Classification Usage Model <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction-1>`_.
 
 Training
 --------
