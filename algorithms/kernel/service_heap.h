@@ -37,7 +37,7 @@ namespace internal
 using namespace services::internal;
 
 template <CpuType cpu, typename RandomAccessIterator>
-struct StandardComparator
+struct DefaultComparator
 {
     using Type = typename RemovePointer<cpu, RandomAccessIterator>::type;
     DAAL_FORCEINLINE bool operator()(const Type & left, const Type & right) const { return left < right; }
@@ -59,9 +59,9 @@ DAAL_FORCEINLINE T heapParentIndex(T index)
     return (index - 1) / 2;
 }
 
-template <CpuType cpu, typename RandomAccessIterator, typename Diff, typename Compare = StandardComparator<cpu, RandomAccessIterator> >
+template <CpuType cpu, typename RandomAccessIterator, typename Diff, typename Compare = DefaultComparator<cpu, RandomAccessIterator> >
 DAAL_FORCEINLINE void internalAdjustMaxHeap(RandomAccessIterator first, RandomAccessIterator /*last*/, Diff count, Diff i,
-                                            Compare compare = StandardComparator<cpu, RandomAccessIterator>())
+                                            Compare compare = DefaultComparator<cpu, RandomAccessIterator>())
 {
     for (auto largest = i;; i = largest)
     {
@@ -84,35 +84,35 @@ DAAL_FORCEINLINE void internalAdjustMaxHeap(RandomAccessIterator first, RandomAc
     }
 }
 
-template <CpuType cpu, typename RandomAccessIterator, typename Compare = StandardComparator<cpu, RandomAccessIterator> >
-void popMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare compare = StandardComparator<cpu, RandomAccessIterator>())
+template <CpuType cpu, typename RandomAccessIterator, typename Compare = DefaultComparator<cpu, RandomAccessIterator> >
+void popMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare compare = DefaultComparator<cpu, RandomAccessIterator>())
 {
     if (1 < last - first)
     {
         --last;
         iterSwap<cpu>(first, last);
-        internalAdjustMaxHeap<cpu, RandomAccessIterator, decltype(last - first), Compare>(first, last, last - first, first - first, compare);
+        internalAdjustMaxHeap<cpu, RandomAccessIterator>(first, last, last - first, first - first, compare);
     }
 }
 
-template <CpuType cpu, typename RandomAccessIterator, typename Compare = StandardComparator<cpu, RandomAccessIterator> >
-void makeMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare compare = StandardComparator<cpu, RandomAccessIterator>())
+template <CpuType cpu, typename RandomAccessIterator, typename Compare = DefaultComparator<cpu, RandomAccessIterator> >
+void makeMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare compare = DefaultComparator<cpu, RandomAccessIterator>())
 {
     const auto count = last - first;
     auto i           = count / 2;
     while (0 < i)
     {
-        internalAdjustMaxHeap<cpu, RandomAccessIterator, decltype(last - first), Compare>(first, last, count, --i, compare);
+        internalAdjustMaxHeap<cpu, RandomAccessIterator>(first, last, count, --i, compare);
     }
 }
 
-template <CpuType cpu, typename RandomAccessIterator, typename Compare = StandardComparator<cpu, RandomAccessIterator> >
+template <CpuType cpu, typename RandomAccessIterator, typename Compare = DefaultComparator<cpu, RandomAccessIterator> >
 DAAL_FORCEINLINE void sortMaxHeap(RandomAccessIterator first, RandomAccessIterator last,
-                                  Compare compare = StandardComparator<cpu, RandomAccessIterator>())
+                                  Compare compare = DefaultComparator<cpu, RandomAccessIterator>())
 {
     while (1 < last - first)
     {
-        popMaxHeap<cpu, RandomAccessIterator, Compare>(first, --last, compare);
+        popMaxHeap<cpu, RandomAccessIterator>(first, --last, compare);
     }
 }
 
@@ -123,8 +123,8 @@ DAAL_FORCEINLINE void maxHeapUpdate(RandomAccessIterator first, Addr & prev, con
     prev            = i;
 }
 
-template <CpuType cpu, typename RandomAccessIterator, typename Compare = StandardComparator<cpu, RandomAccessIterator> >
-void pushMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare compare = StandardComparator<cpu, RandomAccessIterator>())
+template <CpuType cpu, typename RandomAccessIterator, typename Compare = DefaultComparator<cpu, RandomAccessIterator> >
+void pushMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare compare = DefaultComparator<cpu, RandomAccessIterator>())
 {
     auto i = last - first - 1;
     if (0 < i)

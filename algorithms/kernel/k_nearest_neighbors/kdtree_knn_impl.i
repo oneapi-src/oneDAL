@@ -23,6 +23,8 @@
 #ifndef __KDTREE_KNN_IMPL_I__
 #define __KDTREE_KNN_IMPL_I__
 
+#include "service/kernel/service_data_utils.h"
+
 #if defined(_MSC_VER) || defined(__INTEL_COMPILER)
     #include <immintrin.h>
 #endif
@@ -40,8 +42,6 @@
 #else
     #define DAAL_ALIGNAS(n) alignas(n)
 #endif
-
-#include "service/kernel/service_data_utils.h"
 
 namespace daal
 {
@@ -113,7 +113,7 @@ public:
     {
         services::Status status;
         //Check if the pushing value can be written into _data
-        if (size() >= _size)
+        if (size() > _sizeMinus1)
         {
             status = grow();
             DAAL_CHECK_STATUS_VAR(status)
@@ -142,15 +142,17 @@ public:
     }
 
 private:
-    T * _data          = nullptr;
-    size_t _top        = 0;
-    size_t _sizeMinus1 = 0;
-    size_t _size       = 0;
     DAAL_FORCEINLINE void setSize(size_t size)
     {
         _size       = size;
         _sizeMinus1 = _size - 1;
     }
+
+private:
+    T * _data          = nullptr;
+    size_t _top        = 0;
+    size_t _sizeMinus1 = 0;
+    size_t _size       = 0;
 };
 
 } // namespace internal
