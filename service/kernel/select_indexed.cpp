@@ -118,7 +118,10 @@ void SelectIndexed::convertIndicesToLabels(const UniversalBuffer & indices, cons
         return;
     }
     auto index2labelsPtr = index2labels.get();
-    if (!index2labelsPtr) return;
+    if (!index2labelsPtr)
+    {
+        return;
+    }
     auto outIndex = indices.template get<int>().toHost(ReadWriteMode::readWrite, &st);
     services::internal::tryAssignStatus(status, st);
     if (!st.ok())
@@ -126,7 +129,10 @@ void SelectIndexed::convertIndicesToLabels(const UniversalBuffer & indices, cons
         return;
     }
     auto outIndexPtr = outIndex.get();
-    if (!outIndexPtr) return;
+    if (!outIndexPtr)
+    {
+        return;
+    }
     for (size_t vec = 0; vec < nVectors; vec++)
         for (size_t k = 0; k < vectorSize; k++)
         {
