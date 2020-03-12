@@ -14,24 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. _analysis:
+Logistic Loss
+=============
 
-Analysis
-========
-
-.. toctree::
-   :maxdepth: 1
-
-   algorithms/kmeans/k-means-clustering.rst
-   algorithms/covariance/correlation-and-variance-covariance-matrices.rst
-   algorithms/pca/principal-component-analysis.rst
-   algorithms/svd/singular-value-decomposition.rst
-   algorithms/association_rules/association-rules.rst
-   algorithms/kernel_function/kernel-functions.rst
-   algorithms/em/expectation-maximization.rst
-
-.. toctree::
-   :maxdepth: 3
-   :caption: Optimization Solvers
-
-   algorithms/optimization-solvers/optimization-solvers.rst
+At this moment, the documentation for Logistic Loss is only available in
+`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-logistic-loss>`_.
