@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _homogeneous_numeric_table:
+
 Homogeneous Numeric Tables
 ==========================
 
