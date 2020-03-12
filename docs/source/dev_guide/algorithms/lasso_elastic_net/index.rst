@@ -14,24 +14,20 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. _analysis:
+LASSO and Elastic Net Regressions
+=================================
 
-Analysis
-========
+To learn the details of LASSO and Elastic regressions, see the following chapters:
 
 .. toctree::
    :maxdepth: 1
 
-   algorithms/kmeans/k-means-clustering.rst
-   algorithms/covariance/correlation-and-variance-covariance-matrices.rst
-   algorithms/pca/principal-component-analysis.rst
-   algorithms/svd/singular-value-decomposition.rst
-   algorithms/association_rules/association-rules.rst
-   algorithms/kernel_function/kernel-functions.rst
-   algorithms/em/expectation-maximization.rst
+   LASSO <lasso.rst>
+   elastic-net.rst
+
+The following chapter covers the details of the computation process:
 
 .. toctree::
-   :maxdepth: 3
-   :caption: Optimization Solvers
+   :maxdepth: 1
 
-   algorithms/optimization-solvers/optimization-solvers.rst
+   lasso-elasticnet-computation.rst

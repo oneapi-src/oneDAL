@@ -82,7 +82,7 @@ Centroids initialization can be done using these methods:
 	reaches the desired size :math:`k`.
 
 -
- K-Means++ algorithm [Arthur2007],
+ K-Means++ algorithm [Arthur2007]_,
  which selects centers with the probability proportional to
  their contribution to the overall error :math:`{\text{Φ}}_{X}(C)`
  according to the following scheme:
@@ -188,7 +188,7 @@ features. Note that the algorithm does not support non-binary
 categorical features.
 
 The K-Means clustering algorithm computes centroids using Lloyd's
-method [Lloyd82].
+method [Lloyd82]_.
 For each feature vector :math:`x_1, \ldots{} , x_k`, you can also
 compute the index of the cluster that contains the feature vector.
 
@@ -274,7 +274,7 @@ parameter method.
        * deterministicCSR - uses first nClusters points as initial centroids for data in a CSR numeric table
        * randomDense - uses random nClusters points as initial centroids
        * randomCSR - uses random nClusters points as initial centroids for data in a CSR numeric table
-       * plusPlusDense - uses K-Means++ algorithm [Arthur2007]
+       * plusPlusDense - uses K-Means++ algorithm [Arthur2007]_
        * plusPlusCSR - uses K-Means++ algorithm for data in a CSR numeric table
        * parallelPlusDense - uses parallel K-Means++ algorithm [Bahmani2012]
        * parallelPlusCSR - uses parallel K-Means++ algorithm for data in a CSR numeric table

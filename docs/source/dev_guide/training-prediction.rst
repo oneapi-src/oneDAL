@@ -17,6 +17,8 @@
 Training and Prediction
 =======================
 
+Training and prediction algorithms in |full_name| (|short_name|) include a range of popular machine learning algorithms:
+
 .. toctree::
    :maxdepth: 1
 
@@ -26,7 +28,20 @@ Training and Prediction
    algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.rst
    algorithms/implicit_als/implicit-alternating-least-squares.rst
    algorithms/linear_ridge_regression/index.rst
+   algorithms/lasso_elastic_net/index.rst
    algorithms/logistic_regression/logistic-regression.rst
    algorithms/naive_bayes/naive-bayes-classifier.rst
    algorithms/svm/support-vector-machine-classifier.rst
    algorithms/svm_multi_class/multi-class-classifier.rst
+
+Unlike :ref:`analysis` algorithms, which are intended to characterize the structure of data sets, machine learning algorithms model the data. 
+Modeling operates in two major stages:
+
+- **Training**, when the algorithm estimates model parameters based on a training data set.
+- **Prediction or decision making**, when the algorithm uses the trained model to predict the outcome based on new data.
+
+Training is typically a lot more computationally complex problem than prediction.
+Therefore, certain end-to-end analytics usage scenarios require that training and prediction phases are done on different devices, 
+the training is done on more powerful devices, while prediction is done on smaller devices. 
+Because smaller devices may have stricter memory footprint requirements, 
+|short_name| separates Training, Prediction, and respective Model in three different class hierarchies to minimize the footprint.

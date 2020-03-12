@@ -14,24 +14,14 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. _analysis:
+Objective Function with Precomputed Characteristics Algorithm
+=============================================================
 
-Analysis
-========
+Objective function with precomputed characteristics gives an ability to provide
+the results of the objective function precomputed with the user-defined algorithm.
 
-.. toctree::
-   :maxdepth: 1
+Set an earlier computed value and/or gradient and/or Hessian by allocating the result object
+and setting the characteristics of this result object. 
+After that provide the modified result object to the algorithm for its further use with the iterative solver.
 
-   algorithms/kmeans/k-means-clustering.rst
-   algorithms/covariance/correlation-and-variance-covariance-matrices.rst
-   algorithms/pca/principal-component-analysis.rst
-   algorithms/svd/singular-value-decomposition.rst
-   algorithms/association_rules/association-rules.rst
-   algorithms/kernel_function/kernel-functions.rst
-   algorithms/em/expectation-maximization.rst
-
-.. toctree::
-   :maxdepth: 3
-   :caption: Optimization Solvers
-
-   algorithms/optimization-solvers/optimization-solvers.rst
+For more details on iterative solvers, refer to :ref:`iterative_solver`.

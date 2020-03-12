@@ -14,24 +14,12 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. _analysis:
+Library Usage
+=============
 
-Analysis
-========
-
-.. toctree::
-   :maxdepth: 1
-
-   algorithms/kmeans/k-means-clustering.rst
-   algorithms/covariance/correlation-and-variance-covariance-matrices.rst
-   algorithms/pca/principal-component-analysis.rst
-   algorithms/svd/singular-value-decomposition.rst
-   algorithms/association_rules/association-rules.rst
-   algorithms/kernel_function/kernel-functions.rst
-   algorithms/em/expectation-maximization.rst
 
 .. toctree::
-   :maxdepth: 3
-   :caption: Optimization Solvers
+   :maxdepth: 2
 
-   algorithms/optimization-solvers/optimization-solvers.rst
+   algorithms.rst
+   computation-modes.rst
