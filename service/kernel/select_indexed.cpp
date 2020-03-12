@@ -22,7 +22,6 @@
 #include "externals/service_rng.h"
 #include "algorithms/kernel/engines/engine_batch_impl.h"
 #include "services/daal_string.h"
-#include "service/kernel/service_arrays.h"
 #include "externals/service_ittnotify.h"
 
 using namespace daal::data_management;
@@ -188,22 +187,16 @@ Status QuickSelectIndexed::init(Params & par)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.RNG);
     Status st;
-    const uint32_t maxSeqLength = 64 * 1024;
-    _nRndSeq                    = (par.dataSize > maxSeqLength || par.dataSize < 2) ? maxSeqLength : par.dataSize;
-    auto engineImpl             = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl *>(&(*par.engine));
+    _nRndSeq        = (par.dataSize > _maxSeqLength || par.dataSize < 2) ? _maxSeqLength : par.dataSize;
+    auto engineImpl = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl *>(&(*par.engine));
     if (!engineImpl)
     {
         return Status(ErrorIncorrectEngineParameter);
     }
+    size_t numbers[_maxSeqLength];
     daal::internal::RNGs<size_t, sse2> rng;
-    TArray<size_t, sse2> numberArray(_nRndSeq);
-    DAAL_CHECK_MALLOC(numberArray.get());
-    size_t * const numbers = numberArray.get();
-    TArray<float, sse2> valuesArray(_nRndSeq);
-    DAAL_CHECK_MALLOC(valuesArray.get());
-    float * const values = valuesArray.get();
-
-    rng.uniform(_nRndSeq, numbers, engineImpl->getState(), 0, (size_t)(_nRndSeq - 1));
+    rng.uniform(_nRndSeq, &numbers[0], engineImpl->getState(), 0, (size_t)(_nRndSeq - 1));
+    float values[_maxSeqLength];
     for (uint32_t i = 0; i < _nRndSeq; i++)
     {
         values[i] = static_cast<float>(numbers[i]) / (_nRndSeq - 1);
