@@ -28,27 +28,32 @@ set MKLGPUPACKAGE=mklgpufpk_win_%MKLGPUVERSION%
 set MKLURL=%MKLURLROOT%%MKLPACKAGE%.zip
 set MKLGPUURL=%MKLURLROOT%%MKLGPUPACKAGE%.zip
 if /i "%1"=="" (
-	set CPUDST=%~dp0..\externals\mklfpk
-	set GPUDST=%~dp0..\externals\mklgpufpk
+	set CPUCOND=%~dp0..\externals\mklfpk
+	set GPUCOND=%~dp0..\externals\mklgpufpk
 ) else (
-	set CPUDST=%1\..\externals\mklfpk
-	set GPUDST=%1\..\externals\mklgpufpk
+	set CPUCOND=%1\..\externals\mklfpk
+	set GPUCOND=%1\..\externals\mklgpufpk
 )
 
-CALL :Download_FPK %CPUDST% , %MKLURL% , %MKLPACKAGE%
-CALL :Download_FPK %GPUDST% , %MKLGPUURL% , %MKLGPUPACKAGE%
+set CPUDST=%CPUCOND%
+set GPUDST="%GPUCOND%\win"
+
+CALL :Download_FPK %CPUDST% , %CPUCOND% , %MKLURL% , %MKLPACKAGE%
+CALL :Download_FPK %GPUDST% , %GPUCOND% , %MKLGPUURL% , %MKLGPUPACKAGE%
 
 exit /B 0
 
 :Download_FPK
 
 set DST=%~1
-set SRC=%~2
-set FILENAME=%~3
+set CONDITION=%~2
+set SRC=%~3
+set FILENAME=%~4
 
 if not exist %DST% mkdir %DST%
 
-if not exist "%DST%\license.txt" (
+
+if not exist "%CONDITION%\win\lib" (
 	powershell.exe -command "if (Get-Command Invoke-WebRequest -errorAction SilentlyContinue){[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest %SRC% -OutFile %DST%\%FILENAME%.zip} else {exit 1}" && goto Unpack || goto Error_load
 
 :Unpack
