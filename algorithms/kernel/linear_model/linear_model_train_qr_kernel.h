@@ -66,6 +66,19 @@ public:
     static ThreadingTask<algorithmFPType, cpu> * create(DAAL_INT nBetasIntercept, DAAL_INT nRows, DAAL_INT nResponses);
 
     /**
+     * Computes QR decomposition of the input tables X and Y and stores the results into buffers
+     * \param[in] startRow  Index of the starting row of the block
+     * \param[in] nRows     Number of rows in the block of data
+     * \param[in] xTable    Input data set X of size N x P
+     * \param[in] yTable    Input array of responses Y of size N x Ny
+     * \param[out] r        Buffer of size P' x P' that stores the resulting matrix R
+     * \param[out] qty      Buffer of size Ny x P' that stores the resulting matrix Q^T * Y
+     * \return Status of the computations
+     */
+    Status simpleUpdate(DAAL_INT startRow, DAAL_INT nRows, const NumericTable & xTable, const NumericTable & yTable, algorithmFPType * r,
+                        algorithmFPType * qty);
+
+    /**
      * Updates local partial result with the new block of data
      * \param[in] startRow  Index of the starting row of the block
      * \param[in] nRows     Number of rows in the block of data

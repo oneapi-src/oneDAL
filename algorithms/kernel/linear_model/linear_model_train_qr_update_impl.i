@@ -54,7 +54,7 @@ ThreadingTask<algorithmFPType, cpu>::ThreadingTask(DAAL_INT nBetasIntercept, DAA
       _yBlock(),
       tau(nBetasIntercept),
       qrBuffer(nBetasIntercept * nRows),
-      qtyBuffer(nResponses * nRows),
+      qtyBuffer(nResponses * (nRows > nBetasIntercept ? nRows : nBetasIntercept)),
       qrR(nBetasIntercept * nBetasIntercept),
       qrQTY(nBetasIntercept * nResponses),
       qrRNew(nBetasIntercept * nBetasIntercept),
@@ -156,17 +156,24 @@ Status ThreadingTask<algorithmFPType, cpu>::reduceInPlace(algorithmFPType * r, a
 }
 
 template <typename algorithmFPType, CpuType cpu>
-Status ThreadingTask<algorithmFPType, cpu>::update(DAAL_INT startRow, DAAL_INT nRows, const NumericTable & xTable, const NumericTable & yTable)
+Status ThreadingTask<algorithmFPType, cpu>::simpleUpdate(DAAL_INT startRow, DAAL_INT nRows, const NumericTable & xTable, const NumericTable & yTable,
+                                                         algorithmFPType * r, algorithmFPType * qty)
 {
     Status st = copyDataToBuffer(startRow, nRows, xTable, yTable);
 
     if (st)
     {
-        st = CommonKernel<algorithmFPType, cpu>::computeQRForBlock(_nBetasIntercept, nRows, qrBuffer.get(), _nResponses, qtyBuffer.get(),
-                                                                   qrRNew.get(), qrQTYNew.get(), tau.get(), work.get(), _lwork);
-        return st ? reduce(qrR.get(), qrQTY.get()) : st;
+        st = CommonKernel<algorithmFPType, cpu>::computeQRForBlock(_nBetasIntercept, nRows, qrBuffer.get(), _nResponses, qtyBuffer.get(), r, qty,
+                                                                   tau.get(), work.get(), _lwork);
     }
     return st;
+}
+
+template <typename algorithmFPType, CpuType cpu>
+Status ThreadingTask<algorithmFPType, cpu>::update(DAAL_INT startRow, DAAL_INT nRows, const NumericTable & xTable, const NumericTable & yTable)
+{
+    Status st = simpleUpdate(startRow, nRows, xTable, yTable, qrRNew.get(), qrQTYNew.get());
+    return st ? reduce(qrR.get(), qrQTY.get()) : st;
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -206,6 +213,16 @@ Status UpdateKernel<algorithmFPType, cpu>::compute(const NumericTable & xTable, 
     size_t nBlocks  = nRows / nRowsInBlock;
     size_t tailSize = nRows - nBlocks * nRowsInBlock;
     if (tailSize > nBetasIntercept) nBlocks++;
+    if (!nBlocks) nBlocks++;
+
+    if (nBlocks == 1)
+    {
+        ThreadingTaskType * thrTask = ThreadingTaskType::create(nBetasIntercept, nRowsInBlock, nResponses);
+        Status st                   = thrTask->simpleUpdate(0, nRows, xTable, yTable, r, qty);
+        DAAL_CHECK_STATUS_VAR(st);
+        delete thrTask;
+        return st;
+    }
 
     /* Create TLS */
     daal::tls<ThreadingTaskType *> tls([=]() -> ThreadingTaskType * { return ThreadingTaskType::create(nBetasIntercept, nRowsInBlock, nResponses); });
