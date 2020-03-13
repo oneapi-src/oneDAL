@@ -35,9 +35,9 @@ namespace internal
 /* only for AVX512 architecture with using intrinsics */
 #if defined(__INTEL_COMPILER)
 template <typename T>
-static bool tryToCopyFuncAVX512(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 * arrOffsets)
+static bool tryToCopyFuncAVX512(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 const * arrOffsets)
 {
-    typedef void (*funcType)(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 * arrOffsets);
+    typedef void (*funcType)(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 const * arrOffsets);
     static funcType ptr = NULL;
 
     if (!ptr)
@@ -61,7 +61,7 @@ static bool tryToCopyFuncAVX512(const size_t nrows, const size_t ncols, void * d
 }
 #else
 template <typename T>
-static bool tryToCopyFuncAVX512(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 * arrOffsets)
+static bool tryToCopyFuncAVX512(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 const * arrOffsets)
 {
     return false;
 }

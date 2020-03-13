@@ -17,11 +17,17 @@
 Linear and Ridge Regressions
 ++++++++++++++++++++++++++++
 
+To learn the details of Linear and Ridge regressions, see the following chapters:
 
 .. toctree::
    :maxdepth: 1
 
    linear-regression.rst
    ridge-regression.rst
-   linear-ridge-regression-computation.rst
 
+The following chapter covers the details of the computation process:
+
+.. toctree::
+   :maxdepth: 1
+
+   linear-ridge-regression-computation.rst

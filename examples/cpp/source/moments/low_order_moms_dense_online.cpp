@@ -41,6 +41,8 @@ void printResults(const low_order_moments::ResultPtr & res);
 
 int main(int argc, char * argv[])
 {
+    checkArguments(argc, argv, 1, &datasetFileName);
+
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
     FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 

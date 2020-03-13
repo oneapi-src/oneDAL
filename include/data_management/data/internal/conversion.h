@@ -69,7 +69,7 @@ inline ConversionDataType getConversionDataType<float>()
 typedef void (*vectorConvertFuncType)(size_t n, const void * src, void * dst);
 typedef void (*vectorStrideConvertFuncType)(size_t n, const void * src, size_t srcByteStride, void * dst, size_t dstByteStride);
 
-typedef bool (*vectorCopy2vFuncType)(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 * arrOffsets);
+typedef bool (*vectorCopy2vFuncType)(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 const * arrOffsets);
 
 template <typename T>
 DAAL_EXPORT vectorCopy2vFuncType getVector();

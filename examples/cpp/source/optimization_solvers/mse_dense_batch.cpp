@@ -40,6 +40,8 @@ float argumentValue[nFeatures + 1] = { -1, 0.1f, 0.15f, -0.5f };
 
 int main(int argc, char * argv[])
 {
+    checkArguments(argc, argv, 1, &datasetFileName);
+
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
     FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 

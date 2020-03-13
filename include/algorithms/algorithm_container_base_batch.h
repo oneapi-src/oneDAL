@@ -59,7 +59,7 @@ public:
      */
     AlgorithmContainer(daal::services::Environment::env * daalEnv) : AlgorithmContainerIfaceImpl(daalEnv) {}
 
-    virtual ~AlgorithmContainer() {}
+    virtual ~AlgorithmContainer() DAAL_C11_OVERRIDE {}
 
     /**
      * Computes final results of the algorithm.
@@ -183,6 +183,10 @@ public:
 
 protected:
     AlgorithmContainerImpl<batch> * _cntr;
+
+private:
+    AlgorithmDispatchContainer(const AlgorithmDispatchContainer &);
+    AlgorithmDispatchContainer & operator=(const AlgorithmDispatchContainer &);
 };
 
 /** @} */

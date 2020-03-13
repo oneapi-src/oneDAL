@@ -82,6 +82,8 @@ int computeFinishedFlag();
 
 int main(int argc, char * argv[])
 {
+    checkArguments(argc, argv, 4, &dataFileNames[0], &dataFileNames[1], &dataFileNames[2], &dataFileNames[3]);
+
     for (size_t i = 0; i < nBlocks; i++)
     {
         readData(i);

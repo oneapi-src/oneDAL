@@ -75,6 +75,8 @@ void printResults();
 
 int main(int argc, char * argv[])
 {
+    checkArguments(argc, argv, 4, &trainDatasetFileNames[0], &trainDatasetFileNames[1], &trainDatasetFileNames[2], &trainDatasetFileNames[3]);
+
     for (size_t i = 0; i < nBlocks; i++)
     {
         readData(i);

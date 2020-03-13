@@ -258,6 +258,8 @@ public:
     int getSerializationTag() const DAAL_C11_OVERRIDE { return SERIALIZATION_LINEAR_REGRESSION_SINGLE_BETA_RESULT_ID; }
 
 protected:
+    using daal::algorithms::interface1::Result::check;
+
     /** \private */
     template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)

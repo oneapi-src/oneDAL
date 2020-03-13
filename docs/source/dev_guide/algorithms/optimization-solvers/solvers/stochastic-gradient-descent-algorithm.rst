@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _sgd_solver:
+
 Stochastic Gradient Descent Algorithm
 =====================================
 
