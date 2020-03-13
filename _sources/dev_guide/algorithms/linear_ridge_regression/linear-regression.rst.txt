@@ -14,6 +14,9 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. re-use for math equations:
+.. |x_vector| replace:: :math:`(x_1, \ldots, x_p)`
+
 Linear Regression
 =================
 
@@ -29,7 +32,7 @@ explanatory variables by fitting linear equations to observed data.
 Details
 *******
 
-Let :math:`x_1, \ldots, x_p` be a vector of input variables and
+Let |x_vector| be a vector of input variables and
 :math:`y=(y_1, \ldots, y_k)` be the response. For each :math:`j=1, \ldots ,k`,
 the linear regression model has the format [Hastie2009]_:
 
@@ -64,7 +67,7 @@ one these methods can be used:
 Prediction Stage
 ----------------
 
-Linear regression based prediction is done for input vector :math:`(x_1, \ldots, x_p)`
+Linear regression based prediction is done for input vector |x_vector|
 using the equation :math:`y_j = \beta_{0j} + \beta_{1j}x_1 + \ldots + \beta_{pj}x_p`
 for each :math:`j=1, \ldots, k`.
 

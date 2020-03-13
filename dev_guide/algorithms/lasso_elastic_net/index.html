@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Stochastic Gradient Descent Algorithm &mdash; Intel&amp;reg; oneAPI Data Analytics Library Documentation 1.0 documentation</title>
+  <title>LASSO and Elastic Net Regressions &mdash; Intel&amp;reg; oneAPI Data Analytics Library Documentation 1.0 documentation</title>
   
 
   
@@ -36,8 +36,8 @@
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Training and Prediction" href="../../training-prediction.html" />
-    <link rel="prev" title="Limited-Memory Broyden-Fletcher-Goldfarb-Shanno Algorithm" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html" />
+    <link rel="next" title="Least Absolute Shrinkage and Selection Operator (LASSO)" href="lasso.html" />
+    <link rel="prev" title="Linear and Ridge Regressions Computation" href="../linear_ridge_regression/linear-ridge-regression-computation.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -104,6 +104,21 @@
 </ul>
 <p class="caption"><span class="caption-text">Developer Guide</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Library Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../usage/algorithms.html">Algorithms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../usage/algorithms.html#algorithm-input">Algorithm Input</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../usage/algorithms.html#algorithm-output">Algorithm Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../usage/algorithms.html#algorithm-parameters">Algorithm Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../usage/computation-modes.html">Computation Modes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../usage/computation-modes.html#batch-processing">Batch processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../usage/computation-modes.html#online-processing">Online processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../usage/computation-modes.html#distributed-processing">Distributed processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../data-management/data-management.html">Data Management</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../data-management/numeric-tables.html">Numeric Tables</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../data-management/generic-interfaces.html">Generic Interfaces</a><ul>
@@ -146,7 +161,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../data-management/data-model.html">Data Model</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="reference internal" href="../../analysis.html">Analysis</a><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../analysis.html">Analysis</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../kmeans/k-means-clustering.html">K-Means Clustering</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../kmeans/k-means-clustering.html#details">Details</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../kmeans/k-means-clustering.html#centroid-initialization">Centroid Initialization</a></li>
@@ -157,8 +172,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../kmeans/k-means-clustering.html#batch-processing">Batch Processing</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../kmeans/k-means-clustering.html#id5">Computation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../kmeans/k-means-clustering.html#id6">Batch Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../kmeans/k-means-clustering.html#id8">Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../kmeans/k-means-clustering.html#id9">Batch Processing</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../kmeans/k-means-clustering.html#performance-considerations">Performance Considerations</a></li>
@@ -250,36 +265,30 @@
 <li class="toctree-l3"><a class="reference internal" href="../em/expectation-maximization.html#performance-considerations">Performance Considerations</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html">Limited-Memory Broyden-Fletcher-Goldfarb-Shanno Algorithm</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#transformation">Transformation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#intrinsic-parameters">Intrinsic Parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#hessian-update-algorithm">Hessian Update Algorithm</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#computation">Computation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#algorithm-input">Algorithm Input</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#algorithm-parameters">Algorithm Parameters</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#algorithm-output">Algorithm Output</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../optimization-solvers/optimization-solvers.html">Optimization Solvers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../optimization-solvers/objective-function.html">Objective Function</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/objective-functions/computation.html">Computation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/objective-functions/sum-of-functions.html">Sum of Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/objective-functions/mse.html">Mean Squared Error Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/objective-functions/with-precomputed-characteristics.html">Objective Function with Precomputed Characteristics Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/objective-functions/logistic-loss.html">Logistic Loss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/objective-functions/cross-entropy.html">Cross-entropy Loss</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../optimization-solvers/iterative-solver.html">Iterative Solver</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/solvers/computation.html">Computation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/solvers/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html">Limited-Memory Broyden-Fletcher-Goldfarb-Shanno Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/solvers/stochastic-gradient-descent-algorithm.html">Stochastic Gradient Descent Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/solvers/adaptive-subgradient-method.html">Adaptive Subgradient Method</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/solvers/coordinate-descent.html">Coordinate Descent Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/solvers/stochastic-average-gradient-accelerated-method.html">Stochastic Average Gradient Accelerated Method</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Stochastic Gradient Descent Algorithm</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#computation-methods">Computation methods</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#mini-batch-method">Mini-batch method</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#default-method">Default method</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#momentum-method">Momentum method</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#computation">Computation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#algorithm-parameters">Algorithm Parameters</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../training-prediction.html">Training and Prediction</a><ul>
+<li class="toctree-l1 current"><a class="reference internal" href="../../training-prediction.html">Training and Prediction</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../decision_forest/index.html">Decision Forest</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../decision_forest/decision-forest.html">Decision Forest</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../decision_forest/decision-forest.html#details">Details</a></li>
@@ -380,6 +389,22 @@
 <li class="toctree-l3"><a class="reference internal" href="../linear_ridge_regression/linear-ridge-regression-computation.html">Linear and Ridge Regressions Computation</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../linear_ridge_regression/linear-ridge-regression-computation.html#batch-processing">Batch Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../linear_ridge_regression/linear-ridge-regression-computation.html#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">LASSO and Elastic Net Regressions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lasso.html">LASSO</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lasso.html#details">Details</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="elastic-net.html">Elastic Net</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="elastic-net.html#details">Details</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="lasso-elasticnet-computation.html">LASSO and Elastic Net Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lasso-elasticnet-computation.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lasso-elasticnet-computation.html#performance-considerations">Performance Considerations</a></li>
 </ul>
 </li>
 </ul>
@@ -634,15 +659,15 @@
     
       <li><a href="../../../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="../../analysis.html">Analysis</a> &raquo;</li>
+          <li><a href="../../training-prediction.html">Training and Prediction</a> &raquo;</li>
         
-      <li>Stochastic Gradient Descent Algorithm</li>
+      <li>LASSO and Elastic Net Regressions</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../../../_sources/dev_guide/algorithms/sgd_solver/stochastic-gradient-descent-algorithm.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../../_sources/dev_guide/algorithms/lasso_elastic_net/index.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -655,204 +680,19 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="stochastic-gradient-descent-algorithm">
-<h1>Stochastic Gradient Descent Algorithm<a class="headerlink" href="#stochastic-gradient-descent-algorithm" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="lasso-and-elastic-net-regressions">
+<h1>LASSO and Elastic Net Regressions<a class="headerlink" href="#lasso-and-elastic-net-regressions" title="Permalink to this headline">¶</a></h1>
+<p>To learn the details of LASSO and Elastic regressions, see the following chapters:</p>
 <div class="toctree-wrapper compound">
-</div>
-<p>The stochastic gradient descent (SGD) algorithm is a special case of
-an iterative solver. See <a class="reference external" href="https://software.intel.com/en-us/daal-programming-guide-iterative-solver">Iterative Solver</a> for more details.</p>
-<div class="section" id="computation-methods">
-<h2>Computation methods<a class="headerlink" href="#computation-methods" title="Permalink to this headline">¶</a></h2>
-<p>The following computation methods are available in oneDAL for the
-stochastic gradient descent algorithm:</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="#mini-batch-method">Mini-batch method</a></p></li>
-<li><p><a class="reference internal" href="#default-method">Default method</a> (a special case of mini-batch used by default)</p></li>
-<li><p><a class="reference internal" href="#momentum-method">Momentum method</a></p></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="lasso.html">LASSO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="elastic-net.html">Elastic Net</a></li>
 </ul>
-<div class="section" id="mini-batch-method">
-<h3>Mini-batch method<a class="headerlink" href="#mini-batch-method" title="Permalink to this headline">¶</a></h3>
-<p>The mini-batch method (miniBatch) of the stochastic gradient
-descent algorithm <a class="reference internal" href="../../../bibliography.html#mu2014" id="id1"><span>[Mu2014]</span></a>
-follows the algorithmic framework of an iterative
-solver with an empty set of intrinsic parameters of the algorithm <span class="math notranslate nohighlight">\(S_t\)</span>,
-algorithm-specific transformation <span class="math notranslate nohighlight">\(T\)</span> defined for the
-learning rate sequence <span class="math notranslate nohighlight">\({\{\eta_t\}}_{t=1, \ldots, \text{nIterations}}\)</span>,
-conservative sequence <span class="math notranslate nohighlight">\({\{\gamma_t\}}_{t=1, \ldots, \text{nIterations}}\)</span> and
-the number of iterations in the internal loop <span class="math notranslate nohighlight">\(L\)</span>,
-algorithm-specific vector <span class="math notranslate nohighlight">\(U\)</span> and power <span class="math notranslate nohighlight">\(d\)</span> of <a class="reference external" href="https://en.wikipedia.org/wiki/Lp_space">Lebesgue
-space</a> defined as
-follows:</p>
-<div class="math notranslate nohighlight">
-\[T\left({\theta }_{t-1}, g\left({\theta }_{t-1}\right), {S}_{t-1}\right)\]</div>
-<p>For <span class="math notranslate nohighlight">\(l\)</span> from <span class="math notranslate nohighlight">\(1\)</span> until <span class="math notranslate nohighlight">\(L\)</span>:</p>
-<ol class="arabic simple">
-<li><p>Update the function argument: <span class="math notranslate nohighlight">\({\theta }_{t}:= {\theta }_{t}-{\eta }_{t}\left(g\left({\theta }_{t}\right)+{\gamma }_{t}\left({\theta }_{t}-{\theta }_{t-1 }\right)\right)\)</span></p></li>
-<li><p>Compute the gradient: <span class="math notranslate nohighlight">\(g\left({\theta }_{t}\right)=\nabla {F}_{I}\left({\theta }_{t}\right)\)</span></p></li>
-</ol>
-<p>Convergence check: <span class="math notranslate nohighlight">\(U=g\left({\theta }_{t-1}\right), d=2\)</span></p>
 </div>
-<div class="section" id="default-method">
-<h3>Default method<a class="headerlink" href="#default-method" title="Permalink to this headline">¶</a></h3>
-<p>The default method (defaultDense) is a particular case of the
-mini-batch method with the batch size <span class="math notranslate nohighlight">\(b=1\)</span>, <span class="math notranslate nohighlight">\(L=1\)</span>, and conservative sequence <span class="math notranslate nohighlight">\({\gamma }_{t}\equiv 0\)</span>.</p>
-</div>
-<div class="section" id="momentum-method">
-<h3>Momentum method<a class="headerlink" href="#momentum-method" title="Permalink to this headline">¶</a></h3>
-<p>The momentum method (momentum) of the stochastic gradient descent
-algorithm <a class="reference internal" href="../../../bibliography.html#rumelhart86" id="id2"><span>[Rumelhart86]</span></a> follows the algorithmic framework of an iterative solver with the
-set of intrinsic parameters <span class="math notranslate nohighlight">\(S_t\)</span>, algorithm-specific
-transformation <span class="math notranslate nohighlight">\(T\)</span> defined for the learning rate sequence <span class="math notranslate nohighlight">\({\{\eta_t\}}_{t=1, \ldots, \text{nIterations}}\)</span>
-and momentum parameter <span class="math notranslate nohighlight">\(\mu in [0,1]\)</span>, and algorithm-specific vector <span class="math notranslate nohighlight">\(U\)</span> and power <span class="math notranslate nohighlight">\(d\)</span> of <a class="reference external" href="https://en.wikipedia.org/wiki/Lp_space">Lebesgue
-space</a> defined as
-follows:</p>
-<div class="math notranslate nohighlight">
-\[T\left({\theta }_{t-1}, g\left({\theta }_{t-1}\right), {S}_{t-1}\right)\]</div>
-<ol class="arabic simple">
-<li><p><span class="math notranslate nohighlight">\({v}_{t}=\mu \cdot {v}_{t-1}+{\eta }_{t}\cdot g\left({\theta }_{t-1}\right)\)</span></p></li>
-<li><p><span class="math notranslate nohighlight">\({\theta }_{t}={\theta }_{t-1}-{v}_{t}\)</span></p></li>
-</ol>
-<p>For the momentum method of the SGD algorithm, the set of intrinsic
-parameters <span class="math notranslate nohighlight">\(S_t\)</span> only contains the last update vector <span class="math notranslate nohighlight">\(v_t\)</span>.</p>
-<p>Convergence check: <span class="math notranslate nohighlight">\(U=g\left({\theta }_{t-1}\right), d=2\)</span></p>
-</div>
-</div>
-<div class="section" id="computation">
-<h2>Computation<a class="headerlink" href="#computation" title="Permalink to this headline">¶</a></h2>
-<p>The stochastic gradient descent algorithm is a special case of an
-iterative solver. For parameters, input, and output of iterative
-solvers, see <a class="reference external" href="https://software.intel.com/en-us/daal-programming-guide-computation-6">Iterative Solver Computation</a>.</p>
-<div class="section" id="algorithm-parameters">
-<h3>Algorithm Parameters<a class="headerlink" href="#algorithm-parameters" title="Permalink to this headline">¶</a></h3>
-<p>In addition to parameters of the iterative solver, the stochastic
-gradient descent algorithm has the following parameters. Some of
-them are required only for specific values of the computation
-method parameter method:</p>
-<table class="colwidths-given docutils align-left">
-<colgroup>
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Parameter</p></th>
-<th class="head"><p>method</p></th>
-<th class="head"><p>Default Value</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>algorithmFPType</p></td>
-<td><p>defaultDense, miniBatch, or momentum</p></td>
-<td><p>float</p></td>
-<td><p>The floating-point type that the algorithm uses for intermediate
-computations. Can be float or double.</p></td>
-</tr>
-<tr class="row-odd"><td><p>method</p></td>
-<td><p>Not applicable</p></td>
-<td><p>defaultDense</p></td>
-<td><p>Available computation methods:</p>
-<ul class="simple">
-<li><p>defaultDense</p></li>
-<li><p>miniBatch</p></li>
-<li><p>momentum</p></li>
-</ul>
-</td>
-</tr>
-<tr class="row-even"><td><p>batchIndices</p></td>
-<td><p>defaultDense, miniBatch, or momentum</p></td>
-<td><p>NULL</p></td>
-<td><p>The numeric table with 32-bit integer indices of terms in the objective
-function. The method parameter determines the size of the numeric table:
-- defaultDense:nIterations x 1
-- miniBatch or momentum: nIterations x batchSize
-If no indices are provided, the implementation generates random indices.</p>
-<p>This parameter can be an object of any class derived fromNumericTable
-except PackedTriangularMatrix, PackedSymmetricMatrix, and
-CSRNumericTable.</p>
-</td>
-</tr>
-<tr class="row-odd"><td><p>batchSize</p></td>
-<td><p>miniBatch or momentum</p></td>
-<td><p>128</p></td>
-<td><p>Number of batch indices to compute the stochastic gradient. If batchSize
-equals the number of terms in the objective function, no random sampling
-is performed, and all terms are used to calculate the gradient.</p>
-<p>The algorithm ignores this parameter if the batchIndices parameter is
-provided.</p>
-<p>For the defaultDense value of method, one term is used to compute the
-gradient on each iteration.</p>
-</td>
-</tr>
-<tr class="row-even"><td><p>conservativeSequence</p></td>
-<td><p>miniBatch</p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> that contains the default conservative coefficient equal to 1.</p></td>
-<td><p>The numeric table of size <span class="math notranslate nohighlight">\(1 \times \text{nIterations}\)</span> or <span class="math notranslate nohighlight">\(1 \times 1\)</span>. The contents of the
-table depend on its size:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>size = <span class="math notranslate nohighlight">\(1 \times \text{nIterations}\)</span>: values of the conservative coefficient sequence <span class="math notranslate nohighlight">\(\gamma^k\)</span> for <span class="math notranslate nohighlight">\(k = 1, \ldots, \text{nIterations}\)</span>.</p></li>
-<li><p>size = <span class="math notranslate nohighlight">\(1 \times 1\)</span> the value of conservative coefficient at each iteration <span class="math notranslate nohighlight">\(\gamma^1 = \ldots = \gamma^\text{nIterations}\)</span>.</p></li>
-</ul>
-</div></blockquote>
-<p>This parameter can be an object of any class derived fromNumericTable
-except PackedTriangularMatrix, PackedSymmetricMatrix, and
-CSRNumericTable.</p>
-</td>
-</tr>
-<tr class="row-odd"><td><p>innerNIterations</p></td>
-<td><p>miniBatch</p></td>
-<td><p>5</p></td>
-<td><p>The number of inner iterations for the miniBatch method.</p></td>
-</tr>
-<tr class="row-even"><td><p>learningRateSequence</p></td>
-<td><p>defaultDense, miniBatch, or momentum</p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> that contains the default step length equal
-to 1.</p></td>
-<td><p>The numeric table of size <span class="math notranslate nohighlight">\(1 \times \text{nIterations}\)</span> or <span class="math notranslate nohighlight">\(1 \times 1\)</span>. The contents of the
-table depend on its size:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>size = <span class="math notranslate nohighlight">\(1 \times \text{nIterations}\)</span>: values of the learning rate sequence <span class="math notranslate nohighlight">\(\eta^k\)</span> for <span class="math notranslate nohighlight">\(k = 1, \ldots, \text{nIterations}\)</span>.</p></li>
-<li><p>size = <span class="math notranslate nohighlight">\(1 \times 1\)</span>: the value of learning rate at each iteration <span class="math notranslate nohighlight">\(\eta^1 = \ldots = \eta^\text{nIterations}\)</span>.</p></li>
-</ul>
-</div></blockquote>
-<p>This parameter can be an object of any class derived fromNumericTable
-except PackedTriangularMatrix, PackedSymmetricMatrix, and
-CSRNumericTable.</p>
-</td>
-</tr>
-<tr class="row-odd"><td><p>momentum</p></td>
-<td><p>momentum</p></td>
-<td><p>0.9</p></td>
-<td><p>The momentum value.</p></td>
-</tr>
-<tr class="row-even"><td><p>engine</p></td>
-<td><p>defaultDense, miniBatch, or momentum</p></td>
-<td><p>SharePtr&lt; engines:: mt19937:: Batch&gt;()</p></td>
-<td><p>Pointer to the random number generator engine that is used internally
-for generation of 32-bit integer indices of terms in the objective function.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="section" id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
-<p>C++:</p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://github.com/intel/daal/tree/master/examples/cpp/source/optimization_solvers/sgd_dense_batch.cpp">optimization_solvers/sgd_dense_batch.cpp</a></p></li>
-<li><p><a class="reference external" href="https://github.com/intel/daal/tree/master/examples/cpp/source/optimization_solvers/sgd_mini_dense_batch.cpp">optimization_solvers/sgd_mini_dense_batch.cpp</a></p></li>
-<li><p><a class="reference external" href="https://github.com/intel/daal/tree/master/examples/cpp/source/optimization_solvers/sgd_moment_dense_batch.cpp">optimization_solvers/sgd_moment_dense_batch.cpp</a></p></li>
-<li><p><a class="reference external" href="https://github.com/intel/daal/tree/master/examples/cpp/source/optimization_solvers/sgd_moment_opt_res_dense_batch.cpp">optimization_solvers/sgd_moment_opt_res_dense_batch.cpp</a></p></li>
-</ul>
-<p>Java*:</p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://github.com/intel/daal/tree/master/examples/java/com/intel/daal/examples/optimization_solvers/SGDDenseBatch.java">optimization_solvers/SGDDenseBatch.java</a></p></li>
-<li><p><a class="reference external" href="https://github.com/intel/daal/tree/master/examples/java/com/intel/daal/examples/optimization_solvers/SGDMiniDenseBatch.java">optimization_solvers/SGDMiniDenseBatch.java</a></p></li>
-<li><p><a class="reference external" href="https://github.com/intel/daal/tree/master/examples/java/com/intel/daal/examples/optimization_solvers/SGDMomentDenseBatch.java">optimization_solvers/SGDMomentDenseBatch.java</a></p></li>
-<li><p><a class="reference external" href="https://github.com/intel/daal/tree/master/examples/java/com/intel/daal/examples/optimization_solvers/SGDMomentOptResDenseBatch.java">optimization_solvers/SGDMomentOptResDenseBatch.java</a></p></li>
+<p>The following chapter covers the details of the computation process:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="lasso-elasticnet-computation.html">LASSO and Elastic Net Computation</a></li>
 </ul>
 </div>
 </div>
@@ -865,10 +705,10 @@ for generation of 32-bit integer indices of terms in the objective function.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../../training-prediction.html" class="btn btn-neutral float-right" title="Training and Prediction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="lasso.html" class="btn btn-neutral float-right" title="Least Absolute Shrinkage and Selection Operator (LASSO)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html" class="btn btn-neutral float-left" title="Limited-Memory Broyden-Fletcher-Goldfarb-Shanno Algorithm" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../linear_ridge_regression/linear-ridge-regression-computation.html" class="btn btn-neutral float-left" title="Linear and Ridge Regressions Computation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

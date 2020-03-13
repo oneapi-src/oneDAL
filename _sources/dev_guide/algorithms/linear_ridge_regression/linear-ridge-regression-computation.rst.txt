@@ -20,9 +20,8 @@ Linear and Ridge Regressions Computation
 Batch Processing
 ================
 
-Linear and ridge regressions in the batch processing mode follow the
-general workflow described in Usage Model: Training and
-Prediction.
+Linear and ridge regressions in the batch processing mode follow the general workflow described in
+`Regression Usage Model <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction>`_.
 
 Training
 --------
@@ -35,48 +34,65 @@ regressions at the training stage. Some of these parameters or
 their values are specific to a linear or ridge regression
 algorithm.
 
-.. list-table::
-   :widths: 20 25 25 30
-   :header-rows: 1
-   :align: left
+.. tabs::
 
-   * - Parameter
-     - Algorithm
-     - Default Value
-     - Description
-   * - algorithmFPType
-     - any
-     - float
-     - The floating-point type that the algorithm uses for intermediate
-       computations. Can be float or double.
-   * - method
-     - - linear regression
-       - ridge regression
-     - defaultDense
-     - - Available methods for linear regression training:
-         -  defaultDense - the normal equations method
-         -  qrDense - the method based on QR decomposition
-       - Default computation method used by the ridge regression. The only method
-         supported at the training stage is the normal equations method.
-   * - ridgeParameters
-     - ridge regression
-     - Numeric table of size :math:`1 \times 1` that contains the default ridge parameter
-       equal to :math:`1`.
-     - The numeric table of size :math:`1 \times k` (:math:`k` is the number of dependent variables)
-       or :math:`1 \times 1`. The contents of the table depend on its size:
+  .. group-tab:: Linear Regression
 
-       -  :math:`size = 1 \times k`: values of the ridge parameters :math:`\lambda_j` for :math:`j = 1, \ldots, k`.
+    .. list-table::
+      :widths: 25 25 25
+      :header-rows: 1
+      :align: left
 
-       -  :math:`size = 1 \times 1`: the value of the ridge parameter for each dependent
-          variable :math:`\lambda_1 = \ldots = \lambda_k`.
+      * - Parameter
+        - Default Value
+        - Description
+      * - algorithmFPType
+        - float
+        - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
+      * - method
+        - defaultDense
+        - Available methods for linear regression training:
+        
+          - defaultDense - the normal equations method
+          - qrDense - the method based on QR decomposition
 
-         This parameter can be an object of any class derived from NumericTable,
-         except for PackedTriangularMatrix, PackedSymmetricMatrix, and
-         CSRNumericTable.
-   * - interceptFlag
-     - any
-     - true
-     - A flag that indicates a need to compute :math:`\beta_{0j}`.
+      * - interceptFlag
+        - true
+        - A flag that indicates a need to compute :math:`\beta_{0j}`.
+
+  .. group-tab:: Ridge Regression
+
+    .. list-table::
+      :widths: 25 25 25
+      :header-rows: 1
+      :align: left
+
+      * - Parameter
+        - Default Value
+        - Description
+      * - algorithmFPType
+        - float
+        - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
+      * - method
+        - defaultDense
+        - Default computation method used by the ridge regression. 
+          The only method supported at the training stage is the normal equations method.
+      * - ridgeParameters
+        - Numeric table of size :math:`1 \times 1` that contains the default ridge parameter
+          equal to :math:`1`.
+        - The numeric table of size :math:`1 \times k` (:math:`k` is the number of dependent variables)
+          or :math:`1 \times 1`. The contents of the table depend on its size:
+
+          -  :math:`size = 1 \times k`: values of the ridge parameters :math:`\lambda_j` for :math:`j = 1, \ldots, k`.
+          -  :math:`size = 1 \times 1`: the value of the ridge parameter for each dependent variable 
+             :math:`\lambda_1 = \ldots = \lambda_k`.
+
+          This parameter can be an object of any class derived from NumericTable,
+          except for PackedTriangularMatrix, PackedSymmetricMatrix, and CSRNumericTable.
+
+      * - interceptFlag
+        - true
+        - A flag that indicates a need to compute :math:`\beta_{0j}`.
 
 
 Prediction
@@ -84,8 +100,7 @@ Prediction
 
 For a description of the input and output, refer to `Usage Model: Training and Prediction <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction-1>`_.
 
-At the prediction stage, linear and ridge regressions have the
-following parameters:
+At the prediction stage, linear and ridge regressions have the following parameters:
 
 .. list-table::
    :widths: 25 25 25
@@ -97,12 +112,10 @@ following parameters:
      - Description
    * - algorithmFPType
      - float
-     - The floating-point type that the algorithm uses for intermediate
-       computations. Can be float or double.
+     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
    * - method
      - defaultDense
-     - Default performance-oriented computation method, the only method
-       supported by the regression based prediction.
+     - Default performance-oriented computation method, the only method supported by the regression based prediction.
 
 Examples
 ========

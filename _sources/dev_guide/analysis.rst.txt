@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _analysis:
+
 Analysis
 ========
 
@@ -29,8 +31,7 @@ Analysis
    algorithms/em/expectation-maximization.rst
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 3
    :caption: Optimization Solvers
 
-   algorithms/lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.rst
-   algorithms/sgd_solver/stochastic-gradient-descent-algorithm.rst
+   algorithms/optimization-solvers/optimization-solvers.rst

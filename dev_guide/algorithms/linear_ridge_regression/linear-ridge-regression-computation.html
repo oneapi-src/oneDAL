@@ -25,6 +25,8 @@
         <script type="text/javascript" src="../../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../../_static/doctools.js"></script>
         <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script type="text/javascript" src="../../../_static/sphinx_tabs/semantic-ui-2.4.1/tab.min.js"></script>
+        <script type="text/javascript" src="../../../_static/sphinx_tabs/tabs.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
@@ -34,9 +36,13 @@
   
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sphinx_tabs/semantic-ui-2.4.1/segment.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sphinx_tabs/semantic-ui-2.4.1/menu.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sphinx_tabs/semantic-ui-2.4.1/tab.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sphinx_tabs/tabs.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Logistic Regression" href="../logistic_regression/logistic-regression.html" />
+    <link rel="next" title="LASSO and Elastic Net Regressions" href="../lasso_elastic_net/index.html" />
     <link rel="prev" title="Ridge Regression" href="ridge-regression.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -104,6 +110,21 @@
 </ul>
 <p class="caption"><span class="caption-text">Developer Guide</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Library Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../usage/algorithms.html">Algorithms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../usage/algorithms.html#algorithm-input">Algorithm Input</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../usage/algorithms.html#algorithm-output">Algorithm Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../usage/algorithms.html#algorithm-parameters">Algorithm Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../usage/computation-modes.html">Computation Modes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../usage/computation-modes.html#batch-processing">Batch processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../usage/computation-modes.html#online-processing">Online processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../usage/computation-modes.html#distributed-processing">Distributed processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../data-management/data-management.html">Data Management</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../data-management/numeric-tables.html">Numeric Tables</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../data-management/generic-interfaces.html">Generic Interfaces</a><ul>
@@ -157,8 +178,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../kmeans/k-means-clustering.html#batch-processing">Batch Processing</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../kmeans/k-means-clustering.html#id5">Computation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../kmeans/k-means-clustering.html#id6">Batch Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../kmeans/k-means-clustering.html#id8">Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../kmeans/k-means-clustering.html#id9">Batch Processing</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../kmeans/k-means-clustering.html#performance-considerations">Performance Considerations</a></li>
@@ -250,31 +271,25 @@
 <li class="toctree-l3"><a class="reference internal" href="../em/expectation-maximization.html#performance-considerations">Performance Considerations</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html">Limited-Memory Broyden-Fletcher-Goldfarb-Shanno Algorithm</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#transformation">Transformation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#intrinsic-parameters">Intrinsic Parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#hessian-update-algorithm">Hessian Update Algorithm</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#computation">Computation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#algorithm-input">Algorithm Input</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#algorithm-parameters">Algorithm Parameters</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#algorithm-output">Algorithm Output</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../optimization-solvers/optimization-solvers.html">Optimization Solvers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../optimization-solvers/objective-function.html">Objective Function</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/objective-functions/computation.html">Computation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/objective-functions/sum-of-functions.html">Sum of Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/objective-functions/mse.html">Mean Squared Error Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/objective-functions/with-precomputed-characteristics.html">Objective Function with Precomputed Characteristics Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/objective-functions/logistic-loss.html">Logistic Loss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/objective-functions/cross-entropy.html">Cross-entropy Loss</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../optimization-solvers/iterative-solver.html">Iterative Solver</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/solvers/computation.html">Computation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/solvers/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html">Limited-Memory Broyden-Fletcher-Goldfarb-Shanno Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/solvers/stochastic-gradient-descent-algorithm.html">Stochastic Gradient Descent Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/solvers/adaptive-subgradient-method.html">Adaptive Subgradient Method</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/solvers/coordinate-descent.html">Coordinate Descent Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/solvers/stochastic-average-gradient-accelerated-method.html">Stochastic Average Gradient Accelerated Method</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../sgd_solver/stochastic-gradient-descent-algorithm.html">Stochastic Gradient Descent Algorithm</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../sgd_solver/stochastic-gradient-descent-algorithm.html#computation-methods">Computation methods</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../sgd_solver/stochastic-gradient-descent-algorithm.html#mini-batch-method">Mini-batch method</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../sgd_solver/stochastic-gradient-descent-algorithm.html#default-method">Default method</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../sgd_solver/stochastic-gradient-descent-algorithm.html#momentum-method">Momentum method</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../sgd_solver/stochastic-gradient-descent-algorithm.html#computation">Computation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../sgd_solver/stochastic-gradient-descent-algorithm.html#algorithm-parameters">Algorithm Parameters</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../sgd_solver/stochastic-gradient-descent-algorithm.html#examples">Examples</a></li>
 </ul>
 </li>
 </ul>
@@ -380,6 +395,22 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Linear and Ridge Regressions Computation</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#batch-processing">Batch Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../lasso_elastic_net/index.html">LASSO and Elastic Net Regressions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../lasso_elastic_net/lasso.html">LASSO</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../lasso_elastic_net/lasso.html#details">Details</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../lasso_elastic_net/elastic-net.html">Elastic Net</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../lasso_elastic_net/elastic-net.html#details">Details</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../lasso_elastic_net/lasso-elasticnet-computation.html">LASSO and Elastic Net Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../lasso_elastic_net/lasso-elasticnet-computation.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../lasso_elastic_net/lasso-elasticnet-computation.html#performance-considerations">Performance Considerations</a></li>
 </ul>
 </li>
 </ul>
@@ -661,9 +692,8 @@
 <h1>Linear and Ridge Regressions Computation<a class="headerlink" href="#linear-and-ridge-regressions-computation" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="batch-processing">
 <h2>Batch Processing<a class="headerlink" href="#batch-processing" title="Permalink to this headline">¶</a></h2>
-<p>Linear and ridge regressions in the batch processing mode follow the
-general workflow described in Usage Model: Training and
-Prediction.</p>
+<p>Linear and ridge regressions in the batch processing mode follow the general workflow described in
+<a class="reference external" href="https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction">Regression Usage Model</a>.</p>
 <div class="section" id="training">
 <h3>Training<a class="headerlink" href="#training" title="Permalink to this headline">¶</a></h3>
 <p>For a description of the input and output, refer to Usage Model:
@@ -672,74 +702,54 @@ Training and Prediction.</p>
 regressions at the training stage. Some of these parameters or
 their values are specific to a linear or ridge regression
 algorithm.</p>
+<div class="sphinx-tabs docutils container">
+<div class="ui top attached tabular menu sphinx-menu docutils container">
+<div class="active item sphinx-data-tab-TGluZWFyIFJlZ3Jlc3Npb24= docutils container">
+<div class="docutils container">
+<p>Linear Regression</p>
+</div>
+</div>
+<div class="item sphinx-data-tab-UmlkZ2UgUmVncmVzc2lvbg== docutils container">
+<div class="docutils container">
+<p>Ridge Regression</p>
+</div>
+</div>
+</div>
+<div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-TGluZWFyIFJlZ3Jlc3Npb24= active docutils container">
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 20%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 30%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter</p></th>
-<th class="head"><p>Algorithm</p></th>
 <th class="head"><p>Default Value</p></th>
 <th class="head"><p>Description</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>algorithmFPType</p></td>
-<td><p>any</p></td>
 <td><p>float</p></td>
-<td><p>The floating-point type that the algorithm uses for intermediate
-computations. Can be float or double.</p></td>
+<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be float or double.</p></td>
 </tr>
 <tr class="row-odd"><td><p>method</p></td>
-<td><ul class="simple">
-<li><p>linear regression</p></li>
-<li><p>ridge regression</p></li>
-</ul>
-</td>
 <td><p>defaultDense</p></td>
-<td><ul class="simple">
-<li><p>Available methods for linear regression training:
--  defaultDense - the normal equations method
--  qrDense - the method based on QR decomposition</p></li>
-<li><p>Default computation method used by the ridge regression. The only method
-supported at the training stage is the normal equations method.</p></li>
-</ul>
-</td>
-</tr>
-<tr class="row-even"><td><p>ridgeParameters</p></td>
-<td><p>ridge regression</p></td>
-<td><p>Numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> that contains the default ridge parameter
-equal to <span class="math notranslate nohighlight">\(1\)</span>.</p></td>
-<td><p>The numeric table of size <span class="math notranslate nohighlight">\(1 \times k\)</span> (<span class="math notranslate nohighlight">\(k\)</span> is the number of dependent variables)
-or <span class="math notranslate nohighlight">\(1 \times 1\)</span>. The contents of the table depend on its size:</p>
+<td><p>Available methods for linear regression training:</p>
 <ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(size = 1 \times k\)</span>: values of the ridge parameters <span class="math notranslate nohighlight">\(\lambda_j\)</span> for <span class="math notranslate nohighlight">\(j = 1, \ldots, k\)</span>.</p></li>
-<li><p><span class="math notranslate nohighlight">\(size = 1 \times 1\)</span>: the value of the ridge parameter for each dependent
-variable <span class="math notranslate nohighlight">\(\lambda_1 = \ldots = \lambda_k\)</span>.</p></li>
+<li><p>defaultDense - the normal equations method</p></li>
+<li><p>qrDense - the method based on QR decomposition</p></li>
 </ul>
-<blockquote>
-<div><p>This parameter can be an object of any class derived from NumericTable,
-except for PackedTriangularMatrix, PackedSymmetricMatrix, and
-CSRNumericTable.</p>
-</div></blockquote>
 </td>
 </tr>
-<tr class="row-odd"><td><p>interceptFlag</p></td>
-<td><p>any</p></td>
+<tr class="row-even"><td><p>interceptFlag</p></td>
 <td><p>true</p></td>
 <td><p>A flag that indicates a need to compute <span class="math notranslate nohighlight">\(\beta_{0j}\)</span>.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<div class="section" id="prediction">
-<h3>Prediction<a class="headerlink" href="#prediction" title="Permalink to this headline">¶</a></h3>
-<p>For a description of the input and output, refer to <a class="reference external" href="https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction-1">Usage Model: Training and Prediction</a>.</p>
-<p>At the prediction stage, linear and ridge regressions have the
-following parameters:</p>
+<div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-UmlkZ2UgUmVncmVzc2lvbg== docutils container">
 <table class="colwidths-given docutils align-left">
 <colgroup>
 <col style="width: 33%" />
@@ -755,13 +765,60 @@ following parameters:</p>
 <tbody>
 <tr class="row-even"><td><p>algorithmFPType</p></td>
 <td><p>float</p></td>
-<td><p>The floating-point type that the algorithm uses for intermediate
-computations. Can be float or double.</p></td>
+<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be float or double.</p></td>
 </tr>
 <tr class="row-odd"><td><p>method</p></td>
 <td><p>defaultDense</p></td>
-<td><p>Default performance-oriented computation method, the only method
-supported by the regression based prediction.</p></td>
+<td><p>Default computation method used by the ridge regression.
+The only method supported at the training stage is the normal equations method.</p></td>
+</tr>
+<tr class="row-even"><td><p>ridgeParameters</p></td>
+<td><p>Numeric table of size <span class="math notranslate nohighlight">\(1 \times 1\)</span> that contains the default ridge parameter
+equal to <span class="math notranslate nohighlight">\(1\)</span>.</p></td>
+<td><p>The numeric table of size <span class="math notranslate nohighlight">\(1 \times k\)</span> (<span class="math notranslate nohighlight">\(k\)</span> is the number of dependent variables)
+or <span class="math notranslate nohighlight">\(1 \times 1\)</span>. The contents of the table depend on its size:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(size = 1 \times k\)</span>: values of the ridge parameters <span class="math notranslate nohighlight">\(\lambda_j\)</span> for <span class="math notranslate nohighlight">\(j = 1, \ldots, k\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\(size = 1 \times 1\)</span>: the value of the ridge parameter for each dependent variable
+<span class="math notranslate nohighlight">\(\lambda_1 = \ldots = \lambda_k\)</span>.</p></li>
+</ul>
+<p>This parameter can be an object of any class derived from NumericTable,
+except for PackedTriangularMatrix, PackedSymmetricMatrix, and CSRNumericTable.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><p>interceptFlag</p></td>
+<td><p>true</p></td>
+<td><p>A flag that indicates a need to compute <span class="math notranslate nohighlight">\(\beta_{0j}\)</span>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="section" id="prediction">
+<h3>Prediction<a class="headerlink" href="#prediction" title="Permalink to this headline">¶</a></h3>
+<p>For a description of the input and output, refer to <a class="reference external" href="https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction-1">Usage Model: Training and Prediction</a>.</p>
+<p>At the prediction stage, linear and ridge regressions have the following parameters:</p>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Default Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>algorithmFPType</p></td>
+<td><p>float</p></td>
+<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be float or double.</p></td>
+</tr>
+<tr class="row-odd"><td><p>method</p></td>
+<td><p>defaultDense</p></td>
+<td><p>Default performance-oriented computation method, the only method supported by the regression based prediction.</p></td>
 </tr>
 </tbody>
 </table>
@@ -792,7 +849,7 @@ supported by the regression based prediction.</p></td>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../logistic_regression/logistic-regression.html" class="btn btn-neutral float-right" title="Logistic Regression" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../lasso_elastic_net/index.html" class="btn btn-neutral float-right" title="LASSO and Elastic Net Regressions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="ridge-regression.html" class="btn btn-neutral float-left" title="Ridge Regression" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

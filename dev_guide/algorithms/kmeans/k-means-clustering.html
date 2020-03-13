@@ -104,6 +104,21 @@
 </ul>
 <p class="caption"><span class="caption-text">Developer Guide</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Library Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../usage/algorithms.html">Algorithms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../usage/algorithms.html#algorithm-input">Algorithm Input</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../usage/algorithms.html#algorithm-output">Algorithm Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../usage/algorithms.html#algorithm-parameters">Algorithm Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../usage/computation-modes.html">Computation Modes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../usage/computation-modes.html#batch-processing">Batch processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../usage/computation-modes.html#online-processing">Online processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../usage/computation-modes.html#distributed-processing">Distributed processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../data-management/data-management.html">Data Management</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../data-management/numeric-tables.html">Numeric Tables</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../data-management/generic-interfaces.html">Generic Interfaces</a><ul>
@@ -157,8 +172,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#batch-processing">Batch Processing</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#id5">Computation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id6">Batch Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id9">Batch Processing</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#performance-considerations">Performance Considerations</a></li>
@@ -250,31 +265,25 @@
 <li class="toctree-l3"><a class="reference internal" href="../em/expectation-maximization.html#performance-considerations">Performance Considerations</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html">Limited-Memory Broyden-Fletcher-Goldfarb-Shanno Algorithm</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#transformation">Transformation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#intrinsic-parameters">Intrinsic Parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#hessian-update-algorithm">Hessian Update Algorithm</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#computation">Computation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#algorithm-input">Algorithm Input</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#algorithm-parameters">Algorithm Parameters</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#algorithm-output">Algorithm Output</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../optimization-solvers/optimization-solvers.html">Optimization Solvers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../optimization-solvers/objective-function.html">Objective Function</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/objective-functions/computation.html">Computation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/objective-functions/sum-of-functions.html">Sum of Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/objective-functions/mse.html">Mean Squared Error Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/objective-functions/with-precomputed-characteristics.html">Objective Function with Precomputed Characteristics Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/objective-functions/logistic-loss.html">Logistic Loss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/objective-functions/cross-entropy.html">Cross-entropy Loss</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../optimization-solvers/iterative-solver.html">Iterative Solver</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/solvers/computation.html">Computation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/solvers/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html">Limited-Memory Broyden-Fletcher-Goldfarb-Shanno Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/solvers/stochastic-gradient-descent-algorithm.html">Stochastic Gradient Descent Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/solvers/adaptive-subgradient-method.html">Adaptive Subgradient Method</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/solvers/coordinate-descent.html">Coordinate Descent Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../optimization-solvers/solvers/stochastic-average-gradient-accelerated-method.html">Stochastic Average Gradient Accelerated Method</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../sgd_solver/stochastic-gradient-descent-algorithm.html">Stochastic Gradient Descent Algorithm</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../sgd_solver/stochastic-gradient-descent-algorithm.html#computation-methods">Computation methods</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../sgd_solver/stochastic-gradient-descent-algorithm.html#mini-batch-method">Mini-batch method</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../sgd_solver/stochastic-gradient-descent-algorithm.html#default-method">Default method</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../sgd_solver/stochastic-gradient-descent-algorithm.html#momentum-method">Momentum method</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../sgd_solver/stochastic-gradient-descent-algorithm.html#computation">Computation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../sgd_solver/stochastic-gradient-descent-algorithm.html#algorithm-parameters">Algorithm Parameters</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../sgd_solver/stochastic-gradient-descent-algorithm.html#examples">Examples</a></li>
 </ul>
 </li>
 </ul>
@@ -380,6 +389,22 @@
 <li class="toctree-l3"><a class="reference internal" href="../linear_ridge_regression/linear-ridge-regression-computation.html">Linear and Ridge Regressions Computation</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../linear_ridge_regression/linear-ridge-regression-computation.html#batch-processing">Batch Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../linear_ridge_regression/linear-ridge-regression-computation.html#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../lasso_elastic_net/index.html">LASSO and Elastic Net Regressions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../lasso_elastic_net/lasso.html">LASSO</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../lasso_elastic_net/lasso.html#details">Details</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../lasso_elastic_net/elastic-net.html">Elastic Net</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../lasso_elastic_net/elastic-net.html#details">Details</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../lasso_elastic_net/lasso-elasticnet-computation.html">LASSO and Elastic Net Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../lasso_elastic_net/lasso-elasticnet-computation.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../lasso_elastic_net/lasso-elasticnet-computation.html#performance-considerations">Performance Considerations</a></li>
 </ul>
 </li>
 </ul>
@@ -700,7 +725,7 @@ centers.</p></li>
 reaches the desired size <span class="math notranslate nohighlight">\(k\)</span>.</p></li>
 </ol>
 </li>
-<li><p>K-Means++ algorithm [Arthur2007],
+<li><p>K-Means++ algorithm <a class="reference internal" href="../../../bibliography.html#arthur2007" id="id1"><span>[Arthur2007]</span></a>,
 which selects centers with the probability proportional to
 their contribution to the overall error <span class="math notranslate nohighlight">\({\text{Φ}}_{X}(C)\)</span>
 according to the following scheme:</p>
@@ -775,7 +800,7 @@ features, and <span class="math notranslate nohighlight">\(p_2\)</span> is the n
 features. Note that the algorithm does not support non-binary
 categorical features.</p>
 <p>The K-Means clustering algorithm computes centroids using Lloyd’s
-method [Lloyd82].
+method <a class="reference internal" href="../../../bibliography.html#lloyd82" id="id2"><span>[Lloyd82]</span></a>.
 For each feature vector <span class="math notranslate nohighlight">\(x_1, \ldots{} , x_k\)</span>, you can also
 compute the index of the cluster that contains the feature vector.</p>
 <p>In some cases, if no vectors are assigned to some clusters on a
@@ -792,7 +817,7 @@ execution.</p></li>
 <li><p>In the distributed processing mode, most distant vectors from
 the local nodes are computed (Step 1), stored in
 <em>PartialResult</em>, and collected on the master node (Step 2). For
-more details, see the <em>PartialResult</em> description at Step 1 <a class="reference internal" href="../../../bibliography.html#tan2005" id="id1"><span>[Tan2005]</span></a>.</p></li>
+more details, see the <em>PartialResult</em> description at Step 1 <a class="reference internal" href="../../../bibliography.html#tan2005" id="id3"><span>[Tan2005]</span></a>.</p></li>
 </ul>
 </div>
 </div>
@@ -860,7 +885,7 @@ parameter method.</p>
 <li><p>deterministicCSR - uses first nClusters points as initial centroids for data in a CSR numeric table</p></li>
 <li><p>randomDense - uses random nClusters points as initial centroids</p></li>
 <li><p>randomCSR - uses random nClusters points as initial centroids for data in a CSR numeric table</p></li>
-<li><p>plusPlusDense - uses K-Means++ algorithm [Arthur2007]</p></li>
+<li><p>plusPlusDense - uses K-Means++ algorithm <a class="reference internal" href="../../../bibliography.html#arthur2007" id="id4"><span>[Arthur2007]</span></a></p></li>
 <li><p>plusPlusCSR - uses K-Means++ algorithm for data in a CSR numeric table</p></li>
 <li><p>parallelPlusDense - uses parallel K-Means++ algorithm [Bahmani2012]</p></li>
 <li><p>parallelPlusCSR - uses parallel K-Means++ algorithm for data in a CSR numeric table</p></li>
@@ -876,17 +901,17 @@ parameter method.</p>
 <tr class="row-odd"><td><p>nTrials</p></td>
 <td><p>parallelPlusDense, parallelPlusCSR</p></td>
 <td><p><span class="math notranslate nohighlight">\(1\)</span></p></td>
-<td><p>The number of trails to generate all clusters but the first initial cluster. For details, see <a class="reference internal" href="../../../bibliography.html#arthur2007" id="id2"><span>[Arthur2007]</span></a>, section 5</p></td>
+<td><p>The number of trails to generate all clusters but the first initial cluster. For details, see <a class="reference internal" href="../../../bibliography.html#arthur2007" id="id5"><span>[Arthur2007]</span></a>, section 5</p></td>
 </tr>
 <tr class="row-even"><td><p>oversamplingFactor</p></td>
 <td><p>parallelPlusDense, parallelPlusCSR</p></td>
 <td><p><span class="math notranslate nohighlight">\(0.5\)</span></p></td>
-<td><p>A fraction of nClusters in each of nRounds of parallel K-Means++. L=nClusters*oversamplingFactor points are sampled in a round. For details, see <a class="reference internal" href="../../../bibliography.html#bahmani2012" id="id3"><span>[Bahmani2012]</span></a>, section 3.3.</p></td>
+<td><p>A fraction of nClusters in each of nRounds of parallel K-Means++. L=nClusters*oversamplingFactor points are sampled in a round. For details, see <a class="reference internal" href="../../../bibliography.html#bahmani2012" id="id6"><span>[Bahmani2012]</span></a>, section 3.3.</p></td>
 </tr>
 <tr class="row-odd"><td><p>nRounds</p></td>
 <td><p>parallelPlusDense, parallelPlusCSR</p></td>
 <td><p><span class="math notranslate nohighlight">\(5\)</span></p></td>
-<td><p>The number of rounds for parallel K-Means++. (L*nRounds) must be greater than nClusters. For details, see <a class="reference internal" href="../../../bibliography.html#bahmani2012" id="id4"><span>[Bahmani2012]</span></a>, section 3.3.</p></td>
+<td><p>The number of rounds for parallel K-Means++. (L*nRounds) must be greater than nClusters. For details, see <a class="reference internal" href="../../../bibliography.html#bahmani2012" id="id7"><span>[Bahmani2012]</span></a>, section 3.3.</p></td>
 </tr>
 <tr class="row-even"><td><p>engine</p></td>
 <td><p>any</p></td>
@@ -920,10 +945,10 @@ methods that access the results of your algorithm.</p>
 </div>
 </div>
 </div>
-<div class="section" id="id5">
-<h2>Computation<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="id6">
-<h3>Batch Processing<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id8">
+<h2>Computation<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id9">
+<h3>Batch Processing<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="algorithm-input">
 <h4>Algorithm Input<a class="headerlink" href="#algorithm-input" title="Permalink to this headline">¶</a></h4>
 <p>The K-Means clustering algorithm accepts the input described

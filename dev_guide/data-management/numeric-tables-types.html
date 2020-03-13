@@ -104,6 +104,21 @@
 </ul>
 <p class="caption"><span class="caption-text">Developer Guide</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Library Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../usage/algorithms.html">Algorithms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../usage/algorithms.html#algorithm-input">Algorithm Input</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../usage/algorithms.html#algorithm-output">Algorithm Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../usage/algorithms.html#algorithm-parameters">Algorithm Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../usage/computation-modes.html">Computation Modes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../usage/computation-modes.html#batch-processing">Batch processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../usage/computation-modes.html#online-processing">Online processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../usage/computation-modes.html#distributed-processing">Distributed processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="data-management.html">Data Management</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="numeric-tables.html">Numeric Tables</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="generic-interfaces.html">Generic Interfaces</a><ul>
@@ -157,8 +172,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../algorithms/kmeans/k-means-clustering.html#batch-processing">Batch Processing</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/kmeans/k-means-clustering.html#id5">Computation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/kmeans/k-means-clustering.html#id6">Batch Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/kmeans/k-means-clustering.html#id8">Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/kmeans/k-means-clustering.html#id9">Batch Processing</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../algorithms/kmeans/k-means-clustering.html#performance-considerations">Performance Considerations</a></li>
@@ -250,31 +265,25 @@
 <li class="toctree-l3"><a class="reference internal" href="../algorithms/em/expectation-maximization.html#performance-considerations">Performance Considerations</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../algorithms/lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html">Limited-Memory Broyden-Fletcher-Goldfarb-Shanno Algorithm</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#transformation">Transformation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#intrinsic-parameters">Intrinsic Parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#hessian-update-algorithm">Hessian Update Algorithm</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#computation">Computation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#algorithm-input">Algorithm Input</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#algorithm-parameters">Algorithm Parameters</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#algorithm-output">Algorithm Output</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../algorithms/optimization-solvers/optimization-solvers.html">Optimization Solvers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/optimization-solvers/objective-function.html">Objective Function</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/optimization-solvers/objective-functions/computation.html">Computation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/optimization-solvers/objective-functions/sum-of-functions.html">Sum of Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/optimization-solvers/objective-functions/mse.html">Mean Squared Error Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/optimization-solvers/objective-functions/with-precomputed-characteristics.html">Objective Function with Precomputed Characteristics Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/optimization-solvers/objective-functions/logistic-loss.html">Logistic Loss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/optimization-solvers/objective-functions/cross-entropy.html">Cross-entropy Loss</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/optimization-solvers/iterative-solver.html">Iterative Solver</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/optimization-solvers/solvers/computation.html">Computation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/optimization-solvers/solvers/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html">Limited-Memory Broyden-Fletcher-Goldfarb-Shanno Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/optimization-solvers/solvers/stochastic-gradient-descent-algorithm.html">Stochastic Gradient Descent Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/optimization-solvers/solvers/adaptive-subgradient-method.html">Adaptive Subgradient Method</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/optimization-solvers/solvers/coordinate-descent.html">Coordinate Descent Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/optimization-solvers/solvers/stochastic-average-gradient-accelerated-method.html">Stochastic Average Gradient Accelerated Method</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../algorithms/sgd_solver/stochastic-gradient-descent-algorithm.html">Stochastic Gradient Descent Algorithm</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/sgd_solver/stochastic-gradient-descent-algorithm.html#computation-methods">Computation methods</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/sgd_solver/stochastic-gradient-descent-algorithm.html#mini-batch-method">Mini-batch method</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/sgd_solver/stochastic-gradient-descent-algorithm.html#default-method">Default method</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/sgd_solver/stochastic-gradient-descent-algorithm.html#momentum-method">Momentum method</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/sgd_solver/stochastic-gradient-descent-algorithm.html#computation">Computation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/sgd_solver/stochastic-gradient-descent-algorithm.html#algorithm-parameters">Algorithm Parameters</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/sgd_solver/stochastic-gradient-descent-algorithm.html#examples">Examples</a></li>
 </ul>
 </li>
 </ul>
@@ -380,6 +389,22 @@
 <li class="toctree-l3"><a class="reference internal" href="../algorithms/linear_ridge_regression/linear-ridge-regression-computation.html">Linear and Ridge Regressions Computation</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../algorithms/linear_ridge_regression/linear-ridge-regression-computation.html#batch-processing">Batch Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../algorithms/linear_ridge_regression/linear-ridge-regression-computation.html#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../algorithms/lasso_elastic_net/index.html">LASSO and Elastic Net Regressions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/lasso_elastic_net/lasso.html">LASSO</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/lasso_elastic_net/lasso.html#details">Details</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/lasso_elastic_net/elastic-net.html">Elastic Net</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/lasso_elastic_net/elastic-net.html#details">Details</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/lasso_elastic_net/lasso-elasticnet-computation.html">LASSO and Elastic Net Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/lasso_elastic_net/lasso-elasticnet-computation.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/lasso_elastic_net/lasso-elasticnet-computation.html#performance-considerations">Performance Considerations</a></li>
 </ul>
 </li>
 </ul>
@@ -729,7 +754,7 @@ to numeric table by <code class="docutils literal notranslate"><span class="pre"
 that are of different data types by nature. oneDAL provides two
 ways to represent non-homogeneous numeric tables: AOS and SOA.</p>
 <div class="section" id="aos-numeric-table">
-<h3>AOS Numeric Table<a class="headerlink" href="#aos-numeric-table" title="Permalink to this headline">¶</a></h3>
+<span id="aos-layout"></span><h3>AOS Numeric Table<a class="headerlink" href="#aos-numeric-table" title="Permalink to this headline">¶</a></h3>
 <p>AOS Numeric Table provides access to observations (feature vectors)
 that are laid out in a contiguous memory block:</p>
 <a class="reference internal image-reference" href="../../_images/aos-layout.png"><img alt="../../_images/aos-layout.png" src="../../_images/aos-layout.png" style="width: 600px;" /></a>
@@ -740,7 +765,7 @@ that are laid out in a contiguous memory block:</p>
 </div>
 </div>
 <div class="section" id="soa-numeric-table">
-<h3>SOA Numeric Table<a class="headerlink" href="#soa-numeric-table" title="Permalink to this headline">¶</a></h3>
+<span id="soa-layout"></span><h3>SOA Numeric Table<a class="headerlink" href="#soa-numeric-table" title="Permalink to this headline">¶</a></h3>
 <p>SOA Numeric Table provides access to data sets where observations
 for each feature are laid out contiguously in memory:</p>
 <a class="reference internal image-reference" href="../../_images/soa-layout.png"><img alt="../../_images/soa-layout.png" src="../../_images/soa-layout.png" style="width: 600px;" /></a>
@@ -752,7 +777,7 @@ for each feature are laid out contiguously in memory:</p>
 </div>
 </div>
 <div class="section" id="homogeneous-numeric-tables">
-<h2>Homogeneous Numeric Tables<a class="headerlink" href="#homogeneous-numeric-tables" title="Permalink to this headline">¶</a></h2>
+<span id="homogeneous-numeric-table"></span><h2>Homogeneous Numeric Tables<a class="headerlink" href="#homogeneous-numeric-tables" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 </div>
 <p>Use homogeneous numeric tables, that is, objects of the
