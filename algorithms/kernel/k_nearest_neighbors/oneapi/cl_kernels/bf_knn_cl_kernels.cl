@@ -48,7 +48,7 @@ DECLARE_SOURCE(
         partialCategories[global_id_0 * K * TotalParts + Part * K + global_id_1] = categories[global_id_0 * K + global_id_1];
     }
 
-    __kernel void find_max_occurance(__global const sortedType * data, __global sortedType * result, int K) {
+    __kernel void find_max_occurance(__global const sortedType * data, __global algorithmFPType * result, int K) {
         const int global_id_0             = get_global_id(0);
         __global const sortedType * array = &data[global_id_0 * K];
 
