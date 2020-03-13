@@ -28,6 +28,7 @@
 #include "algorithms/algorithm.h"
 #include "algorithms/threading/threading.h"
 #include "data_management/data/numeric_table.h"
+#include "data_management/data/soa_numeric_table.h"
 
 #include "externals/service_blas.h"
 #include "externals/service_math.h"
@@ -173,9 +174,37 @@ services::Status TransformKernel<algorithmFPType, method, cpu>::compute(NumericT
         DAAL_CHECK_BLOCK_STATUS_THR(blockRows);
         algorithmFPType * pTransformedBlock = blockRows.get();
 
-        ReadRows<algorithmFPType, cpu> dataRows(data, startRow, endRow);
-        DAAL_CHECK_BLOCK_STATUS_THR(dataRows);
-        const algorithmFPType * pDataBlock = dataRows.get();
+        SOANumericTable * soaInputPtr = dynamic_cast<SOANumericTable *>(&data);
+
+        const algorithmFPType * pDataBlock = nullptr;
+        TArray<algorithmFPType, cpu> dataArray;
+
+        if (soaInputPtr)
+        {
+            dataArray.reset(numRows * numMeans);
+
+            for (int j = 0; j < numMeans; ++j)
+            {
+                ReadColumns<algorithmFPType, cpu> dataCols(data, j, startRow, endRow);
+                DAAL_CHECK_BLOCK_STATUS_THR(dataCols);
+                const algorithmFPType * pColBlock = dataCols.get();
+
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for (int i = 0; i < numRows; ++i)
+                {
+                    dataArray[i * numMeans + j] = pColBlock[i];
+                }
+            }
+
+            pDataBlock = dataArray.get();
+        }
+        else
+        {
+            ReadRows<algorithmFPType, cpu> dataRows(data, startRow, endRow);
+            DAAL_CHECK_BLOCK_STATUS_THR(dataRows);
+            pDataBlock = dataRows.get();
+        }
 
         if (isNormalize)
         {
