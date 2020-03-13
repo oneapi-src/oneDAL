@@ -127,6 +127,7 @@ private:
     static void buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId & vectorTypeId, services::Status * status);
 
 private:
+    static const uint32_t _maxSeqLength = 1024;
     UniversalBuffer _indices;
     uint32_t _indexSize = 0;
     UniversalBuffer _rndSeq;

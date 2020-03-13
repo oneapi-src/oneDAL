@@ -25,6 +25,7 @@
 #include "externals/service_ittnotify.h"
 
 using namespace daal::data_management;
+using namespace daal::services::internal;
 
 namespace daal
 {
@@ -108,15 +109,34 @@ void run_direct_select_simd(ExecutionContextIface & context, ClKernelFactoryIfac
 void SelectIndexed::convertIndicesToLabels(const UniversalBuffer & indices, const UniversalBuffer & labels, uint32_t nVectors, uint32_t vectorSize,
                                            uint32_t vectorOffset, services::Status * status)
 {
-    auto index2labels = labels.template get<int>().toHost(ReadWriteMode::readOnly, status);
-    DAAL_CHECK_STATUS_PTR(status);
-    auto outIndex = indices.template get<int>().toHost(ReadWriteMode::readWrite, status);
-    DAAL_CHECK_STATUS_PTR(status);
+    Status st;
+    auto index2labels = labels.template get<int>().toHost(ReadWriteMode::readOnly, &st);
+    services::internal::tryAssignStatus(status, st);
+    if (!st.ok())
+    {
+        return;
+    }
+    auto index2labelsPtr = index2labels.get();
+    if (!index2labelsPtr)
+    {
+        return;
+    }
+    auto outIndex = indices.template get<int>().toHost(ReadWriteMode::readWrite, &st);
+    services::internal::tryAssignStatus(status, st);
+    if (!st.ok())
+    {
+        return;
+    }
+    auto outIndexPtr = outIndex.get();
+    if (!outIndexPtr)
+    {
+        return;
+    }
     for (size_t vec = 0; vec < nVectors; vec++)
         for (size_t k = 0; k < vectorSize; k++)
         {
-            int index                            = outIndex.get()[vec * vectorSize + k];
-            outIndex.get()[vec * vectorSize + k] = index2labels.get()[vec * vectorOffset + index];
+            int index                         = outIndexPtr[vec * vectorSize + k];
+            outIndexPtr[vec * vectorSize + k] = index2labelsPtr[vec * vectorOffset + index];
         }
 }
 
@@ -167,17 +187,16 @@ Status QuickSelectIndexed::init(Params & par)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.RNG);
     Status st;
-    const uint32_t maxSeqLength = 64 * 1024;
-    _nRndSeq                    = par.dataSize > maxSeqLength ? maxSeqLength : par.dataSize;
-    auto engineImpl             = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl *>(&(*par.engine));
+    _nRndSeq        = (par.dataSize > _maxSeqLength || par.dataSize < 2) ? _maxSeqLength : par.dataSize;
+    auto engineImpl = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl *>(&(*par.engine));
     if (!engineImpl)
     {
         return Status(ErrorIncorrectEngineParameter);
     }
+    size_t numbers[_maxSeqLength];
     daal::internal::RNGs<size_t, sse2> rng;
-    size_t numbers[_nRndSeq];
-    float values[_nRndSeq];
     rng.uniform(_nRndSeq, &numbers[0], engineImpl->getState(), 0, (size_t)(_nRndSeq - 1));
+    float values[_maxSeqLength];
     for (uint32_t i = 0; i < _nRndSeq; i++)
     {
         values[i] = static_cast<float>(numbers[i]) / (_nRndSeq - 1);
