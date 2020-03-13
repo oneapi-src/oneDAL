@@ -180,7 +180,7 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(const Numer
         // sort labels of closest neighbors
         RadixSort::sort(selectResult.indices, sortedLabels, radixBuffer, curQueryRange.count, k, k, &st);
         DAAL_CHECK_STATUS_VAR(st);
-        BlockDescriptor<int> labelsBlock;
+        BlockDescriptor<algorithmFpType> labelsBlock;
         DAAL_CHECK_STATUS_VAR(y->getBlockOfRows(curQueryRange.startIndex, curQueryRange.count, writeOnly, labelsBlock));
         // search for maximum occurrence label
         DAAL_CHECK_STATUS_VAR(computeWinners(context, sortedLabels, curQueryRange.count, k, labelsBlock.getBuffer()));
