@@ -27,6 +27,7 @@
 #include "services/daal_defines.h"
 #include "externals/service_memory.h"
 #include "service/kernel/data_management/service_numeric_table.h"
+#include "service/kernel/verbose_mode.h"
 
 #include "algorithms/kernel/kmeans/kmeans_lloyd_impl.i"
 
@@ -49,6 +50,8 @@ template <Method method, typename algorithmFPType, CpuType cpu>
 Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTable * const * a, const NumericTable * const * r, const Parameter * par)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute);
+
+    SHOW_STAT3(a, r, par);
 
     NumericTable * ntData  = const_cast<NumericTable *>(a[0]);
     const size_t nIter     = par->maxIterations;
