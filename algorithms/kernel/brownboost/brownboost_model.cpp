@@ -76,7 +76,7 @@ services::Status Parameter::check() const
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, classifier::Parameter::check());
-    DAAL_CHECK_EX(nClasses >= 2, ErrorIncorrectParameter, ParameterName, nClassesStr());
+    DAAL_CHECK_EX(nClasses == 2, ErrorIncorrectParameter, ParameterName, nClassesStr());
     DAAL_CHECK_EX(weakLearnerTraining, ErrorNullAuxiliaryAlgorithm, ParameterName, weakLearnerTrainingStr());
     DAAL_CHECK_EX(nClasses == weakLearnerTraining->parameter().nClasses, ErrorInconsistentNumberOfClasses, ParameterName, weakLearnerTrainingStr());
     DAAL_CHECK_EX(weakLearnerPrediction, ErrorNullAuxiliaryAlgorithm, ParameterName, weakLearnerPredictionStr());

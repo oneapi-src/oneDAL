@@ -248,6 +248,11 @@ public:
     /** Default constructor */
     Batch() { initialize(); };
 
+    Batch(size_t nClasses) {
+        parameter.nClasses = nClasses;
+        initialize();
+    }
+
     /**
      * Constructs an SVM training algorithm by copying input objects and parameters
      * of another SVM training algorithm

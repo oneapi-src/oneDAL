@@ -243,6 +243,8 @@ public:
 
     Batch();
 
+    Batch(size_t nClasses);
+
     /**
      * Constructs a BrownBoost training algorithm by copying input objects and parameters
      * of another BrownBoost training algorithm
