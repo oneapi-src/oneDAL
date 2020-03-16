@@ -25,6 +25,8 @@ Heterogeneous numeric tables enable you to deal with data structures
 that are of different data types by nature. |product| provides two
 ways to represent non-homogeneous numeric tables: AOS and SOA.
 
+.. _aos_layout:
+
 AOS Numeric Table
 *****************
 
@@ -42,6 +44,8 @@ C++: :cpp_example:`datasource/datastructures_aos.cpp`
 Java*: :java_example:`datasource/DataStructuresAOS.java`
 
 .. Python*: datastructures_aos.py
+
+.. _soa_layout:
 
 SOA Numeric Table
 *****************

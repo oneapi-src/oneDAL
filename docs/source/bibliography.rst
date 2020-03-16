@@ -87,6 +87,11 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Machines.*. Journal of Machine Learning Research 6 (2005), pp:
    1889–1918.
 
+.. [Friedman2010] 
+   Friedman, Jerome, Trevor Hastie, and Rob Tibshirani.
+   *Regularization paths for generalized linear models via coordinate
+   descent.*. Journal of statistical software 33.1 (2010): 1.
+
 .. [Hastie2009] 
    Trevor Hastie, Robert Tibshirani, Jerome Friedman. *The Elements
    of Statistical Learning: Data Mining, Inference, and Prediction*.
@@ -114,6 +119,10 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Advances in Kernel Methods - Support Vector Learning, B.
    Schölkopf, C. Burges, and A. Smola (ed.), pp: 169 – 184, MIT Press
    Cambridge, MA, USA 1999.
+
+.. [Lloyd82] 
+   Stuart P Lloyd. *Least squares quantization in PCM*. IEEE
+   Transactions on Information Theory 1982, 28 (2): 1982pp: 129–137.
 
 .. [Mitchell97] 
    Tom M. Mitchell. *Machine Learning*. McGraw-Hill Education, 1997.
@@ -152,8 +161,7 @@ For more information about algorithms implemented in |short_name|, refer to the 
 .. [Tan2005] 
    Pang-Ning Tan, Michael Steinbach, Vipin Kumar, Introduction to
    Data Mining, (First Edition) Addison-Wesley Longman Publishing
-   Co., Inc. Boston, MA, USA, 2005, ISBN: 032132136. Available from:
-   https://www-users.cs.umn.edu/~kumar001/dmbook/index.php
+   Co., Inc. Boston, MA, USA, 2005, ISBN: 032132136.
 
 .. [Wu04] 
    Ting-Fan Wu, Chih-Jen Lin, Ruby C. Weng. *Probability Estimates

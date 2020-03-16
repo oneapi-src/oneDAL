@@ -14,6 +14,11 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. re-use for math equations:
+.. |x_vector| replace:: :math:`(x_1, \ldots, x_p)`
+
+.. _ridge:
+
 Ridge Regression
 ================
 
@@ -30,7 +35,7 @@ data multicollinearity.
 Details
 *******
 
-Let :math:`(x_1, \ldots, x_p)` be a vector of input variables and
+Let |x_vector| be a vector of input variables and
 :math:`y = (y_1, \ldots, y_k)` be the response. For each :math:`j=1, \ldots, k`,
 the ridge regression model has the form similar to the linear
 regression model [Hoerl70]_, except that the coefficients are estimated by minimizing a
@@ -64,5 +69,5 @@ where :math:`λ_j \geq 0` are ridge parameters [Hoerl70]_, [James2013]_.
 Prediction Stage
 ----------------
 
-Ridge regression based prediction is done for input vector :math:`(x_1, \ldots, x_p)` using the 
+Ridge regression based prediction is done for input vector |x_vector| using the 
 equation :math:`y_j = \beta_{0j} + \beta_{1j}x_1 + \ldots + \beta_{pj}x_p` for each :math:`j=1, \ldots, k`.
