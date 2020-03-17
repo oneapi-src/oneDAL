@@ -52,7 +52,7 @@ struct verbose_t
     verbose_t();
     static int level;
 };
-
+/*
 struct json
 {
     template <typename... Args>
@@ -105,7 +105,7 @@ private:
     // json recursion end
     static int json_obj(int depth) { return depth; }
 
-    // bool
+                // bool
     template <typename Value, typename... Tail>
     static auto json_obj(int depth, const char * key, const Value & val, Tail... tail) ->
         typename std::enable_if<std::is_same<bool, typename std::decay<Value>::type>::value, int>::type
@@ -118,7 +118,7 @@ private:
         return json_obj(depth, tail...);
     }
 
-    // enum
+                // enum
     template <typename Value, typename... Tail>
     static auto json_obj(int depth, const char * key, const Value & val, Tail... tail) ->
         typename std::enable_if<std::is_enum<typename std::decay<Value>::type>::value, int>::type
@@ -132,7 +132,7 @@ private:
         return json_obj(depth, tail...);
     }
 
-    // print struct by ptr common impl
+                    // print struct by ptr common impl
     template <typename Tptr, typename... Tail>
     static int struct_by_ptr_impl(const Tptr val)
     {
@@ -241,7 +241,7 @@ private:
         return json_obj(depth, tail...);
     }
 
-    // c-style string
+                 // c-style string
     template <typename... Tail>
     static int json_obj(int depth, const char * key, const char * val, Tail... tail)
     {
@@ -286,28 +286,233 @@ private:
         comma(tail...);
         return json_obj(depth - 1, tail...);
     }
+};*/
+
+struct json
+{
+    // todo: mv2cpp
+    json() : depth(1), need_comma(false) { write("{"); }
+
+    // bool
+    // todo: mv2cpp
+    json & put(const char * const key, const bool & val)
+    {
+        comma_if_needed();
+        need_comma = true;
+        write('"');
+        write(key);
+        write("\":");
+        write(val ? "true" : "false");
+        return *this;
+    }
+
+    // enum
+    template <typename Value>
+    auto put(const char * const key, const Value & val) ->
+        typename std::enable_if<std::is_enum<typename std::decay<Value>::type>::value, json &>::type
+    {
+        comma_if_needed();
+        need_comma = true;
+        write('"');
+        write(key);
+        write("\":\"enum ");
+        write(static_cast<int>(val));
+        write('"');
+        return *this;
+    }
+
+    // char*
+    // todo: mv2cpp
+    json & put(const char * const key, const char * const str)
+    {
+        comma_if_needed();
+        need_comma = true;
+        write('"');
+        write(key);
+        write("\":");
+        write_escape(str);
+        return *this;
+    }
+
+    // NumericTable ** overload
+    json & put(const char * const key, const data_management::NumericTable * const * const val)
+    {
+        if (val)
+        {
+            return put(key, *val);
+        }
+        else
+        {
+            write('"');
+            write(key);
+            write("\":\"nullptr\"");
+        }
+    }
+
+    // NumericTable *
+    // todo: mv2cpp
+    json & put(const char * const key, const data_management::NumericTable * const val)
+    {
+        comma_if_needed();
+        need_comma = true;
+
+        write('"');
+        write(key);
+        write("\":");
+        if (val)
+        {
+            need_comma = false;
+            begin();
+            put("numberOfColumns", val->getNumberOfColumns());
+            put("numberOfRows", val->getNumberOfRows());
+            put("dataLayout", val->getDataLayout());
+            put("dataMemoryStatus", val->getDataMemoryStatus());
+            // if verbose level 3 - show small part of array
+            end();
+        }
+        else
+        {
+            write("\"nullptr\"");
+        }
+
+        return *this;
+    }
+
+    template <typename Value>
+    auto put(const char * const key, const Value & val) ->
+        typename std::enable_if<!std::is_same<bool, typename std::decay<Value>::type>::value
+                                    && (std::is_floating_point<typename std::decay<Value>::type>::value
+                                        || std::is_integral<typename std::decay<Value>::type>::value),
+                                json &>::type
+    {
+        comma_if_needed();
+        need_comma = true;
+        write('"');
+        write(key);
+        write("\":");
+        write(val);
+        return *this;
+    }
+
+    // all pointers
+    json & put(const char * const key, const void * const val)
+    {
+        comma_if_needed();
+        need_comma = true;
+        write('"');
+        write(key);
+        write("\":\"");
+        write(nullptr == val ? "nullptr\"" : "<address>\"");
+        return *this;
+    }
+
+    // todo: mv2cpp
+    json & put(const char * const key, const obj_begin_t &)
+    {
+        comma_if_needed();
+        need_comma = false;
+        write('"');
+        write(key);
+        write("\":");
+        begin();
+        return *this;
+    }
+
+    // todo: mv2cpp
+    json & put(const obj_end_t &)
+    {
+        end();
+        return *this;
+    }
+
+    // todo: mv2cpp
+    void finalize()
+    {
+        for (int i = 0; i < depth; ++i) write('}');
+        depth = 0;
+        write('\n');
+    }
+
+    // todo: mv2cpp
+    ~json() { finalize(); }
+
+private:
+    // raw output
+    static void write(const char * const str);
+    static void write(const char c);
+    static void write(const int i);
+    static void write(const unsigned long u);
+    static void write(const long long int i);
+    static void write(const unsigned long long int u);
+    static void write(const double d);
+
+    // todo: mv2cpp
+    void comma_if_needed()
+    {
+        if (need_comma) write(',');
+    }
+
+    void begin()
+    {
+        comma_if_needed();
+        need_comma = false;
+        write('{');
+        ++depth;
+    }
+
+    void end()
+    {
+        --depth;
+        write('}');
+    }
+
+    // todo: mv2cpp
+    void write_escape(const char * const str)
+    {
+        write('"');
+        for (const char * c = str; *c; ++c)
+        {
+            switch (*c)
+            {
+            case '"': write("\\\""); break;
+            case '\\': write("\\\\"); break;
+            case '/': write("\\/"); break;
+            case '\b': write("\\b"); break;
+            case '\f': write("\\f"); break;
+            case '\n': write("\\n"); break;
+            case '\r': write("\\r"); break;
+            case '\t': write("\\t"); break;
+
+            default: write(*c); break;
+            }
+        }
+        write('"');
+    }
+
+    int depth;
+    bool need_comma;
 };
 
 template <typename algorithmFPType>
-const char * fpTypeToStr()
+constexpr const char * fpTypeToStr()
 {
     return "unknown type";
 }
 
 template <>
-const char * fpTypeToStr<float>()
+constexpr const char * fpTypeToStr<float>()
 {
     return "float";
 }
 
 template <>
-const char * fpTypeToStr<double>()
+constexpr const char * fpTypeToStr<double>()
 {
     return "double";
 }
 
 template <>
-const char * fpTypeToStr<int>()
+constexpr const char * fpTypeToStr<int>()
 {
     return "int";
 }
@@ -319,16 +524,32 @@ struct kernel_verbose_raii
     kernel_verbose_raii(const char * const file, Args... args) : file_name(file)
     {
         if (verbose_t::level == 2)
-            json::println("kernel file", file_name, "env", begin, "algorithmFPType", fpTypeToStr<algorithmFPType>(), "cpu", cpuTypeToStr(cpu), end,
-                          "args", begin, args...);
+        {
+            writer.put("kernel file", file_name).put("algorithmFPType", fpTypeToStr<algorithmFPType>());
+            writer.put("env", begin).put("cpu", cpuTypeToStr(cpu)).put(end);
+            writer.put("args", begin);
+            put(args...);
+            writer.put(end);
+        }
         if (verbose_t::level) start = std::clock();
     }
     ~kernel_verbose_raii()
     {
-        if (verbose_t::level) json::println("kernel file", file_name, "msec", 1000.0 * double(std::clock() - start) / CLOCKS_PER_SEC);
+        if (verbose_t::level) writer.put("time", begin).put("total", 1000.0 * double(std::clock() - start) / CLOCKS_PER_SEC).put(end);
     }
-    const char * file_name;
-    // todo: add MORE?
+
+private:
+    void put() {}
+
+    template <typename Value, typename... Args>
+    void put(const char * const key, const Value & value, Args... args)
+    {
+        writer.put(key, value);
+        put(args...);
+    }
+
+    const char * const file_name;
+    json writer;
     std::clock_t start = 0;
 };
 
