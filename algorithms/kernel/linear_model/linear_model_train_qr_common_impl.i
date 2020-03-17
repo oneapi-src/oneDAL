@@ -23,7 +23,6 @@
 
 #include "algorithms/kernel/linear_model/linear_model_train_qr_kernel.h"
 #include "externals/service_lapack.h"
-#include "externals/service_math.h"
 
 namespace daal
 {
@@ -105,8 +104,8 @@ Status CommonKernel<algorithmFPType, cpu>::computeQRForBlock(DAAL_INT p, DAAL_IN
 
     if (p > n)
     {
-        /* Complete a definition of a linear system if the number of abservations
-     * less than the number of coefficients */
+        /* Complete a definition of a linear system if the number of observations
+         * less than the number of coefficients */
         const algorithmFPType zero(0.0);
         const algorithmFPType one(1.0);
 
