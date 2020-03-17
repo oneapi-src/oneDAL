@@ -52,241 +52,6 @@ struct verbose_t
     verbose_t();
     static int level;
 };
-/*
-struct json
-{
-    template <typename... Args>
-    static void print(Args... args)
-    {
-        write('{');
-        int depth = json_obj(1, args...);
-        for (int i = 0; i < depth; ++i) write('}');
-    }
-
-    template <typename... Args>
-    static void println(Args... args)
-    {
-        print(args...);
-        write('\n');
-    }
-
-private:
-    static void write(const char * const str);
-    static void write(const char c);
-    static void write(const int i);
-    static void write(const unsigned long u);
-    static void write(const long long int i);
-    static void write(const unsigned long long int u);
-    static void write(const double d);
-
-    // helper for predecessor of obj_end_t
-    constexpr static bool is_next_end() { return false; }
-
-    template <typename Value>
-    constexpr static bool is_next_end(Value)
-    {
-        return false;
-    }
-
-    // helper for predecessor of obj_end_t
-    template <typename Value, typename... Tail>
-    constexpr static bool is_next_end(Value, Tail...)
-    {
-        return std::is_same<typename std::decay<Value>::type, obj_end_t>::value;
-    }
-
-    // helper to put ',' between fields but not between field and '}' and not between '}' and '}'
-    template <typename... Tail>
-    static void comma(Tail... tail)
-    {
-        write((sizeof...(Tail) > 0 && !is_next_end(tail...)) ? "," : "");
-    }
-
-    // json recursion end
-    static int json_obj(int depth) { return depth; }
-
-                // bool
-    template <typename Value, typename... Tail>
-    static auto json_obj(int depth, const char * key, const Value & val, Tail... tail) ->
-        typename std::enable_if<std::is_same<bool, typename std::decay<Value>::type>::value, int>::type
-    {
-        write('"');
-        write(key);
-        write("\":");
-        write(val ? "true" : "false");
-        comma(tail...);
-        return json_obj(depth, tail...);
-    }
-
-                // enum
-    template <typename Value, typename... Tail>
-    static auto json_obj(int depth, const char * key, const Value & val, Tail... tail) ->
-        typename std::enable_if<std::is_enum<typename std::decay<Value>::type>::value, int>::type
-    {
-        write('"');
-        write(key);
-        write("\":\"enum ");
-        write(static_cast<int>(val));
-        write('"');
-        comma(tail...);
-        return json_obj(depth, tail...);
-    }
-
-                    // print struct by ptr common impl
-    template <typename Tptr, typename... Tail>
-    static int struct_by_ptr_impl(const Tptr val)
-    {
-        write('"');
-        write(key);
-        write("\":");
-        if (val)
-        {
-            print("nClusters", val->nClusters, "maxIterations", val->maxIterations, "accuracyThreshold", val->accuracyThreshold, "gamma", val->gamma,
-                  "distanceType", val->distanceType, "assignFlag", val->assignFlag);
-        }
-        else
-        {
-            write("\"nullptr\"");
-        }
-        comma(tail...);
-        return json_obj(depth, tail...);
-    }
-
-    // algorithms::kmeans::Parameter * overload
-    template <typename... Tail>
-    static int json_obj(int depth, const char * key, const algorithms::kmeans::Parameter * const val, Tail... tail)
-    {
-        write('"');
-        write(key);
-        write("\":");
-        if (val)
-        {
-            print("nClusters", val->nClusters, "maxIterations", val->maxIterations, "accuracyThreshold", val->accuracyThreshold, "gamma", val->gamma,
-                  "distanceType", val->distanceType, "assignFlag", val->assignFlag);
-        }
-        else
-        {
-            write("\"nullptr\"");
-        }
-        comma(tail...);
-        return json_obj(depth, tail...);
-    }
-
-    // NumericTable * overload
-    template <typename... Tail>
-    static int json_obj(int depth, const char * key, const data_management::NumericTable * const val, Tail... tail)
-    {
-        write('"');
-        write(key);
-        write("\":");
-        if (val)
-        {
-            print("numberOfColumns", val->getNumberOfColumns(), "numberOfRows", val->getNumberOfRows(),
-                  "dataLayout", val->getDataLayout(), "dataMemoryStatus", val->getDataMemoryStatus());
-            // if verbose level 3 - show small part of array
-        }
-        else
-        {
-            write("\"nullptr\"");
-        }
-        comma(tail...);
-        return json_obj(depth, tail...);
-    }
-
-    // NumericTable ** overload
-    template <typename... Tail>
-    static int json_obj(int depth, const char * key, const data_management::NumericTable * const * val, Tail... tail)
-    {
-        if (val)
-        {
-            return json_obj(depth, key, *val, tail...);
-        }
-        else
-        {
-            write('"');
-            write(key);
-            write("\":\"nullptr\"");
-            comma(tail...);
-            return json_obj(depth, tail...);
-        }
-    }
-
-    // pointer
-    template <typename Value, typename... Tail>
-    static auto json_obj(int depth, const char * key, const Value & val, Tail... tail) ->
-        typename std::enable_if<std::is_pointer<typename std::decay<Value>::type>::value, int>::type
-    {
-        write('"');
-        write(key);
-        write("\":\"");
-        write(nullptr == val ? "nullptr" : "<address>");
-        write('"');
-        comma(tail...);
-        return json_obj(depth, tail...);
-    }
-
-    // int, float...
-    template <typename Value, typename... Tail>
-    static auto json_obj(int depth, const char * key, const Value & val, Tail... tail) ->
-        typename std::enable_if<!std::is_same<bool, typename std::decay<Value>::type>::value
-                                    && (std::is_floating_point<typename std::decay<Value>::type>::value
-                                        || std::is_integral<typename std::decay<Value>::type>::value),
-                                int>::type
-    {
-        write('"');
-        write(key);
-        write("\":");
-        write(val);
-        comma(tail...);
-        return json_obj(depth, tail...);
-    }
-
-                 // c-style string
-    template <typename... Tail>
-    static int json_obj(int depth, const char * key, const char * val, Tail... tail)
-    {
-        write('"');
-        write(key);
-        write("\":\"");
-        write(val ? val : "nullptr");
-        write("\"");
-        comma(tail...);
-        return json_obj(depth, tail...);
-    }
-
-    // general overload for objects
-    template <typename Value, typename... Tail>
-    static auto json_obj(int depth, const char * key, const Value & val, Tail... tail) ->
-        typename std::enable_if<std::is_class<typename std::decay<Value>::type>::value, int>::type
-    {
-        write('"');
-        write(key);
-        write("\":\"<object>\"");
-        comma(tail...);
-        return json_obj(depth, tail...);
-    }
-
-    // add overloads for special objects: e.g. sizes for containers, shared_ptr is null and soo on
-
-    // json object 'begin' a.k.a '{'
-    template <typename... Tail>
-    static int json_obj(int depth, const char * key, const obj_begin_t &, Tail... tail)
-    {
-        write('"');
-        write(key);
-        write("\":{");
-        return json_obj(depth + 1, tail...);
-    }
-
-    // json object 'end' a.k.a '}'
-    template <typename... Tail>
-    static int json_obj(int depth, const obj_end_t &, Tail... tail) // what if next is end too?!
-    {
-        write('}');
-        comma(tail...);
-        return json_obj(depth - 1, tail...);
-    }
-};*/
 
 struct json
 {
@@ -334,50 +99,7 @@ struct json
         return *this;
     }
 
-    // NumericTable ** overload
-    json & put(const char * const key, const data_management::NumericTable * const * const val)
-    {
-        if (val)
-        {
-            return put(key, *val);
-        }
-        else
-        {
-            write('"');
-            write(key);
-            write("\":\"nullptr\"");
-        }
-    }
-
-    // NumericTable *
-    // todo: mv2cpp
-    json & put(const char * const key, const data_management::NumericTable * const val)
-    {
-        comma_if_needed();
-        need_comma = true;
-
-        write('"');
-        write(key);
-        write("\":");
-        if (val)
-        {
-            need_comma = false;
-            begin();
-            put("numberOfColumns", val->getNumberOfColumns());
-            put("numberOfRows", val->getNumberOfRows());
-            put("dataLayout", val->getDataLayout());
-            put("dataMemoryStatus", val->getDataMemoryStatus());
-            // if verbose level 3 - show small part of array
-            end();
-        }
-        else
-        {
-            write("\"nullptr\"");
-        }
-
-        return *this;
-    }
-
+    // int, float
     template <typename Value>
     auto put(const char * const key, const Value & val) ->
         typename std::enable_if<!std::is_same<bool, typename std::decay<Value>::type>::value
@@ -394,15 +116,29 @@ struct json
         return *this;
     }
 
-    // all pointers
-    json & put(const char * const key, const void * const val)
+
+    // dispatcher for all pointers;
+    // it will invoke concrete function overload if serealizer for such type is avaliable
+    // function should be: void put(json &, const Type &)
+    // we using SFINAE here to allow array of pointer to be unrolled by-compiler
+    // todo: using Argument Dependend Lookup for possible keeping such functions together
+    // (but we need writer class in being visible the same translation unit)
+    template <typename ValPtr>
+    auto put(const char * const key, const ValPtr p) ->
+        typename std::enable_if<std::is_pointer<typename std::decay<ValPtr>::type>::value, json &>::type
     {
         comma_if_needed();
-        need_comma = true;
+        need_comma = false;
         write('"');
         write(key);
-        write("\":\"");
-        write(nullptr == val ? "nullptr\"" : "<address>\"");
+        write("\":");
+
+        need_comma = false;
+        begin();
+        json_print(*this, p);
+        end();
+
+        need_comma = true;
         return *this;
     }
 
@@ -489,9 +225,45 @@ private:
         write('"');
     }
 
+    template <typename ValPtr>
+    friend auto json_print(json & writer, const ValPtr p) -> typename std::enable_if<std::is_pointer<typename std::decay<ValPtr>::type>::value>::type;
+
     int depth;
     bool need_comma;
 };
+
+// pointer dispatcher
+template <typename ValPtr>
+auto json_print(json & writer, const ValPtr p) -> typename std::enable_if<std::is_pointer<typename std::decay<ValPtr>::type>::value>::type
+{
+    if (p)
+    {
+        json_print(writer, *p);
+    }
+    else
+    {
+        writer.write("\"ptr\":\"nullptr\"");
+    }
+}
+
+// mv2cpp or use inline to break ODR
+// algorithms::kmeans::Parameter &
+inline void json_print(json & writer, const algorithms::kmeans::Parameter & val)
+{
+    writer.put("nClusters", val.nClusters).put("maxIterations", val.maxIterations).put("accuracyThreshold", val.accuracyThreshold);
+    writer.put("gamma", val.gamma).put("distanceType", val.distanceType).put("assignFlag", val.assignFlag);
+}
+
+// data_management::NumericTable &
+// todo: mv2cpp
+inline void json_print(json & writer, const data_management::NumericTable & val)
+{
+    writer.put("numberOfColumns", val.getNumberOfColumns()).put("numberOfRows", val.getNumberOfRows());
+    writer.put("dataLayout", val.getDataLayout()).put("dataMemoryStatus", val.getDataMemoryStatus());
+    // if verbose level 3 - show small part of array
+}
+
+inline void json_print(json & writer, ...) {}
 
 template <typename algorithmFPType>
 constexpr const char * fpTypeToStr()
@@ -535,7 +307,7 @@ struct kernel_verbose_raii
     }
     ~kernel_verbose_raii()
     {
-        if (verbose_t::level) writer.put("time", begin).put("total", 1000.0 * double(std::clock() - start) / CLOCKS_PER_SEC).put(end);
+        if (verbose_t::level) writer.put("time", begin).put("total, msec", 1000.0 * double(std::clock() - start) / CLOCKS_PER_SEC).put(end);
     }
 
 private:
@@ -588,17 +360,17 @@ private:
 
     // todo: #define SHOW_STAT(...) if(verbose::level) verbose_unroll_args(__VA_ARGS__);
 #else
-    #define SHOW_STAT0(...)  ((void)0)
-    #define SHOW_STAT1(...)  ((void)0)
-    #define SHOW_STAT2(...)  ((void)0)
-    #define SHOW_STAT3(...)  ((void)0)
-    #define SHOW_STAT4(...)  ((void)0)
-    #define SHOW_STAT5(...)  ((void)0)
-    #define SHOW_STAT6(...)  ((void)0)
-    #define SHOW_STAT7(...)  ((void)0)
-    #define SHOW_STAT8(...)  ((void)0)
-    #define SHOW_STAT9(...)  ((void)0)
-    #define SHOW_STAT10(...) ((void)0)
+    #define SHOW_STAT0(...)  ((void)0);
+    #define SHOW_STAT1(...)  ((void)0);
+    #define SHOW_STAT2(...)  ((void)0);
+    #define SHOW_STAT3(...)  ((void)0);
+    #define SHOW_STAT4(...)  ((void)0);
+    #define SHOW_STAT5(...)  ((void)0);
+    #define SHOW_STAT6(...)  ((void)0);
+    #define SHOW_STAT7(...)  ((void)0);
+    #define SHOW_STAT8(...)  ((void)0);
+    #define SHOW_STAT9(...)  ((void)0);
+    #define SHOW_STAT10(...) ((void)0);
 #endif // buildwithverbose
 
 } // namespace verbose_mode
