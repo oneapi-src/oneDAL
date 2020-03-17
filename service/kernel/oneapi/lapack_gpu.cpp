@@ -92,10 +92,10 @@ services::Status ReferenceXsyevd<algorithmFPType>::operator()(const math::Job jo
     char up;
     switch (uplo)
     {
-        case math::UpLo::Upper: up = 'U'; break;
-        case math::UpLo::Lower: up = 'L'; break;
+    case math::UpLo::Upper: up = 'U'; break;
+    case math::UpLo::Lower: up = 'L'; break;
 
-        default: status.add(services::UnknownError); break;
+    default: status.add(services::UnknownError); break;
     }
 
     char job;
@@ -112,13 +112,12 @@ services::Status ReferenceXsyevd<algorithmFPType>::operator()(const math::Job jo
     }
     DAAL_CHECK_STATUS_VAR(status);
 
-    if (n > services::internal::MaxVal<DAAL_INT>::get() ||
-        lda > services::internal::MaxVal<DAAL_INT>::get() ||
-        lwork > services::internal::MaxVal<DAAL_INT>::get() ||
-        liwork > services::internal::MaxVal<DAAL_INT>::get()) {
-            status.add(services::ErrorID::ErrorIncorrectSizeOfArray);
-            return status;
-        }
+    if (n > services::internal::MaxVal<DAAL_INT>::get() || lda > services::internal::MaxVal<DAAL_INT>::get()
+        || lwork > services::internal::MaxVal<DAAL_INT>::get() || liwork > services::internal::MaxVal<DAAL_INT>::get())
+    {
+        status.add(services::ErrorID::ErrorIncorrectSizeOfArray);
+        return status;
+    }
     DAAL_INT nInt      = static_cast<DAAL_INT>(n);
     DAAL_INT ldaInt    = static_cast<DAAL_INT>(lda);
     DAAL_INT lworkInt  = static_cast<DAAL_INT>(lwork);
@@ -127,7 +126,7 @@ services::Status ReferenceXsyevd<algorithmFPType>::operator()(const math::Job jo
     services::SharedPtr<algorithmFPType> aPtr    = a.toHost(data_management::ReadWriteMode::readWrite);
     services::SharedPtr<algorithmFPType> wPtr    = w.toHost(data_management::ReadWriteMode::readWrite);
     services::SharedPtr<algorithmFPType> workPtr = work.toHost(data_management::ReadWriteMode::readWrite);
-    services::SharedPtr<int64_t> iworkSharedPtr        = iwork.toHost(data_management::ReadWriteMode::readWrite);
+    services::SharedPtr<int64_t> iworkSharedPtr  = iwork.toHost(data_management::ReadWriteMode::readWrite);
 
     DAAL_INT info;
 
@@ -137,8 +136,9 @@ services::Status ReferenceXsyevd<algorithmFPType>::operator()(const math::Job jo
                                                 &liworkInt, &info);
     DAAL_CHECK(info == 0, services::ErrorID::ErrorNormEqSystemSolutionFailed);
 
-    int64_t* iworkPtr = iworkSharedPtr.get();
-    for (size_t i = 0; i < iwork.size(); ++i) {
+    int64_t * iworkPtr = iworkSharedPtr.get();
+    for (size_t i = 0; i < iwork.size(); ++i)
+    {
         iworkPtr[i] = static_cast<int64_t>(iWorkTmp[i]);
     }
 

@@ -165,9 +165,9 @@ private:
         const int64_t liwork;
         services::Status * status;
 
-        explicit Execute(cl::sycl::queue & queue, const math::Job jobz, const math::UpLo uplo, const int64_t n, UniversalBuffer & a, const int64_t lda,
-                         UniversalBuffer & w, UniversalBuffer & work, const int64_t lwork, UniversalBuffer & iwork, const int64_t liwork,
-                         services::Status * status)
+        explicit Execute(cl::sycl::queue & queue, const math::Job jobz, const math::UpLo uplo, const int64_t n, UniversalBuffer & a,
+                         const int64_t lda, UniversalBuffer & w, UniversalBuffer & work, const int64_t lwork, UniversalBuffer & iwork,
+                         const int64_t liwork, services::Status * status)
             : queue(queue), jobz(jobz), uplo(uplo), n(n), a(a), lda(lda), w(w), work(work), lwork(lwork), iwork(iwork), liwork(liwork), status(status)
         {}
 
@@ -198,7 +198,6 @@ public:
         TypeDispatcher::floatDispatch(a.type(), op);
     }
 };
-
 
 /** @} */
 } // namespace interface1

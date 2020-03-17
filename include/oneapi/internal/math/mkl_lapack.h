@@ -119,24 +119,24 @@ struct MKLXsyevd
         fpk::uplo uplomkl;
         switch (uplo)
         {
-            case math::UpLo::Upper: uplomkl = fpk::uplo::upper; break;
-            case math::UpLo::Lower: uplomkl = fpk::uplo::lower; break;
+        case math::UpLo::Upper: uplomkl = fpk::uplo::upper; break;
+        case math::UpLo::Lower: uplomkl = fpk::uplo::lower; break;
 
-            default: status.add(services::UnknownError); break;
+        default: status.add(services::UnknownError); break;
         }
         DAAL_CHECK_STATUS_VAR(status);
 
         fpk::job jobmkl;
         switch (jobz)
         {
-            case math::Job::novec: jobmkl = fpk::job::novec; break;
-            case math::Job::vec:  jobmkl = fpk::job::vec; break;
-            case math::Job::updatevec: jobmkl = fpk::job::updatevec; break;
-            case math::Job::allvec: jobmkl = fpk::job::allvec; break;
-            case math::Job::somevec: jobmkl = fpk::job::somevec; break;
-            case math::Job::overwritevec: jobmkl = fpk::job::overwritevec; break;
+        case math::Job::novec: jobmkl = fpk::job::novec; break;
+        case math::Job::vec: jobmkl = fpk::job::vec; break;
+        case math::Job::updatevec: jobmkl = fpk::job::updatevec; break;
+        case math::Job::allvec: jobmkl = fpk::job::allvec; break;
+        case math::Job::somevec: jobmkl = fpk::job::somevec; break;
+        case math::Job::overwritevec: jobmkl = fpk::job::overwritevec; break;
 
-            default: status.add(services::UnknownError); break;
+        default: status.add(services::UnknownError); break;
         }
         DAAL_CHECK_STATUS_VAR(status);
 
