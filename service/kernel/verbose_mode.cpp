@@ -43,6 +43,99 @@ const char * cpuTypeToStr(const CpuType type)
     };
 }
 
+json::json() : depth(1), need_comma(false) { write("{"); }
+
+// bool
+json & json::put(const char * const key, const bool & val)
+{
+    comma_if_needed();
+    need_comma = true;
+    write('"');
+    write(key);
+    write("\":");
+    write(val ? "true" : "false");
+    return *this;
+}
+
+// char*
+json & json::put(const char * const key, const char * const str)
+{
+    comma_if_needed();
+    need_comma = true;
+    write('"');
+    write(key);
+    write("\":");
+    write_escape(str);
+    return *this;
+}
+
+json & json::put(const char * const key, const obj_begin_t &)
+{
+    comma_if_needed();
+    need_comma = false;
+    write('"');
+    write(key);
+    write("\":");
+    begin();
+    return *this;
+}
+
+json & json::put(const obj_end_t &)
+{
+    end();
+    return *this;
+}
+
+void json::finalize()
+{
+    for (int i = 0; i < depth; ++i) write('}');
+    depth = 0;
+    write('\n');
+}
+
+void json::comma_if_needed()
+{
+    if (need_comma) write(',');
+}
+
+void json::begin()
+{
+    comma_if_needed();
+    need_comma = false;
+    write('{');
+    ++depth;
+}
+
+void json::end()
+{
+    --depth;
+    write('}');
+}
+
+void json::write_escape(const char * const str)
+{
+    write('"');
+    for (const char * c = str; *c; ++c)
+    {
+        switch (*c)
+        {
+        case '"': write("\\\""); break;
+        case '\\': write("\\\\"); break;
+        case '/': write("\\/"); break;
+        case '\b': write("\\b"); break;
+        case '\f': write("\\f"); break;
+        case '\n': write("\\n"); break;
+        case '\r': write("\\r"); break;
+        case '\t': write("\\t"); break;
+
+        default: write(*c); break;
+        }
+    }
+    write('"');
+}
+
+json::~json() { finalize(); }
+
 void json::write(const char * const str)
 {
     if (0 > std::printf("%s", str)) std::terminate();
@@ -71,6 +164,24 @@ void json::write(const double d)
 {
     if (0 > std::printf("%f", d)) std::terminate();
 }
+
+
+// algorithms::kmeans::Parameter &
+void json_print(json & writer, const algorithms::kmeans::Parameter & val)
+{
+    writer.put("nClusters", val.nClusters).put("maxIterations", val.maxIterations).put("accuracyThreshold", val.accuracyThreshold);
+    writer.put("gamma", val.gamma).put("distanceType", val.distanceType).put("assignFlag", val.assignFlag);
+}
+
+// data_management::NumericTable &
+void json_print(json & writer, const data_management::NumericTable & val)
+{
+    writer.put("numberOfColumns", val.getNumberOfColumns()).put("numberOfRows", val.getNumberOfRows());
+    writer.put("dataLayout", val.getDataLayout()).put("dataMemoryStatus", val.getDataMemoryStatus());
+    // if verbose level 3 - show small part of array
+}
+
+void json_print(json & writer, ...) {}
 
 verbose_t::verbose_t()
 {

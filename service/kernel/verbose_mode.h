@@ -55,23 +55,12 @@ struct verbose_t
 
 struct json
 {
-    // todo: mv2cpp
-    json() : depth(1), need_comma(false) { write("{"); }
+    json();
 
     // bool
-    // todo: mv2cpp
-    json & put(const char * const key, const bool & val)
-    {
-        comma_if_needed();
-        need_comma = true;
-        write('"');
-        write(key);
-        write("\":");
-        write(val ? "true" : "false");
-        return *this;
-    }
+    json & put(const char * const key, const bool & val);
 
-    // enum
+    // general enum
     template <typename Value>
     auto put(const char * const key, const Value & val) ->
         typename std::enable_if<std::is_enum<typename std::decay<Value>::type>::value, json &>::type
@@ -87,17 +76,7 @@ struct json
     }
 
     // char*
-    // todo: mv2cpp
-    json & put(const char * const key, const char * const str)
-    {
-        comma_if_needed();
-        need_comma = true;
-        write('"');
-        write(key);
-        write("\":");
-        write_escape(str);
-        return *this;
-    }
+    json & put(const char * const key, const char * const str);
 
     // int, float
     template <typename Value>
@@ -115,7 +94,6 @@ struct json
         write(val);
         return *this;
     }
-
 
     // dispatcher for all pointers;
     // it will invoke concrete function overload if serealizer for such type is avaliable
@@ -142,35 +120,13 @@ struct json
         return *this;
     }
 
-    // todo: mv2cpp
-    json & put(const char * const key, const obj_begin_t &)
-    {
-        comma_if_needed();
-        need_comma = false;
-        write('"');
-        write(key);
-        write("\":");
-        begin();
-        return *this;
-    }
+    json & put(const char * const key, const obj_begin_t &);
 
-    // todo: mv2cpp
-    json & put(const obj_end_t &)
-    {
-        end();
-        return *this;
-    }
+    json & put(const obj_end_t &);
 
-    // todo: mv2cpp
-    void finalize()
-    {
-        for (int i = 0; i < depth; ++i) write('}');
-        depth = 0;
-        write('\n');
-    }
+    void finalize();
 
-    // todo: mv2cpp
-    ~json() { finalize(); }
+    ~json();
 
 private:
     // raw output
@@ -182,48 +138,14 @@ private:
     static void write(const unsigned long long int u);
     static void write(const double d);
 
-    // todo: mv2cpp
-    void comma_if_needed()
-    {
-        if (need_comma) write(',');
-    }
+    void comma_if_needed();
 
-    void begin()
-    {
-        comma_if_needed();
-        need_comma = false;
-        write('{');
-        ++depth;
-    }
+    void begin();
 
-    void end()
-    {
-        --depth;
-        write('}');
-    }
+    void end();
 
     // todo: mv2cpp
-    void write_escape(const char * const str)
-    {
-        write('"');
-        for (const char * c = str; *c; ++c)
-        {
-            switch (*c)
-            {
-            case '"': write("\\\""); break;
-            case '\\': write("\\\\"); break;
-            case '/': write("\\/"); break;
-            case '\b': write("\\b"); break;
-            case '\f': write("\\f"); break;
-            case '\n': write("\\n"); break;
-            case '\r': write("\\r"); break;
-            case '\t': write("\\t"); break;
-
-            default: write(*c); break;
-            }
-        }
-        write('"');
-    }
+    void write_escape(const char * const str);
 
     template <typename ValPtr>
     friend auto json_print(json & writer, const ValPtr p) -> typename std::enable_if<std::is_pointer<typename std::decay<ValPtr>::type>::value>::type;
@@ -248,22 +170,13 @@ auto json_print(json & writer, const ValPtr p) -> typename std::enable_if<std::i
 
 // mv2cpp or use inline to break ODR
 // algorithms::kmeans::Parameter &
-inline void json_print(json & writer, const algorithms::kmeans::Parameter & val)
-{
-    writer.put("nClusters", val.nClusters).put("maxIterations", val.maxIterations).put("accuracyThreshold", val.accuracyThreshold);
-    writer.put("gamma", val.gamma).put("distanceType", val.distanceType).put("assignFlag", val.assignFlag);
-}
+void json_print(json & writer, const algorithms::kmeans::Parameter & val);
 
 // data_management::NumericTable &
 // todo: mv2cpp
-inline void json_print(json & writer, const data_management::NumericTable & val)
-{
-    writer.put("numberOfColumns", val.getNumberOfColumns()).put("numberOfRows", val.getNumberOfRows());
-    writer.put("dataLayout", val.getDataLayout()).put("dataMemoryStatus", val.getDataMemoryStatus());
-    // if verbose level 3 - show small part of array
-}
+void json_print(json & writer, const data_management::NumericTable & val);
 
-inline void json_print(json & writer, ...) {}
+void json_print(json & writer, ...);
 
 template <typename algorithmFPType>
 constexpr const char * fpTypeToStr()
