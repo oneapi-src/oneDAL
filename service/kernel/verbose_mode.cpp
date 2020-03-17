@@ -43,7 +43,10 @@ const char * cpuTypeToStr(const CpuType type)
     };
 }
 
-json::json() : depth(1), need_comma(false) { write("{"); }
+json::json() : depth(1), need_comma(false)
+{
+    write("{");
+}
 
 // bool
 json & json::put(const char * const key, const bool & val)
@@ -134,37 +137,50 @@ void json::write_escape(const char * const str)
     write('"');
 }
 
-json::~json() { finalize(); }
+json::~json()
+{
+    finalize();
+}
 
 void json::write(const char * const str)
 {
     if (0 > std::printf("%s", str)) std::terminate();
 }
+
 void json::write(const char c)
 {
     if (0 > std::printf("%c", c)) std::terminate();
 }
+
 void json::write(const int i)
 {
     if (0 > std::printf("%d", i)) std::terminate();
 }
+
+void json::write(const unsigned int u)
+{
+    if (0 > std::printf("%u", u)) std::terminate();
+}
+
 void json::write(const unsigned long u)
 {
     if (0 > std::printf("%lu", u)) std::terminate();
 }
+
 void json::write(const long long int i)
 {
     if (0 > std::printf("%lld", i)) std::terminate();
 }
+
 void json::write(const unsigned long long int u)
 {
     if (0 > std::printf("%llu", u)) std::terminate();
 }
+
 void json::write(const double d)
 {
     if (0 > std::printf("%f", d)) std::terminate();
 }
-
 
 // algorithms::kmeans::Parameter &
 void json_print(json & writer, const algorithms::kmeans::Parameter & val)

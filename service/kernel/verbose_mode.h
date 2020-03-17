@@ -133,6 +133,7 @@ private:
     static void write(const char * const str);
     static void write(const char c);
     static void write(const int i);
+    static void write(const unsigned int u);
     static void write(const unsigned long u);
     static void write(const long long int i);
     static void write(const unsigned long long int u);
