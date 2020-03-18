@@ -54,13 +54,22 @@ jobs:
       source __release_lnx_gnu/daal/bin/daalvars.sh intel64
       git clone https://github.com/IntelPython/daal4py
     displayName: 'Create Anaconda environment'
-  - script: python daal4py/setup.py develop
+  - script: |
+      conda-env list
+      conda list
+      echo ACTIVATE_CONFORMANCE_ENVIROMENT
+      conda activate conformance
+      conda list
+      echo START
+      python daal4py/setup.py develop
     displayName: 'building daal4py'
   - script: |
+      conda activate conformance
       conda install -c intel scikit-learn
       conda install -c conda-forge pytest
     displayName: 'install scikit-learn'
   - script: |
+      conda activate conformance
       python .ci/conformance/run_tests.py
     displayName: 'run conformance'
   - task: PublishPipelineArtifact@0
