@@ -14,25 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. _analysis:
+.. note::
 
-Analysis
-========
-
-.. toctree::
-   :maxdepth: 1
-
-   algorithms/kmeans/k-means-clustering.rst
-   algorithms/dbscan/index.rst
-   algorithms/covariance/correlation-and-variance-covariance-matrices.rst
-   algorithms/pca/principal-component-analysis.rst
-   algorithms/svd/singular-value-decomposition.rst
-   algorithms/association_rules/association-rules.rst
-   algorithms/kernel_function/kernel-functions.rst
-   algorithms/em/expectation-maximization.rst
-
-.. toctree::
-   :maxdepth: 3
-   :caption: Optimization Solvers
-
-   algorithms/optimization-solvers/optimization-solvers.rst
+    By default, this result is an object of the ``DataCollection`` class. 
+    The numeric tables in collection can be an object of any class derived from ``NumericTable`
+    except for ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
