@@ -36,6 +36,32 @@ jobs:
     inputs:
       artifactName: '$(platform.type) build'
       targetPath: '__release_lnx_gnu'
+# conformance
+  - script: |
+      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+      bash miniconda.sh -b -p $HOME/miniconda
+      export PATH="$HOME/miniconda/bin:$PATH"
+      source activate base
+      conda create -y -n conformance
+      conda activate conformance
+      conda install -y -c conda-forge mpich tbb-devel cython jinja2 numpy clang-tools
+      export TBBROOT=$CONDA_PREFIX
+      export MPIROOT=$CONDA_PREFIX
+      source __release_lnx_gnu/daal/bin/daalvars.sh intel64
+    displayName: 'Create Anaconda environment'
+  - script: python setup.py develop
+    displayName: 'building daal4py'
+  - script: |
+      conda install -c intel scikit-learn
+      conda install -c conda-forge pytest
+    displayName: 'install scikit-learn'
+  - script: |
+      python .ci/conformance/run_tests.py
+    displayName: 'run conformance'
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'conformance tests report'
+      targetPath: '.ci/conformance/report.html'
 - job: macOS
   timeoutInMinutes: 0
   pool:

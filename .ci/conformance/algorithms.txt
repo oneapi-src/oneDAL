@@ -1,0 +1,12 @@
+adaboost
+dbscan
+elastic_net
+kmeans
+knn
+lin_reg
+log_reg
+pca
+ridge_reg
+svm
+tree
+forest
