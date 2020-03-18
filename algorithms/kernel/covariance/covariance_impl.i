@@ -127,7 +127,7 @@ template<typename algorithmFPType, Method method, CpuType cpu>
 services::Status updateDenseCrossProductAndSums(bool            isNormalized,
                                                 size_t          nFeatures,
                                                 size_t          nVectors,
-                                                algorithmFPType *dataBlock,
+                                                NumericTable    *dataTable,
                                                 algorithmFPType *crossProduct,
                                                 algorithmFPType *sums,
                                                 algorithmFPType *nObservations)
@@ -142,6 +142,7 @@ services::Status updateDenseCrossProductAndSums(bool            isNormalized,
         size_t numRowsInBlock = getBlockSize<cpu>(nVectors);
         size_t numBlocks = nVectors / numRowsInBlock;
         if (numBlocks * numRowsInBlock < nVectors) { numBlocks++; }
+        size_t numRowsInLastBlock = numRowsInBlock + (nVectors - numBlocks * numRowsInBlock);
 
         /* TLS data initialization */
         SafeStatus safeStat;
@@ -163,19 +164,21 @@ services::Status updateDenseCrossProductAndSums(bool            isNormalized,
             algorithmFPType alpha = 1.0;
             algorithmFPType beta  = 1.0;
 
+            size_t nRows    = (iBlock < (numBlocks - 1)) ? numRowsInBlock : numRowsInLastBlock;
             size_t startRow = iBlock * numRowsInBlock;
-            size_t endRow = startRow + numRowsInBlock;
-            if (endRow > nVectors) { endRow = nVectors; }
+
+            ReadRows<algorithmFPType, cpu, NumericTable> dataTableBD(dataTable, startRow, nRows);
+            DAAL_CHECK_BLOCK_STATUS_THR(dataTableBD);
+            algorithmFPType * dataBlock_local = const_cast<algorithmFPType *>(dataTableBD.get());
+
             DAAL_INT nFeatures_local = nFeatures;
-            DAAL_INT nVectors_local  = endRow - startRow;
-            algorithmFPType* dataBlock_local = dataBlock + startRow * nFeatures;
             algorithmFPType* crossProduct_local =  tls_data_local->crossProduct;
             algorithmFPType* sums_local =  tls_data_local->sums;
 
             Blas<algorithmFPType, cpu>::xxsyrk( &uplo,
                                                 &trans,
                                                 (DAAL_INT *) &nFeatures_local,
-                                                (DAAL_INT *) &nVectors_local,
+                                                (DAAL_INT *) &nRows,
                                                 &alpha,
                                                 dataBlock_local,
                                                 (DAAL_INT *) &nFeatures_local,
@@ -186,7 +189,7 @@ services::Status updateDenseCrossProductAndSums(bool            isNormalized,
             if(!isNormalized && (method == defaultDense) )
             {
                 /* Sum input array elements in case of non-normalized data */
-                for( int i = 0; i < nVectors_local; i++)
+                for( int i = 0; i < nRows; i++)
                 {
                    PRAGMA_IVDEP
                    PRAGMA_VECTOR_ALWAYS
@@ -263,8 +266,11 @@ services::Status updateDenseCrossProductAndSums(bool            isNormalized,
             break;
         }
 
+        DEFINE_TABLE_BLOCK(ReadRows, dataBlock, dataTable);
+        algorithmFPType * dataBlockPtr = const_cast<algorithmFPType *>(dataBlock.get());
+
         int errcode = Statistics<algorithmFPType, cpu>::xcp(
-            dataBlock, (__int64)nFeatures, (__int64)nVectors,
+            dataBlockPtr, (__int64)nFeatures, (__int64)nVectors,
             nObservations, sums, crossProduct, mklMethod);
         DAAL_CHECK(errcode == 0, services::ErrorCovarianceInternal);
     }

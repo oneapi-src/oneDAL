@@ -77,12 +77,10 @@ services::Status CovarianceDenseOnlineKernel<algorithmFPType, method, cpu>::comp
     DEFINE_TABLE_BLOCK( WriteRows, sumBlock,           sumTable           );
     DEFINE_TABLE_BLOCK( WriteRows, crossProductBlock,  crossProductTable  );
     DEFINE_TABLE_BLOCK( WriteRows, nObservationsBlock, nObservationsTable );
-    DEFINE_TABLE_BLOCK( ReadRows,  dataBlock,          dataTable          );
 
     algorithmFPType *sums          = sumBlock.get();
     algorithmFPType *crossProduct  = crossProductBlock.get();
     algorithmFPType *nObservations = nObservationsBlock.get();
-    algorithmFPType *data          = const_cast<algorithmFPType*>(dataBlock.get());
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, nFeatures);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures * nFeatures, sizeof(algorithmFPType));
@@ -91,7 +89,7 @@ services::Status CovarianceDenseOnlineKernel<algorithmFPType, method, cpu>::comp
     if (method == singlePassDense)
     {
         status |= updateDenseCrossProductAndSums<algorithmFPType, method, cpu>(
-            isNormalized, nFeatures, nVectors, data, crossProduct, sums, nObservations);
+            isNormalized, nFeatures, nVectors, dataTable, crossProduct, sums, nObservations);
         DAAL_CHECK_STATUS_VAR(status);
     }
     else
@@ -110,7 +108,7 @@ services::Status CovarianceDenseOnlineKernel<algorithmFPType, method, cpu>::comp
         algorithmFPType *partialCrossProduct = partialCrossProductArray.get();
 
         status |= updateDenseCrossProductAndSums<algorithmFPType, method, cpu>(
-            isNormalized, nFeatures, nVectors, data, partialCrossProduct, userSums, &partialNObservations);
+            isNormalized, nFeatures, nVectors, dataTable, partialCrossProduct, userSums, &partialNObservations);
         DAAL_CHECK_STATUS_VAR(status);
 
         mergeCrossProductAndSums<algorithmFPType, cpu>(nFeatures, partialCrossProduct, userSums,

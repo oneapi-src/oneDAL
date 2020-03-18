@@ -51,13 +51,11 @@ services::Status CovarianceDenseBatchKernel<algorithmFPType, method, cpu>::compu
     const size_t nVectors   = dataTable->getNumberOfRows();
     const bool isNormalized = dataTable->isNormalized(NumericTableIface::standardScoreNormalized);
 
-    DEFINE_TABLE_BLOCK( ReadRows,      dataBlock,          dataTable );
     DEFINE_TABLE_BLOCK( WriteOnlyRows, sumBlock,           meanTable );
     DEFINE_TABLE_BLOCK( WriteOnlyRows, crossProductBlock,  covTable  );
 
     algorithmFPType *sums          = sumBlock.get();
     algorithmFPType *crossProduct  = crossProductBlock.get();
-    algorithmFPType *data          = const_cast<algorithmFPType *>(dataBlock.get());
 
     services::Status status;
 
@@ -68,7 +66,7 @@ services::Status CovarianceDenseBatchKernel<algorithmFPType, method, cpu>::compu
     DAAL_CHECK_STATUS_VAR(status);
 
     status |= updateDenseCrossProductAndSums<algorithmFPType, method, cpu>(isNormalized, nFeatures,
-        nVectors, data, crossProduct, sums, &nObservations);
+        nVectors, dataTable, crossProduct, sums, &nObservations);
     DAAL_CHECK_STATUS_VAR(status);
 
     status |= finalizeCovariance<algorithmFPType, cpu>(
