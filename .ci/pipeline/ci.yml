@@ -44,6 +44,8 @@ jobs:
       bash miniconda.sh -b -p $HOME/miniconda
       export PATH="$HOME/miniconda/bin:$PATH"
       source activate base
+      conda-env list
+      conda activate base
       conda create -y -n conformance
       conda activate conformance
       conda install -y -c conda-forge mpich tbb-devel cython jinja2 numpy clang-tools
