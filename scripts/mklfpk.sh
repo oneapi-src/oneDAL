@@ -41,12 +41,13 @@ function download_fpk()
 {
   SRC=$1
   DST=$2
-  FILENAME=$3
+  CONDITION=$3
+  FILENAME=$4
 
   mkdir -p ${DST}
   DST=`cd ${DST};pwd`
 
-  if [ ! -e "${DST}/license.txt" ]; then
+  if [ ! -e "${CONDITION}/${MKLFPK_OS}/lib/" ]; then
     if [ -x "$(command -v curl)" ]; then
       echo curl -L -o "${DST}/${FILENAME}" "${SRC}"
       curl -L -o "${DST}/${FILENAME}" "${SRC}"
@@ -86,10 +87,12 @@ MKLFPK_PACKAGE="mklfpk_${MKLFPK_OS}_${MKLFPK_VERSION}"
 MKLGPUFPK_PACKAGE="mklgpufpk_${MKLFPK_OS}_${MKLGPUFPK_VERSION}"
 MKLFPK_URL=${MKLFPK_URL_ROOT}${MKLFPK_PACKAGE}.tgz
 MKLGPUFPK_URL=${MKLFPK_URL_ROOT}${MKLGPUFPK_PACKAGE}.tgz
-CPUDST=`dirname $0`/../externals/mklfpk
-GPUDST=`dirname $0`/../externals/mklgpufpk
+CPUCOND=`dirname $0`/../externals/mklfpk
+GPUCOND=`dirname $0`/../externals/mklgpufpk
+CPUDST="${CPUCOND}"
+GPUDST="${GPUCOND}/${MKLFPK_OS}"
 
-download_fpk "${MKLFPK_URL}" "${CPUDST}" "${MKLFPK_PACKAGE}.tgz"
+download_fpk "${MKLFPK_URL}" "${CPUDST}" "${CPUCOND}" "${MKLFPK_PACKAGE}.tgz"
 if [ "${MKLFPK_OS}" != "mac" -a "${WITH_GPU}" == "true" ]; then
-  download_fpk "${MKLGPUFPK_URL}" "${GPUDST}" "${MKLGPUFPK_PACKAGE}.tgz"
+  download_fpk "${MKLGPUFPK_URL}" "${GPUDST}" "${GPUCOND}" "${MKLGPUFPK_PACKAGE}.tgz"
 fi
