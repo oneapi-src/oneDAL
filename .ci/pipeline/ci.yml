@@ -19,7 +19,7 @@ jobs:
         platform.type : 'lnx32e'
     maxParallel: 2
   steps:
-  - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib openjdk-8-jdk
+  - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib openjdk-8-jdk git
     displayName: 'apt-get'
   - script: |
       scripts/mklfpk.sh ${$(platform.type):3}
@@ -38,6 +38,8 @@ jobs:
       targetPath: '__release_lnx_gnu'
 # conformance
   - script: |
+      which git
+      git --version
       wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
       bash miniconda.sh -b -p $HOME/miniconda
       export PATH="$HOME/miniconda/bin:$PATH"
@@ -48,8 +50,9 @@ jobs:
       export TBBROOT=$CONDA_PREFIX
       export MPIROOT=$CONDA_PREFIX
       source __release_lnx_gnu/daal/bin/daalvars.sh intel64
+      git clone https://github.com/IntelPython/daal4py
     displayName: 'Create Anaconda environment'
-  - script: python setup.py develop
+  - script: python daal4py/setup.py develop
     displayName: 'building daal4py'
   - script: |
       conda install -c intel scikit-learn
