@@ -48,13 +48,12 @@ jobs:
       conda activate base
       conda create -y -n conformance
       conda activate conformance
+      conda list
       conda install -y -c conda-forge mpich tbb-devel cython jinja2 numpy clang-tools
       export TBBROOT=$CONDA_PREFIX
       export MPIROOT=$CONDA_PREFIX
       source __release_lnx_gnu/daal/bin/daalvars.sh intel64
       git clone https://github.com/IntelPython/daal4py
-    displayName: 'Create Anaconda environment'
-  - script: |
       conda-env list
       conda list
       echo ACTIVATE_CONFORMANCE_ENVIROMENT
@@ -62,16 +61,12 @@ jobs:
       conda list
       echo START
       python daal4py/setup.py develop
-    displayName: 'building daal4py'
-  - script: |
       conda activate conformance
       conda install -c intel scikit-learn
       conda install -c conda-forge pytest
-    displayName: 'install scikit-learn'
-  - script: |
       conda activate conformance
       python .ci/conformance/run_tests.py
-    displayName: 'run conformance'
+    displayName: 'Create Anaconda environment'
   - task: PublishPipelineArtifact@0
     inputs:
       artifactName: 'conformance tests report'
