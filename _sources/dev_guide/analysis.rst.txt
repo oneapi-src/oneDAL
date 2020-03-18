@@ -23,6 +23,7 @@ Analysis
    :maxdepth: 1
 
    algorithms/kmeans/k-means-clustering.rst
+   algorithms/dbscan/index.rst
    algorithms/covariance/correlation-and-variance-covariance-matrices.rst
    algorithms/pca/principal-component-analysis.rst
    algorithms/svd/singular-value-decomposition.rst

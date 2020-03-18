@@ -81,6 +81,12 @@ For more information about algorithms implemented in |short_name|, refer to the 
    incomplete data via the em algorithm*. J. Royal Statist. Soc. Ser.
    B., 39, 1977.
 
+.. [Ester96]
+   Martin Ester, Hans-Peter Kriegel, Jörg Sander, and Xiaowei Xu.
+   A density-based algorithm for discovering clusters in large spatial databases with noise..
+   In Proceedings of the 2nd ACM International Conference on Knowledge Discovery and Data Mining (KDD).
+   226-231, 1996.
+
 .. [Fan05] 
    Rong-En Fan, Pai-Hsuen Chen, Chih-Jen Lin. *Working Set Selection
    Using Second Order Information for Training Support Vector
