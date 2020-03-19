@@ -34,7 +34,7 @@ For more details, :ref:`algorithms`.
        .. include:: distributed-steps/includes/input_data_collection.rst
 
    * - ``step4PartialOrders``
-     - Pointer to the collection of numeric table with 2 columns and arbitrary number of rows containing information about observations:
+     - Pointer to the collection of numeric table with :math:`2` columns and arbitrary number of rows containing information about observations:
        identifier of initial block and index in initial block.
 
        .. include:: distributed-steps/includes/input_data_collection_with_exceptions.rst

@@ -74,14 +74,16 @@ For more details, :ref:`algorithms`.
    * - ``haloDataIndices``
      - Pointer to the collection of numeric tables with :math:`1` column and arbitrary number of rows,
        containing indices for halo observations for current node computed on :ref:`step 5 <dbscan_step_5>`. 
-       Size of this collection should be equal to the size of collection for haloData Input ID.
+       
+       Size of this collection should be equal to the size of collection for ``haloData``'s ``Input ID``.
 
        .. include:: distributed-steps/includes/input_data_collection_with_exceptions.rst
 
    * - ``haloDataBlocks``
      - Pointer to the collection of :math:`1 \times 1` numeric tables containing identifiers of initial block for halo observations
        for current node computed on :ref:`step 5 <dbscan_step_5>`. 
-       Size of this collection should be equal to the size of collection for ``haloData`` ``Input ID``.
+       
+       Size of this collection should be equal to the size of collection for ``haloData``'s ``Input ID``.
 
        .. include:: distributed-steps/includes/input_data_collection_with_exceptions.rst
 
@@ -89,7 +91,7 @@ Algorithm Output
 ++++++++++++++++
 
 In this step, the DBSCAN algorithms calculates the partial results described below.
-Pass the Partial Result ID as a parameter to the methods that access the partial result of your algorithm.
+Pass the ``Partial Result ID`` as a parameter to the methods that access the partial result of your algorithm.
 For more details, :ref:`algorithms`.
 
 .. list-table::

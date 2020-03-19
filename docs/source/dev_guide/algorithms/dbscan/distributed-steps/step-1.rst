@@ -29,13 +29,14 @@ Pass the ``Input ID`` as a parameter to the methods that provide input for your 
      - Input
    * - ``step1Data``
      - Pointer to the :math:`n \times p` numeric table with the observations to be clustered.
-       The input can be an object of any class derived from NumericTable.
+       
+       .. note:: The input can be an object of any class derived from NumericTable.
 
 Algorithm Output
 ++++++++++++++++
 
 In this step, the DBSCAN algorithms calculates the partial results described below.
-Pass the Partial Result ID as a parameter to the methods that access the partial result of your algorithm.
+Pass the ``Partial Result ID`` as a parameter to the methods that access the partial result of your algorithm.
 For more details, :ref:`algorithms`.
 
 .. list-table::
