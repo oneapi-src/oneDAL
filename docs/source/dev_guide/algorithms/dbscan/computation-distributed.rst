@@ -20,7 +20,7 @@ Distributed Processing
 This mode assumes that the data set is split into ``nBlocks`` blocks across computation nodes.
 
 To compute DBSCAN algorithm in the distributed processing mode, 
-use the general schema described in Algorithms as follows:
+use the general schema described in :ref:`algorithms` as follows:
 
 - `Step 1 - on Local Nodes`_
 - `Step 2 - on Local Nodes`_
@@ -35,6 +35,7 @@ use the general schema described in Algorithms as follows:
 - `Step 11 - on Local Nodes`_
 - `Step 12 - on Local Nodes`_
 - `Step 13 - on Local Nodes`_
+- `Examples`_
 
 .. _dbscan_step_1:
 
@@ -130,5 +131,6 @@ Step 13 - on Local Nodes
 Examples
 ********
 
-- C++: dbscan_dense_distr.cpp
-- Python*: dbscan_batch.py
+- :cpp_example:`C++ <dbscan/dbscan_dense_distr.cpp>`
+- :java_example:`Java* <dbscan/DBSCANDenseDistr.java>`
+- :daal4py_example:`Python* <dbscan_spmd.py>`

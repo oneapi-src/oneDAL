@@ -35,7 +35,7 @@ For more details, :ref:`algorithms`.
        .. include:: distributed-steps/includes/input_numeric_table.rst
 
    * - ``step11PartialQueries``
-     - Pointer to the collection of numeric tables with 4 columns and arbitrary number of rows
+     - Pointer to the collection of numeric tables with :math:`4` columns and arbitrary number of rows
        containing clusters numeration queries that should be processed on the local node collected from all nodes.
 
        .. include:: distributed-steps/includes/input_data_collection_with_exceptions.rst
@@ -66,6 +66,7 @@ For more details, :ref:`algorithms`.
 
    * - ``step11Queries``
      - Pointer to the collection of ``nBlocks`` numeric tables with :math:`4` columns and arbitrary number of rows containing clusters numeration queries that should be processed on each node.
-       Numeric tables in collection ordered by the identifiers of initial block of nodes.
+       
+       Numeric tables in the collection are ordered by the identifiers of initial block of nodes.
 
        .. include:: distributed-steps/includes/default_result_data_collection.rst

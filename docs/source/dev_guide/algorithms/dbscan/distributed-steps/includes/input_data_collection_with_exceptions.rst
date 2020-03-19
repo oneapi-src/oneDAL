@@ -17,5 +17,5 @@
 .. note::
 
     The input can be an object of any class derived from ``DataCollection``.
-    The numeric tables in collection can be an object of any class derived from ``NumericTable``
+    The numeric tables in the collection can be an object of any class derived from ``NumericTable``
     except for ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.

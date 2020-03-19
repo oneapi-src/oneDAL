@@ -79,11 +79,13 @@ For more details, :ref:`algorithms`.
    * - ``partitionedHaloData``
      - Pointer to the collection of ``nBlocks`` numeric tables with :math:`p` columns and arbitrary number of rows containing observations
        from current node that should be used as halo observations on each node.
-       Numeric tables in collection ordered by the identifiers of initial block of nodes.
+
+       Numeric tables in the collection are ordered by the identifiers of initial block of nodes.
 
    * - ``partitionedHaloDataIndices``
      - Pointer to the collection of ``nBlocks`` numeric tables with :math:`1` column and arbitrary number of rows containing indices of observations
        from current node that should be used as halo observations on each node.
-       Numeric tables in collection ordered by the identifiers of initial block of nodes.
+
+       Numeric tables in the collection are ordered by the identifiers of initial block of nodes.
 
 .. include:: distributed-steps/includes/default_result_data_collection.rst
