@@ -697,6 +697,7 @@
 <li><p><a class="reference internal" href="#algorithm-parameters">Algorithm Parameters</a></p></li>
 <li><p><a class="reference internal" href="#algorithm-input">Algorithm Input</a></p></li>
 <li><p><a class="reference internal" href="#algorithm-output">Algorithm Output</a></p></li>
+<li><p><a class="reference internal" href="#examples">Examples</a></p></li>
 </ul>
 <div class="section" id="algorithm-parameters">
 <h2>Algorithm Parameters<a class="headerlink" href="#algorithm-parameters" title="Permalink to this headline">¶</a></h2>
@@ -732,7 +733,7 @@
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">minObservations</span></code></p></td>
 <td><p>Not applicable</p></td>
-<td><p>The number of observations in a neighborhood for an observation to be considered as a core one.</p></td>
+<td><p>The number of observations in a neighborhood for an observation to be considered as a <a class="reference internal" href="index.html#term-core-observation"><span class="xref std std-term">core</span></a> one.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">memorySavingMode</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
@@ -783,8 +784,8 @@ For more details, see <a class="reference internal" href="../../usage/algorithms
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The input can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
-except <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>.
-By default all weights are equal to <span class="math notranslate nohighlight">\(1\)</span>.</p>
+except <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>.</p>
+<p>By default all weights are equal to <span class="math notranslate nohighlight">\(1\)</span>.</p>
 </div>
 </td>
 </tr>
@@ -808,8 +809,9 @@ For more details, see <a class="reference internal" href="../../usage/algorithms
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">assignments</span></code></p></td>
-<td><p>Pointer to the <span class="math notranslate nohighlight">\(n \times 1\)</span> numeric table with assignments of cluster indices to observations in the input data.
-Noise observations have the assignment equal to -1.</p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(n \times 1\)</span> numeric table with assignments of cluster indices to observations in the input data.</p>
+<p><a class="reference internal" href="index.html#term-noise-observation"><span class="xref std std-term">Noise observations</span></a> have the assignment equal to <span class="math notranslate nohighlight">\(-1\)</span>.</p>
+</td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nClusters</span></code></p></td>
 <td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times 1\)</span> numeric table with the total number of clusters found by the algorithm.</p></td>
@@ -832,9 +834,9 @@ except <code class="docutils literal notranslate"><span class="pre">PackedTriang
 <div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>C++: dbscan_dense_batch.cpp</p></li>
-<li><p>Java*: DBSCANDenseBatch.java</p></li>
-<li><p>Python*: dbscan_batch.py</p></li>
+<li><p><a class="reference external" href="https://github.com/intel/daal/tree/master/examples/cpp/source/dbscan/dbscan_dense_batch.cpp">C++</a></p></li>
+<li><p><a class="reference external" href="https://github.com/intel/daal/tree/master/examples/java/com/intel/daal/examples/dbscan/DBSCANDenseBatch.java">Java*</a></p></li>
+<li><p><a class="reference external" href="https://github.com/IntelPython/daal4py/tree/master/examples/dbscan_batch.py">Python*</a></p></li>
 </ul>
 </div>
 </div>

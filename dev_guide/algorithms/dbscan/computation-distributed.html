@@ -695,7 +695,7 @@
 <h1>Distributed Processing<a class="headerlink" href="#distributed-processing" title="Permalink to this headline">¶</a></h1>
 <p>This mode assumes that the data set is split into <code class="docutils literal notranslate"><span class="pre">nBlocks</span></code> blocks across computation nodes.</p>
 <p>To compute DBSCAN algorithm in the distributed processing mode,
-use the general schema described in Algorithms as follows:</p>
+use the general schema described in <a class="reference internal" href="../../usage/algorithms.html#algorithms"><span class="std std-ref">Algorithms</span></a> as follows:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="#step-1-on-local-nodes">Step 1 - on Local Nodes</a></p></li>
 <li><p><a class="reference internal" href="#step-2-on-local-nodes">Step 2 - on Local Nodes</a></p></li>
@@ -710,9 +710,10 @@ use the general schema described in Algorithms as follows:</p>
 <li><p><a class="reference internal" href="#step-11-on-local-nodes">Step 11 - on Local Nodes</a></p></li>
 <li><p><a class="reference internal" href="#step-12-on-local-nodes">Step 12 - on Local Nodes</a></p></li>
 <li><p><a class="reference internal" href="#step-13-on-local-nodes">Step 13 - on Local Nodes</a></p></li>
+<li><p><a class="reference internal" href="#examples">Examples</a></p></li>
 </ul>
 <div class="section" id="step-1-on-local-nodes">
-<h2>Step 1 - on Local Nodes<a class="headerlink" href="#step-1-on-local-nodes" title="Permalink to this headline">¶</a></h2>
+<span id="dbscan-step-1"></span><h2>Step 1 - on Local Nodes<a class="headerlink" href="#step-1-on-local-nodes" title="Permalink to this headline">¶</a></h2>
 <p>In this step, the DBSCAN algorithm has the following parameters:</p>
 <table class="colwidths-given docutils align-default">
 <colgroup>
@@ -763,15 +764,19 @@ Pass the <code class="docutils literal notranslate"><span class="pre">Input</spa
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">step1Data</span></code></p></td>
-<td><p>Pointer to the <span class="math notranslate nohighlight">\(n \times p\)</span> numeric table with the observations to be clustered.
-The input can be an object of any class derived from NumericTable.</p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(n \times p\)</span> numeric table with the observations to be clustered.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The input can be an object of any class derived from NumericTable.</p>
+</div>
+</td>
 </tr>
 </tbody>
 </table>
 <div class="section" id="algorithm-output">
 <h3>Algorithm Output<a class="headerlink" href="#algorithm-output" title="Permalink to this headline">¶</a></h3>
 <p>In this step, the DBSCAN algorithms calculates the partial results described below.
-Pass the Partial Result ID as a parameter to the methods that access the partial result of your algorithm.
+Pass the <code class="docutils literal notranslate"><span class="pre">Partial</span> <span class="pre">Result</span> <span class="pre">ID</span></code> as a parameter to the methods that access the partial result of your algorithm.
 For more details, <a class="reference internal" href="../../usage/algorithms.html#algorithms"><span class="std std-ref">Algorithms</span></a>.</p>
 <table class="colwidths-given docutils align-default">
 <colgroup>
@@ -801,7 +806,7 @@ but you can define the result as an object of any class derived from <code class
 </div>
 </div>
 <div class="section" id="step-2-on-local-nodes">
-<h2>Step 2 - on Local Nodes<a class="headerlink" href="#step-2-on-local-nodes" title="Permalink to this headline">¶</a></h2>
+<span id="dbscan-step-2"></span><h2>Step 2 - on Local Nodes<a class="headerlink" href="#step-2-on-local-nodes" title="Permalink to this headline">¶</a></h2>
 <p>In this step, the DBSCAN algorithm has the following parameters:</p>
 <table class="colwidths-given docutils align-default">
 <colgroup>
@@ -857,7 +862,7 @@ For more details, <a class="reference internal" href="../../usage/algorithms.htm
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The input can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code>.
-The numeric tables in collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p>
+The numeric tables in the collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p>
 </div>
 </td>
 </tr>
@@ -895,108 +900,7 @@ but you can define the result as an object of any class derived from <code class
 </div>
 </div>
 <div class="section" id="step-3-on-local-nodes">
-<h2>Step 3 - on Local Nodes<a class="headerlink" href="#step-3-on-local-nodes" title="Permalink to this headline">¶</a></h2>
-<p>In this step, the DBSCAN algorithm has the following parameters:</p>
-<table class="colwidths-given docutils align-default">
-<colgroup>
-<col style="width: 13%" />
-<col style="width: 13%" />
-<col style="width: 75%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Parameter</p></th>
-<th class="head"><p>Default Valude</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
-<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
-<td><p>Available methods for computation of DBSCAN algorithm:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code> – uses brute-force for neighborhood computation</p></li>
-</ul>
-</td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">leftBlocks</span></code></p></td>
-<td><p>Not applicable</p></td>
-<td><p>Number of blocks that will process observations with value of selected split feature smaller than selected split value.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rightBlocks</span></code></p></td>
-<td><p>Not applicable</p></td>
-<td><p>Number of blocks that will process observations with value of selected split feature greater than selected split value.</p></td>
-</tr>
-</tbody>
-</table>
-<p>In this step, the DBSCAN algorithm accepts the input described below. Pass the Input ID as a parameter to the methods that provide input for your algorithm. For more details, <a class="reference internal" href="../../usage/algorithms.html#algorithms"><span class="std std-ref">Algorithms</span></a>.</p>
-<table class="colwidths-given docutils align-default">
-<colgroup>
-<col style="width: 14%" />
-<col style="width: 86%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Input ID</p></th>
-<th class="head"><p>Input</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">partialData</span></code></p></td>
-<td><p>Pointer to the collection of numeric tables with <span class="math notranslate nohighlight">\(p\)</span> columns and arbitrary number of rows, containing observations to be clustered.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The input can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code>.
-The numeric tables in collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p>
-</div>
-</td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">step3PartialBoundingBoxes</span></code></p></td>
-<td><p>Pointer to the collection of the <span class="math notranslate nohighlight">\(2 \times p\)</span> numeric tables containing bounding boxes computed on step 2 and collected from all nodes
-participating in current iteration of geometric repartitioning process.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The numeric tables in collection can be an object of any class
-derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
-</div>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="section" id="id2">
-<h3>Algorithm Output<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
-<p>In this step, the DBSCAN algorithms calculates the partial results described below.
-Pass the <code class="docutils literal notranslate"><span class="pre">Partial</span> <span class="pre">Result</span> <span class="pre">ID</span></code> as a parameter to the methods that access the partial result of your algorithm.
-For more details, <a class="reference internal" href="../../usage/algorithms.html#algorithms"><span class="std std-ref">Algorithms</span></a>.</p>
-<table class="colwidths-given docutils align-default">
-<colgroup>
-<col style="width: 14%" />
-<col style="width: 86%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Partial Result ID</p></th>
-<th class="head"><p>Result</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">split</span></code></p></td>
-<td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times 2\)</span> numeric table containing information about split for current iteration of geometric repartitioning.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
-but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>,
-<code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
-</div>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="section" id="step-4-on-local-nodes">
-<h2>Step 4 - on Local Nodes<a class="headerlink" href="#step-4-on-local-nodes" title="Permalink to this headline">¶</a></h2>
+<span id="dbscan-step-3"></span><h2>Step 3 - on Local Nodes<a class="headerlink" href="#step-3-on-local-nodes" title="Permalink to this headline">¶</a></h2>
 <p>In this step, the DBSCAN algorithm has the following parameters:</p>
 <table class="colwidths-given docutils align-default">
 <colgroup>
@@ -1052,28 +956,132 @@ For more details, <a class="reference internal" href="../../usage/algorithms.htm
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The input can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code>.
-The numeric tables in collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p>
+The numeric tables in the collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">step3PartialBoundingBoxes</span></code></p></td>
+<td><p>Pointer to the collection of the <span class="math notranslate nohighlight">\(2 \times p\)</span> numeric tables containing bounding boxes computed on <a class="reference internal" href="#dbscan-step-2"><span class="std std-ref">step 2</span></a> and collected from all nodes
+participating in current iteration of geometric repartitioning process.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The numeric tables in collection can be an object of any class
+derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="id2">
+<h3>Algorithm Output<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>In this step, the DBSCAN algorithms calculates the partial results described below.
+Pass the <code class="docutils literal notranslate"><span class="pre">Partial</span> <span class="pre">Result</span> <span class="pre">ID</span></code> as a parameter to the methods that access the partial result of your algorithm.
+For more details, <a class="reference internal" href="../../usage/algorithms.html#algorithms"><span class="std std-ref">Algorithms</span></a>.</p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 86%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Partial Result ID</p></th>
+<th class="head"><p>Result</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">split</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times 2\)</span> numeric table containing information about split for current iteration of geometric repartitioning.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>,
+<code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="step-4-on-local-nodes">
+<span id="dbscan-step-4"></span><h2>Step 4 - on Local Nodes<a class="headerlink" href="#step-4-on-local-nodes" title="Permalink to this headline">¶</a></h2>
+<p>In this step, the DBSCAN algorithm has the following parameters:</p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 75%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Default Valude</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
+<td><p>Available methods for computation of DBSCAN algorithm:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code> – uses brute-force for neighborhood computation</p></li>
+</ul>
+</td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">leftBlocks</span></code></p></td>
+<td><p>Not applicable</p></td>
+<td><p>Number of blocks that will process observations with value of selected split feature smaller than selected split value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rightBlocks</span></code></p></td>
+<td><p>Not applicable</p></td>
+<td><p>Number of blocks that will process observations with value of selected split feature greater than selected split value.</p></td>
+</tr>
+</tbody>
+</table>
+<p>In this step, the DBSCAN algorithm accepts the input described below.
+Pass the <code class="docutils literal notranslate"><span class="pre">Input</span> <span class="pre">ID</span></code> as a parameter to the methods that provide input for your algorithm.
+For more details, <a class="reference internal" href="../../usage/algorithms.html#algorithms"><span class="std std-ref">Algorithms</span></a>.</p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 86%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Input ID</p></th>
+<th class="head"><p>Input</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">partialData</span></code></p></td>
+<td><p>Pointer to the collection of numeric tables with <span class="math notranslate nohighlight">\(p\)</span> columns and arbitrary number of rows, containing observations to be clustered.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The input can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code>.
+The numeric tables in the collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p>
 </div>
 </td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">step4PartialOrders</span></code></p></td>
-<td><p>Pointer to the collection of numeric table with 2 columns and arbitrary number of rows containing information about observations:
+<td><p>Pointer to the collection of numeric table with <span class="math notranslate nohighlight">\(2\)</span> columns and arbitrary number of rows containing information about observations:
 identifier of initial block and index in initial block.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The input can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code>.
-The numeric tables in collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+The numeric tables in the collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
 except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">step4PartialSplits</span></code></p></td>
-<td><p>Pointer to the collection of the <span class="math notranslate nohighlight">\(1 \times 2\)</span> numeric table containing information about split computed on step 3 and collected from all nodes
+<td><p>Pointer to the collection of the <span class="math notranslate nohighlight">\(1 \times 2\)</span> numeric table containing information about split computed on
+<a class="reference internal" href="#dbscan-step-3"><span class="std std-ref">step 3</span></a> and collected from all nodes
 participating in current iteration of geometric repartitioning process.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The input can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code>.
-The numeric tables in collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+The numeric tables in the collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
 except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
@@ -1116,7 +1124,7 @@ but you can define the result as an object of any class derived from <code class
 </div>
 </div>
 <div class="section" id="step-5-on-local-nodes">
-<h2>Step 5 - on Local Nodes<a class="headerlink" href="#step-5-on-local-nodes" title="Permalink to this headline">¶</a></h2>
+<span id="dbscan-step-5"></span><h2>Step 5 - on Local Nodes<a class="headerlink" href="#step-5-on-local-nodes" title="Permalink to this headline">¶</a></h2>
 <p>In this step, the DBSCAN algorithm has the following parameters:</p>
 <table class="colwidths-given docutils align-default">
 <colgroup>
@@ -1176,17 +1184,17 @@ For more details, <a class="reference internal" href="../../usage/algorithms.htm
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The input can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code>.
-The numeric tables in collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p>
+The numeric tables in the collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p>
 </div>
 </td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">step5PartialBoundingBoxes</span></code></p></td>
-<td><p>Pointer to the collection of <span class="math notranslate nohighlight">\(2 \times p\)</span> numeric table containing bounding boxes computed on step 2 and collected from all nodes.
+<td><p>Pointer to the collection of <span class="math notranslate nohighlight">\(2 \times p\)</span> numeric table containing bounding boxes computed on <a class="reference internal" href="#dbscan-step-2"><span class="std std-ref">step 2</span></a> and collected from all nodes.
 Numeric tables in collection should be ordered by the identifiers of initial block of nodes.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The input can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code>.
-The numeric tables in collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+The numeric tables in the collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
 except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
@@ -1211,26 +1219,28 @@ For more details, <a class="reference internal" href="../../usage/algorithms.htm
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">partitionedHaloData</span></code></p></td>
 <td><p>Pointer to the collection of <code class="docutils literal notranslate"><span class="pre">nBlocks</span></code> numeric tables with <span class="math notranslate nohighlight">\(p\)</span> columns and arbitrary number of rows containing observations
-from current node that should be used as halo observations on each node.
-Numeric tables in collection ordered by the identifiers of initial block of nodes.</p></td>
+from current node that should be used as halo observations on each node.</p>
+<p>Numeric tables in the collection are ordered by the identifiers of initial block of nodes.</p>
+</td>
 </tr>
-<tr class="row-odd"><td><p>partitionedHaloDataIndices</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">partitionedHaloDataIndices</span></code></p></td>
 <td><p>Pointer to the collection of <code class="docutils literal notranslate"><span class="pre">nBlocks</span></code> numeric tables with <span class="math notranslate nohighlight">\(1\)</span> column and arbitrary number of rows containing indices of observations
-from current node that should be used as halo observations on each node.
-Numeric tables in collection ordered by the identifiers of initial block of nodes.</p></td>
+from current node that should be used as halo observations on each node.</p>
+<p>Numeric tables in the collection are ordered by the identifiers of initial block of nodes.</p>
+</td>
 </tr>
 </tbody>
 </table>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code> class.
-The numeric tables in collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable`</span>
+The numeric tables in the collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable`</span>
 <span class="pre">except</span> <span class="pre">for</span> <span class="pre">``PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </div>
 </div>
 <div class="section" id="step-6-on-local-nodes">
-<h2>Step 6 - on Local Nodes<a class="headerlink" href="#step-6-on-local-nodes" title="Permalink to this headline">¶</a></h2>
+<span id="dbscan-step-6"></span><h2>Step 6 - on Local Nodes<a class="headerlink" href="#step-6-on-local-nodes" title="Permalink to this headline">¶</a></h2>
 <p>In this step, the DBSCAN algorithm has the following parameters:</p>
 <table class="colwidths-given docutils align-default">
 <colgroup>
@@ -1271,7 +1281,7 @@ The numeric tables in collection can be an object of any class derived from <cod
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">minObservations</span></code></p></td>
 <td><p>Not applicable</p></td>
-<td><p>The number of observations in a neighborhood for an observation to be considered as a core.</p></td>
+<td><p>The number of observations in a neighborhood for an observation to be considered as a <a class="reference internal" href="index.html#term-core-observation"><span class="xref std std-term">core</span></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">memorySavingMode</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
@@ -1300,39 +1310,40 @@ For more details, <a class="reference internal" href="../../usage/algorithms.htm
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The input can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code>.
-The numeric tables in collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p>
+The numeric tables in the collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p>
 </div>
 </td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">haloData</span></code></p></td>
-<td><p>Pointer to the collection of numeric tables with p columns and arbitrary number of rows, containing halo observations for current node computed on step 5.</p>
+<td><p>Pointer to the collection of numeric tables with <span class="math notranslate nohighlight">\(p\)</span> columns and arbitrary number of rows, containing halo observations
+for current node computed on <a class="reference internal" href="#dbscan-step-5"><span class="std std-ref">step 5</span></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The input can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code>.
-The numeric tables in collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p>
+The numeric tables in the collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p>
 </div>
 </td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">haloDataIndices</span></code></p></td>
-<td><p>Pointer to the collection of numeric tables with 1 column and arbitrary number of rows,
-containing indices for halo observations for current node computed on step 5.
-Size of this collection should be equal to the size of collection for haloData Input ID.</p>
+<td><p>Pointer to the collection of numeric tables with <span class="math notranslate nohighlight">\(1\)</span> column and arbitrary number of rows,
+containing indices for halo observations for current node computed on <a class="reference internal" href="#dbscan-step-5"><span class="std std-ref">step 5</span></a>.</p>
+<p>Size of this collection should be equal to the size of collection for <code class="docutils literal notranslate"><span class="pre">haloData</span></code>’s <code class="docutils literal notranslate"><span class="pre">Input</span> <span class="pre">ID</span></code>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The input can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code>.
-The numeric tables in collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+The numeric tables in the collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
 except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">haloDataBlocks</span></code></p></td>
-<td><p>Pointer to the collection of 1 x 1 numeric tables containing identifiers of initial block for halo observations
-for current node computed on step 5.
-Size of this collection should be equal to the size of collection for haloData Input ID.</p>
+<td><p>Pointer to the collection of <span class="math notranslate nohighlight">\(1 \times 1\)</span> numeric tables containing identifiers of initial block for halo observations
+for current node computed on <a class="reference internal" href="#dbscan-step-5"><span class="std std-ref">step 5</span></a>.</p>
+<p>Size of this collection should be equal to the size of collection for <code class="docutils literal notranslate"><span class="pre">haloData</span></code>’s <code class="docutils literal notranslate"><span class="pre">Input</span> <span class="pre">ID</span></code>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The input can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code>.
-The numeric tables in collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+The numeric tables in the collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
 except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
@@ -1342,7 +1353,7 @@ except for <code class="docutils literal notranslate"><span class="pre">PackedTr
 <div class="section" id="id5">
 <h3>Algorithm Output<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <p>In this step, the DBSCAN algorithms calculates the partial results described below.
-Pass the Partial Result ID as a parameter to the methods that access the partial result of your algorithm.
+Pass the <code class="docutils literal notranslate"><span class="pre">Partial</span> <span class="pre">Result</span> <span class="pre">ID</span></code> as a parameter to the methods that access the partial result of your algorithm.
 For more details, <a class="reference internal" href="../../usage/algorithms.html#algorithms"><span class="std std-ref">Algorithms</span></a>.</p>
 <table class="colwidths-given docutils align-default">
 <colgroup>
@@ -1394,7 +1405,7 @@ Numeric tables in collection ordered by the identifiers of initial block of node
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code> class.
-The numeric tables in collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable`</span>
+The numeric tables in the collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable`</span>
 <span class="pre">except</span> <span class="pre">for</span> <span class="pre">``PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
@@ -1404,7 +1415,7 @@ The numeric tables in collection can be an object of any class derived from <cod
 </div>
 </div>
 <div class="section" id="step-7-on-master-node">
-<h2>Step 7 - on Master Node<a class="headerlink" href="#step-7-on-master-node" title="Permalink to this headline">¶</a></h2>
+<span id="dbscan-step-7"></span><h2>Step 7 - on Master Node<a class="headerlink" href="#step-7-on-master-node" title="Permalink to this headline">¶</a></h2>
 <p>In this step, the DBSCAN algorithm has the following parameters:</p>
 <table class="colwidths-given docutils align-default">
 <colgroup>
@@ -1453,7 +1464,7 @@ that the clustering process is finished collected from all nodes.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The input can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code>.
-The numeric tables in collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+The numeric tables in the collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
 except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
@@ -1492,7 +1503,7 @@ but you can define the result as an object of any class derived from <code class
 </div>
 </div>
 <div class="section" id="step-8-on-local-nodes">
-<h2>Step 8 - on Local Nodes<a class="headerlink" href="#step-8-on-local-nodes" title="Permalink to this headline">¶</a></h2>
+<span id="dbscan-step-8"></span><h2>Step 8 - on Local Nodes<a class="headerlink" href="#step-8-on-local-nodes" title="Permalink to this headline">¶</a></h2>
 <p>In this step, the DBSCAN algorithm has the following parameters:</p>
 <table class="colwidths-given docutils align-default">
 <colgroup>
@@ -1568,7 +1579,7 @@ clustering queries that should be processed on the local node collected from all
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The input can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code>.
-The numeric tables in collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+The numeric tables in the collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
 except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
@@ -1591,7 +1602,7 @@ For more details, <a class="reference internal" href="../../usage/algorithms.htm
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>step8ClusterStructure</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">step8ClusterStructure</span></code></p></td>
 <td><p>Pointer to the numeric table with <span class="math notranslate nohighlight">\(4\)</span> columns and arbitrary number of rows
 containing information about current clustering state of observations processed on the local node.</p>
 <div class="admonition note">
@@ -1602,7 +1613,7 @@ but you can define the result as an object of any class derived from <code class
 </div>
 </td>
 </tr>
-<tr class="row-odd"><td><p>step8FinishedFlag</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">step8FinishedFlag</span></code></p></td>
 <td><p>Pointer to <span class="math notranslate nohighlight">\(1 \times 1\)</span> numeric table containing the flag indicating that the clustering process is finished for current node.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1612,7 +1623,7 @@ but you can define the result as an object of any class derived from <code class
 </div>
 </td>
 </tr>
-<tr class="row-even"><td><p>step8NClusters</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">step8NClusters</span></code></p></td>
 <td><p>Pointer to <span class="math notranslate nohighlight">\(1 \times 1\)</span> numeric table containing the current number of clusters found on the local node.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1622,14 +1633,14 @@ but you can define the result as an object of any class derived from <code class
 </div>
 </td>
 </tr>
-<tr class="row-odd"><td><p>step8Queries</p></td>
-<td><p>Pointer to the collection of nBlocks numeric tables with 3 columns and arbitrary number of rows
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">step8Queries</span></code></p></td>
+<td><p>Pointer to the collection of <code class="docutils literal notranslate"><span class="pre">nBlocks</span></code> numeric tables with <span class="math notranslate nohighlight">\(3\)</span> columns and arbitrary number of rows
 containing clustering queries that should be processed on each node. Numeric tables in collection
 ordered by the identifiers of initial block of nodes.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code> class.
-The numeric tables in collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable`</span>
+The numeric tables in the collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable`</span>
 <span class="pre">except</span> <span class="pre">for</span> <span class="pre">``PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
@@ -1639,7 +1650,7 @@ The numeric tables in collection can be an object of any class derived from <cod
 </div>
 </div>
 <div class="section" id="step-9-on-master-node">
-<h2>Step 9 - on Master Node<a class="headerlink" href="#step-9-on-master-node" title="Permalink to this headline">¶</a></h2>
+<span id="dbscan-step-9"></span><h2>Step 9 - on Master Node<a class="headerlink" href="#step-9-on-master-node" title="Permalink to this headline">¶</a></h2>
 <p>In this step, the DBSCAN algorithm has the following parameters:</p>
 <table class="colwidths-given docutils align-default">
 <colgroup>
@@ -1687,7 +1698,7 @@ For more details, <a class="reference internal" href="../../usage/algorithms.htm
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The input can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code>.
-The numeric tables in collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+The numeric tables in the collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
 except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
@@ -1711,7 +1722,7 @@ For more details, <a class="reference internal" href="../../usage/algorithms.htm
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">step9NClusters</span></code></p></td>
-<td><p>Pointer to <span class="math notranslate nohighlight">\(1 \times 1\)</span> numeric table containing the flag indicating that the clustering process is finished on all nodes.</p>
+<td><p>Pointer to <span class="math notranslate nohighlight">\(1 \times 1\)</span> numeric table containing the number of clusters found on all nodes.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
@@ -1739,7 +1750,7 @@ for each node. Numeric tables with offsets are given in the same order as in the
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code> class.
-The numeric tables in collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable`</span>
+The numeric tables in the collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable`</span>
 <span class="pre">except</span> <span class="pre">for</span> <span class="pre">``PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
@@ -1749,7 +1760,7 @@ The numeric tables in collection can be an object of any class derived from <cod
 </div>
 </div>
 <div class="section" id="step-10-on-local-nodes">
-<h2>Step 10 - on Local Nodes<a class="headerlink" href="#step-10-on-local-nodes" title="Permalink to this headline">¶</a></h2>
+<span id="dbscan-step-10"></span><h2>Step 10 - on Local Nodes<a class="headerlink" href="#step-10-on-local-nodes" title="Permalink to this headline">¶</a></h2>
 <p>In this step, the DBSCAN algorithm has the following parameters:</p>
 <table class="colwidths-given docutils align-default">
 <colgroup>
@@ -1787,7 +1798,7 @@ The numeric tables in collection can be an object of any class derived from <cod
 </tbody>
 </table>
 <p>In this step, the DBSCAN algorithm accepts the input described below.
-Pass the Input ID as a parameter to the methods that provide input for your algorithm.
+Pass the <code class="docutils literal notranslate"><span class="pre">Input</span> <span class="pre">ID</span></code> as a parameter to the methods that provide input for your algorithm.
 For more details, <a class="reference internal" href="../../usage/algorithms.html#algorithms"><span class="std std-ref">Algorithms</span></a>.</p>
 <table class="colwidths-given docutils align-default">
 <colgroup>
@@ -1801,7 +1812,8 @@ For more details, <a class="reference internal" href="../../usage/algorithms.htm
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">step10InputClusterStructure</span></code></p></td>
-<td><p>Pointer to the numeric table with 4 columns and arbitrary number of rows containing information about current clustering state of observations processed on the local node.</p>
+<td><p>Pointer to the numeric table with <span class="math notranslate nohighlight">\(4\)</span> columns and arbitrary number of rows containing
+information about current clustering state of observations processed on the local node.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The input can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
@@ -1810,7 +1822,7 @@ except for <code class="docutils literal notranslate"><span class="pre">PackedTr
 </td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">step10ClusterOffset</span></code></p></td>
-<td><p>Pointer to <span class="math notranslate nohighlight">\(1 \times 1\)</span> numeric table containing the offset for cluster numeration on the local node computed on step 9.</p>
+<td><p>Pointer to <span class="math notranslate nohighlight">\(1 \times 1\)</span> numeric table containing the offset for cluster numeration on the local node computed on <a class="reference internal" href="#dbscan-step-9"><span class="std std-ref">step 9</span></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The input can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
@@ -1837,7 +1849,7 @@ For more details, <a class="reference internal" href="../../usage/algorithms.htm
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">step10ClusterStructure</span></code></p></td>
-<td><p>Pointer to the numeric table with 4 columns and arbitrary number of rows containing information about current clustering state of observations processed on the local node.</p>
+<td><p>Pointer to the numeric table with <span class="math notranslate nohighlight">\(4\)</span> columns and arbitrary number of rows containing information about current clustering state of observations processed on the local node.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
@@ -1857,12 +1869,12 @@ but you can define the result as an object of any class derived from <code class
 </td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">step10Queries</span></code></p></td>
-<td><p>Pointer to the collection of nBlocks numeric tables with 4 columns and arbitrary number of rows containing clusters numeration queries that should be processed on each node.
+<td><p>Pointer to the collection of <code class="docutils literal notranslate"><span class="pre">nBlocks</span></code> numeric tables with <span class="math notranslate nohighlight">\(4\)</span> columns and arbitrary number of rows containing clusters numeration queries that should be processed on each node.
 Numeric tables in collection ordered by the identifiers of initial block of nodes.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code> class.
-The numeric tables in collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable`</span>
+The numeric tables in the collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable`</span>
 <span class="pre">except</span> <span class="pre">for</span> <span class="pre">``PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
@@ -1872,7 +1884,7 @@ The numeric tables in collection can be an object of any class derived from <cod
 </div>
 </div>
 <div class="section" id="step-11-on-local-nodes">
-<h2>Step 11 - on Local Nodes<a class="headerlink" href="#step-11-on-local-nodes" title="Permalink to this headline">¶</a></h2>
+<span id="dbscan-step-11"></span><h2>Step 11 - on Local Nodes<a class="headerlink" href="#step-11-on-local-nodes" title="Permalink to this headline">¶</a></h2>
 <p>In this step, the DBSCAN algorithm has the following parameters:</p>
 <table class="colwidths-given docutils align-default">
 <colgroup>
@@ -1910,7 +1922,7 @@ The numeric tables in collection can be an object of any class derived from <cod
 </tbody>
 </table>
 <p>In this step, the DBSCAN algorithm accepts the input described below.
-Pass the Input ID as a parameter to the methods that provide input for your algorithm.
+Pass the <code class="docutils literal notranslate"><span class="pre">Input</span> <span class="pre">ID</span></code> as a parameter to the methods that provide input for your algorithm.
 For more details, <a class="reference internal" href="../../usage/algorithms.html#algorithms"><span class="std std-ref">Algorithms</span></a>.</p>
 <table class="colwidths-given docutils align-default">
 <colgroup>
@@ -1924,7 +1936,7 @@ For more details, <a class="reference internal" href="../../usage/algorithms.htm
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">step11InputClusterStructure</span></code></p></td>
-<td><p>Pointer to the numeric table with 4 columns and arbitrary number of rows
+<td><p>Pointer to the numeric table with <span class="math notranslate nohighlight">\(4\)</span> columns and arbitrary number of rows
 containing information about current clustering state of observations processed on the local node.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1934,12 +1946,12 @@ except for <code class="docutils literal notranslate"><span class="pre">PackedTr
 </td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">step11PartialQueries</span></code></p></td>
-<td><p>Pointer to the collection of numeric tables with 4 columns and arbitrary number of rows
+<td><p>Pointer to the collection of numeric tables with <span class="math notranslate nohighlight">\(4\)</span> columns and arbitrary number of rows
 containing clusters numeration queries that should be processed on the local node collected from all nodes.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The input can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code>.
-The numeric tables in collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+The numeric tables in the collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
 except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
@@ -1949,7 +1961,7 @@ except for <code class="docutils literal notranslate"><span class="pre">PackedTr
 <div class="section" id="id10">
 <h3>Algorithm Output<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
 <p>In this step, the DBSCAN algorithms calculates the partial results described below.
-Pass the Partial Result ID as a parameter to the methods that access the partial result of your algorithm.
+Pass the <code class="docutils literal notranslate"><span class="pre">Partial</span> <span class="pre">Result</span> <span class="pre">ID</span></code> as a parameter to the methods that access the partial result of your algorithm.
 For more details, <a class="reference internal" href="../../usage/algorithms.html#algorithms"><span class="std std-ref">Algorithms</span></a>.</p>
 <table class="colwidths-given docutils align-default">
 <colgroup>
@@ -1963,7 +1975,7 @@ For more details, <a class="reference internal" href="../../usage/algorithms.htm
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">step11ClusterStructure</span></code></p></td>
-<td><p>Pointer to the numeric table with 4 columns and arbitrary number of rows
+<td><p>Pointer to the numeric table with <span class="math notranslate nohighlight">\(4\)</span> columns and arbitrary number of rows
 containing information about current clustering state of observations processed on the local node.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1984,12 +1996,12 @@ but you can define the result as an object of any class derived from <code class
 </td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">step11Queries</span></code></p></td>
-<td><p>Pointer to the collection of nBlocks numeric tables with 4 columns and arbitrary number of rows containing clusters numeration queries that should be processed on each node.
-Numeric tables in collection ordered by the identifiers of initial block of nodes.</p>
+<td><p>Pointer to the collection of <code class="docutils literal notranslate"><span class="pre">nBlocks</span></code> numeric tables with <span class="math notranslate nohighlight">\(4\)</span> columns and arbitrary number of rows containing clusters numeration queries that should be processed on each node.</p>
+<p>Numeric tables in the collection are ordered by the identifiers of initial block of nodes.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code> class.
-The numeric tables in collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable`</span>
+The numeric tables in the collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable`</span>
 <span class="pre">except</span> <span class="pre">for</span> <span class="pre">``PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
@@ -1999,7 +2011,7 @@ The numeric tables in collection can be an object of any class derived from <cod
 </div>
 </div>
 <div class="section" id="step-12-on-local-nodes">
-<h2>Step 12 - on Local Nodes<a class="headerlink" href="#step-12-on-local-nodes" title="Permalink to this headline">¶</a></h2>
+<span id="dbscan-step-12"></span><h2>Step 12 - on Local Nodes<a class="headerlink" href="#step-12-on-local-nodes" title="Permalink to this headline">¶</a></h2>
 <p>In this step, the DBSCAN algorithm has the following parameters:</p>
 <table class="colwidths-given docutils align-default">
 <colgroup>
@@ -2037,7 +2049,7 @@ The numeric tables in collection can be an object of any class derived from <cod
 </tbody>
 </table>
 <p>In this step, the DBSCAN algorithm accepts the input described below.
-Pass the Input ID as a parameter to the methods that provide input for your algorithm.
+Pass the <code class="docutils literal notranslate"><span class="pre">Input</span> <span class="pre">ID</span></code> as a parameter to the methods that provide input for your algorithm.
 For more details, <a class="reference internal" href="../../usage/algorithms.html#algorithms"><span class="std std-ref">Algorithms</span></a>.</p>
 <table class="colwidths-given docutils align-default">
 <colgroup>
@@ -2051,7 +2063,7 @@ For more details, <a class="reference internal" href="../../usage/algorithms.htm
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">step12InputClusterStructure</span></code></p></td>
-<td><p>Pointer to the numeric table with 4 columns and arbitrary number of rows
+<td><p>Pointer to the numeric table with <span class="math notranslate nohighlight">\(4\)</span> columns and arbitrary number of rows
 containing information about current clustering state of observations processed on the local node.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -2061,12 +2073,13 @@ except for <code class="docutils literal notranslate"><span class="pre">PackedTr
 </td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">step12PartialOrders</span></code></p></td>
-<td><p>Pointer to the collection of <span class="math notranslate nohighlight">\(n \times 2\)</span> numeric tables containing information about observations: identifier of initial block and index in initial block.
+<td><p>Pointer to the collection of <span class="math notranslate nohighlight">\(n \times 2\)</span> numeric tables containing information about observations:
+identifier of initial block and index in initial block.
 This information will be required to reconstruct initial blocks after transferring observations among nodes.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The input can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code>.
-The numeric tables in collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+The numeric tables in the collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
 except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
@@ -2076,7 +2089,7 @@ except for <code class="docutils literal notranslate"><span class="pre">PackedTr
 <div class="section" id="id11">
 <h3>Algorithm Output<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
 <p>In this step, the DBSCAN algorithms calculates the partial results described below.
-Pass the Partial Result ID as a parameter to the methods that access the partial result of your algorithm.
+Pass the <code class="docutils literal notranslate"><span class="pre">Partial</span> <span class="pre">Result</span> <span class="pre">ID</span></code> as a parameter to the methods that access the partial result of your algorithm.
 For more details, <a class="reference internal" href="../../usage/algorithms.html#algorithms"><span class="std std-ref">Algorithms</span></a>.</p>
 <table class="colwidths-given docutils align-default">
 <colgroup>
@@ -2090,23 +2103,23 @@ For more details, <a class="reference internal" href="../../usage/algorithms.htm
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">assignmentQueries</span></code></p></td>
-<td><p>Pointer to the collection of nBlocks numeric tables with 2 columns and arbitrary number of rows
-containing clusters assigning queries that should be processed on each node.
-Numeric tables in collection ordered by the identifiers of initial block of nodes.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code> class.
-The numeric tables in collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable`</span>
-<span class="pre">except</span> <span class="pre">for</span> <span class="pre">``PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
-</div>
+<td><p>Pointer to the collection of <code class="docutils literal notranslate"><span class="pre">nBlocks</span></code> numeric tables with <span class="math notranslate nohighlight">\(2\)</span> columns and arbitrary number of rows
+containing clusters assigning queries that should be processed on each node.</p>
+<p>Numeric tables in the collection are ordered by the identifiers of initial block of nodes.</p>
 </td>
 </tr>
 </tbody>
 </table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code> class.
+The numeric tables in the collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable`</span>
+<span class="pre">except</span> <span class="pre">for</span> <span class="pre">``PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
 </div>
 </div>
 <div class="section" id="step-13-on-local-nodes">
-<h2>Step 13 - on Local Nodes<a class="headerlink" href="#step-13-on-local-nodes" title="Permalink to this headline">¶</a></h2>
+<span id="dbscan-step-13"></span><h2>Step 13 - on Local Nodes<a class="headerlink" href="#step-13-on-local-nodes" title="Permalink to this headline">¶</a></h2>
 <p>In this step, the DBSCAN algorithm has the following parameters:</p>
 <table class="colwidths-given docutils align-default">
 <colgroup>
@@ -2150,12 +2163,12 @@ For more details, <a class="reference internal" href="../../usage/algorithms.htm
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">partialAssignmentQueries</span></code></p></td>
-<td><p>Pointer to the collection of numeric tables with 2 columns and arbitrary number of rows
+<td><p>Pointer to the collection of numeric tables with <span class="math notranslate nohighlight">\(2\)</span> columns and arbitrary number of rows
 containing clusters assigning queries that should be processed on the local node collected from all nodes.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The input can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">DataCollection</span></code>.
-The numeric tables in collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+The numeric tables in the collection can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
 except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
@@ -2180,8 +2193,8 @@ For more details, <a class="reference internal" href="../../usage/algorithms.htm
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">step13Assignments</span></code></p></td>
 <td><p>Pointer to the <span class="math notranslate nohighlight">\(n \times 1\)</span> numeric table with assignments of cluster indices to observations
-processed on step 1 on the local node.
-Noise observations have the assignment equal to <span class="math notranslate nohighlight">\(-1\)</span>.</p>
+processed on <a class="reference internal" href="#dbscan-step-1"><span class="std std-ref">step 1</span></a> on the local node.
+<a class="reference internal" href="index.html#term-noise-observation"><span class="xref std std-term">Noise observations</span></a> have the assignment equal to <span class="math notranslate nohighlight">\(-1\)</span>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
@@ -2204,7 +2217,7 @@ but you can define the result as an object of any class derived from <code class
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">step13AssignmentsQueries</span></code></p></td>
-<td><p>Pointer to the numeric table with 2 columns and arbitrary number of rows
+<td><p>Pointer to the numeric table with <span class="math notranslate nohighlight">\(2\)</span> columns and arbitrary number of rows
 containing clusters assigning queries that should be processed on the local node.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -2221,8 +2234,9 @@ but you can define the result as an object of any class derived from <code class
 <div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>C++: dbscan_dense_distr.cpp</p></li>
-<li><p>Python*: dbscan_batch.py</p></li>
+<li><p><a class="reference external" href="https://github.com/intel/daal/tree/master/examples/cpp/source/dbscan/dbscan_dense_distr.cpp">C++</a></p></li>
+<li><p><a class="reference external" href="https://github.com/intel/daal/tree/master/examples/java/com/intel/daal/examples/dbscan/DBSCANDenseDistr.java">Java*</a></p></li>
+<li><p><a class="reference external" href="https://github.com/IntelPython/daal4py/tree/master/examples/dbscan_spmd.py">Python*</a></p></li>
 </ul>
 </div>
 </div>

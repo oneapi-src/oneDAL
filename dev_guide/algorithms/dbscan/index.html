@@ -699,21 +699,28 @@ marking as outliers observations that lie alone in low-density regions (whose ne
 <h2>Details<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h2>
 <p>Given the set <span class="math notranslate nohighlight">\(X = \{x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})\}\)</span>
 of <span class="math notranslate nohighlight">\(n\)</span> <span class="math notranslate nohighlight">\(p\)</span>-dimensional feature vectors (further referred as observations),
-a positive floating-point number epsilon and a positive integer minObservations,
+a positive floating-point number <code class="docutils literal notranslate"><span class="pre">epsilon</span></code> and a positive integer <code class="docutils literal notranslate"><span class="pre">minObservations</span></code>,
 the problem is to get clustering assignments for each input observation, based on the definitions below <a class="reference internal" href="../../../bibliography.html#ester96" id="id2"><span>[Ester96]</span></a>:</p>
-<p>An observation <span class="math notranslate nohighlight">\(x\)</span> is called core observation if at least <code class="docutils literal notranslate"><span class="pre">minObservations</span></code>
-input observations (including <span class="math notranslate nohighlight">\(x\)</span>) are within distance epsilon from observation <span class="math notranslate nohighlight">\(x\)</span>;</p>
-<p>An observation <span class="math notranslate nohighlight">\(y\)</span> is directly reachable from <span class="math notranslate nohighlight">\(x\)</span> if <span class="math notranslate nohighlight">\(y\)</span> is within distance epsilon from core observation <span class="math notranslate nohighlight">\(x\)</span>.
-Observations are only said to be directly reachable from core observations.</p>
-<p>An observation <span class="math notranslate nohighlight">\(y\)</span> is reachable from observation <span class="math notranslate nohighlight">\(x\)</span> if there is a path <span class="math notranslate nohighlight">\(x_1, \ldots, x_m\)</span>
-with <span class="math notranslate nohighlight">\(x_1 = x\)</span> and <span class="math notranslate nohighlight">\(x_m = y\)</span>, where each <span class="math notranslate nohighlight">\(x_{i+1}\)</span> is directly reachable from <span class="math notranslate nohighlight">\(x_i\)</span>.
-This implies that all observations on the path must be core observations, with the possible exception of <span class="math notranslate nohighlight">\(y\)</span>.</p>
-<p>All observations not reachable from any other observation are noise observations.</p>
-<p>Two observations <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(y\)</span> is considered to be in the same cluster if there is a core observation <span class="math notranslate nohighlight">\(z\)</span>,
-that <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(y\)</span> are reachable from <span class="math notranslate nohighlight">\(z\)</span>.</p>
-<p>Each cluster will get a unique identifier, an integer number from <span class="math notranslate nohighlight">\(0\)</span> to (total number of clusters – <span class="math notranslate nohighlight">\(1\)</span>).
-Assignment of each observation is an identifier of the cluster to which it belongs,
-or <span class="math notranslate nohighlight">\(-1\)</span> if the observation considered to be a noise observation.</p>
+<dl class="glossary simple">
+<dt id="term-core-observation">core observation</dt><dd><p>An observation <span class="math notranslate nohighlight">\(x\)</span> is called core observation if at least <code class="docutils literal notranslate"><span class="pre">minObservations</span></code>
+input observations (including <span class="math notranslate nohighlight">\(x\)</span>) are within distance <code class="docutils literal notranslate"><span class="pre">epsilon</span></code> from observation <span class="math notranslate nohighlight">\(x\)</span>;</p>
+</dd>
+<dt id="term-directly-reachable">directly reachable</dt><dd><p>An observation <span class="math notranslate nohighlight">\(y\)</span> is directly reachable from <span class="math notranslate nohighlight">\(x\)</span> if <span class="math notranslate nohighlight">\(y\)</span> is within distance <code class="docutils literal notranslate"><span class="pre">epsilon</span></code> from <a class="reference internal" href="#term-core-observation"><span class="xref std std-term">core observation</span></a> <span class="math notranslate nohighlight">\(x\)</span>.
+Observations are only said to be directly reachable from <a class="reference internal" href="#term-core-observation"><span class="xref std std-term">core observations</span></a>.</p>
+</dd>
+<dt id="term-reachable">reachable</dt><dd><p>An observation <span class="math notranslate nohighlight">\(y\)</span> is reachable from an observation <span class="math notranslate nohighlight">\(x\)</span> if there is a path <span class="math notranslate nohighlight">\(x_1, \ldots, x_m\)</span>
+with <span class="math notranslate nohighlight">\(x_1 = x\)</span> and <span class="math notranslate nohighlight">\(x_m = y\)</span>, where each <span class="math notranslate nohighlight">\(x_{i+1}\)</span> is <a class="reference internal" href="#term-directly-reachable"><span class="xref std std-term">directly reachable</span></a> from <span class="math notranslate nohighlight">\(x_i\)</span>.
+This implies that all observations on the path must be <a class="reference internal" href="#term-core-observation"><span class="xref std std-term">core observations</span></a>, with the possible exception of <span class="math notranslate nohighlight">\(y\)</span>.</p>
+</dd>
+<dt id="term-noise-observation">noise observation</dt><dd><p>Noise observations are observations that are <a class="reference internal" href="#term-reachable"><span class="xref std std-term">not reachable</span></a> from any other observation.</p>
+</dd>
+<dt id="term-cluster">cluster</dt><dd><p>Two observations <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(y\)</span> are considered to be in the same cluster if there is a <a class="reference internal" href="#term-core-observation"><span class="xref std std-term">core observation</span></a> <span class="math notranslate nohighlight">\(z\)</span>,
+and <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(y\)</span> are both <a class="reference internal" href="#term-reachable"><span class="xref std std-term">reachable</span></a> from <span class="math notranslate nohighlight">\(z\)</span>.</p>
+</dd>
+</dl>
+<p>Each cluster gets a unique identifier, an integer number from <span class="math notranslate nohighlight">\(0\)</span> to <span class="math notranslate nohighlight">\(\text{total number of clusters } – 1\)</span>.
+Each observation is assigned an identifier of the <a class="reference internal" href="#term-cluster"><span class="xref std std-term">cluster</span></a> it belongs to,
+or <span class="math notranslate nohighlight">\(-1\)</span> if the observation considered to be a <a class="reference internal" href="#term-noise-observation"><span class="xref std std-term">noise observation</span></a>.</p>
 </div>
 <div class="section" id="computation">
 <h2>Computation<a class="headerlink" href="#computation" title="Permalink to this headline">¶</a></h2>

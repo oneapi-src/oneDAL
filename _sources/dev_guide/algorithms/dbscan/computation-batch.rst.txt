@@ -20,6 +20,7 @@ Batch Processing
 - `Algorithm Parameters`_
 - `Algorithm Input`_
 - `Algorithm Output`_
+- `Examples`_
 
 Algorithm Parameters
 ********************
@@ -47,7 +48,7 @@ The DBSCAN clustering algorithm has the following parameters:
      - The maximum distance between observations lying in the same neighborhood.
    * - ``minObservations``
      - Not applicable
-     - The number of observations in a neighborhood for an observation to be considered as a core one.
+     - The number of observations in a neighborhood for an observation to be considered as a :term:`core <core observation>` one.
    * - ``memorySavingMode``
      - ``false``
      - If flag is set to false, all neighborhoods will be computed and stored prior to clustering.
@@ -88,6 +89,7 @@ For more details, see :ref:`algorithms`.
        
          The input can be an object of any class derived from ``NumericTable``
          except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``.
+         
          By default all weights are equal to :math:`1`.
 
 Algorithm Output
@@ -105,7 +107,8 @@ For more details, see :ref:`algorithms`.
      - Result
    * - ``assignments``
      - Pointer to the :math:`n \times 1` numeric table with assignments of cluster indices to observations in the input data.
-       Noise observations have the assignment equal to -1.
+       
+       :term:`Noise observations <noise observation>` have the assignment equal to :math:`-1`.
 
    * - ``nClusters``
      - Pointer to the :math:`1 \times 1` numeric table with the total number of clusters found by the algorithm.
@@ -123,6 +126,6 @@ For more details, see :ref:`algorithms`.
 Examples
 ********
 
-- C++: dbscan_dense_batch.cpp
-- Java*: DBSCANDenseBatch.java
-- Python*: dbscan_batch.py
+- :cpp_example:`C++ <dbscan/dbscan_dense_batch.cpp>`
+- :java_example:`Java* <dbscan/DBSCANDenseBatch.java>`
+- :daal4py_example:`Python* <dbscan_batch.py>`
