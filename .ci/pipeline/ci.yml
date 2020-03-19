@@ -46,9 +46,9 @@ jobs:
       source activate base
       conda-env list
       conda activate base
-      conda create -y -n conformance
-      conda activate conformance
       conda list
+      conda create -y -n conformance python=3.7
+      conda activate conformance
       conda install -y -c conda-forge mpich tbb-devel cython jinja2 numpy clang-tools
       export TBBROOT=$CONDA_PREFIX
       export MPIROOT=$CONDA_PREFIX
@@ -59,13 +59,34 @@ jobs:
       echo ACTIVATE_CONFORMANCE_ENVIROMENT
       conda activate conformance
       conda list
+      echo
+      echo
+      echo
+      echo DAALROOT
+      echo $DAALROOT
+      echo
+      echo TBBROOT
+      echo $TBBROOT
+      echo
+      echo MPIROOT
+      echo $MPIROOT
+      echo
+      echo CPATH
+      echo $CPATH
+      echo
+      echo LD_LIBRARY_PATH
+      echo $LD_LIBRARY_PATH
+      echo
       echo START
+      echo
       python daal4py/setup.py develop
+      echo
       conda activate conformance
-      conda install -c intel scikit-learn
-      conda install -c conda-forge pytest
+      conda install -y -c intel scikit-learn
+      conda install -y -c conda-forge pytest
       conda activate conformance
       python .ci/conformance/run_tests.py
+    timeoutInMinutes: 40
     displayName: 'Create Anaconda environment'
   - task: PublishPipelineArtifact@0
     inputs:
