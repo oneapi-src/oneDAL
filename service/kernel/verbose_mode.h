@@ -58,7 +58,7 @@ struct json
     json();
 
     // bool
-    json & put(const char * const key, const bool & val);
+    json & put(const char * const key, const bool val);
 
     // general enum
     template <typename Value>
@@ -145,7 +145,6 @@ private:
 
     void end();
 
-    // todo: mv2cpp
     void write_escape(const char * const str);
 
     template <typename ValPtr>
@@ -169,12 +168,10 @@ auto json_print(json & writer, const ValPtr p) -> typename std::enable_if<std::i
     }
 }
 
-// mv2cpp or use inline to break ODR
 // algorithms::kmeans::Parameter &
 void json_print(json & writer, const algorithms::kmeans::Parameter & val);
 
 // data_management::NumericTable &
-// todo: mv2cpp
 void json_print(json & writer, const data_management::NumericTable & val);
 
 void json_print(json & writer, ...);
@@ -195,12 +192,6 @@ template <>
 constexpr const char * fpTypeToStr<double>()
 {
     return "double";
-}
-
-template <>
-constexpr const char * fpTypeToStr<int>()
-{
-    return "int";
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -239,9 +230,9 @@ private:
     std::clock_t start = 0;
 };
 
-#define buildwithverbose 1
+#define VERBOSE_BUILD_ENABLED 1
 
-#if buildwithverbose
+#if VERBOSE_BUILD_ENABLED
 
     // we can't use if(verbose::level) kernel_verbose_raii(...) because it will be scope
     #define SHOW_STAT0()     ::daal::service::verbose_mode::kernel_verbose_raii<algorithmFPType, cpu> raii_timer(__FILE__);
@@ -272,7 +263,6 @@ private:
         ::daal::service::verbose_mode::kernel_verbose_raii<algorithmFPType, cpu> raii_timer( \
             __FILE__, #arg0, arg0, #arg1, arg1, #arg2, arg2, #arg3, arg3, #arg4, arg4, #arg5, arg5, #arg6, arg6, #arg7, arg7, arg8, arg9);
 
-    // todo: #define SHOW_STAT(...) if(verbose::level) verbose_unroll_args(__VA_ARGS__);
 #else
     #define SHOW_STAT0(...)  ((void)0);
     #define SHOW_STAT1(...)  ((void)0);
@@ -285,7 +275,7 @@ private:
     #define SHOW_STAT8(...)  ((void)0);
     #define SHOW_STAT9(...)  ((void)0);
     #define SHOW_STAT10(...) ((void)0);
-#endif // buildwithverbose
+#endif // VERBOSE_BUILD_ENABLED
 
 } // namespace verbose_mode
 } // namespace service

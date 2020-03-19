@@ -15,9 +15,9 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <cstdio>    // std::printf
-#include <cstdlib>   // std::getenv
-#include <exception> // std::terminate
+#include <stdio.h>  // printf (C language)
+#include <cstdlib>  // std::getenv
+#include <stdlib.h> // exit (C language)
 
 #include "verbose_mode.h"
 
@@ -31,25 +31,24 @@ const char * cpuTypeToStr(const CpuType type)
 {
     switch (type)
     {
-    case sse2: return "Intel(R) Streaming SIMD Extensions 2 (Intel(R) SSE2)";
-    case ssse3: return "Supplemental Streaming SIMD Extensions 3 (SSSE3)";
-    case sse42: return "Intel(R) Streaming SIMD Extensions 4.2 (Intel(R) SSE4.2)";
-    case avx: return "Intel(R) Advanced Vector Extensions (Intel(R) AVX)";
-    case avx2: return "Intel(R) Advanced Vector Extensions 2 (Intel(R) AVX2)";
-    case avx512_mic: return "Intel(R) Xeon Phi(TM) processors/coprocessors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512)";
-    case avx512: return "Intel(R) Xeon(R) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512)";
+    case sse2: return "Intel(R) SSE2";
+    case ssse3: return "SSSE3";
+    case sse42: return "Intel(R) SSE4.2";
+    case avx: return "Intel(R) AVX";
+    case avx2: return "Intel(R) AVX2";
+    case avx512_mic: return "Intel(R) AVX-512";
+    case avx512: return "Intel(R) AVX-512";
 
     default: return "Unknown cpu type";
     };
 }
 
-json::json() : depth(1), need_comma(false)
+json::json() : depth(0), need_comma(false)
 {
-    write("{");
+    begin();
 }
 
-// bool
-json & json::put(const char * const key, const bool & val)
+json & json::put(const char * const key, const bool val)
 {
     comma_if_needed();
     need_comma = true;
@@ -60,7 +59,6 @@ json & json::put(const char * const key, const bool & val)
     return *this;
 }
 
-// char*
 json & json::put(const char * const key, const char * const str)
 {
     comma_if_needed();
@@ -118,7 +116,7 @@ void json::end()
 void json::write_escape(const char * const str)
 {
     write('"');
-    for (const char * c = str; *c; ++c)
+    for (const char * c = str; '\0' != *c; ++c)
     {
         switch (*c)
         {
@@ -144,48 +142,103 @@ json::~json()
 
 void json::write(const char * const str)
 {
-    if (0 > std::printf("%s", str)) std::terminate();
+    if (0 > printf("%s", str)) exit(1);
 }
 
 void json::write(const char c)
 {
-    if (0 > std::printf("%c", c)) std::terminate();
+    if (0 > printf("%c", c)) exit(1);
 }
 
 void json::write(const int i)
 {
-    if (0 > std::printf("%d", i)) std::terminate();
+    if (0 > printf("%d", i)) exit(1);
 }
 
 void json::write(const unsigned int u)
 {
-    if (0 > std::printf("%u", u)) std::terminate();
+    if (0 > printf("%u", u)) exit(1);
 }
 
 void json::write(const unsigned long u)
 {
-    if (0 > std::printf("%lu", u)) std::terminate();
+    if (0 > printf("%lu", u)) exit(1);
 }
 
 void json::write(const long long int i)
 {
-    if (0 > std::printf("%lld", i)) std::terminate();
+    if (0 > printf("%lld", i)) exit(1);
 }
 
 void json::write(const unsigned long long int u)
 {
-    if (0 > std::printf("%llu", u)) std::terminate();
+    if (0 > printf("%llu", u)) exit(1);
 }
 
 void json::write(const double d)
 {
-    if (0 > std::printf("%f", d)) std::terminate();
+    if (0 > printf("%f", d)) exit(1);
+}
+
+template <typename Parameter>
+auto print_common_parameters_clusters(json & writer, const Parameter & val) -> decltype(val.nClusters, void())
+{
+    writer.put("nClusters", val.nClusters);
+}
+template <typename... Args>
+void print_common_parameters_clusters(json &, Args...)
+{}
+
+template <typename Parameter>
+auto print_common_parameters_iterations(json & writer, const Parameter & val) -> decltype(val.maxIterations, void())
+{
+    writer.put("maxIterations", val.maxIterations);
+}
+template <typename... Args>
+void print_common_parameters_iterations(json &, Args...)
+{}
+
+template <typename Parameter>
+auto print_common_parameters_accuracy(json & writer, const Parameter & val) -> decltype(val.accuracyThreshold, void())
+{
+    writer.put("accuracyThreshold", val.accuracyThreshold);
+}
+template <typename... Args>
+void print_common_parameters_accuracy(json &, Args...)
+{}
+
+template <typename Parameter>
+auto print_common_parameters_batchIndices(json & writer, const Parameter & val) -> decltype(val.batchIndices, void())
+{
+    writer.put("batchIndices", val.batchIndices);
+}
+template <typename... Args>
+void print_common_parameters_batchIndices(json &, Args...)
+{}
+
+template <typename Parameter>
+auto print_common_parameters_batchSize(json & writer, const Parameter & val) -> decltype(val.batchSize, void())
+{
+    writer.put("batchSize", val.batchSize);
+}
+template <typename... Args>
+void print_common_parameters_batchSize(json &, Args...)
+{}
+
+template <typename Parameter>
+void print_common_parameters(json & writer, const Parameter & val)
+{
+    print_common_parameters_clusters(writer, val);
+    print_common_parameters_iterations(writer, val);
+    print_common_parameters_accuracy(writer, val);
+    print_common_parameters_batchIndices(writer, val);
+    print_common_parameters_batchSize(writer, val);
 }
 
 // algorithms::kmeans::Parameter &
 void json_print(json & writer, const algorithms::kmeans::Parameter & val)
 {
-    writer.put("nClusters", val.nClusters).put("maxIterations", val.maxIterations).put("accuracyThreshold", val.accuracyThreshold);
+    print_common_parameters(writer, val);
     writer.put("gamma", val.gamma).put("distanceType", val.distanceType).put("assignFlag", val.assignFlag);
 }
 
@@ -194,7 +247,8 @@ void json_print(json & writer, const data_management::NumericTable & val)
 {
     writer.put("numberOfColumns", val.getNumberOfColumns()).put("numberOfRows", val.getNumberOfRows());
     writer.put("dataLayout", val.getDataLayout()).put("dataMemoryStatus", val.getDataMemoryStatus());
-    // if verbose level 3 - show small part of array
+    writer.put("dataMemoryStatus", val.getDataMemoryStatus());
+    // TODO: if verbose level 3 - show small part of array
 }
 
 void json_print(json & writer, ...) {}
