@@ -1,4 +1,3 @@
-#!/bin/bash
 echo
 echo "Test adaboost download started."
 echo

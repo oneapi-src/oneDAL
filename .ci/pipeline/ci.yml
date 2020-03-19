@@ -96,7 +96,7 @@ jobs:
       python run_tests.py
       cd ../../
       pwd
-    timeoutInMinutes: 40
+    timeoutInMinutes: 15
     displayName: 'Create Anaconda environment'
   - task: PublishPipelineArtifact@0
     inputs:
