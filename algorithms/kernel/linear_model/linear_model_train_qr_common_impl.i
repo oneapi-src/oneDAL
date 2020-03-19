@@ -78,10 +78,10 @@ Status CommonKernel<algorithmFPType, cpu>::computeQRForBlock(DAAL_INT p, DAAL_IN
     DAAL_CHECK(info == 0, services::ErrorLinearRegressionInternal);
 
     /* Copy result into matrix R */
-    const DAAL_INT xOffset       = (n > p ? (n - p) * p : 0);
-    const DAAL_INT rOffset       = (n > p ? 0 : (p - n) * p);
-    const DAAL_INT nRowsInR      = daal::services::internal::min<cpu, DAAL_INT>(p, n);
-    const DAAL_INT jOffset       = (n > p ? 0 : p - n);
+    const DAAL_INT xOffset             = (n > p ? (n - p) * p : 0);
+    const DAAL_INT rOffset             = (n > p ? 0 : (p - n) * p);
+    const DAAL_INT nRowsInR            = daal::services::internal::min<cpu, DAAL_INT>(p, n);
+    const DAAL_INT jOffset             = (n > p ? 0 : p - n);
     const algorithmFPType * const xPtr = x + xOffset;
     algorithmFPType * const rPtr       = r + rOffset;
 
