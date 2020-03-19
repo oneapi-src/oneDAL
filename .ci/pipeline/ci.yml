@@ -82,7 +82,8 @@ jobs:
       pwd
       cd daal4py
       pwd
-      python daal4py/setup.py develop
+      python setup.py develop
+      cd ..
       pwd
       echo
       conda activate conformance
