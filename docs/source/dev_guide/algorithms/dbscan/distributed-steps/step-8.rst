@@ -75,7 +75,7 @@ For more details, :ref:`algorithms`.
        .. include:: distributed-steps/includes/default_result_numeric_table.rst
 
    * - ``step8Queries``
-     - Pointer to the collection of ``nBlocks`` numeric tables with 3 columns and arbitrary number of rows
+     - Pointer to the collection of ``nBlocks`` numeric tables with :math:`3` columns and arbitrary number of rows
        containing clustering queries that should be processed on each node. Numeric tables in collection
        ordered by the identifiers of initial block of nodes.
 

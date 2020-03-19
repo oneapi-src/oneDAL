@@ -58,6 +58,7 @@ For more details, :ref:`algorithms`.
    * - ``assignmentQueries``
      - Pointer to the collection of ``nBlocks`` numeric tables with :math:`2` columns and arbitrary number of rows
        containing clusters assigning queries that should be processed on each node.
-       Numeric tables in collection ordered by the identifiers of initial block of nodes.
 
-       .. include:: distributed-steps/includes/default_result_data_collection.rst
+       Numeric tables in the collection are ordered by the identifiers of initial block of nodes.       
+
+.. include:: distributed-steps/includes/default_result_data_collection.rst
