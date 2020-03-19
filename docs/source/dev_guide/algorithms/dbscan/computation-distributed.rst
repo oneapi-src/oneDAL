@@ -35,7 +35,8 @@ use the general schema described in :ref:`algorithms` as follows:
 - `Step 11 - on Local Nodes`_
 - `Step 12 - on Local Nodes`_
 - `Step 13 - on Local Nodes`_
-- `Examples`_
+
+You can find the links to `examples`_ at the end of this page.
 
 .. _dbscan_step_1:
 
