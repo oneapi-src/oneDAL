@@ -74,6 +74,12 @@ struct json
         write('"');
         return *this;
     }
+    template <>
+    json & put(const char * const key, const data_management::NumericTableIface::StorageLayout &);
+    template <>
+    json & put(const char * const key, const data_management::NumericTableIface::MemoryStatus &);
+    template <>
+    json & put(const char * const key, const algorithms::kmeans::DistanceType &);
 
     // char*
     json & put(const char * const key, const char * const str);
@@ -120,12 +126,11 @@ struct json
         return *this;
     }
 
+    // begin|end new nested object in json
     json & put(const char * const key, const obj_begin_t &);
-
     json & put(const obj_end_t &);
 
     void finalize();
-
     ~json();
 
 private:
@@ -168,6 +173,7 @@ auto json_print(json & writer, const ValPtr p) -> typename std::enable_if<std::i
     }
 }
 
+// todo: move it inside class; to consistant w/ enum
 // algorithms::kmeans::Parameter &
 void json_print(json & writer, const algorithms::kmeans::Parameter & val);
 

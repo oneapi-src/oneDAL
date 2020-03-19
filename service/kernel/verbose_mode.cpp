@@ -70,6 +70,52 @@ json & json::put(const char * const key, const char * const str)
     return *this;
 }
 
+template <>
+json & json::put(const char * const key, const data_management::NumericTableIface::StorageLayout & val)
+{
+    switch (val)
+    {
+    case data_management::NumericTableIface::StorageLayout::soa: put(key, "soa"); break;
+    case data_management::NumericTableIface::StorageLayout::aos: put(key, "aos"); break;
+    case data_management::NumericTableIface::StorageLayout::csrArray: put(key, "csrArray"); break;
+    case data_management::NumericTableIface::StorageLayout::upperPackedSymmetricMatrix: put(key, "upperPackedSymmetricMatrix"); break;
+    case data_management::NumericTableIface::StorageLayout::lowerPackedSymmetricMatrix: put(key, "lowerPackedSymmetricMatrix"); break;
+    case data_management::NumericTableIface::StorageLayout::upperPackedTriangularMatrix: put(key, "upperPackedTriangularMatrix"); break;
+    case data_management::NumericTableIface::StorageLayout::lowerPackedTriangularMatrix: put(key, "lowerPackedTriangularMatrix"); break;
+    case data_management::NumericTableIface::StorageLayout::arrow: put(key, "arrow"); break;
+    case data_management::NumericTableIface::StorageLayout::layout_unknown: put(key, "layout_unknown"); break;
+
+    default: put(key, "unknown"); break;
+    }
+    return *this;
+}
+
+template <>
+json & json::put(const char * const key, const data_management::NumericTableIface::MemoryStatus & val)
+{
+    switch (val)
+    {
+    case data_management::NumericTableIface::MemoryStatus::notAllocated: put(key, "notAllocated"); break;
+    case data_management::NumericTableIface::MemoryStatus::userAllocated: put(key, "userAllocated"); break;
+    case data_management::NumericTableIface::MemoryStatus::internallyAllocated: put(key, "internallyAllocated"); break;
+
+    default: put(key, "unknown"); break;
+    }
+    return *this;
+}
+
+template <>
+json & json::put(const char * const key, const algorithms::kmeans::DistanceType & val)
+{
+    switch (val)
+    {
+    case algorithms::kmeans::euclidean: put(key, "euclidean"); break;
+
+    default: put(key, "unknown"); break;
+    }
+    return *this;
+}
+
 json & json::put(const char * const key, const obj_begin_t &)
 {
     comma_if_needed();
@@ -247,7 +293,6 @@ void json_print(json & writer, const data_management::NumericTable & val)
 {
     writer.put("numberOfColumns", val.getNumberOfColumns()).put("numberOfRows", val.getNumberOfRows());
     writer.put("dataLayout", val.getDataLayout()).put("dataMemoryStatus", val.getDataMemoryStatus());
-    writer.put("dataMemoryStatus", val.getDataMemoryStatus());
     // TODO: if verbose level 3 - show small part of array
 }
 
