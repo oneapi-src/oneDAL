@@ -58,7 +58,7 @@ For more details, :ref:`algorithms`.
        .. include:: distributed-steps/includes/input_data_collection.rst
 
    * - ``step5PartialBoundingBoxes``
-     - Pointer to the collection of :math:`2 \times p` numeric table containing bounding boxes computed on step 2 and collected from all nodes.
+     - Pointer to the collection of :math:`2 \times p` numeric table containing bounding boxes computed on :ref:`step 2 <dbscan_step_2>` and collected from all nodes.
        Numeric tables in collection should be ordered by the identifiers of initial block of nodes.
 
        .. include:: distributed-steps/includes/input_data_collection_with_exceptions.rst
@@ -81,7 +81,7 @@ For more details, :ref:`algorithms`.
        from current node that should be used as halo observations on each node.
        Numeric tables in collection ordered by the identifiers of initial block of nodes.
 
-   * - partitionedHaloDataIndices
+   * - ``partitionedHaloDataIndices``
      - Pointer to the collection of ``nBlocks`` numeric tables with :math:`1` column and arbitrary number of rows containing indices of observations
        from current node that should be used as halo observations on each node.
        Numeric tables in collection ordered by the identifiers of initial block of nodes.

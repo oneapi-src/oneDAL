@@ -18,7 +18,9 @@ In this step, the DBSCAN algorithm has the following parameters:
 
 .. include:: distributed-steps/includes/parameters_blocks_left_right.rst
 
-In this step, the DBSCAN algorithm accepts the input described below. Pass the Input ID as a parameter to the methods that provide input for your algorithm. For more details, :ref:`algorithms`.
+In this step, the DBSCAN algorithm accepts the input described below.
+Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
+For more details, :ref:`algorithms`.
 
 .. list-table::
    :widths: 10 60
@@ -32,7 +34,7 @@ In this step, the DBSCAN algorithm accepts the input described below. Pass the I
        .. include:: distributed-steps/includes/input_data_collection.rst
 
    * - ``step3PartialBoundingBoxes``
-     - Pointer to the collection of the :math:`2 \times p` numeric tables containing bounding boxes computed on step 2 and collected from all nodes
+     - Pointer to the collection of the :math:`2 \times p` numeric tables containing bounding boxes computed on :ref:`step 2 <dbscan_step_2>` and collected from all nodes
        participating in current iteration of geometric repartitioning process.
        
        .. note:: 

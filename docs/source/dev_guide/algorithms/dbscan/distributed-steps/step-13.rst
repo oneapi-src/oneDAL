@@ -29,7 +29,7 @@ For more details, :ref:`algorithms`.
    * - Input ID
      - Input
    * - ``partialAssignmentQueries``
-     - Pointer to the collection of numeric tables with 2 columns and arbitrary number of rows
+     - Pointer to the collection of numeric tables with :math:`2` columns and arbitrary number of rows
        containing clusters assigning queries that should be processed on the local node collected from all nodes.
 
        .. include:: distributed-steps/includes/input_data_collection_with_exceptions.rst
@@ -49,8 +49,8 @@ For more details, :ref:`algorithms`.
      - Result
    * - ``step13Assignments``
      - Pointer to the :math:`n \times 1` numeric table with assignments of cluster indices to observations
-       processed on step 1 on the local node.
-       Noise observations have the assignment equal to :math:`-1`.
+       processed on :ref:`step 1 <dbscan_step_1>` on the local node.
+       :term:`Noise observations <noise observation>` have the assignment equal to :math:`-1`.
 
        .. include:: distributed-steps/includes/default_result_numeric_table.rst
 
@@ -61,7 +61,7 @@ For more details, :ref:`algorithms`.
    * - Partial Result ID
      - Result
    * - ``step13AssignmentsQueries``
-     - Pointer to the numeric table with 2 columns and arbitrary number of rows
+     - Pointer to the numeric table with :math:`2` columns and arbitrary number of rows
        containing clusters assigning queries that should be processed on the local node.
 
        .. include:: distributed-steps/includes/default_result_numeric_table.rst
