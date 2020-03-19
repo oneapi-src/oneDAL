@@ -79,13 +79,22 @@ jobs:
       echo
       echo START
       echo
+      pwd
+      cd daal4py
+      pwd
       python daal4py/setup.py develop
+      pwd
       echo
       conda activate conformance
       conda install -y -c intel scikit-learn
       conda install -y -c conda-forge pytest
       conda activate conformance
-      python .ci/conformance/run_tests.py
+      pwd
+      cd .ci/conformance/
+      pwd
+      python run_tests.py
+      cd ../../
+      pwd
     timeoutInMinutes: 40
     displayName: 'Create Anaconda environment'
   - task: PublishPipelineArtifact@0
