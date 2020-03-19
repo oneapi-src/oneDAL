@@ -205,8 +205,8 @@ Status UpdateKernel<algorithmFPType, cpu>::compute(const NumericTable & xTable, 
 
     size_t nBlocks  = nRows / nRowsInBlock;
     size_t tailSize = nRows - nBlocks * nRowsInBlock;
-    if (tailSize > nBetasIntercept) nBlocks++;
-    if (!nBlocks) nBlocks++;
+    if (tailSize > nBetasIntercept) ++nBlocks;
+    if (!nBlocks) ++nBlocks;
 
     /* Create TLS */
     daal::tls<ThreadingTaskType *> tls([=]() -> ThreadingTaskType * { return ThreadingTaskType::create(nBetasIntercept, nRowsInBlock, nResponses); });
