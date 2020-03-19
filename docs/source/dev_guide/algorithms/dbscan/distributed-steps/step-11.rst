@@ -19,7 +19,7 @@ In this step, the DBSCAN algorithm has the following parameters:
 .. include:: distributed-steps/includes/parameters_blocks.rst
 
 In this step, the DBSCAN algorithm accepts the input described below.
-Pass the Input ID as a parameter to the methods that provide input for your algorithm.
+Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, :ref:`algorithms`.
 
 .. list-table::
@@ -29,7 +29,7 @@ For more details, :ref:`algorithms`.
    * - Input ID
      - Input
    * - ``step11InputClusterStructure``
-     - Pointer to the numeric table with 4 columns and arbitrary number of rows
+     - Pointer to the numeric table with :math:`4` columns and arbitrary number of rows
        containing information about current clustering state of observations processed on the local node.
 
        .. include:: distributed-steps/includes/input_numeric_table.rst
@@ -44,7 +44,7 @@ Algorithm Output
 ++++++++++++++++
 
 In this step, the DBSCAN algorithms calculates the partial results described below.
-Pass the Partial Result ID as a parameter to the methods that access the partial result of your algorithm.
+Pass the ``Partial Result ID`` as a parameter to the methods that access the partial result of your algorithm.
 For more details, :ref:`algorithms`.
 
 .. list-table::
@@ -54,7 +54,7 @@ For more details, :ref:`algorithms`.
    * - Partial Result ID
      - Result
    * - ``step11ClusterStructure``
-     - Pointer to the numeric table with 4 columns and arbitrary number of rows
+     - Pointer to the numeric table with :math:`4` columns and arbitrary number of rows
        containing information about current clustering state of observations processed on the local node.
 
        .. include:: distributed-steps/includes/default_result_numeric_table.rst
@@ -65,7 +65,7 @@ For more details, :ref:`algorithms`.
        .. include:: distributed-steps/includes/default_result_numeric_table.rst
 
    * - ``step11Queries``
-     - Pointer to the collection of nBlocks numeric tables with 4 columns and arbitrary number of rows containing clusters numeration queries that should be processed on each node.
+     - Pointer to the collection of ``nBlocks`` numeric tables with :math:`4` columns and arbitrary number of rows containing clusters numeration queries that should be processed on each node.
        Numeric tables in collection ordered by the identifiers of initial block of nodes.
 
        .. include:: distributed-steps/includes/default_result_data_collection.rst

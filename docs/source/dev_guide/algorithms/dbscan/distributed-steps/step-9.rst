@@ -47,7 +47,7 @@ For more details, :ref:`algorithms`.
    * - Result ID
      - Result
    * - ``step9NClusters``
-     - Pointer to :math:`1 \times 1` numeric table containing the flag indicating that the clustering process is finished on all nodes.
+     - Pointer to :math:`1 \times 1` numeric table containing the number of clusters found on all nodes.
 
        .. include:: distributed-steps/includes/default_result_numeric_table.rst
 

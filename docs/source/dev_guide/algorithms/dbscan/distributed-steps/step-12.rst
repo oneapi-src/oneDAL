@@ -20,7 +20,7 @@ In this step, the DBSCAN algorithm has the following parameters:
 .. include:: distributed-steps/includes/parameters_blocks.rst
 
 In this step, the DBSCAN algorithm accepts the input described below.
-Pass the Input ID as a parameter to the methods that provide input for your algorithm.
+Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, :ref:`algorithms`.
 
 .. list-table::
@@ -30,13 +30,14 @@ For more details, :ref:`algorithms`.
    * - Input ID
      - Input
    * - ``step12InputClusterStructure``
-     - Pointer to the numeric table with 4 columns and arbitrary number of rows
+     - Pointer to the numeric table with :math:`4` columns and arbitrary number of rows
        containing information about current clustering state of observations processed on the local node.
 
        .. include:: distributed-steps/includes/input_numeric_table.rst
 
    * - ``step12PartialOrders``
-     - Pointer to the collection of :math:`n \times 2` numeric tables containing information about observations: identifier of initial block and index in initial block.
+     - Pointer to the collection of :math:`n \times 2` numeric tables containing information about observations:
+       identifier of initial block and index in initial block.
        This information will be required to reconstruct initial blocks after transferring observations among nodes.
 
        .. include:: distributed-steps/includes/input_data_collection_with_exceptions.rst
@@ -45,7 +46,7 @@ Algorithm Output
 ++++++++++++++++
 
 In this step, the DBSCAN algorithms calculates the partial results described below.
-Pass the Partial Result ID as a parameter to the methods that access the partial result of your algorithm.
+Pass the ``Partial Result ID`` as a parameter to the methods that access the partial result of your algorithm.
 For more details, :ref:`algorithms`.
 
 .. list-table::
@@ -55,7 +56,7 @@ For more details, :ref:`algorithms`.
    * - Partial Result ID
      - Result
    * - ``assignmentQueries``
-     - Pointer to the collection of nBlocks numeric tables with 2 columns and arbitrary number of rows
+     - Pointer to the collection of ``nBlocks`` numeric tables with :math:`2` columns and arbitrary number of rows
        containing clusters assigning queries that should be processed on each node.
        Numeric tables in collection ordered by the identifiers of initial block of nodes.
 

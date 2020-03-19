@@ -40,7 +40,8 @@ For more details, :ref:`algorithms`.
        .. include:: distributed-steps/includes/input_data_collection_with_exceptions.rst
 
    * - ``step4PartialSplits``
-     - Pointer to the collection of the :math:`1 \times 2` numeric table containing information about split computed on step 3 and collected from all nodes
+     - Pointer to the collection of the :math:`1 \times 2` numeric table containing information about split computed on
+       :ref:`step 3 <dbscan_step_3>` and collected from all nodes
        participating in current iteration of geometric repartitioning process.
 
        .. include:: distributed-steps/includes/input_data_collection_with_exceptions.rst

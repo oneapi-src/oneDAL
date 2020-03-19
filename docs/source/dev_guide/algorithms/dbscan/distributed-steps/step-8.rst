@@ -58,24 +58,24 @@ For more details, :ref:`algorithms`.
 
    * - Partial Result ID
      - Result
-   * - step8ClusterStructure
+   * - ``step8ClusterStructure``
      - Pointer to the numeric table with :math:`4` columns and arbitrary number of rows
        containing information about current clustering state of observations processed on the local node.
 
        .. include:: distributed-steps/includes/default_result_numeric_table.rst      
 
-   * - step8FinishedFlag
+   * - ``step8FinishedFlag``
      - Pointer to :math:`1 \times 1` numeric table containing the flag indicating that the clustering process is finished for current node.
 
        .. include:: distributed-steps/includes/default_result_numeric_table.rst
 
-   * - step8NClusters
+   * - ``step8NClusters``
      - Pointer to :math:`1 \times 1` numeric table containing the current number of clusters found on the local node.
 
        .. include:: distributed-steps/includes/default_result_numeric_table.rst
 
-   * - step8Queries
-     - Pointer to the collection of nBlocks numeric tables with 3 columns and arbitrary number of rows
+   * - ``step8Queries``
+     - Pointer to the collection of ``nBlocks`` numeric tables with 3 columns and arbitrary number of rows
        containing clustering queries that should be processed on each node. Numeric tables in collection
        ordered by the identifiers of initial block of nodes.
 

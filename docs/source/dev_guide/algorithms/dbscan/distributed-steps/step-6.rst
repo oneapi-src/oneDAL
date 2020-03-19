@@ -43,7 +43,7 @@ In this step, the DBSCAN algorithm has the following parameters:
      - The maximum distance between observations lying in the same neighborhood.
    * - ``minObservations``
      - Not applicable
-     - The number of observations in a neighborhood for an observation to be considered as a core.
+     - The number of observations in a neighborhood for an observation to be considered as a :term:`core <core observation>`.
    * - ``memorySavingMode``
      - ``false``
      - If flag is set to false, all neighborhoods will be computed and stored prior to clustering.
@@ -66,21 +66,22 @@ For more details, :ref:`algorithms`.
        .. include:: distributed-steps/includes/input_data_collection.rst
 
    * - ``haloData``
-     - Pointer to the collection of numeric tables with p columns and arbitrary number of rows, containing halo observations for current node computed on step 5.
+     - Pointer to the collection of numeric tables with :math:`p` columns and arbitrary number of rows, containing halo observations
+       for current node computed on :ref:`step 5 <dbscan_step_5>`.
 
        .. include:: distributed-steps/includes/input_data_collection.rst
 
    * - ``haloDataIndices``
-     - Pointer to the collection of numeric tables with 1 column and arbitrary number of rows,
-       containing indices for halo observations for current node computed on step 5. 
+     - Pointer to the collection of numeric tables with :math:`1` column and arbitrary number of rows,
+       containing indices for halo observations for current node computed on :ref:`step 5 <dbscan_step_5>`. 
        Size of this collection should be equal to the size of collection for haloData Input ID.
 
        .. include:: distributed-steps/includes/input_data_collection_with_exceptions.rst
 
    * - ``haloDataBlocks``
-     - Pointer to the collection of 1 x 1 numeric tables containing identifiers of initial block for halo observations
-       for current node computed on step 5. 
-       Size of this collection should be equal to the size of collection for haloData Input ID.
+     - Pointer to the collection of :math:`1 \times 1` numeric tables containing identifiers of initial block for halo observations
+       for current node computed on :ref:`step 5 <dbscan_step_5>`. 
+       Size of this collection should be equal to the size of collection for ``haloData`` ``Input ID``.
 
        .. include:: distributed-steps/includes/input_data_collection_with_exceptions.rst
 
