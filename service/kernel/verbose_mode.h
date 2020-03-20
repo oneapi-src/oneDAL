@@ -74,12 +74,9 @@ struct json
         write('"');
         return *this;
     }
-    template <>
-    json & put(const char * const key, const data_management::NumericTableIface::StorageLayout &);
-    template <>
-    json & put(const char * const key, const data_management::NumericTableIface::MemoryStatus &);
-    template <>
-    json & put(const char * const key, const algorithms::kmeans::DistanceType &);
+    json & put(const char * const key, const data_management::NumericTableIface::StorageLayout);
+    json & put(const char * const key, const data_management::NumericTableIface::MemoryStatus);
+    json & put(const char * const key, const algorithms::kmeans::DistanceType);
 
     // char*
     json & put(const char * const key, const char * const str);

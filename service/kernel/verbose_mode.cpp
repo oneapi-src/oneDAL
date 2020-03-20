@@ -70,8 +70,7 @@ json & json::put(const char * const key, const char * const str)
     return *this;
 }
 
-template <>
-json & json::put(const char * const key, const data_management::NumericTableIface::StorageLayout & val)
+json & json::put(const char * const key, const data_management::NumericTableIface::StorageLayout val)
 {
     switch (val)
     {
@@ -90,8 +89,7 @@ json & json::put(const char * const key, const data_management::NumericTableIfac
     return *this;
 }
 
-template <>
-json & json::put(const char * const key, const data_management::NumericTableIface::MemoryStatus & val)
+json & json::put(const char * const key, const data_management::NumericTableIface::MemoryStatus val)
 {
     switch (val)
     {
@@ -104,8 +102,7 @@ json & json::put(const char * const key, const data_management::NumericTableIfac
     return *this;
 }
 
-template <>
-json & json::put(const char * const key, const algorithms::kmeans::DistanceType & val)
+json & json::put(const char * const key, const algorithms::kmeans::DistanceType val)
 {
     switch (val)
     {
