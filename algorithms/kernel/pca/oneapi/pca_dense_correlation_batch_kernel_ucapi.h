@@ -65,7 +65,7 @@ private:
     services::Status computeEigenvectorsInplace(oneapi::internal::ExecutionContextIface & context, size_t nFeatures,
                                                     oneapi::internal::UniversalBuffer & fullEigenvectors, oneapi::internal::UniversalBuffer & fullEigenvalues);
 
-    services::Status sortEigenvectorsDescending(oneapi::internal::ExecutionContextIface & context,
+    services::Status sortEigenvectorsDescending(
                                                 size_t nFeatures,
                                                 size_t nComponents,
                                                 const oneapi::internal::UniversalBuffer & fullEigenvectors,
