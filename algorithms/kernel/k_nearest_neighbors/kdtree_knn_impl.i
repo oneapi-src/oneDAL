@@ -113,8 +113,9 @@ public:
     {
         services::Status status;
         //Check if the pushing value can be written into _data
-        if (size() > _sizeMinus1)
+        if (_top == _sizeMinus1)
         {
+            if (_top > _sizeMinus1) return services::Status(services::ErrorID::ErrorIncorrectIndex);
             status = grow();
             DAAL_CHECK_STATUS_VAR(status)
         }
@@ -124,10 +125,11 @@ public:
 
     DAAL_FORCEINLINE T pop() { return _data[_top--]; }
 
-    bool empty() const { return (size() == 0); }
+    bool empty() const { return _top == -1; }
 
     DAAL_FORCEINLINE size_t size() const { return (_top + 1); }
 
+private:
     services::Status grow()
     {
         setSize(_size * 2);
@@ -141,7 +143,6 @@ public:
         return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
     }
 
-private:
     DAAL_FORCEINLINE void setSize(size_t size)
     {
         _size       = size;
@@ -150,9 +151,9 @@ private:
 
 private:
     T * _data          = nullptr;
-    size_t _top        = 0;
+    size_t _top        = -1;
     size_t _sizeMinus1 = 0;
-    size_t _size       = 0;
+    size_t _size       = 1;
 };
 
 } // namespace internal
