@@ -124,24 +124,21 @@ template <typename algorithmFPType, CpuType cpu>
 services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInternalMatrixMatrix(const NumericTable * a1, const NumericTable * a2,
                                                                                                 NumericTable * r, const ParameterBase * par)
 {
+    SafeStatus safeStat;
+
     //prepareData
     const size_t nVectors1 = a1->getNumberOfRows();
     const size_t nVectors2 = a2->getNumberOfRows();
     const size_t nFeatures = a1->getNumberOfColumns();
 
-    ReadRows<algorithmFPType, cpu> mtA1(*const_cast<NumericTable *>(a1), 0, nVectors1);
-    DAAL_CHECK_BLOCK_STATUS(mtA1);
-    const algorithmFPType * dataA1 = mtA1.get();
+    //compute
+    const Parameter * rbfPar    = static_cast<const Parameter *>(par);
+    const algorithmFPType coeff = (algorithmFPType)(-0.5 / (rbfPar->sigma * rbfPar->sigma));
 
     WriteOnlyRows<algorithmFPType, cpu> mtR(r, 0, nVectors1);
     DAAL_CHECK_BLOCK_STATUS(mtR);
     algorithmFPType * dataR = mtR.get();
 
-    //compute
-    const Parameter * rbfPar    = static_cast<const Parameter *>(par);
-    const algorithmFPType coeff = (algorithmFPType)(-0.5 / (rbfPar->sigma * rbfPar->sigma));
-
-    bool isInParallel = is_in_parallel();
     if (a1 != a2)
     {
         ReadRows<algorithmFPType, cpu> mtA2(*const_cast<NumericTable *>(a2), 0, nVectors2);
@@ -152,18 +149,6 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
         algorithmFPType zero = 0.0, negTwo = -2.0;
         trans   = 'T';
         notrans = 'N';
-        if (isInParallel)
-        {
-            Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, (DAAL_INT *)&nVectors2, (DAAL_INT *)&nVectors1, (DAAL_INT *)&nFeatures, &negTwo,
-                                               (algorithmFPType *)dataA2, (DAAL_INT *)&nFeatures, (algorithmFPType *)dataA1, (DAAL_INT *)&nFeatures,
-                                               &zero, dataR, (DAAL_INT *)&nVectors2);
-        }
-        else
-        {
-            Blas<algorithmFPType, cpu>::xgemm(&trans, &notrans, (DAAL_INT *)&nVectors2, (DAAL_INT *)&nVectors1, (DAAL_INT *)&nFeatures, &negTwo,
-                                              (algorithmFPType *)dataA2, (DAAL_INT *)&nFeatures, (algorithmFPType *)dataA1, (DAAL_INT *)&nFeatures,
-                                              &zero, dataR, (DAAL_INT *)&nVectors2);
-        }
 
         DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, nVectors1, nVectors2);
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors1 + nVectors2, sizeof(algorithmFPType));
@@ -174,52 +159,92 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
 
         algorithmFPType * sqrDataA1 = buffer;
         algorithmFPType * sqrDataA2 = buffer + nVectors1;
-        for (size_t i = 0; i < nVectors1; i++)
-        {
-            sqrDataA1[i] = zero;
-            for (size_t j = 0; j < nFeatures; j++)
-            {
-                sqrDataA1[i] += dataA1[i * nFeatures + j] * dataA1[i * nFeatures + j];
-            }
-        }
-        for (size_t i = 0; i < nVectors2; i++)
+
+        for (size_t i = 0; i < nVectors2; ++i)
         {
             sqrDataA2[i] = zero;
-            for (size_t j = 0; j < nFeatures; j++)
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (size_t j = 0; j < nFeatures; ++j)
             {
                 sqrDataA2[i] += dataA2[i * nFeatures + j] * dataA2[i * nFeatures + j];
             }
         }
-        for (size_t i = 0; i < nVectors1; i++)
-        {
-            for (size_t k = 0; k < nVectors2; k++)
+
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors1, sizeof(algorithmFPType));
+        TlsSum<algorithmFPType, cpu> tlsSqrDataA1(nVectors1);
+
+        const size_t blockSize = 256;
+        const size_t blockNum  = nVectors1 / blockSize + !!(nVectors1 % blockSize);
+
+        daal::threader_for(blockNum, blockNum, [&](const size_t iBlock) {
+            const size_t numRowsInBlock = (iBlock != blockNum - 1) ? blockSize : nVectors1 - iBlock * blockSize;
+            const size_t startRow       = iBlock * blockSize;
+            const size_t finishRow      = startRow + numRowsInBlock;
+
+            ReadRows<algorithmFPType, cpu> mtA1(*const_cast<NumericTable *>(a1), startRow, numRowsInBlock);
+            DAAL_CHECK_BLOCK_STATUS_THR(mtA1);
+            const algorithmFPType * dataA1 = const_cast<algorithmFPType *>(mtA1.get());
+
+            algorithmFPType * dataRLocal = dataR + startRow * nVectors2;
+
+            Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, (DAAL_INT *)&nVectors2, (DAAL_INT *)&numRowsInBlock, (DAAL_INT *)&nFeatures, &negTwo,
+                                               (algorithmFPType *)dataA2, (DAAL_INT *)&nFeatures, (algorithmFPType *)dataA1, (DAAL_INT *)&nFeatures,
+                                               &zero, dataRLocal, (DAAL_INT *)&nVectors2);
+
+            auto localSqrDataA1 = tlsSqrDataA1.local();
+
+            for (size_t i = startRow; i < finishRow; ++i)
             {
-                dataR[i * nVectors2 + k] += (sqrDataA1[i] + sqrDataA2[k]);
-                dataR[i * nVectors2 + k] *= coeff;
-                if (dataR[i * nVectors2 + k] < Math<algorithmFPType, cpu>::vExpThreshold())
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for (size_t j = 0; j < nFeatures; ++j)
                 {
-                    dataR[i * nVectors2 + k] = Math<algorithmFPType, cpu>::vExpThreshold();
+                    localSqrDataA1[i] += dataA1[(i - startRow) * nFeatures + j] * dataA1[(i - startRow) * nFeatures + j];
                 }
             }
-        }
-        daal::internal::Math<algorithmFPType, cpu>::vExp(nVectors1 * nVectors2, dataR, dataR);
+        });
+
+        tlsSqrDataA1.reduceTo(sqrDataA1, nVectors1);
+
+        daal::threader_for(blockNum, blockNum, [&](const size_t iBlock) {
+            const size_t numRowsInBlock = (iBlock != blockNum - 1) ? blockSize : nVectors1 - iBlock * blockSize;
+            const size_t startRow       = iBlock * blockSize;
+            const size_t finishRow      = startRow + numRowsInBlock;
+
+            algorithmFPType * dataRLocal = dataR + startRow * nVectors2;
+
+            for (size_t i = startRow; i < finishRow; ++i)
+            {
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for (size_t k = 0; k < nVectors2; ++k)
+                {
+                    dataRLocal[(i - startRow) * nVectors2 + k] += (sqrDataA1[i] + sqrDataA2[k]);
+                    dataRLocal[(i - startRow) * nVectors2 + k] *= coeff;
+                    if (dataRLocal[(i - startRow) * nVectors2 + k] < Math<algorithmFPType, cpu>::vExpThreshold())
+                    {
+                        dataRLocal[(i - startRow) * nVectors2 + k] = Math<algorithmFPType, cpu>::vExpThreshold();
+                    }
+                }
+            }
+
+            daal::internal::Math<algorithmFPType, cpu>::vExp(numRowsInBlock * nVectors2, dataRLocal, dataRLocal); 
+        });
     }
     else
     {
-        char uplo, trans;
+        char uplo, trans, notrans;
         algorithmFPType zero = 0.0, one = 1.0, two = 2.0;
-        uplo  = 'U';
-        trans = 'T';
-        if (isInParallel)
-        {
-            Blas<algorithmFPType, cpu>::xxsyrk(&uplo, &trans, (DAAL_INT *)&nVectors1, (DAAL_INT *)&nFeatures, &one, (algorithmFPType *)dataA1,
-                                               (DAAL_INT *)&nFeatures, &zero, dataR, (DAAL_INT *)&nVectors1);
-        }
-        else
-        {
-            Blas<algorithmFPType, cpu>::xsyrk(&uplo, &trans, (DAAL_INT *)&nVectors1, (DAAL_INT *)&nFeatures, &one, (algorithmFPType *)dataA1,
-                                              (DAAL_INT *)&nFeatures, &zero, dataR, (DAAL_INT *)&nVectors1);
-        }
+        uplo    = 'U';
+        trans   = 'T';
+        notrans = 'N';
+
+        services::Status retStat = Blas<algorithmFPType, cpu>::xgemm_blocked(&trans, &notrans, (DAAL_INT *)&nVectors2, (DAAL_INT *)&nVectors1,
+                                                                             (DAAL_INT *)&nFeatures, &one, a2, (DAAL_INT *)&nFeatures, a1,
+                                                                             (DAAL_INT *)&nFeatures, &zero, r, (DAAL_INT *)&nVectors2);
+        if (!retStat) return retStat;
+
         for (size_t i = 0; i < nVectors1; i++)
         {
             for (size_t k = 0; k < i; k++)
@@ -240,6 +265,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
             }
         }
     }
+
     return services::Status();
 }
 
