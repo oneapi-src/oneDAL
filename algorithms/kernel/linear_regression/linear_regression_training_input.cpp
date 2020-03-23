@@ -88,7 +88,14 @@ services::Status Input::check(const daal::algorithms::Parameter * par, int metho
     NumericTablePtr dataTable = get(data);
     size_t nRowsInData        = dataTable->getNumberOfRows();
     size_t nColumnsInData     = dataTable->getNumberOfColumns();
-    DAAL_CHECK(nRowsInData >= nColumnsInData + (int)(method == qrDense && parameter->interceptFlag == true), ErrorIncorrectNumberOfRows);
+    if (method == normEqDense)
+    {
+        DAAL_CHECK(nRowsInData >= nColumnsInData + (int)(parameter->interceptFlag == true), ErrorIncorrectNumberOfRows);
+    }
+    else
+    {
+        DAAL_CHECK(nRowsInData > 0, ErrorIncorrectNumberOfRows);
+    }
     return s;
 }
 
