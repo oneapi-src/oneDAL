@@ -36,10 +36,9 @@ namespace training
 {
 namespace interface1
 {
-
 /** Default constructor */
 Input::Input() : linear_model::training::Input(lastInputId + 1) {}
-Input::Input(const Input& other) : linear_model::training::Input(other){}
+Input::Input(const Input & other) : linear_model::training::Input(other) {}
 
 /**
  * Returns an input object for linear regression model-based training
@@ -56,7 +55,7 @@ NumericTablePtr Input::get(InputId id) const
  * \param[in] id      Identifier of the input object
  * \param[in] value   Pointer to the object
  */
-void Input::set(InputId id, const NumericTablePtr &value)
+void Input::set(InputId id, const NumericTablePtr & value)
 {
     linear_model::training::Input::set(linear_model::training::InputId(id), value);
 }
@@ -65,25 +64,38 @@ void Input::set(InputId id, const NumericTablePtr &value)
  * Returns the number of columns in the input data set
  * \return Number of columns in the input data set
  */
-size_t Input::getNumberOfFeatures() const { return get(data)->getNumberOfColumns(); }
+size_t Input::getNumberOfFeatures() const
+{
+    return get(data)->getNumberOfColumns();
+}
 
 /**
  * Returns the number of dependent variables
  * \return Number of dependent variables
  */
-size_t Input::getNumberOfDependentVariables() const { return get(dependentVariables)->getNumberOfColumns(); }
+size_t Input::getNumberOfDependentVariables() const
+{
+    return get(dependentVariables)->getNumberOfColumns();
+}
 
-services::Status Input::check(const daal::algorithms::Parameter *par, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
     Status s;
     DAAL_CHECK_STATUS(s, linear_model::training::Input::check(par, method));
 
-    const Parameter *parameter = static_cast<const Parameter *>(par);
+    const Parameter * parameter = static_cast<const Parameter *>(par);
 
     NumericTablePtr dataTable = get(data);
-    size_t nRowsInData = dataTable->getNumberOfRows();
-    size_t nColumnsInData = dataTable->getNumberOfColumns();
-    DAAL_CHECK(nRowsInData >= nColumnsInData + (int)(method == qrDense && parameter->interceptFlag == true), ErrorIncorrectNumberOfRows);
+    size_t nRowsInData        = dataTable->getNumberOfRows();
+    size_t nColumnsInData     = dataTable->getNumberOfColumns();
+    if (method == normEqDense)
+    {
+        DAAL_CHECK(nRowsInData >= nColumnsInData + (int)(parameter->interceptFlag == true), ErrorIncorrectNumberOfRows);
+    }
+    else
+    {
+        DAAL_CHECK(nRowsInData > 0, ErrorIncorrectNumberOfRows);
+    }
     return s;
 }
 
