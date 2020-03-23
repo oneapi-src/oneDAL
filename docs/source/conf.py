@@ -76,7 +76,8 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["opt-notice.rst", 'dev_guide/data-management/numeric-tables/*.rst', 'topics/*.rst']
+exclude_patterns = ["opt-notice.rst", 'dev_guide/data-management/numeric-tables/*.rst', 'topics/*.rst',
+                    'dev_guide/algorithms/dbscan/distributed-steps/*']
 
 extlinks = {'cpp_example': ('https://github.com/intel/daal/tree/master/examples/cpp/source/%s', ''),
 'java_example': ('https://github.com/intel/daal/tree/master/examples/java/com/intel/daal/examples/%s', ''),
