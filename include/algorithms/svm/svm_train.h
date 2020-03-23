@@ -248,7 +248,8 @@ public:
     /** Default constructor */
     Batch() { initialize(); };
 
-    Batch(size_t nClasses) {
+    Batch(size_t nClasses)
+    {
         parameter.nClasses = nClasses;
         initialize();
     }

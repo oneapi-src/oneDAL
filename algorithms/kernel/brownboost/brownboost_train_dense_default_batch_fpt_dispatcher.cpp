@@ -47,8 +47,8 @@ template <typename algorithmFPType, Method method>
 Batch<algorithmFPType, method>::Batch(size_t nClasses)
 {
     ParameterType * param = new ParameterType();
-    param->nClasses = nClasses;
-    _par = param;
+    param->nClasses       = nClasses;
+    _par                  = param;
     initialize();
 }
 
