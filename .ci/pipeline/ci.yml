@@ -38,7 +38,7 @@ jobs:
       targetPath: '__release_lnx_gnu'
 # conformance
   - script: |
-    .ci/scripts/conformance_test.sh --build-dir __release_lnx_gnu
+      .ci/scripts/conformance_test.sh --build-dir __release_lnx_gnu
     timeoutInMinutes: 15
     displayName: 'Conformance test'
   - task: PublishPipelineArtifact@0
