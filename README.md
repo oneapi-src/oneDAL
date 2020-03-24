@@ -17,9 +17,9 @@
 
 # Intel(R) oneAPI Data Analytics Library
 
-[Installation](#installation)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Documentation](http://intel.github.io/daal/)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Examples](#examples)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Get Help](https://software.intel.com/en-us/forums/intel-data-analytics-acceleration-library)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[How to Contribute](CONTRIBUTING.md)&nbsp;&nbsp;&nbsp;
+[Installation](#installation)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Documentation](http://oneapi-src.github.io/oneDAL/)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Examples](#examples)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Get Help](https://software.intel.com/en-us/forums/intel-data-analytics-acceleration-library)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[How to Contribute](CONTRIBUTING.md)&nbsp;&nbsp;&nbsp;
 
-[![Build Status](https://dev.azure.com/daal/DAAL/_apis/build/status/intel.daal?branchName=master)](https://dev.azure.com/daal/DAAL/_build/latest?definitionId=3&branchName=master) ![License](https://img.shields.io/github/license/intel/daal.svg)
+[![Build Status](https://dev.azure.com/daal/DAAL/_apis/build/status/oneapi-src.oneDAL?branchName=master)](https://dev.azure.com/daal/DAAL/_build/latest?definitionId=5&branchName=master) ![License](https://img.shields.io/github/license/oneapi-src/oneDAL.svg)
 
 
 Intel(R) oneAPI Data Analytics Library (oneDAL) is a library that helps speed up big data analysis. 
@@ -35,8 +35,8 @@ This repository contains branches corresponding to both oneAPI and classical ver
 
 |Product|Latest release|Branch|Resources|
 |-------|--------------|------|:-------------:|
-|oneDAL       |oneAPI Beta|[master](https://github.com/intel/daal)</br>[releases](https://github.com/intel/daal/tree/releases) (contains the latest stable version)|&nbsp;&nbsp;&nbsp;[Home page](https://software.intel.com/en-us/oneapi/onedal)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[Documentation](http://intel.github.io/daal/)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[System Requirements](https://software.intel.com/en-us/articles/system-requirements-for-oneapi-data-analytics-library#)|
-|Intel(R) DAAL|2020 Gold|[rls/daal-2020-rls](https://github.com/intel/daal/tree/rls/daal-2020-rls)</br>[rls/daal-2020-mnt](https://github.com/intel/daal/tree/rls/daal-2020-mnt) (contains ongoing fixes)|&nbsp;&nbsp;&nbsp;[Home page](https://software.intel.com/en-us/daal)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[Developer Guide](https://software.intel.com/en-us/daal-programming-guide)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[System Requirements](https://software.intel.com/en-us/articles/intel-data-analytics-acceleration-library-2020-system-requirements)|
+|oneDAL       |oneAPI Beta|[master](https://github.com/oneapi-src/oneDAL)</br>[releases](https://github.com/oneapi-src/oneDAL/tree/releases) (contains the latest stable version)|&nbsp;&nbsp;&nbsp;[Home page](https://software.intel.com/en-us/oneapi/onedal)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[Documentation](http://oneapi-src.github.io/oneDAL/)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[System Requirements](https://software.intel.com/en-us/articles/system-requirements-for-oneapi-data-analytics-library#)|
+|Intel(R) DAAL|2020 Gold|[rls/daal-2020-rls](https://github.com/oneapi-src/oneDAL/tree/rls/daal-2020-rls)</br>[rls/daal-2020-mnt](https://github.com/oneapi-src/oneDAL/tree/rls/daal-2020-mnt) (contains ongoing fixes)|&nbsp;&nbsp;&nbsp;[Home page](https://software.intel.com/en-us/daal)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[Developer Guide](https://software.intel.com/en-us/daal-programming-guide)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[System Requirements](https://software.intel.com/en-us/articles/intel-data-analytics-acceleration-library-2020-system-requirements)|
 
 ## Table of Contents
 
@@ -65,7 +65,7 @@ Users who wish to use, test, and provide feedback on the new features are encour
 You can install oneDAL: 
 
 - from [oneDAL home page](https://software.intel.com/en-us/oneapi/onedal) as a part of Intel(R) oneAPI Base Toolkit.
-- from [GitHub\*](https://github.com/intel/daal/releases).
+- from [GitHub\*](https://github.com/oneapi-src/oneDAL/releases).
 
 See [Installation from Sources](INSTALL.md) for details.
 
@@ -73,21 +73,21 @@ See [Installation from Sources](INSTALL.md) for details.
 
 Examples for different programming languages:
 
-- [C++](https://github.com/intel/daal/tree/master/examples/cpp)
-- [C++ SYCL*](https://github.com/intel/daal/tree/master/examples/cpp_sycl)
-- [Java](https://github.com/intel/daal/tree/master/examples/java)
+- [C++](https://github.com/oneapi-src/oneDAL/tree/master/examples/cpp)
+- [C++ SYCL*](https://github.com/oneapi-src/oneDAL/tree/master/examples/cpp_sycl)
+- [Java](https://github.com/oneapi-src/oneDAL/tree/master/examples/java)
 
 Data Examples for different computation modes:
 
-- [Batch](https://github.com/intel/daal/tree/master/examples/data/batch)
-- [Distributed](https://github.com/intel/daal/tree/master/examples/data/distributed)
-- [Online](https://github.com/intel/daal/tree/master/examples/data/online)
+- [Batch](https://github.com/oneapi-src/oneDAL/tree/master/examples/data/batch)
+- [Distributed](https://github.com/oneapi-src/oneDAL/tree/master/examples/data/distributed)
+- [Online](https://github.com/oneapi-src/oneDAL/tree/master/examples/data/online)
 
 ## Documentation
 
-- [Get Started](http://intel.github.io/daal/getstarted.html)
+- [Get Started](http://oneapi-src.github.io/oneDAL/getstarted.html)
 - [System Requirements](https://software.intel.com/en-us/articles/system-requirements-for-oneapi-data-analytics-library#)
-- [oneDAL documentation](http://intel.github.io/daal/)
+- [oneDAL documentation](http://oneapi-src.github.io/oneDAL/)
 - [Specifications](https://spec.oneapi.com/oneDAL/index.html)
 - [Release Notes](https://software.intel.com/en-us/articles/oneapi-dal-release-notes)
 
