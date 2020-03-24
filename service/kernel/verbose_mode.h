@@ -93,9 +93,7 @@ struct json
     {
         comma_if_needed();
         need_comma = true;
-        write('"');
-        write(key);
-        write("\":");
+        write_key(key);
         write(val);
         return *this;
     }
@@ -112,9 +110,7 @@ struct json
     {
         comma_if_needed();
         need_comma = false;
-        write('"');
-        write(key);
-        write("\":");
+        write_key(key);
 
         need_comma = false;
         begin();
@@ -146,10 +142,10 @@ private:
     void comma_if_needed();
 
     void begin();
-
     void end();
 
     void write_escape(const char * const str);
+    void write_key(const char * const key);
 
     // pointer dispatcher
     template <typename ValPtr>
@@ -169,7 +165,7 @@ private:
     void print_obj(const algorithms::kmeans::Parameter & val);
     // data_management::NumericTable &
     void print_obj(const data_management::NumericTable & val);
-    //
+    // fallback to unknown object types
     void print_obj(...) { write("\"content\":\"unknown\""); }
 
     int depth;

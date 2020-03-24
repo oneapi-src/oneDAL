@@ -52,9 +52,7 @@ json & json::put(const char * const key, const bool val)
 {
     comma_if_needed();
     need_comma = true;
-    write('"');
-    write(key);
-    write("\":");
+    write_key(key);
     write(val ? "true" : "false");
     return *this;
 }
@@ -63,9 +61,7 @@ json & json::put(const char * const key, const char * const str)
 {
     comma_if_needed();
     need_comma = true;
-    write('"');
-    write(key);
-    write("\":");
+    write_key(key);
     write_escape(str);
     return *this;
 }
@@ -117,9 +113,7 @@ json & json::put(const char * const key, const obj_begin_t &)
 {
     comma_if_needed();
     need_comma = false;
-    write('"');
-    write(key);
-    write("\":");
+    write_key(key);
     begin();
     return *this;
 }
@@ -178,6 +172,13 @@ void json::write_escape(const char * const str)
     write('"');
 }
 
+void json::write_key(const char * const key)
+{
+    write('"');
+    write(key);
+    write("\":");
+}
+
 json::~json()
 {
     finalize();
@@ -185,7 +186,7 @@ json::~json()
 
 void json::write(const char * const str)
 {
-    if (0 > puts(str)) exit(1);
+    if (0 > printf("%s", str)) exit(1);
 }
 
 void json::write(const char c)
