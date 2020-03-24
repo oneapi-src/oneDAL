@@ -235,10 +235,13 @@ void json::write(const double d)
     if (0 > printf("%f", d)) exit(1);
 }
 
+// this macro also should support chainig like an original function and should looks like a real function
+#define put_pair(NAME) put(#NAME, val.NAME)
+
 template <typename Parameter>
 auto print_common_parameters_clusters(json & writer, const Parameter & val) -> decltype(val.nClusters, void())
 {
-    writer.put("nClusters", val.nClusters);
+    writer.put_pair(nClusters);
 }
 template <typename... Args>
 void print_common_parameters_clusters(json &, Args...)
@@ -247,7 +250,7 @@ void print_common_parameters_clusters(json &, Args...)
 template <typename Parameter>
 auto print_common_parameters_iterations(json & writer, const Parameter & val) -> decltype(val.maxIterations, void())
 {
-    writer.put("maxIterations", val.maxIterations);
+    writer.put_pair(maxIterations);
 }
 template <typename... Args>
 void print_common_parameters_iterations(json &, Args...)
@@ -256,7 +259,7 @@ void print_common_parameters_iterations(json &, Args...)
 template <typename Parameter>
 auto print_common_parameters_accuracy(json & writer, const Parameter & val) -> decltype(val.accuracyThreshold, void())
 {
-    writer.put("accuracyThreshold", val.accuracyThreshold);
+    writer.put_pair(accuracyThreshold);
 }
 template <typename... Args>
 void print_common_parameters_accuracy(json &, Args...)
@@ -265,7 +268,7 @@ void print_common_parameters_accuracy(json &, Args...)
 template <typename Parameter>
 auto print_common_parameters_batchIndices(json & writer, const Parameter & val) -> decltype(val.batchIndices, void())
 {
-    writer.put("batchIndices", val.batchIndices);
+    writer.put_pair(batchIndices);
 }
 template <typename... Args>
 void print_common_parameters_batchIndices(json &, Args...)
@@ -274,7 +277,7 @@ void print_common_parameters_batchIndices(json &, Args...)
 template <typename Parameter>
 auto print_common_parameters_batchSize(json & writer, const Parameter & val) -> decltype(val.batchSize, void())
 {
-    writer.put("batchSize", val.batchSize);
+    writer.put_pair(batchSize);
 }
 template <typename... Args>
 void print_common_parameters_batchSize(json &, Args...)
@@ -293,14 +296,14 @@ void print_common_parameters(json & writer, const Parameter & val)
 void json::print_obj(const algorithms::kmeans::Parameter & val)
 {
     print_common_parameters(*this, val);
-    put("gamma", val.gamma).put("distanceType", val.distanceType).put("assignFlag", val.assignFlag);
+    put_pair(gamma).put_pair(distanceType).put_pair(assignFlag);
 }
 
 // data_management::NumericTable &
 void json::print_obj(const data_management::NumericTable & val)
 {
-    put("numberOfColumns", val.getNumberOfColumns()).put("numberOfRows", val.getNumberOfRows());
-    put("dataLayout", val.getDataLayout()).put("dataMemoryStatus", val.getDataMemoryStatus());
+    put_pair(getNumberOfColumns()).put_pair(getNumberOfRows());
+    put_pair(getDataLayout()).put_pair(getDataMemoryStatus());
     // TODO: if verbose level 3 - show small part of array
 }
 
