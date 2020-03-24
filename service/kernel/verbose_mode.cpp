@@ -66,7 +66,10 @@ json & json::put(const char * const key, const char * const str)
     return *this;
 }
 
-#define VERBOSE_ENUM_LIST1(TYPE, NAME0)                      VERBOSE_ENUM_CASE(TYPE, NAME0)
+#define VERBOSE_ENUM_LIST1(TYPE, NAME0) \
+    case TYPE::NAME0:                   \
+        put(key, #NAME0);               \
+        break;
 #define VERBOSE_ENUM_LIST2(TYPE, NAME0, NAME1)               VERBOSE_ENUM_LIST1(TYPE, NAME0) VERBOSE_ENUM_LIST1(TYPE, NAME1)
 #define VERBOSE_ENUM_LIST3(TYPE, NAME0, NAME1, NAME2)        VERBOSE_ENUM_LIST2(TYPE, NAME0, NAME1) VERBOSE_ENUM_LIST1(TYPE, NAME2)
 #define VERBOSE_ENUM_LIST4(TYPE, NAME0, NAME1, NAME2, NAME3) VERBOSE_ENUM_LIST2(TYPE, NAME0, NAME1) VERBOSE_ENUM_LIST2(TYPE, NAME2, NAME3)
@@ -82,9 +85,6 @@ json & json::put(const char * const key, const char * const str)
     VERBOSE_ENUM_LIST8(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4, NAME5, NAME6, NAME7) VERBOSE_ENUM_LIST1(TYPE, NAME8)
 #define VERBOSE_ENUM_LIST10(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4, NAME5, NAME6, NAME7, NAME8, NAME9) \
     VERBOSE_ENUM_LIST9(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4, NAME5, NAME6, NAME7, NAME8) VERBOSE_ENUM_LIST1(TYPE, NAME9)
-
-#define VERBOSE_ENUM_CASE(TYPE, NAME) \
-    case TYPE::NAME: put(key, #NAME); break;
 
 json & json::put(const char * const key, const data_management::NumericTableIface::StorageLayout val)
 {
