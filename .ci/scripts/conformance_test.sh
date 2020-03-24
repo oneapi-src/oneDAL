@@ -31,7 +31,6 @@ cd daal4py
 python setup.py develop
 cd ..
 conda install -y -c conda-forge pytest
-echo ${Build.SourcesDirectory}
 pwd
 cd .ci/conformance/
 pwd
