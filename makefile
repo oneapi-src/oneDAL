@@ -368,7 +368,7 @@ release.EXAMPLES.JAVA  := $(filter $(expat),$(shell find examples/java -type f))
 release.ENV = bin/vars_$(_OS).$(scr)
 
 # List modulefiles to populate release.
-release.MODULEFILES = bin/modulefile_ia32_lnx bin/modulefile_intel64_lnx
+release.MODULEFILES = bin/modulefile_ia32 bin/modulefile_intel64
 
 # List config files to populate release.
 release.CONF = bin/config.txt
