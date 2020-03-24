@@ -38,66 +38,9 @@ jobs:
       targetPath: '__release_lnx_gnu'
 # conformance
   - script: |
-      which git
-      git --version
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-      bash miniconda.sh -b -p $HOME/miniconda
-      export PATH="$HOME/miniconda/bin:$PATH"
-      source activate base
-      conda-env list
-      conda activate base
-      conda list
-      conda create -y -n conformance python=3.7
-      conda activate conformance
-      conda install -y -c conda-forge mpich tbb-devel cython jinja2 numpy clang-tools
-      export TBBROOT=$CONDA_PREFIX
-      export MPIROOT=$CONDA_PREFIX
-      source __release_lnx_gnu/daal/bin/daalvars.sh intel64
-      git clone https://github.com/IntelPython/daal4py
-      conda-env list
-      conda list
-      echo ACTIVATE_CONFORMANCE_ENVIROMENT
-      conda activate conformance
-      conda list
-      echo
-      echo
-      echo
-      echo DAALROOT
-      echo $DAALROOT
-      echo
-      echo TBBROOT
-      echo $TBBROOT
-      echo
-      echo MPIROOT
-      echo $MPIROOT
-      echo
-      echo CPATH
-      echo $CPATH
-      echo
-      echo LD_LIBRARY_PATH
-      echo $LD_LIBRARY_PATH
-      echo
-      echo START
-      echo
-      pwd
-      cd daal4py
-      pwd
-      python setup.py develop
-      cd ..
-      pwd
-      echo
-      conda activate conformance
-      conda install -y -c intel scikit-learn
-      conda install -y -c conda-forge pytest
-      conda activate conformance
-      pwd
-      cd .ci/conformance/
-      pwd
-      python run_tests.py
-      cd ../../
-      pwd
+    .ci/scripts/conformance_test.sh --build-dir __release_lnx_gnu
     timeoutInMinutes: 15
-    displayName: 'Create Anaconda environment'
+    displayName: 'Conformance test'
   - task: PublishPipelineArtifact@0
     inputs:
       artifactName: 'conformance tests report'
