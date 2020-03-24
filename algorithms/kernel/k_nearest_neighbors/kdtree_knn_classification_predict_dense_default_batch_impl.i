@@ -62,7 +62,7 @@ struct GlobalNeighbors
     algorithmFpType distance;
     size_t index;
 
-    inline bool operator<(const GlobalNeighbors & rhs) const { return (distance < rhs.distance); }
+    DAAL_FORCEINLINE bool operator<(const GlobalNeighbors & rhs) const { return (distance < rhs.distance); }
 };
 
 template <typename algorithmFpType>
@@ -102,7 +102,7 @@ public:
 
     void reset() { _count = 0; }
 
-    void push(const T & e, size_t k)
+    DAAL_FORCEINLINE void push(const T & e, size_t k)
     {
         _elements[_count++] = e;
         if (_count == k)
@@ -111,18 +111,18 @@ public:
         }
     }
 
-    void replaceMax(const T & e)
+    DAAL_FORCEINLINE void replaceMax(const T & e)
     {
         popMaxHeap<cpu, T *>(_elements, _elements + _count);
         _elements[_count - 1] = e;
         pushMaxHeap<cpu, T *>(_elements, _elements + _count);
     }
 
-    size_t size() const { return _count; }
+    DAAL_FORCEINLINE size_t size() const { return _count; }
 
-    T * getMax() { return _elements; }
+    DAAL_FORCEINLINE T * getMax() { return _elements; }
 
-    const T & operator[](size_t index) const { return _elements[index]; }
+    DAAL_FORCEINLINE const T & operator[](size_t index) const { return _elements[index]; }
 
 private:
     T * _elements;
@@ -213,15 +213,16 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
         {
             const size_t first = iBlock * rowsPerBlock;
             const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
+            const size_t length = last - first;
 
             const algorithmFpType radius = MaxVal::get();
             data_management::BlockDescriptor<algorithmFpType> xBD;
-            const_cast<NumericTable &>(*x).getBlockOfRows(first, last - first, readOnly, xBD);
+            const_cast<NumericTable &>(*x).getBlockOfRows(first, length, readOnly, xBD);
             const algorithmFpType * const dx = xBD.getBlockPtr();
             data_management::BlockDescriptor<algorithmFpType> yBD;
-            y->getBlockOfRows(first, last - first, writeOnly, yBD);
+            y->getBlockOfRows(first, length, writeOnly, yBD);
             auto * const dy = yBD.getBlockPtr();
-            for (size_t i = 0; i < last - first; ++i)
+            for (size_t i = 0; i < length; ++i)
             {
                 findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data);
                 services::Status s = predict(dy[i * yColumnCount], local->heap, labels, k);
@@ -252,7 +253,7 @@ template <CpuType cpu, typename algorithmFpType>
 DAAL_FORCEINLINE void distance_comp(const algorithmFpType * const vec, const algorithmFpType & val, algorithmFpType * out, const size_t length)
 {
     algorithmFpType feature_delta;
-    for (size_t i = 0; i < length; i++)
+    for (size_t i = 0; i < length; ++i)
     {
         feature_delta = vec[i] - val;
         out[i] += feature_delta * feature_delta;
@@ -317,6 +318,7 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
                 const algorithmFpType * const dx = xBD[curBDIdx].getBlockPtr();
 
                 distance_comp<cpu>(dx, query[j - 1], distance, length);
+                
                 const_cast<NumericTable &>(data).releaseBlockOfColumnValues(xBD[curBDIdx]);
             }
 
