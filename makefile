@@ -364,7 +364,7 @@ release.EXAMPLES.DATA  := $(filter $(expat),$(shell find examples/data -type f))
 release.EXAMPLES.JAVA  := $(filter $(expat),$(shell find examples/java -type f))
 
 # List env files to populate release.
-release.ENV = bin/vars_$(_OS).$(scr)
+release.ENV = bin/vars_$(_OS).$(scr) bin/modulefile_ia32 bin/modulefile_intel64
 
 # List config files to populate release.
 release.CONF = bin/config.txt

@@ -1,0 +1,47 @@
+#%Module1.0###################################################################
+
+# get the full pathname for the script file 
+set fullroot ${ModulesCurrentModulefile}
+
+# grab the directory holding this modulefile and others
+set modulefilesroot [file dirname $fullroot]
+
+# resolve any symbolic links in the full path to the script
+# if the modulefile is a link, resolve it
+if { [file type $fullroot] eq "link" } {
+  set fullroot [file readlink $fullroot]
+}
+# fullroot is now an absolute path, but could
+# be a link.  Resolve links if needed
+set fullroot [file normalize $fullroot]
+
+# get name of modulefile, should be named for the component
+set comp [file tail $fullroot]
+
+# Determine the component root dir. <comproot>/env/scriptname
+# had to be removed from the path
+set comproot [file dirname $fullroot]
+set comproot [file dirname $comproot]
+
+# set the oneapi root
+set oneapiroot [file dirname $comproot]
+
+# Component Version, the root name in oneAPI should be the version
+set compver [file tail $comproot]
+
+# Optional, on load print the version loaded
+if { [ module-info mode load ] } {
+ 	puts stderr "Loading component $comp version $compver "
+}
+
+# ###### Component Specific env vars setup ######
+
+# Set intermediate variables
+set    __target_arch         "ia32"
+
+# Setup environment variables
+setenv          DAALROOT           ${comproot}
+prepend-path    LD_LIBRARY_PATH    $comproot/lib/${__target_arch}
+prepend-path    LIBRARY_PATH       $comproot/lib/${__target_arch}
+prepend-path    CPATH              $comproot/include
+prepend-path    CLASSPATH          $comproot/lib/daal.jar
