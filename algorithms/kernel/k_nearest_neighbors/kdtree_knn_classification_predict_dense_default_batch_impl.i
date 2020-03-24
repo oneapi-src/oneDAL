@@ -211,8 +211,8 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
         Local * const local = localTLS.local();
         if (local)
         {
-            const size_t first = iBlock * rowsPerBlock;
-            const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
+            const size_t first  = iBlock * rowsPerBlock;
+            const size_t last   = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
             const size_t length = last - first;
 
             const algorithmFpType radius = MaxVal::get();
@@ -318,7 +318,7 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
                 const algorithmFpType * const dx = xBD[curBDIdx].getBlockPtr();
 
                 distance_comp<cpu>(dx, query[j - 1], distance, length);
-                
+
                 const_cast<NumericTable &>(data).releaseBlockOfColumnValues(xBD[curBDIdx]);
             }
 
