@@ -19,7 +19,7 @@ wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O mi
 bash miniconda.sh -b -p $HOME/miniconda
 export PATH="$HOME/miniconda/bin:$PATH"
 conda create -y -n conformance python=3.7
-conda activate conformance
+source activate conformance
 conda install -y -c intel scikit-learn
 conda remove -y daal4py --force
 conda install -y -c conda-forge mpich tbb-devel cython jinja2 numpy clang-tools
@@ -31,9 +31,10 @@ cd daal4py
 python setup.py develop
 cd ..
 conda install -y -c conda-forge pytest
+echo ${Build.SourcesDirectory}
 pwd
-cd $(Build.SourcesDirectory)/.ci/conformance/
+cd .ci/conformance/
 pwd
 python run_tests.py
-cd -
+cd ../..
 pwd
