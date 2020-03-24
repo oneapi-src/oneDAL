@@ -66,6 +66,37 @@ json & json::put(const char * const key, const char * const str)
     return *this;
 }
 
+#define VERBOSE_ENUM_FUNCTION1(TYPE, NAME0)        VERBOSE_ENUM_FUNC_PREFIX(TYPE) VERBOSE_ENUM_LIST1(TYPE, NAME0) VERBOSE_ENUM_FUNC_POSTFIX
+#define VERBOSE_ENUM_FUNCTION2(TYPE, NAME0, NAME1) VERBOSE_ENUM_FUNC_PREFIX(TYPE) VERBOSE_ENUM_LIST2(TYPE, NAME0, NAME1) VERBOSE_ENUM_FUNC_POSTFIX
+#define VERBOSE_ENUM_FUNCTION3(TYPE, NAME0, NAME1, NAME2) \
+    VERBOSE_ENUM_FUNC_PREFIX(TYPE) VERBOSE_ENUM_LIST3(TYPE, NAME0, NAME1, NAME2) VERBOSE_ENUM_FUNC_POSTFIX
+#define VERBOSE_ENUM_FUNCTION4(TYPE, NAME0, NAME1, NAME2, NAME3) \
+    VERBOSE_ENUM_FUNC_PREFIX(TYPE) VERBOSE_ENUM_LIST4(TYPE, NAME0, NAME1, NAME2, NAME3) VERBOSE_ENUM_FUNC_POSTFIX
+#define VERBOSE_ENUM_FUNCTION5(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4) \
+    VERBOSE_ENUM_FUNC_PREFIX(TYPE) VERBOSE_ENUM_LIST5(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4) VERBOSE_ENUM_FUNC_POSTFIX
+#define VERBOSE_ENUM_FUNCTION6(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4, NAME5) \
+    VERBOSE_ENUM_FUNC_PREFIX(TYPE) VERBOSE_ENUM_LIST6(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4, NAME5) VERBOSE_ENUM_FUNC_POSTFIX
+#define VERBOSE_ENUM_FUNCTION7(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4, NAME5, NAME6) \
+    VERBOSE_ENUM_FUNC_PREFIX(TYPE) VERBOSE_ENUM_LIST7(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4, NAME5, NAME6) VERBOSE_ENUM_FUNC_POSTFIX
+#define VERBOSE_ENUM_FUNCTION8(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4, NAME5, NAME6, NAME7) \
+    VERBOSE_ENUM_FUNC_PREFIX(TYPE) VERBOSE_ENUM_LIST8(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4, NAME5, NAME6, NAME7) VERBOSE_ENUM_FUNC_POSTFIX
+#define VERBOSE_ENUM_FUNCTION9(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4, NAME5, NAME6, NAME7, NAME8) \
+    VERBOSE_ENUM_FUNC_PREFIX(TYPE) VERBOSE_ENUM_LIST9(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4, NAME5, NAME6, NAME7, NAME8) VERBOSE_ENUM_FUNC_POSTFIX
+#define VERBOSE_ENUM_FUNCTION10(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4, NAME5, NAME6, NAME7, NAME8, NAME9) \
+    VERBOSE_ENUM_FUNC_PREFIX(TYPE)                                                                          \
+    VERBOSE_ENUM_LIST10(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4, NAME5, NAME6, NAME7, NAME8, NAME9) VERBOSE_ENUM_FUNC_POSTFIX
+
+#define VERBOSE_ENUM_FUNC_PREFIX(TYPE)                       \
+    json & json::put(const char * const key, const TYPE val) \
+    {                                                        \
+        switch (val)                                         \
+        {
+#define VERBOSE_ENUM_FUNC_POSTFIX        \
+    default: put(key, "Unknown"); break; \
+        }                                \
+        return *this;                    \
+        }
+
 #define VERBOSE_ENUM_LIST1(TYPE, NAME0) \
     case TYPE::NAME0:                   \
         put(key, #NAME0);               \
@@ -86,39 +117,10 @@ json & json::put(const char * const key, const char * const str)
 #define VERBOSE_ENUM_LIST10(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4, NAME5, NAME6, NAME7, NAME8, NAME9) \
     VERBOSE_ENUM_LIST9(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4, NAME5, NAME6, NAME7, NAME8) VERBOSE_ENUM_LIST1(TYPE, NAME9)
 
-json & json::put(const char * const key, const data_management::NumericTableIface::StorageLayout val)
-{
-    switch (val)
-    {
-        VERBOSE_ENUM_LIST9(data_management::NumericTableIface::StorageLayout, soa, aos, csrArray, upperPackedSymmetricMatrix,
-                           lowerPackedSymmetricMatrix, upperPackedTriangularMatrix, lowerPackedTriangularMatrix, arrow, layout_unknown)
-
-    default: put(key, "Unknown"); break;
-    }
-    return *this;
-}
-
-json & json::put(const char * const key, const data_management::NumericTableIface::MemoryStatus val)
-{
-    switch (val)
-    {
-        VERBOSE_ENUM_LIST3(data_management::NumericTableIface::MemoryStatus, notAllocated, userAllocated, internallyAllocated)
-
-    default: put(key, "Unknown"); break;
-    }
-    return *this;
-}
-
-json & json::put(const char * const key, const algorithms::kmeans::DistanceType val)
-{
-    switch (val)
-    {
-    case algorithms::kmeans::euclidean: put(key, "euclidean"); break;
-
-    default: put(key, "Unknown"); break;
-    }
-    return *this;
-}
+VERBOSE_ENUM_FUNCTION9(data_management::NumericTableIface::StorageLayout, soa, aos, csrArray, upperPackedSymmetricMatrix, lowerPackedSymmetricMatrix,
+                       upperPackedTriangularMatrix, lowerPackedTriangularMatrix, arrow, layout_unknown)
+VERBOSE_ENUM_FUNCTION3(data_management::NumericTableIface::MemoryStatus, notAllocated, userAllocated, internallyAllocated)
+VERBOSE_ENUM_FUNCTION1(algorithms::kmeans::DistanceType, euclidean)
 
 json & json::put(const char * const key, const obj_begin_t &)
 {
