@@ -39,7 +39,7 @@ const char * cpuTypeToStr(const CpuType type)
     case avx512_mic: return "Intel(R) AVX-512";
     case avx512: return "Intel(R) AVX-512";
 
-    default: return "Unknown cpu type";
+    default: return "Unknown";
     };
 }
 
@@ -66,21 +66,34 @@ json & json::put(const char * const key, const char * const str)
     return *this;
 }
 
+#define VERBOSE_ENUM_LIST1(TYPE, NAME0)                      VERBOSE_ENUM_CASE(TYPE, NAME0)
+#define VERBOSE_ENUM_LIST2(TYPE, NAME0, NAME1)               VERBOSE_ENUM_LIST1(TYPE, NAME0) VERBOSE_ENUM_LIST1(TYPE, NAME1)
+#define VERBOSE_ENUM_LIST3(TYPE, NAME0, NAME1, NAME2)        VERBOSE_ENUM_LIST2(TYPE, NAME0, NAME1) VERBOSE_ENUM_LIST1(TYPE, NAME2)
+#define VERBOSE_ENUM_LIST4(TYPE, NAME0, NAME1, NAME2, NAME3) VERBOSE_ENUM_LIST2(TYPE, NAME0, NAME1) VERBOSE_ENUM_LIST2(TYPE, NAME2, NAME3)
+#define VERBOSE_ENUM_LIST5(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4) \
+    VERBOSE_ENUM_LIST4(TYPE, NAME0, NAME1, NAME2, NAME3) VERBOSE_ENUM_LIST1(TYPE, NAME4)
+#define VERBOSE_ENUM_LIST6(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4, NAME5) \
+    VERBOSE_ENUM_LIST5(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4) VERBOSE_ENUM_LIST1(TYPE, NAME5)
+#define VERBOSE_ENUM_LIST7(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4, NAME5, NAME6) \
+    VERBOSE_ENUM_LIST6(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4, NAME5) VERBOSE_ENUM_LIST1(TYPE, NAME6)
+#define VERBOSE_ENUM_LIST8(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4, NAME5, NAME6, NAME7) \
+    VERBOSE_ENUM_LIST7(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4, NAME5, NAME6) VERBOSE_ENUM_LIST1(TYPE, NAME7)
+#define VERBOSE_ENUM_LIST9(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4, NAME5, NAME6, NAME7, NAME8) \
+    VERBOSE_ENUM_LIST8(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4, NAME5, NAME6, NAME7) VERBOSE_ENUM_LIST1(TYPE, NAME8)
+#define VERBOSE_ENUM_LIST10(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4, NAME5, NAME6, NAME7, NAME8, NAME9) \
+    VERBOSE_ENUM_LIST9(TYPE, NAME0, NAME1, NAME2, NAME3, NAME4, NAME5, NAME6, NAME7, NAME8) VERBOSE_ENUM_LIST1(TYPE, NAME9)
+
+#define VERBOSE_ENUM_CASE(TYPE, NAME) \
+    case TYPE::NAME: put(key, #NAME); break;
+
 json & json::put(const char * const key, const data_management::NumericTableIface::StorageLayout val)
 {
     switch (val)
     {
-    case data_management::NumericTableIface::StorageLayout::soa: put(key, "soa"); break;
-    case data_management::NumericTableIface::StorageLayout::aos: put(key, "aos"); break;
-    case data_management::NumericTableIface::StorageLayout::csrArray: put(key, "csrArray"); break;
-    case data_management::NumericTableIface::StorageLayout::upperPackedSymmetricMatrix: put(key, "upperPackedSymmetricMatrix"); break;
-    case data_management::NumericTableIface::StorageLayout::lowerPackedSymmetricMatrix: put(key, "lowerPackedSymmetricMatrix"); break;
-    case data_management::NumericTableIface::StorageLayout::upperPackedTriangularMatrix: put(key, "upperPackedTriangularMatrix"); break;
-    case data_management::NumericTableIface::StorageLayout::lowerPackedTriangularMatrix: put(key, "lowerPackedTriangularMatrix"); break;
-    case data_management::NumericTableIface::StorageLayout::arrow: put(key, "arrow"); break;
-    case data_management::NumericTableIface::StorageLayout::layout_unknown: put(key, "layout_unknown"); break;
+        VERBOSE_ENUM_LIST9(data_management::NumericTableIface::StorageLayout, soa, aos, csrArray, upperPackedSymmetricMatrix,
+                           lowerPackedSymmetricMatrix, upperPackedTriangularMatrix, lowerPackedTriangularMatrix, arrow, layout_unknown)
 
-    default: put(key, "unknown"); break;
+    default: put(key, "Unknown"); break;
     }
     return *this;
 }
@@ -89,11 +102,9 @@ json & json::put(const char * const key, const data_management::NumericTableIfac
 {
     switch (val)
     {
-    case data_management::NumericTableIface::MemoryStatus::notAllocated: put(key, "notAllocated"); break;
-    case data_management::NumericTableIface::MemoryStatus::userAllocated: put(key, "userAllocated"); break;
-    case data_management::NumericTableIface::MemoryStatus::internallyAllocated: put(key, "internallyAllocated"); break;
+        VERBOSE_ENUM_LIST3(data_management::NumericTableIface::MemoryStatus, notAllocated, userAllocated, internallyAllocated)
 
-    default: put(key, "unknown"); break;
+    default: put(key, "Unknown"); break;
     }
     return *this;
 }
@@ -104,7 +115,7 @@ json & json::put(const char * const key, const algorithms::kmeans::DistanceType 
     {
     case algorithms::kmeans::euclidean: put(key, "euclidean"); break;
 
-    default: put(key, "unknown"); break;
+    default: put(key, "Unknown"); break;
     }
     return *this;
 }
