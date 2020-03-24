@@ -78,29 +78,60 @@ Status CommonKernel<algorithmFPType, cpu>::computeQRForBlock(DAAL_INT p, DAAL_IN
     DAAL_CHECK(info == 0, services::ErrorLinearRegressionInternal);
 
     /* Copy result into matrix R */
-    const DAAL_INT rOffset       = (n - p) * p;
-    const algorithmFPType * xPtr = x + rOffset;
-    for (size_t i = 0; i < p; i++)
+    const DAAL_INT xOffset             = (n > p ? (n - p) * p : 0);
+    const DAAL_INT rOffset             = (n > p ? 0 : (p - n) * p);
+    const DAAL_INT nRowsInR            = daal::services::internal::min<cpu, DAAL_INT>(p, n);
+    const DAAL_INT jOffset             = (n > p ? 0 : p - n);
+    const algorithmFPType * const xPtr = x + xOffset;
+    algorithmFPType * const rPtr       = r + rOffset;
+
+    for (size_t i = 0; i < nRowsInR; ++i)
     {
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t j = 0; j <= i; j++)
+        for (size_t j = 0; j <= i + jOffset; ++j)
         {
-            r[i * p + j] = xPtr[i * p + j];
+            rPtr[i * p + j] = xPtr[i * p + j];
         }
     }
 
     /* Calculate Y*Q' */
     char side  = 'R';
     char trans = 'T';
-    Lapack<algorithmFPType, cpu>::xxormrq(&side, &trans, &ny, &n, &p, const_cast<algorithmFPType *>(x), &p, tau, const_cast<algorithmFPType *>(y),
-                                          &ny, work, &lwork, &info);
+    Lapack<algorithmFPType, cpu>::xxormrq(&side, &trans, &ny, &n, const_cast<DAAL_INT *>(&nRowsInR), const_cast<algorithmFPType *>(x + jOffset), &p,
+                                          tau, const_cast<algorithmFPType *>(y), &ny, work, &lwork, &info);
     DAAL_CHECK(info == 0, services::ErrorLinearRegressionInternal);
 
+    if (p > n)
+    {
+        /* Complete a definition of a linear system if the number of observations
+         * less than the number of coefficients */
+        const algorithmFPType zero(0.0);
+        const algorithmFPType one(1.0);
+
+        for (size_t i = 0; i < p - n; ++i)
+        {
+            r[i * p + i] = one;
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (size_t j = 0; j < i; ++j)
+            {
+                r[i * p + j] = zero;
+            }
+        }
+
+        for (size_t i = 0; i < (p - n) * ny; ++i)
+        {
+            qty[i] = zero;
+        }
+    }
+
     /* Copy result into matrix QTY */
-    const DAAL_INT qtySize   = ny * p * sizeof(algorithmFPType);
-    const DAAL_INT yqtOffset = (n - p) * ny;
-    int result               = daal::services::internal::daal_memcpy_s(qty, qtySize, y + yqtOffset, qtySize);
+    const DAAL_INT qtySize   = ny * (n > p ? p : n) * sizeof(algorithmFPType);
+    const DAAL_INT yOffset   = (n > p ? (n - p) * ny : 0);
+    const DAAL_INT qtyOffset = (n > p ? 0 : (p - n) * ny);
+
+    int result = daal::services::internal::daal_memcpy_s(qty + qtyOffset, qtySize, y + yOffset, qtySize);
 
     return (!result) ? Status() : Status(services::ErrorMemoryCopyFailedInternal);
 }
