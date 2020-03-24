@@ -22,7 +22,7 @@ if __name__ == "__main__":
             Start of testing in """ + str(datetime.now())+ "<br>"
     report_file.write(textHTML)
 
-    os.system("bash ./download_test.sh")
+    os.system("bash ./download_tests.sh")
 
     for alg_name in algs:
         report_file.write("<br><h2>Testing %s</h2>" % alg_name)
