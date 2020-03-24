@@ -248,6 +248,10 @@ public:
     /** Default constructor */
     Batch() { initialize(); };
 
+    /**
+     * Constructs an SVM training algorithm with nClasses parameter
+     * \param[in] nClasses   number of classes
+    */
     Batch(size_t nClasses)
     {
         parameter.nClasses = nClasses;

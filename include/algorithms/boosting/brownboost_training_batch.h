@@ -243,6 +243,10 @@ public:
 
     Batch();
 
+    /**
+     * Constructs an BrownBoost training algorithm with nClasses parameter
+     * \param[in] nClasses   number of classes
+    */
     Batch(size_t nClasses);
 
     /**
