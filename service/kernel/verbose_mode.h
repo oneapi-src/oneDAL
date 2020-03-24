@@ -30,6 +30,8 @@
 #include "data_management/data/numeric_table.h"
 #include "algorithms/kmeans/kmeans_types.h"
 
+#include "service/kernel/daal_strings.h"
+
 namespace daal
 {
 namespace service
@@ -116,7 +118,7 @@ struct json
 
         need_comma = false;
         begin();
-        json_print(*this, p);
+        print_obj(p);
         end();
 
         need_comma = true;
@@ -149,35 +151,30 @@ private:
 
     void write_escape(const char * const str);
 
+    // pointer dispatcher
     template <typename ValPtr>
-    friend auto json_print(json & writer, const ValPtr p) -> typename std::enable_if<std::is_pointer<typename std::decay<ValPtr>::type>::value>::type;
+    auto print_obj(const ValPtr p) -> typename std::enable_if<std::is_pointer<typename std::decay<ValPtr>::type>::value>::type
+    {
+        if (p)
+        {
+            print_obj(*p);
+        }
+        else
+        {
+            write("\"ptr\":\"nullptr\"");
+        }
+    }
+
+    // algorithms::kmeans::Parameter &
+    void print_obj(const algorithms::kmeans::Parameter & val);
+    // data_management::NumericTable &
+    void print_obj(const data_management::NumericTable & val);
+    //
+    void print_obj(...) { write("\"content\":\"unknown\""); }
 
     int depth;
     bool need_comma;
 };
-
-// pointer dispatcher
-template <typename ValPtr>
-auto json_print(json & writer, const ValPtr p) -> typename std::enable_if<std::is_pointer<typename std::decay<ValPtr>::type>::value>::type
-{
-    if (p)
-    {
-        json_print(writer, *p);
-    }
-    else
-    {
-        writer.write("\"ptr\":\"nullptr\"");
-    }
-}
-
-// todo: move it inside class; to consistant w/ enum
-// algorithms::kmeans::Parameter &
-void json_print(json & writer, const algorithms::kmeans::Parameter & val);
-
-// data_management::NumericTable &
-void json_print(json & writer, const data_management::NumericTable & val);
-
-void json_print(json & writer, ...);
 
 template <typename algorithmFPType>
 constexpr const char * fpTypeToStr()

@@ -185,7 +185,7 @@ json::~json()
 
 void json::write(const char * const str)
 {
-    if (0 > printf("%s", str)) exit(1);
+    if (0 > puts(str)) exit(1);
 }
 
 void json::write(const char c)
@@ -278,22 +278,19 @@ void print_common_parameters(json & writer, const Parameter & val)
     print_common_parameters_batchSize(writer, val);
 }
 
-// algorithms::kmeans::Parameter &
-void json_print(json & writer, const algorithms::kmeans::Parameter & val)
+void json::print_obj(const algorithms::kmeans::Parameter & val)
 {
-    print_common_parameters(writer, val);
-    writer.put("gamma", val.gamma).put("distanceType", val.distanceType).put("assignFlag", val.assignFlag);
+    print_common_parameters(*this, val);
+    put("gamma", val.gamma).put("distanceType", val.distanceType).put("assignFlag", val.assignFlag);
 }
 
 // data_management::NumericTable &
-void json_print(json & writer, const data_management::NumericTable & val)
+void json::print_obj(const data_management::NumericTable & val)
 {
-    writer.put("numberOfColumns", val.getNumberOfColumns()).put("numberOfRows", val.getNumberOfRows());
-    writer.put("dataLayout", val.getDataLayout()).put("dataMemoryStatus", val.getDataMemoryStatus());
+    put("numberOfColumns", val.getNumberOfColumns()).put("numberOfRows", val.getNumberOfRows());
+    put("dataLayout", val.getDataLayout()).put("dataMemoryStatus", val.getDataMemoryStatus());
     // TODO: if verbose level 3 - show small part of array
 }
-
-void json_print(json & writer, ...) {}
 
 verbose_t::verbose_t()
 {
