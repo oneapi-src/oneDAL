@@ -368,7 +368,7 @@ release.EXAMPLES.JAVA  := $(filter $(expat),$(shell find examples/java -type f))
 release.ENV = bin/vars_$(_OS).$(scr)
 
 # List modulefiles to populate release.
-release.MODULEFILES = bin/modulefile_ia32 bin/modulefile_intel64
+release.MODULEFILES = bin/modulefile32 bin/modulefile
 
 # List config files to populate release.
 release.CONF = bin/config.txt
@@ -721,7 +721,7 @@ $3/$2: $(DIR)/$1 | $3/. ; $(value cpy)
 	$(if $(filter %.sh %.bat,$2),chmod +x $$@)
 endef
 $(foreach x,$(release.ENV),$(eval $(call .release.x,$x,$(notdir $(subst _$(_OS),,$x)),$(RELEASEDIR.env),_release_common)))
-$(if $(OS_is_lnx),$(foreach x,$(release.MODULEFILES),$(eval $(call .release.x,$x,$(notdir $(subst $x,$(if $(IA_is_ia32),dal32,dal),$x)),$(RELEASEDIR.modulefiles),_release_common))))
+$(if $(OS_is_lnx),$(foreach x,$(release.MODULEFILES),$(eval $(call .release.x,$x,$(notdir $(subst modulefile,dal,$x)),$(RELEASEDIR.modulefiles),_release_common))))
 $(foreach x,$(release.CONF),$(eval $(call .release.x,$x,$(notdir $(subst _$(_OS),,$x)),$(RELEASEDIR.conf),_release_common)))
 
 #----- releasing documentation
