@@ -51,8 +51,16 @@ static const obj_end_t end;
 // Static initialization for verbose level variable
 struct verbose_t
 {
+    static verbose_t & getInstance()
+    {
+        static verbose_t instance;
+        return instance;
+    }
+
+    int level;
+
+private:
     verbose_t();
-    static int level;
 };
 
 struct json
@@ -196,7 +204,7 @@ struct kernel_verbose_raii
     template <typename... Args>
     kernel_verbose_raii(const char * const file, Args... args) : file_name(file)
     {
-        if (verbose_t::level == 2)
+        if (verbose_t::getInstance().level == 2)
         {
             writer.put("kernel file", file_name).put("algorithmFPType", fpTypeToStr<algorithmFPType>());
             writer.put("env", begin).put("cpu", cpuTypeToStr(cpu)).put(end);
@@ -204,11 +212,11 @@ struct kernel_verbose_raii
             put(args...);
             writer.put(end);
         }
-        if (verbose_t::level) start = std::clock();
+        if (verbose_t::getInstance().level) start = std::clock();
     }
     ~kernel_verbose_raii()
     {
-        if (verbose_t::level) writer.put("time", begin).put("total, msec", 1000.0 * double(std::clock() - start) / CLOCKS_PER_SEC).put(end);
+        if (verbose_t::getInstance().level) writer.put("time", begin).put("total, msec", 1000.0 * double(std::clock() - start) / CLOCKS_PER_SEC).put(end);
     }
 
 private:
@@ -230,7 +238,7 @@ private:
 
 #if VERBOSE_BUILD_ENABLED
 
-    // we can't use if(verbose::level) kernel_verbose_raii(...) because it will be scope
+    // we can't use if(level) kernel_verbose_raii(...) because it will be scope
     #define SHOW_STAT0()     ::daal::service::verbose_mode::kernel_verbose_raii<algorithmFPType, cpu> raii_timer(__FILE__);
     #define SHOW_STAT1(arg0) ::daal::service::verbose_mode::kernel_verbose_raii<algorithmFPType, cpu> raii_timer(__FILE__, #arg0, arg0);
     #define SHOW_STAT2(arg0, arg1) \

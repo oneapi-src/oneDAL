@@ -314,18 +314,14 @@ verbose_t::verbose_t()
     const char * const var = std::getenv("DAAL_VERBOSE");
     if (var)
     {
-        if ('1' == var[0] && '\0' == var[1]) verbose_t::level = 1;
-        if ('2' == var[0] && '\0' == var[1]) verbose_t::level = 2;
+        if ('1' == var[0] && '\0' == var[1]) level = 1;
+        if ('2' == var[0] && '\0' == var[1]) level = 2;
     }
     else
     {
-        verbose_t::level = 0;
+        level = 0;
     }
 }
-
-int verbose_t::level;
-
-static const ::daal::service::verbose_mode::verbose_t static_init_verbose_mode;
 
 } // namespace verbose_mode
 } // namespace service
