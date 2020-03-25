@@ -43,7 +43,7 @@ jobs:
     displayName: 'Conformance test'
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: 'conformance tests report'
+      artifactName: '$(platform.type) conformance tests report'
       targetPath: '.ci/conformance/report.html'
 - job: macOS
   timeoutInMinutes: 0

@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     for alg_name in algs:
         report_file.write("<br><h2>Testing %s</h2>" % alg_name)
-        print("alg_name: ", alg_name)
+        #print("alg_name: ", alg_name)
         #os.system("source ./tools/%s/download_test.sh &>> _log_downloads" % alg_name)
         out, err = Popen("python tools/%(alg)s/patcher.py test_%(alg)s.py" % {"alg": alg_name}, shell=True, stdout=PIPE).communicate()
         report_file.write((str(out, 'utf-8')).replace("\n", "<br>"))
