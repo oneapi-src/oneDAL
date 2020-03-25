@@ -245,9 +245,9 @@ void json::write(const double d)
 // Generate SFINAE functions for each possible field
 #define DECLARE_DAAL_STRING_CONST(arg0)                                                                     \
     template <typename Parameter>                                                                           \
-    auto print_common_fields_func(arg0)(json & writer, const Parameter & val)->decltype(val.##arg0, void()) \
+    auto print_common_fields_func(arg0)(json & writer, const Parameter & val)->decltype(val.arg0, void()) \
     {                                                                                                       \
-        writer.put_pair(##arg0);                                                                            \
+        writer.put_pair(arg0);                                                                            \
     }                                                                                                       \
     template <typename... Args>                                                                             \
     void print_common_fields_func(arg0)(json &, Args...)                                                    \
