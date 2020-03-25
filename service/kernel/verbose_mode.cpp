@@ -240,65 +240,33 @@ void json::write(const double d)
 // this macro also should support chainig like an original function and should looks like a real function
 #define put_pair(NAME) put(#NAME, val.NAME)
 
-template <typename Parameter>
-auto print_common_parameters_clusters(json & writer, const Parameter & val) -> decltype(val.nClusters, void())
-{
-    writer.put_pair(nClusters);
-}
-template <typename... Args>
-void print_common_parameters_clusters(json &, Args...)
-{}
+#define print_common_fields_func(arg0) print_common_fields_##arg0
 
-template <typename Parameter>
-auto print_common_parameters_iterations(json & writer, const Parameter & val) -> decltype(val.maxIterations, void())
-{
-    writer.put_pair(maxIterations);
-}
-template <typename... Args>
-void print_common_parameters_iterations(json &, Args...)
-{}
+// Generate SFINAE functions for each possible field
+#define DECLARE_DAAL_STRING_CONST(arg0)                                                                     \
+    template <typename Parameter>                                                                           \
+    auto print_common_fields_func(arg0)(json & writer, const Parameter & val)->decltype(val.##arg0, void()) \
+    {                                                                                                       \
+        writer.put_pair(##arg0);                                                                            \
+    }                                                                                                       \
+    template <typename... Args>                                                                             \
+    void print_common_fields_func(arg0)(json &, Args...)                                                    \
+    {}
 
-template <typename Parameter>
-auto print_common_parameters_accuracy(json & writer, const Parameter & val) -> decltype(val.accuracyThreshold, void())
-{
-    writer.put_pair(accuracyThreshold);
-}
-template <typename... Args>
-void print_common_parameters_accuracy(json &, Args...)
-{}
+DAAL_STRINGS_LIST()
+#undef DECLARE_DAAL_STRING_CONST
 
-template <typename Parameter>
-auto print_common_parameters_batchIndices(json & writer, const Parameter & val) -> decltype(val.batchIndices, void())
+template <typename Struct>
+void print_common_fields(json & writer, const Struct & val)
 {
-    writer.put_pair(batchIndices);
-}
-template <typename... Args>
-void print_common_parameters_batchIndices(json &, Args...)
-{}
-
-template <typename Parameter>
-auto print_common_parameters_batchSize(json & writer, const Parameter & val) -> decltype(val.batchSize, void())
-{
-    writer.put_pair(batchSize);
-}
-template <typename... Args>
-void print_common_parameters_batchSize(json &, Args...)
-{}
-
-template <typename Parameter>
-void print_common_parameters(json & writer, const Parameter & val)
-{
-    print_common_parameters_clusters(writer, val);
-    print_common_parameters_iterations(writer, val);
-    print_common_parameters_accuracy(writer, val);
-    print_common_parameters_batchIndices(writer, val);
-    print_common_parameters_batchSize(writer, val);
+#define DECLARE_DAAL_STRING_CONST(arg0) print_common_fields_func(arg0)(writer, val);
+    DAAL_STRINGS_LIST()
+#undef DECLARE_DAAL_STRING_CONST
 }
 
 void json::print_obj(const algorithms::kmeans::Parameter & val)
 {
-    print_common_parameters(*this, val);
-    put_pair(gamma).put_pair(distanceType).put_pair(assignFlag);
+    print_common_fields(*this, val);
 }
 
 // data_management::NumericTable &
