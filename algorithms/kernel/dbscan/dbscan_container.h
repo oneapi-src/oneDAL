@@ -85,20 +85,18 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
         if (par->memorySavingMode == false)
         {
             __DAAL_CALL_KERNEL(env, internal::DBSCANBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), computeNoMemSave, ntData.get(),
-                            ntWeights.get(), ntAssignments.get(), ntNClusters.get(), ntCoreIndices.get(), ntCoreObservations.get(), par);
+                               ntWeights.get(), ntAssignments.get(), ntNClusters.get(), ntCoreIndices.get(), ntCoreObservations.get(), par);
         }
         else
         {
             __DAAL_CALL_KERNEL(env, internal::DBSCANBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), computeMemSave, ntData.get(),
-                            ntWeights.get(), ntAssignments.get(), ntNClusters.get(), ntCoreIndices.get(), ntCoreObservations.get(), par);
+                               ntWeights.get(), ntAssignments.get(), ntNClusters.get(), ntCoreIndices.get(), ntCoreObservations.get(), par);
         }
     }
-    else 
+    else
     {
-        __DAAL_CALL_KERNEL_SYCL(env, internal::DBSCANBatchKernelUCAPI,                              \
-                        __DAAL_KERNEL_ARGUMENTS(algorithmFPType), compute,                          \
-                        ntData.get(), ntWeights.get(), ntAssignments.get(),                         \
-                        ntNClusters.get(), ntCoreIndices.get(), ntCoreObservations.get(), par);
+        __DAAL_CALL_KERNEL_SYCL(env, internal::DBSCANBatchKernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType), compute, ntData.get(),
+                                ntWeights.get(), ntAssignments.get(), ntNClusters.get(), ntCoreIndices.get(), ntCoreObservations.get(), par);
     }
 }
 

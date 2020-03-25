@@ -38,89 +38,49 @@ namespace dbscan
 {
 namespace internal
 {
-
 template <typename algorithmFPType>
 class DBSCANBatchKernelUCAPI : public Kernel
 {
 public:
-    services::Status compute(const NumericTable * ntData, const NumericTable * ntWeights, NumericTable * ntAssignments,
-                                    NumericTable * ntNClusters, NumericTable * ntCoreIndices, NumericTable * ntCoreObservations,
-                                    const Parameter * par);
+    services::Status compute(const NumericTable * ntData, const NumericTable * ntWeights, NumericTable * ntAssignments, NumericTable * ntNClusters,
+                             NumericTable * ntCoreIndices, NumericTable * ntCoreObservations, const Parameter * par);
 
 private:
-    services::Status processResultsToCompute(DAAL_UINT64 resultsToCompute, int * const isCore, NumericTable * ntData,
-                                             NumericTable * ntCoreIndices, NumericTable * ntCoreObservations);
-    services::Status pushNeighborsToQueue(
-        const oneapi::internal::UniversalBuffer& distances,
-        const oneapi::internal::UniversalBuffer& chunkOffests,
-        uint32_t rowId,
-        uint32_t clusterId, 
-        uint32_t chunkOffset,
-        uint32_t numberOfChunks,
-        uint32_t nRows,
-        uint32_t qEnd,
-        algorithmFPType eps,
-        oneapi::internal::UniversalBuffer& assignments,
-        oneapi::internal::UniversalBuffer& queue);
+    services::Status processResultsToCompute(DAAL_UINT64 resultsToCompute, int * const isCore, NumericTable * ntData, NumericTable * ntCoreIndices,
+                                             NumericTable * ntCoreObservations);
+    services::Status pushNeighborsToQueue(const oneapi::internal::UniversalBuffer & distances, const oneapi::internal::UniversalBuffer & chunkOffests,
+                                          uint32_t rowId, uint32_t clusterId, uint32_t chunkOffset, uint32_t numberOfChunks, uint32_t nRows,
+                                          uint32_t qEnd, algorithmFPType eps, oneapi::internal::UniversalBuffer & assignments,
+                                          oneapi::internal::UniversalBuffer & queue);
 
-    services::Status countOffsets(
-        const oneapi::internal::UniversalBuffer& counters,
-        uint32_t numberOfChunks,
-        oneapi::internal::UniversalBuffer& offsets);
+    services::Status countOffsets(const oneapi::internal::UniversalBuffer & counters, uint32_t numberOfChunks,
+                                  oneapi::internal::UniversalBuffer & offsets);
 
-    services::Status setBufferValue(
-        oneapi::internal::UniversalBuffer& buffer,
-        uint32_t index,
-        int value); 
- 
-    services::Status setBufferValueByQueueIndex(
-        oneapi::internal::UniversalBuffer& buffer,
-        const oneapi::internal::UniversalBuffer& queue,
-        uint32_t posInQueue,
-        int value); 
+    services::Status setBufferValue(oneapi::internal::UniversalBuffer & buffer, uint32_t index, int value);
 
-    services::Status getPointDistances(
-        const oneapi::internal::UniversalBuffer& data,
-        uint32_t nRows, 
-        uint32_t rowId,
-        uint32_t dim, 
-        uint32_t minkowskiPower,
-        oneapi::internal::UniversalBuffer& pointDistances);
+    services::Status setBufferValueByQueueIndex(oneapi::internal::UniversalBuffer & buffer, const oneapi::internal::UniversalBuffer & queue,
+                                                uint32_t posInQueue, int value);
 
-    services::Status getQueueBlockDistances(
-        const oneapi::internal::UniversalBuffer& data,
-        uint32_t nRows, 
-        const oneapi::internal::UniversalBuffer& queue,
-        uint32_t queueBegin, 
-        uint32_t queueBlockSize,
-        uint32_t dim, 
-        uint32_t minkowskiPower,
-        oneapi::internal::UniversalBuffer& queueBlockDistances);
+    services::Status getPointDistances(const oneapi::internal::UniversalBuffer & data, uint32_t nRows, uint32_t rowId, uint32_t dim,
+                                       uint32_t minkowskiPower, oneapi::internal::UniversalBuffer & pointDistances);
 
-    services::Status countPointNeighbors(
-        const oneapi::internal::UniversalBuffer& assignments,
-        const oneapi::internal::UniversalBuffer& pointDistances,
-        uint32_t rowId, 
-        int chunkOffset,
-        uint32_t nRows,
-        uint32_t numberOfChunks,
-        algorithmFPType epsP,
-        const oneapi::internal::UniversalBuffer& queue,
-        oneapi::internal::UniversalBuffer& countersTotal,
-        oneapi::internal::UniversalBuffer& countersNewNeighbors);
+    services::Status getQueueBlockDistances(const oneapi::internal::UniversalBuffer & data, uint32_t nRows,
+                                            const oneapi::internal::UniversalBuffer & queue, uint32_t queueBegin, uint32_t queueBlockSize,
+                                            uint32_t dim, uint32_t minkowskiPower, oneapi::internal::UniversalBuffer & queueBlockDistances);
 
-    uint32_t sumCounters(
-        const oneapi::internal::UniversalBuffer& counters,
-        uint32_t numberOfChunks);
+    services::Status countPointNeighbors(const oneapi::internal::UniversalBuffer & assignments,
+                                         const oneapi::internal::UniversalBuffer & pointDistances, uint32_t rowId, int chunkOffset, uint32_t nRows,
+                                         uint32_t numberOfChunks, algorithmFPType epsP, const oneapi::internal::UniversalBuffer & queue,
+                                         oneapi::internal::UniversalBuffer & countersTotal, oneapi::internal::UniversalBuffer & countersNewNeighbors);
 
+    uint32_t sumCounters(const oneapi::internal::UniversalBuffer & counters, uint32_t numberOfChunks);
 
-    services::Status buildProgram(
-        oneapi::internal::ClKernelFactoryIface & kernel_factory);
+    services::Status buildProgram(oneapi::internal::ClKernelFactoryIface & kernel_factory);
 
-    size_t _minSubgroupSize = 16;
+    size_t _minSubgroupSize  = 16;
     size_t _maxWorkgroupSize = 256;
-    size_t _chunkNumber = 64;
-    size_t _queueBlockSize = 64;
+    size_t _chunkNumber      = 64;
+    size_t _queueBlockSize   = 64;
 };
 
 } // namespace internal
