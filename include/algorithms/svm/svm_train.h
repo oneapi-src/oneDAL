@@ -249,6 +249,16 @@ public:
     Batch() { initialize(); };
 
     /**
+     * Constructs an SVM training algorithm with nClasses parameter
+     * \param[in] nClasses   number of classes
+    */
+    Batch(size_t nClasses)
+    {
+        parameter.nClasses = nClasses;
+        initialize();
+    }
+
+    /**
      * Constructs an SVM training algorithm by copying input objects and parameters
      * of another SVM training algorithm
      * \param[in] other An algorithm to be used as the source to initialize the input objects
