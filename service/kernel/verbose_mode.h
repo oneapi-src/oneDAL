@@ -216,7 +216,8 @@ struct kernel_verbose_raii
     }
     ~kernel_verbose_raii()
     {
-        if (verbose_t::getInstance().level) writer.put("time", begin).put("total, msec", 1000.0 * double(std::clock() - start) / CLOCKS_PER_SEC).put(end);
+        if (verbose_t::getInstance().level)
+            writer.put("time", begin).put("total, msec", 1000.0 * double(std::clock() - start) / CLOCKS_PER_SEC).put(end);
     }
 
 private:
