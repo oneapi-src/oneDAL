@@ -22,6 +22,7 @@
 */
 
 #include "service/kernel/daal_strings.h"
+#include "service/kernel/service_defines.h"
 
 namespace daal
 {
@@ -38,6 +39,7 @@ DAAL_STRINGS_LIST()
 
 const char * getStr(EStringConst eStr)
 {
+    DAAL_ASSERT(sizeof(s_stringConsts) / sizeof(s_stringConsts[0]) > eStr)
     return s_stringConsts[eStr];
 }
 
