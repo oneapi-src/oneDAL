@@ -135,7 +135,7 @@ sointel64:
 _make_ex: $(RES)
 
 vpath
-vpath %.cpp $(addprefix ./source/,datasource covariance linear_regression logistic_regression optimization_solvers pca pca_transform kmeans moments k_nearest_neighbors gradient_boosted_trees)
+vpath %.cpp $(addprefix ./source/,datasource covariance linear_regression logistic_regression optimization_solvers pca pca_transform kmeans moments k_nearest_neighbors gradient_boosted_trees dbscan)
 
 .SECONDARY:
 $(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.
