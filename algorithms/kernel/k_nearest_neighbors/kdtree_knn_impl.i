@@ -69,13 +69,13 @@ namespace internal
 using namespace daal::services::internal;
 
 template <CpuType cpu, typename T>
-inline const T & min(const T & a, const T & b)
+DAAL_FORCEINLINE const T & min(const T & a, const T & b)
 {
     return !(b < a) ? a : b;
 }
 
 template <CpuType cpu, typename T>
-inline const T & max(const T & a, const T & b)
+DAAL_FORCEINLINE const T & max(const T & a, const T & b)
 {
     return (a < b) ? b : a;
 }
@@ -125,7 +125,7 @@ public:
 
     DAAL_FORCEINLINE T pop() { return _data[_top--]; }
 
-    bool empty() const { return _top == -1; }
+    DAAL_FORCEINLINE bool empty() const { return _top == -1; }
 
     DAAL_FORCEINLINE size_t size() const { return (_top + 1); }
 

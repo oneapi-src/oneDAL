@@ -252,11 +252,9 @@ Function that reduces code duplication
 template <CpuType cpu, typename algorithmFpType>
 DAAL_FORCEINLINE void distance_comp(const algorithmFpType * const vec, const algorithmFpType & val, algorithmFpType * out, const size_t length)
 {
-    algorithmFpType feature_delta;
     for (size_t i = 0; i < length; ++i)
     {
-        feature_delta = vec[i] - val;
-        out[i] += feature_delta * feature_delta;
+        out[i] += (vec[i] - val) * (vec[i] - val);
     }
 }
 
