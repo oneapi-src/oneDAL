@@ -384,11 +384,11 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::getPointDistances(cons
 
     KernelArguments args(6);
     args.set(0, data, AccessModeIds::read);
-    args.set(1, pointDistances, AccessModeIds::write);
-    args.set(2, rowId);
-    args.set(3, minkowskiPower);
-    args.set(4, dim);
-    args.set(5, nRows);
+    args.set(1, rowId);
+    args.set(2, minkowskiPower);
+    args.set(3, dim);
+    args.set(4, nRows);
+    args.set(5, pointDistances, AccessModeIds::write);
 
     KernelRange local_range(1, _maxWorkgroupSize);
     KernelRange global_range(nRows / _minSubgroupSize + 1, _maxWorkgroupSize);
