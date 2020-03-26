@@ -76,34 +76,35 @@ DECLARE_SOURCE(
         }
     }
 
-    __kernel void count_neighbors(__global const int * assignments, __global const algorithmFPType * points, int point_id, int chunk_offset,
-                                  int chunk_size, int num_points, algorithmFPType eps, __global const int * queue, __global int * counters,
-                                  __global int * undefCounters) {
+    __kernel void count_neighbors_by_type(__global const int * assignments, __global const algorithmFPType * points, int point_id, int first_chunk_offset,
+                                  int chunk_size, int num_points, algorithmFPType eps, __global const int * queue, __global int * counters_all_nbrs,
+                                  __global int * counters_undef_nbrs) {
         const int subgroup_index           = get_global_id(0) * get_num_sub_groups() + get_sub_group_id();
-        const int offset          = subgroup_index * chunk_size;
-        const int number          = num_points - offset < chunk_size ? num_points - offset : chunk_size;
-        point_id                    = chunk_offset < 0 ? point_id : queue[point_id];
-        const int distance_offset = offset + (chunk_offset < 0 ? 0 : chunk_offset);
+        const int subgroup_offset          = subgroup_index * chunk_size;
+        const int subgroup_point_number          = num_points - subgroup_offset < chunk_size ? num_points - subgroup_offset : chunk_size;
+        point_id                    = first_chunk_offset < 0 ? point_id : queue[point_id];
+        const int distance_offset = subgroup_offset + (first_chunk_offset < 0 ? 0 : first_chunk_offset);
         if (subgroup_index >= num_points) return;
+
         const int subgroup_size                         = get_sub_group_size();
         const int local_id                           = get_sub_group_local_id();
-        __global const algorithmFPType * input = &points[distance_offset];
-        __global const int * assigned          = &assignments[offset];
-        int count                              = 0;
-        int new_count                          = 0;
-        for (int i = local_id; i < number; i += subgroup_size)
+        __global const algorithmFPType * subgroup_points = &points[distance_offset];
+        __global const int * assignments_assignments          = &assignments[subgroup_offset];
+        int counter_all                              = 0;
+        int counter_undefined                          = 0;
+        for (int i = local_id; i < subgroup_point_number; i += subgroup_size)
         {
-            int nbr_flag     = input[i] <= eps ? 1 : 0;
-            int new_nbr_flag = nbr_flag > 0 && assigned[i] == _UNDEFINED_ && (i + offset != point_id) ? 1 : 0;
-            count += nbr_flag;
-            new_count += new_nbr_flag;
+            int is_nbr     = subgroup_points[i] <= eps ? 1 : 0;
+            int is_undefined_nbr = is_nbr > 0 && assignments_assignments[i] == _UNDEFINED_ && (i + subgroup_offset != point_id) ? 1 : 0;
+            counter_all += is_nbr;
+            counter_undefined += is_undefined_nbr;
         }
-        int ret_count     = sub_group_reduce_add(count);
-        int ret_new_count = sub_group_reduce_add(new_count);
+        int subgroup_counter_all     = sub_group_reduce_add(counter_all);
+        int subgroup_counter_undefined = sub_group_reduce_add(counter_undefined);
         if (local_id == 0)
         {
-            counters[subgroup_index]      = ret_count;
-            undefCounters[subgroup_index] = ret_new_count;
+            counters_all_nbrs[subgroup_index]      = subgroup_counter_all;
+            counters_undef_nbrs[subgroup_index] = subgroup_counter_undefined;
         }
     }
 
@@ -142,14 +143,14 @@ DECLARE_SOURCE(
         point_id                = chunk_offset < 0 ? point_id : queue[point_id];
         const int dist_offset = offset + (chunk_offset < 0 ? 0 : chunk_offset);
         if (offset >= num_points) return;
-        const int number                       = num_points - offset < chunk_size ? num_points - offset : chunk_size;
+        const int subgroup_point_number                       = num_points - offset < chunk_size ? num_points - offset : chunk_size;
         const int subgroup_size                         = get_sub_group_size();
         const int local_id                           = get_sub_group_local_id();
         __global const algorithmFPType * input = &distances[dist_offset];
         __global int * assigned                = &assignments[offset];
         const int out_offset                   = offsets[subgroup_index];
         int local_offset                       = 0;
-        for (int i = local_id; i < number; i += subgroup_size)
+        for (int i = local_id; i < subgroup_point_number; i += subgroup_size)
         {
             int nbr_flag     = input[i] <= eps ? 1 : 0;
             int new_nbr_flag = nbr_flag > 0 && assigned[i] == _UNDEFINED_ && (i + offset != point_id) ? 1 : 0;
