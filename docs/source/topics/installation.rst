@@ -18,7 +18,7 @@
 .. _idz: https://software.intel.com/en-us/oneapi/dal
 
 .. |github_rls| replace:: |short_name| GitHub\*
-.. _github_rls: https://github.com/intel/daal/releases
+.. _github_rls: https://github.com/oneapi-src/oneDAL/releases
 
 Installation
 ~~~~~~~~~~~~
