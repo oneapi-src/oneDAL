@@ -148,7 +148,7 @@ DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
         {
             daal::services::Environment::setNumberOfThreads(ncores);
         }
-    } 
+    }
     else
     {
         daal::services::Environment::setNumberOfThreads(_daal_threader_get_max_threads());
