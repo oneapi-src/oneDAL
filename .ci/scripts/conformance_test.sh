@@ -20,8 +20,6 @@ bash miniconda.sh -b -p $HOME/miniconda
 export PATH="$HOME/miniconda/bin:$PATH"
 conda create -y -n conformance python=3.7
 source activate conformance
-conda install -y -c intel scikit-learn=0.21
-conda remove -y daal4py --force
 conda install -y -c conda-forge mpich tbb-devel cython jinja2 numpy clang-tools
 export TBBROOT=$CONDA_PREFIX
 export MPIROOT=$CONDA_PREFIX
@@ -30,7 +28,7 @@ git clone https://github.com/IntelPython/daal4py
 cd daal4py
 python setup.py develop
 cd ..
-conda install -y -c conda-forge pytest
+conda install -y -c conda-forge pytest scikit-learn=0.21
 cd .ci/conformance/
 python run_tests.py
 cd ../..
