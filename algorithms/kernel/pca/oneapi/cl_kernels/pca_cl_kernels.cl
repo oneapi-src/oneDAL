@@ -38,6 +38,17 @@ DECLARE_SOURCE(
         variances[tid] = covariance[tid * nFeatures + tid];
     }
 
+    __kernel void range(__global int * x) {
+        const int i = get_global_id(0);
+        x[i]        = i;
+    }
+
+    __kernel void checkUpper(const __global algorithmFPType * const y, const __global algorithmFPType * const alpha, const algorithmFPType C,
+                             __global int * indicator) {
+        const int i  = get_global_id(0);
+        indicator[i] = y[i] > 0 && alpha[i] < C || y[i] < 0 && alpha[i] > 0;
+    }
+
 );
 
 #endif
