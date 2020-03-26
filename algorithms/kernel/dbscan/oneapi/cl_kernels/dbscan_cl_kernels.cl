@@ -78,7 +78,7 @@ DECLARE_SOURCE(
         }
     }
 
-    __kernel void count_neighbors_by_type(__global const int * assignments, __global const algorithmFPType * points, int point_id, int first_chunk_offset,
+    __kernel void count_neighbors_by_type(__global const int * assignments, __global const algorithmFPType * distances, int point_id, int first_chunk_offset,
                                   int chunk_size, int num_points, algorithmFPType eps, __global const int * queue, __global int * counters_all_nbrs,
                                   __global int * counters_undef_nbrs) 
     {
@@ -91,14 +91,14 @@ DECLARE_SOURCE(
 
         const int subgroup_size                         = get_sub_group_size();
         const int local_id                           = get_sub_group_local_id();
-        __global const algorithmFPType * subgroup_points = &points[distance_offset];
-        __global const int * assignments_assignments          = &assignments[subgroup_offset];
+        __global const algorithmFPType * subgroup_distances = &distances[distance_offset];
+        __global const int * subgroup_assignments          = &assignments[subgroup_offset];
         int counter_all                              = 0;
         int counter_undefined                          = 0;
         for (int i = local_id; i < subgroup_point_number; i += subgroup_size)
         {
-            int is_nbr     = subgroup_points[i] <= eps ? 1 : 0;
-            int is_undefined_nbr = is_nbr > 0 && assignments_assignments[i] == _UNDEFINED_ && (i + subgroup_offset != point_id) ? 1 : 0;
+            int is_nbr     = subgroup_distances[i] <= eps ? 1 : 0;
+            int is_undefined_nbr = is_nbr > 0 && subgroup_assignments[i] == _UNDEFINED_ && (i + subgroup_offset != point_id) ? 1 : 0;
             counter_all += is_nbr;
             counter_undefined += is_undefined_nbr;
         }
@@ -142,32 +142,32 @@ DECLARE_SOURCE(
         }
     }
 
-    __kernel void push_points_to_queue(__global const algorithmFPType * distances, __global const int * offsets,
+    __kernel void push_points_to_queue(__global const algorithmFPType * distances, __global const int * chunk_offsets,
                                 int queue_end, int point_id, int cluster_id, int first_chunk_offset, int chunk_size,
                                 algorithmFPType eps, int num_points,  __global int * assignments, __global int * queue) 
     {
         const int subgroup_index       = get_global_id(0) * get_num_sub_groups() + get_sub_group_id();
-        const int offset      = subgroup_index * chunk_size;
+        const int subgroup_offset      = subgroup_index * chunk_size;
         point_id                = first_chunk_offset < 0 ? point_id : queue[point_id];
-        const int dist_offset = offset + (first_chunk_offset < 0 ? 0 : first_chunk_offset);
-        if (offset >= num_points) return;
+        const int dist_offset = subgroup_offset + (first_chunk_offset < 0 ? 0 : first_chunk_offset);
+        if (subgroup_offset >= num_points) return;
 
-        const int subgroup_point_number                       = num_points - offset < chunk_size ? num_points - offset : chunk_size;
+        const int subgroup_point_number                       = num_points - subgroup_offset < chunk_size ? num_points - subgroup_offset : chunk_size;
         const int subgroup_size                         = get_sub_group_size();
         const int local_id                           = get_sub_group_local_id();
-        __global const algorithmFPType * input = &distances[dist_offset];
-        __global int * assigned                = &assignments[offset];
-        const int out_offset                   = offsets[subgroup_index];
+        __global const algorithmFPType * subgroup_distances = &distances[dist_offset];
+        __global int * assigned                = &assignments[subgroup_offset];
+        const int out_offset                   = chunk_offsets[subgroup_index];
         int local_offset                       = 0;
         for (int i = local_id; i < subgroup_point_number; i += subgroup_size)
         {
-            int nbr_flag     = input[i] <= eps ? 1 : 0;
-            int new_nbr_flag = nbr_flag > 0 && assigned[i] == _UNDEFINED_ && (i + offset != point_id) ? 1 : 0;
+            int nbr_flag     = subgroup_distances[i] <= eps ? 1 : 0;
+            int new_nbr_flag = nbr_flag > 0 && assigned[i] == _UNDEFINED_ && (i + subgroup_offset != point_id) ? 1 : 0;
             int pos          = sub_group_scan_exclusive_add(new_nbr_flag);
             if (new_nbr_flag)
             {
                 assigned[i]                                        = cluster_id;
-                queue[queue_end + out_offset + local_offset + pos] = offset + i;
+                queue[queue_end + out_offset + local_offset + pos] = subgroup_offset + i;
             }
             if (nbr_flag && (assigned[i] == _NOISE_))
             {
