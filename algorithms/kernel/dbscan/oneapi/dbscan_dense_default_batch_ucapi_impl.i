@@ -314,13 +314,13 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::countOffsets(const Uni
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
-    auto kernel = kernel_factory.getKernel("count_offsets", &st);
+    auto kernel = kernel_factory.getKernel("compute_cnunk_offsets", &st);
     DAAL_CHECK_STATUS_VAR(st);
 
     KernelArguments args(3);
     args.set(0, counters, AccessModeIds::read);
-    args.set(1, chunkOffests, AccessModeIds::write);
-    args.set(2, numberOfChunks);
+    args.set(1, numberOfChunks);
+    args.set(2, chunkOffests, AccessModeIds::write);
 
     KernelRange local_range(1, _minSubgroupSize);
     context.run(local_range, kernel, args, &st);
@@ -338,9 +338,9 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::setBufferValue(Univers
     auto kernel = kernel_factory.getKernel("set_buffer_value", &st);
     DAAL_CHECK_STATUS_VAR(st);
     KernelArguments args(3);
-    args.set(0, buffer, AccessModeIds::readwrite);
-    args.set(1, index);
-    args.set(2, value);
+    args.set(0, index);
+    args.set(1, value);
+    args.set(2, buffer, AccessModeIds::readwrite);
 
     KernelRange global_range(1);
     context.run(global_range, kernel, args, &st);
@@ -361,9 +361,9 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::setBufferValueByQueueI
 
     KernelArguments args(4);
     args.set(0, queue, AccessModeIds::read);
-    args.set(1, buffer, AccessModeIds::readwrite);
-    args.set(2, posInQueue);
-    args.set(3, value);
+    args.set(1, posInQueue);
+    args.set(2, value);
+    args.set(3, buffer, AccessModeIds::readwrite);
 
     KernelRange global_range(1);
     context.run(global_range, kernel, args, &st);
