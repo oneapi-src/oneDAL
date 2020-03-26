@@ -45,13 +45,24 @@
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "service/kernel/service_utils.h"
 #include "service/kernel/service_data_utils.h"
+<<<<<<< HEAD
 
 #include "algorithms/kernel/svm/oneapi/oneapi/cl_kernel/svm_train_oneapi.cl"
 
+=======
+#include "externals/service_ittnotify.h"
+#include "algorithms/kernel/svm/oneapi/cl_kernels/svm_train_oneapi.cl"
+
+// TODO: DELETE
+#include <algorithm>
+>>>>>>> 815734e6... fix build
 #include <cstdlib>
+
+DAAL_ITTNOTIFY_DOMAIN(svm_train.default.batch);
 
 using namespace daal::internal;
 using namespace daal::services::internal;
+using namespace daal::oneapi::internal;
 
 namespace daal
 {
@@ -80,7 +91,7 @@ inline const T & max(const T & a, const T & b)
 template <typename algorithmFPType>
 struct TaskWorkingSet
 {
-    TaskWorkingSet(size_t nVectors, bool verbose) : n(nVectors), verbose(verbose) {}
+    TaskWorkingSet(size_t nVectors, bool verbose) : nVectors(nVectors), verbose(verbose) {}
 
     services::Status init()
     {
@@ -97,66 +108,74 @@ struct TaskWorkingSet
 
         fIndices = context.allocate(TypeIds::id<int>(), nVectors, &status);
         DAAL_CHECK_STATUS_VAR(status);
-        auto fIndicesBuf = fIndices<int>.get();
-        DAAL_CHECK_STATUS(status, initIndex(fIndicesBuf, n));
+        auto fIndicesBuf = fIndices.get<int>();
+        DAAL_CHECK_STATUS(status, initIndex(fIndicesBuf, nVectors));
 
         fIndices = context.allocate(TypeIds::id<int>(), nVectors, &status);
 
-        nWS = min(max_ws, n);
+        // TODO: Get from device info
+        const size_t maxWS = 16;
+        nWS = min(maxWS, nVectors);
 
         wsIndexes  = context.allocate(TypeIds::id<int>(), nWS, &status);
-        tmpIndices = context.allocate(TypeIds::id<int>(), n, &status);
+        tmpIndices = context.allocate(TypeIds::id<int>(), nVectors, &status);
+        return status;
     }
 
     size_t getSize() const
     {
-        constexpr size_t max_ws = 16;
-        return min(max_ws, n);
+        return nWS;
     }
 
-    services::Status argSort(services::Buffer<int> & fBuff)
+    services::Status argSort(const services::Buffer<algorithmFPType> & fBuff)
     {
         services::Status status;
-        ctx.copy(sortedFIndices, 0, fIndices, 0, n, &status);
+        auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+
+        context.copy(sortedFIndices, 0, fIndices, 0, nVectors, &status);
         DAAL_CHECK_STATUS_VAR(status);
-        auto sortedFIndicesBuff = sortedFIndices<int>.get();
+        auto sortedFIndicesBuff = sortedFIndices.get<int>();
 
         // TODO Replace radix sort
         {
             int * sortedFIndices_host = sortedFIndicesBuff.toHost(ReadWriteMode::readWrite).get();
-            algorithmFPType * f_host  = fBuff.toHost(ReadWriteMode::read).get();
-            std::sort(sortedFIndices_host, sortedFIndices_host + n, [](int i, int j) { return f_host[i] < f_host[j]; })
+            algorithmFPType * f_host  = fBuff.toHost(ReadWriteMode::readOnly).get();
+            std::sort(sortedFIndices_host, sortedFIndices_host + nVectors, [=](int i, int j) { return f_host[i] < f_host[j]; });
         }
         return status;
     }
 
-    services::Status gatherIndices(const size_t & nRes)
+    services::Status gatherIndices(size_t & nRes)
     {
-        auto indicatorBuff      = indicator<int>.get();
-        auto tmpIndicesBuff     = tmpIndices<int>.get();
-        auto sortedFIndicesBuff = sortedFIndices<int>.get();
+        services::Status status;
+        auto indicatorBuff      = indicator.get<int>();
+        auto tmpIndicesBuff     = tmpIndices.get<int>();
+        auto sortedFIndicesBuff = sortedFIndices.get<int>();
 
         {
-            int * indicator_host      = indicatorBuff.toHost(ReadWriteMode::read).get();
-            int * sortedFIndices_host = sortedFIndicesBuff.toHost(ReadWriteMode::read).get();
+            int * indicator_host      = indicatorBuff.toHost(ReadWriteMode::readOnly).get();
+            int * sortedFIndices_host = sortedFIndicesBuff.toHost(ReadWriteMode::readOnly).get();
             int * tmpIndices_host     = tmpIndicesBuff.toHost(ReadWriteMode::readWrite).get();
             nRes                      = 0;
-            for (int i = 0; i < n; i++)
+            for (int i = 0; i < nVectors; i++)
             {
-                if (indicator[i])
+                if (indicator_host[i])
                 {
                     tmpIndices_host[nRes++] = sortedFIndices_host[i];
                 }
             }
         }
+        return status;
     }
 
     services::Status selectWS(const services::Buffer<algorithmFPType> & yBuff, const services::Buffer<algorithmFPType> & alphaBuff,
                               const services::Buffer<algorithmFPType> & fBuff, const algorithmFPType C)
     {
+        auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+
         if (verbose)
         {
-            printf(">> selectWS\n");
+            printf(">>>> selectWS\n");
         }
 
         services::Status status;
@@ -177,16 +196,26 @@ struct TaskWorkingSet
         const size_t q = nWS - nSelected;
 
         DAAL_CHECK_STATUS(status, argSort(fBuff));
-        auto sortedFIndicesBuff = sortedFIndices<int>.get();
+        auto sortedFIndicesBuff = sortedFIndices.get<int>();
 
         if (verbose)
         {
             printf(">> argSort: ");
             {
-                int * sortedFIndices_host = sortedFIndicesBuff.toHost(ReadWriteMode::readWrite).get();
-                for (int i = 0; i < 10; i++)
+                int * sortedFIndices_host = sortedFIndicesBuff.toHost(ReadWriteMode::readOnly).get();
+                for (int i = 0; i < min(16ul, nWS); i++)
                 {
                     printf("%d ", sortedFIndices_host[i]);
+                }
+            }
+            printf("\n");
+            printf(">> sort val: ");
+            {
+                int * sortedFIndices_host = sortedFIndicesBuff.toHost(ReadWriteMode::readOnly).get();
+                algorithmFPType * f_host = fBuff.toHost(ReadWriteMode::readOnly).get();
+                for (int i = 0; i < min(16ul, nWS); i++)
+                {
+                    printf("%.2f ", f_host[sortedFIndices_host[i]]);
                 }
             }
             printf("\n");
@@ -194,22 +223,22 @@ struct TaskWorkingSet
 
         context.fill(indicator, 0.0, &status);
         DAAL_CHECK_STATUS_VAR(status);
-        auto indicatorBuff = indicator<int>.get();
+        auto indicatorBuff = indicator.get<int>();
 
         {
             const size_t nSelect = q / 2;
 
-            DAAL_CHECK_STATUS(status, checkUpper(yBuff, alphaBuff, indicatorBuff, C, n));
+            DAAL_CHECK_STATUS(status, checkUpper(yBuff, alphaBuff, indicatorBuff, C, nVectors));
 
             size_t selectUpper = 0;
             DAAL_CHECK_STATUS(status, gatherIndices(selectUpper));
 
             if (verbose)
             {
-                printf(">> CheckUpper[wsIndexes] - %d:  ", selectUpper);
+                printf(">> CheckUpper[tmpIndices] - %lu:  ", selectUpper);
                 {
-                    int * wsIndexes_host = wsIndexes.toHost(ReadWriteMode::read).get();
-                    for (int i = 0; i < 10; i++)
+                    int * wsIndexes_host = tmpIndices.get<int>().toHost(ReadWriteMode::readOnly).get();
+                    for (int i = 0; i < min(16ul, nWS); i++)
                     {
                         printf("%d ", wsIndexes_host[i]);
                     }
@@ -219,7 +248,7 @@ struct TaskWorkingSet
 
             const size_t nCopy = min(selectUpper, nSelect);
 
-            ctx.copy(wsIndexes, nSelected, tmpIndices, 0, nCopy, &status);
+            context.copy(wsIndexes, nSelected, tmpIndices, 0, nCopy, &status);
 
             nSelected += nCopy;
         }
@@ -227,17 +256,17 @@ struct TaskWorkingSet
         {
             const size_t nSelect = nWS - nSelected;
 
-            DAAL_CHECK_STATUS(status, checkLower(yBuff, alphaBuff, indicatorBuff, C, n));
+            DAAL_CHECK_STATUS(status, checkLower(yBuff, alphaBuff, indicatorBuff, C, nVectors));
 
             size_t selectLower = 0;
             DAAL_CHECK_STATUS(status, gatherIndices(selectLower));
 
             if (verbose)
             {
-                printf(">> checkLower[wsIndexes] - %d:  ", selectLower);
+                printf(">> checkLower[tmpIndices] - %lu:  ", selectLower);
                 {
-                    int * wsIndexes_host = wsIndexes.toHost(ReadWriteMode::read).get();
-                    for (int i = 0; i < 10; i++)
+                    int * wsIndexes_host = tmpIndices.get<int>().toHost(ReadWriteMode::readOnly).get();
+                    for (int i = 0; i < min(16ul, nWS); i++)
                     {
                         printf("%d ", wsIndexes_host[i]);
                     }
@@ -247,15 +276,30 @@ struct TaskWorkingSet
 
             const size_t nCopy = min(selectLower, nSelect);
 
-            ctx.copy(wsIndexes, nSelected, tmpIndices, 0, nCopy, &status);
+            context.copy(wsIndexes, nSelected, tmpIndices, 0, nCopy, &status);
 
-            nSelected += selectUpper;
+            nSelected += selectLower;
         }
+
+
+        if (verbose)
+        {
+            printf(">> wsIndexes:  ");
+            {
+                int * wsIndexes_host = wsIndexes.get<int>().toHost(ReadWriteMode::readOnly).get();
+                for (int i = 0; i < min(16ul, nWS); i++)
+                {
+                    printf("%d ", wsIndexes_host[i]);
+                }
+            }
+            printf("\n");
+        }
+
 
         return status;
     }
 
-    services::Buffer<int> & getSortedFIndices() const { return sortedFIndices<int>.get(); }
+    services::Buffer<int> & getSortedFIndices() const { return sortedFIndices.get<int>(); }
 
     services::Status checkUpper(const services::Buffer<algorithmFPType> & yBuff, const services::Buffer<algorithmFPType> & alphaBuff,
                                 services::Buffer<int> & indicatorBuff, const algorithmFPType C, const size_t nSelect)
@@ -274,7 +318,7 @@ struct TaskWorkingSet
         args.set(0, yBuff, AccessModeIds::read);
         args.set(1, alphaBuff, AccessModeIds::read);
         args.set(2, C);
-        args.set(3, indicatorBuff, AccessModeIds::write);
+        args.set(3, indicatorBuff, AccessModeIds::readwrite);
 
         KernelRange range(nSelect);
 
@@ -301,7 +345,7 @@ struct TaskWorkingSet
         args.set(0, yBuff, AccessModeIds::read);
         args.set(1, alphaBuff, AccessModeIds::read);
         args.set(2, C);
-        args.set(3, indicatorBuff, AccessModeIds::write);
+        args.set(3, indicatorBuff, AccessModeIds::readwrite);
 
         KernelRange range(nSelect);
 
@@ -311,7 +355,7 @@ struct TaskWorkingSet
         return status;
     }
 
-    services::Status initIndex(services::Buffer<int> & x, const size_t n)
+    services::Status initIndex(services::Buffer<int> & x, const size_t nVectors)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(range);
 
@@ -324,9 +368,9 @@ struct TaskWorkingSet
         auto kernel = factory.getKernel("range");
 
         KernelArguments args(1);
-        args.set(0, x, AccessModeIds::write);
+        args.set(0, x, AccessModeIds::readwrite);
 
-        KernelRange range(n);
+        KernelRange range(nVectors);
 
         context.run(range, kernel, args, &status);
         DAAL_CHECK_STATUS_VAR(status);
@@ -334,7 +378,20 @@ struct TaskWorkingSet
         return status;
     }
 
-    size_t n;
+    services::Status buildProgram(ClKernelFactoryIface & factory)
+    {
+        services::String options = getKeyFPType<algorithmFPType>();
+
+        services::String cachekey("__daal_algorithms_svm_");
+        cachekey.add(options);
+        options.add(" -D LOCAL_SUM_SIZE=256 ");
+
+        Status status;
+        factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelSVMTrain, options.c_str(), &status);
+        return status;
+    }
+
+    size_t nVectors;
     size_t nWS;
 
     bool verbose;
@@ -344,14 +401,17 @@ struct TaskWorkingSet
     UniversalBuffer fIndices;
     UniversalBuffer wsIndexes;
     UniversalBuffer tmpIndices;
-}
-
-using namespace daal::oneapi::internal;
+};
 
 >>>>>>> c13db2ed... ws add
 template <typename algorithmFPType, typename ParameterType>
+<<<<<<< HEAD
 services::Status SVMTrainOneAPI<algorithmFPType, boser>::initGrad(const services::Buffer<algorithmFPType> & y, services::Buffer<algorithmFPType> & f,
                                                                   const size_t n)
+=======
+services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::initGrad(const services::Buffer<algorithmFPType> & y,
+                                                                                 services::Buffer<algorithmFPType> & f, const size_t nVectors)
+>>>>>>> 815734e6... fix build
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(initGrad);
 
@@ -367,7 +427,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, boser>::initGrad(const services
     args.set(0, y, AccessModeIds::read);
     args.set(1, f, AccessModeIds::write);
 
-    KernelRange range(n);
+    KernelRange range(nVectors);
 
     context.run(range, kernel, args, &status);
     DAAL_CHECK_STATUS_VAR(status);
@@ -426,16 +486,14 @@ services::Status SVMTrainOneAPI<algorithmFPType, boser>::compute(const NumericTa
     auto fU = context.allocate(idType, nVectors, &status);
     DAAL_CHECK_STATUS_VAR(status);
     auto fBuff = fU.get<algorithmFPType>();
-    {
-        BlockDescriptor<algorithmFPType> yBD;
-        yTable.getBlockOfRows(0, nVectors, ReadWriteMode::readOnly, yBD);
 
-        auto yBuff = yBD.getBuffer();
-        DAAL_CHECK_STATUS(status, initGrad(yBuff, fBuff, nVectors));
-        yTable.releaseBlockOfRows(yBD);
-    }
+    BlockDescriptor<algorithmFPType> yBD;
+    yTable.getBlockOfRows(0, nVectors, ReadWriteMode::readOnly, yBD);
+    auto yBuff = yBD.getBuffer();
+    DAAL_CHECK_STATUS(status, initGrad(yBuff, fBuff, nVectors));
 
-    TaskWorkingSet workSet(nVectors, verbose);
+
+    TaskWorkingSet<algorithmFPType> workSet(nVectors, verbose);
 
     DAAL_CHECK_STATUS(status, workSet.init());
 >>>>>>> c13db2ed... ws add
@@ -444,7 +502,11 @@ services::Status SVMTrainOneAPI<algorithmFPType, boser>::compute(const NumericTa
 
     if (verbose)
     {
+<<<<<<< HEAD
         printf(">> LINE: %lu: nWS %lu\n", __LINE__, nWS);
+=======
+        printf(">>>> nVectors: %lu d: %lu nWS: %lu C: %f \n", nVectors, xTable->getNumberOfColumns(), nWS, C);
+>>>>>>> 815734e6... fix build
     }
 
     // TODO transfer on GPU
@@ -457,30 +519,41 @@ services::Status SVMTrainOneAPI<algorithmFPType, boser>::compute(const NumericTa
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         SelectWS();
 =======
         DAAL_CHECK_STATUS(status, SelectWS(workSet));
 >>>>>>> c13db2ed... ws add
+=======
+        DAAL_CHECK_STATUS(status, workSet.selectWS(yBuff, alphaBuff, fBuff, C));
+>>>>>>> 815734e6... fix build
 
         if (verbose)
         {
             const auto t_1           = high_resolution_clock::now();
             const float duration_sec = duration_cast<milliseconds>(t_1 - t_0).count();
-            printf(">> SelectWS.compute time(ms) = %f\n", duration_sec);
+            printf(">>>> SelectWS.compute time(ms) = %.1f\n", duration_sec);
         }
     }
+<<<<<<< HEAD
+=======
+
+    DAAL_CHECK_STATUS(status, yTable.releaseBlockOfRows(yBD));
+
+    return status;
+>>>>>>> 815734e6... fix build
 
     // return s.ok() ? task.setResultsToModel(*xTable, *static_cast<Model *>(r), svmPar->C) : s;
 }
 
-// inline Size MaxPow2(Size n) {
+// inline Size MaxPow2(Size nVectors) {
 //     if (!(n & (n - 1))) {
-//         return n;
+//         return nVectors;
 //     }
 
 //     Size count = 0;
 //     while (n > 1) {
-//         n >>= 1;
+//         nVectors >>= 1;
 //         count++;
 //     }
 //     return 1 << count;
