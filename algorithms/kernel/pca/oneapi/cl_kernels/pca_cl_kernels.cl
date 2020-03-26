@@ -49,6 +49,12 @@ DECLARE_SOURCE(
         indicator[i] = y[i] > 0 && alpha[i] < C || y[i] < 0 && alpha[i] > 0;
     }
 
+    __kernel void checkLower(const __global algorithmFPType * const y, const __global algorithmFPType * const alpha, const algorithmFPType C,
+                             __global int * indicator) {
+        const int i  = get_global_id(0);
+        indicator[i] = y[i] > 0 && alpha[i] > 0 || y[i] < 0 && alpha[i] < C;
+    }
+
 );
 
 #endif
