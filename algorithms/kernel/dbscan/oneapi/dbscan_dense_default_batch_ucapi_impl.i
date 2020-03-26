@@ -413,18 +413,18 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::getQueueBlockDistances(const Uni
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
-    auto kernel = kernel_factory.getKernel("queue_block_distances", &st);
+    auto kernel = kernel_factory.getKernel("compute_queue_block_distances", &st);
     DAAL_CHECK_STATUS_VAR(st);
 
     KernelArguments args(8);
     args.set(0, data, AccessModeIds::read);
     args.set(1, queue, AccessModeIds::read);
-    args.set(2, queueBlockDistances, AccessModeIds::write);
-    args.set(3, queueBegin);
-    args.set(4, queueBlockSize);
-    args.set(5, minkowskiPower);
-    args.set(6, dim);
-    args.set(7, nRows);
+    args.set(2, queueBegin);
+    args.set(3, queueBlockSize);
+    args.set(4, minkowskiPower);
+    args.set(5, dim);
+    args.set(6, nRows);
+    args.set(7, queueBlockDistances, AccessModeIds::write);
 
     KernelRange local_range(1, _maxWorkgroupSize);
     KernelRange global_range(queueBlockSize, _maxWorkgroupSize);
