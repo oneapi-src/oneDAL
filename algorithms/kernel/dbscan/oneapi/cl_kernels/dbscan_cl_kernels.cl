@@ -142,14 +142,14 @@ DECLARE_SOURCE(
         }
     }
 
-    __kernel void push_to_queue(__global const algorithmFPType * distances, __global const int * offsets, __global int * assignments,
-                                __global int * queue, int queue_end, int point_id, int cluster_id, int chunk_offset, int chunk_size,
-                                algorithmFPType eps, int num_points) 
+    __kernel void push_points_to_queue(__global const algorithmFPType * distances, __global const int * offsets,
+                                int queue_end, int point_id, int cluster_id, int first_chunk_offset, int chunk_size,
+                                algorithmFPType eps, int num_points,  __global int * assignments, __global int * queue) 
     {
         const int subgroup_index       = get_global_id(0) * get_num_sub_groups() + get_sub_group_id();
         const int offset      = subgroup_index * chunk_size;
-        point_id                = chunk_offset < 0 ? point_id : queue[point_id];
-        const int dist_offset = offset + (chunk_offset < 0 ? 0 : chunk_offset);
+        point_id                = first_chunk_offset < 0 ? point_id : queue[point_id];
+        const int dist_offset = offset + (first_chunk_offset < 0 ? 0 : first_chunk_offset);
         if (offset >= num_points) return;
 
         const int subgroup_point_number                       = num_points - offset < chunk_size ? num_points - offset : chunk_size;

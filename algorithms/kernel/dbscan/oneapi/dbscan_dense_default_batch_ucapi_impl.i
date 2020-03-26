@@ -274,7 +274,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::pushNeighborsToQueue(c
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
-    auto kernel = kernel_factory.getKernel("push_to_queue", &st);
+    auto kernel = kernel_factory.getKernel("push_points_to_queue", &st);
     DAAL_CHECK_STATUS_VAR(st);
 
     uint32_t chunkSize = nRows / numberOfChunks + uint32_t(bool(nRows % numberOfChunks));
@@ -282,15 +282,15 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::pushNeighborsToQueue(c
     KernelArguments args(11);
     args.set(0, distances, AccessModeIds::read);
     args.set(1, chunkOffests, AccessModeIds::read);
-    args.set(2, assignments, AccessModeIds::readwrite);
-    args.set(3, queue, AccessModeIds::readwrite);
-    args.set(4, queueEnd);
-    args.set(5, rowId);
-    args.set(6, clusterId);
-    args.set(7, chunkOffset);
-    args.set(8, chunkSize);
-    args.set(9, epsP);
-    args.set(10, nRows);
+    args.set(2, queueEnd);
+    args.set(3, rowId);
+    args.set(4, clusterId);
+    args.set(5, chunkOffset);
+    args.set(6, chunkSize);
+    args.set(7, epsP);
+    args.set(8, nRows);
+    args.set(9, assignments, AccessModeIds::readwrite);
+    args.set(10, queue, AccessModeIds::readwrite);    
 
     KernelRange local_range(1, _maxWorkgroupSize);
     KernelRange global_range(numberOfChunks * _minSubgroupSize / _maxWorkgroupSize + 1, _maxWorkgroupSize);
