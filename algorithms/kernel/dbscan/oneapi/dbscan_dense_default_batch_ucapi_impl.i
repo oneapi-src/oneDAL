@@ -379,7 +379,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::getPointDistances(cons
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
-    auto kernel = kernel_factory.getKernel("point_distances", &st);
+    auto kernel = kernel_factory.getKernel("compute_point_distances", &st);
     DAAL_CHECK_STATUS_VAR(st);
 
     KernelArguments args(6);

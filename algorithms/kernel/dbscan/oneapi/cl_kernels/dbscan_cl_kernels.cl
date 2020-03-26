@@ -29,27 +29,23 @@
 DECLARE_SOURCE(
     dbscan_cl_kernels,
 
-    __kernel void point_distances(__global const algorithmFPType * points, int point_id, int power, int dim,
+    __kernel void compute_point_distances(__global const algorithmFPType * points, int point_id, int power, int num_features,
                                   int num_points, __global algorithmFPType * dist) {
         const int subgroup_index = get_global_id(0) * get_max_sub_group_size() + get_sub_group_id();
         if (subgroup_index >= num_points) return;
+
         const int subgroup_size      = get_sub_group_size();
         const int local_id        = get_sub_group_local_id();
         algorithmFPType sum = 0.0;
-        for (int i = local_id; i < dim; i += subgroup_size)
+        for (int i = local_id; i < num_features; i += subgroup_size)
         {
-            algorithmFPType val = fabs(points[point_id * dim + i] - points[subgroup_index * dim + i]);
-            algorithmFPType dm  = 1.0;
-            for (int j = 0; j < power; j++)
-            {
-                dm *= val;
-            }
-            sum += dm;
+            algorithmFPType val = fabs(points[point_id * num_features + i] - points[subgroup_index * num_features + i]);
+            sum += pown(val, power);
         }
-        algorithmFPType ret = sub_group_reduce_add(sum);
+        algorithmFPType cur_nbr_distance = sub_group_reduce_add(sum);
         if (local_id == 0)
         {
-            dist[subgroup_index] = ret;
+            dist[subgroup_index] = cur_nbr_distance;
         }
     }
 
