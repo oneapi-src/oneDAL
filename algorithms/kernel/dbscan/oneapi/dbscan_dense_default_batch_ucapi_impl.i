@@ -60,7 +60,7 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::processResultsToCompute(DAAL_UIN
         return Status(ErrorNullPtr);
     }
 
-    auto & context         = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context           = Environment::getInstance()->getDefaultExecutionContext();
     const uint32_t nRows     = ntData->getNumberOfRows();
     const uint32_t nFeatures = ntData->getNumberOfColumns();
 
@@ -111,7 +111,7 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::processResultsToCompute(DAAL_UIN
         auto coreObservations = coreObservationsRows.getBuffer();
 
         uint32_t pos = 0;
-        int result = 0;
+        int result   = 0;
         for (uint32_t i = 0; i < nRows; i++)
         {
             if (!isCore[i])
@@ -153,12 +153,11 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
     for (uint32_t i = 0; i < minkowskiPower; i++) epsP *= epsilon;
 
     NumericTable * ntData = const_cast<NumericTable *>(x);
-    if(ntData->getNumberOfRows() > static_cast<size_t>(UINT_MAX)|| ntData->getNumberOfColumns() > static_cast<size_t>(UINT_MAX)) 
+    if (ntData->getNumberOfRows() > static_cast<size_t>(UINT_MAX) || ntData->getNumberOfColumns() > static_cast<size_t>(UINT_MAX))
     {
-
     }
-    const uint32_t nRows    = ntData->getNumberOfRows();
-    const uint32_t dim      = ntData->getNumberOfColumns();
+    const uint32_t nRows = ntData->getNumberOfRows();
+    const uint32_t dim   = ntData->getNumberOfColumns();
 
     BlockDescriptor<algorithmFPType> dataRows;
     ntData->getBlockOfRows(0, nRows, readOnly, dataRows);
@@ -190,7 +189,7 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
     context.fill(isCore, 0, &s);
     DAAL_CHECK_STATUS_VAR(s);
 
-    uint32_t nClusters    = 0;
+    uint32_t nClusters  = 0;
     uint32_t queueBegin = 0;
     uint32_t queueEnd   = 0;
 
@@ -290,7 +289,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::pushNeighborsToQueue(c
     args.set(7, epsP);
     args.set(8, nRows);
     args.set(9, assignments, AccessModeIds::readwrite);
-    args.set(10, queue, AccessModeIds::readwrite);    
+    args.set(10, queue, AccessModeIds::readwrite);
 
     KernelRange local_range(1, _maxWorkgroupSize);
     KernelRange global_range(numberOfChunks * _minSubgroupSize / _maxWorkgroupSize + 1, _maxWorkgroupSize);
