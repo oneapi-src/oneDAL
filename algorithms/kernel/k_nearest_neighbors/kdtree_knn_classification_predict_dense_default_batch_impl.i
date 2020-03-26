@@ -246,18 +246,6 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     return status;
 }
 
-/*
-Function that reduces code duplication
-*/
-template <CpuType cpu, typename algorithmFpType>
-DAAL_FORCEINLINE void distance_comp(const algorithmFpType * const vec, const algorithmFpType & val, algorithmFpType * out, const size_t length)
-{
-    for (size_t i = 0; i < length; ++i)
-    {
-        out[i] += (vec[i] - val) * (vec[i] - val);
-    }
-}
-
 template <typename algorithmFpType, CpuType cpu>
 void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNearestNeighbors(
     const algorithmFpType * query, Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap,
@@ -306,7 +294,10 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
                 DAAL_PREFETCH_READ_T0(nx);
                 DAAL_PREFETCH_READ_T0(nx + 16);
 
-                distance_comp<cpu>(dx, query[j - 1], distance, length);
+                for (i = 0; i < length; ++i)
+                {
+                    distance[i] += (query[j - 1] - dx[i]) * (query[j - 1] - dx[i]);
+                }
 
                 const_cast<NumericTable &>(data).releaseBlockOfColumnValues(xBD[curBDIdx]);
 
@@ -315,7 +306,10 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
             {
                 const algorithmFpType * const dx = xBD[curBDIdx].getBlockPtr();
 
-                distance_comp<cpu>(dx, query[j - 1], distance, length);
+                for (i = 0; i < length; ++i)
+                {
+                    distance[i] += (query[j - 1] - dx[i]) * (query[j - 1] - dx[i]);
+                }
 
                 const_cast<NumericTable &>(data).releaseBlockOfColumnValues(xBD[curBDIdx]);
             }
