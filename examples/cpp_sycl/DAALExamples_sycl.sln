@@ -37,6 +37,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gbt_reg_dense_batch", "vcpr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pca_transform_dense_batch", "vcproj\pca_transform_dense_batch\pca_transform_dense_batch.vcxproj", "{40537CD7-86C1-48A3-B837-C8EE93242055}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dbscan_dense_batch", "vcproj\dbscan_dense_batch\dbscan_dense_batch.vcxproj", "{E819C9C7-7092-4997-9390-32A481C169B7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug.dynamic.sequential|x64 = Debug.dynamic.sequential|x64

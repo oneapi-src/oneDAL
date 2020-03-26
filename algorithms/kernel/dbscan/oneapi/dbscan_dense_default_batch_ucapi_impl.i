@@ -1,6 +1,6 @@
 /* file: dbscan_dense_default_batch_ucapi_impl.i */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -61,12 +61,12 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::processResultsToCompute(DAAL_UIN
     }
 
     auto & context         = Environment::getInstance()->getDefaultExecutionContext();
-    const size_t nRows     = ntData->getNumberOfRows();
-    const size_t nFeatures = ntData->getNumberOfColumns();
+    const uint32_t nRows     = ntData->getNumberOfRows();
+    const uint32_t nFeatures = ntData->getNumberOfColumns();
 
-    size_t nCoreObservations = 0;
+    uint32_t nCoreObservations = 0;
 
-    for (size_t i = 0; i < nRows; i++)
+    for (uint32_t i = 0; i < nRows; i++)
     {
         if (!isCore[i])
         {
@@ -91,8 +91,8 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::processResultsToCompute(DAAL_UIN
             return Status(ErrorNullPtr);
         }
 
-        size_t pos = 0;
-        for (size_t i = 0; i < nRows; i++)
+        uint32_t pos = 0;
+        for (uint32_t i = 0; i < nRows; i++)
         {
             if (!isCore[i])
             {
@@ -110,9 +110,9 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::processResultsToCompute(DAAL_UIN
         DAAL_CHECK_STATUS_VAR(ntCoreObservations->getBlockOfRows(0, nCoreObservations, writeOnly, coreObservationsRows));
         auto coreObservations = coreObservationsRows.getBuffer();
 
-        size_t pos = 0;
+        uint32_t pos = 0;
         int result = 0;
-        for (size_t i = 0; i < nRows; i++)
+        for (uint32_t i = 0; i < nRows; i++)
         {
             if (!isCore[i])
             {
@@ -153,8 +153,12 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
     for (uint32_t i = 0; i < minkowskiPower; i++) epsP *= epsilon;
 
     NumericTable * ntData = const_cast<NumericTable *>(x);
-    const size_t nRows    = ntData->getNumberOfRows();
-    const size_t dim      = ntData->getNumberOfColumns();
+    if(ntData->getNumberOfRows() > static_cast<size_t>(UINT_MAX)|| ntData->getNumberOfColumns() > static_cast<size_t>(UINT_MAX)) 
+    {
+
+    }
+    const uint32_t nRows    = ntData->getNumberOfRows();
+    const uint32_t dim      = ntData->getNumberOfColumns();
 
     BlockDescriptor<algorithmFPType> dataRows;
     ntData->getBlockOfRows(0, nRows, readOnly, dataRows);
@@ -186,7 +190,7 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
     context.fill(isCore, 0, &s);
     DAAL_CHECK_STATUS_VAR(s);
 
-    size_t nClusters    = 0;
+    uint32_t nClusters    = 0;
     uint32_t queueBegin = 0;
     uint32_t queueEnd   = 0;
 
