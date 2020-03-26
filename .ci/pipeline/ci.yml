@@ -36,7 +36,6 @@ jobs:
     inputs:
       artifactName: '$(platform.type) build'
       targetPath: '__release_lnx_gnu'
-# conformance
   - script: |
       .ci/scripts/conformance_test.sh --build-dir __release_lnx_gnu
     timeoutInMinutes: 15
