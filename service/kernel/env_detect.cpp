@@ -138,13 +138,20 @@ DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
     if (isInit) return;
 
     /* if HT enabled - set number of threads to physical cores num */
-    /* Number of cores = number of cpu packages * number of cores per cpu package */
-    const size_t ncores = daal::internal::Service<>::serv_get_ncpus() * daal::internal::Service<>::serv_get_ncorespercpu();
-
-    /*  Re-set number of threads if ncores is valid */
-    if ((ncores > 0) && (ncores <= _daal_threader_get_max_threads()))
+    if (daal::internal::Service<>::serv_get_ht())
     {
-        daal::services::Environment::setNumberOfThreads(ncores);
+        /* Number of cores = number of cpu packages * number of cores per cpu package */
+        const size_t ncores = daal::internal::Service<>::serv_get_ncpus() * daal::internal::Service<>::serv_get_ncorespercpu();
+
+        /*  Re-set number of threads if ncores is valid */
+        if ((ncores > 0) && (ncores <= _daal_threader_get_max_threads()))
+        {
+            daal::services::Environment::setNumberOfThreads(ncores);
+        }
+    } 
+    else
+    {
+        daal::services::Environment::setNumberOfThreads(_daal_threader_get_max_threads());
     }
     isInit = true;
 }
