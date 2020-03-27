@@ -29,18 +29,19 @@ basic usage scenarios of |short_name| with SYCL*. Go to
    All content below that starts with ``#`` is considered a comment and
    should not be run with the code.
 
-1. Set up the |short_name| environment:
+1. Set up the required environment for |short_name|
+   (variables such as ``CPATH``, ``LIBRARY_PATH``, and ``LD_LIBRARY_PATH``):
 
   .. tabs::
 
-    .. group-tab:: Linux\*
+    .. group-tab:: Linux
 
-      On Linux, there are two possible ways to set up |short_name| environment:
+      On Linux, there are two possible ways to set up the required environment:
       via ``vars.sh`` script or via ``modulefiles``.
 
       * Setting up |short_name| environment via ``vars.sh`` script
 
-        Run ``vars.sh`` script to set up ``CPATH``, ``LIBRARY_PATH``, and ``LD_LIBRARY_PATH`` for |short_name|:
+        Run the following command:
 
           .. prompt:: bash
 
@@ -54,21 +55,23 @@ basic usage scenarios of |short_name| with SYCL*. Go to
 
             source $MODULESHOME/init/bash
 
+          .. note:: Refer to `Environment Modules documentation <https://modules.readthedocs.io/en/latest/index.html>`_ for details.
+
         2. Provide ``modules`` with a path to the ``modulefiles`` directory:
 
           .. prompt:: bash
 
             module use ./modulefiles
 
-        3. Run the module to set up ``CPATH``, ``LIBRARY_PATH``, and ``LD_LIBRARY_PATH`` for |short_name|:
+        3. Run the module:
 
           .. prompt:: bash
 
             module load dal    
 
-    .. group-tab:: Windows\*
+    .. group-tab:: Windows
 
-      Run ``vars.bat`` script to set up ``PATH``, ``LIB``, and ``INCLUDE`` for |short_name|:
+      Run the following command:
 
       .. prompt:: bash
 
@@ -96,7 +99,7 @@ basic usage scenarios of |short_name| with SYCL*. Go to
 
   .. tabs::
 
-    .. group-tab:: Linux\*
+    .. group-tab:: Linux
 
       .. prompt:: bash
 
@@ -105,7 +108,7 @@ basic usage scenarios of |short_name| with SYCL*. Go to
         make sointel64 example=cor_dense_batch # This will compile and run Correlation example using Intel(R) oneAPI DPC++ Compiler
         make sointel64 mode=build			   # This will compile all DPC++ examples
 
-    .. group-tab:: Windows\*
+    .. group-tab:: Windows
 
       .. prompt:: bash
 
