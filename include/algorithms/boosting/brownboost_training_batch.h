@@ -251,6 +251,12 @@ public:
     Batch();
 
     /**
+     * Constructs an BrownBoost training algorithm with nClasses parameter
+     * \param[in] nClasses   number of classes
+    */
+    Batch(size_t nClasses);
+
+    /**
      * Constructs a BrownBoost training algorithm by copying input objects and parameters
      * of another BrownBoost training algorithm
      * \param[in] other An algorithm to be used as the source to initialize the input objects
