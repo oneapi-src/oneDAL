@@ -323,6 +323,22 @@ Global
 		{40537CD7-86C1-48A3-B837-C8EE93242055}.Release.static.sequential|x64.Build.0 = Release.static.sequential|x64
 		{40537CD7-86C1-48A3-B837-C8EE93242055}.Release.static.threaded|x64.ActiveCfg = Release.static.threaded|x64
 		{40537CD7-86C1-48A3-B837-C8EE93242055}.Release.static.threaded|x64.Build.0 = Release.static.threaded|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Debug.dynamic.sequential|x64.ActiveCfg = Debug.dynamic.sequential|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Debug.dynamic.sequential|x64.Build.0 = Debug.dynamic.sequential|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Debug.dynamic.threaded|x64.ActiveCfg = Debug.dynamic.threaded|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Debug.dynamic.threaded|x64.Build.0 = Debug.dynamic.threaded|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Debug.static.sequential|x64.ActiveCfg = Debug.static.sequential|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Debug.static.sequential|x64.Build.0 = Debug.static.sequential|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Debug.static.threaded|x64.ActiveCfg = Debug.static.threaded|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Debug.static.threaded|x64.Build.0 = Debug.static.threaded|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Release.dynamic.sequential|x64.ActiveCfg = Release.dynamic.sequential|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Release.dynamic.sequential|x64.Build.0 = Release.dynamic.sequential|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Release.dynamic.threaded|x64.ActiveCfg = Release.dynamic.threaded|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Release.dynamic.threaded|x64.Build.0 = Release.dynamic.threaded|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Release.static.sequential|x64.ActiveCfg = Release.static.sequential|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Release.static.sequential|x64.Build.0 = Release.static.sequential|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Release.static.threaded|x64.ActiveCfg = Release.static.threaded|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Release.static.threaded|x64.Build.0 = Release.static.threaded|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
