@@ -46,7 +46,8 @@ DECLARE_SOURCE(
     }    
 
     __kernel void compute_point_distances(__global const algorithmFPType * points, int point_id, int power, int num_features, int num_points,
-                                          __global algorithmFPType * dist) {
+                                          __global algorithmFPType * dist) 
+    {
         const int subgroup_index = get_global_id(0) * get_max_sub_group_size() + get_sub_group_id();
         if (subgroup_index >= num_points) return;
 
@@ -56,7 +57,8 @@ DECLARE_SOURCE(
     }
 
     __kernel void compute_queue_block_distances(__global const algorithmFPType * points, __global const int * queue, int queue_begin, int queue_size,
-                                                int power, int num_features, int num_points, __global algorithmFPType * queue_dist) {
+                                                int power, int num_features, int num_points, __global algorithmFPType * queue_dist) 
+    {
         const int queue_pos = get_global_id(0);
         if (queue_pos >= queue_size) return;
 
@@ -72,9 +74,21 @@ DECLARE_SOURCE(
         }
     }
 
+    int get_nbr_status(__global const algorithmFPType * distances, int nbr_id, algorithmFPType eps)
+    {
+        return (distances[nbr_id] <= eps ? 1 : 0);
+    }
+
+    int get_undefined_nbr_status(__global const int * assignments, int point_id, int nbr_id, int is_nbr, int subgroup_offset)
+    {
+        int is_current_point = nbr_id + subgroup_offset == point_id;
+        return (is_nbr > 0 && assignments[nbr_id] == _UNDEFINED_ && !is_current_point ? 1 : 0);
+    }
+
     __kernel void count_neighbors_by_type(__global const int * assignments, __global const algorithmFPType * distances, int point_id,
                                           int first_chunk_offset, int chunk_size, int num_points, algorithmFPType eps, __global const int * queue,
-                                          __global int * counters_all_nbrs, __global int * counters_undef_nbrs) {
+                                          __global int * counters_all_nbrs, __global int * counters_undef_nbrs) 
+    {
         const int subgroup_index        = get_global_id(0) * get_num_sub_groups() + get_sub_group_id();
         const int subgroup_offset       = subgroup_index * chunk_size;
         const int subgroup_point_number = num_points - subgroup_offset < chunk_size ? num_points - subgroup_offset : chunk_size;
@@ -104,19 +118,22 @@ DECLARE_SOURCE(
         }
     }
 
-    __kernel void set_buffer_value(int value_index, int value, __global int * buffer) {
+    __kernel void set_buffer_value(int value_index, int value, __global int * buffer) 
+    {
         const int global_id = get_global_id(0);
         const int local_id  = get_local_id(1);
         if (local_id == 0 & global_id == 0) buffer[value_index] = value;
     }
 
-    __kernel void set_buffer_value_by_queue_index(__global const int * queue, int queue_index, int value, __global int * buffer) {
+    __kernel void set_buffer_value_by_queue_index(__global const int * queue, int queue_index, int value, __global int * buffer) 
+    {
         const int global_id = get_global_id(0);
         const int local_id  = get_local_id(1);
         if (local_id == 0 & global_id == 0) buffer[queue[queue_index]] = value;
     }
 
-    __kernel void compute_cnunk_offsets(__global const int * chunk_counters, int num_offsets, __global int * chunk_offsets) {
+    __kernel void compute_cnunk_offsets(__global const int * chunk_counters, int num_offsets, __global int * chunk_offsets) 
+    {
         if (get_global_id(0) > 0 || get_sub_group_id() > 0) return;
 
         const int subgroup_size = get_sub_group_size();
@@ -134,7 +151,8 @@ DECLARE_SOURCE(
 
     __kernel void push_points_to_queue(__global const algorithmFPType * distances, __global const int * chunk_offsets, int queue_end, int point_id,
                                        int cluster_id, int first_chunk_offset, int chunk_size, algorithmFPType eps, int num_points,
-                                       __global int * assignments, __global int * queue) {
+                                       __global int * assignments, __global int * queue) 
+    {
         const int subgroup_index  = get_global_id(0) * get_num_sub_groups() + get_sub_group_id();
         const int subgroup_offset = subgroup_index * chunk_size;
         point_id                  = first_chunk_offset < 0 ? point_id : queue[point_id];
