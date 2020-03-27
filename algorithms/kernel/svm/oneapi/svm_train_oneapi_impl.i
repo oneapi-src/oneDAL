@@ -58,6 +58,9 @@
 >>>>>>> 815734e6... fix build
 #include <cstdlib>
 
+#include "algorithms/kernel/svm/oneapi/svm_train_cache.h"
+#include "algorithms/kernel/svm/oneapi/svm_workset.h"
+
 DAAL_ITTNOTIFY_DOMAIN(svm_train.default.batch);
 
 using namespace daal::internal;
@@ -74,6 +77,7 @@ namespace training
 {
 namespace internal
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 template <typename T>
@@ -402,6 +406,8 @@ struct TaskWorkingSet
     UniversalBuffer wsIndexes;
     UniversalBuffer tmpIndices;
 };
+=======
+>>>>>>> 14431dac... kernel support was added
 
 >>>>>>> c13db2ed... ws add
 template <typename algorithmFPType, typename ParameterType>
@@ -418,7 +424,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::initGrad
     auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & factory = context.getClKernelFactory();
 
-    services::Status status = buildProgram(factory);
+    services::Status status = HelperSVM::buildProgram(factory);
     DAAL_CHECK_STATUS_VAR(status);
 
     auto kernel = factory.getKernel("initGradient");
@@ -454,10 +460,19 @@ services::Status SVMTrainOneAPI<algorithmFPType, boser>::compute(const NumericTa
         verbose = true;
     }
 
+<<<<<<< HEAD
     const algorithmFPType C(svmPar.C);
     const algorithmFPType eps(svmPar.accuracyThreshold);
     const algorithmFPType tau(svmPar.tau);
     const size_t maxIterations(svmPar.maxIterations);
+=======
+    const algorithmFPType C(svmPar->C);
+    const algorithmFPType eps(svmPar->accuracyThreshold);
+    const algorithmFPType tau(svmPar->tau);
+    const size_t maxIterations(svmPar->maxIterations);
+    const size_t cacheSize(svmPar->cacheSize);
+    kernel_function::KernelIfacePtr kernel = svmPar.kernel->clone();
+>>>>>>> 14431dac... kernel support was added
     // TODO
     const size_t innerMaxIterations(100);
 
@@ -490,8 +505,12 @@ services::Status SVMTrainOneAPI<algorithmFPType, boser>::compute(const NumericTa
     BlockDescriptor<algorithmFPType> yBD;
     yTable.getBlockOfRows(0, nVectors, ReadWriteMode::readOnly, yBD);
     auto yBuff = yBD.getBuffer();
-    DAAL_CHECK_STATUS(status, initGrad(yBuff, fBuff, nVectors));
 
+    BlockDescriptor<algorithmFPType> xBD;
+    xTable.getBlockOfRows(0, nVectors, ReadWriteMode::readOnly, xBD);
+    auto xBuff = xBD.getBuffer();
+
+    DAAL_CHECK_STATUS(status, initGrad(yBuff, fBuff, nVectors));
 
     TaskWorkingSet<algorithmFPType> workSet(nVectors, verbose);
 
@@ -499,6 +518,18 @@ services::Status SVMTrainOneAPI<algorithmFPType, boser>::compute(const NumericTa
 >>>>>>> c13db2ed... ws add
 
     const size_t nWS = workSet.getSize();
+
+    SVMCacheOneAPIIface* cache = nullptr;
+
+    if (cacheSize > nWS*nVectors*sizeof(algorithmFPType))
+    {
+        cache    = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, _nVectors, nWS, xTable, kernel, status);
+    }
+    else
+    {
+        // TODO!
+        return status;
+    }
 
     if (verbose)
     {
@@ -538,7 +569,29 @@ services::Status SVMTrainOneAPI<algorithmFPType, boser>::compute(const NumericTa
 <<<<<<< HEAD
 =======
 
+    auto wsIndices = workSet.getWSIndeces();
+
+    {
+        const auto t_0 = high_resolution_clock::now();
+
+        DAAL_CHECK_STATUS(status, cache->compute(xBuff, alphaBuff, fBuff, C));
+
+        if (verbose)
+        {
+            const auto t_1           = high_resolution_clock::now();
+            const float duration_sec = duration_cast<milliseconds>(t_1 - t_0).count();
+            printf(">>>> Kernel.compute time(ms) = %.1f\n", duration_sec);
+        }
+    }
+
+    auto kernelWS = cache->getSetRowsBlock();
+
+
+
     DAAL_CHECK_STATUS(status, yTable.releaseBlockOfRows(yBD));
+    DAAL_CHECK_STATUS(status, xTable.releaseBlockOfRows(xBD));
+
+    delete cache;
 
     return status;
 >>>>>>> 815734e6... fix build
@@ -559,6 +612,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, boser>::compute(const NumericTa
 //     return 1 << count;
 // }
 
+<<<<<<< HEAD
 template <typename algorithmFPType, typename ParameterType>
 <<<<<<< HEAD
 size_t SVMTrainOneAPI<boser, algorithmFPType, cpu>::SelectWorkingSetSize(const size_t n)
@@ -585,6 +639,8 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::buildPro
 >>>>>>> c13db2ed... ws add
 }
 
+=======
+>>>>>>> 14431dac... kernel support was added
 } // namespace internal
 } // namespace training
 } // namespace svm

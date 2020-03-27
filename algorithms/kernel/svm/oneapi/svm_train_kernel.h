@@ -25,6 +25,8 @@
 #include "services/env_detect.h"
 #include "data_management/data/numeric_table.h"
 
+#include "algorithms/kernel/svm/oneapi/svm_helper.h"
+
 namespace daal
 {
 namespace algorithms
@@ -42,19 +44,22 @@ using namespace daal::services;
 template <typename algorithmFPType, typename ParameterType, Method method>
 class SVMTrainOneAPI : public Kernel
 {
+    using HelperSVM = HelperSVM<algorithmFPType>;
+
 public:
     services::Status compute(const NumericTablePtr & xTable, NumericTable & yTable, daal::algorithms::Model * r, const ParameterType * par);
 
 protected:
     // LocalSMO();
 
+<<<<<<< HEAD:algorithms/kernel/svm/oneapi/svm_train_kernel.h
     size_t GetWSSize(size_t nSamples);
 
+=======
+>>>>>>> 14431dac... kernel support was added:algorithms/kernel/svm/oneapi/svm_train_oneapi_kernel.h
     services::Status initGrad(const services::Buffer<algorithmFPType> & y, services::Buffer<algorithmFPType> & f, const size_t n);
 
-    size_t SelectWorkingSetSize(const size_t n);
 
-    // SelectWS();
 
     // UpdateF();
 
