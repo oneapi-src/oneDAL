@@ -104,8 +104,8 @@ DECLARE_SOURCE(
         int counter_undefined                               = 0;
         for (int i = local_id; i < subgroup_point_number; i += subgroup_size)
         {
-            int is_nbr           = subgroup_distances[i] <= eps ? 1 : 0;
-            int is_undefined_nbr = is_nbr > 0 && subgroup_assignments[i] == _UNDEFINED_ && (i + subgroup_offset != point_id) ? 1 : 0;
+            int is_nbr = get_nbr_status(subgroup_distances, i, eps);
+            int is_undefined_nbr = get_undefined_nbr_status(subgroup_assignments, point_id, i, is_nbr, subgroup_offset);
             counter_all += is_nbr;
             counter_undefined += is_undefined_nbr;
         }
@@ -168,8 +168,8 @@ DECLARE_SOURCE(
         int local_offset                                    = 0;
         for (int i = local_id; i < subgroup_point_number; i += subgroup_size)
         {
-            int is_nbr           = subgroup_distances[i] <= eps ? 1 : 0;
-            int is_undefined_nbr = is_nbr > 0 && subgroup_assignments[i] == _UNDEFINED_ && (i + subgroup_offset != point_id) ? 1 : 0;
+            int is_nbr = get_nbr_status(subgroup_distances, i, eps);
+            int is_undefined_nbr = get_undefined_nbr_status(subgroup_assignments, point_id, i, is_nbr, subgroup_offset);
             int local_pos        = sub_group_scan_exclusive_add(is_undefined_nbr);
             if (is_undefined_nbr)
             {
