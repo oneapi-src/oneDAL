@@ -133,10 +133,6 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
     const Parameter * rbfPar    = static_cast<const Parameter *>(par);
     const algorithmFPType coeff = (algorithmFPType)(-0.5 / (rbfPar->sigma * rbfPar->sigma));
 
-    WriteOnlyRows<algorithmFPType, cpu> mtR(r, 0, nVectors1);
-    DAAL_CHECK_BLOCK_STATUS(mtR);
-    algorithmFPType * dataR = mtR.get();
-
     if (a1 != a2)
     {
         char trans = 'T', notrans = 'N';
@@ -146,6 +142,10 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
                                                                              (DAAL_INT *)&nFeatures, &negTwo, a2, (DAAL_INT *)&nFeatures, a1,
                                                                              (DAAL_INT *)&nFeatures, &zero, r, (DAAL_INT *)&nVectors2);
         if (!retStat) return retStat;
+
+        WriteRows<algorithmFPType, cpu> mtR(r, 0, nVectors1);
+        DAAL_CHECK_BLOCK_STATUS(mtR);
+        algorithmFPType * dataR = mtR.get();
 
         DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, nVectors1, nVectors2);
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors1 + nVectors2, sizeof(algorithmFPType));
@@ -237,6 +237,10 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
             Blas<algorithmFPType, cpu>::xgemm_blocked(&trans, &notrans, (DAAL_INT *)&nVectors2, (DAAL_INT *)&nVectors1, (DAAL_INT *)&nFeatures, &one,
                                                       a2, (DAAL_INT *)&nFeatures, a1, (DAAL_INT *)&nFeatures, &zero, r, (DAAL_INT *)&nVectors2);
         if (!retStat) return retStat;
+
+        WriteRows<algorithmFPType, cpu> mtR(r, 0, nVectors1);
+        DAAL_CHECK_BLOCK_STATUS(mtR);
+        algorithmFPType * dataR = mtR.get();
 
         const size_t blockSize = 256;
         const size_t blockNum  = nVectors1 / blockSize + !!(nVectors1 % blockSize);
