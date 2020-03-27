@@ -169,11 +169,11 @@ services::Status TransformKernel<algorithmFPType, method, cpu>::compute(NumericT
         DAAL_INT numRows     = endRow - startRow;
         DAAL_INT numFeatures = data.getNumberOfColumns();
 
-        WriteRows<algorithmFPType, cpu> blockRows(transformedData, startRow, endRow);
+        WriteRows<algorithmFPType, cpu> blockRows(transformedData, startRow, numRows);
         DAAL_CHECK_BLOCK_STATUS_THR(blockRows);
         algorithmFPType * pTransformedBlock = blockRows.get();
 
-        ReadRows<algorithmFPType, cpu> dataRows(data, startRow, endRow);
+        ReadRows<algorithmFPType, cpu> dataRows(data, startRow, numRows);
         DAAL_CHECK_BLOCK_STATUS_THR(dataRows);
         const algorithmFPType * pDataBlock = dataRows.get();
 
