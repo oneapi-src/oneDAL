@@ -88,7 +88,7 @@ DAAL_FORCEINLINE void internalAdjustMaxHeap(RandomAccessIterator first, RandomAc
 }
 
 template <CpuType cpu, typename RandomAccessIterator, typename Compare = Less<cpu> >
-void popMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare compare = Less<cpu>())
+DAAL_FORCEINLINE void popMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare compare = Less<cpu>())
 {
     if (1 < last - first)
     {
@@ -99,7 +99,7 @@ void popMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare c
 }
 
 template <CpuType cpu, typename RandomAccessIterator, typename Compare = Less<cpu> >
-void makeMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare compare = Less<cpu>())
+DAAL_FORCEINLINE void makeMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare compare = Less<cpu>())
 {
     const auto count = last - first;
     auto i           = count / 2;
@@ -126,7 +126,7 @@ DAAL_FORCEINLINE void maxHeapUpdate(RandomAccessIterator first, Addr & prev, con
 }
 
 template <CpuType cpu, typename RandomAccessIterator, typename Compare = Less<cpu> >
-void pushMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare compare = Less<cpu>())
+DAAL_FORCEINLINE void pushMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare compare = Less<cpu>())
 {
     auto i = last - first - 1;
     if (0 < i)
