@@ -47,6 +47,10 @@ services::Status Parameter::check() const
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, classifier::Parameter::check());
+    if (nClasses != 2)
+    {
+        return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, nClassesStr()));
+    }
     if(C <= 0)
     {
         return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, cBoundStr()));

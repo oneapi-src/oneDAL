@@ -44,6 +44,15 @@ Batch<algorithmFPType, method>::Batch()
     initialize();
 }
 
+template <typename algorithmFPType, Method method>
+Batch<algorithmFPType, method>::Batch(size_t nClasses)
+{
+    ParameterType * param = new ParameterType();
+    param->nClasses       = nClasses;
+    _par                  = param;
+    initialize();
+}
+
 template<typename algorithmFPType, Method method>
 Batch<algorithmFPType, method>::Batch(const Batch &other) :
     classifier::training::Batch(other),
@@ -54,6 +63,7 @@ Batch<algorithmFPType, method>::Batch(const Batch &other) :
 }
 
 template Batch<DAAL_FPTYPE, brownboost::training::defaultDense>::Batch();
+template Batch<DAAL_FPTYPE, brownboost::training::defaultDense>::Batch(size_t nClasses);
 template Batch<DAAL_FPTYPE, brownboost::training::defaultDense>::Batch(const Batch &);
 
 } // namespace interface2
