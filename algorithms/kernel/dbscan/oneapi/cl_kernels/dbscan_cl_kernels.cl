@@ -29,6 +29,22 @@
 DECLARE_SOURCE(
     dbscan_cl_kernels,
 
+    void point_to_nbr_distance(__global const algorithmFPType * points, int point_id, int nbr_id, int power, 
+                                    int local_id, int subgroup_size, int num_features, __global algorithmFPType * dist)
+    {
+        algorithmFPType sum     = 0.0;
+        for (int i = local_id; i < num_features; i += subgroup_size)
+        {
+            algorithmFPType val = fabs(points[point_id * num_features + i] - points[nbr_id * num_features + i]);
+            sum += pown(val, power);
+        }
+        algorithmFPType cur_nbr_distance = sub_group_reduce_add(sum);
+        if (local_id == 0)
+        {
+            dist[nbr_id] = cur_nbr_distance;
+        }
+    }    
+
     __kernel void compute_point_distances(__global const algorithmFPType * points, int point_id, int power, int num_features, int num_points,
                                           __global algorithmFPType * dist) {
         const int subgroup_index = get_global_id(0) * get_max_sub_group_size() + get_sub_group_id();
@@ -36,21 +52,11 @@ DECLARE_SOURCE(
 
         const int subgroup_size = get_sub_group_size();
         const int local_id      = get_sub_group_local_id();
-        algorithmFPType sum     = 0.0;
-        for (int i = local_id; i < num_features; i += subgroup_size)
-        {
-            algorithmFPType val = fabs(points[point_id * num_features + i] - points[subgroup_index * num_features + i]);
-            sum += pown(val, power);
-        }
-        algorithmFPType cur_nbr_distance = sub_group_reduce_add(sum);
-        if (local_id == 0)
-        {
-            dist[subgroup_index] = cur_nbr_distance;
-        }
+        point_to_nbr_distance(points, point_id, subgroup_index, power, local_id, subgroup_size, num_features, dist);
     }
 
     __kernel void compute_queue_block_distances(__global const algorithmFPType * points, __global const int * queue, int queue_begin, int queue_size,
-                                                int power, int num_features, int num_points, __global algorithmFPType * dist) {
+                                                int power, int num_features, int num_points, __global algorithmFPType * queue_dist) {
         const int queue_pos = get_global_id(0);
         if (queue_pos >= queue_size) return;
 
@@ -59,20 +65,10 @@ DECLARE_SOURCE(
         const int group_id                        = get_sub_group_id();
         const int subgroup_size                   = get_sub_group_size();
         const int local_id                        = get_sub_group_local_id();
-        __global algorithmFPType * cur_block_dist = &dist[queue_pos * num_points];
+        __global algorithmFPType * cur_block_dist = &queue_dist[queue_pos * num_points];
         for (int j = group_id; j < num_points; j += group_num)
         {
-            algorithmFPType sum = 0.0;
-            for (int i = local_id; i < num_features; i += subgroup_size)
-            {
-                algorithmFPType val = fabs(points[point_id * num_features + i] - points[j * num_features + i]);
-                sum += pown(val, power);
-            }
-            algorithmFPType cur_nbr_distance = sub_group_reduce_add(sum);
-            if (local_id == 0)
-            {
-                cur_block_dist[j] = cur_nbr_distance;
-            }
+            point_to_nbr_distance(points, point_id, j, power, local_id, subgroup_size, num_features, cur_block_dist);
         }
     }
 
