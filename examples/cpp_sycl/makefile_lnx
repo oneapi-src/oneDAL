@@ -24,7 +24,7 @@ help:
 	@echo
 	@echo "name              - example name. Please see daal.lst file."
 	@echo
-	@echo "compiler_name     - can be clang, gnu or intel. Default value is clang."
+	@echo "compiler_name     - can be clang. Default value is clang."
 	@echo "                    Intel(R) oneAPI Compiler as default"
 	@echo
 	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
@@ -38,11 +38,11 @@ help:
 ##                                 and run pca example for 64-bit
 ##                                 applications, static linking
 ##
-## make sointel64 compiler=gnu   - build by GNU C++ compiler and run all examples
+## make sointel64 compiler=clang   - build by Intel(R) oneAPI Compiler and run all examples
 ##                                 of Intel(R) DAAL for
 ##                                 64-bit applications, dynamic linking
 ##
-## make libintel64 compiler=gnu  - build by GNU C++ compiler and run all example
+## make libintel64 compiler=clang  - build by Intel(R) oneAPI Compiler and run all example
 ##                                 of Intel(R) DAAL for
 ##                                 Intel(R) 64 processor family applications,
 ##                                 static linking
@@ -65,11 +65,10 @@ ifndef example
     example = $(DAAL)
 endif
 
-ifneq ($(compiler),gnu)
-    ifneq ($(compiler),intel)
-        override compiler = clang
-    endif
-endif
+ifndef compiler
+    compiler = clang
+ifndef
+
 
 ifneq ($(mode),build)
     override mode = run
