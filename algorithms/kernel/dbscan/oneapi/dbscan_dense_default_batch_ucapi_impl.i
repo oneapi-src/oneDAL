@@ -28,6 +28,7 @@
 
 using namespace daal::services;
 using namespace daal::oneapi::internal;
+using namespace daal::data_management;
 
 namespace daal
 {
@@ -111,7 +112,6 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::processResultsToCompute(DAAL_UIN
         auto coreObservations = coreObservationsRows.getBuffer();
 
         uint32_t pos = 0;
-        int result   = 0;
         for (uint32_t i = 0; i < nRows; i++)
         {
             if (!isCore[i])
@@ -127,10 +127,6 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::processResultsToCompute(DAAL_UIN
             DAAL_CHECK_STATUS_VAR(st);
             pos++;
             DAAL_CHECK_STATUS_VAR(ntData->releaseBlockOfRows(dataRows));
-        }
-        if (result)
-        {
-            return Status(services::ErrorMemoryCopyFailedInternal);
         }
     }
 
@@ -155,6 +151,7 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
     NumericTable * ntData = const_cast<NumericTable *>(x);
     if (ntData->getNumberOfRows() > static_cast<size_t>(UINT_MAX) || ntData->getNumberOfColumns() > static_cast<size_t>(UINT_MAX))
     {
+        return Status(ErrorBufferSizeIntegerOverflow);
     }
     const uint32_t nRows = ntData->getNumberOfRows();
     const uint32_t dim   = ntData->getNumberOfColumns();
@@ -165,7 +162,7 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
 
     BlockDescriptor<int> assignRows;
     DAAL_CHECK_STATUS_VAR(ntAssignments->getBlockOfRows(0, nRows, writeOnly, assignRows));
-    auto assignments = daal::oneapi::internal::UniversalBuffer(assignRows.getBuffer());
+    UniversalBuffer assignments = assignRows.getBuffer();
     context.fill(assignments, undefined, &s);
     DAAL_CHECK_STATUS_VAR(s);
 
@@ -313,7 +310,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::countOffsets(const Uni
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
-    auto kernel = kernel_factory.getKernel("compute_cnunk_offsets", &st);
+    auto kernel = kernel_factory.getKernel("compute_chunk_offsets", &st);
     DAAL_CHECK_STATUS_VAR(st);
 
     KernelArguments args(3);

@@ -132,9 +132,9 @@ DECLARE_SOURCE(
         if (local_id == 0 & global_id == 0) buffer[queue[queue_index]] = value;
     }
 
-    __kernel void compute_cnunk_offsets(__global const int * chunk_counters, int num_offsets, __global int * chunk_offsets) 
+    __kernel void compute_chunk_offsets(__global const int * chunk_counters, int num_offsets, __global int * chunk_offsets) 
     {
-        if (get_global_id(0) > 0 || get_sub_group_id() > 0) return;
+        if (get_sub_group_id() > 0) return;
 
         const int subgroup_size = get_sub_group_size();
         const int local_id      = get_sub_group_local_id();
@@ -149,7 +149,7 @@ DECLARE_SOURCE(
         }
     }
 
-    __kernel void push_points_to_queue(__global const algorithmFPType * distances, __global const int * chunk_offsets, int queue_end, int point_id,
+    __kernel void push_points_to_queue(__global const algorithmFPType * distances, __global const int * chunk_offsets, int queue_last_element, int point_id,
                                        int cluster_id, int first_chunk_offset, int chunk_size, algorithmFPType eps, int num_points,
                                        __global int * assignments, __global int * queue) 
     {
@@ -164,7 +164,7 @@ DECLARE_SOURCE(
         const int local_id                                  = get_sub_group_local_id();
         __global const algorithmFPType * subgroup_distances = &distances[dist_offset];
         __global int * subgroup_assignments                 = &assignments[subgroup_offset];
-        const int out_offset                                = chunk_offsets[subgroup_index];
+        const int subgroup_chunk_offset                                = chunk_offsets[subgroup_index];
         int local_offset                                    = 0;
         for (int i = local_id; i < subgroup_point_number; i += subgroup_size)
         {
@@ -174,7 +174,7 @@ DECLARE_SOURCE(
             if (is_undefined_nbr)
             {
                 subgroup_assignments[i]                                  = cluster_id;
-                queue[queue_end + out_offset + local_offset + local_pos] = subgroup_offset + i;
+                queue[queue_last_element + subgroup_chunk_offset + local_offset + local_pos] = subgroup_offset + i;
             }
             if (is_nbr && (subgroup_assignments[i] == _NOISE_))
             {

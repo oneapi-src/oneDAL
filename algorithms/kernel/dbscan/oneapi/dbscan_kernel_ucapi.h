@@ -28,8 +28,6 @@
 #include "data_management/data/numeric_table.h"
 #include "oneapi/internal/execution_context.h"
 
-using namespace daal::data_management;
-
 namespace daal
 {
 namespace algorithms
@@ -42,12 +40,12 @@ template <typename algorithmFPType>
 class DBSCANBatchKernelUCAPI : public Kernel
 {
 public:
-    services::Status compute(const NumericTable * ntData, const NumericTable * ntWeights, NumericTable * ntAssignments, NumericTable * ntNClusters,
-                             NumericTable * ntCoreIndices, NumericTable * ntCoreObservations, const Parameter * par);
+    services::Status compute(const daal::data_management::NumericTable * ntData, const daal::data_management::NumericTable * ntWeights, daal::data_management::NumericTable * ntAssignments, daal::data_management::NumericTable * ntNClusters,
+                             daal::data_management::NumericTable * ntCoreIndices, daal::data_management::NumericTable * ntCoreObservations, const Parameter * par);
 
 private:
-    services::Status processResultsToCompute(DAAL_UINT64 resultsToCompute, int * const isCore, NumericTable * ntData, NumericTable * ntCoreIndices,
-                                             NumericTable * ntCoreObservations);
+    services::Status processResultsToCompute(DAAL_UINT64 resultsToCompute, int * const isCore, daal::data_management::NumericTable * ntData, daal::data_management::NumericTable * ntCoreIndices,
+                                             daal::data_management::NumericTable * ntCoreObservations);
     services::Status pushNeighborsToQueue(const oneapi::internal::UniversalBuffer & distances, const oneapi::internal::UniversalBuffer & chunkOffests,
                                           uint32_t rowId, uint32_t clusterId, uint32_t chunkOffset, uint32_t numberOfChunks, uint32_t nRows,
                                           uint32_t qEnd, algorithmFPType eps, oneapi::internal::UniversalBuffer & assignments,
