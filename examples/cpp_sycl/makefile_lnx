@@ -62,8 +62,7 @@ endif
 
 ifndef compiler
     compiler = clang
-ifndef
-
+endif
 
 ifneq ($(mode),build)
     override mode = run
