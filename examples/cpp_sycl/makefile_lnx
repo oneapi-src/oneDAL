@@ -42,11 +42,6 @@ help:
 ##                                 of Intel(R) DAAL for
 ##                                 64-bit applications, dynamic linking
 ##
-## make libintel64 compiler=clang  - build by Intel(R) oneAPI Compiler and run all example
-##                                 of Intel(R) DAAL for
-##                                 Intel(R) 64 processor family applications,
-##                                 static linking
-##
 ## make sointel64                - build by Intel(R) oneAPI Compiler (as default)
 ##                                 and run all examples for Intel(R)64 processor
 ##                                 family  applications, dynamic linking
@@ -102,18 +97,6 @@ ifeq ($(compiler),clang)
     CC = clang++
     COPTS += -fsycl
     EXT_LIB += -foffload-static-lib=$(DAAL_PATH)/libdaal_sycl.a
-endif
-
-ifeq ($(compiler),intel)
-    CC = icc
-    COPTS += $(if $(COVFILE), -m64) -DONEAPI_DAAL_NO_MKL_GPU_FUNC
-    EXT_LIB += -lComputeCpp
-endif
-
-ifeq ($(compiler),gnu)
-    CC = g++
-    COPTS += -m64 -DONEAPI_DAAL_NO_MKL_GPU_FUNC
-    EXT_LIB += -lComputeCpp
 endif
 
 LOPTS := -Wl,--start-group $(DAAL_LIB) $(EXT_LIB) -Wl,--end-group
