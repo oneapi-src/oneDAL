@@ -40,11 +40,14 @@ template <typename algorithmFPType>
 class DBSCANBatchKernelUCAPI : public Kernel
 {
 public:
-    services::Status compute(const daal::data_management::NumericTable * ntData, const daal::data_management::NumericTable * ntWeights, daal::data_management::NumericTable * ntAssignments, daal::data_management::NumericTable * ntNClusters,
-                             daal::data_management::NumericTable * ntCoreIndices, daal::data_management::NumericTable * ntCoreObservations, const Parameter * par);
+    services::Status compute(const daal::data_management::NumericTable * ntData, const daal::data_management::NumericTable * ntWeights,
+                             daal::data_management::NumericTable * ntAssignments, daal::data_management::NumericTable * ntNClusters,
+                             daal::data_management::NumericTable * ntCoreIndices, daal::data_management::NumericTable * ntCoreObservations,
+                             const Parameter * par);
 
 private:
-    services::Status processResultsToCompute(DAAL_UINT64 resultsToCompute, daal::data_management::NumericTable * ntData, daal::data_management::NumericTable * ntCoreIndices,
+    services::Status processResultsToCompute(DAAL_UINT64 resultsToCompute, daal::data_management::NumericTable * ntData,
+                                             daal::data_management::NumericTable * ntCoreIndices,
                                              daal::data_management::NumericTable * ntCoreObservations);
     services::Status pushNeighborsToQueue(const oneapi::internal::UniversalBuffer & distances, const oneapi::internal::UniversalBuffer & chunkOffests,
                                           uint32_t rowId, uint32_t clusterId, uint32_t chunkOffset, uint32_t numberOfChunks, uint32_t nRows,
@@ -73,11 +76,11 @@ private:
 
     uint32_t sumCounters(const oneapi::internal::UniversalBuffer & counters, uint32_t numberOfChunks);
 
-    bool canQueryRow(const oneapi::internal::UniversalBuffer& assignments, uint32_t rowIndex, services::Status * s);
+    bool canQueryRow(const oneapi::internal::UniversalBuffer & assignments, uint32_t rowIndex, services::Status * s);
 
     uint32_t computeQueueBlockSize(uint32_t queueBegin, uint32_t queueEnd);
 
-    uint32_t getWorkgroupNumber(uint32_t numberOfChunks) {return numberOfChunks * _minSubgroupSize / _maxWorkgroupSize + 1;}
+    uint32_t getWorkgroupNumber(uint32_t numberOfChunks) { return numberOfChunks * _minSubgroupSize / _maxWorkgroupSize + 1; }
 
     services::Status initializeBuffers(uint32_t nRows);
 

@@ -29,20 +29,18 @@
 DECLARE_SOURCE(
     dbscan_cl_kernels,
 
-    algorithmFPType pow_by_mult(algorithmFPType value, int power)
-    {
+    algorithmFPType pow_by_mult(algorithmFPType value, int power) {
         algorithmFPType result = 1.0;
-        for(int i = 0; i < power; i++)
+        for (int i = 0; i < power; i++)
         {
             result *= value;
         }
         return result;
     }
 
-    void point_to_nbr_distance(__global const algorithmFPType * points, int point_id, int nbr_id, int power, 
-                                    int local_id, int subgroup_size, int num_features, __global algorithmFPType * dist)
-    {
-        algorithmFPType sum     = 0.0;
+    void point_to_nbr_distance(__global const algorithmFPType * points, int point_id, int nbr_id, int power, int local_id, int subgroup_size,
+                               int num_features, __global algorithmFPType * dist) {
+        algorithmFPType sum = 0.0;
         for (int i = local_id; i < num_features; i += subgroup_size)
         {
             algorithmFPType val = fabs(points[point_id * num_features + i] - points[nbr_id * num_features + i]);
@@ -53,11 +51,10 @@ DECLARE_SOURCE(
         {
             dist[nbr_id] = cur_nbr_distance;
         }
-    }    
+    }
 
     __kernel void compute_point_distances(__global const algorithmFPType * points, int point_id, int power, int num_features, int num_points,
-                                          __global algorithmFPType * dist) 
-    {
+                                          __global algorithmFPType * dist) {
         const int subgroup_index = get_global_id(0) * get_max_sub_group_size() + get_sub_group_id();
         if (subgroup_index >= num_points) return;
 
@@ -67,8 +64,7 @@ DECLARE_SOURCE(
     }
 
     __kernel void compute_queue_block_distances(__global const algorithmFPType * points, __global const int * queue, int queue_begin, int queue_size,
-                                                int power, int num_features, int num_points, __global algorithmFPType * queue_dist) 
-    {
+                                                int power, int num_features, int num_points, __global algorithmFPType * queue_dist) {
         const int queue_pos = get_global_id(0);
         if (queue_pos >= queue_size) return;
 
@@ -84,21 +80,16 @@ DECLARE_SOURCE(
         }
     }
 
-    int get_nbr_status(__global const algorithmFPType * distances, int nbr_id, algorithmFPType eps)
-    {
-        return (distances[nbr_id] <= eps ? 1 : 0);
-    }
+    int get_nbr_status(__global const algorithmFPType * distances, int nbr_id, algorithmFPType eps) { return (distances[nbr_id] <= eps ? 1 : 0); }
 
-    int get_undefined_nbr_status(__global const int * assignments, int point_id, int nbr_id, int is_nbr, int subgroup_offset)
-    {
+    int get_undefined_nbr_status(__global const int * assignments, int point_id, int nbr_id, int is_nbr, int subgroup_offset) {
         int is_current_point = nbr_id + subgroup_offset == point_id;
         return (is_nbr > 0 && assignments[nbr_id] == _UNDEFINED_ && !is_current_point ? 1 : 0);
     }
 
     __kernel void count_neighbors_by_type(__global const int * assignments, __global const algorithmFPType * distances, int point_id,
                                           int first_chunk_offset, int chunk_size, int num_points, algorithmFPType eps, __global const int * queue,
-                                          __global int * counters_all_nbrs, __global int * counters_undef_nbrs) 
-    {
+                                          __global int * counters_all_nbrs, __global int * counters_undef_nbrs) {
         const int subgroup_index        = get_global_id(0) * get_num_sub_groups() + get_sub_group_id();
         const int subgroup_offset       = subgroup_index * chunk_size;
         const int subgroup_point_number = num_points - subgroup_offset < chunk_size ? num_points - subgroup_offset : chunk_size;
@@ -114,7 +105,7 @@ DECLARE_SOURCE(
         int counter_undefined                               = 0;
         for (int i = local_id; i < subgroup_point_number; i += subgroup_size)
         {
-            int is_nbr = get_nbr_status(subgroup_distances, i, eps);
+            int is_nbr           = get_nbr_status(subgroup_distances, i, eps);
             int is_undefined_nbr = get_undefined_nbr_status(subgroup_assignments, point_id, i, is_nbr, subgroup_offset);
             counter_all += is_nbr;
             counter_undefined += is_undefined_nbr;
@@ -128,22 +119,19 @@ DECLARE_SOURCE(
         }
     }
 
-    __kernel void set_buffer_value(int value_index, int value, __global int * buffer) 
-    {
+    __kernel void set_buffer_value(int value_index, int value, __global int * buffer) {
         const int global_id = get_global_id(0);
         const int local_id  = get_local_id(1);
         if (local_id == 0 & global_id == 0) buffer[value_index] = value;
     }
 
-    __kernel void set_buffer_value_by_queue_index(__global const int * queue, int queue_index, int value, __global int * buffer) 
-    {
+    __kernel void set_buffer_value_by_queue_index(__global const int * queue, int queue_index, int value, __global int * buffer) {
         const int global_id = get_global_id(0);
         const int local_id  = get_local_id(1);
         if (local_id == 0 & global_id == 0) buffer[queue[queue_index]] = value;
     }
 
-    __kernel void compute_chunk_offsets(__global const int * chunk_counters, int num_offsets, __global int * chunk_offsets) 
-    {
+    __kernel void compute_chunk_offsets(__global const int * chunk_counters, int num_offsets, __global int * chunk_offsets) {
         if (get_sub_group_id() > 0) return;
 
         const int subgroup_size = get_sub_group_size();
@@ -159,10 +147,9 @@ DECLARE_SOURCE(
         }
     }
 
-    __kernel void push_points_to_queue(__global const algorithmFPType * distances, __global const int * chunk_offsets, int queue_last_element, int point_id,
-                                       int cluster_id, int first_chunk_offset, int chunk_size, algorithmFPType eps, int num_points,
-                                       __global int * assignments, __global int * queue) 
-    {
+    __kernel void push_points_to_queue(__global const algorithmFPType * distances, __global const int * chunk_offsets, int queue_last_element,
+                                       int point_id, int cluster_id, int first_chunk_offset, int chunk_size, algorithmFPType eps, int num_points,
+                                       __global int * assignments, __global int * queue) {
         const int subgroup_index  = get_global_id(0) * get_num_sub_groups() + get_sub_group_id();
         const int subgroup_offset = subgroup_index * chunk_size;
         point_id                  = first_chunk_offset < 0 ? point_id : queue[point_id];
@@ -174,16 +161,16 @@ DECLARE_SOURCE(
         const int local_id                                  = get_sub_group_local_id();
         __global const algorithmFPType * subgroup_distances = &distances[dist_offset];
         __global int * subgroup_assignments                 = &assignments[subgroup_offset];
-        const int subgroup_chunk_offset                                = chunk_offsets[subgroup_index];
+        const int subgroup_chunk_offset                     = chunk_offsets[subgroup_index];
         int local_offset                                    = 0;
         for (int i = local_id; i < subgroup_point_number; i += subgroup_size)
         {
-            int is_nbr = get_nbr_status(subgroup_distances, i, eps);
+            int is_nbr           = get_nbr_status(subgroup_distances, i, eps);
             int is_undefined_nbr = get_undefined_nbr_status(subgroup_assignments, point_id, i, is_nbr, subgroup_offset);
             int local_pos        = sub_group_scan_exclusive_add(is_undefined_nbr);
             if (is_undefined_nbr)
             {
-                subgroup_assignments[i]                                  = cluster_id;
+                subgroup_assignments[i]                                                      = cluster_id;
                 queue[queue_last_element + subgroup_chunk_offset + local_offset + local_pos] = subgroup_offset + i;
             }
             if (is_nbr && (subgroup_assignments[i] == _NOISE_))
