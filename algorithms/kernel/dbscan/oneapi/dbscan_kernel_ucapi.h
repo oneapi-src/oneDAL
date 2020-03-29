@@ -73,6 +73,9 @@ private:
 
     uint32_t sumCounters(const oneapi::internal::UniversalBuffer & counters, uint32_t numberOfChunks);
 
+
+    uint32_t computeQueueBlockSize(uint32_t queueBegin, uint32_t queueEnd);
+
     services::Status buildProgram(oneapi::internal::ClKernelFactoryIface & kernel_factory);
 
     size_t _minSubgroupSize  = 16;

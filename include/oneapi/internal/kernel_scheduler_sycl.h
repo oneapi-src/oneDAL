@@ -29,6 +29,8 @@
         #include "oneapi/internal/types_utils_cxx11.h"
         #include "services/daal_string.h"
 
+#define DAAL_EXECUTION_CONTEXT_VERBOSE
+
 namespace daal
 {
 namespace oneapi
@@ -127,7 +129,7 @@ public:
         {
             size_t logLen = 0;
             clGetProgramBuildInfo(get(), clDevice, CL_PROGRAM_BUILD_LOG, 0, nullptr, &logLen);
-            services::Collection<char> buildLogCollection(loglen);
+            services::Collection<char> buildLogCollection(logLen);
             char * buildLog = buildLogCollection.data();
             if (buildLog == nullptr)
             {

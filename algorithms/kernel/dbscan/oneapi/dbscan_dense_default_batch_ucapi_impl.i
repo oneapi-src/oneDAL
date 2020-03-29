@@ -38,18 +38,16 @@ namespace dbscan
 {
 namespace internal
 {
-struct QueueBlock
+template <typename algorithmFPType>
+uint32_t DBSCANBatchKernelUCAPI<algorithmFPType>::computeQueueBlockSize(uint32_t queueBegin, uint32_t queueEnd)
 {
-    QueueBlock(uint32_t queueBegin, uint32_t queueEnd, uint32_t maxQueueBlockSize)
+    uint32_t size = queueEnd - queueBegin;
+    if (size > _queueBlockSize)
     {
-        count = queueEnd - queueBegin;
-        if (count > maxQueueBlockSize)
-        {
-            count = maxQueueBlockSize;
-        }
+        size = _queueBlockSize;
     }
-    uint32_t count;
-};
+    return size;
+}
 
 template <typename algorithmFPType>
 Status DBSCANBatchKernelUCAPI<algorithmFPType>::processResultsToCompute(DAAL_UINT64 resultsToCompute, int * const isCore, NumericTable * ntData,
@@ -223,9 +221,9 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
         queueEnd += numNewNeighbors;
         while (queueBegin < queueEnd)
         {
-            QueueBlock queueBlock(queueBegin, queueEnd, _queueBlockSize);
-            getQueueBlockDistances(data, nRows, queue, queueBegin, queueBlock.count, dim, minkowskiPower, queueBlockDistances);
-            for (uint32_t j = 0; j < queueBlock.count; j++)
+            uint32_t curQueueBlockSize = computeQueueBlockSize(queueBegin, queueEnd);
+            getQueueBlockDistances(data, nRows, queue, queueBegin, curQueueBlockSize, dim, minkowskiPower, queueBlockDistances);
+            for (uint32_t j = 0; j < curQueueBlockSize; j++)
             {
                 countPointNeighbors(assignments, queueBlockDistances, queueBegin + j, nRows * j, nRows, _chunkNumber, epsP, queue, countersTotal,
                                     countersNewNeighbors);
@@ -242,7 +240,7 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
                                      assignments, queue);
                 queueEnd += curNewNeighbors;
             }
-            queueBegin += queueBlock.count;
+            queueBegin += curQueueBlockSize;
         }
     }
 
