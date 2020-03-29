@@ -44,7 +44,7 @@ public:
                              daal::data_management::NumericTable * ntCoreIndices, daal::data_management::NumericTable * ntCoreObservations, const Parameter * par);
 
 private:
-    services::Status processResultsToCompute(DAAL_UINT64 resultsToCompute, int * const isCore, daal::data_management::NumericTable * ntData, daal::data_management::NumericTable * ntCoreIndices,
+    services::Status processResultsToCompute(DAAL_UINT64 resultsToCompute, daal::data_management::NumericTable * ntData, daal::data_management::NumericTable * ntCoreIndices,
                                              daal::data_management::NumericTable * ntCoreObservations);
     services::Status pushNeighborsToQueue(const oneapi::internal::UniversalBuffer & distances, const oneapi::internal::UniversalBuffer & chunkOffests,
                                           uint32_t rowId, uint32_t clusterId, uint32_t chunkOffset, uint32_t numberOfChunks, uint32_t nRows,
@@ -73,15 +73,28 @@ private:
 
     uint32_t sumCounters(const oneapi::internal::UniversalBuffer & counters, uint32_t numberOfChunks);
 
+    bool canQueryRow(const oneapi::internal::UniversalBuffer& assignments, uint32_t rowIndex, services::Status * s);
 
     uint32_t computeQueueBlockSize(uint32_t queueBegin, uint32_t queueEnd);
 
+    uint32_t getWorkgroupNumber(uint32_t numberOfChunks) {return numberOfChunks * _minSubgroupSize / _maxWorkgroupSize + 1;}
+
+    services::Status initializeBuffers(uint32_t nRows);
+
     services::Status buildProgram(oneapi::internal::ClKernelFactoryIface & kernel_factory);
 
-    size_t _minSubgroupSize  = 16;
-    size_t _maxWorkgroupSize = 256;
-    size_t _chunkNumber      = 64;
-    size_t _queueBlockSize   = 64;
+    static const size_t _minSubgroupSize  = 16;
+    static const size_t _maxWorkgroupSize = 256;
+    static const size_t _chunkNumber      = 64;
+    static const size_t _queueBlockSize   = 64;
+
+    oneapi::internal::UniversalBuffer _queueBlockDistances;
+    oneapi::internal::UniversalBuffer _singlePointDistances;
+    oneapi::internal::UniversalBuffer _queue;
+    oneapi::internal::UniversalBuffer _isCore;
+    oneapi::internal::UniversalBuffer _countersTotal;
+    oneapi::internal::UniversalBuffer _countersNewNeighbors;
+    oneapi::internal::UniversalBuffer _chunkOffsets;
 };
 
 } // namespace internal

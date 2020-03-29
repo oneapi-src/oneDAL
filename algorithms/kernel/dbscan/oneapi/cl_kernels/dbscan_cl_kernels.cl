@@ -29,6 +29,16 @@
 DECLARE_SOURCE(
     dbscan_cl_kernels,
 
+    algorithmFPType pow_by_mult(algorithmFPType value, int power)
+    {
+        algorithmFPType result = 1.0;
+        for(int i = 0; i < power; i++)
+        {
+            result *= value;
+        }
+        return result;
+    }
+
     void point_to_nbr_distance(__global const algorithmFPType * points, int point_id, int nbr_id, int power, 
                                     int local_id, int subgroup_size, int num_features, __global algorithmFPType * dist)
     {
@@ -36,7 +46,7 @@ DECLARE_SOURCE(
         for (int i = local_id; i < num_features; i += subgroup_size)
         {
             algorithmFPType val = fabs(points[point_id * num_features + i] - points[nbr_id * num_features + i]);
-            sum += pown(val, power);
+            sum += pow_by_mult(val, power);
         }
         algorithmFPType cur_nbr_distance = sub_group_reduce_add(sum);
         if (local_id == 0)
