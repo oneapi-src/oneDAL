@@ -64,7 +64,7 @@ int main(int argc, char * argv[])
         dbscan::Batch<> algorithm(epsilon, minObservations);
 
         algorithm.input.set(dbscan::data, dataSource.getNumericTable());
-
+        algorithm.parameter().memorySavingMode = true;
         algorithm.compute();
 
         /* Print the clusterization results */
