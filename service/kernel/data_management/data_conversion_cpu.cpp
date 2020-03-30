@@ -40,15 +40,27 @@ void vectorCopyInternal<float>(const size_t nrows, const size_t ncols, void * ds
     float const * pmin   = static_cast<float const *>(ptrMin);
     char const * ptrByte = static_cast<char const *>(ptrMin);
 
-    const size_t nColSize = ncols - ncols % 8;
+    const size_t nColSize  = ncols - ncols % 8;
+    const size_t blockSize = 16;
+    const size_t blockNum  = ncols / blockSize + !!(ncols % blockSize);
+
+    for (size_t iBlock = 0; iBlock < blockNum; ++iBlock)
+    {
+        const size_t startCol  = iBlock * blockSize;
+        const size_t finishCol = (iBlock + 1 != blockNum) ? (iBlock + 1) * blockSize : startCol + 8 * ((ncols % blockSize) / 8);
+
+        for (size_t i = 0; i < nrows; ++i)
+        {
+            for (size_t j = startCol; j < finishCol; j += 8)
+            {
+                __m256 ps = _mm512_i64gather_ps(*((__m512i *)&arrOffsets[j]), pmin + i, 1);
+                _mm256_storeu_ps(pd + i * ncols + j, ps);
+            }
+        }
+    }
 
     for (size_t i = 0; i < nrows; ++i)
     {
-        for (size_t j = 0; j < nColSize; j += 8)
-        {
-            __m256 ps = _mm512_i64gather_ps(*((__m512i *)&arrOffsets[j]), pmin + i, 1);
-            _mm256_storeu_ps(pd + i * ncols + j, ps);
-        }
         for (size_t j = nColSize; j < ncols; ++j)
         {
             char const * pc   = ptrByte + arrOffsets[j];
@@ -64,15 +76,27 @@ void vectorCopyInternal<double>(const size_t nrows, const size_t ncols, void * d
     double const * pmin  = static_cast<double const *>(ptrMin);
     char const * ptrByte = static_cast<char const *>(ptrMin);
 
-    const size_t nColSize = ncols - ncols % 8;
+    const size_t nColSize  = ncols - ncols % 8;
+    const size_t blockSize = 16;
+    const size_t blockNum  = ncols / blockSize;
+
+    for (size_t iBlock = 0; iBlock < blockNum; ++iBlock)
+    {
+        const size_t startCol  = iBlock * blockSize;
+        const size_t finishCol = (iBlock + 1 != blockNum) ? (iBlock + 1) * blockSize : nColSize;
+
+        for (size_t i = 0; i < nrows; ++i)
+        {
+            for (size_t j = startCol; j < finishCol; j += 8)
+            {
+                __m512d ps = _mm512_i64gather_pd(*((__m512i *)&arrOffsets[j]), pmin + i, 1);
+                _mm512_storeu_pd(pd + i * ncols + j, ps);
+            }
+        }
+    }
 
     for (size_t i = 0; i < nrows; ++i)
     {
-        for (size_t j = 0; j < nColSize; j += 8)
-        {
-            __m512d p = _mm512_i64gather_pd(*((__m512i *)&arrOffsets[j]), pmin + i, 1);
-            _mm512_storeu_pd(pd + i * ncols + j, p);
-        }
         for (size_t j = nColSize; j < ncols; ++j)
         {
             char const * pc   = ptrByte + arrOffsets[j];
