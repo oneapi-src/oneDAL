@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __SVD_KERNEL_DISTR_IMPL_I__
-#define __SVD_KERNEL_DISTR_IMPL_I__
+#ifndef __SVD_DENSE_DEFAULT_DISTR_STEP2_IMPL_I__
+#define __SVD_DENSE_DEFAULT_DISTR_STEP2_IMPL_I__
 
 #include "externals/service_memory.h"
 #include "externals/service_math.h"
