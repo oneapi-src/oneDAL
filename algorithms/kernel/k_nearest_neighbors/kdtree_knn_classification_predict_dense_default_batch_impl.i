@@ -38,7 +38,6 @@
 #include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
 #include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_impl.i"
 #include "service/kernel/service_utils.h"
-#include "algorithms/kernel/service_heap.h"
 
 namespace daal
 {
@@ -72,6 +71,90 @@ struct SearchNode
     algorithmFpType minDistance;
 };
 
+template <CpuType cpu, typename T>
+DAAL_FORCEINLINE T heapLeftChildIndex(T index)
+{
+    return 2 * index + 1;
+}
+template <CpuType cpu, typename T>
+DAAL_FORCEINLINE T heapRightChildIndex(T index)
+{
+    return 2 * index + 2;
+}
+template <CpuType cpu, typename T>
+DAAL_FORCEINLINE T heapParentIndex(T index)
+{
+    return (index - 1) / 2;
+}
+
+template <CpuType cpu, typename RandomAccessIterator>
+void pushMaxHeap(RandomAccessIterator first, RandomAccessIterator last)
+{
+    if (first != last)
+    {
+        --last;
+        auto i = last - first;
+        if (i > 0)
+        {
+            const auto newItem = *last; // It can be moved instead.
+            auto prev          = i;
+            for (i = heapParentIndex<cpu>(i); i && (*(first + i) < newItem); i = heapParentIndex<cpu>(i))
+            {
+                *(first + prev) = *(first + i); // It can be moved instead.
+                prev            = i;
+            }
+            *(first + i) = newItem; // It can be moved instead.
+        }
+    }
+}
+
+template <CpuType cpu, typename RandomAccessIterator, typename Diff>
+DAAL_FORCEINLINE void internalAdjustMaxHeap(RandomAccessIterator first, RandomAccessIterator /*last*/, Diff count, Diff i)
+{
+    for (auto largest = i;; i = largest)
+    {
+        const auto l = heapLeftChildIndex<cpu>(i);
+        if ((l < count) && (*(first + largest) < *(first + l)))
+        {
+            largest = l;
+        }
+        const auto r = heapRightChildIndex<cpu>(i);
+        if ((r < count) && (*(first + largest) < *(first + r)))
+        {
+            largest = r;
+        }
+
+        if (largest == i)
+        {
+            break;
+        }
+
+        iterSwap<cpu>(first + i, first + largest);
+    }
+}
+
+template <CpuType cpu, typename RandomAccessIterator>
+void popMaxHeap(RandomAccessIterator first, RandomAccessIterator last)
+{
+    if (1 < last - first)
+    {
+        --last;
+        iterSwap<cpu>(first, last);
+        internalAdjustMaxHeap<cpu>(first, last, last - first, first - first);
+    }
+}
+
+template <CpuType cpu, typename RandomAccessIterator>
+void makeMaxHeap(RandomAccessIterator first, RandomAccessIterator last)
+{
+    const auto count = last - first;
+    auto i           = count / 2;
+    while (0 < i)
+    {
+        internalAdjustMaxHeap<cpu>(first, last, count, --i);
+    }
+}
+
 template <typename T, CpuType cpu>
 class Heap
 {
@@ -102,7 +185,7 @@ public:
 
     void reset() { _count = 0; }
 
-    DAAL_FORCEINLINE void push(const T & e, size_t k)
+    void push(const T & e, size_t k)
     {
         _elements[_count++] = e;
         if (_count == k)
@@ -111,16 +194,16 @@ public:
         }
     }
 
-    DAAL_FORCEINLINE void replaceMax(const T & e)
+    void replaceMax(const T & e)
     {
         popMaxHeap<cpu, T *>(_elements, _elements + _count);
         _elements[_count - 1] = e;
         pushMaxHeap<cpu, T *>(_elements, _elements + _count);
     }
 
-    DAAL_FORCEINLINE size_t size() const { return _count; }
+    size_t size() const { return _count; }
 
-    DAAL_FORCEINLINE T * getMax() { return _elements; }
+    T * getMax() { return _elements; }
 
     DAAL_FORCEINLINE const T & operator[](size_t index) const { return _elements[index]; }
 

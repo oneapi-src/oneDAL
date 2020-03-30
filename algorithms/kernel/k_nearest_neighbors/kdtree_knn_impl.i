@@ -69,13 +69,13 @@ namespace internal
 using namespace daal::services::internal;
 
 template <CpuType cpu, typename T>
-DAAL_FORCEINLINE const T & min(const T & a, const T & b)
+inline const T & min(const T & a, const T & b)
 {
     return !(b < a) ? a : b;
 }
 
 template <CpuType cpu, typename T>
-DAAL_FORCEINLINE const T & max(const T & a, const T & b)
+inline const T & max(const T & a, const T & b)
 {
     return (a < b) ? b : a;
 }
@@ -100,7 +100,6 @@ public:
 
     bool init(size_t size)
     {
-        size = size ? greaterOrEqualPowerOf2<cpu>(size) : 1; //Handles both cases size == 0 and size != 0
         setSize(size);
         _data = static_cast<T *>(services::internal::service_malloc<T, cpu>(_size * sizeof(T)));
         reset();
@@ -125,9 +124,9 @@ public:
 
     DAAL_FORCEINLINE T pop() { return _data[_top--]; }
 
-    DAAL_FORCEINLINE bool empty() const { return _top == -1; }
+    bool empty() const { return _top == -1; }
 
-    DAAL_FORCEINLINE size_t size() const { return (_top + 1); }
+    size_t size() const { return (_top + 1); }
 
 private:
     services::Status grow()
