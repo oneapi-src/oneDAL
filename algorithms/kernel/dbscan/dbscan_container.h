@@ -50,7 +50,7 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
     }
     else
     {
-        _kernel = new internal::DBSCANBatchKernelUCAPI<algorithmFPType>();
+        __DAAL_INITIALIZE_KERNELS_SYCL(internal::DBSCANBatchKernelUCAPI, algorithmFPType);
     }
 }
 

@@ -67,10 +67,7 @@ template <typename algorithmFPType>
 bool DBSCANBatchKernelUCAPI<algorithmFPType>::canQueryRow(const UniversalBuffer & assignments, uint32_t rowIndex, Status * s)
 {
     auto pointAssignment = assignments.template get<int>().getSubBuffer(rowIndex, 1, s);
-    if (s && !s->ok())
-    {
-        return false;
-    }
+    DAAL_CHECK_STATUS_RETURN_IF_FAIL(s, false);
 
     auto assignPtr = pointAssignment.toHost(ReadWriteMode::readOnly);
     if (!assignPtr.get())
