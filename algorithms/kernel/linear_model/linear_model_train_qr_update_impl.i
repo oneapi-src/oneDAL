@@ -54,7 +54,7 @@ ThreadingTask<algorithmFPType, cpu>::ThreadingTask(DAAL_INT nBetasIntercept, DAA
       _yBlock(),
       tau(nBetasIntercept),
       qrBuffer(nBetasIntercept * nRows),
-      qtyBuffer(nResponses * nRows),
+      qtyBuffer(nResponses * (nRows > nBetasIntercept ? nRows : nBetasIntercept)),
       qrR(nBetasIntercept * nBetasIntercept),
       qrQTY(nBetasIntercept * nResponses),
       qrRNew(nBetasIntercept * nBetasIntercept),
@@ -205,7 +205,8 @@ Status UpdateKernel<algorithmFPType, cpu>::compute(const NumericTable & xTable, 
 
     size_t nBlocks  = nRows / nRowsInBlock;
     size_t tailSize = nRows - nBlocks * nRowsInBlock;
-    if (tailSize > nBetasIntercept) nBlocks++;
+    if (tailSize > nBetasIntercept) ++nBlocks;
+    if (!nBlocks) ++nBlocks;
 
     /* Create TLS */
     daal::tls<ThreadingTaskType *> tls([=]() -> ThreadingTaskType * { return ThreadingTaskType::create(nBetasIntercept, nRowsInBlock, nResponses); });

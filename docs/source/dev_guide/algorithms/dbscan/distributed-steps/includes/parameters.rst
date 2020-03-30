@@ -14,25 +14,18 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. _analysis:
+.. list-table::
+   :widths: 10 10 60
+   :header-rows: 1
 
-Analysis
-========
+   * - Parameter
+     - Default Valude
+     - Description
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
+     - Available methods for computation of DBSCAN algorithm:
 
-.. toctree::
-   :maxdepth: 1
-
-   algorithms/kmeans/k-means-clustering.rst
-   algorithms/dbscan/index.rst
-   algorithms/covariance/correlation-and-variance-covariance-matrices.rst
-   algorithms/pca/principal-component-analysis.rst
-   algorithms/svd/singular-value-decomposition.rst
-   algorithms/association_rules/association-rules.rst
-   algorithms/kernel_function/kernel-functions.rst
-   algorithms/em/expectation-maximization.rst
-
-.. toctree::
-   :maxdepth: 3
-   :caption: Optimization Solvers
-
-   algorithms/optimization-solvers/optimization-solvers.rst
+       - ``defaultDense`` – uses brute-force for neighborhood computation

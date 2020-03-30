@@ -167,16 +167,17 @@ DAALAY   ?= a y
 DIR:=.
 WORKDIR    ?= $(DIR)/__work$(CMPLRDIRSUFF.$(COMPILER))/$(PLAT)
 RELEASEDIR ?= $(DIR)/__release_$(_OS)$(CMPLRDIRSUFF.$(COMPILER))
-RELEASEDIR.daal    := $(RELEASEDIR)/daal/latest
-RELEASEDIR.lib     := $(RELEASEDIR.daal)/lib
-RELEASEDIR.env     := $(RELEASEDIR.daal)/env
-RELEASEDIR.conf    := $(RELEASEDIR.daal)/config
-RELEASEDIR.doc     := $(RELEASEDIR.daal)/documentation
-RELEASEDIR.samples := $(RELEASEDIR.daal)/samples
-RELEASEDIR.jardir  := $(RELEASEDIR.daal)/lib
-RELEASEDIR.libia   := $(RELEASEDIR.daal)/lib$(if $(OS_is_mac),,/$(_IA))
-RELEASEDIR.include := $(RELEASEDIR.daal)/include
-RELEASEDIR.soia    := $(if $(OS_is_win),$(RELEASEDIR.daal)/redist/$(_IA),$(RELEASEDIR.libia))
+RELEASEDIR.daal        := $(RELEASEDIR)/daal/latest
+RELEASEDIR.lib         := $(RELEASEDIR.daal)/lib
+RELEASEDIR.env         := $(RELEASEDIR.daal)/env
+RELEASEDIR.modulefiles := $(RELEASEDIR.daal)/modulefiles
+RELEASEDIR.conf        := $(RELEASEDIR.daal)/config
+RELEASEDIR.doc         := $(RELEASEDIR.daal)/documentation
+RELEASEDIR.samples     := $(RELEASEDIR.daal)/samples
+RELEASEDIR.jardir      := $(RELEASEDIR.daal)/lib
+RELEASEDIR.libia       := $(RELEASEDIR.daal)/lib$(if $(OS_is_mac),,/$(_IA))
+RELEASEDIR.include     := $(RELEASEDIR.daal)/include
+RELEASEDIR.soia        := $(if $(OS_is_win),$(RELEASEDIR.daal)/redist/$(_IA),$(RELEASEDIR.libia))
 WORKDIR.lib := $(WORKDIR)/daal/lib
 
 COVFILE   := $(subst BullseyeStub,$(RELEASEDIR.daal)/Bullseye_$(_IA).cov,$(COVFILE))
@@ -236,7 +237,7 @@ releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb.$(y) $(TBBDIR.soia)/$(plib)tbbmal
 
 RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/oneapi/internal/math
 
-MKLGPUFPKDIR:= $(if $(wildcard $(DIR)/externals/mklgpufpk/*),$(DIR)/externals/mklgpufpk,$(subst \,/,$(MKLGPUFPKROOT)))
+MKLGPUFPKDIR:= $(if $(wildcard $(DIR)/externals/mklgpufpk/$(_OS)/*),$(DIR)/externals/mklgpufpk/$(_OS),$(subst \,/,$(MKLGPUFPKROOT)))
 MKLGPUFPKDIR.include := $(MKLGPUFPKDIR)/include
 MKLGPUFPKDIR.libia   := $(MKLGPUFPKDIR)/lib/$(_IA)
 
@@ -365,6 +366,9 @@ release.EXAMPLES.JAVA  := $(filter $(expat),$(shell find examples/java -type f))
 
 # List env files to populate release.
 release.ENV = bin/vars_$(_OS).$(scr)
+
+# List modulefiles to populate release.
+release.MODULEFILES = bin/dal bin/dal32
 
 # List config files to populate release.
 release.CONF = bin/config.txt
@@ -717,6 +721,7 @@ $3/$2: $(DIR)/$1 | $3/. ; $(value cpy)
 	$(if $(filter %.sh %.bat,$2),chmod +x $$@)
 endef
 $(foreach x,$(release.ENV),$(eval $(call .release.x,$x,$(notdir $(subst _$(_OS),,$x)),$(RELEASEDIR.env),_release_common)))
+$(if $(OS_is_lnx),$(foreach x,$(release.MODULEFILES),$(eval $(call .release.x,$x,$(notdir $x),$(RELEASEDIR.modulefiles),_release_common))))
 $(foreach x,$(release.CONF),$(eval $(call .release.x,$x,$(notdir $(subst _$(_OS),,$x)),$(RELEASEDIR.conf),_release_common)))
 
 #----- releasing documentation
