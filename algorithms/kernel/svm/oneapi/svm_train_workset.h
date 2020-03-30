@@ -27,7 +27,6 @@
 #include "service/kernel/service_utils.h"
 #include "externals/service_memory.h"
 
-
 using namespace daal::services::internal;
 
 namespace daal
@@ -40,7 +39,6 @@ namespace training
 {
 namespace internal
 {
-
 template <typename algorithmFPType>
 struct TaskWorkingSet
 {
@@ -68,22 +66,19 @@ struct TaskWorkingSet
 
         // TODO: Get from device info
         const size_t maxWS = 16;
-        nWS = min(maxWS, nVectors);
+        nWS                = min(maxWS, nVectors);
 
         wsIndices  = context.allocate(TypeIds::id<int>(), nWS, &status);
         tmpIndices = context.allocate(TypeIds::id<int>(), nVectors, &status);
         return status;
     }
 
-    size_t getSize() const
-    {
-        return nWS;
-    }
+    size_t getSize() const { return nWS; }
 
     services::Status selectWS(const services::Buffer<algorithmFPType> & yBuff, const services::Buffer<algorithmFPType> & alphaBuff,
                               const services::Buffer<algorithmFPType> & fBuff, const algorithmFPType C)
     {
-        auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
         if (verbose)
         {
@@ -124,7 +119,7 @@ struct TaskWorkingSet
             printf(">> sort val: ");
             {
                 int * sortedFIndices_host = sortedFIndicesBuff.toHost(ReadWriteMode::readOnly).get();
-                algorithmFPType * f_host = fBuff.toHost(ReadWriteMode::readOnly).get();
+                algorithmFPType * f_host  = fBuff.toHost(ReadWriteMode::readOnly).get();
                 for (int i = 0; i < min(16ul, nWS); i++)
                 {
                     printf("%.2f ", f_host[sortedFIndices_host[i]]);
@@ -193,7 +188,6 @@ struct TaskWorkingSet
             nSelected += selectLower;
         }
 
-
         if (verbose)
         {
             printf(">> wsIndices:  ");
@@ -206,7 +200,6 @@ struct TaskWorkingSet
             }
             printf("\n");
         }
-
 
         return status;
     }
@@ -279,7 +272,6 @@ struct TaskWorkingSet
     UniversalBuffer wsIndices;
     UniversalBuffer tmpIndices;
 };
-
 
 } // namespace internal
 

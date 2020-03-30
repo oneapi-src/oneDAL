@@ -61,18 +61,15 @@ class SVMCacheOneAPIIface
 public:
     virtual ~SVMCacheOneAPIIface() {}
 
-    virtual services::Status compute(const services::Buffer<algorithmFPType>& xBuff, const services::Buffer<int>& wsIndices, const size_t p) = 0;
+    virtual services::Status compute(const services::Buffer<algorithmFPType> & xBuff, const services::Buffer<int> & wsIndices, const size_t p) = 0;
 
-    services::Buffer<algorithmFPType>& getSetRowsBlock() const {
-        return _cache.get<algorithmFPType>();
-    }
+    services::Buffer<algorithmFPType> & getSetRowsBlock() const { return _cache.get<algorithmFPType>(); }
 
 protected:
     UniversalBuffer _cache;
     const size_t _lineSize;                        /*!< Number of elements in the cache line */
-    const size_t _nWS;                            /*!< Number of elements in the cache line */
+    const size_t _nWS;                             /*!< Number of elements in the cache line */
     const kernel_function::KernelIfacePtr _kernel; /*!< Kernel function */
-
 };
 
 template <SVMCacheOneAPIType cacheType, typename algorithmFPType>
@@ -86,8 +83,8 @@ template <typename algorithmFPType>
 class SVMCacheOneAPI<noCache, algorithmFPType> : public SVMCacheOneAPIIface<algorithmFPType>
 {
     using HelperSVM = HelperSVM<algorithmFPType>;
-    using super = SVMCacheOneAPIIface<algorithmFPType>;
-    using thisType = SVMCacheOneAPI<noCache, algorithmFPType>;
+    using super     = SVMCacheOneAPIIface<algorithmFPType>;
+    using thisType  = SVMCacheOneAPI<noCache, algorithmFPType>;
     using super::_cache;
     using super::_kernel;
     using super::_lineSize;
@@ -99,7 +96,7 @@ public:
     DAAL_NEW_DELETE();
 
     static SVMCacheOneAPI * create(const size_t cacheSize, const size_t nWS, const size_t lineSize, const NumericTablePtr & xTable,
-                             const kernel_function::KernelIfacePtr & kernel, Status & s)
+                                   const kernel_function::KernelIfacePtr & kernel, Status & s)
     {
         s.clear();
         thisType * res = new thisType(nWS, lineSize, xTable, kernel);
@@ -119,7 +116,8 @@ public:
         return res;
     }
 
-    Status compute(const services::Buffer<algorithmFPType>& xBuff, const services::Buffer<int>& wsIndices, const size_t p) override{
+    Status compute(const services::Buffer<algorithmFPType> & xBuff, const services::Buffer<int> & wsIndices, const size_t p) override
+    {
         Status status;
 
         auto cacheBuff = _cache.get<algorithmFPType>();
@@ -129,8 +127,7 @@ public:
     }
 
 protected:
-    SVMCacheOneAPI(const size_t nWS, const size_t lineSize,
-        const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel)
+    SVMCacheOneAPI(const size_t nWS, const size_t lineSize, const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel)
         : super(nWS, lineSize, kernel)
     {}
 
@@ -142,18 +139,18 @@ protected:
         if (!s) return s;
 
         // TODO Check size cache
-        _cache = context.allocate(TypeIds::id<algorithmFPType>(), _lineSize*_nWS, &s);
+        _cache = context.allocate(TypeIds::id<algorithmFPType>(), _lineSize * _nWS, &s);
         DAAL_CHECK_STATUS_VAR(s);
 
         auto cacheBuff = _cache.get<algorithmFPType>();
-        cacheTable = SyclHomogenNumericTable<algorithmFPType>::create(cacheBuff, _nWS, _lineSize, &s);
+        cacheTable     = SyclHomogenNumericTable<algorithmFPType>::create(cacheBuff, _nWS, _lineSize, &s);
 
         const size_t p = xTable->getNumberOfColumns();
-        _xWS = context.allocate(TypeIds::id<algorithmFPType>(), p*_nWS, &s);
+        _xWS           = context.allocate(TypeIds::id<algorithmFPType>(), p * _nWS, &s);
         DAAL_CHECK_STATUS_VAR(s);
 
         auto xWSBuff = _xWS.get<algorithmFPType>();
-        xWSTable = SyclHomogenNumericTable<algorithmFPType>::create(xWSBuff, _nWS, p, &s);
+        xWSTable     = SyclHomogenNumericTable<algorithmFPType>::create(xWSBuff, _nWS, p, &s);
 
         DAAL_CHECK_STATUS_VAR(s);
         _kernel->getParameter()->computationMode = kernel_function::matrixMatrix;
@@ -165,7 +162,6 @@ protected:
         _kernel->setResult(shRes);
         return s;
     }
-
 
 protected:
     UniversalBuffer _xWS;

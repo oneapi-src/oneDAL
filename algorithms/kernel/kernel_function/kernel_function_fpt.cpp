@@ -46,8 +46,20 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     const size_t nVectors2 = algInput->get(Y)->getNumberOfRows();
 
     services::Status status;
-    set(values,
-        data_management::HomogenNumericTable<algorithmFPType>::create(nVectors2, nVectors1, data_management::NumericTable::doAllocate, &status));
+    auto & context    = oneapi::internal::getDefaultContext();
+    auto & deviceInfo = context.getInfoDevice();
+
+    if (method == defaultDense && !deviceInfo.isCpu)
+    {
+        set(values, data_management::SyclHomogenNumericTable<algorithmFPType>::create(nVectors2, nVectors1, data_management::NumericTable::doAllocate,
+                                                                                      &status));
+    }
+    else
+    {
+        set(values,
+            data_management::HomogenNumericTable<algorithmFPType>::create(nVectors2, nVectors1, data_management::NumericTable::doAllocate, &status));
+    }
+
     return status;
 }
 

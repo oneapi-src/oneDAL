@@ -15,8 +15,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __OBJECTIVE_FUNCTION_UTILS_H__
-#define __OBJECTIVE_FUNCTION_UTILS_H__
+#ifndef __SVM_UTILS_ONEAPI_H__
+#define __SVM_UTILS_ONEAPI_H__
 
 #include "algorithms/kernel/objective_function/common/oneapi/cl_kernel/objective_function_utils.cl"
 #include "service/kernel/data_management/service_numeric_table.h"
@@ -47,8 +47,8 @@ using namespace daal::services::internal;
 using namespace daal::oneapi::internal;
 
 template <typename algorithmFPType>
-struct HelperSVM {
-
+struct HelperSVM
+{
     static services::Status buildProgram(ClKernelFactoryIface & factory)
     {
         services::String options = getKeyFPType<algorithmFPType>();
@@ -88,7 +88,7 @@ struct HelperSVM {
     static services::Status argSort(const services::Buffer<algorithmFPType> & fBuff)
     {
         services::Status status;
-        auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
         context.copy(sortedFIndices, 0, fIndices, 0, nVectors, &status);
         DAAL_CHECK_STATUS_VAR(status);
@@ -126,9 +126,8 @@ struct HelperSVM {
         return status;
     }
 
-    static Status copyBlockIndices(const services::Buffer<algorithmFPType> & xBuff,
-                                  const services::Buffer<int> & indBuff, services::Buffer<algorithmFPType> newBuf,
-                                  const uint32_t nWS, const uint32_t p)
+    static Status copyBlockIndices(const services::Buffer<algorithmFPType> & xBuff, const services::Buffer<int> & indBuff,
+                                   services::Buffer<algorithmFPType> newBuf, const uint32_t nWS, const uint32_t p)
     {
         services::Status status;
 
@@ -152,5 +151,6 @@ struct HelperSVM {
 
         return status;
     }
-
 }
+
+#endif

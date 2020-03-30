@@ -79,6 +79,7 @@ namespace internal
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 template <typename T>
 inline const T & min(const T & a, const T & b)
@@ -410,6 +411,8 @@ struct TaskWorkingSet
 >>>>>>> 14431dac... kernel support was added
 
 >>>>>>> c13db2ed... ws add
+=======
+>>>>>>> b7022f17... add linear kernel
 template <typename algorithmFPType, typename ParameterType>
 <<<<<<< HEAD
 services::Status SVMTrainOneAPI<algorithmFPType, boser>::initGrad(const services::Buffer<algorithmFPType> & y, services::Buffer<algorithmFPType> & f,
@@ -519,11 +522,11 @@ services::Status SVMTrainOneAPI<algorithmFPType, boser>::compute(const NumericTa
 
     const size_t nWS = workSet.getSize();
 
-    SVMCacheOneAPIIface* cache = nullptr;
+    SVMCacheOneAPIIface * cache = nullptr;
 
-    if (cacheSize > nWS*nVectors*sizeof(algorithmFPType))
+    if (cacheSize > nWS * nVectors * sizeof(algorithmFPType))
     {
-        cache    = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, _nVectors, nWS, xTable, kernel, status);
+        cache = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, _nVectors, nWS, xTable, kernel, status);
     }
     else
     {
@@ -585,8 +588,6 @@ services::Status SVMTrainOneAPI<algorithmFPType, boser>::compute(const NumericTa
     }
 
     auto kernelWS = cache->getSetRowsBlock();
-
-
 
     DAAL_CHECK_STATUS(status, yTable.releaseBlockOfRows(yBD));
     DAAL_CHECK_STATUS(status, xTable.releaseBlockOfRows(xBD));

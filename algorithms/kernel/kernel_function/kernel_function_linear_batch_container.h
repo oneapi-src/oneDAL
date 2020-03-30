@@ -25,6 +25,8 @@
 #include "algorithms/kernel/kernel_function/kernel_function_linear_dense_default_kernel.h"
 #include "algorithms/kernel/kernel_function/kernel_function_linear_csr_fast_kernel.h"
 
+#include "algorithms/kernel/kernel_function/oneapi/kernel_function_linear_dense_default_kernel_oneapi.h"
+
 using namespace daal::data_management;
 
 namespace daal
@@ -38,7 +40,16 @@ namespace linear
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::KernelImplLinear, method, algorithmFPType);
+    auto & context    = oneapi::internal::getDefaultContext();
+    auto & deviceInfo = context.getInfoDevice();
+    if (method == defaultDense && !deviceInfo.isCpu)
+    {
+       __DAAL_INITIALIZE_KERNELS_SYCL(internal::KernelImplLinearOneAPI, method, algorithmFPType);
+    }
+    else
+    {
+       __DAAL_INITIALIZE_KERNELS(internal::KernelImplLinear, method, algorithmFPType);
+    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -65,8 +76,17 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     ComputationMode computationMode = static_cast<ParameterBase *>(par)->computationMode;
 
-    __DAAL_CALL_KERNEL(env, internal::KernelImplLinear, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, computationMode, a[0], a[1], r[0],
-                       par);
+    auto & context    = oneapi::internal::getDefaultContext();
+    auto & deviceInfo = context.getInfoDevice();
+
+    if (method == defaultDense && !deviceInfo.isCpu)
+    {
+       __DAAL_CALL_KERNEL_SYCL(env, internal::KernelImplLinearOneAPI, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, computationMode, *a[0], *a[1], r[0], par);
+    }
+    else
+    {
+        __DAAL_CALL_KERNEL(env, internal::KernelImplLinear, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, computationMode, a[0], a[1], r[0], par);
+    }
 }
 
 }; // namespace linear

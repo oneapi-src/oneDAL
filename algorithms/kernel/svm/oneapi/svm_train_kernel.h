@@ -59,8 +59,6 @@ protected:
 >>>>>>> 14431dac... kernel support was added:algorithms/kernel/svm/oneapi/svm_train_oneapi_kernel.h
     services::Status initGrad(const services::Buffer<algorithmFPType> & y, services::Buffer<algorithmFPType> & f, const size_t n);
 
-
-
     // UpdateF();
 
     // // CalculateObjective();
