@@ -27,14 +27,7 @@ from scipy.sparse import issparse
 
 import daal4py
 
-def getFPType(X):
-    dt = getattr(X, 'dtype', None)
-    if dt == np.double:
-        return "double"
-    elif dt == np.single:
-        return "float"
-    else:
-        raise ValueError("Input array has unexpected dtype = {}".format(dt))
+from wrappers.utils import getFPType
 
 #Global counters for counting calls from d4py and Skl
 daal4pyCallsCounter = 0
@@ -44,6 +37,22 @@ solverCounter = 0
 notNDArrayCounter = 0
 notSkinnyCounter = 0
 sizeCounter = 0
+
+def print_counters():
+    global daal4pyCallsCounter
+    global sklCallsCounter
+
+    global solverCounter
+    global notNDArrayCounter
+    global notSkinnyCounter
+    global sizeCounter
+
+    print('skl_calls=', sklCallsCounter)
+    print('daal_calls=', daal4pyCallsCounter)
+    print('solver_calls=', solverCounter)
+    print('nd_array_calls=', notNDArrayCounter)
+    print('not_skinny_calls=', notSkinnyCounter)
+    print('size_calls=', sizeCounter, '\n')
 
 def _daal4py_svd(X):
     X = check_array(X, dtype=[np.float64, np.float32])
@@ -363,6 +372,10 @@ class PCA(PCA_original):
 
         global daal4pyCallsCounter
         global sklCallsCounter
+
+        global solverCounter
+        global notNDArrayCounter
+        global notSkinnyCounter
         global sizeCounter
 
         if n_samples < n_features:
@@ -370,15 +383,11 @@ class PCA(PCA_original):
 
         if n_samples > n_features and (X.dtype == np.float64 or X.dtype == np.float32):
             daal4pyCallsCounter+=1
-            print('skl_calls=', sklCallsCounter)
-            print('daal_calls=', daal4pyCallsCounter)
-            print('size_calls=', sizeCounter)
+            print_counters()
             return self._fit_full_daal4py(X, n_components)
         else:
             sklCallsCounter+=1
-            print('skl_calls=', sklCallsCounter)
-            print('daal_calls=', daal4pyCallsCounter)
-            print('size_calls=', sizeCounter)
+            print_counters()
             return self._fit_full_vanilla(X, n_components)
 
 
@@ -413,6 +422,11 @@ class PCA(PCA_original):
         global daal4pyCallsCounter
         global sklCallsCounter
 
+        global solverCounter
+        global notNDArrayCounter
+        global notSkinnyCounter
+        global sizeCounter
+
         # Call different fits for either full or truncated SVD
         if self._fit_svd_solver == 'full':
             return self._fit_full(X, n_components)
@@ -422,8 +436,7 @@ class PCA(PCA_original):
             if X.shape[0] < X.shape[1]:
                 raise ValueError("svd_solver='daal' is applicable for tall and skinny inputs only.")
             daal4pyCallsCounter+=1
-            print('skl_calls=', sklCallsCounter)
-            print('daal_calls=', daal4pyCallsCounter)
+            print_counters()
             return self._fit_daal4py(X, n_components)
         else:
             raise ValueError("Unrecognized svd_solver='{0}'"
@@ -449,9 +462,11 @@ class PCA(PCA_original):
 
         global daal4pyCallsCounter
         global sklCallsCounter
+
         global solverCounter
         global notNDArrayCounter
         global notSkinnyCounter
+        global sizeCounter
 
         if not self.svd_solver == 'daal':
             solverCounter += 1
@@ -463,32 +478,22 @@ class PCA(PCA_original):
         if (self.svd_solver == 'daal' and isinstance(X, np.ndarray) and
                X.shape[0] >= X.shape[1]):
             daal4pyCallsCounter+=1
-            print('skl_calls=', sklCallsCounter)
-            print('daal_calls=', daal4pyCallsCounter)
-            print('solver_calls=', solverCounter)
-            print('nd_array_calls=', notNDArrayCounter)
-            print('not_skinny_calls=', notSkinnyCounter)
+            print_counters()
             # Handle n_components==None
             n_components = _process_n_components_None(
                 self.n_components, self.svd_solver, X.shape)
             self._fit_daal4py(X, n_components)
             if self.n_components_ > 0:
                 daal4pyCallsCounter+=1
-                print('skl_calls=', sklCallsCounter)
-                print('daal_calls=', daal4pyCallsCounter)
+                print_counters()
                 return self._transform_daal4py(X, whiten=self.whiten, check_X=False)
             else:
                 sklCallsCounter+=1
-                print('skl_calls=', sklCallsCounter)
-                print('daal_calls=', daal4pyCallsCounter)
+                print_counters()
                 return np.empty((self.n_samples_, 0), dtype=X.dtype)
         else:
             sklCallsCounter+=1
-            print('skl_calls=', sklCallsCounter)
-            print('daal_calls=', daal4pyCallsCounter)
-            print('solver_calls=', solverCounter)
-            print('nd_array_calls=', notNDArrayCounter)
-            print('not_skinny_calls=', notSkinnyCounter)
+            print_counters()
             U, S, V = self._fit(X)
             U = U[:, :self.n_components_]
 
@@ -533,17 +538,20 @@ class PCA(PCA_original):
         
         global daal4pyCallsCounter
         global sklCallsCounter
+
+        global solverCounter
+        global notNDArrayCounter
+        global notSkinnyCounter
+        global sizeCounter
         X = check_array(X)
         if self.n_components_ > 0:
             daal4pyCallsCounter+=1
-            print('skl_calls=', sklCallsCounter)
-            print('daal_calls=', daal4pyCallsCounter)
+            print_counters()
             return self._transform_daal4py(X, whiten=self.whiten,
                                            check_X=False, scale_eigenvalues=False)
         else:
             sklCallsCounter+=1
-            print('skl_calls=', sklCallsCounter)
-            print('daal_calls=', daal4pyCallsCounter)
+            print_counters()
             if self.mean_ is not None:
                 X = X - self.mean_
                 X_transformed = np.dot(X, self.components_.T)

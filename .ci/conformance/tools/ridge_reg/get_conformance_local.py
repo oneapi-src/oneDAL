@@ -73,5 +73,3 @@ if __name__ == "__main__":
     print('Parameter: sag solver:..........', int(sag_using), '%')
     print('Parameter: saga solver:.........', int(saga_using), '%')
     print('\n', get_testing_results(log_filename))
-
-

@@ -39,5 +39,3 @@ if __name__ == "__main__":
     print('Parameter: sample_weight:.......', int(sample_weight_using), '%')
     print('Parameter normalizing:..........', int(normalizing_using), '%')
     print('\n', get_testing_results(log_filename))
-
-

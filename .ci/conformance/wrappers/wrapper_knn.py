@@ -19,6 +19,34 @@ metric_manhattan_calls = 0
 metric_euclidean_calls = 0
 metric_minkowski_calls = 0
 
+def print_counters():
+    global daal4pyCallsCounter
+    global sklCallsCounter
+
+    global csr_data
+    global weights_uniform_calls
+    global weights_distance_calls
+    global algorithm_auto_calls
+    global algorithm_ball_tree_calls
+    global algorithm_kdtree_calls
+    global algorithm_brute_calls
+    global metric_manhattan_calls
+    global metric_euclidean_calls
+    global metric_minkowski_calls
+
+    print('skl_calls=', sklCallsCounter)
+    print('daal_calls=', daal4pyCallsCounter)
+    print('csr_calls=', csr_data)
+    print('weights_uniform_calls=', weights_uniform_calls)
+    print('weights_distance_calls=', weights_distance_calls)
+    print('algorithm_auto_calls=', algorithm_auto_calls)
+    print('algorithm_ball_calls=', algorithm_ball_tree_calls)
+    print('algorithm_kdtree_calls=', algorithm_kdtree_calls)
+    print('algorithm_brute_calls=', algorithm_brute_calls)
+    print('metric_manhattan_calls=', metric_manhattan_calls)
+    print('metric_euclidean_calls=', metric_euclidean_calls)
+    print('metric_minkowski_calls=', metric_minkowski_calls, '\n')
+
 class KNeighborsClassifier(KNeighborsClassifier_original):
 
     def __init__(self, n_neighbors=5,
@@ -73,18 +101,7 @@ class KNeighborsClassifier(KNeighborsClassifier_original):
             metric_manhattan_calls += 1
 
         sklCallsCounter += 1
-        print('skl_calls=', sklCallsCounter)
-        print('daal_calls=', daal4pyCallsCounter)
-        print('csr_calls=', csr_data)
-        print('weights_uniform_calls=', weights_uniform_calls)
-        print('weights_distance_calls=', weights_distance_calls)
-        print('algorithm_auto_calls=', algorithm_auto_calls)
-        print('algorithm_ball_calls=', algorithm_ball_tree_calls)
-        print('algorithm_kdtree_calls=', algorithm_kdtree_calls)
-        print('algorithm_brute_calls=', algorithm_brute_calls)
-        print('metric_manhattan_calls=', metric_manhattan_calls)
-        print('metric_euclidean_calls=', metric_euclidean_calls)
-        print('metric_minkowski_calls=', metric_minkowski_calls)
+        print_counters()
         return super().fit(X, y)
 
     def predict(self, X):
@@ -126,18 +143,7 @@ class KNeighborsClassifier(KNeighborsClassifier_original):
             metric_manhattan_calls += 1
 
         sklCallsCounter += 1
-        print('skl_calls=', sklCallsCounter)
-        print('daal_calls=', daal4pyCallsCounter)
-        print('csr_calls=', csr_data)
-        print('weights_uniform_calls=', weights_uniform_calls)
-        print('weights_distance_calls=', weights_distance_calls)
-        print('algorithm_auto_calls=', algorithm_auto_calls)
-        print('algorithm_ball_calls=', algorithm_ball_tree_calls)
-        print('algorithm_kdtree_calls=', algorithm_kdtree_calls)
-        print('algorithm_brute_calls=', algorithm_brute_calls)
-        print('metric_manhattan_calls=', metric_manhattan_calls)
-        print('metric_euclidean_calls=', metric_euclidean_calls)
-        print('metric_minkowski_calls=', metric_minkowski_calls)
+        print_counters()
         return super().predict(X)
 
     def predict_proba(self, X):
@@ -178,18 +184,7 @@ class KNeighborsClassifier(KNeighborsClassifier_original):
             metric_manhattan_calls += 1
 
         sklCallsCounter += 1
-        print('skl_calls=', sklCallsCounter)
-        print('daal_calls=', daal4pyCallsCounter)
-        print('csr_calls=', csr_data)
-        print('weights_uniform_calls=', weights_uniform_calls)
-        print('weights_distance_calls=', weights_distance_calls)
-        print('algorithm_auto_calls=', algorithm_auto_calls)
-        print('algorithm_ball_calls=', algorithm_ball_tree_calls)
-        print('algorithm_kdtree_calls=', algorithm_kdtree_calls)
-        print('algorithm_brute_calls=', algorithm_brute_calls)
-        print('metric_manhattan_calls=', metric_manhattan_calls)
-        print('metric_euclidean_calls=', metric_euclidean_calls)
-        print('metric_minkowski_calls=', metric_minkowski_calls)
+        print_counters()
         return super().predict_proba(X)
 
 neighbors.KNeighborsClassifier = KNeighborsClassifier

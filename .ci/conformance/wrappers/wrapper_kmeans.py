@@ -14,6 +14,8 @@ import warnings
 
 from sklearn.cluster import KMeans as KMeans_original
 
+from wrappers.utils import getFPType
+
 import daal4py
 
 #Global counters for counting calls from d4py and Skl
@@ -24,14 +26,19 @@ sparseCounter = 0
 precomputeCounter = 0
 notArrayCounter = 0
 
-def getFPType(X):
-    dt = getattr(X, 'dtype', None)
-    if dt == np.double:
-        return "double"
-    elif dt == np.single:
-        return "float"
-    else:
-        raise ValueError("Input array has unexpected dtype = {}".format(dt))
+def print_counters():
+    global daal4pyCallsCounter
+    global sklCallsCounter
+
+    global sparseCounter
+    global precomputeCounter
+    global notArrayCounter
+
+    print('skl_calls=', sklCallsCounter)
+    print('daal_calls=', daal4pyCallsCounter)
+    print('sparse_calls=', sparseCounter)
+    print('precompute_calls=', precomputeCounter)
+    print('notArray_calls=', notArrayCounter, '\n')
 
 def _daal_mean_var(X):
     fpt = getFPType(X)
@@ -176,6 +183,14 @@ def fit(self, X, y=None, sample_weight=None):
         are assigned equal weight (default: None)
 
     """
+
+    global daal4pyCallsCounter
+    global sklCallsCounter
+    
+    global sparseCounter
+    global precomputeCounter
+    global notArrayCounter
+
     if self.n_init <= 0:
         raise ValueError("Invalid number of initializations."
                          " n_init=%d must be bigger than zero." % self.n_init)
@@ -204,10 +219,6 @@ def fit(self, X, y=None, sample_weight=None):
 
     daal_ready = daal_ready and hasattr(X, '__array__')
 
-    global sparseCounter
-    global precomputeCounter
-    global notArrayCounter
-
     if sp.issparse(X):
         sparseCounter+=1
     if precompute_distances:
@@ -215,12 +226,7 @@ def fit(self, X, y=None, sample_weight=None):
     if not hasattr(X, '__array__'):
         notArrayCounter+=1
 
-    print('sparse_calls=', sparseCounter)
-    print('precompute_calls=', precomputeCounter)
-    print('notArray_calls=', notArrayCounter)
-
     if daal_ready:
-
         X_len = _num_samples(X)
         daal_ready = (self.n_clusters <= X_len)
         if daal_ready and sample_weight is not None:
@@ -229,8 +235,10 @@ def fit(self, X, y=None, sample_weight=None):
                          np.allclose(sample_weight, np.ones_like(sample_weight)))
 
     if not daal_ready:
-        global sklCallsCounter
         sklCallsCounter+=1
+
+        print_counters()
+
         self.cluster_centers_, self.labels_, self.inertia_, self.n_iter_ = \
             k_means(
                 X, n_clusters=self.n_clusters, sample_weight=sample_weight, init=self.init,
@@ -240,8 +248,10 @@ def fit(self, X, y=None, sample_weight=None):
                 n_jobs=self.n_jobs, algorithm=self.algorithm,
                 return_n_iter=True)
     else:
-        global daal4pyCallsCounter
         daal4pyCallsCounter+=1
+
+        print_counters()
+
         X = check_array(X, dtype=[np.float64, np.float32])
         self.cluster_centers_, self.labels_, self.inertia_, self.n_iter_ = \
             _daal4py_k_means_dense(
@@ -271,25 +281,34 @@ def predict(self, X, sample_weight=None):
     labels : array, shape [n_samples,]
         Index of the cluster each sample belongs to.
     """
+
+    global daal4pyCallsCounter
+    global sklCallsCounter
+    
+    global sparseCounter
+    global precomputeCounter
+    global notArrayCounter
+
     check_is_fitted(self, 'cluster_centers_')
 
     X = self._check_test_data(X)
 
     daal_ready = sample_weight is None and hasattr(X, '__array__') # or sp.isspmatrix_csr(X)
 
-    global notArrayCounter
-
     if not hasattr(X, '__array__'):
         notArrayCounter+=1
 
-    print('notArray_calls=', notArrayCounter)
     if daal_ready:
-        global daal4pyCallsCounter
         daal4pyCallsCounter+=1
+
+        print_counters()
+
         return _daal4py_k_means_dense(X, self.n_clusters, 0, 0.0, self.cluster_centers_, 1, None)[1]
     else:
-        global sklCallsCounter
         sklCallsCounter+=1
+
+        print_counters()
+
         x_squared_norms = row_norms(X, squared=True)
         return _labels_inertia(X, sample_weight, x_squared_norms,
                                self.cluster_centers_)[0]
@@ -313,15 +332,7 @@ class KMeans(KMeans_original):
             copy_x=copy_x, n_jobs=n_jobs, algorithm=algorithm)
 
     def fit(self, X, y=None, sample_weight=None):
-        global sklCallsCounter
-        global daal4pyCallsCounter
-        print('skl_calls=', sklCallsCounter)
-        print('daal_calls=', daal4pyCallsCounter)
         return _fit_copy(self, X, y=y, sample_weight=sample_weight)
 
     def predict(self, X, sample_weight=None):
-        global sklCallsCounter
-        global daal4pyCallsCounter
-        print('skl_calls=', sklCallsCounter)
-        print('daal_calls=', daal4pyCallsCounter)
         return _predict_copy(self, X, sample_weight=sample_weight)

@@ -18,6 +18,22 @@ minkowski_counter = 0
 precomputed_counter = 0
 manhattan_counter = 0
 
+def print_counters():
+    global daal4pyCallsCounter
+    global sklCallsCounter
+
+    global csr_counter
+    global minkowski_counter
+    global precomputed_counter
+    global manhattan_counter
+
+    print('skl_calls=', sklCallsCounter)
+    print('daal_calls=', daal4pyCallsCounter)
+
+    print('data_sparse_using=', csr_counter)
+    print('param_metric_precomputed=', precomputed_counter)
+    print('param_metric_minkowski=', minkowski_counter)
+    print('param_metric_manhattan=', manhattan_counter, '\n')
 
 def dbscan(X, eps=0.5, min_samples=5, metric='minkowski', metric_params=None,
            algorithm='auto', leaf_size=30, p=2, sample_weight=None, n_jobs=1):
@@ -43,11 +59,11 @@ def dbscan(X, eps=0.5, min_samples=5, metric='minkowski', metric_params=None,
 
     #Daal4py implementation
     if  (sparse.issparse(X) == False and
-         metric != 'precomputed'
-        # (
-        # (metric == 'euclidean' or metric == distance_scipy.euclidean) or 
-        # (metric == 'minkowski' and p==2)
-        # )
+         metric != 'precomputed' or
+         (
+         (metric == 'euclidean' or metric == distance_scipy.euclidean) or 
+         (metric == 'minkowski' and p==2)
+         )
         ):
 
         daal4pyCallsCounter+=1
@@ -104,12 +120,7 @@ def dbscan(X, eps=0.5, min_samples=5, metric='minkowski', metric_params=None,
         core_sample_indices, labels = skl_dbscan(X=X, eps=eps, min_samples=min_samples, metric=metric, metric_params=metric_params,
         algorithm=algorithm, leaf_size=leaf_size, p=p, sample_weight=sample_weight, n_jobs=n_jobs)
 
-    print('skl_calls=', sklCallsCounter)
-    print('daal_calls=', daal4pyCallsCounter)
-    print('data_sparse_using=', csr_counter)
-    print('param_metric_precomputed=', precomputed_counter)
-    print('param_metric_minkowski=', minkowski_counter)
-    print('param_metric_manhattan=', manhattan_counter, '\n')
+    print_counters()
     return core_sample_indices, labels
 
 class DBSCAN:

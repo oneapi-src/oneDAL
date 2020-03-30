@@ -15,6 +15,21 @@ samme_counter = 0
 sammer_counter = 0
 weight_counter = 0
 
+def print_counters():
+    global daal4pyCallsCounter
+    global sklCallsCounter
+
+    global csr_counter
+    global samme_counter
+    global sammer_counter
+    global weight_counter
+
+    print('skl_calls=', sklCallsCounter)
+    print('daal_calls=', daal4pyCallsCounter)
+    print('sammer_calls=', sammer_counter)
+    print('samme_calls=', samme_counter)
+    print('sparse_calls=', csr_counter)
+    print('weight_calls=', weight_counter, '\n')
 
 class AdaBoostClassifier(AdaBoostClassifier_skl):
     def __init__(self,
@@ -50,12 +65,7 @@ class AdaBoostClassifier(AdaBoostClassifier_skl):
             sammer_counter += 1
         else:
             samme_counter += 1
-        print('sammer_calls=', sammer_counter)
-        print('samme_calls=', samme_counter)
-        print('skl_calls=', sklCallsCounter)
-        print('daal_calls=', daal4pyCallsCounter)
-        print('sparse_calls=', csr_counter)
-        print('weight_calls=', weight_counter)
+        print_counters()
         return super().fit(X, y, sample_weight)
 
     def _validate_estimator(self):
@@ -84,11 +94,7 @@ class AdaBoostClassifier(AdaBoostClassifier_skl):
         if sparse.issparse(X):
             csr_counter += 1
 
-        print('skl_calls=', sklCallsCounter)
-        print('daal_calls=', daal4pyCallsCounter)
-        print('sammer_calls=', sammer_counter)
-        print('samme_calls=', samme_counter)
-        print('sparse_calls=', csr_counter)
+        print_counters()
         return super().predict(X)
 
     def decision_function(self, X):
@@ -112,11 +118,7 @@ class AdaBoostClassifier(AdaBoostClassifier_skl):
         if sparse.issparse(X):
             csr_counter += 1
 
-        print('skl_calls=', sklCallsCounter)
-        print('daal_calls=', daal4pyCallsCounter)
-        print('sammer_calls=', sammer_counter)
-        print('samme_calls=', samme_counter)
-        print('sparse_calls=', csr_counter)
+        print_counters()
         return super().predict_proba(X)
 
     def predict_log_proba(self, X):
@@ -134,9 +136,6 @@ class AdaBoostClassifier(AdaBoostClassifier_skl):
         if sparse.issparse(X):
             csr_counter += 1
 
-        print('skl_calls=', sklCallsCounter)
-        print('daal_calls=', daal4pyCallsCounter)
-        print('sammer_calls=', sammer_counter)
-        print('samme_calls=', samme_counter)
-        print('sparse_calls=', csr_counter)
+        print_counters()
         return super().predict_log_proba(X)
+        

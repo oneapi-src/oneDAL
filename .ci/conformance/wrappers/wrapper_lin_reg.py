@@ -32,6 +32,8 @@ except ImportError:
 
 import daal4py
 
+from wrappers.utils import getFPType, make2d
+
 #Global counters for counting calls from d4py and Skl
 daal4pyCallsCounter = 0
 sklCallsCounter = 0
@@ -42,21 +44,23 @@ sample_weight_counter = 0
 not_float_counter = 0
 normalize_counter = 0
 
-def getFPType(X):
-    dt = getattr(X, 'dtype', None)
-    if dt == np.double:
-        return "double"
-    elif dt == np.single:
-        return "float"
-    else:
-        raise ValueError("Input array has unexpected dtype = {}".format(dt))
+def print_counters():
+    global daal4pyCallsCounter
+    global sklCallsCounter
 
-def make2d(X):
-    if np.isscalar(X):
-        X = np.asarray(X)[np.newaxis, np.newaxis]
-    elif isinstance(X, np.ndarray) and X.ndim == 1:
-        X = X.reshape((X.size, 1))
-    return X
+    global fit_shape_not_good_for_daal_counter
+    global sample_weight_counter
+    global not_float_counter
+    global normalize_counter
+
+    print('skl_calls=', sklCallsCounter)
+    print('daal_calls=', daal4pyCallsCounter)
+
+    print('data_sparce_using=', csr_counter)
+    print('fit_shape_not_good_for_daal=', fit_shape_not_good_for_daal_counter)
+    print('data_not_float=', not_float_counter)
+    print("normalize_data=", normalize_counter)
+    print("sample_weight=", sample_weight_counter, '\n')
 
 def _daal4py_fit(self, X, y_):
     y = make2d(y_)
@@ -167,26 +171,12 @@ def fit(self, X, y, sample_weight=None):
             (X.dtype == np.float64 or X.dtype == np.float32) and
             sample_weight is None):
         daal4pyCallsCounter+=1
-        print('skl_calls=', sklCallsCounter)
-        print('daal_calls=', daal4pyCallsCounter)
-
-        print('data_sparce_using=', csr_counter)
-        print('fit_shape_not_good_for_daal=', fit_shape_not_good_for_daal_counter)
-        print('data_not_float=', not_float_counter)
-        print("normalize_data=", normalize_counter)
-        print("sample_weight=", sample_weight_counter, '\n')
+        print_counters()
         _daal4py_fit(self, X, y)
         return self
 
     sklCallsCounter+=1
-    print('skl_calls=', sklCallsCounter)
-    print('daal_calls=', daal4pyCallsCounter)
-
-    print('data_sparce_using=', csr_counter)
-    print('fit_shape_not_good_for_daal=', fit_shape_not_good_for_daal_counter)
-    print('data_not_float=', not_float_counter)
-    print("normalize_data=", normalize_counter)
-    print("sample_weight=", sample_weight_counter, '\n')
+    print_counters()
 
     if sample_weight is not None and np.atleast_1d(sample_weight).ndim > 1:
         raise ValueError("Sample weights must be 1D array or scalar")
@@ -263,20 +253,15 @@ def predict(self, X):
             (hasattr(self, 'sample_weight_') and self.sample_weight_ is not None)):
 
         sklCallsCounter+=1
-        print('skl_calls=', sklCallsCounter)
-        print('daal_calls=', daal4pyCallsCounter)
+
         result = self._decision_function(X)
     else:
         daal4pyCallsCounter+=1
-        print('skl_calls=', sklCallsCounter)
-        print('daal_calls=', daal4pyCallsCounter)
+
         X = check_array(X)
         result = _daal4py_predict(self, X)
 
-    print('fit_shape_not_good_for_daal=', fit_shape_not_good_for_daal_counter)
-    print('data_not_float=', not_float_counter)
-    print("normalize_data=", normalize_counter)
-    print("sample_weight=", sample_weight_counter, '\n')
+    print_counters()
 
     return result
 
@@ -298,4 +283,3 @@ class LinearRegression(LinearRegression_original):
 
     def predict(self, X):
         return _predict_copy(self, X)
-

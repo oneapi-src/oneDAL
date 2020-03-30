@@ -67,6 +67,36 @@ sag_counter = 0
 saga_counter = 0
 liblinear_counter = 0
 
+def print_counters():
+    global daal4pyCallsCounter
+    global sklCallsCounter
+
+    global elasticnet_penalty_counter
+    global dual_counter
+    global class_weight_counter
+    global intercept_scaling_counter
+    global l1_ratio_counter
+
+    global csr_counter
+    global sample_weight_counter
+    global sag_counter
+    global saga_counter
+    global liblinear_counter
+
+    print('skl_calls=', sklCallsCounter)
+    print('daal_calls=', daal4pyCallsCounter)
+
+    print("elasticnet_penalty_using=", elasticnet_penalty_counter)
+    print("dual_using=", dual_counter)
+    print("class_weight_using=", class_weight_counter)
+    print("intercept_scaling_using=", intercept_scaling_counter)
+    print("l1_ratio_using=", l1_ratio_counter)
+    print("data_sparce_using=", csr_counter)
+    print("sample_weight_using=", sample_weight_counter)
+    print("sag_using=", sag_counter)
+    print("saga_using=", saga_counter)
+    print("liblinear_using=", liblinear_counter, "\n")
+
 use_daal = True
 
 # Code adapted from sklearn.linear_model.logistic prior to 0.21
@@ -222,9 +252,11 @@ def logistic_regression_path(X, y, pos_class=None, Cs=10, fit_intercept=True,
     global daal4pyCallsCounter
     global sklCallsCounter
 
+    global elasticnet_penalty_counter
     global dual_counter
-    global intercept_scaling_counter
     global class_weight_counter
+    global intercept_scaling_counter
+    global l1_ratio_counter
 
     global csr_counter
     global sample_weight_counter
@@ -543,19 +575,7 @@ def logistic_regression_path(X, y, pos_class=None, Cs=10, fit_intercept=True,
         else:
             sklCallsCounter += 1
 
-    print('skl_calls=', sklCallsCounter)
-    print('daal_calls=', daal4pyCallsCounter)
-
-    print("elasticnet_penalty_using=", elasticnet_penalty_counter)
-    print("dual_using=", dual_counter)
-    print("class_weight_using=", class_weight_counter)
-    print("intercept_scaling_using=", intercept_scaling_counter)
-    print("l1_ratio_using=", l1_ratio_counter)
-    print("data_sparce_using=", csr_counter)
-    print("sample_weight_using=", sample_weight_counter)
-    print("sag_using=", sag_counter)
-    print("saga_using=", saga_counter)
-    print("liblinear_using=", liblinear_counter, "\n")
+    print_counters()
 
     return coefs, np.array(Cs), n_iter
 
@@ -1054,19 +1074,8 @@ def __logistic_regression_path(X, y, pos_class=None, Cs=10, fit_intercept=True,
         else:
             sklCallsCounter += 1
 
-    print('skl_calls=', sklCallsCounter)
-    print('daal_calls=', daal4pyCallsCounter)
-
-    print("elasticnet_penalty_using=", elasticnet_penalty_counter)
-    print("dual_using=", dual_counter)
-    print("class_weight_using=", class_weight_counter)
-    print("intercept_scaling_using=", intercept_scaling_counter)
-    print("l1_ratio_using=", l1_ratio_counter)
-    print("data_sparce_using=", csr_counter)
-    print("sample_weight_using=", sample_weight_counter)
-    print("sag_using=", sag_counter)
-    print("saga_using=", saga_counter)
-    print("liblinear_using=", liblinear_counter, "\n")
+    print_counters()
+    
     return np.array(coefs), np.array(Cs), n_iter
 
 

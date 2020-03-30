@@ -44,6 +44,38 @@ selection_random_counter = 0
 daal4pyCallsCounter = 0
 sklCallsCounter = 0
 
+def print_counters():
+    global daal4pyCallsCounter
+    global sklCallsCounter
+
+    global csc_counter
+    global fit_intercept_counter
+    global normalize_counter
+    global precompute_counter
+    global precompute_array_counter
+    global copy_X_counter
+    global warm_start_counter
+    global positive_counter
+    global random_state_counter
+    global selection_cyclic_counter
+    global selection_random_counter
+
+    print('skl_calls=', sklCallsCounter)
+    print('daal_calls=', daal4pyCallsCounter)
+
+    print('data_sparse_using=', csc_counter)
+    print('intercept_estimation=', fit_intercept_counter)
+    print('normalize_data=', normalize_counter)
+    print('precomputed_Gram_matrix=', precompute_counter)
+    print('pass_precomputed_matrix=', precompute_array_counter)
+    print('copy_X_data=', copy_X_counter)
+    print('reuse_previous_solution=', warm_start_counter)
+    print('positive_coefficients=', positive_counter)
+    print('random_state_instance=', random_state_counter)
+    print('cyclic_selection=', selection_cyclic_counter)
+    print('random_selection=', selection_random_counter, '\n')
+
+
 class ElasticNet(ElasticNet_original):
     __doc__ = ElasticNet_original.__doc__
 
@@ -100,20 +132,7 @@ class ElasticNet(ElasticNet_original):
 
         sklCallsCounter+=1
 
-        print('skl_calls=', sklCallsCounter)
-        print('daal_calls=', daal4pyCallsCounter, '\n')
-
-        print('data_sparse_using=', csc_counter)
-        print("intercept_estimation=", fit_intercept_counter)
-        print("normalize_data=", normalize_counter)
-        print('precomputed_Gram_matrix=', precompute_counter)
-        print('pass_precomputed_matrix=', precompute_array_counter)
-        print("copy_X_data=", copy_X_counter)
-        print("reuse_previous_solution=", warm_start_counter)
-        print('positive_coefficients=', positive_counter)
-        print('random_state_instance=', random_state_counter)
-        print("cyclic_selection=", selection_cyclic_counter)
-        print("random_selection=", selection_random_counter, '\n')
+        print_counters()
 
         return super().fit(X, y, check_input)
 
@@ -164,19 +183,6 @@ class ElasticNet(ElasticNet_original):
 
         sklCallsCounter+=1
 
-        print('skl_calls=', sklCallsCounter)
-        print('daal_calls=', daal4pyCallsCounter, '\n')
-
-        print('data_sparse_using=', csc_counter)
-        print("intercept_estimation=", fit_intercept_counter)
-        print("normalize_data=", normalize_counter)
-        print('precomputed_Gram_matrix=', precompute_counter)
-        print('pass_precomputed_matrix=', precompute_array_counter)
-        print("copy_X_data=", copy_X_counter)
-        print("reuse_previous_solution=", warm_start_counter)
-        print('positive_coefficients=', positive_counter)
-        print('random_state_instance=', random_state_counter)
-        print("cyclic_selection=", selection_cyclic_counter)
-        print("random_selection=", selection_random_counter, '\n')
+        print_counters()
 
         return super().predict(X)

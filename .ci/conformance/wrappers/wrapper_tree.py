@@ -43,6 +43,69 @@ class_weight_counter = 0
 ccp_alpha_counter = 0
 presort_counter = 0
 
+def print_counters():
+    global sklCallsCounter
+    global daal4pyCallsCounter
+
+    global csr_counter
+    global weight_counter
+    global check_input_counter
+    global X_idx_sorted_counter
+
+    global mse_criterion_counter
+    global friedman_mse_criterion_counter
+    global mae_criterion_counter
+
+    global gini_criterion_counter
+    global entropy_criterion_counter
+    global best_splitter_counter
+    global random_splitter_counter
+    global max_depth_counter
+    global min_samples_split_counter
+    global min_samples_leaf_counter
+    global min_weight_fraction_leaf_counter
+    global max_features_counter
+    global auto_max_features_counter
+    global sqrt_max_features_counter
+    global log2_max_features_counter
+    global max_leaf_node_counter
+    global min_impurity_decrease_counter
+    global min_impurity_split_counter
+    global class_weight_counter
+    global ccp_alpha_counter
+    global presort_counter
+
+    print('skl_calls=', sklCallsCounter)
+    print('daal_calls=', daal4pyCallsCounter)
+
+    print("sparse_calls=", csr_counter)
+    print("weight_calls=", weight_counter)
+    print("check_input_calls=", check_input_counter)
+    print("X_idx_sorted_calls=", X_idx_sorted_counter)
+    print("mse_criterion_calls=", mse_criterion_counter)
+    print("friedman_mse_criterion_calls=", friedman_mse_criterion_counter)
+    print("mae_criterion_calls=", mae_criterion_counter)
+    print("gini_criterion_counter=", gini_criterion_counter)
+    print("entropy_criterion_counter=", entropy_criterion_counter)
+    print("best_splitter_calls=", best_splitter_counter)
+    print("random_splitter_calls=", random_splitter_counter)
+    print("max_depth_calls=", max_depth_counter)
+    print("min_samples_split_calls=", min_samples_split_counter)
+    print("min_samples_leaf_calls=", min_samples_leaf_counter)
+    print("min_weight_fraction_leaf_calls=", min_weight_fraction_leaf_counter)
+    print("max_features_calls=", max_features_counter)
+    print("auto_max_features_calls=", auto_max_features_counter)
+    print("sqrt_max_features_calls=", sqrt_max_features_counter)
+    print("log2_max_features_calls=", log2_max_features_counter)
+    print("max_leaf_node_calls=", max_leaf_node_counter)
+    print("min_impurity_decrease_calls=", min_impurity_decrease_counter)
+    print("min_impurity_split_calls=", min_impurity_split_counter)
+    print("class_weight_calls=", class_weight_counter)
+    print("ccp_alpha_counter=", ccp_alpha_counter)
+    print("presort_calls=", presort_counter, "\n")
+
+
+
 if (LooseVersion(sklearn_version) >= LooseVersion("0.22")):
     class DecisionTreeClassifier(DecisionTreeClassifierSkl):
         def __init__(self,
@@ -80,11 +143,16 @@ if (LooseVersion(sklearn_version) >= LooseVersion("0.22")):
                 X_idx_sorted=None):
 
             global sklCallsCounter
+            global daal4pyCallsCounter
 
             global csr_counter
             global weight_counter
             global check_input_counter
             global X_idx_sorted_counter
+
+            global mse_criterion_counter
+            global friedman_mse_criterion_counter
+            global mae_criterion_counter
 
             global gini_criterion_counter
             global entropy_criterion_counter
@@ -103,6 +171,7 @@ if (LooseVersion(sklearn_version) >= LooseVersion("0.22")):
             global min_impurity_split_counter
             global class_weight_counter
             global ccp_alpha_counter
+            global presort_counter
 
             if self.criterion == "gini":
                 gini_criterion_counter += 1
@@ -149,30 +218,7 @@ if (LooseVersion(sklearn_version) >= LooseVersion("0.22")):
             if X_idx_sorted is not None:
                 X_idx_sorted_counter += 1
 
-            print('skl_calls=', sklCallsCounter)
-            print('daal_calls=', daal4pyCallsCounter)
-
-            print("sparse_calls=", csr_counter)
-            print("weight_calls=", weight_counter)
-            print("check_input_calls=", check_input_counter)
-            print("X_idx_sorted_calls=", X_idx_sorted_counter)
-            print("gini_criterion_calls=", gini_criterion_counter)
-            print("entropy_criterion_calls=", entropy_criterion_counter)
-            print("best_splitter_calls=", best_splitter_counter)
-            print("random_splitter_calls=", random_splitter_counter)
-            print("max_depth_calls=", max_depth_counter)
-            print("min_samples_split_calls=", min_samples_split_counter)
-            print("min_samples_leaf_calls=", min_samples_leaf_counter)
-            print("min_weight_fraction_leaf_calls=", min_weight_fraction_leaf_counter)
-            print("max_features_calls=", max_features_counter)
-            print("auto_max_features_calls=", auto_max_features_counter)
-            print("sqrt_max_features_calls=", sqrt_max_features_counter)
-            print("log2_max_features_calls=", log2_max_features_counter)
-            print("max_leaf_node_calls=", max_leaf_node_counter)
-            print("min_impurity_decrease_calls=", min_impurity_decrease_counter)
-            print("min_impurity_split_calls=", min_impurity_split_counter)
-            print("class_weight_calls=", class_weight_counter)
-            print("ccp_alpha_calls=", ccp_alpha_counter, "\n")
+            print_counters()
 
             super().fit(
                 X, y,
@@ -183,9 +229,16 @@ if (LooseVersion(sklearn_version) >= LooseVersion("0.22")):
 
         def predict(self, X, check_input=True):
             global sklCallsCounter
+            global daal4pyCallsCounter
 
             global csr_counter
+            global weight_counter
             global check_input_counter
+            global X_idx_sorted_counter
+
+            global mse_criterion_counter
+            global friedman_mse_criterion_counter
+            global mae_criterion_counter
 
             global gini_criterion_counter
             global entropy_criterion_counter
@@ -204,8 +257,7 @@ if (LooseVersion(sklearn_version) >= LooseVersion("0.22")):
             global min_impurity_split_counter
             global class_weight_counter
             global ccp_alpha_counter
-
-            global check_input_counter
+            global presort_counter
 
             sklCallsCounter += 1
             if check_input:
@@ -246,36 +298,22 @@ if (LooseVersion(sklearn_version) >= LooseVersion("0.22")):
 
             ccp_alpha_counter += 1
 
-            print('skl_calls=', sklCallsCounter)
-            print('daal_calls=', daal4pyCallsCounter)
-
-            print("sparse_calls=", csr_counter)
-            print("check_input_calls=", check_input_counter)
-            print("gini_criterion_calls=", gini_criterion_counter)
-            print("entropy_criterion_calls=", entropy_criterion_counter)
-            print("best_splitter_calls=", best_splitter_counter)
-            print("random_splitter_calls=", random_splitter_counter)
-            print("max_depth_calls=", max_depth_counter)
-            print("min_samples_split_calls=", min_samples_split_counter)
-            print("min_samples_leaf_calls=", min_samples_leaf_counter)
-            print("min_weight_fraction_leaf_calls=", min_weight_fraction_leaf_counter)
-            print("max_features_calls=", max_features_counter)
-            print("auto_max_features_calls=", auto_max_features_counter)
-            print("sqrt_max_features_calls=", sqrt_max_features_counter)
-            print("log2_max_features_calls=", log2_max_features_counter)
-            print("max_leaf_node_calls=", max_leaf_node_counter)
-            print("min_impurity_decrease_calls=", min_impurity_decrease_counter)
-            print("min_impurity_split_calls=", min_impurity_split_counter)
-            print("class_weight_calls=", class_weight_counter)
-            print("ccp_alpha_calls=", ccp_alpha_counter, "\n")
+            print_counters()
 
             return super().predict(X, check_input=check_input)
 
         def predict_proba(self, X, check_input=True):
             global sklCallsCounter
+            global daal4pyCallsCounter
 
             global csr_counter
+            global weight_counter
             global check_input_counter
+            global X_idx_sorted_counter
+
+            global mse_criterion_counter
+            global friedman_mse_criterion_counter
+            global mae_criterion_counter
 
             global gini_criterion_counter
             global entropy_criterion_counter
@@ -294,8 +332,7 @@ if (LooseVersion(sklearn_version) >= LooseVersion("0.22")):
             global min_impurity_split_counter
             global class_weight_counter
             global ccp_alpha_counter
-
-            global check_input_counter
+            global presort_counter
 
             sklCallsCounter += 1
             if sparse.issparse(X):
@@ -336,36 +373,23 @@ if (LooseVersion(sklearn_version) >= LooseVersion("0.22")):
 
             ccp_alpha_counter += 1
 
-            print('skl_calls=', sklCallsCounter)
-            print('daal_calls=', daal4pyCallsCounter)
-
-            print("sparse_calls=", csr_counter)
-            print("check_input_calls=", check_input_counter)
-            print("gini_criterion_calls=", gini_criterion_counter)
-            print("entropy_criterion_calls=", entropy_criterion_counter)
-            print("best_splitter_calls=", best_splitter_counter)
-            print("random_splitter_calls=", random_splitter_counter)
-            print("max_depth_calls=", max_depth_counter)
-            print("min_samples_split_calls=", min_samples_split_counter)
-            print("min_samples_leaf_calls=", min_samples_leaf_counter)
-            print("min_weight_fraction_leaf_calls=", min_weight_fraction_leaf_counter)
-            print("max_features_calls=", max_features_counter)
-            print("auto_max_features_calls=", auto_max_features_counter)
-            print("sqrt_max_features_calls=", sqrt_max_features_counter)
-            print("log2_max_features_calls=", log2_max_features_counter)
-            print("max_leaf_node_calls=", max_leaf_node_counter)
-            print("min_impurity_decrease_calls=", min_impurity_decrease_counter)
-            print("min_impurity_split_calls=", min_impurity_split_counter)
-            print("class_weight_calls=", class_weight_counter)
-            print("ccp_alpha_calls=", ccp_alpha_counter, "\n")
+            print_counters()
 
             return super().predict_proba(X, check_input=check_input)
 
         def predict_log_proba(self, X):
 
             global sklCallsCounter
+            global daal4pyCallsCounter
 
             global csr_counter
+            global weight_counter
+            global check_input_counter
+            global X_idx_sorted_counter
+
+            global mse_criterion_counter
+            global friedman_mse_criterion_counter
+            global mae_criterion_counter
 
             global gini_criterion_counter
             global entropy_criterion_counter
@@ -384,6 +408,7 @@ if (LooseVersion(sklearn_version) >= LooseVersion("0.22")):
             global min_impurity_split_counter
             global class_weight_counter
             global ccp_alpha_counter
+            global presort_counter
 
             sklCallsCounter += 1
 
@@ -422,27 +447,7 @@ if (LooseVersion(sklearn_version) >= LooseVersion("0.22")):
 
             ccp_alpha_counter += 1
 
-            print('skl_calls=', sklCallsCounter)
-            print('daal_calls=', daal4pyCallsCounter)
-
-            print("sparse_calls=", csr_counter)
-            print("gini_criterion_calls=", gini_criterion_counter)
-            print("entropy_criterion_calls=", entropy_criterion_counter)
-            print("best_splitter_calls=", best_splitter_counter)
-            print("random_splitter_calls=", random_splitter_counter)
-            print("max_depth_calls=", max_depth_counter)
-            print("min_samples_split_calls=", min_samples_split_counter)
-            print("min_samples_leaf_calls=", min_samples_leaf_counter)
-            print("min_weight_fraction_leaf_calls=", min_weight_fraction_leaf_counter)
-            print("max_features_calls=", max_features_counter)
-            print("auto_max_features_calls=", auto_max_features_counter)
-            print("sqrt_max_features_calls=", sqrt_max_features_counter)
-            print("log2_max_features_calls=", log2_max_features_counter)
-            print("max_leaf_node_calls=", max_leaf_node_counter)
-            print("min_impurity_decrease_calls=", min_impurity_decrease_counter)
-            print("min_impurity_split_calls=", min_impurity_split_counter)
-            print("class_weight_calls=", class_weight_counter)
-            print("ccp_alpha_calls=", ccp_alpha_counter, "\n")
+            print_counters()
 
             return super().predict_log_proba(X)
 
@@ -482,6 +487,7 @@ if (LooseVersion(sklearn_version) >= LooseVersion("0.22")):
                 X_idx_sorted=None):
 
             global sklCallsCounter
+            global daal4pyCallsCounter
 
             global csr_counter
             global weight_counter
@@ -491,6 +497,9 @@ if (LooseVersion(sklearn_version) >= LooseVersion("0.22")):
             global mse_criterion_counter
             global friedman_mse_criterion_counter
             global mae_criterion_counter
+
+            global gini_criterion_counter
+            global entropy_criterion_counter
             global best_splitter_counter
             global random_splitter_counter
             global max_depth_counter
@@ -504,7 +513,9 @@ if (LooseVersion(sklearn_version) >= LooseVersion("0.22")):
             global max_leaf_node_counter
             global min_impurity_decrease_counter
             global min_impurity_split_counter
+            global class_weight_counter
             global ccp_alpha_counter
+            global presort_counter
 
             if self.criterion == "mse":
                 mse_criterion_counter += 1
@@ -551,31 +562,7 @@ if (LooseVersion(sklearn_version) >= LooseVersion("0.22")):
             if X_idx_sorted is not None:
                 X_idx_sorted_counter += 1
 
-            print('skl_calls=', sklCallsCounter)
-            print('daal_calls=', daal4pyCallsCounter)
-
-            print("sparse_calls=", csr_counter)
-            print("weight_calls=", weight_counter)
-            print("check_input_calls=", check_input_counter)
-            print("X_idx_sorted_calls=", X_idx_sorted_counter)
-            print("mse_criterion_calls=", mse_criterion_counter)
-            print("friedman_mse_criterion_calls=", friedman_mse_criterion_counter)
-            print("mae_criterion_calls=", mae_criterion_counter)
-            print("best_splitter_calls=", best_splitter_counter)
-            print("random_splitter_calls=", random_splitter_counter)
-            print("max_depth_calls=", max_depth_counter)
-            print("min_samples_split_calls=", min_samples_split_counter)
-            print("min_samples_leaf_calls=", min_samples_leaf_counter)
-            print("min_weight_fraction_leaf_calls=", min_weight_fraction_leaf_counter)
-            print("max_features_calls=", max_features_counter)
-            print("auto_max_features_calls=", auto_max_features_counter)
-            print("sqrt_max_features_calls=", sqrt_max_features_counter)
-            print("log2_max_features_calls=", log2_max_features_counter)
-            print("max_leaf_node_calls=", max_leaf_node_counter)
-            print("min_impurity_decrease_calls=", min_impurity_decrease_counter)
-            print("min_impurity_split_calls=", min_impurity_split_counter)
-            print("class_weight_calls=", class_weight_counter)
-            print("ccp_alpha_calls=", ccp_alpha_counter, "\n")
+            print_counters()
 
             super().fit(
                 X, y,
@@ -587,13 +574,19 @@ if (LooseVersion(sklearn_version) >= LooseVersion("0.22")):
         def predict(self, X, check_input=True):
 
             global sklCallsCounter
+            global daal4pyCallsCounter
 
             global csr_counter
+            global weight_counter
             global check_input_counter
+            global X_idx_sorted_counter
 
             global mse_criterion_counter
             global friedman_mse_criterion_counter
             global mae_criterion_counter
+
+            global gini_criterion_counter
+            global entropy_criterion_counter
             global best_splitter_counter
             global random_splitter_counter
             global max_depth_counter
@@ -607,7 +600,9 @@ if (LooseVersion(sklearn_version) >= LooseVersion("0.22")):
             global max_leaf_node_counter
             global min_impurity_decrease_counter
             global min_impurity_split_counter
+            global class_weight_counter
             global ccp_alpha_counter
+            global presort_counter
 
             if self.criterion == "mse":
                 mse_criterion_counter += 1
@@ -650,29 +645,7 @@ if (LooseVersion(sklearn_version) >= LooseVersion("0.22")):
             if check_input:
                 check_input_counter += 1
 
-            print('skl_calls=', sklCallsCounter)
-            print('daal_calls=', daal4pyCallsCounter)
-
-            print("sparse_calls=", csr_counter)
-            print("check_input_calls=", check_input_counter)
-            print("mse_criterion_calls=", mse_criterion_counter)
-            print("friedman_mse_criterion_calls=", friedman_mse_criterion_counter)
-            print("mae_criterion_calls=", mae_criterion_counter)
-            print("best_splitter_calls=", best_splitter_counter)
-            print("random_splitter_calls=", random_splitter_counter)
-            print("max_depth_calls=", max_depth_counter)
-            print("min_samples_split_calls=", min_samples_split_counter)
-            print("min_samples_leaf_calls=", min_samples_leaf_counter)
-            print("min_weight_fraction_leaf_calls=", min_weight_fraction_leaf_counter)
-            print("max_features_calls=", max_features_counter)
-            print("auto_max_features_calls=", auto_max_features_counter)
-            print("sqrt_max_features_calls=", sqrt_max_features_counter)
-            print("log2_max_features_calls=", log2_max_features_counter)
-            print("max_leaf_node_calls=", max_leaf_node_counter)
-            print("min_impurity_decrease_calls=", min_impurity_decrease_counter)
-            print("min_impurity_split_calls=", min_impurity_split_counter)
-            print("class_weight_calls=", class_weight_counter)
-            print("ccp_alpha_calls=", ccp_alpha_counter, "\n")
+            print_counters()
             return super().predict(X, check_input=check_input)
 else:
     class DecisionTreeClassifier(DecisionTreeClassifierSkl):
@@ -709,11 +682,16 @@ else:
                 X_idx_sorted=None):
 
             global sklCallsCounter
+            global daal4pyCallsCounter
 
             global csr_counter
             global weight_counter
             global check_input_counter
             global X_idx_sorted_counter
+
+            global mse_criterion_counter
+            global friedman_mse_criterion_counter
+            global mae_criterion_counter
 
             global gini_criterion_counter
             global entropy_criterion_counter
@@ -731,6 +709,7 @@ else:
             global min_impurity_decrease_counter
             global min_impurity_split_counter
             global class_weight_counter
+            global ccp_alpha_counter
             global presort_counter
 
             if self.criterion == "gini":
@@ -779,30 +758,7 @@ else:
             if X_idx_sorted is not None:
                 X_idx_sorted_counter += 1
 
-            print('skl_calls=', sklCallsCounter)
-            print('daal_calls=', daal4pyCallsCounter)
-
-            print("sparse_calls=", csr_counter)
-            print("weight_calls=", weight_counter)
-            print("check_input_calls=", check_input_counter)
-            print("X_idx_sorted_calls=", X_idx_sorted_counter)
-            print("gini_criterion_calls=", gini_criterion_counter)
-            print("entropy_criterion_calls=", entropy_criterion_counter)
-            print("best_splitter_calls=", best_splitter_counter)
-            print("random_splitter_calls=", random_splitter_counter)
-            print("max_depth_calls=", max_depth_counter)
-            print("min_samples_split_calls=", min_samples_split_counter)
-            print("min_samples_leaf_calls=", min_samples_leaf_counter)
-            print("min_weight_fraction_leaf_calls=", min_weight_fraction_leaf_counter)
-            print("max_features_calls=", max_features_counter)
-            print("auto_max_features_calls=", auto_max_features_counter)
-            print("sqrt_max_features_calls=", sqrt_max_features_counter)
-            print("log2_max_features_calls=", log2_max_features_counter)
-            print("max_leaf_node_calls=", max_leaf_node_counter)
-            print("min_impurity_decrease_calls=", min_impurity_decrease_counter)
-            print("min_impurity_split_calls=", min_impurity_split_counter)
-            print("class_weight_calls=", class_weight_counter)
-            print("presort_calls=", presort_counter, "\n")
+            print_counters()
 
             super().fit(
                 X, y,
@@ -813,9 +769,16 @@ else:
 
         def predict(self, X, check_input=True):
             global sklCallsCounter
+            global daal4pyCallsCounter
 
             global csr_counter
+            global weight_counter
             global check_input_counter
+            global X_idx_sorted_counter
+
+            global mse_criterion_counter
+            global friedman_mse_criterion_counter
+            global mae_criterion_counter
 
             global gini_criterion_counter
             global entropy_criterion_counter
@@ -833,9 +796,8 @@ else:
             global min_impurity_decrease_counter
             global min_impurity_split_counter
             global class_weight_counter
+            global ccp_alpha_counter
             global presort_counter
-
-            global check_input_counter
 
             sklCallsCounter += 1
             if check_input:
@@ -877,36 +839,22 @@ else:
             if self.presort:
                 presort_counter += 1
 
-            print('skl_calls=', sklCallsCounter)
-            print('daal_calls=', daal4pyCallsCounter)
-
-            print("sparse_calls=", csr_counter)
-            print("check_input_calls=", check_input_counter)
-            print("gini_criterion_calls=", gini_criterion_counter)
-            print("entropy_criterion_calls=", entropy_criterion_counter)
-            print("best_splitter_calls=", best_splitter_counter)
-            print("random_splitter_calls=", random_splitter_counter)
-            print("max_depth_calls=", max_depth_counter)
-            print("min_samples_split_calls=", min_samples_split_counter)
-            print("min_samples_leaf_calls=", min_samples_leaf_counter)
-            print("min_weight_fraction_leaf_calls=", min_weight_fraction_leaf_counter)
-            print("max_features_calls=", max_features_counter)
-            print("auto_max_features_calls=", auto_max_features_counter)
-            print("sqrt_max_features_calls=", sqrt_max_features_counter)
-            print("log2_max_features_calls=", log2_max_features_counter)
-            print("max_leaf_node_calls=", max_leaf_node_counter)
-            print("min_impurity_decrease_calls=", min_impurity_decrease_counter)
-            print("min_impurity_split_calls=", min_impurity_split_counter)
-            print("class_weight_calls=", class_weight_counter)
-            print("presort_calls=", presort_counter, "\n")
+            print_counters()
 
             return super().predict(X, check_input=check_input)
 
         def predict_proba(self, X, check_input=True):
             global sklCallsCounter
+            global daal4pyCallsCounter
 
             global csr_counter
+            global weight_counter
             global check_input_counter
+            global X_idx_sorted_counter
+
+            global mse_criterion_counter
+            global friedman_mse_criterion_counter
+            global mae_criterion_counter
 
             global gini_criterion_counter
             global entropy_criterion_counter
@@ -924,9 +872,8 @@ else:
             global min_impurity_decrease_counter
             global min_impurity_split_counter
             global class_weight_counter
+            global ccp_alpha_counter
             global presort_counter
-
-            global check_input_counter
 
             sklCallsCounter += 1
             if sparse.issparse(X):
@@ -968,36 +915,22 @@ else:
             if self.presort:
                 presort_counter += 1
 
-            print('skl_calls=', sklCallsCounter)
-            print('daal_calls=', daal4pyCallsCounter)
-
-            print("sparse_calls=", csr_counter)
-            print("check_input_calls=", check_input_counter)
-            print("gini_criterion_calls=", gini_criterion_counter)
-            print("entropy_criterion_calls=", entropy_criterion_counter)
-            print("best_splitter_calls=", best_splitter_counter)
-            print("random_splitter_calls=", random_splitter_counter)
-            print("max_depth_calls=", max_depth_counter)
-            print("min_samples_split_calls=", min_samples_split_counter)
-            print("min_samples_leaf_calls=", min_samples_leaf_counter)
-            print("min_weight_fraction_leaf_calls=", min_weight_fraction_leaf_counter)
-            print("max_features_calls=", max_features_counter)
-            print("auto_max_features_calls=", auto_max_features_counter)
-            print("sqrt_max_features_calls=", sqrt_max_features_counter)
-            print("log2_max_features_calls=", log2_max_features_counter)
-            print("max_leaf_node_calls=", max_leaf_node_counter)
-            print("min_impurity_decrease_calls=", min_impurity_decrease_counter)
-            print("min_impurity_split_calls=", min_impurity_split_counter)
-            print("class_weight_calls=", class_weight_counter)
-            print("presort_calls=", presort_counter, "\n")
+            print_counters()
 
             return super().predict_proba(X, check_input=check_input)
 
         def predict_log_proba(self, X):
-
             global sklCallsCounter
+            global daal4pyCallsCounter
 
             global csr_counter
+            global weight_counter
+            global check_input_counter
+            global X_idx_sorted_counter
+
+            global mse_criterion_counter
+            global friedman_mse_criterion_counter
+            global mae_criterion_counter
 
             global gini_criterion_counter
             global entropy_criterion_counter
@@ -1015,6 +948,7 @@ else:
             global min_impurity_decrease_counter
             global min_impurity_split_counter
             global class_weight_counter
+            global ccp_alpha_counter
             global presort_counter
 
             sklCallsCounter += 1
@@ -1055,27 +989,7 @@ else:
             if self.presort:
                 presort_counter += 1
 
-            print('skl_calls=', sklCallsCounter)
-            print('daal_calls=', daal4pyCallsCounter)
-
-            print("sparse_calls=", csr_counter)
-            print("gini_criterion_calls=", gini_criterion_counter)
-            print("entropy_criterion_calls=", entropy_criterion_counter)
-            print("best_splitter_calls=", best_splitter_counter)
-            print("random_splitter_calls=", random_splitter_counter)
-            print("max_depth_calls=", max_depth_counter)
-            print("min_samples_split_calls=", min_samples_split_counter)
-            print("min_samples_leaf_calls=", min_samples_leaf_counter)
-            print("min_weight_fraction_leaf_calls=", min_weight_fraction_leaf_counter)
-            print("max_features_calls=", max_features_counter)
-            print("auto_max_features_calls=", auto_max_features_counter)
-            print("sqrt_max_features_calls=", sqrt_max_features_counter)
-            print("log2_max_features_calls=", log2_max_features_counter)
-            print("max_leaf_node_calls=", max_leaf_node_counter)
-            print("min_impurity_decrease_calls=", min_impurity_decrease_counter)
-            print("min_impurity_split_calls=", min_impurity_split_counter)
-            print("class_weight_calls=", class_weight_counter)
-            print("presort_calls=", presort_counter, "\n")
+            print_counters()
 
             return super().predict_log_proba(X)
 
@@ -1113,6 +1027,7 @@ else:
                 X_idx_sorted=None):
 
             global sklCallsCounter
+            global daal4pyCallsCounter
 
             global csr_counter
             global weight_counter
@@ -1122,6 +1037,9 @@ else:
             global mse_criterion_counter
             global friedman_mse_criterion_counter
             global mae_criterion_counter
+
+            global gini_criterion_counter
+            global entropy_criterion_counter
             global best_splitter_counter
             global random_splitter_counter
             global max_depth_counter
@@ -1135,6 +1053,8 @@ else:
             global max_leaf_node_counter
             global min_impurity_decrease_counter
             global min_impurity_split_counter
+            global class_weight_counter
+            global ccp_alpha_counter
             global presort_counter
 
             if self.criterion == "mse":
@@ -1183,31 +1103,7 @@ else:
             if X_idx_sorted is not None:
                 X_idx_sorted_counter += 1
 
-            print('skl_calls=', sklCallsCounter)
-            print('daal_calls=', daal4pyCallsCounter)
-
-            print("sparse_calls=", csr_counter)
-            print("weight_calls=", weight_counter)
-            print("check_input_calls=", check_input_counter)
-            print("X_idx_sorted_calls=", X_idx_sorted_counter)
-            print("mse_criterion_calls=", mse_criterion_counter)
-            print("friedman_mse_criterion_calls=", friedman_mse_criterion_counter)
-            print("mae_criterion_calls=", mae_criterion_counter)
-            print("best_splitter_calls=", best_splitter_counter)
-            print("random_splitter_calls=", random_splitter_counter)
-            print("max_depth_calls=", max_depth_counter)
-            print("min_samples_split_calls=", min_samples_split_counter)
-            print("min_samples_leaf_calls=", min_samples_leaf_counter)
-            print("min_weight_fraction_leaf_calls=", min_weight_fraction_leaf_counter)
-            print("max_features_calls=", max_features_counter)
-            print("auto_max_features_calls=", auto_max_features_counter)
-            print("sqrt_max_features_calls=", sqrt_max_features_counter)
-            print("log2_max_features_calls=", log2_max_features_counter)
-            print("max_leaf_node_calls=", max_leaf_node_counter)
-            print("min_impurity_decrease_calls=", min_impurity_decrease_counter)
-            print("min_impurity_split_calls=", min_impurity_split_counter)
-            print("class_weight_calls=", class_weight_counter)
-            print("presort_calls=", presort_counter, "\n")
+            print_counters()
 
             super().fit(
                 X, y,
@@ -1219,13 +1115,19 @@ else:
         def predict(self, X, check_input=True):
 
             global sklCallsCounter
+            global daal4pyCallsCounter
 
             global csr_counter
+            global weight_counter
             global check_input_counter
+            global X_idx_sorted_counter
 
             global mse_criterion_counter
             global friedman_mse_criterion_counter
             global mae_criterion_counter
+
+            global gini_criterion_counter
+            global entropy_criterion_counter
             global best_splitter_counter
             global random_splitter_counter
             global max_depth_counter
@@ -1239,6 +1141,8 @@ else:
             global max_leaf_node_counter
             global min_impurity_decrease_counter
             global min_impurity_split_counter
+            global class_weight_counter
+            global ccp_alpha_counter
             global presort_counter
 
             if self.criterion == "mse":
@@ -1283,27 +1187,6 @@ else:
             if check_input:
                 check_input_counter += 1
 
-            print('skl_calls=', sklCallsCounter)
-            print('daal_calls=', daal4pyCallsCounter)
-
-            print("sparse_calls=", csr_counter)
-            print("check_input_calls=", check_input_counter)
-            print("mse_criterion_calls=", mse_criterion_counter)
-            print("friedman_mse_criterion_calls=", friedman_mse_criterion_counter)
-            print("mae_criterion_calls=", mae_criterion_counter)
-            print("best_splitter_calls=", best_splitter_counter)
-            print("random_splitter_calls=", random_splitter_counter)
-            print("max_depth_calls=", max_depth_counter)
-            print("min_samples_split_calls=", min_samples_split_counter)
-            print("min_samples_leaf_calls=", min_samples_leaf_counter)
-            print("min_weight_fraction_leaf_calls=", min_weight_fraction_leaf_counter)
-            print("max_features_calls=", max_features_counter)
-            print("auto_max_features_calls=", auto_max_features_counter)
-            print("sqrt_max_features_calls=", sqrt_max_features_counter)
-            print("log2_max_features_calls=", log2_max_features_counter)
-            print("max_leaf_node_calls=", max_leaf_node_counter)
-            print("min_impurity_decrease_calls=", min_impurity_decrease_counter)
-            print("min_impurity_split_calls=", min_impurity_split_counter)
-            print("class_weight_calls=", class_weight_counter)
-            print("presort_calls=", presort_counter, "\n")
+            print_counters()
             return super().predict(X, check_input=check_input)
+            

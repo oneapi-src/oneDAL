@@ -63,5 +63,3 @@ if __name__ == "__main__":
     print('Parameter: liblinear solver:....', int(n_liblinear_using), '%')
 
     print('\n', get_testing_results(log_filename))
-
-

@@ -55,7 +55,7 @@ def print_counters():
     print('verbose_calls=', verbose_calls)
     print('df_shape_ovo_calls=', df_shape_ovo_calls)
     print('df_shape_ovr_calls=', df_shape_ovr_calls)
-    print('random_state_calls=', random_state_calls)
+    print('random_state_calls=', random_state_calls, '\n')
 
 class SVC(svm.SVC):
     def __init__(self, C=1.0, kernel='rbf', degree=3, gamma='auto_deprecated',

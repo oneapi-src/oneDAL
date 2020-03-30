@@ -24,6 +24,8 @@ from sklearn.linear_model.ridge import Ridge as Ridge_original
 
 import daal4py
 
+from wrappers.utils import getFPType, make2d
+
 svd_solver_counter = 0
 cholesky_solver_counter = 0
 lsqr_solver_counter = 0
@@ -42,21 +44,39 @@ not_float_counter = 0
 daal4pyCallsCounter = 0
 sklCallsCounter = 0
 
-def getFPType(X):
-    dt = getattr(X, 'dtype', None)
-    if dt == np.double:
-        return "double"
-    elif dt == np.single:
-        return "float"
-    else:
-        raise ValueError("Input array has unexpected dtype = {}".format(dt))
+def print_counters():
+    global daal4pyCallsCounter
+    global sklCallsCounter
 
-def make2d(X):
-    if np.isscalar(X):
-        X = np.asarray(X)[np.newaxis, np.newaxis]
-    elif isinstance(X, np.ndarray) and X.ndim == 1:
-        X = X.reshape((X.size, 1))
-    return X
+    global svd_solver_counter
+    global cholesky_solver_counter
+    global lsqr_solver_counter
+    global sparse_cg_solver_counter
+    global sag_solver_counter
+    global saga_solver_counter
+    global auto_solver_counter
+
+    global csr_counter
+    global sample_weight_counter
+    global normalize_counter
+    global fit_shape_not_good_for_daal_counter
+    global not_float_counter
+
+    print('skl_calls=', sklCallsCounter)
+    print('daal_calls=', daal4pyCallsCounter)
+
+    print('param_solver_auto=', auto_solver_counter)
+    print('param_solver_svd=', svd_solver_counter)
+    print('param_solver_cholesky=', cholesky_solver_counter)
+    print('param_solver_lsqr=', lsqr_solver_counter)
+    print('param_solver_sparse_cg=', sparse_cg_solver_counter)
+    print('param_solver_sag=', sag_solver_counter)
+    print('param_solver_saga=', saga_solver_counter)
+    print('data_sparse_using=', csr_counter)
+    print('fit_shape_not_good_for_daal=', fit_shape_not_good_for_daal_counter)
+    print('data_not_float_using=', not_float_counter)
+    print("normalize_data=", normalize_counter)
+    print("sample_weight_using=", sample_weight_counter, '\n')
 
 def _daal4py_fit(self, X, y_):
     X = make2d(X)
@@ -189,21 +209,7 @@ def fit(self, X, y, sample_weight=None):
         self.n_iter_ = None
         result = _daal4py_fit(self, X, y)
 
-    print('skl_calls=', sklCallsCounter)
-    print('daal_calls=', daal4pyCallsCounter)
-
-    print('param_solver_auto=', auto_solver_counter)
-    print('param_solver_svd=', svd_solver_counter)
-    print('param_solver_cholesky=', cholesky_solver_counter)
-    print('param_solver_lsqr=', lsqr_solver_counter)
-    print('param_solver_sparse_cg=', sparse_cg_solver_counter)
-    print('param_solver_sag=', sag_solver_counter)
-    print('param_solver_saga=', saga_solver_counter)
-    print('data_sparse_using=', csr_counter)
-    print('fit_shape_not_good_for_daal=', fit_shape_not_good_for_daal_counter)
-    print('data_not_float_using=', not_float_counter)
-    print("normalize_data=", normalize_counter)
-    print("sample_weight_using=", sample_weight_counter, '\n')
+    print_counters()
 
     return result
 
@@ -274,27 +280,14 @@ def predict(self, X):
             not (X.dtype == np.float64 or X.dtype == np.float32) or
             (hasattr(self, 'sample_weight_') and self.sample_weight_ is not None)):
         sklCallsCounter+=1
-        print('skl_calls=', sklCallsCounter)
-        print('daal_calls=', daal4pyCallsCounter)
+
         result = self._decision_function(X)
     else:
         daal4pyCallsCounter+=1
-        print('skl_calls=', sklCallsCounter)
-        print('daal_calls=', daal4pyCallsCounter)
+
         result = _daal4py_predict(self, X)
 
-    print('param_solver_auto=', auto_solver_counter)
-    print('param_solver_svd=', svd_solver_counter)
-    print('param_solver_cholesky=', cholesky_solver_counter)
-    print('param_solver_lsqr=', lsqr_solver_counter)
-    print('param_solver_sparse_cg=', sparse_cg_solver_counter)
-    print('param_solver_sag=', sag_solver_counter)
-    print('param_solver_saga=', saga_solver_counter)
-    print('data_sparse_using=', csr_counter)
-    print('fit_shape_not_good_for_daal_counter=', fit_shape_not_good_for_daal_counter)
-    print('data_not_float_using=', not_float_counter)
-    print("normalize_data=", normalize_counter)
-    print("sample_weight_using=", sample_weight_counter, '\n')
+    print_counters()
 
     return result
 
@@ -321,4 +314,3 @@ class Ridge(Ridge_original, _BaseRidge):
 
     def predict(self, X):
         return _predict_copy(self, X)
-
