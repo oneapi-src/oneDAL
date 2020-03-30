@@ -24,8 +24,8 @@ help:
 	@echo
 	@echo "name              - example name. Please see daal.lst file."
 	@echo
-	@echo "compiler_name     - can be clang, gnu or intel. Default value is clang."
-	@echo "                    Intel(R) oneAPI Compiler as default"
+	@echo "compiler_name     - the only supported compiler is clang (default value)"
+	@echo "                    Intel(R) oneAPI DPC++ compiler"
 	@echo
 	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
 	@echo
@@ -38,14 +38,9 @@ help:
 ##                                 and run pca example for 64-bit
 ##                                 applications, static linking
 ##
-## make sointel64 compiler=gnu   - build by GNU C++ compiler and run all examples
+## make sointel64 compiler=clang   - build by Intel(R) oneAPI Compiler and run all examples
 ##                                 of Intel(R) DAAL for
 ##                                 64-bit applications, dynamic linking
-##
-## make libintel64 compiler=gnu  - build by GNU C++ compiler and run all example
-##                                 of Intel(R) DAAL for
-##                                 Intel(R) 64 processor family applications,
-##                                 static linking
 ##
 ## make sointel64                - build by Intel(R) oneAPI Compiler (as default)
 ##                                 and run all examples for Intel(R)64 processor
@@ -65,10 +60,8 @@ ifndef example
     example = $(DAAL)
 endif
 
-ifneq ($(compiler),gnu)
-    ifneq ($(compiler),intel)
-        override compiler = clang
-    endif
+ifndef compiler
+    compiler = clang
 endif
 
 ifneq ($(mode),build)
@@ -103,18 +96,6 @@ ifeq ($(compiler),clang)
     CC = clang++
     COPTS += -fsycl
     EXT_LIB += -foffload-static-lib=$(DAAL_PATH)/libdaal_sycl.a
-endif
-
-ifeq ($(compiler),intel)
-    CC = icc
-    COPTS += $(if $(COVFILE), -m64) -DONEAPI_DAAL_NO_MKL_GPU_FUNC
-    EXT_LIB += -lComputeCpp
-endif
-
-ifeq ($(compiler),gnu)
-    CC = g++
-    COPTS += -m64 -DONEAPI_DAAL_NO_MKL_GPU_FUNC
-    EXT_LIB += -lComputeCpp
 endif
 
 LOPTS := -Wl,--start-group $(DAAL_LIB) $(EXT_LIB) -Wl,--end-group
