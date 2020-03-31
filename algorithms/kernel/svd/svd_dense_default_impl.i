@@ -135,9 +135,12 @@ Status compute_svd_on_one_node_seq(DAAL_INT m, DAAL_INT n, algorithmFPType * a, 
   Input:
     a_q at input : a[m][lda_q] -> A (m x n)
   Output:
+  If m >= n:
     a_q at output: q[m][lda_q] -> Qn(m x n) = n leading columns of orthogonal Q
     r   at output: r[n][ldr  ] -> R (n x n) = upper triangular matrix written in lower triangular (fortran is evil)
-
+  else (if m < n):
+    a_q at output: q[m][lda_q] -> Qn(m x m) = m leading columns of orthogonal Q
+    r   at output: r[n][ldr  ] -> R (n x m) = upper trapezoidal matrix written in lower trapezoidal (fortran is evil)
 */
 template <typename algorithmFPType, CpuType cpu>
 Status compute_QR_on_one_node(DAAL_INT m, DAAL_INT n, algorithmFPType * a_q, DAAL_INT lda_q, algorithmFPType * r, DAAL_INT ldr)
@@ -206,7 +209,7 @@ Status compute_QR_on_one_node(DAAL_INT m, DAAL_INT n, algorithmFPType * a_q, DAA
             }
         }
     }
-    
+
     // Get Q of the QR factorization formed by xgeqrf
     Lapack<algorithmFPType, cpu>::xorgqr(m, nColumnsInQ, nColumnsInQ, a_q, lda_q, tau, work, workDim, &mklStatus);
 
