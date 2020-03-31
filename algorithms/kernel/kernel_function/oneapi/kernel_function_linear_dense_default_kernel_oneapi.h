@@ -26,8 +26,6 @@
 
 #include "algorithms/kernel/kernel_function/oneapi/kernel_function_linear_base_oneapi.h"
 
-using namespace daal::internal;
-
 namespace daal
 {
 namespace algorithms
@@ -39,11 +37,14 @@ namespace linear
 namespace internal
 {
 
+using namespace daal::data_management;
+using namespace daal::services;
+
 template <typename algorithmFPType>
-class KernelImplLinearOneAPI<defaultDense, algorithmFPType>
+class KernelImplLinearOneAPI<defaultDense, algorithmFPType> : public Kernel
 {
 public:
-    services::Status compute(ComputationMode computationMode, const NumericTable & a1, const NumericTable & a2, NumericTable & r,
+    services::Status compute(ComputationMode computationMode, NumericTable & a1, NumericTable & a2, NumericTable & r,
                              const daal::algorithms::Parameter * par)
     {
         const ParameterBase * svmPar = static_cast<const ParameterBase *>(par);
@@ -60,11 +61,11 @@ public:
     }
 
 protected:
-    services::Status computeInternalVectorVector(const NumericTable & a1, const NumericTable & a2, NumericTable & r,
+    services::Status computeInternalVectorVector(NumericTable & a1, NumericTable & a2, NumericTable & r,
                                                          const ParameterBase * par);
-    services::Status computeInternalMatrixVector(const NumericTable & a1, const NumericTable & a2, NumericTable & r,
+    services::Status computeInternalMatrixVector(NumericTable & a1, NumericTable & a2, NumericTable & r,
                                                          const ParameterBase * par);
-    services::Status computeInternalMatrixMatrix(const NumericTable & a1, const NumericTable & a2, NumericTable & r,
+    services::Status computeInternalMatrixMatrix(NumericTable & a1, NumericTable & a2, NumericTable & r,
                                                          const ParameterBase * par);
 };
 

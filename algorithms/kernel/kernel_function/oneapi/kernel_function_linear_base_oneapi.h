@@ -24,10 +24,10 @@
 #ifndef __KERNEL_FUNCTION_LINEAR_BASE_ONEAPI_H__
 #define __KERNEL_FUNCTION_LINEAR_BASE_ONEAPI_H__
 
+#include "services/env_detect.h"
+#include "data_management/data/numeric_table.h"
 #include "algorithms/kernel_function/kernel_function_types_linear.h"
 #include "algorithms/kernel/kernel.h"
-
-using namespace daal::internal;
 
 namespace daal
 {
@@ -39,9 +39,16 @@ namespace linear
 {
 namespace internal
 {
+
+using namespace daal::data_management;
+
 template <Method method, typename algorithmFPType>
-struct KernelImplLinearOneAPI
-{};
+class KernelImplLinearOneAPI  : public Kernel
+{
+public:
+     services::Status compute(ComputationMode computationMode, NumericTable & a1, NumericTable & a2, NumericTable & r,
+                             const daal::algorithms::Parameter * par);
+};
 
 } // namespace internal
 } // namespace linear

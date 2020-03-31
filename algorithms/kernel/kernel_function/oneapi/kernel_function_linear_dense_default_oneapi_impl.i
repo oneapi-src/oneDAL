@@ -30,6 +30,8 @@
 #include "externals/service_stat.h"
 #include "algorithms/threading/threading.h"
 #include "algorithms/kernel/service_error_handling.h"
+#include "externals/service_ittnotify.h"
+#include "service/kernel/oneapi/blas_gpu.h"
 
 namespace daal
 {
@@ -41,34 +43,37 @@ namespace linear
 {
 namespace internal
 {
+
+using namespace daal::oneapi::internal;
+
 template <typename algorithmFPType>
-services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeInternalVectorVector(const NumericTable & a1, const NumericTable & a2,
+services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeInternalVectorVector(NumericTable & a1, NumericTable & a2,
                                                                                                     NumericTable & r, const ParameterBase * par)
 {
     return services::ErrorMethodNotImplemented;
 }
 
 template <typename algorithmFPType>
-services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeInternalMatrixVector(const NumericTable & a1, const NumericTable & a2,
+services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeInternalMatrixVector(NumericTable & a1, NumericTable & a2,
                                                                                                     NumericTable & r, const ParameterBase * par)
 {
     return services::ErrorMethodNotImplemented;
 }
 
 template <typename algorithmFPType>
-services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeInternalMatrixMatrix(const NumericTable & a1, const NumericTable * a2,
+services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeInternalMatrixMatrix(NumericTable & a1, NumericTable & a2,
                                                                                                     NumericTable & r, const ParameterBase * par)
 {
     services::Status status;
 
-    auto & context    = oneapi::internal::getDefaultContext();
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();
 
     const size_t nVectors1 = a1.getNumberOfRows();
-    const size_t nVectors2 = a2->getNumberOfRows();
+    const size_t nVectors2 = a2.getNumberOfRows();
 
-    const size_t nFeatures1 = a1->getNumberOfColumns();
-    const size_t nFeatures2 = a2->getNumberOfColumns();
+    const size_t nFeatures1 = a1.getNumberOfColumns();
+    const size_t nFeatures2 = a2.getNumberOfColumns();
     DAAL_ASSERT(nFeatures1 == nFeatures2);
 
     const Parameter * linPar = static_cast<const Parameter *>(par);
@@ -83,11 +88,11 @@ services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeI
         BlockDescriptor<algorithmFPType> rBD;
 
         // TODO: Need block GEMM to avoid copying
+        const size_t startRows = 0;
+        DAAL_CHECK_STATUS(status, a1.getBlockOfRows(startRows, nVectors1, ReadWriteMode::readOnly, a1BD));
+        DAAL_CHECK_STATUS(status, a2.getBlockOfRows(startRows, nVectors2, ReadWriteMode::readOnly, a2BD));
 
-        DAAL_CHECK_STATUS(status, a1.getBlockOfRows(0, nVectors1, ReadWriteMode::readOnly, a1BD));
-        DAAL_CHECK_STATUS(status, a2.getBlockOfRows(0, nVectors2, ReadWriteMode::readOnly, a2BD));
-
-        DAAL_CHECK_STATUS(status, r.getBlockOfRows(0, nVectors1, ReadWriteMode::readWrite, rBD));
+        DAAL_CHECK_STATUS(status, r.getBlockOfRows(startRows, nVectors1, ReadWriteMode::readWrite, rBD));
 
         const services::Buffer<algorithmFPType> a1Buf = a1BD.getBuffer();
         const services::Buffer<algorithmFPType> a2Buf = a2BD.getBuffer();
@@ -101,6 +106,10 @@ services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeI
 
         status = BlasGpu<algorithmFPType>::xgemm(math::Layout::ColMajor, math::Transpose::Trans, math::Transpose::NoTrans, nVectors2, nVectors1,
                                                  nFeatures1, alpha, a2Buf, nFeatures1, 0, a1Buf, nFeatures1, 0, beta, rBuf, nVectors2, 0);
+
+        DAAL_CHECK_STATUS(status, a1.releaseBlockOfRows(a1BD));
+        DAAL_CHECK_STATUS(status, a2.releaseBlockOfRows(a2BD));
+        DAAL_CHECK_STATUS(status, r.releaseBlockOfRows(rBD));
     }
     DAAL_CHECK_STATUS_VAR(status);
 

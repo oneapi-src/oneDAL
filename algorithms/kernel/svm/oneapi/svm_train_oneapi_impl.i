@@ -59,7 +59,7 @@
 #include <cstdlib>
 
 #include "algorithms/kernel/svm/oneapi/svm_train_cache.h"
-#include "algorithms/kernel/svm/oneapi/svm_workset.h"
+#include "algorithms/kernel/svm/oneapi/svm_train_workset.h"
 
 DAAL_ITTNOTIFY_DOMAIN(svm_train.default.batch);
 
@@ -427,7 +427,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::initGrad
     auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & factory = context.getClKernelFactory();
 
-    services::Status status = HelperSVM::buildProgram(factory);
+    services::Status status = Helper::buildProgram(factory);
     DAAL_CHECK_STATUS_VAR(status);
 
     auto kernel = factory.getKernel("initGradient");
@@ -474,6 +474,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, boser>::compute(const NumericTa
     const algorithmFPType tau(svmPar->tau);
     const size_t maxIterations(svmPar->maxIterations);
     const size_t cacheSize(svmPar->cacheSize);
+<<<<<<< HEAD
     kernel_function::KernelIfacePtr kernel = svmPar.kernel->clone();
 >>>>>>> 14431dac... kernel support was added
     // TODO
@@ -481,6 +482,14 @@ services::Status SVMTrainOneAPI<algorithmFPType, boser>::compute(const NumericTa
 
     size_t nVectors = xTable->getNumberOfRows();
 
+=======
+    kernel_function::KernelIfacePtr kernel = svmPar->kernel->clone();
+    // TODO
+    const size_t innerMaxIterations(100);
+
+    const size_t nVectors = xTable->getNumberOfRows();
+    const size_t nFeatures = xTable->getNumberOfColumns();
+>>>>>>> 53c7b11f... fix bugs
     // ai = 0
 <<<<<<< HEAD
     UniversalBuffer alpha = ctx.allocate(idType, nVectors, &status);
@@ -506,11 +515,11 @@ services::Status SVMTrainOneAPI<algorithmFPType, boser>::compute(const NumericTa
     auto fBuff = fU.get<algorithmFPType>();
 
     BlockDescriptor<algorithmFPType> yBD;
-    yTable.getBlockOfRows(0, nVectors, ReadWriteMode::readOnly, yBD);
+    DAAL_CHECK_STATUS(status, yTable.getBlockOfRows(0, nVectors, ReadWriteMode::readOnly, yBD));
     auto yBuff = yBD.getBuffer();
 
     BlockDescriptor<algorithmFPType> xBD;
-    xTable.getBlockOfRows(0, nVectors, ReadWriteMode::readOnly, xBD);
+    DAAL_CHECK_STATUS(status, xTable->getBlockOfRows(0, nVectors, ReadWriteMode::readOnly, xBD));
     auto xBuff = xBD.getBuffer();
 
     DAAL_CHECK_STATUS(status, initGrad(yBuff, fBuff, nVectors));
@@ -522,11 +531,11 @@ services::Status SVMTrainOneAPI<algorithmFPType, boser>::compute(const NumericTa
 
     const size_t nWS = workSet.getSize();
 
-    SVMCacheOneAPIIface * cache = nullptr;
+    SVMCacheOneAPIIface<algorithmFPType> * cache = nullptr;
 
     if (cacheSize > nWS * nVectors * sizeof(algorithmFPType))
     {
-        cache = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, _nVectors, nWS, xTable, kernel, status);
+        cache = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, nVectors, nWS, xTable, kernel, verbose, status);
     }
     else
     {
@@ -567,30 +576,32 @@ services::Status SVMTrainOneAPI<algorithmFPType, boser>::compute(const NumericTa
             const auto t_1           = high_resolution_clock::now();
             const float duration_sec = duration_cast<milliseconds>(t_1 - t_0).count();
             printf(">>>> SelectWS.compute time(ms) = %.1f\n", duration_sec);
+            fflush(stdout);
         }
     }
 <<<<<<< HEAD
 =======
 
-    auto wsIndices = workSet.getWSIndeces();
+    auto& wsIndices = workSet.getWSIndeces();
 
     {
         const auto t_0 = high_resolution_clock::now();
 
-        DAAL_CHECK_STATUS(status, cache->compute(xBuff, alphaBuff, fBuff, C));
+        DAAL_CHECK_STATUS(status, cache->compute(xBuff, wsIndices, nFeatures));
 
         if (verbose)
         {
             const auto t_1           = high_resolution_clock::now();
             const float duration_sec = duration_cast<milliseconds>(t_1 - t_0).count();
             printf(">>>> Kernel.compute time(ms) = %.1f\n", duration_sec);
+            fflush(stdout);
         }
     }
 
     auto kernelWS = cache->getSetRowsBlock();
 
     DAAL_CHECK_STATUS(status, yTable.releaseBlockOfRows(yBD));
-    DAAL_CHECK_STATUS(status, xTable.releaseBlockOfRows(xBD));
+    DAAL_CHECK_STATUS(status, xTable->releaseBlockOfRows(xBD));
 
     delete cache;
 

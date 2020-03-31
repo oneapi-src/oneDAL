@@ -18,8 +18,17 @@
 #ifndef __SVM_UTILS_ONEAPI_H__
 #define __SVM_UTILS_ONEAPI_H__
 
-#include "algorithms/kernel/objective_function/common/oneapi/cl_kernel/objective_function_utils.cl"
+#include "algorithms/kernel/svm/oneapi/cl_kernels/svm_train_oneapi.cl"
 #include "service/kernel/data_management/service_numeric_table.h"
+
+#include "externals/service_ittnotify.h"
+
+// TODO: DELETE
+#include <algorithm>
+#include <cstdlib>
+#include <chrono>
+using namespace std::chrono;
+//
 
 namespace daal
 {
@@ -57,7 +66,7 @@ struct HelperSVM
         cachekey.add(options);
         options.add(" -D LOCAL_SUM_SIZE=256 ");
 
-        Status status;
+        services::Status status;
         factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelSVMTrain, options.c_str(), &status);
         return status;
     }
@@ -85,14 +94,14 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status argSort(const services::Buffer<algorithmFPType> & fBuff)
+    static services::Status argSort(const services::Buffer<algorithmFPType> & fBuff,
+        const services::Buffer<int> & fIndicesBuff, services::Buffer<int> & sortedFIndicesBuff, const size_t nVectors)
     {
         services::Status status;
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
-        context.copy(sortedFIndices, 0, fIndices, 0, nVectors, &status);
+        context.copy(sortedFIndicesBuff, 0, fIndicesBuff, 0, nVectors, &status);
         DAAL_CHECK_STATUS_VAR(status);
-        auto sortedFIndicesBuff = sortedFIndices.get<int>();
 
         // TODO Replace radix sort
         {
@@ -103,19 +112,17 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status gatherIndices(size_t & nRes)
+    static services::Status gatherIndices(const services::Buffer<int> & maskBuff,
+        const services::Buffer<int> & xBuff, const size_t n, services::Buffer<int> & resBuff, size_t & nRes)
     {
         services::Status status;
-        auto indicatorBuff      = indicator.get<int>();
-        auto tmpIndicesBuff     = tmpIndices.get<int>();
-        auto sortedFIndicesBuff = sortedFIndices.get<int>();
 
         {
-            int * indicator_host      = indicatorBuff.toHost(ReadWriteMode::readOnly).get();
-            int * sortedFIndices_host = sortedFIndicesBuff.toHost(ReadWriteMode::readOnly).get();
-            int * tmpIndices_host     = tmpIndicesBuff.toHost(ReadWriteMode::readWrite).get();
+            int * indicator_host      = maskBuff.toHost(ReadWriteMode::readOnly).get();
+            int * sortedFIndices_host = xBuff.toHost(ReadWriteMode::readOnly).get();
+            int * tmpIndices_host     = resBuff.toHost(ReadWriteMode::readWrite).get();
             nRes                      = 0;
-            for (int i = 0; i < nVectors; i++)
+            for (int i = 0; i < n; i++)
             {
                 if (indicator_host[i])
                 {
@@ -126,8 +133,8 @@ struct HelperSVM
         return status;
     }
 
-    static Status copyBlockIndices(const services::Buffer<algorithmFPType> & xBuff, const services::Buffer<int> & indBuff,
-                                   services::Buffer<algorithmFPType> newBuf, const uint32_t nWS, const uint32_t p)
+    static services::Status copyBlockIndices(const services::Buffer<algorithmFPType> & xBuff, const services::Buffer<int> & indBuff,
+                                   services::Buffer<algorithmFPType>& newBuf, const uint32_t nWS, const uint32_t p)
     {
         services::Status status;
 
@@ -151,6 +158,12 @@ struct HelperSVM
 
         return status;
     }
+};
+
+}
+}
+}
+}
 }
 
 #endif

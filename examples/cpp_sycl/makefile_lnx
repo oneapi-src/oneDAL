@@ -90,7 +90,7 @@ endif
 
 DAAL_LIB := $(DAAL_PATH)/libdaal_core.$(RES_EXT) $(DAAL_LIB_T)
 
-COPTS := -Wall -w -I./source/utils
+COPTS := -Wall -w -g -I./source/utils
 
 ifeq ($(compiler),clang)
     CC = clang++
