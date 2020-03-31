@@ -158,7 +158,7 @@ Status compute_QR_on_one_node(DAAL_INT m, DAAL_INT n, algorithmFPType * a_q, DAA
     Lapack<algorithmFPType, cpu>::xgeqrf(m, n, a_q, lda_q, tau, workQuery, workDim, &mklStatus);
 
     // a bug in Intel(R) MKL with XORGQR workDim query, to be fixed
-    DAAL_INT nColumnsInQ = daal::services::internal::min<cpu, DAAL_INT>(m, n);
+    const DAAL_INT nColumnsInQ = daal::services::internal::min<cpu, DAAL_INT>(m, n);
     Lapack<algorithmFPType, cpu>::xorgqr(m, nColumnsInQ, nColumnsInQ, a_q, lda_q, tau, &workQuery[1], workDim, &mklStatus);
     workDim = daal::services::internal::max<cpu, algorithmFPType>(workQuery[0], workQuery[1]);
 
@@ -176,29 +176,34 @@ Status compute_QR_on_one_node(DAAL_INT m, DAAL_INT n, algorithmFPType * a_q, DAA
     }
 
     // Get R of the QR factorization formed by xgeqrf
-    if (m < n)
-    {
-        const algorithmFPType zero(0.0);
-        for (size_t i = 0; i < n - m; ++i)
-        {
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
-            for (size_t j = 0; j <= i; ++j)
-            {
-                r[i * ldr + j] = zero;
-            }
-        }
-    }
-
-    DAAL_INT iOffset = (m < n ? n - m : 0);
-
-    for (DAAL_INT i = iOffset, ia = 0; i < n; ++i, ++ia)
+    for (DAAL_INT i = 0; i < nColumnsInQ; ++i)
     {
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         for (DAAL_INT j = 0; j <= i; ++j)
         {
-            r[i * ldr + j] = a_q[ia * lda_q + j];
+            r[i * ldr + j] = a_q[i * lda_q + j];
+        }
+    }
+
+    if (m < n)
+    {
+        const algorithmFPType zero(0.0);
+        for (size_t i = m; i < n; ++i)
+        {
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (size_t j = 0; j < m; ++j)
+            {
+                r[i * ldr + j] = a_q[i * lda_q + j];
+            }
+
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (size_t j = m; j <= i; ++j)
+            {
+                r[i * ldr + j] = zero;
+            }
         }
     }
     
