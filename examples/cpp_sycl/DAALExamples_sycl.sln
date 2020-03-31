@@ -37,6 +37,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gbt_reg_dense_batch", "vcpr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pca_transform_dense_batch", "vcproj\pca_transform_dense_batch\pca_transform_dense_batch.vcxproj", "{40537CD7-86C1-48A3-B837-C8EE93242055}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dbscan_dense_batch", "vcproj\dbscan_dense_batch\dbscan_dense_batch.vcxproj", "{E819C9C7-7092-4997-9390-32A481C169B7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug.dynamic.sequential|x64 = Debug.dynamic.sequential|x64
@@ -321,6 +323,22 @@ Global
 		{40537CD7-86C1-48A3-B837-C8EE93242055}.Release.static.sequential|x64.Build.0 = Release.static.sequential|x64
 		{40537CD7-86C1-48A3-B837-C8EE93242055}.Release.static.threaded|x64.ActiveCfg = Release.static.threaded|x64
 		{40537CD7-86C1-48A3-B837-C8EE93242055}.Release.static.threaded|x64.Build.0 = Release.static.threaded|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Debug.dynamic.sequential|x64.ActiveCfg = Debug.dynamic.sequential|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Debug.dynamic.sequential|x64.Build.0 = Debug.dynamic.sequential|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Debug.dynamic.threaded|x64.ActiveCfg = Debug.dynamic.threaded|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Debug.dynamic.threaded|x64.Build.0 = Debug.dynamic.threaded|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Debug.static.sequential|x64.ActiveCfg = Debug.static.sequential|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Debug.static.sequential|x64.Build.0 = Debug.static.sequential|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Debug.static.threaded|x64.ActiveCfg = Debug.static.threaded|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Debug.static.threaded|x64.Build.0 = Debug.static.threaded|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Release.dynamic.sequential|x64.ActiveCfg = Release.dynamic.sequential|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Release.dynamic.sequential|x64.Build.0 = Release.dynamic.sequential|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Release.dynamic.threaded|x64.ActiveCfg = Release.dynamic.threaded|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Release.dynamic.threaded|x64.Build.0 = Release.dynamic.threaded|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Release.static.sequential|x64.ActiveCfg = Release.static.sequential|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Release.static.sequential|x64.Build.0 = Release.static.sequential|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Release.static.threaded|x64.ActiveCfg = Release.static.threaded|x64
+		{E819C9C7-7092-4997-9390-32A481C169B7}.Release.static.threaded|x64.Build.0 = Release.static.threaded|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

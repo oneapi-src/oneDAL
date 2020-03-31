@@ -1,4 +1,4 @@
-/* file: dbscan_dense_default_batch_fpt_dispatcher.cpp */
+/* file: dbscan_dense_default_batch_kernel_ucapi_fpt.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -17,38 +17,22 @@
 
 /*
 //++
-//  Implementation of DBSCAN container.
+//  Implementation of K-means Batch Kernel for GPU.
 //--
 */
 
-#include "algorithms/kernel/dbscan/dbscan_container.h"
+#include "oneapi/dbscan_dense_default_batch_ucapi_impl.i"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(dbscan::BatchContainer, batch, DAAL_FPTYPE, dbscan::defaultDense)
-
 namespace dbscan
 {
-namespace interface1
+namespace internal
 {
-template <>
-Batch<DAAL_FPTYPE, dbscan::defaultDense>::Batch(DAAL_FPTYPE epsilon, size_t minObservations)
-{
-    _par = new ParameterType(epsilon, minObservations);
-    initialize();
-}
-
-using BatchType = Batch<DAAL_FPTYPE, dbscan::defaultDense>;
-template <>
-Batch<DAAL_FPTYPE, dbscan::defaultDense>::Batch(const BatchType & other) : input(other.input)
-{
-    _par = new ParameterType(other.parameter());
-    initialize();
-}
-
-} // namespace interface1
+template class DBSCANBatchKernelUCAPI<DAAL_FPTYPE>;
+} // namespace internal
 } // namespace dbscan
 } // namespace algorithms
 } // namespace daal
