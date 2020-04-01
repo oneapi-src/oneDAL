@@ -190,22 +190,22 @@ public:
         _elements[_count++] = e;
         if (_count == k)
         {
-            makeMaxHeap<cpu, T *>(_elements, _elements + _count);
+            makeMaxHeap<cpu>(_elements, _elements + _count);
         }
     }
 
     void replaceMax(const T & e)
     {
-        popMaxHeap<cpu, T *>(_elements, _elements + _count);
+        popMaxHeap<cpu>(_elements, _elements + _count);
         _elements[_count - 1] = e;
-        pushMaxHeap<cpu, T *>(_elements, _elements + _count);
+        pushMaxHeap<cpu>(_elements, _elements + _count);
     }
 
     size_t size() const { return _count; }
 
     T * getMax() { return _elements; }
 
-    DAAL_FORCEINLINE const T & operator[](size_t index) const { return _elements[index]; }
+    const T & operator[](size_t index) const { return _elements[index]; }
 
 private:
     T * _elements;
