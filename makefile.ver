@@ -16,7 +16,7 @@
 
 MAJOR   =       2020
 MINOR   =       0
-UPDATE  =       1
+UPDATE  =       2
 BUILD   =       $(shell date +'%Y%m%d')
 STATUS  =       P
 BUILDREV ?=     work
