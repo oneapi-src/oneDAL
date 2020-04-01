@@ -122,7 +122,6 @@ Status DistributedStep3Input::check(const daal::algorithms::Parameter * paramete
         {
             return s;
         }
-        DAAL_CHECK_EX(numTableInQCollection->getNumberOfRows() >= nFeatures, ErrorNullNumericTable, ArgumentName, rCollectionStr());
         s |= checkNumericTable(numTableInRCollection.get(), rCollectionStr(), unexpectedLayouts, 0, nFeatures, nFeatures);
         if (!s)
         {

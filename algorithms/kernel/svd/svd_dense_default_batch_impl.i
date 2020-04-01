@@ -119,6 +119,8 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na
         TArray<algorithmFPType, cpu> sigmaPtr(n);
         DAAL_CHECK_MALLOC(sigmaPtr.get());
         algorithmFPType * Sigma = sigmaPtr.get();
+        const algorithmFPType zero(0.0);
+        service_memset<algorithmFPType, cpu>(Sigma, zero, n);
 
         compute_svd_on_one_node<algorithmFPType, cpu>(m, n, AT, m, Sigma, QT, m, VT, n);
 
