@@ -52,6 +52,12 @@ inline const T & max(const T & a, const T & b)
     return (a < b) ? b : a;
 }
 
+template <typename T>
+inline const T & abs(const T & a)
+{
+    return a > 0 ? a : -a;
+}
+
 using namespace daal::services::internal;
 using namespace daal::oneapi::internal;
 
@@ -94,8 +100,8 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status argSort(const services::Buffer<algorithmFPType> & fBuff,
-        const services::Buffer<int> & fIndicesBuff, services::Buffer<int> & sortedFIndicesBuff, const size_t nVectors)
+    static services::Status argSort(const services::Buffer<algorithmFPType> & fBuff, const services::Buffer<int> & fIndicesBuff,
+                                    services::Buffer<int> & sortedFIndicesBuff, const size_t nVectors)
     {
         services::Status status;
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
@@ -112,8 +118,8 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status gatherIndices(const services::Buffer<int> & maskBuff,
-        const services::Buffer<int> & xBuff, const size_t n, services::Buffer<int> & resBuff, size_t & nRes)
+    static services::Status gatherIndices(const services::Buffer<int> & maskBuff, const services::Buffer<int> & xBuff, const size_t n,
+                                          services::Buffer<int> & resBuff, size_t & nRes)
     {
         services::Status status;
 
@@ -134,7 +140,7 @@ struct HelperSVM
     }
 
     static services::Status copyBlockIndices(const services::Buffer<algorithmFPType> & xBuff, const services::Buffer<int> & indBuff,
-                                   services::Buffer<algorithmFPType>& newBuf, const uint32_t nWS, const uint32_t p)
+                                             services::Buffer<algorithmFPType> & newBuf, const uint32_t nWS, const uint32_t p)
     {
         services::Status status;
 
@@ -160,10 +166,10 @@ struct HelperSVM
     }
 };
 
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace training
+} // namespace svm
+} // namespace algorithms
+} // namespace daal
 
 #endif

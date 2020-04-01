@@ -68,7 +68,9 @@ public:
     virtual const services::Buffer<algorithmFPType> & getSetRowsBlock() const = 0;
 
 protected:
-    SVMCacheOneAPIIface(const size_t nWS, const size_t lineSize, const kernel_function::KernelIfacePtr & kernel) : _lineSize(lineSize), _nWS(nWS), _kernel(kernel) { }
+    SVMCacheOneAPIIface(const size_t nWS, const size_t lineSize, const kernel_function::KernelIfacePtr & kernel)
+        : _lineSize(lineSize), _nWS(nWS), _kernel(kernel)
+    {}
 
     const size_t _lineSize;                        /*!< Number of elements in the cache line */
     const size_t _nWS;                             /*!< Number of elements in the cache line */
@@ -85,9 +87,9 @@ class SVMCacheOneAPI
 template <typename algorithmFPType>
 class SVMCacheOneAPI<noCache, algorithmFPType> : public SVMCacheOneAPIIface<algorithmFPType>
 {
-    using Helper = HelperSVM<algorithmFPType>;
-    using super     = SVMCacheOneAPIIface<algorithmFPType>;
-    using thisType  = SVMCacheOneAPI<noCache, algorithmFPType>;
+    using Helper   = HelperSVM<algorithmFPType>;
+    using super    = SVMCacheOneAPIIface<algorithmFPType>;
+    using thisType = SVMCacheOneAPI<noCache, algorithmFPType>;
     using super::_kernel;
     using super::_lineSize;
     using super::_nWS;
@@ -118,9 +120,7 @@ public:
         return res;
     }
 
-    const services::Buffer<algorithmFPType> & getSetRowsBlock() const override {
-        return _cache.get<algorithmFPType>();
-    }
+    const services::Buffer<algorithmFPType> & getSetRowsBlock() const override { return _cache.get<algorithmFPType>(); }
 
     services::Status compute(const services::Buffer<algorithmFPType> & xBuff, const services::Buffer<int> & wsIndices, const size_t p) override
     {
@@ -163,15 +163,15 @@ protected:
         _cache = context.allocate(TypeIds::id<algorithmFPType>(), _lineSize * _nWS, &s);
         DAAL_CHECK_STATUS_VAR(s);
 
-        auto& cacheBuff = _cache.get<algorithmFPType>();
-        auto cacheTable     = SyclHomogenNumericTable<algorithmFPType>::create(cacheBuff, _lineSize, _nWS, &s);
+        auto & cacheBuff = _cache.get<algorithmFPType>();
+        auto cacheTable  = SyclHomogenNumericTable<algorithmFPType>::create(cacheBuff, _lineSize, _nWS, &s);
 
         const size_t p = xTable->getNumberOfColumns();
         _xWS           = context.allocate(TypeIds::id<algorithmFPType>(), p * _nWS, &s);
         DAAL_CHECK_STATUS_VAR(s);
 
-        auto xWSBuff = _xWS.get<algorithmFPType>();
-        auto xWSTable     = SyclHomogenNumericTable<algorithmFPType>::create(xWSBuff, p, _nWS, &s);
+        auto xWSBuff  = _xWS.get<algorithmFPType>();
+        auto xWSTable = SyclHomogenNumericTable<algorithmFPType>::create(xWSBuff, p, _nWS, &s);
 
         DAAL_CHECK_STATUS_VAR(s);
         _kernel->getParameter()->computationMode = kernel_function::matrixMatrix;
@@ -196,13 +196,9 @@ protected:
 };
 
 } // namespace internal
-
 } // namespace training
-
 } // namespace svm
-
 } // namespace algorithms
-
 } // namespace daal
 
 #endif

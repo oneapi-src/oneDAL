@@ -54,11 +54,13 @@ template <typename algorithmFPType, typename ParameterType>
 class SVMTrainOneAPI<algorithmFPType, ParameterType, boser> : public Kernel
 {
     using Helper = HelperSVM<algorithmFPType>;
+
 public:
     services::Status compute(const NumericTablePtr & xTable, NumericTable & yTable, daal::algorithms::Model * r, const ParameterType * par);
 >>>>>>> 53c7b11f... fix bugs:algorithms/kernel/svm/oneapi/svm_train_oneapi_kernel.h
 
 protected:
+<<<<<<< HEAD:algorithms/kernel/svm/oneapi/svm_train_kernel.h
     // LocalSMO();
 
 <<<<<<< HEAD:algorithms/kernel/svm/oneapi/svm_train_kernel.h
@@ -66,18 +68,21 @@ protected:
 
 =======
 >>>>>>> 14431dac... kernel support was added:algorithms/kernel/svm/oneapi/svm_train_oneapi_kernel.h
+=======
+>>>>>>> 64f30ec0... smo local add & update F:algorithms/kernel/svm/oneapi/svm_train_oneapi_kernel.h
     services::Status initGrad(const services::Buffer<algorithmFPType> & y, services::Buffer<algorithmFPType> & f, const size_t n);
+    services::Status updateGrad(const services::Buffer<algorithmFPType> & kernelWS, const services::Buffer<algorithmFPType> & deltaalpha,
+                                services::Buffer<algorithmFPType> & grad, const size_t nVectors, const size_t nWS);
+    services::Status smoKernel(const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & kernelWsRows,
+                               const services::Buffer<int> & wsIndices, const int ldK, const services::Buffer<algorithmFPType> & f,
+                               const algorithmFPType C, const algorithmFPType tau, const int maxInnerIteration,
+                               services::Buffer<algorithmFPType> & alpha, services::Buffer<algorithmFPType> & deltaalpha,
+                               services::Buffer<algorithmFPType> & resinfo);
 
-    // UpdateF();
+    bool checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev, const algorithmFPType eps, int & sameLocalDiff);
 
-    // // CalculateObjective();
-
-    //   oneapi::internal::UniversalBuffer _uX;
-    //   oneapi::internal::UniversalBuffer _uY;
-    //   oneapi::internal::UniversalBuffer _fUniversal;
-    //   oneapi::internal::UniversalBuffer _sigmoidUniversal;
-    //   oneapi::internal::UniversalBuffer _subSigmoidYUniversal;
-    bool verbose = false;
+    double calculateObjective(const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & alpha,
+                              const services::Buffer<algorithmFPType> & grad, const size_t nVectors);
 };
 
 } // namespace internal
