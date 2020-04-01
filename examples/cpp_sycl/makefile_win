@@ -24,8 +24,8 @@ help:
 	@echo
 	@echo "name              - example name."
 	@echo
-	@echo "compiler_name     - can be clang. Default value is clang."
-	@echo "                    Intel(R) oneAPI Compiler as default."
+	@echo "compiler_name     - the only supported compiler is clang (default value)"
+	@echo "                    Intel(R) oneAPI DPC++ compiler"
 	@echo
 	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
 	@echo

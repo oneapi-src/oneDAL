@@ -23,7 +23,7 @@
 .. _daal-docs: https://software.intel.com/en-us/intel-daal
 
 .. |github| replace:: |short_name| GitHub\* page
-.. _github: https://github.com/intel/daal
+.. _github: https://github.com/oneapi-src/oneDAL
 
 |full_name|
 ------------------------------------------------------

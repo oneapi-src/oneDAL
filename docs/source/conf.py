@@ -76,12 +76,13 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["opt-notice.rst", 'dev_guide/data-management/numeric-tables/*.rst', 'topics/*.rst']
+exclude_patterns = ["opt-notice.rst", 'dev_guide/data-management/numeric-tables/*.rst', 'topics/*.rst',
+                    'dev_guide/algorithms/dbscan/distributed-steps/*']
 
-extlinks = {'cpp_example': ('https://github.com/intel/daal/tree/master/examples/cpp/source/%s', ''),
-'java_example': ('https://github.com/intel/daal/tree/master/examples/java/com/intel/daal/examples/%s', ''),
+extlinks = {'cpp_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/cpp/source/%s', ''),
+'java_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/java/com/intel/daal/examples/%s', ''),
 'daal4py_example': ('https://github.com/IntelPython/daal4py/tree/master/examples/%s', ''),
-'cpp_sample': ('https://github.com/intel/daal/tree/master/samples/cpp/%s', '')}
+'cpp_sample': ('https://github.com/oneapi-src/oneDAL/tree/master/samples/cpp/%s', '')}
 
 # -- Options for HTML output -------------------------------------------------
 

@@ -26,24 +26,56 @@ basic usage scenarios of |short_name| with SYCL*. Go to
 
 .. note::
 
-   All content starting with a # below is considered a comment and
+   All content below that starts with ``#`` is considered a comment and
    should not be run with the code.
 
-1. Set up the |short_name| environment:
+1. Set up the required environment for |short_name|
+   (variables such as ``CPATH``, ``LIBRARY_PATH``, and ``LD_LIBRARY_PATH``):
 
-  **Linux\*:**
+  .. tabs::
 
-    .. substitution-prompt:: bash
+    .. group-tab:: Linux
 
-      # Run script to setup CPATH, LIBRARY_PATH and LD_LIBRARY_PATH for |short_name|
-      source ./env/vars.sh
+      On Linux, there are two possible ways to set up the required environment:
+      via ``vars.sh`` script or via ``modulefiles``.
 
-  **Windows\*:**
+      * Setting up |short_name| environment via ``vars.sh`` script
 
-    .. substitution-prompt:: bash
+        Run the following command:
 
-      # Run script to setup PATH, LIB and INCLUDE for |short_name|
-      /env/vars.bat
+          .. prompt:: bash
+
+            source ./env/vars.sh
+
+      * Setting up |short_name| environment via ``modulefiles``
+
+        1. Initialize ``modules``:
+
+          .. prompt:: bash
+
+            source $MODULESHOME/init/bash
+
+          .. note:: Refer to `Environment Modules documentation <https://modules.readthedocs.io/en/latest/index.html>`_ for details.
+
+        2. Provide ``modules`` with a path to the ``modulefiles`` directory:
+
+          .. prompt:: bash
+
+            module use ./modulefiles
+
+        3. Run the module:
+
+          .. prompt:: bash
+
+            module load dal    
+
+    .. group-tab:: Windows
+
+      Run the following command:
+
+      .. prompt:: bash
+
+        /env/vars.bat
 
 2. Copy ``./examples/cpp_sycl`` to a writable directory if necessary:
 
@@ -65,23 +97,25 @@ basic usage scenarios of |short_name| with SYCL*. Go to
     to the directory with right permissions. These two folders must be retained
     in the same directory level relative to each other.
 
-  **Linux\*:**
+  .. tabs::
 
-    .. prompt:: bash
+    .. group-tab:: Linux
 
-      # Navigate to DPC++ examples directory and build examples
-      cd /examples/cpp_sycl
-      make sointel64 example=cor_dense_batch # This will compile and run Correlation example using Intel(R) oneAPI DPC++ Compiler
-      make sointel64 mode=build			   # This will compile all DPC++ examples
+      .. prompt:: bash
 
-  **Windows\*:**
+        # Navigate to DPC++ examples directory and build examples
+        cd /examples/cpp_sycl
+        make sointel64 example=cor_dense_batch # This will compile and run Correlation example using Intel(R) oneAPI DPC++ Compiler
+        make sointel64 mode=build			   # This will compile all DPC++ examples
 
-    .. prompt:: bash
+    .. group-tab:: Windows
 
-      # Navigate to DPC++ examples directory and build examples
-      cd /examples/cpp_sycl
-      nmake libintel64 example=cor_dense_batch+ # This will compile and run Correlation example using Intel(R) oneAPI DPC++ compiler
-      nmake libintel64 mode=build			     # This will compile all DPC++ examples
+      .. prompt:: bash
+
+        # Navigate to DPC++ examples directory and build examples
+        cd /examples/cpp_sycl
+        nmake libintel64 example=cor_dense_batch+ # This will compile and run Correlation example using Intel(R) oneAPI DPC++ compiler
+        nmake libintel64 mode=build			     # This will compile all DPC++ examples
 
   To see all avaliable parameters of the build procedure, type ``make`` on Linux\* or ``nmake`` on Windows\*.
 

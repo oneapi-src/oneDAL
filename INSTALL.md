@@ -30,7 +30,7 @@ For details, see [System Requirements for oneDAL](https://software.intel.com/en-
 ## Installation Steps
 1. Clone the sources from GitHub\* as follows:
 
-        git clone https://github.com/intel/daal.git
+        git clone https://github.com/oneapi-src/oneDAL.git
 
 
 2. Set the PATH environment variable to the MSYS2\* bin directory (Windows\* only). For example:
