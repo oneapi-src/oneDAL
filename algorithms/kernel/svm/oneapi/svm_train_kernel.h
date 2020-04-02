@@ -75,14 +75,16 @@ protected:
                                 services::Buffer<algorithmFPType> & grad, const size_t nVectors, const size_t nWS);
     services::Status smoKernel(const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & kernelWsRows,
                                const services::Buffer<int> & wsIndices, const int ldK, const services::Buffer<algorithmFPType> & f,
-                               const algorithmFPType C, const algorithmFPType tau, const int maxInnerIteration,
+                               const algorithmFPType C, const algorithmFPType eps, const algorithmFPType tau, const int maxInnerIteration,
                                services::Buffer<algorithmFPType> & alpha, services::Buffer<algorithmFPType> & deltaalpha,
-                               services::Buffer<algorithmFPType> & resinfo);
+                               services::Buffer<algorithmFPType> & resinfo, const size_t nWS);
 
     bool checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev, const algorithmFPType eps, int & sameLocalDiff);
 
     double calculateObjective(const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & alpha,
                               const services::Buffer<algorithmFPType> & grad, const size_t nVectors);
+
+    bool verbose = false;
 };
 
 } // namespace internal

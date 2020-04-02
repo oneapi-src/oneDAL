@@ -117,6 +117,12 @@ struct TaskWorkingSet
                 {
                     printf("%d ", sortedFIndices_host[i]);
                 }
+                printf(" ... ");
+                for (int i = _nVectors - 1; i >= _nVectors - min(16ul, _nWS); i--)
+                {
+                    printf("%d ", sortedFIndices_host[i]);
+                }
+
             }
             printf("\n");
             printf(">> sort val: ");
@@ -127,6 +133,12 @@ struct TaskWorkingSet
                 {
                     printf("%.2f ", f_host[sortedFIndices_host[i]]);
                 }
+                printf(" ... ");
+                for (int i = _nVectors - 1; i >= _nVectors - min(16ul, _nWS); i--)
+                {
+                    printf("%.2f ",  f_host[sortedFIndices_host[i]]);
+                }
+
             }
             printf("\n");
         }
@@ -186,7 +198,8 @@ struct TaskWorkingSet
 
             const size_t nCopy = min(selectLower, nSelect);
 
-            context.copy(wsIndices, nSelected, tmpIndices, 0, nCopy, &status);
+            // Get latest elements
+            context.copy(wsIndices, nSelected, tmpIndices, selectLower - nCopy, nCopy, &status);
 
             nSelected += selectLower;
         }

@@ -53,7 +53,7 @@ inline const T & max(const T & a, const T & b)
 }
 
 template <typename T>
-inline const T & abs(const T & a)
+inline const T abs(const T & a)
 {
     return a > 0 ? a : -a;
 }
@@ -71,6 +71,7 @@ struct HelperSVM
         services::String cachekey("__daal_algorithms_svm_");
         cachekey.add(options);
         options.add(" -D LOCAL_SUM_SIZE=256 ");
+        options.add(" -D WS_SIZE=16 ");
 
         services::Status status;
         factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelSVMTrain, options.c_str(), &status);

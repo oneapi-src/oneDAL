@@ -463,8 +463,8 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::updateGr
 template <typename algorithmFPType, typename ParameterType>
 services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::smoKernel(
     const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & kernelWsRows, const services::Buffer<int> & wsIndices,
-    const int ldK, const services::Buffer<algorithmFPType> & f, const algorithmFPType C, const algorithmFPType tau, const int maxInnerIteration,
-    services::Buffer<algorithmFPType> & alpha, services::Buffer<algorithmFPType> & deltaalpha, services::Buffer<algorithmFPType> & resinfo)
+    const int ldK, const services::Buffer<algorithmFPType> & f, const algorithmFPType C, const algorithmFPType eps, const algorithmFPType tau, const int maxInnerIteration,
+    services::Buffer<algorithmFPType> & alpha, services::Buffer<algorithmFPType> & deltaalpha, services::Buffer<algorithmFPType> & resinfo, const size_t nWS)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(smoKernel);
 
@@ -476,20 +476,28 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::smoKerne
 
     auto kernel = factory.getKernel("smoKernel");
 
-    KernelArguments args(11);
+    KernelArguments args(12);
     args.set(0, y, AccessModeIds::read);
     args.set(1, kernelWsRows, AccessModeIds::read);
     args.set(2, wsIndices, AccessModeIds::read);
     args.set(3, ldK);
     args.set(4, f, AccessModeIds::read);
     args.set(5, C);
-    args.set(6, tau);
-    args.set(7, maxInnerIteration);
-    args.set(8, alpha, AccessModeIds::readwrite);
-    args.set(9, deltaalpha, AccessModeIds::readwrite);
-    args.set(10, resinfo, AccessModeIds::readwrite);
+    args.set(6, eps);
+    args.set(7, tau);
+    args.set(8, maxInnerIteration);
+    args.set(9, alpha, AccessModeIds::readwrite);
+    args.set(10, deltaalpha, AccessModeIds::readwrite);
+    args.set(11, resinfo, AccessModeIds::readwrite);
 
-    KernelNDRange range(1, nWS);
+    KernelRange localRange(nWS);
+    KernelRange globalRange(nWS);
+
+    KernelNDRange range(1);
+    range.global(globalRange, &status);
+    DAAL_CHECK_STATUS_VAR(status);
+    range.local(localRange, &status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     context.run(range, kernel, args, &status);
     DAAL_CHECK_STATUS_VAR(status);
@@ -550,7 +558,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::compute(
     {
         printf(">> VERBOSE MODE\n");
         verbose = true;
-        printf(">> MAX WORK SIZE = %d\n", deviceInfo.max_work_group_size);
+        printf(">> MAX WORK SIZE = %d\n", (int)deviceInfo.max_work_group_size);
     }
 
 <<<<<<< HEAD
@@ -602,7 +610,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::compute(
 =======
     auto fU = context.allocate(idType, nVectors, &status);
     DAAL_CHECK_STATUS_VAR(status);
-    auto fBuff = fU.get<algorithmFPType>();
+    auto gradBuff = fU.get<algorithmFPType>();
 
     BlockDescriptor<algorithmFPType> yBD;
     DAAL_CHECK_STATUS(status, yTable.getBlockOfRows(0, nVectors, ReadWriteMode::readOnly, yBD));
@@ -612,7 +620,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::compute(
     DAAL_CHECK_STATUS(status, xTable->getBlockOfRows(0, nVectors, ReadWriteMode::readOnly, xBD));
     auto xBuff = xBD.getBuffer();
 
-    DAAL_CHECK_STATUS(status, initGrad(yBuff, fBuff, nVectors));
+    DAAL_CHECK_STATUS(status, initGrad(yBuff, gradBuff, nVectors));
 
     TaskWorkingSet<algorithmFPType> workSet(nVectors, verbose);
 
@@ -658,7 +666,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::compute(
 
     // TODO transfer on GPU
 
-    for (size_t iter = 0; iter < 1 /*maxIterations*/; i++)
+    for (size_t iter = 0; iter < 1 /*maxIterations*/; iter++)
     {
 <<<<<<< HEAD
         if (verbose)
@@ -679,7 +687,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::compute(
         {
             const auto t_0 = high_resolution_clock::now();
 
-            DAAL_CHECK_STATUS(status, workSet.selectWS(yBuff, alphaBuff, fBuff, C));
+            DAAL_CHECK_STATUS(status, workSet.selectWS(yBuff, alphaBuff, gradBuff, C));
 
             if (verbose)
             {
@@ -719,7 +727,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::compute(
             const auto t_0 = high_resolution_clock::now();
 
             DAAL_CHECK_STATUS(
-                status, smoKernel(yBuff, kernelWS, wsIndices, nVectors, fBuff, C, tau, innerMaxIterations, alphaBuff, deltaalphaBuff, resinfoBuff));
+                status, smoKernel(yBuff, kernelWS, wsIndices, nVectors, gradBuff, C, eps, tau, innerMaxIterations, alphaBuff, deltaalphaBuff, resinfoBuff, nWS));
             {
                 auto resinfoHost = resinfoBuff.toHost(ReadWriteMode::readOnly, &status).get();
                 innerIteration   = int(resinfoHost[0]);
@@ -739,7 +747,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::compute(
         {
             const auto t_0 = high_resolution_clock::now();
 
-            DAAL_CHECK_STATUS(status, updateGrad(kernelWS, deltaalphaBuff, fBuff, nVectors));
+            DAAL_CHECK_STATUS(status, updateGrad(kernelWS, deltaalphaBuff, gradBuff, nVectors, nWS));
 
             {
                 auto resinfoHost = resinfoBuff.toHost(ReadWriteMode::readOnly).get();

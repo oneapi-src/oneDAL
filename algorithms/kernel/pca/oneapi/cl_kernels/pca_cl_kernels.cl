@@ -45,24 +45,24 @@ DECLARE_SOURCE(
 
     inline bool inUpper(const algorithmFPType alpha, const algorithmFPType y, const algorithmFPType C) {
         // (0 < a && a < C) || (y == 1  && a == 0) || (y == -1 && a == C);
-        return y > 0 && alpha < C || y < 0 && alpha > 0;
+        return (y > 0 && alpha < C) || (y < 0 && alpha > 0);
     }
 
     inline bool inLower(const algorithmFPType alpha, const algorithmFPType y, const algorithmFPType C) {
         // (0 < a && a < C) || (y == -1 && a == 0) || (y == 1 && a == C);
-        return y > 0 && alpha > 0 || y < 0 && alpha < C;
+        return (y > 0 && alpha > 0) || (y < 0 && alpha < C);
     }
 
     __kernel void checkUpper(const __global algorithmFPType * const y, const __global algorithmFPType * const alpha, const algorithmFPType C,
                              __global int * indicator) {
         const int i  = get_global_id(0);
-        indicator[i] = inUpper(y[i], alpha[i], C);
+        indicator[i] = inUpper(alpha[i], y[i], C);
     }
 
     __kernel void checkLower(const __global algorithmFPType * const y, const __global algorithmFPType * const alpha, const algorithmFPType C,
                              __global int * indicator) {
         const int i  = get_global_id(0);
-        indicator[i] = inLower(y[i], alpha[i], C);
+        indicator[i] = inLower(alpha[i], y[i], C);
     }
 
     __kernel void copyBlockIndices(const __global algorithmFPType * const x, const __global int * const ind, const uint ldx,
@@ -78,9 +78,7 @@ DECLARE_SOURCE(
         newXi[jCol] = xi[jCol];
     }
 
-#define WS_SIZE 16
-
-    __kernel void reduceMax(const __global algorithmFPType * values, __global int * indices) {
+    void reduceMax(const __local algorithmFPType * values, __local int * indices) {
         const int group_size = get_local_size(0);
         const int local_id   = get_local_id(0);
 
@@ -92,17 +90,17 @@ DECLARE_SOURCE(
 
             if (local_id < stride)
             {
-                const algorithmFPType v  = values[local_id];
-                const algorithmFPType vk = values[local_id + stride];
+                const algorithmFPType v  = values[indices[local_id]];
+                const algorithmFPType vk = values[indices[local_id + stride]];
                 if (vk >= v)
                 {
-                    indices[local_id] = indices[local_id + stride]
+                    indices[local_id] = indices[local_id + stride];
                 }
             }
         }
     }
 
-    __kernel void reduceMin(const __global algorithmFPType * values, __global int * indices) {
+    void reduceMin(const __local algorithmFPType * values, __local int * indices) {
         const int group_size = get_local_size(0);
         const int local_id   = get_local_id(0);
 
@@ -114,72 +112,72 @@ DECLARE_SOURCE(
 
             if (local_id < stride)
             {
-                const algorithmFPType v  = values[local_id];
-                const algorithmFPType vk = values[local_id + stride];
+                const algorithmFPType v  = values[indices[local_id]];
+                const algorithmFPType vk = values[indices[local_id + stride]];
                 if (vk <= v)
                 {
-                    indices[local_id] = indices[local_id + stride]
+                    indices[local_id] = indices[local_id + stride];
                 }
             }
         }
     }
 
-    algorithmFPType WSSi(const algorithmFPType gradi, const algorithmFPType alphai, const algorithmFPType yi, const algorithmFPType C, int & Bi) {
-        const uint i = get_local_id(0);
+    // algorithmFPType WSSi(const algorithmFPType gradi, const algorithmFPType alphai, const algorithmFPType yi, const algorithmFPType C, int * Bi) {
+    //     const uint i = get_local_id(0);
 
-        // TODO
-        const algorithmFPType MIN_FLT = -1e20;
+    //     // TODO
+    //     const algorithmFPType MIN_FLT = -1e20;
 
-        Bi = -1;
-        __local algorithmFPType objFunc[WS_SIZE];
-        __local int indices[WS_SIZE];
+    //     *Bi = -1;
+    //     __local algorithmFPType objFunc[WS_SIZE];
+    //     __local int indices[WS_SIZE];
 
-        objFunc[i] = inUpper(alphai, yi, C) ? -yi * gradi : MIN_FLT;
+    //     objFunc[i] = inUpper(alphai, yi, C) ? -yi * gradi : MIN_FLT;
 
-        /* Find i index of the working set (Bi) */
-        reduceMax(objFunc, indices);
-        barrier(CLK_LOCAL_MEM_FENCE);
-        Bi                         = indices[0];
-        const algorithmFPType GMax = objFunc[Bi];
+    //     /* Find i index of the working set (Bi) */
+    //     // reduceMax(objFunc, indices);
+    //     barrier(CLK_LOCAL_MEM_FENCE);
+    //     *Bi                         = indices[0];
+    //     const algorithmFPType GMax = objFunc[*Bi];
 
-        return GMax;
-    }
+    //     return GMax;
+    // }
 
-    algorithmFPType WSSj(const algorithmFPType gradi, const algorithmFPType alphai, const algorithmFPType yi, const algorithmFPType Kii,
-                         const algorithmFPType KBiBi, const algorithmFPType KiBi, const algorithmFPType tau, const algorithmFPType GMax, int & Bj) {
-        const uint i = get_local_id(0);
+    // algorithmFPType WSSj(const algorithmFPType gradi, const algorithmFPType alphai, const algorithmFPType yi, const algorithmFPType Kii,
+    //                      const algorithmFPType KBiBi, const algorithmFPType KiBi, const algorithmFPType tau, const algorithmFPType GMax, int & Bj) {
+    //     const uint i = get_local_id(0);
 
-        Bj = -1;
+    //     Bj = -1;
 
-        __local algorithmFPType objFunc[WS_SIZE];
-        __local int indices[WS_SIZE];
+    //     __local algorithmFPType objFunc[WS_SIZE];
+    //     __local int indices[WS_SIZE];
 
-        // TODO
-        const algorithmFPType MAX_FLT = 1e20;
+    //     // TODO
+    //     const algorithmFPType MAX_FLT = 1e20;
 
-        const algorithmFPType zero = 0.0;
-        const algorithmFPType two  = 2.0;
+    //     const algorithmFPType zero = 0.0;
+    //     const algorithmFPType two  = 2.0;
 
-        const algorithmFPType ygrad = -yi * gradi;
+    //     const algorithmFPType ygrad = -yi * gradi;
 
-        const algorithmFPType b = GMax - ygrad;
-        const algorithmFPType a = max(Kii + KBiBi - two * KiBi, tau);
+    //     const algorithmFPType b = GMax - ygrad;
+    //     const algorithmFPType a = max(Kii + KBiBi - two * KiBi, tau);
 
-        const algorithmFPType dt = b / a;
+    //     const algorithmFPType dt = b / a;
 
-        objFunc[i] = inLower(alphai, yi, C) && ygrad < GMax ? -b * dt : MAX_FLT;
+    //     objFunc[i] = inLower(alphai, yi, C) && ygrad < GMax ? -b * dt : MAX_FLT;
 
-        reduceMin(objFunc, indices);
-        barrier(CLK_LOCAL_MEM_FENCE);
-        Bj                         = indices[0];
-        const algorithmFPType GMin = objFunc[Bj];
+    //     reduceMin(objFunc, indices);
+    //     barrier(CLK_LOCAL_MEM_FENCE);
+    //     Bj                         = indices[0];
+    //     const algorithmFPType GMin = objFunc[Bj];
 
-        return GMin;
-    }
+    //     return GMin;
+    // }
 
     __kernel void smoKernel(const __global algorithmFPType * const y, const __global algorithmFPType * const kernelWsRows,
-                            const __global int * wsIndices, const uint ldx, const __global algorithmFPType * grad const algorithmFPType C,
-                            const algorithmFPType tau, const int maxInnerIteration, __global algorithmFPType * alpha,
+                            const __global int * wsIndices, const uint ldx, const __global algorithmFPType * grad, const algorithmFPType C,
+                            const algorithmFPType eps, const algorithmFPType tau, const int maxInnerIteration, __global algorithmFPType * alpha,
                             __global algorithmFPType * deltaalpha, __global algorithmFPType * resinfo) {
         const uint i = get_local_id(0);
 
@@ -187,19 +185,36 @@ DECLARE_SOURCE(
 
         const int wsIndex = wsIndices[i];
 
+        const algorithmFPType MIN_FLT = -1e20;
+        const algorithmFPType MAX_FLT = 1e20;
+
+        const algorithmFPType zero = 0.0;
+        const algorithmFPType two  = 2.0;
+
         algorithmFPType gradi     = grad[wsIndex];
         algorithmFPType alphai    = alpha[wsIndex];
         algorithmFPType oldalphai = alphai;
         const algorithmFPType yi  = y[wsIndex];
 
+        __local algorithmFPType objFunc[WS_SIZE];
+        __local int indices[WS_SIZE];
+
+        __local algorithmFPType deltaBi;
+        __local algorithmFPType deltaBj;
+
         kd[i] = kernelWsRows[i * ldx + wsIndex];
 
         int iter = 0;
-        for (; iter < maxInnerIteration; iter++)
+        for (; iter < 2/*maxInnerIteration*/; iter++)
         {
-            int Bi, Bj;
-            //  m(alpha) = max(-y[i]*grad[i]): i belongs to I_UP (alpha)
-            const algorithmFPType ma = WSSi(gradi, alphai, yi, C, Bi);
+            /* m(alpha) = max(-y[i]*grad[i]): i belongs to I_UP (alpha) */
+            objFunc[i] = inUpper(alphai, yi, C) ? -yi * gradi : MIN_FLT;
+
+            /* Find i index of the working set (Bi) */
+            reduceMax(objFunc, indices);
+            barrier(CLK_LOCAL_MEM_FENCE);
+            int Bi                         = indices[0];
+            const algorithmFPType ma = objFunc[Bi];
 
             barrier(CLK_LOCAL_MEM_FENCE);
 
@@ -207,14 +222,32 @@ DECLARE_SOURCE(
             const algorithmFPType KBiBi = kd[Bi];
             const algorithmFPType KiBi  = kernelWsRows[Bi * ldx + wsIndex];
 
-            const algorithmFPType Ma = WSSj(gradi, alphai, yi, C, Kii, KBiBi, KiBi, tau, ma, Bj);
+            /* Find j index of the working set (Bj) */
+            const algorithmFPType ygrad = -yi * gradi;
+
+            const algorithmFPType b = ma - ygrad;
+            const algorithmFPType a = max(Kii + KBiBi - two * KiBi, tau);
+
+            const algorithmFPType dt = b / a;
+
+            objFunc[i] = inLower(alphai, yi, C) && ygrad <= ma ? -b * dt : MAX_FLT;
+
+            // printf("> objFunc %.2f ygrad %.2f ma %.2f alphai %.2f yi %.2f C %.2f -b * dt %.2f wsIndex %d i %d\n", objFunc[i], ygrad, ma, alphai, yi, C, -b * dt, wsIndex, i);
+
+            reduceMin(objFunc, indices);
+            barrier(CLK_LOCAL_MEM_FENCE);
+            int Bj                         = indices[0];
+            const algorithmFPType Ma = objFunc[Bj];
 
             barrier(CLK_LOCAL_MEM_FENCE);
 
             const algorithmFPType KiBj = kernelWsRows[Bj * ldx + wsIndex];
 
-            // ma - Ma is used to check stopping condition
+            /* ma - Ma is used to check stopping condition */
             const algorithmFPType curEps = ma - Ma;
+
+            printf("> curEps %.3f Bi %d ma %.4f Bj %d Ma %.4f wsIndex %d i %d KiBj %.2f\n", curEps, Bi, ma, Bj, Ma, wsIndex, i, KiBj);
+
 
             if (curEps < 10.0 * eps)
             {
@@ -223,21 +256,22 @@ DECLARE_SOURCE(
             }
             // Update alpha
 
-            deltaBi;
-            deltaBj;
             if (i == Bi)
             {
-                deltaBi = yi > 0 ? c - alphai : alphai;
+                deltaBi = yi > 0 ? C - alphai : alphai;
+                printf("> deltaBi %.3f\n", deltaBi);
+
             }
             if (i == Bj)
             {
-                deltaBj                     = yi > 0 ? alphai : c - alphai;
+                deltaBj                     = yi > 0 ? alphai : C - alphai;
                 const algorithmFPType ygrad = -yi * gradi;
-                const algorithmFPType b     = GMax - ygrad;
+                const algorithmFPType b     = ma - ygrad;
                 const algorithmFPType a     = max(kd[i] + kd[Bi] - two * KiBj, tau);
 
                 const algorithmFPType dt = b / a;
                 deltaBj                  = min(deltaBj, dt);
+                printf("> deltaBj %.3f dt %.3f\n", deltaBj, dt);
             }
 
             barrier(CLK_LOCAL_MEM_FENCE);
@@ -254,6 +288,9 @@ DECLARE_SOURCE(
 
             // Update gradient
             gradi = gradi + delta * (KiBi - KiBj);
+            printf("> alphai %.3f gradi %.4f delta %.4f wsIndex %d i %d\n", alphai, gradi, delta, wsIndex, i);
+
+
         }
         alpha[wsIndex] = alphai;
         deltaalpha[i]  = (oldalphai - alphai) * yi;
