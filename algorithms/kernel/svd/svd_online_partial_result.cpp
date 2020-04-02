@@ -168,8 +168,6 @@ Status OnlinePartialResult::checkImpl(const daal::algorithms::Parameter *paramet
 
             s |= checkNumericTable(numTableInQCollection.get(), qCollectionStr(), unexpectedLayouts, 0, nFeatures);
             if(!s) { return s; }
-
-            DAAL_CHECK_EX(nFeatures <= numTableInQCollection->getNumberOfRows(), ErrorIncorrectNumberOfRows, ArgumentName, qCollectionStr());
         }
     }
     return  Status();

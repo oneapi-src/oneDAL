@@ -114,7 +114,6 @@ Status DistributedStep3Input::check(const daal::algorithms::Parameter *parameter
         int unexpectedLayouts = (int)packed_mask;
         s |= checkNumericTable(numTableInQCollection.get(), qCollectionStr(), unexpectedLayouts, 0, nFeatures);
         if(!s) { return s; }
-        DAAL_CHECK_EX(numTableInQCollection->getNumberOfRows() >= nFeatures, ErrorNullNumericTable, ArgumentName, rCollectionStr());
         s |= checkNumericTable(numTableInRCollection.get(), rCollectionStr(), unexpectedLayouts, 0, nFeatures, nFeatures);
         if(!s) { return s; }
     }
