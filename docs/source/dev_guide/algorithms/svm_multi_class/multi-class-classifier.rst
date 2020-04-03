@@ -92,9 +92,9 @@ complete the following steps:
 Examples
 --------
 
-C++: svm_multi_class_model_builder.cpp
+C++: :cpp_example:`svm_multi_class_model_builder.cpp <svm/svm_multi_class_model_builder.cpp>`
 
-Java*: SVMMultiClassModelBuilder.java
+Java*: :java_example:`SVMMultiClassModelBuilder.java <svm/SVMMultiClassModelBuilder.java>`
 
 Batch Processing
 ****************

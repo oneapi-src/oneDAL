@@ -26,6 +26,7 @@ Analysis
    algorithms/dbscan/index.rst
    algorithms/covariance/correlation-and-variance-covariance-matrices.rst
    algorithms/pca/principal-component-analysis.rst
+   algorithms/pca/transform.rst
    algorithms/svd/singular-value-decomposition.rst
    algorithms/association_rules/association-rules.rst
    algorithms/kernel_function/kernel-functions.rst
@@ -36,6 +37,11 @@ Analysis
    algorithms/distance/index.rst
    algorithms/distributions/index.rst
    algorithms/engines/index.rst
+   algorithms/moments/moments-of-low-order.rst
+   algorithms/quantiles/index.rst
+   algorithms/quality_metrics/index.rst
+   algorithms/sorting/index.rst
+   algorithms/normalization/index.rst
 
 .. toctree::
    :maxdepth: 3

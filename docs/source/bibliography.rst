@@ -108,6 +108,12 @@ For more information about algorithms implemented in |short_name|, refer to the 
    *Regularization paths for generalized linear models via coordinate
    descent.*. Journal of statistical software 33.1 (2010): 1.
 
+.. [Friedman2017] 
+   Jerome Friedman, Trevor Hastie, Robert Tibshirani. 2017. *The
+   Elements of Statistical Learning Data Mining, Inference, and
+   Prediction.* Springer.
+
+
 .. [Hastie2009] 
    Trevor Hastie, Robert Tibshirani, Jerome Friedman. *The Elements
    of Statistical Learning: Data Mining, Inference, and Prediction*.

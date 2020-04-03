@@ -25,10 +25,11 @@ Training and prediction algorithms in |full_name| (|short_name|) include a range
    algorithms/decision_forest/index
    algorithms/decision_tree/index
    algorithms/gradient_boosted_trees/index
-   algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.rst
-   algorithms/implicit_als/implicit-alternating-least-squares.rst
+   algorithms/stump/index.rst
    algorithms/linear_ridge_regression/index.rst
    algorithms/lasso_elastic_net/index.rst
+   algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.rst
+   algorithms/implicit_als/implicit-alternating-least-squares.rst
    algorithms/logistic_regression/logistic-regression.rst
    algorithms/naive_bayes/naive-bayes-classifier.rst
    algorithms/svm/support-vector-machine-classifier.rst
@@ -46,6 +47,9 @@ Therefore, certain end-to-end analytics usage scenarios require that training an
 the training is done on more powerful devices, while prediction is done on smaller devices. 
 Because smaller devices may have stricter memory footprint requirements, 
 |short_name| separates Training, Prediction, and respective Model in three different class hierarchies to minimize the footprint.
+
+Training Alternative
+********************
 
 An alternative to training your model with algorithms implemented in |short_name|
 is to build a trained model from pre-calculated model parameters, for example,
