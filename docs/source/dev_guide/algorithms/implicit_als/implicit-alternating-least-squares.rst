@@ -227,13 +227,13 @@ Examples
 
 C++:
 
-- :cpp_example:`implicit_als/impl_als_dense_batch.cpp`
-- :cpp_example:`implicit_als/impl_als_csr_batch.cpp`
+- :cpp_example:`impl_als_dense_batch.cpp <implicit_als/impl_als_dense_batch.cpp>`
+- :cpp_example:`impl_als_csr_batch.cpp <implicit_als/impl_als_csr_batch.cpp>`
 
 Java*:
 
-- :java_example:`implicit_als/ImplAlsDenseBatch.java`
-- :java_example:`implicit_als/ImplAlsCSRBatch.java`
+- :java_example:`ImplAlsDenseBatch.java <implicit_als/ImplAlsDenseBatch.java>`
+- :java_example:`ImplAlsCSRBatch.java <implicit_als/ImplAlsCSRBatch.java>`
 
 .. Python*:
 

@@ -93,6 +93,16 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Machines.*. Journal of Machine Learning Research 6 (2005), pp:
    1889–1918.
 
+.. [Freund99] 
+   Yoav Freund, Robert E. Schapire. *Additive Logistic regression: a
+   statistical view of boosting*. Journal of Japanese Society for
+   Artificial Intelligence (14(5)), 771-780, 1999.
+
+.. [Friedman98] 
+   Friedman, Jerome H., Trevor J. Hastie and Robert Tibshirani.
+   *Additive Logistic Regression: a Statistical View of Boosting.*.
+   1998.
+
 .. [Friedman2010] 
    Friedman, Jerome, Trevor Hastie, and Rob Tibshirani.
    *Regularization paths for generalized linear models via coordinate
@@ -173,3 +183,7 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Ting-Fan Wu, Chih-Jen Lin, Ruby C. Weng. *Probability Estimates
    for Multi-class Classification by Pairwise Coupling*. Journal of
    Machine Learning Research 5, pp: 975-1005, 2004.
+
+.. [Zhu2005] 
+   Zhu, Ji, Hui Zou, Saharon Rosset and Trevor J. Hastie.
+   *Multi-class AdaBoost*. 2005

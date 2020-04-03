@@ -126,6 +126,6 @@ For more details, see :ref:`algorithms`.
 Examples
 ********
 
-- :cpp_example:`C++ <dbscan/dbscan_dense_batch.cpp>`
-- :java_example:`Java* <dbscan/DBSCANDenseBatch.java>`
-- :daal4py_example:`Python* <dbscan_batch.py>`
+- C++: :cpp_example:`dbscan_dense_batch.cpp <dbscan/dbscan_dense_batch.cpp>`
+- Java*: :java_example:`DBSCANDenseBatch.java <dbscan/DBSCANDenseBatch.java>`
+- Python*: :daal4py_example:`dbscan_batch.py`

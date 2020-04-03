@@ -320,6 +320,12 @@ methods that access the results of your algorithm.
    * - centroids
      - Pointer to the :math:`nClusters \times p` numeric table with the cluster centroids. By default, this result is an object of the HomogenNumericTable class, but you can define the result as an object of any class derived from NumericTable except PackedTriangularMatrix, PackedSymmetricMatrix, and CSRNumericTable.
 
+Distributed Processing
+----------------------
+
+At this moment, the description of distributed processing for K-Means initialization is only available in
+`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-2>`_.
+
 
 Computation
 ***********
@@ -443,13 +449,19 @@ Examples
 
 C++:
 
-- :cpp_example:`kmeans/kmeans_dense_batch.cpp`
-- :cpp_example:`kmeans/kmeans_csr_batch.cpp`
+- :cpp_example:`kmeans_dense_batch.cpp <kmeans/kmeans_dense_batch.cpp>`
+- :cpp_example:`kmeans_csr_batch.cpp <kmeans/kmeans_csr_batch.cpp>`
 
 Java*:
 
-- :java_example:`kmeans/KMeansDenseBatch.java`
-- :java_example:`kmeans/KMeansCSRBatch.java`
+- :java_example:`KMeansDenseBatch.java <kmeans/KMeansDenseBatch.java>`
+- :java_example:`KMeansCSRBatch.java <kmeans/KMeansCSRBatch.java>`
+
+Distributed Processing
+----------------------
+
+At this moment, the description of distributed processing for K-Means computation is only available in
+`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-3>`_.
 
 Performance Considerations
 **************************

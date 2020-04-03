@@ -215,9 +215,9 @@ NumericTable except PackedSymmetricMatrix, PackedTriangularMatrix, and
 Examples
 --------
 
-C++: :cpp_example:`association_rules/assoc_rules_apriori_batch.cpp`
+C++: :cpp_example:`assoc_rules_apriori_batch.cpp <association_rules/assoc_rules_apriori_batch.cpp>`
 
-Java*: :java_example:`association_rules/AssocRulesAprioriBatch.java`
+Java*: :java_example:`AssocRulesAprioriBatch.java <association_rules/AssocRulesAprioriBatch.java>`
 
 Python*: :daal4py_example:`association_rules_batch.py`
 

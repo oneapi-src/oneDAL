@@ -206,17 +206,17 @@ Examples
 
 C++:
 
--  :cpp_example:`optimization_solvers/sgd_dense_batch.cpp`
--  :cpp_example:`optimization_solvers/sgd_mini_dense_batch.cpp`
--  :cpp_example:`optimization_solvers/sgd_moment_dense_batch.cpp`
--  :cpp_example:`optimization_solvers/sgd_moment_opt_res_dense_batch.cpp`
+-  :cpp_example:`sgd_dense_batch.cpp <optimization_solvers/sgd_dense_batch.cpp>`
+-  :cpp_example:`sgd_mini_dense_batch.cpp <optimization_solvers/sgd_mini_dense_batch.cpp>`
+-  :cpp_example:`sgd_moment_dense_batch.cpp <optimization_solvers/sgd_moment_dense_batch.cpp>`
+-  :cpp_example:`sgd_moment_opt_res_dense_batch.cpp <optimization_solvers/sgd_moment_opt_res_dense_batch.cpp>`
 
 Java*:
 
--  :java_example:`optimization_solvers/SGDDenseBatch.java`
--  :java_example:`optimization_solvers/SGDMiniDenseBatch.java`
--  :java_example:`optimization_solvers/SGDMomentDenseBatch.java`
--  :java_example:`optimization_solvers/SGDMomentOptResDenseBatch.java`
+-  :java_example:`SGDDenseBatch.java <optimization_solvers/SGDDenseBatch.java>`
+-  :java_example:`SGDMiniDenseBatch.java <optimization_solvers/SGDMiniDenseBatch.java>`
+-  :java_example:`SGDMomentDenseBatch.java <optimization_solvers/SGDMomentDenseBatch.java>`
+-  :java_example:`SGDMomentOptResDenseBatch.java <optimization_solvers/SGDMomentOptResDenseBatch.java>`
 
 .. Python*:
 

@@ -137,13 +137,13 @@ Examples
 
 C++:
 
-- :cpp_example:`kernel_function/kernel_func_lin_dense_batch.cpp`
-- :cpp_example:`kernel_function/kernel_func_lin_csr_batch.cpp`
+- :cpp_example:`kernel_func_lin_dense_batch.cpp <kernel_function/kernel_func_lin_dense_batch.cpp>`
+- :cpp_example:`kernel_func_lin_csr_batch.cpp <kernel_function/kernel_func_lin_csr_batch.cpp>`
 
 Java*:
 
-- :java_example:`kernel_function/KernelFuncLinDenseBatch.java`
-- :java_example:`kernel_function/KernelFuncLinCSRBatch.java`
+- :java_example:`KernelFuncLinDenseBatch.java <kernel_function/KernelFuncLinDenseBatch.java>`
+- :java_example:`KernelFuncLinCSRBatch.java <kernel_function/KernelFuncLinCSRBatch.java>`
 
 .. Python*:
 
@@ -258,13 +258,13 @@ Examples
 
 C++:
 
-- :cpp_example:`kernel_function/kernel_func_rbf_dense_batch.cpp`
-- :cpp_example:`kernel_function/kernel_func_rbf_csr_batch.cpp`
+- :cpp_example:`kernel_func_rbf_dense_batch.cpp <kernel_function/kernel_func_rbf_dense_batch.cpp>`
+- :cpp_example:`kernel_func_rbf_csr_batch.cpp <kernel_function/kernel_func_rbf_csr_batch.cpp>`
 
 Java*:
 
-- :java_example:`kernel_function/KernelFuncRbfDenseBatch.java`
-- :java_example:`kernel_function/KernelFuncRbfCSRBatch.java`
+- :java_example:`KernelFuncRbfDenseBatch.java <kernel_function/KernelFuncRbfDenseBatch.java>`
+- :java_example:`KernelFuncRbfCSRBatch.java <kernel_function/KernelFuncRbfCSRBatch.java>`
 
 .. Python*:
 

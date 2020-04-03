@@ -129,13 +129,19 @@ Examples
 
 C++:
 
-- :cpp_example:`svd/svd_dense_batch.cpp`
-- :cpp_example:`svd/svd_dense_online.cpp`
+- :cpp_example:`svd_dense_batch.cpp <svd/svd_dense_batch.cpp>`
+- :cpp_example:`svd_dense_online.cpp <svd/svd_dense_online.cpp>`
 
 Java*:
 
-- :java_example:`svd/SVDDenseBatch.java`
-- :java_example:`svd/SVDDenseOnline.java`
+- :java_example:`SVDDenseBatch.java <svd/SVDDenseBatch.java>`
+- :java_example:`SVDDenseOnline.java <svd/SVDDenseOnline.java>`
+
+Distributed Processing
+**********************
+
+At this moment, the description of distributed processing for Singular Value Decomposition
+is only available in `Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-5>`_.
 
 Performance Considerations
 **************************

@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _logistic_regression:
+
 Logistic Regression
 ===================
 
@@ -83,12 +85,42 @@ vectors, and their probabilities and logarithms of probabilities
 if required. The computation is based on formula (1) in
 multinomial case and on formula (2) in binary case.
 
+Usage of Training Alternative
+*****************************
+
+To build a Logistic Regression model using methods of the Model Builder class of Logistic Regression,
+complete the following steps:
+
+- Create a Logistic Regression model builder using a constructor with the required number of responses and features.
+- Use the ``setBeta`` method to add the set of pre-calculated coefficients to the model.
+  Specify random access iterators to the first and the last element of the set of coefficients [ISO/IEC 14882:2011 §24.2.7].
+
+  .. note:: 
+  
+    If your set of coefficients does not contain an intercept, interceptFlag is automatically set to ``False``, and to ``True``, otherwise.
+
+- Use the ``getModel`` method to get the trained Logistic Regression model.
+- Use the ``getStatus`` method to check the status of the model building process.
+  If ``DAAL_NOTHROW_EXCEPTIONS`` macros is defined, the status report contains the list of errors
+  that describe the problems API encountered (in case of API runtime failure).
+
+.. note::
+  
+  If after calling the ``getModel`` method you use the ``setBeta`` method to update coefficients,
+  the initial model will be automatically updated with the new :math:`\beta` coefficients.
+
+Examples
+--------
+
+C++: :cpp_example:`log_reg_model_builder.cpp <logistic_regression/log_reg_model_builder.cpp>`
+
+Java*: :java_example:`LogRegModelBuilder.java <logistic_regression/LogRegModelBuilder.java>`
 
 Batch Processing
 ****************
 
 Logistic regression algorithm follows the general workflow described
-in `Classification Usage Model <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction-1>`_.
+in :ref:`classification_usage_model`.
 
 Training
 --------
@@ -96,7 +128,7 @@ For a description of the input and output, refer to Usage Model:
 Training and Prediction
 
 In addition to the parameters of classifier described in
-`Classification Usage Model <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction-1>`_,
+:ref:`classification_usage_model`,
 the logistic regression batch training algorithm has the following
 parameters:
 
@@ -216,13 +248,13 @@ Examples
 
 C++:
 
--  :cpp_example:`logistic_regression/log_reg_dense_batch.cpp`
--  :cpp_example:`logistic_regression/log_reg_binary_dense_batch.cpp`
+-  :cpp_example:`log_reg_dense_batch.cpp <logistic_regression/log_reg_dense_batch.cpp>`
+-  :cpp_example:`log_reg_binary_dense_batch.cpp <logistic_regression/log_reg_binary_dense_batch.cpp>`
 
 Java*:
 
--  :java_example:`logistic_regression/LogRegDenseBatch.java`
--  :java_example:`logistic_regression/LogRegBinaryDenseBatch.java`
+-  :java_example:`LogRegDenseBatch.java <logistic_regression/LogRegDenseBatch.java>`
+-  :java_example:`LogRegBinaryDenseBatch.java <logistic_regression/LogRegBinaryDenseBatch.java>`
 
 Python*:
 

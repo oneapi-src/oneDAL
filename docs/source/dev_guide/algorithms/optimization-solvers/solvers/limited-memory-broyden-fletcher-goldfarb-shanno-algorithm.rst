@@ -280,13 +280,13 @@ Examples
 
 C++:
 
-- :cpp_example:`optimization_solvers/lbfgs_dense_batch.cpp`
-- :cpp_example:`optimization_solvers/lbfgs_opt_res_dense_batch.cpp`
+- :cpp_example:`lbfgs_dense_batch.cpp <optimization_solvers/lbfgs_dense_batch.cpp>`
+- :cpp_example:`lbfgs_opt_res_dense_batch.cpp <optimization_solvers/lbfgs_opt_res_dense_batch.cpp>`
 
 Java*:
 
-- :java_example:`optimization_solvers/LBFGSDenseBatch.java`
-- :java_example:`optimization_solvers/LBFGSOptResDenseBatch.java`
+- :java_example:`LBFGSDenseBatch.java <optimization_solvers/LBFGSDenseBatch.java>`
+- :java_example:`LBFGSOptResDenseBatch.java <optimization_solvers/LBFGSOptResDenseBatch.java>`
 
 .. Python*:
 

@@ -158,19 +158,30 @@ Examples
 
 C++:
 
--  :cpp_example:`covariance/cov_dense_batch.cpp`
--  :cpp_example:`covariance/cov_csr_batch.cpp`
+-  :cpp_example:`cov_dense_batch.cpp <covariance/cov_dense_batch.cpp>`
+-  :cpp_example:`cov_csr_batch.cpp <covariance/cov_csr_batch.cpp>`
 
 Java*:
 
--  :java_example:`covariance/CovDenseBatch.java`
--  :java_example:`covariance/CovCSRBatch.java`
+-  :java_example:`CovDenseBatch.java <covariance/CovDenseBatch.java>`
+-  :java_example:`CovCSRBatch.java <covariance/CovCSRBatch.java>`
 
 .. Python*:
 
 .. -  cov_dense_batch.py
 .. -  cov_csr_batch.py
 
+Online Processing
+=================
+
+At this moment, the description of online processing for Correlation and Variance-Covariance Matrices
+is only available in `Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-online-processing-1>`_.
+
+Distributed Processing
+======================
+
+At this moment, the description of distributed processing for Correlation and Variance-Covariance Matrices
+is only available in `Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-1>`_.
 
 Performance Considerations
 ==========================

@@ -30,6 +30,12 @@ Analysis
    algorithms/association_rules/association-rules.rst
    algorithms/kernel_function/kernel-functions.rst
    algorithms/em/expectation-maximization.rst
+   algorithms/cholesky/cholesky.rst
+   algorithms/qr/qr-decomposition.rst
+   algorithms/outlier_detection/index.rst
+   algorithms/distance/index.rst
+   algorithms/distributions/index.rst
+   algorithms/engines/index.rst
 
 .. toctree::
    :maxdepth: 3

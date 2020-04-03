@@ -33,6 +33,7 @@ Training and prediction algorithms in |full_name| (|short_name|) include a range
    algorithms/naive_bayes/naive-bayes-classifier.rst
    algorithms/svm/support-vector-machine-classifier.rst
    algorithms/svm_multi_class/multi-class-classifier.rst
+   algorithms/boosting/index.rst
 
 Unlike :ref:`analysis` algorithms, which are intended to characterize the structure of data sets, machine learning algorithms model the data. 
 Modeling operates in two major stages:
@@ -45,3 +46,26 @@ Therefore, certain end-to-end analytics usage scenarios require that training an
 the training is done on more powerful devices, while prediction is done on smaller devices. 
 Because smaller devices may have stricter memory footprint requirements, 
 |short_name| separates Training, Prediction, and respective Model in three different class hierarchies to minimize the footprint.
+
+An alternative to training your model with algorithms implemented in |short_name|
+is to build a trained model from pre-calculated model parameters, for example,
+coefficients :math:`\beta` for Linear Regression.
+This enables you to use |short_name| only to get predictions based on the model parameters computed elsewhere.
+
+The Model Builder class provides an interface for adding all the necessary parameters and building a trained model
+ready for the prediction stage.
+
+The following schema illustrates the use of Model Builder class:
+
+.. image:: images/model_builders.png
+   :width: 600
+
+The Model Builder class is implemented for the following algorithms:
+
+- :ref:`linear_regression`
+- :ref:`svm`
+- :ref:`svm_multi_class`
+- :ref:`logistic_regression`
+- :ref:`gbt_regression`
+- :ref:`gbt_classification`
+- :ref:`df_classification`

@@ -419,9 +419,9 @@ of your algorithm.
 Examples
 ++++++++
 
-C++: :cpp_example:`em/em_gmm_dense_batch.cpp`
+C++: :cpp_example:`em_gmm_dense_batch.cpp <em/em_gmm_dense_batch.cpp>`
 
-Java*: :java_example:`em/EmGmmDenseBatch.java`
+Java*: :java_example:`EmGmmDenseBatch.java <em/EmGmmDenseBatch.java>`
 
 .. Python*:em_gmm_dense_batch.py
 

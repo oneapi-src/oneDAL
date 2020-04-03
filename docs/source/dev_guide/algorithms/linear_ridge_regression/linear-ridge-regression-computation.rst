@@ -21,7 +21,7 @@ Batch Processing
 ================
 
 Linear and ridge regressions in the batch processing mode follow the general workflow described in
-`Regression Usage Model <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction>`_.
+:ref:`regression_usage_model`.
 
 Training
 --------
@@ -122,15 +122,15 @@ Examples
 
 C++:
 
--  :cpp_example:`linear_regression/lin_reg_norm_eq_dense_batch.cpp`
--  :cpp_example:`linear_regression/lin_reg_qr_dense_batch.cpp`
--  :cpp_example:`ridge_regression/ridge_reg_norm_eq_dense_batch.cpp`
+-  :cpp_example:`lin_reg_norm_eq_dense_batch.cpp <linear_regression/lin_reg_norm_eq_dense_batch.cpp>`
+-  :cpp_example:`lin_reg_qr_dense_batch.cpp <linear_regression/lin_reg_qr_dense_batch.cpp>`
+-  :cpp_example:`ridge_reg_norm_eq_dense_batch.cpp <ridge_regression/ridge_reg_norm_eq_dense_batch.cpp>`
 
 Java*:
 
--  :java_example:`linear_regression/LinRegNormEqDenseBatch.java`
--  :java_example:`linear_regression/LinRegQRDenseBatch.java`
--  :java_example:`ridge_regression/RidgeRegNormEqDenseBatch.java`
+-  :java_example:`LinRegNormEqDenseBatch.java <linear_regression/LinRegNormEqDenseBatch.java>`
+-  :java_example:`LinRegQRDenseBatch.java <linear_regression/LinRegQRDenseBatch.java>`
+-  :java_example:`RidgeRegNormEqDenseBatch.java <ridge_regression/RidgeRegNormEqDenseBatch.java>`
 
 .. Python*:
 
@@ -138,3 +138,16 @@ Java*:
 .. -  lin_reg_qr_dense_batch.py
 .. -  ridge_reg_norm_eq_dense_batch.py
 .. -  lin_reg_metrics_dense_batch.py
+
+
+Online Processing
+=================
+
+At this moment, the description of online processing for Linear and Ridge regression is only available in
+`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-online-processing-3>`_.
+
+Distributed Processing
+======================
+
+At this moment, the description of distributed processing for Linear and Ridge regression is only available in
+`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-7>`_.

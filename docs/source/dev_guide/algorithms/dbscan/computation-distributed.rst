@@ -132,6 +132,6 @@ Step 13 - on Local Nodes
 Examples
 ********
 
-- :cpp_example:`C++ <dbscan/dbscan_dense_distr.cpp>`
-- :java_example:`Java* <dbscan/DBSCANDenseDistr.java>`
-- :daal4py_example:`Python* <dbscan_spmd.py>`
+- C++: :cpp_example:`dbscan_dense_distr.cpp <dbscan/dbscan_dense_distr.cpp>`
+- Java*: :java_example:`DBSCANDenseDistr.java <dbscan/DBSCANDenseDistr.java>`
+- Python*: :daal4py_example:`dbscan_spmd.py`
