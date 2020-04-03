@@ -174,8 +174,6 @@ Status OnlinePartialResult::checkImpl(const daal::algorithms::Parameter * parame
             {
                 return s;
             }
-
-            DAAL_CHECK_EX(nFeatures <= numTableInQCollection->getNumberOfRows(), ErrorIncorrectNumberOfRows, ArgumentName, qCollectionStr());
         }
     }
     return Status();
