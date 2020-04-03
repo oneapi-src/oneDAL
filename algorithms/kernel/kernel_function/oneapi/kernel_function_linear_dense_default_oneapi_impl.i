@@ -104,8 +104,8 @@ services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeI
             context.fill(rBuf, 1.0, &status);
         }
 
-        status = BlasGpu<algorithmFPType>::xgemm(math::Layout::ColMajor, math::Transpose::Trans, math::Transpose::NoTrans, nVectors2, nVectors1,
-                                                 nFeatures1, alpha, a2Buf, nFeatures1, 0, a1Buf, nFeatures1, 0, beta, rBuf, nVectors2, 0);
+        status = BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::Trans, nVectors1, nVectors2,
+                                                nFeatures1, alpha, a1Buf, nFeatures1, 0, a2Buf, nFeatures2, 0, beta, rBuf, nVectors2, 0);
 
         DAAL_CHECK_STATUS(status, a1.releaseBlockOfRows(a1BD));
         DAAL_CHECK_STATUS(status, a2.releaseBlockOfRows(a2BD));

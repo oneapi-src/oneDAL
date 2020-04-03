@@ -247,8 +247,13 @@ private:
     template <cl::sycl::access::mode mode, typename Buffer>
     void handlePublicBuffer(Buffer & buffer)
     {
+        // printf("[handlePublicBuffer] bufferS %lu\n", buffer.get_count());
+        // fflush(stdout);
         auto accessor = buffer.template get_access<mode>(_handler);
         _handler.set_arg((int)_argumentIndex, accessor);
+        // printf("[bufferF %lu]\n", buffer.get_count());
+        // fflush(stdout);
+
     }
 
     template <typename T>

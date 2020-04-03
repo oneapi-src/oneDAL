@@ -68,6 +68,7 @@ struct TaskWorkingSet
         const size_t maxWS = 16;
         _nWS                = min(maxWS, _nVectors);
 
+        tmpValues  = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
         wsIndices  = context.allocate(TypeIds::id<int>(), _nWS, &status);
         tmpIndices = context.allocate(TypeIds::id<int>(), _nVectors, &status);
         return status;
@@ -106,7 +107,7 @@ struct TaskWorkingSet
         auto sortedFIndicesBuff = sortedFIndices.get<int>();
         auto tmpIndicesBuff = tmpIndices.get<int>();
         auto fIndicesBuf = fIndices.get<int>();
-        DAAL_CHECK_STATUS(status, Helper::argSort(fBuff, fIndicesBuf, sortedFIndicesBuff, _nVectors));
+        DAAL_CHECK_STATUS(status, Helper::argSort(fBuff, fIndices, tmpValues, sortedFIndices, _nVectors));
 
         if (_verbose)
         {
@@ -288,6 +289,7 @@ private:
     UniversalBuffer fIndices;
     UniversalBuffer wsIndices;
     UniversalBuffer tmpIndices;
+    UniversalBuffer tmpValues;
 };
 
 } // namespace internal

@@ -160,6 +160,7 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setResultsToModel(cons
     {
         if (alpha[i] > zero) nSV++;
     }
+    printf("nSV %lu\n", nSV);
 
     model.setNFeatures(xTable.getNumberOfColumns());
     Status s;

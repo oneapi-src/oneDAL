@@ -44,7 +44,7 @@ const size_t nFeatures = 20;
 /* Parameters for the SVM kernel function */
 kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<>());
 
-kernel_function::KernelIfacePtr kernel(new kernel_function::rbf::Batch<>(gamma));
+// kernel_function::KernelIfacePtr kernel(new kernel_function::rbf::Batch<>(gamma));
 
 /* Model object for the SVM algorithm */
 svm::training::ResultPtr trainingResult;
@@ -61,9 +61,9 @@ int main(int argc, char * argv[])
 
     trainModel();
 
-    testModel();
+    // testModel();
 
-    printResults();
+    // printResults();
 
     return 0;
 }

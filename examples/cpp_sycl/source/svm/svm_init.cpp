@@ -8,9 +8,12 @@ using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
-string trainDatasetFileName = "/nfs/inn/proj/numerics1/Users/kpetrov/ats/svm/svm_repo_impl/data.csv";
+// string trainDatasetFileName = "/nfs/inn/proj/numerics1/Users/kpetrov/ats/svm/svm_repo_impl/data.csv";
+string trainDatasetFileName = "../data/batch/svm_two_class_train_dense.csv";
 
-const size_t nFeatures = 123;
+const size_t nFeatures = 20;
+
+// const size_t nFeatures = 119;
 
 kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<>());
 
@@ -43,10 +46,14 @@ void trainModel()
     auto trainGroundTruth = SyclHomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     auto mergedData(new MergedNumericTable(trainData, trainGroundTruth));
 =======
     NumericTablePtr mergedData(new MergedNumericTable(trainGroundTruth, trainData));
 >>>>>>> 815734e6... fix build
+=======
+    NumericTablePtr mergedData(new MergedNumericTable(trainData, trainGroundTruth));
+>>>>>>> ca30c048... add sort
 
     trainDataSource.loadDataBlock(mergedData.get());
 

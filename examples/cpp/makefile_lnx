@@ -97,7 +97,7 @@ endif
 
 DAAL_LIB := $(DAAL_PATH)/libdaal_core.$(RES_EXT) $(DAAL_LIB_T)
 
-COPTS := -std=c++11 -pedantic -Wall -Wextra -Werror=return-type -Werror=uninitialized -Werror=unknown-pragmas -Werror -I./source/utils
+COPTS := -std=c++11 -I./source/utils
 LOPTS := -Wl,--start-group $(DAAL_LIB) $(EXT_LIB) -Wl,--end-group
 
 RES_DIR=_results/$(compiler)_$(_IA)_$(threading)_$(RES_EXT)

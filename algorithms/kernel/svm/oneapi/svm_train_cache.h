@@ -120,7 +120,7 @@ public:
         return res;
     }
 
-    const services::Buffer<algorithmFPType> & getSetRowsBlock() const override { return _cache.get<algorithmFPType>(); }
+    const services::Buffer<algorithmFPType> & getSetRowsBlock() const override { return _cacheBuff; }
 
     services::Status compute(const services::Buffer<algorithmFPType> & xBuff, const services::Buffer<int> & wsIndices, const size_t p) override
     {
@@ -131,14 +131,19 @@ public:
 
         services::Status status;
 
-        auto xWSBuff = _xWS.get<algorithmFPType>();
-        DAAL_CHECK_STATUS(status, Helper::copyBlockIndices(xBuff, wsIndices, xWSBuff, _nWS, p));
+        DAAL_CHECK_STATUS(status, Helper::copyBlockIndices(xBuff, wsIndices, _xWSBuff, _nWS, p));
 
         DAAL_CHECK_STATUS(status, _kernel->computeNoThrow());
 
         if (_verbose)
         {
-            printf(">> [SVMCacheOneAPI] compute [end]\n");
+            auto gradHost  = _cacheBuff.toHost(ReadWriteMode::readOnly).get();
+            printf(">> [SVMCacheOneAPI] Cache \n");
+            for (size_t i = 0; i < 30; i++)
+            {
+                printf("%f ", gradHost[i]);
+            }
+            printf("\n");
         }
         return status;
     }
@@ -163,15 +168,15 @@ protected:
         _cache = context.allocate(TypeIds::id<algorithmFPType>(), _lineSize * _nWS, &s);
         DAAL_CHECK_STATUS_VAR(s);
 
-        auto & cacheBuff = _cache.get<algorithmFPType>();
-        auto cacheTable  = SyclHomogenNumericTable<algorithmFPType>::create(cacheBuff, _lineSize, _nWS, &s);
+        _cacheBuff = _cache.get<algorithmFPType>();
+        auto cacheTable  = SyclHomogenNumericTable<algorithmFPType>::create(_cacheBuff, _lineSize, _nWS, &s);
 
         const size_t p = xTable->getNumberOfColumns();
-        _xWS           = context.allocate(TypeIds::id<algorithmFPType>(), p * _nWS, &s);
+        _xWS           = context.allocate(TypeIds::id<algorithmFPType>(), _nWS * p, &s);
         DAAL_CHECK_STATUS_VAR(s);
 
-        auto xWSBuff  = _xWS.get<algorithmFPType>();
-        auto xWSTable = SyclHomogenNumericTable<algorithmFPType>::create(xWSBuff, p, _nWS, &s);
+        _xWSBuff  = _xWS.get<algorithmFPType>();
+        const NumericTablePtr xWSTable = SyclHomogenNumericTable<algorithmFPType>::create(_xWSBuff, p, _nWS, &s);
 
         DAAL_CHECK_STATUS_VAR(s);
         _kernel->getParameter()->computationMode = kernel_function::matrixMatrix;
@@ -192,6 +197,8 @@ protected:
 protected:
     UniversalBuffer _cache;
     UniversalBuffer _xWS;
+    services::Buffer<algorithmFPType> _xWSBuff;
+    services::Buffer<algorithmFPType> _cacheBuff;
     bool _verbose;
 };
 

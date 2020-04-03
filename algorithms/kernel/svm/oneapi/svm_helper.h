@@ -20,6 +20,7 @@
 
 #include "algorithms/kernel/svm/oneapi/cl_kernels/svm_train_oneapi.cl"
 #include "service/kernel/data_management/service_numeric_table.h"
+#include "service/kernel/oneapi/sorter.h"
 
 #include "externals/service_ittnotify.h"
 
@@ -101,21 +102,23 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status argSort(const services::Buffer<algorithmFPType> & fBuff, const services::Buffer<int> & fIndicesBuff,
-                                    services::Buffer<int> & sortedFIndicesBuff, const size_t nVectors)
+    static services::Status argSort(const UniversalBuffer & fBuff, const UniversalBuffer & fIndicesBuff,
+                                    UniversalBuffer & tmpBuff, UniversalBuffer & sortedFIndicesBuff, const size_t nVectors)
     {
         services::Status status;
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
-        context.copy(sortedFIndicesBuff, 0, fIndicesBuff, 0, nVectors, &status);
+        DAAL_CHECK_STATUS(status, sort::RadixSort::sortIndeces(fBuff, fIndicesBuff, tmpBuff, sortedFIndicesBuff, nVectors));
+
+        // context.copy(sortedFIndicesBuff, 0, fIndicesBuff, 0, nVectors, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
         // TODO Replace radix sort
-        {
-            int * sortedFIndices_host = sortedFIndicesBuff.toHost(ReadWriteMode::readWrite).get();
-            algorithmFPType * f_host  = fBuff.toHost(ReadWriteMode::readOnly).get();
-            std::sort(sortedFIndices_host, sortedFIndices_host + nVectors, [=](int i, int j) { return f_host[i] < f_host[j]; });
-        }
+        // {
+        //     int * sortedFIndices_host = sortedFIndicesBuff.toHost(ReadWriteMode::readWrite).get();
+        //     algorithmFPType * f_host  = fBuff.toHost(ReadWriteMode::readOnly).get();
+        //     std::sort(sortedFIndices_host, sortedFIndices_host + nVectors, [=](int i, int j) { return f_host[i] < f_host[j]; });
+        // }
         return status;
     }
 
