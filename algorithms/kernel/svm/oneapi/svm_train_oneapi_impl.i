@@ -61,6 +61,7 @@
 
 #include "algorithms/kernel/svm/oneapi/svm_train_cache.h"
 #include "algorithms/kernel/svm/oneapi/svm_train_workset.h"
+#include "algorithms/kernel/svm/oneapi/svm_train_result.h"
 
 DAAL_ITTNOTIFY_DOMAIN(svm_train.default.batch);
 
@@ -463,8 +464,9 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::updateGr
 template <typename algorithmFPType, typename ParameterType>
 services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::smoKernel(
     const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & kernelWsRows, const services::Buffer<int> & wsIndices,
-    const int ldK, const services::Buffer<algorithmFPType> & f, const algorithmFPType C, const algorithmFPType eps, const algorithmFPType tau, const int maxInnerIteration,
-    services::Buffer<algorithmFPType> & alpha, services::Buffer<algorithmFPType> & deltaalpha, services::Buffer<algorithmFPType> & resinfo, const size_t nWS)
+    const int ldK, const services::Buffer<algorithmFPType> & f, const algorithmFPType C, const algorithmFPType eps, const algorithmFPType tau,
+    const int maxInnerIteration, services::Buffer<algorithmFPType> & alpha, services::Buffer<algorithmFPType> & deltaalpha,
+    services::Buffer<algorithmFPType> & resinfo, const size_t nWS)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(smoKernel);
 
@@ -616,6 +618,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::compute(
     DAAL_CHECK_STATUS(status, yTable.getBlockOfRows(0, nVectors, ReadWriteMode::readOnly, yBD));
     auto yBuff = yBD.getBuffer();
 
+    // TOD: Delete xblock. He needs only for kernel
     BlockDescriptor<algorithmFPType> xBD;
     DAAL_CHECK_STATUS(status, xTable->getBlockOfRows(0, nVectors, ReadWriteMode::readOnly, xBD));
     auto xBuff = xBD.getBuffer();
@@ -628,6 +631,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::compute(
 >>>>>>> c13db2ed... ws add
 
     const size_t nWS = workSet.getSize();
+    const size_t q   = nWS / 2;
 
     auto deltaalphaU = context.allocate(idType, nWS, &status);
     DAAL_CHECK_STATUS_VAR(status);
@@ -669,6 +673,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::compute(
     for (size_t iter = 0; iter < 1 /*maxIterations*/; iter++)
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
         if (verbose)
         {
             const auto t_0 = high_resolution_clock::now();
@@ -684,6 +689,12 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::compute(
         DAAL_CHECK_STATUS(status, workSet.selectWS(yBuff, alphaBuff, fBuff, C));
 >>>>>>> 815734e6... fix build
 =======
+=======
+        if (iter != 0)
+        {
+            DAAL_CHECK_STATUS(status, workSet.saveQWSIndeces(q));
+        }
+>>>>>>> 2b6b048e... add res model
         {
             const auto t_0 = high_resolution_clock::now();
 
@@ -724,13 +735,14 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::compute(
 =======
 >>>>>>> 64f30ec0... smo local add & update F
 
+        // TODO: Save half elements from kernel on 1+ iterations
         auto kernelWS = cache->getSetRowsBlock();
 
         {
             const auto t_0 = high_resolution_clock::now();
 
-            DAAL_CHECK_STATUS(
-                status, smoKernel(yBuff, kernelWS, wsIndices, nVectors, gradBuff, C, eps, tau, innerMaxIterations, alphaBuff, deltaalphaBuff, resinfoBuff, nWS));
+            DAAL_CHECK_STATUS(status, smoKernel(yBuff, kernelWS, wsIndices, nVectors, gradBuff, C, eps, tau, innerMaxIterations, alphaBuff,
+                                                deltaalphaBuff, resinfoBuff, nWS));
             {
                 auto resinfoHost = resinfoBuff.toHost(ReadWriteMode::readOnly, &status).get();
                 innerIteration   = int(resinfoHost[0]);
@@ -785,15 +797,23 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::compute(
         diffPrev = diff;
     }
 
-    DAAL_CHECK_STATUS(status, yTable.releaseBlockOfRows(yBD));
     DAAL_CHECK_STATUS(status, xTable->releaseBlockOfRows(xBD));
+
+    Result<algorithmFPType> result(alphaBuff, fBuff, yBuff, C, nVectors);
+
+    DAAL_CHECK_STATUS(status, result.setResultsToModel(*xTable, *static_cast<Model *>(r)));
+
+    DAAL_CHECK_STATUS(status, yTable.releaseBlockOfRows(yBD));
 
     delete cache;
 
     return status;
+<<<<<<< HEAD
 >>>>>>> 815734e6... fix build
 
     // return s.ok() ? task.setResultsToModel(*xTable, *static_cast<Model *>(r), svmPar->C) : s;
+=======
+>>>>>>> 2b6b048e... add res model
 }
 
 // inline Size MaxPow2(Size nVectors) {

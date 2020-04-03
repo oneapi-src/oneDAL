@@ -66,15 +66,24 @@ struct TaskWorkingSet
 
         // TODO: Get from device info
         const size_t maxWS = 16;
-        _nWS                = min(maxWS, _nVectors);
 
-        tmpValues  = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
-        wsIndices  = context.allocate(TypeIds::id<int>(), _nWS, &status);
-        tmpIndices = context.allocate(TypeIds::id<int>(), _nVectors, &status);
+        _nWS       = min(maxWS, _nVectors);
+        _nSelected = 0;
+
+        tmpValues     = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
+        wsIndices     = context.allocate(TypeIds::id<int>(), _nWS, &status);
+        wsSaveIndices = context.allocate(TypeIds::id<int>(), _nWS, &status);
+        tmpIndices    = context.allocate(TypeIds::id<int>(), _nVectors, &status);
         return status;
     }
 
     size_t getSize() const { return _nWS; }
+
+    services::Status saveQWSIndeces(const int q)
+    {
+        context.copy(wsIndices, 0, wsSaveIndices, q, nWS, &status);
+        _nSelected = q;
+    }
 
     services::Status selectWS(const services::Buffer<algorithmFPType> & yBuff, const services::Buffer<algorithmFPType> & alphaBuff,
                               const services::Buffer<algorithmFPType> & fBuff, const algorithmFPType C)
@@ -87,26 +96,12 @@ struct TaskWorkingSet
         }
 
         services::Status status;
-        static bool firstCall = true;
 
-        size_t nSelected = 0;
-
-        if (firstCall)
-        {
-            firstCall = false;
-        }
-        else
-        {
-            // TODO!
-            nSelected = 1;
-            // copy
-        }
-        const size_t q = _nWS - nSelected;
-
+        const size_t q = _nWS - _nSelected;
 
         auto sortedFIndicesBuff = sortedFIndices.get<int>();
-        auto tmpIndicesBuff = tmpIndices.get<int>();
-        auto fIndicesBuf = fIndices.get<int>();
+        auto tmpIndicesBuff     = tmpIndices.get<int>();
+        auto fIndicesBuf        = fIndices.get<int>();
         DAAL_CHECK_STATUS(status, Helper::argSort(fBuff, fIndices, tmpValues, sortedFIndices, _nVectors));
 
         if (_verbose)
@@ -123,7 +118,6 @@ struct TaskWorkingSet
                 {
                     printf("%d ", sortedFIndices_host[i]);
                 }
-
             }
             printf("\n");
             printf(">> sort val: ");
@@ -137,9 +131,8 @@ struct TaskWorkingSet
                 printf(" ... ");
                 for (int i = _nVectors - 1; i >= _nVectors - min(16ul, _nWS); i--)
                 {
-                    printf("%.2f ",  f_host[sortedFIndices_host[i]]);
+                    printf("%.2f ", f_host[sortedFIndices_host[i]]);
                 }
-
             }
             printf("\n");
         }
@@ -171,13 +164,13 @@ struct TaskWorkingSet
 
             const size_t nCopy = min(selectUpper, nSelect);
 
-            context.copy(wsIndices, nSelected, tmpIndices, 0, nCopy, &status);
+            context.copy(wsIndices, _nSelected, tmpIndices, 0, nCopy, &status);
 
-            nSelected += nCopy;
+            _nSelected += nCopy;
         }
 
         {
-            const size_t nSelect = _nWS - nSelected;
+            const size_t nSelect = _nWS - _nSelected;
 
             DAAL_CHECK_STATUS(status, checkLower(yBuff, alphaBuff, indicatorBuff, C, _nVectors));
 
@@ -200,9 +193,9 @@ struct TaskWorkingSet
             const size_t nCopy = min(selectLower, nSelect);
 
             // Get latest elements
-            context.copy(wsIndices, nSelected, tmpIndices, selectLower - nCopy, nCopy, &status);
+            context.copy(wsIndices, _nSelected, tmpIndices, selectLower - nCopy, nCopy, &status);
 
-            nSelected += selectLower;
+            _nSelected += selectLower;
         }
 
         if (_verbose)
@@ -218,6 +211,8 @@ struct TaskWorkingSet
             printf("\n");
         }
 
+        context.copy(wsSaveIndices, 0, wsIndices, 0, nWS, &status);
+        _nSelected = 0;
         return status;
     }
 
@@ -279,6 +274,8 @@ struct TaskWorkingSet
     }
 
 private:
+    size_t _nSelected;
+
     size_t _nVectors;
     size_t _nWS;
 
@@ -288,6 +285,7 @@ private:
     UniversalBuffer indicator;
     UniversalBuffer fIndices;
     UniversalBuffer wsIndices;
+    UniversalBuffer wsSaveIndices;
     UniversalBuffer tmpIndices;
     UniversalBuffer tmpValues;
 };
