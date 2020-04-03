@@ -40,7 +40,7 @@ namespace algorithms
 namespace stump
 {
 /**
- * @defgroup stump_regression Decision Tree for Regression
+ * @defgroup stump_regression Decision Stump for Regression
  * \copydoc daal::algorithms::stump::regression
  * @ingroup regression
  */
