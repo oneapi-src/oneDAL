@@ -55,8 +55,8 @@ struct TaskWorkingSet
         sortedFIndices = context.allocate(TypeIds::id<int>(), _nVectors, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        indicator = context.allocate(TypeIds::id<int>(), _nVectors, &status);
-        context.fill(indicator, 0.0, &status);
+        _indicator = context.allocate(TypeIds::id<int>(), _nVectors, &status);
+        context.fill(_indicator, 0, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
         fIndices = context.allocate(TypeIds::id<int>(), _nVectors, &status);
@@ -65,29 +65,35 @@ struct TaskWorkingSet
         DAAL_CHECK_STATUS(status, Helper::range(fIndicesBuf, _nVectors));
 
         // TODO: Get from device info
-        const size_t maxWS = 16;
+        const size_t maxWS = 256;
 
         _nWS       = min(maxWS, _nVectors);
         _nSelected = 0;
 
         tmpValues     = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
         wsIndices     = context.allocate(TypeIds::id<int>(), _nWS, &status);
-        wsSaveIndices = context.allocate(TypeIds::id<int>(), _nWS, &status);
+        wsSaveIndices     = context.allocate(TypeIds::id<int>(), _nWS, &status);
         tmpIndices    = context.allocate(TypeIds::id<int>(), _nVectors, &status);
         return status;
     }
 
     size_t getSize() const { return _nWS; }
 
-    services::Status saveQWSIndeces(const int q)
+    services::Status saveWSIndeces()
     {
-        context.copy(wsIndices, 0, wsSaveIndices, q, nWS, &status);
+        const size_t q = _nWS / 2;
+        services::Status status;
+        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        // context.copy(wsIndices, 0, wsIndices, q, _nWS - q, &status);
+        context.copy(wsIndices, 0, wsSaveIndices, q, _nWS - q, &status);
         _nSelected = q;
+        return status;
     }
 
     services::Status selectWS(const services::Buffer<algorithmFPType> & yBuff, const services::Buffer<algorithmFPType> & alphaBuff,
                               const services::Buffer<algorithmFPType> & fBuff, const algorithmFPType C)
     {
+        services::Status status;
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
         if (_verbose)
@@ -95,13 +101,16 @@ struct TaskWorkingSet
             printf(">>>> selectWS\n");
         }
 
-        services::Status status;
+        context.fill(tmpIndices, 0, &status);
+        context.fill(_indicator, 0, &status);
 
-        const size_t q = _nWS - _nSelected;
 
         auto sortedFIndicesBuff = sortedFIndices.get<int>();
         auto tmpIndicesBuff     = tmpIndices.get<int>();
         auto fIndicesBuf        = fIndices.get<int>();
+        auto wsIndicesBuff       = wsIndices.get<int>();
+        auto indicatorBuff = _indicator.get<int>();
+
         DAAL_CHECK_STATUS(status, Helper::argSort(fBuff, fIndices, tmpValues, sortedFIndices, _nVectors));
 
         if (_verbose)
@@ -137,66 +146,68 @@ struct TaskWorkingSet
             printf("\n");
         }
 
-        context.fill(indicator, 0.0, &status);
         DAAL_CHECK_STATUS_VAR(status);
-        auto indicatorBuff = indicator.get<int>();
 
         {
-            const size_t nSelect = q / 2;
+            const size_t nNeedSelect = (_nWS - _nSelected) / 2;
 
-            DAAL_CHECK_STATUS(status, checkUpper(yBuff, alphaBuff, indicatorBuff, C, _nVectors));
+            DAAL_CHECK_STATUS(status, Helper::checkUpper(yBuff, alphaBuff, indicatorBuff, C, _nVectors));
 
-            size_t selectUpper = 0;
-            DAAL_CHECK_STATUS(status, Helper::gatherIndices(indicatorBuff, sortedFIndicesBuff, _nVectors, tmpIndicesBuff, selectUpper));
-
-            if (_verbose)
-            {
-                printf(">> CheckUpper[tmpIndices] - %lu:  ", selectUpper);
-                {
-                    int * wsIndexes_host = tmpIndices.get<int>().toHost(ReadWriteMode::readOnly).get();
-                    for (int i = 0; i < min(16ul, _nWS); i++)
-                    {
-                        printf("%d ", wsIndexes_host[i]);
-                    }
-                }
-                printf("\n");
+            /* Reset indicator for busy indeces */
+            if (_nSelected > 0) {
+                DAAL_CHECK_STATUS(status, resetIndecator(wsIndicesBuff, indicatorBuff, _nSelected));
             }
 
-            const size_t nCopy = min(selectUpper, nSelect);
+            size_t nUpperSelect = 0;
+            DAAL_CHECK_STATUS(status, Helper::gatherIndices(indicatorBuff, sortedFIndicesBuff, _nVectors, tmpIndicesBuff, nUpperSelect));
+
+            const size_t nCopy = min(nUpperSelect, nNeedSelect);
 
             context.copy(wsIndices, _nSelected, tmpIndices, 0, nCopy, &status);
 
             _nSelected += nCopy;
-        }
-
-        {
-            const size_t nSelect = _nWS - _nSelected;
-
-            DAAL_CHECK_STATUS(status, checkLower(yBuff, alphaBuff, indicatorBuff, C, _nVectors));
-
-            size_t selectLower = 0;
-            DAAL_CHECK_STATUS(status, Helper::gatherIndices(indicatorBuff, sortedFIndicesBuff, _nVectors, tmpIndicesBuff, selectLower));
 
             if (_verbose)
             {
-                printf(">> checkLower[tmpIndices] - %lu:  ", selectLower);
-                {
-                    int * wsIndexes_host = tmpIndices.get<int>().toHost(ReadWriteMode::readOnly).get();
-                    for (int i = 0; i < min(16ul, _nWS); i++)
-                    {
-                        printf("%d ", wsIndexes_host[i]);
-                    }
-                }
-                printf("\n");
+                printf(">> CheckUpper[tmpIndices] - selectUpper:%lu _nSelected: %lu \n", nUpperSelect, _nSelected);
+            }
+        }
+
+        {
+            const size_t nNeedSelect = _nWS - _nSelected;
+
+            DAAL_CHECK_STATUS(status, Helper::checkLower(yBuff, alphaBuff, indicatorBuff, C, _nVectors));
+
+            /* Reset indicator for busy indeces */
+            if (_nSelected > 0) {
+                DAAL_CHECK_STATUS(status, resetIndecator(wsIndicesBuff, indicatorBuff, _nSelected));
             }
 
-            const size_t nCopy = min(selectLower, nSelect);
+            size_t nLowerSelect = 0;
+            DAAL_CHECK_STATUS(status, Helper::gatherIndices(indicatorBuff, sortedFIndicesBuff, _nVectors, tmpIndicesBuff, nLowerSelect));
 
-            // Get latest elements
-            context.copy(wsIndices, _nSelected, tmpIndices, selectLower - nCopy, nCopy, &status);
+            const size_t nCopy = min(nLowerSelect, nNeedSelect);
 
-            _nSelected += selectLower;
+            /* Copy latest nCopy elements */
+            context.copy(wsIndices, _nSelected, tmpIndices, nLowerSelect - nCopy, nCopy, &status);
+
+            _nSelected += nCopy;
+
+            if (_verbose)
+            {
+                printf(">> checkLower[tmpIndices] - selectLower: %lu _nSelected: %lu \n", nLowerSelect, _nSelected);
+            }
         }
+
+        if (_nSelected < _nWS)
+        {
+            if (_verbose)
+            {
+                printf("!!! _nSelected < _nWS - %lu %lu: \n", _nSelected, _nWS);
+            }
+        }
+
+        DAAL_ASSERT(_nSelected == _nWS);
 
         if (_verbose)
         {
@@ -211,7 +222,7 @@ struct TaskWorkingSet
             printf("\n");
         }
 
-        context.copy(wsSaveIndices, 0, wsIndices, 0, nWS, &status);
+        context.copy(wsSaveIndices, 0, wsIndices, 0, _nWS, &status);
         _nSelected = 0;
         return status;
     }
@@ -219,10 +230,9 @@ struct TaskWorkingSet
     const services::Buffer<int> & getSortedFIndices() const { return sortedFIndices.get<int>(); }
     const services::Buffer<int> & getWSIndeces() const { return wsIndices.get<int>(); }
 
-    services::Status checkUpper(const services::Buffer<algorithmFPType> & yBuff, const services::Buffer<algorithmFPType> & alphaBuff,
-                                services::Buffer<int> & indicatorBuff, const algorithmFPType C, const size_t nSelect)
+    services::Status resetIndecator(const services::Buffer<int> & idx, services::Buffer<int> & indicator, const size_t n)
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(checkUpper);
+        DAAL_ITTNOTIFY_SCOPED_TASK(resetIndecator);
 
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
         auto & factory = context.getClKernelFactory();
@@ -230,15 +240,13 @@ struct TaskWorkingSet
         services::Status status = Helper::buildProgram(factory);
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto kernel = factory.getKernel("checkUpper");
+        auto kernel = factory.getKernel("resetIndecator");
 
-        KernelArguments args(4);
-        args.set(0, yBuff, AccessModeIds::read);
-        args.set(1, alphaBuff, AccessModeIds::read);
-        args.set(2, C);
-        args.set(3, indicatorBuff, AccessModeIds::readwrite);
+        KernelArguments args(2);
+        args.set(0, idx, AccessModeIds::read);
+        args.set(1, indicator, AccessModeIds::write);
 
-        KernelRange range(nSelect);
+        KernelRange range(n);
 
         context.run(range, kernel, args, &status);
         DAAL_CHECK_STATUS_VAR(status);
@@ -246,32 +254,6 @@ struct TaskWorkingSet
         return status;
     }
 
-    services::Status checkLower(const services::Buffer<algorithmFPType> & yBuff, const services::Buffer<algorithmFPType> & alphaBuff,
-                                services::Buffer<int> & indicatorBuff, const algorithmFPType C, const size_t nSelect)
-    {
-        DAAL_ITTNOTIFY_SCOPED_TASK(checkLower);
-
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
-        auto & factory = context.getClKernelFactory();
-
-        services::Status status = Helper::buildProgram(factory);
-        DAAL_CHECK_STATUS_VAR(status);
-
-        auto kernel = factory.getKernel("checkLower");
-
-        KernelArguments args(4);
-        args.set(0, yBuff, AccessModeIds::read);
-        args.set(1, alphaBuff, AccessModeIds::read);
-        args.set(2, C);
-        args.set(3, indicatorBuff, AccessModeIds::readwrite);
-
-        KernelRange range(nSelect);
-
-        context.run(range, kernel, args, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-
-        return status;
-    }
 
 private:
     size_t _nSelected;
@@ -282,7 +264,7 @@ private:
     bool _verbose;
 
     UniversalBuffer sortedFIndices;
-    UniversalBuffer indicator;
+    UniversalBuffer _indicator;
     UniversalBuffer fIndices;
     UniversalBuffer wsIndices;
     UniversalBuffer wsSaveIndices;

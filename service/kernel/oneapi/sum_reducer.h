@@ -52,6 +52,43 @@ private:
     SumReducer();
 };
 
+class Reducer
+{
+public:
+    enum class BinaryOp
+    {
+        MIN,
+        MAX
+    };
+
+    struct Result
+    {
+        UniversalBuffer reduce;
+
+        Result(ExecutionContextIface & context, uint32_t nVectors, TypeId type, services::Status * status)
+            : reduce(context.allocate(type, nVectors, status))
+        {}
+    };
+
+public:
+    static Result reduce(const BinaryOp op, Layout vectorsLayout, const UniversalBuffer & vectors, uint32_t nVectors, uint32_t vectorSize,
+                         services::Status * status);
+
+private:
+    Reducer();
+
+    static services::Status buildProgram(ClKernelFactoryIface & kernelFactory, const BinaryOp op, const TypeId & vectorType);
+    static void singlepass(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, Layout vectorsLayout,
+                           const UniversalBuffer & vectors, uint32_t nVectors, uint32_t vectorSize, uint32_t workItemsPerGroup,
+                           Reducer::Result & result, services::Status * status);
+    static void run_step_colmajor(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & vectors,
+                                  uint32_t nVectors, uint32_t vectorSize, uint32_t numWorkItems, uint32_t numWorkGroups, Reducer::Result & stepResult,
+                                  services::Status * status);
+    static void run_final_step_rowmajor(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, Reducer::Result & stepResult,
+                                        uint32_t nVectors, uint32_t vectorSize, uint32_t workItemsPerGroup, Reducer::Result & result,
+                                        services::Status * status);
+};
+
 } // namespace math
 } // namespace internal
 } // namespace oneapi

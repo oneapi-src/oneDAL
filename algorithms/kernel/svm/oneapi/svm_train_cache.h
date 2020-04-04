@@ -29,6 +29,7 @@
 #include "service/kernel/data_management/service_micro_table.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "data_management/data/numeric_table_sycl_homogen.h"
+#include "algorithms/kernel/svm/oneapi/svm_helper.h"
 
 using namespace daal::services::internal;
 using namespace daal::data_management;
@@ -63,7 +64,7 @@ class SVMCacheOneAPIIface
 public:
     virtual ~SVMCacheOneAPIIface() {}
 
-    virtual services::Status compute(const services::Buffer<algorithmFPType> & xBuff, const services::Buffer<int> & wsIndices, const size_t p) = 0;
+    virtual services::Status compute(const NumericTablePtr & xTable, const services::Buffer<int> & wsIndices, const size_t p) = 0;
 
     virtual const services::Buffer<algorithmFPType> & getSetRowsBlock() const = 0;
 
@@ -122,7 +123,7 @@ public:
 
     const services::Buffer<algorithmFPType> & getSetRowsBlock() const override { return _cacheBuff; }
 
-    services::Status compute(const services::Buffer<algorithmFPType> & xBuff, const services::Buffer<int> & wsIndices, const size_t p) override
+    services::Status compute(const NumericTablePtr & xTable, const services::Buffer<int> & wsIndices, const size_t p) override
     {
         if (_verbose)
         {
@@ -131,20 +132,20 @@ public:
 
         services::Status status;
 
+
+        BlockDescriptor<algorithmFPType> xBlock;
+
+        DAAL_CHECK_STATUS(status, xTable->getBlockOfRows(0, xTable->getNumberOfRows(), ReadWriteMode::readOnly, xBlock));
+        const services::Buffer<algorithmFPType>& xBuff = xBlock.getBuffer();
+
+        // const size_t nRowsPerBlock = 90000;
+        // const size_t nBlocks = nRows / nRowsPerBlock + !!(nRows % nRowsPerBlock);
+
         DAAL_CHECK_STATUS(status, Helper::copyBlockIndices(xBuff, wsIndices, _xWSBuff, _nWS, p));
 
         DAAL_CHECK_STATUS(status, _kernel->computeNoThrow());
 
-        if (_verbose)
-        {
-            auto gradHost  = _cacheBuff.toHost(ReadWriteMode::readOnly).get();
-            printf(">> [SVMCacheOneAPI] Cache \n");
-            for (size_t i = 0; i < 30; i++)
-            {
-                printf("%f ", gradHost[i]);
-            }
-            printf("\n");
-        }
+        DAAL_CHECK_STATUS(status, xTable->releaseBlockOfRows(xBlock));
         return status;
     }
 
@@ -168,14 +169,14 @@ protected:
         _cache = context.allocate(TypeIds::id<algorithmFPType>(), _lineSize * _nWS, &s);
         DAAL_CHECK_STATUS_VAR(s);
 
-        _cacheBuff = _cache.get<algorithmFPType>();
-        auto cacheTable  = SyclHomogenNumericTable<algorithmFPType>::create(_cacheBuff, _lineSize, _nWS, &s);
+        _cacheBuff      = _cache.get<algorithmFPType>();
+        auto cacheTable = SyclHomogenNumericTable<algorithmFPType>::create(_cacheBuff, _lineSize, _nWS, &s);
 
         const size_t p = xTable->getNumberOfColumns();
         _xWS           = context.allocate(TypeIds::id<algorithmFPType>(), _nWS * p, &s);
         DAAL_CHECK_STATUS_VAR(s);
 
-        _xWSBuff  = _xWS.get<algorithmFPType>();
+        _xWSBuff                       = _xWS.get<algorithmFPType>();
         const NumericTablePtr xWSTable = SyclHomogenNumericTable<algorithmFPType>::create(_xWSBuff, p, _nWS, &s);
 
         DAAL_CHECK_STATUS_VAR(s);
@@ -186,10 +187,6 @@ protected:
         kernel_function::ResultPtr shRes(new kernel_function::Result());
         shRes->set(kernel_function::values, cacheTable);
         _kernel->setResult(shRes);
-        if (_verbose)
-        {
-            printf(">> [SVMCacheOneAPI]init[end]\n");
-        }
 
         return s;
     }

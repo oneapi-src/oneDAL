@@ -48,7 +48,7 @@ Model::Model(modelFPType dummy, size_t nColumns, data_management::NumericTableIf
 
     if (!deviceInfo.isCpu)
     {
-        _SV = SyclHomogenNumericTable<algorithmFPType>::create(nColumns, 0, NumericTable::doNotAllocate, &st);
+        _SV = SyclHomogenNumericTable<modelFPType>::create(nColumns, 0, NumericTable::doNotAllocate, &st);
     }
     else
     {
@@ -66,7 +66,7 @@ Model::Model(modelFPType dummy, size_t nColumns, data_management::NumericTableIf
 
     if (!deviceInfo.isCpu)
     {
-        _SVCoeff = SyclHomogenNumericTable<algorithmFPType>::create(1, 0, NumericTable::doNotAllocate, &st);
+        _SVCoeff = SyclHomogenNumericTable<modelFPType>::create(1, 0, NumericTable::doNotAllocate, &st);
         if (!st) return;
         _SVIndices = SyclHomogenNumericTable<int>::create(1, 0, NumericTable::doNotAllocate, &st);
     }

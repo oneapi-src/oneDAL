@@ -65,6 +65,17 @@ DECLARE_SOURCE(
         indicator[i] = ILower(alpha[i], y[i], C);
     }
 
+    __kernel void checkFree(const __global algorithmFPType * const alpha, const algorithmFPType C, __global int * indicator) {
+        const int i  = get_global_id(0);
+        const algorithmFPType alphai = alpha[i];
+        indicator[i] = 0 < alphai && alphai < C;
+    }
+
+    __kernel void resetIndecator(const __global int * const ind, __global int * indicator) {
+        const int i  = get_global_id(0);
+        indicator[ind[i]] = 0;
+    }
+
     __kernel void copyBlockIndices(const __global algorithmFPType * const x, const __global int * const ind, const uint ldx,
                                    __global algorithmFPType * newX) {
         const uint index = get_global_id(1);
@@ -122,59 +133,6 @@ DECLARE_SOURCE(
         }
     }
 
-    // algorithmFPType WSSi(const algorithmFPType gradi, const algorithmFPType alphai, const algorithmFPType yi, const algorithmFPType C, int * Bi) {
-    //     const uint i = get_local_id(0);
-
-    //     // TODO
-    //     const algorithmFPType MIN_FLT = -1e20;
-
-    //     *Bi = -1;
-    //     __local algorithmFPType objFunc[WS_SIZE];
-    //     __local int indices[WS_SIZE];
-
-    //     objFunc[i] = IUpper(alphai, yi, C) ? -yi * gradi : MIN_FLT;
-
-    //     /* Find i index of the working set (Bi) */
-    //     // reduceMax(objFunc, indices);
-    //     barrier(CLK_LOCAL_MEM_FENCE);
-    //     *Bi                         = indices[0];
-    //     const algorithmFPType GMax = objFunc[*Bi];
-
-    //     return GMax;
-    // }
-
-    // algorithmFPType WSSj(const algorithmFPType gradi, const algorithmFPType alphai, const algorithmFPType yi, const algorithmFPType Kii,
-    //                      const algorithmFPType KBiBi, const algorithmFPType KiBi, const algorithmFPType tau, const algorithmFPType GMax, int & Bj) {
-    //     const uint i = get_local_id(0);
-
-    //     Bj = -1;
-
-    //     __local algorithmFPType objFunc[WS_SIZE];
-    //     __local int indices[WS_SIZE];
-
-    //     // TODO
-    //     const algorithmFPType MAX_FLT = 1e20;
-
-    //     const algorithmFPType zero = 0.0;
-    //     const algorithmFPType two  = 2.0;
-
-    //     const algorithmFPType ygrad = -yi * gradi;
-
-    //     const algorithmFPType b = GMax - ygrad;
-    //     const algorithmFPType a = max(Kii + KBiBi - two * KiBi, tau);
-
-    //     const algorithmFPType dt = b / a;
-
-    //     objFunc[i] = ILower(alphai, yi, C) && ygrad < GMax ? -b * dt : MAX_FLT;
-
-    //     reduceMin(objFunc, indices);
-    //     barrier(CLK_LOCAL_MEM_FENCE);
-    //     Bj                         = indices[0];
-    //     const algorithmFPType GMin = objFunc[Bj];
-
-    //     return GMin;
-    // }
-
     __kernel void smoKernel(const __global algorithmFPType * const y, const __global algorithmFPType * const kernelWsRows,
                             const __global int * wsIndices, const uint ldx, const __global algorithmFPType * grad, const algorithmFPType C,
                             const algorithmFPType eps, const algorithmFPType tau, const int maxInnerIteration, __global algorithmFPType * alpha,
@@ -188,11 +146,11 @@ DECLARE_SOURCE(
         const algorithmFPType MIN_FLT = -1e20;
         const algorithmFPType MAX_FLT = 1e20;
 
-        const algorithmFPType two  = 2.0;
+        const algorithmFPType two = 2.0;
 
         algorithmFPType gradi     = grad[wsIndex];
         algorithmFPType alphai    = alpha[wsIndex];
-        algorithmFPType oldalphai = alphai;
+        const algorithmFPType oldalphai = alphai;
         const algorithmFPType yi  = y[wsIndex];
 
         __local algorithmFPType objFunc[WS_SIZE];
@@ -201,35 +159,56 @@ DECLARE_SOURCE(
         __local algorithmFPType deltaBi;
         __local algorithmFPType deltaBj;
 
+        __local int Bi;
+        __local int Bj;
+
+        algorithmFPType ma;
+
         kd[i] = kernelWsRows[i * ldx + wsIndex];
+        barrier(CLK_LOCAL_MEM_FENCE);
+
+        __local algorithmFPType localDiff;
+        __local algorithmFPType localEps;
 
         int iter = 0;
         for (; iter < maxInnerIteration; iter++)
         {
-            /* m(alpha) = max(-y[i]*grad[i]): i belongs to I_UP (alpha) */
+            /* m(alpha) = min(grad[i]): i belongs to I_UP (alpha) */
             objFunc[i] = IUpper(alphai, yi, C) ? gradi : MAX_FLT;
 
             /* Find i index of the working set (Bi) */
             reduceMin(objFunc, indices);
+            if (i == 0)
+            {
+                Bi = indices[0];
+            }
+            ma = objFunc[Bi];
+
             barrier(CLK_LOCAL_MEM_FENCE);
-            int Bi                         = indices[0];
-            // printf("> objFunc %.2f alphai %.2f Bi %d wsIndex %d i %d\n", objFunc[i], alphai, Bi, wsIndex, i);
 
-            const algorithmFPType ma = objFunc[Bi];
-
-            barrier(CLK_LOCAL_MEM_FENCE);
-
-            /* for condition check */
+            /* maxgrad(alpha) = max(grad[i]): i belongs to I_low (alpha) */
             objFunc[i] = ILower(alphai, yi, C) ? gradi : MIN_FLT;
 
+            /* Find max gradinet of the working set (Bi) */
             reduceMax(objFunc, indices);
-            barrier(CLK_LOCAL_MEM_FENCE);
-            const algorithmFPType maxGrad = objFunc[indices[0]];
 
-            const algorithmFPType curEps = maxGrad - ma;
-            if (curEps < 10.0 * eps)
+            barrier(CLK_LOCAL_MEM_FENCE);
+            if (i == 0)
             {
-                resinfo[1] = curEps;
+                const algorithmFPType maxGrad = objFunc[indices[0]];
+
+                /* for condition check: m(alpha) >= maxgrad */
+                localDiff = maxGrad - ma;
+                if (iter == 0)
+                {
+                    localEps = max(eps * (algorithmFPType)1e1, localDiff * (algorithmFPType)0.5);
+                }
+
+            }
+
+            barrier(CLK_LOCAL_MEM_FENCE);
+            if (localDiff < localEps)
+            {
                 break;
             }
 
@@ -237,31 +216,27 @@ DECLARE_SOURCE(
             const algorithmFPType KBiBi = kd[Bi];
             const algorithmFPType KiBi  = kernelWsRows[Bi * ldx + wsIndex];
 
-            /* Find j index of the working set (Bj) */
-            const algorithmFPType ygrad = gradi;
 
-            const algorithmFPType b = ma - ygrad;
+            /* M(alpha) = max((b^2/a) : i belongs to I_low(alpha) and ma < grad(alpha) */
+            const algorithmFPType b = ma - gradi;
             const algorithmFPType a = max(Kii + KBiBi - two * KiBi, tau);
 
             const algorithmFPType dt = b / a;
 
-            objFunc[i] = ILower(alphai, yi, C) && ma < ygrad ? b * dt : MIN_FLT;
+            objFunc[i] = ILower(alphai, yi, C) && ma < gradi ? b * dt : MIN_FLT;
 
-            // printf("> objFunc %.2f ygrad %.2f ma %.2f alphai %.2f yi %.2f C %.2f -b * dt %.2f wsIndex %d i %d\n", objFunc[i], ygrad, ma, alphai, yi, C, -b * dt, wsIndex, i);
+            // printf("> objFunc %.2f ygrad %.2f ma %.2f alphai %.2f C %.2f -b * dt %.2f wsIndex %d i %d\n", objFunc[i], gradi, ma, alphai, C, -b * dt, wsIndex, i);
 
+            /* Find j index of the working set (Bj) */
             reduceMax(objFunc, indices);
-            barrier(CLK_LOCAL_MEM_FENCE);
-            int Bj                         = indices[0];
-            const algorithmFPType Ma = objFunc[Bj];
 
+            if (i == 0)
+            {
+                Bj = indices[0];
+            }
             barrier(CLK_LOCAL_MEM_FENCE);
 
             const algorithmFPType KiBj = kernelWsRows[Bj * ldx + wsIndex];
-
-            //  ma - Ma is used to check stopping condition
-            // const algorithmFPType curEps = ma - Ma;
-
-            // printf("> curEps %.3f Bi %d ma %.4f Bj %d Ma %.4f wsIndex %d i %d KiBj %.2f\n", curEps, Bi, ma, Bj, Ma, wsIndex, i, KiBj);
 
             // Update alpha
 
@@ -269,22 +244,20 @@ DECLARE_SOURCE(
             {
                 deltaBi = yi > 0 ? C - alphai : alphai;
                 // printf("> deltaBi %.3f\n", deltaBi);
-                printf("> Bi %d ", Bi);
-
+                // printf("> Bi %d \n", Bi);
+               // printf("> Ma %.f ygrad %.2f ma %.2f alphai %.2f yi %.2f C\n", Ma, gradi, ma, alphai, yi, C);
             }
             if (i == Bj)
             {
                 deltaBj                     = yi > 0 ? alphai : C - alphai;
-                const algorithmFPType ygrad = gradi;
-                const algorithmFPType b     = ma - ygrad;
+                const algorithmFPType b     = ma - gradi;
                 const algorithmFPType a     = max(Kii + KBiBi - two * KiBi, tau);
 
                 const algorithmFPType dt = -b / a;
                 deltaBj                  = min(deltaBj, dt);
                 // printf("> deltaBj %.3f dt %.3f b %.3f a %.3f\n", deltaBj, dt, b, a);
-                printf(" Bj %d ", Bj);
-                printf(" curEps %f\n",curEps);
-
+                // printf(" Bj %d \n", Bj);
+                // printf(" curEps %f\n",curEps);
             }
 
             barrier(CLK_LOCAL_MEM_FENCE);
@@ -303,12 +276,14 @@ DECLARE_SOURCE(
             gradi = gradi + delta * (KiBi - KiBj);
             // printf("> alphai %.3f gradi %.4f delta %.4f Bi %d Bj %d wsIndex %d i %d\n", alphai, gradi, delta, Bi, Bj, wsIndex, i);
             // printf("> Kii %.3f i %d\n", Kii, i);
-
-
         }
         alpha[wsIndex] = alphai;
-        deltaalpha[i]  = (oldalphai - alphai) * yi;
-        resinfo[0]     = iter;
+        deltaalpha[i]  = (alphai - oldalphai) * yi;
+        if (i == 0) {
+            resinfo[0]     = iter;
+            resinfo[1]     = localDiff;
+        }
+
     }
 
 );

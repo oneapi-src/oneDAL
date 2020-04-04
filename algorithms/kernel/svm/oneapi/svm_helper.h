@@ -72,7 +72,7 @@ struct HelperSVM
         services::String cachekey("__daal_algorithms_svm_");
         cachekey.add(options);
         options.add(" -D LOCAL_SUM_SIZE=256 ");
-        options.add(" -D WS_SIZE=16 ");
+        options.add(" -D WS_SIZE=256 ");
 
         services::Status status;
         factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelSVMTrain, options.c_str(), &status);
@@ -102,42 +102,61 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status argSort(const UniversalBuffer & fBuff, const UniversalBuffer & fIndicesBuff,
-                                    UniversalBuffer & tmpBuff, UniversalBuffer & sortedFIndicesBuff, const size_t nVectors)
+    static services::Status argSort(const UniversalBuffer & fBuff, const UniversalBuffer & fIndicesBuff, UniversalBuffer & tmpBuff,
+                                    UniversalBuffer & sortedFIndicesBuff, const size_t nVectors)
     {
         services::Status status;
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
-        DAAL_CHECK_STATUS(status, sort::RadixSort::sortIndeces(fBuff, fIndicesBuff, tmpBuff, sortedFIndicesBuff, nVectors));
+        // DAAL_CHECK_STATUS(status, sort::RadixSort::sortIndeces(fBuff, fIndicesBuff, tmpBuff, sortedFIndicesBuff, nVectors));
 
-        // context.copy(sortedFIndicesBuff, 0, fIndicesBuff, 0, nVectors, &status);
-        DAAL_CHECK_STATUS_VAR(status);
+        context.copy(sortedFIndicesBuff, 0, fIndicesBuff, 0, nVectors, &status);
+        // DAAL_CHECK_STATUS_VAR(status);
 
         // TODO Replace radix sort
-        // {
-        //     int * sortedFIndices_host = sortedFIndicesBuff.toHost(ReadWriteMode::readWrite).get();
-        //     algorithmFPType * f_host  = fBuff.toHost(ReadWriteMode::readOnly).get();
-        //     std::sort(sortedFIndices_host, sortedFIndices_host + nVectors, [=](int i, int j) { return f_host[i] < f_host[j]; });
-        // }
+        {
+            int * sortedFIndices_host = sortedFIndicesBuff.get<int>().toHost(ReadWriteMode::readWrite).get();
+            algorithmFPType * f_host  = fBuff.get<algorithmFPType>().toHost(ReadWriteMode::readOnly).get();
+            std::sort(sortedFIndices_host, sortedFIndices_host + nVectors, [=](int i, int j) { return f_host[i] < f_host[j]; });
+        }
         return status;
     }
 
-    static services::Status gatherIndices(const services::Buffer<int> & maskBuff, const services::Buffer<int> & xBuff, const size_t n,
-                                          services::Buffer<int> & resBuff, size_t & nRes)
+    static services::Status gatherIndices(const services::Buffer<int> & mask, const services::Buffer<int> & x, const size_t n,
+                                          services::Buffer<int> & res, size_t & nRes)
     {
         services::Status status;
 
+        int * indicator_host      = mask.toHost(ReadWriteMode::readOnly).get();
+        int * sortedFIndices_host = x.toHost(ReadWriteMode::readOnly).get();
+        int * tmpIndices_host     = res.toHost(ReadWriteMode::writeOnly).get();
+        nRes                      = 0;
+        for (int i = 0; i < n; i++)
         {
-            int * indicator_host      = maskBuff.toHost(ReadWriteMode::readOnly).get();
-            int * sortedFIndices_host = xBuff.toHost(ReadWriteMode::readOnly).get();
-            int * tmpIndices_host     = resBuff.toHost(ReadWriteMode::readWrite).get();
-            nRes                      = 0;
-            for (int i = 0; i < n; i++)
+            if (indicator_host[sortedFIndices_host[i]])
             {
-                if (indicator_host[i])
-                {
-                    tmpIndices_host[nRes++] = sortedFIndices_host[i];
-                }
+                tmpIndices_host[nRes] = sortedFIndices_host[i];
+                nRes++;
+            }
+        }
+        return status;
+    }
+
+    static services::Status gatherValues(const services::Buffer<int> & mask, const services::Buffer<algorithmFPType> & x, const size_t n,
+                                          services::Buffer<algorithmFPType> & res, size_t & nRes)
+    {
+        services::Status status;
+
+        int * indicator_host      = mask.toHost(ReadWriteMode::readOnly).get();
+        algorithmFPType * sortedFIndices_host = x.toHost(ReadWriteMode::readOnly).get();
+        algorithmFPType * tmpIndices_host     = res.toHost(ReadWriteMode::writeOnly).get();
+        nRes                      = 0;
+        for (int i = 0; i < n; i++)
+        {
+            if (indicator_host[i])
+            {
+                tmpIndices_host[nRes] = sortedFIndices_host[i];
+                nRes++;
             }
         }
         return status;
@@ -168,6 +187,86 @@ struct HelperSVM
 
         return status;
     }
+
+    static services::Status checkUpper(const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & alpha,
+                                services::Buffer<int> & indicator, const algorithmFPType C, const size_t n)
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(checkUpper);
+
+        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & factory = context.getClKernelFactory();
+
+        services::Status status = buildProgram(factory);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        auto kernel = factory.getKernel("checkUpper");
+
+        KernelArguments args(4);
+        args.set(0, y, AccessModeIds::read);
+        args.set(1, alpha, AccessModeIds::read);
+        args.set(2, C);
+        args.set(3, indicator, AccessModeIds::write);
+
+        KernelRange range(n);
+
+        context.run(range, kernel, args, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        return status;
+    }
+
+    static services::Status checkLower(const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & alpha,
+                                services::Buffer<int> & indicator, const algorithmFPType C, const size_t n)
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(checkLower);
+
+        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & factory = context.getClKernelFactory();
+
+        services::Status status = buildProgram(factory);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        auto kernel = factory.getKernel("checkLower");
+
+        KernelArguments args(4);
+        args.set(0, y, AccessModeIds::read);
+        args.set(1, alpha, AccessModeIds::read);
+        args.set(2, C);
+        args.set(3, indicator, AccessModeIds::write);
+
+        KernelRange range(n);
+
+        context.run(range, kernel, args, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        return status;
+    }
+
+    static services::Status checkFree(const services::Buffer<algorithmFPType> & alpha, services::Buffer<int> & mask, const algorithmFPType C, const size_t n)
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(checkFree);
+
+        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & factory = context.getClKernelFactory();
+
+        services::Status status = buildProgram(factory);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        auto kernel = factory.getKernel("checkFree");
+
+        KernelArguments args(3);
+        args.set(0, alpha, AccessModeIds::read);
+        args.set(1, C);
+        args.set(2, mask, AccessModeIds::write);
+
+        KernelRange range(n);
+
+        context.run(range, kernel, args, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        return status;
+    }
+
 };
 
 } // namespace internal

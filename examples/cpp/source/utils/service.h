@@ -521,6 +521,43 @@ struct PrecisionValue<double>
     static int get() { return 3; }
 };
 
+template <typename type>
+void printNumeric(daal::data_management::NumericTablePtr dataTable, const char * title1 = "", const char * message = "", size_t nPrintedRows = 0,
+                  size_t interval = 15)
+{
+    using namespace daal::data_management;
+
+    size_t nRows  = dataTable->getNumberOfRows();
+    size_t nCols1 = dataTable->getNumberOfColumns();
+
+    BlockDescriptor<type> block1;
+
+    if (nPrintedRows != 0)
+    {
+        nRows = std::min(nRows, nPrintedRows);
+    }
+
+    dataTable->getBlockOfRows(0, nRows, readOnly, block1);
+
+    type * data1 = block1.getBlockPtr();
+
+    std::cout << std::setiosflags(std::ios::left);
+    std::cout << message << std::endl;
+    std::cout << std::setw(interval * nCols1) << title1;
+    for (size_t i = 0; i < nRows; i++)
+    {
+        for (size_t j = 0; j < nCols1; j++)
+        {
+            std::cout << std::setw(interval) << std::setiosflags(std::ios::fixed) << std::setprecision(PrecisionValue<type>::get());
+            std::cout << data1[i * nCols1 + j];
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+
+    dataTable->releaseBlockOfRows(block1);
+}
+
 template <typename type1, typename type2>
 void printNumericTables(daal::data_management::NumericTable * dataTable1, daal::data_management::NumericTable * dataTable2, const char * title1 = "",
                         const char * title2 = "", const char * message = "", size_t nPrintedRows = 0, size_t interval = 15)
