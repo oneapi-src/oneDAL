@@ -1,6 +1,6 @@
-/* file: kernel_function_rbf_dense_default_batch_fpt_dispatcher.cpp */
+/* file: kernel_function_rbf_dense_default_batch_oneapi_fpt.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,18 +17,27 @@
 
 /*
 //++
-//  Implementation of RBF kernel function container for dense input data.
+//  Implementation of RBF kernel functions for dense input data.
 //--
 */
 
-#include "algorithms/kernel_function/kernel_function_rbf.h"
-#include "algorithms/kernel/kernel_function/kernel_function_rbf_batch_container.h"
-#include "algorithms/kernel/kernel_function/kernel_function_rbf_dense_default_kernel.h"
+#include "algorithms/kernel/kernel_function/oneapi/kernel_function_rbf_dense_default_kernel_oneapi.h"
+#include "algorithms/kernel/kernel_function/oneapi/kernel_function_rbf_dense_default_oneapi_impl.i"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(kernel_function::rbf::BatchContainer, batch, DAAL_FPTYPE, kernel_function::rbf::defaultDense)
+namespace kernel_function
+{
+namespace rbf
+{
+namespace internal
+{
+template class KernelImplRBFOneAPI<defaultDense, DAAL_FPTYPE>;
+
+} // namespace internal
+} // namespace rbf
+} // namespace kernel_function
 } // namespace algorithms
 } // namespace daal

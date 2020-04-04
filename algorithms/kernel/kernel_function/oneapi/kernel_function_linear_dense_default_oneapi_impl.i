@@ -26,12 +26,12 @@
 
 #include "algorithms/kernel_function/kernel_function_types_linear.h"
 
-#include "externals/service_blas.h"
 #include "externals/service_stat.h"
-#include "algorithms/threading/threading.h"
 #include "algorithms/kernel/service_error_handling.h"
+#include "algorithms/kernel/kernel_function/oneapi/cl_kernels/kernel_function.cl"
 #include "externals/service_ittnotify.h"
 #include "service/kernel/oneapi/blas_gpu.h"
+#include "service/kernel/oneapi/sum_reducer.h"
 
 namespace daal
 {
@@ -43,7 +43,6 @@ namespace linear
 {
 namespace internal
 {
-
 using namespace daal::oneapi::internal;
 
 template <typename algorithmFPType>
@@ -76,9 +75,9 @@ services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeI
     const size_t nFeatures2 = a2.getNumberOfColumns();
     DAAL_ASSERT(nFeatures1 == nFeatures2);
 
-    const Parameter * linPar = static_cast<const Parameter *>(par);
-    algorithmFPType alpha    = algorithmFPType(linPar->k);
-    algorithmFPType beta     = algorithmFPType(linPar->b);
+    const Parameter * linPar    = static_cast<const Parameter *>(par);
+    const algorithmFPType alpha = algorithmFPType(linPar->k);
+    const algorithmFPType beta  = algorithmFPType(linPar->b);
 
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(KernelLinearOneAPI.gemm);
@@ -105,7 +104,7 @@ services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeI
         }
 
         status = BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::Trans, nVectors1, nVectors2,
-                                                nFeatures1, alpha, a1Buf, nFeatures1, 0, a2Buf, nFeatures2, 0, beta, rBuf, nVectors2, 0);
+                                                 nFeatures1, alpha, a1Buf, nFeatures1, 0, a2Buf, nFeatures2, 0, beta, rBuf, nVectors2, 0);
 
         DAAL_CHECK_STATUS(status, a1.releaseBlockOfRows(a1BD));
         DAAL_CHECK_STATUS(status, a2.releaseBlockOfRows(a2BD));
@@ -117,13 +116,9 @@ services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeI
 }
 
 } // namespace internal
-
 } // namespace linear
-
 } // namespace kernel_function
-
 } // namespace algorithms
-
 } // namespace daal
 
 #endif

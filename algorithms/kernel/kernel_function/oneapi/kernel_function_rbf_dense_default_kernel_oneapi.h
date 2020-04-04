@@ -1,4 +1,4 @@
-/* file: kernel_function_linear_dense_default_kernel_oneapi.h */
+/* file: kernel_function_rbf_dense_default_kernel_oneapi.h */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -17,14 +17,14 @@
 
 /*
 //++
-//  Declaration of template structs that calculate SVM Linear Kernel functions.
+//  Declaration of template structs that calculate SVM RBF Kernel functions.
 //--
 */
 
-#ifndef __KERNEL_FUNCTION_DENSE_LINEAR_KERNEL_ONEAPI_H__
-#define __KERNEL_FUNCTION_DENSE_LINEAR_KERNEL_ONEAPI_H__
+#ifndef __KERNEL_FUNCTION_DENSE_RBF_KERNEL_ONEAPI_H__
+#define __KERNEL_FUNCTION_DENSE_RBF_KERNEL_ONEAPI_H__
 
-#include "algorithms/kernel/kernel_function/oneapi/kernel_function_linear_base_oneapi.h"
+#include "algorithms/kernel/kernel_function/oneapi/kernel_function_rbf_base_oneapi.h"
 
 namespace daal
 {
@@ -32,7 +32,7 @@ namespace algorithms
 {
 namespace kernel_function
 {
-namespace linear
+namespace rbf
 {
 namespace internal
 {
@@ -40,7 +40,7 @@ using namespace daal::data_management;
 using namespace daal::services;
 
 template <typename algorithmFPType>
-class KernelImplLinearOneAPI<defaultDense, algorithmFPType> : public Kernel
+class KernelImplRBF<defaultDense, algorithmFPType> : public Kernel
 {
 public:
     services::Status compute(ComputationMode computationMode, NumericTable & a1, NumericTable & a2, NumericTable & r,
@@ -60,19 +60,25 @@ public:
     }
 
 protected:
+    static services::Status buildProgram(ClKernelFactoryIface & factory);
+    static services::Status lazyAllocate(oneapi::internal::UniversalBuffer & x, const size_t n);
+
+    services::Status computeRBF(const services::Buffer<algorithmFPType> & sqrA1, const services::Buffer<algorithmFPType> & sqrA2, const uint32_t ld,
+                                const algorithmFPType coeff, services::Buffer<algorithmFPType> & rbf, const size_t nVectors1, const size_t nVectors2);
+
     services::Status computeInternalVectorVector(NumericTable & a1, NumericTable & a2, NumericTable & r, const ParameterBase * par);
     services::Status computeInternalMatrixVector(NumericTable & a1, NumericTable & a2, NumericTable & r, const ParameterBase * par);
     services::Status computeInternalMatrixMatrix(NumericTable & a1, NumericTable & a2, NumericTable & r, const ParameterBase * par);
+
+private:
+    UniversalBuffer _sqrA1U;
+    UniversalBuffer _sqrA2U;
 };
 
 } // namespace internal
-
-} // namespace linear
-
+} // namespace rbf
 } // namespace kernel_function
-
 } // namespace algorithms
-
 } // namespace daal
 
 #endif

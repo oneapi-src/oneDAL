@@ -39,7 +39,7 @@ services::Status Reducer::buildProgram(ClKernelFactoryIface & kernelFactory, con
 
     if (op == BinaryOp::MIN)
     {
-        build_options.add(" -D OP=min -D INIT_VALUE=");
+        build_options.add(" -D UNARY_OP=none -D BINARY_OP=min -D INIT_VALUE=");
         // TODO: replace on global constant
         char * initVal;
         services::internal::toStringBuffer<double>(1e20, initVal);
@@ -47,10 +47,17 @@ services::Status Reducer::buildProgram(ClKernelFactoryIface & kernelFactory, con
     }
     else if (op == BinaryOp::MAX)
     {
-        build_options.add(" -D OP=max -D INIT_VALUE=");
+        build_options.add(" -D UNARY_OP=none -D BINARY_OP=max -D INIT_VALUE=");
         // TODO: replace on global constant
         char * initVal;
         services::internal::toStringBuffer<double>(-1e20, initVal);
+        build_options.add(initVal);
+    }
+    else if (op == BinaryOp::SUMS_OF_SQUARED)
+    {
+        build_options.add(" -D UNARY_OP=pow2 -D BINARY_OP=sum -D INIT_VALUE=");
+        char * initVal;
+        services::internal::toStringBuffer<double>(0.0, initVal);
         build_options.add(initVal);
     }
     else
@@ -67,7 +74,7 @@ services::Status Reducer::buildProgram(ClKernelFactoryIface & kernelFactory, con
 }
 
 void Reducer::singlepass(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, Layout vectorsLayout, const UniversalBuffer & vectors,
-                         uint32_t nVectors, uint32_t vectorSize, uint32_t workItemsPerGroup, Reducer::Result & result, services::Status * status)
+                         uint32_t nVectors, uint32_t vectorSize, uint32_t workItemsPerGroup, UniversalBuffer & result, services::Status * status)
 {
     auto reduce_kernel = kernelFactory.getKernel("singlepass");
 
@@ -86,7 +93,7 @@ void Reducer::singlepass(ExecutionContextIface & context, ClKernelFactoryIface &
     args.set(1, vectors, AccessModeIds::read);
     args.set(2, nVectors);
     args.set(3, vectorSize);
-    args.set(4, result.reduce, AccessModeIds::write);
+    args.set(4, result, AccessModeIds::write);
 
     context.run(range, reduce_kernel, args, status);
 }
@@ -143,7 +150,16 @@ void Reducer::run_final_step_rowmajor(ExecutionContextIface & context, ClKernelF
 Reducer::Result Reducer::reduce(const BinaryOp op, Layout vectorsLayout, const UniversalBuffer & vectors, uint32_t nVectors, uint32_t vectorSize,
                                 services::Status * status)
 {
+    Result result(context, nVectors, vectors.type(), status);
+    return Reducer::reduce(op, vectorsLayout, vectors, result.reduce, nVectors, vectorSize, status);
+}
+
+Reducer::Result Reducer::reduce(const BinaryOp op, Layout vectorsLayout, const UniversalBuffer & vectors, UniversalBuffer & resReduce,
+                                uint32_t nVectors, uint32_t vectorSize, services::Status * status)
+{
     DAAL_ITTNOTIFY_SCOPED_TASK(Reducer);
+
+    Result result(context, resReduce, nVectors, vectors.type(), status);
 
     auto & context       = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & kernelFactory = context.getClKernelFactory();
@@ -153,12 +169,9 @@ Reducer::Result Reducer::reduce(const BinaryOp op, Layout vectorsLayout, const U
     const uint32_t maxWorkItemsPerGroup = 256;
     const uint32_t maxNumSubSlices      = 9;
 
-    Result result(context, nVectors, vectors.type(), status);
-    DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, result);
-
     if (vectorsLayout == Layout::RowMajor)
     {
-        singlepass(context, kernelFactory, vectorsLayout, vectors, nVectors, vectorSize, maxWorkItemsPerGroup, result, status);
+        singlepass(context, kernelFactory, vectorsLayout, vectors, nVectors, vectorSize, maxWorkItemsPerGroup, resReduce, status);
     }
     else
     {
@@ -176,17 +189,17 @@ Reducer::Result Reducer::reduce(const BinaryOp op, Layout vectorsLayout, const U
         if (numDivisionsByRow > 1)
         {
             Result stepResult(context, numDivisionsByRow * nVectors, vectors.type(), status);
-            DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, result);
+            DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, stepResult);
 
             run_step_colmajor(context, kernelFactory, vectors, nVectors, vectorSize, workItemsPerGroup, numDivisionsByCol * numDivisionsByRow,
                               stepResult, status);
 
             const uint32_t stepWorkItems = maxNumSubSlices / 2; //need to be power of two
-            run_final_step_rowmajor(context, kernelFactory, stepResult, nVectors, numDivisionsByRow, stepWorkItems, result, status);
+            run_final_step_rowmajor(context, kernelFactory, stepResult, nVectors, numDivisionsByRow, stepWorkItems, resReduce, status);
         }
         else
         {
-            run_step_colmajor(context, kernelFactory, vectors, nVectors, vectorSize, workItemsPerGroup, numDivisionsByCol, result, status);
+            run_step_colmajor(context, kernelFactory, vectors, nVectors, vectorSize, workItemsPerGroup, numDivisionsByCol, resReduce, status);
         }
     }
 

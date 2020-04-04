@@ -58,7 +58,8 @@ public:
     enum class BinaryOp
     {
         MIN,
-        MAX
+        MAX,
+        SUMS_OF_SQUARED
     };
 
     struct Result
@@ -68,11 +69,18 @@ public:
         Result(ExecutionContextIface & context, uint32_t nVectors, TypeId type, services::Status * status)
             : reduce(context.allocate(type, nVectors, status))
         {}
+
+        Result(ExecutionContextIface & context, UniversalBuffer & resReduce, uint32_t nVectors, TypeId type, services::Status * status)
+            : reduce(resReduce)
+        {}
     };
 
 public:
     static Result reduce(const BinaryOp op, Layout vectorsLayout, const UniversalBuffer & vectors, uint32_t nVectors, uint32_t vectorSize,
                          services::Status * status);
+
+    static Result reduce(const BinaryOp op, Layout vectorsLayout, const UniversalBuffer & vectors, UniversalBuffer & resReduce, uint32_t nVectors,
+                         uint32_t vectorSize, services::Status * status);
 
 private:
     Reducer();
@@ -80,7 +88,7 @@ private:
     static services::Status buildProgram(ClKernelFactoryIface & kernelFactory, const BinaryOp op, const TypeId & vectorType);
     static void singlepass(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, Layout vectorsLayout,
                            const UniversalBuffer & vectors, uint32_t nVectors, uint32_t vectorSize, uint32_t workItemsPerGroup,
-                           Reducer::Result & result, services::Status * status);
+                           UniversalBuffer & result, services::Status * status);
     static void run_step_colmajor(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & vectors,
                                   uint32_t nVectors, uint32_t vectorSize, uint32_t numWorkItems, uint32_t numWorkGroups, Reducer::Result & stepResult,
                                   services::Status * status);

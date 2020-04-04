@@ -25,6 +25,8 @@
 #include "algorithms/kernel/kernel_function/kernel_function_rbf_dense_default_kernel.h"
 #include "algorithms/kernel/kernel_function/kernel_function_rbf_csr_fast_kernel.h"
 
+#include "algorithms/kernel/kernel_function/oneapi/kernel_function_rbf_base_oneapi.h"
+
 using namespace daal::data_management;
 
 namespace daal
@@ -38,7 +40,16 @@ namespace rbf
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::KernelImplRBF, method, algorithmFPType);
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
+    if (method == defaultDense && !deviceInfo.isCpu)
+    {
+        __DAAL_INITIALIZE_KERNELS_SYCL(internal::KernelImplRBF, method, algorithmFPType);
+    }
+    else
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::KernelImplRBF, method, algorithmFPType);
+    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -71,8 +82,19 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
             return services::Status(services::ErrorIncorrectTypeOfInputNumericTable);
     }
 
-    __DAAL_CALL_KERNEL(env, internal::KernelImplRBF, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, computationMode, a[0], a[1], r[0],
-                       par);
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
+
+    if (method == defaultDense && !deviceInfo.isCpu)
+    {
+        __DAAL_CALL_KERNEL_SYCL(env, internal::KernelImplRBF, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, computationMode, a[0], a[1],
+                                r[0], par);
+    }
+    else
+    {
+        __DAAL_CALL_KERNEL(env, internal::KernelImplRBF, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, computationMode, a[0], a[1], r[0],
+                           par);
+    }
 }
 
 } // namespace rbf
