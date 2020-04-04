@@ -37,12 +37,15 @@ namespace algorithms
  */
 namespace stump
 {
+/**
+ * \brief Contains classes of the Decision stump regression algorithm
+ */
 namespace regression
 {
 /**
  * @defgroup stump_regression_training Training
  * \copydoc daal::algorithms::stump::regression::training
- * @ingroup stump
+ * @ingroup stump_regression
  * @{
  */
 /**
