@@ -804,6 +804,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::compute(
 >>>>>>> 2b6b048e... add res model
 }
 
+<<<<<<< HEAD
 // inline Size MaxPow2(Size nVectors) {
 //     if (!(n & (n - 1))) {
 //         return nVectors;
@@ -846,6 +847,8 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::buildPro
 
 =======
 >>>>>>> 14431dac... kernel support was added
+=======
+>>>>>>> 29a8c4e9... add prediction
 } // namespace internal
 } // namespace training
 } // namespace svm
