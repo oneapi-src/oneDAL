@@ -38,9 +38,10 @@ namespace internal
 {
 using namespace daal::data_management;
 using namespace daal::services;
+using namespace daal::oneapi::internal;
 
 template <typename algorithmFPType>
-class KernelImplRBF<defaultDense, algorithmFPType> : public Kernel
+class KernelImplRBFOneAPI<defaultDense, algorithmFPType> : public Kernel
 {
 public:
     services::Status compute(ComputationMode computationMode, NumericTable & a1, NumericTable & a2, NumericTable & r,
@@ -63,16 +64,17 @@ protected:
     static services::Status buildProgram(ClKernelFactoryIface & factory);
     static services::Status lazyAllocate(oneapi::internal::UniversalBuffer & x, const size_t n);
 
-    services::Status computeRBF(const services::Buffer<algorithmFPType> & sqrA1, const services::Buffer<algorithmFPType> & sqrA2, const uint32_t ld,
-                                const algorithmFPType coeff, services::Buffer<algorithmFPType> & rbf, const size_t nVectors1, const size_t nVectors2);
+    static services::Status computeRBF(const services::Buffer<algorithmFPType> & sqrA1, const services::Buffer<algorithmFPType> & sqrA2,
+                                       const uint32_t ld, const algorithmFPType coeff, services::Buffer<algorithmFPType> & rbf,
+                                       const size_t nVectors1, const size_t nVectors2);
 
     services::Status computeInternalVectorVector(NumericTable & a1, NumericTable & a2, NumericTable & r, const ParameterBase * par);
     services::Status computeInternalMatrixVector(NumericTable & a1, NumericTable & a2, NumericTable & r, const ParameterBase * par);
     services::Status computeInternalMatrixMatrix(NumericTable & a1, NumericTable & a2, NumericTable & r, const ParameterBase * par);
 
 private:
-    UniversalBuffer _sqrA1U;
-    UniversalBuffer _sqrA2U;
+    // oneapi::internal::UniversalBuffer _sqrA1U;
+    // oneapi::internal::UniversalBuffer _sqrA2U;
 };
 
 } // namespace internal

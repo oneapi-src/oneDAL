@@ -41,7 +41,7 @@ services::Status Reducer::buildProgram(ClKernelFactoryIface & kernelFactory, con
     {
         build_options.add(" -D UNARY_OP=none -D BINARY_OP=min -D INIT_VALUE=");
         // TODO: replace on global constant
-        char * initVal;
+        char initVal[60];
         services::internal::toStringBuffer<double>(1e20, initVal);
         build_options.add(initVal);
     }
@@ -49,14 +49,15 @@ services::Status Reducer::buildProgram(ClKernelFactoryIface & kernelFactory, con
     {
         build_options.add(" -D UNARY_OP=none -D BINARY_OP=max -D INIT_VALUE=");
         // TODO: replace on global constant
-        char * initVal;
+        char initVal[60];
         services::internal::toStringBuffer<double>(-1e20, initVal);
         build_options.add(initVal);
     }
     else if (op == BinaryOp::SUMS_OF_SQUARED)
     {
         build_options.add(" -D UNARY_OP=pow2 -D BINARY_OP=sum -D INIT_VALUE=");
-        char * initVal;
+        char initVal[60];
+        ;
         services::internal::toStringBuffer<double>(0.0, initVal);
         build_options.add(initVal);
     }
@@ -74,9 +75,9 @@ services::Status Reducer::buildProgram(ClKernelFactoryIface & kernelFactory, con
 }
 
 void Reducer::singlepass(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, Layout vectorsLayout, const UniversalBuffer & vectors,
-                         uint32_t nVectors, uint32_t vectorSize, uint32_t workItemsPerGroup, UniversalBuffer & result, services::Status * status)
+                         uint32_t nVectors, uint32_t vectorSize, uint32_t workItemsPerGroup, UniversalBuffer & reduceRes, services::Status * status)
 {
-    auto reduce_kernel = kernelFactory.getKernel("singlepass");
+    auto reduce_kernel = kernelFactory.getKernel("reduce_singlepass");
 
     KernelRange localRange(workItemsPerGroup, 1);
     KernelRange globalRange(workItemsPerGroup, nVectors);
@@ -93,7 +94,7 @@ void Reducer::singlepass(ExecutionContextIface & context, ClKernelFactoryIface &
     args.set(1, vectors, AccessModeIds::read);
     args.set(2, nVectors);
     args.set(3, vectorSize);
-    args.set(4, result, AccessModeIds::write);
+    args.set(4, reduceRes, AccessModeIds::write);
 
     context.run(range, reduce_kernel, args, status);
 }
@@ -118,7 +119,7 @@ void Reducer::run_step_colmajor(ExecutionContextIface & context, ClKernelFactory
     args.set(0, vectors, AccessModeIds::read);
     args.set(1, nVectors);
     args.set(2, vectorSize);
-    args.set(3, stepResult.reduce, AccessModeIds::write);
+    args.set(3, stepResult.reduceRes, AccessModeIds::write);
 
     context.run(range, reduce_kernel, args, status);
 }
@@ -139,10 +140,10 @@ void Reducer::run_final_step_rowmajor(ExecutionContextIface & context, ClKernelF
     DAAL_CHECK_STATUS_PTR(status);
 
     KernelArguments args(4);
-    args.set(0, stepResult.reduce, AccessModeIds::read);
+    args.set(0, stepResult.reduceRes, AccessModeIds::read);
     args.set(1, nVectors);
     args.set(2, vectorSize);
-    args.set(3, result.reduce, AccessModeIds::write);
+    args.set(3, result.reduceRes, AccessModeIds::write);
 
     context.run(range, reduce_kernel, args, status);
 }
@@ -150,18 +151,19 @@ void Reducer::run_final_step_rowmajor(ExecutionContextIface & context, ClKernelF
 Reducer::Result Reducer::reduce(const BinaryOp op, Layout vectorsLayout, const UniversalBuffer & vectors, uint32_t nVectors, uint32_t vectorSize,
                                 services::Status * status)
 {
+    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
     Result result(context, nVectors, vectors.type(), status);
-    return Reducer::reduce(op, vectorsLayout, vectors, result.reduce, nVectors, vectorSize, status);
+    return Reducer::reduce(op, vectorsLayout, vectors, result.reduceRes, nVectors, vectorSize, status);
 }
 
 Reducer::Result Reducer::reduce(const BinaryOp op, Layout vectorsLayout, const UniversalBuffer & vectors, UniversalBuffer & resReduce,
                                 uint32_t nVectors, uint32_t vectorSize, services::Status * status)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(Reducer);
+    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
     Result result(context, resReduce, nVectors, vectors.type(), status);
 
-    auto & context       = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & kernelFactory = context.getClKernelFactory();
 
     buildProgram(kernelFactory, op, vectors.type());
@@ -195,11 +197,11 @@ Reducer::Result Reducer::reduce(const BinaryOp op, Layout vectorsLayout, const U
                               stepResult, status);
 
             const uint32_t stepWorkItems = maxNumSubSlices / 2; //need to be power of two
-            run_final_step_rowmajor(context, kernelFactory, stepResult, nVectors, numDivisionsByRow, stepWorkItems, resReduce, status);
+            run_final_step_rowmajor(context, kernelFactory, stepResult, nVectors, numDivisionsByRow, stepWorkItems, result, status);
         }
         else
         {
-            run_step_colmajor(context, kernelFactory, vectors, nVectors, vectorSize, workItemsPerGroup, numDivisionsByCol, resReduce, status);
+            run_step_colmajor(context, kernelFactory, vectors, nVectors, vectorSize, workItemsPerGroup, numDivisionsByCol, result, status);
         }
     }
 

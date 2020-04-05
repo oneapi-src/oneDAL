@@ -24,6 +24,7 @@
 #include "algorithms/svm/svm_predict.h"
 #include "algorithms/kernel/svm/svm_predict_kernel.h"
 #include "algorithms/classifier/classifier_predict_types.h"
+#include "algorithms/kernel/svm/oneapi/svm_predict_kernel_oneapi.h"
 
 namespace daal
 {
@@ -82,7 +83,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     }
     else
     {
-        __DAAL_INITIALIZE_KERNELS_SYCL(env, internal::SVMPredictImplOneAPI, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, m, *r, par);
+        __DAAL_CALL_KERNEL_SYCL(env, internal::SVMPredictImplOneAPI, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, m, *r, par);
     }
 }
 } // namespace interface2

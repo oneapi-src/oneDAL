@@ -8,22 +8,24 @@ using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
-// string trainDatasetFileName = "/nfs/inn/proj/numerics1/Users/kpetrov/ats/svm/svm_repo_impl/data.csv";
 string trainDatasetFileName = "../data/batch/svm_two_class_train_dense.csv";
-
-string testDatasetFileName = "../data/batch/svm_two_class_test_dense.csv";
+string testDatasetFileName  = "../data/batch/svm_two_class_test_dense.csv";
 
 const size_t nFeatures = 20;
 
+<<<<<<< HEAD
 // const size_t nFeatures = 119;
 
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> c8ef0452... stabile and working version
 svm::training::ResultPtr trainingResult;
 classifier::prediction::ResultPtr predictionResult;
 NumericTablePtr testGroundTruth;
 
-void trainModel();
+template <typename algorithmType>
+void trainModel(algorithmType algorithm);
 void testModel();
 void printResults();
 
@@ -38,7 +40,7 @@ int main(int argc, char * argv[])
     {
         const auto & nameDevice = deviceSelector.first;
         const auto & device     = deviceSelector.second;
-        if (!device.is_gpu()) continue;
+        if (!(device.is_gpu() || device.is_cpu())) continue;
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
@@ -46,18 +48,28 @@ int main(int argc, char * argv[])
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         trainModel(trainingResult);
 =======
         trainModel();
         // testModel();
         // printResults();
 >>>>>>> 8a074e5f... workin training
+=======
+        if (device.is_gpu())
+            trainModel(svm::training::Batch<float, svm::training::thunder>());
+        else
+            trainModel(svm::training::Batch<float, svm::training::boser>());
+        testModel();
+        printResults();
+>>>>>>> c8ef0452... stabile and working version
     }
 
     return 0;
 }
 
-void trainModel()
+template <typename algorithmType>
+void trainModel(algorithmType algorithm)
 {
     FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
@@ -76,13 +88,13 @@ void trainModel()
 
     trainDataSource.loadDataBlock(mergedData.get());
 
-    svm::training::Batch<> algorithm;
-
     algorithm.parameter.kernel            = kernel;
-    algorithm.parameter.cacheSize         = 40000000;
+    algorithm.parameter.cacheSize         = 1000000;
     algorithm.parameter.C                 = 1.0;
-    algorithm.parameter.maxIterations     = 1000;
-    algorithm.parameter.accuracyThreshold = 0.1;
+    algorithm.parameter.maxIterations     = 10000;
+    algorithm.parameter.accuracyThreshold = 0.01;
+    algorithm.parameter.tau               = 1e-6;
+    algorithm.parameter.doShrinking       = false;
 
     algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainGroundTruth);
@@ -98,14 +110,17 @@ void trainModel()
     auto model                   = trainingResult->get(classifier::training::model);
     NumericTablePtr svCoeffTable = model->getClassificationCoefficients();
     NumericTablePtr svIndices    = model->getSupportIndices();
+    NumericTablePtr sv           = model->getSupportVectors();
     const size_t nSV             = svCoeffTable->getNumberOfRows();
 
     const float bias(model->getBias());
 
     printf("nSV %lu\n", nSV);
     printf("bias %lf\n", bias);
-    printNumeric<float>(svCoeffTable, "", "svCoeffTable", 25);
-    printNumeric<int>(svIndices, "", "svIndices", 25);
+    // printNumeric<float>(svCoeffTable, "", "svCoeffTable", 25);
+    // printNumeric<float>(svCoeffTable, "", "svCoeffTable", nSV);
+    // printNumeric<int>(svIndices, "", "svIndices", 5);
+    // printNumeric<float>(sv, "", "sv", 25);
 }
 
 void testModel()
@@ -114,8 +129,8 @@ void testModel()
     FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for testing data and labels */
-    NumericTablePtr testData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
-    testGroundTruth = NumericTablePtr(new HomogenNumericTable<>(1, 0, NumericTable::doNotAllocate));
+    NumericTablePtr testData = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
+    testGroundTruth          = SyclHomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
     NumericTablePtr mergedData(new MergedNumericTable(testData, testGroundTruth));
 
     /* Retrieve the data from input file */

@@ -26,7 +26,7 @@
 
 #include "services/env_detect.h"
 #include "data_management/data/numeric_table.h"
-#include "algorithms/kernel_function/kernel_function_types_linear.h"
+#include "algorithms/kernel_function/kernel_function_types_rbf.h"
 #include "algorithms/kernel/kernel.h"
 
 namespace daal
@@ -35,14 +35,14 @@ namespace algorithms
 {
 namespace kernel_function
 {
-namespace linear
+namespace rbf
 {
 namespace internal
 {
 using namespace daal::data_management;
 
 template <Method method, typename algorithmFPType>
-class KernelImplRBF : public Kernel
+class KernelImplRBFOneAPI : public Kernel
 {
 public:
     services::Status compute(ComputationMode computationMode, NumericTable & a1, NumericTable & a2, NumericTable & r,
@@ -50,7 +50,7 @@ public:
 };
 
 } // namespace internal
-} // namespace linear
+} // namespace rbf
 } // namespace kernel_function
 } // namespace algorithms
 } // namespace daal

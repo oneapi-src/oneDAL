@@ -1,4 +1,4 @@
-/* file: svm_train_cache.h */
+/* file: svm_train_workset_oneapi.h */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -17,15 +17,15 @@
 
 /*
 //++
-//  SVM cache structure implementation
+//  SVM workset structure implementation
 //--
 */
 
-#ifndef __SVM_TRAIN_WORKSET_H__
-#define __SVM_TRAIN_WORKSET_H__
+#ifndef __SVM_TRAIN_WORKSET_ONEAPI_H__
+#define __SVM_TRAIN_WORKSET_ONEAPI_H__
 
 #include "service/kernel/service_utils.h"
-#include "algorithms/kernel/svm/oneapi/svm_helper.h"
+#include "algorithms/kernel/svm/oneapi/svm_helper_oneapi.h"
 
 using namespace daal::services::internal;
 
@@ -65,14 +65,17 @@ struct TaskWorkingSet
         DAAL_CHECK_STATUS(status, Helper::range(fIndicesBuf, _nVectors));
 
         // TODO: Get from device info
-        const size_t maxWS = 256;
 
-        _nWS       = min(maxWS, _nVectors);
+        auto & deviceInfo = context.getInfoDevice();
+
+        const size_t maxWS = deviceInfo.max_work_group_size;
+
+        _nWS       = min(maxpow2(_nVectors), maxWS);
         _nSelected = 0;
 
         tmpValues     = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
         wsIndices     = context.allocate(TypeIds::id<int>(), _nWS, &status);
-        wsSaveIndices     = context.allocate(TypeIds::id<int>(), _nWS, &status);
+        wsSaveIndices = context.allocate(TypeIds::id<int>(), _nWS, &status);
         tmpIndices    = context.allocate(TypeIds::id<int>(), _nVectors, &status);
         return status;
     }
@@ -104,12 +107,11 @@ struct TaskWorkingSet
         context.fill(tmpIndices, 0, &status);
         context.fill(_indicator, 0, &status);
 
-
         auto sortedFIndicesBuff = sortedFIndices.get<int>();
         auto tmpIndicesBuff     = tmpIndices.get<int>();
         auto fIndicesBuf        = fIndices.get<int>();
-        auto wsIndicesBuff       = wsIndices.get<int>();
-        auto indicatorBuff = _indicator.get<int>();
+        auto wsIndicesBuff      = wsIndices.get<int>();
+        auto indicatorBuff      = _indicator.get<int>();
 
         DAAL_CHECK_STATUS(status, Helper::argSort(fBuff, fIndices, tmpValues, sortedFIndices, _nVectors));
 
@@ -154,7 +156,8 @@ struct TaskWorkingSet
             DAAL_CHECK_STATUS(status, Helper::checkUpper(yBuff, alphaBuff, indicatorBuff, C, _nVectors));
 
             /* Reset indicator for busy indeces */
-            if (_nSelected > 0) {
+            if (_nSelected > 0)
+            {
                 DAAL_CHECK_STATUS(status, resetIndecator(wsIndicesBuff, indicatorBuff, _nSelected));
             }
 
@@ -179,7 +182,8 @@ struct TaskWorkingSet
             DAAL_CHECK_STATUS(status, Helper::checkLower(yBuff, alphaBuff, indicatorBuff, C, _nVectors));
 
             /* Reset indicator for busy indeces */
-            if (_nSelected > 0) {
+            if (_nSelected > 0)
+            {
                 DAAL_CHECK_STATUS(status, resetIndecator(wsIndicesBuff, indicatorBuff, _nSelected));
             }
 
@@ -201,6 +205,25 @@ struct TaskWorkingSet
 
         if (_nSelected < _nWS)
         {
+            const size_t nNeedSelect = _nWS - _nSelected;
+
+            DAAL_CHECK_STATUS(status, Helper::checkUpper(yBuff, alphaBuff, indicatorBuff, C, _nVectors));
+
+            /* Reset indicator for busy indeces */
+            if (_nSelected > 0)
+            {
+                DAAL_CHECK_STATUS(status, resetIndecator(wsIndicesBuff, indicatorBuff, _nSelected));
+            }
+
+            size_t nUpperSelect = 0;
+            DAAL_CHECK_STATUS(status, Helper::gatherIndices(indicatorBuff, sortedFIndicesBuff, _nVectors, tmpIndicesBuff, nUpperSelect));
+
+            const size_t nCopy = min(nUpperSelect, nNeedSelect);
+
+            context.copy(wsIndices, _nSelected, tmpIndices, 0, nCopy, &status);
+
+            _nSelected += nCopy;
+
             if (_verbose)
             {
                 printf("!!! _nSelected < _nWS - %lu %lu: \n", _nSelected, _nWS);
@@ -253,7 +276,6 @@ struct TaskWorkingSet
 
         return status;
     }
-
 
 private:
     size_t _nSelected;

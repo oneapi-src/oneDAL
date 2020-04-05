@@ -125,17 +125,16 @@ protected:
 template <Method method, typename algorithmFPType, typename ParameterType, CpuType cpu>
 struct SVMTrainImpl : public Kernel
 {
-    services::Status compute(const NumericTablePtr & xTable, NumericTable & yTable, daal::algorithms::Model * r, const ParameterType * par);
+    services::Status compute(const NumericTablePtr & xTable, NumericTable & yTable, daal::algorithms::Model * r, const ParameterType * par)
+    {
+        return services::ErrorMethodNotImplemented;
+    }
 };
 
 } // namespace internal
-
 } // namespace training
-
 } // namespace svm
-
 } // namespace algorithms
-
 } // namespace daal
 
 #endif

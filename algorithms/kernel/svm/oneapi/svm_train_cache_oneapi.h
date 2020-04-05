@@ -1,4 +1,4 @@
-/* file: svm_train_cache.h */
+/* file: svm_train_cache_oneapi.h */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -21,15 +21,15 @@
 //--
 */
 
-#ifndef __SVM_TRAIN_CACHE_H__
-#define __SVM_TRAIN_CACHE_H__
+#ifndef __SVM_TRAIN_CACHE_ONEAPI_H__
+#define __SVM_TRAIN_CACHE_ONEAPI_H__
 
 #include "service/kernel/service_utils.h"
 #include "externals/service_memory.h"
 #include "service/kernel/data_management/service_micro_table.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "data_management/data/numeric_table_sycl_homogen.h"
-#include "algorithms/kernel/svm/oneapi/svm_helper.h"
+#include "algorithms/kernel/svm/oneapi/svm_helper_oneapi.h"
 
 using namespace daal::services::internal;
 using namespace daal::data_management;
@@ -132,11 +132,10 @@ public:
 
         services::Status status;
 
-
         BlockDescriptor<algorithmFPType> xBlock;
 
         DAAL_CHECK_STATUS(status, xTable->getBlockOfRows(0, xTable->getNumberOfRows(), ReadWriteMode::readOnly, xBlock));
-        const services::Buffer<algorithmFPType>& xBuff = xBlock.getBuffer();
+        const services::Buffer<algorithmFPType> & xBuff = xBlock.getBuffer();
 
         // const size_t nRowsPerBlock = 90000;
         // const size_t nBlocks = nRows / nRowsPerBlock + !!(nRows % nRowsPerBlock);

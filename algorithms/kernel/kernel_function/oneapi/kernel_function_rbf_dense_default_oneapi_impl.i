@@ -29,6 +29,8 @@
 #include "externals/service_math.h"
 #include "externals/service_ittnotify.h"
 #include "service/kernel/oneapi/blas_gpu.h"
+#include "service/kernel/oneapi/sum_reducer.h"
+#include "algorithms/kernel/kernel_function/oneapi/cl_kernels/kernel_function.cl"
 
 namespace daal
 {
@@ -44,7 +46,7 @@ using namespace daal::oneapi::internal;
 using namespace daal::oneapi::internal::math;
 
 template <typename algorithmFPType>
-static services::Status KernelImplRBF<defaultDense, algorithmFPType>::buildProgram(ClKernelFactoryIface & factory)
+services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::buildProgram(ClKernelFactoryIface & factory)
 {
     services::String options = getKeyFPType<algorithmFPType>();
 
@@ -58,13 +60,21 @@ static services::Status KernelImplRBF<defaultDense, algorithmFPType>::buildProgr
 }
 
 template <typename algorithmFPType>
-static services::Status KernelImplRBF<defaultDense, algorithmFPType>::lazyAllocate(oneapi::internal::UniversalBuffer & x, const size_t n)
+services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::lazyAllocate(UniversalBuffer & x, const size_t n)
 {
     services::Status status;
     ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
-    const TypeIds::Id idType    = oneapi::internal::TypeIds::id<algorithmFPType>();
+    const TypeIds::Id idType    = TypeIds::id<algorithmFPType>();
 
-    if (x.empty() || x.get<algorithmFPType>().size() < n)
+    printf("%lu %d\n", n, (int)x.empty());
+    fflush(stdout);
+    if (x.empty())
+    {
+        printf("x.empty()\n");
+
+        x = ctx.allocate(idType, n, &status);
+    }
+    else if (x.get<algorithmFPType>().size() < n)
     {
         x = ctx.allocate(idType, n, &status);
     }
@@ -73,10 +83,10 @@ static services::Status KernelImplRBF<defaultDense, algorithmFPType>::lazyAlloca
 }
 
 template <typename algorithmFPType>
-services::Status KernelImplRBF<defaultDense, algorithmFPType>::computeRBF(const services::Buffer<algorithmFPType> & sqrA1,
-                                                                          const services::Buffer<algorithmFPType> & sqrA2, const uint32_t ld,
-                                                                          const algorithmFPType coeff, services::Buffer<algorithmFPType> & rbf,
-                                                                          const size_t nVectors1, const size_t nVectors2)
+services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeRBF(const services::Buffer<algorithmFPType> & sqrA1,
+                                                                                const services::Buffer<algorithmFPType> & sqrA2, const uint32_t ld,
+                                                                                const algorithmFPType coeff, services::Buffer<algorithmFPType> & rbf,
+                                                                                const size_t nVectors1, const size_t nVectors2)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(computeRBF);
 
@@ -107,22 +117,22 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType>::computeRBF(const 
 }
 
 template <typename algorithmFPType>
-services::Status KernelImplRBF<defaultDense, algorithmFPType>::computeInternalVectorVector(NumericTable & a1, NumericTable & a2, NumericTable * r,
-                                                                                           const ParameterBase * par)
+services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInternalVectorVector(NumericTable & a1, NumericTable & a2,
+                                                                                                 NumericTable & r, const ParameterBase * par)
 {
     return services::ErrorMethodNotImplemented;
 }
 
 template <typename algorithmFPType>
-services::Status KernelImplRBF<defaultDense, algorithmFPType>::computeInternalMatrixVector(NumericTable & a1, NumericTable & a2, NumericTable & r,
-                                                                                           const ParameterBase * par)
+services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInternalMatrixVector(NumericTable & a1, NumericTable & a2,
+                                                                                                 NumericTable & r, const ParameterBase * par)
 {
     return services::ErrorMethodNotImplemented;
 }
 
 template <typename algorithmFPType>
-services::Status KernelImplRBF<defaultDense, algorithmFPType>::computeInternalMatrixMatrix(NumericTable & a1, NumericTable & a2, NumericTable & r,
-                                                                                           const ParameterBase * par)
+services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInternalMatrixMatrix(NumericTable & a1, NumericTable & a2,
+                                                                                                 NumericTable & r, const ParameterBase * par)
 {
     //prepareData
     services::Status status;
@@ -141,6 +151,12 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType>::computeInternalMa
     const Parameter * rbfPar    = static_cast<const Parameter *>(par);
     const algorithmFPType coeff = algorithmFPType(-0.5 / (rbfPar->sigma * rbfPar->sigma));
 
+    printf("RBF coeff = %f nVectors1 %lu nVectors2 %lu nFeatures1 %lu\n", (float)coeff, nVectors1, nVectors2, nFeatures1);
+
+    BlockDescriptor<algorithmFPType> a1BD;
+    BlockDescriptor<algorithmFPType> a2BD;
+    BlockDescriptor<algorithmFPType> rBD;
+
     const size_t startRows = 0;
     DAAL_CHECK_STATUS(status, a1.getBlockOfRows(startRows, nVectors1, ReadWriteMode::readOnly, a1BD));
     DAAL_CHECK_STATUS(status, a2.getBlockOfRows(startRows, nVectors2, ReadWriteMode::readOnly, a2BD));
@@ -152,32 +168,59 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType>::computeInternalMa
 
     services::Buffer<algorithmFPType> rBuf = rBD.getBuffer();
 
-    DAAL_CHECK_STATUS(status, lazyAllocate(_sqrA1U, nVectors1));
-    DAAL_CHECK_STATUS(status, lazyAllocate(_sqrA2U nVectors2));
+    // DAAL_CHECK_STATUS(status, lazyAllocate(_sqrA1U, nVectors1));
+    UniversalBuffer _sqrA1U = context.allocate(TypeIds::id<algorithmFPType>(), nVectors1, &status);
+    // DAAL_CHECK_STATUS(status, lazyAllocate(_sqrA2U, nVectors2));
+    UniversalBuffer _sqrA2U = context.allocate(TypeIds::id<algorithmFPType>(), nVectors2, &status);
 
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.SumOfSquared);
 
-        Reducer::reduce(Reducer::BinaryOp::SUMS_OF_SQUARED, math::Layout::RowMajor, a1Buf, sqrA1U, nVectors1, nFeatures1, &status);
-        Reducer::reduce(Reducer::BinaryOp::SUMS_OF_SQUARED, math::Layout::RowMajor, a2Buf, sqrA2U, nVectors2, nFeatures2, &status);
+        Reducer::reduce(Reducer::BinaryOp::SUMS_OF_SQUARED, math::Layout::RowMajor, a1Buf, _sqrA1U, nVectors1, nFeatures1, &status);
+        Reducer::reduce(Reducer::BinaryOp::SUMS_OF_SQUARED, math::Layout::RowMajor, a2Buf, _sqrA2U, nVectors2, nFeatures2, &status);
     }
 
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.gemm);
         // TODO: Need block GEMM to avoid copying
 
-        algorithmFPType alpha = algorithmFPType(-2.0);
-        algorithmFPType beta  = algorithmFPType(0.0);
-
-        DAAL_CHECK_STATUS(
-            status, BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::Trans, nVectors1, nVectors2,
-                                                    nFeatures1, alpha, a1Buf, nFeatures1, 0, a2Buf, nFeatures2, 0, beta, rBuf, nVectors2, 0));
+        DAAL_CHECK_STATUS(status, BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::Trans, nVectors1,
+                                                                  nVectors2, nFeatures1, algorithmFPType(-2.0), a1Buf, nFeatures1, 0, a2Buf,
+                                                                  nFeatures2, 0, algorithmFPType(0.0), rBuf, nVectors2, 0));
     }
 
-    sqrA1Buff = sqrA1U.gen<algorithmFPType>();
-    sqrA2Buff = sqrA2U.gen<algorithmFPType>();
+    const services::Buffer<algorithmFPType> sqrA1Buff = _sqrA1U.get<algorithmFPType>();
+    const services::Buffer<algorithmFPType> sqrA2Buff = _sqrA2U.get<algorithmFPType>();
 
-    DAAL_CHECK_STATUS(status, computeRBF(sqrA1Buff, sqrA2Buff, r.getNumberOfColumns(), coeff, rBuf, nVectors1, nVectors2));
+    // {
+    //     algorithmFPType * sqrA1Buff_host = sqrA1Buff.toHost(ReadWriteMode::readOnly).get();
+    //     for (int i = 0; i < 10; i++)
+    //     {
+    //         printf("%.1f ", sqrA1Buff_host[i]);
+    //     }
+    //     printf("\n");
+    // }
+
+    // {
+    //     algorithmFPType * sqrA1Buff_host = sqrA2Buff.toHost(ReadWriteMode::readOnly).get();
+    //     for (int i = 0; i < 10; i++)
+    //     {
+    //         printf("%.1f ", sqrA1Buff_host[i]);
+    //     }
+    //     printf("\n");
+    // }
+
+    DAAL_CHECK_STATUS(status, computeRBF(sqrA1Buff, sqrA2Buff, nVectors2, coeff, rBuf, nVectors1, nVectors2));
+
+    {
+        algorithmFPType * sqrA1Buff_host = rBuf.toHost(ReadWriteMode::readOnly).get();
+        for (int i = 0; i < 20; i++)
+        {
+            printf("%.1f ", sqrA1Buff_host[i]);
+        }
+        printf("\n");
+    }
+
     return status;
 }
 
@@ -185,7 +228,6 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType>::computeInternalMa
 } // namespace rbf
 } // namespace kernel_function
 } // namespace algorithms
-} // namespace daal
 } // namespace daal
 
 #endif

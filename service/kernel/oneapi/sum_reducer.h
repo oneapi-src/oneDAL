@@ -64,14 +64,14 @@ public:
 
     struct Result
     {
-        UniversalBuffer reduce;
+        UniversalBuffer reduceRes;
 
         Result(ExecutionContextIface & context, uint32_t nVectors, TypeId type, services::Status * status)
-            : reduce(context.allocate(type, nVectors, status))
+            : reduceRes(context.allocate(type, nVectors, status))
         {}
 
         Result(ExecutionContextIface & context, UniversalBuffer & resReduce, uint32_t nVectors, TypeId type, services::Status * status)
-            : reduce(resReduce)
+            : reduceRes(resReduce)
         {}
     };
 

@@ -1,6 +1,6 @@
-/* file: svm_train_boser_impl.i */
+/* file: svm_train_thunder_oneapi_impl.i */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,18 +27,22 @@
 //
 //  REFERENCES
 //
-//  1. Rong-En Fan, Pai-Hsuen Chen, Chih-Jen Lin,
+
+//  1. Zeyi Wen, Jiashuai Shi, Bingsheng He
+//     ThunderSVM: A Fast SVM Library on GPUs and CPUs,
+//     Journal of Machine Learning Research, 19, 1-5 (2018)
+//  2. Rong-En Fan, Pai-Hsuen Chen, Chih-Jen Lin,
 //     Working Set Selection Using Second Order Information
 //     for Training Support Vector Machines,
 //     Journal of Machine Learning Research 6 (2005), pp. 1889___1918
-//  2. Bernard E. boser, Isabelle M. Guyon, Vladimir N. Vapnik,
+//  3. Bernard E. boser, Isabelle M. Guyon, Vladimir N. Vapnik,
 //     A Training Algorithm for Optimal Margin Classifiers.
-//  3. Thorsten Joachims, Making Large-Scale SVM Learning Practical,
+//  4. Thorsten Joachims, Making Large-Scale SVM Learning Practical,
 //     Advances in Kernel Methods - Support Vector Learning
 */
 
-#ifndef __SVM_TRAIN_GPU_IMPL_I__
-#define __SVM_TRAIN_GPU_IMPL_I__
+#ifndef __SVM_TRAIN_THUNDER_ONEAPI_IMPL_I__
+#define __SVM_TRAIN_THUNDER_ONEAPI_IMPL_I__
 
 #include "externals/service_memory.h"
 #include "service/kernel/data_management/service_micro_table.h"
@@ -51,17 +55,18 @@
 
 =======
 #include "externals/service_ittnotify.h"
-#include "algorithms/kernel/svm/oneapi/cl_kernels/svm_train_oneapi.cl"
 #include "service/kernel/oneapi/blas_gpu.h"
+#include "service/kernel/service_string_utils.h"
+#include "algorithms/kernel/svm/oneapi/cl_kernels/svm_train_block_smo_oneapi.cl"
 
 // TODO: DELETE
 #include <algorithm>
 >>>>>>> 815734e6... fix build
 #include <cstdlib>
 
-#include "algorithms/kernel/svm/oneapi/svm_train_cache.h"
-#include "algorithms/kernel/svm/oneapi/svm_train_workset.h"
-#include "algorithms/kernel/svm/oneapi/svm_train_result.h"
+#include "algorithms/kernel/svm/oneapi/svm_train_cache_oneapi.h"
+#include "algorithms/kernel/svm/oneapi/svm_train_workset_oneapi.h"
+#include "algorithms/kernel/svm/oneapi/svm_train_result_oneapi.h"
 
 DAAL_ITTNOTIFY_DOMAIN(svm_train.default.batch);
 
@@ -416,6 +421,7 @@ struct TaskWorkingSet
 =======
 >>>>>>> b7022f17... add linear kernel
 template <typename algorithmFPType, typename ParameterType>
+<<<<<<< HEAD:algorithms/kernel/svm/oneapi/svm_train_oneapi_impl.i
 <<<<<<< HEAD
 services::Status SVMTrainOneAPI<algorithmFPType, boser>::initGrad(const services::Buffer<algorithmFPType> & y, services::Buffer<algorithmFPType> & f,
                                                                   const size_t n)
@@ -455,6 +461,12 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::updateGr
                                                                                    const services::Buffer<algorithmFPType> & deltaalpha,
                                                                                    services::Buffer<algorithmFPType> & grad, const size_t nVectors,
                                                                                    const size_t nWS)
+=======
+services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::updateGrad(const services::Buffer<algorithmFPType> & kernelWS,
+                                                                                     const services::Buffer<algorithmFPType> & deltaalpha,
+                                                                                     services::Buffer<algorithmFPType> & grad, const size_t nVectors,
+                                                                                     const size_t nWS)
+>>>>>>> c8ef0452... stabile and working version:algorithms/kernel/svm/oneapi/svm_train_thunder_oneapi_impl.i
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(updateGrad);
     return BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::Trans, math::Transpose::NoTrans, nVectors, 1, nWS,
@@ -462,7 +474,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::updateGr
 }
 
 template <typename algorithmFPType, typename ParameterType>
-services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::smoKernel(
+services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::smoKernel(
     const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & kernelWsRows, const services::Buffer<int> & wsIndices,
     const int ldK, const services::Buffer<algorithmFPType> & f, const algorithmFPType C, const algorithmFPType eps, const algorithmFPType tau,
     const int maxInnerIteration, services::Buffer<algorithmFPType> & alpha, services::Buffer<algorithmFPType> & deltaalpha,
@@ -473,7 +485,18 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::smoKerne
     auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & factory = context.getClKernelFactory();
 
-    services::Status status = Helper::buildProgram(factory);
+    services::String build_options = getKeyFPType<algorithmFPType>();
+
+    services::String cachekey("__daal_algorithms_svm_smo_block_");
+    cachekey.add(build_options);
+    build_options.add(" -D WS_SIZE=");
+    char WsString[60];
+    services::internal::toStringBuffer<int>(nWS, WsString);
+    build_options.add(WsString);
+
+    services::Status status;
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelBlockSMO, build_options.c_str(), &status);
+
     DAAL_CHECK_STATUS_VAR(status);
 
     auto kernel = factory.getKernel("smoKernel");
@@ -508,8 +531,8 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::smoKerne
 }
 
 template <typename algorithmFPType, typename ParameterType>
-bool SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev,
-                                                                               const algorithmFPType eps, int & sameLocalDiff)
+bool SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev,
+                                                                                 const algorithmFPType eps, int & sameLocalDiff)
 {
     sameLocalDiff = abs(diff - diffPrev) < eps ? sameLocalDiff + 1 : 0;
 
@@ -521,10 +544,10 @@ bool SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::checkStopCondition(c
 }
 
 template <typename algorithmFPType, typename ParameterType>
-double SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::calculateObjective(const services::Buffer<algorithmFPType> & y,
-                                                                                 const services::Buffer<algorithmFPType> & alpha,
-                                                                                 const services::Buffer<algorithmFPType> & grad,
-                                                                                 const size_t nVectors)
+double SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::calculateObjective(const services::Buffer<algorithmFPType> & y,
+                                                                                   const services::Buffer<algorithmFPType> & alpha,
+                                                                                   const services::Buffer<algorithmFPType> & grad,
+                                                                                   const size_t nVectors)
 {
     double obj     = 0.0f;
     auto yHost     = y.toHost(ReadWriteMode::readOnly).get();
@@ -538,9 +561,14 @@ double SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::calculateObjective
 }
 
 template <typename algorithmFPType, typename ParameterType>
+<<<<<<< HEAD:algorithms/kernel/svm/oneapi/svm_train_oneapi_impl.i
 services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::compute(const NumericTablePtr & xTable, NumericTable & yTable,
                                                                                 daal::algorithms::Model * r, const ParameterType * svmPar)
 >>>>>>> 64f30ec0... smo local add & update F
+=======
+services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::compute(const NumericTablePtr & xTable, NumericTable & yTable,
+                                                                                  daal::algorithms::Model * r, const ParameterType * svmPar)
+>>>>>>> c8ef0452... stabile and working version:algorithms/kernel/svm/oneapi/svm_train_thunder_oneapi_impl.i
 {
     services::Status status;
 
@@ -599,6 +627,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::compute(
     DAAL_CHECK_STATUS_VAR(status);
     auto alphaBuff = alphaU.get<algorithmFPType>();
 
+<<<<<<< HEAD:algorithms/kernel/svm/oneapi/svm_train_oneapi_impl.i
     // fi = -yi
 <<<<<<< HEAD
     UniversalBuffer f = ctx.allocate(idType, nVectors, &status);
@@ -609,14 +638,18 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::compute(
     DAAL_CHECK_STATUS_VAR(status);
 =======
     auto fU = context.allocate(idType, nVectors, &status);
+=======
+    // gradi = -yi
+    auto gradU = context.allocate(idType, nVectors, &status);
+>>>>>>> c8ef0452... stabile and working version:algorithms/kernel/svm/oneapi/svm_train_thunder_oneapi_impl.i
     DAAL_CHECK_STATUS_VAR(status);
-    auto gradBuff = fU.get<algorithmFPType>();
+    auto gradBuff = gradU.get<algorithmFPType>();
 
     BlockDescriptor<algorithmFPType> yBD;
     DAAL_CHECK_STATUS(status, yTable.getBlockOfRows(0, nVectors, ReadWriteMode::readOnly, yBD));
     auto yBuff = yBD.getBuffer();
 
-    DAAL_CHECK_STATUS(status, initGrad(yBuff, gradBuff, nVectors));
+    DAAL_CHECK_STATUS(status, Helper::initGrad(yBuff, gradBuff, nVectors));
 
     TaskWorkingSet<algorithmFPType> workSet(nVectors, verbose);
 
@@ -624,7 +657,6 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::compute(
 >>>>>>> c13db2ed... ws add
 
     const size_t nWS = workSet.getSize();
-
     const size_t innerMaxIterations(nWS * 1000);
 
     auto deltaalphaU = context.allocate(idType, nWS, &status);
@@ -643,14 +675,19 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::compute(
 
     SVMCacheOneAPIIface<algorithmFPType> * cache = nullptr;
 
+    float ws_select      = 0.0;
+    float kernel_compute = 0.0;
+    float solver         = 0.0;
+    float update_grad    = 0.0;
+
     if (cacheSize > nWS * nVectors * sizeof(algorithmFPType))
     {
+        // TODO!
         cache = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, nWS, nVectors, xTable, kernel, verbose, status);
     }
     else
     {
-        // TODO!
-        return status;
+        cache = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, nWS, nVectors, xTable, kernel, verbose, status);
     }
 
     if (verbose)
@@ -664,7 +701,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::compute(
 
     // TODO transfer on GPU
 
-    for (size_t iter = 0; iter < /*maxIterations*/ 1000; iter++)
+    for (size_t iter = 0; iter < maxIterations; iter++)
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -699,6 +736,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::compute(
                 const auto t_1           = high_resolution_clock::now();
                 const float duration_sec = duration_cast<milliseconds>(t_1 - t_0).count();
                 printf(">>>> SelectWS.compute time(ms) = %.1f\n", duration_sec);
+                ws_select += duration_sec;
                 fflush(stdout);
             }
         }
@@ -716,8 +754,23 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::compute(
             DAAL_CHECK_STATUS(status, cache->compute(xBuff, wsIndices, nFeatures));
 =======
         const services::Buffer<int> & wsIndices = workSet.getWSIndeces();
+<<<<<<< HEAD:algorithms/kernel/svm/oneapi/svm_train_oneapi_impl.i
         DAAL_CHECK_STATUS(status, cache->compute(xTable, wsIndices, nFeatures));
 >>>>>>> 8a074e5f... workin training
+=======
+        {
+            const auto t_0 = high_resolution_clock::now();
+            DAAL_CHECK_STATUS(status, cache->compute(xTable, wsIndices, nFeatures));
+            if (verbose)
+            {
+                const auto t_1           = high_resolution_clock::now();
+                const float duration_sec = duration_cast<milliseconds>(t_1 - t_0).count();
+                printf(">>>> kerel.compute time(ms) = %.1f\n", duration_sec);
+                kernel_compute += duration_sec;
+                fflush(stdout);
+            }
+        }
+>>>>>>> c8ef0452... stabile and working version:algorithms/kernel/svm/oneapi/svm_train_thunder_oneapi_impl.i
 
         if (verbose)
         {
@@ -752,6 +805,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::compute(
                 const float duration_sec = duration_cast<milliseconds>(t_1 - t_0).count();
                 printf(">>>> smoKernel (ms) = %.3f\n", duration_sec);
                 printf(">>>> iter %lu localInnerIteration % d innerIteration = %d diff = %.1f\n", iter, localInnerIteration, innerIteration, diff);
+                solver += duration_sec;
                 fflush(stdout);
             }
         }
@@ -767,6 +821,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::compute(
                 const float duration_sec = duration_cast<milliseconds>(t_1 - t_0).count();
                 printf(">>>> updateGrad (ms) = %.1f\n", duration_sec);
                 fflush(stdout);
+                update_grad += duration_sec;
             }
         }
         if (verbose)
@@ -784,6 +839,14 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, boser>::compute(
             break;
         }
         diffPrev = diff;
+    }
+
+    if (verbose)
+    {
+        printf(">>>>>> SELECT WS (ms) %.3lf\n", ws_select);
+        printf(">>>>>> KERNEL COMPUTE (ms) %.3lf\n", kernel_compute);
+        printf(">>>>>> SMO (ms) %.3lf\n", solver);
+        printf(">>>>>> UPDATE GRAD WS (ms) %.3lf\n", update_grad);
     }
 
     SaveResultModel<algorithmFPType> result(alphaBuff, gradBuff, yBuff, C, nVectors);

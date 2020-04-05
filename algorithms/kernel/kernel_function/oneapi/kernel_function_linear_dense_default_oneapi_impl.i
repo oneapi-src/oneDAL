@@ -65,6 +65,8 @@ services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeI
 {
     services::Status status;
 
+    printf("LinearOneAPI\n");
+
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();
 

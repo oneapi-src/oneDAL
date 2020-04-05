@@ -61,9 +61,9 @@ int main(int argc, char * argv[])
 
     trainModel();
 
-    // testModel();
+    testModel();
 
-    // printResults();
+    printResults();
 
     return 0;
 }
@@ -105,14 +105,17 @@ void trainModel()
     auto model                   = trainingResult->get(classifier::training::model);
     NumericTablePtr svCoeffTable = model->getClassificationCoefficients();
     NumericTablePtr svIndices    = model->getSupportIndices();
+    NumericTablePtr sv           = model->getSupportVectors();
     const size_t nSV             = svCoeffTable->getNumberOfRows();
 
     const float bias(model->getBias());
 
     printf("nSV %lu\n", nSV);
     printf("bias %lf\n", bias);
-    printNumeric<float>(svCoeffTable, "", "svCoeffTable", 25);
+    // printNumeric<float>(svCoeffTable, "", "svCoeffTable", 25);
+    // printNumeric<int>(svCoeffTable, "", "svCoeffTable", 25);
     printNumeric<int>(svIndices, "", "svIndices", 25);
+    // printNumeric<float>(sv, "", "sv", 25);
 }
 
 void testModel()

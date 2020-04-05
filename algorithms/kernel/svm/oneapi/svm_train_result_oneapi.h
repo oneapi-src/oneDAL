@@ -1,4 +1,4 @@
-/* file: svm_train_cache.h */
+/* file: svm_train_result_oneapi.h */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -17,15 +17,15 @@
 
 /*
 //++
-//  SVM cache structure implementation
+//  SVM save result structure implementation
 //--
 */
 
-#ifndef __SVM_TRAIN_RESULT_H__
-#define __SVM_TRAIN_RESULT_H__
+#ifndef __SVM_TRAIN_RESULT_ONEAPI_H__
+#define __SVM_TRAIN_RESULT_ONEAPI_H__
 
 #include "service/kernel/service_utils.h"
-#include "algorithms/kernel/svm/oneapi/svm_helper.h"
+#include "algorithms/kernel/svm/oneapi/svm_helper_oneapi.h"
 #include "service/kernel/oneapi/sum_reducer.h"
 
 using namespace daal::services::internal;
@@ -46,39 +46,31 @@ class SaveResultModel
     using Helper = HelperSVM<algorithmFPType>;
 
 public:
-    SaveResultModel(const services::Buffer<algorithmFPType> & alphaBuff, const services::Buffer<algorithmFPType> & fBuff,
+    SaveResultModel(services::Buffer<algorithmFPType> & alphaBuff, const services::Buffer<algorithmFPType> & fBuff,
                     const services::Buffer<algorithmFPType> & yBuff, const algorithmFPType C, const size_t nVectors)
-        : _yBuff(yBuff), _alphaBuff(alphaBuff), _fBuff(fBuff), _C(C), _nVectors(nVectors)
+        : _yBuff(yBuff), _coeffBuff(alphaBuff), _fBuff(fBuff), _C(C), _nVectors(nVectors)
     {}
 
     services::Status init()
     {
-        Status status;
+        services::Status status;
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
         _tmpValues     = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
         DAAL_CHECK_STATUS_VAR(status);
         _mask = context.allocate(TypeIds::id<int>(), _nVectors, &status);
         DAAL_CHECK_STATUS_VAR(status);
+
+        DAAL_CHECK_STATUS(status, Helper::computeDualCoeffs(_yBuff, _coeffBuff, _nVectors));
+
         return status;
     }
 
     services::Status setResultsToModel(const NumericTablePtr & xTable, Model & model) const
     {
-        Status status;
-        const algorithmFPType zero(0.0);
-        size_t nSV = 0;
-        {
-            const algorithmFPType * alpha = _alphaBuff.toHost(ReadWriteMode::readOnly).get();
-
-            for (size_t i = 0; i < _nVectors; i++)
-            {
-                if (alpha[i] > zero) nSV++;
-            }
-            printf("nSV %lu\n", nSV);
-        }
-
+        services::Status status;
         model.setNFeatures(xTable->getNumberOfColumns());
 
+        size_t nSV;
         DAAL_CHECK_STATUS(status, setSVCoefficients(nSV, model));
         DAAL_CHECK_STATUS(status, setSVIndices(nSV, model));
 
@@ -92,33 +84,36 @@ public:
     }
 
 protected:
-    services::Status setSVCoefficients(size_t nSV, Model & model) const
+    services::Status setSVCoefficients(size_t & nSV, Model & model) const
     {
-        const algorithmFPType zero(0.0);
+        services::Status status;
+
+        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+
+        auto tmpValuesBuff = _tmpValues.get<algorithmFPType>();
+        auto maskBuff      = _mask.get<int>();
+
+        DAAL_CHECK_STATUS(status, Helper::checkNotZero(_coeffBuff, maskBuff, _nVectors));
+        nSV = 0;
+        DAAL_CHECK_STATUS(status, Helper::gatherValues(maskBuff, _coeffBuff, _nVectors, tmpValuesBuff, nSV));
+        printf("nSV %lu\n", nSV);
+
         NumericTablePtr svCoeffTable = model.getClassificationCoefficients();
-        Status status;
         DAAL_CHECK_STATUS(status, svCoeffTable->resize(nSV));
 
         BlockDescriptor<algorithmFPType> svCoeffBlock;
         DAAL_CHECK_STATUS(status, svCoeffTable->getBlockOfRows(0, nSV, ReadWriteMode::writeOnly, svCoeffBlock));
+        auto svCoeffBuff = svCoeffBlock.getBuffer();
+        context.copy(svCoeffBuff, 0, tmpValuesBuff, 0, nSV, &status);
 
-        algorithmFPType * svCoeff     = svCoeffBlock.getBlockSharedPtr().get();
-        const algorithmFPType * y     = _yBuff.toHost(ReadWriteMode::readOnly).get();
-        const algorithmFPType * alpha = _alphaBuff.toHost(ReadWriteMode::readOnly).get();
-
-        for (size_t i = 0, iSV = 0; i < _nVectors; i++)
-        {
-            if (alpha[i] != zero)
-            {
-                svCoeff[iSV] = y[i] * alpha[i];
-                iSV++;
-            }
-        }
+        DAAL_CHECK_STATUS(status, svCoeffTable->releaseBlockOfRows(svCoeffBlock));
         return status;
     }
 
     services::Status setSVIndices(size_t nSV, Model & model) const
     {
+        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+
         NumericTablePtr svIndicesTable = model.getSupportIndices();
         services::Status status;
         DAAL_CHECK_STATUS(status, svIndicesTable->resize(nSV));
@@ -128,23 +123,24 @@ protected:
 
         int * svIndices = svIndicesBlock.getBlockSharedPtr().get();
 
-        const algorithmFPType * alpha = _alphaBuff.toHost(ReadWriteMode::readOnly).get();
+        const algorithmFPType * alpha = _coeffBuff.toHost(ReadWriteMode::readOnly).get();
 
         const algorithmFPType zero(0.0);
         for (size_t i = 0, iSV = 0; i < _nVectors; i++)
         {
             if (alpha[i] != zero)
             {
-                DAAL_ASSERT(i <= services::internal::MaxVal<int>::get())
                 svIndices[iSV++] = int(i);
             }
         }
+
+        DAAL_CHECK_STATUS(status, svIndicesTable->releaseBlockOfRows(svIndicesBlock));
         return status;
     }
 
-    Status setSVDense(Model & model, const NumericTablePtr & xTable, size_t nSV) const
+    services::Status setSVDense(Model & model, const NumericTablePtr & xTable, size_t nSV) const
     {
-        Status status;
+        services::Status status;
 
         const size_t nFeatures = xTable->getNumberOfColumns();
 
@@ -167,26 +163,23 @@ protected:
 
         DAAL_CHECK_STATUS(status, Helper::copyBlockIndices(xBuff, svIndicesBuff, svBuff, nSV, nFeatures));
 
+        DAAL_CHECK_STATUS(status, svTable->releaseBlockOfRows(svBlock));
+        DAAL_CHECK_STATUS(status, svIndicesTable->releaseBlockOfRows(svIndicesBlock));
+
         return status;
     }
 
-    Status calculateBias(const algorithmFPType C, algorithmFPType & bias) const
+    services::Status calculateBias(const algorithmFPType C, algorithmFPType & bias) const
     {
-        Status status;
-        const algorithmFPType zero(0.0);
-        const algorithmFPType one(1.0);
-        size_t num_yg          = 0;
-        algorithmFPType sum_yg = 0.0;
+        services::Status status;
 
         const algorithmFPType fpMax = MaxVal<algorithmFPType>::get();
-        algorithmFPType ub          = -(fpMax);
-        algorithmFPType lb          = fpMax;
 
         auto tmpValuesBuff = _tmpValues.get<algorithmFPType>();
         auto maskBuff      = _mask.get<int>();
 
         /* free SV: (0 < alpha < C)*/
-        DAAL_CHECK_STATUS(status, Helper::checkFree(_alphaBuff, maskBuff, C, _nVectors));
+        DAAL_CHECK_STATUS(status, Helper::checkFree(_coeffBuff, maskBuff, C, _nVectors));
         size_t nFree = 0;
         DAAL_CHECK_STATUS(status, Helper::gatherValues(maskBuff, _fBuff, _nVectors, tmpValuesBuff, nFree));
 
@@ -199,25 +192,27 @@ protected:
         }
         else
         {
-            algorithmFPType ub = algorithmFPType(0);
-            algorithmFPType lb = algorithmFPType(0);
+            algorithmFPType ub = -fpMax;
+            algorithmFPType lb = fpMax;
             {
-                DAAL_CHECK_STATUS(status, Helper::checkUpper(_yBuff, _alphaBuff, maskBuff, C, _nVectors));
+                DAAL_CHECK_STATUS(status, Helper::checkUpper(_yBuff, _coeffBuff, maskBuff, C, _nVectors));
                 size_t nUpper = 0;
                 DAAL_CHECK_STATUS(status, Helper::gatherValues(maskBuff, _fBuff, _nVectors, tmpValuesBuff, nUpper));
-                auto result = math::Reducer::reduce(math::Reducer::BinaryOp::MIN, math::Layout::RowMajor, tmpValuesBuff, 1, nUpper, &status).reduce;
+                auto resultOp = math::Reducer::reduce(math::Reducer::BinaryOp::MIN, math::Layout::RowMajor, tmpValuesBuff, 1, nUpper, &status);
                 DAAL_CHECK_STATUS_VAR(status);
-                auto minHost = result.get<algorithmFPType>().toHost(data_management::readOnly, &status);
-                ub           = *minHost;
+                UniversalBuffer minU = resultOp.reduceRes;
+                auto minHost         = minU.get<algorithmFPType>().toHost(data_management::readOnly, &status);
+                ub                   = *minHost;
             }
             {
-                DAAL_CHECK_STATUS(status, Helper::checkLower(_yBuff, _alphaBuff, maskBuff, C, _nVectors));
+                DAAL_CHECK_STATUS(status, Helper::checkLower(_yBuff, _coeffBuff, maskBuff, C, _nVectors));
                 size_t nLower = 0;
                 DAAL_CHECK_STATUS(status, Helper::gatherValues(maskBuff, _fBuff, _nVectors, tmpValuesBuff, nLower));
-                auto result = math::Reducer::reduce(math::Reducer::BinaryOp::MAX, math::Layout::RowMajor, tmpValuesBuff, 1, nLower, &status).reduce;
+                auto resultOp = math::Reducer::reduce(math::Reducer::BinaryOp::MAX, math::Layout::RowMajor, tmpValuesBuff, 1, nLower, &status);
                 DAAL_CHECK_STATUS_VAR(status);
-                auto maxHost = result.get<algorithmFPType>().toHost(data_management::readOnly, &status);
-                ub           = *maxHost;
+                UniversalBuffer maxU = resultOp.reduceRes;
+                auto maxHost         = maxU.get<algorithmFPType>().toHost(data_management::readOnly, &status);
+                lb                   = *maxHost;
             }
 
             bias = -0.5 * (ub + lb);
@@ -229,7 +224,7 @@ protected:
 private:
     const services::Buffer<algorithmFPType> _yBuff;
     const services::Buffer<algorithmFPType> _fBuff;
-    const services::Buffer<algorithmFPType> _alphaBuff;
+    services::Buffer<algorithmFPType> _coeffBuff;
     UniversalBuffer _tmpValues;
     UniversalBuffer _mask;
     const algorithmFPType _C;

@@ -1,4 +1,4 @@
-/* file: objective_function_utils_oneapi.h */
+/* file: svm_helper_oneapi.h */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -15,14 +15,14 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __SVM_UTILS_ONEAPI_H__
-#define __SVM_UTILS_ONEAPI_H__
+#ifndef __SVM_HELPER_ONEAPI_H__
+#define __SVM_HELPER_ONEAPI_H__
 
-#include "algorithms/kernel/svm/oneapi/cl_kernels/svm_train_oneapi.cl"
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "service/kernel/oneapi/sorter.h"
-
 #include "externals/service_ittnotify.h"
+
+#include "algorithms/kernel/svm/oneapi/cl_kernels/svm_kernels.cl"
 
 // TODO: DELETE
 #include <algorithm>
@@ -59,6 +59,22 @@ inline const T abs(const T & a)
     return a > 0 ? a : -a;
 }
 
+inline size_t maxpow2(size_t n)
+{
+    if (!(n & (n - 1)))
+    {
+        return n;
+    }
+
+    size_t count = 0;
+    while (n > 1)
+    {
+        n >>= 1;
+        count++;
+    }
+    return 1 << count;
+}
+
 using namespace daal::services::internal;
 using namespace daal::oneapi::internal;
 
@@ -72,10 +88,9 @@ struct HelperSVM
         services::String cachekey("__daal_algorithms_svm_");
         cachekey.add(options);
         options.add(" -D LOCAL_SUM_SIZE=256 ");
-        options.add(" -D WS_SIZE=256 ");
 
         services::Status status;
-        factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelSVMTrain, options.c_str(), &status);
+        factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelSVM, options.c_str(), &status);
         return status;
     }
 
@@ -95,6 +110,30 @@ struct HelperSVM
         args.set(0, x, AccessModeIds::readwrite);
 
         KernelRange range(nVectors);
+
+        context.run(range, kernel, args, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        return status;
+    }
+
+    static services::Status initGrad(const services::Buffer<algorithmFPType> & y, services::Buffer<algorithmFPType> & grad, const size_t n)
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(initGrad);
+
+        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & factory = context.getClKernelFactory();
+
+        services::Status status = buildProgram(factory);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        auto kernel = factory.getKernel("initGradient");
+
+        KernelArguments args(2);
+        args.set(0, y, AccessModeIds::read);
+        args.set(1, grad, AccessModeIds::write);
+
+        KernelRange range(n);
 
         context.run(range, kernel, args, &status);
         DAAL_CHECK_STATUS_VAR(status);
@@ -143,14 +182,14 @@ struct HelperSVM
     }
 
     static services::Status gatherValues(const services::Buffer<int> & mask, const services::Buffer<algorithmFPType> & x, const size_t n,
-                                          services::Buffer<algorithmFPType> & res, size_t & nRes)
+                                         services::Buffer<algorithmFPType> & res, size_t & nRes)
     {
         services::Status status;
 
-        int * indicator_host      = mask.toHost(ReadWriteMode::readOnly).get();
+        int * indicator_host                  = mask.toHost(ReadWriteMode::readOnly).get();
         algorithmFPType * sortedFIndices_host = x.toHost(ReadWriteMode::readOnly).get();
         algorithmFPType * tmpIndices_host     = res.toHost(ReadWriteMode::writeOnly).get();
-        nRes                      = 0;
+        nRes                                  = 0;
         for (int i = 0; i < n; i++)
         {
             if (indicator_host[i])
@@ -162,8 +201,8 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status copyBlockIndices(const services::Buffer<algorithmFPType> & xBuff, const services::Buffer<int> & indBuff,
-                                             services::Buffer<algorithmFPType> & newBuf, const uint32_t nWS, const uint32_t p)
+    static services::Status copyBlockIndices(const services::Buffer<algorithmFPType> & x, const services::Buffer<int> & ind,
+                                             services::Buffer<algorithmFPType> & newX, const uint32_t nWS, const uint32_t p)
     {
         services::Status status;
 
@@ -176,10 +215,10 @@ struct HelperSVM
         oneapi::internal::KernelPtr kernel = factory.getKernel(kernelName);
 
         oneapi::internal::KernelArguments args(4);
-        args.set(0, xBuff, oneapi::internal::AccessModeIds::read);
-        args.set(1, indBuff, oneapi::internal::AccessModeIds::read);
+        args.set(0, x, oneapi::internal::AccessModeIds::read);
+        args.set(1, ind, oneapi::internal::AccessModeIds::read);
         args.set(2, p);
-        args.set(3, newBuf, oneapi::internal::AccessModeIds::write);
+        args.set(3, newX, oneapi::internal::AccessModeIds::write);
 
         oneapi::internal::KernelRange range(p, nWS);
 
@@ -189,7 +228,7 @@ struct HelperSVM
     }
 
     static services::Status checkUpper(const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & alpha,
-                                services::Buffer<int> & indicator, const algorithmFPType C, const size_t n)
+                                       services::Buffer<int> & indicator, const algorithmFPType C, const size_t n)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(checkUpper);
 
@@ -216,7 +255,7 @@ struct HelperSVM
     }
 
     static services::Status checkLower(const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & alpha,
-                                services::Buffer<int> & indicator, const algorithmFPType C, const size_t n)
+                                       services::Buffer<int> & indicator, const algorithmFPType C, const size_t n)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(checkLower);
 
@@ -242,7 +281,8 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status checkFree(const services::Buffer<algorithmFPType> & alpha, services::Buffer<int> & mask, const algorithmFPType C, const size_t n)
+    static services::Status checkFree(const services::Buffer<algorithmFPType> & alpha, services::Buffer<int> & mask, const algorithmFPType C,
+                                      const size_t n)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(checkFree);
 
@@ -267,6 +307,53 @@ struct HelperSVM
         return status;
     }
 
+    static services::Status checkNotZero(const services::Buffer<algorithmFPType> & alpha, services::Buffer<int> & mask, const size_t n)
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(checkNotZero);
+
+        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & factory = context.getClKernelFactory();
+
+        services::Status status = buildProgram(factory);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        auto kernel = factory.getKernel("checkNotZero");
+
+        KernelArguments args(2);
+        args.set(0, alpha, AccessModeIds::read);
+        args.set(1, mask, AccessModeIds::write);
+
+        KernelRange range(n);
+
+        context.run(range, kernel, args, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        return status;
+    }
+
+    static services::Status computeDualCoeffs(const services::Buffer<algorithmFPType> & y, services::Buffer<algorithmFPType> & alpha, const size_t n)
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(computeDualCoeffs);
+
+        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & factory = context.getClKernelFactory();
+
+        services::Status status = buildProgram(factory);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        auto kernel = factory.getKernel("computeDualCoeffs");
+
+        KernelArguments args(2);
+        args.set(0, y, AccessModeIds::read);
+        args.set(1, alpha, AccessModeIds::readwrite);
+
+        KernelRange range(n);
+
+        context.run(range, kernel, args, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        return status;
+    }
 };
 
 } // namespace internal

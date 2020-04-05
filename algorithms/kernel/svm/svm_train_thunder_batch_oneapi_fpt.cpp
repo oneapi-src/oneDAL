@@ -1,6 +1,6 @@
-/* file: svm_train_boser_kernel.h */
+/* file: svm_train_thunder_batch_fpt_cpu.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,24 +17,12 @@
 
 /*
 //++
-//  Declaration of template structs that calculate SVM Training functions.
+//  Implementation of SVM thunder training algorithm.
 //--
 */
 
-#ifndef __SVM_TRAIN_BOSER_KERNEL_H__
-#define __SVM_TRAIN_BOSER_KERNEL_H__
-
-#include "data_management/data/numeric_table.h"
-#include "algorithms/model.h"
-#include "services/daal_defines.h"
-#include "algorithms/svm/svm_train_types.h"
-#include "algorithms/kernel/kernel.h"
-#include "service/kernel/data_management/service_micro_table.h"
-
-using namespace daal::data_management;
-using namespace daal::internal;
-
-#include "algorithms/kernel/svm/svm_train_kernel.h"
+#include "algorithms/kernel/svm/oneapi/svm_train_thunder_kernel_oneapi.h"
+#include "algorithms/kernel/svm/oneapi/svm_train_thunder_oneapi_impl.i"
 
 namespace daal
 {
@@ -46,16 +34,10 @@ namespace training
 {
 namespace internal
 {
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-struct SVMTrainImpl<boser, algorithmFPType, ParameterType, cpu> : public Kernel
-{
-    services::Status compute(const NumericTablePtr & xTable, NumericTable & yTable, daal::algorithms::Model * r, const ParameterType * par);
-};
+template struct SVMTrainOneAPI<DAAL_FPTYPE, svm::interface2::Parameter, thunder>;
 
 } // namespace internal
 } // namespace training
 } // namespace svm
 } // namespace algorithms
 } // namespace daal
-
-#endif

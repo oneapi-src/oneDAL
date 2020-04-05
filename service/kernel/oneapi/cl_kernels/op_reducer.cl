@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Implementation of min / max reduction kernels.
+//  Implementation of reduction kernels.
 //--
 */
 
@@ -80,7 +80,7 @@ DECLARE_SOURCE(
     }
 
     void __reduce_reduce_colmajor(__global const algorithmFPType * vectors, const uint nVectors, const uint vectorSize,
-                                  __global algorithmFPType * mergedSums, const uint rowPartIndex, const uint rowParts, const uint colPartIndex,
+                                  __global algorithmFPType * mergedReduce, const uint rowPartIndex, const uint rowParts, const uint colPartIndex,
                                   const uint colParts, const uint tid, const uint tnum) {
         const int colOffset = colPartIndex * tnum;
         const int x         = tid + colOffset;
@@ -105,12 +105,12 @@ DECLARE_SOURCE(
                 partialSums = BINARY_OP(partialSums, UNARY_OP(el));
             }
 
-            mergedSums[x * rowParts + rowPartIndex] = partialSums;
+            mergedReduce[x * rowParts + rowPartIndex] = partialSums;
         }
     }
 
     __kernel void reduce_step_colmajor(__global const algorithmFPType * vectors, const uint nVectors, const uint vectorSize,
-                                       __global algorithmFPType * mergedSums) {
+                                       __global algorithmFPType * mergedReduce) {
         const int tid  = get_local_id(0);
         const int tnum = get_local_size(0);
         const int gid  = get_group_id(0);
@@ -122,10 +122,10 @@ DECLARE_SOURCE(
         const int rowPartIndex = gid / colParts;
         const int colPartIndex = gid - rowPartIndex * colParts;
 
-        __reduce_reduce_colmajor(vectors, nVectors, vectorSize, mergedSums, mergedSqSums, rowPartIndex, rowParts, colPartIndex, colParts, tid, tnum);
+        __reduce_reduce_colmajor(vectors, nVectors, vectorSize, mergedReduce, rowPartIndex, rowParts, colPartIndex, colParts, tid, tnum);
     }
 
-    __kernel void reduce_final_step_rowmajor(__global const algorithmFPType * mergedSums, uint nVectors, uint vectorSize,
+    __kernel void reduce_final_step_rowmajor(__global const algorithmFPType * mergedReduce, uint nVectors, uint vectorSize,
                                              __global algorithmFPType * reduces) {
         const uint local_size = get_local_size(0);
 
@@ -139,12 +139,12 @@ DECLARE_SOURCE(
         partial_reduces[itemId] = INIT_VALUE;
         for (uint i = itemId; i < vectorSize; i += local_size)
         {
-            partial_reduces[itemId] = BINARY_OP(partial_reduces[itemId], mergedSums[groupId * globalDim + i * localDim]);
+            partial_reduces[itemId] = BINARY_OP(partial_reduces[itemId], mergedReduce[groupId * globalDim + i * localDim]);
         }
 
         barrier(CLK_LOCAL_MEM_FENCE);
 
-        for (uint stride = local_size / 2; stride > 1; stride /= 2)
+        for (uint stride = local_size / 2; stride > 1; stride >>= 2)
         {
             if (stride > itemId)
             {

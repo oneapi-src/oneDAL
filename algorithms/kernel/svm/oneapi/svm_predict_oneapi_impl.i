@@ -84,34 +84,34 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
     }
 
     const algorithmFPType bias(model->getBias());
-    context.fill(distanceBuff, bias, &status);
+    context.fill(distanceBuff, double(bias), &status);
     DAAL_CHECK_STATUS_VAR(status);
 
     auto svTable = model->getSupportVectors();
 
-    /* The number of support vectors can be very large, up to the size of the number of observations in the training data.
-       To prevent memory overflow, we break it into blocks.*/
+    // The number of support vectors can be very large, up to the size of the number of observations in the training data.
+    // To prevent memory overflow, we break it into blocks.
 
     const size_t nRowsPerBlock = 8192;
-    const size_t nBlocks       = nRows / nRowsPerBlock + !!nRows % nRowsPerBlock;
+    const size_t nBlocks       = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
 
-    auto shU       = context.allocate(idType, nRowsPerBlock * nSV, &status);
+    auto shU       = context.allocate(TypeIds::id<algorithmFPType>(), nRowsPerBlock * nSV, &status);
     auto shResBuff = shU.get<algorithmFPType>();
 
     for (size_t blockIdx = 0; blockIdx < nBlocks; blockIdx++)
     {
         const size_t startRow = blockIdx * nRowsPerBlock;
         size_t endRow         = startRow + nRowsPerBlock;
-        if (endRow > nRows) endRow = nRows;
+        if (endRow > nVectors) endRow = nVectors;
         const size_t nRowsPerBlockReal = endRow - startRow;
 
-        NumericTablePtr shResNT = SyclHomogenNumericTable<algorithmFPType>::create(shResBuff, nSV, nRowsPerBlockReal, status);
+        NumericTablePtr shResNT = SyclHomogenNumericTable<algorithmFPType>::create(shResBuff, nSV, nRowsPerBlockReal, &status);
 
         BlockDescriptor<algorithmFPType> xBlock;
         DAAL_CHECK_STATUS(status, xTable->getBlockOfRows(startRow, nRowsPerBlockReal, ReadWriteMode::readOnly, xBlock));
         const services::Buffer<algorithmFPType> xBuf = xBlock.getBuffer();
 
-        NumericTablePtr xBlockNT = SyclHomogenNumericTable<algorithmFPType>::create(xBuf, nRowsPerBlockReal, nFeatures, status);
+        NumericTablePtr xBlockNT = SyclHomogenNumericTable<algorithmFPType>::create(xBuf, nFeatures, nRowsPerBlockReal, &status);
 
         auto kfResultPtr = new kernel_function::Result();
         DAAL_CHECK_MALLOC(kfResultPtr)
@@ -127,7 +127,7 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(gemm);
             DAAL_CHECK_STATUS(status, BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::NoTrans,
-                                                                      nRowsPerBlockReal, nSV, 1, algorithmFPType(1.0), shResBuff, nSV, 0, svCoeffBuff,
+                                                                      nRowsPerBlockReal, 1, nSV, algorithmFPType(1.0), shResBuff, nSV, 0, svCoeffBuff,
                                                                       1, 0, algorithmFPType(1.0), distanceBuff, 1, startRow));
         }
     }

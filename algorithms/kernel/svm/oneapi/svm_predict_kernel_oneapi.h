@@ -50,7 +50,7 @@ struct SVMPredictImplOneAPI : public Kernel
 };
 
 template <typename algorithmFPType>
-struct SVMPredictImplOneAPI<defaultDense> : public Kernel
+struct SVMPredictImplOneAPI<defaultDense, algorithmFPType> : public Kernel
 {
     services::Status compute(const NumericTablePtr & xTable, const daal::algorithms::Model * m, NumericTable & r,
                              const daal::algorithms::Parameter * par);
