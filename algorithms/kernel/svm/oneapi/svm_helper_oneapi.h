@@ -25,7 +25,6 @@
 #include "algorithms/kernel/svm/oneapi/cl_kernels/svm_kernels.cl"
 
 // TODO: DELETE
-#include <algorithm>
 #include <cstdlib>
 #include <chrono>
 using namespace std::chrono;
@@ -94,29 +93,6 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status range(services::Buffer<int> & x, const size_t nVectors)
-    {
-        DAAL_ITTNOTIFY_SCOPED_TASK(range);
-
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
-        auto & factory = context.getClKernelFactory();
-
-        services::Status status = buildProgram(factory);
-        DAAL_CHECK_STATUS_VAR(status);
-
-        auto kernel = factory.getKernel("range");
-
-        KernelArguments args(1);
-        args.set(0, x, AccessModeIds::readwrite);
-
-        KernelRange range(nVectors);
-
-        context.run(range, kernel, args, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-
-        return status;
-    }
-
     static services::Status initGrad(const services::Buffer<algorithmFPType> & y, services::Buffer<algorithmFPType> & grad, const size_t n)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(initGrad);
@@ -141,23 +117,40 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status argSort(const UniversalBuffer & fBuff, const UniversalBuffer & fIndicesBuff, UniversalBuffer & tmpBuff,
-                                    UniversalBuffer & sortedFIndicesBuff, const size_t nVectors)
+    static services::Status rangeIndices(UniversalBuffer & x, const size_t n)
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(range);
+
+        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        auto & factory = context.getClKernelFactory();
+
+        services::Status status = buildProgram(factory);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        auto kernel = factory.getKernel("range");
+
+        KernelArguments args(1);
+        args.set(0, x, AccessModeIds::readwrite);
+
+        KernelRange range(n);
+
+        context.run(range, kernel, args, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        return status;
+    }
+
+    static services::Status argSort(const UniversalBuffer & f, UniversalBuffer & values, UniversalBuffer & indecesSort, UniversalBuffer & indeces,
+                                    const size_t n)
     {
         services::Status status;
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
-        // DAAL_CHECK_STATUS(status, sort::RadixSort::sortIndeces(fBuff, fIndicesBuff, tmpBuff, sortedFIndicesBuff, nVectors));
+        context.copy(values, 0, f, 0, n, &status);
+        DAAL_CHECK_STATUS(status, rangeIndices(indecesSort, n));
 
-        context.copy(sortedFIndicesBuff, 0, fIndicesBuff, 0, nVectors, &status);
-        // DAAL_CHECK_STATUS_VAR(status);
+        DAAL_CHECK_STATUS(status, sort::RadixSort::sortIndeces(values, indecesSort, values, indeces, n));
 
-        // TODO Replace radix sort
-        {
-            int * sortedFIndices_host = sortedFIndicesBuff.get<int>().toHost(ReadWriteMode::readWrite).get();
-            algorithmFPType * f_host  = fBuff.get<algorithmFPType>().toHost(ReadWriteMode::readOnly).get();
-            std::sort(sortedFIndices_host, sortedFIndices_host + nVectors, [=](int i, int j) { return f_host[i] < f_host[j]; });
-        }
         return status;
     }
 
@@ -184,6 +177,7 @@ struct HelperSVM
     static services::Status gatherValues(const services::Buffer<int> & mask, const services::Buffer<algorithmFPType> & x, const size_t n,
                                          services::Buffer<algorithmFPType> & res, size_t & nRes)
     {
+        // TODO: replace on partition from GBT
         services::Status status;
 
         int * indicator_host                  = mask.toHost(ReadWriteMode::readOnly).get();

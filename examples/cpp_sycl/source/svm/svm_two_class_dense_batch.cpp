@@ -89,12 +89,9 @@ void trainModel(algorithmType algorithm)
     trainDataSource.loadDataBlock(mergedData.get());
 
     algorithm.parameter.kernel            = kernel;
-    algorithm.parameter.cacheSize         = 1000000;
     algorithm.parameter.C                 = 1.0;
-    algorithm.parameter.maxIterations     = 10000;
     algorithm.parameter.accuracyThreshold = 0.01;
     algorithm.parameter.tau               = 1e-6;
-    algorithm.parameter.doShrinking       = false;
 
     algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainGroundTruth);

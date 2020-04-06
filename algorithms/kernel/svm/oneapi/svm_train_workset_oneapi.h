@@ -52,19 +52,12 @@ struct TaskWorkingSet
         auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
         const auto idType = TypeIds::id<algorithmFPType>();
 
-        sortedFIndices = context.allocate(TypeIds::id<int>(), _nVectors, &status);
+        _sortedFIndices = context.allocate(TypeIds::id<int>(), _nVectors, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
         _indicator = context.allocate(TypeIds::id<int>(), _nVectors, &status);
         context.fill(_indicator, 0, &status);
         DAAL_CHECK_STATUS_VAR(status);
-
-        fIndices = context.allocate(TypeIds::id<int>(), _nVectors, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-        auto fIndicesBuf = fIndices.get<int>();
-        DAAL_CHECK_STATUS(status, Helper::range(fIndicesBuf, _nVectors));
-
-        // TODO: Get from device info
 
         auto & deviceInfo = context.getInfoDevice();
 
@@ -73,10 +66,11 @@ struct TaskWorkingSet
         _nWS       = min(maxpow2(_nVectors), maxWS);
         _nSelected = 0;
 
-        tmpValues     = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
-        wsIndices     = context.allocate(TypeIds::id<int>(), _nWS, &status);
-        wsSaveIndices = context.allocate(TypeIds::id<int>(), _nWS, &status);
-        tmpIndices    = context.allocate(TypeIds::id<int>(), _nVectors, &status);
+        _valuesSort  = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
+        _buffIndices = context.allocate(TypeIds::id<int>(), _nVectors, &status);
+
+        _wsIndices     = context.allocate(TypeIds::id<int>(), _nWS, &status);
+        _wsSaveIndices = context.allocate(TypeIds::id<int>(), _nWS, &status);
         return status;
     }
 
@@ -87,8 +81,8 @@ struct TaskWorkingSet
         const size_t q = _nWS / 2;
         services::Status status;
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
-        // context.copy(wsIndices, 0, wsIndices, q, _nWS - q, &status);
-        context.copy(wsIndices, 0, wsSaveIndices, q, _nWS - q, &status);
+        // context.copy(_wsIndices, 0, _wsIndices, q, _nWS - q, &status);
+        context.copy(_wsIndices, 0, _wsSaveIndices, q, _nWS - q, &status);
         _nSelected = q;
         return status;
     }
@@ -104,16 +98,15 @@ struct TaskWorkingSet
             printf(">>>> selectWS\n");
         }
 
-        context.fill(tmpIndices, 0, &status);
+        context.fill(_buffIndices, 0, &status);
         context.fill(_indicator, 0, &status);
 
-        auto sortedFIndicesBuff = sortedFIndices.get<int>();
-        auto tmpIndicesBuff     = tmpIndices.get<int>();
-        auto fIndicesBuf        = fIndices.get<int>();
-        auto wsIndicesBuff      = wsIndices.get<int>();
+        auto sortedFIndicesBuff = _sortedFIndices.get<int>();
+        auto tmpIndicesBuff     = _buffIndices.get<int>();
+        auto wsIndicesBuff      = _wsIndices.get<int>();
         auto indicatorBuff      = _indicator.get<int>();
 
-        DAAL_CHECK_STATUS(status, Helper::argSort(fBuff, fIndices, tmpValues, sortedFIndices, _nVectors));
+        DAAL_CHECK_STATUS(status, Helper::argSort(fBuff, _valuesSort, _sortedFIndices, _buffIndices, _nVectors));
 
         if (_verbose)
         {
@@ -166,13 +159,13 @@ struct TaskWorkingSet
 
             const size_t nCopy = min(nUpperSelect, nNeedSelect);
 
-            context.copy(wsIndices, _nSelected, tmpIndices, 0, nCopy, &status);
+            context.copy(_wsIndices, _nSelected, _buffIndices, 0, nCopy, &status);
 
             _nSelected += nCopy;
 
             if (_verbose)
             {
-                printf(">> CheckUpper[tmpIndices] - selectUpper:%lu _nSelected: %lu \n", nUpperSelect, _nSelected);
+                printf(">> CheckUpper[_buffIndices] - selectUpper:%lu _nSelected: %lu \n", nUpperSelect, _nSelected);
             }
         }
 
@@ -193,13 +186,13 @@ struct TaskWorkingSet
             const size_t nCopy = min(nLowerSelect, nNeedSelect);
 
             /* Copy latest nCopy elements */
-            context.copy(wsIndices, _nSelected, tmpIndices, nLowerSelect - nCopy, nCopy, &status);
+            context.copy(_wsIndices, _nSelected, _buffIndices, nLowerSelect - nCopy, nCopy, &status);
 
             _nSelected += nCopy;
 
             if (_verbose)
             {
-                printf(">> checkLower[tmpIndices] - selectLower: %lu _nSelected: %lu \n", nLowerSelect, _nSelected);
+                printf(">> checkLower[_buffIndices] - selectLower: %lu _nSelected: %lu \n", nLowerSelect, _nSelected);
             }
         }
 
@@ -220,7 +213,7 @@ struct TaskWorkingSet
 
             const size_t nCopy = min(nUpperSelect, nNeedSelect);
 
-            context.copy(wsIndices, _nSelected, tmpIndices, 0, nCopy, &status);
+            context.copy(_wsIndices, _nSelected, _buffIndices, 0, nCopy, &status);
 
             _nSelected += nCopy;
 
@@ -234,9 +227,9 @@ struct TaskWorkingSet
 
         if (_verbose)
         {
-            printf(">> wsIndices:  ");
+            printf(">> _wsIndices:  ");
             {
-                int * wsIndexes_host = wsIndices.get<int>().toHost(ReadWriteMode::readOnly).get();
+                int * wsIndexes_host = _wsIndices.get<int>().toHost(ReadWriteMode::readOnly).get();
                 for (int i = 0; i < min(16ul, _nWS); i++)
                 {
                     printf("%d ", wsIndexes_host[i]);
@@ -245,13 +238,13 @@ struct TaskWorkingSet
             printf("\n");
         }
 
-        context.copy(wsSaveIndices, 0, wsIndices, 0, _nWS, &status);
+        context.copy(_wsSaveIndices, 0, _wsIndices, 0, _nWS, &status);
         _nSelected = 0;
         return status;
     }
 
-    const services::Buffer<int> & getSortedFIndices() const { return sortedFIndices.get<int>(); }
-    const services::Buffer<int> & getWSIndeces() const { return wsIndices.get<int>(); }
+    const services::Buffer<int> & getSortedFIndices() const { return _sortedFIndices.get<int>(); }
+    const services::Buffer<int> & getWSIndeces() const { return _wsIndices.get<int>(); }
 
     services::Status resetIndecator(const services::Buffer<int> & idx, services::Buffer<int> & indicator, const size_t n)
     {
@@ -285,23 +278,18 @@ private:
 
     bool _verbose;
 
-    UniversalBuffer sortedFIndices;
+    UniversalBuffer _sortedFIndices;
     UniversalBuffer _indicator;
-    UniversalBuffer fIndices;
-    UniversalBuffer wsIndices;
-    UniversalBuffer wsSaveIndices;
-    UniversalBuffer tmpIndices;
-    UniversalBuffer tmpValues;
+    UniversalBuffer _wsIndices;
+    UniversalBuffer _wsSaveIndices;
+    UniversalBuffer _buffIndices;
+    UniversalBuffer _valuesSort;
 };
 
 } // namespace internal
-
 } // namespace training
-
 } // namespace svm
-
 } // namespace algorithms
-
 } // namespace daal
 
 #endif

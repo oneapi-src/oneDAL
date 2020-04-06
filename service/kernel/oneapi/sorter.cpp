@@ -27,16 +27,19 @@ namespace internal
 {
 namespace sort
 {
-
 services::String GetIntegerTypeForFPType(const TypeId & vectorTypeId)
 {
     if (vectorTypeId == TypeIds::Id::float32)
     {
         return " -D radixIntType=uint ";
     }
-    else
+    else if (vectorTypeId == TypeIds::Id::float64)
     {
         return " -D radixIntType=ulong ";
+    }
+    else
+    {
+        return "";
     }
 }
 
@@ -47,9 +50,8 @@ void buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId & vectorTyp
     services::String fptype_name = getKeyFPType(vectorTypeId);
     // add type from name at the end
     auto radixtype_name = GetIntegerTypeForFPType(vectorTypeId);
-    auto build_options           = fptype_name + radixtype_name;
+    auto build_options  = fptype_name + radixtype_name;
     build_options.add("-cl-std=CL1.2 -D sortedType=int");
-
 
     services::String cachekey("__daal_oneapi_internal_sort_radix_sort__");
     cachekey.add(fptype_name);
@@ -95,9 +97,8 @@ void RadixSort::sort(const UniversalBuffer & input, const UniversalBuffer & outp
     run_radix_sort_simd(context, kernelFactory, input, output, buffer, nVectors, vectorSize, vectorOffset, status);
 }
 
-
-services::Status RadixSort::sortIndeces(const UniversalBuffer & values, const UniversalBuffer & indices, const UniversalBuffer & valuesOut,
-                                                                   const UniversalBuffer & indicesOut, int nRows)
+services::Status RadixSort::sortIndeces(UniversalBuffer & values, UniversalBuffer & indices, UniversalBuffer & valuesOut,
+                                        UniversalBuffer & indicesOut, int nRows)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(RadixSort.sortIndeces);
     services::Status status;
@@ -107,7 +108,7 @@ services::Status RadixSort::sortIndeces(const UniversalBuffer & values, const Un
 
     buildProgram(kernelFactory, values.type());
 
-    const size_t sizeFPtype = values.type() == TypeIds::Id::float32 ? 4 : 8;
+    const size_t sizeFPtype = values.type() == TypeIds::Id::float32 ? 4 : values.type() == TypeIds::Id::float64 ? 8 : 0;
 
     const int radixBits      = 4;
     const int subSize        = _preferableSubGroup;
@@ -128,15 +129,13 @@ services::Status RadixSort::sortIndeces(const UniversalBuffer & values, const Un
         {
             DAAL_CHECK_STATUS_VAR(radixScan(values, partialHists, nRows, bitOffset, localSize, nLocalHists));
             DAAL_CHECK_STATUS_VAR(radixHistScan(values, partialHists, partialPrefixHists, localSize, nSubgroupHists));
-            DAAL_CHECK_STATUS_VAR(
-                radixReorder(values, indices, partialPrefixHists, valuesOut, indicesOut, nRows, bitOffset, localSize, nLocalHists));
+            DAAL_CHECK_STATUS_VAR(radixReorder(values, indices, partialPrefixHists, valuesOut, indicesOut, nRows, bitOffset, localSize, nLocalHists));
         }
         else
         {
             DAAL_CHECK_STATUS_VAR(radixScan(valuesOut, partialHists, nRows, bitOffset, localSize, nLocalHists));
             DAAL_CHECK_STATUS_VAR(radixHistScan(values, partialHists, partialPrefixHists, localSize, nSubgroupHists));
-            DAAL_CHECK_STATUS_VAR(
-                radixReorder(valuesOut, indicesOut, partialPrefixHists, values, indices, nRows, bitOffset, localSize, nLocalHists));
+            DAAL_CHECK_STATUS_VAR(radixReorder(valuesOut, indicesOut, partialPrefixHists, values, indices, nRows, bitOffset, localSize, nLocalHists));
         }
     }
 
@@ -144,8 +143,8 @@ services::Status RadixSort::sortIndeces(const UniversalBuffer & values, const Un
     return status;
 }
 
-services::Status RadixSort::radixScan(const UniversalBuffer & values, UniversalBuffer & partialHists, int nRows, int bitOffset,
-                                                                   int localSize, int nLocalHists)
+services::Status RadixSort::radixScan(UniversalBuffer & values, UniversalBuffer & partialHists, int nRows, int bitOffset, int localSize,
+                                      int nLocalHists)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(RadixSort.radixScan);
 
@@ -180,8 +179,8 @@ services::Status RadixSort::radixScan(const UniversalBuffer & values, UniversalB
     return status;
 }
 
-services::Status RadixSort::radixHistScan(const UniversalBuffer & values, UniversalBuffer & partialHists, UniversalBuffer & partialPrefixHists,
-                                                                       int localSize, int nSubgroupHists)
+services::Status RadixSort::radixHistScan(UniversalBuffer & values, UniversalBuffer & partialHists, UniversalBuffer & partialPrefixHists,
+                                          int localSize, int nSubgroupHists)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(RadixSort.radixHistScan);
 
@@ -215,10 +214,9 @@ services::Status RadixSort::radixHistScan(const UniversalBuffer & values, Univer
     return status;
 }
 
-services::Status RadixSort::radixReorder(const UniversalBuffer & valuesSrc, const UniversalBuffer & indicesSrc,
-                                        UniversalBuffer & partialPrefixHists, const UniversalBuffer & valuesDst,
-                                          const UniversalBuffer & indicesDst, int nRows, int bitOffset, int localSize,
-                                          int nLocalHists)
+services::Status RadixSort::radixReorder(UniversalBuffer & valuesSrc, UniversalBuffer & indicesSrc, UniversalBuffer & partialPrefixHists,
+                                         UniversalBuffer & valuesDst, UniversalBuffer & indicesDst, int nRows, int bitOffset, int localSize,
+                                         int nLocalHists)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(RadixSort.radixReorder);
 
