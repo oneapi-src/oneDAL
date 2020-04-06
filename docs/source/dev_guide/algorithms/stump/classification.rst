@@ -26,5 +26,87 @@ See :ref:`dt_classification` for details.
 Batch Processing
 ****************
 
-At this moment, the description of batch processing for Classification Stump is only available in
-`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-batch-processing-123>`_.
+A classification stump follows the general workflow described in :ref:`classification_usage_model`.
+
+Training
+--------
+
+For a description of the input and output, refer to :ref:`classification_usage_model`.
+
+At the training stage, a classification decision stump has the following parameters:
+
+.. list-table::
+   :widths: 20 20 60
+   :header-rows: 1
+
+   * - Parameter
+     - Default Value
+     - Description
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
+     - Performance-oriented computation method, the only method supported by the algorithm.
+   * - ``splitCriterion``
+     - ``decision_tree::classification::gini``
+     - Split criteria for classification stump. Two split criterion are available:
+
+       - ``decision_tree::classification::gini``
+       - ``decision_tree::classification::infoGain``
+
+       See :ref:`dt_classification` chapter for details.
+
+   * - ``varImportance``
+     - none
+     - .. note:: Variable importance computation is not supported for current version of the library.
+   * - ``nClasses``
+     - :math:`2`
+     - The number of classes.
+
+
+Prediction
+----------
+
+For a description of the input and output, refer to :ref:`classification_usage_model`.
+
+At the prediction stage, a classification stump has the following parameters:
+
+.. list-table::
+   :widths: 20 20 60
+   :header-rows: 1
+
+   * - Parameter
+     - Default Value
+     - Description
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
+     - Performance-oriented computation method, the only method supported by the algorithm.
+   * - ``nClasses``
+     - :math:`2`
+     - The number of classes.
+   * - ``resultsToEvaluate``
+     - ``Classifier:: computeClassLabels``
+     - The form of computed result:
+     
+       - ``classifier::computeClassLabels`` – the result contains the ``NumericTable`` 
+         of size :math:`n \times 1` with predicted labels
+
+       - ``classifier::computeClassProbabilities`` – the result contains the ``NumericTable``
+         of size :math:`n \times \text{nClasses}` with probabilities to belong to each class
+
+Examples
+********
+
+C++:
+
+- :cpp_example:`stump_cls_gini_dense_batch.cpp <stump/stump_cls_gini_dense_batch.cpp>`
+- :cpp_example:`stump_cls_infogain_dense_batch.cpp <stump/stump_cls_infogain_dense_batch.cpp>`
+
+Java*:
+
+- :java_example:`StumpClsGiniDenseBatch.java <stump/StumpClsGiniDenseBatch.java>`
+- :java_example:`StumpClsInfogainDenseBatch.java <stump/StumpClsInfogainDenseBatch.java>`

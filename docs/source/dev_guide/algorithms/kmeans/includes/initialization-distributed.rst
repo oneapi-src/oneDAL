@@ -14,11 +14,7 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-Stump
-=====
+This mode assumes that the data set is split into ``nblocks`` blocks across computation nodes.
 
-.. toctree::
-    :maxdepth: 2
-
-    classification.rst
-    regression.rst
+At this moment, the description of distributed processing for K-Means initialization is only available in
+`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-2>`_.

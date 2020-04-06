@@ -26,5 +26,56 @@ See :ref:`dt_regression` for details.
 Batch Processing
 ****************
 
-At this moment, the description of batch processing for Regression Stump is only available in
-`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-batch-processing-121>`_.
+A regression stump follows the general workflow described in :ref:`regression_usage_model`.
+
+Training
+--------
+
+For a description of the input and output, refer to :ref:`regression_usage_model`.
+
+At the training stage, a regression decision stump has the following parameters:
+
+.. list-table::
+   :widths: 20 20 60
+   :header-rows: 1
+
+   * - Parameter
+     - Default Value
+     - Description
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
+     - Performance-oriented computation method, the only method supported by the algorithm.
+   * - ``varImportance``
+     - none
+     - .. note:: Variable importance computation is not supported for current version of the library.
+
+Prediction
+----------
+
+For a description of the input and output, refer to :ref:`regression_usage_model`.
+
+At the prediction stage, a regression stump has the following parameters:
+
+.. list-table::
+   :widths: 20 20 60
+   :header-rows: 1
+
+   * - Parameter
+     - Default Value
+     - Description
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
+     - Performance-oriented computation method, the only method supported by the algorithm.
+
+Examples
+********
+
+C++: :cpp_example:`stump_reg_mse_dense_batch.cpp <stump/stump_reg_mse_dense_batch.cpp>`
+
+Java*: :java_example:`StumpRegMseDenseBatch.java <stump/StumpRegMseDenseBatch.java>`

@@ -77,7 +77,8 @@ templates_path = ['_templates']
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["opt-notice.rst", 'dev_guide/data-management/numeric-tables/*.rst', 'topics/*.rst',
-                    'dev_guide/algorithms/dbscan/distributed-steps/*']
+                    'dev_guide/algorithms/dbscan/distributed-steps/*',
+                    'dev_guide/algorithms/kmeans/includes/*']
 
 extlinks = {'cpp_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/cpp/source/%s', ''),
 'java_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/java/com/intel/daal/examples/%s', ''),

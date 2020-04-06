@@ -371,7 +371,7 @@ For more details, see :ref:`algorithms`.
   * - Input ID
     - Input
   * - ``partialModels``
-    - A collection of partial models computed on local nodes in :ref:`Step 1 <lin_ridge_step_1:>`.
+    - A collection of partial models computed on local nodes in :ref:`Step 1 <lin_ridge_step_1>`.
       
       The collection contains objects of the ``Model`` class.
 
