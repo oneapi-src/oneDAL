@@ -26,11 +26,8 @@
 #include "algorithms/kernel/svm/svm_train_boser_kernel.h"
 #include "algorithms/classifier/classifier_training_types.h"
 
-<<<<<<< HEAD
-=======
 #include "algorithms/kernel/svm/oneapi/svm_train_thunder_kernel_oneapi.h"
 
->>>>>>> c8ef0452... stabile and working version
 namespace daal
 {
 namespace algorithms
@@ -47,9 +44,6 @@ namespace interface2
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-<<<<<<< HEAD
-    __DAAL_INITIALIZE_KERNELS(internal::SVMTrainImpl, method, svm::interface1::Parameter, algorithmFPType);
-=======
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();
 
@@ -61,7 +55,6 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
     {
         __DAAL_INITIALIZE_KERNELS(internal::SVMTrainImpl, method, svm::interface2::Parameter, algorithmFPType);
     }
->>>>>>> c8ef0452... stabile and working version
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -83,10 +76,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     svm::interface2::Parameter * par       = static_cast<svm::interface2::Parameter *>(_par);
     daal::services::Environment::env & env = *_env;
-<<<<<<< HEAD
-    __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType, svm::interface2::Parameter), compute, x, *y, r,
-                       par);
-=======
 
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();
@@ -101,7 +90,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
         __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType, svm::interface2::Parameter), compute, x, *y,
                            r, par);
     }
->>>>>>> c8ef0452... stabile and working version
 }
 } // namespace interface2
 } // namespace training
