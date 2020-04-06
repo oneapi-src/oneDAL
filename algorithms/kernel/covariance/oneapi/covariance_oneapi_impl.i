@@ -29,7 +29,7 @@
 #include "services/env_detect.h"
 #include "services/error_indexes.h"
 #include "service/kernel/oneapi/blas_gpu.h"
-#include "service/kernel/oneapi/sum_reducer.h"
+#include "service/kernel/oneapi/reducer.h"
 #include "algorithms/kernel/covariance/oneapi/cl_kernels/covariance_kernels.cl"
 #include "externals/service_ittnotify.h"
 #include "service/kernel/service_data_utils.h"

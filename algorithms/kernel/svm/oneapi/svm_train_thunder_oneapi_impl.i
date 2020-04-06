@@ -54,7 +54,6 @@
 #include "algorithms/kernel/svm/oneapi/cl_kernels/svm_train_block_smo_oneapi.cl"
 
 // TODO: DELETE
-#include <algorithm>
 #include <cstdlib>
 #include <chrono>
 using namespace std::chrono;
@@ -265,8 +264,6 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
     {
         printf(">>>> nVectors: %lu d: %lu nWS: %lu C: %f \n", nVectors, xTable->getNumberOfColumns(), nWS, C);
     }
-
-    // TODO transfer on GPU
 
     for (size_t iter = 0; iter < maxIterations; iter++)
     {

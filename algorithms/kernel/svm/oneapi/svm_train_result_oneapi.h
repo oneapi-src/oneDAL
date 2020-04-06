@@ -26,7 +26,7 @@
 
 #include "service/kernel/service_utils.h"
 #include "algorithms/kernel/svm/oneapi/svm_helper_oneapi.h"
-#include "service/kernel/oneapi/sum_reducer.h"
+#include "service/kernel/oneapi/reducer.h"
 
 using namespace daal::services::internal;
 

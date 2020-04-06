@@ -29,7 +29,7 @@
 #include "externals/service_math.h"
 #include "externals/service_ittnotify.h"
 #include "service/kernel/oneapi/blas_gpu.h"
-#include "service/kernel/oneapi/sum_reducer.h"
+#include "service/kernel/oneapi/reducer.h"
 #include "algorithms/kernel/kernel_function/oneapi/cl_kernels/kernel_function.cl"
 
 namespace daal

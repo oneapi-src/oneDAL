@@ -44,11 +44,11 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
     auto & deviceInfo = context.getInfoDevice();
     if (method == defaultDense && !deviceInfo.isCpu)
     {
-       __DAAL_INITIALIZE_KERNELS_SYCL(internal::KernelImplLinearOneAPI, method, algorithmFPType);
+        __DAAL_INITIALIZE_KERNELS_SYCL(internal::KernelImplLinearOneAPI, method, algorithmFPType);
     }
     else
     {
-       __DAAL_INITIALIZE_KERNELS(internal::KernelImplLinear, method, algorithmFPType);
+        __DAAL_INITIALIZE_KERNELS(internal::KernelImplLinear, method, algorithmFPType);
     }
 }
 
@@ -81,11 +81,13 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     if (method == defaultDense && !deviceInfo.isCpu)
     {
-       __DAAL_CALL_KERNEL_SYCL(env, internal::KernelImplLinearOneAPI, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, computationMode, *a[0], *a[1], *r[0], par);
+        __DAAL_CALL_KERNEL_SYCL(env, internal::KernelImplLinearOneAPI, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, computationMode,
+                                *a[0], *a[1], *r[0], par);
     }
     else
     {
-        __DAAL_CALL_KERNEL(env, internal::KernelImplLinear, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, computationMode, a[0], a[1], r[0], par);
+        __DAAL_CALL_KERNEL(env, internal::KernelImplLinear, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, computationMode, a[0], a[1],
+                           r[0], par);
     }
 }
 

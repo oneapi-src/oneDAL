@@ -39,14 +39,13 @@ namespace linear
 {
 namespace internal
 {
-
 using namespace daal::data_management;
 
 template <Method method, typename algorithmFPType>
-class KernelImplLinearOneAPI  : public Kernel
+class KernelImplLinearOneAPI : public Kernel
 {
 public:
-     services::Status compute(ComputationMode computationMode, NumericTable & a1, NumericTable & a2, NumericTable & r,
+    services::Status compute(ComputationMode computationMode, NumericTable & a1, NumericTable & a2, NumericTable & r,
                              const daal::algorithms::Parameter * par);
 };
 

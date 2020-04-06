@@ -1,4 +1,4 @@
-/* file: sum_reducer.h */
+/* file: reducer.h */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -15,8 +15,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __SUM_REDUCER_H__
-#define __SUM_REDUCER_H__
+#ifndef __REDUCER_H__
+#define __REDUCER_H__
 
 #include "service/kernel/oneapi/math_service_types.h"
 #include "services/buffer.h"
