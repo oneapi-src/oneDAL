@@ -104,6 +104,8 @@ C++: :cpp_example:`gbt_cls_traversed_model_builder.cpp <gradient_boosted_trees/g
 
 Java*: :java_example:`GbtClsTraversedModelBuilder.java <gbt/GbtClsTraversedModelBuilder.java>`
 
+Python* :daal4py_example:`gbt_cls_traversed_model_builder.py`
+
 Batch Processing
 ****************
 

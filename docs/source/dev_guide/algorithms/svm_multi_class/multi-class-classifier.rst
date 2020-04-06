@@ -96,6 +96,8 @@ C++: :cpp_example:`svm_multi_class_model_builder.cpp <svm/svm_multi_class_model_
 
 Java*: :java_example:`SVMMultiClassModelBuilder.java <svm/SVMMultiClassModelBuilder.java>`
 
+Python*: ::daal4py_example:`svm_multi_class_model_builder.py`
+
 Batch Processing
 ****************
 

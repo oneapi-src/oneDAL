@@ -116,6 +116,8 @@ C++: :cpp_example:`log_reg_model_builder.cpp <logistic_regression/log_reg_model_
 
 Java*: :java_example:`LogRegModelBuilder.java <logistic_regression/LogRegModelBuilder.java>`
 
+Python*: :daal4py_example:`log_reg_model_builder.py`
+
 Batch Processing
 ****************
 
