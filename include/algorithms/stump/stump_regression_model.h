@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Implementation of the class defining the decision stump model.
+//  Implementation of the class defining the decision stump model
 //--
 */
 
@@ -35,13 +35,18 @@ namespace daal
 namespace algorithms
 {
 /**
- * @defgroup stump Stump
- * \copydoc daal::algorithms::stump
- * @ingroup regression
- * @{
+ * \brief Contains classes for Decision Stump algorithm
  */
 namespace stump
 {
+/**
+ * @defgroup stump_regression Decision Stump for Regression
+ * \copydoc daal::algorithms::stump::regression
+ * @ingroup regression
+ */
+/**
+ * \brief Contains classes for decision stump regression algorithm
+ */
 namespace regression
 {
 /**
@@ -61,7 +66,10 @@ enum VariableImportanceMode
  */
 namespace interface1
 {
-// CLARIFICATION:: Added parameter class to support different split criterions for stump.
+/**
+ * @ingroup stump_regression
+ * @{
+ */
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__STUMP__REGRESSION__PARAMETER"></a>
  * \brief Stump algorithm parameters
@@ -69,6 +77,7 @@ namespace interface1
  * \snippet stump/stump_regression_model.h Parameter source code
  */
 /* [Parameter source code] */
+// CLARIFICATION:: Added parameter class to support different split criterions for stump.
 struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 {
     /**
@@ -159,8 +168,8 @@ using interface1::Model;
 using interface1::ModelPtr;
 using interface1::ModelConstPtr;
 
-} // namespace regression
 /** @} */
+} // namespace regression
 } // namespace stump
 } // namespace algorithms
 } // namespace daal

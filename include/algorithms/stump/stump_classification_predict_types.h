@@ -35,14 +35,20 @@ namespace daal
 {
 namespace algorithms
 {
+/**
+ * \brief Contains classes of the Decision stump algorithm
+ */
 namespace stump
 {
+/**
+ * \brief Contains classes of the Decision stump classification algorithm
+ */
 namespace classification
 {
 /**
  * @defgroup stump_classification_prediction Prediction
  * \copydoc daal::algorithms::stump::classification::prediction
- * @ingroup stump
+ * @ingroup stump_classification
  * @{
  */
 /**
