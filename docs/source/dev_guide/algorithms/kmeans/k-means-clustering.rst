@@ -272,8 +272,8 @@ Examples
 
     Distributed Processing
 
-    - :java_example:`KMeansDenseDistributed.java <kmeans/KMeansDenseDistributed.java>`
-    - :java_example:`KMeansCSRDistributed.java <kmeans/KMeansCSRDistributed.java>`
+    - :java_example:`KMeansDenseDistr.java <kmeans/KMeansDenseDistr.java>`
+    - :java_example:`KMeansCSRDistr.java <kmeans/KMeansCSRDistr.java>`
 
 
 Performance Considerations
