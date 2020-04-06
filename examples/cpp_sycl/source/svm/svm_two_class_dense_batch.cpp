@@ -13,13 +13,6 @@ string testDatasetFileName  = "../data/batch/svm_two_class_test_dense.csv";
 
 const size_t nFeatures = 20;
 
-<<<<<<< HEAD
-// const size_t nFeatures = 119;
-
-<<<<<<< HEAD
-=======
-=======
->>>>>>> c8ef0452... stabile and working version
 svm::training::ResultPtr trainingResult;
 classifier::prediction::ResultPtr predictionResult;
 NumericTablePtr testGroundTruth;
@@ -29,7 +22,6 @@ void trainModel(algorithmType algorithm);
 void testModel();
 void printResults();
 
->>>>>>> 8a074e5f... workin training
 kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<>());
 
 int main(int argc, char * argv[])
@@ -47,22 +39,14 @@ int main(int argc, char * argv[])
         daal::services::SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
         trainModel(trainingResult);
-=======
-        trainModel();
-        // testModel();
-        // printResults();
->>>>>>> 8a074e5f... workin training
-=======
+
         if (device.is_gpu())
             trainModel(svm::training::Batch<float, svm::training::thunder>());
         else
             trainModel(svm::training::Batch<float, svm::training::boser>());
         testModel();
         printResults();
->>>>>>> c8ef0452... stabile and working version
     }
 
     return 0;
@@ -76,15 +60,7 @@ void trainModel(algorithmType algorithm)
     auto trainData        = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
     auto trainGroundTruth = SyclHomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    auto mergedData(new MergedNumericTable(trainData, trainGroundTruth));
-=======
-    NumericTablePtr mergedData(new MergedNumericTable(trainGroundTruth, trainData));
->>>>>>> 815734e6... fix build
-=======
     NumericTablePtr mergedData(new MergedNumericTable(trainData, trainGroundTruth));
->>>>>>> ca30c048... add sort
 
     trainDataSource.loadDataBlock(mergedData.get());
 
@@ -101,8 +77,6 @@ void trainModel(algorithmType algorithm)
 
     /* Retrieve the algorithm results */
     trainingResult = algorithm.getResult();
-<<<<<<< HEAD
-=======
 
     auto model                   = trainingResult->get(classifier::training::model);
     NumericTablePtr svCoeffTable = model->getClassificationCoefficients();
@@ -153,5 +127,4 @@ void printResults()
 {
     printNumericTables<int, float>(testGroundTruth, predictionResult->get(classifier::prediction::prediction), "Ground truth\t",
                                    "Classification results", "SVM classification results (first 20 observations):", 20);
->>>>>>> 8a074e5f... workin training
 }

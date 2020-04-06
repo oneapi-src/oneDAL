@@ -54,7 +54,7 @@ enum Method
 {
     defaultDense = 0, /*!< Default method.                 */
     boser        = 0, /*!< Method proposed by Boser et al. */
-    thunder      = 1  /*!<  Method proposed by ThunderSVM. */
+    thunder      = 1  /*!< Method proposed by ThunderSVM. */
 };
 
 /**
