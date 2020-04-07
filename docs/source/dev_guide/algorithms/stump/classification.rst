@@ -89,7 +89,7 @@ At the prediction stage, a classification stump has the following parameters:
      - :math:`2`
      - The number of classes.
    * - ``resultsToEvaluate``
-     - ``Classifier:: computeClassLabels``
+     - ``classifier::computeClassLabels``
      - The form of computed result:
      
        - ``classifier::computeClassLabels`` – the result contains the ``NumericTable`` 
