@@ -149,8 +149,18 @@ parameters:
 Examples
 --------
 
-C++: :cpp_example:`dt_reg_dense_batch.cpp <decision_tree/dt_reg_dense_batch.cpp>`
+.. tabs::
 
-Java*: :java_example:`DtRegDenseBatch.java <decision_tree/DtRegDenseBatch.java>`
+  .. tab:: C++
+
+    Batch Processing:
+
+    - :cpp_example:`dt_reg_dense_batch.cpp <decision_tree/dt_reg_dense_batch.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+
+    - :java_example:`DtRegDenseBatch.java <decision_tree/DtRegDenseBatch.java>`
 
 .. Python*: dt_reg_dense_batch.py

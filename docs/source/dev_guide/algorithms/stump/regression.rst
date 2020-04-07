@@ -76,6 +76,16 @@ At the prediction stage, a regression stump has the following parameters:
 Examples
 ********
 
-C++: :cpp_example:`stump_reg_mse_dense_batch.cpp <stump/stump_reg_mse_dense_batch.cpp>`
+.. tabs::
 
-Java*: :java_example:`StumpRegMseDenseBatch.java <stump/StumpRegMseDenseBatch.java>`
+  .. tab:: C++
+
+    Batch Processing:
+
+    :cpp_example:`stump_reg_mse_dense_batch.cpp <stump/stump_reg_mse_dense_batch.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+    
+    :java_example:`StumpRegMseDenseBatch.java <stump/StumpRegMseDenseBatch.java>`

@@ -242,20 +242,29 @@ is only available in `Developer Guide for Intel(R) DAAL <https://software.intel.
 Examples
 ********
 
-CPU Examples
-------------
+.. tabs::
 
-C++:
+  .. tab:: DPC++
 
--  :cpp_example:`pca_cor_dense_batch.cpp <pca/pca_cor_dense_batch.cpp>`
--  :cpp_example:`pca_cor_csr_batch.cpp <pca/pca_cor_csr_batch.cpp>`
--  :cpp_example:`pca_svd_dense_batch.cpp <pca/pca_svd_dense_batch.cpp>`
+    Batch Processing:
 
-Java*:
+    - :ref:`pca_cor_dense_batch.cpp`
 
--  :java_example:`PCACorDenseBatch.java <pca/PCACorDenseBatch.java>`
--  :java_example:`PCACorCSRBatch.java <pca/PCACorCSRBatch.java>`
--  :java_example:`PCASVDDenseBatch.java <pca/PCASVDDenseBatch.java>`
+  .. tab:: C++
+
+    Batch Processing:
+
+    -  :cpp_example:`pca_cor_dense_batch.cpp <pca/pca_cor_dense_batch.cpp>`
+    -  :cpp_example:`pca_cor_csr_batch.cpp <pca/pca_cor_csr_batch.cpp>`
+    -  :cpp_example:`pca_svd_dense_batch.cpp <pca/pca_svd_dense_batch.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+
+    -  :java_example:`PCACorDenseBatch.java <pca/PCACorDenseBatch.java>`
+    -  :java_example:`PCACorCSRBatch.java <pca/PCACorCSRBatch.java>`
+    -  :java_example:`PCASVDDenseBatch.java <pca/PCASVDDenseBatch.java>`
 
 .. Python*:
 
@@ -263,12 +272,6 @@ Java*:
 .. -  pca_cor_csr_batch.py
 .. -  pca_svd_dense_batch.py
 
-GPU Examples
-------------
-
-Batch Processing:
-
-- :ref:`pca_cor_dense_batch.cpp`
 
 Performance Considerations
 **************************

@@ -112,11 +112,19 @@ complete the following steps:
 Examples
 --------
 
-C++: :cpp_example:`log_reg_model_builder.cpp <logistic_regression/log_reg_model_builder.cpp>`
+.. tabs::
 
-Java*: :java_example:`LogRegModelBuilder.java <logistic_regression/LogRegModelBuilder.java>`
+  .. tab:: C++
 
-Python*: :daal4py_example:`log_reg_model_builder.py`
+    - :cpp_example:`log_reg_model_builder.cpp <logistic_regression/log_reg_model_builder.cpp>`
+
+  .. tab:: Java*
+
+    - :java_example:`LogRegModelBuilder.java <logistic_regression/LogRegModelBuilder.java>`
+
+  .. tab:: Python*
+
+    - :daal4py_example:`log_reg_model_builder.py`
 
 Batch Processing
 ****************
@@ -248,29 +256,33 @@ parameter to the methods that access the results of your algorithm.
 Examples
 ********
 
-CPU Examples
-------------
+.. tabs::
 
-C++:
+  .. tab:: DPC++
 
--  :cpp_example:`log_reg_dense_batch.cpp <logistic_regression/log_reg_dense_batch.cpp>`
--  :cpp_example:`log_reg_binary_dense_batch.cpp <logistic_regression/log_reg_binary_dense_batch.cpp>`
+    Batch Processing:
 
-Java*:
+    - :ref:`log_reg_binary_dense_batch.cpp`
+    - :ref:`log_reg_dense_batch.cpp`
 
--  :java_example:`LogRegDenseBatch.java <logistic_regression/LogRegDenseBatch.java>`
--  :java_example:`LogRegBinaryDenseBatch.java <logistic_regression/LogRegBinaryDenseBatch.java>`
+  .. tab:: C++
 
-Python*:
+    Batch Processing:
 
--  :daal4py_example:`log_reg_dense_batch.py`
+    -  :cpp_example:`log_reg_dense_batch.cpp <logistic_regression/log_reg_dense_batch.cpp>`
+    -  :cpp_example:`log_reg_binary_dense_batch.cpp <logistic_regression/log_reg_binary_dense_batch.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+
+    -  :java_example:`LogRegDenseBatch.java <logistic_regression/LogRegDenseBatch.java>`
+    -  :java_example:`LogRegBinaryDenseBatch.java <logistic_regression/LogRegBinaryDenseBatch.java>`
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    -  :daal4py_example:`log_reg_dense_batch.py`
 
 .. -  log_reg_binary_dense_batch.py
-
-GPU Examples
-------------
-
-Batch Processing:
-
-- :ref:`log_reg_binary_dense_batch.cpp`
-- :ref:`log_reg_dense_batch.cpp`

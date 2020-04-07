@@ -124,20 +124,22 @@ complete the following steps:
 Examples
 ********
 
-C++*:
+.. tabs::
 
-- :cpp_example:`df_cls_dense_batch_model_builder.cpp <decision_forest/df_cls_dense_batch_model_builder.cpp>`
-- :cpp_example:`df_cls_traversed_model_builder.cpp <decision_forest/df_cls_traversed_model_builder.cpp>`
+  .. tab:: C++
 
-Java*:
+    - :cpp_example:`df_cls_dense_batch_model_builder.cpp <decision_forest/df_cls_dense_batch_model_builder.cpp>`
+    - :cpp_example:`df_cls_traversed_model_builder.cpp <decision_forest/df_cls_traversed_model_builder.cpp>`
 
-- :java_example:`DfClsDenseBatchModelBuilder.java <decision_forest/DfClsDenseBatchModelBuilder.java>`
-- :java_example:`DfClsTraversedModelBuilder.java <decision_forest/DfClsTraversedModelBuilder.java>`
+  .. tab:: Java*
 
-Python*:
+    - :java_example:`DfClsDenseBatchModelBuilder.java <decision_forest/DfClsDenseBatchModelBuilder.java>`
+    - :java_example:`DfClsTraversedModelBuilder.java <decision_forest/DfClsTraversedModelBuilder.java>`
 
-- :daal4py_example:`df_cls_dense_batch_model_builder.py`
-- :daal4py_example:`df_cls_traversed_model_builder.py`
+  .. tab:: Python*
+
+    - :daal4py_example:`df_cls_dense_batch_model_builder.py`
+    - :daal4py_example:`df_cls_traversed_model_builder.py`
 
 Batch Processing
 ================
@@ -219,9 +221,19 @@ classification has the following parameters at the prediction stage:
 Examples
 ********
 
-C++: :cpp_example:`df_cls_dense_batch.cpp <decision_forest/df_cls_dense_batch.cpp>`
+.. tabs::
 
-Java*: :java_example:`DfClsDenseBatch.java <decision_forest/DfClsDenseBatch.java>`
+  .. tab:: C++
+
+    Batch Processing:
+
+    - :cpp_example:`df_cls_dense_batch.cpp <decision_forest/df_cls_dense_batch.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+    
+    - :java_example:`DfClsDenseBatch.java <decision_forest/DfClsDenseBatch.java>`
 
 .. Python*: df_cls_dense_batch.py
 

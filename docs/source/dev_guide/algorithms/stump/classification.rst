@@ -101,12 +101,18 @@ At the prediction stage, a classification stump has the following parameters:
 Examples
 ********
 
-C++:
+.. tabs::
 
-- :cpp_example:`stump_cls_gini_dense_batch.cpp <stump/stump_cls_gini_dense_batch.cpp>`
-- :cpp_example:`stump_cls_infogain_dense_batch.cpp <stump/stump_cls_infogain_dense_batch.cpp>`
+  .. tab:: C++
 
-Java*:
+    Batch Processing:
 
-- :java_example:`StumpClsGiniDenseBatch.java <stump/StumpClsGiniDenseBatch.java>`
-- :java_example:`StumpClsInfogainDenseBatch.java <stump/StumpClsInfogainDenseBatch.java>`
+    - :cpp_example:`stump_cls_gini_dense_batch.cpp <stump/stump_cls_gini_dense_batch.cpp>`
+    - :cpp_example:`stump_cls_infogain_dense_batch.cpp <stump/stump_cls_infogain_dense_batch.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+    
+    - :java_example:`StumpClsGiniDenseBatch.java <stump/StumpClsGiniDenseBatch.java>`
+    - :java_example:`StumpClsInfogainDenseBatch.java <stump/StumpClsInfogainDenseBatch.java>`

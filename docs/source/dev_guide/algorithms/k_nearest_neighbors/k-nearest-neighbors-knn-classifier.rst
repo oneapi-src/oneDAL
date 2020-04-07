@@ -198,16 +198,25 @@ following parameters:
 Examples
 ========
 
-CPU Examples
-------------
+.. tabs::
 
-C++: :cpp_example:`kdtree_knn_dense_batch.cpp <k_nearest_neighbors/kdtree_knn_dense_batch.cpp>`
+  .. tab:: DPC++
 
-Java*: :java_example:`KDTreeKNNDenseBatch.java <kdtree_knn_classification/KDTreeKNNDenseBatch.java>`
+    Batch Processing:
+
+    - :ref:`bf_knn_dense_batch.cpp`
+  
+  .. tab:: C++
+
+    Batch Processing:
+
+    - :cpp_example:`kdtree_knn_dense_batch.cpp <k_nearest_neighbors/kdtree_knn_dense_batch.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+
+    - :java_example:`KDTreeKNNDenseBatch.java <kdtree_knn_classification/KDTreeKNNDenseBatch.java>`
+
 
 .. Python*: kdtree_knn_dense_batch.py
-
-GPU Examples
-------------
-
-- :ref:`bf_knn_dense_batch.cpp`

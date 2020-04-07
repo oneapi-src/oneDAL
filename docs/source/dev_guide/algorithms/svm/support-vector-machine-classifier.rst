@@ -111,11 +111,19 @@ complete the following steps:
 Examples
 --------
 
-C++: :cpp_example:`svm_two_class_model_builder.cpp <svm/svm_two_class_model_builder.cpp>`
+.. tabs::
 
-Java*: :java_example:`SVMTwoClassModelBuilder.java <svm/SVMTwoClassModelBuilder.java>`
+  .. tab:: C++
+  
+   :cpp_example:`svm_two_class_model_builder.cpp <svm/svm_two_class_model_builder.cpp>`
 
-Python*: :daal4py_example:`svm_two_class_model_builder.py`
+  .. tab:: Java*
+
+   :java_example:`SVMTwoClassModelBuilder.java <svm/SVMTwoClassModelBuilder.java>`
+  
+  .. tab:: Python*
+
+   :daal4py_example:`svm_two_class_model_builder.py`
 
 Batch Processing
 ****************
@@ -222,15 +230,21 @@ At the prediction stage, SVM classifier has the following parameters:
 Examples
 --------
 
-C++:
+.. tabs::
 
--  :cpp_example:`svm_two_class_dense_batch.cpp <svm/svm_two_class_dense_batch.cpp>`
--  :cpp_example:`svm_two_class_csr_batch.cpp <svm/svm_two_class_csr_batch.cpp>`
+  .. tab:: C++
 
-Java*:
+   Batch Processing:
 
--  :java_example:`SVMTwoClassDenseBatch.java <svm/SVMTwoClassDenseBatch.java>`
--  :java_example:`SVMTwoClassCSRBatch.java <svm/SVMTwoClassCSRBatch.java>`
+   -  :cpp_example:`svm_two_class_dense_batch.cpp <svm/svm_two_class_dense_batch.cpp>`
+   -  :cpp_example:`svm_two_class_csr_batch.cpp <svm/svm_two_class_csr_batch.cpp>`
+
+  .. tab:: Java*
+   
+   Batch Processing:
+
+   -  :java_example:`SVMTwoClassDenseBatch.java <svm/SVMTwoClassDenseBatch.java>`
+   -  :java_example:`SVMTwoClassCSRBatch.java <svm/SVMTwoClassCSRBatch.java>`
 
 .. Python*:
 

@@ -92,11 +92,19 @@ complete the following steps:
 Examples
 --------
 
-C++: :cpp_example:`svm_multi_class_model_builder.cpp <svm/svm_multi_class_model_builder.cpp>`
+.. tabs::
 
-Java*: :java_example:`SVMMultiClassModelBuilder.java <svm/SVMMultiClassModelBuilder.java>`
+  .. tab:: C++
 
-Python*: ::daal4py_example:`svm_multi_class_model_builder.py`
+    :cpp_example:`svm_multi_class_model_builder.cpp <svm/svm_multi_class_model_builder.cpp>`
+
+  .. tab:: Java*
+
+    :java_example:`SVMMultiClassModelBuilder.java <svm/SVMMultiClassModelBuilder.java>`
+
+  .. tab:: Python*
+
+    :daal4py_example:`svm_multi_class_model_builder.py`
 
 Batch Processing
 ****************
@@ -184,15 +192,21 @@ At the prediction stage, a multi-class classifier has the following parameters:
 Examples
 --------
 
-C++:
+.. tabs::
 
--  :cpp_example:`svm_multi_class_dense_batch.cpp <svm/svm_multi_class_dense_batch.cpp>`
--  :cpp_example:`svm_multi_class_csr_batch.cpp <svm/svm_multi_class_csr_batch.cpp>`
+  .. tab:: C++
 
-Java*:
+    Batch Processing:
 
--  :java_example:`SVMMultiClassDenseBatch.java <svm/SVMMultiClassDenseBatch.java>`
--  :java_example:`SVMMultiClassCSRBatch.java <svm/SVMMultiClassCSRBatch.java>`
+    -  :cpp_example:`svm_multi_class_dense_batch.cpp <svm/svm_multi_class_dense_batch.cpp>`
+    -  :cpp_example:`svm_multi_class_csr_batch.cpp <svm/svm_multi_class_csr_batch.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+    
+    -  :java_example:`SVMMultiClassDenseBatch.java <svm/SVMMultiClassDenseBatch.java>`
+    -  :java_example:`SVMMultiClassCSRBatch.java <svm/SVMMultiClassCSRBatch.java>`
 
 .. Python*:
 

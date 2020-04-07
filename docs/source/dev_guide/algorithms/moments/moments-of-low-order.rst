@@ -33,8 +33,8 @@ Moments are basic quantitative measures of data set characteristics such as loca
 At this moment, the full documentation for Moments of Low Order is only available in
 `Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-moments-of-low-order>`_.
 
-GPU Examples
-************
+DPC++ Examples
+**************
 
 Batch Processing:
 

@@ -249,10 +249,14 @@ Distributed Processing
 Examples
 ********
 
-CPU Examples
-------------
-
 .. tabs::
+
+  .. tab:: DPC++
+
+	Batch Processing:
+
+	- :ref:`kmeans_dense_batch.cpp`
+	- :ref:`kmeans_init_dense_batch.cpp`
 
   .. tab:: C++
 
@@ -277,14 +281,6 @@ CPU Examples
 
     - :java_example:`KMeansDenseDistr.java <kmeans/KMeansDenseDistr.java>`
     - :java_example:`KMeansCSRDistr.java <kmeans/KMeansCSRDistr.java>`
-
-GPU Examples
-------------
-
-Batch Processing:
-
-- :ref:`kmeans_dense_batch.cpp`
-- :ref:`kmeans_init_dense_batch.cpp`
 
 Performance Considerations
 **************************

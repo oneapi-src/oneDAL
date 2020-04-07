@@ -195,9 +195,19 @@ parameters:
 Examples
 --------
 
-C++: :cpp_example:`dt_cls_dense_batch.cpp <decision_tree/dt_cls_dense_batch.cpp>`
+.. tabs::
 
-Java*: :java_example:`DtClsDenseBatch.java <decision_tree/DtClsDenseBatch.java>`
+  .. tab:: C++
+
+    Batch Processing:
+
+    - :cpp_example:`dt_cls_dense_batch.cpp <decision_tree/dt_cls_dense_batch.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+
+    - :java_example:`DtClsDenseBatch.java <decision_tree/DtClsDenseBatch.java>`
 
 .. Python*: dt_cls_dense_batch.py
 

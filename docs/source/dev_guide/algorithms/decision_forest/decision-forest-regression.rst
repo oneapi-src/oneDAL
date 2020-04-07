@@ -143,9 +143,19 @@ regression has the following parameters at the prediction stage:
 Examples
 ********
 
-C++: :cpp_example:`df_reg_dense_batch.cpp <decision_forest/df_reg_dense_batch.cpp>`
+.. tabs::
 
-Java*: :java_example:`DfRegDenseBatch.java <decision_forest/DfRegDenseBatch.java>`
+  .. tab:: C++
+
+    Batch Processing:
+
+    - :cpp_example:`df_reg_dense_batch.cpp <decision_forest/df_reg_dense_batch.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+
+    - :java_example:`DfRegDenseBatch.java <decision_forest/DfRegDenseBatch.java>`
 
 .. Python*: df_reg_dense_batch.py
 

@@ -32,8 +32,8 @@ Batch Processing
 At this moment, the description of batch processing for PCA Transform is only available in
 `Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-batch-processing-8>`_.
 
-GPU Examples
-************
+DPC++ Examples
+**************
 
 Batch Processing:
 

@@ -83,11 +83,20 @@ of Gradient Boosted Tree Regression, complete the following steps:
 Examples
 --------
 
-C++: :cpp_example:`gbt_reg_traversed_model_builder.cpp <gradient_boosted_trees/gbt_reg_traversed_model_builder.cpp>`
+.. tabs::
 
-Java*: :java_example:`GbtRegTraversedModelBuilder.java <gbt/GbtRegTraversedModelBuilder.java>`
+  .. tab:: C++
 
-Python*: :daal4py_example:`gbt_reg_traversed_model_builder.py`
+    - :cpp_example:`gbt_reg_traversed_model_builder.cpp <gradient_boosted_trees/gbt_reg_traversed_model_builder.cpp>`
+
+  .. tab:: Java*
+
+    - :java_example:`GbtRegTraversedModelBuilder.java <gbt/GbtRegTraversedModelBuilder.java>`
+
+  .. tab:: Python*
+
+    - :daal4py_example:`gbt_reg_traversed_model_builder.py`
+
 
 Batch Processing
 ****************
@@ -149,16 +158,24 @@ trees regression has the following parameters at the prediction stage:
 Examples
 ********
 
-CPU Examples
-------------
+.. tabs::
 
-C++: :cpp_example:`gradient_boosted_trees/gbt_reg_dense_batch.cpp`
+  .. tab:: DPC++
 
-Java*: :java_example:`gbt/GbtRegDenseBatch.java`
+    Batch Processing:
+
+    - :ref:`gbt_reg_dense_batch.cpp`
+
+  .. tab:: C++
+  
+    Batch Processing:
+
+    - :cpp_example:`gbt_reg_dense_batch.cpp <gradient_boosted_trees/gbt_reg_dense_batch.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+
+    - :java_example:`GbtRegDenseBatch.java <gbt/GbtRegDenseBatch.java>`
 
 .. Python*: gbt_reg_dense_batch.py
-
-GPU Examples
-------------
-
-- :ref:`gbt_reg_dense_batch.cpp`

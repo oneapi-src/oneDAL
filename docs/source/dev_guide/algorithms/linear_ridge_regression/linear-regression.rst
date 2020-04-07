@@ -100,8 +100,16 @@ To build a Linear Regression model using methods of the Model Builder class of L
 Examples
 --------
 
-C++: :cpp_example:`lin_reg_model_builder.cpp <linear_regression/lin_reg_model_builder.cpp>`
+.. tabs::
 
-Java*: :java_example:`LinRegModelBuilder.java <linear_regression/LinRegModelBuilder.java>`
+  .. tab:: C++
 
-Python*: :daal4py_example:`lin_reg_model_builder.py`
+    - :cpp_example:`lin_reg_model_builder.cpp <linear_regression/lin_reg_model_builder.cpp>`
+
+  .. tab:: Java*
+
+    - :java_example:`LinRegModelBuilder.java <linear_regression/LinRegModelBuilder.java>`
+
+  .. tab:: Python*
+
+    - :daal4py_example:`lin_reg_model_builder.py`

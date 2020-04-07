@@ -100,11 +100,19 @@ complete the following steps:
 Examples
 --------
 
-C++: :cpp_example:`gbt_cls_traversed_model_builder.cpp <gradient_boosted_trees/gbt_cls_traversed_model_builder.cpp>`
+.. tabs::
 
-Java*: :java_example:`GbtClsTraversedModelBuilder.java <gbt/GbtClsTraversedModelBuilder.java>`
+  .. tab:: C++
 
-Python* :daal4py_example:`gbt_cls_traversed_model_builder.py`
+    - :cpp_example:`gbt_cls_traversed_model_builder.cpp <gradient_boosted_trees/gbt_cls_traversed_model_builder.cpp>`
+
+  .. tab:: Java*
+
+    - :java_example:`GbtClsTraversedModelBuilder.java <gbt/GbtClsTraversedModelBuilder.java>`
+
+  .. tab:: Python*
+
+    - :daal4py_example:`gbt_cls_traversed_model_builder.py`
 
 Batch Processing
 ****************
@@ -174,8 +182,18 @@ trees classifier has the following parameters at the prediction stage:
 Examples
 ********
 
-C++: :cpp_example:`gradient_boosted_trees/gbt_cls_dense_batch.cpp`
+.. tabs::
 
-Java*: :java_example:`gbt/GbtClsDenseBatch.java`
+  .. tab:: C++
+
+    Batch Processing:
+
+    - :cpp_example:`gbt_cls_dense_batch.cpp <gradient_boosted_trees/gbt_cls_dense_batch.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+
+    - :java_example:`GbtClsDenseBatch.java <gbt/GbtClsDenseBatch.java>`
 
 .. Python*: gbt_cls_dense_batch.py

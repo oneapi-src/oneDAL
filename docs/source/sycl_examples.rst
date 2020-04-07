@@ -14,7 +14,7 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-GPU Examples
+DPC++ Examples
 ##############
 
 .. toctree::

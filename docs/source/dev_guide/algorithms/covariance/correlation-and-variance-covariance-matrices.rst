@@ -168,10 +168,17 @@ is only available in `Developer Guide for Intel(R) DAAL <https://software.intel.
 Examples
 ========
 
-CPU Examples
-------------
-
 .. tabs::
+
+  .. tab:: DPC++
+
+    Batch Processing:
+
+    - :ref:`cor_dense_batch.cpp`
+
+    Online Processing:
+
+    - :ref:`cor_dense_online.cpp`
 
   .. tab:: C++
 
@@ -193,16 +200,6 @@ CPU Examples
 .. -  cov_dense_batch.py
 .. -  cov_csr_batch.py
 
-GPU Examples
-------------
-
-Batch Processing:
-
-- :ref:`cor_dense_batch.cpp`
-
-Online Processing:
-
-- :ref:`cor_dense_online.cpp`
 
 Performance Considerations
 ==========================
