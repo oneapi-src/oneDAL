@@ -419,9 +419,19 @@ of your algorithm.
 Examples
 ++++++++
 
-C++: :cpp_example:`em/em_gmm_dense_batch.cpp`
+.. tabs::
 
-Java*: :java_example:`em/EmGmmDenseBatch.java`
+  .. tab:: C++
+
+    Batch Processing:
+
+    - :cpp_example:`em_gmm_dense_batch.cpp <em/em_gmm_dense_batch.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+
+    - :java_example:`EmGmmDenseBatch.java <em/EmGmmDenseBatch.java>`
 
 .. Python*:em_gmm_dense_batch.py
 

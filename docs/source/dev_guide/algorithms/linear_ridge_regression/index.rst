@@ -28,6 +28,6 @@ To learn the details of Linear and Ridge regressions, see the following chapters
 The following chapter covers the details of the computation process:
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    linear-ridge-regression-computation.rst

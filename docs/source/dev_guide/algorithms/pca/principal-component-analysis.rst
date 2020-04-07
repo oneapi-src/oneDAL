@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _pca:
+
 Principal Component Analysis
 ============================
 
@@ -224,26 +226,52 @@ Please note the following:
    -  For the svdDense method n should not be less than :math:`p`. If :math:`n > p`,
       svdDense returns an error.
 
+
+Online Processing
+*****************
+
+At this moment, the description of online processing for Principal Component Analysis
+is only available in `Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-online-processing-2>`_.
+
+Distributed Processing
+**********************
+
+At this moment, the description of distributed processing for Principal Component Analysis
+is only available in `Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-4>`_.
+
 Examples
---------
+********
 
-C++:
+.. tabs::
 
--  :cpp_example:`pca/pca_cor_dense_batch.cpp`
--  :cpp_example:`pca/pca_cor_csr_batch.cpp`
--  :cpp_example:`pca/pca_svd_dense_batch.cpp`
+  .. tab:: DPC++
 
-Java*:
+    Batch Processing:
 
--  :java_example:`pca/PCACorDenseBatch.java`
--  :java_example:`pca/PCACorCSRBatch.java`
--  :java_example:`pca/PCASVDDenseBatch.java`
+    - :ref:`pca_cor_dense_batch.cpp`
+
+  .. tab:: C++
+
+    Batch Processing:
+
+    -  :cpp_example:`pca_cor_dense_batch.cpp <pca/pca_cor_dense_batch.cpp>`
+    -  :cpp_example:`pca_cor_csr_batch.cpp <pca/pca_cor_csr_batch.cpp>`
+    -  :cpp_example:`pca_svd_dense_batch.cpp <pca/pca_svd_dense_batch.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+
+    -  :java_example:`PCACorDenseBatch.java <pca/PCACorDenseBatch.java>`
+    -  :java_example:`PCACorCSRBatch.java <pca/PCACorCSRBatch.java>`
+    -  :java_example:`PCASVDDenseBatch.java <pca/PCASVDDenseBatch.java>`
 
 .. Python*:
 
 .. -  pca_cor_dense_batch.py
 .. -  pca_cor_csr_batch.py
 .. -  pca_svd_dense_batch.py
+
 
 Performance Considerations
 **************************
