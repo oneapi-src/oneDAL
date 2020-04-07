@@ -33,13 +33,9 @@ services::String GetIntegerTypeForFPType(const TypeId & vectorTypeId)
     {
         return " -D radixIntType=uint ";
     }
-    else if (vectorTypeId == TypeIds::Id::float64)
-    {
-        return " -D radixIntType=ulong ";
-    }
     else
     {
-        return "";
+        return " -D radixIntType=ulong ";
     }
 }
 

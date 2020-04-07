@@ -30,9 +30,12 @@ DAAL  = datastructures_soa                    \
         sgd_mini_log_loss_dense_batch         \
         pca_cor_dense_batch                   \
         pca_transform_dense_batch             \
+        kernel_func_lin_dense_batch           \
+        kernel_func_rbf_dense_batch           \
         kmeans_dense_batch                    \
         kmeans_init_dense_batch               \
         low_order_moms_dense_batch            \
         low_order_moms_dense_online           \
         gbt_reg_dense_batch                   \
-        bf_knn_dense_batch
+        bf_knn_dense_batch                    \
+        svm_two_class_dense_batch

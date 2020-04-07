@@ -26,8 +26,9 @@
  * \example kernel_func_lin_dense_batch.cpp
  */
 
-#include "daal.h"
+#include "daal_sycl.h"
 #include "service.h"
+#include "service_sycl.h"
 
 using namespace std;
 using namespace daal;

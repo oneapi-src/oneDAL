@@ -201,9 +201,9 @@ protected:
                 DAAL_CHECK_STATUS(status, Partition::flagged(maskBuff, _fBuff, tmpValuesBuff, _nVectors, nUpper));
                 auto resultOp = Reducer::reduce(Reducer::BinaryOp::MIN, Layout::RowMajor, tmpValuesBuff, 1, nUpper, &status);
                 DAAL_CHECK_STATUS_VAR(status);
-                UniversalBuffer minU = resultOp.reduceRes;
-                auto minHost         = minU.get<algorithmFPType>().toHost(data_management::readOnly, &status);
-                ub                   = *minHost;
+                UniversalBuffer minBuff = resultOp.reduceRes;
+                auto minHost            = minBuff.get<algorithmFPType>().toHost(data_management::readOnly, &status);
+                ub                      = *minHost;
             }
             {
                 DAAL_CHECK_STATUS(status, Helper::checkLower(_yBuff, _coeffBuff, maskBuff, C, _nVectors));
@@ -211,9 +211,9 @@ protected:
                 DAAL_CHECK_STATUS(status, Partition::flagged(maskBuff, _fBuff, tmpValuesBuff, _nVectors, nLower));
                 auto resultOp = Reducer::reduce(Reducer::BinaryOp::MAX, Layout::RowMajor, tmpValuesBuff, 1, nLower, &status);
                 DAAL_CHECK_STATUS_VAR(status);
-                UniversalBuffer maxU = resultOp.reduceRes;
-                auto maxHost         = maxU.get<algorithmFPType>().toHost(data_management::readOnly, &status);
-                lb                   = *maxHost;
+                UniversalBuffer maxBuff = resultOp.reduceRes;
+                auto maxHost            = maxBuff.get<algorithmFPType>().toHost(data_management::readOnly, &status);
+                lb                      = *maxHost;
             }
 
             bias = -0.5 * (ub + lb);

@@ -25,12 +25,6 @@
 
 #include "algorithms/kernel/svm/oneapi/cl_kernels/svm_kernels.cl"
 
-// TODO: DELETE
-#include <cstdlib>
-#include <chrono>
-using namespace std::chrono;
-//
-
 namespace daal
 {
 namespace algorithms

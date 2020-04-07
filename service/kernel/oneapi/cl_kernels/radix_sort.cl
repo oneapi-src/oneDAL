@@ -137,7 +137,7 @@ DECLARE_SOURCE(
         for (int i = local_id; i < N; i += local_size) output[i] = input[i];
     }
 
-    __kernel void radixScan(const __global radixIntType * values, __global sortedType * partialHists, int nRows, int bitOffset) {
+    __kernel void radixScan(const __global radixIntType * values, __global int * partialHists, int nRows, int bitOffset) {
         const int RADIX_BITS = 4;
 
         const int n_groups             = get_num_groups(0);
@@ -187,7 +187,7 @@ DECLARE_SOURCE(
         }
     }
 
-    __kernel void radixHistScan(const __global sortedType * partialHists, __global sortedType * partialPrefixHists, int nSubgroupSums) {
+    __kernel void radixHistScan(const __global int * partialHists, __global int * partialPrefixHists, int nSubgroupSums) {
         const int RADIX_BITS = 4;
 
         if (get_sub_group_id() > 0) return;

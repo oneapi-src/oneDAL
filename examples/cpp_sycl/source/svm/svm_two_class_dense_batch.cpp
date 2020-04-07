@@ -61,7 +61,7 @@ int main(int argc, char * argv[])
     {
         const auto & nameDevice = deviceSelector.first;
         const auto & device     = deviceSelector.second;
-        if (!(device.is_gpu() || device.is_cpu())) continue;
+
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
