@@ -14,7 +14,7 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-SYCL* Examples
+GPU Examples
 ##############
 
 .. toctree::

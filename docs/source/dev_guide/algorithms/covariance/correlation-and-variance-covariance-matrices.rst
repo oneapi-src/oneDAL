@@ -153,24 +153,6 @@ methods that access the results of your algorithm.
        PackedTriangularMatrix, PackedSymmetricMatrix, and CSRNumericTable.
 
 
-Examples
---------
-
-C++:
-
--  :cpp_example:`cov_dense_batch.cpp <covariance/cov_dense_batch.cpp>`
--  :cpp_example:`cov_csr_batch.cpp <covariance/cov_csr_batch.cpp>`
-
-Java*:
-
--  :java_example:`CovDenseBatch.java <covariance/CovDenseBatch.java>`
--  :java_example:`CovCSRBatch.java <covariance/CovCSRBatch.java>`
-
-.. Python*:
-
-.. -  cov_dense_batch.py
-.. -  cov_csr_batch.py
-
 Online Processing
 =================
 
@@ -182,6 +164,45 @@ Distributed Processing
 
 At this moment, the description of distributed processing for Correlation and Variance-Covariance Matrices
 is only available in `Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-1>`_.
+
+Examples
+========
+
+CPU Examples
+------------
+
+.. tabs::
+
+  .. tab:: C++
+
+    Batch Processing:
+
+    -  :cpp_example:`cov_dense_batch.cpp <covariance/cov_dense_batch.cpp>`
+    -  :cpp_example:`cov_csr_batch.cpp <covariance/cov_csr_batch.cpp>`
+
+
+  .. tab:: Java*
+
+    Batch Processing:
+
+    -  :java_example:`CovDenseBatch.java <covariance/CovDenseBatch.java>`
+    -  :java_example:`CovCSRBatch.java <covariance/CovCSRBatch.java>`
+
+.. Python*:
+
+.. -  cov_dense_batch.py
+.. -  cov_csr_batch.py
+
+GPU Examples
+------------
+
+Batch Processing:
+
+- :ref:`cor_dense_batch.cpp`
+
+Online Processing:
+
+- :ref:`cor_dense_online.cpp`
 
 Performance Considerations
 ==========================

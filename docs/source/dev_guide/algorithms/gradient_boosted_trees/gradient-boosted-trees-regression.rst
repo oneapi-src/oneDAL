@@ -149,8 +149,16 @@ trees regression has the following parameters at the prediction stage:
 Examples
 ********
 
+CPU Examples
+------------
+
 C++: :cpp_example:`gradient_boosted_trees/gbt_reg_dense_batch.cpp`
 
 Java*: :java_example:`gbt/GbtRegDenseBatch.java`
 
 .. Python*: gbt_reg_dense_batch.py
+
+GPU Examples
+------------
+
+- :ref:`gbt_reg_dense_batch.cpp`

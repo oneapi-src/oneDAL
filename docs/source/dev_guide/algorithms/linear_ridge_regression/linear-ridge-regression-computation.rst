@@ -393,6 +393,9 @@ For more details, see :ref:`algorithms`.
 Examples
 ========
 
+CPU Examples
+------------
+
 .. tabs::
 
   .. tab:: C++
@@ -437,3 +440,14 @@ Examples
     - :java_example:`LinRegNormEqDenseDistr.java <linear_regression/>`
     - :java_example:`LinRegQRDenseDistr.java <linear_regression/>`
     - :java_example:`RidgeRegNormEqDenseDistr.java <ridge_regression/>`
+
+GPU Examples
+------------
+
+Batch Processing:
+
+- :ref:`lin_reg_norm_eq_dense_batch.cpp`
+
+Online Processing:
+
+- :ref:`lin_reg_norm_eq_dense_online.cpp`

@@ -248,6 +248,9 @@ parameter to the methods that access the results of your algorithm.
 Examples
 ********
 
+CPU Examples
+------------
+
 C++:
 
 -  :cpp_example:`log_reg_dense_batch.cpp <logistic_regression/log_reg_dense_batch.cpp>`
@@ -263,3 +266,11 @@ Python*:
 -  :daal4py_example:`log_reg_dense_batch.py`
 
 .. -  log_reg_binary_dense_batch.py
+
+GPU Examples
+------------
+
+Batch Processing:
+
+- :ref:`log_reg_binary_dense_batch.cpp`
+- :ref:`log_reg_dense_batch.cpp`

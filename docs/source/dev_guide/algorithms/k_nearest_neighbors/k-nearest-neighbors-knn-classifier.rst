@@ -196,10 +196,18 @@ following parameters:
      - The number of neighbors.
 
 Examples
---------
+========
+
+CPU Examples
+------------
 
 C++: :cpp_example:`kdtree_knn_dense_batch.cpp <k_nearest_neighbors/kdtree_knn_dense_batch.cpp>`
 
 Java*: :java_example:`KDTreeKNNDenseBatch.java <kdtree_knn_classification/KDTreeKNNDenseBatch.java>`
 
 .. Python*: kdtree_knn_dense_batch.py
+
+GPU Examples
+------------
+
+- :ref:`bf_knn_dense_batch.cpp`

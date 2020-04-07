@@ -204,6 +204,9 @@ method parameter method:
 Examples
 ********
 
+CPU Examples
+------------
+
 C++:
 
 -  :cpp_example:`sgd_dense_batch.cpp <optimization_solvers/sgd_dense_batch.cpp>`
@@ -224,3 +227,9 @@ Java*:
 .. -  sgd_mini_batch.py
 .. -  sgd_moment_dense_batch.py
 .. -  sgd_moment_opt_res_dense_batch.py
+
+
+GPU Examples
+------------
+
+- :ref:`sgd_mini_log_loss_dense_batch.cpp`

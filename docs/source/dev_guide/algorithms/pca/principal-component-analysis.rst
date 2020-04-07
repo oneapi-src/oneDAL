@@ -226,8 +226,24 @@ Please note the following:
    -  For the svdDense method n should not be less than :math:`p`. If :math:`n > p`,
       svdDense returns an error.
 
+
+Online Processing
+*****************
+
+At this moment, the description of online processing for Principal Component Analysis
+is only available in `Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-online-processing-2>`_.
+
+Distributed Processing
+**********************
+
+At this moment, the description of distributed processing for Principal Component Analysis
+is only available in `Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-4>`_.
+
 Examples
---------
+********
+
+CPU Examples
+------------
 
 C++:
 
@@ -247,18 +263,12 @@ Java*:
 .. -  pca_cor_csr_batch.py
 .. -  pca_svd_dense_batch.py
 
-Online Processing
-*****************
+GPU Examples
+------------
 
-At this moment, the description of online processing for Principal Component Analysis
-is only available in `Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-online-processing-2>`_.
+Batch Processing:
 
-Distributed Processing
-**********************
-
-At this moment, the description of distributed processing for Principal Component Analysis
-is only available in `Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-4>`_.
-
+- :ref:`pca_cor_dense_batch.cpp`
 
 Performance Considerations
 **************************
