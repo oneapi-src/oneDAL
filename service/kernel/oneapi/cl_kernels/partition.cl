@@ -152,8 +152,8 @@ DECLARE_SOURCE(
             {
                 const int pos_new = boundary;
                 outData[pos_new]  = data[i];
-                sum += sub_group_reduce_add(part);
             }
+            sum += sub_group_reduce_add(part);
         }
     }
 
@@ -165,7 +165,6 @@ DECLARE_SOURCE(
         const int nElementsForSubgroup = nElems / n_total_sub_groups + !!(nElems % n_total_sub_groups);
         const int local_size           = get_sub_group_size();
 
-        const int id           = get_local_id(0);
         const int local_id     = get_sub_group_local_id();
         const int sub_group_id = get_sub_group_id();
         const int group_id     = get_group_id(0) * n_sub_groups + sub_group_id;
@@ -189,8 +188,8 @@ DECLARE_SOURCE(
             {
                 const int pos_new = boundary;
                 outData[pos_new]  = data[i];
-                sum += sub_group_reduce_add(part);
             }
+            sum += sub_group_reduce_add(part);
         }
     }
 
