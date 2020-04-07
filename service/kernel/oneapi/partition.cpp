@@ -18,7 +18,6 @@
 #include "service/kernel/oneapi/partition.h"
 #include "services/env_detect.h"
 #include "externals/service_ittnotify.h"
-#include "service/kernel/service_string_utils.h"
 #include "service/kernel/oneapi/cl_kernels/partition.cl"
 
 namespace daal

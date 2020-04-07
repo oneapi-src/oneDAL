@@ -96,7 +96,7 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
     const size_t nBlocks       = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
 
     auto shU       = context.allocate(TypeIds::id<algorithmFPType>(), nRowsPerBlock * nSV, &status);
-    auto shResBuff = shU.get<algorithmFPType>();
+    auto shResBuff = shU.template get<algorithmFPType>();
 
     for (size_t blockIdx = 0; blockIdx < nBlocks; blockIdx++)
     {

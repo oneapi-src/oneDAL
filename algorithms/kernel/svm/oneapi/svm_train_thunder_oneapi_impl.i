@@ -44,13 +44,13 @@
 #ifndef __SVM_TRAIN_THUNDER_ONEAPI_IMPL_I__
 #define __SVM_TRAIN_THUNDER_ONEAPI_IMPL_I__
 
-#include "externals/service_memory.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "service/kernel/service_utils.h"
 #include "service/kernel/service_data_utils.h"
-#include "externals/service_ittnotify.h"
 #include "service/kernel/oneapi/blas_gpu.h"
-#include "service/kernel/service_string_utils.h"
+#include "externals/service_memory.h"
+#include "externals/service_ittnotify.h"
+#include "externals/service_service.h"
 #include "algorithms/kernel/svm/oneapi/cl_kernels/svm_train_block_smo_oneapi.cl"
 
 // TODO: DELETE
@@ -107,9 +107,9 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::smoKer
     services::String cachekey("__daal_algorithms_svm_smo_block_");
     cachekey.add(build_options);
     build_options.add(" -D WS_SIZE=");
-    char WsString[60];
-    services::internal::toStringBuffer<int>(nWS, WsString);
-    build_options.add(WsString);
+    char bufferString[DAAL_MAX_STRING_SIZE] = { 0 };
+    services::daal_int_to_string(bufferString, DAAL_MAX_STRING_SIZE, int(nWS));
+    build_options.add(bufferString);
 
     services::Status status;
     factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelBlockSMO, build_options.c_str(), &status);
@@ -210,14 +210,14 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
     auto alphaU = context.allocate(idType, nVectors, &status);
     context.fill(alphaU, 0.0, &status);
     DAAL_CHECK_STATUS_VAR(status);
-    auto alphaBuff = alphaU.get<algorithmFPType>();
+    auto alphaBuff = alphaU.template get<algorithmFPType>();
 
     auto maskBuff = context.allocate(idType, nVectors, &status);
 
     // gradi = -yi
     auto gradU = context.allocate(idType, nVectors, &status);
     DAAL_CHECK_STATUS_VAR(status);
-    auto gradBuff = gradU.get<algorithmFPType>();
+    auto gradBuff = gradU.template get<algorithmFPType>();
 
     BlockDescriptor<algorithmFPType> yBD;
     DAAL_CHECK_STATUS(status, yTable.getBlockOfRows(0, nVectors, ReadWriteMode::readOnly, yBD));
@@ -235,11 +235,11 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
 
     auto deltaalphaU = context.allocate(idType, nWS, &status);
     DAAL_CHECK_STATUS_VAR(status);
-    auto deltaalphaBuff = deltaalphaU.get<algorithmFPType>();
+    auto deltaalphaBuff = deltaalphaU.template get<algorithmFPType>();
 
     auto resinfoU = context.allocate(idType, 2, &status);
     DAAL_CHECK_STATUS_VAR(status);
-    auto resinfoBuff = resinfoU.get<algorithmFPType>();
+    auto resinfoBuff = resinfoU.template get<algorithmFPType>();
 
     int localInnerIteration  = 0;
     int sameLocalDiff        = 0;

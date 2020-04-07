@@ -18,7 +18,6 @@
 #include "service/kernel/oneapi/reducer.h"
 #include "services/env_detect.h"
 #include "externals/service_ittnotify.h"
-#include "service/kernel/service_string_utils.h"
 #include "service/kernel/oneapi/cl_kernels/op_reducer.cl"
 
 namespace daal
@@ -39,35 +38,19 @@ services::Status Reducer::buildProgram(ClKernelFactoryIface & kernelFactory, con
 
     if (op == BinaryOp::MIN)
     {
-        build_options.add(" -D UNARY_OP=none -D BINARY_OP=min -D INIT_VALUE=");
-        // TODO: replace on global constant
-        char initVal[60];
-        services::internal::toStringBuffer<double>(1e20, initVal);
-        build_options.add(initVal);
+        build_options.add(" -D UNARY_OP=none -D BINARY_OP=min -D INIT_VALUE=FLT_MAX");
     }
     else if (op == BinaryOp::MAX)
     {
-        build_options.add(" -D UNARY_OP=none -D BINARY_OP=max -D INIT_VALUE=");
-        // TODO: replace on global constant
-        char initVal[60];
-        services::internal::toStringBuffer<double>(-1e20, initVal);
-        build_options.add(initVal);
+        build_options.add(" -D UNARY_OP=none -D BINARY_OP=max -D INIT_VALUE=-FLT_MAX");
     }
     else if (op == BinaryOp::SUM)
     {
-        build_options.add(" -D UNARY_OP=none -D BINARY_OP=sum -D INIT_VALUE=");
-        char initVal[60];
-        ;
-        services::internal::toStringBuffer<double>(0.0, initVal);
-        build_options.add(initVal);
+        build_options.add(" -D UNARY_OP=none -D BINARY_OP=sum -D INIT_VALUE=0.0");
     }
     else if (op == BinaryOp::SUMS_OF_SQUARED)
     {
-        build_options.add(" -D UNARY_OP=pow2 -D BINARY_OP=sum -D INIT_VALUE=");
-        char initVal[60];
-        ;
-        services::internal::toStringBuffer<double>(0.0, initVal);
-        build_options.add(initVal);
+        build_options.add(" -D UNARY_OP=pow2 -D BINARY_OP=sum -D INIT_VALUE=0.0");
     }
     else
     {
