@@ -102,11 +102,7 @@ Status Input::getNumberOfRows(size_t *nRows) const
 Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
 {
     NumericTablePtr dataTable = get(data);
-    Status s = checkNumericTable(dataTable.get(), dataStr());
-    if(!s) { return s; }
-
-    DAAL_CHECK_EX(dataTable->getNumberOfColumns() <= dataTable->getNumberOfRows(), ErrorIncorrectNumberOfRows, ArgumentName, dataStr());
-    return Status();
+    return checkNumericTable(dataTable.get(), dataStr());
 }
 
 } // namespace interface1
