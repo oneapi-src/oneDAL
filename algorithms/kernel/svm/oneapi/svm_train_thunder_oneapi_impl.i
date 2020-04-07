@@ -105,11 +105,11 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::smoKer
     services::String build_options = getKeyFPType<algorithmFPType>();
 
     services::String cachekey("__daal_algorithms_svm_smo_block_");
-    cachekey.add(build_options);
     build_options.add(" -D WS_SIZE=");
     char bufferString[DAAL_MAX_STRING_SIZE] = { 0 };
     services::daal_int_to_string(bufferString, DAAL_MAX_STRING_SIZE, int(nWS));
     build_options.add(bufferString);
+    cachekey.add(build_options);
 
     services::Status status;
     factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelBlockSMO, build_options.c_str(), &status);
@@ -214,14 +214,14 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
 
     auto maskBuff = context.allocate(idType, nVectors, &status);
 
+    BlockDescriptor<algorithmFPType> yBD;
+    DAAL_CHECK_STATUS(status, yTable.getBlockOfRows(0, nVectors, ReadWriteMode::readOnly, yBD));
+    auto yBuff = yBD.getBuffer();
+
     // gradi = -yi
     auto gradU = context.allocate(idType, nVectors, &status);
     DAAL_CHECK_STATUS_VAR(status);
     auto gradBuff = gradU.template get<algorithmFPType>();
-
-    BlockDescriptor<algorithmFPType> yBD;
-    DAAL_CHECK_STATUS(status, yTable.getBlockOfRows(0, nVectors, ReadWriteMode::readOnly, yBD));
-    auto yBuff = yBD.getBuffer();
 
     DAAL_CHECK_STATUS(status, Helper::initGrad(yBuff, gradBuff, nVectors));
 
@@ -257,11 +257,11 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
     if (cacheSize > nWS * nVectors * sizeof(algorithmFPType))
     {
         // TODO!
-        cache = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, nWS, nVectors, xTable, kernel, verbose, status);
+        cache = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, nWS, nVectors, xTable, kernel, status);
     }
     else
     {
-        cache = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, nWS, nVectors, xTable, kernel, verbose, status);
+        cache = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, nWS, nVectors, xTable, kernel, status);
     }
 
     if (verbose)

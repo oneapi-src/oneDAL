@@ -37,7 +37,7 @@ using namespace daal::data_management;
 /* Input data set parameters */
 string leftDatasetFileName  = "../data/batch/kernel_function.csv";
 string rightDatasetFileName = "../data/batch/kernel_function.csv";
-const size_t nFeatures = 4;
+const size_t nFeatures      = 4;
 
 /* Kernel algorithm parameters */
 const double k = 1.0; /* Linear kernel coefficient in the k(X,Y) + b model */
@@ -59,9 +59,11 @@ int main(int argc, char * argv[])
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
         /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-        FileDataSource<CSVFeatureManager> leftDataSource(leftDatasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+        FileDataSource<CSVFeatureManager> leftDataSource(leftDatasetFileName, DataSource::doAllocateNumericTable,
+                                                         DataSource::doDictionaryFromContext);
 
-        FileDataSource<CSVFeatureManager> rightDataSource(rightDatasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+        FileDataSource<CSVFeatureManager> rightDataSource(rightDatasetFileName, DataSource::doAllocateNumericTable,
+                                                          DataSource::doDictionaryFromContext);
 
         auto leftData = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::notAllocate);
         /* Retrieve the data from the input file */

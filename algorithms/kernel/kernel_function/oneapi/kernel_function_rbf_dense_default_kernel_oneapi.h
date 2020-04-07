@@ -62,7 +62,6 @@ public:
 
 protected:
     static services::Status buildProgram(ClKernelFactoryIface & factory);
-    static services::Status lazyAllocate(oneapi::internal::UniversalBuffer & x, const size_t n);
 
     static services::Status computeRBF(const services::Buffer<algorithmFPType> & sqrA1, const services::Buffer<algorithmFPType> & sqrA2,
                                        const uint32_t ld, const algorithmFPType coeff, services::Buffer<algorithmFPType> & rbf,
@@ -71,10 +70,6 @@ protected:
     services::Status computeInternalVectorVector(NumericTable & a1, NumericTable & a2, NumericTable & r, const ParameterBase * par);
     services::Status computeInternalMatrixVector(NumericTable & a1, NumericTable & a2, NumericTable & r, const ParameterBase * par);
     services::Status computeInternalMatrixMatrix(NumericTable & a1, NumericTable & a2, NumericTable & r, const ParameterBase * par);
-
-private:
-    // oneapi::internal::UniversalBuffer _sqrA1U;
-    // oneapi::internal::UniversalBuffer _sqrA2U;
 };
 
 } // namespace internal

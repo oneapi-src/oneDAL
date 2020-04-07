@@ -54,7 +54,7 @@ void buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId & vectorTyp
     build_options.add("-cl-std=CL1.2 -D sortedType=int");
 
     services::String cachekey("__daal_oneapi_internal_sort_radix_sort__");
-    cachekey.add(fptype_name);
+    cachekey.add(build_options);
     kernelFactory.build(ExecutionTargetIds::device, cachekey.c_str(), radix_sort_simd, build_options.c_str());
 }
 

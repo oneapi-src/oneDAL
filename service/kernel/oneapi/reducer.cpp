@@ -58,7 +58,7 @@ services::Status Reducer::buildProgram(ClKernelFactoryIface & kernelFactory, con
     }
 
     services::String cachekey("__daal_oneapi_internal_math_reducer_");
-    cachekey.add(fptype_name);
+    cachekey.add(build_options);
 
     services::Status status;
     kernelFactory.build(ExecutionTargetIds::device, cachekey.c_str(), op_reduce, build_options.c_str(), &status);

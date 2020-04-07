@@ -41,6 +41,8 @@ DECLARE_SOURCE_DAAL(
         const algorithmFPType rbfij  = rbf[i * ld + j];
         const algorithmFPType arg    = fmax((rbfij + sqrA1i + sqrA2j) * coeff, expThreshold);
 
+        // if (i == 0 && j < 20) printf("%d: %f %f %f %f\n", j, sqrA1i, sqrA2j, rbfij, arg);
+
         rbf[i * ld + j] = exp(arg);
     }
 

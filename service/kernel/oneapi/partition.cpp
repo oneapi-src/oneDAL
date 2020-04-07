@@ -33,7 +33,7 @@ services::Status Partition::buildProgram(ClKernelFactoryIface & factory, const T
     services::String fptype_name = getKeyFPType(vectorTypeId);
     auto build_options           = fptype_name;
     services::String cachekey("__daal_oneapi_internal_partition_");
-    cachekey.add(fptype_name);
+    cachekey.add(build_options);
 
     services::Status status;
     factory.build(ExecutionTargetIds::device, cachekey.c_str(), kernelsPartition, build_options.c_str(), &status);

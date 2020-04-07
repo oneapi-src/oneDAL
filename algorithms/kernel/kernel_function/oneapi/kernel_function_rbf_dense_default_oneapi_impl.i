@@ -51,34 +51,11 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::buildProgra
     services::String options = getKeyFPType<algorithmFPType>();
 
     services::String cachekey("__daal_algorithms_kernel_function_");
-    cachekey.add(options);
     options.add(" -D LOCAL_SUM_SIZE=256 ");
+    cachekey.add(options);
 
     services::Status status;
     factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelKF, options.c_str(), &status);
-    return status;
-}
-
-template <typename algorithmFPType>
-services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::lazyAllocate(UniversalBuffer & x, const size_t n)
-{
-    services::Status status;
-    ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
-    const TypeIds::Id idType    = TypeIds::id<algorithmFPType>();
-
-    printf("%lu %d\n", n, (int)x.empty());
-    fflush(stdout);
-    if (x.empty())
-    {
-        printf("x.empty()\n");
-
-        x = ctx.allocate(idType, n, &status);
-    }
-    else if (x.get<algorithmFPType>().size() < n)
-    {
-        x = ctx.allocate(idType, n, &status);
-    }
-
     return status;
 }
 
@@ -147,11 +124,8 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInte
     const size_t nFeatures2 = a2.getNumberOfColumns();
     DAAL_ASSERT(nFeatures1 == nFeatures2);
 
-    //compute
     const Parameter * rbfPar    = static_cast<const Parameter *>(par);
     const algorithmFPType coeff = algorithmFPType(-0.5 / (rbfPar->sigma * rbfPar->sigma));
-
-    printf("RBF coeff = %f nVectors1 %lu nVectors2 %lu nFeatures1 %lu\n", (float)coeff, nVectors1, nVectors2, nFeatures1);
 
     BlockDescriptor<algorithmFPType> a1BD;
     BlockDescriptor<algorithmFPType> a2BD;
@@ -168,58 +142,30 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInte
 
     services::Buffer<algorithmFPType> rBuf = rBD.getBuffer();
 
-    // DAAL_CHECK_STATUS(status, lazyAllocate(_sqrA1U, nVectors1));
-    UniversalBuffer _sqrA1U = context.allocate(TypeIds::id<algorithmFPType>(), nVectors1, &status);
-    // DAAL_CHECK_STATUS(status, lazyAllocate(_sqrA2U, nVectors2));
-    UniversalBuffer _sqrA2U = context.allocate(TypeIds::id<algorithmFPType>(), nVectors2, &status);
+    UniversalBuffer sqrA1U = context.allocate(TypeIds::id<algorithmFPType>(), nVectors1, &status);
+    DAAL_CHECK_STATUS_VAR(status);
+    UniversalBuffer sqrA2U = context.allocate(TypeIds::id<algorithmFPType>(), nVectors2, &status);
+    DAAL_CHECK_STATUS_VAR(status);
 
+    //compute
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.SumOfSquared);
 
-        Reducer::reduce(Reducer::BinaryOp::SUMS_OF_SQUARED, math::Layout::RowMajor, a1Buf, _sqrA1U, nVectors1, nFeatures1, &status);
-        Reducer::reduce(Reducer::BinaryOp::SUMS_OF_SQUARED, math::Layout::RowMajor, a2Buf, _sqrA2U, nVectors2, nFeatures2, &status);
+        Reducer::reduce(Reducer::BinaryOp::SUMS_OF_SQUARED, Layout::RowMajor, a1Buf, sqrA1U, nVectors1, nFeatures1, &status);
+        Reducer::reduce(Reducer::BinaryOp::SUMS_OF_SQUARED, Layout::RowMajor, a2Buf, sqrA2U, nVectors2, nFeatures2, &status);
     }
 
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.gemm);
-        // TODO: Need block GEMM to avoid copying
-
         DAAL_CHECK_STATUS(status, BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::Trans, nVectors1,
                                                                   nVectors2, nFeatures1, algorithmFPType(-2.0), a1Buf, nFeatures1, 0, a2Buf,
                                                                   nFeatures2, 0, algorithmFPType(0.0), rBuf, nVectors2, 0));
     }
 
-    const services::Buffer<algorithmFPType> sqrA1Buff = _sqrA1U.get<algorithmFPType>();
-    const services::Buffer<algorithmFPType> sqrA2Buff = _sqrA2U.get<algorithmFPType>();
-
-    // {
-    //     algorithmFPType * sqrA1Buff_host = sqrA1Buff.toHost(ReadWriteMode::readOnly).get();
-    //     for (int i = 0; i < 10; i++)
-    //     {
-    //         printf("%.1f ", sqrA1Buff_host[i]);
-    //     }
-    //     printf("\n");
-    // }
-
-    // {
-    //     algorithmFPType * sqrA1Buff_host = sqrA2Buff.toHost(ReadWriteMode::readOnly).get();
-    //     for (int i = 0; i < 10; i++)
-    //     {
-    //         printf("%.1f ", sqrA1Buff_host[i]);
-    //     }
-    //     printf("\n");
-    // }
+    const services::Buffer<algorithmFPType> sqrA1Buff = sqrA1U.get<algorithmFPType>();
+    const services::Buffer<algorithmFPType> sqrA2Buff = sqrA2U.get<algorithmFPType>();
 
     DAAL_CHECK_STATUS(status, computeRBF(sqrA1Buff, sqrA2Buff, nVectors2, coeff, rBuf, nVectors1, nVectors2));
-
-    // {
-    //     algorithmFPType * sqrA1Buff_host = rBuf.toHost(ReadWriteMode::readOnly).get();
-    //     for (int i = 0; i < 20; i++)
-    //     {
-    //         printf("%.1f ", sqrA1Buff_host[i]);
-    //     }
-    //     printf("\n");
-    // }
 
     return status;
 }

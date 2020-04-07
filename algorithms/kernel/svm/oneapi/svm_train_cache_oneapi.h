@@ -69,12 +69,12 @@ public:
     virtual const services::Buffer<algorithmFPType> & getSetRowsBlock() const = 0;
 
 protected:
-    SVMCacheOneAPIIface(const size_t nWS, const size_t lineSize, const kernel_function::KernelIfacePtr & kernel)
-        : _lineSize(lineSize), _nWS(nWS), _kernel(kernel)
+    SVMCacheOneAPIIface(const size_t blockSize, const size_t lineSize, const kernel_function::KernelIfacePtr & kernel)
+        : _lineSize(lineSize), _blockSize(blockSize), _kernel(kernel)
     {}
 
     const size_t _lineSize;                        /*!< Number of elements in the cache line */
-    const size_t _nWS;                             /*!< Number of elements in the cache line */
+    const size_t _blockSize;                       /*!< Number of cache lines */
     const kernel_function::KernelIfacePtr _kernel; /*!< Kernel function */
 };
 
@@ -93,25 +93,25 @@ class SVMCacheOneAPI<noCache, algorithmFPType> : public SVMCacheOneAPIIface<algo
     using thisType = SVMCacheOneAPI<noCache, algorithmFPType>;
     using super::_kernel;
     using super::_lineSize;
-    using super::_nWS;
+    using super::_blockSize;
 
 public:
     ~SVMCacheOneAPI() {}
 
     DAAL_NEW_DELETE();
 
-    static SVMCacheOneAPI * create(const size_t cacheSize, const size_t nWS, const size_t lineSize, const NumericTablePtr & xTable,
-                                   const kernel_function::KernelIfacePtr & kernel, bool verbose, services::Status & s)
+    static SVMCacheOneAPI * create(const size_t cacheSize, const size_t blockSize, const size_t lineSize, const NumericTablePtr & xTable,
+                                   const kernel_function::KernelIfacePtr & kernel, services::Status & s)
     {
         s.clear();
-        thisType * res = new thisType(nWS, lineSize, xTable, kernel);
+        thisType * res = new thisType(blockSize, lineSize, xTable, kernel);
         if (!res)
         {
             s.add(ErrorMemoryAllocationFailed);
         }
         else
         {
-            s = res->init(cacheSize, xTable, verbose);
+            s = res->init(cacheSize, xTable);
             if (!s)
             {
                 delete res;
@@ -125,58 +125,41 @@ public:
 
     services::Status compute(const NumericTablePtr & xTable, const services::Buffer<int> & wsIndices, const size_t p) override
     {
-        if (_verbose)
-        {
-            printf(">> [SVMCacheOneAPI] compute\n");
-        }
-
         services::Status status;
-
         BlockDescriptor<algorithmFPType> xBlock;
 
         DAAL_CHECK_STATUS(status, xTable->getBlockOfRows(0, xTable->getNumberOfRows(), ReadWriteMode::readOnly, xBlock));
         const services::Buffer<algorithmFPType> & xBuff = xBlock.getBuffer();
 
-        // const size_t nRowsPerBlock = 90000;
-        // const size_t nBlocks = nRows / nRowsPerBlock + !!(nRows % nRowsPerBlock);
-
-        DAAL_CHECK_STATUS(status, Helper::copyBlockIndices(xBuff, wsIndices, _xWSBuff, _nWS, p));
+        DAAL_CHECK_STATUS(status, Helper::copyBlockIndices(xBuff, wsIndices, _xBlockBuff, _blockSize, p));
+        DAAL_CHECK_STATUS(status, xTable->releaseBlockOfRows(xBlock));
 
         DAAL_CHECK_STATUS(status, _kernel->computeNoThrow());
-
-        DAAL_CHECK_STATUS(status, xTable->releaseBlockOfRows(xBlock));
         return status;
     }
 
 protected:
-    SVMCacheOneAPI(const size_t nWS, const size_t lineSize, const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel)
-        : super(nWS, lineSize, kernel)
+    SVMCacheOneAPI(const size_t blockSize, const size_t lineSize, const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel)
+        : super(blockSize, lineSize, kernel)
     {}
 
-    services::Status init(const size_t cacheSize, const NumericTablePtr & xTable, bool verbose)
+    services::Status init(const size_t cacheSize, const NumericTablePtr & xTable)
     {
-        _verbose = verbose;
-
-        if (_verbose)
-        {
-            printf(">> [SVMCacheOneAPI] init cacheSize: %lu\n", cacheSize);
-        }
         services::Status s;
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
-        // TODO Check size cache
-        _cache = context.allocate(TypeIds::id<algorithmFPType>(), _lineSize * _nWS, &s);
+        _cache = context.allocate(TypeIds::id<algorithmFPType>(), _lineSize * _blockSize, &s);
         DAAL_CHECK_STATUS_VAR(s);
 
         _cacheBuff      = _cache.get<algorithmFPType>();
-        auto cacheTable = SyclHomogenNumericTable<algorithmFPType>::create(_cacheBuff, _lineSize, _nWS, &s);
+        auto cacheTable = SyclHomogenNumericTable<algorithmFPType>::create(_cacheBuff, _lineSize, _blockSize, &s);
 
         const size_t p = xTable->getNumberOfColumns();
-        _xWS           = context.allocate(TypeIds::id<algorithmFPType>(), _nWS * p, &s);
+        _xBlock        = context.allocate(TypeIds::id<algorithmFPType>(), _blockSize * p, &s);
         DAAL_CHECK_STATUS_VAR(s);
 
-        _xWSBuff                       = _xWS.get<algorithmFPType>();
-        const NumericTablePtr xWSTable = SyclHomogenNumericTable<algorithmFPType>::create(_xWSBuff, p, _nWS, &s);
+        _xBlockBuff                    = _xBlock.get<algorithmFPType>();
+        const NumericTablePtr xWSTable = SyclHomogenNumericTable<algorithmFPType>::create(_xBlockBuff, p, _blockSize, &s);
 
         DAAL_CHECK_STATUS_VAR(s);
         _kernel->getParameter()->computationMode = kernel_function::matrixMatrix;
@@ -192,10 +175,9 @@ protected:
 
 protected:
     UniversalBuffer _cache;
-    UniversalBuffer _xWS;
-    services::Buffer<algorithmFPType> _xWSBuff;
+    UniversalBuffer _xBlock;
+    services::Buffer<algorithmFPType> _xBlockBuff;
     services::Buffer<algorithmFPType> _cacheBuff;
-    bool _verbose;
 };
 
 } // namespace internal

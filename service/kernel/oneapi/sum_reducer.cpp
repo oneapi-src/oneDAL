@@ -36,7 +36,7 @@ void buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId & vectorTyp
     build_options.add("-cl-std=CL1.2 -D LOCAL_BUFFER_SIZE=256");
 
     services::String cachekey("__daal_oneapi_internal_math_sum_reducer_");
-    cachekey.add(fptype_name);
+    cachekey.add(build_options);
     kernelFactory.build(ExecutionTargetIds::device, cachekey.c_str(), sum_reducer, build_options.c_str());
 }
 

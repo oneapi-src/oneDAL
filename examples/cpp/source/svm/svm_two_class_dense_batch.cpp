@@ -44,8 +44,6 @@ const size_t nFeatures = 20;
 /* Parameters for the SVM kernel function */
 kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<>());
 
-// kernel_function::KernelIfacePtr kernel(new kernel_function::rbf::Batch<>(gamma));
-
 /* Model object for the SVM algorithm */
 svm::training::ResultPtr trainingResult;
 classifier::prediction::ResultPtr predictionResult;
@@ -87,11 +85,6 @@ void trainModel()
     algorithm.parameter.kernel    = kernel;
     algorithm.parameter.cacheSize = 40000000;
 
-    algorithm.parameter.accuracyThreshold = 0.1;
-    algorithm.parameter.tau               = 1.0e-6;
-    algorithm.parameter.maxIterations     = 10000000;
-    algorithm.parameter.doShrinking       = false;
-
     /* Pass a training data set and dependent values to the algorithm */
     algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainGroundTruth);
@@ -101,21 +94,6 @@ void trainModel()
 
     /* Retrieve the algorithm results */
     trainingResult = algorithm.getResult();
-
-    auto model                   = trainingResult->get(classifier::training::model);
-    NumericTablePtr svCoeffTable = model->getClassificationCoefficients();
-    NumericTablePtr svIndices    = model->getSupportIndices();
-    NumericTablePtr sv           = model->getSupportVectors();
-    const size_t nSV             = svCoeffTable->getNumberOfRows();
-
-    const float bias(model->getBias());
-
-    printf("nSV %lu\n", nSV);
-    printf("bias %lf\n", bias);
-    // printNumeric<float>(svCoeffTable, "", "svCoeffTable", 25);
-    // printNumeric<int>(svCoeffTable, "", "svCoeffTable", 25);
-    printNumeric<int>(svIndices, "", "svIndices", 25);
-    // printNumeric<float>(sv, "", "sv", 25);
 }
 
 void testModel()

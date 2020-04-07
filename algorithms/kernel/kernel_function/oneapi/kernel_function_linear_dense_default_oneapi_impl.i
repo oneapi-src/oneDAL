@@ -65,8 +65,6 @@ services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeI
 {
     services::Status status;
 
-    printf("LinearOneAPI\n");
-
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();
 
@@ -88,7 +86,6 @@ services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeI
         BlockDescriptor<algorithmFPType> a2BD;
         BlockDescriptor<algorithmFPType> rBD;
 
-        // TODO: Need block GEMM to avoid copying
         const size_t startRows = 0;
         DAAL_CHECK_STATUS(status, a1.getBlockOfRows(startRows, nVectors1, ReadWriteMode::readOnly, a1BD));
         DAAL_CHECK_STATUS(status, a2.getBlockOfRows(startRows, nVectors2, ReadWriteMode::readOnly, a2BD));
@@ -112,6 +109,7 @@ services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeI
         DAAL_CHECK_STATUS(status, a2.releaseBlockOfRows(a2BD));
         DAAL_CHECK_STATUS(status, r.releaseBlockOfRows(rBD));
     }
+
     DAAL_CHECK_STATUS_VAR(status);
 
     return status;

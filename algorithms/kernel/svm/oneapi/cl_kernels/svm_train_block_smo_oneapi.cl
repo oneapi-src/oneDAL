@@ -31,11 +31,11 @@
 DECLARE_SOURCE_DAAL(
     clKernelBlockSMO,
 
-    inline bool IUpper(const algorithmFPType alpha, const algorithmFPType y, const algorithmFPType C) {
+    inline bool isUpper(const algorithmFPType alpha, const algorithmFPType y, const algorithmFPType C) {
         return (y > 0 && alpha < C) || (y < 0 && alpha > 0);
     }
 
-    inline bool ILower(const algorithmFPType alpha, const algorithmFPType y, const algorithmFPType C) {
+    inline bool isLower(const algorithmFPType alpha, const algorithmFPType y, const algorithmFPType C) {
         return (y > 0 && alpha > 0) || (y < 0 && alpha < C);
     }
 
@@ -88,13 +88,12 @@ DECLARE_SOURCE_DAAL(
                             const algorithmFPType eps, const algorithmFPType tau, const int maxInnerIteration, __global algorithmFPType * alpha,
                             __global algorithmFPType * deltaalpha, __global algorithmFPType * resinfo) {
         const uint i = get_local_id(0);
-
         __local algorithmFPType kd[WS_SIZE];
 
         const int wsIndex = wsIndices[i];
 
-        const algorithmFPType MIN_FLT = -1e20;
-        const algorithmFPType MAX_FLT = 1e20;
+        const algorithmFPType MIN_FLT = -FLT_MAX;
+        const algorithmFPType MAX_FLT = FLT_MAX;
 
         const algorithmFPType two = 2.0;
 
@@ -124,7 +123,7 @@ DECLARE_SOURCE_DAAL(
         for (; iter < maxInnerIteration; iter++)
         {
             /* m(alpha) = min(grad[i]): i belongs to I_UP (alpha) */
-            objFunc[i] = IUpper(alphai, yi, C) ? gradi : MAX_FLT;
+            objFunc[i] = isUpper(alphai, yi, C) ? gradi : MAX_FLT;
 
             /* Find i index of the working set (Bi) */
             reduceMin(objFunc, indices);
@@ -137,7 +136,7 @@ DECLARE_SOURCE_DAAL(
             barrier(CLK_LOCAL_MEM_FENCE);
 
             /* maxgrad(alpha) = max(grad[i]): i belongs to I_low (alpha) */
-            objFunc[i] = ILower(alphai, yi, C) ? gradi : MIN_FLT;
+            objFunc[i] = isLower(alphai, yi, C) ? gradi : MIN_FLT;
 
             /* Find max gradinet of the working set (Bi) */
             reduceMax(objFunc, indices);
@@ -165,7 +164,7 @@ DECLARE_SOURCE_DAAL(
             const algorithmFPType KBiBi = kd[Bi];
             const algorithmFPType KiBi  = kernelWsRows[Bi * ldx + wsIndex];
 
-            if (ILower(alphai, yi, C) && ma < gradi)
+            if (isLower(alphai, yi, C) && ma < gradi)
             {
                 /* M(alpha) = max((b^2/a) : i belongs to I_low(alpha) and ma < grad(alpha) */
                 const algorithmFPType b  = ma - gradi;
@@ -178,8 +177,6 @@ DECLARE_SOURCE_DAAL(
             {
                 objFunc[i] = MIN_FLT;
             }
-
-            // printf("> objFunc %.2f ygrad %.2f ma %.2f alphai %.2f C %.2f -b * dt %.2f wsIndex %d i %d\n", objFunc[i], gradi, ma, alphai, C, -b * dt, wsIndex, i);
 
             /* Find j index of the working set (Bj) */
             reduceMax(objFunc, indices);
@@ -197,9 +194,6 @@ DECLARE_SOURCE_DAAL(
             if (i == Bi)
             {
                 deltaBi = yi > 0 ? C - alphai : alphai;
-                // printf("> deltaBi %.3f\n", deltaBi);
-                // printf("> Bi %d \n", Bi);
-                // printf("> Ma %.f ygrad %.2f ma %.2f alphai %.2f yi %.2f C\n", Ma, gradi, ma, alphai, yi, C);
             }
             if (i == Bj)
             {
@@ -209,9 +203,6 @@ DECLARE_SOURCE_DAAL(
 
                 const algorithmFPType dt = -b / a;
                 deltaBj                  = min(deltaBj, dt);
-                // printf("> deltaBj %.3f dt %.3f b %.3f a %.3f\n", deltaBj, dt, b, a);
-                // printf(" Bj %d \n", Bj);
-                // printf(" curEps %f\n",curEps);
             }
 
             barrier(CLK_LOCAL_MEM_FENCE);
@@ -228,8 +219,6 @@ DECLARE_SOURCE_DAAL(
 
             // Update gradient
             gradi = gradi + delta * (KiBi - KiBj);
-            // printf("> alphai %.3f gradi %.4f delta %.4f Bi %d Bj %d wsIndex %d i %d\n", alphai, gradi, delta, Bi, Bj, wsIndex, i);
-            // printf("> Kii %.3f i %d\n", Kii, i);
         }
         alpha[wsIndex] = alphai;
         deltaalpha[i]  = (alphai - oldalphai) * yi;
