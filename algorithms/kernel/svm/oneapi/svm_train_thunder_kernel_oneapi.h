@@ -69,7 +69,8 @@ protected:
                                services::Buffer<algorithmFPType> & alpha, services::Buffer<algorithmFPType> & deltaalpha,
                                services::Buffer<algorithmFPType> & resinfo, const size_t nWS);
 
-    bool checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev, const algorithmFPType eps, int & sameLocalDiff);
+    bool checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev, const algorithmFPType eps, const size_t nNoChanges,
+                            int & sameLocalDiff);
 
     double calculateObjective(const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & alpha,
                               const services::Buffer<algorithmFPType> & grad, const size_t nVectors);

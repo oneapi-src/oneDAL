@@ -151,16 +151,15 @@ struct TaskWorkingSet
             /* Reset indicator for busy indeces */
             if (_nSelected > 0)
             {
-                DAAL_CHECK_STATUS(status, resetIndecator(wsIndicesBuff, indicatorBuff, _nSelected));
+                DAAL_CHECK_STATUS(status, resetIndicator(wsIndicesBuff, indicatorBuff, _nSelected));
             }
 
             size_t nUpperSelect = 0;
-            DAAL_CHECK_STATUS(status, Helper::gatherIndices(indicatorBuff, sortedFIndicesBuff, _nVectors, tmpIndicesBuff, nUpperSelect));
+            DAAL_CHECK_STATUS(status, Partition::flaggedIndex(indicatorBuff, sortedFIndicesBuff, tmpIndicesBuff, _nVectors, nUpperSelect));
 
             const size_t nCopy = min(nUpperSelect, nNeedSelect);
 
-            context.copy(_wsIndices, _nSelected, _buffIndices, 0, nCopy, &status);
-
+            context.copy(_wsIndices, _nSelected, tmpIndicesBuff, 0, nCopy, &status);
             _nSelected += nCopy;
 
             if (_verbose)
@@ -177,17 +176,16 @@ struct TaskWorkingSet
             /* Reset indicator for busy indeces */
             if (_nSelected > 0)
             {
-                DAAL_CHECK_STATUS(status, resetIndecator(wsIndicesBuff, indicatorBuff, _nSelected));
+                DAAL_CHECK_STATUS(status, resetIndicator(wsIndicesBuff, indicatorBuff, _nSelected));
             }
 
             size_t nLowerSelect = 0;
-            DAAL_CHECK_STATUS(status, Helper::gatherIndices(indicatorBuff, sortedFIndicesBuff, _nVectors, tmpIndicesBuff, nLowerSelect));
+            DAAL_CHECK_STATUS(status, Partition::flaggedIndex(indicatorBuff, sortedFIndicesBuff, tmpIndicesBuff, _nVectors, nLowerSelect));
 
             const size_t nCopy = min(nLowerSelect, nNeedSelect);
 
             /* Copy latest nCopy elements */
             context.copy(_wsIndices, _nSelected, _buffIndices, nLowerSelect - nCopy, nCopy, &status);
-
             _nSelected += nCopy;
 
             if (_verbose)
@@ -205,22 +203,16 @@ struct TaskWorkingSet
             /* Reset indicator for busy indeces */
             if (_nSelected > 0)
             {
-                DAAL_CHECK_STATUS(status, resetIndecator(wsIndicesBuff, indicatorBuff, _nSelected));
+                DAAL_CHECK_STATUS(status, resetIndicator(wsIndicesBuff, indicatorBuff, _nSelected));
             }
 
             size_t nUpperSelect = 0;
-            DAAL_CHECK_STATUS(status, Helper::gatherIndices(indicatorBuff, sortedFIndicesBuff, _nVectors, tmpIndicesBuff, nUpperSelect));
+            DAAL_CHECK_STATUS(status, Partition::flaggedIndex(indicatorBuff, sortedFIndicesBuff, tmpIndicesBuff, _nVectors, nUpperSelect));
 
             const size_t nCopy = min(nUpperSelect, nNeedSelect);
 
-            context.copy(_wsIndices, _nSelected, _buffIndices, 0, nCopy, &status);
-
+            context.copy(_wsIndices, _nSelected, tmpIndicesBuff, 0, nCopy, &status);
             _nSelected += nCopy;
-
-            if (_verbose)
-            {
-                printf("!!! _nSelected < _nWS - %lu %lu: \n", _nSelected, _nWS);
-            }
         }
 
         DAAL_ASSERT(_nSelected == _nWS);
@@ -243,12 +235,11 @@ struct TaskWorkingSet
         return status;
     }
 
-    const services::Buffer<int> & getSortedFIndices() const { return _sortedFIndices.get<int>(); }
     const services::Buffer<int> & getWSIndeces() const { return _wsIndices.get<int>(); }
 
-    services::Status resetIndecator(const services::Buffer<int> & idx, services::Buffer<int> & indicator, const size_t n)
+    services::Status resetIndicator(const services::Buffer<int> & idx, services::Buffer<int> & indicator, const size_t n)
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(resetIndecator);
+        DAAL_ITTNOTIFY_SCOPED_TASK(resetIndicator);
 
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
         auto & factory = context.getClKernelFactory();
@@ -256,7 +247,7 @@ struct TaskWorkingSet
         services::Status status = Helper::buildProgram(factory);
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto kernel = factory.getKernel("resetIndecator");
+        auto kernel = factory.getKernel("resetIndicator");
 
         KernelArguments args(2);
         args.set(0, idx, AccessModeIds::read);
@@ -272,7 +263,6 @@ struct TaskWorkingSet
 
 private:
     size_t _nSelected;
-
     size_t _nVectors;
     size_t _nWS;
 

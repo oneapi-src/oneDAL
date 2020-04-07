@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "service/kernel/oneapi/sum_reducer.h"
+#include "service/kernel/oneapi/reducer.h"
 #include "services/env_detect.h"
 #include "externals/service_ittnotify.h"
 #include "service/kernel/service_string_utils.h"
@@ -51,6 +51,14 @@ services::Status Reducer::buildProgram(ClKernelFactoryIface & kernelFactory, con
         // TODO: replace on global constant
         char initVal[60];
         services::internal::toStringBuffer<double>(-1e20, initVal);
+        build_options.add(initVal);
+    }
+    else if (op == BinaryOp::SUM)
+    {
+        build_options.add(" -D UNARY_OP=none -D BINARY_OP=sum -D INIT_VALUE=");
+        char initVal[60];
+        ;
+        services::internal::toStringBuffer<double>(0.0, initVal);
         build_options.add(initVal);
     }
     else if (op == BinaryOp::SUMS_OF_SQUARED)

@@ -20,6 +20,7 @@
 
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "service/kernel/oneapi/sorter.h"
+#include "service/kernel/oneapi/partition.h"
 #include "externals/service_ittnotify.h"
 
 #include "algorithms/kernel/svm/oneapi/cl_kernels/svm_kernels.cl"
@@ -151,47 +152,6 @@ struct HelperSVM
 
         DAAL_CHECK_STATUS(status, sort::RadixSort::sortIndeces(values, indecesSort, values, indeces, n));
 
-        return status;
-    }
-
-    static services::Status gatherIndices(const services::Buffer<int> & mask, const services::Buffer<int> & x, const size_t n,
-                                          services::Buffer<int> & res, size_t & nRes)
-    {
-        services::Status status;
-
-        int * indicator_host      = mask.toHost(ReadWriteMode::readOnly).get();
-        int * sortedFIndices_host = x.toHost(ReadWriteMode::readOnly).get();
-        int * tmpIndices_host     = res.toHost(ReadWriteMode::writeOnly).get();
-        nRes                      = 0;
-        for (int i = 0; i < n; i++)
-        {
-            if (indicator_host[sortedFIndices_host[i]])
-            {
-                tmpIndices_host[nRes] = sortedFIndices_host[i];
-                nRes++;
-            }
-        }
-        return status;
-    }
-
-    static services::Status gatherValues(const services::Buffer<int> & mask, const services::Buffer<algorithmFPType> & x, const size_t n,
-                                         services::Buffer<algorithmFPType> & res, size_t & nRes)
-    {
-        // TODO: replace on partition from GBT
-        services::Status status;
-
-        int * indicator_host                  = mask.toHost(ReadWriteMode::readOnly).get();
-        algorithmFPType * sortedFIndices_host = x.toHost(ReadWriteMode::readOnly).get();
-        algorithmFPType * tmpIndices_host     = res.toHost(ReadWriteMode::writeOnly).get();
-        nRes                                  = 0;
-        for (int i = 0; i < n; i++)
-        {
-            if (indicator_host[i])
-            {
-                tmpIndices_host[nRes] = sortedFIndices_host[i];
-                nRes++;
-            }
-        }
         return status;
     }
 

@@ -59,6 +59,7 @@ public:
     {
         MIN,
         MAX,
+        SUM,
         SUMS_OF_SQUARED
     };
 

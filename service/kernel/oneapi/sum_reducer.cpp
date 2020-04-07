@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "service/kernel/oneapi/sum_reducer.h"
+#include "service/kernel/oneapi/reducer.h"
 #include "services/env_detect.h"
 #include "externals/service_ittnotify.h"
 

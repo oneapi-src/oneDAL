@@ -149,11 +149,12 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::smoKer
 
 template <typename algorithmFPType, typename ParameterType>
 bool SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev,
-                                                                                 const algorithmFPType eps, int & sameLocalDiff)
+                                                                                 const algorithmFPType eps, const size_t nNoChanges,
+                                                                                 int & sameLocalDiff)
 {
     sameLocalDiff = abs(diff - diffPrev) < eps ? sameLocalDiff + 1 : 0;
 
-    if (sameLocalDiff > 5)
+    if (sameLocalDiff > nNoChanges)
     {
         return true;
     }
@@ -211,6 +212,8 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
     DAAL_CHECK_STATUS_VAR(status);
     auto alphaBuff = alphaU.get<algorithmFPType>();
 
+    auto maskBuff = context.allocate(idType, nVectors, &status);
+
     // gradi = -yi
     auto gradU = context.allocate(idType, nVectors, &status);
     DAAL_CHECK_STATUS_VAR(status);
@@ -226,7 +229,8 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
 
     DAAL_CHECK_STATUS(status, workSet.init());
 
-    const size_t nWS = workSet.getSize();
+    const size_t nWS        = workSet.getSize();
+    const size_t nNoChanges = 5;
     const size_t innerMaxIterations(nWS * 1000);
 
     auto deltaalphaU = context.allocate(idType, nWS, &status);
@@ -352,7 +356,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
             printf(">>>>>> calculateObjective obj = %.3lf\n", obj);
         }
 
-        if (checkStopCondition(diff, diffPrev, eps, sameLocalDiff))
+        if (checkStopCondition(diff, diffPrev, eps, nNoChanges, sameLocalDiff))
         {
             if (verbose)
             {

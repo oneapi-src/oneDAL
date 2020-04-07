@@ -72,7 +72,7 @@ DECLARE_SOURCE_DAAL(
         indicator[i] = alpha[i] != (algorithmFPType)0;
     }
 
-    __kernel void resetIndecator(const __global int * const ind, __global int * indicator) {
+    __kernel void resetIndicator(const __global int * const ind, __global int * indicator) {
         const int i       = get_global_id(0);
         indicator[ind[i]] = 0;
     }

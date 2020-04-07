@@ -46,6 +46,11 @@ services::String getKeyFPType()
     {
         return services::String(" -D algorithmFPType=double -D algorithmFPType2=double2  -D algorithmFPType4=double4 ");
     }
+    if (IsSameType<algorithmFPType, int>::value)
+    {
+        return services::String(" -D algorithmFPType=int -D algorithmFPType2=int2  -D algorithmFPType4=int4 ");
+    }
+
     return services::String();
 }
 

@@ -1,3 +1,4 @@
+/* file: svm_two_class_dense_batch.cpp */
 
 #include "daal_sycl.h"
 #include "service.h"
@@ -38,8 +39,6 @@ int main(int argc, char * argv[])
 
         daal::services::SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
-
-        trainModel(trainingResult);
 
         if (device.is_gpu())
             trainModel(svm::training::Batch<float, svm::training::thunder>());

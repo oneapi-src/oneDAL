@@ -212,14 +212,14 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInte
 
     DAAL_CHECK_STATUS(status, computeRBF(sqrA1Buff, sqrA2Buff, nVectors2, coeff, rBuf, nVectors1, nVectors2));
 
-    {
-        algorithmFPType * sqrA1Buff_host = rBuf.toHost(ReadWriteMode::readOnly).get();
-        for (int i = 0; i < 20; i++)
-        {
-            printf("%.1f ", sqrA1Buff_host[i]);
-        }
-        printf("\n");
-    }
+    // {
+    //     algorithmFPType * sqrA1Buff_host = rBuf.toHost(ReadWriteMode::readOnly).get();
+    //     for (int i = 0; i < 20; i++)
+    //     {
+    //         printf("%.1f ", sqrA1Buff_host[i]);
+    //     }
+    //     printf("\n");
+    // }
 
     return status;
 }
