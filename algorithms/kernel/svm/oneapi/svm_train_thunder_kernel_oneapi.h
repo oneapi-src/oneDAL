@@ -70,12 +70,10 @@ protected:
                                services::Buffer<algorithmFPType> & resinfo, const size_t nWS);
 
     bool checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev, const algorithmFPType eps, const size_t nNoChanges,
-                            int & sameLocalDiff);
+                            size_t & sameLocalDiff);
 
     double calculateObjective(const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & alpha,
                               const services::Buffer<algorithmFPType> & grad, const size_t nVectors);
-
-    bool verbose = false;
 };
 
 } // namespace internal

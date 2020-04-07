@@ -17,7 +17,7 @@
 
 /*
 //++
-//  SVM training algorithm implementation
+//  SVM training algorithm implementation thunder method
 //--
 */
 /*
@@ -52,12 +52,6 @@
 #include "externals/service_ittnotify.h"
 #include "externals/service_service.h"
 #include "algorithms/kernel/svm/oneapi/cl_kernels/svm_train_block_smo_oneapi.cl"
-
-// TODO: DELETE
-#include <cstdlib>
-#include <chrono>
-using namespace std::chrono;
-//
 
 #include "algorithms/kernel/svm/oneapi/svm_train_cache_oneapi.h"
 #include "algorithms/kernel/svm/oneapi/svm_train_workset_oneapi.h"
@@ -150,7 +144,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::smoKer
 template <typename algorithmFPType, typename ParameterType>
 bool SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev,
                                                                                  const algorithmFPType eps, const size_t nNoChanges,
-                                                                                 int & sameLocalDiff)
+                                                                                 size_t & sameLocalDiff)
 {
     sameLocalDiff = abs(diff - diffPrev) < eps ? sameLocalDiff + 1 : 0;
 
@@ -173,9 +167,9 @@ double SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::calculateObjecti
     auto gradHost  = grad.toHost(ReadWriteMode::readOnly).get();
     for (size_t i = 0; i < nVectors; i++)
     {
-        obj += alphaHost[i] - (gradHost[i] + yHost[i]) * alphaHost[i] * yHost[i] * 0.5;
+        obj -= alphaHost[i] - (gradHost[i] + yHost[i]) * alphaHost[i] * yHost[i] * 0.5;
     }
-    return -obj;
+    return obj;
 }
 
 template <typename algorithmFPType, typename ParameterType>
@@ -184,18 +178,8 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
 {
     services::Status status;
 
-    auto & context       = services::Environment::getInstance()->getDefaultExecutionContext();
-    const auto idType    = TypeIds::id<algorithmFPType>();
-    const auto idTypeInt = TypeIds::id<int>();
-
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (const char * env_p = std::getenv("SVM_VERBOSE"))
-    {
-        printf(">> VERBOSE MODE\n");
-        verbose = true;
-        printf(">> MAX WORK SIZE = %d\n", (int)deviceInfo.max_work_group_size);
-    }
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    const auto idType = TypeIds::id<algorithmFPType>();
 
     const algorithmFPType C(svmPar->C);
     const algorithmFPType eps(svmPar->accuracyThreshold);
@@ -225,7 +209,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
 
     DAAL_CHECK_STATUS(status, Helper::initGrad(yBuff, gradBuff, nVectors));
 
-    TaskWorkingSet<algorithmFPType> workSet(nVectors, verbose);
+    TaskWorkingSet<algorithmFPType> workSet(nVectors);
 
     DAAL_CHECK_STATUS(status, workSet.init());
 
@@ -241,32 +225,22 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
     DAAL_CHECK_STATUS_VAR(status);
     auto resinfoBuff = resinfoU.template get<algorithmFPType>();
 
-    int localInnerIteration  = 0;
-    int sameLocalDiff        = 0;
-    int innerIteration       = -1;
     algorithmFPType diff     = algorithmFPType(0);
     algorithmFPType diffPrev = algorithmFPType(0);
 
-    SVMCacheOneAPIIface<algorithmFPType> * cache = nullptr;
+    size_t localInnerIteration = 0;
+    size_t sameLocalDiff       = 0;
 
-    float ws_select      = 0.0;
-    float kernel_compute = 0.0;
-    float solver         = 0.0;
-    float update_grad    = 0.0;
+    SVMCacheOneAPIIface<algorithmFPType> * cache = nullptr;
 
     if (cacheSize > nWS * nVectors * sizeof(algorithmFPType))
     {
-        // TODO!
+        // TODO: support cache for thunder method
         cache = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, nWS, nVectors, xTable, kernel, status);
     }
     else
     {
         cache = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, nWS, nVectors, xTable, kernel, status);
-    }
-
-    if (verbose)
-    {
-        printf(">>>> nVectors: %lu d: %lu nWS: %lu C: %f \n", nVectors, xTable->getNumberOfColumns(), nWS, C);
     }
 
     for (size_t iter = 0; iter < maxIterations; iter++)
@@ -275,104 +249,30 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
         {
             DAAL_CHECK_STATUS(status, workSet.saveWSIndeces());
         }
-        {
-            const auto t_0 = high_resolution_clock::now();
 
-            DAAL_CHECK_STATUS(status, workSet.selectWS(yBuff, alphaBuff, gradBuff, C));
-
-            if (verbose)
-            {
-                const auto t_1           = high_resolution_clock::now();
-                const float duration_sec = duration_cast<milliseconds>(t_1 - t_0).count();
-                printf(">>>> SelectWS.compute time(ms) = %.1f\n", duration_sec);
-                ws_select += duration_sec;
-                fflush(stdout);
-            }
-        }
+        DAAL_CHECK_STATUS(status, workSet.selectWS(yBuff, alphaBuff, gradBuff, C));
 
         const services::Buffer<int> & wsIndices = workSet.getWSIndeces();
-        {
-            const auto t_0 = high_resolution_clock::now();
-            DAAL_CHECK_STATUS(status, cache->compute(xTable, wsIndices, nFeatures));
-            if (verbose)
-            {
-                const auto t_1           = high_resolution_clock::now();
-                const float duration_sec = duration_cast<milliseconds>(t_1 - t_0).count();
-                printf(">>>> kerel.compute time(ms) = %.1f\n", duration_sec);
-                kernel_compute += duration_sec;
-                fflush(stdout);
-            }
-        }
 
-        if (verbose)
-        {
-            printf(">>>> Kernel.compute\n");
-            fflush(stdout);
-        }
+        DAAL_CHECK_STATUS(status, cache->compute(xTable, wsIndices, nFeatures));
 
-        // TODO: Save half elements from kernel on 1+ iterations
+        // TODO: save half elements from kernel on 1+ iterations
         const services::Buffer<algorithmFPType> & kernelWS = cache->getSetRowsBlock();
 
-        {
-            const auto t_0 = high_resolution_clock::now();
-
-            DAAL_CHECK_STATUS(status, smoKernel(yBuff, kernelWS, wsIndices, nVectors, gradBuff, C, eps, tau, innerMaxIterations, alphaBuff,
-                                                deltaalphaBuff, resinfoBuff, nWS));
-            {
-                auto resinfoHost = resinfoBuff.toHost(ReadWriteMode::readOnly, &status).get();
-                innerIteration   = int(resinfoHost[0]);
-                diff             = resinfoHost[1];
-                localInnerIteration += innerIteration;
-            }
-
-            if (verbose)
-            {
-                const auto t_1           = high_resolution_clock::now();
-                const float duration_sec = duration_cast<milliseconds>(t_1 - t_0).count();
-                printf(">>>> smoKernel (ms) = %.3f\n", duration_sec);
-                printf(">>>> iter %lu localInnerIteration % d innerIteration = %d diff = %.1f\n", iter, localInnerIteration, innerIteration, diff);
-                solver += duration_sec;
-                fflush(stdout);
-            }
-        }
+        DAAL_CHECK_STATUS(status, smoKernel(yBuff, kernelWS, wsIndices, nVectors, gradBuff, C, eps, tau, innerMaxIterations, alphaBuff,
+                                            deltaalphaBuff, resinfoBuff, nWS));
 
         {
-            const auto t_0 = high_resolution_clock::now();
-
-            DAAL_CHECK_STATUS(status, updateGrad(kernelWS, deltaalphaBuff, gradBuff, nVectors, nWS));
-
-            if (verbose)
-            {
-                const auto t_1           = high_resolution_clock::now();
-                const float duration_sec = duration_cast<milliseconds>(t_1 - t_0).count();
-                printf(">>>> updateGrad (ms) = %.1f\n", duration_sec);
-                fflush(stdout);
-                update_grad += duration_sec;
-            }
-        }
-        if (verbose)
-        {
-            double obj = calculateObjective(yBuff, alphaBuff, gradBuff, nVectors);
-            printf(">>>>>> calculateObjective obj = %.3lf\n", obj);
+            auto resinfoHost      = resinfoBuff.toHost(ReadWriteMode::readOnly, &status).get();
+            size_t innerIteration = size_t(resinfoHost[0]);
+            diff                  = resinfoHost[1];
+            localInnerIteration += innerIteration;
         }
 
-        if (checkStopCondition(diff, diffPrev, eps, nNoChanges, sameLocalDiff))
-        {
-            if (verbose)
-            {
-                printf(">>>> checkStopCondition diff = %.3f diffPrev = %.3f\n", diff, diffPrev);
-            }
-            break;
-        }
+        DAAL_CHECK_STATUS(status, updateGrad(kernelWS, deltaalphaBuff, gradBuff, nVectors, nWS));
+
+        if (checkStopCondition(diff, diffPrev, eps, nNoChanges, sameLocalDiff)) break;
         diffPrev = diff;
-    }
-
-    if (verbose)
-    {
-        printf(">>>>>> SELECT WS (ms) %.3lf\n", ws_select);
-        printf(">>>>>> KERNEL COMPUTE (ms) %.3lf\n", kernel_compute);
-        printf(">>>>>> SMO (ms) %.3lf\n", solver);
-        printf(">>>>>> UPDATE GRAD WS (ms) %.3lf\n", update_grad);
     }
 
     SaveResultModel<algorithmFPType> result(alphaBuff, gradBuff, yBuff, C, nVectors);

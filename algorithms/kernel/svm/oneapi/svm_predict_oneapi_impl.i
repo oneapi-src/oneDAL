@@ -89,9 +89,6 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
 
     auto svTable = model->getSupportVectors();
 
-    // The number of support vectors can be very large, up to the size of the number of observations in the training data.
-    // To prevent memory overflow, we break it into blocks.
-
     const size_t nRowsPerBlock = 8192;
     const size_t nBlocks       = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
 

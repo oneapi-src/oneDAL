@@ -44,7 +44,7 @@ struct TaskWorkingSet
 {
     using Helper = HelperSVM<algorithmFPType>;
 
-    TaskWorkingSet(const size_t nVectors, const bool verbose) : _nVectors(nVectors), _verbose(verbose) {}
+    TaskWorkingSet(const size_t nVectors) : _nVectors(nVectors) {}
 
     services::Status init()
     {
@@ -93,53 +93,12 @@ struct TaskWorkingSet
         services::Status status;
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
-        if (_verbose)
-        {
-            printf(">>>> selectWS\n");
-        }
-
-        context.fill(_buffIndices, 0, &status);
-        context.fill(_indicator, 0, &status);
-
         auto sortedFIndicesBuff = _sortedFIndices.get<int>();
         auto tmpIndicesBuff     = _buffIndices.get<int>();
         auto wsIndicesBuff      = _wsIndices.get<int>();
         auto indicatorBuff      = _indicator.get<int>();
 
         DAAL_CHECK_STATUS(status, Helper::argSort(fBuff, _valuesSort, _sortedFIndices, _buffIndices, _nVectors));
-
-        if (_verbose)
-        {
-            printf(">> argSort: ");
-            {
-                int * sortedFIndices_host = sortedFIndicesBuff.toHost(ReadWriteMode::readOnly).get();
-                for (int i = 0; i < min(16ul, _nWS); i++)
-                {
-                    printf("%d ", sortedFIndices_host[i]);
-                }
-                printf(" ... ");
-                for (int i = _nVectors - 1; i >= _nVectors - min(16ul, _nWS); i--)
-                {
-                    printf("%d ", sortedFIndices_host[i]);
-                }
-            }
-            printf("\n");
-            printf(">> sort val: ");
-            {
-                int * sortedFIndices_host = sortedFIndicesBuff.toHost(ReadWriteMode::readOnly).get();
-                algorithmFPType * f_host  = fBuff.toHost(ReadWriteMode::readOnly).get();
-                for (int i = 0; i < min(16ul, _nWS); i++)
-                {
-                    printf("%.2f ", f_host[sortedFIndices_host[i]]);
-                }
-                printf(" ... ");
-                for (int i = _nVectors - 1; i >= _nVectors - min(16ul, _nWS); i--)
-                {
-                    printf("%.2f ", f_host[sortedFIndices_host[i]]);
-                }
-            }
-            printf("\n");
-        }
 
         DAAL_CHECK_STATUS_VAR(status);
 
@@ -161,11 +120,6 @@ struct TaskWorkingSet
 
             context.copy(_wsIndices, _nSelected, tmpIndicesBuff, 0, nCopy, &status);
             _nSelected += nCopy;
-
-            if (_verbose)
-            {
-                printf(">> CheckUpper[_buffIndices] - selectUpper:%lu _nSelected: %lu \n", nUpperSelect, _nSelected);
-            }
         }
 
         {
@@ -187,11 +141,6 @@ struct TaskWorkingSet
             /* Copy latest nCopy elements */
             context.copy(_wsIndices, _nSelected, _buffIndices, nLowerSelect - nCopy, nCopy, &status);
             _nSelected += nCopy;
-
-            if (_verbose)
-            {
-                printf(">> checkLower[_buffIndices] - selectLower: %lu _nSelected: %lu \n", nLowerSelect, _nSelected);
-            }
         }
 
         if (_nSelected < _nWS)
@@ -216,19 +165,6 @@ struct TaskWorkingSet
         }
 
         DAAL_ASSERT(_nSelected == _nWS);
-
-        if (_verbose)
-        {
-            printf(">> _wsIndices:  ");
-            {
-                int * wsIndexes_host = _wsIndices.get<int>().toHost(ReadWriteMode::readOnly).get();
-                for (int i = 0; i < min(16ul, _nWS); i++)
-                {
-                    printf("%d ", wsIndexes_host[i]);
-                }
-            }
-            printf("\n");
-        }
 
         context.copy(_wsSaveIndices, 0, _wsIndices, 0, _nWS, &status);
         _nSelected = 0;
@@ -265,8 +201,6 @@ private:
     size_t _nSelected;
     size_t _nVectors;
     size_t _nWS;
-
-    bool _verbose;
 
     UniversalBuffer _sortedFIndices;
     UniversalBuffer _indicator;

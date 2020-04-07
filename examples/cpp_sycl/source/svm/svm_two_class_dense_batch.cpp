@@ -17,13 +17,13 @@
 
 /*
 !  Content:
-!    C++ example of computing a radial basis function (RBF) kernel with DPC++ interfaces
+!    C++ example of two-class support vector machine (SVM) classification with DPC++ interfaces
 !
 !******************************************************************************/
 
 /**
- * <a name="DAAL-EXAMPLE-CPP-KERNEL_FUNCTION_RBF_DENSE_BATCH"></a>
- * \example kernel_func_rbf_dense_batch.cpp
+ * <a name="DAAL-EXAMPLE-CPP-SVM_TWO_CLASS_DENSE_BATCH"></a>
+ * \example svm_two_class_dense_batch.cpp
  */
 
 #include "daal_sycl.h"
