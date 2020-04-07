@@ -70,3 +70,44 @@ The following computation modes are available:
    
    computation-batch.rst
    computation-distributed.rst
+
+Examples
+********
+
+.. tabs::
+
+  .. tab:: DPC++
+
+   Batch Processing:
+
+   - :ref:`dbscan_dense_batch.cpp`
+
+  .. tab:: C++
+
+   Batch Processing:
+
+   - :cpp_example:`dbscan_dense_batch.cpp <dbscan/dbscan_dense_batch.cpp>`
+
+   Distributed Processing:
+
+   - :cpp_example:`dbscan_dense_distr.cpp <dbscan/dbscan_dense_distr.cpp>`
+
+  .. tab:: Java*
+
+   Batch Processing:
+
+   - :java_example:`DBSCANDenseBatch.java <dbscan/DBSCANDenseBatch.java>`
+
+   Distributed Processing:
+
+   - :java_example:`DBSCANDenseDistr.java <dbscan/DBSCANDenseDistr.java>`
+
+  .. tab:: Python*
+
+   Batch Processing:
+   
+   - :daal4py_example:`dbscan_batch.py`
+
+   Distributed Processing:
+   
+   - :daal4py_example:`dbscan_spmd.py`

@@ -88,7 +88,7 @@ Decision forest regression follows the general workflow described in :ref:`decis
 Training
 ********
 
-For the description of the input and output, refer to `Regression Usage Model <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction>`_.
+For the description of the input and output, refer to :ref:`regression_usage_model`.
 
 In addition to the decision forest parameters described in :ref:`df_batch`, 
 the training algorithm for decision forest regression has the following parameters:
@@ -112,14 +112,14 @@ the training algorithm for decision forest regression has the following paramete
 Output
 ******
 
-In addition to the output of regression described in  `Regression Usage Model <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction>`_,
+In addition to the output of regression described in  :ref:`regression_usage_model`,
 decision forest regression calculates the result of decision forest.
 For more details, refer to :ref:`df_batch`.
 
 Prediction
 **********
 
-For the description of the input and output, refer to `Regression Usage Model <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction>`_.
+For the description of the input and output, refer to :ref:`regression_usage_model`.
 
 In addition to the parameters of regression, decision forest
 regression has the following parameters at the prediction stage:
@@ -143,9 +143,19 @@ regression has the following parameters at the prediction stage:
 Examples
 ********
 
-C++: :cpp_example:`decision_forest/df_reg_dense_batch.cpp`
+.. tabs::
 
-Java*: :java_example:`decision_forest/DfRegDenseBatch.java`
+  .. tab:: C++
+
+    Batch Processing:
+
+    - :cpp_example:`df_reg_dense_batch.cpp <decision_forest/df_reg_dense_batch.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+
+    - :java_example:`DfRegDenseBatch.java <decision_forest/DfRegDenseBatch.java>`
 
 .. Python*: df_reg_dense_batch.py
 

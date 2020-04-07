@@ -21,13 +21,13 @@ Batch Processing
 ****************
 
 LASSO and Elastic Net algorithms follow the general workflow described in
-`Regression Usage Model <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction>`_.
+:ref:`regression_usage_model`.
 
 Training
 --------
 
 For a description of common input and output parameters, refer to
-`Regression Usage Model <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction>`_.
+:ref:`regression_usage_model`.
 Both LASSO and Elastic Net algorithms have the following input parameters in addition to the common input parameters:
 
 .. list-table::
@@ -207,7 +207,7 @@ Prediction
 ----------
 
 For a description of the input and output, refer to
-`Regression Usage Model <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction>`_.
+:ref:`regression_usage_model`.
 
 At the prediction stage, LASSO and Elastic Net algorithms have the following parameters:
 
@@ -233,15 +233,15 @@ Examples
 
   .. group-tab:: LASSO
 
-     C++: :cpp_example:`lasso_regression/lasso_reg_dense_batch.cpp`
+     C++: :cpp_example:`lasso_reg_dense_batch.cpp <lasso_regression/lasso_reg_dense_batch.cpp>`
 
-     Java*: :java_example:`lasso_regression/LassoRegDenseBatch.java`
+     Java*: :java_example:`LassoRegDenseBatch.java <lasso_regression/LassoRegDenseBatch.java>`
 
   .. group-tab:: Elastic Net
 
-     C++: :cpp_example:`elastic_net/elastic_net_dense_batch.cpp`
+     C++: :cpp_example:`elastic_net_dense_batch.cpp <elastic_net/elastic_net_dense_batch.cpp>`
 
-     Java*: :java_example:`elastic_net/ElasticNetDenseBatch.java`
+     Java*: :java_example:`ElasticNetDenseBatch.java <elastic_net/ElasticNetDenseBatch.java>`
 
 .. Python*: lasso_regression_batch.py
 .. Python*: elastic_net_batch.py

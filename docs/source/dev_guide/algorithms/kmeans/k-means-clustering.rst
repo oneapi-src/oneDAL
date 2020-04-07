@@ -225,101 +225,12 @@ centroids.
 Batch Processing
 ----------------
 
+.. include:: includes/initialization-batch.rst
 
-Input
-+++++
+Distributed Processing
+----------------------
 
-Centroid initialization for K-Means clustering accepts the input
-described below. Pass the Input ID as a parameter to the methods
-that provide input for your algorithm.
-
-.. list-table::
-   :widths: 25 25
-   :header-rows: 1
-   :align: left
-
-   * - Input ID
-     - Input
-   * - data
-     - Pointer to the :math:`n \times p` numeric table with the data to be clustered. The input can be an object of any class derived from NumericTable.
-
-
-Parameters
-++++++++++
-
-The following table lists parameters of centroid initialization
-for K-Means clustering, which depend on the initialization method
-parameter method.
-
-
-.. list-table::
-   :widths: 25 25 25 25
-   :header-rows: 1
-   :align: left
-
-   * - Parameter
-     - method
-     - Default Value
-     - Description
-   * - algorithmFPType
-     - any
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - Not applicable
-     - defaultDense
-     - Available initialization methods for K-Means clustering:
-
-       * defaultDense - uses first nClusters points as initial centroids
-       * deterministicCSR - uses first nClusters points as initial centroids for data in a CSR numeric table
-       * randomDense - uses random nClusters points as initial centroids
-       * randomCSR - uses random nClusters points as initial centroids for data in a CSR numeric table
-       * plusPlusDense - uses K-Means++ algorithm [Arthur2007]_
-       * plusPlusCSR - uses K-Means++ algorithm for data in a CSR numeric table
-       * parallelPlusDense - uses parallel K-Means++ algorithm [Bahmani2012]
-       * parallelPlusCSR - uses parallel K-Means++ algorithm for data in a CSR numeric table
-
-       For more details, see the algorithm description.
-
-   * - nClusters
-     - any
-     - Not applicable
-     - The number of clusters. Required.
-   * - nTrials
-     - parallelPlusDense, parallelPlusCSR
-     - :math:`1`
-     - The number of trails to generate all clusters but the first initial cluster. For details, see [Arthur2007]_, section 5
-   * - oversamplingFactor
-     - parallelPlusDense, parallelPlusCSR
-     - :math:`0.5`
-     - A fraction of nClusters in each of nRounds of parallel K-Means++. L=nClusters*oversamplingFactor points are sampled in a round. For details, see [Bahmani2012]_, section 3.3.
-   * - nRounds
-     - parallelPlusDense, parallelPlusCSR
-     - :math:`5`
-     - The number of rounds for parallel K-Means++. (L*nRounds) must be greater than nClusters. For details, see [Bahmani2012]_, section 3.3.
-   * - engine
-     - any
-     - SharePtr< engines:: mt19937:: Batch>()
-     - Pointer to the random number generator engine that is used internally for random numbers generation.
-
-
-Output
-++++++
-
-Centroid initialization for K-Means clustering calculates the
-result described below. Pass the Result ID as a parameter to the
-methods that access the results of your algorithm.
-
-.. list-table::
-   :widths: 25 25
-   :header-rows: 1
-   :align: left
-
-   * - Result ID
-     - Result
-   * - centroids
-     - Pointer to the :math:`nClusters \times p` numeric table with the cluster centroids. By default, this result is an object of the HomogenNumericTable class, but you can define the result as an object of any class derived from NumericTable except PackedTriangularMatrix, PackedSymmetricMatrix, and CSRNumericTable.
-
+.. include:: includes/initialization-distributed.rst
 
 Computation
 ***********
@@ -328,128 +239,48 @@ Computation
 Batch Processing
 ----------------
 
-Algorithm Input
-+++++++++++++++
+.. include:: includes/computation-batch.rst
 
-The K-Means clustering algorithm accepts the input described
-below. Pass the Input ID as a parameter to the methods that
-provide input for your algorithm.
+Distributed Processing
+----------------------
 
-
-.. list-table::
-   :header-rows: 1
-   :align: left
-
-   * - Input ID
-     - Input
-   * - data
-     - Pointer to the :math:`n \times p` numeric table with the data to be clustered. The input can be an object of any class derived from NumericTable.
-   * - inputCentroids
-     - Pointer to the :math:`nClusters \times p` numeric table with the initial centroids. The input can be an object of any class derived from NumericTable.
-
-
-Algorithm Parameters
-++++++++++++++++++++
-
-The K-Means clustering algorithm has the following parameters:
-
-.. list-table::
-   :header-rows: 1
-   :align: left
-
-   * - Parameter
-     - Default Value
-     - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
-     - Available computation methods for K-Means clustering:
-
-        -  defaultDense - implementation of Lloyd's algorithm
-        -  lloydCSR - implementation of Lloyd's algorithm for CSR numeric tables
-
-   * - nClusters
-     - Not applicable
-     - The number of clusters. Required to initialize the algorithm.
-   * - maxIterations
-     - Not applicable
-     - The number of iterations. Required to initialize the algorithm.
-   * - accuracyThreshold
-     - :math:`0.0`
-     - The threshold for termination of the algorithm.
-   * - gamma
-     - :math:`1.0`
-     - The weight to be used in distance calculation for binary categorical features.
-   * - distanceType
-     - euclidean
-     - The measure of closeness between points (observations) being clustered. The only distance type supported so far is the Euclidian distance.
-   * - assignFlag
-     - true
-     - A flag that enables computation of assignments, that is, assigning cluster indices to respective observations.
-
-
-Algorithm Output
-++++++++++++++++
-
-The K-Means clustering algorithm calculates the result described
-below. Pass the Result ID as a parameter to the methods that access
-the results of your algorithm.
-
-.. list-table::
-   :header-rows: 1
-   :align: left
-
-   * - Result ID
-     - Result
-   * - centroids
-     -
-       Pointer to the :math:`nClusters \times p` numeric table with the cluster centroids.
-       By default, this result is an object of the HomogenNumericTable class,
-       but you can define the result as an object of any class derived from
-       NumericTable except PackedTriangularMatrix, PackedSymmetricMatrix, and
-       CSRNumericTable.
-   * - assignments
-     -
-       Use when assignFlag=true. Pointer to the :math:`n \times 1` numeric table with
-       assignments of cluster indices to feature vectors in the input data. By
-       default, this result is an object of the HomogenNumericTable class, but
-       you can define the result as an object of any class derived from
-       NumericTable except PackedTriangularMatrix, PackedSymmetricMatrix, and
-       CSRNumericTable.
-   * - objectiveFunction
-     -
-       Pointer to the :math:`1 \times 1` numeric table with the value of the goal function.
-       By default, this result is an object of the HomogenNumericTable class,
-       but you can define the result as an object of any class derived from
-       NumericTable except CSRNumericTable.
-   * - nIterations
-     -
-       Pointer to the :math:`1 \times 1` numeric table with the actual number of iterations
-       done by the algorithm. By default, this result is an object of the
-       HomogenNumericTable class, but you can define the result as an object of
-       any class derived from NumericTable except PackedTriangularMatrix,
-       PackedSymmetricMatrix, and CSRNumericTable.
-
-
-.. note::
-  You can skip update of centroids and objectiveFunction in the
-  result and compute assignments using original inputCentroids. To
-  do this, set assignFlag to true and maxIterations to zero.
+.. include:: includes/computation-distributed.rst
 
 Examples
-++++++++
+********
 
-C++:
+.. tabs::
 
-- :cpp_example:`kmeans/kmeans_dense_batch.cpp`
-- :cpp_example:`kmeans/kmeans_csr_batch.cpp`
+  .. tab:: DPC++
 
-Java*:
+	Batch Processing:
 
-- :java_example:`kmeans/KMeansDenseBatch.java`
-- :java_example:`kmeans/KMeansCSRBatch.java`
+	- :ref:`kmeans_dense_batch.cpp`
+	- :ref:`kmeans_init_dense_batch.cpp`
+
+  .. tab:: C++
+
+    Batch Processing:
+
+    - :cpp_example:`kmeans_dense_batch.cpp <kmeans/kmeans_dense_batch.cpp>`
+    - :cpp_example:`kmeans_csr_batch.cpp <kmeans/kmeans_csr_batch.cpp>`
+
+    Distributed Processing:
+
+    - :cpp_example:`kmeans_dense_distr.cpp <kmeans/kmeans_dense_distr.cpp>`
+    - :cpp_example:`kmeans_csr_distr.cpp <kmeans/kmeans_csr_distr.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+
+    - :java_example:`KMeansDenseBatch.java <kmeans/KMeansDenseBatch.java>`
+    - :java_example:`KMeansCSRBatch.java <kmeans/KMeansCSRBatch.java>`
+
+    Distributed Processing
+
+    - :java_example:`KMeansDenseDistr.java <kmeans/KMeansDenseDistr.java>`
+    - :java_example:`KMeansCSRDistr.java <kmeans/KMeansCSRDistr.java>`
 
 Performance Considerations
 **************************
