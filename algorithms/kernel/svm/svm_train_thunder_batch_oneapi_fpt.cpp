@@ -1,4 +1,4 @@
-/* file: svm_train_thunder_batch_fpt_cpu.cpp */
+/* file: svm_train_thunder_batch_oneapi_fpt.cpp */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
