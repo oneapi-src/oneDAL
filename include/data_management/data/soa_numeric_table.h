@@ -196,21 +196,7 @@ public:
      *  \param[in]  idx Feature index
      *  \return Pointer to the array of values
      */
-    void * getArray(size_t idx)
-    {
-
-        if (idx < _ddict->getNumberOfFeatures())
-        {
-            return _arrays[idx].get();
-        }
-        else
-        {
-            this->_status.add(services::ErrorIncorrectNumberOfFeatures);
-            return NULL;
-        }
-
-        // return getArraySharedPtr(idx).get();
-    }
+    void * getArray(size_t idx) { return getArraySharedPtr(idx).get(); }
 
     services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
     {
@@ -263,7 +249,10 @@ public:
         return s;
     }
 
-    /* the method checks for the fact that all columns have the same data type and this type is double or float. */
+    /**
+     *  Returns 'true' if all features have the same data type, else 'false'
+     *  \return All features have the same data type or not
+     */
     bool isHomogeneousFloatOrDouble() const
     {
         const size_t ncols                                      = getNumberOfColumns();
