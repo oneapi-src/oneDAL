@@ -26,7 +26,7 @@
 
 #include "algorithms/threading/threading.h"
 #include "services/daal_defines.h"
-#include "service/kernel/service_utils.h"
+#include "data_management/data/internal/conversion.h"
 #include "algorithms/algorithm.h"
 #include "services/daal_atomic_int.h"
 #include "externals/service_memory.h"
@@ -219,10 +219,10 @@ DAAL_FORCEINLINE bool checkHomogenSOA(const NumericTable & data, services::inter
 {
     if (data.getDataLayout() & NumericTableIface::soa)
     {
-        if (static_cast<const SOANumericTable &>(data).isHomogeneousFloatOrDouble())
+        if (static_cast<const SOANumericTable &>(data).isHomogeneous())
         {
             auto f = (*const_cast<NumericTable &>(data).getDictionary())[0];
-            if (daal::data_management::features::getIndexNumType<algorithmFpType>() == f.indexType)
+            if ((int)daal::data_management::internal::getConversionDataType<algorithmFpType>() == (int)f.indexType)
             {
                 const size_t xColumnCount = data.getNumberOfColumns();
                 soa_arrays.reset(xColumnCount);

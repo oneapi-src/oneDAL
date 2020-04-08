@@ -261,7 +261,7 @@ public:
      *  Returns 'true' if all features have the same data type, else 'false'
      *  \return All features have the same data type or not
      */
-    bool isHomogeneousFloatOrDouble() const
+    bool isHomogeneous() const
     {
         const size_t ncols                                      = getNumberOfColumns();
         const NumericTableFeature & f0                          = (*_ddict)[0];
@@ -273,8 +273,8 @@ public:
             if (f1.indexType != indexType) return false;
         }
 
-        return indexType == daal::data_management::features::getIndexNumType<float>()
-               || indexType == daal::data_management::features::getIndexNumType<double>();
+        return (int)indexType == (int)internal::getConversionDataType<float>()
+               || (int)indexType == (int)internal::getConversionDataType<double>();
     }
 
 protected:
