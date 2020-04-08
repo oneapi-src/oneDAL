@@ -196,7 +196,21 @@ public:
      *  \param[in]  idx Feature index
      *  \return Pointer to the array of values
      */
-    void * getArray(size_t idx) { return getArraySharedPtr(idx).get(); }
+    void * getArray(size_t idx)
+    {
+
+        if (idx < _ddict->getNumberOfFeatures())
+        {
+            return _arrays[idx].get();
+        }
+        else
+        {
+            this->_status.add(services::ErrorIncorrectNumberOfFeatures);
+            return NULL;
+        }
+
+        // return getArraySharedPtr(idx).get();
+    }
 
     services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
     {
@@ -247,6 +261,23 @@ public:
             return services::Status(services::ErrorMemoryAllocationFailed);
         }
         return s;
+    }
+
+    /* the method checks for the fact that all columns have the same data type and this type is double or float. */
+    bool isHomogeneousFloatOrDouble() const
+    {
+        const size_t ncols                                      = getNumberOfColumns();
+        const NumericTableFeature & f0                          = (*_ddict)[0];
+        daal::data_management::features::IndexNumType indexType = f0.indexType;
+
+        for (size_t i = 1; i < ncols; ++i)
+        {
+            const NumericTableFeature & f1 = (*_ddict)[i];
+            if (f1.indexType != indexType) return false;
+        }
+
+        return indexType == daal::data_management::features::getIndexNumType<float>()
+               || indexType == daal::data_management::features::getIndexNumType<double>();
     }
 
 protected:
@@ -507,23 +538,6 @@ private:
         }
 
         return services::Status();
-    }
-
-    /* the method checks for the fact that all columns have the same data type and this type is double or float. */
-    bool isHomogeneousFloatOrDouble() const
-    {
-        const size_t ncols                                      = getNumberOfColumns();
-        const NumericTableFeature & f0                          = (*_ddict)[0];
-        daal::data_management::features::IndexNumType indexType = f0.indexType;
-
-        for (size_t i = 1; i < ncols; ++i)
-        {
-            const NumericTableFeature & f1 = (*_ddict)[i];
-            if (f1.indexType != indexType) return false;
-        }
-
-        return indexType == daal::data_management::features::getIndexNumType<float>()
-               || indexType == daal::data_management::features::getIndexNumType<double>();
     }
 
     template <typename T>

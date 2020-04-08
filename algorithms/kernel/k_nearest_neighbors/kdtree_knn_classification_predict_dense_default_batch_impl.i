@@ -26,6 +26,7 @@
 
 #include "algorithms/threading/threading.h"
 #include "services/daal_defines.h"
+#include "service/kernel/service_utils.h"
 #include "algorithms/algorithm.h"
 #include "services/daal_atomic_int.h"
 #include "externals/service_memory.h"
@@ -258,7 +259,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
         MaxHeap heap;
         SearchStack stack;
     };
-    daal::tls<Local *> localTLS([=, &status]() -> Local * {
+    daal::tls<Local *> localTLS([&]() -> Local * {
         Local * const ptr = service_scalable_calloc<Local, cpu>(1);
         if (ptr)
         {
@@ -291,7 +292,12 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     const auto rowsPerBlock   = (xRowCount + maxThreads - 1) / maxThreads;
     const auto blockCount     = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
     SafeStatus safeStat;
-    daal::threader_for(blockCount, blockCount, [=, &localTLS, &kdTreeTable, &data, &labels, &rowsPerBlock, &k, &safeStat](int iBlock) {
+
+
+    services::internal::TArrayScalable<algorithmFpType*, cpu> soa_arrays;
+    bool isHomogenSOA = checkHomogenSOA(data, soa_arrays);
+
+    daal::threader_for(blockCount, blockCount, [&](int iBlock) {
         Local * const local = localTLS.local();
         if (local)
         {
@@ -305,11 +311,16 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
             data_management::BlockDescriptor<algorithmFpType> yBD;
             y->getBlockOfRows(first, last - first, writeOnly, yBD);
             auto * const dy = yBD.getBlockPtr();
+
+
+            // auto M = min<cpu>(size_t(last - first), size_t(2000));
             for (size_t i = 0; i < last - first; ++i)
             {
-                findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data);
-                services::Status s = predict(dy[i * yColumnCount], local->heap, labels, k);
-                DAAL_CHECK_STATUS_THR(s)
+                // printf("start %zu\n", i);
+                findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data, isHomogenSOA, soa_arrays);
+                predict(dy[i * yColumnCount], local->heap, labels, k);
+                // DAAL_CHECK_STATUS_THR(s)
+                // printf("end %zu\n", i);
             }
             y->releaseBlockOfRows(yBD);
             const_cast<NumericTable &>(*x).releaseBlockOfRows(xBD);
@@ -318,7 +329,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
 
     DAAL_CHECK_SAFE_STATUS()
 
-    localTLS.reduce([=](Local * ptr) -> void {
+    localTLS.reduce([&](Local * ptr) -> void {
         if (ptr)
         {
             ptr->stack.clear();
@@ -330,11 +341,148 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
 }
 
 template <typename algorithmFpType, CpuType cpu>
+DAAL_FORCEINLINE bool checkHomogenSOA(const NumericTable & data, services::internal::TArrayScalable<algorithmFpType*, cpu>& soa_arrays)
+{
+    if (data.getDataLayout() & NumericTableIface::soa)
+    {
+        if (static_cast<const SOANumericTable &>(data).isHomogeneousFloatOrDouble())
+        {
+            auto f = (*const_cast<NumericTable &>(data).getDictionary())[0];
+            if (daal::data_management::features::getIndexNumType<algorithmFpType>() == f.indexType)
+            {
+                const size_t xColumnCount = data.getNumberOfColumns();
+                soa_arrays.reset(xColumnCount);
+
+                for (size_t i = 0; i < xColumnCount; ++i)
+                {
+                    soa_arrays[i] = static_cast<algorithmFpType *>(static_cast<SOANumericTable &>(const_cast<NumericTable &>(data)).getArray(i));
+                }
+
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+template <typename algorithmFpType, CpuType cpu>
+DAAL_FORCEINLINE const algorithmFpType* getNtData(const bool isHomogenSOA, size_t feat_idx, size_t irow, size_t nrows,
+                        const NumericTable & data, data_management::BlockDescriptor<algorithmFpType>& xBD, services::internal::TArrayScalable<algorithmFpType*, cpu>& soa_arrays)
+{
+    if (isHomogenSOA)
+    {
+        auto ptr = soa_arrays[feat_idx] + irow;
+        return ptr;
+    }
+    else
+    {
+        printf("Not isHomogenSOA\n");
+        const_cast<NumericTable &>(data).getBlockOfColumnValues(feat_idx, irow, nrows, readOnly, xBD);
+        return xBD.getBlockPtr();
+    }
+}
+
+template <typename algorithmFpType, CpuType cpu>
+DAAL_FORCEINLINE void releaseNtData(const bool isHomogenSOA, const NumericTable & data, data_management::BlockDescriptor<algorithmFpType>& xBD)
+{
+    if (!isHomogenSOA)
+    {
+        const_cast<NumericTable &>(data).releaseBlockOfColumnValues(xBD);
+    }
+}
+
+template <typename algorithmFpType, CpuType cpu>
+DAAL_FORCEINLINE void computeDistanceSOA(size_t start, size_t end, algorithmFpType* distance,
+    const algorithmFpType* query, const NumericTable & data, data_management::BlockDescriptor<algorithmFpType> xBD[2],
+    services::internal::TArrayScalable<algorithmFpType*, cpu>& soa_arrays,
+    const bool isHomogenSOA)
+{
+    size_t curBDIdx  = 0;
+    size_t nextBDIdx = 1;
+
+    const size_t xColumnCount = data.getNumberOfColumns();
+
+    const algorithmFpType * nx = nullptr;
+    const algorithmFpType * dx = getNtData(isHomogenSOA, 0, start, end - start, data, xBD[curBDIdx], soa_arrays);
+
+    size_t j;
+    for (j = 1; j < xColumnCount; ++j)
+    {
+        nx = getNtData(isHomogenSOA, j, start, end - start, data, xBD[nextBDIdx], soa_arrays);
+
+        DAAL_PREFETCH_READ_T0(nx);
+        DAAL_PREFETCH_READ_T0(nx + 16);
+
+        for (size_t i = 0; i < end - start; ++i)
+        {
+            distance[i] += (query[j - 1] - dx[i]) * (query[j - 1] - dx[i]);
+        }
+
+        releaseNtData<algorithmFpType, cpu>(isHomogenSOA, data, xBD[curBDIdx]);
+
+        services::internal::swap<cpu, size_t>(curBDIdx, nextBDIdx);
+        services::internal::swap<cpu, const algorithmFpType*>(dx, nx);
+    }
+    {
+        for (size_t i = 0; i < end - start; ++i)
+        {
+            distance[i] += (query[j - 1] - dx[i]) * (query[j - 1] - dx[i]);
+        }
+
+        releaseNtData<algorithmFpType, cpu>(isHomogenSOA, data, xBD[curBDIdx]);
+    }
+}
+
+template <typename algorithmFpType, CpuType cpu>
+DAAL_FORCEINLINE void computeDistanceRowMajor(size_t start, size_t end, algorithmFpType* distance,
+    const algorithmFpType* query, const NumericTable & data, data_management::BlockDescriptor<algorithmFpType>& xBD)
+{
+    const_cast<NumericTable &>(data).getBlockOfRows(start, end - start, readOnly, xBD);
+    const algorithmFpType* dx = xBD.getBlockPtr();
+    const size_t p = data.getNumberOfColumns();
+
+    for (size_t i = 0; i < end - start; i++)
+    {
+        PRAGMA_ICC_NO16(omp simd reduction(+ : distance[i]))
+        PRAGMA_IVDEP
+        for (size_t j = 0; j < p; j++)
+        {
+            distance[i] += (dx[i * p + j] - query[i * p + j]) * (dx[i * p + j] - query[i * p + j]);
+        }
+    }
+    const_cast<NumericTable &>(data).releaseBlockOfRows(xBD);
+}
+
+template <typename algorithmFpType, CpuType cpu>
+DAAL_FORCEINLINE void computeDistance(size_t start, size_t end,
+                        algorithmFpType* distance, const algorithmFpType* query,
+                        const bool isHomogenSOA, const NumericTable & data,
+                        data_management::BlockDescriptor<algorithmFpType> xBD[2],
+                        services::internal::TArrayScalable<algorithmFpType*, cpu>& soa_arrays)
+{
+    for (size_t i = start; i < end; ++i)
+    {
+        distance[i - start] = 0;
+    }
+
+    if (data.getDataLayout() & NumericTableIface::soa)
+    {
+        computeDistanceSOA<algorithmFpType, cpu>(start, end, distance, query, data, xBD, soa_arrays, isHomogenSOA);
+    }
+    else
+    {
+        computeDistanceRowMajor<algorithmFpType, cpu>(start, end, distance, query, data, xBD[0]);
+    }
+}
+
+template <typename algorithmFpType, CpuType cpu>
 void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNearestNeighbors(
     const algorithmFpType * query, Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap,
     kdtree_knn_classification::internal::Stack<SearchNode<algorithmFpType>, cpu> & stack, size_t k, algorithmFpType radius,
-    const KDTreeTable & kdTreeTable, size_t rootTreeNodeIndex, const NumericTable & data)
+    const KDTreeTable & kdTreeTable, size_t rootTreeNodeIndex, const NumericTable & data, const bool isHomogenSOA, services::internal::TArrayScalable<algorithmFpType*, cpu>& soa_arrays)
 {
+
+
     heap.reset();
     stack.reset();
     GlobalNeighbors<algorithmFpType, cpu> curNeighbor;
@@ -359,42 +507,57 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
             start = node->leftIndex;
             end   = node->rightIndex;
 
-            for (i = start; i < end; ++i)
-            {
-                distance[i - start] = 0;
-            }
+            computeDistance<algorithmFpType, cpu>(start, end, distance, query, isHomogenSOA, data, xBD,  soa_arrays);
 
-            curBDIdx  = 0;
-            nextBDIdx = 1;
-            const_cast<NumericTable &>(data).getBlockOfColumnValues(0, start, end - start, readOnly, xBD[curBDIdx]);
-            for (j = 1; j < xColumnCount; ++j)
-            {
-                const algorithmFpType * const dx = xBD[curBDIdx].getBlockPtr();
 
-                const_cast<NumericTable &>(data).getBlockOfColumnValues(j, start, end - start, readOnly, xBD[nextBDIdx]);
-                const algorithmFpType * const nx = xBD[nextBDIdx].getBlockPtr();
-                DAAL_PREFETCH_READ_T0(nx);
-                DAAL_PREFETCH_READ_T0(nx + 16);
 
-                for (i = 0; i < end - start; ++i)
-                {
-                    distance[i] += (query[j - 1] - dx[i]) * (query[j - 1] - dx[i]);
-                }
+            // for (i = start; i < end; ++i)
+            // {
+            //     distance[i - start] = 0;
+            // }
 
-                const_cast<NumericTable &>(data).releaseBlockOfColumnValues(xBD[curBDIdx]);
+            // curBDIdx  = 0;
+            // nextBDIdx = 1;
+            // // const_cast<NumericTable &>(data).getBlockOfColumnValues(0, start, end - start, readOnly, xBD[curBDIdx]);
 
-                const auto tempBDIdx = curBDIdx;
-                curBDIdx             = nextBDIdx;
-                nextBDIdx            = tempBDIdx;
-            }
-            {
-                const algorithmFpType * const dx = xBD[curBDIdx].getBlockPtr();
-                for (i = 0; i < end - start; ++i)
-                {
-                    distance[i] += (query[j - 1] - dx[i]) * (query[j - 1] - dx[i]);
-                }
-                const_cast<NumericTable &>(data).releaseBlockOfColumnValues(xBD[curBDIdx]);
-            }
+            // for (j = 1; j < xColumnCount; ++j)
+            // {
+            //     // const algorithmFpType * const dx = xBD[curBDIdx].getBlockPtr();
+
+            //     // const_cast<NumericTable &>(data).getBlockOfColumnValues(j, start, end - start, readOnly, xBD[nextBDIdx]);
+            //     // const algorithmFpType * const nx = xBD[nextBDIdx].getBlockPtr();
+            //     const algorithmFpType * const dx = getNtData(isHomogenSOA, j-1, start, end - start, data, xBD[curBDIdx], soa_arrays);
+            //     const algorithmFpType * const nx = getNtData(isHomogenSOA, j, start, end - start, data, xBD[nextBDIdx], soa_arrays);
+
+            //     DAAL_PREFETCH_READ_T0(nx);
+            //     DAAL_PREFETCH_READ_T0(nx + 16);
+
+            //     for (i = 0; i < end - start; ++i)
+            //     {
+            //         distance[i] += (query[j - 1] - dx[i]) * (query[j - 1] - dx[i]);
+            //     }
+
+            //     // const_cast<NumericTable &>(data).releaseBlockOfColumnValues(xBD[curBDIdx]);
+
+            //     // TODO
+            //     // releaseNtData(isHomogenSOA, data, xBD[curBDIdx]);
+
+            //     const auto tempBDIdx = curBDIdx;
+            //     curBDIdx             = nextBDIdx;
+            //     nextBDIdx            = tempBDIdx;
+            // }
+            // {
+            //     // const algorithmFpType * const dx = xBD[curBDIdx].getBlockPtr();
+            //     const algorithmFpType * const dx = getNtData(isHomogenSOA, xColumnCount-1, start, end - start, data, xBD[curBDIdx], soa_arrays);
+
+            //     for (i = 0; i < end - start; ++i)
+            //     {
+            //         distance[i] += (query[j - 1] - dx[i]) * (query[j - 1] - dx[i]);
+            //     }
+            //     // TODO
+            //     // const_cast<NumericTable &>(data).releaseBlockOfColumnValues(xBD[curBDIdx]);
+            //     // releaseNtData(isHomogenSOA, data, xBD[curBDIdx]);
+            // }
 
             for (i = start; i < end; ++i)
             {
@@ -459,11 +622,11 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
 }
 
 template <typename algorithmFpType, CpuType cpu>
-services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::predict(
+void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::predict(
     algorithmFpType & predictedClass, const Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap, const NumericTable & labels, size_t k)
 {
     const size_t heapSize = heap.size();
-    if (heapSize < 1) return services::Status();
+    if (heapSize < 1) return;
 
     struct Voting
     {
@@ -474,7 +637,7 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
     data_management::BlockDescriptor<algorithmFpType> labelBD;
     algorithmFpType * classes =
         static_cast<algorithmFpType *>(daal::services::internal::service_malloc<algorithmFpType, cpu>(heapSize * sizeof(*classes)));
-    DAAL_CHECK_MALLOC(classes)
+    // DAAL_CHECK_MALLOC(classes)
     for (size_t i = 0; i < heapSize; ++i)
     {
         const_cast<NumericTable &>(labels).getBlockOfColumnValues(0, heap[i].index, 1, readOnly, labelBD);
@@ -505,7 +668,7 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
     predictedClass = winnerClass;
     daal_free(classes);
     classes = nullptr;
-    return services::Status();
+    // return services::Status();
 }
 
 } // namespace internal
