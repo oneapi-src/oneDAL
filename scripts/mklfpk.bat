@@ -20,7 +20,7 @@ powershell.exe -command "if ($PSVersionTable.PSVersion.Major -ge 3) {exit 1} els
 
 set MKLURLROOT=https://github.com/intel/daal/releases/download/Dependencies/
 set MKLVERSION=20180112_10
-set MKLGPUVERSION=20200114
+set MKLGPUVERSION=20200229
 
 set MKLPACKAGE=mklfpk_win_%MKLVERSION%
 set MKLGPUPACKAGE=mklgpufpk_win_%MKLGPUVERSION%
