@@ -17,7 +17,7 @@
 
 MKLFPK_URL_ROOT="https://github.com/intel/daal/releases/download/Dependencies/"
 MKLFPK_VERSION="20180112_10"
-MKLGPUFPK_VERSION="20200114"
+MKLGPUFPK_VERSION="20200229"
 WITH_GPU=true
 
 while [ 1 ] ; do
