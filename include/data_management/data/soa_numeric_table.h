@@ -274,8 +274,7 @@ public:
             if (f1.indexType != indexType) return false;
         }
 
-        return (int)indexType == (int)internal::getConversionDataType<float>()
-               || (int)indexType == (int)internal::getConversionDataType<double>();
+        return (int)indexType == (int)internal::getConversionDataType<float>() || (int)indexType == (int)internal::getConversionDataType<double>();
     }
 
 protected:
