@@ -74,7 +74,7 @@ enum VariableImportanceModes
     totalCover = 0x002ULL,
     cover      = 0x004ULL,
     totalGain  = 0x008ULL,
-    gain       = 0x010ULL,
+    gain       = 0x010ULL
 };
 
 /**

@@ -78,7 +78,7 @@ enum ResultToComputeId
     componentOfHessianDiagonal =
         0x00000080ULL, /*!< Numeric table of size 1 x nDependentVariable with the dioganal element of hession matrix over certain feature of the objective function in the given argument */
     componentOfProximalProjection =
-        0x00000100ULL, /*!< Numeric table of size p x nDependentVariable with proximal projection of certain of the objective function in the given argument */
+        0x00000100ULL /*!< Numeric table of size p x nDependentVariable with proximal projection of certain of the objective function in the given argument */
 };
 
 /**

@@ -97,7 +97,12 @@ endif
 
 DAAL_LIB := $(DAAL_PATH)/libdaal_core.$(RES_EXT) $(DAAL_LIB_T)
 
-COPTS := -std=c++11 -pedantic -Wall -Wextra -Werror=return-type -Werror=uninitialized -Werror=unknown-pragmas -Werror -I./source/utils
+COPTS := -pedantic -Wall -Wextra -Werror \
+         -Werror=return-type \
+         -Werror=uninitialized \
+         -Werror=unknown-pragmas \
+         -I./source/utils
+
 LOPTS := -Wl,--start-group $(DAAL_LIB) $(EXT_LIB) -Wl,--end-group
 
 RES_DIR=_results/$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
@@ -110,7 +115,9 @@ endif
 
 ifeq ($(compiler),gnu)
     CC = g++
-    COPTS += $(if $(filter ia32, $(_IA)), -m32, -m64)
+    # Add extra flags to check if DAAL headers can be used in C++03 mode
+    COPTS += $(if $(filter ia32, $(_IA)), -m32, -m64) \
+             -std=c++03 -Wno-variadic-macros -Wno-long-long
 endif
 
 ifeq ($(compiler),clang)

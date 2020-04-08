@@ -56,7 +56,7 @@ namespace training
  */
 enum Method
 {
-    defaultDense = 0, /*!< Normal equations method */
+    defaultDense = 0 /*!< Normal equations method */
 };
 
 /**

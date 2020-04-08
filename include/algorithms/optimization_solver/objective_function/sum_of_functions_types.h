@@ -52,7 +52,7 @@ namespace sum_of_functions
   */
 enum InputId
 {
-    argument = (int)objective_function::argument, /*!< Numeric table of size 1 x p with input argument of the objective function */
+    argument = (int)objective_function::argument /*!< Numeric table of size 1 x p with input argument of the objective function */
 };
 
 /**
