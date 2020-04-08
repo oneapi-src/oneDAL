@@ -66,13 +66,9 @@ protected:
 };
 
 } // namespace internal
-
 } // namespace linear
-
 } // namespace kernel_function
-
 } // namespace algorithms
-
 } // namespace daal
 
 #endif
