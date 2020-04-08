@@ -65,7 +65,7 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeRBF(
                                                                                 const algorithmFPType coeff, services::Buffer<algorithmFPType> & rbf,
                                                                                 const size_t nVectors1, const size_t nVectors2)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(computeRBF);
+    DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.computeRBF);
 
     auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & factory = context.getClKernelFactory();
@@ -149,7 +149,7 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInte
 
     //compute
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.SumOfSquared);
+        DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.sumOfSquared);
 
         Reducer::reduce(Reducer::BinaryOp::SUMS_OF_SQUARED, Layout::RowMajor, a1Buf, sqrA1U, nVectors1, nFeatures1, &status);
         Reducer::reduce(Reducer::BinaryOp::SUMS_OF_SQUARED, Layout::RowMajor, a2Buf, sqrA2U, nVectors2, nFeatures2, &status);
@@ -166,6 +166,10 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInte
     const services::Buffer<algorithmFPType> sqrA2Buff = sqrA2U.get<algorithmFPType>();
 
     DAAL_CHECK_STATUS(status, computeRBF(sqrA1Buff, sqrA2Buff, nVectors2, coeff, rBuf, nVectors1, nVectors2));
+
+    DAAL_CHECK_STATUS(status, a1.releaseBlockOfRows(a1BD));
+    DAAL_CHECK_STATUS(status, a2.releaseBlockOfRows(a2BD));
+    DAAL_CHECK_STATUS(status, r.releaseBlockOfRows(rBD));
 
     return status;
 }
