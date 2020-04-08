@@ -54,7 +54,7 @@ namespace adagrad
  */
 enum Method
 {
-    defaultDense = 0, /*!< Default: performance-oriented method */
+    defaultDense = 0 /*!< Default: performance-oriented method */
 };
 
 /**

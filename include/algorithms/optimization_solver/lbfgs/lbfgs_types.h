@@ -84,7 +84,7 @@ enum OptionalDataId
                                          row 0 represent average arguments for the previous L iterations and
                                          row 1 represent average arguments for the last L iterations.
                                          These values are required to compute S correction vectors on the next step */
-    lastOptionalData = averageArgumentLIterations,
+    lastOptionalData = averageArgumentLIterations
 };
 
 /**

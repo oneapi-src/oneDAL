@@ -63,7 +63,7 @@ namespace minmax
  */
 enum Method
 {
-    defaultDense = 0, /*!< Default: performance-oriented method. Works with all types of numeric tables */
+    defaultDense = 0 /*!< Default: performance-oriented method. Works with all types of numeric tables */
 };
 
 /**
