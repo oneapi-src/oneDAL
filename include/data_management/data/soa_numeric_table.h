@@ -270,6 +270,7 @@ public:
         for (size_t i = 1; i < ncols; ++i)
         {
             const NumericTableFeature & f1 = (*_ddict)[i];
+
             if (f1.indexType != indexType) return false;
         }
 
