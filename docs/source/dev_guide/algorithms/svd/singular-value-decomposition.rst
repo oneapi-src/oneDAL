@@ -62,7 +62,7 @@ The SVD algorithm accepts the input described below. Pass the Input ID as a para
 
        - For batch processing, the entire :math:`n \times p` matrix :math:`X` to be factorized.
        - For online processing, the :math:`n_i \times p` submatrix of :math:`X` that represents 
-         the current data block in the online processing mode. Note that each current data block must have sufficient size: :math:`n_i > p`.
+         the current data block in the online processing mode.
 
        The input can be an object of any class derived from NumericTable.
 
