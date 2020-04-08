@@ -270,11 +270,11 @@ public:
         for (size_t i = 1; i < ncols; ++i)
         {
             const NumericTableFeature & f1 = (*_ddict)[i];
+
             if (f1.indexType != indexType) return false;
         }
 
-        return (int)indexType == (int)internal::getConversionDataType<float>()
-               || (int)indexType == (int)internal::getConversionDataType<double>();
+        return (int)indexType == (int)internal::getConversionDataType<float>() || (int)indexType == (int)internal::getConversionDataType<double>();
     }
 
 protected:
