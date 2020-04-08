@@ -23,3 +23,4 @@ Library Usage
 
    algorithms.rst
    computation-modes.rst
+   Training and Prediction <training-and-prediction/index.rst>

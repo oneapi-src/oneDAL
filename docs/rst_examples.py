@@ -19,7 +19,7 @@ import os
 import shutil
 
 def create_rst(filedir, filename):
-    rst_content = filename + '\n' + '#' * len(filename) + '\n' + '\n' + \
+    rst_content = '.. _' + filename + ':' + '\n\n' + filename + '\n' + '#' * len(filename) + '\n' + '\n' + \
     '.. literalinclude:: ../../../examples/cpp_sycl/source/' + filedir + \
     '/' + filename + '\n' + '  ' + ':language: cpp' + '\n'
 

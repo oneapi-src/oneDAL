@@ -104,7 +104,7 @@ Batch Processing
 ================
 
 Decision tree classification follows the general workflow described
-in `Classification Usage Model <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction-1>`_.
+in :ref:`classification_usage_model`.
 
 Training
 --------
@@ -195,9 +195,19 @@ parameters:
 Examples
 --------
 
-C++: :cpp_example:`decision_tree/dt_cls_dense_batch.cpp`
+.. tabs::
 
-Java*: :java_example:`decision_tree/DtClsDenseBatch.java`
+  .. tab:: C++
+
+    Batch Processing:
+
+    - :cpp_example:`dt_cls_dense_batch.cpp <decision_tree/dt_cls_dense_batch.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+
+    - :java_example:`DtClsDenseBatch.java <decision_tree/DtClsDenseBatch.java>`
 
 .. Python*: dt_cls_dense_batch.py
 

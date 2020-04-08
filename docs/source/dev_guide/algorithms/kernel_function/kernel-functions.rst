@@ -135,15 +135,17 @@ results of your algorithm.
 Examples
 ++++++++
 
-C++:
+.. tabs::
 
-- :cpp_example:`kernel_function/kernel_func_lin_dense_batch.cpp`
-- :cpp_example:`kernel_function/kernel_func_lin_csr_batch.cpp`
+  .. tab:: C++
 
-Java*:
+    - :cpp_example:`kernel_func_lin_dense_batch.cpp <kernel_function/kernel_func_lin_dense_batch.cpp>`
+    - :cpp_example:`kernel_func_lin_csr_batch.cpp <kernel_function/kernel_func_lin_csr_batch.cpp>`
 
-- :java_example:`kernel_function/KernelFuncLinDenseBatch.java`
-- :java_example:`kernel_function/KernelFuncLinCSRBatch.java`
+  .. tab:: Java*
+
+    - :java_example:`KernelFuncLinDenseBatch.java <kernel_function/KernelFuncLinDenseBatch.java>`
+    - :java_example:`KernelFuncLinCSRBatch.java <kernel_function/KernelFuncLinCSRBatch.java>`
 
 .. Python*:
 
@@ -254,17 +256,23 @@ your algorithm.
        PackedTriangularMatrix, and CSRNumericTable.
 
 Examples
-++++++++
+********
 
-C++:
+.. tabs::
 
-- :cpp_example:`kernel_function/kernel_func_rbf_dense_batch.cpp`
-- :cpp_example:`kernel_function/kernel_func_rbf_csr_batch.cpp`
+  .. tab:: C++
 
-Java*:
+    Batch Processing:
 
-- :java_example:`kernel_function/KernelFuncRbfDenseBatch.java`
-- :java_example:`kernel_function/KernelFuncRbfCSRBatch.java`
+    - :cpp_example:`kernel_func_rbf_dense_batch.cpp <kernel_function/kernel_func_rbf_dense_batch.cpp>`
+    - :cpp_example:`kernel_func_rbf_csr_batch.cpp <kernel_function/kernel_func_rbf_csr_batch.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+
+    - :java_example:`KernelFuncRbfDenseBatch.java <kernel_function/KernelFuncRbfDenseBatch.java>`
+    - :java_example:`KernelFuncRbfCSRBatch.java <kernel_function/KernelFuncRbfCSRBatch.java>`
 
 .. Python*:
 
