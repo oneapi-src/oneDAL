@@ -257,6 +257,26 @@ public:
         return s;
     }
 
+    /**
+     *  Returns 'true' if all features have the same data type, else 'false'
+     *  \return All features have the same data type or not
+     */
+    bool isHomogeneous() const
+    {
+        const size_t ncols                                      = getNumberOfColumns();
+        const NumericTableFeature & f0                          = (*_ddict)[0];
+        daal::data_management::features::IndexNumType indexType = f0.indexType;
+
+        for (size_t i = 1; i < ncols; ++i)
+        {
+            const NumericTableFeature & f1 = (*_ddict)[i];
+
+            if (f1.indexType != indexType) return false;
+        }
+
+        return (int)indexType == (int)internal::getConversionDataType<float>() || (int)indexType == (int)internal::getConversionDataType<double>();
+    }
+
 protected:
     SOANumericTable(size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual, services::Status & st);
 
@@ -453,24 +473,6 @@ private:
         }
 
         return services::Status();
-    }
-
-    /* the method checks for the fact that all columns have the same data type. */
-    bool isHomogeneous() const
-    {
-        size_t ncols = getNumberOfColumns();
-
-        NumericTableFeature & f0 = (*_ddict)[0];
-
-        for (size_t i = 0; i < ncols; ++i)
-        {
-            NumericTableFeature & f1 = (*_ddict)[i];
-
-            if (f1.indexType != f0.indexType) return false;
-        }
-
-        return (int)f0.indexType == (int)internal::getConversionDataType<float>()
-               || (int)f0.indexType == (int)internal::getConversionDataType<double>();
     }
 
     template <typename T>
