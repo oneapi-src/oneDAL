@@ -40,12 +40,11 @@ DECLARE_SOURCE_DAAL(
     }
 
     void reduceMax(const __local algorithmFPType * values, __local int * indices) {
-        const int group_size = get_local_size(0);
-        const int local_id   = get_local_id(0);
+        const int local_id = get_local_id(0);
 
         indices[local_id] = local_id;
 
-        for (int stride = group_size / 2; stride > 0; stride >>= 1)
+        for (int stride = WS_SIZE / 2; stride > 0; stride >>= 1)
         {
             barrier(CLK_LOCAL_MEM_FENCE);
 
@@ -62,12 +61,11 @@ DECLARE_SOURCE_DAAL(
     }
 
     void reduceMin(const __local algorithmFPType * values, __local int * indices) {
-        const int group_size = get_local_size(0);
-        const int local_id   = get_local_id(0);
+        const int local_id = get_local_id(0);
 
         indices[local_id] = local_id;
 
-        for (int stride = group_size / 2; stride > 0; stride >>= 1)
+        for (int stride = WS_SIZE / 2; stride > 0; stride >>= 1)
         {
             barrier(CLK_LOCAL_MEM_FENCE);
 
