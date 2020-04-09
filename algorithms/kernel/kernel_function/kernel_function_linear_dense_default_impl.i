@@ -160,7 +160,7 @@ services::Status KernelImplLinear<defaultDense, algorithmFPType, cpu>::computeIn
 
     if (b != 0.0)
     {
-        WriteOnlyRows<algorithmFPType, cpu> mtR(r, 0, nVectors1);
+        WriteRows<algorithmFPType, cpu> mtR(r, 0, nVectors1);
         DAAL_CHECK_BLOCK_STATUS(mtR);
         algorithmFPType * dataR = mtR.get();
 
