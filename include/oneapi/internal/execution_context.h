@@ -130,7 +130,7 @@ public:
     {
         publicBuffer,
         publicConstant,
-        privateBuffer,
+        privateBuffer
     };
 
 private:

@@ -28,19 +28,19 @@ namespace math
 {
 namespace interface1
 {
-enum class Layout
+enum Layout
 {
     ColMajor,
     RowMajor
 };
 
-enum class Transpose
+enum Transpose
 {
     NoTrans,
     Trans
 };
 
-enum class UpLo
+enum UpLo
 {
     Upper,
     Lower

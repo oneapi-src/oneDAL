@@ -64,7 +64,7 @@ namespace zscore
 enum Method
 {
     defaultDense = 0, /*!< Default: performance-oriented method. Works with all types of numeric tables */
-    sumDense     = 1, /*!< Precomputed sum: implementation of algorithm in the case of a precomputed sum.
+    sumDense     = 1  /*!< Precomputed sum: implementation of algorithm in the case of a precomputed sum.
                                      Works with all types of numeric tables */
 };
 
