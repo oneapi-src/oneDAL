@@ -17,7 +17,7 @@
 
 /**
  * @defgroup dbscan_distributed Distributed
- * @ingroup dbscan
+ * @ingroup dbscan_compute
  * @{
  */
 /**
