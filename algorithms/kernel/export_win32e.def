@@ -25,3 +25,6 @@ fpk_serv_core_register_cleanup
 fpk_serv_calloc
 fpk_serv_printf_s
 fpk_serv_memmove_s
+fpk_serv_realloc
+fpk_serv_print
+fpk_serv_exit
