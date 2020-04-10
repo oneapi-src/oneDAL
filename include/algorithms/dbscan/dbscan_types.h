@@ -34,6 +34,9 @@ namespace daal
 namespace algorithms
 {
 /**
+ * @defgroup dbscan DBSCAN
+ * \copydoc daal::algorithms::dbscan
+ * @ingroup analysis
  * @defgroup dbscan_compute Computation
  * \copydoc daal::algorithms::dbscan
  * @ingroup dbscan
