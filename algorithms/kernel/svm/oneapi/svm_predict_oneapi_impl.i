@@ -117,8 +117,6 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
         shRes->set(kernel_function::values, shResNT);
         kernel->setResult(shRes);
 
-        // printf("nSV %lu nFeatures %lu startRow %lu nRowsPerBlockReal %lu\n", nSV, nFeatures, startRow, nRowsPerBlockReal);
-
         kernel->getInput()->set(kernel_function::X, xBlockNT);
         kernel->getInput()->set(kernel_function::Y, svTable);
         kernel->getParameter()->computationMode = kernel_function::matrixMatrix;

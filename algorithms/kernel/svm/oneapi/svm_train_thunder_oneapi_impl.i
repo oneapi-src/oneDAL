@@ -146,9 +146,9 @@ bool SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::checkStopCondition
                                                                                  const algorithmFPType eps, const size_t nNoChanges,
                                                                                  size_t & sameLocalDiff)
 {
-    sameLocalDiff = abs(diff - diffPrev) < eps ? sameLocalDiff + 1 : 0;
+    sameLocalDiff = abs(diff - diffPrev) < eps * 1e-2 ? sameLocalDiff + 1 : 0;
 
-    if (sameLocalDiff > nNoChanges)
+    if (sameLocalDiff > nNoChanges || diff < eps)
     {
         return true;
     }
@@ -243,7 +243,8 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
         cache = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, nWS, nVectors, xTable, kernel, status);
     }
 
-    for (size_t iter = 0; iter < maxIterations; iter++)
+    size_t iter = 0;
+    for (; iter < maxIterations; iter++)
     {
         if (iter != 0)
         {
@@ -275,7 +276,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
         diffPrev = diff;
     }
 
-    printf("localInnerIteration %lu\n", localInnerIteration);
+    printf("localInnerIteration %lu iter %lu\n", localInnerIteration, iter);
 
     SaveResultModel<algorithmFPType> result(alphaBuff, gradBuff, yBuff, C, nVectors);
 

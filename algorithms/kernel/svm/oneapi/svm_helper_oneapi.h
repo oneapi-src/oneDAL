@@ -135,8 +135,8 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status argSort(const UniversalBuffer & f, UniversalBuffer & values, UniversalBuffer & indecesSort, UniversalBuffer & indeces,
-                                    const size_t n)
+    static services::Status argSort(const UniversalBuffer & f, UniversalBuffer & values, UniversalBuffer & valuesBuf, UniversalBuffer & indecesSort,
+                                    UniversalBuffer & indecesBuf, const size_t n)
     {
         services::Status status;
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
@@ -144,7 +144,7 @@ struct HelperSVM
         context.copy(values, 0, f, 0, n, &status);
         DAAL_CHECK_STATUS(status, rangeIndices(indecesSort, n));
 
-        DAAL_CHECK_STATUS(status, sort::RadixSort::sortIndeces(values, indecesSort, values, indeces, n));
+        DAAL_CHECK_STATUS(status, sort::RadixSort::sortIndeces(values, indecesSort, valuesBuf, indecesBuf, n));
 
         return status;
     }

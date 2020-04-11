@@ -66,8 +66,9 @@ struct TaskWorkingSet
         _nWS       = min(maxpow2(_nVectors), maxWS);
         _nSelected = 0;
 
-        _valuesSort  = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
-        _buffIndices = context.allocate(TypeIds::id<int>(), _nVectors, &status);
+        _valuesSort     = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
+        _valuesSortBuff = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
+        _buffIndices    = context.allocate(TypeIds::id<int>(), _nVectors, &status);
 
         _wsIndices     = context.allocate(TypeIds::id<int>(), _nWS, &status);
         _wsSaveIndices = context.allocate(TypeIds::id<int>(), _nWS, &status);
@@ -98,7 +99,7 @@ struct TaskWorkingSet
         auto wsIndicesBuff      = _wsIndices.get<int>();
         auto indicatorBuff      = _indicator.get<int>();
 
-        DAAL_CHECK_STATUS(status, Helper::argSort(fBuff, _valuesSort, _sortedFIndices, _buffIndices, _nVectors));
+        DAAL_CHECK_STATUS(status, Helper::argSort(fBuff, _valuesSort, _valuesSortBuff, _sortedFIndices, _buffIndices, _nVectors));
 
         DAAL_CHECK_STATUS_VAR(status);
 
@@ -208,6 +209,7 @@ private:
     UniversalBuffer _wsSaveIndices;
     UniversalBuffer _buffIndices;
     UniversalBuffer _valuesSort;
+    UniversalBuffer _valuesSortBuff;
 };
 
 } // namespace internal
