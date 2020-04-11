@@ -97,8 +97,11 @@ protected:
         nSV = 0;
         DAAL_CHECK_STATUS(status, Partition::flagged(maskBuff, _coeffBuff, tmpValuesBuff, _nVectors, nSV));
 
+        printf("nSV %lu\n", nSV);
+
         NumericTablePtr svCoeffTable = model.getClassificationCoefficients();
         DAAL_CHECK_STATUS(status, svCoeffTable->resize(nSV));
+        if (nSV == 0) return status;
 
         BlockDescriptor<algorithmFPType> svCoeffBlock;
         DAAL_CHECK_STATUS(status, svCoeffTable->getBlockOfRows(0, nSV, ReadWriteMode::writeOnly, svCoeffBlock));
@@ -116,6 +119,7 @@ protected:
         NumericTablePtr svIndicesTable = model.getSupportIndices();
         services::Status status;
         DAAL_CHECK_STATUS(status, svIndicesTable->resize(nSV));
+        if (nSV == 0) return status;
 
         BlockDescriptor<int> svIndicesBlock;
         DAAL_CHECK_STATUS(status, svIndicesTable->getBlockOfRows(0, nSV, ReadWriteMode::writeOnly, svIndicesBlock));

@@ -73,15 +73,16 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
 
     auto svCoeffTable = model->getClassificationCoefficients();
     const size_t nSV  = svCoeffTable->getNumberOfRows();
-    BlockDescriptor<algorithmFPType> svCoeffBlock;
-    DAAL_CHECK_STATUS(status, svCoeffTable->getBlockOfRows(0, nSV, ReadWriteMode::readOnly, svCoeffBlock));
-    auto svCoeffBuff = svCoeffBlock.getBuffer();
 
     if (nSV == 0)
     {
         context.fill(distanceBuff, 0.0, &status);
         return status;
     }
+
+    BlockDescriptor<algorithmFPType> svCoeffBlock;
+    DAAL_CHECK_STATUS(status, svCoeffTable->getBlockOfRows(0, nSV, ReadWriteMode::readOnly, svCoeffBlock));
+    auto svCoeffBuff = svCoeffBlock.getBuffer();
 
     const algorithmFPType bias(model->getBias());
     context.fill(distanceBuff, double(bias), &status);
@@ -115,6 +116,9 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
         kernel_function::ResultPtr shRes(kfResultPtr);
         shRes->set(kernel_function::values, shResNT);
         kernel->setResult(shRes);
+
+        // printf("nSV %lu nFeatures %lu startRow %lu nRowsPerBlockReal %lu\n", nSV, nFeatures, startRow, nRowsPerBlockReal);
+
         kernel->getInput()->set(kernel_function::X, xBlockNT);
         kernel->getInput()->set(kernel_function::Y, svTable);
         kernel->getParameter()->computationMode = kernel_function::matrixMatrix;
@@ -127,6 +131,8 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
                                                                       nRowsPerBlockReal, 1, nSV, algorithmFPType(1.0), shResBuff, nSV, 0, svCoeffBuff,
                                                                       1, 0, algorithmFPType(1.0), distanceBuff, 1, startRow));
         }
+
+        DAAL_CHECK_STATUS(status, xTable->releaseBlockOfRows(xBlock));
     }
 
     DAAL_CHECK_STATUS(status, r.releaseBlockOfRows(rBlock));
