@@ -61,8 +61,7 @@ struct TaskWorkingSet
 
         auto & deviceInfo = context.getInfoDevice();
 
-        const size_t maxWS = 256;
-        printf("deviceInfo.max_work_group_size %lu\n", deviceInfo.max_work_group_size);
+        const size_t maxWS = deviceInfo.max_work_group_size;
 
         _nWS       = min(maxpow2(_nVectors), maxWS);
         _nSelected = 0;

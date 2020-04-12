@@ -97,7 +97,7 @@ protected:
         nSV = 0;
         DAAL_CHECK_STATUS(status, Partition::flagged(maskBuff, _coeffBuff, tmpValuesBuff, _nVectors, nSV));
 
-        printf("nSV %lu\n", nSV);
+        printf("nSV %d\n", (int)nSV);
 
         NumericTablePtr svCoeffTable = model.getClassificationCoefficients();
         DAAL_CHECK_STATUS(status, svCoeffTable->resize(nSV));
