@@ -61,7 +61,8 @@ struct TaskWorkingSet
 
         auto & deviceInfo = context.getInfoDevice();
 
-        const size_t maxWS = deviceInfo.max_work_group_size;
+        const size_t maxWS = 256;
+        printf("deviceInfo.max_work_group_size %lu\n", deviceInfo.max_work_group_size);
 
         _nWS       = min(maxpow2(_nVectors), maxWS);
         _nSelected = 0;
@@ -70,20 +71,18 @@ struct TaskWorkingSet
         _valuesSortBuff = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
         _buffIndices    = context.allocate(TypeIds::id<int>(), _nVectors, &status);
 
-        _wsIndices     = context.allocate(TypeIds::id<int>(), _nWS, &status);
-        _wsSaveIndices = context.allocate(TypeIds::id<int>(), _nWS, &status);
+        _wsIndices = context.allocate(TypeIds::id<int>(), _nWS, &status);
         return status;
     }
 
     size_t getSize() const { return _nWS; }
 
-    services::Status saveWSIndeces()
+    services::Status copyLastToFirst()
     {
         const size_t q = _nWS / 2;
         services::Status status;
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
-        // context.copy(_wsIndices, 0, _wsIndices, q, _nWS - q, &status);
-        context.copy(_wsIndices, 0, _wsSaveIndices, q, _nWS - q, &status);
+        context.copy(_wsIndices, 0, _wsIndices, q, _nWS - q, &status);
         _nSelected = q;
         return status;
     }
@@ -94,10 +93,8 @@ struct TaskWorkingSet
         services::Status status;
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
-        auto sortedFIndicesBuff = _sortedFIndices.get<int>();
-        auto tmpIndicesBuff     = _buffIndices.get<int>();
-        auto wsIndicesBuff      = _wsIndices.get<int>();
-        auto indicatorBuff      = _indicator.get<int>();
+        auto wsIndicesBuff = _wsIndices.get<int>();
+        auto indicatorBuff = _indicator.get<int>();
 
         DAAL_CHECK_STATUS(status, Helper::argSort(fBuff, _valuesSort, _valuesSortBuff, _sortedFIndices, _buffIndices, _nVectors));
 
@@ -115,11 +112,11 @@ struct TaskWorkingSet
             }
 
             size_t nUpperSelect = 0;
-            DAAL_CHECK_STATUS(status, Partition::flaggedIndex(indicatorBuff, sortedFIndicesBuff, tmpIndicesBuff, _nVectors, nUpperSelect));
+            DAAL_CHECK_STATUS(status, Partition::flaggedIndex(indicatorBuff, _sortedFIndices, _buffIndices, _nVectors, nUpperSelect));
 
             const size_t nCopy = min(nUpperSelect, nNeedSelect);
 
-            context.copy(_wsIndices, _nSelected, tmpIndicesBuff, 0, nCopy, &status);
+            context.copy(_wsIndices, _nSelected, _buffIndices, 0, nCopy, &status);
             _nSelected += nCopy;
         }
 
@@ -135,7 +132,7 @@ struct TaskWorkingSet
             }
 
             size_t nLowerSelect = 0;
-            DAAL_CHECK_STATUS(status, Partition::flaggedIndex(indicatorBuff, sortedFIndicesBuff, tmpIndicesBuff, _nVectors, nLowerSelect));
+            DAAL_CHECK_STATUS(status, Partition::flaggedIndex(indicatorBuff, _sortedFIndices, _buffIndices, _nVectors, nLowerSelect));
 
             const size_t nCopy = min(nLowerSelect, nNeedSelect);
 
@@ -157,17 +154,16 @@ struct TaskWorkingSet
             }
 
             size_t nUpperSelect = 0;
-            DAAL_CHECK_STATUS(status, Partition::flaggedIndex(indicatorBuff, sortedFIndicesBuff, tmpIndicesBuff, _nVectors, nUpperSelect));
+            DAAL_CHECK_STATUS(status, Partition::flaggedIndex(indicatorBuff, _sortedFIndices, _buffIndices, _nVectors, nUpperSelect));
 
             const size_t nCopy = min(nUpperSelect, nNeedSelect);
 
-            context.copy(_wsIndices, _nSelected, tmpIndicesBuff, 0, nCopy, &status);
+            context.copy(_wsIndices, _nSelected, _buffIndices, 0, nCopy, &status);
             _nSelected += nCopy;
         }
 
         DAAL_ASSERT(_nSelected == _nWS);
 
-        context.copy(_wsSaveIndices, 0, _wsIndices, 0, _nWS, &status);
         _nSelected = 0;
         return status;
     }
@@ -206,7 +202,6 @@ private:
     UniversalBuffer _sortedFIndices;
     UniversalBuffer _indicator;
     UniversalBuffer _wsIndices;
-    UniversalBuffer _wsSaveIndices;
     UniversalBuffer _buffIndices;
     UniversalBuffer _valuesSort;
     UniversalBuffer _valuesSortBuff;

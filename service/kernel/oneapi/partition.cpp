@@ -43,7 +43,7 @@ services::Status Partition::buildProgram(ClKernelFactoryIface & factory, const T
 services::Status Partition::scan(ClKernelFactoryIface & factory, UniversalBuffer & mask, UniversalBuffer & partialSums, size_t nElems,
                                  size_t localSize, size_t nLocalSums)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(partitionScan);
+    DAAL_ITTNOTIFY_SCOPED_TASK(partition.scan);
 
     services::Status status;
 
@@ -73,7 +73,7 @@ services::Status Partition::scan(ClKernelFactoryIface & factory, UniversalBuffer
 services::Status Partition::scanIndex(ClKernelFactoryIface & factory, UniversalBuffer & mask, UniversalBuffer & data, UniversalBuffer & partialSums,
                                       size_t nElems, size_t localSize, size_t nLocalSums)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(partitionScan);
+    DAAL_ITTNOTIFY_SCOPED_TASK(partition.scanIndex);
 
     services::Status status;
 
@@ -104,7 +104,7 @@ services::Status Partition::scanIndex(ClKernelFactoryIface & factory, UniversalB
 services::Status Partition::sumScan(ClKernelFactoryIface & factory, UniversalBuffer & partialSums, UniversalBuffer & partialPrefixSums,
                                     UniversalBuffer & totalSum, size_t localSize, size_t nSubgroupSums)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(partitionSumScan);
+    DAAL_ITTNOTIFY_SCOPED_TASK(partition.sumScan);
     services::Status status;
 
     auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
@@ -134,7 +134,7 @@ services::Status Partition::sumScan(ClKernelFactoryIface & factory, UniversalBuf
 services::Status Partition::reorder(ClKernelFactoryIface & factory, UniversalBuffer & mask, UniversalBuffer & data, UniversalBuffer & outData,
                                     UniversalBuffer & partialPrefixSums, size_t nElems, size_t localSize, size_t nLocalSums)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(partitionReorder);
+    DAAL_ITTNOTIFY_SCOPED_TASK(partition.reorder);
 
     services::Status status;
 
@@ -166,7 +166,7 @@ services::Status Partition::reorder(ClKernelFactoryIface & factory, UniversalBuf
 services::Status Partition::reorderIndex(ClKernelFactoryIface & factory, UniversalBuffer & mask, UniversalBuffer & data, UniversalBuffer & outData,
                                          UniversalBuffer & partialPrefixSums, size_t nElems, size_t localSize, size_t nLocalSums)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(partitionReorder);
+    DAAL_ITTNOTIFY_SCOPED_TASK(partition.reorderIndex);
 
     services::Status status;
 
@@ -197,6 +197,8 @@ services::Status Partition::reorderIndex(ClKernelFactoryIface & factory, Univers
 
 services::Status Partition::flagged(UniversalBuffer mask, UniversalBuffer data, UniversalBuffer outData, const size_t nElems, size_t & nSelect)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(flagged);
+
     services::Status status;
     auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & factory = context.getClKernelFactory();
@@ -228,6 +230,8 @@ services::Status Partition::flagged(UniversalBuffer mask, UniversalBuffer data, 
 
 services::Status Partition::flaggedIndex(UniversalBuffer mask, UniversalBuffer data, UniversalBuffer outData, const size_t nElems, size_t & nSelect)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(flaggedIndex);
+
     services::Status status;
     auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & factory = context.getClKernelFactory();

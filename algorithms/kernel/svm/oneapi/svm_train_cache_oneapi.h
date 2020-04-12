@@ -67,6 +67,7 @@ public:
     virtual services::Status compute(const NumericTablePtr & xTable, const services::Buffer<int> & wsIndices, const size_t p) = 0;
 
     virtual const services::Buffer<algorithmFPType> & getSetRowsBlock() const = 0;
+    virtual services::Status copyLastToFirst()                                = 0;
 
 protected:
     SVMCacheOneAPIIface(const size_t blockSize, const size_t lineSize, const kernel_function::KernelIfacePtr & kernel)
@@ -101,18 +102,18 @@ public:
     DAAL_NEW_DELETE();
 
     static SVMCacheOneAPI * create(const size_t cacheSize, const size_t blockSize, const size_t lineSize, const NumericTablePtr & xTable,
-                                   const kernel_function::KernelIfacePtr & kernel, services::Status & s)
+                                   const kernel_function::KernelIfacePtr & kernel, services::Status & status)
     {
-        s.clear();
+        status.clear();
         thisType * res = new thisType(blockSize, lineSize, xTable, kernel);
         if (!res)
         {
-            s.add(ErrorMemoryAllocationFailed);
+            status.add(ErrorMemoryAllocationFailed);
         }
         else
         {
-            s = res->init(cacheSize, xTable);
-            if (!s)
+            status = res->init(cacheSize, xTable);
+            if (!status)
             {
                 delete res;
                 res = nullptr;
@@ -131,37 +132,58 @@ public:
         DAAL_CHECK_STATUS(status, xTable->getBlockOfRows(0, xTable->getNumberOfRows(), ReadWriteMode::readOnly, xBlock));
         const services::Buffer<algorithmFPType> & xBuff = xBlock.getBuffer();
 
-        DAAL_CHECK_STATUS(status, Helper::copyBlockIndices(xBuff, wsIndices, _xBlockBuff, _blockSize, p));
+        size_t blockSize                    = _blockSize;
+        services::Buffer<int> wsIndicesReal = wsIndices;
+        if (_ifComputeSubKernel)
+        {
+            blockSize     = _blockSize / 2;
+            wsIndicesReal = wsIndices.getSubBuffer(_nSelectRows, blockSize, &status);
+            DAAL_CHECK_STATUS_VAR(status);
+            DAAL_CHECK_STATUS(status, initSubKernel(blockSize, xTable));
+        }
+
+        DAAL_CHECK_STATUS(status, Helper::copyBlockIndices(xBuff, wsIndicesReal, _xBlockBuff, blockSize, p));
         DAAL_CHECK_STATUS(status, xTable->releaseBlockOfRows(xBlock));
 
         DAAL_CHECK_STATUS(status, _kernel->computeNoThrow());
         return status;
     }
 
+    services::Status copyLastToFirst() override
+    {
+        _nSelectRows        = _blockSize / 2;
+        _ifComputeSubKernel = true;
+        services::Status status;
+
+        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        context.copy(_cache, 0, _cache, _nSelectRows * _lineSize, _nSelectRows * _lineSize, &status);
+        return status;
+    }
+
 protected:
     SVMCacheOneAPI(const size_t blockSize, const size_t lineSize, const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel)
-        : super(blockSize, lineSize, kernel)
+        : super(blockSize, lineSize, kernel), _nSelectRows(0), _ifComputeSubKernel(false)
     {}
 
     services::Status init(const size_t cacheSize, const NumericTablePtr & xTable)
     {
-        services::Status s;
+        services::Status status;
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
-        _cache = context.allocate(TypeIds::id<algorithmFPType>(), _lineSize * _blockSize, &s);
-        DAAL_CHECK_STATUS_VAR(s);
+        _cache = context.allocate(TypeIds::id<algorithmFPType>(), _lineSize * _blockSize, &status);
+        DAAL_CHECK_STATUS_VAR(status);
 
         _cacheBuff      = _cache.get<algorithmFPType>();
-        auto cacheTable = SyclHomogenNumericTable<algorithmFPType>::create(_cacheBuff, _lineSize, _blockSize, &s);
+        auto cacheTable = SyclHomogenNumericTable<algorithmFPType>::create(_cacheBuff, _lineSize, _blockSize, &status);
 
         const size_t p = xTable->getNumberOfColumns();
-        _xBlock        = context.allocate(TypeIds::id<algorithmFPType>(), _blockSize * p, &s);
-        DAAL_CHECK_STATUS_VAR(s);
+        _xBlock        = context.allocate(TypeIds::id<algorithmFPType>(), _blockSize * p, &status);
+        DAAL_CHECK_STATUS_VAR(status);
 
         _xBlockBuff                    = _xBlock.get<algorithmFPType>();
-        const NumericTablePtr xWSTable = SyclHomogenNumericTable<algorithmFPType>::create(_xBlockBuff, p, _blockSize, &s);
+        const NumericTablePtr xWSTable = SyclHomogenNumericTable<algorithmFPType>::create(_xBlockBuff, p, _blockSize, &status);
 
-        DAAL_CHECK_STATUS_VAR(s);
+        DAAL_CHECK_STATUS_VAR(status);
         _kernel->getParameter()->computationMode = kernel_function::matrixMatrix;
         _kernel->getInput()->set(kernel_function::X, xWSTable);
         _kernel->getInput()->set(kernel_function::Y, xTable);
@@ -170,10 +192,38 @@ protected:
         shRes->set(kernel_function::values, cacheTable);
         _kernel->setResult(shRes);
 
-        return s;
+        return status;
+    }
+
+    services::Status initSubKernel(const size_t blockSize, const NumericTablePtr & xTable)
+    {
+        services::Status status;
+        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+
+        auto cacheHalf = _cacheBuff.getSubBuffer(_lineSize * _nSelectRows, _lineSize * blockSize, &status);
+
+        auto cacheTable = SyclHomogenNumericTable<algorithmFPType>::create(cacheHalf, _lineSize, blockSize, &status);
+
+        const size_t p = xTable->getNumberOfColumns();
+        DAAL_CHECK_STATUS_VAR(status);
+
+        const NumericTablePtr xWSTable = SyclHomogenNumericTable<algorithmFPType>::create(_xBlockBuff, p, blockSize, &status);
+
+        DAAL_CHECK_STATUS_VAR(status);
+        _kernel->getParameter()->computationMode = kernel_function::matrixMatrix;
+        _kernel->getInput()->set(kernel_function::X, xWSTable);
+        _kernel->getInput()->set(kernel_function::Y, xTable);
+
+        kernel_function::ResultPtr shRes(new kernel_function::Result());
+        shRes->set(kernel_function::values, cacheTable);
+        _kernel->setResult(shRes);
+
+        return status;
     }
 
 protected:
+    size_t _nSelectRows;
+    bool _ifComputeSubKernel;
     UniversalBuffer _cache;
     UniversalBuffer _xBlock;
     services::Buffer<algorithmFPType> _xBlockBuff;

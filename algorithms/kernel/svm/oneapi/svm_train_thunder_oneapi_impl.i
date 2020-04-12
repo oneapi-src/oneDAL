@@ -228,8 +228,8 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
     algorithmFPType diff     = algorithmFPType(0);
     algorithmFPType diffPrev = algorithmFPType(0);
 
-    size_t localInnerIteration = 0;
-    size_t sameLocalDiff       = 0;
+    size_t innerIteration = 0;
+    size_t sameLocalDiff  = 0;
 
     SVMCacheOneAPIIface<algorithmFPType> * cache = nullptr;
 
@@ -248,7 +248,8 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
     {
         if (iter != 0)
         {
-            DAAL_CHECK_STATUS(status, workSet.saveWSIndeces());
+            DAAL_CHECK_STATUS(status, workSet.copyLastToFirst());
+            DAAL_CHECK_STATUS(status, cache->copyLastToFirst());
         }
 
         DAAL_CHECK_STATUS(status, workSet.selectWS(yBuff, alphaBuff, gradBuff, C));
@@ -257,17 +258,16 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
 
         DAAL_CHECK_STATUS(status, cache->compute(xTable, wsIndices, nFeatures));
 
-        // TODO: save half elements from kernel on 1+ iterations
         const services::Buffer<algorithmFPType> & kernelWS = cache->getSetRowsBlock();
 
         DAAL_CHECK_STATUS(status, smoKernel(yBuff, kernelWS, wsIndices, nVectors, gradBuff, C, eps, tau, innerMaxIterations, alphaBuff,
                                             deltaalphaBuff, resinfoBuff, nWS));
 
         {
-            auto resinfoHost      = resinfoBuff.toHost(ReadWriteMode::readOnly, &status).get();
-            size_t innerIteration = size_t(resinfoHost[0]);
-            diff                  = resinfoHost[1];
-            localInnerIteration += innerIteration;
+            auto resinfoHost           = resinfoBuff.toHost(ReadWriteMode::readOnly, &status).get();
+            size_t localInnerIteration = size_t(resinfoHost[0]);
+            diff                       = resinfoHost[1];
+            innerIteration += localInnerIteration;
         }
 
         DAAL_CHECK_STATUS(status, updateGrad(kernelWS, deltaalphaBuff, gradBuff, nVectors, nWS));
@@ -276,7 +276,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
         diffPrev = diff;
     }
 
-    printf("localInnerIteration %lu iter %lu\n", localInnerIteration, iter);
+    printf("localInnerIteration %lu iter %lu\n", innerIteration, iter);
 
     SaveResultModel<algorithmFPType> result(alphaBuff, gradBuff, yBuff, C, nVectors);
 
