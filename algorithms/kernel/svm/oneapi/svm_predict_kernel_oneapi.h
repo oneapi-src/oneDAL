@@ -26,7 +26,6 @@
 
 #include "data_management/data/numeric_table.h"
 #include "algorithms/model.h"
-#include "services/daal_defines.h"
 #include "algorithms/svm/svm_predict_types.h"
 #include "algorithms/kernel/kernel.h"
 
@@ -46,7 +45,10 @@ template <Method method, typename algorithmFPType>
 struct SVMPredictImplOneAPI : public Kernel
 {
     services::Status compute(const NumericTablePtr & xTable, const daal::algorithms::Model * m, NumericTable & r,
-                             const daal::algorithms::Parameter * par);
+                             const daal::algorithms::Parameter * par)
+    {
+        return services::ErrorMethodNotImplemented;
+    }
 };
 
 template <typename algorithmFPType>

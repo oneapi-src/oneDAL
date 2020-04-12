@@ -44,7 +44,6 @@
 #ifndef __SVM_TRAIN_THUNDER_ONEAPI_IMPL_I__
 #define __SVM_TRAIN_THUNDER_ONEAPI_IMPL_I__
 
-#include "service/kernel/data_management/service_numeric_table.h"
 #include "service/kernel/service_utils.h"
 #include "service/kernel/service_data_utils.h"
 #include "service/kernel/oneapi/blas_gpu.h"

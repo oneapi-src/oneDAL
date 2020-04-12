@@ -24,8 +24,6 @@
 #ifndef __SVM_PREDICT_ONEAPI_IMPL_I__
 #define __SVM_PREDICT_ONEAPI_IMPL_I__
 
-#include "externals/service_memory.h"
-#include "service/kernel/data_management/service_numeric_table.h"
 #include "service/kernel/oneapi/blas_gpu.h"
 #include "externals/service_ittnotify.h"
 #include "data_management/data/numeric_table_sycl_homogen.h"
