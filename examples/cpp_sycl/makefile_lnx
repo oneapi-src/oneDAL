@@ -72,7 +72,7 @@ ifndef DAALROOT
     DAALROOT = ./../..
 endif
 DAAL_PATH = "$(DAALROOT)/lib/$(_IA)"
-	
+
 ifndef TBBROOT
     TBBROOT = ./../../../../tbb/latest
 endif
