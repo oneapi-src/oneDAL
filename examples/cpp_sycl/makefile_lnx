@@ -72,7 +72,7 @@ ifndef DAALROOT
     DAALROOT = ./../..
 endif
 DAAL_PATH = "$(DAALROOT)/lib/$(_IA)"
-
+	
 ifndef TBBROOT
     TBBROOT = ./../../../../tbb/latest
 endif
@@ -81,13 +81,13 @@ TBB_PATH = "$(TBBROOT)/lib/$(_IA)/gcc4.8"
 EXT_LIB := -Bdynamic -lpthread -ldl -lOpenCL
 
 ifeq ($(RES_EXT),so)
-	DAAL_LIB_EXT := -Bdynamic
+    DAAL_LIB_EXT := -Bdynamic
 else
-	DAAL_LIB_EXT := -Bstatic
+    DAAL_LIB_EXT := -Bstatic
 endif
 
 ifeq ($(threading),sequential)
-	DAAL_LIB_T := $(DAAL_LIB_EXT),-ldaal_sequential
+    DAAL_LIB_T := $(DAAL_LIB_EXT),-ldaal_sequential
 else
     override threading = parallel
     DAAL_LIB_T := $(DAAL_LIB_EXT),-ldaal_thread
