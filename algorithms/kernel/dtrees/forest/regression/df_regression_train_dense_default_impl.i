@@ -108,9 +108,9 @@ public:
 
     void calcImpurity(const IndexType * aIdx, size_t n, ImpurityData & imp) const;
     bool findBestSplitForFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
-                                 const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split) const;
+                                 const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split, double minWeightLeaf) const;
     int findBestSplitForFeatureSorted(algorithmFPType * featureBuf, IndexType iFeature, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
-                                      const ImpurityData & curImpurity, TSplitData & split) const;
+                                      const ImpurityData & curImpurity, TSplitData & split, double minWeightLeaf) const;
     void finalizeBestSplit(const IndexType * aIdx, size_t n, IndexType iFeature, size_t idxFeatureValueBestSplit, TSplitData & bestSplit,
                            IndexType * bestSplitIdx) const;
     void simpleSplit(const algorithmFPType * featureVal, const IndexType * aIdx, TSplitData & split) const;
@@ -163,9 +163,11 @@ private:
     algorithmFPType calcResponse(algorithmFPType & res, const IndexType * idx, size_t n) const;
 #endif
     bool findBestSplitOrderedFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
-                                     const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split) const;
+                                     const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
+                                     double minWeightLeaf) const;
     bool findBestSplitCategoricalFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
-                                         const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split) const;
+                                         const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
+                                         double minWeightLeaf) const;
 
 private:
     //buffer for the computation using indexed features
@@ -262,10 +264,11 @@ void OrderedRespHelper<algorithmFPType, cpu>::simpleSplit(const algorithmFPType 
 template <typename algorithmFPType, CpuType cpu>
 bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n,
                                                                       size_t nMinSplitPart, const algorithmFPType accuracy,
-                                                                      const ImpurityData & curImpurity, TSplitData & split) const
+                                                                      const ImpurityData & curImpurity, TSplitData & split,
+                                                                      double minWeightLeaf) const
 {
-    return split.featureUnordered ? findBestSplitCategoricalFeature(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split) :
-                                    findBestSplitOrderedFeature(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split);
+    return split.featureUnordered ? findBestSplitCategoricalFeature(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf) :
+                                    findBestSplitOrderedFeature(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf);
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -311,7 +314,7 @@ void OrderedRespHelper<algorithmFPType, cpu>::finalizeBestSplit(const IndexType 
 template <typename algorithmFPType, CpuType cpu>
 int OrderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(algorithmFPType * buf, IndexType iFeature, const IndexType * aIdx,
                                                                            size_t n, size_t nMinSplitPart, const ImpurityData & curImpurity,
-                                                                           TSplitData & split) const
+                                                                           TSplitData & split, double minWeightLeaf) const
 {
     const auto nDiffFeatMax = this->indexedFeatures().numIndices(iFeature);
     _idxFeatureBuf.setValues(nDiffFeatMax, 0);
@@ -348,10 +351,10 @@ int OrderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(algor
         if (!nFeatIdx[i]) continue;
         nLeft = (split.featureUnordered ? nFeatIdx[i] : nLeft + nFeatIdx[i]);
         if ((nLeft == n) //last split
-            || ((n - nLeft) < nMinSplitPart))
+            || ((n - nLeft) < nMinSplitPart) || ((n - nLeft) < minWeightLeaf))
             break;
         sumLeft = (split.featureUnordered ? buf[i] : sumLeft + buf[i]);
-        if (nLeft < nMinSplitPart) continue;
+        if ((nLeft < minWeightLeaf) || (nLeft < minWeightLeaf)) continue;
         intermSummFPType sumRight = sumTotal - sumLeft;
         //the part of the impurity decrease dependent on split itself
         const intermSummFPType impDecreasePart = sumLeft * sumLeft / intermSummFPType(nLeft) + sumRight * sumRight / intermSummFPType(n - nLeft);
@@ -374,7 +377,8 @@ int OrderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(algor
 template <typename algorithmFPType, CpuType cpu>
 bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n,
                                                                           size_t nMinSplitPart, const algorithmFPType accuracy,
-                                                                          const ImpurityData & curImpurity, TSplitData & split) const
+                                                                          const ImpurityData & curImpurity, TSplitData & split,
+                                                                          double minWeightLeaf) const
 {
     algorithmFPType xi = this->_aResponse[aIdx[0]].val;
     ImpurityData left;
@@ -393,7 +397,7 @@ bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(const 
     for (size_t i = 1; i < (n - nMinSplitPart + 1); ++i)
     {
         const bool bSameFeaturePrev(featureVal[i] <= featureVal[i - 1] + accuracy);
-        if (!(bSameFeaturePrev || i < nMinSplitPart))
+        if (!(bSameFeaturePrev || (i < nMinSplitPart) || (i < minWeightLeaf) || ((n - i) < minWeightLeaf)))
         {
             //can make a split
             //nLeft == i, nRight == n - i
@@ -432,7 +436,8 @@ bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(const 
 template <typename algorithmFPType, CpuType cpu>
 bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitCategoricalFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n,
                                                                               size_t nMinSplitPart, const algorithmFPType accuracy,
-                                                                              const ImpurityData & curImpurity, TSplitData & split) const
+                                                                              const ImpurityData & curImpurity, TSplitData & split,
+                                                                              double minWeightLeaf) const
 {
     DAAL_ASSERT(n >= 2 * nMinSplitPart);
     ImpurityData left;
@@ -448,7 +453,7 @@ bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitCategoricalFeature(co
         const size_t iStart         = i;
         for (++i; (i < n) && (featureVal[i] == first); ++count, ++i)
             ;
-        if ((count < nMinSplitPart) || ((n - count) < nMinSplitPart)) continue;
+        if ((count < nMinSplitPart) || ((n - count) < nMinSplitPart) || (count < minWeightLeaf) || ((n - count) < minWeightLeaf)) continue;
 
         if ((i == n) && (nDiffFeatureValues == 2) && bFound) break; //only 2 feature values, one possible split, already found
 

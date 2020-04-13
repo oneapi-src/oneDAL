@@ -34,7 +34,7 @@ namespace decision_forest
 {
 namespace training
 {
-services::Status checkImpl(const decision_forest::training::Parameter & prm);
+services::Status checkImpl(const decision_forest::training::interface2::Parameter & prm);
 }
 
 namespace classification

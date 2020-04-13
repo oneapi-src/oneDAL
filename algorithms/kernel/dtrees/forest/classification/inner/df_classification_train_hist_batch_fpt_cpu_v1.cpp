@@ -1,4 +1,4 @@
-/* file: df_regression_train_hist_batch_fpt_cpu.cpp */
+/* file: df_classification_train_hist_batch_fpt_cpu_v1.cpp */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -17,12 +17,12 @@
 
 /*
 //++
-//  Implementation of decision forest regression training functions for the hist method
+//  Implementation of decision forest classification training functions for the hist method
 //--
 */
 
-#include "algorithms/kernel/dtrees/forest/regression/df_regression_train_container.h"
-#include "algorithms/kernel/dtrees/forest/regression/df_regression_train_kernel.h"
+#include "algorithms/kernel/dtrees/forest/classification/inner/df_classification_train_container_v1.h"
+#include "algorithms/kernel/dtrees/forest/classification/df_classification_train_kernel.h"
 
 namespace daal
 {
@@ -30,21 +30,16 @@ namespace algorithms
 {
 namespace decision_forest
 {
-namespace regression
+namespace classification
 {
 namespace training
 {
-namespace interface2
+namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, hist, DAAL_CPU>;
-} // namespace interface2
-namespace internal
-{
-template class RegressionTrainBatchKernel<DAAL_FPTYPE, hist, DAAL_CPU>;
-}
-
+} // namespace interface1
 } // namespace training
-} // namespace regression
+} // namespace classification
 } // namespace decision_forest
 } // namespace algorithms
 } // namespace daal

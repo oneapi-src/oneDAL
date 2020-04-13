@@ -49,11 +49,6 @@ class ClassificationTrainBatchKernel : public daal::algorithms::Kernel
 {
 public:
     services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::classification::Model & m,
-                             Result & res, const decision_forest::classification::training::interface1::Parameter & par)
-    {
-        return services::ErrorMethodNotImplemented;
-    }
-    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::classification::Model & m,
                              Result & res, const decision_forest::classification::training::Parameter & par)
     {
         return services::ErrorMethodNotImplemented;

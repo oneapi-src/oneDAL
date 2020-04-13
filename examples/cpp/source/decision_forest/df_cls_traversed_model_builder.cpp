@@ -225,9 +225,9 @@ training::ResultPtr trainModel()
     algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainDependentVariable);
 
-    algorithm.parameter.nTrees                    = nTrees;
-    algorithm.parameter.featuresPerNode           = nFeatures;
-    algorithm.parameter.minObservationsInLeafNode = minObservationsInLeafNode;
+    algorithm.parameter().nTrees                    = nTrees;
+    algorithm.parameter().featuresPerNode           = nFeatures;
+    algorithm.parameter().minObservationsInLeafNode = minObservationsInLeafNode;
 
     /* Build the decision forest classification model */
     algorithm.compute();

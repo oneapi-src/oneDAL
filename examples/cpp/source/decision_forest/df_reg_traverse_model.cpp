@@ -73,7 +73,7 @@ training::ResultPtr trainModel()
     algorithm.input.set(training::data, trainData);
     algorithm.input.set(training::dependentVariable, trainDependentVariable);
 
-    algorithm.parameter.nTrees = nTrees;
+    algorithm.parameter().nTrees = nTrees;
 
     /* Build the decision forest regression model */
     algorithm.compute();

@@ -93,7 +93,7 @@ namespace interface1
  *
  * \snippet decision_forest/decision_forest_training_parameter.h Parameter source code
  */
-/* [Parameter source code] */
+/* [interface1::Parameter source code] */
 class DAAL_EXPORT Parameter
 {
 public:
@@ -130,9 +130,56 @@ public:
     bool memorySavingMode;                /*!< If true then use memory saving (but slower) mode */
     bool bootstrap;                       /*!< If true then training set for a tree is a bootstrap of the whole training set */
 };
-/* [Parameter source code] */
+/* [interface1::Parameter source code] */
 } // namespace interface1
-using interface1::Parameter;
+
+/**
+ * \brief Contains version 2.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface
+ */
+namespace interface2
+{
+/**
+ * <a name="DAAL-CLASS-ALGORITHMS__DECISION_FOREST__TRAINING__PARAMETER"></a>
+ * \brief Parameters for the decision forest algorithm
+ *
+ * \snippet decision_forest/decision_forest_training_parameter.h Parameter source code
+ */
+/* [Parameter source code] */
+class DAAL_EXPORT Parameter
+{
+public:
+    /**
+     * Construct parameters of decision forest algorithm
+     */
+    Parameter();
+
+    size_t nTrees;                         /*!< Number of trees in the forest. Default is 10 */
+    double observationsPerTreeFraction;    /*!< Fraction of observations used for a training of one tree, 0 to 1.
+                                                  Default is 1 (sampling with replacement) */
+    size_t featuresPerNode;                /*!< Number of features tried as possible splits per node.
+                                                  If 0 then sqrt(p) for classification, p/3 for regression,
+                                                  where p is the total number of features. */
+    size_t maxTreeDepth;                   /*!< Maximal tree depth. Default is 0 (unlimited) */
+    size_t minObservationsInLeafNode;      /*!< Minimal number of observations in a leaf node.
+                                                  Default is 1 for classification, 5 for regression. */
+    size_t seed;                           /*!< Seed for the random numbers generator used by the algorithms \DAAL_DEPRECATED_USE{ engine } */
+    engines::EnginePtr engine;             /*!< Engine for the random numbers generator used by the algorithms */
+    double impurityThreshold;              /*!< Threshold value used as stopping criteria: if the impurity value in the node is smaller
+                                                  than the threshold then the node is not split anymore.*/
+    VariableImportanceMode varImportance;  /*!< Variable importance computation mode */
+    DAAL_UINT64 resultsToCompute;          /*!< 64 bit integer flag that indicates the results to compute */
+    bool memorySavingMode;                 /*!< If true then use memory saving (but slower) mode */
+    bool bootstrap;                        /*!< If true then training set for a tree is a bootstrap of the whole training set */
+    size_t minObservationsInSplitNode;     /*!< Minimal number of observations in a split node. Default 2 */
+    double minWeightFractionInLeafNode;    /*!< The minimum weighted fraction of the sum total of weights (of all the input observations)
+                                                  required to be at a leaf node, 0.0 to 0.5. Default is 0.0 */
+    double minImpurityDecreaseInSplitNode; /*!< A node will be split if this split induces a decrease of the impurity
+                                                  greater than or equal to the value. Default is 0.0 */
+    size_t maxLeafNodes;                   /*!< Maximum number of leaf nodes. Default is 0 (unlimited) */
+};
+/* [Parameter source code] */
+} // namespace interface2
+using interface2::Parameter;
 /** @} */
 } // namespace training
 } // namespace decision_forest

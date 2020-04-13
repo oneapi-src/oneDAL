@@ -1,4 +1,4 @@
-/* file: df_regression_training_types_result.h */
+/* file: df_regression_training_input_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -22,6 +22,7 @@
 */
 
 #include "algorithms/decision_forest/decision_forest_regression_training_types.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -32,32 +33,41 @@ namespace algorithms
 {
 namespace decision_forest
 {
+namespace training
+{
+Status checkImpl(const decision_forest::training::interface2::Parameter & prm);
+}
+
 namespace regression
 {
 namespace training
 {
 namespace interface1
 {
-class Result::ResultImpl
+Parameter::Parameter() {}
+
+DAAL_FORCEINLINE void convertParameter(const interface1::Parameter & par1, interface2::Parameter & par2)
 {
-public:
-    ResultImpl() {}
-    ResultImpl(const ResultImpl & other)
-    {
-        if (other._engine) _engine = other._engine->clone();
-    }
+    par2.nTrees                      = par1.nTrees;
+    par2.observationsPerTreeFraction = par1.observationsPerTreeFraction;
+    par2.featuresPerNode             = par1.featuresPerNode;
+    par2.maxTreeDepth                = par1.maxTreeDepth;
+    par2.minObservationsInLeafNode   = par1.minObservationsInLeafNode;
+    par2.seed                        = par1.seed;
+    par2.engine                      = par1.engine;
+    par2.impurityThreshold           = par1.impurityThreshold;
+    par2.varImportance               = par1.varImportance;
+    par2.resultsToCompute            = par1.resultsToCompute;
+    par2.memorySavingMode            = par1.memorySavingMode;
+    par2.bootstrap                   = par1.bootstrap;
+}
 
-    void setEngine(engines::EnginePtr engine) { _engine = engine; }
-    engines::EnginePtr getEngine()
-    {
-        if (!_engine) _engine = engines::mt2203::Batch<>::create();
-        return _engine;
-    }
-
-private:
-    engines::EnginePtr _engine;
-};
-
+Status Parameter::check() const
+{
+    decision_forest::regression::training::interface2::Parameter par2;
+    convertParameter(*this, par2);
+    return decision_forest::training::checkImpl(par2);
+}
 } // namespace interface1
 } // namespace training
 } // namespace regression

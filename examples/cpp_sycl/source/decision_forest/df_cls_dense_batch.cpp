@@ -91,11 +91,11 @@ training::ResultPtr trainModel(algorithmType && algorithm)
     algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainDependentVariable);
 
-    algorithm.parameter.nTrees                    = nTrees;
-    algorithm.parameter.featuresPerNode           = nFeatures;
-    algorithm.parameter.minObservationsInLeafNode = minObservationsInLeafNode;
-    algorithm.parameter.varImportance             = algorithms::decision_forest::training::MDI;
-    algorithm.parameter.resultsToCompute          = algorithms::decision_forest::training::computeOutOfBagError;
+    algorithm.parameter().nTrees                    = nTrees;
+    algorithm.parameter().featuresPerNode           = nFeatures;
+    algorithm.parameter().minObservationsInLeafNode = minObservationsInLeafNode;
+    algorithm.parameter().varImportance             = algorithms::decision_forest::training::MDI;
+    algorithm.parameter().resultsToCompute          = algorithms::decision_forest::training::computeOutOfBagError;
 
     /* Build the decision forest classification model */
     algorithm.compute();
