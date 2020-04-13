@@ -41,7 +41,7 @@ namespace classification
 {
 namespace training
 {
-namespace interface2
+namespace interface3
 {
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
@@ -85,7 +85,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::setupCompute()
     return services::Status();
 }
 
-} // namespace interface2
+} // namespace interface3
 } // namespace training
 } // namespace classification
 } // namespace decision_forest

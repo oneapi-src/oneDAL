@@ -1,4 +1,4 @@
-/* file: df_regression_training_result_fpt.cpp */
+/* file: df_regression_train_dense_default_batch_fpt_cpu_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -17,11 +17,12 @@
 
 /*
 //++
-//  Implementation of the decision forest algorithm interface
+//  Implementation of decision forest regression training functions for the default method
 //--
 */
 
-#include "algorithms/kernel/dtrees/forest/regression/df_regression_training_result.h"
+#include "algorithms/kernel/dtrees/forest/regression/inner/df_regression_train_container_v1.h"
+#include "algorithms/kernel/dtrees/forest/regression/df_regression_train_dense_default_impl.i"
 
 namespace daal
 {
@@ -33,12 +34,10 @@ namespace regression
 {
 namespace training
 {
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(
-    const daal::algorithms::Input * input, const daal::algorithms::decision_forest::regression::training::interface1::Parameter * parameter,
-    const int method);
-
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
-                                                                    const daal::algorithms::Parameter * parameter, const int method);
+namespace interface1
+{
+template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
+} // namespace interface1
 } // namespace training
 } // namespace regression
 } // namespace decision_forest

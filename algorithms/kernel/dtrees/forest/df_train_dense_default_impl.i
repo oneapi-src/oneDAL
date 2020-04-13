@@ -368,9 +368,25 @@ protected:
           _nFeatureBufs(1), //for sequential processing
           _featHelper(featTypes),
           _threadCtx(threadCtx),
-          _accuracy(daal::services::internal::EpsilonVal<algorithmFPType>::get())
+          _accuracy(daal::services::internal::EpsilonVal<algorithmFPType>::get()),
+          _minSamplesSplit(2),
+          _minWeightLeaf(0.),
+          _minImpurityDecrease(0. - daal::services::internal::EpsilonVal<algorithmFPType>::get() * x->getNumberOfRows()),
+          _remainingSplitNodes(0)
     {
         if (_impurityThreshold < _accuracy) _impurityThreshold = _accuracy;
+
+        const daal::algorithms::decision_forest::training::interface2::Parameter * algParameter =
+            dynamic_cast<const daal::algorithms::decision_forest::training::interface2::Parameter *>(&par);
+        if (algParameter != NULL)
+        {
+            _minSamplesSplit     = 2 > par.minObservationsInSplitNode ? 2 : par.minObservationsInSplitNode;
+            _minSamplesSplit     = _minSamplesSplit > 2 * par.minObservationsInLeafNode ? _minSamplesSplit : 2 * par.minObservationsInLeafNode;
+            _minWeightLeaf       = par.minWeightFractionInLeafNode * x->getNumberOfRows(); // no sample_weight
+            _minImpurityDecrease = par.minImpurityDecreaseInSplitNode * x->getNumberOfRows()
+                                   - daal::services::internal::EpsilonVal<algorithmFPType>::get() * x->getNumberOfRows();
+            _remainingSplitNodes = par.maxLeafNodes;
+        }
     }
 
     size_t nFeatures() const { return _data->getNumberOfColumns(); }
@@ -388,8 +404,20 @@ protected:
     }
     bool terminateCriteria(size_t nSamples, size_t level, typename DataHelper::ImpurityData & imp) const
     {
-        return (nSamples < 2 * _par.minObservationsInLeafNode || _helper.terminateCriteria(imp, _impurityThreshold, nSamples)
-                || ((_par.maxTreeDepth > 0) && (level >= _par.maxTreeDepth)));
+        const daal::algorithms::decision_forest::training::interface2::Parameter * algParameter =
+            dynamic_cast<const daal::algorithms::decision_forest::training::interface2::Parameter *>(&_par);
+        if (algParameter != NULL)
+        {
+            // if maxLeafNodes is equal 0, it means unlimited leaf nodes
+            // if maxLeafNodes > 1, before each split decrease remainingSplitNodes by 1 and compare with 0
+            const bool isLeaf = ((_par.maxLeafNodes > 1) && (--_remainingSplitNodes == 0)) ? true : false;
+
+            return (isLeaf || (nSamples < 2 * _par.minObservationsInLeafNode) || (nSamples < _minSamplesSplit) || (nSamples < 2 * _minWeightLeaf)
+                    || _helper.terminateCriteria(imp, _impurityThreshold, nSamples) || ((_par.maxTreeDepth > 0) && (level >= _par.maxTreeDepth)));
+        }
+        else
+            return (nSamples < 2 * _par.minObservationsInLeafNode || _helper.terminateCriteria(imp, _impurityThreshold, nSamples)
+                    || ((_par.maxTreeDepth > 0) && (level >= _par.maxTreeDepth)));
     }
     ThreadCtxType & threadCtx() { return _threadCtx; }
     typename DataHelper::NodeType::Split * makeSplit(size_t iFeature, algorithmFPType featureValue, bool bUnordered,
@@ -469,6 +497,10 @@ protected:
     ThreadCtxType & _threadCtx;
     size_t _nClasses;
     size_t * _numElems;
+    size_t _minSamplesSplit;
+    double _minWeightLeaf;
+    double _minImpurityDecrease;
+    mutable size_t _remainingSplitNodes;
 };
 
 template <typename algorithmFPType, typename DataHelper, CpuType cpu>
@@ -579,9 +611,15 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, DataHe
     IndexType iFeature;
     if (findBestSplit(iStart, n, curImpurity, iFeature, split))
     {
+        const size_t nLeft   = split.nLeft;
+        const double imp     = curImpurity.var;
+        const double impLeft = split.left.var;
+
+        // check impurity decrease
+        if (imp * n - impLeft * nLeft - (n - nLeft) * (imp - impLeft) < _minImpurityDecrease)
+            return makeLeaf(_aSample.get() + iStart, n, curImpurity, nClasses);
         if (_par.varImportance == training::MDI) addImpurityDecrease(iFeature, n, curImpurity, split);
         typename DataHelper::NodeType::Base * left = build(s, iStart, split.nLeft, level + 1, split.left, bUnorderedFeaturesUsed, nClasses);
-        const size_t nLeft                         = split.nLeft;
         _helper.convertLeftImpToRight(n, curImpurity, split);
         typename DataHelper::NodeType::Base * right =
             s.ok() ? build(s, iStart + nLeft, split.nLeft, level + 1, split.left, bUnorderedFeaturesUsed, nClasses) : nullptr;
@@ -667,8 +705,8 @@ bool TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::findBestSplitSerial(s
             if (!_helper.hasDiffFeatureValues(iFeature, aIdx, n)) continue; //all values of the feature are the same
             split.featureUnordered = _featHelper.isUnordered(iFeature);
             //index of best feature value in the array of sorted feature values
-            const int idxFeatureValue =
-                _helper.findBestSplitForFeatureSorted(featureBuf(0), iFeature, aIdx, n, _par.minObservationsInLeafNode, curImpurity, split);
+            const int idxFeatureValue = _helper.findBestSplitForFeatureSorted(featureBuf(0), iFeature, aIdx, n, _par.minObservationsInLeafNode,
+                                                                              curImpurity, split, _minWeightLeaf);
             if (idxFeatureValue < 0) continue;
             iBestSplit = i;
             split.copyTo(bestSplit);
@@ -684,7 +722,8 @@ bool TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::findBestSplitSerial(s
             _helper.checkImpurity(aIdx, n, curImpurity);
 #endif
             split.featureUnordered = _featHelper.isUnordered(iFeature);
-            if (!_helper.findBestSplitForFeature(featBuf, aIdx, n, _par.minObservationsInLeafNode, _accuracy, curImpurity, split)) continue;
+            if (!_helper.findBestSplitForFeature(featBuf, aIdx, n, _par.minObservationsInLeafNode, _accuracy, curImpurity, split, _minWeightLeaf))
+                continue;
             idxFeatureValueBestSplit = -1;
             iBestSplit               = i;
             split.copyTo(bestSplit);

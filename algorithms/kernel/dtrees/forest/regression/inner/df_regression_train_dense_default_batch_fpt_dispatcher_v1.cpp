@@ -1,4 +1,4 @@
-/* file: df_regression_train_dense_default_batch_fpt_dispatcher.cpp */
+/* file: df_regression_train_dense_default_batch_fpt_dispatcher_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -21,41 +21,13 @@
 //--
 */
 
-#include "algorithms/kernel/dtrees/forest/regression/df_regression_train_container.h"
+#include "algorithms/kernel/dtrees/forest/regression/inner/df_regression_train_container_v1.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_forest::regression::training::BatchContainer, batch, DAAL_FPTYPE,
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_forest::regression::training::interface1::BatchContainer, batch, DAAL_FPTYPE,
                                       decision_forest::regression::training::defaultDense)
-namespace decision_forest
-{
-namespace regression
-{
-namespace training
-{
-namespace interface2
-{
-using BatchType = Batch<DAAL_FPTYPE, decision_forest::regression::training::defaultDense>;
-
-template <>
-BatchType::Batch()
-{
-    _par = new ParameterType;
-    initialize();
-    parameter().minObservationsInLeafNode = 5;
 }
-
-template <>
-BatchType::Batch(const BatchType & other) : input(other.input)
-{
-    _par = new ParameterType(other.parameter());
-    initialize();
-}
-} // namespace interface2
-} // namespace training
-} // namespace regression
-} // namespace decision_forest
-} // namespace algorithms
 } // namespace daal
