@@ -73,10 +73,10 @@ md5sum.cmd.fbsd = md5 -q
 
 # Enable compiler-provided defences as recommended by Intel Security Development Lifecycle document (SW.01)
 secure.opts.icc.win = -GS
-secure.opts.icc.lnx = -Wformat -Wformat-security -O0 -D_FORTIFY_SOURCE=2 -fstack-protector-strong
+secure.opts.icc.lnx = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector-strong
                                                                          
-secure.opts.icc.mac = -Wformat -Wformat-security -O0 -D_FORTIFY_SOURCE=2 -fstack-protector
-secure.opts.icc.fbsd = -Wformat -Wformat-security -O0 -D_FORTIFY_SOURCE=2 -fstack-protector-strong
+secure.opts.icc.mac = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector
+secure.opts.icc.fbsd = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector-strong
 
 secure.opts.link.win = -DYNAMICBASE -NXCOMPAT $(if $(IA_is_ia32),-SAFESEH)
 secure.opts.link.lnx = -z relro -z now -z noexecstack
