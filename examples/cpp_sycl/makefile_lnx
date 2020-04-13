@@ -87,24 +87,20 @@ else
 endif
 
 ifeq ($(threading),sequential)
-    #DAAL_LIB_T := $(DAAL_PATH)/libdaal_sequential.$(RES_EXT)
 	DAAL_LIB_T := $(DAAL_LIB_EXT),-ldaal_sequential
 else
     override threading = parallel
-    #DAAL_LIB_T := $(DAAL_PATH)/libdaal_thread.$(RES_EXT)
     DAAL_LIB_T := $(DAAL_LIB_EXT),-ldaal_thread
     EXT_LIB += $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
 endif
 
-#DAAL_LIB := $(DAAL_PATH)/libdaal_core.$(RES_EXT) $(DAAL_LIB_T)
-DAAL_LIB := -L$(DAAL_PATH),$(DAAL_LIB_EXT),-ldaal_core, -Bdynamic -Wl, $(DAAL_LIB_T)
+DAAL_LIB := -L$(DAAL_PATH),$(DAAL_LIB_EXT),-ldaal_core,-Bdynamic -Wl,$(DAAL_LIB_T)
 
 COPTS := -Wall -w -I./source/utils
 
 ifeq ($(compiler),clang)
     CC = clang++
     COPTS += -fsycl
-    #EXT_LIB += -foffload-static-lib=$(DAAL_PATH)/libdaal_sycl.a
 endif
 
 LOPTS := -Wl,--start-group -Wl,$(DAAL_LIB),$(EXT_LIB) $(DAAL_PATH)/libdaal_sycl.a -Wl,--end-group
