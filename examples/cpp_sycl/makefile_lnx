@@ -78,27 +78,36 @@ ifndef TBBROOT
 endif
 TBB_PATH = "$(TBBROOT)/lib/$(_IA)/gcc4.8"
 
-EXT_LIB := -lpthread -ldl -lOpenCL
+EXT_LIB := -Bdynamic -lpthread -ldl -lOpenCL
+
+ifeq ($(RES_EXT),so)
+    DAAL_LIB_EXT := -Bdynamic
+else
+    DAAL_LIB_EXT := -Bstatic
+endif
 
 ifeq ($(threading),sequential)
-    DAAL_LIB_T := $(DAAL_PATH)/libdaal_sequential.$(RES_EXT)
+    DAAL_LIB_T := $(DAAL_LIB_EXT),-ldaal_sequential
 else
     override threading = parallel
-    DAAL_LIB_T := $(DAAL_PATH)/libdaal_thread.$(RES_EXT)
+    DAAL_LIB_T := $(DAAL_LIB_EXT),-ldaal_thread
     EXT_LIB += $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
 endif
 
-DAAL_LIB := $(DAAL_PATH)/libdaal_core.$(RES_EXT) $(DAAL_LIB_T)
+DAAL_LIB := -L$(DAAL_PATH),$(DAAL_LIB_EXT),-ldaal_core,-Bdynamic -Wl,$(DAAL_LIB_T)
+#LEVEL0_LIB := libze_intel_gpu.so.0.8 $l0_lib/libze_loader.so 
+LEVEL0_LIB := -L$(DRIVER_PATH) -lze_loader 
+#LEVEL0_LIB := -lze_intel_gpu -lze_loader 
 
 COPTS := -Wall -w -I./source/utils
 
 ifeq ($(compiler),clang)
     CC = clang++
     COPTS += -fsycl
-    EXT_LIB += -foffload-static-lib=$(DAAL_PATH)/libdaal_sycl.a
 endif
 
-LOPTS := -Wl,--start-group $(DAAL_LIB) $(EXT_LIB) -Wl,--end-group
+LOPTS := -Wl,--start-group -Wl,$(DAAL_LIB),$(EXT_LIB) $(DAAL_PATH)/libdaal_sycl.a $(LEVEL0_LIB) -Wl,--end-group
+
 
 RES_DIR=_results/$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))

@@ -35,6 +35,7 @@ namespace internal
 {
 namespace interface1
 {
+
 class OpenClKernelFactory : public Base, public ClKernelFactoryIface
 {
 public:
@@ -58,20 +59,55 @@ public:
         }
         if (!res)
         {
-            auto programPtr = services::SharedPtr<OpenClProgramRef>(
-                new OpenClProgramRef(_deviceQueue.get_context().get(), _deviceQueue.get_device().get(), name, program, options, &localStatus));
-            if (!localStatus.ok())
+            if (!_deviceQueue.get_device().template get_info<sycl::info::device::opencl_c_version>().empty()) 
             {
-                services::internal::tryAssignStatus(status, localStatus);
-                return;
+                // OpenCl branch
+                auto programPtr = services::SharedPtr<OpenClProgramRef>(
+                    new OpenClProgramRef(_deviceQueue.get_context().get(), _deviceQueue.get_device().get(), name, program, options, &localStatus));
+
+                if (!localStatus.ok())
+                {
+                    services::internal::tryAssignStatus(status, localStatus);
+                    return;
+                }
+                programHashTable.add(key, programPtr, localStatus);
+                if (!localStatus.ok())
+                {
+                    services::internal::tryAssignStatus(status, localStatus);
+                    return;
+                }
+
+                _currentProgramRef = programPtr.get();
             }
-            programHashTable.add(key, programPtr, localStatus);
-            if (!localStatus.ok())
+            else
             {
-                services::internal::tryAssignStatus(status, localStatus);
-                return;
+                if(nullptr == _levelZeroOpenClInteropContext.getOpenClDeviceRef().get())
+                {
+                    _levelZeroOpenClInteropContext.reset((ze_device_handle_t)_deviceQueue.get_device().get(), &localStatus);
+                }
+                if (!localStatus.ok())
+                {
+                    services::internal::tryAssignStatus(status, localStatus);
+                    return;
+                }
+
+                auto programPtr = services::SharedPtr<OpenClProgramRef>(
+                    new OpenClProgramRef(_levelZeroOpenClInteropContext.getOpenClContextRef().get(), _levelZeroOpenClInteropContext.getOpenClDeviceRef().get(), 
+                                         (ze_device_handle_t)_deviceQueue.get_device().get(), name, program, options, &localStatus));
+                if (!localStatus.ok())
+                {
+                    services::internal::tryAssignStatus(status, localStatus);
+                    return;
+                }
+                programHashTable.add(key, programPtr, localStatus);
+                if (!localStatus.ok())
+                {
+                    services::internal::tryAssignStatus(status, localStatus);
+                    return;
+                }
+
+                _currentProgramRef = programPtr.get();
             }
-            _currentProgramRef = programPtr.get();
         }
         else
         {
@@ -113,20 +149,42 @@ public:
         }
         else
         {
-            auto kernelRef = OpenClKernelRef(_currentProgramRef->get(), kernelName, &localStatus);
-            if (!localStatus.ok())
+            if (!_deviceQueue.get_device().template get_info<sycl::info::device::opencl_c_version>().empty()) 
             {
-                services::internal::tryAssignStatus(status, localStatus);
-                return KernelPtr();
+                auto kernelRef = OpenClKernelRef(_currentProgramRef->get(), kernelName, &localStatus);
+                if (!localStatus.ok())
+                {
+                    services::internal::tryAssignStatus(status, localStatus);
+                    return KernelPtr();
+                }
+                KernelPtr kernel(new OpenClKernelNative(_executionTarget, *_currentProgramRef, kernelRef));
+                kernelHashTable.add(key, kernel, localStatus);
+                if (!localStatus.ok())
+                {
+                    services::internal::tryAssignStatus(status, localStatus);
+                    return KernelPtr();
+                }
+                return kernel;
             }
-            KernelPtr kernel(new OpenClKernel(_executionTarget, *_currentProgramRef, kernelRef));
-            kernelHashTable.add(key, kernel, localStatus);
-            if (!localStatus.ok())
+            else
             {
-                services::internal::tryAssignStatus(status, localStatus);
-                return KernelPtr();
+                // Level 0 branch
+                auto kernelRef = OpenClKernelLevel0Ref(kernelName, &localStatus);
+
+                if (!localStatus.ok())
+                {
+                    services::internal::tryAssignStatus(status, localStatus);
+                    return KernelPtr();
+                }
+                KernelPtr kernel(new OpenClKernelLevel0(_executionTarget, *_currentProgramRef, kernelRef));
+                kernelHashTable.add(key, kernel, localStatus);
+                if (!localStatus.ok())
+                {
+                    services::internal::tryAssignStatus(status, localStatus);
+                    return KernelPtr();
+                }
+                return kernel;
             }
-            return kernel;
         }
     }
 
@@ -137,6 +195,7 @@ private:
     services::internal::HashTable<KernelIface, SIZE_HASHTABLE_KERNEL> kernelHashTable;
 
     OpenClProgramRef * _currentProgramRef;
+    LevelZeroOpenClInteropContext _levelZeroOpenClInteropContext;
 
     ExecutionTargetId _executionTarget;
     cl::sycl::queue & _deviceQueue;
