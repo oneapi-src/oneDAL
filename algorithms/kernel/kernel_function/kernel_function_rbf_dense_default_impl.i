@@ -281,6 +281,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
         const size_t blockNum = nVectors1 / blockSize + !!(nVectors1 % blockSize);
 
         TArray<algorithmFPType, cpu> diagonal(nVectors1);
+        DAAL_CHECK(diagonal.get(), services::ErrorMemoryAllocationFailed);
         for (size_t i = 0; i < nVectors1; ++i) diagonal[i] = dataR[i * nVectors1 + i];
 
         daal::threader_for(blockNum, blockNum, [&](const size_t iBlock) {
