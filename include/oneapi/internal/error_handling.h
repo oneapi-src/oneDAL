@@ -26,8 +26,8 @@
 #endif
 
 #ifndef DAAL_DISABLE_LEVEL_ZERO
-    #include <ze_api.h>
-#endif //DAAL_ENABLE_LEVEL_ZERO
+    #include <level_zero/ze_api.h>
+#endif //DAAL_DISABLE_LEVEL_ZERO
 
 #include "services/internal/error_handling_helpers.h"
 #include "services/error_indexes.h"
@@ -57,7 +57,7 @@
                 return __VA_ARGS__;                                            \
             }                                                                  \
         }
-#endif //DAAL_ENABLE_LEVEL_ZERO
+#endif //DAAL_DISABLE_LEVEL_ZERO
 
 namespace daal
 {
@@ -180,7 +180,7 @@ inline services::ErrorPtr convertLevelZeroErrorToErrorPtr(ze_result_t zeError)
     return services::Error::create(services::ErrorID::ErrorExecutionContext, services::ErrorDetailID::LevelZero,
                                    getLevelZeroErrorDescription(zeError));
 }
-#endif //DAAL_ENABLE_LEVEL_ZERO
+#endif //DAAL_DISABLE_LEVEL_ZERO
 
 inline void convertSyclExceptionToStatus(cl::sycl::exception const & e, services::Status * statusPtr)
 {
