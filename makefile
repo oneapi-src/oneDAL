@@ -233,7 +233,7 @@ RELEASEDIR.tbb.libia := $(RELEASEDIR.tbb)/lib$(if $(OS_is_mac),,/$(_IA)$(if $(OS
 RELEASEDIR.tbb.soia  := $(if $(OS_is_win),$(RELEASEDIR.tbb)/redist/$(_IA)/vc_mt,$(RELEASEDIR.tbb.libia))
 releasetbb.LIBS_A := $(if $(OS_is_win),$(TBBDIR.libia)/tbb.$(a) $(TBBDIR.libia)/tbbmalloc.$(a))
 releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb.$(y) $(TBBDIR.soia)/$(plib)tbbmalloc.$(y) \
-                     $(if $(or $(OS_is_lnx),$(OS_is_fbsd)),$(TBBDIR.libia)/$(plib)tbb.so.2 $(TBBDIR.libia)/$(plib)tbbmalloc.so.2,)
+                     $(if $(or $(OS_is_lnx),$(OS_is_fbsd)),$(TBBDIR.libia)/$(plib)tbb.so.12 $(TBBDIR.libia)/$(plib)tbbmalloc.so.2,)
 
 RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/oneapi/internal/math
 
