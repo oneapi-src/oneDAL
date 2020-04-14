@@ -22,7 +22,7 @@
         #include <CL/cl.h>
         #include <CL/sycl.hpp>
 
-        #ifdef DAAL_ENABLE_LEVEL_ZERO
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
             #include <ze_api.h>
         #endif //DAAL_ENABLE_LEVEL_ZERO
 
@@ -134,7 +134,7 @@ private:
     OpenClDeviceRef _clDeviceRef;
 };
 
-        #ifdef DAAL_ENABLE_LEVEL_ZERO
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
 class LevelZeroOpenClInteropContext : public Base
 {
 public:
@@ -213,21 +213,21 @@ class OpenClProgramRef : public OpenClResourceRef<cl_program, OpenClRetainProgra
 {
 public:
     OpenClProgramRef()
-        #ifdef DAAL_ENABLE_LEVEL_ZERO
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
         : _moduleLevelZero(nullptr)
         #endif //DAAL_ENABLE_LEVEL_ZERO
     {}
 
     explicit OpenClProgramRef(cl_context clContext, cl_device_id clDevice, const char * programName, const char * programSrc, const char * options,
                               services::Status * status = nullptr)
-        #ifdef DAAL_ENABLE_LEVEL_ZERO
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
         : _moduleLevelZero(nullptr)
         #endif //DAAL_ENABLE_LEVEL_ZERO
     {
         initOpenClProgramRef(clContext, clDevice, programName, programSrc, options, status);
     }
 
-        #ifdef DAAL_ENABLE_LEVEL_ZERO
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
     explicit OpenClProgramRef(cl_context clContext, cl_device_id clDevice, ze_device_handle_t zeDevice, const char * programName,
                               const char * programSrc, const char * options, services::Status * status = nullptr)
     {
@@ -276,7 +276,7 @@ private:
         DAAL_CHECK_OPENCL(err, status)
     }
 
-        #ifdef DAAL_ENABLE_LEVEL_ZERO
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
     void initModuleLevelZero(ze_device_handle_t & zeDevice, services::Status * status = nullptr)
     {
         size_t binary_size = 0;
@@ -305,7 +305,7 @@ private:
 
 private:
     services::String _programName;
-        #ifdef DAAL_ENABLE_LEVEL_ZERO
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
     // use applicable resource ref for _moduleLevelZero
     ze_module_handle_t _moduleLevelZero;
         #endif //DAAL_ENABLE_LEVEL_ZERO
@@ -324,7 +324,7 @@ public:
     }
 };
 
-        #ifdef DAAL_ENABLE_LEVEL_ZERO
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
 class OpenClKernelLevelZeroRef : public Base
 {
 public:
@@ -382,7 +382,7 @@ private:
     OpenClKernelRef _clKernelRef;
 };
 
-        #ifdef DAAL_ENABLE_LEVEL_ZERO
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
 class OpenClKernelLevelZero : public OpenClKernel
 {
 public:

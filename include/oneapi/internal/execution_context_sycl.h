@@ -58,7 +58,7 @@ public:
         }
         if (!res)
         {
-        #ifdef DAAL_ENABLE_LEVEL_ZERO
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
             if (!_deviceQueue.get_device().template get_info<sycl::info::device::opencl_c_version>().empty())
             {
         #endif //DAAL_ENABLE_LEVEL_ZERO \
@@ -79,7 +79,7 @@ public:
                 }
 
                 _currentProgramRef = programPtr.get();
-        #ifdef DAAL_ENABLE_LEVEL_ZERO
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
             }
             else
             {
@@ -152,7 +152,7 @@ public:
         }
         else
         {
-        #ifdef DAAL_ENABLE_LEVEL_ZERO
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
             if (!_deviceQueue.get_device().template get_info<sycl::info::device::opencl_c_version>().empty())
             {
         #endif //DAAL_ENABLE_LEVEL_ZERO
@@ -170,7 +170,7 @@ public:
                     return KernelPtr();
                 }
                 return kernel;
-        #ifdef DAAL_ENABLE_LEVEL_ZERO
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
             }
             else
             {
@@ -202,7 +202,7 @@ private:
     services::internal::HashTable<KernelIface, SIZE_HASHTABLE_KERNEL> kernelHashTable;
 
     OpenClProgramRef * _currentProgramRef;
-        #ifdef DAAL_ENABLE_LEVEL_ZERO
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
     LevelZeroOpenClInteropContext _levelZeroOpenClInteropContext;
         #endif //DAAL_ENABLE_LEVEL_ZERO
 

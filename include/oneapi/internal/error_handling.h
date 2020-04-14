@@ -21,7 +21,11 @@
 #include <CL/cl.h>
 #include <CL/sycl.hpp>
 
-#ifdef DAAL_ENABLE_LEVEL_ZERO
+#if defined(_WIN32) || defined(_WIN64)
+    #define DAAL_DISABLE_LEVEL_ZERO
+#endif
+
+#ifndef DAAL_DISABLE_LEVEL_ZERO
     #include <ze_api.h>
 #endif //DAAL_ENABLE_LEVEL_ZERO
 
@@ -41,7 +45,7 @@
         }                                                               \
     }
 
-#ifdef DAAL_ENABLE_LEVEL_ZERO
+#ifndef DAAL_DISABLE_LEVEL_ZERO
     #define DAAL_CHECK_LEVEL_ZERO(ze_error, statusPtr, ...)                    \
         {                                                                      \
             if (ze_error != ZE_RESULT_SUCCESS)                                 \
@@ -124,7 +128,7 @@ inline services::ErrorPtr convertOpenClErrorToErrorPtr(cl_int clError)
     return services::Error::create(services::ErrorID::ErrorExecutionContext, services::ErrorDetailID::OpenCL, getOpenClErrorDescription(clError));
 }
 
-#ifdef DAAL_ENABLE_LEVEL_ZERO
+#ifndef DAAL_DISABLE_LEVEL_ZERO
 inline services::String getLevelZeroErrorDescription(ze_result_t zeError)
 {
     #define LEVEL_ZERO_ERROR_CASE(x) \
