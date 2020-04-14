@@ -58,11 +58,11 @@ public:
         }
         if (!res)
         {
-#ifdef DAAL_ENABLE_LEVEL_ZERO
+        #ifdef DAAL_ENABLE_LEVEL_ZERO
             if (!_deviceQueue.get_device().template get_info<sycl::info::device::opencl_c_version>().empty())
             {
-#endif //DAAL_ENABLE_LEVEL_ZERO
-                // OpenCl branch
+        #endif //DAAL_ENABLE_LEVEL_ZERO \
+            // OpenCl branch
                 auto programPtr = services::SharedPtr<OpenClProgramRef>(
                     new OpenClProgramRef(_deviceQueue.get_context().get(), _deviceQueue.get_device().get(), name, program, options, &localStatus));
 
@@ -79,7 +79,7 @@ public:
                 }
 
                 _currentProgramRef = programPtr.get();
-#ifdef DAAL_ENABLE_LEVEL_ZERO
+        #ifdef DAAL_ENABLE_LEVEL_ZERO
             }
             else
             {
@@ -110,7 +110,7 @@ public:
 
                 _currentProgramRef = programPtr.get();
             }
-#endif //DAAL_ENABLE_LEVEL_ZERO
+        #endif //DAAL_ENABLE_LEVEL_ZERO
         }
         else
         {
@@ -152,10 +152,10 @@ public:
         }
         else
         {
-#ifdef DAAL_ENABLE_LEVEL_ZERO
+        #ifdef DAAL_ENABLE_LEVEL_ZERO
             if (!_deviceQueue.get_device().template get_info<sycl::info::device::opencl_c_version>().empty())
             {
-#endif //DAAL_ENABLE_LEVEL_ZERO
+        #endif //DAAL_ENABLE_LEVEL_ZERO
                 auto kernelRef = OpenClKernelRef(_currentProgramRef->get(), kernelName, &localStatus);
                 if (!localStatus.ok())
                 {
@@ -170,7 +170,7 @@ public:
                     return KernelPtr();
                 }
                 return kernel;
-#ifdef DAAL_ENABLE_LEVEL_ZERO
+        #ifdef DAAL_ENABLE_LEVEL_ZERO
             }
             else
             {
@@ -191,7 +191,7 @@ public:
                 }
                 return kernel;
             }
-#endif //DAAL_ENABLE_LEVEL_ZERO
+        #endif //DAAL_ENABLE_LEVEL_ZERO
         }
     }
 
@@ -202,9 +202,9 @@ private:
     services::internal::HashTable<KernelIface, SIZE_HASHTABLE_KERNEL> kernelHashTable;
 
     OpenClProgramRef * _currentProgramRef;
-#ifdef DAAL_ENABLE_LEVEL_ZERO
+        #ifdef DAAL_ENABLE_LEVEL_ZERO
     LevelZeroOpenClInteropContext _levelZeroOpenClInteropContext;
-#endif //DAAL_ENABLE_LEVEL_ZERO
+        #endif //DAAL_ENABLE_LEVEL_ZERO
 
     ExecutionTargetId _executionTarget;
     cl::sycl::queue & _deviceQueue;

@@ -22,37 +22,37 @@
 #include <CL/sycl.hpp>
 
 #ifdef DAAL_ENABLE_LEVEL_ZERO
-#include <ze_api.h>
+    #include <ze_api.h>
 #endif //DAAL_ENABLE_LEVEL_ZERO
 
 #include "services/internal/error_handling_helpers.h"
 #include "services/error_indexes.h"
 #include "services/daal_string.h"
 
-#define DAAL_CHECK_OPENCL(cl_error, statusPtr, ...)                      \
-    {                                                                    \
-        if (cl_error != CL_SUCCESS)                                      \
-        {                                                                \
-            if (statusPtr != nullptr)                                    \
-            {                                                            \
-                 statusPtr->add(convertOpenClErrorToErrorPtr(cl_error)); \
-            }                                                            \
-            return __VA_ARGS__;                                          \
-        }                                                                \
+#define DAAL_CHECK_OPENCL(cl_error, statusPtr, ...)                     \
+    {                                                                   \
+        if (cl_error != CL_SUCCESS)                                     \
+        {                                                               \
+            if (statusPtr != nullptr)                                   \
+            {                                                           \
+                statusPtr->add(convertOpenClErrorToErrorPtr(cl_error)); \
+            }                                                           \
+            return __VA_ARGS__;                                         \
+        }                                                               \
     }
 
 #ifdef DAAL_ENABLE_LEVEL_ZERO
-#define DAAL_CHECK_LEVEL_ZERO(ze_error, statusPtr, ...)                     \
-    {                                                                       \
-        if (ze_error != ZE_RESULT_SUCCESS)                                  \
-        {                                                                   \
-            if (statusPtr != nullptr)                                       \
-            {                                                               \
-                 statusPtr->add(convertLevelZeroErrorToErrorPtr(ze_error)); \
-            }                                                               \
-            return __VA_ARGS__;                                             \
-        }                                                                   \
-    }
+    #define DAAL_CHECK_LEVEL_ZERO(ze_error, statusPtr, ...)                    \
+        {                                                                      \
+            if (ze_error != ZE_RESULT_SUCCESS)                                 \
+            {                                                                  \
+                if (statusPtr != nullptr)                                      \
+                {                                                              \
+                    statusPtr->add(convertLevelZeroErrorToErrorPtr(ze_error)); \
+                }                                                              \
+                return __VA_ARGS__;                                            \
+            }                                                                  \
+        }
 #endif //DAAL_ENABLE_LEVEL_ZERO
 
 namespace daal
@@ -127,8 +127,8 @@ inline services::ErrorPtr convertOpenClErrorToErrorPtr(cl_int clError)
 #ifdef DAAL_ENABLE_LEVEL_ZERO
 inline services::String getLevelZeroErrorDescription(ze_result_t zeError)
 {
-#define LEVEL_ZERO_ERROR_CASE(x) \
-case x: return services::String(#x);
+    #define LEVEL_ZERO_ERROR_CASE(x) \
+    case x: return services::String(#x);
     switch (zeError)
     {
         LEVEL_ZERO_ERROR_CASE(ZE_RESULT_SUCCESS);
@@ -168,7 +168,7 @@ case x: return services::String(#x);
     }
     return services::String("Unknown LevelZero error");
 
-#undef LEVEL_ZERO_ERROR_CASE
+    #undef LEVEL_ZERO_ERROR_CASE
 }
 
 inline services::ErrorPtr convertLevelZeroErrorToErrorPtr(ze_result_t zeError)
