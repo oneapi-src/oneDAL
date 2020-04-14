@@ -161,7 +161,7 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setResultsToModel(cons
         if (alpha[i] > zero) nSV++;
     }
 
-    printf("nSV %lu\n", nSV);
+    printf("nSV %d\n", (int)nSV); /*need delete it for final merge*/
 
     model.setNFeatures(xTable.getNumberOfColumns());
     Status s;

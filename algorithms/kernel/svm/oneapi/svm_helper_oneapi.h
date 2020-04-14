@@ -144,7 +144,7 @@ struct HelperSVM
         context.copy(values, 0, f, 0, n, &status);
         DAAL_CHECK_STATUS(status, makeRange(indecesSort, n));
 
-        DAAL_CHECK_STATUS(status, sort::RadixSort::sortIndeces(values, indecesSort, valuesBuf, indecesBuf, n));
+        DAAL_CHECK_STATUS(status, sort::RadixSort::sortIndices(values, indecesSort, valuesBuf, indecesBuf, n));
 
         return status;
     }

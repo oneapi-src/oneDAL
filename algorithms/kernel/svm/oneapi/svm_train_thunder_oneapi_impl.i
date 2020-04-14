@@ -275,7 +275,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
         diffPrev = diff;
     }
 
-    printf("localInnerIteration %d iter %d\n", (int)innerIteration, (int)iter);
+    printf("localInnerIteration %d iter %d\n", (int)innerIteration, (int)iter); /*need delete it for final merge*/
 
     SaveResultModel<algorithmFPType> result(alphaBuff, gradBuff, yBuff, C, nVectors);
 

@@ -90,9 +90,9 @@ void Reducer::singlepass(ExecutionContextIface & context, ClKernelFactoryIface &
     context.run(range, reduce_kernel, args, status);
 }
 
-void Reducer::run_step_colmajor(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & vectors,
-                                uint32_t nVectors, uint32_t vectorSize, uint32_t numWorkItems, uint32_t numWorkGroups, Reducer::Result & stepResult,
-                                services::Status * status)
+void Reducer::runStepColmajor(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & vectors,
+                              uint32_t nVectors, uint32_t vectorSize, uint32_t numWorkItems, uint32_t numWorkGroups, Reducer::Result & stepResult,
+                              services::Status * status)
 {
     auto reduce_kernel = kernelFactory.getKernel("reduce_step_colmajor");
 
@@ -115,9 +115,9 @@ void Reducer::run_step_colmajor(ExecutionContextIface & context, ClKernelFactory
     context.run(range, reduce_kernel, args, status);
 }
 
-void Reducer::run_final_step_rowmajor(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, Reducer::Result & stepResult,
-                                      uint32_t nVectors, uint32_t vectorSize, uint32_t workItemsPerGroup, Reducer::Result & result,
-                                      services::Status * status)
+void Reducer::runFinalStepRowmajor(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, Reducer::Result & stepResult,
+                                   uint32_t nVectors, uint32_t vectorSize, uint32_t workItemsPerGroup, Reducer::Result & result,
+                                   services::Status * status)
 {
     auto reduce_kernel = kernelFactory.getKernel("reduce_final_step_rowmajor");
 
@@ -184,15 +184,15 @@ Reducer::Result Reducer::reduce(const BinaryOp op, Layout vectorsLayout, const U
             Result stepResult(context, numDivisionsByRow * nVectors, vectors.type(), status);
             DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, stepResult);
 
-            run_step_colmajor(context, kernelFactory, vectors, nVectors, vectorSize, workItemsPerGroup, numDivisionsByCol * numDivisionsByRow,
-                              stepResult, status);
+            runStepColmajor(context, kernelFactory, vectors, nVectors, vectorSize, workItemsPerGroup, numDivisionsByCol * numDivisionsByRow,
+                            stepResult, status);
 
             const uint32_t stepWorkItems = maxNumSubSlices / 2; //need to be power of two
-            run_final_step_rowmajor(context, kernelFactory, stepResult, nVectors, numDivisionsByRow, stepWorkItems, result, status);
+            runFinalStepRowmajor(context, kernelFactory, stepResult, nVectors, numDivisionsByRow, stepWorkItems, result, status);
         }
         else
         {
-            run_step_colmajor(context, kernelFactory, vectors, nVectors, vectorSize, workItemsPerGroup, numDivisionsByCol, result, status);
+            runStepColmajor(context, kernelFactory, vectors, nVectors, vectorSize, workItemsPerGroup, numDivisionsByCol, result, status);
         }
     }
 

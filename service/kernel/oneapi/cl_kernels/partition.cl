@@ -63,7 +63,7 @@ DECLARE_SOURCE(
         }
     }
 
-    __kernel void scanIndex(const __global int * mask, const __global int * data, __global int * partialSums, int nElems) {
+    __kernel void scanIndex(const __global int * mask, const __global int * indices, __global int * partialSums, int nElems) {
         const int n_groups             = get_num_groups(0);
         const int n_sub_groups         = get_num_sub_groups();
         const int n_total_sub_groups   = n_sub_groups * n_groups;
@@ -87,7 +87,7 @@ DECLARE_SOURCE(
 
         for (int i = iStart + local_id; i < iEnd; i += local_size)
         {
-            const int value = mask[data[i]];
+            const int value = mask[indices[i]];
             sum += sub_group_reduce_add(value);
         }
 
@@ -142,23 +142,21 @@ DECLARE_SOURCE(
         }
 
         int groupOffset = partialPrefixSums[group_id];
-        int sum         = 0;
+        int totalOffset = nElems - partialPrefixSums[n_total_sub_groups];
+
+        int sum = 0;
 
         for (int i = iStart + local_id; i < iEnd; i += local_size)
         {
-            int part     = mask[i];
-            int boundary = groupOffset + sum + sub_group_scan_exclusive_add(part);
-            if (part)
-            {
-                const int pos_new = boundary;
-                outData[pos_new]  = data[i];
-            }
+            const int part     = mask[i];
+            const int boundary = groupOffset + sum + sub_group_scan_exclusive_add(part);
+            if (part) outData[boundary] = data[i];
             sum += sub_group_reduce_add(part);
         }
     }
 
-    __kernel void reorderIndex(const __global int * mask, const __global int * data, __global int * outData, const __global int * partialPrefixSums,
-                               int nElems) {
+    __kernel void reorderIndex(const __global int * mask, const __global int * indices, __global int * outData,
+                               const __global int * partialPrefixSums, int nElems) {
         const int n_groups             = get_num_groups(0);
         const int n_sub_groups         = get_num_sub_groups();
         const int n_total_sub_groups   = n_sub_groups * n_groups;
@@ -178,17 +176,16 @@ DECLARE_SOURCE(
         }
 
         int groupOffset = partialPrefixSums[group_id];
-        int sum         = 0;
+        int totalOffset = nElems - partialPrefixSums[n_total_sub_groups];
+
+        int sum = 0;
 
         for (int i = iStart + local_id; i < iEnd; i += local_size)
         {
-            int part     = mask[data[i]];
-            int boundary = groupOffset + sum + sub_group_scan_exclusive_add(part);
-            if (part)
-            {
-                const int pos_new = boundary;
-                outData[pos_new]  = data[i];
-            }
+            const int indexi   = indices[i];
+            const int part     = mask[indexi];
+            const int boundary = groupOffset + sum + sub_group_scan_exclusive_add(part);
+            if (part) outData[boundary] = indexi;
             sum += sub_group_reduce_add(part);
         }
     }

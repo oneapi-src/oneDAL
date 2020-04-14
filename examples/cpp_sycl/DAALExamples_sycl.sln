@@ -393,8 +393,6 @@ Global
 		{96F48644-2CDD-4C0D-954C-3621972ABF9F}.Release.static.sequential|x64.Build.0 = Release.static.sequential|x64
 		{96F48644-2CDD-4C0D-954C-3621972ABF9F}.Release.static.threaded|x64.ActiveCfg = Release.static.threaded|x64
 		{96F48644-2CDD-4C0D-954C-3621972ABF9F}.Release.static.threaded|x64.Build.0 = Release.static.threaded|x64
-
-
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -54,9 +54,9 @@ void buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId & vectorTyp
     kernelFactory.build(ExecutionTargetIds::device, cachekey.c_str(), radix_sort_simd, build_options.c_str());
 }
 
-void run_radix_sort_simd(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & input,
-                         const UniversalBuffer & output, const UniversalBuffer & buffer, uint32_t nVectors, uint32_t vectorSize,
-                         uint32_t vectorOffset, services::Status * status)
+void runRadixSortSimd(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & input,
+                      const UniversalBuffer & output, const UniversalBuffer & buffer, uint32_t nVectors, uint32_t vectorSize, uint32_t vectorOffset,
+                      services::Status * status)
 {
     auto sum_kernel = kernelFactory.getKernel("radix_sort_group");
 
@@ -90,13 +90,13 @@ void RadixSort::sort(const UniversalBuffer & input, const UniversalBuffer & outp
 
     buildProgram(kernelFactory, input.type());
 
-    run_radix_sort_simd(context, kernelFactory, input, output, buffer, nVectors, vectorSize, vectorOffset, status);
+    runRadixSortSimd(context, kernelFactory, input, output, buffer, nVectors, vectorSize, vectorOffset, status);
 }
 
-services::Status RadixSort::sortIndeces(UniversalBuffer & values, UniversalBuffer & indices, UniversalBuffer & valuesOut,
+services::Status RadixSort::sortIndices(UniversalBuffer & values, UniversalBuffer & indices, UniversalBuffer & valuesOut,
                                         UniversalBuffer & indicesOut, int nRows)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(RadixSort.sortIndeces);
+    DAAL_ITTNOTIFY_SCOPED_TASK(RadixSort.sortIndices);
     services::Status status;
 
     auto & context       = oneapi::internal::getDefaultContext();

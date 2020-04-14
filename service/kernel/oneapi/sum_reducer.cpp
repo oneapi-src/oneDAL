@@ -68,8 +68,8 @@ void sum_singlepass(ExecutionContextIface & context, ClKernelFactoryIface & kern
     context.run(range, sum_kernel, args, status);
 }
 
-void run_step_colmajor(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & vectors, uint32_t nVectors,
-                       uint32_t vectorSize, uint32_t numWorkItems, uint32_t numWorkGroups, SumReducer::Result & stepResult, services::Status * status)
+void runStepColmajor(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & vectors, uint32_t nVectors,
+                     uint32_t vectorSize, uint32_t numWorkItems, uint32_t numWorkGroups, SumReducer::Result & stepResult, services::Status * status)
 {
     auto sum_kernel = kernelFactory.getKernel("sum_step_colmajor");
 
@@ -93,9 +93,8 @@ void run_step_colmajor(ExecutionContextIface & context, ClKernelFactoryIface & k
     context.run(range, sum_kernel, args, status);
 }
 
-void run_final_step_rowmajor(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, SumReducer::Result & stepResult,
-                             uint32_t nVectors, uint32_t vectorSize, uint32_t workItemsPerGroup, SumReducer::Result & result,
-                             services::Status * status)
+void runFinalStepRowmajor(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, SumReducer::Result & stepResult, uint32_t nVectors,
+                          uint32_t vectorSize, uint32_t workItemsPerGroup, SumReducer::Result & result, services::Status * status)
 {
     auto sum_kernel = kernelFactory.getKernel("sum_final_step_rowmajor");
 
@@ -157,15 +156,15 @@ SumReducer::Result SumReducer::sum(Layout vectorsLayout, const UniversalBuffer &
             Result stepResult(context, numDivisionsByRow * nVectors, vectors.type(), status);
             DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, result);
 
-            run_step_colmajor(context, kernelFactory, vectors, nVectors, vectorSize, workItemsPerGroup, numDivisionsByCol * numDivisionsByRow,
-                              stepResult, status);
+            runStepColmajor(context, kernelFactory, vectors, nVectors, vectorSize, workItemsPerGroup, numDivisionsByCol * numDivisionsByRow,
+                            stepResult, status);
 
             const uint32_t stepWorkItems = maxNumSubSlices / 2; //need to be power of two
-            run_final_step_rowmajor(context, kernelFactory, stepResult, nVectors, numDivisionsByRow, stepWorkItems, result, status);
+            runFinalStepRowmajor(context, kernelFactory, stepResult, nVectors, numDivisionsByRow, stepWorkItems, result, status);
         }
         else
         {
-            run_step_colmajor(context, kernelFactory, vectors, nVectors, vectorSize, workItemsPerGroup, numDivisionsByCol, result, status);
+            runStepColmajor(context, kernelFactory, vectors, nVectors, vectorSize, workItemsPerGroup, numDivisionsByCol, result, status);
         }
     }
 
