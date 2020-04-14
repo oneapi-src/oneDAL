@@ -152,6 +152,27 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
         const size_t blockNum1 = nVectors1 / blockSize + !!(nVectors1 % blockSize);
         const size_t blockNum2 = nVectors2 / blockSize + !!(nVectors2 % blockSize);
 
+        daal::threader_for(blockNum1, blockNum1, [&](const size_t iBlock) {
+            const size_t numRowsInBlock = (iBlock != blockNum1 - 1) ? blockSize : nVectors1 - iBlock * blockSize;
+            const size_t startRow       = iBlock * blockSize;
+            const size_t finishRow      = startRow + numRowsInBlock;
+
+            ReadRows<algorithmFPType, cpu> mtA1(*const_cast<NumericTable *>(a1), startRow, numRowsInBlock);
+            DAAL_CHECK_BLOCK_STATUS_THR(mtA1);
+            const algorithmFPType * dataA1 = const_cast<algorithmFPType *>(mtA1.get());
+
+            for (size_t i = startRow, ii = 0; i < finishRow; ++i, ++ii)
+            {
+                sqrDataA1[i] = zero;
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for (size_t j = 0; j < nFeatures; ++j)
+                {
+                    sqrDataA1[i] += dataA1[ii * nFeatures + j] * dataA1[ii * nFeatures + j];
+                }
+            }
+        });
+
         daal::threader_for(blockNum2, blockNum2, [&](const size_t iBlock) {
             const size_t numRowsInBlock = (iBlock != blockNum2 - 1) ? blockSize : nVectors2 - iBlock * blockSize;
             const size_t startRow       = iBlock * blockSize;
@@ -161,14 +182,14 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
             DAAL_CHECK_BLOCK_STATUS_THR(mtA2);
             const algorithmFPType * dataA2 = const_cast<algorithmFPType *>(mtA2.get());
 
-            for (size_t i = startRow; i < finishRow; i++)
+            for (size_t i = startRow, ii = 0; i < finishRow; ++i, ++ii)
             {
                 sqrDataA2[i] = zero;
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t j = 0; j < nFeatures; j++)
+                for (size_t j = 0; j < nFeatures; ++j)
                 {
-                    sqrDataA2[i] += dataA2[(i - startRow) * nFeatures + j] * dataA2[(i - startRow) * nFeatures + j];
+                    sqrDataA2[i] += dataA2[ii * nFeatures + j] * dataA2[ii * nFeatures + j];
                 }
             }
         });
@@ -186,20 +207,10 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
             DAAL_CHECK_BLOCK_STATUS_THR(mtR);
             algorithmFPType * dataR = mtR.get();
 
-            for (size_t i = startRow1; i < finishRow1; i++)
-            {
-                sqrDataA1[i] = zero;
-                PRAGMA_IVDEP
-                PRAGMA_VECTOR_ALWAYS
-                for (size_t j = 0; j < nFeatures; j++)
-                {
-                    sqrDataA1[i] += dataA1[(i - startRow1) * nFeatures + j] * dataA1[(i - startRow1) * nFeatures + j];
-                }
-            }
-
             daal::threader_for(blockNum2, blockNum2, [&](const size_t iBlock2) {
                 DAAL_INT numRowsInBlock2 = (iBlock2 != blockNum2 - 1) ? blockSize : nVectors2 - iBlock2 * blockSize;
                 DAAL_INT startRow2       = iBlock2 * blockSize;
+                DAAL_INT finishRow2      = startRow2 + numRowsInBlock2;
 
                 ReadRows<algorithmFPType, cpu> mtA2(*const_cast<NumericTable *>(a2), startRow2, numRowsInBlock2);
                 DAAL_CHECK_BLOCK_STATUS_THR(mtA2);
@@ -209,33 +220,23 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
                                                    (DAAL_INT *)&nFeatures, dataA1, (DAAL_INT *)&nFeatures, &zero, dataR + iBlock2 * blockSize,
                                                    (DAAL_INT *)&nVectors2);
             });
-        });
 
-        daal::threader_for(blockNum1, blockNum1, [&](const size_t iBlock) {
-            const size_t numRowsInBlock = (iBlock != blockNum1 - 1) ? blockSize : nVectors1 - iBlock * blockSize;
-            const size_t startRow       = iBlock * blockSize;
-            const size_t finishRow      = startRow + numRowsInBlock;
-
-            WriteRows<algorithmFPType, cpu> mtR(r, startRow, numRowsInBlock);
-            DAAL_CHECK_BLOCK_STATUS_THR(mtR);
-            algorithmFPType * dataRLocal = mtR.get();
-
-            for (size_t i = startRow; i < finishRow; ++i)
+            for (size_t i = startRow1, ii = 0; i < finishRow1; ++i, ++ii)
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
                 for (size_t k = 0; k < nVectors2; ++k)
                 {
-                    dataRLocal[(i - startRow) * nVectors2 + k] += (sqrDataA1[i] + sqrDataA2[k]);
-                    dataRLocal[(i - startRow) * nVectors2 + k] *= coeff;
-                    if (dataRLocal[(i - startRow) * nVectors2 + k] < Math<algorithmFPType, cpu>::vExpThreshold())
+                    dataR[ii * nVectors2 + k] += (sqrDataA1[i] + sqrDataA2[k]);
+                    dataR[ii * nVectors2 + k] *= coeff;
+                    if (dataR[ii * nVectors2 + k] < Math<algorithmFPType, cpu>::vExpThreshold())
                     {
-                        dataRLocal[(i - startRow) * nVectors2 + k] = Math<algorithmFPType, cpu>::vExpThreshold();
+                        dataR[ii * nVectors2 + k] = Math<algorithmFPType, cpu>::vExpThreshold();
                     }
                 }
             }
 
-            daal::internal::Math<algorithmFPType, cpu>::vExp(numRowsInBlock * nVectors2, dataRLocal, dataRLocal);
+            daal::internal::Math<algorithmFPType, cpu>::vExp(numRowsInBlock1 * nVectors2, dataR, dataR);
         });
     }
     else
@@ -279,48 +280,31 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
 
         const size_t blockNum = nVectors1 / blockSize + !!(nVectors1 % blockSize);
 
+        TArray<algorithmFPType, cpu> diagonal(nVectors1);
+        for (size_t i = 0; i < nVectors1; ++i) diagonal[i] = dataR[i * nVectors1 + i];
+
         daal::threader_for(blockNum, blockNum, [&](const size_t iBlock) {
             const size_t numRowsInBlock = (iBlock != blockNum - 1) ? blockSize : nVectors1 - iBlock * blockSize;
             const size_t startRow       = iBlock * blockSize;
             const size_t finishRow      = startRow + numRowsInBlock;
 
-            for (size_t i = startRow; i < finishRow; i++)
+            for (size_t i = startRow; i < finishRow; ++i)
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t k = 0; k < i; k++)
+                for (size_t k = 0; k < i; ++k)
                 {
-                    dataR[i * nVectors1 + k] = coeff * (dataR[i * nVectors1 + i] + dataR[k * nVectors1 + k] - two * dataR[i * nVectors1 + k]);
+                    dataR[i * nVectors1 + k] = coeff * (diagonal[i] + diagonal[k] - two * dataR[i * nVectors1 + k]);
                 }
-            }
-        });
 
-        daal::threader_for(blockNum, blockNum, [&](const size_t iBlock) {
-            const size_t numRowsInBlock = (iBlock != blockNum - 1) ? blockSize : nVectors1 - iBlock * blockSize;
-            const size_t startRow       = iBlock * blockSize;
-            const size_t finishRow      = startRow + numRowsInBlock;
-
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
-            for (size_t i = startRow; i < finishRow; i++)
-            {
                 dataR[i * nVectors1 + i] = zero;
                 daal::internal::Math<algorithmFPType, cpu>::vExp(i + 1, dataR + i * nVectors1, dataR + i * nVectors1);
-            }
-        });
 
-        daal::threader_for(blockNum, blockNum, [&](const size_t iBlock) {
-            const size_t numRowsInBlock = (iBlock != blockNum - 1) ? blockSize : nVectors1 - iBlock * blockSize;
-            const size_t startRow       = iBlock * blockSize;
-            const size_t finishRow      = startRow + numRowsInBlock;
-
-            for (size_t i = startRow; i < finishRow; i++)
-            {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t k = i + 1; k < nVectors1; k++)
+                for (size_t k = 0; k < i; ++k)
                 {
-                    dataR[i * nVectors1 + k] = dataR[k * nVectors1 + i];
+                    dataR[k * nVectors1 + i] = dataR[i * nVectors1 + k];
                 }
             }
         });
