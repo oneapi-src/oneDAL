@@ -286,7 +286,7 @@ public:
 
 private:
     services::String _programName;
-    // use applicable resource ref for _moduleLevelZero 
+    // use applicable resource ref for _moduleLevelZero
     ze_module_handle_t _moduleLevelZero;
 };
 
