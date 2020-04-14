@@ -111,7 +111,7 @@ DAAL_DECLARE_OPENCL_OPERATOR(cl_device_id, ReleaseDevice);
 
         #undef DAAL_DECLARE_OPENCL_OPERATOR
 
-typedef OpenClResourceRef<cl_device_id, OpenClRetainDevice, OpenClReleaseDevice> OpenClDeviceRef; 
+typedef OpenClResourceRef<cl_device_id, OpenClRetainDevice, OpenClReleaseDevice> OpenClDeviceRef;
 
 class OpenClContextRef : public OpenClResourceRef<cl_context, OpenClRetainContext, OpenClReleaseContext>
 {
@@ -129,10 +129,10 @@ public:
     OpenClDeviceRef getDeviceRef() { return _clDeviceRef; }
 
 private:
-    OpenClDeviceRef _clDeviceRef;    
+    OpenClDeviceRef _clDeviceRef;
 };
 
-class LevelZeroOpenClInteropContext 
+class LevelZeroOpenClInteropContext
 {
 public:
     LevelZeroOpenClInteropContext() = default;
@@ -185,10 +185,10 @@ public:
                 if (ndev > 0)
                 {
                     cl_uint dVid = 0;
-                    clGetDeviceInfo(*pClDevice, CL_DEVICE_VENDOR_ID, sizeof(cl_uint), &dVid, NULL); 
+                    clGetDeviceInfo(*pClDevice, CL_DEVICE_VENDOR_ID, sizeof(cl_uint), &dVid, NULL);
 
                     cl_uint dFrq = 0;
-                    clGetDeviceInfo(*pClDevice, CL_DEVICE_MAX_CLOCK_FREQUENCY, sizeof(cl_uint), &dFrq, NULL); 
+                    clGetDeviceInfo(*pClDevice, CL_DEVICE_MAX_CLOCK_FREQUENCY, sizeof(cl_uint), &dFrq, NULL);
 
                     if (dVid == vendor_id && dFrq == frq)
                         return;
@@ -201,7 +201,7 @@ public:
 
     OpenClDeviceRef getOpenClDeviceRef() { return _clDeviceRef; }
     OpenClContextRef getOpenClContextRef() { return _clContextRef; }
-    ze_device_handle_t getLevelZeroDevice() { return _levelZeroDevice; } 
+    ze_device_handle_t getLevelZeroDevice() { return _levelZeroDevice; }
 
 private:
     OpenClContextRef _clContextRef;
@@ -214,14 +214,14 @@ class OpenClProgramRef : public OpenClResourceRef<cl_program, OpenClRetainProgra
 public:
     OpenClProgramRef() = default;
     // add module destroy
-    //~OpenClProgramRef() {if(_moduleLevel0 != nullptr) {zeModuleDestroy(_moduleLevel0);}}
+    //~OpenClProgramRef() {if(_moduleLevelZero != nullptr) {zeModuleDestroy(_moduleLevelZero);}}
 
     explicit OpenClProgramRef(cl_context clContext,
                               cl_device_id clDevice,
                               const char *programName,
                               const char *programSrc,
                               const char *options,
-                              services::Status *status = nullptr) : _moduleLevel0(nullptr)
+                              services::Status *status = nullptr) : _moduleLevelZero(nullptr)
     {
         initOpenClProgramRef(clContext, clDevice, programName, programSrc, options, status);
     }
@@ -295,16 +295,16 @@ public:
         desc.pBuildFlags = "";
         desc.pConstants = nullptr;
 
-        zeModuleCreate(zeDevice, &desc, &_moduleLevel0, nullptr);
+        zeModuleCreate(zeDevice, &desc, &_moduleLevelZero, nullptr);
     }
 
     const char * getName() const { return _progamName.c_str(); }
 
-    ze_module_handle_t getModuleL0() const { return _moduleLevel0; } 
+    ze_module_handle_t getModuleL0() const { return _moduleLevelZero; }
 
 private:
     services::String _progamName;
-    ze_module_handle_t _moduleLevel0;
+    ze_module_handle_t _moduleLevelZero;
 };
 
 class OpenClKernelRef : public OpenClResourceRef<cl_kernel, OpenClRetainKernel, OpenClReleaseKernel>
@@ -320,7 +320,7 @@ public:
     }
 };
 
-class OpenClKernelLevel0Ref 
+class OpenClKernelLevel0Ref
 {
 public:
     OpenClKernelLevel0Ref() = default;
@@ -358,7 +358,7 @@ public:
 
     ExecutionTargetId getTarget() const { return _executionTarget; }
 
-    virtual cl::sycl::kernel toSycl(const cl::sycl::context & _ctx) const {} 
+    virtual cl::sycl::kernel toSycl(const cl::sycl::context & _ctx) const {}
 
 protected:
     OpenClProgramRef _clProgramRef;
@@ -396,8 +396,8 @@ public:
         OpenClKernel(executionTarget, programRef),
         _clKernelRef(kernelRef) {}
 
-    cl::sycl::kernel toSycl(const cl::sycl::context & _ctx) const 
-    { 
+    cl::sycl::kernel toSycl(const cl::sycl::context & _ctx) const
+    {
         cl::sycl::program prg{_ctx, (cl_program) _clProgramRef.getModuleL0()};
         return prg.get_kernel(_clKernelRef.getName());
     }

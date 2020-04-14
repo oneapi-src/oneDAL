@@ -59,7 +59,7 @@ public:
         }
         if (!res)
         {
-            if (!_deviceQueue.get_device().template get_info<sycl::info::device::opencl_c_version>().empty()) 
+            if (!_deviceQueue.get_device().template get_info<sycl::info::device::opencl_c_version>().empty())
             {
                 // OpenCl branch
                 auto programPtr = services::SharedPtr<OpenClProgramRef>(
@@ -92,7 +92,8 @@ public:
                 }
 
                 auto programPtr = services::SharedPtr<OpenClProgramRef>(
-                    new OpenClProgramRef(_levelZeroOpenClInteropContext.getOpenClContextRef().get(), _levelZeroOpenClInteropContext.getOpenClDeviceRef().get(), 
+                    new OpenClProgramRef(_levelZeroOpenClInteropContext.getOpenClContextRef().get(),
+                                         _levelZeroOpenClInteropContext.getOpenClDeviceRef().get(),
                                          (ze_device_handle_t)_deviceQueue.get_device().get(), name, program, options, &localStatus));
                 if (!localStatus.ok())
                 {
@@ -149,7 +150,7 @@ public:
         }
         else
         {
-            if (!_deviceQueue.get_device().template get_info<sycl::info::device::opencl_c_version>().empty()) 
+            if (!_deviceQueue.get_device().template get_info<sycl::info::device::opencl_c_version>().empty())
             {
                 auto kernelRef = OpenClKernelRef(_currentProgramRef->get(), kernelName, &localStatus);
                 if (!localStatus.ok())
