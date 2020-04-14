@@ -95,9 +95,7 @@ else
 endif
 
 DAAL_LIB := -L$(DAAL_PATH),$(DAAL_LIB_EXT),-ldaal_core,-Bdynamic -Wl,$(DAAL_LIB_T)
-#LEVEL0_LIB := libze_intel_gpu.so.0.8 $l0_lib/libze_loader.so 
-LEVEL0_LIB := -L$(DRIVER_PATH) -lze_loader 
-#LEVEL0_LIB := -lze_intel_gpu -lze_loader 
+LEVEL0_LIB := -lze_loader 
 
 COPTS := -Wall -w -I./source/utils
 
