@@ -41,8 +41,7 @@ DECLARE_SOURCE_DAAL(
 
     void reduceMax(const __local algorithmFPType * values, __local int * indices) {
         const int local_id = get_local_id(0);
-
-        indices[local_id] = local_id;
+        indices[local_id]  = local_id;
 
         for (int stride = WS_SIZE / 2; stride > 0; stride >>= 1)
         {
@@ -62,8 +61,7 @@ DECLARE_SOURCE_DAAL(
 
     void reduceMin(const __local algorithmFPType * values, __local int * indices) {
         const int local_id = get_local_id(0);
-
-        indices[local_id] = local_id;
+        indices[local_id]  = local_id;
 
         for (int stride = WS_SIZE / 2; stride > 0; stride >>= 1)
         {

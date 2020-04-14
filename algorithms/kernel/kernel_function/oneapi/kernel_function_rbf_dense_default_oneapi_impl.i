@@ -94,22 +94,22 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeRBF(
 }
 
 template <typename algorithmFPType>
-services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInternalVectorVector(NumericTable & a1, NumericTable & a2,
-                                                                                                 NumericTable & r, const ParameterBase * par)
+services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInternalVectorVector(NumericTable * a1, NumericTable * a2,
+                                                                                                 NumericTable * r, const ParameterBase * par)
 {
     return services::ErrorMethodNotImplemented;
 }
 
 template <typename algorithmFPType>
-services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInternalMatrixVector(NumericTable & a1, NumericTable & a2,
-                                                                                                 NumericTable & r, const ParameterBase * par)
+services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInternalMatrixVector(NumericTable * a1, NumericTable * a2,
+                                                                                                 NumericTable * r, const ParameterBase * par)
 {
     return services::ErrorMethodNotImplemented;
 }
 
 template <typename algorithmFPType>
-services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInternalMatrixMatrix(NumericTable & a1, NumericTable & a2,
-                                                                                                 NumericTable & r, const ParameterBase * par)
+services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInternalMatrixMatrix(NumericTable * a1, NumericTable * a2,
+                                                                                                 NumericTable * r, const ParameterBase * par)
 {
     //prepareData
     services::Status status;
@@ -117,12 +117,11 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInte
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();
 
-    const size_t nVectors1 = a1.getNumberOfRows();
-    const size_t nVectors2 = a2.getNumberOfRows();
+    const size_t nVectors1 = a1->getNumberOfRows();
+    const size_t nVectors2 = a2->getNumberOfRows();
 
-    const size_t nFeatures1 = a1.getNumberOfColumns();
-    const size_t nFeatures2 = a2.getNumberOfColumns();
-    DAAL_ASSERT(nFeatures1 == nFeatures2);
+    const size_t nFeatures1 = a1->getNumberOfColumns();
+    const size_t nFeatures2 = a2->getNumberOfColumns();
 
     const Parameter * rbfPar    = static_cast<const Parameter *>(par);
     const algorithmFPType coeff = algorithmFPType(-0.5 / (rbfPar->sigma * rbfPar->sigma));
@@ -132,10 +131,10 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInte
     BlockDescriptor<algorithmFPType> rBD;
 
     const size_t startRows = 0;
-    DAAL_CHECK_STATUS(status, a1.getBlockOfRows(startRows, nVectors1, ReadWriteMode::readOnly, a1BD));
-    DAAL_CHECK_STATUS(status, a2.getBlockOfRows(startRows, nVectors2, ReadWriteMode::readOnly, a2BD));
+    DAAL_CHECK_STATUS(status, a1->getBlockOfRows(startRows, nVectors1, ReadWriteMode::readOnly, a1BD));
+    DAAL_CHECK_STATUS(status, a2->getBlockOfRows(startRows, nVectors2, ReadWriteMode::readOnly, a2BD));
 
-    DAAL_CHECK_STATUS(status, r.getBlockOfRows(startRows, nVectors1, ReadWriteMode::readWrite, rBD));
+    DAAL_CHECK_STATUS(status, r->getBlockOfRows(startRows, nVectors1, ReadWriteMode::readWrite, rBD));
 
     const services::Buffer<algorithmFPType> a1Buf = a1BD.getBuffer();
     const services::Buffer<algorithmFPType> a2Buf = a2BD.getBuffer();
@@ -152,7 +151,9 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInte
         DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.sumOfSquared);
 
         Reducer::reduce(Reducer::BinaryOp::SUMS_OF_SQUARED, Layout::RowMajor, a1Buf, sqrA1U, nVectors1, nFeatures1, &status);
+        DAAL_CHECK_STATUS_VAR(status);
         Reducer::reduce(Reducer::BinaryOp::SUMS_OF_SQUARED, Layout::RowMajor, a2Buf, sqrA2U, nVectors2, nFeatures2, &status);
+        DAAL_CHECK_STATUS_VAR(status);
     }
 
     {
@@ -167,9 +168,9 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInte
 
     DAAL_CHECK_STATUS(status, computeRBF(sqrA1Buff, sqrA2Buff, nVectors2, coeff, rBuf, nVectors1, nVectors2));
 
-    DAAL_CHECK_STATUS(status, a1.releaseBlockOfRows(a1BD));
-    DAAL_CHECK_STATUS(status, a2.releaseBlockOfRows(a2BD));
-    DAAL_CHECK_STATUS(status, r.releaseBlockOfRows(rBD));
+    DAAL_CHECK_STATUS(status, a1->releaseBlockOfRows(a1BD));
+    DAAL_CHECK_STATUS(status, a2->releaseBlockOfRows(a2BD));
+    DAAL_CHECK_STATUS(status, r->releaseBlockOfRows(rBD));
 
     return status;
 }

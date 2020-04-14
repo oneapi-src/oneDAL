@@ -43,7 +43,7 @@ template <typename algorithmFPType>
 class KernelImplLinearOneAPI<defaultDense, algorithmFPType> : public Kernel
 {
 public:
-    services::Status compute(ComputationMode computationMode, NumericTable & a1, NumericTable & a2, NumericTable & r,
+    services::Status compute(ComputationMode computationMode, NumericTable * a1, NumericTable * a2, NumericTable * r,
                              const daal::algorithms::Parameter * par)
     {
         const ParameterBase * svmPar = static_cast<const ParameterBase *>(par);
@@ -60,9 +60,9 @@ public:
     }
 
 protected:
-    services::Status computeInternalVectorVector(NumericTable & a1, NumericTable & a2, NumericTable & r, const ParameterBase * par);
-    services::Status computeInternalMatrixVector(NumericTable & a1, NumericTable & a2, NumericTable & r, const ParameterBase * par);
-    services::Status computeInternalMatrixMatrix(NumericTable & a1, NumericTable & a2, NumericTable & r, const ParameterBase * par);
+    services::Status computeInternalVectorVector(NumericTable * a1, NumericTable * a2, NumericTable * r, const ParameterBase * par);
+    services::Status computeInternalMatrixVector(NumericTable * a1, NumericTable * a2, NumericTable * r, const ParameterBase * par);
+    services::Status computeInternalMatrixMatrix(NumericTable * a1, NumericTable * a2, NumericTable * r, const ParameterBase * par);
 };
 
 } // namespace internal

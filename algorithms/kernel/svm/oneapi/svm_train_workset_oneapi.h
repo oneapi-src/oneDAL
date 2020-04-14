@@ -107,7 +107,7 @@ struct TaskWorkingSet
             /* Reset indicator for busy indeces */
             if (_nSelected > 0)
             {
-                DAAL_CHECK_STATUS(status, resetIndicator(wsIndicesBuff, indicatorBuff, _nSelected));
+                DAAL_CHECK_STATUS(status, resetIndicatorWithZeros(wsIndicesBuff, indicatorBuff, _nSelected));
             }
 
             size_t nUpperSelect = 0;
@@ -127,7 +127,7 @@ struct TaskWorkingSet
             /* Reset indicator for busy indeces */
             if (_nSelected > 0)
             {
-                DAAL_CHECK_STATUS(status, resetIndicator(wsIndicesBuff, indicatorBuff, _nSelected));
+                DAAL_CHECK_STATUS(status, resetIndicatorWithZeros(wsIndicesBuff, indicatorBuff, _nSelected));
             }
 
             size_t nLowerSelect = 0;
@@ -149,7 +149,7 @@ struct TaskWorkingSet
             /* Reset indicator for busy indeces */
             if (_nSelected > 0)
             {
-                DAAL_CHECK_STATUS(status, resetIndicator(wsIndicesBuff, indicatorBuff, _nSelected));
+                DAAL_CHECK_STATUS(status, resetIndicatorWithZeros(wsIndicesBuff, indicatorBuff, _nSelected));
             }
 
             size_t nUpperSelect = 0;
@@ -169,9 +169,9 @@ struct TaskWorkingSet
 
     const services::Buffer<int> & getWSIndeces() const { return _wsIndices.get<int>(); }
 
-    services::Status resetIndicator(const services::Buffer<int> & idx, services::Buffer<int> & indicator, const size_t n)
+    services::Status resetIndicatorWithZeros(const services::Buffer<int> & idx, services::Buffer<int> & indicator, const size_t n)
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(resetIndicator);
+        DAAL_ITTNOTIFY_SCOPED_TASK(resetIndicatorWithZeros);
 
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
         auto & factory = context.getClKernelFactory();
@@ -179,7 +179,7 @@ struct TaskWorkingSet
         services::Status status = Helper::buildProgram(factory);
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto kernel = factory.getKernel("resetIndicator");
+        auto kernel = factory.getKernel("resetIndicatorWithZeros");
 
         KernelArguments args(2);
         args.set(0, idx, AccessModeIds::read);

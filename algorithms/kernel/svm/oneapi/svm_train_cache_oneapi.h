@@ -142,7 +142,7 @@ public:
             DAAL_CHECK_STATUS(status, initSubKernel(blockSize, xTable));
         }
 
-        DAAL_CHECK_STATUS(status, Helper::copyBlockIndices(xBuff, wsIndicesReal, _xBlockBuff, blockSize, p));
+        DAAL_CHECK_STATUS(status, Helper::copyBlockByIndices(xBuff, wsIndicesReal, _xBlockBuff, blockSize, p));
         DAAL_CHECK_STATUS(status, xTable->releaseBlockOfRows(xBlock));
 
         DAAL_CHECK_STATUS(status, _kernel->computeNoThrow());

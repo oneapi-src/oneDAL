@@ -46,34 +46,33 @@ namespace internal
 using namespace daal::oneapi::internal;
 
 template <typename algorithmFPType>
-services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeInternalVectorVector(NumericTable & a1, NumericTable & a2,
-                                                                                                    NumericTable & r, const ParameterBase * par)
+services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeInternalVectorVector(NumericTable * a1, NumericTable * a2,
+                                                                                                    NumericTable * r, const ParameterBase * par)
 {
     return services::ErrorMethodNotImplemented;
 }
 
 template <typename algorithmFPType>
-services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeInternalMatrixVector(NumericTable & a1, NumericTable & a2,
-                                                                                                    NumericTable & r, const ParameterBase * par)
+services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeInternalMatrixVector(NumericTable * a1, NumericTable * a2,
+                                                                                                    NumericTable * r, const ParameterBase * par)
 {
     return services::ErrorMethodNotImplemented;
 }
 
 template <typename algorithmFPType>
-services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeInternalMatrixMatrix(NumericTable & a1, NumericTable & a2,
-                                                                                                    NumericTable & r, const ParameterBase * par)
+services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeInternalMatrixMatrix(NumericTable * a1, NumericTable * a2,
+                                                                                                    NumericTable * r, const ParameterBase * par)
 {
     services::Status status;
 
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();
 
-    const size_t nVectors1 = a1.getNumberOfRows();
-    const size_t nVectors2 = a2.getNumberOfRows();
+    const size_t nVectors1 = a1->getNumberOfRows();
+    const size_t nVectors2 = a2->getNumberOfRows();
 
-    const size_t nFeatures1 = a1.getNumberOfColumns();
-    const size_t nFeatures2 = a2.getNumberOfColumns();
-    DAAL_ASSERT(nFeatures1 == nFeatures2);
+    const size_t nFeatures1 = a1->getNumberOfColumns();
+    const size_t nFeatures2 = a2->getNumberOfColumns();
 
     const Parameter * linPar    = static_cast<const Parameter *>(par);
     const algorithmFPType alpha = algorithmFPType(linPar->k);
@@ -87,10 +86,10 @@ services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeI
         BlockDescriptor<algorithmFPType> rBD;
 
         const size_t startRows = 0;
-        DAAL_CHECK_STATUS(status, a1.getBlockOfRows(startRows, nVectors1, ReadWriteMode::readOnly, a1BD));
-        DAAL_CHECK_STATUS(status, a2.getBlockOfRows(startRows, nVectors2, ReadWriteMode::readOnly, a2BD));
+        DAAL_CHECK_STATUS(status, a1->getBlockOfRows(startRows, nVectors1, ReadWriteMode::readOnly, a1BD));
+        DAAL_CHECK_STATUS(status, a2->getBlockOfRows(startRows, nVectors2, ReadWriteMode::readOnly, a2BD));
 
-        DAAL_CHECK_STATUS(status, r.getBlockOfRows(startRows, nVectors1, ReadWriteMode::readWrite, rBD));
+        DAAL_CHECK_STATUS(status, r->getBlockOfRows(startRows, nVectors1, ReadWriteMode::readWrite, rBD));
 
         const services::Buffer<algorithmFPType> a1Buf = a1BD.getBuffer();
         const services::Buffer<algorithmFPType> a2Buf = a2BD.getBuffer();
@@ -100,17 +99,17 @@ services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeI
         if (beta != 0.0)
         {
             context.fill(rBuf, 1.0, &status);
+            DAAL_CHECK_STATUS_VAR(status);
         }
 
-        status = BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::Trans, nVectors1, nVectors2,
-                                                 nFeatures1, alpha, a1Buf, nFeatures1, 0, a2Buf, nFeatures2, 0, beta, rBuf, nVectors2, 0);
+        DAAL_CHECK_STATUS(
+            status, BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::Trans, nVectors1, nVectors2,
+                                                    nFeatures1, alpha, a1Buf, nFeatures1, 0, a2Buf, nFeatures2, 0, beta, rBuf, nVectors2, 0));
 
-        DAAL_CHECK_STATUS(status, a1.releaseBlockOfRows(a1BD));
-        DAAL_CHECK_STATUS(status, a2.releaseBlockOfRows(a2BD));
-        DAAL_CHECK_STATUS(status, r.releaseBlockOfRows(rBD));
+        DAAL_CHECK_STATUS(status, a1->releaseBlockOfRows(a1BD));
+        DAAL_CHECK_STATUS(status, a2->releaseBlockOfRows(a2BD));
+        DAAL_CHECK_STATUS(status, r->releaseBlockOfRows(rBD));
     }
-
-    DAAL_CHECK_STATUS_VAR(status);
 
     return status;
 }

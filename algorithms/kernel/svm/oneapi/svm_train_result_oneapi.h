@@ -130,7 +130,7 @@ protected:
         auto rangeIndex = context.allocate(TypeIds::id<int>(), _nVectors, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        DAAL_CHECK_STATUS(status, Helper::rangeIndices(rangeIndex, _nVectors));
+        DAAL_CHECK_STATUS(status, Helper::makeRange(rangeIndex, _nVectors));
 
         size_t nSVCheck = 0;
         DAAL_CHECK_STATUS(status, Partition::flagged(_mask, rangeIndex, buffIndex, _nVectors, nSVCheck));
@@ -165,7 +165,7 @@ protected:
         DAAL_CHECK_STATUS(status, xTable->getBlockOfRows(0, _nVectors, ReadWriteMode::readOnly, xBlock));
         auto xBuff = xBlock.getBuffer();
 
-        DAAL_CHECK_STATUS(status, Helper::copyBlockIndices(xBuff, svIndicesBuff, svBuff, nSV, nFeatures));
+        DAAL_CHECK_STATUS(status, Helper::copyBlockByIndices(xBuff, svIndicesBuff, svBuff, nSV, nFeatures));
 
         DAAL_CHECK_STATUS(status, svTable->releaseBlockOfRows(svBlock));
         DAAL_CHECK_STATUS(status, svIndicesTable->releaseBlockOfRows(svIndicesBlock));
@@ -183,7 +183,7 @@ protected:
         auto maskBuff      = _mask.get<int>();
 
         /* free SV: (0 < alpha < C)*/
-        DAAL_CHECK_STATUS(status, Helper::checkFree(_coeffBuff, maskBuff, C, _nVectors));
+        DAAL_CHECK_STATUS(status, Helper::checkBorder(_coeffBuff, maskBuff, C, _nVectors));
         size_t nFree = 0;
         DAAL_CHECK_STATUS(status, Partition::flagged(maskBuff, _fBuff, tmpValuesBuff, _nVectors, nFree));
 

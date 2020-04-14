@@ -88,9 +88,9 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status initGrad(const services::Buffer<algorithmFPType> & y, services::Buffer<algorithmFPType> & grad, const size_t n)
+    static services::Status makeInversion(const services::Buffer<algorithmFPType> & x, services::Buffer<algorithmFPType> & res, const size_t n)
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(initGrad);
+        DAAL_ITTNOTIFY_SCOPED_TASK(makeInversion);
 
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
         auto & factory = context.getClKernelFactory();
@@ -98,11 +98,11 @@ struct HelperSVM
         services::Status status = buildProgram(factory);
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto kernel = factory.getKernel("initGradient");
+        auto kernel = factory.getKernel("makeInversion");
 
         KernelArguments args(2);
-        args.set(0, y, AccessModeIds::read);
-        args.set(1, grad, AccessModeIds::write);
+        args.set(0, x, AccessModeIds::read);
+        args.set(1, res, AccessModeIds::write);
 
         KernelRange range(n);
 
@@ -112,9 +112,9 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status rangeIndices(UniversalBuffer & x, const size_t n)
+    static services::Status makeRange(UniversalBuffer & x, const size_t n)
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(range);
+        DAAL_ITTNOTIFY_SCOPED_TASK(makeRange);
 
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
         auto & factory = context.getClKernelFactory();
@@ -122,7 +122,7 @@ struct HelperSVM
         services::Status status = buildProgram(factory);
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto kernel = factory.getKernel("range");
+        auto kernel = factory.getKernel("makeRange");
 
         KernelArguments args(1);
         args.set(0, x, AccessModeIds::readwrite);
@@ -142,15 +142,15 @@ struct HelperSVM
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
         context.copy(values, 0, f, 0, n, &status);
-        DAAL_CHECK_STATUS(status, rangeIndices(indecesSort, n));
+        DAAL_CHECK_STATUS(status, makeRange(indecesSort, n));
 
         DAAL_CHECK_STATUS(status, sort::RadixSort::sortIndeces(values, indecesSort, valuesBuf, indecesBuf, n));
 
         return status;
     }
 
-    static services::Status copyBlockIndices(const services::Buffer<algorithmFPType> & x, const services::Buffer<int> & ind,
-                                             services::Buffer<algorithmFPType> & newX, const uint32_t nWS, const uint32_t p)
+    static services::Status copyBlockByIndices(const services::Buffer<algorithmFPType> & x, const services::Buffer<int> & indX,
+                                               services::Buffer<algorithmFPType> & newX, const uint32_t nWS, const uint32_t p)
     {
         services::Status status;
 
@@ -159,12 +159,12 @@ struct HelperSVM
 
         buildProgram(factory);
 
-        const char * const kernelName      = "copyBlockIndices";
+        const char * const kernelName      = "copyBlockByIndices";
         oneapi::internal::KernelPtr kernel = factory.getKernel(kernelName);
 
         oneapi::internal::KernelArguments args(4);
         args.set(0, x, oneapi::internal::AccessModeIds::read);
-        args.set(1, ind, oneapi::internal::AccessModeIds::read);
+        args.set(1, indX, oneapi::internal::AccessModeIds::read);
         args.set(2, p);
         args.set(3, newX, oneapi::internal::AccessModeIds::write);
 
@@ -229,10 +229,10 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status checkFree(const services::Buffer<algorithmFPType> & alpha, services::Buffer<int> & mask, const algorithmFPType C,
-                                      const size_t n)
+    static services::Status checkBorder(const services::Buffer<algorithmFPType> & alpha, services::Buffer<int> & mask, const algorithmFPType C,
+                                        const size_t n)
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(checkFree);
+        DAAL_ITTNOTIFY_SCOPED_TASK(checkBorder);
 
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
         auto & factory = context.getClKernelFactory();
@@ -240,7 +240,7 @@ struct HelperSVM
         services::Status status = buildProgram(factory);
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto kernel = factory.getKernel("checkFree");
+        auto kernel = factory.getKernel("checkBorder");
 
         KernelArguments args(3);
         args.set(0, alpha, AccessModeIds::read);

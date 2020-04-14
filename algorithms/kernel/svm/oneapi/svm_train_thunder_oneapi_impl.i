@@ -206,7 +206,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
     DAAL_CHECK_STATUS_VAR(status);
     auto gradBuff = gradU.template get<algorithmFPType>();
 
-    DAAL_CHECK_STATUS(status, Helper::initGrad(yBuff, gradBuff, nVectors));
+    DAAL_CHECK_STATUS(status, Helper::makeInversion(yBuff, gradBuff, nVectors));
 
     TaskWorkingSet<algorithmFPType> workSet(nVectors);
 

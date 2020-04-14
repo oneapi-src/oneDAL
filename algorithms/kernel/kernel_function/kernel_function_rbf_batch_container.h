@@ -87,8 +87,8 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     if (method == defaultDense && !deviceInfo.isCpu)
     {
-        __DAAL_CALL_KERNEL_SYCL(env, internal::KernelImplRBFOneAPI, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, computationMode, *a[0],
-                                *a[1], *r[0], par);
+        __DAAL_CALL_KERNEL_SYCL(env, internal::KernelImplRBFOneAPI, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, computationMode, a[0],
+                                a[1], r[0], par);
     }
     else
     {

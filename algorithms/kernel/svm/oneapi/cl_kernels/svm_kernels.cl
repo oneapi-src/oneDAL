@@ -31,37 +31,29 @@
 DECLARE_SOURCE_DAAL(
     clKernelSVM,
 
-    __kernel void initGradient(const __global algorithmFPType * const y, __global algorithmFPType * grad) {
+    __kernel void makeInversion(const __global algorithmFPType * const x, __global algorithmFPType * res) {
         const int i = get_global_id(0);
-        grad[i]     = -y[i];
+        res[i]      = -x[i];
     }
 
-    __kernel void range(__global int * x) {
+    __kernel void makeRange(__global int * x) {
         const int i = get_global_id(0);
         x[i]        = i;
-    }
-
-    inline bool IUpper(const algorithmFPType alpha, const algorithmFPType y, const algorithmFPType C) {
-        return (y > 0 && alpha < C) || (y < 0 && alpha > 0);
-    }
-
-    inline bool ILower(const algorithmFPType alpha, const algorithmFPType y, const algorithmFPType C) {
-        return (y > 0 && alpha > 0) || (y < 0 && alpha < C);
     }
 
     __kernel void checkUpper(const __global algorithmFPType * const y, const __global algorithmFPType * const alpha, const algorithmFPType C,
                              __global int * indicator) {
         const int i  = get_global_id(0);
-        indicator[i] = IUpper(alpha[i], y[i], C);
+        indicator[i] = (y[i] > 0 && alpha[i] < C) || (y[i] < 0 && alpha[i] > 0);
     }
 
     __kernel void checkLower(const __global algorithmFPType * const y, const __global algorithmFPType * const alpha, const algorithmFPType C,
                              __global int * indicator) {
         const int i  = get_global_id(0);
-        indicator[i] = ILower(alpha[i], y[i], C);
+        indicator[i] = (y[i] > 0 && alpha[i] > 0) || (y[i] < 0 && alpha[i] < C);
     }
 
-    __kernel void checkFree(const __global algorithmFPType * const alpha, const algorithmFPType C, __global int * indicator) {
+    __kernel void checkBorder(const __global algorithmFPType * const alpha, const algorithmFPType C, __global int * indicator) {
         const int i                  = get_global_id(0);
         const algorithmFPType alphai = alpha[i];
         indicator[i]                 = 0 < alphai && alphai < C;
@@ -72,17 +64,17 @@ DECLARE_SOURCE_DAAL(
         indicator[i] = alpha[i] != (algorithmFPType)0;
     }
 
-    __kernel void resetIndicator(const __global int * const ind, __global int * indicator) {
+    __kernel void resetIndicatorWithZeros(const __global int * const ind, __global int * indicator) {
         const int i       = get_global_id(0);
         indicator[ind[i]] = 0;
     }
 
-    __kernel void copyBlockIndices(const __global algorithmFPType * const x, const __global int * const ind, const uint ldx,
-                                   __global algorithmFPType * newX) {
+    __kernel void copyBlockByIndices(const __global algorithmFPType * const x, const __global int * const xInd, const uint ldx,
+                                     __global algorithmFPType * newX) {
         const uint index = get_global_id(1);
         const uint jCol  = get_global_id(0);
 
-        const int iRow = ind[index];
+        const int iRow = xInd[index];
 
         const __global algorithmFPType * const xi = &x[iRow * ldx];
         __global algorithmFPType * newXi          = &newX[index * ldx];

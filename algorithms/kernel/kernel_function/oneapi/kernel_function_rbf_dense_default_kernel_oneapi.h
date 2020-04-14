@@ -44,7 +44,7 @@ template <typename algorithmFPType>
 class KernelImplRBFOneAPI<defaultDense, algorithmFPType> : public Kernel
 {
 public:
-    services::Status compute(ComputationMode computationMode, NumericTable & a1, NumericTable & a2, NumericTable & r,
+    services::Status compute(ComputationMode computationMode, NumericTable * a1, NumericTable * a2, NumericTable * r,
                              const daal::algorithms::Parameter * par)
     {
         const ParameterBase * svmPar = static_cast<const ParameterBase *>(par);
@@ -67,9 +67,9 @@ protected:
                                        const uint32_t ld, const algorithmFPType coeff, services::Buffer<algorithmFPType> & rbf,
                                        const size_t nVectors1, const size_t nVectors2);
 
-    services::Status computeInternalVectorVector(NumericTable & a1, NumericTable & a2, NumericTable & r, const ParameterBase * par);
-    services::Status computeInternalMatrixVector(NumericTable & a1, NumericTable & a2, NumericTable & r, const ParameterBase * par);
-    services::Status computeInternalMatrixMatrix(NumericTable & a1, NumericTable & a2, NumericTable & r, const ParameterBase * par);
+    services::Status computeInternalVectorVector(NumericTable * a1, NumericTable * a2, NumericTable * r, const ParameterBase * par);
+    services::Status computeInternalMatrixVector(NumericTable * a1, NumericTable * a2, NumericTable * r, const ParameterBase * par);
+    services::Status computeInternalMatrixMatrix(NumericTable * a1, NumericTable * a2, NumericTable * r, const ParameterBase * par);
 };
 
 } // namespace internal
