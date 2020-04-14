@@ -35,7 +35,6 @@ namespace internal
 {
 namespace interface1
 {
-
 class OpenClKernelFactory : public Base, public ClKernelFactoryIface
 {
 public:
@@ -81,7 +80,7 @@ public:
             }
             else
             {
-                if(nullptr == _levelZeroOpenClInteropContext.getOpenClDeviceRef().get())
+                if (nullptr == _levelZeroOpenClInteropContext.getOpenClDeviceRef().get())
                 {
                     _levelZeroOpenClInteropContext.reset((ze_device_handle_t)_deviceQueue.get_device().get(), &localStatus);
                 }
@@ -91,10 +90,9 @@ public:
                     return;
                 }
 
-                auto programPtr = services::SharedPtr<OpenClProgramRef>(
-                    new OpenClProgramRef(_levelZeroOpenClInteropContext.getOpenClContextRef().get(),
-                                         _levelZeroOpenClInteropContext.getOpenClDeviceRef().get(),
-                                         (ze_device_handle_t)_deviceQueue.get_device().get(), name, program, options, &localStatus));
+                auto programPtr = services::SharedPtr<OpenClProgramRef>(new OpenClProgramRef(
+                    _levelZeroOpenClInteropContext.getOpenClContextRef().get(), _levelZeroOpenClInteropContext.getOpenClDeviceRef().get(),
+                    (ze_device_handle_t)_deviceQueue.get_device().get(), name, program, options, &localStatus));
                 if (!localStatus.ok())
                 {
                     services::internal::tryAssignStatus(status, localStatus);

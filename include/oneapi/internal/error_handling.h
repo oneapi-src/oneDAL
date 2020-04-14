@@ -20,6 +20,7 @@
 
 #include <CL/cl.h>
 #include <CL/sycl.hpp>
+#include <ze_api.h>
 
 #include "services/internal/error_handling_helpers.h"
 #include "services/error_indexes.h"
@@ -32,6 +33,15 @@
             statusPtr->add(convertOpenClErrorToErrorPtr(cl_error)); \
             return __VA_ARGS__;                                     \
         }                                                           \
+    }
+
+#define DAAL_CHECK_LEVEL_ZERO(ze_error, statusPtr, ...)                \
+    {                                                                  \
+        if (statusPtr != NULL && ze_error != ZE_RESULT_SUCCESS)        \
+        {                                                              \
+            statusPtr->add(convertLevelZeroErrorToErrorPtr(ze_error)); \
+            return __VA_ARGS__;                                        \
+        }                                                              \
     }
 
 namespace daal
@@ -99,6 +109,56 @@ case x: return services::String(#x);
 inline services::ErrorPtr convertOpenClErrorToErrorPtr(cl_int clError)
 {
     return services::Error::create(services::ErrorID::ErrorExecutionContext, services::ErrorDetailID::OpenCL, getOpenClErrorDescription(clError));
+}
+
+inline services::String getLevelZeroErrorDescription(ze_result_t zeError)
+{
+#define LEVEL_ZERO_ERROR_CASE(x) \
+case x: return services::String(#x);
+    switch (zeError)
+    {
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_SUCCESS);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_NOT_READY);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_DEVICE_LOST);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_OUT_OF_HOST_MEMORY);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_MODULE_BUILD_FAILURE);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_INSUFFICIENT_PERMISSIONS);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_NOT_AVAILABLE);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_UNINITIALIZED);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_UNSUPPORTED_VERSION);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_UNSUPPORTED_FEATURE);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_INVALID_ARGUMENT);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_INVALID_NULL_HANDLE);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_HANDLE_OBJECT_IN_USE);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_INVALID_NULL_POINTER);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_INVALID_SIZE);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_UNSUPPORTED_SIZE);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_UNSUPPORTED_ALIGNMENT);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_INVALID_SYNCHRONIZATION_OBJECT);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_INVALID_ENUMERATION);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_UNSUPPORTED_ENUMERATION);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_UNSUPPORTED_IMAGE_FORMAT);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_INVALID_NATIVE_BINARY);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_INVALID_GLOBAL_NAME);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_INVALID_KERNEL_NAME);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_INVALID_FUNCTION_NAME);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_INVALID_GROUP_SIZE_DIMENSION);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_INVALID_GLOBAL_WIDTH_DIMENSION);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_INVALID_KERNEL_ARGUMENT_INDEX);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_INVALID_KERNEL_ARGUMENT_SIZE);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_INVALID_KERNEL_ATTRIBUTE_VALUE);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_INVALID_COMMAND_LIST_TYPE);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_OVERLAPPING_REGIONS);
+        LEVEL_ZERO_ERROR_CASE(ZE_RESULT_ERROR_UNKNOWN);
+    }
+    return services::String("Unknown LevelZero error");
+}
+
+inline services::ErrorPtr convertLevelZeroErrorToErrorPtr(ze_result_t zeError)
+{
+    return services::Error::create(services::ErrorID::ErrorExecutionContext, services::ErrorDetailID::LevelZero,
+                                   getLevelZeroErrorDescription(zeError));
 }
 
 inline void convertSyclExceptionToStatus(cl::sycl::exception const & e, services::Status * statusPtr)

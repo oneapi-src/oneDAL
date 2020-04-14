@@ -21,7 +21,7 @@
 
         #include <CL/cl.h>
         #include <CL/sycl.hpp>
-        #include "ze_api.h"
+        #include <ze_api.h>
         #include <cstring>
         #include <vector>
 
@@ -38,7 +38,6 @@ namespace internal
 {
 namespace interface1
 {
-
 template <typename OpenClType, typename OpenClRetain, typename OpenClRelease>
 class OpenClResourceRef : public Base
 {
@@ -118,8 +117,7 @@ class OpenClContextRef : public OpenClResourceRef<cl_context, OpenClRetainContex
 public:
     OpenClContextRef() = default;
 
-    explicit OpenClContextRef(cl_device_id clDevice, services::Status * status = nullptr)
-        : _clDeviceRef(clDevice)
+    explicit OpenClContextRef(cl_device_id clDevice, services::Status * status = nullptr) : _clDeviceRef(clDevice)
     {
         cl_int err = 0;
         reset(clCreateContext(nullptr, 1, &clDevice, nullptr, nullptr, &err));
@@ -132,16 +130,16 @@ private:
     OpenClDeviceRef _clDeviceRef;
 };
 
-class LevelZeroOpenClInteropContext
+class LevelZeroOpenClInteropContext : public Base
 {
 public:
     LevelZeroOpenClInteropContext() = default;
-    ~LevelZeroOpenClInteropContext() = default;
+
     LevelZeroOpenClInteropContext(const LevelZeroOpenClInteropContext & other)
     {
         _levelZeroDevice = other._levelZeroDevice;
-        _clContextRef = other._clContextRef;
-        _clDeviceRef = other._clDeviceRef;
+        _clContextRef    = other._clContextRef;
+        _clDeviceRef     = other._clDeviceRef;
     }
 
     explicit LevelZeroOpenClInteropContext(ze_device_handle_t levelZeroDevice, services::Status * status = nullptr)
@@ -155,7 +153,7 @@ public:
         _levelZeroDevice = levelZeroDevice;
         ze_device_properties_t levelZeDeviceProperties;
         levelZeDeviceProperties.version = ZE_DEVICE_PROPERTIES_VERSION_CURRENT;
-        ze_result_t ret = zeDeviceGetProperties(levelZeroDevice, &levelZeDeviceProperties);
+        ze_result_t ret                 = zeDeviceGetProperties(levelZeroDevice, &levelZeDeviceProperties);
 
         cl_device_id clDevice;
         findDevice(&clDevice, levelZeDeviceProperties.vendorId, levelZeDeviceProperties.coreClockRate, status);
@@ -170,7 +168,7 @@ public:
         DAAL_CHECK_OPENCL(err, status)
     }
 
-    void findDevice(cl_device_id *pClDevice, unsigned int vendor_id, unsigned int frq, services::Status * status = nullptr)
+    void findDevice(cl_device_id * pClDevice, unsigned int vendor_id, unsigned int frq, services::Status * status = nullptr)
     {
         constexpr auto maxPlatforms = 16;
         cl_platform_id platIds[maxPlatforms];
@@ -190,8 +188,7 @@ public:
                     cl_uint dFrq = 0;
                     clGetDeviceInfo(*pClDevice, CL_DEVICE_MAX_CLOCK_FREQUENCY, sizeof(cl_uint), &dFrq, NULL);
 
-                    if (dVid == vendor_id && dFrq == frq)
-                        return;
+                    if (dVid == vendor_id && dFrq == frq) return;
                 }
             }
         }
@@ -199,13 +196,13 @@ public:
         services::internal::tryAssignStatus(status, services::ErrorDeviceSupportNotImplemented);
     }
 
-    OpenClDeviceRef getOpenClDeviceRef() { return _clDeviceRef; }
-    OpenClContextRef getOpenClContextRef() { return _clContextRef; }
+    OpenClDeviceRef & getOpenClDeviceRef() { return _clDeviceRef; }
+    OpenClContextRef & getOpenClContextRef() { return _clContextRef; }
     ze_device_handle_t getLevelZeroDevice() { return _levelZeroDevice; }
 
 private:
     OpenClContextRef _clContextRef;
-    OpenClDeviceRef  _clDeviceRef;
+    OpenClDeviceRef _clDeviceRef;
     ze_device_handle_t _levelZeroDevice;
 };
 
@@ -213,26 +210,16 @@ class OpenClProgramRef : public OpenClResourceRef<cl_program, OpenClRetainProgra
 {
 public:
     OpenClProgramRef() = default;
-    // add module destroy
-    //~OpenClProgramRef() {if(_moduleLevelZero != nullptr) {zeModuleDestroy(_moduleLevelZero);}}
 
-    explicit OpenClProgramRef(cl_context clContext,
-                              cl_device_id clDevice,
-                              const char *programName,
-                              const char *programSrc,
-                              const char *options,
-                              services::Status *status = nullptr) : _moduleLevelZero(nullptr)
+    explicit OpenClProgramRef(cl_context clContext, cl_device_id clDevice, const char * programName, const char * programSrc, const char * options,
+                              services::Status * status = nullptr)
+        : _moduleLevelZero(nullptr)
     {
         initOpenClProgramRef(clContext, clDevice, programName, programSrc, options, status);
     }
 
-    explicit OpenClProgramRef(cl_context clContext,
-                              cl_device_id clDevice,
-                              ze_device_handle_t zeDevice,
-                              const char *programName,
-                              const char *programSrc,
-                              const char *options,
-                              services::Status *status = nullptr)
+    explicit OpenClProgramRef(cl_context clContext, cl_device_id clDevice, ze_device_handle_t zeDevice, const char * programName,
+                              const char * programSrc, const char * options, services::Status * status = nullptr)
     {
         initOpenClProgramRef(clContext, clDevice, programName, programSrc, options, status);
         if (status != nullptr && !status->ok())
@@ -242,14 +229,10 @@ public:
         initModuleLevel0(zeDevice, status);
     }
 
-    void initOpenClProgramRef(cl_context clContext,
-                              cl_device_id clDevice,
-                              const char *programName,
-                              const char *programSrc,
-                              const char *options,
-                              services::Status *status = nullptr)
+    void initOpenClProgramRef(cl_context clContext, cl_device_id clDevice, const char * programName, const char * programSrc, const char * options,
+                              services::Status * status = nullptr)
     {
-        _progamName            = programName;
+        _programName           = programName;
         cl_int err             = 0;
         const char * sources[] = { programSrc };
         const size_t lengths[] = { std::strlen(programSrc) };
@@ -277,33 +260,33 @@ public:
         DAAL_CHECK_OPENCL(err, status)
     }
 
-    void initModuleLevel0(ze_device_handle_t & zeDevice, services::Status *status = nullptr)
+    void initModuleLevel0(ze_device_handle_t & zeDevice, services::Status * status = nullptr)
     {
         size_t binary_size = 0;
         DAAL_CHECK_OPENCL(clGetProgramInfo(get(), CL_PROGRAM_BINARY_SIZES, sizeof(size_t), &binary_size, NULL), status);
 
-        auto binary = (unsigned char *) malloc(binary_size);
-        if (binary == nullptr)
-            DAAL_CHECK_OPENCL(CL_OUT_OF_HOST_MEMORY, status);
+        auto binary = (unsigned char *)malloc(binary_size);
+        if (binary == nullptr) DAAL_CHECK_OPENCL(CL_OUT_OF_HOST_MEMORY, status);
 
         DAAL_CHECK_OPENCL(clGetProgramInfo(get(), CL_PROGRAM_BINARIES, sizeof(binary), &binary, NULL), status);
 
-        ze_module_desc_t desc{ZE_MODULE_DESC_VERSION_CURRENT};
-        desc.format = ZE_MODULE_FORMAT_NATIVE;
-        desc.inputSize = binary_size;
+        ze_module_desc_t desc { ZE_MODULE_DESC_VERSION_CURRENT };
+        desc.format       = ZE_MODULE_FORMAT_NATIVE;
+        desc.inputSize    = binary_size;
         desc.pInputModule = binary;
-        desc.pBuildFlags = "";
-        desc.pConstants = nullptr;
+        desc.pBuildFlags  = "";
+        desc.pConstants   = nullptr;
 
-        zeModuleCreate(zeDevice, &desc, &_moduleLevelZero, nullptr);
+        DAAL_CHECK_LEVEL_ZERO(zeModuleCreate(zeDevice, &desc, &_moduleLevelZero, nullptr), status);
     }
 
-    const char * getName() const { return _progamName.c_str(); }
+    const char * getName() const { return _programName.c_str(); }
 
     ze_module_handle_t getModuleL0() const { return _moduleLevelZero; }
 
 private:
-    services::String _progamName;
+    services::String _programName;
+    // use applicable resource ref for _moduleLevelZero 
     ze_module_handle_t _moduleLevelZero;
 };
 
@@ -325,13 +308,9 @@ class OpenClKernelLevel0Ref
 public:
     OpenClKernelLevel0Ref() = default;
 
-    explicit OpenClKernelLevel0Ref( const char *kernelName,
-                             services::Status *status = nullptr) : _kernelName(kernelName) { }
+    explicit OpenClKernelLevel0Ref(const char * kernelName, services::Status * status = nullptr) : _kernelName(kernelName) {}
 
-    const char * getName() const
-    {
-        return _kernelName.c_str();
-    }
+    const char * getName() const { return _kernelName.c_str(); }
 
 private:
     services::String _kernelName;
@@ -360,27 +339,20 @@ public:
 
     virtual cl::sycl::kernel toSycl(const cl::sycl::context & _ctx) const {}
 
-protected:
-    OpenClProgramRef _clProgramRef;
+    const OpenClProgramRef & getProgramRef() const { return _clProgramRef; }
 
 private:
+    OpenClProgramRef _clProgramRef;
     ExecutionTargetId _executionTarget;
 };
 
 class OpenClKernelNative : public OpenClKernel
 {
 public:
-    explicit OpenClKernelNative(ExecutionTargetId executionTarget,
-                          const OpenClProgramRef &programRef,
-                          const OpenClKernelRef &kernelRef) :
-        OpenClKernel(executionTarget, programRef),
-        _clKernelRef(kernelRef) {}
-/*
-    const OpenClKernelRef &getRef() const
-    {
-        return _clKernelRef;
-    }
-*/
+    explicit OpenClKernelNative(ExecutionTargetId executionTarget, const OpenClProgramRef & programRef, const OpenClKernelRef & kernelRef)
+        : OpenClKernel(executionTarget, programRef), _clKernelRef(kernelRef)
+    {}
+
     cl::sycl::kernel toSycl(const cl::sycl::context & _ctx) const { return cl::sycl::kernel(_clKernelRef.get(), _ctx); }
 
 private:
@@ -390,15 +362,13 @@ private:
 class OpenClKernelLevel0 : public OpenClKernel
 {
 public:
-    explicit OpenClKernelLevel0(ExecutionTargetId executionTarget,
-                          const OpenClProgramRef &programRef,
-                          const OpenClKernelLevel0Ref &kernelRef) :
-        OpenClKernel(executionTarget, programRef),
-        _clKernelRef(kernelRef) {}
+    explicit OpenClKernelLevel0(ExecutionTargetId executionTarget, const OpenClProgramRef & programRef, const OpenClKernelLevel0Ref & kernelRef)
+        : OpenClKernel(executionTarget, programRef), _clKernelRef(kernelRef)
+    {}
 
     cl::sycl::kernel toSycl(const cl::sycl::context & _ctx) const
     {
-        cl::sycl::program prg{_ctx, (cl_program) _clProgramRef.getModuleL0()};
+        cl::sycl::program prg { _ctx, (cl_program)getProgramRef().getModuleL0() };
         return prg.get_kernel(_clKernelRef.getName());
     }
 
