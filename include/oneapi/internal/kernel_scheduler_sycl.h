@@ -1,4 +1,4 @@
-/* file: execution_context.h */
+/* file: kernel_scheduler_sycl.h */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
