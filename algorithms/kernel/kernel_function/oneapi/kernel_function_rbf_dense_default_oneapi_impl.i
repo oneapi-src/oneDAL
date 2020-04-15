@@ -134,7 +134,7 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInte
     DAAL_CHECK_STATUS(status, a1->getBlockOfRows(startRows, nVectors1, ReadWriteMode::readOnly, a1BD));
     DAAL_CHECK_STATUS(status, a2->getBlockOfRows(startRows, nVectors2, ReadWriteMode::readOnly, a2BD));
 
-    DAAL_CHECK_STATUS(status, r->getBlockOfRows(startRows, nVectors1, ReadWriteMode::readWrite, rBD));
+    DAAL_CHECK_STATUS(status, r->getBlockOfRows(startRows, nVectors1, ReadWriteMode::writeOnly, rBD));
 
     const services::Buffer<algorithmFPType> a1Buf = a1BD.getBuffer();
     const services::Buffer<algorithmFPType> a2Buf = a2BD.getBuffer();
