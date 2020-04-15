@@ -29,6 +29,10 @@
 
 int __daal_serv_cpu_detect(int);
 
+bool daal_check_is_intel_cpu();
+
+#define DAAL_CHECK_CPU_ENVIRONMENT (daal_check_is_intel_cpu())
+
 #if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
     #define PRAGMA_IVDEP
     #define PRAGMA_NOVECTOR
@@ -293,5 +297,15 @@ typedef union
 #else
     #define DAAL_PACKED_STRUCT(...) __VA_ARGS__ __attribute__((packed))
 #endif
+
+#define DAAL_SAFE_CPU_CALL(base, safe) \
+    if (DAAL_CHECK_CPU_ENVIRONMENT)    \
+    {                                  \
+        (base);                        \
+    }                                  \
+    else                               \
+    {                                  \
+        (safe);                        \
+    }
 
 #endif
