@@ -24,8 +24,15 @@
 #ifndef __DAAL_ATOMIC_INT_H__
 #define __DAAL_ATOMIC_INT_H__
 
+#include "tbb/tbb.h"
+#ifdef min
+  #undef min
+#endif
+#ifdef max
+  #undef max
+#endif
+
 #include "services/daal_defines.h"
-#include "services/daal_memory.h"
 
 namespace daal
 {
@@ -51,39 +58,66 @@ public:
      * Returns an increment of atomic object
      * \return An increment of atomic object
      */
-    dataType inc();
+    dataType inc()
+    {
+        tbb::atomic<dataType> * atomicPtr = (tbb::atomic<dataType> *)(this->_ptr);
+        return ++(*atomicPtr);
+    }
 
     /**
      * Returns a decrement of atomic object
      * \return An decrement of atomic object
      */
-    dataType dec();
+    dataType dec()
+    {
+        tbb::atomic<dataType> * atomicPtr = (tbb::atomic<dataType> *)(this->_ptr);
+        return --(*atomicPtr);
+    }
 
     /**
      * Assigns the value to atomic object
      * \param[in] value    The value to be assigned
      */
-    void set(dataType value);
+    void set(dataType value)
+    {
+        tbb::atomic<dataType> * atomicPtr = (tbb::atomic<dataType> *)(this->_ptr);
+        *atomicPtr                        = value;
+    }
 
     /**
      * Returns the value of the atomic object
      * \return The value of the atomic object
      */
-    dataType get() const;
+    dataType get() const
+    {
+        tbb::atomic<dataType> * atomicPtr = (tbb::atomic<dataType> *)(this->_ptr);
+        return *atomicPtr;
+    }
 
     /**
      * Constructs an atomic object
      */
-    Atomic();
+    Atomic() : _ptr(nullptr)
+    {
+        this->_ptr = new tbb::atomic<dataType>();
+    }
 
     /**
      * Constructs an atomic object from a value
      * \param[in] value The value to be assigned to the atomic object
      */
-    Atomic(dataType value);
+    Atomic(dataType value) : _ptr(nullptr)
+    {
+        tbb::atomic<dataType> * atomicPtr = new tbb::atomic<dataType>();
+        *atomicPtr                        = value;
+        this->_ptr                        = atomicPtr;
+    }
 
     /** Destructor */
-    ~Atomic();
+    ~Atomic()
+    {
+        delete (tbb::atomic<dataType> *)(this->_ptr);
+    }
 
 protected:
     void * _ptr;
