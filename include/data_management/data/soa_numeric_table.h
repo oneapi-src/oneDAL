@@ -249,6 +249,26 @@ public:
         return s;
     }
 
+    /**
+     *  Returns 'true' if all features have the same data type, else 'false'
+     *  \return All features have the same data type or not
+     */
+    bool isHomogeneousFloatOrDouble() const
+    {
+        const size_t ncols                                      = getNumberOfColumns();
+        const NumericTableFeature & f0                          = (*_ddict)[0];
+        daal::data_management::features::IndexNumType indexType = f0.indexType;
+
+        for (size_t i = 1; i < ncols; ++i)
+        {
+            const NumericTableFeature & f1 = (*_ddict)[i];
+            if (f1.indexType != indexType) return false;
+        }
+
+        return indexType == daal::data_management::features::getIndexNumType<float>()
+               || indexType == daal::data_management::features::getIndexNumType<double>();
+    }
+
 protected:
     /**
      *  <a name="DAAL-CLASS-DATA_MANAGEMENT__WRAPPEDRAWPOINTER"></a>
@@ -507,23 +527,6 @@ private:
         }
 
         return services::Status();
-    }
-
-    /* the method checks for the fact that all columns have the same data type and this type is double or float. */
-    bool isHomogeneousFloatOrDouble() const
-    {
-        const size_t ncols                                      = getNumberOfColumns();
-        const NumericTableFeature & f0                          = (*_ddict)[0];
-        daal::data_management::features::IndexNumType indexType = f0.indexType;
-
-        for (size_t i = 1; i < ncols; ++i)
-        {
-            const NumericTableFeature & f1 = (*_ddict)[i];
-            if (f1.indexType != indexType) return false;
-        }
-
-        return indexType == daal::data_management::features::getIndexNumType<float>()
-               || indexType == daal::data_management::features::getIndexNumType<double>();
     }
 
     template <typename T>

@@ -38,7 +38,7 @@ namespace algorithms
 namespace optimization_solver
 {
 /**
- * @defgroup coordinate_descent Stochastic average  Gradient Descent Algorithm
+ * @defgroup coordinate_descent Coordinate Descent Algorithm
  * \copydoc daal::algorithms::optimization_solver::coordinate_descent
  * @ingroup optimization_solver
  * @{
@@ -54,7 +54,7 @@ namespace coordinate_descent
  */
 enum Method
 {
-    defaultDense = 0, /*!< Default: performance-oriented method */
+    defaultDense = 0 /*!< Default: performance-oriented method */
 };
 
 /**

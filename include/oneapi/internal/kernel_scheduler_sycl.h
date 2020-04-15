@@ -21,6 +21,15 @@
 
         #include <CL/cl.h>
         #include <CL/sycl.hpp>
+
+        #if defined(_WIN32) || defined(_WIN64)
+            #define DAAL_DISABLE_LEVEL_ZERO
+        #endif
+
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
+            #include <level_zero/ze_api.h>
+        #endif // DAAL_DISABLE_LEVEL_ZERO
+
         #include <cstring>
         #include <vector>
 
@@ -102,18 +111,150 @@ DAAL_DECLARE_OPENCL_OPERATOR(cl_program, RetainProgram);
 DAAL_DECLARE_OPENCL_OPERATOR(cl_program, ReleaseProgram);
 DAAL_DECLARE_OPENCL_OPERATOR(cl_kernel, RetainKernel);
 DAAL_DECLARE_OPENCL_OPERATOR(cl_kernel, ReleaseKernel);
+DAAL_DECLARE_OPENCL_OPERATOR(cl_context, RetainContext);
+DAAL_DECLARE_OPENCL_OPERATOR(cl_context, ReleaseContext);
+DAAL_DECLARE_OPENCL_OPERATOR(cl_device_id, RetainDevice);
+DAAL_DECLARE_OPENCL_OPERATOR(cl_device_id, ReleaseDevice);
 
         #undef DAAL_DECLARE_OPENCL_OPERATOR
+
+typedef OpenClResourceRef<cl_device_id, OpenClRetainDevice, OpenClReleaseDevice> OpenClDeviceRef;
+
+class OpenClContextRef : public OpenClResourceRef<cl_context, OpenClRetainContext, OpenClReleaseContext>
+{
+public:
+    OpenClContextRef() = default;
+
+    explicit OpenClContextRef(cl_device_id clDevice, services::Status * status = nullptr) : _clDeviceRef(clDevice)
+    {
+        cl_int err = 0;
+        reset(clCreateContext(nullptr, 1, &clDevice, nullptr, nullptr, &err));
+        DAAL_CHECK_OPENCL(err, status)
+    }
+
+    OpenClDeviceRef getDeviceRef() { return _clDeviceRef; }
+
+private:
+    OpenClDeviceRef _clDeviceRef;
+};
+
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
+class LevelZeroOpenClInteropContext : public Base
+{
+public:
+    LevelZeroOpenClInteropContext() = default;
+
+    LevelZeroOpenClInteropContext(const LevelZeroOpenClInteropContext &) = delete;
+
+    explicit LevelZeroOpenClInteropContext(ze_device_handle_t levelZeroDevice, services::Status * status = nullptr)
+        : _levelZeroDevice(levelZeroDevice)
+    {
+        reset(levelZeroDevice, status);
+    }
+
+    void reset(ze_device_handle_t levelZeroDevice, services::Status * status = nullptr)
+    {
+        _levelZeroDevice = levelZeroDevice;
+        ze_device_properties_t levelZeDeviceProperties;
+        levelZeDeviceProperties.version = ZE_DEVICE_PROPERTIES_VERSION_CURRENT;
+        ze_result_t ret                 = zeDeviceGetProperties(levelZeroDevice, &levelZeDeviceProperties);
+
+        services::Status localStatus;
+        cl_device_id clDevice;
+        findDevice(&clDevice, levelZeDeviceProperties.vendorId, levelZeDeviceProperties.coreClockRate, &localStatus);
+        if (!localStatus.ok())
+        {
+            services::internal::tryAssignStatus(status, localStatus);
+            return;
+        }
+        _clDeviceRef.reset(clDevice);
+
+        cl_int err = 0;
+        _clContextRef.reset(clCreateContext(nullptr, 1, &clDevice, nullptr, nullptr, &err));
+        DAAL_CHECK_OPENCL(err, status)
+    }
+
+    void findDevice(cl_device_id * pClDevice, unsigned int vendor_id, unsigned int frq, services::Status * status = nullptr)
+    {
+        constexpr auto maxPlatforms = 16;
+        cl_platform_id platIds[maxPlatforms];
+        cl_uint nplat, ndev;
+
+        DAAL_CHECK_OPENCL(clGetPlatformIDs(maxPlatforms, platIds, &nplat), status);
+
+        for (int pidx = 0; pidx < nplat && pidx < maxPlatforms; pidx++)
+        {
+            if (clGetDeviceIDs(platIds[pidx], CL_DEVICE_TYPE_GPU, 1, pClDevice, &ndev) == CL_SUCCESS)
+            {
+                if (ndev > 0)
+                {
+                    cl_uint dVid = 0;
+                    clGetDeviceInfo(*pClDevice, CL_DEVICE_VENDOR_ID, sizeof(cl_uint), &dVid, NULL);
+
+                    cl_uint dFrq = 0;
+                    clGetDeviceInfo(*pClDevice, CL_DEVICE_MAX_CLOCK_FREQUENCY, sizeof(cl_uint), &dFrq, NULL);
+
+                    if (dVid == vendor_id && dFrq == frq) return;
+                }
+            }
+        }
+
+        services::internal::tryAssignStatus(status, services::ErrorDeviceSupportNotImplemented);
+    }
+
+    OpenClDeviceRef & getOpenClDeviceRef() { return _clDeviceRef; }
+    OpenClContextRef & getOpenClContextRef() { return _clContextRef; }
+    ze_device_handle_t getLevelZeroDevice() { return _levelZeroDevice; }
+
+private:
+    OpenClContextRef _clContextRef;
+    OpenClDeviceRef _clDeviceRef;
+    ze_device_handle_t _levelZeroDevice;
+};
+        #endif // DAAL_DISABLE_LEVEL_ZERO
 
 class OpenClProgramRef : public OpenClResourceRef<cl_program, OpenClRetainProgram, OpenClReleaseProgram>
 {
 public:
-    OpenClProgramRef() = default;
+    OpenClProgramRef()
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
+        : _moduleLevelZero(nullptr)
+        #endif // DAAL_DISABLE_LEVEL_ZERO
+    {}
 
     explicit OpenClProgramRef(cl_context clContext, cl_device_id clDevice, const char * programName, const char * programSrc, const char * options,
                               services::Status * status = nullptr)
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
+        : _moduleLevelZero(nullptr)
+        #endif // DAAL_DISABLE_LEVEL_ZERO
     {
-        _progamName            = programName;
+        initOpenClProgramRef(clContext, clDevice, programName, programSrc, options, status);
+    }
+
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
+    explicit OpenClProgramRef(cl_context clContext, cl_device_id clDevice, ze_device_handle_t zeDevice, const char * programName,
+                              const char * programSrc, const char * options, services::Status * status = nullptr)
+    {
+        services::Status localStatus;
+        initOpenClProgramRef(clContext, clDevice, programName, programSrc, options, &localStatus);
+        if (!localStatus.ok())
+        {
+            services::internal::tryAssignStatus(status, localStatus);
+            return;
+        }
+        initModuleLevelZero(zeDevice, status);
+    }
+
+    ze_module_handle_t getModuleL0() const { return _moduleLevelZero; }
+        #endif // DAAL_DISABLE_LEVEL_ZERO
+
+    const char * getName() const { return _programName.c_str(); }
+
+private:
+    void initOpenClProgramRef(cl_context clContext, cl_device_id clDevice, const char * programName, const char * programSrc, const char * options,
+                              services::Status * status = nullptr)
+    {
+        _programName           = programName;
         cl_int err             = 0;
         const char * sources[] = { programSrc };
         const size_t lengths[] = { std::strlen(programSrc) };
@@ -131,7 +272,8 @@ public:
             char * buildLog = buildLogCollection.data();
             if (buildLog == nullptr)
             {
-                printf("common_ocl.ocdBuildProgramFromFile() - Heap Overflow! Cannot allocate space for buildLog.");
+                printf("common_ocl.ocdBuildProgramFromFile() - Heap Overflow! Cannot "
+                       "allocate space for buildLog.");
                 DAAL_CHECK_OPENCL(err, status)
             }
             clGetProgramBuildInfo(get(), clDevice, CL_PROGRAM_BUILD_LOG, logLen, (void *)buildLog, nullptr);
@@ -141,10 +283,39 @@ public:
         DAAL_CHECK_OPENCL(err, status)
     }
 
-    const char * getName() const { return _progamName.c_str(); }
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
+    void initModuleLevelZero(ze_device_handle_t & zeDevice, services::Status * status = nullptr)
+    {
+        size_t binary_size = 0;
+        DAAL_CHECK_OPENCL(clGetProgramInfo(get(), CL_PROGRAM_BINARY_SIZES, sizeof(size_t), &binary_size, NULL), status);
+
+        auto binary = (unsigned char *)malloc(binary_size);
+        if (binary == nullptr)
+        {
+            services::internal::tryAssignStatus(status, services::ErrorMemoryAllocationFailed);
+            return;
+        }
+
+        DAAL_CHECK_OPENCL(clGetProgramInfo(get(), CL_PROGRAM_BINARIES, sizeof(binary), &binary, NULL), status);
+
+        ze_module_desc_t desc { ZE_MODULE_DESC_VERSION_CURRENT };
+        desc.format       = ZE_MODULE_FORMAT_NATIVE;
+        desc.inputSize    = binary_size;
+        desc.pInputModule = binary;
+        desc.pBuildFlags  = "";
+        desc.pConstants   = nullptr;
+
+        DAAL_CHECK_LEVEL_ZERO(zeModuleCreate(zeDevice, &desc, &_moduleLevelZero, nullptr), status);
+        free(binary);
+    }
+        #endif // DAAL_DISABLE_LEVEL_ZERO
 
 private:
-    services::String _progamName;
+    services::String _programName;
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
+    // use applicable resource ref for _moduleLevelZero
+    ze_module_handle_t _moduleLevelZero;
+        #endif // DAAL_DISABLE_LEVEL_ZERO
 };
 
 class OpenClKernelRef : public OpenClResourceRef<cl_kernel, OpenClRetainKernel, OpenClReleaseKernel>
@@ -160,11 +331,26 @@ public:
     }
 };
 
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
+class OpenClKernelLevelZeroRef : public Base
+{
+public:
+    OpenClKernelLevelZeroRef() = default;
+
+    explicit OpenClKernelLevelZeroRef(const char * kernelName, services::Status * status = nullptr) : _kernelName(kernelName) {}
+
+    const char * getName() const { return _kernelName.c_str(); }
+
+private:
+    services::String _kernelName;
+};
+        #endif // DAAL_DISABLE_LEVEL_ZERO
+
 class OpenClKernel : public Base, public KernelIface
 {
 public:
-    explicit OpenClKernel(ExecutionTargetId executionTarget, const OpenClProgramRef & programRef, const OpenClKernelRef & kernelRef)
-        : _executionTarget(executionTarget), _clProgramRef(programRef), _clKernelRef(kernelRef)
+    explicit OpenClKernel(ExecutionTargetId executionTarget, const OpenClProgramRef & programRef)
+        : _executionTarget(executionTarget), _clProgramRef(programRef)
     {}
 
     void schedule(KernelSchedulerIface & scheduler, const KernelRange & range, const KernelArguments & args,
@@ -181,13 +367,46 @@ public:
 
     ExecutionTargetId getTarget() const { return _executionTarget; }
 
-    const OpenClKernelRef & getRef() const { return _clKernelRef; }
+    virtual cl::sycl::kernel toSycl(const cl::sycl::context & ctx) const = 0;
+
+    const OpenClProgramRef & getProgramRef() const { return _clProgramRef; }
 
 private:
-    ExecutionTargetId _executionTarget;
     OpenClProgramRef _clProgramRef;
+    ExecutionTargetId _executionTarget;
+};
+
+class OpenClKernelNative : public OpenClKernel
+{
+public:
+    explicit OpenClKernelNative(ExecutionTargetId executionTarget, const OpenClProgramRef & programRef, const OpenClKernelRef & kernelRef)
+        : OpenClKernel(executionTarget, programRef), _clKernelRef(kernelRef)
+    {}
+
+    cl::sycl::kernel toSycl(const cl::sycl::context & ctx) const { return cl::sycl::kernel(_clKernelRef.get(), ctx); }
+
+private:
     OpenClKernelRef _clKernelRef;
 };
+
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
+class OpenClKernelLevelZero : public OpenClKernel
+{
+public:
+    explicit OpenClKernelLevelZero(ExecutionTargetId executionTarget, const OpenClProgramRef & programRef, const OpenClKernelLevelZeroRef & kernelRef)
+        : OpenClKernel(executionTarget, programRef), _clKernelRef(kernelRef)
+    {}
+
+    cl::sycl::kernel toSycl(const cl::sycl::context & ctx) const
+    {
+        cl::sycl::program prg { ctx, (cl_program)getProgramRef().getModuleL0() };
+        return prg.get_kernel(_clKernelRef.getName());
+    }
+
+private:
+    OpenClKernelLevelZeroRef _clKernelRef;
+};
+        #endif // DAAL_DISABLE_LEVEL_ZERO
 
 class SyclBufferStorage
 {
@@ -399,7 +618,7 @@ private:
     {
         SyclBufferStorage bufferStorage;
 
-        cl::sycl::kernel syclKernel(kernel.getRef().get(), _queue.get_context());
+        cl::sycl::kernel syclKernel = kernel.toSycl(_queue.get_context());
 
         auto event = _queue.submit([&](cl::sycl::handler & cgh) {
             passArguments(cgh, bufferStorage, args);

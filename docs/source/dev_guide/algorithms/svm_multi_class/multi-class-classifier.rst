@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _svm_multi_class:
+
 Multi-class Classifier
 ======================
 
@@ -71,6 +73,38 @@ the class to which the vector belongs.
    class i is increased by one, otherwise the vote is given to the
    j-th class. If two classes have equal numbers of votes, the
    class with the smallest index is selected.
+
+Usage of Training Alternative
+*****************************
+
+To build a Multi-class Classifier model using methods of the Model Builder class of Multi-class Classifier,
+complete the following steps:
+
+- Create a Multi-class Classifier model builder using a constructor with the required number of features and classes.
+- Use the ``setTwoClassClassifierModel`` method for each pair of classes to add the pre-trained two-class classifiers to the model.
+  In the parameters to the method specify the classes' indices and the pointer to the pre-trained two-class classifier for this pair of classes.
+  You need to do this for each pair of classes, because the One-Against-One strategy is used.
+- Use the ``getModel`` method to get the trained Multi-class Classifier model.
+- Use the ``getStatus`` method to check the status of the model building process.
+  If ``DAAL_NOTHROW_EXCEPTIONS`` macros is defined, the status report contains the list of errors
+  that describe the problems API encountered (in case of API runtime failure).
+
+Examples
+--------
+
+.. tabs::
+
+  .. tab:: C++
+
+    :cpp_example:`svm_multi_class_model_builder.cpp <svm/svm_multi_class_model_builder.cpp>`
+
+  .. tab:: Java*
+
+    :java_example:`SVMMultiClassModelBuilder.java <svm/SVMMultiClassModelBuilder.java>`
+
+  .. tab:: Python*
+
+    :daal4py_example:`svm_multi_class_model_builder.py`
 
 Batch Processing
 ****************
@@ -158,15 +192,21 @@ At the prediction stage, a multi-class classifier has the following parameters:
 Examples
 --------
 
-C++:
+.. tabs::
 
--  :cpp_example:`svm/svm_multi_class_dense_batch.cpp`
--  :cpp_example:`svm/svm_multi_class_csr_batch.cpp`
+  .. tab:: C++
 
-Java*:
+    Batch Processing:
 
--  :java_example:`svm/SVMMultiClassDenseBatch.java`
--  :java_example:`svm/SVMMultiClassCSRBatch.java`
+    -  :cpp_example:`svm_multi_class_dense_batch.cpp <svm/svm_multi_class_dense_batch.cpp>`
+    -  :cpp_example:`svm_multi_class_csr_batch.cpp <svm/svm_multi_class_csr_batch.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+    
+    -  :java_example:`SVMMultiClassDenseBatch.java <svm/SVMMultiClassDenseBatch.java>`
+    -  :java_example:`SVMMultiClassCSRBatch.java <svm/SVMMultiClassCSRBatch.java>`
 
 .. Python*:
 

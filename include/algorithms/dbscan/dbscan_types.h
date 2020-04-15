@@ -34,6 +34,9 @@ namespace daal
 namespace algorithms
 {
 /**
+ * @defgroup dbscan DBSCAN
+ * \copydoc daal::algorithms::dbscan
+ * @ingroup analysis
  * @defgroup dbscan_compute Computation
  * \copydoc daal::algorithms::dbscan
  * @ingroup dbscan
@@ -51,7 +54,7 @@ const int undefined = -2;
  */
 enum Method
 {
-    defaultDense = 0, /*!< Default: performance-oriented method */
+    defaultDense = 0 /*!< Default: performance-oriented method */
 };
 
 /**

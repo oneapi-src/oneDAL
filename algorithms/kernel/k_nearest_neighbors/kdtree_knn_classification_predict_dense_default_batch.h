@@ -30,6 +30,7 @@
 #include "algorithms/kernel/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "externals/service_blas.h"
+#include "service/kernel/service_arrays.h"
 
 namespace daal
 {
@@ -69,7 +70,8 @@ public:
 protected:
     void findNearestNeighbors(const algorithmFpType * query, Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap,
                               kdtree_knn_classification::internal::Stack<SearchNode<algorithmFpType>, cpu> & stack, size_t k, algorithmFpType radius,
-                              const KDTreeTable & kdTreeTable, size_t rootTreeNodeIndex, const NumericTable & data);
+                              const KDTreeTable & kdTreeTable, size_t rootTreeNodeIndex, const NumericTable & data, const bool isHomogenSOA,
+                              services::internal::TArrayScalable<algorithmFpType *, cpu> & soa_arrays);
 
     services::Status predict(algorithmFpType & predictedClass, const Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap,
                              const NumericTable & labels, size_t k);
