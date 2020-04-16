@@ -25,6 +25,7 @@
 #define __DAAL_ATOMIC_INT_H__
 
 #include "tbb/tbb.h"
+#include "tbb/atomic.h"
 #ifdef min
   #undef min
 #endif
@@ -97,7 +98,7 @@ public:
     /**
      * Constructs an atomic object
      */
-    Atomic() : _ptr(nullptr)
+    Atomic()
     {
         this->_ptr = new tbb::atomic<dataType>();
     }
@@ -106,7 +107,7 @@ public:
      * Constructs an atomic object from a value
      * \param[in] value The value to be assigned to the atomic object
      */
-    Atomic(dataType value) : _ptr(nullptr)
+    Atomic(dataType value)
     {
         tbb::atomic<dataType> * atomicPtr = new tbb::atomic<dataType>();
         *atomicPtr                        = value;
