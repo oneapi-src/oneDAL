@@ -29,8 +29,6 @@
 #include "algorithms/svm/svm_predict_types.h"
 #include "algorithms/kernel/kernel.h"
 
-using namespace daal::data_management;
-
 namespace daal
 {
 namespace algorithms
@@ -41,6 +39,8 @@ namespace prediction
 {
 namespace internal
 {
+using namespace daal::data_management;
+
 template <Method method, typename algorithmFPType>
 struct SVMPredictImplOneAPI : public Kernel
 {

@@ -27,6 +27,7 @@
 #include "service/kernel/oneapi/blas_gpu.h"
 #include "externals/service_ittnotify.h"
 #include "data_management/data/numeric_table_sycl_homogen.h"
+#include "algorithms/kernel/svm/oneapi/svm_helper_oneapi.h"
 
 DAAL_ITTNOTIFY_DOMAIN(svm_predict.default.batch);
 
@@ -41,8 +42,6 @@ namespace prediction
 namespace internal
 {
 using namespace daal::internal;
-using namespace daal::services;
-using namespace daal::services::internal;
 using namespace daal::oneapi::internal;
 
 template <typename algorithmFPType>
@@ -61,13 +60,9 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
     auto distanceBuff = rBlock.getBuffer();
 
     Model * model = static_cast<Model *>(const_cast<daal::algorithms::Model *>(m));
-    kernel_function::KernelIfacePtr kernel;
-    {
-        svm::Parameter * parameter = dynamic_cast<svm::Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
-        if (parameter) kernel = parameter->kernel->clone();
-    }
 
-    DAAL_CHECK(kernel, services::ErrorNullParameterNotSupported);
+    svm::Parameter * parameter             = static_cast<svm::Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
+    kernel_function::KernelIfacePtr kernel = parameter->kernel->clone();
 
     auto svCoeffTable = model->getClassificationCoefficients();
     const size_t nSV  = svCoeffTable->getNumberOfRows();
@@ -96,9 +91,9 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
 
     for (size_t blockIdx = 0; blockIdx < nBlocks; blockIdx++)
     {
-        const size_t startRow = blockIdx * nRowsPerBlock;
-        size_t endRow         = startRow + nRowsPerBlock;
-        if (endRow > nVectors) endRow = nVectors;
+        const size_t startRow          = blockIdx * nRowsPerBlock;
+        const size_t offestRow         = startRow + nRowsPerBlock;
+        const size_t endRow            = utils::internal::min(offestRow, nVectors);
         const size_t nRowsPerBlockReal = endRow - startRow;
 
         NumericTablePtr kernelResNT = SyclHomogenNumericTable<algorithmFPType>::create(kernelResBuff, nSV, nRowsPerBlockReal, &status);
@@ -119,7 +114,7 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
         kernel->getInput()->set(kernel_function::Y, svTable);
         kernel->getParameter()->computationMode = kernel_function::matrixMatrix;
         status                                  = kernel->computeNoThrow();
-        if (!status) return Status(services::ErrorSVMPredictKernerFunctionCall).add(status);
+        if (!status) return services::Status(services::ErrorSVMPredictKernerFunctionCall).add(status);
 
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(gemm);

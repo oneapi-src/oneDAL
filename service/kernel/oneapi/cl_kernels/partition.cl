@@ -30,82 +30,72 @@ DECLARE_SOURCE(
     kernelsPartition,
 
     __kernel void scan(const __global int * mask, __global int * partialSums, int nElems) {
-        const int n_groups             = get_num_groups(0);
-        const int n_sub_groups         = get_num_sub_groups();
-        const int n_total_sub_groups   = n_sub_groups * n_groups;
-        const int nElementsForSubgroup = nElems / n_total_sub_groups + !!(nElems % n_total_sub_groups);
-        const int local_size           = get_sub_group_size();
+        const int nGroups              = get_num_groups(0);
+        const int nSubGroups           = get_num_sub_groups();
+        const int nTotalSubGroups      = nSubGroups * nGroups;
+        const int nElementsForSubgroup = nElems / nTotalSubGroups + !!(nElems % nTotalSubGroups);
+        const int localSize            = get_sub_group_size();
 
-        const int id           = get_local_id(0);
-        const int local_id     = get_sub_group_local_id();
-        const int sub_group_id = get_sub_group_id();
-        const int group_id     = get_group_id(0) * n_sub_groups + sub_group_id;
+        const int id         = get_local_id(0);
+        const int localId    = get_sub_group_local_id();
+        const int subGroupId = get_sub_group_id();
+        const int groupId    = get_group_id(0) * nSubGroups + subGroupId;
 
-        int iStart = group_id * nElementsForSubgroup;
-        int iEnd   = (group_id + 1) * nElementsForSubgroup;
-
-        if (iEnd > nElems)
-        {
-            iEnd = nElems;
-        }
+        int iStart = groupId * nElementsForSubgroup;
+        int iEnd   = min((groupId + 1) * nElementsForSubgroup, nElems);
 
         int sum = 0;
 
-        for (int i = iStart + local_id; i < iEnd; i += local_size)
+        for (int i = iStart + localId; i < iEnd; i += localSize)
         {
             const int value = mask[i];
             sum += sub_group_reduce_add(value);
         }
 
-        if (local_id == 0)
+        if (localId == 0)
         {
-            partialSums[group_id] = sum;
+            partialSums[groupId] = sum;
         }
     }
 
     __kernel void scanIndex(const __global int * mask, const __global int * indices, __global int * partialSums, int nElems) {
-        const int n_groups             = get_num_groups(0);
-        const int n_sub_groups         = get_num_sub_groups();
-        const int n_total_sub_groups   = n_sub_groups * n_groups;
-        const int nElementsForSubgroup = nElems / n_total_sub_groups + !!(nElems % n_total_sub_groups);
-        const int local_size           = get_sub_group_size();
+        const int nGroups              = get_num_groups(0);
+        const int nSubGroups           = get_num_sub_groups();
+        const int nTotalSubGroups      = nSubGroups * nGroups;
+        const int nElementsForSubgroup = nElems / nTotalSubGroups + !!(nElems % nTotalSubGroups);
+        const int localSize            = get_sub_group_size();
 
-        const int id           = get_local_id(0);
-        const int local_id     = get_sub_group_local_id();
-        const int sub_group_id = get_sub_group_id();
-        const int group_id     = get_group_id(0) * n_sub_groups + sub_group_id;
+        const int id         = get_local_id(0);
+        const int localId    = get_sub_group_local_id();
+        const int subGroupId = get_sub_group_id();
+        const int groupId    = get_group_id(0) * nSubGroups + subGroupId;
 
-        int iStart = group_id * nElementsForSubgroup;
-        int iEnd   = (group_id + 1) * nElementsForSubgroup;
-
-        if (iEnd > nElems)
-        {
-            iEnd = nElems;
-        }
+        int iStart = groupId * nElementsForSubgroup;
+        int iEnd   = min((groupId + 1) * nElementsForSubgroup, nElems);
 
         int sum = 0;
 
-        for (int i = iStart + local_id; i < iEnd; i += local_size)
+        for (int i = iStart + localId; i < iEnd; i += localSize)
         {
             const int value = mask[indices[i]];
             sum += sub_group_reduce_add(value);
         }
 
-        if (local_id == 0)
+        if (localId == 0)
         {
-            partialSums[group_id] = sum;
+            partialSums[groupId] = sum;
         }
     }
 
     __kernel void sumScan(const __global int * partialSums, __global int * partialPrefixSums, __global int * totalSum, int nSubgroupSums) {
         if (get_sub_group_id() > 0) return;
 
-        const int local_size = get_sub_group_size();
-        const int local_id   = get_sub_group_local_id();
+        const int localSize = get_sub_group_size();
+        const int localId   = get_sub_group_local_id();
 
         int sum = 0;
 
-        for (int i = local_id; i < nSubgroupSums; i += local_size)
+        for (int i = localId; i < nSubgroupSums; i += localSize)
         {
             int value            = partialSums[i];
             int boundary         = sub_group_scan_exclusive_add(value);
@@ -113,7 +103,7 @@ DECLARE_SOURCE(
             sum += sub_group_reduce_add(value);
         }
 
-        if (local_id == 0)
+        if (localId == 0)
         {
             totalSum[0]                      = sum;
             partialPrefixSums[nSubgroupSums] = sum;
@@ -122,31 +112,26 @@ DECLARE_SOURCE(
 
     __kernel void reorder(const __global int * mask, const __global algorithmFPType * data, __global algorithmFPType * outData,
                           const __global int * partialPrefixSums, int nElems) {
-        const int n_groups             = get_num_groups(0);
-        const int n_sub_groups         = get_num_sub_groups();
-        const int n_total_sub_groups   = n_sub_groups * n_groups;
-        const int nElementsForSubgroup = nElems / n_total_sub_groups + !!(nElems % n_total_sub_groups);
-        const int local_size           = get_sub_group_size();
+        const int nGroups              = get_num_groups(0);
+        const int nSubGroups           = get_num_sub_groups();
+        const int nTotalSubGroups      = nSubGroups * nGroups;
+        const int nElementsForSubgroup = nElems / nTotalSubGroups + !!(nElems % nTotalSubGroups);
+        const int localSize            = get_sub_group_size();
 
-        const int id           = get_local_id(0);
-        const int local_id     = get_sub_group_local_id();
-        const int sub_group_id = get_sub_group_id();
-        const int group_id     = get_group_id(0) * n_sub_groups + sub_group_id;
+        const int id         = get_local_id(0);
+        const int localId    = get_sub_group_local_id();
+        const int subGroupId = get_sub_group_id();
+        const int groupId    = get_group_id(0) * nSubGroups + subGroupId;
 
-        int iStart = group_id * nElementsForSubgroup;
-        int iEnd   = (group_id + 1) * nElementsForSubgroup;
+        int iStart = groupId * nElementsForSubgroup;
+        int iEnd   = min((groupId + 1) * nElementsForSubgroup, nElems);
 
-        if (iEnd > nElems)
-        {
-            iEnd = nElems;
-        }
-
-        int groupOffset = partialPrefixSums[group_id];
-        int totalOffset = nElems - partialPrefixSums[n_total_sub_groups];
+        int groupOffset = partialPrefixSums[groupId];
+        int totalOffset = nElems - partialPrefixSums[nTotalSubGroups];
 
         int sum = 0;
 
-        for (int i = iStart + local_id; i < iEnd; i += local_size)
+        for (int i = iStart + localId; i < iEnd; i += localSize)
         {
             const int part     = mask[i];
             const int boundary = groupOffset + sum + sub_group_scan_exclusive_add(part);
@@ -157,30 +142,25 @@ DECLARE_SOURCE(
 
     __kernel void reorderIndex(const __global int * mask, const __global int * indices, __global int * outData,
                                const __global int * partialPrefixSums, int nElems) {
-        const int n_groups             = get_num_groups(0);
-        const int n_sub_groups         = get_num_sub_groups();
-        const int n_total_sub_groups   = n_sub_groups * n_groups;
-        const int nElementsForSubgroup = nElems / n_total_sub_groups + !!(nElems % n_total_sub_groups);
-        const int local_size           = get_sub_group_size();
+        const int nGroups              = get_num_groups(0);
+        const int nSubGroups           = get_num_sub_groups();
+        const int nTotalSubGroups      = nSubGroups * nGroups;
+        const int nElementsForSubgroup = nElems / nTotalSubGroups + !!(nElems % nTotalSubGroups);
+        const int localSize            = get_sub_group_size();
 
-        const int local_id     = get_sub_group_local_id();
-        const int sub_group_id = get_sub_group_id();
-        const int group_id     = get_group_id(0) * n_sub_groups + sub_group_id;
+        const int localId    = get_sub_group_local_id();
+        const int subGroupId = get_sub_group_id();
+        const int groupId    = get_group_id(0) * nSubGroups + subGroupId;
 
-        int iStart = group_id * nElementsForSubgroup;
-        int iEnd   = (group_id + 1) * nElementsForSubgroup;
+        int iStart = groupId * nElementsForSubgroup;
+        int iEnd   = min((groupId + 1) * nElementsForSubgroup, nElems);
 
-        if (iEnd > nElems)
-        {
-            iEnd = nElems;
-        }
-
-        int groupOffset = partialPrefixSums[group_id];
-        int totalOffset = nElems - partialPrefixSums[n_total_sub_groups];
+        int groupOffset = partialPrefixSums[groupId];
+        int totalOffset = nElems - partialPrefixSums[nTotalSubGroups];
 
         int sum = 0;
 
-        for (int i = iStart + local_id; i < iEnd; i += local_size)
+        for (int i = iStart + localId; i < iEnd; i += localSize)
         {
             const int indexi   = indices[i];
             const int part     = mask[indexi];

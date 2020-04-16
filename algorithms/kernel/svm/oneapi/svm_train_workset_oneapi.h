@@ -27,8 +27,6 @@
 #include "service/kernel/service_utils.h"
 #include "algorithms/kernel/svm/oneapi/svm_helper_oneapi.h"
 
-using namespace daal::services::internal;
-
 namespace daal
 {
 namespace algorithms
@@ -39,10 +37,12 @@ namespace training
 {
 namespace internal
 {
+using namespace daal::services::internal;
+
 template <typename algorithmFPType>
 struct TaskWorkingSet
 {
-    using Helper = HelperSVM<algorithmFPType>;
+    using Helper = utils::internal::HelperSVM<algorithmFPType>;
 
     TaskWorkingSet(const size_t nVectors) : _nVectors(nVectors) {}
 
@@ -63,7 +63,7 @@ struct TaskWorkingSet
 
         const size_t maxWS = deviceInfo.max_work_group_size;
 
-        _nWS       = min(maxpow2(_nVectors), maxWS);
+        _nWS       = utils::internal::min(utils::internal::maxpow2(_nVectors), maxWS);
         _nSelected = 0;
 
         _valuesSort     = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
@@ -113,7 +113,7 @@ struct TaskWorkingSet
             size_t nUpperSelect = 0;
             DAAL_CHECK_STATUS(status, Partition::flaggedIndex(indicatorBuff, _sortedFIndices, _buffIndices, _nVectors, nUpperSelect));
 
-            const size_t nCopy = min(nUpperSelect, nNeedSelect);
+            const size_t nCopy = utils::internal::min(nUpperSelect, nNeedSelect);
 
             context.copy(_wsIndices, _nSelected, _buffIndices, 0, nCopy, &status);
             _nSelected += nCopy;
@@ -133,7 +133,7 @@ struct TaskWorkingSet
             size_t nLowerSelect = 0;
             DAAL_CHECK_STATUS(status, Partition::flaggedIndex(indicatorBuff, _sortedFIndices, _buffIndices, _nVectors, nLowerSelect));
 
-            const size_t nCopy = min(nLowerSelect, nNeedSelect);
+            const size_t nCopy = utils::internal::min(nLowerSelect, nNeedSelect);
 
             /* Copy latest nCopy elements */
             context.copy(_wsIndices, _nSelected, _buffIndices, nLowerSelect - nCopy, nCopy, &status);
@@ -155,7 +155,7 @@ struct TaskWorkingSet
             size_t nUpperSelect = 0;
             DAAL_CHECK_STATUS(status, Partition::flaggedIndex(indicatorBuff, _sortedFIndices, _buffIndices, _nVectors, nUpperSelect));
 
-            const size_t nCopy = min(nUpperSelect, nNeedSelect);
+            const size_t nCopy = utils::internal::min(nUpperSelect, nNeedSelect);
 
             context.copy(_wsIndices, _nSelected, _buffIndices, 0, nCopy, &status);
             _nSelected += nCopy;

@@ -43,7 +43,7 @@ using namespace daal::oneapi::internal::math;
 template <typename algorithmFPType>
 class SaveResultModel
 {
-    using Helper = HelperSVM<algorithmFPType>;
+    using Helper = utils::internal::HelperSVM<algorithmFPType>;
 
 public:
     SaveResultModel(services::Buffer<algorithmFPType> & alphaBuff, const services::Buffer<algorithmFPType> & fBuff,
@@ -93,7 +93,7 @@ protected:
         auto tmpValuesBuff = _tmpValues.get<algorithmFPType>();
         auto maskBuff      = _mask.get<int>();
 
-        DAAL_CHECK_STATUS(status, Helper::checkNotZero(_coeffBuff, maskBuff, _nVectors));
+        DAAL_CHECK_STATUS(status, Helper::checkNonZeroBinary(_coeffBuff, maskBuff, _nVectors));
         nSV = 0;
         DAAL_CHECK_STATUS(status, Partition::flagged(maskBuff, _coeffBuff, tmpValuesBuff, _nVectors, nSV));
 

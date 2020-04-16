@@ -58,10 +58,6 @@
 
 DAAL_ITTNOTIFY_DOMAIN(svm_train.default.batch);
 
-using namespace daal::internal;
-using namespace daal::services::internal;
-using namespace daal::oneapi::internal;
-
 namespace daal
 {
 namespace algorithms
@@ -72,6 +68,10 @@ namespace training
 {
 namespace internal
 {
+using namespace daal::internal;
+using namespace daal::services::internal;
+using namespace daal::oneapi::internal;
+
 template <typename algorithmFPType, typename ParameterType>
 services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::updateGrad(const services::Buffer<algorithmFPType> & kernelWS,
                                                                                      const services::Buffer<algorithmFPType> & deltaalpha,

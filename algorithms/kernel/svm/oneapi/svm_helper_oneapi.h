@@ -31,18 +31,21 @@ namespace algorithms
 {
 namespace svm
 {
-namespace training
+namespace utils
 {
 namespace internal
 {
+using namespace daal::services::internal;
+using namespace daal::oneapi::internal;
+
 template <typename T>
-inline const T & min(const T & a, const T & b)
+inline const T min(const T a, const T b)
 {
     return !(b < a) ? a : b;
 }
 
 template <typename T>
-inline const T & max(const T & a, const T & b)
+inline const T max(const T a, const T b)
 {
     return (a < b) ? b : a;
 }
@@ -68,9 +71,6 @@ inline size_t maxpow2(size_t n)
     }
     return 1 << count;
 }
-
-using namespace daal::services::internal;
-using namespace daal::oneapi::internal;
 
 template <typename algorithmFPType>
 struct HelperSVM
@@ -255,9 +255,9 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status checkNotZero(const services::Buffer<algorithmFPType> & alpha, services::Buffer<int> & mask, const size_t n)
+    static services::Status checkNonZeroBinary(const services::Buffer<algorithmFPType> & alpha, services::Buffer<int> & mask, const size_t n)
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(checkNotZero);
+        DAAL_ITTNOTIFY_SCOPED_TASK(checkNonZeroBinary);
 
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
         auto & factory = context.getClKernelFactory();
@@ -265,7 +265,7 @@ struct HelperSVM
         services::Status status = buildProgram(factory);
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto kernel = factory.getKernel("checkNotZero");
+        auto kernel = factory.getKernel("checkNonZeroBinary");
 
         KernelArguments args(2);
         args.set(0, alpha, AccessModeIds::read);
@@ -305,7 +305,7 @@ struct HelperSVM
 };
 
 } // namespace internal
-} // namespace training
+} // namespace utils
 } // namespace svm
 } // namespace algorithms
 } // namespace daal

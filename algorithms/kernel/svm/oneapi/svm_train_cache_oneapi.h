@@ -31,9 +31,6 @@
 #include "data_management/data/numeric_table_sycl_homogen.h"
 #include "algorithms/kernel/svm/oneapi/svm_helper_oneapi.h"
 
-using namespace daal::services::internal;
-using namespace daal::data_management;
-
 namespace daal
 {
 namespace algorithms
@@ -44,6 +41,9 @@ namespace training
 {
 namespace internal
 {
+using namespace daal::data_management;
+using namespace daal::oneapi::internal;
+
 /**
  * Types of caches for kernel function values
  */
@@ -89,7 +89,7 @@ class SVMCacheOneAPI
 template <typename algorithmFPType>
 class SVMCacheOneAPI<noCache, algorithmFPType> : public SVMCacheOneAPIIface<algorithmFPType>
 {
-    using Helper   = HelperSVM<algorithmFPType>;
+    using Helper   = utils::internal::HelperSVM<algorithmFPType>;
     using super    = SVMCacheOneAPIIface<algorithmFPType>;
     using thisType = SVMCacheOneAPI<noCache, algorithmFPType>;
     using super::_kernel;

@@ -68,7 +68,7 @@ services::Status Reducer::buildProgram(ClKernelFactoryIface & kernelFactory, con
 void Reducer::singlepass(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, Layout vectorsLayout, const UniversalBuffer & vectors,
                          uint32_t nVectors, uint32_t vectorSize, uint32_t workItemsPerGroup, UniversalBuffer & reduceRes, services::Status * status)
 {
-    auto reduce_kernel = kernelFactory.getKernel("reduce_singlepass");
+    auto reduce_kernel = kernelFactory.getKernel("reduceSinglepass");
 
     KernelRange localRange(workItemsPerGroup, 1);
     KernelRange globalRange(workItemsPerGroup, nVectors);
@@ -94,7 +94,7 @@ void Reducer::runStepColmajor(ExecutionContextIface & context, ClKernelFactoryIf
                               uint32_t nVectors, uint32_t vectorSize, uint32_t numWorkItems, uint32_t numWorkGroups, Reducer::Result & stepResult,
                               services::Status * status)
 {
-    auto reduce_kernel = kernelFactory.getKernel("reduce_step_colmajor");
+    auto reduce_kernel = kernelFactory.getKernel("reduceStepColmajor");
 
     KernelRange localRange(numWorkItems);
     KernelRange globalRange(numWorkGroups * numWorkItems);
@@ -119,7 +119,7 @@ void Reducer::runFinalStepRowmajor(ExecutionContextIface & context, ClKernelFact
                                    uint32_t nVectors, uint32_t vectorSize, uint32_t workItemsPerGroup, Reducer::Result & result,
                                    services::Status * status)
 {
-    auto reduce_kernel = kernelFactory.getKernel("reduce_final_step_rowmajor");
+    auto reduce_kernel = kernelFactory.getKernel("reduceFinalStepRowmajor");
 
     KernelRange localRange(workItemsPerGroup);
     KernelRange globalRange(workItemsPerGroup * nVectors);

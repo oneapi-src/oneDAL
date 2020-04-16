@@ -59,7 +59,7 @@ DECLARE_SOURCE_DAAL(
         indicator[i]                 = 0 < alphai && alphai < C;
     }
 
-    __kernel void checkNotZero(const __global algorithmFPType * const alpha, __global int * indicator) {
+    __kernel void checkNonZeroBinary(const __global algorithmFPType * const alpha, __global int * indicator) {
         const int i  = get_global_id(0);
         indicator[i] = alpha[i] != (algorithmFPType)0;
     }

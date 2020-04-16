@@ -40,8 +40,8 @@ DECLARE_SOURCE_DAAL(
     }
 
     typedef struct {
-        algorithmFPType value;
         int index;
+        algorithmFPType value;
     } KeyValue;
 
     void reduceArgMax(const __local algorithmFPType * values, __local KeyValue * localCache, __local KeyValue * result) {
@@ -55,10 +55,8 @@ DECLARE_SOURCE_DAAL(
 
         algorithmFPType resMax;
         int resIndex;
-        {
-            resMax   = sub_group_reduce_max(x);
-            resIndex = sub_group_reduce_min(resMax == x ? indX : INT_MAX);
-        }
+        resMax   = sub_group_reduce_max(x);
+        resIndex = sub_group_reduce_min(resMax == x ? indX : INT_MAX);
 
         if (localGroupId == 0)
         {
@@ -70,12 +68,11 @@ DECLARE_SOURCE_DAAL(
 
         if (groupId == 0 && localGroupId < groupCount)
         {
-            x    = localCache[localGroupId].value;
-            indX = localCache[localGroupId].index;
-            {
-                resMax   = sub_group_reduce_max(x);
-                resIndex = sub_group_reduce_min(resMax == x ? indX : INT_MAX);
-            }
+            x        = localCache[localGroupId].value;
+            indX     = localCache[localGroupId].index;
+            resMax   = sub_group_reduce_max(x);
+            resIndex = sub_group_reduce_min(resMax == x ? indX : INT_MAX);
+
             if (localGroupId == 0)
             {
                 result->value = resMax;
@@ -97,7 +94,7 @@ DECLARE_SOURCE_DAAL(
 
         const algorithmFPType MIN_FLT = -FLT_MAX;
 
-        const algorithmFPType two = 2.0;
+        const algorithmFPType two = (algorithmFPType)2.0;
 
         algorithmFPType gradi           = grad[wsIndex];
         algorithmFPType alphai          = alpha[wsIndex];
@@ -112,8 +109,9 @@ DECLARE_SOURCE_DAAL(
         __local KeyValue localCache[SIMD_WIDTH];
         __local KeyValue maxValInd;
 
-        __local int Bi;
-        __local int Bj;
+        int Bi = -1;
+
+        int Bj = -1;
 
         algorithmFPType ma;
 
@@ -148,7 +146,7 @@ DECLARE_SOURCE_DAAL(
                 localDiff = maxGrad - ma;
                 if (iter == 0)
                 {
-                    localEps = max(eps, localDiff * (algorithmFPType)5e-1);
+                    localEps = max(eps, localDiff * (algorithmFPType)1e-1);
                 }
             }
 
