@@ -120,8 +120,8 @@ services::Status KernelImplLinear<defaultDense, algorithmFPType, cpu>::computeIn
 {
     SafeStatus safeStat;
 
-    const char trans   = 'T';
-    const char notrans = 'N';
+    char trans   = 'T';
+    char notrans = 'N';
 
     const size_t nFeatures = a1->getNumberOfColumns();
     const size_t nVectors1 = a1->getNumberOfRows();
@@ -134,21 +134,29 @@ services::Status KernelImplLinear<defaultDense, algorithmFPType, cpu>::computeIn
 
     if (a1 != a2)
     {
-        ReadRows<algorithmFPType, cpu> mtA1(*const_cast<NumericTable *>(a1), 0, nVectors1);
-        DAAL_CHECK_BLOCK_STATUS(mtA1);
-        const algorithmFPType * dataA1 = const_cast<algorithmFPType *>(mtA1.get());
-
         ReadRows<algorithmFPType, cpu> mtA2(*const_cast<NumericTable *>(a2), 0, nVectors2);
         DAAL_CHECK_BLOCK_STATUS(mtA2);
         const algorithmFPType * dataA2 = const_cast<algorithmFPType *>(mtA2.get());
 
-        WriteOnlyRows<algorithmFPType, cpu> mtR(r, 0, nVectors1);
-        DAAL_CHECK_BLOCK_STATUS(mtR);
-        algorithmFPType * dataR = mtR.get();
+        const size_t blockSize = 256;
+        const size_t blockNum  = nVectors1 / blockSize + !!(nVectors1 % blockSize);
 
-        Blas<algorithmFPType, cpu>::xgemm(&trans, &notrans, (DAAL_INT *)&nVectors2, (DAAL_INT *)&nVectors1, (DAAL_INT *)&nFeatures, &alpha,
-                                          (algorithmFPType *)dataA2, (DAAL_INT *)&nFeatures, (algorithmFPType *)dataA1, (DAAL_INT *)&nFeatures, &beta,
-                                          dataR, (DAAL_INT *)&nVectors2);
+        daal::threader_for(blockNum, blockNum, [&](const size_t iBlock) {
+            const size_t startRow       = iBlock * blockSize;
+            const size_t numRowsInBlock = (iBlock != blockNum - 1) ? blockSize : nVectors1 - iBlock * blockSize;
+
+            ReadRows<algorithmFPType, cpu> mtA1(*const_cast<NumericTable *>(a1), startRow, numRowsInBlock);
+            DAAL_CHECK_BLOCK_STATUS_THR(mtA1);
+            const algorithmFPType * blockPtr = const_cast<algorithmFPType *>(mtA1.get());
+
+            WriteOnlyRows<algorithmFPType, cpu> mtR(r, startRow, numRowsInBlock);
+            DAAL_CHECK_BLOCK_STATUS_THR(mtR);
+            algorithmFPType * dataR = mtR.get();
+
+            Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, (DAAL_INT *)&nVectors2, (DAAL_INT *)&numRowsInBlock, (DAAL_INT *)&nFeatures, &alpha,
+                                               (algorithmFPType *)dataA2, (DAAL_INT *)&nFeatures, (algorithmFPType *)blockPtr, (DAAL_INT *)&nFeatures,
+                                               &beta, dataR, (DAAL_INT *)&nVectors2);
+        });
     }
     else
     {
