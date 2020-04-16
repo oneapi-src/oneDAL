@@ -146,7 +146,7 @@ bool SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::checkStopCondition
                                                                                  const algorithmFPType eps, const size_t nNoChanges,
                                                                                  size_t & sameLocalDiff)
 {
-    sameLocalDiff = abs(diff - diffPrev) < eps * 1e-2 ? sameLocalDiff + 1 : 0;
+    sameLocalDiff = utils::internal::abs(diff - diffPrev) < eps * 1e-2 ? sameLocalDiff + 1 : 0;
 
     if (sameLocalDiff > nNoChanges || diff < eps)
     {
