@@ -25,10 +25,10 @@
 #define __DAAL_ATOMIC_INT_H__
 
 #if !defined(TBB_SUPPRESS_DEPRECATED_MESSAGES)
-  #define TBB_SUPPRESS_DEPRECATED_MESSAGES
+  #define TBB_SUPPRESS_DEPRECATED_MESSAGES 1
 #endif
 #if !defined(__TBB_LEGACY_MODE)
-  #define __TBB_LEGACY_MODE
+  #define __TBB_LEGACY_MODE 1
 #endif
 
 #include "tbb/tbb.h"
