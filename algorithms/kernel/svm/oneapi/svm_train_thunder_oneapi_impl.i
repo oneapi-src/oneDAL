@@ -102,6 +102,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::smoKer
     char bufferString[DAAL_MAX_STRING_SIZE] = { 0 };
     services::daal_int_to_string(bufferString, DAAL_MAX_STRING_SIZE, int(nWS));
     build_options.add(bufferString);
+    build_options.add(" -D SIMD_WIDTH=16 ");
     cachekey.add(build_options);
 
     services::Status status;
@@ -257,7 +258,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
 
         DAAL_CHECK_STATUS(status, cache->compute(xTable, wsIndices, nFeatures));
 
-        const services::Buffer<algorithmFPType> & kernelWS = cache->getSetRowsBlock();
+        const services::Buffer<algorithmFPType> & kernelWS = cache->getRowsBlock();
 
         DAAL_CHECK_STATUS(status, smoKernel(yBuff, kernelWS, wsIndices, nVectors, gradBuff, C, eps, tau, innerMaxIterations, alphaBuff,
                                             deltaalphaBuff, resinfoBuff, nWS));
@@ -275,7 +276,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
         diffPrev = diff;
     }
 
-    printf("localInnerIteration %d iter %d\n", (int)innerIteration, (int)iter); /*need delete it for final merge*/
+    printf("localInnerIteration %d iter %d diff %lf\n", (int)innerIteration, (int)iter, (double)diff); /*need delete it for final merge*/
 
     SaveResultModel<algorithmFPType> result(alphaBuff, gradBuff, yBuff, C, nVectors);
 

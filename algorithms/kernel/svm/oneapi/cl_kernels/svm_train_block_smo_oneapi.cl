@@ -39,48 +39,55 @@ DECLARE_SOURCE_DAAL(
         return (y > 0 && alpha > 0) || (y < 0 && alpha < C);
     }
 
-    void reduceMax(const __local algorithmFPType * values, __local int * indices) {
-        const int local_id = get_local_id(0);
-        indices[local_id]  = local_id;
+    typedef struct {
+        algorithmFPType value;
+        int index;
+    } KeyValue;
 
-        for (int stride = WS_SIZE / 2; stride > 0; stride >>= 1)
+    void reduceArgMax(const __local algorithmFPType * values, __local KeyValue * localCache, __local KeyValue * result) {
+        const int localGroupId = get_sub_group_local_id();
+        const int groupId      = get_sub_group_id();
+        const int localId      = get_local_id(0);
+        const int groupCount   = get_num_sub_groups();
+
+        algorithmFPType x = values[localId];
+        int indX          = localId;
+
+        algorithmFPType resMax;
+        int resIndex;
         {
-            barrier(CLK_LOCAL_MEM_FENCE);
+            resMax   = sub_group_reduce_max(x);
+            resIndex = sub_group_reduce_min(resMax == x ? indX : INT_MAX);
+        }
 
-            if (local_id < stride)
+        if (localGroupId == 0)
+        {
+            localCache[groupId].value = resMax;
+            localCache[groupId].index = resIndex;
+        }
+
+        barrier(CLK_LOCAL_MEM_FENCE);
+
+        if (groupId == 0 && localGroupId < groupCount)
+        {
+            x    = localCache[localGroupId].value;
+            indX = localCache[localGroupId].index;
             {
-                const algorithmFPType v  = values[indices[local_id]];
-                const algorithmFPType vk = values[indices[local_id + stride]];
-                if (vk > v)
-                {
-                    indices[local_id] = indices[local_id + stride];
-                }
+                resMax   = sub_group_reduce_max(x);
+                resIndex = sub_group_reduce_min(resMax == x ? indX : INT_MAX);
+            }
+            if (localGroupId == 0)
+            {
+                result->value = resMax;
+                result->index = resIndex;
             }
         }
+        barrier(CLK_LOCAL_MEM_FENCE);
     }
 
-    void reduceMin(const __local algorithmFPType * values, __local int * indices) {
-        const int local_id = get_local_id(0);
-        indices[local_id]  = local_id;
-
-        for (int stride = WS_SIZE / 2; stride > 0; stride >>= 1)
-        {
-            barrier(CLK_LOCAL_MEM_FENCE);
-
-            if (local_id < stride)
-            {
-                const algorithmFPType v  = values[indices[local_id]];
-                const algorithmFPType vk = values[indices[local_id + stride]];
-                if (vk < v)
-                {
-                    indices[local_id] = indices[local_id + stride];
-                }
-            }
-        }
-    }
-
+    __attribute__((intel_reqd_sub_group_size(SIMD_WIDTH)))
     __kernel void smoKernel(const __global algorithmFPType * const y, const __global algorithmFPType * const kernelWsRows,
-                            const __global int * wsIndices, const uint ldx, const __global algorithmFPType * grad, const algorithmFPType C,
+                            const __global int * wsIndices, const uint nVectors, const __global algorithmFPType * grad, const algorithmFPType C,
                             const algorithmFPType eps, const algorithmFPType tau, const int maxInnerIteration, __global algorithmFPType * alpha,
                             __global algorithmFPType * deltaalpha, __global algorithmFPType * resinfo) {
         const uint i = get_local_id(0);
@@ -89,7 +96,6 @@ DECLARE_SOURCE_DAAL(
         const int wsIndex = wsIndices[i];
 
         const algorithmFPType MIN_FLT = -FLT_MAX;
-        const algorithmFPType MAX_FLT = FLT_MAX;
 
         const algorithmFPType two = 2.0;
 
@@ -99,17 +105,19 @@ DECLARE_SOURCE_DAAL(
         const algorithmFPType yi        = y[wsIndex];
 
         __local algorithmFPType objFunc[WS_SIZE];
-        __local int indices[WS_SIZE];
 
         __local algorithmFPType deltaBi;
         __local algorithmFPType deltaBj;
+
+        __local KeyValue localCache[SIMD_WIDTH];
+        __local KeyValue maxValInd;
 
         __local int Bi;
         __local int Bj;
 
         algorithmFPType ma;
 
-        kd[i] = kernelWsRows[i * ldx + wsIndex];
+        kd[i] = kernelWsRows[i * nVectors + wsIndex];
         barrier(CLK_LOCAL_MEM_FENCE);
 
         __local algorithmFPType localDiff;
@@ -119,28 +127,22 @@ DECLARE_SOURCE_DAAL(
         for (; iter < maxInnerIteration; iter++)
         {
             /* m(alpha) = min(grad[i]): i belongs to I_UP (alpha) */
-            objFunc[i] = isUpper(alphai, yi, C) ? gradi : MAX_FLT;
+            objFunc[i] = isUpper(alphai, yi, C) ? -gradi : MIN_FLT;
 
             /* Find i index of the working set (Bi) */
-            reduceMin(objFunc, indices);
-            if (i == 0)
-            {
-                Bi = indices[0];
-            }
-            ma = objFunc[Bi];
-
-            barrier(CLK_LOCAL_MEM_FENCE);
+            reduceArgMax(objFunc, localCache, &maxValInd);
+            Bi = maxValInd.index;
+            ma = -maxValInd.value;
 
             /* maxgrad(alpha) = max(grad[i]): i belongs to I_low (alpha) */
             objFunc[i] = isLower(alphai, yi, C) ? gradi : MIN_FLT;
 
-            /* Find max gradinet of the working set (Bi) */
-            reduceMax(objFunc, indices);
+            /* Find max gradinet */
+            reduceArgMax(objFunc, localCache, &maxValInd);
 
-            barrier(CLK_LOCAL_MEM_FENCE);
             if (i == 0)
             {
-                const algorithmFPType maxGrad = objFunc[indices[0]];
+                const algorithmFPType maxGrad = maxValInd.value;
 
                 /* for condition check: m(alpha) >= maxgrad */
                 localDiff = maxGrad - ma;
@@ -158,7 +160,7 @@ DECLARE_SOURCE_DAAL(
 
             const algorithmFPType Kii   = kd[i];
             const algorithmFPType KBiBi = kd[Bi];
-            const algorithmFPType KiBi  = kernelWsRows[Bi * ldx + wsIndex];
+            const algorithmFPType KiBi  = kernelWsRows[Bi * nVectors + wsIndex];
 
             if (isLower(alphai, yi, C) && ma < gradi)
             {
@@ -175,18 +177,12 @@ DECLARE_SOURCE_DAAL(
             }
 
             /* Find j index of the working set (Bj) */
-            reduceMax(objFunc, indices);
+            reduceArgMax(objFunc, localCache, &maxValInd);
+            Bj = maxValInd.index;
 
-            if (i == 0)
-            {
-                Bj = indices[0];
-            }
-            barrier(CLK_LOCAL_MEM_FENCE);
+            const algorithmFPType KiBj = kernelWsRows[Bj * nVectors + wsIndex];
 
-            const algorithmFPType KiBj = kernelWsRows[Bj * ldx + wsIndex];
-
-            // Update alpha
-
+            /* Update alpha */
             if (i == Bi)
             {
                 deltaBi = yi > 0 ? C - alphai : alphai;
@@ -213,7 +209,7 @@ DECLARE_SOURCE_DAAL(
                 alphai = alphai - yi * delta;
             }
 
-            // Update gradient
+            /* Update gradient */
             gradi = gradi + delta * (KiBi - KiBj);
         }
         alpha[wsIndex] = alphai;

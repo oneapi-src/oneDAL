@@ -66,8 +66,8 @@ public:
 
     virtual services::Status compute(const NumericTablePtr & xTable, const services::Buffer<int> & wsIndices, const size_t p) = 0;
 
-    virtual const services::Buffer<algorithmFPType> & getSetRowsBlock() const = 0;
-    virtual services::Status copyLastToFirst()                                = 0;
+    virtual const services::Buffer<algorithmFPType> & getRowsBlock() const = 0;
+    virtual services::Status copyLastToFirst()                             = 0;
 
 protected:
     SVMCacheOneAPIIface(const size_t blockSize, const size_t lineSize, const kernel_function::KernelIfacePtr & kernel)
@@ -122,7 +122,7 @@ public:
         return res;
     }
 
-    const services::Buffer<algorithmFPType> & getSetRowsBlock() const override { return _cacheBuff; }
+    const services::Buffer<algorithmFPType> & getRowsBlock() const override { return _cacheBuff; }
 
     services::Status compute(const NumericTablePtr & xTable, const services::Buffer<int> & wsIndices, const size_t p) override
     {

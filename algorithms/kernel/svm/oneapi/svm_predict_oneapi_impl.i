@@ -91,8 +91,8 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
     const size_t nRowsPerBlock = 1024;
     const size_t nBlocks       = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
 
-    auto shU       = context.allocate(TypeIds::id<algorithmFPType>(), nRowsPerBlock * nSV, &status);
-    auto shResBuff = shU.template get<algorithmFPType>();
+    auto kernelResU    = context.allocate(TypeIds::id<algorithmFPType>(), nRowsPerBlock * nSV, &status);
+    auto kernelResBuff = kernelResU.template get<algorithmFPType>();
 
     for (size_t blockIdx = 0; blockIdx < nBlocks; blockIdx++)
     {
@@ -101,7 +101,7 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
         if (endRow > nVectors) endRow = nVectors;
         const size_t nRowsPerBlockReal = endRow - startRow;
 
-        NumericTablePtr shResNT = SyclHomogenNumericTable<algorithmFPType>::create(shResBuff, nSV, nRowsPerBlockReal, &status);
+        NumericTablePtr kernelResNT = SyclHomogenNumericTable<algorithmFPType>::create(kernelResBuff, nSV, nRowsPerBlockReal, &status);
 
         BlockDescriptor<algorithmFPType> xBlock;
         DAAL_CHECK_STATUS(status, xTable->getBlockOfRows(startRow, nRowsPerBlockReal, ReadWriteMode::readOnly, xBlock));
@@ -112,7 +112,7 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
         auto kfResultPtr = new kernel_function::Result();
         DAAL_CHECK_MALLOC(kfResultPtr)
         kernel_function::ResultPtr shRes(kfResultPtr);
-        shRes->set(kernel_function::values, shResNT);
+        shRes->set(kernel_function::values, kernelResNT);
         kernel->setResult(shRes);
 
         kernel->getInput()->set(kernel_function::X, xBlockNT);
@@ -124,8 +124,8 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(gemm);
             DAAL_CHECK_STATUS(status, BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::NoTrans,
-                                                                      nRowsPerBlockReal, 1, nSV, algorithmFPType(1.0), shResBuff, nSV, 0, svCoeffBuff,
-                                                                      1, 0, algorithmFPType(1.0), distanceBuff, 1, startRow));
+                                                                      nRowsPerBlockReal, 1, nSV, algorithmFPType(1.0), kernelResBuff, nSV, 0,
+                                                                      svCoeffBuff, 1, 0, algorithmFPType(1.0), distanceBuff, 1, startRow));
         }
 
         DAAL_CHECK_STATUS(status, xTable->releaseBlockOfRows(xBlock));
