@@ -150,9 +150,9 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInte
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.sumOfSquared);
 
-        Reducer::reduce(Reducer::BinaryOp::SUMS_OF_SQUARED, Layout::RowMajor, a1Buf, sqrA1U, nVectors1, nFeatures1, &status);
+        Reducer::reduce(Reducer::BinaryOp::SUM_OF_SQUARES, Layout::RowMajor, a1Buf, sqrA1U, nVectors1, nFeatures1, &status);
         DAAL_CHECK_STATUS_VAR(status);
-        Reducer::reduce(Reducer::BinaryOp::SUMS_OF_SQUARED, Layout::RowMajor, a2Buf, sqrA2U, nVectors2, nFeatures2, &status);
+        Reducer::reduce(Reducer::BinaryOp::SUM_OF_SQUARES, Layout::RowMajor, a2Buf, sqrA2U, nVectors2, nFeatures2, &status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 

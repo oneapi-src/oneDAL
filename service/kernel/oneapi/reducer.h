@@ -35,6 +35,8 @@ namespace math
 class SumReducer
 {
 public:
+    SumReducer() = delete;
+
     struct Result
     {
         UniversalBuffer sum;
@@ -47,20 +49,19 @@ public:
 
 public:
     static Result sum(Layout vectorsLayout, const UniversalBuffer & vectors, uint32_t nVectors, uint32_t vectorSize, services::Status * status);
-
-private:
-    SumReducer();
 };
 
 class Reducer
 {
 public:
+    Reducer() = delete;
+
     enum class BinaryOp
     {
         MIN,
         MAX,
         SUM,
-        SUMS_OF_SQUARED
+        SUM_OF_SQUARES
     };
 
     struct Result
@@ -84,8 +85,6 @@ public:
                          uint32_t vectorSize, services::Status * status);
 
 private:
-    Reducer();
-
     static services::Status buildProgram(ClKernelFactoryIface & kernelFactory, const BinaryOp op, const TypeId & vectorType);
     static void singlepass(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, Layout vectorsLayout,
                            const UniversalBuffer & vectors, uint32_t nVectors, uint32_t vectorSize, uint32_t workItemsPerGroup,

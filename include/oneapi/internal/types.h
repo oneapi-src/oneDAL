@@ -36,7 +36,7 @@ namespace internal
  */
 
 template <typename algorithmFPType>
-services::String getKeyFPType()
+inline services::String getKeyFPType()
 {
     if (IsSameType<algorithmFPType, float>::value)
     {

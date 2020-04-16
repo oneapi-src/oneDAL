@@ -48,7 +48,7 @@ services::Status Reducer::buildProgram(ClKernelFactoryIface & kernelFactory, con
     {
         build_options.add(" -D UNARY_OP=none -D BINARY_OP=sum -D INIT_VALUE=0.0");
     }
-    else if (op == BinaryOp::SUMS_OF_SQUARED)
+    else if (op == BinaryOp::SUM_OF_SQUARES)
     {
         build_options.add(" -D UNARY_OP=pow2 -D BINARY_OP=sum -D INIT_VALUE=0.0");
     }

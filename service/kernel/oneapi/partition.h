@@ -32,6 +32,8 @@ namespace internal
 class Partition
 {
 public:
+    Partition() = delete;
+
     static services::Status flaggedIndex(UniversalBuffer mask, UniversalBuffer data, UniversalBuffer outData, const size_t nElems, size_t & nSelect);
     static services::Status flagged(UniversalBuffer mask, UniversalBuffer data, UniversalBuffer outData, const size_t nElems, size_t & nSelect);
 

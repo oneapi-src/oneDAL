@@ -49,7 +49,7 @@ classifier::prediction::ResultPtr predictionResult;
 NumericTablePtr testGroundTruth;
 
 template <typename algorithmType>
-void trainModel(algorithmType algorithm);
+void trainModel(algorithmType && algorithm);
 void testModel();
 void printResults();
 
@@ -82,7 +82,7 @@ int main(int argc, char * argv[])
 }
 
 template <typename algorithmType>
-void trainModel(algorithmType algorithm)
+void trainModel(algorithmType && algorithm)
 {
     FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
