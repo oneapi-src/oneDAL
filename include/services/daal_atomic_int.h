@@ -24,8 +24,13 @@
 #ifndef __DAAL_ATOMIC_INT_H__
 #define __DAAL_ATOMIC_INT_H__
 
-#define TBB_SUPPRESS_DEPRECATED_MESSAGES
-#define __TBB_LEGACY_MODE
+#if !defined(TBB_SUPPRESS_DEPRECATED_MESSAGES)
+  #define TBB_SUPPRESS_DEPRECATED_MESSAGES
+#endif
+#if !defined(__TBB_LEGACY_MODE)
+  #define __TBB_LEGACY_MODE
+#endif
+
 #include "tbb/tbb.h"
 #include "tbb/atomic.h"
 #ifdef min
