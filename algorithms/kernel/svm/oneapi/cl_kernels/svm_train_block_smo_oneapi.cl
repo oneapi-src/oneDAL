@@ -146,7 +146,8 @@ DECLARE_SOURCE_DAAL(
                 localDiff = maxGrad - ma;
                 if (iter == 0)
                 {
-                    localEps = max(eps, localDiff * (algorithmFPType)1e-1);
+                    localEps   = max(eps, localDiff * (algorithmFPType)1e-1);
+                    resinfo[1] = localDiff;
                 }
             }
 
@@ -215,7 +216,6 @@ DECLARE_SOURCE_DAAL(
         if (i == 0)
         {
             resinfo[0] = iter;
-            resinfo[1] = localDiff;
         }
     }
 
