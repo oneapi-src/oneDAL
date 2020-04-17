@@ -207,10 +207,9 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
             DAAL_CHECK_BLOCK_STATUS_THR(mtR);
             algorithmFPType * dataR = mtR.get();
 
-            daal::threader_for(blockNum2, blockNum2, [&](const size_t iBlock2) {
+            daal::threader_for(blockNum2, blockNum2, [&, nVectors2, blockNum2](const size_t iBlock2) {
                 DAAL_INT numRowsInBlock2 = (iBlock2 != blockNum2 - 1) ? blockSize : nVectors2 - iBlock2 * blockSize;
                 DAAL_INT startRow2       = iBlock2 * blockSize;
-                DAAL_INT finishRow2      = startRow2 + numRowsInBlock2;
 
                 ReadRows<algorithmFPType, cpu> mtA2(*const_cast<NumericTable *>(a2), startRow2, numRowsInBlock2);
                 DAAL_CHECK_BLOCK_STATUS_THR(mtA2);
