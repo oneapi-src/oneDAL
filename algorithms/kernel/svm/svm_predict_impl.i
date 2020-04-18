@@ -131,6 +131,8 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
             Blas<algorithmFPType, cpu>::xxgemv(&trans, &m_, &n_, &alpha, buf, &lda, svCoeff, &incx, &beta, distance, &incy);
         }); /* daal::threader_for */
 
+        tls_data.reduce([&](algorithmFPType * buf) { service_scalable_free<algorithmFPType, cpu>(buf); });
+
         return safeStat.detach();
     }
 };
