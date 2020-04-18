@@ -16,6 +16,9 @@
 *******************************************************************************/
 
 /**
+ * @defgroup dbscan DBSCAN
+ * @brief Contains classes for the DBSCAN algorithm
+ * @ingroup analysis
  * @defgroup dbscan_compute Computation
  * @ingroup dbscan
  * @{

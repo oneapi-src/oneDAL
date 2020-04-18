@@ -22,13 +22,13 @@
         #include <CL/cl.h>
         #include <CL/sycl.hpp>
 
-#if defined(_WIN32) || defined(_WIN64)
-    #define DAAL_DISABLE_LEVEL_ZERO
-#endif
+        #if defined(_WIN32) || defined(_WIN64)
+            #define DAAL_DISABLE_LEVEL_ZERO
+        #endif
 
         #ifndef DAAL_DISABLE_LEVEL_ZERO
             #include <level_zero/ze_api.h>
-        #endif //DAAL_DISABLE_LEVEL_ZERO
+        #endif // DAAL_DISABLE_LEVEL_ZERO
 
         #include <cstring>
         #include <vector>
@@ -211,7 +211,7 @@ private:
     OpenClDeviceRef _clDeviceRef;
     ze_device_handle_t _levelZeroDevice;
 };
-        #endif //DAAL_DISABLE_LEVEL_ZERO
+        #endif // DAAL_DISABLE_LEVEL_ZERO
 
 class OpenClProgramRef : public OpenClResourceRef<cl_program, OpenClRetainProgram, OpenClReleaseProgram>
 {
@@ -219,14 +219,14 @@ public:
     OpenClProgramRef()
         #ifndef DAAL_DISABLE_LEVEL_ZERO
         : _moduleLevelZero(nullptr)
-        #endif //DAAL_DISABLE_LEVEL_ZERO
+        #endif // DAAL_DISABLE_LEVEL_ZERO
     {}
 
     explicit OpenClProgramRef(cl_context clContext, cl_device_id clDevice, const char * programName, const char * programSrc, const char * options,
                               services::Status * status = nullptr)
         #ifndef DAAL_DISABLE_LEVEL_ZERO
         : _moduleLevelZero(nullptr)
-        #endif //DAAL_DISABLE_LEVEL_ZERO
+        #endif // DAAL_DISABLE_LEVEL_ZERO
     {
         initOpenClProgramRef(clContext, clDevice, programName, programSrc, options, status);
     }
@@ -246,7 +246,7 @@ public:
     }
 
     ze_module_handle_t getModuleL0() const { return _moduleLevelZero; }
-        #endif //DAAL_DISABLE_LEVEL_ZERO
+        #endif // DAAL_DISABLE_LEVEL_ZERO
 
     const char * getName() const { return _programName.c_str(); }
 
@@ -272,7 +272,8 @@ private:
             char * buildLog = buildLogCollection.data();
             if (buildLog == nullptr)
             {
-                printf("common_ocl.ocdBuildProgramFromFile() - Heap Overflow! Cannot allocate space for buildLog.");
+                printf("common_ocl.ocdBuildProgramFromFile() - Heap Overflow! Cannot "
+                       "allocate space for buildLog.");
                 DAAL_CHECK_OPENCL(err, status)
             }
             clGetProgramBuildInfo(get(), clDevice, CL_PROGRAM_BUILD_LOG, logLen, (void *)buildLog, nullptr);
@@ -307,14 +308,14 @@ private:
         DAAL_CHECK_LEVEL_ZERO(zeModuleCreate(zeDevice, &desc, &_moduleLevelZero, nullptr), status);
         free(binary);
     }
-        #endif //DAAL_DISABLE_LEVEL_ZERO
+        #endif // DAAL_DISABLE_LEVEL_ZERO
 
 private:
     services::String _programName;
         #ifndef DAAL_DISABLE_LEVEL_ZERO
     // use applicable resource ref for _moduleLevelZero
     ze_module_handle_t _moduleLevelZero;
-        #endif //DAAL_DISABLE_LEVEL_ZERO
+        #endif // DAAL_DISABLE_LEVEL_ZERO
 };
 
 class OpenClKernelRef : public OpenClResourceRef<cl_kernel, OpenClRetainKernel, OpenClReleaseKernel>
@@ -343,7 +344,7 @@ public:
 private:
     services::String _kernelName;
 };
-        #endif //DAAL_DISABLE_LEVEL_ZERO
+        #endif // DAAL_DISABLE_LEVEL_ZERO
 
 class OpenClKernel : public Base, public KernelIface
 {
@@ -405,7 +406,7 @@ public:
 private:
     OpenClKernelLevelZeroRef _clKernelRef;
 };
-        #endif //DAAL_DISABLE_LEVEL_ZERO
+        #endif // DAAL_DISABLE_LEVEL_ZERO
 
 class SyclBufferStorage
 {
