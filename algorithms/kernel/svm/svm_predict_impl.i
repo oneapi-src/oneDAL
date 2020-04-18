@@ -71,10 +71,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         if (nSV == 0)
         {
             const algorithmFPType zero(0.0);
-            for (size_t i = 0; i < nVectors; i++)
-            {
-                distance[i] = zero;
-            }
+            service_memset<algorithmFPType, cpu>(distance, zero, nVectors);
             return Status();
         }
 
@@ -85,50 +82,61 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         DAAL_CHECK_BLOCK_STATUS(mtSVCoeff);
         const algorithmFPType * svCoeff = mtSVCoeff.get();
 
-        TArray<algorithmFPType, cpu> aBuf(nSV * nVectors);
+        const size_t nRowsPerBlock = 256;
+        const size_t nBlocks       = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
+
+        TArray<algorithmFPType, cpu> aBuf(nSV * nRowsPerBlock);
         DAAL_CHECK(aBuf.get(), ErrorMemoryAllocationFailed);
         algorithmFPType * buf = aBuf.get();
 
-        Status s;
-        NumericTablePtr shResNT = HomogenNumericTableCPU<algorithmFPType, cpu>::create(buf, nSV, nVectors, &s);
-        DAAL_CHECK_STATUS_VAR(s);
-
         auto kfResultPtr = new kernel_function::Result();
-        DAAL_CHECK_MALLOC(kfResultPtr)
-        kernel_function::ResultPtr shRes(kfResultPtr);
-        shRes->set(kernel_function::values, shResNT);
-        kernel->setResult(shRes);
-        kernel->getInput()->set(kernel_function::X, xTable);
-        kernel->getInput()->set(kernel_function::Y, svTable);
-        kernel->getParameter()->computationMode = kernel_function::matrixMatrix;
-        s                                       = kernel->computeNoThrow();
-        if (!s) return Status(services::ErrorSVMPredictKernerFunctionCall).add(s); //this order is expected by test system
+        DAAL_CHECK_MALLOC(kfResultPtr);
 
-        char trans  = 'T';
-        DAAL_INT m_ = nSV;
-        DAAL_INT n_ = nVectors;
-        algorithmFPType alpha(1.0);
-        DAAL_INT lda = m_;
-        DAAL_INT incx(1);
-        algorithmFPType beta(1.0);
-        DAAL_INT incy(1);
+        kernel_function::ResultPtr shRes(kfResultPtr);
+        kernel->setResult(shRes);
 
         service_memset<algorithmFPType, cpu>(distance, bias, nVectors);
 
-        Blas<algorithmFPType, cpu>::xgemv(&trans, &m_, &n_, &alpha, buf, &lda, svCoeff, &incx, &beta, distance, &incy);
+        SafeStatus safeStat;
 
-        return s;
+        daal::threader_for(nBlocks, nBlocks, [&](int iBlock) {
+            services::Status s;
+
+            const size_t startRow          = iBlock * nRowsPerBlock;
+            const size_t offestRow         = startRow + nRowsPerBlock;
+            const size_t endRow            = services::internal::min<cpu, size_t>(offestRow, nVectors);
+            const size_t nRowsPerBlockReal = endRow - startRow;
+
+            NumericTablePtr shResNT = HomogenNumericTableCPU<algorithmFPType, cpu>::create(buf, nSV, nRowsPerBlockReal, &s);
+            DAAL_CHECK_STATUS_THR(s);
+
+            shRes->set(kernel_function::values, shResNT);
+
+            kernel->getInput()->set(kernel_function::X, xTable);
+            kernel->getInput()->set(kernel_function::Y, svTable);
+            kernel->getParameter()->computationMode = kernel_function::matrixMatrix;
+            DAAL_CHECK_THR(kernel->computeNoThrow(), services::ErrorSVMPredictKernerFunctionCall);
+
+            char trans  = 'T';
+            DAAL_INT m_ = nSV;
+            DAAL_INT n_ = nRowsPerBlockReal;
+            algorithmFPType alpha(1.0);
+            DAAL_INT lda = m_;
+            DAAL_INT incx(1);
+            algorithmFPType beta(1.0);
+            DAAL_INT incy(1);
+
+            Blas<algorithmFPType, cpu>::xxgemv(&trans, &m_, &n_, &alpha, buf, &lda, svCoeff, &incx, &beta, distance, &incy);
+        }); /* daal::threader_for */
+
+        return safeStat.detach();
     }
 };
 
 } // namespace internal
-
 } // namespace prediction
-
 } // namespace svm
-
 } // namespace algorithms
-
 } // namespace daal
 
 #endif
