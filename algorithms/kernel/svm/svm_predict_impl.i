@@ -85,9 +85,8 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         const size_t nRowsPerBlock = 256;
         const size_t nBlocks       = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
 
-        TArray<algorithmFPType, cpu> aBuf(nSV * nRowsPerBlock);
-        DAAL_CHECK(aBuf.get(), ErrorMemoryAllocationFailed);
-        algorithmFPType * buf = aBuf.get();
+        /* TLS data initialization */
+        daal::tls<algorithmFPType *> tls_data([&]() { return service_scalable_malloc<algorithmFPType, cpu>(nSV * nRowsPerBlock); });
 
         auto kfResultPtr = new kernel_function::Result();
         DAAL_CHECK_MALLOC(kfResultPtr);
@@ -100,6 +99,9 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         SafeStatus safeStat;
 
         daal::threader_for(nBlocks, nBlocks, [&](int iBlock) {
+            algorithmFPType * buf = tls_data.local();
+            DAAL_CHECK_THR(buf, ErrorMemoryAllocationFailed);
+
             services::Status s;
 
             const size_t startRow          = iBlock * nRowsPerBlock;
