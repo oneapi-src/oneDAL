@@ -17,7 +17,7 @@
 
 /*
 //++
-// Helper for dynamic libs management  
+// Helper for dynamic libs management
 //--
 */
 

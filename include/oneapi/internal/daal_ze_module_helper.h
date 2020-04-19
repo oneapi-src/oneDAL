@@ -17,7 +17,7 @@
 
 /*
 //++
-// Helper for ze_module management 
+// Helper for ze_module management
 //--
 */
 
