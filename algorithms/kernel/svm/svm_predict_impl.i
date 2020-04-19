@@ -44,6 +44,72 @@ using namespace daal::services;
 using namespace daal::services::internal;
 
 template <typename algorithmFPType, CpuType cpu>
+class PredictTask
+{
+public:
+    DAAL_NEW_DELETE();
+    virtual ~PredictTask() {}
+
+    static PredictTask * create(const size_t nRowsPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable,
+                                kernel_function::KernelIfacePtr & kernel)
+    {
+        auto val = new PredictTask(nRowsPerBlock, xTable, svTable, kernel);
+        if (val && val->isValid()) return val;
+        delete val;
+        return nullptr;
+    }
+
+    bool isValid() const { return _buff.get(); }
+
+    services::Status kernelCompute(const size_t startRow, const size_t nRows)
+    {
+        services::Status status;
+        NumericTablePtr shResNT = HomogenNumericTableCPU<algorithmFPType, cpu>::create(_buff.get(), _nSV, nRows, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        ReadRows<algorithmFPType, cpu> xBlock(*_xTable, startRow, nRows);
+        DAAL_CHECK_BLOCK_STATUS(xBlock)
+
+        const algorithmFPType * xData = xBlock.get();
+        NumericTablePtr xBlockNT =
+            HomogenNumericTableCPU<algorithmFPType, cpu>::create(const_cast<algorithmFPType *>(xData), _nFeatures, nRows, &status);
+
+        _shRes->set(kernel_function::values, shResNT);
+
+        _kernel->getInput()->set(kernel_function::X, xBlockNT);
+        _kernel->getInput()->set(kernel_function::Y, _svTable);
+        _kernel->getParameter()->computationMode = kernel_function::matrixMatrix;
+
+        return _kernel->computeNoThrow();
+    }
+
+    const algorithmFPType * getBuff() const { return _buff.get(); }
+
+protected:
+    PredictTask(const size_t nRowsPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable, kernel_function::KernelIfacePtr & kernel)
+        : _xTable(xTable), _svTable(svTable), _nSV(_svTable->getNumberOfRows()), _nFeatures(_svTable->getNumberOfColumns())
+    {
+        services::Status status;
+
+        _buff.reset(_nSV * nRowsPerBlock);
+
+        _kernel = kernel->clone();
+
+        _shRes = kernel_function::ResultPtr(new kernel_function::Result());
+        _kernel->setResult(_shRes);
+    }
+
+protected:
+    const NumericTablePtr & _xTable;
+    const NumericTablePtr & _svTable;
+    const size_t _nSV;
+    const size_t _nFeatures;
+    TArrayScalable<algorithmFPType, cpu> _buff;
+    kernel_function::KernelIfacePtr _kernel;
+    kernel_function::ResultPtr _shRes;
+};
+
+template <typename algorithmFPType, CpuType cpu>
 struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
 {
     services::Status compute(const NumericTablePtr & xTable, const daal::algorithms::Model * m, NumericTable & r,
@@ -67,16 +133,20 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         DAAL_CHECK(kernel, ErrorNullParameterNotSupported);
 
         NumericTablePtr svCoeffTable = model->getClassificationCoefficients();
-        const size_t nSV             = svCoeffTable->getNumberOfRows();
+        const algorithmFPType bias(model->getBias());
+
+        const size_t nSV = svCoeffTable->getNumberOfRows();
         if (nSV == 0)
         {
             const algorithmFPType zero(0.0);
             service_memset<algorithmFPType, cpu>(distance, zero, nVectors);
             return Status();
         }
-
-        const algorithmFPType bias(model->getBias());
-        NumericTablePtr svTable = model->getSupportVectors();
+        else
+        {
+            service_memset<algorithmFPType, cpu>(distance, bias, nVectors);
+        }
+        const NumericTablePtr svTable = model->getSupportVectors();
 
         ReadColumns<algorithmFPType, cpu> mtSVCoeff(*svCoeffTable, 0, 0, nSV);
         DAAL_CHECK_BLOCK_STATUS(mtSVCoeff);
@@ -86,21 +156,13 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         const size_t nBlocks       = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
 
         /* TLS data initialization */
-        daal::tls<algorithmFPType *> tls_data([&]() { return service_scalable_malloc<algorithmFPType, cpu>(nSV * nRowsPerBlock); });
-
-        auto kfResultPtr = new kernel_function::Result();
-        DAAL_CHECK_MALLOC(kfResultPtr);
-
-        kernel_function::ResultPtr shRes(kfResultPtr);
-        kernel->setResult(shRes);
-
-        service_memset<algorithmFPType, cpu>(distance, bias, nVectors);
+        daal::tls<PredictTask<algorithmFPType, cpu> *> tlsTask(
+            [&]() { return PredictTask<algorithmFPType, cpu>::create(nRowsPerBlock, xTable, svTable, kernel); });
 
         SafeStatus safeStat;
 
         daal::threader_for(nBlocks, nBlocks, [&](int iBlock) {
-            algorithmFPType * buf = tls_data.local();
-            DAAL_CHECK_THR(buf, ErrorMemoryAllocationFailed);
+            PredictTask<algorithmFPType, cpu> * local = tlsTask.local();
 
             services::Status s;
 
@@ -109,15 +171,9 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
             const size_t endRow            = services::internal::min<cpu, size_t>(offestRow, nVectors);
             const size_t nRowsPerBlockReal = endRow - startRow;
 
-            NumericTablePtr shResNT = HomogenNumericTableCPU<algorithmFPType, cpu>::create(buf, nSV, nRowsPerBlockReal, &s);
-            DAAL_CHECK_STATUS_THR(s);
+            DAAL_CHECK_THR(local->kernelCompute(startRow, nRowsPerBlockReal), services::ErrorSVMPredictKernerFunctionCall);
 
-            shRes->set(kernel_function::values, shResNT);
-
-            kernel->getInput()->set(kernel_function::X, xTable);
-            kernel->getInput()->set(kernel_function::Y, svTable);
-            kernel->getParameter()->computationMode = kernel_function::matrixMatrix;
-            DAAL_CHECK_THR(kernel->computeNoThrow(), services::ErrorSVMPredictKernerFunctionCall);
+            const algorithmFPType * buf = local->getBuff();
 
             char trans  = 'T';
             DAAL_INT m_ = nSV;
@@ -130,8 +186,6 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
 
             Blas<algorithmFPType, cpu>::xxgemv(&trans, &m_, &n_, &alpha, buf, &lda, svCoeff, &incx, &beta, distance, &incy);
         }); /* daal::threader_for */
-
-        tls_data.reduce([&](algorithmFPType * buf) { service_scalable_free<algorithmFPType, cpu>(buf); });
 
         return safeStat.detach();
     }
