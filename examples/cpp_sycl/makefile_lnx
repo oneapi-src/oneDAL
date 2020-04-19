@@ -95,7 +95,6 @@ else
 endif
 
 DAAL_LIB := -L$(DAAL_PATH),$(DAAL_LIB_EXT),-ldaal_core,-Bdynamic -Wl,$(DAAL_LIB_T)
-LEVEL0_LIB := -lze_loader 
 
 COPTS := -Wall -w -I./source/utils
 
@@ -104,8 +103,7 @@ ifeq ($(compiler),clang)
     COPTS += -fsycl
 endif
 
-LOPTS := -Wl,--start-group -Wl,$(DAAL_LIB),$(EXT_LIB) $(DAAL_PATH)/libdaal_sycl.a $(LEVEL0_LIB) -Wl,--end-group
-
+LOPTS := -Wl,--start-group -Wl,$(DAAL_LIB),$(EXT_LIB) $(DAAL_PATH)/libdaal_sycl.a -Wl,--end-group
 
 RES_DIR=_results/$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
