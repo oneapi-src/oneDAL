@@ -41,9 +41,9 @@ namespace internal
 {
 namespace interface1
 {
-const char * zeLoaderName            = "libze_loader.so";
-const char * zeModuleCreateFuncName  = "zeModuleCreate";
-const char * zeModuleDestroyFuncName = "zeModuleDestroy";
+static const char * zeLoaderName            = "libze_loader.so";
+static const char * zeModuleCreateFuncName  = "zeModuleCreate";
+static const char * zeModuleDestroyFuncName = "zeModuleDestroy";
 
 class ZeModuleHelper : public Base
 {
