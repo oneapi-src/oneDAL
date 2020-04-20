@@ -71,25 +71,34 @@ public:
      * Returns an increment of atomic object
      * \return An increment of atomic object
      */
-    inline dataType inc();
+    dataType inc();
 
     /**
      * Returns a decrement of atomic object
      * \return An decrement of atomic object
      */
-    inline dataType dec();
+    dataType dec();
 
     /**
      * Assigns the value to atomic object
      * \param[in] value    The value to be assigned
      */
-    inline void set(dataType value);
+    void set(dataType value)
+    {
+        _ReadWriteBarrier(); 
+        my_storage = value; 
+    }
 
     /**
      * Returns the value of the atomic object
      * \return The value of the atomic object
      */
-    inline dataType get() const;
+    dataType get() const
+    {
+        dataType to_return = my_storage; 
+        _ReadWriteBarrier(); 
+        return to_return; 
+    }
 
     /**
      * Constructs an atomic object
@@ -113,43 +122,43 @@ private:
     Atomic & operator=(const Atomic &);
 };
 
-
-#if defined(_WIN32) || defined(_WIN64)
-inline int Atomic<int>::inc()
-{
-    return _InterlockedExchangeAdd( (long*)&my_storage, 1 );
-}
-inline int Atomic<int>::dec()
-{
-    return _InterlockedExchangeAdd( (long*)&my_storage, -1 );
-}
-
-inline size_t Atomic<size_t>::inc()
-{
-    return _InterlockedExchangeAdd64( (__int64*)&my_storage, 1 );
-}
-inline size_t Atomic<size_t>::dec()
-{
-    return _InterlockedExchangeAdd64( (__int64*)&my_storage, -1 );
-}
-
-template <typename dataType>
-inline void Atomic<dataType>::set(dataType value)
-{
-    _ReadWriteBarrier(); 
-    my_storage = value; 
-}
-
-template <typename dataType>
-inline dataType Atomic<dataType>::get() const
-{
-    dataType to_return = my_storage; 
-    _ReadWriteBarrier(); 
-    return to_return; 
-}
-#endif
-
 /** @} */
+
+template<>
+class Atomic<int>
+{
+public:
+    /**
+     * Returns an increment of atomic object
+     * \return An increment of atomic object
+     */
+    int inc()
+    {
+        return _InterlockedExchangeAdd( (int*)&my_storage, 1 );
+    }
+    int dec()
+    {
+        return _InterlockedExchangeAdd( (int*)&my_storage, -1 );
+    }
+};
+
+template<>
+class Atomic<size_t>
+{
+public:
+    /**
+     * Returns an increment of atomic object
+     * \return An increment of atomic object
+     */
+    size_t inc<size_t>()
+    {
+        return _InterlockedExchangeAdd64( (size_t*)&my_storage, 1 );
+    }
+    size_t dec<size_t>()
+    {
+        return _InterlockedExchangeAdd64( (size_t*)&my_storage, -1 );
+    }
+};
 
 } // namespace interface1
 
