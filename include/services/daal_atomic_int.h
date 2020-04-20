@@ -100,7 +100,7 @@ public:
      * Constructs an atomic object from a value
      * \param[in] value The value to be assigned to the atomic object
      */
-    constexpr Atomic(dataType value): my_storage(value) {}
+    constexpr Atomic(dataType value) : my_storage(value) {}
 
     /** Destructor */
     ~Atomic() = default;
@@ -113,39 +113,38 @@ private:
     Atomic & operator=(const Atomic &);
 };
 
-
 #if defined(_WIN32) || defined(_WIN64)
 inline int Atomic<int>::inc()
 {
-    return _InterlockedExchangeAdd( (long*)&my_storage, 1 );
+    return _InterlockedExchangeAdd((long *)&my_storage, 1);
 }
 inline int Atomic<int>::dec()
 {
-    return _InterlockedExchangeAdd( (long*)&my_storage, -1 );
+    return _InterlockedExchangeAdd((long *)&my_storage, -1);
 }
 
 inline size_t Atomic<size_t>::inc()
 {
-    return _InterlockedExchangeAdd64( (__int64*)&my_storage, 1 );
+    return _InterlockedExchangeAdd64((__int64 *)&my_storage, 1);
 }
 inline size_t Atomic<size_t>::dec()
 {
-    return _InterlockedExchangeAdd64( (__int64*)&my_storage, -1 );
+    return _InterlockedExchangeAdd64((__int64 *)&my_storage, -1);
 }
 
 template <typename dataType>
 inline void Atomic<dataType>::set(dataType value)
 {
-    _ReadWriteBarrier(); 
-    my_storage = value; 
+    _ReadWriteBarrier();
+    my_storage = value;
 }
 
 template <typename dataType>
 inline dataType Atomic<dataType>::get() const
 {
-    dataType to_return = my_storage; 
-    _ReadWriteBarrier(); 
-    return to_return; 
+    dataType to_return = my_storage;
+    _ReadWriteBarrier();
+    return to_return;
 }
 #endif
 
