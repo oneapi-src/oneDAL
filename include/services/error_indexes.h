@@ -424,8 +424,8 @@ enum ErrorID
     ErrorDeviceSupportNotImplemented               = -1000007, /*!< GPU support for the method is not implemented in the present library version  */
     ErrorInconsistenceModelAndBatchSizeInParameter = -1000008, /*!< Inconsistence of model and batch size parameter in optimization solver */
 
-    ErrorCanNotLoadDynamicLibrary = -1000009, /*!< Failure during loading of dynamic library */
-    ErrorCanNotLoadDynamicLibrarySymbol = -1000010 /*!< Failure during loading symbol from dynamic library */
+    ErrorCanNotLoadDynamicLibrary       = -1000009, /*!< Failure during loading of dynamic library */
+    ErrorCanNotLoadDynamicLibrarySymbol = -1000010  /*!< Failure during loading symbol from dynamic library */
 };
 /** @} */
 } // namespace services
