@@ -64,7 +64,7 @@ class SVMCacheOneAPIIface
 public:
     virtual ~SVMCacheOneAPIIface() {}
 
-    virtual services::Status compute(const NumericTablePtr & xTable, const services::Buffer<uint> & wsIndices, const size_t p) = 0;
+    virtual services::Status compute(const NumericTablePtr & xTable, const services::Buffer<uint32_t> & wsIndices, const size_t p) = 0;
 
     virtual const services::Buffer<algorithmFPType> & getRowsBlock() const = 0;
     virtual services::Status copyLastToFirst()                             = 0;
@@ -127,7 +127,7 @@ public:
 
     const services::Buffer<algorithmFPType> & getRowsBlock() const override { return _cacheBuff; }
 
-    services::Status compute(const NumericTablePtr & xTable, const services::Buffer<uint> & wsIndices, const size_t p) override
+    services::Status compute(const NumericTablePtr & xTable, const services::Buffer<uint32_t> & wsIndices, const size_t p) override
     {
         services::Status status;
         BlockDescriptor<algorithmFPType> xBlock;
@@ -135,8 +135,8 @@ public:
         DAAL_CHECK_STATUS(status, xTable->getBlockOfRows(0, xTable->getNumberOfRows(), ReadWriteMode::readOnly, xBlock));
         const services::Buffer<algorithmFPType> & xBuff = xBlock.getBuffer();
 
-        size_t blockSize                     = _blockSize;
-        services::Buffer<uint> wsIndicesReal = wsIndices;
+        size_t blockSize                         = _blockSize;
+        services::Buffer<uint32_t> wsIndicesReal = wsIndices;
         if (_ifComputeSubKernel)
         {
             blockSize     = _blockSize / 2;

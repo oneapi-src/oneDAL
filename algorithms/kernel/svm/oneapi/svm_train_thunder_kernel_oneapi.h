@@ -64,8 +64,8 @@ protected:
     services::Status updateGrad(const services::Buffer<algorithmFPType> & kernelWS, const services::Buffer<algorithmFPType> & deltaalpha,
                                 services::Buffer<algorithmFPType> & grad, const size_t nVectors, const size_t nWS);
     services::Status smoKernel(const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & kernelWsRows,
-                               const services::Buffer<uint> & wsIndices, const uint ldK, const services::Buffer<algorithmFPType> & f,
-                               const algorithmFPType C, const algorithmFPType eps, const algorithmFPType tau, const uint maxInnerIteration,
+                               const services::Buffer<uint32_t> & wsIndices, const uint32_t ldK, const services::Buffer<algorithmFPType> & f,
+                               const algorithmFPType C, const algorithmFPType eps, const algorithmFPType tau, const uint32_t maxInnerIteration,
                                services::Buffer<algorithmFPType> & alpha, services::Buffer<algorithmFPType> & deltaalpha,
                                services::Buffer<algorithmFPType> & resinfo, const size_t nWS);
 
