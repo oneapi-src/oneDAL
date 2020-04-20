@@ -45,8 +45,7 @@ namespace internal
 template <Method method, typename algorithmFPType, CpuType cpu>
 struct SVMPredictImpl : public Kernel
 {
-    services::Status compute(const NumericTablePtr & xTable, const daal::algorithms::Model * m, NumericTable & r,
-                             const daal::algorithms::Parameter * par);
+    services::Status compute(const NumericTablePtr & xTable, Model * model, NumericTable & r, const svm::Parameter * par);
 };
 
 } // namespace internal

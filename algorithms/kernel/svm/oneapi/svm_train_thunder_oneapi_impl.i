@@ -233,9 +233,9 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
 
     SVMCacheOneAPIPtr<algorithmFPType> cachePtr;
 
-    if (cacheSize > nWS * nVectors * sizeof(algorithmFPType))
+    if (cacheSize > nVectors * nVectors * sizeof(algorithmFPType))
     {
-        // TODO: support cachePtr for thunder method
+        // TODO: support the simple cache for thunder method
         cachePtr = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, nWS, nVectors, xTable, kernel, status);
     }
     else
@@ -283,7 +283,6 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
 
     DAAL_CHECK_STATUS(status, result.init());
     DAAL_CHECK_STATUS(status, result.setResultsToModel(xTable, *static_cast<Model *>(r)));
-
     DAAL_CHECK_STATUS(status, yTable.releaseBlockOfRows(yBD));
 
     return status;

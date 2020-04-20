@@ -67,11 +67,11 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     classifier::prediction::Input * input   = static_cast<classifier::prediction::Input *>(_in);
     classifier::prediction::Result * result = static_cast<classifier::prediction::Result *>(_res);
 
-    NumericTablePtr a           = input->get(classifier::prediction::data);
-    daal::algorithms::Model * m = static_cast<daal::algorithms::Model *>(input->get(classifier::prediction::model).get());
-    NumericTablePtr r           = result->get(classifier::prediction::prediction);
+    NumericTablePtr a    = input->get(classifier::prediction::data);
+    Model * m            = static_cast<Model *>(input->get(classifier::prediction::model).get());
+    NumericTablePtr r    = result->get(classifier::prediction::prediction);
+    svm::Parameter * par = static_cast<svm::Parameter *>(_par);
 
-    daal::algorithms::Parameter * par      = _par;
     daal::services::Environment::env & env = *_env;
 
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();

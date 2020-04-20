@@ -61,9 +61,8 @@ struct KernelImplBase : public Kernel
         case vectorVector: return computeInternalVectorVector(a1, a2, r, par);
         case matrixVector: return computeInternalMatrixVector(a1, a2, r, par);
         case matrixMatrix: return computeInternalMatrixMatrix(a1, a2, r, par);
+        default: return services::ErrorIncorrectParameter;
         }
-
-        DAAL_ASSERT(false); //should never come here
         return services::Status();
     }
 };

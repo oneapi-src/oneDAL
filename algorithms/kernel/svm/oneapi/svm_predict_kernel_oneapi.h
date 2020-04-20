@@ -44,8 +44,7 @@ using namespace daal::data_management;
 template <Method method, typename algorithmFPType>
 struct SVMPredictImplOneAPI : public Kernel
 {
-    services::Status compute(const NumericTablePtr & xTable, const daal::algorithms::Model * m, NumericTable & r,
-                             const daal::algorithms::Parameter * par)
+    services::Status compute(const NumericTablePtr & xTable, Model * model, NumericTable & r, const svm::Parameter * par)
     {
         return services::ErrorMethodNotImplemented;
     }
@@ -54,8 +53,7 @@ struct SVMPredictImplOneAPI : public Kernel
 template <typename algorithmFPType>
 struct SVMPredictImplOneAPI<defaultDense, algorithmFPType> : public Kernel
 {
-    services::Status compute(const NumericTablePtr & xTable, const daal::algorithms::Model * m, NumericTable & r,
-                             const daal::algorithms::Parameter * par);
+    services::Status compute(const NumericTablePtr & xTable, Model * model, NumericTable & r, const svm::Parameter * par);
 };
 
 } // namespace internal

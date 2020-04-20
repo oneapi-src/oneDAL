@@ -45,8 +45,8 @@ using namespace daal::internal;
 using namespace daal::oneapi::internal;
 
 template <typename algorithmFPType>
-services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(const NumericTablePtr & xTable, const daal::algorithms::Model * m,
-                                                                              NumericTable & r, const daal::algorithms::Parameter * par)
+services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(const NumericTablePtr & xTable, Model * model, NumericTable & r,
+                                                                              const svm::Parameter * par)
 {
     services::Status status;
 
@@ -59,10 +59,7 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
     DAAL_CHECK_STATUS(status, r.getBlockOfRows(0, nVectors, ReadWriteMode::writeOnly, rBlock));
     auto distanceBuff = rBlock.getBuffer();
 
-    Model * model = static_cast<Model *>(const_cast<daal::algorithms::Model *>(m));
-
-    svm::Parameter * parameter             = static_cast<svm::Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
-    kernel_function::KernelIfacePtr kernel = parameter->kernel->clone();
+    kernel_function::KernelIfacePtr kernel = par->kernel->clone();
 
     auto svCoeffTable = model->getClassificationCoefficients();
     const size_t nSV  = svCoeffTable->getNumberOfRows();
@@ -97,12 +94,14 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
         const size_t nRowsPerBlockReal = endRow - startRow;
 
         NumericTablePtr kernelResNT = SyclHomogenNumericTable<algorithmFPType>::create(kernelResBuff, nSV, nRowsPerBlockReal, &status);
+        DAAL_CHECK_STATUS_VAR(status);
 
         BlockDescriptor<algorithmFPType> xBlock;
         DAAL_CHECK_STATUS(status, xTable->getBlockOfRows(startRow, nRowsPerBlockReal, ReadWriteMode::readOnly, xBlock));
         const services::Buffer<algorithmFPType> xBuf = xBlock.getBuffer();
 
         NumericTablePtr xBlockNT = SyclHomogenNumericTable<algorithmFPType>::create(xBuf, nFeatures, nRowsPerBlockReal, &status);
+        DAAL_CHECK_STATUS_VAR(status);
 
         auto kfResultPtr = new kernel_function::Result();
         DAAL_CHECK_MALLOC(kfResultPtr)
