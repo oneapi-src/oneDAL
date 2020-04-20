@@ -50,8 +50,7 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::buildProgra
 {
     services::String options = getKeyFPType<algorithmFPType>();
 
-    services::String cachekey("__daal_algorithms_kernel_function_");
-    options.add(" -D LOCAL_SUM_SIZE=256 ");
+    services::String cachekey("__daal_algorithms_kernel_function_rbf");
     cachekey.add(options);
 
     services::Status status;
@@ -111,7 +110,6 @@ template <typename algorithmFPType>
 services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInternalMatrixMatrix(NumericTable * a1, NumericTable * a2,
                                                                                                  NumericTable * r, const ParameterBase * par)
 {
-    //prepareData
     services::Status status;
 
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
@@ -146,7 +144,6 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInte
     UniversalBuffer sqrA2U = context.allocate(TypeIds::id<algorithmFPType>(), nVectors2, &status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    //compute
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.sumOfSquared);
 
@@ -166,6 +163,7 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInte
     const services::Buffer<algorithmFPType> sqrA1Buff = sqrA1U.get<algorithmFPType>();
     const services::Buffer<algorithmFPType> sqrA2Buff = sqrA2U.get<algorithmFPType>();
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, nVectors1, nVectors2);
     DAAL_CHECK_STATUS(status, computeRBF(sqrA1Buff, sqrA2Buff, nVectors2, coeff, rBuf, nVectors1, nVectors2));
 
     DAAL_CHECK_STATUS(status, a1->releaseBlockOfRows(a1BD));

@@ -82,15 +82,14 @@ DECLARE_SOURCE_DAAL(
         barrier(CLK_LOCAL_MEM_FENCE);
     }
 
-    __attribute__((intel_reqd_sub_group_size(SIMD_WIDTH)))
     __kernel void smoKernel(const __global algorithmFPType * const y, const __global algorithmFPType * const kernelWsRows,
                             const __global int * wsIndices, const uint nVectors, const __global algorithmFPType * grad, const algorithmFPType C,
-                            const algorithmFPType eps, const algorithmFPType tau, const int maxInnerIteration, __global algorithmFPType * alpha,
+                            const algorithmFPType eps, const algorithmFPType tau, const uint maxInnerIteration, __global algorithmFPType * alpha,
                             __global algorithmFPType * deltaalpha, __global algorithmFPType * resinfo) {
         const uint i = get_local_id(0);
         __local algorithmFPType kd[WS_SIZE];
 
-        const int wsIndex = wsIndices[i];
+        const uint wsIndex = wsIndices[i];
 
         const algorithmFPType MIN_FLT = -FLT_MAX;
 
@@ -109,9 +108,8 @@ DECLARE_SOURCE_DAAL(
         __local KeyValue localCache[SIMD_WIDTH];
         __local KeyValue maxValInd;
 
-        int Bi = -1;
-
-        int Bj = -1;
+        uint Bi = 0;
+        uint Bj = 0;
 
         algorithmFPType ma;
 
@@ -121,7 +119,7 @@ DECLARE_SOURCE_DAAL(
         __local algorithmFPType localDiff;
         __local algorithmFPType localEps;
 
-        int iter = 0;
+        uint iter = 0;
         for (; iter < maxInnerIteration; iter++)
         {
             /* m(alpha) = min(grad[i]): i belongs to I_UP (alpha) */

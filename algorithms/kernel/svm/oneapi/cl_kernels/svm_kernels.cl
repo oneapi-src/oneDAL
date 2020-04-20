@@ -32,47 +32,60 @@ DECLARE_SOURCE_DAAL(
     clKernelSVM,
 
     __kernel void makeInversion(const __global algorithmFPType * const x, __global algorithmFPType * res) {
-        const int i = get_global_id(0);
-        res[i]      = -x[i];
+        const uint i = get_global_id(0);
+        res[i]       = -x[i];
     }
 
-    __kernel void makeRange(__global int * x) {
-        const int i = get_global_id(0);
-        x[i]        = i;
+    __kernel void makeRange(__global uint * x) {
+        const uint i = get_global_id(0);
+        x[i]         = i;
     }
 
     __kernel void checkUpper(const __global algorithmFPType * const y, const __global algorithmFPType * const alpha, const algorithmFPType C,
-                             __global int * indicator) {
-        const int i  = get_global_id(0);
+                             __global uint * indicator) {
+        const uint i = get_global_id(0);
         indicator[i] = (y[i] > 0 && alpha[i] < C) || (y[i] < 0 && alpha[i] > 0);
     }
 
     __kernel void checkLower(const __global algorithmFPType * const y, const __global algorithmFPType * const alpha, const algorithmFPType C,
-                             __global int * indicator) {
-        const int i  = get_global_id(0);
+                             __global uint * indicator) {
+        const uint i = get_global_id(0);
         indicator[i] = (y[i] > 0 && alpha[i] > 0) || (y[i] < 0 && alpha[i] < C);
     }
 
-    __kernel void checkBorder(const __global algorithmFPType * const alpha, const algorithmFPType C, __global int * indicator) {
-        const int i                  = get_global_id(0);
+    __kernel void checkBorder(const __global algorithmFPType * const alpha, const algorithmFPType C, __global uint * indicator) {
+        const uint i                 = get_global_id(0);
         const algorithmFPType alphai = alpha[i];
         indicator[i]                 = 0 < alphai && alphai < C;
     }
 
-    __kernel void checkNonZeroBinary(const __global algorithmFPType * const alpha, __global int * indicator) {
-        const int i  = get_global_id(0);
+    __kernel void checkNonZeroBinary(const __global algorithmFPType * const alpha, __global uint * indicator) {
+        const uint i = get_global_id(0);
         indicator[i] = alpha[i] != (algorithmFPType)0;
     }
 
-    __kernel void resetIndicatorWithZeros(const __global int * const ind, __global int * indicator) {
-        const int i       = get_global_id(0);
+    __kernel void resetIndicatorWithZeros(const __global uint * const ind, __global uint * indicator) {
+        const uint i      = get_global_id(0);
         indicator[ind[i]] = 0;
     }
 
-    __kernel void copyBlockByIndices(const __global algorithmFPType * const x, const __global int * const xInd, const uint ldx,
+    __kernel void copyBlockByIndices(const __global algorithmFPType * const x, const __global uint * const xInd, const uint ldx,
                                      __global algorithmFPType * newX) {
         const uint index = get_global_id(1);
         const uint jCol  = get_global_id(0);
+
+        const uint iRow = xInd[index];
+
+        const __global algorithmFPType * const xi = &x[iRow * ldx];
+        __global algorithmFPType * newXi          = &newX[index * ldx];
+
+        newXi[jCol] = xi[jCol];
+    }
+
+    __kernel void copyBlockByIndicesInt(const __global algorithmFPType * const x, const __global int * const xInd, const uint ldx,
+                                        __global algorithmFPType * newX) {
+        const int index = get_global_id(1);
+        const int jCol  = get_global_id(0);
 
         const int iRow = xInd[index];
 
@@ -83,8 +96,8 @@ DECLARE_SOURCE_DAAL(
     }
 
     __kernel void computeDualCoeffs(const __global algorithmFPType * const y, __global algorithmFPType * a) {
-        const int i = get_global_id(0);
-        a[i]        = a[i] * y[i];
+        const uint i = get_global_id(0);
+        a[i]         = a[i] * y[i];
     }
 
 );

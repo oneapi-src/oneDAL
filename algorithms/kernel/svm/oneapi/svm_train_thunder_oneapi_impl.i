@@ -85,9 +85,9 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::update
 
 template <typename algorithmFPType, typename ParameterType>
 services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::smoKernel(
-    const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & kernelWsRows, const services::Buffer<int> & wsIndices,
-    const int ldK, const services::Buffer<algorithmFPType> & f, const algorithmFPType C, const algorithmFPType eps, const algorithmFPType tau,
-    const int maxInnerIteration, services::Buffer<algorithmFPType> & alpha, services::Buffer<algorithmFPType> & deltaalpha,
+    const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & kernelWsRows, const services::Buffer<uint32_t> & wsIndices,
+    const uint32_t ldK, const services::Buffer<algorithmFPType> & f, const algorithmFPType C, const algorithmFPType eps, const algorithmFPType tau,
+    const uint32_t maxInnerIteration, services::Buffer<algorithmFPType> & alpha, services::Buffer<algorithmFPType> & deltaalpha,
     services::Buffer<algorithmFPType> & resinfo, const size_t nWS)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(smoKernel);
@@ -102,7 +102,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::smoKer
     char bufferString[DAAL_MAX_STRING_SIZE] = { 0 };
     services::daal_int_to_string(bufferString, DAAL_MAX_STRING_SIZE, int(nWS));
     build_options.add(bufferString);
-    build_options.add(" -D SIMD_WIDTH=16 ");
+    build_options.add(" -D SIMD_WIDTH=64 ");
     cachekey.add(build_options);
 
     services::Status status;
@@ -231,16 +231,16 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
     size_t innerIteration = 0;
     size_t sameLocalDiff  = 0;
 
-    SVMCacheOneAPIIface<algorithmFPType> * cache = nullptr;
+    SVMCacheOneAPIPtr<algorithmFPType> cachePtr;
 
     if (cacheSize > nWS * nVectors * sizeof(algorithmFPType))
     {
-        // TODO: support cache for thunder method
-        cache = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, nWS, nVectors, xTable, kernel, status);
+        // TODO: support cachePtr for thunder method
+        cachePtr = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, nWS, nVectors, xTable, kernel, status);
     }
     else
     {
-        cache = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, nWS, nVectors, xTable, kernel, status);
+        cachePtr = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, nWS, nVectors, xTable, kernel, status);
     }
 
     size_t iter = 0;
@@ -249,16 +249,16 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
         if (iter != 0)
         {
             DAAL_CHECK_STATUS(status, workSet.copyLastToFirst());
-            DAAL_CHECK_STATUS(status, cache->copyLastToFirst());
+            DAAL_CHECK_STATUS(status, cachePtr->copyLastToFirst());
         }
 
         DAAL_CHECK_STATUS(status, workSet.selectWS(yBuff, alphaBuff, gradBuff, C));
 
-        const services::Buffer<int> & wsIndices = workSet.getWSIndeces();
+        const services::Buffer<uint32_t> & wsIndices = workSet.getWSIndeces();
 
-        DAAL_CHECK_STATUS(status, cache->compute(xTable, wsIndices, nFeatures));
+        DAAL_CHECK_STATUS(status, cachePtr->compute(xTable, wsIndices, nFeatures));
 
-        const services::Buffer<algorithmFPType> & kernelWS = cache->getRowsBlock();
+        const services::Buffer<algorithmFPType> & kernelWS = cachePtr->getRowsBlock();
 
         DAAL_CHECK_STATUS(status, smoKernel(yBuff, kernelWS, wsIndices, nVectors, gradBuff, C, eps, tau, innerMaxIterations, alphaBuff,
                                             deltaalphaBuff, resinfoBuff, nWS));
@@ -284,8 +284,6 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
     DAAL_CHECK_STATUS(status, result.setResultsToModel(xTable, *static_cast<Model *>(r)));
 
     DAAL_CHECK_STATUS(status, yTable.releaseBlockOfRows(yBD));
-
-    delete cache;
 
     return status;
 }

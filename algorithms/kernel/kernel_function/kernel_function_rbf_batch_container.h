@@ -71,10 +71,8 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     NumericTable * r[1];
     r[0] = static_cast<NumericTable *>(result->get(values).get());
 
-    algorithms::Parameter * par            = _par;
     daal::services::Environment::env & env = *_env;
-
-    ComputationMode computationMode = static_cast<ParameterBase *>(par)->computationMode;
+    const ParameterBase * par              = static_cast<const ParameterBase *>(_par);
 
     if (method == fastCSR)
     {
@@ -87,13 +85,11 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     if (method == defaultDense && !deviceInfo.isCpu)
     {
-        __DAAL_CALL_KERNEL_SYCL(env, internal::KernelImplRBFOneAPI, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, computationMode, a[0],
-                                a[1], r[0], par);
+        __DAAL_CALL_KERNEL_SYCL(env, internal::KernelImplRBFOneAPI, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a[0], a[1], r[0], par);
     }
     else
     {
-        __DAAL_CALL_KERNEL(env, internal::KernelImplRBF, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, computationMode, a[0], a[1], r[0],
-                           par);
+        __DAAL_CALL_KERNEL(env, internal::KernelImplRBF, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a[0], a[1], r[0], par);
     }
 }
 

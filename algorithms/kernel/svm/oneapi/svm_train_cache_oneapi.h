@@ -64,7 +64,7 @@ class SVMCacheOneAPIIface
 public:
     virtual ~SVMCacheOneAPIIface() {}
 
-    virtual services::Status compute(const NumericTablePtr & xTable, const services::Buffer<int> & wsIndices, const size_t p) = 0;
+    virtual services::Status compute(const NumericTablePtr & xTable, const services::Buffer<uint> & wsIndices, const size_t p) = 0;
 
     virtual const services::Buffer<algorithmFPType> & getRowsBlock() const = 0;
     virtual services::Status copyLastToFirst()                             = 0;
@@ -82,6 +82,9 @@ protected:
 template <SVMCacheOneAPIType cacheType, typename algorithmFPType>
 class SVMCacheOneAPI
 {};
+
+template <typename algorithmFPType>
+using SVMCacheOneAPIPtr = services::SharedPtr<SVMCacheOneAPIIface<algorithmFPType> >;
 
 /**
  * No cache: kernel function values are not cached
@@ -101,11 +104,12 @@ public:
 
     DAAL_NEW_DELETE();
 
-    static SVMCacheOneAPI * create(const size_t cacheSize, const size_t blockSize, const size_t lineSize, const NumericTablePtr & xTable,
-                                   const kernel_function::KernelIfacePtr & kernel, services::Status & status)
+    static SVMCacheOneAPIPtr<algorithmFPType> create(const size_t cacheSize, const size_t blockSize, const size_t lineSize,
+                                                     const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel,
+                                                     services::Status & status)
     {
         status.clear();
-        thisType * res = new thisType(blockSize, lineSize, xTable, kernel);
+        services::SharedPtr<thisType> res = services::SharedPtr<thisType>(new thisType(blockSize, lineSize, xTable, kernel));
         if (!res)
         {
             status.add(ErrorMemoryAllocationFailed);
@@ -115,16 +119,15 @@ public:
             status = res->init(cacheSize, xTable);
             if (!status)
             {
-                delete res;
-                res = nullptr;
+                res.reset();
             }
         }
-        return res;
+        return SVMCacheOneAPIPtr<algorithmFPType>(res);
     }
 
     const services::Buffer<algorithmFPType> & getRowsBlock() const override { return _cacheBuff; }
 
-    services::Status compute(const NumericTablePtr & xTable, const services::Buffer<int> & wsIndices, const size_t p) override
+    services::Status compute(const NumericTablePtr & xTable, const services::Buffer<uint> & wsIndices, const size_t p) override
     {
         services::Status status;
         BlockDescriptor<algorithmFPType> xBlock;
@@ -132,8 +135,8 @@ public:
         DAAL_CHECK_STATUS(status, xTable->getBlockOfRows(0, xTable->getNumberOfRows(), ReadWriteMode::readOnly, xBlock));
         const services::Buffer<algorithmFPType> & xBuff = xBlock.getBuffer();
 
-        size_t blockSize                    = _blockSize;
-        services::Buffer<int> wsIndicesReal = wsIndices;
+        size_t blockSize                     = _blockSize;
+        services::Buffer<uint> wsIndicesReal = wsIndices;
         if (_ifComputeSubKernel)
         {
             blockSize     = _blockSize / 2;

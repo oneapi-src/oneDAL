@@ -43,16 +43,14 @@ template <typename algorithmFPType>
 class KernelImplLinearOneAPI<defaultDense, algorithmFPType> : public Kernel
 {
 public:
-    services::Status compute(ComputationMode computationMode, NumericTable * a1, NumericTable * a2, NumericTable * r,
-                             const daal::algorithms::Parameter * par)
+    services::Status compute(NumericTable * a1, NumericTable * a2, NumericTable * r, const ParameterBase * par)
     {
-        const ParameterBase * svmPar = static_cast<const ParameterBase *>(par);
-
+        ComputationMode computationMode = par->computationMode;
         switch (computationMode)
         {
-        case vectorVector: return computeInternalVectorVector(a1, a2, r, svmPar); break;
-        case matrixVector: return computeInternalMatrixVector(a1, a2, r, svmPar); break;
-        case matrixMatrix: return computeInternalMatrixMatrix(a1, a2, r, svmPar); break;
+        case vectorVector: return computeInternalVectorVector(a1, a2, r, par);
+        case matrixVector: return computeInternalMatrixVector(a1, a2, r, par);
+        case matrixMatrix: return computeInternalMatrixMatrix(a1, a2, r, par);
         }
 
         DAAL_ASSERT(false); //should never come here

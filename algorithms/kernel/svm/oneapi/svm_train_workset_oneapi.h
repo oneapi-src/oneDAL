@@ -52,25 +52,25 @@ struct TaskWorkingSet
         auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
         const auto idType = TypeIds::id<algorithmFPType>();
 
-        _sortedFIndices = context.allocate(TypeIds::id<int>(), _nVectors, &status);
+        _sortedFIndices = context.allocate(TypeIds::id<uint32_t>(), _nVectors, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        _indicator = context.allocate(TypeIds::id<int>(), _nVectors, &status);
+        _indicator = context.allocate(TypeIds::id<uint32_t>(), _nVectors, &status);
         context.fill(_indicator, 0, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
         auto & deviceInfo = context.getInfoDevice();
 
-        const size_t maxWS = deviceInfo.max_work_group_size;
+        const size_t maxWS = deviceInfo.maxWorkGroupSize;
 
         _nWS       = utils::internal::min(utils::internal::maxpow2(_nVectors), maxWS);
         _nSelected = 0;
 
         _valuesSort     = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
         _valuesSortBuff = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
-        _buffIndices    = context.allocate(TypeIds::id<int>(), _nVectors, &status);
+        _buffIndices    = context.allocate(TypeIds::id<uint32_t>(), _nVectors, &status);
 
-        _wsIndices = context.allocate(TypeIds::id<int>(), _nWS, &status);
+        _wsIndices = context.allocate(TypeIds::id<uint32_t>(), _nWS, &status);
         return status;
     }
 
@@ -92,8 +92,8 @@ struct TaskWorkingSet
         services::Status status;
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
-        auto wsIndicesBuff = _wsIndices.get<int>();
-        auto indicatorBuff = _indicator.get<int>();
+        auto wsIndicesBuff = _wsIndices.get<uint32_t>();
+        auto indicatorBuff = _indicator.get<uint32_t>();
 
         DAAL_CHECK_STATUS(status, Helper::argSort(fBuff, _valuesSort, _valuesSortBuff, _sortedFIndices, _buffIndices, _nVectors));
 
@@ -167,9 +167,9 @@ struct TaskWorkingSet
         return status;
     }
 
-    const services::Buffer<int> & getWSIndeces() const { return _wsIndices.get<int>(); }
+    const services::Buffer<uint32_t> & getWSIndeces() const { return _wsIndices.get<uint32_t>(); }
 
-    services::Status resetIndicatorWithZeros(const services::Buffer<int> & idx, services::Buffer<int> & indicator, const size_t n)
+    services::Status resetIndicatorWithZeros(const services::Buffer<uint32_t> & idx, services::Buffer<uint32_t> & indicator, const size_t n)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(resetIndicatorWithZeros);
 
