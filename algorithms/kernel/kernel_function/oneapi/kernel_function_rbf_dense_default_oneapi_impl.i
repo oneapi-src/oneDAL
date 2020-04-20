@@ -120,6 +120,7 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInte
 
     const size_t nFeatures1 = a1->getNumberOfColumns();
     const size_t nFeatures2 = a2->getNumberOfColumns();
+    DAAL_ASSERT(nFeatures1 == nFeatures2);
 
     const Parameter * rbfPar    = static_cast<const Parameter *>(par);
     const algorithmFPType coeff = algorithmFPType(-0.5 / (rbfPar->sigma * rbfPar->sigma));
@@ -145,7 +146,7 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInte
     DAAL_CHECK_STATUS_VAR(status);
 
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.sumOfSquared);
+        DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.sumOfSquares);
 
         Reducer::reduce(Reducer::BinaryOp::SUM_OF_SQUARES, Layout::RowMajor, a1Buf, sqrA1U, nVectors1, nFeatures1, &status);
         DAAL_CHECK_STATUS_VAR(status);

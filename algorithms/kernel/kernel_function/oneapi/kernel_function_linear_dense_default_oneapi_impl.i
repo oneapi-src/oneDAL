@@ -73,6 +73,7 @@ services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeI
 
     const size_t nFeatures1 = a1->getNumberOfColumns();
     const size_t nFeatures2 = a2->getNumberOfColumns();
+    DAAL_ASSERT(nFeatures1 == nFeatures2);
 
     const Parameter * linPar    = static_cast<const Parameter *>(par);
     const algorithmFPType alpha = algorithmFPType(linPar->k);

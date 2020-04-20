@@ -264,7 +264,8 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
                                             deltaalphaBuff, resinfoBuff, nWS));
 
         {
-            auto resinfoHost           = resinfoBuff.toHost(ReadWriteMode::readOnly, &status).get();
+            auto resinfoHostPtr        = resinfoBuff.toHost(ReadWriteMode::readOnly, &status);
+            auto resinfoHost           = resinfoHostPtr.get();
             size_t localInnerIteration = size_t(resinfoHost[0]);
             diff                       = resinfoHost[1];
             innerIteration += localInnerIteration;
