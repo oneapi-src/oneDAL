@@ -113,16 +113,20 @@ private:
     Atomic & operator=(const Atomic &);
 };
 
-#if defined(_WIN32) || defined(_WIN64)
-inline int Atomic<int>::inc()
+#if defined(_WINDOWS)
+
+template <typename dataType>
+inline int Atomic<dataType>::inc()
 {
     return _InterlockedExchangeAdd((long *)&my_storage, 1);
 }
-inline int Atomic<int>::dec()
+template <typename dataType>
+inline int Atomic<dataType>::dec()
 {
     return _InterlockedExchangeAdd((long *)&my_storage, -1);
 }
 
+#if defined(_WIN64)
 inline size_t Atomic<size_t>::inc()
 {
     return _InterlockedExchangeAdd64((__int64 *)&my_storage, 1);
@@ -131,6 +135,7 @@ inline size_t Atomic<size_t>::dec()
 {
     return _InterlockedExchangeAdd64((__int64 *)&my_storage, -1);
 }
+#endif
 
 template <typename dataType>
 inline void Atomic<dataType>::set(dataType value)
