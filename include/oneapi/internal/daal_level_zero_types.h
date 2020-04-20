@@ -119,7 +119,7 @@ extern "C"
     /// @brief Module descriptor
     typedef struct _ze_module_desc_t
     {
-        ze_module_desc_version_t version;         ///< [in] ::ZE_MODULE_DESC_VERSION_CURRENT
+        ze_module_desc_version_t version;         ///< [in] ZE_MODULE_DESC_VERSION_CURRENT
         ze_module_format_t format;                ///< [in] Module format passed in with pInputModule
         size_t inputSize;                         ///< [in] size of input IL or ISA from pInputModule.
         const uint8_t * pInputModule;             ///< [in] pointer to IL or ISA
