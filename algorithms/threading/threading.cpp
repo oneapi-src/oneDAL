@@ -25,10 +25,13 @@
 #include "services/daal_memory.h"
 
 #if defined(__DO_TBB_LAYER__)
+    #define TBB_PREVIEW_GLOBAL_CONTROL 1
+
     #include <stdlib.h> // malloc and free
     #include <tbb/tbb.h>
     #include <tbb/spin_mutex.h>
     #include "tbb/scalable_allocator.h"
+    #include <tbb/global_control.h>
 #else
     #include "externals/service_service.h"
 #endif
@@ -51,26 +54,26 @@ DAAL_EXPORT void _threaded_scalable_free(void * ptr)
 #endif
 }
 
-DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& init)
+DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
 {
 #if defined(__DO_TBB_LAYER__)
-    if (init)
+    if (globalControl)
     {
-        delete (tbb::task_scheduler_init *)init;
-        init = nullptr;
+        delete reinterpret_cast<tbb::global_control *>(globalControl);
+        globalControl = nullptr;
     }
 #endif
 }
 
-DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** init)
+DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalControl)
 {
 #if defined(__DO_TBB_LAYER__)
     static tbb::spin_mutex mt;
     tbb::spin_mutex::scoped_lock lock(mt);
     if (numThreads != 0)
     {
-        _daal_tbb_task_scheduler_free(*init);
-        *init = (void *)(new tbb::task_scheduler_init(numThreads));
+        _daal_tbb_task_scheduler_free(*globalControl);
+        *globalControl = reinterpret_cast<void *>(new tbb::global_control(tbb::global_control::max_allowed_parallelism, numThreads));
         daal::threader_env()->setNumberOfThreads(numThreads);
         return numThreads;
     }

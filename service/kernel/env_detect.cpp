@@ -124,7 +124,7 @@ DAAL_EXPORT void daal::services::Environment::setDynamicLibraryThreadingTypeOnWi
     initNumberOfThreads();
 }
 
-DAAL_EXPORT daal::services::Environment::Environment() : _init(0)
+DAAL_EXPORT daal::services::Environment::Environment() : _globalControl{}
 {
     _env.cpuid_init_flag = false;
     _env.cpuid           = -1;
