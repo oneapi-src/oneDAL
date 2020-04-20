@@ -113,7 +113,7 @@ private:
     Atomic & operator=(const Atomic &);
 };
 
-#if defined(_WINDOWS)
+#if defined(_WIN32)
 
 template <typename dataType>
 inline dataType Atomic<dataType>::inc()
