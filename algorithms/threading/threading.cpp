@@ -29,6 +29,7 @@
     #define TBB_PREVIEW_TASK_ARENA     1
 
     #include <stdlib.h> // malloc and free
+    #include <atomic> // Temporary
     #include <tbb/tbb.h>
     #include <tbb/spin_mutex.h>
     #include "tbb/scalable_allocator.h"
@@ -576,7 +577,8 @@ DAAL_EXPORT void _daal_run_task_group(void * taskGroupPtr, daal::task * t)
 {
     struct shared_task
     {
-        typedef tbb::atomic<int> RefCounterType;
+        // typedef tbb::atomic<int> RefCounterType;
+        typedef std::atomic<int> RefCounterType; // Temporary
 
         shared_task(daal::task & t) : _t(t), _nRefs(nullptr)
         {
