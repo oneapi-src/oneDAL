@@ -57,7 +57,7 @@ public:
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
         _tmpValues     = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);
         DAAL_CHECK_STATUS_VAR(status);
-        _mask = context.allocate(TypeIds::id<uint>(), _nVectors, &status);
+        _mask = context.allocate(TypeIds::id<uint32_t>(), _nVectors, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
         DAAL_CHECK_STATUS(status, Helper::computeDualCoeffs(_yBuff, _coeffBuff, _nVectors));
@@ -91,7 +91,7 @@ protected:
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
         auto tmpValuesBuff = _tmpValues.get<algorithmFPType>();
-        auto maskBuff      = _mask.get<uint>();
+        auto maskBuff      = _mask.get<uint32_t>();
 
         DAAL_CHECK_STATUS(status, Helper::checkNonZeroBinary(_coeffBuff, maskBuff, _nVectors));
         nSV = 0;
@@ -125,9 +125,9 @@ protected:
         DAAL_CHECK_STATUS(status, svIndicesTable->getBlockOfRows(0, nSV, ReadWriteMode::writeOnly, svIndicesBlock));
 
         auto svIndices = svIndicesBlock.getBuffer();
-        auto buffIndex = context.allocate(TypeIds::id<uint>(), nSV, &status);
+        auto buffIndex = context.allocate(TypeIds::id<uint32_t>(), nSV, &status);
         DAAL_CHECK_STATUS_VAR(status);
-        auto rangeIndex = context.allocate(TypeIds::id<uint>(), _nVectors, &status);
+        auto rangeIndex = context.allocate(TypeIds::id<uint32_t>(), _nVectors, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
         DAAL_CHECK_STATUS(status, Helper::makeRange(rangeIndex, _nVectors));
@@ -180,7 +180,7 @@ protected:
         const algorithmFPType fpMax = MaxVal<algorithmFPType>::get();
 
         auto tmpValuesBuff = _tmpValues.get<algorithmFPType>();
-        auto maskBuff      = _mask.get<uint>();
+        auto maskBuff      = _mask.get<uint32_t>();
 
         /* free SV: (0 < alpha < C)*/
         DAAL_CHECK_STATUS(status, Helper::checkBorder(_coeffBuff, maskBuff, C, _nVectors));
