@@ -245,7 +245,8 @@ DAAL_EXPORT void _daal_del_mutex(void * mutexPtr)
 DAAL_EXPORT bool _daal_is_in_parallel()
 {
 #if defined(__DO_TBB_LAYER__)
-    return tbb::task::self().state() == tbb::task::executing;
+    // return tbb::task::self().state() == tbb::task::executing;
+    return true; // Temporary
 #else
     return false;
 #endif
