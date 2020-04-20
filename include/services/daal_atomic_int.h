@@ -116,12 +116,12 @@ private:
 #if defined(_WINDOWS)
 
 template <typename dataType>
-inline int Atomic<dataType>::inc()
+inline dataType Atomic<dataType>::inc()
 {
     return _InterlockedExchangeAdd((long *)&my_storage, 1);
 }
 template <typename dataType>
-inline int Atomic<dataType>::dec()
+inline dataType Atomic<dataType>::dec()
 {
     return _InterlockedExchangeAdd((long *)&my_storage, -1);
 }
