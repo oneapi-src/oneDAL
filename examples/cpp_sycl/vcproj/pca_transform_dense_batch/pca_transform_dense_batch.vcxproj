@@ -38,7 +38,7 @@
     <ProjectGuid>{40537CD7-86C1-48A3-B837-C8EE93242055}</ProjectGuid>
     <RootNamespace>pca_transform_dense_batch</RootNamespace>
     <ProjectName>pca_transform_dense_batch</ProjectName>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug.static.threaded|x64'" Label="Configuration">
