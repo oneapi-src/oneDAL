@@ -14,18 +14,7 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-Potential performance degradations
-**********************************
+.. |dpcpp_level_zero| replace:: Intel\ |reg|\  oneAPI DPC++ Compiler Developer Guide and Reference
+.. _dpcpp_level_zero: https://software.intel.com/en-us/oneapi-dpcpp-compiler-dev-guide-and-reference-optimization-and-programming-guide
 
-You might experience performance degradations if you use Lever Zero Runtime for GPU computations.
-
-.. include:: includes/note-refer-to-dpcpp-level-zero.rst
-
-How to Fix
-----------
-
-Switch back to OpenCL runtime by setting the ``SYCL_BE`` variable to ``PI_OPENCL``:
-
-.. code-block:: bash
-
-    export SYCL_BE=PI_OPENCL
+.. note:: For more information about Level Zero, refer to |dpcpp_level_zero|_.

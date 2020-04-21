@@ -25,7 +25,9 @@ When you build an application with |short_name| on Linux\*, you might encounter 
 
     fatal error: 'level_zero/ze_api.h' file not found
 
-This means that you do not have Level Zero in your environment. 
+This means that you do not have Level Zero in your environment.
+
+.. include:: includes/note-refer-to-dpcpp-level-zero.rst
 
 How to Fix
 ----------
