@@ -100,7 +100,7 @@ public:
      * Constructs an atomic object from a value
      * \param[in] value The value to be assigned to the atomic object
      */
-    constexpr Atomic(dataType value) : my_storage(value) {}
+    Atomic(dataType value) : my_storage(value) {}
 
     /** Destructor */
     ~Atomic() = default;
@@ -127,10 +127,12 @@ inline dataType Atomic<dataType>::dec()
 }
 
 #if defined(_WIN64)
+template<>
 inline size_t Atomic<size_t>::inc()
 {
     return _InterlockedExchangeAdd64((__int64 *)&my_storage, 1);
 }
+template<>
 inline size_t Atomic<size_t>::dec()
 {
     return _InterlockedExchangeAdd64((__int64 *)&my_storage, -1);
