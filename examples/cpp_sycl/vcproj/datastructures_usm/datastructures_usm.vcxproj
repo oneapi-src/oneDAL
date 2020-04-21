@@ -38,7 +38,7 @@
     <ProjectGuid>{E6E61E4A-BD29-4CBB-BB82-6F3BEBA5DAD3}</ProjectGuid>
     <RootNamespace>datastructures_usm</RootNamespace>
     <ProjectName>datastructures_usm</ProjectName>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug.static.threaded|x64'" Label="Configuration">

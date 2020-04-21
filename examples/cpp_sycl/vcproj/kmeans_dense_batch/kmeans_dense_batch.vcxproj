@@ -38,7 +38,7 @@
     <ProjectGuid>{AC6C12DE-FABC-44B0-B3EA-5F6290293D0A}</ProjectGuid>
     <RootNamespace>kmeans_dense_batch</RootNamespace>
     <ProjectName>kmeans_dense_batch</ProjectName>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug.static.threaded|x64'" Label="Configuration">
