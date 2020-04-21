@@ -22,7 +22,7 @@ and `Linux\* <https://software.intel.com/en-us/get-started-with-daal-for-linux>`
 for instruction on how to build applications for C++.
 This section contains instructions for building applications with |short_name| for SYCL\*.
 
-.. warning::
+.. note::
   If you encounter a problem while building an application with |short_name|,
   refer to the list of :ref:`known issues <known_issues>`.
 
@@ -83,7 +83,7 @@ Applications on Windows
 Applications on Linux
 ---------------------
 
-.. warning::
+.. note::
 
   Known issues that you might encounter:
 
