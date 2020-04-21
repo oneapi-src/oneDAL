@@ -59,7 +59,8 @@ enum ErrorDetailID
     ExpectedValue             = 17, /*!< Detail about expected value */
     ActualValue               = 18, /*!< Detail about actual value */
     Sycl                      = 19, /*!< Detail about Sycl */
-    OpenCL                    = 20  /*!< Detail about actual OpenCL */
+    OpenCL                    = 20, /*!< Detail about actual OpenCL */
+    LevelZero                 = 21  /*!< Detail about actual LevelZero */
 };
 
 /**
