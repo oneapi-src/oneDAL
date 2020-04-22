@@ -115,6 +115,75 @@ enum ResultId
 };
 
 /**
+* <a name="DAAL-ENUM-ALGORITHMS__LOGISTIC_REGRESSION__PREDICTION__RESULTTOCOMPUTEID"></a>
+* Available identifiers to specify the result to compute
+*/
+enum ResultToComputeId
+{
+    computeObjectiveFunction = 0x00000001ULL, /*!< Numeric table of size n x 1 with the predicted labels >*/
+    computeAssignments       = 0x00000002ULL, /*!< Numeric table of size n x p with the predicted class probabilities for each observation >*/
+};
+
+/**
+* <a name="DAAL-ENUM-ALGORITHMS__LOGISTIC_REGRESSION__PREDICTION__RESULT_NUMERIC_TABLE_ID"></a>
+* Available identifiers of results obtained in the prediction stage of the classification algorithm
+*/
+enum ResultNumericTableId
+{
+    probabilities    = classifier::prediction::probabilities,    /*!< Numeric table of size: n x 1, if nClasses = 2, n x nClasses, if nClasses > 2
+                                                                     containing probabilities of classes computed when
+                                                                     computeClassesProbabilities option is enabled.
+                                                                     In case  nClasses = 2 the table contains probabilities of class _1. */
+    logProbabilities = classifier::prediction::logProbabilities, /*!< Numeric table of size: n x 1, if nClasses = 2, n x nClasses, if nClasses > 2
+                                                                     containing logarithms of classes_ probabilities computed when
+                                                                     computeClassesLogProbabilities option is enabled.
+                                                                     In case nClasses = 2 the table contains logarithms of class _1_ probabilities. */
+    lastResultNumericTableId = logProbabilities
+};
+
+/**
+ * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ */
+namespace interface2
+{
+/**
+ * <a name="DAAL-STRUCT-ALGORITHMS__KMEANS__PARAMETER"></a>
+ * \brief Parameters for K-Means algorithm
+ * \par Enumerations
+ *      - \ref DistanceType Methods for distance computation
+ *
+ * \snippet kmeans/kmeans_types.h Parameter source code
+ */
+/* [Parameter source code] */
+struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
+{
+    /**
+     *  Constructs parameters of K-Means algorithm
+     *  \param[in] _nClusters   Number of clusters
+     *  \param[in] _maxIterations Number of iterations
+     */
+    Parameter(size_t _nClusters, size_t _maxIterations);
+
+    /**
+     *  Constructs parameters of K-Means algorithm by copying another parameters of K-Means algorithm
+     *  \param[in] other    Parameters of K-Means algorithm
+     */
+    Parameter(const Parameter & other);
+
+    size_t nClusters;             /*!< Number of clusters */
+    size_t maxIterations;         /*!< Number of iterations */
+    double accuracyThreshold;     /*!< Threshold for the termination of the algorithm */
+    double gamma;                 /*!< Weight used in distance computation for categorical features */
+    DistanceType distanceType;    /*!< Distance used in the algorithm */
+    DAAL_UINT64 resultsToCompute; /*!< 64 bit integer flag that indicates the results to compute */
+
+    services::Status check() const DAAL_C11_OVERRIDE;
+};
+/* [Parameter source code] */
+
+} // namespace interface2
+
+/**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
 namespace interface1
