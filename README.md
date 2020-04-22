@@ -88,8 +88,9 @@ Data Examples for different computation modes:
 - [Get Started](http://oneapi-src.github.io/oneDAL/getstarted.html)
 - [System Requirements](https://software.intel.com/en-us/articles/system-requirements-for-oneapi-data-analytics-library#)
 - [oneDAL documentation](http://oneapi-src.github.io/oneDAL/)
-- [Specifications](https://spec.oneapi.com/oneDAL/index.html)
+- [Specifications](https://spec.oneapi.com/versions/latest/elements/oneDAL/source/index.html)
 - [Release Notes](https://software.intel.com/en-us/articles/oneapi-dal-release-notes)
+- [Known Issues](https://oneapi-src.github.io/oneDAL/notes/known_issues.html)
 
 ## Python API
 

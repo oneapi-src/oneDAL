@@ -14,47 +14,28 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. |dpcpp_comp_release_notes| replace:: Release Notes for Intel\ |reg|\  oneAPI DPC++ Compiler
+.. _dpcpp_comp_release_notes: https://software.intel.com/en-us/articles/intel-oneapi-dpcpp-compiler-release-notes-beta
+
+.. _known_issues:
+
 Known Issues
 ============
 
-DLL file not found
-******************
+For more details, refer to |dpcpp_comp_release_notes|_.
 
-If you run your program in Visual Studio and encounter a "sycl.dll was not found" runtime error
-or a similar one such as the one shown below, update the project property :guilabel:`Debugging` > :guilabel:`Environment`. 
-To do this, follow `How to Fix`_ instructions.
+.. toctree::
+  :maxdepth: 1
+  :caption: 2021.1-beta06
 
-  .. image:: images/runtime_error.png
-    :alt: Unable to start a program: the code execution cannot proceed because XXX.dll was not found. 
-    :class: with-border
+  issues/2021.1-beta06/dpcpp-examples-in-vs2017.rst
+  issues/2021.1-beta06/incorrect-linker-behavior.rst
+  issues/2021.1-beta06/level-zero-not-found.rst
+  issues/2021.1-beta06/performance-degradations.rst
+  issues/2021.1-beta06/undeclared-identifier.rst
 
-.. attention::
+.. toctree::
+  :maxdepth: 1
+  :caption: 2021.1-beta04
 
-  The issue appears as the result of how Visual Studio 2017 and its later versions
-  handle additional directories for the ``PATH`` environment variable.
-
-How to Fix
-----------
-
-1. Open the project's properties, go to :guilabel:`Debugging` > :guilabel:`Environment` property, 
-   right-click the drop-down menu, and select :guilabel:`Edit`:
-
-  .. image:: images/vsproj_debug_step1_open.png
-    :width: 600
-    :alt: Changing configuration properties
-    :class: with-border
-
-2. Copy the default value of the ``PATH`` environment variable from the :guilabel:`Evaluated value`
-   section and then paste it to the section above it:
-
-  .. image:: images/vsproj_debug_step2_copy.png
-    :width: 600
-    :alt: Changing configuration properties
-    :class: with-border
-
-3. Add to ``PATH`` the paths to the dll files that the program needs:
-
-  .. image:: images/vsproj_debug_step3_add.png
-    :width: 600
-    :alt: Changing configuration properties
-    :class: with-border
+  issues/2021.1-beta04/dll-file-not-found.rst
