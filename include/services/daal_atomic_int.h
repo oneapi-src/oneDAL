@@ -40,6 +40,79 @@ namespace interface1
  * @ingroup memory
  * @{
  */
+
+#if defined(_WIN32)
+template <typename dataType>
+class DAAL_EXPORT Atomic
+{
+public:
+    /**
+     * Returns an increment of atomic object
+     * \return An increment of atomic object
+     */
+    inline dataType inc()
+    {
+        DAAL_ASSERT(sizeof(my_storage)==sizeof(long))
+        DAAL_ASSERT(sizeof(my_storage)==sizeof(size_t))
+        return (dataType)(_InterlockedExchangeAdd((long *)(&my_storage), 1) + 1);
+    }
+
+    /**
+     * Returns a decrement of atomic object
+     * \return An decrement of atomic object
+     */
+    inline dataType dec()
+    {
+        DAAL_ASSERT(sizeof(my_storage)==sizeof(long))
+        DAAL_ASSERT(sizeof(my_storage)==sizeof(size_t))
+        return (dataType)(_InterlockedExchangeAdd((long *)(&my_storage), -1) - 1);
+    }
+
+    /**
+     * Assigns the value to atomic object
+     * \param[in] value    The value to be assigned
+     */
+    inline void set(dataType value)
+    {
+        _ReadWriteBarrier();
+        my_storage = value;
+    }
+
+    /**
+     * Returns the value of the atomic object
+     * \return The value of the atomic object
+     */
+    inline dataType get() const
+    {
+        dataType to_return = my_storage;
+        _ReadWriteBarrier();
+        return to_return;
+    }
+
+    /**
+     * Constructs an atomic object
+     */
+    Atomic() = default;
+
+    /**
+     * Constructs an atomic object from a value
+     * \param[in] value The value to be assigned to the atomic object
+     */
+    Atomic(dataType value) : my_storage(value) {}
+
+    /** Destructor */
+    ~Atomic() = default;
+
+protected:
+    dataType my_storage;
+
+private:
+    Atomic(const Atomic &);
+    Atomic & operator=(const Atomic &);
+};
+#endif // _WIN32
+
+#if defined(_WIN64)
 /**
  * <a name="DAAL-CLASS-SERVICES__ATOMIC"></a>
  * \brief Class that represents an atomic object
@@ -185,7 +258,7 @@ private:
     Atomic(const Atomic &);
     Atomic & operator=(const Atomic &);
 };
-
+#endif // _WIN64
 
 /** @} */
 
