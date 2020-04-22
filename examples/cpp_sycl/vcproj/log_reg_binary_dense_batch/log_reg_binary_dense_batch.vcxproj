@@ -38,7 +38,7 @@
     <ProjectGuid>{7AC59A37-C9CC-43C2-9C0D-EEDBF4DC974F}</ProjectGuid>
     <RootNamespace>log_reg_binary_dense_batch</RootNamespace>
     <ProjectName>log_reg_binary_dense_batch</ProjectName>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug.static.threaded|x64'" Label="Configuration">
