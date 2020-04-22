@@ -28,23 +28,6 @@
     #include <intrin.h>
 #endif
 
-/*
-#if !defined(TBB_SUPPRESS_DEPRECATED_MESSAGES)
-  #define TBB_SUPPRESS_DEPRECATED_MESSAGES 1
-#endif
-#if !defined(__TBB_LEGACY_MODE)
-  #define __TBB_LEGACY_MODE 1
-#endif
-
-#include "tbb/tbb.h"
-#include "tbb/atomic.h"
-#ifdef min
-  #undef min
-#endif
-#ifdef max
-  #undef max
-#endif
-*/
 #include "services/daal_defines.h"
 
 namespace daal
@@ -63,33 +46,55 @@ namespace interface1
  *
  * \tparam dataType Data type of the atomic object
  */
-template <typename dataType = int>
+template <typename dataType>
 class DAAL_EXPORT Atomic
+{
+};
+
+template <>
+class DAAL_EXPORT Atomic<int>
 {
 public:
     /**
      * Returns an increment of atomic object
      * \return An increment of atomic object
      */
-    inline dataType inc();
+    inline int inc()
+    {
+        DAAL_ASSERT(sizeof(my_storage)==sizeof(long))
+        return (int)(_InterlockedExchangeAdd((long *)(&my_storage), 1) + 1);
+    }
 
     /**
      * Returns a decrement of atomic object
      * \return An decrement of atomic object
      */
-    inline dataType dec();
+    inline int dec()
+    {
+        DAAL_ASSERT(sizeof(my_storage)==sizeof(long))
+        return (int)(_InterlockedExchangeAdd((long *)(&my_storage), -1) - 1);
+    }
 
     /**
      * Assigns the value to atomic object
      * \param[in] value    The value to be assigned
      */
-    inline void set(dataType value);
+    inline void set(int value)
+    {
+        _ReadWriteBarrier();
+        my_storage = value;
+    }
 
     /**
      * Returns the value of the atomic object
      * \return The value of the atomic object
      */
-    inline dataType get() const;
+    inline int get() const
+    {
+        int to_return = my_storage;
+        _ReadWriteBarrier();
+        return to_return;
+    }
 
     /**
      * Constructs an atomic object
@@ -100,60 +105,87 @@ public:
      * Constructs an atomic object from a value
      * \param[in] value The value to be assigned to the atomic object
      */
-    Atomic(dataType value) : my_storage(value) {}
+    Atomic(int value) : my_storage(value) {}
 
     /** Destructor */
     ~Atomic() = default;
 
 protected:
-    dataType my_storage;
+    int my_storage;
 
 private:
     Atomic(const Atomic &);
     Atomic & operator=(const Atomic &);
 };
 
-#if defined(_WIN32)
 
-template <typename dataType>
-inline dataType Atomic<dataType>::inc()
+template <>
+class DAAL_EXPORT Atomic<size_t>
 {
-    return _InterlockedExchangeAdd((long *)&my_storage, 1);
-}
-template <typename dataType>
-inline dataType Atomic<dataType>::dec()
-{
-    return _InterlockedExchangeAdd((long *)&my_storage, -1);
-}
+public:
+    /**
+     * Returns an increment of atomic object
+     * \return An increment of atomic object
+     */
+    inline size_t inc()
+    {
+        DAAL_ASSERT(sizeof(my_storage)==sizeof(size_t))
+        return (size_t)(_InterlockedExchangeAdd64((__int64 *)(&my_storage), 1) + 1);
+    }
 
-#if defined(_WIN64)
-template<>
-inline size_t Atomic<size_t>::inc()
-{
-    return _InterlockedExchangeAdd64((__int64 *)&my_storage, 1);
-}
-template<>
-inline size_t Atomic<size_t>::dec()
-{
-    return _InterlockedExchangeAdd64((__int64 *)&my_storage, -1);
-}
-#endif
+    /**
+     * Returns a decrement of atomic object
+     * \return An decrement of atomic object
+     */
+    inline size_t dec()
+    {
+        DAAL_ASSERT(sizeof(my_storage)==sizeof(size_t))
+        return (size_t)(_InterlockedExchangeAdd64((__int64 *)(&my_storage), -1) - 1);
+    }
 
-template <typename dataType>
-inline void Atomic<dataType>::set(dataType value)
-{
-    _ReadWriteBarrier();
-    my_storage = value;
-}
+    /**
+     * Assigns the value to atomic object
+     * \param[in] value    The value to be assigned
+     */
+    inline void set(size_t value)
+    {
+        _ReadWriteBarrier();
+        my_storage = value;
+    }
 
-template <typename dataType>
-inline dataType Atomic<dataType>::get() const
-{
-    dataType to_return = my_storage;
-    _ReadWriteBarrier();
-    return to_return;
-}
-#endif
+    /**
+     * Returns the value of the atomic object
+     * \return The value of the atomic object
+     */
+    inline size_t get() const
+    {
+        size_t to_return = my_storage;
+        _ReadWriteBarrier();
+        return to_return;
+    }
+
+    /**
+     * Constructs an atomic object
+     */
+    Atomic() = default;
+
+    /**
+     * Constructs an atomic object from a value
+     * \param[in] value The value to be assigned to the atomic object
+     */
+    Atomic(size_t value) : my_storage(value) {}
+
+    /** Destructor */
+    ~Atomic() = default;
+
+protected:
+    size_t my_storage;
+
+private:
+    Atomic(const Atomic &);
+    Atomic & operator=(const Atomic &);
+};
+
 
 /** @} */
 
@@ -162,6 +194,7 @@ inline dataType Atomic<dataType>::get() const
 using interface1::Atomic;
 
 typedef Atomic<int> AtomicInt;
+typedef Atomic<size_t> AtomicSizeT;
 
 } // namespace services
 } // namespace daal
