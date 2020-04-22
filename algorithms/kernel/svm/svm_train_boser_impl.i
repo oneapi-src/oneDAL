@@ -46,18 +46,11 @@
 #include "service/kernel/service_utils.h"
 #include "service/kernel/service_data_utils.h"
 
-using namespace daal::internal;
-using namespace daal::services::internal;
-
 #if defined(__INTEL_COMPILER)
     #if defined(_M_AMD64) || defined(__amd64) || defined(__x86_64) || defined(__x86_64__)
         #if (__CPUID__(DAAL_CPU) == __avx512__)
 
             #include <immintrin.h>
-
-using namespace daal;
-using namespace daal::algorithms::svm::training::internal;
-
             #include "algorithms/kernel/svm/svm_train_boser_avx512_impl.i"
             #include "algorithms/kernel/svm/inner/svm_train_boser_avx512_impl_v1.i"
 
@@ -75,6 +68,9 @@ namespace training
 {
 namespace internal
 {
+using namespace daal::internal;
+using namespace daal::services::internal;
+
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 services::Status SVMTrainImpl<boser, algorithmFPType, ParameterType, cpu>::compute(const NumericTablePtr & xTable, NumericTable & yTable,
                                                                                    daal::algorithms::Model * r, const ParameterType * svmPar)

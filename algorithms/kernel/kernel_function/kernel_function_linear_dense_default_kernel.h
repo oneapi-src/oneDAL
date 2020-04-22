@@ -27,8 +27,6 @@
 #include "algorithms/kernel/kernel_function/kernel_function_dense_base.h"
 #include "algorithms/kernel/kernel_function/kernel_function_linear_base.h"
 
-using namespace daal::internal;
-
 namespace daal
 {
 namespace algorithms
@@ -48,6 +46,7 @@ struct KernelImplLinear<defaultDense, algorithmFPType, cpu> : public daal::algor
                                                          const ParameterBase * par);
     virtual services::Status computeInternalMatrixMatrix(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
                                                          const ParameterBase * par);
+    NumericTablePtr a;
 };
 
 } // namespace internal

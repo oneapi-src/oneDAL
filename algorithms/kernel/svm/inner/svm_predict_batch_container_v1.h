@@ -56,12 +56,12 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     classifier::prediction::Input * input   = static_cast<classifier::prediction::Input *>(_in);
     classifier::prediction::Result * result = static_cast<classifier::prediction::Result *>(_res);
 
-    NumericTablePtr a = input->get(classifier::prediction::data);
-    Model * m         = static_cast<Model *>(input->get(classifier::prediction::model).get());
-    NumericTablePtr r = result->get(classifier::prediction::prediction);
+    data_management::NumericTablePtr a = input->get(classifier::prediction::data);
+    Model * m                          = static_cast<Model *>(input->get(classifier::prediction::model).get());
+    data_management::NumericTablePtr r = result->get(classifier::prediction::prediction);
 
-    daal::services::Environment::env & env = *_env;
-    svm::interface1::Parameter * par       = static_cast<svm::interface1::Parameter *>(_par);
+    services::Environment::env & env = *_env;
+    svm::interface1::Parameter * par = static_cast<svm::interface1::Parameter *>(_par);
     svm::interface2::Parameter par2;
 
     par2.C                 = par->C;

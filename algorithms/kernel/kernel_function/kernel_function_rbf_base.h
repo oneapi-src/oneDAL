@@ -27,8 +27,6 @@
 #include "algorithms/kernel_function/kernel_function_types_rbf.h"
 #include "algorithms/kernel/kernel.h"
 
-using namespace daal::internal;
-
 namespace daal
 {
 namespace algorithms
@@ -44,13 +42,9 @@ struct KernelImplRBF
 {};
 
 } // namespace internal
-
 } // namespace rbf
-
 } // namespace kernel_function
-
 } // namespace algorithms
-
 } // namespace daal
 
 #endif

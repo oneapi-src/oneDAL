@@ -255,7 +255,6 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
         DAAL_CHECK_STATUS(status, workSet.selectWS(yBuff, alphaBuff, gradBuff, C));
 
         const services::Buffer<uint32_t> & wsIndices = workSet.getWSIndeces();
-
         DAAL_CHECK_STATUS(status, cachePtr->compute(xTable, wsIndices, nFeatures));
 
         const services::Buffer<algorithmFPType> & kernelWS = cachePtr->getRowsBlock();

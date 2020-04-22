@@ -86,11 +86,10 @@ services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeI
         BlockDescriptor<algorithmFPType> a2BD;
         BlockDescriptor<algorithmFPType> rBD;
 
-        const size_t startRows = 0;
-        DAAL_CHECK_STATUS(status, a1->getBlockOfRows(startRows, nVectors1, ReadWriteMode::readOnly, a1BD));
-        DAAL_CHECK_STATUS(status, a2->getBlockOfRows(startRows, nVectors2, ReadWriteMode::readOnly, a2BD));
+        DAAL_CHECK_STATUS(status, a1->getBlockOfRows(0, nVectors1, ReadWriteMode::readOnly, a1BD));
+        DAAL_CHECK_STATUS(status, a2->getBlockOfRows(0, nVectors2, ReadWriteMode::readOnly, a2BD));
 
-        DAAL_CHECK_STATUS(status, r->getBlockOfRows(startRows, nVectors1, ReadWriteMode::writeOnly, rBD));
+        DAAL_CHECK_STATUS(status, r->getBlockOfRows(0, nVectors1, ReadWriteMode::writeOnly, rBD));
 
         const services::Buffer<algorithmFPType> a1Buf = a1BD.getBuffer();
         const services::Buffer<algorithmFPType> a2Buf = a2BD.getBuffer();

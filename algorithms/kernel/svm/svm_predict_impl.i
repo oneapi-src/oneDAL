@@ -112,13 +112,9 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
 };
 
 } // namespace internal
-
 } // namespace prediction
-
 } // namespace svm
-
 } // namespace algorithms
-
 } // namespace daal
 
 #endif

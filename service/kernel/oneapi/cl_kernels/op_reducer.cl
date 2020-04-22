@@ -39,7 +39,7 @@ DECLARE_SOURCE(
                                    __global algorithmFPType * reduces) {
         const uint local_size = get_local_size(0);
 
-        __local algorithmFPType partial_reduces[LOCAL_BUFFER_SIZE];
+        __local algorithmFPType partialReduces[LOCAL_BUFFER_SIZE];
 
         uint globalDim = 1;
         uint localDim  = nVectors;
@@ -53,13 +53,13 @@ DECLARE_SOURCE(
         uint itemId  = get_local_id(0);
         uint groupId = get_global_id(1);
 
-        algorithmFPType el      = vectors[groupId * globalDim + itemId * localDim];
-        partial_reduces[itemId] = INIT_VALUE;
+        algorithmFPType el     = vectors[groupId * globalDim + itemId * localDim];
+        partialReduces[itemId] = INIT_VALUE;
 
         for (uint i = itemId; i < vectorSize; i += local_size)
         {
-            el                      = vectors[groupId * globalDim + i * localDim];
-            partial_reduces[itemId] = BINARY_OP(partial_reduces[itemId], UNARY_OP(el));
+            el                     = vectors[groupId * globalDim + i * localDim];
+            partialReduces[itemId] = BINARY_OP(partialReduces[itemId], UNARY_OP(el));
         }
 
         barrier(CLK_LOCAL_MEM_FENCE);
@@ -68,14 +68,14 @@ DECLARE_SOURCE(
         {
             if (stride > itemId)
             {
-                partial_reduces[itemId] = BINARY_OP(partial_reduces[itemId], partial_reduces[itemId + stride]);
+                partialReduces[itemId] = BINARY_OP(partialReduces[itemId], partialReduces[itemId + stride]);
             }
             barrier(CLK_LOCAL_MEM_FENCE);
         }
 
         if (itemId == 0)
         {
-            reduces[groupId] = BINARY_OP(partial_reduces[itemId], partial_reduces[itemId + 1]);
+            reduces[groupId] = BINARY_OP(partialReduces[itemId], partialReduces[itemId + 1]);
         }
     }
 
@@ -95,17 +95,17 @@ DECLARE_SOURCE(
                 rowPartSize = vectorSize - rowOffset;
             }
 
-            algorithmFPType partialSums = INIT_VALUE;
+            algorithmFPType partialRes = INIT_VALUE;
 
             for (int row = 0; row < rowPartSize; row++)
             {
                 const int y              = (row + rowOffset) * nVectors;
                 const algorithmFPType el = vectors[y + x];
 
-                partialSums = BINARY_OP(partialSums, UNARY_OP(el));
+                partialRes = BINARY_OP(partialRes, UNARY_OP(el));
             }
 
-            mergedReduce[x * rowParts + rowPartIndex] = partialSums;
+            mergedReduce[x * rowParts + rowPartIndex] = partialRes;
         }
     }
 
@@ -129,17 +129,17 @@ DECLARE_SOURCE(
                                           __global algorithmFPType * reduces) {
         const uint local_size = get_local_size(0);
 
-        __local algorithmFPType partial_reduces[LOCAL_BUFFER_SIZE];
+        __local algorithmFPType partialReduces[LOCAL_BUFFER_SIZE];
 
         uint globalDim = vectorSize;
         uint localDim  = 1;
         uint itemId    = get_local_id(0);
         uint groupId   = get_group_id(0);
 
-        partial_reduces[itemId] = INIT_VALUE;
+        partialReduces[itemId] = INIT_VALUE;
         for (uint i = itemId; i < vectorSize; i += local_size)
         {
-            partial_reduces[itemId] = BINARY_OP(partial_reduces[itemId], mergedReduce[groupId * globalDim + i * localDim]);
+            partialReduces[itemId] = BINARY_OP(partialReduces[itemId], mergedReduce[groupId * globalDim + i * localDim]);
         }
 
         barrier(CLK_LOCAL_MEM_FENCE);
@@ -148,14 +148,14 @@ DECLARE_SOURCE(
         {
             if (stride > itemId)
             {
-                partial_reduces[itemId] = BINARY_OP(partial_reduces[itemId], partial_reduces[itemId + stride]);
+                partialReduces[itemId] = BINARY_OP(partialReduces[itemId], partialReduces[itemId + stride]);
             }
             barrier(CLK_LOCAL_MEM_FENCE);
         }
 
         if (itemId == 0)
         {
-            reduces[groupId] = BINARY_OP(partial_reduces[itemId], partial_reduces[itemId + 1]);
+            reduces[groupId] = BINARY_OP(partialReduces[itemId], partialReduces[itemId + 1]);
         }
     }
 

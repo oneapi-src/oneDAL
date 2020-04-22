@@ -31,10 +31,6 @@
 #include "algorithms/kernel/kernel.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 
-using namespace daal::data_management;
-using namespace daal::internal;
-using namespace daal::services;
-
 #include "algorithms/kernel/svm/svm_train_boser_cache.i"
 
 namespace daal
@@ -47,6 +43,10 @@ namespace training
 {
 namespace internal
 {
+using namespace daal::data_management;
+using namespace daal::internal;
+using namespace daal::services;
+
 enum SVMVectorStatus
 {
     free   = 0x0,

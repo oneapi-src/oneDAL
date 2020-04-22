@@ -27,8 +27,6 @@
 
 #include "algorithms/kernel/kernel_function/oneapi/kernel_function_rbf_base_oneapi.h"
 
-using namespace daal::data_management;
-
 namespace daal
 {
 namespace algorithms
@@ -37,6 +35,8 @@ namespace kernel_function
 {
 namespace rbf
 {
+using namespace daal::data_management;
+
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
@@ -44,7 +44,8 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
     auto & deviceInfo = context.getInfoDevice();
     if (method == defaultDense && !deviceInfo.isCpu)
     {
-        __DAAL_INITIALIZE_KERNELS_SYCL(internal::KernelImplRBFOneAPI, method, algorithmFPType);
+        _kernel = new internal::KernelImplRBFOneAPI<method, algorithmFPType>();
+        // __DAAL_INITIALIZE_KERNELS_SYCL(internal::KernelImplRBFOneAPI, method, algorithmFPType);
     }
     else
     {
@@ -94,9 +95,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 }
 
 } // namespace rbf
-
 } // namespace kernel_function
-
 } // namespace algorithms
-
 } // namespace daal

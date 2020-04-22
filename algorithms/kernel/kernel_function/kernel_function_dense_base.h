@@ -65,6 +65,8 @@ struct KernelImplBase : public Kernel
         }
         return services::Status();
     }
+
+    NumericTablePtr b;
 };
 
 } // namespace internal

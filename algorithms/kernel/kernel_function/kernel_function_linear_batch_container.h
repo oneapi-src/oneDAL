@@ -27,8 +27,6 @@
 
 #include "algorithms/kernel/kernel_function/oneapi/kernel_function_linear_base_oneapi.h"
 
-using namespace daal::data_management;
-
 namespace daal
 {
 namespace algorithms
@@ -37,6 +35,8 @@ namespace kernel_function
 {
 namespace linear
 {
+using namespace daal::data_management;
+
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
@@ -71,8 +71,8 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     NumericTable * r[1];
     r[0] = static_cast<NumericTable *>(result->get(values).get());
 
-    const ParameterBase * par              = static_cast<const ParameterBase *>(_par);
-    daal::services::Environment::env & env = *_env;
+    const ParameterBase * par        = static_cast<const ParameterBase *>(_par);
+    services::Environment::env & env = *_env;
 
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();
@@ -88,10 +88,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     }
 }
 
-}; // namespace linear
-
+} // namespace linear
 } // namespace kernel_function
-
 } // namespace algorithms
-
 } // namespace daal
