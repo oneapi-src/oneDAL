@@ -149,10 +149,10 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status copyBlockByIndices(const services::Buffer<algorithmFPType> & x, const services::Buffer<uint32_t> & indX,
-                                               services::Buffer<algorithmFPType> & newX, const size_t nWS, const uint32_t p)
+    static services::Status copyDataByIndices(const services::Buffer<algorithmFPType> & x, const services::Buffer<uint32_t> & indX,
+                                              services::Buffer<algorithmFPType> & newX, const size_t nWS, const uint32_t p)
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(copyBlockByIndices);
+        DAAL_ITTNOTIFY_SCOPED_TASK(copyDataByIndices);
         services::Status status;
 
         oneapi::internal::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
@@ -160,10 +160,10 @@ struct HelperSVM
 
         buildProgram(factory);
 
-        const char * const kernelName      = "copyBlockByIndices";
+        const char * const kernelName      = "copyDataByIndices";
         oneapi::internal::KernelPtr kernel = factory.getKernel(kernelName);
 
-        oneapi::internal::KernelArguments args(4);
+        oneapi::internal::KernelArguments args(5);
         args.set(0, x, oneapi::internal::AccessModeIds::read);
         args.set(1, indX, oneapi::internal::AccessModeIds::read);
         args.set(2, p);
@@ -176,10 +176,10 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status copyBlockByIndices(const services::Buffer<algorithmFPType> & x, const services::Buffer<int32_t> & indX,
-                                               services::Buffer<algorithmFPType> & newX, const size_t nWS, const uint32_t p)
+    static services::Status copyDataByIndices(const services::Buffer<algorithmFPType> & x, const services::Buffer<int32_t> & indX,
+                                              services::Buffer<algorithmFPType> & newX, const size_t nWS, const uint32_t p)
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(copyBlockByIndices);
+        DAAL_ITTNOTIFY_SCOPED_TASK(copyDataByIndices);
         services::Status status;
 
         oneapi::internal::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
@@ -187,10 +187,10 @@ struct HelperSVM
 
         buildProgram(factory);
 
-        const char * const kernelName      = "copyBlockByIndicesInt";
+        const char * const kernelName      = "copyDataByIndicesInt";
         oneapi::internal::KernelPtr kernel = factory.getKernel(kernelName);
 
-        oneapi::internal::KernelArguments args(4);
+        oneapi::internal::KernelArguments args(5);
         args.set(0, x, oneapi::internal::AccessModeIds::read);
         args.set(1, indX, oneapi::internal::AccessModeIds::read);
         args.set(2, p);

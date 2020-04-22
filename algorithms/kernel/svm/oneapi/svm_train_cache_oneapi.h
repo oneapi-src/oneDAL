@@ -139,13 +139,17 @@ public:
         services::Buffer<uint32_t> wsIndicesReal = wsIndices;
         if (_ifComputeSubKernel)
         {
-            blockSize     = _blockSize / 2;
-            wsIndicesReal = wsIndices.getSubBuffer(_nSelectRows, blockSize, &status);
-            DAAL_CHECK_STATUS_VAR(status);
-            DAAL_CHECK_STATUS(status, initSubKernel(blockSize, xTable));
+            // SubBuffer in not working on L0 (Date: 20200423).
+            // So workaround is set offset _nSelectRows in kernel copyDataByIndices
+            // Uncomment this code after fix
+
+            // blockSize = _blockSize / 2;
+            // wsIndicesReal = wsIndices.getSubBuffer(_nSelectRows, blockSize, &status);
+            // DAAL_CHECK_STATUS_VAR(status);
+            // DAAL_CHECK_STATUS(status, initSubKernel(blockSize, xTable));
         }
 
-        DAAL_CHECK_STATUS(status, Helper::copyBlockByIndices(xBuff, wsIndicesReal, _xBlockBuff, blockSize, p));
+        DAAL_CHECK_STATUS(status, Helper::copyDataByIndices(xBuff, wsIndicesReal, _xBlockBuff, blockSize, p));
         DAAL_CHECK_STATUS(status, xTable->releaseBlockOfRows(xBlock));
 
         DAAL_CHECK_STATUS(status, _kernel->computeNoThrow());

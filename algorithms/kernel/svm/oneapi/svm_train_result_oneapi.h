@@ -165,7 +165,7 @@ protected:
         DAAL_CHECK_STATUS(status, xTable->getBlockOfRows(0, _nVectors, ReadWriteMode::readOnly, xBlock));
         auto xBuff = xBlock.getBuffer();
 
-        DAAL_CHECK_STATUS(status, Helper::copyBlockByIndices(xBuff, svIndicesBuff, svBuff, nSV, nFeatures));
+        DAAL_CHECK_STATUS(status, Helper::copyDataByIndices(xBuff, svIndicesBuff, svBuff, nSV, nFeatures));
 
         DAAL_CHECK_STATUS(status, svTable->releaseBlockOfRows(svBlock));
         DAAL_CHECK_STATUS(status, svIndicesTable->releaseBlockOfRows(svIndicesBlock));

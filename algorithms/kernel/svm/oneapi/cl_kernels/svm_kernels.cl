@@ -69,8 +69,8 @@ DECLARE_SOURCE_DAAL(
         indicator[ind[i]] = 0;
     }
 
-    __kernel void copyBlockByIndices(const __global algorithmFPType * const x, const __global uint * const xInd, const uint ldx,
-                                     __global algorithmFPType * newX) {
+    __kernel void copyDataByIndices(const __global algorithmFPType * const x, const __global uint * const xInd, const uint ldx,
+                                    __global algorithmFPType * newX) {
         const uint index = get_global_id(1);
         const uint jCol  = get_global_id(0);
 
@@ -82,8 +82,8 @@ DECLARE_SOURCE_DAAL(
         newXi[jCol] = xi[jCol];
     }
 
-    __kernel void copyBlockByIndicesInt(const __global algorithmFPType * const x, const __global int * const xInd, const uint ldx,
-                                        __global algorithmFPType * newX) {
+    __kernel void copyDataByIndicesInt(const __global algorithmFPType * const x, const __global int * const xInd, const uint ldx,
+                                       __global algorithmFPType * newX) {
         const int index = get_global_id(1);
         const int jCol  = get_global_id(0);
 
