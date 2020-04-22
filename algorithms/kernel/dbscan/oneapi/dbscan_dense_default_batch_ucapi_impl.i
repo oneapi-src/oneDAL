@@ -26,8 +26,6 @@
 #include "algorithms/kernel/dbscan/oneapi/cl_kernels/dbscan_cl_kernels.cl"
 #include "externals/service_ittnotify.h"
 
-#include <iostream>
-
 using namespace daal::services;
 using namespace daal::oneapi::internal;
 using namespace daal::data_management;
@@ -203,10 +201,6 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
     DAAL_CHECK_STATUS_VAR(ntAssignments->getBlockOfRows(0, nRows, writeOnly, assignRows));
     UniversalBuffer assignments = assignRows.getBuffer();
     context.fill(assignments, undefined, &s);
-    auto subBufer = assignments.template get<int>().getSubBuffer(1, 1, &s);
-    subBufer.toHost(ReadWriteMode::readWrite).get()[0] = undefined;
-    std::cout << "Test" << std::endl;
-
     DAAL_CHECK_STATUS_VAR(s);
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, _queueBlockSize, nRows);
@@ -217,12 +211,7 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
         chunkSize /= 2;
         chunkNumber = nRows / chunkSize + uint32_t(bool(nRows % chunkSize));
     }
-    std::cout << "chunkSize: " << chunkSize << std::endl;
-    std::cout << "numberOfChunks: " << chunkNumber << std::endl;
     DAAL_CHECK_STATUS_VAR(initializeBuffers(nRows, chunkNumber));
-    auto subBufer2 = _isCore.template get<int>().getSubBuffer(1, 1, &s);
-    subBufer2.toHost(ReadWriteMode::readWrite).get()[0] = 0;
-    std::cout << "Test2" << std::endl;
 
 
     uint32_t nClusters  = 0;
@@ -244,12 +233,10 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
         uint32_t numNewNeighbors   = sumCounters(_countersNewNeighbors, chunkNumber);
         if (numTotalNeighbors < par->minObservations)
         {
-            std::cout << "Assignments" << std::endl;
             DAAL_CHECK_STATUS_VAR(setBufferValue(assignments, i, noise));
             continue;
         }
         nClusters++;
-        std::cout << "Core" << std::endl;
         DAAL_CHECK_STATUS_VAR(setBufferValue(_isCore, i, 1));
         DAAL_CHECK_STATUS_VAR(countOffsets(_countersNewNeighbors, chunkNumber, _chunkOffsets));
         DAAL_CHECK_STATUS_VAR(pushNeighborsToQueue(_singlePointDistances, _chunkOffsets, i, nClusters - 1, -1, chunkSize, chunkNumber, nRows, queueEnd, epsP,
@@ -279,7 +266,6 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
             queueBegin += curQueueBlockSize;
         }
     }
-    std::cout << "Post" << std::endl;
     ntData->releaseBlockOfRows(dataRows);
     BlockDescriptor<int> nClustersRows;
     DAAL_CHECK_STATUS_VAR(ntNClusters->getBlockOfRows(0, 1, writeOnly, nClustersRows));
@@ -359,11 +345,6 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::setBufferValue(Univers
 {
     services::Status st;
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.setBufferValue);
-    auto subBufer = buffer.template get<int>().getSubBuffer(index, 1, &st);
-    auto valuePtr = subBufer.toHost(ReadWriteMode::readWrite);
-    std::cout << "Ind: " << index << std::endl;
-    valuePtr.get()[0] = value;
-/*
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
@@ -376,7 +357,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::setBufferValue(Univers
 
     KernelRange global_range(1);
     context.run(global_range, kernel, args, &st);
-*/
+
     return st;
 }
 
