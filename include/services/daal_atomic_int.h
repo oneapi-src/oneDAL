@@ -41,7 +41,7 @@ namespace interface1
  * @{
  */
 
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined(_WIN64)
 template <typename dataType>
 class DAAL_EXPORT Atomic
 {
