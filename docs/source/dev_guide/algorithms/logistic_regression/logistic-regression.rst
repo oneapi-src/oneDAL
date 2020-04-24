@@ -262,8 +262,8 @@ Examples
 
     Batch Processing:
 
-    - :ref:`log_reg_binary_dense_batch.cpp`
-    - :ref:`log_reg_dense_batch.cpp`
+    - :ref:`example_log_reg_binary_dense_batch.cpp`
+    - :ref:`example_log_reg_dense_batch.cpp`
 
   .. tab:: C++
 

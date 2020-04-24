@@ -208,7 +208,7 @@ Examples
 
   .. tab:: DPC++
 
-    - :ref:`sgd_mini_log_loss_dense_batch.cpp`
+    - :ref:`example_sgd_mini_log_loss_dense_batch.cpp`
 
   .. tab:: C++
 

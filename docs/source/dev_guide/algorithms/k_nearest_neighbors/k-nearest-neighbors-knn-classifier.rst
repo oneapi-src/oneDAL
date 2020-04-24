@@ -204,7 +204,7 @@ Examples
 
     Batch Processing:
 
-    - :ref:`bf_knn_dense_batch.cpp`
+    - :ref:`example_bf_knn_dense_batch.cpp`
   
   .. tab:: C++
 

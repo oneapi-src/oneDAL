@@ -255,8 +255,8 @@ Examples
 
 	Batch Processing:
 
-	- :ref:`kmeans_dense_batch.cpp`
-	- :ref:`kmeans_init_dense_batch.cpp`
+	- :ref:`example_kmeans_dense_batch.cpp`
+	- :ref:`example_kmeans_init_dense_batch.cpp`
 
   .. tab:: C++
 

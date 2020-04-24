@@ -82,8 +82,8 @@ DPC++ Examples
 
 Batch Processing:
 
-- :ref:`low_order_moms_dense_batch.cpp`
+- :ref:`example_low_order_moms_dense_batch.cpp`
 
 Online Processing:
 
-- :ref:`low_order_moms_dense_online.cpp`
+- :ref:`example_low_order_moms_dense_online.cpp`

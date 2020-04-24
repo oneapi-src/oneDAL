@@ -37,4 +37,4 @@ DPC++ Examples
 
 Batch Processing:
 
-- :ref:`pca_transform_dense_batch.cpp`
+- :ref:`example_pca_transform_dense_batch.cpp`
