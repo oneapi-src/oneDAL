@@ -25,17 +25,17 @@ pool:
 
 steps:
 - script: |
-    cd daal/docs 
+    cd docs 
     pip install -r requirements.txt
   displayName: 'Installing requerements'
 
 - script: |
-    cd daal/docs 
+    cd docs 
     make html
   displayName: 'Building documentation'
 
 - script: |
-    cp -R build/html $(Build.ArtifactStagingDirectory)/
+    cp -R docs/build/html $(Build.ArtifactStagingDirectory)/
   displayName: 'Copy build'
 
 - task: PublishPipelineArtifact@0
