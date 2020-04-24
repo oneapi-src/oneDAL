@@ -164,7 +164,7 @@ Examples
 
     Batch Processing:
 
-    - :ref:`example_gbt_reg_dense_batch.cpp`
+    - :ref:`gbt_reg_dense_batch.cpp`
 
   .. tab:: C++
   

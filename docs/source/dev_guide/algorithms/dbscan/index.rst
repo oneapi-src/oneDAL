@@ -80,7 +80,7 @@ Examples
 
    Batch Processing:
 
-   - :ref:`example_dbscan_dense_batch.cpp`
+   - :ref:`dbscan_dense_batch.cpp`
 
   .. tab:: C++
 

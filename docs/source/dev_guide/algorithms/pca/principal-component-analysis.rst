@@ -250,7 +250,7 @@ Examples
 
     Batch Processing:
 
-    - :ref:`example_pca_cor_dense_batch.cpp`
+    - :ref:`pca_cor_dense_batch.cpp`
 
   .. tab:: C++
 

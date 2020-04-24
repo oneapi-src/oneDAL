@@ -399,11 +399,11 @@ Examples
 
     Batch Processing:
 
-    - :ref:`example_lin_reg_norm_eq_dense_batch.cpp`
+    - :ref:`lin_reg_norm_eq_dense_batch.cpp`
 
     Online Processing:
 
-    - :ref:`example_lin_reg_norm_eq_dense_online.cpp`
+    - :ref:`lin_reg_norm_eq_dense_online.cpp`
 
   .. tab:: C++
 
