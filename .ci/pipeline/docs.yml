@@ -24,24 +24,43 @@ pr:
 
 pool:
   vmImage: 'ubuntu-latest'
+  
+jobs:
 
-steps:
-- script: |
-    cd docs 
-    sudo apt-get install python3-setuptools
-    sudo pip3 install -r requirements.txt
-  displayName: 'Installing requirements'
+- job: build-doc
 
-- script: |
-    cd docs 
-    make html
-  displayName: 'Building documentation'
+  steps:
+  - script: |
+      cd docs 
+      sudo apt-get install python3-setuptools
+      sudo pip3 install -r requirements.txt
+    displayName: 'Installing requirements'
 
-- script: |
-    cp -R docs/build $(Build.ArtifactStagingDirectory)/html
-  displayName: 'Copy build'
+  - script: |
+      cd docs 
+      make html
+    displayName: 'Building documentation'
 
-- task: PublishPipelineArtifact@0
-  inputs:
-    artifactName: 'onedal-documentation'
-    targetPath: '$(Build.ArtifactStagingDirectory)/html'
+  - script: |
+      cp -R docs/build $(Build.ArtifactStagingDirectory)/html
+    displayName: 'Copy build'
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'onedal-documentation'
+      targetPath: '$(Build.ArtifactStagingDirectory)/html'
+
+- job: create-docbuild-log
+  dependsOn: build-doc
+  condition: failed()
+
+  steps:
+
+  - script: |
+      cp docs/docbuild-log.txt $(Build.ArtifactStagingDirectory)/
+    displayName: "Copy docbuild log file"
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'docbuild-log'
+      targetPath: '$(Build.ArtifactStagingDirectory)/docbuild-log.txt'
