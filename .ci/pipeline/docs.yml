@@ -42,4 +42,4 @@ steps:
 - task: PublishPipelineArtifact@0
   inputs:
     artifactName: 'Docs build'
-    targetPath: 'html'
+    targetPath: '$(Build.ArtifactStagingDirectory)/html'
