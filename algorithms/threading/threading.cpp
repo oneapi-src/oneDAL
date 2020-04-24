@@ -26,12 +26,10 @@
 
 #if defined(__DO_TBB_LAYER__)
     #include <stdlib.h> // malloc and free
-    #include <tbb/tbb.h>
     #ifndef TBB_PREVIEW_GLOBAL_CONTROL
         #define TBB_PREVIEW_GLOBAL_CONTROL 1
     #endif
-    #include <tbb/global_control.h>
-    #include <tbb/task_arena.h>
+    #include <tbb/tbb.h>
     #include <tbb/spin_mutex.h>
     #include "tbb/scalable_allocator.h"
 #else
@@ -61,7 +59,7 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& init)
 #if defined(__DO_TBB_LAYER__)
     if (init)
     {
-        delete (tbb::global_control *)init;
+        delete static_cast<tbb::global_control *>(init);
         init = nullptr;
     }
 #endif
@@ -75,7 +73,7 @@ DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** init)
     if (numThreads != 0)
     {
         _daal_tbb_task_scheduler_free(*init);
-        *init = (void *)(new tbb::global_control(tbb::global_control::max_allowed_parallelism, numThreads));
+        *init = static_cast<void *>(new tbb::global_control(tbb::global_control::max_allowed_parallelism, numThreads));
         daal::threader_env()->setNumberOfThreads(numThreads);
         return numThreads;
     }
