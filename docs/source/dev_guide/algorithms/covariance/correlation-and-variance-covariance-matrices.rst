@@ -176,11 +176,11 @@ Examples
 
     Batch Processing:
 
-    - :ref:`cor_dense_batch.cpp`
+    - :ref:`<cor_dense_batch.cpp>`
 
     Online Processing:
 
-    - :ref:`cor_dense_online.cpp`
+    - :ref:`<cor_dense_online.cpp>`
 
   .. tab:: C++
 
