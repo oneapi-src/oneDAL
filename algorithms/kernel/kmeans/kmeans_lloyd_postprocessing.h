@@ -93,8 +93,8 @@ struct PostProcessing<lloydDense, algorithmFPType, cpu>
 
         SafeStatus safeStat;
 
-        daal::threader_for(nBlocks, nBlocks, [=, &safeStat](int k) {
-            struct tls_task_t<algorithmFPType, cpu> * tt = tlsTask->local();
+        daal::threader_for(nBlocks, nBlocks, [&](int k) {
+            auto * tt = tlsTask->local();
             DAAL_CHECK_MALLOC_THR(tt);
             size_t blockSize = blockSizeDeafult;
             if (k == nBlocks - 1)
@@ -109,8 +109,8 @@ struct PostProcessing<lloydDense, algorithmFPType, cpu>
             const algorithmFPType * data = mtData.get();
             int * assign                 = mtAssign.get();
 
-            algorithmFPType * clustersSq = clSq.get();
-            algorithmFPType * x_clusters = tt->mkl_buff;
+            const algorithmFPType * clustersSq = clSq.get();
+            algorithmFPType * x_clusters       = tt->mklBuff;
 
             char transa           = 't';
             char transb           = 'n';
@@ -158,7 +158,7 @@ struct PostProcessing<lloydDense, algorithmFPType, cpu>
         algorithmFPType * goalLocalData = goalLocal.get();
         DAAL_CHECK_MALLOC(goalLocalData);
 
-        daal::threader_for(nBlocks, nBlocks, [=, &safeStat](const int iBlock) {
+        daal::threader_for(nBlocks, nBlocks, [&](const int iBlock) {
             const size_t blockSize = (iBlock == nBlocks - 1) ? n - iBlock * blockSizeDeafult : blockSizeDeafult;
 
             ReadRows<algorithmFPType, cpu> mtData(*const_cast<NumericTable *>(ntData), iBlock * blockSizeDeafult, blockSize);
@@ -258,8 +258,8 @@ struct PostProcessing<lloydCSR, algorithmFPType, cpu>
 
         SafeStatus safeStat;
 
-        daal::threader_for(nBlocks, nBlocks, [=, &safeStat](int k) {
-            struct tls_task_t<algorithmFPType, cpu> * tt = tlsTask->local();
+        daal::threader_for(nBlocks, nBlocks, [&](int k) {
+            auto * tt = tlsTask->local();
             DAAL_CHECK_MALLOC_THR(tt);
             size_t blockSize = blockSizeDeafult;
             if (k == nBlocks - 1)
@@ -279,7 +279,7 @@ struct PostProcessing<lloydCSR, algorithmFPType, cpu>
             int * assign = mtAssign.get();
 
             algorithmFPType * clustersSq = clSq.get();
-            algorithmFPType * x_clusters = tt->mkl_buff;
+            algorithmFPType * x_clusters = tt->mklBuff;
 
             const char transa           = 'n';
             const DAAL_INT _n           = blockSize;
@@ -318,10 +318,8 @@ struct PostProcessing<lloydCSR, algorithmFPType, cpu>
     {
         CSRNumericTableIface * ntDataCsr = dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(ntData));
 
-        const size_t n = ntData->getNumberOfRows();
-
-        size_t nBlocks = n / blockSizeDeafult;
-        nBlocks += (nBlocks * blockSizeDeafult != n);
+        const size_t n       = ntData->getNumberOfRows();
+        const size_t nBlocks = n / blockSizeDeafult + !!(n % blockSizeDeafult);
 
         SafeStatus safeStat;
 
@@ -329,7 +327,7 @@ struct PostProcessing<lloydCSR, algorithmFPType, cpu>
         algorithmFPType * goalLocalData = goalLocal.get();
         DAAL_CHECK_MALLOC(goalLocalData);
 
-        daal::threader_for(nBlocks, nBlocks, [=, &safeStat](const int iBlock) {
+        daal::threader_for(nBlocks, nBlocks, [&](const int iBlock) {
             const size_t blockSize = ((iBlock == nBlocks - 1) ? n - iBlock * blockSizeDeafult : blockSizeDeafult);
 
             ReadRowsCSR<algorithmFPType, cpu> dataBlock(ntDataCsr, iBlock * blockSizeDeafult, blockSize);

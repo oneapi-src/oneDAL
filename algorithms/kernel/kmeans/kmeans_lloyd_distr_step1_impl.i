@@ -117,7 +117,7 @@ Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::compute(size_
         DAAL_CHECK(task.get(), services::ErrorMemoryAllocationFailed);
         DAAL_ASSERT(task);
 
-        if (par->resultsToEvaluate & computeAssignments)
+        if (par->resultsToEvaluate & computeAssignments && par->assignFlag /* For static BC */)
         {
             s = task->template addNTToTaskThreaded<method>(ntData, catCoef.get(), ntAssignments);
         }

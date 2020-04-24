@@ -97,7 +97,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
     DAAL_CHECK_BLOCK_STATUS(mtInClusters);
     algorithmFPType * inClusters = const_cast<algorithmFPType *>(mtInClusters.get());
 
-    WriteOnlyRows<algorithmFPType, cpu> mtClusters(*const_cast<NumericTable *>(r[0]), 0, nClusters);
+    WriteOnlyRows<algorithmFPType, cpu> mtClusters(const_cast<NumericTable *>(r[0]), 0, nClusters);
     algorithmFPType * clusters = mtClusters.get();
 
     TArray<algorithmFPType, cpu> tClusters;
@@ -220,7 +220,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
     DAAL_CHECK_BLOCK_STATUS(mtTarget);
     *mtTarget.get() = oldTargetFunc;
 
-    const bool isComputeAssignments = par->resultsToEvaluate & computeAssignments && kmPar->assignFlag /* For static compatibility */;
+    const bool isComputeAssignments = par->resultsToEvaluate & computeAssignments && par->assignFlag /* For static BC */;
     NumericTable * assignments      = isComputeAssignments ? const_cast<NumericTable *>(r[1]) : nullptr;
 
     if (par->resultsToEvaluate & computeExactObjectiveFunction)

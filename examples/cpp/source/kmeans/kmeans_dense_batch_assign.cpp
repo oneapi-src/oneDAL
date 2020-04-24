@@ -64,7 +64,7 @@ int main(int argc, char * argv[])
     algorithm.input.set(kmeans::data, dataSource.getNumericTable());
     algorithm.input.set(kmeans::inputCentroids, centroids);
 
-    algorithm.parameter().resultsToEvaluate = kmeans::computeAssignments | kmeans::computeExactObjectiveFunction;
+    algorithm.parameter().resultsToEvaluate = kmeans::computeAssignments;
 
     algorithm.compute();
 

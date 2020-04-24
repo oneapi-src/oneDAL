@@ -334,8 +334,7 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
         NumericTable * exactObjectiveFunction = const_cast<NumericTable *>(r[4]);
         BlockDescriptor<algorithmFPType> exactObjectiveBlock;
         exactObjectiveFunction->getBlockOfRows(0, 1, writeOnly, exactObjectiveBlock);
-        auto objFunctionHostPtr           = objFunction.getBlockPtr();
-        algorithmFPType * objFunctionHost = objFunctionHostPtr.get();
+        auto objFunctionHost = objFunctionRows.getBlockPtr();
 
         algorithmFPType * res = exactObjectiveBlock.getBlockPtr();
         *res                  = *objFunctionHost;

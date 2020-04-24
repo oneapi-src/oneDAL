@@ -90,10 +90,9 @@ enum MasterInputId
  */
 enum PartialResultId
 {
-    nObservations,            /*!< Table containing the number of observations assigned to centroids */
-    partialSums,              /*!< Table containing the sum of observations assigned to centroids */
-    partialObjectiveFunction, /*!< Table containing an objective function value */
-    // partialGoalFunction = partialObjectiveFunction, /*!< Table containing an objective function value \DAAL_DEPRECATED */
+    nObservations,              /*!< Table containing the number of observations assigned to centroids */
+    partialSums,                /*!< Table containing the sum of observations assigned to centroids */
+    partialObjectiveFunction,   /*!< Table containing an objective function value */
     partialAssignments,         /*!< Table containing assignments of observations to particular clusters */
     partialCandidatesDistances, /*!< Table containing goal function of observations most distant from their assigned cluster center */
     partialCandidatesCentroids, /*!< Table containing observations most distant from their assigned cluster center */
@@ -106,17 +105,16 @@ enum PartialResultId
  */
 enum ResultId
 {
-    centroids,                        /*!< Table containing cluster centroids */
-    assignments,                      /*!< Table containing assignments of observations to particular clusters */
-    objectiveFunction,                /*!< Table containing an objective function value */
-    goalFunction = objectiveFunction, /*!< Table containing an objective function value */
-    nIterations,                      /*!< Table containing the number of executed iterations */
-    exactObjectiveFunction,           /*!< Table containing the number of executed iterations */
+    centroids,              /*!< Table containing cluster centroids */
+    assignments,            /*!< Table containing assignments of observations to particular clusters */
+    objectiveFunction,      /*!< Table containing an objective function value */
+    nIterations,            /*!< Table containing the number of executed iterations */
+    exactObjectiveFunction, /*!< Table containing the number of executed iterations */
     lastResultId = exactObjectiveFunction
 };
 
 /**
-* <a name="DAAL-ENUM-ALGORITHMS__LOGISTIC_REGRESSION__PREDICTION__RESULTTOCOMPUTEID"></a>
+* <a name="DAAL-ENUM-ALGORITHMS__KMEANS__RESULTTOCOMPUTEID"></a>
 * Available identifiers to specify the result to compute
 */
 enum ResultToComputeId
