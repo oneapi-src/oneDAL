@@ -110,7 +110,7 @@ private:
     Atomic(const Atomic &);
     Atomic & operator=(const Atomic &);
 };
-#endif // _WIN32
+#endif // _WIN32 && !_WIN64
 
 #if defined(_WIN64)
 /**
@@ -259,6 +259,73 @@ private:
     Atomic & operator=(const Atomic &);
 };
 #endif // _WIN64
+
+#if !defined(_WIN32)
+template <typename dataType>
+class DAAL_EXPORT Atomic
+{
+public:
+    /**
+     * Returns an increment of atomic object
+     * \return An increment of atomic object
+     */
+    inline dataType inc()
+    {
+        return (dataType)(__atomic_add_fetch(reinterpret_cast<volatile dataType *>(&my_storage),1,__ATOMIC_SEQ_CST));
+    }
+
+    /**
+     * Returns a decrement of atomic object
+     * \return An decrement of atomic object
+     */
+    inline dataType dec()
+    {
+        return (dataType)(__atomic_sub_fetch(reinterpret_cast<volatile dataType *>(&my_storage),1,__ATOMIC_SEQ_CST));
+    }
+
+    /**
+     * Assigns the value to atomic object
+     * \param[in] value    The value to be assigned
+     */
+    inline void set(dataType value)
+    {
+        __asm__ __volatile__("": : :"memory");
+        __atomic_store_n(&my_storage, value, __ATOMIC_RELEASE);
+    }
+
+    /**
+     * Returns the value of the atomic object
+     * \return The value of the atomic object
+     */
+    inline dataType get() const
+    {
+        dataType to_return = __atomic_load_n(&my_storage, __ATOMIC_ACQUIRE);
+        __asm__ __volatile__("": : :"memory");
+        return to_return;
+    }
+
+    /**
+     * Constructs an atomic object
+     */
+    Atomic() = default;
+
+    /**
+     * Constructs an atomic object from a value
+     * \param[in] value The value to be assigned to the atomic object
+     */
+    Atomic(dataType value) : my_storage(value) {}
+
+    /** Destructor */
+    ~Atomic() = default;
+
+protected:
+    dataType my_storage;
+
+private:
+    Atomic(const Atomic &);
+    Atomic & operator=(const Atomic &);
+};
+#endif // !_WIN32
 
 /** @} */
 
