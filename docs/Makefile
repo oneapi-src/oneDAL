@@ -29,7 +29,7 @@ help:
 
 create_rst_examples:
 	@echo "Creating rST files for SYCL* Examples..."
-	py -3 rst_examples.py
+	python3 rst_examples.py
 
 .PHONY: help Makefile create_rst_examples
 
