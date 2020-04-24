@@ -27,7 +27,7 @@ pool:
   
 jobs:
 
-- job: build-doc
+- job: build_doc
 
   steps:
   - script: |
@@ -50,8 +50,8 @@ jobs:
       artifactName: 'onedal-documentation'
       targetPath: '$(Build.ArtifactStagingDirectory)/html'
 
-- job: create-docbuild-log
-  dependsOn: build-doc
+- job: create_docbuild_log
+  dependsOn: build_doc
   condition: failed()
 
   steps:
