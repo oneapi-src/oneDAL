@@ -91,7 +91,7 @@ size_t DistributedStep2MasterInput::getNumberOfFeatures() const
 */
 services::Status DistributedStep2MasterInput::check(const daal::algorithms::Parameter * par, int method) const
 {
-    const Parameter * kmPar = static_cast<const Parameter *>(par);
+    const interface2::Parameter * kmPar = static_cast<const interface2::Parameter *>(par);
 
     DataCollectionPtr collection = get(partialResults);
     DAAL_CHECK(collection, ErrorNullInputDataCollection);

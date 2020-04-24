@@ -328,10 +328,23 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
         DAAL_CHECK_STATUS_VAR(st);
     }
 
+    if (par->resultsToEvaluate & computeExactObjectiveFunction)
+    {
+        // TODO: Need compute exact objective function
+        NumericTable * exactObjectiveFunction = const_cast<NumericTable *>(r[4]);
+        BlockDescriptor<algorithmFPType> exactObjectiveBlock;
+        exactObjectiveFunction->getBlockOfRows(0, 1, writeOnly, exactObjectiveBlock);
+        auto objFunctionHostPtr           = objFunction.getBlockPtr();
+        algorithmFPType * objFunctionHost = objFunctionHostPtr.get();
+
+        algorithmFPType * res = exactObjectiveBlock.getBlockPtr();
+        *res                  = *objFunctionHost;
+        ntNIterations->releaseBlockOfRows(exactObjectiveBlock);
+    }
+
     ntInCentroids->releaseBlockOfRows(inCentroidsRows);
     ntOutCentroids->releaseBlockOfRows(outCentroidsRows);
     ntObjFunction->releaseBlockOfRows(objFunctionRows);
-
     {
         BlockDescriptor<int> nIterationsRows;
         ntNIterations->getBlockOfRows(0, 1, writeOnly, nIterationsRows);

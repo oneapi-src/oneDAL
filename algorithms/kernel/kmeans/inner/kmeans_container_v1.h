@@ -1,4 +1,4 @@
-/* file: kmeans_container.h */
+/* file: kmeans_container_v1.h */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -22,8 +22,8 @@
 //--
 */
 
-#ifndef __KMEANS_CONTAINER_H__
-#define __KMEANS_CONTAINER_H__
+#ifndef __KMEANS_CONTAINER_V1_H__
+#define __KMEANS_CONTAINER_V1_H__
 
 #include "algorithms/kmeans/kmeans_types.h"
 #include "algorithms/kmeans/kmeans_batch.h"
@@ -40,8 +40,22 @@ namespace algorithms
 {
 namespace kmeans
 {
-namespace interface2
+namespace interface1
 {
+DAAL_FORCEINLINE void convertParameter(interface1::Parameter & par1, interface2::Parameter & par2)
+{
+    par2.nClusters         = par1.nClusters;
+    par2.maxIterations     = par1.maxIterations;
+    par2.accuracyThreshold = par1.accuracyThreshold;
+    par2.gamma             = par1.gamma;
+    par2.distanceType      = par1.distanceType;
+    par2.resultsToEvaluate = computeCentroids | computeExactObjectiveFunction;
+    if (par1.assignFlag)
+    {
+        par2.resultsToEvaluate |= computeAssignments;
+    }
+}
+
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
@@ -78,16 +92,18 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     NumericTable * r[lastResultId + 1] = { result->get(centroids).get(), result->get(assignments).get(), result->get(objectiveFunction).get(),
                                            result->get(nIterations).get() };
 
-    Parameter * par                        = static_cast<Parameter *>(_par);
+    interface1::Parameter * par = static_cast<interface1::Parameter *>(_par);
+    interface2::Parameter par2(par->nClusters, par->maxIterations);
+    convertParameter(*par, par2);
     daal::services::Environment::env & env = *_env;
 
     if (deviceInfo.isCpu || method != lloydDense)
     {
-        __DAAL_CALL_KERNEL(env, internal::KMeansBatchKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, r, par);
+        __DAAL_CALL_KERNEL(env, internal::KMeansBatchKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, r, &par2);
     }
     else
     {
-        return ((internal::KMeansDenseLloydBatchKernelUCAPI<algorithmFPType> *)(_kernel))->compute(a, r, par);
+        return ((internal::KMeansDenseLloydBatchKernelUCAPI<algorithmFPType> *)(_kernel))->compute(a, r, &par2);
     }
 }
 
@@ -106,9 +122,11 @@ DistributedContainer<step1Local, algorithmFPType, method, cpu>::~DistributedCont
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status DistributedContainer<step1Local, algorithmFPType, method, cpu>::compute()
 {
-    Input * input        = static_cast<Input *>(_in);
-    PartialResult * pres = static_cast<PartialResult *>(_pres);
-    Parameter * par      = static_cast<Parameter *>(_par);
+    Input * input               = static_cast<Input *>(_in);
+    PartialResult * pres        = static_cast<PartialResult *>(_pres);
+    interface1::Parameter * par = static_cast<interface1::Parameter *>(_par);
+    interface2::Parameter par2(par->nClusters, par->maxIterations);
+    convertParameter(*par, par2);
 
     const size_t na = 2;
     NumericTable * a[na];
@@ -129,7 +147,7 @@ services::Status DistributedContainer<step1Local, algorithmFPType, method, cpu>:
 
     daal::services::Environment::env & env = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::KMeansDistributedStep1Kernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, na, a, nr, r, par);
+    __DAAL_CALL_KERNEL(env, internal::KMeansDistributedStep1Kernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, na, a, nr, r, &par2);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -137,7 +155,10 @@ services::Status DistributedContainer<step1Local, algorithmFPType, method, cpu>:
 {
     PartialResult * pres = static_cast<PartialResult *>(_pres);
     Result * res         = static_cast<Result *>(_res);
-    Parameter * par      = static_cast<Parameter *>(_par);
+
+    interface1::Parameter * par = static_cast<interface1::Parameter *>(_par);
+    interface2::Parameter par2(par->nClusters, par->maxIterations);
+    convertParameter(*par, par2);
 
     const size_t na = 1;
     NumericTable * a[na];
@@ -150,7 +171,7 @@ services::Status DistributedContainer<step1Local, algorithmFPType, method, cpu>:
     daal::services::Environment::env & env = *_env;
 
     __DAAL_CALL_KERNEL(env, internal::KMeansDistributedStep1Kernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), finalizeCompute, na, a, nr, r,
-                       par);
+                       &par2);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -196,11 +217,13 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
     r[3] = static_cast<NumericTable *>(pres->get(partialCandidatesDistances).get());
     r[4] = static_cast<NumericTable *>(pres->get(partialCandidatesCentroids).get());
 
-    Parameter * par                        = static_cast<Parameter *>(_par);
+    interface1::Parameter * par = static_cast<interface1::Parameter *>(_par);
+    interface2::Parameter par2(par->nClusters, par->maxIterations);
+    convertParameter(*par, par2);
     daal::services::Environment::env & env = *_env;
 
     services::Status s = __DAAL_CALL_KERNEL_STATUS(env, internal::KMeansDistributedStep2Kernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType),
-                                                   compute, na, a, nr, r, par);
+                                                   compute, na, a, nr, r, &par2);
 
     dcInput->clear();
     return s;
@@ -225,14 +248,16 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
     r[0] = static_cast<NumericTable *>(result->get(centroids).get());
     r[1] = static_cast<NumericTable *>(result->get(objectiveFunction).get());
 
-    Parameter * par                        = static_cast<Parameter *>(_par);
+    interface1::Parameter * par = static_cast<interface1::Parameter *>(_par);
+    interface2::Parameter par2(par->nClusters, par->maxIterations);
+    convertParameter(*par, par2);
     daal::services::Environment::env & env = *_env;
 
     __DAAL_CALL_KERNEL(env, internal::KMeansDistributedStep2Kernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), finalizeCompute, na, a, nr, r,
-                       par);
+                       &par2);
 }
 
-} // namespace interface2
+} // namespace interface1
 } // namespace kmeans
 } // namespace algorithms
 } // namespace daal

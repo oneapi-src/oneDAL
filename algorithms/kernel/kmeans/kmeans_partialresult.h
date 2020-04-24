@@ -44,7 +44,7 @@ template <typename algorithmFPType>
 DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
                                                      const int method)
 {
-    const Parameter * kmPar = static_cast<const Parameter *>(parameter);
+    const interface2::Parameter * kmPar = static_cast<const interface2::Parameter *>(parameter);
 
     size_t nFeatures = static_cast<const InputIface *>(input)->getNumberOfFeatures();
     size_t nClusters = kmPar->nClusters;

@@ -71,18 +71,30 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     Input * algInput     = dynamic_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
     size_t inputFeatures = algInput->getNumberOfFeatures();
 
-    const Parameter * kmPar     = static_cast<const Parameter *>(par);
-    const int unexpectedLayouts = (int)packed_mask;
+    const interface2::Parameter * kmPar = static_cast<const interface2::Parameter *>(par);
+    const int unexpectedLayouts         = (int)packed_mask;
     services::Status s;
-    DAAL_CHECK_STATUS(s, checkNumericTable(get(centroids).get(), centroidsStr(), unexpectedLayouts, 0, inputFeatures, kmPar->nClusters));
     DAAL_CHECK_STATUS(s, checkNumericTable(get(objectiveFunction).get(), goalFunctionStr(), unexpectedLayouts, 0, 1, 1));
+
     DAAL_CHECK_STATUS(s, checkNumericTable(get(nIterations).get(), nIterationsStr(), unexpectedLayouts, 0, 1, 1));
-    if (kmPar->assignFlag)
+
+    if (kmPar->resultsToEvaluate & computeCentroids)
+    {
+        DAAL_CHECK_STATUS(s, checkNumericTable(get(centroids).get(), centroidsStr(), unexpectedLayouts, 0, inputFeatures, kmPar->nClusters));
+    }
+    if (kmPar->resultsToEvaluate & computeAssignments && kmPar->assignFlag /* For static compatibility */)
     {
         NumericTablePtr assignmentsTable = get(assignments);
         const size_t inputRows           = algInput->get(data)->getNumberOfRows();
         DAAL_CHECK_STATUS(s, checkNumericTable(assignmentsTable.get(), assignmentsStr(), unexpectedLayouts, 0, 1, inputRows));
     }
+
+    if (kmPar->resultsToEvaluate & computeExactObjectiveFunction)
+    {
+        NumericTablePtr exactObjectiveFunctionTable = get(exactObjectiveFunction);
+        DAAL_CHECK_STATUS(s, checkNumericTable(exactObjectiveFunctionTable.get(), goalFunctionStr(), unexpectedLayouts, 0, 1, 1));
+    }
+
     return s;
 }
 
@@ -94,10 +106,10 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
  */
 services::Status Result::check(const daal::algorithms::PartialResult * pres, const daal::algorithms::Parameter * par, int method) const
 {
-    const Parameter * kmPar     = static_cast<const Parameter *>(par);
-    const int unexpectedLayouts = (int)packed_mask;
-    PartialResult * algPres     = static_cast<PartialResult *>(const_cast<daal::algorithms::PartialResult *>(pres));
-    size_t presFeatures         = algPres->get(partialSums)->getNumberOfColumns();
+    const interface2::Parameter * kmPar = static_cast<const interface2::Parameter *>(par);
+    const int unexpectedLayouts         = (int)packed_mask;
+    PartialResult * algPres             = static_cast<PartialResult *>(const_cast<daal::algorithms::PartialResult *>(pres));
+    size_t presFeatures                 = algPres->get(partialSums)->getNumberOfColumns();
     services::Status s;
     DAAL_CHECK_STATUS(s, checkNumericTable(get(centroids).get(), centroidsStr(), unexpectedLayouts, 0, presFeatures, kmPar->nClusters));
     return checkNumericTable(get(objectiveFunction).get(), goalFunctionStr(), unexpectedLayouts, 0, 1, 1);

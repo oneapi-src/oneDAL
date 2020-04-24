@@ -113,11 +113,11 @@ Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::compute(size_
     Status s;
     algorithmFPType oldTargetFunc = (algorithmFPType)0.0;
     {
-        SharedPtr<task_t<algorithmFPType, cpu> > task = task_t<algorithmFPType, cpu>::create(p, nClusters, initClusters);
+        auto task = TaskKMeansLloyd<algorithmFPType, cpu>::create(p, nClusters, initClusters);
         DAAL_CHECK(task.get(), services::ErrorMemoryAllocationFailed);
         DAAL_ASSERT(task);
 
-        if (par->assignFlag)
+        if (par->resultsToEvaluate & computeAssignments)
         {
             s = task->template addNTToTaskThreaded<method>(ntData, catCoef.get(), ntAssignments);
         }
