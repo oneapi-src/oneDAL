@@ -38,16 +38,6 @@ steps:
   displayName: 'Build documentation'
 
 - script: |
-    cp docs/docbuild-log.txt $(Build.ArtifactStagingDirectory)/
-  displayName: "Copy docbuild log file"
-  condition: failed()
-
-- task: PublishPipelineArtifact@0
-  inputs:
-    artifactName: 'docbuild-log'
-    targetPath: '$(Build.ArtifactStagingDirectory)/docbuild-log.txt'
-
-- script: |
     cp -R docs/build $(Build.ArtifactStagingDirectory)/html
   displayName: 'Copy build'
 
@@ -55,4 +45,3 @@ steps:
   inputs:
     artifactName: 'onedal-documentation'
     targetPath: '$(Build.ArtifactStagingDirectory)/html'
-
