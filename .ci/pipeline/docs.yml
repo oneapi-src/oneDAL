@@ -1,0 +1,47 @@
+trigger:
+  branches:
+    include:
+    - master
+    - releases
+    - rls/*
+  paths:
+    include:
+    - include
+    - docs
+    - examples
+
+pr:
+  branches:
+    include:
+    - master
+    - releases
+    - rls/*
+  paths:
+    include:
+    - include
+    - docs
+    - examples
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- script: |
+    cd docs 
+    sudo apt-get install python3-setuptools
+    sudo pip3 install -r requirements.txt
+  displayName: 'Installing requerements'
+
+- script: |
+    cd docs 
+    make html
+  displayName: 'Building documentation'
+
+- script: |
+    cp -R docs/build/html $(Build.ArtifactStagingDirectory)/
+  displayName: 'Copy build'
+
+- task: PublishPipelineArtifact@0
+  inputs:
+    artifactName: 'Docs build'
+    targetPath: '$(Build.ArtifactStagingDirectory)/html'
