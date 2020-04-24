@@ -41,7 +41,7 @@ namespace interface1
  * @{
  */
 
-#if defined(_WIN32) && !defined(_WIN64)
+#if defined(_WIN32)
 /**
  * <a name="DAAL-CLASS-SERVICES__ATOMIC"></a>
  * \brief Class that represents an atomic object
@@ -56,10 +56,9 @@ public:
      * Returns an increment of atomic object
      * \return An increment of atomic object
      */
-    inline dataType inc()
+    DAAL_FORCEINLINE dataType inc()
     {
         DAAL_ASSERT(sizeof(my_storage) == sizeof(long))
-        DAAL_ASSERT(sizeof(my_storage) == sizeof(size_t))
         return (dataType)(_InterlockedExchangeAdd((long *)(&my_storage), 1) + 1);
     }
 
@@ -67,10 +66,9 @@ public:
      * Returns a decrement of atomic object
      * \return An decrement of atomic object
      */
-    inline dataType dec()
+    DAAL_FORCEINLINE dataType dec()
     {
         DAAL_ASSERT(sizeof(my_storage) == sizeof(long))
-        DAAL_ASSERT(sizeof(my_storage) == sizeof(size_t))
         return (dataType)(_InterlockedExchangeAdd((long *)(&my_storage), -1) - 1);
     }
 
@@ -78,7 +76,7 @@ public:
      * Assigns the value to atomic object
      * \param[in] value    The value to be assigned
      */
-    inline void set(dataType value)
+    DAAL_FORCEINLINE void set(dataType value)
     {
         _ReadWriteBarrier();
         my_storage = value;
@@ -88,7 +86,7 @@ public:
      * Returns the value of the atomic object
      * \return The value of the atomic object
      */
-    inline dataType get() const
+    DAAL_FORCEINLINE dataType get() const
     {
         dataType to_return = my_storage;
         _ReadWriteBarrier();
@@ -113,83 +111,8 @@ private:
     Atomic(const Atomic &);
     Atomic & operator=(const Atomic &);
 };
-#endif // _WIN32 && !_WIN64
 
 #if defined(_WIN64)
-/**
- * <a name="DAAL-CLASS-SERVICES__ATOMIC"></a>
- * \brief Class that represents an atomic object
- *
- * \tparam dataType Data type of the atomic object
- */
-template <typename dataType>
-class DAAL_EXPORT Atomic
-{};
-
-template <>
-class DAAL_EXPORT Atomic<int>
-{
-public:
-    /**
-     * Returns an increment of atomic object
-     * \return An increment of atomic object
-     */
-    inline int inc()
-    {
-        DAAL_ASSERT(sizeof(my_storage) == sizeof(long))
-        return (int)(_InterlockedExchangeAdd((long *)(&my_storage), 1) + 1);
-    }
-
-    /**
-     * Returns a decrement of atomic object
-     * \return An decrement of atomic object
-     */
-    inline int dec()
-    {
-        DAAL_ASSERT(sizeof(my_storage) == sizeof(long))
-        return (int)(_InterlockedExchangeAdd((long *)(&my_storage), -1) - 1);
-    }
-
-    /**
-     * Assigns the value to atomic object
-     * \param[in] value    The value to be assigned
-     */
-    inline void set(int value)
-    {
-        _ReadWriteBarrier();
-        my_storage = value;
-    }
-
-    /**
-     * Returns the value of the atomic object
-     * \return The value of the atomic object
-     */
-    inline int get() const
-    {
-        int to_return = my_storage;
-        _ReadWriteBarrier();
-        return to_return;
-    }
-
-    /**
-     * Constructs an atomic object
-     */
-    Atomic() : my_storage(0) {}
-
-    /**
-     * Constructs an atomic object from a value
-     * \param[in] value The value to be assigned to the atomic object
-     */
-    Atomic(int value) : my_storage(value) {}
-
-protected:
-    int my_storage;
-
-private:
-    Atomic(const Atomic &);
-    Atomic & operator=(const Atomic &);
-};
-
 template <>
 class DAAL_EXPORT Atomic<size_t>
 {
@@ -198,7 +121,7 @@ public:
      * Returns an increment of atomic object
      * \return An increment of atomic object
      */
-    inline size_t inc()
+    DAAL_FORCEINLINE size_t inc()
     {
         DAAL_ASSERT(sizeof(my_storage) == sizeof(size_t))
         return (size_t)(_InterlockedExchangeAdd64((__int64 *)(&my_storage), 1) + 1);
@@ -208,7 +131,7 @@ public:
      * Returns a decrement of atomic object
      * \return An decrement of atomic object
      */
-    inline size_t dec()
+    DAAL_FORCEINLINE size_t dec()
     {
         DAAL_ASSERT(sizeof(my_storage) == sizeof(size_t))
         return (size_t)(_InterlockedExchangeAdd64((__int64 *)(&my_storage), -1) - 1);
@@ -218,7 +141,7 @@ public:
      * Assigns the value to atomic object
      * \param[in] value    The value to be assigned
      */
-    inline void set(size_t value)
+    DAAL_FORCEINLINE void set(size_t value)
     {
         _ReadWriteBarrier();
         my_storage = value;
@@ -228,7 +151,7 @@ public:
      * Returns the value of the atomic object
      * \return The value of the atomic object
      */
-    inline size_t get() const
+    DAAL_FORCEINLINE size_t get() const
     {
         size_t to_return = my_storage;
         _ReadWriteBarrier();
@@ -254,6 +177,7 @@ private:
     Atomic & operator=(const Atomic &);
 };
 #endif // _WIN64
+#endif // _WIN32
 
 #if !defined(_WIN32)
 /**
@@ -270,19 +194,19 @@ public:
      * Returns an increment of atomic object
      * \return An increment of atomic object
      */
-    inline dataType inc() { return (dataType)(__atomic_add_fetch(reinterpret_cast<volatile dataType *>(&my_storage), 1, __ATOMIC_SEQ_CST)); }
+    DAAL_FORCEINLINE dataType inc() { return __atomic_add_fetch(&my_storage, 1, __ATOMIC_SEQ_CST); }
 
     /**
      * Returns a decrement of atomic object
      * \return An decrement of atomic object
      */
-    inline dataType dec() { return (dataType)(__atomic_sub_fetch(reinterpret_cast<volatile dataType *>(&my_storage), 1, __ATOMIC_SEQ_CST)); }
+    DAAL_FORCEINLINE dataType dec() { return __atomic_sub_fetch(&my_storage, 1, __ATOMIC_SEQ_CST); }
 
     /**
      * Assigns the value to atomic object
      * \param[in] value    The value to be assigned
      */
-    inline void set(dataType value)
+    DAAL_FORCEINLINE void set(dataType value)
     {
         __asm__ __volatile__("" : : : "memory");
         __atomic_store_n(&my_storage, value, __ATOMIC_RELEASE);
@@ -292,7 +216,7 @@ public:
      * Returns the value of the atomic object
      * \return The value of the atomic object
      */
-    inline dataType get() const
+    DAAL_FORCEINLINE dataType get() const
     {
         dataType to_return = __atomic_load_n(&my_storage, __ATOMIC_ACQUIRE);
         __asm__ __volatile__("" : : : "memory");
