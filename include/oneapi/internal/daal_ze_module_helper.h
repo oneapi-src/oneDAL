@@ -53,7 +53,8 @@ public:
     ZeModuleHelper(ze_device_handle_t zeDevice, size_t binarySize, const uint8_t * pBinary, services::Status * status = nullptr)
     {
         services::Status localStatus;
-        static services::internal::DynamicLibHelper zeLib(zeLoaderName, RTLD_NOW | RTLD_LOCAL, &localStatus);
+
+        static services::internal::DynamicLibHelper zeLib(zeLoaderName, RTLD_NOLOAD | RTLD_NOW | RTLD_LOCAL, &localStatus);
         if (!localStatus.ok())
         {
             services::internal::tryAssignStatus(status, localStatus);
