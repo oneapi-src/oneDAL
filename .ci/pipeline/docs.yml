@@ -39,15 +39,9 @@ steps:
 
 - script: |
     cp -R docs/build $(Build.ArtifactStagingDirectory)/html
-    cp docs/docbuild-log.txt $(Build.ArtifactStagingDirectory)/
   displayName: 'Copy build'
 
 - task: PublishPipelineArtifact@0
   inputs:
     artifactName: 'onedal-documentation'
     targetPath: '$(Build.ArtifactStagingDirectory)/html'
-
-- task: PublishPipelineArtifact@0
-  inputs:
-    artifactName: 'docbuild-log'
-    targetPath: '$(Build.ArtifactStagingDirectory)/docbuild-log.txt'
