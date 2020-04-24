@@ -25,42 +25,35 @@ pr:
 pool:
   vmImage: 'ubuntu-latest'
   
-jobs:
+steps:
+- script: |
+    cd docs 
+    sudo apt-get install python3-setuptools
+    sudo pip3 install -r requirements.txt
+  displayName: 'Install requirements'
 
-- job: build_doc
+- script: |
+    cd docs 
+    make html
+  displayName: 'Build documentation'
+  name: build_documentation
 
-  steps:
-  - script: |
-      cd docs 
-      sudo apt-get install python3-setuptools
-      sudo pip3 install -r requirements.txt
-    displayName: 'Installing requirements'
+- script: |
+    cp -R docs/build $(Build.ArtifactStagingDirectory)/html
+  displayName: 'Copy build'
 
-  - script: |
-      cd docs 
-      make html
-    displayName: 'Building documentation'
+- task: PublishPipelineArtifact@0
+  inputs:
+    artifactName: 'onedal-documentation'
+    targetPath: '$(Build.ArtifactStagingDirectory)/html'
 
-  - script: |
-      cp -R docs/build $(Build.ArtifactStagingDirectory)/html
-    displayName: 'Copy build'
-
-  - task: PublishPipelineArtifact@0
-    inputs:
-      artifactName: 'onedal-documentation'
-      targetPath: '$(Build.ArtifactStagingDirectory)/html'
-
-- job: create_docbuild_log
-  dependsOn: build_doc
+- script: |
+    cp docs/docbuild-log.txt $(Build.ArtifactStagingDirectory)/
+  displayName: "Copy docbuild log file"
+  dependsOn: build_documentation
   condition: failed()
 
-  steps:
-
-  - script: |
-      cp docs/docbuild-log.txt $(Build.ArtifactStagingDirectory)/
-    displayName: "Copy docbuild log file"
-
-  - task: PublishPipelineArtifact@0
-    inputs:
-      artifactName: 'docbuild-log'
-      targetPath: '$(Build.ArtifactStagingDirectory)/docbuild-log.txt'
+- task: PublishPipelineArtifact@0
+  inputs:
+    artifactName: 'docbuild-log'
+    targetPath: '$(Build.ArtifactStagingDirectory)/docbuild-log.txt'
