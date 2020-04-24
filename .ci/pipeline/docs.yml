@@ -43,7 +43,6 @@ steps:
   condition: failed()
 
 - task: PublishPipelineArtifact@0
-  condition: succeededOrFailed()
   inputs:
     artifactName: 'docbuild-log'
     targetPath: '$(Build.ArtifactStagingDirectory)/docbuild-log.txt'
@@ -51,10 +50,8 @@ steps:
 - script: |
     cp -R docs/build $(Build.ArtifactStagingDirectory)/html
   displayName: 'Copy build'
-  condition: succeededOrFailed()
 
 - task: PublishPipelineArtifact@0
-  condition: succeededOrFailed()
   inputs:
     artifactName: 'onedal-documentation'
     targetPath: '$(Build.ArtifactStagingDirectory)/html'
