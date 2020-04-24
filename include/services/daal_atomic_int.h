@@ -42,6 +42,12 @@ namespace interface1
  */
 
 #if defined(_WIN32) && !defined(_WIN64)
+/**
+ * <a name="DAAL-CLASS-SERVICES__ATOMIC"></a>
+ * \brief Class that represents an atomic object
+ *
+ * \tparam dataType Data type of the atomic object
+ */
 template <typename dataType>
 class DAAL_EXPORT Atomic
 {
@@ -92,16 +98,13 @@ public:
     /**
      * Constructs an atomic object
      */
-    Atomic() = default;
+    Atomic() : my_storage(0) {}
 
     /**
      * Constructs an atomic object from a value
      * \param[in] value The value to be assigned to the atomic object
      */
     Atomic(dataType value) : my_storage(value) {}
-
-    /** Destructor */
-    ~Atomic() = default;
 
 protected:
     dataType my_storage;
@@ -172,16 +175,13 @@ public:
     /**
      * Constructs an atomic object
      */
-    Atomic() = default;
+    Atomic() : my_storage(0) {}
 
     /**
      * Constructs an atomic object from a value
      * \param[in] value The value to be assigned to the atomic object
      */
     Atomic(int value) : my_storage(value) {}
-
-    /** Destructor */
-    ~Atomic() = default;
 
 protected:
     int my_storage;
@@ -240,16 +240,13 @@ public:
     /**
      * Constructs an atomic object
      */
-    Atomic() = default;
+    Atomic() : my_storage(0) {}
 
     /**
      * Constructs an atomic object from a value
      * \param[in] value The value to be assigned to the atomic object
      */
     Atomic(size_t value) : my_storage(value) {}
-
-    /** Destructor */
-    ~Atomic() = default;
 
 protected:
     size_t my_storage;
@@ -261,6 +258,12 @@ private:
 #endif // _WIN64
 
 #if !defined(_WIN32)
+/**
+ * <a name="DAAL-CLASS-SERVICES__ATOMIC"></a>
+ * \brief Class that represents an atomic object
+ *
+ * \tparam dataType Data type of the atomic object
+ */
 template <typename dataType>
 class DAAL_EXPORT Atomic
 {
@@ -307,16 +310,13 @@ public:
     /**
      * Constructs an atomic object
      */
-    Atomic() = default;
+    Atomic() : my_storage(0) {}
 
     /**
      * Constructs an atomic object from a value
      * \param[in] value The value to be assigned to the atomic object
      */
     Atomic(dataType value) : my_storage(value) {}
-
-    /** Destructor */
-    ~Atomic() = default;
 
 protected:
     dataType my_storage;
