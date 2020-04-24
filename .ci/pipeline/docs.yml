@@ -43,6 +43,7 @@ steps:
   condition: failed()
 
 - task: PublishPipelineArtifact@0
+  condition: succeededOrFailed()
   inputs:
     artifactName: 'docbuild-log'
     targetPath: '$(Build.ArtifactStagingDirectory)/docbuild-log.txt'
@@ -53,6 +54,7 @@ steps:
   condition: succeededOrFailed()
 
 - task: PublishPipelineArtifact@0
+  condition: succeededOrFailed()
   inputs:
     artifactName: 'onedal-documentation'
     targetPath: '$(Build.ArtifactStagingDirectory)/html'
