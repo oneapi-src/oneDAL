@@ -1,4 +1,4 @@
-/* file: kmeans_parameter_types.cpp */
+/* file: kmeans_parameter_types_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
