@@ -36,7 +36,6 @@ steps:
     cd docs 
     make html
   displayName: 'Build documentation'
-  name: build_documentation
 
 - script: |
     cp -R docs/build $(Build.ArtifactStagingDirectory)/html
@@ -50,7 +49,7 @@ steps:
 - script: |
     cp docs/docbuild-log.txt $(Build.ArtifactStagingDirectory)/
   displayName: "Copy docbuild log file"
-  dependsOn: build_documentation
+  dependsOn: 'Build documentation'
   condition: failed()
 
 - task: PublishPipelineArtifact@0
