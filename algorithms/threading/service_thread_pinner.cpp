@@ -43,7 +43,7 @@
         #include <tbb/tick_count.h>
         #include <tbb/scalable_allocator.h>
         #include "services/daal_atomic_int.h"
-        using namespace daal::services;
+using namespace daal::services;
 
         #if defined(_WIN32) || defined(_WIN64)
             #include <Windows.h>

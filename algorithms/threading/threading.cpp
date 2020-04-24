@@ -31,7 +31,7 @@
     #include "tbb/scalable_allocator.h"
     #include "services/daal_atomic_int.h"
 
-    using namespace daal::services;
+using namespace daal::services;
 #else
     #include "externals/service_service.h"
 #endif
@@ -578,7 +578,7 @@ DAAL_EXPORT void _daal_run_task_group(void * taskGroupPtr, daal::task * t)
 
         shared_task(daal::task & t) : _t(t), _nRefs(nullptr)
         {
-            _nRefs    = new RefCounterType;
+            _nRefs = new RefCounterType;
             (*_nRefs).set(1);
         }
 

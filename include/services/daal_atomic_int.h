@@ -58,8 +58,8 @@ public:
      */
     inline dataType inc()
     {
-        DAAL_ASSERT(sizeof(my_storage)==sizeof(long))
-        DAAL_ASSERT(sizeof(my_storage)==sizeof(size_t))
+        DAAL_ASSERT(sizeof(my_storage) == sizeof(long))
+        DAAL_ASSERT(sizeof(my_storage) == sizeof(size_t))
         return (dataType)(_InterlockedExchangeAdd((long *)(&my_storage), 1) + 1);
     }
 
@@ -69,8 +69,8 @@ public:
      */
     inline dataType dec()
     {
-        DAAL_ASSERT(sizeof(my_storage)==sizeof(long))
-        DAAL_ASSERT(sizeof(my_storage)==sizeof(size_t))
+        DAAL_ASSERT(sizeof(my_storage) == sizeof(long))
+        DAAL_ASSERT(sizeof(my_storage) == sizeof(size_t))
         return (dataType)(_InterlockedExchangeAdd((long *)(&my_storage), -1) - 1);
     }
 
@@ -124,8 +124,7 @@ private:
  */
 template <typename dataType>
 class DAAL_EXPORT Atomic
-{
-};
+{};
 
 template <>
 class DAAL_EXPORT Atomic<int>
@@ -137,7 +136,7 @@ public:
      */
     inline int inc()
     {
-        DAAL_ASSERT(sizeof(my_storage)==sizeof(long))
+        DAAL_ASSERT(sizeof(my_storage) == sizeof(long))
         return (int)(_InterlockedExchangeAdd((long *)(&my_storage), 1) + 1);
     }
 
@@ -147,7 +146,7 @@ public:
      */
     inline int dec()
     {
-        DAAL_ASSERT(sizeof(my_storage)==sizeof(long))
+        DAAL_ASSERT(sizeof(my_storage) == sizeof(long))
         return (int)(_InterlockedExchangeAdd((long *)(&my_storage), -1) - 1);
     }
 
@@ -191,7 +190,6 @@ private:
     Atomic & operator=(const Atomic &);
 };
 
-
 template <>
 class DAAL_EXPORT Atomic<size_t>
 {
@@ -202,7 +200,7 @@ public:
      */
     inline size_t inc()
     {
-        DAAL_ASSERT(sizeof(my_storage)==sizeof(size_t))
+        DAAL_ASSERT(sizeof(my_storage) == sizeof(size_t))
         return (size_t)(_InterlockedExchangeAdd64((__int64 *)(&my_storage), 1) + 1);
     }
 
@@ -212,7 +210,7 @@ public:
      */
     inline size_t dec()
     {
-        DAAL_ASSERT(sizeof(my_storage)==sizeof(size_t))
+        DAAL_ASSERT(sizeof(my_storage) == sizeof(size_t))
         return (size_t)(_InterlockedExchangeAdd64((__int64 *)(&my_storage), -1) - 1);
     }
 
@@ -272,19 +270,13 @@ public:
      * Returns an increment of atomic object
      * \return An increment of atomic object
      */
-    inline dataType inc()
-    {
-        return (dataType)(__atomic_add_fetch(reinterpret_cast<volatile dataType *>(&my_storage),1,__ATOMIC_SEQ_CST));
-    }
+    inline dataType inc() { return (dataType)(__atomic_add_fetch(reinterpret_cast<volatile dataType *>(&my_storage), 1, __ATOMIC_SEQ_CST)); }
 
     /**
      * Returns a decrement of atomic object
      * \return An decrement of atomic object
      */
-    inline dataType dec()
-    {
-        return (dataType)(__atomic_sub_fetch(reinterpret_cast<volatile dataType *>(&my_storage),1,__ATOMIC_SEQ_CST));
-    }
+    inline dataType dec() { return (dataType)(__atomic_sub_fetch(reinterpret_cast<volatile dataType *>(&my_storage), 1, __ATOMIC_SEQ_CST)); }
 
     /**
      * Assigns the value to atomic object
@@ -292,7 +284,7 @@ public:
      */
     inline void set(dataType value)
     {
-        __asm__ __volatile__("": : :"memory");
+        __asm__ __volatile__("" : : : "memory");
         __atomic_store_n(&my_storage, value, __ATOMIC_RELEASE);
     }
 
@@ -303,7 +295,7 @@ public:
     inline dataType get() const
     {
         dataType to_return = __atomic_load_n(&my_storage, __ATOMIC_ACQUIRE);
-        __asm__ __volatile__("": : :"memory");
+        __asm__ __volatile__("" : : : "memory");
         return to_return;
     }
 
