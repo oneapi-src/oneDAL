@@ -24,24 +24,24 @@ pr:
 
 pool:
   vmImage: 'ubuntu-latest'
-
+  
 steps:
 - script: |
     cd docs 
     sudo apt-get install python3-setuptools
     sudo pip3 install -r requirements.txt
-  displayName: 'Installing requerements'
+  displayName: 'Install requirements'
 
 - script: |
     cd docs 
     make html
-  displayName: 'Building documentation'
+  displayName: 'Build documentation'
 
 - script: |
-    cp -R docs/build/html $(Build.ArtifactStagingDirectory)/
+    cp -R docs/build $(Build.ArtifactStagingDirectory)/html
   displayName: 'Copy build'
 
 - task: PublishPipelineArtifact@0
   inputs:
-    artifactName: 'Docs build'
+    artifactName: 'onedal-documentation'
     targetPath: '$(Build.ArtifactStagingDirectory)/html'
