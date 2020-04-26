@@ -106,7 +106,8 @@ services::Status DistributedStep2MasterInput::check(const daal::algorithms::Para
     services::Status s;
     DAAL_CHECK_STATUS(s, checkNumericTable(firstPres->get(nObservations).get(), nObservationsStr(), unexpectedLayouts, 0, 1, kmPar->nClusters));
     DAAL_CHECK_STATUS(s, checkNumericTable(firstPres->get(partialSums).get(), partialSumsStr(), unexpectedLayouts, 0, 0, kmPar->nClusters));
-    DAAL_CHECK_STATUS(s, checkNumericTable(firstPres->get(partialObjectiveFunction).get(), partialGoalFunctionStr(), unexpectedLayouts, 0, 1, 1));
+    DAAL_CHECK_STATUS(s,
+                      checkNumericTable(firstPres->get(partialObjectiveFunction).get(), partialObjectiveFunctionStr(), unexpectedLayouts, 0, 1, 1));
 
     const size_t inputFeatures = firstPres->get(partialSums)->getNumberOfColumns();
 
@@ -114,7 +115,7 @@ services::Status DistributedStep2MasterInput::check(const daal::algorithms::Para
                                            kmPar->nClusters));
     DAAL_CHECK_STATUS(s, checkNumericTable(firstPres->get(partialCandidatesCentroids).get(), partialCandidatesCentroidsStr(), unexpectedLayouts, 0,
                                            inputFeatures, kmPar->nClusters));
-    if (kmPar->assignFlag)
+    if (kmPar->resultsToEvaluate & computeAssignments && kmPar->assignFlag /* For static compatibility */)
     {
         DAAL_CHECK_STATUS(s, checkNumericTable(firstPres->get(partialAssignments).get(), partialAssignmentsStr(), unexpectedLayouts, 0, 1));
     }
@@ -126,12 +127,12 @@ services::Status DistributedStep2MasterInput::check(const daal::algorithms::Para
         DAAL_CHECK_STATUS(s, checkNumericTable(pres->get(nObservations).get(), nObservationsStr(), unexpectedLayouts, 0, 1, kmPar->nClusters));
         DAAL_CHECK_STATUS(s,
                           checkNumericTable(pres->get(partialSums).get(), partialSumsStr(), unexpectedLayouts, 0, inputFeatures, kmPar->nClusters));
-        DAAL_CHECK_STATUS(s, checkNumericTable(pres->get(partialObjectiveFunction).get(), partialGoalFunctionStr(), unexpectedLayouts, 0, 1, 1));
+        DAAL_CHECK_STATUS(s, checkNumericTable(pres->get(partialObjectiveFunction).get(), partialObjectiveFunctionStr(), unexpectedLayouts, 0, 1, 1));
         DAAL_CHECK_STATUS(s, checkNumericTable(firstPres->get(partialCandidatesDistances).get(), partialCandidatesDistancesStr(), unexpectedLayouts,
                                                0, 1, kmPar->nClusters));
         DAAL_CHECK_STATUS(s, checkNumericTable(firstPres->get(partialCandidatesCentroids).get(), partialCandidatesCentroidsStr(), unexpectedLayouts,
                                                0, inputFeatures, kmPar->nClusters));
-        if (kmPar->assignFlag)
+        if (kmPar->resultsToEvaluate & computeAssignments && kmPar->assignFlag /* For static compatibility */)
         {
             DAAL_CHECK_STATUS(s, checkNumericTable(pres->get(partialAssignments).get(), partialAssignmentsStr(), unexpectedLayouts, 0, 1));
         }

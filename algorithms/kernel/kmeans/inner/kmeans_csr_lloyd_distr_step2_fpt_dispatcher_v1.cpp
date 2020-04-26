@@ -1,4 +1,4 @@
-/* file: kmeans_dense_lloyd_distr_step2_fpt_dispatcher.cpp */
+/* file: kmeans_csr_lloyd_distr_step2_fpt_dispatcher_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -22,39 +22,12 @@
 //--
 */
 
-#include "algorithms/kernel/kmeans/kmeans_container.h"
+#include "algorithms/kernel/kmeans/inner/kmeans_container_v1.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kmeans::interface2::DistributedContainer, distributed, step2Master, DAAL_FPTYPE, kmeans::lloydDense);
-
-namespace kmeans
-{
-namespace interface2
-{
-using DistributedType = Distributed<step2Master, DAAL_FPTYPE, kmeans::lloydDense>;
-
-template <>
-DistributedType::Distributed(size_t nClusters, size_t nIterations)
-{
-    _par = new ParameterType(nClusters, nIterations);
-    initialize();
-    // Reset computeAssignments bit by default in step2Master
-    parameter().resultsToEvaluate &= ~(parameter().resultsToEvaluate & kmeans::computeAssignments);
-}
-
-template <>
-DistributedType::Distributed(const DistributedType & other)
-{
-    _par = new ParameterType(other.parameter());
-    initialize();
-    input.set(partialResults, other.input.get(partialResults));
-}
-
-} // namespace interface2
-} // namespace kmeans
-
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kmeans::interface1::DistributedContainer, distributed, step2Master, DAAL_FPTYPE, kmeans::lloydCSR);
 } // namespace algorithms
 } // namespace daal

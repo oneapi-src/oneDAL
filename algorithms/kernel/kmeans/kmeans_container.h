@@ -76,7 +76,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     NumericTable * a[lastInputId + 1] = { input->get(data).get(), input->get(inputCentroids).get() };
 
     NumericTable * r[lastResultId + 1] = { result->get(centroids).get(), result->get(assignments).get(), result->get(objectiveFunction).get(),
-                                           result->get(nIterations).get(), result->get(exactObjectiveFunction).get() };
+                                           result->get(nIterations).get() };
 
     Parameter * par                        = static_cast<Parameter *>(_par);
     daal::services::Environment::env & env = *_env;

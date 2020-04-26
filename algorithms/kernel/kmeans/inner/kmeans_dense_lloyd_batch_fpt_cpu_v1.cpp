@@ -1,4 +1,4 @@
-/* file: kmeans_dense_lloyd_distr_step2_fpt_cpu_v1.cpp */
+/* file: kmeans_dense_lloyd_batch_fpt_cpu_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -31,7 +31,7 @@ namespace kmeans
 {
 namespace interface1
 {
-template class DistributedContainer<step2Master, DAAL_FPTYPE, lloydDense, DAAL_CPU>;
+template class BatchContainer<DAAL_FPTYPE, kmeans::lloydDense, DAAL_CPU>;
 } // namespace interface1
 } // namespace kmeans
 } // namespace algorithms

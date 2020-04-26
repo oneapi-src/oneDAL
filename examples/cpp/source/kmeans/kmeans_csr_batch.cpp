@@ -70,7 +70,7 @@ int main(int argc, char * argv[])
     /* Print the clusterization results */
     printNumericTable(algorithm.getResult()->get(kmeans::centroids), "First 10 dimensions of centroids:", 20, 10);
     printNumericTable(algorithm.getResult()->get(kmeans::assignments), "First 10 cluster assignments:", 10);
-    printNumericTable(algorithm.getResult()->get(kmeans::exactObjectiveFunction), "Objective function value:");
+    printNumericTable(algorithm.getResult()->get(kmeans::objectiveFunction), "Objective function value:");
 
     return 0;
 }

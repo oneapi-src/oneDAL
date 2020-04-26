@@ -67,14 +67,10 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
         {
             set(centroids, HomogenNumericTable<algorithmFPType>::create(nFeatures, nClusters, NumericTable::doAllocate, &status));
         }
-        if (kmPar->resultsToEvaluate & computeAssignments && kmPar->assignFlag /* For static compatibility */)
+        if (kmPar->resultsToEvaluate & computeAssignments && kmPar->assignFlag /* For static BC */)
         {
             size_t nRows = algInput->get(data)->getNumberOfRows();
             set(assignments, HomogenNumericTable<int>::create(1, nRows, NumericTable::doAllocate, &status));
-        }
-        if (kmPar->resultsToEvaluate & computeExactObjectiveFunction)
-        {
-            set(exactObjectiveFunction, HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, &status));
         }
     }
     else
@@ -84,8 +80,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
         // W/a
         set(centroids, SyclHomogenNumericTable<algorithmFPType>::create(nFeatures, nClusters, NumericTable::doAllocate, &status));
         set(objectiveFunction, HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, &status));
-        set(exactObjectiveFunction, HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, &status));
-
         set(nIterations, HomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, &status));
         set(assignments, SyclHomogenNumericTable<int>::create(1, nRows, NumericTable::doAllocate, &status));
     }

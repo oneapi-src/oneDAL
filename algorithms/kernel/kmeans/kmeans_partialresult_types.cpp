@@ -86,7 +86,7 @@ services::Status PartialResult::check(const daal::algorithms::Input * input, con
     services::Status s;
     DAAL_CHECK_STATUS(s, checkNumericTable(get(nObservations).get(), nObservationsStr(), unexpectedLayouts, 0, 1, kmPar->nClusters));
     DAAL_CHECK_STATUS(s, checkNumericTable(get(partialSums).get(), partialSumsStr(), unexpectedLayouts, 0, inputFeatures, kmPar->nClusters));
-    DAAL_CHECK_STATUS(s, checkNumericTable(get(partialObjectiveFunction).get(), partialGoalFunctionStr(), unexpectedLayouts, 0, 1, 1));
+    DAAL_CHECK_STATUS(s, checkNumericTable(get(partialObjectiveFunction).get(), partialObjectiveFunctionStr(), unexpectedLayouts, 0, 1, 1));
     DAAL_CHECK_STATUS(
         s, checkNumericTable(get(partialCandidatesDistances).get(), partialCandidatesDistancesStr(), unexpectedLayouts, 0, 1, kmPar->nClusters));
     DAAL_CHECK_STATUS(s, checkNumericTable(get(partialCandidatesCentroids).get(), partialCandidatesCentroidsStr(), unexpectedLayouts, 0,

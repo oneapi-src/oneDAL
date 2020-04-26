@@ -212,33 +212,41 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
         clusters = inClusters;
     }
 
-    WriteOnlyRows<int, cpu> mtIterations(*const_cast<NumericTable *>(r[3]), 0, 1);
-    DAAL_CHECK_BLOCK_STATUS(mtIterations);
-    *mtIterations.get() = kIter;
+    const size_t n = ntData->getNumberOfRows();
+    WriteOnlyRows<int, cpu> mtAssignments(const_cast<NumericTable *>(r[1]), 0, n);
+    int * assignments = mtAssignments.get();
+
+    TArray<int, cpu> tAssignments;
+    if (par->resultsToEvaluate & computeAssignments || par->resultsToEvaluate & computeExactObjectiveFunction)
+    {
+        if (assignments == nullptr)
+        {
+            tAssignments.reset(n);
+            assignments = tAssignments.get();
+        }
+
+        PostProcessing<method, algorithmFPType, cpu>::computeAssignments(p, nClusters, clusters, ntData, catCoef.get(), assignments);
+    }
 
     WriteOnlyRows<algorithmFPType, cpu> mtTarget(*const_cast<NumericTable *>(r[2]), 0, 1);
     DAAL_CHECK_BLOCK_STATUS(mtTarget);
-    *mtTarget.get() = oldTargetFunc;
-
-    const bool isComputeAssignments = par->resultsToEvaluate & computeAssignments && par->assignFlag /* For static BC */;
-    NumericTable * assignments      = isComputeAssignments ? const_cast<NumericTable *>(r[1]) : nullptr;
-
     if (par->resultsToEvaluate & computeExactObjectiveFunction)
     {
-        algorithmFPType targetFunc = algorithmFPType(0);
+        algorithmFPType exactTargetFunc = algorithmFPType(0);
 
-        PostProcessing<method, algorithmFPType, cpu>::computeExactObjectiveFunction(p, nClusters, inClusters, ntData, catCoef.get(), assignments,
-                                                                                    targetFunc);
+        PostProcessing<method, algorithmFPType, cpu>::computeExactObjectiveFunction(p, nClusters, clusters, ntData, catCoef.get(), assignments,
+                                                                                    exactTargetFunc);
 
-        WriteOnlyRows<algorithmFPType, cpu> mtExactTarget(*const_cast<NumericTable *>(r[4]), 0, 1);
-        DAAL_CHECK_BLOCK_STATUS(mtExactTarget);
-        *mtExactTarget.get() = targetFunc;
+        *mtTarget.get() = exactTargetFunc;
     }
-    else if (isComputeAssignments)
+    else
     {
-        PostProcessing<method, algorithmFPType, cpu>::computeOnlyAssignments(p, nClusters, inClusters, ntData, catCoef.get(), assignments);
+        *mtTarget.get() = oldTargetFunc;
     }
 
+    WriteOnlyRows<int, cpu> mtIterations(*const_cast<NumericTable *>(r[3]), 0, 1);
+    DAAL_CHECK_BLOCK_STATUS(mtIterations);
+    *mtIterations.get() = kIter;
     return (!result) ? s : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 

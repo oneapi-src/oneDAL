@@ -105,12 +105,11 @@ enum PartialResultId
  */
 enum ResultId
 {
-    centroids,              /*!< Table containing cluster centroids */
-    assignments,            /*!< Table containing assignments of observations to particular clusters */
-    objectiveFunction,      /*!< Table containing an objective function value */
-    nIterations,            /*!< Table containing the number of executed iterations */
-    exactObjectiveFunction, /*!< Table containing the number of executed iterations */
-    lastResultId = exactObjectiveFunction
+    centroids,         /*!< Table containing cluster centroids */
+    assignments,       /*!< Table containing assignments of observations to particular clusters */
+    objectiveFunction, /*!< Table containing an objective function value */
+    nIterations,       /*!< Table containing the number of executed iterations */
+    lastResultId = nIterations
 };
 
 /**
@@ -119,9 +118,9 @@ enum ResultId
 */
 enum ResultToComputeId
 {
-    computeCentroids              = 0x00000001ULL, /*!< Numeric table of size n x 1 with the predicted labels >*/
-    computeExactObjectiveFunction = 0x00000002ULL, /*!< Numeric table of size n x 1 with the predicted labels >*/
-    computeAssignments            = 0x00000004ULL  /*!< Numeric table of size n x p with the predicted class probabilities for each observation >*/
+    computeCentroids              = 0x00000001ULL, /*!< Compute table containing cluster centroids */
+    computeExactObjectiveFunction = 0x00000002ULL, /*!< Compute table containing exact objective function value >*/
+    computeAssignments            = 0x00000004ULL  /*!< Compute table containing assignments of observations to particular clusters >*/
 };
 
 /**

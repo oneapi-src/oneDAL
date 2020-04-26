@@ -74,7 +74,7 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     const interface2::Parameter * kmPar = static_cast<const interface2::Parameter *>(par);
     const int unexpectedLayouts         = (int)packed_mask;
     services::Status s;
-    DAAL_CHECK_STATUS(s, checkNumericTable(get(objectiveFunction).get(), goalFunctionStr(), unexpectedLayouts, 0, 1, 1));
+    DAAL_CHECK_STATUS(s, checkNumericTable(get(objectiveFunction).get(), objectiveFunctionStr(), unexpectedLayouts, 0, 1, 1));
 
     DAAL_CHECK_STATUS(s, checkNumericTable(get(nIterations).get(), nIterationsStr(), unexpectedLayouts, 0, 1, 1));
 
@@ -88,13 +88,6 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
         const size_t inputRows           = algInput->get(data)->getNumberOfRows();
         DAAL_CHECK_STATUS(s, checkNumericTable(assignmentsTable.get(), assignmentsStr(), unexpectedLayouts, 0, 1, inputRows));
     }
-
-    if (kmPar->resultsToEvaluate & computeExactObjectiveFunction)
-    {
-        NumericTablePtr exactObjectiveFunctionTable = get(exactObjectiveFunction);
-        DAAL_CHECK_STATUS(s, checkNumericTable(exactObjectiveFunctionTable.get(), goalFunctionStr(), unexpectedLayouts, 0, 1, 1));
-    }
-
     return s;
 }
 
@@ -112,7 +105,7 @@ services::Status Result::check(const daal::algorithms::PartialResult * pres, con
     size_t presFeatures                 = algPres->get(partialSums)->getNumberOfColumns();
     services::Status s;
     DAAL_CHECK_STATUS(s, checkNumericTable(get(centroids).get(), centroidsStr(), unexpectedLayouts, 0, presFeatures, kmPar->nClusters));
-    return checkNumericTable(get(objectiveFunction).get(), goalFunctionStr(), unexpectedLayouts, 0, 1, 1);
+    return checkNumericTable(get(objectiveFunction).get(), objectiveFunctionStr(), unexpectedLayouts, 0, 1, 1);
 }
 
 } // namespace interface1
