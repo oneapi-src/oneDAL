@@ -149,7 +149,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cSetAssig
  * Signature:(JJ)V
  */
 JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cSetResultsToEvaluate(JNIEnv *, jobject, jlong parameterAddress,
-                                                                                            jlong resultsToEvaluate)
+                                                                                             jlong resultsToEvaluate)
 {
     ((Parameter *)parameterAddress)->resultsToEvaluate = resultsToEvaluate;
 }

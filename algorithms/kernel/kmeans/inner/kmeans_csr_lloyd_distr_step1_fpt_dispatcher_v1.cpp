@@ -1,4 +1,4 @@
-/* file: kmeans_csr_lloyd_distr_step1_fpt_dispatcher.cpp */
+/* file: kmeans_csr_lloyd_distr_step1_fpt_dispatcher_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
