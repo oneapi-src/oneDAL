@@ -160,10 +160,10 @@ public class InitParameter extends com.intel.daal.algorithms.Parameter {
 
     /**
      * Kmeans++ only. The number of trials to generate all clusters but the first initial cluster.
-     * @return Number of trials
+     * @param nTrials Number of trials
      */
     public void setNTrials(long nTrials) {
-        return cSetNTrials(this.cObject, nTrials);
+        cSetNTrials(this.cObject, nTrials);
     }
 
     private native long init(long nClusters, long maxIterations);
