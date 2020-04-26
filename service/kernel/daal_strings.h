@@ -160,6 +160,7 @@
     DECLARE_DAAL_STRING_CONST(learningRate)                      \
     DECLARE_DAAL_STRING_CONST(logProbabilities)                  \
     DECLARE_DAAL_STRING_CONST(means)                             \
+    DECLARE_DAAL_STRING_CONST(goalFunction)                      \
     DECLARE_DAAL_STRING_CONST(objectiveFunction)                 \
     DECLARE_DAAL_STRING_CONST(nIterations)                       \
     DECLARE_DAAL_STRING_CONST(inputWeights)                      \
