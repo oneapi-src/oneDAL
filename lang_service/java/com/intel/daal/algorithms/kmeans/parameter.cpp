@@ -86,7 +86,7 @@ JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cGetA
  * Method:    cGetResultsToEvaluate
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cGetResultsToEvaluate(JNIEnv *, jobject, jlong parameterAddress)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cGetResultsToEvaluate(JNIEnv *, jobject, jlong parameterAddress)
 {
     return ((Parameter *)parameterAddress)->resultsToEvaluate;
 }
@@ -148,7 +148,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cSetAssig
  * Method:    SetResultsToEvaluate
  * Signature:(JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cSetResultsToEvaluate(JNIEnv *, jobject, jlong parameterAddress,
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cSetResultsToEvaluate(JNIEnv *, jobject, jlong parameterAddress,
                                                                                              jlong resultsToEvaluate)
 {
     ((Parameter *)parameterAddress)->resultsToEvaluate = resultsToEvaluate;
