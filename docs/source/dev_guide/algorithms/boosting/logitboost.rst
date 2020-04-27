@@ -26,11 +26,12 @@ LogitBoost within |short_name| implements a multi-class classifier.
 Details
 *******
 
-At this moment, algorithm's details for LogitBoost Classifier are only available in
-`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-details-31>`_.
+At this moment, algorithm's details for `LogitBoost Classifier <https://software.intel.com/en-us/daal-programming-guide-details-31>`_
+are only available in Developer Guide for Intel(R) DAAL.
 
 Batch Processing
 ****************
 
-At this moment, the description of batch processing for LogitBoost Classifier is only available in
-`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-batch-processing-46>`_.
+At this moment, the description of
+`batch processing for LogitBoost Classifier <https://software.intel.com/en-us/daal-programming-guide-batch-processing-46>`_
+is only available in Developer Guide for Intel(R) DAAL.

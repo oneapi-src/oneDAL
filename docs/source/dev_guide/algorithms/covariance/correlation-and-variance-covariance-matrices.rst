@@ -156,14 +156,16 @@ methods that access the results of your algorithm.
 Online Processing
 =================
 
-At this moment, the description of online processing for Correlation and Variance-Covariance Matrices
-is only available in `Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-online-processing-1>`_.
+At this moment, the description of
+`online processing for Correlation and Variance-Covariance Matrices <https://software.intel.com/en-us/daal-programming-guide-online-processing-1>`_
+is only available in Developer Guide for Intel(R) DAAL.
 
 Distributed Processing
 ======================
 
-At this moment, the description of distributed processing for Correlation and Variance-Covariance Matrices
-is only available in `Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-1>`_.
+At this moment, the description of
+`distributed processing for Correlation and Variance-Covariance Matrices <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-1>`_
+is only available in Developer Guide for Intel(R) DAAL.
 
 Examples
 ========

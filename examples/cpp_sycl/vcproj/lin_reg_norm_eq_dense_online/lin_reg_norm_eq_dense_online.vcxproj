@@ -38,7 +38,7 @@
     <ProjectGuid>{C8A5E345-9369-42DB-ACB2-3E3837B780F8}</ProjectGuid>
     <RootNamespace>lin_reg_norm_eq_dense_online</RootNamespace>
     <ProjectName>lin_reg_norm_eq_dense_online</ProjectName>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug.static.threaded|x64'" Label="Configuration">

@@ -35,13 +35,13 @@ where the matrix :math:`Q_1` has the size :math:`n \times p` and :math:`R_1` has
 Batch and Online Processing
 ***************************
 
-At this moment, the description of batch and online processing for QR Decomposition without Pivoting
-is only available in
-`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-batch-and-online-processing-1>`_.
+At this moment, the description of 
+`batch and online processing for QR Decomposition without Pivoting <https://software.intel.com/en-us/daal-programming-guide-batch-and-online-processing-1>`_
+is only available in Developer Guide for Intel(R) DAAL.
 
 Distributed Processing
 **********************
 
-At this moment, the description of distributed processing for QR Decomposition without Pivoting
-is only available in
-`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-6>`_.
+At this moment, the description of 
+`distributed processing for QR Decomposition without Pivoting <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-6>`_
+is only available in Developer Guide for Intel(R) DAAL.

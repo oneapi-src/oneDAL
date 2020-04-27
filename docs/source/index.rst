@@ -37,10 +37,10 @@ computation. The current version of |short_name| provides
 Data Parallel C++ (DPC++) API extensions to the traditional C++ interface.
 
 For general information, visit |github|_. The complete
-list of features and documentation are available at |daal-docs|_.
+list of features and documentation is available at |daal-docs|_.
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
    :caption: Introduction
 
    getstarted.rst
