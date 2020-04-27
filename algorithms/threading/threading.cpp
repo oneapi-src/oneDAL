@@ -29,7 +29,7 @@
     #define TBB_PREVIEW_TASK_ARENA     1
 
     #include <stdlib.h> // malloc and free
-    #include <atomic> // Temporary
+    #include <atomic>   // Temporary
     #include <tbb/tbb.h>
     #include <tbb/spin_mutex.h>
     #include "tbb/scalable_allocator.h"
