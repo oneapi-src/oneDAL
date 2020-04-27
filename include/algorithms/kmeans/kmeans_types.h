@@ -359,8 +359,6 @@ public:
     services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 
-} // namespace kmeans
-
 /**
  * \brief Contains version 2.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -403,6 +401,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 /* [Parameter source code] */
 
 } // namespace interface2
+} // namespace kmeans
 
 using interface2::Parameter;
 using interface1::InputIface;
