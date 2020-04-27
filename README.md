@@ -44,7 +44,7 @@ This repository contains branches corresponding to both oneAPI and classical ver
 - [Installation](#installation)
 - [Examples](#examples)
 - [Documentation](#documentation)
-- [Python API](#python-api)
+- [API](#api)
 
 ## Preview Features
 
@@ -92,6 +92,8 @@ Data Examples for different computation modes:
 - [Release Notes](https://software.intel.com/en-us/articles/oneapi-dal-release-notes)
 - [Known Issues](https://oneapi-src.github.io/oneDAL/notes/known_issues.html)
 
-## Python API
+## API
 
-[daal4py](https://github.com/IntelPython/daal4py) is a simplified Python API to Intel(R) DAAL that allows fast usage of the framework suited for Data Scientists or Machine Learning users.
+Intel(R) DAAL [provides](https://software.intel.com/en-us/articles/daal-api-reference) downloadable API References for C++, Python, and Java.
+
+You can also use [daal4py](https://github.com/IntelPython/daal4py), a simplified Python API to Intel(R) DAAL that allows fast usage of the framework suited for Data Scientists or Machine Learning users.

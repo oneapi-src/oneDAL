@@ -29,6 +29,9 @@
     #include <tbb/tbb.h>
     #include <tbb/spin_mutex.h>
     #include "tbb/scalable_allocator.h"
+    #include "services/daal_atomic_int.h"
+
+using namespace daal::services;
 #else
     #include "externals/service_service.h"
 #endif
@@ -571,23 +574,27 @@ DAAL_EXPORT void _daal_run_task_group(void * taskGroupPtr, daal::task * t)
 {
     struct shared_task
     {
-        typedef tbb::atomic<int> RefCounterType;
+        typedef Atomic<int> RefCounterType;
 
         shared_task(daal::task & t) : _t(t), _nRefs(nullptr)
         {
-            _nRefs    = new RefCounterType;
-            (*_nRefs) = 1;
+            _nRefs = new RefCounterType;
+            (*_nRefs).set(1);
         }
-        shared_task(const shared_task & o) : _t(o._t), _nRefs(o._nRefs) { (*_nRefs)++; }
+
+        shared_task(const shared_task & o) : _t(o._t), _nRefs(o._nRefs) { (*_nRefs).inc(); }
+
         ~shared_task()
         {
-            if (_nRefs && !--(*_nRefs))
+            if (_nRefs && !(*_nRefs).dec())
             {
                 _t.destroy();
                 delete _nRefs;
             }
         }
+
         void operator()() const { _t.run(); }
+
         daal::task & _t;
         RefCounterType * _nRefs;
 

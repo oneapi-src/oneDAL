@@ -37,17 +37,17 @@ and :math:`h_t` is a weak learner algorithm, the problem is to build an AdaBoost
 SAMME method
 ************
 
-At this moment, the description of the SAMME method is only available in
-`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-samme-method>`_.
+At this moment, the description of the `SAMME method <https://software.intel.com/en-us/daal-programming-guide-samme-method>`_ 
+is only available in Developer Guide for Intel(R) DAAL.
 
 SAMME.R method
 **************
 
-At this moment, the description of the SAMME.R method is only available in
-`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-samme-r-method>`_.
+At this moment, the description of the `SAMME.R method <https://software.intel.com/en-us/daal-programming-guide-samme-r-method>`_
+is only available in Developer Guide for Intel(R) DAAL.
 
 Batch Processing
 ****************
 
-At this moment, the description of batch processing for AdaBoost MultiClass is only available in
-`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-batch-processing-122>`_.
+At this moment, the description of `batch processing for AdaBoost MultiClass <https://software.intel.com/en-us/daal-programming-guide-batch-processing-122>`_
+is only available in Developer Guide for Intel(R) DAAL.

@@ -133,14 +133,16 @@ At the prediction stage, Naïve Bayes classifier has the following parameters:
 Online Processing
 *****************
 
-At this moment, the description of online processing for Naïve Bayes classifier is only available in
-`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-online-processing-4>`_.
+At this moment, the description of
+`online processing for Naïve Bayes classifier <https://software.intel.com/en-us/daal-programming-guide-online-processing-4>`_
+is only available in Developer Guide for Intel(R) DAAL.
 
 Distributed Processing
 **********************
 
-At this moment, the description of distributed processing for Naïve Bayes classifier is only available in
-`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-8>`_.
+At this moment, the description of
+`distributed processing for Naïve Bayes classifier <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-8>`_
+is only available in Developer Guide for Intel(R) DAAL.
 
 Examples
 ********
