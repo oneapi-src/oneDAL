@@ -24,7 +24,9 @@
 #ifndef __KERNEL_FUNCTION_DENSE_RBF_KERNEL_ONEAPI_H__
 #define __KERNEL_FUNCTION_DENSE_RBF_KERNEL_ONEAPI_H__
 
-#include "algorithms/kernel/kernel_function/oneapi/kernel_function_rbf_base_oneapi.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/kernel_function/kernel_function_rbf.h"
 
 namespace daal
 {
@@ -39,6 +41,13 @@ namespace internal
 using namespace daal::data_management;
 using namespace daal::services;
 using namespace daal::oneapi::internal;
+
+template <Method method, typename algorithmFPType>
+class KernelImplRBFOneAPI : public Kernel
+{
+public:
+    services::Status compute(NumericTable * a1, NumericTable * a2, NumericTable * r, const ParameterBase * par);
+};
 
 template <typename algorithmFPType>
 class KernelImplRBFOneAPI<defaultDense, algorithmFPType> : public Kernel
@@ -69,8 +78,8 @@ protected:
     services::Status computeInternalMatrixMatrix(NumericTable * matLeft, NumericTable * matRight, NumericTable * result, const ParameterBase * par);
 
 private:
-    // services::Buffer<algorithmFPType> _sqrA1;
-    // services::Buffer<algorithmFPType> _sqrA2;
+    UniversalBuffer _sqrMatLeft;
+    UniversalBuffer _sqrMatRight;
 };
 
 } // namespace internal

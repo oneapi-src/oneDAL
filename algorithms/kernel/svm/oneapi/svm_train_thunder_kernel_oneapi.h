@@ -71,9 +71,6 @@ protected:
 
     bool checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev, const algorithmFPType eps, const size_t nNoChanges,
                             size_t & sameLocalDiff);
-
-    double calculateObjective(const services::Buffer<algorithmFPType> & y, const services::Buffer<algorithmFPType> & alpha,
-                              const services::Buffer<algorithmFPType> & grad, const size_t nVectors);
 };
 
 } // namespace internal

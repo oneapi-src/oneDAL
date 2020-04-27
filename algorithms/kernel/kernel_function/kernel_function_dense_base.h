@@ -32,8 +32,6 @@
 #include "service/kernel/data_management/service_micro_table.h"
 #include "algorithms/kernel/kernel.h"
 
-using namespace daal::internal;
-
 namespace daal
 {
 namespace algorithms
@@ -42,6 +40,8 @@ namespace kernel_function
 {
 namespace internal
 {
+using namespace daal::internal;
+
 template <typename algorithmFPType, CpuType cpu>
 struct KernelImplBase : public Kernel
 {
@@ -65,16 +65,11 @@ struct KernelImplBase : public Kernel
         }
         return services::Status();
     }
-
-    NumericTablePtr b;
 };
 
 } // namespace internal
-
 } // namespace kernel_function
-
 } // namespace algorithms
-
 } // namespace daal
 
 #endif

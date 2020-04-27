@@ -46,17 +46,12 @@ struct KernelImplLinear<defaultDense, algorithmFPType, cpu> : public daal::algor
                                                          const ParameterBase * par);
     virtual services::Status computeInternalMatrixMatrix(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
                                                          const ParameterBase * par);
-    NumericTablePtr a;
 };
 
 } // namespace internal
-
 } // namespace linear
-
 } // namespace kernel_function
-
 } // namespace algorithms
-
 } // namespace daal
 
 #endif

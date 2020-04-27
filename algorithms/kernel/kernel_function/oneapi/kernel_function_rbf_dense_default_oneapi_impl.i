@@ -126,10 +126,6 @@ services::Status KernelImplRBFOneAPI<defaultDense, algorithmFPType>::computeInte
 {
     services::Status status;
 
-    // TODO: Move to private field of kernel
-    UniversalBuffer _sqrMatLeft;
-    UniversalBuffer _sqrMatRight;
-
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();
 

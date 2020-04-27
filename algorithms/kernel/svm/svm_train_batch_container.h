@@ -46,7 +46,6 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
 {
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();
-
     if (method == thunder && !deviceInfo.isCpu)
     {
         __DAAL_INITIALIZE_KERNELS_SYCL(internal::SVMTrainOneAPI, algorithmFPType, svm::interface2::Parameter, method);

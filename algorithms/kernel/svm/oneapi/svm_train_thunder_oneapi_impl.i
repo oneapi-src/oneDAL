@@ -156,23 +156,6 @@ bool SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::checkStopCondition
 }
 
 template <typename algorithmFPType, typename ParameterType>
-double SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::calculateObjective(const services::Buffer<algorithmFPType> & y,
-                                                                                   const services::Buffer<algorithmFPType> & alpha,
-                                                                                   const services::Buffer<algorithmFPType> & grad,
-                                                                                   const size_t nVectors)
-{
-    double obj     = 0.0f;
-    auto yHost     = y.toHost(ReadWriteMode::readOnly).get();
-    auto alphaHost = alpha.toHost(ReadWriteMode::readOnly).get();
-    auto gradHost  = grad.toHost(ReadWriteMode::readOnly).get();
-    for (size_t i = 0; i < nVectors; i++)
-    {
-        obj -= alphaHost[i] - (gradHost[i] + yHost[i]) * alphaHost[i] * yHost[i] * 0.5;
-    }
-    return obj;
-}
-
-template <typename algorithmFPType, typename ParameterType>
 services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::compute(const NumericTablePtr & xTable, NumericTable & yTable,
                                                                                   daal::algorithms::Model * r, const ParameterType * svmPar)
 {

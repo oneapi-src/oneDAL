@@ -45,7 +45,7 @@ using namespace daal::internal;
 using namespace daal::oneapi::internal;
 
 template <typename algorithmFPType>
-services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(const NumericTablePtr & xTable, Model * model, NumericTable & r,
+services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(const NumericTablePtr & xTable, Model * model, NumericTable & result,
                                                                               const svm::Parameter * par)
 {
     services::Status status;
@@ -56,7 +56,7 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
     const size_t nFeatures = xTable->getNumberOfColumns();
 
     BlockDescriptor<algorithmFPType> rBlock;
-    DAAL_CHECK_STATUS(status, r.getBlockOfRows(0, nVectors, ReadWriteMode::writeOnly, rBlock));
+    DAAL_CHECK_STATUS(status, result.getBlockOfRows(0, nVectors, ReadWriteMode::writeOnly, rBlock));
     auto distanceBuff = rBlock.getBuffer();
 
     kernel_function::KernelIfacePtr kernel = par->kernel->clone();
@@ -125,7 +125,7 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
         DAAL_CHECK_STATUS(status, xTable->releaseBlockOfRows(xBlock));
     }
 
-    DAAL_CHECK_STATUS(status, r.releaseBlockOfRows(rBlock));
+    DAAL_CHECK_STATUS(status, result.releaseBlockOfRows(rBlock));
     DAAL_CHECK_STATUS(status, svCoeffTable->releaseBlockOfRows(svCoeffBlock));
 
     return status;

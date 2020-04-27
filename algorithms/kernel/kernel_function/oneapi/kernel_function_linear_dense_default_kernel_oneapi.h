@@ -24,7 +24,9 @@
 #ifndef __KERNEL_FUNCTION_DENSE_LINEAR_KERNEL_ONEAPI_H__
 #define __KERNEL_FUNCTION_DENSE_LINEAR_KERNEL_ONEAPI_H__
 
-#include "algorithms/kernel/kernel_function/oneapi/kernel_function_linear_base_oneapi.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/kernel_function/kernel_function_types_linear.h"
 
 namespace daal
 {
@@ -38,6 +40,13 @@ namespace internal
 {
 using namespace daal::data_management;
 using namespace daal::services;
+
+template <Method method, typename algorithmFPType>
+class KernelImplLinearOneAPI : public Kernel
+{
+public:
+    services::Status compute(NumericTable * a1, NumericTable * a2, NumericTable * r, const ParameterBase * par);
+};
 
 template <typename algorithmFPType>
 class KernelImplLinearOneAPI<defaultDense, algorithmFPType> : public Kernel

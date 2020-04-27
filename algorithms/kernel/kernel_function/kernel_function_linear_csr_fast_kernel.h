@@ -53,13 +53,9 @@ struct KernelImplLinear<fastCSR, algorithmFPType, cpu> : public daal::algorithms
 };
 
 } // namespace internal
-
 } // namespace linear
-
 } // namespace kernel_function
-
 } // namespace algorithms
-
 } // namespace daal
 
 #endif
