@@ -88,6 +88,7 @@ endif
 
 ifeq ($(threading),sequential)
     DAAL_LIB_T := $(DAAL_LIB_EXT),-ldaal_sequential
+    EXT_LIB += $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
 else
     override threading = parallel
     DAAL_LIB_T := $(DAAL_LIB_EXT),-ldaal_thread
