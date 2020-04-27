@@ -124,6 +124,11 @@ enum ResultToComputeId
 };
 
 /**
+ * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ */
+namespace interface1
+{
+/**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INPUTIFACE"></a>
  * \brief Interface for input objects for K-Means algorithm in the batch and distributed processing modes
  */
@@ -133,7 +138,7 @@ public:
     InputIface(size_t nElements) : daal::algorithms::Input(nElements) {};
 
     virtual size_t getNumberOfFeatures() const = 0;
-};
+}; // namespace interface2classDAAL_EXPORTInputIface:publicdaal::algorithms::Input
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INPUT"></a>
@@ -359,6 +364,8 @@ public:
     services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 
+} // namespace interface1
+
 /**
  * \brief Contains version 2.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -401,7 +408,6 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 /* [Parameter source code] */
 
 } // namespace interface2
-} // namespace kmeans
 
 using interface2::Parameter;
 using interface1::InputIface;
@@ -412,8 +418,8 @@ using interface1::Result;
 using interface1::ResultPtr;
 using interface1::DistributedStep2MasterInput;
 
+} // namespace kmeans
 } // namespace algorithms
 /** @} */
-} // namespace daal
 } // namespace daal
 #endif
