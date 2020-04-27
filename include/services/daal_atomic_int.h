@@ -112,7 +112,7 @@ private:
     Atomic & operator=(const Atomic &);
 };
 
-#if defined(_WIN64)
+    #if defined(_WIN64)
 template <>
 class DAAL_EXPORT Atomic<size_t>
 {
@@ -176,8 +176,8 @@ private:
     Atomic(const Atomic &);
     Atomic & operator=(const Atomic &);
 };
-#endif // _WIN64
-#endif // _WIN32
+    #endif // _WIN64
+#endif     // _WIN32
 
 #if !defined(_WIN32)
 /**
