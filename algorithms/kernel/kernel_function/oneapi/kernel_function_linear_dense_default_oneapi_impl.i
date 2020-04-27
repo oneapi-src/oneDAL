@@ -46,34 +46,34 @@ namespace internal
 using namespace daal::oneapi::internal;
 
 template <typename algorithmFPType>
-services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeInternalVectorVector(NumericTable * a1, NumericTable * a2,
-                                                                                                    NumericTable * r, const ParameterBase * par)
+services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeInternalVectorVector(NumericTable * vecLeft, NumericTable * vecRight,
+                                                                                                    NumericTable * result, const ParameterBase * par)
 {
     return services::ErrorMethodNotImplemented;
 }
 
 template <typename algorithmFPType>
-services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeInternalMatrixVector(NumericTable * a1, NumericTable * a2,
-                                                                                                    NumericTable * r, const ParameterBase * par)
+services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeInternalMatrixVector(NumericTable * matLeft, NumericTable * vecRight,
+                                                                                                    NumericTable * result, const ParameterBase * par)
 {
     return services::ErrorMethodNotImplemented;
 }
 
 template <typename algorithmFPType>
-services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeInternalMatrixMatrix(NumericTable * a1, NumericTable * a2,
-                                                                                                    NumericTable * r, const ParameterBase * par)
+services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeInternalMatrixMatrix(NumericTable * matLeft, NumericTable * matRight,
+                                                                                                    NumericTable * result, const ParameterBase * par)
 {
     services::Status status;
 
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();
 
-    const size_t nVectors1 = a1->getNumberOfRows();
-    const size_t nVectors2 = a2->getNumberOfRows();
+    const size_t nMatLeft  = matLeft->getNumberOfRows();
+    const size_t nMatRight = matRight->getNumberOfRows();
 
-    const size_t nFeatures1 = a1->getNumberOfColumns();
-    const size_t nFeatures2 = a2->getNumberOfColumns();
-    DAAL_ASSERT(nFeatures1 == nFeatures2);
+    const size_t pMatLeft  = matLeft->getNumberOfColumns();
+    const size_t pMatRight = matRight->getNumberOfColumns();
+    DAAL_ASSERT(pMatLeft == pMatRight);
 
     const Parameter * linPar    = static_cast<const Parameter *>(par);
     const algorithmFPType alpha = algorithmFPType(linPar->k);
@@ -82,33 +82,33 @@ services::Status KernelImplLinearOneAPI<defaultDense, algorithmFPType>::computeI
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(KernelLinearOneAPI.gemm);
 
-        BlockDescriptor<algorithmFPType> a1BD;
-        BlockDescriptor<algorithmFPType> a2BD;
-        BlockDescriptor<algorithmFPType> rBD;
+        BlockDescriptor<algorithmFPType> matLeftBlock;
+        BlockDescriptor<algorithmFPType> matRightBlock;
+        BlockDescriptor<algorithmFPType> resultBlock;
 
-        DAAL_CHECK_STATUS(status, a1->getBlockOfRows(0, nVectors1, ReadWriteMode::readOnly, a1BD));
-        DAAL_CHECK_STATUS(status, a2->getBlockOfRows(0, nVectors2, ReadWriteMode::readOnly, a2BD));
+        DAAL_CHECK_STATUS(status, matLeft->getBlockOfRows(0, nMatLeft, ReadWriteMode::readOnly, matLeftBlock));
+        DAAL_CHECK_STATUS(status, matRight->getBlockOfRows(0, nMatRight, ReadWriteMode::readOnly, matRightBlock));
 
-        DAAL_CHECK_STATUS(status, r->getBlockOfRows(0, nVectors1, ReadWriteMode::writeOnly, rBD));
+        DAAL_CHECK_STATUS(status, result->getBlockOfRows(0, nMatLeft, ReadWriteMode::writeOnly, resultBlock));
 
-        const services::Buffer<algorithmFPType> a1Buf = a1BD.getBuffer();
-        const services::Buffer<algorithmFPType> a2Buf = a2BD.getBuffer();
+        const services::Buffer<algorithmFPType> matLeftBuff  = matLeftBlock.getBuffer();
+        const services::Buffer<algorithmFPType> matRightBuff = matRightBlock.getBuffer();
 
-        services::Buffer<algorithmFPType> rBuf = rBD.getBuffer();
+        services::Buffer<algorithmFPType> resultBuff = resultBlock.getBuffer();
 
         if (beta != 0.0)
         {
-            context.fill(rBuf, 1.0, &status);
+            context.fill(resultBuff, 1.0, &status);
             DAAL_CHECK_STATUS_VAR(status);
         }
 
-        DAAL_CHECK_STATUS(
-            status, BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::Trans, nVectors1, nVectors2,
-                                                    nFeatures1, alpha, a1Buf, nFeatures1, 0, a2Buf, nFeatures2, 0, beta, rBuf, nVectors2, 0));
+        DAAL_CHECK_STATUS(status, BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::Trans, nMatLeft,
+                                                                  nMatRight, pMatLeft, alpha, matLeftBuff, pMatLeft, 0, matRightBuff, pMatRight, 0,
+                                                                  beta, resultBuff, nMatRight, 0));
 
-        DAAL_CHECK_STATUS(status, a1->releaseBlockOfRows(a1BD));
-        DAAL_CHECK_STATUS(status, a2->releaseBlockOfRows(a2BD));
-        DAAL_CHECK_STATUS(status, r->releaseBlockOfRows(rBD));
+        DAAL_CHECK_STATUS(status, matLeft->releaseBlockOfRows(matLeftBlock));
+        DAAL_CHECK_STATUS(status, matRight->releaseBlockOfRows(matRightBlock));
+        DAAL_CHECK_STATUS(status, result->releaseBlockOfRows(resultBlock));
     }
 
     return status;

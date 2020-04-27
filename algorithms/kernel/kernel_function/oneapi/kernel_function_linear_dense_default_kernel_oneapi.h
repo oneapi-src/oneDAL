@@ -57,9 +57,9 @@ public:
     }
 
 protected:
-    services::Status computeInternalVectorVector(NumericTable * a1, NumericTable * a2, NumericTable * r, const ParameterBase * par);
-    services::Status computeInternalMatrixVector(NumericTable * a1, NumericTable * a2, NumericTable * r, const ParameterBase * par);
-    services::Status computeInternalMatrixMatrix(NumericTable * a1, NumericTable * a2, NumericTable * r, const ParameterBase * par);
+    services::Status computeInternalVectorVector(NumericTable * vecLeft, NumericTable * vecRight, NumericTable * result, const ParameterBase * par);
+    services::Status computeInternalMatrixVector(NumericTable * matLeft, NumericTable * vecRight, NumericTable * result, const ParameterBase * par);
+    services::Status computeInternalMatrixMatrix(NumericTable * matLeft, NumericTable * matRight, NumericTable * result, const ParameterBase * par);
 };
 
 } // namespace internal
