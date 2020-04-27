@@ -1,4 +1,4 @@
-/* file: kmeans_batch.h */
+/* file: kmeans_batch_v1.h */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -22,13 +22,13 @@
 //--
 */
 
-#ifndef __KMEANS_BATCH_H__
-#define __KMEANS_BATCH_H__
+#ifndef __KMEANS_BATCH_V1_H__
+#define __KMEANS_BATCH_V1_H__
 
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
 #include "services/daal_defines.h"
-#include "algorithms/kmeans/kmeans_types.h"
+#include "algorithms/kernel/kmeans/inner/kmeans_types_v1.h"
 
 namespace daal
 {
@@ -36,7 +36,7 @@ namespace algorithms
 {
 namespace kmeans
 {
-namespace interface2
+namespace interface1
 {
 /**
  * @defgroup kmeans_batch Batch
@@ -96,7 +96,7 @@ public:
      *  \param[in] nClusters   Number of clusters
      *  \param[in] nIterations Number of iterations
      */
-    Batch(size_t nClusters, size_t nIterations = 1);
+    Batch(size_t nClusters, size_t nIterations = 1) : parameter(nClusters, nIterations) { initialize(); }
 
     /**
      * Constructs K-Means algorithm by copying input objects and parameters
@@ -104,7 +104,12 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> & other);
+    Batch(const Batch<algorithmFPType, method> & other) : parameter(other.parameter)
+    {
+        initialize();
+        input.set(data, other.input.get(data));
+        input.set(inputCentroids, other.input.get(inputCentroids));
+    }
 
     /**
     * Returns the method of the algorithm
@@ -137,18 +142,6 @@ public:
      */
     services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
-    /**
-    * Gets parameter of the algorithm
-    * \return parameter of the algorithm
-    */
-    ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
-
-    /**
-    * Gets parameter of the algorithm
-    * \return parameter of the algorithm
-    */
-    const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
-
 protected:
     virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
@@ -164,10 +157,12 @@ protected:
     {
         Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
         _in                  = &input;
+        _par                 = &parameter;
     }
 
 public:
-    InputType input; /*!< %Input data structure */
+    InputType input;         /*!< %Input data structure */
+    ParameterType parameter; /*!< K-Means parameters structure */
 
 private:
     ResultPtr _result;
@@ -175,11 +170,7 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface2
-
-using interface2::BatchContainer;
-using interface2::Batch;
-
+} // namespace interface1
 } // namespace kmeans
 } // namespace algorithms
 } // namespace daal

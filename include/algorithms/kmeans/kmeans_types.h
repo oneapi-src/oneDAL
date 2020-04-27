@@ -124,46 +124,6 @@ enum ResultToComputeId
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
- */
-namespace interface1
-{
-/**
- * <a name="DAAL-STRUCT-ALGORITHMS__KMEANS__PARAMETER"></a>
- * \brief Parameters for K-Means algorithm
- * \par Enumerations
- *      - \ref DistanceType Methods for distance computation
- *
- * \snippet kmeans/kmeans_types.h Parameter source code
- */
-/* [Parameter source code] */
-struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
-{
-    /**
-     *  Constructs parameters of K-Means algorithm
-     *  \param[in] _nClusters   Number of clusters
-     *  \param[in] _maxIterations Number of iterations
-     */
-    Parameter(size_t _nClusters, size_t _maxIterations);
-
-    /**
-     *  Constructs parameters of K-Means algorithm by copying another parameters of K-Means algorithm
-     *  \param[in] other    Parameters of K-Means algorithm
-     */
-    Parameter(const Parameter & other);
-
-    size_t nClusters;          /*!< Number of clusters */
-    size_t maxIterations;      /*!< Number of iterations */
-    double accuracyThreshold;  /*!< Threshold for the termination of the algorithm */
-    double gamma;              /*!< Weight used in distance computation for categorical features */
-    DistanceType distanceType; /*!< Distance used in the algorithm */
-    bool assignFlag;           /*!< Do data points assignment */
-
-    services::Status check() const DAAL_C11_OVERRIDE;
-};
-/* [Parameter source code] */
-
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INPUTIFACE"></a>
  * \brief Interface for input objects for K-Means algorithm in the batch and distributed processing modes
  */
@@ -399,7 +359,7 @@ public:
     services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 
-} // namespace interface1
+} // namespace kmeans
 
 /**
  * \brief Contains version 2.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
@@ -453,8 +413,8 @@ using interface1::Result;
 using interface1::ResultPtr;
 using interface1::DistributedStep2MasterInput;
 
-} // namespace kmeans
-/** @} */
 } // namespace algorithms
+/** @} */
+} // namespace daal
 } // namespace daal
 #endif

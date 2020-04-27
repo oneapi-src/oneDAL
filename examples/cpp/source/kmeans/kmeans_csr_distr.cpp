@@ -115,8 +115,8 @@ int main(int argc, char * argv[])
     }
 
     /* Print the clusterization results */
-    printNumericTable(assignments[0], "First 10 cluster assignments from 1st node:", 10);
     printNumericTable(centroids, "First 10 dimensions of centroids:", 20, 10);
+    printNumericTable(assignments[0], "First 10 cluster assignments from 1st node:", 10);
     printNumericTable(objectiveFunction, "Objective function value:");
 
     return 0;
