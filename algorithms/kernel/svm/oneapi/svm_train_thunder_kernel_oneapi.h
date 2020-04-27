@@ -26,7 +26,6 @@
 #include "data_management/data/numeric_table.h"
 #include "algorithms/svm/svm_train_types.h"
 #include "algorithms/kernel/kernel.h"
-
 #include "algorithms/kernel/svm/oneapi/svm_helper_oneapi.h"
 
 namespace daal

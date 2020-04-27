@@ -22,7 +22,6 @@
 #include "service/kernel/oneapi/sorter.h"
 #include "service/kernel/oneapi/partition.h"
 #include "externals/service_ittnotify.h"
-
 #include "algorithms/kernel/svm/oneapi/cl_kernels/svm_kernels.cl"
 
 namespace daal

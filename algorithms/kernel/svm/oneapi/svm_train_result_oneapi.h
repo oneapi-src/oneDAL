@@ -177,8 +177,6 @@ protected:
     {
         services::Status status;
 
-        const algorithmFPType fpMax = MaxVal<algorithmFPType>::get();
-
         auto tmpValuesBuff = _tmpValues.get<algorithmFPType>();
         auto maskBuff      = _mask.get<uint32_t>();
 
@@ -197,8 +195,8 @@ protected:
         }
         else
         {
-            algorithmFPType ub = -fpMax;
-            algorithmFPType lb = fpMax;
+            algorithmFPType ub = -MaxVal<algorithmFPType>::get();
+            algorithmFPType lb = MaxVal<algorithmFPType>::get();
             {
                 DAAL_CHECK_STATUS(status, Helper::checkUpper(_yBuff, _coeffBuff, maskBuff, C, _nVectors));
                 size_t nUpper = 0;

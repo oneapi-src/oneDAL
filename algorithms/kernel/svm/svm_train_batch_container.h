@@ -25,7 +25,6 @@
 #include "algorithms/kernel/svm/svm_train_kernel.h"
 #include "algorithms/kernel/svm/svm_train_boser_kernel.h"
 #include "algorithms/classifier/classifier_training_types.h"
-
 #include "algorithms/kernel/svm/oneapi/svm_train_thunder_kernel_oneapi.h"
 
 namespace daal
@@ -38,6 +37,8 @@ namespace training
 {
 namespace interface2
 {
+using namespace daal::data_management;
+
 /**
 *  \brief Initialize list of SVM kernels with implementations for supported architectures
 */
@@ -78,7 +79,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();
-
     if (method == thunder && !deviceInfo.isCpu)
     {
         __DAAL_CALL_KERNEL_SYCL(env, internal::SVMTrainOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, svm::interface2::Parameter, method), compute,

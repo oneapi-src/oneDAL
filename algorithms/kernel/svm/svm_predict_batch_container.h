@@ -44,7 +44,6 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
 {
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();
-
     if (deviceInfo.isCpu)
     {
         __DAAL_INITIALIZE_KERNELS(internal::SVMPredictImpl, method, algorithmFPType);
@@ -76,7 +75,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();
-
     if (deviceInfo.isCpu)
     {
         __DAAL_CALL_KERNEL(env, internal::SVMPredictImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, m, *r, par);
