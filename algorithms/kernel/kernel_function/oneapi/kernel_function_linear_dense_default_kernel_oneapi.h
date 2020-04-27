@@ -45,21 +45,21 @@ template <Method method, typename algorithmFPType>
 class KernelImplLinearOneAPI : public Kernel
 {
 public:
-    services::Status compute(NumericTable * a1, NumericTable * a2, NumericTable * r, const ParameterBase * par);
+    services::Status compute(NumericTable * ntLeft, NumericTable * ntRight, NumericTable * result, const ParameterBase * par);
 };
 
 template <typename algorithmFPType>
 class KernelImplLinearOneAPI<defaultDense, algorithmFPType> : public Kernel
 {
 public:
-    services::Status compute(NumericTable * a1, NumericTable * a2, NumericTable * r, const ParameterBase * par)
+    services::Status compute(NumericTable * ntLeft, NumericTable * ntRight, NumericTable * result, const ParameterBase * par)
     {
         ComputationMode computationMode = par->computationMode;
         switch (computationMode)
         {
-        case vectorVector: return computeInternalVectorVector(a1, a2, r, par);
-        case matrixVector: return computeInternalMatrixVector(a1, a2, r, par);
-        case matrixMatrix: return computeInternalMatrixMatrix(a1, a2, r, par);
+        case vectorVector: return computeInternalVectorVector(ntLeft, ntRight, result, par);
+        case matrixVector: return computeInternalMatrixVector(ntLeft, ntRight, result, par);
+        case matrixMatrix: return computeInternalMatrixMatrix(ntLeft, ntRight, result, par);
         default: return services::ErrorIncorrectParameter;
         }
         return services::Status();
