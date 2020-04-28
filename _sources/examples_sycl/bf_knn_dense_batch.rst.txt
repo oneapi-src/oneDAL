@@ -1,3 +1,5 @@
+.. _bf_knn_dense_batch.cpp:
+
 bf_knn_dense_batch.cpp
 ######################
 

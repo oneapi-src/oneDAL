@@ -1,3 +1,5 @@
+.. _pca_cor_dense_batch.cpp:
+
 pca_cor_dense_batch.cpp
 #######################
 

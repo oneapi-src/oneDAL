@@ -1,3 +1,5 @@
+.. _cor_dense_batch.cpp:
+
 cor_dense_batch.cpp
 ###################
 

@@ -1,3 +1,5 @@
+.. _datastructures_usm.cpp:
+
 datastructures_usm.cpp
 ######################
 

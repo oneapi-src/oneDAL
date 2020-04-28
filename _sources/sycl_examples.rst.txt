@@ -14,7 +14,7 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-SYCL* Examples
+DPC++ Examples
 ##############
 
 .. toctree::

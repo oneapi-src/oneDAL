@@ -16,34 +16,29 @@
 
 Notices and Disclaimers
 =======================
-No license (express or implied, by estoppel or otherwise) to any intellectual property rights is granted
-by this document.
 
-This document contains information on products, services and/or processes in development. 
-All information provided here is subject to change without notice. 
-Contact your Intel representative to obtain the latest forecast, schedule, specifications and roadmaps.
+Intel technologies may require enabled hardware, software or service activation.
 
-Intel technologies' features and benefits depend on system configuration and may require enabled hardware, 
-software or service activation. Performance varies depending on system configuration. 
-No product or component can be absolutely secure. Check with your system manufacturer or retailer or learn more at [intel.com]. 
+No product or component can be absolutely secure.
 
-The products and services described may contain defects or errors which may cause deviations from
-published specifications. Current characterized errata are available on request.
+Your costs and results may vary.
 
-Intel disclaims all express and implied warranties, including without limitation, the implied warranties of
-merchantability, fitness for a particular purpose, and non-infringement, as well as any warranty arising
-from course of performance, course of dealing, or usage in trade.
+|copy| Intel Corporation.
+Intel, the Intel logo, and other Intel marks are trademarks of Intel Corporation or its subsidiaries.
+Other names and brands may be claimed as the property of others.
 
-Intel, the Intel logo and Xeon are trademarks of Intel Corporation in the U.S. and/or other countries.
+Intel's compilers may or may not optimize to the same degree for non-Intel microprocessors for optimizations that are not unique to Intel microprocessors.
+These optimizations include SSE2, SSE3, and SSSE3 instruction sets and other optimizations.
+Intel does not guarantee the availability, functionality, or effectiveness of any optimization on microprocessors not manufactured by Intel.
+Microprocessor-dependent optimizations in this product are intended for use with Intel microprocessors.
+Certain optimizations not specific to Intel microarchitecture are reserved for Intel microprocessors.
+Please refer to the applicable product User and Reference Guides for more information regarding the specific instruction sets covered by this notice.
 
-Microsoft, Windows, and the Windows logo are trademarks, or registered trademarks of Microsoft Corporation 
-in the United States and/or other countries.
+No license (express or implied, by estoppel or otherwise) to any intellectual property rights is granted by this document.
 
-OpenCL and the OpenCL logo are trademarks of Apple Inc. used by permission of The Khronos Group.
+The products described may contain design defects or errors known as errata which may cause the product to deviate from published specifications.
+Current characterized errata are available on request.
 
-\*Other names and brands may be claimed as the property of others.
-
-**© Intel Corporation.**
-
-.. include:: opt-notice.rst
+Intel disclaims all express and implied warranties, including without limitation, the implied warranties of merchantability,
+fitness for a particular purpose, and non-infringement, as well as any warranty arising from course of performance, course of dealing, or usage in trade.
 

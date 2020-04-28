@@ -25,7 +25,7 @@ Any developer should be able to quickly understand the code written by another d
 By ensuring **consistency** in the code base you save time and effort for both yourself and others.
 
 These guidelines cover our coding style along with more practical issues.
-To learn more about contribution process, see `How to Contribute <https://github.com/intel/daal/blob/master/CONTRIBUTING.md>`_.
+To learn more about contribution process, see `How to Contribute <https://github.com/oneapi-src/oneDAL/blob/master/CONTRIBUTING.md>`_.
 
 Coding Style
 ============
@@ -1462,7 +1462,7 @@ Below we discuss conversion between integer types in different cases:
 
 .. note:: Conversion of floating point data types is not a security problem.
 
-.. important:: It is required to add error code into `error_handling.cpp <https://github.com/intel/daal/blob/master/service/kernel/error_handling.cpp>`_.
+.. important:: It is required to add error code into `error_handling.cpp <https://github.com/oneapi-src/oneDAL/blob/master/service/kernel/error_handling.cpp>`_.
 
 Code is performance-oriented
 ++++++++++++++++++++++++++++

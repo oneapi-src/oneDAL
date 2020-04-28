@@ -1,3 +1,5 @@
+.. _sgd_mini_log_loss_dense_batch.cpp:
+
 sgd_mini_log_loss_dense_batch.cpp
 #################################
 

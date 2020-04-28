@@ -89,16 +89,67 @@ The library computes *Mean Decrease Impurity* (MDI) importance
 measure, also known as the *Gini importance* or *Mean Decrease
 Gini*, by using the Gini index as impurity metrics.
 
+Usage of Training Alternative
+=============================
+
+To build a Decision Forest Classification model using methods of the Model Builder class of Decision Forest Classification,
+complete the following steps:
+
+- Create a Decision Forest Classification model builder using a constructor with the required number of classes and trees.
+- Create a decision tree and add nodes to it:
+
+  - Use the ``createTree`` method with the required number of nodes in a tree and a label of the class for which the tree is created.
+  - Use the ``addSplitNode`` and ``addLeafNode`` methods to add split and leaf nodes to the created tree.
+    See the note below describing the decision tree structure.
+  - After you add all nodes to the current tree, proceed to creating the next one in the same way.
+
+- Use the ``getModel`` method to get the trained Decision Forest Classification model after all trees have been created.
+
+.. note::
+
+  Each tree consists of internal nodes (called non-leaf or split nodes) and external nodes (leaf nodes).
+  Each split node denotes a feature test that is a Boolean expression, for example,
+  f < ``featureValue`` or f = ``featureValue``, where f is a feature and ``featureValue`` is a constant. 
+  The test type depends on the feature type: continuous, categorical, or ordinal. 
+  For more information on the test types, see :ref:`decision_tree`.
+
+  The inducted decision tree is a binary tree, meaning that each non-leaf node has exactly two branches: true and false.
+  Each split node contains ``featureIndex``, the index of the feature used for the feature test in this node, and ``featureValue``,
+  the constant for the Boolean expression in the test. Each leaf node contains a ``classLabel``, the predicted class for this leaf.
+  For more information on decision trees, see :ref:`decision_tree`.
+
+  Add nodes to the created tree in accordance with the pre-calculated structure of the tree.
+  Check that the leaf nodes do not have children nodes and that the splits have exactly two children.
+
+Examples
+********
+
+.. tabs::
+
+  .. tab:: C++
+
+    - :cpp_example:`df_cls_dense_batch_model_builder.cpp <decision_forest/df_cls_dense_batch_model_builder.cpp>`
+    - :cpp_example:`df_cls_traversed_model_builder.cpp <decision_forest/df_cls_traversed_model_builder.cpp>`
+
+  .. tab:: Java*
+
+    - :java_example:`DfClsDenseBatchModelBuilder.java <decision_forest/DfClsDenseBatchModelBuilder.java>`
+    - :java_example:`DfClsTraversedModelBuilder.java <decision_forest/DfClsTraversedModelBuilder.java>`
+
+  .. tab:: Python*
+
+    - :daal4py_example:`df_cls_dense_batch_model_builder.py`
+    - :daal4py_example:`df_cls_traversed_model_builder.py`
 
 Batch Processing
 ================
 
-Decision forest classification follows the general workflow described in :ref:`decision_forest` and `Classification Usage Model <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction-1>`_.
+Decision forest classification follows the general workflow described in :ref:`decision_forest` and :ref:`classification_usage_model`.
 
 Training
 ********
 
-In addition to the parameters of a classifier (see `Classification Usage Model <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction-1>`_) and decision forest parameters
+In addition to the parameters of a classifier (see :ref:`classification_usage_model`) and decision forest parameters
 described in :ref:`df_batch`, the training algorithm for decision forest classification has the
 following parameters:
 
@@ -138,12 +189,12 @@ Output
 ******
 
 Decision forest classification calculates the result of regression
-and decision forest. For more details, refer to :ref:`df_batch` and `Classification Usage Model <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction-1>`_.
+and decision forest. For more details, refer to :ref:`df_batch` and :ref:`classification_usage_model`.
 
 Prediction
 **********
 
-For the description of the input and output, refer to `Classification Usage Model <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction-1>`_.
+For the description of the input and output, refer to :ref:`classification_usage_model`.
 
 In addition to the parameters of a classifier, decision forest
 classification has the following parameters at the prediction stage:
@@ -170,9 +221,19 @@ classification has the following parameters at the prediction stage:
 Examples
 ********
 
-C++: :cpp_example:`decision_forest/df_cls_dense_batch.cpp`
+.. tabs::
 
-Java*: :java_example:`decision_forest/DfClsDenseBatch.java`
+  .. tab:: C++
+
+    Batch Processing:
+
+    - :cpp_example:`df_cls_dense_batch.cpp <decision_forest/df_cls_dense_batch.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+    
+    - :java_example:`DfClsDenseBatch.java <decision_forest/DfClsDenseBatch.java>`
 
 .. Python*: df_cls_dense_batch.py
 

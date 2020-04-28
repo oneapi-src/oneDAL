@@ -1,3 +1,5 @@
+.. _pca_transform_dense_batch.cpp:
+
 pca_transform_dense_batch.cpp
 #############################
 

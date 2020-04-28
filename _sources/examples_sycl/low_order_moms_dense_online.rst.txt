@@ -1,3 +1,5 @@
+.. _low_order_moms_dense_online.cpp:
+
 low_order_moms_dense_online.cpp
 ###############################
 

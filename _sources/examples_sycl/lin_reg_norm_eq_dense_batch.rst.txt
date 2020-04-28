@@ -1,3 +1,5 @@
+.. _lin_reg_norm_eq_dense_batch.cpp:
+
 lin_reg_norm_eq_dense_batch.cpp
 ###############################
 
