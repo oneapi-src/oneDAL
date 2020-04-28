@@ -1,3 +1,5 @@
+.. _cor_dense_online.cpp:
+
 cor_dense_online.cpp
 ####################
 

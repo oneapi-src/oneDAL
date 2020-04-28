@@ -278,15 +278,17 @@ BFGS algorithm calculates the following optional results:
 Examples
 --------
 
-C++:
+.. tabs::
 
-- :cpp_example:`optimization_solvers/lbfgs_dense_batch.cpp`
-- :cpp_example:`optimization_solvers/lbfgs_opt_res_dense_batch.cpp`
+  .. tab:: C++
 
-Java*:
+    - :cpp_example:`lbfgs_dense_batch.cpp <optimization_solvers/lbfgs_dense_batch.cpp>`
+    - :cpp_example:`lbfgs_opt_res_dense_batch.cpp <optimization_solvers/lbfgs_opt_res_dense_batch.cpp>`
 
-- :java_example:`optimization_solvers/LBFGSDenseBatch.java`
-- :java_example:`optimization_solvers/LBFGSOptResDenseBatch.java`
+  .. tab:: Java*
+
+  - :java_example:`LBFGSDenseBatch.java <optimization_solvers/LBFGSDenseBatch.java>`
+  - :java_example:`LBFGSOptResDenseBatch.java <optimization_solvers/LBFGSOptResDenseBatch.java>`
 
 .. Python*:
 

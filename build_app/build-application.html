@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Build application with oneDAL &mdash; Intel&amp;reg; oneAPI Data Analytics Library Documentation 1.0 documentation</title>
+  <title>Build applications with oneDAL &mdash; Intel&amp;reg; oneAPI Data Analytics Library Documentation (Beta) 1.0 documentation</title>
   
 
   
@@ -53,7 +53,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home"> Intel&reg; oneAPI Data Analytics Library Documentation
+            <a href="../index.html" class="icon icon-home"> Intel&reg; oneAPI Data Analytics Library Documentation (Beta)
           
 
           
@@ -92,7 +92,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../getstarted.html#build-and-run-examples">Build and Run Examples</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Build application with oneDAL</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Build applications with oneDAL</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#applications-on-windows">Applications on Windows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#applications-on-linux">Applications on Linux</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
@@ -115,6 +115,22 @@
 <li class="toctree-l3"><a class="reference internal" href="../dev_guide/usage/computation-modes.html#batch-processing">Batch processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../dev_guide/usage/computation-modes.html#online-processing">Online processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../dev_guide/usage/computation-modes.html#distributed-processing">Distributed processing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/usage/training-and-prediction/index.html">Training and Prediction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/usage/training-and-prediction/classification.html">Classification Usage Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/usage/training-and-prediction/classification.html#algorithm-specific-parameters">Algorithm-Specific Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/usage/training-and-prediction/classification.html#training-stage">Training Stage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/usage/training-and-prediction/classification.html#prediction-stage">Prediction Stage</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/usage/training-and-prediction/regression.html">Regression Usage Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/usage/training-and-prediction/regression.html#algorithm-specific-parameters">Algorithm-Specific Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/usage/training-and-prediction/regression.html#training-stage">Training Stage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/usage/training-and-prediction/regression.html#prediction-stage">Prediction Stage</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/usage/training-and-prediction/recommendation-systems.html">Recommendation Systems Usage Model</a></li>
 </ul>
 </li>
 </ul>
@@ -170,12 +186,15 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/kmeans/k-means-clustering.html#initialization">Initialization</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/kmeans/k-means-clustering.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/kmeans/k-means-clustering.html#distributed-processing">Distributed Processing</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/kmeans/k-means-clustering.html#id8">Computation</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/kmeans/k-means-clustering.html#id9">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/kmeans/k-means-clustering.html#id10">Distributed Processing</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/kmeans/k-means-clustering.html#examples">Examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/kmeans/k-means-clustering.html#performance-considerations">Performance Considerations</a></li>
 </ul>
 </li>
@@ -186,6 +205,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/dbscan/computation-distributed.html">Distributed Processing</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/dbscan/index.html#examples">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/covariance/correlation-and-variance-covariance-matrices.html">Correlation and Variance-Covariance Matrices</a><ul>
@@ -194,9 +214,11 @@
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/covariance/correlation-and-variance-covariance-matrices.html#algorithm-input">Algorithm Input</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/covariance/correlation-and-variance-covariance-matrices.html#algorithm-parameters">Algorithm Parameters</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/covariance/correlation-and-variance-covariance-matrices.html#algorithm-output">Algorithm Output</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/covariance/correlation-and-variance-covariance-matrices.html#examples">Examples</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/covariance/correlation-and-variance-covariance-matrices.html#online-processing">Online Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/covariance/correlation-and-variance-covariance-matrices.html#distributed-processing">Distributed Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/covariance/correlation-and-variance-covariance-matrices.html#examples">Examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/covariance/correlation-and-variance-covariance-matrices.html#performance-considerations">Performance Considerations</a></li>
 </ul>
 </li>
@@ -206,15 +228,23 @@
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/pca/principal-component-analysis.html#algorithm-input">Algorithm Input</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/pca/principal-component-analysis.html#algorithm-parameters">Algorithm Parameters</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/pca/principal-component-analysis.html#algorithm-output">Algorithm Output</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/pca/principal-component-analysis.html#examples">Examples</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/pca/principal-component-analysis.html#online-processing">Online Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/pca/principal-component-analysis.html#distributed-processing">Distributed Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/pca/principal-component-analysis.html#examples">Examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/pca/principal-component-analysis.html#performance-considerations">Performance Considerations</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/pca/principal-component-analysis.html#id2">Batch Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/pca/principal-component-analysis.html#online-processing">Online Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/pca/principal-component-analysis.html#distributed-processing">Distributed Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/pca/principal-component-analysis.html#id3">Online Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/pca/principal-component-analysis.html#id4">Distributed Processing</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/pca/transform.html">Principal Components Analysis Transform</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/pca/transform.html#details">Details</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/pca/transform.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/pca/transform.html#dpc-examples">DPC++ Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/svd/singular-value-decomposition.html">Singular Value Decomposition</a><ul>
@@ -223,9 +253,10 @@
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svd/singular-value-decomposition.html#algorithm-input">Algorithm Input</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svd/singular-value-decomposition.html#algorithm-parameters">Algorithm Parameters</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svd/singular-value-decomposition.html#algorithm-output">Algorithm Output</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svd/singular-value-decomposition.html#examples">Examples</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/svd/singular-value-decomposition.html#distributed-processing">Distributed Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/svd/singular-value-decomposition.html#examples">Examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/svd/singular-value-decomposition.html#performance-considerations">Performance Considerations</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svd/singular-value-decomposition.html#online-processing">Online Processing</a></li>
 </ul>
@@ -253,6 +284,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/kernel_function/kernel-functions.html#radial-basis-function-kernel">Radial Basis Function Kernel</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/kernel_function/kernel-functions.html#id1">Problem Statement</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/kernel_function/kernel-functions.html#id2">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/kernel_function/kernel-functions.html#id6">Examples</a></li>
 </ul>
 </li>
 </ul>
@@ -274,6 +306,76 @@
 <li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/em/expectation-maximization.html#performance-considerations">Performance Considerations</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/cholesky/cholesky.html">Cholesky Decomposition</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/cholesky/cholesky.html#details">Details</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/cholesky/cholesky.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/cholesky/cholesky.html#performance-considerations">Performance Considerations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/qr/qr-decomposition.html">QR Decomposition</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/qr/qr-without-pivoting.html">QR Decomposition without Pivoting</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/qr/qr-without-pivoting.html#batch-and-online-processing">Batch and Online Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/qr/qr-without-pivoting.html#distributed-processing">Distributed Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/qr/qr-pivoted.html">Pivoted QR Decomposition</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/qr/qr-pivoted.html#batch-processing">Batch Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/qr/qr-decomposition.html#performance-considerations">Performance Considerations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/qr/qr-decomposition.html#online-processing">Online Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/qr/qr-decomposition.html#distributed-processing">Distributed Processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/outlier_detection/index.html">Outlier Detection</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/outlier_detection/multivariate.html">Multivariate Outlier Detection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/outlier_detection/multivariate-bacon.html">Multivariate BACON Outlier Detection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/outlier_detection/univariate.html">Univariate Outlier Detection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/distance/index.html">Distance Matrix</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/distance/correlation.html">Correlation Distance Matrix</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/distance/correlation.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/distance/correlation.html#performance-considerations">Performance Considerations</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/distance/cosine.html">Cosine Distance Matrix</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/distance/cosine.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/distance/cosine.html#performance-considerations">Performance Considerations</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/distributions/index.html">Distributions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/engines/index.html">Engines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/moments/moments-of-low-order.html">Moments of Low Order</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/moments/moments-of-low-order.html#details">Details</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/moments/moments-of-low-order.html#computation">Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/moments/computation-batch.html">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/moments/computation-online.html">Online Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/moments/computation-distributed.html">Distributed Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/moments/moments-of-low-order.html#dpc-examples">DPC++ Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/quantiles/index.html">Quantile</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/quantiles/index.html#details">Details</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/quantiles/index.html#batch-processing">Batch Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/quality_metrics/index.html">Quality Metrics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/quality_metrics/default-metric-set.html">Working with the Default Metric Set</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/quality_metrics/user-defined.html">Working with User-defined Quality Metrics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/sorting/index.html">Sorting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/sorting/index.html#batch-processing">Batch Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/normalization/index.html">Normalization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/optimization-solvers/optimization-solvers.html">Optimization Solvers</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/optimization-solvers/objective-function.html">Objective Function</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/optimization-solvers/objective-functions/computation.html">Computation</a></li>
@@ -312,6 +414,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/decision_forest/decision-forest-classification.html">Classification Decision Forest</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/decision_forest/decision-forest-classification.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/decision_forest/decision-forest-classification.html#usage-of-training-alternative">Usage of Training Alternative</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/decision_forest/decision-forest-classification.html#batch-processing">Batch Processing</a></li>
 </ul>
 </li>
@@ -342,53 +445,37 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/gradient_boosted_trees/gradient-boosted-trees-regression.html">Regression Gradient Boosted Trees</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/gradient_boosted_trees/gradient-boosted-trees-regression.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/gradient_boosted_trees/gradient-boosted-trees-regression.html#usage-of-training-alternative">Usage of Training Alternative</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/gradient_boosted_trees/gradient-boosted-trees-regression.html#batch-processing">Batch Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/gradient_boosted_trees/gradient-boosted-trees-regression.html#examples">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/gradient_boosted_trees/gradient-boosted-trees-regression.html#id1">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/gradient_boosted_trees/gradient-boosted-trees-classification.html">Classification Gradient Boosted Trees</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/gradient_boosted_trees/gradient-boosted-trees-classification.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/gradient_boosted_trees/gradient-boosted-trees-classification.html#usage-of-training-alternative">Usage of Training Alternative</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/gradient_boosted_trees/gradient-boosted-trees-classification.html#batch-processing">Batch Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/gradient_boosted_trees/gradient-boosted-trees-classification.html#examples">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/gradient_boosted_trees/gradient-boosted-trees-classification.html#id1">Examples</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html">k-Nearest Neighbors (kNN) Classifier</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#details">Details</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training-stage">Training Stage</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction-stage">Prediction Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/stump/index.html">Stump</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/stump/classification.html">Classification Stump</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/stump/classification.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/stump/classification.html#examples">Examples</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#batch-processing">Batch Processing</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training">Training</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction">Prediction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#examples">Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/stump/regression.html">Regression Stump</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/stump/regression.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/stump/regression.html#examples">Examples</a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html">Implicit Alternating Least Squares</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#details">Details</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#initialization-stage">Initialization Stage</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#training-stage">Training Stage</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#prediction-stage">Prediction Stage</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#initialization">Initialization</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#batch-processing">Batch Processing</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#computation">Computation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#id1">Batch Processing</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#performance-considerations">Performance Considerations</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/linear_ridge_regression/index.html">Linear and Ridge Regressions</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/linear_ridge_regression/linear-regression.html">Linear Regression</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/linear_ridge_regression/linear-regression.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/linear_ridge_regression/linear-regression.html#usage-of-training-alternative">Usage of Training Alternative</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/linear_ridge_regression/ridge-regression.html">Ridge Regression</a><ul>
@@ -397,6 +484,8 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/linear_ridge_regression/linear-ridge-regression-computation.html">Linear and Ridge Regressions Computation</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/linear_ridge_regression/linear-ridge-regression-computation.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/linear_ridge_regression/linear-ridge-regression-computation.html#online-processing">Online Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/linear_ridge_regression/linear-ridge-regression-computation.html#distributed-processing">Distributed Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/linear_ridge_regression/linear-ridge-regression-computation.html#examples">Examples</a></li>
 </ul>
 </li>
@@ -418,10 +507,46 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html">k-Nearest Neighbors (kNN) Classifier</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#details">Details</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training-stage">Training Stage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction-stage">Prediction Stage</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#batch-processing">Batch Processing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training">Training</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction">Prediction</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html">Implicit Alternating Least Squares</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#details">Details</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#initialization-stage">Initialization Stage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#training-stage">Training Stage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#prediction-stage">Prediction Stage</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#initialization">Initialization</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#batch-processing">Batch Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#computation">Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#id1">Batch Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#performance-considerations">Performance Considerations</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/logistic_regression/logistic-regression.html">Logistic Regression</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/logistic_regression/logistic-regression.html#details">Details</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/logistic_regression/logistic-regression.html#training-stage">Training Stage</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/logistic_regression/logistic-regression.html#prediction-stage">Prediction Stage</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/logistic_regression/logistic-regression.html#usage-of-training-alternative">Usage of Training Alternative</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/logistic_regression/logistic-regression.html#examples">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/logistic_regression/logistic-regression.html#batch-processing">Batch Processing</a><ul>
@@ -430,7 +555,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/logistic_regression/logistic-regression.html#output">Output</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/logistic_regression/logistic-regression.html#examples">Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/logistic_regression/logistic-regression.html#id5">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/naive_bayes/naive-bayes-classifier.html">Naïve Bayes Classifier</a><ul>
@@ -442,9 +567,11 @@
 <li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/naive_bayes/naive-bayes-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/naive_bayes/naive-bayes-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/naive_bayes/naive-bayes-classifier.html#prediction">Prediction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/naive_bayes/naive-bayes-classifier.html#examples">Examples</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/naive_bayes/naive-bayes-classifier.html#online-processing">Online Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/naive_bayes/naive-bayes-classifier.html#distributed-processing">Distributed Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/naive_bayes/naive-bayes-classifier.html#examples">Examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/naive_bayes/naive-bayes-classifier.html#performance-considerations">Performance Considerations</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/naive_bayes/naive-bayes-classifier.html#id2">Training Stage</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/naive_bayes/naive-bayes-classifier.html#id3">Prediction Stage</a></li>
@@ -458,10 +585,14 @@
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm/support-vector-machine-classifier.html#prediction-stage">Prediction Stage</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/svm/support-vector-machine-classifier.html#usage-of-training-alternative">Usage of Training Alternative</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm/support-vector-machine-classifier.html#examples">Examples</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/svm/support-vector-machine-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm/support-vector-machine-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm/support-vector-machine-classifier.html#prediction">Prediction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm/support-vector-machine-classifier.html#examples">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm/support-vector-machine-classifier.html#id4">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/svm/support-vector-machine-classifier.html#performance-considerations">Performance Considerations</a></li>
@@ -473,14 +604,44 @@
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#prediction-stage">Prediction Stage</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#batch-processing">Batch Processing</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#training">Training</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#usage-of-training-alternative">Usage of Training Alternative</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#examples">Examples</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#batch-processing">Batch Processing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#training">Training</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#id4">Examples</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/boosting/index.html">Boosting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/boosting/adaboost.html">AdaBoost Classifier</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/boosting/adaboost.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/boosting/adaboost.html#batch-processing">Batch Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/boosting/adaboost-multiclass.html">AdaBoost Multiclass Classifier</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/boosting/adaboost-multiclass.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/boosting/adaboost-multiclass.html#samme-method">SAMME method</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/boosting/adaboost-multiclass.html#samme-r-method">SAMME.R method</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/boosting/adaboost-multiclass.html#batch-processing">Batch Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/boosting/brownboost.html">BrownBoost Classifier</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/boosting/brownboost.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/boosting/brownboost.html#batch-processing">Batch Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/boosting/logitboost.html">LogitBoost Classifier</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/boosting/logitboost.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/boosting/logitboost.html#batch-processing">Batch Processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/training-prediction.html#training-alternative">Training Alternative</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../dev_guide/services/services.html">Services</a><ul>
@@ -504,12 +665,13 @@
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../sycl_examples.html">SYCL* Examples</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../sycl_examples.html">DPC++ Examples</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../examples_sycl/bf_knn_dense_batch.html">bf_knn_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples_sycl/cor_dense_batch.html">cor_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples_sycl/cor_dense_online.html">cor_dense_online.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples_sycl/datastructures_soa.html">datastructures_soa.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples_sycl/datastructures_usm.html">datastructures_usm.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples_sycl/dbscan_dense_batch.html">dbscan_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples_sycl/gbt_reg_dense_batch.html">gbt_reg_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples_sycl/kmeans_dense_batch.html">kmeans_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples_sycl/kmeans_init_dense_batch.html">kmeans_init_dense_batch.cpp</a></li>
@@ -528,8 +690,28 @@
 <p class="caption"><span class="caption-text">Notes</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../notes/known_issues.html">Known Issues</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../notes/known_issues.html#dll-file-not-found">DLL file not found</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../notes/known_issues.html#how-to-fix">How to Fix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notes/issues/2021.1-beta06/dpcpp-examples-in-vs2017.html">DPC++ examples not working</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../notes/issues/2021.1-beta06/dpcpp-examples-in-vs2017.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../notes/issues/2021.1-beta06/incorrect-linker-behavior.html">Incorrect linker behavior</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../notes/issues/2021.1-beta06/incorrect-linker-behavior.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../notes/issues/2021.1-beta06/level-zero-not-found.html">Level Zero runtime dependency</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../notes/issues/2021.1-beta06/level-zero-not-found.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../notes/issues/2021.1-beta06/performance-degradations.html">Potential performance degradations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../notes/issues/2021.1-beta06/performance-degradations.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../notes/issues/2021.1-beta06/undeclared-identifier.html">Undeclared identifier <code class="docutils literal notranslate"><span class="pre">CL_DEVICE_IL_VERSION_KHR</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../notes/issues/2021.1-beta06/undeclared-identifier.html#how-to-fix">How to fix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../notes/issues/2021.1-beta04/dll-file-not-found.html">DLL file not found</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../notes/issues/2021.1-beta04/dll-file-not-found.html#how-to-fix">How to Fix</a></li>
 </ul>
 </li>
 </ul>
@@ -637,7 +819,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">Intel&reg; oneAPI Data Analytics Library Documentation</a>
+          <a href="../index.html">Intel&reg; oneAPI Data Analytics Library Documentation (Beta)</a>
         
       </nav>
 
@@ -668,7 +850,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>Build application with oneDAL</li>
+      <li>Build applications with oneDAL</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -687,28 +869,37 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="build-application-with-onedal">
-<h1>Build application with oneDAL<a class="headerlink" href="#build-application-with-onedal" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="build-applications-with-onedal">
+<h1>Build applications with oneDAL<a class="headerlink" href="#build-applications-with-onedal" title="Permalink to this headline">¶</a></h1>
 <p>See Get Started Guides for <a class="reference external" href="https://software.intel.com/en-us/get-started-with-daal-for-windows">Windows*</a>
 and <a class="reference external" href="https://software.intel.com/en-us/get-started-with-daal-for-linux">Linux*</a>
 for instruction on how to build applications for C++.
 This section contains instructions for building applications with oneDAL for SYCL*.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you encounter a problem while building an application with oneDAL,
+refer to the list of <a class="reference internal" href="../notes/known_issues.html#known-issues"><span class="std std-ref">known issues</span></a>.</p>
+</div>
+<ul class="simple">
+<li><p><a class="reference internal" href="#applications-on-windows">Applications on Windows</a></p></li>
+<li><p><a class="reference internal" href="#applications-on-linux">Applications on Linux</a></p></li>
+</ul>
 <div class="section" id="applications-on-windows">
 <h2>Applications on Windows<a class="headerlink" href="#applications-on-windows" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic">
 <li><p>Download and install Intel® oneAPI Base Toolkit.</p></li>
 <li><p>In Microsoft Visual Studio* Integrated Development environment (IDE),
 open or create a C++ project for your oneDAL application to build.</p></li>
-<li><p>In project properties set “Intel(R) oneAPI DPC++ Compiler” platform toolset:</p>
+<li><p>In project properties set Intel® oneAPI DPC++ Compiler platform toolset:</p>
 <a class="reference internal image-reference" href="../_images/MSVSPlatformToolset.jpg"><img alt="../_images/MSVSPlatformToolset.jpg" class="align-center" src="../_images/MSVSPlatformToolset.jpg" style="width: 600px;" /></a>
 </li>
-<li><p>In project properties add oneDAL includes folder to Additional Include Directories:</p>
+<li><p>In project properties add oneDAL <code class="docutils literal notranslate"><span class="pre">includes</span></code> folder to <span class="guilabel">Additional Include Directories</span>:</p>
 <a class="reference internal image-reference" href="../_images/AdditionalIncludeDirs.jpg"><img alt="../_images/AdditionalIncludeDirs.jpg" class="align-center" src="../_images/AdditionalIncludeDirs.jpg" style="width: 600px;" /></a>
 </li>
-<li><p>In project properties add oneDAL and TBB libraries folders to Library Directories:</p>
+<li><p>In project properties add folders with oneDAL and TBB libraries to <span class="guilabel">Library Directories</span>:</p>
 <a class="reference internal image-reference" href="../_images/LibraryDirectories.jpg"><img alt="../_images/LibraryDirectories.jpg" class="align-center" src="../_images/LibraryDirectories.jpg" style="width: 600px;" /></a>
 </li>
-<li><p>In project properties add oneDAL and OpenCL libraries to Additional Dependencies:</p>
+<li><p>In project properties add oneDAL and OpenCL libraries to <span class="guilabel">Additional Dependencies</span>:</p>
 <a class="reference internal image-reference" href="../_images/AdditionalDependencies.jpg"><img alt="../_images/AdditionalDependencies.jpg" class="align-center" src="../_images/AdditionalDependencies.jpg" style="width: 600px;" /></a>
 </li>
 <li><p>Add the appropriate libraries to your project based on oneDAL threading mode and linking method:</p>
@@ -742,23 +933,31 @@ open or create a C++ project for your oneDAL application to build.</p></li>
 </div>
 <div class="section" id="applications-on-linux">
 <h2>Applications on Linux<a class="headerlink" href="#applications-on-linux" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Known issues that you might encounter:</p>
+<ul class="simple">
+<li><p>Static linking results in <a class="reference internal" href="../notes/issues/2021.1-beta06/incorrect-linker-behavior.html#issue-incorrect-linker-behavior"><span class="std std-ref">incorrect linker behavior</span></a></p></li>
+<li><p><a class="reference internal" href="../notes/issues/2021.1-beta06/level-zero-not-found.html#issue-level-zero"><span class="std std-ref">No Level Zero in your environment</span></a></p></li>
+</ul>
+</div>
 <ol class="arabic">
 <li><p>Download and install Intel® oneAPI Base Toolkit.</p></li>
 <li><p>Set environment variables by calling <code class="docutils literal notranslate"><span class="pre">&lt;install</span> <span class="pre">dir&gt;/setvars.sh</span></code>.</p></li>
 <li><p>Build your application with clang++:</p>
 <ul>
 <li><p>Add <code class="docutils literal notranslate"><span class="pre">fsycl</span></code> option to the command:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span><span class="n">fsycl</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>-fsycl
 </pre></div>
 </div>
 </li>
 <li><p>Add <code class="docutils literal notranslate"><span class="pre">ONEAPI_DAAL_USE_MKL_GPU_GEMM</span></code> definition:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span><span class="n">DONEAPI_DAAL_USE_MKL_GPU_GEMM</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>-DONEAPI_DAAL_USE_MKL_GPU_GEMM
 </pre></div>
 </div>
 </li>
-<li><p>Add oneDAL includes folder:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span><span class="n">I</span><span class="o">&lt;</span><span class="n">install</span> <span class="nb">dir</span><span class="o">&gt;/</span><span class="n">daal</span><span class="o">/</span><span class="n">latest</span><span class="o">/</span><span class="n">include</span>
+<li><p>Add oneDAL <code class="docutils literal notranslate"><span class="pre">includes</span></code> folder:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>-I&lt;install dir&gt;/daal/latest/include
 </pre></div>
 </div>
 </li>
@@ -793,7 +992,7 @@ open or create a C++ project for your oneDAL application to build.</p></li>
 <blockquote>
 <div><ul>
 <li><p>Add an additional oneDAL library:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span><span class="n">foffload</span><span class="o">-</span><span class="n">static</span><span class="o">-</span><span class="n">lib</span><span class="o">=&lt;</span><span class="n">install</span> <span class="nb">dir</span><span class="o">&gt;/</span><span class="n">daal</span><span class="o">/</span><span class="n">latest</span><span class="o">/</span><span class="n">libintel64</span><span class="o">/</span><span class="n">libdaal_sycl</span><span class="o">.</span><span class="n">a</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>-foffload-static-lib=&lt;install dir&gt;/daal/latest/libintel64/libdaal_sycl.a
 </pre></div>
 </div>
 </li>
@@ -802,13 +1001,13 @@ open or create a C++ project for your oneDAL application to build.</p></li>
 <div class="section" id="examples">
 <h3>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h3>
 <p>Dynamic linking, Multi-threaded oneDAL:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">clang</span><span class="o">++</span> <span class="o">-</span><span class="n">fsycl</span> <span class="o">-</span><span class="n">DONEAPI_DAAL_USE_MKL_GPU_GEMM</span> <span class="n">my_first_daal_program</span><span class="o">.</span><span class="n">cpp</span> <span class="o">-</span><span class="n">Wl</span><span class="p">,</span>
-<span class="o">--</span><span class="n">start</span><span class="o">-</span><span class="n">group</span> <span class="o">-</span><span class="n">L</span><span class="o">&lt;</span><span class="n">install</span> <span class="nb">dir</span><span class="o">&gt;/</span><span class="n">daal</span><span class="o">/</span><span class="n">latest</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">intel64</span> <span class="o">-</span><span class="n">ldaal_core</span> <span class="o">-</span><span class="n">ldaal_thread</span><span class="o">.</span><span class="n">so</span> <span class="o">-</span><span class="n">lpthread</span> <span class="o">-</span><span class="n">ldl</span> <span class="o">-</span><span class="n">lOpenCL</span> <span class="o">-</span><span class="n">L</span><span class="o">&lt;</span><span class="n">install</span> <span class="nb">dir</span><span class="o">&gt;/</span><span class="n">tbb</span><span class="o">/</span><span class="n">latest</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">intel64</span><span class="o">/</span><span class="n">gcc4</span><span class="o">.</span><span class="mi">8</span> <span class="o">-</span><span class="n">ltbb</span> <span class="o">-</span><span class="n">ltbbmalloc</span> <span class="o">-</span><span class="n">foffload</span><span class="o">-</span><span class="n">static</span><span class="o">-</span><span class="n">lib</span><span class="o">=&lt;</span><span class="n">install</span> <span class="nb">dir</span><span class="o">&gt;/</span><span class="n">daal</span><span class="o">/</span><span class="n">latest</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">intel64</span><span class="o">/</span><span class="n">libdaal_sycl</span><span class="o">.</span><span class="n">a</span> <span class="o">-</span><span class="n">Wl</span><span class="p">,</span><span class="o">--</span><span class="n">end</span><span class="o">-</span><span class="n">group</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>clang++ -fsycl -DONEAPI_DAAL_USE_MKL_GPU_GEMM my_first_daal_program.cpp -Wl,
+--start-group -L&lt;install dir&gt;/daal/latest/lib/intel64 -ldaal_core -ldaal_thread.so -lpthread -ldl -lOpenCL -L&lt;install dir&gt;/tbb/latest/lib/intel64/gcc4.8 -ltbb -ltbbmalloc -foffload-static-lib=&lt;install dir&gt;/daal/latest/lib/intel64/libdaal_sycl.a -Wl,--end-group
 </pre></div>
 </div>
 <p>Static linking, Single-threaded oneDAL:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">clang</span><span class="o">++</span> <span class="o">-</span><span class="n">fsycl</span> <span class="o">-</span><span class="n">DONEAPI_DAAL_USE_MKL_GPU_GEMM</span> <span class="n">my_first_daal_program</span><span class="o">.</span><span class="n">cpp</span> <span class="o">-</span><span class="n">Wl</span><span class="p">,</span>
-<span class="o">--</span><span class="n">start</span><span class="o">-</span><span class="n">group</span> <span class="o">&lt;</span><span class="n">install</span> <span class="nb">dir</span><span class="o">&gt;/</span><span class="n">daal</span><span class="o">/</span><span class="n">latest</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">intel64</span><span class="o">/</span><span class="n">libdaal_core</span><span class="o">.</span><span class="n">a</span> <span class="o">&lt;</span><span class="n">install</span> <span class="nb">dir</span><span class="o">&gt;/</span><span class="n">daal</span><span class="o">/</span><span class="n">latest</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">intel64</span><span class="o">/</span><span class="n">libdaal_sequential</span><span class="o">.</span><span class="n">a</span> <span class="o">-</span><span class="n">lpthread</span> <span class="o">-</span><span class="n">ldl</span> <span class="o">-</span><span class="n">lOpenCL</span> <span class="o">-</span><span class="n">foffload</span><span class="o">-</span><span class="n">static</span><span class="o">-</span><span class="n">lib</span><span class="o">=&lt;</span><span class="n">install</span> <span class="nb">dir</span><span class="o">&gt;/</span><span class="n">daal</span><span class="o">/</span><span class="n">latest</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">intel64</span><span class="o">/</span><span class="n">libdaal_sycl</span><span class="o">.</span><span class="n">a</span> <span class="o">-</span><span class="n">Wl</span><span class="p">,</span><span class="o">--</span><span class="n">end</span><span class="o">-</span><span class="n">group</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>clang++ -fsycl -DONEAPI_DAAL_USE_MKL_GPU_GEMM my_first_daal_program.cpp -Wl,
+--start-group &lt;install dir&gt;/daal/latest/lib/intel64/libdaal_core.a &lt;install dir&gt;/daal/latest/lib/intel64/libdaal_sequential.a -lpthread -ldl -lOpenCL -foffload-static-lib=&lt;install dir&gt;/daal/latest/lib/intel64/libdaal_sycl.a -Wl,--end-group
 </pre></div>
 </div>
 </div>

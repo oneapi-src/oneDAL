@@ -20,7 +20,6 @@ Batch Processing
 - `Algorithm Parameters`_
 - `Algorithm Input`_
 - `Algorithm Output`_
-- `Examples`_
 
 Algorithm Parameters
 ********************
@@ -123,9 +122,3 @@ For more details, see :ref:`algorithms`.
     but you can define the result as an object of any class derived from ``NumericTable``
     except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
 
-Examples
-********
-
-- :cpp_example:`C++ <dbscan/dbscan_dense_batch.cpp>`
-- :java_example:`Java* <dbscan/DBSCANDenseBatch.java>`
-- :daal4py_example:`Python* <dbscan_batch.py>`

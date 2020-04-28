@@ -36,8 +36,6 @@ use the general schema described in :ref:`algorithms` as follows:
 - `Step 12 - on Local Nodes`_
 - `Step 13 - on Local Nodes`_
 
-You can find the links to `examples`_ at the end of this page.
-
 .. _dbscan_step_1:
 
 Step 1 - on Local Nodes
@@ -129,9 +127,3 @@ Step 13 - on Local Nodes
 
 .. include:: ./distributed-steps/step-13.rst
 
-Examples
-********
-
-- :cpp_example:`C++ <dbscan/dbscan_dense_distr.cpp>`
-- :java_example:`Java* <dbscan/DBSCANDenseDistr.java>`
-- :daal4py_example:`Python* <dbscan_spmd.py>`

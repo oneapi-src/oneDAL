@@ -1,3 +1,5 @@
+.. _log_reg_dense_batch.cpp:
+
 log_reg_dense_batch.cpp
 #######################
 

@@ -1,3 +1,5 @@
+.. _kmeans_dense_batch.cpp:
+
 kmeans_dense_batch.cpp
 ######################
 

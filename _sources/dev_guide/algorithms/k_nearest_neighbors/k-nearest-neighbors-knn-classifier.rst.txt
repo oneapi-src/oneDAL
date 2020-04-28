@@ -118,7 +118,7 @@ Batch Processing
 ================
 
 kNN classification follows the general workflow described in
-`Classification Usage Model <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction-1>`_.
+:ref:`classification_usage_model`.
 
 Training
 --------
@@ -196,10 +196,27 @@ following parameters:
      - The number of neighbors.
 
 Examples
---------
+========
 
-C++: :cpp_example:`k_nearest_neighbors/kdtree_knn_dense_batch.cpp`
+.. tabs::
 
-Java*: :java_example:`kdtree_knn_classification/KDTreeKNNDenseBatch.java`
+  .. tab:: DPC++
+
+    Batch Processing:
+
+    - :ref:`bf_knn_dense_batch.cpp`
+  
+  .. tab:: C++
+
+    Batch Processing:
+
+    - :cpp_example:`kdtree_knn_dense_batch.cpp <k_nearest_neighbors/kdtree_knn_dense_batch.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+
+    - :java_example:`KDTreeKNNDenseBatch.java <kdtree_knn_classification/KDTreeKNNDenseBatch.java>`
+
 
 .. Python*: kdtree_knn_dense_batch.py
