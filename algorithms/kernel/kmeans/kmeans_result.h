@@ -67,7 +67,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
         {
             set(centroids, HomogenNumericTable<algorithmFPType>::create(nFeatures, nClusters, NumericTable::doAllocate, &status));
         }
-        if (kmPar->resultsToEvaluate & computeAssignments && kmPar->assignFlag /* For static BC */)
+        if (kmPar->resultsToEvaluate & computeAssignments)
         {
             size_t nRows = algInput->get(data)->getNumberOfRows();
             set(assignments, HomogenNumericTable<int>::create(1, nRows, NumericTable::doAllocate, &status));

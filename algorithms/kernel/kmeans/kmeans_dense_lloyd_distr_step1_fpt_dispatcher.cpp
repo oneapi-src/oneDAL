@@ -41,14 +41,7 @@ DistributedType::Distributed(size_t nClusters, bool assignFlag)
 {
     _par = new ParameterType(nClusters, 1);
     initialize();
-    if (assignFlag)
-    {
-        parameter().resultsToEvaluate |= kmeans::computeAssignments;
-    }
-    else
-    {
-        parameter().resultsToEvaluate &= ~(parameter().resultsToEvaluate & kmeans::computeAssignments);
-    }
+    if (!assignFlag) parameter().assignFlag = false;
 }
 
 template <>

@@ -70,7 +70,6 @@ services::Status Parameter::check() const
     DAAL_CHECK_EX(nClusters > 0, ErrorIncorrectParameter, ParameterName, nClustersStr());
     DAAL_CHECK_EX(accuracyThreshold >= 0, ErrorIncorrectParameter, ParameterName, accuracyThresholdStr());
     DAAL_CHECK_EX(gamma >= 0, ErrorIncorrectParameter, ParameterName, gammaStr());
-    // DAAL_CHECK_EX(resultsToEvaluate , ErrorIncorrectParameter, ParameterName, gammaStr());
     return services::Status();
 }
 

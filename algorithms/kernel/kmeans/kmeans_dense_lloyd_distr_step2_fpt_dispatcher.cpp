@@ -41,8 +41,7 @@ DistributedType::Distributed(size_t nClusters, size_t nIterations)
 {
     _par = new ParameterType(nClusters, nIterations);
     initialize();
-    // Reset computeAssignments bit by default in step2Master
-    parameter().resultsToEvaluate &= ~(parameter().resultsToEvaluate & kmeans::computeAssignments);
+    parameter().assignFlag = false;
 }
 
 template <>

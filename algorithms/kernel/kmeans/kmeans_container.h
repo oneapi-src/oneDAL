@@ -115,14 +115,15 @@ services::Status DistributedContainer<step1Local, algorithmFPType, method, cpu>:
     a[0] = static_cast<NumericTable *>(input->get(data).get());
     a[1] = static_cast<NumericTable *>(input->get(inputCentroids).get());
 
-    const size_t nr = 5 + (par->assignFlag != 0);
+    const size_t isAssignments = par->resultsToEvaluate & computeAssignments || par->assignFlag;
+    const size_t nr            = 5 + isAssignments;
     NumericTable * r[6];
     r[0] = static_cast<NumericTable *>(pres->get(nObservations).get());
     r[1] = static_cast<NumericTable *>(pres->get(partialSums).get());
     r[2] = static_cast<NumericTable *>(pres->get(partialObjectiveFunction).get());
     r[3] = static_cast<NumericTable *>(pres->get(partialCandidatesDistances).get());
     r[4] = static_cast<NumericTable *>(pres->get(partialCandidatesCentroids).get());
-    if (par->assignFlag)
+    if (isAssignments)
     {
         r[5] = static_cast<NumericTable *>(pres->get(partialAssignments).get());
     }

@@ -75,7 +75,7 @@ public class Parameter extends com.intel.daal.algorithms.Parameter {
             DistanceType distanceType, boolean assignFlag) {
         super(context);
         this.distanceType = distanceType;
-        long resultsToEvaluate = 1 + 2;
+        long resultsToEvaluate = ResultsToComputeId.computeCentroids | ResultsToComputeId.computeAssignments;
         initialize(nClusters, maxIterations, accuracyThreshold, gamma, assignFlag, resultsToEvaluate);
     }
 
@@ -94,7 +94,7 @@ public class Parameter extends com.intel.daal.algorithms.Parameter {
         this.distanceType = distanceType;
 
         boolean assignFlag = true;
-        long resultsToEvaluate = 1 + 2;
+        long resultsToEvaluate = ResultsToComputeId.computeCentroids + ResultsToComputeId.computeAssignments;
         initialize(nClusters, maxIterations, accuracyThreshold, gamma, assignFlag, resultsToEvaluate);
     }
 
@@ -109,7 +109,7 @@ public class Parameter extends com.intel.daal.algorithms.Parameter {
     public Parameter(DaalContext context, long nClusters, long maxIterations, double accuracyThreshold, double gamma) {
         super(context);
         boolean assignFlag = true;
-        long resultsToEvaluate = 1 + 2;
+        long resultsToEvaluate = ResultsToComputeId.computeCentroids | ResultsToComputeId.computeAssignments;
         this.distanceType = DistanceType.euclidean;
         initialize(nClusters, maxIterations, accuracyThreshold, gamma, assignFlag, resultsToEvaluate);
     }
@@ -125,7 +125,7 @@ public class Parameter extends com.intel.daal.algorithms.Parameter {
         super(context);
 
         boolean assignFlag = true;
-        long resultsToEvaluate = 1 + 2;
+        long resultsToEvaluate = ResultsToComputeId.computeCentroids | ResultsToComputeId.computeAssignments;
         this.distanceType = DistanceType.euclidean;
         double gamma = 1.0;
         initialize(nClusters, maxIterations, accuracyThreshold, gamma, assignFlag, resultsToEvaluate);
@@ -143,7 +143,7 @@ public class Parameter extends com.intel.daal.algorithms.Parameter {
         this.distanceType = distanceType;
 
         boolean assignFlag = true;
-        long resultsToEvaluate = 1 + 2;
+        long resultsToEvaluate = ResultsToComputeId.computeCentroids | ResultsToComputeId.computeAssignments;
         double gamma = 1.0;
         double accuracyThreshold = 0.0;
         initialize(nClusters, maxIterations, accuracyThreshold, gamma, assignFlag, resultsToEvaluate);

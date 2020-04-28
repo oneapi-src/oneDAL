@@ -118,7 +118,7 @@ class KMeansDenseDistr {
             /* Create an algorithm object for the K-Means algorithm */
             Batch algorithm = new Batch(context, Float.class, Method.lloydDense, nClusters, 0);
 
-            algorithm.parameter.setAssignFlag(true);
+            algorithm.parameter.setResultsToEvaluate(ResultsToComputeId.computeAssignments);
 
             /* Set the input data to the algorithm */
             algorithm.input.set(InputId.data, data[node]);

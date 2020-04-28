@@ -91,7 +91,7 @@ services::Status PartialResult::check(const daal::algorithms::Input * input, con
         s, checkNumericTable(get(partialCandidatesDistances).get(), partialCandidatesDistancesStr(), unexpectedLayouts, 0, 1, kmPar->nClusters));
     DAAL_CHECK_STATUS(s, checkNumericTable(get(partialCandidatesCentroids).get(), partialCandidatesCentroidsStr(), unexpectedLayouts, 0,
                                            inputFeatures, kmPar->nClusters));
-    if (kmPar->assignFlag)
+    if (kmPar->resultsToEvaluate & computeAssignments || kmPar->assignFlag)
     {
         Input * algInput = dynamic_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
         if (!algInput)

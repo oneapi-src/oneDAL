@@ -62,7 +62,7 @@ DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Inp
     DAAL_CHECK_STATUS_VAR(status);
 
     const Input * step1Input = dynamic_cast<const Input *>(input);
-    if (kmPar->assignFlag && step1Input)
+    if ((kmPar->resultsToEvaluate & computeAssignments || kmPar->assignFlag) && step1Input)
     {
         const size_t nRows = step1Input->get(data)->getNumberOfRows();
         set(partialAssignments, HomogenNumericTable<int>::create(1, nRows, NumericTable::doAllocate, &status));
