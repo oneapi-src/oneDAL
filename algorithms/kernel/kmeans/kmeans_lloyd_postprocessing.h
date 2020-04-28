@@ -35,9 +35,6 @@
 #include "externals/service_spblas.h"
 #include "service/kernel/service_data_utils.h"
 
-// #include <chrono>
-// using namespace std::chrono;
-
 namespace daal
 {
 namespace algorithms
@@ -69,12 +66,8 @@ struct PostProcessing<lloydDense, algorithmFPType, cpu>
     static Status computeAssignments(const size_t p, const size_t nClusters, const algorithmFPType * const inClusters, const NumericTable * ntData,
                                      algorithmFPType * catCoef, int * assignments)
     {
-        // const auto t_1 = high_resolution_clock::now();
-
         const size_t n       = ntData->getNumberOfRows();
         const size_t nBlocks = n / blockSizeDeafult + !!(n % blockSizeDeafult);
-
-        // printf("%lu %lu\n", n, nBlocks);
 
         /* Allocate memory for all arrays inside TLS */
         daal::tls<algorithmFPType *> tlsTask([=]() { return service_scalable_malloc<algorithmFPType, cpu>(blockSizeDeafult * nClusters); });
@@ -139,10 +132,6 @@ struct PostProcessing<lloydDense, algorithmFPType, cpu>
 
         tlsTask.reduce([](algorithmFPType * array) { service_scalable_free<algorithmFPType, cpu>(array); });
 
-        // const auto t_2           = high_resolution_clock::now();
-        // const float duration_sec = duration_cast<milliseconds>(t_2 - t_1).count();
-        // printf(">> computeOnlyAssignments: %.0f\n", duration_sec);
-
         return Status();
     }
 
@@ -150,7 +139,6 @@ struct PostProcessing<lloydDense, algorithmFPType, cpu>
                                                 const NumericTable * const ntData, const algorithmFPType * const catCoef, int * assignments,
                                                 algorithmFPType & objectiveFunction)
     {
-        // const auto t_1       = high_resolution_clock::now();
         const size_t n       = ntData->getNumberOfRows();
         const size_t nBlocks = n / blockSizeDeafult + !!(n % blockSizeDeafult);
 
@@ -190,10 +178,6 @@ struct PostProcessing<lloydDense, algorithmFPType, cpu>
         {
             objectiveFunction += goalLocalData[j];
         }
-
-        // const auto t_2           = high_resolution_clock::now();
-        // const float duration_sec = duration_cast<milliseconds>(t_2 - t_1).count();
-        // printf(">> computeExactObjectiveFunction2: %.0f\n", duration_sec);
 
         return Status();
     }
@@ -294,7 +278,6 @@ struct PostProcessing<lloydCSR, algorithmFPType, cpu>
 
         SafeStatus safeStat;
         daal::threader_for(nBlocks, nBlocks, [&](const int iBlock) {
-            // algorithmFPType * goalLocal = tlsTask.local();
             const size_t blockSize = (iBlock == nBlocks - 1) ? n - iBlock * blockSizeDeafult : blockSizeDeafult;
 
             ReadRowsCSR<algorithmFPType, cpu> dataBlock(ntDataCsr, iBlock * blockSizeDeafult, blockSize);
