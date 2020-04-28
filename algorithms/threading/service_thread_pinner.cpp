@@ -37,12 +37,13 @@
         #include "tbb/tbb.h"
         #include <tbb/task_arena.h>
         #include <tbb/task_scheduler_observer.h>
-        #include <tbb/atomic.h>
         #include <tbb/task_scheduler_init.h>
         #include <tbb/parallel_reduce.h>
         #include <tbb/blocked_range.h>
         #include <tbb/tick_count.h>
         #include <tbb/scalable_allocator.h>
+        #include "services/daal_atomic_int.h"
+using namespace daal::services;
 
         #if defined(_WIN32) || defined(_WIN64)
             #include <Windows.h>
@@ -202,7 +203,7 @@ class thread_pinner_impl_t : public tbb::task_scheduler_observer
     int max_threads;
     int * cpu_queue;
     bool do_pinning;
-    tbb::atomic<int> is_pinning;
+    AtomicInt is_pinning;
     tbb::enumerable_thread_specific<cpu_mask_t *> thread_mask;
     tbb::task_arena pinner_arena;
     void (*topo_deleter)(void *);
@@ -215,11 +216,11 @@ public:
 
     void execute(daal::services::internal::thread_pinner_task_t & task)
     {
-        if (do_pinning && (status == 0) && (is_pinning == 0))
+        if (do_pinning && (status == 0) && (is_pinning.get() == 0))
         {
-            is_pinning = 1;
+            is_pinning.set(1);
             pinner_arena.execute(task);
-            is_pinning = 0;
+            is_pinning.set(0);
         }
         else
         {
@@ -237,7 +238,7 @@ thread_pinner_impl_t::thread_pinner_impl_t(void (*read_topo)(int &, int &, int &
     : pinner_arena(nthreads = daal::threader_get_threads_number()), tbb::task_scheduler_observer(pinner_arena), topo_deleter(deleter)
 {
     do_pinning = (nthreads > 0) ? true : false;
-    is_pinning = 0;
+    is_pinning.set(0);
 
     read_topo(status, nthreads, max_threads, &cpu_queue);
     observe(true);
