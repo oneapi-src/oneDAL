@@ -259,8 +259,6 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
         diffPrev = diff;
     }
 
-    printf("localInnerIteration %d iter %d diff %lf\n", (int)innerIteration, (int)iter, (double)diff); /*need delete it for final merge*/
-
     SaveResultModel<algorithmFPType> result(alphaBuff, gradBuff, yBuff, C, nVectors);
 
     DAAL_CHECK_STATUS(status, result.init());

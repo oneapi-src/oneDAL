@@ -97,8 +97,6 @@ protected:
         nSV = 0;
         DAAL_CHECK_STATUS(status, Partition::flagged(maskBuff, _coeffBuff, tmpValuesBuff, _nVectors, nSV));
 
-        printf("nSV %d\n", (int)nSV); /*need delete it for final merge*/
-
         NumericTablePtr svCoeffTable = model.getClassificationCoefficients();
         DAAL_CHECK_STATUS(status, svCoeffTable->resize(nSV));
         if (nSV == 0) return status;
