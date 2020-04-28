@@ -190,7 +190,7 @@ private:
     void initNumberOfThreads();
 
     env _env;
-    void * _init;
+    void * _globalControl;
     SharedPtr<oneapi::internal::ExecutionContextIface> _executionContext;
 };
 } // namespace interface1

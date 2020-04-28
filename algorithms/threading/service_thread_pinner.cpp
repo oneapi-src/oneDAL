@@ -251,7 +251,7 @@ void thread_pinner_impl_t::on_scheduler_entry(bool) /*override*/
     if (do_pinning == false || status < 0) return;
 
     // read current thread index
-    int thr_idx = tbb::task_arena::current_thread_index();
+    const int thr_idx = tbb::this_task_arena::current_thread_index();
 
     // Get next cpu from topology queue
     int cpu_idx = cpu_queue[thr_idx % max_threads];
