@@ -40,6 +40,7 @@ struct ColIndexTask
 {
     DAAL_NEW_DELETE();
     ColIndexTask(size_t nRows) : _index(nRows), maxNumDiffValues(1) {}
+    virtual ~ColIndexTask() {}
     bool isValid() const { return _index.get(); }
 
     struct FeatureIdx
