@@ -232,8 +232,12 @@ RELEASEDIR.tbb       := $(RELEASEDIR)/tbb/latest
 RELEASEDIR.tbb.libia := $(RELEASEDIR.tbb)/lib$(if $(OS_is_mac),,/$(_IA)$(if $(OS_is_win),/vc_mt,/$(TBBDIR.libia.lnx.gcc)))
 RELEASEDIR.tbb.soia  := $(if $(OS_is_win),$(RELEASEDIR.tbb)/redist/$(_IA)/vc_mt,$(RELEASEDIR.tbb.libia))
 releasetbb.LIBS_A := $(if $(OS_is_win),$(TBBDIR.libia)/tbb.$(a) $(TBBDIR.libia)/tbbmalloc.$(a))
-releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb.$(y) $(TBBDIR.soia)/$(plib)tbbmalloc.$(y) \
-                     $(if $(or $(OS_is_lnx),$(OS_is_fbsd)),$(TBBDIR.libia)/$(plib)tbb.so.2 $(TBBDIR.libia)/$(plib)tbbmalloc.so.2,)
+releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb.$(y) $(TBBDIR.soia)/$(plib)tbbmalloc.$(y)                                                           \
+                     $(if $(or $(OS_is_lnx),$(OS_is_fbsd)), $(TBBDIR.soia)/$(plib)tbbmalloc.so.2                                                   \
+                                                            $(if $(wildcard $(TBBDIR.soia)/libtbb.so.2),$(wildcard $(TBBDIR.soia)/libtbb.so.2))    \
+                                                            $(if $(wildcard $(TBBDIR.soia)/libtbb.so.12),$(wildcard $(TBBDIR.soia)/libtbb.so.12))) \
+                     $(if $(OS_is_mac),$(if $(wildcard $(TBBDIR.soia)/libtbb.12.dylib),$(wildcard $(TBBDIR.soia)/libtbb.12.dylib)))
+
 
 RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/oneapi/internal/math
 
@@ -803,10 +807,6 @@ Flags:
 endef
 
 daal_dbg:
-	@echo "1" "!$(TBBDIR.libia.mac.clang1)!"
-	@echo "2" "!$(TBBDIR.libia.mac.clang2)!"
-	@echo "3" "!$(TBBDIR.libia.mac.clang22)!"
-	@echo "4" "!$(TBBDIR.libia.mac)!"
-	@echo "5" ${DYLD_LIBRARY_PATH}
-	@echo "6" ${LIBRARY_PATH}
-	@echo "7" ${TBBROOT}
+	@echo "1" "!$(wildcard $(TBBDIR.soia)/libtbb.so.2)!"
+	@echo "2" "!$(wildcard $(TBBDIR.soia)/libtbb.so.12)!"
+	@echo "3" "!$(releasetbb.LIBS_Y)!"
