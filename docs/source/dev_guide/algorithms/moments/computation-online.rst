@@ -14,23 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-BrownBoost Classifier
-=====================
+Online Processing
+=================
 
-BrownBoost is a boosting classification algorithm.
-It is more robust to noisy data sets than other boosting classification algorithms [Freund99]_.
-
-BrownBoost is a binary classifier.
-For a multi-class case, use :ref:`svm_multi_class` framework of the library.
-
-Details
-*******
-
-At this moment, algorithm's details for `BrownBoost Classifier <https://software.intel.com/en-us/daal-programming-guide-details-30>`_
-are only available in Developer Guide for Intel(R) DAAL.
-
-Batch Processing
-****************
-
-At this moment, the description of `batch processing for BrownBoost Classifier <https://software.intel.com/en-us/daal-programming-guide-batch-processing-45>`_ 
-is only available in Developer Guide for Intel(R) DAAL.
+At this moment, the description of online processing for Moments of Low Order is only available in
+`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-online-processing>`_.

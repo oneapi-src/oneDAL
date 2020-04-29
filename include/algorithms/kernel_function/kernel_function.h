@@ -99,7 +99,7 @@ public:
      * and parameters of this algorithm for computing kernel functions
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<KernelIface> clone() const { return services::SharedPtr<KernelIface>(cloneImpl()); }
+    DAAL_FORCEINLINE services::SharedPtr<KernelIface> clone() const { return services::SharedPtr<KernelIface>(cloneImpl()); }
 
 protected:
     void initialize() { _result = ResultPtr(new kernel_function::Result()); }

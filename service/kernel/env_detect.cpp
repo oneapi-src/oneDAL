@@ -124,7 +124,7 @@ DAAL_EXPORT void daal::services::Environment::setDynamicLibraryThreadingTypeOnWi
     initNumberOfThreads();
 }
 
-DAAL_EXPORT daal::services::Environment::Environment() : _init(0)
+DAAL_EXPORT daal::services::Environment::Environment() : _globalControl {}
 {
     _env.cpuid_init_flag = false;
     _env.cpuid           = -1;
@@ -155,7 +155,7 @@ DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 DAAL_EXPORT daal::services::Environment::~Environment()
 {
     daal::services::daal_free_buffers();
-    _daal_tbb_task_scheduler_free(_init);
+    _daal_tbb_task_scheduler_free(_globalControl);
 }
 
 void daal::services::Environment::_cpu_detect(int enable)
@@ -170,7 +170,7 @@ void daal::services::Environment::_cpu_detect(int enable)
 DAAL_EXPORT void daal::services::Environment::setNumberOfThreads(const size_t numThreads)
 {
     isInit = true;
-    daal::setNumberOfThreads(numThreads, &_init);
+    daal::setNumberOfThreads(numThreads, &_globalControl);
 }
 
 DAAL_EXPORT size_t daal::services::Environment::getNumberOfThreads() const
