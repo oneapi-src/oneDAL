@@ -29,11 +29,11 @@ help:
 
 create_rst_examples:
 	@echo "Creating rST files for SYCL* Examples..."
-	py -3 rst_examples.py
+	python3 rst_examples.py
 
 .PHONY: help Makefile create_rst_examples
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: create_rst_examples Makefile
-	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	@$(SPHINXBUILD) -W --keep-going -w docbuild-log.txt -n -b $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
