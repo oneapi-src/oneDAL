@@ -196,7 +196,6 @@ public:
           gradientForGram(0),
           gradientForGramPtr(nullptr),
           xNT(nullptr),
-          X(nullptr),
           dot(0),
           dotPtr(nullptr),
           betaNT(nullptr),
@@ -206,12 +205,14 @@ public:
           hesDiagonalNT(nullptr),
           h(nullptr),
           penaltyL1NT(nullptr),
-          penaltyL1Ptr(nullptr),
           penaltyL2NT(nullptr),
-          penaltyL2Ptr(nullptr),
           proxNT(nullptr),
           proxPtr(nullptr),
-          transposedData(false) {};
+          transposedData(false),
+          l1(0.0f),
+          l2(0.0f),
+          soaPtr(nullptr),
+          X(nullptr) {};
 
 private:
     void computeMSE(size_t blockSize, MSETask<algorithmFPType, cpu> & task, algorithmFPType * data, algorithmFPType * argumentArray,
@@ -230,7 +231,7 @@ private:
     TArray<algorithmFPType, cpu> previousFeatureValues;
     algorithmFPType * residualPtr;
     algorithmFPType * hessianDiagonalPtr;
-    algorithmFPType * previousInputData;
+    NumericTable * previousInputData;
     algorithmFPType * gramMatrixPtr;
     algorithmFPType * XYPtr;
     algorithmFPType * gradientForGramPtr;
@@ -240,7 +241,6 @@ private:
     algorithmFPType * previousFeatureValuesPtr;
 
     NumericTable * xNT;
-    algorithmFPType * X;
     TArray<algorithmFPType, cpu> dot;
     algorithmFPType * dotPtr;
     NumericTable * betaNT;
@@ -253,13 +253,16 @@ private:
     algorithmFPType * h;
 
     NumericTable * penaltyL1NT;
-    float * penaltyL1Ptr;
     NumericTable * penaltyL2NT;
-    float * penaltyL2Ptr;
     NumericTable * proxNT;
     algorithmFPType * proxPtr;
-    ReadRows<algorithmFPType, cpu> XPtr;
     bool transposedData;
+
+    float l1;
+    float l2;
+
+    SOANumericTable * soaPtr;
+    algorithmFPType * X;
 };
 
 } // namespace internal
