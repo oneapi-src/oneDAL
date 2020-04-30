@@ -178,18 +178,45 @@ template<typename algorithmFPType, Method method, CpuType cpu>
 class MSEKernel : public Kernel
 {
 public:
-    services::Status compute(NumericTable *data, NumericTable *dependentVariables, NumericTable *argument,
-                             NumericTable *value, NumericTable *hessian, NumericTable *gradient,
-                             NumericTable *nonSmoothTermValue, NumericTable *proximalProjection,
-                             NumericTable *lipschitzConstant,
-                             NumericTable *componentOfGradient, NumericTable *componentOfHessianDiagonal,
-                             NumericTable *componentOfProximalProjection, Parameter *parameter);
-    MSEKernel(): hessianDiagonal(0), hessianDiagonalPtr(nullptr), residual(0), residualPtr(nullptr),
-                 previousInputData(nullptr), previousFeatureId(-1), previousFeatureValuesPtr(nullptr), previousFeatureValues(0),
-                 computeViaGramMatrix(false), gramMatrix(0), gramMatrixPtr(nullptr), XY(0), XYPtr(nullptr), gradientForGram(0),
-                 gradientForGramPtr(nullptr), xNT(nullptr), X(nullptr), dot(0), dotPtr(nullptr),betaNT(nullptr), b(nullptr),
-                 gradNT(nullptr), gr(nullptr), hesDiagonalNT(nullptr), h(nullptr), penaltyL1NT(nullptr), penaltyL1Ptr(nullptr),
-                 penaltyL2NT(nullptr), penaltyL2Ptr(nullptr), proxNT(nullptr), proxPtr(nullptr), transposedData(false){};
+    services::Status compute(NumericTable * data, NumericTable * dependentVariables, NumericTable * argument, NumericTable * value,
+                             NumericTable * hessian, NumericTable * gradient, NumericTable * nonSmoothTermValue, NumericTable * proximalProjection,
+                             NumericTable * lipschitzConstant, NumericTable * componentOfGradient, NumericTable * componentOfHessianDiagonal,
+                             NumericTable * componentOfProximalProjection, Parameter * parameter);
+    MSEKernel()
+        : hessianDiagonal(0),
+          hessianDiagonalPtr(nullptr),
+          residual(0),
+          residualPtr(nullptr),
+          previousInputData(nullptr),
+          previousFeatureId(-1),
+          previousFeatureValuesPtr(nullptr),
+          previousFeatureValues(0),
+          computeViaGramMatrix(false),
+          gramMatrix(0),
+          gramMatrixPtr(nullptr),
+          XY(0),
+          XYPtr(nullptr),
+          gradientForGram(0),
+          gradientForGramPtr(nullptr),
+          xNT(nullptr),
+          dot(0),
+          dotPtr(nullptr),
+          betaNT(nullptr),
+          b(nullptr),
+          gradNT(nullptr),
+          gr(nullptr),
+          hesDiagonalNT(nullptr),
+          h(nullptr),
+          penaltyL1NT(nullptr),
+          penaltyL2NT(nullptr),
+          proxNT(nullptr),
+          proxPtr(nullptr),
+          transposedData(false),
+          l1(0.0f),
+          l2(0.0f),
+          soaPtr(nullptr),
+          X(nullptr) {};
+
 private:
     void computeMSE(
         size_t blockSize,
@@ -216,19 +243,18 @@ private:
     TArray<algorithmFPType, cpu> hessianDiagonal;
     TArray<algorithmFPType, cpu> gradientForGram;
     TArray<algorithmFPType, cpu> previousFeatureValues;
-    algorithmFPType* residualPtr;
-    algorithmFPType* hessianDiagonalPtr;
-    algorithmFPType* previousInputData;
-    algorithmFPType* gramMatrixPtr;
-    algorithmFPType* XYPtr;
-    algorithmFPType* gradientForGramPtr;
+    algorithmFPType * residualPtr;
+    algorithmFPType * hessianDiagonalPtr;
+    NumericTable * previousInputData;
+    algorithmFPType * gramMatrixPtr;
+    algorithmFPType * XYPtr;
+    algorithmFPType * gradientForGramPtr;
     bool computeViaGramMatrix;
 
     int previousFeatureId;
     algorithmFPType* previousFeatureValuesPtr;
 
     NumericTable * xNT;
-    algorithmFPType* X;
     TArray<algorithmFPType, cpu> dot;
     algorithmFPType* dotPtr;
     NumericTable * betaNT;
@@ -241,13 +267,16 @@ private:
     algorithmFPType* h;
 
     NumericTable * penaltyL1NT;
-    float* penaltyL1Ptr;
     NumericTable * penaltyL2NT;
-    float* penaltyL2Ptr;
     NumericTable * proxNT;
-    algorithmFPType* proxPtr;
-    ReadRows<algorithmFPType, cpu> XPtr;
+    algorithmFPType * proxPtr;
     bool transposedData;
+
+    float l1;
+    float l2;
+
+    SOANumericTable * soaPtr;
+    algorithmFPType * X;
 };
 
 } // namespace daal::internal

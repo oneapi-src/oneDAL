@@ -41,9 +41,27 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                                                              NumericTable *proximalProjection, NumericTable *lipschitzConstant, NumericTable *componentOfGradient,
                                                              NumericTable *componentOfHessianDiagonal, NumericTable *componentOfProximalProjection, Parameter *parameter)
 {
+    SafeStatus safeStat;
     const size_t nDataRows           = dataNT->getNumberOfRows();
     int result                       = 0;
     const bool flagOfHessianDiagonal = static_cast<bool>(parameter->resultsToCompute & objective_function::componentOfHessianDiagonal);
+
+    if (componentOfGradient || (componentOfHessianDiagonal && flagOfHessianDiagonal))
+    {
+        if (xNT != dataNT)
+        {
+            xNT    = dataNT;
+            soaPtr = dynamic_cast<SOANumericTable *>(dataNT);
+
+            if (!soaPtr)
+            {
+                ReadRows<algorithmFPType, cpu> xptr(dataNT, 0, nDataRows);
+                DAAL_CHECK_BLOCK_STATUS(xptr);
+                X = const_cast<algorithmFPType *>(xptr.get());
+            }
+        }
+    }
+
     if (componentOfGradient || (componentOfHessianDiagonal && flagOfHessianDiagonal) || componentOfProximalProjection)
     {
         const size_t id = parameter->featureId;
@@ -55,72 +73,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
             previousFeatureValuesPtr = previousFeatureValues.get();
         }
 
-        if (componentOfGradient || (componentOfHessianDiagonal && flagOfHessianDiagonal))
-        {
-            if(xNT != dataNT)
-            {
-                xNT = dataNT;
-                SOANumericTable* soaDataPtr = dynamic_cast<SOANumericTable*>(dataNT);
-                HomogenNumericTable<algorithmFPType>* hmgDataPtr = dynamic_cast<HomogenNumericTable<algorithmFPType>*>(dataNT);
-                if(hmgDataPtr)
-                {
-                    X = hmgDataPtr->getArray();
-                    transposedData = false;
-                }
-                else if(soaDataPtr)
-                {
-                    const bool featuresEqual = soaDataPtr->getDictionary()->getFeaturesEqual();
-                    bool isContinuous = false;
-                    data_management::features::IndexNumType currentType = features::internal::getIndexNumType<algorithmFPType>();
-                    if(currentType == (*(soaDataPtr->getDictionary()))[0].getIndexType())
-                    {
-                        isContinuous = true;
-                        if(!featuresEqual)
-                        {
-                            for(size_t i = 1; i < nTheta; i++)
-                            {
-                                if(currentType != (*(soaDataPtr->getDictionary()))[i].getIndexType())
-                                {
-                                    isContinuous = false;
-                                    break;
-                                }
-                            }
-                        }
-                        for(size_t i = 1; i < nTheta && isContinuous; i++)
-                        {
-                            algorithmFPType* fisrtArrayPtr = (algorithmFPType*)(soaDataPtr->getArray(i-1));
-                            algorithmFPType* lastArrayPtr =  (algorithmFPType*)(soaDataPtr->getArray(i));
-                            if((lastArrayPtr - fisrtArrayPtr) != (nDataRows))
-                            {
-                                isContinuous = false;
-                                break;
-                            }
-                        }
-                    }
-                    if(isContinuous)
-                    {
-                        X = (algorithmFPType*)soaDataPtr->getArray(0);
-                        transposedData = true;
-                    }
-                    else
-                    {
-                        XPtr.set(dataNT, 0, nDataRows);
-                        DAAL_CHECK_BLOCK_STATUS(XPtr);
-                        X = const_cast<algorithmFPType*>(XPtr.get());
-                        transposedData = false;
-                    }
-                }
-                else
-                {
-                    XPtr.set(dataNT, 0, nDataRows);
-                    DAAL_CHECK_BLOCK_STATUS(XPtr);
-                    X = const_cast<algorithmFPType*>(XPtr.get());
-                    transposedData = false;
-                }
-            }
-        }
-
-        if(componentOfGradient)
+        if (componentOfGradient)
         {
             char trans = 'T';
             char notrans = 'N';
@@ -157,7 +110,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     dotPtr = dot.get();
                     DAAL_CHECK_MALLOC(dotPtr);
                 }
-                if(((previousInputData != nullptr) && (previousInputData != X)) || (previousInputData == nullptr))
+                if (((previousInputData != nullptr) && (previousInputData != dataNT)) || (previousInputData == nullptr))
                 {
                     const algorithmFPType* fB = b;
 
@@ -165,7 +118,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     DAAL_CHECK_BLOCK_STATUS(YPtr);
                     const algorithmFPType* Y = YPtr.get();
 
-                    previousInputData = X;
+                    previousInputData = dataNT;
                     previousFeatureId = -1;
                     residual.reset(nDataRows * yDim);
                     residualPtr = residual.get();
@@ -184,36 +137,54 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     nBlocks += (nBlocks*blockSize != nDataRows);
                     if(compute_matrix)
                     {
-                        daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock)
+                        if (soaPtr)
                         {
-                            const size_t startRow = iBlock * blockSize;
-                            const size_t finishRow = (iBlock + 1 == nBlocks ? nDataRows : (iBlock + 1) * blockSize);
-                            DAAL_INT localBlockSize = finishRow - startRow;
+                            daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+                                const size_t startRow   = iBlock * blockSize;
+                                const size_t finishRow  = (iBlock + 1 == nBlocks ? nDataRows : (iBlock + 1) * blockSize);
+                                DAAL_INT localBlockSize = finishRow - startRow;
 
-                            if(transposedData)
-                            {
-                                Blas<algorithmFPType, cpu>::xxgemm(&notrans, &notrans, &localBlockSize, &yDim, &dim,
-                                                                   &minusOne, X + startRow, &n, fB + yDim, &yDim, &one,
-                                                                   residualPtr + startRow*yDim, &yDim);
-                            }
-                            else
-                            {
-                                Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, &localBlockSize, &yDim, &dim,
-                                               &minusOne, X + startRow*dim, &dim, fB + yDim, &yDim, &one,
-                                               residualPtr + startRow*yDim, &yDim);
-                            }
-                            if(parameter->interceptFlag)
-                            {
-                                for(size_t ic = 0; ic < yDim; ic++)
+                                ReadRows<algorithmFPType, cpu> xptr(dataNT, startRow, localBlockSize);
+                                DAAL_CHECK_BLOCK_STATUS_THR(xptr);
+                                const algorithmFPType * x = const_cast<algorithmFPType *>(xptr.get());
+
+                                Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, &localBlockSize, &yDim, &dim, &minusOne, x, &dim, fB + yDim,
+                                                                   &yDim, &one, residualPtr + startRow * yDim, &yDim);
+
+                                if (parameter->interceptFlag)
                                 {
-                                    for(size_t i = startRow; i < finishRow; i++)  /*threader for*/
+                                    for (size_t ic = 0; ic < yDim; ic++)
                                     {
-                                        residualPtr[i*yDim + ic] -= fB[ic];
+                                        for (size_t i = startRow; i < finishRow; i++) /*threader for*/
+                                        {
+                                            residualPtr[i * yDim + ic] -= fB[ic];
+                                        }
                                     }
                                 }
-                            }
+                            });
+                        }
+                        else
+                        {
+                            daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+                                const size_t startRow   = iBlock * blockSize;
+                                const size_t finishRow  = (iBlock + 1 == nBlocks ? nDataRows : (iBlock + 1) * blockSize);
+                                DAAL_INT localBlockSize = finishRow - startRow;
 
-                        });
+                                Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, &localBlockSize, &yDim, &dim, &minusOne, X + startRow * dim,
+                                                                   &dim, fB + yDim, &yDim, &one, residualPtr + startRow * yDim, &yDim);
+
+                                if (parameter->interceptFlag)
+                                {
+                                    for (size_t ic = 0; ic < yDim; ic++)
+                                    {
+                                        for (size_t i = startRow; i < finishRow; i++) /*threader for*/
+                                        {
+                                            residualPtr[i * yDim + ic] -= fB[ic];
+                                        }
+                                    }
+                                }
+                            });
+                        }
                     }
 
                     if (componentOfHessianDiagonal && flagOfHessianDiagonal)
@@ -222,74 +193,49 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                         hessianDiagonalPtr = hessianDiagonal.get();
                         algorithmFPType inverseNData = (algorithmFPType)(1.0)/nDataRows;
 
-                        PRAGMA_IVDEP
-                        PRAGMA_VECTOR_ALWAYS
-                        for(size_t j = 0; j < nTheta; j++)
+                        TlsSum<algorithmFPType, cpu> tlsData(nTheta);
+                        if (soaPtr)
                         {
-                            hessianDiagonalPtr[j] = 0;  /*USE DOTPRODUCT or parallel computation*/
-                        }
+                            daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+                                algorithmFPType * const hessianDiagonalLocal = tlsData.local();
 
-                        if(transposedData)
-                        {
-                            TlsMem<algorithmFPType,cpu,services::internal::ScalableCalloc<algorithmFPType, cpu> > tlsData(nTheta);
-                            daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock)
-                            {
-                                algorithmFPType* hessianDiagonalLocal = tlsData.local();
-                                const size_t startRow = iBlock * blockSize;
-                                const size_t finishRow = (iBlock + 1 == nBlocks ? nDataRows : (iBlock + 1) * blockSize);
+                                const size_t startRow   = iBlock * blockSize;
+                                const size_t finishRow  = (iBlock + 1 == nBlocks ? nDataRows : (iBlock + 1) * blockSize);
+                                DAAL_INT localBlockSize = finishRow - startRow;
 
-                                for(size_t j = 0; j < nTheta; j++)
+                                ReadRows<algorithmFPType, cpu> xptr(dataNT, startRow, localBlockSize);
+                                DAAL_CHECK_BLOCK_STATUS_THR(xptr);
+                                const algorithmFPType * x = const_cast<algorithmFPType *>(xptr.get());
+
+                                for (size_t j = 0; j < nTheta; ++j)
                                 {
-                                    PRAGMA_IVDEP
-                                    PRAGMA_VECTOR_ALWAYS
-                                    for(size_t i = startRow; i < finishRow; i++)
-                                    {
-                                        hessianDiagonalLocal[j] += X[j*n + i] * X[j*n + i];  /*USE DOTPRODUCT or parallel computation*/
-                                    }
-                                }
-                            });
-                            tlsData.reduce([&](algorithmFPType* localHes)
-                            {
-                                PRAGMA_IVDEP
-                                PRAGMA_VECTOR_ALWAYS
-                                for(int j = 0; j < nTheta; j++)
-                                {
-                                    hessianDiagonalPtr[j] += localHes[j];
+                                    hessianDiagonalLocal[j] +=
+                                        daal::internal::Blas<algorithmFPType, cpu>::xxdot(&localBlockSize, x + j, &dim, x + j, &dim);
                                 }
                             });
                         }
                         else
                         {
-                            TlsMem<algorithmFPType,cpu,services::internal::ScalableCalloc<algorithmFPType, cpu> > tlsData(nTheta);
-                            daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock)
-                            {
-                                algorithmFPType* hessianDiagonalLocal = tlsData.local();
-                                const size_t startRow = iBlock * blockSize;
-                                const size_t finishRow = (iBlock + 1 == nBlocks ? nDataRows : (iBlock + 1) * blockSize);
+                            daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+                                algorithmFPType * const hessianDiagonalLocal = tlsData.local();
 
-                                for(size_t i = startRow; i < finishRow; i++)
+                                const size_t startRow   = iBlock * blockSize;
+                                const size_t finishRow  = (iBlock + 1 == nBlocks ? nDataRows : (iBlock + 1) * blockSize);
+                                DAAL_INT localBlockSize = finishRow - startRow;
+
+                                for (size_t j = 0; j < nTheta; ++j)
                                 {
-                                    PRAGMA_IVDEP
-                                    PRAGMA_VECTOR_ALWAYS
-                                    for(size_t j = 0; j < nTheta; j++)
-                                    {
-                                        hessianDiagonalLocal[j] += X[i*dim + j] * X[i*dim + j];  /*USE DOTPRODUCT or parallel computation*/
-                                    }
-                                }
-                            });
-                            tlsData.reduce([&](algorithmFPType* localHes)
-                            {
-                                PRAGMA_IVDEP
-                                PRAGMA_VECTOR_ALWAYS
-                                for(int j = 0; j < nTheta; j++)
-                                {
-                                    hessianDiagonalPtr[j] += localHes[j];
+                                    hessianDiagonalLocal[j] += daal::internal::Blas<algorithmFPType, cpu>::xxdot(
+                                        &localBlockSize, X + dim * startRow + j, &dim, X + dim * startRow + j, &dim);
                                 }
                             });
                         }
+
+                        tlsData.reduceTo(hessianDiagonalPtr, nTheta);
+
                         PRAGMA_IVDEP
                         PRAGMA_VECTOR_ALWAYS
-                        for(size_t j = 0; j < nTheta; j++)
+                        for (size_t j = 0; j < nTheta; ++j)
                         {
                             hessianDiagonalPtr[j] *= inverseNData;
                         }
@@ -298,31 +244,47 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
 
                 if(previousFeatureId >= 0)
                 {
-                    for(size_t ic = 0; ic < yDim; ic++)    /*use ger or gemm for better performance*/
-                    {
-                        const algorithmFPType curentBetaValue = b[previousFeatureId*yDim + ic];
-                        const algorithmFPType diff = previousFeatureValuesPtr[ic] - curentBetaValue;
+                    const size_t blockSize = 256;
+                    size_t nBlocks         = nDataRows / blockSize;
+                    nBlocks += (nBlocks * blockSize != nDataRows);
 
-                        if(diff != 0)
+                    algorithmFPType * columnPtr = nullptr;
+                    DAAL_INT offset             = dim;
+
+                    ReadColumns<algorithmFPType, cpu> xColPtr;
+
+                    if (soaPtr)
+                    {
+                        xColPtr.set(dataNT, previousFeatureId - 1, 0, n);
+                        DAAL_CHECK_BLOCK_STATUS(xColPtr);
+                        columnPtr = const_cast<algorithmFPType *>(xColPtr.get());
+                        offset    = 1;
+                    }
+                    else
+                    {
+                        columnPtr = X + (previousFeatureId - 1);
+                    }
+
+                    for (size_t ic = 0; ic < yDim; ic++) /*use ger or gemm for better performance*/
+                    {
+                        const algorithmFPType curentBetaValue = b[previousFeatureId * yDim + ic];
+                        algorithmFPType diff                  = previousFeatureValuesPtr[ic] - curentBetaValue;
+
+                        if (diff != 0)
                         {
-                            if(previousFeatureId == 0 && parameter->interceptFlag)
+                            if (previousFeatureId == 0 && parameter->interceptFlag)
                             {
                                 PRAGMA_IVDEP
                                 PRAGMA_VECTOR_ALWAYS
-                                for(size_t i = 0; i < nDataRows; i++)  /*threader for*/
+                                for (size_t i = 0; i < nDataRows; i++) /*threader for*/
                                 {
-                                    residualPtr[i*yDim + ic] += diff;
+                                    residualPtr[i * yDim + ic] += diff;
                                 }
                             }
-                            if(previousFeatureId != 0)
+                            if (previousFeatureId != 0)
                             {
-                                if(transposedData)
                                 {
-                                    daal::internal::Blas<algorithmFPType, cpu>::xxaxpy(&n, &diff, X + (previousFeatureId - 1)*n, &ione, residualPtr + ic, &yDim);
-                                }
-                                else
-                                {
-                                    daal::internal::Blas<algorithmFPType, cpu>::xxaxpy(&n, &diff, X + (previousFeatureId - 1), &dim, residualPtr + ic, &yDim);
+                                    daal::internal::Blas<algorithmFPType, cpu>::xaxpy(&n, &diff, columnPtr, &offset, residualPtr + ic, &yDim);
                                 }
                             }
                         }
@@ -349,19 +311,26 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                 }
                 else
                 {
-                    if(transposedData)
+                    const algorithmFPType * columnPtr = nullptr;
+                    DAAL_INT offset                   = dim;
+
+                    ReadColumns<algorithmFPType, cpu> xColPtr;
+
+                    if (soaPtr)
                     {
-                        for(size_t ic = 0; ic < yDim; ic++)
-                        {
-                            dotPtr[ic] += daal::internal::Blas<algorithmFPType, cpu>::xxdot(&n, X + (id-1)*n, &ione, residualPtr + ic, &yDim);
-                        }
+                        xColPtr.set(dataNT, id - 1, 0, n);
+                        DAAL_CHECK_BLOCK_STATUS(xColPtr);
+                        columnPtr = const_cast<algorithmFPType *>(xColPtr.get());
+                        offset    = 1;
                     }
                     else
                     {
-                        for(size_t ic = 0; ic < yDim; ic++)
-                        {
-                            dotPtr[ic] += daal::internal::Blas<algorithmFPType, cpu>::xxdot(&n, X + (id-1), &dim, residualPtr + ic, &yDim);
-                        }
+                        columnPtr = X + (id - 1);
+                    }
+
+                    for (size_t ic = 0; ic < yDim; ic++)
+                    {
+                        dotPtr[ic] += daal::internal::Blas<algorithmFPType, cpu>::xxdot(&n, columnPtr, &offset, residualPtr + ic, &yDim);
                     }
                 }
 
@@ -380,7 +349,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
             }
             else
             {
-                if(((previousInputData != nullptr) && (previousInputData != X)) || (previousInputData == nullptr))
+                if (((previousInputData != nullptr) && (previousInputData != dataNT)) || (previousInputData == nullptr))
                 {
                     const algorithmFPType* fB = b;
 
@@ -388,7 +357,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     DAAL_CHECK_BLOCK_STATUS(YPtr);
                     const algorithmFPType* Y = YPtr.get();
 
-                    previousInputData = X;
+                    previousInputData = dataNT;
                     previousFeatureId = -1;
                     gramMatrix.reset((nTheta)*(nTheta));
                     gramMatrixPtr = gramMatrix.get();
@@ -407,33 +376,44 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     char uplo  = 'L';
 
                     const size_t blockSize = 256;
-                    DAAL_INT blockSizeDim = (DAAL_INT)blockSize;
-                    size_t nBlocks = nDataRows/blockSize;
-                    nBlocks += (nBlocks*blockSize != nDataRows);
-                    TlsMem<algorithmFPType,cpu,services::internal::ScalableCalloc<algorithmFPType, cpu> > tlsData(dim*yDim + (nTheta)*(nTheta));
-                    const size_t disp = dim*yDim;
-                    daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock)
+                    DAAL_INT blockSizeDim  = (DAAL_INT)blockSize;
+                    size_t nBlocks         = nDataRows / blockSize;
+                    nBlocks += (nBlocks * blockSize != nDataRows);
+                    TlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> > tlsData(dim * yDim + (nTheta) * (nTheta));
+                    const size_t disp = dim * yDim;
+                    if (soaPtr)
                     {
-                        algorithmFPType* localXY = tlsData.local();
-                        algorithmFPType* localGram = localXY + disp;
-                        const size_t startRow = iBlock * blockSize;
-                        DAAL_INT localBlockSizeDim = (((iBlock + 1) == nBlocks) ? (nDataRows - startRow) : blockSizeDim);
+                        daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+                            algorithmFPType * localXY   = tlsData.local();
+                            algorithmFPType * localGram = localXY + disp;
+                            const size_t startRow       = iBlock * blockSize;
+                            DAAL_INT localBlockSizeDim  = (((iBlock + 1) == nBlocks) ? (nDataRows - startRow) : blockSizeDim);
 
-                        if(transposedData)
-                        {
-                            daal::internal::Blas<algorithmFPType, cpu>::xxgemm(&notrans, &notrans, &yDim, &dim, &localBlockSizeDim, &one, Y + startRow*yDim, &yDim,X  + startRow,
-                                                                               &n, &one, localXY, &yDim);
-                            Blas<algorithmFPType, cpu>::xxsyrk(&uplo, &trans, &dim, &localBlockSizeDim, &one, X + startRow, &n, &one, localGram, &dim);
-                        }
-                        else
-                        {
-                            daal::internal::Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &yDim, &dim, &localBlockSizeDim, &one, Y + startRow*yDim, &yDim, X + startRow*dim,
-                                                                                  &dim, &one, localXY, &yDim);
-                            Blas<algorithmFPType, cpu>::xxsyrk(&uplo, &notrans, &dim, &localBlockSizeDim, &one, X + startRow*dim, &dim, &one, localGram, &dim);
-                        }
-                    });
-                    tlsData.reduce([&](algorithmFPType* local)
+                            ReadRows<algorithmFPType, cpu> xptr(dataNT, startRow, localBlockSizeDim);
+                            DAAL_CHECK_BLOCK_STATUS_THR(xptr);
+                            algorithmFPType * x = const_cast<algorithmFPType *>(xptr.get());
+
+                            daal::internal::Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &yDim, &dim, &localBlockSizeDim, &one,
+                                                                               Y + startRow * yDim, &yDim, x, &dim, &one, localXY, &yDim);
+                            Blas<algorithmFPType, cpu>::xxsyrk(&uplo, &notrans, &dim, &localBlockSizeDim, &one, x, &dim, &one, localGram, &dim);
+                        });
+                    }
+                    else
                     {
+                        daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+                            algorithmFPType * localXY   = tlsData.local();
+                            algorithmFPType * localGram = localXY + disp;
+                            const size_t startRow       = iBlock * blockSize;
+                            DAAL_INT localBlockSizeDim  = (((iBlock + 1) == nBlocks) ? (nDataRows - startRow) : blockSizeDim);
+
+                            daal::internal::Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &yDim, &dim, &localBlockSizeDim, &one,
+                                                                               Y + startRow * yDim, &yDim, X + startRow * dim, &dim, &one, localXY,
+                                                                               &yDim);
+                            Blas<algorithmFPType, cpu>::xxsyrk(&uplo, &notrans, &dim, &localBlockSizeDim, &one, X + startRow * dim, &dim, &one,
+                                                               localGram, &dim);
+                        });
+                    }
+                    tlsData.reduce([&](algorithmFPType * local) {
                         PRAGMA_IVDEP
                         PRAGMA_VECTOR_ALWAYS
                         for(int j = 0; j < dim*yDim; j++)
@@ -542,32 +522,62 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                 }
                 else
                 {
-                    if(((previousInputData != nullptr) && (previousInputData != X)) || (previousInputData == nullptr))
+                    if (((previousInputData != nullptr) && (previousInputData != dataNT)) || (previousInputData == nullptr))
                     {
                         DAAL_INT dim = (DAAL_INT)nTheta;
 
                         hessianDiagonal.reset(nTheta);
-                        hessianDiagonalPtr = hessianDiagonal.get();
-                        algorithmFPType inverseNData = (algorithmFPType)(1.0)/nDataRows;
+                        hessianDiagonalPtr           = hessianDiagonal.get();
+                        algorithmFPType inverseNData = (algorithmFPType)(1.0) / nDataRows;
+                        DAAL_INT one                 = 1;
+                        DAAL_INT n                   = nDataRows;
+
+                        const size_t blockSize = 256;
+                        size_t nBlocks         = nDataRows / blockSize;
+                        nBlocks += (nBlocks * blockSize != nDataRows);
+
+                        TlsSum<algorithmFPType, cpu> tlsData(nTheta);
+                        if (soaPtr)
+                        {
+                            daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+                                algorithmFPType * const hessianDiagonalLocal = tlsData.local();
+
+                                const size_t startRow   = iBlock * blockSize;
+                                const size_t finishRow  = (iBlock + 1 == nBlocks ? nDataRows : (iBlock + 1) * blockSize);
+                                DAAL_INT localBlockSize = finishRow - startRow;
+
+                                ReadRows<algorithmFPType, cpu> xptr(dataNT, startRow, localBlockSize);
+                                DAAL_CHECK_BLOCK_STATUS_THR(xptr);
+                                const algorithmFPType * x = const_cast<algorithmFPType *>(xptr.get());
+
+                                for (size_t j = 0; j < nTheta; ++j)
+                                {
+                                    hessianDiagonalLocal[j] +=
+                                        daal::internal::Blas<algorithmFPType, cpu>::xxdot(&localBlockSize, x + j, &dim, x + j, &dim);
+                                }
+                            });
+                        }
+                        else
+                        {
+                            daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+                                algorithmFPType * const hessianDiagonalLocal = tlsData.local();
+
+                                const size_t startRow   = iBlock * blockSize;
+                                const size_t finishRow  = (iBlock + 1 == nBlocks ? nDataRows : (iBlock + 1) * blockSize);
+                                DAAL_INT localBlockSize = finishRow - startRow;
+
+                                for (size_t j = 0; j < nTheta; ++j)
+                                {
+                                    hessianDiagonalLocal[j] += daal::internal::Blas<algorithmFPType, cpu>::xxdot(
+                                        &localBlockSize, X + startRow * dim + j, &dim, X + startRow * dim + j, &dim);
+                                }
+                            });
+                        }
+                        tlsData.reduceTo(hessianDiagonalPtr, nTheta);
 
                         PRAGMA_IVDEP
                         PRAGMA_VECTOR_ALWAYS
-                        for(size_t j = 0; j < nTheta; j++)
-                        {
-                            hessianDiagonalPtr[j] = 0;  /*USE DOTPRODUCT or parallel computation*/
-                        }
-                        for(size_t i = 0; i < nDataRows; i++)
-                        {
-                            PRAGMA_IVDEP
-                            PRAGMA_VECTOR_ALWAYS
-                            for(size_t j = 0; j < nTheta; j++)
-                            {
-                                hessianDiagonalPtr[j] += X[i*dim + j] * X[i*dim + j];  /*USE DOTPRODUCT or parallel computation*/
-                            }
-                        }
-                        PRAGMA_IVDEP
-                        PRAGMA_VECTOR_ALWAYS
-                        for(size_t j = 0; j < nTheta; j++)
+                        for (size_t j = 0; j < nTheta; ++j)
                         {
                             hessianDiagonalPtr[j] *= inverseNData;
                         }
@@ -582,23 +592,21 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
 
         if(componentOfProximalProjection)
         {
-            ReadRows<float, cpu> penaltyL1BD;
-            if(penaltyL1NT != parameter->penaltyL1.get())
+            if (!penaltyL1NT)
             {
+                ReadRows<float, cpu> penaltyL1BD;
                 penaltyL1NT = parameter->penaltyL1.get();
                 penaltyL1BD.set(*parameter->penaltyL1, 0, 1);
-                penaltyL1Ptr = const_cast<float*>(penaltyL1BD.get());
+                l1 = *const_cast<float *>(penaltyL1BD.get());
             }
-            float l1 = penaltyL1Ptr[0];
 
-            ReadRows<float, cpu> penaltyL2BD;
-            if(penaltyL2NT != parameter->penaltyL2.get())
+            if (!penaltyL2NT)
             {
+                ReadRows<float, cpu> penaltyL2BD;
                 penaltyL2NT = parameter->penaltyL2.get();
                 penaltyL2BD.set(*parameter->penaltyL2, 0, 1);
-                penaltyL2Ptr = const_cast<float*>(penaltyL2BD.get());
+                l2 = *const_cast<float *>(penaltyL2BD.get());
             }
-            float l2 = penaltyL2Ptr[0];
 
             WriteRows<algorithmFPType, cpu> proxBD;
             if(proxNT != componentOfProximalProjection)
@@ -656,14 +664,15 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                 }
                 else
                 {
-                    HomogenNumericTable<algorithmFPType>* hmgDataPtr = dynamic_cast<HomogenNumericTable<algorithmFPType>*>(dataNT);
-                    algorithmFPType* X = hmgDataPtr->getArray();
-                    algorithmFPType norm = 0.0;
-                    for(size_t i = 0; i < nDataRows; i++)
-                        norm += X[i*nTheta + (id-1)]*X[i*nTheta + (id-1)];
+                    ReadColumns<algorithmFPType, cpu> xptr(dataNT, id - 1, 0, nDataRows);
+                    DAAL_CHECK_BLOCK_STATUS(xptr);
+                    const algorithmFPType * x = const_cast<algorithmFPType *>(xptr.get());
+                    DAAL_INT one              = 1;
+                    DAAL_INT n                = nDataRows;
 
-                    for(size_t i = 0; i < proxSize; i++)
-                        p[i] *= 1.0/(1.0 + l2*nDataRows/norm);
+                    algorithmFPType norm = daal::internal::Blas<algorithmFPType, cpu>::xxdot(&n, x, &one, x, &one);
+
+                    for (size_t i = 0; i < proxSize; i++) p[i] *= 1.0 / (1.0 + l2 * nDataRows / norm);
                 }
             }
         }
@@ -691,8 +700,6 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
     {
         const size_t n = dataNT->getNumberOfRows();
         const size_t p = dataNT->getNumberOfColumns();
-        ReadRows<algorithmFPType, cpu> xPtr(dataNT, 0, n);
-        const algorithmFPType* x = xPtr.get();
         DAAL_ASSERT(lipschitzConstant->getNumberOfRows() == 1);
         WriteRows<algorithmFPType, cpu> lipschitzConstantPtr(lipschitzConstant, 0, 1);
         algorithmFPType& c = *lipschitzConstantPtr.get();
@@ -703,17 +710,22 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
         algorithmFPType globalMaxNorm = 0;
         const auto nThreads = daal::threader_get_threads_number();
 
-        TlsMem<algorithmFPType,cpu,services::internal::ScalableCalloc<algorithmFPType, cpu> > tlsData(lipschitzConstant->getNumberOfRows());
-        daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock)
-        {
-            algorithmFPType& _maxNorm = *tlsData.local();
-            const size_t startRow = iBlock * blockSize;
-            const size_t finishRow = (iBlock + 1 == nBlocks ? n : (iBlock + 1) * blockSize);
-            algorithmFPType curentNorm = 0;
-            for(size_t i = startRow; i < finishRow; i++)
+        TlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> > tlsData(lipschitzConstant->getNumberOfRows());
+        daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+            algorithmFPType & _maxNorm  = *tlsData.local();
+            const size_t startRow       = iBlock * blockSize;
+            const size_t finishRow      = (iBlock + 1 == nBlocks ? n : (iBlock + 1) * blockSize);
+            const size_t numRowsInBlock = finishRow - startRow;
+            algorithmFPType curentNorm  = 0;
+
+            ReadRows<algorithmFPType, cpu> xptr(dataNT, startRow, numRowsInBlock);
+            DAAL_CHECK_BLOCK_STATUS_THR(xptr);
+            const algorithmFPType * x = const_cast<algorithmFPType *>(xptr.get());
+
+            for (size_t i = 0; i < numRowsInBlock; ++i)
             {
                 curentNorm = 0;
-                for(int j = 0; j < p; j++)
+                for (size_t j = 0; j < p; ++j)
                 {
                     curentNorm += x[i*p+j] * x[i*p+j];
                 }
