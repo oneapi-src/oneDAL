@@ -76,7 +76,7 @@ public:
     #ifdef __linux__
         dlclose(_handle);
     #elif defined(_WIN32) || defined(_WIN64)
-        FreeLibrary(_handle);
+        FreeLibrary((HMODULE)_handle);
     #endif
     };
 
