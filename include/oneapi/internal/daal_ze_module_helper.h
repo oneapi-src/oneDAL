@@ -41,7 +41,16 @@ namespace internal
 {
 namespace interface1
 {
-static const char * zeLoaderName            = "libze_loader.so";
+            #ifdef __linux__
+
+static const char * zeLoaderName = "libze_loader.so";
+
+            #elif defined(_WIN32) || defined(_WIN64)
+
+static const char * zeLoaderName = "libze_loader.dll";
+            #else
+                #error "Level Zero loader name is not defined"
+            #endif
 static const char * zeModuleCreateFuncName  = "zeModuleCreate";
 static const char * zeModuleDestroyFuncName = "zeModuleDestroy";
 
