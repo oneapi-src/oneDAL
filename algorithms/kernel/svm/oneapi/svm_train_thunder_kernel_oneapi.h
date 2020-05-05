@@ -68,8 +68,13 @@ protected:
                                services::Buffer<algorithmFPType> & alpha, services::Buffer<algorithmFPType> & deltaalpha,
                                services::Buffer<algorithmFPType> & resinfo, const size_t nWS);
 
-    bool checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev, const algorithmFPType eps, const size_t nNoChanges,
-                            size_t & sameLocalDiff);
+    bool checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev, const algorithmFPType eps, size_t & sameLocalDiff);
+
+private:
+    // One of the conditions for stopping is diff stays unchanged. nNoChanges - number of repetitions
+    static const size_t nNoChanges = 5;
+    // The maximum numbers of iteration of the subtask is number of observation in WS x cInnerIterations. It's enough to find minimum for subtask.
+    static const size_t cInnerIterations = 1000;
 };
 
 } // namespace internal

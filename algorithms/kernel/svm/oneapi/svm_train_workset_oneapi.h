@@ -63,7 +63,7 @@ struct TaskWorkingSet
 
         const size_t maxWS = deviceInfo.maxWorkGroupSize;
 
-        _nWS       = utils::internal::min(utils::internal::maxpow2(_nVectors), maxWS);
+        _nWS       = utils::internal::min(utils::internal::maxpow2(_nVectors), utils::internal::maxpow2(maxWS));
         _nSelected = 0;
 
         _valuesSort     = context.allocate(TypeIds::id<algorithmFPType>(), _nVectors, &status);

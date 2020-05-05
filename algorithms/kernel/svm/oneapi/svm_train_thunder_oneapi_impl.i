@@ -143,8 +143,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::smoKer
 
 template <typename algorithmFPType, typename ParameterType>
 bool SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev,
-                                                                                 const algorithmFPType eps, const size_t nNoChanges,
-                                                                                 size_t & sameLocalDiff)
+                                                                                 const algorithmFPType eps, size_t & sameLocalDiff)
 {
     sameLocalDiff = utils::internal::abs(diff - diffPrev) < eps * 1e-2 ? sameLocalDiff + 1 : 0;
 
@@ -196,9 +195,9 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
 
     DAAL_CHECK_STATUS(status, workSet.init());
 
-    const size_t nWS        = workSet.getSize();
-    const size_t nNoChanges = 5;
-    const size_t innerMaxIterations(nWS * 1000);
+    const size_t nWS = workSet.getSize();
+
+    const size_t innerMaxIterations(nWS * cInnerIterations);
 
     auto deltaalphaU = context.allocate(idType, nWS, &status);
     DAAL_CHECK_STATUS_VAR(status);
@@ -216,7 +215,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
 
     SVMCacheOneAPIPtr<algorithmFPType> cachePtr;
 
-    if (cacheSize > nVectors * nVectors * sizeof(algorithmFPType))
+    if (cacheSize >= nVectors * nVectors * sizeof(algorithmFPType))
     {
         // TODO: support the simple cache for thunder method
         cachePtr = SVMCacheOneAPI<noCache, algorithmFPType>::create(cacheSize, nWS, nVectors, xTable, kernel, status);
@@ -255,7 +254,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
 
         DAAL_CHECK_STATUS(status, updateGrad(kernelWS, deltaalphaBuff, gradBuff, nVectors, nWS));
 
-        if (checkStopCondition(diff, diffPrev, eps, nNoChanges, sameLocalDiff)) break;
+        if (checkStopCondition(diff, diffPrev, eps, sameLocalDiff)) break;
         diffPrev = diff;
     }
 
