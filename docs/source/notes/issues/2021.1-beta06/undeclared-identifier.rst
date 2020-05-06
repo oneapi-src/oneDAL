@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2014-2020 Intel Corporation
+.. * Copyright 2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,8 +14,22 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-This mode assumes that the data set is split into ``nblocks`` blocks across computation nodes.
+Undeclared identifier ``CL_DEVICE_IL_VERSION_KHR``
+**************************************************
 
-At this moment, the description of
-`distributed processing for K-Means initialization <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-2>`_
-is only available in Developer Guide for Intel(R) DAAL.
+When you build an application with |short_name|, you might encounter the following problem:
+
+.. code-block:: text
+
+    error: use of undeclared identifier CL_DEVICE_IL_VERSION_KHR
+    
+This is caused by a bug in |dpcpp| 2021.1-beta06 release.
+
+How to fix
+----------
+
+The workaround for this issue is to set ``CPLUS_INCLUDE_PATH`` as follows:
+
+.. code-block:: bash
+
+    export CPLUS_INCLUDE_PATH="$DPCPP_ROOT/compiler/latest/linux/include/sycl"

@@ -30,8 +30,52 @@ Moments are basic quantitative measures of data set characteristics such as loca
 - standard deviations
 - variations
 
-At this moment, the full documentation for Moments of Low Order is only available in
-`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-moments-of-low-order>`_.
+Details
+*******
+
+Given a set :math:`X` of :math:`n` feature vectors 
+:math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})` of dimension :math:`p`, 
+the problem is to compute the following sample characteristics for each feature in the data set:
+
+.. list-table::
+   :widths: 20 60
+   :header-rows: 1
+   :align: left
+
+   * - Statistic
+     - Definition
+   * - Minimum
+     - :math:`min(j) = \smash{\displaystyle \min_i } \{x_{ij}\}`
+   * - Maximum
+     - :math:`max(j) = \smash{\displaystyle \max_i } \{x_{ij}\}`
+   * - Sum
+     - :math:`s(j) = \sum_i x_{ij}`
+   * - Sum of squares
+     - :math:`s_2(j) = \sum_i x_{ij}^2`
+   * - Means
+     - :math:`m(j) = \frac {s(j)} {n}`
+   * - Second order raw moment
+     - :math:`a_2(j) = \frac {s_2(j)} {n}`
+   * - Sum of squared difference from the means
+     - :math:`\text{SDM}(j) = \sum_i (x_{ij} - m(j))^2`
+   * - Variance
+     - :math:`k_2(j) = \frac {\text{SDM}(j) } {n - 1}`
+   * - Standard deviation
+     - :math:`\text{stdev}(j) = \sqrt {k_2(j)}`
+   * - Variation coefficient
+     - :math:`V(j) = \frac {\text{stdev}(j)} {m(j)}`
+
+Computation
+***********
+
+The following computation modes are available:
+
+.. toctree::
+   :maxdepth: 1
+   
+   computation-batch.rst
+   computation-online.rst
+   computation-distributed.rst
 
 DPC++ Examples
 **************

@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2014-2020 Intel Corporation
+.. * Copyright 2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,8 +14,18 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-This mode assumes that the data set is split into ``nblocks`` blocks across computation nodes.
+Potential performance degradations
+**********************************
 
-At this moment, the description of
-`distributed processing for K-Means initialization <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-2>`_
-is only available in Developer Guide for Intel(R) DAAL.
+You might experience performance degradations if you use Lever Zero Runtime for GPU computations.
+
+.. include:: includes/note-refer-to-dpcpp-level-zero.rst
+
+How to Fix
+----------
+
+Switch back to OpenCL runtime by setting the ``SYCL_BE`` variable to ``PI_OPENCL``:
+
+.. code-block:: bash
+
+    export SYCL_BE=PI_OPENCL

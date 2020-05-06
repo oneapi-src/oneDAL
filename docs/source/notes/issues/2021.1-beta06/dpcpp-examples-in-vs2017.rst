@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2014-2020 Intel Corporation
+.. * Copyright 2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,8 +14,17 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-This mode assumes that the data set is split into ``nblocks`` blocks across computation nodes.
+DPC++ examples not working
+**************************
 
-At this moment, the description of
-`distributed processing for K-Means initialization <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-2>`_
-is only available in Developer Guide for Intel(R) DAAL.
+DPC++ examples for |short_name| might not work in Visual Studio 2017 by default. You will see the following message:
+
+.. code-block:: text
+
+    The Windows SDK version 10.0 was not found. Install the required version of Windows SDK or change the SDK version 
+    in the project property pages or by right-clicking the solution and selecting "Retarget solution".
+ 
+How to Fix
+----------
+
+Choose the installed SDK version and select :guilabel:`Retarget solution`.

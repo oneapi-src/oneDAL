@@ -32,7 +32,7 @@ def list_examples(path):
             if '.cpp' in file:
                 examples.append(os.path.join(root, file))
 
-    examples = [file.split(path)[1].split('\\')[1:] for file in examples]
+    examples = [file.split(path)[1].split(os.sep)[1:] for file in examples]
 
     return(examples)
 
@@ -42,8 +42,8 @@ def write_examples(files, path):
             rst_file.write(create_rst(file[0], file[1]))
 
 def run(script_dir):
-    example_path = os.path.join(script_dir, '..', 'examples\\cpp_sycl\\source')
-    rst_path = os.path.join(script_dir, 'source\\examples_sycl')
+    example_path = os.path.join(script_dir, '..', 'examples', 'cpp_sycl', 'source')
+    rst_path = os.path.join(script_dir, 'source', 'examples_sycl')
 
     if os.path.exists(rst_path):
         shutil.rmtree(rst_path)

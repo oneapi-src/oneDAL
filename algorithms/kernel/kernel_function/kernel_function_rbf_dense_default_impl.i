@@ -164,8 +164,6 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
             for (size_t i = startRow, ii = 0; i < finishRow; ++i, ++ii)
             {
                 sqrDataA1[i] = zero;
-                PRAGMA_IVDEP
-                PRAGMA_VECTOR_ALWAYS
                 for (size_t j = 0; j < nFeatures; ++j)
                 {
                     sqrDataA1[i] += dataA1[ii * nFeatures + j] * dataA1[ii * nFeatures + j];
@@ -185,8 +183,6 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
             for (size_t i = startRow, ii = 0; i < finishRow; ++i, ++ii)
             {
                 sqrDataA2[i] = zero;
-                PRAGMA_IVDEP
-                PRAGMA_VECTOR_ALWAYS
                 for (size_t j = 0; j < nFeatures; ++j)
                 {
                     sqrDataA2[i] += dataA2[ii * nFeatures + j] * dataA2[ii * nFeatures + j];

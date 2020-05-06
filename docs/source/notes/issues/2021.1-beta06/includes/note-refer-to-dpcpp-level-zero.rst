@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2014-2020 Intel Corporation
+.. * Copyright 2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,8 +14,7 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-This mode assumes that the data set is split into ``nblocks`` blocks across computation nodes.
+.. |dpcpp_level_zero| replace:: Intel\ |reg|\  oneAPI DPC++ Compiler Developer Guide and Reference
+.. _dpcpp_level_zero: https://software.intel.com/en-us/oneapi-dpcpp-compiler-dev-guide-and-reference-optimization-and-programming-guide
 
-At this moment, the description of
-`distributed processing for K-Means initialization <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-2>`_
-is only available in Developer Guide for Intel(R) DAAL.
+.. note:: For more information about Level Zero, refer to |dpcpp_level_zero|_.
