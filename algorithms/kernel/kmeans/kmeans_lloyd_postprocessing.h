@@ -51,10 +51,10 @@ template <Method method, typename algorithmFPType, CpuType cpu>
 struct PostProcessing
 {
     static Status computeAssignments(const size_t p, const size_t nClusters, const algorithmFPType * const inClusters, const NumericTable * ntData,
-                                     algorithmFPType * catCoef, int * assignments);
+                                     algorithmFPType * catCoef, NumericTable * ntAssign);
 
     static Status computeExactObjectiveFunction(const size_t p, const size_t nClusters, const algorithmFPType * const inClusters,
-                                                const NumericTable * const ntData, const algorithmFPType * const catCoef, int * assignments,
+                                                const NumericTable * const ntData, const algorithmFPType * const catCoef, NumericTable * ntAssign,
                                                 algorithmFPType & objectiveFunction);
 };
 
@@ -64,7 +64,7 @@ struct PostProcessing<lloydDense, algorithmFPType, cpu>
     const static size_t blockSizeDeafult = 512;
 
     static Status computeAssignments(const size_t p, const size_t nClusters, const algorithmFPType * const inClusters, const NumericTable * ntData,
-                                     algorithmFPType * catCoef, int * assignments)
+                                     algorithmFPType * catCoef, NumericTable * ntAssign)
     {
         const size_t n       = ntData->getNumberOfRows();
         const size_t nBlocks = n / blockSizeDeafult + !!(n % blockSizeDeafult);
@@ -97,6 +97,10 @@ struct PostProcessing<lloydDense, algorithmFPType, cpu>
             DAAL_CHECK_BLOCK_STATUS_THR(mtData);
             const algorithmFPType * const data = mtData.get();
 
+            WriteOnlyRows<int, cpu> assignBlock(ntAssign, iBlock * blockSizeDeafult, blockSize);
+            DAAL_CHECK_BLOCK_STATUS_THR(assignBlock);
+            int * assignments = assignBlock.get();
+
             const algorithmFPType * clustersSq = clSq.get();
             char transa                        = 't';
             char transb                        = 'n';
@@ -125,7 +129,7 @@ struct PostProcessing<lloydDense, algorithmFPType, cpu>
                     }
                 }
 
-                assignments[iBlock * blockSizeDeafult + i] = minIdx;
+                assignments[i] = minIdx;
             }
         });
         DAAL_CHECK_SAFE_STATUS();
@@ -136,7 +140,7 @@ struct PostProcessing<lloydDense, algorithmFPType, cpu>
     }
 
     static Status computeExactObjectiveFunction(const size_t p, const size_t nClusters, const algorithmFPType * const inClusters,
-                                                const NumericTable * const ntData, const algorithmFPType * const catCoef, int * assignments,
+                                                const NumericTable * const ntData, const algorithmFPType * const catCoef, NumericTable * ntAssign,
                                                 algorithmFPType & objectiveFunction)
     {
         const size_t n       = ntData->getNumberOfRows();
@@ -155,10 +159,14 @@ struct PostProcessing<lloydDense, algorithmFPType, cpu>
             DAAL_CHECK_BLOCK_STATUS_THR(mtData);
             const algorithmFPType * const data = mtData.get();
 
+            ReadRows<int, cpu> assignBlock(ntAssign, iBlock * blockSizeDeafult, blockSize);
+            DAAL_CHECK_BLOCK_STATUS_THR(assignBlock);
+            const int * assignments = assignBlock.get();
+
             algorithmFPType goal = algorithmFPType(0);
             for (size_t k = 0; k < blockSize; k++)
             {
-                const size_t assk = assignments[iBlock * blockSizeDeafult + k];
+                const size_t assk = assignments[k];
                 PRAGMA_ICC_NO16(omp simd reduction(+ : goal))
                 PRAGMA_IVDEP
                 for (size_t j = 0; j < p; j++)
@@ -189,7 +197,7 @@ struct PostProcessing<lloydCSR, algorithmFPType, cpu>
     const static size_t blockSizeDeafult = 512;
 
     static Status computeAssignments(const size_t p, const size_t nClusters, const algorithmFPType * const inClusters, const NumericTable * ntData,
-                                     algorithmFPType * catCoef, int * assignments)
+                                     algorithmFPType * catCoef, NumericTable * ntAssign)
     {
         CSRNumericTableIface * ntDataCsr = dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(ntData));
 
@@ -231,6 +239,10 @@ struct PostProcessing<lloydCSR, algorithmFPType, cpu>
 
             const algorithmFPType * clustersSq = clSq.get();
 
+            WriteOnlyRows<int, cpu> assignBlock(ntAssign, iBlock * blockSizeDeafult, blockSize);
+            DAAL_CHECK_BLOCK_STATUS_THR(assignBlock);
+            int * assignments = assignBlock.get();
+
             const char transa           = 'n';
             const DAAL_INT _n           = blockSize;
             const DAAL_INT _p           = p;
@@ -255,7 +267,7 @@ struct PostProcessing<lloydCSR, algorithmFPType, cpu>
                         minIdx     = j;
                     }
                 }
-                assignments[iBlock * blockSizeDeafult + i] = minIdx;
+                assignments[i] = minIdx;
             }
         });
         DAAL_CHECK_SAFE_STATUS();
@@ -264,7 +276,7 @@ struct PostProcessing<lloydCSR, algorithmFPType, cpu>
     }
 
     static Status computeExactObjectiveFunction(const size_t p, const size_t nClusters, const algorithmFPType * const inClusters,
-                                                const NumericTable * const ntData, const algorithmFPType * const catCoef, int * assignments,
+                                                const NumericTable * const ntData, const algorithmFPType * const catCoef, NumericTable * ntAssign,
                                                 algorithmFPType & objectiveFunction)
     {
         CSRNumericTableIface * ntDataCsr = dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(ntData));
@@ -283,6 +295,10 @@ struct PostProcessing<lloydCSR, algorithmFPType, cpu>
             ReadRowsCSR<algorithmFPType, cpu> dataBlock(ntDataCsr, iBlock * blockSizeDeafult, blockSize);
             DAAL_CHECK_BLOCK_STATUS_THR(dataBlock);
 
+            ReadRows<int, cpu> assignBlock(ntAssign, iBlock * blockSizeDeafult, blockSize);
+            DAAL_CHECK_BLOCK_STATUS_THR(assignBlock);
+            const int * assignments = assignBlock.get();
+
             const algorithmFPType * const data = dataBlock.values();
             const size_t * const colIdx        = dataBlock.cols();
             const size_t * const rowIdx        = dataBlock.rows();
@@ -293,7 +309,7 @@ struct PostProcessing<lloydCSR, algorithmFPType, cpu>
                 const size_t jStart  = rowIdx[k] - 1;
                 const size_t jFinish = rowIdx[k + 1] - 1;
 
-                const size_t assk = assignments[iBlock * blockSizeDeafult + k];
+                const size_t assk = assignments[k];
                 PRAGMA_ICC_NO16(omp simd reduction(+ : goal))
                 PRAGMA_IVDEP
 

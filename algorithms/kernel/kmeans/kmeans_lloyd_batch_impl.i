@@ -108,23 +108,18 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
         clusters = tClusters.get();
     }
 
-    WriteOnlyRows<int, cpu> mtAssignments(const_cast<NumericTable *>(r[1]), 0, n);
-
-    TArray<int, cpu> tAssignments;
-    int * assignments = nullptr;
+    NumericTable * assignmetsNT = nullptr;
+    NumericTablePtr assignmentsPtr;
     if (par->resultsToEvaluate & computeAssignments)
     {
-        DAAL_CHECK_BLOCK_STATUS(mtAssignments);
-        assignments = mtAssignments.get();
+        assignmetsNT = const_cast<NumericTable *>(r[1]);
     }
     else if (par->resultsToEvaluate & computeExactObjectiveFunction)
     {
-        tAssignments.reset(n);
-        assignments = tAssignments.get();
+        assignmentsPtr = HomogenNumericTableCPU<int, cpu>::create(1, n, &s);
+        DAAL_CHECK_MALLOC(s);
+        assignmetsNT = assignmentsPtr.get();
     }
-
-    auto assignmentsPtr = HomogenNumericTableCPU<int, cpu>::create(assignments, 1, n, &s);
-    DAAL_CHECK_MALLOC(s);
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, p, sizeof(double));
 
@@ -149,8 +144,8 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(addNTToTaskThreaded);
             /* For the last iteration we do not need to recount of assignmets */
-            NumericTable * assignmetsNT = assignments && kIter == nIter - 1 ? assignmentsPtr.get() : nullptr;
-            s                           = task->template addNTToTaskThreaded<method>(ntData, catCoef.get(), assignmetsNT);
+            NumericTable * sda = assignmetsNT && (kIter == nIter - 1) ? assignmetsNT : nullptr;
+            s                  = task->template addNTToTaskThreaded<method>(ntData, catCoef.get(), sda);
         }
 
         if (!s)
@@ -230,9 +225,9 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
         clusters = inClusters;
     }
 
-    if (kIter != nIter - 1 && (par->resultsToEvaluate & computeAssignments || par->resultsToEvaluate & computeExactObjectiveFunction))
+    if ((kIter != nIter || nIter == 0) && (par->resultsToEvaluate & computeAssignments || par->resultsToEvaluate & computeExactObjectiveFunction))
     {
-        PostProcessing<method, algorithmFPType, cpu>::computeAssignments(p, nClusters, clusters, ntData, catCoef.get(), assignments);
+        PostProcessing<method, algorithmFPType, cpu>::computeAssignments(p, nClusters, clusters, ntData, catCoef.get(), assignmetsNT);
     }
 
     WriteOnlyRows<algorithmFPType, cpu> mtTarget(*const_cast<NumericTable *>(r[2]), 0, 1);
@@ -240,8 +235,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
     if (par->resultsToEvaluate & computeExactObjectiveFunction)
     {
         algorithmFPType exactTargetFunc = algorithmFPType(0);
-
-        PostProcessing<method, algorithmFPType, cpu>::computeExactObjectiveFunction(p, nClusters, clusters, ntData, catCoef.get(), assignments,
+        PostProcessing<method, algorithmFPType, cpu>::computeExactObjectiveFunction(p, nClusters, clusters, ntData, catCoef.get(), assignmetsNT,
                                                                                     exactTargetFunc);
 
         *mtTarget.get() = exactTargetFunc;
