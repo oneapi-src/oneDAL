@@ -50,12 +50,11 @@ private:
                                              daal::data_management::NumericTable * ntCoreIndices,
                                              daal::data_management::NumericTable * ntCoreObservations);
     services::Status pushNeighborsToQueue(const oneapi::internal::UniversalBuffer & distances, const oneapi::internal::UniversalBuffer & chunkOffests,
-                                          uint32_t rowId, uint32_t clusterId, uint32_t chunkOffset, uint32_t numberOfChunks, uint32_t nRows,
-                                          uint32_t qEnd, algorithmFPType eps, oneapi::internal::UniversalBuffer & assignments,
+                                          uint32_t rowId, uint32_t clusterId, uint32_t chunkOffset, uint32_t nRows, uint32_t qEnd,
+                                          algorithmFPType eps, oneapi::internal::UniversalBuffer & assignments,
                                           oneapi::internal::UniversalBuffer & queue);
 
-    services::Status countOffsets(const oneapi::internal::UniversalBuffer & counters, uint32_t numberOfChunks,
-                                  oneapi::internal::UniversalBuffer & offsets);
+    services::Status countOffsets(const oneapi::internal::UniversalBuffer & counters, oneapi::internal::UniversalBuffer & offsets);
 
     services::Status setBufferValue(oneapi::internal::UniversalBuffer & buffer, uint32_t index, int value);
 
@@ -71,10 +70,10 @@ private:
 
     services::Status countPointNeighbors(const oneapi::internal::UniversalBuffer & assignments,
                                          const oneapi::internal::UniversalBuffer & pointDistances, uint32_t rowId, int chunkOffset, uint32_t nRows,
-                                         uint32_t numberOfChunks, algorithmFPType epsP, const oneapi::internal::UniversalBuffer & queue,
+                                         algorithmFPType epsP, const oneapi::internal::UniversalBuffer & queue,
                                          oneapi::internal::UniversalBuffer & countersTotal, oneapi::internal::UniversalBuffer & countersNewNeighbors);
 
-    uint32_t sumCounters(const oneapi::internal::UniversalBuffer & counters, uint32_t numberOfChunks);
+    uint32_t sumCounters(const oneapi::internal::UniversalBuffer & counters);
 
     bool canQueryRow(const oneapi::internal::UniversalBuffer & assignments, uint32_t rowIndex, services::Status * s);
 
@@ -86,10 +85,16 @@ private:
 
     services::Status buildProgram(oneapi::internal::ClKernelFactoryIface & kernel_factory);
 
-    static const size_t _minSubgroupSize  = 16;
-    static const size_t _maxWorkgroupSize = 256;
-    static const size_t _chunkNumber      = 64;
-    static const size_t _queueBlockSize   = 64;
+    void calculateChunks(uint32_t nRows);
+
+    static const uint32_t _minSubgroupSize              = 16;
+    static const uint32_t _maxWorkgroupSize             = 256;
+    static const uint32_t _minRecommendedNumberOfChunks = 64;
+    static const uint32_t _recommendedChunkSize         = 256;
+    static const uint32_t _minChunkSize                 = 16;
+    static const uint32_t _queueBlockSize               = 64;
+    uint32_t _chunkNumber                               = _minRecommendedNumberOfChunks;
+    uint32_t _chunkSize                                 = _recommendedChunkSize;
 
     oneapi::internal::UniversalBuffer _queueBlockDistances;
     oneapi::internal::UniversalBuffer _singlePointDistances;

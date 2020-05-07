@@ -89,6 +89,7 @@ EXT_LIB := -lpthread -ldl
 
 ifeq ($(threading),sequential)
     DAAL_LIB_T := $(DAAL_PATH)/libdaal_sequential.$(RES_EXT)
+    EXT_LIB += $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
 else
     override threading = parallel
     DAAL_LIB_T := $(DAAL_PATH)/libdaal_thread.$(RES_EXT)
