@@ -130,18 +130,36 @@ At the prediction stage, Naïve Bayes classifier has the following parameters:
      - The number of classes. A required parameter.
 
 
+Online Processing
+*****************
+
+At this moment, the description of online processing for Naïve Bayes classifier is only available in
+`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-online-processing-4>`_.
+
+Distributed Processing
+**********************
+
+At this moment, the description of distributed processing for Naïve Bayes classifier is only available in
+`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-8>`_.
+
 Examples
-----------
+********
 
-C++:
+.. tabs::
 
--  :cpp_example:`naive_bayes/mn_naive_bayes_dense_batch.cpp`
--  :cpp_example:`naive_bayes/mn_naive_bayes_csr_batch.cpp`
+  .. tab:: C++
 
-Java*:
+    Batch Processing:
 
--  :java_example:`naive_bayes/MnNaiveBayesDenseBatch.java`
--  :java_example:`naive_bayes/MnNaiveBayesCSRBatch.java`
+    -  :cpp_example:`mn_naive_bayes_dense_batch.cpp <naive_bayes/mn_naive_bayes_dense_batch.cpp>`
+    -  :cpp_example:`mn_naive_bayes_csr_batch.cpp <naive_bayes/mn_naive_bayes_csr_batch.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+    
+    -  :java_example:`MnNaiveBayesDenseBatch.java <naive_bayes/MnNaiveBayesDenseBatch.java>`
+    -  :java_example:`MnNaiveBayesCSRBatch.java <naive_bayes/MnNaiveBayesCSRBatch.java>`
 
 .. Python*:
 

@@ -153,7 +153,7 @@ typedef services::SharedPtr<Model> ModelPtr;
  */
 enum ResultToComputeId
 {
-    computeWeakLearnersErrors = 0x00000001ULL,
+    computeWeakLearnersErrors = 0x00000001ULL
 };
 /**
  * \brief Contains version 2.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.

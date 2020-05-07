@@ -77,7 +77,7 @@ Batch Processing
 ================
 
 Decision tree regression follows the general workflow described
-in `Regression Usage Model <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction>`_.
+in :ref:`regression_usage_model`.
 
 Training
 --------
@@ -149,8 +149,18 @@ parameters:
 Examples
 --------
 
-C++: :cpp_example:`decision_tree/dt_reg_dense_batch.cpp`
+.. tabs::
 
-Java*: :java_example:`decision_tree/DtRegDenseBatch.java`
+  .. tab:: C++
+
+    Batch Processing:
+
+    - :cpp_example:`dt_reg_dense_batch.cpp <decision_tree/dt_reg_dense_batch.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+
+    - :java_example:`DtRegDenseBatch.java <decision_tree/DtRegDenseBatch.java>`
 
 .. Python*: dt_reg_dense_batch.py

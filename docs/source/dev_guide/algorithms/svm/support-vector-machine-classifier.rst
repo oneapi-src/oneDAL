@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _svm:
+
 Support Vector Machine Classifier
 =================================
 
@@ -81,11 +83,53 @@ value defines the class of the feature vector, and the absolute
 value of the function is a multiple of the distance between the
 feature vector and separating hyperplane.
 
+Usage of Training Alternative
+*****************************
+
+To build a Support Vector Machine (SVM) Classifier model using methods of the Model Builder class of SVM Classifier,
+complete the following steps:
+
+- Create an SVM Classifier model builder using a constructor with the required number of support vectors and features.
+- In any sequence:
+
+  - Use the ``setSupportVectors``, ``setClassificationCoefficients``, and ``setSupportIndices`` methods to add
+    pre-calculated support vectors, classification coefficients, and support indices (optional), respectively, to the model.
+    For each method specify random access iterators to the first and the last element
+    of the corresponding set of values [ISO/IEC 14882:2011 § 24.2.7].
+  - Use ``setBias`` to add a bias term to the model.
+
+- Use the ``getModel`` method to get the trained SVM Classifier model.
+- Use the ``getStatus`` method to check the status of the model building process. 
+  If ``DAAL_NOTHROW_EXCEPTIONS`` macros is defined, the status report contains the list of errors
+  that describe the problems API encountered (in case of API runtime failure).
+
+.. note::
+
+   If after calling the getModel method you use the ``setBias``, ``setSupportVectors``, ``setClassificationCoefficients``, or ``setSupportIndices``
+   methods, coefficients, the initial model will be automatically updated with the new set of parameters.
+
+Examples
+--------
+
+.. tabs::
+
+  .. tab:: C++
+  
+   :cpp_example:`svm_two_class_model_builder.cpp <svm/svm_two_class_model_builder.cpp>`
+
+  .. tab:: Java*
+
+   :java_example:`SVMTwoClassModelBuilder.java <svm/SVMTwoClassModelBuilder.java>`
+  
+  .. tab:: Python*
+
+   :daal4py_example:`svm_two_class_model_builder.py`
+
 Batch Processing
 ****************
 
 SVM classifier follows the general workflow described in
-`Classification Usage Model <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction-1>`_.
+:ref:`classification_usage_model`.
 
 Training
 --------
@@ -186,15 +230,21 @@ At the prediction stage, SVM classifier has the following parameters:
 Examples
 --------
 
-C++:
+.. tabs::
 
--  :cpp_example:`svm/svm_two_class_dense_batch.cpp`
--  :cpp_example:`svm/svm_two_class_csr_batch.cpp`
+  .. tab:: C++
 
-Java*:
+   Batch Processing:
 
--  :java_example:`svm/SVMTwoClassDenseBatch.java`
--  :java_example:`svm/SVMTwoClassCSRBatch.java`
+   -  :cpp_example:`svm_two_class_dense_batch.cpp <svm/svm_two_class_dense_batch.cpp>`
+   -  :cpp_example:`svm_two_class_csr_batch.cpp <svm/svm_two_class_csr_batch.cpp>`
+
+  .. tab:: Java*
+   
+   Batch Processing:
+
+   -  :java_example:`SVMTwoClassDenseBatch.java <svm/SVMTwoClassDenseBatch.java>`
+   -  :java_example:`SVMTwoClassCSRBatch.java <svm/SVMTwoClassCSRBatch.java>`
 
 .. Python*:
 

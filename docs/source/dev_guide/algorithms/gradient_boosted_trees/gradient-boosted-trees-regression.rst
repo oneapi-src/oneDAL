@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _gbt_regression:
+
 Regression Gradient Boosted Trees
 =================================
 
@@ -46,11 +48,61 @@ vector :math:`x_i`, the algorithm finds the leaf node in a tree in
 the ensemble, and the leaf node gives the tree response. The
 algorithm result is a sum of responses of all the trees.
 
+Usage of Training Alternative
+*****************************
+
+To build a Gradient Boosted Trees Regression model using methods of the Model Builder class
+of Gradient Boosted Tree Regression, complete the following steps:
+
+- Create a Gradient Boosted Tree Regression model builder using a constructor with the required number of classes and trees.
+- Create a decision tree and add nodes to it:
+
+  - Use the ``createTree`` method with the required number of nodes in a tree and a label of the class for which the tree is created.
+  - Use the ``addSplitNode`` and ``addLeafNode`` methods to add split and leaf nodes to the created tree.
+    See the note below describing the decision tree structure.
+  - After you add all nodes to the current tree, proceed to creating the next one in the same way.
+
+- Use the ``getModel`` method to get the trained Gradient Boosted Trees Regression model after all trees have been created.
+
+.. note::
+
+  Each tree consists of internal nodes (called non-leaf or split nodes) and external nodes (leaf nodes).
+  Each split node denotes a feature test that is a Boolean expression, for example,
+  f < ``featureValue`` or f = ``featureValue``, where f is a feature and ``featureValue`` is a constant.
+  The test type depends on the feature type: continuous, categorical, or ordinal. 
+  For more information on the test types, see :ref:`decision_tree`.
+
+  The inducted decision tree is a binary tree, meaning that each non-leaf node has exactly two branches: true and false.
+  Each split node contains ``featureIndex``, the index of the feature used for the feature test in this node, and ``featureValue``,
+  the constant for the Boolean expression in the test. Each leaf node contains a ``classLabel``, the predicted class for this leaf.
+  For more information on decision trees, see :ref:`decision_tree`.
+
+  Add nodes to the created tree in accordance with the pre-calculated structure of the tree.
+  Check that the leaf nodes do not have children nodes and that the splits have exactly two children.
+
+Examples
+--------
+
+.. tabs::
+
+  .. tab:: C++
+
+    - :cpp_example:`gbt_reg_traversed_model_builder.cpp <gradient_boosted_trees/gbt_reg_traversed_model_builder.cpp>`
+
+  .. tab:: Java*
+
+    - :java_example:`GbtRegTraversedModelBuilder.java <gbt/GbtRegTraversedModelBuilder.java>`
+
+  .. tab:: Python*
+
+    - :daal4py_example:`gbt_reg_traversed_model_builder.py`
+
+
 Batch Processing
 ****************
 
 Gradient boosted trees regression follows the general workflow
-described in :ref:`gb_trees` and `Regression Usage Model <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction>`_.
+described in :ref:`gb_trees` and :ref:`regression_usage_model`.
 
 Training
 --------
@@ -106,8 +158,24 @@ trees regression has the following parameters at the prediction stage:
 Examples
 ********
 
-C++: :cpp_example:`gradient_boosted_trees/gbt_reg_dense_batch.cpp`
+.. tabs::
 
-Java*: :java_example:`gbt/GbtRegDenseBatch.java`
+  .. tab:: DPC++
+
+    Batch Processing:
+
+    - :ref:`gbt_reg_dense_batch.cpp`
+
+  .. tab:: C++
+  
+    Batch Processing:
+
+    - :cpp_example:`gbt_reg_dense_batch.cpp <gradient_boosted_trees/gbt_reg_dense_batch.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+
+    - :java_example:`GbtRegDenseBatch.java <gbt/GbtRegDenseBatch.java>`
 
 .. Python*: gbt_reg_dense_batch.py

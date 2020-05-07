@@ -17,6 +17,8 @@
 .. re-use for math equations:
 .. |x_vector| replace:: :math:`(x_1, \ldots, x_p)`
 
+.. _linear_regression:
+
 Linear Regression
 =================
 
@@ -71,4 +73,43 @@ Linear regression based prediction is done for input vector |x_vector|
 using the equation :math:`y_j = \beta_{0j} + \beta_{1j}x_1 + \ldots + \beta_{pj}x_p`
 for each :math:`j=1, \ldots, k`.
 
+Usage of Training Alternative
+*****************************
 
+To build a Linear Regression model using methods of the Model Builder class of Linear Regression, complete the following steps:
+
+- Create a Linear Regression model builder using a constructor with the required number of responses and features.
+- Use the ``setBeta`` method to add the set of pre-calculated coefficients to the model.
+  Specify random access iterators to the first and the last element of the set of coefficients [ISO/IEC 14882:2011 §24.2.7].
+
+  .. note::
+  
+    If your set of coefficients does not contain an intercept, 
+    ``interceptFlag`` is automatically set to ``False``, and to ``True``, otherwise.
+
+- Use the ``getModel`` method to get the trained Linear Regression model.
+- Use the ``getStatus`` method to check the status of the model building process.
+  If ``DAAL_NOTHROW_EXCEPTIONS`` macros is defined, the status report contains the list of errors
+  that describe the problems API encountered (in case of API runtime failure).
+
+.. note::
+
+  If after calling the ``getModel`` method you use the ``setBeta`` method to update coefficients,
+  the initial model will be automatically updated with the new :math:`\beta` coefficients.
+
+Examples
+--------
+
+.. tabs::
+
+  .. tab:: C++
+
+    - :cpp_example:`lin_reg_model_builder.cpp <linear_regression/lin_reg_model_builder.cpp>`
+
+  .. tab:: Java*
+
+    - :java_example:`LinRegModelBuilder.java <linear_regression/LinRegModelBuilder.java>`
+
+  .. tab:: Python*
+
+    - :daal4py_example:`lin_reg_model_builder.py`

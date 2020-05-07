@@ -35,13 +35,18 @@ namespace daal
 namespace algorithms
 {
 /**
- * @defgroup stump Stump
- * \copydoc daal::algorithms::stump
- * @ingroup classifier
- * @{
+ * \brief Contains classes for Decision tree algorithm
  */
 namespace stump
 {
+/**
+ * @defgroup stump_classification Decision Stump Classification
+ * \copydoc daal::algorithms::stump::classification
+ * @ingroup classification
+ */
+/**
+ * \brief Contains classes for Decision Stump Classification algorithm
+ */
 namespace classification
 {
 /**
@@ -59,6 +64,10 @@ enum VariableImportanceMode
 namespace interface1
 {
 // CLARIFICATION:: Added parameter class to support different split criterions for stump.
+/**
+ * @ingroup stump_classification
+ * @{
+ */
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__STUMP__CLASSIFICATION__PARAMETER"></a>
  * \brief Stump algorithm parameters
@@ -163,8 +172,8 @@ using interface1::Model;
 using interface1::ModelPtr;
 using interface1::ModelConstPtr;
 
-} // namespace classification
 /** @} */
+} // namespace classification
 } // namespace stump
 } // namespace algorithms
 } // namespace daal

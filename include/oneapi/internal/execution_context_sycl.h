@@ -58,20 +58,60 @@ public:
         }
         if (!res)
         {
-            auto programPtr = services::SharedPtr<OpenClProgramRef>(
-                new OpenClProgramRef(_deviceQueue.get_context().get(), _deviceQueue.get_device().get(), name, program, options, &localStatus));
-            if (!localStatus.ok())
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
+            const bool isOpenCLBackendAvailable = !_deviceQueue.get_device().template get_info<sycl::info::device::opencl_c_version>().empty();
+            if (isOpenCLBackendAvailable)
             {
-                services::internal::tryAssignStatus(status, localStatus);
-                return;
+        #endif //DAAL_DISABLE_LEVEL_ZERO \
+            // OpenCl branch
+                auto programPtr = services::SharedPtr<OpenClProgramRef>(
+                    new OpenClProgramRef(_deviceQueue.get_context().get(), _deviceQueue.get_device().get(), name, program, options, &localStatus));
+
+                if (!localStatus.ok())
+                {
+                    services::internal::tryAssignStatus(status, localStatus);
+                    return;
+                }
+                programHashTable.add(key, programPtr, localStatus);
+                if (!localStatus.ok())
+                {
+                    services::internal::tryAssignStatus(status, localStatus);
+                    return;
+                }
+
+                _currentProgramRef = programPtr.get();
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
             }
-            programHashTable.add(key, programPtr, localStatus);
-            if (!localStatus.ok())
+            else
             {
-                services::internal::tryAssignStatus(status, localStatus);
-                return;
+                if (nullptr == _levelZeroOpenClInteropContext.getOpenClDeviceRef().get())
+                {
+                    _levelZeroOpenClInteropContext.reset((ze_device_handle_t)_deviceQueue.get_device().get(), &localStatus);
+                }
+                if (!localStatus.ok())
+                {
+                    services::internal::tryAssignStatus(status, localStatus);
+                    return;
+                }
+
+                auto programPtr = services::SharedPtr<OpenClProgramRef>(new OpenClProgramRef(
+                    _levelZeroOpenClInteropContext.getOpenClContextRef().get(), _levelZeroOpenClInteropContext.getOpenClDeviceRef().get(),
+                    (ze_device_handle_t)_deviceQueue.get_device().get(), name, program, options, &localStatus));
+                if (!localStatus.ok())
+                {
+                    services::internal::tryAssignStatus(status, localStatus);
+                    return;
+                }
+                programHashTable.add(key, programPtr, localStatus);
+                if (!localStatus.ok())
+                {
+                    services::internal::tryAssignStatus(status, localStatus);
+                    return;
+                }
+
+                _currentProgramRef = programPtr.get();
             }
-            _currentProgramRef = programPtr.get();
+        #endif //DAAL_DISABLE_LEVEL_ZERO
         }
         else
         {
@@ -113,13 +153,34 @@ public:
         }
         else
         {
-            auto kernelRef = OpenClKernelRef(_currentProgramRef->get(), kernelName, &localStatus);
-            if (!localStatus.ok())
+            KernelPtr kernel;
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
+            const bool isOpenCLBackendAvailable = !_deviceQueue.get_device().template get_info<sycl::info::device::opencl_c_version>().empty();
+            if (isOpenCLBackendAvailable)
             {
-                services::internal::tryAssignStatus(status, localStatus);
-                return KernelPtr();
+        #endif //DAAL_DISABLE_LEVEL_ZERO
+                auto kernelRef = OpenClKernelRef(_currentProgramRef->get(), kernelName, &localStatus);
+                if (!localStatus.ok())
+                {
+                    services::internal::tryAssignStatus(status, localStatus);
+                    return KernelPtr();
+                }
+                kernel.reset(new OpenClKernelNative(_executionTarget, *_currentProgramRef, kernelRef));
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
             }
-            KernelPtr kernel(new OpenClKernel(_executionTarget, *_currentProgramRef, kernelRef));
+            else
+            {
+                // Level 0 branch
+                auto kernelRef = OpenClKernelLevelZeroRef(kernelName, &localStatus);
+
+                if (!localStatus.ok())
+                {
+                    services::internal::tryAssignStatus(status, localStatus);
+                    return KernelPtr();
+                }
+                kernel.reset(new OpenClKernelLevelZero(_executionTarget, *_currentProgramRef, kernelRef));
+            }
+        #endif //DAAL_DISABLE_LEVEL_ZERO
             kernelHashTable.add(key, kernel, localStatus);
             if (!localStatus.ok())
             {
@@ -137,6 +198,9 @@ private:
     services::internal::HashTable<KernelIface, SIZE_HASHTABLE_KERNEL> kernelHashTable;
 
     OpenClProgramRef * _currentProgramRef;
+        #ifndef DAAL_DISABLE_LEVEL_ZERO
+    LevelZeroOpenClInteropContext _levelZeroOpenClInteropContext;
+        #endif //DAAL_DISABLE_LEVEL_ZERO
 
     ExecutionTargetId _executionTarget;
     cl::sycl::queue & _deviceQueue;
