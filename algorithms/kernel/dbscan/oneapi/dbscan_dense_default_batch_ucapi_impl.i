@@ -41,6 +41,7 @@ namespace internal
 template <typename algorithmFPType>
 services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::initializeBuffers(uint32_t nRows)
 {
+    calculateChunks(nRows);
     Status s;
     auto & context = Environment::getInstance()->getDefaultExecutionContext();
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, _queueBlockSize, nRows);
@@ -66,6 +67,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::initializeBuffers(uint
 template <typename algorithmFPType>
 bool DBSCANBatchKernelUCAPI<algorithmFPType>::canQueryRow(const UniversalBuffer & assignments, uint32_t rowIndex, Status * s)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(compute.canQueryRow);
     auto pointAssignment = assignments.template get<int>().getSubBuffer(rowIndex, 1, s);
     DAAL_CHECK_STATUS_RETURN_IF_FAIL(s, false);
 
@@ -148,7 +150,12 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::processResultsToCompute(DAAL_UIN
         DAAL_CHECK_STATUS_VAR(ntCoreObservations->resize(nCoreObservations));
         BlockDescriptor<algorithmFPType> coreObservationsRows;
         DAAL_CHECK_STATUS_VAR(ntCoreObservations->getBlockOfRows(0, nCoreObservations, writeOnly, coreObservationsRows));
-        auto coreObservations = coreObservationsRows.getBuffer();
+        auto coreObservations    = coreObservationsRows.getBuffer();
+        auto coreObservationsPtr = coreObservations.toHost(ReadWriteMode::writeOnly);
+        BlockDescriptor<algorithmFPType> dataRows;
+        DAAL_CHECK_STATUS_VAR(ntData->getBlockOfRows(0, nRows, readOnly, dataRows));
+        auto data    = dataRows.getBuffer();
+        auto dataPtr = data.toHost(ReadWriteMode::readOnly);
 
         uint32_t pos = 0;
         for (uint32_t i = 0; i < nRows; i++)
@@ -157,16 +164,11 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::processResultsToCompute(DAAL_UIN
             {
                 continue;
             }
-            BlockDescriptor<algorithmFPType> dataRows;
-            DAAL_CHECK_STATUS_VAR(ntData->getBlockOfRows(i, 1, readOnly, dataRows));
-            auto data = dataRows.getBuffer();
-
-            Status st;
-            context.copy(UniversalBuffer(coreObservations), pos * nFeatures, UniversalBuffer(data), 0, nFeatures, &st);
-            DAAL_CHECK_STATUS_VAR(st);
+            for (uint32_t j = 0; j < nFeatures; j++) coreObservationsPtr.get()[pos * nFeatures + j] = dataPtr.get()[i * nFeatures + j];
             pos++;
-            DAAL_CHECK_STATUS_VAR(ntData->releaseBlockOfRows(dataRows));
         }
+        DAAL_CHECK_STATUS_VAR(ntCoreObservations->releaseBlockOfRows(coreObservationsRows));
+        DAAL_CHECK_STATUS_VAR(ntData->releaseBlockOfRows(dataRows));
     }
 
     return Status();
@@ -218,9 +220,9 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
         }
         DAAL_CHECK_STATUS_VAR(getPointDistances(data, nRows, i, nFeatures, minkowskiPower, _singlePointDistances));
         DAAL_CHECK_STATUS_VAR(
-            countPointNeighbors(assignments, _singlePointDistances, i, -1, nRows, _chunkNumber, epsP, _queue, _countersTotal, _countersNewNeighbors));
-        uint32_t numTotalNeighbors = sumCounters(_countersTotal, _chunkNumber);
-        uint32_t numNewNeighbors   = sumCounters(_countersNewNeighbors, _chunkNumber);
+            countPointNeighbors(assignments, _singlePointDistances, i, -1, nRows, epsP, _queue, _countersTotal, _countersNewNeighbors));
+        uint32_t numTotalNeighbors = sumCounters(_countersTotal);
+        uint32_t numNewNeighbors   = sumCounters(_countersNewNeighbors);
         if (numTotalNeighbors < par->minObservations)
         {
             DAAL_CHECK_STATUS_VAR(setBufferValue(assignments, i, noise));
@@ -228,9 +230,9 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
         }
         nClusters++;
         DAAL_CHECK_STATUS_VAR(setBufferValue(_isCore, i, 1));
-        DAAL_CHECK_STATUS_VAR(countOffsets(_countersNewNeighbors, _chunkNumber, _chunkOffsets));
-        DAAL_CHECK_STATUS_VAR(pushNeighborsToQueue(_singlePointDistances, _chunkOffsets, i, nClusters - 1, -1, _chunkNumber, nRows, queueEnd, epsP,
-                                                   assignments, _queue));
+        DAAL_CHECK_STATUS_VAR(countOffsets(_countersNewNeighbors, _chunkOffsets));
+        DAAL_CHECK_STATUS_VAR(
+            pushNeighborsToQueue(_singlePointDistances, _chunkOffsets, i, nClusters - 1, -1, nRows, queueEnd, epsP, assignments, _queue));
         queueEnd += numNewNeighbors;
         while (queueBegin < queueEnd)
         {
@@ -238,25 +240,24 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
             getQueueBlockDistances(data, nRows, _queue, queueBegin, curQueueBlockSize, nFeatures, minkowskiPower, _queueBlockDistances);
             for (uint32_t j = 0; j < curQueueBlockSize; j++)
             {
-                countPointNeighbors(assignments, _queueBlockDistances, queueBegin + j, nRows * j, nRows, _chunkNumber, epsP, _queue, _countersTotal,
+                countPointNeighbors(assignments, _queueBlockDistances, queueBegin + j, nRows * j, nRows, epsP, _queue, _countersTotal,
                                     _countersNewNeighbors);
-                uint32_t curTotalNeighbors = sumCounters(_countersTotal, _chunkNumber);
-                uint32_t curNewNeighbors   = sumCounters(_countersNewNeighbors, _chunkNumber);
+                uint32_t curTotalNeighbors = sumCounters(_countersTotal);
+                uint32_t curNewNeighbors   = sumCounters(_countersNewNeighbors);
                 setBufferValueByQueueIndex(assignments, _queue, queueBegin + j, nClusters - 1);
                 if (curTotalNeighbors < par->minObservations)
                 {
                     continue;
                 }
                 setBufferValueByQueueIndex(_isCore, _queue, queueBegin + j, 1);
-                countOffsets(_countersNewNeighbors, _chunkNumber, _chunkOffsets);
-                pushNeighborsToQueue(_queueBlockDistances, _chunkOffsets, queueBegin + j, nClusters - 1, nRows * j, _chunkNumber, nRows, queueEnd,
-                                     epsP, assignments, _queue);
+                countOffsets(_countersNewNeighbors, _chunkOffsets);
+                pushNeighborsToQueue(_queueBlockDistances, _chunkOffsets, queueBegin + j, nClusters - 1, nRows * j, nRows, queueEnd, epsP,
+                                     assignments, _queue);
                 queueEnd += curNewNeighbors;
             }
             queueBegin += curQueueBlockSize;
         }
     }
-
     ntData->releaseBlockOfRows(dataRows);
     BlockDescriptor<int> nClustersRows;
     DAAL_CHECK_STATUS_VAR(ntNClusters->getBlockOfRows(0, 1, writeOnly, nClustersRows));
@@ -271,9 +272,9 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
 template <typename algorithmFPType>
 services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::pushNeighborsToQueue(const UniversalBuffer & distances,
                                                                                const UniversalBuffer & chunkOffests, uint32_t rowId,
-                                                                               uint32_t clusterId, uint32_t chunkOffset, uint32_t numberOfChunks,
-                                                                               uint32_t nRows, uint32_t queueEnd, algorithmFPType epsP,
-                                                                               UniversalBuffer & assignments, UniversalBuffer & queue)
+                                                                               uint32_t clusterId, uint32_t chunkOffset, uint32_t nRows,
+                                                                               uint32_t queueEnd, algorithmFPType epsP, UniversalBuffer & assignments,
+                                                                               UniversalBuffer & queue)
 {
     services::Status st;
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.pushNeighborsToQueue);
@@ -283,8 +284,6 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::pushNeighborsToQueue(c
     auto kernel = kernel_factory.getKernel("push_points_to_queue", &st);
     DAAL_CHECK_STATUS_VAR(st);
 
-    uint32_t chunkSize = nRows / numberOfChunks + uint32_t(bool(nRows % numberOfChunks));
-
     KernelArguments args(11);
     args.set(0, distances, AccessModeIds::read);
     args.set(1, chunkOffests, AccessModeIds::read);
@@ -292,14 +291,14 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::pushNeighborsToQueue(c
     args.set(3, rowId);
     args.set(4, clusterId);
     args.set(5, chunkOffset);
-    args.set(6, chunkSize);
+    args.set(6, _chunkSize);
     args.set(7, epsP);
     args.set(8, nRows);
     args.set(9, assignments, AccessModeIds::readwrite);
     args.set(10, queue, AccessModeIds::readwrite);
 
     KernelRange local_range(1, _maxWorkgroupSize);
-    KernelRange global_range(getWorkgroupNumber(numberOfChunks), _maxWorkgroupSize);
+    KernelRange global_range(getWorkgroupNumber(_chunkNumber), _maxWorkgroupSize);
 
     KernelNDRange range(2);
     range.global(global_range, &st);
@@ -312,8 +311,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::pushNeighborsToQueue(c
 }
 
 template <typename algorithmFPType>
-services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::countOffsets(const UniversalBuffer & counters, uint32_t numberOfChunks,
-                                                                       UniversalBuffer & chunkOffests)
+services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::countOffsets(const UniversalBuffer & counters, UniversalBuffer & chunkOffests)
 {
     services::Status st;
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.countOffsets);
@@ -325,7 +323,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::countOffsets(const Uni
 
     KernelArguments args(3);
     args.set(0, counters, AccessModeIds::read);
-    args.set(1, numberOfChunks);
+    args.set(1, _chunkNumber);
     args.set(2, chunkOffests, AccessModeIds::write);
 
     KernelRange local_range(_minSubgroupSize);
@@ -350,6 +348,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::setBufferValue(Univers
 
     KernelRange global_range(1);
     context.run(global_range, kernel, args, &st);
+
     return st;
 }
 
@@ -448,9 +447,9 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::getQueueBlockDistances(const Uni
 
 template <typename algorithmFPType>
 Status DBSCANBatchKernelUCAPI<algorithmFPType>::countPointNeighbors(const UniversalBuffer & assignments, const UniversalBuffer & pointDistances,
-                                                                    uint32_t rowId, int chunkOffset, uint32_t nRows, uint32_t numberOfChunks,
-                                                                    algorithmFPType epsP, const UniversalBuffer & queue,
-                                                                    UniversalBuffer & countersTotal, UniversalBuffer & countersNewNeighbors)
+                                                                    uint32_t rowId, int chunkOffset, uint32_t nRows, algorithmFPType epsP,
+                                                                    const UniversalBuffer & queue, UniversalBuffer & countersTotal,
+                                                                    UniversalBuffer & countersNewNeighbors)
 {
     services::Status st;
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.countPointNeighbors);
@@ -460,13 +459,12 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::countPointNeighbors(const Univer
     auto kernel = kernel_factory.getKernel("count_neighbors_by_type", &st);
     DAAL_CHECK_STATUS_VAR(st);
 
-    uint32_t chunkSize = nRows / numberOfChunks + uint32_t(bool(nRows % numberOfChunks));
     KernelArguments args(10);
     args.set(0, assignments, AccessModeIds::read);
     args.set(1, pointDistances, AccessModeIds::read);
     args.set(2, rowId);
     args.set(3, chunkOffset);
-    args.set(4, chunkSize);
+    args.set(4, _chunkSize);
     args.set(5, nRows);
     args.set(6, epsP);
     args.set(7, queue, AccessModeIds::read);
@@ -474,7 +472,7 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::countPointNeighbors(const Univer
     args.set(9, countersNewNeighbors, AccessModeIds::write);
 
     KernelRange local_range(1, _maxWorkgroupSize);
-    KernelRange global_range(getWorkgroupNumber(numberOfChunks), _maxWorkgroupSize);
+    KernelRange global_range(getWorkgroupNumber(_chunkNumber), _maxWorkgroupSize);
 
     KernelNDRange range(2);
     range.global(global_range, &st);
@@ -487,13 +485,13 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::countPointNeighbors(const Univer
 }
 
 template <typename algorithmFPType>
-uint32_t DBSCANBatchKernelUCAPI<algorithmFPType>::sumCounters(const UniversalBuffer & counters, uint32_t numberOfChunks)
+uint32_t DBSCANBatchKernelUCAPI<algorithmFPType>::sumCounters(const UniversalBuffer & counters)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.sumCounters);
     auto countersHost      = counters.template get<int>().toHost(ReadWriteMode::writeOnly);
     auto countersPtr       = countersHost.get();
     uint32_t sumOfCounters = 0;
-    for (uint32_t i = 0; i < numberOfChunks; i++)
+    for (uint32_t i = 0; i < _chunkNumber; i++)
     {
         sumOfCounters += countersPtr[i];
     }
@@ -515,6 +513,18 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::buildProgram(ClKernelFactoryIfac
         kernel_factory.build(ExecutionTargetIds::device, cachekey.c_str(), dbscan_cl_kernels, build_options.c_str(), &st);
     }
     return st;
+}
+
+template <typename algorithmFPType>
+void DBSCANBatchKernelUCAPI<algorithmFPType>::calculateChunks(uint32_t nRows)
+{
+    _chunkSize   = _recommendedChunkSize;
+    _chunkNumber = nRows / _chunkSize + uint32_t(bool(nRows % _chunkSize));
+    while (_chunkNumber < _minRecommendedNumberOfChunks && _chunkSize > _minChunkSize)
+    {
+        _chunkSize /= 2;
+        _chunkNumber = nRows / _chunkSize + uint32_t(bool(nRows % _chunkSize));
+    }
 }
 
 } // namespace internal
