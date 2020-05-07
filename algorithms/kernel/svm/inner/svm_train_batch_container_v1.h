@@ -36,6 +36,11 @@ namespace training
 {
 namespace interface1
 {
+using namespace daal::data_management;
+using namespace daal::internal;
+using namespace daal::services::internal;
+using namespace daal::services;
+
 /**
 *  \brief Initialize list of SVM kernels with implementations for supported architectures
 */
@@ -57,13 +62,13 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     classifier::training::Input * input = static_cast<classifier::training::Input *>(_in);
     svm::training::Result * result      = static_cast<svm::training::Result *>(_res);
 
-    NumericTablePtr x = input->get(classifier::training::data);
-    NumericTablePtr y = input->get(classifier::training::labels);
+    data_management::NumericTablePtr x = input->get(classifier::training::data);
+    data_management::NumericTablePtr y = input->get(classifier::training::labels);
 
-    daal::algorithms::Model * r = static_cast<daal::algorithms::Model *>(result->get(classifier::training::model).get());
+    algorithms::Model * r = static_cast<daal::algorithms::Model *>(result->get(classifier::training::model).get());
 
-    svm::interface1::Parameter * par       = static_cast<svm::interface1::Parameter *>(_par);
-    daal::services::Environment::env & env = *_env;
+    svm::interface1::Parameter * par = static_cast<svm::interface1::Parameter *>(_par);
+    services::Environment::env & env = *_env;
     __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType, svm::interface1::Parameter), compute, x, *y, r,
                        par);
 }

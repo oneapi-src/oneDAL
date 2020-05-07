@@ -46,24 +46,14 @@ using namespace daal::services::internal;
 template <typename algorithmFPType, CpuType cpu>
 struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
 {
-    services::Status compute(const NumericTablePtr & xTable, const daal::algorithms::Model * m, NumericTable & r,
-                             const daal::algorithms::Parameter * par)
+    services::Status compute(const NumericTablePtr & xTable, Model * model, NumericTable & r, const svm::Parameter * par)
     {
         const size_t nVectors = xTable->getNumberOfRows();
         WriteOnlyColumns<algorithmFPType, cpu> mtR(r, 0, 0, nVectors);
         DAAL_CHECK_BLOCK_STATUS(mtR);
         algorithmFPType * distance = mtR.get();
 
-        Model * model = static_cast<Model *>(const_cast<daal::algorithms::Model *>(m));
-        kernel_function::KernelIfacePtr kernel;
-        {
-            svm::interface1::Parameter * parameter = dynamic_cast<svm::interface1::Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
-            if (parameter) kernel = parameter->kernel->clone();
-        }
-        {
-            svm::interface2::Parameter * parameter = dynamic_cast<svm::interface2::Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
-            if (parameter) kernel = parameter->kernel->clone();
-        }
+        kernel_function::KernelIfacePtr kernel = par->kernel->clone();
         DAAL_CHECK(kernel, ErrorNullParameterNotSupported);
 
         NumericTablePtr svCoeffTable = model->getClassificationCoefficients();
@@ -122,13 +112,9 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
 };
 
 } // namespace internal
-
 } // namespace prediction
-
 } // namespace svm
-
 } // namespace algorithms
-
 } // namespace daal
 
 #endif

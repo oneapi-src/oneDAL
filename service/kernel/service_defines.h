@@ -288,4 +288,10 @@ typedef union
     #define DAAL_PREFETCH_READ_T0(addr) __builtin_prefetch((char *)addr, 0, 3)
 #endif
 
+#if defined(_MSC_VER)
+    #define DAAL_PACKED_STRUCT(...) __pragma(pack(push, 1)) __VA_ARGS__ __pragma(pack(pop))
+#else
+    #define DAAL_PACKED_STRUCT(...) __VA_ARGS__ __attribute__((packed))
+#endif
+
 #endif

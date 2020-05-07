@@ -52,8 +52,9 @@ namespace training
  */
 enum Method
 {
+    defaultDense = 0, /*!< Default method.                 */
     boser        = 0, /*!< Method proposed by Boser et al. */
-    defaultDense = 0  /*!< Default method */
+    thunder      = 1  /*!< Method proposed by ThunderSVM. */
 };
 
 /**

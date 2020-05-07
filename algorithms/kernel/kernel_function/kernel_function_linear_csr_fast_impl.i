@@ -82,7 +82,7 @@ services::Status KernelImplLinear<fastCSR, algorithmFPType, cpu>::computeInterna
     DAAL_CHECK_BLOCK_STATUS(mtA2);
     const size_t * rowOffsetsA2 = mtA2.rows();
 
-    WriteOnlyRows<algorithmFPType, cpu> mtR(r, par->rowIndexResult, 1);
+    WriteOnlyRows<algorithmFPType, cpu> mtR(r, 0, nVectors1);
     DAAL_CHECK_BLOCK_STATUS(mtR);
     algorithmFPType * dataR = mtR.get();
 

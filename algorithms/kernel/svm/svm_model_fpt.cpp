@@ -22,6 +22,7 @@
 */
 
 #include "algorithms/svm/svm_model.h"
+#include "data_management/data/numeric_table_sycl_homogen.h"
 
 namespace daal
 {
@@ -41,18 +42,41 @@ template <typename modelFPType>
 Model::Model(modelFPType dummy, size_t nColumns, data_management::NumericTableIface::StorageLayout layout, services::Status & st) : _bias(0.0)
 {
     using namespace data_management;
-    if (layout == NumericTableIface::csrArray)
+
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
+
+    if (!deviceInfo.isCpu)
     {
-        _SV = CSRNumericTable::create<modelFPType>(NULL, NULL, NULL, nColumns, 0, CSRNumericTable::oneBased, &st);
+        _SV = SyclHomogenNumericTable<modelFPType>::create(nColumns, 0, NumericTable::doNotAllocate, &st);
     }
     else
     {
-        _SV = HomogenNumericTable<modelFPType>::create(NULL, nColumns, 0, &st);
+        if (layout == NumericTableIface::csrArray)
+        {
+            _SV = CSRNumericTable::create<modelFPType>(NULL, NULL, NULL, nColumns, 0, CSRNumericTable::oneBased, &st);
+        }
+        else
+        {
+            _SV = HomogenNumericTable<modelFPType>::create(NULL, nColumns, 0, &st);
+        }
     }
+
     if (!st) return;
-    _SVCoeff = HomogenNumericTable<modelFPType>::create(NULL, 1, 0, &st);
-    if (!st) return;
-    _SVIndices = HomogenNumericTable<int>::create(NULL, 1, 0, &st);
+
+    if (!deviceInfo.isCpu)
+    {
+        _SVCoeff = SyclHomogenNumericTable<modelFPType>::create(1, 0, NumericTable::doNotAllocate, &st);
+        if (!st) return;
+        _SVIndices = SyclHomogenNumericTable<int>::create(1, 0, NumericTable::doNotAllocate, &st);
+    }
+    else
+    {
+        _SVCoeff = HomogenNumericTable<modelFPType>::create(NULL, 1, 0, &st);
+        if (!st) return;
+        _SVIndices = HomogenNumericTable<int>::create(NULL, 1, 0, &st);
+    }
+
     if (!st) return;
 }
 

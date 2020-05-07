@@ -24,9 +24,6 @@
 #include "algorithms/svm/svm_predict_types.h"
 #include "service/kernel/daal_strings.h"
 
-using namespace daal::data_management;
-using namespace daal::services;
-
 namespace daal
 {
 namespace algorithms
@@ -37,6 +34,9 @@ namespace prediction
 {
 namespace interface1
 {
+using namespace daal::data_management;
+using namespace daal::services;
+
 Input::Input() : classifier::prediction::Input() {}
 Input::Input(const Input & other) : classifier::prediction::Input(other) {}
 

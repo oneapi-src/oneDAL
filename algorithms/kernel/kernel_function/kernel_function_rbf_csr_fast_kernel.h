@@ -27,8 +27,6 @@
 #include "algorithms/kernel/kernel_function/kernel_function_csr_base.h"
 #include "algorithms/kernel/kernel_function/kernel_function_rbf_base.h"
 
-using namespace daal::internal;
-
 namespace daal
 {
 namespace algorithms
