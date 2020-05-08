@@ -96,6 +96,43 @@ private:
 };
 
 /**
+ *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__MKLGEMV"></a>
+ *  \brief Adapter for MKL GEMV routine
+ */
+template <typename algorithmFPType>
+struct MKLGemv
+{
+    MKLGemv(cl::sycl::queue & queue) : _queue(queue) {}
+
+    services::Status operator()(const math::Transpose trans, const size_t m, const size_t n, const algorithmFPType alpha,
+                                const services::Buffer<algorithmFPType> & a_buffer, const size_t lda, const size_t offsetA,
+                                const services::Buffer<algorithmFPType> & x_buffer, const size_t incx, const size_t offsetX,
+                                const algorithmFPType beta, services::Buffer<algorithmFPType> & y_buffer, const size_t incy, const size_t offsetY)
+    {
+        services::Status status;
+
+        const fpk::transpose transmkl = trans == math::Transpose::Trans ? fpk::transpose::trans : fpk::transpose::nontrans;
+
+        cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = offsetA ? a_buffer.getSubBuffer(offsetA, m * n).toSycl() : a_buffer.toSycl();
+        // vector sizes?
+        cl::sycl::buffer<algorithmFPType, 1> x_sycl_buff =
+            offsetX ? (trans == math::Transpose::Trans ? x_buffer.getSubBuffer(offsetX, m).toSycl() : x_buffer.getSubBuffer(offsetX, n).toSycl()) :
+                      x_buffer.toSycl();
+        cl::sycl::buffer<algorithmFPType, 1> y_sycl_buff =
+            offsetY ? (trans == math::Transpose::Trans ? y_buffer.getSubBuffer(offsetY, n).toSycl() : y_buffer.getSubBuffer(offsetY, m).toSycl()) :
+                      y_buffer.toSycl();
+
+        fpk::blas::gemv(_queue, transmkl, m, n, alpha, a_sycl_buff, lda, x_sycl_buff, incx, beta, y_sycl_buff, incy);
+
+        _queue.wait();
+        return status;
+    }
+
+private:
+    cl::sycl::queue & _queue;
+};
+
+/**
  *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__MKLSYRK"></a>
  *  \brief Adapter for MKL SYRK routine
  */
