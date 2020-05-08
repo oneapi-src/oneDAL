@@ -247,7 +247,7 @@ DAAL_EXPORT void _daal_del_mutex(void * mutexPtr)
 DAAL_EXPORT bool _daal_is_in_parallel()
 {
 #if defined(__DO_TBB_LAYER__)
-    #if !defined(TBB_COMPATIBLE_INTERFACE_VERSION)
+    #if defined(TBB_INTERFACE_VERSION) && TBB_INTERFACE_VERSION >= 12001
     return tbb::detail::d1::task::current_execute_data() != nullptr;
     #else
     return tbb::task::self().state() == tbb::task::executing;
