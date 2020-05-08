@@ -24,8 +24,7 @@
 #include "algorithms/kernel_function/kernel_function_rbf.h"
 #include "algorithms/kernel/kernel_function/kernel_function_rbf_dense_default_kernel.h"
 #include "algorithms/kernel/kernel_function/kernel_function_rbf_csr_fast_kernel.h"
-
-using namespace daal::data_management;
+#include "algorithms/kernel/kernel_function/oneapi/kernel_function_rbf_dense_default_kernel_oneapi.h"
 
 namespace daal
 {
@@ -35,10 +34,21 @@ namespace kernel_function
 {
 namespace rbf
 {
+using namespace daal::data_management;
+
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::KernelImplRBF, method, algorithmFPType);
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
+    if (method == defaultDense && !deviceInfo.isCpu)
+    {
+        __DAAL_INITIALIZE_KERNELS_SYCL(internal::KernelImplRBFOneAPI, method, algorithmFPType);
+    }
+    else
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::KernelImplRBF, method, algorithmFPType);
+    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -60,10 +70,8 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     NumericTable * r[1];
     r[0] = static_cast<NumericTable *>(result->get(values).get());
 
-    algorithms::Parameter * par            = _par;
     daal::services::Environment::env & env = *_env;
-
-    ComputationMode computationMode = static_cast<ParameterBase *>(par)->computationMode;
+    const ParameterBase * par              = static_cast<const ParameterBase *>(_par);
 
     if (method == fastCSR)
     {
@@ -71,14 +79,20 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
             return services::Status(services::ErrorIncorrectTypeOfInputNumericTable);
     }
 
-    __DAAL_CALL_KERNEL(env, internal::KernelImplRBF, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, computationMode, a[0], a[1], r[0],
-                       par);
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
+
+    if (method == defaultDense && !deviceInfo.isCpu)
+    {
+        __DAAL_CALL_KERNEL_SYCL(env, internal::KernelImplRBFOneAPI, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a[0], a[1], r[0], par);
+    }
+    else
+    {
+        __DAAL_CALL_KERNEL(env, internal::KernelImplRBF, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a[0], a[1], r[0], par);
+    }
 }
 
 } // namespace rbf
-
 } // namespace kernel_function
-
 } // namespace algorithms
-
 } // namespace daal

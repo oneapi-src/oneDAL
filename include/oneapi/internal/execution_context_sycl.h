@@ -214,12 +214,9 @@ public:
     explicit SyclExecutionContextImpl(const cl::sycl::queue & deviceQueue)
         : _deviceQueue(deviceQueue), _kernelFactory(_deviceQueue), _kernelScheduler(_deviceQueue)
     {
-        const auto & device                    = _deviceQueue.get_device();
-        const cl::sycl::id<3> maxWorkItemSizes = device.get_info<cl::sycl::info::device::max_work_item_sizes>();
-        _infoDevice.isCpu                      = device.is_cpu() || device.is_host();
-        _infoDevice.max_work_item_sizes_1d     = maxWorkItemSizes[0];
-        _infoDevice.max_work_item_sizes_2d     = maxWorkItemSizes[1];
-        _infoDevice.max_work_group_size        = device.get_info<cl::sycl::info::device::max_work_group_size>();
+        const auto & device          = _deviceQueue.get_device();
+        _infoDevice.isCpu            = device.is_cpu() || device.is_host();
+        _infoDevice.maxWorkGroupSize = device.get_info<cl::sycl::info::device::max_work_group_size>();
     }
 
     void run(const KernelRange & range, const KernelPtr & kernel, const KernelArguments & args, services::Status * status = nullptr) DAAL_C11_OVERRIDE
