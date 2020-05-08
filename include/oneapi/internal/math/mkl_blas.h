@@ -96,6 +96,49 @@ private:
 };
 
 /**
+ *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__MKLGEMV"></a>
+ *  \brief Adapter for MKL GEMV routine
+ */
+template <typename algorithmFPType>
+struct MKLGemv
+{
+    MKLGemv(cl::sycl::queue & queue) : _queue(queue) {}
+
+    services::Status operator()(const math::Transpose trans, const size_t m, const size_t n, const algorithmFPType alpha,
+                                const services::Buffer<algorithmFPType> & a_buffer, const size_t lda, const size_t offsetA,
+                                const services::Buffer<algorithmFPType> & x_buffer, const size_t incx, const size_t offsetX,
+                                const algorithmFPType beta, services::Buffer<algorithmFPType> & y_buffer, const size_t incy, const size_t offsetY)
+    {
+        services::Status status;
+
+        const MKL_TRANSPOSE transmkl = trans == math::Transpose::Trans ? MKL_TRANS : MKL_NOTRANS;
+
+        cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff =
+            offsetA ? cl::sycl::buffer<algorithmFPType, 1>(a_buffer, offsetA, m * n) : a_buffer.toSycl();
+        // vector sizes?
+        if (offsetX)
+            cl::sycl::buffer<algorithmFPType, 1> x_sycl_buff = math::Transpose::Trans ? cl::sycl::buffer<algorithmFPType, 1>(x_buffer, offsetX, m) :
+                                                                                        cl::sycl::buffer<algorithmFPType, 1>(x_buffer, offsetX, n);
+        else
+            x_buffer.toSycl();
+
+        if (offsetY)
+            cl::sycl::buffer<algorithmFPType, 1> y_sycl_buff = math::Transpose::Trans ? cl::sycl::buffer<algorithmFPType, 1>(y_buffer, offsetY, n) :
+                                                                                        cl::sycl::buffer<algorithmFPType, 1>(y_buffer, offsetY, m);
+        else
+            y_buffer.toSycl();
+
+        fpk::blas::gemv(transmkl, m, n, alpha, a_sycl_buff, lda, x_sycl_buff, incx, beta, y_sycl_buff, incy);
+
+        _queue.wait();
+        return status;
+    }
+
+private:
+    cl::sycl::queue & _queue;
+};
+
+/**
  *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__MKLSYRK"></a>
  *  \brief Adapter for MKL SYRK routine
  */

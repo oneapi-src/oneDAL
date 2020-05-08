@@ -32,6 +32,7 @@
 #include "oneapi/internal/types_utils.h"
 #include "services/internal/error_handling_helpers.h"
 #include "oneapi/internal/math/reference_gemm.h"
+#include "oneapi/internal/math/reference_gemv.h"
 #include "oneapi/internal/math/reference_axpy.h"
 
 #include <CL/sycl.hpp>
@@ -131,6 +132,85 @@ public:
                     const size_t ldc, const size_t offsetC, services::Status * status)
     {
         Execute op(queue, transa, transb, m, n, k, alpha, a_buffer, lda, offsetA, b_buffer, ldb, offsetB, beta, c_buffer, ldc, offsetC, status);
+        TypeDispatcher::floatDispatch(a_buffer.type(), op);
+    }
+};
+
+/**
+ *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__GEMVEXECUTOR"></a>
+ *  \brief Adapter for GEMV routine
+ */
+class GemvExecutor
+{
+private:
+    struct Execute
+    {
+        cl::sycl::queue & queue;
+        const math::Transpose trans;
+        const size_t m;
+        const size_t n;
+        const double alpha;
+        const UniversalBuffer & a_buffer;
+        const size_t lda;
+        const size_t offsetA;
+        const UniversalBuffer & x_buffer;
+        const size_t incx;
+        const size_t offsetX;
+        const double beta;
+        UniversalBuffer & y_buffer;
+        const size_t incy;
+        const size_t offsetY;
+        services::Status * status;
+
+        explicit Execute(cl::sycl::queue & queue, const math::Transpose trans, const size_t m, const size_t n, const double alpha,
+                         const UniversalBuffer & a_buffer, const size_t lda, const size_t offsetA, const UniversalBuffer & x_buffer,
+                         const size_t incx, const size_t offsetX, const double beta, UniversalBuffer & y_buffer, const size_t incy,
+                         const size_t offsetY, services::Status * status)
+            : queue(queue),
+              trans(trans),
+              m(m),
+              n(n),
+              alpha(alpha),
+              a_buffer(a_buffer),
+              lda(lda),
+              offsetA(offsetA),
+              x_buffer(x_buffer),
+              incx(incx),
+              offsetX(offsetX),
+              beta(beta),
+              y_buffer(y_buffer),
+              incy(incy),
+              offsetY(offsetY),
+              status(status)
+        {}
+
+        template <typename T>
+        void operator()(Typelist<T>)
+        {
+            auto a_buffer_t = a_buffer.template get<T>();
+            auto x_buffer_t = x_buffer.template get<T>();
+            auto y_buffer_t = y_buffer.template get<T>();
+
+#ifdef ONEAPI_DAAL_NO_MKL_GPU_FUNC
+            ReferenceGemv<T> functor;
+#else
+            MKLGemv<T> functor(queue);
+#endif
+
+            services::Status statusGemv =
+                functor(trans, m, n, (T)alpha, a_buffer_t, lda, offsetA, x_buffer_t, incx, offsetX, (T)beta, y_buffer_t, incy, offsetY);
+
+            services::internal::tryAssignStatus(status, statusGemv);
+        }
+    };
+
+public:
+    static void run(cl::sycl::queue & queue, const math::Transpose trans, const size_t m, const size_t n, const double alpha,
+                    const UniversalBuffer & a_buffer, const size_t lda, const size_t offsetA, const UniversalBuffer & x_buffer, const size_t incx,
+                    const size_t offsetX, const double beta, UniversalBuffer & y_buffer, const size_t incy, const size_t offsetY,
+                    services::Status * status)
+    {
+        Execute op(queue, trans, m, n, alpha, a_buffer, lda, offsetA, x_buffer, incx, offsetX, beta, y_buffer, incy, offsetY, status);
         TypeDispatcher::floatDispatch(a_buffer.type(), op);
     }
 };
@@ -278,6 +358,7 @@ public:
 } // namespace interface1
 
 using interface1::GemmExecutor;
+using interface1::GemvExecutor;
 using interface1::SyrkExecutor;
 using interface1::AxpyExecutor;
 
