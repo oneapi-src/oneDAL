@@ -217,6 +217,7 @@ public:
         const auto & device          = _deviceQueue.get_device();
         _infoDevice.isCpu            = device.is_cpu() || device.is_host();
         _infoDevice.maxWorkGroupSize = device.get_info<cl::sycl::info::device::max_work_group_size>();
+        _infoDevuce.maxNumSubGroups  = device.get_info<cl::sycl::info::device::max_num_sub_groups>();
     }
 
     void run(const KernelRange & range, const KernelPtr & kernel, const KernelArguments & args, services::Status * status = nullptr) DAAL_C11_OVERRIDE

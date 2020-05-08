@@ -313,6 +313,7 @@ public:
 struct InfoDevice
 {
     size_t maxWorkGroupSize;
+    uint32_t maxNumSubGroups;
     bool isCpu;
 };
 
@@ -384,6 +385,7 @@ public:
     {
         _infoDevice.isCpu            = true;
         _infoDevice.maxWorkGroupSize = 0;
+        _infoDevice.maxNumSubGroups  = 0;
     }
 
     void run(const KernelRange & /*range*/, const KernelPtr & /*kernel*/, const KernelArguments & /*args*/,

@@ -87,8 +87,9 @@ private:
 
     void calculateChunks(uint32_t nRows);
 
-    static const uint32_t _minSubgroupSize              = 16;
-    static const uint32_t _maxWorkgroupSize             = 256;
+    static const uint32_t _minSubgroupSize = services::Environment::getInstance()->getDefaultExecutionContext().getInfoDevice().maxNumSubGroups;
+    static const uint32_t _maxWorkgroupSize =
+        static_cast<uint32_t>(services::Environment::getInstance()->getDefaultExecutionContext().getInfoDevice().maxWorkGroupSize);
     static const uint32_t _minRecommendedNumberOfChunks = 64;
     static const uint32_t _recommendedChunkSize         = 256;
     static const uint32_t _minChunkSize                 = 16;
