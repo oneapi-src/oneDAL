@@ -312,10 +312,7 @@ public:
  */
 struct InfoDevice
 {
-    size_t max_work_item_sizes_1d;
-    size_t max_work_item_sizes_2d;
-    size_t max_work_group_size;
-
+    size_t maxWorkGroupSize;
     bool isCpu;
 };
 
@@ -385,10 +382,8 @@ class CpuExecutionContextImpl : public Base, public ExecutionContextIface
 public:
     CpuExecutionContextImpl()
     {
-        _infoDevice.isCpu                  = true;
-        _infoDevice.max_work_item_sizes_1d = 0;
-        _infoDevice.max_work_item_sizes_2d = 0;
-        _infoDevice.max_work_group_size    = 0;
+        _infoDevice.isCpu            = true;
+        _infoDevice.maxWorkGroupSize = 0;
     }
 
     void run(const KernelRange & /*range*/, const KernelPtr & /*kernel*/, const KernelArguments & /*args*/,

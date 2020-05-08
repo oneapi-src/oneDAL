@@ -42,11 +42,7 @@ namespace internal
 template struct SVMTrainImpl<boser, DAAL_FPTYPE, svm::interface2::Parameter, DAAL_CPU>;
 
 } // namespace internal
-
 } // namespace training
-
 } // namespace svm
-
 } // namespace algorithms
-
 } // namespace daal

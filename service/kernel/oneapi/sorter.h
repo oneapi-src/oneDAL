@@ -35,11 +35,27 @@ namespace sort
 class RadixSort
 {
 public:
+    RadixSort() = delete;
+
     static void sort(const UniversalBuffer & input, const UniversalBuffer & output, const UniversalBuffer & buffer, uint32_t nVectors,
                      uint32_t vectorSize, uint32_t vectorOffset, services::Status * status);
 
+    static services::Status sortIndices(UniversalBuffer & values, UniversalBuffer & indices, UniversalBuffer & valuesOut,
+                                        UniversalBuffer & indicesOut, int nRows);
+
+    static services::Status radixScan(UniversalBuffer & values, UniversalBuffer & partialHists, int nRows, int bitOffset, int localSize,
+                                      int nLocalHists);
+
+    static services::Status radixHistScan(UniversalBuffer & values, UniversalBuffer & partialHists, UniversalBuffer & partialPrefixHists,
+                                          int localSize, int nSubgroupHists);
+
+    static services::Status radixReorder(UniversalBuffer & valuesSrc, UniversalBuffer & indicesSrc, UniversalBuffer & partialPrefixHists,
+                                         UniversalBuffer & valuesDst, UniversalBuffer & indicesDst, int nRows, int bitOffset, int localSize,
+                                         int nLocalHists);
+
 private:
-    RadixSort();
+    static const uint32_t _preferableSubGroup = 16; // preferable maximal sub-group size
+    static const uint32_t _radixBits          = 4;  // number of bits used for a single pass of radix sort
 };
 
 } // namespace sort

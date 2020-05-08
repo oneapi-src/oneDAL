@@ -24,6 +24,7 @@
 #include "algorithms/svm/svm_predict.h"
 #include "algorithms/kernel/svm/svm_predict_kernel.h"
 #include "algorithms/classifier/classifier_predict_types.h"
+#include "algorithms/kernel/svm/oneapi/svm_predict_kernel_oneapi.h"
 
 namespace daal
 {
@@ -41,7 +42,16 @@ namespace interface2
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::SVMPredictImpl, method, algorithmFPType);
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
+    if (deviceInfo.isCpu)
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::SVMPredictImpl, method, algorithmFPType);
+    }
+    else
+    {
+        __DAAL_INITIALIZE_KERNELS_SYCL(internal::SVMPredictImplOneAPI, method, algorithmFPType);
+    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -56,14 +66,23 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     classifier::prediction::Input * input   = static_cast<classifier::prediction::Input *>(_in);
     classifier::prediction::Result * result = static_cast<classifier::prediction::Result *>(_res);
 
-    NumericTablePtr a           = input->get(classifier::prediction::data);
-    daal::algorithms::Model * m = static_cast<daal::algorithms::Model *>(input->get(classifier::prediction::model).get());
-    NumericTablePtr r           = result->get(classifier::prediction::prediction);
+    data_management::NumericTablePtr a = input->get(classifier::prediction::data);
+    Model * m                          = static_cast<Model *>(input->get(classifier::prediction::model).get());
+    data_management::NumericTablePtr r = result->get(classifier::prediction::prediction);
+    svm::Parameter * par               = static_cast<svm::Parameter *>(_par);
 
-    daal::algorithms::Parameter * par      = _par;
-    daal::services::Environment::env & env = *_env;
+    services::Environment::env & env = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::SVMPredictImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, m, *r, par);
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
+    if (deviceInfo.isCpu)
+    {
+        __DAAL_CALL_KERNEL(env, internal::SVMPredictImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, m, *r, par);
+    }
+    else
+    {
+        __DAAL_CALL_KERNEL_SYCL(env, internal::SVMPredictImplOneAPI, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, m, *r, par);
+    }
 }
 } // namespace interface2
 } // namespace prediction

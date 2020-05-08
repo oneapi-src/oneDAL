@@ -37,6 +37,7 @@
 #include "data_management/data/aos_numeric_table.h"
 #include "data_management/data/csr_numeric_table.h"
 #include "data_management/data/data_archive.h"
+#include "data_management/data/memory_block.h"
 #include "services/collection.h"
 #include "data_management/data/data_block.h"
 #include "data_management/data/factory.h"

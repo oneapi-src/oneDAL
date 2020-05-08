@@ -52,19 +52,16 @@ struct KernelCSRImplBase : public Kernel
     virtual services::Status computeInternalMatrixMatrix(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
                                                          const ParameterBase * par) = 0;
 
-    services::Status compute(ComputationMode computationMode, const NumericTable * a1, const NumericTable * a2, NumericTable * r,
-                             const daal::algorithms::Parameter * par)
+    services::Status compute(const NumericTable * a1, const NumericTable * a2, NumericTable * r, const ParameterBase * par)
     {
-        const ParameterBase * svmPar = static_cast<const ParameterBase *>(par);
-
+        ComputationMode computationMode = par->computationMode;
         switch (computationMode)
         {
-        case vectorVector: return computeInternalVectorVector(a1, a2, r, svmPar); break;
-        case matrixVector: return computeInternalMatrixVector(a1, a2, r, svmPar); break;
-        case matrixMatrix: return computeInternalMatrixMatrix(a1, a2, r, svmPar); break;
+        case vectorVector: return computeInternalVectorVector(a1, a2, r, par);
+        case matrixVector: return computeInternalMatrixVector(a1, a2, r, par);
+        case matrixMatrix: return computeInternalMatrixMatrix(a1, a2, r, par);
+        default: return services::ErrorIncorrectParameter;
         }
-
-        DAAL_ASSERT(false); //should never come here
         return services::Status();
     }
 

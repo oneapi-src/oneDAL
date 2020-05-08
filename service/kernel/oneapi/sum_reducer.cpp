@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "service/kernel/oneapi/sum_reducer.h"
+#include "service/kernel/oneapi/reducer.h"
 #include "services/env_detect.h"
 #include "externals/service_ittnotify.h"
 
@@ -36,7 +36,7 @@ void buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId & vectorTyp
     build_options.add("-cl-std=CL1.2 -D LOCAL_BUFFER_SIZE=256");
 
     services::String cachekey("__daal_oneapi_internal_math_sum_reducer_");
-    cachekey.add(fptype_name);
+    cachekey.add(build_options);
     kernelFactory.build(ExecutionTargetIds::device, cachekey.c_str(), sum_reducer, build_options.c_str());
 }
 
@@ -68,8 +68,8 @@ void sum_singlepass(ExecutionContextIface & context, ClKernelFactoryIface & kern
     context.run(range, sum_kernel, args, status);
 }
 
-void run_step_colmajor(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & vectors, uint32_t nVectors,
-                       uint32_t vectorSize, uint32_t numWorkItems, uint32_t numWorkGroups, SumReducer::Result & stepResult, services::Status * status)
+void runStepColmajor(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & vectors, uint32_t nVectors,
+                     uint32_t vectorSize, uint32_t numWorkItems, uint32_t numWorkGroups, SumReducer::Result & stepResult, services::Status * status)
 {
     auto sum_kernel = kernelFactory.getKernel("sum_step_colmajor");
 
@@ -93,9 +93,8 @@ void run_step_colmajor(ExecutionContextIface & context, ClKernelFactoryIface & k
     context.run(range, sum_kernel, args, status);
 }
 
-void run_final_step_rowmajor(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, SumReducer::Result & stepResult,
-                             uint32_t nVectors, uint32_t vectorSize, uint32_t workItemsPerGroup, SumReducer::Result & result,
-                             services::Status * status)
+void runFinalStepRowmajor(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, SumReducer::Result & stepResult, uint32_t nVectors,
+                          uint32_t vectorSize, uint32_t workItemsPerGroup, SumReducer::Result & result, services::Status * status)
 {
     auto sum_kernel = kernelFactory.getKernel("sum_final_step_rowmajor");
 
@@ -157,15 +156,15 @@ SumReducer::Result SumReducer::sum(Layout vectorsLayout, const UniversalBuffer &
             Result stepResult(context, numDivisionsByRow * nVectors, vectors.type(), status);
             DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, result);
 
-            run_step_colmajor(context, kernelFactory, vectors, nVectors, vectorSize, workItemsPerGroup, numDivisionsByCol * numDivisionsByRow,
-                              stepResult, status);
+            runStepColmajor(context, kernelFactory, vectors, nVectors, vectorSize, workItemsPerGroup, numDivisionsByCol * numDivisionsByRow,
+                            stepResult, status);
 
             const uint32_t stepWorkItems = maxNumSubSlices / 2; //need to be power of two
-            run_final_step_rowmajor(context, kernelFactory, stepResult, nVectors, numDivisionsByRow, stepWorkItems, result, status);
+            runFinalStepRowmajor(context, kernelFactory, stepResult, nVectors, numDivisionsByRow, stepWorkItems, result, status);
         }
         else
         {
-            run_step_colmajor(context, kernelFactory, vectors, nVectors, vectorSize, workItemsPerGroup, numDivisionsByCol, result, status);
+            runStepColmajor(context, kernelFactory, vectors, nVectors, vectorSize, workItemsPerGroup, numDivisionsByCol, result, status);
         }
     }
 

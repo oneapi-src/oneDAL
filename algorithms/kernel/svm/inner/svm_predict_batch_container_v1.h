@@ -56,14 +56,24 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     classifier::prediction::Input * input   = static_cast<classifier::prediction::Input *>(_in);
     classifier::prediction::Result * result = static_cast<classifier::prediction::Result *>(_res);
 
-    NumericTablePtr a           = input->get(classifier::prediction::data);
-    daal::algorithms::Model * m = static_cast<daal::algorithms::Model *>(input->get(classifier::prediction::model).get());
-    NumericTablePtr r           = result->get(classifier::prediction::prediction);
+    data_management::NumericTablePtr a = input->get(classifier::prediction::data);
+    Model * m                          = static_cast<Model *>(input->get(classifier::prediction::model).get());
+    data_management::NumericTablePtr r = result->get(classifier::prediction::prediction);
 
-    daal::algorithms::Parameter * par      = _par;
-    daal::services::Environment::env & env = *_env;
+    services::Environment::env & env = *_env;
+    svm::interface1::Parameter * par = static_cast<svm::interface1::Parameter *>(_par);
+    svm::interface2::Parameter par2;
 
-    __DAAL_CALL_KERNEL(env, internal::SVMPredictImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, m, *r, par);
+    par2.C                 = par->C;
+    par2.accuracyThreshold = par->accuracyThreshold;
+    par2.tau               = par->tau;
+    par2.maxIterations     = par->maxIterations;
+    par2.cacheSize         = par->cacheSize;
+    par2.doShrinking       = par->doShrinking;
+    par2.shrinkingStep     = par->shrinkingStep;
+    par2.kernel            = par->kernel;
+
+    __DAAL_CALL_KERNEL(env, internal::SVMPredictImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, m, *r, &par2);
 }
 } // namespace interface1
 } // namespace prediction

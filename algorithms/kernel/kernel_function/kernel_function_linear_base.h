@@ -27,8 +27,6 @@
 #include "algorithms/kernel_function/kernel_function_types_linear.h"
 #include "algorithms/kernel/kernel.h"
 
-using namespace daal::internal;
-
 namespace daal
 {
 namespace algorithms
@@ -39,18 +37,16 @@ namespace linear
 {
 namespace internal
 {
+using namespace daal::internal;
+
 template <Method method, typename algorithmFPType, CpuType cpu>
 struct KernelImplLinear
 {};
 
 } // namespace internal
-
 } // namespace linear
-
 } // namespace kernel_function
-
 } // namespace algorithms
-
 } // namespace daal
 
 #endif
