@@ -28,7 +28,6 @@
 #include "externals/service_memory.h"
 #include "service/kernel/data_management/service_micro_table.h"
 #include "service/kernel/data_management/service_numeric_table.h"
-using namespace daal::services::internal;
 
 namespace daal
 {
@@ -40,6 +39,11 @@ namespace training
 {
 namespace internal
 {
+using namespace daal::data_management;
+using namespace daal::internal;
+using namespace daal::services::internal;
+using namespace daal::services;
+
 /**
  * Types of caches for kernel function values
  */
@@ -360,13 +364,9 @@ protected:
 };
 
 } // namespace internal
-
 } // namespace training
-
 } // namespace svm
-
 } // namespace algorithms
-
 } // namespace daal
 
 #endif

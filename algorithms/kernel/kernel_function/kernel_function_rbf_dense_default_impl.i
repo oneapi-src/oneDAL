@@ -92,7 +92,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
     DAAL_CHECK_BLOCK_STATUS(mtA2);
     const algorithmFPType * dataA2 = mtA2.get();
 
-    WriteOnlyRows<algorithmFPType, cpu> mtR(r, par->rowIndexResult, 1);
+    WriteOnlyRows<algorithmFPType, cpu> mtR(r, 0, nVectors1);
     DAAL_CHECK_BLOCK_STATUS(mtR);
     algorithmFPType * dataR = mtR.get();
 
@@ -164,8 +164,6 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
             for (size_t i = startRow, ii = 0; i < finishRow; ++i, ++ii)
             {
                 sqrDataA1[i] = zero;
-                PRAGMA_IVDEP
-                PRAGMA_VECTOR_ALWAYS
                 for (size_t j = 0; j < nFeatures; ++j)
                 {
                     sqrDataA1[i] += dataA1[ii * nFeatures + j] * dataA1[ii * nFeatures + j];
@@ -185,8 +183,6 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
             for (size_t i = startRow, ii = 0; i < finishRow; ++i, ++ii)
             {
                 sqrDataA2[i] = zero;
-                PRAGMA_IVDEP
-                PRAGMA_VECTOR_ALWAYS
                 for (size_t j = 0; j < nFeatures; ++j)
                 {
                     sqrDataA2[i] += dataA2[ii * nFeatures + j] * dataA2[ii * nFeatures + j];
@@ -207,10 +203,9 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
             DAAL_CHECK_BLOCK_STATUS_THR(mtR);
             algorithmFPType * dataR = mtR.get();
 
-            daal::threader_for(blockNum2, blockNum2, [&](const size_t iBlock2) {
+            daal::threader_for(blockNum2, blockNum2, [&, nVectors2, blockNum2](const size_t iBlock2) {
                 DAAL_INT numRowsInBlock2 = (iBlock2 != blockNum2 - 1) ? blockSize : nVectors2 - iBlock2 * blockSize;
                 DAAL_INT startRow2       = iBlock2 * blockSize;
-                DAAL_INT finishRow2      = startRow2 + numRowsInBlock2;
 
                 ReadRows<algorithmFPType, cpu> mtA2(*const_cast<NumericTable *>(a2), startRow2, numRowsInBlock2);
                 DAAL_CHECK_BLOCK_STATUS_THR(mtA2);

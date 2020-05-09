@@ -27,8 +27,6 @@
 #include "algorithms/kernel/kernel_function/kernel_function_csr_base.h"
 #include "algorithms/kernel/kernel_function/kernel_function_linear_base.h"
 
-using namespace daal::internal;
-
 namespace daal
 {
 namespace algorithms
@@ -39,6 +37,8 @@ namespace linear
 {
 namespace internal
 {
+using namespace daal::internal;
+
 template <typename algorithmFPType, CpuType cpu>
 struct KernelImplLinear<fastCSR, algorithmFPType, cpu> : public daal::algorithms::kernel_function::internal::KernelCSRImplBase<algorithmFPType, cpu>
 {
@@ -53,13 +53,9 @@ struct KernelImplLinear<fastCSR, algorithmFPType, cpu> : public daal::algorithms
 };
 
 } // namespace internal
-
 } // namespace linear
-
 } // namespace kernel_function
-
 } // namespace algorithms
-
 } // namespace daal
 
 #endif

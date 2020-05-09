@@ -27,8 +27,6 @@
 #include "algorithms/kernel/kernel_function/kernel_function_dense_base.h"
 #include "algorithms/kernel/kernel_function/kernel_function_linear_base.h"
 
-using namespace daal::internal;
-
 namespace daal
 {
 namespace algorithms
@@ -51,13 +49,9 @@ struct KernelImplLinear<defaultDense, algorithmFPType, cpu> : public daal::algor
 };
 
 } // namespace internal
-
 } // namespace linear
-
 } // namespace kernel_function
-
 } // namespace algorithms
-
 } // namespace daal
 
 #endif

@@ -19,7 +19,7 @@
 #define __BF_KNN_CLASSIFICATION_PREDICT_KERNEL_UCAPI_IMPL_I__
 
 #include "algorithms/engines/engine.h"
-#include "service/kernel/oneapi/sum_reducer.h"
+#include "service/kernel/oneapi/reducer.h"
 #include "service/kernel/oneapi/select_indexed.h"
 #include "service/kernel/oneapi/sorter.h"
 #include "services/daal_defines.h"

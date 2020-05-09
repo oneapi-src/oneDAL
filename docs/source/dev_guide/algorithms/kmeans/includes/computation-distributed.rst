@@ -16,5 +16,6 @@
 
 This mode assumes that the data set is split into ``nblocks`` blocks across computation nodes.
 
-At this moment, the description of distributed processing for K-Means computation is only available in
-`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-3>`_.
+At this moment, the description of
+`distributed processing for K-Means computation <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-3>`_
+is only available in Developer Guide for Intel(R) DAAL.

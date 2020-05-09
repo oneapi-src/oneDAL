@@ -100,7 +100,7 @@ public:
     typedef cl::sycl::accessor<T, 1, mode, cl::sycl::access::target::host_buffer> HostAccessorType;
 
 public:
-    explicit SyclHostDeleter(HostAccessorType * accessor) : _hostAccessor(accessor) {}
+    explicit SyclHostDeleter(const cl::sycl::buffer<T, 1> & buffer, HostAccessorType * accessor) : _buffer(buffer), _hostAccessor(accessor) {}
 
     void operator()(const void * ptr)
     {
@@ -110,6 +110,7 @@ public:
 
 private:
     HostAccessorType * _hostAccessor;
+    cl::sycl::buffer<T, 1> _buffer;
 };
 
 /**
@@ -163,7 +164,7 @@ private:
         using DeleterType  = SyclHostDeleter<T, mode>;
         using AccessorType = typename DeleterType::HostAccessorType;
         auto * accessor    = new AccessorType(const_cast<BufferType &>(_syclBuffer));
-        return SharedPtr<T>(accessor->get_pointer(), DeleterType(accessor));
+        return SharedPtr<T>(accessor->get_pointer(), DeleterType(_syclBuffer, accessor));
     }
 
     BufferType _syclBuffer;

@@ -38,7 +38,7 @@
     <ProjectGuid>{E819C9C7-7092-4997-9390-32A481C169B7}</ProjectGuid>
     <RootNamespace>dbscan_dense_batch</RootNamespace>
     <ProjectName>dbscan_dense_batch</ProjectName>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug.static.threaded|x64'" Label="Configuration">

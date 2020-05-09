@@ -26,11 +26,11 @@ For a multi-class case, use :ref:`svm_multi_class` framework of the library.
 Details
 *******
 
-At this moment, algorithm's details for BrownBoost Classifier are only available in
-`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-details-30>`_.
+At this moment, algorithm's details for `BrownBoost Classifier <https://software.intel.com/en-us/daal-programming-guide-details-30>`_
+are only available in Developer Guide for Intel(R) DAAL.
 
 Batch Processing
 ****************
 
-At this moment, the description of batch processing for BrownBoost Classifier is only available in
-`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-batch-processing-45>`_.
+At this moment, the description of `batch processing for BrownBoost Classifier <https://software.intel.com/en-us/daal-programming-guide-batch-processing-45>`_ 
+is only available in Developer Guide for Intel(R) DAAL.

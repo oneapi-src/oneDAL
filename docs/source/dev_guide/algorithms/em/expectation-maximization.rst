@@ -364,7 +364,7 @@ The EM for GMM algorithm has the following parameters:
      - full
      - Covariance matrix storage scheme in the Gaussian Mixture Model:
 
-        + full - covariance matrices are stored as numeric tables of size :meth:`p \times p`.
+        + full - covariance matrices are stored as numeric tables of size :math:`p \times p`.
           All elements of the matrix are updated during the processing.
 
         + diagonal - covariance matrices are stored as numeric tables of size :math:`1 \times p`.

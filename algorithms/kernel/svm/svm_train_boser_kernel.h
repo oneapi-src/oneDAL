@@ -31,9 +31,6 @@
 #include "algorithms/kernel/kernel.h"
 #include "service/kernel/data_management/service_micro_table.h"
 
-using namespace daal::data_management;
-using namespace daal::internal;
-
 #include "algorithms/kernel/svm/svm_train_kernel.h"
 
 namespace daal
@@ -49,17 +46,14 @@ namespace internal
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 struct SVMTrainImpl<boser, algorithmFPType, ParameterType, cpu> : public Kernel
 {
-    services::Status compute(const NumericTablePtr & xTable, NumericTable & yTable, daal::algorithms::Model * r, const ParameterType * par);
+    services::Status compute(const data_management::NumericTablePtr & xTable, data_management::NumericTable & yTable, daal::algorithms::Model * r,
+                             const ParameterType * par);
 };
 
 } // namespace internal
-
 } // namespace training
-
 } // namespace svm
-
 } // namespace algorithms
-
 } // namespace daal
 
 #endif

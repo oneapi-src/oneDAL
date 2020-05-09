@@ -21,6 +21,16 @@
 
 #include "service/kernel/service_data_utils.h"
 
+namespace daal
+{
+namespace algorithms
+{
+namespace svm
+{
+namespace training
+{
+namespace internal
+{
 template <>
 void SVMTrainTask<float, daal::algorithms::svm::interface2::Parameter, avx512>::WSSjLocal(const size_t jStart, const size_t jEnd,
                                                                                           const float * KiBlock, const float GMax, const float Kii,
@@ -333,3 +343,9 @@ void SVMTrainTask<double, daal::algorithms::svm::interface2::Parameter, avx512>:
         }
     }
 }
+
+} // namespace internal
+} // namespace training
+} // namespace svm
+} // namespace algorithms
+} // namespace daal

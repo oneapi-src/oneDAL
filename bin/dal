@@ -15,48 +15,78 @@
 # limitations under the License.
 #===============================================================================
 
-# get the full pathname for the script file 
-set fullroot ${ModulesCurrentModulefile}
-
-# grab the directory holding this modulefile and others
-set modulefilesroot [file dirname $fullroot]
-
-# resolve any symbolic links in the full path to the script
-# if the modulefile is a link, resolve it
-if { [file type $fullroot] eq "link" } {
-  set fullroot [file readlink $fullroot]
+set min_tcl_ver 8.4
+if { $tcl_version < $min_tcl_ver } {
+    puts stderr " "
+    puts stderr "ERROR: This modulefile requires tcl $min_tcl_ver or greater."
+    puts stderr "Your system reports that tclsh version $tcl_version is installed."
+    exit 1
 }
-# fullroot is now an absolute path, but could
-# be a link.  Resolve links if needed
-set fullroot [file normalize $fullroot]
 
-# get name of modulefile, should be named for the component
-set comp [file tail $fullroot]
+# get full pathname for this script file
+set scriptpath "${ModulesCurrentModulefile}"
 
-# Determine the component root dir. <comproot>/env/scriptname
-# had to be removed from the path
-set comproot [file dirname $fullroot]
-set comproot [file dirname $comproot]
+# if modulefile script name is a symlink, resolve it
+if { "[file type "$scriptpath"]" eq "link" } {
+    set scriptpath "[file readlink "$scriptpath"]"
+}
 
-# set the oneapi root
-set oneapiroot [file dirname $comproot]
+# if fullpath contains links, resolve them
+set scriptpath "[file normalize "$scriptpath"]"
 
-# Component Version, the root name in oneAPI should be the version
-set compver [file tail $comproot]
+# get directory holding this modulefile script and others
+set modulefileroot "[file dirname "$scriptpath"]"
 
-# Optional, on load print the version loaded
+# get name of modulefile script we are loading
+set modulefilename "[file tail "$scriptpath"]"
+
+# determine modulefile script version
+set modulefilever "[file dirname "$modulefileroot"]"
+set modulefilever "[file tail "$modulefilever"]"
+
+# point to component top-level root folder
+set componentroot "[file dirname "$modulefileroot"]"
+set componentroot "[file dirname "$componentroot"]"
+
+# get component folder name
+set componentname "[file tail "$componentroot"]"
+
+# get oneAPI top-level root folder
+set oneapiroot "[file dirname "$componentroot"]"
+
+# disallow loading multiple copies of 64-bit and 32-bit versions of modulefile
+# first assemble 64-bit and 32-bit name pairs for this modulefile
+# then specify conflict for each (assumes "name" and "name32" pattern)
+set mname32 $modulefilename
+set mname64 [string trimright $mname32 "32"]
+if { [string equal "$mname32" "$mname64"] } {
+    append mname32 "32"
+}
+conflict $mname32
+conflict $mname64
+
+# On load print component name and version being loaded
 if { [ module-info mode load ] } {
- 	puts stderr "Loading component $comp version $compver "
+    puts stderr "Loading $modulefilename version $modulefilever"
+}
+
+# On remove print component name and version being removed
+if { [ module-info mode ] == "unload" || [ module-info mode ] == "remove" } {
+    puts stderr "Removing $modulefilename version $modulefilever"
 }
 
 # ###### Component Specific env vars setup ######
 
 # Set intermediate variables
-set    __target_arch         "intel64"
+set daalroot "$componentroot/$modulefilever"
+set daal_target_arch         "intel64"
+
+module-whatis "Intel(R) Data Analytics Library for $daal_target_arch."
 
 # Setup environment variables
-setenv          DAALROOT           ${comproot}
-prepend-path    LD_LIBRARY_PATH    $comproot/lib/${__target_arch}
-prepend-path    LIBRARY_PATH       $comproot/lib/${__target_arch}
-prepend-path    CPATH              $comproot/include
-prepend-path    CLASSPATH          $comproot/lib/daal.jar
+setenv          DAALROOT           $daalroot
+
+prepend-path    LD_LIBRARY_PATH    $daalroot/lib/$daal_target_arch
+prepend-path    LIBRARY_PATH       $daalroot/lib/$daal_target_arch
+prepend-path    CPATH              $daalroot/include
+prepend-path    CLASSPATH          $daalroot/lib/daal.jar
