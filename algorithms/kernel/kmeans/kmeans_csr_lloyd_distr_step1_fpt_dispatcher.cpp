@@ -41,7 +41,11 @@ DistributedType::Distributed(size_t nClusters, bool assignFlag)
 {
     _par = new ParameterType(nClusters, 1);
     initialize();
-    if (!assignFlag) parameter().assignFlag = false;
+    if (!assignFlag)
+    {
+        parameter().assignFlag = false;
+        parameter().resultsToEvaluate &= ~computeAssignments;
+    }
 }
 
 template <>

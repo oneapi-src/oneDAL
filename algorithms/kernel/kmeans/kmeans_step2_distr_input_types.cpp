@@ -115,7 +115,7 @@ services::Status DistributedStep2MasterInput::check(const daal::algorithms::Para
                                            kmPar->nClusters));
     DAAL_CHECK_STATUS(s, checkNumericTable(firstPres->get(partialCandidatesCentroids).get(), partialCandidatesCentroidsStr(), unexpectedLayouts, 0,
                                            inputFeatures, kmPar->nClusters));
-    if (kmPar->resultsToEvaluate & computeAssignments && kmPar->assignFlag)
+    if (kmPar->resultsToEvaluate & computeAssignments || kmPar->assignFlag)
     {
         DAAL_CHECK_STATUS(s, checkNumericTable(firstPres->get(partialAssignments).get(), partialAssignmentsStr(), unexpectedLayouts, 0, 1));
     }
@@ -132,7 +132,7 @@ services::Status DistributedStep2MasterInput::check(const daal::algorithms::Para
                                                0, 1, kmPar->nClusters));
         DAAL_CHECK_STATUS(s, checkNumericTable(firstPres->get(partialCandidatesCentroids).get(), partialCandidatesCentroidsStr(), unexpectedLayouts,
                                                0, inputFeatures, kmPar->nClusters));
-        if (kmPar->resultsToEvaluate & computeAssignments && kmPar->assignFlag)
+        if (kmPar->resultsToEvaluate & computeAssignments || kmPar->assignFlag)
         {
             DAAL_CHECK_STATUS(s, checkNumericTable(pres->get(partialAssignments).get(), partialAssignmentsStr(), unexpectedLayouts, 0, 1));
         }

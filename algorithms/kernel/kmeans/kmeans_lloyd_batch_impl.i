@@ -144,8 +144,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(addNTToTaskThreaded);
             /* For the last iteration we do not need to recount of assignmets */
-            NumericTable * sda = assignmetsNT && (kIter == nIter - 1) ? assignmetsNT : nullptr;
-            s                  = task->template addNTToTaskThreaded<method>(ntData, catCoef.get(), sda);
+            s = task->template addNTToTaskThreaded<method>(ntData, catCoef.get(), assignmetsNT && (kIter == nIter - 1) ? assignmetsNT : nullptr);
         }
 
         if (!s)
