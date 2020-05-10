@@ -110,7 +110,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
 
     NumericTable * assignmetsNT = nullptr;
     NumericTablePtr assignmentsPtr;
-    if (par->resultsToEvaluate & computeAssignments)
+    if (par->resultsToEvaluate & computeAssignments || par->assignFlag)
     {
         assignmetsNT = const_cast<NumericTable *>(r[1]);
     }
@@ -224,7 +224,8 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
         clusters = inClusters;
     }
 
-    if ((kIter != nIter || nIter == 0) && (par->resultsToEvaluate & computeAssignments || par->resultsToEvaluate & computeExactObjectiveFunction))
+    if ((kIter != nIter || nIter == 0)
+        && (par->resultsToEvaluate & computeAssignments || par->assignFlag || par->resultsToEvaluate & computeExactObjectiveFunction))
     {
         PostProcessing<method, algorithmFPType, cpu>::computeAssignments(p, nClusters, clusters, ntData, catCoef.get(), assignmetsNT);
     }

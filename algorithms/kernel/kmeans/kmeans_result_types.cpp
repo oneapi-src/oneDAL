@@ -82,7 +82,7 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     {
         DAAL_CHECK_STATUS(s, checkNumericTable(get(centroids).get(), centroidsStr(), unexpectedLayouts, 0, inputFeatures, kmPar->nClusters));
     }
-    if (kmPar->resultsToEvaluate & computeAssignments && kmPar->assignFlag /* For static compatibility */)
+    if (kmPar->resultsToEvaluate & computeAssignments || kmPar->assignFlag)
     {
         NumericTablePtr assignmentsTable = get(assignments);
         const size_t inputRows           = algInput->get(data)->getNumberOfRows();

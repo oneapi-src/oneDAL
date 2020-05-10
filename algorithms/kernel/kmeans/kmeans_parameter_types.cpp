@@ -48,7 +48,7 @@ Parameter::Parameter(size_t _nClusters, size_t _maxIterations)
       gamma(1.0),
       distanceType(euclidean),
       resultsToEvaluate(computeCentroids | computeAssignments),
-      assignFlag(true)
+      assignFlag(false)
 {}
 
 /**
