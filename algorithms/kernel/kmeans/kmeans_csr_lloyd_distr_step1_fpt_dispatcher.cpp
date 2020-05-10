@@ -43,7 +43,6 @@ DistributedType::Distributed(size_t nClusters, bool assignFlag)
     initialize();
     if (!assignFlag)
     {
-        parameter().assignFlag = false;
         parameter().resultsToEvaluate &= ~computeAssignments;
     }
 }
