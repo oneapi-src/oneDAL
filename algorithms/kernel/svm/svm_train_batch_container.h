@@ -25,6 +25,7 @@
 #include "algorithms/kernel/svm/svm_train_kernel.h"
 #include "algorithms/kernel/svm/svm_train_boser_kernel.h"
 #include "algorithms/classifier/classifier_training_types.h"
+#include "algorithms/kernel/svm/oneapi/svm_train_thunder_kernel_oneapi.h"
 
 namespace daal
 {
@@ -36,13 +37,24 @@ namespace training
 {
 namespace interface2
 {
+using namespace daal::data_management;
+
 /**
 *  \brief Initialize list of SVM kernels with implementations for supported architectures
 */
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::SVMTrainImpl, method, svm::interface1::Parameter, algorithmFPType);
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
+    if (method == thunder && !deviceInfo.isCpu)
+    {
+        __DAAL_INITIALIZE_KERNELS_SYCL(internal::SVMTrainOneAPI, algorithmFPType, svm::interface2::Parameter, method);
+    }
+    else
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::SVMTrainImpl, method, svm::interface2::Parameter, algorithmFPType);
+    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -64,8 +76,19 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     svm::interface2::Parameter * par       = static_cast<svm::interface2::Parameter *>(_par);
     daal::services::Environment::env & env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType, svm::interface2::Parameter), compute, x, *y, r,
-                       par);
+
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
+    if (method == thunder && !deviceInfo.isCpu)
+    {
+        __DAAL_CALL_KERNEL_SYCL(env, internal::SVMTrainOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, svm::interface2::Parameter, method), compute,
+                                x, *y, r, par);
+    }
+    else
+    {
+        __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType, svm::interface2::Parameter), compute, x, *y,
+                           r, par);
+    }
 }
 } // namespace interface2
 } // namespace training

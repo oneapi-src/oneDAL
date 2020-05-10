@@ -92,7 +92,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
     DAAL_CHECK_BLOCK_STATUS(mtA2);
     const algorithmFPType * dataA2 = mtA2.get();
 
-    WriteOnlyRows<algorithmFPType, cpu> mtR(r, par->rowIndexResult, 1);
+    WriteOnlyRows<algorithmFPType, cpu> mtR(r, 0, nVectors1);
     DAAL_CHECK_BLOCK_STATUS(mtR);
     algorithmFPType * dataR = mtR.get();
 
