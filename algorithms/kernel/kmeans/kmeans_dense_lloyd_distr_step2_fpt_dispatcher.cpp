@@ -42,6 +42,7 @@ DistributedType::Distributed(size_t nClusters, size_t nIterations)
     _par = new ParameterType(nClusters, nIterations);
     initialize();
     parameter().assignFlag = false;
+    parameter().resultsToEvaluate &= ~computeAssignments;
 }
 
 template <>
