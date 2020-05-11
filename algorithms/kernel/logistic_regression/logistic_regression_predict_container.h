@@ -25,10 +25,9 @@
 
 #include "algorithms/logistic_regression/logistic_regression_predict.h"
 #include "algorithms/classifier/classifier_model.h"
-#include "algorithms/kernel/logistic_regression/logistic_regression_predict_kernel.h"
 #include "service/kernel/service_algo_utils.h"
-
-#include "algorithms/kernel/logistic_regression/oneapi/logistic_regression_predict_kernel_oneapi_instance.h"
+#include "algorithms/kernel/logistic_regression/logistic_regression_predict_kernel.h"
+#include "algorithms/kernel/logistic_regression/oneapi/logistic_regression_predict_kernel_oneapi.h"
 
 namespace daal
 {
@@ -52,7 +51,7 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
     }
     else
     {
-        __DAAL_INITIALIZE_KERNELS(internal::PredictBatchKernelOneAPI, algorithmFPType, method);
+        __DAAL_INITIALIZE_KERNELS_SYCL(internal::PredictBatchKernelOneAPI, algorithmFPType, method);
     }
 }
 
@@ -90,8 +89,8 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     }
     else
     {
-        __DAAL_CALL_KERNEL(env, internal::PredictBatchKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                           daal::services::internal::hostApp(*input), a, m, par->nClasses, r, prob, logProb);
+        __DAAL_CALL_KERNEL_SYCL(env, internal::PredictBatchKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+                                daal::services::internal::hostApp(*input), a, m, par->nClasses, r, prob, logProb);
     }
 }
 
