@@ -17,7 +17,7 @@
 
 #ifndef _DAAL_LEVEL_ZERO_COMMON
 
-    #if !(defined(__linux__) || defined(_WIN32) || defined(_WIN64))
+    #if !(defined(__linux__) || defined(_WIN64))
         #define DAAL_DISABLE_LEVEL_ZERO
     #endif
 
