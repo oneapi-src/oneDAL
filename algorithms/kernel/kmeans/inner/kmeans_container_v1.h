@@ -49,7 +49,7 @@ DAAL_FORCEINLINE void convertParameter(interface1::Parameter & par1, interface2:
     par2.gamma             = par1.gamma;
     par2.distanceType      = par1.distanceType;
     par2.resultsToEvaluate = computeCentroids | computeExactObjectiveFunction;
-    par2.assignFlag = par1.assignFlag;
+    par2.assignFlag        = par1.assignFlag;
     if (par1.assignFlag)
     {
         par2.resultsToEvaluate |= computeAssignments;
