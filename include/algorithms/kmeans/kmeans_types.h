@@ -138,7 +138,7 @@ public:
     InputIface(size_t nElements) : daal::algorithms::Input(nElements) {};
 
     virtual size_t getNumberOfFeatures() const = 0;
-}; // namespace interface2classDAAL_EXPORTInputIface:publicdaal::algorithms::Input
+};
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INPUT"></a>

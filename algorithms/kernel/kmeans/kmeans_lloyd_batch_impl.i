@@ -110,7 +110,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
 
     NumericTable * assignmetsNT = nullptr;
     NumericTablePtr assignmentsPtr;
-    if (par->resultsToEvaluate & computeAssignments || par->assignFlag)
+    if (r[1])
     {
         assignmetsNT = const_cast<NumericTable *>(r[1]);
     }
