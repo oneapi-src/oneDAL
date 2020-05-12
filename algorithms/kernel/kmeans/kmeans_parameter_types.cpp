@@ -47,7 +47,7 @@ Parameter::Parameter(size_t _nClusters, size_t _maxIterations)
       accuracyThreshold(0.0),
       gamma(1.0),
       distanceType(euclidean),
-      resultsToEvaluate(computeCentroids | computeAssignments),
+      resultsToEvaluate(computeCentroids | computeAssignments | computeExactObjectiveFunction),
       assignFlag(false)
 {}
 
