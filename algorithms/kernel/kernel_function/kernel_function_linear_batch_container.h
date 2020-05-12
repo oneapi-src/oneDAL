@@ -37,7 +37,7 @@ namespace linear
 using namespace daal::data_management;
 
 template <typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(services::Environment::env * daalEnv)
 {
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();

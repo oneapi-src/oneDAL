@@ -52,10 +52,6 @@ services::Status Reducer::buildProgram(ClKernelFactoryIface & kernelFactory, con
     {
         build_options.add(" -D UNARY_OP=pow2 -D BINARY_OP=sum -D INIT_VALUE=0.0");
     }
-    else
-    {
-        return services::ErrorMethodNotImplemented;
-    }
 
     services::String cachekey("__daal_oneapi_internal_math_reducer_");
     cachekey.add(build_options);

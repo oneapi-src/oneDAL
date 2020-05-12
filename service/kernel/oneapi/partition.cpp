@@ -222,7 +222,13 @@ services::Status Partition::flagged(UniversalBuffer mask, UniversalBuffer data, 
 
     {
         auto totalSumHost = totalSum.template get<int>().toHost(data_management::ReadWriteMode::readOnly, &status);
-        nSelect           = totalSumHost.get()[0];
+        DAAL_CHECK_STATUS_VAR(status);
+        const int * totalSumHostPtr = totalSumHost.get();
+        if (!totalSumHostPtr)
+        {
+            return services::Status(services::ErrorNullPtr);
+        }
+        nSelect = totalSumHostPtr[0];
     }
 
     return status;
@@ -255,7 +261,14 @@ services::Status Partition::flaggedIndex(UniversalBuffer mask, UniversalBuffer d
 
     {
         auto totalSumHost = totalSum.template get<int>().toHost(data_management::ReadWriteMode::readOnly, &status);
-        nSelect           = totalSumHost.get()[0];
+        DAAL_CHECK_STATUS_VAR(status);
+        const int * totalSumHostPtr = totalSumHost.get();
+        if (!totalSumHostPtr)
+        {
+            return services::Status(services::ErrorNullPtr);
+        }
+
+        nSelect = totalSumHostPtr[0];
     }
 
     return status;
