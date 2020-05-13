@@ -76,7 +76,8 @@ struct BlasGpu
         }
         else
         {
-            ctx.gemv(trans, n, m, alpha, a_buffer, lda, offsetA, x_buffer, incx, offsetX, beta, y_buffer, incy, offsetY, &status);
+            const math::Transpose invert_trans = trans == math::Transpose::Trans ? math::Transpose::NoTrans : math::Transpose::Trans;
+            ctx.gemv(invert_trans, n, m, alpha, a_buffer, lda, offsetA, x_buffer, incx, offsetX, beta, y_buffer, incy, offsetY, &status);
         }
 
         return status;

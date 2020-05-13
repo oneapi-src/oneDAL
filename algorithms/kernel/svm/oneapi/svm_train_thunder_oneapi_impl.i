@@ -79,7 +79,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::update
                                                                                      const size_t nWS)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(updateGrad);
-    return BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::Trans, math::Transpose::NoTrans, nVectors, 1, nWS,
+    return BlasGpu<algorithmFPType>::xgemv(math::Layout::RowMajor, math::Transpose::Trans, nVectors, nWS,
                                            algorithmFPType(1), kernelWS, nVectors, 0, deltaalpha, 1, 0, algorithmFPType(1), grad, 1, 0);
 }
 
