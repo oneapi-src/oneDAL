@@ -66,6 +66,7 @@ class KMeansInitDenseBatch {
         /* Calculate initial clusters for K-Means clustering */
         InitBatch init = new InitBatch(context, Float.class, method, nClusters);
         init.input.set(InitInputId.data, input);
+        init.parameter.setNTrials(1);
         if (oversamplingFactor > 0)
             init.parameter.setOversamplingFactor(oversamplingFactor);
         System.out.print("K-means init parameters: method = " + methodName);

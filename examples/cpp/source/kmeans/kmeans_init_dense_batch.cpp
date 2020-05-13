@@ -58,6 +58,7 @@ static void runKmeans(const NumericTablePtr & inputData, size_t nClusters, const
     /* Get initial clusters for the K-Means algorithm */
     kmeans::init::Batch<float, method> init(nClusters);
     init.input.set(kmeans::init::data, inputData);
+    init.parameter.nTrials = 1;
     if (oversamplingFactor > 0) init.parameter.oversamplingFactor = oversamplingFactor;
     std::cout << "K-means init parameters: method = " << methodName;
     if (method == kmeans::init::parallelPlusDense)
@@ -72,9 +73,9 @@ static void runKmeans(const NumericTablePtr & inputData, size_t nClusters, const
 
     algorithm.input.set(kmeans::data, inputData);
     algorithm.input.set(kmeans::inputCentroids, centroids);
-    algorithm.parameter.accuracyThreshold = cAccuracyThreshold;
-    std::cout << "K-means algorithm parameters: maxIterations = " << algorithm.parameter.maxIterations
-              << ", accuracyThreshold = " << algorithm.parameter.accuracyThreshold << std::endl;
+    algorithm.parameter().accuracyThreshold = cAccuracyThreshold;
+    std::cout << "K-means algorithm parameters: maxIterations = " << algorithm.parameter().maxIterations
+              << ", accuracyThreshold = " << algorithm.parameter().accuracyThreshold << std::endl;
     algorithm.compute();
 
     /* Print the results */

@@ -29,6 +29,7 @@
 #include "service/kernel/data_management/service_numeric_table.h"
 
 #include "algorithms/kernel/kmeans/kmeans_lloyd_impl.i"
+#include "algorithms/kernel/kmeans/kmeans_lloyd_postprocessing.h"
 
 #include "externals/service_ittnotify.h"
 
@@ -48,10 +49,10 @@ namespace internal
 template <Method method, typename algorithmFPType, CpuType cpu>
 Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTable * const * a, const NumericTable * const * r, const Parameter * par)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute);
-
+    Status s;
     NumericTable * ntData  = const_cast<NumericTable *>(a[0]);
     const size_t nIter     = par->maxIterations;
+    const size_t n         = ntData->getNumberOfRows();
     const size_t p         = ntData->getNumberOfColumns();
     const size_t nClusters = par->nClusters;
     int result             = 0;
@@ -94,11 +95,31 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
 
     ReadRows<algorithmFPType, cpu> mtInClusters(*const_cast<NumericTable *>(a[1]), 0, nClusters);
     DAAL_CHECK_BLOCK_STATUS(mtInClusters);
-    WriteOnlyRows<algorithmFPType, cpu> mtClusters(*const_cast<NumericTable *>(r[0]), 0, nClusters);
-    DAAL_CHECK_BLOCK_STATUS(mtClusters);
-
     algorithmFPType * inClusters = const_cast<algorithmFPType *>(mtInClusters.get());
-    algorithmFPType * clusters   = mtClusters.get();
+
+    WriteOnlyRows<algorithmFPType, cpu> mtClusters(const_cast<NumericTable *>(r[0]), 0, nClusters);
+    DAAL_CHECK_BLOCK_STATUS(mtClusters);
+    algorithmFPType * clusters = mtClusters.get();
+
+    TArray<algorithmFPType, cpu> tClusters;
+    if (clusters == nullptr && nIter != 0)
+    {
+        tClusters.reset(nClusters * p);
+        clusters = tClusters.get();
+    }
+
+    NumericTable * assignmetsNT = nullptr;
+    NumericTablePtr assignmentsPtr;
+    if (r[1])
+    {
+        assignmetsNT = const_cast<NumericTable *>(r[1]);
+    }
+    else if (par->resultsToEvaluate & computeExactObjectiveFunction)
+    {
+        assignmentsPtr = HomogenNumericTableCPU<int, cpu>::create(1, n, &s);
+        DAAL_CHECK_MALLOC(s);
+        assignmetsNT = assignmentsPtr.get();
+    }
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, p, sizeof(double));
 
@@ -114,18 +135,16 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
     TArray<algorithmFPType, cpu> cValues(nClusters);
     TArray<size_t, cpu> cIndices(nClusters);
 
-    Status s;
     algorithmFPType oldTargetFunc(0.0);
     size_t kIter;
     for (kIter = 0; kIter < nIter; kIter++)
     {
-        SharedPtr<task_t<algorithmFPType, cpu> > task = task_t<algorithmFPType, cpu>::create(p, nClusters, inClusters);
+        auto task = TaskKMeansLloyd<algorithmFPType, cpu>::create(p, nClusters, inClusters);
         DAAL_CHECK(task.get(), services::ErrorMemoryAllocationFailed);
-        DAAL_ASSERT(task);
-
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(addNTToTaskThreaded);
-            s = task->template addNTToTaskThreaded<method>(ntData, catCoef.get());
+            /* For the last iteration we do not need to recount of assignmets */
+            s = task->template addNTToTaskThreaded<method>(ntData, catCoef.get(), assignmetsNT && (kIter == nIter - 1) ? assignmetsNT : nullptr);
         }
 
         if (!s)
@@ -205,19 +224,30 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
         clusters = inClusters;
     }
 
-    NumericTable * assignments = par->assignFlag ? const_cast<NumericTable *>(r[1]) : nullptr;
-    algorithmFPType targetFunc = algorithmFPType(0);
+    if ((kIter != nIter || nIter == 0)
+        && (par->resultsToEvaluate & computeAssignments || par->assignFlag || par->resultsToEvaluate & computeExactObjectiveFunction))
+    {
+        PostProcessing<method, algorithmFPType, cpu>::computeAssignments(p, nClusters, clusters, ntData, catCoef.get(), assignmetsNT);
+    }
 
-    s = RecalculationObservations<method, algorithmFPType, cpu>(p, nClusters, inClusters, ntData, catCoef.get(), assignments, targetFunc);
+    WriteOnlyRows<algorithmFPType, cpu> mtTarget(*const_cast<NumericTable *>(r[2]), 0, 1);
+    DAAL_CHECK_BLOCK_STATUS(mtTarget);
+    if (par->resultsToEvaluate & computeExactObjectiveFunction)
+    {
+        algorithmFPType exactTargetFunc = algorithmFPType(0);
+        PostProcessing<method, algorithmFPType, cpu>::computeExactObjectiveFunction(p, nClusters, clusters, ntData, catCoef.get(), assignmetsNT,
+                                                                                    exactTargetFunc);
+
+        *mtTarget.get() = exactTargetFunc;
+    }
+    else
+    {
+        *mtTarget.get() = oldTargetFunc;
+    }
 
     WriteOnlyRows<int, cpu> mtIterations(*const_cast<NumericTable *>(r[3]), 0, 1);
     DAAL_CHECK_BLOCK_STATUS(mtIterations);
     *mtIterations.get() = kIter;
-
-    WriteOnlyRows<algorithmFPType, cpu> mtTarget(*const_cast<NumericTable *>(r[2]), 0, 1);
-    DAAL_CHECK_BLOCK_STATUS(mtTarget);
-    *mtTarget.get() = targetFunc;
-
     return (!result) ? s : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 

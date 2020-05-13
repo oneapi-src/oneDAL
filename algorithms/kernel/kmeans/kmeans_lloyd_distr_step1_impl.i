@@ -113,11 +113,11 @@ Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::compute(size_
     Status s;
     algorithmFPType oldTargetFunc = (algorithmFPType)0.0;
     {
-        SharedPtr<task_t<algorithmFPType, cpu> > task = task_t<algorithmFPType, cpu>::create(p, nClusters, initClusters);
+        auto task = TaskKMeansLloyd<algorithmFPType, cpu>::create(p, nClusters, initClusters);
         DAAL_CHECK(task.get(), services::ErrorMemoryAllocationFailed);
         DAAL_ASSERT(task);
 
-        if (par->assignFlag)
+        if (par->resultsToEvaluate & computeAssignments || par->assignFlag)
         {
             s = task->template addNTToTaskThreaded<method>(ntData, catCoef.get(), ntAssignments);
         }
@@ -163,7 +163,7 @@ template <Method method, typename algorithmFPType, CpuType cpu>
 Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::finalizeCompute(size_t na, const NumericTable * const * a, size_t nr,
                                                                                    const NumericTable * const * r, const Parameter * par)
 {
-    if (!par->assignFlag) return Status();
+    if (!(par->resultsToEvaluate & computeAssignments || par->assignFlag)) return Status();
 
     NumericTable * ntPartialAssignments = const_cast<NumericTable *>(a[0]);
     NumericTable * ntAssignments        = const_cast<NumericTable *>(r[0]);

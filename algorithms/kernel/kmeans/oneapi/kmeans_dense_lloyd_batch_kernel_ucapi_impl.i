@@ -331,7 +331,6 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
     ntInCentroids->releaseBlockOfRows(inCentroidsRows);
     ntOutCentroids->releaseBlockOfRows(outCentroidsRows);
     ntObjFunction->releaseBlockOfRows(objFunctionRows);
-
     {
         BlockDescriptor<int> nIterationsRows;
         ntNIterations->getBlockOfRows(0, 1, writeOnly, nIterationsRows);
