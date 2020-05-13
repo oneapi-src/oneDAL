@@ -51,12 +51,11 @@ struct TaskKMeansLloyd
 {
     DAAL_NEW_DELETE();
 
-    TaskKMeansLloyd(int _dim, int _clNum, algorithmFPType * _centroids)
+    TaskKMeansLloyd(int _dim, int _clNum, algorithmFPType * _centroids, const size_t max_block_size)
     {
-        dim            = _dim;
-        clNum          = _clNum;
-        cCenters       = _centroids;
-        max_block_size = 512;
+        dim      = _dim;
+        clNum    = _clNum;
+        cCenters = _centroids;
 
         /* Allocate memory for all arrays inside TLS */
         tls_task = new daal::tls<TlsTask<algorithmFPType, cpu> *>([=]() -> TlsTask<algorithmFPType, cpu> * {
@@ -93,9 +92,9 @@ struct TaskKMeansLloyd
         }
     }
 
-    static SharedPtr<TaskKMeansLloyd<algorithmFPType, cpu> > create(int dim, int clNum, algorithmFPType * centroids)
+    static SharedPtr<TaskKMeansLloyd<algorithmFPType, cpu> > create(int dim, int clNum, algorithmFPType * centroids, const size_t max_block_size)
     {
-        SharedPtr<TaskKMeansLloyd<algorithmFPType, cpu> > result(new TaskKMeansLloyd<algorithmFPType, cpu>(dim, clNum, centroids));
+        SharedPtr<TaskKMeansLloyd<algorithmFPType, cpu> > result(new TaskKMeansLloyd<algorithmFPType, cpu>(dim, clNum, centroids, max_block_size));
         if (result.get() && (!result->tls_task || !result->clSq))
         {
             result.reset();
@@ -103,12 +102,15 @@ struct TaskKMeansLloyd
         return result;
     }
 
-    Status addNTToTaskThreadedDense(const NumericTable * const ntData, const algorithmFPType * const catCoef, NumericTable * ntAssign = nullptr);
+    Status addNTToTaskThreadedDense(const NumericTable * const ntData, const algorithmFPType * const catCoef, const size_t blockSizeDefault,
+                                    NumericTable * ntAssign = nullptr);
 
-    Status addNTToTaskThreadedCSR(const NumericTable * const ntData, const algorithmFPType * const catCoef, NumericTable * ntAssign = nullptr);
+    Status addNTToTaskThreadedCSR(const NumericTable * const ntData, const algorithmFPType * const catCoef, const size_t blockSizeDefault,
+                                  NumericTable * ntAssign = nullptr);
 
     template <Method method>
-    Status addNTToTaskThreaded(const NumericTable * const ntData, const algorithmFPType * const catCoef, NumericTable * ntAssign = nullptr);
+    Status addNTToTaskThreaded(const NumericTable * const ntData, const algorithmFPType * const catCoef, const size_t blockSizeDefault,
+                               NumericTable * ntAssign = nullptr);
 
     template <typename centroidsFPType>
     int kmeansUpdateCluster(int jidx, centroidsFPType * s1);
@@ -128,28 +130,26 @@ struct TaskKMeansLloyd
 
     int dim;
     int clNum;
-    int max_block_size;
 
     typedef typename Fp2IntSize<algorithmFPType>::IntT algIntType;
 };
 
 template <typename algorithmFPType, CpuType cpu>
 Status TaskKMeansLloyd<algorithmFPType, cpu>::addNTToTaskThreadedDense(const NumericTable * const ntData, const algorithmFPType * const catCoef,
-                                                                       NumericTable * ntAssign)
+                                                                       const size_t blockSizeDefault, NumericTable * ntAssign)
 {
-    const size_t n                = ntData->getNumberOfRows();
-    const size_t blockSizeDeafult = max_block_size;
+    const size_t n = ntData->getNumberOfRows();
 
-    size_t nBlocks = n / blockSizeDeafult;
-    nBlocks += (nBlocks * blockSizeDeafult != n);
+    size_t nBlocks = n / blockSizeDefault;
+    nBlocks += (nBlocks * blockSizeDefault != n);
 
     SafeStatus safeStat;
     daal::threader_for(nBlocks, nBlocks, [=, &safeStat](const int k) {
         struct TlsTask<algorithmFPType, cpu> * tt = tls_task->local();
         DAAL_CHECK_MALLOC_THR(tt);
-        const size_t blockSize = (k == nBlocks - 1) ? n - k * blockSizeDeafult : blockSizeDeafult;
+        const size_t blockSize = (k == nBlocks - 1) ? n - k * blockSizeDefault : blockSizeDefault;
 
-        ReadRows<algorithmFPType, cpu> mtData(*const_cast<NumericTable *>(ntData), k * blockSizeDeafult, blockSize);
+        ReadRows<algorithmFPType, cpu> mtData(*const_cast<NumericTable *>(ntData), k * blockSizeDefault, blockSize);
         DAAL_CHECK_BLOCK_STATUS_THR(mtData);
         const algorithmFPType * const data = mtData.get();
 
@@ -165,7 +165,7 @@ Status TaskKMeansLloyd<algorithmFPType, cpu>::addNTToTaskThreadedDense(const Num
         algorithmFPType * cS1 = tt->cS1;
 
         int * assignments = nullptr;
-        WriteOnlyRows<int, cpu> assignBlock(ntAssign, k * blockSizeDeafult, blockSize);
+        WriteOnlyRows<int, cpu> assignBlock(ntAssign, k * blockSizeDefault, blockSize);
         if (ntAssign)
         {
             DAAL_CHECK_BLOCK_STATUS_THR(assignBlock);
@@ -230,7 +230,7 @@ Status TaskKMeansLloyd<algorithmFPType, cpu>::addNTToTaskThreadedDense(const Num
                 minGoalVal += data[i * p + j] * data[i * p + j];
             }
 
-            kmeansInsertCandidate(tt, minGoalVal, k * blockSizeDeafult + i);
+            kmeansInsertCandidate(tt, minGoalVal, k * blockSizeDefault + i);
             cS0[minIdx]++;
 
             goal += minGoalVal;
@@ -249,24 +249,23 @@ Status TaskKMeansLloyd<algorithmFPType, cpu>::addNTToTaskThreadedDense(const Num
 
 template <typename algorithmFPType, CpuType cpu>
 Status TaskKMeansLloyd<algorithmFPType, cpu>::addNTToTaskThreadedCSR(const NumericTable * const ntData, const algorithmFPType * const catCoef,
-                                                                     NumericTable * ntAssign)
+                                                                     const size_t blockSizeDefault, NumericTable * ntAssign)
 {
     CSRNumericTableIface * ntDataCsr = dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(ntData));
 
-    const size_t n                = ntData->getNumberOfRows();
-    const size_t blockSizeDeafult = max_block_size;
+    const size_t n = ntData->getNumberOfRows();
 
-    size_t nBlocks = n / blockSizeDeafult;
-    nBlocks += (nBlocks * blockSizeDeafult != n);
+    size_t nBlocks = n / blockSizeDefault;
+    nBlocks += (nBlocks * blockSizeDefault != n);
 
     SafeStatus safeStat;
     daal::threader_for(nBlocks, nBlocks, [=, &safeStat](const int k) {
         struct TlsTask<algorithmFPType, cpu> * tt = tls_task->local();
         DAAL_CHECK_MALLOC_THR(tt);
 
-        const size_t blockSize = (k == nBlocks - 1) ? n - k * blockSizeDeafult : blockSizeDeafult;
+        const size_t blockSize = (k == nBlocks - 1) ? n - k * blockSizeDefault : blockSizeDefault;
 
-        ReadRowsCSR<algorithmFPType, cpu> dataBlock(ntDataCsr, k * blockSizeDeafult, blockSize);
+        ReadRowsCSR<algorithmFPType, cpu> dataBlock(ntDataCsr, k * blockSizeDefault, blockSize);
         DAAL_CHECK_BLOCK_STATUS_THR(dataBlock);
 
         const algorithmFPType * const data = dataBlock.values();
@@ -285,7 +284,7 @@ Status TaskKMeansLloyd<algorithmFPType, cpu>::addNTToTaskThreadedCSR(const Numer
         algorithmFPType * cS1 = tt->cS1;
 
         int * assignments = nullptr;
-        WriteOnlyRows<int, cpu> assignBlock(ntAssign, k * blockSizeDeafult, blockSize);
+        WriteOnlyRows<int, cpu> assignBlock(ntAssign, k * blockSizeDefault, blockSize);
         if (ntAssign)
         {
             DAAL_CHECK_BLOCK_STATUS_THR(assignBlock);
@@ -328,7 +327,7 @@ Status TaskKMeansLloyd<algorithmFPType, cpu>::addNTToTaskThreadedCSR(const Numer
                 csrCursor++;
             }
 
-            kmeansInsertCandidate(tt, minGoalVal, k * blockSizeDeafult + i);
+            kmeansInsertCandidate(tt, minGoalVal, k * blockSizeDefault + i);
 
             *trg += minGoalVal;
 
@@ -347,15 +346,15 @@ Status TaskKMeansLloyd<algorithmFPType, cpu>::addNTToTaskThreadedCSR(const Numer
 template <typename algorithmFPType, CpuType cpu>
 template <Method method>
 Status TaskKMeansLloyd<algorithmFPType, cpu>::addNTToTaskThreaded(const NumericTable * const ntData, const algorithmFPType * const catCoef,
-                                                                  NumericTable * ntAssign)
+                                                                  const size_t blockSizeDefault, NumericTable * ntAssign)
 {
     if (method == lloydDense)
     {
-        return addNTToTaskThreadedDense(ntData, catCoef, ntAssign);
+        return addNTToTaskThreadedDense(ntData, catCoef, blockSizeDefault, ntAssign);
     }
     else if (method == lloydCSR)
     {
-        return addNTToTaskThreadedCSR(ntData, catCoef, ntAssign);
+        return addNTToTaskThreadedCSR(ntData, catCoef, blockSizeDefault, ntAssign);
     }
     DAAL_ASSERT(false);
     return Status();

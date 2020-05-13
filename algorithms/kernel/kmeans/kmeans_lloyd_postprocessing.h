@@ -51,26 +51,24 @@ template <Method method, typename algorithmFPType, CpuType cpu>
 struct PostProcessing
 {
     static Status computeAssignments(const size_t p, const size_t nClusters, const algorithmFPType * const inClusters, const NumericTable * ntData,
-                                     algorithmFPType * catCoef, NumericTable * ntAssign);
+                                     algorithmFPType * catCoef, NumericTable * ntAssign, const size_t blockSizeDefault);
 
     static Status computeExactObjectiveFunction(const size_t p, const size_t nClusters, const algorithmFPType * const inClusters,
                                                 const NumericTable * const ntData, const algorithmFPType * const catCoef, NumericTable * ntAssign,
-                                                algorithmFPType & objectiveFunction);
+                                                algorithmFPType & objectiveFunction, const size_t blockSizeDefault);
 };
 
 template <typename algorithmFPType, CpuType cpu>
 struct PostProcessing<lloydDense, algorithmFPType, cpu>
 {
-    const static size_t blockSizeDeafult = 512;
-
     static Status computeAssignments(const size_t p, const size_t nClusters, const algorithmFPType * const inClusters, const NumericTable * ntData,
-                                     algorithmFPType * catCoef, NumericTable * ntAssign)
+                                     algorithmFPType * catCoef, NumericTable * ntAssign, const size_t blockSizeDefault)
     {
         const size_t n       = ntData->getNumberOfRows();
-        const size_t nBlocks = n / blockSizeDeafult + !!(n % blockSizeDeafult);
+        const size_t nBlocks = n / blockSizeDefault + !!(n % blockSizeDefault);
 
         /* Allocate memory for all arrays inside TLS */
-        daal::tls<algorithmFPType *> tlsTask([=]() { return service_scalable_malloc<algorithmFPType, cpu>(blockSizeDeafult * nClusters); });
+        daal::tls<algorithmFPType *> tlsTask([=]() { return service_scalable_malloc<algorithmFPType, cpu>(blockSizeDefault * nClusters); });
 
         TArrayScalable<algorithmFPType, cpu> clSq(nClusters);
         DAAL_CHECK(clSq.get(), services::ErrorMemoryAllocationFailed);
@@ -91,13 +89,13 @@ struct PostProcessing<lloydDense, algorithmFPType, cpu>
         daal::threader_for(nBlocks, nBlocks, [&](int iBlock) {
             algorithmFPType * x_clusters = tlsTask.local();
             DAAL_CHECK_MALLOC_THR(x_clusters);
-            const size_t blockSize = (iBlock == nBlocks - 1) ? n - iBlock * blockSizeDeafult : blockSizeDeafult;
+            const size_t blockSize = (iBlock == nBlocks - 1) ? n - iBlock * blockSizeDefault : blockSizeDefault;
 
-            ReadRows<algorithmFPType, cpu> mtData(*const_cast<NumericTable *>(ntData), iBlock * blockSizeDeafult, blockSize);
+            ReadRows<algorithmFPType, cpu> mtData(*const_cast<NumericTable *>(ntData), iBlock * blockSizeDefault, blockSize);
             DAAL_CHECK_BLOCK_STATUS_THR(mtData);
             const algorithmFPType * const data = mtData.get();
 
-            WriteOnlyRows<int, cpu> assignBlock(ntAssign, iBlock * blockSizeDeafult, blockSize);
+            WriteOnlyRows<int, cpu> assignBlock(ntAssign, iBlock * blockSizeDefault, blockSize);
             DAAL_CHECK_BLOCK_STATUS_THR(assignBlock);
             int * assignments = assignBlock.get();
 
@@ -135,16 +133,15 @@ struct PostProcessing<lloydDense, algorithmFPType, cpu>
         DAAL_CHECK_SAFE_STATUS();
 
         tlsTask.reduce([](algorithmFPType * array) { service_scalable_free<algorithmFPType, cpu>(array); });
-
         return Status();
     }
 
     static Status computeExactObjectiveFunction(const size_t p, const size_t nClusters, const algorithmFPType * const inClusters,
                                                 const NumericTable * const ntData, const algorithmFPType * const catCoef, NumericTable * ntAssign,
-                                                algorithmFPType & objectiveFunction)
+                                                algorithmFPType & objectiveFunction, const size_t blockSizeDefault)
     {
         const size_t n       = ntData->getNumberOfRows();
-        const size_t nBlocks = n / blockSizeDeafult + !!(n % blockSizeDeafult);
+        const size_t nBlocks = n / blockSizeDefault + !!(n % blockSizeDefault);
 
         TArrayScalable<algorithmFPType, cpu> goalLocal(nBlocks);
         algorithmFPType * goalLocalData = goalLocal.get();
@@ -152,14 +149,13 @@ struct PostProcessing<lloydDense, algorithmFPType, cpu>
 
         SafeStatus safeStat;
         daal::threader_for(nBlocks, nBlocks, [&](const int iBlock) {
-            // algorithmFPType * goalLocal = tlsTask.local();
-            const size_t blockSize = (iBlock == nBlocks - 1) ? n - iBlock * blockSizeDeafult : blockSizeDeafult;
+            const size_t blockSize = (iBlock == nBlocks - 1) ? n - iBlock * blockSizeDefault : blockSizeDefault;
 
-            ReadRows<algorithmFPType, cpu> mtData(*const_cast<NumericTable *>(ntData), iBlock * blockSizeDeafult, blockSize);
+            ReadRows<algorithmFPType, cpu> mtData(*const_cast<NumericTable *>(ntData), iBlock * blockSizeDefault, blockSize);
             DAAL_CHECK_BLOCK_STATUS_THR(mtData);
             const algorithmFPType * const data = mtData.get();
 
-            ReadRows<int, cpu> assignBlock(ntAssign, iBlock * blockSizeDeafult, blockSize);
+            ReadRows<int, cpu> assignBlock(ntAssign, iBlock * blockSizeDefault, blockSize);
             DAAL_CHECK_BLOCK_STATUS_THR(assignBlock);
             const int * assignments = assignBlock.get();
 
@@ -186,7 +182,6 @@ struct PostProcessing<lloydDense, algorithmFPType, cpu>
         {
             objectiveFunction += goalLocalData[j];
         }
-
         return Status();
     }
 };
@@ -194,18 +189,16 @@ struct PostProcessing<lloydDense, algorithmFPType, cpu>
 template <typename algorithmFPType, CpuType cpu>
 struct PostProcessing<lloydCSR, algorithmFPType, cpu>
 {
-    const static size_t blockSizeDeafult = 512;
-
     static Status computeAssignments(const size_t p, const size_t nClusters, const algorithmFPType * const inClusters, const NumericTable * ntData,
-                                     algorithmFPType * catCoef, NumericTable * ntAssign)
+                                     algorithmFPType * catCoef, NumericTable * ntAssign, const size_t blockSizeDefault)
     {
         CSRNumericTableIface * ntDataCsr = dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(ntData));
 
         const size_t n       = ntData->getNumberOfRows();
-        const size_t nBlocks = n / blockSizeDeafult + !!(n % blockSizeDeafult);
+        const size_t nBlocks = n / blockSizeDefault + !!(n % blockSizeDefault);
 
         /* Allocate memory for all arrays inside TLS */
-        daal::tls<algorithmFPType *> tlsTask([=]() { return service_scalable_malloc<algorithmFPType, cpu>(blockSizeDeafult * nClusters); });
+        daal::tls<algorithmFPType *> tlsTask([=]() { return service_scalable_malloc<algorithmFPType, cpu>(blockSizeDefault * nClusters); });
 
         TArrayScalable<algorithmFPType, cpu> clSq(nClusters);
         DAAL_CHECK(clSq.get(), services::ErrorMemoryAllocationFailed);
@@ -228,9 +221,9 @@ struct PostProcessing<lloydCSR, algorithmFPType, cpu>
         daal::threader_for(nBlocks, nBlocks, [&](int iBlock) {
             algorithmFPType * x_clusters = tlsTask.local();
             DAAL_CHECK_MALLOC_THR(x_clusters);
-            const size_t blockSize = (iBlock == nBlocks - 1) ? n - iBlock * blockSizeDeafult : blockSizeDeafult;
+            const size_t blockSize = (iBlock == nBlocks - 1) ? n - iBlock * blockSizeDefault : blockSizeDefault;
 
-            ReadRowsCSR<algorithmFPType, cpu> dataBlock(ntDataCsr, iBlock * blockSizeDeafult, blockSize);
+            ReadRowsCSR<algorithmFPType, cpu> dataBlock(ntDataCsr, iBlock * blockSizeDefault, blockSize);
             DAAL_CHECK_BLOCK_STATUS_THR(dataBlock);
 
             const algorithmFPType * const data = dataBlock.values();
@@ -239,7 +232,7 @@ struct PostProcessing<lloydCSR, algorithmFPType, cpu>
 
             const algorithmFPType * clustersSq = clSq.get();
 
-            WriteOnlyRows<int, cpu> assignBlock(ntAssign, iBlock * blockSizeDeafult, blockSize);
+            WriteOnlyRows<int, cpu> assignBlock(ntAssign, iBlock * blockSizeDefault, blockSize);
             DAAL_CHECK_BLOCK_STATUS_THR(assignBlock);
             int * assignments = assignBlock.get();
 
@@ -277,12 +270,12 @@ struct PostProcessing<lloydCSR, algorithmFPType, cpu>
 
     static Status computeExactObjectiveFunction(const size_t p, const size_t nClusters, const algorithmFPType * const inClusters,
                                                 const NumericTable * const ntData, const algorithmFPType * const catCoef, NumericTable * ntAssign,
-                                                algorithmFPType & objectiveFunction)
+                                                algorithmFPType & objectiveFunction, const size_t blockSizeDefault)
     {
         CSRNumericTableIface * ntDataCsr = dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(ntData));
 
         const size_t n       = ntData->getNumberOfRows();
-        const size_t nBlocks = n / blockSizeDeafult + !!(n % blockSizeDeafult);
+        const size_t nBlocks = n / blockSizeDefault + !!(n % blockSizeDefault);
 
         TArrayScalable<algorithmFPType, cpu> goalLocal(nBlocks);
         algorithmFPType * goalLocalData = goalLocal.get();
@@ -290,12 +283,12 @@ struct PostProcessing<lloydCSR, algorithmFPType, cpu>
 
         SafeStatus safeStat;
         daal::threader_for(nBlocks, nBlocks, [&](const int iBlock) {
-            const size_t blockSize = (iBlock == nBlocks - 1) ? n - iBlock * blockSizeDeafult : blockSizeDeafult;
+            const size_t blockSize = (iBlock == nBlocks - 1) ? n - iBlock * blockSizeDefault : blockSizeDefault;
 
-            ReadRowsCSR<algorithmFPType, cpu> dataBlock(ntDataCsr, iBlock * blockSizeDeafult, blockSize);
+            ReadRowsCSR<algorithmFPType, cpu> dataBlock(ntDataCsr, iBlock * blockSizeDefault, blockSize);
             DAAL_CHECK_BLOCK_STATUS_THR(dataBlock);
 
-            ReadRows<int, cpu> assignBlock(ntAssign, iBlock * blockSizeDeafult, blockSize);
+            ReadRows<int, cpu> assignBlock(ntAssign, iBlock * blockSizeDefault, blockSize);
             DAAL_CHECK_BLOCK_STATUS_THR(assignBlock);
             const int * assignments = assignBlock.get();
 
