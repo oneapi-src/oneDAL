@@ -1946,6 +1946,15 @@ unsigned getL1CacheSize()
     return glbl_obj.cacheDetail[0].sizeKB * 1024;
 }
 
+unsigned getL2CacheSize()
+{
+    _internal_daal_GetSysProcessorCoreCount();
+
+    if (glbl_obj.error || !glbl_obj.maxCacheSubleaf) return 0;
+
+    return glbl_obj.cacheDetail[2].sizeKB * 1024;
+}
+
 unsigned getLLCacheSize()
 {
     _internal_daal_GetSysProcessorCoreCount();
@@ -2037,6 +2046,11 @@ namespace internal
 unsigned getL1CacheSize()
 {
     return 32 * 1024;
+}
+
+unsigned getL2CacheSize()
+{
+    return 256 * 1024;
 }
 
 unsigned getLLCacheSize()
