@@ -1,4 +1,4 @@
-/* file: kmeans_parameter_types.cpp */
+/* file: kmeans_parameter_types_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kmeans/kmeans_types.h"
+#include "algorithms/kernel/kmeans/inner/kmeans_types_v1.h"
 #include "services/daal_defines.h"
 #include "service/kernel/daal_strings.h"
 
@@ -34,7 +34,7 @@ namespace algorithms
 {
 namespace kmeans
 {
-namespace interface2
+namespace interface1
 {
 /**
  *  Constructs parameters of the K-Means algorithm
@@ -42,13 +42,7 @@ namespace interface2
  *  \param[in] _maxIterations Number of iterations
  */
 Parameter::Parameter(size_t _nClusters, size_t _maxIterations)
-    : nClusters(_nClusters),
-      maxIterations(_maxIterations),
-      accuracyThreshold(0.0),
-      gamma(1.0),
-      distanceType(euclidean),
-      resultsToEvaluate(computeCentroids | computeAssignments | computeExactObjectiveFunction),
-      assignFlag(false)
+    : nClusters(_nClusters), maxIterations(_maxIterations), accuracyThreshold(0.0), gamma(1.0), distanceType(euclidean), assignFlag(true)
 {}
 
 /**
@@ -61,7 +55,6 @@ Parameter::Parameter(const Parameter & other)
       accuracyThreshold(other.accuracyThreshold),
       gamma(other.gamma),
       distanceType(other.distanceType),
-      resultsToEvaluate(other.resultsToEvaluate),
       assignFlag(other.assignFlag)
 {}
 
@@ -73,7 +66,7 @@ services::Status Parameter::check() const
     return services::Status();
 }
 
-} // namespace interface2
+} // namespace interface1
 } // namespace kmeans
 } // namespace algorithms
 } // namespace daal

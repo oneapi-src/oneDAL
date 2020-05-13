@@ -46,14 +46,12 @@ public final class ResultId {
 
     private static final int centroidsValue    = 0;
     private static final int assignmentsValue  = 1;
-    private static final int goalFunctionValue = 2;
     private static final int objectiveFunctionValue = 2;
     private static final int nIterationsValue  = 3;
 
     public static final ResultId centroids    = new ResultId(centroidsValue);    /*!< Centroids */
     public static final ResultId assignments  = new ResultId(assignmentsValue);  /*!< Assignment of observations to clusters */
     public static final ResultId objectiveFunction = new ResultId(objectiveFunctionValue); /*!< Value of the objective function */
-    public static final ResultId goalFunction = new ResultId(goalFunctionValue); /*!< Value of the objective function @DAAL_DEPRECATED */
     public static final ResultId nIterations  = new ResultId(nIterationsValue);  /*!< Number of executed iterations */
 
 }

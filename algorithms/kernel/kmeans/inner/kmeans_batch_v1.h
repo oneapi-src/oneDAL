@@ -1,4 +1,4 @@
-/* file: kmeans_batch.h */
+/* file: kmeans_batch_v1.h */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -22,13 +22,13 @@
 //--
 */
 
-#ifndef __KMEANS_BATCH_H__
-#define __KMEANS_BATCH_H__
+#ifndef __KMEANS_BATCH_V1_H__
+#define __KMEANS_BATCH_V1_H__
 
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
 #include "services/daal_defines.h"
-#include "algorithms/kmeans/kmeans_types.h"
+#include "algorithms/kernel/kmeans/inner/kmeans_types_v1.h"
 
 namespace daal
 {
@@ -36,8 +36,7 @@ namespace algorithms
 {
 namespace kmeans
 {
-
-namespace interface2
+namespace interface1
 {
 /**
  * @defgroup kmeans_batch Batch
@@ -53,7 +52,7 @@ namespace interface2
  * \tparam algorithmFPType  Data type to use in intermediate computations of K-Means, double or float
  * \tparam method           Computation method of the algorithm, \ref daal::algorithms::kmeans::Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
@@ -62,7 +61,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~BatchContainer();
     /**
@@ -84,20 +83,20 @@ public:
  *      - \ref InputId  Identifiers of input objects for K-Means algorithm
  *      - \ref ResultId Identifiers of results of K-Means algorithm
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = lloydDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = lloydDense>
 class DAAL_EXPORT Batch : public daal::algorithms::Analysis<batch>
 {
 public:
-    typedef algorithms::kmeans::Input     InputType;
+    typedef algorithms::kmeans::Input InputType;
     typedef algorithms::kmeans::Parameter ParameterType;
-    typedef algorithms::kmeans::Result    ResultType;
+    typedef algorithms::kmeans::Result ResultType;
 
     /**
      *  Main constructor
      *  \param[in] nClusters   Number of clusters
      *  \param[in] nIterations Number of iterations
      */
-    Batch(size_t nClusters, size_t nIterations = 1);
+    Batch(size_t nClusters, size_t nIterations = 1) : parameter(nClusters, nIterations) { initialize(); }
 
     /**
      * Constructs K-Means algorithm by copying input objects and parameters
@@ -105,32 +104,34 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> & other);
+    Batch(const Batch<algorithmFPType, method> & other) : parameter(other.parameter)
+    {
+        initialize();
+        input.set(data, other.input.get(data));
+        input.set(inputCentroids, other.input.get(inputCentroids));
+    }
 
     /**
     * Returns the method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains the results of K-Means algorithm
      * \return Structure that contains the results of K-Means algorithm
      */
-    ResultPtr getResult()
-    {
-        return _result;
-    }
+    ResultPtr getResult() { return _result; }
 
     /**
      * Registers user-allocated  memory  to store the results of K-Means algorithm
      * \param[in] result  Structure to store the results of K-Means algorithm
      */
-    services::Status setResult(const ResultPtr& result)
+    services::Status setResult(const ResultPtr & result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -139,34 +140,16 @@ public:
      * and parameters of this K-Means algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
-
-    /**
-    * Gets parameter of the algorithm
-    * \return parameter of the algorithm
-    */
-    ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
-
-    /**
-    * Gets parameter of the algorithm
-    * \return parameter of the algorithm
-    */
-    const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         _result.reset(new ResultType());
-        services::Status s = _result->allocate<algorithmFPType>(_in, _par, (int) method);
-        _res = _result.get();
+        services::Status s = _result->allocate<algorithmFPType>(_in, _par, (int)method);
+        _res               = _result.get();
         return s;
     }
 
@@ -174,21 +157,21 @@ protected:
     {
         Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
         _in                  = &input;
+        _par                 = &parameter;
     }
 
 public:
-    InputType input; /*!< %Input data structure */
+    InputType input;         /*!< %Input data structure */
+    ParameterType parameter; /*!< K-Means parameters structure */
 
 private:
     ResultPtr _result;
+
+    Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface2
-
-using interface2::BatchContainer;
-using interface2::Batch;
-
-} // namespace daal::algorithms::kmeans
-} // namespace daal::algorithms
+} // namespace interface1
+} // namespace kmeans
+} // namespace algorithms
 } // namespace daal
 #endif

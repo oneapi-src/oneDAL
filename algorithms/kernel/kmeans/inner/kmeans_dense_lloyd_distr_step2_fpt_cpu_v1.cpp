@@ -1,4 +1,4 @@
-/* file: kmeans_csr_lloyd_batch_fpt_dispatcher.cpp */
+/* file: kmeans_dense_lloyd_distr_step2_fpt_cpu_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -17,43 +17,22 @@
 
 /*
 //++
-//  Implementation of K-means algorithm container -- a class that contains
-//  Lloyd K-means kernels for supported architectures.
+//  Implementation of Lloyd method for K-means algorithm.
 //--
 */
 
-#include "algorithms/kernel/kmeans/kmeans_container.h"
+#include "algorithms/kernel/kmeans/inner/kmeans_container_v1.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kmeans::interface2::BatchContainer, batch, DAAL_FPTYPE, kmeans::lloydCSR)
-
 namespace kmeans
 {
-namespace interface2
+namespace interface1
 {
-using BatchType = Batch<DAAL_FPTYPE, kmeans::lloydCSR>;
-
-template <>
-BatchType::Batch(size_t nClusters, size_t nIterations)
-{
-    _par = new ParameterType(nClusters, nIterations);
-    initialize();
-}
-
-template <>
-BatchType::Batch(const BatchType & other)
-{
-    _par = new ParameterType(other.parameter());
-    initialize();
-    input.set(data, other.input.get(data));
-    input.set(inputCentroids, other.input.get(inputCentroids));
-}
-
-} // namespace interface2
+template class DistributedContainer<step2Master, DAAL_FPTYPE, lloydDense, DAAL_CPU>;
+} // namespace interface1
 } // namespace kmeans
-
 } // namespace algorithms
 } // namespace daal

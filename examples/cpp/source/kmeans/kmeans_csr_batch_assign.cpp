@@ -62,6 +62,8 @@ int main(int argc, char * argv[])
     algorithm.input.set(kmeans::data, dataTable);
     algorithm.input.set(kmeans::inputCentroids, centroids);
 
+    algorithm.parameter().resultsToEvaluate = kmeans::computeAssignments;
+
     algorithm.compute();
 
     /* Print the clusterization results */

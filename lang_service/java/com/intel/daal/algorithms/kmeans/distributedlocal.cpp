@@ -34,7 +34,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_DistributedStep1Lo
 JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_DistributedStep1Local_cInitParameter(JNIEnv * env, jobject thisObj, jlong addr,
                                                                                                    jint prec, jint method)
 {
-    return jniDistributed<step1Local, kmeans::Method, Distributed, lloydDense, lloydCSR>::getParameter(prec, method, addr);
+    return jniDistributed<step1Local, kmeans::Method, Distributed, lloydDense, lloydCSR>::getBaseParameter(prec, method, addr);
 }
 
 JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_DistributedStep1Local_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
