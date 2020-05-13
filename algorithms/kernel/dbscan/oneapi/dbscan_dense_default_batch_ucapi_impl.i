@@ -39,6 +39,15 @@ namespace dbscan
 namespace internal
 {
 template <typename algorithmFPType>
+DBSCANBatchKernelUCAPI<algorithmFPType>::DBSCANBatchKernelUCAPI()
+{
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
+    _minSubgroupSize  = deviceInfo.maxNumSubGroups;
+    _maxWorkgroupSize = static_cast<uint32_t>(deviceInfo.maxWorkGroupSize);
+}
+
+template <typename algorithmFPType>
 services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::initializeBuffers(uint32_t nRows)
 {
     calculateChunks(nRows);
