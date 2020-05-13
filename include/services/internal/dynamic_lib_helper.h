@@ -24,9 +24,18 @@
 #ifndef __DAAL_DYNAMIC_LIB_HELPER_H__
 #define __DAAL_DYNAMIC_LIB_HELPER_H__
 
-#ifdef __linux__
+#if defined(__linux__) || defined(_WIN32) || defined(_WIN64)
 
-    #include <dlfcn.h>
+    #ifdef __linux__
+
+        #include <dlfcn.h>
+
+    #elif defined(_WIN32) || defined(_WIN64)
+
+        #define NOMINMAX
+        #include <windows.h>
+
+    #endif // __linux__
 
 namespace daal
 {
@@ -48,11 +57,14 @@ class DynamicLibHelper final
 public:
     DynamicLibHelper()                         = delete;
     DynamicLibHelper(const DynamicLibHelper &) = delete;
-    DynamicLibHelper(const char * libName, int flag, services::Status * status = nullptr)
+    DynamicLibHelper(const char * libName, int flag, services::Status * status = NULL)
     {
         services::Status localStatus;
+    #ifdef __linux__
         _handle = dlopen(libName, flag);
-
+    #elif defined(_WIN32) || defined(_WIN64)
+        _handle = LoadLibraryA(libName);
+    #endif
         if (!_handle)
         {
             services::internal::tryAssignStatusAndThrow(status, services::ErrorCanNotLoadDynamicLibrary);
@@ -60,19 +72,36 @@ public:
         }
     }
 
-    ~DynamicLibHelper() { dlclose(_handle); };
+    ~DynamicLibHelper()
+    {
+    #ifdef __linux__
+        dlclose(_handle);
+    #elif defined(_WIN32) || defined(_WIN64)
+        FreeLibrary((HMODULE)_handle);
+    #endif
+    };
 
     template <typename T>
-    T getSymbol(const char * symName, services::Status * status = nullptr)
+    T getSymbol(const char * symName, services::Status * status = NULL)
     {
+    #ifdef __linux__
         void * sym   = dlsym(_handle, symName);
         char * error = dlerror();
 
-        if (nullptr != error)
+        if (NULL != error)
         {
             services::internal::tryAssignStatusAndThrow(status, services::ErrorCanNotLoadDynamicLibrarySymbol);
-            return nullptr;
+            return NULL;
         }
+    #elif defined(_WIN32) || defined(_WIN64)
+        void * sym = GetProcAddress((HMODULE)_handle, symName);
+
+        if (NULL != sym)
+        {
+            services::internal::tryAssignStatusAndThrow(status, services::ErrorCanNotLoadDynamicLibrarySymbol);
+            return NULL;
+        }
+    #endif
 
         return (T)sym;
     }
@@ -85,5 +114,5 @@ private:
 } // namespace services
 } // namespace daal
 
-#endif // __linux__
+#endif // #if defined(__linux__) || defined(_WIN32) || defined(_WIN64)
 #endif // __DAAL_DYNAMIC_LIB_HELPER_H__
