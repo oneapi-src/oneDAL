@@ -46,14 +46,14 @@ namespace interface1
 static const char * zeLoaderName = "libze_loader.so";
 static const int libLoadFlags    = RTLD_NOLOAD | RTLD_NOW | RTLD_LOCAL;
 
-            #elif defined(_WIN32) || defined(_WIN64)
+            #elif defined(_WIN64)
 
 static const char * zeLoaderName = "libze_loader.dll";
 static const int libLoadFlags    = 0;
 
             #else
 
-                #error "Level Zero loader name is not defined"
+                #error "Level Zero support is unavailable for this platform"
 
             #endif
 static const char * zeModuleCreateFuncName  = "zeModuleCreate";
