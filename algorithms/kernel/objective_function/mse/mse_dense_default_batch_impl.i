@@ -529,8 +529,6 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                         hessianDiagonal.reset(nTheta);
                         hessianDiagonalPtr           = hessianDiagonal.get();
                         algorithmFPType inverseNData = (algorithmFPType)(1.0) / nDataRows;
-                        DAAL_INT one                 = 1;
-                        DAAL_INT n                   = nDataRows;
 
                         const size_t blockSize = 256;
                         size_t nBlocks         = nDataRows / blockSize;
