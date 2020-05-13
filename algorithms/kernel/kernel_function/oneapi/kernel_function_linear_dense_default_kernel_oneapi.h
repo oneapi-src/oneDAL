@@ -45,7 +45,10 @@ template <Method method, typename algorithmFPType>
 class KernelImplLinearOneAPI : public Kernel
 {
 public:
-    services::Status compute(NumericTable * ntLeft, NumericTable * ntRight, NumericTable * result, const ParameterBase * par);
+    services::Status compute(NumericTable * ntLeft, NumericTable * ntRight, NumericTable * result, const ParameterBase * par)
+    {
+        return services::ErrorMethodNotImplemented;
+    }
 };
 
 template <typename algorithmFPType>
