@@ -44,41 +44,41 @@
         #define __DAAL_MKLVML_AVX512_MIC L9
     #endif
 
-    #define VMLFN_CALL1(f_name, f_suff, f_args) \
-        if (avx512 == cpu)                      \
-        {                                       \
-            VMLFN(Z0, f_name, f_suff) f_args;   \
-            return;                             \
-        }                                       \
-        if (avx512_mic == cpu)                  \
-        {                                       \
-            VMLFN(__DAAL_MKLVML_AVX512_MIC, f_name, f_suff) f_args;   \
-            return;                             \
-        }                                       \
-        if (avx2 == cpu)                        \
-        {                                       \
-            VMLFN(L9, f_name, f_suff) f_args;   \
-            return;                             \
-        }                                       \
-        if (avx == cpu)                         \
-        {                                       \
-            VMLFN(E9, f_name, f_suff) f_args;   \
-            return;                             \
-        }                                       \
-        if (sse42 == cpu)                       \
-        {                                       \
-            VMLFN(H8, f_name, f_suff) f_args;   \
-            return;                             \
-        }                                       \
-        if (ssse3 == cpu)                       \
-        {                                       \
-            VMLFN(U8, f_name, f_suff) f_args;   \
-            return;                             \
-        }                                       \
-        if (sse2 == cpu)                        \
-        {                                       \
-            VMLFN(EX, f_name, f_suff) f_args;   \
-            return;                             \
+    #define VMLFN_CALL1(f_name, f_suff, f_args)                     \
+        if (avx512 == cpu)                                          \
+        {                                                           \
+            VMLFN(Z0, f_name, f_suff) f_args;                       \
+            return;                                                 \
+        }                                                           \
+        if (avx512_mic == cpu)                                      \
+        {                                                           \
+            VMLFN(__DAAL_MKLVML_AVX512_MIC, f_name, f_suff) f_args; \
+            return;                                                 \
+        }                                                           \
+        if (avx2 == cpu)                                            \
+        {                                                           \
+            VMLFN(L9, f_name, f_suff) f_args;                       \
+            return;                                                 \
+        }                                                           \
+        if (avx == cpu)                                             \
+        {                                                           \
+            VMLFN(E9, f_name, f_suff) f_args;                       \
+            return;                                                 \
+        }                                                           \
+        if (sse42 == cpu)                                           \
+        {                                                           \
+            VMLFN(H8, f_name, f_suff) f_args;                       \
+            return;                                                 \
+        }                                                           \
+        if (ssse3 == cpu)                                           \
+        {                                                           \
+            VMLFN(U8, f_name, f_suff) f_args;                       \
+            return;                                                 \
+        }                                                           \
+        if (sse2 == cpu)                                            \
+        {                                                           \
+            VMLFN(EX, f_name, f_suff) f_args;                       \
+            return;                                                 \
         }
 
 #else
