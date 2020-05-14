@@ -38,13 +38,9 @@ DECLARE_SOURCE(
         indices[id]  = id;
     }
 
-    uint __attribute__((overloadable)) invBits(uint x) {
-        return x ^ (-(x >> 31) | 0x80000000u);
-    }
+    uint __attribute__((overloadable)) invBits(uint x) { return x ^ (-(x >> 31) | 0x80000000u); }
 
-    ulong __attribute__((overloadable)) invBits(ulong x) {
-        return x ^ (-(x >> 63) | 0x8000000000000000ul);
-    }
+    ulong __attribute__((overloadable)) invBits(ulong x) { return x ^ (-(x >> 63) | 0x8000000000000000ul); }
 
     __kernel void radixScan(const __global radixIntType * values, __global int * partialHists, int nRows, int bitOffset) {
         const int RADIX_BITS = 4;
