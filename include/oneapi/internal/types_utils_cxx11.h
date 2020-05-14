@@ -28,6 +28,7 @@ namespace internal
 {
 namespace interface1
 {
+
 /** @ingroup oneapi_internal
  * @{
  */
