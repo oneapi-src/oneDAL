@@ -555,7 +555,7 @@ services::Status TreeNodeStorage::allocate(const decision_forest::internal::Inde
 {
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context         = services::Environment::getInstance()->getDefaultExecutionContext();
     _histogramsForFeatures = context.allocate(TypeIds::id<algorithmFPType>(), indexedFeatures.totalBins() * 2, &status);
 
     return status;
