@@ -56,7 +56,7 @@ KeyValueDataCollectionPtr DistributedPartialResult::get(DistributedPartialResult
 
 data_management::DataCollectionPtr DistributedPartialResult::get(DistributedPartialResultCollectionId id, size_t idx) const
 {
-    return services::dynamicPointerCast<data_management::DataCollection, data_management::SerializationIface>( (*get(id))[idx] );
+    return services::dynamicPointerCast<data_management::DataCollection, data_management::SerializationIface>((*get(id))[idx]);
 }
 
 /**
@@ -74,7 +74,7 @@ ResultPtr DistributedPartialResult::get(DistributedPartialResultId id) const
  * \param[in] id    Identifier of partial result
  * \param[in] value Pointer to the Result object
  */
-void DistributedPartialResult::set(DistributedPartialResultCollectionId id, const KeyValueDataCollectionPtr &value)
+void DistributedPartialResult::set(DistributedPartialResultCollectionId id, const KeyValueDataCollectionPtr & value)
 {
     Argument::set(id, value);
 }
@@ -84,7 +84,7 @@ void DistributedPartialResult::set(DistributedPartialResultCollectionId id, cons
  * \param[in] id    Identifier of the result
  * \param[in] value Pointer to the Result object
  */
-void DistributedPartialResult::set(DistributedPartialResultId id, const ResultPtr &value)
+void DistributedPartialResult::set(DistributedPartialResultId id, const ResultPtr & value)
 {
     Argument::set(id, value);
 }
@@ -94,7 +94,7 @@ void DistributedPartialResult::set(DistributedPartialResultId id, const ResultPt
  * \param[in] parameter Pointer to parameters
  * \param[in] method Computation method
  */
-Status DistributedPartialResult::check(const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedPartialResult::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     // check key-value dataCollection;
     KeyValueDataCollectionPtr resultKeyValueDC = get(outputOfStep2ForStep3);
@@ -120,7 +120,7 @@ Status DistributedPartialResult::check(const daal::algorithms::Parameter *parame
     size_t nFeatures = firstNumTableInFirstNodeCollection->getNumberOfColumns();
     DAAL_CHECK(nNodes <= services::internal::MaxVal<int>::get(), ErrorIncorrectNumberOfNodes)
     // check all dataCollection in key-value dataCollection
-    for(size_t i = 0 ; i < nNodes ; i++)
+    for (size_t i = 0; i < nNodes; i++)
     {
         DAAL_CHECK_EX((*resultKeyValueDC).getValueByIndex((int)i), ErrorNullOutputDataCollection, ArgumentName, SVDNodeCollectionStr());
         DataCollectionPtr nodeCollection = DataCollection::cast((*resultKeyValueDC).getValueByIndex((int)i));
@@ -128,7 +128,7 @@ Status DistributedPartialResult::check(const daal::algorithms::Parameter *parame
         size_t nodeSize = nodeCollection->size();
         DAAL_CHECK_EX(nodeSize > 0, ErrorIncorrectNumberOfElementsInResultCollection, ArgumentName, SVDNodeCollectionStr());
         // check all numeric tables in dataCollection
-        for(size_t j = 0 ; j < nodeSize ; j++)
+        for (size_t j = 0; j < nodeSize; j++)
         {
             DAAL_CHECK_EX((*nodeCollection)[j], ErrorNullNumericTable, ArgumentName, SVDNodeCollectionNTStr());
             NumericTablePtr rNumTableInNodeCollection = NumericTable::cast((*nodeCollection)[j]);
@@ -138,15 +138,16 @@ Status DistributedPartialResult::check(const daal::algorithms::Parameter *parame
             DAAL_CHECK_STATUS_VAR(s)
         }
     }
-    Parameter *svdPar   = static_cast<Parameter *>(const_cast<daal::algorithms::Parameter *>(parameter  ));
+    Parameter * svdPar    = static_cast<Parameter *>(const_cast<daal::algorithms::Parameter *>(parameter));
     int unexpectedLayouts = (int)packed_mask;
     s |= checkNumericTable(get(finalResultFromStep2Master)->get(singularValues).get(), singularValuesStr(), unexpectedLayouts, 0, nFeatures, 1);
     DAAL_CHECK_STATUS_VAR(s)
-    if(svdPar->rightSingularMatrix == requiredInPackedForm)
+    if (svdPar->rightSingularMatrix == requiredInPackedForm)
     {
-        if(get(finalResultFromStep2Master))
+        if (get(finalResultFromStep2Master))
         {
-            s |= checkNumericTable(get(finalResultFromStep2Master)->get(rightSingularMatrix).get(), rightSingularMatrixStr(), unexpectedLayouts, 0, nFeatures, nFeatures);
+            s |= checkNumericTable(get(finalResultFromStep2Master)->get(rightSingularMatrix).get(), rightSingularMatrixStr(), unexpectedLayouts, 0,
+                                   nFeatures, nFeatures);
             DAAL_CHECK_STATUS_VAR(s)
         }
     }
@@ -159,12 +160,12 @@ Status DistributedPartialResult::check(const daal::algorithms::Parameter *parame
  * \param[in] par    Pointer to parameters
  * \param[in] method Computation method
  */
-Status DistributedPartialResult::check(const daal::algorithms::Input* input, const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedPartialResult::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     return check(parameter, method);
 }
 
 } // namespace interface1
 } // namespace svd
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

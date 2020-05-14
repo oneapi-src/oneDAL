@@ -40,25 +40,24 @@ namespace internal
 using namespace daal::algorithms::linear_model::qr::training::internal;
 
 template <typename algorithmFPType, CpuType cpu>
-Status DistributedKernel<algorithmFPType, training::qrDense, cpu>::compute(size_t n, NumericTable **partialr,
-                                                                           NumericTable **partialqty,
-                                                                           NumericTable &r, NumericTable &qty) const
+Status DistributedKernel<algorithmFPType, training::qrDense, cpu>::compute(size_t n, NumericTable ** partialr, NumericTable ** partialqty,
+                                                                           NumericTable & r, NumericTable & qty) const
 {
     return MergeKernelType::compute(n, partialr, partialqty, r, qty);
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status DistributedKernel<algorithmFPType, training::qrDense, cpu>::finalizeCompute(
-    const NumericTable &r, const NumericTable &qty, NumericTable &rFinal,
-    NumericTable &qtyFinal, NumericTable &beta, bool interceptFlag) const
+services::Status DistributedKernel<algorithmFPType, training::qrDense, cpu>::finalizeCompute(const NumericTable & r, const NumericTable & qty,
+                                                                                             NumericTable & rFinal, NumericTable & qtyFinal,
+                                                                                             NumericTable & beta, bool interceptFlag) const
 {
     return FinalizeKernelType::compute(r, qty, rFinal, qtyFinal, beta, interceptFlag);
 }
 
-} // internal
-} // training
-} // linear_regression
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace training
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal
 
 #endif

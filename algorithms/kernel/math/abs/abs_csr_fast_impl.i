@@ -31,29 +31,25 @@ namespace abs
 {
 namespace internal
 {
-
-template<typename algorithmFPType, CpuType cpu>
-inline Status AbsKernel<algorithmFPType, fastCSR, cpu>::processBlock(const NumericTable &inputTable,
-                                                                     size_t nInputColumns,
-                                                                     size_t nProcessedRows,
-                                                                     size_t nRowsInCurrentBlock,
-                                                                     NumericTable &resultTable)
+template <typename algorithmFPType, CpuType cpu>
+inline Status AbsKernel<algorithmFPType, fastCSR, cpu>::processBlock(const NumericTable & inputTable, size_t nInputColumns, size_t nProcessedRows,
+                                                                     size_t nRowsInCurrentBlock, NumericTable & resultTable)
 {
-    CSRNumericTableIface* inTable  = dynamic_cast<CSRNumericTableIface*>(const_cast<NumericTable *>(&inputTable));
-    CSRNumericTableIface* resTable = dynamic_cast<CSRNumericTableIface*>(&resultTable);
+    CSRNumericTableIface * inTable  = dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(&inputTable));
+    CSRNumericTableIface * resTable = dynamic_cast<CSRNumericTableIface *>(&resultTable);
 
     ReadRowsCSR<algorithmFPType, cpu> inputBlock(inTable, nProcessedRows, nRowsInCurrentBlock);
     DAAL_CHECK_BLOCK_STATUS(inputBlock);
-    const algorithmFPType* inputArray = inputBlock.values();
+    const algorithmFPType * inputArray = inputBlock.values();
 
     WriteRowsCSR<algorithmFPType, cpu> resultBlock(resTable, nProcessedRows, nRowsInCurrentBlock);
     DAAL_CHECK_BLOCK_STATUS(resultBlock);
-    algorithmFPType* resultArray = resultBlock.values();
+    algorithmFPType * resultArray = resultBlock.values();
 
     const size_t nDataElements = resultBlock.size();
-    for(size_t i = 0; i < nDataElements; i++)
+    for (size_t i = 0; i < nDataElements; i++)
     {
-        if(inputArray[i] >= (algorithmFPType)0)
+        if (inputArray[i] >= (algorithmFPType)0)
         {
             resultArray[i] = inputArray[i];
         }
@@ -65,7 +61,7 @@ inline Status AbsKernel<algorithmFPType, fastCSR, cpu>::processBlock(const Numer
     return Status();
 }
 
-} // namespace daal::internal
+} // namespace internal
 } // namespace abs
 } // namespace math
 } // namespace algorithms

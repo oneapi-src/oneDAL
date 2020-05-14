@@ -47,13 +47,12 @@ namespace training
 {
 namespace internal
 {
-
 enum SVMVectorStatus
 {
-    free    = 0x0,
-    up      = 0x1,
-    low     = 0x2,
-    shrink  = 0x4
+    free   = 0x0,
+    up     = 0x1,
+    low    = 0x2,
+    shrink = 0x4
 };
 
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
@@ -61,15 +60,15 @@ struct SVMTrainTask
 {
     static const size_t kernelFunctionBlockSize = 1024; /* Size of the block of kernel function elements */
 
-    SVMTrainTask(size_t nVectors) : _cache(nullptr), _nVectors(nVectors){}
+    SVMTrainTask(size_t nVectors) : _cache(nullptr), _nVectors(nVectors) {}
 
-    Status setup(const ParameterType& svmPar, const NumericTablePtr& xTable, NumericTable& yTable);
+    Status setup(const ParameterType & svmPar, const NumericTablePtr & xTable, NumericTable & yTable);
 
     /* Perform Sequential Minimum Optimization (SMO) algorithm to find optimal coefficients alpha */
-    Status compute(const ParameterType& svmPar);
+    Status compute(const ParameterType & svmPar);
 
     /* Write support vectors and classification coefficients into model */
-    Status setResultsToModel(const NumericTable& xTable, Model& model, algorithmFPType C) const;
+    Status setResultsToModel(const NumericTable & xTable, Model & model, algorithmFPType C) const;
 
     ~SVMTrainTask();
 
@@ -78,23 +77,22 @@ protected:
 
     inline void updateI(algorithmFPType C, size_t index);
 
-    bool findMaximumViolatingPair(size_t nActiveVectors, algorithmFPType tau, int& Bi, int& Bj,
-        algorithmFPType& delta, algorithmFPType& ma, algorithmFPType& Ma, algorithmFPType& curEps, Status& s) const;
+    bool findMaximumViolatingPair(size_t nActiveVectors, algorithmFPType tau, int & Bi, int & Bj, algorithmFPType & delta, algorithmFPType & ma,
+                                  algorithmFPType & Ma, algorithmFPType & curEps, Status & s) const;
 
-    Status reconstructGradient(size_t& nActiveVectors);
+    Status reconstructGradient(size_t & nActiveVectors);
 
-    algorithmFPType WSSi(size_t nActiveVectors, int& Bi) const;
+    algorithmFPType WSSi(size_t nActiveVectors, int & Bi) const;
 
-    void WSSjLocalBaseline(const size_t jStart, const size_t jEnd,
-        const algorithmFPType *KiBlock, const algorithmFPType GMax, const algorithmFPType Kii, const algorithmFPType tau,
-        int &Bj, algorithmFPType &GMin, algorithmFPType &GMin2, algorithmFPType &delta) const;
+    void WSSjLocalBaseline(const size_t jStart, const size_t jEnd, const algorithmFPType * KiBlock, const algorithmFPType GMax,
+                           const algorithmFPType Kii, const algorithmFPType tau, int & Bj, algorithmFPType & GMin, algorithmFPType & GMin2,
+                           algorithmFPType & delta) const;
 
-    void WSSjLocal(const size_t jStart, const size_t jEnd,
-        const algorithmFPType *KiBlock, const algorithmFPType GMax, const algorithmFPType Kii, const algorithmFPType tau,
-        int &Bj, algorithmFPType &GMin, algorithmFPType &GMin2, algorithmFPType &delta) const;
+    void WSSjLocal(const size_t jStart, const size_t jEnd, const algorithmFPType * KiBlock, const algorithmFPType GMax, const algorithmFPType Kii,
+                   const algorithmFPType tau, int & Bj, algorithmFPType & GMin, algorithmFPType & GMin2, algorithmFPType & delta) const;
 
-    Status WSSj(size_t nActiveVectors, algorithmFPType tau, int Bi, algorithmFPType GMax, int& Bj,
-        algorithmFPType& delta, algorithmFPType& res) const;
+    Status WSSj(size_t nActiveVectors, algorithmFPType tau, int Bi, algorithmFPType GMax, int & Bj, algorithmFPType & delta,
+                algorithmFPType & res) const;
 
     Status update(size_t nActiveVectors, algorithmFPType C, int Bi, int Bj, algorithmFPType delta);
 
@@ -106,30 +104,28 @@ protected:
     /**
     * \brief Write support vectors and classification coefficients into output model
     */
-    Status setSVCoefficients(size_t nSV, Model& model) const;
-    Status setSVIndices(size_t nSV, Model& model) const;
-    Status setSV_Dense(Model& model, const NumericTable& xTable, size_t nSV) const;
-    Status setSV_CSR(Model& model, const NumericTable& xTable, size_t nSV) const;
+    Status setSVCoefficients(size_t nSV, Model & model) const;
+    Status setSVIndices(size_t nSV, Model & model) const;
+    Status setSV_Dense(Model & model, const NumericTable & xTable, size_t nSV) const;
+    Status setSV_CSR(Model & model, const NumericTable & xTable, size_t nSV) const;
     algorithmFPType calculateBias(algorithmFPType C) const;
 
-    inline void updateAlpha(algorithmFPType C, int Bi, int Bj, algorithmFPType delta,
-        algorithmFPType& newDeltai, algorithmFPType& newDeltaj);
+    inline void updateAlpha(algorithmFPType C, int Bi, int Bj, algorithmFPType delta, algorithmFPType & newDeltai, algorithmFPType & newDeltaj);
 
 protected:
-    const size_t _nVectors; //Number of observations in the input data set
-    TArray<algorithmFPType, cpu> _y; //Array of class labels
-    TArray<algorithmFPType, cpu> _alpha; //Array of classification coefficients
-    TArray<algorithmFPType, cpu> _grad; //Objective function gradient
-    TArray<algorithmFPType, cpu> _kernelDiag; //diagonal elements of the matrix Q (kernel(x[i], x[i]))
-    TArray<char, cpu> _I; // array of flags I_LOW and I_UP
-    SVMCacheIface<algorithmFPType, cpu> *_cache; //caches matrix Q (kernel(x[i], x[j])) values
+    const size_t _nVectors;                       //Number of observations in the input data set
+    TArray<algorithmFPType, cpu> _y;              //Array of class labels
+    TArray<algorithmFPType, cpu> _alpha;          //Array of classification coefficients
+    TArray<algorithmFPType, cpu> _grad;           //Objective function gradient
+    TArray<algorithmFPType, cpu> _kernelDiag;     //diagonal elements of the matrix Q (kernel(x[i], x[i]))
+    TArray<char, cpu> _I;                         // array of flags I_LOW and I_UP
+    SVMCacheIface<algorithmFPType, cpu> * _cache; //caches matrix Q (kernel(x[i], x[j])) values
 };
 
 template <Method method, typename algorithmFPType, typename ParameterType, CpuType cpu>
 struct SVMTrainImpl : public Kernel
 {
-    services::Status compute(const NumericTablePtr& xTable, NumericTable& yTable,
-        daal::algorithms::Model *r, const ParameterType *par);
+    services::Status compute(const NumericTablePtr & xTable, NumericTable & yTable, daal::algorithms::Model * r, const ParameterType * par);
 };
 
 } // namespace internal

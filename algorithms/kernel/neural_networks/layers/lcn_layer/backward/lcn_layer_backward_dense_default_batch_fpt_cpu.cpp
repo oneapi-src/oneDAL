@@ -19,7 +19,6 @@
 //  Implementation of local contrast normalization calculation functions.
 //--
 
-
 #include "lcn_layer_backward_batch_container.h"
 #include "lcn_layer_backward_kernel.h"
 #include "lcn_layer_backward_impl.i"
@@ -34,21 +33,20 @@ namespace layers
 {
 namespace lcn
 {
-
 namespace backward
 {
 namespace interface1
 {
 template class neural_networks::layers::lcn::backward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 namespace internal
 {
 template class LCNKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
-} // backward
+} // namespace internal
+} // namespace backward
 
-}
-}
-}
-}
-}
+} // namespace lcn
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

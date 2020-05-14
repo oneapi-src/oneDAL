@@ -45,11 +45,11 @@ namespace interface1
  * \param[in] method    Computation method for the layer
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     using namespace data_management;
-    const Input *in = static_cast<const Input * >(input);
-    const Parameter *algParameter = static_cast<const Parameter *>(parameter);
+    const Input * in               = static_cast<const Input *>(input);
+    const Parameter * algParameter = static_cast<const Parameter *>(parameter);
 
     const services::Collection<size_t> inDims = in->get(layers::forward::data)->getDimensions();
     services::Status s;
@@ -60,12 +60,12 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
 
     set(layers::forward::resultForBackward, LayerDataPtr(new LayerData()));
 
-    if(!get(auxCenteredData))
+    if (!get(auxCenteredData))
     {
         DAAL_ALLOCATE_TENSOR_AND_SET(s, auxCenteredData, inDims);
     }
 
-    if(!get(auxC))
+    if (!get(auxC))
     {
         services::Collection<size_t> cDims;
         getCDimensions(in, algParameter, cDims);
@@ -73,7 +73,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
         DAAL_ALLOCATE_TENSOR_AND_SET(s, auxC, cDims);
     }
 
-    if(!get(auxInvMax))
+    if (!get(auxInvMax))
     {
         services::Collection<size_t> sigmaDims;
         getSigmaDimensions(in, algParameter, sigmaDims);
@@ -81,9 +81,9 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
         DAAL_ALLOCATE_TENSOR_AND_SET(s, auxInvMax, sigmaDims);
     }
 
-    if(!algParameter->predictionStage)
+    if (!algParameter->predictionStage)
     {
-        if(!get(auxSigma))
+        if (!get(auxSigma))
         {
             services::Collection<size_t> sigmaDims;
             getSigmaDimensions(in, algParameter, sigmaDims);
@@ -94,10 +94,10 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return services::Status();
 }
 
-}// namespace interface1
-}// namespace forward
-}// namespace lcn
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace lcn
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

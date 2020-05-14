@@ -38,7 +38,6 @@ namespace forward
 {
 namespace interface1
 {
-
 using namespace daal::data_management;
 
 /**
@@ -48,12 +47,10 @@ using namespace daal::data_management;
  * \param[in] method    Computation method for the layer
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input,
-                                              const daal::algorithms::Parameter *parameter,
-                                              const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status s;
-    const Input *eltwiseInput = dynamic_cast<const Input *>(input);
+    const Input * eltwiseInput = dynamic_cast<const Input *>(input);
     DAAL_CHECK(eltwiseInput, services::ErrorNullInput);
     DAAL_CHECK_STATUS(s, eltwiseInput->check(parameter, method));
     DAAL_CHECK_STATUS(s, allocateValueTensor<algorithmFPType>(eltwiseInput));
@@ -66,8 +63,8 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return setResultForBackward(input);
 }
 
-template<typename algorithmFPType>
-services::Status Result::allocateValueTensor(const Input *eltwiseInput)
+template <typename algorithmFPType>
+services::Status Result::allocateValueTensor(const Input * eltwiseInput)
 {
     TensorPtr firstInput = eltwiseInput->get(layers::forward::inputLayerData, 0);
     services::Status s;
@@ -79,15 +76,14 @@ services::Status Result::allocateValueTensor(const Input *eltwiseInput)
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(
-    const daal::algorithms::Input *, const daal::algorithms::Parameter *, const int);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *, const daal::algorithms::Parameter *, const int);
 
 template DAAL_EXPORT services::Status Result::allocateValueTensor<DAAL_FPTYPE>(const Input *);
 
-}// namespace interface1
-}// namespace forward
-}// namespace eltwise_sum
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace eltwise_sum
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

@@ -39,6 +39,6 @@ namespace internal
 {
 template class PCACorrelationKernel<online, DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
+} // namespace pca
+} // namespace algorithms
+} // namespace daal

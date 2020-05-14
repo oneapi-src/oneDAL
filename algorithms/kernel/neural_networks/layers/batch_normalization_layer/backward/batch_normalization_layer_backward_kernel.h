@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate backward batch normalization layer relults.
 //--
 
-
 #ifndef __BATCH_NORMALIZATION_LAYER_BACKWARD_KERNEL_H__
 #define __BATCH_NORMALIZATION_LAYER_BACKWARD_KERNEL_H__
 
@@ -48,32 +47,24 @@ namespace backward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for backward batch normalization layer results computation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchNormalizationKernel : public Kernel
 {
 public:
-    services::Status compute(Tensor &gradientTensor,
-                             const Tensor &weightsTensor,
-                             const Tensor &stDevTensor,
-                             const Tensor &inputGradientTensor,
-                             const Tensor &dataTensor,
-                             const Tensor &meanTensor,
-                             Tensor &weightsDerTensor,
-                             Tensor &biasesDerTensor,
-                             const batch_normalization::Parameter &parameter);
-
+    services::Status compute(Tensor & gradientTensor, const Tensor & weightsTensor, const Tensor & stDevTensor, const Tensor & inputGradientTensor,
+                             const Tensor & dataTensor, const Tensor & meanTensor, Tensor & weightsDerTensor, Tensor & biasesDerTensor,
+                             const batch_normalization::Parameter & parameter);
 };
 
-} // internal
-} // backward
-} // batch_normalization
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace backward
+} // namespace batch_normalization
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

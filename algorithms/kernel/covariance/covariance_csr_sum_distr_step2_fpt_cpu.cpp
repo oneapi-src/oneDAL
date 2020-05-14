@@ -38,6 +38,6 @@ namespace internal
 {
 template class CovarianceDistributedKernel<DAAL_FPTYPE, sumCSR, DAAL_CPU>;
 }
-}
-}
-}
+} // namespace covariance
+} // namespace algorithms
+} // namespace daal

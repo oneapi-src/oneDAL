@@ -33,7 +33,7 @@ struct LayerIds
     size_t sm;
 };
 
-training::TopologyPtr configureNet(LayerIds* ids = NULL)
+training::TopologyPtr configureNet(LayerIds * ids = NULL)
 {
     /* Create layers of the neural network */
     /* Create fully-connected layer and initialize layer parameters */
@@ -59,14 +59,14 @@ training::TopologyPtr configureNet(LayerIds* ids = NULL)
     /* Add layers to the topology of the neural network */
     const size_t fc1 = topology->add(fullyConnectedLayer1);
     const size_t fc2 = topology->add(fullyConnectedLayer2);
-    const size_t sm = topology->add(softmaxCrossEntropyLayer);
+    const size_t sm  = topology->add(softmaxCrossEntropyLayer);
     topology->get(fc1).addNext(fc2);
     topology->get(fc2).addNext(sm);
-    if(ids)
+    if (ids)
     {
         ids->fc1 = fc1;
         ids->fc2 = fc2;
-        ids->sm = sm;
+        ids->sm  = sm;
     }
     return topology;
 }

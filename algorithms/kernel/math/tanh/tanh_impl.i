@@ -31,12 +31,11 @@ namespace tanh
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for Hyperbolic Tangent calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status TanhKernelBase<algorithmFPType, method, cpu>::compute(const NumericTable *inputTable, NumericTable *resultTable)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status TanhKernelBase<algorithmFPType, method, cpu>::compute(const NumericTable * inputTable, NumericTable * resultTable)
 {
     size_t nInputRows    = inputTable->getNumberOfRows();
     size_t nInputColumns = inputTable->getNumberOfColumns();
@@ -45,20 +44,19 @@ services::Status TanhKernelBase<algorithmFPType, method, cpu>::compute(const Num
     nBlocks += (nBlocks * _nRowsInBlock != nInputRows);
 
     SafeStatus safeStat;
-    daal::threader_for(nBlocks, nBlocks, [ =, &safeStat ](int block)
-    {
+    daal::threader_for(nBlocks, nBlocks, [=, &safeStat](int block) {
         size_t nRowsToProcess = _nRowsInBlock;
-        if( block == nBlocks - 1 )
+        if (block == nBlocks - 1)
         {
             nRowsToProcess = nInputRows - block * _nRowsInBlock;
         }
 
         safeStat |= processBlock(*inputTable, nInputColumns, block * _nRowsInBlock, nRowsToProcess, *resultTable);
-    } );
+    });
     return safeStat.detach();
 }
 
-} // namespace daal::internal
+} // namespace internal
 } // namespace tanh
 } // namespace math
 } // namespace algorithms

@@ -34,14 +34,12 @@ namespace algorithms
 {
 namespace lasso_regression
 {
-
 namespace training
 {
 namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_LASSO_REGRESSION_TRAINING_RESULT_ID);
 Result::Result() : linear_model::training::Result(lastResultNumericTableId + 1) {}
-
 
 /**
  * Returns the result of lasso regression model-based training
@@ -63,7 +61,6 @@ void Result::set(ResultId id, const daal::algorithms::lasso_regression::ModelPtr
     linear_model::training::Result::set(linear_model::training::ResultId(id), value);
 }
 
-
 /**
 * Returns the result of model-based prediction
 * \param[in] id    Identifier of the result
@@ -79,7 +76,7 @@ data_management::NumericTablePtr Result::get(OptionalResultNumericTableId id) co
 * \param[in] id      Identifier of the input object
 * \param[in] value   %Input object
 */
-void Result::set(OptionalResultNumericTableId id, const data_management::NumericTablePtr &value)
+void Result::set(OptionalResultNumericTableId id, const data_management::NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
@@ -97,14 +94,14 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     Status s;
     DAAL_CHECK_STATUS(s, linear_model::training::Result::check(input, par, method));
 
-    const Input *in = static_cast<const Input *>(input);
-    const Parameter* p = static_cast<const Parameter *>(par);
-    size_t nBeta = in->getNumberOfFeatures() + 1;
-    size_t nResponses = in->getNumberOfDependentVariables();
+    const Input * in    = static_cast<const Input *>(input);
+    const Parameter * p = static_cast<const Parameter *>(par);
+    size_t nBeta        = in->getNumberOfFeatures() + 1;
+    size_t nResponses   = in->getNumberOfDependentVariables();
 
     const lasso_regression::ModelPtr model = get(training::model);
 
-    if(p->optResultToCompute & computeGramMatrix)
+    if (p->optResultToCompute & computeGramMatrix)
         s |= data_management::checkNumericTable(get(gramMatrixId).get(), gramMatrixStr(), 0, 0, in->getNumberOfFeatures(), in->getNumberOfFeatures());
 
     s |= lasso_regression::checkModel(model.get(), *par, nBeta, nResponses, method);

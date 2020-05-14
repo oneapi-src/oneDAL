@@ -39,28 +39,27 @@ namespace gaussian
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::GaussianKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    initializers::Result *result   = static_cast<initializers::Result *>(_res);
-    gaussian::Parameter *parameter = static_cast<gaussian::Parameter *>(_par);
+    initializers::Result * result   = static_cast<initializers::Result *>(_res);
+    gaussian::Parameter * parameter = static_cast<gaussian::Parameter *>(_par);
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
     __DAAL_CALL_KERNEL(env, internal::GaussianKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-        internal::GaussianInitializerTaskDescriptor(result, parameter)
-    );
+                       internal::GaussianInitializerTaskDescriptor(result, parameter));
 }
 } // namespace interface1
 } // namespace gaussian

@@ -28,13 +28,13 @@
 using namespace daal::services;
 using namespace daal::data_management;
 
-daal::algorithms::neural_networks::internal::LastLayerIndices::LastLayerIndices(
-            const Collection<layers::NextLayers> *nextLayers,
-            const KeyValueDataCollectionPtr &tensors) : layerIndices(NULL), tensorIndices(NULL), buffer(NULL)
+daal::algorithms::neural_networks::internal::LastLayerIndices::LastLayerIndices(const Collection<layers::NextLayers> * nextLayers,
+                                                                                const KeyValueDataCollectionPtr & tensors)
+    : layerIndices(NULL), tensorIndices(NULL), buffer(NULL)
 {
     size_t nLayers = nextLayers->size();
-    nLastLayers = 0;
-    for(size_t layerId = 0; layerId < nLayers; layerId++)
+    nLastLayers    = 0;
+    for (size_t layerId = 0; layerId < nLayers; layerId++)
     {
         if (nextLayers->get(layerId).size() == 0)
         {
@@ -43,17 +43,16 @@ daal::algorithms::neural_networks::internal::LastLayerIndices::LastLayerIndices(
     }
 
     buffer = (size_t *)daal_calloc(2 * nLastLayers * sizeof(size_t));
-    if (!buffer)
-        return;
+    if (!buffer) return;
 
     layerIndices  = buffer;
     tensorIndices = buffer + nLastLayers;
 
-    for(size_t layerId = 0, iLastLayer = 0; layerId < nLayers; layerId++)
+    for (size_t layerId = 0, iLastLayer = 0; layerId < nLayers; layerId++)
     {
         if (nextLayers->get(layerId).size() == 0)
         {
-            layerIndices      [iLastLayer] = layerId;
+            layerIndices[iLastLayer]  = layerId;
             tensorIndices[iLastLayer] = layerId;
             iLastLayer++;
         }
@@ -90,11 +89,9 @@ bool daal::algorithms::neural_networks::internal::LastLayerIndices::isValid() co
     return (buffer != NULL);
 }
 
-
-Status daal::algorithms::neural_networks::internal::processLayerErrors(size_t layerId, const Status &layerStatus)
+Status daal::algorithms::neural_networks::internal::processLayerErrors(size_t layerId, const Status & layerStatus)
 {
-    if (layerStatus)
-        return layerStatus;
+    if (layerStatus) return layerStatus;
     Status s(Error::create(ErrorNeuralNetworkLayerCall, Layer, layerId));
     return (s |= layerStatus);
 }

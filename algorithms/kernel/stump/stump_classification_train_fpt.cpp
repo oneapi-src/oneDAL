@@ -43,10 +43,10 @@ namespace interface1
  * \param[in] method        Decision stump training method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const classifier::training::InputIface *algInput = static_cast<const classifier::training::InputIface *>(input);
-    const stump::classification::Parameter *algParameter = static_cast<const stump::classification::Parameter *>(parameter);
+    const classifier::training::InputIface * algInput     = static_cast<const classifier::training::InputIface *>(input);
+    const stump::classification::Parameter * algParameter = static_cast<const stump::classification::Parameter *>(parameter);
     services::Status st;
     stump::classification::ModelPtr modelPtr = stump::classification::Model::create(algInput->getNumberOfFeatures(), algParameter->nClasses, &st);
     DAAL_CHECK_STATUS_VAR(st);
@@ -54,11 +54,12 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return st;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                                    const int method);
 
-}// namespace interface1
-}// namespace training
-}// namespace classification
-}// namespace stump
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace training
+} // namespace classification
+} // namespace stump
+} // namespace algorithms
+} // namespace daal

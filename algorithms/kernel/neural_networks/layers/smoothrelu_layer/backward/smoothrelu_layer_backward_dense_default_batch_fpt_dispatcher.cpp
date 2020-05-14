@@ -19,7 +19,6 @@
 // Implementation of the backward smooth rectifier linear unit (smooth relu) layer
 //--
 
-
 #include "smoothrelu_layer_backward_batch_container.h"
 
 namespace daal

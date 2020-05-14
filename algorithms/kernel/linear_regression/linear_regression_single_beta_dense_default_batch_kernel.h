@@ -29,7 +29,6 @@
 #include "numeric_table.h"
 #include "algorithm_base_common.h"
 
-
 namespace daal
 {
 namespace algorithms
@@ -42,44 +41,41 @@ namespace single_beta
 {
 namespace internal
 {
-
 using namespace daal::data_management;
 struct SingleBetaOutput
 {
-    NumericTable* rms;
-    NumericTable* variance;
-    NumericTable** betaCovariances;
-    NumericTable* zScore;
-    NumericTable* confidenceIntervals;
-    NumericTable* inverseOfXtX;
+    NumericTable * rms;
+    NumericTable * variance;
+    NumericTable ** betaCovariances;
+    NumericTable * zScore;
+    NumericTable * confidenceIntervals;
+    NumericTable * inverseOfXtX;
 
     SingleBetaOutput(size_t nResponses);
     ~SingleBetaOutput();
 };
 
-
-template<Method method, typename algorithmFPType, CpuType cpu>
+template <Method method, typename algorithmFPType, CpuType cpu>
 class SingleBetaKernel : public daal::algorithms::Kernel
 {
 public:
     virtual ~SingleBetaKernel() {}
-    services::Status compute(const NumericTable* y, const NumericTable* z, size_t p,
-        const NumericTable* betas, const NumericTable* xtx, bool bModelNe,
-        algorithmFPType accuracyThreshold, algorithmFPType alpha, SingleBetaOutput& out);
+    services::Status compute(const NumericTable * y, const NumericTable * z, size_t p, const NumericTable * betas, const NumericTable * xtx,
+                             bool bModelNe, algorithmFPType accuracyThreshold, algorithmFPType alpha, SingleBetaOutput & out);
 
 protected:
     static const size_t _nRowsInBlock = 1024;
-    services::Status computeTestStatistics(const NumericTable* betas, const algorithmFPType* v,
-        algorithmFPType alpha, algorithmFPType accuracyThreshold, SingleBetaOutput& out);
-    services::Status computeRmsVariance(const NumericTable* y, const NumericTable* z, size_t p, NumericTable* rms, NumericTable* variance);
-    services::Status computeInverseXtX(const NumericTable* xtx, bool bModelNe, NumericTable* xtxInv);
+    services::Status computeTestStatistics(const NumericTable * betas, const algorithmFPType * v, algorithmFPType alpha,
+                                           algorithmFPType accuracyThreshold, SingleBetaOutput & out);
+    services::Status computeRmsVariance(const NumericTable * y, const NumericTable * z, size_t p, NumericTable * rms, NumericTable * variance);
+    services::Status computeInverseXtX(const NumericTable * xtx, bool bModelNe, NumericTable * xtxInv);
 };
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace single_beta
+} // namespace quality_metric
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal
 
 #endif

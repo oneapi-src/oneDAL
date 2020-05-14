@@ -40,20 +40,20 @@ using namespace daal::algorithms::decision_forest::classification;
 using namespace daal::services;
 
 /* Input data set parameters */
-const string trainDatasetFileName = "../data/batch/df_classification_train.csv";
+const string trainDatasetFileName         = "../data/batch/df_classification_train.csv";
 const size_t categoricalFeaturesIndices[] = { 2 };
-const size_t nFeatures = 3;  /* Number of features in training and testing data sets */
+const size_t nFeatures                    = 3; /* Number of features in training and testing data sets */
 
 /* Decision forest parameters */
-const size_t nTrees = 10;
+const size_t nTrees                    = 10;
 const size_t minObservationsInLeafNode = 8;
 
-const size_t nClasses = 5;  /* Number of classes */
+const size_t nClasses = 5; /* Number of classes */
 
 training::ResultPtr trainModel();
-void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTablePtr& pDependentVar);
+void loadData(const std::string & fileName, NumericTablePtr & pData, NumericTablePtr & pDependentVar);
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &trainDatasetFileName);
     training::ResultPtr trainingResult = trainModel();
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 class ExampleApp : public daal::services::HostAppIface
 {
 public:
-    ExampleApp(double timeLimitSec) : _timeLimitSec(timeLimitSec), _bCancelled(false), _startTime(0){}
+    ExampleApp(double timeLimitSec) : _timeLimitSec(timeLimitSec), _bCancelled(false), _startTime(0) {}
     void start()
     {
         time(&_startTime);
@@ -73,14 +73,13 @@ public:
 
     virtual bool isCancelled() DAAL_C11_OVERRIDE
     {
-        if(_bCancelled)
-            return true;
+        if (_bCancelled) return true;
         time_t now;
         time(&now);
         const double sec = difftime(now, _startTime);
-        if((sec >= _timeLimitSec) && !_bCancelled)
+        if ((sec >= _timeLimitSec) && !_bCancelled)
         {
-            if(!_bCancelled)
+            if (!_bCancelled)
             {
                 _bCancelled = true;
                 std::cout << "Cancelled after " << sec << " seconds" << std::endl;
@@ -111,11 +110,11 @@ training::ResultPtr trainModel()
     algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainDependentVariable);
 
-    algorithm.parameter.nTrees = nTrees;
-    algorithm.parameter.featuresPerNode = nFeatures;
+    algorithm.parameter.nTrees                    = nTrees;
+    algorithm.parameter.featuresPerNode           = nFeatures;
     algorithm.parameter.minObservationsInLeafNode = minObservationsInLeafNode;
-    algorithm.parameter.varImportance = algorithms::decision_forest::training::MDI;
-    algorithm.parameter.resultsToCompute = algorithms::decision_forest::training::computeOutOfBagError;
+    algorithm.parameter.varImportance             = algorithms::decision_forest::training::MDI;
+    algorithm.parameter.resultsToCompute          = algorithms::decision_forest::training::computeOutOfBagError;
 
     ExampleApp host(10); /* set the time limit to work before cancelling equal to 10 sec */
     algorithm.setHostApp(HostAppIfacePtr(&host, EmptyDeleter()));
@@ -127,10 +126,9 @@ training::ResultPtr trainModel()
         /* Build the decision forest classification model */
         std::cout << "compute()" << std::endl;
         s = algorithm.compute();
-    }
-    while(s.ok());
+    } while (s.ok());
 
-    if(!s)
+    if (!s)
     {
         std::cout << s.getDescription() << std::endl;
         return training::ResultPtr();
@@ -140,12 +138,10 @@ training::ResultPtr trainModel()
     return algorithm.getResult();
 }
 
-void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTablePtr& pDependentVar)
+void loadData(const std::string & fileName, NumericTablePtr & pData, NumericTablePtr & pDependentVar)
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> trainDataSource(fileName,
-        DataSource::notAllocateNumericTable,
-        DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> trainDataSource(fileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and dependent variables */
     pData.reset(new HomogenNumericTable<>(nFeatures, 0, NumericTable::notAllocate));
@@ -156,6 +152,6 @@ void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTableP
     trainDataSource.loadDataBlock(mergedData.get());
 
     NumericTableDictionaryPtr pDictionary = pData->getDictionarySharedPtr();
-    for(size_t i = 0, n = sizeof(categoricalFeaturesIndices) / sizeof(categoricalFeaturesIndices[0]); i < n; ++i)
+    for (size_t i = 0, n = sizeof(categoricalFeaturesIndices) / sizeof(categoricalFeaturesIndices[0]); i < n; ++i)
         (*pDictionary)[categoricalFeaturesIndices[i]].featureType = data_feature_utils::DAAL_CATEGORICAL;
 }

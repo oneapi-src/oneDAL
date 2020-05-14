@@ -32,36 +32,37 @@
 class BlobDatasetReader
 {
 public:
-   BlobDatasetReader() { }
-   virtual ~BlobDatasetReader() { }
+    BlobDatasetReader() {}
+    virtual ~BlobDatasetReader() {}
 
-   virtual bool next() = 0;
-   virtual void reset() = 0;
+    virtual bool next()  = 0;
+    virtual void reset() = 0;
 
-   virtual TensorPtr getBatch() = 0;
-   virtual TensorPtr getGroundTruthBatch() = 0;
+    virtual TensorPtr getBatch()            = 0;
+    virtual TensorPtr getGroundTruthBatch() = 0;
 
-   virtual Collection<size_t> getBatchDimensions() = 0;
-   virtual size_t getTotalNumberOfObjects() const = 0;
+    virtual Collection<size_t> getBatchDimensions() = 0;
+    virtual size_t getTotalNumberOfObjects() const  = 0;
 };
 
-template<typename DataType>
-class ImageBlobDatasetReader : public BlobDatasetReader {
+template <typename DataType>
+class ImageBlobDatasetReader : public BlobDatasetReader
+{
 private:
-   size_t _imagesNumber;
-   size_t _imagesInBatch;
+    size_t _imagesNumber;
+    size_t _imagesInBatch;
 
-   size_t _batchCounter;
-   size_t _imageChannels;
-   size_t _imageHeight;
-   size_t _imageWidth;
+    size_t _batchCounter;
+    size_t _imageChannels;
+    size_t _imageHeight;
+    size_t _imageWidth;
 
-   std::fstream _dataFile;
-   std::streampos _imagesPosition;
-   std::streampos _classesPosition;
+    std::fstream _dataFile;
+    std::streampos _imagesPosition;
+    std::streampos _classesPosition;
 
 public:
-    ImageBlobDatasetReader(const std::string &pathToImages, size_t batchSize=32);
+    ImageBlobDatasetReader(const std::string & pathToImages, size_t batchSize = 32);
     virtual ~ImageBlobDatasetReader();
 
     /* Advances the reader to next batch */
@@ -84,23 +85,22 @@ public:
 
 private:
     /* Opens the file containing dataset */
-    void open(const std::string &datasetPath);
+    void open(const std::string & datasetPath);
 
     /* Closes the dataset file */
     void close();
 
     /* Reads batch of images coresponding to the current reader position */
-    TensorPtr readBatchFromDataset(std::fstream &file, size_t counter);
+    TensorPtr readBatchFromDataset(std::fstream & file, size_t counter);
 
     /* Reads batch of labels coresponding to the current reader position */
-    TensorPtr readGroundTruthFromDataset(std::fstream &file, size_t counter);
+    TensorPtr readGroundTruthFromDataset(std::fstream & file, size_t counter);
 
     void checkBeforeReadBatch();
-    static uint32_t readDWORD(std::fstream &input);
+    static uint32_t readDWORD(std::fstream & input);
 };
 
-
-template<typename DataType>
+template <typename DataType>
 TensorPtr allocateTensor(size_t d1, size_t d2)
 {
     Collection<size_t> dimensionsCollection;
@@ -110,7 +110,7 @@ TensorPtr allocateTensor(size_t d1, size_t d2)
     return TensorPtr(new HomogenTensor<DataType>(dimensionsCollection, Tensor::doAllocate));
 }
 
-template<typename DataType>
+template <typename DataType>
 TensorPtr allocateTensor(size_t d1, size_t d2, size_t d3, size_t d4)
 {
     Collection<size_t> dimensionsCollection;
@@ -122,19 +122,20 @@ TensorPtr allocateTensor(size_t d1, size_t d2, size_t d3, size_t d4)
     return TensorPtr(new HomogenTensor<DataType>(dimensionsCollection, Tensor::doAllocate));
 }
 
-template<typename DataType>
-ImageBlobDatasetReader<DataType>::ImageBlobDatasetReader(const std::string &pathToImages, size_t batchSize) :
-    _imagesNumber(0),
-    _imagesInBatch(batchSize),
-    _batchCounter(0),
-    _imageChannels(0),
-    _imageHeight(0),
-    _imageWidth(0) { open(pathToImages); }
+template <typename DataType>
+ImageBlobDatasetReader<DataType>::ImageBlobDatasetReader(const std::string & pathToImages, size_t batchSize)
+    : _imagesNumber(0), _imagesInBatch(batchSize), _batchCounter(0), _imageChannels(0), _imageHeight(0), _imageWidth(0)
+{
+    open(pathToImages);
+}
 
-template<typename DataType>
-ImageBlobDatasetReader<DataType>::~ImageBlobDatasetReader() { close(); }
+template <typename DataType>
+ImageBlobDatasetReader<DataType>::~ImageBlobDatasetReader()
+{
+    close();
+}
 
-template<typename DataType>
+template <typename DataType>
 bool ImageBlobDatasetReader<DataType>::next()
 {
     if (!_dataFile.is_open())
@@ -146,21 +147,21 @@ bool ImageBlobDatasetReader<DataType>::next()
     return _batchCounter * _imagesInBatch <= _imagesNumber;
 }
 
-template<typename DataType>
+template <typename DataType>
 TensorPtr ImageBlobDatasetReader<DataType>::getBatch()
 {
     checkBeforeReadBatch();
     return readBatchFromDataset(_dataFile, _batchCounter - 1);
 }
 
-template<typename DataType>
+template <typename DataType>
 TensorPtr ImageBlobDatasetReader<DataType>::getGroundTruthBatch()
 {
     checkBeforeReadBatch();
     return readGroundTruthFromDataset(_dataFile, _batchCounter - 1);
 }
 
-template<typename DataType>
+template <typename DataType>
 Collection<size_t> ImageBlobDatasetReader<DataType>::getBatchDimensions()
 {
     Collection<size_t> dims;
@@ -171,14 +172,14 @@ Collection<size_t> ImageBlobDatasetReader<DataType>::getBatchDimensions()
     return dims;
 }
 
-template<typename DataType>
+template <typename DataType>
 void ImageBlobDatasetReader<DataType>::reset()
 {
     _batchCounter = 0;
 }
 
-template<typename DataType>
-void ImageBlobDatasetReader<DataType>::open(const std::string &datasetPath)
+template <typename DataType>
+void ImageBlobDatasetReader<DataType>::open(const std::string & datasetPath)
 {
     if (!datasetPath.size())
     {
@@ -196,14 +197,13 @@ void ImageBlobDatasetReader<DataType>::open(const std::string &datasetPath)
     _imageWidth    = readDWORD(_dataFile);
     _imageHeight   = readDWORD(_dataFile);
 
-    size_t imagesDataSize = _imagesNumber * _imageChannels *
-                            _imageWidth   * _imageHeight;
+    size_t imagesDataSize = _imagesNumber * _imageChannels * _imageWidth * _imageHeight;
 
-    _imagesPosition = _dataFile.tellg();
+    _imagesPosition  = _dataFile.tellg();
     _classesPosition = (size_t)_imagesPosition + imagesDataSize;
 }
 
-template<typename DataType>
+template <typename DataType>
 void ImageBlobDatasetReader<DataType>::close()
 {
     if (_dataFile.is_open())
@@ -212,23 +212,22 @@ void ImageBlobDatasetReader<DataType>::close()
     }
 }
 
-template<typename DataType>
-TensorPtr ImageBlobDatasetReader<DataType>::readBatchFromDataset(std::fstream &file, size_t counter)
+template <typename DataType>
+TensorPtr ImageBlobDatasetReader<DataType>::readBatchFromDataset(std::fstream & file, size_t counter)
 {
-    size_t imagesBatchSize = _imagesInBatch * _imageChannels *
-                             _imageWidth    * _imageHeight * sizeof(char);
-    size_t batchPosition = (size_t)_imagesPosition + imagesBatchSize * counter;
+    size_t imagesBatchSize = _imagesInBatch * _imageChannels * _imageWidth * _imageHeight * sizeof(char);
+    size_t batchPosition   = (size_t)_imagesPosition + imagesBatchSize * counter;
     file.seekg(batchPosition);
 
-    TensorPtr dataBatch = allocateTensor<DataType>(_imagesInBatch, _imageChannels, _imageHeight, _imageWidth);
+    TensorPtr dataBatch          = allocateTensor<DataType>(_imagesInBatch, _imageChannels, _imageHeight, _imageWidth);
     const size_t trainTensorSize = dataBatch->getSize();
 
     SubtensorDescriptor<DataType> batchBlock;
     dataBatch->getSubtensor(0, 0, 0, _imagesInBatch, writeOnly, batchBlock);
-    DataType *objectsPtr = batchBlock.getPtr();
+    DataType * objectsPtr = batchBlock.getPtr();
 
-    unsigned char *objectData = new unsigned char[trainTensorSize];
-    file.read((char*)objectData, sizeof(unsigned char) * trainTensorSize);
+    unsigned char * objectData = new unsigned char[trainTensorSize];
+    file.read((char *)objectData, sizeof(unsigned char) * trainTensorSize);
 
     for (size_t i = 0; i < trainTensorSize; i++)
     {
@@ -240,18 +239,18 @@ TensorPtr ImageBlobDatasetReader<DataType>::readBatchFromDataset(std::fstream &f
     return dataBatch;
 }
 
-template<typename DataType>
-TensorPtr ImageBlobDatasetReader<DataType>::readGroundTruthFromDataset(std::fstream &file, size_t counter)
+template <typename DataType>
+TensorPtr ImageBlobDatasetReader<DataType>::readGroundTruthFromDataset(std::fstream & file, size_t counter)
 {
     size_t batchLabelsSize = _imagesInBatch * sizeof(uint32_t);
-    size_t batchPosition = (size_t)_classesPosition + batchLabelsSize * counter;
+    size_t batchPosition   = (size_t)_classesPosition + batchLabelsSize * counter;
     file.seekg(batchPosition);
 
     TensorPtr groundTruthBatch = allocateTensor<int>(_imagesInBatch, 1);
 
     SubtensorDescriptor<int> groundTruthBlock;
     groundTruthBatch->getSubtensor(0, 0, 0, _imagesInBatch, writeOnly, groundTruthBlock);
-    int *groundTruthPtr = groundTruthBlock.getPtr();
+    int * groundTruthPtr = groundTruthBlock.getPtr();
 
     for (size_t i = 0; i < _imagesInBatch; i++)
     {
@@ -262,7 +261,7 @@ TensorPtr ImageBlobDatasetReader<DataType>::readGroundTruthFromDataset(std::fstr
     return groundTruthBatch;
 }
 
-template<typename DataType>
+template <typename DataType>
 void ImageBlobDatasetReader<DataType>::checkBeforeReadBatch()
 {
     if (!_dataFile.is_open())
@@ -271,11 +270,11 @@ void ImageBlobDatasetReader<DataType>::checkBeforeReadBatch()
     }
 }
 
-template<typename DataType>
-uint32_t ImageBlobDatasetReader<DataType>::readDWORD(std::fstream &input)
+template <typename DataType>
+uint32_t ImageBlobDatasetReader<DataType>::readDWORD(std::fstream & input)
 {
     uint32_t dword;
-    input.read((char*)(&dword), sizeof(uint32_t));
+    input.read((char *)(&dword), sizeof(uint32_t));
     return dword;
 }
 

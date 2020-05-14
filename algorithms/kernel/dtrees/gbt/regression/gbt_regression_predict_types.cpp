@@ -45,7 +45,7 @@ __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_DECISION_FOREST_REGRES
 
 /** Default constructor */
 Input::Input() : algorithms::regression::prediction::Input(lastModelInputId + 1) {}
-Input::Input(const Input &other) : algorithms::regression::prediction::Input(other) {}
+Input::Input(const Input & other) : algorithms::regression::prediction::Input(other) {}
 
 /**
  * Returns an input object for making gradient boosted trees model-based prediction
@@ -72,7 +72,7 @@ gbt::regression::ModelPtr Input::get(ModelInputId id) const
  * \param[in] id      Identifier of the input object
  * \param[in] value   %Input object
  */
-void Input::set(NumericTableInputId id, const NumericTablePtr &value)
+void Input::set(NumericTableInputId id, const NumericTablePtr & value)
 {
     algorithms::regression::prediction::Input::set(algorithms::regression::prediction::NumericTableInputId(id), value);
 }
@@ -82,7 +82,7 @@ void Input::set(NumericTableInputId id, const NumericTablePtr &value)
  * \param[in] id      Identifier of the input object
  * \param[in] value   %Input object
  */
-void Input::set(ModelInputId id, const gbt::regression::ModelPtr &value)
+void Input::set(ModelInputId id, const gbt::regression::ModelPtr & value)
 {
     algorithms::regression::prediction::Input::set(algorithms::regression::prediction::ModelInputId(id), value);
 }
@@ -90,19 +90,20 @@ void Input::set(ModelInputId id, const gbt::regression::ModelPtr &value)
 /**
  * Checks an input object for making gradient boosted trees model-based prediction
  */
-services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     Status s;
     DAAL_CHECK_STATUS(s, algorithms::regression::prediction::Input::check(parameter, method));
 
     ModelPtr m = get(prediction::model);
-    const daal::algorithms::gbt::regression::internal::ModelImpl* pModel =
-        static_cast<const daal::algorithms::gbt::regression::internal::ModelImpl*>(m.get());
+    const daal::algorithms::gbt::regression::internal::ModelImpl * pModel =
+        static_cast<const daal::algorithms::gbt::regression::internal::ModelImpl *>(m.get());
     DAAL_ASSERT(pModel);
     DAAL_CHECK(pModel->getNumberOfTrees(), services::ErrorNullModel);
     auto maxNIterations = pModel->getNumberOfTrees();
 
-    const gbt::regression::prediction::interface1::Parameter* pPrm = static_cast<const gbt::regression::prediction::interface1::Parameter*>(parameter);
+    const gbt::regression::prediction::interface1::Parameter * pPrm =
+        static_cast<const gbt::regression::prediction::interface1::Parameter *>(parameter);
     size_t nIterations = pPrm->nIterations;
 
     DAAL_CHECK((nIterations == 0) || (nIterations <= maxNIterations), services::ErrorGbtPredictIncorrectNumberOfIterations);
@@ -126,7 +127,7 @@ NumericTablePtr Result::get(ResultId id) const
  * \param[in] id      Identifier of the input object
  * \param[in] value   %Input object
  */
-void Result::set(ResultId id, const NumericTablePtr &value)
+void Result::set(ResultId id, const NumericTablePtr & value)
 {
     algorithms::regression::prediction::Result::set(algorithms::regression::prediction::ResultId(id), value);
 }
@@ -137,14 +138,13 @@ void Result::set(ResultId id, const NumericTablePtr &value)
  * \param[in] par     %Parameter of the algorithm
  * \param[in] method  Computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     Status s;
     DAAL_CHECK_STATUS(s, algorithms::regression::prediction::Result::check(input, par, method));
     DAAL_CHECK_EX(get(prediction)->getNumberOfColumns() == 1, ErrorIncorrectNumberOfColumns, ArgumentName, predictionStr());
     return s;
 }
-
 
 } // namespace interface1
 } // namespace prediction

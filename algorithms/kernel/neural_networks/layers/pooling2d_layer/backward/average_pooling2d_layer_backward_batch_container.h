@@ -41,49 +41,52 @@ namespace backward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::PoolingKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::setupCompute()
 {
-    average_pooling2d::backward::Input *input = static_cast<average_pooling2d::backward::Input *>(_in);
-    average_pooling2d::backward::Result *result = static_cast<average_pooling2d::backward::Result *>(_res);
+    average_pooling2d::backward::Input * input   = static_cast<average_pooling2d::backward::Input *>(_in);
+    average_pooling2d::backward::Result * result = static_cast<average_pooling2d::backward::Result *>(_res);
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    const services::Collection<size_t>& inDimsFull  = input->get(layers::backward::inputGradient)->getDimensions();
-    const services::Collection<size_t>& outDimsFull = result->get(layers::backward::gradient)->getDimensions();
+    const services::Collection<size_t> & inDimsFull  = input->get(layers::backward::inputGradient)->getDimensions();
+    const services::Collection<size_t> & outDimsFull = result->get(layers::backward::gradient)->getDimensions();
 
     __DAAL_CALL_KERNEL(env, internal::PoolingKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), initialize, inDimsFull, outDimsFull);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    average_pooling2d::backward::Input *input = static_cast<average_pooling2d::backward::Input *>(_in);
-    average_pooling2d::backward::Result *result = static_cast<average_pooling2d::backward::Result *>(_res);
+    average_pooling2d::backward::Input * input   = static_cast<average_pooling2d::backward::Input *>(_in);
+    average_pooling2d::backward::Result * result = static_cast<average_pooling2d::backward::Result *>(_res);
 
-    average_pooling2d::Parameter *parameter = static_cast<average_pooling2d::Parameter *>(_par);
-    if (!parameter->propagateGradient) { return services::Status(); }
+    average_pooling2d::Parameter * parameter = static_cast<average_pooling2d::Parameter *>(_par);
+    if (!parameter->propagateGradient)
+    {
+        return services::Status();
+    }
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    Tensor *dataTensor = input->get(auxData).get();
-    Tensor *inputGradTensor = input->get(layers::backward::inputGradient).get();
-    Tensor *gradTensor  = result->get(layers::backward::gradient).get();
+    Tensor * dataTensor      = input->get(auxData).get();
+    Tensor * inputGradTensor = input->get(layers::backward::inputGradient).get();
+    Tensor * gradTensor      = result->get(layers::backward::gradient).get();
 
-    __DAAL_CALL_KERNEL(env, internal::PoolingKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),   \
-                       compute, *inputGradTensor, *parameter, *gradTensor, dataTensor);
+    __DAAL_CALL_KERNEL(env, internal::PoolingKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputGradTensor, *parameter,
+                       *gradTensor, dataTensor);
 }
 } // namespace interface1
 } // namespace backward

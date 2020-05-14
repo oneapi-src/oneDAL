@@ -41,11 +41,15 @@ namespace interface2
 __DAAL_REGISTER_SERIALIZATION_CLASS(Model, SERIALIZATION_BROWNBOOST_MODEL_ID);
 
 /** Default constructor */
-Parameter::Parameter() :
-    weakLearnerTraining(new stump::classification::training::Batch<>),
-    weakLearnerPrediction(new stump::classification::prediction::Batch<>),
-    accuracyThreshold(0.3), maxIterations(10),
-    newtonRaphsonAccuracyThreshold(1.0e-3), newtonRaphsonMaxIterations(100), degenerateCasesThreshold(1.0e-2) {}
+Parameter::Parameter()
+    : weakLearnerTraining(new stump::classification::training::Batch<>),
+      weakLearnerPrediction(new stump::classification::prediction::Batch<>),
+      accuracyThreshold(0.3),
+      maxIterations(10),
+      newtonRaphsonAccuracyThreshold(1.0e-3),
+      newtonRaphsonMaxIterations(100),
+      degenerateCasesThreshold(1.0e-2)
+{}
 
 /**
  * Constructs BrownBoost parameter structure
@@ -57,11 +61,16 @@ Parameter::Parameter() :
  * \param[in] nrMaxIter     Maximal number of Newton-Raphson iterations in the BrownBoost training algorithm
  * \param[in] dcThreshold          Threshold needed  to avoid degenerate cases in the BrownBoost training algorithm
  */
-Parameter::Parameter(services::SharedPtr<classifier::training::Batch>   wlTrain,
-          services::SharedPtr<classifier::prediction::Batch> wlPredict,
-          double acc, size_t maxIter, double nrAcc, size_t nrMaxIter, double dcThreshold) :
-    weakLearnerTraining(wlTrain), weakLearnerPrediction(wlPredict), accuracyThreshold(acc), maxIterations(maxIter),
-    newtonRaphsonAccuracyThreshold(nrAcc), newtonRaphsonMaxIterations(nrMaxIter), degenerateCasesThreshold(dcThreshold) {}
+Parameter::Parameter(services::SharedPtr<classifier::training::Batch> wlTrain, services::SharedPtr<classifier::prediction::Batch> wlPredict,
+                     double acc, size_t maxIter, double nrAcc, size_t nrMaxIter, double dcThreshold)
+    : weakLearnerTraining(wlTrain),
+      weakLearnerPrediction(wlPredict),
+      accuracyThreshold(acc),
+      maxIterations(maxIter),
+      newtonRaphsonAccuracyThreshold(nrAcc),
+      newtonRaphsonMaxIterations(nrMaxIter),
+      degenerateCasesThreshold(dcThreshold)
+{}
 
 services::Status Parameter::check() const
 {
@@ -71,12 +80,15 @@ services::Status Parameter::check() const
     DAAL_CHECK_EX(weakLearnerTraining, ErrorNullAuxiliaryAlgorithm, ParameterName, weakLearnerTrainingStr());
     DAAL_CHECK_EX(nClasses == weakLearnerTraining->parameter().nClasses, ErrorInconsistentNumberOfClasses, ParameterName, weakLearnerTrainingStr());
     DAAL_CHECK_EX(weakLearnerPrediction, ErrorNullAuxiliaryAlgorithm, ParameterName, weakLearnerPredictionStr());
-    DAAL_CHECK_EX(nClasses == weakLearnerPrediction->parameter().nClasses, ErrorInconsistentNumberOfClasses, ParameterName, weakLearnerPredictionStr());
+    DAAL_CHECK_EX(nClasses == weakLearnerPrediction->parameter().nClasses, ErrorInconsistentNumberOfClasses, ParameterName,
+                  weakLearnerPredictionStr());
     DAAL_CHECK_EX(accuracyThreshold > 0 && accuracyThreshold < 1, ErrorIncorrectParameter, ParameterName, accuracyThresholdStr());
     DAAL_CHECK_EX(maxIterations > 0, ErrorIncorrectParameter, ParameterName, maxIterationsStr());
-    DAAL_CHECK_EX(newtonRaphsonAccuracyThreshold > 0 && newtonRaphsonAccuracyThreshold < 1, ErrorIncorrectParameter, ParameterName, newtonRaphsonAccuracyThresholdStr());
+    DAAL_CHECK_EX(newtonRaphsonAccuracyThreshold > 0 && newtonRaphsonAccuracyThreshold < 1, ErrorIncorrectParameter, ParameterName,
+                  newtonRaphsonAccuracyThresholdStr());
     DAAL_CHECK_EX(newtonRaphsonMaxIterations > 0, ErrorIncorrectParameter, ParameterName, newtonRaphsonMaxIterationsStr());
-    DAAL_CHECK_EX(degenerateCasesThreshold > 0 && degenerateCasesThreshold < 1, ErrorIncorrectParameter, ParameterName, degenerateCasesThresholdStr());
+    DAAL_CHECK_EX(degenerateCasesThreshold > 0 && degenerateCasesThreshold < 1, ErrorIncorrectParameter, ParameterName,
+                  degenerateCasesThresholdStr());
     return s;
 }
 
@@ -98,7 +110,7 @@ size_t Model::getNumberOfWeakLearners() const
 
 classifier::ModelPtr Model::getWeakLearnerModel(size_t idx) const
 {
-    if(idx < _models->size())
+    if (idx < _models->size())
     {
         return staticPointerCast<classifier::Model, SerializationIface>((*_models)[idx]);
     }

@@ -19,7 +19,6 @@
 //  Implementation of the backward softmax cross layer
 //--
 
-
 #include "softmax_cross_layer_backward_batch_container.h"
 
 namespace daal

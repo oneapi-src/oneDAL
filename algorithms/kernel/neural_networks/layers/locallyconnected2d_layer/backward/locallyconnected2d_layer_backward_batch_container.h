@@ -41,37 +41,37 @@ namespace backward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::LocallyConnected2dKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    locallyconnected2d::backward::Input *input = static_cast<locallyconnected2d::backward::Input *>(_in);
-    locallyconnected2d::backward::Result *result = static_cast<locallyconnected2d::backward::Result *>(_res);
+    locallyconnected2d::backward::Input * input   = static_cast<locallyconnected2d::backward::Input *>(_in);
+    locallyconnected2d::backward::Result * result = static_cast<locallyconnected2d::backward::Result *>(_res);
 
-    locallyconnected2d::Parameter *parameter = static_cast<locallyconnected2d::Parameter *>(_par);
-    daal::services::Environment::env &env = *_env;
+    locallyconnected2d::Parameter * parameter = static_cast<locallyconnected2d::Parameter *>(_par);
+    daal::services::Environment::env & env    = *_env;
 
-    LayerData *layerData     = input->get(layers::backward::inputFromForward).get();
-    Tensor *inGradTensor     = input->get(layers::backward::inputGradient).get();
-    Tensor *gradientTensor   = result->get(layers::backward::gradient).get();
-    Tensor *wDerTensor       = result->get(layers::backward::weightDerivatives).get();
-    Tensor *bDerTensor       = result->get(layers::backward::biasDerivatives).get();
-    Tensor *auxDataTensor    = staticPointerCast<Tensor, SerializationIface>((*layerData)[locallyconnected2d::auxData]).get();
-    Tensor *auxWeightsTensor = staticPointerCast<Tensor, SerializationIface>((*layerData)[locallyconnected2d::auxWeights]).get();
+    LayerData * layerData     = input->get(layers::backward::inputFromForward).get();
+    Tensor * inGradTensor     = input->get(layers::backward::inputGradient).get();
+    Tensor * gradientTensor   = result->get(layers::backward::gradient).get();
+    Tensor * wDerTensor       = result->get(layers::backward::weightDerivatives).get();
+    Tensor * bDerTensor       = result->get(layers::backward::biasDerivatives).get();
+    Tensor * auxDataTensor    = staticPointerCast<Tensor, SerializationIface>((*layerData)[locallyconnected2d::auxData]).get();
+    Tensor * auxWeightsTensor = staticPointerCast<Tensor, SerializationIface>((*layerData)[locallyconnected2d::auxWeights]).get();
 
-    __DAAL_CALL_KERNEL(env, internal::LocallyConnected2dKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inGradTensor, *gradientTensor,
-                                *auxDataTensor, *auxWeightsTensor, *wDerTensor, *bDerTensor, *parameter);
+    __DAAL_CALL_KERNEL(env, internal::LocallyConnected2dKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inGradTensor,
+                       *gradientTensor, *auxDataTensor, *auxWeightsTensor, *wDerTensor, *bDerTensor, *parameter);
 }
 } // namespace interface1
 } // namespace backward

@@ -41,35 +41,39 @@ namespace backward
 {
 namespace interface1
 {
-template<typename algorithmFPType, CpuType cpu>
-BatchContainer<algorithmFPType, defaultDense, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, CpuType cpu>
+BatchContainer<algorithmFPType, defaultDense, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(maximum_pooling2d::backward::internal::PoolingKernel, algorithmFPType, maximum_pooling2d::defaultDense);
 }
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 BatchContainer<algorithmFPType, defaultDense, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, defaultDense, cpu>::compute()
 {
-    stochastic_pooling2d::backward::Input *input = static_cast<stochastic_pooling2d::backward::Input *>(_in);
-    stochastic_pooling2d::backward::Result *result = static_cast<stochastic_pooling2d::backward::Result *>(_res);
+    stochastic_pooling2d::backward::Input * input   = static_cast<stochastic_pooling2d::backward::Input *>(_in);
+    stochastic_pooling2d::backward::Result * result = static_cast<stochastic_pooling2d::backward::Result *>(_res);
 
-    Tensor *inputGradTensor = input->get(layers::backward::inputGradient).get();
-    Tensor *selectedPosTensor = input->get(auxSelectedIndices).get();
-    Tensor *gradTensor = result->get(layers::backward::gradient).get();
+    Tensor * inputGradTensor   = input->get(layers::backward::inputGradient).get();
+    Tensor * selectedPosTensor = input->get(auxSelectedIndices).get();
+    Tensor * gradTensor        = result->get(layers::backward::gradient).get();
 
-    stochastic_pooling2d::Parameter *parameter = static_cast<stochastic_pooling2d::Parameter *>(_par);
-    if (!parameter->propagateGradient) { return services::Status(); }
+    stochastic_pooling2d::Parameter * parameter = static_cast<stochastic_pooling2d::Parameter *>(_par);
+    if (!parameter->propagateGradient)
+    {
+        return services::Status();
+    }
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    __DAAL_CALL_KERNEL(env, maximum_pooling2d::backward::internal::PoolingKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, maximum_pooling2d::defaultDense),   \
-                       compute, *inputGradTensor, *selectedPosTensor, *gradTensor, NULL, *parameter);
+    __DAAL_CALL_KERNEL(env, maximum_pooling2d::backward::internal::PoolingKernel,
+                       __DAAL_KERNEL_ARGUMENTS(algorithmFPType, maximum_pooling2d::defaultDense), compute, *inputGradTensor, *selectedPosTensor,
+                       *gradTensor, NULL, *parameter);
 }
 } // namespace interface1
 } // namespace backward

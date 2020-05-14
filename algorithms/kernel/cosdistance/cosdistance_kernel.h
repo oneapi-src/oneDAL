@@ -38,12 +38,12 @@ namespace cosine_distance
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class DistanceKernel : public Kernel
 {
 public:
-    services::Status compute(const size_t na, const NumericTable *const *a, const size_t nr, NumericTable *r[], const daal::algorithms::Parameter *par);
+    services::Status compute(const size_t na, const NumericTable * const * a, const size_t nr, NumericTable * r[],
+                             const daal::algorithms::Parameter * par);
 };
 
 } // namespace internal

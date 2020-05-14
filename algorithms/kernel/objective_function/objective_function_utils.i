@@ -32,22 +32,21 @@ namespace objective_function
 {
 namespace internal
 {
-
 using namespace daal::internal;
 
-template<typename algorithmFPType, CpuType cpu>
-services::Status getXY(NumericTable *dataNT, NumericTable *dependentVariablesNT, const NumericTable *indNT,
-    algorithmFPType* aX, algorithmFPType* aY, size_t nRows, size_t n, size_t p)
+template <typename algorithmFPType, CpuType cpu>
+services::Status getXY(NumericTable * dataNT, NumericTable * dependentVariablesNT, const NumericTable * indNT, algorithmFPType * aX,
+                       algorithmFPType * aY, size_t nRows, size_t n, size_t p)
 {
-    ReadRows<int, cpu> rInd(*const_cast<NumericTable*>(indNT), 0, n);
+    ReadRows<int, cpu> rInd(*const_cast<NumericTable *>(indNT), 0, n);
     DAAL_CHECK_BLOCK_STATUS(rInd);
-    const int* ind = rInd.get();
+    const int * ind = rInd.get();
     ReadRows<algorithmFPType, cpu> xr(*dataNT);
     ReadRows<algorithmFPType, cpu> yr(*dependentVariablesNT, 0, nRows);
-    for(size_t i = 0; i < n; ++i)
+    for (size_t i = 0; i < n; ++i)
     {
         xr.next(ind[i], 1);
-        services::internal::tmemcpy<algorithmFPType, cpu>(aX + i*p, xr.get(), p);
+        services::internal::tmemcpy<algorithmFPType, cpu>(aX + i * p, xr.get(), p);
         aY[i] = yr.get()[ind[i]];
     }
     return services::Status();

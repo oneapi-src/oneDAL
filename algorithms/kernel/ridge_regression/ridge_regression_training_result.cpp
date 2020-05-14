@@ -37,7 +37,6 @@ namespace training
 {
 namespace interface1
 {
-
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_RIDGE_REGRESSION_TRAINING_RESULT_ID);
 Result::Result() : linear_model::training::Result(lastResultId + 1) {}
 
@@ -77,9 +76,9 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     /* input object can be an instance of both Input and DistributedInput<step2Master> classes.
        Both classes have multiple inheritance with InputIface as a second base class.
        That's why we use dynamic_cast here. */
-    const InputIface *in = dynamic_cast<const InputIface *>(input);
+    const InputIface * in = dynamic_cast<const InputIface *>(input);
 
-    size_t nBeta = in->getNumberOfFeatures() + 1;
+    size_t nBeta      = in->getNumberOfFeatures() + 1;
     size_t nResponses = in->getNumberOfDependentVariables();
 
     const ridge_regression::ModelPtr model = get(training::model);
@@ -98,11 +97,11 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
 services::Status Result::check(const daal::algorithms::PartialResult * pr, const daal::algorithms::Parameter * par, int method) const
 {
     DAAL_CHECK(Argument::size() == 1, ErrorIncorrectNumberOfOutputNumericTables);
-    const PartialResult *partRes = static_cast<const PartialResult *>(pr);
+    const PartialResult * partRes = static_cast<const PartialResult *>(pr);
 
     ridge_regression::ModelPtr model = get(training::model);
 
-    size_t nBeta = partRes->getNumberOfFeatures() + 1;
+    size_t nBeta      = partRes->getNumberOfFeatures() + 1;
     size_t nResponses = partRes->getNumberOfDependentVariables();
 
     return ridge_regression::checkModel(model.get(), *par, nBeta, nResponses, method);

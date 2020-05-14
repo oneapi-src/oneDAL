@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate uniforms.
 //--
 
-
 #ifndef __UNIFORM_INITIALIZER_KERNEL_H__
 #define __UNIFORM_INITIALIZER_KERNEL_H__
 
@@ -48,22 +47,21 @@ namespace uniform
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for uniform calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class UniformKernel : public Kernel
 {
 public:
-    Status compute(const UniformInitializerTaskDescriptor &desc);
+    Status compute(const UniformInitializerTaskDescriptor & desc);
 };
 
-} // internal
-} // uniform
-} // initializers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace uniform
+} // namespace initializers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

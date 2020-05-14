@@ -42,25 +42,26 @@ namespace init
 {
 namespace internal
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status EMInitKernel<algorithmFPType, method, cpu>::compute(NumericTable &data, NumericTable &weightsToInit,
-        NumericTable &meansToInit, DataCollectionPtr &covariancesToInit, const Parameter &parameter, engines::BatchBase &engine)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status EMInitKernel<algorithmFPType, method, cpu>::compute(NumericTable & data, NumericTable & weightsToInit, NumericTable & meansToInit,
+                                                                     DataCollectionPtr & covariancesToInit, const Parameter & parameter,
+                                                                     engines::BatchBase & engine)
 {
     Status s;
-    EMInitKernelTask<algorithmFPType, method, cpu> kernelTask(data, weightsToInit, meansToInit, covariancesToInit, parameter, engine, s);//?
+    EMInitKernelTask<algorithmFPType, method, cpu> kernelTask(data, weightsToInit, meansToInit, covariancesToInit, parameter, engine, s); //?
     if (!s) return s;
     DAAL_CHECK_STATUS(s, kernelTask.compute())
     return Status();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status EMInitKernelTask<algorithmFPType, method, cpu>::compute()
 {
     Status s;
     DAAL_CHECK_STATUS(s, initialize())
 
     bool isInitialized = false;
-    for(int idxTry = 0; idxTry < nTrials; idxTry++)
+    for (int idxTry = 0; idxTry < nTrials; idxTry++)
     {
         DAAL_CHECK_STATUS(s, generateSelectedSet())
 
@@ -68,9 +69,9 @@ services::Status EMInitKernelTask<algorithmFPType, method, cpu>::compute()
 
         ErrorID errorId = runEM();
 
-        if(!errorId && (loglikelyhood > maxLoglikelyhood))
+        if (!errorId && (loglikelyhood > maxLoglikelyhood))
         {
-            isInitialized = true;
+            isInitialized    = true;
             maxLoglikelyhood = loglikelyhood;
             DAAL_CHECK_STATUS(s, writeValuesToTables())
         }
@@ -80,28 +81,29 @@ services::Status EMInitKernelTask<algorithmFPType, method, cpu>::compute()
     return Status();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-EMInitKernelTask<algorithmFPType, method, cpu>::EMInitKernelTask(NumericTable &data, NumericTable &weightsToInit,
-        NumericTable &meansToInit, DataCollectionPtr &covariancesToInit, const Parameter &parameter, engines::BatchBase &engine, Status &status) :
-    data(data),
-    weightsToInit(weightsToInit),
-    meansToInit(meansToInit),
-    covariancesToInit(covariancesToInit),
-    parameter(parameter),
-    nComponents(parameter.nComponents),
-    nTrials(parameter.nTrials),
-    nIterations(parameter.nIterations),
-    accuracyThreshold(parameter.accuracyThreshold),
-    maxLoglikelyhood(-MaxVal<algorithmFPType>::get()),
-    nFeatures(data.getNumberOfColumns()),
-    nVectors(data.getNumberOfRows()),
-    covs(parameter.covarianceStorage, parameter.nComponents, data.getNumberOfColumns(), status),
-    varianceArrayPtr(data.getNumberOfColumns()),
-    selectedSetPtr(parameter.nComponents),
-    engine(engine)
+template <typename algorithmFPType, Method method, CpuType cpu>
+EMInitKernelTask<algorithmFPType, method, cpu>::EMInitKernelTask(NumericTable & data, NumericTable & weightsToInit, NumericTable & meansToInit,
+                                                                 DataCollectionPtr & covariancesToInit, const Parameter & parameter,
+                                                                 engines::BatchBase & engine, Status & status)
+    : data(data),
+      weightsToInit(weightsToInit),
+      meansToInit(meansToInit),
+      covariancesToInit(covariancesToInit),
+      parameter(parameter),
+      nComponents(parameter.nComponents),
+      nTrials(parameter.nTrials),
+      nIterations(parameter.nIterations),
+      accuracyThreshold(parameter.accuracyThreshold),
+      maxLoglikelyhood(-MaxVal<algorithmFPType>::get()),
+      nFeatures(data.getNumberOfColumns()),
+      nVectors(data.getNumberOfRows()),
+      covs(parameter.covarianceStorage, parameter.nComponents, data.getNumberOfColumns(), status),
+      varianceArrayPtr(data.getNumberOfColumns()),
+      selectedSetPtr(parameter.nComponents),
+      engine(engine)
 {}
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 Status EMInitKernelTask<algorithmFPType, method, cpu>::initialize()
 {
     Status st;
@@ -110,31 +112,32 @@ Status EMInitKernelTask<algorithmFPType, method, cpu>::initialize()
     means = HomogenNT::create(nFeatures, nComponents, &st);
     DAAL_CHECK_STATUS_VAR(st);
     varianceArray = varianceArrayPtr.get();
-    selectedSet = selectedSetPtr.get();
+    selectedSet   = selectedSetPtr.get();
 
     DAAL_CHECK(alpha && means && varianceArray && selectedSet, ErrorMemoryAllocationFailed);
 
     return computeVariance();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 Status EMInitKernelTask<algorithmFPType, method, cpu>::computeVariance()
 {
     ReadRows<algorithmFPType, cpu, NumericTable> block(data, 0, nVectors);
     DAAL_CHECK_BLOCK_STATUS(block)
-    const algorithmFPType *dataArray = block.get();
+    const algorithmFPType * dataArray = block.get();
 
-    DAAL_CHECK((Statistics<algorithmFPType, cpu>::x2c_mom(dataArray, nFeatures, nVectors, varianceArray, __DAAL_VSL_SS_METHOD_FAST)) == 0, ErrorVarianceComputation)
+    DAAL_CHECK((Statistics<algorithmFPType, cpu>::x2c_mom(dataArray, nFeatures, nVectors, varianceArray, __DAAL_VSL_SS_METHOD_FAST)) == 0,
+               ErrorVarianceComputation)
     return Status();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 Status EMInitKernelTask<algorithmFPType, method, cpu>::writeValuesToTables()
 {
     {
         WriteOnlyRows<algorithmFPType, cpu, NumericTable> weightsBlock(weightsToInit, 0, 1);
         DAAL_CHECK_BLOCK_STATUS(weightsBlock)
-        algorithmFPType *weightsArray = weightsBlock.get();
+        algorithmFPType * weightsArray = weightsBlock.get();
         for (size_t i = 0; i < nComponents; i++)
         {
             weightsArray[i] = alpha->getArray()[i];
@@ -144,7 +147,7 @@ Status EMInitKernelTask<algorithmFPType, method, cpu>::writeValuesToTables()
     {
         WriteOnlyRows<algorithmFPType, cpu, NumericTable> meansBlock(meansToInit, 0, nComponents);
         DAAL_CHECK_BLOCK_STATUS(meansBlock)
-        algorithmFPType *meansArray = meansBlock.get();
+        algorithmFPType * meansArray = meansBlock.get();
         for (size_t i = 0; i < nFeatures * nComponents; i++)
         {
             meansArray[i] = means->getArray()[i];
@@ -155,22 +158,22 @@ Status EMInitKernelTask<algorithmFPType, method, cpu>::writeValuesToTables()
     return Status();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 Status EMInitKernelTask<algorithmFPType, method, cpu>::setSelectedSetAsInitialValues()
 {
-    algorithmFPType *alphaArray = alpha->getArray();
-    for(int k = 0; k < nComponents; k++)
+    algorithmFPType * alphaArray = alpha->getArray();
+    for (int k = 0; k < nComponents; k++)
     {
         alphaArray[k] = 1.0 / nComponents;
     }
 
-    algorithmFPType *meansArray = means->getArray();
+    algorithmFPType * meansArray = means->getArray();
     ReadRows<algorithmFPType, cpu, NumericTable> block;
-    for(int k = 0; k < nComponents; k++)
+    for (int k = 0; k < nComponents; k++)
     {
-        const algorithmFPType *selectedRow = block.set(data, selectedSet[k], 1);
+        const algorithmFPType * selectedRow = block.set(data, selectedSet[k], 1);
         DAAL_CHECK(selectedRow, ErrorMemoryAllocationFailed)
-        for(int j = 0; j < nFeatures; j++)
+        for (int j = 0; j < nFeatures; j++)
         {
             meansArray[k * nFeatures + j] = selectedRow[j];
         }
@@ -180,36 +183,36 @@ Status EMInitKernelTask<algorithmFPType, method, cpu>::setSelectedSetAsInitialVa
     return Status();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 ErrorID EMInitKernelTask<algorithmFPType, method, cpu>::runEM()
 {
     EMforKernel<algorithmFPType> em(nComponents);
-    em.parameter.maxIterations = nIterations;
+    em.parameter.maxIterations     = nIterations;
     em.parameter.accuracyThreshold = accuracyThreshold;
-    ErrorID returnErrorId = em.run(data, *alpha, *means, covs.getSigma(), parameter.covarianceStorage, loglikelyhood);
-    if(returnErrorId != 0)
+    ErrorID returnErrorId          = em.run(data, *alpha, *means, covs.getSigma(), parameter.covarianceStorage, loglikelyhood);
+    if (returnErrorId != 0)
     {
         loglikelyhood = -MaxVal<algorithmFPType>::get();
     }
     return returnErrorId;
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 Status EMInitKernelTask<algorithmFPType, method, cpu>::generateSelectedSet()
 {
     int number;
     Status s;
-    for(int i = 0; i < nComponents; i++)
+    for (int i = 0; i < nComponents; i++)
     {
         bool isNumberUnique = false;
-        while(isNumberUnique != true)
+        while (isNumberUnique != true)
         {
             DAAL_ASSERT(nVectors <= services::internal::MaxVal<int>::get())
             DAAL_CHECK_STATUS(s, (distributions::uniform::internal::UniformKernelDefault<int, cpu>::compute(0, (int)nVectors, engine, 1, &number)));
             isNumberUnique = true;
-            for(int j = 0; j < i; j++)
+            for (int j = 0; j < i; j++)
             {
-                if(number == selectedSet[j])
+                if (number == selectedSet[j])
                 {
                     isNumberUnique = false;
                 }

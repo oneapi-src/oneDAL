@@ -41,31 +41,28 @@ namespace linear
 {
 namespace internal
 {
-
 template <typename algorithmFPType, CpuType cpu>
-services::Status KernelImplLinear<defaultDense, algorithmFPType, cpu>::computeInternalVectorVector(
-    const NumericTable *a1,
-    const NumericTable *a2,
-    NumericTable *r, const ParameterBase *par)
+services::Status KernelImplLinear<defaultDense, algorithmFPType, cpu>::computeInternalVectorVector(const NumericTable * a1, const NumericTable * a2,
+                                                                                                   NumericTable * r, const ParameterBase * par)
 {
     //prepareData
     const size_t nFeatures = a1->getNumberOfColumns();
 
     ReadRows<algorithmFPType, cpu> mtA1(*const_cast<NumericTable *>(a1), par->rowIndexX, 1);
     DAAL_CHECK_BLOCK_STATUS(mtA1);
-    const algorithmFPType *dataA1 = mtA1.get();
+    const algorithmFPType * dataA1 = mtA1.get();
 
     ReadRows<algorithmFPType, cpu> mtA2(*const_cast<NumericTable *>(a2), par->rowIndexY, 1);
     DAAL_CHECK_BLOCK_STATUS(mtA2);
-    const algorithmFPType *dataA2 = mtA2.get();
+    const algorithmFPType * dataA2 = mtA2.get();
 
     WriteOnlyRows<algorithmFPType, cpu> mtR(r, par->rowIndexResult, 1);
     DAAL_CHECK_BLOCK_STATUS(mtR);
-    algorithmFPType *dataR = mtR.get();
+    algorithmFPType * dataR = mtR.get();
 
     //compute
-    const Parameter *linPar = static_cast<const Parameter *>(par);
-    dataR[0] = 0.0;
+    const Parameter * linPar = static_cast<const Parameter *>(par);
+    dataR[0]                 = 0.0;
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
     for (size_t i = 0; i < nFeatures; i++)
@@ -78,10 +75,8 @@ services::Status KernelImplLinear<defaultDense, algorithmFPType, cpu>::computeIn
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status KernelImplLinear<defaultDense, algorithmFPType, cpu>::computeInternalMatrixVector(
-    const NumericTable *a1,
-    const NumericTable *a2,
-    NumericTable *r, const ParameterBase *par)
+services::Status KernelImplLinear<defaultDense, algorithmFPType, cpu>::computeInternalMatrixVector(const NumericTable * a1, const NumericTable * a2,
+                                                                                                   NumericTable * r, const ParameterBase * par)
 {
     //prepareData
     const size_t nVectors1 = a1->getNumberOfRows();
@@ -89,20 +84,20 @@ services::Status KernelImplLinear<defaultDense, algorithmFPType, cpu>::computeIn
 
     ReadRows<algorithmFPType, cpu> mtA1(*const_cast<NumericTable *>(a1), 0, nVectors1);
     DAAL_CHECK_BLOCK_STATUS(mtA1);
-    const algorithmFPType *dataA1 = mtA1.get();
+    const algorithmFPType * dataA1 = mtA1.get();
 
     ReadRows<algorithmFPType, cpu> mtA2(*const_cast<NumericTable *>(a2), par->rowIndexY, 1);
     DAAL_CHECK_BLOCK_STATUS(mtA2);
-    const algorithmFPType *dataA2 = mtA2.get();
+    const algorithmFPType * dataA2 = mtA2.get();
 
     WriteOnlyRows<algorithmFPType, cpu> mtR(r, par->rowIndexResult, 1);
     DAAL_CHECK_BLOCK_STATUS(mtR);
-    algorithmFPType *dataR = mtR.get();
+    algorithmFPType * dataR = mtR.get();
 
     //compute
-    const Parameter *linPar = static_cast<const Parameter *>(par);
-    algorithmFPType b = (algorithmFPType)(linPar->b);
-    algorithmFPType k = (algorithmFPType)(linPar->k);
+    const Parameter * linPar = static_cast<const Parameter *>(par);
+    algorithmFPType b        = (algorithmFPType)(linPar->b);
+    algorithmFPType k        = (algorithmFPType)(linPar->k);
     for (size_t i = 0; i < nVectors1; i++)
     {
         dataR[i] = 0.0;
@@ -120,10 +115,8 @@ services::Status KernelImplLinear<defaultDense, algorithmFPType, cpu>::computeIn
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status KernelImplLinear<defaultDense, algorithmFPType, cpu>::computeInternalMatrixMatrix(
-    const NumericTable *a1,
-    const NumericTable *a2,
-    NumericTable *r, const ParameterBase *par)
+services::Status KernelImplLinear<defaultDense, algorithmFPType, cpu>::computeInternalMatrixMatrix(const NumericTable * a1, const NumericTable * a2,
+                                                                                                   NumericTable * r, const ParameterBase * par)
 {
     SafeStatus safeStat;
 

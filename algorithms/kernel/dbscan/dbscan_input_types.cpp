@@ -36,7 +36,6 @@ namespace dbscan
 {
 namespace interface1
 {
-
 Input::Input() : daal::algorithms::Input(lastInputId + 1) {}
 
 /**
@@ -54,7 +53,7 @@ NumericTablePtr Input::get(InputId id) const
 * \param[in] id    Identifier of the input object
 * \param[in] ptr   Pointer to the object
 */
-void Input::set(InputId id, const NumericTablePtr &ptr)
+void Input::set(InputId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -64,14 +63,14 @@ void Input::set(InputId id, const NumericTablePtr &ptr)
 * \param[in] par     Algorithm parameter
 * \param[in] method  Computation method of the algorithm
 */
-services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, checkNumericTable(get(data).get(), dataStr(), 0, 0));
 
     if (get(weights))
     {
-        const size_t nRows = get(data)->getNumberOfRows();
+        const size_t nRows          = get(data)->getNumberOfRows();
         const int unexpectedLayouts = (int)packed_mask;
 
         DAAL_CHECK_STATUS(s, checkNumericTable(get(weights).get(), dataStr(), unexpectedLayouts, 0, 1, nRows));
@@ -81,5 +80,5 @@ services::Status Input::check(const daal::algorithms::Parameter *parameter, int 
 
 } // namespace interface1
 } // namespace dbscan
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

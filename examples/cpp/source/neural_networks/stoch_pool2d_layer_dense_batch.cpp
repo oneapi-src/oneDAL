@@ -44,12 +44,12 @@ using namespace daal::services;
 /* Input non-negative data set */
 string datasetFileName = "../data/batch/layer_non_negative.csv";
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Read datasetFileName from a file and create a tensor to store input data */
-    TensorPtr data  = readTensorFromCSV(datasetFileName);
+    TensorPtr data = readTensorFromCSV(datasetFileName);
 
     /* Get number of dimensions in input data */
     size_t nDim = data->getNumberOfDimensions();
@@ -80,8 +80,7 @@ int main(int argc, char *argv[])
     /* Get the computed backward two-dimensional stochastic pooling layer results */
     backward::ResultPtr backwardResult = backwardLayer.getResult();
 
-    printTensor(backwardResult->get(backward::gradient),
-                "Backward two-dimensional stochastic pooling layer result (first 10 rows):", 10);
+    printTensor(backwardResult->get(backward::gradient), "Backward two-dimensional stochastic pooling layer result (first 10 rows):", 10);
 
     return 0;
 }

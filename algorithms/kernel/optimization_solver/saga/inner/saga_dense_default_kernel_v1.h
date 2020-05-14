@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate saga.
 //--
 
-
 #ifndef __SAGA_DENSE_DEFAULT_KERNEL_V1_H__
 #define __SAGA_DENSE_DEFAULT_KERNEL_V1_H__
 
@@ -43,17 +42,16 @@ namespace saga
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-class I1SagaKernel: public Kernel
+template <typename algorithmFPType, Method method, CpuType cpu>
+class I1SagaKernel : public Kernel
 {
 public:
-    services::Status compute(HostAppIface* pHost, NumericTable *inputArgument, NumericTable *minimum, NumericTable *nIterations,
-                             NumericTable *gradientsTableInput, NumericTable *gradientsTableResult, interface1::Parameter *parameter, engines::BatchBase &engine);
-
+    services::Status compute(HostAppIface * pHost, NumericTable * inputArgument, NumericTable * minimum, NumericTable * nIterations,
+                             NumericTable * gradientsTableInput, NumericTable * gradientsTableResult, interface1::Parameter * parameter,
+                             engines::BatchBase & engine);
 };
 
-} // namespace daal::internal
+} // namespace internal
 
 } // namespace saga
 

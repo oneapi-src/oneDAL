@@ -41,34 +41,38 @@ namespace backward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::DropoutKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    dropout::backward::Input *input = static_cast<dropout::backward::Input *>(_in);
-    dropout::backward::Result *result = static_cast<dropout::backward::Result *>(_res);
+    dropout::backward::Input * input   = static_cast<dropout::backward::Input *>(_in);
+    dropout::backward::Result * result = static_cast<dropout::backward::Result *>(_res);
 
-    dropout::Parameter *parameter = static_cast<dropout::Parameter *>(_par);
-    if (!parameter->propagateGradient) { return services::Status(); }
+    dropout::Parameter * parameter = static_cast<dropout::Parameter *>(_par);
+    if (!parameter->propagateGradient)
+    {
+        return services::Status();
+    }
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    Tensor *inputGradientTable = input->get(layers::backward::inputGradient).get();
-    Tensor *maskTable          = input->get(dropout::auxRetainMask).get();
-    Tensor *resultTable        = result->get(layers::backward::gradient).get();
+    Tensor * inputGradientTable = input->get(layers::backward::inputGradient).get();
+    Tensor * maskTable          = input->get(dropout::auxRetainMask).get();
+    Tensor * resultTable        = result->get(layers::backward::gradient).get();
 
-    __DAAL_CALL_KERNEL(env, internal::DropoutKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputGradientTable, *maskTable, *resultTable);
+    __DAAL_CALL_KERNEL(env, internal::DropoutKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputGradientTable, *maskTable,
+                       *resultTable);
 }
 } // namespace interface1
 } // namespace backward

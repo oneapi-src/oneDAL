@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate concats.
 //--
 
-
 #ifndef __CONCAT_LAYER_BACKWARD_KERNEL_H__
 #define __CONCAT_LAYER_BACKWARD_KERNEL_H__
 
@@ -47,15 +46,15 @@ namespace backward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for concat calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class ConcatKernel : public Kernel
 {
 public:
-    services::Status compute(Tensor *inputTensor, const NumericTable *forwardOutputTable, const concat::Parameter *parameter, Tensor *resultTensors[]);
+    services::Status compute(Tensor * inputTensor, const NumericTable * forwardOutputTable, const concat::Parameter * parameter,
+                             Tensor * resultTensors[]);
 
     ~ConcatKernel()
     {
@@ -73,12 +72,12 @@ private:
     dnnPrimitive_t splitPrim = NULL;
 };
 
-} // internal
-} // backward
-} // relu
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace backward
+} // namespace concat
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

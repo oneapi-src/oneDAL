@@ -35,25 +35,22 @@ namespace covariance
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status CovarianceDistributedKernel<algorithmFPType, method, cpu>::compute(
-    DataCollection *partialResultsCollection,
-    NumericTable *nObservationsTable,
-    NumericTable *crossProductTable,
-    NumericTable *sumTable,
-    const Parameter *parameter)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status CovarianceDistributedKernel<algorithmFPType, method, cpu>::compute(DataCollection * partialResultsCollection,
+                                                                                    NumericTable * nObservationsTable,
+                                                                                    NumericTable * crossProductTable, NumericTable * sumTable,
+                                                                                    const Parameter * parameter)
 {
     const size_t collectionSize = partialResultsCollection->size();
     const size_t nFeatures      = crossProductTable->getNumberOfColumns();
 
-    DEFINE_TABLE_BLOCK( WriteOnlyRows, sumBlock,           sumTable           );
-    DEFINE_TABLE_BLOCK( WriteOnlyRows, crossProductBlock,  crossProductTable  );
-    DEFINE_TABLE_BLOCK( WriteOnlyRows, nObservationsBlock, nObservationsTable );
+    DEFINE_TABLE_BLOCK(WriteOnlyRows, sumBlock, sumTable);
+    DEFINE_TABLE_BLOCK(WriteOnlyRows, crossProductBlock, crossProductTable);
+    DEFINE_TABLE_BLOCK(WriteOnlyRows, nObservationsBlock, nObservationsTable);
 
-    algorithmFPType *sums          = sumBlock.get();
-    algorithmFPType *crossProduct  = crossProductBlock.get();
-    algorithmFPType *nObservations = nObservationsBlock.get();
+    algorithmFPType * sums          = sumBlock.get();
+    algorithmFPType * crossProduct  = crossProductBlock.get();
+    algorithmFPType * nObservations = nObservationsBlock.get();
 
     algorithmFPType zero = 0.0;
     daal::services::internal::service_memset<algorithmFPType, cpu>(crossProduct, zero, nFeatures * nFeatures);
@@ -62,38 +59,34 @@ services::Status CovarianceDistributedKernel<algorithmFPType, method, cpu>::comp
 
     for (size_t i = 0; i < collectionSize; i++)
     {
-        PartialResult *patrialResult = static_cast<PartialResult*>((*partialResultsCollection)[i].get());
-        NumericTable  *partialSumsTable          = patrialResult->get(covariance::sum).get();
-        NumericTable  *partialCrossProductTable  = patrialResult->get(covariance::crossProduct).get();
-        NumericTable  *partialNObservationsTable = patrialResult->get(covariance::nObservations).get();
+        PartialResult * patrialResult            = static_cast<PartialResult *>((*partialResultsCollection)[i].get());
+        NumericTable * partialSumsTable          = patrialResult->get(covariance::sum).get();
+        NumericTable * partialCrossProductTable  = patrialResult->get(covariance::crossProduct).get();
+        NumericTable * partialNObservationsTable = patrialResult->get(covariance::nObservations).get();
 
-        DEFINE_TABLE_BLOCK( ReadRows, partialSumsBlock,          partialSumsTable          );
-        DEFINE_TABLE_BLOCK( ReadRows, partialCrossProductBlock,  partialCrossProductTable  );
-        DEFINE_TABLE_BLOCK( ReadRows, partialNObservationsBlock, partialNObservationsTable );
+        DEFINE_TABLE_BLOCK(ReadRows, partialSumsBlock, partialSumsTable);
+        DEFINE_TABLE_BLOCK(ReadRows, partialCrossProductBlock, partialCrossProductTable);
+        DEFINE_TABLE_BLOCK(ReadRows, partialNObservationsBlock, partialNObservationsTable);
 
-        mergeCrossProductAndSums<algorithmFPType, cpu>(nFeatures, partialCrossProductBlock.get(),
-            partialSumsBlock.get(), partialNObservationsBlock.get(), crossProduct, sums, nObservations);
+        mergeCrossProductAndSums<algorithmFPType, cpu>(nFeatures, partialCrossProductBlock.get(), partialSumsBlock.get(),
+                                                       partialNObservationsBlock.get(), crossProduct, sums, nObservations);
     }
 
     return services::Status();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status CovarianceDistributedKernel<algorithmFPType, method, cpu>::finalizeCompute(
-    NumericTable *nObservationsTable,
-    NumericTable *crossProductTable,
-    NumericTable *sumTable,
-    NumericTable *covTable,
-    NumericTable *meanTable,
-    const Parameter *parameter)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status CovarianceDistributedKernel<algorithmFPType, method, cpu>::finalizeCompute(NumericTable * nObservationsTable,
+                                                                                            NumericTable * crossProductTable, NumericTable * sumTable,
+                                                                                            NumericTable * covTable, NumericTable * meanTable,
+                                                                                            const Parameter * parameter)
 {
-    return finalizeCovariance<algorithmFPType, cpu>(nObservationsTable,
-        crossProductTable, sumTable, covTable, meanTable, parameter);
+    return finalizeCovariance<algorithmFPType, cpu>(nObservationsTable, crossProductTable, sumTable, covTable, meanTable, parameter);
 }
 
-} // internal
-} // covariance
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace covariance
+} // namespace algorithms
+} // namespace daal
 
 #endif

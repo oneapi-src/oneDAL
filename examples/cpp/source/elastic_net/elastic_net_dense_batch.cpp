@@ -63,9 +63,7 @@ int main(int argc, char * argv[])
 void trainModel()
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName,
-                                                      DataSource::notAllocateNumericTable,
-                                                      DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and dependent variables */
     NumericTablePtr trainData(HomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate));

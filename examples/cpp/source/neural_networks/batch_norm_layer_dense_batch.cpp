@@ -45,18 +45,18 @@ using namespace daal::services;
 string datasetFileName = "../data/batch/layer.csv";
 const size_t dimension = 1;
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Read datasetFileName from a file and create a tensor to store input data */
-    TensorPtr data  = readTensorFromCSV(datasetFileName);
+    TensorPtr data = readTensorFromCSV(datasetFileName);
 
     printTensor(data, "Forward batch normalization layer input (first 5 rows):", 5);
 
     /* Get collection of dimension sizes of the input data tensor */
-    const Collection<size_t> &dataDims = data->getDimensions();
-    size_t dimensionSize = dataDims[dimension];
+    const Collection<size_t> & dataDims = data->getDimensions();
+    size_t dimensionSize                = dataDims[dimension];
 
     /* Create a collection of dimension sizes of input weights, biases, population mean and variance tensors */
     Collection<size_t> dimensionSizes;
@@ -64,17 +64,17 @@ int main(int argc, char *argv[])
 
     /* Create input weights, biases, population mean and population variance tensors */
     TensorPtr weights(new HomogenTensor<>(dimensionSizes, Tensor::doAllocate, 1.0f));
-    TensorPtr biases (new HomogenTensor<>(dimensionSizes, Tensor::doAllocate, 2.0f));
-    TensorPtr populationMean    (new HomogenTensor<>(dimensionSizes, Tensor::doAllocate, 0.0f));
+    TensorPtr biases(new HomogenTensor<>(dimensionSizes, Tensor::doAllocate, 2.0f));
+    TensorPtr populationMean(new HomogenTensor<>(dimensionSizes, Tensor::doAllocate, 0.0f));
     TensorPtr populationVariance(new HomogenTensor<>(dimensionSizes, Tensor::doAllocate, 0.0f));
 
     /* Create an algorithm to compute forward batch normalization layer results using default method */
     batch_normalization::forward::Batch<> forwardLayer;
     forwardLayer.parameter.dimension = dimension;
-    forwardLayer.input.set(forward::data,    data);
+    forwardLayer.input.set(forward::data, data);
     forwardLayer.input.set(forward::weights, weights);
-    forwardLayer.input.set(forward::biases,  biases);
-    forwardLayer.input.set(batch_normalization::forward::populationMean,     populationMean);
+    forwardLayer.input.set(forward::biases, biases);
+    forwardLayer.input.set(batch_normalization::forward::populationMean, populationMean);
     forwardLayer.input.set(batch_normalization::forward::populationVariance, populationVariance);
 
     /* Compute forward batch normalization layer results */

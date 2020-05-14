@@ -37,12 +37,10 @@ namespace neural_networks
 {
 namespace internal
 {
-
 class LastLayerIndices
 {
 public:
-    LastLayerIndices(const services::Collection<layers::NextLayers> *nextLayers,
-                     const data_management::KeyValueDataCollectionPtr &tensors);
+    LastLayerIndices(const services::Collection<layers::NextLayers> * nextLayers, const data_management::KeyValueDataCollectionPtr & tensors);
 
     virtual ~LastLayerIndices();
 
@@ -55,17 +53,17 @@ public:
 
 protected:
     size_t nLastLayers;
-    size_t *buffer;
+    size_t * buffer;
 
-    size_t *layerIndices;
-    size_t *tensorIndices;
+    size_t * layerIndices;
+    size_t * tensorIndices;
 };
 
-services::Status processLayerErrors(size_t layerId, const services::Status &layerStatus);
+services::Status processLayerErrors(size_t layerId, const services::Status & layerStatus);
 
-}
-}
-}
-}
+} // namespace internal
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

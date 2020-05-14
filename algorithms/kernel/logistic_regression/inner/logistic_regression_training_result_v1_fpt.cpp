@@ -30,27 +30,27 @@ namespace algorithms
 {
 namespace logistic_regression
 {
-
 namespace training
 {
 namespace interface1
 {
-template<typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+template <typename algorithmFPType>
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status s;
-    const classifier::training::Input* inp = static_cast<const classifier::training::Input*>(input);
-    const size_t nFeatures = inp->get(classifier::training::data)->getNumberOfColumns();
-    const logistic_regression::training::Parameter* prm = (const logistic_regression::training::Parameter*)parameter;
-    set(classifier::training::model, ModelPtr(new logistic_regression::internal::ModelImpl(
-        nFeatures, prm->interceptFlag, prm->nClasses, algorithmFPType(0), &s)));
+    const classifier::training::Input * inp              = static_cast<const classifier::training::Input *>(input);
+    const size_t nFeatures                               = inp->get(classifier::training::data)->getNumberOfColumns();
+    const logistic_regression::training::Parameter * prm = (const logistic_regression::training::Parameter *)parameter;
+    set(classifier::training::model,
+        ModelPtr(new logistic_regression::internal::ModelImpl(nFeatures, prm->interceptFlag, prm->nClasses, algorithmFPType(0), &s)));
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
-}
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
+} // namespace interface1
 
-}// namespace training
-}// namespace logistic_regression
-}// namespace algorithms
-}// namespace daal
+} // namespace training
+} // namespace logistic_regression
+} // namespace algorithms
+} // namespace daal

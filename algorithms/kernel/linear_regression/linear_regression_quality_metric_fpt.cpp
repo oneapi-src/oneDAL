@@ -33,8 +33,8 @@ namespace quality_metric
 {
 namespace single_beta
 {
-
-template services::Status DAAL_EXPORT Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+template services::Status DAAL_EXPORT Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                                    const int method);
 
 } // namespace single_beta
 } // namespace quality_metric

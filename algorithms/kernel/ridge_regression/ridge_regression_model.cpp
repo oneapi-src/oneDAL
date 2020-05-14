@@ -37,12 +37,7 @@ namespace ridge_regression
 {
 namespace interface1
 {
-
-TrainParameter::TrainParameter()
-        : Parameter(),
-          ridgeParameters(new HomogenNumericTable<double>(1, 1, NumericTableIface::doAllocate, 1.0))
-    {
-    };
+TrainParameter::TrainParameter() : Parameter(), ridgeParameters(new HomogenNumericTable<double>(1, 1, NumericTableIface::doAllocate, 1.0)) {};
 
 services::Status TrainParameter::check() const
 {
@@ -51,18 +46,17 @@ services::Status TrainParameter::check() const
 
 } // namespace interface1
 
-Status checkModel(
-    ridge_regression::Model* model, const daal::algorithms::Parameter &par, size_t nBeta, size_t nResponses, int method)
+Status checkModel(ridge_regression::Model * model, const daal::algorithms::Parameter & par, size_t nBeta, size_t nResponses, int method)
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, linear_model::checkModel(model, par, nBeta, nResponses));
 
     size_t dimWithoutBeta = (model->getInterceptFlag() ? nBeta : nBeta - 1);
 
-    ridge_regression::ModelNormEq* modelNormEq = dynamic_cast<ridge_regression::ModelNormEq*>(model);
+    ridge_regression::ModelNormEq * modelNormEq = dynamic_cast<ridge_regression::ModelNormEq *>(model);
 
     DAAL_CHECK_STATUS(s, checkNumericTable(modelNormEq->getXTXTable().get(), XTXTableStr(), 0, 0, dimWithoutBeta, dimWithoutBeta));
-    return               checkNumericTable(modelNormEq->getXTYTable().get(), XTYTableStr(), 0, 0, dimWithoutBeta, nResponses);
+    return checkNumericTable(modelNormEq->getXTYTable().get(), XTYTableStr(), 0, 0, dimWithoutBeta, nResponses);
 }
 } // namespace ridge_regression
 } // namespace algorithms

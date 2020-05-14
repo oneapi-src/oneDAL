@@ -33,9 +33,9 @@ using namespace daal;
 using namespace daal::algorithms;
 
 /* Input data set parameters */
-string datasetFileName     = "../data/batch/kmeans_dense.csv";
+string datasetFileName = "../data/batch/kmeans_dense.csv";
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 
@@ -51,10 +51,10 @@ int main(int argc, char *argv[])
     validList[1] = 2;
     validList[2] = 5;
 
-    dataSource.getFeatureManager().addModifier( ColumnFilter().list(validList) );
+    dataSource.getFeatureManager().addModifier(ColumnFilter().list(validList));
 
     /* Consider column with index 1 as categorical and convert it into 3 binary categorical features */
-    dataSource.getFeatureManager().addModifier( OneHotEncoder(1, 3) );
+    dataSource.getFeatureManager().addModifier(OneHotEncoder(1, 3));
 
     /* Load data from .csv file */
     dataSource.loadDataBlock();

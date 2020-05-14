@@ -38,7 +38,6 @@ namespace forward
 {
 namespace interface1
 {
-
 /**
 * Allocates memory to store the result of forward  2D transposed convolution layer
  * \param[in] parameter %Parameter of forward 2D transposed convolution layer
@@ -47,21 +46,21 @@ namespace interface1
  * \return Status of computations
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Input::allocate(const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Input::allocate(const daal::algorithms::Parameter * parameter, const int method)
 {
     using daal::services::SharedPtr;
     using daal::data_management::Tensor;
     using daal::data_management::HomogenTensor;
 
-    const Parameter *param =  static_cast<const Parameter * >(parameter);
+    const Parameter * param = static_cast<const Parameter *>(parameter);
     services::Status s;
-    if( !get(layers::forward::weights) )
+    if (!get(layers::forward::weights))
     {
         SharedPtr<Tensor> tensor = HomogenTensor<algorithmFPType>::create(getWeightsSizes(param), Tensor::doAllocate, &s);
         set(layers::forward::weights, tensor);
     }
 
-    if( !get(layers::forward::biases) )
+    if (!get(layers::forward::biases))
     {
         SharedPtr<Tensor> tensor = HomogenTensor<algorithmFPType>::create(getBiasesSizes(param), Tensor::doAllocate, &s);
         set(layers::forward::biases, tensor);
@@ -78,20 +77,20 @@ DAAL_EXPORT services::Status Input::allocate(const daal::algorithms::Parameter *
  * \return Status of computations
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     using namespace data_management;
-    const Input *in = static_cast<const Input * >(input);
+    const Input * in = static_cast<const Input *>(input);
 
-    const services::Collection<size_t> &inDims = in->get(layers::forward::data)->getDimensions();
+    const services::Collection<size_t> & inDims = in->get(layers::forward::data)->getDimensions();
     services::Status s;
     if (!get(layers::forward::value))
     {
         set(layers::forward::value, HomogenTensor<algorithmFPType>::create(getValueSize(inDims, parameter, method), Tensor::doAllocate, &s));
     }
 
-    const layers::Parameter *par = static_cast<const layers::Parameter * >(parameter);
-    if(!par->predictionStage)
+    const layers::Parameter * par = static_cast<const layers::Parameter *>(parameter);
+    if (!par->predictionStage)
     {
         set(layers::forward::resultForBackward, services::SharedPtr<LayerData>(new LayerData()));
         setResultForBackward(input);
@@ -99,14 +98,14 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return s;
 }
 
+template DAAL_EXPORT services::Status Input::allocate<DAAL_FPTYPE>(const daal::algorithms::Parameter * parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-template DAAL_EXPORT services::Status Input::allocate<DAAL_FPTYPE>(const daal::algorithms::Parameter *parameter, const int method);
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
-
-}// namespace interface1
-}// namespace forward
-}// namespace transposed_conv2d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace transposed_conv2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

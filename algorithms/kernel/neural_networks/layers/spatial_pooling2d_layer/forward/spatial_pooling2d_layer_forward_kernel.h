@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate forward pooling layer relults.
 //--
 
-
 #ifndef __SPATIAL_POOLING2D_LAYER_FORWARD_KERNEL_H__
 #define __SPATIAL_POOLING2D_LAYER_FORWARD_KERNEL_H__
 
@@ -45,81 +44,61 @@ namespace forward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for forward pooling layer results computation
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class BasePoolingKernel : public Kernel
 {
 public:
-    virtual services::Status compute(const Tensor &dataTensor, Tensor &valueTensor,
-                                     Tensor *selectedPosTensor, const spatial_pooling2d::Parameter &parameter);
+    virtual services::Status compute(const Tensor & dataTensor, Tensor & valueTensor, Tensor * selectedPosTensor,
+                                     const spatial_pooling2d::Parameter & parameter);
+
 protected:
-    virtual Status computePooling(
-        const pooling2d::Parameter &poolingPar,
-        const spatial_pooling2d::Parameter &spatialParameter,
-        const Tensor &dataTensor,
-        Tensor &valueTensor,
-        Tensor *selectedPosTensor) = 0;
+    virtual Status computePooling(const pooling2d::Parameter & poolingPar, const spatial_pooling2d::Parameter & spatialParameter,
+                                  const Tensor & dataTensor, Tensor & valueTensor, Tensor * selectedPosTensor) = 0;
 };
 
 /**
  *  \brief Kernel for forward pooling layer results computation
  */
-template<typename algorithmFPType, spatial_pooling2d::internal::Method method, CpuType cpu>
+template <typename algorithmFPType, spatial_pooling2d::internal::Method method, CpuType cpu>
 class PoolingKernel : public BasePoolingKernel<algorithmFPType, cpu>
 {
 protected:
-    Status computePooling(
-        const pooling2d::Parameter &poolingPar,
-        const spatial_pooling2d::Parameter &spatialParameter,
-        const Tensor &dataTensor,
-        Tensor &valueTensor,
-        Tensor *selectedPosTensor);
+    Status computePooling(const pooling2d::Parameter & poolingPar, const spatial_pooling2d::Parameter & spatialParameter, const Tensor & dataTensor,
+                          Tensor & valueTensor, Tensor * selectedPosTensor);
 };
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class PoolingKernel<algorithmFPType, spatial_pooling2d::internal::maximum, cpu> : public BasePoolingKernel<algorithmFPType, cpu>
 {
 protected:
-    Status computePooling(
-        const pooling2d::Parameter &poolingPar,
-        const spatial_pooling2d::Parameter &spatialParameter,
-        const Tensor &dataTensor,
-        Tensor &valueTensor,
-        Tensor *selectedPosTensor);
+    Status computePooling(const pooling2d::Parameter & poolingPar, const spatial_pooling2d::Parameter & spatialParameter, const Tensor & dataTensor,
+                          Tensor & valueTensor, Tensor * selectedPosTensor);
 };
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class PoolingKernel<algorithmFPType, spatial_pooling2d::internal::stochastic, cpu> : public BasePoolingKernel<algorithmFPType, cpu>
 {
 protected:
-    Status computePooling(
-        const pooling2d::Parameter &poolingPar,
-        const spatial_pooling2d::Parameter &spatialParameter,
-        const Tensor &dataTensor,
-        Tensor &valueTensor,
-        Tensor *selectedPosTensor);
+    Status computePooling(const pooling2d::Parameter & poolingPar, const spatial_pooling2d::Parameter & spatialParameter, const Tensor & dataTensor,
+                          Tensor & valueTensor, Tensor * selectedPosTensor);
 };
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class PoolingKernel<algorithmFPType, spatial_pooling2d::internal::average, cpu> : public BasePoolingKernel<algorithmFPType, cpu>
 {
 private:
-    Status computePooling(
-        const pooling2d::Parameter &poolingPar,
-        const spatial_pooling2d::Parameter &spatialParameter,
-        const Tensor &dataTensor,
-        Tensor &valueTensor,
-        Tensor *selectedPosTensor);
+    Status computePooling(const pooling2d::Parameter & poolingPar, const spatial_pooling2d::Parameter & spatialParameter, const Tensor & dataTensor,
+                          Tensor & valueTensor, Tensor * selectedPosTensor);
 };
-} // internal
-} // forward
-} // spatial_pooling2d
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace forward
+} // namespace spatial_pooling2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

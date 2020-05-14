@@ -41,7 +41,6 @@ namespace training
 {
 namespace interface1
 {
-
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_STUMP_REGRESSION_TRAINING_RESULT_ID);
 Result::Result() : algorithms::regression::training::Result(lastResultId + 1) {}
 
@@ -50,7 +49,7 @@ daal::algorithms::stump::regression::ModelPtr Result::get(daal::algorithms::regr
     return services::staticPointerCast<daal::algorithms::stump::regression::Model, data_management::SerializationIface>(Argument::get(id));
 }
 
-void Result::set(daal::algorithms::regression::training::ResultId id, daal::algorithms::stump::regression::ModelPtr &value)
+void Result::set(daal::algorithms::regression::training::ResultId id, daal::algorithms::stump::regression::ModelPtr & value)
 {
     Argument::set(id, value);
 }
@@ -60,15 +59,14 @@ data_management::NumericTablePtr Result::get(ResultNumericTableId id) const
     return services::staticPointerCast<data_management::NumericTable, data_management::SerializationIface>(Argument::get(id));
 }
 
-void Result::set(ResultNumericTableId id, const data_management::NumericTablePtr &value)
+void Result::set(ResultNumericTableId id, const data_management::NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
 
-
-}// namespace interface1
-}// namespace training
-}// namespace regression
-}// namespace stump
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace training
+} // namespace regression
+} // namespace stump
+} // namespace algorithms
+} // namespace daal

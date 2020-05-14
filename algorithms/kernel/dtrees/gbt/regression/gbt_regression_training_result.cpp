@@ -41,15 +41,14 @@ namespace training
 namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_GBT_REGRESSION_TRAINING_RESULT_ID);
-Result::Result() : algorithms::regression::training::Result(lastResultNumericTableId  + 1) {};
+Result::Result() : algorithms::regression::training::Result(lastResultNumericTableId + 1) {};
 
 gbt::regression::ModelPtr Result::get(ResultId id) const
 {
-    return gbt::regression::Model::cast(
-        algorithms::regression::training::Result::get(algorithms::regression::training::ResultId(id)));
+    return gbt::regression::Model::cast(algorithms::regression::training::Result::get(algorithms::regression::training::ResultId(id)));
 }
 
-void Result::set(ResultId id, const gbt::regression::ModelPtr &value)
+void Result::set(ResultId id, const gbt::regression::ModelPtr & value)
 {
     algorithms::regression::training::Result::set(algorithms::regression::training::ResultId(id), value);
 }
@@ -59,12 +58,12 @@ data_management::NumericTablePtr Result::get(ResultNumericTableId id) const
     return staticPointerCast<NumericTable, SerializationIface>(Argument::get(id));
 }
 
-void Result::set(ResultNumericTableId id, const data_management::NumericTablePtr &value)
+void Result::set(ResultNumericTableId id, const data_management::NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
 
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     return algorithms::regression::training::Result::check(input, par, method);
 }

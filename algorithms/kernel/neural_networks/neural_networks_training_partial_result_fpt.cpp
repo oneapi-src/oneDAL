@@ -28,25 +28,27 @@ namespace neural_networks
 {
 namespace training
 {
-
-template<typename algorithmFPType>
-DAAL_EXPORT Status PartialResult::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+template <typename algorithmFPType>
+DAAL_EXPORT Status PartialResult::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     Status s;
     set(batchSize, HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTableIface::doAllocate, &s));
     return s;
 }
 
-template<typename algorithmFPType>
-DAAL_EXPORT Status DistributedPartialResult::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+template <typename algorithmFPType>
+DAAL_EXPORT Status DistributedPartialResult::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                      const int method)
 {
     return Status();
 }
 
-template DAAL_EXPORT Status PartialResult           ::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
-template DAAL_EXPORT Status DistributedPartialResult::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT Status PartialResult ::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                  const daal::algorithms::Parameter * parameter, const int method);
+template DAAL_EXPORT Status DistributedPartialResult::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                            const daal::algorithms::Parameter * parameter, const int method);
 
-}
-}
-}
-}
+} // namespace training
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

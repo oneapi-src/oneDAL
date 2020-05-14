@@ -42,7 +42,6 @@ namespace prediction
 {
 namespace internal
 {
-
 template <typename algorithmFpType, logistic_regression::prediction::Method method, CpuType cpu>
 class PredictKernel : public daal::algorithms::Kernel
 {
@@ -57,8 +56,8 @@ public:
      *  \param pProbab[out] Probability prediction results
      *  \param pLogProbab[out] Log of probability prediction results
      */
-    services::Status compute(services::HostAppIface* pHostApp, const NumericTable *a, const logistic_regression::Model *m, size_t nClasses,
-        NumericTable* pRes, NumericTable* pProbab, NumericTable* pLogProbab);
+    services::Status compute(services::HostAppIface * pHostApp, const NumericTable * a, const logistic_regression::Model * m, size_t nClasses,
+                             NumericTable * pRes, NumericTable * pProbab, NumericTable * pLogProbab);
 };
 
 } // namespace internal

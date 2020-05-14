@@ -36,7 +36,6 @@ namespace kmeans
 {
 namespace interface1
 {
-
 Input::Input() : InputIface(lastInputId + 1) {}
 
 /**
@@ -54,7 +53,7 @@ NumericTablePtr Input::get(InputId id) const
 * \param[in] id    Identifier of the input object
 * \param[in] ptr   Pointer to the object
 */
-void Input::set(InputId id, const NumericTablePtr &ptr)
+void Input::set(InputId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -74,14 +73,14 @@ size_t Input::getNumberOfFeatures() const
 * \param[in] par     Algorithm parameter
 * \param[in] method  Computation method of the algorithm
 */
-services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s;
-    const interface1::Parameter *kmPar = static_cast<const interface1::Parameter *>(parameter);
-    const int expectedLayout = (method == lloydCSR ? (int)NumericTableIface::csrArray : 0);
+    const interface1::Parameter * kmPar = static_cast<const interface1::Parameter *>(parameter);
+    const int expectedLayout            = (method == lloydCSR ? (int)NumericTableIface::csrArray : 0);
     DAAL_CHECK_STATUS(s, checkNumericTable(get(data).get(), dataStr(), 0, expectedLayout));
     const size_t inputFeatures = get(data)->getNumberOfColumns();
-    const size_t inputRows = get(data)->getNumberOfRows();
+    const size_t inputRows     = get(data)->getNumberOfRows();
 
     if (kmPar->maxIterations > 0)
     {
@@ -92,5 +91,5 @@ services::Status Input::check(const daal::algorithms::Parameter *parameter, int 
 
 } // namespace interface1
 } // namespace kmeans
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

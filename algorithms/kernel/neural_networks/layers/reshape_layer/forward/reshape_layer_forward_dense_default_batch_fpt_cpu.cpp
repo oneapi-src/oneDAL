@@ -19,7 +19,6 @@
 //  Implementation of reshape layer.
 //--
 
-
 #include "reshape_layer_forward_batch_container.h"
 #include "reshape_layer_forward_kernel.h"
 #include "reshape_layer_forward_impl.i"
@@ -34,21 +33,20 @@ namespace layers
 {
 namespace reshape
 {
-
 namespace forward
 {
 namespace interface1
 {
 template class neural_networks::layers::reshape::forward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 namespace internal
 {
 template class ReshapeKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 
-}
-}
-}
-}
-}
+} // namespace reshape
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

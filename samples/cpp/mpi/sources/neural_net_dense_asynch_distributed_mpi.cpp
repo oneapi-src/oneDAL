@@ -35,29 +35,22 @@ using namespace daal::services;
 typedef std::vector<byte> ByteBuffer;
 typedef std::vector<MPI_Request> RequestBuffer;
 
-
-const size_t nWorkers = 3;
-const size_t nNodes   = nWorkers + 1;
+const size_t nWorkers                       = 3;
+const size_t nNodes                         = nWorkers + 1;
 const size_t nPartialResultsToUpdateWeights = nWorkers;
 
 /* Input data set parameters */
-const string trainDatasetFileNames[nWorkers] =
-{
-    "./data/distributed/neural_network_train_dense_1.csv",
-    "./data/distributed/neural_network_train_dense_2.csv",
-    "./data/distributed/neural_network_train_dense_3.csv"
-};
-const string trainGroundTruthFileNames[nWorkers] =
-{
-    "./data/distributed/neural_network_train_ground_truth_1.csv",
-    "./data/distributed/neural_network_train_ground_truth_2.csv",
-    "./data/distributed/neural_network_train_ground_truth_3.csv"
-};
-string testDatasetFile     = "./data/distributed/neural_network_test.csv";
-string testGroundTruthFile = "./data/distributed/neural_network_test_ground_truth.csv";
+const string trainDatasetFileNames[nWorkers]     = { "./data/distributed/neural_network_train_dense_1.csv",
+                                                 "./data/distributed/neural_network_train_dense_2.csv",
+                                                 "./data/distributed/neural_network_train_dense_3.csv" };
+const string trainGroundTruthFileNames[nWorkers] = { "./data/distributed/neural_network_train_ground_truth_1.csv",
+                                                     "./data/distributed/neural_network_train_ground_truth_2.csv",
+                                                     "./data/distributed/neural_network_train_ground_truth_3.csv" };
+string testDatasetFile                           = "./data/distributed/neural_network_test.csv";
+string testGroundTruthFile                       = "./data/distributed/neural_network_test_ground_truth.csv";
 
 const size_t batchSizeLocal = 25;
-const size_t nIterations = 60;
+const size_t nIterations    = 60;
 
 TensorPtr trainingData;
 TensorPtr trainingGroundTruth;
@@ -82,18 +75,14 @@ void trainModel();
 void testModel();
 void printResults();
 
+NumericTablePtr pullWeightsAndBiasesFromMaster(size_t & wbArchLength, ByteBuffer & wbBuffer, MPI_Request & wbRequest);
 
-NumericTablePtr pullWeightsAndBiasesFromMaster(size_t &wbArchLength, ByteBuffer &wbBuffer, MPI_Request &wbRequest);
+static void sendPartialResultToMaster(const training::PartialResultPtr & partialResult, size_t & partialResultArchLength,
+                                      ByteBuffer & partialResultBuffer, MPI_Request & prRequest);
 
-static void sendPartialResultToMaster(const training::PartialResultPtr &partialResult,
-                                      size_t &partialResultArchLength,
-                                      ByteBuffer &partialResultBuffer,
-                                      MPI_Request &prRequest);
+static training::PartialResultPtr deserializePartialResultFromNode(size_t & partialResultArchLength, byte * partialResultBuffer);
 
-static training::PartialResultPtr deserializePartialResultFromNode(
-    size_t &partialResultArchLength, byte *partialResultBuffer);
-
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
@@ -102,7 +91,7 @@ int main(int argc, char *argv[])
     initializeNetwork();
     trainModel();
 
-    if(rankId == mpi_root)
+    if (rankId == mpi_root)
     {
         testModel();
         printResults();
@@ -118,18 +107,18 @@ void initializeNetwork()
     /* Read training data set from a .csv file and create tensors to store input data */
     if (rankId == mpi_root)
     {
-        trainingData = readTensorFromCSV(trainDatasetFileNames[0]);
+        trainingData        = readTensorFromCSV(trainDatasetFileNames[0]);
         trainingGroundTruth = readTensorFromCSV(trainGroundTruthFileNames[0], true);
     }
     else
     {
-        trainingData = readTensorFromCSV(trainDatasetFileNames[rankId - 1]);
+        trainingData        = readTensorFromCSV(trainDatasetFileNames[rankId - 1]);
         trainingGroundTruth = readTensorFromCSV(trainGroundTruthFileNames[rankId - 1], true);
     }
 
     /* Initialize the neural network on master node */
     services::Collection<size_t> sampleSize = trainingData->getDimensions();
-    sampleSize[0] = batchSizeLocal;
+    sampleSize[0]                           = batchSizeLocal;
 
     /* Configure the neural network topology */
     topology = configureNet();
@@ -141,9 +130,9 @@ void initializeNetwork()
         SharedPtr<optimization_solver::adagrad::Batch<> > solver(new optimization_solver::adagrad::Batch<>());
 
         /* Set learning rate for the optimization solver used in the neural network */
-        float learningRate = 0.001f;
-        solver->parameter.learningRate = NumericTablePtr(new HomogenNumericTable<>(1, 1, NumericTable::doAllocate, learningRate));
-        solver->parameter.batchSize = batchSizeLocal;
+        float learningRate                       = 0.001f;
+        solver->parameter.learningRate           = NumericTablePtr(new HomogenNumericTable<>(1, 1, NumericTable::doAllocate, learningRate));
+        solver->parameter.batchSize              = batchSizeLocal;
         solver->parameter.optionalResultRequired = true;
 
         /* Set the optimization solver for the neural network training */
@@ -167,8 +156,8 @@ void initializeNetwork()
 
 void trainModel()
 {
-    ByteBuffer wbBuffer(0);             // buffer for serialized weights and biases
-    size_t wbArchLength = 0;            // length of the buffer for serialized weights and biases
+    ByteBuffer wbBuffer(0);  // buffer for serialized weights and biases
+    size_t wbArchLength = 0; // length of the buffer for serialized weights and biases
 
     ByteBuffer partialResultBuffer(0);  // buffer for serialized partial results (derivatives)
     size_t partialResultArchLength = 0; // length of the buffer for serialized partial results
@@ -207,7 +196,7 @@ void trainModel()
             /* Compute weights and biases for the batch of inputs on worker nodes */
 
             /* Pass a training data set and dependent values to the algorithm */
-            netLocal->input.set(training::data,        getNextSubtensor(trainingData,        i, batchSizeLocal));
+            netLocal->input.set(training::data, getNextSubtensor(trainingData, i, batchSizeLocal));
             netLocal->input.set(training::groundTruth, getNextSubtensor(trainingGroundTruth, i, batchSizeLocal));
 
             if (i > 0)
@@ -235,8 +224,7 @@ void trainModel()
 
             if (i == 0)
             {
-                MPI_Send(&partialResultArchLength, sizeof(size_t), MPI_BYTE, mpi_root,
-                         partialResultLengthTag, MPI_COMM_WORLD);
+                MPI_Send(&partialResultArchLength, sizeof(size_t), MPI_BYTE, mpi_root, partialResultLengthTag, MPI_COMM_WORLD);
             }
         }
         MPI_Wait(&prRequest, MPI_STATUS_IGNORE);
@@ -253,8 +241,7 @@ void trainModel()
         {
             /* Receive the length of the buffer for serialized partial results */
             MPI_Request request;
-            MPI_Irecv(&partialResultArchLength, sizeof(size_t), MPI_BYTE, MPI_ANY_SOURCE,
-                      partialResultLengthTag, MPI_COMM_WORLD, &request);
+            MPI_Irecv(&partialResultArchLength, sizeof(size_t), MPI_BYTE, MPI_ANY_SOURCE, partialResultLengthTag, MPI_COMM_WORLD, &request);
             MPI_Wait(&request, MPI_STATUS_IGNORE);
             partialResultMasterBuffer.resize(nPartialResultsToUpdateWeights * partialResultArchLength);
         }
@@ -264,8 +251,8 @@ void trainModel()
             /* Receive partial results from worker nodes */
             for (size_t i = 0; i < nPartialResultsToUpdateWeights; i++)
             {
-                MPI_Irecv(&partialResultMasterBuffer[i * partialResultArchLength], partialResultArchLength, MPI_BYTE, MPI_ANY_SOURCE, partialResultTag,
-                          MPI_COMM_WORLD, &prRequests[i]);
+                MPI_Irecv(&partialResultMasterBuffer[i * partialResultArchLength], partialResultArchLength, MPI_BYTE, MPI_ANY_SOURCE,
+                          partialResultTag, MPI_COMM_WORLD, &prRequests[i]);
             }
 
             for (size_t i = 0; i < nPartialResultsToUpdateWeights; i++)
@@ -275,7 +262,8 @@ void trainModel()
                 MPI_Waitany(nPartialResultsToUpdateWeights, prRequests, &nodeIndex, MPI_STATUS_IGNORE);
                 prRequests[nodeIndex] = MPI_REQUEST_NULL;
 
-                training::PartialResultPtr partialResult = deserializePartialResultFromNode(partialResultArchLength, &partialResultMasterBuffer[nodeIndex * partialResultArchLength]);
+                training::PartialResultPtr partialResult =
+                    deserializePartialResultFromNode(partialResultArchLength, &partialResultMasterBuffer[nodeIndex * partialResultArchLength]);
 
                 /* Pass computed weights and biases derivatives to the master algorithm */
                 netMaster->input.add(training::partialResults, i, partialResult);
@@ -346,19 +334,17 @@ void printResults()
     /* Read testing ground truth from a .csv file and create a tensor to store the data */
     TensorPtr predictionGroundTruth = readTensorFromCSV(testGroundTruthFile);
 
-    printTensors<int, float>(predictionGroundTruth, predictionResult->get(prediction::prediction),
-                             "Ground truth", "Neural network predictions: each class probability",
+    printTensors<int, float>(predictionGroundTruth, predictionResult->get(prediction::prediction), "Ground truth",
+                             "Neural network predictions: each class probability",
                              "Neural network classification results (first 20 observations):", 20);
 }
 
-void sendPartialResultToMaster(const training::PartialResultPtr &partialResult,
-                               size_t &partialResultArchLength,
-                               ByteBuffer &partialResultBuffer,
-                               MPI_Request &prRequest)
+void sendPartialResultToMaster(const training::PartialResultPtr & partialResult, size_t & partialResultArchLength, ByteBuffer & partialResultBuffer,
+                               MPI_Request & prRequest)
 {
     InputDataArchive dataArch;
     NumericTablePtr wbDer = partialResult->get(training::derivatives);
-    partialResult->serialize( dataArch );
+    partialResult->serialize(dataArch);
 
     if (partialResultArchLength == 0)
     {
@@ -371,8 +357,7 @@ void sendPartialResultToMaster(const training::PartialResultPtr &partialResult,
     MPI_Isend(&partialResultBuffer[0], partialResultArchLength, MPI_BYTE, mpi_root, partialResultTag, MPI_COMM_WORLD, &prRequest);
 }
 
-training::PartialResultPtr deserializePartialResultFromNode(
-    size_t &partialResultArchLength, byte *partialResultBuffer)
+training::PartialResultPtr deserializePartialResultFromNode(size_t & partialResultArchLength, byte * partialResultBuffer)
 {
     /* Deserialize partial results from step 1 */
     OutputDataArchive dataArch(partialResultBuffer, partialResultArchLength);
@@ -382,7 +367,7 @@ training::PartialResultPtr deserializePartialResultFromNode(
     return partialResult;
 }
 
-NumericTablePtr pullWeightsAndBiasesFromMaster(size_t &wbArchLength, ByteBuffer &wbBuffer, MPI_Request &wbRequest)
+NumericTablePtr pullWeightsAndBiasesFromMaster(size_t & wbArchLength, ByteBuffer & wbBuffer, MPI_Request & wbRequest)
 {
     MPI_Wait(&wbRequest, MPI_STATUS_IGNORE);
 

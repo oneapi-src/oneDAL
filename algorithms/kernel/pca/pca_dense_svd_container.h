@@ -30,19 +30,19 @@ namespace algorithms
 {
 namespace pca
 {
-static inline internal::InputDataType getInputDataType(pca::Input *input)
+static inline internal::InputDataType getInputDataType(pca::Input * input)
 {
-    if(input == 0 || input->size() == 0)
+    if (input == 0 || input->size() == 0)
     {
         return internal::nonNormalizedDataset;
     }
 
-    data_management::NumericTable *a = static_cast<data_management::NumericTable *>(input->get(data).get());
-    if(input->isCorrelation())
+    data_management::NumericTable * a = static_cast<data_management::NumericTable *>(input->get(data).get());
+    if (input->isCorrelation())
     {
         return internal::correlation;
     }
-    else if(a->isNormalized(data_management::NumericTableIface::standardScoreNormalized))
+    else if (a->isNormalized(data_management::NumericTableIface::standardScoreNormalized))
     {
         return internal::normalizedDataset;
     }
@@ -52,7 +52,7 @@ static inline internal::InputDataType getInputDataType(pca::Input *input)
     }
 }
 
-}
-}
+} // namespace pca
+} // namespace algorithms
 } // namespace daal
 #endif

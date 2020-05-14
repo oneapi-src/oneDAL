@@ -41,13 +41,11 @@ namespace interface1
  * \param[in] epsilon           A constant added to the mini-batch variance for numerical stability
  * \param[in] dimension         Index of the dimension for which the normalization is performed
  */
-Parameter::Parameter(double alpha, double epsilon, size_t dimension) :
-    alpha(alpha), epsilon(epsilon), dimension(dimension)
-{}
+Parameter::Parameter(double alpha, double epsilon, size_t dimension) : alpha(alpha), epsilon(epsilon), dimension(dimension) {}
 
-}// namespace interface1
-}// namespace batch_normalization
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace batch_normalization
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

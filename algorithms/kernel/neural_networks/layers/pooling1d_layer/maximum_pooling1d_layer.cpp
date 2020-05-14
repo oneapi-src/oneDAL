@@ -43,13 +43,13 @@ namespace interface1
  * \param[in] padding      Number of data elements to implicitly add to the the dimension
  *                         of the 1D subtensor on which the pooling is performed
  */
-Parameter::Parameter(size_t index, size_t kernelSize, size_t stride, size_t padding) :
-    layers::pooling1d::Parameter(index, kernelSize, stride, padding)
+Parameter::Parameter(size_t index, size_t kernelSize, size_t stride, size_t padding)
+    : layers::pooling1d::Parameter(index, kernelSize, stride, padding)
 {}
 
-}// namespace interface1
-}// namespace maximum_pooling1d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace maximum_pooling1d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

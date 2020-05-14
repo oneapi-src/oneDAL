@@ -19,7 +19,6 @@
 //  Implementation of cholesky calculation algorithm container.
 //--
 
-
 #include "cholesky_batch_container.h"
 
 namespace daal

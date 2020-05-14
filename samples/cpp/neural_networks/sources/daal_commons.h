@@ -29,21 +29,18 @@
 const size_t batchSize          = 1;
 const size_t trainingIterations = 1;
 
-prediction::ModelPtr trainClassifier(training::TopologyPtr topology, BlobDatasetReader *reader);
+prediction::ModelPtr trainClassifier(training::TopologyPtr topology, BlobDatasetReader * reader);
 
-float testClassifier(prediction::ModelPtr predictionModel, BlobDatasetReader *reader);
+float testClassifier(prediction::ModelPtr predictionModel, BlobDatasetReader * reader);
 
 SharedPtr<optimization_solver::sgd::Batch<float> > getDefaultOptimizationSolver(float learningRate = 0.001);
 
-Collection<size_t> getLastLayersIndices(const training::Topology &topology);
+Collection<size_t> getLastLayersIndices(const training::Topology & topology);
 
-void setGroundTruthForMultipleOutputs(training::Input &trainNetInput,
-                                      const Collection<size_t> lastLayerIndices,
-                                      const TensorPtr &groundTruth);
-
+void setGroundTruthForMultipleOutputs(training::Input & trainNetInput, const Collection<size_t> lastLayerIndices, const TensorPtr & groundTruth);
 
 /* Trains neural network with given dataset reader */
-prediction::ModelPtr trainClassifier(training::TopologyPtr topology, BlobDatasetReader *reader)
+prediction::ModelPtr trainClassifier(training::TopologyPtr topology, BlobDatasetReader * reader)
 {
     std::cout << "Training started with batch size = [" << batchSize << "]" << std::endl;
 
@@ -84,12 +81,12 @@ prediction::ModelPtr trainClassifier(training::TopologyPtr topology, BlobDataset
 
     /* Get prediction model */
     training::ResultPtr trainingResult = net.getResult();
-    training::ModelPtr trainedModel = trainingResult->get(training::model);
+    training::ModelPtr trainedModel    = trainingResult->get(training::model);
     return trainedModel->getPredictionModel<float>();
 }
 
 /* Tests model with given dataset reader and return top-5 error rate */
-float testClassifier(prediction::ModelPtr predictionModel, BlobDatasetReader *reader)
+float testClassifier(prediction::ModelPtr predictionModel, BlobDatasetReader * reader)
 {
     /* Create the neural network prediction algorithm */
     prediction::Batch<> net;
@@ -130,23 +127,22 @@ float testClassifier(prediction::ModelPtr predictionModel, BlobDatasetReader *re
 SharedPtr<optimization_solver::sgd::Batch<float> > getDefaultOptimizationSolver(float learningRate)
 {
     /* Create 1 x 1 NumericTable to store learning rate */
-    NumericTablePtr learningRateSequence = NumericTablePtr(new HomogenNumericTable<float>(
-            1, 1, NumericTable::doAllocate, learningRate));
+    NumericTablePtr learningRateSequence = NumericTablePtr(new HomogenNumericTable<float>(1, 1, NumericTable::doAllocate, learningRate));
 
     /* Create SGD optimization solver and set learning rate */
-    optimization_solver::sgd::Batch<float> *optalg = new optimization_solver::sgd::Batch<float>();
-    optalg->parameter.learningRateSequence = learningRateSequence;
-    optalg->parameter.batchSize = batchSize;
+    optimization_solver::sgd::Batch<float> * optalg = new optimization_solver::sgd::Batch<float>();
+    optalg->parameter.learningRateSequence          = learningRateSequence;
+    optalg->parameter.batchSize                     = batchSize;
     return SharedPtr<optimization_solver::sgd::Batch<float> >(optalg);
 }
 
-Collection<size_t> getLastLayersIndices(const training::Topology &topology)
+Collection<size_t> getLastLayersIndices(const training::Topology & topology)
 {
     Collection<size_t> lastLayerIndices;
 
     for (size_t i = 0; i < topology.size(); i++)
     {
-        const LayerDescriptor &descriptor = topology[i];
+        const LayerDescriptor & descriptor = topology[i];
         if (descriptor.nextLayers().size() == 0)
         {
             lastLayerIndices.push_back(descriptor.index());
@@ -156,9 +152,7 @@ Collection<size_t> getLastLayersIndices(const training::Topology &topology)
     return lastLayerIndices;
 }
 
-void setGroundTruthForMultipleOutputs(training::Input &trainNetInput,
-                                      const Collection<size_t> lastLayerIndices,
-                                      const TensorPtr &groundTruth)
+void setGroundTruthForMultipleOutputs(training::Input & trainNetInput, const Collection<size_t> lastLayerIndices, const TensorPtr & groundTruth)
 {
     for (size_t i = 0; i < lastLayerIndices.size(); i++)
     {

@@ -47,7 +47,7 @@ namespace interface1
  * \param[in] method Computation method for the layer
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     using daal::data_management::Tensor;
     using daal::internal::MklTensor;
@@ -55,24 +55,22 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     services::Status s;
     DAAL_CHECK_STATUS(s, pooling2d::forward::Result::allocate<algorithmFPType>(input, parameter, method));
 
-    const Parameter *algParameter = static_cast<const Parameter *>(parameter);
-    const Input *in = static_cast<const Input *>(input);
-    const services::Collection<size_t> &dataDims = in->get(layers::forward::data)->getDimensions();
+    const Parameter * algParameter                = static_cast<const Parameter *>(parameter);
+    const Input * in                              = static_cast<const Input *>(input);
+    const services::Collection<size_t> & dataDims = in->get(layers::forward::data)->getDimensions();
     services::Collection<size_t> valueDims(dataDims);
     computeValueDimensions(valueDims, algParameter);
     if (get(layers::forward::resultForBackward))
     {
         if (sizeof(size_t) == sizeof(double))
         {
-            set(auxSelectedIndices, data_management::TensorPtr(
-                    new MklTensor<double>(valueDims, data_management::Tensor::doAllocate)));
+            set(auxSelectedIndices, data_management::TensorPtr(new MklTensor<double>(valueDims, data_management::Tensor::doAllocate)));
         }
         else
         {
-            set(auxSelectedIndices, data_management::TensorPtr(
-                    new MklTensor<float>(valueDims, data_management::Tensor::doAllocate)));
+            set(auxSelectedIndices, data_management::TensorPtr(new MklTensor<float>(valueDims, data_management::Tensor::doAllocate)));
         }
-        if(!algParameter->predictionStage)
+        if (!algParameter->predictionStage)
         {
             set(auxData, in->get(layers::forward::data));
             set(auxInputDimensions, createAuxInputDimensions(dataDims));
@@ -81,12 +79,13 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace forward
-}// namespace maximum_pooling2d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace maximum_pooling2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

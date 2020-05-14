@@ -35,7 +35,6 @@ namespace covariance
 {
 namespace interface1
 {
-
 DistributedInput<step2Master>::DistributedInput() : InputIface(lastMasterInputId + 1)
 {
     Argument::set(partialResults, DataCollectionPtr(new DataCollection()));
@@ -43,16 +42,14 @@ DistributedInput<step2Master>::DistributedInput() : InputIface(lastMasterInputId
 
 size_t DistributedInput<step2Master>::getNumberOfFeatures() const
 {
-    DataCollectionPtr collectionOfPartialResults =
-        staticPointerCast<DataCollection, SerializationIface>(Argument::get(partialResults));
-    if(collectionOfPartialResults)
+    DataCollectionPtr collectionOfPartialResults = staticPointerCast<DataCollection, SerializationIface>(Argument::get(partialResults));
+    if (collectionOfPartialResults)
     {
-        PartialResultPtr onePartialResult =
-            staticPointerCast<PartialResult, SerializationIface>((*collectionOfPartialResults)[0]);
-        if(onePartialResult.get() != NULL)
+        PartialResultPtr onePartialResult = staticPointerCast<PartialResult, SerializationIface>((*collectionOfPartialResults)[0]);
+        if (onePartialResult.get() != NULL)
         {
             NumericTablePtr ntPtr = onePartialResult->get(sum);
-            if(ntPtr)
+            if (ntPtr)
             {
                 return ntPtr->getNumberOfColumns();
             }
@@ -61,10 +58,9 @@ size_t DistributedInput<step2Master>::getNumberOfFeatures() const
     return 0;
 }
 
-void DistributedInput<step2Master>::add(MasterInputId id, const PartialResultPtr &partialResult)
+void DistributedInput<step2Master>::add(MasterInputId id, const PartialResultPtr & partialResult)
 {
-    DataCollectionPtr collection =
-        staticPointerCast<DataCollection, SerializationIface>(Argument::get(id));
+    DataCollectionPtr collection = staticPointerCast<DataCollection, SerializationIface>(Argument::get(id));
     collection->push_back(staticPointerCast<SerializationIface, PartialResult>(partialResult));
 }
 
@@ -73,50 +69,45 @@ DataCollectionPtr DistributedInput<step2Master>::get(MasterInputId id) const
     return staticPointerCast<DataCollection, SerializationIface>(Argument::get(partialResults));
 }
 
-services::Status DistributedInput<step2Master>::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status DistributedInput<step2Master>::check(const daal::algorithms::Parameter * parameter, int method) const
 {
-    DataCollectionPtr collection =
-        staticPointerCast<DataCollection, SerializationIface>(Argument::get(partialResults));
+    DataCollectionPtr collection = staticPointerCast<DataCollection, SerializationIface>(Argument::get(partialResults));
     DAAL_CHECK_EX(collection, ErrorNullInputDataCollection, ArgumentName, partialResultsStr());
-
 
     size_t nBlocks = collection->size();
     DAAL_CHECK_EX(nBlocks > 0, ErrorIncorrectNumberOfInputNumericTables, ArgumentName, partialResultsStr());
 
     int packedLayouts = packed_mask;
-    int csrLayout = (int)NumericTableIface::csrArray;
-    int crossProductUnexpectedLayout = (int)NumericTableIface::csrArray |
-                                       (int)NumericTableIface::upperPackedTriangularMatrix |
-                                       (int)NumericTableIface::lowerPackedTriangularMatrix;
+    int csrLayout     = (int)NumericTableIface::csrArray;
+    int crossProductUnexpectedLayout =
+        (int)NumericTableIface::csrArray | (int)NumericTableIface::upperPackedTriangularMatrix | (int)NumericTableIface::lowerPackedTriangularMatrix;
 
     services::Status s;
-    for(size_t j = 0; j < nBlocks; j++)
+    for (size_t j = 0; j < nBlocks; j++)
     {
-        PartialResultPtr partialResult =
-            staticPointerCast<PartialResult, SerializationIface>((*collection)[j]);
+        PartialResultPtr partialResult = staticPointerCast<PartialResult, SerializationIface>((*collection)[j]);
         DAAL_CHECK_EX(partialResult, ErrorIncorrectElementInPartialResultCollection, ArgumentName, partialResultsStr());
 
-
         /* Check partial number of observations */
-        NumericTable *nObservationsTable = static_cast<NumericTable *>(partialResult->get(nObservations).get());
+        NumericTable * nObservationsTable = static_cast<NumericTable *>(partialResult->get(nObservations).get());
         s |= checkNumericTable(nObservationsTable, nObservationsStr(), csrLayout, 0, 1, 1);
-        if(!s) return s;
+        if (!s) return s;
 
         size_t nFeatures = getNumberOfFeatures();
         /* Check partial cross-products */
-        NumericTable *crossProductTable = static_cast<NumericTable *>(partialResult->get(crossProduct).get());
+        NumericTable * crossProductTable = static_cast<NumericTable *>(partialResult->get(crossProduct).get());
 
         s |= checkNumericTable(crossProductTable, crossProductStr(), crossProductUnexpectedLayout, 0, nFeatures, nFeatures);
-        if(!s) return s;
+        if (!s) return s;
 
         /* Check partial sums */
-        NumericTable *sumTable = static_cast<NumericTable *>(partialResult->get(sum).get());
+        NumericTable * sumTable = static_cast<NumericTable *>(partialResult->get(sum).get());
         s |= checkNumericTable(sumTable, sumStr(), packedLayouts, 0, nFeatures, 1);
     }
     return s;
 }
 
-}//namespace interface1
-}//namespace covariance
-}// namespace algorithms
-}// namespace daal
+} //namespace interface1
+} //namespace covariance
+} // namespace algorithms
+} // namespace daal

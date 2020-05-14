@@ -50,31 +50,30 @@ namespace forward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for forward batch normalization layer results computation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchNormalizationKernel : public Kernel
 {
 private:
     typedef CommonBatchNormalizationTask<algorithmFPType, method, cpu> InternalBatchNormalizationTask;
 
 public:
-    services::Status initialize(const BatchNormalizationTaskDescriptor &descriptor);
-    services::Status compute(const BatchNormalizationTaskDescriptor &descriptor);
+    services::Status initialize(const BatchNormalizationTaskDescriptor & descriptor);
+    services::Status compute(const BatchNormalizationTaskDescriptor & descriptor);
     services::Status reset();
 
 private:
     UniquePtr<InternalBatchNormalizationTask, cpu> _task;
 };
 
-} // internal
-} // forward
-} // batch_normalization
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace forward
+} // namespace batch_normalization
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

@@ -64,8 +64,8 @@ public:
      * \param[in] interceptFlag Flag. If true, then it is required to compute an intercept term
      * \return Status of the computations
      */
-    virtual Status computeBetasImpl(DAAL_INT p, const algorithmFPType *a, algorithmFPType *aCopy,
-                                    DAAL_INT ny, algorithmFPType *b, bool inteceptFlag) const = 0;
+    virtual Status computeBetasImpl(DAAL_INT p, const algorithmFPType * a, algorithmFPType * aCopy, DAAL_INT ny, algorithmFPType * b,
+                                    bool inteceptFlag) const = 0;
 };
 
 /**
@@ -97,11 +97,10 @@ public:
      *                      coefficients computation
      * \return Status of the computations
      */
-    static Status compute(const NumericTable &xtx, const NumericTable &xty, NumericTable &xtxFinal,
-                          NumericTable &xtyFinal, NumericTable &beta, bool interceptFlag,
-                          const KernelHelperIface<algorithmFPType, cpu> &helper);
+    static Status compute(const NumericTable & xtx, const NumericTable & xty, NumericTable & xtxFinal, NumericTable & xtyFinal, NumericTable & beta,
+                          bool interceptFlag, const KernelHelperIface<algorithmFPType, cpu> & helper);
 
-    static Status copyDataToTable(const algorithmFPType* data, size_t dataSizeInBytes, NumericTable &table);
+    static Status copyDataToTable(const algorithmFPType * data, size_t dataSizeInBytes, NumericTable & table);
 
     /**
      * Solves the symmetric system of linear equations
@@ -115,8 +114,7 @@ public:
      *                          are passed into lapack routines
      * \return Status of the computations
      */
-    static Status solveSystem(DAAL_INT p, algorithmFPType *a, DAAL_INT ny, algorithmFPType *b,
-                              const ErrorID &internalError);
+    static Status solveSystem(DAAL_INT p, algorithmFPType * a, DAAL_INT ny, algorithmFPType * b, const ErrorID & internalError);
 };
 
 /**
@@ -126,6 +124,7 @@ template <typename algorithmFPType, CpuType cpu>
 class ThreadingTask
 {
     typedef ReadRows<algorithmFPType, cpu> ReadRowsType;
+
 public:
     DAAL_NEW_DELETE();
 
@@ -146,14 +145,14 @@ public:
      * \param[in] yTable    Input array of responses of size N x Ny
      * \return Status of the computations
      */
-    Status update(DAAL_INT startRow, DAAL_INT nRows, const NumericTable &xTable, const NumericTable &yTable);
+    Status update(DAAL_INT startRow, DAAL_INT nRows, const NumericTable & xTable, const NumericTable & yTable);
 
     /**
      * Reduces thread local partial results into global partial result
      * \param[out] xtx Global partial result of size P' x P'
      * \param[out] xty Global partial result of size Ny x P'
      */
-    void reduce(algorithmFPType *xtx, algorithmFPType *xty);
+    void reduce(algorithmFPType * xtx, algorithmFPType * xty);
 
 protected:
     /**
@@ -162,13 +161,13 @@ protected:
      * \param[in]  nResponses       Number of responses
      * \param[out] st               Status of the object construction
      */
-    ThreadingTask(size_t nBetasIntercept, size_t nResponses, Status &st);
-    algorithmFPType *_xtx;      /*!< Partial result of size P' x P' */
-    algorithmFPType *_xty;      /*!< Partial result of size Ny x P' */
-    ReadRowsType _xBlock;       /*!< Object that manages memory block of the input data set */
-    ReadRowsType _yBlock;       /*!< Object that manages memory block of the input array of responses */
-    DAAL_INT _nBetasIntercept;  /*!< P' - number of columns in the partial result */
-    DAAL_INT _nResponses;       /*!< Ny - number of responses */
+    ThreadingTask(size_t nBetasIntercept, size_t nResponses, Status & st);
+    algorithmFPType * _xtx;    /*!< Partial result of size P' x P' */
+    algorithmFPType * _xty;    /*!< Partial result of size Ny x P' */
+    ReadRowsType _xBlock;      /*!< Object that manages memory block of the input data set */
+    ReadRowsType _yBlock;      /*!< Object that manages memory block of the input array of responses */
+    DAAL_INT _nBetasIntercept; /*!< P' - number of columns in the partial result */
+    DAAL_INT _nResponses;      /*!< Ny - number of responses */
 };
 
 /**
@@ -194,8 +193,8 @@ public:
      *                              - False otherwis, P' = P
      * \return Status of the computations
      */
-    static Status compute(const NumericTable &x, const NumericTable &y, NumericTable &xtx, NumericTable &xty,
-                          bool initializeResult, bool interceptFlag);
+    static Status compute(const NumericTable & x, const NumericTable & y, NumericTable & xtx, NumericTable & xty, bool initializeResult,
+                          bool interceptFlag);
 };
 
 /**
@@ -217,8 +216,7 @@ public:
      * \param[out] xty       Numeric table of size Ny x P
      * \return Status of the computations
      */
-    static Status compute(size_t n, NumericTable **partialxtx, NumericTable **partialxty,
-                          NumericTable &xtx, NumericTable &xty);
+    static Status compute(size_t n, NumericTable ** partialxtx, NumericTable ** partialxty, NumericTable & xtx, NumericTable & xty);
 
 protected:
     /**
@@ -228,15 +226,13 @@ protected:
      * \param[in]  threadingCondition Flag. If true, then the operation is performed in parallel
      * \return Status of the computations
      */
-    static Status merge(const NumericTable &partialTable, algorithmFPType* result,
-                        bool threadingCondition);
-
+    static Status merge(const NumericTable & partialTable, algorithmFPType * result, bool threadingCondition);
 };
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace training
+} // namespace normal_equations
+} // namespace linear_model
+} // namespace algorithms
+} // namespace daal
 #endif

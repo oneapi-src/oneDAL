@@ -40,31 +40,31 @@ namespace forward
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status TanhKernel<algorithmFPType, method, cpu>::compute(const Tensor &inputTensor, Tensor &resultTensor)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status TanhKernel<algorithmFPType, method, cpu>::compute(const Tensor & inputTensor, Tensor & resultTensor)
 {
     __DAAL_MAKE_TENSOR_THREADSAFE(&resultTensor)
 
-    Status s = computeImpl<cpu>(inputTensor, [=, &inputTensor, &resultTensor](size_t fDimN, size_t *fDims, size_t nRowsToProcess, const TensorOffsetLayout &layout) -> Status
-    {
-        ReadSubtensor<algorithmFPType, cpu, Tensor> inputBlock(const_cast<Tensor &>(inputTensor), fDimN, fDims, 0, nRowsToProcess, layout);
-        DAAL_CHECK_BLOCK_STATUS(inputBlock);
-        const algorithmFPType *inputArray = inputBlock.get();
+    Status s = computeImpl<cpu>(
+        inputTensor,
+        [=, &inputTensor, &resultTensor](size_t fDimN, size_t * fDims, size_t nRowsToProcess, const TensorOffsetLayout & layout) -> Status {
+            ReadSubtensor<algorithmFPType, cpu, Tensor> inputBlock(const_cast<Tensor &>(inputTensor), fDimN, fDims, 0, nRowsToProcess, layout);
+            DAAL_CHECK_BLOCK_STATUS(inputBlock);
+            const algorithmFPType * inputArray = inputBlock.get();
 
-        WriteSubtensor<algorithmFPType, cpu, Tensor> resultBlock(resultTensor, fDimN, fDims, 0, nRowsToProcess, layout);
-        DAAL_CHECK_BLOCK_STATUS(resultBlock);
-        algorithmFPType *resultArray = resultBlock.get();
+            WriteSubtensor<algorithmFPType, cpu, Tensor> resultBlock(resultTensor, fDimN, fDims, 0, nRowsToProcess, layout);
+            DAAL_CHECK_BLOCK_STATUS(resultBlock);
+            algorithmFPType * resultArray = resultBlock.get();
 
-        size_t nDataElements = inputBlock.getSize();
-        daal::internal::Math<algorithmFPType,cpu>::vTanh(nDataElements, const_cast<algorithmFPType *>(inputArray), resultArray);
-        return Status();
-    });
+            size_t nDataElements = inputBlock.getSize();
+            daal::internal::Math<algorithmFPType, cpu>::vTanh(nDataElements, const_cast<algorithmFPType *>(inputArray), resultArray);
+            return Status();
+        });
     return s;
 }
 
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 } // namespace tanh
 } // namespace layers
 } // namespace neural_networks

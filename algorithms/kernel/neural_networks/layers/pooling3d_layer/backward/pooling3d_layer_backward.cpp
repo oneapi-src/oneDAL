@@ -43,7 +43,7 @@ namespace interface1
 {
 /** Default constructor */
 Input::Input() {}
-Input::Input(const Input& other) : super(other) {}
+Input::Input(const Input & other) : super(other) {}
 
 /**
  * Return the collection with gradient size
@@ -53,28 +53,31 @@ services::Collection<size_t> Input::getGradientSize() const
 {
     services::Collection<size_t> dims;
     data_management::NumericTablePtr inputDims = getAuxInputDimensions();
-    if(!data_management::checkNumericTable(inputDims.get(), auxInputDimensionsStr())) { return dims; }
+    if (!data_management::checkNumericTable(inputDims.get(), auxInputDimensionsStr()))
+    {
+        return dims;
+    }
 
     data_management::BlockDescriptor<int> block;
     inputDims->getBlockOfRows(0, 1, data_management::readOnly, block);
-    int *inputDimsArray = block.getBlockPtr();
-    for(size_t i = 0; i < inputDims->getNumberOfColumns(); i++)
+    int * inputDimsArray = block.getBlockPtr();
+    for (size_t i = 0; i < inputDims->getNumberOfColumns(); i++)
     {
-        dims.push_back((size_t) inputDimsArray[i]);
+        dims.push_back((size_t)inputDimsArray[i]);
     }
     inputDims->releaseBlockOfRows(block);
     return dims;
 }
 
-services::Collection<size_t> Input::getInputGradientSize(const pooling3d::Parameter *parameter) const
+services::Collection<size_t> Input::getInputGradientSize(const pooling3d::Parameter * parameter) const
 {
-    const Parameter *param = static_cast<const Parameter *>(parameter);
+    const Parameter * param                = static_cast<const Parameter *>(parameter);
     services::Collection<size_t> inputDims = getGradientSize();
 
     for (size_t d = 0; d < 3; d++)
     {
-        inputDims[param->indices.size[d]] = computeInputDimension(
-            inputDims[param->indices.size[d]], param->kernelSizes.size[d], param->paddings.size[d], param->strides.size[d]);
+        inputDims[param->indices.size[d]] =
+            computeInputDimension(inputDims[param->indices.size[d]], param->kernelSizes.size[d], param->paddings.size[d], param->strides.size[d]);
     }
     return inputDims;
 }
@@ -94,44 +97,45 @@ Result::Result() {}
  * \param[in] parameter %Parameter of the layer
  * \param[in] method Computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Parameter *param = static_cast<const Parameter *>(parameter);
-    if (!param->propagateGradient) { return services::Status(); }
+    const Parameter * param = static_cast<const Parameter *>(parameter);
+    if (!param->propagateGradient)
+    {
+        return services::Status();
+    }
 
     services::Status s;
     DAAL_CHECK_STATUS(s, layers::backward::Result::check(input, parameter, method));
 
-    const Input *algInput = static_cast<const Input *>(input);
+    const Input * algInput = static_cast<const Input *>(input);
 
     //get expected gradient dimensions
-    const services::Collection<size_t> &gradientDims = algInput->getGradientSize();
+    const services::Collection<size_t> & gradientDims = algInput->getGradientSize();
     DAAL_CHECK_STATUS(s, data_management::checkTensor(get(layers::backward::gradient).get(), gradientStr(), &gradientDims));
 
     for (size_t i = 0; i < 3; i++)
     {
-        size_t index = param->indices.size[i];
-        size_t stride = param->strides.size[i];
+        size_t index      = param->indices.size[i];
+        size_t stride     = param->strides.size[i];
         size_t kernelSize = param->kernelSizes.size[i];
-        size_t padding = param->paddings.size[i];
+        size_t padding    = param->paddings.size[i];
 
         DAAL_CHECK_EX(stride != 0, services::ErrorIncorrectParameter, services::ParameterName, stridesStr());
-        DAAL_CHECK_EX(index <= gradientDims.size() - 1, services::ErrorIncorrectParameter, services::ParameterName,
-                      indicesStr());
-        DAAL_CHECK_EX((kernelSize != 0 &&
-                       kernelSize <= gradientDims[index] + 2 * padding), services::ErrorIncorrectParameter, services::ParameterName, kernelSizesStr());
+        DAAL_CHECK_EX(index <= gradientDims.size() - 1, services::ErrorIncorrectParameter, services::ParameterName, indicesStr());
+        DAAL_CHECK_EX((kernelSize != 0 && kernelSize <= gradientDims[index] + 2 * padding), services::ErrorIncorrectParameter,
+                      services::ParameterName, kernelSizesStr());
     }
 
-    DAAL_CHECK_EX(param->indices.size[0] != param->indices.size[1] &&
-                  param->indices.size[1] != param->indices.size[2], services::ErrorIncorrectParameter, services::ParameterName,
-                  indicesStr());
+    DAAL_CHECK_EX(param->indices.size[0] != param->indices.size[1] && param->indices.size[1] != param->indices.size[2],
+                  services::ErrorIncorrectParameter, services::ParameterName, indicesStr());
     return s;
 }
 
-}// namespace interface1
-}// namespace backward
-}// namespace pooling3d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace pooling3d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

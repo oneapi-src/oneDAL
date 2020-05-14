@@ -31,27 +31,25 @@ namespace forward
 {
 namespace internal
 {
-
-BatchNormalizationTaskDescriptor::BatchNormalizationTaskDescriptor(
-    Input *in, Result *re, Parameter *pa)
+BatchNormalizationTaskDescriptor::BatchNormalizationTaskDescriptor(Input * in, Result * re, Parameter * pa)
 {
     parameter      = pa;
-    input          = in->get ( layers::forward::data                      ).get();
-    weights        = in->get ( layers::forward::weights                   ).get();
-    biases         = in->get ( layers::forward::biases                    ).get();
-    inPopMean      = in->get ( forward::populationMean                    ).get();
-    inPopVariance  = in->get ( forward::populationVariance                ).get();
-    value          = re->get ( layers::forward::value                     ).get();
-    auxMean        = re->get ( batch_normalization::auxMean               ).get();
-    auxStd         = re->get ( batch_normalization::auxStandardDeviation  ).get();
-    auxPopMean     = re->get ( batch_normalization::auxPopulationMean     ).get();
-    auxPopVariance = re->get ( batch_normalization::auxPopulationVariance ).get();
+    input          = in->get(layers::forward::data).get();
+    weights        = in->get(layers::forward::weights).get();
+    biases         = in->get(layers::forward::biases).get();
+    inPopMean      = in->get(forward::populationMean).get();
+    inPopVariance  = in->get(forward::populationVariance).get();
+    value          = re->get(layers::forward::value).get();
+    auxMean        = re->get(batch_normalization::auxMean).get();
+    auxStd         = re->get(batch_normalization::auxStandardDeviation).get();
+    auxPopMean     = re->get(batch_normalization::auxPopulationMean).get();
+    auxPopVariance = re->get(batch_normalization::auxPopulationVariance).get();
 }
 
-} // internal
-} // forward
-} // batch_normalization
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace forward
+} // namespace batch_normalization
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

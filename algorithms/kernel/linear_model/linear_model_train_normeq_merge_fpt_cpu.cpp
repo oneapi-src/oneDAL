@@ -31,8 +31,8 @@ namespace internal
 {
 template class MergeKernel<DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
-}
+} // namespace training
+} // namespace normal_equations
+} // namespace linear_model
+} // namespace algorithms
+} // namespace daal

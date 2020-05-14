@@ -41,37 +41,38 @@ namespace forward
 {
 namespace interface1
 {
-template<typename algorithmFPType, CpuType cpu>
-BatchContainer<algorithmFPType, defaultDense, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, CpuType cpu>
+BatchContainer<algorithmFPType, defaultDense, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(spatial_pooling2d::forward::internal::PoolingKernel, algorithmFPType, spatial_pooling2d::internal::maximum);
 }
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 BatchContainer<algorithmFPType, defaultDense, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, defaultDense, cpu>::compute()
 {
-    spatial_maximum_pooling2d::forward::Input *input = static_cast<spatial_maximum_pooling2d::forward::Input *>(_in);
-    spatial_maximum_pooling2d::forward::Result *result = static_cast<spatial_maximum_pooling2d::forward::Result *>(_res);
-    spatial_maximum_pooling2d::Parameter *parameter = static_cast<spatial_maximum_pooling2d::Parameter *>(_par);
+    spatial_maximum_pooling2d::forward::Input * input   = static_cast<spatial_maximum_pooling2d::forward::Input *>(_in);
+    spatial_maximum_pooling2d::forward::Result * result = static_cast<spatial_maximum_pooling2d::forward::Result *>(_res);
+    spatial_maximum_pooling2d::Parameter * parameter    = static_cast<spatial_maximum_pooling2d::Parameter *>(_par);
 
-    data_management::Tensor *dataTensor = input->get(layers::forward::data).get();
-    data_management::Tensor *valueTensor = result->get(layers::forward::value).get();
-    data_management::Tensor *selectedPosTensor = nullptr;
-    if(parameter->predictionStage == false)
+    data_management::Tensor * dataTensor        = input->get(layers::forward::data).get();
+    data_management::Tensor * valueTensor       = result->get(layers::forward::value).get();
+    data_management::Tensor * selectedPosTensor = nullptr;
+    if (parameter->predictionStage == false)
     {
         selectedPosTensor = result->get(auxSelectedIndices).get();
     }
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    __DAAL_CALL_KERNEL(env, spatial_pooling2d::forward::internal::PoolingKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, spatial_pooling2d::internal::maximum),   \
-                       compute, *dataTensor, *valueTensor, selectedPosTensor, *parameter);
+    __DAAL_CALL_KERNEL(env, spatial_pooling2d::forward::internal::PoolingKernel,
+                       __DAAL_KERNEL_ARGUMENTS(algorithmFPType, spatial_pooling2d::internal::maximum), compute, *dataTensor, *valueTensor,
+                       selectedPosTensor, *parameter);
 }
 } // namespace interface1
 } // namespace forward

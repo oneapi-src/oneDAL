@@ -39,7 +39,6 @@ namespace ratings
 {
 namespace interface1
 {
-
 DistributedInput<step1Local>::DistributedInput() : InputIface(2) {}
 
 /**
@@ -57,7 +56,7 @@ PartialModelPtr DistributedInput<step1Local>::get(PartialModelInputId id) const
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the new input object value
  */
-void DistributedInput<step1Local>::set(PartialModelInputId id, const PartialModelPtr &ptr)
+void DistributedInput<step1Local>::set(PartialModelInputId id, const PartialModelPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -69,11 +68,10 @@ void DistributedInput<step1Local>::set(PartialModelInputId id, const PartialMode
 size_t DistributedInput<step1Local>::getNumberOfUsers() const
 {
     PartialModelPtr usersModel = get(usersPartialModel);
-    if(usersModel)
+    if (usersModel)
     {
         data_management::NumericTablePtr factors = usersModel->getFactors();
-        if(factors)
-            return factors->getNumberOfRows();
+        if (factors) return factors->getNumberOfRows();
     }
     return 0;
 }
@@ -85,11 +83,10 @@ size_t DistributedInput<step1Local>::getNumberOfUsers() const
 size_t DistributedInput<step1Local>::getNumberOfItems() const
 {
     PartialModelPtr itemsModel = get(itemsPartialModel);
-    if(itemsModel)
+    if (itemsModel)
     {
         data_management::NumericTablePtr factors = itemsModel->getFactors();
-        if(factors)
-            return factors->getNumberOfRows();
+        if (factors) return factors->getNumberOfRows();
     }
     return 0;
 }
@@ -99,20 +96,18 @@ size_t DistributedInput<step1Local>::getNumberOfItems() const
  * \param[in] parameter     Algorithm %parameter
  * \param[in] method        Computation method for the algorithm
  */
-services::Status DistributedInput<step1Local>::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status DistributedInput<step1Local>::check(const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Parameter *algParameter = static_cast<const Parameter *>(parameter);
-    size_t nFactors = algParameter->nFactors;
+    const Parameter * algParameter = static_cast<const Parameter *>(parameter);
+    size_t nFactors                = algParameter->nFactors;
 
     PartialModelPtr usersModel = get(usersPartialModel);
     PartialModelPtr itemsModel = get(itemsPartialModel);
     DAAL_CHECK(usersModel, ErrorNullPartialModel);
     DAAL_CHECK(itemsModel, ErrorNullPartialModel);
 
-    const int unexpectedLayouts = (int)NumericTableIface::upperPackedTriangularMatrix |
-        (int)NumericTableIface::lowerPackedTriangularMatrix |
-        (int)NumericTableIface::upperPackedSymmetricMatrix |
-        (int)NumericTableIface::lowerPackedSymmetricMatrix;
+    const int unexpectedLayouts = (int)NumericTableIface::upperPackedTriangularMatrix | (int)NumericTableIface::lowerPackedTriangularMatrix
+                                  | (int)NumericTableIface::upperPackedSymmetricMatrix | (int)NumericTableIface::lowerPackedSymmetricMatrix;
 
     const int unexpectedLayoutsIndices = unexpectedLayouts | (int)NumericTableIface::csrArray;
     services::Status s;
@@ -125,9 +120,9 @@ services::Status DistributedInput<step1Local>::check(const daal::algorithms::Par
     return checkNumericTable(itemsModel->getIndices().get(), itemsIndicesStr(), unexpectedLayoutsIndices, 0, 1, nRowsItemsModel);
 }
 
-}// namespace interface1
-}// namespace ratings
-}// namespace prediction
-}// namespace implicit_als
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace ratings
+} // namespace prediction
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal

@@ -34,15 +34,21 @@ Input::Input(size_t nElements) : daal::algorithms::Input(nElements)
     set(groundTruthCollection, KeyValueDataCollectionPtr(new KeyValueDataCollection()));
 }
 
-Input::Input(const Input& other) : daal::algorithms::Input(other){}
+Input::Input(const Input & other) : daal::algorithms::Input(other) {}
 
 TensorPtr Input::get(InputId id) const
 {
     if (id == groundTruth)
     {
         KeyValueDataCollectionPtr collection = get(groundTruthCollection);
-        if (!collection) { return TensorPtr(); }
-        if (collection->size() == 0) { return TensorPtr(); }
+        if (!collection)
+        {
+            return TensorPtr();
+        }
+        if (collection->size() == 0)
+        {
+            return TensorPtr();
+        }
         return Tensor::cast(collection->getValueByIndex(0));
     }
     else
@@ -59,11 +65,14 @@ KeyValueDataCollectionPtr Input::get(InputCollectionId id) const
 TensorPtr Input::get(InputCollectionId id, size_t key) const
 {
     KeyValueDataCollectionPtr collection = get(id);
-    if (!collection) { return TensorPtr(); }
+    if (!collection)
+    {
+        return TensorPtr();
+    }
     return Tensor::cast((*collection)[key]);
 }
 
-void Input::set(InputId id, const TensorPtr &value)
+void Input::set(InputId id, const TensorPtr & value)
 {
     if (id == groundTruth)
     {
@@ -75,22 +84,25 @@ void Input::set(InputId id, const TensorPtr &value)
     }
 }
 
-void Input::set(InputCollectionId id, const KeyValueDataCollectionPtr &value)
+void Input::set(InputCollectionId id, const KeyValueDataCollectionPtr & value)
 {
     Argument::set(id, value);
 }
 
-void Input::add(InputCollectionId id, size_t key, const TensorPtr &value)
+void Input::add(InputCollectionId id, size_t key, const TensorPtr & value)
 {
     KeyValueDataCollectionPtr collection = get(id);
-    if (!collection) { return; }
+    if (!collection)
+    {
+        return;
+    }
     (*collection)[key] = value;
 }
 
-Status Input::check(const daal::algorithms::Parameter *par, int method) const
+Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
-    const Parameter *param = static_cast<const Parameter *>(par);
-    TensorPtr dataTensor = get(data);
+    const Parameter * param = static_cast<const Parameter *>(par);
+    TensorPtr dataTensor    = get(data);
     Status s;
     DAAL_CHECK_STATUS(s, checkTensor(dataTensor.get(), dataStr()))
 
@@ -102,20 +114,20 @@ Status Input::check(const daal::algorithms::Parameter *par, int method) const
     return s;
 }
 
-Status Input::checkImpl(const daal::algorithms::Parameter *par, int method) const
+Status Input::checkImpl(const daal::algorithms::Parameter * par, int method) const
 {
     KeyValueDataCollectionPtr groundTruthTensorCollection = get(groundTruthCollection);
 
     DAAL_CHECK(groundTruthTensorCollection, ErrorNullInputDataCollection)
     DAAL_CHECK(groundTruthTensorCollection->size(), ErrorIncorrectNumberOfElementsInInputCollection)
 
-    size_t nLastLayers = groundTruthTensorCollection->size();
+    size_t nLastLayers   = groundTruthTensorCollection->size();
     TensorPtr dataTensor = get(data);
-    size_t nSamples = dataTensor->getDimensionSize(0);
+    size_t nSamples      = dataTensor->getDimensionSize(0);
     Status s;
     for (size_t i = 0; i < nLastLayers; i++)
     {
-        size_t layerId = groundTruthTensorCollection->getKeyByIndex((int)i);
+        size_t layerId              = groundTruthTensorCollection->getKeyByIndex((int)i);
         TensorPtr groundTruthTensor = get(groundTruthCollection, layerId);
         if (!groundTruthTensor)
         {
@@ -124,13 +136,13 @@ Status Input::checkImpl(const daal::algorithms::Parameter *par, int method) cons
             return s.add(error);
         }
         Collection<size_t> expectedDims = groundTruthTensor->getDimensions();
-        expectedDims[0] = nSamples;
+        expectedDims[0]                 = nSamples;
         DAAL_CHECK_STATUS(s, checkTensor(groundTruthTensor.get(), groundTruthLabelsStr(), &expectedDims))
     }
     return s;
 }
 
-}
-}
-}
-}
+} // namespace training
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

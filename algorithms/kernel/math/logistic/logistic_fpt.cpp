@@ -42,9 +42,9 @@ namespace interface1
  * \param[in] method Computation method of the logistic function
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method)
+DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
-    Input *algInput = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
+    Input * algInput = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
 
     DAAL_CHECK(algInput, ErrorNullInput);
     DAAL_CHECK(algInput->get(data).get(), ErrorNullInputNumericTable);
@@ -52,14 +52,16 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input, const 
     const size_t nFeatures     = algInput->get(data)->getNumberOfColumns();
     const size_t nObservations = algInput->get(data)->getNumberOfRows();
     Status st;
-    Argument::set(value, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, nObservations, data_management::NumericTable::doAllocate, &st));
+    Argument::set(value, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, nObservations,
+                                                                                       data_management::NumericTable::doAllocate, &st));
     return st;
 }
 
-template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                          const int method);
 
-}// namespace interface1
-}// namespace logistic
-}// namespace math
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace logistic
+} // namespace math
+} // namespace algorithms
+} // namespace daal

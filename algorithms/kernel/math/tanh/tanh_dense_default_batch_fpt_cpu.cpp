@@ -33,7 +33,6 @@ namespace math
 {
 namespace tanh
 {
-
 namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
@@ -43,9 +42,9 @@ namespace internal
 {
 template class TanhKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 template class TanhKernelBase<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
+} // namespace internal
 
-}
-}
-}
-}
+} // namespace tanh
+} // namespace math
+} // namespace algorithms
+} // namespace daal

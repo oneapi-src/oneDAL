@@ -38,14 +38,13 @@ namespace pca
 {
 namespace internal
 {
-
 template <typename algorithmFPType, CpuType cpu>
 class PCASVDStep2MasterKernel : public PCASVDKernelBase<algorithmFPType, cpu>
 {
 public:
     PCASVDStep2MasterKernel() {};
-    services::Status finalizeMerge(InputDataType type, const data_management::DataCollectionPtr &inputPartialResults,
-        data_management::NumericTable &eigenvalues, data_management::NumericTable &eigenvectors);
+    services::Status finalizeMerge(InputDataType type, const data_management::DataCollectionPtr & inputPartialResults,
+                                   data_management::NumericTable & eigenvalues, data_management::NumericTable & eigenvectors);
 };
 
 } // namespace internal

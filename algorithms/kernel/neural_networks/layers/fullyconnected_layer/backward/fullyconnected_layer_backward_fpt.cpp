@@ -45,14 +45,14 @@ namespace interface1
  * \param[in] method    Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     using daal::data_management::Tensor;
     using daal::data_management::TensorPtr;
     using daal::data_management::HomogenTensor;
 
-    const Input *in = static_cast<const Input *>(input);
-    const Parameter *param =  static_cast<const Parameter * >(parameter);
+    const Input * in        = static_cast<const Input *>(input);
+    const Parameter * param = static_cast<const Parameter *>(parameter);
 
     services::Collection<size_t> bDims;
     bDims.push_back(param->nOutputs);
@@ -60,7 +60,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     TensorPtr valueTable = in->get(auxData);
     TensorPtr wTable     = in->get(auxWeights);
 
-    if(!valueTable || !wTable) return services::Status(services::ErrorNullInputNumericTable);
+    if (!valueTable || !wTable) return services::Status(services::ErrorNullInputNumericTable);
     services::Status s;
     if (param->propagateGradient && !get(layers::backward::gradient))
     {
@@ -77,12 +77,13 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace backward
-}// namespace fullyconnected
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace fullyconnected
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

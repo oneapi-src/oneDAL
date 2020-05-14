@@ -39,13 +39,12 @@ namespace internal
 using namespace daal::algorithms::linear_model::normal_equations::training::internal;
 
 template <typename algorithmFPType, CpuType cpu>
-Status KernelHelper<algorithmFPType, cpu>::computeBetasImpl(DAAL_INT p, const algorithmFPType *a,
-                                                            algorithmFPType *aCopy, DAAL_INT ny,
-                                                            algorithmFPType *b, bool interceptFlag) const
+Status KernelHelper<algorithmFPType, cpu>::computeBetasImpl(DAAL_INT p, const algorithmFPType * a, algorithmFPType * aCopy, DAAL_INT ny,
+                                                            algorithmFPType * b, bool interceptFlag) const
 {
     size_t nRidge = _ridge.getNumberOfRows();
     ReadRows<algorithmFPType, cpu> ridgeBlock(const_cast<NumericTable &>(_ridge), 0, nRidge);
-    const algorithmFPType *ridge = ridgeBlock.get();
+    const algorithmFPType * ridge = ridgeBlock.get();
 
     const DAAL_INT pToFix = (interceptFlag ? p - 1 : p);
 
@@ -53,31 +52,29 @@ Status KernelHelper<algorithmFPType, cpu>::computeBetasImpl(DAAL_INT p, const al
     int result = 0;
     if (nRidge == 1)
     {
-        for(DAAL_INT i = 0, idx = 0; i < pToFix; i++, idx += (p + 1))
+        for (DAAL_INT i = 0, idx = 0; i < pToFix; i++, idx += (p + 1))
         {
             aCopy[idx] += *ridge;
         }
 
-        st |= FinalizeKernel<algorithmFPType, cpu>::solveSystem(p, aCopy, ny, b,
-            ErrorRidgeRegressionInternal);
+        st |= FinalizeKernel<algorithmFPType, cpu>::solveSystem(p, aCopy, ny, b, ErrorRidgeRegressionInternal);
         DAAL_CHECK_STATUS_VAR(st);
     }
     else
     {
-        algorithmFPType * bPtr = b;
+        algorithmFPType * bPtr    = b;
         const size_t aSizeInBytes = p * p * sizeof(algorithmFPType);
         for (DAAL_INT j = 0; j < ny; j++, bPtr += (pToFix + 1))
         {
             result |= daal::services::internal::daal_memcpy_s(aCopy, aSizeInBytes, a, aSizeInBytes);
-            for(DAAL_INT i = 0, idx = 0; i < pToFix; i++, idx += (p + 1))
+            for (DAAL_INT i = 0, idx = 0; i < pToFix; i++, idx += (p + 1))
             {
                 aCopy[idx] += ridge[j];
             }
 
             DAAL_INT one(1);
 
-            st |= FinalizeKernel<algorithmFPType, cpu>::solveSystem(p, aCopy, one, b,
-                ErrorRidgeRegressionInternal);
+            st |= FinalizeKernel<algorithmFPType, cpu>::solveSystem(p, aCopy, one, b, ErrorRidgeRegressionInternal);
             DAAL_CHECK_STATUS_VAR(st);
         }
     }

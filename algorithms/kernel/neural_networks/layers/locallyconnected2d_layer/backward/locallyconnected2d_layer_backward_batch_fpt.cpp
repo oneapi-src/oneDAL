@@ -48,13 +48,13 @@ namespace interface1
  * \param[in] method    Computation method
  */
 template <typename algorithmFPType>
-services::Status DAAL_EXPORT Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+services::Status DAAL_EXPORT Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     using daal::data_management::Tensor;
     using daal::data_management::HomogenTensor;
 
-    const Input *algInput = static_cast<const Input *>(input);
-    const Parameter *param =  static_cast<const Parameter * >(parameter);
+    const Input * algInput  = static_cast<const Input *>(input);
+    const Parameter * param = static_cast<const Parameter *>(parameter);
 
     TensorPtr auxDataTensor = algInput->get(auxData);
     TensorPtr auxWTensor    = algInput->get(auxWeights);
@@ -62,7 +62,7 @@ services::Status DAAL_EXPORT Result::allocate(const daal::algorithms::Input *inp
     services::Collection<size_t> bDims;
     getBiasesDims(algInput, param, bDims);
 
-    if(auxDataTensor == 0 || auxWTensor == 0) return services::Status(services::ErrorNullTensor);
+    if (auxDataTensor == 0 || auxWTensor == 0) return services::Status(services::ErrorNullTensor);
 
     services::Status s;
     if (param->propagateGradient && !get(layers::backward::gradient))
@@ -80,12 +80,13 @@ services::Status DAAL_EXPORT Result::allocate(const daal::algorithms::Input *inp
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace backward
-}// namespace locallyconnected2d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace locallyconnected2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

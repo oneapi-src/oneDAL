@@ -44,7 +44,6 @@ namespace prediction
 {
 namespace internal
 {
-
 template <typename algorithmFpType, decision_forest::regression::prediction::Method method, CpuType cpu>
 class PredictKernel : public daal::algorithms::Kernel
 {
@@ -57,14 +56,14 @@ public:
      *  \param r[out]   Prediction results
      *  \param par[in]  decision forest algorithm parameters
      */
-    services::Status compute(services::HostAppIface* pHostApp, const NumericTable *a, const regression::Model *m, NumericTable *r);
+    services::Status compute(services::HostAppIface * pHostApp, const NumericTable * a, const regression::Model * m, NumericTable * r);
 };
 
 } // namespace internal
-}
-}
-}
-}
+} // namespace prediction
+} // namespace regression
+} // namespace decision_forest
+} // namespace algorithms
 } // namespace daal
 
 #endif

@@ -19,7 +19,6 @@
 //  Implementation of adagrad calculation algorithm container.
 //--
 
-
 #include "adagrad_batch_container.h"
 
 namespace daal
@@ -36,12 +35,12 @@ namespace interface2
 {
 using BatchType = Batch<DAAL_FPTYPE, optimization_solver::adagrad::defaultDense>;
 
-template<>
+template <>
 services::SharedPtr<BatchType> BatchType::create()
 {
     return services::SharedPtr<BatchType>(new BatchType());
 }
-} // namespace interface1
+} // namespace interface2
 } // namespace adagrad
 } // namespace optimization_solver
 } // namespace algorithms

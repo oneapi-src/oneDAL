@@ -33,7 +33,7 @@ using namespace daal;
 using namespace daal::algorithms;
 
 /* Input data set parameters */
-string datasetFileName     = "../data/batch/kmeans_dense.csv";
+string datasetFileName = "../data/batch/kmeans_dense.csv";
 
 /* K-Means algorithm parameters */
 const size_t nClusters   = 20;
@@ -42,7 +42,7 @@ const size_t nThreads    = 2;
 size_t nThreadsInit;
 size_t nThreadsNew;
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 
@@ -56,8 +56,7 @@ int main(int argc, char *argv[])
     nThreadsNew = services::Environment::getInstance()->getNumberOfThreads();
 
     /* Initialize FileDataSource to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable,
-                                                 DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Retrieve the data from the input file */
     dataSource.loadDataBlock();
@@ -73,7 +72,7 @@ int main(int argc, char *argv[])
     /* Create an algorithm object for the K-Means algorithm */
     kmeans::Batch<> algorithm(nClusters, nIterations);
 
-    algorithm.input.set(kmeans::data,           dataSource.getNumericTable());
+    algorithm.input.set(kmeans::data, dataSource.getNumericTable());
     algorithm.input.set(kmeans::inputCentroids, centroids);
 
     /* Run computations */
@@ -81,7 +80,7 @@ int main(int argc, char *argv[])
 
     cout << "Initial number of threads:        " << nThreadsInit << endl;
     cout << "Number of threads to set:         " << nThreads << endl;
-    cout << "Number of threads after setting:  " << nThreadsNew  << endl;
+    cout << "Number of threads after setting:  " << nThreadsNew << endl;
 
     return 0;
 }

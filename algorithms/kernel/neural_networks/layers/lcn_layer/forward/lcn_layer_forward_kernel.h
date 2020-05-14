@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate local contrast normalization.
 //--
 
-
 #ifndef __LCN_LAYER_FORWARD_KERNEL_H__
 #define __LCN_LAYER_FORWARD_KERNEL_H__
 
@@ -52,19 +51,22 @@ namespace internal
 /**
  *  \brief Kernel for lcn calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class LCNKernel : public Kernel
 {
 public:
-    services::Status compute(const Tensor &inputTensor, Tensor &sigmaTensor, Tensor &cTensor, Tensor &resultTensor, Tensor &centeredDataTensor,
-                                                    Tensor &invMaxTensor, const lcn::Parameter &parameter, const Tensor &kernelTensor);
-    services::Status initialize(const Tensor &inputTensor, Tensor &cTensor, Tensor &invMaxTensor, const lcn::Parameter &parameter, const Tensor &kernelTensor);
+    services::Status compute(const Tensor & inputTensor, Tensor & sigmaTensor, Tensor & cTensor, Tensor & resultTensor, Tensor & centeredDataTensor,
+                             Tensor & invMaxTensor, const lcn::Parameter & parameter, const Tensor & kernelTensor);
+    services::Status initialize(const Tensor & inputTensor, Tensor & cTensor, Tensor & invMaxTensor, const lcn::Parameter & parameter,
+                                const Tensor & kernelTensor);
     services::Status reset();
+
 protected:
-    void getConvolutionWeightsFromInputKernel(algorithmFPType *weights, const lcn::Parameter &parameter);
-    services::Status calculateCenteredDataAndSigma(const lcn::Parameter &parameter, const Tensor &inputTensor);
-    services::Status calculateCTensorAndGetMaxArray(Tensor &cTensor);
+    void getConvolutionWeightsFromInputKernel(algorithmFPType * weights, const lcn::Parameter & parameter);
+    services::Status calculateCenteredDataAndSigma(const lcn::Parameter & parameter, const Tensor & inputTensor);
+    services::Status calculateCTensorAndGetMaxArray(Tensor & cTensor);
     void calculateResult();
+
 private:
     size_t batchDimension;
     size_t initialFirstDim;
@@ -74,13 +76,13 @@ private:
     size_t nSigmaRows;
     size_t nCRows;
     size_t nKernelRows;
-    const algorithmFPType *inputArray;
-    algorithmFPType *resultArray;
-    algorithmFPType *centeredDataArray;
-    algorithmFPType *sigmaArray;
-    algorithmFPType *cArray;
-    algorithmFPType *invMaxArray;
-    const algorithmFPType *kernelArray;
+    const algorithmFPType * inputArray;
+    algorithmFPType * resultArray;
+    algorithmFPType * centeredDataArray;
+    algorithmFPType * sigmaArray;
+    algorithmFPType * cArray;
+    algorithmFPType * invMaxArray;
+    const algorithmFPType * kernelArray;
     convolution2d::Parameter convParameter;
 
     services::Collection<size_t> dataDims;
@@ -104,13 +106,13 @@ private:
 
     convolution2d::forward::internal::Convolution2dKernel<algorithmFPType, neural_networks::layers::convolution2d::defaultDense, cpu> convKernel;
 };
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 
-} // lcn
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace lcn
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

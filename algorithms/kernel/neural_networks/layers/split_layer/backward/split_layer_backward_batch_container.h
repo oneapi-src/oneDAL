@@ -44,37 +44,40 @@ namespace backward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::SplitKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    split::backward::Input *input = static_cast<split::backward::Input *>(_in);
-    split::backward::Result *result = static_cast<split::backward::Result *>(_res);
+    split::backward::Input * input   = static_cast<split::backward::Input *>(_in);
+    split::backward::Result * result = static_cast<split::backward::Result *>(_res);
 
-    split::Parameter *parameter = static_cast<split::Parameter *>(_par);
-    if (!parameter->propagateGradient) { return services::Status(); }
+    split::Parameter * parameter = static_cast<split::Parameter *>(_par);
+    if (!parameter->propagateGradient)
+    {
+        return services::Status();
+    }
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    Tensor *resultTable = result->get(layers::backward::gradient).get();
+    Tensor * resultTable = result->get(layers::backward::gradient).get();
     const size_t nInputs = parameter->nInputs;
 
     TArray<Tensor *, cpu> inputBlock(nInputs);
-    Tensor **inputTensors = inputBlock.get();
+    Tensor ** inputTensors = inputBlock.get();
     DAAL_CHECK_MALLOC(inputTensors);
 
-    for(size_t i = 0; i < nInputs; i++)
+    for (size_t i = 0; i < nInputs; i++)
     {
         inputTensors[i] = input->get(inputGradientCollection, i).get();
     }

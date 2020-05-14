@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate element-wise sum.
 //--
 
-
 #ifndef __ELTWISE_SUM_LAYER_FORWARD_KERNEL_H__
 #define __ELTWISE_SUM_LAYER_FORWARD_KERNEL_H__
 
@@ -52,19 +51,17 @@ namespace internal
 /**
  *  \brief Kernel for element-wise sum calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class EltwiseSumKernel : public Kernel
 {
 public:
-    services::Status compute(Tensor **inputs, Tensor *value, Tensor *coefficients,
-        Tensor *auxCoefficients, NumericTable *numberOfCoefficients, size_t nInputs);
+    services::Status compute(Tensor ** inputs, Tensor * value, Tensor * coefficients, Tensor * auxCoefficients, NumericTable * numberOfCoefficients,
+                             size_t nInputs);
 
 private:
-    services::Status computeGeneric(Tensor **inputs, Tensor *value,
-        const algorithmFPType *coefficients, size_t nInputs);
+    services::Status computeGeneric(Tensor ** inputs, Tensor * value, const algorithmFPType * coefficients, size_t nInputs);
 
-    services::Status makeResultForBackward(Tensor *coefficients, Tensor *auxCoefficients,
-        NumericTable *numberOfCoefficients, size_t nInputs);
+    services::Status makeResultForBackward(Tensor * coefficients, Tensor * auxCoefficients, NumericTable * numberOfCoefficients, size_t nInputs);
 };
 } // namespace internal
 } // namespace forward

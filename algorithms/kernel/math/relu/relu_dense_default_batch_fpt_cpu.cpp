@@ -41,8 +41,8 @@ namespace internal
 {
 template class ReLUKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 template class ReLUKernelBase<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace relu
+} // namespace math
+} // namespace algorithms
+} // namespace daal

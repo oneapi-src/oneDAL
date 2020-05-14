@@ -38,9 +38,8 @@ namespace prediction
 {
 namespace interface1
 {
-
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
     const size_t nVectors = (static_cast<const Input *>(input))->get(algorithms::regression::prediction::data)->getNumberOfRows();
 
@@ -52,7 +51,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
 } // namespace interface1
 } // namespace prediction
 } // namespace regression
-} // namespace ridge_regression
+} // namespace stump
 } // namespace algorithms
 } // namespace daal
 

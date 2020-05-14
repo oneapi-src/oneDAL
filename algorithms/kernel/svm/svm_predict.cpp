@@ -38,7 +38,7 @@ namespace prediction
 namespace interface1
 {
 Input::Input() : classifier::prediction::Input() {}
-Input::Input(const Input& other) : classifier::prediction::Input(other){}
+Input::Input(const Input & other) : classifier::prediction::Input(other) {}
 
 /**
  * Returns the input Numeric Table object in the prediction stage of the classification algorithm
@@ -65,7 +65,7 @@ svm::ModelPtr Input::get(classifier::prediction::ModelInputId id) const
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr &ptr)
+void Input::set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -75,7 +75,7 @@ void Input::set(classifier::prediction::NumericTableInputId id, const data_manag
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(classifier::prediction::ModelInputId id, const svm::ModelPtr &ptr)
+void Input::set(classifier::prediction::ModelInputId id, const svm::ModelPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -85,28 +85,25 @@ void Input::set(classifier::prediction::ModelInputId id, const svm::ModelPtr &pt
  * \param[in] parameter Pointer to the structure of the algorithm parameters
  * \param[in] method    Computation method
  */
-Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     Status s;
     DAAL_CHECK_STATUS(s, classifier::prediction::Input::check(parameter, method));
 
-    svm::ModelPtr m =
-        services::staticPointerCast<svm::Model, classifier::Model>(get(classifier::prediction::model));
+    svm::ModelPtr m = services::staticPointerCast<svm::Model, classifier::Model>(get(classifier::prediction::model));
 
     s = data_management::checkNumericTable(m->getSupportVectors().get(), supportVectorsStr());
-    if(!s)
-        return Status(services::Error::create(services::ErrorModelNotFullInitialized, services::ArgumentName, supportVectorsStr()));
+    if (!s) return Status(services::Error::create(services::ErrorModelNotFullInitialized, services::ArgumentName, supportVectorsStr()));
 
-    DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(classifier::prediction::data).get(), dataStr(),
-                                                            0, 0, m->getSupportVectors()->getNumberOfColumns()));
+    DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(classifier::prediction::data).get(), dataStr(), 0, 0,
+                                                            m->getSupportVectors()->getNumberOfColumns()));
     s |= data_management::checkNumericTable(m->getClassificationCoefficients().get(), classificationCoefficientsStr());
-    if(!s)
-        return Status(services::Error::create(services::ErrorModelNotFullInitialized, services::ArgumentName, classificationCoefficientsStr()));
+    if (!s) return Status(services::Error::create(services::ErrorModelNotFullInitialized, services::ArgumentName, classificationCoefficientsStr()));
     return s;
 }
 
-}// namespace interface1
-}// namespace prediction
-}// namespace svm
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace prediction
+} // namespace svm
+} // namespace algorithms
+} // namespace daal

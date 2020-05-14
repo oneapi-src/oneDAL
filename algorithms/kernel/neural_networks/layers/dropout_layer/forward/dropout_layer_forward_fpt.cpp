@@ -45,10 +45,10 @@ namespace interface1
  * \param[in] parameter %Parameter of the forward dropout layer
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const layers::forward::Input *in = static_cast<const layers::forward::Input * >(input);
-    const layers::Parameter *par = static_cast<const layers::Parameter * >(parameter);
+    const layers::forward::Input * in = static_cast<const layers::forward::Input *>(input);
+    const layers::Parameter * par     = static_cast<const layers::Parameter *>(parameter);
     services::Status s;
     if (!get(layers::forward::value))
     {
@@ -62,7 +62,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
         }
     }
 
-    if(!par->predictionStage)
+    if (!par->predictionStage)
     {
         if (!get(layers::forward::resultForBackward))
         {
@@ -76,12 +76,13 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace forward
-}// namespace dropout
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace dropout
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

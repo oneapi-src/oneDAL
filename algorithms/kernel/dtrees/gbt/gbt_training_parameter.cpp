@@ -40,29 +40,33 @@ namespace training
 {
 using namespace daal::services;
 
-Parameter::Parameter() : splitMethod(defaultSplit), maxIterations(50), maxTreeDepth(6),
-    shrinkage(0.3), minSplitLoss(0.), lambda(1.),
-    observationsPerTreeFraction(1.),
-    featuresPerNode(0),
-    minObservationsInLeafNode(5),
-    memorySavingMode(false),
-    engine(engines::mt19937::Batch<>::create()),
-    minBinSize(5),
-    maxBins(256),
-    internalOptions(gbt::internal::parallelAll)
-{
-}
+Parameter::Parameter()
+    : splitMethod(defaultSplit),
+      maxIterations(50),
+      maxTreeDepth(6),
+      shrinkage(0.3),
+      minSplitLoss(0.),
+      lambda(1.),
+      observationsPerTreeFraction(1.),
+      featuresPerNode(0),
+      minObservationsInLeafNode(5),
+      memorySavingMode(false),
+      engine(engines::mt19937::Batch<>::create()),
+      minBinSize(5),
+      maxBins(256),
+      internalOptions(gbt::internal::parallelAll)
+{}
 
-Status checkImpl(const gbt::training::Parameter& prm)
+Status checkImpl(const gbt::training::Parameter & prm)
 {
     DAAL_CHECK_EX(prm.maxIterations, ErrorIncorrectParameter, ParameterName, maxIterationsStr());
     DAAL_CHECK_EX((prm.shrinkage > 0) && (prm.shrinkage <= 1), ErrorIncorrectParameter, ParameterName, shrinkageStr());
     DAAL_CHECK_EX((prm.minSplitLoss >= 0), ErrorIncorrectParameter, ParameterName, minSplitLossStr());
     DAAL_CHECK_EX((prm.lambda >= 0), ErrorIncorrectParameter, ParameterName, lambdaStr());
-    DAAL_CHECK_EX((prm.observationsPerTreeFraction > 0) && (prm.observationsPerTreeFraction <= 1),
-        ErrorIncorrectParameter, ParameterName, observationsPerTreeFractionStr());
+    DAAL_CHECK_EX((prm.observationsPerTreeFraction > 0) && (prm.observationsPerTreeFraction <= 1), ErrorIncorrectParameter, ParameterName,
+                  observationsPerTreeFractionStr());
     DAAL_CHECK_EX(prm.minObservationsInLeafNode, ErrorIncorrectParameter, ParameterName, minObservationsInLeafNodeStr());
-    if(prm.splitMethod == inexact)
+    if (prm.splitMethod == inexact)
     {
         DAAL_CHECK_EX((prm.maxBins >= 2), ErrorIncorrectParameter, ParameterName, maxBinsStr());
         DAAL_CHECK_EX((prm.minBinSize >= 1), ErrorIncorrectParameter, ParameterName, minBinSizeStr());

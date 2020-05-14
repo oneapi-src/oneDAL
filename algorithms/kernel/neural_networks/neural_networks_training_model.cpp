@@ -36,26 +36,24 @@ namespace neural_networks
 {
 namespace training
 {
-
 namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_NEURAL_NETWORKS_TRAINING_RESULT_ID);
 __DAAL_REGISTER_SERIALIZATION_CLASS(PartialResult, SERIALIZATION_NEURAL_NETWORKS_TRAINING_PARTIAL_RESULT_ID);
 __DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResult, SERIALIZATION_NEURAL_NETWORKS_TRAINING_DISTRIBUTED_PARTIAL_RESULT_ID);
 __DAAL_REGISTER_SERIALIZATION_CLASS(Model, SERIALIZATION_NEURAL_NETWORKS_TRAINING_MODEL_ID);
-}
+} // namespace interface1
 
 /** \brief Constructor */
-Model::Model() : _backwardLayers(new BackwardLayers()), _storeWeightDerivativesInTable(false) { }
+Model::Model() : _backwardLayers(new BackwardLayers()), _storeWeightDerivativesInTable(false) {}
 
-Model::Model(services::Status &st) : _storeWeightDerivativesInTable(false)
+Model::Model(services::Status & st) : _storeWeightDerivativesInTable(false)
 {
     _backwardLayers.reset(new BackwardLayers());
-    if (!_backwardLayers)
-        st.add(services::ErrorMemoryAllocationFailed);
+    if (!_backwardLayers) st.add(services::ErrorMemoryAllocationFailed);
 }
 
-ModelPtr Model::create(services::Status *stat)
+ModelPtr Model::create(services::Status * stat)
 {
     DAAL_DEFAULT_CREATE_IMPL(Model);
 }
@@ -65,7 +63,7 @@ ModelPtr Model::create(services::Status *stat)
  * \param[in] idx               Index of the forward layer
  * \param[in] weightsAndBiases  Table containing weights and biases of one forward layer of neural network
  */
-services::Status Model::setWeightsAndBiases(size_t idx, const data_management::NumericTablePtr &table)
+services::Status Model::setWeightsAndBiases(size_t idx, const data_management::NumericTablePtr & table)
 {
     return _weightsAndBiases->copyFromTable(table, idx);
 }
@@ -99,7 +97,7 @@ data_management::NumericTablePtr Model::getWeightsAndBiasesDerivatives(size_t id
     return _weightsAndBiasesDerivatives->copyToTable(idx);
 }
 
-}
-}
-}
-}
+} // namespace training
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

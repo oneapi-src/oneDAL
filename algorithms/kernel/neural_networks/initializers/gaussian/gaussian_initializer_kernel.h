@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate gaussian.
 //--
 
-
 #ifndef __GAUSSIAN_INITIALIZER_KERNEL_H__
 #define __GAUSSIAN_INITIALIZER_KERNEL_H__
 
@@ -48,22 +47,21 @@ namespace gaussian
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for gaussian calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class GaussianKernel : public Kernel
 {
 public:
-    Status compute(const GaussianInitializerTaskDescriptor &desc);
+    Status compute(const GaussianInitializerTaskDescriptor & desc);
 };
 
-} // internal
-} // gaussian
-} // initializers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace gaussian
+} // namespace initializers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

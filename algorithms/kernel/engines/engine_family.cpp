@@ -33,12 +33,9 @@ namespace engines
  */
 namespace interface1
 {
+FamilyBatchBase::FamilyBatchBase() {}
 
-FamilyBatchBase::FamilyBatchBase()
-{}
-
-FamilyBatchBase::FamilyBatchBase(const FamilyBatchBase &other) : FamilyBatchBase::super(other)
-{}
+FamilyBatchBase::FamilyBatchBase(const FamilyBatchBase & other) : FamilyBatchBase::super(other) {}
 
 services::Status FamilyBatchBase::add(size_t numberOfStreams)
 {

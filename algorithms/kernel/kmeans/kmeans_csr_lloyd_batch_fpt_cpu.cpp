@@ -38,7 +38,7 @@ template class BatchContainer<DAAL_FPTYPE, lloydCSR, DAAL_CPU>;
 namespace internal
 {
 template class KMeansBatchKernel<lloydCSR, DAAL_FPTYPE, DAAL_CPU>;
-} // namespace daal::algorithms::kmeans::internal
-} // namespace daal::algorithms::kmeans
-} // namespace daal::algorithms
+} // namespace internal
+} // namespace kmeans
+} // namespace algorithms
 } // namespace daal

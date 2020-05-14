@@ -42,23 +42,16 @@ using namespace daal::algorithms::neural_networks;
 using namespace daal::data_management;
 using namespace daal::services;
 
-static const size_t nDim = 4;
-static const size_t dims[] = {2, 3, 2, 4};
-static float dataArray[2][3][2][4] =
-                                    {{{{2, 4, 6, 8},
-                                       {10, 12, 14, 16}},
-                                                      {{18, 20, 22, 24},
-                                                       {26, 28, 30, 32}},
-                                                                      {{34, 36, 38, 40},
-                                                                       {42, 44, 46, 48}}},
-                                    {{{ -2, -4, -6, -8},
-                                      { -10, -12, -14, -16}},
-                                                          {{ -18, -20, -22, -24},
-                                                           { -26, -28, -30, -32}},
-                                                                               {{ -34, -36, -38, -40},
-                                                                                { -42, -44, -46, -48}}}};
+static const size_t nDim           = 4;
+static const size_t dims[]         = { 2, 3, 2, 4 };
+static float dataArray[2][3][2][4] = {
+    { { { 2, 4, 6, 8 }, { 10, 12, 14, 16 } }, { { 18, 20, 22, 24 }, { 26, 28, 30, 32 } }, { { 34, 36, 38, 40 }, { 42, 44, 46, 48 } } },
+    { { { -2, -4, -6, -8 }, { -10, -12, -14, -16 } },
+      { { -18, -20, -22, -24 }, { -26, -28, -30, -32 } },
+      { { -34, -36, -38, -40 }, { -42, -44, -46, -48 } } }
+};
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     TensorPtr data(new HomogenTensor<>(nDim, dims, (float *)dataArray));
     printTensor(data, "Forward two-dimensional spatial pyramid average pooling layer input (first 10 rows):", 10);
@@ -74,7 +67,8 @@ int main(int argc, char *argv[])
     spatial_average_pooling2d::forward::ResultPtr forwardResult = forwardLayer.getResult();
 
     printTensor(forwardResult->get(forward::value), "Forward two-dimensional spatial pyramid average pooling layer result (first 5 rows):", 5);
-    printNumericTable(forwardResult->get(spatial_average_pooling2d::auxInputDimensions), "Forward two-dimensional spatial pyramid average pooling layer input dimensions:");
+    printNumericTable(forwardResult->get(spatial_average_pooling2d::auxInputDimensions),
+                      "Forward two-dimensional spatial pyramid average pooling layer input dimensions:");
 
     /* Create an algorithm to compute backward two-dimensional spatial pyramid average pooling layer results using default method */
     spatial_average_pooling2d::backward::Batch<> backwardLayer(2, nDim);
@@ -88,7 +82,7 @@ int main(int argc, char *argv[])
     backward::ResultPtr backwardResult = backwardLayer.getResult();
 
     printTensor(backwardResult->get(backward::gradient),
-        "Backward two-dimensional spatial pyramid average pooling layer result (first 10 rows):", 10);
+                "Backward two-dimensional spatial pyramid average pooling layer result (first 10 rows):", 10);
 
     return 0;
 }

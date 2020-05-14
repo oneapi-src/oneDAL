@@ -48,8 +48,7 @@ Result::Result() : classifier::training::Result() {}
  */
 daal::algorithms::kdtree_knn_classification::ModelPtr Result::get(classifier::training::ResultId id) const
 {
-    return services::staticPointerCast<daal::algorithms::kdtree_knn_classification::Model,
-                                      data_management::SerializationIface>(Argument::get(id));
+    return services::staticPointerCast<daal::algorithms::kdtree_knn_classification::Model, data_management::SerializationIface>(Argument::get(id));
 }
 
 } // namespace interface1

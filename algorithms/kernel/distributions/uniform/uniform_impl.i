@@ -34,42 +34,47 @@ namespace uniform
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status UniformKernel<algorithmFPType, method, cpu>::compute(const uniform::Parameter<algorithmFPType> &parameter, engines::BatchBase &engine, NumericTable *resultTable)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status UniformKernel<algorithmFPType, method, cpu>::compute(const uniform::Parameter<algorithmFPType> & parameter, engines::BatchBase & engine,
+                                                            NumericTable * resultTable)
 {
     size_t nRows = resultTable->getNumberOfRows();
 
     daal::internal::WriteRows<algorithmFPType, cpu> resultBlock(resultTable, 0, nRows);
     DAAL_CHECK_BLOCK_STATUS(resultBlock);
-    algorithmFPType *resultArray = resultBlock.get();
+    algorithmFPType * resultArray = resultBlock.get();
 
     size_t n = nRows * resultTable->getNumberOfColumns();
 
     return compute(parameter, engine, n, resultArray);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status UniformKernel<algorithmFPType, method, cpu>::compute(const uniform::Parameter<algorithmFPType> &parameter, engines::BatchBase &engine, size_t n, algorithmFPType *resultArray)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status UniformKernel<algorithmFPType, method, cpu>::compute(const uniform::Parameter<algorithmFPType> & parameter, engines::BatchBase & engine,
+                                                            size_t n, algorithmFPType * resultArray)
 {
     return compute(parameter.a, parameter.b, engine, n, resultArray);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status UniformKernel<algorithmFPType, method, cpu>::compute(const uniform::Parameter<algorithmFPType> &parameter, UniquePtr<engines::internal::BatchBaseImpl, cpu> &enginePtr, size_t n, algorithmFPType *resultArray)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status UniformKernel<algorithmFPType, method, cpu>::compute(const uniform::Parameter<algorithmFPType> & parameter,
+                                                            UniquePtr<engines::internal::BatchBaseImpl, cpu> & enginePtr, size_t n,
+                                                            algorithmFPType * resultArray)
 {
     return compute(parameter.a, parameter.b, *enginePtr, n, resultArray);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status UniformKernel<algorithmFPType, method, cpu>::compute(algorithmFPType a, algorithmFPType b, engines::BatchBase &engine, size_t n, algorithmFPType *resultArray)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status UniformKernel<algorithmFPType, method, cpu>::compute(algorithmFPType a, algorithmFPType b, engines::BatchBase & engine, size_t n,
+                                                            algorithmFPType * resultArray)
 {
-    auto engineImpl = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(&engine);
+    auto engineImpl = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl *>(&engine);
     return compute(a, b, *engineImpl, n, resultArray);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status UniformKernel<algorithmFPType, method, cpu>::compute(algorithmFPType a, algorithmFPType b, engines::internal::BatchBaseImpl &engine, size_t n, algorithmFPType *resultArray)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status UniformKernel<algorithmFPType, method, cpu>::compute(algorithmFPType a, algorithmFPType b, engines::internal::BatchBaseImpl & engine, size_t n,
+                                                            algorithmFPType * resultArray)
 {
     daal::internal::RNGs<algorithmFPType, cpu> rng;
     DAAL_CHECK(!rng.uniform(n, resultArray, engine.getState(), a, b), ErrorIncorrectErrorcodeFromGenerator);

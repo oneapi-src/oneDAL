@@ -19,7 +19,6 @@
 //  Instantiation of LBFGS algorithm container.
 //--
 
-
 #include "lbfgs_batch_container.h"
 
 namespace daal
@@ -36,7 +35,7 @@ namespace interface2
 {
 using BatchType = Batch<DAAL_FPTYPE, optimization_solver::lbfgs::defaultDense>;
 
-template<>
+template <>
 services::SharedPtr<BatchType> BatchType::create()
 {
     return services::SharedPtr<BatchType>(new BatchType());

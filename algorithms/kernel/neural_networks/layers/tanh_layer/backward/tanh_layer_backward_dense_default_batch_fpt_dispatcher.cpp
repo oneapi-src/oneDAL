@@ -19,7 +19,6 @@
 //  Implementation of hyperbolic tangent function calculation algorithm container.
 //--
 
-
 #include "tanh_layer_backward_batch_container.h"
 
 namespace daal

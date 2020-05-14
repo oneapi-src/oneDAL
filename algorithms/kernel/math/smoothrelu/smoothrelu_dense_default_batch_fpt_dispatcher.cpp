@@ -19,7 +19,6 @@
 //  Implementation of smoothrelu calculation algorithm container.
 //--
 
-
 #include "smoothrelu_batch_container.h"
 
 namespace daal

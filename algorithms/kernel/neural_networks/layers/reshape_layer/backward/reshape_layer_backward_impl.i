@@ -40,28 +40,27 @@ namespace backward
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status ReshapeKernel<algorithmFPType, method, cpu>::compute(const Tensor &inputTensor, Tensor &resultTensor)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status ReshapeKernel<algorithmFPType, method, cpu>::compute(const Tensor & inputTensor, Tensor & resultTensor)
 {
-    ReadSubtensor<algorithmFPType, cpu> iBlock(const_cast<Tensor&>(inputTensor), 0, 0, 0, inputTensor.getDimensionSize(0));
+    ReadSubtensor<algorithmFPType, cpu> iBlock(const_cast<Tensor &>(inputTensor), 0, 0, 0, inputTensor.getDimensionSize(0));
     DAAL_CHECK_BLOCK_STATUS(iBlock);
-    const algorithmFPType *iArray = iBlock.get();
+    const algorithmFPType * iArray = iBlock.get();
 
     WriteOnlySubtensor<algorithmFPType, cpu, Tensor> rBlock(resultTensor, 0, 0, 0, resultTensor.getDimensionSize(0));
     DAAL_CHECK_BLOCK_STATUS(rBlock);
-    algorithmFPType *rArray = rBlock.get();
+    algorithmFPType * rArray = rBlock.get();
 
     const size_t nDataElements = iBlock.getSize();
-    for(size_t i = 0; i < nDataElements; i++)
+    for (size_t i = 0; i < nDataElements; i++)
     {
         rArray[i] = iArray[i];
     }
     return Status();
 }
 
-} // internal
-} // backward
+} // namespace internal
+} // namespace backward
 } // namespace reshape
 } // namespace layers
 } // namespace neural_networks

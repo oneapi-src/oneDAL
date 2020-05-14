@@ -41,47 +41,47 @@ namespace backward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::Convolution2dKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    convolution2d::backward::Input *input = static_cast<convolution2d::backward::Input *>(_in);
-    convolution2d::backward::Result *result = static_cast<convolution2d::backward::Result *>(_res);
+    convolution2d::backward::Input * input   = static_cast<convolution2d::backward::Input *>(_in);
+    convolution2d::backward::Result * result = static_cast<convolution2d::backward::Result *>(_res);
 
-    convolution2d::Parameter *parameter = static_cast<convolution2d::Parameter *>(_par);
-    daal::services::Environment::env &env = *_env;
+    convolution2d::Parameter * parameter   = static_cast<convolution2d::Parameter *>(_par);
+    daal::services::Environment::env & env = *_env;
 
-    Tensor *inGradTensor  = input->get(layers::backward::inputGradient).get();
-    LayerData* layerData  = input->get(layers::backward::inputFromForward).get();
-    Tensor *wDerTensor    = result->get(layers::backward::weightDerivatives).get();
-    Tensor *bDerTensor    = result->get(layers::backward::biasDerivatives).get();
-    Tensor *resultTensor  = result->get(layers::backward::gradient).get();
+    Tensor * inGradTensor = input->get(layers::backward::inputGradient).get();
+    LayerData * layerData = input->get(layers::backward::inputFromForward).get();
+    Tensor * wDerTensor   = result->get(layers::backward::weightDerivatives).get();
+    Tensor * bDerTensor   = result->get(layers::backward::biasDerivatives).get();
+    Tensor * resultTensor = result->get(layers::backward::gradient).get();
 
-    Tensor *xTensor = static_cast<Tensor *>(((*layerData)[convolution2d::auxData]).get());
-    Tensor *wTensor = static_cast<Tensor *>(((*layerData)[convolution2d::auxWeights]).get());
+    Tensor * xTensor = static_cast<Tensor *>(((*layerData)[convolution2d::auxData]).get());
+    Tensor * wTensor = static_cast<Tensor *>(((*layerData)[convolution2d::auxWeights]).get());
 
     __DAAL_CALL_KERNEL(env, internal::Convolution2dKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, inGradTensor, xTensor, wTensor,
-                                                                                   *parameter, wDerTensor, bDerTensor, resultTensor);
+                       *parameter, wDerTensor, bDerTensor, resultTensor);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::setupCompute()
 {
     __DAAL_CALL_KERNEL(env, internal::Convolution2dKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), initialize);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::resetCompute()
 {
     __DAAL_CALL_KERNEL(env, internal::Convolution2dKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), reset);

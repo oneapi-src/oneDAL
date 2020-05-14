@@ -41,35 +41,38 @@ namespace backward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::SoftmaxKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    softmax::backward::Input *input = static_cast<softmax::backward::Input *>(_in);
-    softmax::backward::Result *result = static_cast<softmax::backward::Result *>(_res);
+    softmax::backward::Input * input   = static_cast<softmax::backward::Input *>(_in);
+    softmax::backward::Result * result = static_cast<softmax::backward::Result *>(_res);
 
-    softmax::Parameter *parameter = static_cast<softmax::Parameter *>(_par);
-    if (!parameter->propagateGradient) { return services::Status(); }
+    softmax::Parameter * parameter = static_cast<softmax::Parameter *>(_par);
+    if (!parameter->propagateGradient)
+    {
+        return services::Status();
+    }
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    Tensor *inputTensor  = input->get(layers::backward::inputGradient).get();
-    Tensor *valueTensor  = input->get(softmax::auxValue).get();
-    Tensor *resultTensor = result->get(layers::backward::gradient).get();
+    Tensor * inputTensor  = input->get(layers::backward::inputGradient).get();
+    Tensor * valueTensor  = input->get(softmax::auxValue).get();
+    Tensor * resultTensor = result->get(layers::backward::gradient).get();
 
-    __DAAL_CALL_KERNEL(env, internal::SoftmaxKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputTensor, *valueTensor, *parameter,
-                       *resultTensor);
+    __DAAL_CALL_KERNEL(env, internal::SoftmaxKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputTensor, *valueTensor,
+                       *parameter, *resultTensor);
 }
 } // namespace interface1
 } // namespace backward

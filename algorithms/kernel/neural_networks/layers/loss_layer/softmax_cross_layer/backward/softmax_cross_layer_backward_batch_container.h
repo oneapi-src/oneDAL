@@ -43,35 +43,35 @@ namespace backward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::SoftmaxCrossKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    softmax_cross::backward::Input *input = static_cast<softmax_cross::backward::Input *>(_in);
-    softmax_cross::backward::Result *result = static_cast<softmax_cross::backward::Result *>(_res);
+    softmax_cross::backward::Input * input   = static_cast<softmax_cross::backward::Input *>(_in);
+    softmax_cross::backward::Result * result = static_cast<softmax_cross::backward::Result *>(_res);
 
-    softmax_cross::Parameter *parameter = static_cast<softmax_cross::Parameter *>(_par);
+    softmax_cross::Parameter * parameter = static_cast<softmax_cross::Parameter *>(_par);
     if (!parameter->propagateGradient) return services::Status();
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    Tensor *probTensor        = input->get(softmax_cross::auxProbabilities).get();
-    Tensor *groundTruthTensor = input->get(softmax_cross::auxGroundTruth).get();
-    Tensor *resultTensor      = result->get(layers::backward::gradient).get();
+    Tensor * probTensor        = input->get(softmax_cross::auxProbabilities).get();
+    Tensor * groundTruthTensor = input->get(softmax_cross::auxGroundTruth).get();
+    Tensor * resultTensor      = result->get(layers::backward::gradient).get();
 
-    __DAAL_CALL_KERNEL(env, internal::SoftmaxCrossKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *probTensor, *groundTruthTensor, *parameter,
-                       *resultTensor);
+    __DAAL_CALL_KERNEL(env, internal::SoftmaxCrossKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *probTensor, *groundTruthTensor,
+                       *parameter, *resultTensor);
 }
 } // namespace interface1
 } // namespace backward

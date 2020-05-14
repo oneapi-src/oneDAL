@@ -43,8 +43,8 @@ namespace internal
 {
 template class ClassificationTrainBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
-}
-}
-}
-}
-}
+} // namespace training
+} // namespace classification
+} // namespace decision_forest
+} // namespace algorithms
+} // namespace daal

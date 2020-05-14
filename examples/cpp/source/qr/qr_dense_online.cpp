@@ -34,22 +34,21 @@ using namespace daal::algorithms;
 
 /* Input data set parameters */
 const string datasetFileName = "../data/online/qr.csv";
-const size_t nRowsInBlock = 4000;
+const size_t nRowsInBlock    = 4000;
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable,
-                                                 DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create an algorithm to compute QR decomposition in the online processing mode */
     qr::Online<> algorithm;
 
-    while(dataSource.loadDataBlock(nRowsInBlock) == nRowsInBlock)
+    while (dataSource.loadDataBlock(nRowsInBlock) == nRowsInBlock)
     {
-        algorithm.input.set( qr::data, dataSource.getNumericTable() );
+        algorithm.input.set(qr::data, dataSource.getNumericTable());
 
         /* Compute QR decomposition */
         algorithm.compute();

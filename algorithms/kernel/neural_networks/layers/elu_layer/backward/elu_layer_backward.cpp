@@ -43,7 +43,7 @@ namespace interface1
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_NEURAL_NETWORKS_LAYERS_ELU_BACKWARD_RESULT_ID);
 /** \brief Default constructor */
 Input::Input() {};
-Input::Input(const Input& other) : super(other) {}
+Input::Input(const Input & other) : super(other) {}
 
 /**
  * Returns an input object for the backward ELU layer
@@ -53,7 +53,10 @@ Input::Input(const Input& other) : super(other) {}
 data_management::TensorPtr Input::get(LayerDataId id) const
 {
     LayerDataPtr layerData = get(layers::backward::inputFromForward);
-    if (!layerData) { return data_management::TensorPtr(); }
+    if (!layerData)
+    {
+        return data_management::TensorPtr();
+    }
     return data_management::Tensor::cast((*layerData)[id]);
 }
 
@@ -62,10 +65,13 @@ data_management::TensorPtr Input::get(LayerDataId id) const
  * \param[in] id     Identifier of the input object
  * \param[in] value  Pointer to the input object
  */
-void Input::set(LayerDataId id, const data_management::TensorPtr &value)
+void Input::set(LayerDataId id, const data_management::TensorPtr & value)
 {
     layers::LayerDataPtr layerData = get(layers::backward::inputFromForward);
-    if (layerData) { (*layerData)[id] = value; }
+    if (layerData)
+    {
+        (*layerData)[id] = value;
+    }
 }
 
 /**
@@ -73,15 +79,18 @@ void Input::set(LayerDataId id, const data_management::TensorPtr &value)
  * \param[in] par     Algorithm parameter
  * \param[in] method  Computation method
  */
-services::Status Input::check(const daal::algorithms::Parameter *par, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
-    const layers::Parameter *param = static_cast<const layers::Parameter *>(par);
-    if (!param->propagateGradient) { return services::Status(); }
+    const layers::Parameter * param = static_cast<const layers::Parameter *>(par);
+    if (!param->propagateGradient)
+    {
+        return services::Status();
+    }
 
     services::Status status;
     DAAL_CHECK_STATUS(status, layers::backward::Input::check(par, method));
 
-    auto &inputGradientDimensions = get(layers::backward::inputGradient)->getDimensions();
+    auto & inputGradientDimensions = get(layers::backward::inputGradient)->getDimensions();
     DAAL_CHECK_TENSOR(status, get(elu::auxData).get(), auxDataStr(), &inputGradientDimensions);
 
     // DAAL_CHECK_TENSOR(status, get(elu::auxIntermediateValue).get(), auxIntermediateValueStr(), &inputGradientDimensions);
@@ -98,31 +107,33 @@ Result::Result() : layers::backward::Result() {};
  * \param[in] par     %Parameter of the algorithm
  * \param[in] method  Computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input,
-                               const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     using namespace daal::services;
     using daal::data_management::Tensor;
 
     Status status;
 
-    const layers::Parameter *param = static_cast<const layers::Parameter *>(par);
-    if (!param->propagateGradient) { return services::Status(); }
+    const layers::Parameter * param = static_cast<const layers::Parameter *>(par);
+    if (!param->propagateGradient)
+    {
+        return services::Status();
+    }
 
-    const Input *in = static_cast<const Input *>(input);
-    const Tensor *auxDataTensor = in->get(elu::auxData).get();
+    const Input * in             = static_cast<const Input *>(input);
+    const Tensor * auxDataTensor = in->get(elu::auxData).get();
     DAAL_CHECK(auxDataTensor, Error::create(ErrorNullTensor, ArgumentName, inputGradientStr()));
 
-    auto &auxDataDimensions = auxDataTensor->getDimensions();
+    auto & auxDataDimensions = auxDataTensor->getDimensions();
     DAAL_CHECK_TENSOR(status, get(layers::backward::gradient).get(), gradientStr(), &auxDataDimensions);
 
     return status;
 }
 
-}// namespace interface1
-}// namespace backward
-}// namespace elu
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace elu
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

@@ -39,7 +39,7 @@ namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS2(Model, internal::ModelImpl, SERIALIZATION_LASSO_REGRESSION_MODEL_ID);
 }
-services::Status checkModel(lasso_regression::Model* model, const daal::algorithms::Parameter &par, size_t nBeta, size_t nResponses, int method)
+services::Status checkModel(lasso_regression::Model * model, const daal::algorithms::Parameter & par, size_t nBeta, size_t nResponses, int method)
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, linear_model::checkModel(model, par, nBeta, nResponses));

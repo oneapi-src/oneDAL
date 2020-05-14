@@ -28,7 +28,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(implicit_als::training::DistributedContainer, distributed, step4Local,  \
-    DAAL_FPTYPE, implicit_als::training::fastCSR)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(implicit_als::training::DistributedContainer, distributed, step4Local, DAAL_FPTYPE,
+                                      implicit_als::training::fastCSR)
 }
-}
+} // namespace daal

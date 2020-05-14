@@ -36,7 +36,7 @@ using namespace daal;
 using namespace daal::algorithms::implicit_als;
 
 /* Input data set parameters */
-string trainDatasetFileName            = "../data/batch/implicit_als_dense.csv";
+string trainDatasetFileName = "../data/batch/implicit_als_dense.csv";
 
 /* Algorithm parameters */
 const size_t nFactors = 2;
@@ -49,7 +49,7 @@ void initializeModel();
 void trainModel();
 void testModel();
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &trainDatasetFileName);
 
@@ -65,8 +65,7 @@ int main(int argc, char *argv[])
 void initializeModel()
 {
     /* Read trainDatasetFileName from a file and create a numeric table to store the input data */
-    FileDataSource<CSVFeatureManager> dataSource(trainDatasetFileName, DataSource::doAllocateNumericTable,
-                                                 DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(trainDatasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Retrieve the input data */
     dataSource.loadDataBlock();

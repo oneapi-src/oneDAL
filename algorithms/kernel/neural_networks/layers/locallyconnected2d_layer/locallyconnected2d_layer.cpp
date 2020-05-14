@@ -51,14 +51,14 @@ services::Status Parameter::check() const
     DAAL_CHECK_EX(groupDimension <= 3, services::ErrorIncorrectParameter, services::ParameterName, groupDimensionStr());
     DAAL_CHECK_EX(indices.dims[0] <= 3 && indices.dims[1] <= 3, services::ErrorIncorrectParameter, services::ParameterName, indicesStr());
     DAAL_CHECK_EX(indices.dims[0] != indices.dims[1], services::ErrorIncorrectParameter, services::ParameterName, indicesStr());
-    DAAL_CHECK_EX(strides.size[0] != 0  && strides.size[1] != 0, services::ErrorIncorrectParameter, services::ParameterName, stridesStr());
+    DAAL_CHECK_EX(strides.size[0] != 0 && strides.size[1] != 0, services::ErrorIncorrectParameter, services::ParameterName, stridesStr());
     DAAL_CHECK_EX(kernelSizes.size[0] != 0 && kernelSizes.size[1] != 0, services::ErrorIncorrectParameter, services::ParameterName, kernelSizesStr());
     return services::Status();
 }
 
-}// namespace interface1
-}// namespace locallyconnected2d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace locallyconnected2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

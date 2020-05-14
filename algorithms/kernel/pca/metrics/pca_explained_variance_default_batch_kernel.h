@@ -29,7 +29,6 @@
 #include "numeric_table.h"
 #include "algorithm_base_common.h"
 
-
 namespace daal
 {
 namespace algorithms
@@ -42,39 +41,35 @@ namespace explained_variance
 {
 namespace internal
 {
-
 using namespace daal::data_management;
 struct ExplainedVarianceOutput
 {
-    NumericTable* rms;
-    NumericTable* variance;
-    NumericTable** betaCovariances;
-    NumericTable* zScore;
-    NumericTable* confidenceIntervals;
-    NumericTable* inverseOfXtX;
+    NumericTable * rms;
+    NumericTable * variance;
+    NumericTable ** betaCovariances;
+    NumericTable * zScore;
+    NumericTable * confidenceIntervals;
+    NumericTable * inverseOfXtX;
 
     ExplainedVarianceOutput(size_t nResponses);
     ~ExplainedVarianceOutput();
 };
 
-
-template<Method method, typename algorithmFPType, CpuType cpu>
+template <Method method, typename algorithmFPType, CpuType cpu>
 class ExplainedVarianceKernel : public daal::algorithms::Kernel
 {
 public:
     virtual ~ExplainedVarianceKernel() {}
 
-    services::Status compute(const NumericTable& eigenvalues,
-                             NumericTable& explainedVariances,
-                             NumericTable& explainedVariancesRatios,
-                             NumericTable& noiseVariance);
+    services::Status compute(const NumericTable & eigenvalues, NumericTable & explainedVariances, NumericTable & explainedVariancesRatios,
+                             NumericTable & noiseVariance);
 };
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace explained_variance
+} // namespace quality_metric
+} // namespace pca
+} // namespace algorithms
+} // namespace daal
 
 #endif

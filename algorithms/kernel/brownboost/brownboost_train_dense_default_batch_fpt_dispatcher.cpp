@@ -36,18 +36,15 @@ namespace training
 {
 namespace interface2
 {
-
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 Batch<algorithmFPType, method>::Batch()
 {
     _par = new ParameterType();
     initialize();
 }
 
-template<typename algorithmFPType, Method method>
-Batch<algorithmFPType, method>::Batch(const Batch &other) :
-    classifier::training::Batch(other),
-    input(other.input)
+template <typename algorithmFPType, Method method>
+Batch<algorithmFPType, method>::Batch(const Batch & other) : classifier::training::Batch(other), input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();

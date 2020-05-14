@@ -39,7 +39,6 @@ namespace association_rules
 {
 namespace internal
 {
-
 /**
  *  Structure that contains kernels for association rules mining
  */
@@ -48,7 +47,7 @@ class AssociationRulesKernel : public Kernel
 {
 public:
     /** Find "large" item sets and build association rules */
-    services::Status compute(const NumericTable *a, NumericTable *r[], const daal::algorithms::Parameter *parameter);
+    services::Status compute(const NumericTable * a, NumericTable * r[], const daal::algorithms::Parameter * parameter);
 };
 
 } // namespace internal

@@ -19,7 +19,6 @@
 //  Implementation of forward pooling layer results computation.
 //--
 
-
 #include "maximum_pooling1d_layer_forward_batch_container.h"
 #include "maximum_pooling1d_layer_forward_kernel.h"
 #include "maximum_pooling1d_layer_forward_impl.i"
@@ -34,21 +33,20 @@ namespace layers
 {
 namespace maximum_pooling1d
 {
-
 namespace forward
 {
 namespace interface1
 {
 template class neural_networks::layers::maximum_pooling1d::forward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 namespace internal
 {
 template class PoolingKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 
-}
-}
-}
-}
-}
+} // namespace maximum_pooling1d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

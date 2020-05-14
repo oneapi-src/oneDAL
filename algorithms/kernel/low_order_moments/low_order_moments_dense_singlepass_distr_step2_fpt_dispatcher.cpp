@@ -27,7 +27,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(low_order_moments::DistributedContainer, distributed,    \
-    step2Master, DAAL_FPTYPE, low_order_moments::singlePassDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(low_order_moments::DistributedContainer, distributed, step2Master, DAAL_FPTYPE,
+                                      low_order_moments::singlePassDense)
 }
-}
+} // namespace daal

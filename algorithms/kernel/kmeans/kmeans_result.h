@@ -34,7 +34,6 @@ namespace algorithms
 {
 namespace kmeans
 {
-
 /**
  * Allocates memory to store the results of the K-Means algorithm
  * \param[in] input     Pointer to the structure of the input objects
@@ -42,11 +41,11 @@ namespace kmeans
  * \param[in] method    Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const Parameter *kmPar = static_cast<const Parameter *>(parameter);
+    const Parameter * kmPar = static_cast<const Parameter *>(parameter);
 
-    Input *algInput  = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
+    Input * algInput = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
     size_t nFeatures = algInput->getNumberOfFeatures();
     size_t nClusters = kmPar->nClusters;
 
@@ -55,7 +54,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     set(objectiveFunction, HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, &status));
     set(nIterations, HomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, &status));
 
-    if(kmPar->assignFlag)
+    if (kmPar->assignFlag)
     {
         size_t nRows = algInput->get(data)->getNumberOfRows();
         set(assignments, HomogenNumericTable<int>::create(1, nRows, NumericTable::doAllocate, &status));
@@ -70,7 +69,8 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
  * \param[in] method        Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialResult *partialResult, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialResult * partialResult, const daal::algorithms::Parameter * parameter,
+                                              const int method)
 {
     size_t nClusters = (static_cast<const Parameter *>(parameter))->nClusters;
     size_t nFeatures = (static_cast<const PartialResult *>(partialResult))->getNumberOfFeatures();

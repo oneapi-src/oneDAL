@@ -37,19 +37,17 @@ using namespace daal::data_management;
 
 string datasetFileName = "../data/batch/custom.csv";
 
-const size_t nIterations = 1000;
-const size_t nFeatures = 4;
-const float  learningRate = 0.01f;
+const size_t nIterations       = 1000;
+const size_t nFeatures         = 4;
+const float learningRate       = 0.01f;
 const double accuracyThreshold = 0.02;
 
-float initialPoint[nFeatures + 1] = {1, 1, 1, 1, 1};
+float initialPoint[nFeatures + 1] = { 1, 1, 1, 1, 1 };
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileName,
-            DataSource::notAllocateNumericTable,
-            DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for data and values for dependent variable */
     daal::services::Status s;
@@ -71,13 +69,11 @@ int main(int argc, char *argv[])
     optimization_solver::sgd::Batch<> sgdAlgorithm(batch);
 
     /* Set input objects for the the Stochastic gradient descent algorithm */
-    sgdAlgorithm.input.set(optimization_solver::iterative_solver::inputArgument,
-                           HomogenNumericTable<>::create(initialPoint, 1, nFeatures + 1, &s));
+    sgdAlgorithm.input.set(optimization_solver::iterative_solver::inputArgument, HomogenNumericTable<>::create(initialPoint, 1, nFeatures + 1, &s));
     checkStatus(s);
-    sgdAlgorithm.parameter.learningRateSequence =
-        HomogenNumericTable<>::create(1, 1, NumericTable::doAllocate, learningRate, &s);
+    sgdAlgorithm.parameter.learningRateSequence = HomogenNumericTable<>::create(1, 1, NumericTable::doAllocate, learningRate, &s);
     checkStatus(s);
-    sgdAlgorithm.parameter.nIterations = nIterations;
+    sgdAlgorithm.parameter.nIterations       = nIterations;
     sgdAlgorithm.parameter.accuracyThreshold = accuracyThreshold;
 
     /* Compute the Stochastic gradient descent result */

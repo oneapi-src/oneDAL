@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate transposed convolution 2d.
 //--
 
-
 #ifndef __TRANSPOSED_CONV2D_LAYER_FORWARD_KERNEL_H__
 #define __TRANSPOSED_CONV2D_LAYER_FORWARD_KERNEL_H__
 
@@ -51,21 +50,22 @@ namespace internal
 /**
  *  \brief Kernel for transposed convolution 2d calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class TransposedConv2dKernel : public Kernel
 {
 public:
     TransposedConv2dKernel() {}
 
-    services::Status compute(const Tensor &inputTensor, const Tensor &wTensor, const Tensor &bTensor, const transposed_conv2d::Parameter &parameter, Tensor &resultTensor);
+    services::Status compute(const Tensor & inputTensor, const Tensor & wTensor, const Tensor & bTensor,
+                             const transposed_conv2d::Parameter & parameter, Tensor & resultTensor);
 };
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 
-} // transposed_conv2d
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace transposed_conv2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

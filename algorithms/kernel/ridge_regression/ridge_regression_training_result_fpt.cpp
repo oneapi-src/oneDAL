@@ -31,11 +31,12 @@ namespace ridge_regression
 {
 namespace training
 {
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const Parameter * parameter,
+                                                                    const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult * partialResult,
+                                                                    const Parameter * parameter, int method);
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const Parameter *parameter, const int method);
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult *partialResult, const Parameter *parameter, int method);
-
-}// namespace training
-}// namespace ridge_regression
-}// namespace algorithms
-}// namespace daal
+} // namespace training
+} // namespace ridge_regression
+} // namespace algorithms
+} // namespace daal

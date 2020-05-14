@@ -19,7 +19,6 @@
 //  Implementation of locallyconnected2d calculation algorithm container.
 //--
 
-
 #include "locallyconnected2d_layer_backward_batch_container.h"
 
 namespace daal

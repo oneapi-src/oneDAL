@@ -38,26 +38,24 @@ namespace uniform
 {
 namespace internal
 {
-
 using namespace daal::algorithms::distributions::uniform::internal;
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status UniformKernel<algorithmFPType, method, cpu>::compute(const UniformInitializerTaskDescriptor &desc)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status UniformKernel<algorithmFPType, method, cpu>::compute(const UniformInitializerTaskDescriptor & desc)
 {
     initializers::internal::EngineImpl<cpu> engine(desc.engine);
     DAAL_CHECK_MALLOC(engine.get());
 
     WriteOnlySubtensor<algorithmFPType, cpu, Tensor> resultSubtensor(desc.result, 0, 0, 0, desc.result->getDimensionSize(0));
     DAAL_CHECK_BLOCK_STATUS(resultSubtensor);
-    algorithmFPType *resultArray = resultSubtensor.get();
+    algorithmFPType * resultArray = resultSubtensor.get();
 
     size_t size = desc.result->getSize();
 
-    return UniformKernelDefault<algorithmFPType, cpu>::compute((algorithmFPType)desc.a, (algorithmFPType)desc.b,
-                                                               *engine, size, resultArray);
+    return UniformKernelDefault<algorithmFPType, cpu>::compute((algorithmFPType)desc.a, (algorithmFPType)desc.b, *engine, size, resultArray);
 }
 
-} // internal
+} // namespace internal
 } // namespace uniform
 } // namespace initializers
 } // namespace neural_networks

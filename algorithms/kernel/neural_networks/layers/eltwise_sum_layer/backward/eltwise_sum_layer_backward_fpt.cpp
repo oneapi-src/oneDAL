@@ -38,7 +38,6 @@ namespace backward
 {
 namespace interface1
 {
-
 using namespace daal::data_management;
 
 /**
@@ -48,13 +47,11 @@ using namespace daal::data_management;
  * \param[in] method    Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input,
-                                              const daal::algorithms::Parameter *parameter,
-                                              const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status s;
 
-    const Input *eltwiseInput = dynamic_cast<const Input *>(input);
+    const Input * eltwiseInput = dynamic_cast<const Input *>(input);
     DAAL_CHECK(eltwiseInput, services::ErrorNullInput);
     DAAL_CHECK_STATUS(s, eltwiseInput->check(parameter, method));
 
@@ -71,9 +68,9 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
 }
 
 template <typename algorithmFPType>
-services::Status Result::allocateNewOutputTensors(const TensorPtr &inputGradient, size_t nOutputs)
+services::Status Result::allocateNewOutputTensors(const TensorPtr & inputGradient, size_t nOutputs)
 {
-    const services::Collection<size_t> &inputGradientDimensions = inputGradient->getDimensions();
+    const services::Collection<size_t> & inputGradientDimensions = inputGradient->getDimensions();
     services::Status s;
     for (size_t i = 0; i < nOutputs; i++)
     {
@@ -86,15 +83,14 @@ services::Status Result::allocateNewOutputTensors(const TensorPtr &inputGradient
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(
-    const daal::algorithms::Input *, const daal::algorithms::Parameter *, const int);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *, const daal::algorithms::Parameter *, const int);
 
 template DAAL_EXPORT services::Status Result::allocateNewOutputTensors<DAAL_FPTYPE>(const TensorPtr &, size_t);
 
-}// namespace interface1
-}// namespace backward
-}// namespace eltwise_sum
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace eltwise_sum
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

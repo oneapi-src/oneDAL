@@ -37,15 +37,15 @@ using namespace daal;
 using namespace daal::algorithms;
 
 /* Input data set parameters */
-string trainDatasetFileName            = "../data/batch/decision_tree_train.csv";
-string pruneDatasetFileName            = "../data/batch/decision_tree_prune.csv";
+string trainDatasetFileName = "../data/batch/decision_tree_train.csv";
+string pruneDatasetFileName = "../data/batch/decision_tree_prune.csv";
 
 const size_t nFeatures = 5; /* Number of features in training and testing data sets */
 
 decision_tree::regression::training::ResultPtr trainModel();
-void printModel(const daal::algorithms::decision_tree::regression::Model& m);
+void printModel(const daal::algorithms::decision_tree::regression::Model & m);
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &pruneDatasetFileName);
 
@@ -58,9 +58,7 @@ int main(int argc, char *argv[])
 decision_tree::regression::training::ResultPtr trainModel()
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName,
-                                                      DataSource::notAllocateNumericTable,
-                                                      DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and dependent variables */
     NumericTablePtr trainData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::notAllocate));
@@ -71,9 +69,7 @@ decision_tree::regression::training::ResultPtr trainModel()
     trainDataSource.loadDataBlock(mergedData.get());
 
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the pruning input data from a .csv file */
-    FileDataSource<CSVFeatureManager> pruneDataSource(pruneDatasetFileName,
-                                                      DataSource::notAllocateNumericTable,
-                                                      DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> pruneDataSource(pruneDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for pruning data and dependent variables */
     NumericTablePtr pruneData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::notAllocate));
@@ -103,27 +99,24 @@ decision_tree::regression::training::ResultPtr trainModel()
 class PrintNodeVisitor : public daal::algorithms::tree_utils::regression::TreeNodeVisitor
 {
 public:
-    virtual bool onLeafNode(const daal::algorithms::tree_utils::regression::LeafNodeDescriptor &desc)
+    virtual bool onLeafNode(const daal::algorithms::tree_utils::regression::LeafNodeDescriptor & desc)
     {
-        for(size_t i = 0; i < desc.level; ++i)
-            std::cout << "  ";
-        std::cout << "Level " << desc.level << ", leaf node. Response value = " << desc.response << ", Impurity = " << desc.impurity <<
-            ", Number of samples = " << desc.nNodeSampleCount << std::endl;
+        for (size_t i = 0; i < desc.level; ++i) std::cout << "  ";
+        std::cout << "Level " << desc.level << ", leaf node. Response value = " << desc.response << ", Impurity = " << desc.impurity
+                  << ", Number of samples = " << desc.nNodeSampleCount << std::endl;
         return true;
     }
 
-    virtual bool onSplitNode(const daal::algorithms::tree_utils::regression::SplitNodeDescriptor &desc)
+    virtual bool onSplitNode(const daal::algorithms::tree_utils::regression::SplitNodeDescriptor & desc)
     {
-        for(size_t i = 0; i < desc.level; ++i)
-            std::cout << "  ";
-        std::cout << "Level " << desc.level << ", split node. Feature index = " << desc.featureIndex <<
-            ", feature value = " << desc.featureValue << ", Impurity = " << desc.impurity <<
-            ", Number of samples = " << desc.nNodeSampleCount << std::endl;
+        for (size_t i = 0; i < desc.level; ++i) std::cout << "  ";
+        std::cout << "Level " << desc.level << ", split node. Feature index = " << desc.featureIndex << ", feature value = " << desc.featureValue
+                  << ", Impurity = " << desc.impurity << ", Number of samples = " << desc.nNodeSampleCount << std::endl;
         return true;
     }
 };
 
-void printModel(const daal::algorithms::decision_tree::regression::Model& m)
+void printModel(const daal::algorithms::decision_tree::regression::Model & m)
 {
     PrintNodeVisitor visitor;
     m.traverseDFS(visitor);

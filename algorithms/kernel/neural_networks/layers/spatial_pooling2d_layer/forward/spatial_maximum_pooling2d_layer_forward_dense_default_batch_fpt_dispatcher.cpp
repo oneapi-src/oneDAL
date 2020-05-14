@@ -19,7 +19,6 @@
 //  Implementation of forward pooling layer container.
 //--
 
-
 #include "spatial_maximum_pooling2d_layer_forward_batch_container.h"
 
 namespace daal
@@ -32,10 +31,10 @@ namespace layers
 {
 namespace forward
 {
-__DAAL_INSTANTIATE_DISPATCH_LAYER_CONTAINER_FORWARD(neural_networks::layers::spatial_maximum_pooling2d::forward::interface1::BatchContainer, DAAL_FPTYPE,
-                                      neural_networks::layers::spatial_maximum_pooling2d::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_LAYER_CONTAINER_FORWARD(neural_networks::layers::spatial_maximum_pooling2d::forward::interface1::BatchContainer,
+                                                    DAAL_FPTYPE, neural_networks::layers::spatial_maximum_pooling2d::defaultDense)
 }
-}
-}
-}
-}
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

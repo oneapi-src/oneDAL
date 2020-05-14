@@ -47,14 +47,14 @@ template <Method method, typename algorithmFPtype, CpuType cpu>
 class BrownBoostPredictKernel : public Kernel
 {
 public:
-    services::Status compute(const NumericTablePtr &x, const Model *m, const NumericTablePtr &r, const Parameter *par);
-    services::Status computeImpl(const NumericTablePtr &xTable, const Model *m, size_t nWeakLearners, const algorithmFPtype *alpha, algorithmFPtype *r,
-                                 const Parameter *par);
+    services::Status compute(const NumericTablePtr & x, const Model * m, const NumericTablePtr & r, const Parameter * par);
+    services::Status computeImpl(const NumericTablePtr & xTable, const Model * m, size_t nWeakLearners, const algorithmFPtype * alpha,
+                                 algorithmFPtype * r, const Parameter * par);
 };
-} // namespace daal::algorithms::brownboost::prediction::internal
-}
-}
-}
+} // namespace internal
+} // namespace prediction
+} // namespace brownboost
+} // namespace algorithms
 } // namespace daal
 
 #endif

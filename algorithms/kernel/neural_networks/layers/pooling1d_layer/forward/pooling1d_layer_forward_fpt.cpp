@@ -39,7 +39,6 @@ namespace forward
 {
 namespace interface1
 {
-
 /**
  * Allocates memory to store the result of the forward 1D pooling layer
  * \param[in] input Pointer to an object containing the input data
@@ -47,10 +46,10 @@ namespace interface1
  * \param[in] parameter %Parameter of the forward 1D pooling layer
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const Input *in = static_cast<const Input *>(input);
-    const Parameter *algParameter = static_cast<const Parameter *>(parameter);
+    const Input * in               = static_cast<const Input *>(input);
+    const Parameter * algParameter = static_cast<const Parameter *>(parameter);
 
     services::Collection<size_t> valueDims(in->get(layers::forward::data)->getDimensions());
     computeValueDimensions(valueDims, algParameter);
@@ -59,8 +58,8 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     {
         DAAL_ALLOCATE_TENSOR_AND_SET(s, layers::forward::value, valueDims);
     }
-    const layers::Parameter *par = static_cast<const layers::Parameter * >(parameter);
-    if(!par->predictionStage)
+    const layers::Parameter * par = static_cast<const layers::Parameter *>(parameter);
+    if (!par->predictionStage)
     {
         if (!get(layers::forward::resultForBackward))
         {
@@ -70,12 +69,13 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace forward
-}// namespace pooling1d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace pooling1d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

@@ -19,7 +19,6 @@
 //  Implementation of coordinate_descent calculation.
 //--
 
-
 #include "coordinate_descent_batch_container.h"
 #include "coordinate_descent_dense_default_kernel.h"
 #include "coordinate_descent_dense_default_impl.i"
@@ -32,7 +31,6 @@ namespace optimization_solver
 {
 namespace coordinate_descent
 {
-
 namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

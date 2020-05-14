@@ -20,7 +20,6 @@
 //
 //--
 
-
 #include "zscore_batch_container.h"
 
 namespace daal
@@ -31,7 +30,6 @@ __DAAL_INSTANTIATE_DISPATCH_CONTAINER(normalization::zscore::interface3::BatchCo
 } // namespace algorithms
 } // namespace daal
 
-
 namespace daal
 {
 namespace algorithms
@@ -40,18 +38,17 @@ namespace normalization
 {
 namespace zscore
 {
-
 namespace interface3
 {
-template<typename algorithmFPType, daal::algorithms::normalization::zscore::Method method>
+template <typename algorithmFPType, daal::algorithms::normalization::zscore::Method method>
 Batch<algorithmFPType, method>::Batch()
 {
     _par = new ParameterType();
     initialize();
 }
 
-template<typename algorithmFPType, daal::algorithms::normalization::zscore::Method method>
-Batch<algorithmFPType, method>::Batch(const Batch &other): BatchImpl(other)
+template <typename algorithmFPType, daal::algorithms::normalization::zscore::Method method>
+Batch<algorithmFPType, method>::Batch(const Batch & other) : BatchImpl(other)
 {
     _par = new ParameterType(other.parameter());
     initialize();

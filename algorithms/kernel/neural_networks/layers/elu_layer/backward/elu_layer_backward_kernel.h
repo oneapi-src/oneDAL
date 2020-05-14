@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate relus.
 //--
 
-
 #ifndef __ELU_LAYER_BACKWARD_KERNEL_H__
 #define __ELU_LAYER_BACKWARD_KERNEL_H__
 
@@ -41,7 +40,6 @@ namespace backward
 {
 namespace internal
 {
-
 using namespace daal::services;
 using namespace daal::data_management;
 
@@ -51,7 +49,7 @@ using elu::internal::ScalableTlsBuffer;
 /**
  *  \brief Kernel for ELU calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class ELUKernel : public Kernel
 {
 private:
@@ -59,58 +57,39 @@ private:
     ScalableTlsBuffer<BlockSizeType, cpu> _indicesTls;
 
 public:
-    ELUKernel() : _intermediateValuesTls( elu::internal::getMaxBlockSize<algorithmFPType, cpu>() ),
-                  _indicesTls( elu::internal::getMaxBlockSize<algorithmFPType, cpu>() ) { }
+    ELUKernel()
+        : _intermediateValuesTls(elu::internal::getMaxBlockSize<algorithmFPType, cpu>()),
+          _indicesTls(elu::internal::getMaxBlockSize<algorithmFPType, cpu>())
+    {}
 
-    Status compute(const Parameter &parameter,
-                   const Tensor &inputGradientTensor,
-                   const Tensor &auxDataTensor,
-                   const Tensor *auxValueTensor,
-                         Tensor &gradientTensor);
+    Status compute(const Parameter & parameter, const Tensor & inputGradientTensor, const Tensor & auxDataTensor, const Tensor * auxValueTensor,
+                   Tensor & gradientTensor);
 
 private:
+    Status computeLayoutAgnostic(const Tensor & inputGradientTensor, const Tensor & auxDataTensor, const Tensor & auxValueTensor,
+                                 Tensor & gradientTensor);
 
-    Status computeLayoutAgnostic(const Tensor &inputGradientTensor,
-                                 const Tensor &auxDataTensor,
-                                 const Tensor &auxValueTensor,
-                                       Tensor &gradientTensor);
+    Status computeInMklLayout(const Tensor & inputGradientTensor, const Tensor & auxDataTensor, const Tensor & auxValueTensor,
+                              Tensor & gradientTensor);
 
-    Status computeInMklLayout(const Tensor &inputGradientTensor,
-                              const Tensor &auxDataTensor,
-                              const Tensor &auxValueTensor,
-                                    Tensor &gradientTensor);
+    void computeInRawLayout(const algorithmFPType * inputGradient, const algorithmFPType * auxData, const algorithmFPType * auxValue,
+                            algorithmFPType * gradient, size_t dataSize);
 
-    void computeInRawLayout(const algorithmFPType *inputGradient,
-                            const algorithmFPType *auxData,
-                            const algorithmFPType *auxValue,
-                                  algorithmFPType *gradient,
-                                  size_t dataSize);
+    void computeBlock(const algorithmFPType * inputGradient, const algorithmFPType * auxData, const algorithmFPType * auxValue,
+                      algorithmFPType * gradient, size_t blockSize);
 
-    void computeBlock(const algorithmFPType *inputGradient,
-                      const algorithmFPType *auxData,
-                      const algorithmFPType *auxValue,
-                            algorithmFPType *gradient,
-                            size_t blockSize);
+    Status computeWithoutAuxValues(const Tensor & inputGradientTensor, const Tensor & auxDataTensor, Tensor & gradientTensor, algorithmFPType alpha);
 
-    Status computeWithoutAuxValues(const Tensor &inputGradientTensor,
-                                   const Tensor &auxDataTensor,
-                                         Tensor &gradientTensor,
-                                         algorithmFPType alpha);
-
-    void computeBlockWithoutAuxValues(const algorithmFPType *inputGradient,
-                                      const algorithmFPType *auxData,
-                                            algorithmFPType *gradient,
-                                            algorithmFPType alpha,
-                                            size_t blockSize);
-
+    void computeBlockWithoutAuxValues(const algorithmFPType * inputGradient, const algorithmFPType * auxData, algorithmFPType * gradient,
+                                      algorithmFPType alpha, size_t blockSize);
 };
 
-} // internal
-} // backward
-} // elu
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace backward
+} // namespace elu
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

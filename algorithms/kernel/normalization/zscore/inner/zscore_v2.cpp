@@ -38,15 +38,13 @@ namespace normalization
 {
 namespace zscore
 {
-
 namespace interface2
 {
-
 BaseParameter::BaseParameter() : resultsToCompute(none) {}
 
-}// namespace interface2
+} // namespace interface2
 
-}// namespace zscore
-}// namespace normalization
-}// namespace algorithms
-}// namespace daal
+} // namespace zscore
+} // namespace normalization
+} // namespace algorithms
+} // namespace daal

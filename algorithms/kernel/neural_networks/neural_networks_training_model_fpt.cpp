@@ -30,34 +30,30 @@ namespace algorithms
 {
 namespace neural_networks
 {
-
 template class TensorWeightsAndBiasesDerivatives<DAAL_FPTYPE>;
 template class NumericTableWeightsAndBiasesDerivatives<DAAL_FPTYPE>;
 
 namespace training
 {
-
-template<typename modelFPType>
+template <typename modelFPType>
 services::Status DAAL_EXPORT Model::createWeightsAndBiasesDerivatives()
 {
     using namespace services;
     Status s;
     if (_storeWeightDerivativesInTable)
     {
-        _weightsAndBiasesDerivatives = NumericTableWeightsAndBiasesDerivatives<modelFPType>::create(
-                _forwardLayers, _backwardLayers, &s);
+        _weightsAndBiasesDerivatives = NumericTableWeightsAndBiasesDerivatives<modelFPType>::create(_forwardLayers, _backwardLayers, &s);
     }
     else
     {
-        _weightsAndBiasesDerivatives = TensorWeightsAndBiasesDerivatives<modelFPType>::create(
-                _backwardLayers, &s);
+        _weightsAndBiasesDerivatives = TensorWeightsAndBiasesDerivatives<modelFPType>::create(_backwardLayers, &s);
     }
     return s;
 }
 
 template DAAL_EXPORT services::Status Model::createWeightsAndBiasesDerivatives<DAAL_FPTYPE>();
 
-}
-}
-}
-}
+} // namespace training
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

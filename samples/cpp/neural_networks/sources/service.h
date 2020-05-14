@@ -34,30 +34,30 @@
 #include <algorithm>
 #include <stdexcept>
 
-void printPredictedClasses(const TensorPtr &prediction, const TensorPtr &testingGroundTruth, size_t maxRows=0)
+void printPredictedClasses(const TensorPtr & prediction, const TensorPtr & testingGroundTruth, size_t maxRows = 0)
 {
-    const Collection<size_t> &predictionDimensions = prediction->getDimensions();
+    const Collection<size_t> & predictionDimensions = prediction->getDimensions();
 
     SubtensorDescriptor<DAAL_DATA_TYPE> predictionBlock;
     prediction->getSubtensor(0, 0, 0, predictionDimensions[0], readOnly, predictionBlock);
-    DAAL_DATA_TYPE *predictionPtr = predictionBlock.getPtr();
+    DAAL_DATA_TYPE * predictionPtr = predictionBlock.getPtr();
 
     SubtensorDescriptor<int> testGroundTruthBlock;
     testingGroundTruth->getSubtensor(0, 0, 0, predictionDimensions[0], readOnly, testGroundTruthBlock);
-    int *testGroundTruthPtr = testGroundTruthBlock.getPtr();
+    int * testGroundTruthPtr = testGroundTruthBlock.getPtr();
 
     size_t requiredRows = maxRows > 0 ? maxRows : predictionDimensions[0];
-    size_t rowsNum = std::min(requiredRows, predictionDimensions[0]);
+    size_t rowsNum      = std::min(requiredRows, predictionDimensions[0]);
     for (size_t i = 0; i < rowsNum; i++)
     {
         DAAL_DATA_TYPE maxP = 0;
-        size_t maxPIndex = 0;
+        size_t maxPIndex    = 0;
         for (size_t j = 0; j < predictionDimensions[1]; j++)
         {
             DAAL_DATA_TYPE p = predictionPtr[i * predictionDimensions[1] + j];
             if (maxP < p)
             {
-                maxP = p;
+                maxP      = p;
                 maxPIndex = j;
             }
             printf("%.4f ", p);
@@ -74,16 +74,12 @@ void printPredictedClasses(const TensorPtr &prediction, const TensorPtr &testing
 
 struct ArrayIndicesComparerByProbability
 {
-    ArrayIndicesComparerByProbability(float *probabilities) :
-        _probabilities(probabilities) { }
+    ArrayIndicesComparerByProbability(float * probabilities) : _probabilities(probabilities) {}
 
-    bool operator ()(const size_t &i, const size_t &j)
-    {
-        return _probabilities[i] < _probabilities[j];
-    }
+    bool operator()(const size_t & i, const size_t & j) { return _probabilities[i] < _probabilities[j]; }
 
 private:
-    float *_probabilities;
+    float * _probabilities;
 };
 
 class ClassificationErrorCounter
@@ -98,14 +94,13 @@ private:
 public:
     ClassificationErrorCounter() { initialize(); }
 
-    ClassificationErrorCounter(const TensorPtr &prediction, const TensorPtr &groundTruth)
+    ClassificationErrorCounter(const TensorPtr & prediction, const TensorPtr & groundTruth)
     {
         initialize();
         update(prediction, groundTruth);
     }
 
-    void update(const TensorPtr &prediction,
-                const TensorPtr &groundTruth);
+    void update(const TensorPtr & prediction, const TensorPtr & groundTruth);
 
     inline float getTop1ErrorRate() const { return getErrorRate(_top1ClassifiedObjects); }
 
@@ -114,32 +109,43 @@ public:
 private:
     inline void initialize()
     {
-        _totalObjects = 0;
+        _totalObjects          = 0;
         _top1ClassifiedObjects = 0;
         _top5ClassifiedObjects = 0;
     }
 
     inline float getErrorRate(size_t topClassifiedObjectsNum) const
     {
-        if (_totalObjects == 0) { return 1.0f; }
+        if (_totalObjects == 0)
+        {
+            return 1.0f;
+        }
         return 1.f - topClassifiedObjectsNum / (float)_totalObjects;
     }
 
-    static void findTopIndices(float *rowPtr, size_t colsNum, size_t *topIndices, size_t topSize);
+    static void findTopIndices(float * rowPtr, size_t colsNum, size_t * topIndices, size_t topSize);
 
-    static bool isValueInArray(size_t *array, size_t size, size_t value);
+    static bool isValueInArray(size_t * array, size_t size, size_t value);
 };
 
 const size_t ClassificationErrorCounter::MAX_ERROR_RATE_CLASSES = 5;
 
-void ClassificationErrorCounter::update(const TensorPtr &prediction,
-                                        const TensorPtr &groundTruth)
+void ClassificationErrorCounter::update(const TensorPtr & prediction, const TensorPtr & groundTruth)
 {
-    if (!prediction)  { throw std::runtime_error("Prediction tensor is not able to be null");  }
-    if (!groundTruth) { throw std::runtime_error("GroundTruth tensor is not able to be null"); }
+    if (!prediction)
+    {
+        throw std::runtime_error("Prediction tensor is not able to be null");
+    }
+    if (!groundTruth)
+    {
+        throw std::runtime_error("GroundTruth tensor is not able to be null");
+    }
 
     Collection<size_t> dimensions = prediction->getDimensions();
-    if (dimensions.size() != 2) { throw std::runtime_error("Predictions tensor should have exactly two dimensions"); }
+    if (dimensions.size() != 2)
+    {
+        throw std::runtime_error("Predictions tensor should have exactly two dimensions");
+    }
     const size_t rowsNum = dimensions[0];
     const size_t colsNum = dimensions[1];
 
@@ -151,20 +157,20 @@ void ClassificationErrorCounter::update(const TensorPtr &prediction,
 
     SubtensorDescriptor<DAAL_DATA_TYPE> predictionBlock;
     prediction->getSubtensor(0, 0, 0, dimensions[0], readOnly, predictionBlock);
-    DAAL_DATA_TYPE *predictionPtr = predictionBlock.getPtr();
+    DAAL_DATA_TYPE * predictionPtr = predictionBlock.getPtr();
 
     SubtensorDescriptor<int> groundTruthBlock;
     groundTruth->getSubtensor(0, 0, 0, dimensions[0], readOnly, groundTruthBlock);
-    int *groundTruthPtr = groundTruthBlock.getPtr();
+    int * groundTruthPtr = groundTruthBlock.getPtr();
 
-    size_t *topIndices = new size_t[MAX_ERROR_RATE_CLASSES];
+    size_t * topIndices = new size_t[MAX_ERROR_RATE_CLASSES];
     for (size_t i = 0; i < rowsNum; i++)
     {
-        DAAL_DATA_TYPE *rowPtr = predictionPtr + i * colsNum;
+        DAAL_DATA_TYPE * rowPtr = predictionPtr + i * colsNum;
         findTopIndices(rowPtr, colsNum, topIndices, MAX_ERROR_RATE_CLASSES);
 
         size_t groundTruthClass = (size_t)groundTruthPtr[i];
-        bool isInTopFound = isValueInArray(topIndices, MAX_ERROR_RATE_CLASSES, groundTruthClass);
+        bool isInTopFound       = isValueInArray(topIndices, MAX_ERROR_RATE_CLASSES, groundTruthClass);
 
         _totalObjects++;
         if (isInTopFound)
@@ -182,10 +188,9 @@ void ClassificationErrorCounter::update(const TensorPtr &prediction,
     groundTruth->releaseSubtensor(groundTruthBlock);
 }
 
-void ClassificationErrorCounter::findTopIndices(float *rowPtr, size_t colsNum,
-                                                size_t *topIndices, size_t topSize)
+void ClassificationErrorCounter::findTopIndices(float * rowPtr, size_t colsNum, size_t * topIndices, size_t topSize)
 {
-    size_t *indices = new size_t[colsNum];
+    size_t * indices = new size_t[colsNum];
     for (size_t i = 0; i < colsNum; i++)
     {
         indices[i] = i;
@@ -201,23 +206,20 @@ void ClassificationErrorCounter::findTopIndices(float *rowPtr, size_t colsNum,
     delete[] indices;
 }
 
-bool ClassificationErrorCounter::isValueInArray(size_t *array, size_t size, size_t value)
+bool ClassificationErrorCounter::isValueInArray(size_t * array, size_t size, size_t value)
 {
-    size_t *begin = array;
-    size_t *end = array + size;
+    size_t * begin = array;
+    size_t * end   = array + size;
     return std::find(begin, end, value) != end;
 }
 
-
-bool checkFileIsAvailable(const std::string &filename)
+bool checkFileIsAvailable(const std::string & filename)
 {
     std::ifstream file(filename.c_str());
     return file.good();
 }
 
-bool checkFilesAreAvailable(const std::string &basePath,
-                            const std::string *datasetFileNames,
-                            size_t numberOfFiles)
+bool checkFilesAreAvailable(const std::string & basePath, const std::string * datasetFileNames, size_t numberOfFiles)
 {
     std::string filePath;
     for (size_t i = 0; i < numberOfFiles; i++)
@@ -236,10 +238,8 @@ bool checkFilesAreAvailable(const std::string &basePath,
     return true;
 }
 
-std::string selectDatasetPathOrExit(const std::string &defaultDatasetsPath,
-                                    const std::string &userDatasetsPath,
-                                    const std::string *datasetFileNames,
-                                    size_t numberOfFiles)
+std::string selectDatasetPathOrExit(const std::string & defaultDatasetsPath, const std::string & userDatasetsPath,
+                                    const std::string * datasetFileNames, size_t numberOfFiles)
 {
     if (userDatasetsPath.size() && checkFilesAreAvailable(userDatasetsPath, datasetFileNames, numberOfFiles))
     {
@@ -261,15 +261,17 @@ std::string selectDatasetPathOrExit(const std::string &defaultDatasetsPath,
     exit(-1);
 }
 
-
-std::string getUserDatasetPath(int argc, char *argv[])
+std::string getUserDatasetPath(int argc, char * argv[])
 {
     std::string userDatasetsPath;
-    if (argc > 1) { userDatasetsPath = argv[1]; }
+    if (argc > 1)
+    {
+        userDatasetsPath = argv[1];
+    }
     return userDatasetsPath;
 }
 
-TensorPtr readTensorFromCSV(const std::string &datasetFileName, bool allowOneColumn = false)
+TensorPtr readTensorFromCSV(const std::string & datasetFileName, bool allowOneColumn = false)
 {
     FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
     dataSource.loadDataBlock();
@@ -286,11 +288,11 @@ TensorPtr readTensorFromCSV(const std::string &datasetFileName, bool allowOneCol
         size *= dims[1];
     }
 
-    HomogenTensor<DAAL_DATA_TYPE> *tensor = new HomogenTensor<DAAL_DATA_TYPE>( dims, Tensor::doAllocate );
-    DAAL_DATA_TYPE *tensorData = tensor->getArray();
-    DAAL_DATA_TYPE *ntData = ntPtr->getArray();
+    HomogenTensor<DAAL_DATA_TYPE> * tensor = new HomogenTensor<DAAL_DATA_TYPE>(dims, Tensor::doAllocate);
+    DAAL_DATA_TYPE * tensorData            = tensor->getArray();
+    DAAL_DATA_TYPE * ntData                = ntPtr->getArray();
 
-    for(size_t i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++)
     {
         tensorData[i] = ntData[i];
     }
@@ -301,14 +303,13 @@ TensorPtr readTensorFromCSV(const std::string &datasetFileName, bool allowOneCol
 }
 
 template <typename T>
-void printArray(T *array, const size_t nPrintedCols, const size_t nPrintedRows, const size_t nCols, std::string message,
-                size_t interval = 10)
+void printArray(T * array, const size_t nPrintedCols, const size_t nPrintedRows, const size_t nCols, std::string message, size_t interval = 10)
 {
     std::cout << std::setiosflags(std::ios::left);
     std::cout << message << std::endl;
     for (size_t i = 0; i < nPrintedRows; i++)
     {
-        for(size_t j = 0; j < nPrintedCols; j++)
+        for (size_t j = 0; j < nPrintedCols; j++)
         {
             std::cout << std::setw(interval) << std::setiosflags(std::ios::fixed) << std::setprecision(3);
             std::cout << array[i * nCols + j];
@@ -318,13 +319,12 @@ void printArray(T *array, const size_t nPrintedCols, const size_t nPrintedRows, 
     std::cout << std::endl;
 }
 
-void printTensor(TensorPtr dataTable, const char *message = "",
-                 size_t nPrintedRows = 0, size_t nPrintedCols = 0, size_t interval = 10)
+void printTensor(TensorPtr dataTable, const char * message = "", size_t nPrintedRows = 0, size_t nPrintedCols = 0, size_t interval = 10)
 {
-    const daal::services::Collection<size_t> &dims = dataTable->getDimensions();
-    size_t nRows = dims[0];
+    const daal::services::Collection<size_t> & dims = dataTable->getDimensions();
+    size_t nRows                                    = dims[0];
 
-    if(nPrintedRows != 0)
+    if (nPrintedRows != 0)
     {
         nPrintedRows = std::min(nRows, nPrintedRows);
     }
@@ -339,7 +339,7 @@ void printTensor(TensorPtr dataTable, const char *message = "",
 
     size_t nCols = block.getSize() / nPrintedRows;
 
-    if(nPrintedCols != 0)
+    if (nPrintedCols != 0)
     {
         nPrintedCols = std::min(nCols, nPrintedCols);
     }

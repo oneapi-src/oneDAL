@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate logistic functions.
 //--
 
-
 #ifndef __LOGISTIC_LAYER_FORWARD_KERNEL_H__
 #define __LOGISTIC_LAYER_FORWARD_KERNEL_H__
 
@@ -52,19 +51,19 @@ namespace internal
 /**
  *  \brief Kernel for logistic function calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class LogisticKernel : public Kernel
 {
 public:
-    services::Status compute(const Tensor &inputTensor, Tensor &resultTensor);
+    services::Status compute(const Tensor & inputTensor, Tensor & resultTensor);
 };
 
-} // internal
-} // forward
-} // logistic
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace forward
+} // namespace logistic
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

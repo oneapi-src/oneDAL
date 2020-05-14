@@ -19,7 +19,6 @@
 //  Implementation of softmax layer.
 //--
 
-
 #include "softmax_layer_forward_batch_container.h"
 #include "softmax_layer_forward_kernel.h"
 #include "softmax_layer_forward_impl.i"
@@ -34,21 +33,20 @@ namespace layers
 {
 namespace softmax
 {
-
 namespace forward
 {
 namespace interface1
 {
 template class neural_networks::layers::softmax::forward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 namespace internal
 {
 template class SoftmaxKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 
-}
-}
-}
-}
-}
+} // namespace softmax
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

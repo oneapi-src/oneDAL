@@ -35,64 +35,36 @@ namespace daal
 {
 namespace algorithms
 {
-
 typedef decision_forest::classification::internal::ModelImpl::TreeType::NodeType::Leaf TLeaf;
 
 namespace dtrees
 {
 namespace internal
 {
-template<>
-void writeLeaf(const TLeaf& l, DecisionTreeNode& row)
+template <>
+void writeLeaf(const TLeaf & l, DecisionTreeNode & row)
 {
-    row.leftIndexOrClass = l.response.value;
+    row.leftIndexOrClass       = l.response.value;
     row.featureValueOrResponse = 0.0;
 }
 
-template<>
-bool visitSplit(size_t iRowInTable, size_t level, const DecisionTreeNode* aNode, classifier::TreeNodeVisitor& visitor)
+template <>
+bool visitSplit(size_t iRowInTable, size_t level, const DecisionTreeNode * aNode, classifier::TreeNodeVisitor & visitor)
 {
-    const DecisionTreeNode& n = aNode[iRowInTable];
+    const DecisionTreeNode & n = aNode[iRowInTable];
     return visitor.onSplitNode(level, n.featureIndex, n.featureValue());
 }
 
-template<>
-bool visitLeaf(size_t iRowInTable, size_t level, const DecisionTreeNode* aNode, classifier::TreeNodeVisitor& visitor)
+template <>
+bool visitLeaf(size_t iRowInTable, size_t level, const DecisionTreeNode * aNode, classifier::TreeNodeVisitor & visitor)
 {
-    const DecisionTreeNode& n = aNode[iRowInTable];
+    const DecisionTreeNode & n = aNode[iRowInTable];
     return visitor.onLeafNode(level, n.leftIndexOrClass);
 }
 
-template<>
-bool visitSplit(size_t iRowInTable, size_t level, tree_utils::SplitNodeDescriptor& descSplit, const DecisionTreeNode* aNode, const double *imp,
-    const int *nodeSamplesCount, tree_utils::classification::TreeNodeVisitor& visitor)
-{
-    const DecisionTreeNode& n                       = aNode[iRowInTable];
-    if(imp)              descSplit.impurity         = imp[iRowInTable];
-    if(nodeSamplesCount) descSplit.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
-    descSplit.featureIndex                          = n.featureIndex;
-    descSplit.featureValue                          = n.featureValue();
-    descSplit.level                                 = level;
-    return visitor.onSplitNode(descSplit);
-}
-
 template <>
-bool visitLeaf(const size_t iRowInTable, const size_t level, tree_utils::classification::LeafNodeDescriptor & descLeaf,
-               const DecisionTreeNode * const aNode, const double * const imp, const int * const nodeSamplesCount,
-               tree_utils::classification::TreeNodeVisitor & visitor, const double * const modelProb, const size_t nClasses)
-{
-    const DecisionTreeNode & n                      = aNode[iRowInTable];
-    if (imp) descLeaf.impurity                      = imp[iRowInTable];
-    if (nodeSamplesCount) descLeaf.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
-    descLeaf.level                                  = level;
-    descLeaf.label                                  = n.leftIndexOrClass;
-    descLeaf.prob                                   = modelProb + iRowInTable * nClasses;
-    return visitor.onLeafNode(descLeaf);
-}
-
-template <>
-bool visitSplit(size_t iRowInTable, size_t level, tree_utils::interface1::SplitNodeDescriptor & descSplit, const DecisionTreeNode * aNode, const double * imp,
-                const int * nodeSamplesCount, tree_utils::classification::interface1::TreeNodeVisitor & visitor)
+bool visitSplit(size_t iRowInTable, size_t level, tree_utils::SplitNodeDescriptor & descSplit, const DecisionTreeNode * aNode, const double * imp,
+                const int * nodeSamplesCount, tree_utils::classification::TreeNodeVisitor & visitor)
 {
     const DecisionTreeNode & n = aNode[iRowInTable];
     if (imp) descSplit.impurity = imp[iRowInTable];
@@ -104,8 +76,36 @@ bool visitSplit(size_t iRowInTable, size_t level, tree_utils::interface1::SplitN
 }
 
 template <>
-bool visitLeaf(size_t iRowInTable, size_t level, tree_utils::classification::interface1::LeafNodeDescriptor & descLeaf, const DecisionTreeNode * aNode,
-               const double * imp, const int * nodeSamplesCount, daal::algorithms::tree_utils::classification::interface1::TreeNodeVisitor & visitor)
+bool visitLeaf(const size_t iRowInTable, const size_t level, tree_utils::classification::LeafNodeDescriptor & descLeaf,
+               const DecisionTreeNode * const aNode, const double * const imp, const int * const nodeSamplesCount,
+               tree_utils::classification::TreeNodeVisitor & visitor, const double * const modelProb, const size_t nClasses)
+{
+    const DecisionTreeNode & n = aNode[iRowInTable];
+    if (imp) descLeaf.impurity = imp[iRowInTable];
+    if (nodeSamplesCount) descLeaf.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
+    descLeaf.level = level;
+    descLeaf.label = n.leftIndexOrClass;
+    descLeaf.prob  = modelProb + iRowInTable * nClasses;
+    return visitor.onLeafNode(descLeaf);
+}
+
+template <>
+bool visitSplit(size_t iRowInTable, size_t level, tree_utils::interface1::SplitNodeDescriptor & descSplit, const DecisionTreeNode * aNode,
+                const double * imp, const int * nodeSamplesCount, tree_utils::classification::interface1::TreeNodeVisitor & visitor)
+{
+    const DecisionTreeNode & n = aNode[iRowInTable];
+    if (imp) descSplit.impurity = imp[iRowInTable];
+    if (nodeSamplesCount) descSplit.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
+    descSplit.featureIndex = n.featureIndex;
+    descSplit.featureValue = n.featureValue();
+    descSplit.level        = level;
+    return visitor.onSplitNode(descSplit);
+}
+
+template <>
+bool visitLeaf(size_t iRowInTable, size_t level, tree_utils::classification::interface1::LeafNodeDescriptor & descLeaf,
+               const DecisionTreeNode * aNode, const double * imp, const int * nodeSamplesCount,
+               daal::algorithms::tree_utils::classification::interface1::TreeNodeVisitor & visitor)
 {
     const DecisionTreeNode & n = aNode[iRowInTable];
     if (imp) descLeaf.impurity = imp[iRowInTable];
@@ -115,12 +115,11 @@ bool visitLeaf(size_t iRowInTable, size_t level, tree_utils::classification::int
     return visitor.onLeafNode(descLeaf);
 }
 
-}
-}
+} // namespace internal
+} // namespace dtrees
 
 namespace decision_forest
 {
-
 namespace classification
 {
 namespace interface1
@@ -130,7 +129,6 @@ __DAAL_REGISTER_SERIALIZATION_CLASS2(Model, internal::ModelImpl, SERIALIZATION_D
 
 namespace internal
 {
-
 size_t ModelImpl::numberOfTrees() const
 {
     return ImplType::size();
@@ -141,35 +139,31 @@ size_t ModelImpl::getNumberOfTrees() const
     return ImplType::size();
 }
 
-void ModelImpl::traverseDF(size_t iTree, classifier::TreeNodeVisitor& visitor) const
+void ModelImpl::traverseDF(size_t iTree, classifier::TreeNodeVisitor & visitor) const
 {
-    if(iTree >= size())
-        return;
-    const DecisionTreeTable& t    = *at(iTree);
-    const DecisionTreeNode* aNode = (const DecisionTreeNode*)t.getArray();
-    if(aNode)
+    if (iTree >= size()) return;
+    const DecisionTreeTable & t    = *at(iTree);
+    const DecisionTreeNode * aNode = (const DecisionTreeNode *)t.getArray();
+    if (aNode)
     {
         auto onSplitNodeFunc = [&aNode, &visitor](size_t iRowInTable, size_t level) -> bool {
             return visitSplit(iRowInTable, level, aNode, visitor);
         };
 
-        auto onLeafNodeFunc = [&aNode, &visitor](size_t iRowInTable, size_t level) -> bool {
-            return visitLeaf(iRowInTable, level, aNode, visitor);
-        };
+        auto onLeafNodeFunc = [&aNode, &visitor](size_t iRowInTable, size_t level) -> bool { return visitLeaf(iRowInTable, level, aNode, visitor); };
 
         traverseNodeDF(0, 0, aNode, onSplitNodeFunc, onLeafNodeFunc);
     }
 }
 
-void ModelImpl::traverseBF(size_t iTree, classifier::TreeNodeVisitor& visitor) const
+void ModelImpl::traverseBF(size_t iTree, classifier::TreeNodeVisitor & visitor) const
 {
-    if(iTree >= size())
-        return;
-    const DecisionTreeTable& t    = *at(iTree);
-    const DecisionTreeNode* aNode = (const DecisionTreeNode*)t.getArray();
-    NodeIdxArray aCur;//nodes of current layer
-    NodeIdxArray aNext;//nodes of next layer
-    if(aNode)
+    if (iTree >= size()) return;
+    const DecisionTreeTable & t    = *at(iTree);
+    const DecisionTreeNode * aNode = (const DecisionTreeNode *)t.getArray();
+    NodeIdxArray aCur;  //nodes of current layer
+    NodeIdxArray aNext; //nodes of next layer
+    if (aNode)
     {
         aCur.push_back(0);
 
@@ -177,15 +171,13 @@ void ModelImpl::traverseBF(size_t iTree, classifier::TreeNodeVisitor& visitor) c
             return visitSplit(iRowInTable, level, aNode, visitor);
         };
 
-        auto onLeafNodeFunc = [&aNode, &visitor](size_t iRowInTable, size_t level) -> bool {
-            return visitLeaf(iRowInTable, level, aNode, visitor);
-        };
+        auto onLeafNodeFunc = [&aNode, &visitor](size_t iRowInTable, size_t level) -> bool { return visitLeaf(iRowInTable, level, aNode, visitor); };
 
         traverseNodesBF(0, aCur, aNext, aNode, onSplitNodeFunc, onLeafNodeFunc);
     }
 }
 
-void ModelImpl::traverseDFS(size_t iTree, tree_utils::classification::TreeNodeVisitor& visitor) const
+void ModelImpl::traverseDFS(size_t iTree, tree_utils::classification::TreeNodeVisitor & visitor) const
 {
     if (iTree >= size()) return;
     const DecisionTreeTable & t        = *at(iTree);
@@ -203,7 +195,8 @@ void ModelImpl::traverseDFS(size_t iTree, tree_utils::classification::TreeNodeVi
             return visitSplit(iRowInTable, level, descSplit, aNode, imp, nodeSamplesCount, visitor);
         };
 
-        auto onLeafNodeFunc = [&descLeaf, &aNode, &imp, &nodeSamplesCount, &visitor, &modelProb, &nClasses](size_t iRowInTable, size_t level) -> bool {
+        auto onLeafNodeFunc = [&descLeaf, &aNode, &imp, &nodeSamplesCount, &visitor, &modelProb, &nClasses](size_t iRowInTable,
+                                                                                                            size_t level) -> bool {
             return visitLeaf(iRowInTable, level, descLeaf, aNode, imp, nodeSamplesCount, visitor, modelProb, nClasses);
         };
 
@@ -211,7 +204,7 @@ void ModelImpl::traverseDFS(size_t iTree, tree_utils::classification::TreeNodeVi
     }
 }
 
-void ModelImpl::traverseBFS(size_t iTree, tree_utils::classification::TreeNodeVisitor& visitor) const
+void ModelImpl::traverseBFS(size_t iTree, tree_utils::classification::TreeNodeVisitor & visitor) const
 {
     if (iTree >= size()) return;
     const DecisionTreeTable & t          = *at(iTree);
@@ -232,7 +225,7 @@ void ModelImpl::traverseBFS(size_t iTree, tree_utils::classification::TreeNodeVi
         };
 
         auto onLeafNodeFunc = [&descLeaf, &aNode, &imp, &nodeSamplesCount, &visitor, &modelProb, &nClasses](const size_t iRowInTable,
-                const size_t level) -> bool {
+                                                                                                            const size_t level) -> bool {
             return visitLeaf(iRowInTable, level, descLeaf, aNode, imp, nodeSamplesCount, visitor, modelProb, nClasses);
         };
 
@@ -292,8 +285,7 @@ void ModelImpl::traverseBFS(size_t iTree, tree_utils::classification::interface1
     }
 }
 
-
-services::Status ModelImpl::serializeImpl(data_management::InputDataArchive  * arch)
+services::Status ModelImpl::serializeImpl(data_management::InputDataArchive * arch)
 {
     auto s = daal::algorithms::classifier::Model::serialImpl<data_management::InputDataArchive, false>(arch);
     s.add(ImplType::serialImpl<data_management::InputDataArchive, false>(arch));
@@ -303,10 +295,10 @@ services::Status ModelImpl::serializeImpl(data_management::InputDataArchive  * a
 
 services::Status ModelImpl::deserializeImpl(const data_management::OutputDataArchive * arch)
 {
-    auto s = daal::algorithms::classifier::Model::serialImpl<const data_management::OutputDataArchive, true>(arch);
+    auto s                = daal::algorithms::classifier::Model::serialImpl<const data_management::OutputDataArchive, true>(arch);
     const int daalVersion = COMPUTE_DAAL_VERSION(arch->getMajorVersion(), arch->getMinorVersion(), arch->getUpdateVersion());
     s.add(ImplType::serialImpl<const data_management::OutputDataArchive, true>(arch, daalVersion));
-    if((daalVersion >= COMPUTE_DAAL_VERSION(2020, 0, 1)))
+    if ((daalVersion >= COMPUTE_DAAL_VERSION(2020, 0, 1)))
     {
         arch->set(daal::algorithms::classifier::internal::ModelInternal::_nFeatures);
     }
@@ -314,10 +306,10 @@ services::Status ModelImpl::deserializeImpl(const data_management::OutputDataArc
     return s;
 }
 
-bool ModelImpl::add(const TreeType& tree, size_t nClasses)
+bool ModelImpl::add(const TreeType & tree, size_t nClasses)
 {
     DAAL_CHECK_STATUS_VAR(!(size() >= _serializationData->size()));
-    size_t i = _nTree.inc();
+    size_t i           = _nTree.inc();
     const size_t nNode = tree.getNumberOfNodes();
 
     auto pTbl           = new DecisionTreeTable(nNode);
@@ -342,8 +334,8 @@ bool ModelImpl::add(const TreeType& tree, size_t nClasses)
     return true;
 }
 
-} // namespace interface1
-} // namespace regression
+} // namespace internal
+} // namespace classification
 } // namespace decision_forest
 } // namespace algorithms
 } // namespace daal

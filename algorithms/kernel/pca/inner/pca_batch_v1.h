@@ -49,14 +49,14 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__PCA__BATCHCONTAINER"></a>
  * \brief Class containing methods to compute the results of the PCA algorithm */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class DAAL_EXPORT BatchContainer : public AnalysisContainerIface<batch>
 {};
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__PCA__BATCHCONTAINER_ALGORITHMFPTYPE_CORRELATIONDENSE_CPU"></a>
  * \brief Class containing methods to compute the results of the PCA algorithm */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class DAAL_EXPORT BatchContainer<algorithmFPType, correlationDense, cpu> : public AnalysisContainerIface<batch>
 {
 public:
@@ -65,7 +65,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~BatchContainer();
     /**
@@ -77,7 +77,7 @@ public:
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__PCA__BATCHCONTAINER_ALGORITHMFPTYPE_SVDDENSE_CPU"></a>
  * \brief Class containing methods to compute the results of the PCA algorithm */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class DAAL_EXPORT BatchContainer<algorithmFPType, svdDense, cpu> : public AnalysisContainerIface<batch>
 {
 public:
@@ -86,7 +86,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~BatchContainer();
     /**
@@ -106,25 +106,19 @@ public:
  * \par Enumerations
  *      - \ref Method  Computation methods for the algorithm
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = correlationDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = correlationDense>
 class DAAL_EXPORT Batch : public Analysis<batch>
 {
 public:
     /** Default constructor */
-    Batch()
-    {
-        initialize();
-    }
+    Batch() { initialize(); }
 
     /**
      * Constructs a PCA algorithm by copying input objects and parameters of another PCA algorithm
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) : input(other.input), parameter(other.parameter)
-    {
-        initialize();
-    }
+    Batch(const Batch<algorithmFPType, method> & other) : input(other.input), parameter(other.parameter) { initialize(); }
 
     ~Batch() {}
 
@@ -138,11 +132,11 @@ public:
      * Registers user-allocated memory to store the results of the PCA algorithm
      * \param[in] res    Structure for storing the results of the PCA algorithm
      */
-    services::Status setResult(const ResultPtr& res)
+    services::Status setResult(const ResultPtr & res)
     {
         DAAL_CHECK(res, services::ErrorNullResult)
         _result = res;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -157,40 +151,34 @@ public:
      * with a copy of input objects and parameters of this PCA algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
-    Input input; /*!< Input data structure */
+    Input input;                                       /*!< Input data structure */
     BatchParameter<algorithmFPType, method> parameter; /*!< Parameters */
 
 protected:
     ResultPtr _result;
 
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, method);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
-        _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in = &input;
+        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
+        _in  = &input;
         _par = &parameter;
         _result.reset(new Result());
     }
 };
 /** @} */
 } // namespace interface1
-}
-}
-}
+} // namespace pca
+} // namespace algorithms
+} // namespace daal
 #endif

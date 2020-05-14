@@ -39,18 +39,18 @@ using namespace daal::services;
 using namespace daal::data_management;
 
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method)
+DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
-    const Input *in = static_cast<const Input *>(input);
-    const Parameter* parameter = static_cast<const Parameter *>(par);
+    const Input * in            = static_cast<const Input *>(input);
+    const Parameter * parameter = static_cast<const Parameter *>(par);
 
-    data_management::NumericTablePtr dataPtr = in->get(data);
+    data_management::NumericTablePtr dataPtr         = in->get(data);
     data_management::NumericTablePtr eigenvectorsPtr = in->get(eigenvectors);
     DAAL_CHECK_EX(dataPtr.get(), ErrorNullInputNumericTable, ArgumentName, dataStr())
     DAAL_CHECK_EX(eigenvectorsPtr.get(), ErrorNullInputNumericTable, ArgumentName, eigenvectorsStr())
 
-    size_t nInputs             = dataPtr->getNumberOfRows();
-    size_t nComponents         = parameter->nComponents == 0 ? eigenvectorsPtr->getNumberOfRows() : parameter->nComponents;
+    size_t nInputs     = dataPtr->getNumberOfRows();
+    size_t nComponents = parameter->nComponents == 0 ? eigenvectorsPtr->getNumberOfRows() : parameter->nComponents;
 
     services::Status status;
     set(transformedData, HomogenNumericTable<algorithmFPType>::create(nComponents, nInputs, NumericTable::doAllocate, &status));
@@ -58,7 +58,8 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input, const 
     return status;
 }
 
-template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                          const int method);
 
 } // namespace transform
 } // namespace pca

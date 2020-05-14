@@ -43,8 +43,8 @@ namespace internal
 {
 template class PredictKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
-}
-}
-}
-}
-}
+} // namespace prediction
+} // namespace regression
+} // namespace gbt
+} // namespace algorithms
+} // namespace daal

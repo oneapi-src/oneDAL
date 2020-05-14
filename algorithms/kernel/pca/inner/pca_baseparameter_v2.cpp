@@ -31,9 +31,8 @@ namespace pca
 {
 namespace interface2
 {
-
-BaseBatchParameter::BaseBatchParameter():resultsToCompute(none), nComponents(0), isDeterministic(false) {}
-}
-}
-}
-}
+BaseBatchParameter::BaseBatchParameter() : resultsToCompute(none), nComponents(0), isDeterministic(false) {}
+} // namespace interface2
+} // namespace pca
+} // namespace algorithms
+} // namespace daal

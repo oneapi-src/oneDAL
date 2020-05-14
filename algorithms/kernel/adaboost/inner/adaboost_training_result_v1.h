@@ -46,14 +46,14 @@ namespace interface1
  * \param[in] method        AdaBoost computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status s;
-    const classifier::training::interface1::Input *algInput = static_cast<const classifier::training::interface1::Input *>(input);
+    const classifier::training::interface1::Input * algInput = static_cast<const classifier::training::interface1::Input *>(input);
     set(classifier::training::model, daal::algorithms::adaboost::interface1::Model::create<algorithmFPType>(algInput->getNumberOfFeatures(), &s));
     return s;
 }
-}
+} // namespace interface1
 } // namespace training
 } // namespace adaboost
 } // namespace algorithms

@@ -38,29 +38,24 @@ namespace pca
 {
 namespace internal
 {
-
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 class PCASVDBatchKernel : public PCASVDKernelBase<algorithmFPType, cpu>
 {
 public:
     PCASVDBatchKernel() {};
 
-    services::Status compute(InputDataType type, const data_management::NumericTablePtr &data,
-        data_management::NumericTable &eigenvalues, data_management::NumericTable& eigenvectors);
+    services::Status compute(InputDataType type, const data_management::NumericTablePtr & data, data_management::NumericTable & eigenvalues,
+                             data_management::NumericTable & eigenvectors);
 
-    services::Status compute(InputDataType type,
-            data_management::NumericTable& data,
-            const ParameterType* parameter,
-            data_management::NumericTable& eigenvalues,
-            data_management::NumericTable& eigenvectors,
-            data_management::NumericTable& means,
-            data_management::NumericTable& variances);
+    services::Status compute(InputDataType type, data_management::NumericTable & data, const ParameterType * parameter,
+                             data_management::NumericTable & eigenvalues, data_management::NumericTable & eigenvectors,
+                             data_management::NumericTable & means, data_management::NumericTable & variances);
 
 protected:
-    services::Status normalizeDataset(const data_management::NumericTablePtr& data, data_management::NumericTablePtr& normalizedData);
+    services::Status normalizeDataset(const data_management::NumericTablePtr & data, data_management::NumericTablePtr & normalizedData);
 
-    services::Status decompose(const NumericTable *normalizedDataTable, data_management::NumericTable& eigenvalues,
-        data_management::NumericTable& eigenvectors);
+    services::Status decompose(const NumericTable * normalizedDataTable, data_management::NumericTable & eigenvalues,
+                               data_management::NumericTable & eigenvectors);
 };
 
 } // namespace internal

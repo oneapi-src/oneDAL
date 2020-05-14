@@ -34,43 +34,48 @@ namespace regression
 {
 namespace training
 {
-
 using namespace daal::data_management;
 
-template<typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const Parameter *parameter, const int method)
+template <typename algorithmFPType>
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const Parameter * parameter, const int method)
 {
     services::Status s;
-    const Input* inp = static_cast<const Input*>(input);
+    const Input * inp      = static_cast<const Input *>(input);
     const size_t nFeatures = inp->get(data)->getNumberOfColumns();
     set(model, daal::algorithms::gbt::regression::Model::create(nFeatures, &s));
 
-    const Parameter *par = static_cast<const Parameter *>(parameter);
-    if(par->varImportance & gbt::training::weight)
+    const Parameter * par = static_cast<const Parameter *>(parameter);
+    if (par->varImportance & gbt::training::weight)
     {
-        set(variableImportanceByWeight, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+        set(variableImportanceByWeight,
+            data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
     }
-    if(par->varImportance & gbt::training::totalCover)
+    if (par->varImportance & gbt::training::totalCover)
     {
-        set(variableImportanceByTotalCover, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+        set(variableImportanceByTotalCover,
+            data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
     }
-    if(par->varImportance & gbt::training::cover)
+    if (par->varImportance & gbt::training::cover)
     {
-        set(variableImportanceByCover, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+        set(variableImportanceByCover,
+            data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
     }
-    if(par->varImportance & gbt::training::totalGain)
+    if (par->varImportance & gbt::training::totalGain)
     {
-        set(variableImportanceByTotalGain, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+        set(variableImportanceByTotalGain,
+            data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
     }
-    if(par->varImportance & gbt::training::gain)
+    if (par->varImportance & gbt::training::gain)
     {
-        set(variableImportanceByGain, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+        set(variableImportanceByGain,
+            data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
     }
 
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const Parameter * parameter,
+                                                                    const int method);
 
 } // namespace training
 } // namespace regression

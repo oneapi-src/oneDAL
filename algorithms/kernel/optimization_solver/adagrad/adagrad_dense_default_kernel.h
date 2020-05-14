@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate adagrad.
 //--
 
-
 #ifndef __ADAGRAD_DENSE_DEFAULT_KERNEL_H__
 #define __ADAGRAD_DENSE_DEFAULT_KERNEL_H__
 
@@ -43,22 +42,21 @@ namespace adagrad
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-class AdagradKernel: public Kernel
+template <typename algorithmFPType, Method method, CpuType cpu>
+class AdagradKernel : public Kernel
 {
 public:
-    services::Status compute(HostAppIface* pHost, NumericTable *inputArgument, NumericTable *minimum, NumericTable *nIterations,
-                 NumericTable *gradientSquareSumResult, NumericTable *gradientSquareSumInput,
-                 OptionalArgument *optionalArgument, OptionalArgument *optionalResult, Parameter *parameter, engines::BatchBase &engine);
+    services::Status compute(HostAppIface * pHost, NumericTable * inputArgument, NumericTable * minimum, NumericTable * nIterations,
+                             NumericTable * gradientSquareSumResult, NumericTable * gradientSquareSumInput, OptionalArgument * optionalArgument,
+                             OptionalArgument * optionalResult, Parameter * parameter, engines::BatchBase & engine);
+
 private:
-    static services::Status initAccumulatedGrad(algorithmFPType *accumulatedG, size_t nRows, NumericTable *pOptInput);
-    static const size_t _blockSize = 512;
+    static services::Status initAccumulatedGrad(algorithmFPType * accumulatedG, size_t nRows, NumericTable * pOptInput);
+    static const size_t _blockSize   = 512;
     static const size_t _threadStart = 50000;
 };
 
-
-} // namespace daal::internal
+} // namespace internal
 
 } // namespace adagrad
 

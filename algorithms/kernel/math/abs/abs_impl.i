@@ -31,34 +31,32 @@ namespace abs
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for Abs calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status AbsKernelBase<algorithmFPType, method, cpu>::compute(const NumericTable *inputTable, NumericTable *resultTable)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status AbsKernelBase<algorithmFPType, method, cpu>::compute(const NumericTable * inputTable, NumericTable * resultTable)
 {
-    const size_t nInputRows = inputTable->getNumberOfRows();
+    const size_t nInputRows    = inputTable->getNumberOfRows();
     const size_t nInputColumns = inputTable->getNumberOfColumns();
 
     size_t nBlocks = nInputRows / _nRowsInBlock;
     nBlocks += (nBlocks * _nRowsInBlock != nInputRows);
 
     SafeStatus safeStat;
-    daal::threader_for(nBlocks, nBlocks, [ =, &safeStat ](int block)
-    {
+    daal::threader_for(nBlocks, nBlocks, [=, &safeStat](int block) {
         size_t nRowsToProcess = _nRowsInBlock;
-        if( block == nBlocks - 1 )
+        if (block == nBlocks - 1)
         {
             nRowsToProcess = nInputRows - block * _nRowsInBlock;
         }
 
         safeStat |= processBlock(*inputTable, nInputColumns, block * _nRowsInBlock, nRowsToProcess, *resultTable);
-    } );
+    });
     return safeStat.detach();
 }
 
-} // namespace daal::internal
+} // namespace internal
 } // namespace abs
 } // namespace math
 } // namespace algorithms

@@ -19,7 +19,6 @@
 //  Implementation of uniform calculation algorithm container.
 //--
 
-
 #include "uniform_initializer_batch_container.h"
 
 namespace daal

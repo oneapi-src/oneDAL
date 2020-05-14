@@ -41,14 +41,14 @@ using namespace daal::algorithms;
  */
 const string datasetFileName = "../data/batch/covcormoments_csr.csv";
 
-void printResults(const low_order_moments::ResultPtr &res);
+void printResults(const low_order_moments::ResultPtr & res);
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Read datasetFileName from a file and create numeric tables to store the input data */
-    CSRNumericTable *dataTable = createSparseTable<float>(datasetFileName);
+    CSRNumericTable * dataTable = createSparseTable<float>(datasetFileName);
 
     /* Create an algorithm to compute low order moments in the batch processing mode using the default method */
     low_order_moments::Batch<float, low_order_moments::fastCSR> algorithm;
@@ -59,7 +59,6 @@ int main(int argc, char *argv[])
     /* Compute low order moments */
     algorithm.compute();
 
-
     /* Get the computed low order moments */
     low_order_moments::ResultPtr res = algorithm.getResult();
 
@@ -68,16 +67,16 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-void printResults(const low_order_moments::ResultPtr &res)
+void printResults(const low_order_moments::ResultPtr & res)
 {
-    printNumericTable(res->get(low_order_moments::minimum),              "Minimum:");
-    printNumericTable(res->get(low_order_moments::maximum),              "Maximum:");
-    printNumericTable(res->get(low_order_moments::sum),                  "Sum:");
-    printNumericTable(res->get(low_order_moments::sumSquares),           "Sum of squares:");
-    printNumericTable(res->get(low_order_moments::sumSquaresCentered),   "Sum of squared difference from the means:");
-    printNumericTable(res->get(low_order_moments::mean),                 "Mean:");
+    printNumericTable(res->get(low_order_moments::minimum), "Minimum:");
+    printNumericTable(res->get(low_order_moments::maximum), "Maximum:");
+    printNumericTable(res->get(low_order_moments::sum), "Sum:");
+    printNumericTable(res->get(low_order_moments::sumSquares), "Sum of squares:");
+    printNumericTable(res->get(low_order_moments::sumSquaresCentered), "Sum of squared difference from the means:");
+    printNumericTable(res->get(low_order_moments::mean), "Mean:");
     printNumericTable(res->get(low_order_moments::secondOrderRawMoment), "Second order raw moment:");
-    printNumericTable(res->get(low_order_moments::variance),             "Variance:");
-    printNumericTable(res->get(low_order_moments::standardDeviation),    "Standard deviation:");
-    printNumericTable(res->get(low_order_moments::variation),            "Variation:");
+    printNumericTable(res->get(low_order_moments::variance), "Variance:");
+    printNumericTable(res->get(low_order_moments::standardDeviation), "Standard deviation:");
+    printNumericTable(res->get(low_order_moments::variation), "Variation:");
 }

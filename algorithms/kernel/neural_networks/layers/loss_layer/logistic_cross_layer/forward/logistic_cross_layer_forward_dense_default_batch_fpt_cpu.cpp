@@ -19,7 +19,6 @@
 //  Implementation of the forward logistic cross layer
 //--
 
-
 #include "logistic_cross_layer_forward_batch_container.h"
 #include "logistic_cross_layer_forward_kernel.h"
 #include "logistic_cross_layer_forward_impl.i"
@@ -36,22 +35,21 @@ namespace loss
 {
 namespace logistic_cross
 {
-
 namespace forward
 {
 namespace interface1
 {
 template class neural_networks::layers::loss::logistic_cross::forward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 namespace internal
 {
 template class LogisticCrossKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 
-}
-}
-}
-}
-}
-}
+} // namespace logistic_cross
+} // namespace loss
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

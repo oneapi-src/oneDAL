@@ -39,9 +39,9 @@ namespace rbf
 {
 namespace internal
 {
-
 template <Method method, typename algorithmFPType, CpuType cpu>
-struct KernelImplRBF {};
+struct KernelImplRBF
+{};
 
 } // namespace internal
 

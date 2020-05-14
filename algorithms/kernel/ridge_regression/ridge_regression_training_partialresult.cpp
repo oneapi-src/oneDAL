@@ -55,20 +55,26 @@ daal::algorithms::ridge_regression::ModelPtr PartialResult::get(PartialResultID 
  * Returns the number of columns in the input data set
  * \return Number of columns in the input data set
  */
-size_t PartialResult::getNumberOfFeatures() const { return get(partialModel)->getNumberOfFeatures(); }
+size_t PartialResult::getNumberOfFeatures() const
+{
+    return get(partialModel)->getNumberOfFeatures();
+}
 
 /**
 * Returns the number of dependent variables
 * \return Number of dependent variables
 */
-size_t PartialResult::getNumberOfDependentVariables() const { return get(partialModel)->getNumberOfResponses(); }
+size_t PartialResult::getNumberOfDependentVariables() const
+{
+    return get(partialModel)->getNumberOfResponses();
+}
 
 /**
  * Sets an argument of the partial result
  * \param[in] id      Identifier of the argument
  * \param[in] value   Pointer to the argument
  */
-void PartialResult::set(PartialResultID id, const daal::algorithms::ridge_regression::ModelPtr &value)
+void PartialResult::set(PartialResultID id, const daal::algorithms::ridge_regression::ModelPtr & value)
 {
     Argument::set(id, value);
 }
@@ -87,11 +93,11 @@ services::Status PartialResult::check(const daal::algorithms::Input * input, con
     /* input object can be an instance of both Input and DistributedInput<step2Master> classes.
        Both classes have multiple inheritance with InputIface as a second base class.
        That's why we use dynamic_cast here. */
-    const InputIface *in = dynamic_cast<const InputIface *>(input);
+    const InputIface * in = dynamic_cast<const InputIface *>(input);
 
     ridge_regression::ModelPtr partialModel = get(training::partialModel);
 
-    size_t nBeta = in->getNumberOfFeatures() + 1;
+    size_t nBeta      = in->getNumberOfFeatures() + 1;
     size_t nResponses = in->getNumberOfDependentVariables();
 
     return ridge_regression::checkModel(partialModel.get(), *par, nBeta, nResponses, method);
@@ -111,7 +117,7 @@ services::Status PartialResult::check(const daal::algorithms::Parameter * par, i
     ridge_regression::ModelPtr partialModel = get(training::partialModel);
     DAAL_CHECK(partialModel, ErrorNullPartialModel);
 
-    size_t nBeta = partialModel->getNumberOfBetas();
+    size_t nBeta      = partialModel->getNumberOfBetas();
     size_t nResponses = partialModel->getNumberOfResponses();
 
     return ridge_regression::checkModel(partialModel.get(), *par, nBeta, nResponses, method);

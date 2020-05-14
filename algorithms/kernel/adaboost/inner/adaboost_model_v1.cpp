@@ -49,11 +49,10 @@ Parameter::Parameter() : boosting::Parameter(), accuracyThreshold(0.0), maxItera
  * \param[in] acc           Accuracy of the AdaBoost training algorithm
  * \param[in] maxIter       Maximal number of iterations of the AdaBoost training algorithm
  */
-Parameter::Parameter(SharedPtr<weak_learner::training::Batch>   wlTrain,
-          SharedPtr<weak_learner::prediction::Batch> wlPredict,
-          double acc, size_t maxIter) :
-    boosting::Parameter(wlTrain, wlPredict),
-    accuracyThreshold(acc), maxIterations(maxIter) {}
+Parameter::Parameter(SharedPtr<weak_learner::training::Batch> wlTrain, SharedPtr<weak_learner::prediction::Batch> wlPredict, double acc,
+                     size_t maxIter)
+    : boosting::Parameter(wlTrain, wlPredict), accuracyThreshold(acc), maxIterations(maxIter)
+{}
 
 Status Parameter::check() const
 {
@@ -74,7 +73,6 @@ NumericTablePtr Model::getAlpha() const
 {
     return _alpha;
 }
-
 
 } // namespace interface1
 } // namespace adaboost

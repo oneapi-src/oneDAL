@@ -24,17 +24,12 @@
 #include "daal_googlenet_v1.h"
 
 const std::string defaultDatasetsPath = "./data";
-const std::string datasetFileNames[] =
-{
-    "train_224x224.blob",
-    "test_224x224.blob"
-};
+const std::string datasetFileNames[]  = { "train_224x224.blob", "test_224x224.blob" };
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     std::string userDatasetsPath = getUserDatasetPath(argc, argv);
-    std::string datasetsPath = selectDatasetPathOrExit(
-        defaultDatasetsPath, userDatasetsPath, datasetFileNames, 2);
+    std::string datasetsPath     = selectDatasetPathOrExit(defaultDatasetsPath, userDatasetsPath, datasetFileNames, 2);
 
     /* Form path to the training and testing datasets */
     std::string trainBlobPath = datasetsPath + "/" + datasetFileNames[0];

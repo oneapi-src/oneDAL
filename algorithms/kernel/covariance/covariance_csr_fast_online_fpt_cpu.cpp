@@ -38,6 +38,6 @@ namespace internal
 {
 template class CovarianceCSROnlineKernel<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
 }
-}
-}
-}
+} // namespace covariance
+} // namespace algorithms
+} // namespace daal

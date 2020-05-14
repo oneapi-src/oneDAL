@@ -37,9 +37,8 @@ namespace forward
 {
 namespace interface1
 {
-
-InputIface::InputIface(const InputIface& other) : daal::algorithms::Input(other) {}
-Input::Input(const Input& other) : InputIface(other){}
+InputIface::InputIface(const InputIface & other) : daal::algorithms::Input(other) {}
+Input::Input(const Input & other) : InputIface(other) {}
 
 /**
  * Constructs input objects for the forward layer of neural network
@@ -65,7 +64,7 @@ data_management::TensorPtr Input::get(forward::InputId id) const
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the object
  */
-void Input::set(InputId id, const data_management::TensorPtr &ptr)
+void Input::set(InputId id, const data_management::TensorPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -85,7 +84,7 @@ LayerDataPtr Input::get(forward::InputLayerDataId id) const
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the object
  */
-void Input::set(InputLayerDataId id, const LayerDataPtr &ptr)
+void Input::set(InputLayerDataId id, const LayerDataPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -95,9 +94,9 @@ void Input::set(InputLayerDataId id, const LayerDataPtr &ptr)
  * \param[in] par     %Parameter of algorithm
  * \param[in] method  Computation method of the algorithm
  */
-services::Status Input::check(const daal::algorithms::Parameter *par, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
-    if(Argument::size() != 4) return services::Status(services::ErrorIncorrectNumberOfInputNumericTables);
+    if (Argument::size() != 4) return services::Status(services::ErrorIncorrectNumberOfInputNumericTables);
 
     return data_management::checkTensor(get(data).get(), dataStr());
 }
@@ -115,7 +114,7 @@ LayerInputLayout Input::getLayout()
  * Returns dimensions of weights tensor
  * \return Dimensions of weights tensor
  */
-const services::Collection<size_t> Input::getWeightsSizes(const layers::Parameter *parameter) const
+const services::Collection<size_t> Input::getWeightsSizes(const layers::Parameter * parameter) const
 {
     return services::Collection<size_t>();
 }
@@ -124,7 +123,7 @@ const services::Collection<size_t> Input::getWeightsSizes(const layers::Paramete
  * Returns dimensions of biases tensor
  * \return Dimensions of biases tensor
  */
-const services::Collection<size_t> Input::getBiasesSizes(const layers::Parameter *parameter) const
+const services::Collection<size_t> Input::getBiasesSizes(const layers::Parameter * parameter) const
 {
     return services::Collection<size_t>();
 }
@@ -134,7 +133,7 @@ const services::Collection<size_t> Input::getBiasesSizes(const layers::Parameter
  * \param[in] dataTensor    Tensor with data
  * \param[in] index         Index of the tensor with data
  */
-services::Status Input::addData(const data_management::TensorPtr &dataTensor, size_t index)
+services::Status Input::addData(const data_management::TensorPtr & dataTensor, size_t index)
 {
     set(layers::forward::data, dataTensor);
     return services::Status();
@@ -150,8 +149,8 @@ Result::Result() : daal::algorithms::Result(lastResultLayerDataId + 1) {};
 * \param[in] method    Method of the algorithm
 * \return    Collection of dimensions of layer output
 */
-services::Collection<size_t> Result::getValueSize(const services::Collection< services::Collection<size_t> > &inputSize,
-                                                  const daal::algorithms::Parameter *par, const int method)
+services::Collection<size_t> Result::getValueSize(const services::Collection<services::Collection<size_t> > & inputSize,
+                                                  const daal::algorithms::Parameter * par, const int method)
 {
     return services::Collection<size_t>();
 }
@@ -163,10 +162,10 @@ services::Collection<size_t> Result::getValueSize(const services::Collection< se
 * \param[in] method      Method of the algorithm
 * \return    Collection of dimensions of layer output
 */
-services::Collection< services::Collection<size_t> > Result::getValueCollectionSize(const services::Collection<size_t> &inputSize,
-                                                                                    const daal::algorithms::Parameter *par, const int method)
+services::Collection<services::Collection<size_t> > Result::getValueCollectionSize(const services::Collection<size_t> & inputSize,
+                                                                                   const daal::algorithms::Parameter * par, const int method)
 {
-    return services::Collection< services::Collection<size_t> >();
+    return services::Collection<services::Collection<size_t> >();
 }
 
 /**
@@ -194,7 +193,7 @@ LayerDataPtr Result::get(ResultLayerDataId id) const
  * \param[in] id    Identifier of the result
  * \param[in] ptr   Pointer to the result
  */
-void Result::set(ResultId id, const data_management::TensorPtr &ptr)
+void Result::set(ResultId id, const data_management::TensorPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -204,7 +203,7 @@ void Result::set(ResultId id, const data_management::TensorPtr &ptr)
 * \param[in] id    Identifier of the result
 * \param[in] ptr   Pointer to the result
 */
-void Result::set(ResultLayerDataId id, const LayerDataPtr &ptr)
+void Result::set(ResultLayerDataId id, const LayerDataPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -215,14 +214,14 @@ void Result::set(ResultLayerDataId id, const LayerDataPtr &ptr)
  * \param[in] parameter     %Parameter of algorithm
  * \param[in] method        Computation method of the algorithm
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    if(Argument::size() != 2) return services::Status(services::ErrorIncorrectNumberOfInputNumericTables);
+    if (Argument::size() != 2) return services::Status(services::ErrorIncorrectNumberOfInputNumericTables);
 
     services::Status s;
     DAAL_CHECK_STATUS(s, data_management::checkTensor(get(value).get(), valueStr()));
-    const layers::Parameter *par = static_cast<const layers::Parameter * >(parameter);
-    if(!par->predictionStage)
+    const layers::Parameter * par = static_cast<const layers::Parameter *>(parameter);
+    if (!par->predictionStage)
     {
         LayerDataPtr layerData = get(resultForBackward);
         if (!layerData) return services::Status(services::ErrorNullLayerData);
@@ -249,9 +248,9 @@ data_management::TensorPtr Result::getValue(size_t index) const
     return get(layers::forward::value);
 }
 
-}// namespace interface1
-}// namespace forward
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

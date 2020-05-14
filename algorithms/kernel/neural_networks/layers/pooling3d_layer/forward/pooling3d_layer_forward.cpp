@@ -45,13 +45,13 @@ namespace interface1
  * Default constructor
  */
 Input::Input() : layers::forward::Input() {}
-Input::Input(const Input& other) : super(other) {}
+Input::Input(const Input & other) : super(other) {}
 
 /**
  * Returns dimensions of weights tensor
  * \return Dimensions of weights tensor
  */
-const services::Collection<size_t> Input::getWeightsSizes(const layers::Parameter *parameter) const
+const services::Collection<size_t> Input::getWeightsSizes(const layers::Parameter * parameter) const
 {
     return services::Collection<size_t>();
 }
@@ -60,7 +60,7 @@ const services::Collection<size_t> Input::getWeightsSizes(const layers::Paramete
  * Returns dimensions of biases tensor
  * \return Dimensions of biases tensor
  */
-const services::Collection<size_t> Input::getBiasesSizes(const layers::Parameter *parameter) const
+const services::Collection<size_t> Input::getBiasesSizes(const layers::Parameter * parameter) const
 {
     return services::Collection<size_t>();
 }
@@ -70,31 +70,30 @@ const services::Collection<size_t> Input::getBiasesSizes(const layers::Parameter
  * \param[in] parameter %Parameter of the layer
  * \param[in] method    Computation method of the layer
  */
-services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, layers::forward::Input::check(parameter, method));
 
-    const Parameter *param = static_cast<const Parameter *>(parameter);
-    const services::Collection<size_t> &dataDims = get(layers::forward::data)->getDimensions();
+    const Parameter * param                       = static_cast<const Parameter *>(parameter);
+    const services::Collection<size_t> & dataDims = get(layers::forward::data)->getDimensions();
 
     DAAL_CHECK_EX(dataDims.size() >= 3, services::ErrorIncorrectNumberOfDimensionsInTensor, services::ParameterName, dataStr());
 
     for (size_t i = 0; i < 3; i++)
     {
-        size_t index = param->indices.size[i];
+        size_t index      = param->indices.size[i];
         size_t kernelSize = param->kernelSizes.size[i];
-        size_t padding = param->paddings.size[i];
-        size_t stride = param->strides.size[i];
+        size_t padding    = param->paddings.size[i];
+        size_t stride     = param->strides.size[i];
 
         DAAL_CHECK_EX(index <= dataDims.size() - 1, services::ErrorIncorrectParameter, services::ParameterName, indicesStr());
-        DAAL_CHECK_EX((kernelSize != 0 &&
-                       kernelSize <= dataDims[index] + 2 * padding), services::ErrorIncorrectParameter, services::ParameterName, kernelSizesStr());
+        DAAL_CHECK_EX((kernelSize != 0 && kernelSize <= dataDims[index] + 2 * padding), services::ErrorIncorrectParameter, services::ParameterName,
+                      kernelSizesStr());
         DAAL_CHECK_EX(stride != 0, services::ErrorIncorrectParameter, services::ParameterName, stridesStr());
-
     }
-    DAAL_CHECK_EX(param->indices.size[0] != param->indices.size[1] &&
-                  param->indices.size[1] != param->indices.size[2], services::ErrorIncorrectParameter, services::ParameterName, indicesStr());
+    DAAL_CHECK_EX(param->indices.size[0] != param->indices.size[1] && param->indices.size[1] != param->indices.size[2],
+                  services::ErrorIncorrectParameter, services::ParameterName, indicesStr());
     return s;
 }
 
@@ -105,8 +104,8 @@ Result::Result() {}
  * Returns dimensions of value tensor
  * \return Dimensions of value tensor
  */
-const services::Collection<size_t> Result::getValueSize(const services::Collection<size_t> &inputSize,
-                                                        const daal::algorithms::Parameter *par, const int method) const
+const services::Collection<size_t> Result::getValueSize(const services::Collection<size_t> & inputSize, const daal::algorithms::Parameter * par,
+                                                        const int method) const
 {
     services::Collection<size_t> valueDims(inputSize);
     computeValueDimensions(valueDims, static_cast<const Parameter *>(par));
@@ -119,16 +118,16 @@ const services::Collection<size_t> Result::getValueSize(const services::Collecti
  * \param[in] parameter %Parameter of the layer
  * \param[in] method Computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, layers::forward::Result::check(input, parameter, method));
 
-    const Input *algInput = static_cast<const Input *>(input);
-    const Parameter *param = static_cast<const Parameter *>(parameter);
+    const Input * algInput  = static_cast<const Input *>(input);
+    const Parameter * param = static_cast<const Parameter *>(parameter);
 
-    data_management::TensorPtr dataTensor = algInput->get(layers::forward::data);
-    const services::Collection<size_t> &dataDims = dataTensor->getDimensions();
+    data_management::TensorPtr dataTensor         = algInput->get(layers::forward::data);
+    const services::Collection<size_t> & dataDims = dataTensor->getDimensions();
 
     services::Collection<size_t> valueDims(dataDims);
 
@@ -143,35 +142,41 @@ size_t Result::computeValueDimension(size_t dataDim, size_t kernelSize, size_t p
     return valueDim;
 }
 
-void Result::computeValueDimensions(services::Collection<size_t> &dims, const Parameter *param) const
+void Result::computeValueDimensions(services::Collection<size_t> & dims, const Parameter * param) const
 {
     for (size_t d = 0; d < 3; d++)
     {
-        dims[param->indices.size[d]] = computeValueDimension(
-            dims[param->indices.size[d]], param->kernelSizes.size[d], param->paddings.size[d], param->strides.size[d]);
+        dims[param->indices.size[d]] =
+            computeValueDimension(dims[param->indices.size[d]], param->kernelSizes.size[d], param->paddings.size[d], param->strides.size[d]);
     }
 }
 
-data_management::NumericTablePtr Result::createAuxInputDimensions(const services::Collection<size_t> &dataDims) const
+data_management::NumericTablePtr Result::createAuxInputDimensions(const services::Collection<size_t> & dataDims) const
 {
     size_t nInputDims = dataDims.size();
-    services::SharedPtr<data_management::HomogenNumericTable<int> > auxInputDimsTable = data_management::HomogenNumericTable<int>::create(
-        nInputDims, 1, data_management::NumericTableIface::doAllocate);
+    services::SharedPtr<data_management::HomogenNumericTable<int> > auxInputDimsTable =
+        data_management::HomogenNumericTable<int>::create(nInputDims, 1, data_management::NumericTableIface::doAllocate);
 
-    if (!auxInputDimsTable) { return data_management::NumericTablePtr(); }
-    if (auxInputDimsTable->getArray() == 0) { return data_management::NumericTablePtr(); }
+    if (!auxInputDimsTable)
+    {
+        return data_management::NumericTablePtr();
+    }
+    if (auxInputDimsTable->getArray() == 0)
+    {
+        return data_management::NumericTablePtr();
+    }
 
-    int *auxInputDimsData = auxInputDimsTable->getArray();
+    int * auxInputDimsData = auxInputDimsTable->getArray();
     for (size_t i = 0; i < nInputDims; i++)
     {
         auxInputDimsData[i] = (int)dataDims[i];
     }
     return auxInputDimsTable;
 }
-}// namespace interface1
-}// namespace forward
-}// namespace pooling3d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace pooling3d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

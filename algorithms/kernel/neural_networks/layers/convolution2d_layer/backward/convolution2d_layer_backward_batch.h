@@ -47,16 +47,14 @@ namespace interface1
  * \param[in] method    Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input,
-                                              const daal::algorithms::Parameter *parameter,
-                                              const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     using namespace daal::data_management;
     using daal::data_management::TensorPtr;
     using daal::internal::MklTensor;
 
-    const Input *in = static_cast<const Input *>(input);
-    const Parameter *param =  static_cast<const Parameter * >(parameter);
+    const Input * in        = static_cast<const Input *>(input);
+    const Parameter * param = static_cast<const Parameter *>(parameter);
 
     services::Collection<size_t> bDims;
     bDims.push_back(param->nKernels);
@@ -64,30 +62,27 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     TensorPtr valueTable = in->get(auxData);
     TensorPtr wTable     = in->get(auxWeights);
 
-    if(valueTable == 0 || wTable == 0) return services::Status(services::ErrorNullInputNumericTable);
+    if (valueTable == 0 || wTable == 0) return services::Status(services::ErrorNullInputNumericTable);
 
     if (param->propagateGradient && !get(layers::backward::gradient))
     {
-        set(layers::backward::gradient, TensorPtr(
-                        new MklTensor<algorithmFPType>(valueTable->getDimensions(), Tensor::doAllocate)));
+        set(layers::backward::gradient, TensorPtr(new MklTensor<algorithmFPType>(valueTable->getDimensions(), Tensor::doAllocate)));
     }
     if (!get(layers::backward::weightDerivatives))
     {
-        set(layers::backward::weightDerivatives, TensorPtr(
-                        new MklTensor<algorithmFPType>(wTable->getDimensions(), Tensor::doAllocate)));
+        set(layers::backward::weightDerivatives, TensorPtr(new MklTensor<algorithmFPType>(wTable->getDimensions(), Tensor::doAllocate)));
     }
     if (!get(layers::backward::biasDerivatives))
     {
-        set(layers::backward::biasDerivatives, TensorPtr(
-                        new MklTensor<algorithmFPType>(bDims, Tensor::doAllocate)));
+        set(layers::backward::biasDerivatives, TensorPtr(new MklTensor<algorithmFPType>(bDims, Tensor::doAllocate)));
     }
     return services::Status();
 }
 
-}// namespace interface1
-}// namespace forward
-}// namespace convolution2d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace convolution2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

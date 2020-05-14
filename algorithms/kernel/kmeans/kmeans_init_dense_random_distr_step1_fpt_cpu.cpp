@@ -40,8 +40,8 @@ template class DistributedContainer<step1Local, DAAL_FPTYPE, randomDense, DAAL_C
 namespace internal
 {
 template class KMeansInitStep1LocalKernel<randomDense, DAAL_FPTYPE, DAAL_CPU>;
-} // namespace daal::algorithms::kmeans::init::internal
-} // namespace daal::algorithms::kmeans::init
-} // namespace daal::algorithms::kmeans
-} // namespace daal::algorithms
+} // namespace internal
+} // namespace init
+} // namespace kmeans
+} // namespace algorithms
 } // namespace daal

@@ -19,7 +19,6 @@
 //  Implementation of truncated gaussian initializer functions.
 //--
 
-
 #include "neural_networks/initializers/truncated_gaussian/truncated_gaussian_initializer.h"
 #include "daal_strings.h"
 
@@ -35,16 +34,14 @@ namespace truncated_gaussian
 {
 namespace interface1
 {
-
-template<typename algorithmFPType>
-DAAL_EXPORT Parameter<algorithmFPType>::Parameter(double _mean, double _sigma, size_t _seed) :
-    mean(_mean), sigma(_sigma), seed(_seed)
+template <typename algorithmFPType>
+DAAL_EXPORT Parameter<algorithmFPType>::Parameter(double _mean, double _sigma, size_t _seed) : mean(_mean), sigma(_sigma), seed(_seed)
 {
     a = (algorithmFPType)(mean - 2.0 * sigma);
     b = (algorithmFPType)(mean + 2.0 * sigma);
 }
 
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 DAAL_EXPORT services::Status Parameter<algorithmFPType>::check() const
 {
     DAAL_CHECK_EX(a < b, services::ErrorIncorrectParameter, services::ParameterName, aStr());
@@ -55,9 +52,9 @@ DAAL_EXPORT services::Status Parameter<algorithmFPType>::check() const
 template DAAL_EXPORT Parameter<DAAL_FPTYPE>::Parameter(double mean, double sigma, size_t seed);
 template DAAL_EXPORT services::Status Parameter<DAAL_FPTYPE>::check() const;
 
-} // interface1
-} // truncated_gaussian
-} // initializers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace interface1
+} // namespace truncated_gaussian
+} // namespace initializers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

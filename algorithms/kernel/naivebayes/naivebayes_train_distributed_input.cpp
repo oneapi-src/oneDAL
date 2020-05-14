@@ -67,7 +67,7 @@ DataCollectionPtr DistributedInput::get(Step2MasterInputId id) const
  * \param[in] id            Identifier of the input object
  * \param[in] partialResult Pointer to the object
  */
-void DistributedInput::add(const Step2MasterInputId &id, const PartialResultPtr &partialResult)
+void DistributedInput::add(const Step2MasterInputId & id, const PartialResultPtr & partialResult)
 {
     DataCollectionPtr collection = get(id);
     if (!collection) return;
@@ -79,7 +79,7 @@ void DistributedInput::add(const Step2MasterInputId &id, const PartialResultPtr 
  * \param[in] id   Identifier of the object
  * \param[in] value Pointer to the object
  */
-void DistributedInput::set(Step2MasterInputId id, const DataCollectionPtr &value)
+void DistributedInput::set(Step2MasterInputId id, const DataCollectionPtr & value)
 {
     Argument::set(id, value);
 }
@@ -89,7 +89,7 @@ void DistributedInput::set(Step2MasterInputId id, const DataCollectionPtr &value
  * \param[in] parameter %Parameter of the algorithm
  * \param[in] method    Algorithm method
  */
-Status DistributedInput::check(const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedInput::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status status;
 
@@ -101,19 +101,19 @@ Status DistributedInput::check(const daal::algorithms::Parameter *parameter, int
 
     size_t nClasses = 0;
     {
-        const multinomial_naive_bayes::interface1::Parameter *algPar1 = dynamic_cast<const multinomial_naive_bayes::interface1::Parameter *>(parameter);
-        if(algPar1) nClasses = algPar1->nClasses;
+        const multinomial_naive_bayes::interface1::Parameter * algPar1 =
+            dynamic_cast<const multinomial_naive_bayes::interface1::Parameter *>(parameter);
+        if (algPar1) nClasses = algPar1->nClasses;
     }
     {
-        const multinomial_naive_bayes::Parameter *algPar2 = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
-        if(algPar2) nClasses = algPar2->nClasses;
+        const multinomial_naive_bayes::Parameter * algPar2 = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
+        if (algPar2) nClasses = algPar2->nClasses;
     }
     DAAL_CHECK_EX(nClasses > 0, ErrorNullParameterNotSupported, ArgumentName, nClassesStr());
 
     size_t nFeatures = 0;
 
-    auto checkModel = [&](const SerializationIfacePtr &model) -> services::Status
-    {
+    auto checkModel = [&](const SerializationIfacePtr & model) -> services::Status {
         services::Status s;
         DAAL_CHECK(model, ErrorNullModel);
         multinomial_naive_bayes::PartialModelPtr partialModel = multinomial_naive_bayes::PartialModel::cast(model);
@@ -134,20 +134,19 @@ Status DistributedInput::check(const daal::algorithms::Parameter *parameter, int
 
     for (size_t i = 0; i < size; i++)
     {
-        status|=checkModel((*collection)[i]);
+        status |= checkModel((*collection)[i]);
     }
     return status;
 }
 
-
-Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s; // Error status
 
     data_management::NumericTablePtr dataTable = get(classifier::training::data);
     DAAL_CHECK_STATUS(s, data_management::checkNumericTable(dataTable.get(), dataStr()));
 
-    const size_t nRows = dataTable->getNumberOfRows();
+    const size_t nRows                           = dataTable->getNumberOfRows();
     data_management::NumericTablePtr labelsTable = get(classifier::training::labels);
     DAAL_CHECK_STATUS(s, data_management::checkNumericTable(labelsTable.get(), labelsStr(), 0, 0, 1, nRows));
 
@@ -159,9 +158,9 @@ Status Input::check(const daal::algorithms::Parameter *parameter, int method) co
 
     if (parameter != NULL)
     {
-        const daal::algorithms::classifier::interface1::Parameter *algParameter1 =
+        const daal::algorithms::classifier::interface1::Parameter * algParameter1 =
             dynamic_cast<const daal::algorithms::classifier::interface1::Parameter *>(parameter);
-        const daal::algorithms::classifier::interface2::Parameter *algParameter2 =
+        const daal::algorithms::classifier::interface2::Parameter * algParameter2 =
             dynamic_cast<const daal::algorithms::classifier::interface2::Parameter *>(parameter);
         if (algParameter1 != NULL)
         {
@@ -169,8 +168,8 @@ Status Input::check(const daal::algorithms::Parameter *parameter, int method) co
         }
         else if (algParameter2 != NULL)
         {
-            DAAL_CHECK_EX((algParameter2->nClasses > 1) && (algParameter2->nClasses < INT_MAX),
-                          services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
+            DAAL_CHECK_EX((algParameter2->nClasses > 1) && (algParameter2->nClasses < INT_MAX), services::ErrorIncorrectParameter,
+                          services::ParameterName, nClassesStr());
         }
         else
         {

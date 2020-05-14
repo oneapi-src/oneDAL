@@ -34,27 +34,28 @@ namespace algorithms
 {
 namespace kmeans
 {
-
 namespace interface1
 {
-
 /**
  *  Constructs parameters of the K-Means algorithm
  *  \param[in] _nClusters   Number of clusters
  *  \param[in] _maxIterations Number of iterations
  */
-Parameter::Parameter(size_t _nClusters, size_t _maxIterations) :
-    nClusters(_nClusters), maxIterations(_maxIterations), accuracyThreshold(0.0), gamma(1.0),
-    distanceType(euclidean), assignFlag(true) {}
+Parameter::Parameter(size_t _nClusters, size_t _maxIterations)
+    : nClusters(_nClusters), maxIterations(_maxIterations), accuracyThreshold(0.0), gamma(1.0), distanceType(euclidean), assignFlag(true)
+{}
 
 /**
  *  Constructs parameters of the K-Means algorithm by copying another parameters of the K-Means algorithm
  *  \param[in] other    Parameters of the K-Means algorithm
  */
-Parameter::Parameter(const Parameter &other) :
-    nClusters(other.nClusters), maxIterations(other.maxIterations),
-    accuracyThreshold(other.accuracyThreshold), gamma(other.gamma),
-    distanceType(other.distanceType), assignFlag(other.assignFlag)
+Parameter::Parameter(const Parameter & other)
+    : nClusters(other.nClusters),
+      maxIterations(other.maxIterations),
+      accuracyThreshold(other.accuracyThreshold),
+      gamma(other.gamma),
+      distanceType(other.distanceType),
+      assignFlag(other.assignFlag)
 {}
 
 services::Status Parameter::check() const
@@ -67,5 +68,5 @@ services::Status Parameter::check() const
 
 } // namespace interface1
 } // namespace kmeans
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

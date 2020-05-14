@@ -19,7 +19,6 @@
 //  Implementation of prelu calculation functions.
 //--
 
-
 #ifndef __PRELU_LAYER_BACKWARD_KERNEL_H__
 #define __PRELU_LAYER_BACKWARD_KERNEL_H__
 
@@ -52,19 +51,19 @@ namespace backward
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 struct PReLUTask
 {
-    PReLUTask(const Tensor &_inGradTensor, const Tensor &_xTensor, const Tensor &_wTensor, Tensor &_wDerTensor, Tensor &_resultTensor, const prelu::Parameter &parameter);
+    PReLUTask(const Tensor & _inGradTensor, const Tensor & _xTensor, const Tensor & _wTensor, Tensor & _wDerTensor, Tensor & _resultTensor,
+              const prelu::Parameter & parameter);
 
     virtual ~PReLUTask() {};
 
     WriteOnlySubtensor<algorithmFPType, cpu> wDerBlock;
     ReadSubtensor<algorithmFPType, cpu> wBlock;
 
-    const algorithmFPType *wArray;
-    algorithmFPType *wDerArray;
+    const algorithmFPType * wArray;
+    algorithmFPType * wDerArray;
 
     TensorOffsetLayout inputLayout;
 
@@ -78,44 +77,38 @@ struct PReLUTask
     size_t wOffset;
     size_t _nElemsInBlock = 1000;
 
-    const Tensor &inGradTensor;
-    const Tensor &xTensor;
-    const Tensor &wTensor;
-    Tensor &wDerTensor;
-    Tensor &resultTensor;
+    const Tensor & inGradTensor;
+    const Tensor & xTensor;
+    const Tensor & wTensor;
+    Tensor & wDerTensor;
+    Tensor & resultTensor;
 
     algorithmFPType invN;
 
     services::Status status;
-
 };
 
 /**
  *  \brief Kernel for prelu calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class PReLUKernel : public Kernel
 {
 public:
-    services::Status compute( PReLUTask<algorithmFPType, method, cpu> &task,
-                  const prelu::Parameter &parameter );
+    services::Status compute(PReLUTask<algorithmFPType, method, cpu> & task, const prelu::Parameter & parameter);
 
 protected:
-    services::Status computeGradientBlock( PReLUTask<algorithmFPType, method, cpu> &task,
-                               size_t *fDims,
-                               algorithmFPType *wDerArray );
+    services::Status computeGradientBlock(PReLUTask<algorithmFPType, method, cpu> & task, size_t * fDims, algorithmFPType * wDerArray);
 
-    services::Status computeDerivativesBlock( PReLUTask<algorithmFPType, method, cpu> &task,
-                                  size_t *fDims,
-                                  algorithmFPType *wDerArray );
+    services::Status computeDerivativesBlock(PReLUTask<algorithmFPType, method, cpu> & task, size_t * fDims, algorithmFPType * wDerArray);
 };
 
-} // internal
-} // backward
-} // prelu
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace backward
+} // namespace prelu
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

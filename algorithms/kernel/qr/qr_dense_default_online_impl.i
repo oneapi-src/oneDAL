@@ -50,13 +50,12 @@ namespace qr
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for QR QR calculation
  */
 template <typename algorithmFPType, daal::algorithms::qr::Method method, CpuType cpu>
-Status QROnlineKernel<algorithmFPType, method, cpu>::compute(const size_t na, const NumericTable *const *a,
-                                                           const size_t nr, NumericTable *r[], const daal::algorithms::Parameter *par)
+Status QROnlineKernel<algorithmFPType, method, cpu>::compute(const size_t na, const NumericTable * const * a, const size_t nr, NumericTable * r[],
+                                                             const daal::algorithms::Parameter * par)
 {
     QRBatchKernel<algorithmFPType, method, cpu> kernel;
     return kernel.compute(na, a, nr, r, par);
@@ -66,47 +65,47 @@ Status QROnlineKernel<algorithmFPType, method, cpu>::compute(const size_t na, co
  *  \brief Kernel for QR QR calculation
  */
 template <typename algorithmFPType, daal::algorithms::qr::Method method, CpuType cpu>
-Status QROnlineKernel<algorithmFPType, method, cpu>::finalizeCompute(const size_t na, const NumericTable *const *a,
-                                                                   const size_t nr, NumericTable *r[], const daal::algorithms::Parameter *par)
+Status QROnlineKernel<algorithmFPType, method, cpu>::finalizeCompute(const size_t na, const NumericTable * const * a, const size_t nr,
+                                                                     NumericTable * r[], const daal::algorithms::Parameter * par)
 {
-    const NumericTable *ntAux2_0 = a[0];
-    NumericTable       *ntR      = r[1];
+    const NumericTable * ntAux2_0 = a[0];
+    NumericTable * ntR            = r[1];
 
     size_t nBlocks = na / 2;
 
-    size_t n       = ntAux2_0->getNumberOfColumns();
+    size_t n = ntAux2_0->getNumberOfColumns();
 
     /* Step 2 */
 
-    const NumericTable *const *step2ntIn = a;
+    const NumericTable * const * step2ntIn = a;
     TArray<NumericTable *, cpu> step2ntOut(nBlocks);
     Status s;
-    for(auto k = 0; k < nBlocks; k++)
+    for (auto k = 0; k < nBlocks; k++)
     {
         step2ntOut[k] = new HomogenNumericTableCPU<algorithmFPType, cpu>(n, n, s);
         DAAL_CHECK_STATUS_VAR(s);
     }
 
     QRDistributedStep2Kernel<algorithmFPType, method, cpu> kernel;
-    s = kernel.compute( nBlocks, step2ntIn, nBlocks + 2, ntR, step2ntOut.get(), par );
-    if(s)
+    s = kernel.compute(nBlocks, step2ntIn, nBlocks + 2, ntR, step2ntOut.get(), par);
+    if (s)
     {
         /* Step 3 */
         BlockMicroTable<algorithmFPType, writeOnly, cpu> mtQ(r[0]);
-        size_t computedRows   = 0;
+        size_t computedRows = 0;
         for (auto i = 0; i < nBlocks; i++)
         {
-            const NumericTable *ntAux1i = a[nBlocks + i];
-            size_t m = ntAux1i->getNumberOfRows();
+            const NumericTable * ntAux1i = a[nBlocks + i];
+            size_t m                     = ntAux1i->getNumberOfRows();
 
-            algorithmFPType *Qi;
-            mtQ.getBlockOfRows( computedRows, m, &Qi );
+            algorithmFPType * Qi;
+            mtQ.getBlockOfRows(computedRows, m, &Qi);
 
-            HomogenNumericTableCPU<algorithmFPType, cpu> ntQi   (Qi, n, m, s);
+            HomogenNumericTableCPU<algorithmFPType, cpu> ntQi(Qi, n, m, s);
             DAAL_CHECK_STATUS_VAR(s);
 
-            const NumericTable *step3ntIn[2] = {ntAux1i, step2ntOut[i]};
-            NumericTable *step3ntOut[1] = {&ntQi};
+            const NumericTable * step3ntIn[2] = { ntAux1i, step2ntOut[i] };
+            NumericTable * step3ntOut[1]      = { &ntQi };
 
             QRDistributedStep3Kernel<algorithmFPType, method, cpu> kernelStep3;
             s = kernelStep3.compute(2, step3ntIn, 1, step3ntOut, par);
@@ -114,11 +113,10 @@ Status QROnlineKernel<algorithmFPType, method, cpu>::finalizeCompute(const size_
             mtQ.release();
 
             computedRows += m;
-            if(!s)
-                break;
+            if (!s) break;
         }
     }
-    for(auto k = 0; k < nBlocks; k++)
+    for (auto k = 0; k < nBlocks; k++)
     {
         delete step2ntOut[k];
         step2ntOut[k] = nullptr;
@@ -126,9 +124,9 @@ Status QROnlineKernel<algorithmFPType, method, cpu>::finalizeCompute(const size_
     return s;
 }
 
-} // namespace daal::internal
-}
-}
+} // namespace internal
+} // namespace qr
+} // namespace algorithms
 } // namespace daal
 
 #endif

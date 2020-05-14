@@ -40,55 +40,55 @@ namespace training
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::interface1::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::interface1::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::TrainingKernelBatch, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    Input *input = static_cast<Input *>(_in);
-    Result *result = static_cast<Result *>(_res);
+    Input * input   = static_cast<Input *>(_in);
+    Result * result = static_cast<Result *>(_res);
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    Tensor* data = input->get(training::data).get();
-    Model* nnModel = result->get(training::model).get();
+    Tensor * data                                      = input->get(training::data).get();
+    Model * nnModel                                    = result->get(training::model).get();
     KeyValueDataCollectionPtr groundTruthCollectionPtr = input->get(training::groundTruthCollection);
 
-    __DAAL_CALL_KERNEL(env, internal::TrainingKernelBatch,
-        __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, data, nnModel, groundTruthCollectionPtr);
+    __DAAL_CALL_KERNEL(env, internal::TrainingKernelBatch, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, data, nnModel,
+                       groundTruthCollectionPtr);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::setupCompute()
 {
-    Input *input = static_cast<Input *>(_in);
-    Result *result = static_cast<Result *>(_res);
+    Input * input   = static_cast<Input *>(_in);
+    Result * result = static_cast<Result *>(_res);
 
-    Parameter *parameter = static_cast<Parameter *>(_par);
-    daal::services::Environment::env &env = *_env;
+    Parameter * parameter                  = static_cast<Parameter *>(_par);
+    daal::services::Environment::env & env = *_env;
 
-    Tensor* data = input->get(training::data).get();
-    Model* nnModel = result->get(training::model).get();
+    Tensor * data                                      = input->get(training::data).get();
+    Model * nnModel                                    = result->get(training::model).get();
     KeyValueDataCollectionPtr groundTruthCollectionPtr = input->get(training::groundTruthCollection);
 
-    __DAAL_CALL_KERNEL(env, internal::TrainingKernelBatch,
-        __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), initialize, data, nnModel, groundTruthCollectionPtr, parameter);
+    __DAAL_CALL_KERNEL(env, internal::TrainingKernelBatch, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), initialize, data, nnModel,
+                       groundTruthCollectionPtr, parameter);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::resetCompute()
 {
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
     __DAAL_CALL_KERNEL(env, internal::TrainingKernelBatch, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), reset);
 }
 

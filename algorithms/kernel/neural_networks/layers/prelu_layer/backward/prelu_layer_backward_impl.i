@@ -38,32 +38,39 @@ namespace backward
 {
 namespace internal
 {
-
 using namespace daal::services;
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 struct Tls_data
 {
     Status status;
 
     TArrayScalableCalloc<algorithmFPType, cpu> wDerBlock;
     TArray<size_t, cpu> fdimsBlock;
-    size_t *tls_fDims;
-    algorithmFPType* tls_wDerArray;
+    size_t * tls_fDims;
+    algorithmFPType * tls_wDerArray;
 
     DAAL_NEW_DELETE();
 
     Tls_data(size_t wSize, size_t fDimN) : wDerBlock(wSize), fdimsBlock(fDimN)
     {
         tls_wDerArray = wDerBlock.get();
-        if(!tls_wDerArray) { status = Status(ErrorMemoryAllocationFailed); return; }
+        if (!tls_wDerArray)
+        {
+            status = Status(ErrorMemoryAllocationFailed);
+            return;
+        }
 
         tls_fDims = fdimsBlock.get();
-        if(!tls_fDims) { status = Status(ErrorMemoryAllocationFailed); return; }
+        if (!tls_fDims)
+        {
+            status = Status(ErrorMemoryAllocationFailed);
+            return;
+        }
 
-       PRAGMA_IVDEP
-       PRAGMA_VECTOR_ALWAYS
-        for(size_t i = 0; i < wSize; i++)
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
+        for (size_t i = 0; i < wSize; i++)
         {
             tls_wDerArray[i] = (algorithmFPType)0;
         }
@@ -72,14 +79,13 @@ struct Tls_data
     ~Tls_data() {}
 };
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status PReLUKernel<algorithmFPType, method, cpu>::compute( PReLUTask<algorithmFPType, method, cpu> &task,
-                                                         const prelu::Parameter &parameter )
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status PReLUKernel<algorithmFPType, method, cpu>::compute(PReLUTask<algorithmFPType, method, cpu> & task, const prelu::Parameter & parameter)
 {
     Status s;
     DAAL_CHECK_STATUS(s, task.status);
 
-    if(task.fDimN == 0)
+    if (task.fDimN == 0)
     {
         if (parameter.propagateGradient)
         {
@@ -93,10 +99,7 @@ Status PReLUKernel<algorithmFPType, method, cpu>::compute( PReLUTask<algorithmFP
     else
     {
         /* TLS data initialization */
-        daal::tls<Tls_data<algorithmFPType, cpu> *> tls_data([ & ]()
-        {
-            return new Tls_data<algorithmFPType, cpu>(task.wSize, task.fDimN);
-        });
+        daal::tls<Tls_data<algorithmFPType, cpu> *> tls_data([&]() { return new Tls_data<algorithmFPType, cpu>(task.wSize, task.fDimN); });
 
         size_t nBlocks = task.xTensor.getSize(0, task.fDimN);
 
@@ -108,117 +111,98 @@ Status PReLUKernel<algorithmFPType, method, cpu>::compute( PReLUTask<algorithmFP
             __DAAL_MAKE_TENSOR_THREADSAFE(const_cast<Tensor *>(&(task.xTensor)))
             __DAAL_MAKE_TENSOR_THREADSAFE(&(task.resultTensor))
 
-            daal::threader_for(nBlocks, nBlocks, [ =, &tls_data, &task, &safeStat ](size_t i)
-            {
-                Tls_data<algorithmFPType, cpu> *tls_data_local = tls_data.local();
+            daal::threader_for(nBlocks, nBlocks, [=, &tls_data, &task, &safeStat](size_t i) {
+                Tls_data<algorithmFPType, cpu> * tls_data_local = tls_data.local();
                 safeStat |= tls_data_local->status;
-                if(!tls_data_local->status) return;
+                if (!tls_data_local->status) return;
 
                 getFixedDimsIndexes(task.fDimN, tls_data_local->tls_fDims, task.xDims, i);
 
                 safeStat |= computeGradientBlock(task, tls_data_local->tls_fDims, tls_data_local->tls_wDerArray);
-            } );
+            });
         }
         else
         {
             __DAAL_MAKE_TENSOR_THREADSAFE(const_cast<Tensor *>(&(task.inGradTensor)))
             __DAAL_MAKE_TENSOR_THREADSAFE(const_cast<Tensor *>(&(task.xTensor)))
 
-            daal::threader_for(nBlocks, nBlocks, [ =, &tls_data, &task, &safeStat ](size_t i)
-            {
-                Tls_data<algorithmFPType, cpu> *tls_data_local = tls_data.local();
+            daal::threader_for(nBlocks, nBlocks, [=, &tls_data, &task, &safeStat](size_t i) {
+                Tls_data<algorithmFPType, cpu> * tls_data_local = tls_data.local();
                 safeStat |= tls_data_local->status;
-                if(!tls_data_local->status) return;
+                if (!tls_data_local->status) return;
 
                 getFixedDimsIndexes(task.fDimN, tls_data_local->tls_fDims, task.xDims, i);
 
                 safeStat |= computeDerivativesBlock(task, tls_data_local->tls_fDims, tls_data_local->tls_wDerArray);
-            } );
+            });
         }
 
-        tls_data.reduce( [ & ]( Tls_data<algorithmFPType, cpu>* tls_data_local )
-        {
-            if(!safeStat.ok())
+        tls_data.reduce([&](Tls_data<algorithmFPType, cpu> * tls_data_local) {
+            if (!safeStat.ok())
             {
                 delete tls_data_local;
                 return;
             }
 
-           PRAGMA_IVDEP
-           PRAGMA_VECTOR_ALWAYS
-            for( size_t i = 0; i < task.wSize; i++)
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (size_t i = 0; i < task.wSize; i++)
             {
                 task.wDerArray[i] += tls_data_local->tls_wDerArray[i];
             }
 
             delete tls_data_local;
-        } );
+        });
 
         DAAL_CHECK_SAFE_STATUS()
     }
     return s;
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status PReLUKernel<algorithmFPType, method, cpu>::computeGradientBlock( PReLUTask<algorithmFPType, method, cpu> &task,
-                                                                      size_t *fDims,
-                                                                      algorithmFPType *wDerArray )
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status PReLUKernel<algorithmFPType, method, cpu>::computeGradientBlock(PReLUTask<algorithmFPType, method, cpu> & task, size_t * fDims,
+                                                                       algorithmFPType * wDerArray)
 {
-    ReadSubtensor<algorithmFPType, cpu> inGradBlock( const_cast<Tensor &>(task.inGradTensor),
-                                                     task.fDimN,
-                                                     fDims,
-                                                     0,
-                                                     task.xDims[task.fDimN],
-                                                     task.inputLayout );
+    ReadSubtensor<algorithmFPType, cpu> inGradBlock(const_cast<Tensor &>(task.inGradTensor), task.fDimN, fDims, 0, task.xDims[task.fDimN],
+                                                    task.inputLayout);
     DAAL_CHECK_BLOCK_STATUS(inGradBlock);
-    const algorithmFPType *inGradArray = inGradBlock.get();
+    const algorithmFPType * inGradArray = inGradBlock.get();
 
-    ReadSubtensor<algorithmFPType, cpu> xBlock( const_cast<Tensor &>(task.xTensor),
-                                                task.fDimN,
-                                                fDims,
-                                                0,
-                                                task.xDims[task.fDimN],
-                                                task.inputLayout );
+    ReadSubtensor<algorithmFPType, cpu> xBlock(const_cast<Tensor &>(task.xTensor), task.fDimN, fDims, 0, task.xDims[task.fDimN], task.inputLayout);
     DAAL_CHECK_BLOCK_STATUS(xBlock);
-    const algorithmFPType *xArray = xBlock.get();
+    const algorithmFPType * xArray = xBlock.get();
 
-    WriteOnlySubtensor<algorithmFPType, cpu> resultBlock( task.resultTensor,
-                                                          task.fDimN,
-                                                          fDims,
-                                                          0,
-                                                          task.xDims[task.fDimN],
-                                                          task.inputLayout );
+    WriteOnlySubtensor<algorithmFPType, cpu> resultBlock(task.resultTensor, task.fDimN, fDims, 0, task.xDims[task.fDimN], task.inputLayout);
     DAAL_CHECK_BLOCK_STATUS(resultBlock);
-    algorithmFPType *resultArray = resultBlock.get();
+    algorithmFPType * resultArray = resultBlock.get();
 
     size_t nDataElements = xBlock.getSize();
-    size_t start = task.wStart;
-    size_t end   = task.wStart;
+    size_t start         = task.wStart;
+    size_t end           = task.wStart;
 
-    if(task.wStart + task.wLen <= task.fDimN) // weights are at the left of split dim
+    if (task.wStart + task.wLen <= task.fDimN) // weights are at the left of split dim
     {
         end += task.wLen;
     }
-    if( (task.wStart < task.fDimN) &&
-        (task.wStart + task.wLen > task.fDimN) ) // split dim is in the midddle of weights dims
+    if ((task.wStart < task.fDimN) && (task.wStart + task.wLen > task.fDimN)) // split dim is in the midddle of weights dims
     {
         end = task.fDimN;
     }
 
     size_t wJ = 0;
-   PRAGMA_IVDEP
-   PRAGMA_VECTOR_ALWAYS
-    for(size_t j = start; j < end; j++)
+    PRAGMA_IVDEP
+    PRAGMA_VECTOR_ALWAYS
+    for (size_t j = start; j < end; j++)
     {
         wJ += fDims[j] * task.wOffsets[j - task.wStart];
     }
 
-    for(size_t i = 0; i < nDataElements; i++)
+    for (size_t i = 0; i < nDataElements; i++)
     {
-        if(nDataElements > task.wOffset)
+        if (nDataElements > task.wOffset)
         {
             wJ += (i != 0 && i % task.wOffset == 0);
-            if(wJ == task.wSize)
+            if (wJ == task.wSize)
             {
                 wJ = 0;
             }
@@ -241,55 +225,44 @@ Status PReLUKernel<algorithmFPType, method, cpu>::computeGradientBlock( PReLUTas
     return Status();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status PReLUKernel<algorithmFPType, method, cpu>::computeDerivativesBlock( PReLUTask<algorithmFPType, method, cpu> &task,
-                                                                         size_t *fDims,
-                                                                         algorithmFPType *wDerArray )
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status PReLUKernel<algorithmFPType, method, cpu>::computeDerivativesBlock(PReLUTask<algorithmFPType, method, cpu> & task, size_t * fDims,
+                                                                          algorithmFPType * wDerArray)
 {
-    ReadSubtensor<algorithmFPType, cpu> inGradBlock( const_cast<Tensor &>(task.inGradTensor),
-                                                     task.fDimN,
-                                                     fDims,
-                                                     0,
-                                                     task.xDims[task.fDimN],
-                                                     task.inputLayout );
+    ReadSubtensor<algorithmFPType, cpu> inGradBlock(const_cast<Tensor &>(task.inGradTensor), task.fDimN, fDims, 0, task.xDims[task.fDimN],
+                                                    task.inputLayout);
     DAAL_CHECK_BLOCK_STATUS(inGradBlock);
-    const algorithmFPType *inGradArray = inGradBlock.get();
+    const algorithmFPType * inGradArray = inGradBlock.get();
 
-    ReadSubtensor<algorithmFPType, cpu> xBlock( const_cast<Tensor &>(task.xTensor),
-                                                task.fDimN,
-                                                fDims,
-                                                0,
-                                                task.xDims[task.fDimN],
-                                                task.inputLayout );
+    ReadSubtensor<algorithmFPType, cpu> xBlock(const_cast<Tensor &>(task.xTensor), task.fDimN, fDims, 0, task.xDims[task.fDimN], task.inputLayout);
     DAAL_CHECK_BLOCK_STATUS(xBlock);
-    const algorithmFPType *xArray = xBlock.get();
+    const algorithmFPType * xArray = xBlock.get();
 
     size_t nDataElements = xBlock.getSize();
-    size_t start = task.wStart;
-    size_t end   = task.wStart;
+    size_t start         = task.wStart;
+    size_t end           = task.wStart;
 
-    if(task.wStart + task.wLen <= task.fDimN) // weights are at the left of split dim
+    if (task.wStart + task.wLen <= task.fDimN) // weights are at the left of split dim
     {
         end += task.wLen;
     }
-    if( (task.wStart < task.fDimN) &&
-        (task.wStart + task.wLen > task.fDimN) ) // split dim is in the midddle of weights dims
+    if ((task.wStart < task.fDimN) && (task.wStart + task.wLen > task.fDimN)) // split dim is in the midddle of weights dims
     {
         end = task.fDimN;
     }
 
     size_t wJ = 0;
-    for(size_t j = start; j < end; j++)
+    for (size_t j = start; j < end; j++)
     {
         wJ += fDims[j] * task.wOffsets[j - task.wStart];
     }
 
-    for(size_t i = 0; i < nDataElements; i++)
+    for (size_t i = 0; i < nDataElements; i++)
     {
-        if(nDataElements > task.wOffset)
+        if (nDataElements > task.wOffset)
         {
             wJ += (i != 0 && i % task.wOffset == 0);
-            if(wJ == task.wSize)
+            if (wJ == task.wSize)
             {
                 wJ = 0;
             }
@@ -303,21 +276,18 @@ Status PReLUKernel<algorithmFPType, method, cpu>::computeDerivativesBlock( PReLU
     return Status();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-PReLUTask<algorithmFPType, method, cpu>::PReLUTask( const Tensor &_inGradTensor,
-                                                    const Tensor &_xTensor,
-                                                    const Tensor &_wTensor,
-                                                    Tensor &_wDerTensor,
-                                                    Tensor &_resultTensor,
-                                                    const prelu::Parameter &parameter ) : inGradTensor(_inGradTensor),
-                                                                                          xTensor(_xTensor),
-                                                                                          wTensor(_wTensor),
-                                                                                          wDerTensor(_wDerTensor),
-                                                                                          resultTensor(_resultTensor),
-                                                                                          wDerBlock(),
-                                                                                          wBlock(),
-                                                                                          wOffsets(parameter.weightsDimension),
-                                                                                          inputLayout(_xTensor.createDefaultSubtensorLayout())
+template <typename algorithmFPType, Method method, CpuType cpu>
+PReLUTask<algorithmFPType, method, cpu>::PReLUTask(const Tensor & _inGradTensor, const Tensor & _xTensor, const Tensor & _wTensor,
+                                                   Tensor & _wDerTensor, Tensor & _resultTensor, const prelu::Parameter & parameter)
+    : inGradTensor(_inGradTensor),
+      xTensor(_xTensor),
+      wTensor(_wTensor),
+      wDerTensor(_wDerTensor),
+      resultTensor(_resultTensor),
+      wDerBlock(),
+      wBlock(),
+      wOffsets(parameter.weightsDimension),
+      inputLayout(_xTensor.createDefaultSubtensorLayout())
 {
     wStart  = parameter.dataDimension;
     wLen    = parameter.weightsDimension;
@@ -333,18 +303,19 @@ PReLUTask<algorithmFPType, method, cpu>::PReLUTask( const Tensor &_inGradTensor,
     wDerArray = wDerBlock.get();
 
     wBlock.set(const_cast<Tensor &>(wTensor), 0, 0, 0, wTensor.getDimensions()[0]);
-    status |= wBlock.status(); if(!status) return;
+    status |= wBlock.status();
+    if (!status) return;
     wArray = wBlock.get();
 
-    const Collection<size_t> &wDims = wTensor.getDimensions();
+    const Collection<size_t> & wDims = wTensor.getDimensions();
 
     wOffsets[wLen - 1] = 1;
-    for(size_t i = 1; i < wLen; i++)
+    for (size_t i = 1; i < wLen; i++)
     {
         wOffsets[wLen - i - 1] = wOffsets[wLen - i] * wDims[wLen - i];
     }
 
-    for(size_t i = 0; i < wSize; i++)
+    for (size_t i = 0; i < wSize; i++)
     {
         wDerArray[i] = (algorithmFPType)0;
     }
@@ -353,14 +324,14 @@ PReLUTask<algorithmFPType, method, cpu>::PReLUTask( const Tensor &_inGradTensor,
     Collection<size_t> inputOffsets(nDims);
 
     inputOffsets[nDims - 1] = 1;
-    for(size_t i = 1; i < nDims; i++)
+    for (size_t i = 1; i < nDims; i++)
     {
         inputOffsets[nDims - i - 1] = inputOffsets[nDims - i] * xDims[nDims - i];
     }
 
     wOffset = inputOffsets[wStart + wLen - 1];
 
-    for(int idx = xDims.size() - 1; idx >= 0; idx--)
+    for (int idx = xDims.size() - 1; idx >= 0; idx--)
     {
         if (inputOffsets[idx] > _nElemsInBlock)
         {

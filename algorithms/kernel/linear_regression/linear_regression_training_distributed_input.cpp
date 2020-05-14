@@ -36,7 +36,6 @@ namespace training
 {
 namespace interface1
 {
-
 DistributedInput<step2Master>::DistributedInput() : daal::algorithms::Input(lastStep2MasterInputId + 1)
 {
     Argument::set(partialModels, DataCollectionPtr(new DataCollection()));
@@ -57,7 +56,7 @@ DataCollectionPtr DistributedInput<step2Master>::get(Step2MasterInputId id) cons
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   %Input object
  */
-void DistributedInput<step2Master>::set(Step2MasterInputId id, const DataCollectionPtr &ptr)
+void DistributedInput<step2Master>::set(Step2MasterInputId id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -67,7 +66,7 @@ void DistributedInput<step2Master>::set(Step2MasterInputId id, const DataCollect
  * \param[in] id      Identifier of the input object
  * \param[in] partialResult   %Input object
  */
-void DistributedInput<step2Master>::add(Step2MasterInputId id, const PartialResultPtr &partialResult)
+void DistributedInput<step2Master>::add(Step2MasterInputId id, const PartialResultPtr & partialResult)
 {
     DataCollectionPtr collection = staticPointerCast<DataCollection, SerializationIface>(Argument::get(id));
     collection->push_back(staticPointerCast<SerializationIface, linear_regression::Model>(partialResult->get(training::partialModel)));
@@ -78,9 +77,12 @@ void DistributedInput<step2Master>::add(Step2MasterInputId id, const PartialResu
  */
 size_t DistributedInput<step2Master>::getNumberOfFeatures() const
 {
-    DataCollectionPtr partialModelsCollection = static_cast<DataCollectionPtr >(get(partialModels));
-    if(partialModelsCollection->size() == 0) { return 0; }
-    linear_regression::Model *partialModel = static_cast<daal::algorithms::linear_regression::Model *>(((*partialModelsCollection)[0]).get());
+    DataCollectionPtr partialModelsCollection = static_cast<DataCollectionPtr>(get(partialModels));
+    if (partialModelsCollection->size() == 0)
+    {
+        return 0;
+    }
+    linear_regression::Model * partialModel = static_cast<daal::algorithms::linear_regression::Model *>(((*partialModelsCollection)[0]).get());
     return partialModel->getNumberOfFeatures();
 }
 /**
@@ -89,16 +91,19 @@ size_t DistributedInput<step2Master>::getNumberOfFeatures() const
  */
 size_t DistributedInput<step2Master>::getNumberOfDependentVariables() const
 {
-    DataCollectionPtr partialModelsCollection = static_cast<DataCollectionPtr >(get(partialModels));
-    if(partialModelsCollection->size() == 0) { return 0; }
-    linear_regression::Model *partialModel = static_cast<daal::algorithms::linear_regression::Model *>(((*partialModelsCollection)[0]).get());
+    DataCollectionPtr partialModelsCollection = static_cast<DataCollectionPtr>(get(partialModels));
+    if (partialModelsCollection->size() == 0)
+    {
+        return 0;
+    }
+    linear_regression::Model * partialModel = static_cast<daal::algorithms::linear_regression::Model *>(((*partialModelsCollection)[0]).get());
     return partialModel->getNumberOfResponses();
 }
 /**
  * Checks an input object for linear regression model-based training in the second step
  * of the distributed processing mode
  */
-services::Status DistributedInput<step2Master>::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status DistributedInput<step2Master>::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     DataCollectionPtr collection = DataCollection::cast(get(partialModels));
     DAAL_CHECK(collection, ErrorNullInputDataCollection);
@@ -110,20 +115,19 @@ services::Status DistributedInput<step2Master>::check(const daal::algorithms::Pa
     linear_regression::ModelPtr firstPartialModel = linear_regression::Model::cast((*collection)[0]);
     DAAL_CHECK(firstPartialModel, ErrorIncorrectElementInPartialResultCollection);
 
-    size_t nBeta = firstPartialModel->getNumberOfBetas();
+    size_t nBeta      = firstPartialModel->getNumberOfBetas();
     size_t nResponses = firstPartialModel->getNumberOfResponses();
 
     services::Status s;
 
-    for(size_t i = 0; i < nBlocks; i++)
+    for (size_t i = 0; i < nBlocks; i++)
     {
         DAAL_CHECK((*collection)[i], ErrorNullModel);
         linear_regression::ModelPtr partialModel = linear_regression::Model::cast((*collection)[i]);
 
         DAAL_CHECK(partialModel, ErrorIncorrectElementInPartialResultCollection);
 
-        DAAL_CHECK_STATUS(
-            s, linear_regression::checkModel(partialModel.get(), *parameter, nBeta, nResponses, method));
+        DAAL_CHECK_STATUS(s, linear_regression::checkModel(partialModel.get(), *parameter, nBeta, nResponses, method));
     }
 
     return s;

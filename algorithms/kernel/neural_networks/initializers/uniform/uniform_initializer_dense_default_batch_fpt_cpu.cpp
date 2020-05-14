@@ -19,7 +19,6 @@
 //  Implementation of uniform calculation functions.
 //--
 
-
 #include "uniform_initializer_batch_container.h"
 #include "uniform_initializer_kernel.h"
 #include "uniform_initializer_impl.i"
@@ -34,19 +33,18 @@ namespace initializers
 {
 namespace uniform
 {
-
 namespace interface1
 {
 template class neural_networks::initializers::uniform::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 
 namespace internal
 {
 template class UniformKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
+} // namespace internal
 
-}
-}
-}
-}
-}
+} // namespace uniform
+} // namespace initializers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

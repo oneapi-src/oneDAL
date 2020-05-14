@@ -48,75 +48,74 @@ namespace internal
 using namespace daal::internal;
 using namespace daal::services;
 
-template<typename algorithmFPType, transform::Method method, CpuType cpu>
-void TransformKernel<algorithmFPType, method, cpu>::computeTransformedBlock
-        (DAAL_INT *numRows, DAAL_INT *numFeatures, DAAL_INT *numComponents,
-         const algorithmFPType *dataBlock,
-         const algorithmFPType *eigenvectors,
-         algorithmFPType *resultBlock)
+template <typename algorithmFPType, transform::Method method, CpuType cpu>
+void TransformKernel<algorithmFPType, method, cpu>::computeTransformedBlock(DAAL_INT * numRows, DAAL_INT * numFeatures, DAAL_INT * numComponents,
+                                                                            const algorithmFPType * dataBlock, const algorithmFPType * eigenvectors,
+                                                                            algorithmFPType * resultBlock)
 {
     /* GEMM parameters */
-    char trans   = 'T';
-    char notrans = 'N';
+    char trans           = 'T';
+    char notrans         = 'N';
     algorithmFPType one  = 1.0;
     algorithmFPType zero = 0.0;
 
-    Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, numComponents, numRows, numFeatures,
-        &one, eigenvectors, numFeatures, dataBlock, numFeatures, &zero, resultBlock, numComponents);
+    Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, numComponents, numRows, numFeatures, &one, eigenvectors, numFeatures, dataBlock, numFeatures,
+                                       &zero, resultBlock, numComponents);
 
 } /* void TransformKernel<algorithmFPType, defaultDense, cpu>::computeTransformedBlock */
 
-
-template<typename algorithmFPType, CpuType cpu>
-services::Status ComputeInvSigmas(NumericTable *pVariances,
-                                  TArray<algorithmFPType, cpu>& invSigmas,
-                                  size_t numFeatures)
+template <typename algorithmFPType, CpuType cpu>
+services::Status ComputeInvSigmas(NumericTable * pVariances, TArray<algorithmFPType, cpu> & invSigmas, size_t numFeatures)
 {
     services::Status status;
     if (pVariances != nullptr)
     {
-        algorithmFPType* pInvSigmas = invSigmas.reset(numFeatures);
-        pInvSigmas = invSigmas.get();
+        algorithmFPType * pInvSigmas = invSigmas.reset(numFeatures);
+        pInvSigmas                   = invSigmas.get();
         DAAL_CHECK_MALLOC(pInvSigmas);
 
         ReadRows<algorithmFPType, cpu> dataRows(*pVariances, 0, numFeatures);
         DAAL_CHECK_BLOCK_STATUS(dataRows);
-        const algorithmFPType *pRawVariances = dataRows.get();
+        const algorithmFPType * pRawVariances = dataRows.get();
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         for (size_t varianceId = 0; varianceId < numFeatures; ++varianceId)
         {
-              pInvSigmas[varianceId] = pRawVariances[varianceId] ?
-                algorithmFPType(1.0) / daal::internal::Math<algorithmFPType, cpu>::sSqrt(pRawVariances[varianceId]) :
-                algorithmFPType(0.0);
+            pInvSigmas[varianceId] = pRawVariances[varianceId] ?
+                                         algorithmFPType(1.0) / daal::internal::Math<algorithmFPType, cpu>::sSqrt(pRawVariances[varianceId]) :
+                                         algorithmFPType(0.0);
         }
     }
     return status;
 }
 
-template<typename algorithmFPType, transform::Method method, CpuType cpu>
-services::Status TransformKernel<algorithmFPType, method, cpu>::compute
-        (NumericTable& data, NumericTable& eigenvectors,
-         NumericTable *pMeans, NumericTable *pVariances, NumericTable *pEigenvalues,
-         NumericTable &transformedData)
+template <typename algorithmFPType, transform::Method method, CpuType cpu>
+services::Status TransformKernel<algorithmFPType, method, cpu>::compute(NumericTable & data, NumericTable & eigenvectors, NumericTable * pMeans,
+                                                                        NumericTable * pVariances, NumericTable * pEigenvalues,
+                                                                        NumericTable & transformedData)
 {
-    DAAL_INT numVectors  = data.getNumberOfRows();
-    DAAL_INT numFeatures = data.getNumberOfColumns();
+    DAAL_INT numVectors    = data.getNumberOfRows();
+    DAAL_INT numFeatures   = data.getNumberOfColumns();
     DAAL_INT numComponents = transformedData.getNumberOfColumns();
-
 
     /* Retrieve data associated with coefficients */
     ReadRows<algorithmFPType, cpu> basis(eigenvectors, 0, numComponents);
     DAAL_CHECK_BLOCK_STATUS(basis)
-    const algorithmFPType *pBasis = basis.get();
+    const algorithmFPType * pBasis = basis.get();
 
     size_t numRowsInBlock = _numRowsInBlock;
-    if (numRowsInBlock < 1) { numRowsInBlock = 1; }
+    if (numRowsInBlock < 1)
+    {
+        numRowsInBlock = 1;
+    }
 
     /* Calculate number of blocks of rows including tail block */
     size_t numBlocks = numVectors / numRowsInBlock;
-    if (numBlocks * numRowsInBlock < numVectors) { numBlocks++; }
+    if (numBlocks * numRowsInBlock < numVectors)
+    {
+        numBlocks++;
+    }
 
     Status status;
 
@@ -126,14 +125,14 @@ services::Status TransformKernel<algorithmFPType, method, cpu>::compute
     TArray<algorithmFPType, cpu> invEigenvalues(0);
     DAAL_CHECK_STATUS(status, ComputeInvSigmas(pEigenvalues, invEigenvalues, numComponents));
 
-    const algorithmFPType *pInvSigmas = invSigmas.get();
-    const algorithmFPType *pInvEigenvalues = invEigenvalues.get();
+    const algorithmFPType * pInvSigmas      = invSigmas.get();
+    const algorithmFPType * pInvEigenvalues = invEigenvalues.get();
 
-    size_t numInvSigmas = invSigmas.size();
+    size_t numInvSigmas      = invSigmas.size();
     size_t numInvEigenvalues = invEigenvalues.size();
-    size_t numMeans = 0;
+    size_t numMeans          = 0;
 
-    const algorithmFPType *pRawMeans = nullptr;
+    const algorithmFPType * pRawMeans = nullptr;
     ReadRows<algorithmFPType, cpu> meansRows;
     if (pMeans != nullptr)
     {
@@ -150,10 +149,9 @@ services::Status TransformKernel<algorithmFPType, method, cpu>::compute
     if (isNormalize)
     {
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, numRowsInBlock * numFeatures * sizeof(algorithmFPType), sizeof(algorithmFPType));
-        tls.reset(new daal::tls<algorithmFPType *>([=]()
-        {
-            return (algorithmFPType *)daal::services::internal::service_malloc<algorithmFPType, cpu>(numRowsInBlock * numFeatures *
-                sizeof(algorithmFPType));
+        tls.reset(new daal::tls<algorithmFPType *>([=]() {
+            return (algorithmFPType *)daal::services::internal::service_malloc<algorithmFPType, cpu>(numRowsInBlock * numFeatures
+                                                                                                     * sizeof(algorithmFPType));
         }));
         DAAL_CHECK_MALLOC(tls.get());
     }
@@ -161,27 +159,29 @@ services::Status TransformKernel<algorithmFPType, method, cpu>::compute
     SafeStatus safeStat;
 
     /* Loop over input data blocks */
-    daal::threader_for( numBlocks, numBlocks, [ =, &tls, &transformedData, &data, &safeStat ](int iBlock)
-    {
+    daal::threader_for(numBlocks, numBlocks, [=, &tls, &transformedData, &data, &safeStat](int iBlock) {
         size_t startRow = iBlock * numRowsInBlock;
-        size_t endRow = startRow + numRowsInBlock;
-        if (endRow > numVectors) { endRow = numVectors; }
+        size_t endRow   = startRow + numRowsInBlock;
+        if (endRow > numVectors)
+        {
+            endRow = numVectors;
+        }
 
-        DAAL_INT numRows = endRow - startRow;
+        DAAL_INT numRows     = endRow - startRow;
         DAAL_INT numFeatures = data.getNumberOfColumns();
 
         WriteRows<algorithmFPType, cpu> blockRows(transformedData, startRow, numRows);
         DAAL_CHECK_BLOCK_STATUS_THR(blockRows);
-        algorithmFPType *pTransformedBlock = blockRows.get();
+        algorithmFPType * pTransformedBlock = blockRows.get();
 
         ReadRows<algorithmFPType, cpu> dataRows(data, startRow, numRows);
         DAAL_CHECK_BLOCK_STATUS_THR(dataRows);
-        const algorithmFPType *pDataBlock = dataRows.get();
+        const algorithmFPType * pDataBlock = dataRows.get();
 
         if (isNormalize)
         {
-            algorithmFPType* pCopyBlock = tls->local();
-            const algorithmFPType* pNormBlock = numMeans ? pCopyBlock : pDataBlock;
+            algorithmFPType * pCopyBlock       = tls->local();
+            const algorithmFPType * pNormBlock = numMeans ? pCopyBlock : pDataBlock;
             DAAL_CHECK_MALLOC_THR(pCopyBlock);
             for (size_t rowId = 0; rowId < numRows; ++rowId)
             {
@@ -202,10 +202,9 @@ services::Status TransformKernel<algorithmFPType, method, cpu>::compute
             }
             pDataBlock = pCopyBlock;
         }
-        computeTransformedBlock(&numRows, &numFeatures, (DAAL_INT*)&numComponents, pDataBlock,
-            pBasis, pTransformedBlock);
+        computeTransformedBlock(&numRows, &numFeatures, (DAAL_INT *)&numComponents, pDataBlock, pBasis, pTransformedBlock);
         /* compute whitening to unit variance of transformed data if required */
-        if(isWhitening)
+        if (isWhitening)
         {
             for (size_t rowId = 0; rowId < numRows; ++rowId)
             {
@@ -217,14 +216,11 @@ services::Status TransformKernel<algorithmFPType, method, cpu>::compute
                 }
             }
         }
-    } ); /* daal::threader_for */
+    }); /* daal::threader_for */
 
     if (isNormalize)
     {
-        tls->reduce([&](algorithmFPType* pCopyBlock)
-        {
-            daal_free(pCopyBlock);
-        });
+        tls->reduce([&](algorithmFPType * pCopyBlock) { daal_free(pCopyBlock); });
     }
 
     return safeStat.detach();

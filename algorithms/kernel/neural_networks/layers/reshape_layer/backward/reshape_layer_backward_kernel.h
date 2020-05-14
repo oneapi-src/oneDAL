@@ -19,7 +19,6 @@
 //  Implementation of reshape layer.
 //--
 
-
 #ifndef __RESHAPE_LAYER_BACKWARD_KERNEL_H__
 #define __RESHAPE_LAYER_BACKWARD_KERNEL_H__
 
@@ -46,23 +45,22 @@ namespace backward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for reshape calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class ReshapeKernel : public Kernel
 {
 public:
-    services::Status compute(const Tensor &inputTensor, Tensor &resultTensor);
+    services::Status compute(const Tensor & inputTensor, Tensor & resultTensor);
 };
 
-} // internal
-} // backward
-} // reshape
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace backward
+} // namespace reshape
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

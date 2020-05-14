@@ -19,7 +19,6 @@
 //  Implementation of softmax layer.
 //--
 
-
 #ifndef __SOFTMAX_LAYER_FORWARD_KERNEL_H__
 #define __SOFTMAX_LAYER_FORWARD_KERNEL_H__
 
@@ -49,22 +48,22 @@ namespace internal
 /**
  *  \brief Kernel for softmax calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class SoftmaxKernel : public Kernel
 {
 public:
-    services::Status compute(const Tensor &inputTensor, const softmax::Parameter &parameter, Tensor &resultTensor);
+    services::Status compute(const Tensor & inputTensor, const softmax::Parameter & parameter, Tensor & resultTensor);
 
 private:
     const size_t _nRowsInBlock = 5000;
 };
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 
-} // softmax
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace softmax
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

@@ -34,15 +34,10 @@ using namespace daal;
 using namespace daal::algorithms;
 
 /* Input data set parameters */
-const size_t nBlocks      = 4;
+const size_t nBlocks = 4;
 
-const string datasetFileNames[] =
-{
-    "../data/distributed/qr_1.csv",
-    "../data/distributed/qr_2.csv",
-    "../data/distributed/qr_3.csv",
-    "../data/distributed/qr_4.csv"
-};
+const string datasetFileNames[] = { "../data/distributed/qr_1.csv", "../data/distributed/qr_2.csv", "../data/distributed/qr_3.csv",
+                                    "../data/distributed/qr_4.csv" };
 
 void computestep1Local(size_t block);
 void computeOnMasterNode();
@@ -54,7 +49,7 @@ data_management::DataCollectionPtr dataFromStep2ForStep3[nBlocks];
 NumericTablePtr R;
 NumericTablePtr Qi[nBlocks];
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 4, &datasetFileNames[0], &datasetFileNames[1], &datasetFileNames[2], &datasetFileNames[3]);
 
@@ -72,7 +67,7 @@ int main(int argc, char *argv[])
 
     /* Print the results */
     printNumericTable(Qi[0], "Part of orthogonal matrix Q from 1st node:", 10);
-    printNumericTable(R    , "Triangular matrix R:");
+    printNumericTable(R, "Triangular matrix R:");
 
     return 0;
 }
@@ -80,8 +75,7 @@ int main(int argc, char *argv[])
 void computestep1Local(size_t block)
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileNames[block], DataSource::doAllocateNumericTable,
-                                                 DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileNames[block], DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Retrieve the input data */
     dataSource.loadDataBlock();
@@ -89,13 +83,13 @@ void computestep1Local(size_t block)
     /* Create an algorithm to compute QR decomposition on the local node */
     qr::Distributed<step1Local> algorithm;
 
-    algorithm.input.set( qr::data, dataSource.getNumericTable() );
+    algorithm.input.set(qr::data, dataSource.getNumericTable());
 
     /* Compute QR decomposition */
     algorithm.compute();
 
-    dataFromStep1ForStep2[block] = algorithm.getPartialResult()->get( qr::outputOfStep1ForStep2 );
-    dataFromStep1ForStep3[block] = algorithm.getPartialResult()->get( qr::outputOfStep1ForStep3 );
+    dataFromStep1ForStep2[block] = algorithm.getPartialResult()->get(qr::outputOfStep1ForStep2);
+    dataFromStep1ForStep3[block] = algorithm.getPartialResult()->get(qr::outputOfStep1ForStep3);
 }
 
 void computeOnMasterNode()
@@ -105,14 +99,14 @@ void computeOnMasterNode()
 
     for (size_t i = 0; i < nBlocks; i++)
     {
-        algorithm.input.add( qr::inputOfStep2FromStep1, i, dataFromStep1ForStep2[i] );
+        algorithm.input.add(qr::inputOfStep2FromStep1, i, dataFromStep1ForStep2[i]);
     }
 
     /* Compute QR decomposition */
     algorithm.compute();
 
-    qr::DistributedPartialResultPtr pres = algorithm.getPartialResult();
-    KeyValueDataCollectionPtr inputForStep3FromStep2 = pres->get( qr::outputOfStep2ForStep3 );
+    qr::DistributedPartialResultPtr pres             = algorithm.getPartialResult();
+    KeyValueDataCollectionPtr inputForStep3FromStep2 = pres->get(qr::outputOfStep2ForStep3);
 
     for (size_t i = 0; i < nBlocks; i++)
     {
@@ -129,8 +123,8 @@ void finalizeComputestep1Local(size_t block)
     /* Create an algorithm to compute QR decomposition on the master node */
     qr::Distributed<step3Local> algorithm;
 
-    algorithm.input.set( qr::inputOfStep3FromStep1, dataFromStep1ForStep3[block] );
-    algorithm.input.set( qr::inputOfStep3FromStep2, dataFromStep2ForStep3[block] );
+    algorithm.input.set(qr::inputOfStep3FromStep1, dataFromStep1ForStep3[block]);
+    algorithm.input.set(qr::inputOfStep3FromStep2, dataFromStep2ForStep3[block]);
 
     /* Compute QR decomposition */
     algorithm.compute();

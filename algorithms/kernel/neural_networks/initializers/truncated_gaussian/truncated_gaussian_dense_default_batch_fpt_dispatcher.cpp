@@ -19,7 +19,6 @@
 //  Implementation of truncated gaussian initializer container.
 //--
 
-
 #include "truncated_gaussian_batch_container.h"
 
 namespace daal

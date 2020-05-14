@@ -53,7 +53,6 @@ namespace training
 {
 namespace internal
 {
-
 /**
  *  \brief Update working responses and weights for current class
  *
@@ -67,39 +66,54 @@ namespace internal
  *  \param thrZ[in]     Threshold for responses calculations
  *  \param w[out]       Array of responses of size n
  */
-template<typename algorithmFPType, CpuType cpu>
-void initWZ(size_t n, size_t nc, size_t curClass, const int *label, const algorithmFPType *P,
-            algorithmFPType thrW, algorithmFPType *w, algorithmFPType thrZ, algorithmFPType *z)
+template <typename algorithmFPType, CpuType cpu>
+void initWZ(size_t n, size_t nc, size_t curClass, const int * label, const algorithmFPType * P, algorithmFPType thrW, algorithmFPType * w,
+            algorithmFPType thrZ, algorithmFPType * z)
 {
-    const algorithmFPType one = (algorithmFPType)1.0;
-    const algorithmFPType three = (algorithmFPType)3.0;
+    const algorithmFPType one      = (algorithmFPType)1.0;
+    const algorithmFPType three    = (algorithmFPType)3.0;
     const algorithmFPType negThree = (algorithmFPType)(-3.0);
     DAAL_ASSERT(curClass <= services::internal::MaxVal<int>::get())
-    int iCurClass = (int)curClass;
-    const algorithmFPType *Pptr = P + curClass * n;
+    int iCurClass                = (int)curClass;
+    const algorithmFPType * Pptr = P + curClass * n;
 
     algorithmFPType sumW = 0.0;
-    for ( size_t i = 0; i < n; i++ )
+    for (size_t i = 0; i < n; i++)
     {
         algorithmFPType p = Pptr[i];
-        w[i] = p * (one - p);
-        if (thrW > w[i]) { w[i] = thrW; }
+        w[i]              = p * (one - p);
+        if (thrW > w[i])
+        {
+            w[i] = thrW;
+        }
         sumW += w[i];
 
         if (label[i] == iCurClass)
         {
-            if (p > thrZ) { z[i] = one / p; }
-            else { z[i] = three; }
+            if (p > thrZ)
+            {
+                z[i] = one / p;
+            }
+            else
+            {
+                z[i] = three;
+            }
         }
         else
         {
-            if (one - p > thrZ) { z[i] = -one / (one - p); }
-            else { z[i] = negThree; }
+            if (one - p > thrZ)
+            {
+                z[i] = -one / (one - p);
+            }
+            else
+            {
+                z[i] = negThree;
+            }
         }
     }
 
     algorithmFPType invSumW = one / sumW;
-    for ( size_t i = 0; i < n; i++ )
+    for (size_t i = 0; i < n; i++)
     {
         w[i] *= invSumW;
     }
@@ -115,22 +129,21 @@ void initWZ(size_t n, size_t nc, size_t curClass, const int *label, const algori
  *  \param lCurPtr[out] Log-likelihood of the model
  *  \param accPtr[out]  Training accuracy
  */
-template<typename algorithmFPType, CpuType cpu>
-void calculateAccuracy( size_t n, size_t nc, const int *y_label, algorithmFPType *P,
-                        algorithmFPType& lCur, algorithmFPType& acc)
+template <typename algorithmFPType, CpuType cpu>
+void calculateAccuracy(size_t n, size_t nc, const int * y_label, algorithmFPType * P, algorithmFPType & lCur, algorithmFPType & acc)
 {
     algorithmFPType lPrev = lCur;
-    lCur = 0.0;
-    for ( size_t i = 0; i < n; i++)
+    lCur                  = 0.0;
+    for (size_t i = 0; i < n; i++)
     {
-        lCur -= daal::internal::Math<algorithmFPType,cpu>::sLog(P[y_label[i] * n + i]);
+        lCur -= daal::internal::Math<algorithmFPType, cpu>::sLog(P[y_label[i] * n + i]);
     }
     const algorithmFPType diff = daal::internal::Math<algorithmFPType, cpu>::sFabs(lPrev - lCur);
-    acc  = daal::internal::Math<algorithmFPType,cpu>::sMin( diff, diff / (lPrev + (algorithmFPType)1e-6) );
+    acc                        = daal::internal::Math<algorithmFPType, cpu>::sMin(diff, diff / (lPrev + (algorithmFPType)1e-6));
 }
 
-} // namepsace internal
-} // namespace prediction
+} // namespace internal
+} // namespace training
 } // namespace logitboost
 } // namespace algorithms
 } // namespace daal

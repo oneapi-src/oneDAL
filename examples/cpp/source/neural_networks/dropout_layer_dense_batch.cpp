@@ -64,8 +64,8 @@ int main()
     printTensor(forwardResult->get(dropout::auxRetainMask), "Dropout layer retain mask (first 5 rows):", 5);
 
     /* Get the size of forward dropout layer output */
-    const Collection<size_t> &gDims = forwardResult->get(forward::value)->getDimensions();
-    TensorPtr tensorDataBack = TensorPtr(new HomogenTensor<>(gDims, Tensor::doAllocate, 0.01f));
+    const Collection<size_t> & gDims = forwardResult->get(forward::value)->getDimensions();
+    TensorPtr tensorDataBack         = TensorPtr(new HomogenTensor<>(gDims, Tensor::doAllocate, 0.01f));
 
     /* Create an algorithm to compute backward dropout layer results using default method */
     dropout::backward::Batch<> dropoutLayerBackward;

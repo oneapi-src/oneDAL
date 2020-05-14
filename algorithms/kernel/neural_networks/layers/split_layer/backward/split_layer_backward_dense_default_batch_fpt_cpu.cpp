@@ -19,7 +19,6 @@
 //  Implementation of split calculation functions.
 //--
 
-
 #include "split_layer_backward_batch_container.h"
 #include "split_layer_backward_kernel.h"
 #include "split_layer_backward_impl.i"
@@ -34,21 +33,20 @@ namespace layers
 {
 namespace split
 {
-
 namespace backward
 {
 namespace interface1
 {
 template class neural_networks::layers::split::backward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 namespace internal
 {
 template class SplitKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
-} // backward
+} // namespace internal
+} // namespace backward
 
-}
-}
-}
-}
-}
+} // namespace split
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

@@ -27,7 +27,6 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(low_order_moments::DistributedContainer, distributed,    \
-    step2Master, DAAL_FPTYPE, low_order_moments::sumCSR)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(low_order_moments::DistributedContainer, distributed, step2Master, DAAL_FPTYPE, low_order_moments::sumCSR)
 }
-}
+} // namespace daal

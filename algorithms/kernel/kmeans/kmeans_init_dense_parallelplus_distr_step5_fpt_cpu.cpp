@@ -40,8 +40,8 @@ template class DistributedContainer<step5Master, DAAL_FPTYPE, parallelPlusDense,
 namespace internal
 {
 template class KMeansInitStep5MasterKernel<parallelPlusDense, DAAL_FPTYPE, DAAL_CPU>;
-} // namespace daal::algorithms::kmeans::init::internal
-} // namespace daal::algorithms::kmeans::init
-} // namespace daal::algorithms::kmeans
-} // namespace daal::algorithms
+} // namespace internal
+} // namespace init
+} // namespace kmeans
+} // namespace algorithms
 } // namespace daal

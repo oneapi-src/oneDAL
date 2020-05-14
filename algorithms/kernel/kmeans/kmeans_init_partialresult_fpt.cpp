@@ -31,14 +31,20 @@ namespace kmeans
 {
 namespace init
 {
-
-template DAAL_EXPORT services::Status PartialResult::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
-template DAAL_EXPORT services::Status DistributedStep2LocalPlusPlusPartialResult::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
-template DAAL_EXPORT services::Status DistributedStep3MasterPlusPlusPartialResult::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
-template DAAL_EXPORT services::Status DistributedStep4LocalPlusPlusPartialResult::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
-template DAAL_EXPORT services::Status DistributedStep5MasterPlusPlusPartialResult::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status PartialResult::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                           const daal::algorithms::Parameter * parameter, const int method);
+template DAAL_EXPORT services::Status DistributedStep2LocalPlusPlusPartialResult::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                                                        const daal::algorithms::Parameter * parameter,
+                                                                                                        const int method);
+template DAAL_EXPORT services::Status DistributedStep3MasterPlusPlusPartialResult::allocate<DAAL_FPTYPE>(
+    const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
+template DAAL_EXPORT services::Status DistributedStep4LocalPlusPlusPartialResult::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                                                        const daal::algorithms::Parameter * parameter,
+                                                                                                        const int method);
+template DAAL_EXPORT services::Status DistributedStep5MasterPlusPlusPartialResult::allocate<DAAL_FPTYPE>(
+    const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
 } // namespace init
 } // namespace kmeans
-}// namespace algorithms
-}// namespace daal
+} // namespace algorithms
+} // namespace daal

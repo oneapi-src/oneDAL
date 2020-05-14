@@ -49,23 +49,22 @@ namespace forward
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status PoolingKernel<algorithmFPType, method, cpu>::compute(const Tensor &dataTensor, const average_pooling3d::Parameter &parameter,Tensor &valueTensor)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status PoolingKernel<algorithmFPType, method, cpu>::compute(const Tensor & dataTensor, const average_pooling3d::Parameter & parameter,
+                                                                      Tensor & valueTensor)
 {
-    const Collection<size_t> &dims = dataTensor.getDimensions();
-    const Collection<size_t> &valueDims = valueTensor.getDimensions();
+    const Collection<size_t> & dims      = dataTensor.getDimensions();
+    const Collection<size_t> & valueDims = valueTensor.getDimensions();
 
-    ReadSubtensor<algorithmFPType, cpu> dataBlock(const_cast<Tensor&>(dataTensor), 0, 0, 0, dims[0]);
+    ReadSubtensor<algorithmFPType, cpu> dataBlock(const_cast<Tensor &>(dataTensor), 0, 0, 0, dims[0]);
     DAAL_CHECK_BLOCK_STATUS(dataBlock);
-    const algorithmFPType *data = dataBlock.get();
+    const algorithmFPType * data = dataBlock.get();
 
     WriteOnlySubtensor<algorithmFPType, cpu> valueBlock(valueTensor, 0, 0, 0, valueDims[0]);
     DAAL_CHECK_BLOCK_STATUS(valueBlock);
-    algorithmFPType *value = valueBlock.get();
+    algorithmFPType * value = valueBlock.get();
 
-    pooling3d::internal::Parameter<cpu> par(parameter.indices.size, parameter.paddings   .size,
-                                            parameter.strides.size, parameter.kernelSizes.size,
+    pooling3d::internal::Parameter<cpu> par(parameter.indices.size, parameter.paddings.size, parameter.strides.size, parameter.kernelSizes.size,
                                             dataTensor, dims, valueDims);
 
     algorithmFPType divisor = 1.0;
@@ -75,9 +74,9 @@ services::Status PoolingKernel<algorithmFPType, method, cpu>::compute(const Tens
     }
     divisor = 1.0 / divisor;
 
-    DAAL_INT ii[nKernelDims + 1];    // index of the input data
-    DAAL_INT ik[nKernelDims];        // index of the kernel
-    DAAL_INT iv[nKernelDims];        // index of the value
+    DAAL_INT ii[nKernelDims + 1]; // index of the input data
+    DAAL_INT ik[nKernelDims];     // index of the kernel
+    DAAL_INT iv[nKernelDims];     // index of the value
     DAAL_INT valueOffset[nKernelDims + 1];
     DAAL_INT dataOffset[nKernelDims + 1];
 
@@ -88,18 +87,18 @@ services::Status PoolingKernel<algorithmFPType, method, cpu>::compute(const Tens
         /*
          * Process the dimensions of input tensor recursively
          */
-        recurrentCompute(0, ii, ik, iv, par.padding, par.stride, par.kernelSize, par.dataSize, par.valueSize,
-            par.offset, dataOffset, valueOffset, data, value, divisor);
+        recurrentCompute(0, ii, ik, iv, par.padding, par.stride, par.kernelSize, par.dataSize, par.valueSize, par.offset, dataOffset, valueOffset,
+                         data, value, divisor);
     }
     return Status();
 }
 
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-void PoolingKernel<algorithmFPType, method, cpu>::recurrentCompute(size_t d,
-    DAAL_INT *ii, DAAL_INT *ik, DAAL_INT *iv, const DAAL_INT *padding, const DAAL_INT *stride, const DAAL_INT *kernelSize,
-    const DAAL_INT* dataSize, const DAAL_INT* valueSize, const DAAL_INT* offset, DAAL_INT* dataOffset, DAAL_INT* valueOffset,
-    const algorithmFPType *data, algorithmFPType *value, algorithmFPType divisor)
+template <typename algorithmFPType, Method method, CpuType cpu>
+void PoolingKernel<algorithmFPType, method, cpu>::recurrentCompute(size_t d, DAAL_INT * ii, DAAL_INT * ik, DAAL_INT * iv, const DAAL_INT * padding,
+                                                                   const DAAL_INT * stride, const DAAL_INT * kernelSize, const DAAL_INT * dataSize,
+                                                                   const DAAL_INT * valueSize, const DAAL_INT * offset, DAAL_INT * dataOffset,
+                                                                   DAAL_INT * valueOffset, const algorithmFPType * data, algorithmFPType * value,
+                                                                   algorithmFPType divisor)
 {
     const algorithmFPType zero = 0.0;
 
@@ -110,13 +109,13 @@ void PoolingKernel<algorithmFPType, method, cpu>::recurrentCompute(size_t d,
          */
         for (ik[d] = -padding[d], iv[d] = 0; iv[d] < valueSize[d]; ik[d] += stride[d], iv[d]++)
         {
-            valueOffset[d+1] = offset[d+1] * (iv[d] + valueSize[d] * (ii[d] + valueOffset[d]));
-            dataOffset[d+1]  = offset[d+1] * (ik[d] + dataSize[d]  * (ii[d] + dataOffset[d]));
+            valueOffset[d + 1] = offset[d + 1] * (iv[d] + valueSize[d] * (ii[d] + valueOffset[d]));
+            dataOffset[d + 1]  = offset[d + 1] * (ik[d] + dataSize[d] * (ii[d] + dataOffset[d]));
 
-            for (ii[d+1] = 0; ii[d+1] < offset[d+1]; ii[d+1]++)
+            for (ii[d + 1] = 0; ii[d + 1] < offset[d + 1]; ii[d + 1]++)
             {
-                recurrentCompute(d + 1, ii, ik, iv, padding, stride, kernelSize, dataSize, valueSize,
-                    offset, dataOffset, valueOffset, data, value, divisor);
+                recurrentCompute(d + 1, ii, ik, iv, padding, stride, kernelSize, dataSize, valueSize, offset, dataOffset, valueOffset, data, value,
+                                 divisor);
             }
         }
     }
@@ -129,7 +128,7 @@ void PoolingKernel<algorithmFPType, method, cpu>::recurrentCompute(size_t d,
 
         algorithmFPType average = zero;
 
-        DAAL_INT iwk[nKernelDims];              // index of the value within kernel
+        DAAL_INT iwk[nKernelDims]; // index of the value within kernel
         DAAL_INT iwkShifted[nKernelDims];
         DAAL_INT dataKernelOffset[nKernelDims];
         bool paddingFlags[nKernelDims];
@@ -138,19 +137,19 @@ void PoolingKernel<algorithmFPType, method, cpu>::recurrentCompute(size_t d,
          */
         for (iwk[0] = 0, iwkShifted[0] = ik[0]; iwk[0] < kernelSize[0]; iwk[0]++, iwkShifted[0]++)
         {
-            paddingFlags[0] = (iwkShifted[0] < 0) || (iwkShifted[0] >= (DAAL_INT)dataSize[0]);
+            paddingFlags[0]     = (iwkShifted[0] < 0) || (iwkShifted[0] >= (DAAL_INT)dataSize[0]);
             dataKernelOffset[0] = offset[1] * iwk[0];
             for (iwk[1] = 0, iwkShifted[1] = ik[1]; iwk[1] < kernelSize[1]; iwk[1]++, iwkShifted[1]++)
             {
-                paddingFlags[1] = (iwkShifted[1] < 0) || (iwkShifted[1] >= (DAAL_INT)dataSize[1]);
+                paddingFlags[1]     = (iwkShifted[1] < 0) || (iwkShifted[1] >= (DAAL_INT)dataSize[1]);
                 dataKernelOffset[1] = offset[2] * (iwk[1] + dataSize[1] * dataKernelOffset[0]);
                 for (iwk[2] = 0, iwkShifted[2] = ik[2]; iwk[2] < kernelSize[2]; iwk[2]++, iwkShifted[2]++)
                 {
-                    paddingFlags[2] = (iwkShifted[2] < 0) || (iwkShifted[2] >= (DAAL_INT)dataSize[2]);
+                    paddingFlags[2]     = (iwkShifted[2] < 0) || (iwkShifted[2] >= (DAAL_INT)dataSize[2]);
                     dataKernelOffset[2] = offset[3] * (iwk[2] + dataSize[2] * dataKernelOffset[1]);
-                    DAAL_INT dataIndex = ii[3] + dataOffset[3] + dataKernelOffset[2];
+                    DAAL_INT dataIndex  = ii[3] + dataOffset[3] + dataKernelOffset[2];
 
-                    bool paddingFlag = paddingFlags[0] || paddingFlags[1] || paddingFlags[2];
+                    bool paddingFlag          = paddingFlags[0] || paddingFlags[1] || paddingFlags[2];
                     algorithmFPType dataValue = (paddingFlag ? zero : data[dataIndex]);
 
                     average += dataValue;

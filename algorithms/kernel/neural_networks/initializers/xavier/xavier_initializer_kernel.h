@@ -52,22 +52,21 @@ namespace xavier
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for xavier calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class XavierKernel : public Kernel
 {
 public:
-    Status compute(const XavierInitializerTaskDescriptor &desc);
+    Status compute(const XavierInitializerTaskDescriptor & desc);
 };
 
-} // internal
-} // xavier
-} // initializers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace xavier
+} // namespace initializers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

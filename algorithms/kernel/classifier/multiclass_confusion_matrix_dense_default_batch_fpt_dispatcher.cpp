@@ -27,7 +27,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(classifier::quality_metric::multiclass_confusion_matrix::BatchContainer, batch, DAAL_FPTYPE,  \
-    classifier::quality_metric::multiclass_confusion_matrix::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(classifier::quality_metric::multiclass_confusion_matrix::BatchContainer, batch, DAAL_FPTYPE,
+                                      classifier::quality_metric::multiclass_confusion_matrix::defaultDense)
 }
-}
+} // namespace daal

@@ -43,13 +43,13 @@ namespace interface1
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_NEURAL_NETWORKS_LAYERS_LRN_FORWARD_RESULT_ID);
 /** Default constructor */
 Input::Input() {};
-Input::Input(const Input& other) : super(other) {}
+Input::Input(const Input & other) : super(other) {}
 
 /**
  * Returns dimensions of weights tensor
  * \return Dimensions of weights tensor
  */
-const services::Collection<size_t> Input::getWeightsSizes(const layers::Parameter *parameter) const
+const services::Collection<size_t> Input::getWeightsSizes(const layers::Parameter * parameter) const
 {
     return services::Collection<size_t>();
 }
@@ -58,7 +58,7 @@ const services::Collection<size_t> Input::getWeightsSizes(const layers::Paramete
  * Returns dimensions of biases tensor
  * \return Dimensions of biases tensor
  */
-const services::Collection<size_t> Input::getBiasesSizes(const layers::Parameter *parameter) const
+const services::Collection<size_t> Input::getBiasesSizes(const layers::Parameter * parameter) const
 {
     return services::Collection<size_t>();
 }
@@ -75,8 +75,7 @@ data_management::TensorPtr Result::get(LayerDataId id) const
 {
     layers::LayerDataPtr layerData =
         services::staticPointerCast<layers::LayerData, data_management::SerializationIface>(Argument::get(layers::forward::resultForBackward));
-    if(!layerData)
-        return data_management::TensorPtr();
+    if (!layerData) return data_management::TensorPtr();
     return services::staticPointerCast<data_management::Tensor, data_management::SerializationIface>((*layerData)[id]);
 }
 
@@ -85,12 +84,11 @@ data_management::TensorPtr Result::get(LayerDataId id) const
  * \param[in] id      Identifier of the result
  * \param[in] value   Result
  */
-void Result::set(LayerDataId id, const data_management::TensorPtr &value)
+void Result::set(LayerDataId id, const data_management::TensorPtr & value)
 {
     layers::LayerDataPtr layerData =
         services::staticPointerCast<layers::LayerData, data_management::SerializationIface>(Argument::get(layers::forward::resultForBackward));
-    if(layerData)
-        (*layerData)[id] = value;
+    if (layerData) (*layerData)[id] = value;
 }
 
 /**
@@ -99,31 +97,30 @@ void Result::set(LayerDataId id, const data_management::TensorPtr &value)
  * \param[in] par     %Parameter of the layer
  * \param[in] method  Computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, layers::forward::Result::check(input, par, method));
-    const Parameter *param = static_cast<const Parameter *>(par);
+    const Parameter * param = static_cast<const Parameter *>(par);
 
-    data_management::TensorPtr dataTable = (static_cast<const layers::forward::Input *>(input))->get(
-                                                                 layers::forward::data);
-    data_management::TensorPtr resultTable = get(layers::forward::value);
+    data_management::TensorPtr dataTable            = (static_cast<const layers::forward::Input *>(input))->get(layers::forward::data);
+    data_management::TensorPtr resultTable          = get(layers::forward::value);
     data_management::NumericTablePtr dimensionTable = param->dimension;
 
     data_management::BlockDescriptor<int> block;
     dimensionTable->getBlockOfRows(0, 1, data_management::readOnly, block);
-    int *dataInt = block.getBlockPtr();
-    size_t dim = dataInt[0];
-    if(dim >= dataTable->getNumberOfDimensions())
+    int * dataInt = block.getBlockPtr();
+    size_t dim    = dataInt[0];
+    if (dim >= dataTable->getNumberOfDimensions())
     {
         return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ArgumentName, dimensionStr()));
     }
     dimensionTable->releaseBlockOfRows(block);
 
-    if (!dataTable)   return services::Status(services::ErrorNullInputNumericTable);
+    if (!dataTable) return services::Status(services::ErrorNullInputNumericTable);
     if (!resultTable) return services::Status(services::ErrorNullOutputNumericTable);
 
-    const services::Collection<size_t> &dataDims = dataTable->getDimensions();
+    const services::Collection<size_t> & dataDims = dataTable->getDimensions();
     if (!param->predictionStage)
     {
         DAAL_CHECK_STATUS(s, data_management::checkTensor(get(auxData).get(), auxDataStr(), &dataDims));
@@ -135,8 +132,8 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
  * Returns dimensions of value tensor
  * \return Dimensions of value tensor
  */
-const services::Collection<size_t> Result::getValueSize(const services::Collection<size_t> &inputSize,
-                                                        const daal::algorithms::Parameter *par, const int method) const
+const services::Collection<size_t> Result::getValueSize(const services::Collection<size_t> & inputSize, const daal::algorithms::Parameter * par,
+                                                        const int method) const
 {
     return inputSize;
 }
@@ -145,17 +142,17 @@ const services::Collection<size_t> Result::getValueSize(const services::Collecti
  * Sets the result that is used in backward local response normalization layer
  * \param[in] input     Pointer to an object containing the input data
  */
-services::Status Result::setResultForBackward(const daal::algorithms::Input *input)
+services::Status Result::setResultForBackward(const daal::algorithms::Input * input)
 {
-    const layers::forward::Input *in = static_cast<const layers::forward::Input * >(input);
+    const layers::forward::Input * in = static_cast<const layers::forward::Input *>(input);
     set(lrn::auxData, in->get(layers::forward::data));
     return services::Status();
 }
 
-}// namespace interface1
-}// namespace forward
-}// namespace lrn
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace lrn
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

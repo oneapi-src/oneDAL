@@ -43,7 +43,7 @@ namespace interface1
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_NEURAL_NETWORKS_LAYERS_LRN_BACKWARD_RESULT_ID);
 /** Default constructor */
 Input::Input() {};
-Input::Input(const Input& other) : super(other) {}
+Input::Input(const Input & other) : super(other) {}
 
 /**
  * Returns an input object for the backward local response normalization layer
@@ -62,7 +62,7 @@ data_management::TensorPtr Input::get(LayerDataId id) const
  * \param[in] id      Identifier of the input object
  * \param[in] value   Pointer to the object
  */
-void Input::set(LayerDataId id, const data_management::TensorPtr &value)
+void Input::set(LayerDataId id, const data_management::TensorPtr & value)
 {
     layers::LayerDataPtr layerData =
         services::staticPointerCast<layers::LayerData, data_management::SerializationIface>(Argument::get(layers::backward::inputFromForward));
@@ -74,23 +74,26 @@ void Input::set(LayerDataId id, const data_management::TensorPtr &value)
  * \param[in] par     Algorithm parameter
  * \param[in] method  Computation method
  */
-services::Status Input::check(const daal::algorithms::Parameter *par, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
-    const layers::Parameter *param = static_cast<const Parameter *>(par);
-    if (!param->propagateGradient) { return services::Status(); }
+    const layers::Parameter * param = static_cast<const Parameter *>(par);
+    if (!param->propagateGradient)
+    {
+        return services::Status();
+    }
     services::Status s;
     DAAL_CHECK_STATUS(s, layers::backward::Input::check(par, method));
 
     data_management::TensorPtr inputGradientTensor = get(layers::backward::inputGradient);
     DAAL_CHECK_STATUS(s, data_management::checkTensor(inputGradientTensor.get(), inputGradientStr()));
 
-    const services::Collection<size_t> &dataDims = inputGradientTensor->getDimensions();
-    DAAL_CHECK_STATUS(s, data_management::checkTensor(get(auxData).get(),   auxDataStr(), &dataDims));
+    const services::Collection<size_t> & dataDims = inputGradientTensor->getDimensions();
+    DAAL_CHECK_STATUS(s, data_management::checkTensor(get(auxData).get(), auxDataStr(), &dataDims));
     DAAL_CHECK_STATUS(s, data_management::checkTensor(get(auxSmBeta).get(), auxSmBetaStr(), &dataDims));
     return s;
 }
 
-    /** Default constructor */
+/** Default constructor */
 Result::Result() : layers::backward::Result() {}
 
 /**
@@ -99,16 +102,16 @@ Result::Result() : layers::backward::Result() {}
  * \param[in] par     %Parameter of the layer
  * \param[in] method  Computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
-    const layers::Parameter *param = static_cast<const Parameter *>(par);
+    const layers::Parameter * param = static_cast<const Parameter *>(par);
     return services::Status();
 }
 
-}// namespace interface1
-}// namespace backward
-}// namespace lrn
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace lrn
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

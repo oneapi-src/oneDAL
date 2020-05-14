@@ -19,7 +19,6 @@
 //  Implementation of backward pooling layer.
 //--
 
-
 #include "spatial_maximum_pooling2d_layer_backward_batch_container.h"
 #include "spatial_pooling2d_layer_backward_kernel.h"
 #include "spatial_pooling2d_layer_backward_impl.i"
@@ -34,16 +33,15 @@ namespace layers
 {
 namespace spatial_maximum_pooling2d
 {
-
 namespace backward
 {
 namespace interface1
 {
 template class neural_networks::layers::spatial_maximum_pooling2d::backward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
-} // backward
+} // namespace interface1
+} // namespace backward
 
-}
+} // namespace spatial_maximum_pooling2d
 
 namespace spatial_pooling2d
 {
@@ -52,11 +50,11 @@ namespace backward
 namespace internal
 {
 template class PoolingKernel<DAAL_FPTYPE, spatial_pooling2d::internal::maximum, DAAL_CPU>;
-} // internal
-}
-}
+} // namespace internal
+} // namespace backward
+} // namespace spatial_pooling2d
 
-}
-}
-}
-}
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

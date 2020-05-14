@@ -36,7 +36,7 @@ namespace pca
 {
 namespace interface1
 {
-__DAAL_REGISTER_SERIALIZATION_CLASS3(PartialResult,correlationDense,SERIALIZATION_PCA_PARTIAL_RESULT_CORRELATION_ID);
+__DAAL_REGISTER_SERIALIZATION_CLASS3(PartialResult, correlationDense, SERIALIZATION_PCA_PARTIAL_RESULT_CORRELATION_ID);
 
 PartialResult<correlationDense>::PartialResult() : PartialResultBase(lastPartialCorrelationResultId + 1) {};
 
@@ -50,14 +50,17 @@ NumericTablePtr PartialResult<correlationDense>::get(PartialCorrelationResultId 
     return staticPointerCast<NumericTable, SerializationIface>(Argument::get(id));
 }
 
-size_t PartialResult<correlationDense>::getNFeatures() const { return get(sumCorrelation)->getNumberOfColumns(); }
+size_t PartialResult<correlationDense>::getNFeatures() const
+{
+    return get(sumCorrelation)->getNumberOfColumns();
+}
 
 /**
  * Sets partial result of the PCA Correlation algorithm
  * \param[in] id      Identifier of the result
  * \param[in] value   Pointer to the object
  */
-void PartialResult<correlationDense>::set(const PartialCorrelationResultId id, const NumericTablePtr &value)
+void PartialResult<correlationDense>::set(const PartialCorrelationResultId id, const NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
@@ -68,9 +71,9 @@ void PartialResult<correlationDense>::set(const PartialCorrelationResultId id, c
 * \param[in] parameter  Algorithm %parameter
 * \param[in] method     Computation method
 */
-Status PartialResult<correlationDense>::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+Status PartialResult<correlationDense>::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    const InputIface *in = static_cast<const InputIface *>(input);
+    const InputIface * in = static_cast<const InputIface *>(input);
     DAAL_CHECK(!in->isCorrelation(), ErrorInputCorrelationNotSupportedInOnlineAndDistributed);
     return checkImpl(in->getNFeatures());
 }
@@ -80,15 +83,15 @@ Status PartialResult<correlationDense>::check(const daal::algorithms::Input *inp
 * \param[in] par        Algorithm %parameter
 * \param[in] method     Computation method
 */
-Status PartialResult<correlationDense>::check(const daal::algorithms::Parameter *par, int method) const
+Status PartialResult<correlationDense>::check(const daal::algorithms::Parameter * par, int method) const
 {
     return checkImpl(0);
 }
 
 Status PartialResult<correlationDense>::checkImpl(size_t nFeatures) const
 {
-    int csrLayout = (int)NumericTableIface::csrArray;
-    int packedLayouts = packed_mask;
+    int csrLayout                  = (int)NumericTableIface::csrArray;
+    int packedLayouts              = packed_mask;
     NumericTablePtr sumCorrelation = get(pca::sumCorrelation);
     Status s;
     DAAL_CHECK_STATUS(s, checkNumericTable(get(pca::nObservationsCorrelation).get(), nObservationsCorrelationStr(), csrLayout, 0, 1, 1));

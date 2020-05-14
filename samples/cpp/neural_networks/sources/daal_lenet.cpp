@@ -25,10 +25,10 @@
 #include "image_dataset.h"
 
 /* Trains AlexNet with given dataset reader */
-prediction::ModelPtr train(DatasetReader *reader);
+prediction::ModelPtr train(DatasetReader * reader);
 
 /* Tests AlexNet with given dataset reader */
-float test(prediction::ModelPtr predictionModel, DatasetReader *reader);
+float test(prediction::ModelPtr predictionModel, DatasetReader * reader);
 
 /* Constructs the optimization solver with given learning rate */
 SharedPtr<optimization_solver::adagrad::Batch<float> > getOptimizationSolver(float learningRate);
@@ -41,19 +41,12 @@ const float learningRate      = 0.01;
 const size_t batchSize        = 64;
 
 const std::string defaultDatasetsPath = "./data";
-const std::string datasetFileNames[] =
-{
-    "train-images-idx3-ubyte",
-    "train-labels-idx1-ubyte",
-    "t10k-images-idx3-ubyte",
-    "t10k-labels-idx1-ubyte"
-};
+const std::string datasetFileNames[]  = { "train-images-idx3-ubyte", "train-labels-idx1-ubyte", "t10k-images-idx3-ubyte", "t10k-labels-idx1-ubyte" };
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     std::string userDatasetsPath = getUserDatasetPath(argc, argv);
-    std::string datasetsPath = selectDatasetPathOrExit(
-        defaultDatasetsPath, userDatasetsPath, datasetFileNames, 4);
+    std::string datasetsPath     = selectDatasetPathOrExit(defaultDatasetsPath, userDatasetsPath, datasetFileNames, 4);
 
     printf("Data loading started... \n");
 
@@ -83,7 +76,7 @@ int main(int argc, char *argv[])
     return ((1.0f - top1ErrorRate) > top1ErrorRateThreshold) ? 0 : -1;
 }
 
-prediction::ModelPtr train(DatasetReader *reader)
+prediction::ModelPtr train(DatasetReader * reader)
 {
     /* Fetch LeNet topology (configureNet defined in daal_lenet.h) */
     training::TopologyPtr topology = configureNet();
@@ -97,7 +90,7 @@ prediction::ModelPtr train(DatasetReader *reader)
 
     /* Initialize neural network with given topology */
     Collection<size_t> sampleSize = trainingData->getDimensions();
-    sampleSize[0] = batchSize;
+    sampleSize[0]                 = batchSize;
     net.initialize(sampleSize, *topology);
 
     /* Set the input data batch to the neural network */
@@ -115,18 +108,18 @@ prediction::ModelPtr train(DatasetReader *reader)
 
     /* Get prediction model */
     training::ResultPtr trainingResult = net.getResult();
-    training::ModelPtr trainedModel = trainingResult->get(training::model);
+    training::ModelPtr trainedModel    = trainingResult->get(training::model);
     return trainedModel->getPredictionModel<float>();
 }
 
-float test(prediction::ModelPtr predictionModel, DatasetReader *reader)
+float test(prediction::ModelPtr predictionModel, DatasetReader * reader)
 {
     /* Create the neural network prediction algorithm */
     prediction::Batch<> net;
 
     /* Fetch the testing data and labels */
-    TensorPtr testingData         = reader->getTestData();
-    TensorPtr testingGroundTruth  = reader->getTestGroundTruth();
+    TensorPtr testingData        = reader->getTestData();
+    TensorPtr testingGroundTruth = reader->getTestGroundTruth();
 
     /* Set the prediction model retrieved from the training stage */
     net.input.set(prediction::model, predictionModel);
@@ -151,13 +144,12 @@ float test(prediction::ModelPtr predictionModel, DatasetReader *reader)
 SharedPtr<optimization_solver::adagrad::Batch<float> > getOptimizationSolver(float learningRate)
 {
     /* Create 1 x 1 NumericTable to store learning rate */
-    NumericTablePtr learningRateSequence = NumericTablePtr(new HomogenNumericTable<float>(
-        1, 1, NumericTable::doAllocate, learningRate));
+    NumericTablePtr learningRateSequence = NumericTablePtr(new HomogenNumericTable<float>(1, 1, NumericTable::doAllocate, learningRate));
 
     /* Create AdaGrad optimization solver and set learning rate */
-    optimization_solver::adagrad::Batch<float> *optalg = new optimization_solver::adagrad::Batch<float>();
-    optalg->parameter.learningRate = learningRateSequence;
-    optalg->parameter.batchSize = batchSize;
-    optalg->parameter.nIterations = trainDatasetObjectsNum / batchSize;
+    optimization_solver::adagrad::Batch<float> * optalg = new optimization_solver::adagrad::Batch<float>();
+    optalg->parameter.learningRate                      = learningRateSequence;
+    optalg->parameter.batchSize                         = batchSize;
+    optalg->parameter.nIterations                       = trainDatasetObjectsNum / batchSize;
     return SharedPtr<optimization_solver::adagrad::Batch<float> >(optalg);
 }

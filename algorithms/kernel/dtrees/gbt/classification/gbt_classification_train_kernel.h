@@ -45,25 +45,22 @@ namespace training
 {
 namespace internal
 {
-
 template <typename algorithmFPType, Method method, CpuType cpu>
 class ClassificationTrainBatchKernel : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(HostAppIface* pHost, const NumericTable *x, const NumericTable *y,
-        gbt::classification::Model& m, Result& res, const interface1::Parameter& par,
-        engines::internal::BatchBaseImpl& engine); // remove this function when interface1::Parameter becomes deprecated
-    services::Status compute(HostAppIface* pHost, const NumericTable *x, const NumericTable *y,
-        gbt::classification::Model& m, Result& res, const interface2::Parameter& par,
-        engines::internal::BatchBaseImpl& engine);
+    services::Status compute(HostAppIface * pHost, const NumericTable * x, const NumericTable * y, gbt::classification::Model & m, Result & res,
+                             const interface1::Parameter & par,
+                             engines::internal::BatchBaseImpl & engine); // remove this function when interface1::Parameter becomes deprecated
+    services::Status compute(HostAppIface * pHost, const NumericTable * x, const NumericTable * y, gbt::classification::Model & m, Result & res,
+                             const interface2::Parameter & par, engines::internal::BatchBaseImpl & engine);
 };
 
 } // namespace internal
-}
-}
-}
-}
+} // namespace training
+} // namespace classification
+} // namespace gbt
+} // namespace algorithms
 } // namespace daal
-
 
 #endif

@@ -35,37 +35,37 @@ namespace algorithms
 {
 namespace quantiles
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-
     __DAAL_INITIALIZE_KERNELS(internal::QuantilesKernel, defaultDense, algorithmFPType);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    Result *result = static_cast<Result *>(_res);
-    Input *input   = static_cast<Input *>(_in);
-    Parameter *par = static_cast<Parameter *>(_par);
+    Result * result = static_cast<Result *>(_res);
+    Input * input   = static_cast<Input *>(_in);
+    Parameter * par = static_cast<Parameter *>(_par);
 
-    NumericTable *dataTable = static_cast<NumericTable *>(input->get(data).get());
-    NumericTable *quantilesTable = static_cast<NumericTable *>(result->get(quantiles).get());
-    NumericTable *quantileOrdersTable = par->quantileOrders.get();
+    NumericTable * dataTable           = static_cast<NumericTable *>(input->get(data).get());
+    NumericTable * quantilesTable      = static_cast<NumericTable *>(result->get(quantiles).get());
+    NumericTable * quantileOrdersTable = par->quantileOrders.get();
 
-    daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::QuantilesKernel, __DAAL_KERNEL_ARGUMENTS(defaultDense, algorithmFPType), compute, *dataTable, *quantileOrdersTable, *quantilesTable);
+    daal::services::Environment::env & env = *_env;
+    __DAAL_CALL_KERNEL(env, internal::QuantilesKernel, __DAAL_KERNEL_ARGUMENTS(defaultDense, algorithmFPType), compute, *dataTable,
+                       *quantileOrdersTable, *quantilesTable);
 }
 
-} // namespace daal::algorithms::quantiles
+} // namespace quantiles
 
-} // namespace daal::algorithms
+} // namespace algorithms
 
 } // namespace daal
 

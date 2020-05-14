@@ -33,9 +33,9 @@ using namespace daal;
 using namespace daal::algorithms;
 
 /* Input data set parameters */
-string trainDatasetFileName     = "../data/batch/brownboost_train.csv";
+string trainDatasetFileName = "../data/batch/brownboost_train.csv";
 
-string testDatasetFileName      = "../data/batch/brownboost_test.csv";
+string testDatasetFileName = "../data/batch/brownboost_test.csv";
 
 const size_t nFeatures = 20;
 
@@ -47,7 +47,7 @@ void trainModel();
 void testModel();
 void printResults();
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
@@ -63,9 +63,7 @@ int main(int argc, char *argv[])
 void trainModel()
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName,
-                                                      DataSource::notAllocateNumericTable,
-                                                      DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and labels */
     NumericTablePtr trainData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
@@ -92,9 +90,7 @@ void trainModel()
 void testModel()
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
-    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName,
-                                                     DataSource::notAllocateNumericTable,
-                                                     DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for testing data and labels */
     NumericTablePtr testData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
@@ -108,7 +104,7 @@ void testModel()
     brownboost::prediction::Batch<> algorithm;
 
     /* Pass the testing data set and trained model to the algorithm */
-    algorithm.input.set(classifier::prediction::data,  testData);
+    algorithm.input.set(classifier::prediction::data, testData);
     algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
 
     /* Compute prediction results */
@@ -120,8 +116,6 @@ void testModel()
 
 void printResults()
 {
-    printNumericTables<float, float>(testGroundTruth,
-                                 predictionResult->get(classifier::prediction::prediction),
-                                 "Ground truth", "Classification results",
-                                 "BrownBoost classification results (first 20 observations):", 20);
+    printNumericTables<float, float>(testGroundTruth, predictionResult->get(classifier::prediction::prediction), "Ground truth",
+                                     "Classification results", "BrownBoost classification results (first 20 observations):", 20);
 }

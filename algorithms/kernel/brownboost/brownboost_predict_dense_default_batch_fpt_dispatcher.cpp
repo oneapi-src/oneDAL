@@ -46,7 +46,7 @@ Batch<DAAL_FPTYPE, brownboost::prediction::defaultDense>::Batch()
 
 using BatchType = Batch<DAAL_FPTYPE, brownboost::prediction::defaultDense>;
 template <>
-Batch<DAAL_FPTYPE, brownboost::prediction::defaultDense>::Batch(const BatchType &other) : classifier::prediction::Batch(other), input(other.input)
+Batch<DAAL_FPTYPE, brownboost::prediction::defaultDense>::Batch(const BatchType & other) : classifier::prediction::Batch(other), input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();

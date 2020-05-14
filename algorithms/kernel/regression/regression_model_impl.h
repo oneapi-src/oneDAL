@@ -34,19 +34,18 @@ namespace regression
 {
 namespace internal
 {
-
 class ModelInternal
 {
 public:
-    ModelInternal(size_t nFeatures = 0) : _nFeatures(nFeatures)
-    {}
+    ModelInternal(size_t nFeatures = 0) : _nFeatures(nFeatures) {}
 
     void setNumberOfFeatures(size_t nFeatures) { _nFeatures = nFeatures; }
     virtual size_t getNumberOfFeatures() const { return _nFeatures; }
+
 protected:
     size_t _nFeatures;
 
-    template<typename Archive, bool onDeserialize>
+    template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)
     {
         arch->set(_nFeatures);
@@ -55,21 +54,18 @@ protected:
     }
 };
 
-class ModelImpl : public regression::Model,
-                  public ModelInternal
+class ModelImpl : public regression::Model, public ModelInternal
 {
 public:
-    typedef ModelInternal   ImplType;
+    typedef ModelInternal ImplType;
 
-    ModelImpl(size_t nFeatures = 0) : ImplType(nFeatures)
-    {}
+    ModelImpl(size_t nFeatures = 0) : ImplType(nFeatures) {}
 
     void setNumberOfFeatures(size_t nFeatures) { ImplType::setNumberOfFeatures(nFeatures); }
     size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE { return ImplType::getNumberOfFeatures(); }
 
 protected:
-
-    template<typename Archive, bool onDeserialize>
+    template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)
     {
         auto s = regression::Model::serialImpl<Archive, onDeserialize>(arch);
@@ -77,9 +73,9 @@ protected:
     }
 };
 
-}
-}
-}
-}
+} // namespace internal
+} // namespace regression
+} // namespace algorithms
+} // namespace daal
 
 #endif

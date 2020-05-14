@@ -19,7 +19,6 @@
 //  Implementation of backward batch normalization layer container.
 //--
 
-
 #include "batch_normalization_layer_backward_batch_container.h"
 
 namespace daal

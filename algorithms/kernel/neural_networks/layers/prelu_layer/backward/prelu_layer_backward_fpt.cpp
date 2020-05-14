@@ -46,12 +46,12 @@ namespace interface1
  * \param[in] par %Parameter of the backward prelu layer
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
-    const Input *in = static_cast<const Input *>(input);
-    const Parameter *param = static_cast<const Parameter *>(par);
+    const Input * in        = static_cast<const Input *>(input);
+    const Parameter * param = static_cast<const Parameter *>(par);
 
-    data_management::TensorPtr valueTensor = in->get(auxData);
+    data_management::TensorPtr valueTensor   = in->get(auxData);
     data_management::TensorPtr weightsTensor = in->get(auxWeights);
 
     services::Status s;
@@ -69,12 +69,13 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace backward
-}// namespace prelu
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace prelu
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

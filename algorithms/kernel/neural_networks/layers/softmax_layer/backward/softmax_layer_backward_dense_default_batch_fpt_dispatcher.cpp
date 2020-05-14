@@ -19,7 +19,6 @@
 //  Implementation of softmax layer container.
 //--
 
-
 #include "softmax_layer_backward_batch_container.h"
 
 namespace daal

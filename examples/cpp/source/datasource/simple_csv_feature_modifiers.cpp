@@ -34,9 +34,8 @@ using namespace daal::data_management;
 const std::string csvFileName = "../data/batch/mixed_text_and_numbers.csv";
 
 /* Define options for CSV data source */
-const CsvDataSourceOptions csvOptions = CsvDataSourceOptions::allocateNumericTable |
-                                        CsvDataSourceOptions::createDictionaryFromContext |
-                                        CsvDataSourceOptions::parseHeader;
+const CsvDataSourceOptions csvOptions =
+    CsvDataSourceOptions::allocateNumericTable | CsvDataSourceOptions::createDictionaryFromContext | CsvDataSourceOptions::parseHeader;
 
 /* Read CSV using default data source behavior */
 void readDefault()
@@ -59,8 +58,7 @@ void readOnlySpecifiedColumnIndices()
      * table and other columns will be ignored. The first argument of method 'include' specifies
      * the set of columns and the second one specifies modifier. in this case we use predefined
      * automatic modifier that automatically decides how to parse column in the best way */
-    ds.getFeatureManager()
-        .addModifier( features::list(0, 1, 5), modifiers::csv::automatic() );
+    ds.getFeatureManager().addModifier(features::list(0, 1, 5), modifiers::csv::automatic());
 
     ds.loadDataBlock();
 
@@ -73,8 +71,7 @@ void readOnlySpecifiedColumnNames()
     FileDataSource<CSVFeatureManager> ds(csvFileName, csvOptions);
 
     /* The same as readOnlySpecifiedColumnIndices but uses column names instead of indices */
-    ds.getFeatureManager()
-        .addModifier( features::list("Numeric1", "Categorical0"), modifiers::csv::automatic() );
+    ds.getFeatureManager().addModifier(features::list("Numeric1", "Categorical0"), modifiers::csv::automatic());
 
     ds.loadDataBlock();
 
@@ -87,15 +84,15 @@ void readUsingMultipleModifiers()
     FileDataSource<CSVFeatureManager> ds(csvFileName, csvOptions);
 
     ds.getFeatureManager()
-        .addModifier( features::list("Numeric1"),              modifiers::csv::continuous()  )
-        .addModifier( features::list("Text1", "Categorical1"), modifiers::csv::categorical() );
+        .addModifier(features::list("Numeric1"), modifiers::csv::continuous())
+        .addModifier(features::list("Text1", "Categorical1"), modifiers::csv::categorical());
 
     ds.loadDataBlock();
 
     printNumericTable(ds.getNumericTable(), "readUsingMultipleModifiers function result:");
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &csvFileName);
 

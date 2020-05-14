@@ -41,41 +41,44 @@ namespace backward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::EltwiseSumKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    eltwise_sum::backward::Input *input = static_cast<eltwise_sum::backward::Input *>(_in);
-    eltwise_sum::backward::Result *result = static_cast<eltwise_sum::backward::Result *>(_res);
+    eltwise_sum::backward::Input * input   = static_cast<eltwise_sum::backward::Input *>(_in);
+    eltwise_sum::backward::Result * result = static_cast<eltwise_sum::backward::Result *>(_res);
 
     const size_t nOutputs = input->getNumberOfCoefficients();
 
     TArray<Tensor *, cpu> outputTensorsBlock(nOutputs);
-    Tensor **outputTensors = outputTensorsBlock.get();
-    if (!outputTensors) { return services::Status(services::ErrorMemoryAllocationFailed); }
+    Tensor ** outputTensors = outputTensorsBlock.get();
+    if (!outputTensors)
+    {
+        return services::Status(services::ErrorMemoryAllocationFailed);
+    }
 
     for (size_t i = 0; i < nOutputs; i++)
     {
         outputTensors[i] = result->get(layers::backward::resultLayerData, i).get();
     }
 
-    Tensor *inputGradient = input->get(layers::backward::inputGradient).get();
-    Tensor *coefficients  = input->get(eltwise_sum::auxCoefficients).get();
+    Tensor * inputGradient = input->get(layers::backward::inputGradient).get();
+    Tensor * coefficients  = input->get(eltwise_sum::auxCoefficients).get();
 
-    daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::EltwiseSumKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-        inputGradient, coefficients, outputTensors, nOutputs);
+    daal::services::Environment::env & env = *_env;
+    __DAAL_CALL_KERNEL(env, internal::EltwiseSumKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, inputGradient, coefficients,
+                       outputTensors, nOutputs);
 }
 } // namespace interface1
 } // namespace backward

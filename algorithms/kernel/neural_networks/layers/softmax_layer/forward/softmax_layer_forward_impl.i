@@ -49,74 +49,82 @@ namespace forward
 {
 namespace internal
 {
-
 /* Threshold for vector exp negative args domain  */
-template<typename algorithmFPType> inline algorithmFPType exp_threshold        (void) { return algorithmFPType(0.0); }
-template<>                         inline float           exp_threshold<float> (void) { return float (-87.0);  }
-template<>                         inline double          exp_threshold<double>(void) { return double(-708.0); }
+template <typename algorithmFPType>
+inline algorithmFPType exp_threshold(void)
+{
+    return algorithmFPType(0.0);
+}
+template <>
+inline float exp_threshold<float>(void)
+{
+    return float(-87.0);
+}
+template <>
+inline double exp_threshold<double>(void)
+{
+    return double(-708.0);
+}
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status SoftmaxKernel<algorithmFPType, method, cpu>::compute(
-    const Tensor &inputTensor,
-    const softmax::Parameter &parameter,
-    Tensor &resultTensor)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status SoftmaxKernel<algorithmFPType, method, cpu>::compute(const Tensor & inputTensor, const softmax::Parameter & parameter,
+                                                                      Tensor & resultTensor)
 {
     const algorithmFPType minValue = -services::internal::MaxVal<algorithmFPType>::get();
 
-    const size_t dimension = parameter.dimension;
+    const size_t dimension     = parameter.dimension;
     const size_t dimensionSize = inputTensor.getDimensionSize(dimension);
     const size_t offsetInclude = inputTensor.getSize(dimension, inputTensor.getNumberOfDimensions() - dimension);
-    const size_t offsetBefore = inputTensor.getSize() / offsetInclude;
-    const size_t offsetAfter = offsetInclude / dimensionSize;
+    const size_t offsetBefore  = inputTensor.getSize() / offsetInclude;
+    const size_t offsetAfter   = offsetInclude / dimensionSize;
 
     ReadSubtensor<algorithmFPType, cpu> inputBlock(const_cast<Tensor &>(inputTensor), 0, 0, 0, inputTensor.getDimensionSize(0));
     DAAL_CHECK_BLOCK_STATUS(inputBlock);
-    const algorithmFPType *inputArray = inputBlock.get();
+    const algorithmFPType * inputArray = inputBlock.get();
 
     WriteOnlySubtensor<algorithmFPType, cpu> resultBlock(resultTensor, 0, 0, 0, inputTensor.getDimensionSize(0));
     DAAL_CHECK_BLOCK_STATUS(resultBlock);
-    algorithmFPType *resultArray = resultBlock.get();
+    algorithmFPType * resultArray = resultBlock.get();
 
     SafeStatus safeStat;
-    threader_for(offsetBefore, offsetBefore, [&](size_t i)
-    {
+    threader_for(offsetBefore, offsetBefore, [&](size_t i) {
         TArrayScalable<algorithmFPType, cpu> expArrayPtr(dimensionSize * offsetAfter);
-        algorithmFPType *expArray = expArrayPtr.get();
+        algorithmFPType * expArray = expArrayPtr.get();
         DAAL_CHECK_THR(expArray, ErrorMemoryAllocationFailed);
 
         TArrayScalable<algorithmFPType, cpu> maxArrayPtr(offsetAfter);
-        algorithmFPType *maxArray = maxArrayPtr.get();
+        algorithmFPType * maxArray = maxArrayPtr.get();
         DAAL_CHECK_THR(maxArray, ErrorMemoryAllocationFailed);
 
-        for(size_t j = 0; j < offsetAfter; j++)
+        for (size_t j = 0; j < offsetAfter; j++)
         {
             maxArray[j] = minValue;
         }
 
-        for(size_t k = 0; k < dimensionSize; k++)
+        for (size_t k = 0; k < dimensionSize; k++)
         {
-            for(size_t j = 0; j < offsetAfter; j++)
+            for (size_t j = 0; j < offsetAfter; j++)
             {
                 const size_t inputIndex = (i * dimensionSize + k) * offsetAfter + j;
-                if(inputArray[inputIndex] > maxArray[j])
+                if (inputArray[inputIndex] > maxArray[j])
                 {
                     maxArray[j] = inputArray[inputIndex];
                 }
             }
         }
 
-        for(size_t k = 0; k < dimensionSize; k++)
+        for (size_t k = 0; k < dimensionSize; k++)
         {
-            for(size_t j = 0; j < offsetAfter; j++)
+            for (size_t j = 0; j < offsetAfter; j++)
             {
                 const size_t inputIndex = (i * dimensionSize + k) * offsetAfter + j;
-                const size_t expIndex = k * offsetAfter + j;
-                expArray[expIndex] = inputArray[inputIndex] - maxArray[j];
+                const size_t expIndex   = k * offsetAfter + j;
+                expArray[expIndex]      = inputArray[inputIndex] - maxArray[j];
 
                 // make all values less than threshold as threshold value
                 // to fix slow work on vExp on large negative inputs
 #if (__CPUID__(DAAL_CPU) != __avx512_mic__)
-                if( expArray[expIndex] < exp_threshold<algorithmFPType>() )
+                if (expArray[expIndex] < exp_threshold<algorithmFPType>())
                 {
                     expArray[expIndex] = exp_threshold<algorithmFPType>();
                 }
@@ -126,32 +134,31 @@ services::Status SoftmaxKernel<algorithmFPType, method, cpu>::compute(
 
         Math<algorithmFPType, cpu>::vExp(dimensionSize * offsetAfter, expArray, expArray);
 
-        for(size_t j = 0; j < offsetAfter; j++)
+        for (size_t j = 0; j < offsetAfter; j++)
         {
             maxArray[j] = (algorithmFPType)0;
         }
 
-        for(size_t k = 0; k < dimensionSize; k++)
+        for (size_t k = 0; k < dimensionSize; k++)
         {
-            for(size_t j = 0; j < offsetAfter; j++)
+            for (size_t j = 0; j < offsetAfter; j++)
             {
                 const size_t expIndex = k * offsetAfter + j;
                 maxArray[j] += expArray[expIndex];
             }
         }
 
-        for(size_t j = 0; j < offsetAfter; j++)
+        for (size_t j = 0; j < offsetAfter; j++)
         {
             maxArray[j] = ((algorithmFPType)1.0) / maxArray[j];
         }
 
-
-        for(size_t k = 0; k < dimensionSize; k++)
+        for (size_t k = 0; k < dimensionSize; k++)
         {
-            for(size_t j = 0; j < offsetAfter; j++)
+            for (size_t j = 0; j < offsetAfter; j++)
             {
                 const size_t resultIndex = (i * dimensionSize + k) * offsetAfter + j;
-                const size_t expIndex = k * offsetAfter + j;
+                const size_t expIndex    = k * offsetAfter + j;
                 resultArray[resultIndex] = expArray[expIndex] * maxArray[j];
             }
         }
@@ -159,10 +166,8 @@ services::Status SoftmaxKernel<algorithmFPType, method, cpu>::compute(
     return Status();
 }
 
-
-
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 } // namespace softmax
 } // namespace layers
 } // namespace neural_networks

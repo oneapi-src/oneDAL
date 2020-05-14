@@ -19,7 +19,6 @@
 //  Implementation of the forward dropout layer
 //--
 
-
 #ifndef __DROPOUT_LAYER_FORWARD_KERNEL_H__
 #define __DROPOUT_LAYER_FORWARD_KERNEL_H__
 
@@ -51,18 +50,14 @@ namespace internal
 /**
  *  \brief Kernel for dropout calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class DropoutKernel : public Kernel
 {
 public:
     DropoutKernel() : _retainRatio(0.5) {}
-    services::Status compute(
-        const Tensor &inputTensor,
-        Tensor &resultTensor,
-        Tensor *maskTensor,
-        const dropout::Parameter &parameter);
+    services::Status compute(const Tensor & inputTensor, Tensor & resultTensor, Tensor * maskTensor, const dropout::Parameter & parameter);
 
-    services::Status initialize(const dropout::Parameter &parameter);
+    services::Status initialize(const dropout::Parameter & parameter);
 
     services::Status reset();
 
@@ -70,30 +65,21 @@ private:
     static const size_t _nRowsInBlock = 5000;
 
     algorithmFPType _retainRatio;
-    engines::BatchBase *_engine;
+    engines::BatchBase * _engine;
 
-    inline Status processBlock(
-        const Tensor &inputTensor,
-        const size_t nProcessedRows,
-        const size_t nRowsInCurrentBlock,
-        Tensor &resultTensor,
-        Tensor *maskTensor,
-        int *rngBuffer,
-        const algorithmFPType inverseRetainRatio);
+    inline Status processBlock(const Tensor & inputTensor, const size_t nProcessedRows, const size_t nRowsInCurrentBlock, Tensor & resultTensor,
+                               Tensor * maskTensor, int * rngBuffer, const algorithmFPType inverseRetainRatio);
 
-    inline Status processBlockPrediction(
-        const Tensor &inputTensor,
-        const size_t nProcessedRows,
-        const size_t nRowsInCurrentBlock,
-        Tensor &resultTensor);
+    inline Status processBlockPrediction(const Tensor & inputTensor, const size_t nProcessedRows, const size_t nRowsInCurrentBlock,
+                                         Tensor & resultTensor);
 };
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 
-} // dropout
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace dropout
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

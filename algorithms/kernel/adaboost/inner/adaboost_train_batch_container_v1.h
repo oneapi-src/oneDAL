@@ -39,39 +39,39 @@ namespace training
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::I1AdaBoostTrainKernel, method, algorithmFPType);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    classifier::training::interface1::Input *input = static_cast<classifier::training::interface1::Input *>(_in);
-    adaboost::training::interface1::Result *result = static_cast<adaboost::training::interface1::Result *>(_res);
+    classifier::training::interface1::Input * input = static_cast<classifier::training::interface1::Input *>(_in);
+    adaboost::training::interface1::Result * result = static_cast<adaboost::training::interface1::Result *>(_res);
 
     NumericTablePtr a[2];
     a[0] = services::staticPointerCast<NumericTable>(input->get(classifier::training::data));
     a[1] = services::staticPointerCast<NumericTable>(input->get(classifier::training::labels));
 
-    adaboost::interface1::Model *r = static_cast<adaboost::interface1::Model *>(result->get(classifier::training::model).get());
+    adaboost::interface1::Model * r = static_cast<adaboost::interface1::Model *>(result->get(classifier::training::model).get());
     DAAL_CHECK_MALLOC(_par)
-    const adaboost::interface1::Parameter *par = static_cast<adaboost::interface1::Parameter *>(_par);
+    const adaboost::interface1::Parameter * par = static_cast<adaboost::interface1::Parameter *>(_par);
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
     __DAAL_CALL_KERNEL(env, internal::I1AdaBoostTrainKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, r, par);
 }
-}
-} // namespace daal::algorithms::adaboost::training
-}
-}
+} // namespace interface1
+} // namespace training
+} // namespace adaboost
+} // namespace algorithms
 } // namespace daal
 
 #endif // __ADABOOST_TRAINING_BATCH_CONTAINER_V1_H__

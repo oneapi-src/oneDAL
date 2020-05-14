@@ -41,25 +41,24 @@ namespace interface1
 *  \param[in] _dataDimension    Starting data dimension index to apply weight
 *  \param[in] _weightsDimension Number of weight dimensions
 */
-Parameter::Parameter(const size_t _dataDimension, const size_t _weightsDimension) : dataDimension(_dataDimension),
-    weightsDimension(_weightsDimension)
-{};
+Parameter::Parameter(const size_t _dataDimension, const size_t _weightsDimension)
+    : dataDimension(_dataDimension), weightsDimension(_weightsDimension) {};
 
 /**
  * Checks the correctness of the parameter
  */
 services::Status Parameter::check() const
 {
-    if(weightsDimension == (size_t)0)
+    if (weightsDimension == (size_t)0)
     {
         return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ArgumentName, weightsDimensionStr()));
     }
     return services::Status();
 }
 
-}// namespace interface1
-}// namespace prelu
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace prelu
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

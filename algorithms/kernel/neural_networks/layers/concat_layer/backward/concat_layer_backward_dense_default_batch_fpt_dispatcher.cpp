@@ -19,7 +19,6 @@
 //  Implementation of concat layer container.
 //--
 
-
 #include "concat_layer_backward_batch_container.h"
 
 namespace daal

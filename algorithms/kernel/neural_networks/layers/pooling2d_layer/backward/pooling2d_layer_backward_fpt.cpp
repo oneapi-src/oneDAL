@@ -48,33 +48,37 @@ namespace interface1
  * \param[in] parameter %Parameter of the backward 2D pooling layer
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     using daal::data_management::Tensor;
     using daal::internal::MklTensor;
 
-    const Parameter *param = static_cast<const Parameter *>(parameter);
-    if (!param->propagateGradient) { return services::Status(); }
+    const Parameter * param = static_cast<const Parameter *>(parameter);
+    if (!param->propagateGradient)
+    {
+        return services::Status();
+    }
 
-    const Input *in = static_cast<const Input *>(input);
+    const Input * in = static_cast<const Input *>(input);
 
     services::Status s;
     DAAL_CHECK_STATUS(s, data_management::checkTensor(in->get(layers::backward::inputGradient).get(), inputGradientStr()));
 
     if (!get(layers::backward::gradient))
     {
-        set(layers::backward::gradient, data_management::TensorPtr(
-                new MklTensor<algorithmFPType>(in->getGradientSize(), data_management::Tensor::doAllocate)));
+        set(layers::backward::gradient,
+            data_management::TensorPtr(new MklTensor<algorithmFPType>(in->getGradientSize(), data_management::Tensor::doAllocate)));
     }
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace backward
-}// namespace pooling2d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace pooling2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

@@ -40,20 +40,22 @@ namespace interface1
  * \param[in] method    Algorithm method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const classifier::training::Input *algInput = static_cast<const classifier::training::Input *>(input);
+    const classifier::training::Input * algInput = static_cast<const classifier::training::Input *>(input);
 
     algorithmFPType dummy = 1.0;
     services::Status st;
-    set(classifier::training::model, svm::Model::create<algorithmFPType>(algInput->get(classifier::training::data)->getNumberOfColumns(), algInput->get(classifier::training::data)->getDataLayout(), &st));
+    set(classifier::training::model, svm::Model::create<algorithmFPType>(algInput->get(classifier::training::data)->getNumberOfColumns(),
+                                                                         algInput->get(classifier::training::data)->getDataLayout(), &st));
     return st;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace svm
-}// namespace cholesky
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace training
+} // namespace svm
+} // namespace algorithms
+} // namespace daal

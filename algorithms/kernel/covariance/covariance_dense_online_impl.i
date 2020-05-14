@@ -35,12 +35,9 @@ namespace covariance
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu, typename SumsArrayType>
-services::Status prepareSums(NumericTable *dataTable,
-                             algorithmFPType *&userSums,
-                             ReadRows<algorithmFPType, cpu> &userSumsBlock,
-                             SumsArrayType &userSumsArray)
+template <typename algorithmFPType, Method method, CpuType cpu, typename SumsArrayType>
+services::Status prepareSums(NumericTable * dataTable, algorithmFPType *& userSums, ReadRows<algorithmFPType, cpu> & userSumsBlock,
+                             SumsArrayType & userSumsArray)
 {
     if (method == defaultDense)
     {
@@ -51,7 +48,7 @@ services::Status prepareSums(NumericTable *dataTable,
     }
     else /* method == sumDense */
     {
-        NumericTable *userSumsTable = dataTable->basicStatistics.get(NumericTable::sum).get();
+        NumericTable * userSumsTable = dataTable->basicStatistics.get(NumericTable::sum).get();
         userSumsBlock.set(userSumsTable, 0, userSumsTable->getNumberOfRows());
         DAAL_CHECK_BLOCK_STATUS(userSumsBlock);
 
@@ -61,26 +58,22 @@ services::Status prepareSums(NumericTable *dataTable,
     return services::Status();
 }
 
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status CovarianceDenseOnlineKernel<algorithmFPType, method, cpu>::compute(
-    NumericTable *dataTable,
-    NumericTable *nObservationsTable,
-    NumericTable *crossProductTable,
-    NumericTable *sumTable,
-    const Parameter *parameter)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status CovarianceDenseOnlineKernel<algorithmFPType, method, cpu>::compute(NumericTable * dataTable, NumericTable * nObservationsTable,
+                                                                                    NumericTable * crossProductTable, NumericTable * sumTable,
+                                                                                    const Parameter * parameter)
 {
     const size_t nFeatures  = dataTable->getNumberOfColumns();
     const size_t nVectors   = dataTable->getNumberOfRows();
     const bool isNormalized = dataTable->isNormalized(NumericTableIface::standardScoreNormalized);
 
-    DEFINE_TABLE_BLOCK( WriteRows, sumBlock,           sumTable           );
-    DEFINE_TABLE_BLOCK( WriteRows, crossProductBlock,  crossProductTable  );
-    DEFINE_TABLE_BLOCK( WriteRows, nObservationsBlock, nObservationsTable );
+    DEFINE_TABLE_BLOCK(WriteRows, sumBlock, sumTable);
+    DEFINE_TABLE_BLOCK(WriteRows, crossProductBlock, crossProductTable);
+    DEFINE_TABLE_BLOCK(WriteRows, nObservationsBlock, nObservationsTable);
 
-    algorithmFPType *sums          = sumBlock.get();
-    algorithmFPType *crossProduct  = crossProductBlock.get();
-    algorithmFPType *nObservations = nObservationsBlock.get();
+    algorithmFPType * sums          = sumBlock.get();
+    algorithmFPType * crossProduct  = crossProductBlock.get();
+    algorithmFPType * nObservations = nObservationsBlock.get();
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, nFeatures);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures * nFeatures, sizeof(algorithmFPType));
@@ -88,16 +81,16 @@ services::Status CovarianceDenseOnlineKernel<algorithmFPType, method, cpu>::comp
     services::Status status;
     if (method == singlePassDense)
     {
-        status |= updateDenseCrossProductAndSums<algorithmFPType, method, cpu>(
-            isNormalized, nFeatures, nVectors, dataTable, crossProduct, sums, nObservations);
+        status |= updateDenseCrossProductAndSums<algorithmFPType, method, cpu>(isNormalized, nFeatures, nVectors, dataTable, crossProduct, sums,
+                                                                               nObservations);
         DAAL_CHECK_STATUS_VAR(status);
     }
     else
     {
         algorithmFPType partialNObservations = 0.0;
 
-        algorithmFPType                   *userSums;
-        ReadRows<algorithmFPType, cpu>     userSumsBlock;
+        algorithmFPType * userSums;
+        ReadRows<algorithmFPType, cpu> userSumsBlock;
         TArrayCalloc<algorithmFPType, cpu> userSumsArray;
 
         status |= prepareSums<algorithmFPType, method, cpu>(dataTable, userSums, userSumsBlock, userSumsArray);
@@ -105,35 +98,31 @@ services::Status CovarianceDenseOnlineKernel<algorithmFPType, method, cpu>::comp
 
         TArrayCalloc<algorithmFPType, cpu> partialCrossProductArray(nFeatures * nFeatures);
         DAAL_CHECK_MALLOC(partialCrossProductArray.get());
-        algorithmFPType *partialCrossProduct = partialCrossProductArray.get();
+        algorithmFPType * partialCrossProduct = partialCrossProductArray.get();
 
-        status |= updateDenseCrossProductAndSums<algorithmFPType, method, cpu>(
-            isNormalized, nFeatures, nVectors, dataTable, partialCrossProduct, userSums, &partialNObservations);
+        status |= updateDenseCrossProductAndSums<algorithmFPType, method, cpu>(isNormalized, nFeatures, nVectors, dataTable, partialCrossProduct,
+                                                                               userSums, &partialNObservations);
         DAAL_CHECK_STATUS_VAR(status);
 
-        mergeCrossProductAndSums<algorithmFPType, cpu>(nFeatures, partialCrossProduct, userSums,
-            &partialNObservations, crossProduct, sums, nObservations);
+        mergeCrossProductAndSums<algorithmFPType, cpu>(nFeatures, partialCrossProduct, userSums, &partialNObservations, crossProduct, sums,
+                                                       nObservations);
     }
 
     return status;
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status CovarianceDenseOnlineKernel<algorithmFPType, method, cpu>::finalizeCompute(
-    NumericTable *nObservationsTable,
-    NumericTable *crossProductTable,
-    NumericTable *sumTable,
-    NumericTable *covTable,
-    NumericTable *meanTable,
-    const Parameter *parameter)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status CovarianceDenseOnlineKernel<algorithmFPType, method, cpu>::finalizeCompute(NumericTable * nObservationsTable,
+                                                                                            NumericTable * crossProductTable, NumericTable * sumTable,
+                                                                                            NumericTable * covTable, NumericTable * meanTable,
+                                                                                            const Parameter * parameter)
 {
-    return finalizeCovariance<algorithmFPType, cpu>(nObservationsTable,
-        crossProductTable, sumTable, covTable, meanTable, parameter);
+    return finalizeCovariance<algorithmFPType, cpu>(nObservationsTable, crossProductTable, sumTable, covTable, meanTable, parameter);
 }
 
-} // internal
-} // covariance
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace covariance
+} // namespace algorithms
+} // namespace daal
 
 #endif

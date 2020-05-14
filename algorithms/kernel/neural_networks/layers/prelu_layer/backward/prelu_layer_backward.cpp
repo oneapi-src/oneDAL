@@ -45,7 +45,7 @@ namespace interface1
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_NEURAL_NETWORKS_LAYERS_PRELU_BACKWARD_RESULT_ID);
 /** \brief Default constructor */
 Input::Input() {};
-Input::Input(const Input& other) : super(other) {}
+Input::Input(const Input & other) : super(other) {}
 
 /**
  * Returns an input object for the backward prelu layer
@@ -64,7 +64,7 @@ data_management::TensorPtr Input::get(LayerDataId id) const
  * \param[in] id     Identifier of the input object
  * \param[in] value  Pointer to the input object
  */
-void Input::set(LayerDataId id, const data_management::TensorPtr &value)
+void Input::set(LayerDataId id, const data_management::TensorPtr & value)
 {
     layers::LayerDataPtr layerData =
         services::staticPointerCast<layers::LayerData, data_management::SerializationIface>(Argument::get(layers::backward::inputFromForward));
@@ -75,12 +75,12 @@ void Input::set(LayerDataId id, const data_management::TensorPtr &value)
 * Returns dimensions of auxWeights tensor
 * \return Dimensions of auxWeights tensor
 */
-services::Collection<size_t> Input::getAuxWeightsSizes(const layers::Parameter *par) const
+services::Collection<size_t> Input::getAuxWeightsSizes(const layers::Parameter * par) const
 {
-    const Parameter *parameter =  static_cast<const Parameter *>(par);
+    const Parameter * parameter                    = static_cast<const Parameter *>(par);
     data_management::TensorPtr inputGradientTensor = get(layers::backward::inputGradient);
 
-    size_t wStartDim = parameter->dataDimension;
+    size_t wStartDim  = parameter->dataDimension;
     size_t wDimNumber = parameter->weightsDimension;
 
     services::Collection<size_t> _dims = inputGradientTensor->getDimensions();
@@ -98,14 +98,15 @@ services::Collection<size_t> Input::getAuxWeightsSizes(const layers::Parameter *
  * \param[in] par     Algorithm parameter
  * \param[in] method  Computation method
  */
-services::Status Input::check(const daal::algorithms::Parameter *par, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, layers::backward::Input::check(par, method));
 
-    const Parameter *parameter = static_cast<const Parameter * >(par);
-    const services::Collection<size_t> &inputDimensions = get(layers::backward::inputGradient)->getDimensions();
-    DAAL_CHECK_EX(parameter->dataDimension <= inputDimensions.size() - parameter->weightsDimension, services::ErrorIncorrectParameter, services::ParameterName, dataDimensionStr());
+    const Parameter * parameter                          = static_cast<const Parameter *>(par);
+    const services::Collection<size_t> & inputDimensions = get(layers::backward::inputGradient)->getDimensions();
+    DAAL_CHECK_EX(parameter->dataDimension <= inputDimensions.size() - parameter->weightsDimension, services::ErrorIncorrectParameter,
+                  services::ParameterName, dataDimensionStr());
     DAAL_CHECK_EX(parameter->weightsDimension != 0, services::ErrorIncorrectParameter, services::ParameterName, weightsDimensionStr());
 
     const services::Collection<size_t> weightsDimensions = getAuxWeightsSizes(parameter);
@@ -125,26 +126,26 @@ Result::Result() : layers::backward::Result() {};
  * \param[in] par     %Parameter of the algorithm
  * \param[in] method  Computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
-    const Input *in = static_cast<const Input *>(input);
-    const Parameter *param = static_cast<const Parameter *>(par);
+    const Input * in        = static_cast<const Input *>(input);
+    const Parameter * param = static_cast<const Parameter *>(par);
 
     services::Status s;
     if (param->propagateGradient)
     {
-        DAAL_CHECK_STATUS(s, data_management::checkTensor(get(layers::backward::gradient).get(), gradientStr(),
-                                                          &(in->get(prelu::auxData)->getDimensions())));
+        DAAL_CHECK_STATUS(
+            s, data_management::checkTensor(get(layers::backward::gradient).get(), gradientStr(), &(in->get(prelu::auxData)->getDimensions())));
     }
     DAAL_CHECK_STATUS(s, data_management::checkTensor(get(layers::backward::weightDerivatives).get(), weightDerivativesStr(),
                                                       &(in->get(prelu::auxWeights)->getDimensions())));
     return s;
 }
 
-}// namespace interface1
-}// namespace backward
-}// namespace prelu
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace prelu
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

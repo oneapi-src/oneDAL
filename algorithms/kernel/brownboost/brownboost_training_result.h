@@ -34,7 +34,6 @@ namespace brownboost
 {
 namespace training
 {
-
 namespace interface2
 {
 /**
@@ -44,14 +43,14 @@ namespace interface2
  * \param[in] method        BrownBoost computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status s;
-    const classifier::training::Input *algInput = static_cast<const classifier::training::Input *>(input);
+    const classifier::training::Input * algInput = static_cast<const classifier::training::Input *>(input);
     set(classifier::training::model, Model::create<algorithmFPType>(algInput->getNumberOfFeatures(), &s));
     return s;
 }
-}
+} // namespace interface2
 
 } // namespace training
 } // namespace brownboost

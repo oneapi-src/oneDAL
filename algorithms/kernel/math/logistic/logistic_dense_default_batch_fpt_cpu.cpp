@@ -19,7 +19,6 @@
 //  Implementation of logistic calculation functions.
 //--
 
-
 #include "logistic_batch_container.h"
 #include "logistic_kernel.h"
 #include "logistic_impl.i"
@@ -32,7 +31,6 @@ namespace math
 {
 namespace logistic
 {
-
 namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
@@ -43,7 +41,7 @@ namespace internal
 template class LogisticKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
 
-}
-}
-}
-}
+} // namespace logistic
+} // namespace math
+} // namespace algorithms
+} // namespace daal

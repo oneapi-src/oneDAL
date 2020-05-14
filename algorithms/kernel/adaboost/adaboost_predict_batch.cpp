@@ -37,7 +37,6 @@ namespace prediction
 {
 namespace interface2
 {
-
 /**
  * Returns the input Numeric Table object in the prediction stage of the classification algorithm
  * \param[in] id    Identifier of the input NumericTable object
@@ -63,7 +62,7 @@ adaboost::ModelPtr Input::get(classifier::prediction::ModelInputId id) const
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(classifier::prediction::NumericTableInputId id, const NumericTablePtr &ptr)
+void Input::set(classifier::prediction::NumericTableInputId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -73,7 +72,7 @@ void Input::set(classifier::prediction::NumericTableInputId id, const NumericTab
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(classifier::prediction::ModelInputId id, const adaboost::ModelPtr &ptr)
+void Input::set(classifier::prediction::ModelInputId id, const adaboost::ModelPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -83,16 +82,22 @@ void Input::set(classifier::prediction::ModelInputId id, const adaboost::ModelPt
  * \param[in] parameter Pointer to the structure of the algorithm parameters
  * \param[in] method    Computation method
  */
-Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     Status s = classifier::prediction::Input::check(parameter, method);
-    if(!s) { return s; }
+    if (!s)
+    {
+        return s;
+    }
 
     adaboost::ModelPtr m = get(classifier::prediction::model);
     DAAL_CHECK(m->getNumberOfWeakLearners() > 0, ErrorModelNotFullInitialized);
 
     s |= checkNumericTable(m->getAlpha().get(), alphaStr());
-    if(!s) { return Status(ErrorModelNotFullInitialized); }
+    if (!s)
+    {
+        return Status(ErrorModelNotFullInitialized);
+    }
 
     DAAL_CHECK(m->getNumberOfWeakLearners() == m->getAlpha()->getNumberOfRows(), ErrorIncorrectSizeOfModel);
     return s;

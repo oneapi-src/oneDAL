@@ -46,7 +46,7 @@ namespace interface1
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_NEURAL_NETWORKS_LAYERS_CONCAT_FORWARD_RESULT_ID);
 /** \brief Default constructor */
 Input::Input() {};
-Input::Input(const Input& other) : super(other) {}
+Input::Input(const Input & other) : super(other) {}
 
 /**
 * Returns input Tensor of the forward concat layer
@@ -75,7 +75,7 @@ LayerDataPtr Input::get(layers::forward::InputLayerDataId id) const
 * \param[in] id      Identifier of the input object
 * \param[in] value   Pointer to the object
 */
-void Input::set(layers::forward::InputLayerDataId id, const LayerDataPtr &value)
+void Input::set(layers::forward::InputLayerDataId id, const LayerDataPtr & value)
 {
     Argument::set(id, value);
 }
@@ -86,10 +86,10 @@ void Input::set(layers::forward::InputLayerDataId id, const LayerDataPtr &value)
 * \param[in] value   Pointer to the object
 * \param[in] index   Index of the input object
 */
-void Input::set(layers::forward::InputLayerDataId id, const TensorPtr &value, size_t index)
+void Input::set(layers::forward::InputLayerDataId id, const TensorPtr & value, size_t index)
 {
     LayerDataPtr layerData = get(id);
-    (*layerData)[index] = value;
+    (*layerData)[index]    = value;
 }
 
 /**
@@ -97,12 +97,12 @@ void Input::set(layers::forward::InputLayerDataId id, const TensorPtr &value, si
  * \param[in] dataTensor    Tensor with data
  * \param[in] index         Index of the tensor with data
  */
-Status Input::addData(const TensorPtr &dataTensor, size_t index)
+Status Input::addData(const TensorPtr & dataTensor, size_t index)
 {
     LayerDataPtr layerData = get(layers::forward::inputLayerData);
     if (!layerData) layerData = LayerDataPtr(new LayerData());
 
-    const size_t nInputs = layerData->size();
+    const size_t nInputs    = layerData->size();
     (*(layerData))[nInputs] = dataTensor;
     set(layers::forward::inputLayerData, layerData);
     return Status();
@@ -122,11 +122,11 @@ Status Input::eraseInputData()
 * \param[in] par     %Parameter of algorithm
 * \param[in] method  Computation method of the algorithm
 */
-Status Input::check(const daal::algorithms::Parameter *par, int method) const
+Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
-    const Parameter *parameter = static_cast<const Parameter *>(par);
+    const Parameter * parameter  = static_cast<const Parameter *>(par);
     const size_t concatDimension = parameter->concatDimension;
-    LayerDataPtr layerData = get(layers::forward::inputLayerData);
+    LayerDataPtr layerData       = get(layers::forward::inputLayerData);
     DAAL_CHECK(layerData, ErrorNullLayerData);
 
     const size_t nInputs = layerData->size();
@@ -143,7 +143,7 @@ Status Input::check(const daal::algorithms::Parameter *par, int method) const
     for (size_t i = 1; i < nInputs; i++)
     {
         TensorPtr layerDataTensor = get(layers::forward::inputLayerData, i);
-        dims[concatDimension] = layerDataTensor->getDimensionSize(concatDimension);
+        dims[concatDimension]     = layerDataTensor->getDimensionSize(concatDimension);
 
         DAAL_CHECK_STATUS(s, checkTensor(layerDataTensor.get(), inputLayerDataStr(), &dims));
     }
@@ -154,7 +154,10 @@ Status Input::check(const daal::algorithms::Parameter *par, int method) const
 * Returns the layout of the input object for the layer algorithm
 * \return Layout of the input object for the layer algorithm
 */
-LayerInputLayout Input::getLayout()  { return collectionInput; }
+LayerInputLayout Input::getLayout()
+{
+    return collectionInput;
+}
 
 /** \brief Default constructor */
 Result::Result() : layers::forward::Result() {};
@@ -164,11 +167,10 @@ Result::Result() : layers::forward::Result() {};
 * \param[in] id      Identifier of the result
 * \param[in] value   Pointer to the result
 */
-void Result::set(LayerDataId id, const NumericTablePtr &value)
+void Result::set(LayerDataId id, const NumericTablePtr & value)
 {
-    layers::LayerDataPtr layerData =
-        staticPointerCast<layers::LayerData, SerializationIface>(Argument::get(layers::forward::resultForBackward));
-    if(!layerData)
+    layers::LayerDataPtr layerData = staticPointerCast<layers::LayerData, SerializationIface>(Argument::get(layers::forward::resultForBackward));
+    if (!layerData)
     {
         return;
     }
@@ -185,14 +187,12 @@ void Result::set(LayerDataId id, const NumericTablePtr &value)
 */
 NumericTablePtr Result::get(layers::concat::LayerDataId id) const
 {
-    layers::LayerDataPtr layerData =
-        staticPointerCast<layers::LayerData, SerializationIface>(Argument::get(layers::forward::resultForBackward));
-    if(!layerData)
+    layers::LayerDataPtr layerData = staticPointerCast<layers::LayerData, SerializationIface>(Argument::get(layers::forward::resultForBackward));
+    if (!layerData)
     {
         return NumericTablePtr();
     }
-    return staticPointerCast<NumericTable, SerializationIface>
-           ((*layerData)[id]);
+    return staticPointerCast<NumericTable, SerializationIface>((*layerData)[id]);
 }
 
 /**
@@ -202,8 +202,7 @@ NumericTablePtr Result::get(layers::concat::LayerDataId id) const
 * \param[in] method      Method of the algorithm
 * \return    Collection of dimensions of concat layer output
 */
-const Collection<size_t> Result::getValueSize(const Collection<size_t> &inputSize,
-                                                        const daal::algorithms::Parameter *par, const int method) const
+const Collection<size_t> Result::getValueSize(const Collection<size_t> & inputSize, const daal::algorithms::Parameter * par, const int method) const
 {
     return Collection<size_t>();
 }
@@ -215,12 +214,12 @@ const Collection<size_t> Result::getValueSize(const Collection<size_t> &inputSiz
 * \param[in] method      Method of the algorithm
 * \return    Collection of dimensions of concat layer output
 */
-Collection<size_t> Result::getValueSize(const Collection< Collection<size_t> > &inputSize,
-                                          const daal::algorithms::Parameter *parameter, const int method)
+Collection<size_t> Result::getValueSize(const Collection<Collection<size_t> > & inputSize, const daal::algorithms::Parameter * parameter,
+                                        const int method)
 {
-    const Parameter *par = static_cast<const Parameter *>(parameter);
+    const Parameter * par = static_cast<const Parameter *>(parameter);
 
-    const size_t nInputs = inputSize.size();
+    const size_t nInputs         = inputSize.size();
     const size_t concatDimension = par->concatDimension;
 
     size_t sum = 0;
@@ -230,7 +229,7 @@ Collection<size_t> Result::getValueSize(const Collection< Collection<size_t> > &
     }
 
     Collection<size_t> dimsCollection = inputSize[0];
-    dimsCollection[concatDimension] = sum;
+    dimsCollection[concatDimension]   = sum;
 
     return dimsCollection;
 }
@@ -241,12 +240,11 @@ Collection<size_t> Result::getValueSize(const Collection< Collection<size_t> > &
 * \param[in] parameter     %Parameter of algorithm
 * \param[in] method        Computation method of the algorithm
 */
-Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
-                   int method) const
+Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Input *algInput = static_cast<const Input *>(input);
-    const Parameter *algParameter = static_cast<const Parameter *>(parameter);
-    const size_t concatDimension = algParameter->concatDimension;
+    const Input * algInput         = static_cast<const Input *>(input);
+    const Parameter * algParameter = static_cast<const Parameter *>(parameter);
+    const size_t concatDimension   = algParameter->concatDimension;
 
     DAAL_CHECK((Argument::size() == 2), ErrorIncorrectNumberOfInputNumericTables);
 
@@ -254,9 +252,9 @@ Status Result::check(const daal::algorithms::Input *input, const daal::algorithm
     DAAL_CHECK((layerData || algParameter->predictionStage), ErrorNullLayerData);
 
     LayerDataPtr inputLayerData = algInput->get(layers::forward::inputLayerData);
-    const size_t inputSize = inputLayerData->size();
+    const size_t inputSize      = inputLayerData->size();
 
-    if(!algParameter->predictionStage)
+    if (!algParameter->predictionStage)
     {
         NumericTablePtr dimsNT = get(auxInputDimensions);
         DAAL_CHECK((dimsNT.get() != 0), ErrorNullNumericTable);
@@ -267,22 +265,22 @@ Status Result::check(const daal::algorithms::Input *input, const daal::algorithm
     for (size_t i = 0; i < inputSize; i++)
     {
         TensorPtr inputTensor = algInput->get(layers::forward::inputLayerData, i);
-        const size_t dim = inputTensor->getDimensionSize(concatDimension);
+        const size_t dim      = inputTensor->getDimensionSize(concatDimension);
 
         sum += dim;
     }
 
-    TensorPtr valueTensor = get(layers::forward::value);
+    TensorPtr valueTensor   = get(layers::forward::value);
     Collection<size_t> dims = algInput->get(layers::forward::inputLayerData, 0)->getDimensions();
-    dims[concatDimension] = sum;
+    dims[concatDimension]   = sum;
 
     return checkTensor(get(layers::forward::value).get(), valueStr(), &dims);
 }
 
-}// namespace interface1
-}// namespace forward
-}// namespace concat
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace concat
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

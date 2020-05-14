@@ -38,7 +38,6 @@ namespace internal
 using namespace daal::data_management;
 using namespace daal::services;
 
-
 class ModelInternal : public linear_model::internal::ModelInternal
 {
 public:
@@ -52,18 +51,15 @@ public:
      * \param[in] dummy   Dummy variable for the templated constructor
      */
     template <typename modelFPType>
-    ModelInternal(size_t featnum, size_t nrhs, const linear_regression::Parameter &par, modelFPType dummy) :
-        super(featnum, nrhs, par, dummy)
+    ModelInternal(size_t featnum, size_t nrhs, const linear_regression::Parameter & par, modelFPType dummy) : super(featnum, nrhs, par, dummy)
     {}
 
     ModelInternal() {}
 
     virtual ~ModelInternal() {}
-
 };
 
-class ModelImpl : public linear_regression::Model,
-                  public ModelInternal
+class ModelImpl : public linear_regression::Model, public ModelInternal
 {
 public:
     typedef ModelInternal ImplType;
@@ -76,8 +72,7 @@ public:
      * \param[in] dummy   Dummy variable for the templated constructor
      */
     template <typename modelFPType>
-    ModelImpl(size_t featnum, size_t nrhs, const linear_regression::Parameter &par, modelFPType dummy) :
-        ImplType(featnum, nrhs, par, dummy)
+    ModelImpl(size_t featnum, size_t nrhs, const linear_regression::Parameter & par, modelFPType dummy) : ImplType(featnum, nrhs, par, dummy)
     {}
 
     ModelImpl() {}
@@ -93,13 +88,13 @@ public:
      * Returns the number of regression coefficients
      * \return Number of regression coefficients
      */
-    size_t getNumberOfBetas() const DAAL_C11_OVERRIDE  { return ImplType::getNumberOfBetas(); }
+    size_t getNumberOfBetas() const DAAL_C11_OVERRIDE { return ImplType::getNumberOfBetas(); }
 
     /**
      * Returns the number of responses in the training data set
      * \return Number of responses in the training data set
      */
-    size_t getNumberOfResponses() const DAAL_C11_OVERRIDE  { return ImplType::getNumberOfResponses(); }
+    size_t getNumberOfResponses() const DAAL_C11_OVERRIDE { return ImplType::getNumberOfResponses(); }
 
     /**
      * Returns true if the regression model contains the intercept term, and false otherwise
@@ -120,16 +115,16 @@ public:
     data_management::NumericTablePtr getBeta() DAAL_C11_OVERRIDE { return ImplType::getBeta(); }
 
     void setInterceptFlag(bool interceptFlag) { ImplType::_interceptFlag = interceptFlag; }
-protected:
 
-    services::Status serializeImpl(InputDataArchive  *arch) DAAL_C11_OVERRIDE
+protected:
+    services::Status serializeImpl(InputDataArchive * arch) DAAL_C11_OVERRIDE
     {
         ImplType::serialImpl<InputDataArchive, false>(arch);
 
         return services::Status();
     }
 
-    services::Status deserializeImpl(const OutputDataArchive *arch) DAAL_C11_OVERRIDE
+    services::Status deserializeImpl(const OutputDataArchive * arch) DAAL_C11_OVERRIDE
     {
         ImplType::serialImpl<const OutputDataArchive, true>(arch);
 
@@ -137,8 +132,8 @@ protected:
     }
 };
 
-}
-}
-}
-}
+} // namespace internal
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal
 #endif

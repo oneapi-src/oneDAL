@@ -41,17 +41,16 @@ namespace forward
 {
 namespace internal
 {
-
-template<typename algorithmFPType, CpuType cpu>
-inline void computeInternalSum(const algorithmFPType *inputArray, algorithmFPType *valueArray, size_t blockSize,
-                               const algorithmFPType *coefficientsArray, size_t inputIndex)
+template <typename algorithmFPType, CpuType cpu>
+inline void computeInternalSum(const algorithmFPType * inputArray, algorithmFPType * valueArray, size_t blockSize,
+                               const algorithmFPType * coefficientsArray, size_t inputIndex)
 {
     const algorithmFPType alpha = coefficientsArray[inputIndex];
 
     if (inputIndex > 0)
     {
-      PRAGMA_IVDEP
-      PRAGMA_VECTOR_ALWAYS
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < blockSize; i++)
         {
             valueArray[i] += alpha * inputArray[i];
@@ -59,8 +58,8 @@ inline void computeInternalSum(const algorithmFPType *inputArray, algorithmFPTyp
     }
     else
     {
-      PRAGMA_IVDEP
-      PRAGMA_VECTOR_ALWAYS
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < blockSize; i++)
         {
             valueArray[i] = alpha * inputArray[i];
@@ -68,14 +67,13 @@ inline void computeInternalSum(const algorithmFPType *inputArray, algorithmFPTyp
     }
 }
 
-template<typename algorithmFPType, CpuType cpu>
-inline void computeInternalSum(const algorithmFPType *inputArray, algorithmFPType *valueArray,
-                               size_t blockSize, size_t inputIndex)
+template <typename algorithmFPType, CpuType cpu>
+inline void computeInternalSum(const algorithmFPType * inputArray, algorithmFPType * valueArray, size_t blockSize, size_t inputIndex)
 {
     if (inputIndex > 0)
     {
-      PRAGMA_IVDEP
-      PRAGMA_VECTOR_ALWAYS
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < blockSize; i++)
         {
             valueArray[i] += inputArray[i];
@@ -90,9 +88,9 @@ inline void computeInternalSum(const algorithmFPType *inputArray, algorithmFPTyp
     }
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status EltwiseSumKernel<algorithmFPType, method, cpu>::compute(Tensor **inputs, Tensor *value,
-    Tensor *coefficients, Tensor *auxCoefficients, NumericTable *numberOfCoefficients, size_t nInputs)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status EltwiseSumKernel<algorithmFPType, method, cpu>::compute(Tensor ** inputs, Tensor * value, Tensor * coefficients, Tensor * auxCoefficients,
+                                                               NumericTable * numberOfCoefficients, size_t nInputs)
 {
     Status s;
     DAAL_CHECK_STATUS(s, makeResultForBackward(coefficients, auxCoefficients, numberOfCoefficients, nInputs));
@@ -104,7 +102,7 @@ Status EltwiseSumKernel<algorithmFPType, method, cpu>::compute(Tensor **inputs, 
         ReadSubtensor<algorithmFPType, cpu, Tensor> coefficientsBlock(*coefficients, 0, 0, 0, nInputs);
         DAAL_CHECK_BLOCK_STATUS(coefficientsBlock);
 
-        const algorithmFPType *coefficientsArray = coefficientsBlock.get();
+        const algorithmFPType * coefficientsArray = coefficientsBlock.get();
 
         DAAL_CHECK_STATUS(s, computeGeneric(inputs, value, coefficientsArray, nInputs));
     }
@@ -116,52 +114,49 @@ Status EltwiseSumKernel<algorithmFPType, method, cpu>::compute(Tensor **inputs, 
     return Status();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status EltwiseSumKernel<algorithmFPType, method, cpu>::computeGeneric(
-    Tensor **inputs, Tensor *value, const algorithmFPType *coefficients, size_t nInputs)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status EltwiseSumKernel<algorithmFPType, method, cpu>::computeGeneric(Tensor ** inputs, Tensor * value, const algorithmFPType * coefficients,
+                                                                      size_t nInputs)
 {
     for (size_t i = 0; i < nInputs; i++)
     {
         __DAAL_MAKE_TENSOR_THREADSAFE(inputs[i]);
     }
 
-    return computeImpl<cpu>(*value, [ = ](size_t fDimN, size_t *fDims, size_t dimensionSize, const TensorOffsetLayout &layout) -> Status
-    {
+    return computeImpl<cpu>(*value, [=](size_t fDimN, size_t * fDims, size_t dimensionSize, const TensorOffsetLayout & layout) -> Status {
         WriteSubtensor<algorithmFPType, cpu, Tensor> valueBlock(*value, fDimN, fDims, 0, dimensionSize, layout);
         DAAL_CHECK_BLOCK_STATUS(valueBlock);
 
-        algorithmFPType *valueArray = valueBlock.get();
-        const size_t valueBlockSize = valueBlock.getSize();
+        algorithmFPType * valueArray = valueBlock.get();
+        const size_t valueBlockSize  = valueBlock.getSize();
 
         for (size_t inputIndex = 0; inputIndex < nInputs; inputIndex++)
         {
-            Tensor *inputTensor = inputs[inputIndex];
+            Tensor * inputTensor = inputs[inputIndex];
             ReadSubtensor<algorithmFPType, cpu, Tensor> inputBlock(*inputTensor, fDimN, fDims, 0, dimensionSize, layout);
             DAAL_CHECK_BLOCK_STATUS(inputBlock);
 
-            const algorithmFPType *inputArray = inputBlock.get();
-            const size_t inputBlockSize = valueBlock.getSize();
+            const algorithmFPType * inputArray = inputBlock.get();
+            const size_t inputBlockSize        = valueBlock.getSize();
 
             DAAL_ASSERT(inputBlockSize == valueBlockSize);
 
             if (coefficients)
             {
-                computeInternalSum<algorithmFPType, cpu>(
-                    inputArray, valueArray, inputBlockSize, coefficients, inputIndex);
+                computeInternalSum<algorithmFPType, cpu>(inputArray, valueArray, inputBlockSize, coefficients, inputIndex);
             }
             else
             {
-                computeInternalSum<algorithmFPType, cpu>(
-                    inputArray, valueArray, inputBlockSize, inputIndex);
+                computeInternalSum<algorithmFPType, cpu>(inputArray, valueArray, inputBlockSize, inputIndex);
             }
         }
         return Status();
     });
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status EltwiseSumKernel<algorithmFPType, method, cpu>::makeResultForBackward(
-    Tensor *coefficients, Tensor *auxCoefficients, NumericTable *numberOfCoefficients, size_t nInputs)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status EltwiseSumKernel<algorithmFPType, method, cpu>::makeResultForBackward(Tensor * coefficients, Tensor * auxCoefficients,
+                                                                             NumericTable * numberOfCoefficients, size_t nInputs)
 {
     if (coefficients)
     {
@@ -175,8 +170,8 @@ Status EltwiseSumKernel<algorithmFPType, method, cpu>::makeResultForBackward(
             DAAL_CHECK_BLOCK_STATUS(coefficientsBlock);
             DAAL_CHECK_BLOCK_STATUS(auxCoefficientsBlock);
 
-            const algorithmFPType *coefficientsArray = coefficientsBlock.get();
-            algorithmFPType *auxCoefficientsArray = auxCoefficientsBlock.get();
+            const algorithmFPType * coefficientsArray = coefficientsBlock.get();
+            algorithmFPType * auxCoefficientsArray    = auxCoefficientsBlock.get();
 
             for (size_t i = 0; i < nInputs; i++)
             {
@@ -192,15 +187,15 @@ Status EltwiseSumKernel<algorithmFPType, method, cpu>::makeResultForBackward(
         WriteRows<int, cpu, NumericTable> numberOfCoefficientsBlock(numberOfCoefficients, 0, 1);
         DAAL_CHECK_BLOCK_STATUS(numberOfCoefficientsBlock);
 
-        int *numberOfCoefficientsPtr = numberOfCoefficientsBlock.get();
-        *numberOfCoefficientsPtr = (int)nInputs;
+        int * numberOfCoefficientsPtr = numberOfCoefficientsBlock.get();
+        *numberOfCoefficientsPtr      = (int)nInputs;
     }
 
     return Status();
 }
 
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 } // namespace eltwise_sum
 } // namespace layers
 } // namespace neural_networks

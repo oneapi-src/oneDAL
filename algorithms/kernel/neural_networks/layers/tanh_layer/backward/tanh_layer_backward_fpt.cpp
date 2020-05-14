@@ -49,23 +49,26 @@ namespace interface1
  * \param[in] par %Parameter of the backward layer
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
-    const Parameter *param = static_cast<const Parameter *>(par);
-    if (!param->propagateGradient) { return services::Status(); }
+    const Parameter * param = static_cast<const Parameter *>(par);
+    if (!param->propagateGradient)
+    {
+        return services::Status();
+    }
     services::Status s;
     if (!get(layers::backward::gradient))
     {
-        const Input *in = static_cast<const Input *>(input);
+        const Input * in = static_cast<const Input *>(input);
 
         data_management::TensorPtr valueTable = in->get(auxValue);
         DAAL_CHECK(valueTable, services::ErrorNullInputNumericTable);
 
-        auto inTensor = in->get(layers::backward::inputGradient);
-        data_management::HomogenTensor<algorithmFPType> *inHomo = dynamic_cast<data_management::HomogenTensor<algorithmFPType>*>( inTensor.get() );
-        internal       ::MklTensor    <algorithmFPType> *inMkl  = dynamic_cast<internal       ::MklTensor    <algorithmFPType>*>( inTensor.get() );
+        auto inTensor                                            = in->get(layers::backward::inputGradient);
+        data_management::HomogenTensor<algorithmFPType> * inHomo = dynamic_cast<data_management::HomogenTensor<algorithmFPType> *>(inTensor.get());
+        internal ::MklTensor<algorithmFPType> * inMkl            = dynamic_cast<internal ::MklTensor<algorithmFPType> *>(inTensor.get());
 
-        if(inHomo || inMkl)
+        if (inHomo || inMkl)
         {
             set(layers::backward::gradient, inTensor);
         }
@@ -77,12 +80,13 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace backward
-}// namespace tanh
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace tanh
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

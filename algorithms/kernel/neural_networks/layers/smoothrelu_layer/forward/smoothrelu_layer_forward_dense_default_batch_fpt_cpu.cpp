@@ -19,7 +19,6 @@
 // Implementation of the forward smooth rectifier linear unit (smooth relu) layer
 //--
 
-
 #include "smoothrelu_layer_forward_batch_container.h"
 #include "smoothrelu_layer_forward_kernel.h"
 #include "smoothrelu_layer_forward_impl.i"
@@ -34,21 +33,20 @@ namespace layers
 {
 namespace smoothrelu
 {
-
 namespace forward
 {
 namespace interface1
 {
 template class neural_networks::layers::smoothrelu::forward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 namespace internal
 {
 template class SmoothReLUKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 
-}
-}
-}
-}
-}
+} // namespace smoothrelu
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

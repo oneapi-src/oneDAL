@@ -31,7 +31,6 @@ namespace algorithms
 {
 namespace association_rules
 {
-
 namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, apriori, DAAL_CPU>;

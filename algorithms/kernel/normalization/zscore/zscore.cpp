@@ -38,12 +38,11 @@ namespace normalization
 {
 namespace zscore
 {
-
 namespace interface1
 {
 /** Default constructor */
-Input::Input() : daal::algorithms::Input(lastInputId + 1){}
-Input::Input(const Input& other) : daal::algorithms::Input(other){}
+Input::Input() : daal::algorithms::Input(lastInputId + 1) {}
+Input::Input(const Input & other) : daal::algorithms::Input(other) {}
 
 /**
  * Returns an input object for the z-score normalization algorithm
@@ -60,7 +59,7 @@ NumericTablePtr Input::get(InputId id) const
  * \param[in] id    Identifier of the %input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(InputId id, const NumericTablePtr &ptr)
+void Input::set(InputId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -70,20 +69,20 @@ void Input::set(InputId id, const NumericTablePtr &ptr)
  * \param[in] par       Algorithm parameter
  * \param[in] method    Algorithm computation method
  */
-Status Input::check(const daal::algorithms::Parameter *par, int method) const
+Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
     Status s;
-    DAAL_CHECK_STATUS(s, checkNumericTable(get(data).get(),dataStr()));
+    DAAL_CHECK_STATUS(s, checkNumericTable(get(data).get(), dataStr()));
     if (method == sumDense)
     {
         const size_t nFeatures = get(data)->getNumberOfColumns();
-        DAAL_CHECK_STATUS(s, checkNumericTable(get(data)->basicStatistics.get(NumericTableIface::sum).get(),
-                                                basicStatisticsSumStr(), 0, 0, nFeatures, 1));
+        DAAL_CHECK_STATUS(
+            s, checkNumericTable(get(data)->basicStatistics.get(NumericTableIface::sum).get(), basicStatisticsSumStr(), 0, 0, nFeatures, 1));
     }
     return s;
 }
 
-}// namespace interface1
+} // namespace interface1
 
 namespace interface2
 {
@@ -93,9 +92,9 @@ Result::Result() : daal::algorithms::Result(lastResultId + 1)
     Argument::setStorage(data_management::DataCollectionPtr(new ResultImpl(lastResultId + 1)));
 }
 
-Result::Result(const Result& o)
+Result::Result(const Result & o)
 {
-    ResultImpl* pImpl = dynamic_cast<ResultImpl*>(getStorage(o).get());
+    ResultImpl * pImpl = dynamic_cast<ResultImpl *>(getStorage(o).get());
     DAAL_ASSERT(pImpl);
     Argument::setStorage(data_management::DataCollectionPtr(new ResultImpl(*pImpl)));
 }
@@ -115,7 +114,7 @@ NumericTablePtr Result::get(ResultId id) const
  * \param[in] id        Identifier of the Result object
  * \param[in] value     Pointer to the Result object
  */
-void Result::set(ResultId id, const NumericTablePtr &value)
+void Result::set(ResultId id, const NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
@@ -126,22 +125,22 @@ void Result::set(ResultId id, const NumericTablePtr &value)
  * \param[in] par    Pointer to the parameter object
  * \param[in] method Algorithm computation method
  */
-Status Result::check(const daal::algorithms::Input *in, const daal::algorithms::Parameter *par, int method) const
+Status Result::check(const daal::algorithms::Input * in, const daal::algorithms::Parameter * par, int method) const
 {
     auto impl = ResultImpl::cast(getStorage(*this));
     DAAL_CHECK(impl.get(), ErrorNullPtr);
     return impl->check(in, par);
 }
 
-}// namespace interface2
+} // namespace interface2
 
 namespace interface3
 {
 BaseParameter::BaseParameter(const bool doScale) : resultsToCompute(none), doScale(doScale) {}
 
-}// namespace interface3
+} // namespace interface3
 
-}// namespace zscore
-}// namespace normalization
-}// namespace algorithms
-}// namespace daal
+} // namespace zscore
+} // namespace normalization
+} // namespace algorithms
+} // namespace daal

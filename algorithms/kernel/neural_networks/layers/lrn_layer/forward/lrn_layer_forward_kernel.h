@@ -19,7 +19,6 @@
 //  Implementation of the forward local response normalization layer
 //--
 
-
 #ifndef __LRN_LAYER_FORWARD_KERNEL_H__
 #define __LRN_LAYER_FORWARD_KERNEL_H__
 
@@ -52,12 +51,11 @@ namespace internal
 /**
  *  \brief Kernel for lrn calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class LRNKernel : public Kernel
 {
 public:
-    services::Status compute(const Tensor &inputTensor, const lrn::Parameter &parameter, Tensor &sMinusBetaTensor,
-                             Tensor &resultTensor);
+    services::Status compute(const Tensor & inputTensor, const lrn::Parameter & parameter, Tensor & sMinusBetaTensor, Tensor & resultTensor);
 
     ~LRNKernel()
     {
@@ -72,13 +70,13 @@ private:
 
     dnnPrimitive_t lrnPrim = NULL;
 };
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 
-} // lrn
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace lrn
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

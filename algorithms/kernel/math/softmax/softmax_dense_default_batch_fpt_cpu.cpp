@@ -19,7 +19,6 @@
 //  Implementation of softmax calculation functions.
 //--
 
-
 #include "softmax_batch_container.h"
 #include "softmax_kernel.h"
 #include "softmax_impl.i"
@@ -32,7 +31,6 @@ namespace math
 {
 namespace softmax
 {
-
 namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

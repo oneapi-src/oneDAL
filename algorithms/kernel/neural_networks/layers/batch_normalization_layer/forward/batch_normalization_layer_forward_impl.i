@@ -43,23 +43,21 @@ namespace forward
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status BatchNormalizationKernel<algorithmFPType, method, cpu>::compute(
-    const BatchNormalizationTaskDescriptor &descriptor)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status BatchNormalizationKernel<algorithmFPType, method, cpu>::compute(const BatchNormalizationTaskDescriptor & descriptor)
 {
     return _task->compute(descriptor);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status BatchNormalizationKernel<algorithmFPType, method, cpu>::initialize(
-    const BatchNormalizationTaskDescriptor &descriptor)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status BatchNormalizationKernel<algorithmFPType, method, cpu>::initialize(const BatchNormalizationTaskDescriptor & descriptor)
 {
-    _task.reset(new InternalBatchNormalizationTask()); DAAL_CHECK_MALLOC(_task.get());
+    _task.reset(new InternalBatchNormalizationTask());
+    DAAL_CHECK_MALLOC(_task.get());
     return _task->initialize(descriptor);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 Status BatchNormalizationKernel<algorithmFPType, method, cpu>::reset()
 {
     _task.reset();

@@ -19,7 +19,6 @@
 //  Implementation of hyperbolic tangent function calculation functions.
 //--
 
-
 #include "tanh_layer_forward_batch_container.h"
 #include "tanh_layer_forward_kernel.h"
 #include "tanh_layer_forward_impl.i"
@@ -34,21 +33,20 @@ namespace layers
 {
 namespace tanh
 {
-
 namespace forward
 {
 namespace interface1
 {
 template class neural_networks::layers::tanh::forward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 namespace internal
 {
 template class TanhKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 
-}
-}
-}
-}
-}
+} // namespace tanh
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

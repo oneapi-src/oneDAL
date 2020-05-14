@@ -19,7 +19,7 @@
 echo "Using clang-format version: $(clang-format --version)"
 echo "Starting format check..."
 
-for filename in $(find . -type f | grep -P ".*\.(c|cpp|h|hpp|cl|i)$"); do clang-format -style=file -i $filename; done
+for filename in $(find . -type f | grep -P "^\./(algorithms|examples|externals|samples|service).*\.(c|cpp|h|hpp|cl|i)$"); do clang-format -style=file -i $filename; done
 
 RETURN_CODE=0
 echo $(git status) | grep "nothing to commit" > /dev/null

@@ -37,50 +37,42 @@ namespace quality_metric
 {
 namespace group_of_betas
 {
-
 using namespace daal::data_management;
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::GroupOfBetasKernel, method, algorithmFPType);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    Input* input = static_cast<Input* >(_in);
-    Result* result = static_cast<Result* >(_res);
-    Parameter* par = static_cast<Parameter* >(_par);
+    Input * input   = static_cast<Input *>(_in);
+    Result * result = static_cast<Result *>(_res);
+    Parameter * par = static_cast<Parameter *>(_par);
 
-    NumericTable* out[] = {
-        result->get(expectedMeans).get(),
-        result->get(expectedVariance).get(),
-        result->get(regSS).get(),
-        result->get(resSS).get(),
-        result->get(tSS).get(),
-        result->get(determinationCoeff).get(),
-        result->get(fStatistics).get()
-    };
+    NumericTable * out[] = { result->get(expectedMeans).get(), result->get(expectedVariance).get(),
+                             result->get(regSS).get(),         result->get(resSS).get(),
+                             result->get(tSS).get(),           result->get(determinationCoeff).get(),
+                             result->get(fStatistics).get() };
 
-    daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::GroupOfBetasKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType),
-        compute, input->get(expectedResponses).get(),
-        input->get(predictedResponses).get(),
-        input->get(predictedReducedModelResponses).get(),
-        par->numBeta, par->numBetaReducedModel, par->accuracyThreshold, out);
+    daal::services::Environment::env & env = *_env;
+    __DAAL_CALL_KERNEL(env, internal::GroupOfBetasKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute,
+                       input->get(expectedResponses).get(), input->get(predictedResponses).get(), input->get(predictedReducedModelResponses).get(),
+                       par->numBeta, par->numBetaReducedModel, par->accuracyThreshold, out);
 }
 
-}
-}
-}
-}
-}
+} // namespace group_of_betas
+} // namespace quality_metric
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal
 
 #endif

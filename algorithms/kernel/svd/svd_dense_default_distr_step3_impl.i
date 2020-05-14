@@ -47,14 +47,14 @@ namespace svd
 namespace internal
 {
 template <typename algorithmFPType, daal::algorithms::svd::Method method, CpuType cpu>
-Status SVDDistributedStep3Kernel<algorithmFPType, method, cpu>::compute(const size_t na, const NumericTable *const *a,
-                                                                      const size_t nr, NumericTable *r[], const daal::algorithms::Parameter *par)
+Status SVDDistributedStep3Kernel<algorithmFPType, method, cpu>::compute(const size_t na, const NumericTable * const * a, const size_t nr,
+                                                                        NumericTable * r[], const daal::algorithms::Parameter * par)
 {
     size_t i, j;
     svd::Parameter defaultParams;
-    const svd::Parameter *svdPar = &defaultParams;
+    const svd::Parameter * svdPar = &defaultParams;
 
-    if ( par != 0 )
+    if (par != 0)
     {
         svdPar = static_cast<const svd::Parameter *>(par);
     }
@@ -62,46 +62,46 @@ Status SVDDistributedStep3Kernel<algorithmFPType, method, cpu>::compute(const si
     size_t nBlocks     = na / 2;
     size_t mCalculated = 0;
 
-    ReadRows     <algorithmFPType, cpu, NumericTable> Aux1iBlock;
-    ReadRows     <algorithmFPType, cpu, NumericTable> Aux3iBlock;
+    ReadRows<algorithmFPType, cpu, NumericTable> Aux1iBlock;
+    ReadRows<algorithmFPType, cpu, NumericTable> Aux3iBlock;
     WriteOnlyRows<algorithmFPType, cpu, NumericTable> QiBlock;
 
-    for(size_t k = 0; k < nBlocks; k++)
+    for (size_t k = 0; k < nBlocks; k++)
     {
-        NumericTable *ntAux1i = const_cast<NumericTable *>(a[k          ]);
-        NumericTable *ntAux3i = const_cast<NumericTable *>(a[k + nBlocks]);
+        NumericTable * ntAux1i = const_cast<NumericTable *>(a[k]);
+        NumericTable * ntAux3i = const_cast<NumericTable *>(a[k + nBlocks]);
 
-        size_t  n   = ntAux1i->getNumberOfColumns();
-        size_t  m   = ntAux1i->getNumberOfRows();
+        size_t n = ntAux1i->getNumberOfColumns();
+        size_t m = ntAux1i->getNumberOfRows();
 
-        const algorithmFPType *Aux1i = Aux1iBlock.set(ntAux1i, 0, m); /* Aux1i = Qin[m][n] */
+        const algorithmFPType * Aux1i = Aux1iBlock.set(ntAux1i, 0, m); /* Aux1i = Qin[m][n] */
         DAAL_CHECK_BLOCK_STATUS(Aux1iBlock);
 
-        const algorithmFPType *Aux3i = Aux3iBlock.set(ntAux3i, 0, n); /* Aux3i = Ri [n][n] */
+        const algorithmFPType * Aux3i = Aux3iBlock.set(ntAux3i, 0, n); /* Aux3i = Ri [n][n] */
         DAAL_CHECK_BLOCK_STATUS(Aux3iBlock);
 
-        algorithmFPType *Qi = QiBlock.set(r[0], mCalculated, m); /* Qi [m][n] */
+        algorithmFPType * Qi = QiBlock.set(r[0], mCalculated, m); /* Qi [m][n] */
         DAAL_CHECK_BLOCK_STATUS(QiBlock);
 
-        TArray<algorithmFPType, cpu> QiTPtr   (n * m);
+        TArray<algorithmFPType, cpu> QiTPtr(n * m);
         TArray<algorithmFPType, cpu> Aux1iTPtr(n * m);
         TArray<algorithmFPType, cpu> Aux3iTPtr(n * n);
-        algorithmFPType *QiT    = QiTPtr.get();
-        algorithmFPType *Aux1iT = Aux1iTPtr.get();
-        algorithmFPType *Aux3iT = Aux3iTPtr.get();
+        algorithmFPType * QiT    = QiTPtr.get();
+        algorithmFPType * Aux1iT = Aux1iTPtr.get();
+        algorithmFPType * Aux3iT = Aux3iTPtr.get();
 
         DAAL_CHECK(QiT && Aux1iT && Aux3iT, ErrorMemoryAllocationFailed);
 
-        for ( i = 0 ; i < n ; i++ )
+        for (i = 0; i < n; i++)
         {
-            for ( j = 0 ; j < m; j++ )
+            for (j = 0; j < m; j++)
             {
                 Aux1iT[i * m + j] = Aux1i[i + j * n];
             }
         }
-        for ( i = 0 ; i < n ; i++ )
+        for (i = 0; i < n; i++)
         {
-            for ( j = 0 ; j < n; j++ )
+            for (j = 0; j < n; j++)
             {
                 Aux3iT[i * n + j] = Aux3i[i + j * n];
             }
@@ -111,13 +111,12 @@ Status SVDDistributedStep3Kernel<algorithmFPType, method, cpu>::compute(const si
         DAAL_INT ldAux3i = n;
         DAAL_INT ldQi    = m;
 
-        const auto ec = compute_gemm_on_one_node<algorithmFPType, cpu>( m, n, Aux1iT, ldAux1i, Aux3iT, ldAux3i, QiT, ldQi );
-        if(!ec)
-            return ec;
+        const auto ec = compute_gemm_on_one_node<algorithmFPType, cpu>(m, n, Aux1iT, ldAux1i, Aux3iT, ldAux3i, QiT, ldQi);
+        if (!ec) return ec;
 
-        for ( i = 0 ; i < n ; i++ )
+        for (i = 0; i < n; i++)
         {
-            for ( j = 0 ; j < m; j++ )
+            for (j = 0; j < m; j++)
             {
                 Qi[i + j * n] = QiT[i * m + j];
             }
@@ -129,9 +128,9 @@ Status SVDDistributedStep3Kernel<algorithmFPType, method, cpu>::compute(const si
     return Status();
 }
 
-} // namespace daal::internal
-}
-}
+} // namespace internal
+} // namespace svd
+} // namespace algorithms
 } // namespace daal
 
 #endif

@@ -39,27 +39,26 @@ namespace pca
 {
 namespace internal
 {
-
 template <typename algorithmFPType, CpuType cpu>
-class PCACorrelationBase : public PCADenseBase<algorithmFPType,cpu>
+class PCACorrelationBase : public PCADenseBase<algorithmFPType, cpu>
 {
 public:
     explicit PCACorrelationBase() {};
 
 protected:
-    services::Status computeCorrelationEigenvalues(const data_management::NumericTable& correlation,
-        data_management::NumericTable& eigenvectors, data_management::NumericTable& eigenvalues);
-    services::Status computeEigenvectorsInplace(size_t nFeatures, algorithmFPType *eigenvectors, algorithmFPType *eigenvalues);
-    services::Status sortEigenvectorsDescending(size_t nFeatures, algorithmFPType *eigenvectors, algorithmFPType *eigenvalues);
-    services::Status copyVarianceFromCovarianceTable(NumericTable& source, NumericTable& dest) const;
-    services::Status correlationFromCovarianceTable(NumericTable& source) const;
+    services::Status computeCorrelationEigenvalues(const data_management::NumericTable & correlation, data_management::NumericTable & eigenvectors,
+                                                   data_management::NumericTable & eigenvalues);
+    services::Status computeEigenvectorsInplace(size_t nFeatures, algorithmFPType * eigenvectors, algorithmFPType * eigenvalues);
+    services::Status sortEigenvectorsDescending(size_t nFeatures, algorithmFPType * eigenvectors, algorithmFPType * eigenvalues);
+    services::Status copyVarianceFromCovarianceTable(NumericTable & source, NumericTable & dest) const;
+    services::Status correlationFromCovarianceTable(NumericTable & source) const;
 
 private:
-    void copyArray(size_t size, const algorithmFPType *source, algorithmFPType *destination);
+    void copyArray(size_t size, const algorithmFPType * source, algorithmFPType * destination);
 };
 
 template <typename algorithmFPType, CpuType cpu>
-void PCACorrelationBase<algorithmFPType, cpu>::copyArray(size_t size, const algorithmFPType *source, algorithmFPType *destination)
+void PCACorrelationBase<algorithmFPType, cpu>::copyArray(size_t size, const algorithmFPType * source, algorithmFPType * destination)
 {
     if (source != destination)
     {
@@ -70,9 +69,8 @@ void PCACorrelationBase<algorithmFPType, cpu>::copyArray(size_t size, const algo
     }
 }
 
-
 template <typename algorithmFPType, CpuType cpu>
-services::Status PCACorrelationBase<algorithmFPType, cpu>::correlationFromCovarianceTable(NumericTable& covariance) const
+services::Status PCACorrelationBase<algorithmFPType, cpu>::correlationFromCovarianceTable(NumericTable & covariance) const
 {
     size_t nFeatures = covariance.getNumberOfRows();
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, sizeof(algorithmFPType));
@@ -82,9 +80,9 @@ services::Status PCACorrelationBase<algorithmFPType, cpu>::correlationFromCovari
 
     WriteRows<algorithmFPType, cpu> covarianceBlock(covariance, 0, nFeatures);
     DAAL_CHECK_BLOCK_STATUS(covarianceBlock);
-    algorithmFPType *covarianceArray = covarianceBlock.get();
+    algorithmFPType * covarianceArray = covarianceBlock.get();
 
-    algorithmFPType *diagInvSqrts = diagInvSqrtsArray.get();
+    algorithmFPType * diagInvSqrts = diagInvSqrtsArray.get();
     for (size_t i = 0; i < nFeatures; i++)
     {
         diagInvSqrts[i] = 1.0 / daal::internal::Math<algorithmFPType, cpu>::sSqrt(covarianceArray[i * nFeatures + i]);
@@ -111,19 +109,18 @@ services::Status PCACorrelationBase<algorithmFPType, cpu>::correlationFromCovari
     return services::Status();
 }
 
-
 template <typename algorithmFPType, CpuType cpu>
-services::Status PCACorrelationBase<algorithmFPType, cpu>::copyVarianceFromCovarianceTable(NumericTable& source, NumericTable& dest) const
+services::Status PCACorrelationBase<algorithmFPType, cpu>::copyVarianceFromCovarianceTable(NumericTable & source, NumericTable & dest) const
 {
     size_t nElements = dest.getNumberOfColumns();
     size_t nFeatures = source.getNumberOfColumns();
     ReadRows<algorithmFPType, cpu> covarianceBlock(source, 0, nElements);
     DAAL_CHECK_BLOCK_STATUS(covarianceBlock);
-    const algorithmFPType *covarianceArray = covarianceBlock.get();
+    const algorithmFPType * covarianceArray = covarianceBlock.get();
 
     WriteOnlyRows<algorithmFPType, cpu> destBlock(dest, 0, nElements);
     DAAL_CHECK_BLOCK_STATUS(destBlock);
-    algorithmFPType *destData = destBlock.get();
+    algorithmFPType * destData = destBlock.get();
 
     for (size_t id = 0; id < nElements; ++id)
     {
@@ -133,29 +130,29 @@ services::Status PCACorrelationBase<algorithmFPType, cpu>::copyVarianceFromCovar
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status PCACorrelationBase<algorithmFPType, cpu>::computeCorrelationEigenvalues(
-    const data_management::NumericTable& correlation,
-    data_management::NumericTable& eigenvectors, data_management::NumericTable& eigenvalues)
+services::Status PCACorrelationBase<algorithmFPType, cpu>::computeCorrelationEigenvalues(const data_management::NumericTable & correlation,
+                                                                                         data_management::NumericTable & eigenvectors,
+                                                                                         data_management::NumericTable & eigenvalues)
 {
     using data_management::BlockDescriptor;
 
-    const size_t nFeatures = correlation.getNumberOfColumns();
+    const size_t nFeatures   = correlation.getNumberOfColumns();
     const size_t nComponents = eigenvalues.getNumberOfColumns();
 
-    ReadRows<algorithmFPType, cpu> correlationBlock(const_cast<data_management::NumericTable&>(correlation), 0, nFeatures);
+    ReadRows<algorithmFPType, cpu> correlationBlock(const_cast<data_management::NumericTable &>(correlation), 0, nFeatures);
     DAAL_CHECK_BLOCK_STATUS(correlationBlock);
-    const algorithmFPType *correlationArray = correlationBlock.get();
+    const algorithmFPType * correlationArray = correlationBlock.get();
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, nFeatures);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures * nFeatures, sizeof(algorithmFPType));
 
     TArray<algorithmFPType, cpu> fullEigenvectors(nFeatures * nFeatures);
     DAAL_CHECK_MALLOC(fullEigenvectors.get());
-    algorithmFPType *fullEigenvectorsArray = fullEigenvectors.get();
+    algorithmFPType * fullEigenvectorsArray = fullEigenvectors.get();
 
     TArray<algorithmFPType, cpu> fullEigenvalues(nFeatures);
     DAAL_CHECK_MALLOC(fullEigenvalues.get());
-    algorithmFPType *fullEigenvaluesArray = fullEigenvalues.get();
+    algorithmFPType * fullEigenvaluesArray = fullEigenvalues.get();
 
     copyArray(nFeatures * nFeatures, correlationArray, fullEigenvectorsArray);
 
@@ -167,11 +164,11 @@ services::Status PCACorrelationBase<algorithmFPType, cpu>::computeCorrelationEig
 
     WriteOnlyRows<algorithmFPType, cpu> eigenvectorsBlock(eigenvectors, 0, nComponents);
     DAAL_CHECK_BLOCK_STATUS(eigenvectorsBlock);
-    algorithmFPType *eigenvectorsArray = eigenvectorsBlock.get();
+    algorithmFPType * eigenvectorsArray = eigenvectorsBlock.get();
 
     WriteOnlyRows<algorithmFPType, cpu> eigenvaluesBlock(eigenvalues, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(eigenvaluesBlock);
-    algorithmFPType *eigenvaluesArray = eigenvaluesBlock.get();
+    algorithmFPType * eigenvaluesArray = eigenvaluesBlock.get();
 
     copyArray(nFeatures * nComponents, fullEigenvectorsArray, eigenvectorsArray);
     copyArray(nComponents, fullEigenvaluesArray, eigenvaluesArray);
@@ -180,13 +177,13 @@ services::Status PCACorrelationBase<algorithmFPType, cpu>::computeCorrelationEig
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status PCACorrelationBase<algorithmFPType, cpu>::computeEigenvectorsInplace(size_t nFeatures,
-    algorithmFPType *eigenvectors, algorithmFPType *eigenvalues)
+services::Status PCACorrelationBase<algorithmFPType, cpu>::computeEigenvectorsInplace(size_t nFeatures, algorithmFPType * eigenvectors,
+                                                                                      algorithmFPType * eigenvalues)
 {
-    char jobz  = 'V';
-    char uplo  = 'U';
+    char jobz = 'V';
+    char uplo = 'U';
 
-    DAAL_INT lwork = 2 * nFeatures * nFeatures + 6 * nFeatures + 1;
+    DAAL_INT lwork  = 2 * nFeatures * nFeatures + 6 * nFeatures + 1;
     DAAL_INT liwork = 5 * nFeatures + 3;
     DAAL_INT info;
 
@@ -194,27 +191,26 @@ services::Status PCACorrelationBase<algorithmFPType, cpu>::computeEigenvectorsIn
     TArray<DAAL_INT, cpu> iwork(liwork);
     DAAL_CHECK_MALLOC(work.get() && iwork.get());
 
-    Lapack<algorithmFPType, cpu>::xsyevd(&jobz, &uplo, (DAAL_INT *)(&nFeatures), eigenvectors, (DAAL_INT *)(&nFeatures), eigenvalues,
-                        work.get(), &lwork, iwork.get(), &liwork, &info);
-    if (info != 0)
-        return services::Status(services::ErrorPCAFailedToComputeCorrelationEigenvalues);
+    Lapack<algorithmFPType, cpu>::xsyevd(&jobz, &uplo, (DAAL_INT *)(&nFeatures), eigenvectors, (DAAL_INT *)(&nFeatures), eigenvalues, work.get(),
+                                         &lwork, iwork.get(), &liwork, &info);
+    if (info != 0) return services::Status(services::ErrorPCAFailedToComputeCorrelationEigenvalues);
     return services::Status();
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status PCACorrelationBase<algorithmFPType, cpu>::sortEigenvectorsDescending(size_t nFeatures,
-    algorithmFPType *eigenvectors, algorithmFPType *eigenvalues)
+services::Status PCACorrelationBase<algorithmFPType, cpu>::sortEigenvectorsDescending(size_t nFeatures, algorithmFPType * eigenvectors,
+                                                                                      algorithmFPType * eigenvalues)
 {
-    for(size_t i = 0; i < nFeatures / 2; i++)
+    for (size_t i = 0; i < nFeatures / 2; i++)
     {
-        const algorithmFPType tmp = eigenvalues[i];
-        eigenvalues[i] = eigenvalues[nFeatures - 1 - i];
+        const algorithmFPType tmp      = eigenvalues[i];
+        eigenvalues[i]                 = eigenvalues[nFeatures - 1 - i];
         eigenvalues[nFeatures - 1 - i] = tmp;
     }
 
     TArray<algorithmFPType, cpu> eigenvectorTmp(nFeatures);
     DAAL_CHECK_MALLOC(eigenvectorTmp.get());
-    for(size_t i = 0; i < nFeatures / 2; i++)
+    for (size_t i = 0; i < nFeatures / 2; i++)
     {
         copyArray(nFeatures, eigenvectors + i * nFeatures, eigenvectorTmp.get());
         copyArray(nFeatures, eigenvectors + nFeatures * (nFeatures - 1 - i), eigenvectors + i * nFeatures);
@@ -224,7 +220,8 @@ services::Status PCACorrelationBase<algorithmFPType, cpu>::sortEigenvectorsDesce
 }
 
 template <ComputeMode mode, typename algorithmFPType, CpuType cpu>
-class PCACorrelationKernel : public PCACorrelationBase<algorithmFPType, cpu> {};
+class PCACorrelationKernel : public PCACorrelationBase<algorithmFPType, cpu>
+{};
 
 } // namespace internal
 } // namespace pca

@@ -41,35 +41,38 @@ namespace backward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::ELUKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    const Parameter *par = static_cast<const Parameter *>(_par);
-    if (!par->propagateGradient) { return services::Status(); }
+    const Parameter * par = static_cast<const Parameter *>(_par);
+    if (!par->propagateGradient)
+    {
+        return services::Status();
+    }
 
-    elu::backward::Input *input = static_cast<elu::backward::Input *>(_in);
-    elu::backward::Result *result = static_cast<elu::backward::Result *>(_res);
+    elu::backward::Input * input   = static_cast<elu::backward::Input *>(_in);
+    elu::backward::Result * result = static_cast<elu::backward::Result *>(_res);
 
-    Tensor *inputGradientTensor = input->get(layers::backward::inputGradient).get();
-    Tensor *forwardDataTensor   = input->get(elu::auxData).get();
-    Tensor *auxValueTensor      = input->get(elu::auxIntermediateValue).get();
-    Tensor *gradientTensor      = result->get(layers::backward::gradient).get();
+    Tensor * inputGradientTensor = input->get(layers::backward::inputGradient).get();
+    Tensor * forwardDataTensor   = input->get(elu::auxData).get();
+    Tensor * auxValueTensor      = input->get(elu::auxIntermediateValue).get();
+    Tensor * gradientTensor      = result->get(layers::backward::gradient).get();
 
-    daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::ELUKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                       *par, *inputGradientTensor, *forwardDataTensor, auxValueTensor, *gradientTensor);
+    daal::services::Environment::env & env = *_env;
+    __DAAL_CALL_KERNEL(env, internal::ELUKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *par, *inputGradientTensor,
+                       *forwardDataTensor, auxValueTensor, *gradientTensor);
 }
 } // namespace interface1
 } // namespace backward

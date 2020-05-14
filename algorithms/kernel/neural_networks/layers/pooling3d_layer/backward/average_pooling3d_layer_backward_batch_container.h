@@ -41,34 +41,37 @@ namespace backward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::PoolingKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    average_pooling3d::backward::Input *input = static_cast<average_pooling3d::backward::Input *>(_in);
-    average_pooling3d::backward::Result *result = static_cast<average_pooling3d::backward::Result *>(_res);
+    average_pooling3d::backward::Input * input   = static_cast<average_pooling3d::backward::Input *>(_in);
+    average_pooling3d::backward::Result * result = static_cast<average_pooling3d::backward::Result *>(_res);
 
-    average_pooling3d::Parameter *parameter = static_cast<average_pooling3d::Parameter *>(_par);
-    if (!parameter->propagateGradient) { return services::Status(); }
+    average_pooling3d::Parameter * parameter = static_cast<average_pooling3d::Parameter *>(_par);
+    if (!parameter->propagateGradient)
+    {
+        return services::Status();
+    }
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    Tensor *inputTensor = input->get(layers::backward::inputGradient).get();
-    Tensor *gradTensor  = result->get(layers::backward::gradient).get();
+    Tensor * inputTensor = input->get(layers::backward::inputGradient).get();
+    Tensor * gradTensor  = result->get(layers::backward::gradient).get();
 
-    __DAAL_CALL_KERNEL(env, internal::PoolingKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),   \
-                       compute, *inputTensor, *parameter, *gradTensor);
+    __DAAL_CALL_KERNEL(env, internal::PoolingKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputTensor, *parameter,
+                       *gradTensor);
 }
 } // namespace interface1
 } // namespace backward

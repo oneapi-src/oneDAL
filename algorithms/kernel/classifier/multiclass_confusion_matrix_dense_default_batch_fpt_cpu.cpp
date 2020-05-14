@@ -43,8 +43,8 @@ namespace internal
 {
 template class MultiClassConfusionMatrixKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
-}
+} // namespace multiclass_confusion_matrix
+} // namespace quality_metric
+} // namespace classifier
+} // namespace algorithms
+} // namespace daal

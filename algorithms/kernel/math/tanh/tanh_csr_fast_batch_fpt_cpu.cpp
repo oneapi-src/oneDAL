@@ -41,8 +41,8 @@ namespace internal
 {
 template class TanhKernel<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
 template class TanhKernelBase<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace tanh
+} // namespace math
+} // namespace algorithms
+} // namespace daal

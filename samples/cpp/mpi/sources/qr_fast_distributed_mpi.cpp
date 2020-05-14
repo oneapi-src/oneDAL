@@ -35,15 +35,10 @@ using namespace daal;
 using namespace daal::algorithms;
 
 /* Input data set parameters */
-const size_t nBlocks      = 4;
+const size_t nBlocks = 4;
 
-const string datasetFileNames[] =
-{
-    "./data/distributed/qr_1.csv",
-    "./data/distributed/qr_2.csv",
-    "./data/distributed/qr_3.csv",
-    "./data/distributed/qr_4.csv"
-};
+const string datasetFileNames[] = { "./data/distributed/qr_1.csv", "./data/distributed/qr_2.csv", "./data/distributed/qr_3.csv",
+                                    "./data/distributed/qr_4.csv" };
 
 void computestep1Local();
 void computeOnMasterNode();
@@ -54,13 +49,13 @@ int commSize;
 #define mpiRoot 0
 
 data_management::DataCollectionPtr dataFromStep1ForStep3;
-NumericTablePtr R ;
+NumericTablePtr R;
 NumericTablePtr Qi;
 
 services::SharedPtr<byte> serializedData;
 size_t perNodeArchLength;
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 4, &datasetFileNames[0], &datasetFileNames[1], &datasetFileNames[2], &datasetFileNames[3]);
 
@@ -68,9 +63,9 @@ int main(int argc, char *argv[])
     MPI_Comm_size(MPI_COMM_WORLD, &commSize);
     MPI_Comm_rank(MPI_COMM_WORLD, &rankId);
 
-    if(nBlocks != commSize)
+    if (nBlocks != commSize)
     {
-        if(rankId == mpiRoot)
+        if (rankId == mpiRoot)
         {
             printf("%d MPI ranks != %lu datasets available, so please start exactly %lu ranks.\n", commSize, nBlocks, nBlocks);
         }
@@ -91,7 +86,7 @@ int main(int argc, char *argv[])
     if (rankId == mpiRoot)
     {
         printNumericTable(Qi, "Part of orthogonal matrix Q from 1st node:", 10);
-        printNumericTable(R , "Triangular matrix R:");
+        printNumericTable(R, "Triangular matrix R:");
     }
 
     MPI_Finalize();
@@ -102,8 +97,7 @@ int main(int argc, char *argv[])
 void computestep1Local()
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileNames[rankId], DataSource::doAllocateNumericTable,
-                                                 DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileNames[rankId], DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Retrieve the input data */
     dataSource.loadDataBlock();
@@ -111,33 +105,32 @@ void computestep1Local()
     /* Create an algorithm to compute QR decomposition on local nodes */
     qr::Distributed<step1Local> alg;
 
-    alg.input.set( qr::data, dataSource.getNumericTable() );
+    alg.input.set(qr::data, dataSource.getNumericTable());
 
     /* Compute QR decomposition */
     alg.compute();
 
     data_management::DataCollectionPtr dataFromStep1ForStep2;
-    dataFromStep1ForStep2 = alg.getPartialResult()->get( qr::outputOfStep1ForStep2 );
-    dataFromStep1ForStep3 = alg.getPartialResult()->get( qr::outputOfStep1ForStep3 );
+    dataFromStep1ForStep2 = alg.getPartialResult()->get(qr::outputOfStep1ForStep2);
+    dataFromStep1ForStep3 = alg.getPartialResult()->get(qr::outputOfStep1ForStep3);
 
     /* Serialize partial results required by step 2 */
     InputDataArchive dataArch;
-    dataFromStep1ForStep2->serialize( dataArch );
+    dataFromStep1ForStep2->serialize(dataArch);
     perNodeArchLength = dataArch.getSizeOfArchive();
 
     /* Serialized data is of equal size on each node if each node called compute() equal number of times */
     if (rankId == mpiRoot)
     {
-        serializedData = services::SharedPtr<byte>( new byte[ perNodeArchLength * nBlocks ] );
+        serializedData = services::SharedPtr<byte>(new byte[perNodeArchLength * nBlocks]);
     }
 
-    byte *nodeResults = new byte[ perNodeArchLength ];
-    dataArch.copyArchiveToArray( nodeResults, perNodeArchLength );
+    byte * nodeResults = new byte[perNodeArchLength];
+    dataArch.copyArchiveToArray(nodeResults, perNodeArchLength);
 
     /* Transfer partial results to step 2 on the root node */
 
-    MPI_Gather( nodeResults, perNodeArchLength, MPI_CHAR, serializedData.get(), perNodeArchLength, MPI_CHAR, mpiRoot,
-                MPI_COMM_WORLD);
+    MPI_Gather(nodeResults, perNodeArchLength, MPI_CHAR, serializedData.get(), perNodeArchLength, MPI_CHAR, mpiRoot, MPI_COMM_WORLD);
 
     delete[] nodeResults;
 }
@@ -150,35 +143,34 @@ void computeOnMasterNode()
     for (size_t i = 0; i < nBlocks; i++)
     {
         /* Deserialize partial results from step 1 */
-        OutputDataArchive dataArch( serializedData.get() + perNodeArchLength * i, perNodeArchLength );
+        OutputDataArchive dataArch(serializedData.get() + perNodeArchLength * i, perNodeArchLength);
 
-        data_management::DataCollectionPtr dataForStep2FromStep1 =
-            data_management::DataCollectionPtr( new data_management::DataCollection() );
+        data_management::DataCollectionPtr dataForStep2FromStep1 = data_management::DataCollectionPtr(new data_management::DataCollection());
         dataForStep2FromStep1->deserialize(dataArch);
 
-        alg.input.add( qr::inputOfStep2FromStep1, i, dataForStep2FromStep1 );
+        alg.input.add(qr::inputOfStep2FromStep1, i, dataForStep2FromStep1);
     }
 
     /* Compute QR decomposition */
     alg.compute();
 
-    qr::DistributedPartialResultPtr pres = alg.getPartialResult();
-    KeyValueDataCollectionPtr inputForStep3FromStep2 = pres->get( qr::outputOfStep2ForStep3 );
+    qr::DistributedPartialResultPtr pres             = alg.getPartialResult();
+    KeyValueDataCollectionPtr inputForStep3FromStep2 = pres->get(qr::outputOfStep2ForStep3);
 
     for (size_t i = 0; i < nBlocks; i++)
     {
         /* Serialize partial results to transfer to local nodes for step 3 */
         InputDataArchive dataArch;
-        (*inputForStep3FromStep2)[i]->serialize( dataArch );
+        (*inputForStep3FromStep2)[i]->serialize(dataArch);
 
-        if( i == 0 )
+        if (i == 0)
         {
             perNodeArchLength = dataArch.getSizeOfArchive();
             /* Serialized data is of equal size for each node if it was equal in step 1 */
-            serializedData = services::SharedPtr<byte>( new byte[ perNodeArchLength * nBlocks ] );
+            serializedData = services::SharedPtr<byte>(new byte[perNodeArchLength * nBlocks]);
         }
 
-        dataArch.copyArchiveToArray( serializedData.get() + perNodeArchLength * i, perNodeArchLength );
+        dataArch.copyArchiveToArray(serializedData.get() + perNodeArchLength * i, perNodeArchLength);
     }
 
     qr::ResultPtr res = alg.getResult();
@@ -189,20 +181,18 @@ void computeOnMasterNode()
 void finalizeComputestep1Local()
 {
     /* Get the size of the serialized input */
-    MPI_Bcast( &perNodeArchLength, sizeof(size_t), MPI_CHAR, mpiRoot, MPI_COMM_WORLD );
+    MPI_Bcast(&perNodeArchLength, sizeof(size_t), MPI_CHAR, mpiRoot, MPI_COMM_WORLD);
 
-    byte *nodeResults = new byte[ perNodeArchLength ];
+    byte * nodeResults = new byte[perNodeArchLength];
 
     /* Transfer partial results from the root node */
 
-    MPI_Scatter(serializedData.get(), perNodeArchLength, MPI_CHAR, nodeResults, perNodeArchLength, MPI_CHAR, mpiRoot,
-                MPI_COMM_WORLD);
+    MPI_Scatter(serializedData.get(), perNodeArchLength, MPI_CHAR, nodeResults, perNodeArchLength, MPI_CHAR, mpiRoot, MPI_COMM_WORLD);
 
     /* Deserialize partial results from step 2 */
-    OutputDataArchive dataArch( nodeResults, perNodeArchLength );
+    OutputDataArchive dataArch(nodeResults, perNodeArchLength);
 
-    data_management::DataCollectionPtr dataFromStep2ForStep3 =
-        data_management::DataCollectionPtr( new data_management::DataCollection() );
+    data_management::DataCollectionPtr dataFromStep2ForStep3 = data_management::DataCollectionPtr(new data_management::DataCollection());
     dataFromStep2ForStep3->deserialize(dataArch);
 
     delete[] nodeResults;
@@ -210,8 +200,8 @@ void finalizeComputestep1Local()
     /* Create an algorithm to compute QR decomposition on the master node */
     qr::Distributed<step3Local> alg;
 
-    alg.input.set( qr::inputOfStep3FromStep1, dataFromStep1ForStep3 );
-    alg.input.set( qr::inputOfStep3FromStep2, dataFromStep2ForStep3 );
+    alg.input.set(qr::inputOfStep3FromStep1, dataFromStep1ForStep3);
+    alg.input.set(qr::inputOfStep3FromStep2, dataFromStep2ForStep3);
 
     /* Compute QR decomposition */
     alg.compute();

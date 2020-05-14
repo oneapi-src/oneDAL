@@ -43,8 +43,8 @@ namespace internal
 {
 template class ExplainedVarianceKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
-}
+} // namespace explained_variance
+} // namespace quality_metric
+} // namespace pca
+} // namespace algorithms
+} // namespace daal

@@ -44,7 +44,7 @@ namespace training
 namespace interface1
 {
 template <typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::ClassificationTrainBatchKernel, algorithmFPType, method);
 }
@@ -58,37 +58,37 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    classifier::training::Input *input = static_cast<classifier::training::Input *>(_in);
-    Result *result = static_cast<Result *>(_res);
+    classifier::training::Input * input = static_cast<classifier::training::Input *>(_in);
+    Result * result                     = static_cast<Result *>(_res);
 
-    NumericTable *x = input->get(classifier::training::data).get();
-    NumericTable *y = input->get(classifier::training::labels).get();
+    NumericTable * x = input->get(classifier::training::data).get();
+    NumericTable * y = input->get(classifier::training::labels).get();
 
-    gbt::classification::Model *m = result->get(classifier::training::model).get();
+    gbt::classification::Model * m = result->get(classifier::training::model).get();
 
-    const gbt::classification::training::interface1::Parameter *par =
-        static_cast<gbt::classification::training::interface1::Parameter*>(_par);
-    daal::services::Environment::env &env = *_env;
-    daal::algorithms::engines::internal::BatchBaseImpl* engine = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(par->engine.get());
+    const gbt::classification::training::interface1::Parameter * par = static_cast<gbt::classification::training::interface1::Parameter *>(_par);
+    daal::services::Environment::env & env                           = *_env;
+    daal::algorithms::engines::internal::BatchBaseImpl * engine =
+        dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl *>(par->engine.get());
 
-    __DAAL_CALL_KERNEL(env, internal::ClassificationTrainBatchKernel,
-        __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, daal::services::internal::hostApp(*input), x, y, *m, *result, *par, *engine);
+    __DAAL_CALL_KERNEL(env, internal::ClassificationTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+                       daal::services::internal::hostApp(*input), x, y, *m, *result, *par, *engine);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::setupCompute()
 {
-    Result *result = static_cast<Result *>(_res);
-    gbt::classification::Model *m = result->get(classifier::training::model).get();
-    gbt::classification::internal::ModelImpl* pImpl = dynamic_cast<gbt::classification::internal::ModelImpl*>(m);
+    Result * result                                  = static_cast<Result *>(_res);
+    gbt::classification::Model * m                   = result->get(classifier::training::model).get();
+    gbt::classification::internal::ModelImpl * pImpl = dynamic_cast<gbt::classification::internal::ModelImpl *>(m);
     DAAL_ASSERT(pImpl);
     pImpl->clear();
     return services::Status();
 }
-}
-}
-}
-}
-}
-}
+} // namespace interface1
+} // namespace training
+} // namespace classification
+} // namespace gbt
+} // namespace algorithms
+} // namespace daal
 #endif
