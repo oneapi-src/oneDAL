@@ -1,6 +1,6 @@
-/* file: df_regression_train_dense_default_batch_fpt_dispatcher.cpp */
+/* file: df_regression_train_dense_default_batch_oneapi_fpt.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,17 +17,30 @@
 
 /*
 //++
-//  Implementation of decision forest container.
+//  Implementation of decision forest regression training functions for the default method
 //--
 */
 
-#include "algorithms/kernel/dtrees/forest/regression/df_regression_train_container.h"
+#include "algorithms/kernel/dtrees/forest/regression/oneapi/df_regression_train_kernel_oneapi.h"
+#include "algorithms/kernel/dtrees/forest/regression/oneapi/df_regression_train_dense_default_oneapi_impl.i"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(decision_forest::regression::training::BatchContainer, batch, DAAL_FPTYPE,
-                                           decision_forest::regression::training::defaultDense)
+namespace decision_forest
+{
+namespace regression
+{
+namespace training
+{
+namespace internal
+{
+template class RegressionTrainBatchKernelOneAPI<DAAL_FPTYPE, defaultDense>;
 }
+
+} // namespace training
+} // namespace regression
+} // namespace decision_forest
+} // namespace algorithms
 } // namespace daal
