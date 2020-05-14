@@ -27,7 +27,7 @@ CORE.SERV.COMPILER.gnu = generic
 -Zl.gnu =
 -DEBC.gnu = -g
 
-COMPILER.lnx.gnu =  ${CXX} -D__int64="long long" -D__int32="int" $(if $(IA_is_ia32),-m32,-m64) -fwrapv -fno-strict-overflow -fno-delete-null-pointer-checks
+COMPILER.lnx.gnu =  ${CXX} $(if $(IA_is_ia32),-m32,-m64) -fwrapv -fno-strict-overflow -fno-delete-null-pointer-checks
 
 link.dynamic.lnx.gnu = ${CXX} $(if $(IA_is_ia32),-m32,-m64)
 
