@@ -55,6 +55,12 @@
         #define __DAAL_MKLVSL_SSE2 ex
     #endif
 
+    #if (defined(__x86_64__) && !defined(__APPLE__))
+        #define __DAAL_MKLVSL_AVX512_MIC b3
+    #else
+        #define __DAAL_MKLVSL_AVX512_MIC l9
+    #endif
+
     #define __DAAL_VSLFN_CALL1(f_pref, f_name, f_args, errcode)                \
         if (avx512 == cpu)                                                     \
         {                                                                      \
@@ -62,7 +68,7 @@
         }                                                                      \
         if (avx512_mic == cpu)                                                 \
         {                                                                      \
-            errcode = __DAAL_VSLFN(b3, f_pref, f_name) f_args;                 \
+            errcode = __DAAL_VSLFN(__DAAL_MKLVSL_AVX512_MIC, f_pref, f_name) f_args;                 \
         }                                                                      \
         if (avx2 == cpu)                                                       \
         {                                                                      \
@@ -133,7 +139,7 @@
         }                                                                      \
         if (avx512_mic == cpu)                                                 \
         {                                                                      \
-            errcode = __DAAL_VSLFN(a3, f_pref, f_name) f_args;                 \
+            errcode = __DAAL_VSLFN(s9, f_pref, f_name) f_args;                 \
         }                                                                      \
         if (avx2 == cpu)                                                       \
         {                                                                      \
