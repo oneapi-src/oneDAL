@@ -47,8 +47,8 @@ namespace internal
 {
 template class ImplicitALSInitKernel<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
 }
-}
-}
-}
-}
-}
+} // namespace init
+} // namespace training
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal

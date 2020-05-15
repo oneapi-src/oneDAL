@@ -34,47 +34,52 @@ namespace classification
 {
 namespace training
 {
-
-template<typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+template <typename algorithmFPType>
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status s;
-    const classifier::training::Input* inp = static_cast<const classifier::training::Input*>(input);
-    const size_t nFeatures = inp->get(classifier::training::data)->getNumberOfColumns();
+    const classifier::training::Input * inp = static_cast<const classifier::training::Input *>(input);
+    const size_t nFeatures                  = inp->get(classifier::training::data)->getNumberOfColumns();
     set(classifier::training::model, daal::algorithms::gbt::classification::Model::create(nFeatures, &s));
 
-    const interface2::Parameter *par = dynamic_cast<const interface2::Parameter *>(parameter);
-    if(par != nullptr)
+    const interface2::Parameter * par = dynamic_cast<const interface2::Parameter *>(parameter);
+    if (par != nullptr)
     {
-        if(par->varImportance & gbt::training::gain)
+        if (par->varImportance & gbt::training::gain)
         {
-            set(variableImportanceByGain, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+            set(variableImportanceByGain,
+                data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
         }
-        if(par->varImportance & gbt::training::totalGain)
+        if (par->varImportance & gbt::training::totalGain)
         {
-            set(variableImportanceByTotalGain, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+            set(variableImportanceByTotalGain,
+                data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
         }
-        if(par->varImportance & gbt::training::cover)
+        if (par->varImportance & gbt::training::cover)
         {
-            set(variableImportanceByCover, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+            set(variableImportanceByCover,
+                data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
         }
-        if(par->varImportance & gbt::training::totalCover)
+        if (par->varImportance & gbt::training::totalCover)
         {
-            set(variableImportanceByTotalCover, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+            set(variableImportanceByTotalCover,
+                data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
         }
-        if(par->varImportance & gbt::training::weight)
+        if (par->varImportance & gbt::training::weight)
         {
-            set(variableImportanceByWeight, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+            set(variableImportanceByWeight,
+                data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
         }
     }
 
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace training
-}// namespace classification
-}// namespace gbt
-}// namespace algorithms
-}// namespace daal
+} // namespace training
+} // namespace classification
+} // namespace gbt
+} // namespace algorithms
+} // namespace daal

@@ -20,7 +20,6 @@
 //
 //--
 
-
 #include "zscore_batch_container.h"
 
 namespace daal
@@ -31,7 +30,6 @@ namespace normalization
 {
 namespace zscore
 {
-
 namespace interface3
 {
 template class BatchContainer<DAAL_FPTYPE, sumDense, DAAL_CPU>;

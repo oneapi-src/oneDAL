@@ -31,26 +31,25 @@ namespace tanh
 {
 namespace internal
 {
-
-template<typename algorithmFPType, CpuType cpu>
-inline Status TanhKernel<algorithmFPType, defaultDense, cpu>::processBlock(const NumericTable &inputTable, size_t nInputColumns,
+template <typename algorithmFPType, CpuType cpu>
+inline Status TanhKernel<algorithmFPType, defaultDense, cpu>::processBlock(const NumericTable & inputTable, size_t nInputColumns,
                                                                            size_t nProcessedRows, size_t nRowsInCurrentBlock,
-                                                                           NumericTable &resultTable)
+                                                                           NumericTable & resultTable)
 {
     ReadRows<algorithmFPType, cpu, NumericTable> inputBlock(const_cast<NumericTable *>(&inputTable), nProcessedRows, nRowsInCurrentBlock);
     DAAL_CHECK_BLOCK_STATUS(inputBlock);
-    const algorithmFPType* inputArray = inputBlock.get();
+    const algorithmFPType * inputArray = inputBlock.get();
 
     WriteRows<algorithmFPType, cpu, NumericTable> resultBlock(&resultTable, nProcessedRows, nRowsInCurrentBlock);
     DAAL_CHECK_BLOCK_STATUS(resultBlock);
-    algorithmFPType* resultArray = resultBlock.get();
+    algorithmFPType * resultArray = resultBlock.get();
 
     size_t nDataElements = nInputColumns * nRowsInCurrentBlock;
-    daal::internal::Math<algorithmFPType,cpu>::vTanh(nDataElements, const_cast<algorithmFPType *>(inputArray), resultArray);
+    daal::internal::Math<algorithmFPType, cpu>::vTanh(nDataElements, const_cast<algorithmFPType *>(inputArray), resultArray);
     return Status();
 }
 
-} // namespace daal::internal
+} // namespace internal
 } // namespace tanh
 } // namespace math
 } // namespace algorithms

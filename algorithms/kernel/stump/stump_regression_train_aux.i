@@ -51,44 +51,46 @@ namespace training
 {
 namespace internal
 {
-
 /**
  *  \brief Perform stump regression for data set X on responses Y with weights W
  */
 template <Method method, typename algorithmFPtype, CpuType cpu>
-services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::compute(size_t n, const NumericTable *const *a, stump::regression::Model *stumpModel,
-        const Parameter *par)
+services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::compute(size_t n, const NumericTable * const * a,
+                                                                         stump::regression::Model * stumpModel, const Parameter * par)
 {
-    const NumericTable *xTable = a[0];
-    NumericTable *yTable = const_cast<NumericTable *>(a[1]);
-    const NumericTable *wTable = (n >= 3 ? a[2] : 0);
+    const NumericTable * xTable = a[0];
+    NumericTable * yTable       = const_cast<NumericTable *>(a[1]);
+    const NumericTable * wTable = (n >= 3 ? a[2] : 0);
 
     services::Status s;
 
     /* Create an algorithm object to train the Decision tree model */
     decision_tree::regression::training::Batch<> treeAlgorithm;
-    treeAlgorithm.parameter.pruning = decision_tree::none;
-    treeAlgorithm.parameter.maxTreeDepth = 2;
+    treeAlgorithm.parameter.pruning                    = decision_tree::none;
+    treeAlgorithm.parameter.maxTreeDepth               = 2;
     treeAlgorithm.parameter.minObservationsInLeafNodes = 1;
 
     /* Pass the training data set, labels, and pruning dataset with labels to the algorithm */
     treeAlgorithm.input.set(decision_tree::regression::training::data, NumericTablePtr(const_cast<NumericTable *>(xTable), EmptyDeleter()));
     treeAlgorithm.input.set(decision_tree::regression::training::weights, NumericTablePtr(const_cast<NumericTable *>(wTable), EmptyDeleter()));
-    treeAlgorithm.input.set(decision_tree::regression::training::dependentVariables, NumericTablePtr(const_cast<NumericTable *>(yTable), EmptyDeleter()));
+    treeAlgorithm.input.set(decision_tree::regression::training::dependentVariables,
+                            NumericTablePtr(const_cast<NumericTable *>(yTable), EmptyDeleter()));
 
     decision_tree::regression::training::ResultPtr treeResult(new decision_tree::regression::training::Result());
-    treeResult->set(algorithms::regression::training::model, decision_tree::regression::ModelPtr(static_cast<decision_tree::regression::Model*>(const_cast<stump::regression::Model*>(stumpModel)), EmptyDeleter()));
+    treeResult->set(algorithms::regression::training::model,
+                    decision_tree::regression::ModelPtr(
+                        static_cast<decision_tree::regression::Model *>(const_cast<stump::regression::Model *>(stumpModel)), EmptyDeleter()));
     treeAlgorithm.setResult(treeResult);
     DAAL_CHECK_STATUS(s, treeAlgorithm.computeNoThrow());
 
     return s;
 }
 
-} // namespace stump::regression::training::internal
-}
-}
-}
-}
+} // namespace internal
+} // namespace training
+} // namespace regression
+} // namespace stump
+} // namespace algorithms
 } // namespace daal
 
 #endif

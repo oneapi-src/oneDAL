@@ -37,10 +37,9 @@ namespace kmeans
 {
 namespace init
 {
-
-#define isPlusPlusMethod(method)\
-    ((method == kmeans::init::plusPlusDense) || (method == kmeans::init::plusPlusCSR) || \
-    (method == kmeans::init::parallelPlusDense) || (method == kmeans::init::parallelPlusCSR))
+#define isPlusPlusMethod(method)                                                                                                     \
+    ((method == kmeans::init::plusPlusDense) || (method == kmeans::init::plusPlusCSR) || (method == kmeans::init::parallelPlusDense) \
+     || (method == kmeans::init::parallelPlusCSR))
 
 /**
  * Allocates memory to store partial results of computing initial clusters for the K-Means algorithm
@@ -49,7 +48,8 @@ namespace init
  * \param[in] method    Computation method of the algorithm
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                     const int method)
 {
     services::Status status;
     set(partialClustersNumber, HomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, &status));
@@ -57,67 +57,71 @@ DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Inp
 }
 
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status DistributedStep2LocalPlusPlusPartialResult::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status DistributedStep2LocalPlusPlusPartialResult::allocate(const daal::algorithms::Input * input,
+                                                                                  const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status status;
-    const interface1::DistributedStep2LocalPlusPlusParameter *kmPar = static_cast<const interface1::DistributedStep2LocalPlusPlusParameter *>(parameter);
+    const interface1::DistributedStep2LocalPlusPlusParameter * kmPar =
+        static_cast<const interface1::DistributedStep2LocalPlusPlusParameter *>(parameter);
 
     set(outputOfStep2ForStep3, HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, &status));
 
-    if(isParallelPlusMethod(method) && kmPar->outputForStep5Required)
+    if (isParallelPlusMethod(method) && kmPar->outputForStep5Required)
     {
-        const size_t nMaxCandidates = size_t(kmPar->oversamplingFactor*kmPar->nClusters)*kmPar->nRounds + 1;
+        const size_t nMaxCandidates = size_t(kmPar->oversamplingFactor * kmPar->nClusters) * kmPar->nRounds + 1;
         set(outputOfStep2ForStep5, HomogenNumericTable<int>::create(nMaxCandidates, 1, NumericTable::doAllocate, &status));
     }
-    if(!kmPar->firstIteration)
-        return services::Status();
+    if (!kmPar->firstIteration) return services::Status();
 
-    DataCollectionPtr pLocalData(new DataCollection(
-        isParallelPlusMethod(method) ? internal::localDataSize : internal::localDataSize - 1));
+    DataCollectionPtr pLocalData(new DataCollection(isParallelPlusMethod(method) ? internal::localDataSize : internal::localDataSize - 1));
     set(internalResult, pLocalData);
-    auto pData = static_cast<const Input *>(input)->get(data);
-    const auto nRows = pData->getNumberOfRows();
+    auto pData                                      = static_cast<const Input *>(input)->get(data);
+    const auto nRows                                = pData->getNumberOfRows();
     (*pLocalData)[internal::closestClusterDistance] = HomogenNumericTable<algorithmFPType>::create(nRows, 1, NumericTable::doAllocate, &status);
-    (*pLocalData)[internal::closestCluster] = HomogenNumericTable<int>::create(nRows, 1, NumericTable::doAllocate, &status);
-    (*pLocalData)[internal::numberOfClusters] = HomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, &status);
-    if(isParallelPlusMethod(method))
+    (*pLocalData)[internal::closestCluster]         = HomogenNumericTable<int>::create(nRows, 1, NumericTable::doAllocate, &status);
+    (*pLocalData)[internal::numberOfClusters]       = HomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, &status);
+    if (isParallelPlusMethod(method))
     {
-        const size_t nMaxCandidates = size_t(kmPar->oversamplingFactor*kmPar->nClusters)*kmPar->nRounds + 1;
+        const size_t nMaxCandidates              = size_t(kmPar->oversamplingFactor * kmPar->nClusters) * kmPar->nRounds + 1;
         (*pLocalData)[internal::candidateRating] = HomogenNumericTable<int>::create(nMaxCandidates, 1, NumericTable::doAllocate, &status);
     }
     return status;
 }
 
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status DistributedStep3MasterPlusPlusPartialResult::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status DistributedStep3MasterPlusPlusPartialResult::allocate(const daal::algorithms::Input * input,
+                                                                                   const daal::algorithms::Parameter * parameter, const int method)
 {
     //nothing to allocate
     return services::Status();
 }
 
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status DistributedStep4LocalPlusPlusPartialResult::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status DistributedStep4LocalPlusPlusPartialResult::allocate(const daal::algorithms::Input * input,
+                                                                                  const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status status;
-    const DistributedStep4LocalPlusPlusInput* kmInput = static_cast<const DistributedStep4LocalPlusPlusInput*>(input);
-    const auto nFeatures = kmInput->get(data)->getNumberOfColumns();
-    NumericTablePtr pInput = kmInput->get(inputOfStep4FromStep3);
-    NumericTablePtr pOutput = HomogenNumericTable<algorithmFPType>::create(DictionaryIface::FeaturesEqual::equal, nFeatures, pInput->getNumberOfColumns(), NumericTable::doAllocate, &status);
+    const DistributedStep4LocalPlusPlusInput * kmInput = static_cast<const DistributedStep4LocalPlusPlusInput *>(input);
+    const auto nFeatures                               = kmInput->get(data)->getNumberOfColumns();
+    NumericTablePtr pInput                             = kmInput->get(inputOfStep4FromStep3);
+    NumericTablePtr pOutput = HomogenNumericTable<algorithmFPType>::create(DictionaryIface::FeaturesEqual::equal, nFeatures,
+                                                                           pInput->getNumberOfColumns(), NumericTable::doAllocate, &status);
     set(outputOfStep4, pOutput);
     return status;
 }
 
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status DistributedStep5MasterPlusPlusPartialResult::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status DistributedStep5MasterPlusPlusPartialResult::allocate(const daal::algorithms::Input * input,
+                                                                                   const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status status;
-    const interface1::Parameter *stepPar = static_cast<const interface1::Parameter *>(parameter);
-    const DistributedStep5MasterPlusPlusInput* kmInput = static_cast<const DistributedStep5MasterPlusPlusInput*>(input);
+    const interface1::Parameter * stepPar               = static_cast<const interface1::Parameter *>(parameter);
+    const DistributedStep5MasterPlusPlusInput * kmInput = static_cast<const DistributedStep5MasterPlusPlusInput *>(input);
 
-    const size_t nMaxCandidates = size_t(stepPar->oversamplingFactor*stepPar->nClusters)*stepPar->nRounds + 1;
-    const auto pColl = kmInput->get(inputCentroids);
-    NumericTablePtr pCentroids = NumericTable::cast((*pColl)[0]);
-    const auto nFeatures = pCentroids->getNumberOfColumns();
+    const size_t nMaxCandidates = size_t(stepPar->oversamplingFactor * stepPar->nClusters) * stepPar->nRounds + 1;
+    const auto pColl            = kmInput->get(inputCentroids);
+    NumericTablePtr pCentroids  = NumericTable::cast((*pColl)[0]);
+    const auto nFeatures        = pCentroids->getNumberOfColumns();
     NumericTablePtr pCandidates = HomogenNumericTable<algorithmFPType>::create(nFeatures, nMaxCandidates, NumericTable::doAllocate, &status);
     set(candidates, pCandidates);
     NumericTablePtr pCandidateWeights = HomogenNumericTable<algorithmFPType>::create(nMaxCandidates, 1, NumericTable::doAllocate, &status);

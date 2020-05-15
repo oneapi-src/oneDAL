@@ -42,11 +42,11 @@ using namespace daal::data_management;
  * \param[in] dummy   Dummy variable for the templated constructor
  */
 template <typename modelFPType>
-ModelNormEqInternal::ModelNormEqInternal(size_t featnum, size_t nrhs, const linear_regression::Parameter &par, modelFPType dummy, Status &st):
-    super(featnum, nrhs, par, dummy)
+ModelNormEqInternal::ModelNormEqInternal(size_t featnum, size_t nrhs, const linear_regression::Parameter & par, modelFPType dummy, Status & st)
+    : super(featnum, nrhs, par, dummy)
 {
     size_t dimWithoutBeta = getNumberOfBetas();
-    if(!_interceptFlag)
+    if (!_interceptFlag)
     {
         dimWithoutBeta--;
     }
@@ -56,8 +56,9 @@ ModelNormEqInternal::ModelNormEqInternal(size_t featnum, size_t nrhs, const line
     if (!st) return;
 }
 
-template ModelNormEqInternal::ModelNormEqInternal(size_t featnum, size_t nrhs, const linear_regression::Parameter &par, DAAL_FPTYPE dummy, Status &st);
-}// namespace internal
-}// namespace linear_regression
-}// namespace algorithms
-}// namespace daal
+template ModelNormEqInternal::ModelNormEqInternal(size_t featnum, size_t nrhs, const linear_regression::Parameter & par, DAAL_FPTYPE dummy,
+                                                  Status & st);
+} // namespace internal
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal

@@ -39,7 +39,6 @@ namespace prediction
 {
 namespace interface1
 {
-
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_LOGISTIC_REGRESSION_PREDICTION_RESULT_ID);
 
 Result::Result() : algorithms::classifier::prediction::interface1::Result(lastResultNumericTableId + 1) {}
@@ -49,7 +48,7 @@ NumericTablePtr Result::get(classifier::prediction::ResultId id) const
     return classifier::prediction::interface1::Result::get(id);
 }
 
-void Result::set(classifier::prediction::ResultId id, const NumericTablePtr &value)
+void Result::set(classifier::prediction::ResultId id, const NumericTablePtr & value)
 {
     classifier::prediction::interface1::Result::set(id, value);
 }
@@ -59,22 +58,23 @@ NumericTablePtr Result::get(ResultNumericTableId id) const
     return NumericTable::cast(Argument::get(id));
 }
 
-void Result::set(ResultNumericTableId id, const NumericTablePtr &value)
+void Result::set(ResultNumericTableId id, const NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
 
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     const size_t nRows = (static_cast<const Input *>(input))->getNumberOfRows();
-    const logistic_regression::prediction::interface1::Parameter* prm = static_cast<const logistic_regression::prediction::interface1::Parameter*>(par);
+    const logistic_regression::prediction::interface1::Parameter * prm =
+        static_cast<const logistic_regression::prediction::interface1::Parameter *>(par);
     Status s;
     const size_t nProb = (prm->nClasses == 2 ? 1 : prm->nClasses);
-    if(prm->resultsToCompute & computeClassesLabels)
+    if (prm->resultsToCompute & computeClassesLabels)
         s |= data_management::checkNumericTable(get(classifier::prediction::prediction).get(), probabilitiesStr(), packed_mask, 0, 1, nRows);
-    if(prm->resultsToCompute & computeClassesProbabilities)
+    if (prm->resultsToCompute & computeClassesProbabilities)
         s |= data_management::checkNumericTable(get(probabilities).get(), probabilitiesStr(), packed_mask, 0, nProb, nRows);
-    if(prm->resultsToCompute & computeClassesLogProbabilities)
+    if (prm->resultsToCompute & computeClassesLogProbabilities)
         s |= data_management::checkNumericTable(get(logProbabilities).get(), logProbabilitiesStr(), packed_mask, 0, nProb, nRows);
     return s;
 }

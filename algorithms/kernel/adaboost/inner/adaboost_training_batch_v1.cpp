@@ -37,7 +37,6 @@ namespace training
 {
 namespace interface1
 {
-
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_ADABOOST_TRAINING_RESULT_ID);
 
 /**
@@ -50,15 +49,14 @@ daal::algorithms::adaboost::interface1::ModelPtr Result::get(classifier::trainin
     return staticPointerCast<daal::algorithms::adaboost::interface1::Model, SerializationIface>(Argument::get(id));
 }
 
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     Status s = classifier::training::interface1::Result::check(input, parameter, method);
-    if(!s) return s;
+    if (!s) return s;
     daal::algorithms::adaboost::interface1::ModelPtr m = get(classifier::training::model);
     DAAL_CHECK(m->getAlpha(), ErrorModelNotFullInitialized);
     return s;
 }
-
 
 } // namespace interface1
 } // namespace training

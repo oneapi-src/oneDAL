@@ -47,25 +47,25 @@ namespace interface1
 * \param[in] method       Computation method for the algorithm
 */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status s;
     if (!get(layers::forward::resultForBackward))
     {
-        const layers::forward::Input *in = static_cast<const layers::forward::Input * >(input);
-        const Parameter *par = static_cast<const Parameter *>(parameter);
+        const layers::forward::Input * in = static_cast<const layers::forward::Input *>(input);
+        const Parameter * par             = static_cast<const Parameter *>(parameter);
 
         const size_t nOutputs = par->nOutputs;
 
         LayerDataPtr resultCollection = LayerDataPtr(new LayerData());
 
-        data_management::TensorPtr dataTensor = in->get(layers::forward::data);
-        internal::MklTensor<algorithmFPType> *dataMkl = dynamic_cast<internal::MklTensor<algorithmFPType>*>( dataTensor.get() );
+        data_management::TensorPtr dataTensor          = in->get(layers::forward::data);
+        internal::MklTensor<algorithmFPType> * dataMkl = dynamic_cast<internal::MklTensor<algorithmFPType> *>(dataTensor.get());
 
         if (dataMkl != 0)
         {
-            const services::Collection<size_t> &dataDims = dataTensor->getDimensions();
-            for(size_t i = 0; i < nOutputs; i++)
+            const services::Collection<size_t> & dataDims = dataTensor->getDimensions();
+            for (size_t i = 0; i < nOutputs; i++)
             {
                 if (par->allowInplaceComputation)
                 {
@@ -73,15 +73,15 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
                 }
                 else
                 {
-                    (*resultCollection)[i] = data_management::TensorPtr(new internal::MklTensor<algorithmFPType>(
-                                                                                              dataDims, data_management::Tensor::doAllocate));
+                    (*resultCollection)[i] =
+                        data_management::TensorPtr(new internal::MklTensor<algorithmFPType>(dataDims, data_management::Tensor::doAllocate));
                 }
             }
         }
         else
         {
-            const services::Collection<size_t> &dataDims = dataTensor->getDimensions();
-            for(size_t i = 0; i < nOutputs; i++)
+            const services::Collection<size_t> & dataDims = dataTensor->getDimensions();
+            for (size_t i = 0; i < nOutputs; i++)
             {
                 if (par->allowInplaceComputation)
                 {
@@ -89,7 +89,8 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
                 }
                 else
                 {
-                    (*resultCollection)[i] = data_management::HomogenTensor<algorithmFPType>::create(dataDims, data_management::Tensor::doAllocate, &s);
+                    (*resultCollection)[i] =
+                        data_management::HomogenTensor<algorithmFPType>::create(dataDims, data_management::Tensor::doAllocate, &s);
                 }
             }
         }
@@ -98,12 +99,13 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace forward
-}// namespace split
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace split
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

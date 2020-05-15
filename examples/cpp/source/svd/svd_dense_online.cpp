@@ -35,22 +35,21 @@ using namespace daal::algorithms;
 
 /* Input data set parameters */
 const string datasetFileName = "../data/online/svd.csv";
-const size_t nRowsInBlock      = 4000;
+const size_t nRowsInBlock    = 4000;
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable,
-                                                 DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create an algorithm to compute SVD in the online processing mode */
     svd::Online<> algorithm;
 
-    while(dataSource.loadDataBlock(nRowsInBlock) == nRowsInBlock)
+    while (dataSource.loadDataBlock(nRowsInBlock) == nRowsInBlock)
     {
-        algorithm.input.set( svd::data, dataSource.getNumericTable() );
+        algorithm.input.set(svd::data, dataSource.getNumericTable());
 
         /* Compute SVD */
         algorithm.compute();
@@ -62,9 +61,9 @@ int main(int argc, char *argv[])
     svd::ResultPtr res = algorithm.getResult();
 
     /* Print the results */
-    printNumericTable(res->get(svd::singularValues),      "Singular values:");
+    printNumericTable(res->get(svd::singularValues), "Singular values:");
     printNumericTable(res->get(svd::rightSingularMatrix), "Right orthogonal matrix V:");
-    printNumericTable(res->get(svd::leftSingularMatrix),  "Left orthogonal matrix U:", 10);
+    printNumericTable(res->get(svd::leftSingularMatrix), "Left orthogonal matrix U:", 10);
 
     return 0;
 }

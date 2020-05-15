@@ -41,8 +41,8 @@ namespace internal
 {
 template class AbsKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 template class AbsKernelBase<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace abs
+} // namespace math
+} // namespace algorithms
+} // namespace daal

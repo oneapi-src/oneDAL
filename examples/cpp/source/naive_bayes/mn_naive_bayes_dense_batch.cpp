@@ -37,12 +37,12 @@ using namespace daal::algorithms;
 using namespace daal::algorithms::multinomial_naive_bayes;
 
 /* Input data set parameters */
-string trainDatasetFileName     = "../data/batch/naivebayes_train_dense.csv";
+string trainDatasetFileName = "../data/batch/naivebayes_train_dense.csv";
 
-string testDatasetFileName      = "../data/batch/naivebayes_test_dense.csv";
+string testDatasetFileName = "../data/batch/naivebayes_test_dense.csv";
 
-const size_t nFeatures          = 20;
-const size_t nClasses           = 20;
+const size_t nFeatures = 20;
+const size_t nClasses  = 20;
 
 training::ResultPtr trainingResult;
 classifier::prediction::ResultPtr predictionResult;
@@ -52,7 +52,7 @@ void trainModel();
 void testModel();
 void printResults();
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
@@ -68,9 +68,7 @@ int main(int argc, char *argv[])
 void trainModel()
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName,
-                                                      DataSource::notAllocateNumericTable,
-                                                      DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and labels */
     NumericTablePtr trainData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
@@ -84,7 +82,7 @@ void trainModel()
     training::Batch<> algorithm(nClasses);
 
     /* Pass a training data set and dependent values to the algorithm */
-    algorithm.input.set(classifier::training::data,   trainData);
+    algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainGroundTruth);
 
     /* Build the Naive Bayes model */
@@ -97,9 +95,7 @@ void trainModel()
 void testModel()
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
-    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName,
-                                                     DataSource::notAllocateNumericTable,
-                                                     DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for testing data and labels */
     NumericTablePtr testData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
@@ -113,7 +109,7 @@ void testModel()
     prediction::Batch<> algorithm(nClasses);
 
     /* Pass a testing data set and the trained model to the algorithm */
-    algorithm.input.set(classifier::prediction::data,  testData);
+    algorithm.input.set(classifier::prediction::data, testData);
     algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
 
     /* Predict Naive Bayes values */
@@ -125,8 +121,6 @@ void testModel()
 
 void printResults()
 {
-    printNumericTables<int, int>(testGroundTruth,
-                                 predictionResult->get(classifier::prediction::prediction),
-                                 "Ground truth", "Classification results",
+    printNumericTables<int, int>(testGroundTruth, predictionResult->get(classifier::prediction::prediction), "Ground truth", "Classification results",
                                  "NaiveBayes classification results (first 20 observations):", 20);
 }

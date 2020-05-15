@@ -19,7 +19,6 @@
 //  Implementation of the forward local response normalization layer
 //--
 
-
 #include "lrn_layer_forward_batch_container.h"
 #include "lrn_layer_forward_kernel.h"
 #include "lrn_layer_forward_impl.i"
@@ -34,21 +33,20 @@ namespace layers
 {
 namespace lrn
 {
-
 namespace forward
 {
 namespace interface1
 {
 template class neural_networks::layers::lrn::forward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 namespace internal
 {
 template class LRNKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 
-}
-}
-}
-}
-}
+} // namespace lrn
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

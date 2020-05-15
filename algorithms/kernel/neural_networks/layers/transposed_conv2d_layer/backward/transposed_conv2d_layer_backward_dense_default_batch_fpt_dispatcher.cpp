@@ -19,7 +19,6 @@
 //  Implementation of transposed convolution 2d calculation algorithm container.
 //--
 
-
 #include "transposed_conv2d_layer_backward_batch_container.h"
 
 namespace daal

@@ -33,11 +33,11 @@ namespace regression
 {
 namespace training
 {
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const Parameter * parameter,
+                                                                    const int method);
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const Parameter *parameter, const int method);
-
-}// namespace training
-}// namespace regression
-}// namespace decision_forest
-}// namespace algorithms
-}// namespace daal
+} // namespace training
+} // namespace regression
+} // namespace decision_forest
+} // namespace algorithms
+} // namespace daal

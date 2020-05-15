@@ -41,7 +41,7 @@ namespace internal
 template class TrainBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
 
-}
-}
-}
-}
+} // namespace training
+} // namespace lasso_regression
+} // namespace algorithms
+} // namespace daal

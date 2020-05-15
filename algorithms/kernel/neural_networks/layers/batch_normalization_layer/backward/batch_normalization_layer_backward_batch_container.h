@@ -41,39 +41,38 @@ namespace backward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::BatchNormalizationKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    batch_normalization::backward::Input *input = static_cast<batch_normalization::backward::Input *>(_in);
-    batch_normalization::backward::Result *result = static_cast<batch_normalization::backward::Result *>(_res);
+    batch_normalization::backward::Input * input   = static_cast<batch_normalization::backward::Input *>(_in);
+    batch_normalization::backward::Result * result = static_cast<batch_normalization::backward::Result *>(_res);
 
-    batch_normalization::Parameter *parameter = static_cast<batch_normalization::Parameter *>(_par);
-    daal::services::Environment::env &env = *_env;
+    batch_normalization::Parameter * parameter = static_cast<batch_normalization::Parameter *>(_par);
+    daal::services::Environment::env & env     = *_env;
 
-    Tensor *weightsTensor       = input->get(auxWeights).get();
-    Tensor *stDevTensor         = input->get(auxStandardDeviation).get();
-    Tensor *inputGradientTensor = input->get(layers::backward::inputGradient).get();
-    Tensor *dataTensor          = input->get(auxData).get();
-    Tensor *meanTensor          = input->get(auxMean).get();
-    Tensor *gradientTensor      = result->get(layers::backward::gradient).get();
-    Tensor *weightsDerTensor    = result->get(layers::backward::weightDerivatives).get();
-    Tensor *biasesDerTensor     = result->get(layers::backward::biasDerivatives).get();
+    Tensor * weightsTensor       = input->get(auxWeights).get();
+    Tensor * stDevTensor         = input->get(auxStandardDeviation).get();
+    Tensor * inputGradientTensor = input->get(layers::backward::inputGradient).get();
+    Tensor * dataTensor          = input->get(auxData).get();
+    Tensor * meanTensor          = input->get(auxMean).get();
+    Tensor * gradientTensor      = result->get(layers::backward::gradient).get();
+    Tensor * weightsDerTensor    = result->get(layers::backward::weightDerivatives).get();
+    Tensor * biasesDerTensor     = result->get(layers::backward::biasDerivatives).get();
 
-    __DAAL_CALL_KERNEL(env, internal::BatchNormalizationKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),   \
-                       compute, *gradientTensor, *weightsTensor, *stDevTensor, *inputGradientTensor, *dataTensor, *meanTensor,
-                       *weightsDerTensor, *biasesDerTensor, *parameter);
+    __DAAL_CALL_KERNEL(env, internal::BatchNormalizationKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *gradientTensor,
+                       *weightsTensor, *stDevTensor, *inputGradientTensor, *dataTensor, *meanTensor, *weightsDerTensor, *biasesDerTensor, *parameter);
 }
 } // namespace interface1
 } // namespace backward

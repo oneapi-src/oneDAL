@@ -42,31 +42,28 @@ namespace rbf
 {
 namespace internal
 {
-
 template <typename algorithmFPType, CpuType cpu>
-services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInternalVectorVector(
-    const NumericTable *a1,
-    const NumericTable *a2,
-    NumericTable *r, const ParameterBase *par)
+services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInternalVectorVector(const NumericTable * a1, const NumericTable * a2,
+                                                                                                NumericTable * r, const ParameterBase * par)
 {
     //prepareData
     const size_t nFeatures = a1->getNumberOfColumns();
 
     ReadRows<algorithmFPType, cpu> mtA1(*const_cast<NumericTable *>(a1), par->rowIndexX, 1);
     DAAL_CHECK_BLOCK_STATUS(mtA1);
-    const algorithmFPType *dataA1 = mtA1.get();
+    const algorithmFPType * dataA1 = mtA1.get();
 
     ReadRows<algorithmFPType, cpu> mtA2(*const_cast<NumericTable *>(a2), par->rowIndexY, 1);
     DAAL_CHECK_BLOCK_STATUS(mtA2);
-    const algorithmFPType *dataA2 = mtA2.get();
+    const algorithmFPType * dataA2 = mtA2.get();
 
     WriteOnlyRows<algorithmFPType, cpu> mtR(r, par->rowIndexResult, 1);
     DAAL_CHECK_BLOCK_STATUS(mtR);
 
     //compute
-    const Parameter *rbfPar = static_cast<const Parameter *>(par);
+    const Parameter * rbfPar          = static_cast<const Parameter *>(par);
     const algorithmFPType invSqrSigma = (algorithmFPType)(1.0 / (rbfPar->sigma * rbfPar->sigma));
-    algorithmFPType factor = 0.0;
+    algorithmFPType factor            = 0.0;
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
     for (size_t i = 0; i < nFeatures; i++)
@@ -80,10 +77,8 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInternalMatrixVector(
-    const NumericTable *a1,
-    const NumericTable *a2,
-    NumericTable *r, const ParameterBase *par)
+services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInternalMatrixVector(const NumericTable * a1, const NumericTable * a2,
+                                                                                                NumericTable * r, const ParameterBase * par)
 {
     //prepareData
     const size_t nVectors1 = a1->getNumberOfRows();
@@ -91,18 +86,18 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
 
     ReadRows<algorithmFPType, cpu> mtA1(*const_cast<NumericTable *>(a1), 0, nVectors1);
     DAAL_CHECK_BLOCK_STATUS(mtA1);
-    const algorithmFPType *dataA1 = mtA1.get();
+    const algorithmFPType * dataA1 = mtA1.get();
 
     ReadRows<algorithmFPType, cpu> mtA2(*const_cast<NumericTable *>(a2), par->rowIndexY, 1);
     DAAL_CHECK_BLOCK_STATUS(mtA2);
-    const algorithmFPType *dataA2 = mtA2.get();
+    const algorithmFPType * dataA2 = mtA2.get();
 
     WriteOnlyRows<algorithmFPType, cpu> mtR(r, par->rowIndexResult, 1);
     DAAL_CHECK_BLOCK_STATUS(mtR);
-    algorithmFPType *dataR = mtR.get();
+    algorithmFPType * dataR = mtR.get();
 
     //compute
-    const Parameter *rbfPar = static_cast<const Parameter *>(par);
+    const Parameter * rbfPar          = static_cast<const Parameter *>(par);
     const algorithmFPType invSqrSigma = (algorithmFPType)(1.0 / (rbfPar->sigma * rbfPar->sigma));
     for (size_t i = 0; i < nVectors1; i++)
     {
@@ -116,7 +111,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
         }
         dataR[i] = -0.5 * invSqrSigma * factor;
 
-        if( dataR[i] < Math<algorithmFPType, cpu>::vExpThreshold() )
+        if (dataR[i] < Math<algorithmFPType, cpu>::vExpThreshold())
         {
             dataR[i] = Math<algorithmFPType, cpu>::vExpThreshold();
         }
@@ -126,10 +121,8 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInternalMatrixMatrix(
-    const NumericTable *a1,
-    const NumericTable *a2,
-    NumericTable *r, const ParameterBase *par)
+services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInternalMatrixMatrix(const NumericTable * a1, const NumericTable * a2,
+                                                                                                NumericTable * r, const ParameterBase * par)
 {
     SafeStatus safeStat;
 
@@ -325,6 +318,5 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
 } // namespace algorithms
 
 } // namespace daal
-
 
 #endif

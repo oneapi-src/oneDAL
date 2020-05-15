@@ -36,7 +36,6 @@ namespace training
 {
 namespace interface1
 {
-
 /**
  * Allocates memory for storing partial results of the naive Bayes training algorithm
  * \param[in] input        Pointer to input object
@@ -44,7 +43,7 @@ namespace interface1
  * \param[in] method       Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status PartialResult::initialize(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT Status PartialResult::initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     get(classifier::training::partialModel)->initialize<algorithmFPType>();
     return Status();
@@ -57,18 +56,19 @@ DAAL_EXPORT Status PartialResult::initialize(const daal::algorithms::Input *inpu
  * \param[in] method       Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status PartialResult::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT Status PartialResult::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const classifier::training::InputIface *algInput = static_cast<const classifier::training::InputIface *>(input);
-    size_t nFeatures = algInput->getNumberOfFeatures();
+    const classifier::training::InputIface * algInput = static_cast<const classifier::training::InputIface *>(input);
+    size_t nFeatures                                  = algInput->getNumberOfFeatures();
     Status st;
     PartialModelPtr partialModelPtr;
     {
-        const multinomial_naive_bayes::interface1::Parameter *algPar = dynamic_cast<const multinomial_naive_bayes::interface1::Parameter *>(parameter);
+        const multinomial_naive_bayes::interface1::Parameter * algPar =
+            dynamic_cast<const multinomial_naive_bayes::interface1::Parameter *>(parameter);
         if (algPar) partialModelPtr = PartialModel::create<algorithmFPType>(nFeatures, *algPar, &st);
     }
     {
-        const multinomial_naive_bayes::Parameter *algPar = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
+        const multinomial_naive_bayes::Parameter * algPar = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
         if (algPar) partialModelPtr = PartialModel::create<algorithmFPType>(nFeatures, *algPar, &st);
     }
     DAAL_CHECK(partialModelPtr, ErrorNullPartialModel);
@@ -77,8 +77,8 @@ DAAL_EXPORT Status PartialResult::allocate(const daal::algorithms::Input *input,
     return st;
 }
 
-}// namespace interface1
-}// namespace training
-}// namespace multinomial_naive_bayes
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace training
+} // namespace multinomial_naive_bayes
+} // namespace algorithms
+} // namespace daal

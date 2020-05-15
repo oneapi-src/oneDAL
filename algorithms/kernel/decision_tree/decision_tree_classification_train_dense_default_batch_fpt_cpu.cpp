@@ -34,7 +34,6 @@ namespace classification
 {
 namespace training
 {
-
 namespace interface2
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
@@ -42,7 +41,6 @@ template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
 namespace internal
 {
-
 template class DecisionTreeTrainBatchKernel<DAAL_FPTYPE, decision_tree::classification::Parameter, defaultDense, DAAL_CPU>;
 
 } // namespace internal

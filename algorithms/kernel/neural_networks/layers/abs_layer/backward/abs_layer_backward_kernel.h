@@ -19,7 +19,6 @@
 //  Implementation of abs layer.
 //--
 
-
 #ifndef __ABS_LAYER_BACKWARD_KERNEL_H__
 #define __ABS_LAYER_BACKWARD_KERNEL_H__
 
@@ -46,23 +45,22 @@ namespace backward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for abs calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class AbsKernel : public Kernel
 {
 public:
-    services::Status compute(const Tensor &inputTensor, const Tensor &dataTensor, Tensor &resultTensor);
+    services::Status compute(const Tensor & inputTensor, const Tensor & dataTensor, Tensor & resultTensor);
 };
 
-} // internal
-} // backward
-} // abs
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace backward
+} // namespace abs
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

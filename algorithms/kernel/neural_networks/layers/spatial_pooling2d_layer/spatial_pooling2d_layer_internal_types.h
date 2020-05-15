@@ -45,32 +45,31 @@ namespace spatial_pooling2d
 {
 namespace internal
 {
-
 enum Method
 {
-    maximum = 0,
-    average = 1,
+    maximum    = 0,
+    average    = 1,
     stochastic = 2
 };
 
-template<CpuType cpu>
+template <CpuType cpu>
 class CommonSpatialPoolingFunctions
 {
 public:
-    static void setParameter(const pooling2d::Parameter &src, pooling2d::Parameter &dst)
+    static void setParameter(const pooling2d::Parameter & src, pooling2d::Parameter & dst)
     {
-        dst.indices = src.indices;
+        dst.indices     = src.indices;
         dst.kernelSizes = src.kernelSizes;
-        dst.strides = src.strides;
-        dst.paddings = src.paddings;
+        dst.strides     = src.strides;
+        dst.paddings    = src.paddings;
     }
 };
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace spatial_pooling2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

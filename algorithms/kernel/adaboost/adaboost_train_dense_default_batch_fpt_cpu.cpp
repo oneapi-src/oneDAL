@@ -37,13 +37,13 @@ namespace interface2
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 template class BatchContainer<DAAL_FPTYPE, sammeR, DAAL_CPU>;
-}
+} // namespace interface2
 namespace internal
 {
 template class AdaBoostTrainKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 template class AdaBoostTrainKernel<sammeR, DAAL_FPTYPE, DAAL_CPU>;
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace training
+} // namespace adaboost
+} // namespace algorithms
+} // namespace daal

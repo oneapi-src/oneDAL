@@ -38,6 +38,6 @@ namespace internal
 {
 template class CovarianceDenseBatchKernel<DAAL_FPTYPE, singlePassDense, DAAL_CPU>;
 }
-}
-}
-}
+} // namespace covariance
+} // namespace algorithms
+} // namespace daal

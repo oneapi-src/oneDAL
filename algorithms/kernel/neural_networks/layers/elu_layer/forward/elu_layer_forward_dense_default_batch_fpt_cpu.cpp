@@ -19,7 +19,6 @@
 //  Implementation of ELU calculation functions.
 //--
 
-
 #include "elu_layer_forward_batch_container.h"
 #include "elu_layer_forward_kernel.h"
 #include "elu_layer_forward_impl.i"
@@ -36,20 +35,19 @@ namespace elu
 {
 namespace forward
 {
-
 namespace interface1
 {
 template class neural_networks::layers::elu::forward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 
 namespace internal
 {
 template class ELUKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
+} // namespace internal
 
-} // forward
-} // elu
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace forward
+} // namespace elu
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

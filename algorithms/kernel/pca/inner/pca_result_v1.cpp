@@ -35,14 +35,13 @@ namespace algorithms
 {
 namespace pca
 {
-
 namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_PCA_RESULT_ID);
 
-Result::Result(const Result& o)
+Result::Result(const Result & o)
 {
-    ResultImpl* pImpl = dynamic_cast<ResultImpl*>(getStorage(o).get());
+    ResultImpl * pImpl = dynamic_cast<ResultImpl *>(getStorage(o).get());
     DAAL_ASSERT(pImpl);
     Argument::setStorage(data_management::DataCollectionPtr(new ResultImpl(*pImpl)));
 }
@@ -66,7 +65,7 @@ NumericTablePtr Result::get(ResultId id) const
  * \param[in] id      Identifier of the result
  * \param[in] value   Pointer to the object
  */
-void Result::set(ResultId id, const NumericTablePtr &value)
+void Result::set(ResultId id, const NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
@@ -79,9 +78,9 @@ void Result::set(ResultId id, const NumericTablePtr &value)
 *
 * \return Status
 */
-services::Status Result::check(const daal::algorithms::Input *_input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * _input, const daal::algorithms::Parameter * par, int method) const
 {
-    const interface1::InputIface *input = static_cast<const interface1::InputIface *>(_input);
+    const interface1::InputIface * input = static_cast<const interface1::InputIface *>(_input);
     DAAL_CHECK(input, ErrorNullPtr);
 
     return checkImpl(input->getNFeatures());
@@ -94,7 +93,7 @@ services::Status Result::check(const daal::algorithms::Input *_input, const daal
 *
 * \return Status
 */
-services::Status Result::check(const daal::algorithms::PartialResult *pr, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::PartialResult * pr, const daal::algorithms::Parameter * parameter, int method) const
 {
     return checkImpl(0);
 }
@@ -138,14 +137,13 @@ services::Status ResultImpl::check(size_t nFeatures, size_t nTables) const
     return checkNumericTable(pEigenvectors.get(), eigenvectorsStr(), packedLayouts, 0, nFeatures, nFeatures);
 }
 
-
 void ResultImpl::setTable(size_t key, data_management::NumericTablePtr table)
 {
     (*this)[key] = table;
 }
 
 ResultImpl::ResultImpl(const size_t n) : DataCollection(n) {}
-ResultImpl::ResultImpl(const ResultImpl& o) : DataCollection(o){}
+ResultImpl::ResultImpl(const ResultImpl & o) : DataCollection(o) {}
 ResultImpl::~ResultImpl() {};
 
 } // namespace interface1

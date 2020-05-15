@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate fullyconnecteds.
 //--
 
-
 #ifndef __FULLYCONNECTED_LAYER_BACKWARD_KERNEL_H__
 #define __FULLYCONNECTED_LAYER_BACKWARD_KERNEL_H__
 
@@ -46,24 +45,23 @@ namespace backward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for fullyconnected calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class FullyconnectedKernel : public Kernel
 {
 public:
-    services::Status compute(const Tensor &inGradTensor, const Tensor &xTensor, const Tensor &wTensor, Tensor &wDerTensor,
-                                                                 Tensor &bDerTensor, Tensor &resultTensor, const fullyconnected::Parameter &parameter);
+    services::Status compute(const Tensor & inGradTensor, const Tensor & xTensor, const Tensor & wTensor, Tensor & wDerTensor, Tensor & bDerTensor,
+                             Tensor & resultTensor, const fullyconnected::Parameter & parameter);
 };
 
-} // internal
-} // backward
-} // fullyconnected
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace backward
+} // namespace fullyconnected
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

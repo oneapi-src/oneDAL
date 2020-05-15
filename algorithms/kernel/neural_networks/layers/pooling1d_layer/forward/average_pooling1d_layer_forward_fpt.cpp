@@ -45,27 +45,28 @@ namespace interface1
  * \param[in] method Computation method for the layer
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, pooling1d::forward::Result::allocate<algorithmFPType>(input, parameter, method));
 
-    const layers::Parameter *par = static_cast<const layers::Parameter * >(parameter);
-    if(!par->predictionStage)
+    const layers::Parameter * par = static_cast<const layers::Parameter *>(parameter);
+    if (!par->predictionStage)
     {
-        const Input *in = static_cast<const Input *>(input);
-        const services::Collection<size_t> &dataDims = in->get(layers::forward::data)->getDimensions();
+        const Input * in                              = static_cast<const Input *>(input);
+        const services::Collection<size_t> & dataDims = in->get(layers::forward::data)->getDimensions();
         set(auxInputDimensions, createAuxInputDimensions(dataDims));
     }
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace forward
-}// namespace average_pooling1d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace average_pooling1d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

@@ -38,22 +38,16 @@ const size_t nNodes   = 4;
 const float invNNodes = 1.0f / nNodes;
 
 /* Input data set parameters */
-const string trainDatasetFileNames[nNodes] =
-{
-    "./data/distributed/neural_network_train_dense_1.csv",
-    "./data/distributed/neural_network_train_dense_2.csv",
-    "./data/distributed/neural_network_train_dense_3.csv",
-    "./data/distributed/neural_network_train_dense_4.csv"
-};
-const string trainGroundTruthFileNames[nNodes] =
-{
-    "./data/distributed/neural_network_train_ground_truth_1.csv",
-    "./data/distributed/neural_network_train_ground_truth_2.csv",
-    "./data/distributed/neural_network_train_ground_truth_3.csv",
-    "./data/distributed/neural_network_train_ground_truth_4.csv"
-};
-string testDatasetFile     = "./data/distributed/neural_network_test.csv";
-string testGroundTruthFile = "./data/distributed/neural_network_test_ground_truth.csv";
+const string trainDatasetFileNames[nNodes]     = { "./data/distributed/neural_network_train_dense_1.csv",
+                                               "./data/distributed/neural_network_train_dense_2.csv",
+                                               "./data/distributed/neural_network_train_dense_3.csv",
+                                               "./data/distributed/neural_network_train_dense_4.csv" };
+const string trainGroundTruthFileNames[nNodes] = { "./data/distributed/neural_network_train_ground_truth_1.csv",
+                                                   "./data/distributed/neural_network_train_ground_truth_2.csv",
+                                                   "./data/distributed/neural_network_train_ground_truth_3.csv",
+                                                   "./data/distributed/neural_network_train_ground_truth_4.csv" };
+string testDatasetFile                         = "./data/distributed/neural_network_test.csv";
+string testGroundTruthFile                     = "./data/distributed/neural_network_test_ground_truth.csv";
 
 const size_t batchSizeLocal = 25;
 
@@ -72,7 +66,7 @@ void trainModel();
 void testModel();
 void printResults();
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
@@ -81,7 +75,7 @@ int main(int argc, char *argv[])
     initializeNetwork();
     trainModel();
 
-    if(rankId == mpi_root)
+    if (rankId == mpi_root)
     {
         testModel();
         printResults();
@@ -94,11 +88,11 @@ int main(int argc, char *argv[])
 
 void initializeNetwork()
 {
-    trainingData = readTensorFromCSV(trainDatasetFileNames[rankId]);
+    trainingData        = readTensorFromCSV(trainDatasetFileNames[rankId]);
     trainingGroundTruth = readTensorFromCSV(trainGroundTruthFileNames[rankId], true);
 
     Collection<size_t> sampleSize = trainingData->getDimensions();
-    sampleSize[0] = batchSizeLocal;
+    sampleSize[0]                 = batchSizeLocal;
 
     SharedPtr<optimization_solver::adagrad::Batch<> > solver(new optimization_solver::adagrad::Batch<>());
     solver->parameter.batchSize = batchSizeLocal;
@@ -111,14 +105,13 @@ void initializeNetwork()
     trainingModel->initialize<float>(sampleSize, *topology, parameter);
 }
 
-void initializeOptimizationSolver(optimization_solver::sgd::Batch<> &solver,
-    SharedPtr<ObjFunction> &objFunction, const TensorPtr &tensor)
+void initializeOptimizationSolver(optimization_solver::sgd::Batch<> & solver, SharedPtr<ObjFunction> & objFunction, const TensorPtr & tensor)
 {
     if (tensor && tensor->getSize())
     {
         NumericTablePtr inputArgTable = createTableFromTensor(*tensor);
 
-        solver.input.set(iterative_solver::inputArgument,  inputArgTable);
+        solver.input.set(iterative_solver::inputArgument, inputArgTable);
 
         iterative_solver::ResultPtr solverResult = solver.getResult();
         solverResult->set(iterative_solver::minimum, inputArgTable);
@@ -133,26 +126,25 @@ void initializeOptimizationSolver(optimization_solver::sgd::Batch<> &solver,
         /* Set learning rate for the optimization solver used in the neural network */
         (*(HomogenNumericTable<double>::cast(solver.parameter.learningRateSequence)))[0][0] = 0.001;
 
-        solver.parameter.function = objFunction;
+        solver.parameter.function    = objFunction;
         solver.parameter.nIterations = 1;
     }
 }
 
-void setNextBatchToModel(training::Model &model, const TensorPtr &dataBatch, const TensorPtr &groundTruthBatch)
+void setNextBatchToModel(training::Model & model, const TensorPtr & dataBatch, const TensorPtr & groundTruthBatch)
 {
-    layers::forward::LayerIface *firstFwdLayer = model.getForwardLayer(0).get();
-    layers::forward::Input *firstFwdLayerInput = firstFwdLayer->getLayerInput();
+    layers::forward::LayerIface * firstFwdLayer = model.getForwardLayer(0).get();
+    layers::forward::Input * firstFwdLayerInput = firstFwdLayer->getLayerInput();
     firstFwdLayerInput->set(layers::forward::data, dataBatch);
     firstFwdLayer->getLayerResult()->setResultForBackward(firstFwdLayerInput);
 
-    layers::forward::LayerIface *lastFwdLayer = model.getForwardLayer(nLayers-1).get();
-    loss::forward::Input *lossInput = static_cast<loss::forward::Input *>(lastFwdLayer->getLayerInput());
+    layers::forward::LayerIface * lastFwdLayer = model.getForwardLayer(nLayers - 1).get();
+    loss::forward::Input * lossInput           = static_cast<loss::forward::Input *>(lastFwdLayer->getLayerInput());
     lossInput->set(layers::loss::forward::groundTruth, groundTruthBatch);
     lastFwdLayer->getLayerResult()->setResultForBackward(lossInput);
 }
 
-void updateParameters(optimization_solver::sgd::Batch<> &solver,
-            TensorPtr &tensor, ByteBuffer &buffer, size_t archLength, MPI_Request &request)
+void updateParameters(optimization_solver::sgd::Batch<> & solver, TensorPtr & tensor, ByteBuffer & buffer, size_t archLength, MPI_Request & request)
 {
     if (archLength > 0 && request != MPI_REQUEST_NULL)
     {
@@ -160,10 +152,10 @@ void updateParameters(optimization_solver::sgd::Batch<> &solver,
         MPI_Wait(&request, MPI_STATUS_IGNORE);
 
         /* Compute the sum of derivatives received from all nodes */
-        SharedPtr<HomogenNumericTable<> > sumTable = HomogenNumericTable<>::cast(
-                solver.parameter.function->getResult()->get(objective_function::gradientIdx));
-        float *sumData = sumTable->getArray();
-        size_t sumSize = sumTable->getNumberOfRows();
+        SharedPtr<HomogenNumericTable<> > sumTable =
+            HomogenNumericTable<>::cast(solver.parameter.function->getResult()->get(objective_function::gradientIdx));
+        float * sumData = sumTable->getArray();
+        size_t sumSize  = sumTable->getNumberOfRows();
         for (size_t i = 0; i < sumSize; i++)
         {
             sumData[i] = 0.0f;
@@ -174,7 +166,7 @@ void updateParameters(optimization_solver::sgd::Batch<> &solver,
             TensorPtr tensor = Tensor::cast(deserializeDAALObject(&buffer[node * archLength], archLength));
             SubtensorDescriptor<float> subtensor;
             tensor->getSubtensor(0, 0, 0, tensor->getDimensionSize(0), readOnly, subtensor);
-            const float *data = subtensor.getPtr();
+            const float * data = subtensor.getPtr();
             for (size_t i = 0; i < sumSize; i++)
             {
                 sumData[i] += data[i];
@@ -190,18 +182,21 @@ void updateParameters(optimization_solver::sgd::Batch<> &solver,
         /* Update weights on all nodes by performing a step of optimization algorithm */
         solver.compute();
 
-        NumericTable *minimumTable = solver.getResult()->get(iterative_solver::minimum).get();
+        NumericTable * minimumTable = solver.getResult()->get(iterative_solver::minimum).get();
         copyTableToTensor(*minimumTable, *tensor);
     }
 }
 
-void allgatherDerivatives(Tensor *tensor, ByteBuffer &buffer, ByteBuffer &bufferLocal, MPI_Request &request)
+void allgatherDerivatives(Tensor * tensor, ByteBuffer & buffer, ByteBuffer & bufferLocal, MPI_Request & request)
 {
     if (tensor && tensor->getSize() > 0)
     {
         serializeDAALObject(tensor, bufferLocal);
         size_t bufSize = bufferLocal.size();
-        if (buffer.size() == 0) { buffer.resize(bufferLocal.size() * nNodes); }
+        if (buffer.size() == 0)
+        {
+            buffer.resize(bufferLocal.size() * nNodes);
+        }
 
         /* Initiate asynchronous transfer of partial derivatives to all nodes */
         MPI_Iallgather(&bufferLocal[0], bufSize, MPI_BYTE, &buffer[0], bufSize, MPI_BYTE, MPI_COMM_WORLD, &request);
@@ -210,27 +205,27 @@ void allgatherDerivatives(Tensor *tensor, ByteBuffer &buffer, ByteBuffer &buffer
 
 void trainModel()
 {
-    TensorPtr wTensor[nLayers];                                 // tensors of weights of each layer
-    TensorPtr bTensor[nLayers];                                 // tensors of biases of each layer
-    SharedPtr<ObjFunction> wObjFunc[nLayers];                   // objective functions associated with weight derivatives
-    SharedPtr<ObjFunction> bObjFunc[nLayers];                   // objective functions associated with bias derivatives
-    optimization_solver::sgd::Batch<> wSolver[nLayers];    // optimization solvers associated with weights of each layer
-    optimization_solver::sgd::Batch<> bSolver[nLayers];    // optimization solvers associated with biases of each layer
+    TensorPtr wTensor[nLayers];                         // tensors of weights of each layer
+    TensorPtr bTensor[nLayers];                         // tensors of biases of each layer
+    SharedPtr<ObjFunction> wObjFunc[nLayers];           // objective functions associated with weight derivatives
+    SharedPtr<ObjFunction> bObjFunc[nLayers];           // objective functions associated with bias derivatives
+    optimization_solver::sgd::Batch<> wSolver[nLayers]; // optimization solvers associated with weights of each layer
+    optimization_solver::sgd::Batch<> bSolver[nLayers]; // optimization solvers associated with biases of each layer
 
     /* Set input arguments for the optimization solvers */
     for (size_t l = 0; l < nLayers; l++)
     {
-        layers::forward::Input *fwdInput = trainingModel->getForwardLayer(l)->getLayerInput();
-        wTensor[l] = fwdInput->get(layers::forward::weights);
-        bTensor[l] = fwdInput->get(layers::forward::biases);
+        layers::forward::Input * fwdInput = trainingModel->getForwardLayer(l)->getLayerInput();
+        wTensor[l]                        = fwdInput->get(layers::forward::weights);
+        bTensor[l]                        = fwdInput->get(layers::forward::biases);
         initializeOptimizationSolver(wSolver[l], wObjFunc[l], wTensor[l]);
         initializeOptimizationSolver(bSolver[l], bObjFunc[l], bTensor[l]);
     }
 
-    ByteBuffer wDerBuffersLocal[nLayers];   // buffer for serialized weight derivatives on local node
-    ByteBuffer bDerBuffersLocal[nLayers];   // buffer for serialized bias derivatives on local node
-    ByteBuffer wDerBuffers[nLayers];        // buffer for serialized weight derivatives from all nodes
-    ByteBuffer bDerBuffers[nLayers];        // buffer for serialized bias derivatives from all nodes
+    ByteBuffer wDerBuffersLocal[nLayers]; // buffer for serialized weight derivatives on local node
+    ByteBuffer bDerBuffersLocal[nLayers]; // buffer for serialized bias derivatives on local node
+    ByteBuffer wDerBuffers[nLayers];      // buffer for serialized weight derivatives from all nodes
+    ByteBuffer bDerBuffers[nLayers];      // buffer for serialized bias derivatives from all nodes
 
     std::vector<MPI_Request> wDerRequests(nLayers, MPI_REQUEST_NULL);
     std::vector<MPI_Request> bDerRequests(nLayers, MPI_REQUEST_NULL);
@@ -241,7 +236,7 @@ void trainModel()
     {
         /* Pass a training data set and dependent values to the algorithm */
         setNextBatchToModel(*trainingModel, getNextSubtensor(trainingData, i, batchSizeLocal),
-                                            getNextSubtensor(trainingGroundTruth, i, batchSizeLocal));
+                            getNextSubtensor(trainingGroundTruth, i, batchSizeLocal));
         /* FORWARD PASS */
         for (size_t l = 0; l < nLayers; l++)
         {
@@ -263,8 +258,8 @@ void trainModel()
 
             /* Start derivatives gathering on all nodes */
             layers::backward::ResultPtr layerResult = layer->getLayerResult();
-            TensorPtr wDerTensor = layerResult->get(layers::backward::weightDerivatives);
-            TensorPtr bDerTensor = layerResult->get(layers::backward::biasDerivatives);
+            TensorPtr wDerTensor                    = layerResult->get(layers::backward::weightDerivatives);
+            TensorPtr bDerTensor                    = layerResult->get(layers::backward::biasDerivatives);
 
             allgatherDerivatives(wDerTensor.get(), wDerBuffers[l], wDerBuffersLocal[l], wDerRequests[l]);
             allgatherDerivatives(bDerTensor.get(), bDerBuffers[l], bDerBuffersLocal[l], bDerRequests[l]);
@@ -310,7 +305,7 @@ void printResults()
     /* Read testing ground truth from a .csv file and create a tensor to store the data */
     TensorPtr predictionGroundTruth = readTensorFromCSV(testGroundTruthFile);
 
-    printTensors<int, float>(predictionGroundTruth, predictionResult->get(prediction::prediction),
-                             "Ground truth", "Neural network predictions: each class probability",
+    printTensors<int, float>(predictionGroundTruth, predictionResult->get(prediction::prediction), "Ground truth",
+                             "Neural network predictions: each class probability",
                              "Neural network classification results (first 20 observations):", 20);
 }

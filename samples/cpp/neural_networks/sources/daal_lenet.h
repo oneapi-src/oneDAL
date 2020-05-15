@@ -23,7 +23,7 @@
 training::TopologyPtr configureNet()
 {
     /* convolution: 3x3@32 + 1x1s */
-    SharedPtr<convolution2d::Batch<> > convolution1(new convolution2d::Batch<>() );
+    SharedPtr<convolution2d::Batch<> > convolution1(new convolution2d::Batch<>());
     convolution1->parameter.kernelSizes        = convolution2d::KernelSizes(3, 3);
     convolution1->parameter.strides            = convolution2d::Strides(1, 1);
     convolution1->parameter.nKernels           = 32;
@@ -68,14 +68,21 @@ training::TopologyPtr configureNet()
 
     /* Create LeNet Topology */
     training::TopologyPtr topology(new training::Topology());
-    const size_t conv1 = topology->add( convolution1    );
-    const size_t pool1 = topology->add( maxpooling1     );  topology->get( conv1 ).addNext( pool1 );
-    const size_t conv2 = topology->add( convolution2    );  topology->get( pool1 ).addNext( conv2 );
-    const size_t pool2 = topology->add( maxpooling2     );  topology->get( conv2 ).addNext( pool2 );
-    const size_t fc3   = topology->add( fullyconnected3 );  topology->get( pool2 ).addNext( fc3   );
-    const size_t r3    = topology->add( relu3           );  topology->get( fc3   ).addNext( r3    );
-    const size_t fc4   = topology->add( fullyconnected4 );  topology->get( r3    ).addNext( fc4   );
-    const size_t sm1   = topology->add( softmax         );  topology->get( fc4   ).addNext( sm1   );
+    const size_t conv1 = topology->add(convolution1);
+    const size_t pool1 = topology->add(maxpooling1);
+    topology->get(conv1).addNext(pool1);
+    const size_t conv2 = topology->add(convolution2);
+    topology->get(pool1).addNext(conv2);
+    const size_t pool2 = topology->add(maxpooling2);
+    topology->get(conv2).addNext(pool2);
+    const size_t fc3 = topology->add(fullyconnected3);
+    topology->get(pool2).addNext(fc3);
+    const size_t r3 = topology->add(relu3);
+    topology->get(fc3).addNext(r3);
+    const size_t fc4 = topology->add(fullyconnected4);
+    topology->get(r3).addNext(fc4);
+    const size_t sm1 = topology->add(softmax);
+    topology->get(fc4).addNext(sm1);
     return topology;
 }
 

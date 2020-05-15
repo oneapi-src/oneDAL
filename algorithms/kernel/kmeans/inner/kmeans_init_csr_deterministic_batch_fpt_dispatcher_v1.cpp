@@ -29,5 +29,5 @@ namespace daal
 namespace algorithms
 {
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER_KM(kmeans::init::interface1::BatchContainer, batch, DAAL_FPTYPE, kmeans::init::deterministicCSR)
-} // namespace daal::algorithms
+} // namespace algorithms
 } // namespace daal

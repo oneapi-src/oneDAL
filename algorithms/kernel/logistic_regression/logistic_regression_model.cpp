@@ -35,7 +35,6 @@ namespace algorithms
 {
 namespace logistic_regression
 {
-
 namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS2(Model, internal::ModelImpl, SERIALIZATION_LOGISTIC_REGRESSION_MODEL_ID);
@@ -43,10 +42,7 @@ __DAAL_REGISTER_SERIALIZATION_CLASS2(Model, internal::ModelImpl, SERIALIZATION_L
 
 namespace internal
 {
-
-ModelImpl::ModelImpl(size_t nFeatures, bool interceptFlag) : ClassificationImplType(nFeatures), _interceptFlag(interceptFlag)
-{
-}
+ModelImpl::ModelImpl(size_t nFeatures, bool interceptFlag) : ClassificationImplType(nFeatures), _interceptFlag(interceptFlag) {}
 
 size_t ModelImpl::getNumberOfBetas() const
 {
@@ -70,18 +66,17 @@ const data_management::NumericTablePtr ModelImpl::getBeta() const
 
 services::Status ModelImpl::reset(bool interceptFlag)
 {
-    _interceptFlag = interceptFlag;
+    _interceptFlag     = interceptFlag;
     const size_t nRows = _beta->getNumberOfRows();
     daal::internal::WriteOnlyRows<float, sse2> rows(*_beta, 0, nRows);
     DAAL_CHECK_BLOCK_STATUS(rows);
-    float *ar = rows.get();
+    float * ar         = rows.get();
     const size_t nCols = _beta->getNumberOfColumns();
-    for(size_t i = 0; i < nCols * nRows; i++)
-        ar[i] = 0.0f;
+    for (size_t i = 0; i < nCols * nRows; i++) ar[i] = 0.0f;
     return services::Status();
 }
 
-services::Status ModelImpl::serializeImpl(data_management::InputDataArchive  * arch)
+services::Status ModelImpl::serializeImpl(data_management::InputDataArchive * arch)
 {
     auto s = algorithms::classifier::Model::serialImpl<data_management::InputDataArchive, false>(arch);
     return s.add(this->serialImpl<data_management::InputDataArchive, false>(arch));
@@ -93,11 +88,10 @@ services::Status ModelImpl::deserializeImpl(const data_management::OutputDataArc
     return s.add(this->serialImpl<const data_management::OutputDataArchive, true>(arch));
 }
 
-logistic_regression::ModelPtr ModelImpl::create(size_t nFeatures, bool interceptFlag, services::Status *stat)
+logistic_regression::ModelPtr ModelImpl::create(size_t nFeatures, bool interceptFlag, services::Status * stat)
 {
     logistic_regression::ModelPtr pRes(new logistic_regression::internal::ModelImpl(nFeatures, interceptFlag));
-    if((!pRes.get()) && stat)
-        stat->add(services::ErrorMemoryAllocationFailed);
+    if ((!pRes.get()) && stat) stat->add(services::ErrorMemoryAllocationFailed);
     return pRes;
 }
 

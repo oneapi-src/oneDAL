@@ -40,8 +40,7 @@ namespace interface1
 /**
 *  Constructs parameters of the logistic cross-entropy layer
 */
-Parameter::Parameter()
-{};
+Parameter::Parameter() {};
 
 /**
  * Checks the correctness of the parameter
@@ -51,10 +50,10 @@ services::Status Parameter::check() const
     return services::Status();
 }
 
-}// namespace interface1
-}// namespace logistic_cross
-}// namespace loss
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace logistic_cross
+} // namespace loss
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

@@ -39,14 +39,13 @@ namespace prediction
 {
 namespace interface1
 {
-
 using namespace daal::data_management;
 using namespace daal::services;
 
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_DECISION_TREE_REGRESSION_PREDICTION_RESULT_ID);
 
 Input::Input() : algorithms::regression::prediction::Input(lastModelInputId + 1) {}
-Input::Input(const Input &other) : algorithms::regression::prediction::Input(other) {}
+Input::Input(const Input & other) : algorithms::regression::prediction::Input(other) {}
 
 NumericTablePtr Input::get(NumericTableInputId id) const
 {
@@ -80,7 +79,7 @@ NumericTablePtr Result::get(ResultId id) const
     return algorithms::regression::prediction::Result::get(algorithms::regression::prediction::ResultId(id));
 }
 
-void Result::set(ResultId id, const NumericTablePtr &value)
+void Result::set(ResultId id, const NumericTablePtr & value)
 {
     algorithms::regression::prediction::Result::set(algorithms::regression::prediction::ResultId(id), value);
 }

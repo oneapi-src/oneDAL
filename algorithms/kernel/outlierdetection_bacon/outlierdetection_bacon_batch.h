@@ -36,7 +36,6 @@ namespace bacon_outlier_detection
 {
 namespace interface1
 {
-
 /**
  * Allocates memory to store the results of the multivariate outlier detection algorithm
  * \tparam algorithmFPType  Data type to use for storing results, double or float
@@ -45,11 +44,11 @@ namespace interface1
  * \param[in] method  Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status s;
-    Input *algInput = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
-    size_t nVectors = algInput->get(data)->getNumberOfRows();
+    Input * algInput = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
+    size_t nVectors  = algInput->get(data)->getNumberOfRows();
     set(weights, HomogenNumericTable<algorithmFPType>::create(1, nVectors, NumericTable::doAllocate, &s));
     return s;
 }

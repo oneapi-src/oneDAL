@@ -31,7 +31,6 @@ namespace distributions
 {
 namespace uniform
 {
-
 namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

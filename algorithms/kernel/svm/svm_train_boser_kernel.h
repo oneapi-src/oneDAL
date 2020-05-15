@@ -46,14 +46,11 @@ namespace training
 {
 namespace internal
 {
-
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 struct SVMTrainImpl<boser, algorithmFPType, ParameterType, cpu> : public Kernel
 {
-    services::Status compute(const NumericTablePtr& xTable, NumericTable& yTable, daal::algorithms::Model *r,
-                             const ParameterType *par);
+    services::Status compute(const NumericTablePtr & xTable, NumericTable & yTable, daal::algorithms::Model * r, const ParameterType * par);
 };
-
 
 } // namespace internal
 

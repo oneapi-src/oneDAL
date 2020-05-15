@@ -45,8 +45,7 @@ namespace interface1
 *  \param[in] accuracyThreshold_  Value needed to avoid degenerate cases in logarithm computing
 *  \param[in] dimension_          Dimension index to calculate softmax cross-entropy
 */
-Parameter::Parameter(const double accuracyThreshold_, size_t dimension_) : accuracyThreshold(accuracyThreshold_), dimension(dimension_)
-{};
+Parameter::Parameter(const double accuracyThreshold_, size_t dimension_) : accuracyThreshold(accuracyThreshold_), dimension(dimension_) {};
 
 /**
  * Checks the correctness of the parameter
@@ -57,10 +56,10 @@ services::Status Parameter::check() const
     return services::Status();
 }
 
-}// namespace interface1
-}// namespace softmax_cross
-}// namespace loss
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace softmax_cross
+} // namespace loss
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

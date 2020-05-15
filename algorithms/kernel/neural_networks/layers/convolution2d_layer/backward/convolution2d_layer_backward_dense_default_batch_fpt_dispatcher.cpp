@@ -19,7 +19,6 @@
 //  Implementation of convolution2d calculation algorithm container.
 //--
 
-
 #include "convolution2d_layer_backward_batch_container.h"
 
 namespace daal

@@ -37,21 +37,18 @@ namespace pca
 {
 namespace internal
 {
-
 template <typename algorithmFPType, CpuType cpu>
 class PCACorrelationKernel<distributed, algorithmFPType, cpu> : public PCACorrelationBase<algorithmFPType, cpu>
 {
 public:
     explicit PCACorrelationKernel() {};
 
-    services::Status compute(DistributedInput<correlationDense> *input,
-                 PartialResult<correlationDense> *partialResult,
-        const DistributedParameter<step2Master, algorithmFPType, correlationDense> *parameter);
+    services::Status compute(DistributedInput<correlationDense> * input, PartialResult<correlationDense> * partialResult,
+                             const DistributedParameter<step2Master, algorithmFPType, correlationDense> * parameter);
 
-    services::Status finalize(PartialResult<correlationDense> *partialResult,
-        const DistributedParameter<step2Master, algorithmFPType, correlationDense> *parameter,
-        data_management::NumericTable& eigenvectors,
-        data_management::NumericTable& eigenvalues);
+    services::Status finalize(PartialResult<correlationDense> * partialResult,
+                              const DistributedParameter<step2Master, algorithmFPType, correlationDense> * parameter,
+                              data_management::NumericTable & eigenvectors, data_management::NumericTable & eigenvalues);
 };
 
 } // namespace internal

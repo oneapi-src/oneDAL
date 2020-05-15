@@ -46,7 +46,6 @@ using namespace daal::data_management;
 using namespace daal::services;
 using namespace daal::algorithms::linear_model::normal_equations::training::internal;
 
-
 template <typename algorithmFPType, training::Method method, CpuType cpu>
 class BatchKernel
 {};
@@ -55,28 +54,30 @@ template <typename algorithmFPType, CpuType cpu>
 class KernelHelper : public KernelHelperIface<algorithmFPType, cpu>
 {
 public:
-    Status computeBetasImpl(DAAL_INT p, const algorithmFPType *a,algorithmFPType *aCopy,
-                            DAAL_INT ny, algorithmFPType *b, bool inteceptFlag) const;
+    Status computeBetasImpl(DAAL_INT p, const algorithmFPType * a, algorithmFPType * aCopy, DAAL_INT ny, algorithmFPType * b,
+                            bool inteceptFlag) const;
 };
 
 template <typename algorithmFPType, CpuType cpu>
 class BatchKernel<algorithmFPType, training::normEqDense, cpu> : public daal::algorithms::Kernel
 {
-    typedef linear_model::normal_equations::training::internal::UpdateKernel <algorithmFPType, cpu>     UpdateKernelType;
-    typedef linear_model::normal_equations::training::internal::FinalizeKernel<algorithmFPType, cpu>    FinalizeKernelType;
+    typedef linear_model::normal_equations::training::internal::UpdateKernel<algorithmFPType, cpu> UpdateKernelType;
+    typedef linear_model::normal_equations::training::internal::FinalizeKernel<algorithmFPType, cpu> FinalizeKernelType;
+
 public:
-    Status compute(const NumericTable &x, const NumericTable &y, NumericTable &xtx,
-                   NumericTable &xty, NumericTable &beta, bool interceptFlag) const;
+    Status compute(const NumericTable & x, const NumericTable & y, NumericTable & xtx, NumericTable & xty, NumericTable & beta,
+                   bool interceptFlag) const;
 };
 
 template <typename algorithmFPType, CpuType cpu>
 class BatchKernel<algorithmFPType, training::qrDense, cpu> : public daal::algorithms::Kernel
 {
-    typedef linear_model::qr::training::internal::UpdateKernel <algorithmFPType, cpu>     UpdateKernelType;
-    typedef linear_model::qr::training::internal::FinalizeKernel<algorithmFPType, cpu>    FinalizeKernelType;
+    typedef linear_model::qr::training::internal::UpdateKernel<algorithmFPType, cpu> UpdateKernelType;
+    typedef linear_model::qr::training::internal::FinalizeKernel<algorithmFPType, cpu> FinalizeKernelType;
+
 public:
-    Status compute(const NumericTable &x, const NumericTable &y, NumericTable &r,
-                   NumericTable &qty, NumericTable &beta, bool interceptFlag) const;
+    Status compute(const NumericTable & x, const NumericTable & y, NumericTable & r, NumericTable & qty, NumericTable & beta,
+                   bool interceptFlag) const;
 };
 
 template <typename algorithmFPType, training::Method method, CpuType cpu>
@@ -86,27 +87,26 @@ class OnlineKernel
 template <typename algorithmFPType, CpuType cpu>
 class OnlineKernel<algorithmFPType, training::normEqDense, cpu> : public daal::algorithms::Kernel
 {
-    typedef linear_model::normal_equations::training::internal::UpdateKernel <algorithmFPType, cpu>     UpdateKernelType;
-    typedef linear_model::normal_equations::training::internal::FinalizeKernel<algorithmFPType, cpu>    FinalizeKernelType;
+    typedef linear_model::normal_equations::training::internal::UpdateKernel<algorithmFPType, cpu> UpdateKernelType;
+    typedef linear_model::normal_equations::training::internal::FinalizeKernel<algorithmFPType, cpu> FinalizeKernelType;
+
 public:
-    Status compute(const NumericTable &x, const NumericTable &y, NumericTable &xtx, NumericTable &xty,
-                   bool interceptFlag) const;
-    Status finalizeCompute(const NumericTable &xtx, const NumericTable &xty, NumericTable &xtxFinal, NumericTable &xtyFinal,
-                           NumericTable &beta, bool interceptFlag) const;
+    Status compute(const NumericTable & x, const NumericTable & y, NumericTable & xtx, NumericTable & xty, bool interceptFlag) const;
+    Status finalizeCompute(const NumericTable & xtx, const NumericTable & xty, NumericTable & xtxFinal, NumericTable & xtyFinal, NumericTable & beta,
+                           bool interceptFlag) const;
 };
 
 template <typename algorithmFPType, CpuType cpu>
 class OnlineKernel<algorithmFPType, training::qrDense, cpu> : public daal::algorithms::Kernel
 {
-    typedef linear_model::qr::training::internal::UpdateKernel <algorithmFPType, cpu>     UpdateKernelType;
-    typedef linear_model::qr::training::internal::FinalizeKernel<algorithmFPType, cpu>    FinalizeKernelType;
-public:
-    Status compute(const NumericTable &x, const NumericTable &y, NumericTable &r, NumericTable &qty,
-                   bool interceptFlag) const;
-    Status finalizeCompute(const NumericTable &r, const NumericTable &qty, NumericTable &rFinal,
-                           NumericTable &qtyFinal, NumericTable &beta, bool interceptFlag) const;
-};
+    typedef linear_model::qr::training::internal::UpdateKernel<algorithmFPType, cpu> UpdateKernelType;
+    typedef linear_model::qr::training::internal::FinalizeKernel<algorithmFPType, cpu> FinalizeKernelType;
 
+public:
+    Status compute(const NumericTable & x, const NumericTable & y, NumericTable & r, NumericTable & qty, bool interceptFlag) const;
+    Status finalizeCompute(const NumericTable & r, const NumericTable & qty, NumericTable & rFinal, NumericTable & qtyFinal, NumericTable & beta,
+                           bool interceptFlag) const;
+};
 
 template <typename algorithmFPType, training::Method method, CpuType cpu>
 class DistributedKernel
@@ -115,31 +115,31 @@ class DistributedKernel
 template <typename algorithmFPType, CpuType cpu>
 class DistributedKernel<algorithmFPType, training::normEqDense, cpu> : public daal::algorithms::Kernel
 {
-    typedef linear_model::normal_equations::training::internal::MergeKernel   <algorithmFPType, cpu>    MergeKernelType;
-    typedef linear_model::normal_equations::training::internal::FinalizeKernel<algorithmFPType, cpu>    FinalizeKernelType;
+    typedef linear_model::normal_equations::training::internal::MergeKernel<algorithmFPType, cpu> MergeKernelType;
+    typedef linear_model::normal_equations::training::internal::FinalizeKernel<algorithmFPType, cpu> FinalizeKernelType;
+
 public:
-    Status compute(size_t n, NumericTable **partialxtx, NumericTable **partialxty,
-                   NumericTable &xtx, NumericTable &xty) const;
-    Status finalizeCompute(const NumericTable &xtx, const NumericTable &xty, NumericTable &xtxFinal, NumericTable &xtyFinal,
-                           NumericTable &beta, bool interceptFlag) const;
+    Status compute(size_t n, NumericTable ** partialxtx, NumericTable ** partialxty, NumericTable & xtx, NumericTable & xty) const;
+    Status finalizeCompute(const NumericTable & xtx, const NumericTable & xty, NumericTable & xtxFinal, NumericTable & xtyFinal, NumericTable & beta,
+                           bool interceptFlag) const;
 };
 
 template <typename algorithmFPType, CpuType cpu>
 class DistributedKernel<algorithmFPType, training::qrDense, cpu> : public daal::algorithms::Kernel
 {
-    typedef linear_model::qr::training::internal::MergeKernel   <algorithmFPType, cpu>    MergeKernelType;
-    typedef linear_model::qr::training::internal::FinalizeKernel<algorithmFPType, cpu>    FinalizeKernelType;
+    typedef linear_model::qr::training::internal::MergeKernel<algorithmFPType, cpu> MergeKernelType;
+    typedef linear_model::qr::training::internal::FinalizeKernel<algorithmFPType, cpu> FinalizeKernelType;
+
 public:
-    Status compute(size_t n, NumericTable **partialr, NumericTable **partialqty,
-                   NumericTable &r, NumericTable &qty) const;
-    Status finalizeCompute(const NumericTable &r, const NumericTable &qty, NumericTable &rFinal,
-                           NumericTable &qtyFinal, NumericTable &beta, bool interceptFlag) const;
+    Status compute(size_t n, NumericTable ** partialr, NumericTable ** partialqty, NumericTable & r, NumericTable & qty) const;
+    Status finalizeCompute(const NumericTable & r, const NumericTable & qty, NumericTable & rFinal, NumericTable & qtyFinal, NumericTable & beta,
+                           bool interceptFlag) const;
 };
 
-} // internal
-} // training
-} // linear_regression
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace training
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal
 
 #endif

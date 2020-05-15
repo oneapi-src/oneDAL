@@ -19,7 +19,6 @@
 //  Implementation of backward pooling layer.
 //--
 
-
 #include "average_pooling3d_layer_backward_batch_container.h"
 #include "average_pooling3d_layer_backward_kernel.h"
 #include "average_pooling3d_layer_backward_impl.i"
@@ -34,21 +33,20 @@ namespace layers
 {
 namespace average_pooling3d
 {
-
 namespace backward
 {
 namespace interface1
 {
 template class neural_networks::layers::average_pooling3d::backward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 namespace internal
 {
 template class PoolingKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
-} // backward
+} // namespace internal
+} // namespace backward
 
-}
-}
-}
-}
-}
+} // namespace average_pooling3d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

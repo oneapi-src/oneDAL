@@ -37,7 +37,6 @@ namespace training
 {
 namespace interface2
 {
-
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_MULTICLASS_ADABOOST_TRAINING_RESULT_ID);
 
 Result::Result() : classifier::training::Result(lastResultNumericTableId + 1) {}
@@ -47,7 +46,7 @@ NumericTablePtr Result::get(ResultNumericTableId id) const
     return staticPointerCast<NumericTable, SerializationIface>(Argument::get(id));
 }
 
-void Result::set(ResultNumericTableId id, const NumericTablePtr &value)
+void Result::set(ResultNumericTableId id, const NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
@@ -57,15 +56,15 @@ daal::algorithms::adaboost::ModelPtr Result::get(classifier::training::ResultId 
     return staticPointerCast<daal::algorithms::adaboost::Model, SerializationIface>(Argument::get(id));
 }
 
-void Result::set(classifier::training::ResultId id, const ModelPtr &value)
+void Result::set(classifier::training::ResultId id, const ModelPtr & value)
 {
     Argument::set(id, value);
 }
 
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     Status s = classifier::training::Result::check(input, parameter, method);
-    if(!s) return s;
+    if (!s) return s;
     daal::algorithms::adaboost::ModelPtr m = get(classifier::training::model);
     DAAL_CHECK(m->getAlpha(), ErrorModelNotFullInitialized);
     return s;

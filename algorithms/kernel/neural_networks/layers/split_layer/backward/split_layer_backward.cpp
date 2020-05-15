@@ -78,10 +78,10 @@ LayerDataPtr Input::get(InputLayerDataId id) const
  * \param[in] value  Pointer to the input object
  * \param[in] index  Index of the tensor to be set
  */
-void Input::set(InputLayerDataId id, const TensorPtr &value, size_t index)
+void Input::set(InputLayerDataId id, const TensorPtr & value, size_t index)
 {
     layers::LayerDataPtr layerData = get(id);
-    (*layerData)[index] = value;
+    (*layerData)[index]            = value;
 }
 
 /**
@@ -89,7 +89,7 @@ void Input::set(InputLayerDataId id, const TensorPtr &value, size_t index)
 * \param[in] id    Identifier of the input object
 * \param[in] ptr   Pointer to the object
 */
-void Input::set(InputLayerDataId id, const LayerDataPtr &ptr)
+void Input::set(InputLayerDataId id, const LayerDataPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -101,11 +101,11 @@ void Input::set(InputLayerDataId id, const LayerDataPtr &ptr)
  *
  * \return Status of computations
  */
-Status Input::addInputGradient(const TensorPtr &igTensor, size_t index)
+Status Input::addInputGradient(const TensorPtr & igTensor, size_t index)
 {
     LayerDataPtr layerData = get(inputGradientCollection);
 
-    const size_t nInputs = layerData->size();
+    const size_t nInputs    = layerData->size();
     (*(layerData))[nInputs] = igTensor;
     set(inputGradientCollection, layerData);
 
@@ -128,21 +128,24 @@ Status Input::setInputFromForward(layers::forward::ResultPtr result)
  *
  * \return Status of computations
  */
-Status Input::check(const daal::algorithms::Parameter *par, int method) const
+Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
-    const Parameter *parameter = static_cast<const Parameter *>(par);
-    if (!parameter->propagateGradient) { return Status(); }
+    const Parameter * parameter = static_cast<const Parameter *>(par);
+    if (!parameter->propagateGradient)
+    {
+        return Status();
+    }
 
     DAAL_CHECK(Argument::size() == 2, ErrorIncorrectNumberOfInputNumericTables);
 
     LayerDataPtr layerData = get(inputGradientCollection);
-    const size_t nInputs = parameter->nInputs;
+    const size_t nInputs   = parameter->nInputs;
 
     DAAL_CHECK(layerData->size() == nInputs, ErrorIncorrectSizeOfLayerData);
     TensorPtr inputTensor0 = get(inputGradientCollection, 0);
 
     Status s = checkTensor(inputTensor0.get(), inputGradientCollectionStr());
-    if(!s)
+    if (!s)
     {
         auto e = Error::create(ErrorSplitLayerBackward, ArgumentName, inputGradientCollectionStr());
         e->addIntDetail(ElementInCollection, 0);
@@ -150,7 +153,7 @@ Status Input::check(const daal::algorithms::Parameter *par, int method) const
         return s1.add(s);
     }
 
-    const Collection<size_t> &dims0 = inputTensor0->getDimensions();
+    const Collection<size_t> & dims0 = inputTensor0->getDimensions();
 
     for (size_t i = 1; i < nInputs; i++)
     {
@@ -170,9 +173,12 @@ Status Input::check(const daal::algorithms::Parameter *par, int method) const
 * Returns the layout of the input object for the layer algorithm
 * \return Layout of the input object for the layer algorithm
 */
-LayerInputLayout Input::getLayout() const { return collectionInput; }
+LayerInputLayout Input::getLayout() const
+{
+    return collectionInput;
+}
 
-    /** \brief Default constructor */
+/** \brief Default constructor */
 Result::Result() : layers::backward::Result() {};
 
 /**
@@ -183,25 +189,28 @@ Result::Result() : layers::backward::Result() {};
  *
  * \return Status of computations
  */
-Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
-    const Parameter *parameter = static_cast<const Parameter *>(par);
-    if (!parameter->propagateGradient) { return Status(); }
+    const Parameter * parameter = static_cast<const Parameter *>(par);
+    if (!parameter->propagateGradient)
+    {
+        return Status();
+    }
 
-    const Input *algInput = static_cast<const Input *>(input);
+    const Input * algInput = static_cast<const Input *>(input);
 
     DAAL_CHECK(Argument::size() == 4, ErrorIncorrectNumberOfInputNumericTables);
 
-    TensorPtr inputTensor = algInput->get(inputGradientCollection, 0);
-    const Collection<size_t> &dims = inputTensor->getDimensions();
+    TensorPtr inputTensor           = algInput->get(inputGradientCollection, 0);
+    const Collection<size_t> & dims = inputTensor->getDimensions();
 
     return checkTensor(get(layers::backward::gradient).get(), gradientStr(), &dims);
 }
 
-}// namespace interface1
-}// namespace backward
-}// namespace split
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace split
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

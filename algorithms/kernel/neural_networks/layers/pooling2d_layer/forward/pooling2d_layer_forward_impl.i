@@ -49,33 +49,27 @@ namespace internal
 /**
  *  \brief Kernel for forward 2D pooling layer results computation
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class PoolingKernel : public Kernel
 {
 protected:
-    void defaultCompute(const pooling2d::internal::Parameter &parameter,
-                const algorithmFPType *data, algorithmFPType *value, int *selectedPos);
+    void defaultCompute(const pooling2d::internal::Parameter & parameter, const algorithmFPType * data, algorithmFPType * value, int * selectedPos);
 
-    virtual void defaultInnerLoop(const pooling2d::internal::Parameter &par,
-                DAAL_INT i, DAAL_INT f, DAAL_INT k, DAAL_INT s, DAAL_INT j,
-                const algorithmFPType *data, algorithmFPType *valuePtr, int *selectedPosPtr) = 0;
+    virtual void defaultInnerLoop(const pooling2d::internal::Parameter & par, DAAL_INT i, DAAL_INT f, DAAL_INT k, DAAL_INT s, DAAL_INT j,
+                                  const algorithmFPType * data, algorithmFPType * valuePtr, int * selectedPosPtr) = 0;
 
-    void defaultCompute(const pooling2d::internal::Parameter &parameter,
-                const algorithmFPType *data, algorithmFPType *value);
+    void defaultCompute(const pooling2d::internal::Parameter & parameter, const algorithmFPType * data, algorithmFPType * value);
 
-    virtual void defaultInnerLoop(const pooling2d::internal::Parameter &par,
-                DAAL_INT i, DAAL_INT f, DAAL_INT k, DAAL_INT s, DAAL_INT j,
-                const algorithmFPType *data, algorithmFPType *valuePtr) = 0;
+    virtual void defaultInnerLoop(const pooling2d::internal::Parameter & par, DAAL_INT i, DAAL_INT f, DAAL_INT k, DAAL_INT s, DAAL_INT j,
+                                  const algorithmFPType * data, algorithmFPType * valuePtr) = 0;
 };
 
-template<typename algorithmFPType, CpuType cpu>
-void PoolingKernel<algorithmFPType, cpu>::defaultCompute(
-            const pooling2d::internal::Parameter &par,
-            const algorithmFPType *data, algorithmFPType *value, int *selectedPos)
+template <typename algorithmFPType, CpuType cpu>
+void PoolingKernel<algorithmFPType, cpu>::defaultCompute(const pooling2d::internal::Parameter & par, const algorithmFPType * data,
+                                                         algorithmFPType * value, int * selectedPos)
 {
     const algorithmFPType zero = 0.0;
-    threader_for(par.offsetBefore, par.offsetBefore, [&](DAAL_INT i)
-    {
+    threader_for(par.offsetBefore, par.offsetBefore, [&](DAAL_INT i) {
         /*
          * Loop by the first kernel dimension
          * f - index of the left upper corner of the kernel
@@ -92,9 +86,9 @@ void PoolingKernel<algorithmFPType, cpu>::defaultCompute(
                  */
                 for (DAAL_INT s = -par.secondPadding, so = 0; so < par.secondOutSize; s += par.secondStride, so++)
                 {
-                    DAAL_INT valueIndex = par.offsetAfter * (so + par.secondOutSize * (k + par.offsetBetween * (fo + par.firstOutSize * i)));
-                    algorithmFPType *valuePtr = value + valueIndex;
-                    int *selectedPosPtr = selectedPos + valueIndex;
+                    DAAL_INT valueIndex        = par.offsetAfter * (so + par.secondOutSize * (k + par.offsetBetween * (fo + par.firstOutSize * i)));
+                    algorithmFPType * valuePtr = value + valueIndex;
+                    int * selectedPosPtr       = selectedPos + valueIndex;
                     for (DAAL_INT j = 0; j < par.offsetAfter; j++)
                     {
                         defaultInnerLoop(par, i, f, k, s, j, data, valuePtr, selectedPosPtr);
@@ -102,17 +96,15 @@ void PoolingKernel<algorithmFPType, cpu>::defaultCompute(
                 }
             }
         }
-    } );
+    });
 }
 
-template<typename algorithmFPType, CpuType cpu>
-void PoolingKernel<algorithmFPType, cpu>::defaultCompute(
-            const pooling2d::internal::Parameter &par,
-            const algorithmFPType *data, algorithmFPType *value)
+template <typename algorithmFPType, CpuType cpu>
+void PoolingKernel<algorithmFPType, cpu>::defaultCompute(const pooling2d::internal::Parameter & par, const algorithmFPType * data,
+                                                         algorithmFPType * value)
 {
     const algorithmFPType zero = 0.0;
-    threader_for(par.offsetBefore, par.offsetBefore, [&](DAAL_INT i)
-    {
+    threader_for(par.offsetBefore, par.offsetBefore, [&](DAAL_INT i) {
         /*
          * Loop by the first kernel dimension
          * f - index of the left upper corner of the kernel
@@ -129,8 +121,8 @@ void PoolingKernel<algorithmFPType, cpu>::defaultCompute(
                  */
                 for (DAAL_INT s = -par.secondPadding, so = 0; so < par.secondOutSize; s += par.secondStride, so++)
                 {
-                    DAAL_INT valueIndex = par.offsetAfter * (so + par.secondOutSize * (k + par.offsetBetween * (fo + par.firstOutSize * i)));
-                    algorithmFPType *valuePtr = value + valueIndex;
+                    DAAL_INT valueIndex        = par.offsetAfter * (so + par.secondOutSize * (k + par.offsetBetween * (fo + par.firstOutSize * i)));
+                    algorithmFPType * valuePtr = value + valueIndex;
                     for (DAAL_INT j = 0; j < par.offsetAfter; j++)
                     {
                         defaultInnerLoop(par, i, f, k, s, j, data, valuePtr);
@@ -138,7 +130,7 @@ void PoolingKernel<algorithmFPType, cpu>::defaultCompute(
                 }
             }
         }
-    } );
+    });
 }
 
 } // namespace internal

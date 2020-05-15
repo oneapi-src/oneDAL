@@ -33,7 +33,6 @@ namespace regression
 {
 namespace training
 {
-
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const Parameter * parameter, int method);
 
 } // namespace training

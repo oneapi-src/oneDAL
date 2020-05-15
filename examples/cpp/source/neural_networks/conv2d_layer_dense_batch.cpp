@@ -44,7 +44,7 @@ using namespace daal::services;
 /* Input data set name */
 string datasetFileName = "../data/batch/layer.csv";
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 
@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
     printTensor(forwardResult->get(forward::value), "Two-dimensional convolution layer result (first 5 rows):", 5, 15);
     printTensor(forwardResult->get(convolution2d::auxWeights), "Two-dimensional convolution layer weights (first 5 rows):", 5, 15);
 
-    const Collection<size_t> &gDims = forwardResult->get(forward::value)->getDimensions();
+    const Collection<size_t> & gDims = forwardResult->get(forward::value)->getDimensions();
     /* Create input gradient tensor for backward two-dimensional convolution layer */
     TensorPtr tensorDataBack = TensorPtr(new HomogenTensor<>(gDims, Tensor::doAllocate, 0.01f));
 
@@ -82,8 +82,7 @@ int main(int argc, char *argv[])
 
     /* Get the computed backward two-dimensional convolution layer results */
     backward::ResultPtr backwardResult = convolution2dLayerBackward.getResult();
-    printTensor(backwardResult->get(backward::gradient),
-                "Two-dimensional convolution layer backpropagation gradient result (first 5 rows):", 5, 15);
+    printTensor(backwardResult->get(backward::gradient), "Two-dimensional convolution layer backpropagation gradient result (first 5 rows):", 5, 15);
     printTensor(backwardResult->get(backward::weightDerivatives),
                 "Two-dimensional convolution layer backpropagation weightDerivative result (first 5 rows):", 5, 15);
     printTensor(backwardResult->get(backward::biasDerivatives),

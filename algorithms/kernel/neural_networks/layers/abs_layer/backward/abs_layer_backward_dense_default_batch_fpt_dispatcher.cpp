@@ -19,7 +19,6 @@
 //  Implementation of abs layer container.
 //--
 
-
 #include "abs_layer_backward_batch_container.h"
 
 namespace daal

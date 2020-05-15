@@ -35,7 +35,6 @@ namespace qr
 {
 namespace interface1
 {
-
 /**
  * Allocates memory for storing final results of the QR decomposition algorithm
  * \param[in] input     Pointer to input object
@@ -43,9 +42,9 @@ namespace interface1
  * \param[in] method    Algorithm method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const Input *in = static_cast<const Input *>(input);
+    const Input * in = static_cast<const Input *>(input);
     return allocateImpl<algorithmFPType>(in->get(data)->getNumberOfColumns(), in->get(data)->getNumberOfRows());
 }
 
@@ -56,9 +55,9 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input, const 
  * \param[in] method         Algorithm method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::PartialResult *partialResult, daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT Status Result::allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter, const int method)
 {
-    const OnlinePartialResult *in = static_cast<const OnlinePartialResult *>(partialResult);
+    const OnlinePartialResult * in = static_cast<const OnlinePartialResult *>(partialResult);
     return allocateImpl<algorithmFPType>(in->getNumberOfColumns(), in->getNumberOfRows());
 }
 
@@ -72,7 +71,7 @@ template <typename algorithmFPType>
 DAAL_EXPORT Status Result::allocateImpl(size_t m, size_t n)
 {
     Status s;
-    if(n == 0)
+    if (n == 0)
     {
         Argument::set(matrixQ, data_management::SerializationIfacePtr());
     }
@@ -84,9 +83,9 @@ DAAL_EXPORT Status Result::allocateImpl(size_t m, size_t n)
     return s;
 }
 
-}// namespace interface1
-}// namespace qr
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace qr
+} // namespace algorithms
+} // namespace daal
 
 #endif

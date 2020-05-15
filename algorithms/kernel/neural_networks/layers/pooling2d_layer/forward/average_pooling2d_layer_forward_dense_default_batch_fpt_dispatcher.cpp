@@ -19,7 +19,6 @@
 //  Implementation of forward pooling layer container.
 //--
 
-
 #include "average_pooling2d_layer_forward_batch_container.h"
 
 namespace daal
@@ -33,9 +32,9 @@ namespace layers
 namespace forward
 {
 __DAAL_INSTANTIATE_DISPATCH_LAYER_CONTAINER_FORWARD(neural_networks::layers::average_pooling2d::forward::interface1::BatchContainer, DAAL_FPTYPE,
-                                      neural_networks::layers::average_pooling2d::defaultDense)
+                                                    neural_networks::layers::average_pooling2d::defaultDense)
 }
-}
-}
-}
-}
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

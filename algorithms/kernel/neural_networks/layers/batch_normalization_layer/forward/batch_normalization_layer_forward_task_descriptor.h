@@ -35,31 +35,30 @@ namespace forward
 {
 namespace internal
 {
-
 class BatchNormalizationTaskDescriptor
 {
 public:
-    BatchNormalizationTaskDescriptor(Input *in, Result *re, Parameter *pa);
+    BatchNormalizationTaskDescriptor(Input * in, Result * re, Parameter * pa);
 
-    data_management::Tensor *input;
-    data_management::Tensor *weights;
-    data_management::Tensor *biases;
-    data_management::Tensor *inPopMean;
-    data_management::Tensor *inPopVariance;
-    data_management::Tensor *value;
-    data_management::Tensor *auxMean;
-    data_management::Tensor *auxStd;
-    data_management::Tensor *auxPopMean;
-    data_management::Tensor *auxPopVariance;
-    Parameter *parameter;
+    data_management::Tensor * input;
+    data_management::Tensor * weights;
+    data_management::Tensor * biases;
+    data_management::Tensor * inPopMean;
+    data_management::Tensor * inPopVariance;
+    data_management::Tensor * value;
+    data_management::Tensor * auxMean;
+    data_management::Tensor * auxStd;
+    data_management::Tensor * auxPopMean;
+    data_management::Tensor * auxPopVariance;
+    Parameter * parameter;
 };
 
-} // internal
-} // forward
-} // batch_normalization
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace forward
+} // namespace batch_normalization
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

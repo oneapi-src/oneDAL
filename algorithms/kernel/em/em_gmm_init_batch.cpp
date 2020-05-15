@@ -39,17 +39,17 @@ namespace init
 {
 namespace interface1
 {
-
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_EM_GMM_INIT_RESULT_ID);
 
-Parameter::Parameter(size_t nComponents, size_t nTrials, size_t nIterations, size_t seed, double accuracyThreshold, em_gmm::CovarianceStorageId covarianceStorage) :
-    nComponents(nComponents),
-    nTrials(nTrials),
-    nIterations(nIterations),
-    seed(seed),
-    accuracyThreshold(accuracyThreshold),
-    covarianceStorage(covarianceStorage),
-    engine(engines::mt19937::Batch<>::create())
+Parameter::Parameter(size_t nComponents, size_t nTrials, size_t nIterations, size_t seed, double accuracyThreshold,
+                     em_gmm::CovarianceStorageId covarianceStorage)
+    : nComponents(nComponents),
+      nTrials(nTrials),
+      nIterations(nIterations),
+      seed(seed),
+      accuracyThreshold(accuracyThreshold),
+      covarianceStorage(covarianceStorage),
+      engine(engines::mt19937::Batch<>::create())
 {}
 
 /**
@@ -65,15 +65,14 @@ services::Status Parameter::check() const
 }
 
 /** Default constructor */
-Input::Input() : daal::algorithms::Input(lastInputId + 1)
-{}
+Input::Input() : daal::algorithms::Input(lastInputId + 1) {}
 
 /**
 * Sets the input for the EM for GMM algorithm
 * \param[in] id    Identifier of the input
 * \param[in] ptr   Pointer to the value
 */
-void Input::set(InputId id, const NumericTablePtr &ptr)
+void Input::set(InputId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -93,9 +92,9 @@ NumericTablePtr Input::get(InputId id) const
 * \param[in] par     %Parameter of the algorithm
 * \param[in] method  Method of the algorithm
 */
-services::Status Input::check(const daal::algorithms::Parameter *par, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
-   return checkNumericTable(get(data).get(), dataStr());
+    return checkNumericTable(get(data).get(), dataStr());
 }
 
 /** Default constructor */
@@ -109,7 +108,7 @@ Result::Result() : daal::algorithms::Result(lastResultCovariancesId + 1)
  * \param[in] id    Identifier of the result
  * \param[in] ptr   Pointer to the numeric table for the result
  */
-void Result::set(ResultId id, const NumericTablePtr &ptr)
+void Result::set(ResultId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -119,7 +118,7 @@ void Result::set(ResultId id, const NumericTablePtr &ptr)
  * \param[in] id    Identifier of the collection of covariances
  * \param[in] ptr   Pointer to the collection of covariances
  */
-void Result::set(ResultCovariancesId id, const DataCollectionPtr &ptr)
+void Result::set(ResultCovariancesId id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -162,37 +161,38 @@ NumericTablePtr Result::get(ResultCovariancesId id, size_t index) const
 * \param[in] par     %Parameter of the algorithm
 * \param[in] method  Method of the algorithm
 */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
-    Input *algInput = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
-    Parameter *algParameter = static_cast<Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
+    Input * algInput         = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
+    Parameter * algParameter = static_cast<Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
 
     size_t nComponents = algParameter->nComponents;
-    size_t nFeatures = algInput->get(data)->getNumberOfColumns();
+    size_t nFeatures   = algInput->get(data)->getNumberOfColumns();
 
     services::Status s;
     int unexpectedLayouts = packed_mask;
     s |= checkNumericTable(get(weights).get(), weightsStr(), unexpectedLayouts, 0, nComponents, 1);
-    if(!s) return s;
+    if (!s) return s;
     s |= checkNumericTable(get(means).get(), meansStr(), unexpectedLayouts, 0, nFeatures, nComponents);
-    if(!s) return s;
+    if (!s) return s;
 
     DataCollectionPtr resultCovCollection = get(covariances);
     DAAL_CHECK(resultCovCollection, ErrorNullOutputDataCollection);
     DAAL_CHECK(resultCovCollection->size() == nComponents, ErrorIncorrectNumberOfOutputNumericTables);
 
-    int unexpectedLayoutCovariance = (int)(NumericTableIface::csrArray | NumericTableIface::upperPackedTriangularMatrix | NumericTableIface::lowerPackedTriangularMatrix);
-    for(size_t i = 0; i < nComponents; i++)
+    int unexpectedLayoutCovariance =
+        (int)(NumericTableIface::csrArray | NumericTableIface::upperPackedTriangularMatrix | NumericTableIface::lowerPackedTriangularMatrix);
+    for (size_t i = 0; i < nComponents; i++)
     {
         SerializationIfacePtr collectionElement = (*resultCovCollection)[i];
         DAAL_CHECK_EX(collectionElement, ErrorNullNumericTable, ArgumentName, covarianceStr());
 
         NumericTablePtr nt = NumericTable::cast(collectionElement);
         DAAL_CHECK_EX(nt, ErrorIncorrectElementInCollection, ArgumentName, covarianceStr());
-        if(algParameter->covarianceStorage == em_gmm::full)
+        if (algParameter->covarianceStorage == em_gmm::full)
         {
             s |= checkNumericTable(nt.get(), covarianceStr(), unexpectedLayoutCovariance, 0, nFeatures, nFeatures);
-            if(!s) return s;
+            if (!s) return s;
         }
         else
         {

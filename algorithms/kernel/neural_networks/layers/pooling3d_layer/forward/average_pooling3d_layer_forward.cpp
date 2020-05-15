@@ -62,10 +62,10 @@ data_management::NumericTablePtr Result::get(LayerDataId id) const
  * \param[in] id      Identifier of the result
  * \param[in] ptr     Result
  */
-void Result::set(LayerDataId id, const data_management::NumericTablePtr &ptr)
+void Result::set(LayerDataId id, const data_management::NumericTablePtr & ptr)
 {
     layers::LayerDataPtr layerData = get(layers::forward::resultForBackward);
-    (*layerData)[id] = ptr;
+    (*layerData)[id]               = ptr;
 }
 
 /**
@@ -74,30 +74,30 @@ void Result::set(LayerDataId id, const data_management::NumericTablePtr &ptr)
  * \param[in] parameter %Parameter of the layer
  * \param[in] method    Computation method of the layer
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, pooling3d::forward::Result::check(input, parameter, method));
 
-    const Parameter *param =  static_cast<const Parameter *>(parameter);
+    const Parameter * param = static_cast<const Parameter *>(parameter);
 
-    if(!param->predictionStage)
+    if (!param->predictionStage)
     {
-        const Input *in = static_cast<const Input *>(input);
+        const Input * in = static_cast<const Input *>(input);
 
-        const services::Collection<size_t> &dataDims = in->get(layers::forward::data)->getDimensions();
+        const services::Collection<size_t> & dataDims = in->get(layers::forward::data)->getDimensions();
 
         data_management::NumericTablePtr auxInputDimensions = get(average_pooling3d::auxInputDimensions);
         DAAL_CHECK_STATUS(s, data_management::checkNumericTable(auxInputDimensions.get(), auxInputDimensionsStr(), data_management::packed_mask, 0,
-                                               dataDims.size(), 1));
+                                                                dataDims.size(), 1));
     }
     return s;
 }
 
-}// namespace interface1
-}// namespace forward
-}// namespace average_pooling3d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace average_pooling3d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

@@ -34,21 +34,19 @@
 using namespace daal::data_management;
 using namespace daal::services;
 
-
 namespace daal
 {
 namespace algorithms
 {
 namespace linear_regression
 {
-
 namespace quality_metric_set
 {
 namespace interface1
 {
-
-Parameter::Parameter(size_t nBeta, size_t nBetaReducedModel, double alphaVal, double accuracyVal):
-        numBeta(nBeta), numBetaReducedModel(nBetaReducedModel), alpha(alphaVal), accuracyThreshold(accuracyVal) {}
+Parameter::Parameter(size_t nBeta, size_t nBetaReducedModel, double alphaVal, double accuracyVal)
+    : numBeta(nBeta), numBetaReducedModel(nBetaReducedModel), alpha(alphaVal), accuracyThreshold(accuracyVal)
+{}
 
 services::Status Parameter::check() const
 {
@@ -63,15 +61,14 @@ services::Status Parameter::check() const
 
 void Batch::initializeQualityMetrics()
 {
-    inputAlgorithms[singleBeta] = SharedPtr<linear_regression::quality_metric::single_beta::Batch<> >(
-        new linear_regression::quality_metric::single_beta::Batch<>());
-    _inputData->add(singleBeta, linear_regression::quality_metric::single_beta::InputPtr(
-        new linear_regression::quality_metric::single_beta::Input));
+    inputAlgorithms[singleBeta] =
+        SharedPtr<linear_regression::quality_metric::single_beta::Batch<> >(new linear_regression::quality_metric::single_beta::Batch<>());
+    _inputData->add(singleBeta, linear_regression::quality_metric::single_beta::InputPtr(new linear_regression::quality_metric::single_beta::Input));
 
     inputAlgorithms[groupOfBetas] = SharedPtr<linear_regression::quality_metric::group_of_betas::Batch<> >(
         new linear_regression::quality_metric::group_of_betas::Batch<>(parameter.numBeta, parameter.numBetaReducedModel));
-    _inputData->add(groupOfBetas, linear_regression::quality_metric::group_of_betas::InputPtr(
-        new linear_regression::quality_metric::group_of_betas::Input));
+    _inputData->add(groupOfBetas,
+                    linear_regression::quality_metric::group_of_betas::InputPtr(new linear_regression::quality_metric::group_of_betas::Input));
 }
 
 /**
@@ -96,8 +93,8 @@ algorithms::InputPtr InputDataCollection::getInput(QualityMetricId id) const
     return algorithms::quality_metric_set::InputDataCollection::getInput((size_t)id);
 }
 
-}//namespace interface1
-}//namespace quality_metric_set
+} //namespace interface1
+} //namespace quality_metric_set
 
 namespace quality_metric
 {
@@ -105,8 +102,7 @@ namespace single_beta
 {
 namespace interface1
 {
-
-Parameter::Parameter(double alphaVal, double accuracyVal): alpha(alphaVal), accuracyThreshold(accuracyVal) {}
+Parameter::Parameter(double alphaVal, double accuracyVal) : alpha(alphaVal), accuracyThreshold(accuracyVal) {}
 
 /** Default constructor */
 Input::Input() : daal::algorithms::Input(lastModelInputId + 1) {}
@@ -126,7 +122,7 @@ data_management::NumericTablePtr Input::get(DataInputId id) const
 * \param[in] id      Identifier of the input object
 * \param[in] value   Pointer to the object
 */
-void Input::set(DataInputId id, const data_management::NumericTablePtr &value)
+void Input::set(DataInputId id, const data_management::NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
@@ -146,7 +142,7 @@ linear_regression::ModelPtr Input::get(ModelInputId id) const
 * \param[in] id      Identifier of the input object
 * \param[in] value   %Input object
 */
-void Input::set(ModelInputId id, const linear_regression::ModelPtr &value)
+void Input::set(ModelInputId id, const linear_regression::ModelPtr & value)
 {
     Argument::set(id, value);
 }
@@ -156,7 +152,7 @@ void Input::set(ModelInputId id, const linear_regression::ModelPtr &value)
 * \param[in] par     Algorithm parameter
 * \param[in] method  Computation method
     */
-services::Status Input::check(const daal::algorithms::Parameter *par, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
     Status s;
     DAAL_CHECK(Argument::size() == 3, ErrorIncorrectNumberOfInputNumericTables);
@@ -193,7 +189,6 @@ services::Status Input::check(const daal::algorithms::Parameter *par, int method
     return s;
 }
 
-
 Result::Result() : daal::algorithms::Result(lastResultDataCollectionId + 1) {};
 
 /**
@@ -211,7 +206,7 @@ data_management::NumericTablePtr Result::get(ResultId id) const
 * \param[in] id      Identifier of the input object
 * \param[in] value   %Input object
 */
-void Result::set(ResultId id, const data_management::NumericTablePtr &value)
+void Result::set(ResultId id, const data_management::NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
@@ -243,7 +238,7 @@ data_management::DataCollectionPtr Result::get(ResultDataCollectionId id) const
 * \param[in] id      Identifier of the input object
 * \param[in] value   %Input object
 */
-void Result::set(ResultDataCollectionId id, const data_management::DataCollectionPtr &value)
+void Result::set(ResultDataCollectionId id, const data_management::DataCollectionPtr & value)
 {
     Argument::set(id, value);
 }
@@ -254,7 +249,7 @@ void Result::set(ResultDataCollectionId id, const data_management::DataCollectio
  * \param[in] par     %Parameter of the algorithm
  * \param[in] method  Computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     Status s;
     DAAL_CHECK(Argument::size() == 6, ErrorIncorrectNumberOfElementsInResultCollection);
@@ -271,12 +266,12 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
     NumericTablePtr confidenceIntervalsTable = get(confidenceIntervals);
     NumericTablePtr inverseOfXtXTable        = get(inverseOfXtX);
 
-    const Input* inp = dynamic_cast<const Input*>(input);
+    const Input * inp = dynamic_cast<const Input *>(input);
     DAAL_CHECK(inp, ErrorNullInput);
     DataCollectionPtr coll = get(betaCovariances);
     DAAL_CHECK(coll.get(), ErrorNullInput);
-    const size_t k = inp->get(expectedResponses)->getNumberOfColumns();
-    const size_t nBeta = inp->get(model)->getNumberOfBetas();
+    const size_t k              = inp->get(expectedResponses)->getNumberOfColumns();
+    const size_t nBeta          = inp->get(model)->getNumberOfBetas();
     const int unexpectedLayouts = (int)NumericTableIface::csrArray;
 
     DAAL_CHECK(rmsTable->getNumberOfRows() == 1, ErrorIncorrectNumberOfRowsInOutputNumericTable);
@@ -289,15 +284,15 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
     DAAL_CHECK(zScoreTable->getNumberOfColumns() == nBeta, ErrorIncorrectNumberOfColumnsInOutputNumericTable);
 
     DAAL_CHECK(confidenceIntervalsTable->getNumberOfRows() == k, ErrorIncorrectNumberOfRowsInOutputNumericTable);
-    DAAL_CHECK(confidenceIntervalsTable->getNumberOfColumns() == 2*nBeta, ErrorIncorrectNumberOfColumnsInOutputNumericTable);
+    DAAL_CHECK(confidenceIntervalsTable->getNumberOfColumns() == 2 * nBeta, ErrorIncorrectNumberOfColumnsInOutputNumericTable);
 
     DAAL_CHECK(inverseOfXtXTable->getNumberOfRows() == nBeta, ErrorIncorrectNumberOfRowsInOutputNumericTable);
     DAAL_CHECK(inverseOfXtXTable->getNumberOfColumns() == nBeta, ErrorIncorrectNumberOfColumnsInOutputNumericTable);
 
-   for(size_t i = 0; i < k; ++i)
+    for (size_t i = 0; i < k; ++i)
     {
-        auto it = (*coll)[i];
-        NumericTable* tbl = dynamic_cast<NumericTable*>(it.get());
+        auto it            = (*coll)[i];
+        NumericTable * tbl = dynamic_cast<NumericTable *>(it.get());
         DAAL_CHECK(tbl, ErrorNullOutputNumericTable);
         DAAL_CHECK(tbl->getNumberOfColumns() == nBeta, ErrorIncorrectNumberOfColumnsInOutputNumericTable);
         DAAL_CHECK(tbl->getNumberOfRows() == nBeta, ErrorIncorrectNumberOfRowsInOutputNumericTable);
@@ -318,17 +313,15 @@ services::Status Parameter::check() const
     return services::Status();
 }
 
-}//namespace interface1
+} //namespace interface1
 
 namespace internal
 {
-
-SingleBetaOutput::SingleBetaOutput(size_t nResponses) : rms(nullptr), variance(nullptr),
-betaCovariances(nullptr), zScore(nullptr), confidenceIntervals(nullptr), inverseOfXtX(nullptr)
+SingleBetaOutput::SingleBetaOutput(size_t nResponses)
+    : rms(nullptr), variance(nullptr), betaCovariances(nullptr), zScore(nullptr), confidenceIntervals(nullptr), inverseOfXtX(nullptr)
 {
-    betaCovariances = new NumericTable*[nResponses];
-    for(size_t i = 0; i < nResponses; ++i)
-        betaCovariances[i] = nullptr;
+    betaCovariances = new NumericTable *[nResponses];
+    for (size_t i = 0; i < nResponses; ++i) betaCovariances[i] = nullptr;
 }
 
 SingleBetaOutput::~SingleBetaOutput()
@@ -336,38 +329,37 @@ SingleBetaOutput::~SingleBetaOutput()
     delete[] betaCovariances;
 }
 
-const NumericTable* getXtXTable(const linear_regression::Model& model, bool& bModelNe)
+const NumericTable * getXtXTable(const linear_regression::Model & model, bool & bModelNe)
 {
-    ModelNormEq* modelNe = dynamic_cast<ModelNormEq*>(const_cast<linear_regression::Model*>(&model));
-    if(modelNe)
+    ModelNormEq * modelNe = dynamic_cast<ModelNormEq *>(const_cast<linear_regression::Model *>(&model));
+    if (modelNe)
     {
         bModelNe = true;
         return modelNe->getXTXTable().get();
     }
-    bModelNe = false;
-    ModelQR* modelQr = dynamic_cast<ModelQR*>(const_cast<linear_regression::Model*>(&model));
+    bModelNe          = false;
+    ModelQR * modelQr = dynamic_cast<ModelQR *>(const_cast<linear_regression::Model *>(&model));
     return modelQr ? modelQr->getRTable().get() : nullptr;
 }
 
-}//namespace internal
+} //namespace internal
 
-}//namespace single_beta
+} //namespace single_beta
 
 namespace group_of_betas
 {
 namespace interface1
 {
-
-services::Status Input::check(const daal::algorithms::Parameter *par, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
     Status s;
-    const Parameter* prm = dynamic_cast<const Parameter*>(par);
-    DAAL_CHECK(prm->numBeta > 0, ErrorIncorrectNumberOfFeatures); //TODO
+    const Parameter * prm = dynamic_cast<const Parameter *>(par);
+    DAAL_CHECK(prm->numBeta > 0, ErrorIncorrectNumberOfFeatures);                                                            //TODO
     DAAL_CHECK((prm->numBetaReducedModel > 0) && (prm->numBetaReducedModel < prm->numBeta), ErrorIncorrectNumberOfFeatures); //TODO
     DAAL_CHECK(Argument::size() == 3, ErrorIncorrectNumberOfInputNumericTables);
 
-    NumericTablePtr yTable = get(expectedResponses);
-    NumericTablePtr zTable = get(predictedResponses);
+    NumericTablePtr yTable        = get(expectedResponses);
+    NumericTablePtr zTable        = get(predictedResponses);
     NumericTablePtr zReducedTable = get(predictedReducedModelResponses);
 
     DAAL_CHECK(yTable, ErrorNullInputNumericTable);
@@ -395,7 +387,7 @@ services::Status Input::check(const daal::algorithms::Parameter *par, int method
     DAAL_CHECK(k2 == k, ErrorIncorrectNumberOfColumnsInInputNumericTable);
     DAAL_CHECK(n2 == n, ErrorIncorrectNumberOfRowsInInputNumericTable);
 
-    DAAL_CHECK(prm->numBeta < n, ErrorIncorrectNumberOfFeatures); //TODO
+    DAAL_CHECK(prm->numBeta < n, ErrorIncorrectNumberOfFeatures);             //TODO
     DAAL_CHECK(prm->numBetaReducedModel < n, ErrorIncorrectNumberOfFeatures); //TODO
 
     const int unexpectedLayouts = (int)NumericTableIface::csrArray;
@@ -405,15 +397,15 @@ services::Status Input::check(const daal::algorithms::Parameter *par, int method
     return s;
 }
 
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     Status s;
     DAAL_CHECK(Argument::size() == 7, ErrorIncorrectNumberOfElementsInResultCollection);
 
-    const Input* inp = dynamic_cast<const Input*>(input);
-    const size_t k = inp->get(expectedResponses)->getNumberOfColumns();
+    const Input * inp     = dynamic_cast<const Input *>(input);
+    const size_t k        = inp->get(expectedResponses)->getNumberOfColumns();
     int unexpectedLayouts = (int)NumericTableIface::csrArray;
-    for(size_t i = 0; i < 7; ++i)
+    for (size_t i = 0; i < 7; ++i)
     {
         DAAL_CHECK_TABLE(ResultId(i), ErrorNullOutputNumericTable);
         auto it = get(ResultId(i));
@@ -432,10 +424,10 @@ services::Status Parameter::check() const
     return services::Status();
 }
 
-}//namespace interface1
-}//namespace group_of_betas
+} //namespace interface1
+} //namespace group_of_betas
 
-}//namespace quality_metric
-}//namespace linear_regression
-}// namespace algorithms
-}// namespace daal
+} //namespace quality_metric
+} //namespace linear_regression
+} // namespace algorithms
+} // namespace daal

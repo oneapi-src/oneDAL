@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate neural networks.
 //--
 
-
 #ifndef __NEURAL_NETWORKS_PREDICTION_FEEDFORWARD_KERNEL_H__
 #define __NEURAL_NETWORKS_PREDICTION_FEEDFORWARD_KERNEL_H__
 
@@ -54,12 +53,12 @@ namespace internal
 /**
  *  \brief Kernel for neural network calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class NeuralNetworksFeedforwardPredictionKernel : public Kernel
 {
 public:
-    services::Status compute(const Input *input, Result *result);
-    services::Status initialize(const Input *input, const neural_networks::prediction::Parameter *parameter, Result *result);
+    services::Status compute(const Input * input, Result * result);
+    services::Status initialize(const Input * input, const neural_networks::prediction::Parameter * parameter, Result * result);
     services::Status reset();
 
 private:
@@ -73,7 +72,7 @@ private:
     TArray<WriteOnlySubtensor<algorithmFPType, cpu>, cpu> predictions;
 };
 
-} // namespace daal::internal
+} // namespace internal
 } // namespace prediction
 } // namespace neural_networks
 } // namespace algorithms

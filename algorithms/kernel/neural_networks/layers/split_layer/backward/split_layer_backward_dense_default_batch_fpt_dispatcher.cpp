@@ -19,7 +19,6 @@
 //  Implementation of split layer container.
 //--
 
-
 #include "split_layer_backward_batch_container.h"
 
 namespace daal

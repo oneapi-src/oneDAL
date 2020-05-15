@@ -19,7 +19,6 @@
 //  Implementation of the backward local response normalization layer container.
 //--
 
-
 #include "lrn_layer_backward_batch_container.h"
 
 namespace daal

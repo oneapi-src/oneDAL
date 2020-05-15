@@ -19,7 +19,6 @@
 //  Implementation of cross_entropy_loss calculation functions.
 //--
 
-
 #include "cross_entropy_loss_dense_default_batch_kernel.h"
 #include "cross_entropy_loss_dense_default_batch_impl.i"
 #include "cross_entropy_loss_dense_default_batch_container.h"
@@ -32,7 +31,6 @@ namespace optimization_solver
 {
 namespace cross_entropy_loss
 {
-
 namespace interface2
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

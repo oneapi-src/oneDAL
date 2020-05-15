@@ -45,35 +45,31 @@ namespace forward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for forward pooling layer results computation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class PoolingKernel : public Kernel
 {
 public:
     /* Computes the results of forward batch normalization layer */
-    services::Status compute(const Tensor &dataTensor, Tensor &valueTensor,
-                 Tensor *selectedPosTensor, const maximum_pooling3d::Parameter &parameter);
+    services::Status compute(const Tensor & dataTensor, Tensor & valueTensor, Tensor * selectedPosTensor,
+                             const maximum_pooling3d::Parameter & parameter);
 
 protected:
-    void recurrentCompute(size_t d,
-                DAAL_INT *ii, DAAL_INT *ik, DAAL_INT *iv,
-                const DAAL_INT *padding, const DAAL_INT *stride, const DAAL_INT *kernelSize,
-                const DAAL_INT* dataSize, const DAAL_INT* valueSize,
-                const DAAL_INT* offset, DAAL_INT* dataOffset, DAAL_INT* valueOffset,
-                const algorithmFPType *data, algorithmFPType *value, int *selectedPos);
+    void recurrentCompute(size_t d, DAAL_INT * ii, DAAL_INT * ik, DAAL_INT * iv, const DAAL_INT * padding, const DAAL_INT * stride,
+                          const DAAL_INT * kernelSize, const DAAL_INT * dataSize, const DAAL_INT * valueSize, const DAAL_INT * offset,
+                          DAAL_INT * dataOffset, DAAL_INT * valueOffset, const algorithmFPType * data, algorithmFPType * value, int * selectedPos);
 
     static size_t const nKernelDims = 3; /*!< Number of kernel dimensions */
 };
 
-} // internal
-} // forward
-} // maximum_pooling3d
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace forward
+} // namespace maximum_pooling3d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

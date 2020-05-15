@@ -39,37 +39,35 @@ using namespace daal;
 using namespace daal::algorithms::gbt::regression;
 
 /* Input data set parameters */
-const string trainDatasetFileName = "../data/batch/df_regression_train.csv";
-const string testDatasetFileName  = "../data/batch/df_regression_test.csv";
+const string trainDatasetFileName         = "../data/batch/df_regression_train.csv";
+const string testDatasetFileName          = "../data/batch/df_regression_test.csv";
 const size_t categoricalFeaturesIndices[] = { 3 };
-const size_t nFeatures = 13;  /* Number of features in training and testing data sets */
+const size_t nFeatures                    = 13; /* Number of features in training and testing data sets */
 
 /* Gradient boosted trees training parameters */
 const size_t maxIterations = 40;
-size_t nTrees = 0;
+size_t nTrees              = 0;
 
 /** Node structure for representing nodes in trees after traversing DAAL model */
 struct Node
 {
-    Node* left;
-    Node* right;
+    Node * left;
+    Node * right;
     double response;
     size_t featureIndex;
     double featureValue;
-    Node(double rs, size_t fi, double fv): left(NULL), right(NULL), response(rs), featureIndex(fi), featureValue(fv)
-    {}
-    Node(): left(NULL), right(NULL), response(0), featureIndex(0), featureValue(0)
-    {}
+    Node(double rs, size_t fi, double fv) : left(NULL), right(NULL), response(rs), featureIndex(fi), featureValue(fv) {}
+    Node() : left(NULL), right(NULL), response(0), featureIndex(0), featureValue(0) {}
 };
 
 /** Tree structure for representing tree after traversing DAAL model */
 struct Tree
 {
-    Node* root;
+    Node * root;
     size_t nNodes;
     ~Tree()
     {
-        if(root)
+        if (root)
         {
             delete root;
         }
@@ -81,39 +79,37 @@ struct ParentPlace
 {
     size_t parentId;
     size_t place;
-    ParentPlace(size_t _parent, size_t _place): parentId(_parent), place(_place)
-    {}
-    ParentPlace(): parentId(0), place(0)
-    {}
+    ParentPlace(size_t _parent, size_t _place) : parentId(_parent), place(_place) {}
+    ParentPlace() : parentId(0), place(0) {}
 };
 
 /** Visitor class implementing TreeNodeVisitor interface, prints out tree nodes of the model when it is called back by model traversal method */
 class BFSNodeVisitor : public daal::algorithms::tree_utils::regression::TreeNodeVisitor
 {
 public:
-    Tree* roots;
+    Tree * roots;
     size_t treeId;
-    std::queue<Node*> parentNodes;
-    virtual bool onLeafNode(const daal::algorithms::tree_utils::regression::LeafNodeDescriptor &desc)
+    std::queue<Node *> parentNodes;
+    virtual bool onLeafNode(const daal::algorithms::tree_utils::regression::LeafNodeDescriptor & desc)
     {
-        if(desc.level == 0)
+        if (desc.level == 0)
         {
-            Node* root = roots[treeId].root;
+            Node * root                = roots[treeId].root;
             (*(roots + treeId)).nNodes = 1;
-            root->left = NULL;
-            root->right = NULL;
-            root->response = desc.response;
-            root->featureIndex = 0;
-            root->featureValue = 0;
+            root->left                 = NULL;
+            root->right                = NULL;
+            root->response             = desc.response;
+            root->featureIndex         = 0;
+            root->featureValue         = 0;
             treeId++;
         }
         else
         {
-            roots[treeId-1].nNodes++;
-            Node* node = new Node(desc.response, 0, 0);
+            roots[treeId - 1].nNodes++;
+            Node * node = new Node(desc.response, 0, 0);
 
-            Node* parent = parentNodes.front();
-            if(parent->left == NULL)
+            Node * parent = parentNodes.front();
+            if (parent->left == NULL)
             {
                 parent->left = node;
             }
@@ -126,27 +122,27 @@ public:
         return true;
     }
 
-    virtual bool onSplitNode(const daal::algorithms::tree_utils::regression::SplitNodeDescriptor &desc)
+    virtual bool onSplitNode(const daal::algorithms::tree_utils::regression::SplitNodeDescriptor & desc)
     {
-        if(desc.level == 0)
+        if (desc.level == 0)
         {
-            Node* root = roots[treeId].root;
+            Node * root                = roots[treeId].root;
             (*(roots + treeId)).nNodes = 1;
-            root->left = NULL;
-            root->right = NULL;
-            root->response = 0;
-            root->featureIndex = desc.featureIndex;
-            root->featureValue = desc.featureValue;
+            root->left                 = NULL;
+            root->right                = NULL;
+            root->response             = 0;
+            root->featureIndex         = desc.featureIndex;
+            root->featureValue         = desc.featureValue;
             parentNodes.push(root);
             treeId++;
         }
         else
         {
-            roots[treeId-1].nNodes++;
-            Node* node = new Node(0,desc.featureIndex,desc.featureValue);
+            roots[treeId - 1].nNodes++;
+            Node * node = new Node(0, desc.featureIndex, desc.featureValue);
 
-            Node* parent = parentNodes.front();
-            if(parent->left == NULL)
+            Node * parent = parentNodes.front();
+            if (parent->left == NULL)
             {
                 parent->left = node;
             }
@@ -160,10 +156,10 @@ public:
         return true;
     }
 
-    BFSNodeVisitor(size_t nTrees): parentNodes()
+    BFSNodeVisitor(size_t nTrees) : parentNodes()
     {
         roots = new Tree[nTrees];
-        for(size_t i = 0; i < nTrees; i++)
+        for (size_t i = 0; i < nTrees; i++)
         {
             roots[i].root = new Node;
         }
@@ -171,21 +167,19 @@ public:
     }
     ~BFSNodeVisitor()
     {
-        if(roots)
-            delete [] roots;
+        if (roots) delete[] roots;
     }
 };
 
-
 training::ResultPtr trainModel();
 double testModel(ModelPtr modelPtr);
-void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTablePtr& pDependentVar);
-ModelPtr buildModel(Tree* trees);
-Tree* traverseModel(ModelPtr m, BFSNodeVisitor& visitor);
+void loadData(const std::string & fileName, NumericTablePtr & pData, NumericTablePtr & pDependentVar);
+ModelPtr buildModel(Tree * trees);
+Tree * traverseModel(ModelPtr m, BFSNodeVisitor & visitor);
 
-bool buildTree(size_t treeId, Node* node, bool& isRoot, ModelBuilder& builder, const ParentPlace& parentPlace);
+bool buildTree(size_t treeId, Node * node, bool & isRoot, ModelBuilder & builder, const ParentPlace & parentPlace);
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &trainDatasetFileName);
 
@@ -193,64 +187,63 @@ int main(int argc, char *argv[])
     training::ResultPtr trainingResult = trainModel();
     std::cout << "Predict on trained model" << std::endl;
     ModelPtr trainedModel = trainingResult->get(training::model);
-    if(trainedModel.get())
-        nTrees = trainedModel->numberOfTrees();
+    if (trainedModel.get()) nTrees = trainedModel->numberOfTrees();
     double trainedAccurcy = testModel(trainedModel);
 
     /* Traverse the trained model to get Tree representation */
     BFSNodeVisitor visitor(nTrees);
-    Tree* trees = traverseModel(trainedModel, visitor);
+    Tree * trees = traverseModel(trainedModel, visitor);
     /* Build the model by ModelBuilder from Tree */
     daal::algorithms::gbt::regression::ModelPtr builtModel = buildModel(trees);
     std::cout << "Predict on built model from input user Tree " << std::endl;
     double buildModelAccurcy = testModel(builtModel);
-    const char* result = (trainedAccurcy == buildModelAccurcy) ? "successfully" : "not correctly";
+    const char * result      = (trainedAccurcy == buildModelAccurcy) ? "successfully" : "not correctly";
     std::cout << "Model was built " << result << std::endl;
 
     return (trainedAccurcy == buildModelAccurcy) ? 0 : 1;
 }
 
-daal::algorithms::gbt::regression::ModelPtr buildModel(Tree* trees)
+daal::algorithms::gbt::regression::ModelPtr buildModel(Tree * trees)
 {
     /* create a model builder */
-    ModelBuilder builder(nFeatures,nTrees);
-    for(size_t i = 0; i < nTrees; i++)
+    ModelBuilder builder(nFeatures, nTrees);
+    for (size_t i = 0; i < nTrees; i++)
     {
         const size_t nNodes = trees[i].nNodes;
         /* allocate the memory for certain tree */
         builder.createTree(nNodes);
         bool isRoot = true;
         /* recursive DFS traversing of certain tree with building model */
-        buildTree(i, trees[i].root, isRoot, builder, ParentPlace(0,0));
-
+        buildTree(i, trees[i].root, isRoot, builder, ParentPlace(0, 0));
     }
 
     return builder.getModel();
 }
 
-bool buildTree(size_t treeId, Node* node, bool& isRoot, ModelBuilder& builder, const ParentPlace& parentPlace)
+bool buildTree(size_t treeId, Node * node, bool & isRoot, ModelBuilder & builder, const ParentPlace & parentPlace)
 {
-    if(node->left != NULL && node->right != NULL)
+    if (node->left != NULL && node->right != NULL)
     {
-        if(isRoot)
+        if (isRoot)
         {
             ModelBuilder::NodeId parent = builder.addSplitNode(treeId, ModelBuilder::noParent, 0, node->featureIndex, node->featureValue);
 
             isRoot = false;
-            buildTree(treeId, node->left, isRoot, builder, ParentPlace(parent,0));
-            buildTree(treeId, node->right, isRoot, builder, ParentPlace(parent,1));
+            buildTree(treeId, node->left, isRoot, builder, ParentPlace(parent, 0));
+            buildTree(treeId, node->right, isRoot, builder, ParentPlace(parent, 1));
         }
         else
         {
-            ModelBuilder::NodeId parent = builder.addSplitNode(treeId, parentPlace.parentId, parentPlace.place, node->featureIndex, node->featureValue);
+            ModelBuilder::NodeId parent =
+                builder.addSplitNode(treeId, parentPlace.parentId, parentPlace.place, node->featureIndex, node->featureValue);
 
-            buildTree(treeId, node->left, isRoot, builder, ParentPlace(parent,0));
-            buildTree(treeId, node->right, isRoot, builder, ParentPlace(parent,1));
+            buildTree(treeId, node->left, isRoot, builder, ParentPlace(parent, 0));
+            buildTree(treeId, node->right, isRoot, builder, ParentPlace(parent, 1));
         }
     }
     else
     {
-        if(isRoot)
+        if (isRoot)
         {
             builder.addLeafNode(treeId, ModelBuilder::noParent, 0, node->response);
             isRoot = false;
@@ -287,12 +280,11 @@ double testModel(daal::algorithms::gbt::regression::ModelPtr modelPtr)
     printNumericTable(prediction, "Gradient boosted trees prediction results (first 10 rows):", 10);
     printNumericTable(testGroundTruth, "Ground truth (first 10 rows):", 10);
     size_t nRows = 0;
-    if(prediction.get())
-        nRows = prediction->getNumberOfRows();
+    if (prediction.get()) nRows = prediction->getNumberOfRows();
     double error = 0;
-    for(size_t i = 0; i < nRows; i++)
+    for (size_t i = 0; i < nRows; i++)
     {
-        error += prediction->getValue<float>(0,i) - testGroundTruth->getValue<float>(0,i);
+        error += prediction->getValue<float>(0, i) - testGroundTruth->getValue<float>(0, i);
     }
 
     std::cout << "Error: " << error << std::endl;
@@ -323,12 +315,10 @@ training::ResultPtr trainModel()
     return algorithm.getResult();
 }
 
-void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTablePtr& pDependentVar)
+void loadData(const std::string & fileName, NumericTablePtr & pData, NumericTablePtr & pDependentVar)
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> trainDataSource(fileName,
-        DataSource::notAllocateNumericTable,
-        DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> trainDataSource(fileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and dependent variables */
     pData.reset(new HomogenNumericTable<double>(nFeatures, 0, NumericTable::notAllocate));
@@ -339,15 +329,15 @@ void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTableP
     trainDataSource.loadDataBlock(mergedData.get());
 
     NumericTableDictionaryPtr pDictionary = pData->getDictionarySharedPtr();
-    for(size_t i = 0, n = sizeof(categoricalFeaturesIndices) / sizeof(categoricalFeaturesIndices[0]); i < n; ++i)
+    for (size_t i = 0, n = sizeof(categoricalFeaturesIndices) / sizeof(categoricalFeaturesIndices[0]); i < n; ++i)
         (*pDictionary)[categoricalFeaturesIndices[i]].featureType = data_feature_utils::DAAL_CATEGORICAL;
 }
 
-Tree* traverseModel(const daal::algorithms::gbt::regression::ModelPtr m, BFSNodeVisitor& visitor)
+Tree * traverseModel(const daal::algorithms::gbt::regression::ModelPtr m, BFSNodeVisitor & visitor)
 {
     const size_t nTrees = m->numberOfTrees();
 
-    for(size_t i = 0; i < nTrees; ++i)
+    for (size_t i = 0; i < nTrees; ++i)
     {
         m->traverseBFS(i, visitor);
     }

@@ -41,7 +41,9 @@ namespace init
 namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_IMPLICIT_ALS_TRAINING_INIT_RESULT_ID);
-Parameter::Parameter(size_t nFactors, size_t fullNUsers, size_t seed) : nFactors(nFactors), fullNUsers(fullNUsers), seed(seed), engine(engines::mt19937::Batch<>::create()) {}
+Parameter::Parameter(size_t nFactors, size_t fullNUsers, size_t seed)
+    : nFactors(nFactors), fullNUsers(fullNUsers), seed(seed), engine(engines::mt19937::Batch<>::create())
+{}
 
 services::Status Parameter::check() const
 {
@@ -56,8 +58,7 @@ services::Status Parameter::check() const
  */
 daal::algorithms::implicit_als::ModelPtr Result::get(ResultId id) const
 {
-    return services::staticPointerCast<daal::algorithms::implicit_als::Model,
-           data_management::SerializationIface>(Argument::get(id));
+    return services::staticPointerCast<daal::algorithms::implicit_als::Model, data_management::SerializationIface>(Argument::get(id));
 }
 
 /**
@@ -65,14 +66,14 @@ daal::algorithms::implicit_als::ModelPtr Result::get(ResultId id) const
  * \param[in] id    Identifier of the result
  * \param[in] ptr   Pointer to the result
  */
-void Result::set(ResultId id, const daal::algorithms::implicit_als::ModelPtr &ptr)
+void Result::set(ResultId id, const daal::algorithms::implicit_als::ModelPtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-}// namespace interface1
-}// namespace init
-}// namespace training
-}// namespace implicit_als
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace init
+} // namespace training
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal

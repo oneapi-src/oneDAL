@@ -42,22 +42,16 @@ using namespace daal::algorithms::neural_networks;
 using namespace daal::data_management;
 using namespace daal::services;
 
-static const size_t nDim = 4;
-static const size_t dims[] = {2, 3, 2, 4};
-static float dataArray[2][3][2][4] = {{{{ 1,  2,  3,  4},
-                                    { 5,  6,  7,  8}},
-                                                    {{ 9, 10, 11, 12},
-                                                    {13, 14, 15, 16}},
-                                                                    {{17, 18, 19, 20},
-                                                                     {21, 22, 23, 24}}},
-                                  {{{ -1, -2, -3, -4},
-                                    { -5, -6, -7, -8}},
-                                                    {{ -9, -10, -11, -12},
-                                                    {-13, -14, -15, -16}},
-                                                                    {{-17, -18, -19, -20},
-                                                                     {-21, -22, -23, -24}}}};
+static const size_t nDim           = 4;
+static const size_t dims[]         = { 2, 3, 2, 4 };
+static float dataArray[2][3][2][4] = {
+    { { { 1, 2, 3, 4 }, { 5, 6, 7, 8 } }, { { 9, 10, 11, 12 }, { 13, 14, 15, 16 } }, { { 17, 18, 19, 20 }, { 21, 22, 23, 24 } } },
+    { { { -1, -2, -3, -4 }, { -5, -6, -7, -8 } },
+      { { -9, -10, -11, -12 }, { -13, -14, -15, -16 } },
+      { { -17, -18, -19, -20 }, { -21, -22, -23, -24 } } }
+};
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     TensorPtr data(new HomogenTensor<>(nDim, dims, (float *)dataArray));
 
@@ -75,14 +69,12 @@ int main(int argc, char *argv[])
 
     printTensor(forwardResult->get(forward::value), "Forward two-dimensional spatial pyramid maximum pooling layer result (first 5 rows):", 5);
     printTensor(forwardResult->get(spatial_maximum_pooling2d::auxSelectedIndices),
-        "Forward two-dimensional spatial pyramid maximum pooling layer selected indices (first 10 rows):", 10);
-
+                "Forward two-dimensional spatial pyramid maximum pooling layer selected indices (first 10 rows):", 10);
 
     /* Create an algorithm to compute backward two-dimensional spatial pyramid maximum pooling layer results using default method */
     spatial_maximum_pooling2d::backward::Batch<> backwardLayer(2, nDim);
     backwardLayer.input.set(backward::inputGradient, forwardResult->get(forward::value));
     backwardLayer.input.set(backward::inputFromForward, forwardResult->get(forward::resultForBackward));
-
 
     /* Compute backward two-dimensional spatial pyramid maximum pooling layer results */
     backwardLayer.compute();
@@ -91,7 +83,7 @@ int main(int argc, char *argv[])
     backward::ResultPtr backwardResult = backwardLayer.getResult();
 
     printTensor(backwardResult->get(backward::gradient),
-        "Backward two-dimensional spatial pyramid maximum pooling layer result (first 10 rows):", 10);
+                "Backward two-dimensional spatial pyramid maximum pooling layer result (first 10 rows):", 10);
 
     return 0;
 }

@@ -33,7 +33,6 @@ namespace init
 {
 namespace internal
 {
-
 enum LocalData
 {
     numberOfClusters,       //Number of clusters (candidates) selected so far
@@ -45,11 +44,11 @@ enum LocalData
 
 #define isParallelPlusMethod(method) ((method == kmeans::init::parallelPlusDense) || (method == kmeans::init::parallelPlusCSR))
 
-services::Status checkLocalData(const data_management::DataCollection* pInput, const interface1::Parameter* par, const char* dataName,
-    const data_management::NumericTable* pData, bool bParallelPlus);
+services::Status checkLocalData(const data_management::DataCollection * pInput, const interface1::Parameter * par, const char * dataName,
+                                const data_management::NumericTable * pData, bool bParallelPlus);
 
-}
+} // namespace internal
 } // namespace init
 } // namespace kmeans
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

@@ -29,21 +29,21 @@ namespace neural_networks
 {
 namespace prediction
 {
-template<typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+template <typename algorithmFPType>
+DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const Input *in = static_cast<const Input * >(input);
+    const Input * in = static_cast<const Input *>(input);
 
-    ModelPtr predictionModel = in->get(model);
-    Parameter *par = static_cast<Parameter *>(const_cast<daal::algorithms::Parameter *>(parameter));
+    ModelPtr predictionModel      = in->get(model);
+    Parameter * par               = static_cast<Parameter *>(const_cast<daal::algorithms::Parameter *>(parameter));
     Collection<size_t> sampleSize = in->get(data)->getDimensions();
-    sampleSize[0] = par->batchSize;
+    sampleSize[0]                 = par->batchSize;
 
     predictionModel->allocate<algorithmFPType>(sampleSize, parameter);
 
-    ForwardLayersPtr layers = predictionModel->getLayers();
+    ForwardLayersPtr layers                               = predictionModel->getLayers();
     SharedPtr<Collection<layers::NextLayers> > nextLayers = predictionModel->getNextLayers();
-    size_t nLayers = layers->size();
+    size_t nLayers                                        = layers->size();
     Collection<size_t> lastLayerIds;
     for (size_t layerId = 0; layerId < nLayers; layerId++)
     {
@@ -54,15 +54,15 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input, const 
     }
 
     size_t nLastLayers = lastLayerIds.size();
-    size_t nResults = in->get(data)->getDimensionSize(0);
+    size_t nResults    = in->get(data)->getDimensionSize(0);
     Status s;
     for (size_t i = 0; i < nLastLayers; i++)
     {
-        size_t layerId = lastLayerIds[i];
+        size_t layerId                             = lastLayerIds[i];
         layers::forward::ResultPtr lastLayerResult = layers->get(layerId)->getLayerResult();
         DAAL_CHECK_EX(lastLayerResult && lastLayerResult->get(layers::forward::value), ErrorNullTensor, ArgumentName, valueStr());
         Collection<size_t> resultDimensions = lastLayerResult->get(layers::forward::value)->getDimensions();
-        resultDimensions[0] = in->get(data)->getDimensions().get(0);
+        resultDimensions[0]                 = in->get(data)->getDimensions().get(0);
 
         add(predictionCollection, layerId, HomogenTensor<algorithmFPType>::create(resultDimensions, Tensor::doAllocate, &s));
         DAAL_CHECK_STATUS_VAR(s);
@@ -70,8 +70,9 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input, const 
     return s;
 }
 
-template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
-}
-}
-}
-}
+template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                          const int method);
+} // namespace prediction
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

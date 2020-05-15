@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate backward pooling layer relults.
 //--
 
-
 #ifndef __AVERAGE_POOLING2D_LAYER_BACKWARD_KERNEL_H__
 #define __AVERAGE_POOLING2D_LAYER_BACKWARD_KERNEL_H__
 
@@ -49,21 +48,16 @@ namespace backward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for backward pooling layer results computation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class PoolingKernel : public pooling2d::backward::internal::PoolingKernel<algorithmFPType, cpu>
 {
 public:
-    services::Status compute(const Tensor &inputGradTensor,
-                             const pooling2d::Parameter &parameter,
-                             Tensor &gradTensor,
-                             const Tensor *dataTensor);
+    services::Status compute(const Tensor & inputGradTensor, const pooling2d::Parameter & parameter, Tensor & gradTensor, const Tensor * dataTensor);
 
-    services::Status initialize(const services::Collection<size_t> &inDimsFull,
-                                const services::Collection<size_t> &outDimsFull);
+    services::Status initialize(const services::Collection<size_t> & inDimsFull, const services::Collection<size_t> & outDimsFull);
 
     ~PoolingKernel()
     {
@@ -76,10 +70,8 @@ public:
 protected:
     using pooling2d::backward::internal::PoolingKernel<algorithmFPType, cpu>::defaultCompute;
 
-    virtual void defaultInnerLoop(const pooling2d::internal::Parameter &par,
-                                  DAAL_INT i, DAAL_INT f, DAAL_INT k, DAAL_INT s,
-                                  const algorithmFPType *inputGradPtr, const int *selectedPosPtr,
-                                  algorithmFPType *grad);
+    virtual void defaultInnerLoop(const pooling2d::internal::Parameter & par, DAAL_INT i, DAAL_INT f, DAAL_INT k, DAAL_INT s,
+                                  const algorithmFPType * inputGradPtr, const int * selectedPosPtr, algorithmFPType * grad);
 
 private:
     typedef daal::internal::Dnn<algorithmFPType, cpu> dnn;
@@ -88,27 +80,27 @@ private:
     dnnPrimitive_t avePoolPrim = NULL;
 
     TArray<size_t, cpu> inputSizePtr;
-    size_t* inputSize = NULL;
+    size_t * inputSize = NULL;
 
     TArray<size_t, cpu> inputStridesPtr;
-    size_t* inputStrides = NULL;
+    size_t * inputStrides = NULL;
 
     TArray<size_t, cpu> outputSizePtr;
-    size_t* outputSize = NULL;
+    size_t * outputSize = NULL;
 
     TArray<size_t, cpu> outputStridesPtr;
-    size_t* outputStrides = NULL;
+    size_t * outputStrides = NULL;
 
     xDnnLayout ltUserInput;
     xDnnLayout ltUserOutput;
 };
 
-} // internal
-} // backward
-} // average_pooling2d
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace backward
+} // namespace average_pooling2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

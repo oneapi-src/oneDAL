@@ -32,13 +32,13 @@ namespace algorithms
 {
 namespace pca
 {
-
 /** Constructs PCA parameters */
-template<typename algorithmFPType>
-DAAL_EXPORT DistributedParameter<step2Master, algorithmFPType, correlationDense>::DistributedParameter
-    (const services::SharedPtr<covariance::DistributedIface<step2Master> > &covariance) : covariance(covariance) {};
+template <typename algorithmFPType>
+DAAL_EXPORT DistributedParameter<step2Master, algorithmFPType, correlationDense>::DistributedParameter(
+    const services::SharedPtr<covariance::DistributedIface<step2Master> > & covariance)
+    : covariance(covariance) {};
 
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 DAAL_EXPORT services::Status DistributedParameter<step2Master, algorithmFPType, correlationDense>::check() const
 {
     DAAL_CHECK(covariance, services::ErrorNullAuxiliaryAlgorithm);

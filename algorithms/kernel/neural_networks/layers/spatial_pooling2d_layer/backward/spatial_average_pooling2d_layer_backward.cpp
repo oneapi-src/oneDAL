@@ -45,7 +45,7 @@ __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_NEURAL_NETWORKS_LAYERS
  * Default constructor
  */
 Input::Input() {}
-Input::Input(const Input& other) : super(other) {}
+Input::Input(const Input & other) : super(other) {}
 
 /**
  * Returns an input object for backward spatial pyramid average 2D pooling layer
@@ -63,10 +63,10 @@ data_management::NumericTablePtr Input::get(LayerDataId id) const
  * \param[in] id  Identifier of the input object
  * \param[in] ptr Pointer to the object
  */
-void Input::set(LayerDataId id, const data_management::NumericTablePtr &ptr)
+void Input::set(LayerDataId id, const data_management::NumericTablePtr & ptr)
 {
     layers::LayerDataPtr inputData = get(layers::backward::inputFromForward);
-    (*inputData)[id] = ptr;
+    (*inputData)[id]               = ptr;
 }
 
 /**
@@ -74,15 +74,19 @@ void Input::set(LayerDataId id, const data_management::NumericTablePtr &ptr)
  * \param[in] parameter Algorithm parameter
  * \param[in] method    Computation method
  */
-services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Parameter *param = static_cast<const Parameter *>(parameter);
-    if (!param->propagateGradient) { return services::Status(); }
+    const Parameter * param = static_cast<const Parameter *>(parameter);
+    if (!param->propagateGradient)
+    {
+        return services::Status();
+    }
 
     services::Status s;
     DAAL_CHECK_STATUS(s, spatial_pooling2d::backward::Input::check(parameter, method));
 
-    DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(auxInputDimensions).get(), auxInputDimensionsStr(), data_management::packed_mask, 0, 4, 1));
+    DAAL_CHECK_STATUS(
+        s, data_management::checkNumericTable(get(auxInputDimensions).get(), auxInputDimensionsStr(), data_management::packed_mask, 0, 4, 1));
     return s;
 }
 
@@ -102,20 +106,23 @@ Result::Result() {}
  * \param[in] parameter %Parameter of the layer
  * \param[in] method    Computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Parameter *param = static_cast<const Parameter *>(parameter);
-    if (!param->propagateGradient) { return services::Status(); }
+    const Parameter * param = static_cast<const Parameter *>(parameter);
+    if (!param->propagateGradient)
+    {
+        return services::Status();
+    }
 
     services::Status s;
     DAAL_CHECK_STATUS(s, spatial_pooling2d::backward::Result::check(input, parameter, method));
     return s;
 }
 
-}// namespace interface1
-}// namespace backward
-}// namespace spatial_average_pooling2d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace spatial_average_pooling2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

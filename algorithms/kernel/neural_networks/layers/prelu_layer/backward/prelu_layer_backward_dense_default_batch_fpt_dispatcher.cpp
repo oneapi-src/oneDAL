@@ -19,7 +19,6 @@
 //  Implementation of prelu calculation functions.
 //--
 
-
 #include "prelu_layer_backward_batch_container.h"
 
 namespace daal

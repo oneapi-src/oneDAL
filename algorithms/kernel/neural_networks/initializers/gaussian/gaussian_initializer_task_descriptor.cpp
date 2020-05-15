@@ -29,8 +29,7 @@ namespace gaussian
 {
 namespace internal
 {
-
-GaussianInitializerTaskDescriptor::GaussianInitializerTaskDescriptor(Result *re, Parameter *pa)
+GaussianInitializerTaskDescriptor::GaussianInitializerTaskDescriptor(Result * re, Parameter * pa)
 {
     a      = pa->a;
     sigma  = pa->sigma;
@@ -39,9 +38,9 @@ GaussianInitializerTaskDescriptor::GaussianInitializerTaskDescriptor(Result *re,
     result = re->get(initializers::value).get();
 }
 
-} // internal
-} // gaussian
-} // initializers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace gaussian
+} // namespace initializers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

@@ -31,7 +31,6 @@ namespace classifier
 {
 namespace prediction
 {
-
 using namespace daal::data_management;
 
 namespace interface1
@@ -44,17 +43,19 @@ namespace interface1
  * \param[in] method    Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status st;
-    set(prediction, HomogenNumericTable<algorithmFPType>::create(1, (static_cast<const InputIface *>(input))->getNumberOfRows(), NumericTableIface::doAllocate, &st));
+    set(prediction, HomogenNumericTable<algorithmFPType>::create(1, (static_cast<const InputIface *>(input))->getNumberOfRows(),
+                                                                 NumericTableIface::doAllocate, &st));
     return st;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                                    const int method);
 
-}
-}
-}
-}
-}
+} // namespace interface1
+} // namespace prediction
+} // namespace classifier
+} // namespace algorithms
+} // namespace daal

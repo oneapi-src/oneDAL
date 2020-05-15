@@ -45,19 +45,19 @@ using namespace daal::services;
 string datasetName = "../data/batch/layer.csv";
 string weightsName = "../data/batch/layer.csv";
 
-size_t dataDimension = 0;
+size_t dataDimension    = 0;
 size_t weightsDimension = 2;
 
 int main()
 {
     /* Read datasetFileName from a file and create a tensor to store input data */
-    TensorPtr tensorData = readTensorFromCSV(datasetName);
+    TensorPtr tensorData    = readTensorFromCSV(datasetName);
     TensorPtr tensorWeights = readTensorFromCSV(weightsName);
 
     /* Create an algorithm to compute forward prelu layer results using default method */
     prelu::forward::Batch<> forwardPreluLayer;
-    forwardPreluLayer.parameter.dataDimension = dataDimension;
-    forwardPreluLayer.parameter.weightsDimension = weightsDimension;
+    forwardPreluLayer.parameter.dataDimension               = dataDimension;
+    forwardPreluLayer.parameter.weightsDimension            = weightsDimension;
     forwardPreluLayer.parameter.weightsAndBiasesInitialized = true;
 
     /* Set input objects for the forward prelu layer */
@@ -72,12 +72,12 @@ int main()
     printTensor(forwardResult->get(forward::value), "Forward prelu layer result (first 5 rows):", 5);
 
     /* Get the size of forward prelu layer output */
-    const Collection<size_t> &gDims = forwardResult->get(forward::value)->getDimensions();
-    TensorPtr tensorDataBack = TensorPtr(new HomogenTensor<>(gDims, Tensor::doAllocate, 0.01f));
+    const Collection<size_t> & gDims = forwardResult->get(forward::value)->getDimensions();
+    TensorPtr tensorDataBack         = TensorPtr(new HomogenTensor<>(gDims, Tensor::doAllocate, 0.01f));
 
     /* Create an algorithm to compute backward prelu layer results using default method */
     prelu::backward::Batch<> backwardPreluLayer;
-    backwardPreluLayer.parameter.dataDimension = dataDimension;
+    backwardPreluLayer.parameter.dataDimension    = dataDimension;
     backwardPreluLayer.parameter.weightsDimension = weightsDimension;
 
     /* Set input objects for the backward prelu layer */

@@ -44,7 +44,6 @@ namespace prediction
 {
 namespace internal
 {
-
 template <typename algorithmFpType, gbt::regression::prediction::Method method, CpuType cpu>
 class PredictKernel : public daal::algorithms::Kernel
 {
@@ -57,15 +56,15 @@ public:
      *  \param r[out]   Prediction results
      *  \param nIterations[in]  Number of iterations to predict in gradient boosted trees algorithm parameter
      */
-    services::Status compute(services::HostAppIface* pHostApp, const NumericTable *a,
-        const regression::Model *m, NumericTable *r, size_t nIterations);
+    services::Status compute(services::HostAppIface * pHostApp, const NumericTable * a, const regression::Model * m, NumericTable * r,
+                             size_t nIterations);
 };
 
 } // namespace internal
-}
-}
-}
-}
+} // namespace prediction
+} // namespace regression
+} // namespace gbt
+} // namespace algorithms
 } // namespace daal
 
 #endif

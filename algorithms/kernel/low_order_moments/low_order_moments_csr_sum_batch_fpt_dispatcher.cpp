@@ -29,4 +29,4 @@ namespace algorithms
 {
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER(low_order_moments::BatchContainer, batch, DAAL_FPTYPE, low_order_moments::sumCSR)
 }
-}
+} // namespace daal

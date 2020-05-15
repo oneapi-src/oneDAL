@@ -19,7 +19,6 @@
 //  Implementation of adagrad calculation.
 //--
 
-
 #include "adagrad_batch_container.h"
 #include "adagrad_dense_default_kernel.h"
 #include "adagrad_dense_default_impl.i"
@@ -32,7 +31,6 @@ namespace optimization_solver
 {
 namespace adagrad
 {
-
 namespace interface2
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

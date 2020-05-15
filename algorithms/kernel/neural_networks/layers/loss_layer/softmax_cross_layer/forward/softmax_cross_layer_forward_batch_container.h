@@ -43,34 +43,34 @@ namespace forward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::SoftmaxCrossKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    softmax_cross::forward::Input *input = static_cast<softmax_cross::forward::Input *>(_in);
-    softmax_cross::forward::Result *result = static_cast<softmax_cross::forward::Result *>(_res);
+    softmax_cross::forward::Input * input   = static_cast<softmax_cross::forward::Input *>(_in);
+    softmax_cross::forward::Result * result = static_cast<softmax_cross::forward::Result *>(_res);
 
-    softmax_cross::Parameter *parameter = static_cast<softmax_cross::Parameter *>(_par);
-    daal::services::Environment::env &env = *_env;
+    softmax_cross::Parameter * parameter   = static_cast<softmax_cross::Parameter *>(_par);
+    daal::services::Environment::env & env = *_env;
 
-    Tensor *inputTensor         = input->get(layers::forward::data).get();
-    Tensor *groundTruthTensor   = input->get(loss::forward::groundTruth).get();
-    Tensor *probabilitiesTensor = result->get(auxProbabilities).get();
-    Tensor *resultTensor        = result->get(layers::forward::value).get();
+    Tensor * inputTensor         = input->get(layers::forward::data).get();
+    Tensor * groundTruthTensor   = input->get(loss::forward::groundTruth).get();
+    Tensor * probabilitiesTensor = result->get(auxProbabilities).get();
+    Tensor * resultTensor        = result->get(layers::forward::value).get();
 
-    __DAAL_CALL_KERNEL(env, internal::SoftmaxCrossKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputTensor, *groundTruthTensor, *parameter,
-                       *probabilitiesTensor, *resultTensor);
+    __DAAL_CALL_KERNEL(env, internal::SoftmaxCrossKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputTensor, *groundTruthTensor,
+                       *parameter, *probabilitiesTensor, *resultTensor);
 }
 } // namespace interface1
 } // namespace forward

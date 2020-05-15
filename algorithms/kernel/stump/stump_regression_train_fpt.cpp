@@ -43,7 +43,7 @@ namespace interface1
  * \param[in] method        Decision stump training method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status st;
     stump::regression::ModelPtr modelPtr = stump::regression::Model::create(&st);
@@ -52,11 +52,12 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return st;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                                    const int method);
 
-}// namespace interface1
-}// namespace training
-}// namespace regression
-}// namespace stump
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace training
+} // namespace regression
+} // namespace stump
+} // namespace algorithms
+} // namespace daal

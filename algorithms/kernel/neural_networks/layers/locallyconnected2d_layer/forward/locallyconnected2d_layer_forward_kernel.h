@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate locallyconnected2ds.
 //--
 
-
 #ifndef __LOCALLYCONNECTED2D_LAYER_FORWARD_KERNEL_H__
 #define __LOCALLYCONNECTED2D_LAYER_FORWARD_KERNEL_H__
 
@@ -50,19 +49,20 @@ namespace internal
 /**
  *  \brief Kernel for locallyconnected2d calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class LocallyConnected2dKernel : public Kernel
 {
 public:
-    services::Status compute(const Tensor &inputTensor, const Tensor &weightsTensor, const Tensor &biasesTensor, Tensor &valueTensor, const locallyconnected2d::Parameter &parameter);
+    services::Status compute(const Tensor & inputTensor, const Tensor & weightsTensor, const Tensor & biasesTensor, Tensor & valueTensor,
+                             const locallyconnected2d::Parameter & parameter);
 };
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 
-} // locallyconnected2d
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace locallyconnected2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

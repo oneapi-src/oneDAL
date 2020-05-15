@@ -48,20 +48,18 @@ namespace forward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for forward pooling layer results computation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class PoolingKernel : public pooling2d::forward::internal::PoolingKernel<algorithmFPType, cpu>
 {
 public:
     /* Computes the results of forward batch normalization layer */
-    services::Status compute(const Tensor &dataTensor, Tensor &valueTensor,
-                 Tensor *selectedPosTensor, const maximum_pooling2d::Parameter &parameter);
+    services::Status compute(const Tensor & dataTensor, Tensor & valueTensor, Tensor * selectedPosTensor,
+                             const maximum_pooling2d::Parameter & parameter);
 
-    services::Status initialize(const services::Collection<size_t>& inDimsFull,
-                    const services::Collection<size_t>& outDimsFull);
+    services::Status initialize(const services::Collection<size_t> & inDimsFull, const services::Collection<size_t> & outDimsFull);
 
     ~PoolingKernel()
     {
@@ -71,39 +69,34 @@ public:
         }
         if (outputSize)
         {
-            delete [] outputSize;
+            delete[] outputSize;
         }
         if (outputStrides)
         {
-            delete [] outputStrides;
+            delete[] outputStrides;
         }
     }
+
 protected:
     /* Training */
     using pooling2d::forward::internal::PoolingKernel<algorithmFPType, cpu>::defaultCompute;
 
-    virtual void defaultInnerLoop(const pooling2d::internal::Parameter &par,
-                DAAL_INT i, DAAL_INT f, DAAL_INT k, DAAL_INT s, DAAL_INT j,
-                const algorithmFPType *data, algorithmFPType *valuePtr, int *selectedPosPtr);
+    virtual void defaultInnerLoop(const pooling2d::internal::Parameter & par, DAAL_INT i, DAAL_INT f, DAAL_INT k, DAAL_INT s, DAAL_INT j,
+                                  const algorithmFPType * data, algorithmFPType * valuePtr, int * selectedPosPtr);
 
-    void indicesLastZeroPaddingsCompute(const pooling2d::internal::Parameter &parameter,
-                const algorithmFPType *data, algorithmFPType *value,
-                int *selectedPos);
+    void indicesLastZeroPaddingsCompute(const pooling2d::internal::Parameter & parameter, const algorithmFPType * data, algorithmFPType * value,
+                                        int * selectedPos);
 
-    void indicesFirstZeroPaddingsCompute(const pooling2d::internal::Parameter &parameter,
-                const algorithmFPType *data, algorithmFPType *value,
-                int *selectedPos);
+    void indicesFirstZeroPaddingsCompute(const pooling2d::internal::Parameter & parameter, const algorithmFPType * data, algorithmFPType * value,
+                                         int * selectedPos);
 
     /* Prediction */
-    virtual void defaultInnerLoop(const pooling2d::internal::Parameter &par,
-                DAAL_INT i, DAAL_INT f, DAAL_INT k, DAAL_INT s, DAAL_INT j,
-                const algorithmFPType *data, algorithmFPType *valuePtr);
+    virtual void defaultInnerLoop(const pooling2d::internal::Parameter & par, DAAL_INT i, DAAL_INT f, DAAL_INT k, DAAL_INT s, DAAL_INT j,
+                                  const algorithmFPType * data, algorithmFPType * valuePtr);
 
-    void indicesLastZeroPaddingsCompute(const pooling2d::internal::Parameter &parameter,
-                const algorithmFPType *data, algorithmFPType *value);
+    void indicesLastZeroPaddingsCompute(const pooling2d::internal::Parameter & parameter, const algorithmFPType * data, algorithmFPType * value);
 
-    void indicesFirstZeroPaddingsCompute(const pooling2d::internal::Parameter &parameter,
-                const algorithmFPType *data, algorithmFPType *value);
+    void indicesFirstZeroPaddingsCompute(const pooling2d::internal::Parameter & parameter, const algorithmFPType * data, algorithmFPType * value);
 
 private:
     typedef daal::internal::Dnn<algorithmFPType, cpu> dnn;
@@ -111,18 +104,18 @@ private:
 
     dnnPrimitive_t maxPoolPrim = NULL;
 
-    size_t *outputSize = NULL;
-    size_t *outputStrides = NULL;
+    size_t * outputSize    = NULL;
+    size_t * outputStrides = NULL;
 
     xDnnLayout ltUserOutput;
 };
 
-} // internal
-} // forward
-} // maximum_pooling2d
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace forward
+} // namespace maximum_pooling2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

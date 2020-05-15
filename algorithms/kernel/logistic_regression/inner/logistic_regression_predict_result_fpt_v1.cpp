@@ -33,30 +33,31 @@ namespace prediction
 {
 namespace interface1
 {
-
-template<typename algorithmFPType>
-DAAL_EXPORT services::Status interface1::Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+template <typename algorithmFPType>
+DAAL_EXPORT services::Status interface1::Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                          const int method)
 {
     services::Status s;
-    const logistic_regression::prediction::interface1::Parameter* prm = (const logistic_regression::prediction::interface1::Parameter*)parameter;
-    const logistic_regression::prediction::Input* inp = static_cast<const logistic_regression::prediction::Input*>(input);
-    const size_t nProb = (prm->nClasses == 2 ? 1 : prm->nClasses);
-    if(prm->resultsToCompute & computeClassesLabels)
+    const logistic_regression::prediction::interface1::Parameter * prm = (const logistic_regression::prediction::interface1::Parameter *)parameter;
+    const logistic_regression::prediction::Input * inp                 = static_cast<const logistic_regression::prediction::Input *>(input);
+    const size_t nProb                                                 = (prm->nClasses == 2 ? 1 : prm->nClasses);
+    if (prm->resultsToCompute & computeClassesLabels)
         s = classifier::prediction::interface1::Result::allocate<algorithmFPType>(input, parameter, method);
-    if(s.ok() && (prm->resultsToCompute & computeClassesProbabilities))
-        set(probabilities, data_management::HomogenNumericTable<algorithmFPType>::create(nProb,
-            inp->getNumberOfRows(), data_management::NumericTableIface::doAllocate, &s));
-    if(s.ok() && (prm->resultsToCompute & computeClassesLogProbabilities))
-        set(logProbabilities, data_management::HomogenNumericTable<algorithmFPType>::create(nProb,
-        inp->getNumberOfRows(), data_management::NumericTableIface::doAllocate, &s));
+    if (s.ok() && (prm->resultsToCompute & computeClassesProbabilities))
+        set(probabilities, data_management::HomogenNumericTable<algorithmFPType>::create(nProb, inp->getNumberOfRows(),
+                                                                                         data_management::NumericTableIface::doAllocate, &s));
+    if (s.ok() && (prm->resultsToCompute & computeClassesLogProbabilities))
+        set(logProbabilities, data_management::HomogenNumericTable<algorithmFPType>::create(nProb, inp->getNumberOfRows(),
+                                                                                            data_management::NumericTableIface::doAllocate, &s));
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}
+} // namespace interface1
 
-}// namespace prediction
-}// namespace logistic_regression
-}// namespace algorithms
-}// namespace daal
+} // namespace prediction
+} // namespace logistic_regression
+} // namespace algorithms
+} // namespace daal

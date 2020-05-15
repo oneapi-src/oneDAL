@@ -38,6 +38,6 @@ namespace internal
 {
 template class CovarianceCSRBatchKernel<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
 }
-}
-}
-}
+} // namespace covariance
+} // namespace algorithms
+} // namespace daal

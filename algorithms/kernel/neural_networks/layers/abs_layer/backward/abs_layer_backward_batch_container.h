@@ -41,32 +41,35 @@ namespace backward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::AbsKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    abs::backward::Input *input = static_cast<abs::backward::Input *>(_in);
-    abs::backward::Result *result = static_cast<abs::backward::Result *>(_res);
+    abs::backward::Input * input   = static_cast<abs::backward::Input *>(_in);
+    abs::backward::Result * result = static_cast<abs::backward::Result *>(_res);
 
-    const layers::Parameter *par = static_cast<const layers::Parameter *>(_par);
-    if (!par->propagateGradient) { return services::Status(); }
+    const layers::Parameter * par = static_cast<const layers::Parameter *>(_par);
+    if (!par->propagateGradient)
+    {
+        return services::Status();
+    }
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    Tensor *inputTensor  = input->get(layers::backward::inputGradient).get();
-    Tensor *dataTensor   = input->get(abs::auxData).get();
-    Tensor *resultTensor = result->get(layers::backward::gradient).get();
+    Tensor * inputTensor  = input->get(layers::backward::inputGradient).get();
+    Tensor * dataTensor   = input->get(abs::auxData).get();
+    Tensor * resultTensor = result->get(layers::backward::gradient).get();
 
     __DAAL_CALL_KERNEL(env, internal::AbsKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputTensor, *dataTensor, *resultTensor);
 }

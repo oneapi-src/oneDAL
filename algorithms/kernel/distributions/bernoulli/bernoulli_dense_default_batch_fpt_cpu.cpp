@@ -31,7 +31,6 @@ namespace distributions
 {
 namespace bernoulli
 {
-
 namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

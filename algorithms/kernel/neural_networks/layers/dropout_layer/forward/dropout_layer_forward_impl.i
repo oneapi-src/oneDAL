@@ -44,37 +44,36 @@ namespace forward
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status DropoutKernel<algorithmFPType, method, cpu>::initialize(const dropout::Parameter &parameter)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status DropoutKernel<algorithmFPType, method, cpu>::initialize(const dropout::Parameter & parameter)
 {
     _engine = parameter.engine.get();
     return Status();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 Status DropoutKernel<algorithmFPType, method, cpu>::reset()
 {
     return Status();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status DropoutKernel<algorithmFPType, method, cpu>::compute(
-    const Tensor &inputTensor,
-    Tensor &resultTensor,
-    Tensor *maskTensor,
-    const dropout::Parameter &parameter)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status DropoutKernel<algorithmFPType, method, cpu>::compute(const Tensor & inputTensor, Tensor & resultTensor, Tensor * maskTensor,
+                                                            const dropout::Parameter & parameter)
 {
-    if (parameter.predictionStage && &inputTensor == &resultTensor) { return Status(); }
+    if (parameter.predictionStage && &inputTensor == &resultTensor)
+    {
+        return Status();
+    }
 
-    algorithmFPType inverseRetainRatio = (algorithmFPType) 1.0 / parameter.retainRatio;
-    const size_t nInputRows = inputTensor.getDimensionSize(0);
+    algorithmFPType inverseRetainRatio = (algorithmFPType)1.0 / parameter.retainRatio;
+    const size_t nInputRows            = inputTensor.getDimensionSize(0);
 
-    const size_t nBlocks = nInputRows / _nRowsInBlock;
+    const size_t nBlocks          = nInputRows / _nRowsInBlock;
     const size_t nRowsInLastBlock = nInputRows - nBlocks * _nRowsInBlock;
 
     const size_t nElementsInRow = inputTensor.getSize() / nInputRows;
-    const size_t nRowsInBuffer = (nBlocks > 0) ? _nRowsInBlock : nRowsInLastBlock;
+    const size_t nRowsInBuffer  = (nBlocks > 0) ? _nRowsInBlock : nRowsInLastBlock;
 
     TArray<int, cpu> rngBuffer(nElementsInRow * nRowsInBuffer);
     DAAL_CHECK_MALLOC(rngBuffer.get())
@@ -84,13 +83,11 @@ Status DropoutKernel<algorithmFPType, method, cpu>::compute(
     {
         for (size_t block = 0; block < nBlocks; block++)
         {
-            s |= processBlock(inputTensor, block * _nRowsInBlock, _nRowsInBlock,
-                              resultTensor, maskTensor, rngBuffer.get(), inverseRetainRatio);
+            s |= processBlock(inputTensor, block * _nRowsInBlock, _nRowsInBlock, resultTensor, maskTensor, rngBuffer.get(), inverseRetainRatio);
         }
         if (nRowsInLastBlock > 0)
         {
-            s |= processBlock(inputTensor, nBlocks * _nRowsInBlock, nRowsInLastBlock,
-                              resultTensor, maskTensor, rngBuffer.get(), inverseRetainRatio);
+            s |= processBlock(inputTensor, nBlocks * _nRowsInBlock, nRowsInLastBlock, resultTensor, maskTensor, rngBuffer.get(), inverseRetainRatio);
         }
     }
     else
@@ -107,27 +104,22 @@ Status DropoutKernel<algorithmFPType, method, cpu>::compute(
     return s;
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-inline Status DropoutKernel<algorithmFPType, method, cpu>::processBlock(
-    const Tensor &inputTensor,
-    const size_t nProcessedRows,
-    const size_t nRowsInCurrentBlock,
-    Tensor &resultTensor,
-    Tensor *maskTensor,
-    int *rngBuffer,
-    const algorithmFPType inverseRetainRatio)
+template <typename algorithmFPType, Method method, CpuType cpu>
+inline Status DropoutKernel<algorithmFPType, method, cpu>::processBlock(const Tensor & inputTensor, const size_t nProcessedRows,
+                                                                        const size_t nRowsInCurrentBlock, Tensor & resultTensor, Tensor * maskTensor,
+                                                                        int * rngBuffer, const algorithmFPType inverseRetainRatio)
 {
     ReadSubtensor<algorithmFPType, cpu> inputSubtensor(const_cast<Tensor &>(inputTensor), 0, 0, nProcessedRows, nRowsInCurrentBlock);
     DAAL_CHECK_BLOCK_STATUS(inputSubtensor);
-    const algorithmFPType *inputArray = inputSubtensor.get();
+    const algorithmFPType * inputArray = inputSubtensor.get();
 
     WriteOnlySubtensor<algorithmFPType, cpu> resultSubtensor(resultTensor, 0, 0, nProcessedRows, nRowsInCurrentBlock);
     DAAL_CHECK_BLOCK_STATUS(resultSubtensor);
-    algorithmFPType *resultArray = resultSubtensor.get();
+    algorithmFPType * resultArray = resultSubtensor.get();
 
     WriteOnlySubtensor<algorithmFPType, cpu> maskSubtensor(*maskTensor, 0, 0, nProcessedRows, nRowsInCurrentBlock);
     DAAL_CHECK_BLOCK_STATUS(maskSubtensor);
-    algorithmFPType *maskArray = maskSubtensor.get();
+    algorithmFPType * maskArray = maskSubtensor.get();
 
     const size_t nDataElements = inputSubtensor.getSize();
     Status s;
@@ -135,26 +127,23 @@ inline Status DropoutKernel<algorithmFPType, method, cpu>::processBlock(
 
     for (size_t i = 0; i < nDataElements; i++)
     {
-        maskArray[i] = rngBuffer[i] * inverseRetainRatio;
+        maskArray[i]   = rngBuffer[i] * inverseRetainRatio;
         resultArray[i] = inputArray[i] * maskArray[i];
     }
     return s;
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-inline Status DropoutKernel<algorithmFPType, method, cpu>::processBlockPrediction(
-    const Tensor &inputTensor,
-    const size_t nProcessedRows,
-    const size_t nRowsInCurrentBlock,
-    Tensor &resultTensor)
+template <typename algorithmFPType, Method method, CpuType cpu>
+inline Status DropoutKernel<algorithmFPType, method, cpu>::processBlockPrediction(const Tensor & inputTensor, const size_t nProcessedRows,
+                                                                                  const size_t nRowsInCurrentBlock, Tensor & resultTensor)
 {
     ReadSubtensor<algorithmFPType, cpu> inputSubtensor(const_cast<Tensor &>(inputTensor), 0, 0, nProcessedRows, nRowsInCurrentBlock);
     DAAL_CHECK_BLOCK_STATUS(inputSubtensor);
-    const algorithmFPType *inputArray = inputSubtensor.get();
+    const algorithmFPType * inputArray = inputSubtensor.get();
 
     WriteOnlySubtensor<algorithmFPType, cpu> resultSubtensor(resultTensor, 0, 0, nProcessedRows, nRowsInCurrentBlock);
     DAAL_CHECK_BLOCK_STATUS(resultSubtensor);
-    algorithmFPType *resultArray = resultSubtensor.get();
+    algorithmFPType * resultArray = resultSubtensor.get();
 
     const size_t nDataElements = inputSubtensor.getSize();
     for (size_t i = 0; i < nDataElements; i++)
@@ -164,8 +153,8 @@ inline Status DropoutKernel<algorithmFPType, method, cpu>::processBlockPredictio
     return Status();
 }
 
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 } // namespace dropout
 } // namespace layers
 } // namespace neural_networks

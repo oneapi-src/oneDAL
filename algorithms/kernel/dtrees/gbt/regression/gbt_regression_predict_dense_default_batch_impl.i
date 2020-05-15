@@ -51,7 +51,6 @@ namespace prediction
 {
 namespace internal
 {
-
 using gbt::prediction::internal::VECTOR_BLOCK_SIZE;
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -62,53 +61,49 @@ class PredictRegressionTask
 {
 public:
     typedef gbt::internal::GbtDecisionTree TreeType;
-    PredictRegressionTask(const NumericTable *x, NumericTable *y): _data(x), _res(y) {}
-    services::Status run(const gbt::regression::internal::ModelImpl* m, size_t nIterations, services::HostAppIface* pHostApp);
-
+    PredictRegressionTask(const NumericTable * x, NumericTable * y) : _data(x), _res(y) {}
+    services::Status run(const gbt::regression::internal::ModelImpl * m, size_t nIterations, services::HostAppIface * pHostApp);
 
 protected:
-    services::Status runInternal(services::HostAppIface* pHostApp, NumericTable* result);
-    algorithmFPType predictByTrees(size_t iFirstTree, size_t nTrees, const algorithmFPType* x);
-    void predictByTreesVector(size_t iFirstTree, size_t nTrees, const algorithmFPType* x, algorithmFPType* res);
-
+    services::Status runInternal(services::HostAppIface * pHostApp, NumericTable * result);
+    algorithmFPType predictByTrees(size_t iFirstTree, size_t nTrees, const algorithmFPType * x);
+    void predictByTreesVector(size_t iFirstTree, size_t nTrees, const algorithmFPType * x, algorithmFPType * res);
 
 protected:
     dtrees::internal::FeatureTypes _featHelper;
-    TArray<const TreeType*, cpu> _aTree;
-    const NumericTable* _data;
-    NumericTable* _res;
+    TArray<const TreeType *, cpu> _aTree;
+    const NumericTable * _data;
+    NumericTable * _res;
 };
-
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // PredictKernel
 //////////////////////////////////////////////////////////////////////////////////////////
-template<typename algorithmFPType, prediction::Method method, CpuType cpu>
-services::Status PredictKernel<algorithmFPType, method, cpu>::compute(services::HostAppIface* pHostApp, const NumericTable *x,
-    const regression::Model *m, NumericTable *r, size_t nIterations)
+template <typename algorithmFPType, prediction::Method method, CpuType cpu>
+services::Status PredictKernel<algorithmFPType, method, cpu>::compute(services::HostAppIface * pHostApp, const NumericTable * x,
+                                                                      const regression::Model * m, NumericTable * r, size_t nIterations)
 {
-    const daal::algorithms::gbt::regression::internal::ModelImpl* pModel =
-        static_cast<const daal::algorithms::gbt::regression::internal::ModelImpl*>(m);
+    const daal::algorithms::gbt::regression::internal::ModelImpl * pModel =
+        static_cast<const daal::algorithms::gbt::regression::internal::ModelImpl *>(m);
     PredictRegressionTask<algorithmFPType, cpu> task(x, r);
     return task.run(pModel, nIterations, pHostApp);
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status PredictRegressionTask<algorithmFPType, cpu>::run(const gbt::regression::internal::ModelImpl* m,
-    size_t nIterations, services::HostAppIface* pHostApp)
+services::Status PredictRegressionTask<algorithmFPType, cpu>::run(const gbt::regression::internal::ModelImpl * m, size_t nIterations,
+                                                                  services::HostAppIface * pHostApp)
 {
     DAAL_ASSERT(nIterations || nIterations <= m->size());
     DAAL_CHECK_MALLOC(this->_featHelper.init(*this->_data));
     const auto nTreesTotal = (nIterations ? nIterations : m->size());
     this->_aTree.reset(nTreesTotal);
     DAAL_CHECK_MALLOC(this->_aTree.get());
-    for(size_t i = 0; i < nTreesTotal; ++i)
-        this->_aTree[i] = m->at(i);
+    for (size_t i = 0; i < nTreesTotal; ++i) this->_aTree[i] = m->at(i);
     return runInternal(pHostApp, this->_res);
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(services::HostAppIface* pHostApp, NumericTable* result)
+services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(services::HostAppIface * pHostApp, NumericTable * result)
 {
     const auto nTreesTotal = this->_aTree.size();
 
@@ -120,28 +115,26 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
     SafeStatus safeStat;
     services::Status s;
     HostAppHelper host(pHostApp, 100);
-    for(size_t iTree = 0; iTree < nTreesTotal; iTree += dim.nTreesInBlock)
+    for (size_t iTree = 0; iTree < nTreesTotal; iTree += dim.nTreesInBlock)
     {
-        if(!s || host.isCancelled(s, 1))
-            return s;
+        if (!s || host.isCancelled(s, 1)) return s;
         size_t nTreesToUse = ((iTree + dim.nTreesInBlock) < nTreesTotal ? dim.nTreesInBlock : (nTreesTotal - iTree));
 
-        daal::threader_for(dim.nDataBlocks, dim.nDataBlocks, [&](size_t iBlock)
-        {
-            const size_t iStartRow = iBlock*dim.nRowsInBlock;
+        daal::threader_for(dim.nDataBlocks, dim.nDataBlocks, [&](size_t iBlock) {
+            const size_t iStartRow      = iBlock * dim.nRowsInBlock;
             const size_t nRowsToProcess = (iBlock == dim.nDataBlocks - 1) ? dim.nRowsTotal - iBlock * dim.nRowsInBlock : dim.nRowsInBlock;
-            ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable*>(this->_data), iStartRow, nRowsToProcess);
+            ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(this->_data), iStartRow, nRowsToProcess);
             DAAL_CHECK_BLOCK_STATUS_THR(xBD);
-            algorithmFPType* res = resBD.get() + iStartRow;
+            algorithmFPType * res = resBD.get() + iStartRow;
 
             size_t iRow;
-            for(iRow = 0; iRow + VECTOR_BLOCK_SIZE <= nRowsToProcess; iRow += VECTOR_BLOCK_SIZE)
+            for (iRow = 0; iRow + VECTOR_BLOCK_SIZE <= nRowsToProcess; iRow += VECTOR_BLOCK_SIZE)
             {
-                predictByTreesVector(iTree, nTreesToUse, xBD.get() + iRow*dim.nCols, res+iRow);
+                predictByTreesVector(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols, res + iRow);
             }
-            for(; iRow < nRowsToProcess; ++iRow)
+            for (; iRow < nRowsToProcess; ++iRow)
             {
-                res[iRow] += predictByTrees(iTree, nTreesToUse, xBD.get() + iRow*dim.nCols);
+                res[iRow] += predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols);
             }
         });
 
@@ -152,26 +145,26 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
 }
 
 template <typename algorithmFPType, CpuType cpu>
-algorithmFPType PredictRegressionTask<algorithmFPType, cpu>::predictByTrees(size_t iFirstTree, size_t nTrees, const algorithmFPType* x)
+algorithmFPType PredictRegressionTask<algorithmFPType, cpu>::predictByTrees(size_t iFirstTree, size_t nTrees, const algorithmFPType * x)
 {
     algorithmFPType val = 0;
-    for(size_t iTree = iFirstTree, iLastTree = iFirstTree + nTrees; iTree < iLastTree; ++iTree)
+    for (size_t iTree = iFirstTree, iLastTree = iFirstTree + nTrees; iTree < iLastTree; ++iTree)
         val += gbt::prediction::internal::predictForTree<algorithmFPType, TreeType, cpu>(*this->_aTree[iTree], this->_featHelper, x);
     return val;
 }
 
 template <typename algorithmFPType, CpuType cpu>
-void PredictRegressionTask<algorithmFPType, cpu>::predictByTreesVector(size_t iFirstTree, size_t nTrees, const algorithmFPType* x, algorithmFPType* res)
+void PredictRegressionTask<algorithmFPType, cpu>::predictByTreesVector(size_t iFirstTree, size_t nTrees, const algorithmFPType * x,
+                                                                       algorithmFPType * res)
 {
     algorithmFPType v[VECTOR_BLOCK_SIZE];
-    for(size_t iTree = iFirstTree, iLastTree = iFirstTree + nTrees; iTree < iLastTree; ++iTree)
+    for (size_t iTree = iFirstTree, iLastTree = iFirstTree + nTrees; iTree < iLastTree; ++iTree)
     {
         gbt::prediction::internal::predictForTreeVector<algorithmFPType, TreeType, cpu>(*this->_aTree[iTree], this->_featHelper, x, v);
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for(size_t j=0; j < VECTOR_BLOCK_SIZE; ++j)
-            res[j] += v[j];
+        for (size_t j = 0; j < VECTOR_BLOCK_SIZE; ++j) res[j] += v[j];
     }
 }
 

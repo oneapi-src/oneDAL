@@ -42,11 +42,11 @@ using namespace daal::data_management;
 using namespace daal::services;
 
 /* Input data set parameters */
-string datasetName = "../data/batch/layer.csv";
+string datasetName    = "../data/batch/layer.csv";
 const size_t nOutputs = 3;
 const size_t nInputs  = 3;
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetName);
 
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 
     /* Set parameters for the forward split layer */
     splitLayerForward.parameter.nOutputs = nOutputs;
-    splitLayerForward.parameter.nInputs = nInputs;
+    splitLayerForward.parameter.nInputs  = nInputs;
 
     /* Set input objects for the forward split layer */
     splitLayerForward.input.set(forward::data, tensorData);
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
     /* Print the results of the forward split layer */
     split::forward::ResultPtr forwardResult = splitLayerForward.getResult();
 
-    for(size_t i = 0; i < nOutputs; i++)
+    for (size_t i = 0; i < nOutputs; i++)
     {
         printTensor(forwardResult->get(split::forward::valueCollection, i), "Forward split layer result (first 5 rows):", 5);
     }
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 
     /* Set parameters for the backward split layer */
     splitLayerBackward.parameter.nOutputs = nOutputs;
-    splitLayerBackward.parameter.nInputs = nInputs;
+    splitLayerBackward.parameter.nInputs  = nInputs;
 
     /* Set input objects for the backward split layer */
     splitLayerBackward.input.set(split::backward::inputGradientCollection, forwardResult->get(split::forward::valueCollection));

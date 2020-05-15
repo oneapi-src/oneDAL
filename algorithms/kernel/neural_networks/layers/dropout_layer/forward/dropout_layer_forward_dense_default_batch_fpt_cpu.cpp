@@ -19,7 +19,6 @@
 //  Implementation of the forward dropout layer
 //--
 
-
 #include "dropout_layer_forward_batch_container.h"
 #include "dropout_layer_forward_kernel.h"
 #include "dropout_layer_forward_impl.i"
@@ -34,21 +33,20 @@ namespace layers
 {
 namespace dropout
 {
-
 namespace forward
 {
 namespace interface1
 {
 template class neural_networks::layers::dropout::forward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 namespace internal
 {
 template class DropoutKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 
-}
-}
-}
-}
-}
+} // namespace dropout
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

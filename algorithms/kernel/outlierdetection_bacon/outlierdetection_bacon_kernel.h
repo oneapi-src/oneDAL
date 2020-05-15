@@ -40,11 +40,10 @@ namespace bacon_outlier_detection
 {
 namespace internal
 {
-
 template <typename algorithmFPType, Method method, CpuType cpu>
 struct OutlierDetectionKernel : public Kernel
 {
-    services::Status compute(NumericTable &data, NumericTable &weights, const Parameter &par);
+    services::Status compute(NumericTable & data, NumericTable & weights, const Parameter & par);
 };
 
 } // namespace internal

@@ -19,7 +19,6 @@
 //  Implementation of ELU calculation algorithm container.
 //--
 
-
 #include "elu_layer_backward_batch_container.h"
 
 namespace daal

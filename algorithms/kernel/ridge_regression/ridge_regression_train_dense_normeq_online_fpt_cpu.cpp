@@ -34,14 +34,12 @@ namespace training
 {
 namespace interface1
 {
-
 template class OnlineContainer<DAAL_FPTYPE, normEqDense, DAAL_CPU>;
 
 } // namespace interface1
 
 namespace internal
 {
-
 template class OnlineKernel<DAAL_FPTYPE, normEqDense, DAAL_CPU>;
 
 } // namespace internal

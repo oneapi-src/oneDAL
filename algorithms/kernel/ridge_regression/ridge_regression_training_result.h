@@ -43,7 +43,7 @@ using namespace daal::services;
  * \param[in] parameter %Parameter of ridge regression model-based training
  * \param[in] method Computation method for the algorithm
  */
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const Parameter * parameter, const int method)
 {
     const Input * const in = static_cast<const Input *>(input);
@@ -52,8 +52,8 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const
     if (method == normEqDense)
     {
         const algorithmFPType dummy = 1.0;
-        set(model, ridge_regression::ModelPtr(new ridge_regression::internal::ModelNormEqImpl(in->getNumberOfFeatures(), in->getNumberOfDependentVariables(),
-                                                                *parameter, dummy, s)));
+        set(model, ridge_regression::ModelPtr(new ridge_regression::internal::ModelNormEqImpl(
+                       in->getNumberOfFeatures(), in->getNumberOfDependentVariables(), *parameter, dummy, s)));
     }
 
     return s;
@@ -65,7 +65,7 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const
 //  * \param[in] method        Computation method of the algorithm
 //  * \param[in] parameter     %Parameter of ridge regression model-based training
 
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 DAAL_EXPORT Status Result::allocate(const daal::algorithms::PartialResult * partialResult, const Parameter * parameter, int method)
 {
     const PartialResult * const partialRes = static_cast<const PartialResult *>(partialResult);
@@ -74,8 +74,8 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::PartialResult * part
     if (method == normEqDense)
     {
         algorithmFPType dummy = 1.0;
-        set(model, ridge_regression::ModelPtr(new ridge_regression::internal::ModelNormEqImpl(partialRes->getNumberOfFeatures(), partialRes->getNumberOfDependentVariables(),
-                                                                *parameter, dummy, s)));
+        set(model, ridge_regression::ModelPtr(new ridge_regression::internal::ModelNormEqImpl(
+                       partialRes->getNumberOfFeatures(), partialRes->getNumberOfDependentVariables(), *parameter, dummy, s)));
     }
 
     return s;

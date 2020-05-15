@@ -69,14 +69,14 @@ int main()
 void trainModel()
 {
     /* Read training data set from a .csv file and create a tensor to store input data */
-    TensorPtr trainingData = readTensorFromCSV(trainDatasetFile);
+    TensorPtr trainingData        = readTensorFromCSV(trainDatasetFile);
     TensorPtr trainingGroundTruth = readTensorFromCSV(trainGroundTruthFile, true);
 
     SharedPtr<optimization_solver::sgd::Batch<> > sgdAlgorithm(new optimization_solver::sgd::Batch<>());
-    float learningRate = 0.001f;
+    float learningRate                           = 0.001f;
     sgdAlgorithm->parameter.learningRateSequence = NumericTablePtr(new HomogenNumericTable<>(1, 1, NumericTable::doAllocate, learningRate));
     /* Set the batch size for the neural network training */
-    sgdAlgorithm->parameter.batchSize = batchSize;
+    sgdAlgorithm->parameter.batchSize   = batchSize;
     sgdAlgorithm->parameter.nIterations = trainingData->getDimensionSize(0) / sgdAlgorithm->parameter.batchSize;
 
     /* Create an algorithm to train neural network */
@@ -86,7 +86,7 @@ void trainModel()
     training::TopologyPtr topology = configureNet();
 
     services::Collection<size_t> oneBatchDimensions = trainingData->getDimensions();
-    oneBatchDimensions[0] = batchSize;
+    oneBatchDimensions[0]                           = batchSize;
     net.initialize(oneBatchDimensions, *topology);
 
     /* Pass a training data set and dependent values to the algorithm */
@@ -98,7 +98,7 @@ void trainModel()
 
     /* Retrieve training and prediction models of the neural network */
     training::ModelPtr trainingModel = net.getResult()->get(training::model);
-    predictionModel = trainingModel->getPredictionModel<float>();
+    predictionModel                  = trainingModel->getPredictionModel<float>();
 }
 
 void testModel()
@@ -127,7 +127,7 @@ void printResults()
     /* Read testing ground truth from a .csv file and create a tensor to store the data */
     TensorPtr predictionGroundTruth = readTensorFromCSV(testGroundTruthFile);
 
-    printTensors<int, float>(predictionGroundTruth, predictionResult->get(prediction::prediction),
-                             "Ground truth", "Neural network predictions: each class probability",
+    printTensors<int, float>(predictionGroundTruth, predictionResult->get(prediction::prediction), "Ground truth",
+                             "Neural network predictions: each class probability",
                              "Neural network classification results (first 20 observations):", 20);
 }

@@ -49,7 +49,7 @@ using namespace daal::data_management;
  *  \brief Initialize list of Decision tree kernels with implementations for supported architectures
  */
 template <typename algorithmFPType, training::Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::DecisionTreeTrainBatchKernel, algorithmFPType, method);
 }
@@ -67,23 +67,23 @@ template <typename algorithmFPType, training::Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
     const decision_tree::regression::training::Input * const input = static_cast<decision_tree::regression::training::Input *>(_in);
-    Result * const result = static_cast<Result *>(_res);
+    Result * const result                                          = static_cast<Result *>(_res);
 
-    const NumericTableConstPtr x = input->get(data);
-    const NumericTableConstPtr y = input->get(dependentVariables);
-    const NumericTableConstPtr w = input->get(weights);
+    const NumericTableConstPtr x  = input->get(data);
+    const NumericTableConstPtr y  = input->get(dependentVariables);
+    const NumericTableConstPtr w  = input->get(weights);
     const NumericTableConstPtr px = input->get(dataForPruning);
     const NumericTableConstPtr py = input->get(dependentVariablesForPruning);
 
     const ModelPtr r = result->get(model);
 
     const daal::algorithms::Parameter * const par = _par;
-    daal::services::Environment::env & env = *_env;
+    daal::services::Environment::env & env        = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::DecisionTreeTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),    \
-                       compute, x.get(), y.get(), w.get(), px.get(), py.get(), r.get(), par);
+    __DAAL_CALL_KERNEL(env, internal::DecisionTreeTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, x.get(), y.get(),
+                       w.get(), px.get(), py.get(), r.get(), par);
 }
-}
+} // namespace interface2
 } // namespace training
 } // namespace regression
 } // namespace decision_tree

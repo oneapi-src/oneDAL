@@ -19,7 +19,6 @@
 //  Implementation of gaussian initializer container.
 //--
 
-
 #include "gaussian_initializer_batch_container.h"
 
 namespace daal

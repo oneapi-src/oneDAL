@@ -36,36 +36,35 @@ namespace stump
 {
 namespace prediction
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::StumpPredictKernel, method, algorithmFPType);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    classifier::prediction::Input *input = static_cast<classifier::prediction::Input *>(_in);
-    classifier::prediction::Result *result = static_cast<classifier::prediction::Result *>(_res);
+    classifier::prediction::Input * input   = static_cast<classifier::prediction::Input *>(_in);
+    classifier::prediction::Result * result = static_cast<classifier::prediction::Result *>(_res);
 
-    NumericTable *a = static_cast<NumericTable *>(input->get(classifier::prediction::data).get());
-    stump::Model *m = static_cast<stump::Model *>(input->get(classifier::prediction::model).get());
+    NumericTable * a = static_cast<NumericTable *>(input->get(classifier::prediction::data).get());
+    stump::Model * m = static_cast<stump::Model *>(input->get(classifier::prediction::model).get());
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
     __DAAL_CALL_KERNEL(env, internal::StumpPredictKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, m,
-        result->get(classifier::prediction::prediction).get(), NULL);
+                       result->get(classifier::prediction::prediction).get(), NULL);
 }
 
-} // daal::algorithms::stump::prediction
-}
-}
+} // namespace prediction
+} // namespace stump
+} // namespace algorithms
 } // namespace daal
 
 #endif

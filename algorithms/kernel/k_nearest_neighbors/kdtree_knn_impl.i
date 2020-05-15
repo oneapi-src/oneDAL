@@ -28,12 +28,11 @@
     #include <immintrin.h>
 #endif
 
-
 #if defined(_MSC_VER)
-    #define DAAL_FORCEINLINE __forceinline
+    #define DAAL_FORCEINLINE   __forceinline
     #define DAAL_FORCENOINLINE __declspec(noinline)
 #else
-    #define DAAL_FORCEINLINE inline __attribute__((always_inline))
+    #define DAAL_FORCEINLINE   inline __attribute__((always_inline))
     #define DAAL_FORCENOINLINE __attribute__((noinline))
 #endif
 
@@ -51,27 +50,32 @@ namespace kdtree_knn_classification
 {
 namespace internal
 {
-
 #define __KDTREE_MAX_NODE_COUNT_MULTIPLICATION_FACTOR 3
-#define __KDTREE_LEAF_BUCKET_SIZE 31 // Must be ((power of 2) minus 1).
-#define __KDTREE_FIRST_PART_LEAF_NODES_PER_THREAD 3
-#define __KDTREE_DIMENSION_SELECTION_SIZE 128
-#define __KDTREE_MEDIAN_RANDOM_SAMPLE_COUNT 1024
-#define __KDTREE_DEPTH_MULTIPLICATION_FACTOR 4
-#define __KDTREE_SEARCH_SKIP 32
-#define __KDTREE_INDEX_VALUE_PAIRS_PER_THREAD 8192
-#define __KDTREE_SAMPLES_PERCENT 0.5
-#define __KDTREE_MAX_SAMPLES 1024
-#define __KDTREE_MIN_SAMPLES 256
-#define __SIMDWIDTH 8
+#define __KDTREE_LEAF_BUCKET_SIZE                     31 // Must be ((power of 2) minus 1).
+#define __KDTREE_FIRST_PART_LEAF_NODES_PER_THREAD     3
+#define __KDTREE_DIMENSION_SELECTION_SIZE             128
+#define __KDTREE_MEDIAN_RANDOM_SAMPLE_COUNT           1024
+#define __KDTREE_DEPTH_MULTIPLICATION_FACTOR          4
+#define __KDTREE_SEARCH_SKIP                          32
+#define __KDTREE_INDEX_VALUE_PAIRS_PER_THREAD         8192
+#define __KDTREE_SAMPLES_PERCENT                      0.5
+#define __KDTREE_MAX_SAMPLES                          1024
+#define __KDTREE_MIN_SAMPLES                          256
+#define __SIMDWIDTH                                   8
 
 #define __KDTREE_NULLDIMENSION (static_cast<size_t>(-1))
 
 template <CpuType cpu, typename T>
-inline const T & min(const T & a, const T & b) { return !(b < a) ? a : b; }
+inline const T & min(const T & a, const T & b)
+{
+    return !(b < a) ? a : b;
+}
 
 template <CpuType cpu, typename T>
-inline const T & max(const T & a, const T & b) { return (a < b) ? b : a; }
+inline const T & max(const T & a, const T & b)
+{
+    return (a < b) ? b : a;
+}
 
 template <typename T, CpuType cpu>
 class Stack
@@ -79,14 +83,18 @@ class Stack
 public:
     Stack() : _data(nullptr) {}
 
-    ~Stack() { services::daal_free(_data); _data = nullptr; }
+    ~Stack()
+    {
+        services::daal_free(_data);
+        _data = nullptr;
+    }
 
     bool init(size_t size)
     {
         _data = static_cast<T *>(services::internal::service_malloc<T, cpu>(size * sizeof(T)));
         _size = size;
         _top = _sizeMinus1 = size - 1;
-        _count = 0;
+        _count             = 0;
         return _data;
     }
 
@@ -101,7 +109,7 @@ public:
 
     void reset()
     {
-        _top = _sizeMinus1;
+        _top   = _sizeMinus1;
         _count = 0;
     }
 
@@ -114,7 +122,7 @@ public:
             DAAL_CHECK_STATUS_VAR(status)
         }
 
-        _top = (_top + 1) & _sizeMinus1;
+        _top        = (_top + 1) & _sizeMinus1;
         _data[_top] = value;
         ++_count;
 
@@ -124,7 +132,7 @@ public:
     DAAL_FORCEINLINE T pop()
     {
         const T value = _data[_top--];
-        _top = _top & _sizeMinus1;
+        _top          = _top & _sizeMinus1;
         --_count;
         return value;
     }
@@ -143,9 +151,9 @@ public:
             _top = _size - 1;
         }
         _sizeMinus1 = _size - 1;
-        int result = services::internal::daal_memcpy_s(newData, _size * sizeof(T), _data, _count * sizeof(T));
+        int result  = services::internal::daal_memcpy_s(newData, _size * sizeof(T), _data, _count * sizeof(T));
         T * oldData = _data;
-        _data = newData;
+        _data       = newData;
         services::daal_free(oldData);
         oldData = nullptr;
         return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);

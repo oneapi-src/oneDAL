@@ -38,31 +38,28 @@ namespace pca
 {
 namespace internal
 {
-
-
-
 template <typename algorithmFPType, CpuType cpu>
-class PCADenseBase: public Kernel
+class PCADenseBase : public Kernel
 {
 public:
-    services::Status signFlipEigenvectors(NumericTable& eigenvectors) const;
-    services::Status fillTable(NumericTable& table, algorithmFPType val) const;
-    services::Status copyTable(NumericTable& source, NumericTable& dest) const;
+    services::Status signFlipEigenvectors(NumericTable & eigenvectors) const;
+    services::Status fillTable(NumericTable & table, algorithmFPType val) const;
+    services::Status copyTable(NumericTable & source, NumericTable & dest) const;
 
 private:
-    void signFlipArray(size_t size, algorithmFPType *source) const;
+    void signFlipArray(size_t size, algorithmFPType * source) const;
 };
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status PCADenseBase<algorithmFPType, cpu>::copyTable(NumericTable& source, NumericTable& dest) const
+services::Status PCADenseBase<algorithmFPType, cpu>::copyTable(NumericTable & source, NumericTable & dest) const
 {
     size_t nElements = dest.getNumberOfColumns();
     ReadRows<algorithmFPType, cpu> sourceBlock(source, 0, nElements);
     DAAL_CHECK_BLOCK_STATUS(sourceBlock);
     WriteOnlyRows<algorithmFPType, cpu> destBlock(dest, 0, nElements);
     DAAL_CHECK_BLOCK_STATUS(destBlock);
-    const algorithmFPType *sourceData = sourceBlock.get();
-    algorithmFPType *destData = destBlock.get();
+    const algorithmFPType * sourceData = sourceBlock.get();
+    algorithmFPType * destData         = destBlock.get();
     for (size_t id = 0; id < nElements; ++id)
     {
         destData[id] = sourceData[id];
@@ -70,15 +67,14 @@ services::Status PCADenseBase<algorithmFPType, cpu>::copyTable(NumericTable& sou
     return services::Status();
 }
 
-
 template <typename algorithmFPType, CpuType cpu>
-services::Status PCADenseBase<algorithmFPType, cpu>::signFlipEigenvectors(NumericTable& eigenvectors) const
+services::Status PCADenseBase<algorithmFPType, cpu>::signFlipEigenvectors(NumericTable & eigenvectors) const
 {
     size_t nFeatures = eigenvectors.getNumberOfColumns();
-    size_t nVectors = eigenvectors.getNumberOfRows();
+    size_t nVectors  = eigenvectors.getNumberOfRows();
     WriteRows<algorithmFPType, cpu> eigenvectorsBlock(eigenvectors, 0, nVectors);
     DAAL_CHECK_BLOCK_STATUS(eigenvectorsBlock);
-    algorithmFPType *eigenvectorsData = eigenvectorsBlock.get();
+    algorithmFPType * eigenvectorsData = eigenvectorsBlock.get();
     for (size_t id = 0; id < nVectors; ++id)
     {
         signFlipArray(nFeatures, eigenvectorsData + id * nFeatures);
@@ -87,12 +83,12 @@ services::Status PCADenseBase<algorithmFPType, cpu>::signFlipEigenvectors(Numeri
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status PCADenseBase<algorithmFPType, cpu>::fillTable(NumericTable& table, algorithmFPType val) const
+services::Status PCADenseBase<algorithmFPType, cpu>::fillTable(NumericTable & table, algorithmFPType val) const
 {
     size_t nElements = table.getNumberOfColumns();
     WriteOnlyRows<algorithmFPType, cpu> tableBlock(table, 0, nElements);
     DAAL_CHECK_BLOCK_STATUS(tableBlock);
-    algorithmFPType *tableData = tableBlock.get();
+    algorithmFPType * tableData = tableBlock.get();
     for (size_t id = 0; id < nElements; ++id)
     {
         tableData[id] = val;
@@ -101,20 +97,19 @@ services::Status PCADenseBase<algorithmFPType, cpu>::fillTable(NumericTable& tab
 }
 
 template <typename algorithmFPType, CpuType cpu>
-void PCADenseBase<algorithmFPType, cpu>::signFlipArray(size_t size, algorithmFPType *source) const
+void PCADenseBase<algorithmFPType, cpu>::signFlipArray(size_t size, algorithmFPType * source) const
 {
-#define FABS(X) ((X) > (algorithmFPType)0 ? (X): -(X));
+#define FABS(X) ((X) > (algorithmFPType)0 ? (X) : -(X));
     algorithmFPType smax = source[0];
-    algorithmFPType max = FABS(smax)
-        for (size_t id = 1; id < size; ++id)
+    algorithmFPType max  = FABS(smax) for (size_t id = 1; id < size; ++id)
+    {
+        algorithmFPType tmp = FABS(source[id]);
+        if (tmp > max)
         {
-            algorithmFPType tmp = FABS(source[id]);
-            if (tmp > max)
-            {
-                max = tmp;
-                smax = source[id];
-            }
+            max  = tmp;
+            smax = source[id];
         }
+    }
     if (smax < 0)
     {
         for (size_t id = 0; id < size; ++id)

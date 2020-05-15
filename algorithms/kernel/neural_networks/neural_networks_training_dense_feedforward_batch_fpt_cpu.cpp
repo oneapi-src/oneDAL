@@ -19,7 +19,6 @@
 //  Implementation of neural networks calculation functions.
 //--
 
-
 #include "neural_networks_training_batch_container.h"
 #include "neural_networks_training_feedforward_kernel.h"
 #include "neural_networks_training_feedforward_impl.i"
@@ -40,7 +39,7 @@ namespace internal
 {
 template class TrainingKernelBatch<DAAL_FPTYPE, feedforwardDense, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace training
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

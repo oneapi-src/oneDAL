@@ -54,7 +54,7 @@ NumericTablePtr Input::get(InputId id) const
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the object
  */
-void Input::set(InputId id, const NumericTablePtr &ptr)
+void Input::set(InputId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -64,30 +64,30 @@ void Input::set(InputId id, const NumericTablePtr &ptr)
  * \param[in] par     %Parameter of algorithm
  * \param[in] method  Computation method of the algorithm
  */
-Status Input::check(const daal::algorithms::Parameter *par, int method) const
+Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
     NumericTablePtr inTable = get(data);
 
     DAAL_CHECK(inTable.get(), ErrorNullInputNumericTable);
-    DAAL_CHECK(inTable->getNumberOfRows() , ErrorIncorrectNumberOfObservations);
+    DAAL_CHECK(inTable->getNumberOfRows(), ErrorIncorrectNumberOfObservations);
     DAAL_CHECK(inTable->getNumberOfColumns(), ErrorIncorrectNumberOfFeatures);
 
     NumericTableIface::StorageLayout iLayout = inTable->getDataLayout();
 
     DAAL_CHECK(inTable->getNumberOfColumns() == inTable->getNumberOfRows(), ErrorIncorrectSizeOfInputNumericTable);
 
-    int iLayoutInt = (int) iLayout;
-    if(iLayoutInt & data_management::packed_mask)
+    int iLayoutInt = (int)iLayout;
+    if (iLayoutInt & data_management::packed_mask)
     {
-        DAAL_CHECK(!(iLayout == NumericTableIface::lowerPackedTriangularMatrix ||
-            iLayout == NumericTableIface::upperPackedTriangularMatrix), ErrorIncorrectTypeOfInputNumericTable);
+        DAAL_CHECK(!(iLayout == NumericTableIface::lowerPackedTriangularMatrix || iLayout == NumericTableIface::upperPackedTriangularMatrix),
+                   ErrorIncorrectTypeOfInputNumericTable);
     }
     return Status();
 }
 
 Result::Result() : daal::algorithms::Result(lastResultId + 1) {}
 
- /**
+/**
  * Returns result of the Cholesky algorithm
  * \param[in] id   Identifier of the result
  * \return         Final result that corresponds to the given identifier
@@ -102,7 +102,7 @@ NumericTablePtr Result::get(ResultId id) const
  * \param[in] id    Identifier of the result
  * \param[in] ptr   Pointer to the result
  */
-void Result::set(ResultId id, const NumericTablePtr &ptr)
+void Result::set(ResultId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -113,7 +113,7 @@ void Result::set(ResultId id, const NumericTablePtr &ptr)
  * \param[in] par     %Parameter of algorithm
  * \param[in] method  Computation method of the algorithm
  */
-Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     NumericTablePtr resTable = get(choleskyFactor);
 
@@ -123,21 +123,21 @@ Status Result::check(const daal::algorithms::Input *input, const daal::algorithm
 
     NumericTableIface::StorageLayout rLayout = resTable->getDataLayout();
 
-    Input *algInput = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
+    Input * algInput = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
 
-    DAAL_CHECK((resTable->getNumberOfColumns() == algInput->get(data)->getNumberOfColumns()) &&
-       (resTable->getNumberOfColumns() == resTable->getNumberOfRows()), ErrorIncorrectSizeOfOutputNumericTable);
+    DAAL_CHECK((resTable->getNumberOfColumns() == algInput->get(data)->getNumberOfColumns())
+                   && (resTable->getNumberOfColumns() == resTable->getNumberOfRows()),
+               ErrorIncorrectSizeOfOutputNumericTable);
 
-    const int rLayoutInt = (int) rLayout;
-    if(rLayoutInt & data_management::packed_mask)
+    const int rLayoutInt = (int)rLayout;
+    if (rLayoutInt & data_management::packed_mask)
     {
         DAAL_CHECK(rLayout == NumericTableIface::lowerPackedTriangularMatrix, ErrorIncorrectTypeOfOutputNumericTable);
     }
     return Status();
 }
 
-
-}// namespace interface1
-}// namespace cholesky
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace cholesky
+} // namespace algorithms
+} // namespace daal

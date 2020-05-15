@@ -45,7 +45,6 @@ __DAAL_REGISTER_SERIALIZATION_CLASS(PartialResultBase, SERIALIZATION_IMPLICIT_AL
 __DAAL_REGISTER_SERIALIZATION_CLASS(PartialResult, SERIALIZATION_IMPLICIT_ALS_TRAINING_INIT_PARTIAL_RESULT_ID);
 __DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep2, SERIALIZATION_IMPLICIT_ALS_TRAINING_INIT_DISTRIBUTED_PARTIAL_RESULT_STEP2_ID);
 
-
 PartialResultBase::PartialResultBase(size_t nElements) : daal::algorithms::PartialResult(nElements) {}
 
 KeyValueDataCollectionPtr PartialResultBase::get(PartialResultBaseId id) const
@@ -64,12 +63,12 @@ NumericTablePtr PartialResultBase::get(PartialResultBaseId id, size_t key) const
     return nt;
 }
 
-void PartialResultBase::set(PartialResultBaseId id, const KeyValueDataCollectionPtr &ptr)
+void PartialResultBase::set(PartialResultBaseId id, const KeyValueDataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-Status PartialResultBase::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+Status PartialResultBase::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     DAAL_CHECK(method == fastCSR, ErrorMethodNotSupported);
     return Status();
@@ -85,7 +84,7 @@ Status PartialResultBase::checkImpl(size_t nParts) const
     int unexpectedLayouts = (int)packed_mask;
     for (size_t i = 0; i < nParts; i++)
     {
-        NumericTable *nt = NumericTable::cast((*collection)[i]).get();
+        NumericTable * nt = NumericTable::cast((*collection)[i]).get();
         DAAL_CHECK_STATUS(s, checkNumericTable(nt, offsetsStr(), unexpectedLayouts, 0, 1, 1));
     }
 
@@ -94,12 +93,11 @@ Status PartialResultBase::checkImpl(size_t nParts) const
     DAAL_CHECK_EX(collection->size() == nParts, ErrorIncorrectDataCollectionSize, ArgumentName, outputOfInitForComputeStep3Str());
     for (size_t i = 0; i < nParts; i++)
     {
-        NumericTable *nt = NumericTable::cast((*collection)[i]).get();
+        NumericTable * nt = NumericTable::cast((*collection)[i]).get();
         DAAL_CHECK_STATUS(s, checkNumericTable(nt, outputOfInitForComputeStep3Str(), unexpectedLayouts, 0, 1, 0, false));
     }
     return s;
 }
-
 
 PartialResult::PartialResult() : PartialResultBase(lastPartialResultCollectionId + 1) {}
 
@@ -108,7 +106,7 @@ PartialModelPtr PartialResult::get(PartialResultId id) const
     return staticPointerCast<PartialModel, SerializationIface>(Argument::get(id));
 }
 
-void PartialResult::set(PartialResultId id, const PartialModelPtr &ptr)
+void PartialResult::set(PartialResultId id, const PartialModelPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -129,33 +127,31 @@ NumericTablePtr PartialResult::get(PartialResultCollectionId id, size_t key) con
     return nt;
 }
 
-void PartialResult::set(PartialResultCollectionId id, const KeyValueDataCollectionPtr &ptr)
+void PartialResult::set(PartialResultCollectionId id, const KeyValueDataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-Status PartialResult::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+Status PartialResult::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     Status s = PartialResultBase::check(input, parameter, method);
-    if (!s)
-        return s;
+    if (!s) return s;
 
-    const DistributedParameter *algParameter = static_cast<const DistributedParameter *>(parameter);
+    const DistributedParameter * algParameter           = static_cast<const DistributedParameter *>(parameter);
     SharedPtr<HomogenNumericTable<int> > partitionTable = internal::getPartition(algParameter, s);
-    if (!s)
-        return s;
+    if (!s) return s;
 
     size_t nParts = partitionTable->getNumberOfRows() - 1;
     DAAL_CHECK_STATUS(s, checkImpl(nParts));
 
-    const DistributedInput<step1Local> *algInput = static_cast<const DistributedInput<step1Local> *>(input);
-    size_t nRows = algInput->get(data)->getNumberOfRows();
+    const DistributedInput<step1Local> * algInput = static_cast<const DistributedInput<step1Local> *>(input);
+    size_t nRows                                  = algInput->get(data)->getNumberOfRows();
     DAAL_CHECK_EX(algParameter->fullNUsers >= nRows, ErrorIncorrectParameter, ParameterName, fullNUsersStr());
 
     PartialModelPtr model = get(partialModel);
     DAAL_CHECK(model, ErrorNullPartialModel);
 
-    size_t nFactors = algParameter->nFactors;
+    size_t nFactors       = algParameter->nFactors;
     int unexpectedLayouts = (int)packed_mask;
     DAAL_CHECK_STATUS(s, checkNumericTable(model->getFactors().get(), factorsStr(), unexpectedLayouts, 0, nFactors, nRows));
     DAAL_CHECK_STATUS(s, checkNumericTable(model->getIndices().get(), indicesStr(), unexpectedLayouts, 0, 1, nRows));
@@ -164,18 +160,18 @@ Status PartialResult::check(const daal::algorithms::Input *input, const daal::al
     DAAL_CHECK_EX(collection.get(), ErrorNullPartialResult, ArgumentName, outputOfStep1ForStep2Str());
     DAAL_CHECK_EX(collection->size() == nParts, ErrorIncorrectDataCollectionSize, ArgumentName, outputOfStep1ForStep2Str());
 
-    int *partitionData = partitionTable->getArray();
-    int expectedLayout = (int)NumericTableIface::csrArray;
+    int * partitionData = partitionTable->getArray();
+    int expectedLayout  = (int)NumericTableIface::csrArray;
 
-    NumericTable *nt = NumericTable::cast((*collection)[0]).get();
-    size_t resNRows = partitionData[1] - partitionData[0];
+    NumericTable * nt = NumericTable::cast((*collection)[0]).get();
+    size_t resNRows   = partitionData[1] - partitionData[0];
     DAAL_CHECK_STATUS(s, checkNumericTable(nt, outputOfStep1ForStep2Str(), 0, expectedLayout, 0, resNRows, false));
     size_t resNCols = nt->getNumberOfColumns();
     DAAL_CHECK_EX(resNCols == nRows, ErrorIncorrectNumberOfColumns, ArgumentName, outputOfStep1ForStep2Str());
 
     for (size_t i = 1; i < nParts; i++)
     {
-        nt = NumericTable::cast((*collection)[i]).get();
+        nt       = NumericTable::cast((*collection)[i]).get();
         resNRows = partitionData[i + 1] - partitionData[i];
         DAAL_CHECK_STATUS(s, checkNumericTable(nt, outputOfStep1ForStep2Str(), 0, expectedLayout, resNCols, resNRows, false));
     }
@@ -189,18 +185,18 @@ NumericTablePtr DistributedPartialResultStep2::get(DistributedPartialResultStep2
     return staticPointerCast<NumericTable, SerializationIface>(Argument::get(id));
 }
 
-void DistributedPartialResultStep2::set(DistributedPartialResultStep2Id id, const NumericTablePtr &ptr)
+void DistributedPartialResultStep2::set(DistributedPartialResultStep2Id id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-Status DistributedPartialResultStep2::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedPartialResultStep2::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    Status s = PartialResultBase::check(input, parameter, method);
-    const DistributedInput<step2Local> *algInput = static_cast<const DistributedInput<step2Local> *>(input);
+    Status s                                      = PartialResultBase::check(input, parameter, method);
+    const DistributedInput<step2Local> * algInput = static_cast<const DistributedInput<step2Local> *>(input);
 
     KeyValueDataCollectionPtr collection = algInput->get(inputOfStep2FromStep1);
-    const size_t nParts = collection->size();
+    const size_t nParts                  = collection->size();
     DAAL_CHECK_STATUS(s, checkImpl(nParts));
 
     size_t nRows = NumericTable::cast((*collection)[0])->getNumberOfRows();
@@ -214,9 +210,9 @@ Status DistributedPartialResultStep2::check(const daal::algorithms::Input *input
     return checkNumericTable(get(transposedData).get(), transposedDataStr(), 0, expectedLayout, nCols, nRows, false);
 }
 
-}// namespace interface1
-}// namespace init
-}// namespace training
-}// namespace implicit_als
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace init
+} // namespace training
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal

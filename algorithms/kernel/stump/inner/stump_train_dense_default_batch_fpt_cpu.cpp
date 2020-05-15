@@ -42,7 +42,7 @@ namespace internal
 {
 template class StumpTrainKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace training
+} // namespace stump
+} // namespace algorithms
+} // namespace daal

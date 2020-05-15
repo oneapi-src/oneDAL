@@ -36,20 +36,20 @@ namespace quality_metric
 {
 namespace multiclass_confusion_matrix
 {
-
 /**
  * Allocates memory for storing the computed quality metric
  * \param[in] input     Pointer to the input structure
  * \param[in] parameter Pointer to the parameter structure
  * \param[in] method    Computation method of the algorithm
  */
-template<typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+template <typename algorithmFPType>
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status st;
-    const Parameter *classifierParam = static_cast<const Parameter *>(parameter);
-    size_t nClasses = classifierParam->nClasses;
-    set(confusionMatrix, data_management::HomogenNumericTable<algorithmFPType>::create(nClasses, nClasses, data_management::NumericTableIface::doAllocate, &st));
+    const Parameter * classifierParam = static_cast<const Parameter *>(parameter);
+    size_t nClasses                   = classifierParam->nClasses;
+    set(confusionMatrix,
+        data_management::HomogenNumericTable<algorithmFPType>::create(nClasses, nClasses, data_management::NumericTableIface::doAllocate, &st));
 
     set(multiClassMetrics, data_management::HomogenNumericTable<algorithmFPType>::create(8, 1, data_management::NumericTableIface::doAllocate, &st));
     return st;

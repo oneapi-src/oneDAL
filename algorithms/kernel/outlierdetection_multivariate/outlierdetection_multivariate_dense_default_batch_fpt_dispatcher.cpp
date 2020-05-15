@@ -27,7 +27,8 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(multivariate_outlier_detection::BatchContainer, batch, DAAL_FPTYPE, multivariate_outlier_detection::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(multivariate_outlier_detection::BatchContainer, batch, DAAL_FPTYPE,
+                                      multivariate_outlier_detection::defaultDense)
 /**
  * Added to support deprecated baconDense value
  */

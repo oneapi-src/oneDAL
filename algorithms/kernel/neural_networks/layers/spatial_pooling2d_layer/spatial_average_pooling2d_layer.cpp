@@ -35,11 +35,13 @@ namespace spatial_average_pooling2d
 {
 namespace interface1
 {
-Parameter::Parameter(size_t pyramidHeight, size_t firstIndex, size_t secondIndex) : spatial_pooling2d::Parameter(pyramidHeight, firstIndex, secondIndex) {}
+Parameter::Parameter(size_t pyramidHeight, size_t firstIndex, size_t secondIndex)
+    : spatial_pooling2d::Parameter(pyramidHeight, firstIndex, secondIndex)
+{}
 
-}// namespace interface1
-}// namespace spatial_average_pooling2d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace spatial_average_pooling2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

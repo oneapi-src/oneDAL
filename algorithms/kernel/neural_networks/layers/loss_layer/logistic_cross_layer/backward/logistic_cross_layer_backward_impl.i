@@ -43,40 +43,37 @@ namespace backward
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status LogisticCrossKernel<algorithmFPType, method, cpu>::compute(
-    const Tensor &inputTensor,
-    const Tensor &groundTruthTensor,
-    Tensor &resultTensor)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status LogisticCrossKernel<algorithmFPType, method, cpu>::compute(const Tensor & inputTensor, const Tensor & groundTruthTensor,
+                                                                            Tensor & resultTensor)
 {
     size_t nRowsToProcess = inputTensor.getDimensionSize(0);
     ReadSubtensor<algorithmFPType, cpu, Tensor> inputBlock(const_cast<Tensor &>(inputTensor), 0, 0, 0, nRowsToProcess);
     DAAL_CHECK_BLOCK_STATUS(inputBlock);
-    const algorithmFPType *inputArray = inputBlock.get();
+    const algorithmFPType * inputArray = inputBlock.get();
 
     ReadSubtensor<algorithmFPType, cpu, Tensor> groundTruthBlock(const_cast<Tensor &>(groundTruthTensor), 0, 0, 0, nRowsToProcess);
     DAAL_CHECK_BLOCK_STATUS(groundTruthBlock);
-    const algorithmFPType *groundTruthArray = groundTruthBlock.get();
+    const algorithmFPType * groundTruthArray = groundTruthBlock.get();
 
     WriteSubtensor<algorithmFPType, cpu, Tensor> resultBlock(resultTensor, 0, 0, 0, nRowsToProcess);
     DAAL_CHECK_BLOCK_STATUS(resultBlock);
-    algorithmFPType *resultArray = resultBlock.get();
+    algorithmFPType * resultArray = resultBlock.get();
 
     logistic::forward::internal::LogisticKernel<algorithmFPType, logistic::defaultDense, cpu> logisticKernel;
     logisticKernel.compute(inputTensor, resultTensor);
 
-    size_t nDataElements = inputBlock.getSize();
+    size_t nDataElements         = inputBlock.getSize();
     algorithmFPType invBatchSize = 1.0 / (inputTensor.getDimensionSize(0));
-    for(size_t i = 0; i < nDataElements; i++)
+    for (size_t i = 0; i < nDataElements; i++)
     {
         resultArray[i] = invBatchSize * (resultArray[i] - groundTruthArray[i]);
     }
     return services::Status();
 }
 
-} // internal
-} // backward
+} // namespace internal
+} // namespace backward
 } // namespace logistic_cross
 } // namespace loss
 } // namespace layers

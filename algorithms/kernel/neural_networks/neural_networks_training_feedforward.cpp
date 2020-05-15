@@ -31,34 +31,44 @@ using namespace daal::data_management;
 using namespace daal::algorithms::neural_networks;
 using namespace daal::algorithms::neural_networks::layers;
 
-daal::algorithms::neural_networks::internal::LearnableLayerIndices::LearnableLayerIndices(
-                ForwardLayers *forwardLayers)
+daal::algorithms::neural_networks::internal::LearnableLayerIndices::LearnableLayerIndices(ForwardLayers * forwardLayers)
 {
-    size_t nLayers = forwardLayers->size();
+    size_t nLayers   = forwardLayers->size();
     nLearnableLayers = 0;
-    for(size_t layerId = 0; layerId < nLayers; layerId++)
+    for (size_t layerId = 0; layerId < nLayers; layerId++)
     {
-        forward::Input *forwardInput = forwardLayers->get(layerId)->getLayerInput();
-        TensorPtr wTensor = forwardInput->get(forward::weights);
-        if (!wTensor) { continue; }
+        forward::Input * forwardInput = forwardLayers->get(layerId)->getLayerInput();
+        TensorPtr wTensor             = forwardInput->get(forward::weights);
+        if (!wTensor)
+        {
+            continue;
+        }
         TensorPtr bTensor = forwardInput->get(forward::biases);
-        if (!bTensor) { continue; }
+        if (!bTensor)
+        {
+            continue;
+        }
         if (wTensor->getSize() + bTensor->getSize() > 0)
         {
             nLearnableLayers++;
         }
     }
     layerIndices.reset(nLearnableLayers);
-    if (!layerIndices.get())
-        return;
+    if (!layerIndices.get()) return;
     size_t iLayer = 0;
-    for(size_t layerId = 0; layerId < nLayers; layerId++)
+    for (size_t layerId = 0; layerId < nLayers; layerId++)
     {
-        forward::Input *forwardInput = forwardLayers->get(layerId)->getLayerInput();
-        TensorPtr wTensor = forwardInput->get(forward::weights);
-        if (!wTensor) { continue; }
+        forward::Input * forwardInput = forwardLayers->get(layerId)->getLayerInput();
+        TensorPtr wTensor             = forwardInput->get(forward::weights);
+        if (!wTensor)
+        {
+            continue;
+        }
         TensorPtr bTensor = forwardInput->get(forward::biases);
-        if (!bTensor) { continue; }
+        if (!bTensor)
+        {
+            continue;
+        }
         if (wTensor->getSize() + bTensor->getSize() > 0)
         {
             layerIndices[iLayer++] = layerId;
@@ -66,8 +76,7 @@ daal::algorithms::neural_networks::internal::LearnableLayerIndices::LearnableLay
     }
 }
 
-daal::algorithms::neural_networks::internal::LearnableLayerIndices::~LearnableLayerIndices()
-{}
+daal::algorithms::neural_networks::internal::LearnableLayerIndices::~LearnableLayerIndices() {}
 
 size_t daal::algorithms::neural_networks::internal::LearnableLayerIndices::nLearnable() const
 {

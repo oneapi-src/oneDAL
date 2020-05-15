@@ -40,22 +40,21 @@ namespace training
 {
 namespace internal
 {
-
 /**
  * Types of caches for kernel function values
  */
 enum SVMCacheType
 {
-    noCache,        /*!< No storage for caching kernel function values is provided */
-    simpleCache,    /*!< Storage for caching ALL kernel function values is provided */
-    lruCache        /*!< Storage for caching PART of kernel function values is provided;
+    noCache,     /*!< No storage for caching kernel function values is provided */
+    simpleCache, /*!< Storage for caching ALL kernel function values is provided */
+    lruCache     /*!< Storage for caching PART of kernel function values is provided;
                          LRU algorithm is used to exclude values from cache */
 };
 
 /**
  * Common interface for cache that stores kernel function values
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class SVMCacheIface
 {
 public:
@@ -70,7 +69,7 @@ public:
      * \param[out] block        Pointer to the block of values
      * \return status of the call
      */
-    virtual Status getRowBlock(size_t rowIndex, size_t startColIndex, size_t blockSize, const algorithmFPType*& block) = 0;
+    virtual Status getRowBlock(size_t rowIndex, size_t startColIndex, size_t blockSize, const algorithmFPType *& block) = 0;
 
     /**
      * Get blocks of values from the two rows of the matrix Q (kernel(x[i], x[j]))
@@ -82,8 +81,8 @@ public:
      * \param[out] block2       Pointer to the second block of values
      * \return status of the call
      */
-    virtual Status getTwoRowsBlock(size_t rowIndex1, size_t rowIndex2, size_t startColIndex, size_t blockSize,
-        const algorithmFPType*& block1, const algorithmFPType*& block2) = 0;
+    virtual Status getTwoRowsBlock(size_t rowIndex1, size_t rowIndex2, size_t startColIndex, size_t blockSize, const algorithmFPType *& block1,
+                                   const algorithmFPType *& block2) = 0;
 
     /**
      * Move the indices of the shrunk feature vector to the end of the array
@@ -93,25 +92,19 @@ public:
      * \param[in] I              Array of flags that describe the status of feature vectors
      * \return status of the call
      */
-    virtual Status updateShrinkingRowIndices(size_t nActiveVectors, const char *I) = 0;
+    virtual Status updateShrinkingRowIndices(size_t nActiveVectors, const char * I) = 0;
 };
 
 /**
  * Common implementation for cache that stores kernel function values
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class SVMCacheImpl : public SVMCacheIface<algorithmFPType, cpu>
 {
-
 public:
-    virtual ~SVMCacheImpl()
-    {
-    }
+    virtual ~SVMCacheImpl() {}
 
-    virtual size_t getDataRowIndex(size_t rowIndex) const
-    {
-        return _doShrinking ? _shrinkingRowIndices[rowIndex] : rowIndex;
-    }
+    virtual size_t getDataRowIndex(size_t rowIndex) const { return _doShrinking ? _shrinkingRowIndices[rowIndex] : rowIndex; }
 
 protected:
     /**
@@ -121,10 +114,9 @@ protected:
      * \param[in] doShrinking   Flag that enables use of the shrinking optimization technique
      * \param[in] kernel        Kernel function
      */
-    SVMCacheImpl(size_t lineSize, bool doShrinking, const kernel_function::KernelIfacePtr& kernel) :
-        _lineSize(lineSize), _doShrinking(doShrinking), _kernel(kernel)
-    {
-    }
+    SVMCacheImpl(size_t lineSize, bool doShrinking, const kernel_function::KernelIfacePtr & kernel)
+        : _lineSize(lineSize), _doShrinking(doShrinking), _kernel(kernel)
+    {}
 
     Status init()
     {
@@ -132,27 +124,27 @@ protected:
         {
             _shrinkingRowIndices.reset(_lineSize);
             DAAL_CHECK_MALLOC(_shrinkingRowIndices.get());
-            for (size_t i = 0; i < _lineSize; i++)
-                _shrinkingRowIndices[i] = i;
+            for (size_t i = 0; i < _lineSize; i++) _shrinkingRowIndices[i] = i;
         }
         return Status();
     }
 
 protected:
     TArray<algorithmFPType, cpu> _cache;
-    const size_t _lineSize;               /*!< Number of elements in the cache line */
-    const kernel_function::KernelIfacePtr _kernel;      /*!< Kernel function */
-    const bool _doShrinking;  /*!< Flag that enables use of the shrinking optimization technique */
-    TArray<size_t, cpu> _shrinkingRowIndices;    /*!< Array of input data row indices used with shrinking technique */
+    const size_t _lineSize;                        /*!< Number of elements in the cache line */
+    const kernel_function::KernelIfacePtr _kernel; /*!< Kernel function */
+    const bool _doShrinking;                       /*!< Flag that enables use of the shrinking optimization technique */
+    TArray<size_t, cpu> _shrinkingRowIndices;      /*!< Array of input data row indices used with shrinking technique */
 };
 
-template<SVMCacheType cacheType, typename algorithmFPType, CpuType cpu>
-class SVMCache {};
+template <SVMCacheType cacheType, typename algorithmFPType, CpuType cpu>
+class SVMCache
+{};
 
 /**
  * Simple cache: all elements of kernel matrix fit into cache
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class SVMCache<simpleCache, algorithmFPType, cpu> : public SVMCacheImpl<algorithmFPType, cpu>
 {
     typedef SVMCacheImpl<algorithmFPType, cpu> super;
@@ -174,17 +166,17 @@ public:
      * \param[in] xTable        Input data set
      * \param[in] kernel        Kernel function
      */
-    static SVMCache* create(size_t lineSize, bool doShrinking, const NumericTablePtr& xTable,
-        const kernel_function::KernelIfacePtr& kernel, Status& s)
+    static SVMCache * create(size_t lineSize, bool doShrinking, const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel,
+                             Status & s)
     {
         s.clear();
-        this_type* res = new this_type(lineSize, doShrinking, xTable, kernel);
-        if(!res)
+        this_type * res = new this_type(lineSize, doShrinking, xTable, kernel);
+        if (!res)
             s.add(ErrorMemoryAllocationFailed);
         else
         {
             s = res->init(xTable);
-            if(!s)
+            if (!s)
             {
                 delete res;
                 res = nullptr;
@@ -193,33 +185,32 @@ public:
         return res;
     }
 
-    virtual Status getRowBlock(size_t rowIndex, size_t startColIndex, size_t blockSize, const algorithmFPType*& block) DAAL_C11_OVERRIDE
+    virtual Status getRowBlock(size_t rowIndex, size_t startColIndex, size_t blockSize, const algorithmFPType *& block) DAAL_C11_OVERRIDE
     {
         block = _cache.get() + rowIndex * _lineSize + startColIndex;
         return Status();
     }
 
-    virtual Status getTwoRowsBlock(size_t rowIndex1, size_t rowIndex2, size_t startColIndex, size_t blockSize,
-        const algorithmFPType*& block1, const algorithmFPType*& block2) DAAL_C11_OVERRIDE
+    virtual Status getTwoRowsBlock(size_t rowIndex1, size_t rowIndex2, size_t startColIndex, size_t blockSize, const algorithmFPType *& block1,
+                                   const algorithmFPType *& block2) DAAL_C11_OVERRIDE
     {
         block1 = _cache.get() + rowIndex1 * _lineSize + startColIndex;
         block2 = _cache.get() + rowIndex2 * _lineSize + startColIndex;
         return Status();
     }
 
-    virtual Status updateShrinkingRowIndices(size_t nActiveVectors, const char *I) DAAL_C11_OVERRIDE;
+    virtual Status updateShrinkingRowIndices(size_t nActiveVectors, const char * I) DAAL_C11_OVERRIDE;
 
-    ~SVMCache(){}
+    ~SVMCache() {}
 
 protected:
-    Status init(const NumericTablePtr& xTable)
+    Status init(const NumericTablePtr & xTable)
     {
         Status s = super::init();
-        if(!s)
-            return s;
+        if (!s) return s;
         _cache.reset(_lineSize * _nLines);
         DAAL_CHECK_MALLOC(_cache.get());
-        if(_doShrinking)
+        if (_doShrinking)
         {
             _tmp.reset(_lineSize);
             DAAL_CHECK_MALLOC(_tmp.get());
@@ -246,8 +237,9 @@ protected:
     * \param[in] xTable        Input data set
     * \param[in] kernel        Kernel function
     */
-    SVMCache(size_t lineSize, bool doShrinking, const NumericTablePtr& xTable,
-        const kernel_function::KernelIfacePtr& kernel) : super(lineSize, doShrinking, kernel), _nLines(lineSize){}
+    SVMCache(size_t lineSize, bool doShrinking, const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel)
+        : super(lineSize, doShrinking, kernel), _nLines(lineSize)
+    {}
 
 protected:
     size_t _nLines;
@@ -258,7 +250,7 @@ protected:
 /**
  * No cache: kernel function values are not cached
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class SVMCache<noCache, algorithmFPType, cpu> : public SVMCacheImpl<algorithmFPType, cpu>
 {
     typedef SVMCacheImpl<algorithmFPType, cpu> super;
@@ -268,6 +260,7 @@ class SVMCache<noCache, algorithmFPType, cpu> : public SVMCacheImpl<algorithmFPT
     using super::_lineSize;
     using super::_shrinkingRowIndices;
     using super::_doShrinking;
+
 public:
     DAAL_NEW_DELETE();
     /**
@@ -278,17 +271,17 @@ public:
      * \param[in] xTable        Input data set
      * \param[in] kernel        Kernel function
      */
-    static SVMCache* create(size_t cacheSize, size_t lineSize, bool doShrinking, const NumericTablePtr& xTable,
-        const kernel_function::KernelIfacePtr& kernel, Status& s)
+    static SVMCache * create(size_t cacheSize, size_t lineSize, bool doShrinking, const NumericTablePtr & xTable,
+                             const kernel_function::KernelIfacePtr & kernel, Status & s)
     {
         s.clear();
-        this_type* res = new this_type(lineSize, doShrinking, xTable, kernel);
-        if(!res)
+        this_type * res = new this_type(lineSize, doShrinking, xTable, kernel);
+        if (!res)
             s.add(ErrorMemoryAllocationFailed);
         else
         {
             s = res->init(cacheSize, xTable);
-            if(!s)
+            if (!s)
             {
                 delete res;
                 res = nullptr;
@@ -297,24 +290,22 @@ public:
         return res;
     }
 
-    virtual Status getRowBlock(size_t rowIndex, size_t startColIndex, size_t blockSize, const algorithmFPType*& block) DAAL_C11_OVERRIDE
+    virtual Status getRowBlock(size_t rowIndex, size_t startColIndex, size_t blockSize, const algorithmFPType *& block) DAAL_C11_OVERRIDE
     {
         return getRowBlockImpl(rowIndex, startColIndex, blockSize, 0, block);
     }
 
-    virtual Status getTwoRowsBlock(size_t rowIndex1, size_t rowIndex2, size_t startColIndex, size_t blockSize,
-        const algorithmFPType*& block1, const algorithmFPType*& block2) DAAL_C11_OVERRIDE
+    virtual Status getTwoRowsBlock(size_t rowIndex1, size_t rowIndex2, size_t startColIndex, size_t blockSize, const algorithmFPType *& block1,
+                                   const algorithmFPType *& block2) DAAL_C11_OVERRIDE
     {
         Status s = getRowBlockImpl(rowIndex1, startColIndex, blockSize, 0, block1);
         s |= getRowBlockImpl(rowIndex2, startColIndex, blockSize, blockSize, block2);
         return s;
     }
 
-    virtual Status updateShrinkingRowIndices(size_t nActiveVectors, const char *I) DAAL_C11_OVERRIDE;
+    virtual Status updateShrinkingRowIndices(size_t nActiveVectors, const char * I) DAAL_C11_OVERRIDE;
 
-    ~SVMCache()
-    {
-    }
+    ~SVMCache() {}
 
 protected:
     /**
@@ -325,14 +316,14 @@ protected:
      * \param[in] xTable        Input data set
      * \param[in] kernel        Kernel function
      */
-    SVMCache(size_t lineSize, bool doShrinking, const NumericTablePtr& xTable,
-        const kernel_function::KernelIfacePtr& kernel) : super(lineSize, doShrinking, kernel){}
+    SVMCache(size_t lineSize, bool doShrinking, const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel)
+        : super(lineSize, doShrinking, kernel)
+    {}
 
-    Status init(size_t cacheSize, const NumericTablePtr& xTable)
+    Status init(size_t cacheSize, const NumericTablePtr & xTable)
     {
         Status s = super::init();
-        if(!s)
-            return s;
+        if (!s) return s;
         _cache.reset(cacheSize);
         DAAL_CHECK_MALLOC(_cache.get());
         _cacheTable = HomogenNumericTableCPU<algorithmFPType, cpu>::create(NULL, 1, _lineSize, &s);
@@ -349,14 +340,14 @@ protected:
         return s;
     }
 
-    Status getRowBlockImpl(size_t rowIndex, size_t startColIndex, size_t blockSize, size_t cacheOffset, const algorithmFPType*& block)
+    Status getRowBlockImpl(size_t rowIndex, size_t startColIndex, size_t blockSize, size_t cacheOffset, const algorithmFPType *& block)
     {
         _cacheTable->setArray(_cache.get() + cacheOffset, _cacheTable->getNumberOfRows());
         _kernel->getParameter()->rowIndexY = _doShrinking ? _shrinkingRowIndices[rowIndex] : rowIndex;
         Status s;
-        for(size_t i = 0; i < blockSize; i++)
+        for (size_t i = 0; i < blockSize; i++)
         {
-            _kernel->getParameter()->rowIndexX = _doShrinking ? _shrinkingRowIndices[startColIndex + i] : startColIndex + i;
+            _kernel->getParameter()->rowIndexX      = _doShrinking ? _shrinkingRowIndices[startColIndex + i] : startColIndex + i;
             _kernel->getParameter()->rowIndexResult = i;
             s.add(_kernel->computeNoThrow());
         }

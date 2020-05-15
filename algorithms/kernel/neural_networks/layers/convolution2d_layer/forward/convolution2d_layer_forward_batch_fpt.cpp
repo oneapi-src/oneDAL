@@ -40,28 +40,27 @@ namespace forward
 {
 namespace interface1
 {
-
 /**
 * Allocates memory to store the result of forward  2D convolution layer
  * \param[in] parameter %Parameter of forward 2D convolution layer
  * \param[in] method    Computation method for the layer
 */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Input::allocate(const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Input::allocate(const daal::algorithms::Parameter * parameter, const int method)
 {
     using daal::services::SharedPtr;
     using daal::data_management::Tensor;
     using daal::internal::MklTensor;
 
-    const Parameter *param =  static_cast<const Parameter * >(parameter);
+    const Parameter * param = static_cast<const Parameter *>(parameter);
 
-    if( !get(layers::forward::weights) )
+    if (!get(layers::forward::weights))
     {
         SharedPtr<Tensor> tensor(new MklTensor<algorithmFPType>(getWeightsSizes(param), Tensor::doAllocate));
         set(layers::forward::weights, tensor);
     }
 
-    if( !get(layers::forward::biases) )
+    if (!get(layers::forward::biases))
     {
         SharedPtr<Tensor> tensor(new MklTensor<algorithmFPType>(getBiasesSizes(param), Tensor::doAllocate));
         set(layers::forward::biases, tensor);
@@ -76,22 +75,22 @@ DAAL_EXPORT services::Status Input::allocate(const daal::algorithms::Parameter *
  * \param[in] method    Computation method for the layer
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     using daal::data_management::Tensor;
     using daal::internal::MklTensor;
-    const Input *in = static_cast<const Input * >(input);
+    const Input * in = static_cast<const Input *>(input);
 
-    const services::Collection<size_t> &inDims = in->get(layers::forward::data)->getDimensions();
+    const services::Collection<size_t> & inDims = in->get(layers::forward::data)->getDimensions();
 
     if (!get(layers::forward::value))
     {
-        set(layers::forward::value, services::SharedPtr<Tensor>(
-                new MklTensor<algorithmFPType>(getValueSize(inDims, parameter, method), Tensor::doAllocate)));
+        set(layers::forward::value,
+            services::SharedPtr<Tensor>(new MklTensor<algorithmFPType>(getValueSize(inDims, parameter, method), Tensor::doAllocate)));
     }
     services::Status s;
-    const layers::Parameter *par = static_cast<const layers::Parameter * >(parameter);
-    if(!par->predictionStage)
+    const layers::Parameter * par = static_cast<const layers::Parameter *>(parameter);
+    if (!par->predictionStage)
     {
         set(layers::forward::resultForBackward, services::SharedPtr<LayerData>(new LayerData()));
         s |= setResultForBackward(input);
@@ -99,13 +98,14 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return s;
 }
 
-template DAAL_EXPORT services::Status Input::allocate<DAAL_FPTYPE>(const daal::algorithms::Parameter *parameter, const int method);
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Input::allocate<DAAL_FPTYPE>(const daal::algorithms::Parameter * parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace forward
-}// namespace convolution2d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace convolution2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

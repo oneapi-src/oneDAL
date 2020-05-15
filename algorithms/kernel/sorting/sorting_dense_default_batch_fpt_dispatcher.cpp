@@ -29,6 +29,6 @@ namespace algorithms
 {
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER(sorting::BatchContainer, batch, DAAL_FPTYPE, sorting::defaultDense)
 
-} // namespace daal::algorithms
+} // namespace algorithms
 
 } // namespace daal

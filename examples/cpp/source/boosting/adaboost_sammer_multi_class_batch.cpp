@@ -32,11 +32,11 @@ using namespace daal;
 using namespace daal::algorithms;
 
 /* Input data set parameters */
-string trainDatasetFileName            = "../data/batch/decision_tree_train.csv";
-string testDatasetFileName             = "../data/batch/decision_tree_test.csv";
+string trainDatasetFileName = "../data/batch/decision_tree_train.csv";
+string testDatasetFileName  = "../data/batch/decision_tree_test.csv";
 
 const size_t nFeatures = 5; /* Number of features in training and testing data sets */
-const size_t nClasses = 5;  /* Number of classes */
+const size_t nClasses  = 5; /* Number of classes */
 
 adaboost::training::ResultPtr trainingResult;
 classifier::prediction::ResultPtr predictionResult;
@@ -46,7 +46,7 @@ void trainModel();
 void testModel();
 void printResults();
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
@@ -62,9 +62,7 @@ int main(int argc, char *argv[])
 void trainModel()
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName,
-                                                      DataSource::notAllocateNumericTable,
-                                                      DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and labels */
     NumericTablePtr trainData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
@@ -76,8 +74,10 @@ void trainModel()
 
     /* Create an algorithm object to train the AdaBoost model */
     adaboost::training::Batch<float, adaboost::training::sammeR> algorithm(nClasses);
-    algorithm.parameter().weakLearnerTraining = services::SharedPtr<classifier::training::Batch>(new stump::classification::training::Batch<>(nClasses));
-    algorithm.parameter().weakLearnerPrediction = services::SharedPtr<classifier::prediction::Batch>(new stump::classification::prediction::Batch<>(nClasses));
+    algorithm.parameter().weakLearnerTraining =
+        services::SharedPtr<classifier::training::Batch>(new stump::classification::training::Batch<>(nClasses));
+    algorithm.parameter().weakLearnerPrediction =
+        services::SharedPtr<classifier::prediction::Batch>(new stump::classification::prediction::Batch<>(nClasses));
 
     /* Pass the training data set and dependent values to the algorithm */
     algorithm.input.set(classifier::training::data, trainData);
@@ -93,9 +93,7 @@ void trainModel()
 void testModel()
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
-    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName,
-                                                     DataSource::notAllocateNumericTable,
-                                                     DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for testing data and labels */
     NumericTablePtr testData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
@@ -107,10 +105,11 @@ void testModel()
 
     /* Create algorithm objects for AdaBoost prediction with the default method */
     adaboost::prediction::Batch<float, adaboost::prediction::sammeR> algorithm(nClasses);
-    algorithm.parameter().weakLearnerPrediction = services::SharedPtr<classifier::prediction::Batch>(new stump::classification::prediction::Batch<>(nClasses));
+    algorithm.parameter().weakLearnerPrediction =
+        services::SharedPtr<classifier::prediction::Batch>(new stump::classification::prediction::Batch<>(nClasses));
 
     /* Pass the testing data set and trained model to the algorithm */
-    algorithm.input.set(classifier::prediction::data,  testData);
+    algorithm.input.set(classifier::prediction::data, testData);
     algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
 
     /* Compute prediction results */
@@ -122,8 +121,6 @@ void testModel()
 
 void printResults()
 {
-    printNumericTables<int, int>(testGroundTruth,
-                                 predictionResult->get(classifier::prediction::prediction),
-                                 "Ground truth", "Classification results",
+    printNumericTables<int, int>(testGroundTruth, predictionResult->get(classifier::prediction::prediction), "Ground truth", "Classification results",
                                  "AdaBoost classification results (first 20 observations):", 20);
 }

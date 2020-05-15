@@ -35,14 +35,12 @@ namespace training
 {
 namespace interface1
 {
-
 template class BatchContainer<DAAL_FPTYPE, normEqDense, DAAL_CPU>;
 
 } // namespace interface1
 
 namespace internal
 {
-
 template class BatchKernel<DAAL_FPTYPE, normEqDense, DAAL_CPU>;
 
 } // namespace internal

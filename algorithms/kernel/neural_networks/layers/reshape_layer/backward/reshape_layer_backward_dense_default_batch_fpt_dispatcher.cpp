@@ -19,7 +19,6 @@
 //  Implementation of reshape layer container.
 //--
 
-
 #include "reshape_layer_backward_batch_container.h"
 
 namespace daal

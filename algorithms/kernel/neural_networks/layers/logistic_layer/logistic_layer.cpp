@@ -40,9 +40,9 @@ namespace interface1
  */
 Parameter::Parameter() {};
 
-}// namespace interface1
-}// namespace logistic
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace logistic
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

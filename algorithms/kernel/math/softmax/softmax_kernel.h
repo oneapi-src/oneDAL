@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate softmax.
 //--
 
-
 #ifndef __SOFTMAX_KERNEL_H__
 #define __SOFTMAX_KERNEL_H__
 
@@ -51,20 +50,20 @@ namespace internal
  *  in case floating point type of intermediate calculations
  *  and method of calculations are different
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class SoftmaxKernel : public Kernel
 {
 public:
-    Status compute(const NumericTable *inputTable, NumericTable *resultTable);
+    Status compute(const NumericTable * inputTable, NumericTable * resultTable);
 
 private:
     const size_t _nRowsInBlock = 5000;
 
-    inline Status processBlock(const NumericTable &inputTable, size_t nInputColumns, size_t nProcessedRows, size_t nRowsInCurrentBlock,
-                               NumericTable &resultTable);
+    inline Status processBlock(const NumericTable & inputTable, size_t nInputColumns, size_t nProcessedRows, size_t nRowsInCurrentBlock,
+                               NumericTable & resultTable);
 };
 
-} // namespace daal::internal
+} // namespace internal
 } // namespace softmax
 } // namespace math
 } // namespace algorithms

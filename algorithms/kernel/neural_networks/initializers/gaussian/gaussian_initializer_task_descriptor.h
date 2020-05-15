@@ -33,24 +33,23 @@ namespace gaussian
 {
 namespace internal
 {
-
 class GaussianInitializerTaskDescriptor
 {
 public:
-    GaussianInitializerTaskDescriptor(Result *re, Parameter *pa);
+    GaussianInitializerTaskDescriptor(Result * re, Parameter * pa);
 
-    engines::BatchBase          *engine;
-    data_management::Tensor     *result;
-    layers::forward::LayerIface *layer;
+    engines::BatchBase * engine;
+    data_management::Tensor * result;
+    layers::forward::LayerIface * layer;
     double a;
     double sigma;
 };
 
-} // internal
-} // gaussian
-} // initializers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace gaussian
+} // namespace initializers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

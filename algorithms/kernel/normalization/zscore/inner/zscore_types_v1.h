@@ -32,7 +32,6 @@
 #include "services/daal_defines.h"
 #include "algorithms/algorithm.h"
 
-
 namespace daal
 {
 namespace algorithms
@@ -59,36 +58,35 @@ namespace normalization
 */
 namespace zscore
 {
-
 /**
 * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
 */
 namespace interface1
 {
-
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__NORMALIZATION__ZSCORE__PARAMETER"></a>
 * \brief Class that specifies the parameters of the algorithm in the batch computing mode
 */
-template<typename algorithmFPType, Method method>
-class DAAL_EXPORT Parameter : public daal::algorithms::Parameter {};
+template <typename algorithmFPType, Method method>
+class DAAL_EXPORT Parameter : public daal::algorithms::Parameter
+{};
 
 // /**
 //  * <a name="DAAL-CLASS-ALGORITHMS__NORMALIZATION__ZSCORE__PARAMETER"></a>
 //  * \brief Class that specifies the parameters of the default algorithm in the batch computing mode
 //  */
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 class DAAL_EXPORT Parameter<algorithmFPType, defaultDense> : public daal::algorithms::Parameter
 {
 public:
     /** Constructs z-score normalization parameters */
-    Parameter(const services::SharedPtr<low_order_moments::BatchImpl> &momentsForParameter =
-        services::SharedPtr<low_order_moments::Batch<algorithmFPType, low_order_moments::defaultDense> >
-        (new low_order_moments::Batch<algorithmFPType, low_order_moments::defaultDense>()));
+    Parameter(const services::SharedPtr<low_order_moments::BatchImpl> & momentsForParameter =
+                  services::SharedPtr<low_order_moments::Batch<algorithmFPType, low_order_moments::defaultDense> >(
+                      new low_order_moments::Batch<algorithmFPType, low_order_moments::defaultDense>()));
 
     services::SharedPtr<low_order_moments::BatchImpl> moments; /*!< Pointer to the algorithm that computes the low order moments */
 
-                                                               /**
+    /**
                                                                * Check the correctness of the %Parameter object
                                                                *
                                                                * \return Status of computations
@@ -105,7 +103,7 @@ class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result);
-    Result(const Result& o);
+    Result(const Result & o);
     Result();
 
     virtual ~Result() {};
@@ -118,7 +116,7 @@ public:
     * \return Status of computations
     */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const int method);
 
     /**
     * Returns the final result of the z-score normalization algorithm
@@ -132,7 +130,7 @@ public:
     * \param[in] id        Identifier of the Result object
     * \param[in] value     Pointer to the Result object
     */
-    void set(ResultId id, const data_management::NumericTablePtr &value);
+    void set(ResultId id, const data_management::NumericTablePtr & value);
 
     /**
     * Checks the correctness of the Result object
@@ -142,12 +140,12 @@ public:
     *
     * \return Status of computations
     */
-    services::Status check(const daal::algorithms::Input *in, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * in, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }

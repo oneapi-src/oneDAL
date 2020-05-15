@@ -39,9 +39,9 @@ namespace linear
 {
 namespace internal
 {
-
 template <Method method, typename algorithmFPType, CpuType cpu>
-struct KernelImplLinear {};
+struct KernelImplLinear
+{};
 
 } // namespace internal
 

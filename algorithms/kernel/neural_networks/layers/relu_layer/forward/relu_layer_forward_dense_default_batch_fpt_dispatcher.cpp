@@ -19,7 +19,6 @@
 //  Implementation of relu calculation algorithm container.
 //--
 
-
 #include "relu_layer_forward_batch_container.h"
 
 namespace daal
@@ -33,9 +32,9 @@ namespace layers
 namespace forward
 {
 __DAAL_INSTANTIATE_DISPATCH_LAYER_CONTAINER_FORWARD(neural_networks::layers::relu::forward::interface1::BatchContainer, DAAL_FPTYPE,
-                                      neural_networks::layers::relu::defaultDense)
+                                                    neural_networks::layers::relu::defaultDense)
 }
-}
-}
-}
-}
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

@@ -19,13 +19,13 @@
 //  Implementation of mse calculation algorithm container.
 //--
 
-
 #include "mse_dense_default_batch_container_v1.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(optimization_solver::mse::interface1::BatchContainer, batch, DAAL_FPTYPE, optimization_solver::mse::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(optimization_solver::mse::interface1::BatchContainer, batch, DAAL_FPTYPE,
+                                      optimization_solver::mse::defaultDense)
 } // namespace algorithms
 } // namespace daal

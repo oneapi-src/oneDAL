@@ -36,16 +36,14 @@ namespace quality_metric
 {
 namespace binary_confusion_matrix
 {
-
-
 /**
  * Allocates memory for storing results of the quality metric algorithm
  * \param[in] input     Pointer to the input objects structure
  * \param[in] parameter Pointer to the parameter structure
  * \param[in] method    Computation method of the algorithm
  */
-template<typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+template <typename algorithmFPType>
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status st;
     set(confusionMatrix, data_management::HomogenNumericTable<algorithmFPType>::create(2, 2, data_management::NumericTableIface::doAllocate, &st));

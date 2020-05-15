@@ -34,7 +34,6 @@ namespace kmeans
 {
 namespace init
 {
-
 /**
  * Allocates memory to store the results of computing initial clusters for the K-Means algorithm
  * \param[in] input        Pointer to the input structure
@@ -42,18 +41,18 @@ namespace init
  * \param[in] method       Computation method of the algorithm
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const interface1::Parameter *kmPar = static_cast<const interface1::Parameter *>(parameter);
-    const DistributedStep2MasterInput* masterInput = dynamic_cast<const DistributedStep2MasterInput*>(input);
-    size_t nFeatures = 0;
-    if(masterInput)
+    const interface1::Parameter * kmPar             = static_cast<const interface1::Parameter *>(parameter);
+    const DistributedStep2MasterInput * masterInput = dynamic_cast<const DistributedStep2MasterInput *>(input);
+    size_t nFeatures                                = 0;
+    if (masterInput)
     {
-        data_management::DataCollection* coll = masterInput->get(partialResults).get();
-        for(size_t i = 0; i < coll->size(); ++i)
+        data_management::DataCollection * coll = masterInput->get(partialResults).get();
+        for (size_t i = 0; i < coll->size(); ++i)
         {
-            data_management::NumericTable* partClusters = static_cast<PartialResult *>((*coll)[i].get())->get(partialClusters).get();
-            if(partClusters)
+            data_management::NumericTable * partClusters = static_cast<PartialResult *>((*coll)[i].get())->get(partialClusters).get();
+            if (partClusters)
             {
                 nFeatures = partClusters->getNumberOfColumns();
                 break;
@@ -63,8 +62,8 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     else
         nFeatures = (static_cast<const Input *>(input))->get(data)->getNumberOfColumns();
 
-    Argument::set(centroids, data_management::SerializationIfacePtr(
-        new data_management::HomogenNumericTable<algorithmFPType>(nFeatures, kmPar->nClusters, data_management::NumericTable::doAllocate)));
+    Argument::set(centroids, data_management::SerializationIfacePtr(new data_management::HomogenNumericTable<algorithmFPType>(
+                                 nFeatures, kmPar->nClusters, data_management::NumericTable::doAllocate)));
     return services::Status();
 }
 
@@ -75,24 +74,23 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
  * \param[in] method        Computation method of the algorithm
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialResult *partialResult, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialResult * partialResult, const daal::algorithms::Parameter * parameter,
+                                              const int method)
 {
-    const interface1::Parameter *kmPar = static_cast<const interface1::Parameter *>(parameter);
+    const interface1::Parameter * kmPar = static_cast<const interface1::Parameter *>(parameter);
 
-    size_t nClusters = kmPar->nClusters;
-    size_t nFeatures = 0;
-    const DistributedStep5MasterPlusPlusPartialResult* step5 = dynamic_cast<const DistributedStep5MasterPlusPlusPartialResult*>(partialResult);
-    if(step5)
+    size_t nClusters                                          = kmPar->nClusters;
+    size_t nFeatures                                          = 0;
+    const DistributedStep5MasterPlusPlusPartialResult * step5 = dynamic_cast<const DistributedStep5MasterPlusPlusPartialResult *>(partialResult);
+    if (step5)
         nFeatures = step5->get(candidates)->getNumberOfColumns();
     else
     {
-    const data_management::NumericTable* pPartialClusters = static_cast<const PartialResult *>(partialResult)->get(partialClusters).get();
-    if(pPartialClusters)
-        nFeatures = pPartialClusters->getNumberOfColumns();
+        const data_management::NumericTable * pPartialClusters = static_cast<const PartialResult *>(partialResult)->get(partialClusters).get();
+        if (pPartialClusters) nFeatures = pPartialClusters->getNumberOfColumns();
     }
-    Argument::set(centroids, data_management::SerializationIfacePtr(
-                      new data_management::HomogenNumericTable<algorithmFPType>(nFeatures, nClusters,
-                                                                                data_management::NumericTable::doAllocate)));
+    Argument::set(centroids, data_management::SerializationIfacePtr(new data_management::HomogenNumericTable<algorithmFPType>(
+                                 nFeatures, nClusters, data_management::NumericTable::doAllocate)));
     return services::Status();
 }
 

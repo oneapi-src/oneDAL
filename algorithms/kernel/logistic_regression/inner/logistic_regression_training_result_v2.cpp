@@ -34,13 +34,12 @@ namespace algorithms
 {
 namespace logistic_regression
 {
-
 namespace training
 {
 namespace interface2
 {
-Parameter::Parameter(size_t nClasses, const SolverPtr& solver):
-    classifier::interface1::Parameter(nClasses), interceptFlag(true), penaltyL1(0.), penaltyL2(0), optimizationSolver(solver)
+Parameter::Parameter(size_t nClasses, const SolverPtr & solver)
+    : classifier::interface1::Parameter(nClasses), interceptFlag(true), penaltyL1(0.), penaltyL2(0), optimizationSolver(solver)
 {}
 
 Status Parameter::check() const

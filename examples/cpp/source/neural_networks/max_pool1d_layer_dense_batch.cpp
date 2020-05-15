@@ -44,13 +44,13 @@ using namespace daal::services;
 /* Input data set name */
 string datasetFileName = "../data/batch/layer.csv";
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Read datasetFileName from a file and create a tensor to store input data */
-    TensorPtr data  = readTensorFromCSV(datasetFileName);
-    size_t nDim = data->getNumberOfDimensions();
+    TensorPtr data = readTensorFromCSV(datasetFileName);
+    size_t nDim    = data->getNumberOfDimensions();
 
     printTensor(data, "Forward one-dimensional maximum pooling layer input (first 10 rows):", 10);
 
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 
     printTensor(forwardResult->get(forward::value), "Forward one-dimensional maximum pooling layer result (first 5 rows):", 5);
     printTensor(forwardResult->get(maximum_pooling1d::auxSelectedIndices),
-        "Forward one-dimensional maximum pooling layer selected indices (first 5 rows):", 5);
+                "Forward one-dimensional maximum pooling layer selected indices (first 5 rows):", 5);
 
     /* Create an algorithm to compute backward one-dimensional maximum pooling layer results using default method */
     maximum_pooling1d::backward::Batch<> backwardLayer(nDim);
@@ -81,8 +81,7 @@ int main(int argc, char *argv[])
     /* Print the results of the backward one-dimensional maximum pooling layer */
     backward::ResultPtr backwardResult = backwardLayer.getResult();
 
-    printTensor(backwardResult->get(backward::gradient),
-                "Backward one-dimensional maximum pooling layer result (first 10 rows):", 10);
+    printTensor(backwardResult->get(backward::gradient), "Backward one-dimensional maximum pooling layer result (first 10 rows):", 10);
 
     return 0;
 }

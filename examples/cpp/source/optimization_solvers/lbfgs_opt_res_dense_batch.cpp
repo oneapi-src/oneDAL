@@ -38,19 +38,17 @@ string datasetFileName = "../data/batch/lbfgs.csv";
 
 const size_t nFeatures   = 10;
 const size_t nIterations = 1000;
-const float  stepLength  = 1.0e-4f;
+const float stepLength   = 1.0e-4f;
 
-float startPoint[nFeatures + 1]    = {100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100};
-float expectedPoint[nFeatures + 1] = { 11,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10};
+float startPoint[nFeatures + 1]    = { 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100 };
+float expectedPoint[nFeatures + 1] = { 11, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileName,
-                                                 DataSource::notAllocateNumericTable,
-                                                 DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for input data and dependent variables */
     NumericTablePtr data(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
@@ -60,8 +58,7 @@ int main(int argc, char *argv[])
     /* Retrieve the data from input file */
     dataSource.loadDataBlock(mergedData.get());
 
-    services::SharedPtr<optimization_solver::mse::Batch<> > mseObjectiveFunction(
-        new optimization_solver::mse::Batch<>(data->getNumberOfRows()));
+    services::SharedPtr<optimization_solver::mse::Batch<> > mseObjectiveFunction(new optimization_solver::mse::Batch<>(data->getNumberOfRows()));
     mseObjectiveFunction->input.set(optimization_solver::mse::data, data);
     mseObjectiveFunction->input.set(optimization_solver::mse::dependentVariables, dependentVariables);
 
@@ -69,8 +66,7 @@ int main(int argc, char *argv[])
     optimization_solver::lbfgs::Batch<> algorithm(mseObjectiveFunction);
     algorithm.parameter.nIterations = nIterations / 2;
 
-    algorithm.parameter.stepLengthSequence =
-        NumericTablePtr(new HomogenNumericTable<>(1, 1, NumericTableIface::doAllocate, stepLength));
+    algorithm.parameter.stepLengthSequence     = NumericTablePtr(new HomogenNumericTable<>(1, 1, NumericTableIface::doAllocate, stepLength));
     algorithm.parameter.optionalResultRequired = true;
 
     /* Set input objects for LBFGS algorithm */
@@ -80,29 +76,25 @@ int main(int argc, char *argv[])
     /* Compute LBFGS result */
     algorithm.compute();
 
-    NumericTablePtr expectedCoefficients =
-        NumericTablePtr(new HomogenNumericTable<>(expectedPoint, 1, nFeatures + 1));
+    NumericTablePtr expectedCoefficients = NumericTablePtr(new HomogenNumericTable<>(expectedPoint, 1, nFeatures + 1));
 
     /* Print computed LBFGS results */
-    printNumericTable(algorithm.getResult()->get(optimization_solver::iterative_solver::minimum),
-                      "Resulting coefficients after first compute():");
-    printNumericTable(algorithm.getResult()->get(optimization_solver::iterative_solver::nIterations),
-                      "Number of iterations performed:");
+    printNumericTable(algorithm.getResult()->get(optimization_solver::iterative_solver::minimum), "Resulting coefficients after first compute():");
+    printNumericTable(algorithm.getResult()->get(optimization_solver::iterative_solver::nIterations), "Number of iterations performed:");
 
     /* Continue calculations starting from the minimal point found */
-    algorithm.input.set(optimization_solver::iterative_solver::inputArgument, algorithm.getResult()->get(optimization_solver::iterative_solver::minimum));
+    algorithm.input.set(optimization_solver::iterative_solver::inputArgument,
+                        algorithm.getResult()->get(optimization_solver::iterative_solver::minimum));
     /* Set optional result as an optional input */
-    algorithm.input.set(optimization_solver::iterative_solver::optionalArgument, algorithm.getResult()->get(optimization_solver::iterative_solver::optionalResult));
+    algorithm.input.set(optimization_solver::iterative_solver::optionalArgument,
+                        algorithm.getResult()->get(optimization_solver::iterative_solver::optionalResult));
 
     /* Compute LBFGS result */
     algorithm.compute();
 
     /* Print computed LBFGS results */
-    printNumericTable(expectedCoefficients,
-        "Expected coefficients:");
-    printNumericTable(algorithm.getResult()->get(optimization_solver::iterative_solver::minimum),
-        "Resulting coefficients after second compute():");
-    printNumericTable(algorithm.getResult()->get(optimization_solver::iterative_solver::nIterations),
-        "Number of iterations performed:");
+    printNumericTable(expectedCoefficients, "Expected coefficients:");
+    printNumericTable(algorithm.getResult()->get(optimization_solver::iterative_solver::minimum), "Resulting coefficients after second compute():");
+    printNumericTable(algorithm.getResult()->get(optimization_solver::iterative_solver::nIterations), "Number of iterations performed:");
     return 0;
 }

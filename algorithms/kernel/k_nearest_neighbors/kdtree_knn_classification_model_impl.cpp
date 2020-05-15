@@ -45,17 +45,17 @@ Model::~Model()
     delete _impl;
 }
 
-Model::Model(size_t nFeatures, services::Status &st) : _impl(new ModelImpl(nFeatures))
+Model::Model(size_t nFeatures, services::Status & st) : _impl(new ModelImpl(nFeatures))
 {
     DAAL_CHECK_COND_ERROR(_impl, st, services::ErrorMemoryAllocationFailed);
 }
 
-services::SharedPtr<Model> Model::create(size_t nFeatures, services::Status *stat)
+services::SharedPtr<Model> Model::create(size_t nFeatures, services::Status * stat)
 {
     DAAL_DEFAULT_CREATE_IMPL_EX(Model, nFeatures);
 }
 
-services::Status Model::serializeImpl(data_management::InputDataArchive  * arch)
+services::Status Model::serializeImpl(data_management::InputDataArchive * arch)
 {
     daal::algorithms::classifier::Model::serialImpl<data_management::InputDataArchive, false>(arch);
     _impl->serialImpl<data_management::InputDataArchive, false>(arch);
@@ -88,7 +88,7 @@ services::Status Parameter::check() const
     DAAL_CHECK_EX(k >= 1, services::ErrorIncorrectParameter, services::ParameterName, kStr());
     return s;
 }
-}
+} // namespace interface2
 } // namespace kdtree_knn_classification
 } // namespace algorithms
 } // namespace daal

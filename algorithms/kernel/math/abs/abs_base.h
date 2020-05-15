@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate abss.
 //--
 
-
 #ifndef __ABS_BASE_H__
 #define __ABS_BASE_H__
 
@@ -49,22 +48,24 @@ namespace internal
  *  in case floating point type of intermediate calculations
  *  and method of calculations are different
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class AbsKernelBase : public Kernel
 {
 public:
-    Status compute(const NumericTable *inputTable, NumericTable *resultTable);
+    Status compute(const NumericTable * inputTable, NumericTable * resultTable);
 
 protected:
     static const size_t _nRowsInBlock = 5000;
 
-    virtual Status processBlock(const NumericTable &inputTable, size_t nInputColumns, size_t nProcessedRows, size_t nRowsInCurrentBlock, NumericTable &resultTable) = 0;
+    virtual Status processBlock(const NumericTable & inputTable, size_t nInputColumns, size_t nProcessedRows, size_t nRowsInCurrentBlock,
+                                NumericTable & resultTable) = 0;
 };
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-class AbsKernel {};
+template <typename algorithmFPType, Method method, CpuType cpu>
+class AbsKernel
+{};
 
-} // namespace daal::internal
+} // namespace internal
 } // namespace abs
 } // namespace math
 } // namespace algorithms

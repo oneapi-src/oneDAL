@@ -43,8 +43,8 @@ namespace internal
 {
 template class GroupOfBetasKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
-}
+} // namespace group_of_betas
+} // namespace quality_metric
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal

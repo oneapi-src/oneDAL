@@ -19,7 +19,6 @@
 //  Implementation of the backward dropout layer
 //--
 
-
 #ifndef __DROPOUT_LAYER_BACKWARD_KERNEL_H__
 #define __DROPOUT_LAYER_BACKWARD_KERNEL_H__
 
@@ -47,35 +46,28 @@ namespace backward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for dropout calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class DropoutKernel : public Kernel
 {
 public:
-    services::Status compute(const Tensor &inputGradientTable,
-                             const Tensor &maskTable,
-                             Tensor &resultTable);
+    services::Status compute(const Tensor & inputGradientTable, const Tensor & maskTable, Tensor & resultTable);
 
 private:
     const size_t _nRowsInBlock = 5000;
 
-    inline services::Status processBlock(
-        const Tensor &inputGradientTable,
-        const Tensor &maskTable,
-        const size_t nProcessedRows,
-        const size_t nRowsInCurrentBlock,
-        Tensor &resultTable);
+    inline services::Status processBlock(const Tensor & inputGradientTable, const Tensor & maskTable, const size_t nProcessedRows,
+                                         const size_t nRowsInCurrentBlock, Tensor & resultTable);
 };
 
-} // internal
-} // backward
-} // dropout
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace backward
+} // namespace dropout
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

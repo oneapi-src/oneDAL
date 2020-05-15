@@ -44,13 +44,13 @@ using namespace daal::services;
 /* Input data set name */
 string datasetFileName = "../data/batch/layer.csv";
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Read datasetFileName from a file and create a tensor to store input data */
-    TensorPtr data  = readTensorFromCSV(datasetFileName);
-    size_t nDim = data->getNumberOfDimensions();
+    TensorPtr data = readTensorFromCSV(datasetFileName);
+    size_t nDim    = data->getNumberOfDimensions();
 
     printTensor(data, "Forward two-dimensional average pooling layer input (first 10 rows):", 10);
 
@@ -78,8 +78,7 @@ int main(int argc, char *argv[])
     /* Get the computed backward two-dimensional average pooling layer results */
     backward::ResultPtr backwardResult = backwardLayer.getResult();
 
-    printTensor(backwardResult->get(backward::gradient),
-        "Backward two-dimensional average pooling layer result (first 10 rows):", 10);
+    printTensor(backwardResult->get(backward::gradient), "Backward two-dimensional average pooling layer result (first 10 rows):", 10);
 
     return 0;
 }

@@ -19,7 +19,6 @@
 //  Implementation of the backward logistic cross layer
 //--
 
-
 #ifndef __LOGISTIC_CROSS_LAYER_BACKWARD_KERNEL_H__
 #define __LOGISTIC_CROSS_LAYER_BACKWARD_KERNEL_H__
 
@@ -51,18 +50,14 @@ namespace backward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for logistic_cross calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class LogisticCrossKernel : public Kernel
 {
 public:
-    services::Status compute(
-        const Tensor &inputTensor,
-        const Tensor &groundTruthTensor,
-        Tensor &resultTensor);
+    services::Status compute(const Tensor & inputTensor, const Tensor & groundTruthTensor, Tensor & resultTensor);
 };
 
 } // namespace internal

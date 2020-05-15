@@ -38,11 +38,10 @@ namespace xavier
 {
 namespace internal
 {
-
 using namespace daal::algorithms::distributions::uniform::internal;
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status XavierKernel<algorithmFPType, method, cpu>::compute(const XavierInitializerTaskDescriptor &desc)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status XavierKernel<algorithmFPType, method, cpu>::compute(const XavierInitializerTaskDescriptor & desc)
 {
     initializers::internal::EngineImpl<cpu> engine(desc.engine);
     DAAL_CHECK_MALLOC(engine.get());
@@ -54,13 +53,13 @@ Status XavierKernel<algorithmFPType, method, cpu>::compute(const XavierInitializ
 
     WriteOnlySubtensor<algorithmFPType, cpu, Tensor> resultSubtensor(desc.result, 0, 0, 0, desc.result->getDimensions()[0]);
     DAAL_CHECK_BLOCK_STATUS(resultSubtensor);
-    algorithmFPType *resultArray = resultSubtensor.get();
+    algorithmFPType * resultArray = resultSubtensor.get();
 
     algorithmFPType scale = daal::internal::Math<double, cpu>::sSqrt(6.0 / ((double)fanIn + (double)fanOut));
     return UniformKernelDefault<algorithmFPType, cpu>::compute(-scale, scale, *engine, desc.result->getSize(), resultArray);
 }
 
-} // internal
+} // namespace internal
 } // namespace xavier
 } // namespace initializers
 } // namespace neural_networks

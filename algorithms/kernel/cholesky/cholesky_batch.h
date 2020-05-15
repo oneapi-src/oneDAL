@@ -41,18 +41,18 @@ namespace interface1
  * \param[in] method Computation method of the algorithm
  */
 template <typename algFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
-    Input *algInput = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
+    Input * algInput = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
     size_t nFeatures = algInput->get(data)->getNumberOfColumns();
     services::Status status;
     set(choleskyFactor, HomogenNumericTable<algFPType>::create(nFeatures, nFeatures, NumericTable::doAllocate, &status));
     return status;
 }
 
-}// namespace interface1
-}// namespace cholesky
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace cholesky
+} // namespace algorithms
+} // namespace daal
 
 #endif

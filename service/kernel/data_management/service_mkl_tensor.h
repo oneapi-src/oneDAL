@@ -21,7 +21,6 @@
 //--
 */
 
-
 #ifndef __MKL_TENSOR_H__
 #define __MKL_TENSOR_H__
 
@@ -35,12 +34,11 @@ namespace daal
 {
 namespace internal
 {
-
-template<typename FPType>
+template <typename FPType>
 class DnnLayoutDeleter : public services::DeleterIface
 {
 public:
-    void operator() (const void *ptr) DAAL_C11_OVERRIDE;
+    void operator()(const void * ptr) DAAL_C11_OVERRIDE;
 };
 
 class DnnLayoutPtr
@@ -48,45 +46,42 @@ class DnnLayoutPtr
 public:
     DAAL_NEW_DELETE();
 
-    DnnLayoutPtr() : _ownedPtr(NULL), _ptr(NULL), _refCount(NULL)
+    DnnLayoutPtr() : _ownedPtr(NULL), _ptr(NULL), _refCount(NULL) {}
+
+    template <class D>
+    explicit DnnLayoutPtr(void * ptr, const D & deleter) : _ownedPtr(ptr), _ptr(ptr), _refCount(NULL)
     {
+        if (_ownedPtr) _refCount = new services::RefCounterImp<D>(deleter);
     }
 
-    template<class D>
-    explicit DnnLayoutPtr(void *ptr, const D& deleter) : _ownedPtr(ptr), _ptr(ptr), _refCount(NULL)
-    {
-        if(_ownedPtr)
-            _refCount = new services::RefCounterImp<D>(deleter);
-    }
-
-    DnnLayoutPtr(const DnnLayoutPtr &other);
+    DnnLayoutPtr(const DnnLayoutPtr & other);
 
     ~DnnLayoutPtr() { _remove(); }
 
-    DnnLayoutPtr &operator=(const DnnLayoutPtr &ptr);
+    DnnLayoutPtr & operator=(const DnnLayoutPtr & ptr);
 
     void reset()
     {
         _remove();
         _ownedPtr = NULL;
         _refCount = NULL;
-        _ptr = NULL;
+        _ptr      = NULL;
     }
 
-    void *operator->() const { return _ptr; }
+    void * operator->() const { return _ptr; }
 
     operator bool() const { return (_ptr != NULL); }
 
-    void *get() const { return _ptr; }
+    void * get() const { return _ptr; }
 
-    void *getStartPtr() const { return _ownedPtr; }
+    void * getStartPtr() const { return _ownedPtr; }
 
     int useCount() const { return _refCount ? _refCount->get() : 0; }
 
 protected:
-    void *_ownedPtr;           /* Pointer to the beginning of the owned memory */
-    void *_ptr;                /* Pointer to return */
-    services::RefCounter *_refCount;  /* Reference count */
+    void * _ownedPtr;                 /* Pointer to the beginning of the owned memory */
+    void * _ptr;                      /* Pointer to return */
+    services::RefCounter * _refCount; /* Reference count */
 
     /**
     * Decreases the reference count
@@ -95,7 +90,7 @@ protected:
     void _remove();
 }; // class DnnLayoutPtr
 
-template<typename DataType = double>
+template <typename DataType = double>
 class DAAL_EXPORT MklTensor : public data_management::Tensor
 {
 public:
@@ -104,52 +99,55 @@ public:
     DAAL_CAST_OPERATOR(MklTensor<DataType>)
 
     /** \private */
-    MklTensor() : data_management::Tensor(&_layout), _layout(services::Collection<size_t>()),
-        _dnnPtr(NULL), _isDnnLayout(false),
-        _plainPtr(NULL), _isPlainLayout(false)
-    {
-    }
+    MklTensor()
+        : data_management::Tensor(&_layout),
+          _layout(services::Collection<size_t>()),
+          _dnnPtr(NULL),
+          _isDnnLayout(false),
+          _plainPtr(NULL),
+          _isPlainLayout(false)
+    {}
 
-    MklTensor(size_t nDim, const size_t *dimSizes);
+    MklTensor(size_t nDim, const size_t * dimSizes);
 
-    MklTensor(size_t nDim, const size_t *dimSizes, AllocationFlag memoryAllocationFlag);
+    MklTensor(size_t nDim, const size_t * dimSizes, AllocationFlag memoryAllocationFlag);
 
-    MklTensor(const services::Collection<size_t> &dims);
+    MklTensor(const services::Collection<size_t> & dims);
 
-    MklTensor(const services::Collection<size_t> &dims, AllocationFlag memoryAllocationFlag);
+    MklTensor(const services::Collection<size_t> & dims, AllocationFlag memoryAllocationFlag);
 
-    static services::SharedPtr<MklTensor<DataType> > create(services::Status *stat)
-    {
-        DAAL_DEFAULT_CREATE_IMPL(MklTensor<DataType>);
-    }
+    static services::SharedPtr<MklTensor<DataType> > create(services::Status * stat) { DAAL_DEFAULT_CREATE_IMPL(MklTensor<DataType>); }
 
-    static services::SharedPtr<MklTensor<DataType> > create(size_t nDim, const size_t *dimSizes, services::Status *stat)
+    static services::SharedPtr<MklTensor<DataType> > create(size_t nDim, const size_t * dimSizes, services::Status * stat)
     {
         DAAL_DEFAULT_CREATE_IMPL_EX(MklTensor<DataType>, nDim, dimSizes);
     }
 
-    static services::SharedPtr<MklTensor<DataType> > create(size_t nDim, const size_t *dimSizes,
-                                                            AllocationFlag memoryAllocationFlag, services::Status *stat)
+    static services::SharedPtr<MklTensor<DataType> > create(size_t nDim, const size_t * dimSizes, AllocationFlag memoryAllocationFlag,
+                                                            services::Status * stat)
     {
         DAAL_DEFAULT_CREATE_IMPL_EX(MklTensor<DataType>, nDim, dimSizes, memoryAllocationFlag);
     }
 
-    static services::SharedPtr<MklTensor<DataType> > create(const services::Collection<size_t> &dims, services::Status *stat)
+    static services::SharedPtr<MklTensor<DataType> > create(const services::Collection<size_t> & dims, services::Status * stat)
     {
         DAAL_DEFAULT_CREATE_IMPL_EX(MklTensor<DataType>, dims);
     }
 
-    static services::SharedPtr<MklTensor<DataType> > create(const services::Collection<size_t> &dims,
-                                                            AllocationFlag memoryAllocationFlag, services::Status *stat)
+    static services::SharedPtr<MklTensor<DataType> > create(const services::Collection<size_t> & dims, AllocationFlag memoryAllocationFlag,
+                                                            services::Status * stat)
     {
         DAAL_DEFAULT_CREATE_IMPL_EX(MklTensor<DataType>, dims, memoryAllocationFlag);
     }
 
-    static services::SharedPtr<MklTensor<DataType> > createWithDnnLayout(const services::Collection<size_t> &dims, void *layout,
-                                                                         AllocationFlag memoryAllocationFlag, services::Status *stat)
+    static services::SharedPtr<MklTensor<DataType> > createWithDnnLayout(const services::Collection<size_t> & dims, void * layout,
+                                                                         AllocationFlag memoryAllocationFlag, services::Status * stat)
     {
         auto tensor = MklTensor<DataType>::create(dims, memoryAllocationFlag, stat);
-        if (!stat->ok()) { return services::SharedPtr<MklTensor<DataType> >(); }
+        if (!stat->ok())
+        {
+            return services::SharedPtr<MklTensor<DataType> >();
+        }
 
         stat->add(tensor->setDnnLayout(layout));
         return tensor;
@@ -158,8 +156,8 @@ public:
     /**
      * MklTensor copying isn't implemented
      */
-    MklTensor(const MklTensor &other) = delete;
-    MklTensor &operator=(const MklTensor &other) = delete;
+    MklTensor(const MklTensor & other) = delete;
+    MklTensor & operator=(const MklTensor & other) = delete;
 
     /** \private */
     virtual ~MklTensor()
@@ -169,7 +167,7 @@ public:
         freePlainLayout();
     }
 
-    DataType* getDnnArray()
+    DataType * getDnnArray()
     {
         if (_dnnLayout)
         {
@@ -191,7 +189,7 @@ public:
         return _plainLayout;
     }
 
-    void* getDnnLayout()
+    void * getDnnLayout()
     {
         if (_dnnLayout)
         {
@@ -201,33 +199,24 @@ public:
         return _plainLayout.get();
     }
 
-    services::Status setDnnLayout(const DnnLayoutPtr &dnnLayout);
+    services::Status setDnnLayout(const DnnLayoutPtr & dnnLayout);
 
-    services::Status setDnnLayout(void* dnnLayout);
+    services::Status setDnnLayout(void * dnnLayout);
 
     services::Status syncDnnToPlain();
 
-    DataType* getPlainArray()
+    DataType * getPlainArray()
     {
         syncDnnToPlain();
         _isDnnLayout = false;
         return _plainPtr;
     }
 
-    bool isPlainLayout()
-    {
-        return _isPlainLayout;
-    }
+    bool isPlainLayout() { return _isPlainLayout; }
 
-    bool isDnnLayout()
-    {
-        return _isDnnLayout;
-    }
+    bool isDnnLayout() { return _isDnnLayout; }
 
-    data_management::TensorOffsetLayout& getTensorLayout()
-    {
-        return _layout;
-    }
+    data_management::TensorOffsetLayout & getTensorLayout() { return _layout; }
 
     virtual data_management::TensorOffsetLayout createDefaultSubtensorLayout() const DAAL_C11_OVERRIDE
     {
@@ -241,9 +230,9 @@ public:
         return layout;
     }
 
-    virtual services::Status setDimensions(size_t nDim, const size_t *dimSizes) DAAL_C11_OVERRIDE
+    virtual services::Status setDimensions(size_t nDim, const size_t * dimSizes) DAAL_C11_OVERRIDE
     {
-        if(!dimSizes)
+        if (!dimSizes)
         {
             return services::Status(services::ErrorNullParameterNotSupported);
         }
@@ -252,9 +241,9 @@ public:
         return setPlainLayout();
     }
 
-    virtual services::Status setDimensions(const services::Collection<size_t>& dimensions) DAAL_C11_OVERRIDE
+    virtual services::Status setDimensions(const services::Collection<size_t> & dimensions) DAAL_C11_OVERRIDE
     {
-        if(!dimensions.size())
+        if (!dimensions.size())
         {
             return services::Status(services::ErrorNullParameterNotSupported);
         }
@@ -267,7 +256,7 @@ public:
     {
         size_t size = getSize();
 
-        for(size_t i = 0; i < size; i++)
+        for (size_t i = 0; i < size; i++)
         {
             _plainPtr[i] = initValue;
         }
@@ -278,48 +267,51 @@ public:
 
     services::Status freeDnnLayout();
 
-    services::Status getSubtensorEx(size_t fixedDims, const size_t *fixedDimNums, size_t rangeDimIdx, size_t rangeDimNum,
-                        data_management::ReadWriteMode rwflag, data_management::SubtensorDescriptor<double> &block,
-                        const data_management::TensorOffsetLayout& layout) DAAL_C11_OVERRIDE;
-    services::Status getSubtensorEx(size_t fixedDims, const size_t *fixedDimNums, size_t rangeDimIdx, size_t rangeDimNum,
-                        data_management::ReadWriteMode rwflag, data_management::SubtensorDescriptor<float> &block,
-                        const data_management::TensorOffsetLayout& layout) DAAL_C11_OVERRIDE;
-    services::Status getSubtensorEx(size_t fixedDims, const size_t *fixedDimNums, size_t rangeDimIdx, size_t rangeDimNum,
-                        data_management::ReadWriteMode rwflag, data_management::SubtensorDescriptor<int> &block,
-                        const data_management::TensorOffsetLayout& layout) DAAL_C11_OVERRIDE;
+    services::Status getSubtensorEx(size_t fixedDims, const size_t * fixedDimNums, size_t rangeDimIdx, size_t rangeDimNum,
+                                    data_management::ReadWriteMode rwflag, data_management::SubtensorDescriptor<double> & block,
+                                    const data_management::TensorOffsetLayout & layout) DAAL_C11_OVERRIDE;
+    services::Status getSubtensorEx(size_t fixedDims, const size_t * fixedDimNums, size_t rangeDimIdx, size_t rangeDimNum,
+                                    data_management::ReadWriteMode rwflag, data_management::SubtensorDescriptor<float> & block,
+                                    const data_management::TensorOffsetLayout & layout) DAAL_C11_OVERRIDE;
+    services::Status getSubtensorEx(size_t fixedDims, const size_t * fixedDimNums, size_t rangeDimIdx, size_t rangeDimNum,
+                                    data_management::ReadWriteMode rwflag, data_management::SubtensorDescriptor<int> & block,
+                                    const data_management::TensorOffsetLayout & layout) DAAL_C11_OVERRIDE;
 
-    services::Status getSubtensor(size_t fixedDims, const size_t* fixedDimNums, size_t rangeDimIdx, size_t rangeDimNum,
-        data_management::ReadWriteMode rwflag, data_management::SubtensorDescriptor<double>& subtensor ) DAAL_C11_OVERRIDE
+    services::Status getSubtensor(size_t fixedDims, const size_t * fixedDimNums, size_t rangeDimIdx, size_t rangeDimNum,
+                                  data_management::ReadWriteMode rwflag, data_management::SubtensorDescriptor<double> & subtensor) DAAL_C11_OVERRIDE
     {
-        return getSubtensorEx(fixedDims, fixedDimNums, rangeDimIdx, rangeDimNum, rwflag, subtensor, _layout );
+        return getSubtensorEx(fixedDims, fixedDimNums, rangeDimIdx, rangeDimNum, rwflag, subtensor, _layout);
     }
 
-    services::Status getSubtensor(size_t fixedDims, const size_t* fixedDimNums, size_t rangeDimIdx, size_t rangeDimNum,
-        data_management::ReadWriteMode rwflag, data_management::SubtensorDescriptor<float>& subtensor ) DAAL_C11_OVERRIDE
+    services::Status getSubtensor(size_t fixedDims, const size_t * fixedDimNums, size_t rangeDimIdx, size_t rangeDimNum,
+                                  data_management::ReadWriteMode rwflag, data_management::SubtensorDescriptor<float> & subtensor) DAAL_C11_OVERRIDE
     {
-        return getSubtensorEx(fixedDims, fixedDimNums, rangeDimIdx, rangeDimNum, rwflag, subtensor, _layout );
+        return getSubtensorEx(fixedDims, fixedDimNums, rangeDimIdx, rangeDimNum, rwflag, subtensor, _layout);
     }
 
-    services::Status getSubtensor(size_t fixedDims, const size_t* fixedDimNums, size_t rangeDimIdx, size_t rangeDimNum,
-        data_management::ReadWriteMode rwflag, data_management::SubtensorDescriptor<int>& subtensor ) DAAL_C11_OVERRIDE
+    services::Status getSubtensor(size_t fixedDims, const size_t * fixedDimNums, size_t rangeDimIdx, size_t rangeDimNum,
+                                  data_management::ReadWriteMode rwflag, data_management::SubtensorDescriptor<int> & subtensor) DAAL_C11_OVERRIDE
     {
-        return getSubtensorEx(fixedDims, fixedDimNums, rangeDimIdx, rangeDimNum, rwflag, subtensor, _layout );
+        return getSubtensorEx(fixedDims, fixedDimNums, rangeDimIdx, rangeDimNum, rwflag, subtensor, _layout);
     }
 
-    services::Status releaseSubtensor(data_management::SubtensorDescriptor<double> &block) DAAL_C11_OVERRIDE;
-    services::Status releaseSubtensor(data_management::SubtensorDescriptor<float>  &block) DAAL_C11_OVERRIDE;
-    services::Status releaseSubtensor(data_management::SubtensorDescriptor<int>    &block) DAAL_C11_OVERRIDE;
+    services::Status releaseSubtensor(data_management::SubtensorDescriptor<double> & block) DAAL_C11_OVERRIDE;
+    services::Status releaseSubtensor(data_management::SubtensorDescriptor<float> & block) DAAL_C11_OVERRIDE;
+    services::Status releaseSubtensor(data_management::SubtensorDescriptor<int> & block) DAAL_C11_OVERRIDE;
 
     DAAL_DEPRECATED_VIRTUAL virtual data_management::TensorPtr getSampleTensor(size_t firstDimIndex) DAAL_C11_OVERRIDE
     {
         syncDnnToPlain();
 
         services::Collection<size_t> newDims = getDimensions();
-        if(!_plainPtr || newDims.size() == 0 || newDims[0] <= firstDimIndex) { return data_management::TensorPtr(); }
-        newDims[0] = 1;
-        const size_t *_dimOffsets = &((_layout.getOffsets())[0]);
+        if (!_plainPtr || newDims.size() == 0 || newDims[0] <= firstDimIndex)
+        {
+            return data_management::TensorPtr();
+        }
+        newDims[0]                 = 1;
+        const size_t * _dimOffsets = &((_layout.getOffsets())[0]);
         services::Status st;
-        return data_management::HomogenTensor<DataType>::create(newDims, _plainPtr + _dimOffsets[0]*firstDimIndex, &st);
+        return data_management::HomogenTensor<DataType>::create(newDims, _plainPtr + _dimOffsets[0] * firstDimIndex, &st);
     }
 
 protected:
@@ -327,26 +319,26 @@ protected:
 
     virtual services::Status freeDataMemoryImpl() DAAL_C11_OVERRIDE;
 
-    services::Status serializeImpl  (data_management::InputDataArchive  *archive) DAAL_C11_OVERRIDE
+    services::Status serializeImpl(data_management::InputDataArchive * archive) DAAL_C11_OVERRIDE
     {
-        serialImpl<data_management::InputDataArchive, false>( archive );
+        serialImpl<data_management::InputDataArchive, false>(archive);
 
         return services::Status();
     }
 
-    services::Status deserializeImpl(const data_management::OutputDataArchive *archive) DAAL_C11_OVERRIDE
+    services::Status deserializeImpl(const data_management::OutputDataArchive * archive) DAAL_C11_OVERRIDE
     {
-        serialImpl<const data_management::OutputDataArchive, true>( archive );
+        serialImpl<const data_management::OutputDataArchive, true>(archive);
 
         return services::Status();
     }
 
-    template<typename Archive, bool onDeserialize>
-    void serialImpl( Archive *archive )
+    template <typename Archive, bool onDeserialize>
+    void serialImpl(Archive * archive)
     {
-        Tensor::serialImpl<Archive, onDeserialize>( archive );
+        Tensor::serialImpl<Archive, onDeserialize>(archive);
 
-        archive->setObj( &_layout );
+        archive->setObj(&_layout);
 
         if (!onDeserialize)
         {
@@ -360,24 +352,24 @@ protected:
         }
 
         bool isAllocated = (_memStatus != notAllocated);
-        archive->set( isAllocated );
+        archive->set(isAllocated);
 
-        if( onDeserialize )
+        if (onDeserialize)
         {
             freeDataMemory();
 
-            if( isAllocated )
+            if (isAllocated)
             {
                 allocateDataMemory();
             }
         }
 
-        _isDnnLayout = false;
+        _isDnnLayout   = false;
         _isPlainLayout = false;
 
-        if(_memStatus != notAllocated)
+        if (_memStatus != notAllocated)
         {
-            archive->set( _plainPtr, getSize() );
+            archive->set(_plainPtr, getSize());
 
             _isPlainLayout = true;
         }
@@ -385,48 +377,46 @@ protected:
 
 private:
     template <typename T>
-    services::Status getTSubtensor( size_t fixedDims, const size_t *fixedDimNums, size_t rangeDimIdx, size_t rangeDimNum, int rwFlag,
-                        data_management::SubtensorDescriptor<T> &block, const data_management::TensorOffsetLayout& layout );
+    services::Status getTSubtensor(size_t fixedDims, const size_t * fixedDimNums, size_t rangeDimIdx, size_t rangeDimNum, int rwFlag,
+                                   data_management::SubtensorDescriptor<T> & block, const data_management::TensorOffsetLayout & layout);
     template <typename T>
-    services::Status releaseTSubtensor( data_management::SubtensorDescriptor<T> &block );
+    services::Status releaseTSubtensor(data_management::SubtensorDescriptor<T> & block);
 
     services::Status freePlainLayout();
     services::Status setPlainLayout();
     services::Status syncPlainToDnn();
 
-    MklTensor(services::Status &stat) :
-        MklTensor() { }
+    MklTensor(services::Status & stat) : MklTensor() {}
 
-    MklTensor(size_t nDim, const size_t *dimSizes, services::Status &stat) :
-        MklTensor(nDim, dimSizes) { }
+    MklTensor(size_t nDim, const size_t * dimSizes, services::Status & stat) : MklTensor(nDim, dimSizes) {}
 
-    MklTensor(size_t nDim, const size_t *dimSizes, AllocationFlag memoryAllocationFlag, services::Status &stat) :
-        MklTensor(nDim, dimSizes, memoryAllocationFlag) { }
+    MklTensor(size_t nDim, const size_t * dimSizes, AllocationFlag memoryAllocationFlag, services::Status & stat)
+        : MklTensor(nDim, dimSizes, memoryAllocationFlag)
+    {}
 
-    MklTensor(const services::Collection<size_t> &dims, services::Status &stat) :
-        MklTensor(dims) { }
+    MklTensor(const services::Collection<size_t> & dims, services::Status & stat) : MklTensor(dims) {}
 
-    MklTensor(const services::Collection<size_t> &dims, AllocationFlag memoryAllocationFlag, services::Status &stat) :
-        MklTensor(dims, memoryAllocationFlag) { }
+    MklTensor(const services::Collection<size_t> & dims, AllocationFlag memoryAllocationFlag, services::Status & stat)
+        : MklTensor(dims, memoryAllocationFlag)
+    {}
 
 private:
-    data_management::TensorOffsetLayout  _layout;
+    data_management::TensorOffsetLayout _layout;
 
-    DataType       *_dnnPtr;
-    DnnLayoutPtr    _dnnLayout;
-    bool            _isDnnLayout;
+    DataType * _dnnPtr;
+    DnnLayoutPtr _dnnLayout;
+    bool _isDnnLayout;
 
-    DataType       *_plainPtr;
-    DnnLayoutPtr    _plainLayout;
-    bool            _isPlainLayout;
+    DataType * _plainPtr;
+    DnnLayoutPtr _plainLayout;
+    bool _isPlainLayout;
 };
-
 
 /**
  * Checks if tensor can be casted to %MklTensor
  */
-template<typename algorithmFPType>
-inline bool canCastToMklTensor(const data_management::Tensor *tensor)
+template <typename algorithmFPType>
+inline bool canCastToMklTensor(const data_management::Tensor * tensor)
 {
     return dynamic_cast<const MklTensor<algorithmFPType> *>(tensor) != nullptr;
 }
@@ -434,8 +424,8 @@ inline bool canCastToMklTensor(const data_management::Tensor *tensor)
 /**
  * Checks if tensor can be casted to %MklTensor
  */
-template<typename algorithmFPType>
-inline bool canCastToMklTensor(const data_management::Tensor &tensor)
+template <typename algorithmFPType>
+inline bool canCastToMklTensor(const data_management::Tensor & tensor)
 {
     return canCastToMklTensor<algorithmFPType>(&tensor);
 }
@@ -443,8 +433,8 @@ inline bool canCastToMklTensor(const data_management::Tensor &tensor)
 /**
  * Checks if tensor can be casted to %MklTensor
  */
-template<typename algorithmFPType>
-inline bool canCastToMklTensor(const data_management::TensorPtr &tensor)
+template <typename algorithmFPType>
+inline bool canCastToMklTensor(const data_management::TensorPtr & tensor)
 {
     return canCastToMklTensor<algorithmFPType>(tensor.get());
 }
@@ -452,19 +442,19 @@ inline bool canCastToMklTensor(const data_management::TensorPtr &tensor)
 /**
  * Checks if tensor can be casted to %MklTensor
  */
-template<typename algorithmFPType>
-inline bool isTensorInDnnLayout(const data_management::Tensor *tensor)
+template <typename algorithmFPType>
+inline bool isTensorInDnnLayout(const data_management::Tensor * tensor)
 {
     using TensorType = MklTensor<algorithmFPType>;
-    auto mklTensor = dynamic_cast<const TensorType *>(tensor);
+    auto mklTensor   = dynamic_cast<const TensorType *>(tensor);
     return mklTensor && const_cast<TensorType *>(mklTensor)->isDnnLayout();
 }
 
 /**
  * Checks if tensor can be casted to %MklTensor
  */
-template<typename algorithmFPType>
-inline bool isTensorInDnnLayout(const data_management::Tensor &tensor)
+template <typename algorithmFPType>
+inline bool isTensorInDnnLayout(const data_management::Tensor & tensor)
 {
     return isTensorInDnnLayout<algorithmFPType>(&tensor);
 }
@@ -472,8 +462,8 @@ inline bool isTensorInDnnLayout(const data_management::Tensor &tensor)
 /**
  * Checks if tensor can be casted to %MklTensor
  */
-template<typename algorithmFPType>
-inline bool isTensorInDnnLayout(const data_management::TensorPtr &tensor)
+template <typename algorithmFPType>
+inline bool isTensorInDnnLayout(const data_management::TensorPtr & tensor)
 {
     return isTensorInDnnLayout<algorithmFPType>(tensor.get());
 }
@@ -483,8 +473,7 @@ inline bool isTensorInDnnLayout(const data_management::TensorPtr &tensor)
  * otherwise it creates HomogenTensor<algorithmFPType>.
  */
 template <typename algorithmFPType>
-data_management::TensorPtr createTensorKeepingType(const data_management::Tensor *inputTensor,
-                                                   services::Status &status)
+data_management::TensorPtr createTensorKeepingType(const data_management::Tensor * inputTensor, services::Status & status)
 {
     if (!inputTensor)
     {
@@ -502,7 +491,6 @@ data_management::TensorPtr createTensorKeepingType(const data_management::Tensor
         return HomogenTensor<algorithmFPType>::create(inputTensor->getDimensions(), data_management::Tensor::doAllocate, &status);
     }
 }
-
 
 } // namespace internal
 } // namespace daal

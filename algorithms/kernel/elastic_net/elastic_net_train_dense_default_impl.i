@@ -56,8 +56,8 @@ namespace internal
 //////////////////////////////////////////////////////////////////////////////////////////
 template <typename algorithmFPType, elastic_net::training::Method method, CpuType cpu>
 services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
-    const HostAppIfacePtr & pHost, const NumericTablePtr & x, const NumericTablePtr & y, elastic_net::Model & m, Result & res,
-    const Parameter & par, services::SharedPtr<daal::algorithms::optimization_solver::mse::Batch<algorithmFPType> > & objFunc)
+    const HostAppIfacePtr & pHost, const NumericTablePtr & x, const NumericTablePtr & y, elastic_net::Model & m, Result & res, const Parameter & par,
+    services::SharedPtr<daal::algorithms::optimization_solver::mse::Batch<algorithmFPType> > & objFunc)
 {
     services::Status s;
     SafeStatus safeStat;

@@ -34,19 +34,18 @@ namespace stump
 {
 namespace classification
 {
-
 class StumpNodeVisitor : public daal::algorithms::tree_utils::classification::TreeNodeVisitor
 {
 public:
-    StumpNodeVisitor(size_t nClasses) :
-        daal::algorithms::tree_utils::classification::TreeNodeVisitor(),
-        leftIsSet(false),
-        changeZeroToMinusOne(false),
-        splitFeature(0),
-        splitValue(0),
-        isOneLeaf(true),
-        leftValue(0),
-        rightValue(0)
+    StumpNodeVisitor(size_t nClasses)
+        : daal::algorithms::tree_utils::classification::TreeNodeVisitor(),
+          leftIsSet(false),
+          changeZeroToMinusOne(false),
+          splitFeature(0),
+          splitValue(0),
+          isOneLeaf(true),
+          leftValue(0),
+          rightValue(0)
     {
         if (nClasses == 2)
         {
@@ -54,7 +53,7 @@ public:
         }
     }
 
-    virtual bool onLeafNode(const tree_utils::classification::LeafNodeDescriptor &desc)
+    virtual bool onLeafNode(const tree_utils::classification::LeafNodeDescriptor & desc)
     {
         if (!leftIsSet)
         {
@@ -62,18 +61,24 @@ public:
             leftIsSet = true;
         }
         rightValue = desc.label;
-        if(changeZeroToMinusOne)
+        if (changeZeroToMinusOne)
         {
-            if(rightValue == 0) { rightValue = -1; }
-            if(leftValue == 0) { leftValue = -1; }
+            if (rightValue == 0)
+            {
+                rightValue = -1;
+            }
+            if (leftValue == 0)
+            {
+                leftValue = -1;
+            }
         }
         return true;
     }
 
-    virtual bool onSplitNode(const tree_utils::classification::SplitNodeDescriptor &desc)
+    virtual bool onSplitNode(const tree_utils::classification::SplitNodeDescriptor & desc)
     {
-        isOneLeaf = false;
-        splitValue = desc.featureValue;
+        isOneLeaf    = false;
+        splitValue   = desc.featureValue;
         splitFeature = desc.featureIndex;
         return true;
     }
@@ -87,10 +92,9 @@ public:
     double splitValue;
 };
 
-
-}// namespace classification
-}// namespace stump
-}// namespace algorithms
-}// namespace daal
+} // namespace classification
+} // namespace stump
+} // namespace algorithms
+} // namespace daal
 
 #endif

@@ -19,7 +19,6 @@
 //  Implementation of the backward dropout layer
 //--
 
-
 #include "dropout_layer_backward_batch_container.h"
 
 namespace daal

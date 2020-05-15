@@ -29,8 +29,7 @@ namespace uniform
 {
 namespace internal
 {
-
-UniformInitializerTaskDescriptor::UniformInitializerTaskDescriptor(Result *re, Parameter *pa)
+UniformInitializerTaskDescriptor::UniformInitializerTaskDescriptor(Result * re, Parameter * pa)
 {
     a      = pa->a;
     b      = pa->b;
@@ -39,9 +38,9 @@ UniformInitializerTaskDescriptor::UniformInitializerTaskDescriptor(Result *re, P
     result = re->get(initializers::value).get();
 }
 
-} // internal
-} // uniform
-} // initializers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace uniform
+} // namespace initializers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

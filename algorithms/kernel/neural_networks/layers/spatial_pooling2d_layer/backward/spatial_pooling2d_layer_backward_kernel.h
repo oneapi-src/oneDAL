@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate backward pooling layer relults.
 //--
 
-
 #ifndef __SPATIAL_POOLING2D_LAYER_BACKWARD_KERNEL_H__
 #define __SPATIAL_POOLING2D_LAYER_BACKWARD_KERNEL_H__
 
@@ -49,51 +48,45 @@ namespace backward
 {
 namespace internal
 {
-
 using namespace spatial_pooling2d::internal;
 
 /**
  *  \brief Kernel for forward pooling layer results computation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class DAAL_EXPORT PoolingKernel : public Kernel
 {};
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class DAAL_EXPORT PoolingKernel<algorithmFPType, maximum, cpu> : public Kernel
 {
 public:
-    virtual services::Status compute(const Tensor &inputGradientTensor,
-                                           Tensor &gradientTensor,
-                                     const Tensor &selectedPosTensor,
-                                     const spatial_maximum_pooling2d::Parameter &parameter);
+    virtual services::Status compute(const Tensor & inputGradientTensor, Tensor & gradientTensor, const Tensor & selectedPosTensor,
+                                     const spatial_maximum_pooling2d::Parameter & parameter);
 };
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class DAAL_EXPORT PoolingKernel<algorithmFPType, stochastic, cpu> : public Kernel
 {
 public:
-    virtual services::Status compute(const Tensor &inputGradientTensor,
-                                           Tensor &gradientTensor,
-                                     const Tensor &selectedPosTensor,
-                                     const spatial_stochastic_pooling2d::Parameter &parameter);
+    virtual services::Status compute(const Tensor & inputGradientTensor, Tensor & gradientTensor, const Tensor & selectedPosTensor,
+                                     const spatial_stochastic_pooling2d::Parameter & parameter);
 };
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class DAAL_EXPORT PoolingKernel<algorithmFPType, average, cpu> : public Kernel
 {
 public:
-    virtual services::Status compute(const Tensor &inputGradientTensor,
-                                           Tensor &gradientTensor,
-                                     const spatial_average_pooling2d::Parameter &parameter);
+    virtual services::Status compute(const Tensor & inputGradientTensor, Tensor & gradientTensor,
+                                     const spatial_average_pooling2d::Parameter & parameter);
 };
 
-} // internal
-} // backward
-} // spatial_pooling2d
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace backward
+} // namespace spatial_pooling2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

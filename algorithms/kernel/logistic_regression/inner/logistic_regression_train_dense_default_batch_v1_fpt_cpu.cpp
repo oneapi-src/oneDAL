@@ -42,7 +42,7 @@ namespace internal
 template class I1TrainBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
 
-}// namespace training
-}// namespace logistic_regression
-}// namespace algorithms
-}// namespace daal
+} // namespace training
+} // namespace logistic_regression
+} // namespace algorithms
+} // namespace daal

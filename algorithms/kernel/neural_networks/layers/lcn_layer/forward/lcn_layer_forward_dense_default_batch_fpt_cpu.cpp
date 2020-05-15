@@ -33,21 +33,20 @@ namespace layers
 {
 namespace lcn
 {
-
 namespace forward
 {
 namespace interface1
 {
 template class neural_networks::layers::lcn::forward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 namespace internal
 {
 template class LCNKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 
-}
-}
-}
-}
-}
+} // namespace lcn
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

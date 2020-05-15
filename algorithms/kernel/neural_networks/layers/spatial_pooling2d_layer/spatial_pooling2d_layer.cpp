@@ -41,13 +41,12 @@ namespace interface1
  * \param[in] firstIndex         Index of the first of two dimensions on which the spatial is performed
  * \param[in] secondIndex        Index of the second of two dimensions on which the spatial is performed
  */
-Parameter::Parameter(size_t _pyramidHeight, size_t firstIndex, size_t secondIndex) :
-    pyramidHeight(_pyramidHeight), indices(firstIndex, secondIndex)
+Parameter::Parameter(size_t _pyramidHeight, size_t firstIndex, size_t secondIndex) : pyramidHeight(_pyramidHeight), indices(firstIndex, secondIndex)
 {}
 
-}// namespace interface1
-}// namespace spatial_pooling2d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace spatial_pooling2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

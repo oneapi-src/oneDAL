@@ -35,10 +35,9 @@ namespace svd
 {
 namespace interface1
 {
-
 /** Default constructor */
 Input::Input() : daal::algorithms::Input(lastInputId + 1) {}
-Input::Input(const Input& other) : daal::algorithms::Input(other){}
+Input::Input(const Input & other) : daal::algorithms::Input(other) {}
 
 /**
  * Returns input object of the SVD algorithm
@@ -55,18 +54,17 @@ NumericTablePtr Input::get(InputId id) const
  * \param[in] id    Identifier of the input object
  * \param[in] value Pointer to the input object
  */
-void Input::set(InputId id, const NumericTablePtr &value)
+void Input::set(InputId id, const NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
 
-Status Input::getNumberOfColumns(size_t *nFeatures) const
+Status Input::getNumberOfColumns(size_t * nFeatures) const
 {
-    if(!nFeatures)
-        return Status(ErrorNullParameterNotSupported);
+    if (!nFeatures) return Status(ErrorNullParameterNotSupported);
 
     NumericTablePtr dataTable = get(data);
-    if(dataTable)
+    if (dataTable)
     {
         *nFeatures = dataTable->getNumberOfColumns();
     }
@@ -77,13 +75,12 @@ Status Input::getNumberOfColumns(size_t *nFeatures) const
     return Status();
 }
 
-Status Input::getNumberOfRows(size_t *nRows) const
+Status Input::getNumberOfRows(size_t * nRows) const
 {
-    if(!nRows)
-        return Status(ErrorNullParameterNotSupported);
+    if (!nRows) return Status(ErrorNullParameterNotSupported);
 
     NumericTablePtr dataTable = get(data);
-    if(dataTable)
+    if (dataTable)
     {
         *nRows = dataTable->getNumberOfRows();
     }
@@ -99,7 +96,7 @@ Status Input::getNumberOfRows(size_t *nRows) const
  * \param[in] parameter Pointer to the parameters
  * \param[in] method Computation method
  */
-Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     NumericTablePtr dataTable = get(data);
     return checkNumericTable(dataTable.get(), dataStr());
@@ -107,5 +104,5 @@ Status Input::check(const daal::algorithms::Parameter *parameter, int method) co
 
 } // namespace interface1
 } // namespace svd
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

@@ -19,7 +19,6 @@
 //  Implementation of abs calculation functions.
 //--
 
-
 #include "abs_batch_container.h"
 #include "abs_base.h"
 #include "abs_csr_fast_kernel.h"
@@ -42,8 +41,8 @@ namespace internal
 {
 template class AbsKernel<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
 template class AbsKernelBase<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace abs
+} // namespace math
+} // namespace algorithms
+} // namespace daal

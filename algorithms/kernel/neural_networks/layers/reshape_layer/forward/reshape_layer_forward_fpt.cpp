@@ -46,32 +46,32 @@ namespace interface1
 * \param[in] method    Computation method
 */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const layers::forward::Input *in = static_cast<const layers::forward::Input * >(input);
-    const layers::reshape::Parameter *par = static_cast<const layers::reshape::Parameter * >(parameter);
+    const layers::forward::Input * in      = static_cast<const layers::forward::Input *>(input);
+    const layers::reshape::Parameter * par = static_cast<const layers::reshape::Parameter *>(parameter);
 
     set(layers::forward::resultForBackward, LayerDataPtr(new LayerData()));
     services::Status s;
     if (!get(layers::forward::value))
     {
         const services::Collection<size_t> inDims = in->get(layers::forward::data)->getDimensions();
-        services::Collection<size_t> outDims = par->reshapeDimensions;
+        services::Collection<size_t> outDims      = par->reshapeDimensions;
 
         bool haveNegative = false;
-        size_t negIndex = 0;
+        size_t negIndex   = 0;
         size_t nonNegSize = 1;
 
-        for( size_t i = 0; i < outDims.size(); i++ )
+        for (size_t i = 0; i < outDims.size(); i++)
         {
-            if( outDims[i] == undefinedDimensionSize )
+            if (outDims[i] == undefinedDimensionSize)
             {
                 haveNegative = true;
-                negIndex = i;
+                negIndex     = i;
             }
             else
             {
-                if( outDims[i] == 0 )
+                if (outDims[i] == 0)
                 {
                     outDims[i] = inDims[i];
                 }
@@ -80,19 +80,19 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
             }
         }
 
-        if(haveNegative)
+        if (haveNegative)
         {
             outDims[negIndex] = in->get(layers::forward::data)->getSize() / nonNegSize;
         }
 
         DAAL_ALLOCATE_TENSOR_AND_SET(s, layers::forward::value, outDims);
 
-        services::SharedPtr<data_management::HomogenNumericTable<size_t> >
-        auxDimTable = data_management::HomogenNumericTable<size_t>::create(inDims.size(), 1, data_management::NumericTable::doAllocate, &s);
+        services::SharedPtr<data_management::HomogenNumericTable<size_t> > auxDimTable =
+            data_management::HomogenNumericTable<size_t>::create(inDims.size(), 1, data_management::NumericTable::doAllocate, &s);
 
-        size_t *auxDimArray = auxDimTable->getArray();
+        size_t * auxDimArray = auxDimTable->getArray();
 
-        for( size_t i = 0; i < inDims.size(); i++ )
+        for (size_t i = 0; i < inDims.size(); i++)
         {
             auxDimArray[i] = inDims[i];
         }
@@ -102,12 +102,13 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace forward
-}// namespace reshape
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace reshape
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

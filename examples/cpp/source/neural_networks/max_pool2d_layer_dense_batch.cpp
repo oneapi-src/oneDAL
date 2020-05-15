@@ -44,13 +44,13 @@ using namespace daal::services;
 /* Input data set name */
 string datasetFileName = "../data/batch/layer.csv";
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Read datasetFileName from a file and create a tensor to store input data */
-    TensorPtr data  = readTensorFromCSV(datasetFileName);
-    size_t nDim = data->getNumberOfDimensions();
+    TensorPtr data = readTensorFromCSV(datasetFileName);
+    size_t nDim    = data->getNumberOfDimensions();
 
     printTensor(data, "Forward two-dimensional maximum pooling layer input (first 10 rows):", 10);
 
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 
     printTensor(forwardResult->get(forward::value), "Forward two-dimensional maximum pooling layer result (first 5 rows):", 5);
     printTensor(forwardResult->get(maximum_pooling2d::auxSelectedIndices),
-        "Forward two-dimensional maximum pooling layer selected indices (first 10 rows):", 10);
+                "Forward two-dimensional maximum pooling layer selected indices (first 10 rows):", 10);
 
     /* Create an algorithm to compute backward two-dimensional maximum pooling layer results using default method */
     maximum_pooling2d::backward::Batch<> backwardLayer(nDim);
@@ -79,8 +79,7 @@ int main(int argc, char *argv[])
     /* Get the computed backward two-dimensional maximum pooling layer results */
     backward::ResultPtr backwardResult = backwardLayer.getResult();
 
-    printTensor(backwardResult->get(backward::gradient),
-        "Backward two-dimensional maximum pooling layer result (first 10 rows):", 10);
+    printTensor(backwardResult->get(backward::gradient), "Backward two-dimensional maximum pooling layer result (first 10 rows):", 10);
 
     return 0;
 }

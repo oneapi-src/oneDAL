@@ -44,29 +44,28 @@ namespace interface1
  * \param[in] method Computation method of the minmax normalization algorithm
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input, int method)
+DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, int method)
 {
     DAAL_CHECK(input, ErrorNullInput);
 
-    const Input *algInput = static_cast<const Input *>(input);
+    const Input * algInput    = static_cast<const Input *>(input);
     NumericTablePtr dataTable = algInput->get(data);
 
     Status s;
     DAAL_CHECK_STATUS(s, checkNumericTable(dataTable.get(), dataStr()));
 
-    const size_t nRows = dataTable->getNumberOfRows();
-    const size_t nColumns = dataTable->getNumberOfColumns();
-    NumericTablePtr normalizedDataTable = HomogenNumericTable<algorithmFPType>::create(
-                                                         nColumns, nRows, NumericTable::doAllocate, &s);
+    const size_t nRows                  = dataTable->getNumberOfRows();
+    const size_t nColumns               = dataTable->getNumberOfColumns();
+    NumericTablePtr normalizedDataTable = HomogenNumericTable<algorithmFPType>::create(nColumns, nRows, NumericTable::doAllocate, &s);
     DAAL_CHECK_STATUS_VAR(s);
     set(normalizedData, normalizedDataTable);
     return s;
 }
 
-template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, int method);
+template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, int method);
 
-}// namespace interface1
-}// namespace minmax
-}// namespace normalization
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace minmax
+} // namespace normalization
+} // namespace algorithms
+} // namespace daal

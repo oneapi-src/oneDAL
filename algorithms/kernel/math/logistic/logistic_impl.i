@@ -31,31 +31,29 @@ namespace logistic
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-inline Status LogisticKernel<algorithmFPType, method, cpu>::processBlock(const NumericTable &inputTable, size_t nInputColumns,
-                                                                         size_t nProcessedRows, size_t nRowsInCurrentBlock,
-                                                                         NumericTable &resultTable)
+template <typename algorithmFPType, Method method, CpuType cpu>
+inline Status LogisticKernel<algorithmFPType, method, cpu>::processBlock(const NumericTable & inputTable, size_t nInputColumns, size_t nProcessedRows,
+                                                                         size_t nRowsInCurrentBlock, NumericTable & resultTable)
 {
     ReadRows<algorithmFPType, cpu, NumericTable> inputBlock(const_cast<NumericTable &>(inputTable), nProcessedRows, nRowsInCurrentBlock);
     DAAL_CHECK_BLOCK_STATUS(inputBlock);
-    const algorithmFPType* inputArray = inputBlock.get();
+    const algorithmFPType * inputArray = inputBlock.get();
 
     WriteRows<algorithmFPType, cpu, NumericTable> resultBlock(resultTable, nProcessedRows, nRowsInCurrentBlock);
     DAAL_CHECK_BLOCK_STATUS(resultBlock);
-    algorithmFPType* resultArray = resultBlock.get();
+    algorithmFPType * resultArray = resultBlock.get();
 
-    for(size_t i = 0; i < nRowsInCurrentBlock; i++)
+    for (size_t i = 0; i < nRowsInCurrentBlock; i++)
     {
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for(size_t j = 0; j < nInputColumns; j++)
+        for (size_t j = 0; j < nInputColumns; j++)
         {
-            resultArray[i * nInputColumns + j] = - inputArray[i * nInputColumns + j];
+            resultArray[i * nInputColumns + j] = -inputArray[i * nInputColumns + j];
 
             /* make all values less than threshold as threshold value
                to fix slow work on vExp on large negative inputs */
-            if( resultArray[i * nInputColumns + j] < daal::internal::Math<algorithmFPType, cpu>::vExpThreshold() )
+            if (resultArray[i * nInputColumns + j] < daal::internal::Math<algorithmFPType, cpu>::vExpThreshold())
             {
                 resultArray[i * nInputColumns + j] = daal::internal::Math<algorithmFPType, cpu>::vExpThreshold();
             }
@@ -65,9 +63,9 @@ inline Status LogisticKernel<algorithmFPType, method, cpu>::processBlock(const N
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for(size_t j = 0; j < nInputColumns; j++)
+        for (size_t j = 0; j < nInputColumns; j++)
         {
-            resultArray[i * nInputColumns + j] = (algorithmFPType)1 / ( (algorithmFPType)1 + resultArray[i * nInputColumns + j] );
+            resultArray[i * nInputColumns + j] = (algorithmFPType)1 / ((algorithmFPType)1 + resultArray[i * nInputColumns + j]);
         }
     }
     return Status();
@@ -76,8 +74,8 @@ inline Status LogisticKernel<algorithmFPType, method, cpu>::processBlock(const N
 /**
  *  \brief Kernel for Logistic calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status LogisticKernel<algorithmFPType, method, cpu>::compute(const NumericTable *inputTable, NumericTable *resultTable)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status LogisticKernel<algorithmFPType, method, cpu>::compute(const NumericTable * inputTable, NumericTable * resultTable)
 {
     size_t nInputRows    = inputTable->getNumberOfRows();
     size_t nInputColumns = inputTable->getNumberOfColumns();
@@ -86,20 +84,19 @@ Status LogisticKernel<algorithmFPType, method, cpu>::compute(const NumericTable 
     nBlocks += (nBlocks * _nRowsInBlock != nInputRows);
 
     SafeStatus safeStat;
-    daal::threader_for(nBlocks, nBlocks, [ =, &safeStat ](int block)
-    {
+    daal::threader_for(nBlocks, nBlocks, [=, &safeStat](int block) {
         size_t nRowsToProcess = _nRowsInBlock;
-        if( block == nBlocks - 1 )
+        if (block == nBlocks - 1)
         {
             nRowsToProcess = nInputRows - block * _nRowsInBlock;
         }
 
         safeStat |= processBlock(*inputTable, nInputColumns, block * _nRowsInBlock, nRowsToProcess, *resultTable);
-    } );
+    });
     return safeStat.detach();
 }
 
-} // namespace daal::internal
+} // namespace internal
 } // namespace logistic
 } // namespace math
 } // namespace algorithms

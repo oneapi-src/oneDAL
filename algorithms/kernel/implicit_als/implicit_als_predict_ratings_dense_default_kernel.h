@@ -44,7 +44,6 @@ namespace ratings
 {
 namespace internal
 {
-
 template <typename algorithmFPType, CpuType cpu>
 class ImplicitALSPredictKernel : public daal::algorithms::Kernel
 {
@@ -52,15 +51,15 @@ public:
     ImplicitALSPredictKernel() {}
     virtual ~ImplicitALSPredictKernel() {}
 
-    services::Status compute(const NumericTable *usersFactorsTable, const NumericTable *itemsFactorsTable,
-                NumericTable *ratingsTable, const Parameter *parameter);
+    services::Status compute(const NumericTable * usersFactorsTable, const NumericTable * itemsFactorsTable, NumericTable * ratingsTable,
+                             const Parameter * parameter);
 };
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace ratings
+} // namespace prediction
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal
 
 #endif

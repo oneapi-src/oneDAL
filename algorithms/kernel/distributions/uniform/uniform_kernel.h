@@ -49,18 +49,20 @@ namespace internal
 /**
  *  \brief Kernel for uniform calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class UniformKernel : public Kernel
 {
 public:
-    static Status compute(const uniform::Parameter<algorithmFPType> &parameter, engines::BatchBase &engine, NumericTable *resultTable);
-    static Status compute(const uniform::Parameter<algorithmFPType> &parameter, engines::BatchBase &engine, size_t n, algorithmFPType *resultArray);
-    static Status compute(const uniform::Parameter<algorithmFPType> &parameter, UniquePtr<engines::internal::BatchBaseImpl, cpu> &enginePtr, size_t n, algorithmFPType *resultArray);
-    static Status compute(algorithmFPType a, algorithmFPType b, engines::BatchBase &engine, size_t n, algorithmFPType *resultArray);
-    static Status compute(algorithmFPType a, algorithmFPType b, engines::internal::BatchBaseImpl &engine, size_t n, algorithmFPType *resultArray);
+    static Status compute(const uniform::Parameter<algorithmFPType> & parameter, engines::BatchBase & engine, NumericTable * resultTable);
+    static Status compute(const uniform::Parameter<algorithmFPType> & parameter, engines::BatchBase & engine, size_t n,
+                          algorithmFPType * resultArray);
+    static Status compute(const uniform::Parameter<algorithmFPType> & parameter, UniquePtr<engines::internal::BatchBaseImpl, cpu> & enginePtr,
+                          size_t n, algorithmFPType * resultArray);
+    static Status compute(algorithmFPType a, algorithmFPType b, engines::BatchBase & engine, size_t n, algorithmFPType * resultArray);
+    static Status compute(algorithmFPType a, algorithmFPType b, engines::internal::BatchBaseImpl & engine, size_t n, algorithmFPType * resultArray);
 };
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 using UniformKernelDefault = UniformKernel<algorithmFPType, uniform::defaultDense, cpu>;
 
 } // namespace internal

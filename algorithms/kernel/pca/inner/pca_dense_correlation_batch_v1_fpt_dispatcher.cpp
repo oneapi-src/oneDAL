@@ -29,4 +29,4 @@ namespace algorithms
 {
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER_KM(pca::interface1::BatchContainer, batch, DAAL_FPTYPE, pca::correlationDense)
 } // namespace algorithms
-} // namespace daall
+} // namespace daal

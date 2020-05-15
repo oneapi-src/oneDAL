@@ -29,20 +29,19 @@ namespace neural_networks
 {
 namespace training
 {
-PartialResult::PartialResult() : daal::algorithms::PartialResult(lastStep1LocalPartialResultId + 1)
-{}
+PartialResult::PartialResult() : daal::algorithms::PartialResult(lastStep1LocalPartialResultId + 1) {}
 
 NumericTablePtr PartialResult::get(Step1LocalPartialResultId id) const
 {
     return NumericTable::cast(Argument::get(id));
 }
 
-void PartialResult::set(Step1LocalPartialResultId id, const NumericTablePtr &value)
+void PartialResult::set(Step1LocalPartialResultId id, const NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
 
-Status PartialResult::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+Status PartialResult::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     return checkNumericTable(get(batchSize).get(), batchSizeStr(), 0, 0, 1, 1);
 }
@@ -57,17 +56,17 @@ training::ResultPtr DistributedPartialResult::get(Step2MasterPartialResultId id)
     return Result::cast(Argument::get(id));
 }
 
-void DistributedPartialResult::set(Step2MasterPartialResultId id, const training::ResultPtr &value)
+void DistributedPartialResult::set(Step2MasterPartialResultId id, const training::ResultPtr & value)
 {
     Argument::set(id, value);
 }
 
-Status DistributedPartialResult::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+Status DistributedPartialResult::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     return Status();
 }
 
-}
-}
-}
-}
+} // namespace training
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

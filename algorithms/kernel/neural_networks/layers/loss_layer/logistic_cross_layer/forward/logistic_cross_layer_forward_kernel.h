@@ -19,7 +19,6 @@
 //  Implementation of the forward logistic cross layer
 //--
 
-
 #ifndef __LOGISTIC_CROSS_LAYER_FORWARD_KERNEL_H__
 #define __LOGISTIC_CROSS_LAYER_FORWARD_KERNEL_H__
 
@@ -54,20 +53,20 @@ namespace internal
 /**
  *  \brief Kernel for logistic_cross calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class LogisticCrossKernel : public Kernel
 {
 public:
-    services::Status compute(const Tensor &inputTensor, const Tensor &groundTruthTensor, Tensor &resultTensor);
+    services::Status compute(const Tensor & inputTensor, const Tensor & groundTruthTensor, Tensor & resultTensor);
 };
 
-} // internal
-} // forward
-} // logistic_cross
-} // loss
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace forward
+} // namespace logistic_cross
+} // namespace loss
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

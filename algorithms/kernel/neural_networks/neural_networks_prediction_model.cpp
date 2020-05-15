@@ -31,9 +31,8 @@ namespace neural_networks
 {
 namespace prediction
 {
-
 /** Default constructor */
-Model::Model() : ModelImpl(), _allocatedBatchSize(0) { }
+Model::Model() : ModelImpl(), _allocatedBatchSize(0) {}
 
 /**
  * Constructs model object for the prediction stage of neural network
@@ -42,38 +41,37 @@ Model::Model() : ModelImpl(), _allocatedBatchSize(0) { }
  * \param[in] nextLayersForModel     List of next layers for each layer with corresponding index
  * \DAAL_DEPRECATED_USE{ Model::create }
  */
-Model::Model(const neural_networks::ForwardLayersPtr &forwardLayersForModel,
-             const services::SharedPtr<services::Collection<layers::NextLayers> > &nextLayersForModel) :
-    ModelImpl(forwardLayersForModel, nextLayersForModel), _allocatedBatchSize(0) { }
+Model::Model(const neural_networks::ForwardLayersPtr & forwardLayersForModel,
+             const services::SharedPtr<services::Collection<layers::NextLayers> > & nextLayersForModel)
+    : ModelImpl(forwardLayersForModel, nextLayersForModel), _allocatedBatchSize(0)
+{}
 
 /**
  * Constructs model object for the prediction stage of neural network from a collection of layer descriptors
  * \param[in] topology  Collection of layer descriptors of every inserted layer
  * \DAAL_DEPRECATED_USE{ Model::create }
  */
-Model::Model(const prediction::Topology &topology) : ModelImpl(), _allocatedBatchSize(0)
+Model::Model(const prediction::Topology & topology) : ModelImpl(), _allocatedBatchSize(0)
 {
-    for(size_t i = 0; i < topology.size(); i++)
+    for (size_t i = 0; i < topology.size(); i++)
     {
         insertLayer(topology[i]);
     }
 }
 
 /** Copy constructor */
-Model::Model(const Model &model) : ModelImpl(model), _allocatedBatchSize(model._allocatedBatchSize) { }
+Model::Model(const Model & model) : ModelImpl(model), _allocatedBatchSize(model._allocatedBatchSize) {}
 
+Model::Model(services::Status & st) : ModelImpl(st), _allocatedBatchSize(0) {}
 
-Model::Model(services::Status &st) : ModelImpl(st), _allocatedBatchSize(0) { }
+Model::Model(const neural_networks::ForwardLayersPtr & forwardLayersForModel,
+             const services::SharedPtr<services::Collection<layers::NextLayers> > & nextLayersForModel, services::Status & st)
+    : ModelImpl(forwardLayersForModel, nextLayersForModel, st), _allocatedBatchSize(0)
+{}
 
-Model::Model(const neural_networks::ForwardLayersPtr &forwardLayersForModel,
-             const services::SharedPtr<services::Collection<layers::NextLayers> > &nextLayersForModel,
-             services::Status &st) :
-    ModelImpl(forwardLayersForModel, nextLayersForModel, st), _allocatedBatchSize(0) { }
-
-Model::Model(const prediction::Topology &topology, services::Status &st) :
-    ModelImpl(st), _allocatedBatchSize(0)
+Model::Model(const prediction::Topology & topology, services::Status & st) : ModelImpl(st), _allocatedBatchSize(0)
 {
-    for(size_t i = 0; i < topology.size(); i++)
+    for (size_t i = 0; i < topology.size(); i++)
     {
         insertLayer(topology[i]);
     }
@@ -84,7 +82,7 @@ Model::Model(const prediction::Topology &topology, services::Status &st) :
  * \param[out] stat Status of the model construction
  * \return Empty model for the prediction stage of neural network
  */
-ModelPtr Model::create(services::Status *stat)
+ModelPtr Model::create(services::Status * stat)
 {
     DAAL_DEFAULT_CREATE_IMPL(Model);
 }
@@ -97,9 +95,8 @@ ModelPtr Model::create(services::Status *stat)
  * \param[out] stat                  Status of the model construction
  * \return Model object for the prediction stage of neural network
  */
-ModelPtr Model::create(const neural_networks::ForwardLayersPtr &forwardLayersForModel,
-                       const services::SharedPtr<services::Collection<layers::NextLayers> > &nextLayersForModel,
-                       services::Status *stat)
+ModelPtr Model::create(const neural_networks::ForwardLayersPtr & forwardLayersForModel,
+                       const services::SharedPtr<services::Collection<layers::NextLayers> > & nextLayersForModel, services::Status * stat)
 {
     DAAL_DEFAULT_CREATE_IMPL_EX(Model, forwardLayersForModel, nextLayersForModel);
 }
@@ -110,11 +107,10 @@ ModelPtr Model::create(const neural_networks::ForwardLayersPtr &forwardLayersFor
  * \param[out] stat     Status of the model construction
  * \return Model object for the prediction stage of neural network
  */
-ModelPtr Model::create(const prediction::Topology &topology, services::Status *stat)
+ModelPtr Model::create(const prediction::Topology & topology, services::Status * stat)
 {
     DAAL_DEFAULT_CREATE_IMPL_EX(Model, topology);
 }
-
 
 } // namespace prediction
 } // namespace neural_networks

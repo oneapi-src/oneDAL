@@ -65,8 +65,8 @@ int main()
     printTensor(forwardResult->get(lrn::auxSmBeta), "LRN layer auxSmBeta (first 5 rows):", 5);
 
     /* Get the size of forward local response normalization layer output */
-    const Collection<size_t> &gDims = forwardResult->get(forward::value)->getDimensions();
-    TensorPtr tensorDataBack = TensorPtr(new HomogenTensor<>(gDims, Tensor::doAllocate, 0.01f));
+    const Collection<size_t> & gDims = forwardResult->get(forward::value)->getDimensions();
+    TensorPtr tensorDataBack         = TensorPtr(new HomogenTensor<>(gDims, Tensor::doAllocate, 0.01f));
 
     /* Create an algorithm to compute backward local response normalization layer results using default method */
     lrn::backward::Batch<> backwardLRNlayer;

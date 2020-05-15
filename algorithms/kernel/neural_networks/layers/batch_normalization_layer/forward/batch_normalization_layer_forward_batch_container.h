@@ -41,49 +41,49 @@ namespace forward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::BatchNormalizationKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::setupCompute()
 {
-    Input     *input     = static_cast<Input *>(_in);
-    Result    *result    = static_cast<Result *>(_res);
-    Parameter *parameter = static_cast<Parameter *>(_par);
+    Input * input         = static_cast<Input *>(_in);
+    Result * result       = static_cast<Result *>(_res);
+    Parameter * parameter = static_cast<Parameter *>(_par);
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
     services::Status s;
     DAAL_CHECK_STATUS(s, completeInput());
     __DAAL_CALL_KERNEL(env, internal::BatchNormalizationKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), initialize,
-        internal::BatchNormalizationTaskDescriptor(input, result, parameter));
+                       internal::BatchNormalizationTaskDescriptor(input, result, parameter));
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::resetCompute()
 {
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
     __DAAL_CALL_KERNEL(env, internal::BatchNormalizationKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), reset);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    Input     *input     = static_cast<Input *>(_in);
-    Result    *result    = static_cast<Result *>(_res);
-    Parameter *parameter = static_cast<Parameter *>(_par);
+    Input * input         = static_cast<Input *>(_in);
+    Result * result       = static_cast<Result *>(_res);
+    Parameter * parameter = static_cast<Parameter *>(_par);
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
     __DAAL_CALL_KERNEL(env, internal::BatchNormalizationKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-        internal::BatchNormalizationTaskDescriptor(input, result, parameter));
+                       internal::BatchNormalizationTaskDescriptor(input, result, parameter));
 }
 
 } // namespace interface1

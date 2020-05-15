@@ -56,7 +56,7 @@ ModelPtr Input::get(ModelInputId id) const
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(ModelInputId id, const ModelPtr &ptr)
+void Input::set(ModelInputId id, const ModelPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -68,11 +68,10 @@ void Input::set(ModelInputId id, const ModelPtr &ptr)
 size_t Input::getNumberOfUsers() const
 {
     ModelPtr trainedModel = get(model);
-    if(trainedModel)
+    if (trainedModel)
     {
         data_management::NumericTablePtr factors = trainedModel->getUsersFactors();
-        if(factors)
-            return factors->getNumberOfRows();
+        if (factors) return factors->getNumberOfRows();
     }
     return 0;
 }
@@ -84,33 +83,32 @@ size_t Input::getNumberOfUsers() const
 size_t Input::getNumberOfItems() const
 {
     ModelPtr trainedModel = get(model);
-    if(trainedModel)
+    if (trainedModel)
     {
         data_management::NumericTablePtr factors = trainedModel->getItemsFactors();
-        if(factors)
-            return factors->getNumberOfRows();
+        if (factors) return factors->getNumberOfRows();
     }
     return 0;
 }
 
-services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     DAAL_CHECK(parameter, ErrorNullParameterNotSupported);
-    const Parameter *alsParameter = static_cast<const Parameter *>(parameter);
-    const size_t nFactors = alsParameter->nFactors;
+    const Parameter * alsParameter = static_cast<const Parameter *>(parameter);
+    const size_t nFactors          = alsParameter->nFactors;
 
     ModelPtr trainedModel = get(model);
     DAAL_CHECK(trainedModel, ErrorNullModel);
 
     const int unexpectedLayouts = (int)packed_mask;
-    services::Status s = checkNumericTable(trainedModel->getUsersFactors().get(), usersFactorsStr(), unexpectedLayouts, 0, nFactors);
+    services::Status s          = checkNumericTable(trainedModel->getUsersFactors().get(), usersFactorsStr(), unexpectedLayouts, 0, nFactors);
     s |= checkNumericTable(trainedModel->getItemsFactors().get(), itemsFactorsStr(), unexpectedLayouts, 0, nFactors);
     return s;
 }
 
-}// namespace interface1
-}// namespace ratings
-}// namespace prediction
-}// namespace implicit_als
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace ratings
+} // namespace prediction
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal

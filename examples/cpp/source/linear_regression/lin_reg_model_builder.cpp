@@ -37,16 +37,16 @@ using namespace daal;
 using namespace daal::algorithms::linear_regression;
 
 /* Input data set parameters */
-string trainedModelFileName            = "../data/batch/linear_regression_trained_model.csv";
-string testDatasetFileName             = "../data/batch/linear_regression_test.csv";
+string trainedModelFileName = "../data/batch/linear_regression_trained_model.csv";
+string testDatasetFileName  = "../data/batch/linear_regression_test.csv";
 
-const size_t nFeatures           = 10;  /* Number of features in training and testing data sets */
-const size_t nDependentVariables = 2;   /* Number of dependent variables that correspond to each observation */
+const size_t nFeatures           = 10; /* Number of features in training and testing data sets */
+const size_t nDependentVariables = 2;  /* Number of dependent variables that correspond to each observation */
 
 ModelPtr buildModel();
-void testModel(ModelPtr&);
+void testModel(ModelPtr &);
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 2, &trainedModelFileName, &testDatasetFileName);
 
@@ -59,12 +59,10 @@ int main(int argc, char *argv[])
 ModelPtr buildModel()
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
-    FileDataSource<CSVFeatureManager> modelSource(trainedModelFileName,
-                                                     DataSource::doAllocateNumericTable,
-                                                     DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> modelSource(trainedModelFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Table for beta coefficients */
-    NumericTablePtr beta(new HomogenNumericTable<>(nFeatures+1, 0, NumericTable::doNotAllocate));
+    NumericTablePtr beta(new HomogenNumericTable<>(nFeatures + 1, 0, NumericTable::doNotAllocate));
     /* Get beta from trained model */
     modelSource.loadDataBlock(beta.get());
 
@@ -72,11 +70,11 @@ ModelPtr buildModel()
     BlockDescriptor<> blockResult;
     beta->getBlockOfRows(0, beta->getNumberOfRows(), readOnly, blockResult);
     /* Define the size of beta */
-    size_t numberOfBetas = (beta->getNumberOfRows())*(beta->getNumberOfColumns());
+    size_t numberOfBetas = (beta->getNumberOfRows()) * (beta->getNumberOfColumns());
 
     /* Initialize iterators for beta array with itrecepts */
-    float* first = blockResult.getBlockPtr();
-    float* last = first + numberOfBetas;
+    float * first = blockResult.getBlockPtr();
+    float * last  = first + numberOfBetas;
 
     /* Create model builder with true intercept flag */
     ModelBuilder<> modelBuilder(nFeatures, nDependentVariables);
@@ -90,12 +88,10 @@ ModelPtr buildModel()
     return modelBuilder.getModel();
 }
 
-void testModel(ModelPtr& inputModel)
+void testModel(ModelPtr & inputModel)
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
-    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName,
-                                                     DataSource::doAllocateNumericTable,
-                                                     DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for testing data and ground truth values */
     NumericTablePtr testData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));

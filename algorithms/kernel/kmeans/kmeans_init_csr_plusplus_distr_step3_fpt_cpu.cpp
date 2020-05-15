@@ -40,8 +40,8 @@ template class DistributedContainer<step3Master, DAAL_FPTYPE, plusPlusCSR, DAAL_
 namespace internal
 {
 template class KMeansInitStep3MasterKernel<plusPlusCSR, DAAL_FPTYPE, DAAL_CPU>;
-} // namespace daal::algorithms::kmeans::init::internal
-} // namespace daal::algorithms::kmeans::init
-} // namespace daal::algorithms::kmeans
-} // namespace daal::algorithms
+} // namespace internal
+} // namespace init
+} // namespace kmeans
+} // namespace algorithms
 } // namespace daal

@@ -27,8 +27,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(gbt::regression::training::BatchContainer, batch, DAAL_FPTYPE, \
-    gbt::regression::training::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(gbt::regression::training::BatchContainer, batch, DAAL_FPTYPE, gbt::regression::training::defaultDense)
 
 namespace gbt
 {
@@ -47,15 +46,15 @@ Batch<DAAL_FPTYPE, gbt::regression::training::defaultDense>::Batch()
 
 using BatchType = Batch<DAAL_FPTYPE, gbt::regression::training::defaultDense>;
 template <>
-Batch<DAAL_FPTYPE, gbt::regression::training::defaultDense>::Batch(const BatchType &other) : input(other.input)
+Batch<DAAL_FPTYPE, gbt::regression::training::defaultDense>::Batch(const BatchType & other) : input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();
 }
 
-}
-}
-}
-}
-}
+} // namespace interface1
+} // namespace training
+} // namespace regression
+} // namespace gbt
+} // namespace algorithms
 } // namespace daal

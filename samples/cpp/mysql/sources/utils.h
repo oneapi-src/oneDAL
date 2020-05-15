@@ -34,22 +34,20 @@
 
 namespace utils
 {
-
-inline std::string trim(std::string &str)
+inline std::string trim(std::string & str)
 {
-    const char *ignore = " \n\t\r";
+    const char * ignore = " \n\t\r";
     str.erase(0, str.find_first_not_of(ignore));
     str.erase(str.find_last_not_of(ignore) + 1);
     return str;
 }
 
-inline std::string generateTableName(const std::string &connectionId)
+inline std::string generateTableName(const std::string & connectionId)
 {
     std::stringstream ss;
 
     ss << "daal_table"
-       << "_" << connectionId
-       << "_" << time(NULL);
+       << "_" << connectionId << "_" << time(NULL);
 
     return ss.str();
 }
@@ -64,14 +62,13 @@ inline void printHelp()
 }
 
 template <typename T>
-inline void printArray(T *array, const size_t nPrintedCols, const size_t nPrintedRows,
-                       const size_t nCols, std::string message, size_t interval = 10)
+inline void printArray(T * array, const size_t nPrintedCols, const size_t nPrintedRows, const size_t nCols, std::string message, size_t interval = 10)
 {
     std::cout << std::setiosflags(std::ios::left);
     std::cout << message << std::endl;
     for (size_t i = 0; i < nPrintedRows; i++)
     {
-        for(size_t j = 0; j < nPrintedCols; j++)
+        for (size_t j = 0; j < nPrintedCols; j++)
         {
             std::cout << std::setw(interval) << std::setiosflags(std::ios::fixed) << std::setprecision(3);
             std::cout << array[i * nCols + j];
@@ -81,8 +78,8 @@ inline void printArray(T *array, const size_t nPrintedCols, const size_t nPrinte
     std::cout << std::endl;
 }
 
-inline void printNumericTable(const daal::data_management::NumericTablePtr &dataTable, const char *message = "",
-                              size_t nPrintedRows = 0, size_t nPrintedCols = 0, size_t interval = 10)
+inline void printNumericTable(const daal::data_management::NumericTablePtr & dataTable, const char * message = "", size_t nPrintedRows = 0,
+                              size_t nPrintedCols = 0, size_t interval = 10)
 {
     using namespace daal::data_management;
 

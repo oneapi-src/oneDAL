@@ -27,7 +27,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(linear_regression::quality_metric::group_of_betas::BatchContainer, batch, DAAL_FPTYPE, \
-    linear_regression::quality_metric::group_of_betas::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(linear_regression::quality_metric::group_of_betas::BatchContainer, batch, DAAL_FPTYPE,
+                                      linear_regression::quality_metric::group_of_betas::defaultDense)
 }
-}
+} // namespace daal

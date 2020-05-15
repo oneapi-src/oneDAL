@@ -42,10 +42,8 @@ namespace backward
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status EltwiseSumKernel<algorithmFPType, method, cpu>::compute(
-    Tensor *inputGradient, Tensor *coefficients, Tensor **outputs, size_t nOutputs)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status EltwiseSumKernel<algorithmFPType, method, cpu>::compute(Tensor * inputGradient, Tensor * coefficients, Tensor ** outputs, size_t nOutputs)
 {
     if (checkForInPlace(inputGradient, coefficients, outputs, nOutputs))
     {
@@ -58,7 +56,7 @@ Status EltwiseSumKernel<algorithmFPType, method, cpu>::compute(
         __DAAL_MAKE_TENSOR_THREADSAFE(outputs[i]);
     }
 
-    algorithmFPType *coefficientsArray = nullptr;
+    algorithmFPType * coefficientsArray = nullptr;
     ReadSubtensor<algorithmFPType, cpu, Tensor> coefficientsBlock;
     if (coefficients)
     {
@@ -71,31 +69,31 @@ Status EltwiseSumKernel<algorithmFPType, method, cpu>::compute(
     }
 
     SafeStatus safeStat;
-    daal::threader_for(nOutputs, nOutputs, [ =, &safeStat ](size_t i)
+    daal::threader_for(nOutputs, nOutputs,
+                       [=, &safeStat](size_t i) { safeStat |= processOutputTensor(inputGradient, coefficientsArray, outputs[i], i); });
+    if (!safeStat)
     {
-        safeStat |= processOutputTensor(inputGradient, coefficientsArray, outputs[i], i);
-    });
-    if (!safeStat) { return safeStat.detach(); }
+        return safeStat.detach();
+    }
 
     return Status();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status EltwiseSumKernel<algorithmFPType, method, cpu>::processOutputTensor(
-    Tensor *inputGradient, const algorithmFPType *coefficientsArray, Tensor *output, size_t outputIndex)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status EltwiseSumKernel<algorithmFPType, method, cpu>::processOutputTensor(Tensor * inputGradient, const algorithmFPType * coefficientsArray,
+                                                                           Tensor * output, size_t outputIndex)
 {
-    return computeImpl<cpu>(*output, [ = ](size_t fDimN, size_t *fDims, size_t dimensionSize, const TensorOffsetLayout &layout) -> Status
-    {
+    return computeImpl<cpu>(*output, [=](size_t fDimN, size_t * fDims, size_t dimensionSize, const TensorOffsetLayout & layout) -> Status {
         ReadSubtensor<algorithmFPType, cpu, Tensor> inputGradientBlock(*inputGradient, fDimN, fDims, 0, dimensionSize, layout);
         WriteSubtensor<algorithmFPType, cpu, Tensor> outputBlock(*output, fDimN, fDims, 0, dimensionSize, layout);
 
         DAAL_CHECK_BLOCK_STATUS(inputGradientBlock);
         DAAL_CHECK_BLOCK_STATUS(outputBlock);
 
-        const algorithmFPType *inputGradientArray = inputGradientBlock.get();
-        algorithmFPType *outputArray              = outputBlock.get();
-        const size_t inputGradientBlockSize       = inputGradientBlock.getSize();
-        const size_t outputBlockSize              = outputBlock.getSize();
+        const algorithmFPType * inputGradientArray = inputGradientBlock.get();
+        algorithmFPType * outputArray              = outputBlock.get();
+        const size_t inputGradientBlockSize        = inputGradientBlock.getSize();
+        const size_t outputBlockSize               = outputBlock.getSize();
 
         DAAL_ASSERT(inputGradientBlockSize == outputBlockSize);
 
@@ -103,8 +101,8 @@ Status EltwiseSumKernel<algorithmFPType, method, cpu>::processOutputTensor(
         {
             const algorithmFPType coefficient = coefficientsArray[outputIndex];
 
-          PRAGMA_IVDEP
-          PRAGMA_VECTOR_ALWAYS
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
             for (size_t i = 0; i < outputBlockSize; i++)
             {
                 outputArray[i] = coefficient * inputGradientArray[i];
@@ -121,20 +119,26 @@ Status EltwiseSumKernel<algorithmFPType, method, cpu>::processOutputTensor(
     });
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-bool EltwiseSumKernel<algorithmFPType, method, cpu>::checkForInPlace(
-    const Tensor *inputGradient, const Tensor *coefficients, Tensor **outputs, size_t nOutputs)
+template <typename algorithmFPType, Method method, CpuType cpu>
+bool EltwiseSumKernel<algorithmFPType, method, cpu>::checkForInPlace(const Tensor * inputGradient, const Tensor * coefficients, Tensor ** outputs,
+                                                                     size_t nOutputs)
 {
-    if (coefficients) { return false; }
+    if (coefficients)
+    {
+        return false;
+    }
     for (size_t i = 0; i < nOutputs; i++)
     {
-        if (outputs[i] != inputGradient) { return false; }
+        if (outputs[i] != inputGradient)
+        {
+            return false;
+        }
     }
     return true;
 }
 
-} // internal
-} // backward
+} // namespace internal
+} // namespace backward
 } // namespace eltwise_sum
 } // namespace layers
 } // namespace neural_networks

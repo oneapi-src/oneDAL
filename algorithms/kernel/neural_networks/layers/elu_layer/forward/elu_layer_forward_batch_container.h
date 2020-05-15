@@ -41,33 +41,33 @@ namespace forward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::ELUKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    elu::Parameter *parameter = static_cast<elu::Parameter *>(_par);
-    elu::forward::Input *input = static_cast<elu::forward::Input *>(_in);
-    elu::forward::Result *result = static_cast<elu::forward::Result *>(_res);
+    elu::Parameter * parameter    = static_cast<elu::Parameter *>(_par);
+    elu::forward::Input * input   = static_cast<elu::forward::Input *>(_in);
+    elu::forward::Result * result = static_cast<elu::forward::Result *>(_res);
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    Tensor *dataTensor                 = input->get(layers::forward::data).get();
-    Tensor *valueTensor                = result->get(layers::forward::value).get();
-    Tensor *auxIntermediateValueTensor = result->get(layers::elu::auxIntermediateValue).get();
+    Tensor * dataTensor                 = input->get(layers::forward::data).get();
+    Tensor * valueTensor                = result->get(layers::forward::value).get();
+    Tensor * auxIntermediateValueTensor = result->get(layers::elu::auxIntermediateValue).get();
 
-    __DAAL_CALL_KERNEL(env, internal::ELUKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-        *parameter, *dataTensor, *valueTensor, auxIntermediateValueTensor);
+    __DAAL_CALL_KERNEL(env, internal::ELUKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *parameter, *dataTensor, *valueTensor,
+                       auxIntermediateValueTensor);
 }
 } // namespace interface1
 } // namespace forward

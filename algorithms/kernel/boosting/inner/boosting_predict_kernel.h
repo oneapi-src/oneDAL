@@ -38,19 +38,18 @@ namespace prediction
 {
 namespace internal
 {
-
 template <typename algorithmFPType, CpuType cpu>
 class BoostingPredictKernel : public Kernel
 {
 protected:
-    services::Status compute(const NumericTablePtr& xTable, const Model *m, size_t nWeakLearners,
-                             const algorithmFPType *alpha, algorithmFPType *r, const Parameter *par);
+    services::Status compute(const NumericTablePtr & xTable, const Model * m, size_t nWeakLearners, const algorithmFPType * alpha,
+                             algorithmFPType * r, const Parameter * par);
 };
 
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace prediction
+} // namespace boosting
+} // namespace algorithms
+} // namespace daal
 
 #endif

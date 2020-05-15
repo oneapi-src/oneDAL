@@ -19,7 +19,6 @@
 //  Implementation of softmax calculation algorithm container.
 //--
 
-
 #include "softmax_batch_container.h"
 
 namespace daal

@@ -41,39 +41,42 @@ namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_LBFGS_RESULT_ID);
 
-Parameter::Parameter(sum_of_functions::interface1::BatchPtr function, size_t nIterations, double accuracyThreshold,
-                     size_t batchSize, size_t correctionPairBatchSize, size_t m, size_t L, size_t seed) :
-    optimization_solver::iterative_solver::interface1::Parameter(function, nIterations, accuracyThreshold, false, batchSize),
-    correctionPairBatchSize(correctionPairBatchSize), m(m), L(L), seed(seed),
-    stepLengthSequence(HomogenNumericTable<>::create(1, 1, NumericTableIface::doAllocate, 1.0)), engine(engines::mt19937::Batch<>::create())
+Parameter::Parameter(sum_of_functions::interface1::BatchPtr function, size_t nIterations, double accuracyThreshold, size_t batchSize,
+                     size_t correctionPairBatchSize, size_t m, size_t L, size_t seed)
+    : optimization_solver::iterative_solver::interface1::Parameter(function, nIterations, accuracyThreshold, false, batchSize),
+      correctionPairBatchSize(correctionPairBatchSize),
+      m(m),
+      L(L),
+      seed(seed),
+      stepLengthSequence(HomogenNumericTable<>::create(1, 1, NumericTableIface::doAllocate, 1.0)),
+      engine(engines::mt19937::Batch<>::create())
 {}
 
 services::Status Parameter::check() const
 {
     services::Status s = iterative_solver::interface1::Parameter::check();
-    if(!s) return s;
+    if (!s) return s;
 
     DAAL_CHECK_EX(m != 0, ErrorIncorrectParameter, ArgumentName, "m");
     DAAL_CHECK_EX(L != 0, ErrorIncorrectParameter, ArgumentName, "L");
     DAAL_CHECK_EX(batchSize != 0, ErrorIncorrectParameter, ArgumentName, "batchSize");
 
-    if(batchIndices.get() != NULL)
+    if (batchIndices.get() != NULL)
     {
         DAAL_CHECK_STATUS(s, checkNumericTable(batchIndices.get(), batchIndicesStr(), 0, 0, batchSize, nIterations));
     }
 
-    if(correctionPairBatchIndices.get() != NULL)
+    if (correctionPairBatchIndices.get() != NULL)
     {
-        DAAL_CHECK_STATUS(s, checkNumericTable(correctionPairBatchIndices.get(), correctionPairBatchIndicesStr(), 0, 0,
-                              correctionPairBatchSize, (nIterations / L)));
+        DAAL_CHECK_STATUS(s, checkNumericTable(correctionPairBatchIndices.get(), correctionPairBatchIndicesStr(), 0, 0, correctionPairBatchSize,
+                                               (nIterations / L)));
     }
 
-    if(stepLengthSequence.get() != NULL)
+    if (stepLengthSequence.get() != NULL)
     {
-        if(stepLengthSequence->getNumberOfColumns() != 1 && stepLengthSequence->getNumberOfColumns() != nIterations)
+        if (stepLengthSequence->getNumberOfColumns() != 1 && stepLengthSequence->getNumberOfColumns() != nIterations)
         {
-            return services::Status(Error::create(ErrorIncorrectNumberOfFeatures,
-                                             ArgumentName, stepLengthSequenceStr()));
+            return services::Status(Error::create(ErrorIncorrectNumberOfFeatures, ArgumentName, stepLengthSequenceStr()));
         }
         s |= checkNumericTable(stepLengthSequence.get(), stepLengthSequenceStr(), 0, 0, 0, 1);
     }
@@ -81,22 +84,22 @@ services::Status Parameter::check() const
 }
 
 Input::Input() {}
-Input::Input(const Input& other) {}
+Input::Input(const Input & other) {}
 
 NumericTablePtr Input::get(OptionalDataId id) const
 {
     algorithms::OptionalArgumentPtr pOpt = get(iterative_solver::optionalArgument);
-    if(pOpt.get())
+    if (pOpt.get())
     {
         return NumericTable::cast(pOpt->get(id));
     }
     return NumericTablePtr();
 }
 
-void Input::set(OptionalDataId id, const NumericTablePtr &ptr)
+void Input::set(OptionalDataId id, const NumericTablePtr & ptr)
 {
     algorithms::OptionalArgumentPtr pOpt = get(iterative_solver::optionalArgument);
-    if(!pOpt.get())
+    if (!pOpt.get())
     {
         pOpt = algorithms::OptionalArgumentPtr(new algorithms::OptionalArgument(lastOptionalData + 1));
         set(iterative_solver::optionalArgument, pOpt);
@@ -104,31 +107,30 @@ void Input::set(OptionalDataId id, const NumericTablePtr &ptr)
     pOpt->set(id, ptr);
 }
 
-static services::Status checkCorrectionPairsData(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par,
-                                     const SerializationIfacePtr &pItem,
-                                     bool bInput)
+static services::Status checkCorrectionPairsData(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                 const SerializationIfacePtr & pItem, bool bInput)
 {
     const ErrorDetailID det = bInput ? OptionalInput : OptionalResult;
-    NumericTablePtr pData = NumericTable::cast(pItem);
+    NumericTablePtr pData   = NumericTable::cast(pItem);
 
     DAAL_CHECK_EX(pData.get(), bInput ? ErrorIncorrectOptionalInput : ErrorIncorrectOptionalResult, det, correctionPairsStr());
 
-    const Input *algInput = static_cast<const Input *>(input);
-    auto arg = algInput->get(iterative_solver::inputArgument);
+    const Input * algInput = static_cast<const Input *>(input);
+    auto arg               = algInput->get(iterative_solver::inputArgument);
 
     DAAL_CHECK_EX(pData->getNumberOfColumns() == arg->getNumberOfRows(), ErrorIncorrectNumberOfColumns, det, correctionPairsStr());
 
-    const Parameter *algParam = static_cast<const Parameter *>(par);
+    const Parameter * algParam = static_cast<const Parameter *>(par);
 
     DAAL_CHECK_EX(pData->getNumberOfRows() == 2 * algParam->m, ErrorIncorrectNumberOfRows, det, correctionPairsStr());
 
     return services::Status();
 }
 
-static services::Status checkCorrectionIndexData(const SerializationIfacePtr &pItem, bool bInput)
+static services::Status checkCorrectionIndexData(const SerializationIfacePtr & pItem, bool bInput)
 {
     const ErrorDetailID det = bInput ? OptionalInput : OptionalResult;
-    NumericTablePtr pData = NumericTable::cast(pItem);
+    NumericTablePtr pData   = NumericTable::cast(pItem);
 
     DAAL_CHECK_EX(pData.get(), bInput ? ErrorIncorrectOptionalInput : ErrorIncorrectOptionalResult, det, correctionPairsStr());
     DAAL_CHECK_EX(pData->getNumberOfColumns() == 2, ErrorIncorrectNumberOfColumns, det, correctionIndicesStr());
@@ -137,16 +139,15 @@ static services::Status checkCorrectionIndexData(const SerializationIfacePtr &pI
     return services::Status();
 }
 
-static services::Status checkAverageArgumentLIterations(const daal::algorithms::Input *input,
-        const SerializationIfacePtr &pItem, bool bInput)
+static services::Status checkAverageArgumentLIterations(const daal::algorithms::Input * input, const SerializationIfacePtr & pItem, bool bInput)
 {
     const ErrorDetailID det = bInput ? OptionalInput : OptionalResult;
-    NumericTablePtr pData = NumericTable::cast(pItem);
+    NumericTablePtr pData   = NumericTable::cast(pItem);
 
     DAAL_CHECK_EX(pData.get(), bInput ? ErrorIncorrectOptionalInput : ErrorIncorrectOptionalResult, det, averageArgumentLIterationsStr());
 
-    const Input *algInput = static_cast<const Input *>(input);
-    auto arg = algInput->get(iterative_solver::inputArgument);
+    const Input * algInput = static_cast<const Input *>(input);
+    auto arg               = algInput->get(iterative_solver::inputArgument);
 
     DAAL_CHECK_EX(pData->getNumberOfColumns() == arg->getNumberOfRows(), ErrorIncorrectNumberOfColumns, det, averageArgumentLIterationsStr());
     DAAL_CHECK_EX(pData->getNumberOfRows() == 2, ErrorIncorrectNumberOfRows, det, averageArgumentLIterationsStr());
@@ -154,22 +155,22 @@ static services::Status checkAverageArgumentLIterations(const daal::algorithms::
     return services::Status();
 }
 
-services::Status Input::check(const daal::algorithms::Parameter *par, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
     services::Status s = super::check(par, method);
-    if(!s) return s;
+    if (!s) return s;
 
     algorithms::OptionalArgumentPtr pOpt = get(iterative_solver::optionalArgument);
-    if(!pOpt.get())
+    if (!pOpt.get())
     {
-        return services::Status();    //ok
+        return services::Status(); //ok
     }
 
     DAAL_CHECK(pOpt->size() == lastOptionalData + 1, ErrorIncorrectOptionalInput);
     //checking correction pairs table
     {
         auto pItem = pOpt->get(correctionPairs);
-        if(pItem.get())
+        if (pItem.get())
         {
             DAAL_CHECK_STATUS(s, checkCorrectionPairsData(this, par, pItem, true));
         }
@@ -178,7 +179,7 @@ services::Status Input::check(const daal::algorithms::Parameter *par, int method
     //checking correction index table
     {
         auto pItem = pOpt->get(correctionIndices);
-        if(pItem.get())
+        if (pItem.get())
         {
             DAAL_CHECK_STATUS(s, checkCorrectionIndexData(pItem, true));
         }
@@ -187,7 +188,7 @@ services::Status Input::check(const daal::algorithms::Parameter *par, int method
     //checking average argument for L iterations table
     {
         auto pItem = pOpt->get(averageArgumentLIterations);
-        if(pItem.get())
+        if (pItem.get())
         {
             DAAL_CHECK_STATUS(s, checkAverageArgumentLIterations(this, pItem, true));
         }
@@ -199,17 +200,17 @@ services::Status Input::check(const daal::algorithms::Parameter *par, int method
 NumericTablePtr Result::get(OptionalDataId id) const
 {
     algorithms::OptionalArgumentPtr pOpt = get(iterative_solver::optionalResult);
-    if(pOpt.get())
+    if (pOpt.get())
     {
         return NumericTable::cast(pOpt->get(id));
     }
     return NumericTablePtr();
 }
 
-void Result::set(OptionalDataId id, const NumericTablePtr &ptr)
+void Result::set(OptionalDataId id, const NumericTablePtr & ptr)
 {
     algorithms::OptionalArgumentPtr pOpt = get(iterative_solver::optionalResult);
-    if(!pOpt.get())
+    if (!pOpt.get())
     {
         pOpt = algorithms::OptionalArgumentPtr(new algorithms::OptionalArgument(lastOptionalData + 1));
         set(iterative_solver::optionalResult, pOpt);
@@ -217,12 +218,11 @@ void Result::set(OptionalDataId id, const NumericTablePtr &ptr)
     pOpt->set(id, ptr);
 }
 
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par,
-                   int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, super::check(input, par, method));
-    if(!static_cast<const Parameter *>(par)->optionalResultRequired)
+    if (!static_cast<const Parameter *>(par)->optionalResultRequired)
     {
         return services::Status();
     }
@@ -256,5 +256,5 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
 } // namespace interface1
 } // namespace lbfgs
 } // namespace optimization_solver
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

@@ -42,19 +42,19 @@ using namespace daal::data_management;
 using namespace daal::services;
 
 /* Input data set parameters */
-string datasetName = "../data/batch/layer.csv";
+string datasetName           = "../data/batch/layer.csv";
 const size_t concatDimension = 1;
-const size_t nInputs = 3;
+const size_t nInputs         = 3;
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetName);
 
     /* Retrieve the input data */
-    TensorPtr tensorData = readTensorFromCSV(datasetName);
+    TensorPtr tensorData              = readTensorFromCSV(datasetName);
     LayerDataPtr tensorDataCollection = LayerDataPtr(new LayerData());
 
-    for(int i = 0; i < nInputs; i++)
+    for (int i = 0; i < nInputs; i++)
     {
         (*tensorDataCollection)[i] = tensorData;
     }
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
     /* Print the results of the backward concatenation layer */
     concat::backward::ResultPtr backwardResult = concatLayerBackward.getResult();
 
-    for(size_t i = 0; i < tensorDataCollection->size(); i++)
+    for (size_t i = 0; i < tensorDataCollection->size(); i++)
     {
         printTensor(backwardResult->get(backward::resultLayerData, i), "Backward concatenation layer backward result (first 5 rows):", 5);
     }

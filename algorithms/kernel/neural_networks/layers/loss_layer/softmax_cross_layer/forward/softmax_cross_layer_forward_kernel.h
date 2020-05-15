@@ -19,7 +19,6 @@
 //  Implementation of the forward softmax cross layer
 //--
 
-
 #ifndef __SOFTMAX_CROSS_LAYER_FORWARD_KERNEL_H__
 #define __SOFTMAX_CROSS_LAYER_FORWARD_KERNEL_H__
 
@@ -58,39 +57,28 @@ namespace internal
 /**
  *  \brief Kernel for softmax_cross calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class SoftmaxCrossKernel : public Kernel
 {
 public:
-    services::Status compute(
-        const Tensor &inputTensor,
-        const Tensor &groundTruthTensor,
-        const softmax_cross::Parameter &parameter,
-        Tensor &probabilitiesTensor,
-        Tensor &resultTensor);
+    services::Status compute(const Tensor & inputTensor, const Tensor & groundTruthTensor, const softmax_cross::Parameter & parameter,
+                             Tensor & probabilitiesTensor, Tensor & resultTensor);
 
 private:
     const size_t _nRowsInBlock = 5000;
 
-    inline Status processBlock(
-        const Tensor &inputTensor,
-        const Tensor &groundTruthTensor,
-        const size_t nProcessedRows,
-        const size_t nRowsInCurrentBlock,
-        Tensor &probabilitiesTensor,
-        const size_t dim,
-        const algorithmFPType eps,
-        SafeStatus &safeStat,
-        algorithmFPType &partialLoss);
+    inline Status processBlock(const Tensor & inputTensor, const Tensor & groundTruthTensor, const size_t nProcessedRows,
+                               const size_t nRowsInCurrentBlock, Tensor & probabilitiesTensor, const size_t dim, const algorithmFPType eps,
+                               SafeStatus & safeStat, algorithmFPType & partialLoss);
 };
 
-} // internal
-} // forward
-} // softmax_cross
-} // loss
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace forward
+} // namespace softmax_cross
+} // namespace loss
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

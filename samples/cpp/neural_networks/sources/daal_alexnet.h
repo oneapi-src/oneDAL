@@ -23,7 +23,7 @@
 training::TopologyPtr configureNet()
 {
     /* convolution: 11x11@96 + 4x4s */
-    SharedPtr<convolution2d::Batch<> > convolution1(new convolution2d::Batch<>() );
+    SharedPtr<convolution2d::Batch<> > convolution1(new convolution2d::Batch<>());
     convolution1->parameter.kernelSizes        = convolution2d::KernelSizes(11, 11);
     convolution1->parameter.strides            = convolution2d::Strides(4, 4);
     convolution1->parameter.nKernels           = 96;
@@ -150,29 +150,51 @@ training::TopologyPtr configureNet()
 
     /* Create AlexNet Topology */
     training::TopologyPtr topology(new training::Topology());
-    const size_t conv1 = topology->add( convolution1);
-    const size_t r1    = topology->add( relu1           ); topology->get( conv1 ).addNext(r1);
-    const size_t l1    = topology->add( lrn1            ); topology->get( r1    ).addNext(l1);
-    const size_t pool1 = topology->add( maxpooling1     ); topology->get( l1    ).addNext(pool1);
-    const size_t conv2 = topology->add( convolution2    ); topology->get( pool1 ).addNext(conv2);
-    const size_t r2    = topology->add( relu2           ); topology->get( conv2 ).addNext(r2);
-    const size_t l2    = topology->add( lrn2            ); topology->get( r2    ).addNext(l2);
-    const size_t pool2 = topology->add( maxpooling2     ); topology->get( l2    ).addNext(pool2);
-    const size_t conv3 = topology->add( convolution3    ); topology->get( pool2 ).addNext(conv3);
-    const size_t r3    = topology->add( relu3           ); topology->get( conv3 ).addNext(r3);
-    const size_t conv4 = topology->add( convolution4    ); topology->get( r3    ).addNext(conv4);
-    const size_t r4    = topology->add( relu4           ); topology->get( conv4 ).addNext(r4);
-    const size_t conv5 = topology->add( convolution5    ); topology->get( r4    ).addNext(conv5);
-    const size_t r5    = topology->add( relu5           ); topology->get( conv5 ).addNext(r5);
-    const size_t pool5 = topology->add( maxpooling5     ); topology->get( r5    ).addNext(pool5);
-    const size_t fc6   = topology->add( fullyconnected6 ); topology->get( pool5 ).addNext(fc6);
-    const size_t r6    = topology->add( relu6           ); topology->get( fc6   ).addNext(r6);
-    const size_t drop6 = topology->add( dropout6        ); topology->get( r6    ).addNext(drop6);
-    const size_t fc7   = topology->add( fullyconnected7 ); topology->get( drop6 ).addNext(fc7);
-    const size_t r7    = topology->add( relu7           ); topology->get( fc7   ).addNext(r7);
-    const size_t drop7 = topology->add( dropout7        ); topology->get( r7    ).addNext(drop7);
-    const size_t fc8   = topology->add( fullyconnected8 ); topology->get( drop7 ).addNext(fc8);
-    const size_t sm    = topology->add( softmax         ); topology->get( fc8   ).addNext(sm);
+    const size_t conv1 = topology->add(convolution1);
+    const size_t r1    = topology->add(relu1);
+    topology->get(conv1).addNext(r1);
+    const size_t l1 = topology->add(lrn1);
+    topology->get(r1).addNext(l1);
+    const size_t pool1 = topology->add(maxpooling1);
+    topology->get(l1).addNext(pool1);
+    const size_t conv2 = topology->add(convolution2);
+    topology->get(pool1).addNext(conv2);
+    const size_t r2 = topology->add(relu2);
+    topology->get(conv2).addNext(r2);
+    const size_t l2 = topology->add(lrn2);
+    topology->get(r2).addNext(l2);
+    const size_t pool2 = topology->add(maxpooling2);
+    topology->get(l2).addNext(pool2);
+    const size_t conv3 = topology->add(convolution3);
+    topology->get(pool2).addNext(conv3);
+    const size_t r3 = topology->add(relu3);
+    topology->get(conv3).addNext(r3);
+    const size_t conv4 = topology->add(convolution4);
+    topology->get(r3).addNext(conv4);
+    const size_t r4 = topology->add(relu4);
+    topology->get(conv4).addNext(r4);
+    const size_t conv5 = topology->add(convolution5);
+    topology->get(r4).addNext(conv5);
+    const size_t r5 = topology->add(relu5);
+    topology->get(conv5).addNext(r5);
+    const size_t pool5 = topology->add(maxpooling5);
+    topology->get(r5).addNext(pool5);
+    const size_t fc6 = topology->add(fullyconnected6);
+    topology->get(pool5).addNext(fc6);
+    const size_t r6 = topology->add(relu6);
+    topology->get(fc6).addNext(r6);
+    const size_t drop6 = topology->add(dropout6);
+    topology->get(r6).addNext(drop6);
+    const size_t fc7 = topology->add(fullyconnected7);
+    topology->get(drop6).addNext(fc7);
+    const size_t r7 = topology->add(relu7);
+    topology->get(fc7).addNext(r7);
+    const size_t drop7 = topology->add(dropout7);
+    topology->get(r7).addNext(drop7);
+    const size_t fc8 = topology->add(fullyconnected8);
+    topology->get(drop7).addNext(fc8);
+    const size_t sm = topology->add(softmax);
+    topology->get(fc8).addNext(sm);
     return topology;
 }
 

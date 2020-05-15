@@ -19,7 +19,6 @@
 //  Implementation of smoothrelu calculation functions.
 //--
 
-
 #include "smoothrelu_batch_container.h"
 #include "smoothrelu_kernel.h"
 #include "smoothrelu_impl.i"
@@ -40,7 +39,7 @@ namespace internal
 {
 template class SmoothReLUKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace smoothrelu
+} // namespace math
+} // namespace algorithms
+} // namespace daal

@@ -41,31 +41,34 @@ namespace backward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::ReshapeKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    reshape::backward::Input *input = static_cast<reshape::backward::Input *>(_in);
-    reshape::backward::Result *result = static_cast<reshape::backward::Result *>(_res);
+    reshape::backward::Input * input   = static_cast<reshape::backward::Input *>(_in);
+    reshape::backward::Result * result = static_cast<reshape::backward::Result *>(_res);
 
-    const layers::Parameter *par = static_cast<const layers::Parameter *>(_par);
-    if (!par->propagateGradient) { return services::Status(); }
+    const layers::Parameter * par = static_cast<const layers::Parameter *>(_par);
+    if (!par->propagateGradient)
+    {
+        return services::Status();
+    }
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    Tensor *inputTensor  = input->get(layers::backward::inputGradient).get();
-    Tensor *resultTensor = result->get(layers::backward::gradient).get();
+    Tensor * inputTensor  = input->get(layers::backward::inputGradient).get();
+    Tensor * resultTensor = result->get(layers::backward::gradient).get();
 
     __DAAL_CALL_KERNEL(env, internal::ReshapeKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputTensor, *resultTensor);
 }

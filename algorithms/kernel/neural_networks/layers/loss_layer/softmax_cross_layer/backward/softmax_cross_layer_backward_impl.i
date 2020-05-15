@@ -43,15 +43,11 @@ namespace backward
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status SoftmaxCrossKernel<algorithmFPType, method, cpu>::compute(
-    const Tensor &probTensor,
-    const Tensor &groundTruthTensor,
-    const softmax_cross::Parameter &parameter,
-    Tensor &resultTensor)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status SoftmaxCrossKernel<algorithmFPType, method, cpu>::compute(const Tensor & probTensor, const Tensor & groundTruthTensor,
+                                                                           const softmax_cross::Parameter & parameter, Tensor & resultTensor)
 {
-    size_t nRows = groundTruthTensor.getDimensionSize(0);
+    size_t nRows     = groundTruthTensor.getDimensionSize(0);
     const size_t dim = parameter.dimension;
 
     size_t nBlocks = nRows / _nRowsInBlock;
@@ -61,41 +57,35 @@ services::Status SoftmaxCrossKernel<algorithmFPType, method, cpu>::compute(
     __DAAL_MAKE_TENSOR_THREADSAFE(const_cast<Tensor *>(&groundTruthTensor))
 
     SafeStatus safeStat;
-    daal::threader_for(nBlocks, nBlocks, [ =, &probTensor, &groundTruthTensor, &resultTensor, &safeStat ](int block)
-    {
+    daal::threader_for(nBlocks, nBlocks, [=, &probTensor, &groundTruthTensor, &resultTensor, &safeStat](int block) {
         size_t nRowsToProcess = _nRowsInBlock;
-        if( block == nBlocks - 1 )
+        if (block == nBlocks - 1)
         {
             nRowsToProcess = nRows - block * _nRowsInBlock;
         }
 
         services::Status localStatus = processBlock(probTensor, groundTruthTensor, block * _nRowsInBlock, nRowsToProcess, dim, resultTensor);
         DAAL_CHECK_STATUS_THR(localStatus);
-    }
-                      );
+    });
     return safeStat.detach();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-inline Status SoftmaxCrossKernel<algorithmFPType, method, cpu>::processBlock(
-    const Tensor &probTensor,
-    const Tensor &groundTruthTensor,
-    const size_t nProcessedRows,
-    const size_t nRowsInCurrentBlock,
-    const size_t dim,
-    Tensor &gradientTensor)
+template <typename algorithmFPType, Method method, CpuType cpu>
+inline Status SoftmaxCrossKernel<algorithmFPType, method, cpu>::processBlock(const Tensor & probTensor, const Tensor & groundTruthTensor,
+                                                                             const size_t nProcessedRows, const size_t nRowsInCurrentBlock,
+                                                                             const size_t dim, Tensor & gradientTensor)
 {
     WriteOnlySubtensor<algorithmFPType, cpu> gradientBlock(gradientTensor, 0, 0, nProcessedRows, nRowsInCurrentBlock);
     DAAL_CHECK_BLOCK_STATUS(gradientBlock);
-    algorithmFPType *gradientArray = gradientBlock.get();
+    algorithmFPType * gradientArray = gradientBlock.get();
 
     {
         ReadSubtensor<algorithmFPType, cpu> probBlock(const_cast<Tensor &>(probTensor), 0, 0, nProcessedRows, nRowsInCurrentBlock);
         DAAL_CHECK_BLOCK_STATUS(probBlock);
-        const algorithmFPType *probArray = probBlock.get();
+        const algorithmFPType * probArray = probBlock.get();
 
         size_t nDataElements = probBlock.getSize();
-        for(size_t i = 0; i < nDataElements; i++)
+        for (size_t i = 0; i < nDataElements; i++)
         {
             gradientArray[i] = probArray[i];
         }
@@ -103,26 +93,26 @@ inline Status SoftmaxCrossKernel<algorithmFPType, method, cpu>::processBlock(
 
     ReadSubtensor<int, cpu> groundTruthBlock(const_cast<Tensor &>(groundTruthTensor), 0, 0, nProcessedRows, nRowsInCurrentBlock);
     DAAL_CHECK_BLOCK_STATUS(groundTruthBlock);
-    const int *groundTruthArray = groundTruthBlock.get();
+    const int * groundTruthArray = groundTruthBlock.get();
 
-    const algorithmFPType one = 1.0;
-    const size_t dimensionSize = probTensor.getDimensionSize(dim);
-    const size_t offsetInclude = probTensor.getSize(dim, probTensor.getNumberOfDimensions() - dim);
-    const size_t offsetAfter = offsetInclude / dimensionSize;
+    const algorithmFPType one      = 1.0;
+    const size_t dimensionSize     = probTensor.getDimensionSize(dim);
+    const size_t offsetInclude     = probTensor.getSize(dim, probTensor.getNumberOfDimensions() - dim);
+    const size_t offsetAfter       = offsetInclude / dimensionSize;
     const size_t offsetBeforeInRow = probTensor.getSize() / offsetInclude / probTensor.getDimensionSize(0);
 
-    for(size_t j = 0; j < nRowsInCurrentBlock * offsetBeforeInRow; j++)
+    for (size_t j = 0; j < nRowsInCurrentBlock * offsetBeforeInRow; j++)
     {
-        for(size_t k = 0; k < offsetAfter; k++)
+        for (size_t k = 0; k < offsetAfter; k++)
         {
-            gradientArray[(j * dimensionSize + groundTruthArray[j * offsetAfter + k])*offsetAfter + k] -= one;
+            gradientArray[(j * dimensionSize + groundTruthArray[j * offsetAfter + k]) * offsetAfter + k] -= one;
         }
     }
     return Status();
 }
 
-} // internal
-} // backward
+} // namespace internal
+} // namespace backward
 } // namespace softmax_cross
 } // namespace loss
 } // namespace layers

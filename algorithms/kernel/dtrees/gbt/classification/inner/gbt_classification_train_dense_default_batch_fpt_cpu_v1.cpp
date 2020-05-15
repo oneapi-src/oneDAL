@@ -38,8 +38,8 @@ namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
-}
-}
-}
-}
-}
+} // namespace training
+} // namespace classification
+} // namespace gbt
+} // namespace algorithms
+} // namespace daal

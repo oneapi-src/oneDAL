@@ -39,24 +39,23 @@ namespace initializers
 {
 namespace internal
 {
-
-template<CpuType cpu>
+template <CpuType cpu>
 class EngineImpl
 {
 private:
     bool _engineAllocatedOnOurSide;
-    engines::internal::BatchBaseImpl *_engine;
+    engines::internal::BatchBaseImpl * _engine;
 
 public:
-    EngineImpl(engines::BatchBase *engine)
+    EngineImpl(engines::BatchBase * engine)
     {
         _engineAllocatedOnOurSide = false;
-        _engine = dynamic_cast<engines::internal::BatchBaseImpl *>(engine);
+        _engine                   = dynamic_cast<engines::internal::BatchBaseImpl *>(engine);
 
         if (!engine)
         {
             _engineAllocatedOnOurSide = true;
-            _engine = new engines::mt19937::internal::BatchImpl<cpu>();
+            _engine                   = new engines::mt19937::internal::BatchImpl<cpu>();
         }
     }
 
@@ -69,13 +68,13 @@ public:
     }
 
     EngineImpl(const EngineImpl &) = delete;
-    EngineImpl &operator=(const EngineImpl &) = delete;
+    EngineImpl & operator=(const EngineImpl &) = delete;
 
-    inline engines::internal::BatchBaseImpl *get() { return _engine; }
-    inline engines::internal::BatchBaseImpl &operator * () { return *_engine; }
+    inline engines::internal::BatchBaseImpl * get() { return _engine; }
+    inline engines::internal::BatchBaseImpl & operator*() { return *_engine; }
 };
 
-} // internal
+} // namespace internal
 } // namespace initializers
 } // namespace neural_networks
 } // namespace algorithms

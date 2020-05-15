@@ -49,26 +49,25 @@ namespace truncated_gaussian
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for truncated_gaussian calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class TruncatedGaussianKernel : public Kernel
 {
 public:
-    Status compute(const TruncatedGaussianInitializerTaskDescriptor<algorithmFPType> &desc);
+    Status compute(const TruncatedGaussianInitializerTaskDescriptor<algorithmFPType> & desc);
 
 private:
     algorithmFPType getCDFNormal(algorithmFPType p, algorithmFPType mean, algorithmFPType sigma);
     const size_t _nElemsInBlock = 1000;
 };
 
-} // internal
-} // truncated_gaussian
-} // initializers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace truncated_gaussian
+} // namespace initializers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

@@ -37,7 +37,6 @@ namespace training
 {
 namespace interface1
 {
-
 using namespace daal::data_management;
 using namespace daal::services;
 
@@ -66,20 +65,19 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter)
     decision_tree::Pruning treePruning;
     {
         auto par1 = dynamic_cast<const decision_tree::classification::interface1::Parameter *>(parameter);
-        if(par1) treePruning = par1->pruning;
+        if (par1) treePruning = par1->pruning;
 
         auto par2 = dynamic_cast<const decision_tree::classification::interface2::Parameter *>(parameter);
-        if(par2) treePruning = par2->pruning;
+        if (par2) treePruning = par2->pruning;
 
-        if(par1 == NULL && par2 == NULL) return services::Status(ErrorNullParameterNotSupported);
+        if (par1 == NULL && par2 == NULL) return services::Status(ErrorNullParameterNotSupported);
     }
 
     if (treePruning == decision_tree::reducedErrorPruning)
     {
         const NumericTablePtr dataForPruningTable = get(dataForPruning);
         DAAL_CHECK_STATUS(s, checkNumericTable(dataForPruningTable.get(), dataForPruningStr(), 0, 0, this->getNumberOfFeatures()));
-        const int unexpectedLabelsLayouts = (int)NumericTableIface::upperPackedSymmetricMatrix
-                                            | (int)NumericTableIface::lowerPackedSymmetricMatrix
+        const int unexpectedLabelsLayouts = (int)NumericTableIface::upperPackedSymmetricMatrix | (int)NumericTableIface::lowerPackedSymmetricMatrix
                                             | (int)NumericTableIface::upperPackedTriangularMatrix
                                             | (int)NumericTableIface::lowerPackedTriangularMatrix;
         DAAL_CHECK_STATUS(s, checkNumericTable(get(labelsForPruning).get(), labelsForPruningStr(), unexpectedLabelsLayouts, 0, 1,

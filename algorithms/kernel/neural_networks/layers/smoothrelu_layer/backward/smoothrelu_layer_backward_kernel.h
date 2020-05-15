@@ -19,7 +19,6 @@
 // Implementation of the backward smooth rectifier linear unit (smooth relu) layer
 //--
 
-
 #ifndef __SMOOTHRELU_LAYER_BACKWARD_KERNEL_H__
 #define __SMOOTHRELU_LAYER_BACKWARD_KERNEL_H__
 
@@ -49,23 +48,22 @@ namespace backward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for smoothrelu calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class SmoothReLUKernel : public Kernel
 {
 public:
-    services::Status compute(const Tensor &inputGradientTensor, const Tensor &forwardDataTensor, Tensor &resultTensor);
+    services::Status compute(const Tensor & inputGradientTensor, const Tensor & forwardDataTensor, Tensor & resultTensor);
 };
 
-} // internal
-} // backward
-} // smoothrelu
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace backward
+} // namespace smoothrelu
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

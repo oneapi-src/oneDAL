@@ -41,50 +41,44 @@ namespace backward
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status DropoutKernel<algorithmFPType, method, cpu>::compute(const Tensor &inputGradientTable,
-        const Tensor &maskTable,
-        Tensor &resultTable)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status DropoutKernel<algorithmFPType, method, cpu>::compute(const Tensor & inputGradientTable, const Tensor & maskTable, Tensor & resultTable)
 {
-    const size_t nInputRows = inputGradientTable.getDimensionSize(0);
-    const size_t nBlocks = nInputRows / _nRowsInBlock;
+    const size_t nInputRows       = inputGradientTable.getDimensionSize(0);
+    const size_t nBlocks          = nInputRows / _nRowsInBlock;
     const size_t nRowsInLastBlock = nInputRows - nBlocks * _nRowsInBlock;
 
     Status s;
-    for(size_t block = 0; block < nBlocks; block++)
+    for (size_t block = 0; block < nBlocks; block++)
     {
         s |= processBlock(inputGradientTable, maskTable, block * _nRowsInBlock, _nRowsInBlock, resultTable);
     }
-    if(nRowsInLastBlock > 0)
+    if (nRowsInLastBlock > 0)
     {
         s |= processBlock(inputGradientTable, maskTable, nBlocks * _nRowsInBlock, nRowsInLastBlock, resultTable);
     }
     return s;
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-inline Status DropoutKernel<algorithmFPType, method, cpu>::processBlock(
-    const Tensor &inputGradientTable,
-    const Tensor &maskTable,
-    const size_t nProcessedRows,
-    const size_t nRowsInCurrentBlock,
-    Tensor &resultTable)
+template <typename algorithmFPType, Method method, CpuType cpu>
+inline Status DropoutKernel<algorithmFPType, method, cpu>::processBlock(const Tensor & inputGradientTable, const Tensor & maskTable,
+                                                                        const size_t nProcessedRows, const size_t nRowsInCurrentBlock,
+                                                                        Tensor & resultTable)
 {
-    ReadSubtensor<algorithmFPType, cpu> inputGradientBlock(const_cast<Tensor&>(inputGradientTable), 0, 0, nProcessedRows, nRowsInCurrentBlock);
+    ReadSubtensor<algorithmFPType, cpu> inputGradientBlock(const_cast<Tensor &>(inputGradientTable), 0, 0, nProcessedRows, nRowsInCurrentBlock);
     DAAL_CHECK_BLOCK_STATUS(inputGradientBlock);
-    const algorithmFPType *inputGradientArray = inputGradientBlock.get();
+    const algorithmFPType * inputGradientArray = inputGradientBlock.get();
 
-    ReadSubtensor<algorithmFPType, cpu> maskBlock(const_cast<Tensor&>(maskTable), 0, 0, nProcessedRows, nRowsInCurrentBlock);
+    ReadSubtensor<algorithmFPType, cpu> maskBlock(const_cast<Tensor &>(maskTable), 0, 0, nProcessedRows, nRowsInCurrentBlock);
     DAAL_CHECK_BLOCK_STATUS(maskBlock);
-    const algorithmFPType *maskArray = maskBlock.get();
+    const algorithmFPType * maskArray = maskBlock.get();
 
     WriteOnlySubtensor<algorithmFPType, cpu> resultBlock(resultTable, 0, 0, nProcessedRows, nRowsInCurrentBlock);
     DAAL_CHECK_BLOCK_STATUS(resultBlock);
-    algorithmFPType *resultArray = resultBlock.get();
+    algorithmFPType * resultArray = resultBlock.get();
 
     const size_t nDataElements = inputGradientBlock.getSize();
-    for(size_t i = 0; i < nDataElements; i++)
+    for (size_t i = 0; i < nDataElements; i++)
     {
         resultArray[i] = inputGradientArray[i] * maskArray[i];
     }
@@ -92,8 +86,8 @@ inline Status DropoutKernel<algorithmFPType, method, cpu>::processBlock(
     return Status();
 }
 
-} // internal
-} // backward
+} // namespace internal
+} // namespace backward
 } // namespace dropout
 } // namespace layers
 } // namespace neural_networks

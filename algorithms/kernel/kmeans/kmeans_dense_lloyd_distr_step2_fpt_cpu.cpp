@@ -38,7 +38,7 @@ template class DistributedContainer<step2Master, DAAL_FPTYPE, lloydDense, DAAL_C
 namespace internal
 {
 template class KMeansDistributedStep2Kernel<lloydDense, DAAL_FPTYPE, DAAL_CPU>;
-} // namespace daal::algorithms::kmeans::internal
-} // namespace daal::algorithms::kmeans
-} // namespace daal::algorithms
+} // namespace internal
+} // namespace kmeans
+} // namespace algorithms
 } // namespace daal

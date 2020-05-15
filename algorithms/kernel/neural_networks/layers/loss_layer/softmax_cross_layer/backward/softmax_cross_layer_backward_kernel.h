@@ -19,7 +19,6 @@
 //  Implementation of the backward softmax cross layer
 //--
 
-
 #ifndef __SOFTMAX_CROSS_LAYER_BACKWARD_KERNEL_H__
 #define __SOFTMAX_CROSS_LAYER_BACKWARD_KERNEL_H__
 
@@ -53,30 +52,19 @@ namespace backward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for softmax_cross calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class SoftmaxCrossKernel : public Kernel
 {
 public:
-    Status compute(
-        const Tensor &probTensor,
-        const Tensor &groundTruthTensor,
-        const softmax_cross::Parameter &parameter,
-        Tensor &resultTensor);
+    Status compute(const Tensor & probTensor, const Tensor & groundTruthTensor, const softmax_cross::Parameter & parameter, Tensor & resultTensor);
 
 private:
     const size_t _nRowsInBlock = 5000;
-    Status processBlock(
-        const Tensor &probTensor,
-        const Tensor &groundTruthTensor,
-        const size_t nProcessedRows,
-        const size_t nRowsInCurrentBlock,
-        const size_t dim,
-        Tensor &gradientTensor);
-
+    Status processBlock(const Tensor & probTensor, const Tensor & groundTruthTensor, const size_t nProcessedRows, const size_t nRowsInCurrentBlock,
+                        const size_t dim, Tensor & gradientTensor);
 };
 
 } // namespace internal

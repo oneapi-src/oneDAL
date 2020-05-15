@@ -34,9 +34,8 @@ namespace mcg59
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status Mcg59Kernel<algorithmFPType, method, cpu>::compute(NumericTable *resultTensor)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status Mcg59Kernel<algorithmFPType, method, cpu>::compute(NumericTable * resultTensor)
 {
     return Status();
 }

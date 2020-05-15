@@ -43,7 +43,7 @@ namespace interface1
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_NEURAL_NETWORKS_LAYERS_SPLIT_FORWARD_RESULT_ID);
 /** \brief Default constructor */
 Input::Input() {};
-Input::Input(const Input& other) : super(other) {}
+Input::Input(const Input & other) : super(other) {}
 
 /** \brief Default constructor */
 Result::Result() : layers::forward::Result() {};
@@ -77,7 +77,7 @@ LayerDataPtr Result::get(ResultLayerDataId id) const
  *
  * \return Status of computations
  */
-void Result::set(ResultLayerDataId id, const LayerDataPtr &value)
+void Result::set(ResultLayerDataId id, const LayerDataPtr & value)
 {
     Argument::set(id, value);
 }
@@ -90,17 +90,20 @@ void Result::set(ResultLayerDataId id, const LayerDataPtr &value)
  *
  * \return Status of computations
  */
-void Result::set(ResultLayerDataId id, const data_management::TensorPtr &value, size_t index)
+void Result::set(ResultLayerDataId id, const data_management::TensorPtr & value, size_t index)
 {
     LayerDataPtr layerData = this->get(id);
-    (*layerData)[index] = value;
+    (*layerData)[index]    = value;
 }
 
 /**
  * Returns the layout of the result object for the layer algorithm
  * \return Layout of the result object for the layer algorithm
  */
-LayerResultLayout Result::getLayout()  { return collectionResult; }
+LayerResultLayout Result::getLayout()
+{
+    return collectionResult;
+}
 
 /**
  * Returns resulting value of the forward split layer
@@ -120,19 +123,19 @@ data_management::TensorPtr Result::getValue(size_t index) const
  *
  * \return Status of computations
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     DAAL_CHECK(Argument::size() == 2, services::ErrorIncorrectNumberOfInputNumericTables);
 
-    const Input *algInput = static_cast<const Input *>(input);
-    const Parameter *parameter = static_cast<const Parameter *>(par);
-    const size_t nOutputs = parameter->nOutputs;
+    const Input * algInput      = static_cast<const Input *>(input);
+    const Parameter * parameter = static_cast<const Parameter *>(par);
+    const size_t nOutputs       = parameter->nOutputs;
 
     data_management::TensorPtr inputTensor = algInput->get(layers::forward::data);
     services::Status s;
     DAAL_CHECK_STATUS(s, data_management::checkTensor(inputTensor.get(), dataStr()));
 
-    const services::Collection<size_t> &inputDims = inputTensor->getDimensions();
+    const services::Collection<size_t> & inputDims = inputTensor->getDimensions();
 
     for (size_t i = 0; i < nOutputs; i++)
     {
@@ -148,8 +151,8 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
 * \param[in] method      Method of the algorithm
 * \return    Collection of dimensions of split layer output
 */
-const services::Collection<size_t> Result::getValueSize(const services::Collection<size_t> &inputSize,
-                                                        const daal::algorithms::Parameter *par, const int method) const
+const services::Collection<size_t> Result::getValueSize(const services::Collection<size_t> & inputSize, const daal::algorithms::Parameter * par,
+                                                        const int method) const
 {
     return services::Collection<size_t>();
 }
@@ -161,10 +164,10 @@ const services::Collection<size_t> Result::getValueSize(const services::Collecti
 * \param[in] method      Method of the algorithm
 * \return    Collection of dimensions of split layer output
 */
-services::Collection< services::Collection<size_t> > Result::getValueCollectionSize(const services::Collection<size_t> &inputSize,
-                                                                            const daal::algorithms::Parameter *parameter, const int method)
+services::Collection<services::Collection<size_t> > Result::getValueCollectionSize(const services::Collection<size_t> & inputSize,
+                                                                                   const daal::algorithms::Parameter * parameter, const int method)
 {
-    const Parameter *par = static_cast<const Parameter *>(parameter);
+    const Parameter * par = static_cast<const Parameter *>(parameter);
     const size_t nOutputs = par->nOutputs;
 
     services::Collection<services::Collection<size_t> > dimsCollection;
@@ -177,10 +180,10 @@ services::Collection< services::Collection<size_t> > Result::getValueCollectionS
     return dimsCollection;
 }
 
-}// namespace interface1
-}// namespace forward
-}// namespace split
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace split
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

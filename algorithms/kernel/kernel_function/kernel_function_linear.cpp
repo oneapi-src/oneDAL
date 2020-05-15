@@ -40,31 +40,27 @@ namespace interface1
 Parameter::Parameter(double k, double b) : ParameterBase(), k(k), b(b) {}
 
 Input::Input() : kernel_function::Input() {}
-Input::Input(const Input& other) : kernel_function::Input(other){}
+Input::Input(const Input & other) : kernel_function::Input(other) {}
 
 /**
  * Checks input objects of the kernel function linear algorithm
  * \param[in] par     %Input objects of the algorithm
  * \param[in] method  Computation method of the algorithm
  */
-Status Input::check(const daal::algorithms::Parameter *par, int method) const
+Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
-    switch(method)
+    switch (method)
     {
-    case fastCSR:
-        return checkCSR();
-    case defaultDense:
-        return checkDense();
-    default:
-        DAAL_ASSERT(false);
-        break;
+    case fastCSR: return checkCSR();
+    case defaultDense: return checkDense();
+    default: DAAL_ASSERT(false); break;
     }
 
     return services::Status();
 }
 
-}// namespace interface1
-}// namespace linear
-}// namespace kernel_function
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace linear
+} // namespace kernel_function
+} // namespace algorithms
+} // namespace daal

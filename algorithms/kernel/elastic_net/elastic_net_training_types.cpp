@@ -150,11 +150,9 @@ services::Status Input::check(const daal::algorithms::Parameter * par, int metho
     DAAL_CHECK_STATUS(s, parameter->check());
 
     const size_t penaltyL1NumberOfColumns = parameter->penaltyL1->getNumberOfColumns();
-    DAAL_CHECK((penaltyL1NumberOfColumns == 1) || (nColumnsInDepVariable == penaltyL1NumberOfColumns),
-               ErrorIncorrectNumberOfColumns);
+    DAAL_CHECK((penaltyL1NumberOfColumns == 1) || (nColumnsInDepVariable == penaltyL1NumberOfColumns), ErrorIncorrectNumberOfColumns);
     const size_t penaltyL2NumberOfColumns = parameter->penaltyL2->getNumberOfColumns();
-    DAAL_CHECK((penaltyL2NumberOfColumns == 1) || (nColumnsInDepVariable == penaltyL2NumberOfColumns),
-               ErrorIncorrectNumberOfColumns);
+    DAAL_CHECK((penaltyL2NumberOfColumns == 1) || (nColumnsInDepVariable == penaltyL2NumberOfColumns), ErrorIncorrectNumberOfColumns);
     return services::Status();
 }
 
@@ -170,7 +168,7 @@ Parameter::Parameter(const SolverPtr & solver)
 services::Status Parameter::check() const
 {
     services::Status status = checkNumericTable(penaltyL1.get(), penaltyL1Str(), packed_mask, 0, 0, 1);
-    status = (status == services::Status() ? checkNumericTable(penaltyL2.get(), penaltyL2Str(), packed_mask, 0, 0, 1) : status);
+    status                  = (status == services::Status() ? checkNumericTable(penaltyL2.get(), penaltyL2Str(), packed_mask, 0, 0, 1) : status);
     return status;
 }
 

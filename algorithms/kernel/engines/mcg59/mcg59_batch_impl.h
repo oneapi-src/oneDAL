@@ -39,8 +39,7 @@ namespace mcg59
 {
 namespace internal
 {
-
-template<CpuType cpu, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <CpuType cpu, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class BatchImpl : public algorithms::engines::mcg59::interface1::Batch<algorithmFPType, method>, public algorithms::engines::internal::BatchBaseImpl
 {
 public:
@@ -48,23 +47,17 @@ public:
     typedef algorithms::engines::internal::BatchBaseImpl super2;
     BatchImpl(size_t seed = 777) : baseRng(seed, __DAAL_BRNG_MCG59), super2(seed) {}
 
-    void *getState() DAAL_C11_OVERRIDE
-    {
-        return baseRng.getState();
-    }
+    void * getState() DAAL_C11_OVERRIDE { return baseRng.getState(); }
 
-    int getStateSize() const DAAL_C11_OVERRIDE
-    {
-        return baseRng.getStateSize();
-    }
+    int getStateSize() const DAAL_C11_OVERRIDE { return baseRng.getStateSize(); }
 
-    services::Status saveStateImpl(byte* dest) const DAAL_C11_OVERRIDE
+    services::Status saveStateImpl(byte * dest) const DAAL_C11_OVERRIDE
     {
         DAAL_CHECK(!baseRng.saveState((void *)dest), ErrorIncorrectErrorcodeFromGenerator);
         return services::Status();
     }
 
-    services::Status loadStateImpl(const byte* src) DAAL_C11_OVERRIDE
+    services::Status loadStateImpl(const byte * src) DAAL_C11_OVERRIDE
     {
         DAAL_CHECK(!baseRng.loadState((const void *)src), ErrorIncorrectErrorcodeFromGenerator);
         return services::Status();
@@ -74,8 +67,10 @@ public:
     {
         int errcode = baseRng.leapfrog(threadNum, nThreads);
         services::Status s;
-        if(errcode == leapfrogMethodErrcode) s.add(ErrorLeapfrogUnsupported);
-        else if(errcode) s.add(ErrorIncorrectErrorcodeFromGenerator);
+        if (errcode == leapfrogMethodErrcode)
+            s.add(ErrorLeapfrogUnsupported);
+        else if (errcode)
+            s.add(ErrorIncorrectErrorcodeFromGenerator);
         return s;
     }
 
@@ -83,23 +78,25 @@ public:
     {
         int errcode = baseRng.skipAhead(nSkip);
         services::Status s;
-        if(errcode == skipAheadMethodErrcode) s.add(ErrorSkipAheadUnsupported);
-        else if (errcode) s.add(ErrorIncorrectErrorcodeFromGenerator);
+        if (errcode == skipAheadMethodErrcode)
+            s.add(ErrorSkipAheadUnsupported);
+        else if (errcode)
+            s.add(ErrorIncorrectErrorcodeFromGenerator);
         return s;
     }
 
-    virtual BatchImpl<cpu, algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
+    virtual BatchImpl<cpu, algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
     {
         return new BatchImpl<cpu, algorithmFPType, method>(*this);
     }
 
     bool hasSupport(engines::internal::ParallelizationTechnique technique) const DAAL_C11_OVERRIDE
     {
-        switch(technique)
+        switch (technique)
         {
-            case engines::internal::family: return false;
-            case engines::internal::skipahead: return true;
-            case engines::internal::leapfrog: return true;
+        case engines::internal::family: return false;
+        case engines::internal::skipahead: return true;
+        case engines::internal::leapfrog: return true;
         }
         return false;
     }
@@ -107,12 +104,12 @@ public:
     ~BatchImpl() {}
 
 protected:
-    BatchImpl(const BatchImpl<cpu, algorithmFPType, method> &other) : super1(other), super2(other), baseRng(other.baseRng) {}
+    BatchImpl(const BatchImpl<cpu, algorithmFPType, method> & other) : super1(other), super2(other), baseRng(other.baseRng) {}
 
     daal::internal::BaseRNGs<cpu> baseRng;
 };
 
-} // namespace interface1
+} // namespace internal
 } // namespace mcg59
 } // namespace engines
 } // namespace algorithms

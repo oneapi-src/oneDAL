@@ -41,8 +41,8 @@ using namespace daal::algorithms::neural_networks;
 using namespace daal::services;
 
 /* Input data set parameters */
-string testDatasetFile      = "../data/batch/neural_network_test.csv";
-string testGroundTruthFile  = "../data/batch/neural_network_test_ground_truth.csv";
+string testDatasetFile     = "../data/batch/neural_network_test.csv";
+string testGroundTruthFile = "../data/batch/neural_network_test_ground_truth.csv";
 
 /* Weights and biases obtained on the training stage */
 string fc1WeightsFile = "../data/batch/fc1_weights.csv";
@@ -89,7 +89,7 @@ void createModel()
     TensorPtr fc1Biases = readTensorFromCSV(fc1BiasesFile);
 
     /* Set weights and biases of the 1st fully-connected layer */
-    forward::Input *fc1Input = predictionModel->getLayer(ids.fc1)->getLayerInput();
+    forward::Input * fc1Input = predictionModel->getLayer(ids.fc1)->getLayerInput();
     fc1Input->set(forward::weights, fc1Weights);
     fc1Input->set(forward::biases, fc1Biases);
 
@@ -103,7 +103,7 @@ void createModel()
     TensorPtr fc2Biases = readTensorFromCSV(fc2BiasesFile);
 
     /* Set weights and biases of the 2nd fully-connected layer */
-    forward::Input *fc2Input = predictionModel->getLayer(ids.fc2)->getLayerInput();
+    forward::Input * fc2Input = predictionModel->getLayer(ids.fc2)->getLayerInput();
     fc2Input->set(forward::weights, fc2Weights);
     fc2Input->set(forward::biases, fc2Biases);
 
@@ -135,7 +135,7 @@ void printResults()
     /* Read testing ground truth from a .csv file and create a tensor to store the data */
     TensorPtr predictionGroundTruth = readTensorFromCSV(testGroundTruthFile);
 
-    printTensors<int, float>(predictionGroundTruth, predictionResult->get(prediction::prediction),
-                             "Ground truth", "Neural network predictions: each class probability",
+    printTensors<int, float>(predictionGroundTruth, predictionResult->get(prediction::prediction), "Ground truth",
+                             "Neural network predictions: each class probability",
                              "Neural network classification results (first 20 observations):", 20);
 }

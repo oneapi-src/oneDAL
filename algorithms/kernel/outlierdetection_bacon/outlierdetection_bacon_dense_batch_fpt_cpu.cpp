@@ -31,16 +31,13 @@ namespace algorithms
 {
 namespace bacon_outlier_detection
 {
-
 namespace interface1
 {
-
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
 }
 namespace internal
 {
-
 template class OutlierDetectionKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
 } // namespace internal

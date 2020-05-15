@@ -19,14 +19,14 @@
 //  Implementation of saga calculation algorithm container.
 //--
 
-
 #include "saga_batch_container_v1.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(optimization_solver::saga::interface1::BatchContainer, batch, DAAL_FPTYPE, optimization_solver::saga::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(optimization_solver::saga::interface1::BatchContainer, batch, DAAL_FPTYPE,
+                                      optimization_solver::saga::defaultDense)
 
 namespace optimization_solver
 {
@@ -36,23 +36,21 @@ namespace interface1
 {
 using BatchType = Batch<DAAL_FPTYPE, optimization_solver::saga::defaultDense>;
 
-template<>
-BatchType::Batch(const sum_of_functions::interface1::BatchPtr& objectiveFunction)
+template <>
+BatchType::Batch(const sum_of_functions::interface1::BatchPtr & objectiveFunction)
 {
     _par = new algorithms::optimization_solver::saga::interface1::Parameter(objectiveFunction);
     initialize();
 }
 
-template<>
-BatchType::Batch(const BatchType &other) :
-    iterative_solver::interface1::Batch(other),
-    input(other.input)
+template <>
+BatchType::Batch(const BatchType & other) : iterative_solver::interface1::Batch(other), input(other.input)
 {
     _par = new algorithms::optimization_solver::saga::interface1::Parameter(other.parameter());
     initialize();
 }
 
-template<>
+template <>
 services::SharedPtr<BatchType> BatchType::create()
 {
     return services::SharedPtr<BatchType>(new BatchType());

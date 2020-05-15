@@ -40,16 +40,14 @@ namespace xavier
 {
 namespace internal
 {
+template <typename algorithmFPType>
+services::Status getFanInAndFanOut(const XavierInitializerTaskDescriptor & desc, size_t & fanIn, size_t & fanOut);
 
-template<typename algorithmFPType>
-services::Status getFanInAndFanOut(const XavierInitializerTaskDescriptor &desc,
-                                   size_t &fanIn, size_t &fanOut);
-
-} // internal
-} // xavier
-} // initializers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace xavier
+} // namespace initializers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

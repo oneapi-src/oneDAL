@@ -19,7 +19,6 @@
 //  Implementation of sgd calculation functions.
 //--
 
-
 #include "sgd_batch_container.h"
 #include "sgd_dense_default_kernel.h"
 #include "sgd_dense_default_impl.i"
@@ -32,7 +31,6 @@ namespace optimization_solver
 {
 namespace sgd
 {
-
 namespace interface2
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

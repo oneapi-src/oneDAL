@@ -41,7 +41,6 @@ namespace backward
 {
 namespace interface1
 {
-
 using namespace daal::data_management;
 
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_NEURAL_NETWORKS_LAYERS_ELTWISE_SUM_BACKWARD_RESULT_ID);
@@ -50,7 +49,7 @@ __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_NEURAL_NETWORKS_LAYERS
  * Default constructor
  */
 Input::Input() {};
-Input::Input(const Input& other) : super(other) {}
+Input::Input(const Input & other) : super(other) {}
 
 /**
  * Returns an input tensor for backward element-twise sum layer
@@ -60,7 +59,10 @@ Input::Input(const Input& other) : super(other) {}
 TensorPtr Input::get(LayerDataId id) const
 {
     LayerDataPtr layerData = get(layers::backward::inputFromForward);
-    if (!layerData) { return TensorPtr(); }
+    if (!layerData)
+    {
+        return TensorPtr();
+    }
     return Tensor::cast((*layerData)[id]);
 }
 
@@ -72,7 +74,10 @@ TensorPtr Input::get(LayerDataId id) const
 NumericTablePtr Input::get(LayerDataNumericTableId id) const
 {
     LayerDataPtr layerData = get(layers::backward::inputFromForward);
-    if (!layerData) { return NumericTablePtr(); }
+    if (!layerData)
+    {
+        return NumericTablePtr();
+    }
     return NumericTable::cast((*layerData)[id]);
 }
 
@@ -81,10 +86,10 @@ NumericTablePtr Input::get(LayerDataNumericTableId id) const
  * \param[in] id    Identifier of the input tensor
  * \param[in] value Input tensor to set
  */
-void Input::set(LayerDataId id, const TensorPtr &value)
+void Input::set(LayerDataId id, const TensorPtr & value)
 {
     LayerDataPtr layerData = get(layers::backward::inputFromForward);
-    (*layerData)[id] = value;
+    (*layerData)[id]       = value;
 }
 
 /**
@@ -92,10 +97,10 @@ void Input::set(LayerDataId id, const TensorPtr &value)
  * \param[in] id    Identifier of the input numeric table
  * \param[in] value Input numeric table
  */
-void Input::set(LayerDataNumericTableId id, const NumericTablePtr &value)
+void Input::set(LayerDataNumericTableId id, const NumericTablePtr & value)
 {
     LayerDataPtr layerData = get(layers::backward::inputFromForward);
-    (*layerData)[id] = value;
+    (*layerData)[id]       = value;
 }
 
 /**
@@ -103,7 +108,7 @@ void Input::set(LayerDataNumericTableId id, const NumericTablePtr &value)
  * \param[in] par    %Parameter of layer
  * \param[in] method Computation method of the layer
  */
-services::Status Input::check(const daal::algorithms::Parameter *par, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
     LayerDataPtr layerData = get(layers::backward::inputFromForward);
     DAAL_CHECK(layerData, services::ErrorNullLayerData);
@@ -125,10 +130,16 @@ services::Status Input::check(const daal::algorithms::Parameter *par, int method
 size_t Input::getNumberOfCoefficients() const
 {
     TensorPtr auxCoefficients = get(eltwise_sum::auxCoefficients);
-    if (auxCoefficients) { return auxCoefficients->getSize(); }
+    if (auxCoefficients)
+    {
+        return auxCoefficients->getSize();
+    }
 
     NumericTablePtr auxCoefficientsNum = get(eltwise_sum::auxNumberOfCoefficients);
-    if (auxCoefficientsNum) { return getNumberOfAuxCoefficientsFromTable(); }
+    if (auxCoefficientsNum)
+    {
+        return getNumberOfAuxCoefficientsFromTable();
+    }
 
     return 0;
 }
@@ -136,7 +147,10 @@ size_t Input::getNumberOfCoefficients() const
 size_t Input::getNumberOfAuxCoefficientsFromTable() const
 {
     NumericTablePtr auxCoefficientsNum = get(eltwise_sum::auxNumberOfCoefficients);
-    if (!auxCoefficientsNum) { return 0; }
+    if (!auxCoefficientsNum)
+    {
+        return 0;
+    }
 
     BlockDescriptor<int> auxCoefficientsNumBlock;
     auxCoefficientsNum->getBlockOfRows(0, 1, readOnly, auxCoefficientsNumBlock);
@@ -160,8 +174,8 @@ services::Status Input::checkAuxCoefficients() const
         services::Status s;
         DAAL_CHECK_STATUS(s, data_management::checkTensor(auxCoefficients.get(), auxCoefficientsStr()));
 
-        DAAL_CHECK_EX(auxCoefficients->getDimensions().size() == 1,
-            services::ErrorIncorrectNumberOfDimensionsInTensor, services::ArgumentName, auxCoefficientsStr());
+        DAAL_CHECK_EX(auxCoefficients->getDimensions().size() == 1, services::ErrorIncorrectNumberOfDimensionsInTensor, services::ArgumentName,
+                      auxCoefficientsStr());
     }
     return services::Status();
 }
@@ -173,23 +187,19 @@ services::Status Input::checkAuxNumberOfCoefficients() const
     {
         NumericTablePtr auxNumberOfCoefficients = get(eltwise_sum::auxNumberOfCoefficients);
 
-        const int unexpectedLayouts =
-            (int)NumericTableIface::upperPackedSymmetricMatrix  |
-            (int)NumericTableIface::lowerPackedSymmetricMatrix  |
-            (int)NumericTableIface::upperPackedTriangularMatrix |
-            (int)NumericTableIface::lowerPackedTriangularMatrix |
-            (int)NumericTableIface::csrArray;
+        const int unexpectedLayouts = (int)NumericTableIface::upperPackedSymmetricMatrix | (int)NumericTableIface::lowerPackedSymmetricMatrix
+                                      | (int)NumericTableIface::upperPackedTriangularMatrix | (int)NumericTableIface::lowerPackedTriangularMatrix
+                                      | (int)NumericTableIface::csrArray;
 
         const size_t requiredNumberOfRows = 1;
         const size_t requiredNumberOfCols = 1;
 
         services::Status s;
-        DAAL_CHECK_NUMERIC_TABLE(s, auxNumberOfCoefficients.get(), auxNumberOfCoefficientsStr(),
-            unexpectedLayouts, 0, requiredNumberOfCols, requiredNumberOfRows);
+        DAAL_CHECK_NUMERIC_TABLE(s, auxNumberOfCoefficients.get(), auxNumberOfCoefficientsStr(), unexpectedLayouts, 0, requiredNumberOfCols,
+                                 requiredNumberOfRows);
 
         const size_t numberOfCoefficients = getNumberOfAuxCoefficientsFromTable();
-        DAAL_CHECK_EX(numberOfCoefficients > 0, services::ErrorIncorrectInputNumericTable,
-                      services::ArgumentName, auxNumberOfCoefficientsStr());
+        DAAL_CHECK_EX(numberOfCoefficients > 0, services::ErrorIncorrectInputNumericTable, services::ArgumentName, auxNumberOfCoefficientsStr());
     }
     return services::Status();
 }
@@ -208,7 +218,10 @@ Result::Result() {}
 TensorPtr Result::get(layers::backward::ResultLayerDataId id, size_t index) const
 {
     LayerDataPtr layerData = get(id);
-    if (!layerData) { return TensorPtr(); }
+    if (!layerData)
+    {
+        return TensorPtr();
+    }
     return Tensor::cast((*layerData)[index]);
 }
 
@@ -218,10 +231,10 @@ TensorPtr Result::get(layers::backward::ResultLayerDataId id, size_t index) cons
  * \param[in] value    Pointer to the tensor
  * \param[in] index    Index of the result tensor
  */
-void Result::set(layers::backward::ResultLayerDataId id, const TensorPtr &value, size_t index)
+void Result::set(layers::backward::ResultLayerDataId id, const TensorPtr & value, size_t index)
 {
     LayerDataPtr layerData = get(id);
-    (*layerData)[index] = value;
+    (*layerData)[index]    = value;
 }
 
 /**
@@ -238,7 +251,10 @@ TensorPtr Result::getGradient(size_t index) const
  * Returns the layout of the result object for the layer algorithm
  * \return Layout of the result object for the layer algorithm
  */
-LayerResultLayout Result::getLayout() const { return collectionResult; }
+LayerResultLayout Result::getLayout() const
+{
+    return collectionResult;
+}
 
 /**
  * Checks the result of the element-twise sum layer
@@ -246,10 +262,9 @@ LayerResultLayout Result::getLayout() const { return collectionResult; }
  * \param[in] par     %Parameter of the layer
  * \param[in] method  Computation method of the layer
  */
-services::Status Result::check(const daal::algorithms::Input *input,
-                               const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
-    const Input *algInput = dynamic_cast<const Input *>(input);
+    const Input * algInput = dynamic_cast<const Input *>(input);
     DAAL_CHECK(algInput, services::ErrorNullInput);
 
     services::Status s;
@@ -259,7 +274,7 @@ services::Status Result::check(const daal::algorithms::Input *input,
     return services::Status();
 }
 
-services::Status Result::checkResultLayerData(const Input *input) const
+services::Status Result::checkResultLayerData(const Input * input) const
 {
     LayerDataPtr resultLayerData = get(layers::backward::resultLayerData);
     DAAL_CHECK(resultLayerData, services::ErrorNullLayerData);
@@ -270,12 +285,12 @@ services::Status Result::checkResultLayerData(const Input *input) const
     return checkOutputGradients(input);
 }
 
-services::Status Result::checkOutputGradients(const Input *input) const
+services::Status Result::checkOutputGradients(const Input * input) const
 {
     LayerDataPtr resultLayerData = get(layers::backward::resultLayerData);
 
-    TensorPtr inputGradient = input->get(layers::backward::inputGradient);
-    const services::Collection<size_t> &requiredOutputGradientDims = inputGradient->getDimensions();
+    TensorPtr inputGradient                                         = input->get(layers::backward::inputGradient);
+    const services::Collection<size_t> & requiredOutputGradientDims = inputGradient->getDimensions();
 
     services::Status s;
     for (size_t i = 0; i < resultLayerData->size(); i++)
@@ -287,7 +302,7 @@ services::Status Result::checkOutputGradients(const Input *input) const
     return services::Status();
 }
 
-void Result::useInputGradientTensorAsOutput(const TensorPtr &inputGradient, size_t nOutputs)
+void Result::useInputGradientTensorAsOutput(const TensorPtr & inputGradient, size_t nOutputs)
 {
     for (size_t i = 0; i < nOutputs; i++)
     {
@@ -306,10 +321,10 @@ LayerDataPtr Result::getResultLayerDataAllocateIfEmpty()
     return layerData;
 }
 
-}// namespace interface1
-}// namespace backward
-}// namespace eltwise_sum
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace eltwise_sum
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate relus.
 //--
 
-
 #ifndef __RELU_LAYER_FORWARD_KERNEL_H__
 #define __RELU_LAYER_FORWARD_KERNEL_H__
 
@@ -51,11 +50,11 @@ namespace internal
 /**
  *  \brief Kernel for relu calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class ReLUKernel : public Kernel
 {
 public:
-    services::Status compute(const Tensor &inputTensor, Tensor &resultTensor);
+    services::Status compute(const Tensor & inputTensor, Tensor & resultTensor);
 
     ~ReLUKernel()
     {
@@ -71,12 +70,12 @@ private:
     dnnPrimitive_t reluPrim = NULL;
 };
 
-} // internal
-} // forward
-} // relu
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace forward
+} // namespace relu
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

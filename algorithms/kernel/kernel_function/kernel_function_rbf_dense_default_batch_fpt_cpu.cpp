@@ -35,13 +35,11 @@ namespace rbf
 {
 namespace interface1
 {
-
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
 }
 namespace internal
 {
-
 template class KernelImplRBF<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 
 } // namespace internal

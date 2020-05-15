@@ -34,11 +34,10 @@ namespace covariance
 {
 namespace interface1
 {
-
 /** Default constructor */
 Parameter::Parameter() : daal::algorithms::Parameter(), outputMatrixType(covarianceMatrix) {}
 
-}//namespace interface1
-}//namespace covariance
-}// namespace algorithms
-}// namespace daal
+} //namespace interface1
+} //namespace covariance
+} // namespace algorithms
+} // namespace daal

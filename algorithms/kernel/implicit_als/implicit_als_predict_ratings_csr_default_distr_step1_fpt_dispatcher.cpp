@@ -28,7 +28,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(implicit_als::prediction::ratings::DistributedContainer, distributed, step1Local, \
-                                      DAAL_FPTYPE, implicit_als::prediction::ratings::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(implicit_als::prediction::ratings::DistributedContainer, distributed, step1Local, DAAL_FPTYPE,
+                                      implicit_als::prediction::ratings::defaultDense)
 }
-}
+} // namespace daal

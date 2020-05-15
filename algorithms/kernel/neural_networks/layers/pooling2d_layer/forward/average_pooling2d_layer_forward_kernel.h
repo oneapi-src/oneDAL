@@ -48,19 +48,17 @@ namespace forward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for forward pooling layer results computation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class PoolingKernel : public pooling2d::forward::internal::PoolingKernel<algorithmFPType, cpu>
 {
 public:
     /* Computes the results of forward pooling layer */
-    services::Status compute(const Tensor &dataTensor, const average_pooling2d::Parameter &parameter, Tensor &valueTensor);
+    services::Status compute(const Tensor & dataTensor, const average_pooling2d::Parameter & parameter, Tensor & valueTensor);
 
-    services::Status initialize(const services::Collection<size_t> &inDimsFull,
-                                const services::Collection<size_t> &outDimsFull);
+    services::Status initialize(const services::Collection<size_t> & inDimsFull, const services::Collection<size_t> & outDimsFull);
 
     ~PoolingKernel()
     {
@@ -69,40 +67,39 @@ public:
             dnn::xDelete(avePoolPrim);
         }
     }
+
 protected:
     typedef daal::internal::Dnn<algorithmFPType, cpu> dnn;
     typedef daal::internal::DnnLayout<algorithmFPType, cpu> xDnnLayout;
 
     using pooling2d::forward::internal::PoolingKernel<algorithmFPType, cpu>::defaultCompute;
 
-    virtual void defaultInnerLoop(const pooling2d::internal::Parameter &par,
-                                  DAAL_INT i, DAAL_INT f, DAAL_INT k, DAAL_INT s, DAAL_INT j,
-                                  const algorithmFPType *data, algorithmFPType *valuePtr);
+    virtual void defaultInnerLoop(const pooling2d::internal::Parameter & par, DAAL_INT i, DAAL_INT f, DAAL_INT k, DAAL_INT s, DAAL_INT j,
+                                  const algorithmFPType * data, algorithmFPType * valuePtr);
 
-    virtual void defaultInnerLoop(const pooling2d::internal::Parameter &par,
-                                  DAAL_INT i, DAAL_INT f, DAAL_INT k, DAAL_INT s, DAAL_INT j,
-                                  const algorithmFPType *data, algorithmFPType *valuePtr, int *selectedPos)
+    virtual void defaultInnerLoop(const pooling2d::internal::Parameter & par, DAAL_INT i, DAAL_INT f, DAAL_INT k, DAAL_INT s, DAAL_INT j,
+                                  const algorithmFPType * data, algorithmFPType * valuePtr, int * selectedPos)
     {
         defaultInnerLoop(par, i, f, k, s, j, data, valuePtr);
     }
 
     dnnPrimitive_t avePoolPrim = NULL;
 
-    size_t *outputSize = NULL;
+    size_t * outputSize = NULL;
     TArray<size_t, cpu> outputSizePtr;
 
-    size_t *outputStrides = NULL;
+    size_t * outputStrides = NULL;
     TArray<size_t, cpu> outputStridesPtr;
 
     xDnnLayout ltUserOutput;
 };
 
-} // internal
-} // forward
-} // average_pooling2d
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace forward
+} // namespace average_pooling2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

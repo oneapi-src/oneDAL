@@ -21,7 +21,6 @@
 //--
 */
 
-
 #ifndef __SERVICE_DNN_H__
 #define __SERVICE_DNN_H__
 
@@ -34,230 +33,192 @@ namespace daal
 {
 namespace internal
 {
-
 /*
 // Template functions definition
 */
-template<typename fpType, CpuType cpu, template<typename, CpuType> class _impl=mkl::MklDnn>
+template <typename fpType, CpuType cpu, template <typename, CpuType> class _impl = mkl::MklDnn>
 struct Dnn
 {
-    typedef typename _impl<fpType,cpu>::ErrorType ErrorType;
-    typedef typename _impl<fpType,cpu>::PrimitiveType PrimitiveType;
-    typedef typename _impl<fpType,cpu>::LayoutType LayoutType;
-    typedef typename _impl<fpType,cpu>::AlgorithmType AlgorithmType;
-    typedef typename _impl<fpType,cpu>::BorderType BorderType;
-    typedef typename _impl<fpType,cpu>::SizeType SizeType;
+    typedef typename _impl<fpType, cpu>::ErrorType ErrorType;
+    typedef typename _impl<fpType, cpu>::PrimitiveType PrimitiveType;
+    typedef typename _impl<fpType, cpu>::LayoutType LayoutType;
+    typedef typename _impl<fpType, cpu>::AlgorithmType AlgorithmType;
+    typedef typename _impl<fpType, cpu>::BorderType BorderType;
+    typedef typename _impl<fpType, cpu>::SizeType SizeType;
 
-    static ErrorType xConvolutionCreateForwardBias(
-        PrimitiveType* pConvolution, AlgorithmType algorithm, SizeType nGroups, SizeType dimension,
-        const SizeType srcSize[], const SizeType dstSize[], const SizeType filterSize[],
-        const SizeType convolutionStrides[], const int inputOffset[],
-        const BorderType border_type)
+    static ErrorType xConvolutionCreateForwardBias(PrimitiveType * pConvolution, AlgorithmType algorithm, SizeType nGroups, SizeType dimension,
+                                                   const SizeType srcSize[], const SizeType dstSize[], const SizeType filterSize[],
+                                                   const SizeType convolutionStrides[], const int inputOffset[], const BorderType border_type)
     {
-        return _impl<fpType,cpu>::xConvolutionCreateForwardBias(pConvolution, algorithm, nGroups, dimension, srcSize, dstSize,
-                                                    filterSize, convolutionStrides, inputOffset, border_type);
+        return _impl<fpType, cpu>::xConvolutionCreateForwardBias(pConvolution, algorithm, nGroups, dimension, srcSize, dstSize, filterSize,
+                                                                 convolutionStrides, inputOffset, border_type);
     }
-    static ErrorType xConvolutionCreateBackwardData(
-        PrimitiveType* pConvolution, AlgorithmType algorithm, SizeType nGroups, SizeType dimension,
-        const SizeType srcSize[], const SizeType dstSize[], const SizeType filterSize[],
-        const SizeType convolutionStrides[], const int inputOffset[],
-        const BorderType border_type)
+    static ErrorType xConvolutionCreateBackwardData(PrimitiveType * pConvolution, AlgorithmType algorithm, SizeType nGroups, SizeType dimension,
+                                                    const SizeType srcSize[], const SizeType dstSize[], const SizeType filterSize[],
+                                                    const SizeType convolutionStrides[], const int inputOffset[], const BorderType border_type)
     {
-        return _impl<fpType,cpu>::xConvolutionCreateBackwardData(pConvolution, algorithm, nGroups, dimension, srcSize, dstSize, filterSize,
-                                                     convolutionStrides, inputOffset, border_type);
+        return _impl<fpType, cpu>::xConvolutionCreateBackwardData(pConvolution, algorithm, nGroups, dimension, srcSize, dstSize, filterSize,
+                                                                  convolutionStrides, inputOffset, border_type);
     }
-    static ErrorType xConvolutionCreateBackwardFilter(
-        PrimitiveType* pConvolution, AlgorithmType algorithm, SizeType nGroups, SizeType dimension,
-        const SizeType srcSize[], const SizeType dstSize[], const SizeType filterSize[],
-        const SizeType convolutionStrides[], const int inputOffset[],
-        const BorderType border_type)
+    static ErrorType xConvolutionCreateBackwardFilter(PrimitiveType * pConvolution, AlgorithmType algorithm, SizeType nGroups, SizeType dimension,
+                                                      const SizeType srcSize[], const SizeType dstSize[], const SizeType filterSize[],
+                                                      const SizeType convolutionStrides[], const int inputOffset[], const BorderType border_type)
     {
-        return _impl<fpType,cpu>::xConvolutionCreateBackwardFilter(pConvolution, algorithm, nGroups, dimension, srcSize, dstSize, filterSize,
-                                                       convolutionStrides, inputOffset, border_type);
+        return _impl<fpType, cpu>::xConvolutionCreateBackwardFilter(pConvolution, algorithm, nGroups, dimension, srcSize, dstSize, filterSize,
+                                                                    convolutionStrides, inputOffset, border_type);
     }
-    static ErrorType xConvolutionCreateBackwardBias(
-        PrimitiveType* pConvolution, AlgorithmType algorithm, SizeType nGroups, SizeType dimension,
-        const SizeType dstSize[])
+    static ErrorType xConvolutionCreateBackwardBias(PrimitiveType * pConvolution, AlgorithmType algorithm, SizeType nGroups, SizeType dimension,
+                                                    const SizeType dstSize[])
     {
-        return _impl<fpType,cpu>::xConvolutionCreateBackwardBias(pConvolution, algorithm, nGroups, dimension, dstSize);
+        return _impl<fpType, cpu>::xConvolutionCreateBackwardBias(pConvolution, algorithm, nGroups, dimension, dstSize);
     }
 
-    static ErrorType xSplitCreate(
-        PrimitiveType *pSplit, size_t nDstTensors, const LayoutType dataLayout, size_t dstChannelSize[])
+    static ErrorType xSplitCreate(PrimitiveType * pSplit, size_t nDstTensors, const LayoutType dataLayout, size_t dstChannelSize[])
     {
-        return _impl<fpType,cpu>::xSplitCreate(pSplit, nDstTensors, dataLayout, dstChannelSize);
+        return _impl<fpType, cpu>::xSplitCreate(pSplit, nDstTensors, dataLayout, dstChannelSize);
     }
 
-    static ErrorType xConcatCreate(
-        PrimitiveType *pConcat, const size_t nSrcTensors, LayoutType src[])
+    static ErrorType xConcatCreate(PrimitiveType * pConcat, const size_t nSrcTensors, LayoutType src[])
     {
-        return _impl<fpType,cpu>::xConcatCreate(pConcat, nSrcTensors, src);
+        return _impl<fpType, cpu>::xConcatCreate(pConcat, nSrcTensors, src);
     }
 
-    static ErrorType xReLUCreateForward(
-        PrimitiveType *pRelu, const LayoutType dataLayout, fpType negativeSlope)
+    static ErrorType xReLUCreateForward(PrimitiveType * pRelu, const LayoutType dataLayout, fpType negativeSlope)
     {
-        return _impl<fpType,cpu>::xReLUCreateForward(pRelu, dataLayout, negativeSlope);
+        return _impl<fpType, cpu>::xReLUCreateForward(pRelu, dataLayout, negativeSlope);
     }
 
-    static ErrorType xReLUCreateBackward(
-        PrimitiveType *pRelu, const LayoutType diffLayout, const LayoutType dataLayout, fpType negativeSlope)
+    static ErrorType xReLUCreateBackward(PrimitiveType * pRelu, const LayoutType diffLayout, const LayoutType dataLayout, fpType negativeSlope)
     {
-        return _impl<fpType,cpu>::xReLUCreateBackward(pRelu, diffLayout, dataLayout, negativeSlope);
+        return _impl<fpType, cpu>::xReLUCreateBackward(pRelu, diffLayout, dataLayout, negativeSlope);
     }
 
-    static ErrorType xLRNCreateForward(
-        PrimitiveType *pLrn, const LayoutType dataLayout, size_t kernelSize, fpType alpha, fpType beta, fpType k)
+    static ErrorType xLRNCreateForward(PrimitiveType * pLrn, const LayoutType dataLayout, size_t kernelSize, fpType alpha, fpType beta, fpType k)
     {
-        return _impl<fpType,cpu>::xLRNCreateForward(pLrn, dataLayout, kernelSize, alpha, beta, k);
+        return _impl<fpType, cpu>::xLRNCreateForward(pLrn, dataLayout, kernelSize, alpha, beta, k);
     }
 
-    static ErrorType xLRNCreateBackward(
-        PrimitiveType *pLrn, const LayoutType diffLayout, const LayoutType dataLayout, size_t kernelSize, fpType alpha, fpType beta, fpType k)
+    static ErrorType xLRNCreateBackward(PrimitiveType * pLrn, const LayoutType diffLayout, const LayoutType dataLayout, size_t kernelSize,
+                                        fpType alpha, fpType beta, fpType k)
     {
-        return _impl<fpType,cpu>::xLRNCreateBackward(pLrn, diffLayout, dataLayout, kernelSize, alpha, beta, k);
+        return _impl<fpType, cpu>::xLRNCreateBackward(pLrn, diffLayout, dataLayout, kernelSize, alpha, beta, k);
     }
 
-    static ErrorType xPoolingCreateForward(
-        PrimitiveType *pPooling, AlgorithmType op, const LayoutType srcLayout, const size_t kernelSize[], const size_t kernelStride[],
-        const int inputOffset[], const BorderType border_type)
+    static ErrorType xPoolingCreateForward(PrimitiveType * pPooling, AlgorithmType op, const LayoutType srcLayout, const size_t kernelSize[],
+                                           const size_t kernelStride[], const int inputOffset[], const BorderType border_type)
     {
-        return _impl<fpType,cpu>::xPoolingCreateForward(pPooling, op, srcLayout, kernelSize, kernelStride, inputOffset, border_type);
+        return _impl<fpType, cpu>::xPoolingCreateForward(pPooling, op, srcLayout, kernelSize, kernelStride, inputOffset, border_type);
     }
 
-    static ErrorType xPoolingCreateBackward(
-        PrimitiveType *pPooling, AlgorithmType op, const dnnLayout_t srcLayout, const size_t kernelSize[], const size_t kernelStride[],
-        const int inputOffset[], const BorderType border_type)
+    static ErrorType xPoolingCreateBackward(PrimitiveType * pPooling, AlgorithmType op, const dnnLayout_t srcLayout, const size_t kernelSize[],
+                                            const size_t kernelStride[], const int inputOffset[], const BorderType border_type)
     {
-        return _impl<fpType,cpu>::xPoolingCreateBackward(pPooling, op, srcLayout, kernelSize, kernelStride, inputOffset, border_type);
+        return _impl<fpType, cpu>::xPoolingCreateBackward(pPooling, op, srcLayout, kernelSize, kernelStride, inputOffset, border_type);
     }
 
-    static ErrorType xExecute(PrimitiveType primitive, void *resources[])
+    static ErrorType xExecute(PrimitiveType primitive, void * resources[]) { return _impl<fpType, cpu>::xExecute(primitive, resources); }
+
+    static ErrorType xConversionExecute(PrimitiveType conversion, void * from, void * to)
     {
-        return _impl<fpType,cpu>::xExecute(primitive, resources);
+        return _impl<fpType, cpu>::xConversionExecute(conversion, from, to);
     }
 
-    static ErrorType xConversionExecute(PrimitiveType conversion, void *from, void *to)
+    static ErrorType xLayoutCreate(LayoutType * pLayout, SizeType dimension, const SizeType size[], const SizeType strides[])
     {
-        return _impl<fpType,cpu>::xConversionExecute(conversion, from, to);
+        return _impl<fpType, cpu>::xLayoutCreate(pLayout, dimension, size, strides);
     }
 
-    static ErrorType xLayoutCreate(LayoutType *pLayout, SizeType dimension, const SizeType size[], const SizeType strides[])
+    static ErrorType xLayoutCreateFromPrimitive(LayoutType * pLayout, const PrimitiveType primitive, dnnResourceType_t type)
     {
-        return _impl<fpType,cpu>::xLayoutCreate(pLayout, dimension, size, strides);
+        return _impl<fpType, cpu>::xLayoutCreateFromPrimitive(pLayout, primitive, type);
     }
 
-    static ErrorType xLayoutCreateFromPrimitive(LayoutType *pLayout, const PrimitiveType primitive, dnnResourceType_t type)
+    static ErrorType xAllocateBuffer(void ** pPtr, LayoutType layout) { return _impl<fpType, cpu>::xAllocateBuffer(pPtr, layout); }
+
+    static ErrorType xReleaseBuffer(void * ptr) { return _impl<fpType, cpu>::xReleaseBuffer(ptr); }
+
+    static int xLayoutCompare(const LayoutType l1, const LayoutType l2) { return _impl<fpType, cpu>::xLayoutCompare(l1, l2); }
+
+    static ErrorType xConversionCreate(PrimitiveType * pConversion, const LayoutType from, const LayoutType to)
     {
-        return _impl<fpType,cpu>::xLayoutCreateFromPrimitive(pLayout, primitive, type);
+        return _impl<fpType, cpu>::xConversionCreate(pConversion, from, to);
     }
 
-    static ErrorType xAllocateBuffer(void **pPtr, LayoutType layout)
-    {
-        return _impl<fpType,cpu>::xAllocateBuffer(pPtr, layout);
-    }
+    static ErrorType xDelete(PrimitiveType primitive) { return _impl<fpType, cpu>::xDelete(primitive); }
 
-    static ErrorType xReleaseBuffer(void *ptr)
-    {
-        return _impl<fpType,cpu>::xReleaseBuffer(ptr);
-    }
+    static ErrorType xLayoutDelete(LayoutType layout) { return _impl<fpType, cpu>::xLayoutDelete(layout); }
 
-    static int xLayoutCompare(const LayoutType l1, const LayoutType l2)
-    {
-        return _impl<fpType,cpu>::xLayoutCompare(l1, l2);
-    }
-
-    static ErrorType xConversionCreate(PrimitiveType* pConversion, const LayoutType from, const LayoutType to)
-    {
-        return _impl<fpType,cpu>::xConversionCreate(pConversion, from, to);
-    }
-
-    static ErrorType xDelete(PrimitiveType primitive)
-    {
-        return _impl<fpType,cpu>::xDelete(primitive);
-    }
-
-    static ErrorType xLayoutDelete(LayoutType layout)
-    {
-        return _impl<fpType,cpu>::xLayoutDelete(layout);
-    }
-
-    static size_t xLayoutGetMemorySize(const LayoutType layout)
-    {
-        return _impl<fpType,cpu>::xLayoutGetMemorySize(layout);
-    }
-
+    static size_t xLayoutGetMemorySize(const LayoutType layout) { return _impl<fpType, cpu>::xLayoutGetMemorySize(layout); }
 };
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 struct LayoutConvertor
 {
     typedef Dnn<algorithmFPType, cpu> dnn;
     dnnError_t err;
-    algorithmFPType *bufToReleaseIn;
-    algorithmFPType *bufToReleaseOut;
+    algorithmFPType * bufToReleaseIn;
+    algorithmFPType * bufToReleaseOut;
     dnnPrimitive_t cv;
 
-    algorithmFPType *_inPtr ;
-    algorithmFPType *_outPtr;
+    algorithmFPType * _inPtr;
+    algorithmFPType * _outPtr;
 
-    LayoutConvertor() :
-        err(E_SUCCESS), bufToReleaseIn(NULL), bufToReleaseOut(NULL), cv(NULL), _inPtr(NULL), _outPtr(NULL)
-    {
-    }
+    LayoutConvertor() : err(E_SUCCESS), bufToReleaseIn(NULL), bufToReleaseOut(NULL), cv(NULL), _inPtr(NULL), _outPtr(NULL) {}
 
-    LayoutConvertor(algorithmFPType **inPtr, dnnLayout_t inLayout, bool inAllocated, algorithmFPType **outPtr, dnnLayout_t outLayout, bool outAllocated) :
-        err(E_SUCCESS), bufToReleaseIn(NULL), bufToReleaseOut(NULL), cv(NULL), _inPtr(NULL), _outPtr(NULL)
+    LayoutConvertor(algorithmFPType ** inPtr, dnnLayout_t inLayout, bool inAllocated, algorithmFPType ** outPtr, dnnLayout_t outLayout,
+                    bool outAllocated)
+        : err(E_SUCCESS), bufToReleaseIn(NULL), bufToReleaseOut(NULL), cv(NULL), _inPtr(NULL), _outPtr(NULL)
     {
         set(inPtr, inLayout, inAllocated, outPtr, outLayout, outAllocated);
     }
 
-    void set(algorithmFPType **inPtr, dnnLayout_t inLayout, bool inAllocated, algorithmFPType **outPtr, dnnLayout_t outLayout, bool outAllocated)
+    void set(algorithmFPType ** inPtr, dnnLayout_t inLayout, bool inAllocated, algorithmFPType ** outPtr, dnnLayout_t outLayout, bool outAllocated)
     {
         bool sameLayout = dnn::xLayoutCompare(outLayout, inLayout);
 
-        if( !sameLayout )
+        if (!sameLayout)
         {
             err = dnn::xConversionCreate(&cv, inLayout, outLayout);
-            if(err != E_SUCCESS) return;
+            if (err != E_SUCCESS) return;
 
-            if( !inAllocated )
+            if (!inAllocated)
             {
-                err = dnn::xAllocateBuffer((void**)&bufToReleaseIn, inLayout);
-                if(err != E_SUCCESS) return;
+                err = dnn::xAllocateBuffer((void **)&bufToReleaseIn, inLayout);
+                if (err != E_SUCCESS) return;
                 *inPtr = bufToReleaseIn;
             }
 
-            if( !outAllocated )
+            if (!outAllocated)
             {
-                err = dnn::xAllocateBuffer((void**)&bufToReleaseOut, outLayout);
-                if(err != E_SUCCESS) {
+                err = dnn::xAllocateBuffer((void **)&bufToReleaseOut, outLayout);
+                if (err != E_SUCCESS)
+                {
                     return;
                 }
-                *outPtr  = bufToReleaseOut;
+                *outPtr = bufToReleaseOut;
             }
         }
         else
         {
-            if( !inAllocated && !outAllocated )
+            if (!inAllocated && !outAllocated)
             {
-                err = dnn::xAllocateBuffer((void**)&bufToReleaseIn, inLayout);
-                if(err != E_SUCCESS) return;
+                err = dnn::xAllocateBuffer((void **)&bufToReleaseIn, inLayout);
+                if (err != E_SUCCESS) return;
                 *inPtr  = bufToReleaseIn;
                 *outPtr = bufToReleaseIn;
             }
-            else if( !inAllocated )
+            else if (!inAllocated)
             {
                 *inPtr = *outPtr;
             }
-            else if( !outAllocated )
+            else if (!outAllocated)
             {
                 *outPtr = *inPtr;
             }
             else
             {
                 err = dnn::xConversionCreate(&cv, inLayout, outLayout);
-                if(err != E_SUCCESS) return;
+                if (err != E_SUCCESS) return;
             }
         }
 
@@ -275,15 +236,15 @@ struct LayoutConvertor
 
     ~LayoutConvertor()
     {
-        if( bufToReleaseIn )
+        if (bufToReleaseIn)
         {
             dnn::xReleaseBuffer(bufToReleaseIn);
         }
-        if( bufToReleaseOut )
+        if (bufToReleaseOut)
         {
             dnn::xReleaseBuffer(bufToReleaseOut);
         }
-        if( cv )
+        if (cv)
         {
             dnn::xDelete(cv);
         }

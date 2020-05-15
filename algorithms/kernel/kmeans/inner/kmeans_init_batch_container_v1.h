@@ -35,56 +35,54 @@ namespace kmeans
 {
 namespace init
 {
-
 namespace interface1
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::KMeansInitKernel, method, algorithmFPType);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    Input *input = static_cast<Input *>(_in);
-    Result *result = static_cast<Result *>(_res);
+    Input * input   = static_cast<Input *>(_in);
+    Result * result = static_cast<Result *>(_res);
 
     const size_t na = 1;
-    NumericTable *a[na];
+    NumericTable * a[na];
     a[0] = static_cast<NumericTable *>(input->get(data).get());
 
     const size_t nr = 1;
-    NumericTable *r[nr];
+    NumericTable * r[nr];
     r[0] = static_cast<NumericTable *>(result->get(centroids).get());
 
-    interface1::Parameter *par = static_cast<interface1::Parameter *>(_par);
+    interface1::Parameter * par = static_cast<interface1::Parameter *>(_par);
     internal::Parameter internalPar;
 
-    internalPar.nClusters = par->nClusters;
-    internalPar.seed = par->seed;
+    internalPar.nClusters          = par->nClusters;
+    internalPar.seed               = par->seed;
     internalPar.oversamplingFactor = par->oversamplingFactor;
-    internalPar.nRounds = par->nRounds;
-    internalPar.nTrials = 1;
+    internalPar.nRounds            = par->nRounds;
+    internalPar.nTrials            = 1;
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::KMeansInitKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, na, a, nr, r,
-        internalPar, *par->engine);
+    __DAAL_CALL_KERNEL(env, internal::KMeansInitKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, na, a, nr, r, internalPar,
+                       *par->engine);
 }
 
-} // interface1
+} // namespace interface1
 
-} // namespace daal::algorithms::kmeans::init
-} // namespace daal::algorithms::kmeans
-} // namespace daal::algorithms
+} // namespace init
+} // namespace kmeans
+} // namespace algorithms
 } // namespace daal
 
 #endif

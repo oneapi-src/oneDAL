@@ -40,62 +40,62 @@ namespace forward
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status AbsKernel<algorithmFPType, method, cpu>::compute(const Tensor &inputTensor, Tensor &resultTensor)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status AbsKernel<algorithmFPType, method, cpu>::compute(const Tensor & inputTensor, Tensor & resultTensor)
 {
     Status s;
-    if(&inputTensor == &resultTensor)
+    if (&inputTensor == &resultTensor)
     {
-        s = computeImpl<cpu>(inputTensor, [=, &resultTensor](size_t fDimN, size_t *fDims, size_t nRowsToProcess, const TensorOffsetLayout &layout) -> Status
-        {
-            WriteOnlySubtensor<algorithmFPType, cpu, Tensor> resultBlock(resultTensor, fDimN, fDims, 0, nRowsToProcess, layout);
-            algorithmFPType *resultArray = resultBlock.get();
+        s = computeImpl<cpu>(inputTensor,
+                             [=, &resultTensor](size_t fDimN, size_t * fDims, size_t nRowsToProcess, const TensorOffsetLayout & layout) -> Status {
+                                 WriteOnlySubtensor<algorithmFPType, cpu, Tensor> resultBlock(resultTensor, fDimN, fDims, 0, nRowsToProcess, layout);
+                                 algorithmFPType * resultArray = resultBlock.get();
 
-            size_t nDataElements = resultBlock.getSize();
-            for(size_t i = 0; i < nDataElements; i++)
-            {
-                if(resultArray[i] < (algorithmFPType)0)
-                {
-                    resultArray[i] = -resultArray[i];
-                }
-            }
-            return Status();
-        });
+                                 size_t nDataElements = resultBlock.getSize();
+                                 for (size_t i = 0; i < nDataElements; i++)
+                                 {
+                                     if (resultArray[i] < (algorithmFPType)0)
+                                     {
+                                         resultArray[i] = -resultArray[i];
+                                     }
+                                 }
+                                 return Status();
+                             });
         return s;
     }
 
     __DAAL_MAKE_TENSOR_THREADSAFE(&resultTensor)
 
-    s = computeImpl<cpu>(inputTensor, [=, &inputTensor, &resultTensor](size_t fDimN, size_t *fDims, size_t nRowsToProcess, const TensorOffsetLayout &layout) -> Status
-    {
-        ReadSubtensor<algorithmFPType, cpu, Tensor> inputBlock(const_cast<Tensor &>(inputTensor), fDimN, fDims, 0, nRowsToProcess, layout);
-        DAAL_CHECK_BLOCK_STATUS(inputBlock);
-        const algorithmFPType *inputArray = inputBlock.get();
+    s = computeImpl<cpu>(
+        inputTensor,
+        [=, &inputTensor, &resultTensor](size_t fDimN, size_t * fDims, size_t nRowsToProcess, const TensorOffsetLayout & layout) -> Status {
+            ReadSubtensor<algorithmFPType, cpu, Tensor> inputBlock(const_cast<Tensor &>(inputTensor), fDimN, fDims, 0, nRowsToProcess, layout);
+            DAAL_CHECK_BLOCK_STATUS(inputBlock);
+            const algorithmFPType * inputArray = inputBlock.get();
 
-        WriteOnlySubtensor<algorithmFPType, cpu, Tensor> resultBlock(resultTensor, fDimN, fDims, 0, nRowsToProcess, layout);
-        DAAL_CHECK_BLOCK_STATUS(resultBlock);
-        algorithmFPType *resultArray = resultBlock.get();
+            WriteOnlySubtensor<algorithmFPType, cpu, Tensor> resultBlock(resultTensor, fDimN, fDims, 0, nRowsToProcess, layout);
+            DAAL_CHECK_BLOCK_STATUS(resultBlock);
+            algorithmFPType * resultArray = resultBlock.get();
 
-        size_t nDataElements = inputBlock.getSize();
-        for(size_t i = 0; i < nDataElements; i++)
-        {
-            if(inputArray[i] >= (algorithmFPType)0)
+            size_t nDataElements = inputBlock.getSize();
+            for (size_t i = 0; i < nDataElements; i++)
             {
-                resultArray[i] = inputArray[i];
+                if (inputArray[i] >= (algorithmFPType)0)
+                {
+                    resultArray[i] = inputArray[i];
+                }
+                else
+                {
+                    resultArray[i] = -inputArray[i];
+                }
             }
-            else
-            {
-                resultArray[i] = -inputArray[i];
-            }
-        }
-        return Status();
-    });
+            return Status();
+        });
     return s;
 }
 
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 } // namespace abs
 } // namespace layers
 } // namespace neural_networks

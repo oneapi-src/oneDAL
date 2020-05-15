@@ -34,26 +34,29 @@ namespace algorithms
 {
 namespace pca
 {
-
 /**
  * Allocates memory for storing partial results of the PCA SVD algorithm
  * \param[in] input     Pointer to an object containing input data
  * \param[in] parameter Pointer to the structure of algorithm parameters
  * \param[in] method    Computation method
  */
-template<typename algorithmFPType>
-DAAL_EXPORT services::Status PartialResult<svdDense>::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+template <typename algorithmFPType>
+DAAL_EXPORT services::Status PartialResult<svdDense>::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                               const int method)
 {
     services::Status s;
     set(nObservationsSVD, HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTableIface::doAllocate, 0, &s));
-    set(sumSquaresSVD, HomogenNumericTable<algorithmFPType>::create((static_cast<const InputIface *>(input))->getNFeatures(), 1, NumericTableIface::doAllocate, 0, &s));
-    set(sumSVD, HomogenNumericTable<algorithmFPType>::create((static_cast<const InputIface *>(input))->getNFeatures(), 1, NumericTableIface::doAllocate, 0, &s));
+    set(sumSquaresSVD, HomogenNumericTable<algorithmFPType>::create((static_cast<const InputIface *>(input))->getNFeatures(), 1,
+                                                                    NumericTableIface::doAllocate, 0, &s));
+    set(sumSVD, HomogenNumericTable<algorithmFPType>::create((static_cast<const InputIface *>(input))->getNFeatures(), 1,
+                                                             NumericTableIface::doAllocate, 0, &s));
     set(auxiliaryData, DataCollectionPtr(new DataCollection()));
     return s;
 };
 
-template<typename algorithmFPType>
-DAAL_EXPORT services::Status PartialResult<svdDense>::initialize(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+template <typename algorithmFPType>
+DAAL_EXPORT services::Status PartialResult<svdDense>::initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                                 const int method)
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, get(nObservationsSVD)->assign((algorithmFPType)0.0))

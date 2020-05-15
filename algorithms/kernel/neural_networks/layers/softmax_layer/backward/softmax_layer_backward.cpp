@@ -45,7 +45,7 @@ namespace interface1
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_NEURAL_NETWORKS_LAYERS_SOFTMAX_BACKWARD_RESULT_ID);
 /** Default constructor */
 Input::Input() {};
-Input::Input(const Input& other) : super(other) {}
+Input::Input(const Input & other) : super(other) {}
 
 /**
 * Returns an input object for the backward softmax layer
@@ -64,7 +64,7 @@ data_management::TensorPtr Input::get(LayerDataId id) const
  * \param[in] id      Identifier of the input object
  * \param[in] value   Pointer to the object
  */
-void Input::set(LayerDataId id, const data_management::TensorPtr &value)
+void Input::set(LayerDataId id, const data_management::TensorPtr & value)
 {
     layers::LayerDataPtr layerData =
         services::staticPointerCast<layers::LayerData, data_management::SerializationIface>(Argument::get(layers::backward::inputFromForward));
@@ -76,17 +76,20 @@ void Input::set(LayerDataId id, const data_management::TensorPtr &value)
 * \param[in] par     Algorithm parameter
 * \param[in] method  Computation method
 */
-services::Status Input::check(const daal::algorithms::Parameter *par, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
-    const softmax::Parameter *parameter = static_cast<const softmax::Parameter *>(par);
-    if (!parameter->propagateGradient) { return services::Status(); }
+    const softmax::Parameter * parameter = static_cast<const softmax::Parameter *>(par);
+    if (!parameter->propagateGradient)
+    {
+        return services::Status();
+    }
 
     services::Status s;
     DAAL_CHECK_STATUS(s, layers::backward::Input::check(par, method));
 
-    const services::Collection<size_t>& inputDimensions = get(layers::backward::inputGradient)->getDimensions();
+    const services::Collection<size_t> & inputDimensions = get(layers::backward::inputGradient)->getDimensions();
 
-    if(!parameter->predictionStage)
+    if (!parameter->predictionStage)
     {
         DAAL_CHECK_STATUS(s, data_management::checkTensor(get(auxValue).get(), auxValueStr(), &inputDimensions));
     }
@@ -103,19 +106,22 @@ Result::Result() : layers::backward::Result() {};
  * \param[in] par     %Parameter of the algorithm
  * \param[in] method  Computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
-    const softmax::Parameter *parameter = static_cast<const softmax::Parameter *>(par);
-    if (!parameter->propagateGradient) { return services::Status(); }
+    const softmax::Parameter * parameter = static_cast<const softmax::Parameter *>(par);
+    if (!parameter->propagateGradient)
+    {
+        return services::Status();
+    }
 
-    const Input *in = static_cast<const Input *>(input);
+    const Input * in = static_cast<const Input *>(input);
     return data_management::checkTensor(get(layers::backward::gradient).get(), gradientStr(), &(in->get(auxValue)->getDimensions()));
 }
 
-}// namespace interface1
-}// namespace backward
-}// namespace softmax
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace softmax
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

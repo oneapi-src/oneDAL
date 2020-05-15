@@ -37,9 +37,8 @@ namespace algorithms
 {
 namespace pca
 {
-
 template <typename algorithmFPType, CpuType cpu>
-OnlineContainer<algorithmFPType, svdDense, cpu>::OnlineContainer(daal::services::Environment::env *daalEnv)
+OnlineContainer<algorithmFPType, svdDense, cpu>::OnlineContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::PCASVDOnlineKernel, algorithmFPType);
 }
@@ -53,40 +52,40 @@ OnlineContainer<algorithmFPType, svdDense, cpu>::~OnlineContainer()
 template <typename algorithmFPType, CpuType cpu>
 services::Status OnlineContainer<algorithmFPType, svdDense, cpu>::compute()
 {
-    Input *input = static_cast<Input *>(_in);
+    Input * input                 = static_cast<Input *>(_in);
     internal::InputDataType dtype = getInputDataType(input);
 
-    PartialResult<svdDense> *partialResult = static_cast<PartialResult<svdDense> *>(_pres);
+    PartialResult<svdDense> * partialResult = static_cast<PartialResult<svdDense> *>(_pres);
 
     NumericTablePtr data = input->get(pca::data);
 
     NumericTablePtr nObservations = partialResult->get(pca::nObservationsSVD);
     NumericTablePtr sumSquaresSVD = partialResult->get(pca::sumSquaresSVD);
-    NumericTablePtr sumSVD = partialResult->get(pca::sumSVD);
+    NumericTablePtr sumSVD        = partialResult->get(pca::sumSVD);
 
     DataCollectionPtr rCollection = partialResult->get(auxiliaryData);
-    size_t nFeatures = sumSquaresSVD.get()->getNumberOfColumns();
+    size_t nFeatures              = sumSquaresSVD.get()->getNumberOfColumns();
     services::Status s;
     NumericTablePtr auxiliaryTable = HomogenNumericTable<algorithmFPType>::create(nFeatures, nFeatures, NumericTableIface::doAllocate, &s);
     DAAL_CHECK_STATUS_VAR(s);
     rCollection->push_back(auxiliaryTable);
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::PCASVDOnlineKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType),
-        compute, dtype, data, *nObservations, *auxiliaryTable, *sumSVD, *sumSquaresSVD);
+    __DAAL_CALL_KERNEL(env, internal::PCASVDOnlineKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType), compute, dtype, data, *nObservations,
+                       *auxiliaryTable, *sumSVD, *sumSquaresSVD);
 }
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status OnlineContainer<algorithmFPType, svdDense, cpu>::finalizeCompute()
 {
-    Input *input = static_cast<Input *>(_in);
+    Input * input                 = static_cast<Input *>(_in);
     internal::InputDataType dtype = getInputDataType(input);
 
     DataCollectionPtr rCollection;
-    Result *result = static_cast<Result *>(_res);
+    Result * result = static_cast<Result *>(_res);
 
-    PartialResult<svdDense> *partialResult = static_cast<PartialResult<svdDense> *>(_pres);
+    PartialResult<svdDense> * partialResult = static_cast<PartialResult<svdDense> *>(_pres);
 
     NumericTablePtr nObservations = partialResult->get(pca::nObservationsSVD);
 
@@ -95,13 +94,13 @@ services::Status OnlineContainer<algorithmFPType, svdDense, cpu>::finalizeComput
     NumericTablePtr eigenvalues  = result->get(pca::eigenvalues);
     NumericTablePtr eigenvectors = result->get(pca::eigenvectors);
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::PCASVDOnlineKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType), finalizeMerge,
-        dtype, nObservations, *eigenvalues, *eigenvectors, rCollection);
+    __DAAL_CALL_KERNEL(env, internal::PCASVDOnlineKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType), finalizeMerge, dtype, nObservations, *eigenvalues,
+                       *eigenvectors, rCollection);
 }
 
-}
-}
+} // namespace pca
+} // namespace algorithms
 } // namespace daal
 #endif

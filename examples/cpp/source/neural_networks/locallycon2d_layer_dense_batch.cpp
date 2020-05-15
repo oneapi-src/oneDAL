@@ -41,7 +41,7 @@ using namespace daal::algorithms::neural_networks::layers;
 using namespace daal::data_management;
 using namespace daal::services;
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     /* Create collection of dimension sizes of the input data tensor */
     Collection<size_t> inDims;
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     printTensor(forwardResult->get(forward::value), "Forward 2D locally connected layer result (first 5 rows):", 5, 15);
     printTensor(forwardResult->get(locallyconnected2d::auxWeights), "2D locally connected layer weights (first 5 rows):", 5, 15);
 
-    const Collection<size_t> &gDims = forwardResult->get(forward::value)->getDimensions();
+    const Collection<size_t> & gDims = forwardResult->get(forward::value)->getDimensions();
     /* Create input gradient tensor for backward 2D locally connected layer */
     TensorPtr tensorDataBack = TensorPtr(new HomogenTensor<>(gDims, Tensor::doAllocate, 0.01f));
 
@@ -75,11 +75,10 @@ int main(int argc, char *argv[])
 
     /* Get the computed backward 2D locally connected layer results */
     backward::ResultPtr backwardResult = locallyconnected2dLayerBackward.getResult();
-    printTensor(backwardResult->get(backward::gradient),
-                "2D locally connected layer backpropagation gradient result (first 5 rows):", 5, 15);
+    printTensor(backwardResult->get(backward::gradient), "2D locally connected layer backpropagation gradient result (first 5 rows):", 5, 15);
     printTensor(backwardResult->get(backward::weightDerivatives),
                 "2D locally connected layer backpropagation weightDerivative result (first 5 rows):", 5, 15);
-    printTensor(backwardResult->get(backward::biasDerivatives),
-                "2D locally connected layer backpropagation biasDerivative result (first 5 rows):", 5, 15);
+    printTensor(backwardResult->get(backward::biasDerivatives), "2D locally connected layer backpropagation biasDerivative result (first 5 rows):", 5,
+                15);
     return 0;
 }

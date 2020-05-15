@@ -29,10 +29,8 @@ namespace truncated_gaussian
 {
 namespace internal
 {
-
-template<typename algorithmFPType>
-TruncatedGaussianInitializerTaskDescriptor<algorithmFPType>::
-TruncatedGaussianInitializerTaskDescriptor(Result *re, Parameter<algorithmFPType> *pa)
+template <typename algorithmFPType>
+TruncatedGaussianInitializerTaskDescriptor<algorithmFPType>::TruncatedGaussianInitializerTaskDescriptor(Result * re, Parameter<algorithmFPType> * pa)
 {
     a      = pa->a;
     b      = pa->b;
@@ -45,9 +43,9 @@ TruncatedGaussianInitializerTaskDescriptor(Result *re, Parameter<algorithmFPType
 
 template class TruncatedGaussianInitializerTaskDescriptor<DAAL_FPTYPE>;
 
-} // internal
-} // truncated_gaussian
-} // initializers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace truncated_gaussian
+} // namespace initializers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

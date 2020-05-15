@@ -45,7 +45,7 @@ __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_NEURAL_NETWORKS_LAYERS
  * Default constructor
  */
 Input::Input() {};
-Input::Input(const Input& other) : super(other) {}
+Input::Input(const Input & other) : super(other) {}
 
 /**
  * Returns an input object for backward local contrast normalization layer
@@ -64,10 +64,10 @@ data_management::TensorPtr Input::get(LayerDataId id) const
  * \param[in] id    Identifier of the input  object
  * \param[in] value Input object to set
  */
-void Input::set(LayerDataId id, const data_management::TensorPtr &value)
+void Input::set(LayerDataId id, const data_management::TensorPtr & value)
 {
     layers::LayerDataPtr layerData = get(layers::backward::inputFromForward);
-    (*layerData)[id] = value;
+    (*layerData)[id]               = value;
 }
 
 /**
@@ -75,10 +75,13 @@ void Input::set(LayerDataId id, const data_management::TensorPtr &value)
  * \param[in] parameter %Parameter of layer
  * \param[in] method    Computation method of the layer
  */
-services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Parameter *algParameter = static_cast<const Parameter *>(parameter);
-    if (!algParameter->propagateGradient) { return services::Status(); }
+    const Parameter * algParameter = static_cast<const Parameter *>(parameter);
+    if (!algParameter->propagateGradient)
+    {
+        return services::Status();
+    }
 
     services::Status s;
     DAAL_CHECK_STATUS(s, layers::backward::Input::check(parameter, method));
@@ -87,21 +90,21 @@ services::Status Input::check(const daal::algorithms::Parameter *parameter, int 
 
     DAAL_CHECK_STATUS(s, data_management::checkTensor(centeredDataTensor.get(), auxCenteredDataStr()));
 
-    const services::Collection<size_t> &dataDims = centeredDataTensor->getDimensions();
-    size_t nDims = dataDims.size();
+    const services::Collection<size_t> & dataDims = centeredDataTensor->getDimensions();
+    size_t nDims                                  = dataDims.size();
 
-    if( nDims != 4 ) return services::Status( services::ErrorIncorrectNumberOfDimensionsInTensor );
+    if (nDims != 4) return services::Status(services::ErrorIncorrectNumberOfDimensionsInTensor);
 
     services::Collection<size_t> sigmaDims = dataDims;
 
-    if(algParameter->sumDimension)
+    if (algParameter->sumDimension)
     {
         data_management::NumericTablePtr dimensionTable = algParameter->sumDimension;
 
         data_management::BlockDescriptor<int> block;
         dimensionTable->getBlockOfRows(0, 1, data_management::readOnly, block);
-        int *dataInt = block.getBlockPtr();
-        size_t dim = dataInt[0];
+        int * dataInt = block.getBlockPtr();
+        size_t dim    = dataInt[0];
 
         dimensionTable->releaseBlockOfRows(block);
 
@@ -110,7 +113,7 @@ services::Status Input::check(const daal::algorithms::Parameter *parameter, int 
 
     services::Collection<size_t> cDims = sigmaDims;
 
-    if(algParameter->sumDimension)
+    if (algParameter->sumDimension)
     {
         cDims.erase(algParameter->indices.dims[1] - 1);
         cDims.erase(algParameter->indices.dims[0] - 1);
@@ -139,23 +142,26 @@ Result::Result() : layers::backward::Result() {}
  * \param[in] par     %Parameter of the layer
  * \param[in] method  Computation method of the layer
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
-    const Parameter *algParameter = static_cast<const Parameter *>(par);
-    if (!algParameter->propagateGradient) { return services::Status(); }
+    const Parameter * algParameter = static_cast<const Parameter *>(par);
+    if (!algParameter->propagateGradient)
+    {
+        return services::Status();
+    }
 
     services::Status s;
     DAAL_CHECK_STATUS(s, layers::backward::Result::check(input, par, method));
 
-    const Input *algInput = static_cast<const Input *>(input);
+    const Input * algInput = static_cast<const Input *>(input);
 
     return data_management::checkTensor(get(layers::backward::gradient).get(), gradientStr(), &(algInput->get(auxCenteredData)->getDimensions()));
 }
 
-}// namespace interface1
-}// namespace forward
-}// namespace lcn
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace lcn
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

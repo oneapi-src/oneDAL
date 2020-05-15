@@ -36,7 +36,6 @@ namespace training
 {
 namespace interface1
 {
-
 /**
  * Allocates memory to store the results of the implicit ALS training algorithm
  * \param[in] input         Pointer to the input structure
@@ -44,10 +43,10 @@ namespace interface1
  * \param[in] method        Computation method of the algorithm
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const Input *algInput = static_cast<const Input *>(input);
-    const Parameter *algParameter = static_cast<const Parameter *>(parameter);
+    const Input * algInput         = static_cast<const Input *>(input);
+    const Parameter * algParameter = static_cast<const Parameter *>(parameter);
 
     size_t nUsers = algInput->getNumberOfUsers();
     size_t nItems = algInput->getNumberOfItems();
@@ -57,10 +56,11 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace training
-}// namespace implicit_als
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace training
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal

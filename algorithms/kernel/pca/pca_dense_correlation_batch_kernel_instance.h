@@ -34,6 +34,6 @@ namespace internal
 {
 template class PCACorrelationKernel<batch, DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
+} // namespace pca
+} // namespace algorithms
+} // namespace daal

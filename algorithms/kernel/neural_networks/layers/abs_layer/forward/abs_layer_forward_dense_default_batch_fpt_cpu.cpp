@@ -19,7 +19,6 @@
 //  Implementation of abs layer.
 //--
 
-
 #include "abs_layer_forward_batch_container.h"
 #include "abs_layer_forward_kernel.h"
 #include "abs_layer_forward_impl.i"
@@ -34,21 +33,20 @@ namespace layers
 {
 namespace abs
 {
-
 namespace forward
 {
 namespace interface1
 {
 template class neural_networks::layers::abs::forward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 namespace internal
 {
 template class AbsKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 
-}
-}
-}
-}
-}
+} // namespace abs
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

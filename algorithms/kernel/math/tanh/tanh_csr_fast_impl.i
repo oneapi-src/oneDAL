@@ -31,25 +31,23 @@ namespace tanh
 {
 namespace internal
 {
-
-template<typename algorithmFPType, CpuType cpu>
-inline Status TanhKernel<algorithmFPType, fastCSR, cpu>::processBlock(const NumericTable &inputTable, size_t nInputColumns,
-                                                                      size_t nProcessedRows, size_t nRowsInCurrentBlock,
-                                                                      NumericTable &resultTable)
+template <typename algorithmFPType, CpuType cpu>
+inline Status TanhKernel<algorithmFPType, fastCSR, cpu>::processBlock(const NumericTable & inputTable, size_t nInputColumns, size_t nProcessedRows,
+                                                                      size_t nRowsInCurrentBlock, NumericTable & resultTable)
 {
-    CSRNumericTableIface* inTable = dynamic_cast<CSRNumericTableIface*>(const_cast<NumericTable *>(&inputTable));
-    CSRNumericTableIface* resTable = dynamic_cast<CSRNumericTableIface*>(&resultTable);
+    CSRNumericTableIface * inTable  = dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(&inputTable));
+    CSRNumericTableIface * resTable = dynamic_cast<CSRNumericTableIface *>(&resultTable);
 
     ReadRowsCSR<algorithmFPType, cpu> inputBlock(inTable, nProcessedRows, nRowsInCurrentBlock);
     DAAL_CHECK_BLOCK_STATUS(inputBlock);
-    const algorithmFPType* inputArray = inputBlock.values();
+    const algorithmFPType * inputArray = inputBlock.values();
 
     WriteRowsCSR<algorithmFPType, cpu> resultBlock(resTable, nProcessedRows, nRowsInCurrentBlock);
     DAAL_CHECK_BLOCK_STATUS(resultBlock);
-    algorithmFPType* resultArray = resultBlock.values();
+    algorithmFPType * resultArray = resultBlock.values();
 
     size_t nDataElements = resultBlock.size();
-    daal::internal::Math<algorithmFPType,cpu>::vTanh(nDataElements, const_cast<algorithmFPType *>(inputArray), resultArray);
+    daal::internal::Math<algorithmFPType, cpu>::vTanh(nDataElements, const_cast<algorithmFPType *>(inputArray), resultArray);
     return Status();
 }
 

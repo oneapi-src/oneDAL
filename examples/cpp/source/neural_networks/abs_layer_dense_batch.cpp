@@ -64,8 +64,8 @@ int main()
     printTensor(forwardResult->get(forward::value), "Forward abs layer result (first 5 rows):", 5);
 
     /* Get the size of forward abs layer output */
-    const Collection<size_t> &gDims = forwardResult->get(forward::value)->getDimensions();
-    TensorPtr tensorDataBack = TensorPtr(new HomogenTensor<>(gDims, Tensor::doAllocate, 0.01f));
+    const Collection<size_t> & gDims = forwardResult->get(forward::value)->getDimensions();
+    TensorPtr tensorDataBack         = TensorPtr(new HomogenTensor<>(gDims, Tensor::doAllocate, 0.01f));
 
     /* Create an algorithm to compute backward abs layer results using default method */
     abs::backward::Batch<> absLayerBackward;

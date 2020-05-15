@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate concats.
 //--
 
-
 #ifndef __CONCAT_LAYER_FORWARD_KERNEL_H__
 #define __CONCAT_LAYER_FORWARD_KERNEL_H__
 
@@ -50,12 +49,11 @@ namespace internal
 /**
  *  \brief Kernel for concat calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class ConcatKernel : public Kernel
 {
 public:
-    services::Status compute(size_t nInputs, Tensor *inputTensors[], const concat::Parameter *parameter,
-                 Tensor *resultTensor);
+    services::Status compute(size_t nInputs, Tensor * inputTensors[], const concat::Parameter * parameter, Tensor * resultTensor);
 
     ~ConcatKernel()
     {
@@ -65,23 +63,24 @@ public:
         }
         if (inputLayouts)
         {
-            delete [] inputLayouts;
+            delete[] inputLayouts;
         }
     }
+
 private:
     typedef daal::internal::Dnn<algorithmFPType, cpu> dnn;
 
     const size_t _nRowsInBlock = 5000;
 
-    dnnPrimitive_t concatPrim = NULL;
-    dnnLayout_t *inputLayouts = NULL;
+    dnnPrimitive_t concatPrim  = NULL;
+    dnnLayout_t * inputLayouts = NULL;
 };
-} // internal
-} // forward
-} // concat
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace forward
+} // namespace concat
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

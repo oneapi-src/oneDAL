@@ -19,7 +19,6 @@
 //  Implementation of gaussian calculation functions.
 //--
 
-
 #include "gaussian_initializer_batch_container.h"
 #include "gaussian_initializer_kernel.h"
 #include "gaussian_initializer_impl.i"
@@ -34,19 +33,18 @@ namespace initializers
 {
 namespace gaussian
 {
-
 namespace interface1
 {
 template class neural_networks::initializers::gaussian::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 
 namespace internal
 {
 template class GaussianKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
+} // namespace internal
 
-}
-}
-}
-}
-}
+} // namespace gaussian
+} // namespace initializers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

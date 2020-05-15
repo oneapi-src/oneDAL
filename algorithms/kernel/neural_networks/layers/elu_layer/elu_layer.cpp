@@ -38,11 +38,11 @@ namespace interface1
 /**
  * Constructs the parameters of the ELU layer
  */
-Parameter::Parameter(double alpha) : alpha(alpha) { }
+Parameter::Parameter(double alpha) : alpha(alpha) {}
 
-}// namespace interface1
-}// namespace elu
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace elu
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

@@ -39,7 +39,6 @@ namespace kdtree_knn_classification
 {
 namespace training
 {
-
 using namespace daal::data_management;
 
 namespace interface2
@@ -48,7 +47,7 @@ namespace interface2
  *  \brief Initialize list of K-Nearest Neighbors kernels with implementations for supported architectures
  */
 template <typename algorithmFpType, training::Method method, CpuType cpu>
-BatchContainer<algorithmFpType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+BatchContainer<algorithmFpType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::KNNClassificationTrainBatchKernel, algorithmFpType, method);
 }
@@ -66,7 +65,7 @@ template <typename algorithmFpType, training::Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 {
     const classifier::training::Input * const input = static_cast<classifier::training::Input *>(_in);
-    Result * const result = static_cast<Result *>(_res);
+    Result * const result                           = static_cast<Result *>(_res);
 
     const NumericTablePtr x = input->get(classifier::training::data);
     const NumericTablePtr y = input->get(classifier::training::labels);
@@ -81,10 +80,10 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     r->impl()->setData<algorithmFpType>(x, copy);
     r->impl()->setLabels<algorithmFpType>(y, copy);
 
-    __DAAL_CALL_KERNEL(env, internal::KNNClassificationTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType, method),    \
-                       compute, r->impl()->getData().get(), r->impl()->getLabels().get(), r.get(), *par->engine);
+    __DAAL_CALL_KERNEL(env, internal::KNNClassificationTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType, method), compute,
+                       r->impl()->getData().get(), r->impl()->getLabels().get(), r.get(), *par->engine);
 }
-}
+} // namespace interface2
 } // namespace training
 } // namespace kdtree_knn_classification
 } // namespace algorithms

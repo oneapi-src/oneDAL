@@ -39,6 +39,6 @@ namespace internal
 {
 template class QRBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
-}
-}
-}
+} // namespace qr
+} // namespace algorithms
+} // namespace daal

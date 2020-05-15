@@ -41,16 +41,13 @@ using namespace daal::algorithms::neural_networks::layers;
 using namespace daal::data_management;
 using namespace daal::services;
 
-static const size_t nDim = 3;
-static const size_t dims[] = {3, 2, 4};
-static float dataArray[3][2][4] = {{{ 1,  2,  3,  4},
-                                    { 5,  6,  7,  8}},
-                                                    {{ 9, 10, 11, 12},
-                                                    {13, 14, 15, 16}},
-                                                                    {{17, 18, 19, 20},
-                                                                     {21, 22, 23, 24}}};
+static const size_t nDim        = 3;
+static const size_t dims[]      = { 3, 2, 4 };
+static float dataArray[3][2][4] = { { { 1, 2, 3, 4 }, { 5, 6, 7, 8 } },
+                                    { { 9, 10, 11, 12 }, { 13, 14, 15, 16 } },
+                                    { { 17, 18, 19, 20 }, { 21, 22, 23, 24 } } };
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     TensorPtr dataTensor(new HomogenTensor<>(nDim, dims, (float *)dataArray));
 
@@ -66,8 +63,7 @@ int main(int argc, char *argv[])
     /* Get the computed forward pooling layer results */
     average_pooling3d::forward::ResultPtr forwardResult = forwardLayer.getResult();
 
-    printTensor3d(forwardResult->get(forward::value),
-        "Forward average pooling layer result:");
+    printTensor3d(forwardResult->get(forward::value), "Forward average pooling layer result:");
     printNumericTable(forwardResult->get(average_pooling3d::auxInputDimensions), "Forward pooling layer input dimensions:");
 
     /* Create an algorithm to compute backward pooling layer results using average method */
@@ -81,8 +77,7 @@ int main(int argc, char *argv[])
     /* Get the computed backward pooling layer results */
     backward::ResultPtr backwardResult = backwardLayer.getResult();
 
-    printTensor3d(backwardResult->get(backward::gradient),
-        "Backward average pooling layer result:");
+    printTensor3d(backwardResult->get(backward::gradient), "Backward average pooling layer result:");
 
     return 0;
 }

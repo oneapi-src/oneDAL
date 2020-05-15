@@ -39,11 +39,10 @@ using namespace daal::services;
 /**
  *  \brief Kernel for Neural Network training in batch processing mode
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status TrainingKernelBatch<algorithmFPType, method, cpu>::initialize(
-    Tensor* data, Model* nnModel,
-    const KeyValueDataCollectionPtr &groundTruthCollectionPtr,
-    const neural_networks::training::Parameter *parameter)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status TrainingKernelBatch<algorithmFPType, method, cpu>::initialize(Tensor * data, Model * nnModel,
+                                                                     const KeyValueDataCollectionPtr & groundTruthCollectionPtr,
+                                                                     const neural_networks::training::Parameter * parameter)
 {
     Status s;
     DAAL_CHECK_STATUS(s, this->initializeBase(data, nnModel, groundTruthCollectionPtr, parameter))
@@ -53,7 +52,7 @@ Status TrainingKernelBatch<algorithmFPType, method, cpu>::initialize(
     DAAL_CHECK_MALLOC(learnableLayerIndices.get() && learnableLayerIndices->isValid())
 
     oneTableForAllWeights = nnModel->getWeightsAndBiasesStorageStatus();
-    size_t nSolvers = (oneTableForAllWeights ? 1 : learnableLayerIndices->nLearnable());
+    size_t nSolvers       = (oneTableForAllWeights ? 1 : learnableLayerIndices->nLearnable());
 
     solvers.reset(nSolvers);
     DAAL_CHECK_MALLOC(solvers.get())
@@ -65,47 +64,44 @@ Status TrainingKernelBatch<algorithmFPType, method, cpu>::initialize(
     return s;
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status TrainingKernelBatch<algorithmFPType, method, cpu>::compute(
-    Tensor* data, Model* nnModel,
-    const KeyValueDataCollectionPtr &groundTruthCollectionPtr)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status TrainingKernelBatch<algorithmFPType, method, cpu>::compute(Tensor * data, Model * nnModel,
+                                                                  const KeyValueDataCollectionPtr & groundTruthCollectionPtr)
 {
     Status s;
     const size_t nSolvers = solvers.size();
-    for(size_t i = 0; i < nSolvers; i++)
+    for (size_t i = 0; i < nSolvers; i++)
     {
         DAAL_CHECK_STATUS(s, solvers[i].setSolverOptionalResult(nnModel->getSolverOptionalArgument(i)))
     }
 
     DAAL_CHECK_STATUS(s, this->computeBase(data, nnModel, groundTruthCollectionPtr))
 
-    for(size_t i = 0; i < nSolvers; i++)
+    for (size_t i = 0; i < nSolvers; i++)
     {
         nnModel->setSolverOptionalArgument(solvers[i].getSolverOptionalResult(), i);
     }
     return s;
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status TrainingKernelBatch<algorithmFPType, method, cpu>::updateWeights(Model& nnModel)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status TrainingKernelBatch<algorithmFPType, method, cpu>::updateWeights(Model & nnModel)
 {
     Status s;
     if (oneTableForAllWeights)
     {
-        Solver<algorithmFPType> &solver = solvers[0];
-        DAAL_CHECK_STATUS(s, solver.updateWeightsAndBiases(
-            nnModel.getWeightsAndBiases(), nnModel.getWeightsAndBiasesDerivatives()))
+        Solver<algorithmFPType> & solver = solvers[0];
+        DAAL_CHECK_STATUS(s, solver.updateWeightsAndBiases(nnModel.getWeightsAndBiases(), nnModel.getWeightsAndBiasesDerivatives()))
 
         nnModel.setWeightsAndBiases(solver.getMinimum());
     }
     else
     {
-        for(size_t j = 0; j < solvers.size(); j++)
+        for (size_t j = 0; j < solvers.size(); j++)
         {
-            size_t layerId = learnableLayerIndices->layerIndex(j);
-            Solver<algorithmFPType> &solver = solvers[j];
-            DAAL_CHECK_STATUS(s, solver.updateWeightsAndBiases(
-                nnModel.getWeightsAndBiases(layerId), nnModel.getWeightsAndBiasesDerivatives(layerId)))
+            size_t layerId                   = learnableLayerIndices->layerIndex(j);
+            Solver<algorithmFPType> & solver = solvers[j];
+            DAAL_CHECK_STATUS(s, solver.updateWeightsAndBiases(nnModel.getWeightsAndBiases(layerId), nnModel.getWeightsAndBiasesDerivatives(layerId)))
 
             nnModel.setWeightsAndBiases(layerId, solver.getMinimum());
         }
@@ -113,19 +109,19 @@ Status TrainingKernelBatch<algorithmFPType, method, cpu>::updateWeights(Model& n
     return s;
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 size_t TrainingKernelBatch<algorithmFPType, method, cpu>::getMaxIterations(size_t nSamples, size_t batchSizeParam) const
 {
-    size_t maxIterations = nSamples / batchSizeParam;
+    size_t maxIterations    = nSamples / batchSizeParam;
     size_t nIterationSolver = solvers[0].getNIterations();
-    if(nIterationSolver && nIterationSolver < maxIterations)
+    if (nIterationSolver && nIterationSolver < maxIterations)
     {
         maxIterations = nIterationSolver;
     }
     return maxIterations;
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 Status TrainingKernelBatch<algorithmFPType, method, cpu>::reset()
 {
     Status s;
@@ -138,21 +134,19 @@ Status TrainingKernelBatch<algorithmFPType, method, cpu>::reset()
 /**
  *  \brief Kernel for Neural Network training in distributed processing mode
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status TrainingKernelDistributed<algorithmFPType, method, cpu>::initialize(
-    Tensor* data, Model* nnModel,
-    const KeyValueDataCollectionPtr &groundTruthCollectionPtr,
-    const neural_networks::training::Parameter *parameter)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status TrainingKernelDistributed<algorithmFPType, method, cpu>::initialize(Tensor * data, Model * nnModel,
+                                                                           const KeyValueDataCollectionPtr & groundTruthCollectionPtr,
+                                                                           const neural_networks::training::Parameter * parameter)
 {
     return this->initializeBase(data, nnModel, groundTruthCollectionPtr, parameter);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status TrainingKernelDistributed<algorithmFPType, method, cpu>::compute(
-    Tensor* data, Model* nnModel,
-    const KeyValueDataCollectionPtr &groundTruthCollectionPtr,
-    PartialResult *partialResult,
-    const neural_networks::training::Parameter *parameter)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status TrainingKernelDistributed<algorithmFPType, method, cpu>::compute(Tensor * data, Model * nnModel,
+                                                                        const KeyValueDataCollectionPtr & groundTruthCollectionPtr,
+                                                                        PartialResult * partialResult,
+                                                                        const neural_networks::training::Parameter * parameter)
 {
     Status s;
     DAAL_CHECK_STATUS(s, this->computeBase(data, nnModel, groundTruthCollectionPtr))
@@ -161,38 +155,35 @@ Status TrainingKernelDistributed<algorithmFPType, method, cpu>::compute(
 
     WriteRows<algorithmFPType, cpu> batchSizeBlock(*(partialResult->get(batchSize)), 0, 1);
     DAAL_CHECK_BLOCK_STATUS(batchSizeBlock)
-    algorithmFPType* batchSizeArray = batchSizeBlock.get();
-    batchSizeArray[0] = nnModel->getForwardLayer(0)->getLayerInput()->get(layers::forward::data)->getDimensionSize(0);
+    algorithmFPType * batchSizeArray = batchSizeBlock.get();
+    batchSizeArray[0]                = nnModel->getForwardLayer(0)->getLayerInput()->get(layers::forward::data)->getDimensionSize(0);
     return s;
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status TrainingKernelDistributed<algorithmFPType, method, cpu>::updateWeights(Model& nnModel)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status TrainingKernelDistributed<algorithmFPType, method, cpu>::updateWeights(Model & nnModel)
 {
     return Status();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 size_t TrainingKernelDistributed<algorithmFPType, method, cpu>::getMaxIterations(size_t nSamples, size_t batchSizeParam) const
 {
     return nSamples / batchSizeParam;
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 Status TrainingKernelDistributed<algorithmFPType, method, cpu>::reset()
 {
     return this->resetBase();
 }
 
-
 /**
  *  \brief Kernel for Neural Network training in distributed processing mode
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status TrainingKernelDistributedStep2<algorithmFPType, method, cpu>::compute(
-    KeyValueDataCollection* collection,
-    const neural_networks::training::Parameter *parameter,
-    Model* nnModel)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status TrainingKernelDistributedStep2<algorithmFPType, method, cpu>::compute(KeyValueDataCollection * collection,
+                                                                             const neural_networks::training::Parameter * parameter, Model * nnModel)
 {
     using namespace optimization_solver;
 
@@ -205,27 +196,28 @@ Status TrainingKernelDistributedStep2<algorithmFPType, method, cpu>::compute(
     }
     else
     {
-        PartialResultPtr partialResults = PartialResult::cast((*collection)[0]);
+        PartialResultPtr partialResults   = PartialResult::cast((*collection)[0]);
         NumericTablePtr partialDerivative = partialResults->get(derivatives);
-        NumericTablePtr batchSize = partialResults->get(training::batchSize);
+        NumericTablePtr batchSize         = partialResults->get(training::batchSize);
 
         size_t derivSize = partialDerivative->getNumberOfRows();
 
         Status st;
-        SharedPtr<HomogenNumericTableCPU<algorithmFPType, cpu> > fullDerivative = HomogenNumericTableCPU<algorithmFPType, cpu>::create(1, derivSize, &st);
+        SharedPtr<HomogenNumericTableCPU<algorithmFPType, cpu> > fullDerivative =
+            HomogenNumericTableCPU<algorithmFPType, cpu>::create(1, derivSize, &st);
         DAAL_CHECK_STATUS_VAR(st);
 
         weightsAndBiasesDerivatives = fullDerivative;
-        algorithmFPType* derData = fullDerivative->getArray();
-        algorithmFPType sum = 0;
+        algorithmFPType * derData   = fullDerivative->getArray();
+        algorithmFPType sum         = 0;
 
         ReadRows<algorithmFPType, cpu> pDerRows(partialDerivative.get(), 0, derivSize);
         DAAL_CHECK_BLOCK_STATUS(pDerRows)
-        const algorithmFPType* pDerData = pDerRows.get();
+        const algorithmFPType * pDerData = pDerRows.get();
 
         ReadRows<algorithmFPType, cpu> batchSizeBlock(batchSize.get(), 0, 1);
         DAAL_CHECK_BLOCK_STATUS(batchSizeBlock)
-        const algorithmFPType* batchSizeArray = batchSizeBlock.get();
+        const algorithmFPType * batchSizeArray = batchSizeBlock.get();
 
         for (size_t j = 0; j < derivSize; j++)
         {
@@ -235,17 +227,17 @@ Status TrainingKernelDistributedStep2<algorithmFPType, method, cpu>::compute(
 
         for (size_t i = 1; i < nPartialResults; i++)
         {
-            partialResults = PartialResult::cast((*collection)[i]);
+            partialResults    = PartialResult::cast((*collection)[i]);
             partialDerivative = partialResults->get(derivatives);
-            batchSize = partialResults->get(training::batchSize);
+            batchSize         = partialResults->get(training::batchSize);
 
             ReadRows<algorithmFPType, cpu> pDerRows(partialDerivative.get(), 0, derivSize);
             DAAL_CHECK_BLOCK_STATUS(pDerRows)
-            const algorithmFPType* pDerData = pDerRows.get();
+            const algorithmFPType * pDerData = pDerRows.get();
 
             ReadRows<algorithmFPType, cpu> batchSizeBlock(batchSize.get(), 0, 1);
             DAAL_CHECK_BLOCK_STATUS(batchSizeBlock)
-            const algorithmFPType* batchSizeArray = batchSizeBlock.get();
+            const algorithmFPType * batchSizeArray = batchSizeBlock.get();
 
             for (size_t j = 0; j < derivSize; j++)
             {
@@ -274,18 +266,20 @@ Status TrainingKernelDistributedStep2<algorithmFPType, method, cpu>::compute(
 /**
  *  \brief Kernel for Neural Network training
  */
-template<typename algorithmFPType, CpuType cpu>
-Status TrainingKernelBase<algorithmFPType, cpu>::initializeBase(
-    Tensor *data, Model *nnModel,
-    const KeyValueDataCollectionPtr &groundTruthCollectionPtr,
-    const neural_networks::training::Parameter *parameter)
+template <typename algorithmFPType, CpuType cpu>
+Status TrainingKernelBase<algorithmFPType, cpu>::initializeBase(Tensor * data, Model * nnModel,
+                                                                const KeyValueDataCollectionPtr & groundTruthCollectionPtr,
+                                                                const neural_networks::training::Parameter * parameter)
 {
     ForwardLayersPtr forwardLayers = nnModel->getForwardLayers();
-    batchSizeParam = nnModel->getForwardLayer(0)->getLayerInput()->get(layers::forward::data)->getDimensionSize(0);
-    nLayers = forwardLayers->size();
+    batchSizeParam                 = nnModel->getForwardLayer(0)->getLayerInput()->get(layers::forward::data)->getDimensionSize(0);
+    nLayers                        = forwardLayers->size();
 
     nSamples = data->getDimensionSize(0);
-    if (nSamples < batchSizeParam) { return Status(); }
+    if (nSamples < batchSizeParam)
+    {
+        return Status();
+    }
 
     /* Get the number of last layers in the network and their indeces */
     lastLayersIndices.reset(new LastLayerIndices(nnModel->getNextLayers().get(), groundTruthCollectionPtr));
@@ -295,11 +289,10 @@ Status TrainingKernelBase<algorithmFPType, cpu>::initializeBase(
 
     /* Create a tensor to pass as an input to the first forward layer in neural network */
     Collection<size_t> sampleSize = data->getDimensions();
-    sampleSize[0] = batchSizeParam;
+    sampleSize[0]                 = batchSizeParam;
     Status s;
     sample = HomogenTensor<algorithmFPType>::create(sampleSize, Tensor::doNotAllocate, &s);
     DAAL_CHECK_STATUS_VAR(s);
-
 
     /* Initialize buffers to manage reading memory operations for the ground truth input tensors */
     groundTruthTensors.reset(nLastLayers);
@@ -311,32 +304,31 @@ Status TrainingKernelBase<algorithmFPType, cpu>::initializeBase(
 
     for (size_t i = 0; i < nLastLayers; i++)
     {
-        TensorPtr groundTruthTensor = Tensor::cast((*groundTruthCollectionPtr)[lastLayersIndices->tensorIndex(i)]);
+        TensorPtr groundTruthTensor              = Tensor::cast((*groundTruthCollectionPtr)[lastLayersIndices->tensorIndex(i)]);
         Collection<size_t> sampleGroundTruthSize = groundTruthTensor->getDimensions();
-        sampleGroundTruthSize[0] = batchSizeParam;
-        HomogenTensorPtr sampleGroundTruth = HomogenTensor<algorithmFPType>::create(sampleGroundTruthSize, Tensor::doNotAllocate, &s);
+        sampleGroundTruthSize[0]                 = batchSizeParam;
+        HomogenTensorPtr sampleGroundTruth       = HomogenTensor<algorithmFPType>::create(sampleGroundTruthSize, Tensor::doNotAllocate, &s);
         DAAL_CHECK_STATUS_VAR(s);
 
         sampleGroundTruthCollection[i] = sampleGroundTruth;
 
-        size_t layerId = lastLayersIndices->layerIndex(i);
-        loss::forward::Batch *lossLayer = static_cast<loss::forward::Batch *>(forwardLayers->get(layerId).get());
-        loss::forward::Input *lossInput = static_cast<loss::forward::Input *>(lossLayer->getLayerInput());
+        size_t layerId                   = lastLayersIndices->layerIndex(i);
+        loss::forward::Batch * lossLayer = static_cast<loss::forward::Batch *>(forwardLayers->get(layerId).get());
+        loss::forward::Input * lossInput = static_cast<loss::forward::Input *>(lossLayer->getLayerInput());
         lossInput->set(loss::forward::groundTruth, sampleGroundTruth);
         lossLayer->getLayerResult()->setResultForBackward(lossInput);
     }
     return s;
 }
 
-template<typename algorithmFPType, CpuType cpu>
-Status TrainingKernelBase<algorithmFPType, cpu>::computeBase(
-    Tensor *data, Model *nnModel,
-    const KeyValueDataCollectionPtr &groundTruthCollectionPtr)
+template <typename algorithmFPType, CpuType cpu>
+Status TrainingKernelBase<algorithmFPType, cpu>::computeBase(Tensor * data, Model * nnModel,
+                                                             const KeyValueDataCollectionPtr & groundTruthCollectionPtr)
 {
-    ForwardLayersPtr forwardLayers = nnModel->getForwardLayers();
+    ForwardLayersPtr forwardLayers   = nnModel->getForwardLayers();
     BackwardLayersPtr backwardLayers = nnModel->getBackwardLayers();
 
-    forward::Input *firstForwardInput = forwardLayers->get(0)->getLayerInput();
+    forward::Input * firstForwardInput    = forwardLayers->get(0)->getLayerInput();
     forward::ResultPtr firstForwardResult = forwardLayers->get(0)->getLayerResult();
 
     firstForwardInput->set(forward::data, sample);
@@ -354,7 +346,7 @@ Status TrainingKernelBase<algorithmFPType, cpu>::computeBase(
     size_t maxIterations = getMaxIterations(nSamples, batchSizeParam);
 
     Status s;
-    for(size_t i = 0; i < maxIterations * batchSizeParam; i += batchSizeParam)
+    for (size_t i = 0; i < maxIterations * batchSizeParam; i += batchSizeParam)
     {
         /* Update weights and biases of the network */
         dataSubtensor.next(0, 0, i, batchSizeParam);
@@ -370,14 +362,14 @@ Status TrainingKernelBase<algorithmFPType, cpu>::computeBase(
         }
 
         /* Forward pass through the neural network */
-        for(size_t layerId = 0; layerId < nLayers; layerId++)
+        for (size_t layerId = 0; layerId < nLayers; layerId++)
         {
             layers::forward::LayerIfacePtr forwardLayer = forwardLayers->get(layerId);
             DAAL_CHECK_STATUS(s, processLayerErrors(layerId, forwardLayer->computeNoThrow()))
         }
 
         /* Backward pass through the neural network */
-        for(int layerId = nLayers - 1; layerId >= 0; layerId--)
+        for (int layerId = nLayers - 1; layerId >= 0; layerId--)
         {
             layers::backward::LayerIfacePtr backwardLayer = backwardLayers->get(layerId);
             DAAL_CHECK_STATUS(s, processLayerErrors(layerId, backwardLayer->computeNoThrow()))
@@ -389,7 +381,7 @@ Status TrainingKernelBase<algorithmFPType, cpu>::computeBase(
     return s;
 }
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 Status TrainingKernelBase<algorithmFPType, cpu>::resetBase()
 {
     lastLayersIndices.reset();
@@ -399,9 +391,8 @@ Status TrainingKernelBase<algorithmFPType, cpu>::resetBase()
     return Status();
 }
 
-
 } // namespace internal
-} // namespace feedforward
+} // namespace training
 } // namespace neural_networks
 } // namespace algorithms
 } // namespace daal

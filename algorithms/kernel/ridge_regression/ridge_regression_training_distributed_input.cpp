@@ -36,13 +36,12 @@ namespace training
 {
 namespace interface1
 {
-
 DistributedInput<step2Master>::DistributedInput() : daal::algorithms::Input(lastStep2MasterInputId + 1)
 {
     Argument::set(partialModels, DataCollectionPtr(new DataCollection()));
 };
 
-DistributedInput<step2Master>::DistributedInput(const DistributedInput<step2Master>& other) : daal::algorithms::Input(other){}
+DistributedInput<step2Master>::DistributedInput(const DistributedInput<step2Master> & other) : daal::algorithms::Input(other) {}
 
 /**
  * Gets an input object for ridge regression model-based training in the second step of the distributed processing mode
@@ -78,9 +77,13 @@ void DistributedInput<step2Master>::add(Step2MasterInputId id, const PartialResu
  */
 size_t DistributedInput<step2Master>::getNumberOfFeatures() const
 {
-    const DataCollectionPtr partialModelsCollection = static_cast<DataCollectionPtr >(get(partialModels));
-    if (partialModelsCollection->size() == 0) { return 0; }
-    const ridge_regression::Model * const partialModel = static_cast<const daal::algorithms::ridge_regression::Model *>(((*partialModelsCollection)[0]).get());
+    const DataCollectionPtr partialModelsCollection = static_cast<DataCollectionPtr>(get(partialModels));
+    if (partialModelsCollection->size() == 0)
+    {
+        return 0;
+    }
+    const ridge_regression::Model * const partialModel =
+        static_cast<const daal::algorithms::ridge_regression::Model *>(((*partialModelsCollection)[0]).get());
     return partialModel->getNumberOfFeatures();
 }
 /**
@@ -89,16 +92,20 @@ size_t DistributedInput<step2Master>::getNumberOfFeatures() const
  */
 size_t DistributedInput<step2Master>::getNumberOfDependentVariables() const
 {
-    const DataCollectionPtr partialModelsCollection = static_cast<DataCollectionPtr >(get(partialModels));
-    if (partialModelsCollection->size() == 0) { return 0; }
-    const ridge_regression::Model * const partialModel = static_cast<const daal::algorithms::ridge_regression::Model *>(((*partialModelsCollection)[0]).get());
+    const DataCollectionPtr partialModelsCollection = static_cast<DataCollectionPtr>(get(partialModels));
+    if (partialModelsCollection->size() == 0)
+    {
+        return 0;
+    }
+    const ridge_regression::Model * const partialModel =
+        static_cast<const daal::algorithms::ridge_regression::Model *>(((*partialModelsCollection)[0]).get());
     return partialModel->getNumberOfResponses();
 }
 /**
  * Checks an input object for ridge regression model-based training in the second step
  * of the distributed processing mode
  */
-services::Status DistributedInput<step2Master>::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status DistributedInput<step2Master>::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     DataCollectionPtr collection = DataCollection::cast(Argument::get(partialModels));
     DAAL_CHECK(collection, ErrorNullInputDataCollection);
@@ -110,20 +117,19 @@ services::Status DistributedInput<step2Master>::check(const daal::algorithms::Pa
     ridge_regression::ModelPtr firstPartialModel = ridge_regression::Model::cast((*collection)[0]);
     DAAL_CHECK(firstPartialModel, ErrorIncorrectElementInPartialResultCollection);
 
-    size_t nBeta = firstPartialModel->getNumberOfBetas();
+    size_t nBeta      = firstPartialModel->getNumberOfBetas();
     size_t nResponses = firstPartialModel->getNumberOfResponses();
 
     services::Status s;
 
-    for(size_t i = 0; i < nBlocks; i++)
+    for (size_t i = 0; i < nBlocks; i++)
     {
         DAAL_CHECK((*collection)[i], ErrorNullModel);
         ridge_regression::ModelPtr partialModel = ridge_regression::Model::cast((*collection)[i]);
 
         DAAL_CHECK(partialModel, ErrorIncorrectElementInPartialResultCollection);
 
-        DAAL_CHECK_STATUS(
-            s, ridge_regression::checkModel(partialModel.get(), *parameter, nBeta, nResponses, method));
+        DAAL_CHECK_STATUS(s, ridge_regression::checkModel(partialModel.get(), *parameter, nBeta, nResponses, method));
     }
 
     return s;

@@ -19,7 +19,6 @@
 //  Implementation of Xavier calculation algorithm container.
 //--
 
-
 #include "xavier_initializer_batch_container.h"
 
 namespace daal

@@ -41,7 +41,7 @@ namespace internal
 {
 template class StumpPredictKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace prediction
+} // namespace stump
+} // namespace algorithms
+} // namespace daal

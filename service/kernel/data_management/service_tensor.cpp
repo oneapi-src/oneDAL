@@ -21,11 +21,13 @@ namespace daal
 {
 namespace internal
 {
-
-size_t computeTensorDimensionsProd(const Tensor *tensor, size_t axisFrom, size_t axisTo)
+size_t computeTensorDimensionsProd(const Tensor * tensor, size_t axisFrom, size_t axisTo)
 {
-    if (!tensor || !tensor->getNumberOfDimensions()) { return 0; }
-    const services::Collection<size_t> &dimensions = tensor->getDimensions();
+    if (!tensor || !tensor->getNumberOfDimensions())
+    {
+        return 0;
+    }
+    const services::Collection<size_t> & dimensions = tensor->getDimensions();
 
     size_t offset = 1;
     for (size_t i = axisFrom; i < axisTo; i++)
@@ -35,16 +37,19 @@ size_t computeTensorDimensionsProd(const Tensor *tensor, size_t axisFrom, size_t
     return offset;
 }
 
-size_t computeTensorOffsetBeforeAxis(const Tensor *tensor, size_t axis)
+size_t computeTensorOffsetBeforeAxis(const Tensor * tensor, size_t axis)
 {
     return computeTensorDimensionsProd(tensor, 0, axis);
 }
 
-size_t computeTensorOffsetAfterAxis(const Tensor *tensor, size_t axis)
+size_t computeTensorOffsetAfterAxis(const Tensor * tensor, size_t axis)
 {
-    if (!tensor) { return 0; }
+    if (!tensor)
+    {
+        return 0;
+    }
     return computeTensorDimensionsProd(tensor, axis + 1, tensor->getNumberOfDimensions());
 }
 
-} // internal namespace
-} // daal namespace
+} // namespace internal
+} // namespace daal

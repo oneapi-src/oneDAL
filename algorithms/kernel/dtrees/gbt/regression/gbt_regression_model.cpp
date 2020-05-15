@@ -42,21 +42,19 @@ namespace regression
 namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS2(Model, internal::ModelImpl, SERIALIZATION_GBT_REGRESSION_MODEL_ID);
-Model::Model(){}
+Model::Model() {}
 
-ModelPtr Model::create(size_t nFeatures, services::Status *stat)
+ModelPtr Model::create(size_t nFeatures, services::Status * stat)
 {
     daal::algorithms::gbt::regression::ModelPtr pRes(new gbt::regression::internal::ModelImpl(nFeatures));
-    if((!pRes.get()) && stat)
-        stat->add(services::ErrorMemoryAllocationFailed);
+    if ((!pRes.get()) && stat) stat->add(services::ErrorMemoryAllocationFailed);
     return pRes;
 }
 
-}
+} // namespace interface1
 
 namespace internal
 {
-
 size_t ModelImpl::numberOfTrees() const
 {
     return ImplType::numberOfTrees();
@@ -67,27 +65,27 @@ size_t ModelImpl::getNumberOfTrees() const
     return ImplType::numberOfTrees();
 }
 
-void ModelImpl::traverseDF(size_t iTree, algorithms::regression::TreeNodeVisitor& visitor) const
+void ModelImpl::traverseDF(size_t iTree, algorithms::regression::TreeNodeVisitor & visitor) const
 {
     ImplType::traverseDF(iTree, visitor);
 }
 
-void ModelImpl::traverseBF(size_t iTree, algorithms::regression::TreeNodeVisitor& visitor) const
+void ModelImpl::traverseBF(size_t iTree, algorithms::regression::TreeNodeVisitor & visitor) const
 {
     ImplType::traverseBF(iTree, visitor);
 }
 
-void ModelImpl::traverseDFS(size_t iTree, tree_utils::regression::TreeNodeVisitor& visitor) const
+void ModelImpl::traverseDFS(size_t iTree, tree_utils::regression::TreeNodeVisitor & visitor) const
 {
     ImplType::traverseDFS(iTree, visitor);
 }
 
-void ModelImpl::traverseBFS(size_t iTree, tree_utils::regression::TreeNodeVisitor& visitor) const
+void ModelImpl::traverseBFS(size_t iTree, tree_utils::regression::TreeNodeVisitor & visitor) const
 {
     ImplType::traverseBFS(iTree, visitor);
 }
 
-services::Status ModelImpl::serializeImpl(data_management::InputDataArchive  * arch)
+services::Status ModelImpl::serializeImpl(data_management::InputDataArchive * arch)
 {
     auto s = algorithms::regression::Model::serialImpl<data_management::InputDataArchive, false>(arch);
     s.add(algorithms::regression::internal::ModelInternal::serialImpl<data_management::InputDataArchive, false>(arch));
@@ -101,7 +99,7 @@ services::Status ModelImpl::deserializeImpl(const data_management::OutputDataArc
     return s.add(ImplType::serialImpl<const data_management::OutputDataArchive, true>(arch));
 }
 
-} // namespace interface1
+} // namespace internal
 } // namespace regression
 } // namespace gbt
 } // namespace algorithms

@@ -43,18 +43,19 @@ namespace interface1
  * \param[in] method     Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const classifier::training::InputIface *algInput = static_cast<const classifier::training::InputIface *>(input);
-    size_t nFeatures = algInput->getNumberOfFeatures();
+    const classifier::training::InputIface * algInput = static_cast<const classifier::training::InputIface *>(input);
+    size_t nFeatures                                  = algInput->getNumberOfFeatures();
     services::Status st;
     ModelPtr modelPtr;
     {
-        const multinomial_naive_bayes::interface1::Parameter *algPar = dynamic_cast<const multinomial_naive_bayes::interface1::Parameter *>(parameter);
+        const multinomial_naive_bayes::interface1::Parameter * algPar =
+            dynamic_cast<const multinomial_naive_bayes::interface1::Parameter *>(parameter);
         if (algPar) modelPtr = Model::create<algorithmFPType>(nFeatures, *algPar, &st);
     }
     {
-        const multinomial_naive_bayes::Parameter *algPar = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
+        const multinomial_naive_bayes::Parameter * algPar = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
         if (algPar) modelPtr = Model::create<algorithmFPType>(nFeatures, *algPar, &st);
     }
     DAAL_CHECK(modelPtr, ErrorNullModel);
@@ -70,18 +71,20 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
 * \param[in] method             Computation method
 */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialResult *partialResult, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialResult * partialResult, const daal::algorithms::Parameter * parameter,
+                                              const int method)
 {
-    const PartialResult *pres = static_cast<const PartialResult *>(partialResult);
-    size_t nFeatures = pres->getNumberOfFeatures();
+    const PartialResult * pres = static_cast<const PartialResult *>(partialResult);
+    size_t nFeatures           = pres->getNumberOfFeatures();
     services::Status st;
     ModelPtr modelPtr;
     {
-        const multinomial_naive_bayes::interface1::Parameter *algPar = dynamic_cast<const multinomial_naive_bayes::interface1::Parameter *>(parameter);
+        const multinomial_naive_bayes::interface1::Parameter * algPar =
+            dynamic_cast<const multinomial_naive_bayes::interface1::Parameter *>(parameter);
         if (algPar) modelPtr = Model::create<algorithmFPType>(nFeatures, *algPar, &st);
     }
     {
-        const multinomial_naive_bayes::Parameter *algPar = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
+        const multinomial_naive_bayes::Parameter * algPar = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
         if (algPar) modelPtr = Model::create<algorithmFPType>(nFeatures, *algPar, &st);
     }
     DAAL_CHECK(modelPtr, ErrorNullModel);
@@ -90,11 +93,13 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialRes
     return st;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult *partialResult, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult * partialResult,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace training
-}// namespace multinomial_naive_bayes
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace training
+} // namespace multinomial_naive_bayes
+} // namespace algorithms
+} // namespace daal

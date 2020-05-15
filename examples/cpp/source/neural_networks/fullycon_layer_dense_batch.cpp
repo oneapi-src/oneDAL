@@ -65,8 +65,8 @@ int main()
     printTensor(forwardResult->get(fullyconnected::auxWeights), "Forward fully-connected layer weights (first 5 rows):", 5);
 
     /* Get the size of forward fully-connected layer output */
-    const Collection<size_t> &gDims = forwardResult->get(forward::value)->getDimensions();
-    TensorPtr tensorDataBack = TensorPtr(new HomogenTensor<>(gDims, Tensor::doAllocate, 0.01f));
+    const Collection<size_t> & gDims = forwardResult->get(forward::value)->getDimensions();
+    TensorPtr tensorDataBack         = TensorPtr(new HomogenTensor<>(gDims, Tensor::doAllocate, 0.01f));
 
     /* Create an algorithm to compute backward fully-connected layer results using default method */
     fullyconnected::backward::Batch<> fullyconnectedLayerBackward(m);
@@ -80,12 +80,9 @@ int main()
 
     /* Print the results of the backward fully-connected layer */
     backward::ResultPtr backwardResult = fullyconnectedLayerBackward.getResult();
-    printTensor(backwardResult->get(backward::gradient),
-                "Backward fully-connected layer gradient result (first 5 rows):", 5);
-    printTensor(backwardResult->get(backward::weightDerivatives),
-                "Backward fully-connected layer weightDerivative result (first 5 rows):", 5);
-    printTensor(backwardResult->get(backward::biasDerivatives),
-                "Backward fully-connected layer biasDerivative result (first 5 rows):", 5);
+    printTensor(backwardResult->get(backward::gradient), "Backward fully-connected layer gradient result (first 5 rows):", 5);
+    printTensor(backwardResult->get(backward::weightDerivatives), "Backward fully-connected layer weightDerivative result (first 5 rows):", 5);
+    printTensor(backwardResult->get(backward::biasDerivatives), "Backward fully-connected layer biasDerivative result (first 5 rows):", 5);
 
     return 0;
 }

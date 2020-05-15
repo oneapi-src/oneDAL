@@ -41,32 +41,32 @@ namespace forward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::PoolingKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    average_pooling1d::forward::Input *input = static_cast<average_pooling1d::forward::Input *>(_in);
-    average_pooling1d::forward::Result *result = static_cast<average_pooling1d::forward::Result *>(_res);
+    average_pooling1d::forward::Input * input   = static_cast<average_pooling1d::forward::Input *>(_in);
+    average_pooling1d::forward::Result * result = static_cast<average_pooling1d::forward::Result *>(_res);
 
-    average_pooling1d::Parameter *parameter = static_cast<average_pooling1d::Parameter *>(_par);
-    daal::services::Environment::env &env = *_env;
+    average_pooling1d::Parameter * parameter = static_cast<average_pooling1d::Parameter *>(_par);
+    daal::services::Environment::env & env   = *_env;
 
-    Tensor *dataTensor  = input->get(layers::forward::data).get();
-    Tensor *valueTensor = result->get(layers::forward::value).get();
+    Tensor * dataTensor  = input->get(layers::forward::data).get();
+    Tensor * valueTensor = result->get(layers::forward::value).get();
 
-    __DAAL_CALL_KERNEL(env, internal::PoolingKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                       *dataTensor, *parameter, *valueTensor);
+    __DAAL_CALL_KERNEL(env, internal::PoolingKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *dataTensor, *parameter,
+                       *valueTensor);
 }
 } // namespace interface1
 } // namespace forward

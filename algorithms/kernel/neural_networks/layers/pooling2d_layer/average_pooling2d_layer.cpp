@@ -48,15 +48,14 @@ namespace interface1
  * \param[in] secondPadding     Number of data elements to implicitly add to the the second dimension
  *                              of the 2D subtensor on which the pooling is performed
  */
-Parameter::Parameter(size_t firstIndex, size_t secondIndex, size_t firstKernelSize, size_t secondKernelSize,
-          size_t firstStride, size_t secondStride, size_t firstPadding, size_t secondPadding) :
-    layers::pooling2d::Parameter(firstIndex, secondIndex, firstKernelSize, secondKernelSize,
-                                 firstStride, secondStride, firstPadding, secondPadding)
+Parameter::Parameter(size_t firstIndex, size_t secondIndex, size_t firstKernelSize, size_t secondKernelSize, size_t firstStride, size_t secondStride,
+                     size_t firstPadding, size_t secondPadding)
+    : layers::pooling2d::Parameter(firstIndex, secondIndex, firstKernelSize, secondKernelSize, firstStride, secondStride, firstPadding, secondPadding)
 {}
 
-}// namespace interface1
-}// namespace average_pooling2d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace average_pooling2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

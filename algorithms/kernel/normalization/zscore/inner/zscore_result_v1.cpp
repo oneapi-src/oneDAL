@@ -36,35 +36,33 @@ namespace normalization
 {
 namespace zscore
 {
-
 namespace interface1
 {
-
 /**
 * Checks the correctness of the Result object
 * \param[in] in     Pointer to the input object
 *
 * \return Status of computations
 */
-services::Status ResultImpl:: check(const daal::algorithms::Input *in) const
+services::Status ResultImpl::check(const daal::algorithms::Input * in) const
 {
-    const interface1::Input *input = static_cast<const interface1::Input *>(in);
+    const interface1::Input * input = static_cast<const interface1::Input *>(in);
     DAAL_CHECK(input, ErrorNullInput);
 
     NumericTablePtr dataTable = input->get(zscore::data);
     DAAL_CHECK(dataTable, ErrorNullInputNumericTable);
 
     const size_t nFeatures = dataTable->getNumberOfColumns();
-    const size_t nVectors = dataTable->getNumberOfRows();
+    const size_t nVectors  = dataTable->getNumberOfRows();
 
     const int unexpectedLayouts = packed_mask;
 
     return checkNumericTable(NumericTable::cast(get(normalizedData)).get(), normalizedDataStr(), unexpectedLayouts, 0, nFeatures, nVectors);
 }
 
-} // interface 1
+} // namespace interface1
 
-}// namespace zscore
-}// namespace normalization
-}// namespace algorithms
-}// namespace daal
+} // namespace zscore
+} // namespace normalization
+} // namespace algorithms
+} // namespace daal

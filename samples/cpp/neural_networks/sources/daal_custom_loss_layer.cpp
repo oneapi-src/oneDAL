@@ -33,24 +33,19 @@ using namespace daal::data_management;
 using namespace daal::services;
 
 const std::string defaultDatasetsPath = "./data";
-const std::string datasetFileNames[] =
-{
-    "custom_loss_layer.csv",
-    "custom_loss_layer_ground_truth.csv"
-};
+const std::string datasetFileNames[]  = { "custom_loss_layer.csv", "custom_loss_layer_ground_truth.csv" };
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     std::string userDatasetsPath = getUserDatasetPath(argc, argv);
-    std::string datasetsPath = selectDatasetPathOrExit(
-        defaultDatasetsPath, userDatasetsPath, datasetFileNames, 2);
+    std::string datasetsPath     = selectDatasetPathOrExit(defaultDatasetsPath, userDatasetsPath, datasetFileNames, 2);
 
     /* Form path to the training and testing datasets */
     std::string trainDatasetPath = datasetsPath + "/" + datasetFileNames[0];
     std::string testDatasetPath  = datasetsPath + "/" + datasetFileNames[1];
 
     /* Read datasetFileName from a file and create a tensor to store input data */
-    TensorPtr tensorData = readTensorFromCSV(trainDatasetPath);
+    TensorPtr tensorData  = readTensorFromCSV(trainDatasetPath);
     TensorPtr groundTruth = readTensorFromCSV(testDatasetPath);
 
     /* Create an algorithm to compute forward custom loss layer results using default method */

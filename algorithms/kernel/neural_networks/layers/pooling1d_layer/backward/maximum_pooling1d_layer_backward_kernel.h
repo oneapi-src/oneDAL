@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate backward pooling layer relults.
 //--
 
-
 #ifndef __MAXIMUM_POOLING1D_LAYER_BACKWARD_KERNEL_H__
 #define __MAXIMUM_POOLING1D_LAYER_BACKWARD_KERNEL_H__
 
@@ -45,24 +44,23 @@ namespace backward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for backward pooling layer results computation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class PoolingKernel : public Kernel
 {
 public:
-    services::Status compute(const Tensor &inputGradTensor, const Tensor &selectedPosTensor, Tensor &gradTensor,
-                             const maximum_pooling1d::Parameter &parameter);
+    services::Status compute(const Tensor & inputGradTensor, const Tensor & selectedPosTensor, Tensor & gradTensor,
+                             const maximum_pooling1d::Parameter & parameter);
 };
 
-} // internal
-} // backward
-} // maximum_pooling1d
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace backward
+} // namespace maximum_pooling1d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

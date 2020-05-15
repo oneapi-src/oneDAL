@@ -57,7 +57,7 @@ NumericTablePtr Input::get(InputId id) const
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the object
  */
-void Input::set(InputId id, const NumericTablePtr &ptr)
+void Input::set(InputId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -67,13 +67,13 @@ void Input::set(InputId id, const NumericTablePtr &ptr)
  * \param[in] par     Function parameter
  * \param[in] method  Computation method
  */
-Status Input::check(const daal::algorithms::Parameter *par, int method) const
+Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
     DAAL_CHECK(Argument::size() == 1, ErrorIncorrectNumberOfInputNumericTables);
 
     NumericTablePtr inTable = get(data);
     Status s;
-    if(method == fastCSR)
+    if (method == fastCSR)
     {
         const int expectedLayouts = (int)NumericTableIface::csrArray;
         return checkNumericTable(inTable.get(), dataStr(), 0, expectedLayouts);
@@ -103,7 +103,7 @@ NumericTablePtr Result::get(ResultId id) const
  * \param[in] id    Identifier of the result
  * \param[in] ptr   Result
  */
-void Result::set(ResultId id, const NumericTablePtr &ptr)
+void Result::set(ResultId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -114,32 +114,30 @@ void Result::set(ResultId id, const NumericTablePtr &ptr)
  * \param[in] par     %Parameter of the hyperbolic tangent function
  * \param[in] method  Computation method of the hyperbolic tangent function
  */
-Status Result::check(const daal::algorithms::Input *in, const daal::algorithms::Parameter *par, int method) const
+Status Result::check(const daal::algorithms::Input * in, const daal::algorithms::Parameter * par, int method) const
 {
     DAAL_CHECK(Argument::size() == 1, ErrorIncorrectNumberOfOutputNumericTables);
     DAAL_CHECK(in != 0, ErrorNullInput);
 
-    NumericTablePtr dataTable = (static_cast<const Input *>(in))->get(data);
+    NumericTablePtr dataTable   = (static_cast<const Input *>(in))->get(data);
     NumericTablePtr resultTable = get(value);
 
     Status s;
-    if(method == fastCSR)
+    if (method == fastCSR)
     {
         int expectedLayouts = (int)NumericTableIface::csrArray;
         DAAL_CHECK_STATUS(s, checkNumericTable(dataTable.get(), dataStr(), 0, expectedLayouts));
 
-        const size_t nDataRows = dataTable->getNumberOfRows();
+        const size_t nDataRows    = dataTable->getNumberOfRows();
         const size_t nDataColumns = dataTable->getNumberOfColumns();
 
         DAAL_CHECK_STATUS(s, checkNumericTable(resultTable.get(), valueStr(), 0, expectedLayouts, nDataColumns, nDataRows));
 
-        CSRNumericTableIfacePtr inputTable =
-            dynamicPointerCast<CSRNumericTableIface, NumericTable>(dataTable);
+        CSRNumericTableIfacePtr inputTable = dynamicPointerCast<CSRNumericTableIface, NumericTable>(dataTable);
 
-        CSRNumericTableIfacePtr resTable =
-            dynamicPointerCast<CSRNumericTableIface, NumericTable>(resultTable);
+        CSRNumericTableIfacePtr resTable = dynamicPointerCast<CSRNumericTableIface, NumericTable>(resultTable);
 
-        const size_t inSize = inputTable->getDataSize();
+        const size_t inSize  = inputTable->getDataSize();
         const size_t resSize = resTable->getDataSize();
 
         DAAL_CHECK(inSize == resSize, ErrorIncorrectSizeOfArray);
@@ -148,21 +146,19 @@ Status Result::check(const daal::algorithms::Input *in, const daal::algorithms::
     {
         DAAL_CHECK_STATUS(s, checkNumericTable(dataTable.get(), dataStr()));
 
-        const size_t nDataRows = dataTable->getNumberOfRows();
+        const size_t nDataRows    = dataTable->getNumberOfRows();
         const size_t nDataColumns = dataTable->getNumberOfColumns();
 
-        const int unexpectedLayouts = (int)NumericTableIface::upperPackedSymmetricMatrix |
-                                      (int)NumericTableIface::lowerPackedSymmetricMatrix |
-                                      (int)NumericTableIface::upperPackedTriangularMatrix |
-                                      (int)NumericTableIface::lowerPackedTriangularMatrix |
-                                      (int)NumericTableIface::csrArray;
+        const int unexpectedLayouts = (int)NumericTableIface::upperPackedSymmetricMatrix | (int)NumericTableIface::lowerPackedSymmetricMatrix
+                                      | (int)NumericTableIface::upperPackedTriangularMatrix | (int)NumericTableIface::lowerPackedTriangularMatrix
+                                      | (int)NumericTableIface::csrArray;
         return checkNumericTable(resultTable.get(), valueStr(), unexpectedLayouts, 0, nDataColumns, nDataRows);
     }
     return s;
 }
 
-}// namespace interface1
-}// namespace tanh
-}// namespace math
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace tanh
+} // namespace math
+} // namespace algorithms
+} // namespace daal

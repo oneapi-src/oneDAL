@@ -37,22 +37,24 @@ namespace algorithms
 {
 namespace kdtree_knn_classification
 {
-
 namespace internal
 {
-template <typename T, CpuType cpu> class Stack;
+template <typename T, CpuType cpu>
+class Stack;
 } // namespace internal
 
 namespace prediction
 {
 namespace internal
 {
-
 using namespace daal::data_management;
 
-template <typename algorithmFpType, CpuType cpu> struct GlobalNeighbors;
-template <typename T, CpuType cpu> class Heap;
-template <typename algorithmFpType> struct SearchNode;
+template <typename algorithmFpType, CpuType cpu>
+struct GlobalNeighbors;
+template <typename T, CpuType cpu>
+class Heap;
+template <typename algorithmFpType>
+struct SearchNode;
 
 template <typename algorithmFpType, prediction::Method method, CpuType cpu>
 class KNNClassificationPredictKernel : public daal::algorithms::Kernel
@@ -70,8 +72,8 @@ protected:
                               const KDTreeTable & kdTreeTable, size_t rootTreeNodeIndex, const NumericTable & data, const bool isHomogenSOA,
                               services::internal::TArrayScalable<algorithmFpType *, cpu> & soa_arrays);
 
-    services::Status predict(algorithmFpType & predictedClass, const Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap, const NumericTable & labels,
-                 size_t k);
+    services::Status predict(algorithmFpType & predictedClass, const Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap,
+                             const NumericTable & labels, size_t k);
 };
 
 } // namespace internal

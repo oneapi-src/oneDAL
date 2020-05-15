@@ -19,7 +19,6 @@
 //  Implementation of backward pooling layer container.
 //--
 
-
 #include "spatial_average_pooling2d_layer_backward_batch_container.h"
 
 namespace daal

@@ -32,8 +32,7 @@ namespace stump
 {
 namespace classification
 {
-
-template<typename modelFPType>
+template <typename modelFPType>
 DAAL_EXPORT modelFPType Model::getSplitValue()
 {
     StumpNodeVisitor visitor(_nClasses);
@@ -41,7 +40,7 @@ DAAL_EXPORT modelFPType Model::getSplitValue()
     return (modelFPType)visitor.splitValue;
 }
 
-template<typename modelFPType>
+template <typename modelFPType>
 DAAL_EXPORT modelFPType Model::getLeftValue()
 {
     StumpNodeVisitor visitor(_nClasses);
@@ -49,7 +48,7 @@ DAAL_EXPORT modelFPType Model::getLeftValue()
     return (modelFPType)visitor.leftValue;
 }
 
-template<typename modelFPType>
+template <typename modelFPType>
 DAAL_EXPORT modelFPType Model::getRightValue()
 {
     StumpNodeVisitor visitor(_nClasses);
@@ -57,13 +56,11 @@ DAAL_EXPORT modelFPType Model::getRightValue()
     return (modelFPType)visitor.rightValue;
 }
 
-
 template DAAL_EXPORT DAAL_FPTYPE Model::getSplitValue();
 template DAAL_EXPORT DAAL_FPTYPE Model::getLeftValue();
 template DAAL_EXPORT DAAL_FPTYPE Model::getRightValue();
 
-
-}// namespace classification
-}// namespace stump
-}// namespace algorithms
-}// namespace daal
+} // namespace classification
+} // namespace stump
+} // namespace algorithms
+} // namespace daal

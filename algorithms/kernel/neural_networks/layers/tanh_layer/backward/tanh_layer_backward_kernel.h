@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate hyperbolic tangent functions.
 //--
 
-
 #ifndef __TANH_LAYER_BACKWARD_KERNEL_H__
 #define __TANH_LAYER_BACKWARD_KERNEL_H__
 
@@ -51,19 +50,19 @@ namespace internal
 /**
  *  \brief Kernel for hyperbolic tangent function calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class TanhKernel : public Kernel
 {
 public:
-    services::Status compute(const Tensor &inputTensor, const Tensor &forwardOutputTensor, Tensor &resultTensor);
+    services::Status compute(const Tensor & inputTensor, const Tensor & forwardOutputTensor, Tensor & resultTensor);
 };
 
-} // internal
-} // backward
-} // tanh
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace backward
+} // namespace tanh
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

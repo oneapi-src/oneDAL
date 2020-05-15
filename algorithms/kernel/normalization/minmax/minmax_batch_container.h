@@ -38,38 +38,38 @@ namespace minmax
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::MinMaxKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    Input *input = static_cast<Input *>(_in);
-    Result *result = static_cast<Result *>(_res);
-    Parameter<algorithmFPType> *parameter = static_cast<Parameter<algorithmFPType> *>(_par);
+    Input * input                          = static_cast<Input *>(_in);
+    Result * result                        = static_cast<Result *>(_res);
+    Parameter<algorithmFPType> * parameter = static_cast<Parameter<algorithmFPType> *>(_par);
 
-    NumericTablePtr dataTable = input->get(data);
-    NumericTablePtr normalizedDataTable = result->get(normalizedData);
-    low_order_moments::BatchImpl *moments = parameter->moments.get();
+    NumericTablePtr dataTable              = input->get(data);
+    NumericTablePtr normalizedDataTable    = result->get(normalizedData);
+    low_order_moments::BatchImpl * moments = parameter->moments.get();
 
     NumericTablePtr minimums;
     NumericTablePtr maximums;
     Status s;
     DAAL_CHECK_STATUS(s, internal::computeMinimumsAndMaximums(moments, dataTable, minimums, maximums));
 
-    daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::MinMaxKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                       *dataTable.get(), *normalizedDataTable.get(), *minimums.get(), *maximums.get(),
-                       (algorithmFPType)(parameter->lowerBound), (algorithmFPType)(parameter->upperBound));
+    daal::services::Environment::env & env = *_env;
+    __DAAL_CALL_KERNEL(env, internal::MinMaxKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *dataTable.get(),
+                       *normalizedDataTable.get(), *minimums.get(), *maximums.get(), (algorithmFPType)(parameter->lowerBound),
+                       (algorithmFPType)(parameter->upperBound));
 }
 
 } // namespace interface1

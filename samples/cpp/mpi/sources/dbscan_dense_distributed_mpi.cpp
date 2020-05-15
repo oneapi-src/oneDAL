@@ -36,18 +36,13 @@ using namespace daal::algorithms;
 /* Input data set parameters */
 const size_t nBlocks = 4;
 
-const string datasetFileNames[nBlocks] =
-{
-    "./data/distributed/dbscan_dense_1.csv",
-    "./data/distributed/dbscan_dense_2.csv",
-    "./data/distributed/dbscan_dense_3.csv",
-    "./data/distributed/dbscan_dense_4.csv"
-};
+const string datasetFileNames[nBlocks] = { "./data/distributed/dbscan_dense_1.csv", "./data/distributed/dbscan_dense_2.csv",
+                                           "./data/distributed/dbscan_dense_3.csv", "./data/distributed/dbscan_dense_4.csv" };
 
-typedef float algorithmFPType;     /* Algorithm floating-point type */
+typedef float algorithmFPType; /* Algorithm floating-point type */
 
 /* Algorithm parameters */
-const float epsilon = 0.02f;
+const float epsilon          = 0.02f;
 const size_t minObservations = 180;
 
 NumericTablePtr dataTable;
@@ -77,7 +72,8 @@ NumericTablePtr readData(size_t rankId);
 void geometricPartitioning();
 void clustering();
 void sendCollectionAllToAll(size_t beginId, size_t endId, size_t curId, int tag, DataCollectionPtr & collection, DataCollectionPtr & destCollection);
-void sendTableAllToAll(size_t beginId, size_t endId, size_t curId, int tag, NumericTablePtr & table, DataCollectionPtr & destCollection, bool preserveOrder = false);
+void sendTableAllToAll(size_t beginId, size_t endId, size_t curId, int tag, NumericTablePtr & table, DataCollectionPtr & destCollection,
+                       bool preserveOrder = false);
 void sendTableAllToMaster(size_t beginId, size_t endId, size_t rankId, int tag, NumericTablePtr & table, DataCollectionPtr & destCollection);
 void sendCollectionMasterToAll(size_t beginId, size_t endId, size_t rankId, int tag, DataCollectionPtr & collection, NumericTablePtr & destTable);
 void sendTableMasterToAll(size_t beginId, size_t endId, size_t rankId, int tag, NumericTablePtr & table, NumericTablePtr & destTable);
@@ -90,25 +86,25 @@ int computeFinishedFlag();
 int rankId, comm_size;
 #define mpi_root 0
 
-const int step2ResultBoundingBoxTag                   = 1;
-const int step3ResultSplitTag                         = 2;
-const int step4ResultPartitionedDataTag               = 3;
-const int step4ResultPartitionedPartialOrdersTag      = 4;
-const int step5ResultPartitionedHaloDataTag           = 5;
-const int step5ResultPartitionedHaloDataIndicesTag    = 6;
-const int step5ResultPartitionedHaloBlocksTag         = 7;
-const int step6ResultQueriesTag                       = 8;
-const int step8ResultQueriesTag                       = 9;
-const int step8ResultNClustersTag                     = 10;
-const int resultFinishedFlagTag                       = 11;
-const int step7ResultFinishedFlagTag                  = 12;
-const int step9ResultNClustersTag                     = 13;
-const int step9ResultClusterOffsetsTag                = 14;
-const int step10ResultQueriesTag                      = 15;
-const int step11ResultQueriesTag                      = 16;
-const int step12ResultAssignmentQueriesTag            = 17;
+const int step2ResultBoundingBoxTag                = 1;
+const int step3ResultSplitTag                      = 2;
+const int step4ResultPartitionedDataTag            = 3;
+const int step4ResultPartitionedPartialOrdersTag   = 4;
+const int step5ResultPartitionedHaloDataTag        = 5;
+const int step5ResultPartitionedHaloDataIndicesTag = 6;
+const int step5ResultPartitionedHaloBlocksTag      = 7;
+const int step6ResultQueriesTag                    = 8;
+const int step8ResultQueriesTag                    = 9;
+const int step8ResultNClustersTag                  = 10;
+const int resultFinishedFlagTag                    = 11;
+const int step7ResultFinishedFlagTag               = 12;
+const int step9ResultNClustersTag                  = 13;
+const int step9ResultClusterOffsetsTag             = 14;
+const int step10ResultQueriesTag                   = 15;
+const int step11ResultQueriesTag                   = 16;
+const int step12ResultAssignmentQueriesTag         = 17;
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 4, &datasetFileNames[0], &datasetFileNames[1], &datasetFileNames[2], &datasetFileNames[3]);
 
@@ -135,14 +131,14 @@ void geometricPartitioning()
     step1.input.set(dbscan::step1Data, dataTable);
     step1.compute();
 
-    partitionedData = DataCollectionPtr(new DataCollection());
+    partitionedData          = DataCollectionPtr(new DataCollection());
     partitionedPartialOrders = DataCollectionPtr(new DataCollection());
 
     partitionedData->push_back(dataTable);
     partitionedPartialOrders->push_back(step1.getPartialResult()->get(dbscan::partialOrder));
 
     size_t beginId = 0;
-    size_t endId = comm_size;
+    size_t endId   = comm_size;
 
     while (true)
     {
@@ -152,7 +148,7 @@ void geometricPartitioning()
             break;
         }
 
-        partialSplits = DataCollectionPtr(new DataCollection());
+        partialSplits        = DataCollectionPtr(new DataCollection());
         partialBoundingBoxes = DataCollectionPtr(new DataCollection());
 
         dbscan::Distributed<step2Local, algorithmFPType, dbscan::defaultDense> step2(rankId - beginId, curNPartitions);
@@ -162,7 +158,7 @@ void geometricPartitioning()
 
         sendTableAllToAll(beginId, endId, rankId, step2ResultBoundingBoxTag, curBoundingBox, partialBoundingBoxes);
 
-        const size_t leftPartitions = curNPartitions / 2;
+        const size_t leftPartitions  = curNPartitions / 2;
         const size_t rightPartitions = curNPartitions - leftPartitions;
 
         dbscan::Distributed<step3Local, algorithmFPType, dbscan::defaultDense> step3(leftPartitions, rightPartitions);
@@ -179,10 +175,10 @@ void geometricPartitioning()
         step4.input.set(dbscan::step4PartialSplits, partialSplits);
         step4.compute();
 
-        DataCollectionPtr curPartitionedData = step4.getPartialResult()->get(dbscan::partitionedData);
+        DataCollectionPtr curPartitionedData          = step4.getPartialResult()->get(dbscan::partitionedData);
         DataCollectionPtr curPartitionedPartialOrders = step4.getPartialResult()->get(dbscan::partitionedPartialOrders);
 
-        partitionedData = DataCollectionPtr(new DataCollection());
+        partitionedData          = DataCollectionPtr(new DataCollection());
         partitionedPartialOrders = DataCollectionPtr(new DataCollection());
 
         sendCollectionAllToAll(beginId, endId, rankId, step4ResultPartitionedDataTag, curPartitionedData, partitionedData);
@@ -202,9 +198,9 @@ void geometricPartitioning()
 void clustering()
 {
     partialBoundingBoxes = DataCollectionPtr(new DataCollection());
-    haloData = DataCollectionPtr(new DataCollection());
-    haloDataIndices = DataCollectionPtr(new DataCollection());
-    haloBlocks = DataCollectionPtr(new DataCollection());
+    haloData             = DataCollectionPtr(new DataCollection());
+    haloDataIndices      = DataCollectionPtr(new DataCollection());
+    haloBlocks           = DataCollectionPtr(new DataCollection());
 
     dbscan::Distributed<step2Local, algorithmFPType, dbscan::defaultDense> step2(rankId, comm_size);
     step2.input.set(dbscan::partialData, partitionedData);
@@ -217,7 +213,7 @@ void clustering()
     step5.input.set(dbscan::partialData, partitionedData);
     step5.input.set(dbscan::step5PartialBoundingBoxes, partialBoundingBoxes);
     step5.compute();
-    DataCollectionPtr curHaloData = step5.getPartialResult()->get(dbscan::partitionedHaloData);
+    DataCollectionPtr curHaloData        = step5.getPartialResult()->get(dbscan::partitionedHaloData);
     DataCollectionPtr curHaloDataIndices = step5.getPartialResult()->get(dbscan::partitionedHaloDataIndices);
     DataCollectionPtr curHaloBlocks(new DataCollection());
 
@@ -248,8 +244,8 @@ void clustering()
     step6.input.set(dbscan::haloBlocks, haloBlocks);
     step6.compute();
     clusterStructure = step6.getPartialResult()->get(dbscan::step6ClusterStructure);
-    finishedFlag = step6.getPartialResult()->get(dbscan::step6FinishedFlag);
-    nClusters = step6.getPartialResult()->get(dbscan::step6NClusters);
+    finishedFlag     = step6.getPartialResult()->get(dbscan::step6FinishedFlag);
+    nClusters        = step6.getPartialResult()->get(dbscan::step6NClusters);
 
     DataCollectionPtr curQueries = step6.getPartialResult()->get(dbscan::step6Queries);
 
@@ -264,8 +260,8 @@ void clustering()
         step8.compute();
 
         clusterStructure = step8.getPartialResult()->get(dbscan::step8ClusterStructure);
-        finishedFlag = step8.getPartialResult()->get(dbscan::step8FinishedFlag);
-        nClusters = step8.getPartialResult()->get(dbscan::step8NClusters);
+        finishedFlag     = step8.getPartialResult()->get(dbscan::step8FinishedFlag);
+        nClusters        = step8.getPartialResult()->get(dbscan::step8NClusters);
 
         DataCollectionPtr curQueries = step8.getPartialResult()->get(dbscan::step8Queries);
 
@@ -309,7 +305,7 @@ void clustering()
     step10.compute();
 
     clusterStructure = step10.getPartialResult()->get(dbscan::step10ClusterStructure);
-    finishedFlag = step10.getPartialResult()->get(dbscan::step10FinishedFlag);
+    finishedFlag     = step10.getPartialResult()->get(dbscan::step10FinishedFlag);
 
     curQueries = step10.getPartialResult()->get(dbscan::step10Queries);
 
@@ -323,7 +319,7 @@ void clustering()
         step11.compute();
 
         clusterStructure = step11.getPartialResult()->get(dbscan::step11ClusterStructure);
-        finishedFlag = step11.getPartialResult()->get(dbscan::step11FinishedFlag);
+        finishedFlag     = step11.getPartialResult()->get(dbscan::step11FinishedFlag);
 
         DataCollectionPtr curQueries = step11.getPartialResult()->get(dbscan::step11Queries);
 
@@ -383,9 +379,7 @@ NumericTablePtr readData(size_t rankId)
 {
     /* Read trainDatasetFileName from a file and create a numeric table to store the input data */
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileNames[rankId],
-                                                 DataSource::doAllocateNumericTable,
-                                                 DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileNames[rankId], DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Retrieve the data from the input file */
     dataSource.loadDataBlock();
@@ -394,7 +388,7 @@ NumericTablePtr readData(size_t rankId)
 
 void sendCollectionAllToAll(size_t beginId, size_t endId, size_t curId, int tag, DataCollectionPtr & collection, DataCollectionPtr & destCollection)
 {
-    size_t nIds = endId - beginId;
+    size_t nIds    = endId - beginId;
     size_t nShifts = 1;
     while (nShifts < nIds) nShifts <<= 1;
 
@@ -417,13 +411,13 @@ void sendCollectionAllToAll(size_t beginId, size_t endId, size_t curId, int tag,
         {
             if (curId < partnerId)
             {
-                sendTable(table,        partnerId, tag);
+                sendTable(table, partnerId, tag);
                 recvTable(partnerTable, partnerId, tag);
             }
             else
             {
                 recvTable(partnerTable, partnerId, tag);
-                sendTable(table,        partnerId, tag);
+                sendTable(table, partnerId, tag);
             }
         }
 
@@ -434,9 +428,10 @@ void sendCollectionAllToAll(size_t beginId, size_t endId, size_t curId, int tag,
     }
 }
 
-void sendTableAllToAll(size_t beginId, size_t endId, size_t curId, int tag, NumericTablePtr & table, DataCollectionPtr & destCollection, bool preserveOrder)
+void sendTableAllToAll(size_t beginId, size_t endId, size_t curId, int tag, NumericTablePtr & table, DataCollectionPtr & destCollection,
+                       bool preserveOrder)
 {
-    size_t nIds = endId - beginId;
+    size_t nIds    = endId - beginId;
     size_t nShifts = 1;
     while (nShifts < nIds) nShifts <<= 1;
 
@@ -463,13 +458,13 @@ void sendTableAllToAll(size_t beginId, size_t endId, size_t curId, int tag, Nume
         {
             if (curId < partnerId)
             {
-                sendTable(table,        partnerId, tag);
+                sendTable(table, partnerId, tag);
                 recvTable(partnerTable, partnerId, tag);
             }
             else
             {
                 recvTable(partnerTable, partnerId, tag);
-                sendTable(table,        partnerId, tag);
+                sendTable(table, partnerId, tag);
             }
         }
 
@@ -565,7 +560,7 @@ void sendTable(NumericTablePtr & table, int recpnt, int tag)
     ByteBuffer buff;
     size_t size = (table.get() && table->getNumberOfRows() > 0) ? serializeDAALObject(table.get(), buff) : 0;
     MPI_Send(&size, sizeof(size_t), MPI_BYTE, recpnt, tag * 2 + 0, MPI_COMM_WORLD);
-    if(size)
+    if (size)
     {
         MPI_Send(&buff[0], size, MPI_BYTE, recpnt, tag * 2 + 1, MPI_COMM_WORLD);
     }
@@ -576,7 +571,7 @@ void recvTable(NumericTablePtr & table, int sender, int tag)
     size_t size = 0;
     MPI_Status status;
     MPI_Recv(&size, sizeof(size_t), MPI_BYTE, sender, tag * 2 + 0, MPI_COMM_WORLD, &status);
-    if(size)
+    if (size)
     {
         ByteBuffer buff(size);
         MPI_Recv(&buff[0], size, MPI_BYTE, sender, tag * 2 + 1, MPI_COMM_WORLD, &status);

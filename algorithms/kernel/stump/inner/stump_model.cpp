@@ -29,12 +29,10 @@ namespace algorithms
 {
 namespace stump
 {
-
 /**
  * Empty constructor for deserialization
  */
-Model::Model() : weak_learner::Model(), _nFeatures(0), _splitFeature(0), _values()
-{}
+Model::Model() : weak_learner::Model(), _nFeatures(0), _splitFeature(0), _values() {}
 
 size_t Model::getSplitFeature()
 {
@@ -46,6 +44,6 @@ void Model::setSplitFeature(size_t splitFeature)
     _splitFeature = splitFeature;
 }
 
-}
-}
+} // namespace stump
+} // namespace algorithms
 } // namespace daal

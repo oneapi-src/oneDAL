@@ -19,14 +19,13 @@
 //  Implementation of neural networks calculation algorithm container.
 //--
 
-
 #include "neural_networks_training_distr_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(neural_networks::training::DistributedContainer, distributed,     \
-                                      step1Local, DAAL_FPTYPE, neural_networks::training::feedforwardDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(neural_networks::training::DistributedContainer, distributed, step1Local, DAAL_FPTYPE,
+                                      neural_networks::training::feedforwardDense)
 }
 } // namespace daal

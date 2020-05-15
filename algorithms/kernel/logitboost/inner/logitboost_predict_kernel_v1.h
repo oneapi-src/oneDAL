@@ -54,12 +54,12 @@ struct I1LogitBoostPredictKernel : public Kernel
      *  \param r[out]   Prediction results
      *  \param par[in]  Logit Boost algorithm parameters
      */
-    services::Status compute( NumericTablePtr a, const Model *m, NumericTable *r, const Parameter *par );
+    services::Status compute(NumericTablePtr a, const Model * m, NumericTable * r, const Parameter * par);
 };
-} // namespace daal::algorithms::logitboost::prediction::internal
-}
-}
-}
+} // namespace internal
+} // namespace prediction
+} // namespace logitboost
+} // namespace algorithms
 } // namespace daal
 
 #endif

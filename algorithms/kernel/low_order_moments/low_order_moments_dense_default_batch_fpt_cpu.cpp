@@ -38,6 +38,6 @@ namespace internal
 {
 template class LowOrderMomentsBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
-}
-}
-}
+} // namespace low_order_moments
+} // namespace algorithms
+} // namespace daal

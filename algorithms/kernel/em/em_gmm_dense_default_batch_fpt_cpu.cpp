@@ -33,13 +33,11 @@ namespace em_gmm
 {
 namespace interface1
 {
-
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
 }
 namespace internal
 {
-
 template class EMKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
 } // namespace internal

@@ -36,11 +36,16 @@ namespace logitboost
 {
 namespace interface1
 {
-
 __DAAL_REGISTER_SERIALIZATION_CLASS(Model, SERIALIZATION_LOGITBOOST_MODEL_ID);
 /** Default constructor */
-Parameter::Parameter() : boosting::Parameter(), accuracyThreshold(0.0), maxIterations(10), nClasses(0),
-    weightsDegenerateCasesThreshold(1e-10), responsesDegenerateCasesThreshold(1e-10) {}
+Parameter::Parameter()
+    : boosting::Parameter(),
+      accuracyThreshold(0.0),
+      maxIterations(10),
+      nClasses(0),
+      weightsDegenerateCasesThreshold(1e-10),
+      responsesDegenerateCasesThreshold(1e-10)
+{}
 
 /**
  * Constructs LogitBoost parameter structure
@@ -52,16 +57,20 @@ Parameter::Parameter() : boosting::Parameter(), accuracyThreshold(0.0), maxItera
  * \param[in] wThr          Threshold to avoid degenerate cases when calculating weights W
  * \param[in] zThr          Threshold to avoid degenerate cases when calculating responses Z
  */
-Parameter::Parameter(const SharedPtr<weak_learner::training::Batch>&   wlTrain,
-    const SharedPtr<weak_learner::prediction::Batch>& wlPredict,
-          double acc, size_t maxIter, size_t nC, double wThr, double zThr) :
-    boosting::Parameter(wlTrain, wlPredict),
-    accuracyThreshold(acc), maxIterations(maxIter), nClasses(nC), weightsDegenerateCasesThreshold(wThr), responsesDegenerateCasesThreshold(zThr) {}
+Parameter::Parameter(const SharedPtr<weak_learner::training::Batch> & wlTrain, const SharedPtr<weak_learner::prediction::Batch> & wlPredict,
+                     double acc, size_t maxIter, size_t nC, double wThr, double zThr)
+    : boosting::Parameter(wlTrain, wlPredict),
+      accuracyThreshold(acc),
+      maxIterations(maxIter),
+      nClasses(nC),
+      weightsDegenerateCasesThreshold(wThr),
+      responsesDegenerateCasesThreshold(zThr)
+{}
 
 services::Status Parameter::check() const
 {
     services::Status s = boosting::Parameter::check();
-    if(!s) return s;
+    if (!s) return s;
     DAAL_CHECK_EX(accuracyThreshold >= 0 && accuracyThreshold < 1, ErrorIncorrectParameter, ParameterName, accuracyThresholdStr());
     DAAL_CHECK_EX(maxIterations > 0, ErrorIncorrectParameter, ParameterName, maxIterationsStr());
     DAAL_CHECK_EX(nClasses >= 2, ErrorIncorrectParameter, ParameterName, nClassesStr());
@@ -70,10 +79,7 @@ services::Status Parameter::check() const
     return s;
 }
 
-
-Model::Model(size_t nFeatures, const Parameter *par, services::Status &st) :
-    boosting::Model(nFeatures, st),
-    _nIterations(par->maxIterations) { }
+Model::Model(size_t nFeatures, const Parameter * par, services::Status & st) : boosting::Model(nFeatures, st), _nIterations(par->maxIterations) {}
 
 /**
  * Constructs the LogitBoost model
@@ -81,7 +87,7 @@ Model::Model(size_t nFeatures, const Parameter *par, services::Status &st) :
  * \param[in]  par       Pointer to the parameter structure of the LogitBoost algorithm
  * \param[out] stat      Status of the model construction
  */
-ModelPtr Model::create(size_t nFeatures, const Parameter *par, services::Status *stat)
+ModelPtr Model::create(size_t nFeatures, const Parameter * par, services::Status * stat)
 {
     DAAL_DEFAULT_CREATE_IMPL_EX(Model, nFeatures, par);
 }
@@ -103,7 +109,6 @@ size_t Model::getIterations() const
 {
     return _nIterations;
 }
-
 
 } // namespace interface1
 } // namespace logitboost

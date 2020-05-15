@@ -43,13 +43,13 @@ namespace interface1
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_NEURAL_NETWORKS_LAYERS_LOGISTIC_FORWARD_RESULT_ID);
 /** \brief Default constructor */
 Input::Input() {};
-Input::Input(const Input& other) : super(other) {}
+Input::Input(const Input & other) : super(other) {}
 
 /**
  * Returns dimensions of weights tensor
  * \return Dimensions of weights tensor
  */
-const services::Collection<size_t> Input::getWeightsSizes(const layers::Parameter *parameter) const
+const services::Collection<size_t> Input::getWeightsSizes(const layers::Parameter * parameter) const
 {
     return services::Collection<size_t>();
 }
@@ -58,7 +58,7 @@ const services::Collection<size_t> Input::getWeightsSizes(const layers::Paramete
  * Returns dimensions of biases tensor
  * \return Dimensions of biases tensor
  */
-const services::Collection<size_t> Input::getBiasesSizes(const layers::Parameter *parameter) const
+const services::Collection<size_t> Input::getBiasesSizes(const layers::Parameter * parameter) const
 {
     return services::Collection<size_t>();
 }
@@ -68,7 +68,7 @@ const services::Collection<size_t> Input::getBiasesSizes(const layers::Parameter
  * \param[in] par     Layer parameter
  * \param[in] method  Computation method of the layer
  */
-services::Status Input::check(const daal::algorithms::Parameter *par, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
     return layers::forward::Input::check(par, method);
 }
@@ -93,7 +93,7 @@ data_management::TensorPtr Result::get(LayerDataId id) const
  * \param[in] id      Identifier of the result
  * \param[in] value   Result
  */
-void Result::set(LayerDataId id, const data_management::TensorPtr &value)
+void Result::set(LayerDataId id, const data_management::TensorPtr & value)
 {
     layers::LayerDataPtr layerData =
         services::staticPointerCast<layers::LayerData, data_management::SerializationIface>(Argument::get(layers::forward::resultForBackward));
@@ -106,17 +106,17 @@ void Result::set(LayerDataId id, const data_management::TensorPtr &value)
  * \param[in] par     %Parameter of the algorithm
  * \param[in] method  Computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, layers::forward::Result::check(input, par, method));
 
-    const Input *in = static_cast<const Input *>(input);
-    const services::Collection<size_t> &inputDimensions = in->get(layers::forward::data)->getDimensions();
+    const Input * in                                     = static_cast<const Input *>(input);
+    const services::Collection<size_t> & inputDimensions = in->get(layers::forward::data)->getDimensions();
     DAAL_CHECK_STATUS(s, data_management::checkTensor(get(layers::forward::value).get(), valueStr(), &inputDimensions));
 
-    const layers::Parameter *parameter = static_cast<const layers::Parameter * >(par);
-    if(!parameter->predictionStage)
+    const layers::Parameter * parameter = static_cast<const layers::Parameter *>(par);
+    if (!parameter->predictionStage)
     {
         return data_management::checkTensor(get(logistic::auxValue).get(), auxValueStr(), &inputDimensions);
     }
@@ -127,9 +127,9 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
  * Sets the result that is used in backward logistic layer
  * \param[in] input     Pointer to an object containing the input data
  */
-services::Status Result::setResultForBackward(const daal::algorithms::Input *input)
+services::Status Result::setResultForBackward(const daal::algorithms::Input * input)
 {
-    const layers::forward::Input *in = static_cast<const layers::forward::Input * >(input);
+    const layers::forward::Input * in = static_cast<const layers::forward::Input *>(input);
     set(auxValue, get(layers::forward::value));
     return services::Status();
 }
@@ -138,16 +138,16 @@ services::Status Result::setResultForBackward(const daal::algorithms::Input *inp
  * Returns dimensions of value tensor
  * \return Dimensions of value tensor
  */
-const services::Collection<size_t> Result::getValueSize(const services::Collection<size_t> &inputSize,
-        const daal::algorithms::Parameter *par, const int method) const
+const services::Collection<size_t> Result::getValueSize(const services::Collection<size_t> & inputSize, const daal::algorithms::Parameter * par,
+                                                        const int method) const
 {
     return inputSize;
 }
 
-}// namespace interface1
-}// namespace forward
-}// namespace logistic
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace logistic
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

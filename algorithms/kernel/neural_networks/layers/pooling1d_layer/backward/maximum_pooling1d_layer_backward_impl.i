@@ -48,34 +48,31 @@ namespace backward
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status PoolingKernel<algorithmFPType, method, cpu>::compute(const Tensor &inputGradTensor,
-                const Tensor &selectedPosTensor, Tensor &gradTensor,
-                const maximum_pooling1d::Parameter &parameter)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status PoolingKernel<algorithmFPType, method, cpu>::compute(const Tensor & inputGradTensor, const Tensor & selectedPosTensor,
+                                                                      Tensor & gradTensor, const maximum_pooling1d::Parameter & parameter)
 {
     const algorithmFPType zero = 0.0;
 
-    const Collection<size_t> &inputDims = inputGradTensor.getDimensions();
-    const Collection<size_t> &gradDims = gradTensor.getDimensions();
+    const Collection<size_t> & inputDims = inputGradTensor.getDimensions();
+    const Collection<size_t> & gradDims  = gradTensor.getDimensions();
 
-    ReadSubtensor<algorithmFPType, cpu> inputGradSubtensor(const_cast<Tensor&>(inputGradTensor), 0, 0, 0, inputDims[0]);
+    ReadSubtensor<algorithmFPType, cpu> inputGradSubtensor(const_cast<Tensor &>(inputGradTensor), 0, 0, 0, inputDims[0]);
     DAAL_CHECK_BLOCK_STATUS(inputGradSubtensor);
-    const algorithmFPType *inputGrad = inputGradSubtensor.get();
+    const algorithmFPType * inputGrad = inputGradSubtensor.get();
 
-    ReadSubtensor<int, cpu> selectedPosSubtensor(const_cast<Tensor&>(selectedPosTensor), 0, 0, 0, inputDims[0]);
+    ReadSubtensor<int, cpu> selectedPosSubtensor(const_cast<Tensor &>(selectedPosTensor), 0, 0, 0, inputDims[0]);
     DAAL_CHECK_BLOCK_STATUS(selectedPosSubtensor);
-    const int *selectedPos = selectedPosSubtensor.get();
+    const int * selectedPos = selectedPosSubtensor.get();
 
     WriteOnlySubtensor<algorithmFPType, cpu> gradSubtensor(gradTensor, 0, 0, 0, gradDims[0]);
     DAAL_CHECK_BLOCK_STATUS(gradSubtensor);
-    algorithmFPType *grad = gradSubtensor.get();
+    algorithmFPType * grad = gradSubtensor.get();
 
     const size_t gradSize = gradTensor.getSize();
     daal::services::internal::service_memset<algorithmFPType, cpu>(grad, zero, gradSize);
 
-    pooling1d::internal::Parameter par(parameter.index .size[0], parameter.padding   .size[0],
-                                       parameter.stride.size[0], parameter.kernelSize.size[0],
+    pooling1d::internal::Parameter par(parameter.index.size[0], parameter.padding.size[0], parameter.stride.size[0], parameter.kernelSize.size[0],
                                        gradTensor, gradDims, inputDims);
 
     for (DAAL_INT i = 0; i < par.offsetBefore; i++)
@@ -93,8 +90,8 @@ services::Status PoolingKernel<algorithmFPType, method, cpu>::compute(const Tens
                  * Input value index
                  */
                 const DAAL_INT inputIndex = j + par.offsetAfter * (fo + par.firstOutSize * i);
-                const DAAL_INT fi = f + selectedPos[inputIndex];
-                const bool paddingFlag = (fi < 0) || (fi >= par.firstSize);
+                const DAAL_INT fi         = f + selectedPos[inputIndex];
+                const bool paddingFlag    = (fi < 0) || (fi >= par.firstSize);
                 if (!paddingFlag && selectedPos[inputIndex] >= 0)
                 {
                     DAAL_INT gradIndex = j + par.offsetAfter * (fi + par.firstSize * i);

@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate abss.
 //--
 
-
 #ifndef __ABS_CSR_FAST_KERNEL_H__
 #define __ABS_CSR_FAST_KERNEL_H__
 
@@ -35,15 +34,15 @@ namespace abs
 {
 namespace internal
 {
-
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class AbsKernel<algorithmFPType, fastCSR, cpu> : public AbsKernelBase<algorithmFPType, fastCSR, cpu>
 {
 protected:
-    Status processBlock(const NumericTable &inputTable, size_t nInputColumns, size_t nProcessedRows, size_t nRowsInCurrentBlock, NumericTable &resultTable);
+    Status processBlock(const NumericTable & inputTable, size_t nInputColumns, size_t nProcessedRows, size_t nRowsInCurrentBlock,
+                        NumericTable & resultTable);
 };
 
-} // namespace daal::internal
+} // namespace internal
 } // namespace abs
 } // namespace math
 } // namespace algorithms

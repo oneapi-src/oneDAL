@@ -39,9 +39,8 @@ namespace prediction
 {
 namespace interface3
 {
-
 template <typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv) : PredictionContainerIface()
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
 {
     __DAAL_INITIALIZE_KERNELS(internal::PredictKernel, algorithmFPType, method);
 }
@@ -55,7 +54,7 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    const Input * const input                           = static_cast<Input *>(_in);
+    const Input * const input                     = static_cast<Input *>(_in);
     classifier::prediction::Result * const result = static_cast<classifier::prediction::Result *>(_res);
     const decision_forest::classification::prediction::Parameter * const par =
         dynamic_cast<decision_forest::classification::prediction::Parameter *>(_par);
@@ -67,14 +66,14 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
         ((par->resultsToEvaluate & classifier::ResultToComputeId::computeClassLabels) ? result->get(classifier::prediction::prediction).get() :
                                                                                         nullptr);
     NumericTable * const prob = ((par->resultsToEvaluate & classifier::ResultToComputeId::computeClassProbabilities) ?
-                               result->get(classifier::prediction::probabilities).get() :
-                               nullptr);
+                                     result->get(classifier::prediction::probabilities).get() :
+                                     nullptr);
 
     const daal::services::Environment::env & env = *_env;
 
     const VotingMethod votingMethod = par->votingMethod;
     __DAAL_CALL_KERNEL(env, internal::PredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                       daal::services::internal::hostApp(*const_cast<Input*>(input)), a, m, r, prob, par->nClasses, votingMethod);
+                       daal::services::internal::hostApp(*const_cast<Input *>(input)), a, m, r, prob, par->nClasses, votingMethod);
 }
 } // namespace interface3
 } // namespace prediction
