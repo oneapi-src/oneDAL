@@ -25,10 +25,10 @@
 #ifndef __MULTICLASSCLASSIFIER_PREDICT_VOTEBASED_IMPL_I__
 #define __MULTICLASSCLASSIFIER_PREDICT_VOTEBASED_IMPL_I__
 
-#include "multi_class_classifier_model.h"
-#include "threading.h"
-#include "service_error_handling.h"
-#include "service_numeric_table.h"
+#include "algorithms/multi_class_classifier/multi_class_classifier_model.h"
+#include "algorithms/threading/threading.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 namespace daal
 {

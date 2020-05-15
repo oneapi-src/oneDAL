@@ -21,7 +21,7 @@
 //--
 */
 
-#include "average_pooling2d_layer_types.h"
+#include "algorithms/neural_networks/layers/pooling2d/average_pooling2d_layer_types.h"
 
 namespace daal
 {

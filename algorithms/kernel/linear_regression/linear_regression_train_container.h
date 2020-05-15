@@ -24,14 +24,14 @@
 #ifndef __LINEAR_REGRESSION_TRAIN_CONTAINER_H__
 #define __LINEAR_REGRESSION_TRAIN_CONTAINER_H__
 
-#include "kernel.h"
-#include "linear_regression_training_batch.h"
-#include "linear_regression_training_online.h"
-#include "linear_regression_training_distributed.h"
-#include "linear_regression_train_kernel.h"
-#include "linear_regression_ne_model.h"
-#include "linear_regression_qr_model.h"
-#include "service_numeric_table.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/linear_regression/linear_regression_training_batch.h"
+#include "algorithms/linear_regression/linear_regression_training_online.h"
+#include "algorithms/linear_regression/linear_regression_training_distributed.h"
+#include "algorithms/kernel/linear_regression/linear_regression_train_kernel.h"
+#include "algorithms/linear_regression/linear_regression_ne_model.h"
+#include "algorithms/linear_regression/linear_regression_qr_model.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 namespace daal
 {

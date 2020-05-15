@@ -22,13 +22,13 @@
 #ifndef __LOGISTIC_LAYER_FORWARD_KERNEL_H__
 #define __LOGISTIC_LAYER_FORWARD_KERNEL_H__
 
-#include "neural_networks/layers/logistic/logistic_layer.h"
-#include "neural_networks/layers/logistic/logistic_layer_types.h"
-#include "kernel.h"
-#include "service_math.h"
-#include "numeric_table.h"
-#include "layers_threading.h"
-#include "service_blas.h"
+#include "algorithms/neural_networks/layers/logistic/logistic_layer.h"
+#include "algorithms/neural_networks/layers/logistic/logistic_layer_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "externals/service_math.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/kernel/neural_networks/layers/layers_threading.h"
+#include "externals/service_blas.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

@@ -21,8 +21,8 @@
 //--
 */
 
-#include "tanh_types.h"
-#include "service_numeric_table.h"
+#include "algorithms/math/tanh_types.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::services;
 using namespace daal::internal;

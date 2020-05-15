@@ -25,8 +25,8 @@
 
 #include "algorithms/logistic_regression/logistic_regression_predict.h"
 #include "algorithms/classifier/classifier_model.h"
-#include "logistic_regression_predict_kernel.h"
-#include "service_algo_utils.h"
+#include "algorithms/kernel/logistic_regression/logistic_regression_predict_kernel.h"
+#include "service/kernel/service_algo_utils.h"
 
 namespace daal
 {

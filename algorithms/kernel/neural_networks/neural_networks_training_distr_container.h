@@ -24,11 +24,11 @@
 #ifndef __NEURAL_NETWORKS_TRAINING_DISTR_CONTAINER_H__
 #define __NEURAL_NETWORKS_TRAINING_DISTR_CONTAINER_H__
 
-#include "neural_networks/neural_networks_training_distributed.h"
-#include "neural_networks_types.h"
-#include "neural_networks_training_types.h"
-#include "neural_networks_training_feedforward_kernel.h"
-#include "kernel.h"
+#include "algorithms/neural_networks/neural_networks_training_distributed.h"
+#include "algorithms/neural_networks/neural_networks_types.h"
+#include "algorithms/neural_networks/neural_networks_training_types.h"
+#include "algorithms/kernel/neural_networks/neural_networks_training_feedforward_kernel.h"
+#include "algorithms/kernel/kernel.h"
 
 namespace daal
 {

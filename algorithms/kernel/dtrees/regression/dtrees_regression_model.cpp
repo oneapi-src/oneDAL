@@ -21,7 +21,7 @@
 //--
 */
 
-#include "dtrees_model_impl_common.h"
+#include "algorithms/kernel/dtrees/dtrees_model_impl_common.h"
 #include "algorithms/regression/tree_traverse.h"
 #include "algorithms/tree_utils/tree_utils_regression.h"
 

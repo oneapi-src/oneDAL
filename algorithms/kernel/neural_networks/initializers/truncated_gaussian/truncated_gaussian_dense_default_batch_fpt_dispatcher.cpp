@@ -19,7 +19,7 @@
 //  Implementation of truncated gaussian initializer container.
 //--
 
-#include "truncated_gaussian_batch_container.h"
+#include "algorithms/kernel/neural_networks/initializers/truncated_gaussian/truncated_gaussian_batch_container.h"
 
 namespace daal
 {

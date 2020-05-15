@@ -21,10 +21,10 @@
 //--
 */
 
-#include "brownboost_predict_batch_container_v1.h"
-#include "brownboost_predict_kernel_v1.h"
-#include "brownboost_predict_impl_v1.i"
-#include "boosting_predict_impl.i"
+#include "algorithms/kernel/brownboost/inner/brownboost_predict_batch_container_v1.h"
+#include "algorithms/kernel/brownboost/inner/brownboost_predict_kernel_v1.h"
+#include "algorithms/kernel/brownboost/inner/brownboost_predict_impl_v1.i"
+#include "algorithms/kernel/boosting/inner/boosting_predict_impl.i"
 
 namespace daal
 {

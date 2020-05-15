@@ -24,11 +24,11 @@
 #ifndef __SERVICE_DNN_MKL_H__
 #define __SERVICE_DNN_MKL_H__
 
-#include "daal_defines.h"
+#include "services/daal_defines.h"
 #include "mkl_dnn_types.h"
 #include "mkl_daal.h"
 
-#include "service_dnn.h"
+#include "externals/service_dnn.h"
 
 #if !defined(__DAAL_CONCAT4)
     #define __DAAL_CONCAT4(a, b, c, d)  __DAAL_CONCAT41(a, b, c, d)

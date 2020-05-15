@@ -19,9 +19,9 @@
 //  Implementation of relu calculation functions.
 //--
 
-#include "relu_layer_forward_batch_container.h"
-#include "relu_layer_forward_kernel.h"
-#include "relu_layer_forward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/relu_layer/forward/relu_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/relu_layer/forward/relu_layer_forward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/relu_layer/forward/relu_layer_forward_impl.i"
 
 namespace daal
 {

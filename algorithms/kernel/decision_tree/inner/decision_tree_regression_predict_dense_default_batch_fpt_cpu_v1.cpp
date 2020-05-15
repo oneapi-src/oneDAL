@@ -21,9 +21,9 @@
 //--
 */
 
-#include "decision_tree_regression_predict_dense_default_batch.h"
-#include "decision_tree_regression_predict_dense_default_batch_impl.i"
-#include "decision_tree_regression_predict_dense_default_batch_container_v1.h"
+#include "algorithms/kernel/decision_tree/decision_tree_regression_predict_dense_default_batch.h"
+#include "algorithms/kernel/decision_tree/decision_tree_regression_predict_dense_default_batch_impl.i"
+#include "algorithms/kernel/decision_tree/inner/decision_tree_regression_predict_dense_default_batch_container_v1.h"
 
 namespace daal
 {

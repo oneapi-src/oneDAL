@@ -19,7 +19,7 @@
 //  Implementation of the backward logistic cross layer
 //--
 
-#include "logistic_cross_layer_backward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/loss_layer/logistic_cross_layer/backward/logistic_cross_layer_backward_batch_container.h"
 
 namespace daal
 {

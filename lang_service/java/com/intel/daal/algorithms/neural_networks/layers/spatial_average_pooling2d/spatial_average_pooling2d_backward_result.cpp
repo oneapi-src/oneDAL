@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::neural_networks::layers::spatial_average_pooling2d;

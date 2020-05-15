@@ -25,8 +25,8 @@
 #ifndef __ELASTIC_NET_TRAIN_KERNEL_H__
 #define __ELASTIC_NET_TRAIN_KERNEL_H__
 
-#include "numeric_table.h"
-#include "algorithm_base_common.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/algorithm_base_common.h"
 #include "algorithms/optimization_solver/objective_function/mse_batch.h"
 #include "algorithms/elastic_net/elastic_net_training_types.h"
 

@@ -19,7 +19,7 @@
 //  Implementation of neural networks calculation algorithm container.
 //--
 
-#include "neural_networks_training_distr_container.h"
+#include "algorithms/kernel/neural_networks/neural_networks_training_distr_container.h"
 
 namespace daal
 {

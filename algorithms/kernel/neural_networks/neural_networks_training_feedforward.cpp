@@ -22,8 +22,8 @@
 //--
 */
 
-#include "neural_networks_training_feedforward.h"
-#include "daal_strings.h"
+#include "algorithms/kernel/neural_networks/neural_networks_training_feedforward.h"
+#include "service/kernel/daal_strings.h"
 #include "services/daal_memory.h"
 
 using namespace daal::services;

@@ -18,7 +18,7 @@
 #include <jni.h>
 #include "com_intel_daal_algorithms_qr_Online.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::qr;

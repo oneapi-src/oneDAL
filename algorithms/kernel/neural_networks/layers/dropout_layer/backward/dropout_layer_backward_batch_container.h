@@ -24,8 +24,8 @@
 #ifndef __DROPOUT_LAYER_BACKWARD_BATCH_CONTAINER_H__
 #define __DROPOUT_LAYER_BACKWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/dropout/dropout_layer.h"
-#include "dropout_layer_backward_kernel.h"
+#include "algorithms/neural_networks/layers/dropout/dropout_layer.h"
+#include "algorithms/kernel/neural_networks/layers/dropout_layer/backward/dropout_layer_backward_kernel.h"
 
 namespace daal
 {

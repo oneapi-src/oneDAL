@@ -24,9 +24,9 @@
 #ifndef __CONCAT_LAYER_BACKWARD_IMPL_I__
 #define __CONCAT_LAYER_BACKWARD_IMPL_I__
 
-#include "service_micro_table.h"
+#include "service/kernel/data_management/service_micro_table.h"
 
-#include "service_mkl_tensor.h"
+#include "service/kernel/data_management/service_mkl_tensor.h"
 
 using namespace daal::internal;
 using namespace daal::services;

@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_neural_networks_layers_maximum_pooling1d_MaximumPooling1dLayerDataId.h"
 #define auxSelectedIndicesId com_intel_daal_algorithms_neural_networks_layers_maximum_pooling1d_MaximumPooling1dLayerDataId_auxSelectedIndicesId

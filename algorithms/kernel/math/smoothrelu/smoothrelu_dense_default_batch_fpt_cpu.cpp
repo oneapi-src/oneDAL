@@ -19,9 +19,9 @@
 //  Implementation of smoothrelu calculation functions.
 //--
 
-#include "smoothrelu_batch_container.h"
-#include "smoothrelu_kernel.h"
-#include "smoothrelu_impl.i"
+#include "algorithms/kernel/math/smoothrelu/smoothrelu_batch_container.h"
+#include "algorithms/kernel/math/smoothrelu/smoothrelu_kernel.h"
+#include "algorithms/kernel/math/smoothrelu/smoothrelu_impl.i"
 
 namespace daal
 {

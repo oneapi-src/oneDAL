@@ -26,7 +26,7 @@
 
 #include <math.h>
 #include "vmlvsl.h"
-#include "service_defines.h"
+#include "service/kernel/service_defines.h"
 
 #if !defined(__DAAL_CONCAT5)
     #define __DAAL_CONCAT5(a, b, c, d, e)  __DAAL_CONCAT51(a, b, c, d, e)

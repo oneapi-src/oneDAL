@@ -20,7 +20,7 @@
 #include "com_intel_daal_algorithms_linear_regression_prediction_PredictionResult.h"
 #include "com_intel_daal_algorithms_linear_regression_prediction_PredictionMethod.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::linear_regression::prediction;

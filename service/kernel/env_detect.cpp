@@ -23,15 +23,15 @@
 
 #include <immintrin.h>
 
-#include "env_detect.h"
-#include "daal_defines.h"
-#include "service_defines.h"
-#include "service_service.h"
-#include "threading.h"
-#include "error_indexes.h"
+#include "services/env_detect.h"
+#include "services/daal_defines.h"
+#include "service/kernel/service_defines.h"
+#include "externals/service_service.h"
+#include "algorithms/threading/threading.h"
+#include "services/error_indexes.h"
 
-#include "service_topo.h"
-#include "service_thread_pinner.h"
+#include "service/kernel/service_topo.h"
+#include "algorithms/threading/service_thread_pinner.h"
 
 static daal::services::Environment::LibraryThreadingType daal_thr_set = (daal::services::Environment::LibraryThreadingType)-1;
 static bool isInit                                                    = false;

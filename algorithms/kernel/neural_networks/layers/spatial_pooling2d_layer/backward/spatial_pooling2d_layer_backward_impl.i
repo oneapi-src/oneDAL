@@ -24,16 +24,16 @@
 #ifndef __SPATIAL_POOLING2D_LAYER_BACKWARD_IMPL_I__
 #define __SPATIAL_POOLING2D_LAYER_BACKWARD_IMPL_I__
 
-#include "service_memory.h"
-#include "service_blas.h"
-#include "service_tensor.h"
-#include "service_numeric_table.h"
-#include "stochastic_pooling2d_layer_backward.h"
-#include "average_pooling2d_layer_backward.h"
-#include "spatial_pooling2d_layer_backward_task.h"
+#include "externals/service_memory.h"
+#include "externals/service_blas.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/neural_networks/layers/pooling2d/stochastic_pooling2d_layer_backward.h"
+#include "algorithms/neural_networks/layers/pooling2d/average_pooling2d_layer_backward.h"
+#include "algorithms/kernel/neural_networks/layers/spatial_pooling2d_layer/backward/spatial_pooling2d_layer_backward_task.h"
 
-#include "maximum_pooling2d_layer_backward_kernel.h"
-#include "average_pooling2d_layer_backward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/pooling2d_layer/backward/maximum_pooling2d_layer_backward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/pooling2d_layer/backward/average_pooling2d_layer_backward_kernel.h"
 
 using namespace daal::services;
 using namespace daal::internal;

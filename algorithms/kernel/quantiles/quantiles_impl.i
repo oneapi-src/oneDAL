@@ -24,10 +24,10 @@
 #ifndef __QUANTILES_IMPL__
 #define __QUANTILES_IMPL__
 
-#include "service_numeric_table.h"
-#include "service_memory.h"
-#include "service_math.h"
-#include "service_stat.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_memory.h"
+#include "externals/service_math.h"
+#include "externals/service_stat.h"
 
 using namespace daal::internal;
 using namespace daal::services;

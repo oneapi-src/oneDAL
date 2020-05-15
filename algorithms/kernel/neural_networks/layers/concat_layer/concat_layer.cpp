@@ -21,7 +21,7 @@
 //--
 */
 
-#include "concat_layer_types.h"
+#include "algorithms/neural_networks/layers/concat/concat_layer_types.h"
 
 namespace daal
 {

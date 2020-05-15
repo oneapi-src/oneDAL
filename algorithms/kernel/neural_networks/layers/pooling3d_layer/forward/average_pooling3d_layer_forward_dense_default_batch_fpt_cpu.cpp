@@ -19,9 +19,9 @@
 //  Implementation of forward pooling layer results computation.
 //--
 
-#include "average_pooling3d_layer_forward_batch_container.h"
-#include "average_pooling3d_layer_forward_kernel.h"
-#include "average_pooling3d_layer_forward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/pooling3d_layer/forward/average_pooling3d_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/pooling3d_layer/forward/average_pooling3d_layer_forward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/pooling3d_layer/forward/average_pooling3d_layer_forward_impl.i"
 
 namespace daal
 {

@@ -25,11 +25,11 @@
 #ifndef __DF_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_H__
 #define __DF_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_H__
 
-#include "decision_forest_classification_predict.h"
-#include "service_memory.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "service_algo_utils.h"
+#include "algorithms/decision_forest/decision_forest_classification_predict.h"
+#include "externals/service_memory.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "service/kernel/service_algo_utils.h"
 
 using namespace daal::data_management;
 

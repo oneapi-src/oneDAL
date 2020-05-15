@@ -24,13 +24,13 @@
 #ifndef __DTREES_MODEL_IMPL__
 #define __DTREES_MODEL_IMPL__
 
-#include "env_detect.h"
-#include "daal_shared_ptr.h"
-#include "service_defines.h"
+#include "services/env_detect.h"
+#include "services/daal_shared_ptr.h"
+#include "service/kernel/service_defines.h"
 #include "data_management/data/homogen_numeric_table.h"
 #include "data_management/data/aos_numeric_table.h"
-#include "service_memory.h"
-#include "service_utils.h"
+#include "externals/service_memory.h"
+#include "service/kernel/service_utils.h"
 
 typedef size_t ClassIndexType;
 typedef double ModelFPType;

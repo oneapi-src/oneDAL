@@ -23,7 +23,7 @@
 using namespace daal;
 using namespace daal::data_management;
 
-#include "compression_types.i"
+#include "lang_service/java/com/intel/daal/data_management/compression/compression_types.i"
 
 JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_compression_Decompressor_cInit
 (JNIEnv *env, jobject, jint method)

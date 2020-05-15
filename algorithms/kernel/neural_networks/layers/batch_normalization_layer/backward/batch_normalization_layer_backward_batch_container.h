@@ -24,8 +24,8 @@
 #ifndef __BATCH_NORMALIZATION_BACKWARD_BATCH_CONTAINER_H__
 #define __BATCH_NORMALIZATION_BACKWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/batch_normalization/batch_normalization_layer.h"
-#include "batch_normalization_layer_backward_kernel.h"
+#include "algorithms/neural_networks/layers/batch_normalization/batch_normalization_layer.h"
+#include "algorithms/kernel/neural_networks/layers/batch_normalization_layer/backward/batch_normalization_layer_backward_kernel.h"
 
 namespace daal
 {

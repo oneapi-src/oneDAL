@@ -26,7 +26,7 @@
 #include "com_intel_daal_algorithms_multi_class_classifier_training_TrainingResult.h"
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_classifier_training_TrainingResultId.h"
 #define innerModelID com_intel_daal_algorithms_classifier_training_TrainingResultId_Model

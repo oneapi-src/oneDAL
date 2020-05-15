@@ -22,14 +22,14 @@
 #ifndef __SPATIAL_POOLING2D_LAYER_BACKWARD_KERNEL_H__
 #define __SPATIAL_POOLING2D_LAYER_BACKWARD_KERNEL_H__
 
-#include "neural_networks/layers/spatial_pooling2d/spatial_pooling2d_layer_backward_types.h"
-#include "spatial_pooling2d_layer_internal_types.h"
-#include "kernel.h"
-#include "tensor.h"
-#include "maximum_pooling2d_layer_backward.h"
-#include "neural_networks/layers/spatial_pooling2d/spatial_stochastic_pooling2d_layer.h"
-#include "neural_networks/layers/spatial_pooling2d/spatial_maximum_pooling2d_layer.h"
-#include "neural_networks/layers/spatial_pooling2d/spatial_average_pooling2d_layer.h"
+#include "algorithms/neural_networks/layers/spatial_pooling2d/spatial_pooling2d_layer_backward_types.h"
+#include "algorithms/kernel/neural_networks/layers/spatial_pooling2d_layer/spatial_pooling2d_layer_internal_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/tensor.h"
+#include "algorithms/neural_networks/layers/pooling2d/maximum_pooling2d_layer_backward.h"
+#include "algorithms/neural_networks/layers/spatial_pooling2d/spatial_stochastic_pooling2d_layer.h"
+#include "algorithms/neural_networks/layers/spatial_pooling2d/spatial_maximum_pooling2d_layer.h"
+#include "algorithms/neural_networks/layers/spatial_pooling2d/spatial_average_pooling2d_layer.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

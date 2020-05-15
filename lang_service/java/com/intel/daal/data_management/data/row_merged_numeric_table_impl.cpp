@@ -18,10 +18,10 @@
 #include <jni.h>
 
 #include "com_intel_daal_data_management_data_RowMergedNumericTableImpl.h"
-#include "numeric_table.h"
-#include "row_merged_numeric_table.h"
+#include "data_management/data/numeric_table.h"
+#include "data_management/data/row_merged_numeric_table.h"
 #include "daal.h"
-#include "common_helpers_functions.h"
+#include "lang_service/java/com/intel/daal/common_helpers_functions.h"
 
 using namespace daal;
 using namespace daal::data_management;

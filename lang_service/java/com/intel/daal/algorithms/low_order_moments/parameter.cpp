@@ -19,7 +19,7 @@
 
 #include "daal.h"
 #include "com_intel_daal_algorithms_low_order_moments_Parameter.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_low_order_moments_EstimatesToCompute.h"
 #define EstimatesAll          com_intel_daal_algorithms_low_order_moments_EstimatesToCompute_EstimatesAll

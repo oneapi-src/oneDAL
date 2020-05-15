@@ -25,8 +25,8 @@
 #define __LINEAR_REGRESSION_TRAINING_RESULT_
 
 #include "algorithms/linear_regression/linear_regression_training_types.h"
-#include "linear_regression_ne_model_impl.h"
-#include "linear_regression_qr_model_impl.h"
+#include "algorithms/kernel/linear_regression/linear_regression_ne_model_impl.h"
+#include "algorithms/kernel/linear_regression/linear_regression_qr_model_impl.h"
 
 namespace daal
 {

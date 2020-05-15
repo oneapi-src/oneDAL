@@ -19,9 +19,9 @@
 //  Implementation of backward batch normalization layer.
 //--
 
-#include "batch_normalization_layer_backward_batch_container.h"
-#include "batch_normalization_layer_backward_kernel.h"
-#include "batch_normalization_layer_backward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/batch_normalization_layer/backward/batch_normalization_layer_backward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/batch_normalization_layer/backward/batch_normalization_layer_backward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/batch_normalization_layer/backward/batch_normalization_layer_backward_impl.i"
 
 namespace daal
 {

@@ -20,10 +20,10 @@
 //
 //--
 
-#include "zscore_base.h"
-#include "zscore_dense_default_kernel.h"
-#include "zscore_impl.i"
-#include "zscore_dense_default_impl.i"
+#include "algorithms/kernel/normalization/zscore/zscore_base.h"
+#include "algorithms/kernel/normalization/zscore/zscore_dense_default_kernel.h"
+#include "algorithms/kernel/normalization/zscore/zscore_impl.i"
+#include "algorithms/kernel/normalization/zscore/zscore_dense_default_impl.i"
 
 namespace daal
 {

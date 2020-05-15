@@ -22,8 +22,8 @@
 #ifndef __SGD_DENSE_KERNEL_H__
 #define __SGD_DENSE_KERNEL_H__
 
-#include "iterative_solver_kernel.h"
-#include "sgd_types.h"
+#include "algorithms/kernel/optimization_solver/iterative_solver_kernel.h"
+#include "algorithms/optimization_solver/sgd/sgd_types.h"
 
 namespace daal
 {

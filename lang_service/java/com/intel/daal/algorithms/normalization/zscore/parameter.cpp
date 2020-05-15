@@ -21,7 +21,7 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_normalization_zscore_Parameter.h"
 
-#include "common_defines.i"
+#include "lang_service/java/com/intel/daal/common_defines.i"
 
 #define DefaultDense com_intel_daal_algorithms_normalization_zscore_Method_DefaultDense
 #define SumDense     com_intel_daal_algorithms_normalization_zscore_Method_SumDense

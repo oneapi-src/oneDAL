@@ -19,9 +19,9 @@
 //  Implementation of gaussian calculation functions.
 //--
 
-#include "gaussian_initializer_batch_container.h"
-#include "gaussian_initializer_kernel.h"
-#include "gaussian_initializer_impl.i"
+#include "algorithms/kernel/neural_networks/initializers/gaussian/gaussian_initializer_batch_container.h"
+#include "algorithms/kernel/neural_networks/initializers/gaussian/gaussian_initializer_kernel.h"
+#include "algorithms/kernel/neural_networks/initializers/gaussian/gaussian_initializer_impl.i"
 
 namespace daal
 {

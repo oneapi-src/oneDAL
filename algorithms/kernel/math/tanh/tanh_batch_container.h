@@ -23,9 +23,9 @@
 #ifndef __TANH_BATCH_CONTAINER_H__
 #define __TANH_BATCH_CONTAINER_H__
 
-#include "math/tanh.h"
-#include "tanh_dense_default_kernel.h"
-#include "tanh_csr_fast_kernel.h"
+#include "algorithms/math/tanh.h"
+#include "algorithms/kernel/math/tanh/tanh_dense_default_kernel.h"
+#include "algorithms/kernel/math/tanh/tanh_csr_fast_kernel.h"
 
 namespace daal
 {

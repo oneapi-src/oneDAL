@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_neural_networks_layers_average_pooling1d_AveragePooling1dLayerDataId.h"
 #define auxInputDimensionsId com_intel_daal_algorithms_neural_networks_layers_average_pooling1d_AveragePooling1dLayerDataId_auxInputDimensionsId

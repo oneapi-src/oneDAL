@@ -21,7 +21,7 @@
 //--
 */
 
-#include "transposed_conv2d_layer_backward_batch.h"
+#include "algorithms/kernel/neural_networks/layers/transposed_conv2d_layer/backward/transposed_conv2d_layer_backward_batch.h"
 
 namespace daal
 {

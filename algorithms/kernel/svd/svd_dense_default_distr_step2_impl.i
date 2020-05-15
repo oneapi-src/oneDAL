@@ -24,15 +24,15 @@
 #ifndef __SVD_KERNEL_DISTR_IMPL_I__
 #define __SVD_KERNEL_DISTR_IMPL_I__
 
-#include "service_memory.h"
-#include "service_math.h"
-#include "service_defines.h"
-#include "service_numeric_table.h"
-#include "service_error_handling.h"
+#include "externals/service_memory.h"
+#include "externals/service_math.h"
+#include "service/kernel/service_defines.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
 
-#include "svd_dense_default_impl.i"
+#include "algorithms/kernel/svd/svd_dense_default_impl.i"
 
-#include "threading.h"
+#include "algorithms/threading/threading.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;

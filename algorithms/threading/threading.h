@@ -24,7 +24,7 @@
 #ifndef __THREADING_H__
 #define __THREADING_H__
 
-#include "daal_defines.h"
+#include "services/daal_defines.h"
 
 namespace daal
 {

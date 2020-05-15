@@ -21,7 +21,7 @@
 //--
 */
 
-#include "correlation_distance_types.h"
+#include "algorithms/distance/correlation_distance_types.h"
 
 namespace daal
 {

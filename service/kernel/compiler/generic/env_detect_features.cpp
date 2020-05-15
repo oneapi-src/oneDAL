@@ -23,11 +23,11 @@
 
 #include <immintrin.h>
 
-#include "env_detect.h"
-#include "daal_defines.h"
-#include "service_defines.h"
+#include "services/env_detect.h"
+#include "services/daal_defines.h"
+#include "service/kernel/service_defines.h"
 #include "mkl_daal.h"
-#include "threading.h"
+#include "algorithms/threading/threading.h"
 
 #include <stdint.h>
 #if defined(_MSC_VER)

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "lrn_layer_types.h"
+#include "algorithms/neural_networks/layers/lrn/lrn_layer_types.h"
 
 namespace daal
 {

@@ -24,8 +24,8 @@
 #ifndef __KERNEL_H__
 #define __KERNEL_H__
 
-#include "daal_defines.h"
-#include "service_defines.h"
+#include "services/daal_defines.h"
+#include "service/kernel/service_defines.h"
 #include "services/daal_kernel_defines.h"
 
 #undef __DAAL_INITIALIZE_KERNELS

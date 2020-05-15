@@ -24,7 +24,7 @@
 #include "com_intel_daal_algorithms_kmeans_init_InitDistributedStep3MasterPlusPlusPartialResult.h"
 #include "com_intel_daal_algorithms_kmeans_init_InitDistributedStep5MasterPlusPlusPartialResult.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::kmeans::init;

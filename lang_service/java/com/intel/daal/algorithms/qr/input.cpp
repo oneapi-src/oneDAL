@@ -21,7 +21,7 @@
 #include "com_intel_daal_algorithms_qr_DistributedStep2MasterInput.h"
 #include "com_intel_daal_algorithms_qr_DistributedStep3LocalInput.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_qr_DistributedStep3LocalInputId.h"
 #define inputOfStep3FromStep1Id com_intel_daal_algorithms_qr_DistributedStep3LocalInputId_inputOfStep3FromStep1Id

@@ -23,7 +23,7 @@
 //--
 */
 
-#include "logistic_regression_predict_container_v1.h"
+#include "algorithms/kernel/logistic_regression/inner/logistic_regression_predict_container_v1.h"
 
 namespace daal
 {

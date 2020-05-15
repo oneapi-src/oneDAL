@@ -22,12 +22,12 @@
 #ifndef __LOCALLYCONNECTED2D_LAYER_FORWARD_KERNEL_H__
 #define __LOCALLYCONNECTED2D_LAYER_FORWARD_KERNEL_H__
 
-#include "neural_networks/layers/locallyconnected2d/locallyconnected2d_layer.h"
-#include "neural_networks/layers/locallyconnected2d/locallyconnected2d_layer_types.h"
-#include "kernel.h"
-#include "service_math.h"
-#include "numeric_table.h"
-#include "service_tensor.h"
+#include "algorithms/neural_networks/layers/locallyconnected2d/locallyconnected2d_layer.h"
+#include "algorithms/neural_networks/layers/locallyconnected2d/locallyconnected2d_layer_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "externals/service_math.h"
+#include "data_management/data/numeric_table.h"
+#include "service/kernel/data_management/service_tensor.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

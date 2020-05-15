@@ -23,7 +23,7 @@
 //--
 */
 
-#include "df_classification_predict_dense_default_batch_container_v1.h"
+#include "algorithms/kernel/dtrees/forest/classification/inner/df_classification_predict_dense_default_batch_container_v1.h"
 
 namespace daal
 {

@@ -19,7 +19,7 @@
 #include "com_intel_daal_algorithms_neural_networks_layers_elu_EluBackwardInput.h"
 
 #include "daal.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::neural_networks::layers::elu;

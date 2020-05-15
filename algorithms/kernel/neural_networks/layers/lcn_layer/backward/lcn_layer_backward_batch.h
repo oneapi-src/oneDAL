@@ -21,8 +21,8 @@
 //--
 */
 
-#include "lcn_layer_backward_types.h"
-#include "lcn_layer_types.h"
+#include "algorithms/neural_networks/layers/lcn/lcn_layer_backward_types.h"
+#include "algorithms/neural_networks/layers/lcn/lcn_layer_types.h"
 
 namespace daal
 {

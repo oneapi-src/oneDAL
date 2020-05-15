@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 using namespace daal;
 using namespace daal::algorithms::neural_networks::layers;

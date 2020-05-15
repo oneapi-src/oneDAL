@@ -18,8 +18,8 @@
 #include <jni.h>
 #include "com_intel_daal_data_management_data_source_ColumnFilter.h"
 
-#include "csv_feature_manager.h"
-#include "data_collection.h"
+#include "data_management/data_source/csv_feature_manager.h"
+#include "data_management/data/data_collection.h"
 
 using namespace daal;
 using namespace daal::data_management;

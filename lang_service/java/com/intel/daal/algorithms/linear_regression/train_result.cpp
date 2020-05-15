@@ -20,7 +20,7 @@
 #include "com_intel_daal_algorithms_linear_regression_training_TrainingResult.h"
 #include "com_intel_daal_algorithms_linear_regression_training_TrainingMethod.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_linear_regression_training_TrainingResultId.h"
 #define ModelId     com_intel_daal_algorithms_linear_regression_training_TrainingResultId_ModelId

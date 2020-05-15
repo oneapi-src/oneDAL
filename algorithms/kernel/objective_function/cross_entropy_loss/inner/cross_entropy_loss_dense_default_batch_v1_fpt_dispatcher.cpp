@@ -19,7 +19,7 @@
 //  Implementation of cross_entropy_loss calculation algorithm container.
 //--
 
-#include "cross_entropy_loss_dense_default_batch_container_v1.h"
+#include "algorithms/kernel/objective_function/cross_entropy_loss/inner/cross_entropy_loss_dense_default_batch_container_v1.h"
 
 namespace daal
 {

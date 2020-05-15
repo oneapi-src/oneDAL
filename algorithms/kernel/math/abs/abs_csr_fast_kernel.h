@@ -22,7 +22,7 @@
 #ifndef __ABS_CSR_FAST_KERNEL_H__
 #define __ABS_CSR_FAST_KERNEL_H__
 
-#include "abs_base.h"
+#include "algorithms/kernel/math/abs/abs_base.h"
 
 namespace daal
 {

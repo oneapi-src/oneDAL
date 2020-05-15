@@ -28,9 +28,9 @@
 
 #include "data_management/data/data_serialize.h"
 #include "services/daal_defines.h"
-#include "neural_networks_training_input.h"
-#include "neural_networks_training_result.h"
-#include "neural_networks_training_partial_result.h"
+#include "algorithms/neural_networks/neural_networks_training_input.h"
+#include "algorithms/neural_networks/neural_networks_training_result.h"
+#include "algorithms/neural_networks/neural_networks_training_partial_result.h"
 #include "algorithms/neural_networks/layers/layer.h"
 
 namespace daal

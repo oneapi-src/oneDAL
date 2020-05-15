@@ -21,7 +21,7 @@
 //--
 */
 
-#include "classifier_predict_types.h"
+#include "algorithms/classifier/classifier_predict_types.h"
 
 namespace daal
 {

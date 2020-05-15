@@ -24,7 +24,7 @@
 #ifndef __COVARIANCE_RESULT_
 #define __COVARIANCE_RESULT_
 
-#include "covariance_types.h"
+#include "algorithms/covariance/covariance_types.h"
 
 using namespace daal::data_management;
 namespace daal

@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "common_helpers_functions.h"
+#include "lang_service/java/com/intel/daal/common_helpers_functions.h"
 
 namespace daal
 {

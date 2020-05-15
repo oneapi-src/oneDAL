@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/elastic_net/elastic_net_training_types.h"
-#include "daal_strings.h"
+#include "service/kernel/daal_strings.h"
 using namespace daal::data_management;
 using namespace daal::services;
 

@@ -21,10 +21,10 @@
 //--
 */
 
-#include "svm_train.h"
-#include "svm_train_kernel.h"
-#include "svm_train_boser_kernel.h"
-#include "classifier_training_types.h"
+#include "algorithms/svm/svm_train.h"
+#include "algorithms/kernel/svm/svm_train_kernel.h"
+#include "algorithms/kernel/svm/svm_train_boser_kernel.h"
+#include "algorithms/classifier/classifier_training_types.h"
 
 namespace daal
 {

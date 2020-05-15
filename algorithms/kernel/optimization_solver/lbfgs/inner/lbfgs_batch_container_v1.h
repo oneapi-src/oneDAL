@@ -21,10 +21,10 @@
 //--
 */
 
-#include "lbfgs_batch.h"
-#include "lbfgs_base.h"
-#include "../lbfgs_dense_default_kernel.h"
-#include "service_algo_utils.h"
+#include "algorithms/optimization_solver/lbfgs/lbfgs_batch.h"
+#include "algorithms/kernel/optimization_solver/lbfgs/lbfgs_base.h"
+#include "algorithms/kernel/optimization_solver/lbfgs/lbfgs_dense_default_kernel.h"
+#include "service/kernel/service_algo_utils.h"
 
 namespace daal
 {

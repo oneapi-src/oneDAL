@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "service_tensor.h"
+#include "service/kernel/data_management/service_tensor.h"
 
 namespace daal
 {

@@ -24,8 +24,8 @@
 #ifndef __GAUSSIAN_INITIALIZER_BATCH_CONTAINER_H__
 #define __GAUSSIAN_INITIALIZER_BATCH_CONTAINER_H__
 
-#include "neural_networks/initializers/gaussian/gaussian_initializer.h"
-#include "gaussian_initializer_kernel.h"
+#include "algorithms/neural_networks/initializers/gaussian/gaussian_initializer.h"
+#include "algorithms/kernel/neural_networks/initializers/gaussian/gaussian_initializer_kernel.h"
 
 namespace daal
 {

@@ -22,14 +22,14 @@
 #ifndef __UNIFORM_INITIALIZER_KERNEL_H__
 #define __UNIFORM_INITIALIZER_KERNEL_H__
 
-#include "kernel.h"
-#include "service_tensor.h"
-#include "uniform_kernel.h"
+#include "algorithms/kernel/kernel.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "algorithms/kernel/distributions/uniform/uniform_kernel.h"
 
-#include "neural_networks/initializers/uniform/uniform_initializer.h"
-#include "neural_networks/initializers/uniform/uniform_initializer_types.h"
+#include "algorithms/neural_networks/initializers/uniform/uniform_initializer.h"
+#include "algorithms/neural_networks/initializers/uniform/uniform_initializer_types.h"
 
-#include "uniform_initializer_task_descriptor.h"
+#include "algorithms/kernel/neural_networks/initializers/uniform/uniform_initializer_task_descriptor.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

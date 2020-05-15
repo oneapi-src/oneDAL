@@ -24,12 +24,12 @@
 #ifndef __DF_CLASSIFICATION_TRAIN_CONTAINER_H__
 #define __DF_CLASSIFICATION_TRAIN_CONTAINER_H__
 
-#include "kernel.h"
-#include "decision_forest_classification_training_types.h"
-#include "decision_forest_classification_training_batch.h"
-#include "df_classification_train_kernel.h"
-#include "df_classification_model_impl.h"
-#include "service_algo_utils.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/decision_forest/decision_forest_classification_training_types.h"
+#include "algorithms/decision_forest/decision_forest_classification_training_batch.h"
+#include "algorithms/kernel/dtrees/forest/classification/df_classification_train_kernel.h"
+#include "algorithms/kernel/dtrees/forest/classification/df_classification_model_impl.h"
+#include "service/kernel/service_algo_utils.h"
 
 namespace daal
 {

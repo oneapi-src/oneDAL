@@ -24,9 +24,9 @@
 #ifndef __STOCHASTIC_POOLING2D_LAYER_FORWARD_IMPL_I__
 #define __STOCHASTIC_POOLING2D_LAYER_FORWARD_IMPL_I__
 
-#include "threading.h"
-#include "uniform_kernel.h"
-#include "uniform_impl.i"
+#include "algorithms/threading/threading.h"
+#include "algorithms/kernel/distributions/uniform/uniform_kernel.h"
+#include "algorithms/kernel/distributions/uniform/uniform_impl.i"
 
 using namespace daal::algorithms::distributions::uniform::internal;
 

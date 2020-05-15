@@ -21,7 +21,7 @@
 
 #include "com_intel_daal_algorithms_implicit_als_training_init_InitDistributedStep2LocalInput.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::implicit_als::training::init;

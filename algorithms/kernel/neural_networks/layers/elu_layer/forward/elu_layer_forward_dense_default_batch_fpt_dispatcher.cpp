@@ -19,7 +19,7 @@
 //  Implementation of ELU calculation algorithm container.
 //--
 
-#include "elu_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/elu_layer/forward/elu_layer_forward_batch_container.h"
 
 namespace daal
 {

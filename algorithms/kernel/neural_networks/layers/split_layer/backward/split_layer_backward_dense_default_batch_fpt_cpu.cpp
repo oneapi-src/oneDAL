@@ -19,9 +19,9 @@
 //  Implementation of split calculation functions.
 //--
 
-#include "split_layer_backward_batch_container.h"
-#include "split_layer_backward_kernel.h"
-#include "split_layer_backward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/split_layer/backward/split_layer_backward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/split_layer/backward/split_layer_backward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/split_layer/backward/split_layer_backward_impl.i"
 
 namespace daal
 {

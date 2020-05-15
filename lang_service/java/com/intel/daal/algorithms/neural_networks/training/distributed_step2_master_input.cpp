@@ -19,7 +19,7 @@
 #include "com_intel_daal_algorithms_neural_networks_training_DistributedStep2MasterInput.h"
 
 #include "daal.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_neural_networks_training_DistributedStep2MasterInputId.h"
 #define partialResultsId com_intel_daal_algorithms_neural_networks_training_DistributedStep2MasterInputId_partialResultsId

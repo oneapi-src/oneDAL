@@ -18,7 +18,7 @@
 #include <jni.h>
 
 #include "daal.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 #include "com_intel_daal_algorithms_logitboost_quality_metric_set_QualityMetricSetParameter.h"
 
 using namespace daal::algorithms::logitboost::quality_metric_set;

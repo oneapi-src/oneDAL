@@ -21,8 +21,8 @@
 //--
 */
 
-#include "fullyconnected_layer_backward_types.h"
-#include "fullyconnected_layer_types.h"
+#include "algorithms/neural_networks/layers/fullyconnected/fullyconnected_layer_backward_types.h"
+#include "algorithms/neural_networks/layers/fullyconnected/fullyconnected_layer_types.h"
 
 namespace daal
 {

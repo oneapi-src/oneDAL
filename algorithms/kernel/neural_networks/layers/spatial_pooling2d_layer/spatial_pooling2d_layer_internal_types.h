@@ -24,11 +24,11 @@
 #ifndef __SPATIAL_POOLING2D_LAYER_INTERNAL_PARAMETER_H__
 #define __SPATIAL_POOLING2D_LAYER_INTERNAL_PARAMETER_H__
 
-#include "service_utils.h"
-#include "tensor.h"
-#include "collection.h"
-#include "service_blas.h"
-#include "neural_networks/layers/pooling2d/pooling2d_layer_types.h"
+#include "service/kernel/service_utils.h"
+#include "data_management/data/tensor.h"
+#include "services/collection.h"
+#include "externals/service_blas.h"
+#include "algorithms/neural_networks/layers/pooling2d/pooling2d_layer_types.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

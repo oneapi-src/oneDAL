@@ -23,9 +23,9 @@
 #ifndef __RELU_BATCH_CONTAINER_H__
 #define __RELU_BATCH_CONTAINER_H__
 
-#include "math/relu.h"
-#include "relu_dense_default_kernel.h"
-#include "relu_csr_fast_kernel.h"
+#include "algorithms/math/relu.h"
+#include "algorithms/kernel/math/relu/relu_dense_default_kernel.h"
+#include "algorithms/kernel/math/relu/relu_csr_fast_kernel.h"
 
 namespace daal
 {

@@ -21,9 +21,9 @@
 //--
 */
 
-#include "kmeans_init_kernel.h"
-#include "kmeans_init_container.h"
-#include "kmeans_plusplus_init_distr_impl.i"
+#include "algorithms/kernel/kmeans/kmeans_init_kernel.h"
+#include "algorithms/kernel/kmeans/kmeans_init_container.h"
+#include "algorithms/kernel/kmeans/kmeans_plusplus_init_distr_impl.i"
 
 namespace daal
 {

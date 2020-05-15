@@ -22,7 +22,7 @@
 #include "com_intel_daal_algorithms_decision_forest_regression_prediction_PredictionInput.h"
 #include "com_intel_daal_algorithms_decision_forest_regression_prediction_PredictionResult.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 namespace dfrp = daal::algorithms::decision_forest::regression::prediction;

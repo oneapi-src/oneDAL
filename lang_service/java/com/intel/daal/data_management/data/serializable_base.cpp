@@ -18,8 +18,8 @@
 #include "com_intel_daal_data_management_data_SerializableBase.h"
 #include "daal.h"
 
-#include "java_numeric_table.h"
-#include "java_tensor.h"
+#include "lang_service/java/com/intel/daal/data_management/data/java_numeric_table.h"
+#include "lang_service/java/com/intel/daal/data_management/data/java_tensor.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

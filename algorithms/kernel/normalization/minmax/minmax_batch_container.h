@@ -24,9 +24,9 @@
 #ifndef __MINMAX_BATCH_CONTAINER_H__
 #define __MINMAX_BATCH_CONTAINER_H__
 
-#include "normalization/minmax.h"
-#include "minmax_moments.h"
-#include "minmax_kernel.h"
+#include "algorithms/normalization/minmax.h"
+#include "algorithms/kernel/normalization/minmax/minmax_moments.h"
+#include "algorithms/kernel/normalization/minmax/minmax_kernel.h"
 
 namespace daal
 {

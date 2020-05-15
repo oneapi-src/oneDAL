@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/k_nearest_neighbors/kdtree_knn_classification_predict_types.h"
-#include "kdtree_knn_classification_model_impl.h"
-#include "daal_strings.h"
+#include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

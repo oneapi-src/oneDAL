@@ -16,11 +16,11 @@
 *******************************************************************************/
 
 #include <jni.h>
-#include "pivoted_qr_types.i"
+#include "lang_service/java/com/intel/daal/algorithms/pivoted_qr/pivoted_qr_types.i"
 
 #include "com_intel_daal_algorithms_pivoted_qr_Result.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_pivoted_qr_ResultId.h"
 #define matrixQId           com_intel_daal_algorithms_pivoted_qr_ResultId_matrixQId

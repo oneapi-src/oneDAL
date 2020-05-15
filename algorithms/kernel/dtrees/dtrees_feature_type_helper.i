@@ -20,12 +20,12 @@
 //  Cpu-dependent initialization of service data structure
 //--
 */
-#include "dtrees_feature_type_helper.h"
-#include "threading.h"
-#include "service_error_handling.h"
-#include "service_sort.h"
-#include "service_array.h"
-#include "service_memory.h"
+#include "algorithms/kernel/dtrees/dtrees_feature_type_helper.h"
+#include "algorithms/threading/threading.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "algorithms/kernel/service_sort.h"
+#include "algorithms/kernel/dtrees/service_array.h"
+#include "externals/service_memory.h"
 
 namespace daal
 {

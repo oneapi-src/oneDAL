@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "neural_networks_training_partial_result.h"
+#include "algorithms/neural_networks/neural_networks_training_partial_result.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

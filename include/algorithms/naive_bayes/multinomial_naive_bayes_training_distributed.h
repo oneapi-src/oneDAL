@@ -26,7 +26,7 @@
 #define __NAIVE_BAYES_TRAINING_DISTRIBUTED_H__
 
 #include "algorithms/algorithm.h"
-#include "multinomial_naive_bayes_training_types.h"
+#include "algorithms/naive_bayes/multinomial_naive_bayes_training_types.h"
 
 namespace daal
 {

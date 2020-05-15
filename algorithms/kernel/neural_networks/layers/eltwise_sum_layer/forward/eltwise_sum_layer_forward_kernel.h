@@ -22,13 +22,13 @@
 #ifndef __ELTWISE_SUM_LAYER_FORWARD_KERNEL_H__
 #define __ELTWISE_SUM_LAYER_FORWARD_KERNEL_H__
 
-#include "neural_networks/layers/eltwise_sum/eltwise_sum_layer.h"
-#include "neural_networks/layers/eltwise_sum/eltwise_sum_layer_types.h"
+#include "algorithms/neural_networks/layers/eltwise_sum/eltwise_sum_layer.h"
+#include "algorithms/neural_networks/layers/eltwise_sum/eltwise_sum_layer_types.h"
 
-#include "kernel.h"
-#include "layers_threading.h"
-#include "service_numeric_table.h"
-#include "service_error_handling.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/kernel/neural_networks/layers/layers_threading.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
 
 using namespace daal::services;
 using namespace daal::data_management;

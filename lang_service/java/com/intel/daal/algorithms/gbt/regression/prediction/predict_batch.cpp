@@ -21,7 +21,7 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_gbt_regression_prediction_PredictionBatch.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 namespace dfrp = daal::algorithms::gbt::regression::prediction;

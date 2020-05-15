@@ -24,11 +24,11 @@
 #ifndef __SPLIT_LAYER_FORWARD_IMPL_I__
 #define __SPLIT_LAYER_FORWARD_IMPL_I__
 
-#include "service_blas.h"
-#include "threading.h"
+#include "externals/service_blas.h"
+#include "algorithms/threading/threading.h"
 
-#include "service_mkl_tensor.h"
-#include "service_error_handling.h"
+#include "service/kernel/data_management/service_mkl_tensor.h"
+#include "algorithms/kernel/service_error_handling.h"
 
 using namespace daal::services;
 

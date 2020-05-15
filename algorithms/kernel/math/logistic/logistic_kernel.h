@@ -22,13 +22,13 @@
 #ifndef __LOGISTIC_KERNEL_H__
 #define __LOGISTIC_KERNEL_H__
 
-#include "math/logistic.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "service_math.h"
-#include "threading.h"
-#include "service_numeric_table.h"
-#include "service_error_handling.h"
+#include "algorithms/math/logistic.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "externals/service_math.h"
+#include "algorithms/threading/threading.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
 
 using namespace daal::internal;
 using namespace daal::data_management;

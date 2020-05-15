@@ -21,8 +21,8 @@
 //--
 */
 
-#include "smoothrelu_layer_forward_types.h"
-#include "smoothrelu_layer_types.h"
+#include "algorithms/neural_networks/layers/smoothrelu/smoothrelu_layer_forward_types.h"
+#include "algorithms/neural_networks/layers/smoothrelu/smoothrelu_layer_types.h"
 
 namespace daal
 {

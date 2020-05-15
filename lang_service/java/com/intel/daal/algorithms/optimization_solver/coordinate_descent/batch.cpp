@@ -22,7 +22,7 @@
 #include "com_intel_daal_algorithms_optimization_solver_coordinate_descent_Batch.h"
 #include "com_intel_daal_algorithms_optimization_solver_coordinate_descent_Result.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::optimization_solver;

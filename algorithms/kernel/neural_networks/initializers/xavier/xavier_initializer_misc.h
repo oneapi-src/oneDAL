@@ -24,9 +24,9 @@
 #ifndef __XAVIER_INITIALIZER_MISC_H__
 #define __XAVIER_INITIALIZER_MISC_H__
 
-#include "neural_networks/initializers/xavier/xavier_initializer.h"
-#include "neural_networks/initializers/xavier/xavier_initializer_types.h"
-#include "xavier_initializer_task_descriptor.h"
+#include "algorithms/neural_networks/initializers/xavier/xavier_initializer.h"
+#include "algorithms/neural_networks/initializers/xavier/xavier_initializer_types.h"
+#include "algorithms/kernel/neural_networks/initializers/xavier/xavier_initializer_task_descriptor.h"
 
 namespace daal
 {

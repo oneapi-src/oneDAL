@@ -19,7 +19,7 @@
 //  Implementation of logloss calculation algorithm container.
 //--
 
-#include "logistic_loss_dense_default_batch_container.h"
+#include "algorithms/kernel/objective_function/logistic_loss/logistic_loss_dense_default_batch_container.h"
 
 namespace daal
 {

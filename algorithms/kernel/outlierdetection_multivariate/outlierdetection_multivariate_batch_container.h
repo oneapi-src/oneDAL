@@ -21,8 +21,8 @@
 //--
 */
 
-#include "outlier_detection_multivariate.h"
-#include "outlierdetection_multivariate_kernel.h"
+#include "algorithms/outlier_detection/outlier_detection_multivariate.h"
+#include "algorithms/kernel/outlierdetection_multivariate/outlierdetection_multivariate_kernel.h"
 
 namespace daal
 {

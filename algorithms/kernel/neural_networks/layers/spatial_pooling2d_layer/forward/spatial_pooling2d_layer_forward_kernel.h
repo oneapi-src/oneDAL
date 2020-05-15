@@ -22,10 +22,10 @@
 #ifndef __SPATIAL_POOLING2D_LAYER_FORWARD_KERNEL_H__
 #define __SPATIAL_POOLING2D_LAYER_FORWARD_KERNEL_H__
 
-#include "neural_networks/layers/spatial_pooling2d/spatial_pooling2d_layer_forward_types.h"
-#include "spatial_pooling2d_layer_internal_types.h"
-#include "kernel.h"
-#include "tensor.h"
+#include "algorithms/neural_networks/layers/spatial_pooling2d/spatial_pooling2d_layer_forward_types.h"
+#include "algorithms/kernel/neural_networks/layers/spatial_pooling2d_layer/spatial_pooling2d_layer_internal_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/tensor.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

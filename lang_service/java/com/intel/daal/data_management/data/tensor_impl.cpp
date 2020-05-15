@@ -20,9 +20,9 @@
 #include "com_intel_daal_data_management_data_TensorImpl.h"
 #include "daal.h"
 
-#include "java_tensor.h"
-#include "common_defines.i"
-#include "common_helpers_functions.h"
+#include "lang_service/java/com/intel/daal/data_management/data/java_tensor.h"
+#include "lang_service/java/com/intel/daal/common_defines.i"
+#include "lang_service/java/com/intel/daal/common_helpers_functions.h"
 
 using namespace daal;
 using namespace daal::services;

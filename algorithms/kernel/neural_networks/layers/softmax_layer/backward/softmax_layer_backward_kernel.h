@@ -22,11 +22,11 @@
 #ifndef __SOFTMAX_LAYER_BACKWARD_KERNEL_H__
 #define __SOFTMAX_LAYER_BACKWARD_KERNEL_H__
 
-#include "neural_networks/layers/softmax/softmax_layer.h"
-#include "neural_networks/layers/softmax/softmax_layer_types.h"
-#include "kernel.h"
-#include "service_math.h"
-#include "numeric_table.h"
+#include "algorithms/neural_networks/layers/softmax/softmax_layer.h"
+#include "algorithms/neural_networks/layers/softmax/softmax_layer_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "externals/service_math.h"
+#include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

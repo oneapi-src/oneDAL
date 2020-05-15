@@ -22,17 +22,17 @@
 #ifndef __LCN_LAYER_BACKWARD_KERNEL_H__
 #define __LCN_LAYER_BACKWARD_KERNEL_H__
 
-#include "neural_networks/layers/lcn/lcn_layer.h"
-#include "neural_networks/layers/lcn/lcn_layer_types.h"
-#include "convolution2d_layer_backward.h"
-#include "kernel.h"
-#include "service_math.h"
-#include "service_tensor.h"
-#include "service_numeric_table.h"
-#include "convolution2d_layer_backward_kernel.h"
-#include "threading.h"
-#include "service_memory.h"
-#include "layers_threading.h"
+#include "algorithms/neural_networks/layers/lcn/lcn_layer.h"
+#include "algorithms/neural_networks/layers/lcn/lcn_layer_types.h"
+#include "algorithms/neural_networks/layers/convolution2d/convolution2d_layer_backward.h"
+#include "algorithms/kernel/kernel.h"
+#include "externals/service_math.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/neural_networks/layers/convolution2d_layer/backward/convolution2d_layer_backward_kernel.h"
+#include "algorithms/threading/threading.h"
+#include "externals/service_memory.h"
+#include "algorithms/kernel/neural_networks/layers/layers_threading.h"
 
 using namespace daal::algorithms::neural_networks::layers::convolution2d::backward::internal;
 using namespace daal::data_management;

@@ -15,18 +15,18 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "daal_kernel_defines.h"
+#include "services/daal_kernel_defines.h"
 #include "services/daal_defines.h"
 #include "services/collection.h"
 #include "services/env_detect.h"
 
-#include "tensor.h"
-#include "homogen_tensor.h"
-#include "service_mkl_tensor.h"
-#include "service_sort.h"
-#include "service_defines.h"
-#include "service_dnn.h"
-#include "service_dnn_internal.h"
+#include "data_management/data/tensor.h"
+#include "data_management/data/homogen_tensor.h"
+#include "service/kernel/data_management/service_mkl_tensor.h"
+#include "algorithms/kernel/service_sort.h"
+#include "service/kernel/service_defines.h"
+#include "externals/service_dnn.h"
+#include "algorithms/kernel/service_dnn_internal.h"
 
 #include "data_management/data/internal/conversion.h"
 #include "data_management/features/internal/helpers.h"

@@ -21,9 +21,9 @@
 //--
 */
 
-#include "rlecompression.h"
+#include "data_management/compression/rlecompression.h"
 #include "ipp.h"
-#include "daal_memory.h"
+#include "services/daal_memory.h"
 
 #if defined(_MSC_VER)
     #define EXPECT(x, y) (x)

@@ -19,7 +19,7 @@
 //  Implementation of element-wise sum calculation algorithm container.
 //--
 
-#include "eltwise_sum_layer_backward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/eltwise_sum_layer/backward/eltwise_sum_layer_backward_batch_container.h"
 
 namespace daal
 {

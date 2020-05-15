@@ -22,14 +22,14 @@
 #ifndef __AVERAGE_POOLING2D_LAYER_BACKWARD_KERNEL_H__
 #define __AVERAGE_POOLING2D_LAYER_BACKWARD_KERNEL_H__
 
-#include "neural_networks/layers/pooling2d/average_pooling2d_layer_backward.h"
-#include "neural_networks/layers/pooling2d/average_pooling2d_layer_backward_types.h"
-#include "pooling2d_layer_internal_parameter.h"
-#include "tensor.h"
-#include "pooling2d_layer_backward_impl.i"
-#include "service_dnn.h"
-#include "service_dnn_internal.h"
-#include "layers_threading.h"
+#include "algorithms/neural_networks/layers/pooling2d/average_pooling2d_layer_backward.h"
+#include "algorithms/neural_networks/layers/pooling2d/average_pooling2d_layer_backward_types.h"
+#include "algorithms/kernel/neural_networks/layers/pooling2d_layer/pooling2d_layer_internal_parameter.h"
+#include "data_management/data/tensor.h"
+#include "algorithms/kernel/neural_networks/layers/pooling2d_layer/backward/pooling2d_layer_backward_impl.i"
+#include "externals/service_dnn.h"
+#include "algorithms/kernel/service_dnn_internal.h"
+#include "algorithms/kernel/neural_networks/layers/layers_threading.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

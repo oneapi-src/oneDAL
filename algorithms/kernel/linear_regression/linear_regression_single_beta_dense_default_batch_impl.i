@@ -24,13 +24,13 @@
 #ifndef __LINEAR_REGRESSION_SINGLE_BETA_DEFAULT_IMPL_I__
 #define __LINEAR_REGRESSION_SINGLE_BETA_DEFAULT_IMPL_I__
 
-#include "service_memory.h"
-#include "service_math.h"
-#include "service_lapack.h"
-#include "service_numeric_table.h"
-#include "service_data_utils.h"
-#include "threading.h"
-#include "service_error_handling.h"
+#include "externals/service_memory.h"
+#include "externals/service_math.h"
+#include "externals/service_lapack.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "service/kernel/service_data_utils.h"
+#include "algorithms/threading/threading.h"
+#include "algorithms/kernel/service_error_handling.h"
 
 using namespace daal::internal;
 using namespace daal::services;

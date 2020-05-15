@@ -20,7 +20,7 @@
 #include "com_intel_daal_algorithms_ridge_regression_training_Input.h"
 #include "com_intel_daal_algorithms_ridge_regression_training_DistributedStep2MasterInput.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::ridge_regression;

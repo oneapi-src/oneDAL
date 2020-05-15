@@ -22,9 +22,9 @@
 */
 
 #include "daal_bzlib.h"
-#include "bzip2compression.h"
+#include "data_management/compression/bzip2compression.h"
 #include "ipp.h"
-#include "daal_memory.h"
+#include "services/daal_memory.h"
 
 /*workaround, use STD BZIP2 while Intel(R) IPP doesn't work,
 remove 1 after fix */

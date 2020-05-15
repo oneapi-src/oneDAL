@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "xavier_initializer_misc.h"
+#include "algorithms/kernel/neural_networks/initializers/xavier/xavier_initializer_misc.h"
 
 #include "algorithms/neural_networks/layers/convolution2d/convolution2d_layer_forward.h"
 #include "algorithms/neural_networks/layers/fullyconnected/fullyconnected_layer_forward.h"

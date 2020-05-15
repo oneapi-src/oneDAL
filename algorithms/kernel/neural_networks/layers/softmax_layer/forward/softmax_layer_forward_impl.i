@@ -24,12 +24,12 @@
 #ifndef __SOFTMAX_LAYER_FORWARD_IMPL_I__
 #define __SOFTMAX_LAYER_FORWARD_IMPL_I__
 
-#include "service_data_utils.h"
-#include "service_math.h"
-#include "service_tensor.h"
-#include "service_numeric_table.h"
-#include "service_error_handling.h"
-#include "threading.h"
+#include "service/kernel/service_data_utils.h"
+#include "externals/service_math.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "algorithms/threading/threading.h"
 
 using namespace daal::internal;
 using namespace daal::services;

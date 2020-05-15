@@ -28,7 +28,7 @@
 #include "algorithms/optimization_solver/objective_function/precomputed_batch.h"
 #include "algorithms/optimization_solver/iterative_solver/iterative_solver_batch.h"
 #include "algorithms/neural_networks/neural_networks_types.h"
-#include "service_numeric_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 namespace daal
 {

@@ -25,8 +25,8 @@
 #ifndef __ASSOC_RULES_APRIORI_DISCOVER_IMPL_I__
 #define __ASSOC_RULES_APRIORI_DISCOVER_IMPL_I__
 
-#include "service_memory.h"
-#include "assoc_rules_apriori_types.i"
+#include "externals/service_memory.h"
+#include "algorithms/kernel/assocrules/assoc_rules_apriori_types.i"
 
 namespace daal
 {

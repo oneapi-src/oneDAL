@@ -17,7 +17,7 @@
 
 #include "com_intel_daal_data_management_data_source_FeatureManager.h"
 
-#include "csv_feature_manager.h"
+#include "data_management/data_source/csv_feature_manager.h"
 
 using namespace daal;
 using namespace daal::data_management;

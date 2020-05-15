@@ -24,9 +24,9 @@
 #ifndef __CONCAT_LAYER_FORWARD_BATCH_CONTAINER_H__
 #define __CONCAT_LAYER_FORWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/concat/concat_layer.h"
-#include "concat_layer_forward_kernel.h"
-#include "service_numeric_table.h"
+#include "algorithms/neural_networks/layers/concat/concat_layer.h"
+#include "algorithms/kernel/neural_networks/layers/concat_layer/forward/concat_layer_forward_kernel.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::internal;
 

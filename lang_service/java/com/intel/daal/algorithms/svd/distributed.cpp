@@ -20,7 +20,7 @@
 #include "com_intel_daal_algorithms_svd_DistributedStep2Master.h"
 #include "com_intel_daal_algorithms_svd_DistributedStep3Local.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::svd;

@@ -19,7 +19,7 @@
 
 #include "com_intel_daal_algorithms_svd_Result.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_svd_ResultId.h"
 #define singularValuesId      com_intel_daal_algorithms_svd_ResultId_singularValuesId

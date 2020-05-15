@@ -25,8 +25,8 @@
 #ifndef __ADABOOST_PREDICT_BATCH_CONTAINER__
 #define __ADABOOST_PREDICT_BATCH_CONTAINER__
 
-#include "adaboost_predict.h"
-#include "adaboost_predict_kernel.h"
+#include "algorithms/boosting/adaboost_predict.h"
+#include "algorithms/kernel/adaboost/adaboost_predict_kernel.h"
 
 namespace daal
 {

@@ -22,7 +22,7 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_multinomial_naive_bayes_training_TrainingOnline.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::multinomial_naive_bayes::training;

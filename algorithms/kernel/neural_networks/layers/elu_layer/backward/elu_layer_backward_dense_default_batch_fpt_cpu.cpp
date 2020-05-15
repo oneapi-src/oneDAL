@@ -19,9 +19,9 @@
 //  Implementation of ELU calculation functions.
 //--
 
-#include "elu_layer_backward_batch_container.h"
-#include "elu_layer_backward_kernel.h"
-#include "elu_layer_backward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/elu_layer/backward/elu_layer_backward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/elu_layer/backward/elu_layer_backward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/elu_layer/backward/elu_layer_backward_impl.i"
 
 namespace daal
 {

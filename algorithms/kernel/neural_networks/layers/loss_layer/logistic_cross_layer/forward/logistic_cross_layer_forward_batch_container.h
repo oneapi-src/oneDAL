@@ -24,8 +24,8 @@
 #ifndef __LOGISTIC_CROSS_LAYER_FORWARD_BATCH_CONTAINER_H__
 #define __LOGISTIC_CROSS_LAYER_FORWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/loss/logistic_cross_layer.h"
-#include "logistic_cross_layer_forward_kernel.h"
+#include "algorithms/neural_networks/layers/loss/logistic_cross_layer.h"
+#include "algorithms/kernel/neural_networks/layers/loss_layer/logistic_cross_layer/forward/logistic_cross_layer_forward_kernel.h"
 
 namespace daal
 {

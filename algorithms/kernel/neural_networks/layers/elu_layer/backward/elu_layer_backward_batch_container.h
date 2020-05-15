@@ -24,8 +24,8 @@
 #ifndef __ELU_LAYER_BACKWARD_BATCH_CONTAINER_H__
 #define __ELU_LAYER_BACKWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/elu/elu_layer.h"
-#include "elu_layer_backward_kernel.h"
+#include "algorithms/neural_networks/layers/elu/elu_layer.h"
+#include "algorithms/kernel/neural_networks/layers/elu_layer/backward/elu_layer_backward_kernel.h"
 
 namespace daal
 {

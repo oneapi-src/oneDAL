@@ -24,16 +24,16 @@
 #ifndef __DBSCAN_IMPL_I__
 #define __DBSCAN_IMPL_I__
 
-#include "dbscan_types.h"
+#include "algorithms/dbscan/dbscan_types.h"
 
-#include "threading.h"
-#include "daal_defines.h"
-#include "error_handling.h"
-#include "service_memory.h"
-#include "service_numeric_table.h"
-#include "service_math.h"
-#include "service_kernel_math.h"
-#include "service_error_handling.h"
+#include "algorithms/threading/threading.h"
+#include "services/daal_defines.h"
+#include "services/error_handling.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_math.h"
+#include "algorithms/kernel/service_kernel_math.h"
+#include "algorithms/kernel/service_error_handling.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;

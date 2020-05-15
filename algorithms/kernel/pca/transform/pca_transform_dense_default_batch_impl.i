@@ -24,16 +24,16 @@
 #ifndef __PCA_TRANSFORM_DENSE_DEFAULT_BATCH_IMPL_I__
 #define __PCA_TRANSFORM_DENSE_DEFAULT_BATCH_IMPL_I__
 
-#include "daal_defines.h"
-#include "algorithm.h"
-#include "threading.h"
-#include "numeric_table.h"
+#include "services/daal_defines.h"
+#include "algorithms/algorithm.h"
+#include "algorithms/threading/threading.h"
+#include "data_management/data/numeric_table.h"
 
-#include "service_blas.h"
-#include "service_math.h"
-#include "service_unique_ptr.h"
-#include "service_numeric_table.h"
-#include "service_error_handling.h"
+#include "externals/service_blas.h"
+#include "externals/service_math.h"
+#include "service/kernel/service_unique_ptr.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
 
 namespace daal
 {

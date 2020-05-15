@@ -24,8 +24,8 @@
 #ifndef __MSE_DENSE_DEFAULT_BATCH_CONTAINER_V1_H__
 #define __MSE_DENSE_DEFAULT_BATCH_CONTAINER_V1_H__
 
-#include "mse_batch.h"
-#include "mse_dense_default_batch_kernel_v1.h"
+#include "algorithms/optimization_solver/objective_function/mse_batch.h"
+#include "algorithms/kernel/objective_function/mse/inner/mse_dense_default_batch_kernel_v1.h"
 
 namespace daal
 {

@@ -24,8 +24,8 @@
 #ifndef __RESHAPE_LAYER_FORWARD_BATCH_CONTAINER_H__
 #define __RESHAPE_LAYER_FORWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/reshape/reshape_layer.h"
-#include "reshape_layer_forward_kernel.h"
+#include "algorithms/neural_networks/layers/reshape/reshape_layer.h"
+#include "algorithms/kernel/neural_networks/layers/reshape_layer/forward/reshape_layer_forward_kernel.h"
 
 namespace daal
 {

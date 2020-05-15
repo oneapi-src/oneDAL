@@ -20,7 +20,7 @@
 
 #include "daal.h"
 #include "com_intel_daal_algorithms_svm_ModelBuilder.h"
-#include "common_helpers_functions.h"
+#include "lang_service/java/com/intel/daal/common_helpers_functions.h"
 
 using namespace daal;
 using namespace daal::algorithms::svm;

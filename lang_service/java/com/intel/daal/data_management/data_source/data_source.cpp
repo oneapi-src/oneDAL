@@ -17,8 +17,8 @@
 
 #include "com_intel_daal_data_management_data_source_DataSource.h"
 
-#include "numeric_table.h"
-#include "data_source.h"
+#include "data_management/data/numeric_table.h"
+#include "data_management/data_source/data_source.h"
 
 using namespace daal;
 using namespace daal::data_management;

@@ -40,11 +40,11 @@
 #ifndef __SVM_TRAIN_BOSER_IMPL_I__
 #define __SVM_TRAIN_BOSER_IMPL_I__
 
-#include "service_memory.h"
-#include "service_micro_table.h"
-#include "service_numeric_table.h"
-#include "service_utils.h"
-#include "service_data_utils.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_micro_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "service/kernel/service_utils.h"
+#include "service/kernel/service_data_utils.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;
@@ -58,8 +58,8 @@ using namespace daal::services::internal;
 using namespace daal;
 using namespace daal::algorithms::svm::training::internal;
 
-            #include "svm_train_boser_avx512_impl.i"
-            #include "inner/svm_train_boser_avx512_impl_v1.i"
+#include "algorithms/kernel/svm/svm_train_boser_avx512_impl.i"
+#include "algorithms/kernel/svm/inner/svm_train_boser_avx512_impl_v1.i"
 
         #endif // __CPUID__(DAAL_CPU) == __avx512__
     #endif     // defined (_M_AMD64) || defined (__amd64) || defined (__x86_64) || defined (__x86_64__)

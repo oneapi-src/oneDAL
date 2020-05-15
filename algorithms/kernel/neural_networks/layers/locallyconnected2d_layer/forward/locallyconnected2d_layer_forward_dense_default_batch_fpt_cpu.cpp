@@ -19,9 +19,9 @@
 //  Implementation of locallyconnected2d calculation functions.
 //--
 
-#include "locallyconnected2d_layer_forward_batch_container.h"
-#include "locallyconnected2d_layer_forward_kernel.h"
-#include "locallyconnected2d_layer_forward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/locallyconnected2d_layer/forward/locallyconnected2d_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/locallyconnected2d_layer/forward/locallyconnected2d_layer_forward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/locallyconnected2d_layer/forward/locallyconnected2d_layer_forward_impl.i"
 
 namespace daal
 {

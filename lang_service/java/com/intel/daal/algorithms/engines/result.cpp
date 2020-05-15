@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_engines_ResultId.h"
 #define randomNumbers com_intel_daal_algorithms_engines_ResultId_randomNumbersId

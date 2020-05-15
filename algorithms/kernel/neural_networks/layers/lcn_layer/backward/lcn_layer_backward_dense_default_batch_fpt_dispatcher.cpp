@@ -19,7 +19,7 @@
 //  Implementation of local contrast normalization calculation algorithm container.
 //--
 
-#include "lcn_layer_backward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/lcn_layer/backward/lcn_layer_backward_batch_container.h"
 
 namespace daal
 {

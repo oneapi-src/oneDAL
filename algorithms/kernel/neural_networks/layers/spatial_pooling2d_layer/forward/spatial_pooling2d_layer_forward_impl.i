@@ -24,20 +24,20 @@
 #ifndef __SPATIAL_POOLING2D_LAYER_FORWARD_IMPL_I__
 #define __SPATIAL_POOLING2D_LAYER_FORWARD_IMPL_I__
 
-#include "service_memory.h"
-#include "service_blas.h"
-#include "service_tensor.h"
-#include "service_numeric_table.h"
+#include "externals/service_memory.h"
+#include "externals/service_blas.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
-#include "tensor.h"
-#include "homogen_numeric_table.h"
-#include "maximum_pooling2d_layer_forward.h"
-#include "stochastic_pooling2d_layer_forward.h"
-#include "average_pooling2d_layer_forward.h"
+#include "data_management/data/tensor.h"
+#include "data_management/data/homogen_numeric_table.h"
+#include "algorithms/neural_networks/layers/pooling2d/maximum_pooling2d_layer_forward.h"
+#include "algorithms/neural_networks/layers/pooling2d/stochastic_pooling2d_layer_forward.h"
+#include "algorithms/neural_networks/layers/pooling2d/average_pooling2d_layer_forward.h"
 
-#include "average_pooling2d_layer_forward_kernel.h"
-#include "stochastic_pooling2d_layer_forward_kernel.h"
-#include "maximum_pooling2d_layer_forward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/pooling2d_layer/forward/average_pooling2d_layer_forward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/pooling2d_layer/forward/stochastic_pooling2d_layer_forward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/pooling2d_layer/forward/maximum_pooling2d_layer_forward_kernel.h"
 
 using namespace daal::services;
 using namespace daal::internal;

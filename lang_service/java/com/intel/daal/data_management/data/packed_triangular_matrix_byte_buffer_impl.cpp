@@ -18,9 +18,9 @@
 #include <jni.h>
 
 #include "com_intel_daal_data_management_data_PackedTriangularMatrixByteBufferImpl.h"
-#include "numeric_table.h"
-#include "symmetric_matrix.h"
-#include "common_helpers_functions.h"
+#include "data_management/data/numeric_table.h"
+#include "data_management/data/symmetric_matrix.h"
+#include "lang_service/java/com/intel/daal/common_helpers_functions.h"
 
 using namespace daal;
 using namespace daal::data_management;

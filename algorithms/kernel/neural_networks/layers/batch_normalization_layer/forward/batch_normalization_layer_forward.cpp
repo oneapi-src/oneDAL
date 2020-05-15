@@ -21,10 +21,10 @@
 //--
 */
 
-#include "batch_normalization_layer_forward_types.h"
-#include "batch_normalization_layer_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/layers/batch_normalization/batch_normalization_layer_forward_types.h"
+#include "algorithms/neural_networks/layers/batch_normalization/batch_normalization_layer_types.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::services;
 

@@ -25,9 +25,9 @@
 #ifndef __BROWNBOOST_TRAIN_BATCH_CONTAINER_V1_H___
 #define __BROWNBOOST_TRAIN_BATCH_CONTAINER_V1_H___
 
-#include "brownboost_training_batch.h"
-#include "brownboost_train_kernel_v1.h"
-#include "kernel.h"
+#include "algorithms/boosting/brownboost_training_batch.h"
+#include "algorithms/kernel/brownboost/inner/brownboost_train_kernel_v1.h"
+#include "algorithms/kernel/kernel.h"
 
 namespace daal
 {

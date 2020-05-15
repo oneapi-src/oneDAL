@@ -18,8 +18,8 @@
 #ifndef __GAUSSIAN_INITIALIZER_TASK_DESCRIPTOR_H__
 #define __GAUSSIAN_INITIALIZER_TASK_DESCRIPTOR_H__
 
-#include "neural_networks/initializers/gaussian/gaussian_initializer.h"
-#include "neural_networks/initializers/gaussian/gaussian_initializer_types.h"
+#include "algorithms/neural_networks/initializers/gaussian/gaussian_initializer.h"
+#include "algorithms/neural_networks/initializers/gaussian/gaussian_initializer_types.h"
 
 namespace daal
 {

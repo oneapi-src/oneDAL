@@ -20,8 +20,8 @@
 //  Implementation of logloss algorithm
 //--
 */
-#include "service_math.h"
-#include "objective_function_utils.i"
+#include "externals/service_math.h"
+#include "algorithms/kernel/objective_function/objective_function_utils.i"
 
 namespace daal
 {

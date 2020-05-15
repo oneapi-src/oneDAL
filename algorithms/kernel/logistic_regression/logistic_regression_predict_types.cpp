@@ -22,9 +22,9 @@
 */
 
 #include "algorithms/logistic_regression/logistic_regression_predict_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
-#include "logistic_regression_model_impl.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
+#include "algorithms/kernel/logistic_regression/logistic_regression_model_impl.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

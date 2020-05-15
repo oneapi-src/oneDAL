@@ -19,10 +19,10 @@
 
 #include "daal.h"
 #include "com_intel_daal_algorithms_covariance_OnlineImpl.h"
-#include "covariance_types.i"
-#include "java_online.h"
+#include "lang_service/java/com/intel/daal/algorithms/covariance/covariance_types.i"
+#include "lang_service/java/com/intel/daal/algorithms/covariance/java_online.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::covariance;

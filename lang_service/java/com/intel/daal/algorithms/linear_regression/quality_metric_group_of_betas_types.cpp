@@ -22,7 +22,7 @@
 #include "com_intel_daal_algorithms_linear_regression_quality_metric_GroupOfBetasParameter.h"
 #include "com_intel_daal_algorithms_linear_regression_quality_metric_GroupOfBetasInput.h"
 #include "com_intel_daal_algorithms_linear_regression_quality_metric_GroupOfBetasResult.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::linear_regression::quality_metric;

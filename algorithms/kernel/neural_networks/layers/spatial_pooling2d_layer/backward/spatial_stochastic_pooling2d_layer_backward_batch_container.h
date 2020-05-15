@@ -24,8 +24,8 @@
 #ifndef __SPATIAL_PYRAMID_STOCHASTIC_POOLING2D_LAYER_BACKWARD_BATCH_CONTAINER_H__
 #define __SPATIAL_PYRAMID_STOCHASTIC_POOLING2D_LAYER_BACKWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/spatial_pooling2d/spatial_stochastic_pooling2d_layer.h"
-#include "spatial_pooling2d_layer_backward_kernel.h"
+#include "algorithms/neural_networks/layers/spatial_pooling2d/spatial_stochastic_pooling2d_layer.h"
+#include "algorithms/kernel/neural_networks/layers/spatial_pooling2d_layer/backward/spatial_pooling2d_layer_backward_kernel.h"
 
 namespace daal
 {

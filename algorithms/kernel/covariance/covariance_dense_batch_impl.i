@@ -24,10 +24,10 @@
 #ifndef __COVARIANCE_CSR_BATCH_IMPL_I__
 #define __COVARIANCE_CSR_BATCH_IMPL_I__
 
-#include "covariance_kernel.h"
-#include "covariance_impl.i"
+#include "algorithms/kernel/covariance/covariance_kernel.h"
+#include "algorithms/kernel/covariance/covariance_impl.i"
 
-#include "service_numeric_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 namespace daal
 {

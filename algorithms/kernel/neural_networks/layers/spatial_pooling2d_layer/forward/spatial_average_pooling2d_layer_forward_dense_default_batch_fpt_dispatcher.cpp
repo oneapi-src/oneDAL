@@ -19,7 +19,7 @@
 //  Implementation of forward pooling layer container.
 //--
 
-#include "spatial_average_pooling2d_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/spatial_pooling2d_layer/forward/spatial_average_pooling2d_layer_forward_batch_container.h"
 
 namespace daal
 {

@@ -24,9 +24,9 @@
 #ifndef __PCA_DENSE_CORRELATION_ONLINE_CONTAINER_H__
 #define __PCA_DENSE_CORRELATION_ONLINE_CONTAINER_H__
 
-#include "kernel.h"
-#include "pca_online.h"
-#include "pca_dense_correlation_online_kernel.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/pca/pca_online.h"
+#include "algorithms/kernel/pca/pca_dense_correlation_online_kernel.h"
 
 namespace daal
 {

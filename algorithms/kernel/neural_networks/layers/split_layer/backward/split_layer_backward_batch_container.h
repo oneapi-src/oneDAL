@@ -24,9 +24,9 @@
 #ifndef __SPLIT_LAYER_BACKWARD_BATCH_CONTAINER_H__
 #define __SPLIT_LAYER_BACKWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/split/split_layer.h"
-#include "split_layer_backward_kernel.h"
-#include "service_numeric_table.h"
+#include "algorithms/neural_networks/layers/split/split_layer.h"
+#include "algorithms/kernel/neural_networks/layers/split_layer/backward/split_layer_backward_kernel.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::internal;
 

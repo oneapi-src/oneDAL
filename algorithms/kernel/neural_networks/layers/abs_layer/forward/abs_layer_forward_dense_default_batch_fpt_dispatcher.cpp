@@ -19,7 +19,7 @@
 //  Implementation of abs layer container.
 //--
 
-#include "abs_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/abs_layer/forward/abs_layer_forward_batch_container.h"
 
 namespace daal
 {

@@ -25,7 +25,7 @@
 #ifndef __LINEAR_REGRESSION_TRAIN_DENSE_NORMEQ_IMPL_I__
 #define __LINEAR_REGRESSION_TRAIN_DENSE_NORMEQ_IMPL_I__
 
-#include "linear_regression_train_kernel.h"
+#include "algorithms/kernel/linear_regression/linear_regression_train_kernel.h"
 
 namespace daal
 {

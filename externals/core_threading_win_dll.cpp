@@ -23,9 +23,9 @@
 
 #include <windows.h>
 #include <stdio.h>
-#include "threading.h"
-#include "service_thread_pinner.h"
-#include "env_detect.h"
+#include "algorithms/threading/threading.h"
+#include "algorithms/threading/service_thread_pinner.h"
+#include "services/env_detect.h"
 #include "mkl_daal.h"
 #include "vmlvsl.h"
 

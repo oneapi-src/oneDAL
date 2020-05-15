@@ -19,7 +19,7 @@
 
 #include "com_intel_daal_algorithms_elastic_net_training_TrainingBatch.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_elastic_net_training_TrainingMethod.h"
 

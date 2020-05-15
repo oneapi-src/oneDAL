@@ -20,7 +20,7 @@
 
 #include "daal.h"
 #include "com_intel_daal_algorithms_decision_tree_regression_training_TrainingBatch.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 namespace dtrt = daal::algorithms::decision_tree::regression::training;

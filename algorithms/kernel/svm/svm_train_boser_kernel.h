@@ -24,17 +24,17 @@
 #ifndef __SVM_TRAIN_BOSER_KERNEL_H__
 #define __SVM_TRAIN_BOSER_KERNEL_H__
 
-#include "numeric_table.h"
-#include "model.h"
-#include "daal_defines.h"
-#include "svm_train_types.h"
-#include "kernel.h"
-#include "service_micro_table.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/model.h"
+#include "services/daal_defines.h"
+#include "algorithms/svm/svm_train_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "service/kernel/data_management/service_micro_table.h"
 
 using namespace daal::data_management;
 using namespace daal::internal;
 
-#include "svm_train_kernel.h"
+#include "algorithms/kernel/svm/svm_train_kernel.h"
 
 namespace daal
 {

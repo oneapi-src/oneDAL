@@ -25,8 +25,8 @@
 #define __SERVICE_TENSOR_H__
 
 #include "services/daal_memory.h"
-#include "homogen_tensor.h"
-#include "service_defines.h"
+#include "data_management/data/homogen_tensor.h"
+#include "service/kernel/service_defines.h"
 
 using namespace daal::data_management;
 

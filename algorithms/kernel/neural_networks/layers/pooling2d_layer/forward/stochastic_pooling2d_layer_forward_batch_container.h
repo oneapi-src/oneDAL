@@ -24,8 +24,8 @@
 #ifndef __STOCHASTIC_POOLING2D_LAYER_FORWARD_BATCH_CONTAINER_H__
 #define __STOCHASTIC_POOLING2D_LAYER_FORWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/pooling2d/stochastic_pooling2d_layer_forward.h"
-#include "stochastic_pooling2d_layer_forward_kernel.h"
+#include "algorithms/neural_networks/layers/pooling2d/stochastic_pooling2d_layer_forward.h"
+#include "algorithms/kernel/neural_networks/layers/pooling2d_layer/forward/stochastic_pooling2d_layer_forward_kernel.h"
 
 namespace daal
 {

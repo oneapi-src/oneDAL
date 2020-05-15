@@ -21,7 +21,7 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_logistic_regression_training_TrainingResult.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::logistic_regression::training;

@@ -24,8 +24,8 @@
 #ifndef __XAVIER_INITIALIZER_BATCH_CONTAINER_H__
 #define __XAVIER_INITIALIZER_BATCH_CONTAINER_H__
 
-#include "neural_networks/initializers/xavier/xavier_initializer.h"
-#include "xavier_initializer_kernel.h"
+#include "algorithms/neural_networks/initializers/xavier/xavier_initializer.h"
+#include "algorithms/kernel/neural_networks/initializers/xavier/xavier_initializer_kernel.h"
 
 namespace daal
 {

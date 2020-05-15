@@ -24,9 +24,9 @@
 #include <jni.h>
 
 #include "com_intel_daal_data_management_data_CSRNumericTableImpl.h"
-#include "java_csr_numeric_table.h"
+#include "lang_service/java/com/intel/daal/data_management/data/java_csr_numeric_table.h"
 #include "daal.h"
-#include "common_helpers_functions.h"
+#include "lang_service/java/com/intel/daal/common_helpers_functions.h"
 
 using namespace daal;
 using namespace daal::data_management;

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "neural_networks_prediction_model.h"
+#include "algorithms/neural_networks/neural_networks_prediction_model.h"
 
 namespace daal
 {

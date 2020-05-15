@@ -16,11 +16,11 @@
 *******************************************************************************/
 
 #include <jni.h>
-#include "pivoted_qr_types.i"
+#include "lang_service/java/com/intel/daal/algorithms/pivoted_qr/pivoted_qr_types.i"
 
 #include "com_intel_daal_algorithms_pivoted_qr_Batch.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::pivoted_qr;

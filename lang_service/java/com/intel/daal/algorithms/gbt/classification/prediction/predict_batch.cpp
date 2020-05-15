@@ -22,7 +22,7 @@
 #include "com_intel_daal_algorithms_gbt_classification_prediction_PredictionBatch.h"
 #include "algorithms/gradient_boosted_trees/gbt_classification_predict_types.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 namespace gbtcp = daal::algorithms::gbt::classification::prediction;

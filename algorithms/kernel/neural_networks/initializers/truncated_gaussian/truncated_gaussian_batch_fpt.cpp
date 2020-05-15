@@ -19,8 +19,8 @@
 //  Implementation of truncated gaussian initializer functions.
 //--
 
-#include "neural_networks/initializers/truncated_gaussian/truncated_gaussian_initializer.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/initializers/truncated_gaussian/truncated_gaussian_initializer.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {

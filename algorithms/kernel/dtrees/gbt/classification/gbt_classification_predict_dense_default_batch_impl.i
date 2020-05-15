@@ -24,20 +24,20 @@
 #ifndef __GBT_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_IMPL_I__
 #define __GBT_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_IMPL_I__
 
-#include "algorithm.h"
-#include "numeric_table.h"
-#include "gbt_classification_predict_kernel.h"
-#include "threading.h"
-#include "daal_defines.h"
-#include "gbt_classification_model_impl.h"
-#include "service_numeric_table.h"
-#include "service_error_handling.h"
-#include "service_memory.h"
-#include "dtrees_regression_predict_dense_default_impl.i"
-#include "gbt_regression_predict_dense_default_batch_impl.i"
-#include "gbt_predict_dense_default_impl.i"
-#include "objective_function/cross_entropy_loss/cross_entropy_loss_dense_default_batch_kernel.h"
-#include "service_algo_utils.h"
+#include "algorithms/algorithm.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/kernel/dtrees/gbt/classification/gbt_classification_predict_kernel.h"
+#include "algorithms/threading/threading.h"
+#include "services/daal_defines.h"
+#include "algorithms/kernel/dtrees/gbt/classification/gbt_classification_model_impl.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "externals/service_memory.h"
+#include "algorithms/kernel/dtrees/regression/dtrees_regression_predict_dense_default_impl.i"
+#include "algorithms/kernel/dtrees/gbt/regression/gbt_regression_predict_dense_default_batch_impl.i"
+#include "algorithms/kernel/dtrees/gbt/gbt_predict_dense_default_impl.i"
+#include "algorithms/kernel/objective_function/cross_entropy_loss/cross_entropy_loss_dense_default_batch_kernel.h"
+#include "service/kernel/service_algo_utils.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;

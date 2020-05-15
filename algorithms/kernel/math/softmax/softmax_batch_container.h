@@ -24,8 +24,8 @@
 #ifndef __SOFTMAX_BATCH_CONTAINER_H__
 #define __SOFTMAX_BATCH_CONTAINER_H__
 
-#include "math/softmax.h"
-#include "softmax_kernel.h"
+#include "algorithms/math/softmax.h"
+#include "algorithms/kernel/math/softmax/softmax_kernel.h"
 
 namespace daal
 {

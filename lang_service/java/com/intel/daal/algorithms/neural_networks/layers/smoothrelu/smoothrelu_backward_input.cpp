@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_neural_networks_layers_smoothrelu_SmoothreluLayerDataId.h"
 #define auxDataId com_intel_daal_algorithms_neural_networks_layers_smoothrelu_SmoothreluLayerDataId_auxDataId

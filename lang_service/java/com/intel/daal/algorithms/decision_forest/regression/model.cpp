@@ -20,10 +20,10 @@
 
 #include "daal.h"
 #include "com_intel_daal_algorithms_decision_forest_regression_Model.h"
-#include "common_helpers.h"
-#include "common_helpers_functions.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
+#include "lang_service/java/com/intel/daal/common_helpers_functions.h"
 #include "../../regression/tree_node_visitor.h"
-#include "../../tree_utils/regression/tree_node_visitor.h"
+#include "lang_service/java/com/intel/daal/algorithms/tree_utils/regression/tree_node_visitor.h"
 
 USING_COMMON_NAMESPACES()
 namespace dfr = daal::algorithms::decision_forest::regression;

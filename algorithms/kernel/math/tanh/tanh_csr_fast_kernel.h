@@ -22,7 +22,7 @@
 #ifndef __TANH_CSR_FAST_KERNEL_H__
 #define __TANH_CSR_FAST_KERNEL_H__
 
-#include "tanh_base.h"
+#include "algorithms/kernel/math/tanh/tanh_base.h"
 
 namespace daal
 {

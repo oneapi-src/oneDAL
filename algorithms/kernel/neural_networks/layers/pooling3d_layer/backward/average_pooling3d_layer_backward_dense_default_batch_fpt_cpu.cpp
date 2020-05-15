@@ -19,9 +19,9 @@
 //  Implementation of backward pooling layer.
 //--
 
-#include "average_pooling3d_layer_backward_batch_container.h"
-#include "average_pooling3d_layer_backward_kernel.h"
-#include "average_pooling3d_layer_backward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/pooling3d_layer/backward/average_pooling3d_layer_backward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/pooling3d_layer/backward/average_pooling3d_layer_backward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/pooling3d_layer/backward/average_pooling3d_layer_backward_impl.i"
 
 namespace daal
 {

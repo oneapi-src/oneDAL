@@ -19,9 +19,9 @@
 //  Implementation of abs layer.
 //--
 
-#include "abs_layer_backward_batch_container.h"
-#include "abs_layer_backward_kernel.h"
-#include "abs_layer_backward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/abs_layer/backward/abs_layer_backward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/abs_layer/backward/abs_layer_backward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/abs_layer/backward/abs_layer_backward_impl.i"
 
 namespace daal
 {

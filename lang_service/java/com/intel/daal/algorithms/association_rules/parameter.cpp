@@ -24,7 +24,7 @@
 using namespace daal;
 using namespace daal::algorithms;
 
-#include "associationrules_types.i"
+#include "lang_service/java/com/intel/daal/algorithms/association_rules/associationrules_types.i"
 
 JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_association_1rules_Parameter_cSetMinSupport
 (JNIEnv *env, jobject thisObj, jlong parAddr, jdouble val)

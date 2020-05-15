@@ -22,19 +22,19 @@
 #ifndef __XAVIER_INITIALIZER_KERNEL_H__
 #define __XAVIER_INITIALIZER_KERNEL_H__
 
-#include "kernel.h"
-#include "service_math.h"
-#include "layer_forward.h"
-#include "layer_forward_types.h"
-#include "service_math.h"
-#include "service_tensor.h"
-#include "uniform_kernel.h"
+#include "algorithms/kernel/kernel.h"
+#include "externals/service_math.h"
+#include "algorithms/neural_networks/layers/layer_forward.h"
+#include "algorithms/neural_networks/layers/layer_forward_types.h"
+#include "externals/service_math.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "algorithms/kernel/distributions/uniform/uniform_kernel.h"
 
-#include "neural_networks/initializers/xavier/xavier_initializer.h"
-#include "neural_networks/initializers/xavier/xavier_initializer_types.h"
+#include "algorithms/neural_networks/initializers/xavier/xavier_initializer.h"
+#include "algorithms/neural_networks/initializers/xavier/xavier_initializer_types.h"
 
-#include "xavier_initializer_misc.h"
-#include "xavier_initializer_task_descriptor.h"
+#include "algorithms/kernel/neural_networks/initializers/xavier/xavier_initializer_misc.h"
+#include "algorithms/kernel/neural_networks/initializers/xavier/xavier_initializer_task_descriptor.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

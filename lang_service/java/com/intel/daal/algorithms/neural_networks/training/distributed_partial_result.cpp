@@ -19,7 +19,7 @@
 #include "com_intel_daal_algorithms_neural_networks_training_DistributedPartialResult.h"
 
 #include "daal.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_neural_networks_training_DistributedPartialResultId.h"
 #define resultFromMasterId com_intel_daal_algorithms_neural_networks_training_DistributedPartialResultId_resultFromMasterId

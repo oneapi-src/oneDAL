@@ -21,7 +21,7 @@
 //--
 */
 
-#include "layer_forward_container_base.h"
+#include "algorithms/neural_networks/layers/layer_forward_container_base.h"
 
 namespace daal
 {

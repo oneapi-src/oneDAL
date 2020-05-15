@@ -22,19 +22,19 @@
 #ifndef __BATCH_NORMALIZATION_LAYER_FORWARD_KERNEL_H__
 #define __BATCH_NORMALIZATION_LAYER_FORWARD_KERNEL_H__
 
-#include "neural_networks/layers/batch_normalization/batch_normalization_layer_forward.h"
-#include "neural_networks/layers/batch_normalization/batch_normalization_layer_forward_types.h"
+#include "algorithms/neural_networks/layers/batch_normalization/batch_normalization_layer_forward.h"
+#include "algorithms/neural_networks/layers/batch_normalization/batch_normalization_layer_forward_types.h"
 
-#include "kernel.h"
-#include "threading.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/threading/threading.h"
 
-#include "service_math.h"
-#include "service_tensor.h"
-#include "service_unique_ptr.h"
-#include "service_numeric_table.h"
+#include "externals/service_math.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/service_unique_ptr.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
-#include "batch_normalization_layer_forward_task.h"
-#include "batch_normalization_layer_forward_task_descriptor.h"
+#include "algorithms/kernel/neural_networks/layers/batch_normalization_layer/forward/batch_normalization_layer_forward_task.h"
+#include "algorithms/kernel/neural_networks/layers/batch_normalization_layer/forward/batch_normalization_layer_forward_task_descriptor.h"
 
 namespace daal
 {

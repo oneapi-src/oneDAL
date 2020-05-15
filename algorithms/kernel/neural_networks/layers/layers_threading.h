@@ -18,12 +18,12 @@
 #ifndef __LAYERS_THREADING_H__
 #define __LAYERS_THREADING_H__
 
-#include "tensor.h"
-#include "threading.h"
-#include "service_tensor.h"
-#include "service_numeric_table.h"
-#include "service_error_handling.h"
-#include "service_mkl_tensor.h"
+#include "data_management/data/tensor.h"
+#include "algorithms/threading/threading.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "service/kernel/data_management/service_mkl_tensor.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

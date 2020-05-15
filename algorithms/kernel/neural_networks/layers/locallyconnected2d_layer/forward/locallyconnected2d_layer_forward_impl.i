@@ -21,7 +21,7 @@
 //--
 */
 
-#include "service_blas.h"
+#include "externals/service_blas.h"
 
 using namespace daal::internal;
 using namespace daal::services;

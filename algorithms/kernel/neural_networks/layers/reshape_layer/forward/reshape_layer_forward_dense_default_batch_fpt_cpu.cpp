@@ -19,9 +19,9 @@
 //  Implementation of reshape layer.
 //--
 
-#include "reshape_layer_forward_batch_container.h"
-#include "reshape_layer_forward_kernel.h"
-#include "reshape_layer_forward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/reshape_layer/forward/reshape_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/reshape_layer/forward/reshape_layer_forward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/reshape_layer/forward/reshape_layer_forward_impl.i"
 
 namespace daal
 {

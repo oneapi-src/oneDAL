@@ -24,8 +24,8 @@
 #ifndef __MAXIMUM_POOLING3D_LAYER_BACKWARD_BATCH_CONTAINER_H__
 #define __MAXIMUM_POOLING3D_LAYER_BACKWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/pooling3d/maximum_pooling3d_layer.h"
-#include "maximum_pooling3d_layer_backward_kernel.h"
+#include "algorithms/neural_networks/layers/pooling3d/maximum_pooling3d_layer.h"
+#include "algorithms/kernel/neural_networks/layers/pooling3d_layer/backward/maximum_pooling3d_layer_backward_kernel.h"
 
 namespace daal
 {

@@ -24,16 +24,16 @@
 #ifndef __QR_KERNEL_BATCH_IMPL_I__
 #define __QR_KERNEL_BATCH_IMPL_I__
 
-#include "service_lapack.h"
-#include "service_memory.h"
-#include "service_math.h"
-#include "service_defines.h"
-#include "service_numeric_table.h"
-#include "service_error_handling.h"
+#include "externals/service_lapack.h"
+#include "externals/service_memory.h"
+#include "externals/service_math.h"
+#include "service/kernel/service_defines.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
 
-#include "qr_dense_default_impl.i"
+#include "algorithms/kernel/qr/qr_dense_default_impl.i"
 
-#include "threading.h"
+#include "algorithms/threading/threading.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;
@@ -47,7 +47,7 @@ namespace qr
 {
 namespace internal
 {
-#include "qr_dense_default_pcl_impl.i"
+#include "algorithms/kernel/qr/qr_dense_default_pcl_impl.i"
 
 /**
  *  \brief Kernel for QR calculation

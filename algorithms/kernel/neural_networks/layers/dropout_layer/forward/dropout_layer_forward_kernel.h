@@ -22,13 +22,13 @@
 #ifndef __DROPOUT_LAYER_FORWARD_KERNEL_H__
 #define __DROPOUT_LAYER_FORWARD_KERNEL_H__
 
-#include "neural_networks/layers/dropout/dropout_layer.h"
-#include "neural_networks/layers/dropout/dropout_layer_types.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "service_math.h"
-#include "service_numeric_table.h"
-#include "bernoulli_kernel.h"
+#include "algorithms/neural_networks/layers/dropout/dropout_layer.h"
+#include "algorithms/neural_networks/layers/dropout/dropout_layer_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "externals/service_math.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/distributions/bernoulli/bernoulli_kernel.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

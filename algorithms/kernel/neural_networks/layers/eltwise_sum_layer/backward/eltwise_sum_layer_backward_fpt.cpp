@@ -21,8 +21,8 @@
 //--
 */
 
-#include "eltwise_sum_layer_backward_types.h"
-#include "eltwise_sum_layer_types.h"
+#include "algorithms/neural_networks/layers/eltwise_sum/eltwise_sum_layer_backward_types.h"
+#include "algorithms/neural_networks/layers/eltwise_sum/eltwise_sum_layer_types.h"
 
 namespace daal
 {

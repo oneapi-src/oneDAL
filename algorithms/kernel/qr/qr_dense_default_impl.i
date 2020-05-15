@@ -24,16 +24,16 @@
 #ifndef __QR_UTILS_IMPL_I__
 #define __QR_UTILS_IMPL_I__
 
-#include "service_blas.h"
-#include "service_lapack.h"
-#include "service_memory.h"
-#include "service_math.h"
-#include "service_defines.h"
-#include "service_micro_table.h"
-#include "service_numeric_table.h"
-#include "service_error_handling.h"
+#include "externals/service_blas.h"
+#include "externals/service_lapack.h"
+#include "externals/service_memory.h"
+#include "externals/service_math.h"
+#include "service/kernel/service_defines.h"
+#include "service/kernel/data_management/service_micro_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
 
-#include "threading.h"
+#include "algorithms/threading/threading.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;

@@ -19,9 +19,9 @@
 //  Implementation of softmax layer.
 //--
 
-#include "softmax_layer_forward_batch_container.h"
-#include "softmax_layer_forward_kernel.h"
-#include "softmax_layer_forward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/softmax_layer/forward/softmax_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/softmax_layer/forward/softmax_layer_forward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/softmax_layer/forward/softmax_layer_forward_impl.i"
 
 namespace daal
 {

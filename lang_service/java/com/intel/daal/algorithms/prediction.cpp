@@ -18,9 +18,9 @@
 #include <jni.h>
 #include "com_intel_daal_algorithms_Prediction.h"
 
-#include "daal_defines.h"
-#include "algorithm.h"
-#include "common_helpers_functions.h"
+#include "services/daal_defines.h"
+#include "algorithms/algorithm.h"
+#include "lang_service/java/com/intel/daal/common_helpers_functions.h"
 
 using namespace daal::services;
 using namespace daal::algorithms;

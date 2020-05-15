@@ -19,9 +19,9 @@
 //  Implementation of hyperbolic tangent function calculation functions.
 //--
 
-#include "tanh_layer_forward_batch_container.h"
-#include "tanh_layer_forward_kernel.h"
-#include "tanh_layer_forward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/tanh_layer/forward/tanh_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/tanh_layer/forward/tanh_layer_forward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/tanh_layer/forward/tanh_layer_forward_impl.i"
 
 namespace daal
 {

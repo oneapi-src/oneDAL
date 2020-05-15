@@ -24,8 +24,8 @@
 #ifndef __LCN_LAYER_FORWARD_BATCH_CONTAINER_H__
 #define __LCN_LAYER_FORWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/lcn/lcn_layer.h"
-#include "lcn_layer_forward_kernel.h"
+#include "algorithms/neural_networks/layers/lcn/lcn_layer.h"
+#include "algorithms/kernel/neural_networks/layers/lcn_layer/forward/lcn_layer_forward_kernel.h"
 
 namespace daal
 {

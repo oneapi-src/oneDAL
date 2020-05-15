@@ -21,8 +21,8 @@
 //--
 */
 
-#include "softmax_cross_layer_types.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/layers/loss/softmax_cross_layer_types.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::services;
 

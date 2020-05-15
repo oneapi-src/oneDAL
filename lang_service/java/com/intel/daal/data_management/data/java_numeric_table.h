@@ -30,8 +30,8 @@
 
 #include "services/daal_defines.h"
 #include "data_management/data/data_serialize.h"
-#include "numeric_table.h"
-#include "java_threading_helper.h"
+#include "data_management/data/numeric_table.h"
+#include "lang_service/java/com/intel/daal/data_management/data/java_threading_helper.h"
 
 using namespace daal::data_management;
 

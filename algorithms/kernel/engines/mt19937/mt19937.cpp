@@ -20,7 +20,7 @@
 //--
 
 #include "algorithms/engines/mt19937/mt19937.h"
-#include "mt19937_batch_impl.h"
+#include "algorithms/kernel/engines/mt19937/mt19937_batch_impl.h"
 
 namespace daal
 {

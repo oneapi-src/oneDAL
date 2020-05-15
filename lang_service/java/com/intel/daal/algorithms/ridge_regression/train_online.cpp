@@ -18,7 +18,7 @@
 #include <jni.h>
 #include "com_intel_daal_algorithms_ridge_regression_training_TrainingOnline.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_ridge_regression_training_TrainingMethod.h"
 #define normEqDense com_intel_daal_algorithms_ridge_regression_training_TrainingMethod_normEqDenseValue

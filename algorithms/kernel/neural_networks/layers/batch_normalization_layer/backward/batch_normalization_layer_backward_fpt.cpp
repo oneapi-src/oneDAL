@@ -21,9 +21,9 @@
 //--
 */
 
-#include "batch_normalization_layer_backward_types.h"
-#include "batch_normalization_layer_types.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/layers/batch_normalization/batch_normalization_layer_backward_types.h"
+#include "algorithms/neural_networks/layers/batch_normalization/batch_normalization_layer_types.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {

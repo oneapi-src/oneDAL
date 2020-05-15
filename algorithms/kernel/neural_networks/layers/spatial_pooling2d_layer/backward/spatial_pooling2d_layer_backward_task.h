@@ -22,11 +22,11 @@
 #ifndef __SPATIAL_POOLING2D_LAYER_BACKWARD_TASK_H__
 #define __SPATIAL_POOLING2D_LAYER_BACKWARD_TASK_H__
 
-#include "neural_networks/layers/spatial_pooling2d/spatial_pooling2d_layer_backward_types.h"
-#include "spatial_pooling2d_layer_internal_types.h"
-#include "tensor.h"
-#include "service_tensor.h"
-#include "service_numeric_table.h"
+#include "algorithms/neural_networks/layers/spatial_pooling2d/spatial_pooling2d_layer_backward_types.h"
+#include "algorithms/kernel/neural_networks/layers/spatial_pooling2d_layer/spatial_pooling2d_layer_internal_types.h"
+#include "data_management/data/tensor.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

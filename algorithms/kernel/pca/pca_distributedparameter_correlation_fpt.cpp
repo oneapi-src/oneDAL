@@ -21,7 +21,7 @@
 //--
 */
 
-#include "pca_distributedparameter_correlation.h"
+#include "algorithms/kernel/pca/pca_distributedparameter_correlation.h"
 
 namespace daal
 {

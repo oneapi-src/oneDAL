@@ -21,19 +21,19 @@
 //--
 */
 
-#include "service_dnn.h"
-#include "service_dnn_internal.h"
-#include "service_tensor.h"
-#include "service_numeric_table.h"
+#include "externals/service_dnn.h"
+#include "algorithms/kernel/service_dnn_internal.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
-#include "transposed_conv2d_layer.h"
-#include "transposed_conv2d_layer_types.h"
+#include "algorithms/neural_networks/layers/transposed_conv2d/transposed_conv2d_layer.h"
+#include "algorithms/neural_networks/layers/transposed_conv2d/transposed_conv2d_layer_types.h"
 
-#include "convolution2d_layer_forward.h"
-#include "convolution2d_layer_forward_kernel.h"
+#include "algorithms/neural_networks/layers/convolution2d/convolution2d_layer_forward.h"
+#include "algorithms/kernel/neural_networks/layers/convolution2d_layer/forward/convolution2d_layer_forward_kernel.h"
 
-#include "convolution2d_layer_backward.h"
-#include "convolution2d_layer_backward_kernel.h"
+#include "algorithms/neural_networks/layers/convolution2d/convolution2d_layer_backward.h"
+#include "algorithms/kernel/neural_networks/layers/convolution2d_layer/backward/convolution2d_layer_backward_kernel.h"
 
 using namespace daal::internal;
 using namespace daal::services;

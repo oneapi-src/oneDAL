@@ -28,8 +28,8 @@
 
 #include "algorithms/covariance/covariance_types.h"
 #include "algorithms/covariance/covariance_distributed.h"
-#include "java_callback.h"
-#include "java_distributed_container.h"
+#include "lang_service/java/com/intel/daal/java_callback.h"
+#include "lang_service/java/com/intel/daal/algorithms/covariance/java_distributed_container.h"
 
 namespace daal
 {

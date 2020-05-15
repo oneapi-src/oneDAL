@@ -19,7 +19,7 @@
 //  Implementation of hyperbolic tangent calculation algorithm container.
 //--
 
-#include "tanh_batch_container.h"
+#include "algorithms/kernel/math/tanh/tanh_batch_container.h"
 
 namespace daal
 {

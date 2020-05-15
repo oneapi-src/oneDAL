@@ -28,7 +28,7 @@
 #include "data_management/data/numeric_table.h"
 #include "data_management/data/homogen_numeric_table.h"
 #include "services/daal_defines.h"
-#include "em_gmm_covariance_storage_id.h"
+#include "algorithms/em/em_gmm_covariance_storage_id.h"
 #include "algorithms/engines/mt19937/mt19937.h"
 
 namespace daal

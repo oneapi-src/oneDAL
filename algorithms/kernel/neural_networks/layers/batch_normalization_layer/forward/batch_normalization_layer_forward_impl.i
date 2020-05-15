@@ -24,8 +24,8 @@
 #ifndef __BATCH_NORMALIZATION_LAYER_FORWARD_IMPL_I__
 #define __BATCH_NORMALIZATION_LAYER_FORWARD_IMPL_I__
 
-#include "service_math.h"
-#include "threading.h"
+#include "externals/service_math.h"
+#include "algorithms/threading/threading.h"
 
 using namespace daal::services;
 

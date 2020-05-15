@@ -21,7 +21,7 @@
 //--
 */
 
-#include "transposed_conv2d_layer_types.h"
+#include "algorithms/neural_networks/layers/transposed_conv2d/transposed_conv2d_layer_types.h"
 
 namespace daal
 {

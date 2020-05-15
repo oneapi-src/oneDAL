@@ -21,10 +21,10 @@
 //--
 */
 
-#include "tanh_layer_forward_types.h"
-#include "tanh_layer_types.h"
-#include "service_mkl_tensor.h"
-#include "service_tensor.h"
+#include "algorithms/neural_networks/layers/tanh/tanh_layer_forward_types.h"
+#include "algorithms/neural_networks/layers/tanh/tanh_layer_types.h"
+#include "service/kernel/data_management/service_mkl_tensor.h"
+#include "service/kernel/data_management/service_tensor.h"
 
 namespace daal
 {

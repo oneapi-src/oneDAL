@@ -19,7 +19,7 @@
 //  Implementation of gaussian initializer container.
 //--
 
-#include "gaussian_initializer_batch_container.h"
+#include "algorithms/kernel/neural_networks/initializers/gaussian/gaussian_initializer_batch_container.h"
 
 namespace daal
 {

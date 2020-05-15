@@ -15,11 +15,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "common_helpers_batch.h"
-#include "common_helpers_distributed.h"
-#include "common_helpers_online.h"
-#include "common_helpers_argument.h"
-#include "common_helpers_functions.h"
+#include "lang_service/java/com/intel/daal/common_helpers_batch.h"
+#include "lang_service/java/com/intel/daal/common_helpers_distributed.h"
+#include "lang_service/java/com/intel/daal/common_helpers_online.h"
+#include "lang_service/java/com/intel/daal/common_helpers_argument.h"
+#include "lang_service/java/com/intel/daal/common_helpers_functions.h"
 
 #define USING_COMMON_NAMESPACES()\
 using namespace daal;\

@@ -25,17 +25,17 @@
 #ifndef __LASSO_REGRESSION_TRAIN_DENSE_DEFAULT_IMPL_I__
 #define __LASSO_REGRESSION_TRAIN_DENSE_DEFAULT_IMPL_I__
 
-#include "lasso_regression_train_kernel.h"
-#include "lasso_regression_model_impl.h"
-#include "service_error_handling.h"
-#include "service_algo_utils.h"
+#include "algorithms/kernel/lasso_regression/lasso_regression_train_kernel.h"
+#include "algorithms/kernel/lasso_regression/lasso_regression_model_impl.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "service/kernel/service_algo_utils.h"
 #include "algorithms/optimization_solver/objective_function/mse_batch.h"
 #include "algorithms/optimization_solver/coordinate_descent/coordinate_descent_batch.h"
 
-#include "service_numeric_table.h"
-#include "service_math.h"
-#include "soa_numeric_table.h"
-#include "service_blas.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_math.h"
+#include "data_management/data/soa_numeric_table.h"
+#include "externals/service_blas.h"
 
 using namespace daal::algorithms::lasso_regression::training::internal;
 using namespace daal::algorithms::optimization_solver;

@@ -20,10 +20,10 @@
 
 #include "daal.h"
 #include "com_intel_daal_algorithms_decision_tree_classification_Model.h"
-#include "common_helpers.h"
-#include "common_helpers_functions.h"
-#include "../../classifier/tree_node_visitor.h"
-#include "../../tree_utils/classification/tree_node_visitor.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
+#include "lang_service/java/com/intel/daal/common_helpers_functions.h"
+#include "lang_service/java/com/intel/daal/algorithms/classifier/tree_node_visitor.h"
+#include "lang_service/java/com/intel/daal/algorithms/tree_utils/classification/tree_node_visitor.h"
 
 USING_COMMON_NAMESPACES()
 namespace dtc = daal::algorithms::decision_tree::classification;

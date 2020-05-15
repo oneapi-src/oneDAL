@@ -21,7 +21,7 @@
 //--
 */
 
-#include "dbscan_partial_result.h"
+#include "algorithms/kernel/dbscan/dbscan_partial_result.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

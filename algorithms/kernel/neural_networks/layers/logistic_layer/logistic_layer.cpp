@@ -21,7 +21,7 @@
 //--
 */
 
-#include "logistic_layer_types.h"
+#include "algorithms/neural_networks/layers/logistic/logistic_layer_types.h"
 
 namespace daal
 {

@@ -18,7 +18,7 @@
 #include <jni.h>
 
 #include "daal.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 #include "com_intel_daal_algorithms_classifier_training_TrainingResultId.h"
 #include "com_intel_daal_algorithms_logitboost_training_TrainingResult.h"
 

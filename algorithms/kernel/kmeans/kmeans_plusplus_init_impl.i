@@ -21,17 +21,17 @@
 //--
 */
 
-#include "algorithm.h"
-#include "numeric_table.h"
-#include "threading.h"
-#include "daal_defines.h"
-#include "service_memory.h"
-#include "service_error_handling.h"
-#include "service_numeric_table.h"
-#include "service_blas.h"
-#include "service_spblas.h"
-#include "uniform_kernel.h"
-#include "service_data_utils.h"
+#include "algorithms/algorithm.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/threading/threading.h"
+#include "services/daal_defines.h"
+#include "externals/service_memory.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_blas.h"
+#include "externals/service_spblas.h"
+#include "algorithms/kernel/distributions/uniform/uniform_kernel.h"
+#include "service/kernel/service_data_utils.h"
 
 namespace daal
 {

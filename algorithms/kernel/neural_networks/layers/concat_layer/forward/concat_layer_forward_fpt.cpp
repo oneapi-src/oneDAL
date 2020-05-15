@@ -21,10 +21,10 @@
 //--
 */
 
-#include "concat_layer_forward_types.h"
-#include "concat_layer_types.h"
-#include "service_mkl_tensor.h"
-#include "tensor.h"
+#include "algorithms/neural_networks/layers/concat/concat_layer_forward_types.h"
+#include "algorithms/neural_networks/layers/concat/concat_layer_types.h"
+#include "service/kernel/data_management/service_mkl_tensor.h"
+#include "data_management/data/tensor.h"
 
 using namespace daal::services;
 using namespace daal::data_management;

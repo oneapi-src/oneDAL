@@ -22,14 +22,14 @@
 #ifndef __LOGISTIC_CROSS_LAYER_BACKWARD_KERNEL_H__
 #define __LOGISTIC_CROSS_LAYER_BACKWARD_KERNEL_H__
 
-#include "neural_networks/layers/loss/logistic_cross_layer.h"
-#include "neural_networks/layers/loss/logistic_cross_layer_types.h"
-#include "neural_networks/layers/loss/logistic_cross_layer_backward_types.h"
-#include "kernel.h"
-#include "service_math.h"
-#include "numeric_table.h"
-#include "threading.h"
-#include "logistic_layer_forward_kernel.h"
+#include "algorithms/neural_networks/layers/loss/logistic_cross_layer.h"
+#include "algorithms/neural_networks/layers/loss/logistic_cross_layer_types.h"
+#include "algorithms/neural_networks/layers/loss/logistic_cross_layer_backward_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "externals/service_math.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/threading/threading.h"
+#include "algorithms/kernel/neural_networks/layers/logistic_layer/forward/logistic_layer_forward_kernel.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

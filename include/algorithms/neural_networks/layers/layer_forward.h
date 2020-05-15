@@ -28,7 +28,7 @@
 #include "data_management/data/tensor.h"
 #include "services/daal_defines.h"
 #include "algorithms/neural_networks/layers/layer_forward_types.h"
-#include "layer_forward_container_base.h"
+#include "algorithms/neural_networks/layers/layer_forward_container_base.h"
 
 namespace daal
 {

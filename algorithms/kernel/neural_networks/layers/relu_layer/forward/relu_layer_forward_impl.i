@@ -21,9 +21,9 @@
 //--
 */
 
-#include "service_tensor.h"
-#include "service_dnn.h"
-#include "service_mkl_tensor.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "externals/service_dnn.h"
+#include "service/kernel/data_management/service_mkl_tensor.h"
 
 #ifndef __RELU_LAYER_FORWARD_IMPL_I__
     #define __RELU_LAYER_FORWARD_IMPL_I__

@@ -23,9 +23,9 @@
 #ifndef __ABS_BATCH_CONTAINER_H__
 #define __ABS_BATCH_CONTAINER_H__
 
-#include "math/abs.h"
-#include "abs_dense_default_kernel.h"
-#include "abs_csr_fast_kernel.h"
+#include "algorithms/math/abs.h"
+#include "algorithms/kernel/math/abs/abs_dense_default_kernel.h"
+#include "algorithms/kernel/math/abs/abs_csr_fast_kernel.h"
 
 namespace daal
 {

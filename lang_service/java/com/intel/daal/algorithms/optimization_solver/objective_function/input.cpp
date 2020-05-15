@@ -21,7 +21,7 @@
 
 #include "com_intel_daal_algorithms_optimization_solver_objective_function_Input.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::optimization_solver;

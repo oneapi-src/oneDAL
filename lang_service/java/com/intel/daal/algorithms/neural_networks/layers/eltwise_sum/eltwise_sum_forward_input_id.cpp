@@ -19,7 +19,7 @@
 #include "com_intel_daal_algorithms_neural_networks_layers_eltwise_sum_EltwiseSumForwardInputId.h"
 
 #include "daal.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 using namespace daal;
 using namespace daal::data_management;

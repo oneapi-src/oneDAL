@@ -25,8 +25,8 @@
 #ifndef __STUMP_CLASSIFICATION_PREDICT_BATCH_CONTAINER_H__
 #define __STUMP_CLASSIFICATION_PREDICT_BATCH_CONTAINER_H__
 
-#include "stump_classification_predict.h"
-#include "stump_classification_predict_kernel.h"
+#include "algorithms/stump/stump_classification_predict.h"
+#include "algorithms/kernel/stump/stump_classification_predict_kernel.h"
 
 namespace daal
 {

@@ -19,9 +19,9 @@
 //  Implementation of the backward dropout layer
 //--
 
-#include "dropout_layer_backward_batch_container.h"
-#include "dropout_layer_backward_kernel.h"
-#include "dropout_layer_backward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/dropout_layer/backward/dropout_layer_backward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/dropout_layer/backward/dropout_layer_backward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/dropout_layer/backward/dropout_layer_backward_impl.i"
 
 namespace daal
 {

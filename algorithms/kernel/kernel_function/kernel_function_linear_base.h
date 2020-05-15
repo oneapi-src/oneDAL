@@ -24,8 +24,8 @@
 #ifndef __KERNEL_FUNCTION_LINEAR_BASE_H__
 #define __KERNEL_FUNCTION_LINEAR_BASE_H__
 
-#include "kernel_function_types_linear.h"
-#include "kernel.h"
+#include "algorithms/kernel_function/kernel_function_types_linear.h"
+#include "algorithms/kernel/kernel.h"
 
 using namespace daal::internal;
 

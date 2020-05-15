@@ -21,8 +21,8 @@
 //--
 */
 
-#include "implicit_als_model.h"
-#include "daal_strings.h"
+#include "algorithms/implicit_als/implicit_als_model.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {

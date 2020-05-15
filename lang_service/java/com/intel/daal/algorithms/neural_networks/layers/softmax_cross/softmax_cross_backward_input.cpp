@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_neural_networks_layers_softmax_cross_SoftmaxCrossLayerDataId.h"
 #define auxProbabilitiesId com_intel_daal_algorithms_neural_networks_layers_softmax_cross_SoftmaxCrossLayerDataId_auxProbabilitiesId

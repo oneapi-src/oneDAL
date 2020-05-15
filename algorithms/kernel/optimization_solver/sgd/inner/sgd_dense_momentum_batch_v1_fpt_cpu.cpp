@@ -19,9 +19,9 @@
 //  Implementation of sgd calculation functions
 //--
 
-#include "sgd_batch_container_v1.h"
-#include "sgd_dense_momentum_kernel_v1.h"
-#include "sgd_dense_momentum_v1_impl.i"
+#include "algorithms/kernel/optimization_solver/sgd/inner/sgd_batch_container_v1.h"
+#include "algorithms/kernel/optimization_solver/sgd/inner/sgd_dense_momentum_kernel_v1.h"
+#include "algorithms/kernel/optimization_solver/sgd/inner/sgd_dense_momentum_v1_impl.i"
 
 namespace daal
 {

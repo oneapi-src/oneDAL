@@ -30,7 +30,7 @@
 #include "daal.h"
 #include "services/daal_defines.h"
 #include "data_management/data/data_serialize.h"
-#include "java_threading_helper.h"
+#include "lang_service/java/com/intel/daal/data_management/data/java_threading_helper.h"
 
 namespace daal
 {

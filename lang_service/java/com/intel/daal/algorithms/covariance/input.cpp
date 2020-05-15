@@ -20,9 +20,9 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_covariance_Input.h"
 
-#include "common_helpers.h"
-#include "common_defines.i"
-#include "covariance_types.i"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
+#include "lang_service/java/com/intel/daal/common_defines.i"
+#include "lang_service/java/com/intel/daal/algorithms/covariance/covariance_types.i"
 
 
 USING_COMMON_NAMESPACES();

@@ -18,8 +18,8 @@
 #ifndef __BATCH_NORMALIZATION_LAYER_FORWARD_TASK_DESCRIPTOR_H__
 #define __BATCH_NORMALIZATION_LAYER_FORWARD_TASK_DESCRIPTOR_H__
 
-#include "neural_networks/layers/batch_normalization/batch_normalization_layer_forward.h"
-#include "neural_networks/layers/batch_normalization/batch_normalization_layer_forward_types.h"
+#include "algorithms/neural_networks/layers/batch_normalization/batch_normalization_layer_forward.h"
+#include "algorithms/neural_networks/layers/batch_normalization/batch_normalization_layer_forward_types.h"
 
 namespace daal
 {

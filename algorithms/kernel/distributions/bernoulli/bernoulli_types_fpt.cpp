@@ -19,8 +19,8 @@
 //  Implementation of bernoulli distribution algorithm and types methods.
 //--
 
-#include "distributions/bernoulli/bernoulli_types.h"
-#include "daal_strings.h"
+#include "algorithms/distributions/bernoulli/bernoulli_types.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {

@@ -21,13 +21,13 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_classifier_training_TrainingInput.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::classifier;
 using namespace daal::algorithms::classifier::training;
 
-#include "common_defines.i"
+#include "lang_service/java/com/intel/daal/common_defines.i"
 
 #include "com_intel_daal_algorithms_classifier_training_InputId.h"
 #define Data com_intel_daal_algorithms_classifier_training_InputId_Data

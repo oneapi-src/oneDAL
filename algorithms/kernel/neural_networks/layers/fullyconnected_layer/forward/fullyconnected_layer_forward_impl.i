@@ -24,9 +24,9 @@
 #ifndef __FULLYCONNECTED_LAYER_FORWARD_IMPL_I__
 #define __FULLYCONNECTED_LAYER_FORWARD_IMPL_I__
 
-#include "service_blas.h"
-#include "threading.h"
-#include "service_memory.h"
+#include "externals/service_blas.h"
+#include "algorithms/threading/threading.h"
+#include "externals/service_memory.h"
 
 #define _DEFAULT_BLOCKSIZE 256
 #define _SMALL_BLOCKSIZE   128

@@ -24,12 +24,12 @@
 #ifndef __AVERAGE_POOLING1D_LAYER_FORWARD_IMPL_I__
 #define __AVERAGE_POOLING1D_LAYER_FORWARD_IMPL_I__
 
-#include "service_memory.h"
-#include "service_data_utils.h"
-#include "service_blas.h"
-#include "service_tensor.h"
+#include "externals/service_memory.h"
+#include "service/kernel/service_data_utils.h"
+#include "externals/service_blas.h"
+#include "service/kernel/data_management/service_tensor.h"
 
-#include "pooling1d_layer_impl.i"
+#include "algorithms/kernel/neural_networks/layers/pooling1d_layer/pooling1d_layer_impl.i"
 
 using namespace daal::services;
 using namespace daal::internal;

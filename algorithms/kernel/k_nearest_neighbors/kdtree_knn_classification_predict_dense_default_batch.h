@@ -24,12 +24,12 @@
 #ifndef __KDTREE_KNN_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_H__
 #define __KDTREE_KNN_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_H__
 
-#include "kdtree_knn_classification_predict.h"
-#include "kdtree_knn_classification_model_impl.h"
-#include "service_memory.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "service_blas.h"
+#include "algorithms/k_nearest_neighbors/kdtree_knn_classification_predict.h"
+#include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
+#include "externals/service_memory.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "externals/service_blas.h"
 
 namespace daal
 {

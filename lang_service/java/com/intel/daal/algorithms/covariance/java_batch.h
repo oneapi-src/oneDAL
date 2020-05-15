@@ -29,7 +29,7 @@
 
 #include "algorithms/covariance/covariance_types.h"
 #include "algorithms/covariance/covariance_batch.h"
-#include "java_callback.h"
+#include "lang_service/java/com/intel/daal/java_callback.h"
 #include "java_batch_container.h"
 
 namespace daal

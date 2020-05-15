@@ -25,12 +25,12 @@
 #ifndef __MULTICLASSCLASSIFIER_TRAIN_ONEAGAINSTONE_IMPL_I__
 #define __MULTICLASSCLASSIFIER_TRAIN_ONEAGAINSTONE_IMPL_I__
 
-#include "multi_class_classifier_model.h"
+#include "algorithms/multi_class_classifier/multi_class_classifier_model.h"
 
-#include "threading.h"
-#include "service_sort.h"
-#include "service_error_handling.h"
-#include "service_blas.h"
+#include "algorithms/threading/threading.h"
+#include "algorithms/kernel/service_sort.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "externals/service_blas.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;

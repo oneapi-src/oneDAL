@@ -19,7 +19,7 @@
 #include "com_intel_daal_algorithms_svd_OnlinePartialResult.h"
 #include "com_intel_daal_algorithms_svd_DistributedStep2MasterPartialResult.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_svd_PartialResultId.h"
 #define outputOfStep1ForStep3Val com_intel_daal_algorithms_svd_PartialResultId_outputOfStep1ForStep3Id

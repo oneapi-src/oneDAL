@@ -21,8 +21,8 @@
 //--
 */
 
-#include "softmax_layer_backward_types.h"
-#include "softmax_layer_types.h"
+#include "algorithms/neural_networks/layers/softmax/softmax_layer_backward_types.h"
+#include "algorithms/neural_networks/layers/softmax/softmax_layer_types.h"
 
 namespace daal
 {

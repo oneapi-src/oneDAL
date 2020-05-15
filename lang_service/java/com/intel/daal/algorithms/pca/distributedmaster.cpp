@@ -21,7 +21,7 @@
 #include "com_intel_daal_algorithms_pca_DistributedStep2Master.h"
 #include "com_intel_daal_algorithms_pca_Method.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #define CorrelationDenseValue com_intel_daal_algorithms_pca_Method_correlationDenseValue
 #define SVDDenseValue         com_intel_daal_algorithms_pca_Method_svdDenseValue

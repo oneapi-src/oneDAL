@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "uniform_initializer_task_descriptor.h"
+#include "algorithms/kernel/neural_networks/initializers/uniform/uniform_initializer_task_descriptor.h"
 
 namespace daal
 {

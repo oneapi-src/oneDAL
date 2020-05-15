@@ -19,9 +19,9 @@
 //  Implementation of neural networks calculation functions.
 //--
 
-#include "neural_networks_prediction_batch_container.h"
-#include "neural_networks_prediction_feedforward_kernel.h"
-#include "neural_networks_prediction_feedforward_impl.i"
+#include "algorithms/kernel/neural_networks/neural_networks_prediction_batch_container.h"
+#include "algorithms/kernel/neural_networks/neural_networks_prediction_feedforward_kernel.h"
+#include "algorithms/kernel/neural_networks/neural_networks_prediction_feedforward_impl.i"
 
 namespace daal
 {

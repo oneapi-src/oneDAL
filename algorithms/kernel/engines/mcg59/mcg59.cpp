@@ -20,7 +20,7 @@
 //--
 
 #include "algorithms/engines/mcg59/mcg59.h"
-#include "mcg59_batch_impl.h"
+#include "algorithms/kernel/engines/mcg59/mcg59_batch_impl.h"
 
 namespace daal
 {

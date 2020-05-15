@@ -22,11 +22,11 @@
 #ifndef __MAXIMUM_POOLING3D_LAYER_FORWARD_KERNEL_H__
 #define __MAXIMUM_POOLING3D_LAYER_FORWARD_KERNEL_H__
 
-#include "neural_networks/layers/pooling3d/maximum_pooling3d_layer_forward.h"
-#include "neural_networks/layers/pooling3d/maximum_pooling3d_layer_forward_types.h"
-#include "kernel.h"
-#include "tensor.h"
-#include "service_blas.h"
+#include "algorithms/neural_networks/layers/pooling3d/maximum_pooling3d_layer_forward.h"
+#include "algorithms/neural_networks/layers/pooling3d/maximum_pooling3d_layer_forward_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/tensor.h"
+#include "externals/service_blas.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

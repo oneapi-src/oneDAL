@@ -21,7 +21,7 @@
 //--
 */
 
-#include "dtrees_model_impl.h"
+#include "algorithms/kernel/dtrees/dtrees_model_impl.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

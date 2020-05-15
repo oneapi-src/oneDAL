@@ -24,7 +24,7 @@
 #ifndef __LINEAR_MODEL_MODEL_IMPL_H__
 #define __LINEAR_MODEL_MODEL_IMPL_H__
 
-#include "linear_model_model.h"
+#include "algorithms/linear_model/linear_model_model.h"
 
 namespace daal
 {

@@ -21,8 +21,8 @@
 //--
 */
 
-#include "reshape_layer_backward_types.h"
-#include "reshape_layer_types.h"
+#include "algorithms/neural_networks/layers/reshape/reshape_layer_backward_types.h"
+#include "algorithms/neural_networks/layers/reshape/reshape_layer_types.h"
 
 namespace daal
 {

@@ -19,7 +19,7 @@
 
 #include "com_intel_daal_algorithms_ridge_regression_training_PartialResult.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_ridge_regression_training_PartialResultId.h"
 #define ModelId     com_intel_daal_algorithms_ridge_regression_training_PartialResultId_ModelId

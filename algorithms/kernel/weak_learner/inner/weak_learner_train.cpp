@@ -21,8 +21,8 @@
 //--
 */
 
-#include "stump_training_types.h"
-#include "serialization_utils.h"
+#include "algorithms/stump/stump_training_types.h"
+#include "service/kernel/serialization_utils.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

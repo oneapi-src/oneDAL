@@ -21,7 +21,7 @@
 //--
 */
 
-#include "tanh_layer_types.h"
+#include "algorithms/neural_networks/layers/tanh/tanh_layer_types.h"
 
 namespace daal
 {

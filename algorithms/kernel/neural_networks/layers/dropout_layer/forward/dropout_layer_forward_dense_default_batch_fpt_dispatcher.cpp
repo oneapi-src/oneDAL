@@ -19,7 +19,7 @@
 //  Implementation of the forward dropout layer
 //--
 
-#include "dropout_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/dropout_layer/forward/dropout_layer_forward_batch_container.h"
 
 namespace daal
 {

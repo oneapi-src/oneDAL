@@ -18,7 +18,7 @@
 #include <jni.h>
 #include "com_intel_daal_algorithms_math_relu_Batch.h"
 #include "daal.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #define FastCSRMethodValue com_intel_daal_algorithms_math_relu_Method_FastCSRMethodValue
 USING_COMMON_NAMESPACES()

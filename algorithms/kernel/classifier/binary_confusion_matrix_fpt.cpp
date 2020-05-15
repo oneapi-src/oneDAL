@@ -21,7 +21,7 @@
 //--
 */
 
-#include "binary_confusion_matrix.h"
+#include "algorithms/kernel/classifier/binary_confusion_matrix.h"
 
 namespace daal
 {

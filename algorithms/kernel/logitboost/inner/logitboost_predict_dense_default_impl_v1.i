@@ -24,15 +24,15 @@
 #ifndef __LOGITBOOST_PREDICT_DENSE_DEFAULT_IMPL_V1_I__
 #define __LOGITBOOST_PREDICT_DENSE_DEFAULT_IMPL_V1_I__
 
-#include "algorithm.h"
-#include "numeric_table.h"
-#include "logitboost_model.h"
-#include "threading.h"
-#include "daal_defines.h"
+#include "algorithms/algorithm.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/boosting/logitboost_model.h"
+#include "algorithms/threading/threading.h"
+#include "services/daal_defines.h"
 
-#include "service_memory.h"
-#include "service_numeric_table.h"
-#include "logitboost_impl.i"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/logitboost/logitboost_impl.i"
 
 using namespace daal::algorithms::logitboost::internal;
 

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "smoothrelu_types.h"
+#include "algorithms/math/smoothrelu_types.h"
 
 using namespace daal::services;
 

@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "batch_normalization_layer_forward_task_descriptor.h"
+#include "algorithms/kernel/neural_networks/layers/batch_normalization_layer/forward/batch_normalization_layer_forward_task_descriptor.h"
 
 namespace daal
 {

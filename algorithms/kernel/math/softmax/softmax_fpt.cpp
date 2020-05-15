@@ -21,7 +21,7 @@
 //--
 */
 
-#include "softmax_types.h"
+#include "algorithms/math/softmax_types.h"
 
 using namespace daal::services;
 

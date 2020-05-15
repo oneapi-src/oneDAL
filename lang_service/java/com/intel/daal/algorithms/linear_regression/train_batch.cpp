@@ -20,7 +20,7 @@
 #include "com_intel_daal_algorithms_linear_regression_training_TrainingBatch.h"
 #include "com_intel_daal_algorithms_linear_regression_training_TrainingMethod.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #define normEqDense com_intel_daal_algorithms_linear_regression_training_TrainingMethod_normEqDenseValue
 #define qrDense     com_intel_daal_algorithms_linear_regression_training_TrainingMethod_qrDenseValue

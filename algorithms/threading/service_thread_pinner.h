@@ -24,7 +24,7 @@
 #ifndef __SERVICE_THREAD_PINNER_H__
 #define __SERVICE_THREAD_PINNER_H__
 
-#include "daal_defines.h"
+#include "services/daal_defines.h"
 #if !defined(DAAL_THREAD_PINNING_DISABLED)
 
     #include <cstdlib>

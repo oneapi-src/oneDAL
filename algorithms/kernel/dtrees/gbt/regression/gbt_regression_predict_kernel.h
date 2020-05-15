@@ -25,10 +25,10 @@
 #ifndef __GBT_REGRESSION_PREDICT_DENSE_DEFAULT_BATCH_H__
 #define __GBT_REGRESSION_PREDICT_DENSE_DEFAULT_BATCH_H__
 
-#include "gbt_regression_predict.h"
-#include "service_memory.h"
-#include "kernel.h"
-#include "numeric_table.h"
+#include "algorithms/gradient_boosted_trees/gbt_regression_predict.h"
+#include "externals/service_memory.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;
 

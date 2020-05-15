@@ -22,7 +22,7 @@
 #include "com_intel_daal_algorithms_decision_forest_regression_training_Parameter.h"
 #include "com_intel_daal_algorithms_decision_forest_regression_training_TrainingResult.h"
 #include "com_intel_daal_algorithms_decision_forest_regression_training_TrainingInput.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 

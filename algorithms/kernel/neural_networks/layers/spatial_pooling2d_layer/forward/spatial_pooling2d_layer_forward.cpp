@@ -21,9 +21,9 @@
 //--
 */
 
-#include "spatial_pooling2d_layer_types.h"
-#include "spatial_pooling2d_layer_forward_types.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/layers/spatial_pooling2d/spatial_pooling2d_layer_types.h"
+#include "algorithms/neural_networks/layers/spatial_pooling2d/spatial_pooling2d_layer_forward_types.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::services;
 
