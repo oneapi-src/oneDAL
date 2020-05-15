@@ -63,16 +63,16 @@ private:
     {
         cl::sycl::queue & queue;
         ccl_stream_t& stream;
-        UniversalBuffer & dstUnivers;
-        UniversalBuffer & srcUnivers;
+        oneapi::internal::UniversalBuffer & dstUnivers;
+        oneapi::internal::UniversalBuffer & srcUnivers;
         size_t count;
 
-        explicit Execute(cl::sycl::queue & queue, ccl_stream_t& stream, UniversalBuffer & dst, UniversalBuffer & src, size_t count)
+        explicit Execute(cl::sycl::queue & queue, ccl_stream_t& stream, oneapi::internal::UniversalBuffer & dst, oneapi::internal::UniversalBuffer & src, size_t count)
             : queue(queue), stream(stream), dstUnivers(dst), srcUnivers(src), count(count)
         {}
 
         template <typename T>
-        void operator()(Typelist<T>)
+        void operator()(oneapi::internal::Typelist<T>)
         {
             auto src              = srcUnivers.get<T>().toSycl();
             auto dst              = dstUnivers.get<T>().toSycl();
@@ -84,10 +84,10 @@ private:
         }
     };
 public:
-    static void allReduceSum(cl::sycl::queue & queue, ccl_stream_t& stream, UniversalBuffer & dst, UniversalBuffer & src, size_t count)
+    static void allReduceSum(cl::sycl::queue & queue, ccl_stream_t& stream, oneapi::internal::UniversalBuffer & dst, oneapi::internal::UniversalBuffer & src, size_t count)
     {
         Execute op(queue, stream, dst, src, count);
-        TypeDispatcher::dispatch(dst.type(), op);
+        oneapi::internal::TypeDispatcher::dispatch(dst.type(), op);
     }
 };
 
@@ -95,46 +95,45 @@ public:
  *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__BUFFERCOPIER"></a>
  *  \brief AllGatherV for two UniversalBuffers
  */
-class BufferAllReducer
+class BufferAllGatherer
 {
 private:
     struct Execute
     {
         cl::sycl::queue & queue;
         ccl_stream_t& stream;
-        UniversalBuffer & dstUnivers;
-        UniversalBuffer & srcUnivers;
+        oneapi::internal::UniversalBuffer & dstUnivers;
+        oneapi::internal::UniversalBuffer & srcUnivers;
         size_t srcCount;
         size_t dstCount;
 
-        explicit Execute(cl::sycl::queue & queue, ccl_stream_t& stream, UniversalBuffer & dst, size_t dstCount, UniversalBuffer & src, size_t srcCount)
+        explicit Execute(cl::sycl::queue & queue, ccl_stream_t& stream, oneapi::internal::UniversalBuffer & dst, size_t dstCount, oneapi::internal::UniversalBuffer & src, size_t srcCount)
             : queue(queue), stream(stream), dstUnivers(dst), srcUnivers(src), dstCount(dstCount), srcCount(srcCount)
         {}
 
         template <typename T>
-        void operator()(Typelist<T>)
+        void operator()(oneapi::internal::Typelist<T>)
         {
             auto src              = srcUnivers.get<T>().toSycl();
             auto dst              = dstUnivers.get<T>().toSycl();
             ccl_request_t request;
-            ccl_allgatherv(&src, srcCount, &dst, dstCount, get_ccl_datatype<T>(), NULL, NULL, stream, &request);
+            ccl_allgatherv(&src, srcCount, &dst, &dstCount, get_ccl_datatype<T>(), NULL, NULL, stream, &request);
             ccl_wait(request);
         }
     };
 public:
-    static void allReduceSum(cl::sycl::queue & queue, ccl_stream_t& stream, UniversalBuffer & dst, UniversalBuffer & src, size_t count)
+    static void allGatherV(cl::sycl::queue & queue, ccl_stream_t& stream, oneapi::internal::UniversalBuffer & dst, size_t dstCount, oneapi::internal::UniversalBuffer & src, size_t srcCount)
     {
-        Execute op(queue, stream, dst, src, count);
-        TypeDispatcher::dispatch(dst.type(), op);
+        Execute op(queue, stream, dst, dstCount, src, srcCount);
+        oneapi::internal::TypeDispatcher::dispatch(dst.type(), op);
     }
 };
 
 /** @} */
 } // namespace interface1
 
-using interface1::BufferAllocator;
-using interface1::BufferCopier;
-using interface1::BufferFiller;
+using interface1::BufferAllReducer;
+using interface1::BufferAllGatherer;
 
 } // namespace internal
 } // namespace comm

@@ -29,6 +29,7 @@
 #include "daal_sycl.h"
 #include "service.h"
 #include "service_sycl.h"
+#include "services/comm_detect.h"
 
 using namespace std;
 using namespace daal;
@@ -56,6 +57,9 @@ int main(int argc, char * argv[])
 
         daal::services::SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
+		
+		daal::preview::services::OneCclCommunicator comm(queue);
+		daal::preview::services::CommManager::getInstance()->setDefaultCommunicator(comm);
 
         /* Initialize FileDataSource to retrieve the input data from a .csv file */
         FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
