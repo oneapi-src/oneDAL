@@ -29,7 +29,7 @@
 
 #include "lang_service/java/com/intel/daal/data_management/data/java_numeric_table.h"
 #include "data_management/data/csr_numeric_table.h"
-#include "lang_service/java/com/intel/daal/common_defines.i"
+#include "lang_service/java/com/intel/daal/include/common_defines.i"
 
 using namespace daal::data_management;
 

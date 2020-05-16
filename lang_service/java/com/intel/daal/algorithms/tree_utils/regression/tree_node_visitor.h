@@ -26,7 +26,7 @@
 #include <jni.h>
 #include "daal.h"
 #include "algorithms/tree_utils/tree_utils_regression.h"
-#include "lang_service/java/com/intel/daal/java_callback.h"
+#include "lang_service/java/com/intel/daal/include/java_callback.h"
 
 namespace daal
 {

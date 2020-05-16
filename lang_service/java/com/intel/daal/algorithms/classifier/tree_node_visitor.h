@@ -25,7 +25,7 @@
 #include <jni.h>
 #include "daal.h"
 #include "algorithms/classifier/tree_traverse.h"
-#include "lang_service/java/com/intel/daal/java_callback.h"
+#include "lang_service/java/com/intel/daal/include/java_callback.h"
 
 namespace daal
 {

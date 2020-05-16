@@ -29,7 +29,7 @@
 
 #include "algorithms/optimization_solver/objective_function/sum_of_functions_types.h"
 #include "algorithms/optimization_solver/objective_function/sum_of_functions_batch.h"
-#include "lang_service/java/com/intel/daal/java_callback.h"
+#include "lang_service/java/com/intel/daal/include/java_callback.h"
 #include "java_batch_container.h"
 
 namespace daal

@@ -21,7 +21,7 @@
 #include "services/daal_defines.h"
 #include "algorithms/algorithm.h"
 #include "daal.h"
-#include "lang_service/java/com/intel/daal/common_helpers_functions.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers_functions.h"
 
 using namespace daal;
 using namespace daal::algorithms;

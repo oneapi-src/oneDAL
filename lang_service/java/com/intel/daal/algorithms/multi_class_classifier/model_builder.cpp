@@ -20,7 +20,7 @@
 
 #include "daal.h"
 #include "com_intel_daal_algorithms_multi_class_classifier_ModelBuilder.h"
-#include "lang_service/java/com/intel/daal/common_helpers_functions.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers_functions.h"
 
 using namespace daal;
 using namespace daal::algorithms::multi_class_classifier;

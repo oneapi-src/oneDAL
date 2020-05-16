@@ -27,7 +27,7 @@ USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::classifier;
 using namespace daal::algorithms::classifier::training;
 
-#include "lang_service/java/com/intel/daal/common_defines.i"
+#include "lang_service/java/com/intel/daal/include/common_defines.i"
 
 #include "com_intel_daal_algorithms_classifier_training_InputId.h"
 #define Data com_intel_daal_algorithms_classifier_training_InputId_Data

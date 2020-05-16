@@ -23,7 +23,7 @@
 #include "com_intel_daal_algorithms_gbt_classification_training_TrainingResult.h"
 #include "algorithms/gradient_boosted_trees/gbt_classification_training_types.h"
 #include "lang_service/java/com/intel/daal/include/common_helpers.h"
-#include "lang_service/java/com/intel/daal/common_defines.i"
+#include "lang_service/java/com/intel/daal/include/common_defines.i"
 
 USING_COMMON_NAMESPACES()
 

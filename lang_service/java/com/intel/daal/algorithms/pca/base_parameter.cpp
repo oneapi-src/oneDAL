@@ -30,7 +30,7 @@ using namespace daal::data_management;
 #define CorrelationDenseValue com_intel_daal_algorithms_pca_Method_correlationDenseValue
 #define SVDDenseValue         com_intel_daal_algorithms_pca_Method_svdDenseValue
 
-#include "lang_service/java/com/intel/daal/common_defines.i"
+#include "lang_service/java/com/intel/daal/include/common_defines.i"
 
 /*
  * Class:     com_intel_daal_algorithms_pca_BaseParameter

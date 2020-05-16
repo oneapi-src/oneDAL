@@ -24,8 +24,8 @@
 #include "daal.h"
 
 #include "lang_service/java/com/intel/daal/data_management/data/java_numeric_table.h"
-#include "lang_service/java/com/intel/daal/common_defines.i"
-#include "lang_service/java/com/intel/daal/common_helpers_functions.h"
+#include "lang_service/java/com/intel/daal/include/common_defines.i"
+#include "lang_service/java/com/intel/daal/include/common_helpers_functions.h"
 
 using namespace daal::services;
 using namespace daal::data_management;

@@ -24,7 +24,7 @@
 #define __REGRESSION_TREE_NODE_VISITOR_H__
 #include <jni.h>
 #include "daal.h"
-#include "lang_service/java/com/intel/daal/java_callback.h"
+#include "lang_service/java/com/intel/daal/include/java_callback.h"
 #include "algorithms/regression/tree_traverse.h"
 
 namespace daal

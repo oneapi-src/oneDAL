@@ -19,7 +19,7 @@
 
 #include "data_management/data_source/file_data_source.h"
 #include "data_management/data_source/csv_feature_manager.h"
-#include "lang_service/java/com/intel/daal/common_helpers_functions.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers_functions.h"
 
 using namespace daal;
 using namespace daal::data_management;

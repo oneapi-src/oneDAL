@@ -28,7 +28,7 @@
 
 #include "algorithms/covariance/covariance_types.h"
 #include "algorithms/covariance/covariance_online.h"
-#include "lang_service/java/com/intel/daal/java_callback.h"
+#include "lang_service/java/com/intel/daal/include/java_callback.h"
 
 namespace daal
 {

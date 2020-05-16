@@ -17,7 +17,7 @@
 
 #include <jni.h>
 #include "daal.h"
-#include "lang_service/java/com/intel/daal/common_helpers_functions.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers_functions.h"
 #include "tree_node_visitor.h"
 
 namespace daal

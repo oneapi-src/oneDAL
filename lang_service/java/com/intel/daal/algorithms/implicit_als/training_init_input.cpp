@@ -24,7 +24,7 @@
 #include "lang_service/java/com/intel/daal/algorithms/implicit_als/implicit_als_init_defines.i"
 
 #include "lang_service/java/com/intel/daal/include/common_helpers.h"
-#include "lang_service/java/com/intel/daal/common_defines.i"
+#include "lang_service/java/com/intel/daal/include/common_defines.i"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::implicit_als::training::init;
