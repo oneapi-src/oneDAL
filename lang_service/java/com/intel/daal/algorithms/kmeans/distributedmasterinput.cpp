@@ -24,14 +24,13 @@
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::kmeans;
 
-
 /*
  * Class:     com_intel_daal_algorithms_kmeans_DistributedStep2MasterInput
  * Method:    cAddInput
  * Signature: (JIJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_DistributedStep2MasterInput_cAddInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong partialResultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_DistributedStep2MasterInput_cAddInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                                   jint id, jlong partialResultAddr)
 {
     jniInput<kmeans::DistributedStep2MasterInput>::add<kmeans::MasterInputId, kmeans::PartialResult>(inputAddr, id, partialResultAddr);
 }

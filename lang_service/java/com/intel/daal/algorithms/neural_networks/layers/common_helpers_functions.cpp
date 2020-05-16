@@ -21,16 +21,16 @@ namespace daal
 {
 using namespace daal::services;
 
-jlongArray getJavaLongArrayFromSizeTCollection(JNIEnv *env, const Collection<size_t> &dims)
+jlongArray getJavaLongArrayFromSizeTCollection(JNIEnv * env, const Collection<size_t> & dims)
 {
-    size_t size = dims.size();
+    size_t size      = dims.size();
     jlongArray jDims = env->NewLongArray(size);
 
-    for(size_t i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++)
     {
         jlong val = (jlong)dims[i];
         env->SetLongArrayRegion(jDims, i, 1, &val);
     }
     return jDims;
 }
-}
+} // namespace daal

@@ -30,8 +30,7 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cInit
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_NextLayersCollection_cInit
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_NextLayersCollection_cInit(JNIEnv * env, jobject thisObj)
 {
     return (jlong)(new SharedPtr<Collection<layers::NextLayers> >(new Collection<layers::NextLayers>()));
 }
@@ -41,10 +40,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_NextLaye
  * Method:    cSize
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_NextLayersCollection_cSize
-(JNIEnv *env, jobject thisObj, jlong colAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_NextLayersCollection_cSize(JNIEnv * env, jobject thisObj, jlong colAddr)
 {
-    return (*(SharedPtr<Collection<layers::NextLayers > >*)colAddr)->size();
+    return (*(SharedPtr<Collection<layers::NextLayers> > *)colAddr)->size();
 }
 
 /*
@@ -52,11 +50,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_NextLaye
  * Method:    cGet
  * Signature: (JJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_NextLayersCollection_cGet
-(JNIEnv *env, jobject thisObj, jlong colAddr, jlong index)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_NextLayersCollection_cGet(JNIEnv * env, jobject thisObj, jlong colAddr,
+                                                                                                  jlong index)
 {
-    layers::NextLayers nextLayers = (*(SharedPtr<Collection<layers::NextLayers > >*)colAddr)->get((size_t)index);
-    layers::NextLayers *nextLayersPtr = new layers::NextLayers(nextLayers);
+    layers::NextLayers nextLayers      = (*(SharedPtr<Collection<layers::NextLayers> > *)colAddr)->get((size_t)index);
+    layers::NextLayers * nextLayersPtr = new layers::NextLayers(nextLayers);
     return (jlong)nextLayersPtr;
 }
 
@@ -65,10 +63,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_NextLaye
  * Method:    cPushBack
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_NextLayersCollection_cPushBack
-(JNIEnv *env, jobject thisObj, jlong colAddr, jlong layerAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_NextLayersCollection_cPushBack(JNIEnv * env, jobject thisObj, jlong colAddr,
+                                                                                                      jlong layerAddr)
 {
-    (*(SharedPtr<Collection<layers::NextLayers > >*)colAddr)->push_back(*((layers::NextLayers *)layerAddr));
+    (*(SharedPtr<Collection<layers::NextLayers> > *)colAddr)->push_back(*((layers::NextLayers *)layerAddr));
 }
 
 /*
@@ -76,8 +74,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_NextLayer
  * Method:    cDispose
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_NextLayersCollection_cDispose
-(JNIEnv *env, jobject thisObj, jlong addr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_NextLayersCollection_cDispose(JNIEnv * env, jobject thisObj, jlong addr)
 {
-    delete(SharedPtr<Collection<layers::NextLayers> > *)addr;
+    delete (SharedPtr<Collection<layers::NextLayers> > *)addr;
 }

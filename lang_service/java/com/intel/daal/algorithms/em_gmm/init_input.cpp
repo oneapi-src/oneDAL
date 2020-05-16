@@ -25,15 +25,15 @@
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::em_gmm::init;
 
-#define Data   com_intel_daal_algorithms_em_gmm_init_InitInputId_Data
+#define Data com_intel_daal_algorithms_em_gmm_init_InitInputId_Data
 
 /*
  * Class:     com_intel_daal_algorithms_em_gmm_init_InitInput
  * Method:    cInit
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitInput_cInit
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jint cmode)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitInput_cInit(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                    jint method, jint cmode)
 {
     return jniBatch<em_gmm::init::Method, Batch, defaultDense>::getInput(prec, method, algAddr);
 }
@@ -43,8 +43,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitInput_cI
  * Method:    cSetInput
  * Signature: (JIJ)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitInput_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitInput_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id,
+                                                                                       jlong ntAddr)
 {
     jniInput<em_gmm::init::Input>::set<em_gmm::init::InputId, NumericTable>(inputAddr, id, ntAddr);
     return (jint)0;
@@ -55,8 +55,7 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitInput_cSe
  * Method:    cGetInputTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitInput_cGetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitInput_cGetInputTable(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id)
 {
     return jniInput<em_gmm::init::Input>::get<em_gmm::init::InputId, NumericTable>(inputAddr, id);
 }

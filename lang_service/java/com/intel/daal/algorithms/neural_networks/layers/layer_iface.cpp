@@ -30,8 +30,7 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cDispose
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_LayerIface_cDispose
-(JNIEnv *env, jobject thisObj, jlong addr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_LayerIface_cDispose(JNIEnv * env, jobject thisObj, jlong addr)
 {
-    delete(layers::LayerIfacePtr *)addr;
+    delete (layers::LayerIfacePtr *)addr;
 }

@@ -35,10 +35,12 @@ using namespace daal::algorithms::svd;
  * Method:    cSetInputTable
  * Signature:(JIJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_Input_cSetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_Input_cSetInputTable(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
 {
-    if(id != data) { return; }
+    if (id != data)
+    {
+        return;
+    }
 
     jniInput<svd::Input>::set<InputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -48,10 +50,12 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_Input_cSetInputTable
  * Method:    cGetInputTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Input_cGetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Input_cGetInputTable(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id)
 {
-    if(id != data) { return (jlong)-1; }
+    if (id != data)
+    {
+        return (jlong)-1;
+    }
 
     return jniInput<svd::Input>::get<InputId, NumericTable>(inputAddr, id);
 }
@@ -61,8 +65,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Input_cGetInputTable
  * Method:    cAddDataCollection
  * Signature:(JIIIJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_DistributedStep2MasterInput_cAddDataCollection
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint key, jlong dcAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_DistributedStep2MasterInput_cAddDataCollection(JNIEnv * env, jobject thisObj,
+                                                                                                         jlong inputAddr, jint key, jlong dcAddr)
 {
     jniInput<svd::DistributedStep2Input>::add<MasterInputId, DataCollection>(inputAddr, svd::inputOfStep2FromStep1, key, dcAddr);
 }
@@ -72,9 +76,12 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_DistributedStep2Master
  * Method:    cSetDataCollection
  * Signature:(JIIIJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_DistributedStep3LocalInput_cSetDataCollection
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong dcAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_DistributedStep3LocalInput_cSetDataCollection(JNIEnv * env, jobject thisObj,
+                                                                                                        jlong inputAddr, jint id, jlong dcAddr)
 {
-    if( id != inputOfStep3FromStep1 && id != inputOfStep3FromStep2 ) { return; }
+    if (id != inputOfStep3FromStep1 && id != inputOfStep3FromStep2)
+    {
+        return;
+    }
     jniInput<svd::DistributedStep3Input>::set<FinalizeOnLocalInputId, DataCollection>(inputAddr, id, dcAddr);
 }

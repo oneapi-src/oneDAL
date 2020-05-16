@@ -23,12 +23,14 @@
 #include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId.h"
-#define auxDataId               com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId_auxDataId
-#define auxWeightsId            com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId_auxWeightsId
-#define auxMeanId               com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId_auxMeanId
-#define auxStandardDeviationId  com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId_auxStandardDeviationId
-#define auxPopulationMeanId     com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId_auxPopulationMeanId
-#define auxPopulationVarianceId com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId_auxPopulationVarianceId
+#define auxDataId    com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId_auxDataId
+#define auxWeightsId com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId_auxWeightsId
+#define auxMeanId    com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId_auxMeanId
+#define auxStandardDeviationId \
+    com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId_auxStandardDeviationId
+#define auxPopulationMeanId com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId_auxPopulationMeanId
+#define auxPopulationVarianceId \
+    com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId_auxPopulationVarianceId
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::neural_networks::layers::batch_normalization;
@@ -38,11 +40,11 @@ using namespace daal::algorithms::neural_networks::layers::batch_normalization;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_batch_1normalization_BatchNormalizationBackwardInput_cSetInput
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_batch_1normalization_BatchNormalizationBackwardInput_cSetInput(
+    JNIEnv * env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
 {
-    if (id == auxDataId || id == auxWeightsId || id == auxMeanId || id == auxStandardDeviationId ||
-        id == auxPopulationMeanId || id == auxPopulationVarianceId)
+    if (id == auxDataId || id == auxWeightsId || id == auxMeanId || id == auxStandardDeviationId || id == auxPopulationMeanId
+        || id == auxPopulationVarianceId)
     {
         jniInput<backward::Input>::set<LayerDataId, Tensor>(inputAddr, id, ntAddr);
     }
@@ -53,11 +55,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_ba
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_batch_1normalization_BatchNormalizationBackwardInput_cGetInput
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_batch_1normalization_BatchNormalizationBackwardInput_cGetInput(
+    JNIEnv * env, jobject thisObj, jlong inputAddr, jint id)
 {
-    if (id == auxDataId || id == auxWeightsId || id == auxMeanId || id == auxStandardDeviationId ||
-        id == auxPopulationMeanId || id == auxPopulationVarianceId)
+    if (id == auxDataId || id == auxWeightsId || id == auxMeanId || id == auxStandardDeviationId || id == auxPopulationMeanId
+        || id == auxPopulationVarianceId)
     {
         return jniInput<backward::Input>::get<LayerDataId, Tensor>(inputAddr, id);
     }

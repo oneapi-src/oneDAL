@@ -23,7 +23,7 @@
 #include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_linear_regression_training_PartialResultId.h"
-#define ModelId     com_intel_daal_algorithms_linear_regression_training_PartialResultId_ModelId
+#define ModelId com_intel_daal_algorithms_linear_regression_training_PartialResultId_ModelId
 
 USING_COMMON_NAMESPACES();
 
@@ -32,8 +32,7 @@ USING_COMMON_NAMESPACES();
  * Method:    cNewPartialResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_PartialResult_cNewPartialResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_PartialResult_cNewPartialResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<linear_regression::training::PartialResult>::newObj();
 }
@@ -43,13 +42,13 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_traini
  * Method:    cGetModel
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_PartialResult_cGetModel
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_PartialResult_cGetModel(JNIEnv * env, jobject thisObj,
+                                                                                                           jlong resAddr, jint id)
 {
-    if ( id == ModelId )
+    if (id == ModelId)
     {
-        return jniArgument<linear_regression::training::PartialResult>::
-            get<linear_regression::training::PartialResultID, linear_regression::Model>(resAddr, id);
+        return jniArgument<linear_regression::training::PartialResult>::get<linear_regression::training::PartialResultID, linear_regression::Model>(
+            resAddr, id);
     }
 
     return (jlong)0;

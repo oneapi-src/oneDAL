@@ -30,8 +30,7 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cInit
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_NextLayers_cInit__
-  (JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_NextLayers_cInit__(JNIEnv * env, jobject thisObj)
 {
     return (jlong)(new layers::NextLayers());
 }
@@ -41,8 +40,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_N
  * Method:    cInit
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_NextLayers_cInit__
-  (JNIEnv *env, jobject thisObj, jlong index1)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_NextLayers_cInit__(JNIEnv * env, jobject thisObj, jlong index1)
 {
     return (jlong)(new layers::NextLayers((size_t)index1));
 }
@@ -52,8 +50,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_N
  * Method:    cInit
  * Signature: (JJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_NextLayers_cInit__J
-  (JNIEnv *env, jobject thisObj, jlong index1, jlong index2)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_NextLayers_cInit__J(JNIEnv * env, jobject thisObj, jlong index1,
+                                                                                                   jlong index2)
 {
     return (jlong)(new layers::NextLayers((size_t)index1, (size_t)index2));
 }
@@ -63,8 +61,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_N
  * Method:    cInit
  * Signature: (JJJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_NextLayers_cInit__JJ
-  (JNIEnv *env, jobject thisObj, jlong index1, jlong index2, jlong index3)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_NextLayers_cInit__JJ(JNIEnv * env, jobject thisObj, jlong index1,
+                                                                                                    jlong index2, jlong index3)
 {
     return (jlong)(new layers::NextLayers((size_t)index1, (size_t)index2, (size_t)index3));
 }
@@ -74,8 +72,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_N
  * Method:    cInit
  * Signature: (JJJJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_NextLayers_cInit__JJJ
-  (JNIEnv *env, jobject thisObj, jlong index1, jlong index2, jlong index3, jlong index4)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_NextLayers_cInit__JJJ(JNIEnv * env, jobject thisObj, jlong index1,
+                                                                                                     jlong index2, jlong index3, jlong index4)
 {
     return (jlong)(new layers::NextLayers((size_t)index1, (size_t)index2, (size_t)index3, (size_t)index4));
 }
@@ -85,8 +83,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_N
  * Method:    cInit
  * Signature: (JJJJJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_NextLayers_cInit__JJJJ
-  (JNIEnv *env, jobject thisObj, jlong index1, jlong index2, jlong index3, jlong index4, jlong index5)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_NextLayers_cInit__JJJJ(JNIEnv * env, jobject thisObj, jlong index1,
+                                                                                                      jlong index2, jlong index3, jlong index4,
+                                                                                                      jlong index5)
 {
     return (jlong)(new layers::NextLayers((size_t)index1, (size_t)index2, (size_t)index3, (size_t)index4, (size_t)index5));
 }
@@ -96,8 +95,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_N
  * Method:    cInit
  * Signature: (JJJJJJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_NextLayers_cInit__JJJJJ
-  (JNIEnv *env, jobject thisObj, jlong index1, jlong index2, jlong index3, jlong index4, jlong index5, jlong index6)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_NextLayers_cInit__JJJJJ(JNIEnv * env, jobject thisObj, jlong index1,
+                                                                                                       jlong index2, jlong index3, jlong index4,
+                                                                                                       jlong index5, jlong index6)
 {
     return (jlong)(new layers::NextLayers((size_t)index1, (size_t)index2, (size_t)index3, (size_t)index4, (size_t)index5, (size_t)index6));
 }
@@ -107,8 +107,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_N
  * Method:    cDispose
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_NextLayers_cDispose
-(JNIEnv *env, jobject thisObj, jlong addr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_NextLayers_cDispose(JNIEnv * env, jobject thisObj, jlong addr)
 {
-    delete(layers::NextLayers *)addr;
+    delete (layers::NextLayers *)addr;
 }

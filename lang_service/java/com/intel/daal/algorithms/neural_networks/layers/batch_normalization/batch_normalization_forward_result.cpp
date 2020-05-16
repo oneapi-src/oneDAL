@@ -23,12 +23,14 @@
 #include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId.h"
-#define auxDataId               com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId_auxDataId
-#define auxWeightsId            com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId_auxWeightsId
-#define auxMeanId               com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId_auxMeanId
-#define auxStandardDeviationId  com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId_auxStandardDeviationId
-#define auxPopulationMeanId     com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId_auxPopulationMeanId
-#define auxPopulationVarianceId com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId_auxPopulationVarianceId
+#define auxDataId    com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId_auxDataId
+#define auxWeightsId com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId_auxWeightsId
+#define auxMeanId    com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId_auxMeanId
+#define auxStandardDeviationId \
+    com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId_auxStandardDeviationId
+#define auxPopulationMeanId com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId_auxPopulationMeanId
+#define auxPopulationVarianceId \
+    com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationLayerDataId_auxPopulationVarianceId
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::neural_networks::layers::batch_normalization;
@@ -38,8 +40,8 @@ using namespace daal::algorithms::neural_networks::layers::batch_normalization;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_batch_1normalization_BatchNormalizationForwardResult_cNewResult
-  (JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_batch_1normalization_BatchNormalizationForwardResult_cNewResult(
+    JNIEnv * env, jobject thisObj)
 {
     return jniArgument<forward::Result>::newObj();
 }
@@ -49,11 +51,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_b
  * Method:    cGetValue
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_batch_1normalization_BatchNormalizationForwardResult_cGetValue
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_batch_1normalization_BatchNormalizationForwardResult_cGetValue(
+    JNIEnv * env, jobject thisObj, jlong resAddr, jint id)
 {
-    if (id == auxDataId || id == auxWeightsId || id == auxMeanId || id == auxStandardDeviationId ||
-        id == auxPopulationMeanId || id == auxPopulationVarianceId)
+    if (id == auxDataId || id == auxWeightsId || id == auxMeanId || id == auxStandardDeviationId || id == auxPopulationMeanId
+        || id == auxPopulationVarianceId)
     {
         return jniArgument<forward::Result>::get<LayerDataId, Tensor>(resAddr, id);
     }
@@ -66,11 +68,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_b
  * Method:    cSetValue
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_batch_1normalization_BatchNormalizationForwardResult_cSetValue
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_batch_1normalization_BatchNormalizationForwardResult_cSetValue(
+    JNIEnv * env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
 {
-    if (id == auxDataId || id == auxWeightsId || id == auxMeanId || id == auxStandardDeviationId ||
-        id == auxPopulationMeanId || id == auxPopulationVarianceId)
+    if (id == auxDataId || id == auxWeightsId || id == auxMeanId || id == auxStandardDeviationId || id == auxPopulationMeanId
+        || id == auxPopulationVarianceId)
     {
         jniArgument<forward::Result>::set<LayerDataId, Tensor>(resAddr, id, ntAddr);
     }

@@ -35,13 +35,14 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cGetValue
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_ForwardResult_cGetValue
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_ForwardResult_cGetValue(JNIEnv * env, jobject thisObj, jlong resAddr,
+                                                                                                       jint id)
 {
     if (id == valueId)
     {
         return jniArgument<forward::Result>::get<forward::ResultId, Tensor>(resAddr, id);
-    } else if (id == resultForBackwardId)
+    }
+    else if (id == resultForBackwardId)
     {
         return jniArgument<forward::Result>::get<forward::ResultLayerDataId, KeyValueDataCollection>(resAddr, id);
     }
@@ -54,13 +55,14 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_F
  * Method:    cSetValue
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_ForwardResult_cSetValue
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_ForwardResult_cSetValue(JNIEnv * env, jobject thisObj, jlong resAddr,
+                                                                                                      jint id, jlong ntAddr)
 {
     if (id == valueId)
     {
         jniArgument<forward::Result>::set<forward::ResultId, Tensor>(resAddr, id, ntAddr);
-    } else if (id == resultForBackwardId)
+    }
+    else if (id == resultForBackwardId)
     {
         jniArgument<forward::Result>::set<forward::ResultLayerDataId, KeyValueDataCollection>(resAddr, id, ntAddr);
     }

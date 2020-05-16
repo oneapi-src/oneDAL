@@ -23,9 +23,9 @@
 #include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_neural_networks_layers_ForwardInputId.h"
-#define dataId           com_intel_daal_algorithms_neural_networks_layers_ForwardInputId_dataId
-#define weightsId        com_intel_daal_algorithms_neural_networks_layers_ForwardInputId_weightsId
-#define biasesId         com_intel_daal_algorithms_neural_networks_layers_ForwardInputId_biasesId
+#define dataId    com_intel_daal_algorithms_neural_networks_layers_ForwardInputId_dataId
+#define weightsId com_intel_daal_algorithms_neural_networks_layers_ForwardInputId_weightsId
+#define biasesId  com_intel_daal_algorithms_neural_networks_layers_ForwardInputId_biasesId
 #include "com_intel_daal_algorithms_neural_networks_layers_ForwardInputLayerDataId.h"
 #define inputLayerDataId com_intel_daal_algorithms_neural_networks_layers_ForwardInputLayerDataId_inputLayerDataId
 
@@ -37,13 +37,14 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_ForwardInput_cSetInput
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_ForwardInput_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                                     jint id, jlong ntAddr)
 {
     if (id == dataId || id == weightsId || id == biasesId)
     {
         jniInput<forward::Input>::set<forward::InputId, Tensor>(inputAddr, id, ntAddr);
-    } else if (id == inputLayerDataId)
+    }
+    else if (id == inputLayerDataId)
     {
         jniInput<forward::Input>::set<forward::InputLayerDataId, KeyValueDataCollection>(inputAddr, id, ntAddr);
     }
@@ -54,13 +55,14 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_Fo
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_ForwardInput_cGetInput
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_ForwardInput_cGetInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                                      jint id)
 {
     if (id == dataId || id == weightsId || id == biasesId)
     {
         return jniInput<forward::Input>::get<forward::InputId, Tensor>(inputAddr, id);
-    } else if (id == inputLayerDataId)
+    }
+    else if (id == inputLayerDataId)
     {
         return jniInput<forward::Input>::get<forward::InputLayerDataId, KeyValueDataCollection>(inputAddr, id);
     }

@@ -31,8 +31,7 @@ using namespace daal::algorithms::stump::prediction;
  * Method:    cInit
  * Signature:(II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_prediction_PredictionBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_prediction_PredictionBatch_cInit(JNIEnv * env, jobject thisObj, jint prec, jint method)
 {
     return jniBatch<stump::prediction::Method, Batch, defaultDense>::newObj(prec, method);
 }
@@ -42,8 +41,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_prediction_Predicti
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_prediction_PredictionBatch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_prediction_PredictionBatch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                               jint prec, jint method)
 {
     return jniBatch<stump::prediction::Method, Batch, defaultDense>::getClone(prec, method, algAddr);
 }

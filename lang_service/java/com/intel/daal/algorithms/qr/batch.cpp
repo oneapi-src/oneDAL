@@ -29,8 +29,7 @@ using namespace daal::algorithms::qr;
  * Method:    cInit
  * Signature:(II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Batch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Batch_cInit(JNIEnv * env, jobject thisObj, jint prec, jint method)
 {
     return jniBatch<qr::Method, Batch, defaultDense>::newObj(prec, method);
 }
@@ -40,8 +39,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Batch_cInit
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Batch_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Batch_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<qr::Method, Batch, defaultDense>::getInput(prec, method, algAddr);
 }
@@ -51,8 +49,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Batch_cGetInput
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Batch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Batch_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<qr::Method, Batch, defaultDense>::getResult(prec, method, algAddr);
 }
@@ -62,8 +59,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Batch_cGetResult
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_qr_Batch_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_qr_Batch_cSetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method,
+                                                                          jlong resultAddr)
 {
     jniBatch<qr::Method, Batch, defaultDense>::setResult<qr::Result>(prec, method, algAddr, resultAddr);
 }
@@ -73,8 +70,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_qr_Batch_cSetResult
  * Method:    cClone
  * Signature: (JII)V
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Batch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Batch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<qr::Method, Batch, defaultDense>::getClone(prec, method, algAddr);
 }

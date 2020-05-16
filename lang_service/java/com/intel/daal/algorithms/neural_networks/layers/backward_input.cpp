@@ -23,7 +23,7 @@
 #include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_neural_networks_layers_BackwardInputId.h"
-#define inputGradientId    com_intel_daal_algorithms_neural_networks_layers_BackwardInputId_inputGradientId
+#define inputGradientId com_intel_daal_algorithms_neural_networks_layers_BackwardInputId_inputGradientId
 #include "com_intel_daal_algorithms_neural_networks_layers_BackwardInputLayerDataId.h"
 #define inputFromForwardId com_intel_daal_algorithms_neural_networks_layers_BackwardInputLayerDataId_inputFromForwardId
 
@@ -35,13 +35,14 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_BackwardInput_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_BackwardInput_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                                      jint id, jlong ntAddr)
 {
     if (id == inputGradientId)
     {
         jniInput<backward::Input>::set<backward::InputId, Tensor>(inputAddr, id, ntAddr);
-    } else if (id == inputFromForwardId)
+    }
+    else if (id == inputFromForwardId)
     {
         jniInput<backward::Input>::set<backward::InputLayerDataId, KeyValueDataCollection>(inputAddr, id, ntAddr);
     }
@@ -52,13 +53,14 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_Ba
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_BackwardInput_cGetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_BackwardInput_cGetInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                                       jint id)
 {
     if (id == inputGradientId)
     {
         return jniInput<backward::Input>::get<backward::InputId, Tensor>(inputAddr, id);
-    } else if (id == inputFromForwardId)
+    }
+    else if (id == inputFromForwardId)
     {
         return jniInput<backward::Input>::get<backward::InputLayerDataId, KeyValueDataCollection>(inputAddr, id);
     }

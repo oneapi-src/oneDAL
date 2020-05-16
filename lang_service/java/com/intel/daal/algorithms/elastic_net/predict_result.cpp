@@ -43,8 +43,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_prediction_P
  * Method:    cGetPredictionResult
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_prediction_PredictionResult_cGetPredictionResult(JNIEnv * env,
-                                                                                                                     jobject thisObj,
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_prediction_PredictionResult_cGetPredictionResult(JNIEnv * env, jobject thisObj,
                                                                                                                      jlong resAddr, jint id)
 {
     return jniArgument<elastic_net::prediction::Result>::get<elastic_net::prediction::ResultId, NumericTable>(resAddr, id);
@@ -55,8 +54,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_prediction_P
  * Method:    cSetPredictionResult
  * Signature:(JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_prediction_PredictionResult_cSetPredictionResult(JNIEnv * env,
-                                                                                                                    jobject thisObj,
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_prediction_PredictionResult_cSetPredictionResult(JNIEnv * env, jobject thisObj,
                                                                                                                     jlong resAddr, jint id,
                                                                                                                     jlong ntAddr)
 {

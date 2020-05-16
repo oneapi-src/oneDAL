@@ -30,8 +30,8 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_reshape_ReshapeBackwardBatch_cInit
-  (JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_reshape_ReshapeBackwardBatch_cInit(JNIEnv * env, jobject thisObj,
+                                                                                                                  jint prec, jint method)
 {
     return jniBatch<reshape::Method, reshape::backward::Batch, reshape::defaultDense>::newObj(prec, method);
 }
@@ -41,11 +41,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_r
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_reshape_ReshapeBackwardBatch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_reshape_ReshapeBackwardBatch_cInitParameter(JNIEnv * env,
+                                                                                                                           jobject thisObj,
+                                                                                                                           jlong algAddr, jint prec,
+                                                                                                                           jint method)
 {
-    return jniBatch<reshape::Method, reshape::backward::Batch, reshape::defaultDense>::
-           getParameter(prec, method, algAddr);
+    return jniBatch<reshape::Method, reshape::backward::Batch, reshape::defaultDense>::getParameter(prec, method, algAddr);
 }
 
 /*
@@ -53,8 +54,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_r
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_reshape_ReshapeBackwardBatch_cGetInput
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_reshape_ReshapeBackwardBatch_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong algAddr, jint prec,
+                                                                                                                      jint method)
 {
     return jniBatch<reshape::Method, reshape::backward::Batch, reshape::defaultDense>::getInput(prec, method, algAddr);
 }
@@ -64,8 +66,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_r
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_reshape_ReshapeBackwardBatch_cGetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_reshape_ReshapeBackwardBatch_cGetResult(JNIEnv * env, jobject thisObj,
+                                                                                                                       jlong algAddr, jint prec,
+                                                                                                                       jint method)
 {
     return jniBatch<reshape::Method, reshape::backward::Batch, reshape::defaultDense>::getResult(prec, method, algAddr);
 }
@@ -75,11 +78,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_r
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_reshape_ReshapeBackwardBatch_cSetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_reshape_ReshapeBackwardBatch_cSetResult(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong algAddr, jint prec,
+                                                                                                                      jint method, jlong resAddr)
 {
-    jniBatch<reshape::Method, reshape::backward::Batch, reshape::defaultDense>::
-        setResult<reshape::backward::Result>(prec, method, algAddr, resAddr);
+    jniBatch<reshape::Method, reshape::backward::Batch, reshape::defaultDense>::setResult<reshape::backward::Result>(prec, method, algAddr, resAddr);
 }
 
 /*
@@ -87,8 +90,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_re
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_reshape_ReshapeBackwardBatch_cClone
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_reshape_ReshapeBackwardBatch_cClone(JNIEnv * env, jobject thisObj,
+                                                                                                                   jlong algAddr, jint prec,
+                                                                                                                   jint method)
 {
     return jniBatch<reshape::Method, reshape::backward::Batch, reshape::defaultDense>::getClone(prec, method, algAddr);
 }

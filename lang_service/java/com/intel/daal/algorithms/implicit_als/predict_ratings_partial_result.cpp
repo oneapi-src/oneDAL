@@ -31,8 +31,8 @@ using namespace daal::algorithms::implicit_als::prediction::ratings;
  * Method:    cNewPartialResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsPartialResult_cNewPartialResult
-  (JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsPartialResult_cNewPartialResult(JNIEnv * env,
+                                                                                                                               jobject thisObj)
 {
     return jniArgument<implicit_als::prediction::ratings::PartialResult>::newObj();
 }
@@ -42,9 +42,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_
  * Method:    cSetResult
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsPartialResult_cSetResult
-  (JNIEnv *, jobject, jlong presAddr, jint id, jlong resAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsPartialResult_cSetResult(JNIEnv *, jobject,
+                                                                                                                       jlong presAddr, jint id,
+                                                                                                                       jlong resAddr)
 {
-    jniArgument<implicit_als::prediction::ratings::PartialResult>::
-        set<PartialResultId, implicit_als::prediction::ratings::Result>(presAddr, id, resAddr);
+    jniArgument<implicit_als::prediction::ratings::PartialResult>::set<PartialResultId, implicit_als::prediction::ratings::Result>(presAddr, id,
+                                                                                                                                   resAddr);
 }

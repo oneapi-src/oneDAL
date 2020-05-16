@@ -29,14 +29,13 @@ using namespace daal::data_management;
  * Method:    cInit
  * Signature:(Ljava/lang/String;)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_1source_FileDataSource_cInit
-(JNIEnv *env, jobject obj, jstring jFileName)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_1source_FileDataSource_cInit(JNIEnv * env, jobject obj, jstring jFileName)
 {
-    const char *fileName = env->GetStringUTFChars(jFileName, NULL);
+    const char * fileName = env->GetStringUTFChars(jFileName, NULL);
 
-    DataSource *ds = new FileDataSource<CSVFeatureManager>(fileName);
+    DataSource * ds = new FileDataSource<CSVFeatureManager>(fileName);
     env->ReleaseStringUTFChars(jFileName, fileName);
-    if(!ds->status())
+    if (!ds->status())
     {
         const services::Status s = ds->status();
         delete ds;
@@ -44,7 +43,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_1source_FileDa
         return (jlong)0;
     }
 
-    return(jlong)(ds);
+    return (jlong)(ds);
 }
 
 /*
@@ -52,11 +51,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_1source_FileDa
  * Method:    cGetFeatureManager
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_1source_FileDataSource_cGetFeatureManager
-(JNIEnv *env, jobject obj, jlong ptr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_1source_FileDataSource_cGetFeatureManager(JNIEnv * env, jobject obj, jlong ptr)
 {
-    FileDataSource<CSVFeatureManager> *ds = (FileDataSource<CSVFeatureManager> *)ptr;
-    services::SharedPtr<CSVFeatureManager>* featureManager =
+    FileDataSource<CSVFeatureManager> * ds = (FileDataSource<CSVFeatureManager> *)ptr;
+    services::SharedPtr<CSVFeatureManager> * featureManager =
         new services::SharedPtr<CSVFeatureManager>(&(ds->getFeatureManager()), services::EmptyDeleter());
 
     return (jlong)featureManager;

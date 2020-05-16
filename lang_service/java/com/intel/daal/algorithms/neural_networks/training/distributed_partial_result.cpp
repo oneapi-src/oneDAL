@@ -32,8 +32,7 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cNewPartialResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedPartialResult_cNewPartialResult
-  (JNIEnv *, jobject)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedPartialResult_cNewPartialResult(JNIEnv *, jobject)
 {
     return jniArgument<training::DistributedPartialResult>::newObj();
 }
@@ -43,8 +42,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cGetResult
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedPartialResult_cGetResult
-  (JNIEnv *, jobject, jlong algAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedPartialResult_cGetResult(JNIEnv *, jobject, jlong algAddr,
+                                                                                                                     jint id)
 {
     if (id == resultFromMasterId)
     {

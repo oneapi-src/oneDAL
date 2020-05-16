@@ -33,8 +33,9 @@ using namespace daal::algorithms::neural_networks::layers::split;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitBackwardInput_cSetInput__JIJ
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitBackwardInput_cSetInput__JIJ(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong inputAddr, jint id,
+                                                                                                                      jlong ntAddr)
 {
     if (id == inputGradientCollectionId)
     {
@@ -47,8 +48,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_sp
  * Method:    cSetInput
  * Signature: (JIJJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitBackwardInput_cSetInput__JIJJ
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr, jlong index)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitBackwardInput_cSetInput__JIJJ(JNIEnv * env, jobject thisObj,
+                                                                                                                       jlong inputAddr, jint id,
+                                                                                                                       jlong ntAddr, jlong index)
 {
     if (id == inputGradientCollectionId)
     {
@@ -61,8 +63,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_sp
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitBackwardInput_cGetInput__JI
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitBackwardInput_cGetInput__JI(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong inputAddr, jint id)
 {
     if (id == inputGradientCollectionId)
     {
@@ -77,8 +79,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cGetInput
  * Signature: (JIJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitBackwardInput_cGetInput__JIJ
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong index)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitBackwardInput_cGetInput__JIJ(JNIEnv * env, jobject thisObj,
+                                                                                                                       jlong inputAddr, jint id,
+                                                                                                                       jlong index)
 {
     if (id == inputGradientCollectionId)
     {

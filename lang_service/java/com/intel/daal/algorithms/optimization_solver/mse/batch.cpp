@@ -31,8 +31,8 @@ using namespace daal::algorithms::optimization_solver;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_mse_Batch_cInit
-(JNIEnv *, jobject, jint prec, jint method, jlong numberOfTerms)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_mse_Batch_cInit(JNIEnv *, jobject, jint prec, jint method,
+                                                                                            jlong numberOfTerms)
 {
     return jniBatch<mse::Method, mse::Batch, mse::defaultDense>::newObj(prec, method, numberOfTerms);
 }
@@ -42,8 +42,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_mse_
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_mse_Batch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_mse_Batch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                             jint method)
 {
     return jniBatch<mse::Method, mse::Batch, mse::defaultDense>::getClone(prec, method, algAddr);
 }
@@ -53,8 +53,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_mse_
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_mse_Batch_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_mse_Batch_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                jint prec, jint method)
 {
     return jniBatch<mse::Method, mse::Batch, mse::defaultDense>::getInput(prec, method, algAddr);
 }
@@ -64,8 +64,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_mse_
  * Method:    cGetParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_mse_Batch_cGetParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_mse_Batch_cGetParameter(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                    jint prec, jint method)
 {
     return jniBatch<mse::Method, mse::Batch, mse::defaultDense>::getParameter(prec, method, algAddr);
 }

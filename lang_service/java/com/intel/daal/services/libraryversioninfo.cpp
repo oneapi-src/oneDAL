@@ -27,8 +27,7 @@ using namespace daal::services;
  * Method:    cGetMajorVersion
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cGetMajorVersion
-(JNIEnv *, jobject, jlong verinfo)
+JNIEXPORT jint JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cGetMajorVersion(JNIEnv *, jobject, jlong verinfo)
 {
     return ((LibraryVersionInfo *)verinfo)->majorVersion;
 }
@@ -38,8 +37,7 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cGetMajor
  * Method:    cGetMinorVersion
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cGetMinorVersion
-(JNIEnv *, jobject, jlong verinfo)
+JNIEXPORT jint JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cGetMinorVersion(JNIEnv *, jobject, jlong verinfo)
 {
     return ((LibraryVersionInfo *)verinfo)->minorVersion;
 }
@@ -49,8 +47,7 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cGetMinor
  * Method:    cGetUpdateVersion
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cGetUpdateVersion
-(JNIEnv *, jobject, jlong verinfo)
+JNIEXPORT jint JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cGetUpdateVersion(JNIEnv *, jobject, jlong verinfo)
 {
     return ((LibraryVersionInfo *)verinfo)->updateVersion;
 }
@@ -60,10 +57,9 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cGetUpdat
  * Method:    cGetProductStatus
  * Signature: (J)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cGetProductStatus
-(JNIEnv *env, jobject, jlong verinfo)
+JNIEXPORT jstring JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cGetProductStatus(JNIEnv * env, jobject, jlong verinfo)
 {
-    const char *str = ((LibraryVersionInfo *)verinfo)->productStatus;
+    const char * str = ((LibraryVersionInfo *)verinfo)->productStatus;
 
     return env->NewStringUTF(str);
 }
@@ -73,10 +69,9 @@ JNIEXPORT jstring JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cGetPr
  * Method:    cGetBuild
  * Signature: (J)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cGetBuild
-(JNIEnv *env, jobject, jlong verinfo)
+JNIEXPORT jstring JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cGetBuild(JNIEnv * env, jobject, jlong verinfo)
 {
-    const char *str = ((LibraryVersionInfo *)verinfo)->build;
+    const char * str = ((LibraryVersionInfo *)verinfo)->build;
 
     return env->NewStringUTF(str);
 }
@@ -86,10 +81,9 @@ JNIEXPORT jstring JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cGetBu
  * Method:    cGetBuildRev
  * Signature: (J)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cGetBuildRev
-(JNIEnv *env, jobject, jlong verinfo)
+JNIEXPORT jstring JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cGetBuildRev(JNIEnv * env, jobject, jlong verinfo)
 {
-    const char *str = ((LibraryVersionInfo *)verinfo)->build_rev;
+    const char * str = ((LibraryVersionInfo *)verinfo)->build_rev;
 
     return env->NewStringUTF(str);
 }
@@ -99,10 +93,9 @@ JNIEXPORT jstring JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cGetBu
  * Method:    cGetName
  * Signature: (J)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cGetName
-(JNIEnv *env, jobject, jlong verinfo)
+JNIEXPORT jstring JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cGetName(JNIEnv * env, jobject, jlong verinfo)
 {
-    const char *str = ((LibraryVersionInfo *)verinfo)->name;
+    const char * str = ((LibraryVersionInfo *)verinfo)->name;
 
     return env->NewStringUTF(str);
 }
@@ -112,10 +105,9 @@ JNIEXPORT jstring JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cGetNa
  * Method:    cGetProcessor
  * Signature: (J)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cGetProcessor
-(JNIEnv *env, jobject, jlong verinfo)
+JNIEXPORT jstring JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cGetProcessor(JNIEnv * env, jobject, jlong verinfo)
 {
-    const char *str = ((LibraryVersionInfo *)verinfo)->processor;
+    const char * str = ((LibraryVersionInfo *)verinfo)->processor;
 
     return env->NewStringUTF(str);
 }
@@ -125,10 +117,9 @@ JNIEXPORT jstring JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cGetPr
  * Method:    cInit
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cInit
-(JNIEnv *, jobject)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_services_LibraryVersionInfo_cInit(JNIEnv *, jobject)
 {
     jlong verinfo = 0;
-    verinfo = (jlong)(new LibraryVersionInfo());
+    verinfo       = (jlong)(new LibraryVersionInfo());
     return verinfo;
 }

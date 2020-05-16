@@ -30,8 +30,8 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cSetA
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_gaussian_GaussianParameter_cSetA
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jdouble a)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_gaussian_GaussianParameter_cSetA(JNIEnv * env, jobject thisObj,
+                                                                                                                     jlong cParameter, jdouble a)
 {
     (((initializers::gaussian::Parameter *)cParameter))->a = (double)a;
 }
@@ -41,8 +41,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializ
  * Method:    cSetSigma
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_gaussian_GaussianParameter_cSetSigma
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jdouble sigma)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_gaussian_GaussianParameter_cSetSigma(JNIEnv * env,
+                                                                                                                         jobject thisObj,
+                                                                                                                         jlong cParameter,
+                                                                                                                         jdouble sigma)
 {
     (((initializers::gaussian::Parameter *)cParameter))->sigma = (double)sigma;
 }
@@ -52,8 +54,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializ
  * Method:    cGetA
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_gaussian_GaussianParameter_cGetA
-  (JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_gaussian_GaussianParameter_cGetA(JNIEnv * env, jobject thisObj,
+                                                                                                                        jlong cParameter)
 {
     return (jdouble)((((initializers::gaussian::Parameter *)cParameter))->a);
 }
@@ -63,8 +65,9 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_initia
  * Method:    cGetSigma
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_gaussian_GaussianParameter_cGetSigma
-  (JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_gaussian_GaussianParameter_cGetSigma(JNIEnv * env,
+                                                                                                                            jobject thisObj,
+                                                                                                                            jlong cParameter)
 {
     return (jdouble)((((initializers::gaussian::Parameter *)cParameter))->sigma);
 }

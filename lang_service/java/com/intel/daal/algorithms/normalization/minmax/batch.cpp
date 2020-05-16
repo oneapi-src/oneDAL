@@ -30,8 +30,7 @@ using namespace daal::algorithms::normalization::minmax;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Batch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Batch_cInit(JNIEnv * env, jobject thisObj, jint prec, jint method)
 {
     return jniBatch<normalization::minmax::Method, Batch, defaultDense>::newObj(prec, method);
 }
@@ -41,8 +40,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Batc
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Batch_cGetParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Batch_cGetParameter(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                jint prec, jint method)
 {
     return jniBatch<normalization::minmax::Method, Batch, defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -52,8 +51,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Batc
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Batch_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Batch_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                            jint method)
 {
     return jniBatch<normalization::minmax::Method, Batch, defaultDense>::getInput(prec, method, algAddr);
 }
@@ -63,8 +62,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Batc
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Batch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Batch_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                             jint method)
 {
     return jniBatch<normalization::minmax::Method, Batch, defaultDense>::getResult(prec, method, algAddr);
 }
@@ -74,11 +73,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Batc
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Batch_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Batch_cSetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                            jint method, jlong resultAddr)
 {
-    jniBatch<normalization::minmax::Method, Batch, defaultDense>::
-        setResult<normalization::minmax::Result>(prec, method, algAddr, resultAddr);
+    jniBatch<normalization::minmax::Method, Batch, defaultDense>::setResult<normalization::minmax::Result>(prec, method, algAddr, resultAddr);
 }
 
 /*
@@ -86,8 +84,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Batch
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Batch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Batch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                         jint method)
 {
     return jniBatch<normalization::minmax::Method, Batch, defaultDense>::getClone(prec, method, algAddr);
 }

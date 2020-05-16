@@ -34,7 +34,6 @@ namespace correlation_distance
 namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-
 }
 namespace internal
 {

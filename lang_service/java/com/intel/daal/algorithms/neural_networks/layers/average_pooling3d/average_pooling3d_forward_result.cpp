@@ -33,8 +33,8 @@ using namespace daal::algorithms::neural_networks::layers::average_pooling3d;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_average_1pooling3d_AveragePooling3dForwardResult_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL
+    Java_com_intel_daal_algorithms_neural_1networks_layers_average_1pooling3d_AveragePooling3dForwardResult_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<forward::Result>::newObj();
 }
@@ -44,8 +44,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_a
  * Method:    cGetValue
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_average_1pooling3d_AveragePooling3dForwardResult_cGetValue
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_average_1pooling3d_AveragePooling3dForwardResult_cGetValue(
+    JNIEnv * env, jobject thisObj, jlong resAddr, jint id)
 {
     if (id == auxInputDimensionsId)
     {
@@ -60,8 +60,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_a
  * Method:    cSetValue
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_average_1pooling3d_AveragePooling3dForwardResult_cSetValue
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_average_1pooling3d_AveragePooling3dForwardResult_cSetValue(
+    JNIEnv * env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
 {
     if (id == auxInputDimensionsId)
     {

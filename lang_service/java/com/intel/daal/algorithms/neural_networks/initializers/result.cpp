@@ -33,8 +33,8 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cGetValue
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_Result_cGetValue
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_Result_cGetValue(JNIEnv * env, jobject thisObj, jlong resAddr,
+                                                                                                      jint id)
 {
     return jniArgument<initializers::Result>::get<initializers::ResultId, Tensor>(resAddr, id);
 }
@@ -44,8 +44,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initiali
  * Method:    cSetValue
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_Result_cSetValue
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong tensorAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_Result_cSetValue(JNIEnv * env, jobject thisObj, jlong resAddr,
+                                                                                                     jint id, jlong tensorAddr)
 {
     if (id == valueId)
     {

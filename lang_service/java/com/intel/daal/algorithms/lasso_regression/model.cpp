@@ -29,10 +29,9 @@ using namespace daal::services;
  * Method:    cGetBeta
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_Model_cGetBeta
-(JNIEnv *env, jobject thisObj, jlong modAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_Model_cGetBeta(JNIEnv * env, jobject thisObj, jlong modAddr)
 {
-    NumericTablePtr * const nt = new NumericTablePtr();
+    NumericTablePtr * const nt                 = new NumericTablePtr();
     algorithms::lasso_regression::ModelPtr res = *(algorithms::lasso_regression::ModelPtr *)modAddr;
 
     *nt = res->getBeta();
@@ -45,8 +44,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_Model_c
  * Method:    cGetNumberOfFeatures
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_Model_cGetNumberOfFeatures
-(JNIEnv *env, jobject thisObj, jlong modAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_Model_cGetNumberOfFeatures(JNIEnv * env, jobject thisObj, jlong modAddr)
 {
     algorithms::lasso_regression::ModelPtr res = *(algorithms::lasso_regression::ModelPtr *)modAddr;
 
@@ -58,8 +56,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_Model_c
  * Method:    cGetNumberOfBetas
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_Model_cGetNumberOfBetas
-(JNIEnv *env, jobject thisObj, jlong modAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_Model_cGetNumberOfBetas(JNIEnv * env, jobject thisObj, jlong modAddr)
 {
     algorithms::lasso_regression::ModelPtr res = *(algorithms::lasso_regression::ModelPtr *)modAddr;
 
@@ -71,8 +68,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_Model_c
  * Method:    cGetNumberOfResponses
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_Model_cGetNumberOfResponses
-(JNIEnv *env, jobject thisObj, jlong modAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_Model_cGetNumberOfResponses(JNIEnv * env, jobject thisObj, jlong modAddr)
 {
     algorithms::lasso_regression::ModelPtr res = *(algorithms::lasso_regression::ModelPtr *)modAddr;
 

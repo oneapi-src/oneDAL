@@ -24,26 +24,22 @@
 using namespace daal;
 using namespace daal::algorithms;
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_regression_Model_cGetSplitFeature
-(JNIEnv *, jobject, jlong self)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_regression_Model_cGetSplitFeature(JNIEnv *, jobject, jlong self)
 {
-    return (jlong)( unpackModel<stump::regression::Model>(self)->getSplitFeature() );
+    return (jlong)(unpackModel<stump::regression::Model>(self)->getSplitFeature());
 }
 
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_stump_regression_Model_cGetSplitValue
-(JNIEnv *, jobject, jlong self)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_stump_regression_Model_cGetSplitValue(JNIEnv *, jobject, jlong self)
 {
-    return (jdouble)( unpackModel<stump::regression::Model>(self)->getSplitValue<double>() );
+    return (jdouble)(unpackModel<stump::regression::Model>(self)->getSplitValue<double>());
 }
 
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_stump_regression_Model_cGetLeftValue
-(JNIEnv *, jobject, jlong self)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_stump_regression_Model_cGetLeftValue(JNIEnv *, jobject, jlong self)
 {
-    return (jdouble)( unpackModel<stump::regression::Model>(self)->getLeftValue<double>() );
+    return (jdouble)(unpackModel<stump::regression::Model>(self)->getLeftValue<double>());
 }
 
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_stump_regression_Model_cGetRightValue
-(JNIEnv *, jobject, jlong self)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_stump_regression_Model_cGetRightValue(JNIEnv *, jobject, jlong self)
 {
-    return (jdouble)( unpackModel<stump::regression::Model>(self)->getRightValue<double>() );
+    return (jdouble)(unpackModel<stump::regression::Model>(self)->getRightValue<double>());
 }

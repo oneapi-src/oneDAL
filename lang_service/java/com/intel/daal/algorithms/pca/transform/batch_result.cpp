@@ -30,8 +30,7 @@ using namespace daal::algorithms::pca::transform;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformResult_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformResult_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<pca::transform::Result>::newObj();
 }
@@ -41,11 +40,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformRe
  * Method:    cGetTransformedData
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformResult_cGetTransformedData
-(JNIEnv *env, jobject thisObj, jlong resAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformResult_cGetTransformedData(JNIEnv * env, jobject thisObj, jlong resAddr)
 {
-    return jniArgument<pca::transform::Result>::
-        get<pca::transform::ResultId, NumericTable>(resAddr, pca::transform::transformedData);
+    return jniArgument<pca::transform::Result>::get<pca::transform::ResultId, NumericTable>(resAddr, pca::transform::transformedData);
 }
 
 /*
@@ -53,9 +50,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformRe
  * Method:    cSetTransformedData
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformResult_cSetTransformedData
-(JNIEnv *env, jobject thisObj, jlong resAddr, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformResult_cSetTransformedData(JNIEnv * env, jobject thisObj, jlong resAddr,
+                                                                                                        jlong ntAddr)
 {
-    jniArgument<pca::transform::Result>::
-        set<pca::transform::ResultId, NumericTable>(resAddr, pca::transform::transformedData, ntAddr);
+    jniArgument<pca::transform::Result>::set<pca::transform::ResultId, NumericTable>(resAddr, pca::transform::transformedData, ntAddr);
 }

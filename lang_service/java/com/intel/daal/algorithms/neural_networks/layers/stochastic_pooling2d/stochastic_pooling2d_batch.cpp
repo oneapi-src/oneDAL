@@ -30,11 +30,10 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method, jlong nDim)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dBatch_cInit(
+    JNIEnv * env, jobject thisObj, jint prec, jint method, jlong nDim)
 {
-    return jniBatchLayer<stochastic_pooling2d::Method, stochastic_pooling2d::Batch, stochastic_pooling2d::defaultDense>::
-           newObj(prec, method, nDim);
+    return jniBatchLayer<stochastic_pooling2d::Method, stochastic_pooling2d::Batch, stochastic_pooling2d::defaultDense>::newObj(prec, method, nDim);
 }
 
 /*
@@ -42,11 +41,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dBatch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dBatch_cInitParameter(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatchLayer<stochastic_pooling2d::Method, stochastic_pooling2d::Batch, stochastic_pooling2d::defaultDense>::
-           getParameter(prec, method, algAddr);
+    return jniBatchLayer<stochastic_pooling2d::Method, stochastic_pooling2d::Batch, stochastic_pooling2d::defaultDense>::getParameter(prec, method,
+                                                                                                                                      algAddr);
 }
 
 /*
@@ -54,11 +53,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cGetForwardLayer
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dBatch_cGetForwardLayer
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dBatch_cGetForwardLayer(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatchLayer<stochastic_pooling2d::Method, stochastic_pooling2d::Batch, stochastic_pooling2d::defaultDense>::
-           getForwardLayer(prec, method, algAddr);
+    return jniBatchLayer<stochastic_pooling2d::Method, stochastic_pooling2d::Batch, stochastic_pooling2d::defaultDense>::getForwardLayer(prec, method,
+                                                                                                                                         algAddr);
 }
 
 /*
@@ -66,9 +65,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cGetBackwardLayer
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dBatch_cGetBackwardLayer
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dBatch_cGetBackwardLayer(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatchLayer<stochastic_pooling2d::Method, stochastic_pooling2d::Batch, stochastic_pooling2d::defaultDense>::
-           getBackwardLayer(prec, method, algAddr);
+    return jniBatchLayer<stochastic_pooling2d::Method, stochastic_pooling2d::Batch, stochastic_pooling2d::defaultDense>::getBackwardLayer(
+        prec, method, algAddr);
 }

@@ -30,11 +30,11 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dForwardBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method, jlong nDim)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dForwardBatch_cInit(
+    JNIEnv * env, jobject thisObj, jint prec, jint method, jlong nDim)
 {
-    return jniBatch<stochastic_pooling2d::Method, stochastic_pooling2d::forward::Batch, stochastic_pooling2d::defaultDense>::
-           newObj(prec, method, nDim);
+    return jniBatch<stochastic_pooling2d::Method, stochastic_pooling2d::forward::Batch, stochastic_pooling2d::defaultDense>::newObj(prec, method,
+                                                                                                                                    nDim);
 }
 
 /*
@@ -42,11 +42,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dForwardBatch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dForwardBatch_cInitParameter(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<stochastic_pooling2d::Method, stochastic_pooling2d::forward::Batch, stochastic_pooling2d::defaultDense>::
-           getParameter(prec, method, algAddr);
+    return jniBatch<stochastic_pooling2d::Method, stochastic_pooling2d::forward::Batch, stochastic_pooling2d::defaultDense>::getParameter(
+        prec, method, algAddr);
 }
 
 /*
@@ -54,11 +54,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dForwardBatch_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dForwardBatch_cGetInput(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<stochastic_pooling2d::Method, stochastic_pooling2d::forward::Batch, stochastic_pooling2d::defaultDense>::
-           getInput(prec, method, algAddr);
+    return jniBatch<stochastic_pooling2d::Method, stochastic_pooling2d::forward::Batch, stochastic_pooling2d::defaultDense>::getInput(prec, method,
+                                                                                                                                      algAddr);
 }
 
 /*
@@ -66,11 +66,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dForwardBatch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dForwardBatch_cGetResult(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<stochastic_pooling2d::Method, stochastic_pooling2d::forward::Batch, stochastic_pooling2d::defaultDense>::
-           getResult(prec, method, algAddr);
+    return jniBatch<stochastic_pooling2d::Method, stochastic_pooling2d::forward::Batch, stochastic_pooling2d::defaultDense>::getResult(prec, method,
+                                                                                                                                       algAddr);
 }
 
 /*
@@ -78,11 +78,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dForwardBatch_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dForwardBatch_cSetResult(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resAddr)
 {
-    jniBatch<stochastic_pooling2d::Method, stochastic_pooling2d::forward::Batch, stochastic_pooling2d::defaultDense>::
-    setResult<stochastic_pooling2d::forward::Result>(prec, method, algAddr, resAddr);
+    jniBatch<stochastic_pooling2d::Method, stochastic_pooling2d::forward::Batch,
+             stochastic_pooling2d::defaultDense>::setResult<stochastic_pooling2d::forward::Result>(prec, method, algAddr, resAddr);
 }
 
 /*
@@ -90,9 +90,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_st
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dForwardBatch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dForwardBatch_cClone(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<stochastic_pooling2d::Method, stochastic_pooling2d::forward::Batch, stochastic_pooling2d::defaultDense>::
-           getClone(prec, method, algAddr);
+    return jniBatch<stochastic_pooling2d::Method, stochastic_pooling2d::forward::Batch, stochastic_pooling2d::defaultDense>::getClone(prec, method,
+                                                                                                                                      algAddr);
 }

@@ -129,7 +129,7 @@ services::Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::findLarg
                                                                                           size_t & L_size)
 {
     /* Form list of "large" item sets of size 1 from the unique items
-       which count is not less than minimum count 'imin_s' */
+     which count is not less than minimum count 'imin_s' */
     services::Status statFirstPass = firstPass(minSupport, data, *L);
     DAAL_CHECK_STATUS_OK(statFirstPass.ok(), statFirstPass);
 

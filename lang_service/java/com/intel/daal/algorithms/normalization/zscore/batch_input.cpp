@@ -26,20 +26,19 @@ USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::normalization::zscore;
 
 #include "com_intel_daal_algorithms_normalization_zscore_InputId.h"
-#define InputDataId  com_intel_daal_algorithms_normalization_zscore_InputId_InputDataId
+#define InputDataId com_intel_daal_algorithms_normalization_zscore_InputId_InputDataId
 
 /*
  * Class:     com_intel_daal_algorithms_normalization_zscore_Input
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Input_cSetInput
-(JNIEnv *jenv, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Input_cSetInput(JNIEnv * jenv, jobject thisObj, jlong inputAddr, jint id,
+                                                                                           jlong ntAddr)
 {
-    if(id == InputDataId)
+    if (id == InputDataId)
     {
-        jniInput<normalization::zscore::Input>::
-            set<normalization::zscore::InputId, NumericTable>(inputAddr, normalization::zscore::data, ntAddr);
+        jniInput<normalization::zscore::Input>::set<normalization::zscore::InputId, NumericTable>(inputAddr, normalization::zscore::data, ntAddr);
     }
 }
 
@@ -48,13 +47,12 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Input
  * Method:    cGetInputTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Input_cGetInputTable
-(JNIEnv *jenv, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Input_cGetInputTable(JNIEnv * jenv, jobject thisObj, jlong inputAddr,
+                                                                                                 jint id)
 {
-    if(id == InputDataId)
+    if (id == InputDataId)
     {
-        return jniInput<normalization::zscore::Input>::
-            get<normalization::zscore::InputId, NumericTable>(inputAddr, normalization::zscore::data);
+        return jniInput<normalization::zscore::Input>::get<normalization::zscore::InputId, NumericTable>(inputAddr, normalization::zscore::data);
     }
 
     return (jlong)0;

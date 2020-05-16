@@ -33,8 +33,9 @@ using namespace daal::algorithms::neural_networks::layers::logistic;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_logistic_LogisticBackwardInput_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_logistic_LogisticBackwardInput_cSetInput(JNIEnv * env, jobject thisObj,
+                                                                                                                       jlong inputAddr, jint id,
+                                                                                                                       jlong ntAddr)
 {
     if (id == auxValueId)
     {
@@ -47,8 +48,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lo
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_logistic_LogisticBackwardInput_cGetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_logistic_LogisticBackwardInput_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                                        jlong inputAddr, jint id)
 {
     if (id == auxValueId)
     {

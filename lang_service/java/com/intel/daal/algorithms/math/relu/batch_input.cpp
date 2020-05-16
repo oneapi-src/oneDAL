@@ -24,21 +24,20 @@ USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::math;
 
 #include "com_intel_daal_algorithms_math_relu_InputId.h"
-#define InputDataId        com_intel_daal_algorithms_math_relu_InputId_dataId
+#define InputDataId com_intel_daal_algorithms_math_relu_InputId_dataId
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_math_relu_Input_cSetInput
-(JNIEnv *jenv, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_math_relu_Input_cSetInput(JNIEnv * jenv, jobject thisObj, jlong inputAddr, jint id,
+                                                                                jlong ntAddr)
 {
-    if(id == InputDataId)
+    if (id == InputDataId)
     {
         jniInput<relu::Input>::set<relu::InputId, NumericTable>(inputAddr, relu::data, ntAddr);
     }
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_relu_Input_cGetInputTable
-(JNIEnv *jenv, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_relu_Input_cGetInputTable(JNIEnv * jenv, jobject thisObj, jlong inputAddr, jint id)
 {
-    if(id == InputDataId)
+    if (id == InputDataId)
     {
         return jniInput<relu::Input>::get<relu::InputId, NumericTable>(inputAddr, relu::data);
     }

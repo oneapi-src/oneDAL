@@ -60,7 +60,8 @@ size_t Input::getNumberOfFeatures() const
 }
 
 /**
- * Returns the input object in the training stage of the classification algorithm
+ * Returns the input object in the training stage of the classification
+ * algorithm
  * \param[in] id   Identifier of the input object, \ref InputId
  * \return         Input object that corresponds to the given identifier
  */

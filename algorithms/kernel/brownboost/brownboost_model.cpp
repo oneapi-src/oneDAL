@@ -53,13 +53,19 @@ Parameter::Parameter()
 
 /**
  * Constructs BrownBoost parameter structure
- * \param[in] wlTrain       Pointer to the training algorithm of the weak learner
- * \param[in] wlPredict     Pointer to the prediction algorithm of the weak learner
+ * \param[in] wlTrain       Pointer to the training algorithm of the weak
+ * learner
+ * \param[in] wlPredict     Pointer to the prediction algorithm of the weak
+ * learner
  * \param[in] acc           Accuracy of the BrownBoost training algorithm
- * \param[in] maxIter       Maximal number of iterations of the BrownBoost training algorithm
- * \param[in] nrAcc         Accuracy threshold for Newton-Raphson iterations in the BrownBoost training algorithm
- * \param[in] nrMaxIter     Maximal number of Newton-Raphson iterations in the BrownBoost training algorithm
- * \param[in] dcThreshold          Threshold needed  to avoid degenerate cases in the BrownBoost training algorithm
+ * \param[in] maxIter       Maximal number of iterations of the BrownBoost
+ * training algorithm
+ * \param[in] nrAcc         Accuracy threshold for Newton-Raphson iterations in
+ * the BrownBoost training algorithm
+ * \param[in] nrMaxIter     Maximal number of Newton-Raphson iterations in the
+ * BrownBoost training algorithm
+ * \param[in] dcThreshold          Threshold needed  to avoid degenerate cases
+ * in the BrownBoost training algorithm
  */
 Parameter::Parameter(services::SharedPtr<classifier::training::Batch> wlTrain, services::SharedPtr<classifier::prediction::Batch> wlPredict,
                      double acc, size_t maxIter, double nrAcc, size_t nrMaxIter, double dcThreshold)

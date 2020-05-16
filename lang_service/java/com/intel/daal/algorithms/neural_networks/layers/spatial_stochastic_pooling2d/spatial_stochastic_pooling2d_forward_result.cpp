@@ -23,9 +23,11 @@
 #include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_neural_networks_layers_spatial_stochastic_pooling2d_SpatialStochasticPooling2dLayerDataId.h"
-#define auxSelectedIndicesId com_intel_daal_algorithms_neural_networks_layers_spatial_stochastic_pooling2d_SpatialStochasticPooling2dLayerDataId_auxSelectedIndicesId
+#define auxSelectedIndicesId \
+    com_intel_daal_algorithms_neural_networks_layers_spatial_stochastic_pooling2d_SpatialStochasticPooling2dLayerDataId_auxSelectedIndicesId
 #include "com_intel_daal_algorithms_neural_networks_layers_spatial_stochastic_pooling2d_SpatialStochasticPooling2dLayerDataNumericTableId.h"
-#define auxInputDimensionsId com_intel_daal_algorithms_neural_networks_layers_spatial_stochastic_pooling2d_SpatialStochasticPooling2dLayerDataNumericTableId_auxInputDimensionsId
+#define auxInputDimensionsId \
+    com_intel_daal_algorithms_neural_networks_layers_spatial_stochastic_pooling2d_SpatialStochasticPooling2dLayerDataNumericTableId_auxInputDimensionsId
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::neural_networks::layers::spatial_stochastic_pooling2d;
@@ -35,8 +37,9 @@ using namespace daal::algorithms::neural_networks::layers::spatial_stochastic_po
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1stochastic_1pooling2d_SpatialStochasticPooling2dForwardResult_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL
+    Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1stochastic_1pooling2d_SpatialStochasticPooling2dForwardResult_cNewResult(
+        JNIEnv * env, jobject thisObj)
 {
     return jniArgument<forward::Result>::newObj();
 }
@@ -46,8 +49,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cGetValue
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1stochastic_1pooling2d_SpatialStochasticPooling2dForwardResult_cGetValue
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL
+    Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1stochastic_1pooling2d_SpatialStochasticPooling2dForwardResult_cGetValue(
+        JNIEnv * env, jobject thisObj, jlong resAddr, jint id)
 {
     if (id == auxSelectedIndicesId)
     {
@@ -62,8 +66,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cSetValue
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1stochastic_1pooling2d_SpatialStochasticPooling2dForwardResult_cSetValue
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL
+    Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1stochastic_1pooling2d_SpatialStochasticPooling2dForwardResult_cSetValue(
+        JNIEnv * env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
 {
     if (id == auxSelectedIndicesId)
     {
@@ -76,8 +81,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_sp
  * Method:    cGetNumericTableValue
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1stochastic_1pooling2d_SpatialStochasticPooling2dForwardResult_cGetNumericTableValue
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL
+    Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1stochastic_1pooling2d_SpatialStochasticPooling2dForwardResult_cGetNumericTableValue(
+        JNIEnv * env, jobject thisObj, jlong resAddr, jint id)
 {
     if (id == auxInputDimensionsId)
     {
@@ -92,8 +98,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cSetNumericTableValue
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1stochastic_1pooling2d_SpatialStochasticPooling2dForwardResult_cSetNumericTableValue
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL
+    Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1stochastic_1pooling2d_SpatialStochasticPooling2dForwardResult_cSetNumericTableValue(
+        JNIEnv * env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
 {
     if (id == auxInputDimensionsId)
     {

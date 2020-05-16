@@ -33,8 +33,8 @@ using namespace daal::algorithms::neural_networks::layers::smoothrelu;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_smoothrelu_SmoothreluForwardResult_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_smoothrelu_SmoothreluForwardResult_cNewResult(JNIEnv * env,
+                                                                                                                             jobject thisObj)
 {
     return jniArgument<forward::Result>::newObj();
 }
@@ -44,8 +44,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cGetValue
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_smoothrelu_SmoothreluForwardResult_cGetValue
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_smoothrelu_SmoothreluForwardResult_cGetValue(JNIEnv * env,
+                                                                                                                            jobject thisObj,
+                                                                                                                            jlong resAddr, jint id)
 {
     if (id == auxDataId)
     {
@@ -60,8 +61,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cSetValue
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_smoothrelu_SmoothreluForwardResult_cSetValue
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_smoothrelu_SmoothreluForwardResult_cSetValue(JNIEnv * env,
+                                                                                                                           jobject thisObj,
+                                                                                                                           jlong resAddr, jint id,
+                                                                                                                           jlong ntAddr)
 {
     if (id == auxDataId)
     {

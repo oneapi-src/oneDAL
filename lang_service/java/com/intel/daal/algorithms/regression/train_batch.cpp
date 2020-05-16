@@ -23,12 +23,10 @@
 
 USING_COMMON_NAMESPACES()
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_regression_training_TrainingBatch_cGetResult
-(JNIEnv *, jobject, jlong self)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_regression_training_TrainingBatch_cGetResult(JNIEnv *, jobject, jlong self)
 {
-    SerializationIfacePtr *ptr = new SerializationIfacePtr();
-    SharedPtr<regression::training::Batch> alg =
-        staticPointerCast<regression::training::Batch>(*(SharedPtr<AlgorithmIface> *)self);
-    *ptr = alg->getResult();
+    SerializationIfacePtr * ptr                = new SerializationIfacePtr();
+    SharedPtr<regression::training::Batch> alg = staticPointerCast<regression::training::Batch>(*(SharedPtr<AlgorithmIface> *)self);
+    *ptr                                       = alg->getResult();
     return (jlong)ptr;
 }

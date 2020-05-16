@@ -23,7 +23,7 @@
 #include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_classifier_quality_metric_binary_confusion_matrix_BinaryConfusionMatrixInputId.h"
-#define PredictedLabels com_intel_daal_algorithms_classifier_quality_metric_binary_confusion_matrix_BinaryConfusionMatrixInputId_PredictedLabels
+#define PredictedLabels   com_intel_daal_algorithms_classifier_quality_metric_binary_confusion_matrix_BinaryConfusionMatrixInputId_PredictedLabels
 #define GroundTruthLabels com_intel_daal_algorithms_classifier_quality_metric_binary_confusion_matrix_BinaryConfusionMatrixInputId_GroundTruthLabels
 
 USING_COMMON_NAMESPACES();
@@ -35,10 +35,10 @@ using namespace daal::algorithms::classifier::quality_metric::binary_confusion_m
  * Method:    cSetInputTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_classifier_quality_1metric_binary_1confusion_1matrix_BinaryConfusionMatrixInput_cSetInputTable
-  (JNIEnv *, jobject, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_classifier_quality_1metric_binary_1confusion_1matrix_BinaryConfusionMatrixInput_cSetInputTable(
+    JNIEnv *, jobject, jlong inputAddr, jint id, jlong ntAddr)
 {
-    if(id != PredictedLabels && id != GroundTruthLabels) return;
+    if (id != PredictedLabels && id != GroundTruthLabels) return;
 
     jniInput<binary_confusion_matrix::Input>::set<binary_confusion_matrix::InputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -48,10 +48,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_classifier_quality_1metric
  * Method:    cGetInputTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_classifier_quality_1metric_binary_1confusion_1matrix_BinaryConfusionMatrixInput_cGetInputTable
-  (JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_classifier_quality_1metric_binary_1confusion_1matrix_BinaryConfusionMatrixInput_cGetInputTable(
+    JNIEnv *, jobject, jlong inputAddr, jint id)
 {
-    if(id != PredictedLabels && id != GroundTruthLabels) return (jlong)-1;
+    if (id != PredictedLabels && id != GroundTruthLabels) return (jlong)-1;
 
     return jniInput<binary_confusion_matrix::Input>::get<binary_confusion_matrix::InputId, NumericTable>(inputAddr, id);
 }

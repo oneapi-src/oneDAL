@@ -30,8 +30,8 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cSetA
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_uniform_UniformParameter_cSetA
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jdouble a)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_uniform_UniformParameter_cSetA(JNIEnv * env, jobject thisObj,
+                                                                                                                   jlong cParameter, jdouble a)
 {
     (((initializers::uniform::Parameter *)cParameter))->a = (double)a;
 }
@@ -41,8 +41,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializ
  * Method:    cSetB
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_uniform_UniformParameter_cSetB
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jdouble b)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_uniform_UniformParameter_cSetB(JNIEnv * env, jobject thisObj,
+                                                                                                                   jlong cParameter, jdouble b)
 {
     (((initializers::uniform::Parameter *)cParameter))->b = (double)b;
 }
@@ -52,8 +52,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializ
  * Method:    cGetA
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_uniform_UniformParameter_cGetA
-  (JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_uniform_UniformParameter_cGetA(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong cParameter)
 {
     return (jdouble)((((initializers::uniform::Parameter *)cParameter))->a);
 }
@@ -63,8 +63,8 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_initia
  * Method:    cGetB
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_uniform_UniformParameter_cGetB
-  (JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_uniform_UniformParameter_cGetB(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong cParameter)
 {
     return (jdouble)((((initializers::uniform::Parameter *)cParameter))->b);
 }

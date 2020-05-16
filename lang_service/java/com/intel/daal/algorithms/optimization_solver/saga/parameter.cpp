@@ -30,10 +30,10 @@ using namespace daal::algorithms::optimization_solver;
  * Method:    cSetBatchIndices
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Parameter_cSetBatchIndices
-(JNIEnv *, jobject, jlong parAddr, jlong cBatchIndices)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Parameter_cSetBatchIndices(JNIEnv *, jobject, jlong parAddr,
+                                                                                                           jlong cBatchIndices)
 {
-    SerializationIfacePtr *ntShPtr = (SerializationIfacePtr *)cBatchIndices;
+    SerializationIfacePtr * ntShPtr            = (SerializationIfacePtr *)cBatchIndices;
     ((saga::Parameter *)parAddr)->batchIndices = staticPointerCast<NumericTable, SerializationIface>(*ntShPtr);
 }
 
@@ -42,11 +42,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_
  * Method:    cGetBatchIndices
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Parameter_cGetBatchIndices
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Parameter_cGetBatchIndices(JNIEnv *, jobject, jlong parAddr)
 {
-    NumericTablePtr *ntShPtr = new NumericTablePtr();
-    *ntShPtr = ((saga::Parameter *)parAddr)->batchIndices;
+    NumericTablePtr * ntShPtr = new NumericTablePtr();
+    *ntShPtr                  = ((saga::Parameter *)parAddr)->batchIndices;
     return (jlong)ntShPtr;
 }
 
@@ -55,10 +54,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga
  * Method:    cSetLearningRate
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Parameter_cSetLearningRateSequence
-(JNIEnv *, jobject, jlong parAddr, jlong cLearningRate)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Parameter_cSetLearningRateSequence(JNIEnv *, jobject, jlong parAddr,
+                                                                                                                   jlong cLearningRate)
 {
-    SerializationIfacePtr *ntShPtr = (SerializationIfacePtr *)cLearningRate;
+    SerializationIfacePtr * ntShPtr                    = (SerializationIfacePtr *)cLearningRate;
     ((saga::Parameter *)parAddr)->learningRateSequence = staticPointerCast<NumericTable, SerializationIface>(*ntShPtr);
 }
 
@@ -67,11 +66,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_
  * Method:    cGetLearningRate
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Parameter_cGetLearningRateSequence
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Parameter_cGetLearningRateSequence(JNIEnv *, jobject, jlong parAddr)
 {
-    NumericTablePtr *ntShPtr = new NumericTablePtr();
-    *ntShPtr = ((saga::Parameter *)parAddr)->learningRateSequence;
+    NumericTablePtr * ntShPtr = new NumericTablePtr();
+    *ntShPtr                  = ((saga::Parameter *)parAddr)->learningRateSequence;
     return (jlong)ntShPtr;
 }
 
@@ -80,8 +78,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga
  * Method:    cSetSeed
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Parameter_cSetSeed
-(JNIEnv *, jobject, jlong parAddr, jlong seed)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Parameter_cSetSeed(JNIEnv *, jobject, jlong parAddr, jlong seed)
 {
     ((saga::Parameter *)parAddr)->seed = seed;
 }
@@ -91,8 +88,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_
  * Method:    cGetSeed
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Parameter_cGetSeed
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Parameter_cGetSeed(JNIEnv *, jobject, jlong parAddr)
 {
     return ((saga::Parameter *)parAddr)->seed;
 }
@@ -102,8 +98,8 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_
  * Method:    cSetEngine
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Parameter_cSetEngine
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong engineAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Parameter_cSetEngine(JNIEnv * env, jobject thisObj, jlong cParameter,
+                                                                                                     jlong engineAddr)
 {
-    (((saga::Parameter *)cParameter))->engine = staticPointerCast<engines::BatchBase, AlgorithmIface> (*(SharedPtr<AlgorithmIface> *)engineAddr);
+    (((saga::Parameter *)cParameter))->engine = staticPointerCast<engines::BatchBase, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)engineAddr);
 }

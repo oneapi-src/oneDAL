@@ -30,9 +30,8 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cGetInput
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_InitializerIface_cGetInput
-  (JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_InitializerIface_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                                jlong algAddr)
 {
-    return (jlong) & (staticPointerCast<initializers::InitializerIface, AlgorithmIface>(
-        *((SharedPtr<AlgorithmIface> *)algAddr)))->input;
+    return (jlong) & (staticPointerCast<initializers::InitializerIface, AlgorithmIface>(*((SharedPtr<AlgorithmIface> *)algAddr)))->input;
 }

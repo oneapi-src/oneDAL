@@ -27,16 +27,15 @@ using namespace daal::data_management;
  * Method:    cSerializeCObject
  * Signature: (J)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_algorithms_Model_cSerializeCObject
-(JNIEnv *env, jobject thisObj, jlong modelPtr)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_algorithms_Model_cSerializeCObject(JNIEnv * env, jobject thisObj, jlong modelPtr)
 {
-    SerializationIface *model = ((SerializationIfacePtr *)modelPtr)->get();
+    SerializationIface * model = ((SerializationIfacePtr *)modelPtr)->get();
     InputDataArchive dataArch;
     model->serialize(dataArch);
 
     size_t length = dataArch.getSizeOfArchive();
 
-    byte *buffer = (byte *)daal_malloc(length);
+    byte * buffer = (byte *)daal_malloc(length);
     dataArch.copyArchiveToArray(buffer, length);
 
     return env->NewDirectByteBuffer(buffer, length);
@@ -47,10 +46,9 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_algorithms_Model_cSerializeCObject
  * Method:    cFreeByteBuffer
  * Signature: (Ljava/nio/ByteBuffer;)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_Model_cFreeByteBuffer
-(JNIEnv *env, jobject thisObj, jobject byteBuffer)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_Model_cFreeByteBuffer(JNIEnv * env, jobject thisObj, jobject byteBuffer)
 {
-    byte *buffer = (byte *)(env->GetDirectBufferAddress(byteBuffer));
+    byte * buffer = (byte *)(env->GetDirectBufferAddress(byteBuffer));
     daal_free(buffer);
 }
 
@@ -59,9 +57,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_Model_cFreeByteBuffer
  * Method:    cDispose
  * Signature:(J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_Model_cDispose
-(JNIEnv *env, jobject thisObj, jlong modelAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_Model_cDispose(JNIEnv * env, jobject thisObj, jlong modelAddr)
 {
-    algorithms::ModelPtr *modelShPtr = (algorithms::ModelPtr *)modelAddr;
+    algorithms::ModelPtr * modelShPtr = (algorithms::ModelPtr *)modelAddr;
     delete modelShPtr;
 }

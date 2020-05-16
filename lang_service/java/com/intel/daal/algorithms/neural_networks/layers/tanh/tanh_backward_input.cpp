@@ -33,8 +33,8 @@ using namespace daal::algorithms::neural_networks::layers::tanh;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_tanh_TanhBackwardInput_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_tanh_TanhBackwardInput_cSetInput(JNIEnv * env, jobject thisObj,
+                                                                                                               jlong inputAddr, jint id, jlong ntAddr)
 {
     if (id == auxValueId)
     {
@@ -47,8 +47,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_ta
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_tanh_TanhBackwardInput_cGetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_tanh_TanhBackwardInput_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                                jlong inputAddr, jint id)
 {
     if (id == auxValueId)
     {

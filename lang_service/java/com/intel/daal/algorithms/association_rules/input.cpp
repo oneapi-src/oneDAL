@@ -24,8 +24,8 @@
 
 USING_COMMON_NAMESPACES();
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_association_1rules_Input_cInit
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jint cmode)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_association_1rules_Input_cInit(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                      jint method, jint cmode)
 {
     return jniBatch<association_rules::Method, association_rules::Batch, association_rules::apriori>::getInput(prec, method, algAddr);
 }
@@ -35,14 +35,13 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_association_1rules_Input_
  * Method:    cSetDataSet
  * Signature:(JIJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_association_1rules_Input_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_association_1rules_Input_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id,
+                                                                                         jlong ntAddr)
 {
     jniInput<association_rules::Input>::set<association_rules::InputId, NumericTable>(inputAddr, id, ntAddr);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_association_1rules_Input_cGetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_association_1rules_Input_cGetInput(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id)
 {
     return jniInput<association_rules::Input>::get<association_rules::InputId, NumericTable>(inputAddr, id);
 }

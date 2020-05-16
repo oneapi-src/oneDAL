@@ -33,8 +33,8 @@ using namespace daal::algorithms::implicit_als::training;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep3Local_cInit
-  (JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep3Local_cInit(JNIEnv * env, jobject thisObj, jint prec,
+                                                                                                          jint method)
 {
     return jniDistributed<step3Local, algorithms::implicit_als::training::Method, Distributed, fastCSR>::newObj(prec, method);
 }
@@ -44,8 +44,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_Di
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep3Local_cInitParameter
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep3Local_cInitParameter(JNIEnv * env, jobject thisObj,
+                                                                                                                   jlong algAddr, jint prec,
+                                                                                                                   jint method)
 {
     return jniDistributed<step3Local, algorithms::implicit_als::training::Method, Distributed, fastCSR>::getParameter(prec, method, algAddr);
 }
@@ -55,8 +56,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_Di
  * Method:    cGetPartialResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep3Local_cGetPartialResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep3Local_cGetPartialResult(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong algAddr, jint prec,
+                                                                                                                      jint method)
 {
     return jniDistributed<step3Local, algorithms::implicit_als::training::Method, Distributed, fastCSR>::getPartialResult(prec, method, algAddr);
 }
@@ -66,11 +68,13 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_Di
  * Method:    cSetPartialResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep3Local_cSetPartialResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong partialResultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep3Local_cSetPartialResult(JNIEnv * env, jobject thisObj,
+                                                                                                                     jlong algAddr, jint prec,
+                                                                                                                     jint method,
+                                                                                                                     jlong partialResultAddr)
 {
-    jniDistributed<step3Local, algorithms::implicit_als::training::Method, Distributed, fastCSR>::
-        setPartialResult<DistributedPartialResultStep3>(prec, method, algAddr, partialResultAddr);
+    jniDistributed<step3Local, algorithms::implicit_als::training::Method, Distributed, fastCSR>::setPartialResult<DistributedPartialResultStep3>(
+        prec, method, algAddr, partialResultAddr);
 }
 
 /*
@@ -78,8 +82,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_Dis
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep3Local_cClone
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep3Local_cClone(JNIEnv * env, jobject thisObj,
+                                                                                                           jlong algAddr, jint prec, jint method)
 {
     return jniDistributed<step3Local, algorithms::implicit_als::training::Method, Distributed, fastCSR>::getClone(prec, method, algAddr);
 }

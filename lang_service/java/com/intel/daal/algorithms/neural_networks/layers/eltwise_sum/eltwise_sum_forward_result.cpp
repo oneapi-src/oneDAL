@@ -29,8 +29,8 @@ using namespace daal::algorithms::neural_networks::layers::eltwise_sum;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumForwardResult_cNewResult
-  (JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumForwardResult_cNewResult(JNIEnv * env,
+                                                                                                                               jobject thisObj)
 {
     return jniArgument<forward::Result>::newObj();
 }
@@ -40,8 +40,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_e
  * Method:    cGetTensor
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumForwardResult_cGetTensor
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumForwardResult_cGetTensor(JNIEnv * env,
+                                                                                                                               jobject thisObj,
+                                                                                                                               jlong resAddr, jint id)
 {
     return jniArgument<forward::Result>::get<LayerDataId, Tensor>(resAddr, id);
 }
@@ -51,8 +52,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_e
  * Method:    cSetTensor
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumForwardResult_cSetTensor
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong tensorAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumForwardResult_cSetTensor(JNIEnv * env,
+                                                                                                                              jobject thisObj,
+                                                                                                                              jlong resAddr, jint id,
+                                                                                                                              jlong tensorAddr)
 {
     jniArgument<forward::Result>::set<LayerDataId, Tensor>(resAddr, id, tensorAddr);
 }
@@ -62,8 +65,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_el
  * Method:    cGetNumericTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumForwardResult_cGetNumericTable
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumForwardResult_cGetNumericTable(JNIEnv * env,
+                                                                                                                                     jobject thisObj,
+                                                                                                                                     jlong resAddr,
+                                                                                                                                     jint id)
 {
     return jniArgument<forward::Result>::get<LayerDataNumericTableId, NumericTable>(resAddr, id);
 }
@@ -73,8 +78,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_e
  * Method:    cSetNumericTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumForwardResult_cSetNumericTable
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumForwardResult_cSetNumericTable(
+    JNIEnv * env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
 {
     jniArgument<forward::Result>::set<LayerDataNumericTableId, NumericTable>(resAddr, id, ntAddr);
 }

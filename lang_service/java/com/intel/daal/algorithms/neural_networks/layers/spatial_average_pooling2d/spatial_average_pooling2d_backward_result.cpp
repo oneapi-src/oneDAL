@@ -30,8 +30,9 @@ using namespace daal::algorithms::neural_networks::layers::spatial_average_pooli
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1average_1pooling2d_SpatialAveragePooling2dBackwardResult_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL
+    Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1average_1pooling2d_SpatialAveragePooling2dBackwardResult_cNewResult(
+        JNIEnv * env, jobject thisObj)
 {
     return jniArgument<backward::Result>::newObj();
 }

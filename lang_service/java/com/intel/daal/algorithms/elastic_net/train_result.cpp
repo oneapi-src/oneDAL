@@ -42,8 +42,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_Tra
  * Method:    cGetModel
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_TrainingResult_cGetModel(JNIEnv * env, jobject thisObj,
-                                                                                                      jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_TrainingResult_cGetModel(JNIEnv * env, jobject thisObj, jlong resAddr,
+                                                                                                      jint id)
 {
     if (id == ModelId)
     {

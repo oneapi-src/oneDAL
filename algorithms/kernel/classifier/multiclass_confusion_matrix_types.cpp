@@ -53,7 +53,8 @@ Status Parameter::check() const
 Input::Input() : daal::algorithms::Input(lastInputId + 1) {}
 
 /**
- * Returns the input object of the quality metric of the classification algorithm
+ * Returns the input object of the quality metric of the classification
+ * algorithm
  * \param[in] id   Identifier of the input object, \ref InputId
  * \return         Input object that corresponds to the given identifier
  */

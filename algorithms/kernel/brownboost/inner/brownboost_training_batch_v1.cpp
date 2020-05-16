@@ -41,7 +41,8 @@ __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_BROWNBOOST_TRAINING_RE
 
 /**
  * Returns the model trained with the BrownBoost algorithm
- * \param[in] id    Identifier of the result, \ref classifier::training::ResultId
+ * \param[in] id    Identifier of the result, \ref
+ * classifier::training::ResultId
  * \return          Model trained with the BrownBoost algorithm
  */
 daal::algorithms::brownboost::interface1::ModelPtr Result::get(classifier::training::ResultId id) const

@@ -30,11 +30,11 @@ using namespace daal::algorithms::neural_networks::layers::loss;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_logistic_1cross_LogisticCrossForwardBatch_cInit
-  (JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_logistic_1cross_LogisticCrossForwardBatch_cInit(JNIEnv * env,
+                                                                                                                               jobject thisObj,
+                                                                                                                               jint prec, jint method)
 {
-    return jniBatch<logistic_cross::Method, logistic_cross::forward::Batch, logistic_cross::defaultDense>::
-        newObj(prec, method);
+    return jniBatch<logistic_cross::Method, logistic_cross::forward::Batch, logistic_cross::defaultDense>::newObj(prec, method);
 }
 
 /*
@@ -42,11 +42,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_l
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_logistic_1cross_LogisticCrossForwardBatch_cInitParameter
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_logistic_1cross_LogisticCrossForwardBatch_cInitParameter(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<logistic_cross::Method, logistic_cross::forward::Batch, logistic_cross::defaultDense>::
-        getParameter(prec, method, algAddr);
+    return jniBatch<logistic_cross::Method, logistic_cross::forward::Batch, logistic_cross::defaultDense>::getParameter(prec, method, algAddr);
 }
 
 /*
@@ -54,11 +53,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_l
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_logistic_1cross_LogisticCrossForwardBatch_cGetInput
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_logistic_1cross_LogisticCrossForwardBatch_cGetInput(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<logistic_cross::Method, logistic_cross::forward::Batch, logistic_cross::defaultDense>::
-        getInput(prec, method, algAddr);
+    return jniBatch<logistic_cross::Method, logistic_cross::forward::Batch, logistic_cross::defaultDense>::getInput(prec, method, algAddr);
 }
 
 /*
@@ -66,11 +64,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_l
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_logistic_1cross_LogisticCrossForwardBatch_cGetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_logistic_1cross_LogisticCrossForwardBatch_cGetResult(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<logistic_cross::Method, logistic_cross::forward::Batch, logistic_cross::defaultDense>::
-        getResult(prec, method, algAddr);
+    return jniBatch<logistic_cross::Method, logistic_cross::forward::Batch, logistic_cross::defaultDense>::getResult(prec, method, algAddr);
 }
 
 /*
@@ -78,11 +75,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_l
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_logistic_1cross_LogisticCrossForwardBatch_cSetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_logistic_1cross_LogisticCrossForwardBatch_cSetResult(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resAddr)
 {
-    jniBatch<logistic_cross::Method, logistic_cross::forward::Batch, logistic_cross::defaultDense>::
-        setResult<logistic_cross::forward::Result>(prec, method, algAddr, resAddr);
+    jniBatch<logistic_cross::Method, logistic_cross::forward::Batch, logistic_cross::defaultDense>::setResult<logistic_cross::forward::Result>(
+        prec, method, algAddr, resAddr);
 }
 
 /*
@@ -90,9 +87,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lo
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_logistic_1cross_LogisticCrossForwardBatch_cClone
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_logistic_1cross_LogisticCrossForwardBatch_cClone(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<logistic_cross::Method, logistic_cross::forward::Batch, logistic_cross::defaultDense>::
-        getClone(prec, method, algAddr);
+    return jniBatch<logistic_cross::Method, logistic_cross::forward::Batch, logistic_cross::defaultDense>::getClone(prec, method, algAddr);
 }

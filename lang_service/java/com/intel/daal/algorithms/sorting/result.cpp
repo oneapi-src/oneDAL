@@ -30,8 +30,7 @@ using namespace daal::algorithms::sorting;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_sorting_Result_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_sorting_Result_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<sorting::Result>::newObj();
 }
@@ -41,8 +40,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_sorting_Result_cNewResult
  * Method:    cGetResultTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_sorting_Result_cGetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_sorting_Result_cGetResultTable(JNIEnv * env, jobject thisObj, jlong resAddr, jint id)
 {
     return jniArgument<sorting::Result>::get<ResultId, NumericTable>(resAddr, id);
 }
@@ -52,8 +50,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_sorting_Result_cGetResult
  * Method:    cSetResultTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_sorting_Result_cSetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_sorting_Result_cSetResultTable(JNIEnv * env, jobject thisObj, jlong resAddr, jint id,
+                                                                                     jlong ntAddr)
 {
     jniArgument<sorting::Result>::set<ResultId, NumericTable>(resAddr, id, ntAddr);
 }

@@ -31,8 +31,10 @@ using namespace daal::algorithms::implicit_als::training::init;
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitDistributedStep1LocalInput_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitDistributedStep1LocalInput_cGetInput(JNIEnv * env,
+                                                                                                                            jobject thisObj,
+                                                                                                                            jlong algAddr, jint prec,
+                                                                                                                            jint method)
 {
     return jniDistributed<step1Local, implicit_als::training::init::Method, Distributed, fastCSR>::getInput(prec, method, algAddr);
 }

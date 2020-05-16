@@ -28,8 +28,7 @@ using namespace daal::algorithms::math;
  * Method:    cInit
  * Signature:(II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_logistic_Batch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_logistic_Batch_cInit(JNIEnv * env, jobject thisObj, jint prec, jint method)
 {
     return jniBatch<logistic::Method, logistic::Batch, logistic::defaultDense>::newObj(prec, method);
 }
@@ -39,8 +38,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_logistic_Batch_cInit
  * Method:    cSetResult
  * Signature:(JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_math_logistic_Batch_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_math_logistic_Batch_cSetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                     jint method, jlong resultAddr)
 {
     jniBatch<logistic::Method, logistic::Batch, logistic::defaultDense>::setResult<logistic::Result>(prec, method, algAddr, resultAddr);
 }
@@ -50,8 +49,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_math_logistic_Batch_cSetRe
  * Method:    cGetResult
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_logistic_Batch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_logistic_Batch_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                      jint method)
 {
     return jniBatch<logistic::Method, logistic::Batch, logistic::defaultDense>::getResult(prec, method, algAddr);
 }
@@ -61,8 +60,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_logistic_Batch_cGetR
  * Method:    cGetInput
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_logistic_Batch_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_logistic_Batch_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                     jint method)
 {
     return jniBatch<logistic::Method, logistic::Batch, logistic::defaultDense>::getInput(prec, method, algAddr);
 }
@@ -72,8 +71,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_logistic_Batch_cGetI
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_logistic_Batch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_logistic_Batch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                  jint method)
 {
     return jniBatch<logistic::Method, logistic::Batch, logistic::defaultDense>::getClone(prec, method, algAddr);
 }

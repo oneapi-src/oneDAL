@@ -30,8 +30,7 @@ using namespace daal::algorithms::multivariate_outlier_detection;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multivariate_1outlier_1detection_Result_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multivariate_1outlier_1detection_Result_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<multivariate_outlier_detection::Result>::newObj();
 }
@@ -41,11 +40,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multivariate_1outlier_1de
  * Method:    cGetResultTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multivariate_1outlier_1detection_Result_cGetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multivariate_1outlier_1detection_Result_cGetResultTable(JNIEnv * env, jobject thisObj,
+                                                                                                               jlong resAddr, jint id)
 {
-    return jniArgument<multivariate_outlier_detection::Result>::
-        get<multivariate_outlier_detection::ResultId, NumericTable>(resAddr, id);
+    return jniArgument<multivariate_outlier_detection::Result>::get<multivariate_outlier_detection::ResultId, NumericTable>(resAddr, id);
 }
 
 /*
@@ -53,9 +51,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multivariate_1outlier_1de
  * Method:    cSetResultTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multivariate_1outlier_1detection_Result_cSetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multivariate_1outlier_1detection_Result_cSetResultTable(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong resAddr, jint id, jlong ntAddr)
 {
-    jniArgument<multivariate_outlier_detection::Result>::
-        set<multivariate_outlier_detection::ResultId, NumericTable>(resAddr, id, ntAddr);
+    jniArgument<multivariate_outlier_detection::Result>::set<multivariate_outlier_detection::ResultId, NumericTable>(resAddr, id, ntAddr);
 }

@@ -31,8 +31,10 @@ using namespace daal::algorithms::neural_networks::layers::eltwise_sum;
  * Method:    cGetTensor
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumBackwardInput_cGetTensor
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumBackwardInput_cGetTensor(JNIEnv * env,
+                                                                                                                               jobject thisObj,
+                                                                                                                               jlong inputAddr,
+                                                                                                                               jint id)
 {
     return jniInput<backward::Input>::get<LayerDataId, Tensor>(inputAddr, id);
 }
@@ -42,8 +44,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_e
  * Method:    cSetTensor
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumBackwardInput_cSetTensor
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumBackwardInput_cSetTensor(JNIEnv * env,
+                                                                                                                              jobject thisObj,
+                                                                                                                              jlong inputAddr,
+                                                                                                                              jint id, jlong ntAddr)
 {
     jniInput<backward::Input>::set<LayerDataId, Tensor>(inputAddr, id, ntAddr);
 }
@@ -53,8 +57,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_el
  * Method:    cGetNumericTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumBackwardInput_cGetNumericTable
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumBackwardInput_cGetNumericTable(JNIEnv * env,
+                                                                                                                                     jobject thisObj,
+                                                                                                                                     jlong inputAddr,
+                                                                                                                                     jint id)
 {
     return jniInput<backward::Input>::get<LayerDataNumericTableId, NumericTable>(inputAddr, id);
 }
@@ -64,8 +70,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_e
  * Method:    cSetNumericTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumBackwardInput_cSetNumericTable
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumBackwardInput_cSetNumericTable(
+    JNIEnv * env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
 {
     jniInput<backward::Input>::set<LayerDataNumericTableId, NumericTable>(inputAddr, id, ntAddr);
 }

@@ -28,15 +28,16 @@ USING_COMMON_NAMESPACES()
 namespace dtrp = daal::algorithms::decision_tree::regression::prediction;
 
 #include "com_intel_daal_algorithms_decision_tree_regression_prediction_PredictionResultId.h"
-#define predictionId  com_intel_daal_algorithms_decision_tree_regression_prediction_PredictionResultId_predictionId
+#define predictionId com_intel_daal_algorithms_decision_tree_regression_prediction_PredictionResultId_predictionId
 
 /*
 * Class:     com_intel_daal_algorithms_decision_tree_regression_prediction_PredictionResult
 * Method:    cGetResultTable
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_prediction_PredictionResult_cGetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_prediction_PredictionResult_cGetResultTable(JNIEnv * env,
+                                                                                                                             jobject thisObj,
+                                                                                                                             jlong resAddr, jint id)
 {
     if (id == predictionId)
     {
@@ -51,8 +52,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression
 * Method:    cSetResultTable
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_prediction_PredictionResult_cSetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_prediction_PredictionResult_cSetResultTable(JNIEnv * env,
+                                                                                                                            jobject thisObj,
+                                                                                                                            jlong resAddr, jint id,
+                                                                                                                            jlong ntAddr)
 {
     if (id == predictionId)
     {

@@ -33,8 +33,7 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingResult_cNewResult
-  (JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingResult_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<training::Result>::newObj();
 }
@@ -44,8 +43,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cGetValue
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingResult_cGetValue
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingResult_cGetValue(JNIEnv * env, jobject thisObj,
+                                                                                                          jlong resAddr, jint id)
 {
     if (id == modelId)
     {
@@ -60,8 +59,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cSetValue
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingResult_cSetValue
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong modelAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingResult_cSetValue(JNIEnv * env, jobject thisObj, jlong resAddr,
+                                                                                                         jint id, jlong modelAddr)
 {
     if (id == modelId)
     {

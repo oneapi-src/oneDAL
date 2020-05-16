@@ -30,11 +30,10 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_softmax_SoftmaxBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_softmax_SoftmaxBatch_cInit(JNIEnv * env, jobject thisObj, jint prec,
+                                                                                                          jint method)
 {
-    return jniBatchLayer<softmax::Method, softmax::Batch, softmax::defaultDense>::
-           newObj(prec, method);
+    return jniBatchLayer<softmax::Method, softmax::Batch, softmax::defaultDense>::newObj(prec, method);
 }
 
 /*
@@ -42,11 +41,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_softmax_SoftmaxBatch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_softmax_SoftmaxBatch_cInitParameter(JNIEnv * env, jobject thisObj,
+                                                                                                                   jlong algAddr, jint prec,
+                                                                                                                   jint method)
 {
-    return jniBatchLayer<softmax::Method, softmax::Batch, softmax::defaultDense>::
-           getParameter(prec, method, algAddr);
+    return jniBatchLayer<softmax::Method, softmax::Batch, softmax::defaultDense>::getParameter(prec, method, algAddr);
 }
 
 /*
@@ -54,11 +53,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cGetForwardLayer
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_softmax_SoftmaxBatch_cGetForwardLayer
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_softmax_SoftmaxBatch_cGetForwardLayer(JNIEnv * env, jobject thisObj,
+                                                                                                                     jlong algAddr, jint prec,
+                                                                                                                     jint method)
 {
-    return jniBatchLayer<softmax::Method, softmax::Batch, softmax::defaultDense>::
-           getForwardLayer(prec, method, algAddr);
+    return jniBatchLayer<softmax::Method, softmax::Batch, softmax::defaultDense>::getForwardLayer(prec, method, algAddr);
 }
 
 /*
@@ -66,9 +65,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cGetBackwardLayer
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_softmax_SoftmaxBatch_cGetBackwardLayer
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_softmax_SoftmaxBatch_cGetBackwardLayer(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong algAddr, jint prec,
+                                                                                                                      jint method)
 {
-    return jniBatchLayer<softmax::Method, softmax::Batch, softmax::defaultDense>::
-           getBackwardLayer(prec, method, algAddr);
+    return jniBatchLayer<softmax::Method, softmax::Batch, softmax::defaultDense>::getBackwardLayer(prec, method, algAddr);
 }

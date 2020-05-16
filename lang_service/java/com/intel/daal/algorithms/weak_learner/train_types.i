@@ -21,6 +21,6 @@ using namespace daal;
 using namespace daal::algorithms;
 
 #include "com_intel_daal_algorithms_classifier_training_TrainingResultId.h"
-#define ModelResult  com_intel_daal_algorithms_classifier_training_TrainingResultId_Model
+#define ModelResult com_intel_daal_algorithms_classifier_training_TrainingResultId_Model
 
 typedef weak_learner::training::Batch wl_tr_of;

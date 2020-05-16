@@ -30,11 +30,10 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnForwardBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnForwardBatch_cInit(JNIEnv * env, jobject thisObj, jint prec,
+                                                                                                         jint method)
 {
-    return jniBatch<lcn::Method, lcn::forward::Batch, lcn::defaultDense>::
-           newObj(prec, method);
+    return jniBatch<lcn::Method, lcn::forward::Batch, lcn::defaultDense>::newObj(prec, method);
 }
 
 /*
@@ -42,11 +41,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_l
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnForwardBatch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnForwardBatch_cInitParameter(JNIEnv * env, jobject thisObj,
+                                                                                                                  jlong algAddr, jint prec,
+                                                                                                                  jint method)
 {
-    return jniBatch<lcn::Method, lcn::forward::Batch, lcn::defaultDense>::
-           getParameter(prec, method, algAddr);
+    return jniBatch<lcn::Method, lcn::forward::Batch, lcn::defaultDense>::getParameter(prec, method, algAddr);
 }
 
 /*
@@ -54,11 +53,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_l
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnForwardBatch_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnForwardBatch_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                             jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<lcn::Method, lcn::forward::Batch, lcn::defaultDense>::
-           getInput(prec, method, algAddr);
+    return jniBatch<lcn::Method, lcn::forward::Batch, lcn::defaultDense>::getInput(prec, method, algAddr);
 }
 
 /*
@@ -66,11 +64,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_l
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnForwardBatch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnForwardBatch_cGetResult(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<lcn::Method, lcn::forward::Batch, lcn::defaultDense>::
-           getResult(prec, method, algAddr);
+    return jniBatch<lcn::Method, lcn::forward::Batch, lcn::defaultDense>::getResult(prec, method, algAddr);
 }
 
 /*
@@ -78,11 +75,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_l
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnForwardBatch_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnForwardBatch_cSetResult(JNIEnv * env, jobject thisObj,
+                                                                                                             jlong algAddr, jint prec, jint method,
+                                                                                                             jlong resAddr)
 {
-    jniBatch<lcn::Method, lcn::forward::Batch, lcn::defaultDense>::
-    setResult<lcn::forward::Result>(prec, method, algAddr, resAddr);
+    jniBatch<lcn::Method, lcn::forward::Batch, lcn::defaultDense>::setResult<lcn::forward::Result>(prec, method, algAddr, resAddr);
 }
 
 /*
@@ -90,9 +87,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lc
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnForwardBatch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnForwardBatch_cClone(JNIEnv * env, jobject thisObj,
+                                                                                                          jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<lcn::Method, lcn::forward::Batch, lcn::defaultDense>::
-           getClone(prec, method, algAddr);
+    return jniBatch<lcn::Method, lcn::forward::Batch, lcn::defaultDense>::getClone(prec, method, algAddr);
 }

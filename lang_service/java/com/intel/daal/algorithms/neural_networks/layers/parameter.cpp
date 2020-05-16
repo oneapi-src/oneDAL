@@ -30,8 +30,8 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cSetWeightsInitializer
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_Parameter_cSetWeightsInitializer
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jlong cInitializer)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_Parameter_cSetWeightsInitializer(JNIEnv * env, jobject thisObj,
+                                                                                                               jlong cParameter, jlong cInitializer)
 {
     (((layers::Parameter *)cParameter))->weightsInitializer =
         staticPointerCast<initializers::InitializerIface, AlgorithmIface>(*((SharedPtr<AlgorithmIface> *)cInitializer));
@@ -42,8 +42,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_Pa
  * Method:    cSetBiasesInitializer
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_Parameter_cSetBiasesInitializer
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jlong cInitializer)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_Parameter_cSetBiasesInitializer(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong cParameter, jlong cInitializer)
 {
     (((layers::Parameter *)cParameter))->biasesInitializer =
         staticPointerCast<initializers::InitializerIface, AlgorithmIface>(*((SharedPtr<AlgorithmIface> *)cInitializer));
@@ -53,8 +53,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_Pa
  * Method:    cGetWeightsAndBiasesInitializationFlag
  * Signature: (J)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_Parameter_cGetWeightsAndBiasesInitializationFlag
-  (JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_Parameter_cGetWeightsAndBiasesInitializationFlag(JNIEnv * env,
+                                                                                                                                   jobject thisObj,
+                                                                                                                                   jlong cParameter)
 {
     return (((layers::Parameter *)cParameter))->weightsAndBiasesInitialized;
 }
@@ -64,8 +65,8 @@ JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_neural_1networks_layer
  * Method:    cSetWeightsAndBiasesInitializationFlag
  * Signature: (JZ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_Parameter_cSetWeightsAndBiasesInitializationFlag
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jboolean weightsAndBiasesInitialized)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_Parameter_cSetWeightsAndBiasesInitializationFlag(
+    JNIEnv * env, jobject thisObj, jlong cParameter, jboolean weightsAndBiasesInitialized)
 {
     (((layers::Parameter *)cParameter))->weightsAndBiasesInitialized = weightsAndBiasesInitialized;
 }
@@ -75,8 +76,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_Pa
  * Method:    cGetPredictionStage
  * Signature: (J)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_Parameter_cGetPredictionStage
-  (JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_Parameter_cGetPredictionStage(JNIEnv * env, jobject thisObj,
+                                                                                                                jlong cParameter)
 {
     return (((layers::Parameter *)cParameter))->predictionStage;
 }
@@ -86,8 +87,9 @@ JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_neural_1networks_layer
  * Method:    cSetPredictionStage
  * Signature: (JZ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_Parameter_cSetPredictionStage
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jboolean predictionStage)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_Parameter_cSetPredictionStage(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong cParameter,
+                                                                                                            jboolean predictionStage)
 {
     (((layers::Parameter *)cParameter))->predictionStage = predictionStage;
 }

@@ -30,8 +30,10 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cSetKernelSizes
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling2d_Pooling2dParameter_cSetKernelSizes
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong first, jlong second)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling2d_Pooling2dParameter_cSetKernelSizes(JNIEnv * env,
+                                                                                                                           jobject thisObj,
+                                                                                                                           jlong cParameter,
+                                                                                                                           jlong first, jlong second)
 {
     (((pooling2d::Parameter *)cParameter))->kernelSizes.size[0] = first;
     (((pooling2d::Parameter *)cParameter))->kernelSizes.size[1] = second;
@@ -42,8 +44,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_po
  * Method:    cSetStrides
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling2d_Pooling2dParameter_cSetStrides
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong first, jlong second)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling2d_Pooling2dParameter_cSetStrides(JNIEnv * env, jobject thisObj,
+                                                                                                                       jlong cParameter, jlong first,
+                                                                                                                       jlong second)
 {
     (((pooling2d::Parameter *)cParameter))->strides.size[0] = first;
     (((pooling2d::Parameter *)cParameter))->strides.size[1] = second;
@@ -54,8 +57,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_po
  * Method:    cSetSD
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling2d_Pooling2dParameter_cSetSD
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong first, jlong second)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling2d_Pooling2dParameter_cSetSD(JNIEnv * env, jobject thisObj,
+                                                                                                                  jlong cParameter, jlong first,
+                                                                                                                  jlong second)
 {
     (((pooling2d::Parameter *)cParameter))->indices.size[0] = first;
     (((pooling2d::Parameter *)cParameter))->indices.size[1] = second;
@@ -66,8 +70,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_po
  * Method:    cSetPaddings
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling2d_Pooling2dParameter_cSetPaddings
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong first, jlong second)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling2d_Pooling2dParameter_cSetPaddings(JNIEnv * env, jobject thisObj,
+                                                                                                                        jlong cParameter, jlong first,
+                                                                                                                        jlong second)
 {
     (((pooling2d::Parameter *)cParameter))->paddings.size[0] = first;
     (((pooling2d::Parameter *)cParameter))->paddings.size[1] = second;
@@ -78,8 +83,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_po
  * Method:    cGetKernelSizes
  * Signature: (J)J
  */
-JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling2d_Pooling2dParameter_cGetKernelSizes
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling2d_Pooling2dParameter_cGetKernelSizes(JNIEnv * env,
+                                                                                                                                 jobject thisObj,
+                                                                                                                                 jlong cParameter)
 {
     jlongArray sizeArray;
     sizeArray = env->NewLongArray(2);
@@ -96,8 +102,9 @@ JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_lay
  * Method:    cGetStrides
  * Signature: (J)J
  */
-JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling2d_Pooling2dParameter_cGetStrides
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling2d_Pooling2dParameter_cGetStrides(JNIEnv * env,
+                                                                                                                             jobject thisObj,
+                                                                                                                             jlong cParameter)
 {
     jlongArray sizeArray;
     sizeArray = env->NewLongArray(2);
@@ -114,8 +121,9 @@ JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_lay
  * Method:    cGetPaddings
  * Signature: (J)J
  */
-JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling2d_Pooling2dParameter_cGetPaddings
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling2d_Pooling2dParameter_cGetPaddings(JNIEnv * env,
+                                                                                                                              jobject thisObj,
+                                                                                                                              jlong cParameter)
 {
     jlongArray sizeArray;
     sizeArray = env->NewLongArray(2);
@@ -132,8 +140,8 @@ JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_lay
  * Method:    cGetSD
  * Signature: (J)J
  */
-JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling2d_Pooling2dParameter_cGetSD
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling2d_Pooling2dParameter_cGetSD(JNIEnv * env, jobject thisObj,
+                                                                                                                        jlong cParameter)
 {
     jlongArray sizeArray;
     sizeArray = env->NewLongArray(2);

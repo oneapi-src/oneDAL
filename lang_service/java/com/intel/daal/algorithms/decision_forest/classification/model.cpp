@@ -33,8 +33,7 @@ namespace dfc = daal::algorithms::decision_forest::classification;
 * Method:    cGetNumberOfTrees
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_Model_cGetNumberOfTrees
-(JNIEnv *, jobject, jlong modAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_Model_cGetNumberOfTrees(JNIEnv *, jobject, jlong modAddr)
 {
     return (jlong)(*(dfc::ModelPtr *)modAddr)->getNumberOfTrees();
 }
@@ -44,14 +43,13 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_classifi
 * Method:    cTraverseDF
 * Signature: (JJLcom/intel/daal/algorithms/decision_forest/classification/NodeVisitor;)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_Model_cTraverseDF
-(JNIEnv *env, jobject, jlong modAddr, jlong iTree, jobject visitor)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_Model_cTraverseDF(JNIEnv * env, jobject, jlong modAddr,
+                                                                                                        jlong iTree, jobject visitor)
 {
-    JavaVM *jvm;
+    JavaVM * jvm;
     // Get pointer to the Java VM interface function table
     jint status = env->GetJavaVM(&jvm);
-    if(status != 0)
-        throwError(env, "Couldn't get Java VM interface");
+    if (status != 0) throwError(env, "Couldn't get Java VM interface");
     daal::classification::JavaTreeNodeVisitor visitorImpl(jvm, visitor);
     (*(dfc::ModelPtr *)modAddr)->traverseDF((size_t)iTree, visitorImpl);
 }
@@ -61,14 +59,13 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classific
 * Method:    cTraverseBF
 * Signature: (JJLcom/intel/daal/algorithms/decision_forest/classification/NodeVisitor;)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_Model_cTraverseBF
-(JNIEnv *env, jobject, jlong modAddr, jlong iTree, jobject visitor)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_Model_cTraverseBF(JNIEnv * env, jobject, jlong modAddr,
+                                                                                                        jlong iTree, jobject visitor)
 {
-    JavaVM *jvm;
+    JavaVM * jvm;
     // Get pointer to the Java VM interface function table
     jint status = env->GetJavaVM(&jvm);
-    if(status != 0)
-        throwError(env, "Couldn't get Java VM interface");
+    if (status != 0) throwError(env, "Couldn't get Java VM interface");
     daal::classification::JavaTreeNodeVisitor visitorImpl(jvm, visitor);
     (*(dfc::ModelPtr *)modAddr)->traverseBF((size_t)iTree, visitorImpl);
 }
@@ -78,8 +75,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classific
 * Method:    cClear
 * Signature: (J)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_Model_cClear
-(JNIEnv *, jobject, jlong modAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_Model_cClear(JNIEnv *, jobject, jlong modAddr)
 {
     (*(dfc::ModelPtr *)modAddr)->clear();
 }
@@ -89,14 +85,13 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classific
 * Method:    cTraverseDFS
 * Signature: (JJLcom/intel/daal/algorithms/decision_forest/classification/NodeVisitor;)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_Model_cTraverseDFS
-(JNIEnv *env, jobject, jlong modAddr, jlong iTree, jobject visitor)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_Model_cTraverseDFS(JNIEnv * env, jobject, jlong modAddr,
+                                                                                                         jlong iTree, jobject visitor)
 {
-    JavaVM *jvm;
+    JavaVM * jvm;
     // Get pointer to the Java VM interface function table
     jint status = env->GetJavaVM(&jvm);
-    if(status != 0)
-        throwError(env, "Couldn't get Java VM interface");
+    if (status != 0) throwError(env, "Couldn't get Java VM interface");
     daal::classification::tree_utils::JavaTreeNodeVisitor visitorImpl(jvm, visitor);
     (*(dfc::ModelPtr *)modAddr)->traverseDFS((size_t)iTree, visitorImpl);
 }
@@ -106,14 +101,13 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classific
 * Method:    cTraverseBFS
 * Signature: (JJLcom/intel/daal/algorithms/decision_forest/classification/NodeVisitor;)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_Model_cTraverseBFS
-(JNIEnv *env, jobject, jlong modAddr, jlong iTree, jobject visitor)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_Model_cTraverseBFS(JNIEnv * env, jobject, jlong modAddr,
+                                                                                                         jlong iTree, jobject visitor)
 {
-    JavaVM *jvm;
+    JavaVM * jvm;
     // Get pointer to the Java VM interface function table
     jint status = env->GetJavaVM(&jvm);
-    if(status != 0)
-        throwError(env, "Couldn't get Java VM interface");
+    if (status != 0) throwError(env, "Couldn't get Java VM interface");
     daal::classification::tree_utils::JavaTreeNodeVisitor visitorImpl(jvm, visitor);
     (*(dfc::ModelPtr *)modAddr)->traverseBFS((size_t)iTree, visitorImpl);
 }

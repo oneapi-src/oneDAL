@@ -30,8 +30,9 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedParameter_cInit
-  (JNIEnv *env, jobject thisObj, jlong nOutputs)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedParameter_cInit(JNIEnv * env,
+                                                                                                                            jobject thisObj,
+                                                                                                                            jlong nOutputs)
 {
     return (jlong)(new fullyconnected::Parameter((size_t)nOutputs));
 }
@@ -41,8 +42,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_f
  * Method:    cGetNOutputs
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedParameter_cGetNOutputs
-  (JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedParameter_cGetNOutputs(JNIEnv * env,
+                                                                                                                                   jobject thisObj,
+                                                                                                                                   jlong cParameter)
 {
     return (jlong)((((fullyconnected::Parameter *)cParameter))->nOutputs);
 }
@@ -52,8 +54,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_f
  * Method:    cSetNOutputs
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedParameter_cSetNOutputs
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jlong nOutputs)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedParameter_cSetNOutputs(JNIEnv * env,
+                                                                                                                                  jobject thisObj,
+                                                                                                                                  jlong cParameter,
+                                                                                                                                  jlong nOutputs)
 {
     (((fullyconnected::Parameter *)cParameter))->nOutputs = (size_t)nOutputs;
 }

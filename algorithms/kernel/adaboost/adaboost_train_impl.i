@@ -90,8 +90,9 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMM
 
     /* Allocate memory for storing intermediate results */
     /* Vector of flags.
-    errFlag[i] == -1.0, if weak classifier's classification result agrees with actual class label;
-    errFlag[i] == 1.0, otherwise */
+  errFlag[i] == -1.0, if weak classifier's classification result agrees with
+  actual class label;
+  errFlag[i] == 1.0, otherwise */
     TArray<algorithmFPType, cpu> aErrFlag(nVectors);
     DAAL_CHECK(aErrFlag.get(), services::ErrorMemoryAllocationFailed);
 
@@ -145,7 +146,8 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMM
         predictInput->set(classifier::prediction::model, learnerModel);
         DAAL_CHECK_STATUS(s, learnerPredict->computeNoThrow());
 
-        /* Calculate weighted error and errFlag: product of predicted * ground_truth */
+        /* Calculate weighted error and errFlag: product of predicted * ground_truth
+     */
         size_t nErr               = 0;
         algorithmFPType errM      = zero;
         algorithmFPType * errFlag = aErrFlag.get();
@@ -398,7 +400,8 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::compute(Nume
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, parameter->maxIterations, sizeof(algorithmFPType));
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors, sizeof(algorithmFPType));
 
-    /* Allocate memory for storing weak learners' models and boosting coefficients */
+    /* Allocate memory for storing weak learners' models and boosting coefficients
+   */
     TArray<algorithmFPType, cpu> alpha(parameter->maxIterations); /* AdaBoost coefficients */
     DAAL_CHECK(alpha.get(), services::ErrorMemoryAllocationFailed);
 

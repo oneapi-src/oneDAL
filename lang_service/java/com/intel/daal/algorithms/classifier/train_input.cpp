@@ -30,8 +30,8 @@ using namespace daal::algorithms::classifier::training;
 #include "lang_service/java/com/intel/daal/include/common_defines.i"
 
 #include "com_intel_daal_algorithms_classifier_training_InputId.h"
-#define Data com_intel_daal_algorithms_classifier_training_InputId_Data
-#define Labels com_intel_daal_algorithms_classifier_training_InputId_Labels
+#define Data    com_intel_daal_algorithms_classifier_training_InputId_Data
+#define Labels  com_intel_daal_algorithms_classifier_training_InputId_Labels
 #define Weights com_intel_daal_algorithms_classifier_training_InputId_Weights
 
 /*
@@ -39,24 +39,20 @@ using namespace daal::algorithms::classifier::training;
  * Method:    cInit
  * Signature: (JIJ)I
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_classifier_training_TrainingInput_cInit
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint cmode )
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_classifier_training_TrainingInput_cInit(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                               jint cmode)
 {
-    classifier::training::Input *inputPtr = NULL;
+    classifier::training::Input * inputPtr = NULL;
 
-    if(cmode == jBatch)
+    if (cmode == jBatch)
     {
-        SharedPtr<Batch> alg =
-            staticPointerCast<Batch, AlgorithmIface>
-                (*(SharedPtr<AlgorithmIface> *)algAddr);
-        inputPtr = alg->getInput();
+        SharedPtr<Batch> alg = staticPointerCast<Batch, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
+        inputPtr             = alg->getInput();
     }
-    else if(cmode == jOnline)
+    else if (cmode == jOnline)
     {
-        SharedPtr<Online> alg =
-            staticPointerCast<Online, AlgorithmIface>
-                (*(SharedPtr<AlgorithmIface> *)algAddr);
-        inputPtr = alg->getInput();
+        SharedPtr<Online> alg = staticPointerCast<Online, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
+        inputPtr              = alg->getInput();
     }
 
     return (jlong)inputPtr;
@@ -67,10 +63,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_classifier_training_Train
  * Method:    cSetInput
  * Signature:(JIJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_classifier_training_TrainingInput_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_classifier_training_TrainingInput_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                                  jint id, jlong ntAddr)
 {
-    if(id != Data && id != Labels) return;
+    if (id != Data && id != Labels) return;
 
     jniInput<classifier::training::Input>::set<classifier::training::InputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -80,10 +76,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_classifier_training_Traini
  * Method:    cGetInputTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_classifier_training_TrainingInput_cGetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_classifier_training_TrainingInput_cGetInputTable(JNIEnv * env, jobject thisObj,
+                                                                                                        jlong inputAddr, jint id)
 {
-    if(id != Data && id != Labels) return (jlong)-1;
+    if (id != Data && id != Labels) return (jlong)-1;
 
     return jniInput<classifier::training::Input>::get<classifier::training::InputId, NumericTable>(inputAddr, id);
 }

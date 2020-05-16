@@ -30,8 +30,8 @@ using namespace daal::algorithms::logistic_regression::training;
  * Method:    cInit
  * Signature:(IIJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_training_TrainingBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method, jlong nClasses)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_training_TrainingBatch_cInit(JNIEnv * env, jobject thisObj, jint prec,
+                                                                                                         jint method, jlong nClasses)
 {
     return jniBatch<logistic_regression::training::Method, Batch, defaultDense>::newObj(prec, method, nClasses);
 }
@@ -41,8 +41,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_trai
  * Method:    cInitParameter
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_training_TrainingBatch_cInitTrainParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_training_TrainingBatch_cInitTrainParameter(JNIEnv * env, jobject thisObj,
+                                                                                                                       jlong algAddr, jint prec,
+                                                                                                                       jint method)
 {
     return jniBatch<logistic_regression::training::Method, Batch, defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -52,8 +53,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_trai
  * Method:    cGetResult
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_training_TrainingBatch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_training_TrainingBatch_cGetResult(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong algAddr, jint prec, jint method)
 {
     return jniBatch<logistic_regression::training::Method, Batch, defaultDense>::getResult(prec, method, algAddr);
 }
@@ -63,8 +64,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_trai
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_training_TrainingBatch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_training_TrainingBatch_cClone(JNIEnv * env, jobject thisObj,
+                                                                                                          jlong algAddr, jint prec, jint method)
 {
     return jniBatch<logistic_regression::training::Method, Batch, defaultDense>::getClone(prec, method, algAddr);
 }

@@ -34,8 +34,8 @@ using namespace daal::algorithms::neural_networks::layers::lrn;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnBackwardInput_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnBackwardInput_cSetInput(JNIEnv * env, jobject thisObj,
+                                                                                                             jlong inputAddr, jint id, jlong ntAddr)
 {
     if (id == auxDataId || id == auxSmBetaId)
     {
@@ -48,8 +48,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lr
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnBackwardInput_cGetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnBackwardInput_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong inputAddr, jint id)
 {
     if (id == auxDataId || id == auxSmBetaId)
     {

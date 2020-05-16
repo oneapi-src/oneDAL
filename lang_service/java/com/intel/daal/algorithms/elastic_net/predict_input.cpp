@@ -35,8 +35,8 @@ using namespace daal::algorithms::elastic_net::prediction;
  * Method:    cSetInput
  * Signature:(JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_prediction_Input_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
-                                                                                              jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_prediction_Input_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id,
+                                                                                              jlong ntAddr)
 {
     if (id == dataId)
     {

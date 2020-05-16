@@ -29,8 +29,7 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cInit
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingTopology_cInit
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingTopology_cInit(JNIEnv * env, jobject thisObj)
 {
     return (jlong)(new training::TopologyPtr(new training::Topology()));
 }
@@ -40,10 +39,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cSize
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingTopology_cSize
-(JNIEnv *env, jobject thisObj, jlong addr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingTopology_cSize(JNIEnv * env, jobject thisObj, jlong addr)
 {
-    return (*(training::TopologyPtr*)addr)->size();
+    return (*(training::TopologyPtr *)addr)->size();
 }
 
 /*
@@ -51,11 +49,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cGet
  * Signature: (JJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingTopology_cGet
-(JNIEnv *env, jobject thisObj, jlong addr, jlong index)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingTopology_cGet(JNIEnv * env, jobject thisObj, jlong addr,
+                                                                                                       jlong index)
 {
-    const layers::LayerDescriptor& desc = (*(training::TopologyPtr*)addr)->get((size_t)index);
-    layers::LayerDescriptor *layerDescriptorPtr = new layers::LayerDescriptor(desc);
+    const layers::LayerDescriptor & desc         = (*(training::TopologyPtr *)addr)->get((size_t)index);
+    layers::LayerDescriptor * layerDescriptorPtr = new layers::LayerDescriptor(desc);
     return (jlong)layerDescriptorPtr;
 }
 
@@ -64,10 +62,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cPushBack
  * Signature: (JJ)V
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingTopology_cPushBack
-(JNIEnv *env, jobject thisObj, jlong addr, jlong layerAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingTopology_cPushBack(JNIEnv * env, jobject thisObj, jlong addr,
+                                                                                                            jlong layerAddr)
 {
-    return (*(training::TopologyPtr*)addr)->add(*((layers::LayerIfacePtr *)layerAddr));
+    return (*(training::TopologyPtr *)addr)->add(*((layers::LayerIfacePtr *)layerAddr));
 }
 
 /*
@@ -75,10 +73,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cDispose
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingTopology_cDispose
-(JNIEnv *env, jobject thisObj, jlong addr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingTopology_cDispose(JNIEnv * env, jobject thisObj, jlong addr)
 {
-    delete(training::TopologyPtr *)addr;
+    delete (training::TopologyPtr *)addr;
 }
 
 /*
@@ -86,8 +83,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_
 * Method:    cAddNext
 * Signature: (JJJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingTopology_cAddNext
-(JNIEnv *, jobject, jlong addr, jlong index, jlong next)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingTopology_cAddNext(JNIEnv *, jobject, jlong addr, jlong index,
+                                                                                                          jlong next)
 {
-    (*(training::TopologyPtr*)addr)->get(index).addNext(next);
+    (*(training::TopologyPtr *)addr)->get(index).addNext(next);
 }

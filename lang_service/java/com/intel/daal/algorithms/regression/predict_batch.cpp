@@ -32,15 +32,13 @@ using namespace daal::services;
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_regression_prediction_PredictionBatch_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_regression_prediction_PredictionBatch_cSetResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                       jlong resultAddr)
 {
-    SerializationIfacePtr *serializableShPtr = (SerializationIfacePtr *)resultAddr;
+    SerializationIfacePtr * serializableShPtr = (SerializationIfacePtr *)resultAddr;
     regression::prediction::ResultPtr resultShPtr =
         services::staticPointerCast<regression::prediction::Result, SerializationIface>(*serializableShPtr);
 
-    SharedPtr<Batch> alg =
-        staticPointerCast<Batch, AlgorithmIface>
-            (*(SharedPtr<AlgorithmIface> *)algAddr);
+    SharedPtr<Batch> alg = staticPointerCast<Batch, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
     alg->setResult(resultShPtr);
 }

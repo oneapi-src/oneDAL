@@ -24,8 +24,8 @@
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::dbscan;
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep10_cNewDistributedPartialResultStep10
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep10_cNewDistributedPartialResultStep10(JNIEnv * env,
+                                                                                                                                jobject thisObj)
 {
     return jniArgument<DistributedPartialResultStep10>::newObj();
 }
@@ -35,8 +35,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartial
  * Method:    cGetNumericTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep10_cGetNumericTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep10_cGetNumericTable(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong resAddr, jint id)
 {
     return jniArgument<DistributedPartialResultStep10>::get<DistributedPartialResultStep10NumericTableId, NumericTable>(resAddr, id);
 }
@@ -46,8 +46,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartial
  * Method:    cSetNumericTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep10_cSetNumericTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep10_cSetNumericTable(JNIEnv * env, jobject thisObj,
+                                                                                                             jlong resAddr, jint id, jlong ntAddr)
 {
     jniArgument<DistributedPartialResultStep10>::set<DistributedPartialResultStep10NumericTableId, NumericTable>(resAddr, id, ntAddr);
 }
@@ -57,8 +57,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialR
  * Method:    cGetDataCollection
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep10_cGetDataCollection
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep10_cGetDataCollection(JNIEnv * env, jobject thisObj,
+                                                                                                                jlong resAddr, jint id)
 {
     return jniArgument<DistributedPartialResultStep10>::get<DistributedPartialResultStep10CollectionId, DataCollection>(resAddr, id);
 }
@@ -68,8 +68,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartial
  * Method:    cSetDataCollection
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep10_cSetDataCollection
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong dcAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep10_cSetDataCollection(JNIEnv * env, jobject thisObj,
+                                                                                                               jlong resAddr, jint id, jlong dcAddr)
 {
     jniArgument<DistributedPartialResultStep10>::set<DistributedPartialResultStep10CollectionId, DataCollection>(resAddr, id, dcAddr);
 }

@@ -59,7 +59,8 @@ size_t Input::getNumberOfRows() const
 }
 
 /**
- * Returns the input Numeric Table object in the prediction stage of the classification algorithm
+ * Returns the input Numeric Table object in the prediction stage of the
+ * classification algorithm
  * \param[in] id    Identifier of the input NumericTable object
  * \return          Input object that corresponds to the given identifier
  */
@@ -69,7 +70,8 @@ data_management::NumericTablePtr Input::get(NumericTableInputId id) const
 }
 
 /**
- * Returns the input Model object in the prediction stage of the classification algorithm
+ * Returns the input Model object in the prediction stage of the classification
+ * algorithm
  * \param[in] id    Identifier of the input Model object
  * \return          Input object that corresponds to the given identifier
  */
@@ -79,7 +81,8 @@ classifier::ModelPtr Input::get(ModelInputId id) const
 }
 
 /**
- * Sets the input NumericTable object in the prediction stage of the classification algorithm
+ * Sets the input NumericTable object in the prediction stage of the
+ * classification algorithm
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
@@ -89,7 +92,8 @@ void Input::set(NumericTableInputId id, const data_management::NumericTablePtr &
 }
 
 /**
- * Sets the input Model object in the prediction stage of the classifier algorithm
+ * Sets the input Model object in the prediction stage of the classifier
+ * algorithm
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */

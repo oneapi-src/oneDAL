@@ -33,8 +33,10 @@ using namespace daal::algorithms::multinomial_naive_bayes::training;
  * Method:    cAddInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingDistributedInput_cAddInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr )
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingDistributedInput_cAddInput(JNIEnv * env,
+                                                                                                                            jobject thisObj,
+                                                                                                                            jlong inputAddr, jint id,
+                                                                                                                            jlong ntAddr)
 {
     jniInput<DistributedInput>::add<Step2MasterInputId, multinomial_naive_bayes::training::PartialResult>(inputAddr, partialModels, ntAddr);
 }

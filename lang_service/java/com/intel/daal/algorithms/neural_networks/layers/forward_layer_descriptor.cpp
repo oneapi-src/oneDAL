@@ -30,8 +30,7 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cInit
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_ForwardLayerDescriptor_cInit__
-  (JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_ForwardLayerDescriptor_cInit__(JNIEnv * env, jobject thisObj)
 {
     return (jlong)(new layers::forward::LayerDescriptor());
 }
@@ -41,12 +40,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_F
  * Method:    cInit
  * Signature: (JJJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_ForwardLayerDescriptor_cInit__JJ
-  (JNIEnv *env, jobject thisObj, jlong index, jlong layerAddr, jlong nextLayersAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_ForwardLayerDescriptor_cInit__JJ(JNIEnv * env, jobject thisObj,
+                                                                                                                jlong index, jlong layerAddr,
+                                                                                                                jlong nextLayersAddr)
 {
-    return (jlong)(new layers::forward::LayerDescriptor((size_t)index,
-                                                        (*(layers::forward::LayerIfacePtr *)layerAddr),
-                                                        (*(layers::NextLayers *)nextLayersAddr)));
+    return (jlong)(
+        new layers::forward::LayerDescriptor((size_t)index, (*(layers::forward::LayerIfacePtr *)layerAddr), (*(layers::NextLayers *)nextLayersAddr)));
 }
 
 /*
@@ -54,8 +53,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_F
  * Method:    cDispose
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_ForwardLayerDescriptor_cDispose
-  (JNIEnv *env, jobject thisObj, jlong addr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_ForwardLayerDescriptor_cDispose(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong addr)
 {
     delete (layers::forward::LayerDescriptor *)addr;
 }

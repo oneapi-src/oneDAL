@@ -36,14 +36,13 @@ namespace classification
 */
 struct JavaTreeNodeVisitor : public daal::algorithms::classifier::TreeNodeVisitor, public daal::services::JavaCallback
 {
-    JavaTreeNodeVisitor(JavaVM *_jvm, jobject _javaObject) : daal::services::JavaCallback(_jvm, _javaObject) {}
+    JavaTreeNodeVisitor(JavaVM * _jvm, jobject _javaObject) : daal::services::JavaCallback(_jvm, _javaObject) {}
 
-    virtual ~JavaTreeNodeVisitor()
-    {}
+    virtual ~JavaTreeNodeVisitor() {}
 
     virtual bool onLeafNode(size_t level, size_t response) DAAL_C11_OVERRIDE;
     virtual bool onSplitNode(size_t level, size_t featureIndex, double featureValue) DAAL_C11_OVERRIDE;
 };
-}
-}
+} // namespace classification
+} // namespace daal
 #endif

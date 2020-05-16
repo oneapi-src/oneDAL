@@ -32,8 +32,8 @@ namespace dfrp = daal::algorithms::gbt::regression::prediction;
 * Method:    cSetInputTable
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_PredictionInput_cSetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_PredictionInput_cSetInputTable(JNIEnv * env, jobject thisObj,
+                                                                                                               jlong inputAddr, jint id, jlong ntAddr)
 {
     jniInput<dfrp::Input>::set<dfrp::NumericTableInputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -43,10 +43,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_
 * Method:    cGetInputTable
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_PredictionInput_cGetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_PredictionInput_cGetInputTable(JNIEnv * env, jobject thisObj,
+                                                                                                                jlong inputAddr, jint id)
 {
-    if(id != dfrp::data) return (jlong)-1;
+    if (id != dfrp::data) return (jlong)-1;
 
     return jniInput<dfrp::Input>::get<dfrp::NumericTableInputId, NumericTable>(inputAddr, id);
 }
@@ -56,10 +56,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction
 * Method:    cSetInputModel
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_PredictionInput_cSetInputModel
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_PredictionInput_cSetInputModel(JNIEnv * env, jobject thisObj,
+                                                                                                               jlong inputAddr, jint id, jlong ntAddr)
 {
-    if(id != dfrp::model) return;
+    if (id != dfrp::model) return;
 
     jniInput<dfrp::Input>::set<dfrp::ModelInputId, gbt::regression::Model>(inputAddr, id, ntAddr);
 }
@@ -69,10 +69,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_
 * Method:    cGetInputModel
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_PredictionInput_cGetInputModel
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_PredictionInput_cGetInputModel(JNIEnv * env, jobject thisObj,
+                                                                                                                jlong inputAddr, jint id)
 {
-    if(id != dfrp::model) return (jlong)-1;
+    if (id != dfrp::model) return (jlong)-1;
 
     return jniInput<dfrp::Input>::get<dfrp::ModelInputId, gbt::regression::Model>(inputAddr, id);
 }
@@ -82,8 +82,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction
 * Method:    cInit
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_PredictionInput_cInit
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_PredictionInput_cInit(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                       jint prec, jint method)
 {
     return jniBatch<dfrp::Method, dfrp::Batch, dfrp::defaultDense>::getInput(prec, method, algAddr);
 }
@@ -93,8 +93,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction
 * Method:    cNewResult
 * Signature: ()J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_PredictionResult_cNewResult
-(JNIEnv *, jobject)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_PredictionResult_cNewResult(JNIEnv *, jobject)
 {
     return jniArgument<dfrp::Result>::newObj();
 }
@@ -104,8 +103,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction
 * Method:    cGetResult
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_PredictionResult_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_PredictionResult_cGetResult(JNIEnv * env, jobject thisObj,
+                                                                                                             jlong algAddr, jint prec, jint method)
 {
     return jniBatch<dfrp::Method, dfrp::Batch, dfrp::defaultDense>::getResult(prec, method, algAddr);
 }
@@ -115,8 +114,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction
 * Method:    cGetResultTable
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_PredictionResult_cGetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_PredictionResult_cGetResultTable(JNIEnv * env, jobject thisObj,
+                                                                                                                  jlong resAddr, jint id)
 {
     return jniArgument<dfrp::Result>::get<dfrp::ResultId, NumericTable>(resAddr, dfrp::ResultId(id));
 }
@@ -126,8 +125,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction
 * Method:    cSetResultTable
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_PredictionResult_cSetResultTable
-(JNIEnv *, jobject, jlong resAddr, jint id, jlong numTableAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_PredictionResult_cSetResultTable(JNIEnv *, jobject, jlong resAddr,
+                                                                                                                 jint id, jlong numTableAddr)
 {
     jniArgument<dfrp::Result>::set<dfrp::ResultId, NumericTable>(resAddr, dfrp::ResultId(id), numTableAddr);
 }

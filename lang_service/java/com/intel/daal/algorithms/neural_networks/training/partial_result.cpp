@@ -34,8 +34,7 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cNewPartialResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_PartialResult_cNewPartialResult
-  (JNIEnv *, jobject)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_PartialResult_cNewPartialResult(JNIEnv *, jobject)
 {
     return jniArgument<training::PartialResult>::newObj();
 }
@@ -45,10 +44,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cGetPartialResultTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_PartialResult_cGetPartialResultTable
-  (JNIEnv *, jobject, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_PartialResult_cGetPartialResultTable(JNIEnv *, jobject,
+                                                                                                                      jlong resAddr, jint id)
 {
-    if(id == derivativesId || id == batchSizeId)
+    if (id == derivativesId || id == batchSizeId)
     {
         return jniArgument<training::PartialResult>::get<training::Step1LocalPartialResultId, NumericTable>(resAddr, id);
     }
@@ -61,10 +60,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cSetPartialResultTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_PartialResult_cSetPartialResultTable
-  (JNIEnv *, jobject, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_PartialResult_cSetPartialResultTable(JNIEnv *, jobject, jlong resAddr,
+                                                                                                                     jint id, jlong ntAddr)
 {
-    if(id == derivativesId || id == batchSizeId)
+    if (id == derivativesId || id == batchSizeId)
     {
         jniArgument<training::PartialResult>::set<training::Step1LocalPartialResultId, NumericTable>(resAddr, id, ntAddr);
     }

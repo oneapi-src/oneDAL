@@ -184,7 +184,7 @@ struct hash_tree
     }
 
     /** \brief Hash input array of items using tree and return corresponding
-        itemset, if found; NULL otherwise */
+      itemset, if found; NULL otherwise */
     assocrules_itemset<cpu> * hash_subset(size_t iset_size, const size_t * subset, int * levelMiss)
     {
         *levelMiss = 0;
@@ -239,7 +239,7 @@ struct hash_tree
     int n_leaves;                 /*<! Number of leaf nodes */
 
     int order;    /*<! Tree order. Maximum number of children nodes.
-                                  Should be power of 2! */
+                             Should be power of 2! */
     int order_m1; /*<! order - 1 */
     int logOrder; /*<! Logarithm of the tree order */
     static const int maxLogOrder = 12;

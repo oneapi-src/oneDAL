@@ -30,8 +30,8 @@ using namespace daal::algorithms::neural_networks::layers::loss;
  * Method:    cInit
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_logistic_1cross_LogisticCrossParameter_cInit
-  (JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_logistic_1cross_LogisticCrossParameter_cInit(JNIEnv * env,
+                                                                                                                            jobject thisObj)
 {
     return (jlong)(new logistic_cross::Parameter);
 }

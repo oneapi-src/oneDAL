@@ -29,8 +29,7 @@ using namespace daal::algorithms::math;
  * Method:    cInit
  * Signature:(II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_abs_Batch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_abs_Batch_cInit(JNIEnv * env, jobject thisObj, jint prec, jint method)
 {
     return jniBatch<abs::Method, abs::Batch, abs::defaultDense, abs::fastCSR>::newObj(prec, method);
 }
@@ -40,8 +39,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_abs_Batch_cInit
  * Method:    cSetResult
  * Signature:(JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_math_abs_Batch_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_math_abs_Batch_cSetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method,
+                                                                                jlong resultAddr)
 {
     jniBatch<abs::Method, abs::Batch, abs::defaultDense, abs::fastCSR>::setResult<abs::Result>(prec, method, algAddr, resultAddr);
 }
@@ -51,8 +50,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_math_abs_Batch_cSetResult
  * Method:    cGetResult
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_abs_Batch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_abs_Batch_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<abs::Method, abs::Batch, abs::defaultDense, abs::fastCSR>::getResult(prec, method, algAddr);
 }
@@ -62,8 +60,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_abs_Batch_cGetResult
  * Method:    cGetInput
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_abs_Batch_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_abs_Batch_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<abs::Method, abs::Batch, abs::defaultDense, abs::fastCSR>::getInput(prec, method, algAddr);
 }
@@ -73,8 +70,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_abs_Batch_cGetInput
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_abs_Batch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_abs_Batch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<abs::Method, abs::Batch, abs::defaultDense, abs::fastCSR>::getClone(prec, method, algAddr);
 }

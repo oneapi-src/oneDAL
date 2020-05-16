@@ -27,8 +27,7 @@ using namespace daal::data_management;
 
 namespace daal
 {
-
-void JavaTensorBase::setJavaVM(JavaVM *jvm)
+void JavaTensorBase::setJavaVM(JavaVM * jvm)
 {
     if (globalJavaVM == NULL)
     {
@@ -37,7 +36,7 @@ void JavaTensorBase::setJavaVM(JavaVM *jvm)
     }
 }
 
-JavaVM* JavaTensorBase::getJavaVM()
+JavaVM * JavaTensorBase::getJavaVM()
 {
     return globalJavaVM;
 }
@@ -54,7 +53,7 @@ jobject JavaTensorBase::getDaalContext()
 
 template class JavaTensor<SERIALIZATION_JAVANIO_HOMOGEN_TENSOR_ID>;
 
-IMPLEMENT_SERIALIZABLE_TAGT(JavaTensor,SERIALIZATION_JAVANIO_HOMOGEN_TENSOR_ID);
+IMPLEMENT_SERIALIZABLE_TAGT(JavaTensor, SERIALIZATION_JAVANIO_HOMOGEN_TENSOR_ID);
 
 } // namespace daal
 

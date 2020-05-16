@@ -34,8 +34,8 @@ using namespace daal::algorithms::neural_networks::layers::fullyconnected;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedBackwardInput_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedBackwardInput_cSetInput(
+    JNIEnv * env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
 {
     if (id == auxDataId || id == auxWeightsId)
     {
@@ -48,8 +48,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fu
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedBackwardInput_cGetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedBackwardInput_cGetInput(JNIEnv * env,
+                                                                                                                                    jobject thisObj,
+                                                                                                                                    jlong inputAddr,
+                                                                                                                                    jint id)
 {
     if (id == auxDataId || id == auxWeightsId)
     {

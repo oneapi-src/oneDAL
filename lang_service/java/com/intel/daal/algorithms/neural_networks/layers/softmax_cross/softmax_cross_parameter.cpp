@@ -30,8 +30,8 @@ using namespace daal::algorithms::neural_networks::layers::loss;
  * Method:    cInit
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_softmax_1cross_SoftmaxCrossParameter_cInit
-  (JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_softmax_1cross_SoftmaxCrossParameter_cInit(JNIEnv * env,
+                                                                                                                          jobject thisObj)
 {
     return (jlong)(new softmax_cross::Parameter);
 }
@@ -41,8 +41,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cGetAccuracyThreshold
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_softmax_1cross_SoftmaxCrossParameter_cGetAccuracyThreshold
-  (JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_softmax_1cross_SoftmaxCrossParameter_cGetAccuracyThreshold(
+    JNIEnv * env, jobject thisObj, jlong cParameter)
 {
     return (((softmax_cross::Parameter *)cParameter))->accuracyThreshold;
 }
@@ -52,8 +52,8 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers
  * Method:    cSetAccuracyThreshold
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_softmax_1cross_SoftmaxCrossParameter_cSetAccuracyThreshold
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jdouble accuracyThreshold)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_softmax_1cross_SoftmaxCrossParameter_cSetAccuracyThreshold(
+    JNIEnv * env, jobject thisObj, jlong cParameter, jdouble accuracyThreshold)
 {
     (((softmax_cross::Parameter *)cParameter))->accuracyThreshold = accuracyThreshold;
 }
@@ -63,8 +63,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_so
  * Method:    cGetDimension
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_softmax_1cross_SoftmaxCrossParameter_cGetDimension
-  (JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_softmax_1cross_SoftmaxCrossParameter_cGetDimension(JNIEnv * env,
+                                                                                                                                    jobject thisObj,
+                                                                                                                                    jlong cParameter)
 {
     return (((softmax_cross::Parameter *)cParameter))->dimension;
 }
@@ -74,8 +75,10 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers
  * Method:    cSetDimension
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_softmax_1cross_SoftmaxCrossParameter_cSetDimension
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jdouble dimension)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_softmax_1cross_SoftmaxCrossParameter_cSetDimension(JNIEnv * env,
+                                                                                                                                 jobject thisObj,
+                                                                                                                                 jlong cParameter,
+                                                                                                                                 jdouble dimension)
 {
     (((softmax_cross::Parameter *)cParameter))->dimension = dimension;
 }

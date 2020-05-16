@@ -31,8 +31,10 @@ using namespace daal::algorithms::implicit_als::training::init;
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitDistributedStep2LocalInput_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitDistributedStep2LocalInput_cGetInput(JNIEnv * env,
+                                                                                                                            jobject thisObj,
+                                                                                                                            jlong algAddr, jint prec,
+                                                                                                                            jint method)
 {
     return jniDistributed<step2Local, implicit_als::training::init::Method, Distributed, fastCSR>::getInput(prec, method, algAddr);
 }
@@ -42,11 +44,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_in
  * Method:    cSetDataCollection
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitDistributedStep2LocalInput_cSetDataCollection
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong collectionAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitDistributedStep2LocalInput_cSetDataCollection(
+    JNIEnv * env, jobject thisObj, jlong inputAddr, jint id, jlong collectionAddr)
 {
-    jniInput<DistributedInput<step2Local> >::
-        set<Step2LocalInputId, KeyValueDataCollection>(inputAddr, id, collectionAddr);
+    jniInput<DistributedInput<step2Local> >::set<Step2LocalInputId, KeyValueDataCollection>(inputAddr, id, collectionAddr);
 }
 
 /*
@@ -54,9 +55,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_ini
  * Method:    cGetDataCollection
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitDistributedStep2LocalInput_cGetDataCollection
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitDistributedStep2LocalInput_cGetDataCollection(JNIEnv * env,
+                                                                                                                                     jobject thisObj,
+                                                                                                                                     jlong inputAddr,
+                                                                                                                                     jint id)
 {
-    return jniInput<DistributedInput<step2Local> >::
-        get<Step2LocalInputId, KeyValueDataCollection>(inputAddr, id);
+    return jniInput<DistributedInput<step2Local> >::get<Step2LocalInputId, KeyValueDataCollection>(inputAddr, id);
 }

@@ -23,76 +23,62 @@
 
 USING_COMMON_NAMESPACES()
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logitboost_Parameter_cSetWeakLearnerTraining
-(JNIEnv *, jobject, jlong self, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logitboost_Parameter_cSetWeakLearnerTraining(JNIEnv *, jobject, jlong self, jlong value)
 {
-    unpack<logitboost::Parameter>(self).weakLearnerTraining =
-        unpackAlgorithm<regression::training::Batch>(value);
+    unpack<logitboost::Parameter>(self).weakLearnerTraining = unpackAlgorithm<regression::training::Batch>(value);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logitboost_Parameter_cSetWeakLearnerPrediction
-(JNIEnv *, jobject, jlong self, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logitboost_Parameter_cSetWeakLearnerPrediction(JNIEnv *, jobject, jlong self, jlong value)
 {
-    unpack<logitboost::Parameter>(self).weakLearnerPrediction =
-        unpackAlgorithm<regression::prediction::Batch>(value);
+    unpack<logitboost::Parameter>(self).weakLearnerPrediction = unpackAlgorithm<regression::prediction::Batch>(value);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logitboost_Parameter_cSetAccuracyThreshold
-(JNIEnv *env, jobject, jlong self, jdouble acc)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logitboost_Parameter_cSetAccuracyThreshold(JNIEnv * env, jobject, jlong self, jdouble acc)
 {
     unpack<logitboost::Parameter>(self).accuracyThreshold = acc;
 }
 
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_logitboost_Parameter_cGetAccuracyThreshold
-(JNIEnv *env, jobject, jlong self)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_logitboost_Parameter_cGetAccuracyThreshold(JNIEnv * env, jobject, jlong self)
 {
-    return (jdouble)( unpack<logitboost::Parameter>(self).accuracyThreshold );
+    return (jdouble)(unpack<logitboost::Parameter>(self).accuracyThreshold);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logitboost_Parameter_cSetWeightsThreshold
-(JNIEnv *env, jobject, jlong self, jdouble acc)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logitboost_Parameter_cSetWeightsThreshold(JNIEnv * env, jobject, jlong self, jdouble acc)
 {
     unpack<logitboost::Parameter>(self).weightsDegenerateCasesThreshold = acc;
 }
 
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_logitboost_Parameter_cGetWeightsThreshold
-(JNIEnv *env, jobject, jlong self)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_logitboost_Parameter_cGetWeightsThreshold(JNIEnv * env, jobject, jlong self)
 {
-    return (jdouble)( unpack<logitboost::Parameter>(self).weightsDegenerateCasesThreshold );
+    return (jdouble)(unpack<logitboost::Parameter>(self).weightsDegenerateCasesThreshold);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logitboost_Parameter_cSetResponsesThreshold
-(JNIEnv *env, jobject, jlong self, jdouble acc)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logitboost_Parameter_cSetResponsesThreshold(JNIEnv * env, jobject, jlong self, jdouble acc)
 {
     unpack<logitboost::Parameter>(self).responsesDegenerateCasesThreshold = acc;
 }
 
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_logitboost_Parameter_cGetResponsesThreshold
-(JNIEnv *env, jobject, jlong self)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_logitboost_Parameter_cGetResponsesThreshold(JNIEnv * env, jobject, jlong self)
 {
-    return (jdouble)( unpack<logitboost::Parameter>(self).responsesDegenerateCasesThreshold );
+    return (jdouble)(unpack<logitboost::Parameter>(self).responsesDegenerateCasesThreshold);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logitboost_Parameter_cSetMaxIterations
-(JNIEnv *env, jobject, jlong self, jlong nIter)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logitboost_Parameter_cSetMaxIterations(JNIEnv * env, jobject, jlong self, jlong nIter)
 {
     unpack<logitboost::Parameter>(self).maxIterations = nIter;
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logitboost_Parameter_cGetMaxIterations
-(JNIEnv *env, jobject, jlong self)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logitboost_Parameter_cGetMaxIterations(JNIEnv * env, jobject, jlong self)
 {
-    return (jlong)( unpack<logitboost::Parameter>(self).maxIterations );
+    return (jlong)(unpack<logitboost::Parameter>(self).maxIterations);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logitboost_Parameter_cSetNClasses
-(JNIEnv *env, jobject, jlong self, jlong nIter)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logitboost_Parameter_cSetNClasses(JNIEnv * env, jobject, jlong self, jlong nIter)
 {
     unpack<logitboost::Parameter>(self).nClasses = nIter;
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logitboost_Parameter_cGetNClasses
-(JNIEnv *env, jobject, jlong self)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logitboost_Parameter_cGetNClasses(JNIEnv * env, jobject, jlong self)
 {
-    return (jlong)( unpack<logitboost::Parameter>(self).nClasses );
+    return (jlong)(unpack<logitboost::Parameter>(self).nClasses);
 }

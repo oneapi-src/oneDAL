@@ -28,8 +28,7 @@ using namespace daal::algorithms::math;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_smoothrelu_Result_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_smoothrelu_Result_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<smoothrelu::Result>::newObj();
 }
@@ -39,14 +38,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_smoothrelu_Result_cN
  * Method:    cGetValue
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_smoothrelu_Result_cGetValue
-(JNIEnv *env, jobject thisObj, jlong resAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_smoothrelu_Result_cGetValue(JNIEnv * env, jobject thisObj, jlong resAddr)
 {
     return jniArgument<smoothrelu::Result>::get<smoothrelu::ResultId, NumericTable>(resAddr, smoothrelu::value);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_math_smoothrelu_Result_cSetValue
-(JNIEnv *env, jobject thisObj, jlong resAddr, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_math_smoothrelu_Result_cSetValue(JNIEnv * env, jobject thisObj, jlong resAddr, jlong ntAddr)
 {
     jniArgument<smoothrelu::Result>::set<smoothrelu::ResultId, NumericTable>(resAddr, smoothrelu::value, ntAddr);
 }

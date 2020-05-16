@@ -30,10 +30,10 @@ using namespace daal::algorithms::optimization_solver;
  * Method:    cSetBatchIndices
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Parameter_cSetBatchIndices
-(JNIEnv *, jobject, jlong parAddr, jlong cBatchIndices)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Parameter_cSetBatchIndices(JNIEnv *, jobject, jlong parAddr,
+                                                                                                              jlong cBatchIndices)
 {
-    SerializationIfacePtr *ntShPtr = (SerializationIfacePtr *)cBatchIndices;
+    SerializationIfacePtr * ntShPtr               = (SerializationIfacePtr *)cBatchIndices;
     ((adagrad::Parameter *)parAddr)->batchIndices = staticPointerCast<NumericTable, SerializationIface>(*ntShPtr);
 }
 
@@ -42,11 +42,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagr
  * Method:    cGetBatchIndices
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Parameter_cGetBatchIndices
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Parameter_cGetBatchIndices(JNIEnv *, jobject, jlong parAddr)
 {
-    NumericTablePtr *ntShPtr = new NumericTablePtr();
-    *ntShPtr = ((adagrad::Parameter *)parAddr)->batchIndices;
+    NumericTablePtr * ntShPtr = new NumericTablePtr();
+    *ntShPtr                  = ((adagrad::Parameter *)parAddr)->batchIndices;
     return (jlong)ntShPtr;
 }
 
@@ -55,10 +54,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adag
  * Method:    cSetLearningRate
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Parameter_cSetLearningRate
-(JNIEnv *, jobject, jlong parAddr, jlong cLearningRate)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Parameter_cSetLearningRate(JNIEnv *, jobject, jlong parAddr,
+                                                                                                              jlong cLearningRate)
 {
-    SerializationIfacePtr *ntShPtr = (SerializationIfacePtr *)cLearningRate;
+    SerializationIfacePtr * ntShPtr               = (SerializationIfacePtr *)cLearningRate;
     ((adagrad::Parameter *)parAddr)->learningRate = staticPointerCast<NumericTable, SerializationIface>(*ntShPtr);
 }
 
@@ -67,11 +66,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagr
  * Method:    cGetLearningRate
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Parameter_cGetLearningRate
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Parameter_cGetLearningRate(JNIEnv *, jobject, jlong parAddr)
 {
-    NumericTablePtr *ntShPtr = new NumericTablePtr();
-    *ntShPtr = ((adagrad::Parameter *)parAddr)->learningRate;
+    NumericTablePtr * ntShPtr = new NumericTablePtr();
+    *ntShPtr                  = ((adagrad::Parameter *)parAddr)->learningRate;
     return (jlong)ntShPtr;
 }
 
@@ -80,8 +78,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adag
  * Method:    cSetDegenerateCasesThreshold
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Parameter_cSetDegenerateCasesThreshold
-(JNIEnv *, jobject, jlong parAddr, jdouble degenerateCasesThreshold)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Parameter_cSetDegenerateCasesThreshold(
+    JNIEnv *, jobject, jlong parAddr, jdouble degenerateCasesThreshold)
 {
     ((adagrad::Parameter *)parAddr)->degenerateCasesThreshold = degenerateCasesThreshold;
 }
@@ -91,8 +89,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagr
  * Method:    cGetDegenerateCasesThreshold
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Parameter_cGetDegenerateCasesThreshold
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Parameter_cGetDegenerateCasesThreshold(JNIEnv *, jobject,
+                                                                                                                             jlong parAddr)
 {
     return ((adagrad::Parameter *)parAddr)->degenerateCasesThreshold;
 }
@@ -102,8 +100,7 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_optimization_1solver_ad
  * Method:    cSetSeed
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Parameter_cSetSeed
-(JNIEnv *, jobject, jlong parAddr, jlong seed)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Parameter_cSetSeed(JNIEnv *, jobject, jlong parAddr, jlong seed)
 {
     ((adagrad::Parameter *)parAddr)->seed = seed;
 }
@@ -113,8 +110,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagr
  * Method:    cGetSeed
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Parameter_cGetSeed
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Parameter_cGetSeed(JNIEnv *, jobject, jlong parAddr)
 {
     return ((adagrad::Parameter *)parAddr)->seed;
 }
@@ -124,8 +120,8 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagr
  * Method:    cSetEngine
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Parameter_cSetEngine
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong engineAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Parameter_cSetEngine(JNIEnv * env, jobject thisObj,
+                                                                                                        jlong cParameter, jlong engineAddr)
 {
-    (((adagrad::Parameter *)cParameter))->engine = staticPointerCast<engines::BatchBase, AlgorithmIface> (*(SharedPtr<AlgorithmIface> *)engineAddr);
+    (((adagrad::Parameter *)cParameter))->engine = staticPointerCast<engines::BatchBase, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)engineAddr);
 }

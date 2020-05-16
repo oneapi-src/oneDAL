@@ -30,8 +30,8 @@ using namespace daal::algorithms::neural_networks::layers::stochastic_pooling2d;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dBackwardResult_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dBackwardResult_cNewResult(
+    JNIEnv * env, jobject thisObj)
 {
     return jniArgument<backward::Result>::newObj();
 }

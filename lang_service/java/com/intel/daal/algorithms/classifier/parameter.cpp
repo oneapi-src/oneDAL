@@ -23,26 +23,23 @@
 
 USING_COMMON_NAMESPACES()
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_classifier_Parameter_cSetNClasses
-(JNIEnv *env, jobject thisObj, jlong self, jlong nClasses)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_classifier_Parameter_cSetNClasses(JNIEnv * env, jobject thisObj, jlong self, jlong nClasses)
 {
     unpack<classifier::Parameter>(self).nClasses = nClasses;
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_classifier_Parameter_cGetNClasses
-(JNIEnv *env, jobject thisObj, jlong self)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_classifier_Parameter_cGetNClasses(JNIEnv * env, jobject thisObj, jlong self)
 {
-    return (jlong)( unpack<classifier::Parameter>(self).nClasses );
+    return (jlong)(unpack<classifier::Parameter>(self).nClasses);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_classifier_Parameter_cSetResultsToEvaluate
-(JNIEnv *, jobject, jlong self, jlong resultsToEvaluate)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_classifier_Parameter_cSetResultsToEvaluate(JNIEnv *, jobject, jlong self,
+                                                                                                 jlong resultsToEvaluate)
 {
     unpack<classifier::Parameter>(self).resultsToEvaluate = (DAAL_UINT64)resultsToEvaluate;
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_classifier_Parameter_cGetResultsToEvaluate
-(JNIEnv *, jobject, jlong self)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_classifier_Parameter_cGetResultsToEvaluate(JNIEnv *, jobject, jlong self)
 {
-    return (jlong)( unpack<classifier::Parameter>(self).resultsToEvaluate );
+    return (jlong)(unpack<classifier::Parameter>(self).resultsToEvaluate);
 }

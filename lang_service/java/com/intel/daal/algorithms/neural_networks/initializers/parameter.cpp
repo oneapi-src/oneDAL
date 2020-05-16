@@ -25,14 +25,14 @@
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::neural_networks;
 
-
 /*
  * Class:     com_intel_daal_algorithms_neural_networks_initializers_Parameter
  * Method:    cSetLayer
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_Parameter_cSetLayer
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong layerAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_Parameter_cSetLayer(JNIEnv * env, jobject thisObj,
+                                                                                                        jlong cParameter, jlong layerAddr)
 {
-    (((initializers::Parameter *)cParameter))->layer = staticPointerCast<layers::forward::LayerIface, AlgorithmIface> (*(SharedPtr<AlgorithmIface> *)layerAddr);
+    (((initializers::Parameter *)cParameter))->layer =
+        staticPointerCast<layers::forward::LayerIface, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)layerAddr);
 }

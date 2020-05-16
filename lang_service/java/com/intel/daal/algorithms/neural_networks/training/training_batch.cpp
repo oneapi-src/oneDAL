@@ -30,11 +30,11 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingBatch_cInit
-  (JNIEnv *env, jobject thisObj, jint prec, jint method, jlong optAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingBatch_cInit(JNIEnv * env, jobject thisObj, jint prec,
+                                                                                                     jint method, jlong optAddr)
 {
-    services::SharedPtr<optimization_solver::iterative_solver::Batch > opt =
-        *((services::SharedPtr<optimization_solver::iterative_solver::Batch > *)optAddr);
+    services::SharedPtr<optimization_solver::iterative_solver::Batch> opt =
+        *((services::SharedPtr<optimization_solver::iterative_solver::Batch> *)optAddr);
     return jniBatch<training::Method, training::Batch, training::defaultDense>::newObj(prec, method, opt);
 }
 
@@ -43,8 +43,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingBatch_cInitParameter
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingBatch_cInitParameter(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong algAddr, jint prec, jint method)
 {
     return jniBatch<training::Method, training::Batch, training::defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -54,8 +54,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingBatch_cGetInput
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingBatch_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                         jint prec, jint method)
 {
     return jniBatch<training::Method, training::Batch, training::defaultDense>::getInput(prec, method, algAddr);
 }
@@ -65,8 +65,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingBatch_cGetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingBatch_cGetResult(JNIEnv * env, jobject thisObj,
+                                                                                                          jlong algAddr, jint prec, jint method)
 {
     return jniBatch<training::Method, training::Batch, training::defaultDense>::getResult(prec, method, algAddr);
 }
@@ -76,11 +76,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingBatch_cSetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingBatch_cSetResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                         jint prec, jint method, jlong resAddr)
 {
-    jniBatch<training::Method, training::Batch, training::defaultDense>::
-        setResult<training::Result>(prec, method, algAddr, resAddr);
+    jniBatch<training::Method, training::Batch, training::defaultDense>::setResult<training::Result>(prec, method, algAddr, resAddr);
 }
 
 /*
@@ -88,13 +87,15 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_
  * Method:    cInitialize
  * Signature: (JII[JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingBatch_cInitialize
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlongArray dataSizeArray, jlong topologyAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingBatch_cInitialize(JNIEnv * env, jobject thisObj,
+                                                                                                          jlong algAddr, jint prec, jint method,
+                                                                                                          jlongArray dataSizeArray,
+                                                                                                          jlong topologyAddr)
 {
     training::TopologyPtr topology = *(training::TopologyPtr *)topologyAddr;
 
-    size_t len = (size_t)(env->GetArrayLength(dataSizeArray));
-    jlong *dataSize = env->GetLongArrayElements(dataSizeArray, 0);
+    size_t len       = (size_t)(env->GetArrayLength(dataSizeArray));
+    jlong * dataSize = env->GetLongArrayElements(dataSizeArray, 0);
 
     Collection<size_t> dataSizeCollection;
 
@@ -105,16 +106,14 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_
 
     if (prec == 0)
     {
-        SharedPtr<training::Batch<double, training::defaultDense>> alg =
-            staticPointerCast<training::Batch<double, training::defaultDense>, AlgorithmIface>
-                (*(SharedPtr<AlgorithmIface> *)algAddr);
+        SharedPtr<training::Batch<double, training::defaultDense> > alg =
+            staticPointerCast<training::Batch<double, training::defaultDense>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
         alg->initialize(dataSizeCollection, *topology);
     }
     else
     {
-        SharedPtr<training::Batch<float, training::defaultDense>> alg =
-            staticPointerCast<training::Batch<float, training::defaultDense>, AlgorithmIface>
-                (*(SharedPtr<AlgorithmIface> *)algAddr);
+        SharedPtr<training::Batch<float, training::defaultDense> > alg =
+            staticPointerCast<training::Batch<float, training::defaultDense>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
         alg->initialize(dataSizeCollection, *topology);
     }
 }
@@ -124,8 +123,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingBatch_cClone
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingBatch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                      jint prec, jint method)
 {
     return jniBatch<training::Method, training::Batch, training::defaultDense>::getClone(prec, method, algAddr);
 }

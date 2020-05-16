@@ -31,10 +31,10 @@ using namespace daal::services;
  * Method:    cSetQuantileOrders
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_quantiles_Parameter_cSetQuantileOrders
-(JNIEnv *env, jobject thisObj, jlong parAddr, jlong quantilesAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_quantiles_Parameter_cSetQuantileOrders(JNIEnv * env, jobject thisObj, jlong parAddr,
+                                                                                             jlong quantilesAddr)
 {
-    SerializationIfacePtr *ntShPtr = (SerializationIfacePtr *)quantilesAddr;
+    SerializationIfacePtr * ntShPtr                   = (SerializationIfacePtr *)quantilesAddr;
     (*(quantiles::Parameter *)parAddr).quantileOrders = staticPointerCast<NumericTable, SerializationIface>(*ntShPtr);
 }
 
@@ -43,11 +43,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_quantiles_Parameter_cSetQu
  * Method:    cGetQuantileOrders
  * Signature: (J)I
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_quantiles_Parameter_cGetQuantileOrders
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_quantiles_Parameter_cGetQuantileOrders(JNIEnv * env, jobject thisObj, jlong parAddr)
 {
-    quantiles::Parameter *parameter = (quantiles::Parameter *)parAddr;
-    NumericTablePtr *ntShPtr = new NumericTablePtr();
-    *ntShPtr = parameter->quantileOrders;
+    quantiles::Parameter * parameter = (quantiles::Parameter *)parAddr;
+    NumericTablePtr * ntShPtr        = new NumericTablePtr();
+    *ntShPtr                         = parameter->quantileOrders;
     return (jlong)ntShPtr;
 }

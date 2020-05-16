@@ -30,8 +30,8 @@ using namespace daal::algorithms::neural_networks::layers::maximum_pooling1d;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling1d_MaximumPooling1dBackwardResult_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL
+    Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling1d_MaximumPooling1dBackwardResult_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<backward::Result>::newObj();
 }

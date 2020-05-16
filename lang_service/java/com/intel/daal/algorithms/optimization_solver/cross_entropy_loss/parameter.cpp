@@ -32,8 +32,10 @@ using namespace daal::algorithms::optimization_solver;
  * Method:    cSetInterceptFlag
  * Signature:(JZ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Parameter_cSetInterceptFlag
-(JNIEnv *env, jobject thisObj, jlong algAddr, jboolean flag)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Parameter_cSetInterceptFlag(JNIEnv * env,
+                                                                                                                            jobject thisObj,
+                                                                                                                            jlong algAddr,
+                                                                                                                            jboolean flag)
 {
     (*(cross_entropy_loss::Parameter *)algAddr).interceptFlag = flag;
 }
@@ -43,10 +45,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross
  * Method:    cGetInterceptFlag
  * Signature:(J)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Parameter_cGetInterceptFlag
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Parameter_cGetInterceptFlag(JNIEnv * env,
+                                                                                                                                jobject thisObj,
+                                                                                                                                jlong algAddr)
 {
-    return(*(cross_entropy_loss::Parameter *)algAddr).interceptFlag;
+    return (*(cross_entropy_loss::Parameter *)algAddr).interceptFlag;
 }
 
 /*
@@ -54,8 +57,9 @@ JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_optimization_1solver_c
  * Method:    cSetPenaltyL1
  * Signature:(JZ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Parameter_cSetPenaltyL1
-(JNIEnv *env, jobject thisObj, jlong algAddr, jfloat penaltyL1)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Parameter_cSetPenaltyL1(JNIEnv * env, jobject thisObj,
+                                                                                                                        jlong algAddr,
+                                                                                                                        jfloat penaltyL1)
 {
     (*(cross_entropy_loss::Parameter *)algAddr).penaltyL1 = penaltyL1;
 }
@@ -65,10 +69,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross
  * Method:    cGetPenaltyL1
  * Signature:(J)Z
  */
-JNIEXPORT jfloat JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Parameter_cGetPenaltyL1
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT jfloat JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Parameter_cGetPenaltyL1(JNIEnv * env,
+                                                                                                                          jobject thisObj,
+                                                                                                                          jlong algAddr)
 {
-    return(*(cross_entropy_loss::Parameter *)algAddr).penaltyL1;
+    return (*(cross_entropy_loss::Parameter *)algAddr).penaltyL1;
 }
 
 /*
@@ -76,8 +81,9 @@ JNIEXPORT jfloat JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cro
  * Method:    cSetPenaltyL2
  * Signature:(JZ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Parameter_cSetPenaltyL2
-(JNIEnv *env, jobject thisObj, jlong algAddr, jfloat penaltyL2)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Parameter_cSetPenaltyL2(JNIEnv * env, jobject thisObj,
+                                                                                                                        jlong algAddr,
+                                                                                                                        jfloat penaltyL2)
 {
     (*(cross_entropy_loss::Parameter *)algAddr).penaltyL2 = penaltyL2;
 }
@@ -87,10 +93,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross
  * Method:    cGetPenaltyL2
  * Signature:(J)Z
  */
-JNIEXPORT jfloat JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Parameter_cGetPenaltyL2
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT jfloat JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Parameter_cGetPenaltyL2(JNIEnv * env,
+                                                                                                                          jobject thisObj,
+                                                                                                                          jlong algAddr)
 {
-    return(*(cross_entropy_loss::Parameter *)algAddr).penaltyL2;
+    return (*(cross_entropy_loss::Parameter *)algAddr).penaltyL2;
 }
 
 /*
@@ -98,8 +105,8 @@ JNIEXPORT jfloat JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cro
  * Method:    cSetNClasses
  * Signature:(JZ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Parameter_cSetNClasses
-(JNIEnv *env, jobject thisObj, jlong algAddr, jlong nClasses)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Parameter_cSetNClasses(JNIEnv * env, jobject thisObj,
+                                                                                                                       jlong algAddr, jlong nClasses)
 {
     (*(cross_entropy_loss::Parameter *)algAddr).nClasses = nClasses;
 }
@@ -109,8 +116,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross
  * Method:    cGetNClasses
  * Signature:(J)Z
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Parameter_cGetNClasses
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Parameter_cGetNClasses(JNIEnv * env, jobject thisObj,
+                                                                                                                        jlong algAddr)
 {
-    return(*(cross_entropy_loss::Parameter *)algAddr).nClasses;
+    return (*(cross_entropy_loss::Parameter *)algAddr).nClasses;
 }

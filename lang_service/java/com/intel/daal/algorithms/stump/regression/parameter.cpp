@@ -24,15 +24,12 @@
 using namespace daal;
 using namespace daal::algorithms;
 
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_stump_regression_Parameter_cGetVarImportance
-(JNIEnv *, jobject, jlong self)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_stump_regression_Parameter_cGetVarImportance(JNIEnv *, jobject, jlong self)
 {
-    return (jint)( unpack<stump::regression::Parameter>(self).varImportance );
+    return (jint)(unpack<stump::regression::Parameter>(self).varImportance);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_stump_regression_Parameter_cSetVarImportance
-(JNIEnv *, jobject, jlong self, jint value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_stump_regression_Parameter_cSetVarImportance(JNIEnv *, jobject, jlong self, jint value)
 {
-    unpack<stump::regression::Parameter>(self).varImportance =
-        (stump::regression::VariableImportanceMode)(value);
+    unpack<stump::regression::Parameter>(self).varImportance = (stump::regression::VariableImportanceMode)(value);
 }

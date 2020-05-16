@@ -29,11 +29,11 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep2Master_cInit
-  (JNIEnv *, jobject, jint prec, jint method, jlong optAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep2Master_cInit(JNIEnv *, jobject, jint prec,
+                                                                                                              jint method, jlong optAddr)
 {
-    services::SharedPtr<optimization_solver::iterative_solver::Batch > opt =
-        *((services::SharedPtr<optimization_solver::iterative_solver::Batch > *)optAddr);
+    services::SharedPtr<optimization_solver::iterative_solver::Batch> opt =
+        *((services::SharedPtr<optimization_solver::iterative_solver::Batch> *)optAddr);
     return jniDistributed<step2Master, training::Method, training::Distributed, training::defaultDense>::newObj(prec, method, opt);
 }
 
@@ -42,8 +42,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep2Master_cInitParameter
-  (JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep2Master_cInitParameter(JNIEnv *, jobject,
+                                                                                                                       jlong algAddr, jint prec,
+                                                                                                                       jint method)
 {
     return jniDistributed<step2Master, training::Method, training::Distributed, training::defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -53,8 +54,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep2Master_cGetInput
-  (JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep2Master_cGetInput(JNIEnv *, jobject, jlong algAddr,
+                                                                                                                  jint prec, jint method)
 {
     return jniDistributed<step2Master, training::Method, training::Distributed, training::defaultDense>::getInput(prec, method, algAddr);
 }
@@ -64,8 +65,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep2Master_cGetResult
-  (JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep2Master_cGetResult(JNIEnv *, jobject, jlong algAddr,
+                                                                                                                   jint prec, jint method)
 {
     return jniDistributed<step2Master, training::Method, training::Distributed, training::defaultDense>::getResult(prec, method, algAddr);
 }
@@ -75,8 +76,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cGetPartialResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep2Master_cGetPartialResult
-  (JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep2Master_cGetPartialResult(JNIEnv *, jobject,
+                                                                                                                          jlong algAddr, jint prec,
+                                                                                                                          jint method)
 {
     return jniDistributed<step2Master, training::Method, training::Distributed, training::defaultDense>::getPartialResult(prec, method, algAddr);
 }
@@ -86,10 +88,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cSetPartialResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep2Master_cSetPartialResult
-  (JNIEnv *, jobject, jlong algAddr, jint prec, jint method, jlong resAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep2Master_cSetPartialResult(JNIEnv *, jobject,
+                                                                                                                         jlong algAddr, jint prec,
+                                                                                                                         jint method, jlong resAddr)
 {
-    jniDistributed<step2Master, training::Method, training::Distributed, training::defaultDense>::setPartialResult<training::DistributedPartialResult>(prec, method, algAddr, resAddr);
+    jniDistributed<step2Master, training::Method, training::Distributed,
+                   training::defaultDense>::setPartialResult<training::DistributedPartialResult>(prec, method, algAddr, resAddr);
 }
 
 /*
@@ -97,8 +101,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep2Master_cClone
-  (JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep2Master_cClone(JNIEnv *, jobject, jlong algAddr,
+                                                                                                               jint prec, jint method)
 {
     return jniDistributed<step2Master, training::Method, training::Distributed, training::defaultDense>::getClone(prec, method, algAddr);
 }
@@ -108,13 +112,13 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cInitialize
  * Signature: (JII[JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep2Master_cInitialize
-  (JNIEnv *env, jobject, jlong algAddr, jint prec, jint method, jlongArray dataSizeArray, jlong topologyAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep2Master_cInitialize(
+    JNIEnv * env, jobject, jlong algAddr, jint prec, jint method, jlongArray dataSizeArray, jlong topologyAddr)
 {
     training::TopologyPtr topology = *(training::TopologyPtr *)topologyAddr;
 
-    size_t len = (size_t)(env->GetArrayLength(dataSizeArray));
-    jlong *dataSize = env->GetLongArrayElements(dataSizeArray, 0);
+    size_t len       = (size_t)(env->GetArrayLength(dataSizeArray));
+    jlong * dataSize = env->GetLongArrayElements(dataSizeArray, 0);
 
     Collection<size_t> dataSizeCollection;
 
@@ -125,16 +129,16 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_
 
     if (prec == 0)
     {
-        SharedPtr<training::Distributed<step2Master, double, training::defaultDense>> alg =
-            staticPointerCast<training::Distributed<step2Master, double, training::defaultDense>, AlgorithmIface>
-                (*(SharedPtr<AlgorithmIface> *)algAddr);
+        SharedPtr<training::Distributed<step2Master, double, training::defaultDense> > alg =
+            staticPointerCast<training::Distributed<step2Master, double, training::defaultDense>, AlgorithmIface>(
+                *(SharedPtr<AlgorithmIface> *)algAddr);
         alg->initialize(dataSizeCollection, *topology);
     }
     else
     {
-        SharedPtr<training::Distributed<step2Master, float, training::defaultDense>> alg =
-            staticPointerCast<training::Distributed<step2Master, float, training::defaultDense>, AlgorithmIface>
-                (*(SharedPtr<AlgorithmIface> *)algAddr);
+        SharedPtr<training::Distributed<step2Master, float, training::defaultDense> > alg =
+            staticPointerCast<training::Distributed<step2Master, float, training::defaultDense>, AlgorithmIface>(
+                *(SharedPtr<AlgorithmIface> *)algAddr);
         alg->initialize(dataSizeCollection, *topology);
     }
 }

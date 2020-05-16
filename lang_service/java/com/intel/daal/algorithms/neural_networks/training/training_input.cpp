@@ -36,8 +36,8 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingInput_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingInput_cSetInput(JNIEnv * env, jobject thisObj,
+                                                                                                        jlong inputAddr, jint id, jlong ntAddr)
 {
     if (id == dataId || id == groundTruthId)
     {
@@ -54,8 +54,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingInput_cGetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingInput_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                         jlong inputAddr, jint id)
 {
     if (id == dataId || id == groundTruthId)
     {
@@ -69,21 +69,22 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
     return (jlong)0;
 }
 
-
 /*
  * Class:     com_intel_daal_algorithms_neural_networks_training_TrainingInput
  * Method:    cAddTensor
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingInput_cAddTensor
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jint key, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingInput_cAddTensor(JNIEnv * env, jobject thisObj,
+                                                                                                         jlong inputAddr, jint id, jint key,
+                                                                                                         jlong ntAddr)
 {
     if (id == groundTruthCollectionId)
     {
-        SerializationIfacePtr *collectionShPtr = (SerializationIfacePtr *)(jniInput<training::Input>::get<training::InputCollectionId, KeyValueDataCollection>(inputAddr, id));
-        SerializationIfacePtr *valueShPtr = (SerializationIfacePtr *)ntAddr;
-        KeyValueDataCollection *collection = static_cast<KeyValueDataCollection *>(collectionShPtr->get());
-        (*collection)[(size_t)key] = *valueShPtr;
+        SerializationIfacePtr * collectionShPtr =
+            (SerializationIfacePtr *)(jniInput<training::Input>::get<training::InputCollectionId, KeyValueDataCollection>(inputAddr, id));
+        SerializationIfacePtr * valueShPtr  = (SerializationIfacePtr *)ntAddr;
+        KeyValueDataCollection * collection = static_cast<KeyValueDataCollection *>(collectionShPtr->get());
+        (*collection)[(size_t)key]          = *valueShPtr;
     }
 }
 
@@ -92,14 +93,15 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_
  * Method:    cGetTensor
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingInput_cGetTensor
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jint key)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingInput_cGetTensor(JNIEnv * env, jobject thisObj,
+                                                                                                          jlong inputAddr, jint id, jint key)
 {
     if (id == groundTruthCollectionId)
     {
-        SerializationIfacePtr *collectionShPtr = (SerializationIfacePtr *)(jniInput<training::Input>::get<training::InputCollectionId, KeyValueDataCollection>(inputAddr, id));
-        KeyValueDataCollection *collection = static_cast<KeyValueDataCollection *>(collectionShPtr->get());
-        SerializationIfacePtr *value = new SerializationIfacePtr((*collection)[(size_t)key]);
+        SerializationIfacePtr * collectionShPtr =
+            (SerializationIfacePtr *)(jniInput<training::Input>::get<training::InputCollectionId, KeyValueDataCollection>(inputAddr, id));
+        KeyValueDataCollection * collection = static_cast<KeyValueDataCollection *>(collectionShPtr->get());
+        SerializationIfacePtr * value       = new SerializationIfacePtr((*collection)[(size_t)key]);
         return (jlong)value;
     }
 

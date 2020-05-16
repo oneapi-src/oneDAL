@@ -27,8 +27,8 @@ using namespace daal::algorithms::multinomial_naive_bayes::quality_metric_set;
  * Method:    cSetNClasses
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_quality_1metric_1set_QualityMetricSetParameter_cSetNClasses
-(JNIEnv *, jobject, jlong parAddr, jlong nClasses)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_quality_1metric_1set_QualityMetricSetParameter_cSetNClasses(
+    JNIEnv *, jobject, jlong parAddr, jlong nClasses)
 {
     (*(Parameter *)parAddr).nClasses = nClasses;
 }
@@ -38,8 +38,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_
  * Method:    cGetNClasses
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_quality_1metric_1set_QualityMetricSetParameter_cGetNClasses
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_quality_1metric_1set_QualityMetricSetParameter_cGetNClasses(
+    JNIEnv *, jobject, jlong parAddr)
 {
-    return(jlong)(*(Parameter *)parAddr).nClasses;
+    return (jlong)(*(Parameter *)parAddr).nClasses;
 }

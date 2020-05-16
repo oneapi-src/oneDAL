@@ -52,10 +52,13 @@ Parameter::Parameter(size_t nClasses_)
 
 /**
  * Constructs the AdaBoost parameter structure
- * \param[in] wlTrain       Pointer to the training algorithm of the weak learner
- * \param[in] wlPredict     Pointer to the prediction algorithm of the weak learner
+ * \param[in] wlTrain       Pointer to the training algorithm of the weak
+ * learner
+ * \param[in] wlPredict     Pointer to the prediction algorithm of the weak
+ * learner
  * \param[in] acc           Accuracy of the AdaBoost training algorithm
- * \param[in] maxIter       Maximal number of iterations of the AdaBoost training algorithm
+ * \param[in] maxIter       Maximal number of iterations of the AdaBoost
+ * training algorithm
  */
 Parameter::Parameter(SharedPtr<classifier::training::Batch> wlTrain, SharedPtr<classifier::prediction::Batch> wlPredict, double acc, size_t maxIter,
                      double learningRate_, DAAL_UINT64 resultsToCompute_, size_t nClasses_)

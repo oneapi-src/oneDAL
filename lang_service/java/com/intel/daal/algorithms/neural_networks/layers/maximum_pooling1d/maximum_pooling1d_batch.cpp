@@ -30,11 +30,12 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling1d_MaximumPooling1dBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method, jlong nDim)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling1d_MaximumPooling1dBatch_cInit(JNIEnv * env,
+                                                                                                                              jobject thisObj,
+                                                                                                                              jint prec, jint method,
+                                                                                                                              jlong nDim)
 {
-    return jniBatchLayer<maximum_pooling1d::Method, maximum_pooling1d::Batch, maximum_pooling1d::defaultDense>::
-           newObj(prec, method, nDim);
+    return jniBatchLayer<maximum_pooling1d::Method, maximum_pooling1d::Batch, maximum_pooling1d::defaultDense>::newObj(prec, method, nDim);
 }
 
 /*
@@ -42,11 +43,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_m
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling1d_MaximumPooling1dBatch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling1d_MaximumPooling1dBatch_cInitParameter(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatchLayer<maximum_pooling1d::Method, maximum_pooling1d::Batch, maximum_pooling1d::defaultDense>::
-           getParameter(prec, method, algAddr);
+    return jniBatchLayer<maximum_pooling1d::Method, maximum_pooling1d::Batch, maximum_pooling1d::defaultDense>::getParameter(prec, method, algAddr);
 }
 
 /*
@@ -54,11 +54,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_m
  * Method:    cGetForwardLayer
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling1d_MaximumPooling1dBatch_cGetForwardLayer
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling1d_MaximumPooling1dBatch_cGetForwardLayer(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatchLayer<maximum_pooling1d::Method, maximum_pooling1d::Batch, maximum_pooling1d::defaultDense>::
-           getForwardLayer(prec, method, algAddr);
+    return jniBatchLayer<maximum_pooling1d::Method, maximum_pooling1d::Batch, maximum_pooling1d::defaultDense>::getForwardLayer(prec, method,
+                                                                                                                                algAddr);
 }
 
 /*
@@ -66,9 +66,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_m
  * Method:    cGetBackwardLayer
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling1d_MaximumPooling1dBatch_cGetBackwardLayer
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling1d_MaximumPooling1dBatch_cGetBackwardLayer(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatchLayer<maximum_pooling1d::Method, maximum_pooling1d::Batch, maximum_pooling1d::defaultDense>::
-           getBackwardLayer(prec, method, algAddr);
+    return jniBatchLayer<maximum_pooling1d::Method, maximum_pooling1d::Batch, maximum_pooling1d::defaultDense>::getBackwardLayer(prec, method,
+                                                                                                                                 algAddr);
 }

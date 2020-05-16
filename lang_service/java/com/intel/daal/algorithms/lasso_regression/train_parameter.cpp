@@ -27,8 +27,8 @@ USING_COMMON_NAMESPACES();
  * Method:    cSetInterceptFlag
  * Signature:(JZ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_lasso_1regression_training_TrainingParameter_cSetInterceptFlag
-(JNIEnv *env, jobject thisObj, jlong parAddr, jboolean flag)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_lasso_1regression_training_TrainingParameter_cSetInterceptFlag(JNIEnv * env, jobject thisObj,
+                                                                                                                     jlong parAddr, jboolean flag)
 {
     ((lasso_regression::training::Parameter *)parAddr)->interceptFlag = flag;
 }
@@ -38,10 +38,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_lasso_1regression_training
  * Method:    cGetInterceptFlag
  * Signature:(J)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_lasso_1regression_training_TrainingParameter_cGetInterceptFlag
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_lasso_1regression_training_TrainingParameter_cGetInterceptFlag(JNIEnv * env,
+                                                                                                                         jobject thisObj,
+                                                                                                                         jlong parAddr)
 {
-    return((lasso_regression::training::Parameter *)parAddr)->interceptFlag;
+    return ((lasso_regression::training::Parameter *)parAddr)->interceptFlag;
 }
 
 /*
@@ -49,10 +50,10 @@ JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_lasso_1regression_trai
  * Method:    cSetLassoParameters
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_lasso_1regression_TrainParameter_cSetLassoParameters
-(JNIEnv * env, jobject thisObj, jlong parAddr, jlong cLassoParameters)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_lasso_1regression_TrainParameter_cSetLassoParameters(JNIEnv * env, jobject thisObj,
+                                                                                                           jlong parAddr, jlong cLassoParameters)
 {
-    SerializationIfacePtr * const ntShPtr = (SerializationIfacePtr *)cLassoParameters;
+    SerializationIfacePtr * const ntShPtr                               = (SerializationIfacePtr *)cLassoParameters;
     ((lasso_regression::training::Parameter *)parAddr)->lassoParameters = staticPointerCast<NumericTable, SerializationIface>(*ntShPtr);
 }
 
@@ -61,11 +62,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_lasso_1regression_TrainPar
  * Method:    cGetLassoParameters
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_TrainParameter_cGetLassoParameters
-(JNIEnv * env, jobject thisObj, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_TrainParameter_cGetLassoParameters(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong parAddr)
 {
     NumericTablePtr * const ntShPtr = new NumericTablePtr();
-    *ntShPtr = ((lasso_regression::training::Parameter *)parAddr)->lassoParameters;
+    *ntShPtr                        = ((lasso_regression::training::Parameter *)parAddr)->lassoParameters;
     return (jlong)ntShPtr;
 }
 
@@ -74,8 +75,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_TrainPa
  * Method:    cSetDataUseInComputation
  * Signature:(JI)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_lasso_1regression_TrainParameter_cSetDataUseInComputation
-(JNIEnv *env, jobject thisObj, jlong parAddr, jint flag)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_lasso_1regression_TrainParameter_cSetDataUseInComputation(JNIEnv * env, jobject thisObj,
+                                                                                                                jlong parAddr, jint flag)
 {
     (*(lasso_regression::training::Parameter *)parAddr).dataUseInComputation = (lasso_regression::training::DataUseInComputation)flag;
 }
@@ -85,8 +86,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_lasso_1regression_TrainPar
  * Method:    cGetDataUseInComputation
  * Signature:(J)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_lasso_1regression_TrainParameter_cGetDataUseInComputation
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_lasso_1regression_TrainParameter_cGetDataUseInComputation(JNIEnv * env, jobject thisObj,
+                                                                                                                jlong parAddr)
 {
     return (jint)((*(lasso_regression::training::Parameter *)parAddr).dataUseInComputation);
 }
@@ -96,8 +97,10 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_lasso_1regression_TrainPar
  * Method:    cSetOptResultToCompute
  * Signature:(JZ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_lasso_1regression_training_TrainingParameter_cSetOptResultToCompute
-(JNIEnv *env, jobject thisObj, jlong parAddr, jint optResult)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_lasso_1regression_training_TrainingParameter_cSetOptResultToCompute(JNIEnv * env,
+                                                                                                                          jobject thisObj,
+                                                                                                                          jlong parAddr,
+                                                                                                                          jint optResult)
 {
     (*(lasso_regression::training::Parameter *)parAddr).optResultToCompute = optResult;
 }
@@ -107,22 +110,23 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_lasso_1regression_training
  * Method:    cGetOptResultToCompute
  * Signature:(J)Z
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_lasso_1regression_training_TrainingParameter_cGetOptResultToCompute
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_lasso_1regression_training_TrainingParameter_cGetOptResultToCompute(JNIEnv * env,
+                                                                                                                          jobject thisObj,
+                                                                                                                          jlong parAddr)
 {
-    return(*(lasso_regression::training::Parameter *)parAddr).optResultToCompute;
+    return (*(lasso_regression::training::Parameter *)parAddr).optResultToCompute;
 }
-
 
 /*
  * Class:     com_intel_daal_algorithms_lasso_regression_training_TrainingParameter
  * Method:    cSetOptimizationSolver
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_lasso_1regression_training_TrainingParameter_cSetOptimizationSolver
-(JNIEnv *env, jobject thisObj, jlong parAddr, jlong optimizationSolverAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_lasso_1regression_training_TrainingParameter_cSetOptimizationSolver(
+    JNIEnv * env, jobject thisObj, jlong parAddr, jlong optimizationSolverAddr)
 {
-    (((lasso_regression::training::Parameter *)parAddr))->optimizationSolver = staticPointerCast<optimization_solver::iterative_solver::Batch, AlgorithmIface> (*(SharedPtr<AlgorithmIface> *)optimizationSolverAddr);
+    (((lasso_regression::training::Parameter *)parAddr))->optimizationSolver =
+        staticPointerCast<optimization_solver::iterative_solver::Batch, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)optimizationSolverAddr);
 }
 
 /*
@@ -130,10 +134,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_lasso_1regression_training
  * Method:    cGetOptimizationSolver
  * Signature: (JJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_training_TrainingParameter_cGetOptimizationSolver
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_training_TrainingParameter_cGetOptimizationSolver(JNIEnv * env,
+                                                                                                                           jobject thisObj,
+                                                                                                                           jlong parAddr)
 {
-    SharedPtr<optimization_solver::iterative_solver::Batch > *opt =
-        new SharedPtr<optimization_solver::iterative_solver::Batch >((((lasso_regression::training::Parameter *)parAddr))->optimizationSolver);
+    SharedPtr<optimization_solver::iterative_solver::Batch> * opt =
+        new SharedPtr<optimization_solver::iterative_solver::Batch>((((lasso_regression::training::Parameter *)parAddr))->optimizationSolver);
     return (jlong)opt;
 }

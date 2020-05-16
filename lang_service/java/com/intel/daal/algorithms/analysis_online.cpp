@@ -31,12 +31,9 @@ using namespace daal::algorithms;
  * Method:    cCompute
  * Signature:(J)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_AnalysisOnline_cCompute
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_AnalysisOnline_cCompute(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    SharedPtr<Analysis<online> > alg =
-        staticPointerCast<Analysis<online>, AlgorithmIface>
-            (*(SharedPtr<AlgorithmIface> *)algAddr);
+    SharedPtr<Analysis<online> > alg = staticPointerCast<Analysis<online>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
     DAAL_CHECK_THROW(alg->compute());
 }
 
@@ -45,12 +42,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_AnalysisOnline_cCompute
  * Method:    cFinalizeCompute
  * Signature:(J)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_AnalysisOnline_cFinalizeCompute
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_AnalysisOnline_cFinalizeCompute(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    SharedPtr<Analysis<online> > alg =
-        staticPointerCast<Analysis<online>, AlgorithmIface>
-            (*(SharedPtr<AlgorithmIface> *)algAddr);
+    SharedPtr<Analysis<online> > alg = staticPointerCast<Analysis<online>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
     DAAL_CHECK_THROW(alg->finalizeCompute());
 }
 
@@ -59,12 +53,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_AnalysisOnline_cFinalizeCo
  * Method:    cCheckFinalizeComputeParams
  * Signature:(J)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_AnalysisOnline_cCheckFinalizeComputeParams
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_AnalysisOnline_cCheckFinalizeComputeParams(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    SharedPtr<Analysis<online> > alg =
-        staticPointerCast<Analysis<online>, AlgorithmIface>
-            (*(SharedPtr<AlgorithmIface> *)algAddr);
+    SharedPtr<Analysis<online> > alg = staticPointerCast<Analysis<online>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
     DAAL_CHECK_THROW(alg->checkFinalizeComputeParams());
 }
 
@@ -73,12 +64,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_AnalysisOnline_cCheckFinal
  * Method:    cCheckComputeParams
  * Signature:(J)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_AnalysisOnline_cCheckComputeParams
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_AnalysisOnline_cCheckComputeParams(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    SharedPtr<Analysis<online> > alg =
-        staticPointerCast<Analysis<online>, AlgorithmIface>
-            (*(SharedPtr<AlgorithmIface> *)algAddr);
+    SharedPtr<Analysis<online> > alg = staticPointerCast<Analysis<online>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
     DAAL_CHECK_THROW(alg->checkComputeParams());
 }
 
@@ -87,8 +75,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_AnalysisOnline_cCheckCompu
  * Method:    cDispose
  * Signature:(J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_AnalysisOnline_cDispose
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_AnalysisOnline_cDispose(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    delete(SharedPtr<AlgorithmIface> *)algAddr;
+    delete (SharedPtr<AlgorithmIface> *)algAddr;
 }

@@ -32,11 +32,11 @@ using namespace daal::algorithms::covariance;
  * Method:    cInit
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_DistributedStep2MasterInput_cInit
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_DistributedStep2MasterInput_cInit(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                    jint prec, jint method)
 {
-    return jniDistributed<step2Master, covariance::Method, Distributed, defaultDense, singlePassDense, sumDense,
-        fastCSR, singlePassCSR, sumCSR>::getInput(prec, method, algAddr);
+    return jniDistributed<step2Master, covariance::Method, Distributed, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR,
+                          sumCSR>::getInput(prec, method, algAddr);
 }
 
 /*
@@ -44,8 +44,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_DistributedSte
  * Method:    cAddInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_DistributedStep2MasterInput_cAddInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong partialResultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_DistributedStep2MasterInput_cAddInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                                       jint id, jlong partialResultAddr)
 {
     jniInput<covariance::DistributedInput<step2Master> >::add<covariance::MasterInputId, covariance::PartialResult>(inputAddr, id, partialResultAddr);
 }
@@ -55,10 +55,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_DistributedStep
  * Method:    cSetCInputObject
  * Signature: (JJIIII)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_DistributedStep2MasterInput_cSetCInputObject
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jlong algAddr, jint prec, jint method)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_DistributedStep2MasterInput_cSetCInputObject(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong inputAddr, jlong algAddr,
+                                                                                                              jint prec, jint method)
 // somehow this function isn't called if has >4 parameters
 {
-    jniDistributed<step2Master, covariance::Method, Distributed, defaultDense, singlePassDense, sumDense,
-        fastCSR, singlePassCSR, sumCSR>::setInput<covariance::DistributedInput<step2Master> >(prec, method, algAddr, inputAddr);
+    jniDistributed<step2Master, covariance::Method, Distributed, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR,
+                   sumCSR>::setInput<covariance::DistributedInput<step2Master> >(prec, method, algAddr, inputAddr);
 }

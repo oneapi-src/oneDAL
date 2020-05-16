@@ -30,8 +30,7 @@ using namespace daal::algorithms::neural_networks::layers::dropout;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dropout_DropoutBackwardResult_cNewResult
-  (JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dropout_DropoutBackwardResult_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<backward::Result>::newObj();
 }

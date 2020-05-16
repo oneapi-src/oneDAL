@@ -53,8 +53,9 @@ struct assocrules_itemset
     }
 
     /**
-     *  \brief Construct itemset of size (iset_size) from itemset of size (iset_size - 1) and item
-     */
+   *  \brief Construct itemset of size (iset_size) from itemset of size
+   * (iset_size - 1) and item
+   */
     assocrules_itemset(const size_t iset_size, const size_t * first_items, const size_t second_item, const size_t _support = 0)
         : support(_support), items(nullptr), size(0)
     {

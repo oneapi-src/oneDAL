@@ -30,11 +30,12 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_locallyconnected2d_LocallyConnected2dBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_locallyconnected2d_LocallyConnected2dBatch_cInit(JNIEnv * env,
+                                                                                                                                jobject thisObj,
+                                                                                                                                jint prec,
+                                                                                                                                jint method)
 {
-    return jniBatchLayer<locallyconnected2d::Method, locallyconnected2d::Batch, locallyconnected2d::defaultDense>::
-           newObj(prec, method);
+    return jniBatchLayer<locallyconnected2d::Method, locallyconnected2d::Batch, locallyconnected2d::defaultDense>::newObj(prec, method);
 }
 
 /*
@@ -42,11 +43,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_l
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_locallyconnected2d_LocallyConnected2dBatch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_locallyconnected2d_LocallyConnected2dBatch_cInitParameter(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatchLayer<locallyconnected2d::Method, locallyconnected2d::Batch, locallyconnected2d::defaultDense>::
-           getParameter(prec, method, algAddr);
+    return jniBatchLayer<locallyconnected2d::Method, locallyconnected2d::Batch, locallyconnected2d::defaultDense>::getParameter(prec, method,
+                                                                                                                                algAddr);
 }
 
 /*
@@ -54,11 +55,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_l
  * Method:    cGetForwardLayer
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_locallyconnected2d_LocallyConnected2dBatch_cGetForwardLayer
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_locallyconnected2d_LocallyConnected2dBatch_cGetForwardLayer(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatchLayer<locallyconnected2d::Method, locallyconnected2d::Batch, locallyconnected2d::defaultDense>::
-           getForwardLayer(prec, method, algAddr);
+    return jniBatchLayer<locallyconnected2d::Method, locallyconnected2d::Batch, locallyconnected2d::defaultDense>::getForwardLayer(prec, method,
+                                                                                                                                   algAddr);
 }
 
 /*
@@ -66,9 +67,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_l
  * Method:    cGetBackwardLayer
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_locallyconnected2d_LocallyConnected2dBatch_cGetBackwardLayer
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_locallyconnected2d_LocallyConnected2dBatch_cGetBackwardLayer(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatchLayer<locallyconnected2d::Method, locallyconnected2d::Batch, locallyconnected2d::defaultDense>::
-           getBackwardLayer(prec, method, algAddr);
+    return jniBatchLayer<locallyconnected2d::Method, locallyconnected2d::Batch, locallyconnected2d::defaultDense>::getBackwardLayer(prec, method,
+                                                                                                                                    algAddr);
 }

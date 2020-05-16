@@ -26,20 +26,17 @@ using namespace daal::algorithms::cholesky;
 #define DefaultMethodValue com_intel_daal_algorithms_cholesky_Method_DefaultMethodValue
 #define InputDataId        com_intel_daal_algorithms_cholesky_InputId_InputDataId
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cholesky_Input_cInit
-(JNIEnv *jenv, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cholesky_Input_cInit(JNIEnv * jenv, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<cholesky::Method, Batch, defaultDense>::getInput(prec, method, algAddr);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_cholesky_Input_cSetInput
-(JNIEnv *jenv, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_cholesky_Input_cSetInput(JNIEnv * jenv, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
 {
     jniInput<cholesky::Input>::set<cholesky::InputId, NumericTable>(inputAddr, id, ntAddr);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cholesky_Input_cGetInputTable
-(JNIEnv *jenv, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cholesky_Input_cGetInputTable(JNIEnv * jenv, jobject thisObj, jlong inputAddr, jint id)
 {
     return jniInput<cholesky::Input>::get<cholesky::InputId, NumericTable>(inputAddr, id);
 }

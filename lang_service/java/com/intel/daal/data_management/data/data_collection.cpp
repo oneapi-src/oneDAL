@@ -28,11 +28,10 @@ using namespace daal::data_management;
  * Method:    cNewDataCollection
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_DataCollection_cNewDataCollection
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_DataCollection_cNewDataCollection(JNIEnv * env, jobject thisObj)
 {
-    data_management::DataCollection *dc = new data_management::DataCollection();
-    SerializationIfacePtr *resultShPtr = new SerializationIfacePtr(dc);
+    data_management::DataCollection * dc = new data_management::DataCollection();
+    SerializationIfacePtr * resultShPtr  = new SerializationIfacePtr(dc);
     return (jlong)resultShPtr;
 }
 
@@ -41,12 +40,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_DataCollection
  * Method:    cSize
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_DataCollection_cSize
-(JNIEnv *env, jobject thisObj, jlong dataCollectionAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_DataCollection_cSize(JNIEnv * env, jobject thisObj, jlong dataCollectionAddr)
 {
     data_management::DataCollectionPtr pDataCollection =
-        services::staticPointerCast<DataCollection, SerializationIface>(
-            (*(data_management::SerializationIfacePtr *)dataCollectionAddr));
+        services::staticPointerCast<DataCollection, SerializationIface>((*(data_management::SerializationIfacePtr *)dataCollectionAddr));
     return (pDataCollection)->size();
 }
 
@@ -55,14 +52,13 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_DataCollection
  * Method:    cGetValue
  * Signature: (JJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_DataCollection_cGetValue
-(JNIEnv *env, jobject thisObj, jlong dataCollectionAddr, jlong idx)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_DataCollection_cGetValue(JNIEnv * env, jobject thisObj, jlong dataCollectionAddr,
+                                                                                           jlong idx)
 {
     data_management::DataCollectionPtr pDataCollection =
-        services::staticPointerCast<DataCollection, SerializationIface>(
-            (*(data_management::SerializationIfacePtr *)dataCollectionAddr));
+        services::staticPointerCast<DataCollection, SerializationIface>((*(data_management::SerializationIfacePtr *)dataCollectionAddr));
     data_management::SerializationIfacePtr ptr = (*pDataCollection)[idx];
-    return (jlong)new data_management::SerializationIfacePtr(ptr);
+    return (jlong) new data_management::SerializationIfacePtr(ptr);
 }
 
 /*
@@ -70,12 +66,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_DataCollection
  * Method:    cSetValue
  * Signature: (JJJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataCollection_cSetValue
-(JNIEnv *env, jobject thisObj, jlong dataCollectionAddr, jlong valueAddr, jlong idx)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataCollection_cSetValue(JNIEnv * env, jobject thisObj, jlong dataCollectionAddr,
+                                                                                          jlong valueAddr, jlong idx)
 {
     data_management::DataCollectionPtr pDataCollection =
-        services::staticPointerCast<DataCollection, SerializationIface>(
-            (*(data_management::SerializationIfacePtr *)dataCollectionAddr));
+        services::staticPointerCast<DataCollection, SerializationIface>((*(data_management::SerializationIfacePtr *)dataCollectionAddr));
     (*(pDataCollection))[idx] = *((SerializationIfacePtr *)valueAddr);
 }
 
@@ -84,11 +79,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataCollection_
  * Method:    cPushBack
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataCollection_cPushBack
-(JNIEnv *env, jobject thisObj, jlong dataCollectionAddr, jlong valueAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataCollection_cPushBack(JNIEnv * env, jobject thisObj, jlong dataCollectionAddr,
+                                                                                          jlong valueAddr)
 {
     data_management::DataCollectionPtr pDataCollection =
-        services::staticPointerCast<DataCollection, SerializationIface>(
-            (*(data_management::SerializationIfacePtr *)dataCollectionAddr));
+        services::staticPointerCast<DataCollection, SerializationIface>((*(data_management::SerializationIfacePtr *)dataCollectionAddr));
     pDataCollection->push_back(*((SerializationIfacePtr *)valueAddr));
 }

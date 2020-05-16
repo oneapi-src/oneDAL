@@ -36,10 +36,13 @@ using namespace daal::data_management;
 namespace interface1
 {
 /**
- * Allocates memory for storing prediction results of the classification algorithm
+ * Allocates memory for storing prediction results of the classification
+ * algorithm
  * \tparam  algorithmFPType     Data type for storing prediction results
- * \param[in] input     Pointer to the input objects of the classification algorithm
- * \param[in] parameter Pointer to the parameters of the classification algorithm
+ * \param[in] input     Pointer to the input objects of the classification
+ * algorithm
+ * \param[in] parameter Pointer to the parameters of the classification
+ * algorithm
  * \param[in] method    Computation method
  */
 template <typename algorithmFPType>

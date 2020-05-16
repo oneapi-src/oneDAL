@@ -27,15 +27,14 @@ USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::logistic_regression::training;
 
 #include "com_intel_daal_algorithms_classifier_training_TrainingResultId.h"
-#define ModelResult  com_intel_daal_algorithms_classifier_training_TrainingResultId_Model
+#define ModelResult com_intel_daal_algorithms_classifier_training_TrainingResultId_Model
 
 /*
  * Class:     com_intel_daal_algorithms_multinomial_naive_bayes_training_TrainingResult
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_training_TrainingResult_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_training_TrainingResult_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<logistic_regression::training::Result>::newObj();
 }
@@ -45,13 +44,13 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_trai
  * Method:    cGetModel
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_training_TrainingResult_cGetModel
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_training_TrainingResult_cGetModel(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong resAddr, jint id)
 {
     if (id == ModelResult)
     {
-        return jniArgument<logistic_regression::training::Result>::
-            get<classifier::training::ResultId, logistic_regression::Model>(resAddr, classifier::training::model);
+        return jniArgument<logistic_regression::training::Result>::get<classifier::training::ResultId, logistic_regression::Model>(
+            resAddr, classifier::training::model);
     }
 
     return (jlong)0;

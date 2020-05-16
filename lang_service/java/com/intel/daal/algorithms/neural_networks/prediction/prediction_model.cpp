@@ -30,8 +30,7 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cInit
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionModel_cInit__
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionModel_cInit__(JNIEnv * env, jobject thisObj)
 {
     return (jlong)(new prediction::ModelPtr(new prediction::Model()));
 }
@@ -41,8 +40,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_predicti
  * Method:    cInit
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionModel_cInit__J
-(JNIEnv *env, jobject thisObj, jlong cModel)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionModel_cInit__J(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong cModel)
 {
     prediction::ModelPtr model = *((prediction::ModelPtr *)cModel);
     return (jlong)(new prediction::ModelPtr(new prediction::Model(*model)));
@@ -53,10 +52,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_predicti
  * Method:    cInit
  * Signature: (JJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionModel_cInit__JJ
-  (JNIEnv *env, jobject thisObj, jlong forwardLayersAddr, jlong nextLayersCollectionAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionModel_cInit__JJ(JNIEnv * env, jobject thisObj,
+                                                                                                             jlong forwardLayersAddr,
+                                                                                                             jlong nextLayersCollectionAddr)
 {
-    ForwardLayersPtr forwardLayers = *((ForwardLayersPtr *)forwardLayersAddr);
+    ForwardLayersPtr forwardLayers                                  = *((ForwardLayersPtr *)forwardLayersAddr);
     SharedPtr<Collection<layers::NextLayers> > nextLayersCollection = *((SharedPtr<Collection<layers::NextLayers> > *)nextLayersCollectionAddr);
     return (jlong)(new prediction::ModelPtr(new prediction::Model(forwardLayers, nextLayersCollection)));
 }
@@ -66,8 +66,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_predicti
  * Method:    cInitFromLayerDescriptors
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionModel_cInitFromPredictionTopology
-  (JNIEnv *env, jobject thisObj, jlong topAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionModel_cInitFromPredictionTopology(JNIEnv * env,
+                                                                                                                               jobject thisObj,
+                                                                                                                               jlong topAddr)
 {
     prediction::TopologyPtr ptr = *(prediction::TopologyPtr *)topAddr;
     return (jlong)(new prediction::ModelPtr(new prediction::Model(*ptr)));
@@ -78,11 +79,13 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_predicti
  * Method:    cAllocate
  * Signature: (JI[JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionModel_cAllocate
-  (JNIEnv *env, jobject thisObj, jlong cModel, jint prec, jlongArray dataSizeArray, jlong parameterAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionModel_cAllocate(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong cModel, jint prec,
+                                                                                                            jlongArray dataSizeArray,
+                                                                                                            jlong parameterAddr)
 {
-    size_t len = (size_t)(env->GetArrayLength(dataSizeArray));
-    jlong *dataSize = env->GetLongArrayElements(dataSizeArray, 0);
+    size_t len       = (size_t)(env->GetArrayLength(dataSizeArray));
+    jlong * dataSize = env->GetLongArrayElements(dataSizeArray, 0);
 
     Collection<size_t> dataSizeCollection;
 
@@ -110,11 +113,12 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_predictio
  * Method:    cSetLayers
  * Signature: (JJJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionModel_cSetLayers
-  (JNIEnv *env, jobject thisObj, jlong cModel, jlong forwardLayersAddr, jlong nextLayersCollectionAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionModel_cSetLayers(JNIEnv * env, jobject thisObj,
+                                                                                                             jlong cModel, jlong forwardLayersAddr,
+                                                                                                             jlong nextLayersCollectionAddr)
 {
-    prediction::ModelPtr model = *((prediction::ModelPtr *)cModel);
-    ForwardLayersPtr forwardLayers = *((ForwardLayersPtr *)forwardLayersAddr);
+    prediction::ModelPtr model                                      = *((prediction::ModelPtr *)cModel);
+    ForwardLayersPtr forwardLayers                                  = *((ForwardLayersPtr *)forwardLayersAddr);
     SharedPtr<Collection<layers::NextLayers> > nextLayersCollection = *((SharedPtr<Collection<layers::NextLayers> > *)nextLayersCollectionAddr);
     model->setLayers(forwardLayers, nextLayersCollection);
 }
@@ -124,12 +128,12 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_predictio
  * Method:    cGetForwardLayers
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionModel_cGetForwardLayers
-(JNIEnv *env, jobject thisObj, jlong cModel)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionModel_cGetForwardLayers(JNIEnv * env, jobject thisObj,
+                                                                                                                     jlong cModel)
 {
-    prediction::ModelPtr model = *((prediction::ModelPtr *)cModel);
-    ForwardLayersPtr *forwardLayersAddr = new ForwardLayersPtr(model->getLayers());
-    return (jlong) forwardLayersAddr;
+    prediction::ModelPtr model           = *((prediction::ModelPtr *)cModel);
+    ForwardLayersPtr * forwardLayersAddr = new ForwardLayersPtr(model->getLayers());
+    return (jlong)forwardLayersAddr;
 }
 
 /*
@@ -137,12 +141,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_predicti
  * Method:    cGetForwardLayer
  * Signature: (JJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionModel_cGetForwardLayer
-  (JNIEnv *env, jobject thisObj, jlong cModel, jlong index)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionModel_cGetForwardLayer(JNIEnv * env, jobject thisObj,
+                                                                                                                    jlong cModel, jlong index)
 {
-    prediction::ModelPtr model = *((prediction::ModelPtr *)cModel);
-    layers::forward::LayerIfacePtr *forwardLayerAddr = new layers::forward::LayerIfacePtr(model->getLayer(index));
-    return (jlong) forwardLayerAddr;
+    prediction::ModelPtr model                        = *((prediction::ModelPtr *)cModel);
+    layers::forward::LayerIfacePtr * forwardLayerAddr = new layers::forward::LayerIfacePtr(model->getLayer(index));
+    return (jlong)forwardLayerAddr;
 }
 
 /*
@@ -150,10 +154,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_predicti
  * Method:    cGetForwardLayers
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionModel_cGetNextLayers
-(JNIEnv *env, jobject thisObj, jlong cModel)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionModel_cGetNextLayers(JNIEnv * env, jobject thisObj,
+                                                                                                                  jlong cModel)
 {
-    prediction::ModelPtr model = *((prediction::ModelPtr *)cModel);
-    SharedPtr<Collection<layers::NextLayers> > *nextLayersCollectionAddr = new SharedPtr<Collection<layers::NextLayers> >(model->getNextLayers());
-    return (jlong) nextLayersCollectionAddr;
+    prediction::ModelPtr model                                            = *((prediction::ModelPtr *)cModel);
+    SharedPtr<Collection<layers::NextLayers> > * nextLayersCollectionAddr = new SharedPtr<Collection<layers::NextLayers> >(model->getNextLayers());
+    return (jlong)nextLayersCollectionAddr;
 }

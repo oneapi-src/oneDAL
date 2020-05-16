@@ -25,7 +25,8 @@
 #include "com_intel_daal_algorithms_neural_networks_layers_maximum_pooling1d_MaximumPooling1dLayerDataId.h"
 #define auxSelectedIndicesId com_intel_daal_algorithms_neural_networks_layers_maximum_pooling1d_MaximumPooling1dLayerDataId_auxSelectedIndicesId
 #include "com_intel_daal_algorithms_neural_networks_layers_maximum_pooling1d_MaximumPooling1dLayerDataNumericTableId.h"
-#define auxInputDimensionsId com_intel_daal_algorithms_neural_networks_layers_maximum_pooling1d_MaximumPooling1dLayerDataNumericTableId_auxInputDimensionsId
+#define auxInputDimensionsId \
+    com_intel_daal_algorithms_neural_networks_layers_maximum_pooling1d_MaximumPooling1dLayerDataNumericTableId_auxInputDimensionsId
 
 using namespace daal;
 using namespace daal::data_management;
@@ -36,8 +37,8 @@ using namespace daal::algorithms::neural_networks::layers::maximum_pooling1d;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling1d_MaximumPooling1dBackwardInput_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling1d_MaximumPooling1dBackwardInput_cSetInput(
+    JNIEnv * env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
 {
     if (id == auxSelectedIndicesId)
     {
@@ -50,8 +51,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_ma
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling1d_MaximumPooling1dBackwardInput_cGetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling1d_MaximumPooling1dBackwardInput_cGetInput(
+    JNIEnv * env, jobject thisObj, jlong inputAddr, jint id)
 {
     if (id == auxSelectedIndicesId)
     {
@@ -66,8 +67,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_m
  * Method:    cSetInputNumericTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling1d_MaximumPooling1dBackwardInput_cSetInputNumericTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling1d_MaximumPooling1dBackwardInput_cSetInputNumericTable(
+    JNIEnv * env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
 {
     if (id == auxInputDimensionsId)
     {
@@ -80,8 +81,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_ma
  * Method:    cGetInputNumericTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling1d_MaximumPooling1dBackwardInput_cGetInputNumericTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling1d_MaximumPooling1dBackwardInput_cGetInputNumericTable(
+    JNIEnv * env, jobject thisObj, jlong inputAddr, jint id)
 {
     if (id == auxInputDimensionsId)
     {

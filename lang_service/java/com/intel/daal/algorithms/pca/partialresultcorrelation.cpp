@@ -30,8 +30,7 @@ using namespace daal::algorithms::pca;
  * Method:    cNewPartialCorrelationResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_PartialCorrelationResult_cNewPartialCorrelationResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_PartialCorrelationResult_cNewPartialCorrelationResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<pca::PartialResult<correlationDense> >::newObj();
 }
@@ -41,8 +40,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_PartialCorrelationRes
  * Method:    cGetPartialCorrelationResultTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_PartialCorrelationResult_cGetPartialCorrelationResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_PartialCorrelationResult_cGetPartialCorrelationResultTable(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong resAddr, jint id)
 {
     return jniArgument<pca::PartialResult<correlationDense> >::get<PartialCorrelationResultId, NumericTable>(resAddr, id);
 }
@@ -52,8 +51,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_PartialCorrelationRes
  * Method:    cSetPartialCorrelationResultTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_PartialCorrelationResult_cSetPartialCorrelationResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_PartialCorrelationResult_cSetPartialCorrelationResultTable(JNIEnv * env, jobject thisObj,
+                                                                                                                     jlong resAddr, jint id,
+                                                                                                                     jlong ntAddr)
 {
     jniArgument<pca::PartialResult<correlationDense> >::set<PartialCorrelationResultId, NumericTable>(resAddr, id, ntAddr);
 }

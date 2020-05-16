@@ -27,8 +27,8 @@ USING_COMMON_NAMESPACES()
  * Method:    cSetLeftSingularMatrixFormat
  * Signature:(JI)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_Parameter_cSetLeftSingularMatrixFormat
-(JNIEnv *env, jobject thisObj, jlong addr, jint format)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_Parameter_cSetLeftSingularMatrixFormat(JNIEnv * env, jobject thisObj, jlong addr,
+                                                                                                 jint format)
 {
     (*((svd::Parameter *)addr)).leftSingularMatrix = (svd::SVDResultFormat)format;
 }
@@ -38,8 +38,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_Parameter_cSetLeftSing
  * Method:    cSetRightSingularMatrixFormat
  * Signature:(JI)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_Parameter_cSetRightSingularMatrixFormat
-(JNIEnv *env, jobject thisObj, jlong addr, jint format)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_Parameter_cSetRightSingularMatrixFormat(JNIEnv * env, jobject thisObj, jlong addr,
+                                                                                                  jint format)
 {
     (*((svd::Parameter *)addr)).rightSingularMatrix = (svd::SVDResultFormat)format;
 }
@@ -49,10 +49,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_Parameter_cSetRightSin
  * Method:    cGetLeftSingularMatrixFormat
  * Signature:(J)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_svd_Parameter_cGetLeftSingularMatrixFormat
-(JNIEnv *env, jobject thisObj, jlong addr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_svd_Parameter_cGetLeftSingularMatrixFormat(JNIEnv * env, jobject thisObj, jlong addr)
 {
-    return(jint)(*((svd::Parameter *)addr)).leftSingularMatrix;
+    return (jint)(*((svd::Parameter *)addr)).leftSingularMatrix;
 }
 
 /*
@@ -60,8 +59,7 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_svd_Parameter_cGetLeftSing
  * Method:    cGetRightSingularMatrixFormat
  * Signature:(J)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_svd_Parameter_cGetRightSingularMatrixFormat
-(JNIEnv *env, jobject thisObj, jlong addr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_svd_Parameter_cGetRightSingularMatrixFormat(JNIEnv * env, jobject thisObj, jlong addr)
 {
-    return(jint)(*((svd::Parameter *)addr)).rightSingularMatrix;
+    return (jint)(*((svd::Parameter *)addr)).rightSingularMatrix;
 }

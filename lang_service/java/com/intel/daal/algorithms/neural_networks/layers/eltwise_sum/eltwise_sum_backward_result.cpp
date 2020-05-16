@@ -30,8 +30,8 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumBackwardResult_cNewResult
-  (JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumBackwardResult_cNewResult(JNIEnv * env,
+                                                                                                                                jobject thisObj)
 {
     return jniArgument<backward::Result>::newObj();
 }
@@ -41,8 +41,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_e
  * Method:    cGetTensor
  * Signature: (JIJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumBackwardResult_cGetTensor
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong index)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumBackwardResult_cGetTensor(JNIEnv * env,
+                                                                                                                                jobject thisObj,
+                                                                                                                                jlong resAddr,
+                                                                                                                                jint id, jlong index)
 {
     return jniArgument<backward::Result>::get<layers::backward::ResultLayerDataId, Tensor>(resAddr, id, (size_t)index);
 }
@@ -52,8 +54,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_e
  * Method:    cSetTensor
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumBackwardResult_cSetTensor
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr, jlong index)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumBackwardResult_cSetTensor(
+    JNIEnv * env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr, jlong index)
 {
     jniArgument<backward::Result>::set<layers::backward::ResultLayerDataId, Tensor>(resAddr, id, ntAddr, (size_t)index);
 }

@@ -36,8 +36,8 @@ using namespace daal::algorithms::neural_networks::layers::lcn;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnBackwardInput_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnBackwardInput_cSetInput(JNIEnv * env, jobject thisObj,
+                                                                                                             jlong inputAddr, jint id, jlong ntAddr)
 {
     if (id == auxCenteredDataId || id == auxSigmaId || id == auxCId || id == auxInvMaxId)
     {
@@ -50,8 +50,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lc
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnBackwardInput_cGetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnBackwardInput_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong inputAddr, jint id)
 {
     if (id == auxCenteredDataId || id == auxSigmaId || id == auxCId || id == auxInvMaxId)
     {

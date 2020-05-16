@@ -30,8 +30,8 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionBatch_cInit
-  (JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionBatch_cInit(JNIEnv * env, jobject thisObj, jint prec,
+                                                                                                         jint method)
 {
     return jniBatch<prediction::Method, prediction::Batch, prediction::defaultDense>::newObj(prec, method);
 }
@@ -41,8 +41,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_predicti
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionBatch_cInitParameter
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionBatch_cInitParameter(JNIEnv * env, jobject thisObj,
+                                                                                                                  jlong algAddr, jint prec,
+                                                                                                                  jint method)
 {
     return jniBatch<prediction::Method, prediction::Batch, prediction::defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -52,8 +53,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_predicti
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionBatch_cGetInput
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionBatch_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                             jlong algAddr, jint prec, jint method)
 {
     return jniBatch<prediction::Method, prediction::Batch, prediction::defaultDense>::getInput(prec, method, algAddr);
 }
@@ -63,8 +64,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_predicti
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionBatch_cGetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionBatch_cGetResult(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong algAddr, jint prec, jint method)
 {
     return jniBatch<prediction::Method, prediction::Batch, prediction::defaultDense>::getResult(prec, method, algAddr);
 }
@@ -74,11 +75,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_predicti
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionBatch_cSetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionBatch_cSetResult(JNIEnv * env, jobject thisObj,
+                                                                                                             jlong algAddr, jint prec, jint method,
+                                                                                                             jlong resAddr)
 {
-    jniBatch<prediction::Method, prediction::Batch, prediction::defaultDense>::
-        setResult<prediction::Result>(prec, method, algAddr, resAddr);
+    jniBatch<prediction::Method, prediction::Batch, prediction::defaultDense>::setResult<prediction::Result>(prec, method, algAddr, resAddr);
 }
 
 /*
@@ -86,8 +87,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_predictio
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionBatch_cClone
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionBatch_cClone(JNIEnv * env, jobject thisObj,
+                                                                                                          jlong algAddr, jint prec, jint method)
 {
     return jniBatch<prediction::Method, prediction::Batch, prediction::defaultDense>::getClone(prec, method, algAddr);
 }

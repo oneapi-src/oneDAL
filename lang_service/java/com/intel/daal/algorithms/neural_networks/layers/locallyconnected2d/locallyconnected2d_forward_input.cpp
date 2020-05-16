@@ -28,8 +28,11 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cGetWeightsSizes
  * Signature: (J)[J
  */
-JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_locallyconnected2d_LocallyConnected2dForwardInput_cGetWeightsSizes
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jlong paramAddr)
+JNIEXPORT jlongArray JNICALL
+    Java_com_intel_daal_algorithms_neural_1networks_layers_locallyconnected2d_LocallyConnected2dForwardInput_cGetWeightsSizes(JNIEnv * env,
+                                                                                                                              jobject thisObj,
+                                                                                                                              jlong inputAddr,
+                                                                                                                              jlong paramAddr)
 {
     Collection<size_t> dims = ((locallyconnected2d::forward::Input *)inputAddr)->getWeightsSizes((locallyconnected2d::Parameter *)paramAddr);
     return getJavaLongArrayFromSizeTCollection(env, dims);
@@ -40,8 +43,8 @@ JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_lay
  * Method:    cGetBiasesSizes
  * Signature: (J)[J
  */
-JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_locallyconnected2d_LocallyConnected2dForwardInput_cGetBiasesSizes
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jlong paramAddr)
+JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_locallyconnected2d_LocallyConnected2dForwardInput_cGetBiasesSizes(
+    JNIEnv * env, jobject thisObj, jlong inputAddr, jlong paramAddr)
 {
     Collection<size_t> dims = ((locallyconnected2d::forward::Input *)inputAddr)->getBiasesSizes((locallyconnected2d::Parameter *)paramAddr);
     return getJavaLongArrayFromSizeTCollection(env, dims);

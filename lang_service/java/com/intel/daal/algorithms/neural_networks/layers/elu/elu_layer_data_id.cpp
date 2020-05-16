@@ -29,8 +29,7 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cGetAuxDataId
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_elu_EluLayerDataId_cGetAuxDataId
-  (JNIEnv *, jclass)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_elu_EluLayerDataId_cGetAuxDataId(JNIEnv *, jclass)
 {
     return (jint)elu::auxData;
 }
@@ -40,8 +39,7 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_el
  * Method:    cGetAuxIntermediateValueId
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_elu_EluLayerDataId_cGetAuxIntermediateValueId
-  (JNIEnv *, jclass)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_elu_EluLayerDataId_cGetAuxIntermediateValueId(JNIEnv *, jclass)
 {
     return (jint)elu::auxIntermediateValue;
 }

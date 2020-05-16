@@ -30,24 +30,21 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling3d_MaximumPooling3dBackwardBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method, jlong nDim)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling3d_MaximumPooling3dBackwardBatch_cInit(
+    JNIEnv * env, jobject thisObj, jint prec, jint method, jlong nDim)
 {
-    return jniBatch<maximum_pooling3d::Method, maximum_pooling3d::backward::Batch, maximum_pooling3d::defaultDense>::
-           newObj(prec, method, nDim);
+    return jniBatch<maximum_pooling3d::Method, maximum_pooling3d::backward::Batch, maximum_pooling3d::defaultDense>::newObj(prec, method, nDim);
 }
-
 
 /*
  * Class:     com_intel_daal_algorithms_neural_networks_layers_maximum_1pooling3d_MaximumPooling3dBackwardBatch
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling3d_MaximumPooling3dBackwardBatch_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling3d_MaximumPooling3dBackwardBatch_cGetInput(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<maximum_pooling3d::Method, maximum_pooling3d::backward::Batch, maximum_pooling3d::defaultDense>::
-           getInput(prec, method, algAddr);
+    return jniBatch<maximum_pooling3d::Method, maximum_pooling3d::backward::Batch, maximum_pooling3d::defaultDense>::getInput(prec, method, algAddr);
 }
 
 /*
@@ -55,11 +52,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_m
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling3d_MaximumPooling3dBackwardBatch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling3d_MaximumPooling3dBackwardBatch_cInitParameter(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<maximum_pooling3d::Method, maximum_pooling3d::backward::Batch, maximum_pooling3d::defaultDense>::
-           getParameter(prec, method, algAddr);
+    return jniBatch<maximum_pooling3d::Method, maximum_pooling3d::backward::Batch, maximum_pooling3d::defaultDense>::getParameter(prec, method,
+                                                                                                                                  algAddr);
 }
 
 /*
@@ -67,11 +64,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_m
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling3d_MaximumPooling3dBackwardBatch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling3d_MaximumPooling3dBackwardBatch_cGetResult(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<maximum_pooling3d::Method, maximum_pooling3d::backward::Batch, maximum_pooling3d::defaultDense>::
-           getResult(prec, method, algAddr);
+    return jniBatch<maximum_pooling3d::Method, maximum_pooling3d::backward::Batch, maximum_pooling3d::defaultDense>::getResult(prec, method, algAddr);
 }
 
 /*
@@ -79,11 +75,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_m
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling3d_MaximumPooling3dBackwardBatch_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling3d_MaximumPooling3dBackwardBatch_cSetResult(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resAddr)
 {
-    jniBatch<maximum_pooling3d::Method, maximum_pooling3d::backward::Batch, maximum_pooling3d::defaultDense>::
-    setResult<maximum_pooling3d::backward::Result>(prec, method, algAddr, resAddr);
+    jniBatch<maximum_pooling3d::Method, maximum_pooling3d::backward::Batch,
+             maximum_pooling3d::defaultDense>::setResult<maximum_pooling3d::backward::Result>(prec, method, algAddr, resAddr);
 }
 
 /*
@@ -91,9 +87,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_ma
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling3d_MaximumPooling3dBackwardBatch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_maximum_1pooling3d_MaximumPooling3dBackwardBatch_cClone(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<maximum_pooling3d::Method, maximum_pooling3d::backward::Batch, maximum_pooling3d::defaultDense>::
-           getClone(prec, method, algAddr);
+    return jniBatch<maximum_pooling3d::Method, maximum_pooling3d::backward::Batch, maximum_pooling3d::defaultDense>::getClone(prec, method, algAddr);
 }

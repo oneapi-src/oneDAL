@@ -33,12 +33,14 @@ using namespace daal::services;
  * Method:    cGetSerializationTag
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_Factory_cGetSerializationTag
-  (JNIEnv *env, jobject thisObj, jlong serializableAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_Factory_cGetSerializationTag(JNIEnv * env, jobject thisObj, jlong serializableAddr)
 {
-    if (serializableAddr == jlong(0)) { return jint(0); }
-    SerializationIfacePtr *object = (SerializationIfacePtr *)serializableAddr;
-    int tag = (*object)->getSerializationTag();
+    if (serializableAddr == jlong(0))
+    {
+        return jint(0);
+    }
+    SerializationIfacePtr * object = (SerializationIfacePtr *)serializableAddr;
+    int tag                        = (*object)->getSerializationTag();
     return (jint)tag;
 }
 
@@ -47,13 +49,15 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_Factory_cGetSer
  * Method:    cGetJavaNumericTable
  * Signature: (OJ)O
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_Factory_cGetJavaNumericTable
-  (JNIEnv *env, jobject thisObj, jlong cObject)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_Factory_cGetJavaNumericTable(JNIEnv * env, jobject thisObj, jlong cObject)
 {
-    SerializationIfacePtr *object = (SerializationIfacePtr *)cObject;
-    JavaNumericTableBase *nt = dynamic_cast<JavaNumericTableBase*>(object->get());
+    SerializationIfacePtr * object = (SerializationIfacePtr *)cObject;
+    JavaNumericTableBase * nt      = dynamic_cast<JavaNumericTableBase *>(object->get());
 
-    if (nt != 0) { return nt->getJavaObject(); }
+    if (nt != 0)
+    {
+        return nt->getJavaObject();
+    }
 
     return 0;
 }
@@ -63,13 +67,15 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_Factory_cGet
  * Method:    cGetJavaTensor
  * Signature: (OJ)O
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_Factory_cGetJavaTensor
-  (JNIEnv *env, jobject thisObj, jlong cObject)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_Factory_cGetJavaTensor(JNIEnv * env, jobject thisObj, jlong cObject)
 {
-    SerializationIfacePtr *object = (SerializationIfacePtr *)cObject;
-    JavaTensorBase *nt = dynamic_cast<JavaTensorBase*>(object->get());
+    SerializationIfacePtr * object = (SerializationIfacePtr *)cObject;
+    JavaTensorBase * nt            = dynamic_cast<JavaTensorBase *>(object->get());
 
-    if (nt != 0) { return nt->getJavaObject(); }
+    if (nt != 0)
+    {
+        return nt->getJavaObject();
+    }
 
     return 0;
 }

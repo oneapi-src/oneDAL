@@ -33,8 +33,8 @@ using namespace daal::algorithms;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_distributions_Input_cSetInput
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong NumericTableAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_distributions_Input_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id,
+                                                                                    jlong NumericTableAddr)
 {
     if (id == tableToFillId)
     {
@@ -47,8 +47,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_distributions_Input_cSetIn
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_Input_cGetInput
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_Input_cGetInput(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id)
 {
     return jniInput<distributions::Input>::get<distributions::InputId, NumericTable>(inputAddr, id);
 }

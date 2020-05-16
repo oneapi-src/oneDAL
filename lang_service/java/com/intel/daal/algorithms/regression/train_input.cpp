@@ -27,32 +27,28 @@ USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::regression;
 using namespace daal::algorithms::regression::training;
 
-#define jBatch   com_intel_daal_algorithms_ComputeMode_batchValue
-#define jOnline  com_intel_daal_algorithms_ComputeMode_onlineValue
+#define jBatch  com_intel_daal_algorithms_ComputeMode_batchValue
+#define jOnline com_intel_daal_algorithms_ComputeMode_onlineValue
 
 /*
  * Class:     com_intel_daal_algorithms_regression_training_TrainingInput
  * Method:    cInit
  * Signature: (JIJ)I
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_regression_training_TrainingInput_cInit
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint cmode )
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_regression_training_TrainingInput_cInit(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                               jint cmode)
 {
-    regression::training::Input *inputPtr = NULL;
+    regression::training::Input * inputPtr = NULL;
 
-    if(cmode == jBatch)
+    if (cmode == jBatch)
     {
-        SharedPtr<Batch> alg =
-            staticPointerCast<Batch, AlgorithmIface>
-                (*(SharedPtr<AlgorithmIface> *)algAddr);
-        inputPtr = alg->getInput();
+        SharedPtr<Batch> alg = staticPointerCast<Batch, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
+        inputPtr             = alg->getInput();
     }
-    else if(cmode == jOnline)
+    else if (cmode == jOnline)
     {
-        SharedPtr<Online> alg =
-            staticPointerCast<Online, AlgorithmIface>
-                (*(SharedPtr<AlgorithmIface> *)algAddr);
-        inputPtr = alg->getInput();
+        SharedPtr<Online> alg = staticPointerCast<Online, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
+        inputPtr              = alg->getInput();
     }
 
     return (jlong)inputPtr;
@@ -63,8 +59,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_regression_training_Train
  * Method:    cSetInput
  * Signature:(JIJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_regression_training_TrainingInput_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_regression_training_TrainingInput_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                                  jint id, jlong ntAddr)
 {
     jniInput<regression::training::Input>::set<regression::training::InputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -74,8 +70,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_regression_training_Traini
  * Method:    cGetInputTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_regression_training_TrainingInput_cGetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_regression_training_TrainingInput_cGetInputTable(JNIEnv * env, jobject thisObj,
+                                                                                                        jlong inputAddr, jint id)
 {
     return jniInput<regression::training::Input>::get<regression::training::InputId, NumericTable>(inputAddr, id);
 }

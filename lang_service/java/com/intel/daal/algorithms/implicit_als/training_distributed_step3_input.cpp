@@ -33,8 +33,9 @@ using namespace daal::algorithms::implicit_als::training;
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep3LocalInput_cGetInput
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep3LocalInput_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                                   jlong algAddr, jint prec,
+                                                                                                                   jint method)
 {
     return jniDistributed<step3Local, algorithms::implicit_als::training::Method, Distributed, fastCSR>::getInput(prec, method, algAddr);
 }
@@ -44,8 +45,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_Di
  * Method:    cSetPartialModel
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep3LocalInput_cSetPartialModel
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong partialModelAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep3LocalInput_cSetPartialModel(JNIEnv * env,
+                                                                                                                         jobject thisObj,
+                                                                                                                         jlong inputAddr, jint id,
+                                                                                                                         jlong partialModelAddr)
 {
     jniInput<DistributedInput<step3Local> >::set<PartialModelInputId, algorithms::implicit_als::PartialModel>(inputAddr, id, partialModelAddr);
 }
@@ -55,8 +58,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_Dis
  * Method:    cGetPartialModel
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep3LocalInput_cGetPartialModel
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep3LocalInput_cGetPartialModel(JNIEnv * env,
+                                                                                                                          jobject thisObj,
+                                                                                                                          jlong inputAddr, jint id)
 {
     return jniInput<DistributedInput<step3Local> >::get<PartialModelInputId, algorithms::implicit_als::PartialModel>(inputAddr, id);
 }
@@ -66,8 +70,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_Di
  * Method:    cSetNumericTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep3LocalInput_cSetNumericTable
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong numTableAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep3LocalInput_cSetNumericTable(JNIEnv * env,
+                                                                                                                         jobject thisObj,
+                                                                                                                         jlong inputAddr, jint id,
+                                                                                                                         jlong numTableAddr)
 {
     jniInput<DistributedInput<step3Local> >::set<Step3LocalNumericTableInputId, NumericTable>(inputAddr, id, numTableAddr);
 }
@@ -77,8 +83,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_Dis
  * Method:    cGetNumericTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep3LocalInput_cGetNumericTable
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep3LocalInput_cGetNumericTable(JNIEnv * env,
+                                                                                                                          jobject thisObj,
+                                                                                                                          jlong inputAddr, jint id)
 {
     return jniInput<DistributedInput<step3Local> >::get<Step3LocalNumericTableInputId, NumericTable>(inputAddr, id);
 }
@@ -88,8 +95,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_Di
  * Method:    cSetDataCollection
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep3LocalInput_cSetDataCollection
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong collectionAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep3LocalInput_cSetDataCollection(JNIEnv * env,
+                                                                                                                           jobject thisObj,
+                                                                                                                           jlong inputAddr, jint id,
+                                                                                                                           jlong collectionAddr)
 {
     jniInput<DistributedInput<step3Local> >::set<Step3LocalCollectionInputId, KeyValueDataCollection>(inputAddr, id, collectionAddr);
 }
@@ -99,8 +108,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_Dis
  * Method:    cGetDataCollection
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep3LocalInput_cGetDataCollection
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep3LocalInput_cGetDataCollection(JNIEnv * env,
+                                                                                                                            jobject thisObj,
+                                                                                                                            jlong inputAddr, jint id)
 {
     return jniInput<DistributedInput<step3Local> >::get<Step3LocalCollectionInputId, KeyValueDataCollection>(inputAddr, id);
 }

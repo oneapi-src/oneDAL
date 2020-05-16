@@ -24,20 +24,21 @@
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::stump::regression::prediction;
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_regression_prediction_PredictionBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_regression_prediction_PredictionBatch_cInit(JNIEnv * env, jobject thisObj, jint prec,
+                                                                                                         jint method)
 {
     return jniBatch<stump::regression::prediction::Method, Batch, defaultDense>::newObj(prec, method);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_regression_prediction_PredictionBatch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_regression_prediction_PredictionBatch_cInitParameter(JNIEnv * env, jobject thisObj,
+                                                                                                                  jlong algAddr, jint prec,
+                                                                                                                  jint method)
 {
     return jniBatch<stump::regression::prediction::Method, Batch, defaultDense>::getParameter(prec, method, algAddr);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_regression_prediction_PredictionBatch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_regression_prediction_PredictionBatch_cClone(JNIEnv * env, jobject thisObj,
+                                                                                                          jlong algAddr, jint prec, jint method)
 {
     return jniBatch<stump::regression::prediction::Method, Batch, defaultDense>::getClone(prec, method, algAddr);
 }

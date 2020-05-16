@@ -33,8 +33,7 @@ using namespace daal::algorithms::kmeans::init;
 * Method:    cSetData
 * Signature:(JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitInput_cSetData
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitInput_cSetData(JNIEnv *, jobject, jlong inputAddr, jint id, jlong ntAddr)
 {
     jniInput<kmeans::init::Input>::set<kmeans::init::InputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -44,8 +43,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitInput_cSet
 * Method:    cGetData
 * Signature:(JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitInput_cGetData
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitInput_cGetData(JNIEnv *, jobject, jlong inputAddr, jint id)
 {
     return jniInput<kmeans::init::Input>::get<kmeans::init::InputId, NumericTable>(inputAddr, id);
 }
@@ -57,11 +55,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitInput_cGe
 * Method:    cSetTable
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep2LocalPlusPlusInput_cSetTable
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep2LocalPlusPlusInput_cSetTable(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                                   jint id, jlong ntAddr)
 {
-    jniInput<kmeans::init::DistributedStep2LocalPlusPlusInput>::
-        set<kmeans::init::DistributedStep2LocalPlusPlusInputId, NumericTable>(inputAddr, id, ntAddr);
+    jniInput<kmeans::init::DistributedStep2LocalPlusPlusInput>::set<kmeans::init::DistributedStep2LocalPlusPlusInputId, NumericTable>(inputAddr, id,
+                                                                                                                                      ntAddr);
 }
 
 /*
@@ -69,11 +67,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribute
 * Method:    cGetTable
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep2LocalPlusPlusInput_cGetTable
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep2LocalPlusPlusInput_cGetTable(JNIEnv *, jobject,
+                                                                                                                    jlong inputAddr, jint id)
 {
-    return jniInput<kmeans::init::DistributedStep2LocalPlusPlusInput>::
-        get<kmeans::init::DistributedStep2LocalPlusPlusInputId, NumericTable>(inputAddr, id);
+    return jniInput<kmeans::init::DistributedStep2LocalPlusPlusInput>::get<kmeans::init::DistributedStep2LocalPlusPlusInputId, NumericTable>(
+        inputAddr, id);
 }
 
 /*
@@ -81,11 +79,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribut
 * Method:    cSetDataCollection
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep2LocalPlusPlusInput_cSetDataCollection
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong addr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep2LocalPlusPlusInput_cSetDataCollection(JNIEnv *, jobject,
+                                                                                                                            jlong inputAddr, jint id,
+                                                                                                                            jlong addr)
 {
-    jniInput<kmeans::init::DistributedStep2LocalPlusPlusInput>::
-        set<kmeans::init::DistributedLocalPlusPlusInputDataId, DataCollection>(inputAddr, id, addr);
+    jniInput<kmeans::init::DistributedStep2LocalPlusPlusInput>::set<kmeans::init::DistributedLocalPlusPlusInputDataId, DataCollection>(inputAddr, id,
+                                                                                                                                       addr);
 }
 
 /*
@@ -93,11 +92,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribute
 * Method:    cGetDataCollection
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep2LocalPlusPlusInput_cGetDataCollection
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep2LocalPlusPlusInput_cGetDataCollection(JNIEnv *, jobject,
+                                                                                                                             jlong inputAddr, jint id)
 {
-    return jniInput<kmeans::init::DistributedStep2LocalPlusPlusInput>::
-        get<kmeans::init::DistributedLocalPlusPlusInputDataId, DataCollection>(inputAddr, id);
+    return jniInput<kmeans::init::DistributedStep2LocalPlusPlusInput>::get<kmeans::init::DistributedLocalPlusPlusInputDataId, DataCollection>(
+        inputAddr, id);
 }
 
 ///////////////////////////////////////   step3Master     ///////////////////////////////////////////////////////
@@ -106,11 +105,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribut
 * Method:    cAddInput
 * Signature: (JIIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep3MasterPlusPlusInput_cAddInput
-(JNIEnv *, jobject, jlong inputAddr, jint id, jint key, jlong addr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep3MasterPlusPlusInput_cAddInput(JNIEnv *, jobject,
+                                                                                                                    jlong inputAddr, jint id,
+                                                                                                                    jint key, jlong addr)
 {
-    jniInput<kmeans::init::DistributedStep3MasterPlusPlusInput>::
-        add<kmeans::init::DistributedStep3MasterPlusPlusInputId, NumericTable>(inputAddr, id, key, addr);
+    jniInput<kmeans::init::DistributedStep3MasterPlusPlusInput>::add<kmeans::init::DistributedStep3MasterPlusPlusInputId, NumericTable>(inputAddr, id,
+                                                                                                                                        key, addr);
 }
 
 ///////////////////////////////////////   step4Local     ///////////////////////////////////////////////////////
@@ -119,11 +119,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribute
 * Method:    cSetTable
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep4LocalPlusPlusInput_cSetTable
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep4LocalPlusPlusInput_cSetTable(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                                   jint id, jlong ntAddr)
 {
-    jniInput<kmeans::init::DistributedStep4LocalPlusPlusInput>::
-        set<kmeans::init::DistributedStep4LocalPlusPlusInputId, NumericTable>(inputAddr, id, ntAddr);
+    jniInput<kmeans::init::DistributedStep4LocalPlusPlusInput>::set<kmeans::init::DistributedStep4LocalPlusPlusInputId, NumericTable>(inputAddr, id,
+                                                                                                                                      ntAddr);
 }
 
 /*
@@ -131,11 +131,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribute
 * Method:    cGetTable
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep4LocalPlusPlusInput_cGetTable
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep4LocalPlusPlusInput_cGetTable(JNIEnv *, jobject,
+                                                                                                                    jlong inputAddr, jint id)
 {
-    return jniInput<kmeans::init::DistributedStep4LocalPlusPlusInput>::
-        get<kmeans::init::DistributedStep4LocalPlusPlusInputId, NumericTable>(inputAddr, id);
+    return jniInput<kmeans::init::DistributedStep4LocalPlusPlusInput>::get<kmeans::init::DistributedStep4LocalPlusPlusInputId, NumericTable>(
+        inputAddr, id);
 }
 
 /*
@@ -143,11 +143,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribut
 * Method:    cSetDataCollection
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep4LocalPlusPlusInput_cSetDataCollection
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong addr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep4LocalPlusPlusInput_cSetDataCollection(JNIEnv *, jobject,
+                                                                                                                            jlong inputAddr, jint id,
+                                                                                                                            jlong addr)
 {
-    jniInput<kmeans::init::DistributedStep4LocalPlusPlusInput>::
-        set<kmeans::init::DistributedLocalPlusPlusInputDataId, DataCollection>(inputAddr, id, addr);
+    jniInput<kmeans::init::DistributedStep4LocalPlusPlusInput>::set<kmeans::init::DistributedLocalPlusPlusInputDataId, DataCollection>(inputAddr, id,
+                                                                                                                                       addr);
 }
 
 /*
@@ -155,11 +156,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribute
 * Method:    cGetDataCollection
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep4LocalPlusPlusInput_cGetDataCollection
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep4LocalPlusPlusInput_cGetDataCollection(JNIEnv *, jobject,
+                                                                                                                             jlong inputAddr, jint id)
 {
-    return jniInput<kmeans::init::DistributedStep4LocalPlusPlusInput>::
-        get<kmeans::init::DistributedLocalPlusPlusInputDataId, DataCollection>(inputAddr, id);
+    return jniInput<kmeans::init::DistributedStep4LocalPlusPlusInput>::get<kmeans::init::DistributedLocalPlusPlusInputDataId, DataCollection>(
+        inputAddr, id);
 }
 
 ///////////////////////////////////////   step5Master     ///////////////////////////////////////////////////////
@@ -168,11 +169,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribut
 * Method:    cAddInput
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep5MasterPlusPlusInput_cAddInput
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep5MasterPlusPlusInput_cAddInput(JNIEnv *, jobject,
+                                                                                                                    jlong inputAddr, jint id,
+                                                                                                                    jlong ntAddr)
 {
-    jniInput<kmeans::init::DistributedStep5MasterPlusPlusInput>::
-        add<kmeans::init::DistributedStep5MasterPlusPlusInputId, NumericTable>(inputAddr, id, ntAddr);
+    jniInput<kmeans::init::DistributedStep5MasterPlusPlusInput>::add<kmeans::init::DistributedStep5MasterPlusPlusInputId, NumericTable>(inputAddr, id,
+                                                                                                                                        ntAddr);
 }
 
 /*
@@ -180,11 +182,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribute
 * Method:    cGetInput
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep5MasterPlusPlusInput_cGetInput
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep5MasterPlusPlusInput_cGetInput(JNIEnv *, jobject,
+                                                                                                                     jlong inputAddr, jint id)
 {
-    return jniInput<kmeans::init::DistributedStep5MasterPlusPlusInput>::
-        get<kmeans::init::DistributedStep5MasterPlusPlusInputDataId, SerializationIface>(inputAddr, id);
+    return jniInput<kmeans::init::DistributedStep5MasterPlusPlusInput>::get<kmeans::init::DistributedStep5MasterPlusPlusInputDataId,
+                                                                            SerializationIface>(inputAddr, id);
 }
 
 /*
@@ -192,9 +194,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribut
 * Method:    cSetInput
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep5MasterPlusPlusInput_cSetInput
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong addr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep5MasterPlusPlusInput_cSetInput(JNIEnv *, jobject,
+                                                                                                                    jlong inputAddr, jint id,
+                                                                                                                    jlong addr)
 {
-    jniInput<kmeans::init::DistributedStep5MasterPlusPlusInput>::
-        set<kmeans::init::DistributedStep5MasterPlusPlusInputDataId, SerializationIface>(inputAddr, id, addr);
+    jniInput<kmeans::init::DistributedStep5MasterPlusPlusInput>::set<kmeans::init::DistributedStep5MasterPlusPlusInputDataId, SerializationIface>(
+        inputAddr, id, addr);
 }

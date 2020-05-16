@@ -38,7 +38,8 @@ namespace prediction
 namespace interface1
 {
 /**
- * Returns the input Numeric Table object in the prediction stage of the classification algorithm
+ * Returns the input Numeric Table object in the prediction stage of the
+ * classification algorithm
  * \param[in] id    Identifier of the input NumericTable object
  * \return          %Input object that corresponds to the given identifier
  */
@@ -48,7 +49,8 @@ NumericTablePtr Input::get(classifier::prediction::NumericTableInputId id) const
 }
 
 /**
- * Returns the input Model object in the prediction stage of the AdaBoost algorithm
+ * Returns the input Model object in the prediction stage of the AdaBoost
+ * algorithm
  * \param[in] id    Identifier of the input Model object
  * \return          %Input object that corresponds to the given identifier
  */
@@ -58,7 +60,8 @@ adaboost::interface1::ModelPtr Input::get(classifier::prediction::ModelInputId i
 }
 
 /**
- * Sets the input NumericTable object in the prediction stage of the classification algorithm
+ * Sets the input NumericTable object in the prediction stage of the
+ * classification algorithm
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */

@@ -32,10 +32,10 @@ using namespace daal::services;
  * Method:    cSetPermutedColumns
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pivoted_1qr_Parameter_cSetPermutedColumns
-(JNIEnv *env, jobject thisObj, jlong parAddr, jlong permutedColumnsAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pivoted_1qr_Parameter_cSetPermutedColumns(JNIEnv * env, jobject thisObj, jlong parAddr,
+                                                                                                jlong permutedColumnsAddr)
 {
-    SerializationIfacePtr *ntShPtr = (SerializationIfacePtr *)permutedColumnsAddr;
+    SerializationIfacePtr * ntShPtr                     = (SerializationIfacePtr *)permutedColumnsAddr;
     (*(pivoted_qr::Parameter *)parAddr).permutedColumns = staticPointerCast<NumericTable, SerializationIface>(*ntShPtr);
 }
 
@@ -44,11 +44,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pivoted_1qr_Parameter_cSet
  * Method:    cGetPermutedColumns
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pivoted_1qr_Parameter_cGetPermutedColumns
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pivoted_1qr_Parameter_cGetPermutedColumns(JNIEnv * env, jobject thisObj, jlong parAddr)
 {
-    pivoted_qr::Parameter *parameter = (pivoted_qr::Parameter *)parAddr;
-    NumericTablePtr *ntShPtr = new NumericTablePtr();
-    *ntShPtr = parameter->permutedColumns;
+    pivoted_qr::Parameter * parameter = (pivoted_qr::Parameter *)parAddr;
+    NumericTablePtr * ntShPtr         = new NumericTablePtr();
+    *ntShPtr                          = parameter->permutedColumns;
     return (jlong)ntShPtr;
 }

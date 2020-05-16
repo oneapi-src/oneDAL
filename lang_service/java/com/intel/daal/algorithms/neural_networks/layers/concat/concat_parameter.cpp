@@ -30,8 +30,7 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatParameter_cInit
-  (JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatParameter_cInit(JNIEnv * env, jobject thisObj)
 {
     return (jlong)(new concat::Parameter);
 }
@@ -41,8 +40,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_c
  * Method:    cGetConcatDimension
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatParameter_cGetConcatDimension
-  (JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatParameter_cGetConcatDimension(JNIEnv * env,
+                                                                                                                          jobject thisObj,
+                                                                                                                          jlong cParameter)
 {
     return (jlong)((((concat::Parameter *)cParameter))->concatDimension);
 }
@@ -52,8 +52,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_c
  * Method:    cSetConcatDimension
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatParameter_cSetConcatDimension
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jlong concatDimension)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatParameter_cSetConcatDimension(JNIEnv * env,
+                                                                                                                         jobject thisObj,
+                                                                                                                         jlong cParameter,
+                                                                                                                         jlong concatDimension)
 {
     (((concat::Parameter *)cParameter))->concatDimension = (size_t)concatDimension;
 }

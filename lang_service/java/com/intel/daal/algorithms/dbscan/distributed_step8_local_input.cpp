@@ -29,8 +29,8 @@ using namespace daal::algorithms::dbscan;
 * Method:    cSetNumericTable
 * Signature:(JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep8LocalInput_cSetNumericTable
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep8LocalInput_cSetNumericTable(JNIEnv *, jobject, jlong inputAddr, jint id,
+                                                                                                         jlong ntAddr)
 {
     jniInput<DistributedInput<step8Local> >::set<Step8LocalNumericTableInputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -40,8 +40,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep8Loc
 * Method:    cGetNumericTable
 * Signature:(JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep8LocalInput_cGetNumericTable
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep8LocalInput_cGetNumericTable(JNIEnv *, jobject, jlong inputAddr, jint id)
 {
     return jniInput<DistributedInput<step8Local> >::get<Step8LocalNumericTableInputId, NumericTable>(inputAddr, id);
 }
@@ -51,8 +50,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep8Lo
 * Method:    cSetDataCollection
 * Signature:(JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep8LocalInput_cSetDataCollection
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong dcAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep8LocalInput_cSetDataCollection(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                           jint id, jlong dcAddr)
 {
     jniInput<DistributedInput<step8Local> >::set<Step8LocalCollectionInputId, DataCollection>(inputAddr, id, dcAddr);
 }
@@ -62,8 +61,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep8Loc
 * Method:    cAddNumericTable
 * Signature:(JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep8LocalInput_cAddNumericTable
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep8LocalInput_cAddNumericTable(JNIEnv *, jobject, jlong inputAddr, jint id,
+                                                                                                         jlong ntAddr)
 {
     jniInput<DistributedInput<step8Local> >::add<Step8LocalCollectionInputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -73,8 +72,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep8Loc
 * Method:    cGetDataCollection
 * Signature:(JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep8LocalInput_cGetDataCollection
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep8LocalInput_cGetDataCollection(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                            jint id)
 {
     return jniInput<DistributedInput<step8Local> >::get<Step8LocalCollectionInputId, DataCollection>(inputAddr, id);
 }

@@ -41,7 +41,8 @@ __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_ADABOOST_TRAINING_RESU
 
 /**
  * Returns the model trained with the AdaBoost algorithm
- * \param[in] id    Identifier of the result, \ref classifier::training::ResultId
+ * \param[in] id    Identifier of the result, \ref
+ * classifier::training::ResultId
  * \return          Model trained with the AdaBoost algorithm
  */
 daal::algorithms::adaboost::interface1::ModelPtr Result::get(classifier::training::ResultId id) const

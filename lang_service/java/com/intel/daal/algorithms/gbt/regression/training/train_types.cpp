@@ -26,22 +26,21 @@
 
 USING_COMMON_NAMESPACES()
 
-namespace gbtr = gbt::regression;
-namespace gbtt = gbt::training;
+namespace gbtr  = gbt::regression;
+namespace gbtt  = gbt::training;
 namespace gbtrt = daal::algorithms::gbt::regression::training;
 
 #include "com_intel_daal_algorithms_gbt_regression_training_TrainingResultId.h"
-#define ModelResult  com_intel_daal_algorithms_gbt_regression_training_TrainingResultId_Model
+#define ModelResult com_intel_daal_algorithms_gbt_regression_training_TrainingResultId_Model
 
 /*
 * Class:     com_intel_daal_algorithms_gbt_regression_training_Parameter
 * Method:    cGetSplitMethod
 * Signature: (J)I
 */
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cGetSplitMethod
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cGetSplitMethod(JNIEnv *, jobject, jlong parAddr)
 {
-    return(jint)(*(gbtrt::Parameter *)parAddr).splitMethod;
+    return (jint)(*(gbtrt::Parameter *)parAddr).splitMethod;
 }
 
 /*
@@ -49,8 +48,7 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Pa
 * Method:    cSetSplitMethod
 * Signature: (JI)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cSetSplitMethod
-(JNIEnv *, jobject, jlong parAddr, jint value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cSetSplitMethod(JNIEnv *, jobject, jlong parAddr, jint value)
 {
     (*(gbtrt::Parameter *)parAddr).splitMethod = (gbtt::SplitMethod)value;
 }
@@ -60,10 +58,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Pa
 * Method:    cGetMaxIterations
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cGetMaxIterations
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cGetMaxIterations(JNIEnv *, jobject, jlong parAddr)
 {
-    return(jlong)(*(gbtrt::Parameter *)parAddr).maxIterations;
+    return (jlong)(*(gbtrt::Parameter *)parAddr).maxIterations;
 }
 
 /*
@@ -71,8 +68,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_P
 * Method:    cSetMaxIterations
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cSetMaxIterations
-(JNIEnv *, jobject, jlong parAddr, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cSetMaxIterations(JNIEnv *, jobject, jlong parAddr,
+                                                                                                          jlong value)
 {
     (*(gbtrt::Parameter *)parAddr).maxIterations = value;
 }
@@ -82,8 +79,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Pa
 * Method:    cSetObservationsPerTreeFraction
 * Signature: (JD)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cSetObservationsPerTreeFraction
-(JNIEnv *, jobject, jlong parAddr, jdouble value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cSetObservationsPerTreeFraction(JNIEnv *, jobject,
+                                                                                                                        jlong parAddr, jdouble value)
 {
     (*(gbtrt::Parameter *)parAddr).observationsPerTreeFraction = value;
 }
@@ -93,10 +90,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Pa
 * Method:    cGetObservationsPerTreeFraction
 * Signature: (J)D
 */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cGetObservationsPerTreeFraction
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cGetObservationsPerTreeFraction(JNIEnv *, jobject,
+                                                                                                                           jlong parAddr)
 {
-    return(jdouble)(*(gbtrt::Parameter *)parAddr).observationsPerTreeFraction;
+    return (jdouble)(*(gbtrt::Parameter *)parAddr).observationsPerTreeFraction;
 }
 
 /*
@@ -104,10 +101,9 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_gbt_regression_training
 * Method:    cGetFeaturesPerNode
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cGetFeaturesPerNode
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cGetFeaturesPerNode(JNIEnv *, jobject, jlong parAddr)
 {
-    return(jlong)(*(gbtrt::Parameter *)parAddr).featuresPerNode;
+    return (jlong)(*(gbtrt::Parameter *)parAddr).featuresPerNode;
 }
 
 /*
@@ -115,8 +111,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_P
 * Method:    cSetFeaturesPerNode
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cSetFeaturesPerNode
-(JNIEnv *, jobject, jlong parAddr, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cSetFeaturesPerNode(JNIEnv *, jobject, jlong parAddr,
+                                                                                                            jlong value)
 {
     (*(gbtrt::Parameter *)parAddr).featuresPerNode = value;
 }
@@ -126,10 +122,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Pa
 * Method:    cGetMaxTreeDepth
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cGetMaxTreeDepth
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cGetMaxTreeDepth(JNIEnv *, jobject, jlong parAddr)
 {
-    return(jlong)(*(gbtrt::Parameter *)parAddr).maxTreeDepth;
+    return (jlong)(*(gbtrt::Parameter *)parAddr).maxTreeDepth;
 }
 
 /*
@@ -137,8 +132,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_P
 * Method:    cSetMaxTreeDepth
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cSetMaxTreeDepth
-(JNIEnv *, jobject, jlong parAddr, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cSetMaxTreeDepth(JNIEnv *, jobject, jlong parAddr,
+                                                                                                         jlong value)
 {
     (*(gbtrt::Parameter *)parAddr).maxTreeDepth = value;
 }
@@ -148,10 +143,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Pa
 * Method:    cGetMinObservationsInLeafNode
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cGetMinObservationsInLeafNode
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cGetMinObservationsInLeafNode(JNIEnv *, jobject,
+                                                                                                                       jlong parAddr)
 {
-    return(jlong)(*(gbtrt::Parameter *)parAddr).minObservationsInLeafNode;
+    return (jlong)(*(gbtrt::Parameter *)parAddr).minObservationsInLeafNode;
 }
 
 /*
@@ -159,8 +154,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_P
 * Method:    cSetMinObservationsInLeafNode
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cSetMinObservationsInLeafNode
-(JNIEnv *, jobject, jlong parAddr, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cSetMinObservationsInLeafNode(JNIEnv *, jobject,
+                                                                                                                      jlong parAddr, jlong value)
 {
     (*(gbtrt::Parameter *)parAddr).minObservationsInLeafNode = value;
 }
@@ -170,10 +165,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Pa
 * Method:    cSetEngine
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cSetEngine
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong engineAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cSetEngine(JNIEnv * env, jobject thisObj, jlong cParameter,
+                                                                                                   jlong engineAddr)
 {
-    (((gbtrt::Parameter *)cParameter))->engine = staticPointerCast<engines::BatchBase, AlgorithmIface> (*(SharedPtr<AlgorithmIface> *)engineAddr);
+    (((gbtrt::Parameter *)cParameter))->engine = staticPointerCast<engines::BatchBase, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)engineAddr);
 }
 
 /*
@@ -181,8 +176,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Pa
 * Method:    cSetShrinkage
 * Signature: (JD)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cSetShrinkage
-(JNIEnv *, jobject, jlong parAddr, jdouble value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cSetShrinkage(JNIEnv *, jobject, jlong parAddr, jdouble value)
 {
     (*(gbtrt::Parameter *)parAddr).shrinkage = value;
 }
@@ -192,10 +186,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Pa
 * Method:    cGetShrinkage
 * Signature: (J)D
 */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cGetShrinkage
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cGetShrinkage(JNIEnv *, jobject, jlong parAddr)
 {
-    return(jdouble)(*(gbtrt::Parameter *)parAddr).shrinkage;
+    return (jdouble)(*(gbtrt::Parameter *)parAddr).shrinkage;
 }
 
 /*
@@ -203,8 +196,8 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_gbt_regression_training
 * Method:    cSetMinSplitLoss
 * Signature: (JD)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cSetMinSplitLoss
-(JNIEnv *, jobject, jlong parAddr, jdouble value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cSetMinSplitLoss(JNIEnv *, jobject, jlong parAddr,
+                                                                                                         jdouble value)
 {
     (*(gbtrt::Parameter *)parAddr).minSplitLoss = value;
 }
@@ -214,10 +207,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Pa
 * Method:    cGetMinSplitLoss
 * Signature: (J)D
 */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cGetMinSplitLoss
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cGetMinSplitLoss(JNIEnv *, jobject, jlong parAddr)
 {
-    return(jdouble)(*(gbtrt::Parameter *)parAddr).minSplitLoss;
+    return (jdouble)(*(gbtrt::Parameter *)parAddr).minSplitLoss;
 }
 
 /*
@@ -225,8 +217,7 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_gbt_regression_training
 * Method:    cSetLambda
 * Signature: (JD)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cSetLambda
-(JNIEnv *, jobject, jlong parAddr, jdouble value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cSetLambda(JNIEnv *, jobject, jlong parAddr, jdouble value)
 {
     (*(gbtrt::Parameter *)parAddr).lambda = value;
 }
@@ -236,10 +227,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Pa
 * Method:    cGetLambda
 * Signature: (J)D
 */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cGetLambda
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cGetLambda(JNIEnv *, jobject, jlong parAddr)
 {
-    return(jdouble)(*(gbtrt::Parameter *)parAddr).lambda;
+    return (jdouble)(*(gbtrt::Parameter *)parAddr).lambda;
 }
 
 /*
@@ -247,8 +237,7 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_gbt_regression_training
 * Method:    cSetMaxBins
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cSetMaxBins
-(JNIEnv *, jobject, jlong parAddr, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cSetMaxBins(JNIEnv *, jobject, jlong parAddr, jlong value)
 {
     (*(gbtrt::Parameter *)parAddr).maxBins = value;
 }
@@ -258,10 +247,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Pa
 * Method:    cGetMaxBins
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cGetMaxBins
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cGetMaxBins(JNIEnv *, jobject, jlong parAddr)
 {
-    return(jlong)(*(gbtrt::Parameter *)parAddr).maxBins;
+    return (jlong)(*(gbtrt::Parameter *)parAddr).maxBins;
 }
 
 /*
@@ -269,8 +257,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_P
 * Method:    cSetMinBinSize
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cSetMinBinSize
-(JNIEnv *, jobject, jlong parAddr, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cSetMinBinSize(JNIEnv *, jobject, jlong parAddr, jlong value)
 {
     (*(gbtrt::Parameter *)parAddr).minBinSize = value;
 }
@@ -280,10 +267,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Pa
 * Method:    cGetMinBinSize
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cGetMinBinSize
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Parameter_cGetMinBinSize(JNIEnv *, jobject, jlong parAddr)
 {
-    return(jlong)(*(gbtrt::Parameter *)parAddr).minBinSize;
+    return (jlong)(*(gbtrt::Parameter *)parAddr).minBinSize;
 }
 
 /*
@@ -291,8 +277,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_P
 * Method:    cGetResult
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_TrainingResult_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_TrainingResult_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                         jint prec, jint method)
 {
     return jniBatch<gbtrt::Method, gbtrt::Batch, gbtrt::defaultDense>::getResult(prec, method, algAddr);
 }
@@ -302,19 +288,16 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_T
 * Method:    cGetModel
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_TrainingResult_cGetModel
-(JNIEnv *, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_TrainingResult_cGetModel(JNIEnv *, jobject thisObj, jlong resAddr,
+                                                                                                        jint id)
 {
-    gbtr::ModelPtr *m = new gbtr::ModelPtr();
+    gbtr::ModelPtr * m   = new gbtr::ModelPtr();
     gbtrt::ResultPtr res = services::staticPointerCast<gbtrt::Result, SerializationIface>(*((SerializationIfacePtr *)resAddr));
-    jlong resModel = 0;
-    switch(id)
+    jlong resModel       = 0;
+    switch (id)
     {
-    case ModelResult:
-        *m = res->get(gbtrt::model);
-        break;
-    default:
-        break;
+    case ModelResult: *m = res->get(gbtrt::model); break;
+    default: break;
     }
     return (jlong)m;
 }
@@ -324,8 +307,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_T
 * Method:    cInit
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_TrainingInput_cInit
-(JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_TrainingInput_cInit(JNIEnv *, jobject, jlong algAddr, jint prec,
+                                                                                                   jint method)
 {
     return jniBatch<gbtrt::Method, gbtrt::Batch, gbtrt::defaultDense>::getInput(prec, method, algAddr);
 }
@@ -335,8 +318,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_T
 * Method:    cSetInput
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_TrainingInput_cSetInput
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong valAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_TrainingInput_cSetInput(JNIEnv *, jobject, jlong inputAddr, jint id,
+                                                                                                      jlong valAddr)
 {
     jniInput<gbtrt::Input>::set<gbtrt::InputId, NumericTable>(inputAddr, gbtrt::InputId(id), valAddr);
 }
@@ -346,8 +329,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_Tr
 * Method:    cGetInput
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_TrainingInput_cGetInput
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_TrainingInput_cGetInput(JNIEnv *, jobject, jlong inputAddr, jint id)
 {
     return jniInput<gbtrt::Input>::get<gbtrt::InputId, NumericTable>(inputAddr, gbtrt::InputId(id));
 }

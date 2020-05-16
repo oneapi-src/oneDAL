@@ -60,8 +60,8 @@ classifier::quality_metric::multiclass_confusion_matrix::InputPtr InputDataColle
     return staticPointerCast<classifier::quality_metric::multiclass_confusion_matrix::Input, algorithms::Input>(
         algorithms::quality_metric_set::InputDataCollection::getInput((size_t)id));
 }
-} //namespace interface2
-} //namespace quality_metric_set
-} //namespace adaboost
-} //namespace algorithms
-} //namespace daal
+} // namespace interface2
+} // namespace quality_metric_set
+} // namespace adaboost
+} // namespace algorithms
+} // namespace daal

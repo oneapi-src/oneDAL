@@ -30,8 +30,7 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitParameter_cInit
-  (JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitParameter_cInit(JNIEnv * env, jobject thisObj)
 {
     return (jlong)(new split::Parameter);
 }
@@ -41,8 +40,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cGetNOutputs
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitParameter_cGetNOutputs
-  (JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitParameter_cGetNOutputs(JNIEnv * env, jobject thisObj,
+                                                                                                                 jlong cParameter)
 {
     return (jlong)((((split::Parameter *)cParameter))->nOutputs);
 }
@@ -52,8 +51,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cSetNOutputs
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitParameter_cSetNOutputs
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jlong nOutputs)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitParameter_cSetNOutputs(JNIEnv * env, jobject thisObj,
+                                                                                                                jlong cParameter, jlong nOutputs)
 {
     (((split::Parameter *)cParameter))->nOutputs = (size_t)nOutputs;
 }
@@ -63,8 +62,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_sp
  * Method:    cGetNInputs
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitParameter_cGetNInputs
-  (JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitParameter_cGetNInputs(JNIEnv * env, jobject thisObj,
+                                                                                                                jlong cParameter)
 {
     return (jlong)((((split::Parameter *)cParameter))->nInputs);
 }
@@ -74,8 +73,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cGetNInputs
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitParameter_cSetNInputs
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jlong nInputs)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitParameter_cSetNInputs(JNIEnv * env, jobject thisObj,
+                                                                                                               jlong cParameter, jlong nInputs)
 {
     (((split::Parameter *)cParameter))->nInputs = (size_t)nInputs;
 }

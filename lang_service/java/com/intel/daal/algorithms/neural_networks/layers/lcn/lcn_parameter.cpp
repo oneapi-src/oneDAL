@@ -30,8 +30,7 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnParameter_cInit
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnParameter_cInit(JNIEnv * env, jobject thisObj)
 {
     return (jlong)(new lcn::Parameter);
 }
@@ -41,8 +40,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_l
  * Method:    cSetIndices
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnParameter_cSetIndices
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong first, jlong second)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnParameter_cSetIndices(JNIEnv * env, jobject thisObj,
+                                                                                                           jlong cParameter, jlong first,
+                                                                                                           jlong second)
 {
     (((lcn::Parameter *)cParameter))->indices.dims[0] = first;
     (((lcn::Parameter *)cParameter))->indices.dims[1] = second;
@@ -53,8 +53,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lc
  * Method:    cGetKernelSize
  * Signature: (J)J
  */
-JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnParameter_cGetIndices
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnParameter_cGetIndices(JNIEnv * env, jobject thisObj,
+                                                                                                                 jlong cParameter)
 {
     jlongArray sizeArray;
     sizeArray = env->NewLongArray(2);
@@ -71,11 +71,11 @@ JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_lay
  * Method:    cGetSumDimension
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnParameter_cGetSumDimension
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnParameter_cGetSumDimension(JNIEnv * env, jobject thisObj,
+                                                                                                                 jlong cParameter)
 {
-    NumericTablePtr *ntShPtr = new NumericTablePtr();
-    *ntShPtr = (((lcn::Parameter *)cParameter))->sumDimension;
+    NumericTablePtr * ntShPtr = new NumericTablePtr();
+    *ntShPtr                  = (((lcn::Parameter *)cParameter))->sumDimension;
     return (jlong)ntShPtr;
 }
 
@@ -84,10 +84,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_l
  * Method:    cSetSumDimension
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnParameter_cSetSumDimension
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong sumDimension)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnParameter_cSetSumDimension(JNIEnv * env, jobject thisObj,
+                                                                                                                jlong cParameter, jlong sumDimension)
 {
-    SerializationIfacePtr *ntShPtr = (SerializationIfacePtr *)sumDimension;
+    SerializationIfacePtr * ntShPtr                = (SerializationIfacePtr *)sumDimension;
     (((lcn::Parameter *)cParameter))->sumDimension = staticPointerCast<NumericTable, SerializationIface>(*ntShPtr);
 }
 
@@ -96,11 +96,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lc
  * Method:    cGetKernel
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnParameter_cGetKernel
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnParameter_cGetKernel(JNIEnv * env, jobject thisObj,
+                                                                                                           jlong cParameter)
 {
-    TensorPtr *ntShPtr = new TensorPtr();
-    *ntShPtr = (((lcn::Parameter *)cParameter))->kernel;
+    TensorPtr * ntShPtr = new TensorPtr();
+    *ntShPtr            = (((lcn::Parameter *)cParameter))->kernel;
     return (jlong)ntShPtr;
 }
 
@@ -109,9 +109,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_l
  * Method:    cSetKernel
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnParameter_cSetKernel
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong kernel)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lcn_LcnParameter_cSetKernel(JNIEnv * env, jobject thisObj,
+                                                                                                          jlong cParameter, jlong kernel)
 {
-    SerializationIfacePtr *ntShPtr = (SerializationIfacePtr *)kernel;
+    SerializationIfacePtr * ntShPtr          = (SerializationIfacePtr *)kernel;
     (((lcn::Parameter *)cParameter))->kernel = staticPointerCast<Tensor, SerializationIface>(*ntShPtr);
 }

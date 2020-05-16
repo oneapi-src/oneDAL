@@ -29,8 +29,7 @@ using namespace daal::algorithms::low_order_moments;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Result_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Result_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<low_order_moments::Result>::newObj();
 }
@@ -40,8 +39,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Resul
  * Method:    cGetResultTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Result_cGetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Result_cGetResultTable(JNIEnv * env, jobject thisObj, jlong resAddr,
+                                                                                                  jint id)
 {
     return jniArgument<low_order_moments::Result>::get<low_order_moments::ResultId, NumericTable>(resAddr, id);
 }
@@ -51,8 +50,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Resul
  * Method:    cSetResultTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Result_cSetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Result_cSetResultTable(JNIEnv * env, jobject thisObj, jlong resAddr,
+                                                                                                 jint id, jlong ntAddr)
 {
     jniArgument<low_order_moments::Result>::set<low_order_moments::ResultId, NumericTable>(resAddr, id, ntAddr);
 }

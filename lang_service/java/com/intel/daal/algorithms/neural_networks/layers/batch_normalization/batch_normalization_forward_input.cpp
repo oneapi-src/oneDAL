@@ -23,8 +23,10 @@
 #include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationForwardInputLayerDataId.h"
-#define populationMeanId     com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationForwardInputLayerDataId_populationMeanId
-#define populationVarianceId com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationForwardInputLayerDataId_populationVarianceId
+#define populationMeanId \
+    com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationForwardInputLayerDataId_populationMeanId
+#define populationVarianceId \
+    com_intel_daal_algorithms_neural_networks_layers_batch_normalization_BatchNormalizationForwardInputLayerDataId_populationVarianceId
 
 USING_COMMON_NAMESPACES()
 
@@ -33,8 +35,8 @@ USING_COMMON_NAMESPACES()
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_batch_1normalization_BatchNormalizationForwardInput_cSetInput
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_batch_1normalization_BatchNormalizationForwardInput_cSetInput(
+    JNIEnv * env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
 {
     using namespace daal::algorithms::neural_networks::layers::batch_normalization;
     if (id == populationMeanId || id == populationVarianceId)
@@ -48,8 +50,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_ba
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_batch_1normalization_BatchNormalizationForwardInput_cGetInput
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_batch_1normalization_BatchNormalizationForwardInput_cGetInput(
+    JNIEnv * env, jobject thisObj, jlong inputAddr, jint id)
 {
     using namespace daal::algorithms::neural_networks::layers::batch_normalization;
     if (id == populationMeanId || id == populationVarianceId)
@@ -65,8 +67,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_b
  * Method:    cGetWeightsSizes
  * Signature: (J)[J
  */
-JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_batch_1normalization_BatchNormalizationForwardInput_cGetWeightsSizes
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jlong paramAddr)
+JNIEXPORT jlongArray JNICALL
+    Java_com_intel_daal_algorithms_neural_1networks_layers_batch_1normalization_BatchNormalizationForwardInput_cGetWeightsSizes(JNIEnv * env,
+                                                                                                                                jobject thisObj,
+                                                                                                                                jlong inputAddr,
+                                                                                                                                jlong paramAddr)
 {
     using namespace daal::algorithms::neural_networks::layers;
     Collection<size_t> dims = ((batch_normalization::forward::Input *)inputAddr)->getWeightsSizes((batch_normalization::Parameter *)paramAddr);
@@ -78,8 +83,11 @@ JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_lay
  * Method:    cGetBiasesSizes
  * Signature: (J)[J
  */
-JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_batch_1normalization_BatchNormalizationForwardInput_cGetBiasesSizes
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jlong paramAddr)
+JNIEXPORT jlongArray JNICALL
+    Java_com_intel_daal_algorithms_neural_1networks_layers_batch_1normalization_BatchNormalizationForwardInput_cGetBiasesSizes(JNIEnv * env,
+                                                                                                                               jobject thisObj,
+                                                                                                                               jlong inputAddr,
+                                                                                                                               jlong paramAddr)
 {
     using namespace daal::algorithms::neural_networks::layers;
     Collection<size_t> dims = ((batch_normalization::forward::Input *)inputAddr)->getBiasesSizes((batch_normalization::Parameter *)paramAddr);

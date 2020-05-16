@@ -30,8 +30,10 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cSetKernelSize
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling1d_Pooling1dParameter_cSetKernelSize
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong first)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling1d_Pooling1dParameter_cSetKernelSize(JNIEnv * env,
+                                                                                                                          jobject thisObj,
+                                                                                                                          jlong cParameter,
+                                                                                                                          jlong first)
 {
     (((pooling1d::Parameter *)cParameter))->kernelSize.size[0] = first;
 }
@@ -41,8 +43,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_po
  * Method:    cSetStride
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling1d_Pooling1dParameter_cSetStride
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong first)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling1d_Pooling1dParameter_cSetStride(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong cParameter, jlong first)
 {
     (((pooling1d::Parameter *)cParameter))->stride.size[0] = first;
 }
@@ -52,8 +54,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_po
  * Method:    cSetSD
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling1d_Pooling1dParameter_cSetSD
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong first)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling1d_Pooling1dParameter_cSetSD(JNIEnv * env, jobject thisObj,
+                                                                                                                  jlong cParameter, jlong first)
 {
     (((pooling1d::Parameter *)cParameter))->index.size[0] = first;
 }
@@ -63,8 +65,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_po
  * Method:    cSetPadding
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling1d_Pooling1dParameter_cSetPadding
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong first)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling1d_Pooling1dParameter_cSetPadding(JNIEnv * env, jobject thisObj,
+                                                                                                                       jlong cParameter, jlong first)
 {
     (((pooling1d::Parameter *)cParameter))->padding.size[0] = first;
 }
@@ -74,8 +76,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_po
  * Method:    cGetKernelSize
  * Signature: (J)J
  */
-JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling1d_Pooling1dParameter_cGetKernelSize
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling1d_Pooling1dParameter_cGetKernelSize(JNIEnv * env,
+                                                                                                                                jobject thisObj,
+                                                                                                                                jlong cParameter)
 {
     jlongArray sizeArray;
     sizeArray = env->NewLongArray(1);
@@ -91,8 +94,9 @@ JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_lay
  * Method:    cGetKernelSize
  * Signature: (J)J
  */
-JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling1d_Pooling1dParameter_cGetStride
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling1d_Pooling1dParameter_cGetStride(JNIEnv * env,
+                                                                                                                            jobject thisObj,
+                                                                                                                            jlong cParameter)
 {
     jlongArray sizeArray;
     sizeArray = env->NewLongArray(1);
@@ -108,8 +112,9 @@ JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_lay
  * Method:    cGetKernelSize
  * Signature: (J)J
  */
-JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling1d_Pooling1dParameter_cGetPadding
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling1d_Pooling1dParameter_cGetPadding(JNIEnv * env,
+                                                                                                                             jobject thisObj,
+                                                                                                                             jlong cParameter)
 {
     jlongArray sizeArray;
     sizeArray = env->NewLongArray(1);
@@ -125,8 +130,8 @@ JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_lay
  * Method:    cGetKernelSize
  * Signature: (J)J
  */
-JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling1d_Pooling1dParameter_cGetSD
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pooling1d_Pooling1dParameter_cGetSD(JNIEnv * env, jobject thisObj,
+                                                                                                                        jlong cParameter)
 {
     jlongArray sizeArray;
     sizeArray = env->NewLongArray(1);

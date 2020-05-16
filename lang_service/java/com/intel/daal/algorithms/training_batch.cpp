@@ -31,38 +31,29 @@ using namespace daal::algorithms;
  * Method:    cCompute
  * Signature:(J)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_TrainingBatch_cCompute
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_TrainingBatch_cCompute(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    SharedPtr<Training<batch> > alg =
-        staticPointerCast<Training<batch>, AlgorithmIface>
-            (*(SharedPtr<AlgorithmIface> *)algAddr);
+    SharedPtr<Training<batch> > alg = staticPointerCast<Training<batch>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
     DAAL_CHECK_THROW(alg->compute());
 }
-
 
 /*
  * Class:     com_intel_daal_algorithms_TrainingBatch
  * Method:    cCheckComputeParams
  * Signature:(J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_TrainingBatch_cCheckComputeParams
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_TrainingBatch_cCheckComputeParams(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    SharedPtr<Training<batch> > alg =
-        staticPointerCast<Training<batch>, AlgorithmIface>
-            (*(SharedPtr<AlgorithmIface> *)algAddr);
+    SharedPtr<Training<batch> > alg = staticPointerCast<Training<batch>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
     DAAL_CHECK_THROW(alg->checkComputeParams());
 }
-
 
 /*
  * Class:     com_intel_daal_algorithms_TrainingBatch
  * Method:    cDispose
  * Signature:(J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_TrainingBatch_cDispose
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_TrainingBatch_cDispose(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    delete(SharedPtr<AlgorithmIface> *)algAddr;
+    delete (SharedPtr<AlgorithmIface> *)algAddr;
 }

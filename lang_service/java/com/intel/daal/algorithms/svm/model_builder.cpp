@@ -32,16 +32,15 @@ using namespace daal::services;
 * Method:    cInit
 * Signature: (JIII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cInit
-(JNIEnv *, jobject, jint prec, jlong nFeatures, jlong nSupportVectors)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cInit(JNIEnv *, jobject, jint prec, jlong nFeatures, jlong nSupportVectors)
 {
-    if(prec == 0)
+    if (prec == 0)
     {
-        return (jlong)(new SharedPtr<ModelBuilder<double>>(new ModelBuilder<double>(nFeatures, nSupportVectors)));
+        return (jlong)(new SharedPtr<ModelBuilder<double> >(new ModelBuilder<double>(nFeatures, nSupportVectors)));
     }
     else
     {
-        return (jlong)(new SharedPtr<ModelBuilder<float>>(new ModelBuilder<float>(nFeatures, nSupportVectors)));
+        return (jlong)(new SharedPtr<ModelBuilder<float> >(new ModelBuilder<float>(nFeatures, nSupportVectors)));
     }
 }
 
@@ -50,21 +49,20 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cInit
  * Method:    cGetModel
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cGetModel
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cGetModel(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec)
 {
-    ModelPtr *model = new ModelPtr;
-    if(prec == 0)
+    ModelPtr * model = new ModelPtr;
+    if (prec == 0)
     {
-        services::SharedPtr<ModelBuilder<double>> *ptr = new services::SharedPtr<ModelBuilder<double>>();
-        *ptr = staticPointerCast<ModelBuilder<double>>(*(SharedPtr<ModelBuilder<double>> *)algAddr);
-        *model = staticPointerCast<Model>((*ptr)->getModel());
+        services::SharedPtr<ModelBuilder<double> > * ptr = new services::SharedPtr<ModelBuilder<double> >();
+        *ptr                                             = staticPointerCast<ModelBuilder<double> >(*(SharedPtr<ModelBuilder<double> > *)algAddr);
+        *model                                           = staticPointerCast<Model>((*ptr)->getModel());
     }
     else
     {
-        services::SharedPtr<ModelBuilder<float>> *ptr = new services::SharedPtr<ModelBuilder<float>>();
-        *ptr = staticPointerCast<ModelBuilder<float>>(*(SharedPtr<ModelBuilder<float>> *)algAddr);
-        *model = staticPointerCast<Model>((*ptr)->getModel());
+        services::SharedPtr<ModelBuilder<float> > * ptr = new services::SharedPtr<ModelBuilder<float> >();
+        *ptr                                            = staticPointerCast<ModelBuilder<float> >(*(SharedPtr<ModelBuilder<float> > *)algAddr);
+        *model                                          = staticPointerCast<Model>((*ptr)->getModel());
     }
 
     return (jlong)model;
@@ -75,11 +73,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cGetMode
  * Method:    cSetBiasDouble
  * Signature:(JII)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cSetBiasDouble
-(JNIEnv *env, jobject thisObj, jlong algAddr, jdouble bias)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cSetBiasDouble(JNIEnv * env, jobject thisObj, jlong algAddr, jdouble bias)
 {
-    services::SharedPtr<ModelBuilder<double>> *ptr = new services::SharedPtr<ModelBuilder<double>>();
-    *ptr = staticPointerCast<ModelBuilder<double>>(*(SharedPtr<ModelBuilder<double>> *)algAddr);
+    services::SharedPtr<ModelBuilder<double> > * ptr = new services::SharedPtr<ModelBuilder<double> >();
+    *ptr                                             = staticPointerCast<ModelBuilder<double> >(*(SharedPtr<ModelBuilder<double> > *)algAddr);
     (*ptr)->setBias(bias);
 }
 
@@ -88,11 +85,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cSetBiasD
  * Method:    cSetBiasFloat
  * Signature:(JII)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cSetBiasDouble
-(JNIEnv *env, jobject thisObj, jlong algAddr, jfloat bias)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cSetBiasDouble(JNIEnv * env, jobject thisObj, jlong algAddr, jfloat bias)
 {
-    services::SharedPtr<ModelBuilder<float>> *ptr = new services::SharedPtr<ModelBuilder<float>>();
-    *ptr = staticPointerCast<ModelBuilder<float>>(*(SharedPtr<ModelBuilder<float>> *)algAddr);
+    services::SharedPtr<ModelBuilder<float> > * ptr = new services::SharedPtr<ModelBuilder<float> >();
+    *ptr                                            = staticPointerCast<ModelBuilder<float> >(*(SharedPtr<ModelBuilder<float> > *)algAddr);
     (*ptr)->setBias(bias);
 }
 
@@ -101,13 +97,13 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cSetBiasD
  * Method:    cSetSupportVectorsFloat
  * Signature:(JII)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cSetSupportVectorsFloat
-(JNIEnv *env, jobject, jlong algAddr, jobject byteBuffer, jlong nValues)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cSetSupportVectorsFloat(JNIEnv * env, jobject, jlong algAddr,
+                                                                                               jobject byteBuffer, jlong nValues)
 {
-    float *firstVal = (float *)(env->GetDirectBufferAddress(byteBuffer));
-    float *lastVal = firstVal + nValues;
-    services::SharedPtr<ModelBuilder<float>> *ptr = new services::SharedPtr<ModelBuilder<float>>();
-    *ptr = staticPointerCast<ModelBuilder<float>>(*(SharedPtr<ModelBuilder<float>> *)algAddr);
+    float * firstVal                                = (float *)(env->GetDirectBufferAddress(byteBuffer));
+    float * lastVal                                 = firstVal + nValues;
+    services::SharedPtr<ModelBuilder<float> > * ptr = new services::SharedPtr<ModelBuilder<float> >();
+    *ptr                                            = staticPointerCast<ModelBuilder<float> >(*(SharedPtr<ModelBuilder<float> > *)algAddr);
     (*ptr)->setSupportVectors(firstVal, lastVal);
     DAAL_CHECK_THROW((*ptr)->getStatus());
 }
@@ -117,13 +113,13 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cSetSuppo
  * Method:    cSetSupportVectorsDouble
  * Signature:(JII)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cSetSupportVectorsDouble
-(JNIEnv *env, jobject, jlong algAddr, jobject byteBuffer, jlong nValues)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cSetSupportVectorsDouble(JNIEnv * env, jobject, jlong algAddr,
+                                                                                                jobject byteBuffer, jlong nValues)
 {
-    double *firstVal = (double *)(env->GetDirectBufferAddress(byteBuffer));
-    double *lastVal = firstVal + nValues;
-    services::SharedPtr<ModelBuilder<double>> *ptr = new services::SharedPtr<ModelBuilder<double>>();
-    *ptr = staticPointerCast<ModelBuilder<double>>(*(SharedPtr<ModelBuilder<double>> *)algAddr);
+    double * firstVal                                = (double *)(env->GetDirectBufferAddress(byteBuffer));
+    double * lastVal                                 = firstVal + nValues;
+    services::SharedPtr<ModelBuilder<double> > * ptr = new services::SharedPtr<ModelBuilder<double> >();
+    *ptr                                             = staticPointerCast<ModelBuilder<double> >(*(SharedPtr<ModelBuilder<double> > *)algAddr);
     (*ptr)->setSupportVectors(firstVal, lastVal);
     DAAL_CHECK_THROW((*ptr)->getStatus());
 }
@@ -134,13 +130,13 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cSetSuppo
  * Method:    cSetClassificationCoefficientsFloat
  * Signature:(JII)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cSetClassificationCoefficientsFloat
-(JNIEnv *env, jobject, jlong algAddr, jobject byteBuffer, jlong nValues)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cSetClassificationCoefficientsFloat(JNIEnv * env, jobject, jlong algAddr,
+                                                                                                           jobject byteBuffer, jlong nValues)
 {
-    float *firstVal = (float *)(env->GetDirectBufferAddress(byteBuffer));
-    float *lastVal = firstVal + nValues;
-    services::SharedPtr<ModelBuilder<float>> *ptr = new services::SharedPtr<ModelBuilder<float>>();
-    *ptr = staticPointerCast<ModelBuilder<float>>(*(SharedPtr<ModelBuilder<float>> *)algAddr);
+    float * firstVal                                = (float *)(env->GetDirectBufferAddress(byteBuffer));
+    float * lastVal                                 = firstVal + nValues;
+    services::SharedPtr<ModelBuilder<float> > * ptr = new services::SharedPtr<ModelBuilder<float> >();
+    *ptr                                            = staticPointerCast<ModelBuilder<float> >(*(SharedPtr<ModelBuilder<float> > *)algAddr);
     (*ptr)->setClassificationCoefficients(firstVal, lastVal);
     DAAL_CHECK_THROW((*ptr)->getStatus());
 }
@@ -150,13 +146,13 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cSetClass
  * Method:    cSetClassificationCoefficientsDouble
  * Signature:(JII)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cSetClassificationCoefficientsDouble
-(JNIEnv *env, jobject, jlong algAddr, jobject byteBuffer, jlong nValues)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cSetClassificationCoefficientsDouble(JNIEnv * env, jobject, jlong algAddr,
+                                                                                                            jobject byteBuffer, jlong nValues)
 {
-    double *firstVal = (double *)(env->GetDirectBufferAddress(byteBuffer));
-    double *lastVal = firstVal + nValues;
-    services::SharedPtr<ModelBuilder<double>> *ptr = new services::SharedPtr<ModelBuilder<double>>();
-    *ptr = staticPointerCast<ModelBuilder<double>>(*(SharedPtr<ModelBuilder<double>> *)algAddr);
+    double * firstVal                                = (double *)(env->GetDirectBufferAddress(byteBuffer));
+    double * lastVal                                 = firstVal + nValues;
+    services::SharedPtr<ModelBuilder<double> > * ptr = new services::SharedPtr<ModelBuilder<double> >();
+    *ptr                                             = staticPointerCast<ModelBuilder<double> >(*(SharedPtr<ModelBuilder<double> > *)algAddr);
     (*ptr)->setClassificationCoefficients(firstVal, lastVal);
     DAAL_CHECK_THROW((*ptr)->getStatus());
 }
@@ -166,22 +162,22 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cSetClass
  * Method:    cSetSupportIndices
  * Signature:(JII)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cSetSupportIndices
-(JNIEnv *env, jobject, jlong algAddr, jint prec, jobject byteBuffer, jlong nValues)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_ModelBuilder_cSetSupportIndices(JNIEnv * env, jobject, jlong algAddr, jint prec,
+                                                                                          jobject byteBuffer, jlong nValues)
 {
-    int *firstVal = (int *)(env->GetDirectBufferAddress(byteBuffer));
-    int *lastVal = firstVal + nValues;
-    if(prec == 0)
+    int * firstVal = (int *)(env->GetDirectBufferAddress(byteBuffer));
+    int * lastVal  = firstVal + nValues;
+    if (prec == 0)
     {
-        services::SharedPtr<ModelBuilder<double>> *ptr = new services::SharedPtr<ModelBuilder<double>>();
-        *ptr = staticPointerCast<ModelBuilder<double>>(*(SharedPtr<ModelBuilder<double>> *)algAddr);
+        services::SharedPtr<ModelBuilder<double> > * ptr = new services::SharedPtr<ModelBuilder<double> >();
+        *ptr                                             = staticPointerCast<ModelBuilder<double> >(*(SharedPtr<ModelBuilder<double> > *)algAddr);
         (*ptr)->setSupportIndices(firstVal, lastVal);
         DAAL_CHECK_THROW((*ptr)->getStatus());
     }
     else
     {
-        services::SharedPtr<ModelBuilder<float>> *ptr = new services::SharedPtr<ModelBuilder<float>>();
-        *ptr = staticPointerCast<ModelBuilder<float>>(*(SharedPtr<ModelBuilder<float>> *)algAddr);
+        services::SharedPtr<ModelBuilder<float> > * ptr = new services::SharedPtr<ModelBuilder<float> >();
+        *ptr                                            = staticPointerCast<ModelBuilder<float> >(*(SharedPtr<ModelBuilder<float> > *)algAddr);
         (*ptr)->setSupportIndices(firstVal, lastVal);
         DAAL_CHECK_THROW((*ptr)->getStatus());
     }

@@ -25,29 +25,24 @@
  * Method:    cDispose
  * Signature:(J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_Result_cDispose
-(JNIEnv *env, jobject thisObj, jlong resAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_Result_cDispose(JNIEnv * env, jobject thisObj, jlong resAddr)
 {
     delete (daal::data_management::SerializationIfacePtr *)resAddr;
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_Result_cCheckPartRes
-(JNIEnv *env, jobject thisObj, jlong resAddr, jlong partResAddr, jlong parAddr, jint method)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_Result_cCheckPartRes(JNIEnv * env, jobject thisObj, jlong resAddr, jlong partResAddr,
+                                                                           jlong parAddr, jint method)
 {
-    daal::algorithms::Result *resPtr =
-        (daal::algorithms::Result *)(((daal::data_management::SerializationIfacePtr *)resAddr)->get());
-    daal::algorithms::PartialResult *partResPtr =
-                            (daal::algorithms::PartialResult *)
-                            (((daal::data_management::SerializationIfacePtr *)partResAddr)->get());
+    daal::algorithms::Result * resPtr = (daal::algorithms::Result *)(((daal::data_management::SerializationIfacePtr *)resAddr)->get());
+    daal::algorithms::PartialResult * partResPtr =
+        (daal::algorithms::PartialResult *)(((daal::data_management::SerializationIfacePtr *)partResAddr)->get());
 
-    resPtr->check(partResPtr,(daal::algorithms::Parameter*)parAddr,method);
+    resPtr->check(partResPtr, (daal::algorithms::Parameter *)parAddr, method);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_Result_cCheckInput
-(JNIEnv *env, jobject thisObj, jlong resAddr, jlong inputAddr, jlong parAddr, jint method)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_Result_cCheckInput(JNIEnv * env, jobject thisObj, jlong resAddr, jlong inputAddr, jlong parAddr,
+                                                                         jint method)
 {
-    daal::algorithms::Result *resPtr =
-        (daal::algorithms::Result *)
-        (((daal::data_management::SerializationIfacePtr *)resAddr)->get());
-    resPtr->check((daal::algorithms::Input*)inputAddr,(daal::algorithms::Parameter*)parAddr,(int)method);
+    daal::algorithms::Result * resPtr = (daal::algorithms::Result *)(((daal::data_management::SerializationIfacePtr *)resAddr)->get());
+    resPtr->check((daal::algorithms::Input *)inputAddr, (daal::algorithms::Parameter *)parAddr, (int)method);
 }

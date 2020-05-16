@@ -29,8 +29,7 @@ using namespace daal::algorithms::implicit_als;
  * Method:    cSetNFactors
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_cSetNFactors
-(JNIEnv *, jobject, jlong parAddr, jlong nFactors)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_cSetNFactors(JNIEnv *, jobject, jlong parAddr, jlong nFactors)
 {
     ((Parameter *)parAddr)->nFactors = nFactors;
 }
@@ -40,8 +39,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_cS
  * Method:    cGetNFactors
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_cGetNFactors
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_cGetNFactors(JNIEnv *, jobject, jlong parAddr)
 {
     return ((Parameter *)parAddr)->nFactors;
 }
@@ -51,8 +49,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_c
  * Method:    cSetMaxIterations
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_cSetMaxIterations
-(JNIEnv *, jobject, jlong parAddr, jlong maxIterations)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_cSetMaxIterations(JNIEnv *, jobject, jlong parAddr, jlong maxIterations)
 {
     ((Parameter *)parAddr)->maxIterations = maxIterations;
 }
@@ -62,8 +59,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_cS
  * Method:    cGetMaxIterations
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_cGetMaxIterations
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_cGetMaxIterations(JNIEnv *, jobject, jlong parAddr)
 {
     return ((Parameter *)parAddr)->maxIterations;
 }
@@ -73,8 +69,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_c
  * Method:    cSetAlpha
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_cSetAlpha
-(JNIEnv *, jobject, jlong parAddr, jdouble alpha)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_cSetAlpha(JNIEnv *, jobject, jlong parAddr, jdouble alpha)
 {
     ((Parameter *)parAddr)->alpha = alpha;
 }
@@ -84,8 +79,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_cS
  * Method:    cGetAlpha
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_cGetAlpha
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_cGetAlpha(JNIEnv *, jobject, jlong parAddr)
 {
     return ((Parameter *)parAddr)->alpha;
 }
@@ -95,8 +89,7 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter
  * Method:    cSetLambda
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_cSetLambda
-(JNIEnv *, jobject, jlong parAddr, jdouble lambda)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_cSetLambda(JNIEnv *, jobject, jlong parAddr, jdouble lambda)
 {
     ((Parameter *)parAddr)->lambda = lambda;
 }
@@ -106,8 +99,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_cS
  * Method:    cGetLambda
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_cGetLambda
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_cGetLambda(JNIEnv *, jobject, jlong parAddr)
 {
     return ((Parameter *)parAddr)->lambda;
 }
@@ -117,8 +109,8 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter
  * Method:    cSetPreferenceThreshold
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_cSetPreferenceThreshold
-(JNIEnv *, jobject, jlong parAddr, jdouble preferenceThreshold)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_cSetPreferenceThreshold(JNIEnv *, jobject, jlong parAddr,
+                                                                                                      jdouble preferenceThreshold)
 {
     ((Parameter *)parAddr)->preferenceThreshold = preferenceThreshold;
 }
@@ -128,8 +120,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_cS
  * Method:    cGetPreferenceThreshold
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_cGetPreferenceThreshold
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_implicit_1als_Parameter_cGetPreferenceThreshold(JNIEnv *, jobject, jlong parAddr)
 {
     return ((Parameter *)parAddr)->preferenceThreshold;
 }

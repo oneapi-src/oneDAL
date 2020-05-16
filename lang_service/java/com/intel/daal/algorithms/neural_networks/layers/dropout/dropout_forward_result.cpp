@@ -33,8 +33,7 @@ using namespace daal::algorithms::neural_networks::layers::dropout;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dropout_DropoutForwardResult_cNewResult
-  (JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dropout_DropoutForwardResult_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<forward::Result>::newObj();
 }
@@ -44,8 +43,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_d
  * Method:    cGetValue
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dropout_DropoutForwardResult_cGetValue
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dropout_DropoutForwardResult_cGetValue(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong resAddr, jint id)
 {
     if (id == auxRetainMaskId)
     {
@@ -60,8 +59,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_d
  * Method:    cSetValue
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dropout_DropoutForwardResult_cSetValue
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dropout_DropoutForwardResult_cSetValue(JNIEnv * env, jobject thisObj,
+                                                                                                                     jlong resAddr, jint id,
+                                                                                                                     jlong ntAddr)
 {
     if (id == auxRetainMaskId)
     {

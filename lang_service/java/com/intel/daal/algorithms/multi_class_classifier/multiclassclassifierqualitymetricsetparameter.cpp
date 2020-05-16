@@ -27,9 +27,8 @@ using namespace daal::algorithms::multi_class_classifier::quality_metric_set;
  * Method:    cSetNClasses
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL
-Java_com_intel_daal_algorithms_multi_1class_1classifier_quality_1metric_1set_QualityMetricSetParameter_cSetNClasses
-(JNIEnv *, jobject, jlong parAddr, jlong nClasses)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_quality_1metric_1set_QualityMetricSetParameter_cSetNClasses(
+    JNIEnv *, jobject, jlong parAddr, jlong nClasses)
 {
     (*(Parameter *)parAddr).nClasses = nClasses;
 }
@@ -39,9 +38,8 @@ Java_com_intel_daal_algorithms_multi_1class_1classifier_quality_1metric_1set_Qua
  * Method:    cGetNClasses
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL
-Java_com_intel_daal_algorithms_multi_1class_1classifier_quality_1metric_1set_QualityMetricSetParameter_cGetNClasses
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_quality_1metric_1set_QualityMetricSetParameter_cGetNClasses(
+    JNIEnv *, jobject, jlong parAddr)
 {
-    return(jlong)(*(Parameter *)parAddr).nClasses;
+    return (jlong)(*(Parameter *)parAddr).nClasses;
 }

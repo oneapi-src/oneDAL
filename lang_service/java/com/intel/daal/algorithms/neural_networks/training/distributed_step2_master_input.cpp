@@ -32,9 +32,11 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cAddInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep2MasterInput_cAddInput
-  (JNIEnv *, jobject, jlong inputAddr, jint id, jint key, jlong partialResultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep2MasterInput_cAddInput(JNIEnv *, jobject,
+                                                                                                                      jlong inputAddr, jint id,
+                                                                                                                      jint key,
+                                                                                                                      jlong partialResultAddr)
 {
-    jniInput<training::DistributedInput<step2Master> >::add<training::Step2MasterInputId, training::PartialResult>(inputAddr, id, key, partialResultAddr);
-
+    jniInput<training::DistributedInput<step2Master> >::add<training::Step2MasterInputId, training::PartialResult>(inputAddr, id, key,
+                                                                                                                   partialResultAddr);
 }

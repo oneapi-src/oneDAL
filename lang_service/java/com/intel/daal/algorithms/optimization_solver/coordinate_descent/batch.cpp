@@ -32,10 +32,10 @@ using namespace daal::algorithms::optimization_solver;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Batch_cInit
-(JNIEnv *, jobject, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Batch_cInit(JNIEnv *, jobject, jint prec, jint method)
 {
-    return jniBatch<coordinate_descent::Method, coordinate_descent::Batch, coordinate_descent::defaultDense>::newObj(prec, method, SharedPtr<sum_of_functions::Batch>());
+    return jniBatch<coordinate_descent::Method, coordinate_descent::Batch, coordinate_descent::defaultDense>::newObj(
+        prec, method, SharedPtr<sum_of_functions::Batch>());
 }
 
 /*
@@ -43,8 +43,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coor
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Batch_cClone
-(JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Batch_cClone(JNIEnv *, jobject, jlong algAddr,
+                                                                                                             jint prec, jint method)
 {
     return jniBatch<coordinate_descent::Method, coordinate_descent::Batch, coordinate_descent::defaultDense>::getClone(prec, method, algAddr);
 }
@@ -54,8 +54,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coor
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Batch_cGetInput
-(JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Batch_cGetInput(JNIEnv *, jobject, jlong algAddr,
+                                                                                                                jint prec, jint method)
 {
     return jniBatch<coordinate_descent::Method, coordinate_descent::Batch, coordinate_descent::defaultDense>::getInput(prec, method, algAddr);
 }
@@ -65,8 +65,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coor
  * Method:    cGetParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Batch_cGetParameter
-(JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Batch_cGetParameter(JNIEnv *, jobject, jlong algAddr,
+                                                                                                                    jint prec, jint method)
 {
     return jniBatch<coordinate_descent::Method, coordinate_descent::Batch, coordinate_descent::defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -76,8 +76,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coor
 * Method:    cNewResult
 * Signature: ()J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Result_cNewResult
-(JNIEnv *, jobject)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Result_cNewResult(JNIEnv *, jobject)
 {
     return jniArgument<coordinate_descent::Result>::newObj();
 }

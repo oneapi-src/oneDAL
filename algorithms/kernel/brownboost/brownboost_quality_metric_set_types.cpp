@@ -59,8 +59,8 @@ classifier::quality_metric::binary_confusion_matrix::InputPtr InputDataCollectio
         algorithms::quality_metric_set::InputDataCollection::getInput((size_t)id));
 }
 
-} //namespace interface1
-} //namespace quality_metric_set
-} //namespace brownboost
-} //namespace algorithms
-} //namespace daal
+} // namespace interface1
+} // namespace quality_metric_set
+} // namespace brownboost
+} // namespace algorithms
+} // namespace daal

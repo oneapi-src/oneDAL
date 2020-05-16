@@ -23,7 +23,8 @@
 #include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_neural_networks_layers_spatial_average_pooling2d_SpatialAveragePooling2dLayerDataId.h"
-#define auxInputDimensionsId com_intel_daal_algorithms_neural_networks_layers_spatial_average_pooling2d_SpatialAveragePooling2dLayerDataId_auxInputDimensionsId
+#define auxInputDimensionsId \
+    com_intel_daal_algorithms_neural_networks_layers_spatial_average_pooling2d_SpatialAveragePooling2dLayerDataId_auxInputDimensionsId
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::neural_networks::layers::spatial_average_pooling2d;
@@ -33,20 +34,23 @@ using namespace daal::algorithms::neural_networks::layers::spatial_average_pooli
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1average_1pooling2d_SpatialAveragePooling2dForwardResult_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL
+    Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1average_1pooling2d_SpatialAveragePooling2dForwardResult_cNewResult(
+        JNIEnv * env, jobject thisObj)
 {
     return jniArgument<forward::Result>::newObj();
 }
-
 
 /*
  * Class:     com_intel_daal_algorithms_neural_networks_layers_average_1pooling2d_SpatialAveragePooling2dForwardResult
  * Method:    cGetValue
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1average_1pooling2d_SpatialAveragePooling2dForwardResult_cGetValue
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL
+    Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1average_1pooling2d_SpatialAveragePooling2dForwardResult_cGetValue(JNIEnv * env,
+                                                                                                                                      jobject thisObj,
+                                                                                                                                      jlong resAddr,
+                                                                                                                                      jint id)
 {
     if (id == auxInputDimensionsId)
     {
@@ -61,8 +65,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cSetValue
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1average_1pooling2d_SpatialAveragePooling2dForwardResult_cSetValue
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL
+    Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1average_1pooling2d_SpatialAveragePooling2dForwardResult_cSetValue(
+        JNIEnv * env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
 {
     if (id == auxInputDimensionsId)
     {

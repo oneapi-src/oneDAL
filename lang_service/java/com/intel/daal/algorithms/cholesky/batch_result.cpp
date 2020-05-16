@@ -24,15 +24,14 @@ USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::cholesky;
 
 #define DefaultMethodValue com_intel_daal_algorithms_cholesky_Method_DefaultMethodValue
-#define DefaultResultId com_intel_daal_algorithms_cholesky_ResultId_DefaultResultId
+#define DefaultResultId    com_intel_daal_algorithms_cholesky_ResultId_DefaultResultId
 
 /*
  * Class:     com_intel_daal_algorithms_cholesky_Result
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cholesky_Result_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cholesky_Result_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<cholesky::Result>::newObj();
 }
@@ -42,14 +41,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cholesky_Result_cNewResul
  * Method:    cGetCholeskyFactor
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cholesky_Result_cGetCholeskyFactor
-(JNIEnv *env, jobject thisObj, jlong resAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cholesky_Result_cGetCholeskyFactor(JNIEnv * env, jobject thisObj, jlong resAddr)
 {
     return jniArgument<cholesky::Result>::get<cholesky::ResultId, NumericTable>(resAddr, choleskyFactor);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_cholesky_Result_cSetCholeskyFactor
-(JNIEnv *env, jobject thisObj, jlong resAddr, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_cholesky_Result_cSetCholeskyFactor(JNIEnv * env, jobject thisObj, jlong resAddr, jlong ntAddr)
 {
     jniArgument<cholesky::Result>::set<cholesky::ResultId, NumericTable>(resAddr, choleskyFactor, ntAddr);
 }

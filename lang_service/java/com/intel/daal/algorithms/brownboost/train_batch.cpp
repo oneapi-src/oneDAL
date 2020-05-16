@@ -30,8 +30,7 @@ using namespace daal::algorithms::brownboost;
  * Method:    cInit
  * Signature:(II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_brownboost_training_TrainingBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_brownboost_training_TrainingBatch_cInit(JNIEnv * env, jobject thisObj, jint prec, jint method)
 {
     return jniBatch<brownboost::training::Method, training::Batch, training::defaultDense>::newObj(prec, method);
 }
@@ -41,8 +40,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_brownboost_training_Train
  * Method:    cInitParameter
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_brownboost_training_TrainingBatch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_brownboost_training_TrainingBatch_cInitParameter(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                        jint prec, jint method)
 {
     return jniBatch<brownboost::training::Method, training::Batch, training::defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -52,8 +51,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_brownboost_training_Train
  * Method:    cInitParameter
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_brownboost_training_TrainingBatch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_brownboost_training_TrainingBatch_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                    jint prec, jint method)
 {
     return jniBatch<brownboost::training::Method, training::Batch, training::defaultDense>::getResult(prec, method, algAddr);
 }
@@ -63,8 +62,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_brownboost_training_Train
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_brownboost_training_TrainingBatch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_brownboost_training_TrainingBatch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                jint prec, jint method)
 {
     return jniBatch<brownboost::training::Method, training::Batch, training::defaultDense>::getClone(prec, method, algAddr);
 }

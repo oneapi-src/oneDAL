@@ -29,8 +29,8 @@ using namespace daal::algorithms::neural_networks::layers::elu;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_elu_EluBackwardInput_cSetInput
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_elu_EluBackwardInput_cSetInput(JNIEnv * env, jobject thisObj,
+                                                                                                             jlong inputAddr, jint id, jlong ntAddr)
 {
     if (id == auxData || id == auxIntermediateValue)
     {
@@ -43,8 +43,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_el
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_elu_EluBackwardInput_cGetInput
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_elu_EluBackwardInput_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong inputAddr, jint id)
 {
     if (id == auxData || id == auxIntermediateValue)
     {

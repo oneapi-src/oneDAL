@@ -39,7 +39,8 @@ __DAAL_REGISTER_SERIALIZATION_CLASS(PartialResult, SERIALIZATION_CLASSIFIER_TRAI
 PartialResult::PartialResult() : daal::algorithms::PartialResult(lastPartialResultId + 1) {};
 
 /**
- * Returns the partial result in the training stage of the classification algorithm
+ * Returns the partial result in the training stage of the classification
+ * algorithm
  * \param[in] id   Identifier of the partial result, \ref PartialResultId
  * \return         Partial result that corresponds to the given identifier
  */

@@ -112,7 +112,7 @@ services::HostAppIfacePtr getHostApp(algorithms::internal::ArgumentStorage & s)
     return services::dynamicPointerCast<services::HostAppIface>(ext);
 }
 
-//service class that makes possible to access Input's storage
+// service class that makes possible to access Input's storage
 class StorageAccessor : public daal::algorithms::Input
 {
 public:
@@ -141,8 +141,8 @@ void setHostApp(const services::SharedPtr<services::HostAppIface> & pHostApp, da
     if (ptr) ptr->setExtension(algorithms::internal::ArgumentStorage::hostApp, pHostApp);
 }
 
-} //namespace internal
-} //namespace services
+} // namespace internal
+} // namespace services
 
 namespace algorithms
 {
@@ -211,7 +211,8 @@ void AlgorithmImpl<mode>::setHostApp(const services::HostAppIfacePtr & pHost)
 }
 
 /**
- * Computes final results of the algorithm in the %batch mode without possibility of throwing an exception.
+ * Computes final results of the algorithm in the %batch mode without
+ * possibility of throwing an exception.
  */
 services::Status AlgorithmImpl<batch>::computeNoThrow()
 {

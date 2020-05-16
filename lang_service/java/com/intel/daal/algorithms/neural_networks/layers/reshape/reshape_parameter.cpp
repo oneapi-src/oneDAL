@@ -31,8 +31,7 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_reshape_ReshapeParameter_cInit
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_reshape_ReshapeParameter_cInit(JNIEnv * env, jobject thisObj)
 {
     return (jlong)(new reshape::Parameter);
 }
@@ -42,21 +41,23 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_r
  * Method:    cSetReshapeDimensions
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_reshape_ReshapeParameter_cSetReshapeDimensions
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlongArray jArray)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_reshape_ReshapeParameter_cSetReshapeDimensions(JNIEnv * env,
+                                                                                                                             jobject thisObj,
+                                                                                                                             jlong cParameter,
+                                                                                                                             jlongArray jArray)
 {
     jint size = env->GetArrayLength(jArray);
-    jlong* jarr;
+    jlong * jarr;
     jboolean jniNoCopy = JNI_FALSE;
-    jarr = env->GetLongArrayElements(jArray, &jniNoCopy);
+    jarr               = env->GetLongArrayElements(jArray, &jniNoCopy);
 
     (((reshape::Parameter *)cParameter))->reshapeDimensions.clear();
-    for(int i=0; i<size; i++)
+    for (int i = 0; i < size; i++)
     {
-        (((reshape::Parameter *)cParameter))->reshapeDimensions.push_back( (size_t)jarr[i] );
+        (((reshape::Parameter *)cParameter))->reshapeDimensions.push_back((size_t)jarr[i]);
     }
 
-    env->ReleaseLongArrayElements(jArray,jarr,0);
+    env->ReleaseLongArrayElements(jArray, jarr, 0);
 }
 
 /*
@@ -64,23 +65,24 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_re
  * Method:    cGetReshapeDimensions
  * Signature: (J)J
  */
-JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_reshape_ReshapeParameter_cGetReshapeDimensions
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_reshape_ReshapeParameter_cGetReshapeDimensions(JNIEnv * env,
+                                                                                                                                   jobject thisObj,
+                                                                                                                                   jlong cParameter)
 {
-    size_t size = (((reshape::Parameter *)cParameter))->reshapeDimensions.size();
-    jlongArray sizeArray = env->NewLongArray( size );
+    size_t size          = (((reshape::Parameter *)cParameter))->reshapeDimensions.size();
+    jlongArray sizeArray = env->NewLongArray(size);
 
-    jlong* tmp = (jlong*)daal_malloc(size*sizeof(jlong));
+    jlong * tmp = (jlong *)daal_malloc(size * sizeof(jlong));
 
-    if(!tmp)
+    if (!tmp)
     {
         Error e(services::ErrorMemoryAllocationFailed);
-        const char *description = e.description();
-        env->ThrowNew(env->FindClass("java/lang/Exception"),description);
+        const char * description = e.description();
+        env->ThrowNew(env->FindClass("java/lang/Exception"), description);
         return sizeArray;
     }
 
-    for(int i=0; i<size; i++)
+    for (int i = 0; i < size; i++)
     {
         tmp[i] = (((reshape::Parameter *)cParameter))->reshapeDimensions[i];
     }

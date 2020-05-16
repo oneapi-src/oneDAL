@@ -39,36 +39,27 @@ namespace algorithms
 {
 namespace covariance
 {
-
 class JavaBatchContainer : public daal::services::JavaBatchContainerService
 {
 public:
-    JavaBatchContainer(JavaVM *_jvm, jobject _javaObject) : JavaBatchContainerService(_jvm, _javaObject) {};
-    JavaBatchContainer(const JavaBatchContainer &other) : JavaBatchContainerService(other) {}
+    JavaBatchContainer(JavaVM * _jvm, jobject _javaObject) : JavaBatchContainerService(_jvm, _javaObject) {};
+    JavaBatchContainer(const JavaBatchContainer & other) : JavaBatchContainerService(other) {}
     virtual ~JavaBatchContainer() {}
 
     virtual services::Status compute()
     {
-        return daal::services::JavaBatchContainerService::compute(
-            "Lcom/intel/daal/algorithms/covariance/Result;",
-            "Lcom/intel/daal/algorithms/covariance/Input;",
-            "Lcom/intel/daal/algorithms/covariance/Parameter;"
-            );
+        return daal::services::JavaBatchContainerService::compute("Lcom/intel/daal/algorithms/covariance/Result;",
+                                                                  "Lcom/intel/daal/algorithms/covariance/Input;",
+                                                                  "Lcom/intel/daal/algorithms/covariance/Parameter;");
     }
 
-    void setJavaResult(ResultPtr result)
-    {
-        _result = result;
-    };
+    void setJavaResult(ResultPtr result) { _result = result; };
 
-    virtual JavaBatchContainer * cloneImpl()
-    {
-        return new JavaBatchContainer(*this);
-    }
+    virtual JavaBatchContainer * cloneImpl() { return new JavaBatchContainer(*this); }
 };
 
-} // namespace daal::algorithms::covariance
-} // namespace daal::algorithms
+} // namespace covariance
+} // namespace algorithms
 } // namespace daal
 
 #endif

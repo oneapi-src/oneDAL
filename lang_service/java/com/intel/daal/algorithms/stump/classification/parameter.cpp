@@ -24,28 +24,22 @@
 using namespace daal;
 using namespace daal::algorithms;
 
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_stump_classification_Parameter_cGetSplitCriterion
-(JNIEnv *, jobject, jlong self)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_stump_classification_Parameter_cGetSplitCriterion(JNIEnv *, jobject, jlong self)
 {
-    return (jint)( unpack<stump::classification::Parameter>(self).splitCriterion );
+    return (jint)(unpack<stump::classification::Parameter>(self).splitCriterion);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_stump_classification_Parameter_cSetSplitCriterion
-(JNIEnv *, jobject, jlong self, jint value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_stump_classification_Parameter_cSetSplitCriterion(JNIEnv *, jobject, jlong self, jint value)
 {
-    unpack<stump::classification::Parameter>(self).splitCriterion =
-        (decision_tree::classification::SplitCriterion)(value);
+    unpack<stump::classification::Parameter>(self).splitCriterion = (decision_tree::classification::SplitCriterion)(value);
 }
 
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_stump_classification_Parameter_cGetVarImportance
-(JNIEnv *, jobject, jlong self)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_stump_classification_Parameter_cGetVarImportance(JNIEnv *, jobject, jlong self)
 {
-    return (jint)( unpack<stump::classification::Parameter>(self).varImportance );
+    return (jint)(unpack<stump::classification::Parameter>(self).varImportance);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_stump_classification_Parameter_cSetVarImportance
-(JNIEnv *, jobject, jlong self, jint value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_stump_classification_Parameter_cSetVarImportance(JNIEnv *, jobject, jlong self, jint value)
 {
-    unpack<stump::classification::Parameter>(self).varImportance =
-        (stump::classification::VariableImportanceMode)(value);
+    unpack<stump::classification::Parameter>(self).varImportance = (stump::classification::VariableImportanceMode)(value);
 }

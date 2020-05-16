@@ -30,8 +30,8 @@ using namespace daal::algorithms::neural_networks::layers::batch_normalization;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_batch_1normalization_BatchNormalizationBackwardResult_cNewResult
-  (JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_batch_1normalization_BatchNormalizationBackwardResult_cNewResult(
+    JNIEnv * env, jobject thisObj)
 {
     return jniArgument<backward::Result>::newObj();
 }

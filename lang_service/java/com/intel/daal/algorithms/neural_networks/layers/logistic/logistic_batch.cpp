@@ -30,8 +30,8 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_logistic_LogisticBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_logistic_LogisticBatch_cInit(JNIEnv * env, jobject thisObj, jint prec,
+                                                                                                            jint method)
 {
     return jniBatchLayer<logistic::Method, logistic::Batch, logistic::defaultDense>::newObj(prec, method);
 }
@@ -41,8 +41,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_l
  * Method:    cGetForwardLayer
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_logistic_LogisticBatch_cGetForwardLayer
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_logistic_LogisticBatch_cGetForwardLayer(JNIEnv * env, jobject thisObj,
+                                                                                                                       jlong algAddr, jint prec,
+                                                                                                                       jint method)
 {
     return jniBatchLayer<logistic::Method, logistic::Batch, logistic::defaultDense>::getForwardLayer(prec, method, algAddr);
 }
@@ -52,8 +53,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_l
  * Method:    cGetBackwardLayer
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_logistic_LogisticBatch_cGetBackwardLayer
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_logistic_LogisticBatch_cGetBackwardLayer(JNIEnv * env, jobject thisObj,
+                                                                                                                        jlong algAddr, jint prec,
+                                                                                                                        jint method)
 {
     return jniBatchLayer<logistic::Method, logistic::Batch, logistic::defaultDense>::getBackwardLayer(prec, method, algAddr);
 }

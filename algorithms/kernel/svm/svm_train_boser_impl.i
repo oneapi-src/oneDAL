@@ -58,8 +58,8 @@ using namespace daal::services::internal;
 using namespace daal;
 using namespace daal::algorithms::svm::training::internal;
 
-#include "algorithms/kernel/svm/svm_train_boser_avx512_impl.i"
-#include "algorithms/kernel/svm/inner/svm_train_boser_avx512_impl_v1.i"
+            #include "algorithms/kernel/svm/svm_train_boser_avx512_impl.i"
+            #include "algorithms/kernel/svm/inner/svm_train_boser_avx512_impl_v1.i"
 
         #endif // __CPUID__(DAAL_CPU) == __avx512__
     #endif     // defined (_M_AMD64) || defined (__amd64) || defined (__x86_64) || defined (__x86_64__)

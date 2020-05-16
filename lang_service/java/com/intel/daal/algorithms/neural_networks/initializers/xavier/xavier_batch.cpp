@@ -30,11 +30,10 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_xavier_XavierBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_xavier_XavierBatch_cInit(JNIEnv * env, jobject thisObj,
+                                                                                                              jint prec, jint method)
 {
-    return jniBatch<initializers::xavier::Method, initializers::xavier::Batch, initializers::xavier::defaultDense>::newObj(
-               prec, method);
+    return jniBatch<initializers::xavier::Method, initializers::xavier::Batch, initializers::xavier::defaultDense>::newObj(prec, method);
 }
 
 /*
@@ -42,11 +41,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initiali
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_xavier_XavierBatch_cInitParameter
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_xavier_XavierBatch_cInitParameter(JNIEnv * env, jobject thisObj,
+                                                                                                                       jlong algAddr, jint prec,
+                                                                                                                       jint method)
 {
-    return jniBatch<initializers::xavier::Method, initializers::xavier::Batch, initializers::xavier::defaultDense>::getParameter(
-        prec, method, algAddr);
+    return jniBatch<initializers::xavier::Method, initializers::xavier::Batch, initializers::xavier::defaultDense>::getParameter(prec, method,
+                                                                                                                                 algAddr);
 }
 
 /*
@@ -54,11 +54,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initiali
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_xavier_XavierBatch_cGetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_xavier_XavierBatch_cGetResult(JNIEnv * env, jobject thisObj,
+                                                                                                                   jlong algAddr, jint prec,
+                                                                                                                   jint method)
 {
-    return jniBatch<initializers::xavier::Method, initializers::xavier::Batch, initializers::xavier::defaultDense>::getResult(
-        prec, method, algAddr);
+    return jniBatch<initializers::xavier::Method, initializers::xavier::Batch, initializers::xavier::defaultDense>::getResult(prec, method, algAddr);
 }
 
 /*
@@ -66,9 +66,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initiali
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_xavier_XavierBatch_cClone
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_xavier_XavierBatch_cClone(JNIEnv * env, jobject thisObj,
+                                                                                                               jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<initializers::xavier::Method, initializers::xavier::Batch, initializers::xavier::defaultDense>::getClone(
-        prec, method, algAddr);
+    return jniBatch<initializers::xavier::Method, initializers::xavier::Batch, initializers::xavier::defaultDense>::getClone(prec, method, algAddr);
 }

@@ -32,8 +32,8 @@ using namespace daal::algorithms::covariance;
  * Method:    cSetCParameterObject
  * Signature: (JJIIII)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_OnlineParameter_cSetCParameterObject
-(JNIEnv *env, jobject thisObj, jlong parameterAddr, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_OnlineParameter_cSetCParameterObject(JNIEnv * env, jobject thisObj,
+                                                                                                      jlong parameterAddr, jlong algAddr)
 {
     using namespace daal::services;
     using namespace daal::algorithms;

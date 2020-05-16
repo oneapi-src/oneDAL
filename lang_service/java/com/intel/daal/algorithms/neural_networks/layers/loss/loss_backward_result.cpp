@@ -30,8 +30,7 @@ using namespace daal::algorithms::neural_networks::layers::loss;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_loss_LossBackwardResult_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_loss_LossBackwardResult_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<backward::Result>::newObj();
 }

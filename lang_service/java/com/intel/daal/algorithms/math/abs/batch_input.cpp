@@ -26,21 +26,19 @@ using namespace daal::algorithms::math;
 #include "com_intel_daal_algorithms_math_abs_Method.h"
 #define FastCSRMethodValue com_intel_daal_algorithms_math_abs_Method_FastCSRMethodValue
 #include "com_intel_daal_algorithms_math_abs_InputId.h"
-#define InputDataId        com_intel_daal_algorithms_math_abs_InputId_dataId
+#define InputDataId com_intel_daal_algorithms_math_abs_InputId_dataId
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_math_abs_Input_cSetInput
-(JNIEnv *jenv, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_math_abs_Input_cSetInput(JNIEnv * jenv, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
 {
-    if(id == InputDataId)
+    if (id == InputDataId)
     {
         jniInput<abs::Input>::set<abs::InputId, NumericTable>(inputAddr, abs::data, ntAddr);
     }
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_abs_Input_cGetInputTable
-(JNIEnv *jenv, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_abs_Input_cGetInputTable(JNIEnv * jenv, jobject thisObj, jlong inputAddr, jint id)
 {
-    if(id == InputDataId)
+    if (id == InputDataId)
     {
         return jniInput<abs::Input>::get<abs::InputId, NumericTable>(inputAddr, abs::data);
     }

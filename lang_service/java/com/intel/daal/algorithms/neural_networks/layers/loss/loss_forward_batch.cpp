@@ -30,10 +30,10 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_loss_LossForwardBatch_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_loss_LossForwardBatch_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                               jlong algAddr)
 {
-    return (jlong) (*((SharedPtr<loss::forward::Batch> *)algAddr))->getLayerInput();
+    return (jlong)(*((SharedPtr<loss::forward::Batch> *)algAddr))->getLayerInput();
 }
 
 /*
@@ -41,11 +41,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_l
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_loss_LossForwardBatch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_loss_LossForwardBatch_cGetResult(JNIEnv * env, jobject thisObj,
+                                                                                                                jlong algAddr)
 {
-    SerializationIfacePtr *ptr = new SerializationIfacePtr;
-    *ptr = (*((SharedPtr<loss::forward::Batch> *)algAddr))->getLayerResult();
+    SerializationIfacePtr * ptr = new SerializationIfacePtr;
+    *ptr                        = (*((SharedPtr<loss::forward::Batch> *)algAddr))->getLayerResult();
     return (jlong)ptr;
 }
 
@@ -54,8 +54,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_l
  * Method:    cDispose
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_ForwardLayer_cDispose
-(JNIEnv *env, jobject thisObj, jlong addr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_ForwardLayer_cDispose(JNIEnv * env, jobject thisObj, jlong addr)
 {
-    delete(SharedPtr<loss::forward::Batch> *)addr;
+    delete (SharedPtr<loss::forward::Batch> *)addr;
 }

@@ -30,8 +30,7 @@ using namespace daal::algorithms::quantiles;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_quantiles_Result_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_quantiles_Result_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<quantiles::Result>::newObj();
 }
@@ -41,8 +40,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_quantiles_Result_cNewResu
  * Method:    cGetResultTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_quantiles_Result_cGetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_quantiles_Result_cGetResultTable(JNIEnv * env, jobject thisObj, jlong resAddr, jint id)
 {
     return jniArgument<quantiles::Result>::get<ResultId, NumericTable>(resAddr, id);
 }
@@ -52,8 +50,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_quantiles_Result_cGetResu
  * Method:    cSetResultTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_quantiles_Result_cSetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_quantiles_Result_cSetResultTable(JNIEnv * env, jobject thisObj, jlong resAddr, jint id,
+                                                                                       jlong ntAddr)
 {
     jniArgument<quantiles::Result>::set<ResultId, NumericTable>(resAddr, id, ntAddr);
 }

@@ -25,9 +25,7 @@
 using namespace daal;
 using namespace daal::algorithms;
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_adaboost_training_TrainingResult_cGetModel
-(JNIEnv *env, jobject, jlong self, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_adaboost_training_TrainingResult_cGetModel(JNIEnv * env, jobject, jlong self, jint id)
 {
-    return jniArgument<adaboost::training::Result>
-        ::get<classifier::training::ResultId, adaboost::Model>(self, classifier::training::model);
+    return jniArgument<adaboost::training::Result>::get<classifier::training::ResultId, adaboost::Model>(self, classifier::training::model);
 }

@@ -31,7 +31,7 @@ using namespace daal::services;
  */
 JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_Model_cGetBeta(JNIEnv * env, jobject thisObj, jlong modAddr)
 {
-    NumericTablePtr * const nt                 = new NumericTablePtr();
+    NumericTablePtr * const nt            = new NumericTablePtr();
     algorithms::elastic_net::ModelPtr res = *(algorithms::elastic_net::ModelPtr *)modAddr;
 
     *nt = res->getBeta();

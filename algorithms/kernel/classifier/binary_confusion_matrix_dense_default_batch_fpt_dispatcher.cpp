@@ -17,7 +17,8 @@
 
 /*
 //++
-//  Instantiation of the container for quality metric of the classification algorithms.
+//  Instantiation of the container for quality metric of the classification
+algorithms.
 //--
 */
 

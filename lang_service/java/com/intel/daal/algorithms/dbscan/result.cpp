@@ -24,8 +24,7 @@
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::dbscan;
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Result_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Result_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<dbscan::Result>::newObj();
 }
@@ -35,8 +34,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Result_cNewResult
  * Method:    cGetResultTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Result_cGetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Result_cGetResultTable(JNIEnv * env, jobject thisObj, jlong resAddr, jint id)
 {
     return jniArgument<dbscan::Result>::get<ResultId, NumericTable>(resAddr, id);
 }
@@ -46,8 +44,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Result_cGetResultT
  * Method:    cSetResultTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Result_cSetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Result_cSetResultTable(JNIEnv * env, jobject thisObj, jlong resAddr, jint id,
+                                                                                    jlong ntAddr)
 {
     jniArgument<dbscan::Result>::set<ResultId, NumericTable>(resAddr, id, ntAddr);
 }

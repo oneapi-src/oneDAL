@@ -39,15 +39,14 @@ namespace tree_utils
 */
 struct JavaTreeNodeVisitor : public daal::algorithms::tree_utils::regression::TreeNodeVisitor, public daal::services::JavaCallback
 {
-    JavaTreeNodeVisitor(JavaVM *_jvm, jobject _javaObject) : daal::services::JavaCallback(_jvm, _javaObject) {}
+    JavaTreeNodeVisitor(JavaVM * _jvm, jobject _javaObject) : daal::services::JavaCallback(_jvm, _javaObject) {}
 
-    virtual ~JavaTreeNodeVisitor()
-    {}
+    virtual ~JavaTreeNodeVisitor() {}
 
-    virtual bool onLeafNode(const daal::algorithms::tree_utils::regression::LeafNodeDescriptor &desc) DAAL_C11_OVERRIDE;
-    virtual bool onSplitNode(const daal::algorithms::tree_utils::SplitNodeDescriptor &desc) DAAL_C11_OVERRIDE;
+    virtual bool onLeafNode(const daal::algorithms::tree_utils::regression::LeafNodeDescriptor & desc) DAAL_C11_OVERRIDE;
+    virtual bool onSplitNode(const daal::algorithms::tree_utils::SplitNodeDescriptor & desc) DAAL_C11_OVERRIDE;
 };
-}
-}
-}
+} // namespace tree_utils
+} // namespace regression
+} // namespace daal
 #endif

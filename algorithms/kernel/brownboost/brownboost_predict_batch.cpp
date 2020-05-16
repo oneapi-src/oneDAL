@@ -38,7 +38,8 @@ namespace prediction
 namespace interface2
 {
 /**
- * Returns the input Numeric Table object in the prediction stage of the classification algorithm
+ * Returns the input Numeric Table object in the prediction stage of the
+ * classification algorithm
  * \param[in] id    Identifier of the input NumericTable object
  * \return          %Input object that corresponds to the given identifier
  */
@@ -48,7 +49,8 @@ NumericTablePtr Input::get(classifier::prediction::NumericTableInputId id) const
 }
 
 /**
- * Returns the input Model object in the prediction stage of the BrownBoost algorithm
+ * Returns the input Model object in the prediction stage of the BrownBoost
+ * algorithm
  * \param[in] id    Identifier of the input Model object
  * \return          %Input object that corresponds to the given identifier
  */
@@ -58,7 +60,8 @@ brownboost::ModelPtr Input::get(classifier::prediction::ModelInputId id) const
 }
 
 /**
- * Sets the input NumericTable object in the prediction stage of the classification algorithm
+ * Sets the input NumericTable object in the prediction stage of the
+ * classification algorithm
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
@@ -68,7 +71,8 @@ void Input::set(classifier::prediction::NumericTableInputId id, const NumericTab
 }
 
 /**
- * Sets the input Model object in the prediction stage of the BrownBoost algorithm
+ * Sets the input Model object in the prediction stage of the BrownBoost
+ * algorithm
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
