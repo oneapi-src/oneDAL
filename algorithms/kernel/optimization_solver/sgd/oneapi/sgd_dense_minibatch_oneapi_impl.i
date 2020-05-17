@@ -173,6 +173,8 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch, cpu>::compute(HostA
                                                                            NumericTable * batchIndices, OptionalArgument * optionalArgument,
                                                                            OptionalArgument * optionalResult, engines::BatchBase & engine)
 {
+    printf("SGDKernelOneAPI<algorithmFPType, miniBatch, cpu>::compute\n");
+
     services::Status status;
 
     ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();

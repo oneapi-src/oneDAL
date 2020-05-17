@@ -66,6 +66,7 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
+    printf("optimization_solver:BatchContainer<algorithmFPType, method, cpu>::compute\n");
     iterative_solver::Input * input   = static_cast<iterative_solver::Input *>(_in);
     iterative_solver::Result * result = static_cast<iterative_solver::Result *>(_res);
     Parameter<method> * parameter     = static_cast<Parameter<method> *>(_par);

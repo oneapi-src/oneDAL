@@ -42,6 +42,8 @@ namespace interface2
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
+    printf("prediction: BatchContainer<algorithmFPType, method, cpu>::BatchContainer\n");
+
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();
     if (deviceInfo.isCpu)
@@ -63,6 +65,8 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
+    printf("prediction: BatchContainer<algorithmFPType, method, cpu>::compute()\n");
+
     classifier::prediction::Input * input   = static_cast<classifier::prediction::Input *>(_in);
     classifier::prediction::Result * result = static_cast<classifier::prediction::Result *>(_res);
 
