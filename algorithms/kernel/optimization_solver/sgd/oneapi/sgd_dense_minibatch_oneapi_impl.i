@@ -177,187 +177,187 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch, cpu>::compute(HostA
 
     services::Status status;
 
-    // ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
+    ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
 
-    // const size_t argumentSize = inputArgument->getNumberOfRows();
-    // const size_t nIter        = parameter->nIterations;
-    // const size_t L            = parameter->innerNIterations;
-    // const size_t batchSize    = parameter->batchSize;
+    const size_t argumentSize = inputArgument->getNumberOfRows();
+    const size_t nIter        = parameter->nIterations;
+    const size_t L            = parameter->innerNIterations;
+    const size_t batchSize    = parameter->batchSize;
 
-    // WriteRows<int, cpu> nIterationsBD(*nIterations, 0, 1);
-    // DAAL_CHECK_BLOCK_STATUS(nIterationsBD);
-    // int * nProceededIterations = nIterationsBD.get();
-    // // if nIter == 0, set result as start point, the number of executed iters to 0
-    // if (nIter == 0 || L == 0)
-    // {
-    //     nProceededIterations[0] = 0;
-    //     return status;
-    // }
+    WriteRows<int, cpu> nIterationsBD(*nIterations, 0, 1);
+    DAAL_CHECK_BLOCK_STATUS(nIterationsBD);
+    int * nProceededIterations = nIterationsBD.get();
+    // if nIter == 0, set result as start point, the number of executed iters to 0
+    if (nIter == 0 || L == 0)
+    {
+        nProceededIterations[0] = 0;
+        return status;
+    }
 
-    // NumericTable * lastIterationInput = optionalArgument ? NumericTable::cast(optionalArgument->get(iterative_solver::lastIteration)).get() : nullptr;
-    // NumericTable * pastWorkValueInput = optionalArgument ? NumericTable::cast(optionalArgument->get(sgd::pastWorkValue)).get() : nullptr;
+    NumericTable * lastIterationInput = optionalArgument ? NumericTable::cast(optionalArgument->get(iterative_solver::lastIteration)).get() : nullptr;
+    NumericTable * pastWorkValueInput = optionalArgument ? NumericTable::cast(optionalArgument->get(sgd::pastWorkValue)).get() : nullptr;
 
-    // NumericTable * lastIterationResult = optionalResult ? NumericTable::cast(optionalResult->get(iterative_solver::lastIteration)).get() : nullptr;
-    // NumericTable * pastWorkValueResult = optionalResult ? NumericTable::cast(optionalResult->get(sgd::pastWorkValue)).get() : nullptr;
+    NumericTable * lastIterationResult = optionalResult ? NumericTable::cast(optionalResult->get(iterative_solver::lastIteration)).get() : nullptr;
+    NumericTable * pastWorkValueResult = optionalResult ? NumericTable::cast(optionalResult->get(sgd::pastWorkValue)).get() : nullptr;
 
-    // const double accuracyThreshold = parameter->accuracyThreshold;
+    const double accuracyThreshold = parameter->accuracyThreshold;
 
-    // sum_of_functions::BatchPtr function = parameter->function;
-    // const size_t nTerms                 = function->sumOfFunctionsParameter->numberOfTerms;
+    sum_of_functions::BatchPtr function = parameter->function;
+    const size_t nTerms                 = function->sumOfFunctionsParameter->numberOfTerms;
 
-    // DAAL_ASSERT(minimum->getNumberOfRows() == argumentSize);
+    DAAL_ASSERT(minimum->getNumberOfRows() == argumentSize);
 
-    // BlockDescriptor<algorithmFPType> workValueBD;
-    // DAAL_CHECK_STATUS(status, minimum->getBlockOfRows(0, argumentSize, ReadWriteMode::readWrite, workValueBD));
-    // services::Buffer<algorithmFPType> workValueBuff = workValueBD.getBuffer();
+    BlockDescriptor<algorithmFPType> workValueBD;
+    DAAL_CHECK_STATUS(status, minimum->getBlockOfRows(0, argumentSize, ReadWriteMode::readWrite, workValueBD));
+    services::Buffer<algorithmFPType> workValueBuff = workValueBD.getBuffer();
 
-    // auto workValueSNT = SyclHomogenNumericTable<algorithmFPType>::create(workValueBuff, 1, argumentSize);
+    auto workValueSNT = SyclHomogenNumericTable<algorithmFPType>::create(workValueBuff, 1, argumentSize);
 
-    // NumericTablePtr previousArgument = function->sumOfFunctionsInput->get(sum_of_functions::argument);
-    // function->sumOfFunctionsInput->set(sum_of_functions::argument, workValueSNT);
+    NumericTablePtr previousArgument = function->sumOfFunctionsInput->get(sum_of_functions::argument);
+    function->sumOfFunctionsInput->set(sum_of_functions::argument, workValueSNT);
 
-    // ReadRows<algorithmFPType, cpu> learningRateBD(*learningRateSequence, 0, 1);
-    // DAAL_CHECK_BLOCK_STATUS(learningRateBD);
-    // const algorithmFPType * const learningRateArray = learningRateBD.get();
+    ReadRows<algorithmFPType, cpu> learningRateBD(*learningRateSequence, 0, 1);
+    DAAL_CHECK_BLOCK_STATUS(learningRateBD);
+    const algorithmFPType * const learningRateArray = learningRateBD.get();
 
-    // NumericTable * conservativeSequence = parameter->conservativeSequence.get();
-    // ReadRows<algorithmFPType, cpu> consCoeffsBD(*conservativeSequence, 0, 1);
-    // DAAL_CHECK_BLOCK_STATUS(consCoeffsBD);
-    // const algorithmFPType * const consCoeffsArray = consCoeffsBD.get();
+    NumericTable * conservativeSequence = parameter->conservativeSequence.get();
+    ReadRows<algorithmFPType, cpu> consCoeffsBD(*conservativeSequence, 0, 1);
+    DAAL_CHECK_BLOCK_STATUS(consCoeffsBD);
+    const algorithmFPType * const consCoeffsArray = consCoeffsBD.get();
 
-    // const size_t consCoeffsLength   = conservativeSequence->getNumberOfColumns();
-    // const size_t learningRateLength = learningRateSequence->getNumberOfColumns();
+    const size_t consCoeffsLength   = conservativeSequence->getNumberOfColumns();
+    const size_t learningRateLength = learningRateSequence->getNumberOfColumns();
 
-    // const IndicesStatus indicesStatus = (batchIndices ? user : (batchSize < nTerms ? random : all));
-    // services::SharedPtr<HomogenNumericTableCPU<int, cpu> > ntBatchIndices;
+    const IndicesStatus indicesStatus = (batchIndices ? user : (batchSize < nTerms ? random : all));
+    services::SharedPtr<HomogenNumericTableCPU<int, cpu> > ntBatchIndices;
 
-    // if (indicesStatus == user || indicesStatus == random)
-    // {
-    //     // Replace by SyclNumericTable when will be RNG on GPU
-    //     ntBatchIndices = HomogenNumericTableCPU<int, cpu>::create(batchSize, 1, &status);
-    // }
+    if (indicesStatus == user || indicesStatus == random)
+    {
+        // Replace by SyclNumericTable when will be RNG on GPU
+        ntBatchIndices = HomogenNumericTableCPU<int, cpu>::create(batchSize, 1, &status);
+    }
 
-    // NumericTablePtr previousBatchIndices            = function->sumOfFunctionsParameter->batchIndices;
-    // function->sumOfFunctionsParameter->batchIndices = ntBatchIndices;
+    NumericTablePtr previousBatchIndices            = function->sumOfFunctionsParameter->batchIndices;
+    function->sumOfFunctionsParameter->batchIndices = ntBatchIndices;
 
-    // const TypeIds::Id idType                            = TypeIds::id<algorithmFPType>();
-    // UniversalBuffer prevWorkValueU                      = ctx.allocate(idType, argumentSize, &status);
-    // services::Buffer<algorithmFPType> prevWorkValueBuff = prevWorkValueU.get<algorithmFPType>();
+    const TypeIds::Id idType                            = TypeIds::id<algorithmFPType>();
+    UniversalBuffer prevWorkValueU                      = ctx.allocate(idType, argumentSize, &status);
+    services::Buffer<algorithmFPType> prevWorkValueBuff = prevWorkValueU.get<algorithmFPType>();
 
-    // size_t startIteration = 0, nProceededIters = 0;
-    // if (lastIterationInput)
-    // {
-    //     ReadRows<int, cpu, NumericTable> lastIterationInputBD(lastIterationInput, 0, 1);
-    //     const int * lastIterationInputArray = lastIterationInputBD.get();
-    //     startIteration                      = lastIterationInputArray[0];
-    // }
+    size_t startIteration = 0, nProceededIters = 0;
+    if (lastIterationInput)
+    {
+        ReadRows<int, cpu, NumericTable> lastIterationInputBD(lastIterationInput, 0, 1);
+        const int * lastIterationInputArray = lastIterationInputBD.get();
+        startIteration                      = lastIterationInputArray[0];
+    }
 
-    // if (pastWorkValueInput)
-    // {
-    //     BlockDescriptor<algorithmFPType> pastWorkValueInputBD;
-    //     pastWorkValueInput->getBlockOfRows(0, argumentSize, ReadWriteMode::readOnly, pastWorkValueInputBD);
+    if (pastWorkValueInput)
+    {
+        BlockDescriptor<algorithmFPType> pastWorkValueInputBD;
+        pastWorkValueInput->getBlockOfRows(0, argumentSize, ReadWriteMode::readOnly, pastWorkValueInputBD);
 
-    //     const services::Buffer<algorithmFPType> pastWorkValueInputBuff = pastWorkValueInputBD.getBuffer();
+        const services::Buffer<algorithmFPType> pastWorkValueInputBuff = pastWorkValueInputBD.getBuffer();
 
-    //     ctx.copy(prevWorkValueBuff, 0, pastWorkValueInputBuff, 0, argumentSize, &status);
-    //     pastWorkValueInput->releaseBlockOfRows(pastWorkValueInputBD);
-    // }
-    // else
-    // {
-    //     ctx.fill(prevWorkValueU, 0.0, &status);
-    // }
+        ctx.copy(prevWorkValueBuff, 0, pastWorkValueInputBuff, 0, argumentSize, &status);
+        pastWorkValueInput->releaseBlockOfRows(pastWorkValueInputBD);
+    }
+    else
+    {
+        ctx.fill(prevWorkValueU, 0.0, &status);
+    }
 
-    // // init workValue
-    // BlockDescriptor<algorithmFPType> startValueBD;
-    // DAAL_CHECK_STATUS(status, inputArgument->getBlockOfRows(0, argumentSize, ReadWriteMode::readOnly, startValueBD));
-    // const services::Buffer<algorithmFPType> startValueBuff = startValueBD.getBuffer();
-    // ctx.copy(workValueBuff, 0, startValueBuff, 0, argumentSize, &status);
+    // init workValue
+    BlockDescriptor<algorithmFPType> startValueBD;
+    DAAL_CHECK_STATUS(status, inputArgument->getBlockOfRows(0, argumentSize, ReadWriteMode::readOnly, startValueBD));
+    const services::Buffer<algorithmFPType> startValueBuff = startValueBD.getBuffer();
+    ctx.copy(workValueBuff, 0, startValueBuff, 0, argumentSize, &status);
 
-    // DAAL_CHECK_STATUS(status, inputArgument->releaseBlockOfRows(startValueBD));
+    DAAL_CHECK_STATUS(status, inputArgument->releaseBlockOfRows(startValueBD));
 
-    // ReadRows<int, cpu> predefinedBatchIndicesBD(batchIndices, 0, nIter);
-    // iterative_solver::internal::RngTask<int, cpu> rngTask(predefinedBatchIndicesBD.get(), batchSize);
-    // rngTask.init(nTerms, engine);
+    ReadRows<int, cpu> predefinedBatchIndicesBD(batchIndices, 0, nIter);
+    iterative_solver::internal::RngTask<int, cpu> rngTask(predefinedBatchIndicesBD.get(), batchSize);
+    rngTask.init(nTerms, engine);
 
-    // algorithmFPType learningRate = learningRateArray[0];
-    // algorithmFPType consCoeff    = consCoeffsArray[0];
+    algorithmFPType learningRate = learningRateArray[0];
+    algorithmFPType consCoeff    = consCoeffsArray[0];
 
-    // UniversalBuffer gradientU                      = ctx.allocate(idType, argumentSize, &status);
-    // services::Buffer<algorithmFPType> gradientBuff = gradientU.get<algorithmFPType>();
+    UniversalBuffer gradientU                      = ctx.allocate(idType, argumentSize, &status);
+    services::Buffer<algorithmFPType> gradientBuff = gradientU.get<algorithmFPType>();
 
-    // auto gradientSNT = SyclHomogenNumericTable<algorithmFPType>::create(gradientBuff, 1, argumentSize);
-    // function->getResult()->set(objective_function::gradientIdx, gradientSNT);
+    auto gradientSNT = SyclHomogenNumericTable<algorithmFPType>::create(gradientBuff, 1, argumentSize);
+    function->getResult()->set(objective_function::gradientIdx, gradientSNT);
 
-    // *nProceededIterations = static_cast<int>(nIter);
+    *nProceededIterations = static_cast<int>(nIter);
 
-    // services::internal::HostAppHelper host(pHost, 10);
-    // for (size_t epoch = startIteration; epoch < (startIteration + nIter); epoch++)
-    // {
-    //     if (epoch % L == 0 || epoch == startIteration)
-    //     {
-    //         learningRate = learningRateArray[(epoch / L) % learningRateLength];
-    //         consCoeff    = consCoeffsArray[(epoch / L) % consCoeffsLength];
-    //         if (indicesStatus == user || indicesStatus == random)
-    //         {
-    //             DAAL_ITTNOTIFY_SCOPED_TASK(generateUniform);
-    //             const int * pValues = nullptr;
-    //             DAAL_CHECK_STATUS(status, rngTask.get(pValues));
-    //             ntBatchIndices->setArray(const_cast<int *>(pValues), ntBatchIndices->getNumberOfRows());
-    //         }
-    //     }
+    services::internal::HostAppHelper host(pHost, 10);
+    for (size_t epoch = startIteration; epoch < (startIteration + nIter); epoch++)
+    {
+        if (epoch % L == 0 || epoch == startIteration)
+        {
+            learningRate = learningRateArray[(epoch / L) % learningRateLength];
+            consCoeff    = consCoeffsArray[(epoch / L) % consCoeffsLength];
+            if (indicesStatus == user || indicesStatus == random)
+            {
+                // DAAL_ITTNOTIFY_SCOPED_TASK(generateUniform);
+                // const int * pValues = nullptr;
+                // DAAL_CHECK_STATUS(status, rngTask.get(pValues));
+                // ntBatchIndices->setArray(const_cast<int *>(pValues), ntBatchIndices->getNumberOfRows());
+            }
+        }
 
-    //     DAAL_CHECK_STATUS(status, function->computeNoThrow());
+        DAAL_CHECK_STATUS(status, function->computeNoThrow());
 
-    //     if (host.isCancelled(status, 1))
-    //     {
-    //         *nProceededIterations = static_cast<int>(epoch - startIteration);
-    //         break;
-    //     }
+        if (host.isCancelled(status, 1))
+        {
+            *nProceededIterations = static_cast<int>(epoch - startIteration);
+            break;
+        }
 
-    //     if (epoch % L == 0)
-    //     {
-    //         if (nIter > 1 && accuracyThreshold > 0)
-    //         {
-    //             algorithmFPType pointNorm = algorithmFPType(0), gradientNorm = algorithmFPType(0);
-    //             vectorNorm(workValueBuff, argumentSize, pointNorm);
-    //             vectorNorm(gradientBuff, argumentSize, gradientNorm);
-    //             const double gradientThreshold = accuracyThreshold * daal::internal::Math<algorithmFPType, cpu>::sMax(1.0, pointNorm);
+        if (epoch % L == 0)
+        {
+            if (nIter > 1 && accuracyThreshold > 0)
+            {
+                algorithmFPType pointNorm = algorithmFPType(0), gradientNorm = algorithmFPType(0);
+                vectorNorm(workValueBuff, argumentSize, pointNorm);
+                vectorNorm(gradientBuff, argumentSize, gradientNorm);
+                const double gradientThreshold = accuracyThreshold * daal::internal::Math<algorithmFPType, cpu>::sMax(1.0, pointNorm);
 
-    //             if (gradientNorm < gradientThreshold)
-    //             {
-    //                 *nProceededIterations = static_cast<int>(epoch - startIteration);
-    //                 break;
-    //             }
-    //         }
+                if (gradientNorm < gradientThreshold)
+                {
+                    *nProceededIterations = static_cast<int>(epoch - startIteration);
+                    break;
+                }
+            }
 
-    //         ctx.copy(prevWorkValueBuff, 0, workValueBuff, 0, argumentSize, &status);
-    //     }
-    //     DAAL_CHECK_STATUS(status, makeStep(argumentSize, prevWorkValueBuff, gradientBuff, workValueBuff, learningRate, consCoeff));
-    //     nProceededIters++;
-    // }
+            ctx.copy(prevWorkValueBuff, 0, workValueBuff, 0, argumentSize, &status);
+        }
+        DAAL_CHECK_STATUS(status, makeStep(argumentSize, prevWorkValueBuff, gradientBuff, workValueBuff, learningRate, consCoeff));
+        nProceededIters++;
+    }
 
-    // if (lastIterationResult)
-    // {
-    //     WriteRows<int, cpu, NumericTable> lastIterationResultBD(lastIterationResult, 0, 1);
-    //     int * lastIterationResultArray = lastIterationResultBD.get();
-    //     lastIterationResultArray[0]    = startIteration + nProceededIters;
-    // }
+    if (lastIterationResult)
+    {
+        WriteRows<int, cpu, NumericTable> lastIterationResultBD(lastIterationResult, 0, 1);
+        int * lastIterationResultArray = lastIterationResultBD.get();
+        lastIterationResultArray[0]    = startIteration + nProceededIters;
+    }
 
-    // if (pastWorkValueResult)
-    // {
-    //     BlockDescriptor<algorithmFPType> pastWorkValueResultBD;
-    //     pastWorkValueResult->getBlockOfRows(0, argumentSize, ReadWriteMode::writeOnly, pastWorkValueResultBD);
+    if (pastWorkValueResult)
+    {
+        BlockDescriptor<algorithmFPType> pastWorkValueResultBD;
+        pastWorkValueResult->getBlockOfRows(0, argumentSize, ReadWriteMode::writeOnly, pastWorkValueResultBD);
 
-    //     services::Buffer<algorithmFPType> pastWorkValueResultBuffer = pastWorkValueResultBD.getBuffer();
+        services::Buffer<algorithmFPType> pastWorkValueResultBuffer = pastWorkValueResultBD.getBuffer();
 
-    //     ctx.copy(pastWorkValueResultBuffer, 0, prevWorkValueBuff, 0, argumentSize, &status);
-    //     pastWorkValueResult->releaseBlockOfRows(pastWorkValueResultBD);
-    // }
+        ctx.copy(pastWorkValueResultBuffer, 0, prevWorkValueBuff, 0, argumentSize, &status);
+        pastWorkValueResult->releaseBlockOfRows(pastWorkValueResultBD);
+    }
 
-    // DAAL_CHECK_STATUS(status, minimum->releaseBlockOfRows(workValueBD));
+    DAAL_CHECK_STATUS(status, minimum->releaseBlockOfRows(workValueBD));
 
-    // function->sumOfFunctionsParameter->batchIndices = previousBatchIndices;
-    // function->sumOfFunctionsInput->set(sum_of_functions::argument, previousArgument);
+    function->sumOfFunctionsParameter->batchIndices = previousBatchIndices;
+    function->sumOfFunctionsInput->set(sum_of_functions::argument, previousArgument);
     return status;
 }
 
