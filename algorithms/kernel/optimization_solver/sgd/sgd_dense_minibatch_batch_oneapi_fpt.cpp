@@ -32,7 +32,7 @@ namespace sgd
 {
 namespace internal
 {
-template class SGDKernelOneAPI<DAAL_FPTYPE, miniBatch, DAAL_CPU>;
+template class SGDKernelOneAPI<DAAL_FPTYPE, miniBatch, sse2>;
 } // namespace internal
 } // namespace sgd
 } // namespace optimization_solver

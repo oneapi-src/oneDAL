@@ -291,8 +291,8 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch, cpu>::compute(HostA
 
     // 7 PASSED
 
-    // auto gradientSNT = SyclHomogenNumericTable<algorithmFPType>::create(gradientBuff, 1, argumentSize);
-    // function->getResult()->set(objective_function::gradientIdx, gradientSNT);
+    auto gradientSNT = SyclHomogenNumericTable<algorithmFPType>::create(gradientBuff, 1, argumentSize);
+    function->getResult()->set(objective_function::gradientIdx, gradientSNT);
 
     *nProceededIterations = static_cast<int>(nIter);
 
@@ -313,7 +313,7 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch, cpu>::compute(HostA
             }
         }
 
-        //     DAAL_CHECK_STATUS(status, function->computeNoThrow());
+        DAAL_CHECK_STATUS(status, function->computeNoThrow());
 
         if (host.isCancelled(status, 1))
         {
