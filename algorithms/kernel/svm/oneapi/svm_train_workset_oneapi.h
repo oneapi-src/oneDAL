@@ -88,6 +88,7 @@ struct TaskWorkingSet
     services::Status selectWS(const services::Buffer<algorithmFPType> & yBuff, const services::Buffer<algorithmFPType> & alphaBuff,
                               const services::Buffer<algorithmFPType> & fBuff, const algorithmFPType C)
     {
+        DAAL_ITTNOTIFY_SCOPED_TASK(selectWS);
         services::Status status;
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
