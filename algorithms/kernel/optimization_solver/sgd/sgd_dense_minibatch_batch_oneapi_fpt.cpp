@@ -1,4 +1,4 @@
-/* file: sgd_dense_minibatch_batch_oneapi_fpt_cpu.cpp */
+/* file: sgd_dense_minibatch_batch_oneapi_fpt.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
