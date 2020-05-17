@@ -289,12 +289,12 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch, cpu>::compute(HostA
     UniversalBuffer gradientU                      = ctx.allocate(idType, argumentSize, &status);
     services::Buffer<algorithmFPType> gradientBuff = gradientU.get<algorithmFPType>();
 
-    // 7 ?
+    // 7 PASSED
 
-    // auto gradientSNT = SyclHomogenNumericTable<algorithmFPType>::create(gradientBuff, 1, argumentSize);
-    // function->getResult()->set(objective_function::gradientIdx, gradientSNT);
+    auto gradientSNT = SyclHomogenNumericTable<algorithmFPType>::create(gradientBuff, 1, argumentSize);
+    function->getResult()->set(objective_function::gradientIdx, gradientSNT);
 
-    // *nProceededIterations = static_cast<int>(nIter);
+    *nProceededIterations = static_cast<int>(nIter);
 
     // 5 FAILED
     // services::internal::HostAppHelper host(pHost, 10);
