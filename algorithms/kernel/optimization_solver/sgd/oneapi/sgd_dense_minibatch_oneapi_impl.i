@@ -200,36 +200,36 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch, cpu>::compute(HostA
     NumericTable * lastIterationResult = optionalResult ? NumericTable::cast(optionalResult->get(iterative_solver::lastIteration)).get() : nullptr;
     NumericTable * pastWorkValueResult = optionalResult ? NumericTable::cast(optionalResult->get(sgd::pastWorkValue)).get() : nullptr;
 
-    // const double accuracyThreshold = parameter->accuracyThreshold;
+    const double accuracyThreshold = parameter->accuracyThreshold;
 
-    // sum_of_functions::BatchPtr function = parameter->function;
-    // const size_t nTerms                 = function->sumOfFunctionsParameter->numberOfTerms;
+    sum_of_functions::BatchPtr function = parameter->function;
+    const size_t nTerms                 = function->sumOfFunctionsParameter->numberOfTerms;
 
-    // DAAL_ASSERT(minimum->getNumberOfRows() == argumentSize);
+    DAAL_ASSERT(minimum->getNumberOfRows() == argumentSize);
 
-    // BlockDescriptor<algorithmFPType> workValueBD;
-    // DAAL_CHECK_STATUS(status, minimum->getBlockOfRows(0, argumentSize, ReadWriteMode::readWrite, workValueBD));
-    // services::Buffer<algorithmFPType> workValueBuff = workValueBD.getBuffer();
+    BlockDescriptor<algorithmFPType> workValueBD;
+    DAAL_CHECK_STATUS(status, minimum->getBlockOfRows(0, argumentSize, ReadWriteMode::readWrite, workValueBD));
+    services::Buffer<algorithmFPType> workValueBuff = workValueBD.getBuffer();
 
-    // auto workValueSNT = SyclHomogenNumericTable<algorithmFPType>::create(workValueBuff, 1, argumentSize);
+    auto workValueSNT = SyclHomogenNumericTable<algorithmFPType>::create(workValueBuff, 1, argumentSize);
 
-    // NumericTablePtr previousArgument = function->sumOfFunctionsInput->get(sum_of_functions::argument);
-    // function->sumOfFunctionsInput->set(sum_of_functions::argument, workValueSNT);
+    NumericTablePtr previousArgument = function->sumOfFunctionsInput->get(sum_of_functions::argument);
+    function->sumOfFunctionsInput->set(sum_of_functions::argument, workValueSNT);
 
-    // ReadRows<algorithmFPType, cpu> learningRateBD(*learningRateSequence, 0, 1);
-    // DAAL_CHECK_BLOCK_STATUS(learningRateBD);
-    // const algorithmFPType * const learningRateArray = learningRateBD.get();
+    ReadRows<algorithmFPType, cpu> learningRateBD(*learningRateSequence, 0, 1);
+    DAAL_CHECK_BLOCK_STATUS(learningRateBD);
+    const algorithmFPType * const learningRateArray = learningRateBD.get();
 
-    // NumericTable * conservativeSequence = parameter->conservativeSequence.get();
-    // ReadRows<algorithmFPType, cpu> consCoeffsBD(*conservativeSequence, 0, 1);
-    // DAAL_CHECK_BLOCK_STATUS(consCoeffsBD);
-    // const algorithmFPType * const consCoeffsArray = consCoeffsBD.get();
+    NumericTable * conservativeSequence = parameter->conservativeSequence.get();
+    ReadRows<algorithmFPType, cpu> consCoeffsBD(*conservativeSequence, 0, 1);
+    DAAL_CHECK_BLOCK_STATUS(consCoeffsBD);
+    const algorithmFPType * const consCoeffsArray = consCoeffsBD.get();
 
-    // const size_t consCoeffsLength   = conservativeSequence->getNumberOfColumns();
-    // const size_t learningRateLength = learningRateSequence->getNumberOfColumns();
+    const size_t consCoeffsLength   = conservativeSequence->getNumberOfColumns();
+    const size_t learningRateLength = learningRateSequence->getNumberOfColumns();
 
-    // const IndicesStatus indicesStatus = (batchIndices ? user : (batchSize < nTerms ? random : all));
-    // services::SharedPtr<HomogenNumericTableCPU<int, cpu> > ntBatchIndices;
+    const IndicesStatus indicesStatus = (batchIndices ? user : (batchSize < nTerms ? random : all));
+    services::SharedPtr<HomogenNumericTableCPU<int, cpu> > ntBatchIndices;
 
     // if (indicesStatus == user || indicesStatus == random)
     // {
