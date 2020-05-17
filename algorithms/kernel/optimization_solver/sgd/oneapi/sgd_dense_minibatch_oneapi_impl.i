@@ -231,18 +231,19 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch, cpu>::compute(HostA
     const IndicesStatus indicesStatus = (batchIndices ? user : (batchSize < nTerms ? random : all));
     services::SharedPtr<HomogenNumericTableCPU<int, cpu> > ntBatchIndices;
 
-    // if (indicesStatus == user || indicesStatus == random)
-    // {
-    //     // Replace by SyclNumericTable when will be RNG on GPU
-    //     ntBatchIndices = HomogenNumericTableCPU<int, cpu>::create(batchSize, 1, &status);
-    // }
+    // 3
+    if (indicesStatus == user || indicesStatus == random)
+    {
+        // Replace by SyclNumericTable when will be RNG on GPU
+        ntBatchIndices = HomogenNumericTableCPU<int, cpu>::create(batchSize, 1, &status);
+    }
 
-    // NumericTablePtr previousBatchIndices            = function->sumOfFunctionsParameter->batchIndices;
-    // function->sumOfFunctionsParameter->batchIndices = ntBatchIndices;
+    NumericTablePtr previousBatchIndices            = function->sumOfFunctionsParameter->batchIndices;
+    function->sumOfFunctionsParameter->batchIndices = ntBatchIndices;
 
-    // const TypeIds::Id idType                            = TypeIds::id<algorithmFPType>();
-    // UniversalBuffer prevWorkValueU                      = ctx.allocate(idType, argumentSize, &status);
-    // services::Buffer<algorithmFPType> prevWorkValueBuff = prevWorkValueU.get<algorithmFPType>();
+    const TypeIds::Id idType                            = TypeIds::id<algorithmFPType>();
+    UniversalBuffer prevWorkValueU                      = ctx.allocate(idType, argumentSize, &status);
+    services::Buffer<algorithmFPType> prevWorkValueBuff = prevWorkValueU.get<algorithmFPType>();
 
     // size_t startIteration = 0, nProceededIters = 0;
     // if (lastIterationInput)
