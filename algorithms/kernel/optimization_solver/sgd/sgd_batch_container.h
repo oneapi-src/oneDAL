@@ -53,7 +53,7 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
     }
     else
     {
-        __DAAL_INITIALIZE_KERNELS(internal::SGDKernelOneAPI, algorithmFPType, method);
+        __DAAL_INITIALIZE_KERNELS_SYCL(internal::SGDKernelOneAPI, algorithmFPType, method);
     }
 }
 
@@ -93,9 +93,9 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     }
     else
     {
-        __DAAL_CALL_KERNEL(env, internal::SGDKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                           daal::services::internal::hostApp(*input), inputArgument, minimum, nIterations, parameter, learningRateSequence,
-                           batchIndices, optionalArgument, optionalResult, *parameter->engine);
+        __DAAL_CALL_KERNEL_SYCL(env, internal::SGDKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+                                daal::services::internal::hostApp(*input), inputArgument, minimum, nIterations, parameter, learningRateSequence,
+                                batchIndices, optionalArgument, optionalResult, *parameter->engine);
     }
 }
 

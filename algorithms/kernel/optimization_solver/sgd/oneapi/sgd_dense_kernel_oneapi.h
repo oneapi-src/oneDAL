@@ -41,7 +41,7 @@ namespace internal
 {
 using namespace daal::data_management;
 
-template <typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method>
 class SGDKernelOneAPI : public Kernel
 {
 public:
@@ -53,8 +53,8 @@ public:
     }
 };
 
-template <typename algorithmFPType, CpuType cpu>
-class SGDKernelOneAPI<algorithmFPType, miniBatch, cpu> : public Kernel
+template <typename algorithmFPType>
+class SGDKernelOneAPI<algorithmFPType, miniBatch> : public Kernel
 {
 public:
     services::Status compute(HostAppIface * pHost, NumericTable * inputArgument, NumericTablePtr minimum, NumericTable * nIterations,
