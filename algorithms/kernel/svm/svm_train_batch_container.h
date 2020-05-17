@@ -66,6 +66,8 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
+    printf("SVM training: BatchContainer<algorithmFPType, method, cpu>::BatchContainer\n");
+
     classifier::training::Input * input = static_cast<classifier::training::Input *>(_in);
     svm::training::Result * result      = static_cast<svm::training::Result *>(_res);
 
