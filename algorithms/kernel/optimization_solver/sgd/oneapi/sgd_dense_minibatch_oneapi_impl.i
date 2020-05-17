@@ -282,19 +282,21 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch, cpu>::compute(HostA
     iterative_solver::internal::RngTask<int, cpu> rngTask(predefinedBatchIndicesBD.get(), batchSize);
     rngTask.init(nTerms, engine);
 
-    // 6
+    // 6 PASSED
     algorithmFPType learningRate = learningRateArray[0];
     algorithmFPType consCoeff    = consCoeffsArray[0];
 
     UniversalBuffer gradientU                      = ctx.allocate(idType, argumentSize, &status);
     services::Buffer<algorithmFPType> gradientBuff = gradientU.get<algorithmFPType>();
 
-    auto gradientSNT = SyclHomogenNumericTable<algorithmFPType>::create(gradientBuff, 1, argumentSize);
-    function->getResult()->set(objective_function::gradientIdx, gradientSNT);
+    // 7 ?
 
-    *nProceededIterations = static_cast<int>(nIter);
+    // auto gradientSNT = SyclHomogenNumericTable<algorithmFPType>::create(gradientBuff, 1, argumentSize);
+    // function->getResult()->set(objective_function::gradientIdx, gradientSNT);
 
-    // 5
+    // *nProceededIterations = static_cast<int>(nIter);
+
+    // 5 FAILED
     // services::internal::HostAppHelper host(pHost, 10);
     // for (size_t epoch = startIteration; epoch < (startIteration + nIter); epoch++)
     // {
