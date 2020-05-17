@@ -292,79 +292,79 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch, cpu>::compute(HostA
     // 7 PASSED
 
     auto gradientSNT = SyclHomogenNumericTable<algorithmFPType>::create(gradientBuff, 1, argumentSize);
-    function->getResult()->set(objective_function::gradientIdx, gradientSNT);
+    // function->getResult()->set(objective_function::gradientIdx, gradientSNT);
 
     *nProceededIterations = static_cast<int>(nIter);
 
     // 5 FAILED
-    // services::internal::HostAppHelper host(pHost, 10);
-    // for (size_t epoch = startIteration; epoch < (startIteration + nIter); epoch++)
-    // {
-    //     if (epoch % L == 0 || epoch == startIteration)
-    //     {
-    //         learningRate = learningRateArray[(epoch / L) % learningRateLength];
-    //         consCoeff    = consCoeffsArray[(epoch / L) % consCoeffsLength];
-    //         if (indicesStatus == user || indicesStatus == random)
-    //         {
-    //             DAAL_ITTNOTIFY_SCOPED_TASK(generateUniform);
-    //             const int * pValues = nullptr;
-    //             DAAL_CHECK_STATUS(status, rngTask.get(pValues));
-    //             ntBatchIndices->setArray(const_cast<int *>(pValues), ntBatchIndices->getNumberOfRows());
-    //         }
-    //     }
+    services::internal::HostAppHelper host(pHost, 10);
+    for (size_t epoch = startIteration; epoch < (startIteration + nIter); epoch++)
+    {
+        if (epoch % L == 0 || epoch == startIteration)
+        {
+            learningRate = learningRateArray[(epoch / L) % learningRateLength];
+            consCoeff    = consCoeffsArray[(epoch / L) % consCoeffsLength];
+            if (indicesStatus == user || indicesStatus == random)
+            {
+                DAAL_ITTNOTIFY_SCOPED_TASK(generateUniform);
+                const int * pValues = nullptr;
+                DAAL_CHECK_STATUS(status, rngTask.get(pValues));
+                ntBatchIndices->setArray(const_cast<int *>(pValues), ntBatchIndices->getNumberOfRows());
+            }
+        }
 
-    //     DAAL_CHECK_STATUS(status, function->computeNoThrow());
+        //     DAAL_CHECK_STATUS(status, function->computeNoThrow());
 
-    //     if (host.isCancelled(status, 1))
-    //     {
-    //         *nProceededIterations = static_cast<int>(epoch - startIteration);
-    //         break;
-    //     }
+        if (host.isCancelled(status, 1))
+        {
+            *nProceededIterations = static_cast<int>(epoch - startIteration);
+            break;
+        }
 
-    //     if (epoch % L == 0)
-    //     {
-    //         if (nIter > 1 && accuracyThreshold > 0)
-    //         {
-    //             algorithmFPType pointNorm = algorithmFPType(0), gradientNorm = algorithmFPType(0);
-    //             vectorNorm(workValueBuff, argumentSize, pointNorm);
-    //             vectorNorm(gradientBuff, argumentSize, gradientNorm);
-    //             const double gradientThreshold = accuracyThreshold * daal::internal::Math<algorithmFPType, cpu>::sMax(1.0, pointNorm);
+        if (epoch % L == 0)
+        {
+            if (nIter > 1 && accuracyThreshold > 0)
+            {
+                algorithmFPType pointNorm = algorithmFPType(0), gradientNorm = algorithmFPType(0);
+                vectorNorm(workValueBuff, argumentSize, pointNorm);
+                vectorNorm(gradientBuff, argumentSize, gradientNorm);
+                const double gradientThreshold = accuracyThreshold * daal::internal::Math<algorithmFPType, cpu>::sMax(1.0, pointNorm);
 
-    //             if (gradientNorm < gradientThreshold)
-    //             {
-    //                 *nProceededIterations = static_cast<int>(epoch - startIteration);
-    //                 break;
-    //             }
-    //         }
+                if (gradientNorm < gradientThreshold)
+                {
+                    *nProceededIterations = static_cast<int>(epoch - startIteration);
+                    break;
+                }
+            }
 
-    //         ctx.copy(prevWorkValueBuff, 0, workValueBuff, 0, argumentSize, &status);
-    //     }
-    //     DAAL_CHECK_STATUS(status, makeStep(argumentSize, prevWorkValueBuff, gradientBuff, workValueBuff, learningRate, consCoeff));
-    //     nProceededIters++;
-    // }
+            ctx.copy(prevWorkValueBuff, 0, workValueBuff, 0, argumentSize, &status);
+        }
+        DAAL_CHECK_STATUS(status, makeStep(argumentSize, prevWorkValueBuff, gradientBuff, workValueBuff, learningRate, consCoeff));
+        nProceededIters++;
+    }
 
-    // if (lastIterationResult)
-    // {
-    //     WriteRows<int, cpu, NumericTable> lastIterationResultBD(lastIterationResult, 0, 1);
-    //     int * lastIterationResultArray = lastIterationResultBD.get();
-    //     lastIterationResultArray[0]    = startIteration + nProceededIters;
-    // }
+    if (lastIterationResult)
+    {
+        WriteRows<int, cpu, NumericTable> lastIterationResultBD(lastIterationResult, 0, 1);
+        int * lastIterationResultArray = lastIterationResultBD.get();
+        lastIterationResultArray[0]    = startIteration + nProceededIters;
+    }
 
-    // if (pastWorkValueResult)
-    // {
-    //     BlockDescriptor<algorithmFPType> pastWorkValueResultBD;
-    //     pastWorkValueResult->getBlockOfRows(0, argumentSize, ReadWriteMode::writeOnly, pastWorkValueResultBD);
+    if (pastWorkValueResult)
+    {
+        BlockDescriptor<algorithmFPType> pastWorkValueResultBD;
+        pastWorkValueResult->getBlockOfRows(0, argumentSize, ReadWriteMode::writeOnly, pastWorkValueResultBD);
 
-    //     services::Buffer<algorithmFPType> pastWorkValueResultBuffer = pastWorkValueResultBD.getBuffer();
+        services::Buffer<algorithmFPType> pastWorkValueResultBuffer = pastWorkValueResultBD.getBuffer();
 
-    //     ctx.copy(pastWorkValueResultBuffer, 0, prevWorkValueBuff, 0, argumentSize, &status);
-    //     pastWorkValueResult->releaseBlockOfRows(pastWorkValueResultBD);
-    // }
+        ctx.copy(pastWorkValueResultBuffer, 0, prevWorkValueBuff, 0, argumentSize, &status);
+        pastWorkValueResult->releaseBlockOfRows(pastWorkValueResultBD);
+    }
 
-    // DAAL_CHECK_STATUS(status, minimum->releaseBlockOfRows(workValueBD));
+    DAAL_CHECK_STATUS(status, minimum->releaseBlockOfRows(workValueBD));
 
-    // function->sumOfFunctionsParameter->batchIndices = previousBatchIndices;
-    // function->sumOfFunctionsInput->set(sum_of_functions::argument, previousArgument);
+    function->sumOfFunctionsParameter->batchIndices = previousBatchIndices;
+    function->sumOfFunctionsInput->set(sum_of_functions::argument, previousArgument);
     return status;
 }
 
