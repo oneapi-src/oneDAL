@@ -245,28 +245,30 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch, cpu>::compute(HostA
     UniversalBuffer prevWorkValueU                      = ctx.allocate(idType, argumentSize, &status);
     services::Buffer<algorithmFPType> prevWorkValueBuff = prevWorkValueU.get<algorithmFPType>();
 
-    // size_t startIteration = 0, nProceededIters = 0;
-    // if (lastIterationInput)
-    // {
-    //     ReadRows<int, cpu, NumericTable> lastIterationInputBD(lastIterationInput, 0, 1);
-    //     const int * lastIterationInputArray = lastIterationInputBD.get();
-    //     startIteration                      = lastIterationInputArray[0];
-    // }
+    size_t startIteration = 0, nProceededIters = 0;
+    if (lastIterationInput)
+    {
+        ReadRows<int, cpu, NumericTable> lastIterationInputBD(lastIterationInput, 0, 1);
+        const int * lastIterationInputArray = lastIterationInputBD.get();
+        startIteration                      = lastIterationInputArray[0];
+    }
 
-    // if (pastWorkValueInput)
-    // {
-    //     BlockDescriptor<algorithmFPType> pastWorkValueInputBD;
-    //     pastWorkValueInput->getBlockOfRows(0, argumentSize, ReadWriteMode::readOnly, pastWorkValueInputBD);
+    if (pastWorkValueInput)
+    {
+        BlockDescriptor<algorithmFPType> pastWorkValueInputBD;
+        pastWorkValueInput->getBlockOfRows(0, argumentSize, ReadWriteMode::readOnly, pastWorkValueInputBD);
 
-    //     const services::Buffer<algorithmFPType> pastWorkValueInputBuff = pastWorkValueInputBD.getBuffer();
+        const services::Buffer<algorithmFPType> pastWorkValueInputBuff = pastWorkValueInputBD.getBuffer();
 
-    //     ctx.copy(prevWorkValueBuff, 0, pastWorkValueInputBuff, 0, argumentSize, &status);
-    //     pastWorkValueInput->releaseBlockOfRows(pastWorkValueInputBD);
-    // }
-    // else
-    // {
-    //     ctx.fill(prevWorkValueU, 0.0, &status);
-    // }
+        ctx.copy(prevWorkValueBuff, 0, pastWorkValueInputBuff, 0, argumentSize, &status);
+        pastWorkValueInput->releaseBlockOfRows(pastWorkValueInputBD);
+    }
+    else
+    {
+        ctx.fill(prevWorkValueU, 0.0, &status);
+    }
+
+    // 4
 
     // // init workValue
     // BlockDescriptor<algorithmFPType> startValueBD;
