@@ -42,8 +42,6 @@ namespace interface2
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    printf("prediction: BatchContainer<algorithmFPType, method, cpu>::BatchContainer\n");
-
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();
     if (deviceInfo.isCpu)
