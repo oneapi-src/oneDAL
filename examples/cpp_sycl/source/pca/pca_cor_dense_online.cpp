@@ -1,6 +1,6 @@
-/* file: pca_cor_dense_batch.cpp */
+/* file: pca_cor_dense_online.cpp */
 /*******************************************************************************
-* Copyright 2019-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@
 !******************************************************************************/
 
 /**
- * <a name="DAAL-EXAMPLE-CPP-PCA_CORRELATION_DENSE_BATCH"></a>
- * \example pca_cor_dense_batch.cpp
+ * <a name="DAAL-EXAMPLE-CPP-PCA_CORRELATION_DENSE_ONLINE"></a>
+ * \example pca_cor_dense_online.cpp
  */
 
 #include "daal_sycl.h"
@@ -36,7 +36,8 @@ using namespace daal;
 using namespace daal::algorithms;
 
 /* Input data set parameters */
-const string dataFileName = "../data/batch/pca_normalized.csv";
+const size_t nVectorsInBlock = 250;
+const string dataFileName    = "../data/batch/pca_normalized.csv";
 
 int main(int argc, char * argv[])
 {
@@ -56,27 +57,27 @@ int main(int argc, char * argv[])
         FileDataSource<CSVFeatureManager> dataSource(dataFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
         auto data = SyclHomogenNumericTable<>::create(10, 0, NumericTable::notAllocate);
-        /* Retrieve the data from the input file */
-        dataSource.loadDataBlock(data.get());
 
         /* Create an algorithm for principal component analysis using the correlation method */
-        pca::Batch<> algorithm;
+        pca::Online<> algorithm;
 
         /* Set the algorithm input data */
-        algorithm.input.set(pca::data, data);
-        algorithm.parameter.resultsToCompute = pca::mean | pca::variance | pca::eigenvalue;
-        algorithm.parameter.isDeterministic  = true;
+        while (dataSource.loadDataBlock(nVectorsInBlock, data.get()) == nVectorsInBlock)
+        {
+            /* Set input objects for the algorithm */
+            algorithm.input.set(pca::data, data);
 
-        /* Compute results of the PCA algorithm */
-        algorithm.compute();
+            /* Compute partial estimates */
+            algorithm.compute();
+        }
+
+        algorithm.finalizeCompute();
 
         /* Print the results */
         pca::ResultPtr result = algorithm.getResult();
 
         printNumericTable(result->get(pca::eigenvalues), "Eigenvalues:");
         printNumericTable(result->get(pca::eigenvectors), "Eigenvectors:");
-        printNumericTable(result->get(pca::means), "Means:");
-        printNumericTable(result->get(pca::variances), "Variances:");
     }
 
     return 0;

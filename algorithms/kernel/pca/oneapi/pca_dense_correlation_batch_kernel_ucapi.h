@@ -1,6 +1,6 @@
 /* file: pca_dense_correlation_batch_kernel_ucapi.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2019-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -38,13 +38,13 @@ namespace pca
 namespace internal
 {
 template <typename algorithmFPType>
-class PCACorrelationKernelUCAPI : public Kernel
+class PCACorrelationKernelBatchUCAPI : public Kernel
 {
 public:
     using PCACorrelationBaseIfacePtr = services::SharedPtr<PCACorrelationBaseIface<algorithmFPType> >;
 
 public:
-    PCACorrelationKernelUCAPI(const PCACorrelationBaseIfacePtr & host_impl);
+    PCACorrelationKernelBatchUCAPI(const PCACorrelationBaseIfacePtr & host_impl);
 
     services::Status compute(bool isCorrelation, bool isDeterministic, data_management::NumericTable & dataTable,
                              covariance::BatchImpl * covarianceAlg, DAAL_UINT64 resultsToCompute, data_management::NumericTable & eigenvectors,

@@ -1,6 +1,6 @@
-/* file: pca_dense_correlation_online_fpt_dispatcher.cpp */
+/* file: pca_dense_correlation_online_kernel_ucapi_fpt.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,18 +17,23 @@
 
 /*
 //++
-//  Implementation of PCA Correlation algorithm container.
+//  Implementation of PCA Online Kernel for GPU.
 //--
 */
 
-#include "algorithms/pca/pca_online.h"
-#include "algorithms/kernel/pca/pca_dense_correlation_online_container.h"
-#include "algorithms/kernel/pca/pca_dense_correlation_online_kernel.h"
+#include "algorithms/kernel/pca/oneapi/pca_dense_correlation_online_kernel_ucapi.h"
+#include "algorithms/kernel/pca/oneapi/pca_dense_correlation_online_kernel_ucapi_impl.i"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(pca::OnlineContainer, online, DAAL_FPTYPE, pca::correlationDense)
-}
+namespace pca
+{
+namespace internal
+{
+template class PCACorrelationKernelOnlineUCAPI<DAAL_FPTYPE>;
+} // namespace internal
+} // namespace pca
+} // namespace algorithms
 } // namespace daal
