@@ -111,24 +111,38 @@ struct MKLGemv
     {
         services::Status status;
 
-        const fpk::transpose transmkl = trans == math::Transpose::Trans ? fpk::transpose::trans : fpk::transpose::nontrans;
+        const MKL_TRANSPOSE transmkl = trans == math::Transpose::Trans ? MKL_TRANS : MKL_NOTRANS;
 
-        cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = offsetA ? a_buffer.getSubBuffer(offsetA, m * n).toSycl() : a_buffer.toSycl();
-        // vector sizes?
-        cl::sycl::buffer<algorithmFPType, 1> x_sycl_buff =
-            offsetX ? (trans == math::Transpose::Trans ? x_buffer.getSubBuffer(offsetX, m).toSycl() : x_buffer.getSubBuffer(offsetX, n).toSycl()) :
-                      x_buffer.toSycl();
-        cl::sycl::buffer<algorithmFPType, 1> y_sycl_buff =
-            offsetY ? (trans == math::Transpose::Trans ? y_buffer.getSubBuffer(offsetY, n).toSycl() : y_buffer.getSubBuffer(offsetY, m).toSycl()) :
-                      y_buffer.toSycl();
-
-        fpk::blas::gemv(_queue, transmkl, m, n, alpha, a_sycl_buff, lda, x_sycl_buff, incx, beta, y_sycl_buff, incy);
+        cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a_buffer.toSycl();
+        cl::sycl::buffer<algorithmFPType, 1> x_sycl_buff = x_buffer.toSycl();
+        cl::sycl::buffer<algorithmFPType, 1> y_sycl_buff = y_buffer.toSycl();
+        innerGemv(transmkl, m, n, alpha, a_sycl_buff, lda, x_sycl_buff, incx, beta, y_sycl_buff, incy, offsetA, offsetX, offsetY);
 
         _queue.wait();
         return status;
     }
 
 private:
+    template <typename T>
+    void innerGemv(MKL_TRANSPOSE trans, int64_t m, int64_t n, T alpha, cl::sycl::buffer<T, 1> a, int64_t lda, cl::sycl::buffer<T, 1> x, int64_t incx,
+                   T beta, cl::sycl::buffer<T, 1> y, int64_t incy, int64_t offset_a, int64_t offset_x, int64_t offset_y);
+
+    template <>
+    void innerGemv<double>(MKL_TRANSPOSE trans, int64_t m, int64_t n, double alpha, cl::sycl::buffer<double, 1> a, int64_t lda,
+                           cl::sycl::buffer<double, 1> x, int64_t incx, double beta, cl::sycl::buffer<double, 1> y, int64_t incy, int64_t offset_a,
+                           int64_t offset_x, int64_t offset_y)
+    {
+        fpk::gpu::dgemv_sycl(&_queue, trans, m, n, alpha, &a, lda, &x, incx, beta, &y, incy, offset_a, offset_x, offset_y);
+    }
+
+    template <>
+    void innerGemv<float>(MKL_TRANSPOSE trans, int64_t m, int64_t n, float alpha, cl::sycl::buffer<float, 1> a, int64_t lda,
+                          cl::sycl::buffer<float, 1> x, int64_t incx, float beta, cl::sycl::buffer<float, 1> y, int64_t incy, int64_t offset_a,
+                          int64_t offset_x, int64_t offset_y)
+    {
+        fpk::gpu::sgemv_sycl(&_queue, trans, m, n, alpha, &a, lda, &x, incx, beta, &y, incy, offset_a, offset_x, offset_y);
+    }
+
     cl::sycl::queue & _queue;
 };
 
