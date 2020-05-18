@@ -46,7 +46,15 @@ jobs:
       targetPath: '$(release.dir)'
   - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type)
-    displayName: 'examples'  
+    displayName: 'examples'
+  - script: |
+      .ci/scripts/conformance_test.sh --build-dir $(release.dir) --arch $(platform.type)
+    timeoutInMinutes: 15
+    displayName: 'conformance tests'
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'conformance tests report $(platform.type)'
+      targetPath: '.ci/scripts/conformance-scripts/report.html'
 - job: macOS
   timeoutInMinutes: 0
   variables:
