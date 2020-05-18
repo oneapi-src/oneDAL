@@ -313,7 +313,7 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::compute(HostAppIfa
             }
         }
 
-        //     DAAL_CHECK_STATUS(status, function->computeNoThrow());
+        DAAL_CHECK_STATUS(status, function->computeNoThrow());
 
         if (host.isCancelled(status, 1))
         {
