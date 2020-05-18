@@ -173,8 +173,6 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::compute(HostAppIfa
                                                                       OptionalArgument * optionalArgument, OptionalArgument * optionalResult,
                                                                       engines::BatchBase & engine)
 {
-    printf("SGDKernelOneAPI<algorithmFPType, miniBatch>::compute\n");
-
     services::Status status;
 
     ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
@@ -268,8 +266,6 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::compute(HostAppIfa
         ctx.fill(prevWorkValueU, 0.0, &status);
     }
 
-    // 4
-
     // // init workValue
     BlockDescriptor<algorithmFPType> startValueBD;
     DAAL_CHECK_STATUS(status, inputArgument->getBlockOfRows(0, argumentSize, ReadWriteMode::readOnly, startValueBD));
@@ -282,21 +278,16 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::compute(HostAppIfa
     iterative_solver::internal::RngTask<int, sse2> rngTask(predefinedBatchIndicesBD.get(), batchSize);
     rngTask.init(nTerms, engine);
 
-    // 6 PASSED
     algorithmFPType learningRate = learningRateArray[0];
     algorithmFPType consCoeff    = consCoeffsArray[0];
 
     UniversalBuffer gradientU                      = ctx.allocate(idType, argumentSize, &status);
     services::Buffer<algorithmFPType> gradientBuff = gradientU.get<algorithmFPType>();
 
-    // 7 PASSED
-
     auto gradientSNT = SyclHomogenNumericTable<algorithmFPType>::create(gradientBuff, 1, argumentSize);
     function->getResult()->set(objective_function::gradientIdx, gradientSNT);
 
     *nProceededIterations = static_cast<int>(nIter);
-
-    // 5 FAILED
     services::internal::HostAppHelper host(pHost, 10);
     for (size_t epoch = startIteration; epoch < (startIteration + nIter); epoch++)
     {

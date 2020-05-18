@@ -48,8 +48,6 @@ template <typename algorithmFPType>
 services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(const NumericTablePtr & xTable, Model * model, NumericTable & result,
                                                                               const svm::Parameter * par)
 {
-    printf("SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute\n");
-
     services::Status status;
     auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
