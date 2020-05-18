@@ -13,9 +13,6 @@ case = {
     'elastic_net':[('from sklearn.linear_model.coordinate_descent import Lasso, \\','from sklearn.linear_model import Lasso, \\')],
 
     'lin_reg':[('from sklearn.linear_model.base import LinearRegression','from sklearn.linear_model import LinearRegression')],
-                #('from sklearn.linear_model.base import _preprocess_data','from sklearn.linear_model import _preprocess_data'),
-                #('from sklearn.linear_model.base import _rescale_data','from sklearn.linear_model import _rescale_data'),
-                #('from sklearn.linear_model.base import make_dataset','from sklearn.linear_model import make_dataset')],
 
     'ridge_reg':[('from sklearn.linear_model.base import LinearRegression', 'from sklearn.linear_model import LinearRegression'),
                  ('from sklearn.linear_model.ridge import ridge_regression', 'from sklearn.linear_model import ridge_regression'),
@@ -24,14 +21,9 @@ case = {
                  ('from sklearn.linear_model.ridge import RidgeCV', 'from sklearn.linear_model import RidgeCV'),
                  ('from sklearn.linear_model.ridge import RidgeClassifier', 'from sklearn.linear_model import RidgeClassifier'),
                  ('from sklearn.linear_model.ridge import RidgeClassifierCV', 'from sklearn.linear_model import RidgeClassifierCV')]
-                 #('from sklearn.linear_model.ridge import _solve_cholesky', 'from sklearn.linear_model import _solve_cholesky'),
-                 #('from sklearn.linear_model.ridge import _solve_cholesky_kernel', 'from sklearn.linear_model import _solve_cholesky_kernel'),
-                 #('from sklearn.linear_model.ridge import _check_gcv_mode', 'from sklearn.linear_model import _check_gcv_mode'),
-                 #('from sklearn.linear_model.ridge import _X_operator','from sklearn.linear_model import _X_operator')],
 }
 
 def path_file(file_name, dictionary):
-    #print("********************** IN PATH FILE *********************")
     f = open(file_name, "r")
     lines = f.readlines()
     f.close()
