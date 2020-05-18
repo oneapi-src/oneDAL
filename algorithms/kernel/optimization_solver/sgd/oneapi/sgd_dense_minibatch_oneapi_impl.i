@@ -291,8 +291,8 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::compute(HostAppIfa
 
     // 7 PASSED
 
-    // auto gradientSNT = SyclHomogenNumericTable<algorithmFPType>::create(gradientBuff, 1, argumentSize);
-    // function->getResult()->set(objective_function::gradientIdx, gradientSNT);
+    auto gradientSNT = SyclHomogenNumericTable<algorithmFPType>::create(gradientBuff, 1, argumentSize);
+    function->getResult()->set(objective_function::gradientIdx, gradientSNT);
 
     *nProceededIterations = static_cast<int>(nIter);
 
