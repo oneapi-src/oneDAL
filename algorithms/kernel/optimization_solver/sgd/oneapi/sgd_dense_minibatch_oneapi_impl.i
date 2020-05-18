@@ -92,7 +92,7 @@ static services::Status sumReduction(const services::Buffer<algorithmFPType> & r
     auto sumReductionArrayPtr      = reductionBuffer.toHost(data_management::readOnly);
     const auto * sumReductionArray = sumReductionArrayPtr.get();
 
-    // Final summation with sse2
+    // Final summation with CPU
     for (size_t i = 0; i < nWorkGroups; i++)
     {
         result += sumReductionArray[i];

@@ -87,8 +87,6 @@ void Input::set(classifier::prediction::ModelInputId id, const svm::ModelPtr & p
  */
 Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
-    printf("prediction: Input::check\n");
-
     Status s;
     DAAL_CHECK_STATUS(s, classifier::prediction::Input::check(parameter, method));
 
