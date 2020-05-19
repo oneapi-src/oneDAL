@@ -43,14 +43,18 @@ belongs, the problem is to build a two-class Support Vector Machine
 
 Training Stage
 --------------
-The SVM model is trained using the Boser method [Boser92]_
-reduced to the solution of the quadratic optimization problem
+
+|short_name| provides two methods to train the SVM model:
+
+- Boser method [Boser92]_
+- Thunder methos [Wen2018]_
+
+The SVM model is trained to solve the quadratic optimization problem
 
 .. math::
       \underset{\alpha }{\mathrm{min}}\frac{1}{2}{\alpha }^{T}Q\alpha -{e}^{T}\alpha
 
 with :math:`0 \leq \alpha_i \leq C`, :math:`i = 1, \ldots, n`, :math:`y^T \alpha = 0`,
-
 where :math:`e` is the vector of ones, :math:`C` is the upper bound of the
 coordinates of the vector :math:`\alpha`, :math:`Q` is a symmetric matrix of size :math:`n \times n`
 with :math:`Q_{ij} = y_i y_j K(x_i, x_j)`, and :math:`K(x,y)` is a kernel function.
@@ -139,59 +143,52 @@ Training and Prediction.
 
 At the training stage, SVM classifier has the following parameters:
 
-+-----------------------+-----------------------+-----------------------+
-| Parameter             | Default Value         | Description           |
-+=======================+=======================+=======================+
-| algorithmFPType       | float                 | The floating-point    |
-|                       |                       | type that the         |
-|                       |                       | algorithm uses for    |
-|                       |                       | intermediate          |
-|                       |                       | computations. Can be  |
-|                       |                       | float or double.      |
-+-----------------------+-----------------------+-----------------------+
-| method                | defaultDense          | The computation       |
-|                       |                       | method used by the    |
-|                       |                       | SVM classifier. The   |
-|                       |                       | only training method  |
-|                       |                       | supported so far is   |
-|                       |                       | the Boser method.     |
-+-----------------------+-----------------------+-----------------------+
-| nClasses              | 2                     | The number of         |
-|                       |                       | classes.              |
-+-----------------------+-----------------------+-----------------------+
-| C                     | 1                     | Upper bound in        |
-|                       |                       | conditions of the     |
-|                       |                       | quadratic             |
-|                       |                       | optimization problem. |
-+-----------------------+-----------------------+-----------------------+
-| accuracyThreshold     | 0.001                 | The training          |
-|                       |                       | accuracy.             |
-+-----------------------+-----------------------+-----------------------+
-| tau                   | 1.0e-6                | Tau parameter of the  |
-|                       |                       | WSS scheme.           |
-+-----------------------+-----------------------+-----------------------+
-| maxIterations         | 1000000               | Maximal number of     |
-|                       |                       | iterations for the    |
-|                       |                       | algorithm.            |
-+-----------------------+-----------------------+-----------------------+
-| cacheSize             | 8000000               | Size of cache in      |
-|                       |                       | bytes for storing     |
-|                       |                       | values of the kernel  |
-|                       |                       | matrix. A non-zero    |
-|                       |                       | value enables use of  |
-|                       |                       | a cache optimization  |
-|                       |                       | technique.            |
-+-----------------------+-----------------------+-----------------------+
-| doShrinking           | true                  | A flag that enables   |
-|                       |                       | use of a shrinking    |
-|                       |                       | optimization          |
-|                       |                       | technique.            |
-+-----------------------+-----------------------+-----------------------+
-| kernel                | Pointer to an object  | The kernel function.  |
-|                       | of the KernelIface    | By default, the       |
-|                       | class                 | algorithm uses a      |
-|                       |                       | linear kernel.        |
-+-----------------------+-----------------------+-----------------------+
+.. list-table::
+   :header-rows: 1
+   :widths: 10 10 60
+   :align: left
+
+   * - Parameter
+     - Default Value
+     - Description
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
+   * - ``method``
+     - ``defaultDense``
+     - The computation method used by the SVM classifier. Available methods for the training stage:
+
+       - ``defaultDense`` – Boser method [Boser92]_
+       - ``thunder`` - Thunder method [Wen2018]_
+
+   * - ``nClasses``
+     - :math:`2`
+     - The number of classes.
+   * - ``C``
+     - :math:`1`
+     - The upper bound in conditions of the quadratic optimization problem.
+   * - ``accuracyThreshold``
+     - :math:`0.001`
+     - The training accuracy.
+   * - ``tau``
+     - :math:`1.0e-6`
+     - Tau parameter of the WSS scheme.
+   * - ``maxIterations``
+     - :math:`1000000`
+     - Maximal number of iterations for the algorithm.
+   * - ``cacheSize``
+     - :math:`8000000`
+     - The size of cache in bytes for storing values of the kernel matrix.
+       A non-zero value enables use of a cache optimization technique.
+   * - ``doShrinking``
+     - ``true``
+     - A flag that enables use of a shrinking optimization technique.
+
+       .. note:: This parameter is only supported for ``defaultDense`` method.
+
+   * - ``kernel``
+     - Pointer to an object of the KernelIface class
+     - The kernel function. By default, the algorithm uses a linear kernel.
 
 Prediction
 ----------
@@ -201,31 +198,26 @@ Training and Prediction.
 
 At the prediction stage, SVM classifier has the following parameters:
 
+.. list-table::
+   :header-rows: 1
+   :widths: 10 10 60
+   :align: left
 
-+-----------------------+-----------------------+-----------------------+
-| Parameter             | Default Value         | Description           |
-+=======================+=======================+=======================+
-| algorithmFPType       | float                 | The floating-point    |
-|                       |                       | type that the         |
-|                       |                       | algorithm uses for    |
-|                       |                       | intermediate          |
-|                       |                       | computations. Can be  |
-|                       |                       | float or double.      |
-+-----------------------+-----------------------+-----------------------+
-| method                | defaultDense          | Performance-oriented  |
-|                       |                       | computation method,   |
-|                       |                       | the only prediction   |
-|                       |                       | method supported by   |
-|                       |                       | the algorithm.        |
-+-----------------------+-----------------------+-----------------------+
-| nClasses              | 2                     | The number of         |
-|                       |                       | classes.              |
-+-----------------------+-----------------------+-----------------------+
-| kernel                | Pointer to object of  | The kernel function.  |
-|                       | the KernelIface class | By default, the       |
-|                       |                       | algorithm uses a      |
-|                       |                       | linear kernel.        |
-+-----------------------+-----------------------+-----------------------+
+   * - Parameter
+     - Default Value
+     - Description
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
+   * - ``method``
+     - ``defaultDense``
+     - Performance-oriented computation method, the only prediction method supported by the algorithm.
+   * - ``nClasses``
+     - :math:`2`
+     - The number of classes.
+   * - ``kernel``
+     - Pointer to object of the ``KernelIface`` class
+     - The kernel function. By default, the algorithm uses a linear kernel.
 
 Examples
 --------

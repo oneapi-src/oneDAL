@@ -50,6 +50,9 @@ In this step, the DBSCAN algorithm has the following parameters:
        It will require up to :math:`O(|\text{sum of sizes of neighborhoods}|)` of additional memory, 
        which in worst case can be :math:`O(|\text{number of observations}|^2)`. However, in general, performance may be better.
 
+
+       .. note:: ``memorySavingMode`` could be ``false`` only on CPU.
+
 In this step, the DBSCAN algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, :ref:`algorithms`.
@@ -63,13 +66,13 @@ For more details, :ref:`algorithms`.
    * - ``partialData``
      - Pointer to the collection of numeric tables with :math:`p` columns and arbitrary number of rows, containing observations to be clustered.
 
-       .. include:: distributed-steps/includes/input_data_collection.rst
+       .. include:: ./../../includes/input_data_collection.rst
 
    * - ``haloData``
      - Pointer to the collection of numeric tables with :math:`p` columns and arbitrary number of rows, containing halo observations
        for current node computed on :ref:`step 5 <dbscan_step_5>`.
 
-       .. include:: distributed-steps/includes/input_data_collection.rst
+       .. include:: ./../../includes/input_data_collection.rst
 
    * - ``haloDataIndices``
      - Pointer to the collection of numeric tables with :math:`1` column and arbitrary number of rows,
@@ -77,7 +80,7 @@ For more details, :ref:`algorithms`.
        
        Size of this collection should be equal to the size of collection for ``haloData``'s ``Input ID``.
 
-       .. include:: distributed-steps/includes/input_data_collection_with_exceptions.rst
+       .. include:: ./../../includes/input_data_collection_with_exceptions.rst
 
    * - ``haloDataBlocks``
      - Pointer to the collection of :math:`1 \times 1` numeric tables containing identifiers of initial block for halo observations
@@ -85,7 +88,7 @@ For more details, :ref:`algorithms`.
        
        Size of this collection should be equal to the size of collection for ``haloData``'s ``Input ID``.
 
-       .. include:: distributed-steps/includes/input_data_collection_with_exceptions.rst
+       .. include:: ./../../includes/input_data_collection_with_exceptions.rst
 
 Algorithm Output
 ++++++++++++++++
@@ -104,22 +107,22 @@ For more details, :ref:`algorithms`.
      - Pointer to the numeric table with :math:`4` columns and arbitrary number of rows
        containing information about current clustering state of observations processed on the local node.
 
-       .. include:: distributed-steps/includes/default_result_numeric_table.rst
+       .. include:: ./../../includes/default_result_numeric_table.rst
 
    * - ``step6FinishedFlag``
      - Pointer to :math:`1 \times 1` numeric table containing the flag indicating that
        the clustering process is finished for current node.
 
-       .. include:: distributed-steps/includes/default_result_numeric_table.rst
+       .. include:: ./../../includes/default_result_numeric_table.rst
 
    * - ``step6NClusters``
      - Pointer to :math:`1 \times 1` numeric table containing the current number of clusters found on the local node.
 
-       .. include:: distributed-steps/includes/default_result_numeric_table.rst
+       .. include:: ./../..//includes/default_result_numeric_table.rst
 
    * - ``step6Queries``
      - Pointer to the collection of ``nBlocks`` numeric tables with :math:`3` columns and arbitrary number of rows
        containing clustering queries that should be processed on each node.
        Numeric tables in collection ordered by the identifiers of initial block of nodes.
 
-       .. include:: distributed-steps/includes/default_result_data_collection.rst
+       .. include:: ./../../includes/default_result_data_collection.rst

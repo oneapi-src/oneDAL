@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _objective_function:
+
 Objective Function
 ==================
 

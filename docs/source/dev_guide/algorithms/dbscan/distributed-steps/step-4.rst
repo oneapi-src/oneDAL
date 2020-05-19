@@ -31,20 +31,20 @@ For more details, :ref:`algorithms`.
    * - ``partialData``
      - Pointer to the collection of numeric tables with :math:`p` columns and arbitrary number of rows, containing observations to be clustered.
 
-       .. include:: distributed-steps/includes/input_data_collection.rst
+       .. include:: ./../../includes/input_data_collection.rst
 
    * - ``step4PartialOrders``
      - Pointer to the collection of numeric table with :math:`2` columns and arbitrary number of rows containing information about observations:
        identifier of initial block and index in initial block.
 
-       .. include:: distributed-steps/includes/input_data_collection_with_exceptions.rst
+       .. include:: ./../../includes/input_data_collection_with_exceptions.rst
 
    * - ``step4PartialSplits``
      - Pointer to the collection of the :math:`1 \times 2` numeric table containing information about split computed on
        :ref:`step 3 <dbscan_step_3>` and collected from all nodes
        participating in current iteration of geometric repartitioning process.
 
-       .. include:: distributed-steps/includes/input_data_collection_with_exceptions.rst
+       .. include:: ./../../includes/input_data_collection_with_exceptions.rst
 
 Algorithm Output
 ++++++++++++++++
@@ -66,4 +66,4 @@ For more details, :ref:`algorithms`.
        - First ``leftBlocks`` numeric tables in collection have the value of selected split feature smaller than selected split value.
        - Next ``rightBlocks`` numeric tables in collection have the value of selected split feature larger than selected split value.
        
-       .. include:: distributed-steps/includes/default_result_numeric_table.rst
+       .. include:: ./../../includes/default_result_numeric_table.rst

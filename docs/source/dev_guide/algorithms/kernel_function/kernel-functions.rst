@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _kernel:
+
 Kernel Functions
 ----------------
 
@@ -90,9 +92,17 @@ The linear kernel function has the following parameters:
      - matrixMatrix
      - Computation mode for the kernel function. Can be:
 
-       + vectorVector - compute the kernel function for given feature vectors :math:`x_i` and :math:`y_j`
-       + matrixVector - compute the kernel function for all vectors in the set :math:`X` and a given feature vector :math:`y_j`
-       + matrixMatrix - compute the kernel function for all vectors in the sets :math:`X` and :math:`Y`. In |product|, this mode requires equal numbers of observations in both input tables: :math:`n = m`.
+       For CPU:
+
+       + ``vectorVector`` - compute the kernel function for given feature vectors :math:`x_i` and :math:`y_j`
+       + ``matrixVector`` - compute the kernel function for all vectors in the set :math:`X` and a given feature vector :math:`y_j`
+       + ``matrixMatrix`` - compute the kernel function for all vectors in the sets :math:`X` and :math:`Y`. 
+         In |product|, this mode requires equal numbers of observations in both input tables: :math:`n = m`.
+
+       For GPU:
+
+       + ``matrixMatrix`` - compute the kernel function for all vectors in the sets :math:`X` and :math:`Y`. 
+         In |product|, this mode requires equal numbers of observations in both input tables: :math:`n = m`.
 
    * - rowIndexX
      - :math:`0`
@@ -217,9 +227,17 @@ The RBF kernel has the following parameters:
      - matrixMatrix
      - Computation mode for the kernel function. Can be:
 
-       + vectorVector - compute the kernel function for given feature vectors :math:`x_i` and :math:`y_j`
-       + matrixVector - compute the kernel function for all vectors in the set :math:`X` and a given feature vector :math:`y_j`
-       + matrixMatrix - compute the kernel function for all vectors in the sets :math:`X` and :math:`Y`. In |product|, this mode requires equal numbers of observations in both input tables: :math:`n = m`.
+       For CPU:
+
+       + ``vectorVector`` - compute the kernel function for given feature vectors :math:`x_i` and :math:`y_j`
+       + ``matrixVector`` - compute the kernel function for all vectors in the set :math:`X` and a given feature vector :math:`y_j`
+       + ``matrixMatrix`` - compute the kernel function for all vectors in the sets :math:`X` and :math:`Y`.
+         In |product|, this mode requires equal numbers of observations in both input tables: :math:`n = m`.
+
+       For GPU:
+
+       + ``matrixMatrix`` - compute the kernel function for all vectors in the sets :math:`X` and :math:`Y`.
+         In |product|, this mode requires equal numbers of observations in both input tables: :math:`n = m`.
 
    * - rowIndexX
      - :math:`0`

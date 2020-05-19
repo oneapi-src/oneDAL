@@ -22,14 +22,16 @@ described below. Pass the Input ID as a parameter to the methods
 that provide input for your algorithm.
 
 .. list-table::
-   :widths: 25 25
+   :widths: 10 60
    :header-rows: 1
    :align: left
 
    * - Input ID
      - Input
-   * - data
-     - Pointer to the :math:`n \times p` numeric table with the data to be clustered. The input can be an object of any class derived from NumericTable.
+   * - ``data``
+     - Pointer to the :math:`n \times p` numeric table with the data to be clustered.
+
+.. note:: The input can be an object of any class derived from ``NumericTable``.
 
 
 Parameters
@@ -41,7 +43,7 @@ parameter method.
 
 
 .. list-table::
-   :widths: 25 25 25 25
+   :widths: 10 10 10 30
    :header-rows: 1
    :align: left
 
@@ -49,43 +51,60 @@ parameter method.
      - method
      - Default Value
      - Description
-   * - algorithmFPType
+   * - ``algorithmFPType``
      - any
-     - float
+     - ``float``
      - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
+   * - ``method``
      - Not applicable
-     - defaultDense
+     - ``defaultDense``
      - Available initialization methods for K-Means clustering:
 
-       * defaultDense - uses first nClusters points as initial centroids
-       * deterministicCSR - uses first nClusters points as initial centroids for data in a CSR numeric table
-       * randomDense - uses random nClusters points as initial centroids
-       * randomCSR - uses random nClusters points as initial centroids for data in a CSR numeric table
-       * plusPlusDense - uses K-Means++ algorithm [Arthur2007]_
-       * plusPlusCSR - uses K-Means++ algorithm for data in a CSR numeric table
-       * parallelPlusDense - uses parallel K-Means++ algorithm [Bahmani2012]
-       * parallelPlusCSR - uses parallel K-Means++ algorithm for data in a CSR numeric table
+       For CPU:
 
-       For more details, see the algorithm description.
+       * ``defaultDense`` - uses first nClusters points as initial centroids
+       * ``deterministicCSR`` - uses first nClusters points as initial centroids for data in a CSR numeric table
+       * ``randomDense`` - uses random nClusters points as initial centroids
+       * ``randomCSR`` - uses random nClusters points as initial centroids for data in a CSR numeric table
+       * ``plusPlusDense`` - uses K-Means++ algorithm [Arthur2007]_
+       * ``plusPlusCSR`` - uses K-Means++ algorithm for data in a CSR numeric table
+       * ``parallelPlusDense`` - uses parallel K-Means++ algorithm [Bahmani2012]
+       * ``parallelPlusCSR`` - uses parallel K-Means++ algorithm for data in a CSR numeric table
 
-   * - nClusters
+       For GPU:
+
+       * ``defaultDense`` - uses first nClusters points as initial centroids
+       * ``randomDense`` - uses random nClusters points as initial centroids
+
+   * - ``nClusters``
      - any
      - Not applicable
      - The number of clusters. Required.
-   * - nTrials
-     - parallelPlusDense, parallelPlusCSR
+   * - ``nTrials``
+     -
+
+       * ``parallelPlusDense``
+       * ``parallelPlusCSR``
+
      - :math:`1`
      - The number of trails to generate all clusters but the first initial cluster. For details, see [Arthur2007]_, section 5
-   * - oversamplingFactor
-     - parallelPlusDense, parallelPlusCSR
+   * - ``oversamplingFactor``
+     -
+
+       * ``parallelPlusDense``
+       * ``parallelPlusCSR``
+
      - :math:`0.5`
      - A fraction of nClusters in each of nRounds of parallel K-Means++. L=nClusters*oversamplingFactor points are sampled in a round. For details, see [Bahmani2012]_, section 3.3.
-   * - nRounds
-     - parallelPlusDense, parallelPlusCSR
+   * - ``nRounds``
+     -
+
+       * ``parallelPlusDense``
+       * ``parallelPlusCSR``
+
      - :math:`5`
      - The number of rounds for parallel K-Means++. (L*nRounds) must be greater than nClusters. For details, see [Bahmani2012]_, section 3.3.
-   * - engine
+   * - ``engine``
      - any
      - SharePtr< engines:: mt19937:: Batch>()
      - Pointer to the random number generator engine that is used internally for random numbers generation.
@@ -99,11 +118,13 @@ result described below. Pass the Result ID as a parameter to the
 methods that access the results of your algorithm.
 
 .. list-table::
-   :widths: 25 25
+   :widths: 10 60
    :header-rows: 1
    :align: left
 
    * - Result ID
      - Result
-   * - centroids
-     - Pointer to the :math:`nClusters \times p` numeric table with the cluster centroids. By default, this result is an object of the HomogenNumericTable class, but you can define the result as an object of any class derived from NumericTable except PackedTriangularMatrix, PackedSymmetricMatrix, and CSRNumericTable.
+   * - ``centroids``
+     - Pointer to the :math:`nClusters \times p` numeric table with the cluster centroids.
+
+.. include:: ./../../includes/default_result_numeric_table.rst

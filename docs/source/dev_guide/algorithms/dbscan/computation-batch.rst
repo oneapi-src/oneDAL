@@ -53,6 +53,9 @@ The DBSCAN clustering algorithm has the following parameters:
      - If flag is set to false, all neighborhoods will be computed and stored prior to clustering.
        It will require up to :math:`O(|\text{sum of sizes of all observations' neighborhoods}|)` of additional memory, 
        which in worst case can be :math:`O(|\text{number of observations}|^2)`. However, in general, performance may be better.
+
+       .. note:: ``memorySavingMode`` could be ``false`` only on CPU.
+
    * - ``resultsToCompute``
      - :math:`0`
      - The 64-bit integer flag that specifies which extra characteristics of the DBSCAN to compute.

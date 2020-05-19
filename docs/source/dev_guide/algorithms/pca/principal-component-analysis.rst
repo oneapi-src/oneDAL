@@ -127,8 +127,15 @@ computation method parameter method:
      - defaultDense
      - Available methods for PCA computation:
 
-       - defaultDense - the correlation method
-       - svdDense - the SVD method
+       For CPU:
+
+       - ``defaultDense`` - the correlation method
+       - ``svdDense`` - the SVD method
+
+       For GPU: 
+
+       - ``defaultDense`` - the correlation method
+
 
    * - covariance
      - defaultDense

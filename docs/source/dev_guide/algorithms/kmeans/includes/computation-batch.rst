@@ -24,15 +24,17 @@ provide input for your algorithm.
 
 .. list-table::
    :header-rows: 1
+   :widths: 10 60
    :align: left
 
    * - Input ID
      - Input
-   * - data
-     - Pointer to the :math:`n \times p` numeric table with the data to be clustered. The input can be an object of any class derived from NumericTable.
-   * - inputCentroids
-     - Pointer to the :math:`nClusters \times p` numeric table with the initial centroids. The input can be an object of any class derived from NumericTable.
+   * - ``data``
+     - Pointer to the :math:`n \times p` numeric table with the data to be clustered.
+   * - ``inputCentroids``
+     - Pointer to the :math:`nClusters \times p` numeric table with the initial centroids.
 
+.. note:: The input for ``data`` and ``inputCentroids`` can be an object of any class derived from ``NumericTable``.
 
 Algorithm Parameters
 ++++++++++++++++++++
@@ -41,39 +43,58 @@ The K-Means clustering algorithm has the following parameters:
 
 .. list-table::
    :header-rows: 1
+   :widths: 10 10 60
    :align: left
 
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
+   * - ``algorithmFPType``
+     - ``float``
      - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
+   * - ``method``
+     - ``defaultDense``
      - Available computation methods for K-Means clustering:
 
-        -  defaultDense - implementation of Lloyd's algorithm
-        -  lloydCSR - implementation of Lloyd's algorithm for CSR numeric tables
+       For CPU:
 
-   * - nClusters
+        -  ``defaultDense`` - implementation of Lloyd's algorithm
+        -  ``lloydCSR`` - implementation of Lloyd's algorithm for CSR numeric tables
+
+       For GPU:
+
+        -  ``defaultDense`` - implementation of Lloyd's algorithm
+
+   * - ``nClusters``
      - Not applicable
      - The number of clusters. Required to initialize the algorithm.
-   * - maxIterations
+   * - ``maxIterations``
      - Not applicable
      - The number of iterations. Required to initialize the algorithm.
-   * - accuracyThreshold
+   * - ``accuracyThreshold``
      - :math:`0.0`
      - The threshold for termination of the algorithm.
-   * - gamma
+   * - ``gamma``
      - :math:`1.0`
      - The weight to be used in distance calculation for binary categorical features.
-   * - distanceType
-     - euclidean
+   * - ``distanceType``
+     - ``euclidean``
      - The measure of closeness between points (observations) being clustered. The only distance type supported so far is the Euclidian distance.
-   * - assignFlag
-     - true
+   * - **DEPRECATED:** ``assignFlag``
+       
+       **USE INSTEAD:** ``resultsToEvaluate``
+
+     - ``true``
      - A flag that enables computation of assignments, that is, assigning cluster indices to respective observations.
+   * - ``resultsToEvaluate``
+     - ``computeCentroids`` | ``computeAssignments`` | ``computeExactObjectiveFunction``
+     - The 64-bit integer flag that specifies which extra characteristics of the K-Means to compute.
+     
+       Provide one of the following values to request a single characteristic or use bitwise OR to request a combination of the characteristics:
+       
+       - ``computeCentroids`` for computation centroids.
+       - ``computeAssignments`` for computation of assignments, that is, assigning cluster indices to respective observations.
+       - ``computeExactObjectiveFunction`` for computation of exact ObjectiveFunction.
 
 
 Algorithm Output
@@ -85,41 +106,42 @@ the results of your algorithm.
 
 .. list-table::
    :header-rows: 1
+   :widths: 10 60
    :align: left
 
    * - Result ID
      - Result
-   * - centroids
+   * - ``centroids``
      -
-       Pointer to the :math:`nClusters \times p` numeric table with the cluster centroids.
-       By default, this result is an object of the HomogenNumericTable class,
-       but you can define the result as an object of any class derived from
-       NumericTable except PackedTriangularMatrix, PackedSymmetricMatrix, and
-       CSRNumericTable.
-   * - assignments
+       Pointer to the :math:`nClusters \times p` numeric table with the cluster centroids,
+       computed when ``computeCentroids`` option is enabled.
+
+       .. include:: ./../../includes/default_result_numeric_table.rst
+
+   * - ``assignments``
      -
-       Use when assignFlag=true. Pointer to the :math:`n \times 1` numeric table with
-       assignments of cluster indices to feature vectors in the input data. By
-       default, this result is an object of the HomogenNumericTable class, but
-       you can define the result as an object of any class derived from
-       NumericTable except PackedTriangularMatrix, PackedSymmetricMatrix, and
-       CSRNumericTable.
-   * - objectiveFunction
+       Pointer to the :math:`n \times 1` numeric table with
+       assignments of cluster indices to feature vectors in the input data,
+       computed when ``computeAssignments`` option is enabled.
+       
+       .. include:: ./../../includes/default_result_numeric_table.rst
+
+   * - ``objectiveFunction``
      -
-       Pointer to the :math:`1 \times 1` numeric table with the value of the goal function.
-       By default, this result is an object of the HomogenNumericTable class,
-       but you can define the result as an object of any class derived from
-       NumericTable except CSRNumericTable.
-   * - nIterations
+       Pointer to the :math:`1 \times 1` numeric table with the minimum value of the objective function
+       obtained at the last iteration of the algorithm, might be inexact.
+       When ``computeExactObjectiveFunction`` option is enabled, exact objective function is computed.
+
+       .. include:: ./../../includes/default_result_numeric_table.rst
+
+   * - ``nIterations``
      -
        Pointer to the :math:`1 \times 1` numeric table with the actual number of iterations
-       done by the algorithm. By default, this result is an object of the
-       HomogenNumericTable class, but you can define the result as an object of
-       any class derived from NumericTable except PackedTriangularMatrix,
-       PackedSymmetricMatrix, and CSRNumericTable.
-
+       done by the algorithm.
+       
+       .. include:: ./../../includes/default_result_numeric_table.rst
 
 .. note::
   You can skip update of centroids and objectiveFunction in the
-  result and compute assignments using original inputCentroids. To
-  do this, set assignFlag to true and maxIterations to zero.
+  result and compute assignments using original inputCentroids.
+  To do this, set ``resultsToEvaluate`` flag only to ``computeAssignments`` and ``maxIterations`` to zero.

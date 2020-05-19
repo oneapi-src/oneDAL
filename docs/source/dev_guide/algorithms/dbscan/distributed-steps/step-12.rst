@@ -33,14 +33,14 @@ For more details, :ref:`algorithms`.
      - Pointer to the numeric table with :math:`4` columns and arbitrary number of rows
        containing information about current clustering state of observations processed on the local node.
 
-       .. include:: distributed-steps/includes/input_numeric_table.rst
+       .. include:: ./../../includes/input_numeric_table.rst
 
    * - ``step12PartialOrders``
      - Pointer to the collection of :math:`n \times 2` numeric tables containing information about observations:
        identifier of initial block and index in initial block.
        This information will be required to reconstruct initial blocks after transferring observations among nodes.
 
-       .. include:: distributed-steps/includes/input_data_collection_with_exceptions.rst
+       .. include:: ./../../includes/input_data_collection_with_exceptions.rst
 
 Algorithm Output
 ++++++++++++++++
@@ -61,4 +61,4 @@ For more details, :ref:`algorithms`.
 
        Numeric tables in the collection are ordered by the identifiers of initial block of nodes.       
 
-.. include:: distributed-steps/includes/default_result_data_collection.rst
+.. include:: ./../../includes/default_result_data_collection.rst

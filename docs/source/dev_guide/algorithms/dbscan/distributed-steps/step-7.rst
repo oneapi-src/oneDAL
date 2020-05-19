@@ -32,7 +32,7 @@ For more details, :ref:`algorithms`.
      - Pointer to the collection of :math:`1 \times 1` numeric table containing the flag indicating
        that the clustering process is finished collected from all nodes.
        
-       .. include:: distributed-steps/includes/input_data_collection_with_exceptions.rst
+       .. include:: ./../../includes/input_data_collection_with_exceptions.rst
 
 Algorithm Output
 ++++++++++++++++
@@ -51,4 +51,4 @@ For more details, :ref:`algorithms`.
      - Pointer to :math:`1 \times 1` numeric table containing the flag indicating
        that the clustering process is finished on all nodes.
 
-       .. include:: distributed-steps/includes/default_result_numeric_table.rst
+       .. include:: ./../../includes/default_result_numeric_table.rst

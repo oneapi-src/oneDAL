@@ -32,12 +32,12 @@ For more details, :ref:`algorithms`.
      - Pointer to the numeric table with :math:`4` columns and arbitrary number of rows containing
        information about current clustering state of observations processed on the local node.
 
-       .. include:: distributed-steps/includes/input_numeric_table.rst
+       .. include:: ./../../includes/input_numeric_table.rst
 
    * - ``step10ClusterOffset``
      - Pointer to :math:`1 \times 1` numeric table containing the offset for cluster numeration on the local node computed on :ref:`step 9 <dbscan_step_9>`.
 
-       .. include:: distributed-steps/includes/input_numeric_table.rst
+       .. include:: ./../../includes/input_numeric_table.rst
 
 Algorithm Output
 ++++++++++++++++
@@ -55,15 +55,15 @@ For more details, :ref:`algorithms`.
    * - ``step10ClusterStructure``
      - Pointer to the numeric table with :math:`4` columns and arbitrary number of rows containing information about current clustering state of observations processed on the local node.
 
-       .. include:: distributed-steps/includes/default_result_numeric_table.rst
+       .. include:: ./../../includes/default_result_numeric_table.rst
 
    * - ``step10FinishedFlag``
      - Pointer to :math:`1 \times 1` numeric table containing the flag indicating that the clusters numeration process is finished for current node.
 
-       .. include:: distributed-steps/includes/default_result_numeric_table.rst       
+       .. include:: ./../../includes/default_result_numeric_table.rst       
 
    * - ``step10Queries``
      - Pointer to the collection of ``nBlocks`` numeric tables with :math:`4` columns and arbitrary number of rows containing clusters numeration queries that should be processed on each node.
        Numeric tables in collection ordered by the identifiers of initial block of nodes.
 
-       .. include:: distributed-steps/includes/default_result_data_collection.rst
+       .. include:: ./../../includes/default_result_data_collection.rst
