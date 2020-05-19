@@ -114,8 +114,8 @@ services::Status SVMPredictImplOneAPI<defaultDense, algorithmFPType>::compute(co
         DAAL_CHECK(kernel->computeNoThrow(), services::ErrorSVMPredictKernerFunctionCall);
 
         {
-            DAAL_ITTNOTIFY_SCOPED_TASK(gemm);
-            DAAL_CHECK_STATUS(status, BlasGpu<algorithmFPType>::xgemv(math::Layout::RowMajor, math::Transpose::NoTrans, nSV, nRowsPerBlockReal,
+            DAAL_ITTNOTIFY_SCOPED_TASK(gemv);
+            DAAL_CHECK_STATUS(status, BlasGpu<algorithmFPType>::xgemv(math::Layout::RowMajor, math::Transpose::NoTrans, nRowsPerBlockReal, nSV,
                                                                       algorithmFPType(1.0), kernelResBuff, nSV, 0, svCoeffBuff, 1, 0,
                                                                       algorithmFPType(1.0), distanceBuff, 1, startRow));
         }
