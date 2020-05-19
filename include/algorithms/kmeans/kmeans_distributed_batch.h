@@ -40,7 +40,7 @@ namespace interface1
 {
 enum Method
 {
-    defaultDense = 0, /*!< Default: performance-oriented method, synonym of lloydDense */
+    defaultDense = 0,
 };
 /**
  * @defgroup kmeans_batch Batch

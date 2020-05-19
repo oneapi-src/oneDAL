@@ -33,7 +33,7 @@ namespace distributed_kmeans
 namespace internal
 {
 template class KMeansOneCclDefaultBatchKernelUCAPI<DAAL_FPTYPE>;
-} // namespace interface1
+} // namespace internal
 } // namespace distributed_kmeans
 } // namespace preview
 } // namespace daal

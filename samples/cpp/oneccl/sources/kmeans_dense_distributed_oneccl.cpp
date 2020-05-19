@@ -51,15 +51,15 @@ int main(int argc, char * argv[])
     {
         const auto & nameDevice = deviceSelector.first;
         const auto & device     = deviceSelector.second;
-        if(!device.is_gpu()) continue;
+        if (!device.is_gpu()) continue;
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
         daal::services::SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
-		
-		daal::preview::services::OneCclCommunicator comm(queue);
-		daal::preview::services::CommManager::getInstance()->setDefaultCommunicator(comm);
+
+        daal::preview::services::OneCclCommunicator comm(queue);
+        daal::preview::services::CommManager::getInstance()->setDefaultCommunicator(comm);
 
         /* Initialize FileDataSource to retrieve the input data from a .csv file */
         FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
@@ -85,9 +85,9 @@ int main(int argc, char * argv[])
         algorithm.compute();
 
         /* Print the clusterization results */
-        printNumericTable(((kmeans::Result*)algorithm.getResult().get())->get(kmeans::assignments), "First 10 cluster assignments:", 10);
-        printNumericTable(((kmeans::Result*)algorithm.getResult().get())->get(kmeans::centroids), "First 10 dimensions of centroids:", 20, 10);
-        printNumericTable(((kmeans::Result*)algorithm.getResult().get())->get(kmeans::objectiveFunction), "Objective function value:");
+        printNumericTable(((kmeans::Result *)algorithm.getResult().get())->get(kmeans::assignments), "First 10 cluster assignments:", 10);
+        printNumericTable(((kmeans::Result *)algorithm.getResult().get())->get(kmeans::centroids), "First 10 dimensions of centroids:", 20, 10);
+        printNumericTable(((kmeans::Result *)algorithm.getResult().get())->get(kmeans::objectiveFunction), "Objective function value:");
     }
 
     return 0;
