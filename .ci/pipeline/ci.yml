@@ -47,14 +47,44 @@ jobs:
   - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type)
     displayName: 'examples'
-  - script: |
-      .ci/scripts/conformance_test.sh --build-dir $(release.dir) --arch $(platform.type)
-    timeoutInMinutes: 15
-    displayName: 'conformance tests'
-  - task: PublishPipelineArtifact@0
+- job: daal4py
+  timeoutInMinutes: 0
+  variables:
+    release.dir: '__release_lnx_gnu'
+  pool:
+    vmImage: 'ubuntu-18.04'
+  strategy:
+    matrix:
+      lnx32e:
+        platform.type : 'lnx32e'
+    maxParallel: 2
+    dependsOn: Linux
+  steps:
+  - task: DownloadPipelineArtifact@2
     inputs:
-      artifactName: 'conformance tests report $(platform.type)'
-      targetPath: '.ci/scripts/conformance-scripts/report.html'
+      artifact: '$(platform.type) build'
+  - script: |
+        .ci/env/daal4py-dpcpp.sh
+    displayName: 'create dpcpp enviroment'
+  - script: |
+    sudo apt-get install git
+    git clone https://github.com/IntelPython/daal4py.git
+  displayName: clone daal4py
+  - script: |
+    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+    bash miniconda.sh -b -p $HOME/miniconda
+    export PATH="$HOME/miniconda/bin:$PATH"
+    conda create -q -y -n CB python=3.7 conda-build conda-verify
+  displayName: Create Anaconda environment
+  - script: |
+      export DPCPP_VAR=/opt/intel/inteloneapi/compiler/latest/env/vars.sh
+      export DAALROOT='$(platform.type) build'/daal/latest
+      . $HOME/miniconda/etc/profile.d/conda.sh
+      conda activate CB
+      cd daal4py
+      conda build --override-channels -c conda-forge -c intel conda-recipe
+    displayName: conda build
+
 - job: macOS
   timeoutInMinutes: 0
   variables:
