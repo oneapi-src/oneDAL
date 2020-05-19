@@ -440,7 +440,7 @@ DECLARE_SOURCE(
 
 
         for(int i = local_id; i < K; i += local_size)
-            clusters[i + global_id * K] /= counters[global_id]; 
+            clusters[i + global_id * K] /= counters[global_id] > 0 ? counters[global_id] : 1.0; 
     }
 
 );

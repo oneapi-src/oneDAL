@@ -22,6 +22,7 @@
 #include "oneapi/internal/types_utils.h"
 #include "ccl.h"
 #include "ccl_types.h"
+#include <iostream>
 
 namespace daal
 {
@@ -78,9 +79,25 @@ private:
             auto dst              = dstUnivers.get<T>().toSycl();
 //          auto src_acc = src.template get_access<cl::sycl::access::mode::write>();
 //          auto dst_acc = dst.template get_access<cl::sycl::access::mode::write>();
+//            cl::sycl::buffer<int, 1> sendbuf(1);
+//            cl::sycl::buffer<int, 1> recbuf(1);
+/*            {
+                auto host_acc_sbuf = sendbuf.get_access<cl::sycl::access::mode::write>();
+                auto host_acc_rbuf = recbuf.get_access<cl::sycl::access::mode::write>();
+                host_acc_sbuf[0] = 1;
+                host_acc_rbuf[0] = -1;
+            }
+            std::cout << "ccl_allreduce call" << std::endl;
+*/
+            std::cout << "datatype: " << get_ccl_datatype<T>() << " count: " << count << std::endl;
             ccl_request_t request;
             ccl_allreduce(&src, &dst, count, get_ccl_datatype<T>(), ccl_reduction_sum, NULL, NULL, stream, &request);
             ccl_wait(request);
+/*            {
+                auto host_acc_rbuf = dst.template get_access<cl::sycl::access::mode::read>();
+                std::cout << "Result raw: " << host_acc_rbuf[0] << std::endl;
+                return;
+            }*/
         }
     };
 public:
@@ -105,10 +122,10 @@ private:
         oneapi::internal::UniversalBuffer & dstUnivers;
         oneapi::internal::UniversalBuffer & srcUnivers;
         size_t srcCount;
-        size_t dstCount;
+        size_t* recvCount;
 
-        explicit Execute(cl::sycl::queue & queue, ccl_stream_t& stream, oneapi::internal::UniversalBuffer & dst, size_t dstCount, oneapi::internal::UniversalBuffer & src, size_t srcCount)
-            : queue(queue), stream(stream), dstUnivers(dst), srcUnivers(src), dstCount(dstCount), srcCount(srcCount)
+        explicit Execute(cl::sycl::queue & queue, ccl_stream_t& stream, oneapi::internal::UniversalBuffer & dst, size_t* recvCount, oneapi::internal::UniversalBuffer & src, size_t srcCount)
+            : queue(queue), stream(stream), dstUnivers(dst), srcUnivers(src), recvCount(recvCount), srcCount(srcCount)
         {}
 
         template <typename T>
@@ -117,14 +134,19 @@ private:
             auto src              = srcUnivers.get<T>().toSycl();
             auto dst              = dstUnivers.get<T>().toSycl();
             ccl_request_t request;
-            ccl_allgatherv(&src, srcCount, &dst, &dstCount, get_ccl_datatype<T>(), NULL, NULL, stream, &request);
+            std::cout << "ccl_allgatherv call" << std::endl;
+            std::cout << "datatype: " << get_ccl_datatype<T>() << "rankSize: " << srcCount << " recvSize: ";
+            for(int i = 0; i < 4; i++)
+                std::cout << recvCount[i] << " ";
+            std::cout << std::endl;
+            ccl_allgatherv(&src, srcCount, &dst, recvCount, get_ccl_datatype<T>(), NULL, NULL, stream, &request);
             ccl_wait(request);
         }
     };
 public:
-    static void allGatherV(cl::sycl::queue & queue, ccl_stream_t& stream, oneapi::internal::UniversalBuffer & dst, size_t dstCount, oneapi::internal::UniversalBuffer & src, size_t srcCount)
+    static void allGatherV(cl::sycl::queue & queue, ccl_stream_t& stream, oneapi::internal::UniversalBuffer & dst, size_t* recvCount, oneapi::internal::UniversalBuffer & src, size_t srcCount)
     {
-        Execute op(queue, stream, dst, dstCount, src, srcCount);
+        Execute op(queue, stream, dst, recvCount, src, srcCount);
         oneapi::internal::TypeDispatcher::dispatch(dst.type(), op);
     }
 };

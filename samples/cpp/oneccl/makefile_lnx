@@ -109,7 +109,7 @@ LOPTS := -Wl,--start-group -Wl,$(DAAL_LIB),$(EXT_LIB) $(DAAL_PATH)/libdaal_sycl.
 RES_DIR=_results/$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
 
-override proc = 4
+override proc = 2
 
 CC := $(if $(COVFILE), cov01 -1; covc -i  $(CC),$(CC))
 CRUN = mpirun

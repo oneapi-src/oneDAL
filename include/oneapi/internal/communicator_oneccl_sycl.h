@@ -51,15 +51,19 @@ public:
 //        _size = 1;
         std::cout << "Comm construction done" << std::endl;
     }
-
+    ~CommunicatorOneCclImpl()
+    {
+        ccl_finalize();
+    }
 
     void allReduceSum(oneapi::internal::UniversalBuffer src, oneapi::internal::UniversalBuffer dest, size_t count,
-              ::daal::services::Status * status = nullptr) DAAL_C11_OVERRIDE
+              daal::services::Status * status = nullptr) DAAL_C11_OVERRIDE
     {
         DAAL_ASSERT(dest.type() == src.type());
         // TODO: Thread safe?
         try
         {
+//            std::cout << "allReduce call" << std::endl;
 //            BufferCopier::copy(_deviceQueue, dest, 0, src, 0, count);
             BufferAllReducer::allReduceSum(_deviceQueue, _stream, dest, src, count);
         }
@@ -68,14 +72,15 @@ public:
             oneapi::internal::convertSyclExceptionToStatus(e, status);
         }
     }
-    void allGatherV(oneapi::internal::UniversalBuffer src, size_t srcCount, oneapi::internal::UniversalBuffer dest, size_t destCount,
-              ::daal::services::Status * status = nullptr) DAAL_C11_OVERRIDE
+    void allGatherV(oneapi::internal::UniversalBuffer dest, size_t* recvCount, oneapi::internal::UniversalBuffer src, size_t srcCount,
+              daal::services::Status * status = nullptr) DAAL_C11_OVERRIDE
     {
         DAAL_ASSERT(dest.type() == src.type());
         // TODO: Thread safe?
         try
         {
-            BufferAllGatherer::allGatherV(_deviceQueue, _stream, dest, destCount, src, srcCount);
+            std::cout << "allGatherV call on rank " << _rank << " size " << _size << std::endl;
+            BufferAllGatherer::allGatherV(_deviceQueue, _stream, dest, recvCount, src, srcCount);
         }
         catch (cl::sycl::exception const & e)
         {
