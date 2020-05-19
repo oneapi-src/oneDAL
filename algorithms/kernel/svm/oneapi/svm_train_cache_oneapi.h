@@ -129,6 +129,8 @@ public:
 
     services::Status compute(const NumericTablePtr & xTable, const services::Buffer<uint32_t> & wsIndices, const size_t p) override
     {
+        DAAL_ITTNOTIFY_SCOPED_TASK(cacheCompute);
+
         services::Status status;
         BlockDescriptor<algorithmFPType> xBlock;
 

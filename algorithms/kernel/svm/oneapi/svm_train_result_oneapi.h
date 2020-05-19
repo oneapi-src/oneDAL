@@ -67,6 +67,8 @@ public:
 
     services::Status setResultsToModel(const NumericTablePtr & xTable, Model & model) const
     {
+        DAAL_ITTNOTIFY_SCOPED_TASK(setResultsToModel);
+
         services::Status status;
         model.setNFeatures(xTable->getNumberOfColumns());
 

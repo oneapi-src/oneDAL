@@ -1,4 +1,4 @@
-/* file: sgd_dense_minibatch_batch_oneapi_fpt_cpu.cpp */
+/* file: sgd_dense_minibatch_batch_oneapi_fpt.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -19,8 +19,8 @@
 //  Implementation of sgd calculation functions.
 //--
 
-#include "algorithms/kernel/optimization_solver/sgd/sgd_batch_container.h"
-#include "algorithms/kernel/optimization_solver/sgd/oneapi/sgd_dense_kernel_oneapi_instance.h"
+#include "algorithms/kernel/optimization_solver/sgd/oneapi/sgd_dense_kernel_oneapi.h"
+#include "algorithms/kernel/optimization_solver/sgd/oneapi/sgd_dense_minibatch_oneapi_impl.i"
 
 namespace daal
 {
@@ -30,22 +30,11 @@ namespace optimization_solver
 {
 namespace sgd
 {
-namespace interface2
-{
-template class BatchContainer<DAAL_FPTYPE, miniBatch, DAAL_CPU>;
-}
-
 namespace internal
 {
-template class SGDKernelOneAPI<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-template class SGDKernelOneAPI<DAAL_FPTYPE, miniBatch, DAAL_CPU>;
-template class SGDKernelOneAPI<DAAL_FPTYPE, momentum, DAAL_CPU>;
+template class SGDKernelOneAPI<DAAL_FPTYPE, miniBatch>;
 } // namespace internal
-
 } // namespace sgd
-
 } // namespace optimization_solver
-
 } // namespace algorithms
-
 } // namespace daal
