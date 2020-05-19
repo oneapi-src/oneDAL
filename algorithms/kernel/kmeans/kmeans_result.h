@@ -68,7 +68,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
         {
             set(assignments, HomogenNumericTable<int>::create(1, nRows, NumericTable::doAllocate, &status));
         }
-
     }
     else
     {
@@ -82,7 +81,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
         {
             set(assignments, HomogenNumericTable<int>::create(1, nRows, NumericTable::doAllocate, &status));
         }
-
     }
 
     return status;
