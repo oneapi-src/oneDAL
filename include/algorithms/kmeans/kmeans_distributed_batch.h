@@ -42,7 +42,7 @@ namespace interface1
 {
 enum Method
 {
-    defaultDense = 0,
+    defaultDense = 0
 };
 /**
  * @defgroup kmeans_batch Batch
