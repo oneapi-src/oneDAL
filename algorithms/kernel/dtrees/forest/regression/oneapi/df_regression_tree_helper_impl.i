@@ -41,14 +41,6 @@ namespace internal
 using namespace daal::algorithms::dtrees::internal;
 using namespace daal::services::internal;
 
-#define _P(...)              \
-    do                       \
-    {                        \
-        printf(__VA_ARGS__); \
-        printf("\n");        \
-        fflush(0);           \
-    } while (0);
-
 template <typename algorithmFPType, CpuType cpu>
 class RegressionTreeHelperOneAPI
 {

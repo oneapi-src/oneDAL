@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Declaration of structure containing kernels for decision forest 
+//  Declaration of structure containing kernels for decision forest
 //  training for GPU.
 //--
 */
