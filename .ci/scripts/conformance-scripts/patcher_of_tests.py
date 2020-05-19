@@ -14,10 +14,8 @@ case = {
 
     'lin_reg':[('from sklearn.linear_model.base import LinearRegression','from sklearn.linear_model import LinearRegression')],
 
-    'ridge_reg':[('from sklearn.linear_model.base import LinearRegression', 'from sklearn.linear_model import LinearRegression'),
-                 ('from sklearn.linear_model.ridge import ridge_regression', 'from sklearn.linear_model import ridge_regression'),
+    'ridge_reg':[('from sklearn.linear_model.ridge import ridge_regression', 'from sklearn.linear_model import ridge_regression'),
                  ('from sklearn.linear_model.ridge import Ridge', 'from sklearn.linear_model import Ridge'),
-                 ('from sklearn.linear_model.ridge import _RidgeGCV', 'from sklearn.linear_model import _RidgeGCV'),
                  ('from sklearn.linear_model.ridge import RidgeCV', 'from sklearn.linear_model import RidgeCV'),
                  ('from sklearn.linear_model.ridge import RidgeClassifier', 'from sklearn.linear_model import RidgeClassifier'),
                  ('from sklearn.linear_model.ridge import RidgeClassifierCV', 'from sklearn.linear_model import RidgeClassifierCV')]
