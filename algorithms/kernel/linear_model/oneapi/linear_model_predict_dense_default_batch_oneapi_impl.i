@@ -123,8 +123,11 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute(con
         const size_t yNCols = nResponses;
 
         /* SYRK: Compute beta*xTable for each block */
-        status = BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::Trans, xNRows, yNCols, xNCols,
-                                                 algorithmFPType(1.0), xBuf, xNCols, 0, betaBuf, nBetas, 1, algorithmFPType(0.0), yBuf, yNCols, 0);
+        status = yNCols == 1 ? BlasGpu<algorithmFPType>::xgemv(math::Layout::RowMajor, math::Transpose::NoTrans, xNCols, xNRows, algorithmFPType(1.0),
+                                                               xBuf, xNCols, 0, betaBuf, nBetas, 1, algorithmFPType(0.0), yBuf, yNCols, 0) :
+                               BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::Trans, xNRows,
+                                                               yNCols, xNCols, algorithmFPType(1.0), xBuf, xNCols, 0, betaBuf, nBetas, 1,
+                                                               algorithmFPType(0.0), yBuf, yNCols, 0);
 
         DAAL_CHECK_STATUS_VAR(status);
 

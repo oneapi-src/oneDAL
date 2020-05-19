@@ -133,9 +133,12 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.gemmXY);
             /* Compute XTY (in real YTX) for each block and reduce to final result*/
-            status =
-                BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::Trans, math::Transpose::NoTrans, yNCols, xNCols, xNRows,
-                                                algorithmFPType(1.0), yBuf, yNCols, 0, xBuf, xNCols, 0, algorithmFPType(1.0), xtyBuff, xtxNCols, 0);
+            status = yNCols == 1 ?
+                         BlasGpu<algorithmFPType>::xgemv(math::Layout::RowMajor, math::Transpose::Trans, xNRows, xNCols, algorithmFPType(1.0), yBuf,
+                                                         yNCols, 0, xBuf, xNCols, 0, algorithmFPType(1.0), xtyBuff, xtxNCols, 0) :
+                         BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::Trans, math::Transpose::NoTrans, yNCols, xNCols,
+                                                         xNRows, algorithmFPType(1.0), yBuf, yNCols, 0, xBuf, xNCols, 0, algorithmFPType(1.0),
+                                                         xtyBuff, xtxNCols, 0);
         }
         DAAL_CHECK_STATUS_VAR(status);
 
@@ -144,18 +147,24 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
             {
                 DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.gemm1X);
                 /* Compute reduce X in columns for each block and reduce it to final result*/
-                status = BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::NoTrans, 1, xNCols,
-                                                         xNRows, algorithmFPType(1.0), onesBuf, nRowsPerBlock, 0, xBuf, xNCols, 0,
-                                                         algorithmFPType(1.0), sumXBuf, xNCols, 0);
+                status = BlasGpu<algorithmFPType>::
+                    // xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::NoTrans, 1, xNCols,
+                    //                                          xNRows, algorithmFPType(1.0), onesBuf, nRowsPerBlock, 0, xBuf, xNCols, 0,
+                    //                                          algorithmFPType(1.0), sumXBuf, xNCols, 0);
+                    xgemv(math::Layout::RowMajor, math::Transpose::Trans, xNRows, xNCols, algorithmFPType(1.0), onesBuf, nRowsPerBlock, 0, xBuf,
+                          xNCols, 0, algorithmFPType(1.0), sumXBuf, xNCols, 0);
             }
             DAAL_CHECK_STATUS_VAR(status);
 
             {
                 DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.gemm1Y);
                 /* Compute reduce Y in columns for each block and reduce it to final result*/
-                status = BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::NoTrans, 1, yNCols,
-                                                         xNRows, algorithmFPType(1.0), onesBuf, nRowsPerBlock, 0, yBuf, yNCols, 0,
-                                                         algorithmFPType(1.0), sumYBuf, yNCols, 0);
+                status = BlasGpu<algorithmFPType>::
+                    // xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::NoTrans, 1, yNCols,
+                    //                                          xNRows, algorithmFPType(1.0), onesBuf, nRowsPerBlock, 0, yBuf, yNCols, 0,
+                    //                                          algorithmFPType(1.0), sumYBuf, yNCols, 0);
+                    xgemv(math::Layout::RowMajor, math::Transpose::Trans, xNRows, yNCols, algorithmFPType(1.0), onesBuf, nRowsPerBlock, 0, yBuf,
+                          yNCols, 0, algorithmFPType(1.0), sumYBuf, yNCols, 0);
             }
             DAAL_CHECK_STATUS_VAR(status);
         }
