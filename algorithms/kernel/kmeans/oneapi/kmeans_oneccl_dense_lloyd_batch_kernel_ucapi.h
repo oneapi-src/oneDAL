@@ -91,9 +91,9 @@ private:
                                  oneapi::internal::UniversalBuffer & dataSq, oneapi::internal::UniversalBuffer & distances,
                                  const services::Buffer<int> & assignments, const services::Buffer<algorithmFPType> & objFunction, uint32_t blockSize,
                                  uint32_t nClusters, uint32_t doReset, services::Status * st);
-    void finalizeCentroids(oneapi::internal::ExecutionContextIface & context, const oneapi::internal::KernelPtr & kernel_update_goal_function, 
-                            const oneapi::internal::UniversalBuffer &finalCounters, uint32_t nClusters, uint32_t nFeatures, 
-                            oneapi::internal::UniversalBuffer &finalCentroids, services::Status * st);
+    void finalizeCentroids(oneapi::internal::ExecutionContextIface & context, const oneapi::internal::KernelPtr & kernel_update_goal_function,
+                           const oneapi::internal::UniversalBuffer & finalCounters, uint32_t nClusters, uint32_t nFeatures,
+                           oneapi::internal::UniversalBuffer & finalCentroids, services::Status * st);
     uint32_t getCandidatePartNum(uint32_t nClusters);
     uint32_t getWorkgroupsCount(uint32_t rows);
     uint32_t getComputeSquaresWorkgroupsCount(uint32_t nFeatures);

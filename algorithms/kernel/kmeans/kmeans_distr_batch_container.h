@@ -59,12 +59,15 @@ daal::services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     algorithms::kmeans::Input * input   = static_cast<algorithms::kmeans::Input *>(_in);
     algorithms::kmeans::Result * result = static_cast<algorithms::kmeans::Result *>(_res);
 
-    NumericTable * a[algorithms::kmeans::lastInputId + 1] = { input->get(algorithms::kmeans::data).get(), input->get(algorithms::kmeans::inputCentroids).get() };
+    NumericTable * a[algorithms::kmeans::lastInputId + 1] = { input->get(algorithms::kmeans::data).get(),
+                                                              input->get(algorithms::kmeans::inputCentroids).get() };
 
-    NumericTable * r[algorithms::kmeans::lastResultId + 1] = { result->get(algorithms::kmeans::centroids).get(), result->get(algorithms::kmeans::assignments).get(), result->get(algorithms::kmeans::objectiveFunction).get(),
-                                           result->get(algorithms::kmeans::nIterations).get() };
+    NumericTable * r[algorithms::kmeans::lastResultId + 1] = { result->get(algorithms::kmeans::centroids).get(),
+                                                               result->get(algorithms::kmeans::assignments).get(),
+                                                               result->get(algorithms::kmeans::objectiveFunction).get(),
+                                                               result->get(algorithms::kmeans::nIterations).get() };
 
-    algorithms::Parameter * par                        = static_cast<algorithms::Parameter *>(_par);
+    algorithms::Parameter * par            = static_cast<algorithms::Parameter *>(_par);
     daal::services::Environment::env & env = *_env;
 
     return ((internal::KMeansOneCclDefaultBatchKernelUCAPI<algorithmFpType> *)(_kernel))->compute(a, r, par);

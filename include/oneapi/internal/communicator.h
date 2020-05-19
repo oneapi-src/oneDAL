@@ -34,28 +34,29 @@ namespace internal
 {
 namespace interface1
 {
-
 class CommunicatorIface
 {
 public:
     virtual ~CommunicatorIface() {}
     virtual void allReduceSum(oneapi::internal::UniversalBuffer dest, oneapi::internal::UniversalBuffer src, size_t count,
-              daal::services::Status * status = nullptr) = 0;
-    virtual void allGatherV(oneapi::internal::UniversalBuffer dest, size_t* recvCount, oneapi::internal::UniversalBuffer src, size_t srcCount,
-              daal::services::Status * status = nullptr) = 0;
-    virtual size_t size() = 0;
-    virtual size_t rank() = 0;
+                              daal::services::Status * status = nullptr) = 0;
+    virtual void allGatherV(oneapi::internal::UniversalBuffer dest, size_t * recvCount, oneapi::internal::UniversalBuffer src, size_t srcCount,
+                            daal::services::Status * status = nullptr)   = 0;
+    virtual size_t size()                                                = 0;
+    virtual size_t rank()                                                = 0;
 };
 
-class NoCommunicator: public CommunicatorIface
+class NoCommunicator : public CommunicatorIface
 {
 public:
     virtual void allReduceSum(oneapi::internal::UniversalBuffer dest, oneapi::internal::UniversalBuffer src, size_t count,
-              daal::services::Status * status = nullptr) {}
-    virtual void allGatherV(oneapi::internal::UniversalBuffer dest, size_t* recvCount, oneapi::internal::UniversalBuffer src, size_t srcCount,
-              daal::services::Status * status = nullptr) {}
-    virtual size_t size() {return 1;}
-    virtual size_t rank() {return 0;}
+                              daal::services::Status * status = nullptr)
+    {}
+    virtual void allGatherV(oneapi::internal::UniversalBuffer dest, size_t * recvCount, oneapi::internal::UniversalBuffer src, size_t srcCount,
+                            daal::services::Status * status = nullptr)
+    {}
+    virtual size_t size() { return 1; }
+    virtual size_t rank() { return 0; }
 };
 
 /** } */

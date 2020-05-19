@@ -23,7 +23,6 @@
 #include "ccl.h"
 #include "oneapi/internal/communicator.h"
 #include "oneapi/internal/types_comm_utils_cxx11.h"
-#include <iostream>
 
 namespace daal
 {
@@ -35,36 +34,24 @@ namespace internal
 {
 namespace interface1
 {
-
 class CommunicatorOneCclImpl : public CommunicatorIface
 {
 public:
-    CommunicatorOneCclImpl(cl::sycl::queue & deviceQueue)
-        : _deviceQueue(deviceQueue)
+    CommunicatorOneCclImpl(cl::sycl::queue & deviceQueue) : _deviceQueue(deviceQueue)
     {
-        std::cout << "Construct comm" << std::endl;
         ccl_init();
         ccl_get_comm_rank(NULL, &_rank);
         ccl_get_comm_size(NULL, &_size);
         ccl_stream_create(ccl_stream_sycl, &deviceQueue, &_stream);
-//        _rank = 0; 
-//        _size = 1;
-        std::cout << "Comm construction done" << std::endl;
     }
-    ~CommunicatorOneCclImpl()
-    {
-        ccl_finalize();
-    }
+    ~CommunicatorOneCclImpl() { ccl_finalize(); }
 
     void allReduceSum(oneapi::internal::UniversalBuffer src, oneapi::internal::UniversalBuffer dest, size_t count,
-              daal::services::Status * status = nullptr) DAAL_C11_OVERRIDE
+                      daal::services::Status * status = nullptr) DAAL_C11_OVERRIDE
     {
         DAAL_ASSERT(dest.type() == src.type());
-        // TODO: Thread safe?
         try
         {
-//            std::cout << "allReduce call" << std::endl;
-//            BufferCopier::copy(_deviceQueue, dest, 0, src, 0, count);
             BufferAllReducer::allReduceSum(_deviceQueue, _stream, dest, src, count);
         }
         catch (cl::sycl::exception const & e)
@@ -72,14 +59,12 @@ public:
             oneapi::internal::convertSyclExceptionToStatus(e, status);
         }
     }
-    void allGatherV(oneapi::internal::UniversalBuffer dest, size_t* recvCount, oneapi::internal::UniversalBuffer src, size_t srcCount,
-              daal::services::Status * status = nullptr) DAAL_C11_OVERRIDE
+    void allGatherV(oneapi::internal::UniversalBuffer dest, size_t * recvCount, oneapi::internal::UniversalBuffer src, size_t srcCount,
+                    daal::services::Status * status = nullptr) DAAL_C11_OVERRIDE
     {
         DAAL_ASSERT(dest.type() == src.type());
-        // TODO: Thread safe?
         try
         {
-            std::cout << "allGatherV call on rank " << _rank << " size " << _size << std::endl;
             BufferAllGatherer::allGatherV(_deviceQueue, _stream, dest, recvCount, src, srcCount);
         }
         catch (cl::sycl::exception const & e)
@@ -89,7 +74,6 @@ public:
     }
     size_t size() DAAL_C11_OVERRIDE { return _size; }
     size_t rank() DAAL_C11_OVERRIDE { return _rank; }
-
 
 private:
     cl::sycl::queue _deviceQueue;
@@ -104,7 +88,7 @@ private:
 using interface1::CommunicatorOneCclImpl;
 
 } // namespace internal
-} // namespace preview
+} // namespace comm
 } // namespace preview
 } // namespace daal
 

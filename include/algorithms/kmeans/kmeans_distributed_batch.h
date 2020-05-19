@@ -38,7 +38,6 @@ namespace distributed_kmeans
 {
 namespace interface1
 {
-
 enum Method
 {
     defaultDense = 0, /*!< Default: performance-oriented method, synonym of lloydDense */
@@ -145,7 +144,10 @@ public:
      * and parameters of this K-Means algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    daal::services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return daal::services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
+    daal::services::SharedPtr<Batch<algorithmFPType, method> > clone() const
+    {
+        return daal::services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
+    }
 
 protected:
     virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
@@ -153,8 +155,8 @@ protected:
     virtual daal::services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         _result.reset(new ResultType());
-        daal::services::Status s = ((algorithms::kmeans::Result*)_result.get())->allocate<algorithmFPType>(_in, _par, (int)method);
-        _res               = _result.get();
+        daal::services::Status s = ((algorithms::kmeans::Result *)_result.get())->allocate<algorithmFPType>(_in, _par, (int)method);
+        _res                     = _result.get();
         return s;
     }
 

@@ -431,16 +431,13 @@ DECLARE_SOURCE(
         }
     }
 
-    __kernel void finalize_clusters(__global const int * counters, __global algorithmFPType * clusters, int K) 
-    {
-        const int local_id   = get_local_id(1);
-        const int local_size = get_local_size(1);
+    __kernel void finalize_clusters(__global const int * counters, __global algorithmFPType * clusters, int K) {
+        const int local_id    = get_local_id(1);
+        const int local_size  = get_local_size(1);
         const int global_id   = get_global_id(0);
         const int global_size = get_global_size(0);
 
-
-        for(int i = local_id; i < K; i += local_size)
-            clusters[i + global_id * K] /= counters[global_id] > 0 ? counters[global_id] : 1.0; 
+        for (int i = local_id; i < K; i += local_size) clusters[i + global_id * K] /= counters[global_id] > 0 ? counters[global_id] : 1.0;
     }
 
 );

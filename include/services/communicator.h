@@ -52,6 +52,7 @@ private:
 
 public:
     Communicator() {}
+
 protected:
     explicit Communicator(ImplType * impl) : _impl(impl) {}
 
@@ -90,7 +91,7 @@ class OneCclCommunicator : public Communicator
 public:
     OneCclCommunicator(cl::sycl::queue & deviceQueue) : Communicator(createCommunicator(deviceQueue)) {}
 
-    private:
+private:
     static daal::preview::comm::internal::CommunicatorIface * createCommunicator(cl::sycl::queue & queue)
     {
         return new daal::preview::comm::internal::CommunicatorOneCclImpl(queue);
@@ -105,6 +106,5 @@ using interface1::OneCclCommunicator;
 } // namespace preview
 } // namespace daal
 #endif // DAAL_SYCL_INTERFACE
-
 
 #endif

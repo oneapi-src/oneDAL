@@ -53,7 +53,7 @@ public:
     daal::preview::comm::internal::CommunicatorIface & getDefaultCommunicator() { return *_communicator; }
 
 private:
-    CommManager() {this->setDefaultCommunicator(EmptyCommunicator());}
+    CommManager() { this->setDefaultCommunicator(EmptyCommunicator()); }
     CommManager(const CommManager & e);
     CommManager & operator=(const CommManager &);
     ~CommManager() {}

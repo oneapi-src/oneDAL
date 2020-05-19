@@ -31,13 +31,11 @@ namespace services
 {
 namespace interface1
 {
-
 DAAL_EXPORT CommManager * CommManager::getInstance()
 {
     static CommManager instance;
     return &instance;
 }
-
 
 } // namespace interface1
 } // namespace services
