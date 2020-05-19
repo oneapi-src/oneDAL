@@ -109,11 +109,11 @@ Status KMeansOneCclDefaultBatchKernelUCAPI<algorithmFPType>::compute(const Numer
     NumericTable * ntObjFunction  = const_cast<NumericTable *>(r[2]);
     NumericTable * ntNIterations  = const_cast<NumericTable *>(r[3]);
 
-    const size_t nIter                      = ((daal::algorithms::kmeans::interface1::Parameter *)par)->maxIterations;
+    const size_t nIter                      = ((daal::algorithms::kmeans::Parameter *)par)->maxIterations;
     const size_t nRows                      = ntData->getNumberOfRows();
     const size_t nFeatures                  = ntData->getNumberOfColumns();
-    const size_t nClusters                  = ((daal::algorithms::kmeans::interface1::Parameter *)par)->nClusters;
-    const algorithmFPType accuracyThreshold = ((daal::algorithms::kmeans::interface1::Parameter *)par)->accuracyThreshold;
+    const size_t nClusters                  = ((daal::algorithms::kmeans::Parameter *)par)->nClusters;
+    const algorithmFPType accuracyThreshold = ((daal::algorithms::kmeans::Parameter *)par)->accuracyThreshold;
 
     uint32_t rankSize  = nRows / commSize + (uint32_t)((bool)(nRows % commSize));
     uint32_t rankFirst = rankSize * commRank;
