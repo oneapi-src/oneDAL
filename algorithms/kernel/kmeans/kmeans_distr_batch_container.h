@@ -32,6 +32,8 @@
 
 namespace daal
 {
+namespace algorithms
+{
 namespace preview
 {
 namespace distributed_kmeans
@@ -76,6 +78,7 @@ daal::services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 } // namespace interface1
 } // namespace distributed_kmeans
 } // namespace preview
+} // namespace algorithms
 } // namespace daal
 
 #endif

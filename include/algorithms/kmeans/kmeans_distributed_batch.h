@@ -32,6 +32,8 @@
 
 namespace daal
 {
+namespace algorithms
+{
 namespace preview
 {
 namespace distributed_kmeans
@@ -184,5 +186,6 @@ using interface1::Batch;
 
 } // namespace distributed_kmeans
 } // namespace preview
+} // namespace algorithms
 } // namespace daal
 #endif

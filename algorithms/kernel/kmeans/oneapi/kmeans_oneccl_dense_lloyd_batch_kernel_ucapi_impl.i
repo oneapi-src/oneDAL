@@ -82,6 +82,8 @@ inline uint32_t constStrLen(const char * s)
 
 namespace daal
 {
+namespace algorithms
+{
 namespace preview
 {
 namespace distributed_kmeans
@@ -98,7 +100,7 @@ Status KMeansOneCclDefaultBatchKernelUCAPI<algorithmFPType>::compute(const Numer
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
 
-    auto & comm       = preview::services::CommManager::getInstance()->getDefaultCommunicator();
+    auto & comm       = daal::preview::services::CommManager::getInstance()->getDefaultCommunicator();
     uint32_t commSize = comm.size();
     uint32_t commRank = comm.rank();
 
@@ -755,6 +757,7 @@ void KMeansOneCclDefaultBatchKernelUCAPI<algorithmFPType>::finalizeCentroids(Exe
 } // namespace internal
 } // namespace distributed_kmeans
 } // namespace preview
+} // namespace algorithms
 } // namespace daal
 
 #endif

@@ -26,6 +26,8 @@
 
 namespace daal
 {
+namespace algorithms
+{
 namespace preview
 {
 namespace distributed_kmeans
@@ -36,4 +38,5 @@ template class KMeansOneCclDefaultBatchKernelUCAPI<DAAL_FPTYPE>;
 } // namespace internal
 } // namespace distributed_kmeans
 } // namespace preview
+} // namespace algorithms
 } // namespace daal

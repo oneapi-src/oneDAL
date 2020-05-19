@@ -34,6 +34,8 @@ using namespace daal::data_management;
 
 namespace daal
 {
+namespace algorithms
+{
 namespace preview
 {
 namespace distributed_kmeans
@@ -108,6 +110,7 @@ private:
 } // namespace internal
 } // namespace distributed_kmeans
 } // namespace preview
+} // namespace algorithms
 } // namespace daal
 
 #endif

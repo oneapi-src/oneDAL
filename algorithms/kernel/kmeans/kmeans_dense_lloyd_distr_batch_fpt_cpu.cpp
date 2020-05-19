@@ -27,6 +27,8 @@
 
 namespace daal
 {
+namespace algorithms
+{
 namespace preview
 {
 namespace distributed_kmeans
@@ -37,4 +39,5 @@ template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 } // namespace interface1
 } // namespace distributed_kmeans
 } // namespace preview
+} // namespace algorithms
 } // namespace daal
