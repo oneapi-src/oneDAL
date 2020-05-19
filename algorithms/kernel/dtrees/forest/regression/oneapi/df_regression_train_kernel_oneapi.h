@@ -1,6 +1,6 @@
 /* file: df_regression_train_kernel_oneapi.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -78,7 +78,7 @@ private:
 
     services::Status computeBestSplit(const oneapi::internal::UniversalBuffer & data, oneapi::internal::UniversalBuffer & treeOrder,
                                       oneapi::internal::UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
-                                      oneapi::internal::UniversalBuffer & response, oneapi::internal::UniversalBuffer & nodeOffsets,
+                                      const services::Buffer<algorithmFPType> & response, oneapi::internal::UniversalBuffer & nodeOffsets,
                                       oneapi::internal::UniversalBuffer & binOffsets, oneapi::internal::UniversalBuffer & splitInfo,
                                       oneapi::internal::UniversalBuffer & nodeImpDecreaseList, bool updateImpDecreaseRequired, size_t nFeatures,
                                       size_t nNodes, size_t minObservationsInLeafNode, algorithmFPType impurityThreshold);
@@ -94,7 +94,7 @@ private:
 
     services::Status computePartialHistograms(const oneapi::internal::UniversalBuffer & data, oneapi::internal::UniversalBuffer & treeOrder,
                                               oneapi::internal::UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
-                                              oneapi::internal::UniversalBuffer & response, oneapi::internal::UniversalBuffer & nodeList,
+                                              const services::Buffer<algorithmFPType> & response, oneapi::internal::UniversalBuffer & nodeList,
                                               oneapi::internal::UniversalBuffer & nodeIndices, size_t nodeIndicesOffset,
                                               oneapi::internal::UniversalBuffer & binOffsets, size_t nMaxBinsAmongFtrs, size_t nFeatures,
                                               size_t nNodes, oneapi::internal::UniversalBuffer & partialHistograms, size_t nPartialHistograms);
@@ -108,7 +108,7 @@ private:
 
     services::Status updateMDIVarImportance(const oneapi::internal::UniversalBuffer & nodeList,
                                             const oneapi::internal::UniversalBuffer & nodeImpDecreaseList, size_t nNodes,
-                                            oneapi::internal::UniversalBuffer & varImp, size_t nFeatures);
+                                            services::Buffer<algorithmFPType> & varImp, size_t nFeatures);
 
     services::Status computeResults(const dtrees::internal::Tree & t, const algorithmFPType * x, const algorithmFPType * y, const size_t nRows,
                                     const size_t nFeatures, const oneapi::internal::UniversalBuffer & oobIndices, size_t nOOB,
@@ -128,11 +128,13 @@ private:
 
     services::Status finalizeVarImp(const Parameter & par, algorithmFPType * varImp, algorithmFPType * varImpVariance, size_t nFeatures);
 
+    oneapi::internal::KernelPtr kernelBumper;
+
     oneapi::internal::KernelPtr kernelInitializeTreeOrder;
     oneapi::internal::KernelPtr kernelComputePartialHistograms;
     oneapi::internal::KernelPtr kernelReducePartialHistograms;
     oneapi::internal::KernelPtr kernelComputeBestSplitByHistogram;
-    oneapi::internal::KernelPtr kernelComputeBestSplit;
+    oneapi::internal::KernelPtr kernelComputeBestSplitSinglePass;
     oneapi::internal::KernelPtr kernelPartitionCopy;
 
     oneapi::internal::KernelPtr kernelConvertSplitToLeaf;

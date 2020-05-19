@@ -1,6 +1,6 @@
 /* file: df_regression_tree_helper_impl.i */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -40,6 +40,14 @@ namespace internal
 {
 using namespace daal::algorithms::dtrees::internal;
 using namespace daal::services::internal;
+
+#define _P(...)              \
+    do                       \
+    {                        \
+        printf(__VA_ARGS__); \
+        printf("\n");        \
+        fflush(0);           \
+    } while (0);
 
 template <typename algorithmFPType, CpuType cpu>
 class RegressionTreeHelperOneAPI

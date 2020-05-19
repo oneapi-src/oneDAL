@@ -1,6 +1,6 @@
 /* file: df_kernels.cl */
 /*******************************************************************************
-* Copyright 2019-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -59,11 +59,12 @@ DECLARE_SOURCE(
         *mrgSum2Cent += delta * (val - *mrgMean);
     }
 
-    __kernel void computeBestSplit(const __global int * data, const __global int * treeOrder, const __global int * selectedFeatures,
-                                   int nSelectedFeatures, const __global algorithmFPType * response, const __global int * binOffsets,
-                                   __global int * nodeList, const __global int * nodeIndices, int nodeIndicesOffset,
-                                   __global algorithmFPType * splitInfo, __global algorithmFPType * nodeImpDecreaseList,
-                                   int updateImpDecreaseRequired, int nFeatures, int minObservationsInLeafNode, algorithmFPType impurityThreshold) {
+    __kernel void computeBestSplitSinglePass(const __global int * data, const __global int * treeOrder, const __global int * selectedFeatures,
+                                             int nSelectedFeatures, const __global algorithmFPType * response, const __global int * binOffsets,
+                                             __global int * nodeList, const __global int * nodeIndices, int nodeIndicesOffset,
+                                             __global algorithmFPType * splitInfo, __global algorithmFPType * nodeImpDecreaseList,
+                                             int updateImpDecreaseRequired, int nFeatures, int minObservationsInLeafNode,
+                                             algorithmFPType impurityThreshold) {
         // this kernel is targeted for processing nodes with small number of rows
         // nodeList will be updated with split attributes
         // spliInfo will contain node impurity and mean
@@ -182,21 +183,7 @@ DECLARE_SOURCE(
 
             algorithmFPType impDec = mrgSum2Cent - (mrgLSum2Cent + mrgRSum2Cent);
 
-            if (mrgSum2Cent / mrgN < impurityThreshold)
-            {
-                __global algorithmFPType * splitNodeInfo = splitInfo + nodeId * nImpProp;
-                nodeList[nodeId * nNodeProp + 2]         = curFeatureId == valNotFound ? -1 : curFeatureId;
-                nodeList[nodeId * nNodeProp + 3]         = curFeatureValue == valNotFound ? -1 : curFeatureValue;
-                nodeList[nodeId * nNodeProp + 4]         = (int)bestLN;
-
-                splitNodeInfo[0] = ((algorithmFPType)0 != mrgN) ? mrgSum2Cent / mrgN : (algorithmFPType)0;
-                splitNodeInfo[1] = mrgMean;
-
-                if (updateImpDecreaseRequired) nodeImpDecreaseList[nodeId] = (algorithmFPType)0;
-                return;
-            }
-
-            if ((algorithmFPType)0 < impDec
+            if ((algorithmFPType)0 < impDec && (mrgSum2Cent / mrgN) >= impurityThreshold
                 && (curFeatureValue == -1 || impDec > curImpDec || (fpIsEqual(impDec, curImpDec) && featId < curFeatureId))
                 && mrgRN >= minObservationsInLeafNode && mrgLN >= minObservationsInLeafNode)
             {
@@ -281,7 +268,7 @@ DECLARE_SOURCE(
                                               const __global int * nodeIndices, int nodeIndicesOffset, __global algorithmFPType * splitInfo,
                                               __global algorithmFPType * nodeImpDecreaseList, int updateImpDecreaseRequired, int nMaxBinsAmongFtrs,
                                               int minObservationsInLeafNode, algorithmFPType impurityThreshold) {
-        // this kernel has almost the same code as computeBestSplit
+        // this kernel has almost the same code as computeBestSplitSinglePass
         // the difference is that here for each potential split point we pass through bins hist instead of rows
         // nodeList will be updated with split attributes in this kernel
         // spliInfo will contain node impurity and mean
@@ -409,21 +396,7 @@ DECLARE_SOURCE(
 
             algorithmFPType impDec = mrgSum2Cent - (mrgLSum2Cent + mrgRSum2Cent);
 
-            if (mrgSum2Cent / mrgN < impurityThreshold)
-            {
-                __global algorithmFPType * splitNodeInfo = splitInfo + nodeId * nImpProp;
-                nodeList[nodeId * nNodeProp + 2]         = curFeatureId == valNotFound ? -1 : curFeatureId;
-                nodeList[nodeId * nNodeProp + 3]         = curFeatureValue == valNotFound ? -1 : curFeatureValue;
-                nodeList[nodeId * nNodeProp + 4]         = (int)bestLN;
-
-                splitNodeInfo[0] = ((algorithmFPType)0 != mrgN) ? mrgSum2Cent / mrgN : (algorithmFPType)0;
-                splitNodeInfo[1] = mrgMean;
-
-                if (updateImpDecreaseRequired) nodeImpDecreaseList[nodeId] = (algorithmFPType)0;
-                return;
-            }
-
-            if ((algorithmFPType)0 < impDec
+            if ((algorithmFPType)0 < impDec && (mrgSum2Cent / mrgN) >= impurityThreshold
                 && (curFeatureValue == -1 || impDec > curImpDec || (fpIsEqual(impDec, curImpDec) && featId < curFeatureId))
                 && mrgRN >= minObservationsInLeafNode && mrgLN >= minObservationsInLeafNode)
             {

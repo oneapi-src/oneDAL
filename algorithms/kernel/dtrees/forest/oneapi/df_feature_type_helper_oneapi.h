@@ -1,6 +1,6 @@
 /* file: df_feature_type_helper_oneapi.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@
 #include "algorithms/kernel/service_error_handling.h"
 #include "algorithms/kernel/service_sort.h"
 #include "algorithms/kernel/dtrees/service_array.h"
+#include "service/kernel/service_arrays.h"
 #include "externals/service_memory.h"
 #include "service/kernel/service_data_utils.h"
 #include "service/kernel/data_management/service_numeric_table.h"
@@ -70,7 +71,7 @@ public:
     };
 
 public:
-    IndexedFeaturesOneAPI() : _data(), _entries(nullptr), _sizeOfIndex(sizeof(IndexType)), _nCols(0), _nRows(0), _capacity(0), _maxNumIndices(0) {}
+    IndexedFeaturesOneAPI() : _data(), _sizeOfIndex(sizeof(IndexType)), _nCols(0), _nRows(0), _capacity(0), _maxNumIndices(0) {}
     ~IndexedFeaturesOneAPI();
 
     services::Status init(NumericTable & nt, const dtrees::internal::FeatureTypes * featureTypes, const dtrees::internal::BinParams * pBinPrm);
@@ -80,7 +81,7 @@ public:
 
     IndexType totalBins() const { return _totalBins; }
 
-    oneapi::internal::UniversalBuffer & binBorders(size_t iCol) const { return _entries[iCol].binBorders; }
+    oneapi::internal::UniversalBuffer & binBorders(size_t iCol) { return _entries[iCol].binBorders; }
 
     oneapi::internal::UniversalBuffer & binOffsets() { return _binOffsets; }
 
@@ -97,19 +98,6 @@ protected:
 
     services::Status extractColumn(const services::Buffer<algorithmFPType> & data, oneapi::internal::UniversalBuffer & values,
                                    oneapi::internal::UniversalBuffer & indices, int featureId, int nFeatures, int nRows);
-
-    services::Status radixScan(oneapi::internal::UniversalBuffer & values, oneapi::internal::UniversalBuffer & partialHists, int nRows, int bitOffset,
-                               int localSize, int nLocalSums);
-
-    services::Status radixHistScan(oneapi::internal::UniversalBuffer & partialHists, oneapi::internal::UniversalBuffer & partialPrefixHists,
-                                   int nSubgroupSums, int localSize);
-
-    services::Status radixReorder(oneapi::internal::UniversalBuffer & valuesSrc, oneapi::internal::UniversalBuffer & indicesSrc,
-                                  oneapi::internal::UniversalBuffer & partialPrefixHist, oneapi::internal::UniversalBuffer & valuesDst,
-                                  oneapi::internal::UniversalBuffer & indicesDst, int nRows, int bitOffset, int localSize, int nLocalHists);
-
-    services::Status radixSort(oneapi::internal::UniversalBuffer & values, oneapi::internal::UniversalBuffer & indices,
-                               oneapi::internal::UniversalBuffer & values_buf, oneapi::internal::UniversalBuffer & indices_buf, int nRows);
 
     services::Status collectBinBorders(oneapi::internal::UniversalBuffer & values, oneapi::internal::UniversalBuffer & binOffsets,
                                        oneapi::internal::UniversalBuffer & binBorders, int nRows, int maxBins);
@@ -132,7 +120,7 @@ protected:
     services::Collection<oneapi::internal::UniversalBuffer> _data;
     oneapi::internal::UniversalBuffer _fullData;
     oneapi::internal::UniversalBuffer _binOffsets;
-    FeatureEntry * _entries;
+    daal::internal::TArray<FeatureEntry, sse2> _entries;
     size_t _sizeOfIndex;
     size_t _nRows;
     size_t _nCols;
@@ -148,7 +136,6 @@ protected:
     const uint32_t _maxWorkItemsPerGroup = 128;   // should be a power of two for interal needs
     const uint32_t _maxLocalBuffer       = 30000; // should be less than a half of local memory (two buffers)
     const uint32_t _preferableSubGroup   = 16;    // preferable maximal sub-group size
-    const uint32_t _radixBits            = 4;
 };
 
 class TreeNodeStorage

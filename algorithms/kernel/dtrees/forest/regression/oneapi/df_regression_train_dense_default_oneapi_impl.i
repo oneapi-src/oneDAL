@@ -1,6 +1,6 @@
 /* file: df_regression_train_dense_default_oneapi_impl.i */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -76,7 +76,7 @@ static services::String getFPTypeAccuracy()
 }
 
 template <typename algorithmFPType>
-static void __buildProgram(ClKernelFactoryIface & factory)
+static void buildProgram(ClKernelFactoryIface & factory)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.buildProgram);
     {
@@ -138,10 +138,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::getO
 
     context.fill(rowsBuffer, absentMark, &status);
     DAAL_CHECK_STATUS_VAR(status);
-
-#ifdef CHECKTIME
-    timer mark_st = timer::start();
-#endif
 
     {
         auto & kernel = kernelMarkPresentRows;
@@ -478,7 +474,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 template <typename algorithmFPType, decision_forest::regression::training::Method method>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::computeBestSplit(
     const UniversalBuffer & data, UniversalBuffer & treeOrder, UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
-    UniversalBuffer & response, UniversalBuffer & nodeList, UniversalBuffer & binOffsets, UniversalBuffer & impList,
+    const services::Buffer<algorithmFPType> & response, UniversalBuffer & nodeList, UniversalBuffer & binOffsets, UniversalBuffer & impList,
     UniversalBuffer & nodeImpDecreaseList, bool updateImpDecreaseRequired, size_t nFeatures, size_t nNodes, size_t minObservationsInLeafNode,
     algorithmFPType impurityThreshold)
 {
@@ -532,9 +528,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         }
         else
         {
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeBestSplitForLevelSinglePass);
+            DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeBestSplitSinglePass);
 
-            auto & kernel = kernelComputeBestSplit;
+            auto & kernel = kernelComputeBestSplitSinglePass;
 
             {
                 KernelArguments args(15);
@@ -578,8 +574,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 template <typename algorithmFPType, decision_forest::regression::training::Method method>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::computePartialHistograms(
     const UniversalBuffer & data, UniversalBuffer & treeOrder, UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
-    UniversalBuffer & response, UniversalBuffer & nodeList, UniversalBuffer & nodeIndices, size_t nodeIndicesOffset, UniversalBuffer & binOffsets,
-    size_t nMaxBinsAmongFtrs, size_t nFeatures, size_t nNodes, UniversalBuffer & partialHistograms, size_t nPartialHistograms)
+    const services::Buffer<algorithmFPType> & response, UniversalBuffer & nodeList, UniversalBuffer & nodeIndices, size_t nodeIndicesOffset,
+    UniversalBuffer & binOffsets, size_t nMaxBinsAmongFtrs, size_t nFeatures, size_t nNodes, UniversalBuffer & partialHistograms,
+    size_t nPartialHistograms)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computePartialHistograms);
 
@@ -595,7 +592,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         args.set(1, treeOrder, AccessModeIds::read);
         args.set(2, nodeList, AccessModeIds::read);
         args.set(3, nodeIndices, AccessModeIds::read);
-        args.set(4, nodeIndicesOffset);
+        args.set(4, (int)nodeIndicesOffset);
         args.set(5, selectedFeatures, AccessModeIds::read);
         args.set(6, response, AccessModeIds::read);
         args.set(7, binOffsets, AccessModeIds::read);
@@ -690,7 +687,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
 template <typename algorithmFPType, decision_forest::regression::training::Method method>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::updateMDIVarImportance(const UniversalBuffer & nodeList,
                                                                                                    const UniversalBuffer & nodeImpDecreaseList,
-                                                                                                   size_t nNodes, UniversalBuffer & varImp,
+                                                                                                   size_t nNodes,
+                                                                                                   services::Buffer<algorithmFPType> & varImp,
                                                                                                    size_t nFeatures)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateMDIVarImportance);
@@ -772,14 +770,15 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     size_t nBuiltTrees, const engines::EnginePtr & engine, const Parameter & par)
 {
     services::Status status;
-    const bool bMDA(par.varImportance == decision_forest::training::MDA_Raw || par.varImportance == decision_forest::training::MDA_Scaled);
+    const bool mdaRequired(par.varImportance == decision_forest::training::MDA_Raw || par.varImportance == decision_forest::training::MDA_Scaled);
 
     if ((par.resultsToCompute & (decision_forest::training::computeOutOfBagError | decision_forest::training::computeOutOfBagErrorPerObservation)
-         || bMDA)
+         || mdaRequired)
         && nOOB)
     {
         const algorithmFPType oobError = computeOOBError(t, x, y, nRows, nFeatures, oobIndices, nOOB, oobBuf, &status);
-        if (bMDA)
+
+        if (mdaRequired)
         {
             TArray<int, sse2> permutation(nOOB);
             DAAL_CHECK_MALLOC(permutation.get());
@@ -949,10 +948,10 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     const size_t nFeatures         = x->getNumberOfColumns();
     const size_t nSelectedFeatures = par.featuresPerNode ? par.featuresPerNode : (nFeatures > 3 ? nFeatures / 3 : 1);
 
-    const bool bMDA(par.varImportance == decision_forest::training::MDA_Raw || par.varImportance == decision_forest::training::MDA_Scaled);
+    const bool mdaRequired(par.varImportance == decision_forest::training::MDA_Raw || par.varImportance == decision_forest::training::MDA_Scaled);
     const bool oobRequired =
         (par.resultsToCompute & (decision_forest::training::computeOutOfBagError | decision_forest::training::computeOutOfBagErrorPerObservation)
-         || bMDA);
+         || mdaRequired);
 
     decision_forest::regression::internal::ModelImpl & mdImpl =
         *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m);
@@ -961,11 +960,11 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
 
-    __buildProgram<algorithmFPType>(kernel_factory);
+    buildProgram<algorithmFPType>(kernel_factory);
 
     kernelInitializeTreeOrder         = kernel_factory.getKernel("initializeTreeOrder", &status);
     kernelComputeBestSplitByHistogram = kernel_factory.getKernel("computeBestSplitByHistogram", &status);
-    kernelComputeBestSplit            = kernel_factory.getKernel("computeBestSplit", &status);
+    kernelComputeBestSplitSinglePass  = kernel_factory.getKernel("computeBestSplitSinglePass", &status);
     kernelComputePartialHistograms    = kernel_factory.getKernel("computePartialHistograms", &status);
     kernelReducePartialHistograms     = kernel_factory.getKernel("reducePartialHistograms", &status);
     kernelPartitionCopy               = kernel_factory.getKernel("partitionCopy", &status);
@@ -990,16 +989,12 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     DAAL_CHECK_MALLOC(featTypes.init(*x));
     DAAL_CHECK_STATUS(status, (indexedFeatures.init(*const_cast<NumericTable *>(x), &featTypes, &prm)));
 
-    const size_t _nSelectedRows = par.observationsPerTreeFraction * nRows;
-    daal::services::internal::TArray<int, sse2> selectedRowsHost(_nSelectedRows);
+    const size_t nSelectedRows = par.observationsPerTreeFraction * nRows;
+    daal::services::internal::TArray<int, sse2> selectedRowsHost(nSelectedRows);
     DAAL_CHECK_MALLOC(selectedRowsHost.get());
 
-    auto treeOrderLev    = context.allocate(TypeIds::id<int>(), _nSelectedRows, &status);
-    auto treeOrderLevBuf = context.allocate(TypeIds::id<int>(), _nSelectedRows, &status);
-
-    BlockDescriptor<algorithmFPType> responseBlock;
-    DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(y)->getBlockOfRows(0, nRows, readOnly, responseBlock));
-    auto response = UniversalBuffer(responseBlock.getBuffer());
+    auto treeOrderLev    = context.allocate(TypeIds::id<int>(), nSelectedRows, &status);
+    auto treeOrderLevBuf = context.allocate(TypeIds::id<int>(), nSelectedRows, &status);
 
     BlockDescriptor<algorithmFPType> dataBlock;
     DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(x)->getBlockOfRows(0, nRows, readOnly, dataBlock));
@@ -1008,12 +1003,12 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     bool mdiRequired         = (par.varImportance == decision_forest::training::MDI);
     auto nodeImpDecreaseList = context.allocate(TypeIds::id<algorithmFPType>(), 1, &status); // holder will be reallocated in loop
     BlockDescriptor<algorithmFPType> varImpBlock;
-    DAAL_CHECK_STATUS_VAR(res.get(variableImportance)->getBlockOfRows(0, 1, writeOnly, varImpBlock));
+    NumericTablePtr varImpResPtr = res.get(variableImportance);
 
-    if (mdiRequired)
+    if (mdiRequired || mdaRequired)
     {
-        auto varImpUB = UniversalBuffer(varImpBlock.getBuffer());
-        context.fill(varImpUB, (algorithmFPType)0, &status);
+        DAAL_CHECK_STATUS_VAR(varImpResPtr->getBlockOfRows(0, 1, writeOnly, varImpBlock));
+        context.fill(varImpBlock.getBuffer(), (algorithmFPType)0, &status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -1050,11 +1045,14 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 
     if (!par.bootstrap)
     {
-        DAAL_CHECK_STATUS_VAR(initializeTreeOrder(_nSelectedRows, treeOrderLev));
+        DAAL_CHECK_STATUS_VAR(initializeTreeOrder(nSelectedRows, treeOrderLev));
     }
 
     for (size_t iter = 0; (iter < par.nTrees) && !algorithms::internal::isCancelled(status, pHostApp); ++iter)
     {
+        BlockDescriptor<algorithmFPType> responseBlock;
+        DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(y)->getBlockOfRows(0, nRows, readOnly, responseBlock));
+
         size_t nNodes   = 1; // num of potential nodes to split on current tree level
         size_t nOOBRows = 0;
 
@@ -1069,8 +1067,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 
         {
             auto rootNode     = levelNodeLists[0].template get<int>().toHost(ReadWriteMode::writeOnly);
-            rootNode.get()[0] = 0;              // rows offset
-            rootNode.get()[1] = _nSelectedRows; // num of rows
+            rootNode.get()[0] = 0;             // rows offset
+            rootNode.get()[1] = nSelectedRows; // num of rows
         }
 
         auto engineImpl = dynamic_cast<engines::internal::BatchBaseImpl *>(engines[iter].get());
@@ -1081,16 +1079,16 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
             // TODO migrate to gpu generators and gpu sort version
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.RNG);
             daal::internal::RNGs<int, sse2> rng;
-            rng.uniform(_nSelectedRows, selectedRowsHost.get(), engineImpl->getState(), 0, nRows);
-            daal::algorithms::internal::qSort<int, sse2>(_nSelectedRows, selectedRowsHost.get());
+            rng.uniform(nSelectedRows, selectedRowsHost.get(), engineImpl->getState(), 0, nRows);
+            daal::algorithms::internal::qSort<int, sse2>(nSelectedRows, selectedRowsHost.get());
 
-            context.copy(treeOrderLev, 0, (void *)selectedRowsHost.get(), 0, _nSelectedRows, &status);
+            context.copy(treeOrderLev, 0, (void *)selectedRowsHost.get(), 0, nSelectedRows, &status);
             DAAL_CHECK_STATUS_VAR(status);
         }
 
         if (oobRequired)
         {
-            getOOBRows(treeOrderLev, _nSelectedRows, nOOBRows, oobRows); // nOOBRows and oobRows are the output
+            getOOBRows(treeOrderLev, nSelectedRows, nOOBRows, oobRows); // nOOBRows and oobRows are the output
         }
 
         for (size_t level = 0; nNodes > 0; level++)
@@ -1133,9 +1131,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
                 nodeImpDecreaseList = context.allocate(TypeIds::id<algorithmFPType>(), nNodes, &status);
             }
 
-            DAAL_CHECK_STATUS_VAR(computeBestSplit(indexedFeatures.getFullData(), treeOrderLev, selectedFeaturesCom, nSelectedFeatures, response,
-                                                   nodeList, indexedFeatures.binOffsets(), impList, nodeImpDecreaseList, mdiRequired, nFeatures,
-                                                   nNodes, par.minObservationsInLeafNode, par.impurityThreshold));
+            DAAL_CHECK_STATUS_VAR(computeBestSplit(indexedFeatures.getFullData(), treeOrderLev, selectedFeaturesCom, nSelectedFeatures,
+                                                   responseBlock.getBuffer(), nodeList, indexedFeatures.binOffsets(), impList, nodeImpDecreaseList,
+                                                   mdiRequired, nFeatures, nNodes, par.minObservationsInLeafNode, par.impurityThreshold));
 
             {
                 TreeLevel levelRec;
@@ -1154,8 +1152,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
             if (mdiRequired)
             {
                 /*mdi is calculated only on split nodes and not calculated on last level*/
-                auto varImpUB = UniversalBuffer(varImpBlock.getBuffer());
-                DAAL_CHECK_STATUS_VAR(updateMDIVarImportance(nodeList, nodeImpDecreaseList, nNodes, varImpUB, nFeatures));
+                auto varImpBuffer = varImpBlock.getBuffer();
+                DAAL_CHECK_STATUS_VAR(updateMDIVarImportance(nodeList, nodeImpDecreaseList, nNodes, varImpBuffer, nFeatures));
             }
 
             size_t nNodesNewLevel;
@@ -1176,7 +1174,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
                 levelNodeImpLists.push_back(impListNewLevel);
 
                 DAAL_CHECK_STATUS_VAR(
-                    doLevelPartition(indexedFeatures.getFullData(), nodeList, nNodes, treeOrderLev, treeOrderLevBuf, nRows, nFeatures));
+                    doLevelPartition(indexedFeatures.getFullData(), nodeList, nNodes, treeOrderLev, treeOrderLevBuf, nSelectedRows, nFeatures));
             }
 
             nNodes = nNodesNewLevel;
@@ -1200,27 +1198,37 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 
         mdImpl.add(mTreeHelper._tree, 0 /*nClasses*/);
 
-        DAAL_CHECK_STATUS_VAR(computeResults(mTreeHelper._tree, dataBlock.getBlockPtr(), responseBlock.getBlockPtr(), nRows, nFeatures, oobRows,
-                                             nOOBRows, oobBufferPerObs, varImpBlock.getBlockPtr(), varImpVariance.get(), iter + 1, engines[iter],
-                                             par));
+        DAAL_CHECK_STATUS_VAR(computeResults(mTreeHelper._tree, dataBlock.getBlockPtr(), responseBlock.getBlockPtr(), nSelectedRows, nFeatures,
+                                             oobRows, nOOBRows, oobBufferPerObs, varImpBlock.getBlockPtr(), varImpVariance.get(), iter + 1,
+                                             engines[iter], par));
+
+        DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(y)->releaseBlockOfRows(responseBlock));
     }
 
     /* Finalize results */
     if (par.resultsToCompute & (decision_forest::training::computeOutOfBagError | decision_forest::training::computeOutOfBagErrorPerObservation))
     {
+        BlockDescriptor<algorithmFPType> responseBlock;
+        DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(y)->getBlockOfRows(0, nRows, readOnly, responseBlock));
+
+        NumericTablePtr oobErrPtr = res.get(outOfBagError);
         BlockDescriptor<algorithmFPType> oobErrBlock;
         if (par.resultsToCompute & decision_forest::training::computeOutOfBagError)
-            DAAL_CHECK_STATUS_VAR(res.get(outOfBagError)->getBlockOfRows(0, 1, writeOnly, oobErrBlock));
+            DAAL_CHECK_STATUS_VAR(oobErrPtr->getBlockOfRows(0, 1, writeOnly, oobErrBlock));
 
+        NumericTablePtr oobErrPerObsPtr = res.get(outOfBagErrorPerObservation);
         BlockDescriptor<algorithmFPType> oobErrPerObsBlock;
         if (par.resultsToCompute & decision_forest::training::computeOutOfBagErrorPerObservation)
-            DAAL_CHECK_STATUS_VAR(res.get(outOfBagErrorPerObservation)->getBlockOfRows(0, nRows, writeOnly, oobErrPerObsBlock));
+            DAAL_CHECK_STATUS_VAR(oobErrPerObsPtr->getBlockOfRows(0, nRows, writeOnly, oobErrPerObsBlock));
 
         DAAL_CHECK_STATUS_VAR(
             finalizeOOBError(responseBlock.getBlockPtr(), oobBufferPerObs, nRows, oobErrBlock.getBlockPtr(), oobErrPerObsBlock.getBlockPtr()));
 
-        DAAL_CHECK_STATUS_VAR(res.get(outOfBagError)->releaseBlockOfRows(oobErrBlock));
-        DAAL_CHECK_STATUS_VAR(res.get(outOfBagErrorPerObservation)->releaseBlockOfRows(oobErrPerObsBlock));
+        if (oobErrPtr) DAAL_CHECK_STATUS_VAR(oobErrPtr->releaseBlockOfRows(oobErrBlock));
+
+        if (oobErrPerObsPtr) DAAL_CHECK_STATUS_VAR(oobErrPerObsPtr->releaseBlockOfRows(oobErrPerObsBlock));
+
+        DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(y)->releaseBlockOfRows(responseBlock));
     }
 
     if (par.varImportance != decision_forest::training::none && par.varImportance != decision_forest::training::MDA_Raw)
@@ -1228,9 +1236,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         finalizeVarImp(par, varImpBlock.getBlockPtr(), varImpVariance.get(), nFeatures);
     }
 
-    DAAL_CHECK_STATUS_VAR(res.get(variableImportance)->releaseBlockOfRows(varImpBlock));
+    if (mdiRequired) DAAL_CHECK_STATUS_VAR(varImpResPtr->releaseBlockOfRows(varImpBlock));
+
     DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(x)->releaseBlockOfRows(dataBlock));
-    DAAL_CHECK_STATUS_VAR(const_cast<NumericTable *>(y)->releaseBlockOfRows(responseBlock));
 
     return status;
 }
