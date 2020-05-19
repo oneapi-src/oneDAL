@@ -24,10 +24,10 @@
 #ifndef __SERVICE_LAPACK_H__
 #define __SERVICE_LAPACK_H__
 
-#include "daal_defines.h"
-#include "service_memory.h"
+#include "services/daal_defines.h"
+#include "externals/service_memory.h"
 
-#include "service_lapack_mkl.h"
+#include "externals/service_lapack_mkl.h"
 
 namespace daal
 {

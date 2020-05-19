@@ -19,7 +19,7 @@
 //  Implementation of split layer container.
 //--
 
-#include "split_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/split_layer/forward/split_layer_forward_batch_container.h"
 
 namespace daal
 {

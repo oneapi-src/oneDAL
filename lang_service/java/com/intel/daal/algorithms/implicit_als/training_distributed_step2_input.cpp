@@ -21,9 +21,9 @@
 
 #include "com_intel_daal_algorithms_implicit_als_training_DistributedStep2MasterInput.h"
 
-#include "implicit_als_training_defines.i"
+#include "lang_service/java/com/intel/daal/algorithms/implicit_als/implicit_als_training_defines.i"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::implicit_als::training;
@@ -33,8 +33,9 @@ using namespace daal::algorithms::implicit_als::training;
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep2MasterInput_cGetInput
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep2MasterInput_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                                    jlong algAddr, jint prec,
+                                                                                                                    jint method)
 {
     return jniDistributed<step2Master, algorithms::implicit_als::training::Method, Distributed, fastCSR>::getInput(prec, method, algAddr);
 }
@@ -44,8 +45,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_Di
  * Method:    cAddDataCollection
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep2MasterInput_cAddDataCollection
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong partialResultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep2MasterInput_cAddDataCollection(JNIEnv * env,
+                                                                                                                            jobject thisObj,
+                                                                                                                            jlong inputAddr, jint id,
+                                                                                                                            jlong partialResultAddr)
 {
     jniInput<DistributedInput<step2Master> >::add<MasterInputId, DistributedPartialResultStep1>(inputAddr, id, partialResultAddr);
 }
@@ -55,8 +58,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_Dis
  * Method:    cGetDataCollection
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep2MasterInput_cGetDataCollection
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedStep2MasterInput_cGetDataCollection(JNIEnv * env,
+                                                                                                                             jobject thisObj,
+                                                                                                                             jlong inputAddr, jint id)
 {
     return jniInput<DistributedInput<step2Master> >::get<MasterInputId, DataCollection>(inputAddr, id);
 }

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "ridge_regression_training_result.h"
+#include "algorithms/kernel/ridge_regression/ridge_regression_training_result.h"
 
 namespace daal
 {

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "qr_dense_default_container.h"
+#include "algorithms/kernel/qr/qr_dense_default_container.h"
 
 namespace daal
 {

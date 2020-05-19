@@ -19,13 +19,12 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_dbscan_DistributedResultStep9.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::dbscan;
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedResultStep9_cNewDistributedResultStep9
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedResultStep9_cNewDistributedResultStep9(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<DistributedResultStep9>::newObj();
 }
@@ -35,8 +34,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedResultS
  * Method:    cGetNumericTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedResultStep9_cGetNumericTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedResultStep9_cGetNumericTable(JNIEnv * env, jobject thisObj, jlong resAddr,
+                                                                                                      jint id)
 {
     return jniArgument<DistributedResultStep9>::get<DistributedResultStep9Id, NumericTable>(resAddr, id);
 }
@@ -46,8 +45,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedResultS
  * Method:    cSetNumericTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedResultStep9_cSetNumericTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedResultStep9_cSetNumericTable(JNIEnv * env, jobject thisObj, jlong resAddr,
+                                                                                                     jint id, jlong ntAddr)
 {
     jniArgument<DistributedResultStep9>::set<DistributedResultStep9Id, NumericTable>(resAddr, id, ntAddr);
 }

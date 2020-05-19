@@ -25,7 +25,7 @@
 #define __LOGISTIC_REGRESSION_MODEL_IMPL__
 
 #include "algorithms/logistic_regression/logistic_regression_model.h"
-#include "../classifier/classifier_model_impl.h"
+#include "algorithms/kernel/classifier/classifier_model_impl.h"
 
 namespace daal
 {

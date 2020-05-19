@@ -21,7 +21,7 @@
 //--
 */
 
-#include "service_mkl_tensor.h"
+#include "service/kernel/data_management/service_mkl_tensor.h"
 
 #ifndef __CONCAT_LAYER_FORWARD_IMPL_I__
     #define __CONCAT_LAYER_FORWARD_IMPL_I__

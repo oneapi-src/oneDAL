@@ -24,12 +24,12 @@
 #ifndef __GBT_REGRESSION_TRAIN_CONTAINER_H__
 #define __GBT_REGRESSION_TRAIN_CONTAINER_H__
 
-#include "kernel.h"
-#include "gbt_regression_training_types.h"
-#include "gbt_regression_training_batch.h"
-#include "gbt_regression_train_kernel.h"
-#include "gbt_regression_model_impl.h"
-#include "service_algo_utils.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/gradient_boosted_trees/gbt_regression_training_types.h"
+#include "algorithms/gradient_boosted_trees/gbt_regression_training_batch.h"
+#include "algorithms/kernel/dtrees/gbt/regression/gbt_regression_train_kernel.h"
+#include "algorithms/kernel/dtrees/gbt/regression/gbt_regression_model_impl.h"
+#include "service/kernel/service_algo_utils.h"
 
 namespace daal
 {

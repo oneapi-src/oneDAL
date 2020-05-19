@@ -17,11 +17,12 @@
 
 /*
 //++
-//  Instantiation of the container for quality metric of the classification algorithms.
+//  Instantiation of the container for quality metric of the classification
+algorithms.
 //--
 */
 
-#include "binary_confusion_matrix_dense_default_batch_container.h"
+#include "algorithms/kernel/classifier/binary_confusion_matrix_dense_default_batch_container.h"
 
 namespace daal
 {

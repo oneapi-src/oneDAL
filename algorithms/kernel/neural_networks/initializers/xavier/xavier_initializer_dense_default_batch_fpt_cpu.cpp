@@ -19,9 +19,9 @@
 //  Implementation of Xavier calculation functions.
 //--
 
-#include "xavier_initializer_batch_container.h"
-#include "xavier_initializer_kernel.h"
-#include "xavier_initializer_impl.i"
+#include "algorithms/kernel/neural_networks/initializers/xavier/xavier_initializer_batch_container.h"
+#include "algorithms/kernel/neural_networks/initializers/xavier/xavier_initializer_kernel.h"
+#include "algorithms/kernel/neural_networks/initializers/xavier/xavier_initializer_impl.i"
 
 namespace daal
 {

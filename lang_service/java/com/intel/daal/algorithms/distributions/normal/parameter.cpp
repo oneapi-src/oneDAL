@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms;
@@ -30,8 +30,7 @@ using namespace daal::algorithms;
  * Method:    cSetA
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_distributions_normal_Parameter_cSetA
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jdouble a)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_distributions_normal_Parameter_cSetA(JNIEnv * env, jobject thisObj, jlong cParameter, jdouble a)
 {
     (((distributions::normal::Parameter<float> *)cParameter))->a = (float)a;
 }
@@ -41,8 +40,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_distributions_normal_Param
  * Method:    cSetSigma
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_distributions_normal_Parameter_cSetSigma
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jdouble sigma)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_distributions_normal_Parameter_cSetSigma(JNIEnv * env, jobject thisObj, jlong cParameter,
+                                                                                               jdouble sigma)
 {
     (((distributions::normal::Parameter<float> *)cParameter))->sigma = (float)sigma;
 }
@@ -52,8 +51,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_distributions_normal_Param
  * Method:    cGetA
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_distributions_normal_Parameter_cGetA
-  (JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_distributions_normal_Parameter_cGetA(JNIEnv * env, jobject thisObj, jlong cParameter)
 {
     return (jdouble)((((distributions::normal::Parameter<float> *)cParameter))->a);
 }
@@ -63,8 +61,7 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_distributions_normal_Pa
  * Method:    cGetSigma
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_distributions_normal_Parameter_cGetSigma
-  (JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_distributions_normal_Parameter_cGetSigma(JNIEnv * env, jobject thisObj, jlong cParameter)
 {
     return (jdouble)((((distributions::normal::Parameter<float> *)cParameter))->sigma);
 }

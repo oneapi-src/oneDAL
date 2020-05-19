@@ -22,9 +22,9 @@
 #ifndef __ELU_LAYER_FORWARD_KERNEL_H__
 #define __ELU_LAYER_FORWARD_KERNEL_H__
 
-#include "kernel.h"
-#include "elu_common.h"
-#include "service_numeric_table.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/kernel/neural_networks/layers/elu_layer/elu_common.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 namespace daal
 {

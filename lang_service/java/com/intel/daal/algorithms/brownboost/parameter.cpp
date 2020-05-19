@@ -18,81 +18,71 @@
 #include <jni.h>
 
 #include "daal.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 #include "com_intel_daal_algorithms_brownboost_Parameter.h"
 
 USING_COMMON_NAMESPACES()
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_brownboost_Parameter_cSetWeakLearnerTraining
-(JNIEnv *, jobject, jlong self, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_brownboost_Parameter_cSetWeakLearnerTraining(JNIEnv *, jobject, jlong self, jlong value)
 {
-    unpack<brownboost::Parameter>(self).weakLearnerTraining =
-        unpackAlgorithm<classifier::training::Batch>(value);
+    unpack<brownboost::Parameter>(self).weakLearnerTraining = unpackAlgorithm<classifier::training::Batch>(value);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_brownboost_Parameter_cSetWeakLearnerPrediction
-(JNIEnv *, jobject, jlong self, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_brownboost_Parameter_cSetWeakLearnerPrediction(JNIEnv *, jobject, jlong self, jlong value)
 {
-    unpack<brownboost::Parameter>(self).weakLearnerPrediction =
-        unpackAlgorithm<classifier::prediction::Batch>(value);
+    unpack<brownboost::Parameter>(self).weakLearnerPrediction = unpackAlgorithm<classifier::prediction::Batch>(value);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_brownboost_Parameter_cSetAccuracyThreshold
-(JNIEnv *env, jobject thisObj, jlong self, jdouble acc)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_brownboost_Parameter_cSetAccuracyThreshold(JNIEnv * env, jobject thisObj, jlong self,
+                                                                                                 jdouble acc)
 {
     unpack<brownboost::Parameter>(self).accuracyThreshold = acc;
 }
 
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_brownboost_Parameter_cGetAccuracyThreshold
-(JNIEnv *env, jobject thisObj, jlong self)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_brownboost_Parameter_cGetAccuracyThreshold(JNIEnv * env, jobject thisObj, jlong self)
 {
-    return (jdouble)( unpack<brownboost::Parameter>(self).accuracyThreshold );
+    return (jdouble)(unpack<brownboost::Parameter>(self).accuracyThreshold);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_brownboost_Parameter_cSetnewtonRaphsonAccuracyThreshold
-(JNIEnv *env, jobject thisObj, jlong self, jdouble acc)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_brownboost_Parameter_cSetnewtonRaphsonAccuracyThreshold(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong self, jdouble acc)
 {
     unpack<brownboost::Parameter>(self).newtonRaphsonAccuracyThreshold = acc;
 }
 
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_brownboost_Parameter_cGetnewtonRaphsonAccuracyThreshold
-(JNIEnv *env, jobject thisObj, jlong self)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_brownboost_Parameter_cGetnewtonRaphsonAccuracyThreshold(JNIEnv * env, jobject thisObj,
+                                                                                                                 jlong self)
 {
-    return (jdouble)( unpack<brownboost::Parameter>(self).newtonRaphsonAccuracyThreshold );
+    return (jdouble)(unpack<brownboost::Parameter>(self).newtonRaphsonAccuracyThreshold);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_brownboost_Parameter_cSetThr
-(JNIEnv *env, jobject thisObj, jlong self, jdouble acc)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_brownboost_Parameter_cSetThr(JNIEnv * env, jobject thisObj, jlong self, jdouble acc)
 {
     unpack<brownboost::Parameter>(self).degenerateCasesThreshold = acc;
 }
 
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_brownboost_Parameter_cGetThr
-(JNIEnv *env, jobject thisObj, jlong self)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_brownboost_Parameter_cGetThr(JNIEnv * env, jobject thisObj, jlong self)
 {
-    return (jdouble)( unpack<brownboost::Parameter>(self).degenerateCasesThreshold );
+    return (jdouble)(unpack<brownboost::Parameter>(self).degenerateCasesThreshold);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_brownboost_Parameter_cSetMaxIterations
-(JNIEnv *env, jobject thisObj, jlong self, jlong nIter)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_brownboost_Parameter_cSetMaxIterations(JNIEnv * env, jobject thisObj, jlong self, jlong nIter)
 {
     unpack<brownboost::Parameter>(self).maxIterations = nIter;
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_brownboost_Parameter_cGetMaxIterations
-(JNIEnv *env, jobject thisObj, jlong self)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_brownboost_Parameter_cGetMaxIterations(JNIEnv * env, jobject thisObj, jlong self)
 {
-    return (jlong)( unpack<brownboost::Parameter>(self).maxIterations );
+    return (jlong)(unpack<brownboost::Parameter>(self).maxIterations);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_brownboost_Parameter_cSetnewtonRaphsonMaxIterations
-(JNIEnv *env, jobject thisObj, jlong self, jlong nIter)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_brownboost_Parameter_cSetnewtonRaphsonMaxIterations(JNIEnv * env, jobject thisObj, jlong self,
+                                                                                                          jlong nIter)
 {
     unpack<brownboost::Parameter>(self).newtonRaphsonMaxIterations = nIter;
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_brownboost_Parameter_cGetnewtonRaphsonMaxIterations
-(JNIEnv *env, jobject thisObj, jlong self)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_brownboost_Parameter_cGetnewtonRaphsonMaxIterations(JNIEnv * env, jobject thisObj, jlong self)
 {
-    return (jlong)( unpack<brownboost::Parameter>(self).newtonRaphsonMaxIterations );
+    return (jlong)(unpack<brownboost::Parameter>(self).newtonRaphsonMaxIterations);
 }

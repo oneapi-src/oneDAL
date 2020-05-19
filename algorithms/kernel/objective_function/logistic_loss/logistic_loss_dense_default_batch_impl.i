@@ -20,10 +20,10 @@
 //  Implementation of logloss algorithm
 //--
 */
-#include "service_math.h"
-#include "objective_function_utils.i"
-#include "service_memory.h"
-#include "service_data_utils.h"
+#include "externals/service_math.h"
+#include "algorithms/kernel/objective_function/objective_function_utils.i"
+#include "externals/service_memory.h"
+#include "service/kernel/service_data_utils.h"
 
 namespace daal
 {

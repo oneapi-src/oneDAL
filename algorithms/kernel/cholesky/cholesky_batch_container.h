@@ -21,8 +21,8 @@
 //--
 */
 
-#include "cholesky.h"
-#include "cholesky_kernel.h"
+#include "algorithms/cholesky/cholesky.h"
+#include "algorithms/kernel/cholesky/cholesky_kernel.h"
 
 namespace daal
 {

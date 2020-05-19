@@ -22,21 +22,21 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_multinomial_naive_bayes_training_TrainingPartialResult.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::multinomial_naive_bayes::training;
 
 #include "com_intel_daal_algorithms_classifier_training_TrainingResultId.h"
-#define ModelResult  com_intel_daal_algorithms_classifier_training_TrainingResultId_Model
+#define ModelResult com_intel_daal_algorithms_classifier_training_TrainingResultId_Model
 
 /*
  * Class:     com_intel_daal_algorithms_multinomial_naive_bayes_training_TrainingPartialResult
  * Method:    cNewPartialResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingPartialResult_cNewPartialResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingPartialResult_cNewPartialResult(JNIEnv * env,
+                                                                                                                                  jobject thisObj)
 {
     return jniArgument<multinomial_naive_bayes::training::PartialResult>::newObj();
 }
@@ -46,13 +46,16 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes
  * Method:    cGetPartialModel
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingPartialResult_cGetPartialModel
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingPartialResult_cGetPartialModel(JNIEnv * env,
+                                                                                                                                 jobject thisObj,
+                                                                                                                                 jlong resAddr,
+                                                                                                                                 jint id)
 {
     if (id == ModelResult)
     {
-        return jniArgument<multinomial_naive_bayes::training::PartialResult>::
-            get<classifier::training::PartialResultId, multinomial_naive_bayes::PartialModel>(resAddr, classifier::training::partialModel);
+        return jniArgument<multinomial_naive_bayes::training::PartialResult>::get<classifier::training::PartialResultId,
+                                                                                  multinomial_naive_bayes::PartialModel>(
+            resAddr, classifier::training::partialModel);
     }
 
     return (jlong)0;

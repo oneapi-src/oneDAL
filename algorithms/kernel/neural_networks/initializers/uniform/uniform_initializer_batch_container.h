@@ -24,8 +24,8 @@
 #ifndef __UNIFORM_INITIALIZER_BATCH_CONTAINER_H__
 #define __UNIFORM_INITIALIZER_BATCH_CONTAINER_H__
 
-#include "neural_networks/initializers/uniform/uniform_initializer.h"
-#include "uniform_initializer_kernel.h"
+#include "algorithms/neural_networks/initializers/uniform/uniform_initializer.h"
+#include "algorithms/kernel/neural_networks/initializers/uniform/uniform_initializer_kernel.h"
 
 namespace daal
 {

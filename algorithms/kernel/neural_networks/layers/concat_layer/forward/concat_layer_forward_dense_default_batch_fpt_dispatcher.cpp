@@ -19,7 +19,7 @@
 //  Implementation of concat layer container.
 //--
 
-#include "concat_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/concat_layer/forward/concat_layer_forward_batch_container.h"
 
 namespace daal
 {

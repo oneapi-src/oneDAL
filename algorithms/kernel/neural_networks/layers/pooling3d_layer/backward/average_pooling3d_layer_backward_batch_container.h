@@ -24,8 +24,8 @@
 #ifndef __AVERAGE_POOLING3D_LAYER_BACKWARD_BATCH_CONTAINER_H__
 #define __AVERAGE_POOLING3D_LAYER_BACKWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/pooling3d/average_pooling3d_layer.h"
-#include "average_pooling3d_layer_backward_kernel.h"
+#include "algorithms/neural_networks/layers/pooling3d/average_pooling3d_layer.h"
+#include "algorithms/kernel/neural_networks/layers/pooling3d_layer/backward/average_pooling3d_layer_backward_kernel.h"
 
 namespace daal
 {

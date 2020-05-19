@@ -19,9 +19,9 @@
 //  Implementation of uniform calculation functions.
 //--
 
-#include "uniform_initializer_batch_container.h"
-#include "uniform_initializer_kernel.h"
-#include "uniform_initializer_impl.i"
+#include "algorithms/kernel/neural_networks/initializers/uniform/uniform_initializer_batch_container.h"
+#include "algorithms/kernel/neural_networks/initializers/uniform/uniform_initializer_kernel.h"
+#include "algorithms/kernel/neural_networks/initializers/uniform/uniform_initializer_impl.i"
 
 namespace daal
 {

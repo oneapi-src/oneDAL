@@ -25,7 +25,7 @@
 #define __PCA_EXPLAINED_VARIANCE_DEFAULT_BATCH_CONTAINER_H__
 
 #include "algorithms/pca/pca_explained_variance_batch.h"
-#include "pca_explained_variance_default_batch_kernel.h"
+#include "algorithms/kernel/pca/metrics/pca_explained_variance_default_batch_kernel.h"
 
 namespace daal
 {

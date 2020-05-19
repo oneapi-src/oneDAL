@@ -20,7 +20,7 @@
 //--
 
 #include "algorithms/engines/mt2203/mt2203.h"
-#include "mt2203_batch_impl.h"
+#include "algorithms/kernel/engines/mt2203/mt2203_batch_impl.h"
 
 namespace daal
 {

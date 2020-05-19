@@ -22,7 +22,7 @@
 #include "com_intel_daal_algorithms_pca_DistributedStep2MasterInput.h"
 #include "com_intel_daal_algorithms_pca_Method.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::pca;
@@ -32,8 +32,7 @@ using namespace daal::algorithms::pca;
  * Method:    cSetInputTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_Input_cSetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_Input_cSetInputTable(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
 {
     jniInput<pca::Input>::set<pca::InputDatasetId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -43,8 +42,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_Input_cSetInputTable
  * Method:    cSetInputCorrelation
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_Input_cSetInputCorrelation
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_Input_cSetInputCorrelation(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id,
+                                                                                     jlong ntAddr)
 {
     jniInput<pca::Input>::set<pca::InputCorrelationId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -54,8 +53,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_Input_cSetInputCorrela
  * Method:    cGetInputTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_Input_cGetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_Input_cGetInputTable(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id)
 {
     return jniInput<pca::Input>::get<pca::InputDatasetId, NumericTable>(inputAddr, id);
 }

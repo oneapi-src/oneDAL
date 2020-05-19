@@ -33,7 +33,7 @@
 
 #include <k.h>
 
-#include "kdb_feature_manager.h"
+#include "data_management/data_source/kdb_feature_manager.h"
 
 namespace daal
 {

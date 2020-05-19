@@ -19,9 +19,9 @@
 //  Implementation of transposed convolution 2d calculation functions.
 //--
 
-#include "transposed_conv2d_layer_backward_batch_container.h"
-#include "transposed_conv2d_layer_backward_kernel.h"
-#include "transposed_conv2d_layer_backward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/transposed_conv2d_layer/backward/transposed_conv2d_layer_backward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/transposed_conv2d_layer/backward/transposed_conv2d_layer_backward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/transposed_conv2d_layer/backward/transposed_conv2d_layer_backward_impl.i"
 
 namespace daal
 {

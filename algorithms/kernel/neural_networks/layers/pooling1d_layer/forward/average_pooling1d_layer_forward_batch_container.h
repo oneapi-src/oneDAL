@@ -24,8 +24,8 @@
 #ifndef __AVERAGE_POOLING1D_LAYER_FORWARD_BATCH_CONTAINER_H__
 #define __AVERAGE_POOLING1D_LAYER_FORWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/pooling1d/average_pooling1d_layer_forward.h"
-#include "average_pooling1d_layer_forward_kernel.h"
+#include "algorithms/neural_networks/layers/pooling1d/average_pooling1d_layer_forward.h"
+#include "algorithms/kernel/neural_networks/layers/pooling1d_layer/forward/average_pooling1d_layer_forward_kernel.h"
 
 namespace daal
 {

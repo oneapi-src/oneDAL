@@ -22,21 +22,21 @@
 #ifndef __NEURAL_NETWORKS_TRAINING_FEEDFORWARD_KERNEL_H__
 #define __NEURAL_NETWORKS_TRAINING_FEEDFORWARD_KERNEL_H__
 
-#include "neural_networks_feedforward.h"
-#include "neural_networks_training_feedforward.h"
-#include "neural_networks/neural_networks_training.h"
-#include "neural_networks/neural_networks_training_types.h"
-#include "neural_networks/layers/loss/loss_layer_forward_types.h"
-#include "optimization_solver/objective_function/precomputed_batch.h"
-#include "optimization_solver/iterative_solver/iterative_solver_batch.h"
-#include "optimization_solver/iterative_solver/iterative_solver_types.h"
+#include "algorithms/kernel/neural_networks/neural_networks_feedforward.h"
+#include "algorithms/kernel/neural_networks/neural_networks_training_feedforward.h"
+#include "algorithms/neural_networks/neural_networks_training.h"
+#include "algorithms/neural_networks/neural_networks_training_types.h"
+#include "algorithms/neural_networks/layers/loss/loss_layer_forward_types.h"
+#include "algorithms/optimization_solver/objective_function/precomputed_batch.h"
+#include "algorithms/optimization_solver/iterative_solver/iterative_solver_batch.h"
+#include "algorithms/optimization_solver/iterative_solver/iterative_solver_types.h"
 
-#include "kernel.h"
-#include "numeric_table.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
 
-#include "service_tensor.h"
-#include "service_unique_ptr.h"
-#include "service_numeric_table.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/service_unique_ptr.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

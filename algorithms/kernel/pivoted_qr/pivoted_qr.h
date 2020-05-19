@@ -23,7 +23,7 @@
 #ifndef __PIVOTED_QR_BATCH__
 #define __PIVOTED_QR_BATCH__
 
-#include "pivoted_qr_types.h"
+#include "algorithms/pivoted_qr/pivoted_qr_types.h"
 
 using namespace daal::data_management;
 

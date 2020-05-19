@@ -20,7 +20,7 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_quantiles_Input.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::quantiles;
@@ -30,8 +30,7 @@ using namespace daal::algorithms::quantiles;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_quantiles_Input_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_quantiles_Input_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
 {
     jniInput<quantiles::Input>::set<InputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -41,8 +40,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_quantiles_Input_cSetInput
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_quantiles_Input_cGetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_quantiles_Input_cGetInput(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id)
 {
     return jniInput<quantiles::Input>::get<InputId, NumericTable>(inputAddr, id);
 }

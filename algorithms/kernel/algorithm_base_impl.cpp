@@ -21,13 +21,13 @@
 //--
 */
 
-#include "algorithm_base.h"
-#include "algorithm_base_mode_impl.h"
-#include "argument_storage.h"
-#include "service_algo_utils.h"
+#include "algorithms/algorithm_base.h"
+#include "algorithms/algorithm_base_mode_impl.h"
+#include "algorithms/kernel/argument_storage.h"
+#include "service/kernel/service_algo_utils.h"
 
-#include "service_thread_pinner.h"
-#include "service_topo.h"
+#include "algorithms/threading/service_thread_pinner.h"
+#include "service/kernel/service_topo.h"
 
 namespace daal
 {
@@ -112,7 +112,7 @@ services::HostAppIfacePtr getHostApp(algorithms::internal::ArgumentStorage & s)
     return services::dynamicPointerCast<services::HostAppIface>(ext);
 }
 
-//service class that makes possible to access Input's storage
+// service class that makes possible to access Input's storage
 class StorageAccessor : public daal::algorithms::Input
 {
 public:
@@ -141,8 +141,8 @@ void setHostApp(const services::SharedPtr<services::HostAppIface> & pHostApp, da
     if (ptr) ptr->setExtension(algorithms::internal::ArgumentStorage::hostApp, pHostApp);
 }
 
-} //namespace internal
-} //namespace services
+} // namespace internal
+} // namespace services
 
 namespace algorithms
 {
@@ -211,7 +211,8 @@ void AlgorithmImpl<mode>::setHostApp(const services::HostAppIfacePtr & pHost)
 }
 
 /**
- * Computes final results of the algorithm in the %batch mode without possibility of throwing an exception.
+ * Computes final results of the algorithm in the %batch mode without
+ * possibility of throwing an exception.
  */
 services::Status AlgorithmImpl<batch>::computeNoThrow()
 {

@@ -22,18 +22,18 @@
 #ifndef __SOFTMAX_CROSS_LAYER_FORWARD_KERNEL_H__
 #define __SOFTMAX_CROSS_LAYER_FORWARD_KERNEL_H__
 
-#include "neural_networks/layers/softmax_layer/forward/softmax_layer_forward_kernel.h"
-#include "neural_networks/layers/loss/softmax_cross_layer.h"
-#include "neural_networks/layers/loss/softmax_cross_layer_types.h"
-#include "neural_networks/layers/loss/softmax_cross_layer_forward_types.h"
-#include "kernel.h"
-#include "service_rng.h"
-#include "service_math.h"
-#include "service_error_handling.h"
-#include "service_tensor.h"
-#include "numeric_table.h"
-#include "threading.h"
-#include "layers_threading.h"
+#include "algorithms/kernel/neural_networks/layers/softmax_layer/forward/softmax_layer_forward_kernel.h"
+#include "algorithms/neural_networks/layers/loss/softmax_cross_layer.h"
+#include "algorithms/neural_networks/layers/loss/softmax_cross_layer_types.h"
+#include "algorithms/neural_networks/layers/loss/softmax_cross_layer_forward_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "externals/service_rng.h"
+#include "externals/service_math.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/threading/threading.h"
+#include "algorithms/kernel/neural_networks/layers/layers_threading.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

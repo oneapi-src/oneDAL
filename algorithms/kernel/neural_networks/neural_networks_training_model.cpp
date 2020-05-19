@@ -21,12 +21,12 @@
 //--
 */
 
-#include "neural_networks_weights_and_biases.h"
-#include "neural_networks_training_model.h"
-#include "neural_networks_training_partial_result.h"
-#include "neural_networks_training_result.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/kernel/neural_networks/neural_networks_weights_and_biases.h"
+#include "algorithms/neural_networks/neural_networks_training_model.h"
+#include "algorithms/neural_networks/neural_networks_training_partial_result.h"
+#include "algorithms/neural_networks/neural_networks_training_result.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {

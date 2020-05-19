@@ -19,58 +19,57 @@
 
 #include "daal.h"
 #include "com_intel_daal_algorithms_kmeans_DistributedStep1Local.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::kmeans;
 using namespace daal::data_management;
 
-
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_DistributedStep1Local_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method, jlong nClusters)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_DistributedStep1Local_cInit(JNIEnv * env, jobject thisObj, jint prec, jint method,
+                                                                                          jlong nClusters)
 {
-    return jniDistributed<step1Local,kmeans::Method,Distributed,lloydDense,lloydCSR>::newObj(prec,method,nClusters);
+    return jniDistributed<step1Local, kmeans::Method, Distributed, lloydDense, lloydCSR>::newObj(prec, method, nClusters);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_DistributedStep1Local_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong addr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_DistributedStep1Local_cInitParameter(JNIEnv * env, jobject thisObj, jlong addr,
+                                                                                                   jint prec, jint method)
 {
-    return jniDistributed<step1Local,kmeans::Method,Distributed,lloydDense,lloydCSR>::getParameter(prec,method,addr);
+    return jniDistributed<step1Local, kmeans::Method, Distributed, lloydDense, lloydCSR>::getParameter(prec, method, addr);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_DistributedStep1Local_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_DistributedStep1Local_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                              jint method)
 {
-    return jniDistributed<step1Local,kmeans::Method,Distributed,lloydDense,lloydCSR>::getInput(prec,method,algAddr);
+    return jniDistributed<step1Local, kmeans::Method, Distributed, lloydDense, lloydCSR>::getInput(prec, method, algAddr);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_DistributedStep1Local_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_DistributedStep1Local_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                               jint prec, jint method)
 {
-    return jniDistributed<step1Local,kmeans::Method,Distributed,lloydDense,lloydCSR>::getResult(prec,method,algAddr);
+    return jniDistributed<step1Local, kmeans::Method, Distributed, lloydDense, lloydCSR>::getResult(prec, method, algAddr);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_DistributedStep1Local_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_DistributedStep1Local_cSetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                              jint method, jlong resultAddr)
 {
-    jniDistributed<step1Local,kmeans::Method,Distributed,lloydDense,lloydCSR>::setResult<kmeans::Result>(prec,method,algAddr,resultAddr);
+    jniDistributed<step1Local, kmeans::Method, Distributed, lloydDense, lloydCSR>::setResult<kmeans::Result>(prec, method, algAddr, resultAddr);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_DistributedStep1Local_cGetPartialResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_DistributedStep1Local_cGetPartialResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                      jint prec, jint method)
 {
-    return jniDistributed<step1Local,kmeans::Method,Distributed,lloydDense,lloydCSR>::getPartialResult(prec,method,algAddr);
+    return jniDistributed<step1Local, kmeans::Method, Distributed, lloydDense, lloydCSR>::getPartialResult(prec, method, algAddr);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_DistributedStep1Local_cSetPartialResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong partialResultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_DistributedStep1Local_cSetPartialResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                     jint prec, jint method, jlong partialResultAddr)
 {
-    jniDistributed<step1Local,kmeans::Method,Distributed,lloydDense,lloydCSR>::
-        setPartialResult<kmeans::PartialResult>(prec,method,algAddr,partialResultAddr);
+    jniDistributed<step1Local, kmeans::Method, Distributed, lloydDense, lloydCSR>::setPartialResult<kmeans::PartialResult>(prec, method, algAddr,
+                                                                                                                           partialResultAddr);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_DistributedStep1Local_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_DistributedStep1Local_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                           jint method)
 {
-    return jniDistributed<step1Local,kmeans::Method,Distributed,lloydDense,lloydCSR>::getClone(prec,method,algAddr);
+    return jniDistributed<step1Local, kmeans::Method, Distributed, lloydDense, lloydCSR>::getClone(prec, method, algAddr);
 }

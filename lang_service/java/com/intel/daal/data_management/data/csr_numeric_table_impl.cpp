@@ -24,9 +24,9 @@
 #include <jni.h>
 
 #include "com_intel_daal_data_management_data_CSRNumericTableImpl.h"
-#include "java_csr_numeric_table.h"
+#include "lang_service/java/com/intel/daal/data_management/data/java_csr_numeric_table.h"
 #include "daal.h"
-#include "common_helpers_functions.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers_functions.h"
 
 using namespace daal;
 using namespace daal::data_management;
@@ -36,27 +36,27 @@ using namespace daal::data_management;
  * Method:    initCSRNumericTable
  * Signature:(JJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTableImpl_initCSRNumericTable
-(JNIEnv *env, jobject thisObj, jlong nFeatures, jlong nVectors)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTableImpl_initCSRNumericTable(JNIEnv * env, jobject thisObj,
+                                                                                                          jlong nFeatures, jlong nVectors)
 {
-    JavaVM *jvm;
+    JavaVM * jvm;
     // Get pointer to the Java VM interface function table
     jint status = env->GetJavaVM(&jvm);
-    if(status != 0)
+    if (status != 0)
     {
         env->ThrowNew(env->FindClass("java/lang/Exception"), "Error: Couldn't get Java VM");
         return 0;
     }
 
     // Create C++ object of the class JavaNumericTable
-    JavaCSRNumericTable *tbl = new JavaCSRNumericTable((size_t)nFeatures, (size_t)nVectors, jvm, thisObj);
+    JavaCSRNumericTable * tbl = new JavaCSRNumericTable((size_t)nFeatures, (size_t)nVectors, jvm, thisObj);
 
-    if(tbl->getErrors()->size() > 0)
+    if (tbl->getErrors()->size() > 0)
     {
         env->ThrowNew(env->FindClass("java/lang/Exception"), tbl->getErrors()->getDescription());
     }
 
-    return (jlong)new SerializationIfacePtr(tbl);
+    return (jlong) new SerializationIfacePtr(tbl);
 }
 
 /*
@@ -64,12 +64,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTabl
  * Method:    cGetNumberOfRows
  * Signature:(J)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTableImpl_cGetNumberOfRows
-(JNIEnv *env, jobject thisobj, jlong numTableAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTableImpl_cGetNumberOfRows(JNIEnv * env, jobject thisobj,
+                                                                                                      jlong numTableAddr)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
 
-    return(jint)(nt->getNumberOfRows());
+    return (jint)(nt->getNumberOfRows());
 }
 
 /*
@@ -77,12 +77,11 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTable
  * Method:    cGetDataSize
  * Signature:(J)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTableImpl_cGetDataSize
-(JNIEnv *env, jobject thisobj, jlong numTableAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTableImpl_cGetDataSize(JNIEnv * env, jobject thisobj, jlong numTableAddr)
 {
-    CSRNumericTable *nt = static_cast<CSRNumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    CSRNumericTable * nt = static_cast<CSRNumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
 
-    return(jint)(nt->getDataSize());
+    return (jint)(nt->getDataSize());
 }
 
 /*
@@ -90,12 +89,11 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTable
  * Method:    getIndexType
  * Signature:(J)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTableImpl_getIndexType
-(JNIEnv *env, jobject thisobj, jlong numTableAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTableImpl_getIndexType(JNIEnv * env, jobject thisobj, jlong numTableAddr)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
-    NumericTableDictionary *dict = nt->getDictionary();
-    return(jint)((*dict)[0].indexType);
+    NumericTable * nt             = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTableDictionary * dict = nt->getDictionary();
+    return (jint)((*dict)[0].indexType);
 }
 
 /*
@@ -103,20 +101,20 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTable
  * Method:    getColIndicesBuffer
  * Signature: (JLjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTableImpl_getColIndicesBuffer
-(JNIEnv *env, jobject thisobj, jlong numTableAddr, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTableImpl_getColIndicesBuffer(JNIEnv * env, jobject thisobj,
+                                                                                                            jlong numTableAddr, jobject byteBuffer)
 {
-    CSRNumericTable *nt = static_cast<CSRNumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    CSRNumericTable * nt = static_cast<CSRNumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
 
     size_t dataSize = nt->getDataSize();
-    double *ptr;
-    size_t *colIndices;
-    size_t *rowOffsets;
+    double * ptr;
+    size_t * colIndices;
+    size_t * rowOffsets;
     nt->getArrays<double>(&ptr, &colIndices, &rowOffsets); //template parameter doesn't matter
 
-    __int64 *dest = (__int64 *)(env->GetDirectBufferAddress(byteBuffer));
+    __int64 * dest = (__int64 *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < dataSize; i++)
+    for (size_t i = 0; i < dataSize; i++)
     {
         dest[i] = colIndices[i];
     }
@@ -128,20 +126,20 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTa
  * Method:    getRowOffsetsBuffer
  * Signature: (JLjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTableImpl_getRowOffsetsBuffer
-(JNIEnv *env, jobject thisobj, jlong numTableAddr, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTableImpl_getRowOffsetsBuffer(JNIEnv * env, jobject thisobj,
+                                                                                                            jlong numTableAddr, jobject byteBuffer)
 {
-    CSRNumericTable *nt = static_cast<CSRNumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    CSRNumericTable * nt = static_cast<CSRNumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
 
     size_t nRows = nt->getNumberOfRows();
-    double *ptr;
-    size_t *colIndices;
-    size_t *rowOffsets;
-    nt->getArrays<double>(&ptr, &colIndices, &rowOffsets);//template parameter doesn't matter
+    double * ptr;
+    size_t * colIndices;
+    size_t * rowOffsets;
+    nt->getArrays<double>(&ptr, &colIndices, &rowOffsets); //template parameter doesn't matter
 
-    __int64 *dest = (__int64 *)(env->GetDirectBufferAddress(byteBuffer));
+    __int64 * dest = (__int64 *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < nRows; i++)
+    for (size_t i = 0; i < nRows; i++)
     {
         dest[i] = rowOffsets[i];
     }
@@ -153,20 +151,20 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTa
  * Method:    getDoubleBuffer
  * Signature: (J)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTableImpl_getDoubleBuffer
-(JNIEnv *env, jobject thisobj, jlong numTableAddr)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTableImpl_getDoubleBuffer(JNIEnv * env, jobject thisobj,
+                                                                                                        jlong numTableAddr)
 {
-    CSRNumericTable *nt = static_cast<CSRNumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    CSRNumericTable * nt = static_cast<CSRNumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
 
     size_t nRows = nt->getNumberOfRows();
 
-    double *ptr;
-    size_t *column_indices;
-    size_t *row_offsets;
+    double * ptr;
+    size_t * column_indices;
+    size_t * row_offsets;
 
     nt->getArrays<double>(&ptr, &column_indices, &row_offsets);
 
-    size_t dataSize = nt->getDataSize();
+    size_t dataSize    = nt->getDataSize();
     jobject byteBuffer = env->NewDirectByteBuffer(ptr, ((jlong)dataSize * sizeof(double)));
     return byteBuffer;
 }
@@ -176,20 +174,20 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTa
  * Method:    getFloatBuffer
  * Signature: (J)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTableImpl_getFloatBuffer
-(JNIEnv *env, jobject thisobj, jlong numTableAddr)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTableImpl_getFloatBuffer(JNIEnv * env, jobject thisobj,
+                                                                                                       jlong numTableAddr)
 {
-    CSRNumericTable *nt = static_cast<CSRNumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    CSRNumericTable * nt = static_cast<CSRNumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
 
     size_t nRows = nt->getNumberOfRows();
 
-    float *ptr;
-    size_t *column_indices;
-    size_t *row_offsets;
+    float * ptr;
+    size_t * column_indices;
+    size_t * row_offsets;
 
     nt->getArrays<float>(&ptr, &column_indices, &row_offsets);
 
-    size_t dataSize = nt->getDataSize();
+    size_t dataSize    = nt->getDataSize();
     jobject byteBuffer = env->NewDirectByteBuffer(ptr, ((jlong)dataSize * sizeof(float)));
     return byteBuffer;
 }
@@ -199,20 +197,20 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTa
  * Method:    getLongBuffer
  * Signature: (J)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTableImpl_getLongBuffer
-(JNIEnv *env, jobject thisobj, jlong numTableAddr)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTableImpl_getLongBuffer(JNIEnv * env, jobject thisobj,
+                                                                                                      jlong numTableAddr)
 {
-    CSRNumericTable *nt = static_cast<CSRNumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    CSRNumericTable * nt = static_cast<CSRNumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
 
     size_t nRows = nt->getNumberOfRows();
 
-    int *ptr;
-    size_t *column_indices;
-    size_t *row_offsets;
+    int * ptr;
+    size_t * column_indices;
+    size_t * row_offsets;
 
     nt->getArrays<int>(&ptr, &column_indices, &row_offsets);
 
-    size_t dataSize = nt->getDataSize();
+    size_t dataSize    = nt->getDataSize();
     jobject byteBuffer = env->NewDirectByteBuffer(ptr, ((jlong)dataSize * sizeof(int)));
     return byteBuffer;
 }

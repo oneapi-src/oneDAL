@@ -26,7 +26,7 @@
 #define __RIDGE_REGRESSION_NE_MODEL_IMPL_H__
 
 #include "algorithms/ridge_regression/ridge_regression_ne_model.h"
-#include "linear_model_model_impl.h"
+#include "algorithms/kernel/linear_model/linear_model_model_impl.h"
 
 namespace daal
 {

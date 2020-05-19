@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_neural_networks_prediction_PredictionTensorInputId.h"
 #define dataId com_intel_daal_algorithms_neural_networks_prediction_PredictionTensorInputId_dataId
@@ -35,13 +35,14 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionInput_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionInput_cSetInput(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong inputAddr, jint id, jlong ntAddr)
 {
     if (id == dataId)
     {
         jniInput<prediction::Input>::set<prediction::TensorInputId, Tensor>(inputAddr, id, ntAddr);
-    } else if (id == modelId)
+    }
+    else if (id == modelId)
     {
         jniInput<prediction::Input>::set<prediction::ModelInputId, prediction::Model>(inputAddr, id, ntAddr);
     }
@@ -52,13 +53,14 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_predictio
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionInput_cGetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionInput_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                             jlong inputAddr, jint id)
 {
     if (id == dataId)
     {
         return jniInput<prediction::Input>::get<prediction::TensorInputId, Tensor>(inputAddr, id);
-    } else if (id == modelId)
+    }
+    else if (id == modelId)
     {
         return jniInput<prediction::Input>::get<prediction::ModelInputId, prediction::Model>(inputAddr, id);
     }

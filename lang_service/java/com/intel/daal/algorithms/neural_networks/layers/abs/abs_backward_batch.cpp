@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::neural_networks::layers;
@@ -30,8 +30,8 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_abs_AbsBackwardBatch_cInit
-  (JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_abs_AbsBackwardBatch_cInit(JNIEnv * env, jobject thisObj, jint prec,
+                                                                                                          jint method)
 {
     return jniBatch<abs::Method, abs::backward::Batch, abs::defaultDense>::newObj(prec, method);
 }
@@ -41,8 +41,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_a
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_abs_AbsBackwardBatch_cGetInput
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_abs_AbsBackwardBatch_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong algAddr, jint prec, jint method)
 {
     return jniBatch<abs::Method, abs::backward::Batch, abs::defaultDense>::getInput(prec, method, algAddr);
 }
@@ -52,8 +52,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_a
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_abs_AbsBackwardBatch_cGetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_abs_AbsBackwardBatch_cGetResult(JNIEnv * env, jobject thisObj,
+                                                                                                               jlong algAddr, jint prec, jint method)
 {
     return jniBatch<abs::Method, abs::backward::Batch, abs::defaultDense>::getResult(prec, method, algAddr);
 }
@@ -63,11 +63,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_a
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_abs_AbsBackwardBatch_cSetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_abs_AbsBackwardBatch_cSetResult(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong algAddr, jint prec, jint method,
+                                                                                                              jlong resAddr)
 {
-    jniBatch<abs::Method, abs::backward::Batch, abs::defaultDense>::
-        setResult<abs::backward::Result>(prec, method, algAddr, resAddr);
+    jniBatch<abs::Method, abs::backward::Batch, abs::defaultDense>::setResult<abs::backward::Result>(prec, method, algAddr, resAddr);
 }
 
 /*
@@ -75,8 +75,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_ab
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_abs_AbsBackwardBatch_cClone
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_abs_AbsBackwardBatch_cClone(JNIEnv * env, jobject thisObj,
+                                                                                                           jlong algAddr, jint prec, jint method)
 {
     return jniBatch<abs::Method, abs::backward::Batch, abs::defaultDense>::getClone(prec, method, algAddr);
 }

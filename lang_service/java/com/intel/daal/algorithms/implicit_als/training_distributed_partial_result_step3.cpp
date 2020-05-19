@@ -21,9 +21,9 @@
 
 #include "com_intel_daal_algorithms_implicit_als_training_DistributedPartialResultStep3.h"
 
-#include "implicit_als_training_defines.i"
+#include "lang_service/java/com/intel/daal/algorithms/implicit_als/implicit_als_training_defines.i"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::implicit_als;
@@ -34,8 +34,8 @@ using namespace daal::algorithms::implicit_als::training;
  * Method:    cNewDistributedPartialResultStep3
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedPartialResultStep3_cNewDistributedPartialResultStep3
-  (JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedPartialResultStep3_cNewDistributedPartialResultStep3(
+    JNIEnv * env, jobject thisObj)
 {
     return jniArgument<DistributedPartialResultStep3>::newObj();
 }
@@ -45,11 +45,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_Di
  * Method:    cGetDataCollection
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedPartialResultStep3_cGetDataCollection
-  (JNIEnv *env, jobject thisObj, jlong partialResultAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedPartialResultStep3_cGetDataCollection(
+    JNIEnv * env, jobject thisObj, jlong partialResultAddr, jint id)
 {
-    return jniArgument<implicit_als::training::DistributedPartialResultStep3>::
-        get<DistributedPartialResultStep3Id, KeyValueDataCollection>(partialResultAddr, id);
+    return jniArgument<implicit_als::training::DistributedPartialResultStep3>::get<DistributedPartialResultStep3Id, KeyValueDataCollection>(
+        partialResultAddr, id);
 }
 
 /*
@@ -57,9 +57,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_Di
  * Method:    cSetDataCollection
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedPartialResultStep3_cSetDataCollection
-  (JNIEnv *env, jobject thisObj, jlong partialResultAddr, jint id, jlong collectionAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedPartialResultStep3_cSetDataCollection(
+    JNIEnv * env, jobject thisObj, jlong partialResultAddr, jint id, jlong collectionAddr)
 {
-    jniArgument<implicit_als::training::DistributedPartialResultStep3>::
-        set<DistributedPartialResultStep3Id, KeyValueDataCollection>(partialResultAddr, id, collectionAddr);
+    jniArgument<implicit_als::training::DistributedPartialResultStep3>::set<DistributedPartialResultStep3Id, KeyValueDataCollection>(
+        partialResultAddr, id, collectionAddr);
 }

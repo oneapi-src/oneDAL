@@ -24,8 +24,8 @@
 #ifndef __KERNEL_FUNCTION_RBF_CSR_FAST_KERNEL_H__
 #define __KERNEL_FUNCTION_RBF_CSR_FAST_KERNEL_H__
 
-#include "kernel_function_csr_base.h"
-#include "kernel_function_rbf_base.h"
+#include "algorithms/kernel/kernel_function/kernel_function_csr_base.h"
+#include "algorithms/kernel/kernel_function/kernel_function_rbf_base.h"
 
 using namespace daal::internal;
 

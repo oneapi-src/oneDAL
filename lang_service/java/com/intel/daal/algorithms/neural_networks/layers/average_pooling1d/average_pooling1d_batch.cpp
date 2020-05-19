@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 using namespace daal;
 using namespace daal::algorithms::neural_networks::layers;
@@ -30,11 +30,12 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_average_1pooling1d_AveragePooling1dBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method, jlong nDim)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_average_1pooling1d_AveragePooling1dBatch_cInit(JNIEnv * env,
+                                                                                                                              jobject thisObj,
+                                                                                                                              jint prec, jint method,
+                                                                                                                              jlong nDim)
 {
-    return jniBatchLayer<average_pooling1d::Method, average_pooling1d::Batch, average_pooling1d::defaultDense>::
-           newObj(prec, method, nDim);
+    return jniBatchLayer<average_pooling1d::Method, average_pooling1d::Batch, average_pooling1d::defaultDense>::newObj(prec, method, nDim);
 }
 
 /*
@@ -42,11 +43,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_a
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_average_1pooling1d_AveragePooling1dBatch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_average_1pooling1d_AveragePooling1dBatch_cInitParameter(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatchLayer<average_pooling1d::Method, average_pooling1d::Batch, average_pooling1d::defaultDense>::
-           getParameter(prec, method, algAddr);
+    return jniBatchLayer<average_pooling1d::Method, average_pooling1d::Batch, average_pooling1d::defaultDense>::getParameter(prec, method, algAddr);
 }
 
 /*
@@ -54,11 +54,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_a
  * Method:    cGetForwardLayer
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_average_1pooling1d_AveragePooling1dBatch_cGetForwardLayer
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_average_1pooling1d_AveragePooling1dBatch_cGetForwardLayer(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatchLayer<average_pooling1d::Method, average_pooling1d::Batch, average_pooling1d::defaultDense>::
-           getForwardLayer(prec, method, algAddr);
+    return jniBatchLayer<average_pooling1d::Method, average_pooling1d::Batch, average_pooling1d::defaultDense>::getForwardLayer(prec, method,
+                                                                                                                                algAddr);
 }
 
 /*
@@ -66,9 +66,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_a
  * Method:    cGetBackwardLayer
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_average_1pooling1d_AveragePooling1dBatch_cGetBackwardLayer
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_average_1pooling1d_AveragePooling1dBatch_cGetBackwardLayer(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatchLayer<average_pooling1d::Method, average_pooling1d::Batch, average_pooling1d::defaultDense>::
-           getBackwardLayer(prec, method, algAddr);
+    return jniBatchLayer<average_pooling1d::Method, average_pooling1d::Batch, average_pooling1d::defaultDense>::getBackwardLayer(prec, method,
+                                                                                                                                 algAddr);
 }

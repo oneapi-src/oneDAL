@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::neural_networks::layers;
@@ -30,11 +30,13 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: (IIJJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedForwardBatch_cInit
-  (JNIEnv *env, jobject thisObj, jint prec, jint method, jlong nOutputs)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedForwardBatch_cInit(JNIEnv * env,
+                                                                                                                               jobject thisObj,
+                                                                                                                               jint prec, jint method,
+                                                                                                                               jlong nOutputs)
 {
-    return jniBatch<fullyconnected::Method, fullyconnected::forward::Batch, fullyconnected::defaultDense>::
-        newObj(prec, method, (const size_t)nOutputs);
+    return jniBatch<fullyconnected::Method, fullyconnected::forward::Batch, fullyconnected::defaultDense>::newObj(prec, method,
+                                                                                                                  (const size_t)nOutputs);
 }
 
 /*
@@ -42,11 +44,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_f
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedForwardBatch_cInitParameter
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedForwardBatch_cInitParameter(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<fullyconnected::Method, fullyconnected::forward::Batch, fullyconnected::defaultDense>::
-        getParameter(prec, method, algAddr);
+    return jniBatch<fullyconnected::Method, fullyconnected::forward::Batch, fullyconnected::defaultDense>::getParameter(prec, method, algAddr);
 }
 
 /*
@@ -54,11 +55,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_f
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedForwardBatch_cGetInput
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedForwardBatch_cGetInput(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<fullyconnected::Method, fullyconnected::forward::Batch, fullyconnected::defaultDense>::
-        getInput(prec, method, algAddr);
+    return jniBatch<fullyconnected::Method, fullyconnected::forward::Batch, fullyconnected::defaultDense>::getInput(prec, method, algAddr);
 }
 
 /*
@@ -66,11 +66,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_f
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedForwardBatch_cGetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedForwardBatch_cGetResult(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<fullyconnected::Method, fullyconnected::forward::Batch, fullyconnected::defaultDense>::
-        getResult(prec, method, algAddr);
+    return jniBatch<fullyconnected::Method, fullyconnected::forward::Batch, fullyconnected::defaultDense>::getResult(prec, method, algAddr);
 }
 
 /*
@@ -78,11 +77,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_f
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedForwardBatch_cSetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedForwardBatch_cSetResult(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resAddr)
 {
-    jniBatch<fullyconnected::Method, fullyconnected::forward::Batch, fullyconnected::defaultDense>::
-        setResult<fullyconnected::forward::Result>(prec, method, algAddr, resAddr);
+    jniBatch<fullyconnected::Method, fullyconnected::forward::Batch, fullyconnected::defaultDense>::setResult<fullyconnected::forward::Result>(
+        prec, method, algAddr, resAddr);
 }
 
 /*
@@ -90,9 +89,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fu
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedForwardBatch_cClone
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedForwardBatch_cClone(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<fullyconnected::Method, fullyconnected::forward::Batch, fullyconnected::defaultDense>::
-        getClone(prec, method, algAddr);
+    return jniBatch<fullyconnected::Method, fullyconnected::forward::Batch, fullyconnected::defaultDense>::getClone(prec, method, algAddr);
 }

@@ -22,13 +22,13 @@
 #ifndef __LCN_LAYER_FORWARD_KERNEL_H__
 #define __LCN_LAYER_FORWARD_KERNEL_H__
 
-#include "neural_networks/layers/lcn/lcn_layer.h"
-#include "neural_networks/layers/lcn/lcn_layer_types.h"
-#include "kernel.h"
-#include "service_math.h"
-#include "service_tensor.h"
-#include "service_numeric_table.h"
-#include "convolution2d_layer_forward_kernel.h"
+#include "algorithms/neural_networks/layers/lcn/lcn_layer.h"
+#include "algorithms/neural_networks/layers/lcn/lcn_layer_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "externals/service_math.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/neural_networks/layers/convolution2d_layer/forward/convolution2d_layer_forward_kernel.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

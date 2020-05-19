@@ -21,8 +21,8 @@
 //--
 */
 
-#include "average_pooling3d_layer_backward_types.h"
-#include "average_pooling3d_layer_types.h"
+#include "algorithms/neural_networks/layers/pooling3d/average_pooling3d_layer_backward_types.h"
+#include "algorithms/neural_networks/layers/pooling3d/average_pooling3d_layer_types.h"
 
 namespace daal
 {

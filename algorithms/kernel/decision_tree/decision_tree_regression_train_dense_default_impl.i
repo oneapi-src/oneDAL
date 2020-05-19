@@ -24,16 +24,16 @@
 #ifndef __DECISION_TREE_REGRESSION_TRAIN_DENSE_DEFAULT_IMPL_I__
 #define __DECISION_TREE_REGRESSION_TRAIN_DENSE_DEFAULT_IMPL_I__
 
-#include "daal_defines.h"
-#include "service_data_utils.h"
-#include "service_math.h"
-#include "service_utils.h"
-#include "numeric_table.h"
-#include "service_numeric_table.h"
-#include "decision_tree_regression_model_impl.h"
-#include "decision_tree_regression_train_kernel.h"
-#include "decision_tree_train_impl.i"
-#include "decision_tree_regression_split_criterion.i"
+#include "services/daal_defines.h"
+#include "service/kernel/service_data_utils.h"
+#include "externals/service_math.h"
+#include "service/kernel/service_utils.h"
+#include "data_management/data/numeric_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/decision_tree/decision_tree_regression_model_impl.h"
+#include "algorithms/kernel/decision_tree/decision_tree_regression_train_kernel.h"
+#include "algorithms/kernel/decision_tree/decision_tree_train_impl.i"
+#include "algorithms/kernel/decision_tree/decision_tree_regression_split_criterion.i"
 
 namespace daal
 {

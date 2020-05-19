@@ -19,7 +19,7 @@
 #include <jni.h>
 #include "daal.h"
 #include "com_intel_daal_algorithms_pca_quality_metric_ExplainedVarianceParameter.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::pca::quality_metric;
@@ -30,8 +30,8 @@ using namespace daal::algorithms::pca::quality_metric::explained_variance;
 `* Method:    cSetNComponents
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceParameter_cSetNComponents
-(JNIEnv *, jobject, jlong parAddr, jdouble nComponents)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceParameter_cSetNComponents(JNIEnv *, jobject, jlong parAddr,
+                                                                                                                     jdouble nComponents)
 {
     (*(explained_variance::Parameter *)parAddr).nComponents = nComponents;
 }
@@ -41,10 +41,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_Explai
 * Method:    cGetNComponents
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceParameter_cGetNComponents
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceParameter_cGetNComponents(JNIEnv *, jobject,
+                                                                                                                      jlong parAddr)
 {
-    return(jlong)(*(explained_variance::Parameter *)parAddr).nComponents;
+    return (jlong)(*(explained_variance::Parameter *)parAddr).nComponents;
 }
 
 /*
@@ -52,8 +52,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_Expla
 * Method:    cSetNFeatures
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceParameter_cSetNFeatures
-(JNIEnv *, jobject, jlong parAddr, jlong nFeatures)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceParameter_cSetNFeatures(JNIEnv *, jobject, jlong parAddr,
+                                                                                                                   jlong nFeatures)
 {
     (*(explained_variance::Parameter *)parAddr).nFeatures = nFeatures;
 }
@@ -63,8 +63,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_Explai
 * Method:    cGetNFeatures
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceParameter_cGetNFeatures
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceParameter_cGetNFeatures(JNIEnv *, jobject, jlong parAddr)
 {
-    return(jlong)(*(explained_variance::Parameter *)parAddr).nFeatures;
+    return (jlong)(*(explained_variance::Parameter *)parAddr).nFeatures;
 }

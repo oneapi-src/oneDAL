@@ -24,10 +24,10 @@
 #ifndef __GBT_CLASSIFICATION_MODEL_IMPL__
 #define __GBT_CLASSIFICATION_MODEL_IMPL__
 
-#include "gbt_model_impl.h"
+#include "algorithms/kernel/dtrees/gbt/gbt_model_impl.h"
 #include "algorithms/gradient_boosted_trees/gbt_classification_model.h"
 #include "algorithms/gradient_boosted_trees/gbt_classification_model_builder.h"
-#include "../classifier/classifier_model_impl.h"
+#include "algorithms/kernel/classifier/classifier_model_impl.h"
 
 namespace daal
 {

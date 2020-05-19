@@ -24,9 +24,9 @@
 #ifndef __FULLYCONNECTED_LAYER_BACKWARD_IMPL_I__
 #define __FULLYCONNECTED_LAYER_BACKWARD_IMPL_I__
 
-#include "threading.h"
-#include "service_blas.h"
-#include "service_tensor.h"
+#include "algorithms/threading/threading.h"
+#include "externals/service_blas.h"
+#include "service/kernel/data_management/service_tensor.h"
 
 #define _DEFAULT_BLOCKSIZE 256
 #define _SMALL_BLOCKSIZE   128

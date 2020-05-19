@@ -19,11 +19,11 @@
 //  Implementation of relu calculation functions.
 //--
 
-#include "relu_batch_container.h"
-#include "relu_base.h"
-#include "relu_dense_default_kernel.h"
-#include "relu_impl.i"
-#include "relu_dense_default_impl.i"
+#include "algorithms/kernel/math/relu/relu_batch_container.h"
+#include "algorithms/kernel/math/relu/relu_base.h"
+#include "algorithms/kernel/math/relu/relu_dense_default_kernel.h"
+#include "algorithms/kernel/math/relu/relu_impl.i"
+#include "algorithms/kernel/math/relu/relu_dense_default_impl.i"
 
 namespace daal
 {

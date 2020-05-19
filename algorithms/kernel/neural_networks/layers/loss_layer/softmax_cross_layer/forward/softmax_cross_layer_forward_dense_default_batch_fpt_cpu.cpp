@@ -19,9 +19,9 @@
 //  Implementation of the forward softmax cross layer
 //--
 
-#include "softmax_cross_layer_forward_batch_container.h"
-#include "softmax_cross_layer_forward_kernel.h"
-#include "softmax_cross_layer_forward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/loss_layer/softmax_cross_layer/forward/softmax_cross_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/loss_layer/softmax_cross_layer/forward/softmax_cross_layer_forward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/loss_layer/softmax_cross_layer/forward/softmax_cross_layer_forward_impl.i"
 
 namespace daal
 {

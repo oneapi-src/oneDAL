@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::neural_networks::layers;
@@ -30,8 +30,8 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_smoothrelu_SmoothreluForwardBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_smoothrelu_SmoothreluForwardBatch_cInit(JNIEnv * env, jobject thisObj,
+                                                                                                                       jint prec, jint method)
 {
     return jniBatch<smoothrelu::Method, smoothrelu::forward::Batch, smoothrelu::defaultDense>::newObj(prec, method);
 }
@@ -41,8 +41,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_smoothrelu_SmoothreluForwardBatch_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_smoothrelu_SmoothreluForwardBatch_cGetInput(JNIEnv * env,
+                                                                                                                           jobject thisObj,
+                                                                                                                           jlong algAddr, jint prec,
+                                                                                                                           jint method)
 {
     return jniBatch<smoothrelu::Method, smoothrelu::forward::Batch, smoothrelu::defaultDense>::getInput(prec, method, algAddr);
 }
@@ -52,8 +54,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_smoothrelu_SmoothreluForwardBatch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_smoothrelu_SmoothreluForwardBatch_cGetResult(JNIEnv * env,
+                                                                                                                            jobject thisObj,
+                                                                                                                            jlong algAddr, jint prec,
+                                                                                                                            jint method)
 {
     return jniBatch<smoothrelu::Method, smoothrelu::forward::Batch, smoothrelu::defaultDense>::getResult(prec, method, algAddr);
 }
@@ -63,11 +67,13 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_smoothrelu_SmoothreluForwardBatch_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_smoothrelu_SmoothreluForwardBatch_cSetResult(JNIEnv * env,
+                                                                                                                           jobject thisObj,
+                                                                                                                           jlong algAddr, jint prec,
+                                                                                                                           jint method, jlong resAddr)
 {
-    jniBatch<smoothrelu::Method, smoothrelu::forward::Batch, smoothrelu::defaultDense>::
-    setResult<smoothrelu::forward::Result>(prec, method, algAddr, resAddr);
+    jniBatch<smoothrelu::Method, smoothrelu::forward::Batch, smoothrelu::defaultDense>::setResult<smoothrelu::forward::Result>(prec, method, algAddr,
+                                                                                                                               resAddr);
 }
 
 /*
@@ -75,8 +81,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_sm
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_smoothrelu_SmoothreluForwardBatch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_smoothrelu_SmoothreluForwardBatch_cClone(JNIEnv * env, jobject thisObj,
+                                                                                                                        jlong algAddr, jint prec,
+                                                                                                                        jint method)
 {
     return jniBatch<smoothrelu::Method, smoothrelu::forward::Batch, smoothrelu::defaultDense>::getClone(prec, method, algAddr);
 }

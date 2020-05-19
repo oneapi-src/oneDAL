@@ -19,11 +19,11 @@
 //  Implementation of neural networks calculation functions.
 //--
 
-#include "neural_networks_prediction_input.h"
-#include "neural_networks_prediction_result.h"
-#include "neural_networks_prediction_model.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/neural_networks_prediction_input.h"
+#include "algorithms/neural_networks/neural_networks_prediction_result.h"
+#include "algorithms/neural_networks/neural_networks_prediction_model.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

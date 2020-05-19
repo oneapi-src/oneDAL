@@ -19,8 +19,8 @@
 //  Implementation of Xavier calculation functions.
 //--
 
-#include "neural_networks/initializers/xavier/xavier_initializer.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/initializers/xavier/xavier_initializer.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {

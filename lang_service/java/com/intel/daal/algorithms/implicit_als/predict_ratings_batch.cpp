@@ -21,7 +21,7 @@
 
 #include "com_intel_daal_algorithms_implicit_als_prediction_ratings_RatingsBatch.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::implicit_als::prediction::ratings;
@@ -31,8 +31,8 @@ using namespace daal::algorithms::implicit_als::prediction::ratings;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsBatch_cInit
-  (JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsBatch_cInit(JNIEnv * env, jobject thisObj, jint prec,
+                                                                                                           jint method)
 {
     return jniBatch<implicit_als::prediction::ratings::Method, Batch, defaultDense>::newObj(prec, method);
 }
@@ -42,8 +42,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsBatch_cInitParameter
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsBatch_cInitParameter(JNIEnv * env, jobject thisObj,
+                                                                                                                    jlong algAddr, jint prec,
+                                                                                                                    jint method)
 {
     return jniBatch<implicit_als::prediction::ratings::Method, Batch, defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -53,8 +54,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsBatch_cGetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsBatch_cGetResult(JNIEnv * env, jobject thisObj,
+                                                                                                                jlong algAddr, jint prec, jint method)
 {
     return jniBatch<implicit_als::prediction::ratings::Method, Batch, defaultDense>::getResult(prec, method, algAddr);
 }
@@ -64,11 +65,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsBatch_cSetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsBatch_cSetResult(JNIEnv * env, jobject thisObj,
+                                                                                                               jlong algAddr, jint prec, jint method,
+                                                                                                               jlong resultAddr)
 {
-    jniBatch<implicit_als::prediction::ratings::Method, Batch, defaultDense>::
-        setResult<implicit_als::prediction::ratings::Result>(prec, method, algAddr, resultAddr);
+    jniBatch<implicit_als::prediction::ratings::Method, Batch, defaultDense>::setResult<implicit_als::prediction::ratings::Result>(
+        prec, method, algAddr, resultAddr);
 }
 
 /*
@@ -76,8 +78,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_r
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsBatch_cClone
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsBatch_cClone(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong algAddr, jint prec, jint method)
 {
     return jniBatch<implicit_als::prediction::ratings::Method, Batch, defaultDense>::getClone(prec, method, algAddr);
 }

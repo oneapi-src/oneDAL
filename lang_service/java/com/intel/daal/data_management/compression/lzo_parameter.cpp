@@ -28,8 +28,8 @@ using namespace daal::data_management;
  * Method:    cInit
  * Signature:(I)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_lzo_LzoCompressionParameter_cSetPreHeadBytes
-(JNIEnv *env, jobject, jlong parAddr, jlong preBytes)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_lzo_LzoCompressionParameter_cSetPreHeadBytes(JNIEnv * env, jobject,
+                                                                                                                     jlong parAddr, jlong preBytes)
 {
     (*((LzoCompressionParameter *)parAddr)).preHeadBytes = preBytes;
 }
@@ -39,10 +39,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_lzo_LzoC
 * Method:    cGetCompressionLevel
 * Signature:(J)I
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_compression_lzo_LzoCompressionParameter_cGetPreHeadBytes
-(JNIEnv *env, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_compression_lzo_LzoCompressionParameter_cGetPreHeadBytes(JNIEnv * env, jobject,
+                                                                                                                      jlong parAddr)
 {
-    return(jlong)(*((LzoCompressionParameter *)parAddr)).preHeadBytes;
+    return (jlong)(*((LzoCompressionParameter *)parAddr)).preHeadBytes;
 }
 
 /*
@@ -50,8 +50,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_compression_lzo_Lzo
  * Method:    cInit
  * Signature:(I)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_lzo_LzoCompressionParameter_cSetPostHeadBytes
-(JNIEnv *env, jobject, jlong parAddr, jlong postBytes)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_lzo_LzoCompressionParameter_cSetPostHeadBytes(JNIEnv * env, jobject,
+                                                                                                                      jlong parAddr, jlong postBytes)
 {
     (*((LzoCompressionParameter *)parAddr)).postHeadBytes = postBytes;
 }
@@ -61,8 +61,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_lzo_LzoC
 * Method:    cGetCompressionLevel
 * Signature:(J)I
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_compression_lzo_LzoCompressionParameter_cGetPostHeadBytes
-(JNIEnv *env, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_compression_lzo_LzoCompressionParameter_cGetPostHeadBytes(JNIEnv * env, jobject,
+                                                                                                                       jlong parAddr)
 {
-    return(jlong)(*((LzoCompressionParameter *)parAddr)).postHeadBytes;
+    return (jlong)(*((LzoCompressionParameter *)parAddr)).postHeadBytes;
 }

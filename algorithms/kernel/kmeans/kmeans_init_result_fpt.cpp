@@ -21,7 +21,7 @@
 //--
 */
 
-#include "kmeans_init_result.h"
+#include "algorithms/kernel/kmeans/kmeans_init_result.h"
 
 namespace daal
 {

@@ -26,9 +26,9 @@
 #define __LOGITBOOST_IMPL_I__
 
 #include <cmath>
-#include "service_math.h"
-#include "service_data_utils.h"
-#include "service_utils.h"
+#include "externals/service_math.h"
+#include "service/kernel/service_data_utils.h"
+#include "service/kernel/service_utils.h"
 
 namespace daal
 {

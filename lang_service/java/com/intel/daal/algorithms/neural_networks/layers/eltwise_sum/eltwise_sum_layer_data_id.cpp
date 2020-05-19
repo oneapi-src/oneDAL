@@ -19,7 +19,7 @@
 #include "com_intel_daal_algorithms_neural_networks_layers_eltwise_sum_EltwiseSumLayerDataId.h"
 
 #include "daal.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 using namespace daal::algorithms::neural_networks::layers;
 
@@ -28,8 +28,8 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cGetAuxCoefficientsId
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumLayerDataId_cGetAuxCoefficientsId
-  (JNIEnv *env, jclass)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumLayerDataId_cGetAuxCoefficientsId(JNIEnv * env,
+                                                                                                                                       jclass)
 {
     return (jint)eltwise_sum::auxCoefficients;
 }

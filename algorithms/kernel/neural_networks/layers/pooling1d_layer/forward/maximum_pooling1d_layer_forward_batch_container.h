@@ -24,8 +24,8 @@
 #ifndef __MAXIMUM_POOLING1D_LAYER_FORWARD_BATCH_CONTAINER_H__
 #define __MAXIMUM_POOLING1D_LAYER_FORWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/pooling1d/maximum_pooling1d_layer.h"
-#include "maximum_pooling1d_layer_forward_kernel.h"
+#include "algorithms/neural_networks/layers/pooling1d/maximum_pooling1d_layer.h"
+#include "algorithms/kernel/neural_networks/layers/pooling1d_layer/forward/maximum_pooling1d_layer_forward_kernel.h"
 
 namespace daal
 {

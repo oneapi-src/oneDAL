@@ -19,7 +19,7 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_dbscan_DistributedStep10LocalInput.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::dbscan;
@@ -29,8 +29,8 @@ using namespace daal::algorithms::dbscan;
 * Method:    cSetNumericTable
 * Signature:(JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep10LocalInput_cSetNumericTable
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep10LocalInput_cSetNumericTable(JNIEnv *, jobject, jlong inputAddr, jint id,
+                                                                                                          jlong ntAddr)
 {
     jniInput<DistributedInput<step10Local> >::set<Step10LocalNumericTableInputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -40,8 +40,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep10Lo
 * Method:    cGetNumericTable
 * Signature:(JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep10LocalInput_cGetNumericTable
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep10LocalInput_cGetNumericTable(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                           jint id)
 {
     return jniInput<DistributedInput<step10Local> >::get<Step10LocalNumericTableInputId, NumericTable>(inputAddr, id);
 }

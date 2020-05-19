@@ -28,8 +28,8 @@
 
 #include "algorithms/optimization_solver/objective_function/sum_of_functions_types.h"
 #include "algorithms/optimization_solver/objective_function/sum_of_functions_batch.h"
-#include "java_callback.h"
-#include "java_batch_container_service.h"
+#include "lang_service/java/com/intel/daal/include/java_callback.h"
+#include "lang_service/java/com/intel/daal/include/java_batch_container_service.h"
 
 using namespace daal::algorithms::optimization_solver;
 
@@ -41,35 +41,27 @@ namespace optimization_solver
 {
 namespace sum_of_functions
 {
-
 class JavaBatchContainer : public daal::services::JavaBatchContainerService
 {
 public:
-    JavaBatchContainer(JavaVM *_jvm, jobject _javaObject) : JavaBatchContainerService(_jvm, _javaObject) {};
-    JavaBatchContainer(const JavaBatchContainer &other) : JavaBatchContainerService(other) {}
+    JavaBatchContainer(JavaVM * _jvm, jobject _javaObject) : JavaBatchContainerService(_jvm, _javaObject) {};
+    JavaBatchContainer(const JavaBatchContainer & other) : JavaBatchContainerService(other) {}
 
     virtual ~JavaBatchContainer() {}
 
     virtual services::Status compute()
     {
-        return daal::services::JavaBatchContainerService::compute(
-            "Lcom/intel/daal/algorithms/optimization_solver/objective_function/Result;");
+        return daal::services::JavaBatchContainerService::compute("Lcom/intel/daal/algorithms/optimization_solver/objective_function/Result;");
     }
 
-    void setJavaResult(objective_function::ResultPtr result)
-    {
-        _result = result;
-    };
+    void setJavaResult(objective_function::ResultPtr result) { _result = result; };
 
-    virtual JavaBatchContainer * cloneImpl()
-    {
-        return new JavaBatchContainer(*this);
-    }
+    virtual JavaBatchContainer * cloneImpl() { return new JavaBatchContainer(*this); }
 };
 
-} // namespace daal::algorithms::optimization_solver::sum_of_functions
-} // namespace daal::algorithms::optimization_solver
-} // namespace daal::algorithms
+} // namespace sum_of_functions
+} // namespace optimization_solver
+} // namespace algorithms
 } // namespace daal
 
 #endif

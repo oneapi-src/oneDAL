@@ -24,7 +24,7 @@
 #ifndef __DROPOUT_LAYER_FORWARD_IMPL_I__
 #define __DROPOUT_LAYER_FORWARD_IMPL_I__
 
-#include "service_tensor.h"
+#include "service/kernel/data_management/service_tensor.h"
 
 using namespace daal::internal;
 using namespace daal::services;

@@ -18,7 +18,7 @@
 #include <jni.h>
 #include "com_intel_daal_algorithms_neural_networks_layers_prelu_PreluForwardInput.h"
 #include "daal.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::neural_networks::layers;
@@ -28,8 +28,10 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cGetWeightsSizes
  * Signature: (J)[J
  */
-JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_prelu_PreluForwardInput_cGetWeightsSizes
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jlong paramAddr)
+JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_prelu_PreluForwardInput_cGetWeightsSizes(JNIEnv * env,
+                                                                                                                             jobject thisObj,
+                                                                                                                             jlong inputAddr,
+                                                                                                                             jlong paramAddr)
 {
     Collection<size_t> dims = ((prelu::forward::Input *)inputAddr)->getWeightsSizes((prelu::Parameter *)paramAddr);
     return getJavaLongArrayFromSizeTCollection(env, dims);

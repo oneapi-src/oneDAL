@@ -24,8 +24,8 @@
 #ifndef __CONVOLUTION2D_LAYER_BACKWARD_BATCH_CONTAINER_H__
 #define __CONVOLUTION2D_LAYER_BACKWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/convolution2d/convolution2d_layer.h"
-#include "convolution2d_layer_backward_kernel.h"
+#include "algorithms/neural_networks/layers/convolution2d/convolution2d_layer.h"
+#include "algorithms/kernel/neural_networks/layers/convolution2d_layer/backward/convolution2d_layer_backward_kernel.h"
 
 namespace daal
 {

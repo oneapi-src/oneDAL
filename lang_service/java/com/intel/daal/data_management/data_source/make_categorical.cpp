@@ -17,7 +17,7 @@
 
 #include "com_intel_daal_data_management_data_source_MakeCategorical.h"
 
-#include "csv_feature_manager.h"
+#include "data_management/data_source/csv_feature_manager.h"
 
 using namespace daal;
 using namespace daal::data_management;
@@ -27,9 +27,8 @@ using namespace daal::data_management;
  * Method:    cDispose
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_1source_MakeCategorical_cInit
-(JNIEnv *env, jobject obj, jlong idx)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_1source_MakeCategorical_cInit(JNIEnv * env, jobject obj, jlong idx)
 {
-    services::SharedPtr<ModifierIface>* ptr = new services::SharedPtr<ModifierIface>(new MakeCategorical(idx));
+    services::SharedPtr<ModifierIface> * ptr = new services::SharedPtr<ModifierIface>(new MakeCategorical(idx));
     return (jlong)ptr;
 }

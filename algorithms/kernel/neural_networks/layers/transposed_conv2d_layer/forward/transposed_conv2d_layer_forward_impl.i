@@ -21,10 +21,10 @@
 //--
 */
 
-#include "service_tensor.h"
-#include "service_numeric_table.h"
-#include "convolution2d_layer_backward.h"
-#include "convolution2d_layer_backward_kernel.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/neural_networks/layers/convolution2d/convolution2d_layer_backward.h"
+#include "algorithms/kernel/neural_networks/layers/convolution2d_layer/backward/convolution2d_layer_backward_kernel.h"
 
 using namespace daal::internal;
 using namespace daal::services;

@@ -20,16 +20,14 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_cordistance_Input.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::correlation_distance;
 
 #define DefaultMethodValue com_intel_daal_algorithms_cordistance_Method_DefaultMethodValue
 
-
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cordistance_Input_cInit
-(JNIEnv *jenv, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cordistance_Input_cInit(JNIEnv * jenv, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<correlation_distance::Method, Batch, defaultDense>::getInput(prec, method, algAddr);
 }
@@ -39,14 +37,13 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cordistance_Input_cInit
  * Method:    cSetDataSet
  * Signature:(JIJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_cordistance_Input_cSetInput
-(JNIEnv *jenv, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_cordistance_Input_cSetInput(JNIEnv * jenv, jobject thisObj, jlong inputAddr, jint id,
+                                                                                  jlong ntAddr)
 {
     jniInput<correlation_distance::Input>::set<correlation_distance::InputId, NumericTable>(inputAddr, id, ntAddr);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cordistance_Input_cGetInput
-(JNIEnv *jenv, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cordistance_Input_cGetInput(JNIEnv * jenv, jobject thisObj, jlong inputAddr, jint id)
 {
     return jniInput<correlation_distance::Input>::get<correlation_distance::InputId, NumericTable>(inputAddr, id);
 }

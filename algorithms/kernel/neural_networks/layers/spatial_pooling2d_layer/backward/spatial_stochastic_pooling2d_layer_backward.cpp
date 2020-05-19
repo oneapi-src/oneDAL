@@ -21,10 +21,10 @@
 //--
 */
 
-#include "spatial_stochastic_pooling2d_layer_types.h"
-#include "spatial_stochastic_pooling2d_layer_backward_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/layers/spatial_pooling2d/spatial_stochastic_pooling2d_layer_types.h"
+#include "algorithms/neural_networks/layers/spatial_pooling2d/spatial_stochastic_pooling2d_layer_backward_types.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {

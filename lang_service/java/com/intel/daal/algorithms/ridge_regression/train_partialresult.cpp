@@ -19,10 +19,10 @@
 
 #include "com_intel_daal_algorithms_ridge_regression_training_PartialResult.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_ridge_regression_training_PartialResultId.h"
-#define ModelId     com_intel_daal_algorithms_ridge_regression_training_PartialResultId_ModelId
+#define ModelId com_intel_daal_algorithms_ridge_regression_training_PartialResultId_ModelId
 
 USING_COMMON_NAMESPACES();
 
@@ -31,13 +31,13 @@ USING_COMMON_NAMESPACES();
  * Method:    cGetModel
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_ridge_1regression_training_PartialResult_cGetModel
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_ridge_1regression_training_PartialResult_cGetModel(JNIEnv * env, jobject thisObj,
+                                                                                                          jlong resAddr, jint id)
 {
     if (id == ModelId)
     {
-        return jniArgument<ridge_regression::training::PartialResult>::
-            get<ridge_regression::training::PartialResultID, ridge_regression::Model>(resAddr, id);
+        return jniArgument<ridge_regression::training::PartialResult>::get<ridge_regression::training::PartialResultID, ridge_regression::Model>(
+            resAddr, id);
     }
 
     return (jlong)0;

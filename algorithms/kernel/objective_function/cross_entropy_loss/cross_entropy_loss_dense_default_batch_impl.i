@@ -20,10 +20,10 @@
 //  Implementation of cross-entropy loss algorithm
 //--
 */
-#include "service_math.h"
-#include "service_utils.h"
-#include "service_environment.h"
-#include "objective_function_utils.i"
+#include "externals/service_math.h"
+#include "service/kernel/service_utils.h"
+#include "service/kernel/service_environment.h"
+#include "algorithms/kernel/objective_function/objective_function_utils.i"
 
 namespace daal
 {

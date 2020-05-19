@@ -19,7 +19,7 @@
 // Implementation of the forward smooth rectifier linear unit (smooth relu) layer
 //--
 
-#include "smoothrelu_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/smoothrelu_layer/forward/smoothrelu_layer_forward_batch_container.h"
 
 namespace daal
 {

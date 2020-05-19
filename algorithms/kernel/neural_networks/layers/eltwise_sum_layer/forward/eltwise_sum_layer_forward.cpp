@@ -21,11 +21,11 @@
 //--
 */
 
-#include "eltwise_sum_layer_forward_types.h"
-#include "eltwise_sum_layer_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
-#include "homogen_numeric_table.h"
+#include "algorithms/neural_networks/layers/eltwise_sum/eltwise_sum_layer_forward_types.h"
+#include "algorithms/neural_networks/layers/eltwise_sum/eltwise_sum_layer_types.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
+#include "data_management/data/homogen_numeric_table.h"
 
 namespace daal
 {

@@ -24,11 +24,11 @@
 #ifndef __EM_GMM_DENSE_DEFAULT_BATCH_KERNEL_H__
 #define __EM_GMM_DENSE_DEFAULT_BATCH_KERNEL_H__
 
-#include "em_gmm.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "service_blas.h"
-#include "em_gmm_dense_default_batch_task.h"
+#include "algorithms/em/em_gmm.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "externals/service_blas.h"
+#include "algorithms/kernel/em/em_gmm_dense_default_batch_task.h"
 
 using namespace daal::data_management;
 

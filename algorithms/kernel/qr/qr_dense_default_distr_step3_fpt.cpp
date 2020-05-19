@@ -21,7 +21,7 @@
 //--
 */
 
-#include "qr_dense_default_distr_step3.h"
+#include "algorithms/kernel/qr/qr_dense_default_distr_step3.h"
 namespace daal
 {
 namespace algorithms

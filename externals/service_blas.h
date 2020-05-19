@@ -24,11 +24,11 @@
 #ifndef __SERVICE_BLAS_H__
 #define __SERVICE_BLAS_H__
 
-#include "daal_defines.h"
-#include "service_memory.h"
-#include "service_blas_mkl.h"
-#include "service_error_handling.h"
-#include "service_numeric_table.h"
+#include "services/daal_defines.h"
+#include "externals/service_memory.h"
+#include "externals/service_blas_mkl.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 namespace daal
 {

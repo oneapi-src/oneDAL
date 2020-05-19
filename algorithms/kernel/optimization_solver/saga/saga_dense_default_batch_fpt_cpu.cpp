@@ -19,9 +19,9 @@
 //  Implementation of saga calculation.
 //--
 
-#include "saga_batch_container.h"
-#include "saga_dense_default_kernel.h"
-#include "saga_dense_default_impl.i"
+#include "algorithms/kernel/optimization_solver/saga/saga_batch_container.h"
+#include "algorithms/kernel/optimization_solver/saga/saga_dense_default_kernel.h"
+#include "algorithms/kernel/optimization_solver/saga/saga_dense_default_impl.i"
 
 namespace daal
 {

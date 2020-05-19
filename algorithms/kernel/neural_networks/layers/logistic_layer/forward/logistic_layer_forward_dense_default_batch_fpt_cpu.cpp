@@ -19,9 +19,9 @@
 //  Implementation of logistic function calculation functions.
 //--
 
-#include "logistic_layer_forward_batch_container.h"
-#include "logistic_layer_forward_kernel.h"
-#include "logistic_layer_forward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/logistic_layer/forward/logistic_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/logistic_layer/forward/logistic_layer_forward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/logistic_layer/forward/logistic_layer_forward_impl.i"
 
 namespace daal
 {

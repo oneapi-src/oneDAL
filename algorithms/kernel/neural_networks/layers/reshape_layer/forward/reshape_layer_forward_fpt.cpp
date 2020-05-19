@@ -21,9 +21,9 @@
 //--
 */
 
-#include "reshape_layer_forward_types.h"
-#include "reshape_layer_types.h"
-#include "service_numeric_table.h"
+#include "algorithms/neural_networks/layers/reshape/reshape_layer_forward_types.h"
+#include "algorithms/neural_networks/layers/reshape/reshape_layer_types.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 namespace daal
 {

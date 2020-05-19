@@ -21,8 +21,8 @@
 //--
 */
 
-#include "dropout_layer_types.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/layers/dropout/dropout_layer_types.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {

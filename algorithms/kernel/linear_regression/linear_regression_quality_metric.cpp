@@ -21,13 +21,13 @@
 //--
 */
 
-#include "linear_regression_quality_metric_set_batch.h"
-#include "linear_regression_single_beta_batch.h"
-#include "linear_regression_single_beta_dense_default_batch_container.h"
-#include "linear_regression_group_of_betas_dense_default_batch_container.h"
-#include "linear_regression_ne_model.h"
-#include "linear_regression_qr_model.h"
-#include "daal_defines.h"
+#include "algorithms/linear_regression/linear_regression_quality_metric_set_batch.h"
+#include "algorithms/linear_regression/linear_regression_single_beta_batch.h"
+#include "algorithms/kernel/linear_regression/linear_regression_single_beta_dense_default_batch_container.h"
+#include "algorithms/kernel/linear_regression/linear_regression_group_of_betas_dense_default_batch_container.h"
+#include "algorithms/linear_regression/linear_regression_ne_model.h"
+#include "algorithms/linear_regression/linear_regression_qr_model.h"
+#include "services/daal_defines.h"
 
 #define DAAL_CHECK_TABLE(type, error) DAAL_CHECK(get(type).get(), error);
 

@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::neural_networks::layers;
@@ -30,8 +30,8 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cSetIndices
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1pooling2d_SpatialPooling2dParameter_cSetIndices
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong first, jlong second)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1pooling2d_SpatialPooling2dParameter_cSetIndices(
+    JNIEnv * env, jobject thisObj, jlong cParameter, jlong first, jlong second)
 {
     (((spatial_pooling2d::Parameter *)cParameter))->indices.size[0] = first;
     (((spatial_pooling2d::Parameter *)cParameter))->indices.size[1] = second;
@@ -42,8 +42,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_sp
  * Method:    cSetPyramidHeight
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1pooling2d_SpatialPooling2dParameter_cSetPyramidHeight
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong pyramidHeight)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1pooling2d_SpatialPooling2dParameter_cSetPyramidHeight(
+    JNIEnv * env, jobject thisObj, jlong cParameter, jlong pyramidHeight)
 {
     (((spatial_pooling2d::Parameter *)cParameter))->pyramidHeight = pyramidHeight;
 }
@@ -53,8 +53,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_sp
  * Method:    cGetPyramidHeight
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1pooling2d_SpatialPooling2dParameter_cGetPyramidHeight
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1pooling2d_SpatialPooling2dParameter_cGetPyramidHeight(
+    JNIEnv * env, jobject thisObj, jlong cParameter)
 {
     return (jlong)((((spatial_pooling2d::Parameter *)cParameter))->pyramidHeight);
 }
@@ -64,8 +64,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cGetIndices
  * Signature: (J)J
  */
-JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1pooling2d_SpatialPooling2dParameter_cGetIndices
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1pooling2d_SpatialPooling2dParameter_cGetIndices(
+    JNIEnv * env, jobject thisObj, jlong cParameter)
 {
     jlongArray sizeArray;
     sizeArray = env->NewLongArray(2);

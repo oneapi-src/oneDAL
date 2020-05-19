@@ -19,7 +19,7 @@
 //  Implementation of forward batch normalization layer container.
 //--
 
-#include "batch_normalization_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/batch_normalization_layer/forward/batch_normalization_layer_forward_batch_container.h"
 
 namespace daal
 {

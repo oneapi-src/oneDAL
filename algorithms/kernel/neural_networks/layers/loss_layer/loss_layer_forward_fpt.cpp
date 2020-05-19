@@ -21,7 +21,7 @@
 //--
 */
 
-#include "loss_layer_forward_types.h"
+#include "algorithms/neural_networks/layers/loss/loss_layer_forward_types.h"
 
 namespace daal
 {

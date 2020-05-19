@@ -18,8 +18,8 @@
 #include <jni.h>
 #include "com_intel_daal_data_management_data_source_ColumnFilter.h"
 
-#include "csv_feature_manager.h"
-#include "data_collection.h"
+#include "data_management/data_source/csv_feature_manager.h"
+#include "data_management/data/data_collection.h"
 
 using namespace daal;
 using namespace daal::data_management;
@@ -29,10 +29,9 @@ using namespace daal::data_management;
  * Method:    cInit
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_1source_ColumnFilter_cInit
-(JNIEnv *env, jobject obj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_1source_ColumnFilter_cInit(JNIEnv * env, jobject obj)
 {
-    services::SharedPtr<ModifierIface>* ptr = new services::SharedPtr<ModifierIface>(new ColumnFilter());
+    services::SharedPtr<ModifierIface> * ptr = new services::SharedPtr<ModifierIface>(new ColumnFilter());
     return (jlong)ptr;
 }
 
@@ -41,12 +40,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_1source_Column
  * Method:    cOdd
  * Signature:(J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_1source_ColumnFilter_cOdd
-(JNIEnv *env, jobject obj, jlong ptr)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_1source_ColumnFilter_cOdd(JNIEnv * env, jobject obj, jlong ptr)
 {
     services::SharedPtr<ColumnFilter> columnFilter =
-        services::staticPointerCast<ColumnFilter, ModifierIface>(
-            (*(services::SharedPtr<ModifierIface> *)ptr));
+        services::staticPointerCast<ColumnFilter, ModifierIface>((*(services::SharedPtr<ModifierIface> *)ptr));
     columnFilter->odd();
 }
 
@@ -55,12 +52,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_1source_ColumnF
  * Method:    cEven
  * Signature:(J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_1source_ColumnFilter_cEven
-(JNIEnv *env, jobject obj, jlong ptr)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_1source_ColumnFilter_cEven(JNIEnv * env, jobject obj, jlong ptr)
 {
     services::SharedPtr<ColumnFilter> columnFilter =
-        services::staticPointerCast<ColumnFilter, ModifierIface>(
-            (*(services::SharedPtr<ModifierIface> *)ptr));
+        services::staticPointerCast<ColumnFilter, ModifierIface>((*(services::SharedPtr<ModifierIface> *)ptr));
     columnFilter->even();
 }
 
@@ -69,12 +64,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_1source_ColumnF
  * Method:    cNone
  * Signature:(J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_1source_ColumnFilter_cNone
-(JNIEnv *env, jobject obj, jlong ptr)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_1source_ColumnFilter_cNone(JNIEnv * env, jobject obj, jlong ptr)
 {
     services::SharedPtr<ColumnFilter> columnFilter =
-        services::staticPointerCast<ColumnFilter, ModifierIface>(
-            (*(services::SharedPtr<ModifierIface> *)ptr));
+        services::staticPointerCast<ColumnFilter, ModifierIface>((*(services::SharedPtr<ModifierIface> *)ptr));
     columnFilter->none();
 }
 
@@ -83,14 +76,12 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_1source_ColumnF
  * Method:    cList
  * Signature:(JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_1source_ColumnFilter_cList
-(JNIEnv *env, jobject obj, jlong ptr, jlongArray valid)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_1source_ColumnFilter_cList(JNIEnv * env, jobject obj, jlong ptr, jlongArray valid)
 {
     services::SharedPtr<ColumnFilter> columnFilter =
-        services::staticPointerCast<ColumnFilter, ModifierIface>(
-            (*(services::SharedPtr<ModifierIface> *)ptr));
-    size_t n = env->GetArrayLength(valid);
-    jlong* arr = env->GetLongArrayElements(valid, 0);
+        services::staticPointerCast<ColumnFilter, ModifierIface>((*(services::SharedPtr<ModifierIface> *)ptr));
+    size_t n    = env->GetArrayLength(valid);
+    jlong * arr = env->GetLongArrayElements(valid, 0);
     services::Collection<size_t> collection(n);
     for (int i = 0; i < n; i++)
     {

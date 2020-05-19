@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_neural_networks_layers_dropout_DropoutLayerDataId.h"
 #define auxRetainMaskId com_intel_daal_algorithms_neural_networks_layers_dropout_DropoutLayerDataId_auxRetainMaskId
@@ -33,8 +33,9 @@ using namespace daal::algorithms::neural_networks::layers::dropout;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dropout_DropoutBackwardInput_cSetInput
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dropout_DropoutBackwardInput_cSetInput(JNIEnv * env, jobject thisObj,
+                                                                                                                     jlong inputAddr, jint id,
+                                                                                                                     jlong ntAddr)
 {
     if (id == auxRetainMaskId)
     {
@@ -47,8 +48,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dr
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dropout_DropoutBackwardInput_cGetInput
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dropout_DropoutBackwardInput_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong inputAddr, jint id)
 {
     if (id == auxRetainMaskId)
     {

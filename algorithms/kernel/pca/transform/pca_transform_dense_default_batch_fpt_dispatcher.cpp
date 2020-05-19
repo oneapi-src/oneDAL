@@ -23,7 +23,7 @@
 //--
 */
 
-#include "pca_transform_container.h"
+#include "algorithms/kernel/pca/transform/pca_transform_container.h"
 
 namespace daal
 {

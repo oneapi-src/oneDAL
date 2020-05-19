@@ -25,7 +25,7 @@
 
 #include <jni.h>
 #include <tbb/tbb.h>
-#include "daal_string.h"
+#include "services/daal_string.h"
 
 namespace daal
 {
@@ -37,10 +37,10 @@ public:
     enum CallbackStatus
     {
         success = 0, /*!< Getting JNI class signature of the input object successfully */
-        fail = 1     /*!< Fail in getting JNI class signature of the input object */
+        fail    = 1  /*!< Fail in getting JNI class signature of the input object */
     };
 
-    JavaCallback(JavaVM *_jvm, jobject _javaObject) : jvm(_jvm), javaObject(NULL)
+    JavaCallback(JavaVM * _jvm, jobject _javaObject) : jvm(_jvm), javaObject(NULL)
     {
         ThreadLocalStorage tls = _tls.local();
 
@@ -48,7 +48,7 @@ public:
         tls.is_main_thread = true;
 
         jint status = jvm->AttachCurrentThread((void **)(&(tls.jniEnv)), NULL);
-        if(status != JNI_OK)
+        if (status != JNI_OK)
         {
             String err("Couldn't attach main thread to Java VM");
             tls.jniEnv->ThrowNew(tls.jniEnv->FindClass("java/lang/Exception"), err.c_str());
@@ -63,7 +63,7 @@ public:
         _tls.local() = tls;
     }
 
-    JavaCallback(const JavaCallback &other) : jvm(other.jvm), javaObject(NULL)
+    JavaCallback(const JavaCallback & other) : jvm(other.jvm), javaObject(NULL)
     {
         ThreadLocalStorage tls = _tls.local();
 
@@ -71,7 +71,7 @@ public:
         tls.is_main_thread = true;
 
         jint status = jvm->AttachCurrentThread((void **)(&(tls.jniEnv)), NULL);
-        if(status != JNI_OK)
+        if (status != JNI_OK)
         {
             String err("Couldn't attach main thread to Java VM");
             tls.jniEnv->ThrowNew(tls.jniEnv->FindClass("java/lang/Exception"), err.c_str());
@@ -79,13 +79,19 @@ public:
 
         /* Get class of the input object */
         jclass javaObjectClass = tls.jniEnv->GetObjectClass(other.javaObject);
-        if(javaObjectClass == 0)
-        { tls.jniEnv->ThrowNew(tls.jniEnv->FindClass("java/lang/Exception"), "javaObjectClass could not be initialized"); return; }
+        if (javaObjectClass == 0)
+        {
+            tls.jniEnv->ThrowNew(tls.jniEnv->FindClass("java/lang/Exception"), "javaObjectClass could not be initialized");
+            return;
+        }
 
         /* Get context object related to the input object */
         jmethodID getContextMethodID = tls.jniEnv->GetMethodID(javaObjectClass, "getContext", "()Lcom/intel/daal/services/DaalContext;");
-        if(getContextMethodID == 0)
-        { tls.jniEnv->ThrowNew(tls.jniEnv->FindClass("java/lang/Exception"), "getContext() method ID could not be initialized"); return; }
+        if (getContextMethodID == 0)
+        {
+            tls.jniEnv->ThrowNew(tls.jniEnv->FindClass("java/lang/Exception"), "getContext() method ID could not be initialized");
+            return;
+        }
 
         jobject context = tls.jniEnv->CallObjectMethod(other.javaObject, getContextMethodID);
 
@@ -94,7 +100,10 @@ public:
         char javaObjectClassName[maxLength];
         CallbackStatus st = getJavaObjectClassName(tls.jniEnv, other.javaObject, javaObjectClass, javaObjectClassName, maxLength);
         if (st == fail)
-        { tls.jniEnv->ThrowNew(tls.jniEnv->FindClass("java/lang/Exception"), "Java object class name is too long could"); return; }
+        {
+            tls.jniEnv->ThrowNew(tls.jniEnv->FindClass("java/lang/Exception"), "Java object class name is too long could");
+            return;
+        }
 
         /* Find the clone() method of the input object */
         services::String fullCloneSignature("(Lcom/intel/daal/services/DaalContext;)", 40);
@@ -102,8 +111,11 @@ public:
         fullCloneSignature.add(javaResultClassNameString);
         jmethodID cloneMethodID = tls.jniEnv->GetMethodID(javaObjectClass, "clone", fullCloneSignature.c_str());
 
-        if(cloneMethodID == 0)
-        { tls.jniEnv->ThrowNew(tls.jniEnv->FindClass("java/lang/Exception"), "clone() method ID could not be initialized"); return; }
+        if (cloneMethodID == 0)
+        {
+            tls.jniEnv->ThrowNew(tls.jniEnv->FindClass("java/lang/Exception"), "clone() method ID could not be initialized");
+            return;
+        }
 
         /* Call the clone() and get the copy of the input object */
         jobject _javaObject = tls.jniEnv->CallObjectMethod(other.javaObject, cloneMethodID, context);
@@ -115,7 +127,7 @@ public:
             tls.jniEnv->ThrowNew(tls.jniEnv->FindClass("java/lang/Exception"), err.c_str());
         }
 
-        if(!tls.is_main_thread)
+        if (!tls.is_main_thread)
         {
             status = jvm->DetachCurrentThread();
         }
@@ -128,40 +140,46 @@ public:
         tls.jniEnv->DeleteGlobalRef(javaObject);
     }
 
-    virtual JavaCallback * cloneImpl()
-    {
-        return new JavaCallback(*this);
-    }
+    virtual JavaCallback * cloneImpl() { return new JavaCallback(*this); }
 
 protected:
     struct ThreadLocalStorage
     {
-        JNIEnv *jniEnv;    // JNI interface poiner
+        JNIEnv * jniEnv; // JNI interface poiner
         bool is_main_thread;
         /* Default constructor */
         ThreadLocalStorage() : jniEnv(NULL), is_main_thread(false) {};
     };
-    tbb::enumerable_thread_specific<ThreadLocalStorage> _tls;  /* Thread local storage */
-    JavaVM *jvm;
+    tbb::enumerable_thread_specific<ThreadLocalStorage> _tls; /* Thread local storage */
+    JavaVM * jvm;
     jobject javaObject;
 
-    CallbackStatus getJavaObjectClassName(JNIEnv *env, jobject javaObject, jclass javaObjectClass, char *className, int maxLength)
+    CallbackStatus getJavaObjectClassName(JNIEnv * env, jobject javaObject, jclass javaObjectClass, char * className, int maxLength)
     {
         jmethodID getClassMethodId = env->GetMethodID(javaObjectClass, "getClass", "()Ljava/lang/Class;");
         if (getClassMethodId == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "getClass() method ID could not be initialized"); return fail; }
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "getClass() method ID could not be initialized");
+            return fail;
+        }
 
         jobject classObject = env->CallObjectMethod(javaObject, getClassMethodId);
 
         /* Get the class object's class descriptor */
         jclass cls = env->GetObjectClass(classObject);
         if (cls == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "javaObjectClass could not be initialized"); return fail; }
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "javaObjectClass could not be initialized");
+            return fail;
+        }
 
         /* Find the getName() method on the class object */
         jmethodID getNameMethodId = env->GetMethodID(cls, "getName", "()Ljava/lang/String;");
         if (getNameMethodId == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "getName() method ID could not be initialized"); return fail; }
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "getName() method ID could not be initialized");
+            return fail;
+        }
 
         /* Call the getName() to get a jstring object with fully qualified Java class name */
         jstring classNameString = (jstring)env->CallObjectMethod(classObject, getNameMethodId);
@@ -188,7 +206,7 @@ protected:
         return success;
     }
 
-    jobject constructJavaObjectFromCppObject(JNIEnv *env, jlong cObjectAddr, jobject context, const char *javaClassName)
+    jobject constructJavaObjectFromCppObject(JNIEnv * env, jlong cObjectAddr, jobject context, const char * javaClassName)
     {
         jclass javaClass = env->FindClass(javaClassName);
         if (javaClass == NULL)
@@ -197,8 +215,8 @@ protected:
             err.add(String(javaClassName));
             env->ThrowNew(env->FindClass("java/lang/Exception"), err.c_str());
         }
-        const char *constructorSignature = "(Lcom/intel/daal/services/DaalContext;J)V";
-        jmethodID constructorID = env->GetMethodID(javaClass, "<init>", constructorSignature);
+        const char * constructorSignature = "(Lcom/intel/daal/services/DaalContext;J)V";
+        jmethodID constructorID           = env->GetMethodID(javaClass, "<init>", constructorSignature);
         if (constructorID == NULL)
         {
             String err("Couldn't find class of java constructor ");
@@ -218,7 +236,7 @@ protected:
         return classObject;
     }
 
-    jobject constructJavaObjectFromFactory(JNIEnv *env, jlong cObjectAddr, jobject context)
+    jobject constructJavaObjectFromFactory(JNIEnv * env, jlong cObjectAddr, jobject context)
     {
         jclass javaFactoryClass = env->FindClass("com/intel/daal/data_management/data/Factory");
         if (javaFactoryClass == NULL)
@@ -227,8 +245,8 @@ protected:
             err.add(String("com/intel/daal/data_management/data/Factory"));
             env->ThrowNew(env->FindClass("java/lang/Exception"), err.c_str());
         }
-        const char *instanceSignature = "()Lcom/intel/daal/data_management/data/Factory;";
-        jmethodID instanceID = env->GetStaticMethodID(javaFactoryClass, "instance", instanceSignature);
+        const char * instanceSignature = "()Lcom/intel/daal/data_management/data/Factory;";
+        jmethodID instanceID           = env->GetStaticMethodID(javaFactoryClass, "instance", instanceSignature);
         if (instanceID == NULL)
         {
             String err("Couldn't find static function ");
@@ -238,9 +256,9 @@ protected:
             err.add(String(instanceSignature));
             env->ThrowNew(env->FindClass("java/lang/Exception"), err.c_str());
         }
-        jobject factoryObject = env->CallStaticObjectMethod(javaFactoryClass, instanceID);
-        const char *createObjectSignature = "(Lcom/intel/daal/services/DaalContext;J)Lcom/intel/daal/data_management/data/SerializableBase;";
-        jmethodID createObjectID = env->GetMethodID(javaFactoryClass, "createObject", createObjectSignature);
+        jobject factoryObject              = env->CallStaticObjectMethod(javaFactoryClass, instanceID);
+        const char * createObjectSignature = "(Lcom/intel/daal/services/DaalContext;J)Lcom/intel/daal/data_management/data/SerializableBase;";
+        jmethodID createObjectID           = env->GetMethodID(javaFactoryClass, "createObject", createObjectSignature);
         if (createObjectID == NULL)
         {
             String err("Couldn't find function ");
@@ -290,7 +308,7 @@ protected:
     }
 #endif
 };
-} // namespace daal::services
+} // namespace services
 } // namespace daal
 
 #endif

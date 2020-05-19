@@ -20,7 +20,7 @@
 //  Implementation of service data structures
 //--
 */
-#include "dtrees_feature_type_helper.h"
+#include "algorithms/kernel/dtrees/dtrees_feature_type_helper.h"
 
 namespace daal
 {

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "adaboost_quality_metric_set_types.h"
+#include "algorithms/boosting/adaboost_quality_metric_set_types.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -62,9 +62,9 @@ classifier::quality_metric::binary_confusion_matrix::InputPtr
     return staticPointerCast<classifier::quality_metric::binary_confusion_matrix::Input, algorithms::Input>(
         algorithms::quality_metric_set::InputDataCollection::getInput((size_t)id));
 }
-} //namespace interface1
+} // namespace interface1
 
-} //namespace quality_metric_set
-} //namespace adaboost
-} //namespace algorithms
-} //namespace daal
+} // namespace quality_metric_set
+} // namespace adaboost
+} // namespace algorithms
+} // namespace daal

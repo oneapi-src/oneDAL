@@ -24,10 +24,10 @@
 #ifndef __POOLING2D_LAYER_INTERNAL_PARAMETER_H__
 #define __POOLING2D_LAYER_INTERNAL_PARAMETER_H__
 
-#include "service_utils.h"
-#include "tensor.h"
-#include "collection.h"
-#include "service_blas.h"
+#include "service/kernel/service_utils.h"
+#include "data_management/data/tensor.h"
+#include "services/collection.h"
+#include "externals/service_blas.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

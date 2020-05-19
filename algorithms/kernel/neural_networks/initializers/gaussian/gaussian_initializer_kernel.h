@@ -22,14 +22,14 @@
 #ifndef __GAUSSIAN_INITIALIZER_KERNEL_H__
 #define __GAUSSIAN_INITIALIZER_KERNEL_H__
 
-#include "kernel.h"
-#include "service_tensor.h"
+#include "algorithms/kernel/kernel.h"
+#include "service/kernel/data_management/service_tensor.h"
 
-#include "neural_networks/initializers/gaussian/gaussian_initializer.h"
-#include "neural_networks/initializers/gaussian/gaussian_initializer_types.h"
-#include "normal_kernel.h"
+#include "algorithms/neural_networks/initializers/gaussian/gaussian_initializer.h"
+#include "algorithms/neural_networks/initializers/gaussian/gaussian_initializer_types.h"
+#include "algorithms/kernel/distributions/normal/normal_kernel.h"
 
-#include "gaussian_initializer_task_descriptor.h"
+#include "algorithms/kernel/neural_networks/initializers/gaussian/gaussian_initializer_task_descriptor.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

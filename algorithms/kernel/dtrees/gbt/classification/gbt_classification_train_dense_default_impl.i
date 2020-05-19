@@ -25,12 +25,12 @@
 #ifndef __GBT_CLASSIFICATION_TRAIN_DENSE_DEFAULT_IMPL_I__
 #define __GBT_CLASSIFICATION_TRAIN_DENSE_DEFAULT_IMPL_I__
 
-#include "gbt_classification_train_kernel.h"
-#include "gbt_classification_model_impl.h"
-#include "gbt_train_dense_default_impl.i"
-#include "gbt_train_tree_builder.i"
-#include "service_error_handling.h"
-#include "service_algo_utils.h"
+#include "algorithms/kernel/dtrees/gbt/classification/gbt_classification_train_kernel.h"
+#include "algorithms/kernel/dtrees/gbt/classification/gbt_classification_model_impl.h"
+#include "algorithms/kernel/dtrees/gbt/gbt_train_dense_default_impl.i"
+#include "algorithms/kernel/dtrees/gbt/gbt_train_tree_builder.i"
+#include "algorithms/kernel/service_error_handling.h"
+#include "service/kernel/service_algo_utils.h"
 
 using namespace daal::algorithms::dtrees::training::internal;
 using namespace daal::algorithms::gbt::training::internal;

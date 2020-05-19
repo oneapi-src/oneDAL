@@ -21,22 +21,22 @@
 #include "com_intel_daal_algorithms_linear_regression_quality_metric_SingleBetaParameter.h"
 #include "com_intel_daal_algorithms_linear_regression_quality_metric_SingleBetaInput.h"
 #include "com_intel_daal_algorithms_linear_regression_quality_metric_SingleBetaResult.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::linear_regression::quality_metric;
 using namespace daal::algorithms::linear_regression::quality_metric::single_beta;
 
 #include "com_intel_daal_algorithms_linear_regression_quality_metric_SingleBetaResultId.h"
-#define Rms com_intel_daal_algorithms_linear_regression_quality_metric_SingleBetaResultId_Rms
-#define Variance com_intel_daal_algorithms_linear_regression_quality_metric_SingleBetaResultId_Variance
-#define ZScore com_intel_daal_algorithms_linear_regression_quality_metric_SingleBetaResultId_ZScore
+#define Rms                 com_intel_daal_algorithms_linear_regression_quality_metric_SingleBetaResultId_Rms
+#define Variance            com_intel_daal_algorithms_linear_regression_quality_metric_SingleBetaResultId_Variance
+#define ZScore              com_intel_daal_algorithms_linear_regression_quality_metric_SingleBetaResultId_ZScore
 #define ConfidenceIntervals com_intel_daal_algorithms_linear_regression_quality_metric_SingleBetaResultId_ConfidenceIntervals
-#define InverseOfXtX com_intel_daal_algorithms_linear_regression_quality_metric_SingleBetaResultId_InverseOfXtX
+#define InverseOfXtX        com_intel_daal_algorithms_linear_regression_quality_metric_SingleBetaResultId_InverseOfXtX
 #include "com_intel_daal_algorithms_linear_regression_quality_metric_SingleBetaResultDataCollectionId.h"
 #define BetaCovariances com_intel_daal_algorithms_linear_regression_quality_metric_SingleBetaResultDataCollectionId_BetaCovariances
 #include "com_intel_daal_algorithms_linear_regression_quality_metric_SingleBetaDataInputId.h"
-#define ExpectedResponses com_intel_daal_algorithms_linear_regression_quality_metric_SingleBetaDataInputId_ExpectedResponses
+#define ExpectedResponses  com_intel_daal_algorithms_linear_regression_quality_metric_SingleBetaDataInputId_ExpectedResponses
 #define PredictedResponses com_intel_daal_algorithms_linear_regression_quality_metric_SingleBetaDataInputId_PredictedResponses
 #include "com_intel_daal_algorithms_linear_regression_quality_metric_SingleBetaModelInputId.h"
 #define ConstModel com_intel_daal_algorithms_linear_regression_quality_metric_SingleBetaModelInputId_Model
@@ -46,8 +46,8 @@ using namespace daal::algorithms::linear_regression::quality_metric::single_beta
 * Method:    cSetAlpha
 * Signature: (JD)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaParameter_cSetAlpha
-(JNIEnv *, jobject, jlong parAddr, jdouble alpha)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaParameter_cSetAlpha(JNIEnv *, jobject,
+                                                                                                                       jlong parAddr, jdouble alpha)
 {
     (*(single_beta::Parameter *)parAddr).alpha = alpha;
 }
@@ -57,10 +57,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality
 * Method:    cGetAlpha
 * Signature: (J)D
 */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaParameter_cGetAlpha
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaParameter_cGetAlpha(JNIEnv *, jobject,
+                                                                                                                          jlong parAddr)
 {
-    return(jdouble)(*(single_beta::Parameter *)parAddr).alpha;
+    return (jdouble)(*(single_beta::Parameter *)parAddr).alpha;
 }
 
 /*
@@ -68,8 +68,8 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_linear_1regression_qual
 * Method:    cSetAccuracyThreshold
 * Signature: (JD)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaParameter_cSetAccuracyThreshold
-(JNIEnv *, jobject, jlong parAddr, jdouble accuracyThreshold)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaParameter_cSetAccuracyThreshold(
+    JNIEnv *, jobject, jlong parAddr, jdouble accuracyThreshold)
 {
     (*(single_beta::Parameter *)parAddr).accuracyThreshold = accuracyThreshold;
 }
@@ -79,10 +79,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality
 * Method:    cGetAccuracyThreshold
 * Signature: (J)D
 */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaParameter_cGetAccuracyThreshold
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaParameter_cGetAccuracyThreshold(JNIEnv *,
+                                                                                                                                      jobject,
+                                                                                                                                      jlong parAddr)
 {
-    return(jdouble)(*(single_beta::Parameter *)parAddr).accuracyThreshold;
+    return (jdouble)(*(single_beta::Parameter *)parAddr).accuracyThreshold;
 }
 
 /*
@@ -90,8 +91,9 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_linear_1regression_qual
 * Method:    cSetResultTable
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaResult_cSetResultTable
-(JNIEnv *, jobject, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaResult_cSetResultTable(JNIEnv *, jobject,
+                                                                                                                          jlong resAddr, jint id,
+                                                                                                                          jlong ntAddr)
 {
     jniArgument<single_beta::Result>::set<single_beta::ResultId, NumericTable>(resAddr, id, ntAddr);
 }
@@ -101,19 +103,14 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality
 * Method:    cGetResultTable
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaResult_cGetResultTable
-(JNIEnv *, jobject, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaResult_cGetResultTable(JNIEnv *, jobject,
+                                                                                                                           jlong resAddr, jint id)
 {
-    if(id == Rms)
-        return jniArgument<single_beta::Result>::get<single_beta::ResultId, NumericTable>(resAddr, rms);
-    if(id == Variance)
-        return jniArgument<single_beta::Result>::get<single_beta::ResultId, NumericTable>(resAddr, variance);
-    if(id == ZScore)
-        return jniArgument<single_beta::Result>::get<single_beta::ResultId, NumericTable>(resAddr, zScore);
-    if(id == ConfidenceIntervals)
-        return jniArgument<single_beta::Result>::get<single_beta::ResultId, NumericTable>(resAddr, confidenceIntervals);
-    if(id == InverseOfXtX)
-        return jniArgument<single_beta::Result>::get<single_beta::ResultId, NumericTable>(resAddr, inverseOfXtX);
+    if (id == Rms) return jniArgument<single_beta::Result>::get<single_beta::ResultId, NumericTable>(resAddr, rms);
+    if (id == Variance) return jniArgument<single_beta::Result>::get<single_beta::ResultId, NumericTable>(resAddr, variance);
+    if (id == ZScore) return jniArgument<single_beta::Result>::get<single_beta::ResultId, NumericTable>(resAddr, zScore);
+    if (id == ConfidenceIntervals) return jniArgument<single_beta::Result>::get<single_beta::ResultId, NumericTable>(resAddr, confidenceIntervals);
+    if (id == InverseOfXtX) return jniArgument<single_beta::Result>::get<single_beta::ResultId, NumericTable>(resAddr, inverseOfXtX);
     return (jlong)0;
 }
 
@@ -122,8 +119,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_qualit
 * Method:    cNewResult
 * Signature: ()J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaResult_cNewResult
-(JNIEnv *, jobject)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaResult_cNewResult(JNIEnv *, jobject)
 {
     return jniArgument<single_beta::Result>::newObj();
 }
@@ -133,8 +129,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_qualit
 * Method:    cGetBetaCovariancesDataCollection
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaResult_cGetBetaCovariancesDataCollection
-(JNIEnv *, jobject, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaResult_cGetBetaCovariancesDataCollection(
+    JNIEnv *, jobject, jlong resAddr, jint id)
 {
     return jniArgument<single_beta::Result>::get<single_beta::ResultDataCollectionId, DataCollection>(resAddr, id);
 }
@@ -144,10 +140,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_qualit
 * Method:    cSetBetaCovariancesDataCollection
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaResult_cSetBetaCovariancesDataCollection
-(JNIEnv *, jobject, jlong resAddr, jint id, jlong dcAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaResult_cSetBetaCovariancesDataCollection(
+    JNIEnv *, jobject, jlong resAddr, jint id, jlong dcAddr)
 {
-    if(id == BetaCovariances)
+    if (id == BetaCovariances)
         jniArgument<single_beta::Result>::set<single_beta::ResultDataCollectionId, DataCollection>(resAddr, betaCovariances, dcAddr);
 }
 
@@ -156,12 +152,13 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality
 * Method:    cSetInputTable
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaInput_cSetInputTable
-(JNIEnv *, jobject, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaInput_cSetInputTable(JNIEnv *, jobject,
+                                                                                                                        jlong resAddr, jint id,
+                                                                                                                        jlong ntAddr)
 {
-    if(id == ExpectedResponses)
+    if (id == ExpectedResponses)
         jniInput<single_beta::Input>::set<single_beta::DataInputId, NumericTable>(resAddr, single_beta::expectedResponses, ntAddr);
-    else if(id == PredictedResponses)
+    else if (id == PredictedResponses)
         jniInput<single_beta::Input>::set<single_beta::DataInputId, NumericTable>(resAddr, single_beta::predictedResponses, ntAddr);
 }
 
@@ -170,10 +167,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality
 * Method:    cGetInputTable
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaInput_cGetInputTable
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaInput_cGetInputTable(JNIEnv *, jobject,
+                                                                                                                         jlong inputAddr, jint id)
 {
-    if(id != PredictedResponses && id != ExpectedResponses) return (jlong)0;
+    if (id != PredictedResponses && id != ExpectedResponses) return (jlong)0;
 
     return jniInput<single_beta::Input>::get<single_beta::DataInputId, NumericTable>(inputAddr, id);
 }
@@ -183,11 +180,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_qualit
 * Method:    cSetInputModel
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaInput_cSetInputModel
-(JNIEnv *, jobject, jlong inputAddr, jint, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaInput_cSetInputModel(JNIEnv *, jobject,
+                                                                                                                        jlong inputAddr, jint,
+                                                                                                                        jlong ntAddr)
 {
-    jniInput<single_beta::Input>::
-        set<single_beta::ModelInputId, linear_regression::Model>(inputAddr, single_beta::model, ntAddr);
+    jniInput<single_beta::Input>::set<single_beta::ModelInputId, linear_regression::Model>(inputAddr, single_beta::model, ntAddr);
 }
 
 /*
@@ -195,10 +192,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality
 * Method:    cGetInputModel
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaInput_cGetInputModel
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaInput_cGetInputModel(JNIEnv *, jobject,
+                                                                                                                         jlong inputAddr, jint id)
 {
-    if(id == ConstModel)
+    if (id == ConstModel)
     {
         return jniInput<single_beta::Input>::get<single_beta::ModelInputId, linear_regression::Model>(inputAddr, single_beta::model);
     }

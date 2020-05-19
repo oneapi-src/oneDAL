@@ -22,7 +22,7 @@
 #ifndef __RELU_CSR_FAST_KERNEL_H__
 #define __RELU_CSR_FAST_KERNEL_H__
 
-#include "relu_base.h"
+#include "algorithms/kernel/math/relu/relu_base.h"
 
 namespace daal
 {

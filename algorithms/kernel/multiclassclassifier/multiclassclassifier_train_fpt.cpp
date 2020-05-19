@@ -21,7 +21,7 @@
 //--
 */
 
-#include "multi_class_classifier_train_types.h"
+#include "algorithms/multi_class_classifier/multi_class_classifier_train_types.h"
 
 namespace daal
 {

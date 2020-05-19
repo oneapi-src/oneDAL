@@ -21,7 +21,7 @@
 //--
 */
 
-#include "pooling2d_layer_internal_parameter.h"
+#include "algorithms/kernel/neural_networks/layers/pooling2d_layer/pooling2d_layer_internal_parameter.h"
 
 namespace daal
 {

@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 using namespace daal;
 using namespace daal::data_management;
@@ -31,11 +31,11 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumForwardBatch_cInit
-  (JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumForwardBatch_cInit(JNIEnv * env,
+                                                                                                                         jobject thisObj, jint prec,
+                                                                                                                         jint method)
 {
-    return jniBatch<eltwise_sum::Method, eltwise_sum::forward::Batch, eltwise_sum::defaultDense>::
-        newObj(prec, method);
+    return jniBatch<eltwise_sum::Method, eltwise_sum::forward::Batch, eltwise_sum::defaultDense>::newObj(prec, method);
 }
 
 /*
@@ -43,11 +43,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_e
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumForwardBatch_cInitParameter
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumForwardBatch_cInitParameter(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<eltwise_sum::Method, eltwise_sum::forward::Batch, eltwise_sum::defaultDense>::
-        getParameter(prec, method, algAddr);
+    return jniBatch<eltwise_sum::Method, eltwise_sum::forward::Batch, eltwise_sum::defaultDense>::getParameter(prec, method, algAddr);
 }
 
 /*
@@ -55,11 +54,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_e
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumForwardBatch_cGetInput
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumForwardBatch_cGetInput(JNIEnv * env,
+                                                                                                                             jobject thisObj,
+                                                                                                                             jlong algAddr, jint prec,
+                                                                                                                             jint method)
 {
-    return jniBatch<eltwise_sum::Method, eltwise_sum::forward::Batch, eltwise_sum::defaultDense>::
-        getInput(prec, method, algAddr);
+    return jniBatch<eltwise_sum::Method, eltwise_sum::forward::Batch, eltwise_sum::defaultDense>::getInput(prec, method, algAddr);
 }
 
 /*
@@ -67,11 +67,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_e
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumForwardBatch_cGetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumForwardBatch_cGetResult(JNIEnv * env,
+                                                                                                                              jobject thisObj,
+                                                                                                                              jlong algAddr,
+                                                                                                                              jint prec, jint method)
 {
-    return jniBatch<eltwise_sum::Method, eltwise_sum::forward::Batch, eltwise_sum::defaultDense>::
-        getResult(prec, method, algAddr);
+    return jniBatch<eltwise_sum::Method, eltwise_sum::forward::Batch, eltwise_sum::defaultDense>::getResult(prec, method, algAddr);
 }
 
 /*
@@ -79,11 +80,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_e
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumForwardBatch_cSetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumForwardBatch_cSetResult(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resAddr)
 {
-    jniBatch<eltwise_sum::Method, eltwise_sum::forward::Batch, eltwise_sum::defaultDense>::
-        setResult<eltwise_sum::forward::Result>(prec, method, algAddr, resAddr);
+    jniBatch<eltwise_sum::Method, eltwise_sum::forward::Batch, eltwise_sum::defaultDense>::setResult<eltwise_sum::forward::Result>(prec, method,
+                                                                                                                                   algAddr, resAddr);
 }
 
 /*
@@ -91,9 +92,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_el
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumForwardBatch_cClone
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumForwardBatch_cClone(JNIEnv * env,
+                                                                                                                          jobject thisObj,
+                                                                                                                          jlong algAddr, jint prec,
+                                                                                                                          jint method)
 {
-    return jniBatch<eltwise_sum::Method, eltwise_sum::forward::Batch, eltwise_sum::defaultDense>::
-        getClone(prec, method, algAddr);
+    return jniBatch<eltwise_sum::Method, eltwise_sum::forward::Batch, eltwise_sum::defaultDense>::getClone(prec, method, algAddr);
 }

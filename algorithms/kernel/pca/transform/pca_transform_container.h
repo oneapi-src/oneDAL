@@ -26,8 +26,8 @@
 #ifndef __PCA_TRANSFORM_CONTAINER_H__
 #define __PCA_TRANSFORM_CONTAINER_H__
 
-#include "pca_transform_batch.h"
-#include "pca_transform_kernel.h"
+#include "algorithms/pca/transform/pca_transform_batch.h"
+#include "algorithms/kernel/pca/transform/pca_transform_kernel.h"
 
 namespace daal
 {

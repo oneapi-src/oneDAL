@@ -21,7 +21,7 @@
 //--
 */
 
-#include "split_layer_types.h"
+#include "algorithms/neural_networks/layers/split/split_layer_types.h"
 
 namespace daal
 {

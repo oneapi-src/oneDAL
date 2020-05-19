@@ -24,8 +24,8 @@
 #ifndef __SOFTMAX_CROSS_LAYER_BACKWARD_BATCH_CONTAINER_H__
 #define __SOFTMAX_CROSS_LAYER_BACKWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/loss/softmax_cross_layer.h"
-#include "softmax_cross_layer_backward_kernel.h"
+#include "algorithms/neural_networks/layers/loss/softmax_cross_layer.h"
+#include "algorithms/kernel/neural_networks/layers/loss_layer/softmax_cross_layer/backward/softmax_cross_layer_backward_kernel.h"
 
 namespace daal
 {

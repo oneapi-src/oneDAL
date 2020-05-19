@@ -24,10 +24,10 @@
 #ifndef __ELU_LAYER_FORWARD_IMPL_I__
 #define __ELU_LAYER_FORWARD_IMPL_I__
 
-#include "service_math.h"
-#include "service_tensor.h"
-#include "service_mkl_tensor.h"
-#include "service_numeric_table.h"
+#include "externals/service_math.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/data_management/service_mkl_tensor.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 namespace daal
 {

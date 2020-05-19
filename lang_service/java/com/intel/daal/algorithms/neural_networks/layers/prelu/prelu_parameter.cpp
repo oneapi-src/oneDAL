@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::neural_networks::layers;
@@ -30,8 +30,7 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_prelu_PreluParameter_cInit
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_prelu_PreluParameter_cInit(JNIEnv * env, jobject thisObj)
 {
     return (jlong)(new prelu::Parameter);
 }
@@ -41,8 +40,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_p
  * Method:    cGetDimension
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_prelu_PreluParameter_cGetDataDimension
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_prelu_PreluParameter_cGetDataDimension(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong cParameter)
 {
     return (jlong)((((prelu::Parameter *)cParameter))->dataDimension);
 }
@@ -52,8 +51,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_p
  * Method:    cSetDimension
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_prelu_PreluParameter_cSetDataDimension
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong dataDimension)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_prelu_PreluParameter_cSetDataDimension(JNIEnv * env, jobject thisObj,
+                                                                                                                     jlong cParameter,
+                                                                                                                     jlong dataDimension)
 {
     (((prelu::Parameter *)cParameter))->dataDimension = (size_t)dataDimension;
 }
@@ -63,8 +63,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_pr
  * Method:    cGetDimension
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_prelu_PreluParameter_cgetWeightsDimension
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_prelu_PreluParameter_cgetWeightsDimension(JNIEnv * env,
+                                                                                                                         jobject thisObj,
+                                                                                                                         jlong cParameter)
 {
     return (jlong)((((prelu::Parameter *)cParameter))->weightsDimension);
 }
@@ -74,8 +75,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_p
  * Method:    cSetDimension
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_prelu_PreluParameter_csetWeightsDimension
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong weightsDimension)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_prelu_PreluParameter_csetWeightsDimension(JNIEnv * env, jobject thisObj,
+                                                                                                                        jlong cParameter,
+                                                                                                                        jlong weightsDimension)
 {
     (((prelu::Parameter *)cParameter))->weightsDimension = (size_t)weightsDimension;
 }

@@ -25,7 +25,7 @@
 #define __DF_REGRESSION_TRAINING_RESULT_
 
 #include "algorithms/decision_forest/decision_forest_regression_training_types.h"
-#include "df_regression_model_impl.h"
+#include "algorithms/kernel/dtrees/forest/regression/df_regression_model_impl.h"
 
 using namespace daal::data_management;
 

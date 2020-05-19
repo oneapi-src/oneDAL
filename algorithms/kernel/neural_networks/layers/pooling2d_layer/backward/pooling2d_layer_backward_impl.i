@@ -24,10 +24,10 @@
 #ifndef __POOLING2D_LAYER_BACKWARD_IMPL_I__
 #define __POOLING2D_LAYER_BACKWARD_IMPL_I__
 
-#include "tensor.h"
-#include "kernel.h"
-#include "threading.h"
-#include "pooling2d_layer_internal_parameter.h"
+#include "data_management/data/tensor.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/threading/threading.h"
+#include "algorithms/kernel/neural_networks/layers/pooling2d_layer/pooling2d_layer_internal_parameter.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

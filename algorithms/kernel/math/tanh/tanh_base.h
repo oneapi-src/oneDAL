@@ -22,13 +22,13 @@
 #ifndef __TANH_BASE_H__
 #define __TANH_BASE_H__
 
-#include "math/tanh.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "service_numeric_table.h"
-#include "service_error_handling.h"
-#include "service_math.h"
-#include "threading.h"
+#include "algorithms/math/tanh.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "externals/service_math.h"
+#include "algorithms/threading/threading.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

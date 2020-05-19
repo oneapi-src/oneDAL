@@ -18,19 +18,20 @@
 #include <jni.h>
 
 #include "daal.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 #include "com_intel_daal_algorithms_logitboost_quality_metric_set_QualityMetricSetParameter.h"
 
 using namespace daal::algorithms::logitboost::quality_metric_set;
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logitboost_quality_1metric_1set_QualityMetricSetParameter_cSetNClasses
-(JNIEnv *, jobject, jlong self, jlong nClasses)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logitboost_quality_1metric_1set_QualityMetricSetParameter_cSetNClasses(JNIEnv *, jobject,
+                                                                                                                             jlong self,
+                                                                                                                             jlong nClasses)
 {
     daal::unpack<Parameter>(self).nClasses = (size_t)nClasses;
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logitboost_quality_1metric_1set_QualityMetricSetParameter_cGetNClasses
-(JNIEnv *, jobject, jlong self)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logitboost_quality_1metric_1set_QualityMetricSetParameter_cGetNClasses(JNIEnv *, jobject,
+                                                                                                                              jlong self)
 {
-    return (jlong)( daal::unpack<Parameter>(self).nClasses );
+    return (jlong)(daal::unpack<Parameter>(self).nClasses);
 }

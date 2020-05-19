@@ -24,7 +24,7 @@
 #ifndef __POOLING3D_LAYER_IMPL_I__
 #define __POOLING3D_LAYER_IMPL_I__
 
-#include "service_sort.h"
+#include "algorithms/kernel/service_sort.h"
 
 namespace daal
 {

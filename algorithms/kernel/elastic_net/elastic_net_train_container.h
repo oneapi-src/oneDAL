@@ -24,13 +24,13 @@
 #ifndef __ELASTIC_NET_TRAIN_CONTAINER_H__
 #define __ELASTIC_NET_TRAIN_CONTAINER_H__
 
-#include "kernel.h"
+#include "algorithms/kernel/kernel.h"
 #include "algorithms/elastic_net/elastic_net_training_types.h"
 #include "algorithms/elastic_net/elastic_net_training_batch.h"
-#include "elastic_net_train_kernel.h"
-#include "elastic_net_model_impl.h"
+#include "algorithms/kernel/elastic_net/elastic_net_train_kernel.h"
+#include "algorithms/kernel/elastic_net/elastic_net_model_impl.h"
 #include "algorithms/optimization_solver/sgd/sgd_batch.h"
-#include "service_algo_utils.h"
+#include "service/kernel/service_algo_utils.h"
 
 namespace daal
 {

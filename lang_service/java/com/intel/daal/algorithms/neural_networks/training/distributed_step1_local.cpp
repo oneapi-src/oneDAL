@@ -19,7 +19,7 @@
 #include "com_intel_daal_algorithms_neural_networks_training_DistributedStep1Local.h"
 
 #include "daal.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::neural_networks;
@@ -29,8 +29,8 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep1Local_cInit
-  (JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep1Local_cInit(JNIEnv * env, jobject thisObj, jint prec,
+                                                                                                             jint method)
 {
     return jniDistributed<step1Local, training::Method, training::Distributed, training::defaultDense>::newObj(prec, method);
 }
@@ -40,8 +40,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep1Local_cInitParameter
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep1Local_cInitParameter(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong algAddr, jint prec,
+                                                                                                                      jint method)
 {
     return jniDistributed<step1Local, training::Method, training::Distributed, training::defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -51,8 +52,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep1Local_cGetInput
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep1Local_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                                 jlong algAddr, jint prec,
+                                                                                                                 jint method)
 {
     return jniDistributed<step1Local, training::Method, training::Distributed, training::defaultDense>::getInput(prec, method, algAddr);
 }
@@ -62,8 +64,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep1Local_cGetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep1Local_cGetResult(JNIEnv * env, jobject thisObj,
+                                                                                                                  jlong algAddr, jint prec,
+                                                                                                                  jint method)
 {
     return jniDistributed<step1Local, training::Method, training::Distributed, training::defaultDense>::getResult(prec, method, algAddr);
 }
@@ -73,10 +76,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep1Local_cSetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep1Local_cSetResult(JNIEnv * env, jobject thisObj,
+                                                                                                                 jlong algAddr, jint prec,
+                                                                                                                 jint method, jlong resAddr)
 {
-    jniDistributed<step1Local, training::Method, training::Distributed, training::defaultDense>::setResult<training::Result>(prec, method, algAddr, resAddr);
+    jniDistributed<step1Local, training::Method, training::Distributed, training::defaultDense>::setResult<training::Result>(prec, method, algAddr,
+                                                                                                                             resAddr);
 }
 
 /*
@@ -84,8 +89,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_
  * Method:    cGetPartialResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep1Local_cGetPartialResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep1Local_cGetPartialResult(JNIEnv * env,
+                                                                                                                         jobject thisObj,
+                                                                                                                         jlong algAddr, jint prec,
+                                                                                                                         jint method)
 {
     return jniDistributed<step1Local, training::Method, training::Distributed, training::defaultDense>::getPartialResult(prec, method, algAddr);
 }
@@ -95,10 +102,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cSetPartialResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep1Local_cSetPartialResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep1Local_cSetPartialResult(JNIEnv * env, jobject thisObj,
+                                                                                                                        jlong algAddr, jint prec,
+                                                                                                                        jint method, jlong resAddr)
 {
-    jniDistributed<step1Local, training::Method, training::Distributed, training::defaultDense>::setPartialResult<training::PartialResult>(prec, method, algAddr, resAddr);
+    jniDistributed<step1Local, training::Method, training::Distributed, training::defaultDense>::setPartialResult<training::PartialResult>(
+        prec, method, algAddr, resAddr);
 }
 
 /*
@@ -106,8 +115,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep1Local_cClone
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep1Local_cClone(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong algAddr, jint prec, jint method)
 {
     return jniDistributed<step1Local, training::Method, training::Distributed, training::defaultDense>::getClone(prec, method, algAddr);
 }

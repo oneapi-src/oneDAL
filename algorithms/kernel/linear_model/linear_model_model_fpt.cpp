@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "linear_model_model_impl.h"
+#include "algorithms/kernel/linear_model/linear_model_model_impl.h"
 #include "data_management/data/homogen_numeric_table.h"
 
 namespace daal

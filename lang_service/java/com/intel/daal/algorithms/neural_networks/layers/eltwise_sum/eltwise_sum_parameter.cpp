@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::neural_networks::layers;
@@ -30,8 +30,7 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumParameter_cInit
-  (JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_eltwise_1sum_EltwiseSumParameter_cInit(JNIEnv * env, jobject thisObj)
 {
     return (jlong)(new eltwise_sum::Parameter);
 }

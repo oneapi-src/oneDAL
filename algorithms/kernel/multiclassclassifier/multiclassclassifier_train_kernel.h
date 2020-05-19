@@ -24,11 +24,11 @@
 #ifndef __MULTICLASSCLASSIFIER_TRAIN_KERNEL_H__
 #define __MULTICLASSCLASSIFIER_TRAIN_KERNEL_H__
 
-#include "numeric_table.h"
-#include "model.h"
-#include "algorithm.h"
-#include "multi_class_classifier_train_types.h"
-#include "service_defines.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/model.h"
+#include "algorithms/algorithm.h"
+#include "algorithms/multi_class_classifier/multi_class_classifier_train_types.h"
+#include "service/kernel/service_defines.h"
 
 using namespace daal::data_management;
 

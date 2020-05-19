@@ -24,18 +24,18 @@
 #ifndef __MAXIMUM_POOLING2D_LAYER_FORWARD_IMPL_I__
 #define __MAXIMUM_POOLING2D_LAYER_FORWARD_IMPL_I__
 
-#include "service_memory.h"
-#include "service_data_utils.h"
-#include "service_blas.h"
-#include "service_tensor.h"
-#include "service_numeric_table.h"
-#include "service_defines.h"
-#include "threading.h"
+#include "externals/service_memory.h"
+#include "service/kernel/service_data_utils.h"
+#include "externals/service_blas.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "service/kernel/service_defines.h"
+#include "algorithms/threading/threading.h"
 #if defined(__INTEL_COMPILER)
     #include <immintrin.h>
 #endif
 
-#include "service_mkl_tensor.h"
+#include "service/kernel/data_management/service_mkl_tensor.h"
 
 using namespace daal::services;
 using namespace daal::internal;

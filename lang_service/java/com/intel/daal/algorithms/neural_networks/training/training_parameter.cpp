@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::neural_networks;
@@ -30,11 +30,10 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cInit
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingParameter_cInit
-(JNIEnv *env, jobject thisObj, jlong optAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingParameter_cInit(JNIEnv * env, jobject thisObj, jlong optAddr)
 {
-    services::SharedPtr<optimization_solver::iterative_solver::Batch > opt =
-        *((services::SharedPtr<optimization_solver::iterative_solver::Batch > *)optAddr);
+    services::SharedPtr<optimization_solver::iterative_solver::Batch> opt =
+        *((services::SharedPtr<optimization_solver::iterative_solver::Batch> *)optAddr);
     return (jlong)(new training::Parameter(opt));
 }
 
@@ -43,11 +42,13 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cSetOptimizationSolver
  * Signature: (JJJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingParameter_cSetOptimizationSolver
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong optAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingParameter_cSetOptimizationSolver(JNIEnv * env,
+                                                                                                                         jobject thisObj,
+                                                                                                                         jlong cParameter,
+                                                                                                                         jlong optAddr)
 {
-    services::SharedPtr<optimization_solver::iterative_solver::Batch > opt =
-        *((services::SharedPtr<optimization_solver::iterative_solver::Batch > *)optAddr);
+    services::SharedPtr<optimization_solver::iterative_solver::Batch> opt =
+        *((services::SharedPtr<optimization_solver::iterative_solver::Batch> *)optAddr);
     (((training::Parameter *)cParameter))->optimizationSolver = opt;
 }
 
@@ -56,11 +57,12 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_
  * Method:    cGetOptimizationSolver
  * Signature: (JJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingParameter_cGetOptimizationSolver
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingParameter_cGetOptimizationSolver(JNIEnv * env,
+                                                                                                                          jobject thisObj,
+                                                                                                                          jlong cParameter)
 {
-    SharedPtr<optimization_solver::iterative_solver::Batch > *opt =
-        new SharedPtr<optimization_solver::iterative_solver::Batch >((((training::Parameter *)cParameter))->optimizationSolver);
+    SharedPtr<optimization_solver::iterative_solver::Batch> * opt =
+        new SharedPtr<optimization_solver::iterative_solver::Batch>((((training::Parameter *)cParameter))->optimizationSolver);
     return (jlong)opt;
 }
 
@@ -69,8 +71,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cSetEngine
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingParameter_cSetEngine
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong engineAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingParameter_cSetEngine(JNIEnv * env, jobject thisObj,
+                                                                                                             jlong cParameter, jlong engineAddr)
 {
-    (((training::Parameter *)cParameter))->engine = staticPointerCast<engines::BatchBase, AlgorithmIface> (*(SharedPtr<AlgorithmIface> *)engineAddr);
+    (((training::Parameter *)cParameter))->engine = staticPointerCast<engines::BatchBase, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)engineAddr);
 }

@@ -24,10 +24,10 @@
 #ifndef __ASSOC_RULES_APRIORI_TYPES_I__
 #define __ASSOC_RULES_APRIORI_TYPES_I__
 
-#include "service_math.h"
-#include "service_memory.h"
-#include "service_numeric_table.h"
-#include "service_sort.h"
+#include "externals/service_math.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_sort.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;
@@ -60,7 +60,7 @@ struct assocrules_transaction
     size_t * items; /*<! Array of transaction's items */
     size_t size;    /*<! Transaction size */
     bool is_large;  /*<! If true then transaction is persrective
-                                     for "large" itemsets search */
+                                  for "large" itemsets search */
 };
 
 /** \brief Structure that specifies transaction's item */
@@ -376,7 +376,8 @@ struct assocrules_dataset
     assocrules_transaction<cpu> * tran;        /*<! Array of transactions */
     size_t numOfTransactions;                  /*<! Number of transactions */
     assocrules_transaction<cpu> ** large_tran; /*<! Array of pointers to "large" transactions
-                                                                 that are perspective for "large" itemsets search */
+                                           that are perspective for "large"
+                            itemsets search */
     size_t numOfLargeTransactions;             /*<! Number of "large" transactions */
     assocRulesUniqueItem<cpu> * uniq_items;    /*<! Array of unique items */
     size_t numOfUniqueItems;                   /*<! Number of unique items */

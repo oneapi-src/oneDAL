@@ -19,21 +19,18 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_kmeans_init_InitBatch.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::kmeans::init;
 
-#define MethodsList\
-    deterministicDense, randomDense, plusPlusDense, parallelPlusDense,\
-    deterministicCSR, randomCSR, plusPlusCSR, parallelPlusCSR
+#define MethodsList deterministicDense, randomDense, plusPlusDense, parallelPlusDense, deterministicCSR, randomCSR, plusPlusCSR, parallelPlusCSR
 /*
  * Class:     com_intel_daal_algorithms_kmeans_Batch
  * Method:    cInit
  * Signature:(IIJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitBatch_cInit
-(JNIEnv *, jobject, jint precision, jint method, jlong nClusters)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitBatch_cInit(JNIEnv *, jobject, jint precision, jint method, jlong nClusters)
 {
     return jniBatch<kmeans::init::Method, Batch, MethodsList>::newObj(precision, method, nClusters);
 }
@@ -43,11 +40,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitBatch_cIn
  * Method:    cSetResult
  * Signature:(JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitBatch_cSetResult
-(JNIEnv *, jobject, jlong algAddr, jint precision, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitBatch_cSetResult(JNIEnv *, jobject, jlong algAddr, jint precision, jint method,
+                                                                                       jlong resultAddr)
 {
-    jniBatch<kmeans::init::Method, Batch, MethodsList>::
-        setResult<kmeans::init::Result>(precision,method,algAddr,resultAddr);
+    jniBatch<kmeans::init::Method, Batch, MethodsList>::setResult<kmeans::init::Result>(precision, method, algAddr, resultAddr);
 }
 
 /*
@@ -55,11 +51,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitBatch_cSet
  * Method:    cGetResult
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitBatch_cGetResult
-(JNIEnv *, jobject, jlong algAddr, jint precision, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitBatch_cGetResult(JNIEnv *, jobject, jlong algAddr, jint precision, jint method)
 {
-    return jniBatch<kmeans::init::Method, Batch, MethodsList>::
-        getResult(precision,method,algAddr);
+    return jniBatch<kmeans::init::Method, Batch, MethodsList>::getResult(precision, method, algAddr);
 }
 
 /*
@@ -67,8 +61,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitBatch_cGe
  * Method:    cInitParameter
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitBatch_cInitParameter
-(JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitBatch_cInitParameter(JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<kmeans::init::Method, Batch, MethodsList>::getParameter(prec, method, algAddr);
 }
@@ -78,8 +71,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitBatch_cIn
  * Method:    cGetInput
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitBatch_cGetInput
-(JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitBatch_cGetInput(JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<kmeans::init::Method, Batch, MethodsList>::getInput(prec, method, algAddr);
 }
@@ -89,8 +81,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitBatch_cGe
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitBatch_cClone
-(JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitBatch_cClone(JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<kmeans::init::Method, Batch, MethodsList>::getClone(prec, method, algAddr);
 }

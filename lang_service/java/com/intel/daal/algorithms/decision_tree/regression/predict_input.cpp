@@ -21,11 +21,11 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_decision_tree_regression_prediction_PredictionInput.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 
-namespace dtr = daal::algorithms::decision_tree::regression;
+namespace dtr  = daal::algorithms::decision_tree::regression;
 namespace dtrp = daal::algorithms::decision_tree::regression::prediction;
 
 /*
@@ -33,8 +33,10 @@ namespace dtrp = daal::algorithms::decision_tree::regression::prediction;
 * Method:    cSetInputTable
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_prediction_PredictionInput_cSetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_prediction_PredictionInput_cSetInputTable(JNIEnv * env,
+                                                                                                                          jobject thisObj,
+                                                                                                                          jlong inputAddr, jint id,
+                                                                                                                          jlong ntAddr)
 {
     jniInput<dtrp::Input>::set<dtrp::NumericTableInputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -44,8 +46,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_
 * Method:    cGetInputTable
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_prediction_PredictionInput_cGetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_prediction_PredictionInput_cGetInputTable(JNIEnv * env,
+                                                                                                                           jobject thisObj,
+                                                                                                                           jlong inputAddr, jint id)
 {
     return jniInput<dtrp::Input>::get<dtrp::NumericTableInputId, NumericTable>(inputAddr, id);
 }
@@ -55,8 +58,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression
 * Method:    cSetInputModel
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_prediction_PredictionInput_cSetInputModel
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong modelAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_prediction_PredictionInput_cSetInputModel(JNIEnv * env,
+                                                                                                                          jobject thisObj,
+                                                                                                                          jlong inputAddr, jint id,
+                                                                                                                          jlong modelAddr)
 {
     jniInput<dtrp::Input>::set<dtrp::ModelInputId, dtr::Model>(inputAddr, id, modelAddr);
 }
@@ -66,8 +71,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_
 * Method:    cGetInputModel
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_prediction_PredictionInput_cGetInputModel
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_prediction_PredictionInput_cGetInputModel(JNIEnv * env,
+                                                                                                                           jobject thisObj,
+                                                                                                                           jlong inputAddr, jint id)
 {
     return jniInput<dtrp::Input>::get<dtrp::ModelInputId, dtr::Model>(inputAddr, id);
 }

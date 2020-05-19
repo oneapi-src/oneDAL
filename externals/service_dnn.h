@@ -24,10 +24,10 @@
 #ifndef __SERVICE_DNN_H__
 #define __SERVICE_DNN_H__
 
-#include "daal_defines.h"
+#include "services/daal_defines.h"
 #include "mkl_dnn_types.h"
 
-#include "service_dnn_mkl.h"
+#include "externals/service_dnn_mkl.h"
 
 namespace daal
 {

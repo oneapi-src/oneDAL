@@ -21,8 +21,8 @@
 //--
 */
 
-#include "softmax_cross_layer_types.h"
-#include "softmax_cross_layer_backward_types.h"
+#include "algorithms/neural_networks/layers/loss/softmax_cross_layer_types.h"
+#include "algorithms/neural_networks/layers/loss/softmax_cross_layer_backward_types.h"
 
 using namespace daal::services;
 

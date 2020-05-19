@@ -24,8 +24,8 @@
 #ifndef __ABS_LAYER_FORWARD_BATCH_CONTAINER_H__
 #define __ABS_LAYER_FORWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/abs/abs_layer.h"
-#include "abs_layer_forward_kernel.h"
+#include "algorithms/neural_networks/layers/abs/abs_layer.h"
+#include "algorithms/kernel/neural_networks/layers/abs_layer/forward/abs_layer_forward_kernel.h"
 
 namespace daal
 {

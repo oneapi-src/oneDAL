@@ -21,7 +21,7 @@
 
 #include "com_intel_daal_algorithms_optimization_solver_lbfgs_Parameter.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::optimization_solver;
@@ -31,8 +31,7 @@ using namespace daal::algorithms::optimization_solver;
  * Method:    cSetM
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cSetM
-  (JNIEnv *, jobject, jlong parAddr, jlong m)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cSetM(JNIEnv *, jobject, jlong parAddr, jlong m)
 {
     ((lbfgs::Parameter *)parAddr)->m = (size_t)m;
 }
@@ -42,8 +41,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs
  * Method:    cGetM
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cGetM
-  (JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cGetM(JNIEnv *, jobject, jlong parAddr)
 {
     return (jlong)(((lbfgs::Parameter *)parAddr)->m);
 }
@@ -53,8 +51,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfg
  * Method:    cSetL
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cSetL
-  (JNIEnv *, jobject, jlong parAddr, jlong L)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cSetL(JNIEnv *, jobject, jlong parAddr, jlong L)
 {
     ((lbfgs::Parameter *)parAddr)->L = (size_t)L;
 }
@@ -64,8 +61,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs
  * Method:    cGetL
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cGetL
-  (JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cGetL(JNIEnv *, jobject, jlong parAddr)
 {
     return (jlong)(((lbfgs::Parameter *)parAddr)->L);
 }
@@ -75,10 +71,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfg
  * Method:    cSetBatchIndices
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cSetBatchIndices
-  (JNIEnv *, jobject, jlong parAddr, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cSetBatchIndices(JNIEnv *, jobject, jlong parAddr,
+                                                                                                            jlong ntAddr)
 {
-    SerializationIfacePtr *ntShPtr = (SerializationIfacePtr *)ntAddr;
+    SerializationIfacePtr * ntShPtr             = (SerializationIfacePtr *)ntAddr;
     ((lbfgs::Parameter *)parAddr)->batchIndices = staticPointerCast<NumericTable, SerializationIface>(*ntShPtr);
 }
 
@@ -87,11 +83,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs
  * Method:    cGetBatchIndices
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cGetBatchIndices
-  (JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cGetBatchIndices(JNIEnv *, jobject, jlong parAddr)
 {
-    SerializationIfacePtr *ntShPtr = new SerializationIfacePtr();
-    *ntShPtr = ((lbfgs::Parameter *)parAddr)->batchIndices;
+    SerializationIfacePtr * ntShPtr = new SerializationIfacePtr();
+    *ntShPtr                        = ((lbfgs::Parameter *)parAddr)->batchIndices;
     return (jlong)ntShPtr;
 }
 
@@ -100,8 +95,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfg
  * Method:    cSetCorrectionPairBatchSize
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cSetCorrectionPairBatchSize
-  (JNIEnv *, jobject, jlong parAddr, jlong batchSize)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cSetCorrectionPairBatchSize(JNIEnv *, jobject,
+                                                                                                                       jlong parAddr, jlong batchSize)
 {
     ((lbfgs::Parameter *)parAddr)->correctionPairBatchSize = (size_t)batchSize;
 }
@@ -111,8 +106,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs
  * Method:    cGetCorrectionPairBatchSize
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cGetCorrectionPairBatchSize
-  (JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cGetCorrectionPairBatchSize(JNIEnv *, jobject,
+                                                                                                                        jlong parAddr)
 {
     return (jlong)(((lbfgs::Parameter *)parAddr)->correctionPairBatchSize);
 }
@@ -122,12 +117,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfg
  * Method:    cSetCorrectionPairBatchIndices
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cSetCorrectionPairBatchIndices
-  (JNIEnv *, jobject, jlong parAddr, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cSetCorrectionPairBatchIndices(JNIEnv *, jobject,
+                                                                                                                          jlong parAddr, jlong ntAddr)
 {
-    SerializationIfacePtr *ntShPtr = (SerializationIfacePtr *)ntAddr;
-    ((lbfgs::Parameter *)parAddr)->correctionPairBatchIndices =
-        staticPointerCast<NumericTable, SerializationIface>(*ntShPtr);
+    SerializationIfacePtr * ntShPtr                           = (SerializationIfacePtr *)ntAddr;
+    ((lbfgs::Parameter *)parAddr)->correctionPairBatchIndices = staticPointerCast<NumericTable, SerializationIface>(*ntShPtr);
 }
 
 /*
@@ -135,11 +129,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs
  * Method:    cGetCorrectionPairBatchIndices
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cGetCorrectionPairBatchIndices
-  (JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cGetCorrectionPairBatchIndices(JNIEnv *, jobject,
+                                                                                                                           jlong parAddr)
 {
-    SerializationIfacePtr *ntShPtr = new SerializationIfacePtr();
-    *ntShPtr = ((lbfgs::Parameter *)parAddr)->correctionPairBatchIndices;
+    SerializationIfacePtr * ntShPtr = new SerializationIfacePtr();
+    *ntShPtr                        = ((lbfgs::Parameter *)parAddr)->correctionPairBatchIndices;
     return (jlong)ntShPtr;
 }
 
@@ -148,12 +142,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfg
  * Method:    cSetStepLengthSequence
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cSetStepLengthSequence
-  (JNIEnv *, jobject, jlong parAddr, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cSetStepLengthSequence(JNIEnv *, jobject, jlong parAddr,
+                                                                                                                  jlong ntAddr)
 {
-    SerializationIfacePtr *ntShPtr = (SerializationIfacePtr *)ntAddr;
-    ((lbfgs::Parameter *)parAddr)->stepLengthSequence =
-        staticPointerCast<NumericTable, SerializationIface>(*ntShPtr);
+    SerializationIfacePtr * ntShPtr                   = (SerializationIfacePtr *)ntAddr;
+    ((lbfgs::Parameter *)parAddr)->stepLengthSequence = staticPointerCast<NumericTable, SerializationIface>(*ntShPtr);
 }
 
 /*
@@ -161,11 +154,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs
  * Method:    cGetStepLengthSequence
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cGetStepLengthSequence
-  (JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cGetStepLengthSequence(JNIEnv *, jobject, jlong parAddr)
 {
-    SerializationIfacePtr *ntShPtr = new SerializationIfacePtr();
-    *ntShPtr = ((lbfgs::Parameter *)parAddr)->stepLengthSequence;
+    SerializationIfacePtr * ntShPtr = new SerializationIfacePtr();
+    *ntShPtr                        = ((lbfgs::Parameter *)parAddr)->stepLengthSequence;
     return (jlong)ntShPtr;
 }
 
@@ -174,8 +166,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfg
  * Method:    cSetSeed
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cSetSeed
-  (JNIEnv *, jobject, jlong parAddr, jlong seed)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cSetSeed(JNIEnv *, jobject, jlong parAddr, jlong seed)
 {
     ((lbfgs::Parameter *)parAddr)->seed = (size_t)seed;
 }
@@ -185,8 +176,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs
  * Method:    cGetSeed
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cGetSeed
-  (JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cGetSeed(JNIEnv *, jobject, jlong parAddr)
 {
     return ((lbfgs::Parameter *)parAddr)->seed;
 }
@@ -196,8 +186,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfg
  * Method:    cSetEngine
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cSetEngine
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong engineAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Parameter_cSetEngine(JNIEnv * env, jobject thisObj, jlong cParameter,
+                                                                                                      jlong engineAddr)
 {
-    (((lbfgs::Parameter *)cParameter))->engine = staticPointerCast<engines::BatchBase, AlgorithmIface> (*(SharedPtr<AlgorithmIface> *)engineAddr);
+    (((lbfgs::Parameter *)cParameter))->engine = staticPointerCast<engines::BatchBase, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)engineAddr);
 }

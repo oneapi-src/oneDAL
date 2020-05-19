@@ -29,9 +29,7 @@ using namespace daal::algorithms;
  * Method:    cGetInput
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_engines_BatchBase_cGetInput
-  (JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_engines_BatchBase_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    return (jlong) & (staticPointerCast<engines::BatchBase, AlgorithmIface>(
-        *((SharedPtr<AlgorithmIface> *)algAddr)))->input;
+    return (jlong) & (staticPointerCast<engines::BatchBase, AlgorithmIface>(*((SharedPtr<AlgorithmIface> *)algAddr)))->input;
 }

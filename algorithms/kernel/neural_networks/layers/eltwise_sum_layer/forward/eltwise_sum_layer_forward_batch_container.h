@@ -24,8 +24,8 @@
 #ifndef __ELTWISE_SUM_LAYER_FORWARD_BATCH_CONTAINER_H__
 #define __ELTWISE_SUM_LAYER_FORWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/eltwise_sum/eltwise_sum_layer.h"
-#include "eltwise_sum_layer_forward_kernel.h"
+#include "algorithms/neural_networks/layers/eltwise_sum/eltwise_sum_layer.h"
+#include "algorithms/kernel/neural_networks/layers/eltwise_sum_layer/forward/eltwise_sum_layer_forward_kernel.h"
 
 namespace daal
 {

@@ -18,7 +18,7 @@
 #include <jni.h>
 #include "com_intel_daal_algorithms_math_softmax_Result.h"
 #include "daal.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::math;
@@ -28,8 +28,7 @@ using namespace daal::algorithms::math;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_softmax_Result_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_softmax_Result_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<softmax::Result>::newObj();
 }
@@ -39,14 +38,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_softmax_Result_cNewR
  * Method:    cGetsoftmaxFactor
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_softmax_Result_cGetValue
-(JNIEnv *env, jobject thisObj, jlong resAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_softmax_Result_cGetValue(JNIEnv * env, jobject thisObj, jlong resAddr)
 {
     return jniArgument<softmax::Result>::get<softmax::ResultId, NumericTable>(resAddr, softmax::value);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_math_softmax_Result_cSetValue
-(JNIEnv *env, jobject thisObj, jlong resAddr, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_math_softmax_Result_cSetValue(JNIEnv * env, jobject thisObj, jlong resAddr, jlong ntAddr)
 {
     jniArgument<softmax::Result>::set<softmax::ResultId, NumericTable>(resAddr, softmax::value, ntAddr);
 }

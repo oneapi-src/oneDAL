@@ -19,9 +19,9 @@
 // Implementation of the backward smooth rectifier linear unit (smooth relu) layer
 //--
 
-#include "smoothrelu_layer_backward_batch_container.h"
-#include "smoothrelu_layer_backward_kernel.h"
-#include "smoothrelu_layer_backward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/smoothrelu_layer/backward/smoothrelu_layer_backward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/smoothrelu_layer/backward/smoothrelu_layer_backward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/smoothrelu_layer/backward/smoothrelu_layer_backward_impl.i"
 
 namespace daal
 {

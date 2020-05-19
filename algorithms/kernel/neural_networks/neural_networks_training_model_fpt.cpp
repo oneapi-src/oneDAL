@@ -21,8 +21,8 @@
 //--
 */
 
-#include "neural_networks_training_model.h"
-#include "neural_networks_weights_and_biases.h"
+#include "algorithms/neural_networks/neural_networks_training_model.h"
+#include "algorithms/kernel/neural_networks/neural_networks_weights_and_biases.h"
 
 namespace daal
 {

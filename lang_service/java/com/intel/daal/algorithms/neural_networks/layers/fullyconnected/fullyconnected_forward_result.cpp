@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_neural_networks_layers_fullyconnected_FullyConnectedLayerDataId.h"
 #define auxDataId    com_intel_daal_algorithms_neural_networks_layers_fullyconnected_FullyConnectedLayerDataId_auxDataId
@@ -34,8 +34,8 @@ using namespace daal::algorithms::neural_networks::layers::fullyconnected;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedForwardResult_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedForwardResult_cNewResult(JNIEnv * env,
+                                                                                                                                     jobject thisObj)
 {
     return jniArgument<forward::Result>::newObj();
 }
@@ -45,8 +45,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_f
  * Method:    cGetValue
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedForwardResult_cGetValue
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedForwardResult_cGetValue(JNIEnv * env,
+                                                                                                                                    jobject thisObj,
+                                                                                                                                    jlong resAddr,
+                                                                                                                                    jint id)
 {
     if (id == auxDataId || id == auxWeightsId)
     {
@@ -61,8 +63,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_f
  * Method:    cSetValue
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedForwardResult_cSetValue
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_fullyconnected_FullyConnectedForwardResult_cSetValue(
+    JNIEnv * env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
 {
     if (id == auxDataId || id == auxWeightsId)
     {

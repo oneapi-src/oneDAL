@@ -19,7 +19,7 @@
 #include <jni.h>
 #include "daal.h"
 #include "com_intel_daal_algorithms_pca_quality_metric_ExplainedVarianceInput.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::pca::quality_metric;
@@ -33,10 +33,10 @@ using namespace daal::algorithms::pca::quality_metric::explained_variance;
 * Method:    cSetInputTable
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceInput_cSetInputTable
-(JNIEnv *, jobject, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceInput_cSetInputTable(JNIEnv *, jobject, jlong resAddr,
+                                                                                                                jint id, jlong ntAddr)
 {
-    if(id == EigenValues)
+    if (id == EigenValues)
         jniInput<explained_variance::Input>::set<explained_variance::InputId, NumericTable>(resAddr, explained_variance::eigenvalues, ntAddr);
 }
 
@@ -45,10 +45,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_Explai
 * Method:    cGetInputTable
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceInput_cGetInputTable
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceInput_cGetInputTable(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                                 jint id)
 {
-    if(id != EigenValues) return (jlong)0;
+    if (id != EigenValues) return (jlong)0;
 
     return jniInput<explained_variance::Input>::get<explained_variance::InputId, NumericTable>(inputAddr, id);
 }

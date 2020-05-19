@@ -18,8 +18,8 @@
 #ifndef __XAVIER_INITIALIZER_TASK_DESCRIPTOR_H__
 #define __XAVIER_INITIALIZER_TASK_DESCRIPTOR_H__
 
-#include "neural_networks/initializers/xavier/xavier_initializer.h"
-#include "neural_networks/initializers/xavier/xavier_initializer_types.h"
+#include "algorithms/neural_networks/initializers/xavier/xavier_initializer.h"
+#include "algorithms/neural_networks/initializers/xavier/xavier_initializer_types.h"
 
 namespace daal
 {

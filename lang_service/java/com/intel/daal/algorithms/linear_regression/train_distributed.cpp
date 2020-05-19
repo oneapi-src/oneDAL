@@ -20,7 +20,7 @@
 #include "com_intel_daal_algorithms_linear_regression_training_Input.h"
 #include "com_intel_daal_algorithms_linear_regression_training_TrainingDistributedStep2Master.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_linear_regression_training_TrainingMethod.h"
 #define normEqDense com_intel_daal_algorithms_linear_regression_training_TrainingMethod_normEqDenseValue
@@ -34,8 +34,8 @@ using namespace daal::algorithms::linear_regression::training;
  * Method:    cInit
  * Signature:(II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_TrainingDistributedStep2Master_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_TrainingDistributedStep2Master_cInit(JNIEnv * env, jobject thisObj,
+                                                                                                                        jint prec, jint method)
 {
     return jniDistributed<step2Master, linear_regression::training::Method, Distributed, normEqDense, qrDense>::newObj(prec, method);
 }
@@ -45,8 +45,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_traini
  * Method:    cInitParameter
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_TrainingDistributedStep2Master_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_TrainingDistributedStep2Master_cInitParameter(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniDistributed<step2Master, linear_regression::training::Method, Distributed, normEqDense, qrDense>::getParameter(prec, method, algAddr);
 }
@@ -56,8 +56,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_traini
  * Method:    cGetInput
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_TrainingDistributedStep2Master_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_TrainingDistributedStep2Master_cGetInput(JNIEnv * env,
+                                                                                                                            jobject thisObj,
+                                                                                                                            jlong algAddr, jint prec,
+                                                                                                                            jint method)
 {
     return jniDistributed<step2Master, linear_regression::training::Method, Distributed, normEqDense, qrDense>::getInput(prec, method, algAddr);
 }
@@ -67,8 +69,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_traini
  * Method:    cGetResult
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_TrainingDistributedStep2Master_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_TrainingDistributedStep2Master_cGetResult(JNIEnv * env,
+                                                                                                                             jobject thisObj,
+                                                                                                                             jlong algAddr, jint prec,
+                                                                                                                             jint method)
 {
     return jniDistributed<step2Master, linear_regression::training::Method, Distributed, normEqDense, qrDense>::getResult(prec, method, algAddr);
 }
@@ -78,11 +82,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_traini
  * Method:    cGetPartialResult
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_TrainingDistributedStep2Master_cGetPartialResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_TrainingDistributedStep2Master_cGetPartialResult(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniDistributed<step2Master, linear_regression::training::Method, Distributed, normEqDense, qrDense>::
-        getPartialResult(prec, method, algAddr);
+    return jniDistributed<step2Master, linear_regression::training::Method, Distributed, normEqDense, qrDense>::getPartialResult(prec, method,
+                                                                                                                                 algAddr);
 }
 
 /*
@@ -90,8 +94,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_traini
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_TrainingDistributedStep2Master_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_TrainingDistributedStep2Master_cClone(JNIEnv * env,
+                                                                                                                         jobject thisObj,
+                                                                                                                         jlong algAddr, jint prec,
+                                                                                                                         jint method)
 {
     return jniDistributed<step2Master, linear_regression::training::Method, Distributed, normEqDense, qrDense>::getClone(prec, method, algAddr);
 }

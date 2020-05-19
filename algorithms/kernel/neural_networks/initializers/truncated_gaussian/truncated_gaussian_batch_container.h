@@ -24,8 +24,8 @@
 #ifndef __TRUNCATED_GAUSSIAN_INITIALIZER_BATCH_CONTAINER_H__
 #define __TRUNCATED_GAUSSIAN_INITIALIZER_BATCH_CONTAINER_H__
 
-#include "neural_networks/initializers/truncated_gaussian/truncated_gaussian_initializer.h"
-#include "truncated_gaussian_kernel.h"
+#include "algorithms/neural_networks/initializers/truncated_gaussian/truncated_gaussian_initializer.h"
+#include "algorithms/kernel/neural_networks/initializers/truncated_gaussian/truncated_gaussian_kernel.h"
 
 namespace daal
 {

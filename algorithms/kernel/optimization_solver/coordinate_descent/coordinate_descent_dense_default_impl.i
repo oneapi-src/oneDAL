@@ -24,12 +24,12 @@
 #ifndef __COORDINATE_DESCENT_DENSE_DEFAULT_IMPL_I__
 #define __COORDINATE_DESCENT_DENSE_DEFAULT_IMPL_I__
 
-#include "service_micro_table.h"
-#include "service_numeric_table.h"
-#include "service_math.h"
-#include "service_utils.h"
-#include "service_numeric_table.h"
-#include "iterative_solver_kernel.h"
+#include "service/kernel/data_management/service_micro_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_math.h"
+#include "service/kernel/service_utils.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/optimization_solver/iterative_solver_kernel.h"
 #include "algorithms/optimization_solver/iterative_solver/iterative_solver_types.h"
 #include "algorithms/optimization_solver/coordinate_descent/coordinate_descent_types.h"
 

@@ -19,8 +19,8 @@
 //  Implementation of PCA calculation functions.
 //--
 
-#include "pca_dense_svd_batch_container.h"
-#include "pca_dense_svd_batch_kernel_instance.h"
+#include "algorithms/kernel/pca/pca_dense_svd_batch_container.h"
+#include "algorithms/kernel/pca/pca_dense_svd_batch_kernel_instance.h"
 
 namespace daal
 {

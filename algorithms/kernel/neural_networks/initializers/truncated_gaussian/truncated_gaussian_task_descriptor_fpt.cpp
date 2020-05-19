@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "truncated_gaussian_task_descriptor.h"
+#include "algorithms/kernel/neural_networks/initializers/truncated_gaussian/truncated_gaussian_task_descriptor.h"
 
 namespace daal
 {

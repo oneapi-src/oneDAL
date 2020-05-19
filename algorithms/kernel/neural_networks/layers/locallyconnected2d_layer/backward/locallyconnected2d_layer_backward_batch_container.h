@@ -24,8 +24,8 @@
 #ifndef __LOCALLYCONNECTED2D_LAYER_BACKWARD_BATCH_CONTAINER_H__
 #define __LOCALLYCONNECTED2D_LAYER_BACKWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/locallyconnected2d/locallyconnected2d_layer.h"
-#include "locallyconnected2d_layer_backward_kernel.h"
+#include "algorithms/neural_networks/layers/locallyconnected2d/locallyconnected2d_layer.h"
+#include "algorithms/kernel/neural_networks/layers/locallyconnected2d_layer/backward/locallyconnected2d_layer_backward_kernel.h"
 
 namespace daal
 {

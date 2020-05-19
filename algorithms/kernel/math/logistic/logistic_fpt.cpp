@@ -21,7 +21,7 @@
 //--
 */
 
-#include "logistic_types.h"
+#include "algorithms/math/logistic_types.h"
 
 using namespace daal::services;
 

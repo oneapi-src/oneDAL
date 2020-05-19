@@ -21,10 +21,10 @@
 //--
 */
 
-#include "service_tensor.h"
-#include "service_numeric_table.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
-#include "service_mkl_tensor.h"
+#include "service/kernel/data_management/service_mkl_tensor.h"
 
 using namespace daal::internal;
 using namespace daal::services;

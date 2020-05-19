@@ -22,7 +22,7 @@
 #ifndef __ZSCORE_IMPL_I__
 #define __ZSCORE_IMPL_I__
 
-#include "zscore_base.h"
+#include "algorithms/kernel/normalization/zscore/zscore_base.h"
 
 namespace daal
 {

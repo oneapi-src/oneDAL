@@ -19,9 +19,9 @@
 //  Implementation of bernoulli algorithm functions.
 //--
 
-#include "bernoulli_batch_container.h"
-#include "bernoulli_kernel.h"
-#include "bernoulli_impl.i"
+#include "algorithms/kernel/distributions/bernoulli/bernoulli_batch_container.h"
+#include "algorithms/kernel/distributions/bernoulli/bernoulli_kernel.h"
+#include "algorithms/kernel/distributions/bernoulli/bernoulli_impl.i"
 
 namespace daal
 {

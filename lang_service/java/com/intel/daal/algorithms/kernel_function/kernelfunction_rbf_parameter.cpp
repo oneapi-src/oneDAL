@@ -25,8 +25,8 @@ using namespace daal::algorithms::kernel_function::rbf;
  * Method:    cSetSigma
  * Signature:(D)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Parameter_cSetSigma
-(JNIEnv *env, jobject thisObj, jlong parAddr, jdouble sigma)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Parameter_cSetSigma(JNIEnv * env, jobject thisObj, jlong parAddr,
+                                                                                               jdouble sigma)
 {
     (*(Parameter *)parAddr).sigma = sigma;
 }
@@ -35,8 +35,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Param
  * Method:    cGetSigma
  * Signature:(D)J
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_kernel_1function_linear_Parameter_cGetSigma
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_kernel_1function_linear_Parameter_cGetSigma(JNIEnv * env, jobject thisObj, jlong parAddr)
 {
-    return(jdouble)(*(Parameter *)parAddr).sigma;
+    return (jdouble)(*(Parameter *)parAddr).sigma;
 }

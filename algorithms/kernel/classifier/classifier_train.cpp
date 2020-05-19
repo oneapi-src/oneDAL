@@ -21,9 +21,9 @@
 //--
 */
 
-#include "classifier_training_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/classifier/classifier_training_types.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 #include "data_management/data/numeric_table.h"
 #include "data_management/data/numeric_types.h"
 
@@ -60,7 +60,8 @@ size_t Input::getNumberOfFeatures() const
 }
 
 /**
- * Returns the input object in the training stage of the classification algorithm
+ * Returns the input object in the training stage of the classification
+ * algorithm
  * \param[in] id   Identifier of the input object, \ref InputId
  * \return         Input object that corresponds to the given identifier
  */

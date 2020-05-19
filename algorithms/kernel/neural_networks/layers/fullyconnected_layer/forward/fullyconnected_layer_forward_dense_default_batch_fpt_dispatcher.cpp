@@ -19,7 +19,7 @@
 //  Implementation of fullyconnected calculation algorithm container.
 //--
 
-#include "fullyconnected_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/fullyconnected_layer/forward/fullyconnected_layer_forward_batch_container.h"
 
 namespace daal
 {

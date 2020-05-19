@@ -22,16 +22,16 @@
 #ifndef __TRUNCATED_GAUSSIAN_INITIALIZER_KERNEL_H__
 #define __TRUNCATED_GAUSSIAN_INITIALIZER_KERNEL_H__
 
-#include "kernel.h"
-#include "service_math.h"
-#include "service_tensor.h"
-#include "threading.h"
-#include "uniform_kernel.h"
+#include "algorithms/kernel/kernel.h"
+#include "externals/service_math.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "algorithms/threading/threading.h"
+#include "algorithms/kernel/distributions/uniform/uniform_kernel.h"
 
-#include "neural_networks/initializers/truncated_gaussian/truncated_gaussian_initializer.h"
-#include "neural_networks/initializers/truncated_gaussian/truncated_gaussian_initializer_types.h"
+#include "algorithms/neural_networks/initializers/truncated_gaussian/truncated_gaussian_initializer.h"
+#include "algorithms/neural_networks/initializers/truncated_gaussian/truncated_gaussian_initializer_types.h"
 
-#include "truncated_gaussian_task_descriptor.h"
+#include "algorithms/kernel/neural_networks/initializers/truncated_gaussian/truncated_gaussian_task_descriptor.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

@@ -23,7 +23,7 @@
 
 #include "algorithms/pca/transform/pca_transform_types.h"
 #include "data_management/data/homogen_numeric_table.h"
-#include "daal_strings.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::services;
 

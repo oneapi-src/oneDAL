@@ -24,8 +24,8 @@
 #include "algorithms/boosting/adaboost_model.h"
 #include "algorithms/stump/stump_classification_training_batch.h"
 #include "algorithms/stump/stump_classification_predict.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -44,10 +44,13 @@ Parameter::Parameter() : boosting::Parameter(), accuracyThreshold(0.0), maxItera
 
 /**
  * Constructs the AdaBoost parameter structure
- * \param[in] wlTrain       Pointer to the training algorithm of the weak learner
- * \param[in] wlPredict     Pointer to the prediction algorithm of the weak learner
+ * \param[in] wlTrain       Pointer to the training algorithm of the weak
+ * learner
+ * \param[in] wlPredict     Pointer to the prediction algorithm of the weak
+ * learner
  * \param[in] acc           Accuracy of the AdaBoost training algorithm
- * \param[in] maxIter       Maximal number of iterations of the AdaBoost training algorithm
+ * \param[in] maxIter       Maximal number of iterations of the AdaBoost
+ * training algorithm
  */
 Parameter::Parameter(SharedPtr<weak_learner::training::Batch> wlTrain, SharedPtr<weak_learner::prediction::Batch> wlPredict, double acc,
                      size_t maxIter)

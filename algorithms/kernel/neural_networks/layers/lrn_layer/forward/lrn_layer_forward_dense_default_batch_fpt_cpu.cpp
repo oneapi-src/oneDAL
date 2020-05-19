@@ -19,9 +19,9 @@
 //  Implementation of the forward local response normalization layer
 //--
 
-#include "lrn_layer_forward_batch_container.h"
-#include "lrn_layer_forward_kernel.h"
-#include "lrn_layer_forward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/lrn_layer/forward/lrn_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/lrn_layer/forward/lrn_layer_forward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/lrn_layer/forward/lrn_layer_forward_impl.i"
 
 namespace daal
 {

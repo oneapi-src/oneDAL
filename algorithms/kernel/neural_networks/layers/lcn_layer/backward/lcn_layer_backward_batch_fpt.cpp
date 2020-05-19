@@ -21,7 +21,7 @@
 //--
 */
 
-#include "lcn_layer_backward_batch.h"
+#include "algorithms/kernel/neural_networks/layers/lcn_layer/backward/lcn_layer_backward_batch.h"
 
 namespace daal
 {

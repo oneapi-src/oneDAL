@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::neural_networks::layers;
@@ -30,8 +30,7 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dropout_DropoutParameter_cInit
-  (JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dropout_DropoutParameter_cInit(JNIEnv * env, jobject thisObj)
 {
     return (jlong)(new dropout::Parameter);
 }
@@ -41,8 +40,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_d
  * Method:    cGetRetainRatio
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dropout_DropoutParameter_cGetRetainRatio
-  (JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dropout_DropoutParameter_cGetRetainRatio(JNIEnv * env,
+                                                                                                                          jobject thisObj,
+                                                                                                                          jlong cParameter)
 {
     return (((dropout::Parameter *)cParameter))->retainRatio;
 }
@@ -52,8 +52,9 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers
  * Method:    cSetRetainRatio
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dropout_DropoutParameter_cSetRetainRatio
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jdouble retainRatio)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dropout_DropoutParameter_cSetRetainRatio(JNIEnv * env, jobject thisObj,
+                                                                                                                       jlong cParameter,
+                                                                                                                       jdouble retainRatio)
 {
     (((dropout::Parameter *)cParameter))->retainRatio = retainRatio;
 }
@@ -63,8 +64,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dr
  * Method:    cGetSeed
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dropout_DropoutParameter_cGetSeed
-  (JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dropout_DropoutParameter_cGetSeed(JNIEnv * env, jobject thisObj,
+                                                                                                                 jlong cParameter)
 {
     return (jlong)((((dropout::Parameter *)cParameter))->seed);
 }
@@ -74,8 +75,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_d
  * Method:    cSetSeed
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dropout_DropoutParameter_cSetSeed
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jlong seed)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dropout_DropoutParameter_cSetSeed(JNIEnv * env, jobject thisObj,
+                                                                                                                jlong cParameter, jlong seed)
 {
     (((dropout::Parameter *)cParameter))->seed = (size_t)seed;
 }
@@ -85,8 +86,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dr
  * Method:    cSetEngine
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dropout_DropoutParameter_cSetEngine
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong engineAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_dropout_DropoutParameter_cSetEngine(JNIEnv * env, jobject thisObj,
+                                                                                                                  jlong cParameter, jlong engineAddr)
 {
-    (((dropout::Parameter *)cParameter))->engine = staticPointerCast<engines::BatchBase, AlgorithmIface> (*(SharedPtr<AlgorithmIface> *)engineAddr);
+    (((dropout::Parameter *)cParameter))->engine = staticPointerCast<engines::BatchBase, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)engineAddr);
 }

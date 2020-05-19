@@ -24,32 +24,26 @@
 using namespace daal;
 using namespace daal::algorithms;
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_boosting_Parameter_cSetWlTraining
-(JNIEnv *env, jobject thisObj, jlong parAddr, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_boosting_Parameter_cSetWlTraining(JNIEnv * env, jobject thisObj, jlong parAddr, jlong algAddr)
 {
     services::SharedPtr<weak_learner::training::Batch> weakLearnerTraining =
-        daal::services::staticPointerCast<weak_learner::training::Batch, AlgorithmIface>
-            (*(services::SharedPtr<AlgorithmIface> *)algAddr);
+        daal::services::staticPointerCast<weak_learner::training::Batch, AlgorithmIface>(*(services::SharedPtr<AlgorithmIface> *)algAddr);
     (*(boosting::Parameter *)parAddr).weakLearnerTraining = weakLearnerTraining;
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_boosting_Parameter_cGetWlTraining
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_boosting_Parameter_cGetWlTraining(JNIEnv * env, jobject thisObj, jlong parAddr)
 {
     return (jlong) & ((*(boosting::Parameter *)parAddr).weakLearnerTraining);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_boosting_Parameter_cSetWlPrediction
-(JNIEnv *env, jobject thisObj, jlong parAddr, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_boosting_Parameter_cSetWlPrediction(JNIEnv * env, jobject thisObj, jlong parAddr, jlong algAddr)
 {
     services::SharedPtr<weak_learner::prediction::Batch> weakLearnerPrediction =
-        daal::services::staticPointerCast<weak_learner::prediction::Batch, AlgorithmIface>
-            (*(services::SharedPtr<AlgorithmIface> *)algAddr);
+        daal::services::staticPointerCast<weak_learner::prediction::Batch, AlgorithmIface>(*(services::SharedPtr<AlgorithmIface> *)algAddr);
     (*(boosting::Parameter *)parAddr).weakLearnerPrediction = weakLearnerPrediction;
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_boosting_Parameter_cGetWlPrediction
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_boosting_Parameter_cGetWlPrediction(JNIEnv * env, jobject thisObj, jlong parAddr)
 {
     return (jlong) & ((*(boosting::Parameter *)parAddr).weakLearnerPrediction);
 }

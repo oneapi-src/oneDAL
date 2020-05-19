@@ -19,7 +19,7 @@
 //  Implementation of prelu calculation functions.
 //--
 
-#include "prelu_layer_backward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/prelu_layer/backward/prelu_layer_backward_batch_container.h"
 
 namespace daal
 {

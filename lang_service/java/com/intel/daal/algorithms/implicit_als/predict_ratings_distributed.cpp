@@ -21,7 +21,7 @@
 
 #include "com_intel_daal_algorithms_implicit_als_prediction_ratings_RatingsDistributed.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::implicit_als::prediction::ratings;
@@ -31,8 +31,8 @@ using namespace daal::algorithms::implicit_als::prediction::ratings;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsDistributed_cInit
-  (JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsDistributed_cInit(JNIEnv * env, jobject thisObj,
+                                                                                                                 jint prec, jint method)
 {
     return jniDistributed<step1Local, implicit_als::prediction::ratings::Method, Distributed, defaultDense>::newObj(prec, method);
 }
@@ -42,8 +42,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsDistributed_cInitParameter
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsDistributed_cInitParameter(JNIEnv * env,
+                                                                                                                          jobject thisObj,
+                                                                                                                          jlong algAddr, jint prec,
+                                                                                                                          jint method)
 {
     return jniDistributed<step1Local, implicit_als::prediction::ratings::Method, Distributed, defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -53,8 +55,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_
  * Method:    cGetPartialResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsDistributed_cGetPartialResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsDistributed_cGetPartialResult(JNIEnv * env,
+                                                                                                                             jobject thisObj,
+                                                                                                                             jlong algAddr, jint prec,
+                                                                                                                             jint method)
 {
     return jniDistributed<step1Local, implicit_als::prediction::ratings::Method, Distributed, defaultDense>::getPartialResult(prec, method, algAddr);
 }
@@ -64,11 +68,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_
  * Method:    cSetPartialResult
  * Signature: (JIIJZ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsDistributed_cSetPartialResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong partialResultAddr, jboolean initFlag)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsDistributed_cSetPartialResult(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong partialResultAddr, jboolean initFlag)
 {
-    jniDistributed<step1Local, implicit_als::prediction::ratings::Method, Distributed, defaultDense>::
-        setPartialResult<implicit_als::prediction::ratings::PartialResult>(prec, method, algAddr, partialResultAddr, initFlag);
+    jniDistributed<step1Local, implicit_als::prediction::ratings::Method, Distributed,
+                   defaultDense>::setPartialResult<implicit_als::prediction::ratings::PartialResult>(prec, method, algAddr, partialResultAddr,
+                                                                                                     initFlag);
 }
 
 /*
@@ -76,8 +81,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_r
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsDistributed_cGetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsDistributed_cGetResult(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong algAddr, jint prec,
+                                                                                                                      jint method)
 {
     return jniDistributed<step1Local, implicit_als::prediction::ratings::Method, Distributed, defaultDense>::getResult(prec, method, algAddr);
 }
@@ -87,11 +93,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsDistributed_cSetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsDistributed_cSetResult(JNIEnv * env, jobject thisObj,
+                                                                                                                     jlong algAddr, jint prec,
+                                                                                                                     jint method, jlong resultAddr)
 {
-    jniDistributed<step1Local, implicit_als::prediction::ratings::Method, Distributed, defaultDense>::
-        setResult<implicit_als::prediction::ratings::Result>(prec, method, algAddr, resultAddr);
+    jniDistributed<step1Local, implicit_als::prediction::ratings::Method, Distributed,
+                   defaultDense>::setResult<implicit_als::prediction::ratings::Result>(prec, method, algAddr, resultAddr);
 }
 
 /*
@@ -99,8 +106,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_r
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsDistributed_cClone
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsDistributed_cClone(JNIEnv * env, jobject thisObj,
+                                                                                                                  jlong algAddr, jint prec,
+                                                                                                                  jint method)
 {
     return jniDistributed<step1Local, implicit_als::prediction::ratings::Method, Distributed, defaultDense>::getClone(prec, method, algAddr);
 }

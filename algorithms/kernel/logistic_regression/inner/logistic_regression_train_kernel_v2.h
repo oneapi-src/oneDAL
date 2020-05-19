@@ -25,8 +25,8 @@
 #ifndef __LOGISTIC_REGRESSION_TRAIN_KERNEL_V2_H__
 #define __LOGISTIC_REGRESSION_TRAIN_KERNEL_V2_H__
 
-#include "numeric_table.h"
-#include "algorithm_base_common.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/algorithm_base_common.h"
 #include "algorithms/logistic_regression/logistic_regression_training_types.h"
 
 using namespace daal::data_management;

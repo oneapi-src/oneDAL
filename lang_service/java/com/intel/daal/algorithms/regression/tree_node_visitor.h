@@ -24,7 +24,7 @@
 #define __REGRESSION_TREE_NODE_VISITOR_H__
 #include <jni.h>
 #include "daal.h"
-#include "java_callback.h"
+#include "lang_service/java/com/intel/daal/include/java_callback.h"
 #include "algorithms/regression/tree_traverse.h"
 
 namespace daal
@@ -36,14 +36,13 @@ namespace regression
 */
 struct JavaTreeNodeVisitor : public daal::algorithms::regression::TreeNodeVisitor, public daal::services::JavaCallback
 {
-    JavaTreeNodeVisitor(JavaVM *_jvm, jobject _javaObject) : daal::services::JavaCallback(_jvm, _javaObject) {}
+    JavaTreeNodeVisitor(JavaVM * _jvm, jobject _javaObject) : daal::services::JavaCallback(_jvm, _javaObject) {}
 
-    virtual ~JavaTreeNodeVisitor()
-    {}
+    virtual ~JavaTreeNodeVisitor() {}
 
     virtual bool onLeafNode(size_t level, double response) DAAL_C11_OVERRIDE;
     virtual bool onSplitNode(size_t level, size_t featureIndex, double featureValue) DAAL_C11_OVERRIDE;
 };
-}
-}
+} // namespace regression
+} // namespace daal
 #endif

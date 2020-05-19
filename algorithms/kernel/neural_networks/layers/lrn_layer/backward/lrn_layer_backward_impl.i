@@ -38,11 +38,11 @@
 #ifndef __LRN_LAYER_BACKWARD_IMPL_I__
 #define __LRN_LAYER_BACKWARD_IMPL_I__
 
-#include "service_numeric_table.h"
-#include "layers_threading.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/neural_networks/layers/layers_threading.h"
 
-#include "service_dnn.h"
-#include "service_mkl_tensor.h"
+#include "externals/service_dnn.h"
+#include "service/kernel/data_management/service_mkl_tensor.h"
 
 using namespace daal::internal;
 using namespace daal::services;

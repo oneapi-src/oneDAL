@@ -19,9 +19,9 @@
 //  Implementation of uniform algorithm functions.
 //--
 
-#include "uniform_batch_container.h"
-#include "uniform_kernel.h"
-#include "uniform_impl.i"
+#include "algorithms/kernel/distributions/uniform/uniform_batch_container.h"
+#include "algorithms/kernel/distributions/uniform/uniform_kernel.h"
+#include "algorithms/kernel/distributions/uniform/uniform_impl.i"
 
 namespace daal
 {

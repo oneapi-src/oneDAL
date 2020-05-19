@@ -21,8 +21,8 @@
 //--
 */
 
-#include "cholesky_types.h"
-#include "serialization_utils.h"
+#include "algorithms/cholesky/cholesky_types.h"
+#include "service/kernel/serialization_utils.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -42,7 +42,8 @@ Input::Input() : daal::algorithms::Input(lastInputId + 1) {}
 /**
  * Returns input NumericTable of the Cholesky algorithm
  * \param[in] id    Identifier of the input numeric table
- * \return          %Input numeric table that corresponds to the given identifier
+ * \return          %Input numeric table that corresponds to the given
+ * identifier
  */
 NumericTablePtr Input::get(InputId id) const
 {

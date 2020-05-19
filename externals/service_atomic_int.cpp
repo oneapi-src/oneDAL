@@ -22,7 +22,7 @@
 */
 
 #include "tbb/atomic.h"
-#include "daal_atomic_int.h"
+#include "services/daal_atomic_int.h"
 
 /*
 //++

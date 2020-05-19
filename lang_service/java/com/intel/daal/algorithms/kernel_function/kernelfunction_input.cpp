@@ -20,18 +20,17 @@
 #include "com_intel_daal_algorithms_kernel_function_Input.h"
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_Input_cSetInput
-(JNIEnv *env, jobject obj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_Input_cSetInput(JNIEnv * env, jobject obj, jlong inputAddr, jint id,
+                                                                                       jlong ntAddr)
 {
     jniInput<kernel_function::Input>::set<kernel_function::InputId, NumericTable>(inputAddr, id, ntAddr);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_Input_cGetInput
-(JNIEnv *env, jobject obj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_Input_cGetInput(JNIEnv * env, jobject obj, jlong inputAddr, jint id)
 {
     return jniInput<kernel_function::Input>::get<kernel_function::InputId, NumericTable>(inputAddr, id);
 }

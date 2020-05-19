@@ -24,8 +24,8 @@
 #ifndef __SERVICE_DNN_INTERNAL_H__
 #define __SERVICE_DNN_INTERNAL_H__
 
-#include "service_defines.h"
-#include "service_dnn.h"
+#include "service/kernel/service_defines.h"
+#include "externals/service_dnn.h"
 
 #define ON_ERR(err)                                                             \
     {                                                                           \

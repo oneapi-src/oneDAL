@@ -22,7 +22,7 @@
 //--
 */
 
-#include "neural_networks_training_feedforward.h"
+#include "algorithms/kernel/neural_networks/neural_networks_training_feedforward.h"
 #include "data_management/data/homogen_numeric_table.h"
 
 namespace daal

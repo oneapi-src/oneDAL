@@ -19,11 +19,11 @@
 //  Implementation of abs calculation functions.
 //--
 
-#include "abs_batch_container.h"
-#include "abs_base.h"
-#include "abs_csr_fast_kernel.h"
-#include "abs_impl.i"
-#include "abs_csr_fast_impl.i"
+#include "algorithms/kernel/math/abs/abs_batch_container.h"
+#include "algorithms/kernel/math/abs/abs_base.h"
+#include "algorithms/kernel/math/abs/abs_csr_fast_kernel.h"
+#include "algorithms/kernel/math/abs/abs_impl.i"
+#include "algorithms/kernel/math/abs/abs_csr_fast_impl.i"
 
 namespace daal
 {

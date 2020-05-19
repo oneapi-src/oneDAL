@@ -21,7 +21,7 @@
 
 #include "com_intel_daal_algorithms_optimization_solver_objective_function_Result.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::optimization_solver;
@@ -31,8 +31,7 @@ using namespace daal::algorithms::optimization_solver;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_objective_1function_Result_cNewResult
-(JNIEnv *, jobject)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_objective_1function_Result_cNewResult(JNIEnv *, jobject)
 {
     return jniArgument<objective_function::Result>::newObj();
 }
@@ -42,8 +41,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_obje
  * Method:    cGetResultNumericTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_objective_1function_Result_cGetResultNumericTable
-(JNIEnv *, jobject, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_objective_1function_Result_cGetResultNumericTable(JNIEnv *, jobject,
+                                                                                                                              jlong resAddr, jint id)
 {
     return jniArgument<objective_function::Result>::get<objective_function::ResultId, NumericTable>(resAddr, id);
 }
@@ -53,8 +52,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_obje
  * Method:    cSetResultNumericTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_objective_1function_Result_cSetResultNumericTable
-(JNIEnv *, jobject, jlong resAddr, jint id, jlong dcAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_objective_1function_Result_cSetResultNumericTable(JNIEnv *, jobject,
+                                                                                                                             jlong resAddr, jint id,
+                                                                                                                             jlong dcAddr)
 {
     jniArgument<objective_function::Result>::set<objective_function::ResultId, NumericTable>(resAddr, id, dcAddr);
 }

@@ -22,12 +22,12 @@
 #ifndef __CONCAT_LAYER_BACKWARD_KERNEL_H__
 #define __CONCAT_LAYER_BACKWARD_KERNEL_H__
 
-#include "neural_networks/layers/concat/concat_layer.h"
-#include "neural_networks/layers/concat/concat_layer_types.h"
-#include "kernel.h"
-#include "service_dnn.h"
-#include "service_dnn_internal.h"
-#include "layers_threading.h"
+#include "algorithms/neural_networks/layers/concat/concat_layer.h"
+#include "algorithms/neural_networks/layers/concat/concat_layer_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "externals/service_dnn.h"
+#include "algorithms/kernel/service_dnn_internal.h"
+#include "algorithms/kernel/neural_networks/layers/layers_threading.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

@@ -15,8 +15,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "neural_networks_prediction_result.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/neural_networks_prediction_result.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

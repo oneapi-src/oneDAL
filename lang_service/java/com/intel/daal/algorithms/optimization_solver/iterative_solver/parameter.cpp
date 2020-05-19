@@ -32,13 +32,12 @@ using namespace daal::algorithms::optimization_solver;
  * Method:    cSetFunction
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Parameter_cSetFunction
-(JNIEnv *, jobject, jlong parAddr, jlong cFunction)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Parameter_cSetFunction(JNIEnv *, jobject, jlong parAddr,
+                                                                                                                    jlong cFunction)
 {
-    iterative_solver::Parameter *parameterAddr = (iterative_solver::Parameter *)parAddr;
+    iterative_solver::Parameter * parameterAddr = (iterative_solver::Parameter *)parAddr;
     SharedPtr<optimization_solver::sum_of_functions::Batch> objectiveFunction =
-        staticPointerCast<optimization_solver::sum_of_functions::Batch, AlgorithmIface>
-        (*(SharedPtr<AlgorithmIface> *)cFunction);
+        staticPointerCast<optimization_solver::sum_of_functions::Batch, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)cFunction);
     parameterAddr->function = objectiveFunction;
 }
 
@@ -47,8 +46,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_itera
  * Method:    cSetNIterations
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Parameter_cSetNIterations
-(JNIEnv *, jobject, jlong parAddr, jlong nIterations)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Parameter_cSetNIterations(JNIEnv *, jobject,
+                                                                                                                       jlong parAddr,
+                                                                                                                       jlong nIterations)
 {
     ((iterative_solver::Parameter *)parAddr)->nIterations = nIterations;
 }
@@ -58,8 +58,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_itera
  * Method:    cGetNIterations
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Parameter_cGetNIterations
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Parameter_cGetNIterations(JNIEnv *, jobject,
+                                                                                                                        jlong parAddr)
 {
     return ((iterative_solver::Parameter *)parAddr)->nIterations;
 }
@@ -69,8 +69,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iter
  * Method:    cSetAccuracyThreshold
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Parameter_cSetAccuracyThreshold
-(JNIEnv *, jobject, jlong parAddr, jdouble accuracyThreshold)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Parameter_cSetAccuracyThreshold(
+    JNIEnv *, jobject, jlong parAddr, jdouble accuracyThreshold)
 {
     ((iterative_solver::Parameter *)parAddr)->accuracyThreshold = accuracyThreshold;
 }
@@ -80,8 +80,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_itera
  * Method:    cGetAccuracyThreshold
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Parameter_cGetAccuracyThreshold
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Parameter_cGetAccuracyThreshold(JNIEnv *, jobject,
+                                                                                                                                jlong parAddr)
 {
     return ((iterative_solver::Parameter *)parAddr)->accuracyThreshold;
 }
@@ -91,8 +91,9 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_optimization_1solver_it
 * Method:    cSetOptionalResultRequired
 * Signature: (JZ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Parameter_cSetOptionalResultRequired
-(JNIEnv *, jobject, jlong parAddr, jboolean flag)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Parameter_cSetOptionalResultRequired(JNIEnv *, jobject,
+                                                                                                                                  jlong parAddr,
+                                                                                                                                  jboolean flag)
 {
     ((iterative_solver::Parameter *)parAddr)->optionalResultRequired = flag;
 }
@@ -102,8 +103,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_itera
 * Method:    cGetOptionalResultRequired
 * Signature: (J)Z
 */
-JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Parameter_cGetOptionalResultRequired
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Parameter_cGetOptionalResultRequired(JNIEnv *,
+                                                                                                                                      jobject,
+                                                                                                                                      jlong parAddr)
 {
     return ((iterative_solver::Parameter *)parAddr)->optionalResultRequired;
 }
@@ -113,8 +115,8 @@ JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_optimization_1solver_i
  * Method:    cSetBatchSize
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Parameter_cSetBatchSize
-(JNIEnv *, jobject, jlong parAddr, jlong batchSize)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Parameter_cSetBatchSize(JNIEnv *, jobject, jlong parAddr,
+                                                                                                                     jlong batchSize)
 {
     ((iterative_solver::Parameter *)parAddr)->batchSize = batchSize;
 }
@@ -124,8 +126,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_itera
  * Method:    cGetBatchSize
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Parameter_cGetBatchSize
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Parameter_cGetBatchSize(JNIEnv *, jobject,
+                                                                                                                      jlong parAddr)
 {
     return ((iterative_solver::Parameter *)parAddr)->batchSize;
 }

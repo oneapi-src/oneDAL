@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::neural_networks::layers;
@@ -30,22 +30,20 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cGetParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_BackwardLayer_cGetParameter
-  (JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_BackwardLayer_cGetParameter(JNIEnv * env, jobject thisObj,
+                                                                                                           jlong algAddr)
 {
-    return (jlong) (*((backward::LayerIfacePtr *)algAddr))->getLayerParameter();
+    return (jlong)(*((backward::LayerIfacePtr *)algAddr))->getLayerParameter();
 }
-
 
 /*
  * Class:     com_intel_daal_algorithms_neural_networks_layers_BackwardLayer
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_BackwardLayer_cGetInput
-  (JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_BackwardLayer_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    return (jlong) (*((backward::LayerIfacePtr *)algAddr))->getLayerInput();
+    return (jlong)(*((backward::LayerIfacePtr *)algAddr))->getLayerInput();
 }
 
 /*
@@ -53,11 +51,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_B
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_BackwardLayer_cGetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_BackwardLayer_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    SerializationIfacePtr *ptr = new SerializationIfacePtr;
-    *ptr = (*((backward::LayerIfacePtr *)algAddr))->getLayerResult();
+    SerializationIfacePtr * ptr = new SerializationIfacePtr;
+    *ptr                        = (*((backward::LayerIfacePtr *)algAddr))->getLayerResult();
     return (jlong)ptr;
 }
 
@@ -66,8 +63,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_B
  * Method:    cDispose
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_BackwardLayer_cDispose
-(JNIEnv *env, jobject thisObj, jlong addr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_BackwardLayer_cDispose(JNIEnv * env, jobject thisObj, jlong addr)
 {
-    delete(backward::LayerIfacePtr *)addr;
+    delete (backward::LayerIfacePtr *)addr;
 }

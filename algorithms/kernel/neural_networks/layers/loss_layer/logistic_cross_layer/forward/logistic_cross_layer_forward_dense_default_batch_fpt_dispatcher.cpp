@@ -19,7 +19,7 @@
 //  Implementation of the forward logistic cross layer
 //--
 
-#include "logistic_cross_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/loss_layer/logistic_cross_layer/forward/logistic_cross_layer_forward_batch_container.h"
 
 namespace daal
 {

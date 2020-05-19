@@ -21,9 +21,9 @@
 //--
 */
 
-#include "pooling3d_layer_backward_types.h"
-#include "pooling3d_layer_types.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/layers/pooling3d/pooling3d_layer_backward_types.h"
+#include "algorithms/neural_networks/layers/pooling3d/pooling3d_layer_types.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::services;
 

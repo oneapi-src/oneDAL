@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 using namespace daal;
 using namespace daal::algorithms::neural_networks::layers::spatial_stochastic_pooling2d;
@@ -30,8 +30,9 @@ using namespace daal::algorithms::neural_networks::layers::spatial_stochastic_po
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1stochastic_1pooling2d_SpatialStochasticPooling2dBackwardResult_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL
+    Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1stochastic_1pooling2d_SpatialStochasticPooling2dBackwardResult_cNewResult(
+        JNIEnv * env, jobject thisObj)
 {
     return jniArgument<backward::Result>::newObj();
 }

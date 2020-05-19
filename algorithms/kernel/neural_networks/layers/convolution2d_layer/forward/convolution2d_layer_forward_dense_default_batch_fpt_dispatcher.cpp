@@ -19,7 +19,7 @@
 //  Implementation of convolution2d calculation algorithm container.
 //--
 
-#include "convolution2d_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/convolution2d_layer/forward/convolution2d_layer_forward_batch_container.h"
 
 namespace daal
 {

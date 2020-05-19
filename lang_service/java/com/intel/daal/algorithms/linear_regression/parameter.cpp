@@ -27,10 +27,9 @@ using namespace daal::algorithms;
  * Method:    cParInit
  * Signature:()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_Parameter_cParInit
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_Parameter_cParInit(JNIEnv * env, jobject thisObj)
 {
-    return(jlong)new linear_regression::Parameter();
+    return (jlong) new linear_regression::Parameter();
 }
 
 /*
@@ -38,8 +37,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_Parame
  * Method:    cSetInterceptFlag
  * Signature:(JZ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_Parameter_cSetInterceptFlag
-(JNIEnv *env, jobject thisObj, jlong algAddr, jboolean flag)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_Parameter_cSetInterceptFlag(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                     jboolean flag)
 {
     (*(linear_regression::Parameter *)algAddr).interceptFlag = flag;
 }
@@ -49,8 +48,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_Paramet
  * Method:    cGetInterceptFlag
  * Signature:(J)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_linear_1regression_Parameter_cGetInterceptFlag
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_linear_1regression_Parameter_cGetInterceptFlag(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    return(*(linear_regression::Parameter *)algAddr).interceptFlag;
+    return (*(linear_regression::Parameter *)algAddr).interceptFlag;
 }

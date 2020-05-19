@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::neural_networks;
@@ -30,10 +30,10 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cSetA
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_truncated_1gaussian_TruncatedGaussianParameter_cSetA
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jdouble a, jint prec)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_truncated_1gaussian_TruncatedGaussianParameter_cSetA(
+    JNIEnv * env, jobject thisObj, jlong cParameter, jdouble a, jint prec)
 {
-    if(prec == 0)
+    if (prec == 0)
     {
         (((initializers::truncated_gaussian::Parameter<double> *)cParameter))->a = (double)a;
     }
@@ -48,10 +48,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializ
  * Method:    cSetB
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_truncated_1gaussian_TruncatedGaussianParameter_cSetB
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jdouble b, jint prec)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_truncated_1gaussian_TruncatedGaussianParameter_cSetB(
+    JNIEnv * env, jobject thisObj, jlong cParameter, jdouble b, jint prec)
 {
-    if(prec == 0)
+    if (prec == 0)
     {
         (((initializers::truncated_gaussian::Parameter<double> *)cParameter))->b = (double)b;
     }
@@ -66,10 +66,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializ
  * Method:    cGetA
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_truncated_1gaussian_TruncatedGaussianParameter_cGetA
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jint prec)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_truncated_1gaussian_TruncatedGaussianParameter_cGetA(
+    JNIEnv * env, jobject thisObj, jlong cParameter, jint prec)
 {
-    if(prec == 0)
+    if (prec == 0)
     {
         return (jdouble)((((initializers::truncated_gaussian::Parameter<double> *)cParameter))->a);
     }
@@ -85,10 +85,10 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_initia
  * Method:    cGetB
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_truncated_1gaussian_TruncatedGaussianParameter_cGetB
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jint prec)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_truncated_1gaussian_TruncatedGaussianParameter_cGetB(
+    JNIEnv * env, jobject thisObj, jlong cParameter, jint prec)
 {
-    if(prec == 0)
+    if (prec == 0)
     {
         return (jdouble)((((initializers::truncated_gaussian::Parameter<double> *)cParameter))->b);
     }
@@ -104,10 +104,10 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_initia
  * Method:    cSetMean
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_truncated_1gaussian_TruncatedGaussianParameter_cSetMean
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jdouble mean, jint prec)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_truncated_1gaussian_TruncatedGaussianParameter_cSetMean(
+    JNIEnv * env, jobject thisObj, jlong cParameter, jdouble mean, jint prec)
 {
-    if(prec == 0)
+    if (prec == 0)
     {
         (((initializers::truncated_gaussian::Parameter<double> *)cParameter))->mean = (double)mean;
     }
@@ -122,10 +122,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializ
  * Method:    cSetSigma
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_truncated_1gaussian_TruncatedGaussianParameter_cSetSigma
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jdouble sigma, jint prec)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_truncated_1gaussian_TruncatedGaussianParameter_cSetSigma(
+    JNIEnv * env, jobject thisObj, jlong cParameter, jdouble sigma, jint prec)
 {
-    if(prec == 0)
+    if (prec == 0)
     {
         (((initializers::truncated_gaussian::Parameter<double> *)cParameter))->sigma = (double)sigma;
     }
@@ -140,10 +140,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializ
  * Method:    cGetMean
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_truncated_1gaussian_TruncatedGaussianParameter_cGetMean
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jint prec)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_truncated_1gaussian_TruncatedGaussianParameter_cGetMean(
+    JNIEnv * env, jobject thisObj, jlong cParameter, jint prec)
 {
-    if(prec == 0)
+    if (prec == 0)
     {
         return (jdouble)((((initializers::truncated_gaussian::Parameter<double> *)cParameter))->mean);
     }
@@ -159,10 +159,10 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_initia
  * Method:    cGetSigma
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_truncated_1gaussian_TruncatedGaussianParameter_cGetSigma
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jint prec)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_truncated_1gaussian_TruncatedGaussianParameter_cGetSigma(
+    JNIEnv * env, jobject thisObj, jlong cParameter, jint prec)
 {
-    if(prec == 0)
+    if (prec == 0)
     {
         return (jdouble)((((initializers::truncated_gaussian::Parameter<double> *)cParameter))->sigma);
     }

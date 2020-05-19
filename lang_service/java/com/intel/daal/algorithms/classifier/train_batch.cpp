@@ -20,16 +20,14 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_classifier_training_TrainingBatch.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_classifier_training_TrainingBatch_cGetResult
-(JNIEnv *, jobject, jlong self)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_classifier_training_TrainingBatch_cGetResult(JNIEnv *, jobject, jlong self)
 {
-    SerializationIfacePtr *ptr = new SerializationIfacePtr();
-    SharedPtr<classifier::training::Batch> alg =
-        staticPointerCast<classifier::training::Batch>(*(SharedPtr<AlgorithmIface> *)self);
-    *ptr = alg->getResult();
+    SerializationIfacePtr * ptr                = new SerializationIfacePtr();
+    SharedPtr<classifier::training::Batch> alg = staticPointerCast<classifier::training::Batch>(*(SharedPtr<AlgorithmIface> *)self);
+    *ptr                                       = alg->getResult();
     return (jlong)ptr;
 }

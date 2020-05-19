@@ -26,11 +26,10 @@ using namespace daal;
 * Method:    cNewOptionalArgument
 * Signature: ()J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_OptionalArgument_cNewOptionalArgument
-(JNIEnv *, jobject, jlong size)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_OptionalArgument_cNewOptionalArgument(JNIEnv *, jobject, jlong size)
 {
     algorithms::OptionalArgumentPtr pArg(new algorithms::OptionalArgument(size));
-    data_management::SerializationIfacePtr *resultShPtr = new data_management::SerializationIfacePtr(pArg);
+    data_management::SerializationIfacePtr * resultShPtr = new data_management::SerializationIfacePtr(pArg);
     return (jlong)resultShPtr;
 }
 
@@ -39,12 +38,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_OptionalArgument_cNewOpti
 * Method:    cGetValue
 * Signature: (JJ)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_OptionalArgument_cGetValue
-(JNIEnv *env, jobject thisObj, jlong argAddr, jlong idx)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_OptionalArgument_cGetValue(JNIEnv * env, jobject thisObj, jlong argAddr, jlong idx)
 {
-    data_management::SerializationIfacePtr pArg = *(data_management::SerializationIfacePtr*)argAddr;
-    data_management::SerializationIfacePtr ptr = static_cast<algorithms::OptionalArgument*>(pArg.get())->get(idx);
-    return (jlong)new data_management::SerializationIfacePtr(ptr);
+    data_management::SerializationIfacePtr pArg = *(data_management::SerializationIfacePtr *)argAddr;
+    data_management::SerializationIfacePtr ptr  = static_cast<algorithms::OptionalArgument *>(pArg.get())->get(idx);
+    return (jlong) new data_management::SerializationIfacePtr(ptr);
 }
 
 /*
@@ -52,9 +50,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_OptionalArgument_cGetValu
 * Method:    cSetValue
 * Signature: (JJJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_OptionalArgument_cSetValue
-(JNIEnv *, jobject thisObj, jlong argAddr, jlong valueAddr, jlong idx)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_OptionalArgument_cSetValue(JNIEnv *, jobject thisObj, jlong argAddr, jlong valueAddr, jlong idx)
 {
-    data_management::SerializationIfacePtr pArg = *(data_management::SerializationIfacePtr*)argAddr;
-    static_cast<algorithms::OptionalArgument*>(pArg.get())->set(idx, *((data_management::SerializationIfacePtr *)valueAddr));
+    data_management::SerializationIfacePtr pArg = *(data_management::SerializationIfacePtr *)argAddr;
+    static_cast<algorithms::OptionalArgument *>(pArg.get())->set(idx, *((data_management::SerializationIfacePtr *)valueAddr));
 }

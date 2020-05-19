@@ -22,14 +22,14 @@
 #ifndef __EM_GMM_DENSE_DEFAULT_BATCH_TASK_H__
 #define __EM_GMM_DENSE_DEFAULT_BATCH_TASK_H__
 
-#include "service_memory.h"
-#include "service_data_utils.h"
-#include "numeric_table.h"
-#include "service_numeric_table.h"
-#include "service_blas.h"
-#include "service_stat.h"
-#include "service_math.h"
-#include "service_sort.h"
+#include "externals/service_memory.h"
+#include "service/kernel/service_data_utils.h"
+#include "data_management/data/numeric_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_blas.h"
+#include "externals/service_stat.h"
+#include "externals/service_math.h"
+#include "algorithms/kernel/service_sort.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;

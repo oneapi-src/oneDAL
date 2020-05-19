@@ -24,8 +24,8 @@
 #ifndef __SMOOTHRELU_BATCH_CONTAINER_H__
 #define __SMOOTHRELU_BATCH_CONTAINER_H__
 
-#include "math/smoothrelu.h"
-#include "smoothrelu_kernel.h"
+#include "algorithms/math/smoothrelu.h"
+#include "algorithms/kernel/math/smoothrelu/smoothrelu_kernel.h"
 
 namespace daal
 {

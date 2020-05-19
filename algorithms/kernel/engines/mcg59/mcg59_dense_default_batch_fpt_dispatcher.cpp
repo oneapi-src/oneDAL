@@ -19,7 +19,7 @@
 //  Implementation of mcg59 calculation algorithm dispatcher.
 //--
 
-#include "mcg59_batch_container.h"
+#include "algorithms/kernel/engines/mcg59/mcg59_batch_container.h"
 
 namespace daal
 {

@@ -25,13 +25,13 @@
 #ifndef __ASSOC_RULES_APRIORI_MINE_IMPL_I__
 #define __ASSOC_RULES_APRIORI_MINE_IMPL_I__
 
-#include "service_memory.h"
-#include "service_math.h"
-#include "service_sort.h"
+#include "externals/service_memory.h"
+#include "externals/service_math.h"
+#include "algorithms/kernel/service_sort.h"
 
-#include "threading.h"
-#include "assoc_rules_apriori_types.i"
-#include "assoc_rules_apriori_tree.i"
+#include "algorithms/threading/threading.h"
+#include "algorithms/kernel/assocrules/assoc_rules_apriori_types.i"
+#include "algorithms/kernel/assocrules/assoc_rules_apriori_tree.i"
 
 using namespace daal::algorithms::internal;
 
@@ -57,7 +57,7 @@ services::Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::firstPas
     size_t numOfUniqueItems                 = data.numOfUniqueItems;
     assocRulesUniqueItem<cpu> * uniqueItems = data.uniq_items;
     /* Form "large" item sets of size 1 from unique items which support
-       is greater than minimum support */
+     is greater than minimum support */
     for (size_t i = 0; i < numOfUniqueItems; i++)
     {
         size_t item_id               = uniqueItems[i].itemID;
@@ -71,7 +71,8 @@ services::Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::firstPas
 }
 
 /**
- *  \brief Test that all {n-1}-item subsets of {n}-item set are "large" item sets
+ *  \brief Test that all {n-1}-item subsets of {n}-item set are "large" item
+ *sets
  *
  *  \param iset_size[in] length of the item set - {n}
  *  \param candidate[in] item set of length {n} to test
@@ -176,7 +177,8 @@ size_t AssociationRulesKernel<apriori, algorithmFPType, cpu>::binarySearch(size_
  *  \param iset_size[in]  length of input itemsets
  *  \param L[in]          structure containing "large" itemsets
  *  \return false if no candidates were generated, true otherwise
- *  \param outputStatus[out]    Status object that indicates tehe result of memory allocation
+ *  \param outputStatus[out]    Status object that indicates tehe result of
+ *memory allocation
  */
 template <typename algorithmFPType, CpuType cpu>
 bool AssociationRulesKernel<apriori, algorithmFPType, cpu>::genCandidates(size_t iset_size, ItemSetList<cpu> * L, hash_tree<cpu> * C_tree,
@@ -287,7 +289,7 @@ void AssociationRulesKernel<apriori, algorithmFPType, cpu>::genSubset(size_t tra
         }
 
         /* Increment counter for the subset if this subset exists
-           in hash tree C_tree */
+       in hash tree C_tree */
         iset = C_tree.hash_subset(iset_size, subset, &levelMiss);
         if (iset)
         {
@@ -324,7 +326,7 @@ void removeNodesWithSmallSupport(ItemSetList<cpu> & l, size_t support)
             auto next = cur->next();
             l.removeNode(cur, prev);
             cur = next;
-            //prev remains the same
+            // prev remains the same
         }
         else
         {
@@ -349,7 +351,8 @@ void AssociationRulesKernel<apriori, algorithmFPType, cpu>::prune(size_t imin_s,
                                                                   ItemSetList<cpu> * L, hash_tree<cpu> * C_tree)
 {
     size_t new_iset_size = iset_size + 1;
-    daal::tls<size_t *> tls([&]() -> size_t * // The functor to initialize a memory buffer
+    daal::tls<size_t *> tls([&]() -> size_t * // The functor to initialize a memory
+                                              // buffer
                             { return daal::services::internal::service_calloc<size_t, cpu>(2 * new_iset_size); });
 
     assocrules_transaction<cpu> ** large_tran = data.large_tran;
@@ -375,7 +378,8 @@ void AssociationRulesKernel<apriori, algorithmFPType, cpu>::prune(size_t imin_s,
         idx = nullptr;
     });
 
-    /* Remove candidates that has support less than mininmum support from hash tree */
+    /* Remove candidates that has support less than mininmum support from hash
+   * tree */
     for (size_t i = 0; i < C_tree->n_leaves; i++)
     {
         ItemSetList<cpu> & isetList = C_tree->leaves[i].iset_list;
@@ -414,16 +418,20 @@ void AssociationRulesKernel<apriori, algorithmFPType, cpu>::prune(size_t imin_s,
 }
 
 /**
- *  \brief Generate "large" item sets of size k+1 from "large" item sets of size k.
+ *  \brief Generate "large" item sets of size k+1 from "large" item sets of size
+ *k.
  *
  *  \param imin_s[in]      minimum support
- *  \param iset_size[in]   size of the "large" item sets generated on previous stage (k)
+ *  \param iset_size[in]   size of the "large" item sets generated on previous
+ *stage (k)
  *  \param data[in]        input data set
  *  \param L[out]          structure containing "large" item sets
  *  \param L_size[out]     size of the array L
- *  \param bFound[out]  flag. true,  if at least 2 "large" item sets of size k+1 were found;
+ *  \param bFound[out]  flag. true,  if at least 2 "large" item sets of size k+1
+ *were found;
  *                               false, otherwise
- *  \param s[out]       Status object that indicates the result of memory allocation
+ *  \param s[out]       Status object that indicates the result of memory
+ *allocation
  */
 template <typename algorithmFPType, CpuType cpu>
 hash_tree<cpu> * AssociationRulesKernel<apriori, algorithmFPType, cpu>::nextPass(size_t imin_s, size_t iset_size, assocrules_dataset<cpu> & data,

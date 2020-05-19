@@ -21,7 +21,7 @@
 //--
 */
 
-#include "svm_train_types.h"
+#include "algorithms/svm/svm_train_types.h"
 
 namespace daal
 {

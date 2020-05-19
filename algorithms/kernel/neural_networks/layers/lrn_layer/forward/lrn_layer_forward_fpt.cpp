@@ -21,11 +21,11 @@
 //--
 */
 
-#include "lrn_layer_forward_types.h"
-#include "lrn_layer_types.h"
+#include "algorithms/neural_networks/layers/lrn/lrn_layer_forward_types.h"
+#include "algorithms/neural_networks/layers/lrn/lrn_layer_types.h"
 
-#include "tensor.h"
-#include "service_mkl_tensor.h"
+#include "data_management/data/tensor.h"
+#include "service/kernel/data_management/service_mkl_tensor.h"
 
 namespace daal
 {

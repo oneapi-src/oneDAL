@@ -19,8 +19,8 @@
 //  Implementation of backward pooling layer container.
 //--
 
-#include "kernel.h"
-#include "neural_networks/layers/pooling2d/stochastic_pooling2d_layer.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/neural_networks/layers/pooling2d/stochastic_pooling2d_layer.h"
 
 namespace daal
 {

@@ -19,7 +19,7 @@
 
 #include "com_intel_daal_algorithms_elastic_net_training_Input.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::elastic_net;
@@ -29,8 +29,8 @@ using namespace daal::algorithms::elastic_net;
  * Method:    cSetInput
  * Signature:(JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_Input_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
-                                                                                            jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_Input_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id,
+                                                                                            jlong ntAddr)
 {
     jniInput<elastic_net::training::Input>::set<elastic_net::training::InputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -40,8 +40,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_Inpu
  * Method:    cGetInput
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_Input_cGetInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
-                                                                                             jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_Input_cGetInput(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id)
 {
     return jniInput<elastic_net::training::Input>::get<elastic_net::training::InputId, NumericTable>(inputAddr, id);
 }

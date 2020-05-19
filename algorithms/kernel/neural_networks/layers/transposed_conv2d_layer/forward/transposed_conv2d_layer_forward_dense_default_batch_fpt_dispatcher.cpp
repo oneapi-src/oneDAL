@@ -19,7 +19,7 @@
 //  Implementation of transposed convolution 2d calculation algorithm container.
 //--
 
-#include "transposed_conv2d_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/transposed_conv2d_layer/forward/transposed_conv2d_layer_forward_batch_container.h"
 
 namespace daal
 {

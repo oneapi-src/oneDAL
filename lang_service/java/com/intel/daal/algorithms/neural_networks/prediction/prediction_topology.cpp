@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::neural_networks;
@@ -30,8 +30,7 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cInit
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionTopology_cInit
-  (JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionTopology_cInit(JNIEnv * env, jobject thisObj)
 {
     return (jlong)(new prediction::TopologyPtr(new prediction::Topology()));
 }
@@ -41,10 +40,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_predicti
  * Method:    cSize
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionTopology_cSize
-  (JNIEnv *env, jobject thisObj, jlong addr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionTopology_cSize(JNIEnv * env, jobject thisObj, jlong addr)
 {
-    return (*(prediction::TopologyPtr*)addr)->size();
+    return (*(prediction::TopologyPtr *)addr)->size();
 }
 
 /*
@@ -52,11 +50,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_predicti
  * Method:    cGet
  * Signature: (JJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionTopology_cGet
-  (JNIEnv *env, jobject thisObj, jlong addr, jlong index)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionTopology_cGet(JNIEnv * env, jobject thisObj, jlong addr,
+                                                                                                           jlong index)
 {
-    const layers::forward::LayerDescriptor& desc = (*(prediction::TopologyPtr*)addr)->get((size_t)index);
-    layers::forward::LayerDescriptor *layerDescriptorPtr = new layers::forward::LayerDescriptor(desc);
+    const layers::forward::LayerDescriptor & desc         = (*(prediction::TopologyPtr *)addr)->get((size_t)index);
+    layers::forward::LayerDescriptor * layerDescriptorPtr = new layers::forward::LayerDescriptor(desc);
     return (jlong)layerDescriptorPtr;
 }
 
@@ -65,10 +63,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_predicti
  * Method:    cPushBack
  * Signature: (JJ)V
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionTopology_cPushBack
-(JNIEnv *env, jobject thisObj, jlong addr, jlong layerAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionTopology_cPushBack(JNIEnv * env, jobject thisObj,
+                                                                                                                jlong addr, jlong layerAddr)
 {
-    return (*(prediction::TopologyPtr*)addr)->add(*((layers::forward::LayerIfacePtr *)layerAddr));
+    return (*(prediction::TopologyPtr *)addr)->add(*((layers::forward::LayerIfacePtr *)layerAddr));
 }
 
 /*
@@ -76,8 +74,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_predicti
  * Method:    cDispose
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionTopology_cDispose
-  (JNIEnv *env, jobject thisObj, jlong addr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionTopology_cDispose(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong addr)
 {
     delete (prediction::TopologyPtr *)addr;
 }
@@ -87,8 +85,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_predictio
 * Method:    cAddNext
 * Signature: (JJJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionTopology_cAddNext
-(JNIEnv *, jobject, jlong addr, jlong index, jlong next)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionTopology_cAddNext(JNIEnv *, jobject, jlong addr,
+                                                                                                              jlong index, jlong next)
 {
-    (*(prediction::TopologyPtr*)addr)->get(index).addNext(next);
+    (*(prediction::TopologyPtr *)addr)->get(index).addNext(next);
 }

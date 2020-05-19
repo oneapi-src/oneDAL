@@ -19,7 +19,7 @@
 //  Implementation of locallyconnected2d calculation algorithm container.
 //--
 
-#include "locallyconnected2d_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/locallyconnected2d_layer/forward/locallyconnected2d_layer_forward_batch_container.h"
 
 namespace daal
 {

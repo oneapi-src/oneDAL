@@ -24,8 +24,8 @@
 #ifndef __SOFTMAX_LAYER_FORWARD_BATCH_CONTAINER_H__
 #define __SOFTMAX_LAYER_FORWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/softmax/softmax_layer.h"
-#include "softmax_layer_forward_kernel.h"
+#include "algorithms/neural_networks/layers/softmax/softmax_layer.h"
+#include "algorithms/kernel/neural_networks/layers/softmax_layer/forward/softmax_layer_forward_kernel.h"
 
 namespace daal
 {

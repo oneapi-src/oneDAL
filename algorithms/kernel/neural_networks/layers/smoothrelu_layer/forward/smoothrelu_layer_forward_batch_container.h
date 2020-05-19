@@ -24,8 +24,8 @@
 #ifndef __SMOOTHRELU_LAYER_FORWARD_BATCH_CONTAINER_H__
 #define __SMOOTHRELU_LAYER_FORWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/smoothrelu/smoothrelu_layer.h"
-#include "smoothrelu_layer_forward_kernel.h"
+#include "algorithms/neural_networks/layers/smoothrelu/smoothrelu_layer.h"
+#include "algorithms/kernel/neural_networks/layers/smoothrelu_layer/forward/smoothrelu_layer_forward_kernel.h"
 
 namespace daal
 {

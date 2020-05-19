@@ -21,10 +21,10 @@
 //--
 */
 
-#include "split_layer_forward_types.h"
-#include "split_layer_types.h"
+#include "algorithms/neural_networks/layers/split/split_layer_forward_types.h"
+#include "algorithms/neural_networks/layers/split/split_layer_types.h"
 
-#include "service_mkl_tensor.h"
+#include "service/kernel/data_management/service_mkl_tensor.h"
 
 namespace daal
 {

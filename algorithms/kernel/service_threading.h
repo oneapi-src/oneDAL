@@ -22,9 +22,9 @@
 */
 #ifndef __SERVICE_THREADING_H__
 #define __SERVICE_THREADING_H__
-#include "threading.h"
-#include "service_memory.h"
-#include "service_allocators.h"
+#include "algorithms/threading/threading.h"
+#include "externals/service_memory.h"
+#include "service/kernel/service_allocators.h"
 
 namespace daal
 {

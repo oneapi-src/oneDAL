@@ -24,9 +24,9 @@
 #ifndef __LBFGS_DENSE_DEFAULT_IMPL__
 #define __LBFGS_DENSE_DEFAULT_IMPL__
 
-#include "service_blas.h"
-#include "service_rng.h"
-#include "service_data_utils.h"
+#include "externals/service_blas.h"
+#include "externals/service_rng.h"
+#include "service/kernel/service_data_utils.h"
 
 using namespace daal::internal;
 using namespace daal::services;

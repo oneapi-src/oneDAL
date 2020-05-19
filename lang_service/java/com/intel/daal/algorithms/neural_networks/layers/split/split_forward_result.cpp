@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_neural_networks_layers_split_SplitForwardResultLayerDataId.h"
 #define valueCollectionId com_intel_daal_algorithms_neural_networks_layers_split_SplitForwardResultLayerDataId_valueCollectionId
@@ -33,8 +33,7 @@ using namespace daal::algorithms::neural_networks::layers::split;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitForwardResult_cNewResult
-  (JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitForwardResult_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<forward::Result>::newObj();
 }
@@ -44,8 +43,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cGetValue
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitForwardResult_cGetValue__JI
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitForwardResult_cGetValue__JI(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong resAddr, jint id)
 {
     if (id == valueCollectionId)
     {
@@ -60,8 +59,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cGetValue
  * Signature: (JIJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitForwardResult_cGetValue__JIJ
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong index)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitForwardResult_cGetValue__JIJ(JNIEnv * env, jobject thisObj,
+                                                                                                                       jlong resAddr, jint id,
+                                                                                                                       jlong index)
 {
     if (id == valueCollectionId)
     {
@@ -76,8 +76,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cSetValue
  * Signature: (JIJJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitForwardResult_cSetValue
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr, jlong index)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitForwardResult_cSetValue(JNIEnv * env, jobject thisObj,
+                                                                                                                 jlong resAddr, jint id, jlong ntAddr,
+                                                                                                                 jlong index)
 {
     if (id == valueCollectionId)
     {

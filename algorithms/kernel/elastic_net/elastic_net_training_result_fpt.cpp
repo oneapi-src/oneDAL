@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/elastic_net/elastic_net_training_types.h"
-#include "elastic_net_model_impl.h"
+#include "algorithms/kernel/elastic_net/elastic_net_model_impl.h"
 
 namespace daal
 {

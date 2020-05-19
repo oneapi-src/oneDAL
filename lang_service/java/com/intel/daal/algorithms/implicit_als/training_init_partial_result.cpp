@@ -21,9 +21,9 @@
 
 #include "com_intel_daal_algorithms_implicit_als_training_init_InitPartialResult.h"
 
-#include "implicit_als_init_defines.i"
+#include "lang_service/java/com/intel/daal/algorithms/implicit_als/implicit_als_init_defines.i"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::implicit_als::training::init;
@@ -33,8 +33,7 @@ using namespace daal::algorithms::implicit_als::training::init;
  * Method:    cNewPartialResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitPartialResult_cNewPartialResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitPartialResult_cNewPartialResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<implicit_als::training::init::PartialResult>::newObj();
 }
@@ -44,11 +43,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_in
  * Method:    cGetPartialResultModel
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitPartialResult_cGetPartialResultModel
-(JNIEnv *env, jobject thisObj, jlong partialResultAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitPartialResult_cGetPartialResultModel(JNIEnv * env,
+                                                                                                                            jobject thisObj,
+                                                                                                                            jlong partialResultAddr,
+                                                                                                                            jint id)
 {
-    return jniArgument<implicit_als::training::init::PartialResult>::
-        get<PartialResultId, implicit_als::PartialModel>(partialResultAddr, id);
+    return jniArgument<implicit_als::training::init::PartialResult>::get<PartialResultId, implicit_als::PartialModel>(partialResultAddr, id);
 }
 
 /*
@@ -56,11 +56,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_in
  * Method:    cSetPartialResultModel
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitPartialResult_cSetPartialResultModel
-(JNIEnv *env, jobject thisObj, jlong partialResultAddr, jint id, jlong mdlAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitPartialResult_cSetPartialResultModel(JNIEnv * env,
+                                                                                                                           jobject thisObj,
+                                                                                                                           jlong partialResultAddr,
+                                                                                                                           jint id, jlong mdlAddr)
 {
-    jniArgument<implicit_als::training::init::PartialResult>::
-        set<PartialResultId, implicit_als::PartialModel>(partialResultAddr, id, mdlAddr);
+    jniArgument<implicit_als::training::init::PartialResult>::set<PartialResultId, implicit_als::PartialModel>(partialResultAddr, id, mdlAddr);
 }
 
 /*
@@ -68,11 +69,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_ini
  * Method:    cGetPartialResultCollection
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitPartialResult_cGetPartialResultCollection
-(JNIEnv *env, jobject thisObj, jlong partialResultAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitPartialResult_cGetPartialResultCollection(
+    JNIEnv * env, jobject thisObj, jlong partialResultAddr, jint id)
 {
-    return jniArgument<implicit_als::training::init::PartialResult>::
-        get<PartialResultCollectionId, KeyValueDataCollection>(partialResultAddr, id);
+    return jniArgument<implicit_als::training::init::PartialResult>::get<PartialResultCollectionId, KeyValueDataCollection>(partialResultAddr, id);
 }
 
 /*
@@ -80,11 +80,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_in
  * Method:    cSetPartialResultCollection
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitPartialResult_cSetPartialResultCollection
-(JNIEnv *env, jobject thisObj, jlong partialResultAddr, jint id, jlong collectionAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitPartialResult_cSetPartialResultCollection(
+    JNIEnv * env, jobject thisObj, jlong partialResultAddr, jint id, jlong collectionAddr)
 {
-    jniArgument<implicit_als::training::init::PartialResult>::
-        set<PartialResultCollectionId, KeyValueDataCollection>(partialResultAddr, id, collectionAddr);
+    jniArgument<implicit_als::training::init::PartialResult>::set<PartialResultCollectionId, KeyValueDataCollection>(partialResultAddr, id,
+                                                                                                                     collectionAddr);
 }
 
 /*
@@ -92,9 +92,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_ini
  * Method:    cGetPartialResultTable
  * Signature: (JIJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitPartialResult_cGetPartialResultTable
-(JNIEnv *env, jobject thisObj, jlong partialResultAddr, jint id, jlong key)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitPartialResult_cGetPartialResultTable(JNIEnv * env,
+                                                                                                                            jobject thisObj,
+                                                                                                                            jlong partialResultAddr,
+                                                                                                                            jint id, jlong key)
 {
-    return jniArgument<implicit_als::training::init::PartialResult>::
-        get<PartialResultCollectionId, NumericTable>(partialResultAddr, id, key);
+    return jniArgument<implicit_als::training::init::PartialResult>::get<PartialResultCollectionId, NumericTable>(partialResultAddr, id, key);
 }

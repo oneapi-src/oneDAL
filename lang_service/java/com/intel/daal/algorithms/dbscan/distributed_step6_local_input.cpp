@@ -19,7 +19,7 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_dbscan_DistributedStep6LocalInput.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::dbscan;
@@ -29,8 +29,8 @@ using namespace daal::algorithms::dbscan;
 * Method:    cSetDataCollection
 * Signature:(JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep6LocalInput_cSetDataCollection
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong dcAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep6LocalInput_cSetDataCollection(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                           jint id, jlong dcAddr)
 {
     if (id == partialData || id == partialWeights)
     {
@@ -47,8 +47,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep6Loc
 * Method:    cAddNumericTable
 * Signature:(JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep6LocalInput_cAddNumericTable
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep6LocalInput_cAddNumericTable(JNIEnv *, jobject, jlong inputAddr, jint id,
+                                                                                                         jlong ntAddr)
 {
     if (id == partialData || id == partialWeights)
     {
@@ -65,8 +65,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep6Loc
 * Method:    cGetDataCollection
 * Signature:(JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep6LocalInput_cGetDataCollection
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep6LocalInput_cGetDataCollection(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                            jint id)
 {
     if (id == partialData || id == partialWeights)
     {

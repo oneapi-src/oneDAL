@@ -24,8 +24,8 @@
 #ifndef __LOGISTIC_BATCH_CONTAINER_H__
 #define __LOGISTIC_BATCH_CONTAINER_H__
 
-#include "math/logistic.h"
-#include "logistic_kernel.h"
+#include "algorithms/math/logistic.h"
+#include "algorithms/kernel/math/logistic/logistic_kernel.h"
 
 namespace daal
 {

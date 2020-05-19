@@ -24,8 +24,8 @@
 #ifndef __PRELU_LAYER_BACKWARD_BATCH_CONTAINER_H__
 #define __PRELU_LAYER_BACKWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/prelu/prelu_layer.h"
-#include "prelu_layer_backward_kernel.h"
+#include "algorithms/neural_networks/layers/prelu/prelu_layer.h"
+#include "algorithms/kernel/neural_networks/layers/prelu_layer/backward/prelu_layer_backward_kernel.h"
 
 namespace daal
 {

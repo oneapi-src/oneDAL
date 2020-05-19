@@ -18,13 +18,12 @@
 #include <jni.h>
 #include "daal.h"
 #include "com_intel_daal_algorithms_kmeans_init_InitResult.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::kmeans::init;
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitResult_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitResult_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<kmeans::init::Result>::newObj();
 }
@@ -34,8 +33,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitResult_cN
  * Method:    cGetResultTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitResult_cGetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitResult_cGetResultTable(JNIEnv * env, jobject thisObj, jlong resAddr, jint id)
 {
     return jniArgument<kmeans::init::Result>::get<kmeans::init::ResultId, NumericTable>(resAddr, id);
 }
@@ -45,8 +43,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitResult_cG
  * Method:    cSetResultTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitResult_cSetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitResult_cSetResultTable(JNIEnv * env, jobject thisObj, jlong resAddr, jint id,
+                                                                                             jlong ntAddr)
 {
     jniArgument<kmeans::init::Result>::set<kmeans::init::ResultId, NumericTable>(resAddr, id, ntAddr);
 }

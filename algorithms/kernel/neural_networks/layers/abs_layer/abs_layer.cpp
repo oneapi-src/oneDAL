@@ -21,7 +21,7 @@
 //--
 */
 
-#include "abs_layer_types.h"
+#include "algorithms/neural_networks/layers/abs/abs_layer_types.h"
 
 namespace daal
 {

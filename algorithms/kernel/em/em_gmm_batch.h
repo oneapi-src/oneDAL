@@ -24,7 +24,7 @@
 #ifndef __EM_BATCH_
 #define __EM_BATCH_
 
-#include "em_gmm_types.h"
+#include "algorithms/em/em_gmm_types.h"
 
 using namespace daal::data_management;
 

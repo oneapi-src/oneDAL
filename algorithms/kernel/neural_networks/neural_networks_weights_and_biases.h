@@ -24,9 +24,9 @@
 #ifndef __NEURAL_NETWORKS_WEIGHTS_AND_BIASES_H__
 #define __NEURAL_NETWORKS_WEIGHTS_AND_BIASES_H__
 
-#include "neural_networks_learnable_parameters.h"
-#include "service_tensor.h"
-#include "service_numeric_table.h"
+#include "algorithms/neural_networks/neural_networks_learnable_parameters.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 namespace daal
 {

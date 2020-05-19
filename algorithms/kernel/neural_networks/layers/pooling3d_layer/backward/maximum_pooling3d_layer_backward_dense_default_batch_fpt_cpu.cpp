@@ -19,9 +19,9 @@
 //  Implementation of backward pooling layer.
 //--
 
-#include "maximum_pooling3d_layer_backward_batch_container.h"
-#include "maximum_pooling3d_layer_backward_kernel.h"
-#include "maximum_pooling3d_layer_backward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/pooling3d_layer/backward/maximum_pooling3d_layer_backward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/pooling3d_layer/backward/maximum_pooling3d_layer_backward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/pooling3d_layer/backward/maximum_pooling3d_layer_backward_impl.i"
 
 namespace daal
 {

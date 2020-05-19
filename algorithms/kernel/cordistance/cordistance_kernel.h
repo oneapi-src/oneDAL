@@ -24,9 +24,9 @@
 #ifndef __CORDISTANCE_KERNEL_H__
 #define __CORDISTANCE_KERNEL_H__
 
-#include "correlation_distance.h"
-#include "kernel.h"
-#include "numeric_table.h"
+#include "algorithms/distance/correlation_distance.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;
 

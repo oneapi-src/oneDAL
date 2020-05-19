@@ -21,10 +21,10 @@
 //--
 */
 
-#include "engines/mcg59/mcg59.h"
-#include "engine_batch_impl.h"
-#include "service_rng.h"
-#include "service_numeric_table.h"
+#include "algorithms/engines/mcg59/mcg59.h"
+#include "algorithms/kernel/engines/engine_batch_impl.h"
+#include "externals/service_rng.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 static const int leapfrogMethodErrcode  = -1002;
 static const int skipAheadMethodErrcode = -1003;

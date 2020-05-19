@@ -25,8 +25,7 @@
  * Method:    cDispose
  * Signature:(J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_Input_cCheck
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jlong parAddr, jint method)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_Input_cCheck(JNIEnv * env, jobject thisObj, jlong inputAddr, jlong parAddr, jint method)
 {
-    ((daal::algorithms::Input *)inputAddr)->check((daal::algorithms::Parameter*)parAddr,method);
+    ((daal::algorithms::Input *)inputAddr)->check((daal::algorithms::Parameter *)parAddr, method);
 }

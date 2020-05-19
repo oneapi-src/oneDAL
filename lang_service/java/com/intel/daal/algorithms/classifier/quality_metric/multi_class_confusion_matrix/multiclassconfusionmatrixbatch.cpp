@@ -20,7 +20,7 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_classifier_quality_metric_multi_class_confusion_matrix_MultiClassConfusionMatrixBatch.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::classifier::quality_metric::multiclass_confusion_matrix;
@@ -31,9 +31,10 @@ using namespace daal::algorithms::classifier::quality_metric;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong
- JNICALL Java_com_intel_daal_algorithms_classifier_quality_1metric_multi_1class_1confusion_1matrix_MultiClassConfusionMatrixBatch_cInit
-  (JNIEnv *, jobject, jint prec, jint method)
+JNIEXPORT jlong JNICALL
+    Java_com_intel_daal_algorithms_classifier_quality_1metric_multi_1class_1confusion_1matrix_MultiClassConfusionMatrixBatch_cInit(JNIEnv *, jobject,
+                                                                                                                                   jint prec,
+                                                                                                                                   jint method)
 {
     return jniBatch<multiclass_confusion_matrix::Method, Batch, defaultDense>::newObj(prec, method);
 }
@@ -42,12 +43,12 @@ JNIEXPORT jlong
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void
- JNICALL Java_com_intel_daal_algorithms_classifier_quality_1metric_multi_1class_1confusion_1matrix_MultiClassConfusionMatrixBatch_cSetResult
-  (JNIEnv *, jobject, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL
+    Java_com_intel_daal_algorithms_classifier_quality_1metric_multi_1class_1confusion_1matrix_MultiClassConfusionMatrixBatch_cSetResult(
+        JNIEnv *, jobject, jlong algAddr, jint prec, jint method, jlong resultAddr)
 {
-    jniBatch<multiclass_confusion_matrix::Method, Batch, defaultDense>::
-        setResult<multiclass_confusion_matrix::Result>(prec, method, algAddr, resultAddr);
+    jniBatch<multiclass_confusion_matrix::Method, Batch, defaultDense>::setResult<multiclass_confusion_matrix::Result>(prec, method, algAddr,
+                                                                                                                       resultAddr);
 }
 
 /*
@@ -55,9 +56,9 @@ JNIEXPORT void
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong
- JNICALL Java_com_intel_daal_algorithms_classifier_quality_1metric_multi_1class_1confusion_1matrix_MultiClassConfusionMatrixBatch_cInitParameter
-  (JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL
+    Java_com_intel_daal_algorithms_classifier_quality_1metric_multi_1class_1confusion_1matrix_MultiClassConfusionMatrixBatch_cInitParameter(
+        JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<multiclass_confusion_matrix::Method, Batch, defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -67,9 +68,9 @@ JNIEXPORT jlong
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong
- JNICALL Java_com_intel_daal_algorithms_classifier_quality_1metric_multi_1class_1confusion_1matrix_MultiClassConfusionMatrixBatch_cGetInput
-  (JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL
+    Java_com_intel_daal_algorithms_classifier_quality_1metric_multi_1class_1confusion_1matrix_MultiClassConfusionMatrixBatch_cGetInput(
+        JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<multiclass_confusion_matrix::Method, Batch, defaultDense>::getInput(prec, method, algAddr);
 }
@@ -79,9 +80,9 @@ JNIEXPORT jlong
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong
- JNICALL Java_com_intel_daal_algorithms_classifier_quality_1metric_multi_1class_1confusion_1matrix_MultiClassConfusionMatrixBatch_cGetResult
-  (JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL
+    Java_com_intel_daal_algorithms_classifier_quality_1metric_multi_1class_1confusion_1matrix_MultiClassConfusionMatrixBatch_cGetResult(
+        JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<multiclass_confusion_matrix::Method, Batch, defaultDense>::getResult(prec, method, algAddr);
 }
@@ -91,9 +92,11 @@ JNIEXPORT jlong
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong
- JNICALL Java_com_intel_daal_algorithms_classifier_quality_1metric_multi_1class_1confusion_1matrix_MultiClassConfusionMatrixBatch_cClone
-  (JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL
+    Java_com_intel_daal_algorithms_classifier_quality_1metric_multi_1class_1confusion_1matrix_MultiClassConfusionMatrixBatch_cClone(JNIEnv *, jobject,
+                                                                                                                                    jlong algAddr,
+                                                                                                                                    jint prec,
+                                                                                                                                    jint method)
 {
     return jniBatch<multiclass_confusion_matrix::Method, Batch, defaultDense>::getClone(prec, method, algAddr);
 }

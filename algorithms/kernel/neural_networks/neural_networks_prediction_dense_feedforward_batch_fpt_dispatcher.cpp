@@ -19,7 +19,7 @@
 //  Implementation of neural networks algorithm container.
 //--
 
-#include "neural_networks_prediction_batch_container.h"
+#include "algorithms/kernel/neural_networks/neural_networks_prediction_batch_container.h"
 
 namespace daal
 {

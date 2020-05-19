@@ -20,11 +20,11 @@
 
 #include "daal.h"
 #include "com_intel_daal_algorithms_decision_tree_classification_Parameter.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 
-namespace dt = decision_tree;
+namespace dt  = decision_tree;
 namespace dtc = decision_tree::classification;
 
 /*
@@ -32,10 +32,10 @@ namespace dtc = decision_tree::classification;
 * Method:    cGetPruning
 * Signature: (J)I
 */
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_decision_1tree_classification_Parameter_cGetPruning
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_decision_1tree_classification_Parameter_cGetPruning(JNIEnv * env, jobject thisObj,
+                                                                                                          jlong parAddr)
 {
-    return(jlong)(*(dtc::Parameter *)parAddr).pruning;
+    return (jlong)(*(dtc::Parameter *)parAddr).pruning;
 }
 
 /*
@@ -43,8 +43,8 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_decision_1tree_classificat
 * Method:    cSetPruning
 * Signature: (JI)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_classification_Parameter_cSetPruning
-(JNIEnv *env, jobject thisObj, jlong parAddr, jint value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_classification_Parameter_cSetPruning(JNIEnv * env, jobject thisObj,
+                                                                                                          jlong parAddr, jint value)
 {
     (*(dtc::Parameter *)parAddr).pruning = (dt::Pruning)value;
 }
@@ -54,10 +54,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_classificat
 * Method:    cGetMaxTreeDepth
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_classification_Parameter_cGetMaxTreeDepth
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_classification_Parameter_cGetMaxTreeDepth(JNIEnv * env, jobject thisObj,
+                                                                                                                jlong parAddr)
 {
-    return(jlong)(*(dtc::Parameter *)parAddr).maxTreeDepth;
+    return (jlong)(*(dtc::Parameter *)parAddr).maxTreeDepth;
 }
 
 /*
@@ -65,8 +65,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_classifica
 * Method:    cSetMaxTreeDepth
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_classification_Parameter_cSetMaxTreeDepth
-(JNIEnv *env, jobject thisObj, jlong parAddr, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_classification_Parameter_cSetMaxTreeDepth(JNIEnv * env, jobject thisObj,
+                                                                                                               jlong parAddr, jlong value)
 {
     (*(dtc::Parameter *)parAddr).maxTreeDepth = (size_t)value;
 }
@@ -76,10 +76,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_classificat
 * Method:    cGetMinObservationsInLeafNodes
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_classification_Parameter_cGetMinObservationsInLeafNodes
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_classification_Parameter_cGetMinObservationsInLeafNodes(JNIEnv * env,
+                                                                                                                              jobject thisObj,
+                                                                                                                              jlong parAddr)
 {
-    return(jlong)(*(dtc::Parameter *)parAddr).minObservationsInLeafNodes;
+    return (jlong)(*(dtc::Parameter *)parAddr).minObservationsInLeafNodes;
 }
 
 /*
@@ -87,8 +88,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_classifica
 * Method:    cSetMinObservationsInLeafNodes
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_classification_Parameter_cSetMinObservationsInLeafNodes
-(JNIEnv *env, jobject thisObj, jlong parAddr, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_classification_Parameter_cSetMinObservationsInLeafNodes(JNIEnv * env,
+                                                                                                                             jobject thisObj,
+                                                                                                                             jlong parAddr,
+                                                                                                                             jlong value)
 {
     (*(dtc::Parameter *)parAddr).minObservationsInLeafNodes = (size_t)value;
 }
@@ -98,10 +101,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_classificat
 * Method:    cGetSplitCriterion
 * Signature: (J)I
 */
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_decision_1tree_classification_Parameter_cGetSplitCriterion
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_decision_1tree_classification_Parameter_cGetSplitCriterion(JNIEnv * env, jobject thisObj,
+                                                                                                                 jlong parAddr)
 {
-    return(jlong)(*(dtc::Parameter *)parAddr).splitCriterion;
+    return (jlong)(*(dtc::Parameter *)parAddr).splitCriterion;
 }
 
 /*
@@ -109,8 +112,8 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_decision_1tree_classificat
 * Method:    cSetSplitCriterion
 * Signature: (JI)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_classification_Parameter_cSetSplitCriterion
-(JNIEnv *env, jobject thisObj, jlong parAddr, jint value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_classification_Parameter_cSetSplitCriterion(JNIEnv * env, jobject thisObj,
+                                                                                                                 jlong parAddr, jint value)
 {
     (*(dtc::Parameter *)parAddr).splitCriterion = (dtc::SplitCriterion)value;
 }

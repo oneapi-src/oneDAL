@@ -19,31 +19,33 @@
 
 #include "daal.h"
 #include "com_intel_daal_algorithms_stump_classification_prediction_PredictionBatch.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::stump::classification::prediction;
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_classification_prediction_PredictionBatch_cInit__II
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_classification_prediction_PredictionBatch_cInit__II(JNIEnv * env, jobject thisObj,
+                                                                                                                 jint prec, jint method)
 {
     return jniBatch<stump::classification::prediction::Method, Batch, defaultDense>::newObj(prec, method);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_classification_prediction_PredictionBatch_cInit__IIJ
-(JNIEnv *env, jobject thisObj, jint prec, jint method, jlong nClasses)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_classification_prediction_PredictionBatch_cInit__IIJ(JNIEnv * env, jobject thisObj,
+                                                                                                                  jint prec, jint method,
+                                                                                                                  jlong nClasses)
 {
     return jniBatch<stump::classification::prediction::Method, Batch, defaultDense>::newObj(prec, method, (size_t)nClasses);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_classification_prediction_PredictionBatch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_classification_prediction_PredictionBatch_cInitParameter(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong algAddr, jint prec,
+                                                                                                                      jint method)
 {
     return jniBatch<stump::classification::prediction::Method, Batch, defaultDense>::getParameter(prec, method, algAddr);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_classification_prediction_PredictionBatch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_classification_prediction_PredictionBatch_cClone(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong algAddr, jint prec, jint method)
 {
     return jniBatch<stump::classification::prediction::Method, Batch, defaultDense>::getClone(prec, method, algAddr);
 }

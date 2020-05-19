@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::neural_networks::layers;
@@ -30,11 +30,10 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_prelu_PreluBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_prelu_PreluBatch_cInit(JNIEnv * env, jobject thisObj, jint prec,
+                                                                                                      jint method)
 {
-    return jniBatchLayer<prelu::Method, prelu::Batch, prelu::defaultDense>::
-           newObj(prec, method);
+    return jniBatchLayer<prelu::Method, prelu::Batch, prelu::defaultDense>::newObj(prec, method);
 }
 
 /*
@@ -42,11 +41,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_p
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_prelu_PreluBatch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_prelu_PreluBatch_cInitParameter(JNIEnv * env, jobject thisObj,
+                                                                                                               jlong algAddr, jint prec, jint method)
 {
-    return jniBatchLayer<prelu::Method, prelu::Batch, prelu::defaultDense>::
-           getParameter(prec, method, algAddr);
+    return jniBatchLayer<prelu::Method, prelu::Batch, prelu::defaultDense>::getParameter(prec, method, algAddr);
 }
 
 /*
@@ -54,11 +52,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_p
  * Method:    cGetForwardLayer
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_prelu_PreluBatch_cGetForwardLayer
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_prelu_PreluBatch_cGetForwardLayer(JNIEnv * env, jobject thisObj,
+                                                                                                                 jlong algAddr, jint prec,
+                                                                                                                 jint method)
 {
-    return jniBatchLayer<prelu::Method, prelu::Batch, prelu::defaultDense>::
-           getForwardLayer(prec, method, algAddr);
+    return jniBatchLayer<prelu::Method, prelu::Batch, prelu::defaultDense>::getForwardLayer(prec, method, algAddr);
 }
 
 /*
@@ -66,9 +64,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_p
  * Method:    cGetBackwardLayer
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_prelu_PreluBatch_cGetBackwardLayer
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_prelu_PreluBatch_cGetBackwardLayer(JNIEnv * env, jobject thisObj,
+                                                                                                                  jlong algAddr, jint prec,
+                                                                                                                  jint method)
 {
-    return jniBatchLayer<prelu::Method, prelu::Batch, prelu::defaultDense>::
-           getBackwardLayer(prec, method, algAddr);
+    return jniBatchLayer<prelu::Method, prelu::Batch, prelu::defaultDense>::getBackwardLayer(prec, method, algAddr);
 }

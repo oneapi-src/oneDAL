@@ -25,14 +25,14 @@
 #ifndef __LOGISTIC_REGRESSION_TRAIN_DENSE_DEFAULT_IMPL_I__
 #define __LOGISTIC_REGRESSION_TRAIN_DENSE_DEFAULT_IMPL_I__
 
-#include "logistic_regression_train_kernel.h"
-#include "logistic_regression_model_impl.h"
-#include "service_error_handling.h"
-#include "service_algo_utils.h"
+#include "algorithms/kernel/logistic_regression/logistic_regression_train_kernel.h"
+#include "algorithms/kernel/logistic_regression/logistic_regression_model_impl.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "service/kernel/service_algo_utils.h"
 #include "algorithms/optimization_solver/objective_function/logistic_loss_batch.h"
 #include "algorithms/optimization_solver/objective_function/cross_entropy_loss_batch.h"
-#include "service_numeric_table.h"
-#include "service_math.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_math.h"
 
 using namespace daal::algorithms::logistic_regression::training::internal;
 using namespace daal::algorithms::optimization_solver;

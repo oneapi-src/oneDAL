@@ -21,8 +21,8 @@
 //--
 */
 
-#include "spatial_maximum_pooling2d_layer_types.h"
-#include "spatial_maximum_pooling2d_layer_forward_types.h"
+#include "algorithms/neural_networks/layers/spatial_pooling2d/spatial_maximum_pooling2d_layer_types.h"
+#include "algorithms/neural_networks/layers/spatial_pooling2d/spatial_maximum_pooling2d_layer_forward_types.h"
 
 namespace daal
 {

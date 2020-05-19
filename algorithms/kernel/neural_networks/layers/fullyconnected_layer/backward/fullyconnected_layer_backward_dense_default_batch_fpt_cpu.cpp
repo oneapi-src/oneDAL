@@ -19,9 +19,9 @@
 //  Implementation of fullyconnected calculation functions.
 //--
 
-#include "fullyconnected_layer_backward_batch_container.h"
-#include "fullyconnected_layer_backward_kernel.h"
-#include "fullyconnected_layer_backward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/fullyconnected_layer/backward/fullyconnected_layer_backward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/fullyconnected_layer/backward/fullyconnected_layer_backward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/fullyconnected_layer/backward/fullyconnected_layer_backward_impl.i"
 
 namespace daal
 {

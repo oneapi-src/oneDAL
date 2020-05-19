@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::neural_networks;
@@ -30,11 +30,11 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_uniform_UniformBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method, jdouble a, jdouble b)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_uniform_UniformBatch_cInit(JNIEnv * env, jobject thisObj,
+                                                                                                                jint prec, jint method, jdouble a,
+                                                                                                                jdouble b)
 {
-    return jniBatch<initializers::uniform::Method, initializers::uniform::Batch, initializers::uniform::defaultDense>::newObj(
-               prec, method, a, b);
+    return jniBatch<initializers::uniform::Method, initializers::uniform::Batch, initializers::uniform::defaultDense>::newObj(prec, method, a, b);
 }
 
 /*
@@ -42,11 +42,13 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initiali
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_uniform_UniformBatch_cInitParameter
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_uniform_UniformBatch_cInitParameter(JNIEnv * env,
+                                                                                                                         jobject thisObj,
+                                                                                                                         jlong algAddr, jint prec,
+                                                                                                                         jint method)
 {
-    return jniBatch<initializers::uniform::Method, initializers::uniform::Batch, initializers::uniform::defaultDense>::getParameter(
-        prec, method, algAddr);
+    return jniBatch<initializers::uniform::Method, initializers::uniform::Batch, initializers::uniform::defaultDense>::getParameter(prec, method,
+                                                                                                                                    algAddr);
 }
 
 /*
@@ -54,11 +56,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initiali
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_uniform_UniformBatch_cGetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_uniform_UniformBatch_cGetResult(JNIEnv * env, jobject thisObj,
+                                                                                                                     jlong algAddr, jint prec,
+                                                                                                                     jint method)
 {
-    return jniBatch<initializers::uniform::Method, initializers::uniform::Batch, initializers::uniform::defaultDense>::getResult(
-        prec, method, algAddr);
+    return jniBatch<initializers::uniform::Method, initializers::uniform::Batch, initializers::uniform::defaultDense>::getResult(prec, method,
+                                                                                                                                 algAddr);
 }
 
 /*
@@ -66,9 +69,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initiali
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_uniform_UniformBatch_cClone
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_uniform_UniformBatch_cClone(JNIEnv * env, jobject thisObj,
+                                                                                                                 jlong algAddr, jint prec,
+                                                                                                                 jint method)
 {
-    return jniBatch<initializers::uniform::Method, initializers::uniform::Batch, initializers::uniform::defaultDense>::getClone(
-        prec, method, algAddr);
+    return jniBatch<initializers::uniform::Method, initializers::uniform::Batch, initializers::uniform::defaultDense>::getClone(prec, method,
+                                                                                                                                algAddr);
 }

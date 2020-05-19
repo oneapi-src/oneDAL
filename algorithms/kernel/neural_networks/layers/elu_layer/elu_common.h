@@ -20,11 +20,11 @@
 
 #include <stdint.h>
 
-#include "kernel.h"
-#include "threading.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/threading/threading.h"
 
-#include "service_unique_ptr.h"
-#include "service_mkl_tensor.h"
+#include "service/kernel/service_unique_ptr.h"
+#include "service/kernel/data_management/service_mkl_tensor.h"
 
 namespace daal
 {

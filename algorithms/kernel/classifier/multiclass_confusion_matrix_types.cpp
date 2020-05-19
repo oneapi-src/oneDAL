@@ -21,9 +21,9 @@
 //--
 */
 
-#include "multiclass_confusion_matrix_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/classifier/multiclass_confusion_matrix_types.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -53,7 +53,8 @@ Status Parameter::check() const
 Input::Input() : daal::algorithms::Input(lastInputId + 1) {}
 
 /**
- * Returns the input object of the quality metric of the classification algorithm
+ * Returns the input object of the quality metric of the classification
+ * algorithm
  * \param[in] id   Identifier of the input object, \ref InputId
  * \return         Input object that corresponds to the given identifier
  */

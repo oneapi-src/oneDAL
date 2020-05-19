@@ -20,14 +20,14 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_classifier_training_TrainingResultId.h"
 #include "com_intel_daal_algorithms_stump_classification_training_TrainingResult.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 using namespace daal;
 using namespace daal::algorithms;
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_classification_training_TrainingResult_cGetModel
-(JNIEnv *env, jobject, jlong self, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_classification_training_TrainingResult_cGetModel(JNIEnv * env, jobject, jlong self,
+                                                                                                              jint id)
 {
-    return jniArgument<stump::classification::training::Result>
-        ::get<classifier::training::ResultId, stump::classification::Model>(self, classifier::training::model);
+    return jniArgument<stump::classification::training::Result>::get<classifier::training::ResultId, stump::classification::Model>(
+        self, classifier::training::model);
 }

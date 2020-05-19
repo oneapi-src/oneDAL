@@ -21,7 +21,7 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_multinomial_naive_bayes_prediction_PredictionBatch.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::multinomial_naive_bayes::prediction;
@@ -31,14 +31,17 @@ using namespace daal::algorithms::multinomial_naive_bayes::prediction;
 * Method:    cInit
 * Signature: (IIJ)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_prediction_PredictionBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method, jlong nClasses)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_prediction_PredictionBatch_cInit(JNIEnv * env, jobject thisObj,
+                                                                                                                  jint prec, jint method,
+                                                                                                                  jlong nClasses)
 {
     return jniBatch<multinomial_naive_bayes::prediction::Method, Batch, defaultDense, fastCSR>::newObj(prec, method, nClasses);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_prediction_PredictionBatch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_prediction_PredictionBatch_cInitParameter(JNIEnv * env,
+                                                                                                                           jobject thisObj,
+                                                                                                                           jlong algAddr, jint prec,
+                                                                                                                           jint method)
 {
     return jniBatch<multinomial_naive_bayes::prediction::Method, Batch, defaultDense, fastCSR>::getParameter(prec, method, algAddr);
 }
@@ -48,11 +51,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_prediction_PredictionBatch_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_prediction_PredictionBatch_cSetResult(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong algAddr, jint prec,
+                                                                                                                      jint method, jlong resultAddr)
 {
-    jniBatch<multinomial_naive_bayes::prediction::Method, Batch, defaultDense, fastCSR>::
-        setResult<classifier::prediction::Result>(prec, method, algAddr, resultAddr);
+    jniBatch<multinomial_naive_bayes::prediction::Method, Batch, defaultDense, fastCSR>::setResult<classifier::prediction::Result>(
+        prec, method, algAddr, resultAddr);
 }
 
 /*
@@ -60,8 +64,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_prediction_PredictionBatch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_prediction_PredictionBatch_cClone(JNIEnv * env, jobject thisObj,
+                                                                                                                   jlong algAddr, jint prec,
+                                                                                                                   jint method)
 {
     return jniBatch<multinomial_naive_bayes::prediction::Method, Batch, defaultDense, fastCSR>::getClone(prec, method, algAddr);
 }

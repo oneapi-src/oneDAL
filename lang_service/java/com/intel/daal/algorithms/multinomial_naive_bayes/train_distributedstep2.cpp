@@ -22,7 +22,7 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_multinomial_naive_bayes_training_TrainingDistributedStep2Master.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::multinomial_naive_bayes::training;
@@ -32,8 +32,10 @@ using namespace daal::algorithms::multinomial_naive_bayes::training;
  * Method:    cInit
  * Signature: (IIJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingDistributedStep2Master_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method, jlong nClasses)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingDistributedStep2Master_cInit(JNIEnv * env,
+                                                                                                                               jobject thisObj,
+                                                                                                                               jint prec, jint method,
+                                                                                                                               jlong nClasses)
 {
     return jniDistributed<step2Master, multinomial_naive_bayes::training::Method, Distributed, defaultDense, fastCSR>::newObj(prec, method, nClasses);
 }
@@ -43,11 +45,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingDistributedStep2Master_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingDistributedStep2Master_cGetInput(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniDistributed<step2Master, multinomial_naive_bayes::training::Method, Distributed, defaultDense, fastCSR>::
-        getInput(prec, method, algAddr);
+    return jniDistributed<step2Master, multinomial_naive_bayes::training::Method, Distributed, defaultDense, fastCSR>::getInput(prec, method,
+                                                                                                                                algAddr);
 }
 
 /*
@@ -55,11 +57,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingDistributedStep2Master_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingDistributedStep2Master_cInitParameter(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniDistributed<step2Master, multinomial_naive_bayes::training::Method, Distributed, defaultDense, fastCSR>::
-        getParameter(prec, method, algAddr);
+    return jniDistributed<step2Master, multinomial_naive_bayes::training::Method, Distributed, defaultDense, fastCSR>::getParameter(prec, method,
+                                                                                                                                    algAddr);
 }
 
 /*
@@ -67,19 +69,18 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingDistributedStep2Master_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingDistributedStep2Master_cGetResult(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniDistributed<step2Master, multinomial_naive_bayes::training::Method, Distributed, defaultDense, fastCSR>::
-        getResult(prec, method, algAddr);
+    return jniDistributed<step2Master, multinomial_naive_bayes::training::Method, Distributed, defaultDense, fastCSR>::getResult(prec, method,
+                                                                                                                                 algAddr);
 }
 
-
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingDistributedStep2Master_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong cObj)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingDistributedStep2Master_cGetResult(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong cObj)
 {
-    jniDistributed<step2Master, multinomial_naive_bayes::training::Method, Distributed, defaultDense, fastCSR>::
-        setResult<multinomial_naive_bayes::training::Result>(prec, method, algAddr, cObj);
+    jniDistributed<step2Master, multinomial_naive_bayes::training::Method, Distributed, defaultDense,
+                   fastCSR>::setResult<multinomial_naive_bayes::training::Result>(prec, method, algAddr, cObj);
 }
 
 /*
@@ -87,18 +88,18 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_
  * Method:    cGetPartialResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingDistributedStep2Master_cGetPartialResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingDistributedStep2Master_cGetPartialResult(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniDistributed<step2Master, multinomial_naive_bayes::training::Method, Distributed, defaultDense, fastCSR>::
-        getPartialResult(prec, method, algAddr);
+    return jniDistributed<step2Master, multinomial_naive_bayes::training::Method, Distributed, defaultDense, fastCSR>::getPartialResult(prec, method,
+                                                                                                                                        algAddr);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingDistributedStep2Master_cGetPartialResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong cObj)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingDistributedStep2Master_cGetPartialResult(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong cObj)
 {
-    jniDistributed<step2Master, multinomial_naive_bayes::training::Method, Distributed, defaultDense, fastCSR>::
-        setPartialResult<multinomial_naive_bayes::training::PartialResult>(prec, method, algAddr, cObj);
+    jniDistributed<step2Master, multinomial_naive_bayes::training::Method, Distributed, defaultDense,
+                   fastCSR>::setPartialResult<multinomial_naive_bayes::training::PartialResult>(prec, method, algAddr, cObj);
 }
 
 /*
@@ -106,9 +107,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingDistributedStep2Master_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingDistributedStep2Master_cClone(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniDistributed<step2Master, multinomial_naive_bayes::training::Method, Distributed, defaultDense, fastCSR>::
-        getClone(prec, method, algAddr);
+    return jniDistributed<step2Master, multinomial_naive_bayes::training::Method, Distributed, defaultDense, fastCSR>::getClone(prec, method,
+                                                                                                                                algAddr);
 }

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithm_quality_metric_set_types.h"
+#include "algorithms/algorithm_quality_metric_set_types.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -45,7 +45,8 @@ InputAlgorithmsCollection::~InputAlgorithmsCollection()
 }
 
 /**
- * Returns a reference to SharedPtr for a stored object with a given key if an object with such key is registered
+ * Returns a reference to SharedPtr for a stored object with a given key if an
+ * object with such key is registered
  * \param[in] k     Key value
  * \return Reference to SharedPtr of the quality_metric::Batch type
  */
@@ -63,8 +64,10 @@ const services::SharedPtr<quality_metric::Batch> & InputAlgorithmsCollection::op
 }
 
 /**
- * Returns a reference to SharedPtr for a stored object with a given key if an object with such key is registered.
- * Otherwise, creates an empty SharedPtr and stores it under the requested key and returns a reference for this value
+ * Returns a reference to SharedPtr for a stored object with a given key if an
+ * object with such key is registered.
+ * Otherwise, creates an empty SharedPtr and stores it under the requested key
+ * and returns a reference for this value
  * \param[in] k     Key value
  * \return Reference to SharedPtr of the quality_metric::Batch type
  */

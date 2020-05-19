@@ -24,9 +24,9 @@
 #ifndef __IMPLICIT_ALS_TRAIN_CONTAINER_H__
 #define __IMPLICIT_ALS_TRAIN_CONTAINER_H__
 
-#include "implicit_als_training_batch.h"
-#include "implicit_als_training_distributed.h"
-#include "implicit_als_train_kernel.h"
+#include "algorithms/implicit_als/implicit_als_training_batch.h"
+#include "algorithms/implicit_als/implicit_als_training_distributed.h"
+#include "algorithms/kernel/implicit_als/implicit_als_train_kernel.h"
 
 namespace daal
 {

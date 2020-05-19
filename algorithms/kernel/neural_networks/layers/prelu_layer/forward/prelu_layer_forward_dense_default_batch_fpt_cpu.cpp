@@ -19,9 +19,9 @@
 //  Implementation of prelu calculation functions.
 //--
 
-#include "prelu_layer_forward_batch_container.h"
-#include "prelu_layer_forward_kernel.h"
-#include "prelu_layer_forward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/prelu_layer/forward/prelu_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/prelu_layer/forward/prelu_layer_forward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/prelu_layer/forward/prelu_layer_forward_impl.i"
 
 namespace daal
 {

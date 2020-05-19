@@ -23,7 +23,7 @@
 #include "com_intel_daal_algorithms_pca_Method.h"
 #include "com_intel_daal_algorithms_pca_DistributedStep2MasterInput.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #define CorrelationDenseValue com_intel_daal_algorithms_pca_Method_correlationDenseValue
 #define SVDDenseValue         com_intel_daal_algorithms_pca_Method_svdDenseValue
@@ -36,17 +36,16 @@ using namespace daal::algorithms::pca;
  * Method:    cAddInput
  * Signature: (JIJI)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_DistributedStep2MasterInput_cAddInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong partialResultAddr, jint method)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_DistributedStep2MasterInput_cAddInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                                jint id, jlong partialResultAddr, jint method)
 {
-    if(method == CorrelationDenseValue)
+    if (method == CorrelationDenseValue)
     {
-        jniInput<DistributedInput<correlationDense> >::
-            add<Step2MasterInputId, pca::PartialResult<correlationDense> >(inputAddr, id, partialResultAddr);
+        jniInput<DistributedInput<correlationDense> >::add<Step2MasterInputId, pca::PartialResult<correlationDense> >(inputAddr, id,
+                                                                                                                      partialResultAddr);
     }
-    else if(method == SVDDenseValue)
+    else if (method == SVDDenseValue)
     {
-        jniInput<DistributedInput<svdDense> >::
-            add<Step2MasterInputId, pca::PartialResult<svdDense> >(inputAddr, id, partialResultAddr);
+        jniInput<DistributedInput<svdDense> >::add<Step2MasterInputId, pca::PartialResult<svdDense> >(inputAddr, id, partialResultAddr);
     }
 }

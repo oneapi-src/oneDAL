@@ -21,7 +21,7 @@
 //--
 */
 
-#include "maximum_pooling1d_layer_types.h"
+#include "algorithms/neural_networks/layers/pooling1d/maximum_pooling1d_layer_types.h"
 
 namespace daal
 {

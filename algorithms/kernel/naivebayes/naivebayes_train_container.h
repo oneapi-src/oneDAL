@@ -22,11 +22,11 @@
 //--
 */
 
-#include "multinomial_naive_bayes_training_batch.h"
-#include "multinomial_naive_bayes_training_online.h"
-#include "multinomial_naive_bayes_training_distributed.h"
-#include "multinomial_naive_bayes_training_types.h"
-#include "naivebayes_train_kernel.h"
+#include "algorithms/naive_bayes/multinomial_naive_bayes_training_batch.h"
+#include "algorithms/naive_bayes/multinomial_naive_bayes_training_online.h"
+#include "algorithms/naive_bayes/multinomial_naive_bayes_training_distributed.h"
+#include "algorithms/naive_bayes/multinomial_naive_bayes_training_types.h"
+#include "algorithms/kernel/naivebayes/naivebayes_train_kernel.h"
 
 namespace daal
 {

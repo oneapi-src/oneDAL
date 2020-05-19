@@ -24,9 +24,9 @@
 #ifndef __SPLIT_LAYER_BACKWARD_IMPL_I__
 #define __SPLIT_LAYER_BACKWARD_IMPL_I__
 
-#include "threading.h"
+#include "algorithms/threading/threading.h"
 
-#include "service_mkl_tensor.h"
+#include "service/kernel/data_management/service_mkl_tensor.h"
 
 using namespace daal::services;
 

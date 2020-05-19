@@ -22,16 +22,16 @@
 #ifndef __STOCHASTIC_POOLING2D_LAYER_FORWARD_KERNEL_H__
 #define __STOCHASTIC_POOLING2D_LAYER_FORWARD_KERNEL_H__
 
-#include "neural_networks/layers/pooling2d/stochastic_pooling2d_layer_forward.h"
-#include "neural_networks/layers/pooling2d/stochastic_pooling2d_layer_forward_types.h"
-#include "pooling2d_layer_internal_parameter.h"
-#include "service_blas.h"
-#include "kernel.h"
-#include "tensor.h"
-#include "service_memory.h"
-#include "service_data_utils.h"
-#include "service_tensor.h"
-#include "service_numeric_table.h"
+#include "algorithms/neural_networks/layers/pooling2d/stochastic_pooling2d_layer_forward.h"
+#include "algorithms/neural_networks/layers/pooling2d/stochastic_pooling2d_layer_forward_types.h"
+#include "algorithms/kernel/neural_networks/layers/pooling2d_layer/pooling2d_layer_internal_parameter.h"
+#include "externals/service_blas.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/tensor.h"
+#include "externals/service_memory.h"
+#include "service/kernel/service_data_utils.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

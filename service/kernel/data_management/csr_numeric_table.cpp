@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "csr_numeric_table.h"
+#include "data_management/data/csr_numeric_table.h"
 
 namespace daal
 {

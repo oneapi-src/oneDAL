@@ -19,38 +19,37 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_dbscan_DistributedStep7Master.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::dbscan;
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep7Master_cInit
-(JNIEnv *, jobject, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep7Master_cInit(JNIEnv *, jobject, jint prec, jint method)
 {
     return jniDistributed<step7Master, dbscan::Method, Distributed, defaultDense>::newObj(prec, method);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep7Master_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep7Master_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                               jint prec, jint method)
 {
     return jniDistributed<step7Master, dbscan::Method, Distributed, defaultDense>::getInput(prec, method, algAddr);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep7Master_cGetPartialResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep7Master_cGetPartialResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                       jint prec, jint method)
 {
     return jniDistributed<step7Master, dbscan::Method, Distributed, defaultDense>::getPartialResult(prec, method, algAddr);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep7Master_cSetPartialResult
-(JNIEnv *, jobject, jlong algAddr, jint prec, jint method, jlong partialResultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep7Master_cSetPartialResult(JNIEnv *, jobject, jlong algAddr, jint prec,
+                                                                                                      jint method, jlong partialResultAddr)
 {
-    jniDistributed<step7Master, dbscan::Method, Distributed, defaultDense>::
-        setPartialResult<dbscan::DistributedPartialResultStep7>(prec, method, algAddr, partialResultAddr);
+    jniDistributed<step7Master, dbscan::Method, Distributed, defaultDense>::setPartialResult<dbscan::DistributedPartialResultStep7>(
+        prec, method, algAddr, partialResultAddr);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep7Master_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep7Master_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                            jint method)
 {
     return jniDistributed<step7Master, dbscan::Method, Distributed, defaultDense>::getClone(prec, method, algAddr);
 }

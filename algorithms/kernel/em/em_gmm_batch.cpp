@@ -21,10 +21,10 @@
 //--
 */
 
-#include "em_gmm_types.h"
-#include "daal_defines.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/em/em_gmm_types.h"
+#include "services/daal_defines.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

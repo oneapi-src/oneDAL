@@ -28,8 +28,8 @@
 
 #include "algorithms/moments/low_order_moments_types.h"
 #include "algorithms/moments/low_order_moments_batch.h"
-#include "java_callback.h"
-#include "java_batch_container_service.h"
+#include "lang_service/java/com/intel/daal/include/java_callback.h"
+#include "lang_service/java/com/intel/daal/include/java_batch_container_service.h"
 
 using namespace daal::algorithms::low_order_moments;
 
@@ -39,34 +39,26 @@ namespace algorithms
 {
 namespace low_order_moments
 {
-
 class JavaBatchContainer : public daal::services::JavaBatchContainerService
 {
 public:
-    JavaBatchContainer(JavaVM *_jvm, jobject _javaObject) : JavaBatchContainerService(_jvm, _javaObject) {};
-    JavaBatchContainer(const JavaBatchContainer &other) : JavaBatchContainerService(other) {}
+    JavaBatchContainer(JavaVM * _jvm, jobject _javaObject) : JavaBatchContainerService(_jvm, _javaObject) {};
+    JavaBatchContainer(const JavaBatchContainer & other) : JavaBatchContainerService(other) {}
     virtual ~JavaBatchContainer() {}
 
     virtual services::Status compute()
     {
-        return daal::services::JavaBatchContainerService::compute(
-            "Lcom/intel/daal/algorithms/low_order_moments/Result;",
-            "Lcom/intel/daal/algorithms/low_order_moments/Input;");
+        return daal::services::JavaBatchContainerService::compute("Lcom/intel/daal/algorithms/low_order_moments/Result;",
+                                                                  "Lcom/intel/daal/algorithms/low_order_moments/Input;");
     }
 
-    void setJavaResult(ResultPtr result)
-    {
-        _result = result;
-    };
+    void setJavaResult(ResultPtr result) { _result = result; };
 
-    virtual JavaBatchContainer * cloneImpl()
-    {
-        return new JavaBatchContainer(*this);
-    }
+    virtual JavaBatchContainer * cloneImpl() { return new JavaBatchContainer(*this); }
 };
 
-} // namespace daal::algorithms::low_order_moments
-} // namespace daal::algorithms
+} // namespace low_order_moments
+} // namespace algorithms
 } // namespace daal
 
 #endif

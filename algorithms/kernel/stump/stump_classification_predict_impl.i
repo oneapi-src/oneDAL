@@ -24,13 +24,13 @@
 #ifndef __STUMP_CLASSIFICATION_PREDICT_IMPL_I__
 #define __STUMP_CLASSIFICATION_PREDICT_IMPL_I__
 
-#include "algorithm.h"
-#include "numeric_table.h"
-#include "daal_defines.h"
-#include "daal_shared_ptr.h"
-#include "service_numeric_table.h"
-#include "decision_tree_classification_predict.h"
-#include "decision_tree_classification_predict_types.h"
+#include "algorithms/algorithm.h"
+#include "data_management/data/numeric_table.h"
+#include "services/daal_defines.h"
+#include "services/daal_shared_ptr.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/decision_tree/decision_tree_classification_predict.h"
+#include "algorithms/decision_tree/decision_tree_classification_predict_types.h"
 
 namespace daal
 {

@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::neural_networks::layers;
@@ -30,10 +30,10 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_loss_LossBackwardBatch_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_loss_LossBackwardBatch_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                                jlong algAddr)
 {
-    return (jlong) (*((SharedPtr<loss::backward::Batch> *)algAddr))->getLayerInput();
+    return (jlong)(*((SharedPtr<loss::backward::Batch> *)algAddr))->getLayerInput();
 }
 
 /*
@@ -41,11 +41,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_l
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_loss_LossBackwardBatch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_loss_LossBackwardBatch_cGetResult(JNIEnv * env, jobject thisObj,
+                                                                                                                 jlong algAddr)
 {
-    SerializationIfacePtr *ptr = new SerializationIfacePtr;
-    *ptr = (*((SharedPtr<loss::backward::Batch> *)algAddr))->getLayerResult();
+    SerializationIfacePtr * ptr = new SerializationIfacePtr;
+    *ptr                        = (*((SharedPtr<loss::backward::Batch> *)algAddr))->getLayerResult();
     return (jlong)ptr;
 }
 
@@ -54,8 +54,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_l
  * Method:    cDispose
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_BackwardLayer_cDispose
-(JNIEnv *env, jobject thisObj, jlong addr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_BackwardLayer_cDispose(JNIEnv * env, jobject thisObj, jlong addr)
 {
-    delete(SharedPtr<loss::backward::Batch> *)addr;
+    delete (SharedPtr<loss::backward::Batch> *)addr;
 }

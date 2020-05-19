@@ -31,19 +31,19 @@
 #ifndef __BROWNBOOST_TRAIN_IMPL_V1_I__
 #define __BROWNBOOST_TRAIN_IMPL_V1_I__
 
-#include "algorithm.h"
-#include "numeric_table.h"
-#include "threading.h"
-#include "daal_defines.h"
-#include "service_math.h"
-#include "service_memory.h"
-#include "service_numeric_table.h"
+#include "algorithms/algorithm.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/threading/threading.h"
+#include "services/daal_defines.h"
+#include "externals/service_math.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
-#include "weak_learner_model.h"
-#include "classifier_model.h"
-#include "brownboost_model.h"
-#include "brownboost_train_kernel_v1.h"
-#include "brownboost_train_kernel.h"
+#include "algorithms/weak_learner/weak_learner_model.h"
+#include "algorithms/classifier/classifier_model.h"
+#include "algorithms/boosting/brownboost_model.h"
+#include "algorithms/kernel/brownboost/inner/brownboost_train_kernel_v1.h"
+#include "algorithms/kernel/brownboost/brownboost_train_kernel.h"
 
 namespace daal
 {
@@ -116,13 +116,18 @@ services::Status I1BrownBoostTrainKernel<method, algorithmFPType, cpu>::compute(
  *  \brief BrownBoost algorithm kernel
  *
  *  \param nVectors[in]               Number of observations
- *  \param weakLearnerInputTables[in] Array of 3 numeric tables [xTable, yTable, wTable] needed to train weak learner.
+ *  \param weakLearnerInputTables[in] Array of 3 numeric tables [xTable, yTable,
+ *wTable] needed to train weak learner.
  *                                    xTable - holds matrix of observations
- *                                    yTable - holds array of class labels, y[i] is from {-1, 1}
- *                                    wTable - holds array of obserwations' weights
- *  \param hTable[in,out]             Table to store weak learner's classificatiion results
+ *                                    yTable - holds array of class labels, y[i]
+ *is from {-1, 1}
+ *                                    wTable - holds array of obserwations'
+ *weights
+ *  \param hTable[in,out]             Table to store weak learner's
+ *classificatiion results
  *  \param y[in]                      Array of classification labels
- *  \param h[in,out]                  Array of weak learner's classificatiion results
+ *  \param h[in,out]                  Array of weak learner's classificatiion
+ *results
  *  \param w[in,out]                  Array of observations' weights
  *  \param boostModel[in]             Brown Boost model
  *  \param parameter[in]              Brown Boost parameters
@@ -219,9 +224,11 @@ services::Status I1BrownBoostTrainKernel<method, algorithmFPType, cpu>::brownBoo
 
         if (nCorrect == nVectors)
         {
-            /* Here if and only if the first weak learner recognizes all objects correctly */
-            /* Choose alpha[0] to make the predictions of BrownBoost classifier equal to +/-erf(4)
-               which is close to +/-1 */
+            /* Here if and only if the first weak learner recognizes all objects
+       * correctly */
+            /* Choose alpha[0] to make the predictions of BrownBoost classifier equal
+         to +/-erf(4)
+         which is close to +/-1 */
             alpha[nWeakLearners - 1] = 4.0 * nr.sqrtC;
             break;
         }

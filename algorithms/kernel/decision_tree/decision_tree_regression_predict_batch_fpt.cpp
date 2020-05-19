@@ -21,7 +21,7 @@
 //--
 */
 
-#include "decision_tree_regression_predict_batch.h"
+#include "algorithms/kernel/decision_tree/decision_tree_regression_predict_batch.h"
 
 namespace daal
 {

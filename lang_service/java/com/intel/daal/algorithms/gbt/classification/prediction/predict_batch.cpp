@@ -22,7 +22,7 @@
 #include "com_intel_daal_algorithms_gbt_classification_prediction_PredictionBatch.h"
 #include "algorithms/gradient_boosted_trees/gbt_classification_predict_types.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 namespace gbtcp = daal::algorithms::gbt::classification::prediction;
@@ -32,8 +32,8 @@ namespace gbtcp = daal::algorithms::gbt::classification::prediction;
 * Method:    cInit
 * Signature: (IIJ)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_prediction_PredictionBatch_cInit
-(JNIEnv *, jobject thisObj, jint prec, jint method, jlong nClasses)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_prediction_PredictionBatch_cInit(JNIEnv *, jobject thisObj, jint prec,
+                                                                                                           jint method, jlong nClasses)
 {
     return jniBatch<gbtcp::Method, gbtcp::Batch, gbtcp::defaultDense>::newObj(prec, method, nClasses);
 }
@@ -43,8 +43,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_predic
 * Method:    cInitParameter
 * Signature: (JIII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_prediction_PredictionBatch_cInitParameter
-(JNIEnv *, jobject thisObj, jlong algAddr, jint prec, jint method, jint cmode)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_prediction_PredictionBatch_cInitParameter(JNIEnv *, jobject thisObj,
+                                                                                                                    jlong algAddr, jint prec,
+                                                                                                                    jint method, jint cmode)
 {
     return jniBatch<gbtcp::Method, gbtcp::Batch, gbtcp::defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -54,8 +55,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_predic
 * Method:    cClone
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_prediction_PredictionBatch_cClone
-(JNIEnv *, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_prediction_PredictionBatch_cClone(JNIEnv *, jobject thisObj, jlong algAddr,
+                                                                                                            jint prec, jint method)
 {
     return jniBatch<gbtcp::Method, gbtcp::Batch, gbtcp::defaultDense>::getClone(prec, method, algAddr);
 }
@@ -65,8 +66,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_predic
 * Method:    cGetNIterations
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_prediction_PredictionParameter_cGetNIterations
-(JNIEnv *env, jobject thisObj, jlong addr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_prediction_PredictionParameter_cGetNIterations(JNIEnv * env,
+                                                                                                                         jobject thisObj, jlong addr)
 {
     return (jlong)(((gbtcp::Parameter *)addr)->nIterations);
 }
@@ -76,8 +77,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_predic
 * Method:    cSetNIterations
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_prediction_PredictionParameter_cSetNIterations
-(JNIEnv *env, jobject thisObj, jlong addr, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_prediction_PredictionParameter_cSetNIterations(JNIEnv * env, jobject thisObj,
+                                                                                                                        jlong addr, jlong value)
 {
     ((gbtcp::Parameter *)addr)->nIterations = value;
 }

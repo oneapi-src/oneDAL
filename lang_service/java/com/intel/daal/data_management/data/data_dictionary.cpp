@@ -19,9 +19,9 @@
 #include <string>
 
 #include "com_intel_daal_data_management_data_DataDictionary.h"
-#include "data_dictionary.h"
-#include "numeric_table.h"
-#include "common_helpers_functions.h"
+#include "data_management/data/data_dictionary.h"
+#include "data_management/data/numeric_table.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers_functions.h"
 
 using namespace daal::data_management;
 
@@ -30,14 +30,14 @@ using namespace daal::data_management;
  * Method:    init
  * Signature:(I)V
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_DataDictionary_init
-(JNIEnv *env, jobject thisObj, jint nFeatures, jint featuresEqual)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_DataDictionary_init(JNIEnv * env, jobject thisObj, jint nFeatures,
+                                                                                      jint featuresEqual)
 {
     using namespace daal;
 
     // Create C++ object of the class NumericTableDictionary
-    NumericTableDictionary* dict = new NumericTableDictionary((size_t)nFeatures, (DictionaryIface::FeaturesEqual)featuresEqual);
-    return (jlong)new NumericTableDictionaryPtr(dict);
+    NumericTableDictionary * dict = new NumericTableDictionary((size_t)nFeatures, (DictionaryIface::FeaturesEqual)featuresEqual);
+    return (jlong) new NumericTableDictionaryPtr(dict);
 }
 
 /*
@@ -45,13 +45,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_DataDictionary
  * Method:    cResetDictionary
  * Signature:()V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataDictionary_cResetDictionary
-(JNIEnv *env, jobject thisObj, jlong cObject)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataDictionary_cResetDictionary(JNIEnv * env, jobject thisObj, jlong cObject)
 {
     using namespace daal;
 
     // Get a class reference for Java NumericTableDictionary
-    NumericTableDictionary *dict = ((NumericTableDictionaryPtr*)cObject)->get();
+    NumericTableDictionary * dict = ((NumericTableDictionaryPtr *)cObject)->get();
     dict->resetDictionary();
 }
 
@@ -60,46 +59,44 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataDictionary_
  * Method:    cSetFeature
  * Signature:(JI)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataDictionary_cSetFeature
-(JNIEnv *env, jobject thisObj, jlong cObject, jlong dfAddr, jint idx)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataDictionary_cSetFeature(JNIEnv * env, jobject thisObj, jlong cObject,
+                                                                                            jlong dfAddr, jint idx)
 {
     using namespace daal;
 
     // Get a class reference for Java NumericTableDictionary
-    NumericTableDictionary *dict = ((NumericTableDictionaryPtr*)cObject)->get();
+    NumericTableDictionary * dict = ((NumericTableDictionaryPtr *)cObject)->get();
     DAAL_CHECK_THROW(dict->setFeature(*((services::SharedPtr<NumericTableFeature> *)dfAddr)->get(), (size_t)idx));
 }
-
 
 /*
  * Class:     com_intel_daal_data_1management_data_DataDictionary
  * Method:    cSetAllFeatures
  * Signature:(J)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataDictionary_cSetAllFeatures
-(JNIEnv *env, jobject thisObj, jlong cObject, jlong dfAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataDictionary_cSetAllFeatures(JNIEnv * env, jobject thisObj, jlong cObject,
+                                                                                                jlong dfAddr)
 {
     using namespace daal;
 
     // Get a class reference for Java NumericTableDictionary
-    NumericTableDictionary *dict = ((NumericTableDictionaryPtr*)cObject)->get();
+    NumericTableDictionary * dict = ((NumericTableDictionaryPtr *)cObject)->get();
 
     dict->setAllFeatures(*((services::SharedPtr<NumericTableFeature> *)dfAddr)->get());
 }
-
 
 /*
  * Class:     com_intel_daal_data_1management_data_DataDictionary
  * Method:    cSetNumberOfFeatures
  * Signature:(J)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataDictionary_cSetNumberOfFeatures
-(JNIEnv *env, jobject thisObj, jlong cObject, jlong nFeatures)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataDictionary_cSetNumberOfFeatures(JNIEnv * env, jobject thisObj, jlong cObject,
+                                                                                                     jlong nFeatures)
 {
     using namespace daal;
 
     // Get a class reference for Java NumericTableDictionary
-    NumericTableDictionary *dict = ((NumericTableDictionaryPtr*)cObject)->get();
+    NumericTableDictionary * dict = ((NumericTableDictionaryPtr *)cObject)->get();
 
     dict->setNumberOfFeatures((size_t)nFeatures);
 }
@@ -109,11 +106,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataDictionary_
  * Method:    cGetCDataDictionaryFeaturesEqual
  * Signature:(J)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_DataDictionary_cGetCDataDictionaryFeaturesEqual
-(JNIEnv *env, jobject thisObj, jlong cObject)
+JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_DataDictionary_cGetCDataDictionaryFeaturesEqual(JNIEnv * env, jobject thisObj,
+                                                                                                                 jlong cObject)
 {
     using namespace daal;
-    NumericTableDictionary *dict = ((NumericTableDictionaryPtr *)cObject)->get();
+    NumericTableDictionary * dict = ((NumericTableDictionaryPtr *)cObject)->get();
     return (jint)(dict->getFeaturesEqual());
 }
 
@@ -122,11 +119,10 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_DataDictionary_
  * Method:    cGetIndexType
  * Signature:(JI)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_DataDictionary_cGetIndexType
-(JNIEnv *env, jobject thisObj, jlong cObject, jint idx)
+JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_DataDictionary_cGetIndexType(JNIEnv * env, jobject thisObj, jlong cObject, jint idx)
 {
     using namespace daal;
-    NumericTableDictionary *dict = ((NumericTableDictionaryPtr *)cObject)->get();
+    NumericTableDictionary * dict = ((NumericTableDictionaryPtr *)cObject)->get();
     return (jint)((*dict)[idx].indexType);
 }
 
@@ -135,13 +131,12 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_DataDictionary_
  * Method:    cGetNumberOfFeatures
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_DataDictionary_cGetNumberOfFeatures
-  (JNIEnv *env, jobject thosObj, jlong cObject)
+JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_DataDictionary_cGetNumberOfFeatures(JNIEnv * env, jobject thosObj, jlong cObject)
 {
     using namespace daal;
 
     // Get a class reference for Java NumericTableDictionary
-    NumericTableDictionary *dict = ((NumericTableDictionaryPtr*)cObject)->get();
+    NumericTableDictionary * dict = ((NumericTableDictionaryPtr *)cObject)->get();
 
     return (int)(dict->getNumberOfFeatures());
 }

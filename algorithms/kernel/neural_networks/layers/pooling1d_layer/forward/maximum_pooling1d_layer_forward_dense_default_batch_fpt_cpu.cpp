@@ -19,9 +19,9 @@
 //  Implementation of forward pooling layer results computation.
 //--
 
-#include "maximum_pooling1d_layer_forward_batch_container.h"
-#include "maximum_pooling1d_layer_forward_kernel.h"
-#include "maximum_pooling1d_layer_forward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/pooling1d_layer/forward/maximum_pooling1d_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/pooling1d_layer/forward/maximum_pooling1d_layer_forward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/pooling1d_layer/forward/maximum_pooling1d_layer_forward_impl.i"
 
 namespace daal
 {

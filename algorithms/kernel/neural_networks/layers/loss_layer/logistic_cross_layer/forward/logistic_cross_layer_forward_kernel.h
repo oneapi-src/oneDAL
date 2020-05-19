@@ -23,13 +23,13 @@
 #define __LOGISTIC_CROSS_LAYER_FORWARD_KERNEL_H__
 
 // #include "neural_networks/layers/logistic_layer/forward/logistic_layer_forward_kernel.h"
-#include "neural_networks/layers/loss/logistic_cross_layer.h"
-#include "neural_networks/layers/loss/logistic_cross_layer_types.h"
-#include "neural_networks/layers/loss/logistic_cross_layer_forward_types.h"
-#include "kernel.h"
-#include "service_math.h"
-#include "service_tensor.h"
-#include "service_numeric_table.h"
+#include "algorithms/neural_networks/layers/loss/logistic_cross_layer.h"
+#include "algorithms/neural_networks/layers/loss/logistic_cross_layer_types.h"
+#include "algorithms/neural_networks/layers/loss/logistic_cross_layer_forward_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "externals/service_math.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

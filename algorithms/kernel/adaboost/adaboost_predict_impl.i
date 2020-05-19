@@ -24,11 +24,11 @@
 #ifndef __ADABOOST_PREDICT_IMPL_I__
 #define __ADABOOST_PREDICT_IMPL_I__
 
-#include "service_numeric_table.h"
-#include "collection.h"
-#include "service_math.h"
-#include "service_data_utils.h"
-#include "service_memory.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "services/collection.h"
+#include "externals/service_math.h"
+#include "service/kernel/service_data_utils.h"
+#include "externals/service_memory.h"
 
 namespace daal
 {

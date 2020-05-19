@@ -22,10 +22,10 @@
 #ifndef __AVERAGE_POOLING1D_LAYER_FORWARD_KERNEL_H__
 #define __AVERAGE_POOLING1D_LAYER_FORWARD_KERNEL_H__
 
-#include "neural_networks/layers/pooling1d/average_pooling1d_layer_forward.h"
-#include "neural_networks/layers/pooling1d/average_pooling1d_layer_forward_types.h"
-#include "kernel.h"
-#include "tensor.h"
+#include "algorithms/neural_networks/layers/pooling1d/average_pooling1d_layer_forward.h"
+#include "algorithms/neural_networks/layers/pooling1d/average_pooling1d_layer_forward_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/tensor.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

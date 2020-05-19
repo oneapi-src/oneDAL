@@ -18,8 +18,8 @@
 #ifndef __SERVICE_UNIQUE_PTR_H__
 #define __SERVICE_UNIQUE_PTR_H__
 
-#include "service_utils.h"
-#include "service_allocators.h"
+#include "service/kernel/service_utils.h"
+#include "service/kernel/service_allocators.h"
 
 namespace daal
 {

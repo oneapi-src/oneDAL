@@ -21,7 +21,7 @@
 
 #include "com_intel_daal_algorithms_optimization_solver_coordinate_descent_Parameter.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::optimization_solver;
@@ -31,8 +31,8 @@ using namespace daal::algorithms::optimization_solver;
  * Method:    cSetSeed
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Parameter_cSetSeed
-(JNIEnv *, jobject, jlong parAddr, jlong seed)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Parameter_cSetSeed(JNIEnv *, jobject, jlong parAddr,
+                                                                                                                  jlong seed)
 {
     ((coordinate_descent::Parameter *)parAddr)->seed = seed;
 }
@@ -42,8 +42,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coord
  * Method:    cGetSeed
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Parameter_cGetSeed
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Parameter_cGetSeed(JNIEnv *, jobject, jlong parAddr)
 {
     return ((coordinate_descent::Parameter *)parAddr)->seed;
 }
@@ -53,8 +52,8 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coord
  * Method:    cSetSelection
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Parameter_cSetSelection
-(JNIEnv *, jobject, jlong parAddr, jint selection)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Parameter_cSetSelection(JNIEnv *, jobject,
+                                                                                                                       jlong parAddr, jint selection)
 {
     ((coordinate_descent::Parameter *)parAddr)->selection = (coordinate_descent::SelectionStrategy)selection;
 }
@@ -64,8 +63,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coord
  * Method:    cGetSelection
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Parameter_cGetSelection
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Parameter_cGetSelection(JNIEnv *, jobject,
+                                                                                                                       jlong parAddr)
 {
     return (jint)(((coordinate_descent::Parameter *)parAddr)->selection);
 }
@@ -75,8 +74,9 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coord
  * Method:    cSetPositive
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Parameter_cSetPositiveFlag
-(JNIEnv *, jobject, jlong parAddr, jboolean positive)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Parameter_cSetPositiveFlag(JNIEnv *, jobject,
+                                                                                                                          jlong parAddr,
+                                                                                                                          jboolean positive)
 {
     ((coordinate_descent::Parameter *)parAddr)->positive = positive;
 }
@@ -86,8 +86,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coord
  * Method:    cGetSelectionFlag
  * Signature: (J)I
  */
-JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Parameter_cGetPositiveFlag
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Parameter_cGetPositiveFlag(JNIEnv *, jobject,
+                                                                                                                              jlong parAddr)
 {
     return ((coordinate_descent::Parameter *)parAddr)->positive;
 }
@@ -97,8 +97,8 @@ JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_optimization_1solver_c
  * Method:    cSetSkipTheFirstComponentsFlag
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Parameter_cSetSkipTheFirstComponentsFlag
-(JNIEnv *, jobject, jlong parAddr, jboolean skipTheFirstComponents)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Parameter_cSetSkipTheFirstComponentsFlag(
+    JNIEnv *, jobject, jlong parAddr, jboolean skipTheFirstComponents)
 {
     ((coordinate_descent::Parameter *)parAddr)->skipTheFirstComponents = skipTheFirstComponents;
 }
@@ -108,20 +108,21 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coord
  * Method:    cGetSkipTheFirstComponentsFlag
  * Signature: (J)I
  */
-JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Parameter_cGetSkipTheFirstComponentsFlag
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jboolean JNICALL
+    Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Parameter_cGetSkipTheFirstComponentsFlag(JNIEnv *, jobject, jlong parAddr)
 {
     return ((coordinate_descent::Parameter *)parAddr)->skipTheFirstComponents;
 }
-
 
 /*
  * Class:     com_intel_daal_algorithms_optimization_solver_coordinate_descent_Parameter
  * Method:    cSetEngine
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Parameter_cSetEngine
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong engineAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_coordinate_1descent_Parameter_cSetEngine(JNIEnv * env, jobject thisObj,
+                                                                                                                    jlong cParameter,
+                                                                                                                    jlong engineAddr)
 {
-    (((coordinate_descent::Parameter *)cParameter))->engine = staticPointerCast<engines::BatchBase, AlgorithmIface> (*(SharedPtr<AlgorithmIface> *)engineAddr);
+    (((coordinate_descent::Parameter *)cParameter))->engine =
+        staticPointerCast<engines::BatchBase, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)engineAddr);
 }

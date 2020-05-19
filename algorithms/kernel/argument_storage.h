@@ -22,8 +22,8 @@
 */
 #ifndef __ARGUMENT_STORAGE_H__
 #define __ARGUMENT_STORAGE_H__
-#include "data_collection.h"
-#include "service_defines.h"
+#include "data_management/data/data_collection.h"
+#include "service/kernel/service_defines.h"
 
 namespace daal
 {

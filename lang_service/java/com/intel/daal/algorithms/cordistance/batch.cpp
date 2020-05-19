@@ -20,7 +20,7 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_cordistance_Batch.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::correlation_distance;
@@ -32,8 +32,7 @@ using namespace daal::algorithms::correlation_distance;
  * Method:    dDefaultDenseInit
  * Signature:(II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cordistance_Batch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cordistance_Batch_cInit(JNIEnv * env, jobject thisObj, jint prec, jint method)
 {
     return jniBatch<correlation_distance::Method, Batch, defaultDense>::newObj(prec, method);
 }
@@ -43,8 +42,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cordistance_Batch_cInit
  * Method:    cGetResult
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cordistance_Batch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cordistance_Batch_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                    jint method)
 {
     return jniBatch<correlation_distance::Method, Batch, defaultDense>::getResult(prec, method, algAddr);
 }
@@ -54,8 +53,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cordistance_Batch_cGetRes
  * Method:    cSetResult
  * Signature:(JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_cordistance_Batch_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_cordistance_Batch_cSetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                   jint method, jlong resultAddr)
 {
     jniBatch<correlation_distance::Method, Batch, defaultDense>::setResult<correlation_distance::Result>(prec, method, algAddr, resultAddr);
 }
@@ -65,8 +64,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_cordistance_Batch_cSetResu
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cordistance_Batch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cordistance_Batch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<correlation_distance::Method, Batch, defaultDense>::getClone(prec, method, algAddr);
 }

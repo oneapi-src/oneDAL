@@ -22,15 +22,15 @@
 #include "com_intel_daal_algorithms_linear_regression_quality_metric_GroupOfBetasParameter.h"
 #include "com_intel_daal_algorithms_linear_regression_quality_metric_GroupOfBetasInput.h"
 #include "com_intel_daal_algorithms_linear_regression_quality_metric_GroupOfBetasResult.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::linear_regression::quality_metric;
 using namespace daal::algorithms::linear_regression::quality_metric::group_of_betas;
 
 #include "com_intel_daal_algorithms_linear_regression_quality_metric_GroupOfBetasInputId.h"
-#define ExpectedResponses  com_intel_daal_algorithms_linear_regression_quality_metric_GroupOfBetasInputId_ExpectedResponses
-#define PredictedResponses com_intel_daal_algorithms_linear_regression_quality_metric_GroupOfBetasInputId_PredictedResponses
+#define ExpectedResponses              com_intel_daal_algorithms_linear_regression_quality_metric_GroupOfBetasInputId_ExpectedResponses
+#define PredictedResponses             com_intel_daal_algorithms_linear_regression_quality_metric_GroupOfBetasInputId_PredictedResponses
 #define PredictedReducedModelResponses com_intel_daal_algorithms_linear_regression_quality_metric_GroupOfBetasInputId_PredictedReducedModelResponses
 
 #include "com_intel_daal_algorithms_linear_regression_quality_metric_GroupOfBetasResultId.h"
@@ -47,8 +47,8 @@ using namespace daal::algorithms::linear_regression::quality_metric::group_of_be
 * Method:    cSetNBeta
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_GroupOfBetasParameter_cSetNBeta
-(JNIEnv *, jobject, jlong parAddr, jlong nBeta)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_GroupOfBetasParameter_cSetNBeta(JNIEnv *, jobject,
+                                                                                                                         jlong parAddr, jlong nBeta)
 {
     (*(group_of_betas::Parameter *)parAddr).numBeta = nBeta;
 }
@@ -58,10 +58,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality
 * Method:    cGetNBeta
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_GroupOfBetasParameter_cGetNBeta
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_GroupOfBetasParameter_cGetNBeta(JNIEnv *, jobject,
+                                                                                                                          jlong parAddr)
 {
-    return(jlong)(*(group_of_betas::Parameter *)parAddr).numBeta;
+    return (jlong)(*(group_of_betas::Parameter *)parAddr).numBeta;
 }
 
 /*
@@ -69,8 +69,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_qualit
 * Method:    cSetNBetaReducedModel
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_GroupOfBetasParameter_cSetNBetaReducedModel
-(JNIEnv *, jobject, jlong parAddr, jlong nBetaReducedModel)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_GroupOfBetasParameter_cSetNBetaReducedModel(
+    JNIEnv *, jobject, jlong parAddr, jlong nBetaReducedModel)
 {
     (*(group_of_betas::Parameter *)parAddr).numBetaReducedModel = nBetaReducedModel;
 }
@@ -80,10 +80,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality
 * Method:    cGetNBetaReducedModel
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_GroupOfBetasParameter_cGetNBetaReducedModel
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_GroupOfBetasParameter_cGetNBetaReducedModel(JNIEnv *,
+                                                                                                                                      jobject,
+                                                                                                                                      jlong parAddr)
 {
-    return(jlong)(*(group_of_betas::Parameter *)parAddr).numBetaReducedModel;
+    return (jlong)(*(group_of_betas::Parameter *)parAddr).numBetaReducedModel;
 }
 
 /*
@@ -91,8 +92,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_qualit
 * Method:    cSetAccuracyThreshold
 * Signature: (JD)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_GroupOfBetasParameter_cSetAccuracyThreshold
-(JNIEnv *, jobject, jlong parAddr, jdouble accuracyThreshold)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_GroupOfBetasParameter_cSetAccuracyThreshold(
+    JNIEnv *, jobject, jlong parAddr, jdouble accuracyThreshold)
 {
     (*(group_of_betas::Parameter *)parAddr).accuracyThreshold = accuracyThreshold;
 }
@@ -102,10 +103,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality
 * Method:    cGetAccuracyThreshold
 * Signature: (J)D
 */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_GroupOfBetasParameter_cGetAccuracyThreshold
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_GroupOfBetasParameter_cGetAccuracyThreshold(JNIEnv *,
+                                                                                                                                        jobject,
+                                                                                                                                        jlong parAddr)
 {
-    return(jdouble)(*(group_of_betas::Parameter *)parAddr).accuracyThreshold;
+    return (jdouble)(*(group_of_betas::Parameter *)parAddr).accuracyThreshold;
 }
 
 /*
@@ -113,8 +115,9 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_linear_1regression_qual
 * Method:    cSetInputTable
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_GroupOfBetasInput_cSetInputTable
-(JNIEnv *, jobject, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_GroupOfBetasInput_cSetInputTable(JNIEnv *, jobject,
+                                                                                                                          jlong resAddr, jint id,
+                                                                                                                          jlong ntAddr)
 {
     jniInput<group_of_betas::Input>::set<group_of_betas::DataInputId, NumericTable>(resAddr, id, ntAddr);
 }
@@ -124,10 +127,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality
 * Method:    cGetInputTable
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_GroupOfBetasInput_cGetInputTable
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_GroupOfBetasInput_cGetInputTable(JNIEnv *, jobject,
+                                                                                                                           jlong inputAddr, jint id)
 {
-    if(id != PredictedResponses && id != ExpectedResponses && id != PredictedReducedModelResponses) return (jlong)0;
+    if (id != PredictedResponses && id != ExpectedResponses && id != PredictedReducedModelResponses) return (jlong)0;
 
     return jniInput<group_of_betas::Input>::get<group_of_betas::DataInputId, NumericTable>(inputAddr, id);
 }
@@ -137,8 +140,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_qualit
 * Method:    cSetResultTable
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_GroupOfBetasResult_cSetResultTable
-(JNIEnv *, jobject, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_GroupOfBetasResult_cSetResultTable(JNIEnv *, jobject,
+                                                                                                                            jlong resAddr, jint id,
+                                                                                                                            jlong ntAddr)
 {
     jniArgument<group_of_betas::Result>::set<group_of_betas::ResultId, NumericTable>(resAddr, id, ntAddr);
 }
@@ -148,23 +152,17 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality
 * Method:    cGetResultTable
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_GroupOfBetasResult_cGetResultTable
-(JNIEnv *, jobject, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_GroupOfBetasResult_cGetResultTable(JNIEnv *, jobject,
+                                                                                                                             jlong resAddr, jint id)
 {
-    if(id == ExpectedMeans)
-        return jniArgument<group_of_betas::Result>::get<group_of_betas::ResultId, NumericTable>(resAddr, expectedMeans);
-    if(id == ExpectedVariance)
-        return jniArgument<group_of_betas::Result>::get<group_of_betas::ResultId, NumericTable>(resAddr, expectedVariance);
-    if(id == RegSS)
-        return jniArgument<group_of_betas::Result>::get<group_of_betas::ResultId, NumericTable>(resAddr, regSS);
-    if(id == ResSS)
-        return jniArgument<group_of_betas::Result>::get<group_of_betas::ResultId, NumericTable>(resAddr, resSS);
-    if(id == TSS)
-        return jniArgument<group_of_betas::Result>::get<group_of_betas::ResultId, NumericTable>(resAddr, tSS);
-    if(id == DeterminationCoeff)
+    if (id == ExpectedMeans) return jniArgument<group_of_betas::Result>::get<group_of_betas::ResultId, NumericTable>(resAddr, expectedMeans);
+    if (id == ExpectedVariance) return jniArgument<group_of_betas::Result>::get<group_of_betas::ResultId, NumericTable>(resAddr, expectedVariance);
+    if (id == RegSS) return jniArgument<group_of_betas::Result>::get<group_of_betas::ResultId, NumericTable>(resAddr, regSS);
+    if (id == ResSS) return jniArgument<group_of_betas::Result>::get<group_of_betas::ResultId, NumericTable>(resAddr, resSS);
+    if (id == TSS) return jniArgument<group_of_betas::Result>::get<group_of_betas::ResultId, NumericTable>(resAddr, tSS);
+    if (id == DeterminationCoeff)
         return jniArgument<group_of_betas::Result>::get<group_of_betas::ResultId, NumericTable>(resAddr, determinationCoeff);
-    if(id == FStatistics)
-        return jniArgument<group_of_betas::Result>::get<group_of_betas::ResultId, NumericTable>(resAddr, fStatistics);
+    if (id == FStatistics) return jniArgument<group_of_betas::Result>::get<group_of_betas::ResultId, NumericTable>(resAddr, fStatistics);
     return (jlong)0;
 }
 
@@ -173,8 +171,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_qualit
 * Method:    cNewResult
 * Signature: ()J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_GroupOfBetasResult_cNewResult
-(JNIEnv *, jobject)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_GroupOfBetasResult_cNewResult(JNIEnv *, jobject)
 {
     return jniArgument<group_of_betas::Result>::newObj();
 }

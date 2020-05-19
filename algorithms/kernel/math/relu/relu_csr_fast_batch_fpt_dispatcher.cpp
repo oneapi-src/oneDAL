@@ -19,7 +19,7 @@
 //  Implementation of relu calculation algorithm container.
 //--
 
-#include "relu_batch_container.h"
+#include "algorithms/kernel/math/relu/relu_batch_container.h"
 
 namespace daal
 {

@@ -18,43 +18,37 @@
 #include <jni.h>
 
 #include "daal.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 #include "com_intel_daal_algorithms_adaboost_Model.h"
 
 USING_COMMON_NAMESPACES()
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_adaboost_Model_cGetNumberOfWeakLearners
-(JNIEnv *, jobject, jlong self)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_adaboost_Model_cGetNumberOfWeakLearners(JNIEnv *, jobject, jlong self)
 {
-    return (jlong)( unpackModel<adaboost::Model>(self)->getNumberOfWeakLearners() );
+    return (jlong)(unpackModel<adaboost::Model>(self)->getNumberOfWeakLearners());
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_adaboost_Model_cGetWeakLearnerModel
-(JNIEnv *, jobject, jlong self, jlong idx)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_adaboost_Model_cGetWeakLearnerModel(JNIEnv *, jobject, jlong self, jlong idx)
 {
-    return packModel( unpackModel<adaboost::Model>(self)->getWeakLearnerModel((size_t)idx) );
+    return packModel(unpackModel<adaboost::Model>(self)->getWeakLearnerModel((size_t)idx));
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_adaboost_Model_cAddWeakLearnerModel
-(JNIEnv *, jobject, jlong self, jlong model)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_adaboost_Model_cAddWeakLearnerModel(JNIEnv *, jobject, jlong self, jlong model)
 {
-    unpackModel<adaboost::Model>(self)->addWeakLearnerModel( unpackModel<classifier::Model>(model) );
+    unpackModel<adaboost::Model>(self)->addWeakLearnerModel(unpackModel<classifier::Model>(model));
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_adaboost_Model_cClearWeakLearnerModels
-(JNIEnv *, jobject, jlong self)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_adaboost_Model_cClearWeakLearnerModels(JNIEnv *, jobject, jlong self)
 {
     unpackModel<adaboost::Model>(self)->clearWeakLearnerModels();
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_adaboost_Model_cGetNumberOfFeatures
-(JNIEnv *, jobject, jlong self)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_adaboost_Model_cGetNumberOfFeatures(JNIEnv *, jobject, jlong self)
 {
-    return (jlong)( unpackModel<adaboost::Model>(self)->getNumberOfFeatures() );
+    return (jlong)(unpackModel<adaboost::Model>(self)->getNumberOfFeatures());
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_adaboost_Model_cGetAlpha
-(JNIEnv *, jobject, jlong self)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_adaboost_Model_cGetAlpha(JNIEnv *, jobject, jlong self)
 {
-    return packTable( unpackModel<adaboost::Model>(self)->getAlpha() );
+    return packTable(unpackModel<adaboost::Model>(self)->getAlpha());
 }

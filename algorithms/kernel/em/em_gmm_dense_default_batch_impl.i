@@ -19,17 +19,17 @@
 //  Implementation of em algorithm
 //--
 
-#include "service_math.h"
-#include "service_lapack.h"
-#include "service_stat.h"
-#include "service_memory.h"
-#include "service_data_utils.h"
-#include "service_numeric_table.h"
-#include "em_gmm_dense_default_batch_kernel.h"
-#include "em_gmm_dense_default_batch_task.h"
-#include "threading.h"
-#include "service_error_handling.h"
-#include "service_utils.h"
+#include "externals/service_math.h"
+#include "externals/service_lapack.h"
+#include "externals/service_stat.h"
+#include "externals/service_memory.h"
+#include "service/kernel/service_data_utils.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/em/em_gmm_dense_default_batch_kernel.h"
+#include "algorithms/kernel/em/em_gmm_dense_default_batch_task.h"
+#include "algorithms/threading/threading.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "service/kernel/service_utils.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;

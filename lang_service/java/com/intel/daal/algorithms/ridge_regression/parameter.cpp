@@ -27,8 +27,8 @@ using namespace daal::algorithms;
  * Method:    cSetInterceptFlag
  * Signature:(JZ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_ridge_1regression_Parameter_cSetInterceptFlag
-(JNIEnv *env, jobject thisObj, jlong algAddr, jboolean flag)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_ridge_1regression_Parameter_cSetInterceptFlag(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                    jboolean flag)
 {
     (*(ridge_regression::Parameter *)algAddr).interceptFlag = flag;
 }
@@ -38,8 +38,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_ridge_1regression_Paramete
  * Method:    cGetInterceptFlag
  * Signature:(J)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_ridge_1regression_Parameter_cGetInterceptFlag
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_ridge_1regression_Parameter_cGetInterceptFlag(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    return(*(ridge_regression::Parameter *)algAddr).interceptFlag;
+    return (*(ridge_regression::Parameter *)algAddr).interceptFlag;
 }

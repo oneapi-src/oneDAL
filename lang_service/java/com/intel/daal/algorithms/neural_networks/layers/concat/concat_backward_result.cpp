@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_neural_networks_layers_BackwardResultLayerDataId.h"
 #define resultLayerDataId com_intel_daal_algorithms_neural_networks_layers_BackwardResultLayerDataId_resultLayerDataId
@@ -34,8 +34,7 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatBackwardResult_cNewResult
-  (JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatBackwardResult_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<backward::Result>::newObj();
 }
@@ -45,8 +44,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_c
  * Method:    cGetValue
  * Signature: (JIJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatBackwardResult_cGetValue
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong index)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatBackwardResult_cGetValue(JNIEnv * env, jobject thisObj,
+                                                                                                                     jlong resAddr, jint id,
+                                                                                                                     jlong index)
 {
     if (id == resultLayerDataId)
     {
@@ -61,8 +61,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_c
  * Method:    cSetValue
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatBackwardResult_cSetValue
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr, jlong index)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatBackwardResult_cSetValue(JNIEnv * env, jobject thisObj,
+                                                                                                                    jlong resAddr, jint id,
+                                                                                                                    jlong ntAddr, jlong index)
 {
     if (id == resultLayerDataId)
     {

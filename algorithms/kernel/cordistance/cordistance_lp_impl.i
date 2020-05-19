@@ -20,7 +20,7 @@
 //  Implementation of correlation distance for result in lower triangular layout.
 //--
 */
-#include "service_defines.h"
+#include "service/kernel/service_defines.h"
 using namespace daal::internal;
 
 namespace daal

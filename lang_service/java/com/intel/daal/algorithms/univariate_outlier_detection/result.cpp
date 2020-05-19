@@ -20,7 +20,7 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_univariate_outlier_detection_Result.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::univariate_outlier_detection;
@@ -30,8 +30,7 @@ using namespace daal::algorithms::univariate_outlier_detection;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_univariate_1outlier_1detection_Result_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_univariate_1outlier_1detection_Result_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<univariate_outlier_detection::Result>::newObj();
 }
@@ -41,8 +40,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_univariate_1outlier_1dete
  * Method:    cGetResultTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_univariate_1outlier_1detection_Result_cGetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_univariate_1outlier_1detection_Result_cGetResultTable(JNIEnv * env, jobject thisObj,
+                                                                                                             jlong resAddr, jint id)
 {
     return jniArgument<univariate_outlier_detection::Result>::get<univariate_outlier_detection::ResultId, NumericTable>(resAddr, id);
 }
@@ -52,8 +51,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_univariate_1outlier_1dete
  * Method:    cSetResultTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_univariate_1outlier_1detection_Result_cSetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_univariate_1outlier_1detection_Result_cSetResultTable(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong resAddr, jint id, jlong ntAddr)
 {
     jniArgument<univariate_outlier_detection::Result>::set<univariate_outlier_detection::ResultId, NumericTable>(resAddr, id, ntAddr);
 }

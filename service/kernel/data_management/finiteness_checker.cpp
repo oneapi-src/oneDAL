@@ -18,10 +18,10 @@
 #include "data_management/data/internal/finiteness_checker.h"
 #include "data_management/data/numeric_table.h"
 #include "services/env_detect.h"
-#include "service_dispatch.h"
-#include "service_data_utils.h"
-#include "threading.h"
-#include "service_numeric_table.h"
+#include "externals/service_dispatch.h"
+#include "service/kernel/service_data_utils.h"
+#include "algorithms/threading/threading.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 namespace daal
 {

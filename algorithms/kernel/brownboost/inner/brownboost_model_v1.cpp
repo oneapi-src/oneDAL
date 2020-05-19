@@ -24,8 +24,8 @@
 #include "algorithms/boosting/brownboost_model.h"
 #include "algorithms/stump/stump_classification_training_batch.h"
 #include "algorithms/stump/stump_classification_predict.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -52,13 +52,19 @@ Parameter::Parameter()
 
 /**
  * Constructs BrownBoost parameter structure
- * \param[in] wlTrain       Pointer to the training algorithm of the weak learner
- * \param[in] wlPredict     Pointer to the prediction algorithm of the weak learner
+ * \param[in] wlTrain       Pointer to the training algorithm of the weak
+ * learner
+ * \param[in] wlPredict     Pointer to the prediction algorithm of the weak
+ * learner
  * \param[in] acc           Accuracy of the BrownBoost training algorithm
- * \param[in] maxIter       Maximal number of iterations of the BrownBoost training algorithm
- * \param[in] nrAcc         Accuracy threshold for Newton-Raphson iterations in the BrownBoost training algorithm
- * \param[in] nrMaxIter     Maximal number of Newton-Raphson iterations in the BrownBoost training algorithm
- * \param[in] dcThreshold          Threshold needed  to avoid degenerate cases in the BrownBoost training algorithm
+ * \param[in] maxIter       Maximal number of iterations of the BrownBoost
+ * training algorithm
+ * \param[in] nrAcc         Accuracy threshold for Newton-Raphson iterations in
+ * the BrownBoost training algorithm
+ * \param[in] nrMaxIter     Maximal number of Newton-Raphson iterations in the
+ * BrownBoost training algorithm
+ * \param[in] dcThreshold          Threshold needed  to avoid degenerate cases
+ * in the BrownBoost training algorithm
  */
 Parameter::Parameter(services::SharedPtr<weak_learner::training::Batch> wlTrain, services::SharedPtr<weak_learner::prediction::Batch> wlPredict,
                      double acc, size_t maxIter, double nrAcc, size_t nrMaxIter, double dcThreshold)

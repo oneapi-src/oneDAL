@@ -19,7 +19,7 @@
 //  Instantiation of LBFGS algorithm container.
 //--
 
-#include "lbfgs_batch_container.h"
+#include "algorithms/kernel/optimization_solver/lbfgs/lbfgs_batch_container.h"
 
 namespace daal
 {

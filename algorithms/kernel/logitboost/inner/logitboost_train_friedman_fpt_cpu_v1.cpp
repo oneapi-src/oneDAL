@@ -21,9 +21,9 @@
 //--
 */
 
-#include "logitboost_train_batch_container_v1.h"
-#include "logitboost_train_friedman_kernel_v1.h"
-#include "logitboost_train_friedman_impl_v1.i"
+#include "algorithms/kernel/logitboost/inner/logitboost_train_batch_container_v1.h"
+#include "algorithms/kernel/logitboost/inner/logitboost_train_friedman_kernel_v1.h"
+#include "algorithms/kernel/logitboost/inner/logitboost_train_friedman_impl_v1.i"
 
 namespace daal
 {

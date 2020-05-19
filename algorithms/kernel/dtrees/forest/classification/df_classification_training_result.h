@@ -25,7 +25,7 @@
 #define __DF_CLASSIFICATION_TRAINING_RESULT_H
 
 #include "algorithms/decision_forest/decision_forest_classification_training_types.h"
-#include "df_classification_model_impl.h"
+#include "algorithms/kernel/dtrees/forest/classification/df_classification_model_impl.h"
 #include "data_management/data/homogen_numeric_table.h"
 
 using namespace daal::data_management;

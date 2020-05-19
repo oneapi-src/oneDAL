@@ -19,8 +19,8 @@
 //  Implementation of initializer types.
 //--
 
-#include "neural_networks/initializers/initializer_types.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/initializers/initializer_types.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {

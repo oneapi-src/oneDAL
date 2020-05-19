@@ -27,11 +27,11 @@ using namespace daal::algorithms::pca::quality_metric_set;
 * Method:    cInit
 * Signature: (JJ)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_1set_QualityMetricSetBatch_cInit
-(JNIEnv *, jobject, jlong nComponents, jlong nFeatures)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_1set_QualityMetricSetBatch_cInit(JNIEnv *, jobject, jlong nComponents,
+                                                                                                            jlong nFeatures)
 {
     jlong addr = 0;
-    addr = (jlong)(new Batch(nComponents, nFeatures));
+    addr       = (jlong)(new Batch(nComponents, nFeatures));
     return addr;
 }
 
@@ -40,10 +40,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_1set_
 * Method:    cInitParameter
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_1set_QualityMetricSetBatch_cInitParameter
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_1set_QualityMetricSetBatch_cInitParameter(JNIEnv *, jobject, jlong parAddr)
 {
     jlong addr = 0;
-    addr = (jlong)& ((*(Batch *)parAddr).parameter);
+    addr       = (jlong) & ((*(Batch *)parAddr).parameter);
     return addr;
 }

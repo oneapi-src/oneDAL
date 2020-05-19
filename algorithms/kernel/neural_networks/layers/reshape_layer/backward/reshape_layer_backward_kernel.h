@@ -22,10 +22,10 @@
 #ifndef __RESHAPE_LAYER_BACKWARD_KERNEL_H__
 #define __RESHAPE_LAYER_BACKWARD_KERNEL_H__
 
-#include "neural_networks/layers/reshape/reshape_layer.h"
-#include "neural_networks/layers/reshape/reshape_layer_types.h"
-#include "kernel.h"
-#include "layers_threading.h"
+#include "algorithms/neural_networks/layers/reshape/reshape_layer.h"
+#include "algorithms/neural_networks/layers/reshape/reshape_layer_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/kernel/neural_networks/layers/layers_threading.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

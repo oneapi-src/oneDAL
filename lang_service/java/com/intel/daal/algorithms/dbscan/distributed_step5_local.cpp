@@ -19,44 +19,44 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_dbscan_DistributedStep5Local.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::dbscan;
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep5Local_cInit
-(JNIEnv *, jobject, jint prec, jint method, jlong blockIndex, jlong nBlocks, jdouble epsilon)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep5Local_cInit(JNIEnv *, jobject, jint prec, jint method, jlong blockIndex,
+                                                                                          jlong nBlocks, jdouble epsilon)
 {
     return jniDistributed<step5Local, dbscan::Method, Distributed, defaultDense>::newObj(prec, method, blockIndex, nBlocks, epsilon);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep5Local_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep5Local_cInitParameter(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                   jint prec, jint method)
 {
     return jniDistributed<step5Local, dbscan::Method, Distributed, defaultDense>::getBaseParameter(prec, method, algAddr);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep5Local_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep5Local_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                              jint method)
 {
     return jniDistributed<step5Local, dbscan::Method, Distributed, defaultDense>::getInput(prec, method, algAddr);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep5Local_cGetPartialResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep5Local_cGetPartialResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                      jint prec, jint method)
 {
     return jniDistributed<step5Local, dbscan::Method, Distributed, defaultDense>::getPartialResult(prec, method, algAddr);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep5Local_cSetPartialResult
-(JNIEnv *, jobject, jlong algAddr, jint prec, jint method, jlong partialResultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep5Local_cSetPartialResult(JNIEnv *, jobject, jlong algAddr, jint prec,
+                                                                                                     jint method, jlong partialResultAddr)
 {
-    jniDistributed<step5Local, dbscan::Method, Distributed, defaultDense>::
-        setPartialResult<dbscan::DistributedPartialResultStep5>(prec, method, algAddr, partialResultAddr);
+    jniDistributed<step5Local, dbscan::Method, Distributed, defaultDense>::setPartialResult<dbscan::DistributedPartialResultStep5>(
+        prec, method, algAddr, partialResultAddr);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep5Local_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep5Local_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                           jint method)
 {
     return jniDistributed<step5Local, dbscan::Method, Distributed, defaultDense>::getClone(prec, method, algAddr);
 }

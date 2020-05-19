@@ -24,18 +24,18 @@
 #ifndef __SVM_TRAIN_KERNEL_H__
 #define __SVM_TRAIN_KERNEL_H__
 
-#include "numeric_table.h"
-#include "model.h"
-#include "daal_defines.h"
-#include "svm_train_types.h"
-#include "kernel.h"
-#include "service_numeric_table.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/model.h"
+#include "services/daal_defines.h"
+#include "algorithms/svm/svm_train_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::data_management;
 using namespace daal::internal;
 using namespace daal::services;
 
-#include "svm_train_boser_cache.i"
+#include "algorithms/kernel/svm/svm_train_boser_cache.i"
 
 namespace daal
 {

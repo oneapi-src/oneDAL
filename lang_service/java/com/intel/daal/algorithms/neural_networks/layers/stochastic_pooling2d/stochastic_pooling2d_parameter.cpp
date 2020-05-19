@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::neural_networks::layers;
@@ -30,8 +30,10 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cGetPredictionStage
  * Signature: (J)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dParameter_cGetPredictionStage
-  (JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jboolean JNICALL
+    Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dParameter_cGetPredictionStage(JNIEnv * env,
+                                                                                                                                  jobject thisObj,
+                                                                                                                                  jlong cParameter)
 {
     return (((stochastic_pooling2d::Parameter *)cParameter))->predictionStage;
 }
@@ -41,8 +43,8 @@ JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_neural_1networks_layer
  * Method:    cSetPredictionStage
  * Signature: (JZ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dParameter_cSetPredictionStage
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jboolean predictionStage)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dParameter_cSetPredictionStage(
+    JNIEnv * env, jobject thisObj, jlong cParameter, jboolean predictionStage)
 {
     (((stochastic_pooling2d::Parameter *)cParameter))->predictionStage = predictionStage;
 }
@@ -52,8 +54,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_st
  * Method:    cGetSeed
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dParameter_cGetSeed
-  (JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dParameter_cGetSeed(
+    JNIEnv * env, jobject thisObj, jlong cParameter)
 {
     return (jlong)((((stochastic_pooling2d::Parameter *)cParameter))->seed);
 }
@@ -63,8 +65,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cSetSeed
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dParameter_cSetSeed
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jlong seed)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dParameter_cSetSeed(
+    JNIEnv * env, jobject thisObj, jlong cParameter, jlong seed)
 {
     (((stochastic_pooling2d::Parameter *)cParameter))->seed = (size_t)seed;
 }
@@ -74,8 +76,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_st
  * Method:    cSetEngine
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dParameter_cSetEngine
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong engineAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_stochastic_1pooling2d_StochasticPooling2dParameter_cSetEngine(
+    JNIEnv * env, jobject thisObj, jlong cParameter, jlong engineAddr)
 {
-    (((stochastic_pooling2d::Parameter *)cParameter))->engine = staticPointerCast<engines::BatchBase, AlgorithmIface> (*(SharedPtr<AlgorithmIface> *)engineAddr);
+    (((stochastic_pooling2d::Parameter *)cParameter))->engine =
+        staticPointerCast<engines::BatchBase, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)engineAddr);
 }

@@ -19,9 +19,9 @@
 //  Implementation of forward pooling layer.
 //--
 
-#include "spatial_maximum_pooling2d_layer_forward_batch_container.h"
-#include "spatial_pooling2d_layer_forward_kernel.h"
-#include "spatial_pooling2d_layer_forward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/spatial_pooling2d_layer/forward/spatial_maximum_pooling2d_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/spatial_pooling2d_layer/forward/spatial_pooling2d_layer_forward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/spatial_pooling2d_layer/forward/spatial_pooling2d_layer_forward_impl.i"
 
 namespace daal
 {

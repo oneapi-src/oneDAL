@@ -24,7 +24,7 @@
 #ifndef __DTREES_MODEL_IMPL_COMMON__
 #define __DTREES_MODEL_IMPL_COMMON__
 
-#include "dtrees_model_impl.h"
+#include "algorithms/kernel/dtrees/dtrees_model_impl.h"
 
 namespace daal
 {

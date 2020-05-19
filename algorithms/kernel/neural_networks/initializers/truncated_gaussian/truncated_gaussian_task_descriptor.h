@@ -18,8 +18,8 @@
 #ifndef __TRUNCATED_GAUSSIAN_INITIALIZER_TASK_DESCRIPTOR_H__
 #define __TRUNCATED_GAUSSIAN_INITIALIZER_TASK_DESCRIPTOR_H__
 
-#include "neural_networks/initializers/truncated_gaussian/truncated_gaussian_initializer.h"
-#include "neural_networks/initializers/truncated_gaussian/truncated_gaussian_initializer_types.h"
+#include "algorithms/neural_networks/initializers/truncated_gaussian/truncated_gaussian_initializer.h"
+#include "algorithms/neural_networks/initializers/truncated_gaussian/truncated_gaussian_initializer_types.h"
 
 namespace daal
 {

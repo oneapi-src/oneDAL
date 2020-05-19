@@ -19,7 +19,7 @@
 
 #include "daal.h"
 #include "com_intel_daal_algorithms_low_order_moments_PartialResult.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::low_order_moments;
@@ -29,8 +29,7 @@ using namespace daal::algorithms::low_order_moments;
  * Method:    cNewPartialResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_PartialResult_cNewPartialResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_PartialResult_cNewPartialResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<low_order_moments::PartialResult>::newObj();
 }
@@ -40,8 +39,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Parti
  * Method:    cGetPartialResultTable
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_PartialResult_cGetPartialResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_PartialResult_cGetPartialResultTable(JNIEnv * env, jobject thisObj,
+                                                                                                                jlong resAddr, jint id)
 {
     return jniArgument<low_order_moments::PartialResult>::get<low_order_moments::PartialResultId, NumericTable>(resAddr, id);
 }
@@ -51,8 +50,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Parti
  * Method:    cSetPartialResultTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_PartialResult_cSetPartialResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_PartialResult_cSetPartialResultTable(JNIEnv * env, jobject thisObj,
+                                                                                                               jlong resAddr, jint id, jlong ntAddr)
 {
     jniArgument<low_order_moments::PartialResult>::set<low_order_moments::PartialResultId, NumericTable>(resAddr, id, ntAddr);
 }

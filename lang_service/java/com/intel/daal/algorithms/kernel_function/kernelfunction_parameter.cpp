@@ -30,18 +30,18 @@ using namespace daal::algorithms::kernel_function;
  * Method:    init
  * Signature:(JJJI)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_Parameter_cSetComputationMode
-(JNIEnv *env, jobject thisObj, jlong parAddr, jint id)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_Parameter_cSetComputationMode(JNIEnv * env, jobject thisObj, jlong parAddr,
+                                                                                                     jint id)
 {
-    if(id == VectorVector)
+    if (id == VectorVector)
     {
         (*(ParameterBase *)parAddr).computationMode = vectorVector;
     }
-    else if(id == MatrixVector)
+    else if (id == MatrixVector)
     {
         (*(ParameterBase *)parAddr).computationMode = matrixVector;
     }
-    else if(id == MatrixMatrix)
+    else if (id == MatrixMatrix)
     {
         (*(ParameterBase *)parAddr).computationMode = matrixMatrix;
     }
@@ -51,8 +51,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_Parameter
  * Method:    init
  * Signature:(JJJI)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_Parameter_cSetRowIndexX
-(JNIEnv *env, jobject thisObj, jlong parAddr, jlong indexX)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_Parameter_cSetRowIndexX(JNIEnv * env, jobject thisObj, jlong parAddr,
+                                                                                               jlong indexX)
 {
     (*(ParameterBase *)parAddr).rowIndexX = indexX;
 }
@@ -61,10 +61,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_Parameter
  * Method:    cGetRowIndexX
  * Signature:(JJJI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_Parameter_cGetRowIndexX
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_Parameter_cGetRowIndexX(JNIEnv * env, jobject thisObj, jlong parAddr)
 {
-    return(jlong)(*(ParameterBase *)parAddr).rowIndexX;
+    return (jlong)(*(ParameterBase *)parAddr).rowIndexX;
 }
 
 /*
@@ -72,8 +71,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_Paramete
  * Method:    cSetRowIndexY
  * Signature:(JJJI)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_Parameter_cSetRowIndexY
-(JNIEnv *env, jobject thisObj, jlong parAddr, jlong indexY)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_Parameter_cSetRowIndexY(JNIEnv * env, jobject thisObj, jlong parAddr,
+                                                                                               jlong indexY)
 {
     (*(ParameterBase *)parAddr).rowIndexY = indexY;
 }
@@ -83,18 +82,17 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_Parameter
  * Method:    cGetRowIndexX
  * Signature:(JJJI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_Parameter_cGetRowIndexY
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_Parameter_cGetRowIndexY(JNIEnv * env, jobject thisObj, jlong parAddr)
 {
-    return(jlong)(*(ParameterBase *)parAddr).rowIndexY;
+    return (jlong)(*(ParameterBase *)parAddr).rowIndexY;
 }
 /*
  * Class:     com_intel_daal_algorithms_kernel_function_Parameter
  * Method:    cSetRowIndexResult
  * Signature:(JJJI)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_Parameter_cSetRowIndexResult
-(JNIEnv *env, jobject thisObj, jlong parAddr, jlong indexResult)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_Parameter_cSetRowIndexResult(JNIEnv * env, jobject thisObj, jlong parAddr,
+                                                                                                    jlong indexResult)
 {
     (*(ParameterBase *)parAddr).rowIndexResult = indexResult;
 }
@@ -103,8 +101,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_Parameter
  * Method:    cGetRowIndexResult
  * Signature:(JJJI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_Parameter_cGetRowIndexResult
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_Parameter_cGetRowIndexResult(JNIEnv * env, jobject thisObj, jlong parAddr)
 {
-    return(jlong)(*(ParameterBase *)parAddr).rowIndexResult;
+    return (jlong)(*(ParameterBase *)parAddr).rowIndexResult;
 }

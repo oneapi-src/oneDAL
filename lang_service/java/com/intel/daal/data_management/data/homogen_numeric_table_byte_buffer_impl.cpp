@@ -18,9 +18,9 @@
 #include <jni.h>
 
 #include "com_intel_daal_data_management_data_HomogenNumericTableByteBufferImpl.h"
-#include "numeric_table.h"
-#include "homogen_numeric_table.h"
-#include "common_helpers_functions.h"
+#include "data_management/data/numeric_table.h"
+#include "data_management/data/homogen_numeric_table.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers_functions.h"
 
 using namespace daal;
 using namespace daal::data_management;
@@ -30,12 +30,12 @@ using namespace daal::data_management;
  * Method:    getIndexType
  * Signature:(J)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getIndexType
-(JNIEnv *env, jobject thisobj, jlong numTableAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getIndexType(JNIEnv * env, jobject thisobj,
+                                                                                                                jlong numTableAddr)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
-    NumericTableDictionary *dict = nt->getDictionary();
-    return(jint)((*dict)[0].indexType);
+    NumericTable * nt             = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTableDictionary * dict = nt->getDictionary();
+    return (jint)((*dict)[0].indexType);
 }
 
 /*
@@ -43,13 +43,13 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
  * Method:    dInit
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_dInit
-(JNIEnv *env, jobject thisobj, jlong nColumns, jint featuresEqual)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_dInit(JNIEnv * env, jobject thisobj,
+                                                                                                          jlong nColumns, jint featuresEqual)
 {
-    HomogenNumericTable<double> *tbl = new HomogenNumericTable<double>((DictionaryIface::FeaturesEqual)featuresEqual, NULL, nColumns, 0);
-    SerializationIfacePtr *sPtr = new SerializationIfacePtr(tbl);
+    HomogenNumericTable<double> * tbl = new HomogenNumericTable<double>((DictionaryIface::FeaturesEqual)featuresEqual, NULL, nColumns, 0);
+    SerializationIfacePtr * sPtr      = new SerializationIfacePtr(tbl);
 
-    if(tbl->getErrors()->size() > 0)
+    if (tbl->getErrors()->size() > 0)
     {
         env->ThrowNew(env->FindClass("java/lang/Exception"), tbl->getErrors()->getDescription());
     }
@@ -61,12 +61,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_HomogenNumeric
  * Method:    sInit
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_sInit
-(JNIEnv *env, jobject thisobj, jlong nColumns, jint featuresEqual)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_sInit(JNIEnv * env, jobject thisobj,
+                                                                                                          jlong nColumns, jint featuresEqual)
 {
-    HomogenNumericTable<float> *tbl = new HomogenNumericTable<float>((DictionaryIface::FeaturesEqual)featuresEqual, NULL, nColumns, 0);
-    SerializationIfacePtr *sPtr = new SerializationIfacePtr(tbl);
-    if(tbl->getErrors()->size() > 0)
+    HomogenNumericTable<float> * tbl = new HomogenNumericTable<float>((DictionaryIface::FeaturesEqual)featuresEqual, NULL, nColumns, 0);
+    SerializationIfacePtr * sPtr     = new SerializationIfacePtr(tbl);
+    if (tbl->getErrors()->size() > 0)
     {
         env->ThrowNew(env->FindClass("java/lang/Exception"), tbl->getErrors()->getDescription());
     }
@@ -78,12 +78,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_HomogenNumeric
  * Method:    lInit
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_lInit
-(JNIEnv *env, jobject thisobj, jlong nColumns, jint featuresEqual)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_lInit(JNIEnv * env, jobject thisobj,
+                                                                                                          jlong nColumns, jint featuresEqual)
 {
-    HomogenNumericTable<__int64> *tbl = new HomogenNumericTable<__int64>((DictionaryIface::FeaturesEqual)featuresEqual, NULL, nColumns, 0);
-    SerializationIfacePtr *sPtr = new SerializationIfacePtr(tbl);
-    if(tbl->getErrors()->size() > 0)
+    HomogenNumericTable<__int64> * tbl = new HomogenNumericTable<__int64>((DictionaryIface::FeaturesEqual)featuresEqual, NULL, nColumns, 0);
+    SerializationIfacePtr * sPtr       = new SerializationIfacePtr(tbl);
+    if (tbl->getErrors()->size() > 0)
     {
         env->ThrowNew(env->FindClass("java/lang/Exception"), tbl->getErrors()->getDescription());
     }
@@ -95,12 +95,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_HomogenNumeric
  * Method:    iInit
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_iInit
-(JNIEnv *env, jobject thisobj, jlong nColumns, jint featuresEqual)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_iInit(JNIEnv * env, jobject thisobj,
+                                                                                                          jlong nColumns, jint featuresEqual)
 {
-    HomogenNumericTable<int> *tbl = new HomogenNumericTable<int>((DictionaryIface::FeaturesEqual)featuresEqual, NULL, nColumns, 0);
-    SerializationIfacePtr *sPtr = new SerializationIfacePtr(tbl);
-    if(tbl->getErrors()->size() > 0)
+    HomogenNumericTable<int> * tbl = new HomogenNumericTable<int>((DictionaryIface::FeaturesEqual)featuresEqual, NULL, nColumns, 0);
+    SerializationIfacePtr * sPtr   = new SerializationIfacePtr(tbl);
+    if (tbl->getErrors()->size() > 0)
     {
         env->ThrowNew(env->FindClass("java/lang/Exception"), tbl->getErrors()->getDescription());
     }
@@ -112,15 +112,14 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_HomogenNumeric
  * Method:    getDoubleBuffer
  * Signature:(J)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getDoubleBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getDoubleBuffer(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong numTableAddr)
 {
-    HomogenNumericTable<double> *nt = static_cast<HomogenNumericTable<double> *>(
-            ((SerializationIfacePtr *)numTableAddr)->get());
+    HomogenNumericTable<double> * nt = static_cast<HomogenNumericTable<double> *>(((SerializationIfacePtr *)numTableAddr)->get());
 
-    size_t nRows = nt->getNumberOfRows();
-    size_t nCols = nt->getNumberOfColumns();
-    double *data = nt->getArray();
+    size_t nRows  = nt->getNumberOfRows();
+    size_t nCols  = nt->getNumberOfColumns();
+    double * data = nt->getArray();
 
     jobject byteBuffer = env->NewDirectByteBuffer(data, ((jlong)nRows * nCols * sizeof(double)));
     return byteBuffer;
@@ -131,15 +130,14 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumer
  * Method:    getFloatBuffer
  * Signature:(J)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getFloatBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getFloatBuffer(JNIEnv * env, jobject thisObj,
+                                                                                                                     jlong numTableAddr)
 {
-    HomogenNumericTable<float> *nt = static_cast<HomogenNumericTable<float> *>(
-            ((SerializationIfacePtr *)numTableAddr)->get());
+    HomogenNumericTable<float> * nt = static_cast<HomogenNumericTable<float> *>(((SerializationIfacePtr *)numTableAddr)->get());
 
     size_t nRows = nt->getNumberOfRows();
     size_t nCols = nt->getNumberOfColumns();
-    float *data = nt->getArray();
+    float * data = nt->getArray();
 
     jobject byteBuffer = env->NewDirectByteBuffer(data, ((jlong)nRows * nCols * sizeof(float)));
     return byteBuffer;
@@ -150,15 +148,14 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumer
  * Method:    getLongBuffer
  * Signature:(J)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getLongBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getLongBuffer(JNIEnv * env, jobject thisObj,
+                                                                                                                    jlong numTableAddr)
 {
-    HomogenNumericTable<__int64> *nt = static_cast<HomogenNumericTable<__int64> *>(
-            ((SerializationIfacePtr *)numTableAddr)->get());
+    HomogenNumericTable<__int64> * nt = static_cast<HomogenNumericTable<__int64> *>(((SerializationIfacePtr *)numTableAddr)->get());
 
-    size_t nRows = nt->getNumberOfRows();
-    size_t nCols = nt->getNumberOfColumns();
-    __int64 *data = nt->getArray();
+    size_t nRows   = nt->getNumberOfRows();
+    size_t nCols   = nt->getNumberOfColumns();
+    __int64 * data = nt->getArray();
 
     jobject byteBuffer = env->NewDirectByteBuffer(data, ((jlong)nRows * nCols * sizeof(__int64)));
     return byteBuffer;
@@ -169,15 +166,14 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumer
  * Method:    getIntBuffer
  * Signature:(J)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getIntBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getIntBuffer(JNIEnv * env, jobject thisObj,
+                                                                                                                   jlong numTableAddr)
 {
-    HomogenNumericTable<int> *nt = static_cast<HomogenNumericTable<int> *>(
-            ((SerializationIfacePtr *)numTableAddr)->get());
+    HomogenNumericTable<int> * nt = static_cast<HomogenNumericTable<int> *>(((SerializationIfacePtr *)numTableAddr)->get());
 
     size_t nRows = nt->getNumberOfRows();
     size_t nCols = nt->getNumberOfColumns();
-    int *data = nt->getArray();
+    int * data   = nt->getArray();
 
     jobject byteBuffer = env->NewDirectByteBuffer(data, ((jlong)nRows * nCols * sizeof(int)));
     return byteBuffer;
@@ -188,19 +184,19 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumer
  * Method:    releaseFloatBlockBuffer
  * Signature:(JJJLjava/nio/ByteBuffer;)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_releaseFloatBlockBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_releaseFloatBlockBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<float> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfRows(vectorIndex, vectorNum, writeOnly, block));
 
-    float* data = block.getBlockPtr();
-    const float *src = (float *)(env->GetDirectBufferAddress(byteBuffer));
+    float * data      = block.getBlockPtr();
+    const float * src = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum * nCols; i++)
+    for (size_t i = 0; i < vectorNum * nCols; i++)
     {
         data[i] = src[i];
     }
@@ -213,19 +209,19 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
  * Method:    releaseDoubleBlockBuffer
  * Signature:(JJJLjava/nio/ByteBuffer;)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_releaseDoubleBlockBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_releaseDoubleBlockBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<double> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfRows(vectorIndex, vectorNum, writeOnly, block));
 
-    double *data = block.getBlockPtr();
-    const double *src = (double *)(env->GetDirectBufferAddress(byteBuffer));
+    double * data      = block.getBlockPtr();
+    const double * src = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum * nCols; i++)
+    for (size_t i = 0; i < vectorNum * nCols; i++)
     {
         data[i] = src[i];
     }
@@ -238,19 +234,19 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
  * Method:    releaseIntBlockBuffer
  * Signature:(JJJLjava/nio/ByteBuffer;)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_releaseIntBlockBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_releaseIntBlockBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<int> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfRows(vectorIndex, vectorNum, writeOnly, block));
 
-    int* data = block.getBlockPtr();
-    const int *src = (int *)(env->GetDirectBufferAddress(byteBuffer));
+    int * data      = block.getBlockPtr();
+    const int * src = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum * nCols; i++)
+    for (size_t i = 0; i < vectorNum * nCols; i++)
     {
         data[i] = src[i];
     }
@@ -263,19 +259,19 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
  * Method:    getDoubleBlockBuffer
  * Signature:(JJJLjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getDoubleBlockBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getDoubleBlockBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<double> block;
 
     size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfRows(vectorIndex, vectorNum, readOnly, block));
 
-    const double *data = block.getBlockPtr();
-    double *dst = (double *)(env->GetDirectBufferAddress(byteBuffer));
+    const double * data = block.getBlockPtr();
+    double * dst        = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum * nCols; i++)
+    for (size_t i = 0; i < vectorNum * nCols; i++)
     {
         dst[i] = data[i];
     }
@@ -289,20 +285,20 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumer
  * Method:    getFloatBlockBuffer
  * Signature:(JJJLjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getFloatBlockBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getFloatBlockBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<float> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfRows(vectorIndex, vectorNum, readOnly, block));
 
-    const float *data = block.getBlockPtr();
+    const float * data = block.getBlockPtr();
 
-    float *dst = (float *)(env->GetDirectBufferAddress(byteBuffer));
+    float * dst = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum * nCols; i++)
+    for (size_t i = 0; i < vectorNum * nCols; i++)
     {
         dst[i] = data[i];
     }
@@ -316,20 +312,20 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumer
  * Method:    getIntBlockBuffer
  * Signature:(JJJLjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getIntBlockBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getIntBlockBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<int> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfRows(vectorIndex, vectorNum, readOnly, block));
 
-    const int *data = block.getBlockPtr();
+    const int * data = block.getBlockPtr();
 
-    int *dst = (int *)(env->GetDirectBufferAddress(byteBuffer));
+    int * dst = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum * nCols; i++)
+    for (size_t i = 0; i < vectorNum * nCols; i++)
     {
         dst[i] = data[i];
     }
@@ -343,20 +339,20 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumer
  * Method:    getDoubleColumnBuffer
  * Signature:(JJJJLjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getDoubleColumnBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getDoubleColumnBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<double> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, readOnly, block));
 
-    const double *data = block.getBlockPtr();
+    const double * data = block.getBlockPtr();
 
-    double *dst = (double *)(env->GetDirectBufferAddress(byteBuffer));
+    double * dst = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum; i++)
+    for (size_t i = 0; i < vectorNum; i++)
     {
         dst[i] = data[i];
     }
@@ -370,20 +366,20 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumer
  * Method:    getFloatColumnBuffer
  * Signature:(JJJJLjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getFloatColumnBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getFloatColumnBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<float> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, readOnly, block));
 
-    const float *data = block.getBlockPtr();
+    const float * data = block.getBlockPtr();
 
-    float *dst = (float *)(env->GetDirectBufferAddress(byteBuffer));
+    float * dst = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum; i++)
+    for (size_t i = 0; i < vectorNum; i++)
     {
         dst[i] = data[i];
     }
@@ -397,19 +393,19 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumer
  * Method:    getIntColumnBuffer
  * Signature:(JJJJLjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getIntColumnBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getIntColumnBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<int> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, readOnly, block));
 
-    const int *data = block.getBlockPtr();
-    int *dst = (int *)(env->GetDirectBufferAddress(byteBuffer));
+    const int * data = block.getBlockPtr();
+    int * dst        = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum; i++)
+    for (size_t i = 0; i < vectorNum; i++)
     {
         dst[i] = data[i];
     }
@@ -423,19 +419,19 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumer
  * Method:    releaseFloatColumnBuffer
  * Signature:(JJJJLjava/nio/ByteBuffer;)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_releaseFloatColumnBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_releaseFloatColumnBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<float> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, writeOnly, block));
 
-    float* data = block.getBlockPtr();
-    const float *src = (float *)(env->GetDirectBufferAddress(byteBuffer));
+    float * data      = block.getBlockPtr();
+    const float * src = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum; i++)
+    for (size_t i = 0; i < vectorNum; i++)
     {
         data[i] = src[i];
     }
@@ -448,19 +444,19 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
  * Method:    releaseDoubleColumnBuffer
  * Signature:(JJJJLjava/nio/ByteBuffer;)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_releaseDoubleColumnBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_releaseDoubleColumnBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<double> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, writeOnly, block));
 
-    double *data = block.getBlockPtr();
-    const double *src = (double *)(env->GetDirectBufferAddress(byteBuffer));
+    double * data      = block.getBlockPtr();
+    const double * src = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum; i++)
+    for (size_t i = 0; i < vectorNum; i++)
     {
         data[i] = src[i];
     }
@@ -473,20 +469,20 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
  * Method:    releaseIntColumnBuffer
  * Signature:(JJJJLjava/nio/ByteBuffer;)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_releaseIntColumnBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_releaseIntColumnBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<int> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, writeOnly, block));
 
-    int* data = block.getBlockPtr();
+    int * data = block.getBlockPtr();
 
-    const int *src = (int *)(env->GetDirectBufferAddress(byteBuffer));
+    const int * src = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum; i++)
+    for (size_t i = 0; i < vectorNum; i++)
     {
         data[i] = src[i];
     }
@@ -499,10 +495,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
  * Method:    assignLong
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_assignLong
-(JNIEnv *env, jobject, jlong numTableAddr, jlong constValue)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_assignLong(JNIEnv * env, jobject,
+                                                                                                              jlong numTableAddr, jlong constValue)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<int> block;
 
     size_t nCols = nt->getNumberOfColumns();
@@ -510,9 +506,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
 
     DAAL_CHECK_THROW(nt->getBlockOfRows(0, nRows, readWrite, block));
 
-    int *data = block.getBlockPtr();
+    int * data = block.getBlockPtr();
 
-    for(size_t i = 0; i < nRows * nCols; i++)
+    for (size_t i = 0; i < nRows * nCols; i++)
     {
         data[i] = (int)constValue;
     }
@@ -525,10 +521,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
  * Method:    assignInt
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_assignInt
-(JNIEnv *env, jobject, jlong numTableAddr, jint constValue)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_assignInt(JNIEnv * env, jobject,
+                                                                                                             jlong numTableAddr, jint constValue)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<int> block;
 
     size_t nCols = nt->getNumberOfColumns();
@@ -536,9 +532,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
 
     DAAL_CHECK_THROW(nt->getBlockOfRows(0, nRows, readWrite, block));
 
-    int *data = block.getBlockPtr();
+    int * data = block.getBlockPtr();
 
-    for(size_t i = 0; i < nRows * nCols; i++)
+    for (size_t i = 0; i < nRows * nCols; i++)
     {
         data[i] = (int)constValue;
     }
@@ -551,10 +547,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
  * Method:    assignDouble
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_assignDouble
-(JNIEnv *env, jobject, jlong numTableAddr, jdouble constValue)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_assignDouble(JNIEnv * env, jobject,
+                                                                                                                jlong numTableAddr,
+                                                                                                                jdouble constValue)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<double> block;
 
     size_t nCols = nt->getNumberOfColumns();
@@ -562,9 +559,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
 
     DAAL_CHECK_THROW(nt->getBlockOfRows(0, nRows, readWrite, block));
 
-    double *data = block.getBlockPtr();
+    double * data = block.getBlockPtr();
 
-    for(size_t i = 0; i < nRows * nCols; i++)
+    for (size_t i = 0; i < nRows * nCols; i++)
     {
         data[i] = (double)constValue;
     }
@@ -577,10 +574,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
  * Method:    assignFloat
  * Signature: (JF)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_assignFloat
-(JNIEnv *env, jobject, jlong numTableAddr, jfloat constValue)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_assignFloat(JNIEnv * env, jobject,
+                                                                                                               jlong numTableAddr, jfloat constValue)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<float> block;
 
     size_t nCols = nt->getNumberOfColumns();
@@ -588,9 +585,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
 
     DAAL_CHECK_THROW(nt->getBlockOfRows(0, nRows, readWrite, block));
 
-    float *data = block.getBlockPtr();
+    float * data = block.getBlockPtr();
 
-    for(size_t i = 0; i < nRows * nCols; i++)
+    for (size_t i = 0; i < nRows * nCols; i++)
     {
         data[i] = (float)constValue;
     }
@@ -603,12 +600,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
  * Method:    set
  * Signature: (JJD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_set
-(JNIEnv *env, jobject, jlong numTableAddr, jlong row, jlong column, jdouble value)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_set(JNIEnv * env, jobject, jlong numTableAddr,
+                                                                                                       jlong row, jlong column, jdouble value)
 {
-    HomogenNumericTable<double> *nt = static_cast<HomogenNumericTable<double> *>(
-            ((SerializationIfacePtr *)numTableAddr)->get());
-    (*nt)[row][column] = (double)value;
+    HomogenNumericTable<double> * nt = static_cast<HomogenNumericTable<double> *>(((SerializationIfacePtr *)numTableAddr)->get());
+    (*nt)[row][column]               = (double)value;
 }
 
 /*
@@ -616,12 +612,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
  * Method:    set
  * Signature: (JJF)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_set
-(JNIEnv *env, jobject, jlong numTableAddr, jlong row, jlong column, jfloat value)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_set(JNIEnv * env, jobject, jlong numTableAddr,
+                                                                                                       jlong row, jlong column, jfloat value)
 {
-    HomogenNumericTable<float> *nt = static_cast<HomogenNumericTable<float> *>(
-            ((SerializationIfacePtr *)numTableAddr)->get());
-    (*nt)[row][column] = (float)value;
+    HomogenNumericTable<float> * nt = static_cast<HomogenNumericTable<float> *>(((SerializationIfacePtr *)numTableAddr)->get());
+    (*nt)[row][column]              = (float)value;
 }
 
 /*
@@ -629,12 +624,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
  * Method:    set
  * Signature: (JJJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_set
-(JNIEnv *env, jobject, jlong numTableAddr, jlong row, jlong column, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_set(JNIEnv * env, jobject, jlong numTableAddr,
+                                                                                                       jlong row, jlong column, jlong value)
 {
-    HomogenNumericTable<long> *nt = static_cast<HomogenNumericTable<long> *>(
-            ((SerializationIfacePtr *)numTableAddr)->get());
-    (*nt)[row][column] = (long)value;
+    HomogenNumericTable<long> * nt = static_cast<HomogenNumericTable<long> *>(((SerializationIfacePtr *)numTableAddr)->get());
+    (*nt)[row][column]             = (long)value;
 }
 
 /*
@@ -642,12 +636,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
  * Method:    set
  * Signature: (JJI)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_set
-(JNIEnv *env, jobject, jlong numTableAddr, jlong row, jlong column, jint value)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_set(JNIEnv * env, jobject, jlong numTableAddr,
+                                                                                                       jlong row, jlong column, jint value)
 {
-    HomogenNumericTable<int> *nt = static_cast<HomogenNumericTable<int> *>(
-            ((SerializationIfacePtr *)numTableAddr)->get());
-    (*nt)[row][column] = (int)value;
+    HomogenNumericTable<int> * nt = static_cast<HomogenNumericTable<int> *>(((SerializationIfacePtr *)numTableAddr)->get());
+    (*nt)[row][column]            = (int)value;
 }
 
 /*
@@ -655,11 +648,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
  * Method:    getDouble
  * Signature: (JJ)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getDouble
-(JNIEnv *env, jobject, jlong numTableAddr, jlong row, jlong column)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getDouble(JNIEnv * env, jobject,
+                                                                                                                jlong numTableAddr, jlong row,
+                                                                                                                jlong column)
 {
-    HomogenNumericTable<double> *nt = static_cast<HomogenNumericTable<double> *>(
-            ((SerializationIfacePtr *)numTableAddr)->get());
+    HomogenNumericTable<double> * nt = static_cast<HomogenNumericTable<double> *>(((SerializationIfacePtr *)numTableAddr)->get());
     return (jdouble)((*nt)[row][column]);
 }
 
@@ -668,11 +661,11 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_data_1management_data_HomogenNumer
  * Method:    getFloat
  * Signature: (JJ)F
  */
-JNIEXPORT jfloat JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getFloat
-(JNIEnv *env, jobject, jlong numTableAddr, jlong row, jlong column)
+JNIEXPORT jfloat JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getFloat(JNIEnv * env, jobject,
+                                                                                                              jlong numTableAddr, jlong row,
+                                                                                                              jlong column)
 {
-    HomogenNumericTable<float> *nt = static_cast<HomogenNumericTable<float> *>(
-            ((SerializationIfacePtr *)numTableAddr)->get());
+    HomogenNumericTable<float> * nt = static_cast<HomogenNumericTable<float> *>(((SerializationIfacePtr *)numTableAddr)->get());
     return (jfloat)((*nt)[row][column]);
 }
 
@@ -681,11 +674,10 @@ JNIEXPORT jfloat JNICALL Java_com_intel_daal_data_1management_data_HomogenNumeri
  * Method:    getLong
  * Signature: (JJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getLong
-(JNIEnv *env, jobject, jlong numTableAddr, jlong row, jlong column, jlong value)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getLong(JNIEnv * env, jobject, jlong numTableAddr,
+                                                                                                            jlong row, jlong column, jlong value)
 {
-    HomogenNumericTable<long> *nt = static_cast<HomogenNumericTable<long> *>(
-            ((SerializationIfacePtr *)numTableAddr)->get());
+    HomogenNumericTable<long> * nt = static_cast<HomogenNumericTable<long> *>(((SerializationIfacePtr *)numTableAddr)->get());
     return (jlong)((*nt)[row][column]);
 }
 
@@ -694,11 +686,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_HomogenNumeric
  * Method:    getInt
  * Signature: (JJ)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getInt
-(JNIEnv *env, jobject, jlong numTableAddr, jlong row, jlong column)
+JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getInt(JNIEnv * env, jobject, jlong numTableAddr,
+                                                                                                          jlong row, jlong column)
 {
-    HomogenNumericTable<int> *nt = static_cast<HomogenNumericTable<int> *>(
-            ((SerializationIfacePtr *)numTableAddr)->get());
+    HomogenNumericTable<int> * nt = static_cast<HomogenNumericTable<int> *>(((SerializationIfacePtr *)numTableAddr)->get());
     return (jint)((*nt)[row][column]);
 }
 
@@ -707,10 +698,11 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
  * Method:    cAllocateDataMemoryDouble
  * Signature:(J)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_cAllocateDataMemoryDouble
-(JNIEnv *env, jobject thisObj, jlong numTableAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_cAllocateDataMemoryDouble(JNIEnv * env,
+                                                                                                                             jobject thisObj,
+                                                                                                                             jlong numTableAddr)
 {
-    NumericTable *tbl = ((NumericTablePtr *)numTableAddr)->get();
+    NumericTable * tbl = ((NumericTablePtr *)numTableAddr)->get();
 
     DAAL_CHECK_THROW(((HomogenNumericTable<double> *)tbl)->allocateDataMemory());
 }
@@ -720,10 +712,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
  * Method:    cAllocateDataMemoryFloat
  * Signature:(J)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_cAllocateDataMemoryFloat
-(JNIEnv *env, jobject thisObj, jlong numTableAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_cAllocateDataMemoryFloat(JNIEnv * env,
+                                                                                                                            jobject thisObj,
+                                                                                                                            jlong numTableAddr)
 {
-    NumericTable *tbl = ((NumericTablePtr *)numTableAddr)->get();
+    NumericTable * tbl = ((NumericTablePtr *)numTableAddr)->get();
 
     DAAL_CHECK_THROW(((HomogenNumericTable<float> *)tbl)->allocateDataMemory());
 }
@@ -733,10 +726,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
  * Method:    cAllocateDataMemoryLong
  * Signature:(J)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_cAllocateDataMemoryLong
-(JNIEnv *env, jobject thisObj, jlong numTableAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_cAllocateDataMemoryLong(JNIEnv * env,
+                                                                                                                           jobject thisObj,
+                                                                                                                           jlong numTableAddr)
 {
-    NumericTable *tbl = ((NumericTablePtr *)numTableAddr)->get();
+    NumericTable * tbl = ((NumericTablePtr *)numTableAddr)->get();
 
     DAAL_CHECK_THROW(((HomogenNumericTable<long> *)tbl)->allocateDataMemory());
 }
@@ -746,10 +740,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
  * Method:    cAllocateDataMemoryInt
  * Signature:(J)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_cAllocateDataMemoryInt
-(JNIEnv *env, jobject thisObj, jlong numTableAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_cAllocateDataMemoryInt(JNIEnv * env,
+                                                                                                                          jobject thisObj,
+                                                                                                                          jlong numTableAddr)
 {
-    NumericTable *tbl = ((NumericTablePtr *)numTableAddr)->get();
+    NumericTable * tbl = ((NumericTablePtr *)numTableAddr)->get();
 
     DAAL_CHECK_THROW(((HomogenNumericTable<int> *)tbl)->allocateDataMemory());
 }

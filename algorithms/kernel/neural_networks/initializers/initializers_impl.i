@@ -24,10 +24,10 @@
 #ifndef __INITIALIZERS_IMPL_I__
 #define __INITIALIZERS_IMPL_I__
 
-#include "mt19937_batch_impl.h"
+#include "algorithms/kernel/engines/mt19937/mt19937_batch_impl.h"
 
-#include "service_utils.h"
-#include "service_numeric_table.h"
+#include "service/kernel/service_utils.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 namespace daal
 {

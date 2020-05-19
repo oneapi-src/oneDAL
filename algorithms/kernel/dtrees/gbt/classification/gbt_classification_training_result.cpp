@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/gradient_boosted_trees/gbt_classification_training_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

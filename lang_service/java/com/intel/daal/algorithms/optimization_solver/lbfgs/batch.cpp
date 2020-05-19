@@ -23,7 +23,7 @@
 #include "com_intel_daal_algorithms_optimization_solver_lbfgs_Input.h"
 #include "com_intel_daal_algorithms_optimization_solver_lbfgs_Result.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::optimization_solver;
@@ -33,8 +33,7 @@ using namespace daal::algorithms::optimization_solver;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Batch_cInit
-  (JNIEnv *, jobject, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Batch_cInit(JNIEnv *, jobject, jint prec, jint method)
 {
     return jniBatch<lbfgs::Method, lbfgs::Batch, lbfgs::defaultDense>::newObj(prec, method, SharedPtr<sum_of_functions::Batch>());
 }
@@ -44,8 +43,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfg
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Batch_cClone
-  (JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Batch_cClone(JNIEnv *, jobject, jlong algAddr, jint prec,
+                                                                                               jint method)
 {
     return jniBatch<lbfgs::Method, lbfgs::Batch, lbfgs::defaultDense>::getClone(prec, method, algAddr);
 }
@@ -55,8 +54,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfg
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Batch_cGetInput
-  (JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Batch_cGetInput(JNIEnv *, jobject, jlong algAddr, jint prec,
+                                                                                                  jint method)
 {
     return jniBatch<lbfgs::Method, lbfgs::Batch, lbfgs::defaultDense>::getInput(prec, method, algAddr);
 }
@@ -66,8 +65,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfg
  * Method:    cGetParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Batch_cGetParameter
-  (JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfgs_Batch_cGetParameter(JNIEnv *, jobject, jlong algAddr, jint prec,
+                                                                                                      jint method)
 {
     return jniBatch<lbfgs::Method, lbfgs::Batch, lbfgs::defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -77,8 +76,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_lbfg
 * Method:    cSetOptionalData
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Input_cSetOptionalData
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Input_cSetOptionalData(JNIEnv *, jobject, jlong inputAddr, jint id,
+                                                                                                          jlong ntAddr)
 {
     jniInput<lbfgs::Input>::set<lbfgs::OptionalDataId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -88,8 +87,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagr
 * Method:    cNewResult
 * Signature: ()J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Result_cNewResult
-(JNIEnv *, jobject)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Result_cNewResult(JNIEnv *, jobject)
 {
     return jniArgument<lbfgs::Result>::newObj();
 }
@@ -99,8 +97,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adag
 * Method:    cGetOptionalData
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Input_cGetOptionalData
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Input_cGetOptionalData(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                           jint id)
 {
     return jniInput<lbfgs::Input>::get<lbfgs::OptionalDataId, NumericTable>(inputAddr, id);
 }
@@ -110,20 +108,18 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adag
 * Method:    cGetOptionalData
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Result_cGetOptionalData
-(JNIEnv *, jobject, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Result_cGetOptionalData(JNIEnv *, jobject, jlong resAddr, jint id)
 {
     return jniArgument<lbfgs::Result>::get<lbfgs::OptionalDataId, NumericTable>(resAddr, id);
 }
-
 
 /*
 * Class:     com_intel_daal_algorithms_optimization_solver_adagrad_Result
 * Method:    cSetOptionalData
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Result_cSetOptionalData
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_adagrad_Result_cSetOptionalData(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                           jint id, jlong ntAddr)
 {
     jniArgument<lbfgs::Result>::set<lbfgs::OptionalDataId, NumericTable>(ntAddr, id, ntAddr);
 }

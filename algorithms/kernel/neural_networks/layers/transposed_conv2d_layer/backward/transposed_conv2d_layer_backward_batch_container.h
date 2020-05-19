@@ -24,8 +24,8 @@
 #ifndef __TRANSPOSED_CONV2D_LAYER_BACKWARD_BATCH_CONTAINER_H__
 #define __TRANSPOSED_CONV2D_LAYER_BACKWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/transposed_conv2d/transposed_conv2d_layer.h"
-#include "transposed_conv2d_layer_backward_kernel.h"
+#include "algorithms/neural_networks/layers/transposed_conv2d/transposed_conv2d_layer.h"
+#include "algorithms/kernel/neural_networks/layers/transposed_conv2d_layer/backward/transposed_conv2d_layer_backward_kernel.h"
 
 namespace daal
 {

@@ -23,7 +23,7 @@
 #include "com_intel_daal_algorithms_optimization_solver_saga_Input.h"
 #include "com_intel_daal_algorithms_optimization_solver_saga_Result.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::optimization_solver;
@@ -33,8 +33,7 @@ using namespace daal::algorithms::optimization_solver;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Batch_cInit
-(JNIEnv *, jobject, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Batch_cInit(JNIEnv *, jobject, jint prec, jint method)
 {
     return jniBatch<saga::Method, saga::Batch, saga::defaultDense>::newObj(prec, method, SharedPtr<sum_of_functions::Batch>());
 }
@@ -44,8 +43,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Batch_cClone
-(JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Batch_cClone(JNIEnv *, jobject, jlong algAddr, jint prec,
+                                                                                              jint method)
 {
     return jniBatch<saga::Method, saga::Batch, saga::defaultDense>::getClone(prec, method, algAddr);
 }
@@ -55,8 +54,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Batch_cGetInput
-(JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Batch_cGetInput(JNIEnv *, jobject, jlong algAddr, jint prec,
+                                                                                                 jint method)
 {
     return jniBatch<saga::Method, saga::Batch, saga::defaultDense>::getInput(prec, method, algAddr);
 }
@@ -66,8 +65,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga
  * Method:    cGetParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Batch_cGetParameter
-(JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Batch_cGetParameter(JNIEnv *, jobject, jlong algAddr, jint prec,
+                                                                                                     jint method)
 {
     return jniBatch<saga::Method, saga::Batch, saga::defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -77,8 +76,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga
 * Method:    cSetOptionalData
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Input_cSetOptionalData
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Input_cSetOptionalData(JNIEnv *, jobject, jlong inputAddr, jint id,
+                                                                                                       jlong ntAddr)
 {
     jniInput<saga::Input>::set<saga::OptionalDataId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -88,8 +87,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_
 * Method:    cNewResult
 * Signature: ()J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Result_cNewResult
-(JNIEnv *, jobject)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Result_cNewResult(JNIEnv *, jobject)
 {
     return jniArgument<saga::Result>::newObj();
 }
@@ -99,8 +97,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga
 * Method:    cGetOptionalData
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Input_cGetOptionalData
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Input_cGetOptionalData(JNIEnv *, jobject, jlong inputAddr, jint id)
 {
     return jniInput<saga::Input>::get<saga::OptionalDataId, NumericTable>(inputAddr, id);
 }
@@ -110,20 +107,18 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga
 * Method:    cGetOptionalData
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Result_cGetOptionalData
-(JNIEnv *, jobject, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Result_cGetOptionalData(JNIEnv *, jobject, jlong resAddr, jint id)
 {
     return jniArgument<saga::Result>::get<saga::OptionalDataId, NumericTable>(resAddr, id);
 }
-
 
 /*
 * Class:     com_intel_daal_algorithms_optimization_solver_saga_Result
 * Method:    cSetOptionalData
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Result_cSetOptionalData
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_saga_Result_cSetOptionalData(JNIEnv *, jobject, jlong inputAddr, jint id,
+                                                                                                        jlong ntAddr)
 {
     jniArgument<saga::Result>::set<saga::OptionalDataId, NumericTable>(ntAddr, id, ntAddr);
 }

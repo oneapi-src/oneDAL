@@ -24,7 +24,7 @@
 #ifndef __GAUSSIAN_INITIALIZER_IMPL_I__
 #define __GAUSSIAN_INITIALIZER_IMPL_I__
 
-#include "initializers_impl.i"
+#include "algorithms/kernel/neural_networks/initializers/initializers_impl.i"
 
 namespace daal
 {

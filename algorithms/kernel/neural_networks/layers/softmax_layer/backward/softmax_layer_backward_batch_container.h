@@ -24,8 +24,8 @@
 #ifndef __SOFTMAX_LAYER_BACKWARD_BATCH_CONTAINER_H__
 #define __SOFTMAX_LAYER_BACKWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/softmax/softmax_layer.h"
-#include "softmax_layer_backward_kernel.h"
+#include "algorithms/neural_networks/layers/softmax/softmax_layer.h"
+#include "algorithms/kernel/neural_networks/layers/softmax_layer/backward/softmax_layer_backward_kernel.h"
 
 namespace daal
 {

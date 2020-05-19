@@ -19,13 +19,13 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_dbscan_DistributedPartialResultStep4.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::dbscan;
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep4_cNewDistributedPartialResultStep4
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep4_cNewDistributedPartialResultStep4(JNIEnv * env,
+                                                                                                                              jobject thisObj)
 {
     return jniArgument<DistributedPartialResultStep4>::newObj();
 }
@@ -35,8 +35,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartial
  * Method:    cGetDataCollection
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep4_cGetDataCollection
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep4_cGetDataCollection(JNIEnv * env, jobject thisObj,
+                                                                                                               jlong resAddr, jint id)
 {
     return jniArgument<DistributedPartialResultStep4>::get<DistributedPartialResultStep4Id, DataCollection>(resAddr, id);
 }
@@ -46,8 +46,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartial
  * Method:    cSetDataCollection
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep4_cSetDataCollection
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong dcAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep4_cSetDataCollection(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong resAddr, jint id, jlong dcAddr)
 {
     jniArgument<DistributedPartialResultStep4>::set<DistributedPartialResultStep4Id, DataCollection>(resAddr, id, dcAddr);
 }

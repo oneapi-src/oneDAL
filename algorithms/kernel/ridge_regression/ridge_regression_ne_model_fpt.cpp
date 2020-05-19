@@ -21,7 +21,7 @@
 //--
 */
 
-#include "ridge_regression_ne_model_impl.h"
+#include "algorithms/kernel/ridge_regression/ridge_regression_ne_model_impl.h"
 #include "data_management/data/homogen_numeric_table.h"
 
 namespace daal

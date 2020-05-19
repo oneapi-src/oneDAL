@@ -24,8 +24,8 @@
 #ifndef __MT19937_BATCH_CONTAINER_H__
 #define __MT19937_BATCH_CONTAINER_H__
 
-#include "engines/mt19937/mt19937.h"
-#include "mt19937_kernel.h"
+#include "algorithms/engines/mt19937/mt19937.h"
+#include "algorithms/kernel/engines/mt19937/mt19937_kernel.h"
 
 namespace daal
 {

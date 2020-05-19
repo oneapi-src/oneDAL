@@ -25,8 +25,8 @@
 #ifndef __ASSOC_RULES_APRIORI_DISCOVER_IMPL_I__
 #define __ASSOC_RULES_APRIORI_DISCOVER_IMPL_I__
 
-#include "service_memory.h"
-#include "assoc_rules_apriori_types.i"
+#include "externals/service_memory.h"
+#include "algorithms/kernel/assocrules/assoc_rules_apriori_types.i"
 
 namespace daal
 {
@@ -66,8 +66,10 @@ const assocrules_itemset<cpu> * AssociationRulesKernel<apriori, algorithmFPType,
  *  \param aSize[in]        number of items in the 1st item set
  *  \param b[in]            array of items of the 2nd item set (sorted)
  *  \param bSize[in]        number of items in the 2nd item set
- *  \param c[out]           array of items in the intersection of 1st and 2nd item sets
- *  \param cSize[out]    number of items in the intersection of 1st and 2nd item sets
+ *  \param c[out]           array of items in the intersection of 1st and 2nd
+ *item sets
+ *  \param cSize[out]    number of items in the intersection of 1st and 2nd item
+ *sets
  *
   */
 template <typename algorithmFPType, CpuType cpu>
@@ -158,12 +160,15 @@ services::Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::firstPas
 }
 
 /**
- *  Generate rules that have k+1 items on the right from the rules that have k items on the right.
+ *  Generate rules that have k+1 items on the right from the rules that have k
+ *items on the right.
  *
  *  \param minConfidence[in]    minimum confidence
  *  \param L[in]                structure containing "large" item sets
- *  \param right_size[in]       number of items in the right part of the rules (k)
- *  \param itemsSupport[in]     support of the item set superset that contains items of the left
+ *  \param right_size[in]       number of items in the right part of the rules
+ *(k)
+ *  \param itemsSupport[in]     support of the item set superset that contains
+ *items of the left
  *                              and right parts of the generated rules
  *  \param leftItems[in]        buffer to store left part of the rule
  *  \param R[in,out]            structure that contains association rules
@@ -195,7 +200,7 @@ services::Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::nextPass
             size_t * first_items  = R[firstIdx].right->items;
             size_t * second_items = R[secondIdx].right->items;
             /* Check that (right_size-2) items of first rule's right part
-               and second rule's right part are equal */
+         and second rule's right part are equal */
             if (right_size > 2)
             {
                 if (assocrules_memcmp<cpu>(first_items, second_items, (right_size - 2)))
@@ -247,8 +252,10 @@ services::Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::nextPass
  *  \param L[in]                structure that contains "large" itemsets
  *  \param R[out]               structure that contains association rules
  *  \param numRules[out]        number of discovered association rules
- *  \param numLeft[out]         total number of items in the left parts of association rules
- *  \param numRight[out]        total number of items in the right parts of association rules
+ *  \param numLeft[out]         total number of items in the left parts of
+ *association rules
+ *  \param numRight[out]        total number of items in the right parts of
+ *association rules
  *
  */
 template <typename algorithmFPType, CpuType cpu>

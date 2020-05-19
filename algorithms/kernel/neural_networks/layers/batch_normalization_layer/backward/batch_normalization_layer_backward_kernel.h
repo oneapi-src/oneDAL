@@ -22,12 +22,12 @@
 #ifndef __BATCH_NORMALIZATION_LAYER_BACKWARD_KERNEL_H__
 #define __BATCH_NORMALIZATION_LAYER_BACKWARD_KERNEL_H__
 
-#include "neural_networks/layers/batch_normalization/batch_normalization_layer_backward.h"
-#include "neural_networks/layers/batch_normalization/batch_normalization_layer_backward_types.h"
-#include "kernel.h"
-#include "tensor.h"
-#include "service_tensor.h"
-#include "service_numeric_table.h"
+#include "algorithms/neural_networks/layers/batch_normalization/batch_normalization_layer_backward.h"
+#include "algorithms/neural_networks/layers/batch_normalization/batch_normalization_layer_backward_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/tensor.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

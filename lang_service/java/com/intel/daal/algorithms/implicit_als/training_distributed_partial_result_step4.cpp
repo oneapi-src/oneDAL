@@ -21,9 +21,9 @@
 
 #include "com_intel_daal_algorithms_implicit_als_training_DistributedPartialResultStep4.h"
 
-#include "implicit_als_training_defines.i"
+#include "lang_service/java/com/intel/daal/algorithms/implicit_als/implicit_als_training_defines.i"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::implicit_als;
@@ -34,23 +34,24 @@ using namespace daal::algorithms::implicit_als::training;
  * Method:    cNewDistributedPartialResultStep4
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedPartialResultStep4_cNewDistributedPartialResultStep4
-  (JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedPartialResultStep4_cNewDistributedPartialResultStep4(
+    JNIEnv * env, jobject thisObj)
 {
     return jniArgument<DistributedPartialResultStep4>::newObj();
 }
-
 
 /*
  * Class:     com_intel_daal_algorithms_implicit_als_training_DistributedPartialResultStep4
  * Method:    cGetPartialModel
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedPartialResultStep4_cGetPartialModel
-  (JNIEnv *env, jobject thisObj, jlong partialResultAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedPartialResultStep4_cGetPartialModel(JNIEnv * env,
+                                                                                                                             jobject thisObj,
+                                                                                                                             jlong partialResultAddr,
+                                                                                                                             jint id)
 {
-    return jniArgument<implicit_als::training::DistributedPartialResultStep4>::
-        get<DistributedPartialResultStep4Id, PartialModel>(partialResultAddr, id);
+    return jniArgument<implicit_als::training::DistributedPartialResultStep4>::get<DistributedPartialResultStep4Id, PartialModel>(partialResultAddr,
+                                                                                                                                  id);
 }
 
 /*
@@ -58,9 +59,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_Di
  * Method:    cSetPartialModel
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedPartialResultStep4_cSetPartialModel
-  (JNIEnv *env, jobject thisObj, jlong partialResultAddr, jint id, jlong partialModelAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedPartialResultStep4_cSetPartialModel(
+    JNIEnv * env, jobject thisObj, jlong partialResultAddr, jint id, jlong partialModelAddr)
 {
-    jniArgument<implicit_als::training::DistributedPartialResultStep4>::
-        set<DistributedPartialResultStep4Id, PartialModel>(partialResultAddr, id, partialModelAddr);
+    jniArgument<implicit_als::training::DistributedPartialResultStep4>::set<DistributedPartialResultStep4Id, PartialModel>(partialResultAddr, id,
+                                                                                                                           partialModelAddr);
 }

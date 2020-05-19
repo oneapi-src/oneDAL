@@ -24,12 +24,12 @@
 #ifndef __DECISION_TREE_REGRESSION_TRAIN_CONTAINER_H__
 #define __DECISION_TREE_REGRESSION_TRAIN_CONTAINER_H__
 
-#include "kernel.h"
+#include "algorithms/kernel/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "services/daal_shared_ptr.h"
-#include "decision_tree_regression_training_batch.h"
-#include "decision_tree_regression_train_kernel.h"
-#include "decision_tree_regression_model_impl.h"
+#include "algorithms/decision_tree/decision_tree_regression_training_batch.h"
+#include "algorithms/kernel/decision_tree/decision_tree_regression_train_kernel.h"
+#include "algorithms/kernel/decision_tree/decision_tree_regression_model_impl.h"
 
 namespace daal
 {

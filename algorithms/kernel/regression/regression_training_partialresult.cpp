@@ -23,8 +23,8 @@
 
 #include "services/daal_defines.h"
 #include "algorithms/regression/regression_training_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {

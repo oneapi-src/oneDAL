@@ -19,9 +19,9 @@
 //  Implementation of convolution2d calculation functions.
 //--
 
-#include "convolution2d_layer_forward_batch_container.h"
-#include "convolution2d_layer_forward_kernel.h"
-#include "convolution2d_layer_forward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/convolution2d_layer/forward/convolution2d_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/convolution2d_layer/forward/convolution2d_layer_forward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/convolution2d_layer/forward/convolution2d_layer_forward_impl.i"
 
 namespace daal
 {

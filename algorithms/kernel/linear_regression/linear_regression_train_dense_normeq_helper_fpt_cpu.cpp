@@ -22,7 +22,7 @@
 //--
 */
 
-#include "linear_regression_train_dense_normeq_helper_impl.i"
+#include "algorithms/kernel/linear_regression/linear_regression_train_dense_normeq_helper_impl.i"
 
 namespace daal
 {

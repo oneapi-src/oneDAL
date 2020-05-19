@@ -19,7 +19,7 @@
 //  Implementation of the backward softmax cross layer
 //--
 
-#include "softmax_cross_layer_backward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/loss_layer/softmax_cross_layer/backward/softmax_cross_layer_backward_batch_container.h"
 
 namespace daal
 {

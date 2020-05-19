@@ -21,8 +21,8 @@
 //--
 */
 
-#include "spatial_stochastic_pooling2d_layer_types.h"
-#include "spatial_stochastic_pooling2d_layer_backward_types.h"
+#include "algorithms/neural_networks/layers/spatial_pooling2d/spatial_stochastic_pooling2d_layer_types.h"
+#include "algorithms/neural_networks/layers/spatial_pooling2d/spatial_stochastic_pooling2d_layer_backward_types.h"
 
 namespace daal
 {

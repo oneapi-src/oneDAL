@@ -21,9 +21,9 @@
 
 #include "com_intel_daal_algorithms_implicit_als_training_TrainingInput.h"
 
-#include "implicit_als_training_defines.i"
+#include "lang_service/java/com/intel/daal/algorithms/implicit_als/implicit_als_training_defines.i"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::implicit_als::training;
@@ -33,8 +33,8 @@ using namespace daal::algorithms::implicit_als::training;
  * Method:    cInit
  * Signature: (JIIII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_TrainingInput_cInit
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_TrainingInput_cInit(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                  jint prec, jint method)
 {
     return jniBatch<implicit_als::training::Method, Batch, fastCSR, defaultDense>::getInput(prec, method, algAddr);
 }
@@ -44,8 +44,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_Tr
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_TrainingInput_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong valAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_TrainingInput_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                                     jint id, jlong valAddr)
 {
     if (id == dataId)
     {
@@ -62,8 +62,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_Tra
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_TrainingInput_cGetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_TrainingInput_cGetInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                                      jint id)
 {
     if (id == dataId)
     {

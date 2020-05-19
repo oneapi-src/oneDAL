@@ -21,7 +21,7 @@
 
 #include "com_intel_daal_algorithms_optimization_solver_objective_function_Input.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::optimization_solver;
@@ -31,8 +31,8 @@ using namespace daal::algorithms::optimization_solver;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_objective_1function_Input_cSetInput
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_objective_1function_Input_cSetInput(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                               jint id, jlong ntAddr)
 {
     jniInput<objective_function::Input>::set<objective_function::InputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -42,8 +42,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_objec
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_objective_1function_Input_cGetInput
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_objective_1function_Input_cGetInput(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                                jint id)
 {
     return jniInput<objective_function::Input>::get<objective_function::InputId, NumericTable>(inputAddr, id);
 }

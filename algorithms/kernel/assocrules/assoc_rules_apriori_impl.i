@@ -25,13 +25,13 @@
 #ifndef __ASSOC_RULES_APRIORI_IMPL_I__
 #define __ASSOC_RULES_APRIORI_IMPL_I__
 
-#include "service_numeric_table.h"
-#include "service_sort.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_sort.h"
 
-#include "assoc_rules_apriori_mine_impl.i"
-#include "assoc_rules_apriori_discover_impl.i"
+#include "algorithms/kernel/assocrules/assoc_rules_apriori_mine_impl.i"
+#include "algorithms/kernel/assocrules/assoc_rules_apriori_discover_impl.i"
 
-#include "service_data_utils.h"
+#include "service/kernel/service_data_utils.h"
 
 using namespace daal::algorithms::internal;
 using namespace daal::services;
@@ -129,7 +129,7 @@ services::Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::findLarg
                                                                                           size_t & L_size)
 {
     /* Form list of "large" item sets of size 1 from the unique items
-       which count is not less than minimum count 'imin_s' */
+     which count is not less than minimum count 'imin_s' */
     services::Status statFirstPass = firstPass(minSupport, data, *L);
     DAAL_CHECK_STATUS_OK(statFirstPass.ok(), statFirstPass);
 
