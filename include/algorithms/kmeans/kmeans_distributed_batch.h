@@ -50,14 +50,14 @@ enum Method
  * @{
  */
 /**
- * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__BATCHCONTAINER"></a>
+ * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__DISTRIBUTED_BATCHCONTAINER"></a>
  * \brief Provides methods to run implementations of K-Means algorithm.
- *        This class is associated with the daal::algorithms::kmeans::Batch class
+ *        This class is associated with the daal::algorithms::preview::distributed_kmeans::Batch class
  *        and supports the method of K-Means computation in the batch processing mode
+ *        but using multi-process communication internally.
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of K-Means, double or float
- * \tparam method           Computation method of the algorithm, \ref daal::algorithms::kmeans::Method
- */
+  */
 template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {

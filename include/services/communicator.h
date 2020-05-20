@@ -61,6 +61,10 @@ protected:
 private:
     daal::services::SharedPtr<ImplType> _impl;
 };
+/**
+ *  <a name="DAAL-CLASS-SERVICES__EMPTYCOMMUNICATOR"></a>
+ *  \brief Stub for disabled inter-process communication
+  */
 
 class EmptyCommunicator : public Communicator
 {

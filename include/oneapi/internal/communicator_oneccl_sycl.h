@@ -34,6 +34,10 @@ namespace internal
 {
 namespace interface1
 {
+/**
+ *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__COMMUNICATORONECCLIMPL"></a>
+ *  \brief Implementation of oneCCL-based communicator
+ */
 class CommunicatorOneCclImpl : public CommunicatorIface
 {
 public:

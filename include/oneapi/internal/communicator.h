@@ -1,6 +1,6 @@
 /* file: communicator.h */
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright     2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,6 +34,10 @@ namespace internal
 {
 namespace interface1
 {
+/**
+ *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__COMMUNICATORIFACE"></a>
+ *  \brief Interface for inter-process communicator
+ */
 class CommunicatorIface
 {
 public:
@@ -46,6 +50,10 @@ public:
     virtual size_t rank()                                                = 0;
 };
 
+/**
+ *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__NOCOMMUNICATOR"></a>
+ *  \brief Communicator stub for a serial run
+ */
 class NoCommunicator : public CommunicatorIface
 {
 public:
