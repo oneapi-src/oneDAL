@@ -135,12 +135,11 @@ DECLARE_SOURCE(
 
     __kernel void reduce_assignments(__global const algorithmFPType * distances, __global int * assignments, __global algorithmFPType * mindistances,
                                      int N, int K) {
-        const int global_id = get_global_id(0);
-        const int size      = get_local_size(1);
-        const int local_id  = get_local_id(1);
-        int numgrp          = K / size;
-        const int rem       = K % size;
-        if (rem > 0) numgrp++;
+        const int global_id        = get_global_id(0);
+        const int size             = get_local_size(1);
+        const int local_id         = get_local_id(1);
+        const int rem              = K % size;
+        int numgrp                 = K / size + !!rem;
         const algorithmFPType HUGE = 1.0e30;
 
         algorithmFPType minVal = HUGE;
@@ -172,7 +171,7 @@ DECLARE_SOURCE(
         int prevVal = curVal;
         int delta   = index < sub_group_id ? 1 : 0;
         int res     = intel_sub_group_shuffle_up(prevVal, curVal, delta);
-        if (rem == 0 || sub_group_id < rem)
+        if (0 == rem || sub_group_id < rem)
         {
             int v                       = index == sub_group_id ? newVal : res;
             data[offset + sub_group_id] = v;
@@ -188,7 +187,7 @@ DECLARE_SOURCE(
         algorithmFPType prevVal = curVal;
         int delta               = index < sub_group_id ? 1 : 0;
         algorithmFPType res     = intel_sub_group_shuffle_up(prevVal, curVal, delta);
-        if (rem == 0 || sub_group_id < rem)
+        if (0 == rem || sub_group_id < rem)
         {
             data[offset + sub_group_id] = index == sub_group_id ? newVal : res;
         }
@@ -237,7 +236,7 @@ DECLARE_SOURCE(
 
         for (int i = 0; i < numgrp; i++)
         {
-            if (i < numgrp - 1 || local_id < rem || rem == 0)
+            if (i < numgrp - 1 || local_id < rem || 0 == rem)
             {
                 int offset                = local_id + lsize * i;
                 algorithmFPType initValue = (global_id == 0 && !Reset) ? candidateDistances[offset] : -HUGE;
