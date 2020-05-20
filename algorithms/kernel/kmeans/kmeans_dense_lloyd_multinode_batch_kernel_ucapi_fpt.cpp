@@ -1,4 +1,4 @@
-/* file: kmeans_dense_lloyd_distr_batch_kernel_ucapi_fpt.cpp */
+/* file: kmeans_dense_lloyd_multinode_batch_kernel_ucapi_fpt.cpp */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -30,13 +30,13 @@ namespace algorithms
 {
 namespace preview
 {
-namespace distributed_kmeans
+namespace kmeans
 {
 namespace internal
 {
 template class KMeansOneCclDefaultBatchKernelUCAPI<DAAL_FPTYPE>;
 } // namespace internal
-} // namespace distributed_kmeans
+} // namespace kmeans
 } // namespace preview
 } // namespace algorithms
 } // namespace daal

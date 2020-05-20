@@ -1,4 +1,4 @@
-/* file: kmeans_distributed_batch.h */
+/* file: kmeans_multinode_batch.h */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -36,7 +36,7 @@ namespace algorithms
 {
 namespace preview
 {
-namespace distributed_kmeans
+namespace kmeans
 {
 namespace interface1
 {
@@ -45,21 +45,21 @@ enum Method
     defaultDense = 0
 };
 /**
- * @defgroup kmeans_batch Batch
+ * @defgroup kmeans_batch MultiNodeBatch
  * @ingroup kmeans_compute
  * @{
  */
 /**
- * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__DISTRIBUTED_BATCHCONTAINER"></a>
+ * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__MULTINODE_BATCHCONTAINER"></a>
  * \brief Provides methods to run implementations of K-Means algorithm.
- *        This class is associated with the daal::algorithms::preview::distributed_kmeans::Batch class
+ *        This class is associated with the daal::algorithms::preview::kmeans::MultiNodeBatch class
  *        and supports the method of K-Means computation in the batch processing mode
  *        but using multi-process communication internally.
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of K-Means, double or float
   */
 template <typename algorithmFPType, Method method, CpuType cpu>
-class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
+class MultiNodeBatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
     /**
@@ -67,9 +67,9 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env * daalEnv);
+    MultiNodeBatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
-    virtual ~BatchContainer();
+    virtual ~MultiNodeBatchContainer();
     /**
      * Computes the result of K-Means algorithm in the batch processing mode
      */
@@ -77,8 +77,8 @@ public:
 };
 
 /**
- * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__BATCH"></a>
- * \brief Computes the results of K-Means algorithm in the batch processing mode
+ * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__MULTINODE_BATCH"></a>
+ * \brief Computes the results of K-Means algorithm in the batch-like processing mode using multiple nodes
  * <!-- \n<a href="DAAL-REF-KMEANS-ALGORITHM">K-Means algorithm description and usage models</a> -->
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of K-Means, double or float
@@ -90,7 +90,7 @@ public:
  *      - \ref ResultId Identifiers of results of K-Means algorithm
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
-class DAAL_EXPORT Batch : public daal::algorithms::Analysis<batch>
+class DAAL_EXPORT MultiNodeBatch : public daal::algorithms::Analysis<batch>
 {
 public:
     typedef algorithms::kmeans::Input InputType;
@@ -102,7 +102,7 @@ public:
      *  \param[in] nClusters   Number of clusters
      *  \param[in] nIterations Number of iterations
      */
-    Batch(size_t nClusters, size_t nIterations = 1) : parameter(nClusters, nIterations) { initialize(); }
+    MultiNodeBatch(size_t nClusters, size_t nIterations = 1) : parameter(nClusters, nIterations) { initialize(); }
 
     /**
      * Constructs K-Means algorithm by copying input objects and parameters
@@ -110,7 +110,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> & other) : parameter(other.parameter)
+    MultiNodeBatch(const MultiNodeBatch<algorithmFPType, method> & other) : parameter(other.parameter)
     {
         initialize();
         input.set(algorithms::kmeans::data, other.input.get(algorithms::kmeans::data));
@@ -146,13 +146,16 @@ public:
      * and parameters of this K-Means algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    daal::services::SharedPtr<Batch<algorithmFPType, method> > clone() const
+    daal::services::SharedPtr<MultiNodeBatch<algorithmFPType, method> > clone() const
     {
-        return daal::services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
+        return daal::services::SharedPtr<MultiNodeBatch<algorithmFPType, method> >(cloneImpl());
     }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
+    virtual MultiNodeBatch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
+    {
+        return new MultiNodeBatch<algorithmFPType, method>(*this);
+    }
 
     virtual daal::services::Status allocateResult() DAAL_C11_OVERRIDE
     {
@@ -165,7 +168,7 @@ protected:
     void initialize()
     {
         using daal::algorithms::interface1::AlgorithmDispatchContainer;
-        Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
+        Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, MultiNodeBatchContainer, algorithmFPType, method)(&_env);
         _in                  = &input;
         _par                 = &parameter;
     }
@@ -177,14 +180,14 @@ public:
 private:
     algorithms::ResultPtr _result;
 
-    Batch & operator=(const Batch &);
+    MultiNodeBatch & operator=(const MultiNodeBatch &);
 };
 /** @} */
 } // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
+using interface1::MultiNodeBatchContainer;
+using interface1::MultiNodeBatch;
 
-} // namespace distributed_kmeans
+} // namespace kmeans
 } // namespace preview
 } // namespace algorithms
 } // namespace daal

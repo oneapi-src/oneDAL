@@ -1,4 +1,4 @@
-/* file: kmeans_dense_lloyd_distr_batch_fpt_dispatcher.cpp */
+/* file: kmeans_dense_lloyd_multinode_batch_fpt_cpu.cpp */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -17,18 +17,27 @@
 
 /*
 //++
-//  Implementation of K-means algorithm container -- a class that contains
-//  Lloyd K-means kernels for supported architectures.
+//  Implementation of Lloyd method for K-means algorithm.
 //--
 */
 
-#include "algorithms/kernel/kmeans/kmeans_distr_batch_container.h"
+#include "algorithms/kernel/kmeans/oneapi/kmeans_oneccl_dense_lloyd_batch_kernel_ucapi.h"
+#include "algorithms/kernel/kmeans/oneapi/kmeans_oneccl_dense_lloyd_batch_kernel_ucapi_impl.i"
+#include "algorithms/kernel/kmeans/kmeans_multinode_batch_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(preview::distributed_kmeans::interface1::BatchContainer, batch, DAAL_FPTYPE,
-                                           preview::distributed_kmeans::interface1::defaultDense)
+namespace preview
+{
+namespace kmeans
+{
+namespace interface1
+{
+template class MultiNodeBatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
+} // namespace interface1
+} // namespace kmeans
+} // namespace preview
 } // namespace algorithms
 } // namespace daal

@@ -77,7 +77,7 @@ int main(int argc, char * argv[])
 
         NumericTablePtr centroids = init.getResult()->get(kmeans::init::centroids);
 
-        algorithms::preview::distributed_kmeans::Batch<> algorithm(nClusters, nIterations);
+        algorithms::preview::kmeans::MultiNodeBatch<> algorithm(nClusters, nIterations);
 
         algorithm.input.set(kmeans::data, data);
         algorithm.input.set(kmeans::inputCentroids, centroids);

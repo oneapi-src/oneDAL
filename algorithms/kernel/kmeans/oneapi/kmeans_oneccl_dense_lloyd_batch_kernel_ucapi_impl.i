@@ -86,7 +86,7 @@ namespace algorithms
 {
 namespace preview
 {
-namespace distributed_kmeans
+namespace kmeans
 {
 namespace internal
 {
@@ -755,7 +755,7 @@ void KMeansOneCclDefaultBatchKernelUCAPI<algorithmFPType>::finalizeCentroids(Exe
 }
 
 } // namespace internal
-} // namespace distributed_kmeans
+} // namespace kmeans
 } // namespace preview
 } // namespace algorithms
 } // namespace daal

@@ -38,7 +38,7 @@ namespace algorithms
 {
 namespace preview
 {
-namespace distributed_kmeans
+namespace kmeans
 {
 namespace internal
 {
@@ -108,7 +108,7 @@ private:
 };
 
 } // namespace internal
-} // namespace distributed_kmeans
+} // namespace kmeans
 } // namespace preview
 } // namespace algorithms
 } // namespace daal

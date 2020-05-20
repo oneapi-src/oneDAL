@@ -1,4 +1,4 @@
-/* file: kmeans_distr_batch_container.h */
+/* file: kmeans_multinode_batch_container.h */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -26,7 +26,7 @@
 #define __KMEANS_CONTAINER_H__
 
 #include "algorithms/kmeans/kmeans_types.h"
-#include "algorithms/kmeans/kmeans_distributed_batch.h"
+#include "algorithms/kmeans/kmeans_multinode_batch.h"
 #include "algorithms/kernel/kmeans/oneapi/kmeans_oneccl_dense_lloyd_batch_kernel_ucapi.h"
 #include "oneapi/internal/execution_context.h"
 
@@ -36,24 +36,24 @@ namespace algorithms
 {
 namespace preview
 {
-namespace distributed_kmeans
+namespace kmeans
 {
 namespace interface1
 {
 template <typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
+MultiNodeBatchContainer<algorithmFPType, method, cpu>::MultiNodeBatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS_SYCL(internal::KMeansOneCclDefaultBatchKernelUCAPI, DAAL_FPTYPE);
 }
 
 template <typename algorithmFpType, Method method, CpuType cpu>
-BatchContainer<algorithmFpType, method, cpu>::~BatchContainer()
+MultiNodeBatchContainer<algorithmFpType, method, cpu>::~MultiNodeBatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
 template <typename algorithmFpType, Method method, CpuType cpu>
-daal::services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
+daal::services::Status MultiNodeBatchContainer<algorithmFpType, method, cpu>::compute()
 {
     auto & context    = daal::services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();
@@ -76,7 +76,7 @@ daal::services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 }
 
 } // namespace interface1
-} // namespace distributed_kmeans
+} // namespace kmeans
 } // namespace preview
 } // namespace algorithms
 } // namespace daal
