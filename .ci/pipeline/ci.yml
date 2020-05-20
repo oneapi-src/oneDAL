@@ -52,6 +52,7 @@ jobs:
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_gnu'
+    platform.type : 'lnx32e'
   pool:
     vmImage: 'ubuntu-18.04'
     maxParallel: 2
