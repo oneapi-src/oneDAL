@@ -79,11 +79,7 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::update
                                                                                      const size_t nWS)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(updateGrad);
-    printf("I'm in GEMV TRAIN");
-    return BlasGpu<algorithmFPType>::
-    // xgemm(math::Layout::RowMajor, math::Transpose::Trans, math::Transpose::NoTrans, nVectors, 1, nWS,
-    //                                        algorithmFPType(1), kernelWS, nVectors, 0, deltaalpha, 1, 0, algorithmFPType(1), grad, 1, 0);
-    xgemv(math::Layout::RowMajor, math::Transpose::Trans, nWS, nVectors, algorithmFPType(1), kernelWS, nVectors, 0,
+    return BlasGpu<algorithmFPType>::xgemv(math::Layout::RowMajor, math::Transpose::Trans, nWS, nVectors, algorithmFPType(1), kernelWS, nVectors, 0,
                                            deltaalpha, 1, 0, algorithmFPType(1), grad, 1, 0);
 }
 

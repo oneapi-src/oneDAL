@@ -69,7 +69,6 @@ struct BlasGpu
         services::Status status;
 
         ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
-        // What about ColMajor??
         if (layout == math::Layout::ColMajor)
         {
             ctx.gemv(trans, m, n, alpha, a_buffer, lda, offsetA, x_buffer, incx, offsetX, beta, y_buffer, incy, offsetY, &status);

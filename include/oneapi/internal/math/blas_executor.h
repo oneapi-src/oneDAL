@@ -32,7 +32,6 @@
 #include "oneapi/internal/types_utils.h"
 #include "services/internal/error_handling_helpers.h"
 #include "oneapi/internal/math/reference_gemm.h"
-#include "oneapi/internal/math/reference_gemv.h"
 #include "oneapi/internal/math/reference_axpy.h"
 
 #include <CL/sycl.hpp>
@@ -191,14 +190,16 @@ private:
             auto x_buffer_t = x_buffer.template get<T>();
             auto y_buffer_t = y_buffer.template get<T>();
 
+            services::Status statusGemv;
+
 #ifdef ONEAPI_DAAL_NO_MKL_GPU_FUNC
-            ReferenceGemv<T> functor;
+            ReferenceGemm<T> functor;
+            statusGemv = functor(trans, math::Transpose::NoTrans, m, 1, n, (T)alpha, a_buffer_t, lda, offsetA, x_buffer_t, incx, offsetX, (T)beta,
+                                 y_buffer_t, incy, offsetY);
 #else
             MKLGemv<T> functor(queue);
+            statusGemv = functor(trans, m, n, (T)alpha, a_buffer_t, lda, offsetA, x_buffer_t, incx, offsetX, (T)beta, y_buffer_t, incy, offsetY);
 #endif
-
-            services::Status statusGemv =
-                functor(trans, m, n, (T)alpha, a_buffer_t, lda, offsetA, x_buffer_t, incx, offsetX, (T)beta, y_buffer_t, incy, offsetY);
 
             services::internal::tryAssignStatus(status, statusGemv);
         }

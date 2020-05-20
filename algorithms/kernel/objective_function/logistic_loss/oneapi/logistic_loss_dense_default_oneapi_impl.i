@@ -51,11 +51,8 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::applyBeta(c
                                                                                const uint32_t p, const uint32_t offset)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(applyBeta);
-    return BlasGpu<algorithmFPType>::
-        // xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::NoTrans, n, 1, p, algorithmFPType(1), x,
-        //                                        p, 0, beta, 1, offset, algorithmFPType(0), xb, 1, 0);
-
-        xgemv(math::Layout::RowMajor, math::Transpose::NoTrans, n, p, algorithmFPType(1), x, p, 0, beta, 1, offset, algorithmFPType(0), xb, 1, 0);
+    return BlasGpu<algorithmFPType>::xgemv(math::Layout::RowMajor, math::Transpose::NoTrans, n, p, algorithmFPType(1), x, p, 0, beta, 1, offset,
+                                           algorithmFPType(0), xb, 1, 0);
 }
 
 // Calculate X^T*(y - sigma) + 2*L2*beta
@@ -67,11 +64,8 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::applyGradie
                                                                                    const algorithmFPType beta, const uint32_t offset)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(applyGradient);
-    return BlasGpu<algorithmFPType>::
-        // xgemm(math::Layout::RowMajor, math::Transpose::Trans, math::Transpose::NoTrans, p, 1, n, alpha, x, p, 0, sub, 1,
-        //                                        0, beta, gradient, 1, offset);
-
-        xgemv(math::Layout::RowMajor, math::Transpose::Trans, n, p, alpha, x, p, 0, sub, 1, 0, beta, gradient, 1, offset);
+    return BlasGpu<algorithmFPType>::xgemv(math::Layout::RowMajor, math::Transpose::Trans, n, p, alpha, x, p, 0, sub, 1, 0, beta, gradient, 1,
+                                           offset);
 }
 
 template <typename algorithmFPType>

@@ -254,11 +254,9 @@ public:
               const UniversalBuffer & x_buffer, size_t incx, size_t offsetX, double beta, UniversalBuffer & y_buffer, size_t incy, size_t offsetY,
               services::Status * status = nullptr) DAAL_C11_OVERRIDE
     {
-        // Is it need?
         DAAL_ASSERT(a_buffer.type() == x_buffer.type());
         DAAL_ASSERT(x_buffer.type() == y_buffer.type());
 
-        // What is this?
         // TODO: Check for input arguments
         math::GemvExecutor::run(_deviceQueue, trans, m, n, alpha, a_buffer, lda, offsetA, x_buffer, incx, offsetX, beta, y_buffer, incy, offsetY,
                                 status);
