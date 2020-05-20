@@ -109,6 +109,14 @@ public class InitParameter extends com.intel.daal.algorithms.Parameter {
     }
 
     /**
+     * Kmeans++ only. The number of trials to generate all clusters but the first initial cluster.
+     * @return Number of trials
+     */
+    public long getNTrials() {
+        return cGetNTrials(this.cObject);
+    }
+
+    /**
     * Sets the number of clusters
     * @param nClusters Number of clusters
     */
@@ -150,6 +158,13 @@ public class InitParameter extends com.intel.daal.algorithms.Parameter {
         cSetNRounds(this.cObject, nRounds);
     }
 
+    /**
+     * Kmeans++ only. The number of trials to generate all clusters but the first initial cluster.
+     * @param nTrials Number of trials
+     */
+    public void setNTrials(long nTrials) {
+        cSetNTrials(this.cObject, nTrials);
+    }
 
     private native long init(long nClusters, long maxIterations);
 
@@ -160,6 +175,8 @@ public class InitParameter extends com.intel.daal.algorithms.Parameter {
     private native long cGetOffset(long parameterAddress);
 
     private native double cGetOversamplingFactor(long parameterAddress);
+
+    private native long cGetNTrials(long parameterAddress);
 
     private native long cGetNRounds(long parameterAddress);
 
@@ -172,5 +189,7 @@ public class InitParameter extends com.intel.daal.algorithms.Parameter {
     private native void cSetOversamplingFactor(long parameterAddress, double factor);
 
     private native void cSetNRounds(long parameterAddress, long nRounds);
+
+    private native void cSetNTrials(long parameterAddress, long nTrials);
 }
 /** @} */

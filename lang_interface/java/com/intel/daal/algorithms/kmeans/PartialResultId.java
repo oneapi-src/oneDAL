@@ -47,7 +47,6 @@ public final class PartialResultId {
     private static final int NObservations              = 0;
     private static final int PartialSums                = 1;
     private static final int PartialObjectiveFunction   = 2;
-    private static final int PartialGoalFunction        = 2;
     private static final int PartialAssignments         = 3;
     private static final int PartialCandidatesDistances = 4;
     private static final int PartialCandidatesCentroids = 5;
@@ -58,8 +57,6 @@ public final class PartialResultId {
         PartialSums);                                                         /*!< Sum of observations */
     public static final PartialResultId partialObjectiveFunction   = new PartialResultId(
         PartialObjectiveFunction);                                            /*!< Objective function value */
-    public static final PartialResultId partialGoalFunction        = new PartialResultId(
-        PartialGoalFunction);                                                 /*!< Objective function value @DAAL_DEPRECATED */
     public static final PartialResultId partialAssignments         = new PartialResultId(
         PartialAssignments);                                                  /*!< Assignments to clusters */
     public static final PartialResultId partialCandidatesDistances = new PartialResultId(

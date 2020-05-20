@@ -31,7 +31,7 @@ namespace algorithms
 {
 namespace kmeans
 {
-namespace interface1
+namespace interface2
 {
 template class DistributedContainer<step2Master, DAAL_FPTYPE, lloydDense, DAAL_CPU>;
 }

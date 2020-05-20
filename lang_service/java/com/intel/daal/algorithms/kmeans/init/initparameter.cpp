@@ -78,6 +78,16 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitParameter
 }
 
 /*
+* Class:     com_intel_daal_algorithms_kmeans_init_InitParameter
+* Method:    cGetNRounds
+* Signature: (J)J
+*/
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitParameter_cGetNTrials(JNIEnv *, jobject, jlong parameterAddress)
+{
+    return ((kmeans::init::Parameter *)parameterAddress)->nTrials;
+}
+
+/*
  * Class:     com_intel_daal_algorithms_kmeans_Parameter
  * Method:    cSetNClusters
  * Signature:(JJ)V
@@ -123,6 +133,16 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitParameter_
 JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitParameter_cSetNRounds(JNIEnv *, jobject, jlong parameterAddress, jlong nRounds)
 {
     ((kmeans::init::Parameter *)parameterAddress)->nRounds = nRounds;
+}
+
+/*
+* Class:     com_intel_daal_algorithms_kmeans_init_InitParameter
+* Method:    cSetNRounds
+* Signature: (JJ)V
+*/
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitParameter_cSetNTrials(JNIEnv *, jobject, jlong parameterAddress, jlong nTrials)
+{
+    ((kmeans::init::Parameter *)parameterAddress)->nTrials = nTrials;
 }
 
 /////////////////////////////////////// plusPlus methods ///////////////////////////////////////////////////////
