@@ -62,6 +62,17 @@ private:
 
     services::Status convertSplitToLeaf(oneapi::internal::UniversalBuffer & nodeList, size_t nNodes);
 
+    services::Status markPresentRows(const oneapi::internal::UniversalBuffer & rowsList, oneapi::internal::UniversalBuffer & rowsBuffer, size_t nRows,
+                                     size_t localSize, size_t nSubgroupSums);
+    services::Status countAbsentRowsForBlocks(const oneapi::internal::UniversalBuffer & rowsBuffer, size_t nRows,
+                                              oneapi::internal::UniversalBuffer & partialSums, size_t localSize, size_t nSubgroupSums);
+    services::Status countAbsentRowsTotal(const oneapi::internal::UniversalBuffer & partialSums,
+                                          oneapi::internal::UniversalBuffer & partialPrefixSums, oneapi::internal::UniversalBuffer & totalSum,
+                                          size_t localSize, size_t nSubgroupSums);
+    services::Status fillOOBRowsListByBlocks(const oneapi::internal::UniversalBuffer & rowsBuffer, size_t nRows,
+                                             const oneapi::internal::UniversalBuffer & partialPrefixSums,
+                                             oneapi::internal::UniversalBuffer & oobRowsList, size_t localSize, size_t nSubgroupSums);
+
     services::Status getOOBRows(const oneapi::internal::UniversalBuffer & rowsList, size_t nRows, size_t & nOOBRows,
                                 oneapi::internal::UniversalBuffer & oobRowsList);
 
@@ -82,6 +93,14 @@ private:
                                       oneapi::internal::UniversalBuffer & binOffsets, oneapi::internal::UniversalBuffer & splitInfo,
                                       oneapi::internal::UniversalBuffer & nodeImpDecreaseList, bool updateImpDecreaseRequired, size_t nFeatures,
                                       size_t nNodes, size_t minObservationsInLeafNode, algorithmFPType impurityThreshold);
+
+    services::Status computeBestSplitSinglePass(const oneapi::internal::UniversalBuffer & data, oneapi::internal::UniversalBuffer & treeOrder,
+                                                oneapi::internal::UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
+                                                const services::Buffer<algorithmFPType> & response, oneapi::internal::UniversalBuffer & binOffsets,
+                                                oneapi::internal::UniversalBuffer & nodeList, oneapi::internal::UniversalBuffer & nodeIndices,
+                                                size_t nodeIndicesOffset, oneapi::internal::UniversalBuffer & impList,
+                                                oneapi::internal::UniversalBuffer & nodeImpDecreaseList, bool updateImpDecreaseRequired,
+                                                size_t nFeatures, size_t nNodes, size_t minObservationsInLeafNode, algorithmFPType impurityThreshold);
 
     services::Status computeBestSplitByHistogram(const oneapi::internal::UniversalBuffer & nodeHistogramList,
                                                  oneapi::internal::UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,

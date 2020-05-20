@@ -118,11 +118,144 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::init
 }
 
 template <typename algorithmFPType, decision_forest::regression::training::Method method>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::markPresentRows(const UniversalBuffer & rowsList,
+                                                                                            UniversalBuffer & rowsBuffer, size_t nRows,
+                                                                                            size_t localSize, size_t nSubgroupSums)
+{
+    DAAL_ITTNOTIFY_SCOPED_TASK(compute.markPresentRows);
+    services::Status status;
+
+    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+
+    {
+        auto & kernel = kernelMarkPresentRows;
+        KernelArguments args(3);
+        args.set(0, rowsList, AccessModeIds::read);
+        args.set(1, rowsBuffer, AccessModeIds::write);
+        args.set(2, (int32_t)nRows);
+
+        KernelRange local_range(localSize);
+        KernelRange global_range(localSize * nSubgroupSums);
+
+        KernelNDRange range(1);
+        range.local(local_range, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+        range.global(global_range, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        context.run(range, kernel, args, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+    }
+
+    return status;
+}
+
+template <typename algorithmFPType, decision_forest::regression::training::Method method>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::countAbsentRowsForBlocks(const UniversalBuffer & rowsBuffer, size_t nRows,
+                                                                                                     UniversalBuffer & partialSums, size_t localSize,
+                                                                                                     size_t nSubgroupSums)
+{
+    DAAL_ITTNOTIFY_SCOPED_TASK(compute.countAbsentRowsForBlocks);
+    services::Status status;
+
+    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+
+    {
+        auto & kernel = kernelCountAbsentRowsForBlocks;
+        KernelArguments args(3);
+        args.set(0, rowsBuffer, AccessModeIds::read);
+        args.set(1, partialSums, AccessModeIds::write);
+        args.set(2, (int32_t)nRows);
+
+        KernelRange local_range(localSize);
+        KernelRange global_range(localSize * nSubgroupSums);
+
+        KernelNDRange range(1);
+        range.local(local_range, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+        range.global(global_range, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        context.run(range, kernel, args, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+    }
+
+    return status;
+}
+
+template <typename algorithmFPType, decision_forest::regression::training::Method method>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::countAbsentRowsTotal(const UniversalBuffer & partialSums,
+                                                                                                 UniversalBuffer & partialPrefixSums,
+                                                                                                 UniversalBuffer & totalSum, size_t localSize,
+                                                                                                 size_t nSubgroupSums)
+{
+    DAAL_ITTNOTIFY_SCOPED_TASK(compute.countAbsentRowsTotal);
+    services::Status status;
+
+    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+
+    {
+        auto & kernel = kernelCountAbsentRowsTotal;
+        KernelArguments args(4);
+        args.set(0, partialSums, AccessModeIds::read);
+        args.set(1, partialPrefixSums, AccessModeIds::write);
+        args.set(2, totalSum, AccessModeIds::write);
+        args.set(3, (int32_t)nSubgroupSums);
+
+        KernelRange local_range(localSize);
+        KernelRange global_range(localSize);
+
+        KernelNDRange range(1);
+        range.local(local_range, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+        range.global(global_range, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        context.run(range, kernel, args, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+    }
+
+    return status;
+}
+
+template <typename algorithmFPType, decision_forest::regression::training::Method method>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::fillOOBRowsListByBlocks(const UniversalBuffer & rowsBuffer, size_t nRows,
+                                                                                                    const UniversalBuffer & partialPrefixSums,
+                                                                                                    UniversalBuffer & oobRowsList, size_t localSize,
+                                                                                                    size_t nSubgroupSums)
+{
+    DAAL_ITTNOTIFY_SCOPED_TASK(compute.fillOOBRowsListByBlocks);
+    services::Status status;
+
+    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+
+    {
+        auto & kernel = kernelFillOOBRowsListByBlocks;
+        KernelArguments args(4);
+        args.set(0, rowsBuffer, AccessModeIds::read);
+        args.set(1, partialPrefixSums, AccessModeIds::read);
+        args.set(2, oobRowsList, AccessModeIds::write);
+        args.set(3, (int32_t)nRows);
+
+        KernelRange local_range(localSize);
+        KernelRange global_range(localSize * nSubgroupSums);
+
+        KernelNDRange range(1);
+        range.local(local_range, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+        range.global(global_range, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        context.run(range, kernel, args, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+    }
+
+    return status;
+}
+template <typename algorithmFPType, decision_forest::regression::training::Method method>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::getOOBRows(const UniversalBuffer & rowsList, size_t nRows,
                                                                                        size_t & nOOBRows, UniversalBuffer & oobRowsList)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute.getOOBRowsList);
-
     services::Status status;
 
     auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
@@ -140,66 +273,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::getO
     context.fill(rowsBuffer, absentMark, &status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    {
-        auto & kernel = kernelMarkPresentRows;
-        KernelArguments args(3);
-        args.set(0, rowsList, AccessModeIds::read);
-        args.set(1, rowsBuffer, AccessModeIds::write);
-        args.set(2, (int)nRows);
-
-        KernelRange local_range(localSize);
-        KernelRange global_range(localSize * nSubgroupSums);
-
-        KernelNDRange range(1);
-        range.local(local_range, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-        range.global(global_range, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-
-        context.run(range, kernel, args, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-    }
-
-    {
-        auto & kernel = kernelCountAbsentRowsForBlocks;
-        KernelArguments args(3);
-        args.set(0, rowsBuffer, AccessModeIds::read);
-        args.set(1, partialSums, AccessModeIds::write);
-        args.set(2, (int)nRows);
-
-        KernelRange local_range(localSize);
-        KernelRange global_range(localSize * nSubgroupSums);
-
-        KernelNDRange range(1);
-        range.local(local_range, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-        range.global(global_range, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-
-        context.run(range, kernel, args, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-    }
-
-    {
-        auto & kernel = kernelCountAbsentRowsTotal;
-        KernelArguments args(4);
-        args.set(0, partialSums, AccessModeIds::read);
-        args.set(1, partialPrefixSums, AccessModeIds::write);
-        args.set(2, totalSum, AccessModeIds::write);
-        args.set(3, (int)nSubgroupSums);
-
-        KernelRange local_range(localSize);
-        KernelRange global_range(localSize);
-
-        KernelNDRange range(1);
-        range.local(local_range, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-        range.global(global_range, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-
-        context.run(range, kernel, args, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-    }
+    DAAL_CHECK_STATUS_VAR(markPresentRows(rowsList, rowsBuffer, nRows, localSize, nSubgroupSums));
+    DAAL_CHECK_STATUS_VAR(countAbsentRowsForBlocks(rowsBuffer, nRows, partialSums, localSize, nSubgroupSums));
+    DAAL_CHECK_STATUS_VAR(countAbsentRowsTotal(partialSums, partialPrefixSums, totalSum, localSize, nSubgroupSums));
 
     auto nOOBRowsHost = totalSum.template get<int>().toHost(ReadWriteMode::readOnly);
     DAAL_CHECK_MALLOC(nOOBRowsHost.get());
@@ -212,26 +288,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::getO
         oobRowsList = context.allocate(TypeIds::id<int>(), nOOBRows, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        {
-            auto & kernel = kernelFillOOBRowsListByBlocks;
-            KernelArguments args(4);
-            args.set(0, rowsBuffer, AccessModeIds::read);
-            args.set(1, partialPrefixSums, AccessModeIds::read);
-            args.set(2, oobRowsList, AccessModeIds::write);
-            args.set(3, (int)nRows);
-
-            KernelRange local_range(localSize);
-            KernelRange global_range(localSize * nSubgroupSums);
-
-            KernelNDRange range(1);
-            range.local(local_range, &status);
-            DAAL_CHECK_STATUS_VAR(status);
-            range.global(global_range, &status);
-            DAAL_CHECK_STATUS_VAR(status);
-
-            context.run(range, kernel, args, &status);
-            DAAL_CHECK_STATUS_VAR(status);
-        }
+        DAAL_CHECK_STATUS_VAR(fillOOBRowsListByBlocks(rowsBuffer, nRows, partialPrefixSums, oobRowsList, localSize, nSubgroupSums));
     }
 
     return status;
@@ -255,7 +312,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::getN
     {
         KernelArguments args(3);
         args.set(0, nodeList, AccessModeIds::read);
-        args.set(1, (int)nNodes);
+        args.set(1, (int32_t)nNodes);
         args.set(2, bufNSplitNodes, AccessModeIds::write);
 
         size_t localSize = _preferableSubGroup;
@@ -321,7 +378,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::doNo
     {
         KernelArguments args(3);
         args.set(0, nodeList, AccessModeIds::read);
-        args.set(1, (int)nNodes);
+        args.set(1, (int32_t)nNodes);
         args.set(2, nodeListNew, AccessModeIds::write);
 
         size_t localSize = _preferableSubGroup;
@@ -359,7 +416,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::spli
     {
         KernelArguments args(5);
         args.set(0, nodeList, AccessModeIds::read);
-        args.set(1, (int)nNodes);
+        args.set(1, (int32_t)nNodes);
         args.set(2, nodesGroups, AccessModeIds::write);
         args.set(3, nodeIndices, AccessModeIds::write);
         args.set(4, _minRowsBlock);
@@ -402,7 +459,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::doLe
         args.set(1, nodeList, AccessModeIds::read);
         args.set(2, treeOrder, AccessModeIds::read);
         args.set(3, treeOrderBuf, AccessModeIds::write);
-        args.set(4, (int)nFeatures);
+        args.set(4, (int32_t)nFeatures);
 
         size_t localSize = _preferableSubGroup;
 
@@ -443,16 +500,16 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         KernelArguments args(13);
         args.set(0, nodeHistogramList, AccessModeIds::read);
         args.set(1, selectedFeatures, AccessModeIds::read);
-        args.set(2, (int)nSelectedFeatures);
+        args.set(2, (int32_t)nSelectedFeatures);
         args.set(3, binOffsets, AccessModeIds::read);
         args.set(4, nodeList, AccessModeIds::readwrite); // nodeList will be updated with split attributes
         args.set(5, nodeIndices, AccessModeIds::read);
         args.set(6, nodeIndicesOffset);
         args.set(7, impList, AccessModeIds::write);
         args.set(8, nodeImpDecreaseList, AccessModeIds::write);
-        args.set(9, (int)updateImpDecreaseRequired);
-        args.set(10, (int)nMaxBinsAmongFtrs);
-        args.set(11, (int)minObservationsInLeafNode);
+        args.set(9, (int32_t)updateImpDecreaseRequired);
+        args.set(10, (int32_t)nMaxBinsAmongFtrs);
+        args.set(11, (int32_t)minObservationsInLeafNode);
         args.set(12, impurityThreshold);
 
         const size_t numOfSubGroupsPerNode = 4; //add logic for adjusting it in accordance with nNodes
@@ -473,6 +530,59 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 
     return status;
 }
+
+template <typename algorithmFPType, decision_forest::regression::training::Method method>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::computeBestSplitSinglePass(
+    const UniversalBuffer & data, UniversalBuffer & treeOrder, UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
+    const services::Buffer<algorithmFPType> & response, UniversalBuffer & binOffsets, UniversalBuffer & nodeList, UniversalBuffer & nodeIndices,
+    size_t nodeIndicesOffset, UniversalBuffer & impList, UniversalBuffer & nodeImpDecreaseList, bool updateImpDecreaseRequired, size_t nFeatures,
+    size_t nNodes, size_t minObservationsInLeafNode, algorithmFPType impurityThreshold)
+{
+    DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeBestSplitSinglePass);
+
+    services::Status status;
+
+    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+
+    auto & kernel = kernelComputeBestSplitSinglePass;
+
+    {
+        KernelArguments args(15);
+        args.set(0, data, AccessModeIds::read);
+        args.set(1, treeOrder, AccessModeIds::read);
+        args.set(2, selectedFeatures, AccessModeIds::read);
+        args.set(3, (int32_t)nSelectedFeatures);
+        args.set(4, response, AccessModeIds::read);
+        args.set(5, binOffsets, AccessModeIds::read);
+        args.set(6, nodeList, AccessModeIds::readwrite); // nodeList will be updated with split attributes
+        args.set(7, nodeIndices, AccessModeIds::read);
+        args.set(8, (int32_t)nodeIndicesOffset);
+        args.set(9, impList, AccessModeIds::write);
+        args.set(10, nodeImpDecreaseList, AccessModeIds::write);
+        args.set(11, (int32_t)updateImpDecreaseRequired);
+        args.set(12, (int32_t)nFeatures);
+        args.set(13, (int32_t)minObservationsInLeafNode);
+        args.set(14, impurityThreshold);
+
+        const size_t numOfSubGroupsPerNode = 4; //add logic for adjusting it in accordance with nNodes
+        size_t localSize                   = _preferableSubGroup * numOfSubGroupsPerNode;
+
+        KernelRange local_range(localSize, 1);
+        KernelRange global_range(localSize, nNodes);
+
+        KernelNDRange range(2);
+        range.local(local_range, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+        range.global(global_range, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        context.run(range, kernel, args, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+    }
+
+    return status;
+}
+
 template <typename algorithmFPType, decision_forest::regression::training::Method method>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::computeBestSplit(
     const UniversalBuffer & data, UniversalBuffer & treeOrder, UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
@@ -528,43 +638,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         }
         else
         {
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeBestSplitSinglePass);
-
-            auto & kernel = kernelComputeBestSplitSinglePass;
-
-            {
-                KernelArguments args(15);
-                args.set(0, data, AccessModeIds::read);
-                args.set(1, treeOrder, AccessModeIds::read);
-                args.set(2, selectedFeatures, AccessModeIds::read);
-                args.set(3, (int)nSelectedFeatures);
-                args.set(4, response, AccessModeIds::read);
-                args.set(5, binOffsets, AccessModeIds::read);
-                args.set(6, nodeList, AccessModeIds::readwrite); // nodeList will be updated with split attributes
-                args.set(7, nodeIndices, AccessModeIds::read);
-                args.set(8, (int)groupIndicesOffset);
-                args.set(9, impList, AccessModeIds::write);
-                args.set(10, nodeImpDecreaseList, AccessModeIds::write);
-                args.set(11, (int)updateImpDecreaseRequired);
-                args.set(12, (int)nFeatures);
-                args.set(13, (int)minObservationsInLeafNode);
-                args.set(14, impurityThreshold);
-
-                const size_t numOfSubGroupsPerNode = 4; //add logic for adjusting it in accordance with nNodes
-                size_t localSize                   = _preferableSubGroup * numOfSubGroupsPerNode;
-
-                KernelRange local_range(localSize, 1);
-                KernelRange global_range(localSize, nGroupNodes);
-
-                KernelNDRange range(2);
-                range.local(local_range, &status);
-                DAAL_CHECK_STATUS_VAR(status);
-                range.global(global_range, &status);
-                DAAL_CHECK_STATUS_VAR(status);
-
-                context.run(range, kernel, args, &status);
-                DAAL_CHECK_STATUS_VAR(status);
-            }
+            DAAL_CHECK_STATUS_VAR(computeBestSplitSinglePass(data, treeOrder, selectedFeatures, nSelectedFeatures, response, binOffsets, nodeList,
+                                                             nodeIndices, groupIndicesOffset, impList, nodeImpDecreaseList, updateImpDecreaseRequired,
+                                                             nFeatures, nGroupNodes, minObservationsInLeafNode, impurityThreshold));
         }
     }
 
@@ -592,12 +668,12 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         args.set(1, treeOrder, AccessModeIds::read);
         args.set(2, nodeList, AccessModeIds::read);
         args.set(3, nodeIndices, AccessModeIds::read);
-        args.set(4, (int)nodeIndicesOffset);
+        args.set(4, (int32_t)nodeIndicesOffset);
         args.set(5, selectedFeatures, AccessModeIds::read);
         args.set(6, response, AccessModeIds::read);
         args.set(7, binOffsets, AccessModeIds::read);
-        args.set(8, (int)nMaxBinsAmongFtrs); // max num of bins among all ftrs
-        args.set(9, (int)nFeatures);
+        args.set(8, (int32_t)nMaxBinsAmongFtrs); // max num of bins among all ftrs
+        args.set(9, (int32_t)nFeatures);
         args.set(10, partialHistograms, AccessModeIds::write);
 
         size_t localSize = nSelectedFeatures < _maxLocalSize ? nSelectedFeatures : _maxLocalSize;
@@ -637,9 +713,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::redu
         KernelArguments args(5);
         args.set(0, partialHistograms, AccessModeIds::read);
         args.set(1, histograms, AccessModeIds::write);
-        args.set(2, (int)nPartialHistograms);
-        args.set(3, (int)nSelectedFeatures);
-        args.set(4, (int)nMaxBinsAmongFtrs); // max num of bins among all ftrs
+        args.set(2, (int32_t)nPartialHistograms);
+        args.set(3, (int32_t)nSelectedFeatures);
+        args.set(4, (int32_t)nMaxBinsAmongFtrs); // max num of bins among all ftrs
 
         KernelRange local_range(1, reduceLocalSize, 1);
         KernelRange global_range(nMaxBinsAmongFtrs * nSelectedFeatures, reduceLocalSize, nNodes);
@@ -673,7 +749,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
         KernelArguments args(3);
         args.set(0, treeOrderBuf, AccessModeIds::read);
         args.set(1, treeOrder, AccessModeIds::write);
-        args.set(2, (int)iStart);
+        args.set(2, (int32_t)iStart);
 
         KernelRange global_range(nRows);
 
@@ -703,7 +779,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::upda
         KernelArguments args(4);
         args.set(0, nodeList, AccessModeIds::read);
         args.set(1, nodeImpDecreaseList, AccessModeIds::read);
-        args.set(2, (int)nNodes);
+        args.set(2, (int32_t)nNodes);
         args.set(3, varImp, AccessModeIds::write);
 
         int localSize = _preferableGroupSize;
