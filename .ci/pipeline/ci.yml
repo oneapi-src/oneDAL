@@ -75,7 +75,19 @@ jobs:
     displayName: Create Anaconda environment
   - script: |
       export DPCPP_VAR=/opt/intel/inteloneapi/compiler/latest/env/vars.sh
-      export DAALROOT="$(Pipeline.Workspace)/$(platform.type)\ build/__release_lnx_gnu/daal/latest"
+      export DAALROOT="$(Pipeline.Workspace)/$(platform.type)\ build/$(release.dir)/daal/latest"
+
+      echo .___
+      ls -l
+      echo $(Pipeline.Workspace)/___
+      ls -l $(Pipeline.Workspace)/
+      echo $(Pipeline.Workspace)/$(platform.type)\ build/___
+      ls -l  "$(Pipeline.Workspace)/$(platform.type)\ build/"
+      echo $(Pipeline.Workspace)/$(platform.type)\ build/$(release.dir)___
+      ls -l "$(Pipeline.Workspace)/$(platform.type)\ build/$(release.dir)"
+      echo $(Pipeline.Workspace)/$(platform.type)\ build/$(release.dir)/daal/latest___
+      ls -l "$(Pipeline.Workspace)/$(platform.type)\ build/$(release.dir)/daal/latest"
+
       . $HOME/miniconda/etc/profile.d/conda.sh
       conda activate CB
       cd daal4py
