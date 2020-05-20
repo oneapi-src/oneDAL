@@ -81,6 +81,16 @@ jobs:
       ls -l
       echo $(Pipeline.Workspace)/___
       ls -l $(Pipeline.Workspace)/
+      echo $(Pipeline.Workspace)/TestResults___
+      ls -l $(Pipeline.Workspace)/TestResults
+      echo $(Pipeline.Workspace)/a___
+      ls -l $(Pipeline.Workspace)/a
+      echo $(Pipeline.Workspace)/b___
+      ls -l $(Pipeline.Workspace)/b
+      echo $(Pipeline.Workspace)/daal___
+      ls -l $(Pipeline.Workspace)/daal
+      echo $(Pipeline.Workspace)/s___
+      ls -l $(Pipeline.Workspace)/s
       echo $(Pipeline.Workspace)/$(platform.type)\ build/___
       ls -l  "$(Pipeline.Workspace)/$(platform.type)\ build/"
       echo $(Pipeline.Workspace)/$(platform.type)\ build/$(release.dir)___
