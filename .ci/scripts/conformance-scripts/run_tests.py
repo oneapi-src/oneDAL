@@ -14,9 +14,7 @@ if __name__ == "__main__":
 
     print("Confromance testing start")
     for alg_name in algs:
-        #report_file.write("<br><h2>Testing %s</h2>" % alg_name)
-
-        os.system("bash ./download_tests.sh --alg-name %s --scikit-version 0.21.3 &>> _log_downloads" % alg_name)
+        os.system("bash ./download_tests.sh --alg-name %s --scikit-version 0.23.1 &>> _log_downloads" % alg_name)
         print(alg_name)
         os.system("python ./patcher_of_tests.py %s" % alg_name)
 
