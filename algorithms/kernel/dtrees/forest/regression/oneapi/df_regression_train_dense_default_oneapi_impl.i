@@ -83,6 +83,7 @@ static void buildProgram(ClKernelFactoryIface & factory)
         auto fptype_name     = getKeyFPType<algorithmFPType>();
         auto fptype_accuracy = getFPTypeAccuracy<algorithmFPType>();
         auto build_options   = fptype_name;
+        build_options.add(" -D NODE_PROPS=5 -D IMPURITY_PROPS=2 -D HIST_PROPS=3 -D BIG_NODE_LOW_BORDER_BLOCKS_NUM=32 -D LOCAL_BUFFER_SIZE=256 ");
         build_options.add(fptype_accuracy);
         build_options.add("-cl-std=CL1.2");
 
@@ -201,6 +202,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::getO
     }
 
     auto nOOBRowsHost = totalSum.template get<int>().toHost(ReadWriteMode::readOnly);
+    DAAL_CHECK_MALLOC(nOOBRowsHost.get());
 
     nOOBRows = (size_t)nOOBRowsHost.get()[0];
 
@@ -479,13 +481,10 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     algorithmFPType impurityThreshold)
 {
     services::Status status;
-    const size_t nHistProps     = 3;
-    const size_t nNodesGroups   = 3;
-    const size_t nodeGroupProps = 2;
 
     auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
-    auto nodesGroups = context.allocate(TypeIds::id<int>(), nNodesGroups * nodeGroupProps, &status);
+    auto nodesGroups = context.allocate(TypeIds::id<int>(), _nNodesGroups * _nodeGroupProps, &status);
     auto nodeIndices = context.allocate(TypeIds::id<int>(), nNodes, &status);
     DAAL_CHECK_STATUS_VAR(status);
 
@@ -495,12 +494,13 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 
     size_t nGroupNodes    = 0;
     size_t processedNodes = 0;
-    for (size_t i = 0; i < nNodesGroups; i++, processedNodes += nGroupNodes)
+    for (size_t i = 0; i < _nNodesGroups; i++, processedNodes += nGroupNodes)
     {
-        nGroupNodes = nodesGroupsHost.get()[i * nodeGroupProps + 0];
+        nGroupNodes = nodesGroupsHost.get()[i * _nodeGroupProps + 0];
         if (0 == nGroupNodes) continue;
 
-        size_t maxGroupBlocksNum  = nodesGroupsHost.get()[i * nodeGroupProps + 1];
+        size_t maxGroupBlocksNum = nodesGroupsHost.get()[i * _nodeGroupProps + 1];
+
         size_t groupIndicesOffset = processedNodes;
 
         if (maxGroupBlocksNum > 1)
@@ -510,7 +510,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
             size_t nMaxBinsAmongFtrs = 256; // extract it from IndexedFeatures
             int reduceLocalSize      = 16;  // add logic for its adjustment
 
-            size_t partHistSize = nSelectedFeatures * nMaxBinsAmongFtrs * nHistProps;
+            size_t partHistSize = nSelectedFeatures * nMaxBinsAmongFtrs * _nHistProps;
 
             auto partialHistograms = context.allocate(TypeIds::id<algorithmFPType>(), nGroupNodes * nPartialHistograms * partHistSize, &status);
             auto nodesHistograms   = context.allocate(TypeIds::id<algorithmFPType>(), nGroupNodes * partHistSize, &status);

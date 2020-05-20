@@ -157,9 +157,12 @@ private:
     const uint32_t _maxLocalSums         = 256;
     const uint32_t _maxLocalHistograms   = 256;
     const uint32_t _preferableGroupSize  = 256;
-    const uint32_t _nHistProp            = 3; // number of properties used for impurity calculation (i.e. n, mean and var)
     const uint32_t _minRowsBlock         = 256;
     const uint32_t _maxBins              = 256;
+
+    const uint32_t _nHistProps     = 3; // number of properties in bins histogram (i.e. n, mean and var)
+    const uint32_t _nNodesGroups   = 3; // all nodes are split on groups (big, medium, small)
+    const uint32_t _nodeGroupProps = 2; // each nodes Group contains props: numOfNodes, maxNumOfBlocks
 };
 
 } // namespace internal

@@ -68,8 +68,10 @@ DECLARE_SOURCE(
         // this kernel is targeted for processing nodes with small number of rows
         // nodeList will be updated with split attributes
         // spliInfo will contain node impurity and mean
-        const int nNodeProp = 5; // num of node properties in nodeList
-        const int nImpProp  = 2;
+        //const int nNodeProp = 5; // num of node properties in nodeList
+        //const int nImpProp  = 2;
+        const int nNodeProp = NODE_PROPS; // num of node properties in nodeList
+        const int nImpProp  = IMPURITY_PROPS;
 
         const int local_id           = get_local_id(0);
         const int sub_group_local_id = get_sub_group_local_id();
@@ -272,9 +274,9 @@ DECLARE_SOURCE(
         // the difference is that here for each potential split point we pass through bins hist instead of rows
         // nodeList will be updated with split attributes in this kernel
         // spliInfo will contain node impurity and mean
-        const int nProp              = 3; // num of characteristics in histogram
-        const int nNodeProp          = 5; // num of node properties in nodeList
-        const int nImpProp           = 2;
+        const int nProp              = HIST_PROPS; // num of characteristics in histogram
+        const int nNodeProp          = NODE_PROPS; // num of node properties in nodeList
+        const int nImpProp           = IMPURITY_PROPS;
         const int local_id           = get_local_id(0);
         const int sub_group_local_id = get_sub_group_local_id();
         const int sub_group_size     = get_sub_group_size();
@@ -479,7 +481,7 @@ DECLARE_SOURCE(
     __kernel void getNumOfSplitNodes(const __global int * nodeList, int nNodes, __global int * nSplitNodes) {
         const int local_id   = get_sub_group_local_id();
         const int local_size = get_sub_group_size();
-        const int nNodeProp  = 5; // num of node properties in node
+        const int nNodeProp  = NODE_PROPS; // num of node properties in node
         const int badVal     = -1;
 
         int sum = 0;
@@ -500,8 +502,8 @@ DECLARE_SOURCE(
                                            const __global int * nodeIndices, int nodeIndicesOffset, const __global int * selectedFeatures,
                                            const __global algorithmFPType * response, const __global int * binOffsets, int nMaxBinsAmongFtrs,
                                            int nFeatures, __global algorithmFPType * partialHistograms) {
-        const int nProp     = 3; // num of characteristics in histogram
-        const int nNodeProp = 5; // num of node properties in nodeOffsets
+        const int nProp     = HIST_PROPS; // num of characteristics in histogram
+        const int nNodeProp = NODE_PROPS; // num of node properties in nodeOffsets
 
         const int nodeIdx           = get_global_id(2);
         const int nodeId            = nodeIndices[nodeIndicesOffset + nodeIdx];
@@ -546,8 +548,8 @@ DECLARE_SOURCE(
 
     __kernel void reducePartialHistograms(const __global algorithmFPType * partialHistograms, __global algorithmFPType * histograms,
                                           int nPartialHistograms, int nSelectedFeatures, int nMaxBinsAmongFtrs) {
-        const int nProp = 3; // num of characteristics in histogram
-        __local algorithmFPType buf[256 * nProp];
+        const int nProp = HIST_PROPS; // num of characteristics in histogram
+        __local algorithmFPType buf[LOCAL_BUFFER_SIZE * nProp];
 
         const int nodeIdx    = get_global_id(2);
         const int binId      = get_global_id(0);
@@ -639,7 +641,7 @@ DECLARE_SOURCE(
 
     __kernel void doLevelPartition(const __global int * data, const __global int * nodeList, const __global int * treeOrder,
                                    __global int * treeOrderBuf, int nFeatures) {
-        const int nNodeProp  = 5; // num of split attributes for node
+        const int nNodeProp  = NODE_PROPS; // num of split attributes for node
         const int local_id   = get_sub_group_local_id();
         const int nodeId     = get_global_id(1);
         const int local_size = get_sub_group_size();
@@ -670,7 +672,7 @@ DECLARE_SOURCE(
     }
 
     __kernel void convertSplitToLeaf(__global int * nodeList) {
-        const int nNodeProp = 5; // num of split attributes for node
+        const int nNodeProp = NODE_PROPS; // num of split attributes for node
         const int badVal    = -1;
         const int id        = get_global_id(0);
 
@@ -679,7 +681,7 @@ DECLARE_SOURCE(
     }
 
     __kernel void doNodesSplit(const __global int * nodeList, int nNodes, __global int * nodeListNew) {
-        const int nNodeProp  = 5; // num of split attributes for node
+        const int nNodeProp  = NODE_PROPS; // num of split attributes for node
         const int badVal     = -1;
         const int local_id   = get_sub_group_local_id();
         const int local_size = get_sub_group_size();
@@ -715,9 +717,9 @@ DECLARE_SOURCE(
     __kernel void splitNodeListOnGroupsBySize(const __global int * nodeList, int nNodes, __global int * bigNodesGroups, __global int * nodeIndeces,
                                               int minRowsBlock) {
         /*for now only 3 groups are produced, may be more required*/
-        const int bigNodeLowBorderBlocksNum = 32; // fine, need to experiment and find better one
+        const int bigNodeLowBorderBlocksNum = BIG_NODE_LOW_BORDER_BLOCKS_NUM; // fine, need to experiment and find better one
         const int blockSize                 = minRowsBlock;
-        const int nNodeProp                 = 5; // num of split attributes for node
+        const int nNodeProp                 = NODE_PROPS; // num of split attributes for node
 
         const int local_id   = get_sub_group_local_id();
         const int nodeId     = get_global_id(1);
@@ -787,7 +789,7 @@ DECLARE_SOURCE(
 
     __kernel void updateMDIVarImportance(const __global int * nodeList, const __global algorithmFPType * nodeImpDecreaseList, int nNodes,
                                          __global algorithmFPType * featureImportanceList) {
-        const int nNodeProp = 5; // num of node properties in nodeList
+        const int nNodeProp = NODE_PROPS; // num of node properties in nodeList
 
         const int local_id           = get_local_id(0);
         const int sub_group_local_id = get_sub_group_local_id();
