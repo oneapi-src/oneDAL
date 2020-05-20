@@ -57,7 +57,7 @@ template <typename algorithmFPType>
 class IndexedFeaturesOneAPI
 {
 public:
-    typedef int IndexType; // TODO: should be unsigned int
+    typedef uint32_t IndexType;
 
     struct FeatureEntry
     {

@@ -78,11 +78,11 @@ static void buildProgram(ClKernelFactoryIface & factory)
         auto fptype_name    = getKeyFPType<algorithmFPType>();
         auto radixtype_name = getOpenCLKeyType<typename GetIntegerTypeForFPType<algorithmFPType>::Type>("radixIntType");
         auto build_options  = fptype_name + radixtype_name;
-        build_options.add("-cl-std=CL1.2");
 
         services::String cachekey("__daal_algorithms_df_common_");
-        cachekey.add(fptype_name);
-        cachekey.add(radixtype_name);
+        cachekey.add(build_options);
+        build_options.add(" -cl-std=CL1.2 ");
+
         factory.build(ExecutionTargetIds::device, cachekey.c_str(), df_common_kernels, build_options.c_str());
     }
 }

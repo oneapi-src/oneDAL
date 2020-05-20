@@ -37,7 +37,21 @@ DECLARE_SOURCE(
         const int id  = get_global_id(0);
         treeOrder[id] = id;
     }
+    // merge input arrs with stat values
+    void mergeStatArr(algorithmFPType * n, algorithmFPType * mean, algorithmFPType * sum2Cent, algorithmFPType * mrgN, algorithmFPType * mrgMean,
+                      algorithmFPType * mrgSum2Cent) {
+        algorithmFPType sumN1N2    = n[0] + n[1];
+        algorithmFPType mulN1N2    = n[0] * n[1];
+        algorithmFPType deltaScale = mulN1N2 / sumN1N2;
+        algorithmFPType meanScale  = (algorithmFPType)1 / sumN1N2;
+        algorithmFPType delta      = mean[1] - mean[0];
 
+        *mrgSum2Cent = sum2Cent[0] + sum2Cent[1] + delta * delta * deltaScale;
+        *mrgMean     = (mean[0] * n[0] + mean[1] * n[1]) * meanScale;
+        *mrgN        = sumN1N2;
+    }
+
+    // merge to stats in one
     void mergeStat(algorithmFPType n, algorithmFPType mean, algorithmFPType sum2Cent, algorithmFPType * mrgLN, algorithmFPType * mrgLMean,
                    algorithmFPType * mrgLSum2Cent) {
         algorithmFPType sumN1N2    = *mrgLN + n;
@@ -51,12 +65,17 @@ DECLARE_SOURCE(
         *mrgLN        = sumN1N2;
     }
 
+    // merge single value to stat
     void mergeValToStat(algorithmFPType val, algorithmFPType * mrgN, algorithmFPType * mrgMean, algorithmFPType * mrgSum2Cent) {
         *mrgN += (algorithmFPType)1;
         algorithmFPType invN  = ((algorithmFPType)1) / *mrgN;
         algorithmFPType delta = val - *mrgMean;
         *mrgMean += delta * invN;
         *mrgSum2Cent += delta * (val - *mrgMean);
+    }
+
+    void fillArr(algorithmFPType * arr, int len, algorithmFPType value) {
+        for (int i = 0; i < len; i++) arr[i] = value;
     }
 
     __kernel void computeBestSplitSinglePass(const __global int * data, const __global int * treeOrder, const __global int * selectedFeatures,
@@ -68,8 +87,6 @@ DECLARE_SOURCE(
         // this kernel is targeted for processing nodes with small number of rows
         // nodeList will be updated with split attributes
         // spliInfo will contain node impurity and mean
-        //const int nNodeProp = 5; // num of node properties in nodeList
-        //const int nImpProp  = 2;
         const int nNodeProp = NODE_PROPS; // num of node properties in nodeList
         const int nImpProp  = IMPURITY_PROPS;
 
@@ -107,21 +124,7 @@ DECLARE_SOURCE(
         algorithmFPType mrgMean     = (algorithmFPType)0;
         algorithmFPType mrgSum2Cent = (algorithmFPType)0;
 
-        algorithmFPType bestRN        = (algorithmFPType)0;
-        algorithmFPType bestRMean     = (algorithmFPType)0;
-        algorithmFPType bestRSum2Cent = (algorithmFPType)0;
-
-        algorithmFPType bestLN        = (algorithmFPType)0;
-        algorithmFPType bestLMean     = (algorithmFPType)0;
-        algorithmFPType bestLSum2Cent = (algorithmFPType)0;
-
-        algorithmFPType mrgRN        = (algorithmFPType)0;
-        algorithmFPType mrgRMean     = (algorithmFPType)0;
-        algorithmFPType mrgRSum2Cent = (algorithmFPType)0;
-
-        algorithmFPType mrgLN        = (algorithmFPType)0;
-        algorithmFPType mrgLMean     = (algorithmFPType)0;
-        algorithmFPType mrgLSum2Cent = (algorithmFPType)0;
+        algorithmFPType bestLN = (algorithmFPType)0;
 
         int totalBins = 0;
 
@@ -155,51 +158,31 @@ DECLARE_SOURCE(
             mrgMean     = (algorithmFPType)0;
             mrgSum2Cent = (algorithmFPType)0;
 
-            mrgRN        = (algorithmFPType)0;
-            mrgRMean     = (algorithmFPType)0;
-            mrgRSum2Cent = (algorithmFPType)0;
-
-            mrgLN        = (algorithmFPType)0;
-            mrgLMean     = (algorithmFPType)0;
-            mrgLSum2Cent = (algorithmFPType)0;
+            algorithmFPType mrgLRN[2]        = { (algorithmFPType)0 };
+            algorithmFPType mrgLRMean[2]     = { (algorithmFPType)0 };
+            algorithmFPType mrgLRSum2Cent[2] = { (algorithmFPType)0 };
 
             for (int row = 0; row < nRows; row++)
             {
                 int id  = treeOrder[rowsOffset + row];
                 int bin = data[id * nFeatures + featId];
 
-                if (bin <= binId)
-                {
-                    mergeValToStat(response[id], &mrgLN, &mrgLMean, &mrgLSum2Cent);
-                }
-                else
-                {
-                    mergeValToStat(response[id], &mrgRN, &mrgRMean, &mrgRSum2Cent);
-                }
+                mergeValToStat(response[id], &mrgLRN[(int)(bin > binId)], &mrgLRMean[(int)(bin > binId)], &mrgLRSum2Cent[(int)(bin > binId)]);
             }
 
-            mrgN        = mrgLN;
-            mrgMean     = mrgLMean;
-            mrgSum2Cent = mrgLSum2Cent;
-            mergeStat(mrgRN, mrgRMean, mrgRSum2Cent, &mrgN, &mrgMean, &mrgSum2Cent);
+            mergeStatArr(mrgLRN, mrgLRMean, mrgLRSum2Cent, &mrgN, &mrgMean, &mrgSum2Cent);
 
-            algorithmFPType impDec = mrgSum2Cent - (mrgLSum2Cent + mrgRSum2Cent);
+            algorithmFPType impDec = mrgSum2Cent - (mrgLRSum2Cent[0] + mrgLRSum2Cent[1]);
 
             if ((algorithmFPType)0 < impDec && (mrgSum2Cent / mrgN) >= impurityThreshold
                 && (curFeatureValue == -1 || impDec > curImpDec || (fpIsEqual(impDec, curImpDec) && featId < curFeatureId))
-                && mrgRN >= minObservationsInLeafNode && mrgLN >= minObservationsInLeafNode)
+                && mrgLRN[0] >= minObservationsInLeafNode && mrgLRN[1] >= minObservationsInLeafNode)
             {
                 curFeatureId    = featId;
                 curFeatureValue = binId;
                 curImpDec       = impDec;
 
-                bestRN        = mrgRN;
-                bestRMean     = mrgRMean;
-                bestRSum2Cent = mrgRSum2Cent;
-
-                bestLN        = mrgLN;
-                bestLMean     = mrgLMean;
-                bestLSum2Cent = mrgLSum2Cent;
+                bestLN = mrgLRN[0];
             }
         } // for i
 
@@ -311,21 +294,7 @@ DECLARE_SOURCE(
         algorithmFPType mrgMean     = (algorithmFPType)0;
         algorithmFPType mrgSum2Cent = (algorithmFPType)0;
 
-        algorithmFPType bestRN        = (algorithmFPType)0;
-        algorithmFPType bestRMean     = (algorithmFPType)0;
-        algorithmFPType bestRSum2Cent = (algorithmFPType)0;
-
-        algorithmFPType bestLN        = (algorithmFPType)0;
-        algorithmFPType bestLMean     = (algorithmFPType)0;
-        algorithmFPType bestLSum2Cent = (algorithmFPType)0;
-
-        algorithmFPType mrgRN        = (algorithmFPType)0;
-        algorithmFPType mrgRMean     = (algorithmFPType)0;
-        algorithmFPType mrgRSum2Cent = (algorithmFPType)0;
-
-        algorithmFPType mrgLN        = (algorithmFPType)0;
-        algorithmFPType mrgLMean     = (algorithmFPType)0;
-        algorithmFPType mrgLSum2Cent = (algorithmFPType)0;
+        algorithmFPType bestLN = (algorithmFPType)0;
 
         int totalBins = 0;
 
@@ -364,13 +333,9 @@ DECLARE_SOURCE(
             mrgMean     = (algorithmFPType)0;
             mrgSum2Cent = (algorithmFPType)0;
 
-            mrgRN        = (algorithmFPType)0;
-            mrgRMean     = (algorithmFPType)0;
-            mrgRSum2Cent = (algorithmFPType)0;
-
-            mrgLN        = (algorithmFPType)0;
-            mrgLMean     = (algorithmFPType)0;
-            mrgLSum2Cent = (algorithmFPType)0;
+            algorithmFPType mrgLRN[2]        = { (algorithmFPType)0 };
+            algorithmFPType mrgLRMean[2]     = { (algorithmFPType)0 };
+            algorithmFPType mrgLRSum2Cent[2] = { (algorithmFPType)0 };
 
             for (int tbin = 0; tbin < currFtrBins; tbin++)
             {
@@ -381,38 +346,22 @@ DECLARE_SOURCE(
                 algorithmFPType sum2Cent = histogramForFeature[binOffset + 2];
                 if ((algorithmFPType)0 == n) continue;
 
-                if (tbin <= binId)
-                {
-                    mergeStat(n, mean, sum2Cent, &mrgLN, &mrgLMean, &mrgLSum2Cent);
-                }
-                else
-                {
-                    mergeStat(n, mean, sum2Cent, &mrgRN, &mrgRMean, &mrgRSum2Cent);
-                }
+                mergeStat(n, mean, sum2Cent, &mrgLRN[(int)(tbin > binId)], &mrgLRMean[(int)(tbin > binId)], &mrgLRSum2Cent[(int)(tbin > binId)]);
             }
 
-            mrgN        = mrgLN;
-            mrgMean     = mrgLMean;
-            mrgSum2Cent = mrgLSum2Cent;
-            mergeStat(mrgRN, mrgRMean, mrgRSum2Cent, &mrgN, &mrgMean, &mrgSum2Cent);
+            mergeStatArr(mrgLRN, mrgLRMean, mrgLRSum2Cent, &mrgN, &mrgMean, &mrgSum2Cent);
 
-            algorithmFPType impDec = mrgSum2Cent - (mrgLSum2Cent + mrgRSum2Cent);
+            algorithmFPType impDec = mrgSum2Cent - (mrgLRSum2Cent[0] + mrgLRSum2Cent[1]);
 
             if ((algorithmFPType)0 < impDec && (mrgSum2Cent / mrgN) >= impurityThreshold
                 && (curFeatureValue == -1 || impDec > curImpDec || (fpIsEqual(impDec, curImpDec) && featId < curFeatureId))
-                && mrgRN >= minObservationsInLeafNode && mrgLN >= minObservationsInLeafNode)
+                && mrgLRN[0] >= minObservationsInLeafNode && mrgLRN[1] >= minObservationsInLeafNode)
             {
                 curFeatureId    = featId;
                 curFeatureValue = binId;
                 curImpDec       = impDec;
 
-                bestRN        = mrgRN;
-                bestRMean     = mrgRMean;
-                bestRSum2Cent = mrgRSum2Cent;
-
-                bestLN        = mrgLN;
-                bestLMean     = mrgLMean;
-                bestLSum2Cent = mrgLSum2Cent;
+                bestLN = mrgLRN[0];
             }
         } // for i
 
@@ -473,7 +422,6 @@ DECLARE_SOURCE(
                 splitNodeInfo[1] = mrgMean;
 
                 if (updateImpDecreaseRequired) nodeImpDecreaseList[nodeId] = ((algorithmFPType)0 != mrgN) ? curImpDec / mrgN : (algorithmFPType)0;
-                return;
             }
         }
     }
@@ -578,16 +526,7 @@ DECLARE_SOURCE(
             algorithmFPType mean     = nodePartialHistograms[offset + 1];
             algorithmFPType sum2Cent = nodePartialHistograms[offset + 2];
 
-            // will replace with mergeStat func call
-            algorithmFPType sumN1N2    = mrgN + n;
-            algorithmFPType mulN1N2    = mrgN * n;
-            algorithmFPType deltaScale = mulN1N2 / sumN1N2;
-            algorithmFPType meanScale  = (algorithmFPType)1 / sumN1N2;
-            algorithmFPType delta      = mean - mrgMean;
-
-            mrgSum2Cent = mrgSum2Cent + sum2Cent + delta * delta * deltaScale;
-            mrgMean     = (mrgMean * mrgN + mean * n) * meanScale;
-            mrgN        = sumN1N2;
+            mergeStat(n, mean, sum2Cent, &mrgN, &mrgMean, &mrgSum2Cent);
 
             buf[local_id * nProp + 0] += n;
             buf[local_id * nProp + 1] = mrgMean;
@@ -604,30 +543,17 @@ DECLARE_SOURCE(
                 algorithmFPType mean     = buf[(local_id + offset) * nProp + 1];
                 algorithmFPType sum2Cent = buf[(local_id + offset) * nProp + 2];
 
-                // will replace with mergeStat func call
-                algorithmFPType sumN1N2    = mrgN + n;
-                algorithmFPType mulN1N2    = mrgN * n;
-                algorithmFPType deltaScale = mulN1N2 / sumN1N2;
-                algorithmFPType meanScale  = (algorithmFPType)1 / sumN1N2;
-                algorithmFPType delta      = mean - mrgMean;
+                mergeStat(n, mean, sum2Cent, &mrgN, &mrgMean, &mrgSum2Cent);
 
-                mrgSum2Cent = mrgSum2Cent + sum2Cent + delta * delta * deltaScale;
-                mrgMean     = (mrgMean * mrgN + mean * n) * meanScale;
-                mrgN        = sumN1N2;
-
-                // item 0 collects all results in private vars
-                // but all others need to store it
-                if (local_id > 0)
-                {
-                    buf[local_id * nProp + 0] += n;
-                    buf[local_id * nProp + 1] = mrgMean;
-                    buf[local_id * nProp + 2] = mrgSum2Cent;
-                }
+                buf[local_id * nProp + 0] += n;
+                buf[local_id * nProp + 1] = mrgMean;
+                buf[local_id * nProp + 2] = mrgSum2Cent;
             }
         }
 
         if (local_id == 0)
         {
+            // item 0 collects all results in private vars
             nodeHistogram[binId * nProp + 0] = mrgN;
             nodeHistogram[binId * nProp + 1] = mrgMean;
             nodeHistogram[binId * nProp + 2] = mrgSum2Cent;
@@ -714,7 +640,7 @@ DECLARE_SOURCE(
         }
     }
 
-    __kernel void splitNodeListOnGroupsBySize(const __global int * nodeList, int nNodes, __global int * bigNodesGroups, __global int * nodeIndeces,
+    __kernel void splitNodeListOnGroupsBySize(const __global int * nodeList, int nNodes, __global int * bigNodesGroups, __global int * nodeIndices,
                                               int minRowsBlock) {
         /*for now only 3 groups are produced, may be more required*/
         const int bigNodeLowBorderBlocksNum = BIG_NODE_LOW_BORDER_BLOCKS_NUM; // fine, need to experiment and find better one
@@ -735,12 +661,9 @@ DECLARE_SOURCE(
         {
             int nRows   = nodeList[i * nNodeProp + 1];
             int nBlocks = nRows / blockSize + !!(nRows % blockSize);
-            int bigNode = 0;
-            int midNode = 0;
-            if (nBlocks > bigNodeLowBorderBlocksNum)
-                bigNode = 1;
-            else if (nBlocks > 1)
-                midNode = 1;
+
+            int bigNode = (int)(nBlocks > bigNodeLowBorderBlocksNum);
+            int midNode = (int)(nBlocks <= bigNodeLowBorderBlocksNum && nBlocks > 1);
 
             nBigNodes += sub_group_reduce_add(bigNode);
             nMidNodes += sub_group_reduce_add(midNode);
@@ -771,17 +694,13 @@ DECLARE_SOURCE(
         {
             int nRows   = nodeList[i * nNodeProp + 1];
             int nBlocks = nRows / blockSize + !!(nRows % blockSize);
-            int bigNode = 0;
-            int midNode = 0;
-            if (nBlocks > bigNodeLowBorderBlocksNum)
-                bigNode = 1;
-            else if (nBlocks > 1)
-                midNode = 1;
+            int bigNode = (int)(nBlocks > bigNodeLowBorderBlocksNum);
+            int midNode = (int)(nBlocks <= bigNodeLowBorderBlocksNum && nBlocks > 1);
 
-            int boundaryBig     = sumBig + sub_group_scan_exclusive_add(bigNode);
-            int boundaryMid     = sumMid + sub_group_scan_exclusive_add(midNode);
-            int posNew          = (bigNode ? boundaryBig : midNode ? nBigNodes + boundaryMid : nBigNodes + nMidNodes + i - boundaryBig - boundaryMid);
-            nodeIndeces[posNew] = i;
+            int boundaryBig = sumBig + sub_group_scan_exclusive_add(bigNode);
+            int boundaryMid = sumMid + sub_group_scan_exclusive_add(midNode);
+            int posNew      = (bigNode ? boundaryBig : (midNode ? nBigNodes + boundaryMid : nBigNodes + nMidNodes + i - boundaryBig - boundaryMid));
+            nodeIndices[posNew] = i;
             sumBig += sub_group_reduce_add(bigNode);
             sumMid += sub_group_reduce_add(midNode);
         }
@@ -891,13 +810,14 @@ DECLARE_SOURCE(
 
         iEnd = (iEnd > nRows) ? nRows : iEnd;
 
-        int sum = 0;
+        int subSum = 0;
 
         for (int i = iStart + local_id; i < iEnd; i += local_size)
         {
-            int value = (int)(itemAbsentMark == rowsBuffer[i]);
-            sum += sub_group_reduce_add(value);
+            subSum += (int)(itemAbsentMark == rowsBuffer[i]);
         }
+
+        int sum = sub_group_reduce_add(subSum);
 
         if (local_id == 0)
         {
