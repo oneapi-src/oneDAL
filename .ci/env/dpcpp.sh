@@ -14,9 +14,6 @@ sudo apt-get install              \
     intel-oneapi-dpcpp-compiler   \
     intel-oneapi-dev-utilities    \
     intel-oneapi-libdpstd-devel   \
-    cmake                         \
-    opencl-headers                \
-    libze-loader                  \
-    libze-intel-gpu
+    cmake
 sudo bash -c 'echo libintelocl.so > /etc/OpenCL/vendors/intel-cpu.icd'
 sudo mv -f /opt/intel/inteloneapi/compiler/latest/linux/lib/oclfpga /opt/intel/inteloneapi/compiler/latest/linux/lib/oclfpga_

@@ -54,10 +54,6 @@ jobs:
     release.dir: '__release_lnx_gnu'
   pool:
     vmImage: 'ubuntu-18.04'
-  strategy:
-    matrix:
-      lnx32e:
-        platform.type : 'lnx32e'
     maxParallel: 2
   steps:
   - task: DownloadPipelineArtifact@2
@@ -78,13 +74,20 @@ jobs:
     displayName: Create Anaconda environment
   - script: |
       export DPCPP_VAR=/opt/intel/inteloneapi/compiler/latest/env/vars.sh
-      export DAALROOT='$(platform.type) build'/daal/latest
+      export DAALROOT="$(Pipeline.Workspace)/$(platform.type)\ build/__release_lnx_gnu/daal/latest"
       . $HOME/miniconda/etc/profile.d/conda.sh
       conda activate CB
       cd daal4py
       conda build --override-channels -c conda-forge -c intel conda-recipe
     displayName: conda build
-
+  - script: |
+      .ci/scripts/conformance-scripts/conformance_test.sh --build-dir "$(Pipeline.Workspace)/$(platform.type)\ build/__release_lnx_gnu"
+    timeoutInMinutes: 15
+    displayName: conda build
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: '$(platform.type) conformance tests report'
+      targetPath: '.ci/scripts/conformance-scripts/report.html'
 - job: macOS
   timeoutInMinutes: 0
   variables:
