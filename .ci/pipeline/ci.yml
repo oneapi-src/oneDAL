@@ -61,7 +61,7 @@ jobs:
     inputs:
       artifact: '$(platform.type) build'
   - script: |
-        .ci/env/daal4py-dpcpp.sh
+        .ci/env/dpcpp.sh
     displayName: 'create dpcpp enviroment'
   - script: |
       sudo apt-get install git
