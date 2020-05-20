@@ -1,6 +1,6 @@
-/* file: kmeans_dense_batch.cpp */
+/* file: kmeans_dense_multinode_batch.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,20 +22,21 @@
 !******************************************************************************/
 
 /**
- * <a name="DAAL-EXAMPLE-CPP-KMEANS_DENSE_BATCH"></a>
- * \example kmeans_dense_batch.cpp
+ * <a name="DAAL-SAMPLE-CPP-KMEANS_DENSE_MULTINODE_BATCH"></a>
+ * \sample kmeans_dense_multinode_batch.cpp
  */
 
 #include "daal_sycl.h"
 #include "service.h"
 #include "service_sycl.h"
+#include "services/comm_detect.h"
 
 using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 
 /* Input data set parameters */
-string datasetFileName = "../data/batch/kmeans_dense.csv";
+string datasetFileName = "./data/kmeans_dense.csv";
 
 /* K-Means algorithm parameters */
 const size_t nFeatures   = 20; /* Number of features in input data sets */
@@ -50,11 +51,15 @@ int main(int argc, char * argv[])
     {
         const auto & nameDevice = deviceSelector.first;
         const auto & device     = deviceSelector.second;
+        if (!device.is_gpu()) continue;
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
         daal::services::SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
+
+        daal::preview::services::OneCclCommunicator comm(queue);
+        daal::preview::services::CommManager::getInstance()->setDefaultCommunicator(comm);
 
         /* Initialize FileDataSource to retrieve the input data from a .csv file */
         FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
@@ -72,7 +77,7 @@ int main(int argc, char * argv[])
 
         NumericTablePtr centroids = init.getResult()->get(kmeans::init::centroids);
 
-        kmeans::Batch<> algorithm(nClusters, nIterations);
+        algorithms::preview::kmeans::MultiNodeBatch<> algorithm(nClusters, nIterations);
 
         algorithm.input.set(kmeans::data, data);
         algorithm.input.set(kmeans::inputCentroids, centroids);
@@ -80,9 +85,9 @@ int main(int argc, char * argv[])
         algorithm.compute();
 
         /* Print the clusterization results */
-        printNumericTable(algorithm.getResult()->get(kmeans::assignments), "First 10 cluster assignments:", 10);
-        printNumericTable(algorithm.getResult()->get(kmeans::centroids), "First 10 dimensions of centroids:", 20, 10);
-        printNumericTable(algorithm.getResult()->get(kmeans::objectiveFunction), "Objective function value:");
+        printNumericTable(((kmeans::Result *)algorithm.getResult().get())->get(kmeans::assignments), "First 10 cluster assignments:", 10);
+        printNumericTable(((kmeans::Result *)algorithm.getResult().get())->get(kmeans::centroids), "First 10 dimensions of centroids:", 20, 10);
+        printNumericTable(((kmeans::Result *)algorithm.getResult().get())->get(kmeans::objectiveFunction), "Objective function value:");
     }
 
     return 0;
