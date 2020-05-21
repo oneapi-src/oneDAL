@@ -228,7 +228,7 @@ Status KMeansOneCclDefaultBatchKernelUCAPI<algorithmFPType>::compute(const Numer
     {
         for (size_t block = 0; block < nBlocks; block++)
         {
-            size_t first = rankFirst + block * blockSize;
+            size_t const first = rankFirst + block * blockSize;
             size_t last  = first + blockSize;
 
             if (last > rankEnd)
@@ -236,7 +236,7 @@ Status KMeansOneCclDefaultBatchKernelUCAPI<algorithmFPType>::compute(const Numer
                 last = rankEnd;
             }
 
-            size_t curBlockSize = last - first;
+            size_t const curBlockSize = last - first;
 
             BlockDescriptor<algorithmFPType> dataRows;
             ntData->getBlockOfRows(first, curBlockSize, readOnly, dataRows);
@@ -288,7 +288,7 @@ Status KMeansOneCclDefaultBatchKernelUCAPI<algorithmFPType>::compute(const Numer
                 curObjFunction - prevObjFunction > 0 ? curObjFunction - prevObjFunction : -(curObjFunction - prevObjFunction);
             if (objFuncDiff < accuracyThreshold)
             {
-                iter++;
+                ++iter;
                 break;
             }
         }
@@ -301,7 +301,7 @@ Status KMeansOneCclDefaultBatchKernelUCAPI<algorithmFPType>::compute(const Numer
     DAAL_CHECK_STATUS_VAR(st);
     for (size_t block = 0; block < nBlocks; block++)
     {
-        size_t first = rankFirst + block * blockSize;
+        size_t const first = rankFirst + block * blockSize;
         size_t last  = first + blockSize;
 
         if (last > rankEnd)
@@ -309,7 +309,7 @@ Status KMeansOneCclDefaultBatchKernelUCAPI<algorithmFPType>::compute(const Numer
             last = rankEnd;
         }
 
-        size_t curBlockSize = last - first;
+        size_t const curBlockSize = last - first;
 
         BlockDescriptor<algorithmFPType> dataRows;
         ntData->getBlockOfRows(first, curBlockSize, readOnly, dataRows);
@@ -359,7 +359,7 @@ Status KMeansOneCclDefaultBatchKernelUCAPI<algorithmFPType>::compute(const Numer
         BlockDescriptor<int> nIterationsRows;
         ntNIterations->getBlockOfRows(0, 1, writeOnly, nIterationsRows);
         auto nIterationsHostPtr = nIterationsRows.getBlockSharedPtr();
-        int * nIterations       = nIterationsHostPtr.get();
+        int * const nIterations       = nIterationsHostPtr.get();
         nIterations[0]          = iter;
         ntNIterations->releaseBlockOfRows(nIterationsRows);
     }
