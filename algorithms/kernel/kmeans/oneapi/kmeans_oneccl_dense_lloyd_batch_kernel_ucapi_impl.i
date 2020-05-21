@@ -229,7 +229,7 @@ Status KMeansOneCclDefaultBatchKernelUCAPI<algorithmFPType>::compute(const Numer
         for (size_t block = 0; block < nBlocks; block++)
         {
             size_t const first = rankFirst + block * blockSize;
-            size_t last  = first + blockSize;
+            size_t last        = first + blockSize;
 
             if (last > rankEnd)
             {
@@ -302,7 +302,7 @@ Status KMeansOneCclDefaultBatchKernelUCAPI<algorithmFPType>::compute(const Numer
     for (size_t block = 0; block < nBlocks; block++)
     {
         size_t const first = rankFirst + block * blockSize;
-        size_t last  = first + blockSize;
+        size_t last        = first + blockSize;
 
         if (last > rankEnd)
         {
@@ -359,7 +359,7 @@ Status KMeansOneCclDefaultBatchKernelUCAPI<algorithmFPType>::compute(const Numer
         BlockDescriptor<int> nIterationsRows;
         ntNIterations->getBlockOfRows(0, 1, writeOnly, nIterationsRows);
         auto nIterationsHostPtr = nIterationsRows.getBlockSharedPtr();
-        int * const nIterations       = nIterationsHostPtr.get();
+        int * const nIterations = nIterationsHostPtr.get();
         nIterations[0]          = iter;
         ntNIterations->releaseBlockOfRows(nIterationsRows);
     }
