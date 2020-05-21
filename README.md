@@ -29,7 +29,7 @@ The current version of oneDAL provides Data Parallel C++ (DPC++) API extensions 
 
 ## Table of Contents <!-- omit in toc -->
 
-- [Preview Features](#preview-features)
+- [Technical Preview Features](#preview-features)
 - [oneDAL and Intel(R) DAAL](#onedal-and-intelr-daal)
 - [Installation](#installation)
 - [Examples](#examples)
@@ -37,9 +37,9 @@ The current version of oneDAL provides Data Parallel C++ (DPC++) API extensions 
 - [API](#api)
 
 
-## Preview Features 
+## Technical Preview Features 
  
-Preview features are introduced to gain early feedback from developers. A preview feature is subject to change in the future releases. Using a preview feature in a production code base is therefore strongly discouraged.
+Technical preview features are introduced to gain early feedback from developers. A preview feature is subject to change in the future releases. Using a preview feature in a production code base is therefore strongly discouraged.
 The only preview feature at the moment is `MultiNodeBatch` for K-Means, a stepless distributed algorithm based on oneCCL.
 
 ## oneDAL and Intel(R) DAAL
