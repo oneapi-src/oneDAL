@@ -302,6 +302,7 @@ protected:
         {
             bias = sum_yg / (algorithmFPType)num_yg;
         }
+        printf(">> bias %lf\n", bias);
 
         return bias;
     }
