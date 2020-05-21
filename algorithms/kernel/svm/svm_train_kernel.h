@@ -101,15 +101,6 @@ protected:
     /*** Methods used in shrinking ***/
     size_t doShrink(size_t nActiveVectors);
 
-    /**
-    * \brief Write support vectors and classification coefficients into output model
-    */
-    Status setSVCoefficients(size_t nSV, Model & model) const;
-    Status setSVIndices(size_t nSV, Model & model) const;
-    Status setSV_Dense(Model & model, const NumericTable & xTable, size_t nSV) const;
-    Status setSV_CSR(Model & model, const NumericTable & xTable, size_t nSV) const;
-    algorithmFPType calculateBias(algorithmFPType C) const;
-
     inline void updateAlpha(algorithmFPType C, int Bi, int Bj, algorithmFPType delta, algorithmFPType & newDeltai, algorithmFPType & newDeltaj);
 
 protected:
