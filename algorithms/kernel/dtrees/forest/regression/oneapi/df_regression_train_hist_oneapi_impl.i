@@ -1,4 +1,4 @@
-/* file: df_regression_train_dense_default_oneapi_impl.i */
+/* file: df_regression_train_hist_oneapi_impl.i */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -18,14 +18,14 @@
 /*
 //++
 //  Implementation of auxiliary functions for decision forest regression
-//  (defaultDense) method.
+//  hist method.
 //--
 */
 
-#ifndef __DF_REGRESSION_TRAIN_DENSE_DEFAULT_ONEAPI_IMPL_I__
-#define __DF_REGRESSION_TRAIN_DENSE_DEFAULT_ONEAPI_IMPL_I__
+#ifndef __DF_REGRESSION_TRAIN_HIST_ONEAPI_IMPL_I__
+#define __DF_REGRESSION_TRAIN_HIST_ONEAPI_IMPL_I__
 
-#include "algorithms/kernel/dtrees/forest/regression/oneapi/df_regression_train_kernel_oneapi.h"
+#include "algorithms/kernel/dtrees/forest/regression/oneapi/df_regression_train_hist_kernel_oneapi.h"
 #include "algorithms/kernel/engines/engine_types_internal.h"
 #include "algorithms/kernel/dtrees/forest/regression/oneapi/cl_kernels/df_batch_regression_kernels.cl"
 
@@ -93,8 +93,8 @@ static void buildProgram(ClKernelFactoryIface & factory)
     }
 }
 
-template <typename algorithmFPType, decision_forest::regression::training::Method method>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::initializeTreeOrder(size_t nRows, UniversalBuffer & treeOrder)
+template <typename algorithmFPType>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::initializeTreeOrder(size_t nRows, UniversalBuffer & treeOrder)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.initializeTreeOrder);
 
@@ -117,10 +117,10 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::init
     return status;
 }
 
-template <typename algorithmFPType, decision_forest::regression::training::Method method>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::markPresentRows(const UniversalBuffer & rowsList,
-                                                                                            UniversalBuffer & rowsBuffer, size_t nRows,
-                                                                                            size_t localSize, size_t nSubgroupSums)
+template <typename algorithmFPType>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::markPresentRows(const UniversalBuffer & rowsList,
+                                                                                          UniversalBuffer & rowsBuffer, size_t nRows,
+                                                                                          size_t localSize, size_t nSubgroupSums)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.markPresentRows);
     services::Status status;
@@ -150,10 +150,10 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::mark
     return status;
 }
 
-template <typename algorithmFPType, decision_forest::regression::training::Method method>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::countAbsentRowsForBlocks(const UniversalBuffer & rowsBuffer, size_t nRows,
-                                                                                                     UniversalBuffer & partialSums, size_t localSize,
-                                                                                                     size_t nSubgroupSums)
+template <typename algorithmFPType>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::countAbsentRowsForBlocks(const UniversalBuffer & rowsBuffer, size_t nRows,
+                                                                                                   UniversalBuffer & partialSums, size_t localSize,
+                                                                                                   size_t nSubgroupSums)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.countAbsentRowsForBlocks);
     services::Status status;
@@ -183,11 +183,11 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::coun
     return status;
 }
 
-template <typename algorithmFPType, decision_forest::regression::training::Method method>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::countAbsentRowsTotal(const UniversalBuffer & partialSums,
-                                                                                                 UniversalBuffer & partialPrefixSums,
-                                                                                                 UniversalBuffer & totalSum, size_t localSize,
-                                                                                                 size_t nSubgroupSums)
+template <typename algorithmFPType>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::countAbsentRowsTotal(const UniversalBuffer & partialSums,
+                                                                                               UniversalBuffer & partialPrefixSums,
+                                                                                               UniversalBuffer & totalSum, size_t localSize,
+                                                                                               size_t nSubgroupSums)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.countAbsentRowsTotal);
     services::Status status;
@@ -218,11 +218,11 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::coun
     return status;
 }
 
-template <typename algorithmFPType, decision_forest::regression::training::Method method>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::fillOOBRowsListByBlocks(const UniversalBuffer & rowsBuffer, size_t nRows,
-                                                                                                    const UniversalBuffer & partialPrefixSums,
-                                                                                                    UniversalBuffer & oobRowsList, size_t localSize,
-                                                                                                    size_t nSubgroupSums)
+template <typename algorithmFPType>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::fillOOBRowsListByBlocks(const UniversalBuffer & rowsBuffer, size_t nRows,
+                                                                                                  const UniversalBuffer & partialPrefixSums,
+                                                                                                  UniversalBuffer & oobRowsList, size_t localSize,
+                                                                                                  size_t nSubgroupSums)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.fillOOBRowsListByBlocks);
     services::Status status;
@@ -252,9 +252,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::fill
 
     return status;
 }
-template <typename algorithmFPType, decision_forest::regression::training::Method method>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::getOOBRows(const UniversalBuffer & rowsList, size_t nRows,
-                                                                                       size_t & nOOBRows, UniversalBuffer & oobRowsList)
+template <typename algorithmFPType>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::getOOBRows(const UniversalBuffer & rowsList, size_t nRows,
+                                                                                     size_t & nOOBRows, UniversalBuffer & oobRowsList)
 {
     services::Status status;
 
@@ -294,9 +294,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::getO
     return status;
 }
 
-template <typename algorithmFPType, decision_forest::regression::training::Method method>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::getNumOfSplitNodes(const UniversalBuffer & nodeList, size_t nNodes,
-                                                                                               size_t & nSplitNodes)
+template <typename algorithmFPType>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::getNumOfSplitNodes(const UniversalBuffer & nodeList, size_t nNodes,
+                                                                                             size_t & nSplitNodes)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.getNumOfSplitNodes);
 
@@ -337,8 +337,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::getN
     return status;
 }
 
-template <typename algorithmFPType, decision_forest::regression::training::Method method>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::convertSplitToLeaf(UniversalBuffer & nodeList, size_t nNodes)
+template <typename algorithmFPType>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::convertSplitToLeaf(UniversalBuffer & nodeList, size_t nNodes)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.convertSplitToLeaf);
 
@@ -361,9 +361,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::conv
     return status;
 }
 
-template <typename algorithmFPType, decision_forest::regression::training::Method method>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::doNodesSplit(const UniversalBuffer & nodeList, size_t nNodes,
-                                                                                         UniversalBuffer & nodeListNew)
+template <typename algorithmFPType>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::doNodesSplit(const UniversalBuffer & nodeList, size_t nNodes,
+                                                                                       UniversalBuffer & nodeListNew)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.doNodesSplit);
 
@@ -400,10 +400,10 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::doNo
     return status;
 }
 
-template <typename algorithmFPType, decision_forest::regression::training::Method method>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::splitNodeListOnGroupsBySize(const UniversalBuffer & nodeList,
-                                                                                                        size_t nNodes, UniversalBuffer & nodesGroups,
-                                                                                                        UniversalBuffer & nodeIndices)
+template <typename algorithmFPType>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::splitNodeListOnGroupsBySize(const UniversalBuffer & nodeList, size_t nNodes,
+                                                                                                      UniversalBuffer & nodesGroups,
+                                                                                                      UniversalBuffer & nodeIndices)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.splitNodeListOnGroupsBySize);
 
@@ -439,11 +439,11 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::spli
     return status;
 }
 
-template <typename algorithmFPType, decision_forest::regression::training::Method method>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::doLevelPartition(const UniversalBuffer & data, UniversalBuffer & nodeList,
-                                                                                             size_t nNodes, UniversalBuffer & treeOrder,
-                                                                                             UniversalBuffer & treeOrderBuf, size_t nRows,
-                                                                                             size_t nFeatures)
+template <typename algorithmFPType>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::doLevelPartition(const UniversalBuffer & data, UniversalBuffer & nodeList,
+                                                                                           size_t nNodes, UniversalBuffer & treeOrder,
+                                                                                           UniversalBuffer & treeOrderBuf, size_t nRows,
+                                                                                           size_t nFeatures)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.doLevelPartition);
 
@@ -481,8 +481,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::doLe
     return status;
 }
 
-template <typename algorithmFPType, decision_forest::regression::training::Method method>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::computeBestSplitByHistogram(
+template <typename algorithmFPType>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::computeBestSplitByHistogram(
     const UniversalBuffer & nodeHistogramList, UniversalBuffer & selectedFeatures, size_t nSelectedFeatures, UniversalBuffer & nodeList,
     UniversalBuffer & nodeIndices, size_t nodeIndicesOffset, UniversalBuffer & binOffsets, UniversalBuffer & impList,
     UniversalBuffer & nodeImpDecreaseList, bool updateImpDecreaseRequired, size_t nNodes, size_t nMaxBinsAmongFtrs, size_t minObservationsInLeafNode,
@@ -531,8 +531,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     return status;
 }
 
-template <typename algorithmFPType, decision_forest::regression::training::Method method>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::computeBestSplitSinglePass(
+template <typename algorithmFPType>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::computeBestSplitSinglePass(
     const UniversalBuffer & data, UniversalBuffer & treeOrder, UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
     const services::Buffer<algorithmFPType> & response, UniversalBuffer & binOffsets, UniversalBuffer & nodeList, UniversalBuffer & nodeIndices,
     size_t nodeIndicesOffset, UniversalBuffer & impList, UniversalBuffer & nodeImpDecreaseList, bool updateImpDecreaseRequired, size_t nFeatures,
@@ -583,8 +583,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     return status;
 }
 
-template <typename algorithmFPType, decision_forest::regression::training::Method method>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::computeBestSplit(
+template <typename algorithmFPType>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::computeBestSplit(
     const UniversalBuffer & data, UniversalBuffer & treeOrder, UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
     const services::Buffer<algorithmFPType> & response, UniversalBuffer & nodeList, UniversalBuffer & binOffsets, UniversalBuffer & impList,
     UniversalBuffer & nodeImpDecreaseList, bool updateImpDecreaseRequired, size_t nFeatures, size_t nNodes, size_t minObservationsInLeafNode,
@@ -647,8 +647,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     return status;
 }
 
-template <typename algorithmFPType, decision_forest::regression::training::Method method>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::computePartialHistograms(
+template <typename algorithmFPType>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::computePartialHistograms(
     const UniversalBuffer & data, UniversalBuffer & treeOrder, UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
     const services::Buffer<algorithmFPType> & response, UniversalBuffer & nodeList, UniversalBuffer & nodeIndices, size_t nodeIndicesOffset,
     UniversalBuffer & binOffsets, size_t nMaxBinsAmongFtrs, size_t nFeatures, size_t nNodes, UniversalBuffer & partialHistograms,
@@ -694,12 +694,12 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     return status;
 }
 
-template <typename algorithmFPType, decision_forest::regression::training::Method method>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::reducePartialHistograms(UniversalBuffer & partialHistograms,
-                                                                                                    UniversalBuffer & histograms,
-                                                                                                    size_t nPartialHistograms, size_t nNodes,
-                                                                                                    size_t nSelectedFeatures,
-                                                                                                    size_t nMaxBinsAmongFtrs, size_t reduceLocalSize)
+template <typename algorithmFPType>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::reducePartialHistograms(UniversalBuffer & partialHistograms,
+                                                                                                  UniversalBuffer & histograms,
+                                                                                                  size_t nPartialHistograms, size_t nNodes,
+                                                                                                  size_t nSelectedFeatures, size_t nMaxBinsAmongFtrs,
+                                                                                                  size_t reduceLocalSize)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.reducePartialHistograms);
 
@@ -733,9 +733,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::redu
     return status;
 }
 
-template <typename algorithmFPType, decision_forest::regression::training::Method method>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::partitionCopy(UniversalBuffer & treeOrderBuf, UniversalBuffer & treeOrder,
-                                                                                          size_t iStart, size_t nRows)
+template <typename algorithmFPType>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::partitionCopy(UniversalBuffer & treeOrderBuf, UniversalBuffer & treeOrder,
+                                                                                        size_t iStart, size_t nRows)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.partitionCopy);
 
@@ -760,12 +760,12 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
     return status;
 }
 
-template <typename algorithmFPType, decision_forest::regression::training::Method method>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::updateMDIVarImportance(const UniversalBuffer & nodeList,
-                                                                                                   const UniversalBuffer & nodeImpDecreaseList,
-                                                                                                   size_t nNodes,
-                                                                                                   services::Buffer<algorithmFPType> & varImp,
-                                                                                                   size_t nFeatures)
+template <typename algorithmFPType>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::updateMDIVarImportance(const UniversalBuffer & nodeList,
+                                                                                                 const UniversalBuffer & nodeImpDecreaseList,
+                                                                                                 size_t nNodes,
+                                                                                                 services::Buffer<algorithmFPType> & varImp,
+                                                                                                 size_t nFeatures)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateMDIVarImportance);
 
@@ -839,11 +839,13 @@ services::Status selectParallelizationTechnique(const Parameter & par, engines::
 
 /* following methods are related to results computation (OBB err, varImportance MDA/MDA_Scaled)*/
 /* they will be migrated on GPU when prediction layer forGPU is ready*/
-template <typename algorithmFPType, decision_forest::regression::training::Method method>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::computeResults(
-    const dtrees::internal::Tree & t, const algorithmFPType * x, const algorithmFPType * y, size_t nRows, size_t nFeatures,
-    const UniversalBuffer & oobIndices, size_t nOOB, UniversalBuffer & oobBuf, algorithmFPType * varImp, algorithmFPType * varImpVariance,
-    size_t nBuiltTrees, const engines::EnginePtr & engine, const Parameter & par)
+template <typename algorithmFPType>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::computeResults(const dtrees::internal::Tree & t, const algorithmFPType * x,
+                                                                                         const algorithmFPType * y, size_t nRows, size_t nFeatures,
+                                                                                         const UniversalBuffer & oobIndices, size_t nOOB,
+                                                                                         UniversalBuffer & oobBuf, algorithmFPType * varImp,
+                                                                                         algorithmFPType * varImpVariance, size_t nBuiltTrees,
+                                                                                         const engines::EnginePtr & engine, const Parameter & par)
 {
     services::Status status;
     const bool mdaRequired(par.varImportance == decision_forest::training::MDA_Raw || par.varImportance == decision_forest::training::MDA_Scaled);
@@ -887,12 +889,11 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     return status;
 }
 
-template <typename algorithmFPType, decision_forest::regression::training::Method method>
-algorithmFPType RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::computeOOBError(const dtrees::internal::Tree & t,
-                                                                                           const algorithmFPType * x, const algorithmFPType * y,
-                                                                                           const size_t nRows, const size_t nFeatures,
-                                                                                           const UniversalBuffer & indices, size_t n,
-                                                                                           UniversalBuffer oobBuf, services::Status * status)
+template <typename algorithmFPType>
+algorithmFPType RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::computeOOBError(const dtrees::internal::Tree & t, const algorithmFPType * x,
+                                                                                         const algorithmFPType * y, const size_t nRows,
+                                                                                         const size_t nFeatures, const UniversalBuffer & indices,
+                                                                                         size_t n, UniversalBuffer oobBuf, services::Status * status)
 {
     typedef DFTreeConverter<algorithmFPType, sse2> DFTreeConverterType;
     typename DFTreeConverterType::TreeHelperType mTreeHelper;
@@ -917,8 +918,8 @@ algorithmFPType RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::compu
     return mean;
 }
 
-template <typename algorithmFPType, decision_forest::regression::training::Method method>
-algorithmFPType RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::computeOOBErrorPerm(
+template <typename algorithmFPType>
+algorithmFPType RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::computeOOBErrorPerm(
     const dtrees::internal::Tree & t, const algorithmFPType * x, const algorithmFPType * y, const size_t nRows, const size_t nFeatures,
     const UniversalBuffer & indices, const int * indicesPerm, const size_t testFtrInd, size_t n, services::Status * status)
 {
@@ -944,10 +945,10 @@ algorithmFPType RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::compu
     return mean;
 }
 
-template <typename algorithmFPType, decision_forest::regression::training::Method method>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::finalizeOOBError(const algorithmFPType * y,
-                                                                                             const UniversalBuffer & oobBuf, const size_t nRows,
-                                                                                             algorithmFPType * res, algorithmFPType * resPerObs)
+template <typename algorithmFPType>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::finalizeOOBError(const algorithmFPType * y, const UniversalBuffer & oobBuf,
+                                                                                           const size_t nRows, algorithmFPType * res,
+                                                                                           algorithmFPType * resPerObs)
 {
     auto oobBufHost = oobBuf.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly);
 
@@ -976,9 +977,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::fina
     return services::Status();
 }
 
-template <typename algorithmFPType, decision_forest::regression::training::Method method>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::finalizeVarImp(const Parameter & par, algorithmFPType * varImp,
-                                                                                           algorithmFPType * varImpVariance, size_t nFeatures)
+template <typename algorithmFPType>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::finalizeVarImp(const Parameter & par, algorithmFPType * varImp,
+                                                                                         algorithmFPType * varImpVariance, size_t nFeatures)
 {
     if (par.varImportance == decision_forest::training::MDA_Scaled)
     {
@@ -1010,10 +1011,10 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::fina
 ///////////////////////////////////////////////////////////////////////////////////////////
 /* compute method for RegressionTrainBatchKernelOneAPI */
 ///////////////////////////////////////////////////////////////////////////////////////////
-template <typename algorithmFPType, decision_forest::regression::training::Method method>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::compute(HostAppIface * pHostApp, const NumericTable * x,
-                                                                                    const NumericTable * y, decision_forest::regression::Model & m,
-                                                                                    Result & res, const Parameter & par)
+template <typename algorithmFPType>
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::compute(HostAppIface * pHostApp, const NumericTable * x,
+                                                                                  const NumericTable * y, decision_forest::regression::Model & m,
+                                                                                  Result & res, const Parameter & par)
 {
     typedef DFTreeConverter<algorithmFPType, sse2> DFTreeConverterType;
     typedef TreeLevelRecord<algorithmFPType> TreeLevel;
@@ -1211,19 +1212,14 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
                                                    responseBlock.getBuffer(), nodeList, indexedFeatures.binOffsets(), impList, nodeImpDecreaseList,
                                                    mdiRequired, nFeatures, nNodes, par.minObservationsInLeafNode, par.impurityThreshold));
 
-            {
-                TreeLevel levelRec;
-                levelRec.nodeList = nodeList.template get<int>().toHost(ReadWriteMode::readOnly).get();
-                levelRec.impInfo  = impList.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly).get();
-                levelRec.nNodes   = nNodes;
-                DFTreeRecords.push_back(levelRec);
-            }
-
             if (par.maxTreeDepth > 0 && par.maxTreeDepth == level)
             {
                 DAAL_CHECK_STATUS_VAR(convertSplitToLeaf(nodeList, nNodes));
+                DFTreeRecords.push_back(TreeLevel(nodeList, impList, nNodes));
                 break;
             }
+
+            DFTreeRecords.push_back(TreeLevel(nodeList, impList, nNodes));
 
             if (mdiRequired)
             {

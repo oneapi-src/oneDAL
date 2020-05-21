@@ -1,4 +1,4 @@
-/* file: df_regression_train_kernel_oneapi.h */
+/* file: df_regression_train_hist_kernel_oneapi.h */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -18,12 +18,12 @@
 /*
 //++
 //  Declaration of structure containing kernels for decision forest
-//  training for GPU.
+//  training for GPU for the hist method.
 //--
 */
 
-#ifndef __DF_REGRESSION_TRAIN_KERNEL_ONEAPI_H__
-#define __DF_REGRESSION_TRAIN_KERNEL_ONEAPI_H__
+#ifndef __DF_REGRESSION_TRAIN_HIST_KERNEL_ONEAPI_H__
+#define __DF_REGRESSION_TRAIN_HIST_KERNEL_ONEAPI_H__
 
 #include "oneapi/internal/types.h"
 #include "oneapi/internal/execution_context.h"
@@ -51,6 +51,18 @@ namespace internal
 {
 template <typename algorithmFPType, Method method>
 class RegressionTrainBatchKernelOneAPI : public daal::algorithms::Kernel
+{
+public:
+    RegressionTrainBatchKernelOneAPI() {}
+    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::regression::Model & m,
+                             Result & res, const Parameter & par)
+    {
+        return services::ErrorMethodNotImplemented;
+    }
+};
+
+template <typename algorithmFPType>
+class RegressionTrainBatchKernelOneAPI<algorithmFPType, hist> : public daal::algorithms::Kernel
 {
 public:
     RegressionTrainBatchKernelOneAPI() {}

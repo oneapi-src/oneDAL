@@ -46,7 +46,8 @@ const size_t nFeatures                    = 13; /* Number of features in trainin
 /* Decision forest parameters */
 const size_t nTrees = 100;
 
-training::ResultPtr trainModel();
+template <typename algorithmType>
+training::ResultPtr trainModel(algorithmType && algorithm);
 void testModel(const training::ResultPtr & res);
 void loadData(const std::string & fileName, NumericTablePtr & pData, NumericTablePtr & pDependentVar);
 
@@ -64,22 +65,22 @@ int main(int argc, char * argv[])
         daal::services::SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
-        training::ResultPtr trainingResult = trainModel();
+        /* Create an algorithm object to train the decision forest regression model */
+        training::ResultPtr trainingResult = device.is_gpu() ? trainModel(training::Batch<float, training::hist>()) : trainModel(training::Batch<>());
+
         testModel(trainingResult);
     }
     return 0;
 }
 
-training::ResultPtr trainModel()
+template <typename algorithmType>
+training::ResultPtr trainModel(algorithmType && algorithm)
 {
     /* Create Numeric Tables for training data and dependent variables */
     NumericTablePtr trainData;
     NumericTablePtr trainDependentVariable;
 
     loadData(trainDatasetFileName, trainData, trainDependentVariable);
-
-    /* Create an algorithm object to train the decision forest regression model with the default method */
-    training::Batch<> algorithm;
 
     /* Pass a training data set and dependent values to the algorithm */
     algorithm.input.set(training::data, trainData);

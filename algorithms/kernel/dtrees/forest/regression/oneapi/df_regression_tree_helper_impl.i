@@ -84,19 +84,27 @@ public:
 template <typename algorithmFPType>
 struct TreeLevelRecord
 {
+    TreeLevelRecord() : _nodeList(nullptr), _impInfo(nullptr), _nNodes(0) {}
+    TreeLevelRecord(oneapi::internal::UniversalBuffer & nodeList, oneapi::internal::UniversalBuffer & impInfo, size_t nNodes) : _nNodes(nNodes)
+    {
+        _nodeList = nodeList.template get<int>().toHost(ReadWriteMode::readOnly).get();
+        _impInfo  = impInfo.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly).get();
+    }
+
+    size_t getNodesNum() { return _nNodes; }
+    int getRowsNum(size_t nodeIdx) { return _nodeList[nodeIdx * _nNodeSplitProps + 1]; }
+    int getFtrIdx(size_t nodeIdx) { return _nodeList[nodeIdx * _nNodeSplitProps + 2]; }
+    int getFtrVal(size_t nodeIdx) { return _nodeList[nodeIdx * _nNodeSplitProps + 3]; }
+    algorithmFPType getImpurity(size_t nodeIdx) { return _impInfo[nodeIdx * _nNodeImpProps + 0]; }
+    algorithmFPType getResponse(size_t nodeIdx) { return _impInfo[nodeIdx * _nNodeImpProps + 1]; }
+    bool hasUnorderedFtr(size_t nodeIdx) { return false; }
+
     constexpr static int _nNodeImpProps   = 2;
     constexpr static int _nNodeSplitProps = 5;
 
-    int * nodeList;
-    algorithmFPType * impInfo;
-    size_t nNodes;
-    size_t getNodesNum() { return nNodes; }
-    int getRowsNum(size_t nodeIdx) { return nodeList[nodeIdx * _nNodeSplitProps + 1]; }
-    int getFtrIdx(size_t nodeIdx) { return nodeList[nodeIdx * _nNodeSplitProps + 2]; }
-    int getFtrVal(size_t nodeIdx) { return nodeList[nodeIdx * _nNodeSplitProps + 3]; }
-    algorithmFPType getImpurity(size_t nodeIdx) { return impInfo[nodeIdx * _nNodeImpProps + 0]; }
-    algorithmFPType getResponse(size_t nodeIdx) { return impInfo[nodeIdx * _nNodeImpProps + 1]; }
-    bool hasUnorderedFtr(size_t nodeIdx) { return false; }
+    int * _nodeList;
+    algorithmFPType * _impInfo;
+    size_t _nNodes;
 };
 
 template <typename algorithmFPType, CpuType cpu>

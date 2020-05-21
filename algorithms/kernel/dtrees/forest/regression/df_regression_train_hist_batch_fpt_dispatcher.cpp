@@ -1,4 +1,4 @@
-/* file: df_regression_train_dense_default_batch_fpt_dispatcher.cpp */
+/* file: df_regression_train_hist_batch_fpt_dispatcher.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Implementation of decision forest container.
+//  Implementation of decision forest container for the hist method.
 //--
 */
 
@@ -27,7 +27,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_forest::regression::training::BatchContainer, batch, DAAL_FPTYPE,
-                                      decision_forest::regression::training::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(decision_forest::regression::training::BatchContainer, batch, DAAL_FPTYPE,
+                                           decision_forest::regression::training::hist)
 }
 } // namespace daal
