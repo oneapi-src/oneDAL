@@ -60,6 +60,7 @@ jobs:
   - task: DownloadPipelineArtifact@2
     inputs:
       artifact: '$(platform.type) build'
+      path: $(Pipeline.Workspace)
   - script: |
         .ci/env/dpcpp.sh
     displayName: 'create dpcpp enviroment'
@@ -75,7 +76,7 @@ jobs:
     displayName: Create Anaconda environment
   - script: |
       export DPCPP_VAR=/opt/intel/inteloneapi/compiler/latest/env/vars.sh
-      export DAALROOT="$(Pipeline.Workspace)/daal/latest"
+      export DAALROOT=$(Pipeline.Workspace)/daal/latest
 
       echo .___
       ls -l
