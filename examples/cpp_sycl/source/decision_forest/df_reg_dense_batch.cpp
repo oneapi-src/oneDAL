@@ -1,6 +1,6 @@
 /* file: df_reg_dense_batch.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ using namespace daal::algorithms::decision_forest::regression;
 /* Input data set parameters */
 const string trainDatasetFileName         = "../data/batch/df_regression_train.csv";
 const string testDatasetFileName          = "../data/batch/df_regression_test.csv";
-const size_t categoricalFeaturesIndices[] = { 3 };
+const size_t categoricalFeaturesIndices[] = { };
 const size_t nFeatures                    = 13; /* Number of features in training and testing data sets */
 
 /* Decision forest parameters */
