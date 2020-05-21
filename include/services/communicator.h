@@ -69,7 +69,7 @@ private:
 class EmptyCommunicator : public Communicator
 {
 public:
-    EmptyCommunicator() : Communicator(new daal::preview::comm::internal::NoCommunicator()) {}
+    EmptyCommunicator() : Communicator(new daal::preview::comm::internal::DummyCommunicator()) {}
 };
 
 /** @} */

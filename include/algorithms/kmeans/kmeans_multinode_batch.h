@@ -1,6 +1,6 @@
 /* file: kmeans_multinode_batch.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ enum Method
     defaultDense = 0
 };
 /**
- * @defgroup kmeans_batch MultiNodeBatch
+ * @defgroup kmeans_mulitnode_batch MultiNodeBatch
  * @ingroup kmeans_compute
  * @{
  */
@@ -82,12 +82,6 @@ public:
  * <!-- \n<a href="DAAL-REF-KMEANS-ALGORITHM">K-Means algorithm description and usage models</a> -->
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of K-Means, double or float
- * \tparam method           Computation method of the algorithm, \ref Method
- *
- * \par Enumerations
- *      - \ref Method   Computation methods for K-Means algorithm
- *      - \ref InputId  Identifiers of input objects for K-Means algorithm
- *      - \ref ResultId Identifiers of results of K-Means algorithm
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT MultiNodeBatch : public daal::algorithms::Analysis<batch>

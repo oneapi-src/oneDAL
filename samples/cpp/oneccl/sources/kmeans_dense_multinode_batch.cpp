@@ -17,7 +17,7 @@
 
 /*
 !  Content:
-!    C++ example of dense K-Means clustering in the batch processing mode
+!    C++ sample of dense K-Means clustering in the multinode batch processing mode
 !    with DPC++ interfaces
 !******************************************************************************/
 

@@ -46,15 +46,15 @@ public:
                               daal::services::Status * status = nullptr) = 0;
     virtual void allGatherV(oneapi::internal::UniversalBuffer dest, size_t * recvCount, oneapi::internal::UniversalBuffer src, size_t srcCount,
                             daal::services::Status * status = nullptr)   = 0;
-    virtual size_t size()                                                = 0;
-    virtual size_t rank()                                                = 0;
+    virtual size_t size() const                                          = 0;
+    virtual size_t rank() const                                          = 0;
 };
 
 /**
  *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__NOCOMMUNICATOR"></a>
  *  \brief Communicator stub for a serial run
  */
-class NoCommunicator : public CommunicatorIface
+class DummyCommunicator : public CommunicatorIface
 {
 public:
     virtual void allReduceSum(oneapi::internal::UniversalBuffer dest, oneapi::internal::UniversalBuffer src, size_t count,
@@ -63,15 +63,15 @@ public:
     virtual void allGatherV(oneapi::internal::UniversalBuffer dest, size_t * recvCount, oneapi::internal::UniversalBuffer src, size_t srcCount,
                             daal::services::Status * status = nullptr)
     {}
-    virtual size_t size() { return 1; }
-    virtual size_t rank() { return 0; }
+    virtual size_t size() const { return 1; }
+    virtual size_t rank() const { return 0; }
 };
 
 /** } */
 } // namespace interface1
 
 using interface1::CommunicatorIface;
-using interface1::NoCommunicator;
+using interface1::DummyCommunicator;
 } // namespace internal
 } // namespace comm
 } // namespace preview

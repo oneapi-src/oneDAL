@@ -76,8 +76,8 @@ public:
             oneapi::internal::convertSyclExceptionToStatus(e, status);
         }
     }
-    size_t size() DAAL_C11_OVERRIDE { return _size; }
-    size_t rank() DAAL_C11_OVERRIDE { return _rank; }
+    size_t size() const DAAL_C11_OVERRIDE { return _size; }
+    size_t rank() const DAAL_C11_OVERRIDE { return _rank; }
 
 private:
     cl::sycl::queue _deviceQueue;
