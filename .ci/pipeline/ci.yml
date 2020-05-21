@@ -75,28 +75,17 @@ jobs:
     displayName: Create Anaconda environment
   - script: |
       export DPCPP_VAR=/opt/intel/inteloneapi/compiler/latest/env/vars.sh
-      export DAALROOT="$(Pipeline.Workspace)/$(platform.type)\ build/$(release.dir)/daal/latest"
+      export DAALROOT="$(Pipeline.Workspace)/daal/latest"
 
       echo .___
       ls -l
       echo $(Pipeline.Workspace)/___
       ls -l $(Pipeline.Workspace)/
-      echo $(Pipeline.Workspace)/TestResults___
-      ls -l $(Pipeline.Workspace)/TestResults
-      echo $(Pipeline.Workspace)/a___
-      ls -l $(Pipeline.Workspace)/a
-      echo $(Pipeline.Workspace)/b___
-      ls -l $(Pipeline.Workspace)/b
       echo $(Pipeline.Workspace)/daal___
       ls -l $(Pipeline.Workspace)/daal
-      echo $(Pipeline.Workspace)/s___
-      ls -l $(Pipeline.Workspace)/s
-      echo $(Pipeline.Workspace)/$(platform.type)\ build/___
-      ls -l  "$(Pipeline.Workspace)/$(platform.type)\ build/"
-      echo $(Pipeline.Workspace)/$(platform.type)\ build/$(release.dir)___
-      ls -l "$(Pipeline.Workspace)/$(platform.type)\ build/$(release.dir)"
-      echo $(Pipeline.Workspace)/$(platform.type)\ build/$(release.dir)/daal/latest___
-      ls -l "$(Pipeline.Workspace)/$(platform.type)\ build/$(release.dir)/daal/latest"
+      echo $(Pipeline.Workspace)/daal/latest___
+      ls -l $(Pipeline.Workspace)/daal/latest
+
 
       . $HOME/miniconda/etc/profile.d/conda.sh
       conda activate CB
