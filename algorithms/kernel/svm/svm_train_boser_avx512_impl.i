@@ -37,6 +37,8 @@ void SVMTrainTask<float, daal::algorithms::svm::interface2::Parameter, avx512>::
                                                                                           const float tau, int & Bj, float & GMin, float & GMin2,
                                                                                           float & delta) const
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair.WSSj.WSSjLocalavx512);
+
     float fpMax      = MaxVal<float>::get();
     float minusGMin2 = -fpMax; // store min(-y[i]*grad[i]) or max(y[i]*grad[i]), y[i]*grad[i] = -GMin2
     float minusGMin  = -fpMax; // store min(-b^2/a) or max(b^2/a), b^2/a = -GMin
@@ -186,6 +188,8 @@ void SVMTrainTask<double, daal::algorithms::svm::interface2::Parameter, avx512>:
                                                                                            const double Kii, const double tau, int & Bj,
                                                                                            double & GMin, double & GMin2, double & delta) const
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair.WSSj.WSSjLocalavx512);
+
     double fpMax      = MaxVal<double>::get();
     double minusGMin2 = -fpMax; // store min(-y[i]*grad[i]) or max(y[i]*grad[i]), y[i]*grad[i] = -GMin2
     double minusGMin  = -fpMax; // store min(-b^2/a) or max(b^2/a), b^2/a = -GMin

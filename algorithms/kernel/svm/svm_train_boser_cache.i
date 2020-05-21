@@ -28,6 +28,7 @@
 #include "externals/service_memory.h"
 #include "service/kernel/data_management/service_micro_table.h"
 #include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_ittnotify.h"
 
 namespace daal
 {
@@ -210,6 +211,8 @@ public:
 protected:
     Status init(const NumericTablePtr & xTable)
     {
+        DAAL_ITTNOTIFY_SCOPED_TASK(CACHE.computeKernel);
+
         Status s = super::init();
         if (!s) return s;
         _cache.reset(_lineSize * _nLines);
@@ -346,6 +349,8 @@ protected:
 
     Status getRowBlockImpl(size_t rowIndex, size_t startColIndex, size_t blockSize, size_t cacheOffset, const algorithmFPType *& block)
     {
+        DAAL_ITTNOTIFY_SCOPED_TASK(NOT_CACHE.computeKernel);
+
         _cacheTable->setArray(_cache.get() + cacheOffset, _cacheTable->getNumberOfRows());
         _kernel->getParameter()->rowIndexY = _doShrinking ? _shrinkingRowIndices[rowIndex] : rowIndex;
         Status s;

@@ -45,6 +45,7 @@
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "service/kernel/service_utils.h"
 #include "service/kernel/service_data_utils.h"
+#include "externals/service_ittnotify.h"
 
 #if defined(__INTEL_COMPILER)
     #if defined(_M_AMD64) || defined(__amd64) || defined(__x86_64) || defined(__x86_64__)
@@ -94,61 +95,65 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::compute(const Paramete
 
     size_t nActiveVectors(_nVectors);
     algorithmFPType curEps = MaxVal<algorithmFPType>::get();
-    if (!svmPar.doShrinking)
+    // if (!svmPar.doShrinking)
     {
-        for (size_t iter = 0; s.ok() && (iter < svmPar.maxIterations) && (eps < curEps); ++iter)
+        size_t iter = 0;
+        for (; s.ok() && (iter < svmPar.maxIterations) && (eps < curEps); ++iter)
         {
             int Bi, Bj;
             algorithmFPType delta, ma, Ma;
             if (!findMaximumViolatingPair(nActiveVectors, tau, Bi, Bj, delta, ma, Ma, curEps, s)) break;
             s = update(nActiveVectors, C, Bi, Bj, delta);
         }
+        printf(">> n_iter %lu\n", iter);
         return s;
     }
 
-    bool unshrink = false;
-    for (size_t iter = 0, shrinkingIter = 1; (iter < svmPar.maxIterations) && (eps < curEps); ++iter, ++shrinkingIter)
-    {
-        int Bi, Bj;
-        algorithmFPType delta, ma, Ma;
-        if (!findMaximumViolatingPair(nActiveVectors, tau, Bi, Bj, delta, ma, Ma, curEps, s)) return s;
+    // bool unshrink = false;
+    // for (size_t iter = 0, shrinkingIter = 1; (iter < svmPar.maxIterations) && (eps < curEps); ++iter, ++shrinkingIter)
+    // {
+    //     int Bi, Bj;
+    //     algorithmFPType delta, ma, Ma;
+    //     if (!findMaximumViolatingPair(nActiveVectors, tau, Bi, Bj, delta, ma, Ma, curEps, s)) return s;
 
-        if (curEps < eps)
-        {
-            /* Check the optimality condition for the task with excluded variables */
-            if (unshrink && nActiveVectors < _nVectors) s = reconstructGradient(nActiveVectors);
-            if (!s || !findMaximumViolatingPair(nActiveVectors, tau, Bi, Bj, delta, ma, Ma, curEps, s)) return s;
-            if (curEps < eps) return s; /* Here if the optimality condition holds for the excluded variables */
-            shrinkingIter = 0;
-        }
-        s = update(nActiveVectors, C, Bi, Bj, delta);
-        if ((shrinkingIter % svmPar.shrinkingStep) == 0)
-        {
-            if ((!unshrink) && (curEps < 10.0 * eps))
-            {
-                unshrink = true;
-                if (nActiveVectors < _nVectors)
-                {
-                    s = reconstructGradient(nActiveVectors);
-                    if (!s) return s;
-                }
-            }
-            /* Update shrinking flags and do shrinking if needed*/
-            if (updateShrinkingFlags(nActiveVectors, C, ma, Ma) > 0)
-            {
-                status |= _cache->updateShrinkingRowIndices(nActiveVectors, _I.get());
-                nActiveVectors = doShrink(nActiveVectors);
-            }
-        }
-    }
-    if (status) return status;
-    if (nActiveVectors < _nVectors) s = reconstructGradient(nActiveVectors);
+    //     if (curEps < eps)
+    //     {
+    //         /* Check the optimality condition for the task with excluded variables */
+    //         if (unshrink && nActiveVectors < _nVectors) s = reconstructGradient(nActiveVectors);
+    //         if (!s || !findMaximumViolatingPair(nActiveVectors, tau, Bi, Bj, delta, ma, Ma, curEps, s)) return s;
+    //         if (curEps < eps) return s; /* Here if the optimality condition holds for the excluded variables */
+    //         shrinkingIter = 0;
+    //     }
+    //     s = update(nActiveVectors, C, Bi, Bj, delta);
+    //     if ((shrinkingIter % svmPar.shrinkingStep) == 0)
+    //     {
+    //         if ((!unshrink) && (curEps < 10.0 * eps))
+    //         {
+    //             unshrink = true;
+    //             if (nActiveVectors < _nVectors)
+    //             {
+    //                 s = reconstructGradient(nActiveVectors);
+    //                 if (!s) return s;
+    //             }
+    //         }
+    //         /* Update shrinking flags and do shrinking if needed*/
+    //         if (updateShrinkingFlags(nActiveVectors, C, ma, Ma) > 0)
+    //         {
+    //             status |= _cache->updateShrinkingRowIndices(nActiveVectors, _I.get());
+    //             nActiveVectors = doShrink(nActiveVectors);
+    //         }
+    //     }
+    // }
+    // if (status) return status;
+    // if (nActiveVectors < _nVectors) s = reconstructGradient(nActiveVectors);
     return s;
 }
 
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setResultsToModel(const NumericTable & xTable, Model & model, algorithmFPType C) const
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(saveResult);
+
     const algorithmFPType * alpha = _alpha.get();
     const algorithmFPType zero(0.0);
     size_t nSV = 0;
@@ -183,6 +188,8 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setResultsToModel(cons
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setSVCoefficients(size_t nSV, Model & model) const
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(saveResult.setSVCoefficients);
+
     const algorithmFPType zero(0.0);
     NumericTablePtr svCoeffTable = model.getClassificationCoefficients();
     Status s;
@@ -214,6 +221,8 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setSVCoefficients(size
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setSVIndices(size_t nSV, Model & model) const
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(saveResult.setSVIndices);
+
     NumericTablePtr svIndicesTable = model.getSupportIndices();
     Status s;
     DAAL_CHECK_STATUS(s, svIndicesTable->resize(nSV));
@@ -244,6 +253,8 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setSVIndices(size_t nS
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setSV_Dense(Model & model, const NumericTable & xTable, size_t nSV) const
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(saveResult.setSV_Dense);
+
     const size_t nFeatures = xTable.getNumberOfColumns();
     /* Allocate memory for support vectors and coefficients */
     NumericTablePtr svTable = model.getSupportVectors();
@@ -283,6 +294,8 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setSV_Dense(Model & mo
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setSV_CSR(Model & model, const NumericTable & xTable, size_t nSV) const
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(saveResult.setSV_CSR);
+
     TArray<size_t, cpu> aSvRowOffsets(nSV + 1);
     DAAL_CHECK_MALLOC(aSvRowOffsets.get());
     size_t * svRowOffsetsBuffer = aSvRowOffsets.get();
@@ -355,6 +368,8 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setSV_CSR(Model & mode
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 algorithmFPType SVMTrainTask<algorithmFPType, ParameterType, cpu>::calculateBias(algorithmFPType C) const
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(saveResult.calculateBias);
+
     algorithmFPType bias;
     const algorithmFPType zero(0.0);
     const algorithmFPType one(1.0);
@@ -418,6 +433,8 @@ algorithmFPType SVMTrainTask<algorithmFPType, ParameterType, cpu>::calculateBias
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 algorithmFPType SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSi(size_t nActiveVectors, int & Bi) const
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair.WSSi);
+
     Bi                   = -1;
     algorithmFPType GMax = -(MaxVal<algorithmFPType>::get()); // some big negative number
 
@@ -447,6 +464,8 @@ void SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSjLocalBaseline(const 
                                                                           const algorithmFPType tau, int & Bj, algorithmFPType & GMin,
                                                                           algorithmFPType & GMin2, algorithmFPType & delta) const
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair.WSSj.WSSjLocal.WSSjLocalBaseline);
+
     algorithmFPType fpMax = MaxVal<algorithmFPType>::get();
     GMin                  = fpMax; // some big positive number
     GMin2                 = fpMax;
@@ -493,6 +512,8 @@ void SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSjLocal(const size_t j
                                                                   int & Bj, algorithmFPType & GMin, algorithmFPType & GMin2,
                                                                   algorithmFPType & delta) const
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair.WSSj.WSSjLocal);
+
     WSSjLocalBaseline(jStart, jEnd, KiBlock, GMax, Kii, tau, Bj, GMin, GMin2, delta);
 }
 
@@ -517,6 +538,8 @@ template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSj(size_t nActiveVectors, algorithmFPType tau, int Bi, algorithmFPType GMax, int & Bj,
                                                                algorithmFPType & delta, algorithmFPType & res) const
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair.WSSj);
+
     Bj                    = -1;
     algorithmFPType fpMax = MaxVal<algorithmFPType>::get();
     algorithmFPType GMin  = fpMax; // some big positive number
@@ -567,6 +590,8 @@ bool SVMTrainTask<algorithmFPType, ParameterType, cpu>::findMaximumViolatingPair
                                                                                  algorithmFPType & delta, algorithmFPType & ma, algorithmFPType & Ma,
                                                                                  algorithmFPType & curEps, Status & s) const
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair);
+
     Bi = -1;
     ma = WSSi(nActiveVectors, Bi);
     if (Bi == -1) return false;
@@ -580,6 +605,8 @@ bool SVMTrainTask<algorithmFPType, ParameterType, cpu>::findMaximumViolatingPair
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::update(size_t nActiveVectors, algorithmFPType C, int Bi, int Bj, algorithmFPType delta)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(updateGrad);
+
     /* Update alpha */
     algorithmFPType newDeltai, newDeltaj;
     updateAlpha(C, Bi, Bj, delta, newDeltai, newDeltaj);
@@ -597,6 +624,7 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::update(size_t nActiveV
     algorithmFPType * grad    = _grad.get();
     const algorithmFPType * y = _y.get();
     Status s;
+    // daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
     for (size_t iBlock = 0; s.ok() && (iBlock < nBlocks); iBlock++)
     {
         size_t tStart = iBlock * blockSize;
@@ -616,8 +644,9 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::update(size_t nActiveV
             grad[t] += dyj * y[t] * KjBlock[t - tStart];
         }
     }
+    // });
     return s;
-}
+} // namespace internal
 
 /**
  * \brief Update the array of classification coefficients. Step 4 of the Algorithm 1 in [1].
@@ -633,6 +662,8 @@ template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 inline void SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateAlpha(algorithmFPType C, int Bi, int Bj, algorithmFPType delta,
                                                                            algorithmFPType & newDeltai, algorithmFPType & newDeltaj)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(updateAlpha);
+
     const algorithmFPType zero(0.0);
     const algorithmFPType oldAlphai = _alpha[Bi];
     const algorithmFPType oldAlphaj = _alpha[Bj];
@@ -717,6 +748,8 @@ template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 size_t SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateShrinkingFlags(size_t nActiveVectors, algorithmFPType C, algorithmFPType ma,
                                                                                algorithmFPType Ma)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(updateShrinkingFlags);
+
     const algorithmFPType * y     = _y.get();
     const algorithmFPType * grad  = _grad.get();
     const algorithmFPType * alpha = _alpha.get();
