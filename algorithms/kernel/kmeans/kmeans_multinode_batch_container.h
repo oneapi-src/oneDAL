@@ -58,8 +58,8 @@ daal::services::Status MultiNodeBatchContainer<algorithmFpType, method, cpu>::co
     auto & context    = daal::services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();
 
-    algorithms::kmeans::Input * input   = static_cast<algorithms::kmeans::Input *>(_in);
-    algorithms::kmeans::Result * result = static_cast<algorithms::kmeans::Result *>(_res);
+    algorithms::kmeans::Input * const input   = static_cast<algorithms::kmeans::Input *>(_in);
+    algorithms::kmeans::Result * const result = static_cast<algorithms::kmeans::Result *>(_res);
 
     NumericTable * a[algorithms::kmeans::lastInputId + 1] = { input->get(algorithms::kmeans::data).get(),
                                                               input->get(algorithms::kmeans::inputCentroids).get() };

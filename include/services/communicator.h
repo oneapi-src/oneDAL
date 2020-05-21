@@ -20,7 +20,6 @@
 
 #include "services/daal_shared_ptr.h"
 #include "services/internal/utilities.h"
-#include "services/internal/utilities.h"
 #include "oneapi/internal/communicator.h"
 
 namespace daal
@@ -32,7 +31,7 @@ namespace services
 namespace interface1
 {
 /**
- * @defgroup sycl SYCL*
+ * @defgroup communicator COMMUNICATOR*
  * \brief Contains classes designed to work with communication layer and call
  * oneAPI implementations of algorithms
  * @{

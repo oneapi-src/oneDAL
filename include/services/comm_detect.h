@@ -26,7 +26,6 @@
 
 #include "services/base.h"
 #include "services/daal_defines.h"
-#include "services/execution_context.h"
 #include "services/communicator.h"
 
 namespace daal

@@ -104,12 +104,12 @@ Status KMeansOneCclDefaultBatchKernelUCAPI<algorithmFPType>::compute(const Numer
     uint32_t commSize = comm.size();
     uint32_t commRank = comm.rank();
 
-    NumericTable * ntData         = const_cast<NumericTable *>(a[0]);
-    NumericTable * ntInCentroids  = const_cast<NumericTable *>(a[1]);
-    NumericTable * ntOutCentroids = const_cast<NumericTable *>(r[0]);
-    NumericTable * ntAssignments  = const_cast<NumericTable *>(r[1]);
-    NumericTable * ntObjFunction  = const_cast<NumericTable *>(r[2]);
-    NumericTable * ntNIterations  = const_cast<NumericTable *>(r[3]);
+    NumericTable * const ntData         = const_cast<NumericTable *>(a[0]);
+    NumericTable * const ntInCentroids  = const_cast<NumericTable *>(a[1]);
+    NumericTable * const ntOutCentroids = const_cast<NumericTable *>(r[0]);
+    NumericTable * const ntAssignments  = const_cast<NumericTable *>(r[1]);
+    NumericTable * const ntObjFunction  = const_cast<NumericTable *>(r[2]);
+    NumericTable * const ntNIterations  = const_cast<NumericTable *>(r[3]);
 
     const size_t nIter                      = ((daal::algorithms::kmeans::Parameter *)par)->maxIterations;
     const size_t nRows                      = ntData->getNumberOfRows();
@@ -119,7 +119,6 @@ Status KMeansOneCclDefaultBatchKernelUCAPI<algorithmFPType>::compute(const Numer
 
     uint32_t rankSize  = nRows / commSize + (uint32_t)((bool)(nRows % commSize));
     uint32_t rankFirst = rankSize * commRank;
-    rankSize           = nRows - rankFirst < rankSize ? nRows - rankFirst : rankSize;
     uint32_t rankEnd   = rankFirst + rankSize;
     if (rankEnd > nRows)
     {
