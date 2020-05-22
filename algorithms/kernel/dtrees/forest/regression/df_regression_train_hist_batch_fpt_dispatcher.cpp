@@ -1,6 +1,6 @@
-/* file: df_regression_predict_dense_default_batch_fpt_dispatcher.cpp */
+/* file: df_regression_train_hist_batch_fpt_dispatcher.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,19 +17,17 @@
 
 /*
 //++
-//  Implementation of decision forest algorithm container -- a class
-//  that contains fast decision forest prediction kernels
-//  for supported architectures.
+//  Implementation of decision forest container for the hist method.
 //--
 */
 
-#include "algorithms/kernel/dtrees/forest/regression/df_regression_predict_dense_default_batch_container.h"
+#include "algorithms/kernel/dtrees/forest/regression/df_regression_train_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(decision_forest::regression::prediction::BatchContainer, batch, DAAL_FPTYPE,
-                                           decision_forest::regression::prediction::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(decision_forest::regression::training::BatchContainer, batch, DAAL_FPTYPE,
+                                           decision_forest::regression::training::hist)
 }
 } // namespace daal

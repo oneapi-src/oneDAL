@@ -1,6 +1,6 @@
-/* file: df_regression_train_kernel.h */
+/* file: df_regression_train_hist_batch_oneapi_fpt.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,20 +17,12 @@
 
 /*
 //++
-//  Declaration of structure containing kernels for decision forest
-//  training.
+//  Implementation of decision forest regression training functions for the hist method
 //--
 */
 
-#ifndef __DF_REGRESSION_TRAIN_KERNEL_H__
-#define __DF_REGRESSION_TRAIN_KERNEL_H__
-
-#include "data_management/data/numeric_table.h"
-#include "algorithms/algorithm_base_common.h"
-#include "algorithms/decision_forest/decision_forest_regression_training_types.h"
-
-using namespace daal::data_management;
-using namespace daal::services;
+#include "algorithms/kernel/dtrees/forest/regression/oneapi/df_regression_train_hist_kernel_oneapi.h"
+#include "algorithms/kernel/dtrees/forest/regression/oneapi/df_regression_train_hist_oneapi_impl.i"
 
 namespace daal
 {
@@ -44,22 +36,11 @@ namespace training
 {
 namespace internal
 {
-template <typename algorithmFPType, Method method, CpuType cpu>
-class RegressionTrainBatchKernel : public daal::algorithms::Kernel
-{
-public:
-    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::regression::Model & m,
-                             Result & res, const Parameter & par)
-    {
-        return services::ErrorMethodNotImplemented;
-    }
-};
+template class RegressionTrainBatchKernelOneAPI<DAAL_FPTYPE, hist>;
+}
 
-} // namespace internal
 } // namespace training
 } // namespace regression
 } // namespace decision_forest
 } // namespace algorithms
 } // namespace daal
-
-#endif

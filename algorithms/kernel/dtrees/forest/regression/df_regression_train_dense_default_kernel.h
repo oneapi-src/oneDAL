@@ -1,6 +1,6 @@
-/* file: df_regression_train_kernel.h */
+/* file: df_regression_train_dense_default_kernel.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@
 //--
 */
 
-#ifndef __DF_REGRESSION_TRAIN_KERNEL_H__
-#define __DF_REGRESSION_TRAIN_KERNEL_H__
+#ifndef __DF_REGRESSION_TRAIN_DENSE_DEFAULT_KERNEL_H__
+#define __DF_REGRESSION_TRAIN_DENSE_DEFAULT_KERNEL_H__
 
 #include "data_management/data/numeric_table.h"
 #include "algorithms/algorithm_base_common.h"
@@ -44,15 +44,12 @@ namespace training
 {
 namespace internal
 {
-template <typename algorithmFPType, Method method, CpuType cpu>
-class RegressionTrainBatchKernel : public daal::algorithms::Kernel
+template <typename algorithmFPType, CpuType cpu>
+class RegressionTrainBatchKernel<algorithmFPType, defaultDense, cpu> : public daal::algorithms::Kernel
 {
 public:
     services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::regression::Model & m,
-                             Result & res, const Parameter & par)
-    {
-        return services::ErrorMethodNotImplemented;
-    }
+                             Result & res, const Parameter & par);
 };
 
 } // namespace internal
