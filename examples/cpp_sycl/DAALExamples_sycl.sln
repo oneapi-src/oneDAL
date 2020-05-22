@@ -27,6 +27,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sgd_mini_log_loss_dense_bat
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pca_cor_dense_batch", "vcproj\pca_cor_dense_batch\pca_cor_dense_batch.vcxproj", "{3F3DB339-0194-4A03-A430-F547E94CD5CA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pca_cor_dense_online", "vcproj\pca_cor_dense_online\pca_cor_dense_online.vcxproj", "{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "datastructures_soa", "vcproj\datastructures_soa\datastructures_soa.vcxproj", "{0951F77E-EFD2-4A06-A012-29B275347620}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "datastructures_usm", "vcproj\datastructures_usm\datastructures_usm.vcxproj", "{E6E61E4A-BD29-4CBB-BB82-6F3BEBA5DAD3}"
@@ -251,6 +253,22 @@ Global
 		{3F3DB339-0194-4A03-A430-F547E94CD5CA}.Release.static.sequential|x64.Build.0 = Release.static.sequential|x64
 		{3F3DB339-0194-4A03-A430-F547E94CD5CA}.Release.static.threaded|x64.ActiveCfg = Release.static.threaded|x64
 		{3F3DB339-0194-4A03-A430-F547E94CD5CA}.Release.static.threaded|x64.Build.0 = Release.static.threaded|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Debug.dynamic.sequential|x64.ActiveCfg = Debug.dynamic.sequential|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Debug.dynamic.sequential|x64.Build.0 = Debug.dynamic.sequential|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Debug.dynamic.threaded|x64.ActiveCfg = Debug.dynamic.threaded|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Debug.dynamic.threaded|x64.Build.0 = Debug.dynamic.threaded|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Debug.static.sequential|x64.ActiveCfg = Debug.static.sequential|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Debug.static.sequential|x64.Build.0 = Debug.static.sequential|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Debug.static.threaded|x64.ActiveCfg = Debug.static.threaded|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Debug.static.threaded|x64.Build.0 = Debug.static.threaded|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Release.dynamic.sequential|x64.ActiveCfg = Release.dynamic.sequential|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Release.dynamic.sequential|x64.Build.0 = Release.dynamic.sequential|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Release.dynamic.threaded|x64.ActiveCfg = Release.dynamic.threaded|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Release.dynamic.threaded|x64.Build.0 = Release.dynamic.threaded|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Release.static.sequential|x64.ActiveCfg = Release.static.sequential|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Release.static.sequential|x64.Build.0 = Release.static.sequential|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Release.static.threaded|x64.ActiveCfg = Release.static.threaded|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Release.static.threaded|x64.Build.0 = Release.static.threaded|x64
 		{0951F77E-EFD2-4A06-A012-29B275347620}.Debug.dynamic.sequential|x64.ActiveCfg = Debug.dynamic.sequential|x64
 		{0951F77E-EFD2-4A06-A012-29B275347620}.Debug.dynamic.sequential|x64.Build.0 = Debug.dynamic.sequential|x64
 		{0951F77E-EFD2-4A06-A012-29B275347620}.Debug.dynamic.threaded|x64.ActiveCfg = Debug.dynamic.threaded|x64

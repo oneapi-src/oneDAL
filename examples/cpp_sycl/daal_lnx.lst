@@ -29,6 +29,7 @@ DAAL  = datastructures_soa                    \
         log_reg_dense_batch                   \
         sgd_mini_log_loss_dense_batch         \
         pca_cor_dense_batch                   \
+        pca_cor_dense_online                  \
         pca_transform_dense_batch             \
         kernel_func_lin_dense_batch           \
         kernel_func_rbf_dense_batch           \
