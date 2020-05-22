@@ -40,7 +40,7 @@ using namespace daal::algorithms::decision_forest::regression;
 /* Input data set parameters */
 const string trainDatasetFileName         = "../data/batch/df_regression_train.csv";
 const string testDatasetFileName          = "../data/batch/df_regression_test.csv";
-const size_t categoricalFeaturesIndices[] = { };
+const size_t categoricalFeaturesIndices[] = {};
 const size_t nFeatures                    = 13; /* Number of features in training and testing data sets */
 
 /* Decision forest parameters */
