@@ -42,7 +42,7 @@ class SaveResultTask
 {
 public:
     SaveResultTask(const size_t nVectors, const TArray<algorithmFPType, cpu> & y, const TArray<algorithmFPType, cpu> & alpha,
-                   const TArray<algorithmFPType, cpu> & grad, SVMCacheIface<algorithmFPType, cpu> * cache)
+                   const TArray<algorithmFPType, cpu> & grad, SVMCacheIface<boser, algorithmFPType, cpu> * cache)
         : _nVectors(nVectors), _y(y.get()), _alpha(alpha.get()), _grad(grad.get()), _cache(cache)
     {}
 
@@ -56,6 +56,7 @@ public:
         {
             if (_alpha[i] > zero) nSV++;
         }
+        printf(">> nSV %lu\n", nSV);
 
         model.setNFeatures(xTable.getNumberOfColumns());
         services::Status s;
@@ -308,11 +309,11 @@ protected:
     }
 
 private:
-    const size_t _nVectors;                       //Number of observations in the input data set
-    const algorithmFPType * _y;                   //Array of class labels
-    const algorithmFPType * _alpha;               //Array of classification coefficients
-    const algorithmFPType * _grad;                //Array of classification coefficients
-    SVMCacheIface<algorithmFPType, cpu> * _cache; //caches matrix Q (kernel(x[i], x[j])) values
+    const size_t _nVectors;                              //Number of observations in the input data set
+    const algorithmFPType * _y;                          //Array of class labels
+    const algorithmFPType * _alpha;                      //Array of classification coefficients
+    const algorithmFPType * _grad;                       //Array of classification coefficients
+    SVMCacheIface<boser, algorithmFPType, cpu> * _cache; //caches matrix Q (kernel(x[i], x[j])) values
 };
 
 } // namespace internal

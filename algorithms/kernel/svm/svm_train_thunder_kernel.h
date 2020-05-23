@@ -48,6 +48,26 @@ struct SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu> : public Kerne
 {
     services::Status compute(const data_management::NumericTablePtr & xTable, data_management::NumericTable & yTable, daal::algorithms::Model * r,
                              const ParameterType * par);
+
+private:
+    services::Status SMOBlockSolver(const algorithmFPType * y, const algorithmFPType * grad, const uint32_t * wsIndices,
+                                    const algorithmFPType * kernelWS, const size_t nVectors, const size_t nWS, const double C, const double eps,
+                                    const double tau, algorithmFPType * buffer, char * I, algorithmFPType * alpha, algorithmFPType * deltaAlpha,
+                                    algorithmFPType & localDiff) const;
+
+    // One of the conditions for stopping is diff stays unchanged. nNoChanges - number of repetitions
+    static const size_t nNoChanges = 5;
+    // The maximum numbers of iteration of the subtask is number of observation in WS x cInnerIterations. It's enough to find minimum for subtask.
+    static const size_t cInnerIterations = 1000;
+
+    static bool isUpper(const algorithmFPType y, const algorithmFPType alpha, const algorithmFPType C)
+    {
+        return y > 0 && alpha < C || y < 0 && alpha > 0;
+    }
+    static bool isLower(const algorithmFPType y, const algorithmFPType alpha, const algorithmFPType C)
+    {
+        return y > 0 && alpha > 0 || y < 0 && alpha < C;
+    }
 };
 
 } // namespace internal

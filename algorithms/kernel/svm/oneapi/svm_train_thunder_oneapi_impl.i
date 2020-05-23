@@ -178,8 +178,6 @@ services::Status SVMTrainOneAPI<algorithmFPType, ParameterType, thunder>::comput
     DAAL_CHECK_STATUS_VAR(status);
     auto alphaBuff = alphaU.template get<algorithmFPType>();
 
-    auto maskBuff = context.allocate(idType, nVectors, &status);
-
     BlockDescriptor<algorithmFPType> yBD;
     DAAL_CHECK_STATUS(status, yTable.getBlockOfRows(0, nVectors, ReadWriteMode::readOnly, yBD));
     auto yBuff = yBD.getBuffer();

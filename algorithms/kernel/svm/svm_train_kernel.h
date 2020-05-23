@@ -104,13 +104,13 @@ protected:
     inline void updateAlpha(algorithmFPType C, int Bi, int Bj, algorithmFPType delta, algorithmFPType & newDeltai, algorithmFPType & newDeltaj);
 
 protected:
-    const size_t _nVectors;                       //Number of observations in the input data set
-    TArray<algorithmFPType, cpu> _y;              //Array of class labels
-    TArray<algorithmFPType, cpu> _alpha;          //Array of classification coefficients
-    TArray<algorithmFPType, cpu> _grad;           //Objective function gradient
-    TArray<algorithmFPType, cpu> _kernelDiag;     //diagonal elements of the matrix Q (kernel(x[i], x[i]))
-    TArray<char, cpu> _I;                         // array of flags I_LOW and I_UP
-    SVMCacheIface<algorithmFPType, cpu> * _cache; //caches matrix Q (kernel(x[i], x[j])) values
+    const size_t _nVectors;                              //Number of observations in the input data set
+    TArray<algorithmFPType, cpu> _y;                     //Array of class labels
+    TArray<algorithmFPType, cpu> _alpha;                 //Array of classification coefficients
+    TArray<algorithmFPType, cpu> _grad;                  //Objective function gradient
+    TArray<algorithmFPType, cpu> _kernelDiag;            //diagonal elements of the matrix Q (kernel(x[i], x[i]))
+    TArray<char, cpu> _I;                                // array of flags I_LOW and I_UP
+    SVMCacheIface<boser, algorithmFPType, cpu> * _cache; //caches matrix Q (kernel(x[i], x[j])) values
 };
 
 template <Method method, typename algorithmFPType, typename ParameterType, CpuType cpu>

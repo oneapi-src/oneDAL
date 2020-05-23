@@ -29,6 +29,7 @@
 #include "service/kernel/data_management/service_micro_table.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "externals/service_ittnotify.h"
+#include "algorithms/kernel/svm/svm_train_cache.h"
 
 namespace daal
 {
@@ -46,21 +47,10 @@ using namespace daal::services::internal;
 using namespace daal::services;
 
 /**
- * Types of caches for kernel function values
- */
-enum SVMCacheType
-{
-    noCache,     /*!< No storage for caching kernel function values is provided */
-    simpleCache, /*!< Storage for caching ALL kernel function values is provided */
-    lruCache     /*!< Storage for caching PART of kernel function values is provided;
-                         LRU algorithm is used to exclude values from cache */
-};
-
-/**
  * Common interface for cache that stores kernel function values
  */
 template <typename algorithmFPType, CpuType cpu>
-class SVMCacheIface
+class SVMCacheIface<boser, algorithmFPType, cpu>
 {
 public:
     virtual ~SVMCacheIface() {}
@@ -104,7 +94,7 @@ public:
  * Common implementation for cache that stores kernel function values
  */
 template <typename algorithmFPType, CpuType cpu>
-class SVMCacheImpl : public SVMCacheIface<algorithmFPType, cpu>
+class SVMCacheImpl : public SVMCacheIface<boser, algorithmFPType, cpu>
 {
 public:
     virtual ~SVMCacheImpl() {}
@@ -142,18 +132,14 @@ protected:
     TArray<size_t, cpu> _shrinkingRowIndices;      /*!< Array of input data row indices used with shrinking technique */
 };
 
-template <SVMCacheType cacheType, typename algorithmFPType, CpuType cpu>
-class SVMCache
-{};
-
 /**
  * Simple cache: all elements of kernel matrix fit into cache
  */
 template <typename algorithmFPType, CpuType cpu>
-class SVMCache<simpleCache, algorithmFPType, cpu> : public SVMCacheImpl<algorithmFPType, cpu>
+class SVMCache<boser, simpleCache, algorithmFPType, cpu> : public SVMCacheImpl<algorithmFPType, cpu>
 {
     typedef SVMCacheImpl<algorithmFPType, cpu> super;
-    typedef SVMCache<simpleCache, algorithmFPType, cpu> this_type;
+    typedef SVMCache<boser, simpleCache, algorithmFPType, cpu> this_type;
 
     using super::_cache;
     using super::_kernel;
@@ -258,10 +244,10 @@ protected:
  * No cache: kernel function values are not cached
  */
 template <typename algorithmFPType, CpuType cpu>
-class SVMCache<noCache, algorithmFPType, cpu> : public SVMCacheImpl<algorithmFPType, cpu>
+class SVMCache<boser, noCache, algorithmFPType, cpu> : public SVMCacheImpl<algorithmFPType, cpu>
 {
     typedef SVMCacheImpl<algorithmFPType, cpu> super;
-    typedef SVMCache<noCache, algorithmFPType, cpu> this_type;
+    typedef SVMCache<boser, noCache, algorithmFPType, cpu> this_type;
     using super::_cache;
     using super::_kernel;
     using super::_lineSize;

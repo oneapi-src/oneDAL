@@ -599,12 +599,12 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setup(const 
     services::Status s;
     if (cacheSize >= _nVectors * _nVectors * sizeof(algorithmFPType))
     {
-        _cache = SVMCache<simpleCache, algorithmFPType, cpu>::create(_nVectors, svmPar.doShrinking, xTable, kernel, s);
+        _cache = SVMCache<boser, simpleCache, algorithmFPType, cpu>::create(_nVectors, svmPar.doShrinking, xTable, kernel, s);
     }
     else
     {
         cacheSize = kernelFunctionBlockSize;
-        _cache    = SVMCache<noCache, algorithmFPType, cpu>::create(cacheSize, _nVectors, svmPar.doShrinking, xTable, kernel, s);
+        _cache    = SVMCache<boser, noCache, algorithmFPType, cpu>::create(cacheSize, _nVectors, svmPar.doShrinking, xTable, kernel, s);
     }
     if (!s) return s;
     DAAL_ASSERT(_cache);
@@ -629,6 +629,8 @@ SVMTrainTask<algorithmFPType, ParameterType, cpu>::~SVMTrainTask()
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::init(algorithmFPType C)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(init);
+
     const algorithmFPType negOne(-1.0);
     algorithmFPType * grad = _grad.get();
     for (size_t i = 0; i < _nVectors; i++)
@@ -691,7 +693,7 @@ inline void SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateI(algorithm
  * \return                   services::Status of the call
  */
 template <typename algorithmFPType, CpuType cpu>
-services::Status SVMCache<noCache, algorithmFPType, cpu>::updateShrinkingRowIndices(size_t nActiveVectors, const char * I)
+services::Status SVMCache<boser, noCache, algorithmFPType, cpu>::updateShrinkingRowIndices(size_t nActiveVectors, const char * I)
 {
     size_t i = 0;
     size_t j = nActiveVectors - 1;
@@ -717,7 +719,7 @@ services::Status SVMCache<noCache, algorithmFPType, cpu>::updateShrinkingRowIndi
  * \return                   services::Status of the call
  */
 template <typename algorithmFPType, CpuType cpu>
-services::Status SVMCache<simpleCache, algorithmFPType, cpu>::updateShrinkingRowIndices(size_t nActiveVectors, const char * I)
+services::Status SVMCache<boser, simpleCache, algorithmFPType, cpu>::updateShrinkingRowIndices(size_t nActiveVectors, const char * I)
 {
     size_t i   = 0;
     size_t j   = nActiveVectors - 1;
