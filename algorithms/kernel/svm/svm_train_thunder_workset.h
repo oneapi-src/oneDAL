@@ -69,7 +69,7 @@ struct TaskWorkingSet
         DAAL_CHECK_MALLOC(_indicator.get());
         services::internal::service_memset_seq<bool, cpu>(_indicator.get(), false, _nVectors);
 
-        const size_t maxWS = 4096;
+        const size_t maxWS = 1024;
 
         _nWS       = services::internal::min<cpu, algorithmFPType>(maxpow2(_nVectors), maxWS);
         _nSelected = 0;
@@ -84,11 +84,19 @@ struct TaskWorkingSet
 
     services::Status copyLastToFirst()
     {
+        DAAL_ITTNOTIFY_SCOPED_TASK(copyLastToFirst);
+
         services::Status status;
-        // const size_t q = _nWS / 2;
-        // auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
-        // context.copy(_wsIndices, 0, _wsIndices, q, _nWS - q, &status);
-        // _nSelected = q;
+        const size_t q = _nWS / 2;
+
+        services::internal::daal_memcpy_s(_wsIndices.get(), q * sizeof(algorithmFPType), _wsIndices.get() + _nWS - q, q * sizeof(algorithmFPType));
+        _nSelected = q;
+        services::internal::service_memset_seq<bool, cpu>(_indicator.get(), false, _nVectors);
+        for (size_t i = 0; i < q; i++)
+        {
+            _indicator[_wsIndices[i]] = true;
+        }
+
         return status;
     }
 
@@ -96,7 +104,6 @@ struct TaskWorkingSet
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(select);
         services::Status status;
-
         IdxValType * sortedFIndices = _sortedFIndices.get();
 
         for (size_t i = 0; i < _nVectors; ++i)

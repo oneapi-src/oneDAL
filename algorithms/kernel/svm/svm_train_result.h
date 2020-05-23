@@ -41,9 +41,9 @@ template <typename algorithmFPType, CpuType cpu>
 class SaveResultTask
 {
 public:
-    SaveResultTask(const size_t nVectors, const TArray<algorithmFPType, cpu> & y, const TArray<algorithmFPType, cpu> & alpha,
-                   const TArray<algorithmFPType, cpu> & grad, SVMCacheIface<boser, algorithmFPType, cpu> * cache)
-        : _nVectors(nVectors), _y(y.get()), _alpha(alpha.get()), _grad(grad.get()), _cache(cache)
+    SaveResultTask(const size_t nVectors, const algorithmFPType * y, const algorithmFPType * alpha, const algorithmFPType * grad,
+                   SVMCacheCommonIface<algorithmFPType, cpu> * cache)
+        : _nVectors(nVectors), _y(y), _alpha(alpha), _grad(grad), _cache(cache)
     {}
 
     services::Status compute(const NumericTable & xTable, Model & model, algorithmFPType C) const
@@ -99,7 +99,8 @@ protected:
         {
             if (_alpha[i] != zero)
             {
-                svCoeff[iSV] = _y[i] * _alpha[i];
+                // svCoeff[iSV] = _y[i] * _alpha[i];
+                svCoeff[iSV] = _alpha[i];
                 iSV++;
             }
         }
@@ -267,27 +268,41 @@ protected:
         algorithmFPType sum_yg = 0.0;
 
         const algorithmFPType fpMax = MaxVal<algorithmFPType>::get();
-        algorithmFPType ub          = -(fpMax);
-        algorithmFPType lb          = fpMax;
+        // algorithmFPType ub          = -(fpMax);
+        // algorithmFPType lb          = fpMax;
+
+        algorithmFPType ub = fpMax;
+        algorithmFPType lb = -fpMax;
+
         for (size_t i = 0; i < _nVectors; i++)
         {
-            const algorithmFPType yg = -_y[i] * _grad[i];
-            if (_y[i] == -one && _alpha[i] == C)
+            const algorithmFPType yg = _grad[i];
+            if (isUpper(_y[i], yg, C))
             {
-                ub = ((ub > yg) ? ub : yg);
-            } /// SVM_MAX(ub, yg);
-            else if (_y[i] == one && _alpha[i] == C)
+                ub = services::internal::min<cpu, algorithmFPType>(ub, yg);
+            }
+            if (isLower(_y[i], yg, C))
             {
-                lb = ((lb < yg) ? lb : yg);
-            } /// SVM_MIN(lb, yg);
-            else if (_y[i] == one && _alpha[i] == zero)
-            {
-                ub = ((ub > yg) ? ub : yg);
-            } /// SVM_MAX(ub, yg);
-            else if (_y[i] == -one && _alpha[i] == zero)
-            {
-                lb = ((lb < yg) ? lb : yg);
-            } /// SVM_MIN(lb, yg);
+                lb = services::internal::max<cpu, algorithmFPType>(ub, yg);
+            }
+
+            // const algorithmFPType yg = -_y[i] * _grad[i];
+            // if (_y[i] == -one && _alpha[i] == C)
+            // {
+            //     ub = ((ub > yg) ? ub : yg);
+            // } /// SVM_MAX(ub, yg);
+            // else if (_y[i] == one && _alpha[i] == C)
+            // {
+            //     lb = ((lb < yg) ? lb : yg);
+            // } /// SVM_MIN(lb, yg);
+            // else if (_y[i] == one && _alpha[i] == zero)
+            // {
+            //     ub = ((ub > yg) ? ub : yg);
+            // } /// SVM_MAX(ub, yg);
+            // else if (_y[i] == -one && _alpha[i] == zero)
+            // {
+            //     lb = ((lb < yg) ? lb : yg);
+            // } /// SVM_MIN(lb, yg);
             else
             {
                 sum_yg += yg;
@@ -309,11 +324,20 @@ protected:
     }
 
 private:
-    const size_t _nVectors;                              //Number of observations in the input data set
-    const algorithmFPType * _y;                          //Array of class labels
-    const algorithmFPType * _alpha;                      //Array of classification coefficients
-    const algorithmFPType * _grad;                       //Array of classification coefficients
-    SVMCacheIface<boser, algorithmFPType, cpu> * _cache; //caches matrix Q (kernel(x[i], x[j])) values
+    static bool isUpper(const algorithmFPType y, const algorithmFPType alpha, const algorithmFPType C)
+    {
+        return (y > 0 && alpha < C) || (y < 0 && alpha > 0);
+    }
+    static bool isLower(const algorithmFPType y, const algorithmFPType alpha, const algorithmFPType C)
+    {
+        return (y > 0 && alpha > 0) || (y < 0 && alpha < C);
+    }
+
+    const size_t _nVectors;                             //Number of observations in the input data set
+    const algorithmFPType * _y;                         //Array of class labels
+    const algorithmFPType * _alpha;                     //Array of classification coefficients
+    const algorithmFPType * _grad;                      //Array of classification coefficients
+    SVMCacheCommonIface<algorithmFPType, cpu> * _cache; //caches matrix Q (kernel(x[i], x[j])) values
 };
 
 } // namespace internal

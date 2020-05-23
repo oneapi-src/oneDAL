@@ -50,12 +50,12 @@ using namespace daal::services;
  * Common interface for cache that stores kernel function values
  */
 template <typename algorithmFPType, CpuType cpu>
-class SVMCacheIface<boser, algorithmFPType, cpu>
+class SVMCacheIface<boser, algorithmFPType, cpu> : public SVMCacheCommonIface<algorithmFPType, cpu>
 {
 public:
     virtual ~SVMCacheIface() {}
 
-    virtual size_t getDataRowIndex(size_t rowIndex) const = 0;
+    // virtual size_t getDataRowIndex(size_t rowIndex) const = 0;
     /**
      * Get block of values from the row of the matrix Q (kernel(x[i], x[j]))
      * \param[in] rowIndex      Index of the requested row

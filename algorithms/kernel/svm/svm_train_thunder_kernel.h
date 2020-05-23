@@ -55,6 +55,11 @@ private:
                                     const double tau, algorithmFPType * buffer, char * I, algorithmFPType * alpha, algorithmFPType * deltaAlpha,
                                     algorithmFPType & localDiff) const;
 
+    services::Status updateGrad(const algorithmFPType * kernelWS, const algorithmFPType * deltaalpha, algorithmFPType * grad, const size_t nVectors,
+                                const size_t nWS);
+
+    bool checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev, const algorithmFPType eps, size_t & sameLocalDiff);
+
     // One of the conditions for stopping is diff stays unchanged. nNoChanges - number of repetitions
     static const size_t nNoChanges = 5;
     // The maximum numbers of iteration of the subtask is number of observation in WS x cInnerIterations. It's enough to find minimum for subtask.
@@ -62,11 +67,11 @@ private:
 
     static bool isUpper(const algorithmFPType y, const algorithmFPType alpha, const algorithmFPType C)
     {
-        return y > 0 && alpha < C || y < 0 && alpha > 0;
+        return (y > 0 && alpha < C) || (y < 0 && alpha > 0);
     }
     static bool isLower(const algorithmFPType y, const algorithmFPType alpha, const algorithmFPType C)
     {
-        return y > 0 && alpha > 0 || y < 0 && alpha < C;
+        return (y > 0 && alpha > 0) || (y < 0 && alpha < C);
     }
 };
 

@@ -56,8 +56,16 @@ enum SVMCacheType
 /**
  * Common interface for cache that stores kernel function values
  */
+
+template <typename algorithmFPType, CpuType cpu>
+class SVMCacheCommonIface
+{
+public:
+    virtual size_t getDataRowIndex(size_t rowIndex) const = 0;
+};
+
 template <Method method, typename algorithmFPType, CpuType cpu>
-class SVMCacheIface
+class SVMCacheIface : public SVMCacheCommonIface<algorithmFPType, cpu>
 {};
 
 template <Method method, typename algorithmFPType, CpuType cpu>

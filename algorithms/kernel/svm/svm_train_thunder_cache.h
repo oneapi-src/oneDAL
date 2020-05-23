@@ -47,7 +47,7 @@ using namespace daal::data_management;
  * Common interface for cache that stores kernel function values
  */
 template <typename algorithmFPType, CpuType cpu>
-class SVMCacheIface<thunder, algorithmFPType, cpu>
+class SVMCacheIface<thunder, algorithmFPType, cpu> : public SVMCacheCommonIface<algorithmFPType, cpu>
 {
 public:
     virtual ~SVMCacheIface() {}
@@ -56,6 +56,8 @@ public:
 
     virtual const algorithmFPType * getRowsBlock() const = 0;
     virtual services::Status copyLastToFirst()           = 0;
+
+    virtual size_t getDataRowIndex(size_t rowIndex) const override { return rowIndex; }
 
 protected:
     SVMCacheIface(const size_t blockSize, const size_t lineSize, const kernel_function::KernelIfacePtr & kernel)

@@ -89,7 +89,7 @@ template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setResultsToModel(const NumericTable & xTable, Model & model,
                                                                                       algorithmFPType C) const
 {
-    SaveResultTask<algorithmFPType, cpu> saveResult(_nVectors, _y, _alpha, _grad, _cache);
+    SaveResultTask<algorithmFPType, cpu> saveResult(_nVectors, _y.get(), _alpha.get(), _grad.get(), _cache);
     return saveResult.compute(xTable, model, C);
 }
 
