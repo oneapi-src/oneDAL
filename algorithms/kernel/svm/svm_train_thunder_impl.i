@@ -74,7 +74,6 @@ template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::compute(const NumericTablePtr & xTable, NumericTable & yTable,
                                                                                      daal::algorithms::Model * r, const ParameterType * svmPar)
 {
-    printf("SVMTrainImpl:compute\n");
     services::Status status;
 
     const algorithmFPType C(svmPar->C);
@@ -106,10 +105,10 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
         grad[i] = -y[i];
     }
 
-    TaskWorkingSet<algorithmFPType, cpu> workSet(nVectors);
+    TaskWorkingSet<algorithmFPType, cpu> workSet(nVectors, maxBlockSize);
     DAAL_CHECK_STATUS(status, workSet.init());
     const size_t nWS = workSet.getSize();
-    printf("%lu\n", nWS);
+    printf(">> nWS %lu nVectors %lu\n", nWS, nVectors);
     const size_t innerMaxIterations(nWS * cInnerIterations);
 
     algorithmFPType diff     = algorithmFPType(0);
@@ -118,7 +117,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
     size_t innerIteration = 0;
     size_t sameLocalDiff  = 0;
 
-    TArray<algorithmFPType, cpu> buffer(nWS * 5 + nWS * nWS);
+    TArray<algorithmFPType, cpu> buffer(nWS * MemSmoId::latest + nWS * nWS);
     DAAL_CHECK_MALLOC(buffer.get());
 
     TArray<algorithmFPType, cpu> deltaAlpha(nWS);
@@ -147,7 +146,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
         if (iter != 0)
         {
             DAAL_CHECK_STATUS(status, workSet.copyLastToFirst());
-            // DAAL_CHECK_STATUS(status, cachePtr->copyLastToFirst());
+            DAAL_CHECK_STATUS(status, cachePtr->copyLastToFirst());
         }
 
         DAAL_CHECK_STATUS(status, workSet.select(y, alpha, grad, C));
@@ -171,17 +170,19 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
             setws.clear();
         }
 
-        DAAL_CHECK_STATUS(status, cachePtr->compute(wsIndices));
-        const algorithmFPType * kernelWS = cachePtr->getRowsBlock();
+        algorithmFPType * kernelWS = nullptr;
+        DAAL_CHECK_STATUS(status, cachePtr->getRowsBlock(wsIndices, kernelWS));
 
         DAAL_CHECK_STATUS(
             status, SMOBlockSolver(y, grad, wsIndices, kernelWS, nVectors, nWS, C, eps, tau, buffer.get(), I.get(), alpha, deltaAlpha.get(), diff));
 
         DAAL_CHECK_STATUS(status, updateGrad(kernelWS, deltaAlpha.get(), grad, nVectors, nWS));
 
-        if (checkStopCondition(diff, diffPrev, eps, sameLocalDiff)) break;
+        if (checkStopCondition(diff, diffPrev, eps, sameLocalDiff) && iter != 0) break;
         diffPrev = diff;
     }
+
+    printf(">> Iter: %lu\n", iter);
 
     SaveResultTask<algorithmFPType, cpu> saveResult(nVectors, y, alpha, grad, cachePtr.get());
     DAAL_CHECK_STATUS(status, saveResult.compute(*xTable, *static_cast<Model *>(r), C));
@@ -200,12 +201,12 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
 
     const size_t innerMaxIterations(nWS * cInnerIterations);
 
-    algorithmFPType * alphaLocal    = buffer + nWS * 0;
-    algorithmFPType * yLocal        = buffer + nWS * 1;
-    algorithmFPType * gradLocal     = buffer + nWS * 2;
-    algorithmFPType * kdLocal       = buffer + nWS * 3;
-    algorithmFPType * oldAlphaLocal = buffer + nWS * 4;
-    algorithmFPType * kernelLocal   = buffer + nWS * 5;
+    algorithmFPType * alphaLocal    = buffer + nWS * MemSmoId::alphaBuffID;
+    algorithmFPType * yLocal        = buffer + nWS * MemSmoId::yBuffID;
+    algorithmFPType * gradLocal     = buffer + nWS * MemSmoId::gradBuffID;
+    algorithmFPType * kdLocal       = buffer + nWS * MemSmoId::kdBuffID;
+    algorithmFPType * oldAlphaLocal = buffer + nWS * MemSmoId::oldAlphaBuffID;
+    algorithmFPType * kernelLocal   = buffer + nWS * MemSmoId::latest;
 
     /* Gather data to local buffers */
     for (size_t i = 0; i < nWS; i++)
@@ -224,7 +225,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
         for (size_t j = 0; j < nWS; j++)
         {
             kernelLocal[i * nWS + j] = kernelWS[i * nVectors + wsIndices[j]];
-            // printf("%.0lf ", kernelLocal[i * nWS + j]);
+            // printf("%.2lf ", kernelLocal[i * nWS + j]);
         }
         // printf("\n");
     }
@@ -258,15 +259,6 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
             }
         }
 
-        // for (size_t i = 0; i < nWS; i++)
-        // {
-        //     algorithmFPType objFunc = grad[i];
-        //     if ((I[i] & low) && objFunc > maxGrad)
-        //     {
-        //         maxGrad = objFunc;
-        //     }
-        // }
-
         algorithmFPType GMax  = -MaxVal<algorithmFPType>::get();
         algorithmFPType GMax2 = -MaxVal<algorithmFPType>::get();
 
@@ -282,11 +274,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
             {
                 GMax2 = grad;
             }
-            // if (grad <= GMin)
-            // {
-            //     continue;
-            // }
-            if (!(GMin < grad))
+            if (grad < GMin)
             {
                 continue;
             }
@@ -321,10 +309,10 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
         {
             localEps = services::internal::max<cpu, algorithmFPType>(eps, localDiff * (algorithmFPType)1e-1);
         }
-        if (localDiff < localEps)
-        {
-            break;
-        }
+        // if (localDiff < localEps)
+        // {
+        //     break;
+        // }
 
         /* Update coefficients */
         const algorithmFPType alphaBiDelta = (yLocal[Bi] > 0.0f) ? C - alphaLocal[Bi] : alphaLocal[Bi];
@@ -332,12 +320,17 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
             services::internal::min<cpu, algorithmFPType>((yLocal[Bj] > 0.0f) ? alphaLocal[Bj] : C - alphaLocal[Bj], delta);
         delta = services::internal::min<cpu, algorithmFPType>(alphaBiDelta, alphaBjDelta);
 
-        // printf(">> iter %lu: Bi %lu Bj %lu GMin %.2lf GMax2 %.2lf GMax %.2lf localDiff %.2lf delta %.2f\n", iter, Bi, Bj, GMin, GMax2, GMax,
-        //        localDiff, delta);
-
         /* Update alpha */
         alphaLocal[Bi] += delta * yLocal[Bi];
         alphaLocal[Bj] -= delta * yLocal[Bj];
+
+        // printf(">> iter %lu: Bi %lu Bj %lu GMin %.2lf GMax2 %.2lf GMax %.2lf localDiff %.2lf delta %.2f alphaLocal[Bi]: %lf;  alphaLocal[Bj]: %lf\n",
+        // iter, Bi, Bj, GMin, GMax2, GMax, localDiff, delta, alphaLocal[Bi], alphaLocal[Bj]);
+
+        if (localDiff < localEps)
+        {
+            break;
+        }
 
         // printf(">>  alphaLocal[Bi]: %lf;  alphaLocal[Bj]: %lf yLocal[Bi]: %.0lf;  yLocal[Bj]: %.0lf\n", alphaLocal[Bi], alphaLocal[Bj], yLocal[Bi],
         //        yLocal[Bj]);
@@ -369,7 +362,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
     }
 
     {
-        printf(">> %lu %lf\n", iter, localDiff);
+        printf(">> nInnerIter: %lu \t localDiff: %.3lf\n", iter, localDiff);
     }
 
     /* Compute diff and scatter to alpha vector */

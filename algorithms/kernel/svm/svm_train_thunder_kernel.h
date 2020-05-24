@@ -64,6 +64,19 @@ private:
     static const size_t nNoChanges = 5;
     // The maximum numbers of iteration of the subtask is number of observation in WS x cInnerIterations. It's enough to find minimum for subtask.
     static const size_t cInnerIterations = 1000;
+    // The maximum block size
+    // static const size_t maxBlockSize = 512;
+    static const size_t maxBlockSize = 1024;
+
+    enum MemSmoId
+    {
+        alphaBuffID    = 0,
+        yBuffID        = 1,
+        gradBuffID     = 2,
+        kdBuffID       = 3,
+        oldAlphaBuffID = 4,
+        latest         = oldAlphaBuffID + 1,
+    };
 
     static bool isUpper(const algorithmFPType y, const algorithmFPType alpha, const algorithmFPType C)
     {

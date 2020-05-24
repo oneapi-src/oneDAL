@@ -88,7 +88,6 @@ DECLARE_SOURCE_DAAL(
                             __global algorithmFPType * deltaalpha, __global algorithmFPType * resinfo) {
         const uint i = get_local_id(0);
         __local algorithmFPType kd[WS_SIZE];
-
         const uint wsIndex = wsIndices[i];
 
         const algorithmFPType MIN_FLT = -FLT_MAX;
@@ -110,6 +109,7 @@ DECLARE_SOURCE_DAAL(
 
         uint Bi = 0;
         uint Bj = 0;
+        algorithmFPType maxGrad;
 
         algorithmFPType ma;
 
@@ -138,7 +138,7 @@ DECLARE_SOURCE_DAAL(
 
             if (i == 0)
             {
-                const algorithmFPType maxGrad = maxValInd.value;
+                maxGrad = maxValInd.value;
 
                 /* for condition check: m(alpha) >= maxgrad */
                 localDiff = maxGrad - ma;
@@ -197,17 +197,26 @@ DECLARE_SOURCE_DAAL(
             barrier(CLK_LOCAL_MEM_FENCE);
 
             const algorithmFPType delta = min(deltaBi, deltaBj);
+            if (i == 0)
+            {
+                // printf(">> iter %lu: Bi %lu Bj %lu GMin %.2lf GMax2 %.2lf GMax %.2lf localDiff %.2lf delta %.2f\n", iter, Bi, Bj, ma, maxGrad,
+                // maxValInd.value, localDiff, delta);
+            }
+
             if (i == Bi)
             {
                 alphai = alphai + yi * delta;
+                // printf("alphaBi %lf;\n", alphai);
             }
             if (i == Bj)
             {
                 alphai = alphai - yi * delta;
+                // printf("alphaBj %lf;\n", alphai);
             }
 
             /* Update gradient */
             gradi = gradi + delta * (KiBi - KiBj);
+            // printf("%d: %.2lf\n", i, gradi);
         }
         alpha[wsIndex] = alphai;
         deltaalpha[i]  = (alphai - oldalphai) * yi;

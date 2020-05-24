@@ -60,7 +60,7 @@ struct TaskWorkingSet
 
         auto & deviceInfo = context.getInfoDevice();
 
-        const size_t maxWS = deviceInfo.maxWorkGroupSize;
+        const size_t maxWS = 256;
 
         _nWS       = utils::internal::min(utils::internal::maxpow2(_nVectors), utils::internal::maxpow2(maxWS));
         _nSelected = 0;
@@ -162,6 +162,18 @@ struct TaskWorkingSet
         }
 
         DAAL_ASSERT(_nSelected == _nWS);
+
+        // {
+        //     auto ws           = _wsIndices.get<uint32_t>();
+        //     auto wsHostPtr    = ws.toHost(ReadWriteMode::writeOnly, &status);
+        //     uint32_t * wsHost = wsHostPtr.get();
+        //     uint32_t hack[]   = { 0,    648, 1140, 1152, 1138, 1153, 1139, 1149, 1144, 1151, 1127, 1147, 1145, 1148, 1150, 1146,
+        //                         1134, 425, 1125, 1157, 1155, 1165, 1114, 1156, 1109, 422,  1113, 419,  1119, 1158, 1122, 423 };
+        //     for (int i = 0; i < 32; i++)
+        //     {
+        //         wsHost[i] = hack[i];
+        //     }
+        // }
 
         _nSelected = 0;
         return status;

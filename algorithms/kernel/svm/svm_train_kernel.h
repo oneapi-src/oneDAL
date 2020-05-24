@@ -103,6 +103,15 @@ protected:
 
     inline void updateAlpha(algorithmFPType C, int Bi, int Bj, algorithmFPType delta, algorithmFPType & newDeltai, algorithmFPType & newDeltaj);
 
+    static bool isUpper(const algorithmFPType y, const algorithmFPType alpha, const algorithmFPType C)
+    {
+        return (y > 0 && alpha < C) || (y < 0 && alpha > 0);
+    }
+    static bool isLower(const algorithmFPType y, const algorithmFPType alpha, const algorithmFPType C)
+    {
+        return (y > 0 && alpha > 0) || (y < 0 && alpha < C);
+    }
+
 protected:
     const size_t _nVectors;                              //Number of observations in the input data set
     TArray<algorithmFPType, cpu> _y;                     //Array of class labels

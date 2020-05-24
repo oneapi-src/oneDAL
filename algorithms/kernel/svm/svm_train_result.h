@@ -99,8 +99,8 @@ protected:
         {
             if (_alpha[i] != zero)
             {
-                // svCoeff[iSV] = _y[i] * _alpha[i];
-                svCoeff[iSV] = _alpha[i];
+                svCoeff[iSV] = _y[i] * _alpha[i];
+                // svCoeff[iSV] = _alpha[i];
                 iSV++;
             }
         }
@@ -131,7 +131,8 @@ protected:
             if (_alpha[i] != zero)
             {
                 DAAL_ASSERT(_cache->getDataRowIndex(i) <= services::internal::MaxVal<int>::get())
-                svIndices[iSV++] = (int)_cache->getDataRowIndex(i);
+                svIndices[iSV] = (int)_cache->getDataRowIndex(i);
+                iSV++;
             }
         }
         return s;
@@ -276,49 +277,36 @@ protected:
 
         for (size_t i = 0; i < _nVectors; i++)
         {
-            const algorithmFPType yg = _grad[i];
-            if (isUpper(_y[i], yg, C))
-            {
-                ub = services::internal::min<cpu, algorithmFPType>(ub, yg);
-            }
-            if (isLower(_y[i], yg, C))
-            {
-                lb = services::internal::max<cpu, algorithmFPType>(ub, yg);
-            }
+            const algorithmFPType gradi      = _grad[i];
+            const algorithmFPType dualCoeffi = _y[i] * _alpha[i];
 
-            // const algorithmFPType yg = -_y[i] * _grad[i];
-            // if (_y[i] == -one && _alpha[i] == C)
-            // {
-            //     ub = ((ub > yg) ? ub : yg);
-            // } /// SVM_MAX(ub, yg);
-            // else if (_y[i] == one && _alpha[i] == C)
-            // {
-            //     lb = ((lb < yg) ? lb : yg);
-            // } /// SVM_MIN(lb, yg);
-            // else if (_y[i] == one && _alpha[i] == zero)
-            // {
-            //     ub = ((ub > yg) ? ub : yg);
-            // } /// SVM_MAX(ub, yg);
-            // else if (_y[i] == -one && _alpha[i] == zero)
-            // {
-            //     lb = ((lb < yg) ? lb : yg);
-            // } /// SVM_MIN(lb, yg);
+            /* free SV: (0 < alpha < C)*/
+            if (0 < dualCoeffi && dualCoeffi < C)
+            {
+                sum_yg += gradi;
+                num_yg++;
+            }
             else
             {
-                sum_yg += yg;
-                num_yg++;
+                if (isUpper(_y[i], dualCoeffi, C))
+                {
+                    ub = services::internal::min<cpu, algorithmFPType>(ub, gradi);
+                }
+                if (isLower(_y[i], dualCoeffi, C))
+                {
+                    lb = services::internal::max<cpu, algorithmFPType>(lb, gradi);
+                }
             }
         }
 
         if (num_yg == 0)
         {
-            bias = 0.5 * (ub + lb);
+            bias = -0.5 * (ub + lb);
         }
         else
         {
-            bias = sum_yg / (algorithmFPType)num_yg;
+            bias = -sum_yg / (algorithmFPType)num_yg;
         }
-        printf(">> bias %lf\n", bias);
 
         return bias;
     }

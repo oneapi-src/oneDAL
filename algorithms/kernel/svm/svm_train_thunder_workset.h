@@ -44,7 +44,7 @@ struct TaskWorkingSet
 {
     using IndexType = uint32_t;
 
-    TaskWorkingSet(const size_t nVectors) : _nVectors(nVectors) {}
+    TaskWorkingSet(const size_t nVectors, const size_t maxWS) : _nVectors(nVectors), _maxWS(maxWS) {}
 
     struct IdxValType
     {
@@ -69,9 +69,7 @@ struct TaskWorkingSet
         DAAL_CHECK_MALLOC(_indicator.get());
         services::internal::service_memset_seq<bool, cpu>(_indicator.get(), false, _nVectors);
 
-        const size_t maxWS = 1024;
-
-        _nWS       = services::internal::min<cpu, algorithmFPType>(maxpow2(_nVectors), maxWS);
+        _nWS       = services::internal::min<cpu, algorithmFPType>(maxpow2(_nVectors), _maxWS);
         _nSelected = 0;
 
         _wsIndices.reset(_nWS);
@@ -89,7 +87,7 @@ struct TaskWorkingSet
         services::Status status;
         const size_t q = _nWS / 2;
 
-        services::internal::daal_memcpy_s(_wsIndices.get(), q * sizeof(algorithmFPType), _wsIndices.get() + _nWS - q, q * sizeof(algorithmFPType));
+        services::internal::daal_memcpy_s(_wsIndices.get(), q * sizeof(IndexType), _wsIndices.get() + _nWS - q, q * sizeof(IndexType));
         _nSelected = q;
         services::internal::service_memset_seq<bool, cpu>(_indicator.get(), false, _nVectors);
         for (size_t i = 0; i < q; i++)
@@ -189,8 +187,9 @@ protected:
     }
 
 private:
-    size_t _nSelected;
     size_t _nVectors;
+    size_t _maxWS;
+    size_t _nSelected;
     size_t _nWS;
 
     TArray<IdxValType, cpu> _sortedFIndices;

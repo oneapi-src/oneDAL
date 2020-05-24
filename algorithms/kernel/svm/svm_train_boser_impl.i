@@ -52,9 +52,9 @@
     #if defined(_M_AMD64) || defined(__amd64) || defined(__x86_64) || defined(__x86_64__)
         #if (__CPUID__(DAAL_CPU) == __avx512__)
 
-            #include <immintrin.h>
-            #include "algorithms/kernel/svm/svm_train_boser_avx512_impl.i"
-            #include "algorithms/kernel/svm/inner/svm_train_boser_avx512_impl_v1.i"
+            // #include <immintrin.h>
+            // #include "algorithms/kernel/svm/svm_train_boser_avx512_impl.i"
+            // #include "algorithms/kernel/svm/inner/svm_train_boser_avx512_impl_v1.i"
 
         #endif // __CPUID__(DAAL_CPU) == __avx512__
     #endif     // defined (_M_AMD64) || defined (__amd64) || defined (__x86_64) || defined (__x86_64__)
@@ -175,85 +175,79 @@ algorithmFPType SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSi(size_t n
     DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair.WSSi);
 
     Bi                   = -1;
-    algorithmFPType GMax = -(MaxVal<algorithmFPType>::get()); // some big negative number
+    algorithmFPType GMin = (MaxVal<algorithmFPType>::get()); // some big negative number
 
     const char * I               = _I.get();
     const algorithmFPType * grad = _grad.get();
-    const algorithmFPType * y    = _y.get();
     /* Find i index of the working set (Bi) */
     for (size_t i = 0; i < nActiveVectors; i++)
     {
-        if ((I[i] & up) != up)
+        const algorithmFPType objFunc = grad[i];
+        if ((I[i] & up) && objFunc < GMin)
         {
-            continue;
-        }
-        algorithmFPType objFunc = -y[i] * grad[i];
-        if (objFunc >= GMax)
-        {
-            GMax = objFunc;
+            GMin = objFunc;
             Bi   = i;
         }
     }
-    return GMax;
+    return GMin;
 }
 
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 void SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSjLocalBaseline(const size_t jStart, const size_t jEnd, const algorithmFPType * KiBlock,
-                                                                          const algorithmFPType GMax, const algorithmFPType Kii,
-                                                                          const algorithmFPType tau, int & Bj, algorithmFPType & GMin,
-                                                                          algorithmFPType & GMin2, algorithmFPType & delta) const
+                                                                          const algorithmFPType GMin, const algorithmFPType Kii,
+                                                                          const algorithmFPType tau, int & Bj, algorithmFPType & GMax,
+                                                                          algorithmFPType & GMax2, algorithmFPType & delta) const
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair.WSSj.WSSjLocal.WSSjLocalBaseline);
-
     algorithmFPType fpMax = MaxVal<algorithmFPType>::get();
-    GMin                  = fpMax; // some big positive number
-    GMin2                 = fpMax;
+    GMax                  = -fpMax; // some big negative number
+    GMax2                 = -fpMax;
 
     const algorithmFPType zero(0.0);
     const algorithmFPType two(2.0);
 
     for (size_t j = jStart; j < jEnd; j++)
     {
-        algorithmFPType ygrad = -_y[j] * _grad[j];
+        const algorithmFPType grad = _grad[j];
         if ((_I[j] & low) != low)
         {
             continue;
         }
-        if (ygrad <= GMin2)
+        if (grad > GMax2)
         {
-            GMin2 = ygrad;
+            GMax2 = grad;
         }
-        if (ygrad >= GMax)
+        if (grad < GMin)
         {
             continue;
         }
 
-        algorithmFPType b = GMax - ygrad;
+        algorithmFPType b = GMin - grad;
         algorithmFPType a = Kii + _kernelDiag[j] - two * KiBlock[j - jStart];
         if (a <= zero)
         {
             a = tau;
         }
         algorithmFPType dt      = b / a;
-        algorithmFPType objFunc = -b * dt;
-        if (objFunc <= GMin)
+        algorithmFPType objFunc = b * dt;
+        if (objFunc > GMax)
         {
-            GMin  = objFunc;
+            GMax  = objFunc;
             Bj    = j;
-            delta = dt;
+            delta = -dt;
         }
     }
 }
 
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 void SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSjLocal(const size_t jStart, const size_t jEnd, const algorithmFPType * KiBlock,
-                                                                  const algorithmFPType GMax, const algorithmFPType Kii, const algorithmFPType tau,
-                                                                  int & Bj, algorithmFPType & GMin, algorithmFPType & GMin2,
+                                                                  const algorithmFPType GMin, const algorithmFPType Kii, const algorithmFPType tau,
+                                                                  int & Bj, algorithmFPType & GMax, algorithmFPType & GMax2,
                                                                   algorithmFPType & delta) const
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair.WSSj.WSSjLocal);
 
-    WSSjLocalBaseline(jStart, jEnd, KiBlock, GMax, Kii, tau, Bj, GMin, GMin2, delta);
+    WSSjLocalBaseline(jStart, jEnd, KiBlock, GMin, Kii, tau, Bj, GMax, GMax2, delta);
 }
 
 /**
@@ -274,15 +268,15 @@ void SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSjLocal(const size_t j
  *              M(alpha) = min(-y[i]*grad[i]): i belongs to I_low(alpha)
  */
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSj(size_t nActiveVectors, algorithmFPType tau, int Bi, algorithmFPType GMax,
+services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSj(size_t nActiveVectors, algorithmFPType tau, int Bi, algorithmFPType GMin,
                                                                          int & Bj, algorithmFPType & delta, algorithmFPType & res) const
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair.WSSj);
 
     Bj                    = -1;
     algorithmFPType fpMax = MaxVal<algorithmFPType>::get();
-    algorithmFPType GMin  = fpMax; // some big positive number
-    algorithmFPType GMin2 = fpMax;
+    algorithmFPType GMax  = -fpMax; // some big positive number
+    algorithmFPType GMax2 = -fpMax;
 
     algorithmFPType Kii = _kernelDiag[Bi];
 
@@ -306,21 +300,21 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSj(size_t 
         if (!s) break;
 
         int Bj_local = -1;
-        algorithmFPType GMin_local, GMin2_local, delta_local;
-        WSSjLocal(jStart, jEnd, KiBlock, GMax, Kii, tau, Bj_local, GMin_local, GMin2_local, delta_local);
+        algorithmFPType GMax_local, GMax2_local, delta_local;
+        WSSjLocal(jStart, jEnd, KiBlock, GMin, Kii, tau, Bj_local, GMax_local, GMax2_local, delta_local);
 
-        if (GMin_local <= GMin)
+        if (GMax_local > GMax)
         {
-            GMin  = GMin_local;
+            GMax  = GMax_local;
             Bj    = Bj_local;
             delta = delta_local;
         }
-        if (GMin2_local <= GMin2)
+        if (GMax2_local > GMax2)
         {
-            GMin2 = GMin2_local;
+            GMax2 = GMax2_local;
         }
     }
-    res = GMin2;
+    res = GMax2;
     return s;
 }
 
@@ -337,7 +331,7 @@ bool SVMTrainTask<algorithmFPType, ParameterType, cpu>::findMaximumViolatingPair
 
     Bj = -1;
     s |= WSSj(nActiveVectors, tau, Bi, ma, Bj, delta, Ma);
-    curEps = ma - Ma;
+    curEps = Ma - ma;
     return (Bj != -1);
 }
 
@@ -353,16 +347,16 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::update(size_
     updateI(C, Bj);
     updateI(C, Bi);
 
-    const algorithmFPType dyj = _y[Bj] * newDeltaj;
-    const algorithmFPType dyi = _y[Bi] * newDeltai;
+    const algorithmFPType * y = _y.get();
+    const algorithmFPType dyi = newDeltai * y[Bi];
+    const algorithmFPType dyj = newDeltaj * y[Bj];
 
     /* Update gradient */
     const size_t blockSize = (kernelFunctionBlockSize >> 1); // 2 rows from kernel function matrix are used
     size_t nBlocks         = nActiveVectors / blockSize;
     if (nBlocks * blockSize < nActiveVectors) ++nBlocks;
 
-    algorithmFPType * grad    = _grad.get();
-    const algorithmFPType * y = _y.get();
+    algorithmFPType * grad = _grad.get();
     services::Status s;
     // daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
     for (size_t iBlock = 0; s.ok() && (iBlock < nBlocks); iBlock++)
@@ -380,8 +374,8 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::update(size_
 
         for (size_t t = tStart; t < tEnd; t++)
         {
-            grad[t] += dyi * y[t] * KiBlock[t - tStart];
-            grad[t] += dyj * y[t] * KjBlock[t - tStart];
+            grad[t] += dyi * KiBlock[t - tStart];
+            grad[t] += dyj * KjBlock[t - tStart];
         }
     }
     // });
@@ -410,31 +404,35 @@ inline void SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateAlpha(algor
     const algorithmFPType yi        = _y[Bi];
     const algorithmFPType yj        = _y[Bj];
 
+    const algorithmFPType alphaBiDelta = (yi > 0.0f) ? C - oldAlphai : oldAlphai;
+    const algorithmFPType alphaBjDelta = services::internal::min<cpu, algorithmFPType>((yj > 0.0f) ? oldAlphaj : C - oldAlphaj, delta);
+    delta                              = services::internal::min<cpu, algorithmFPType>(alphaBiDelta, alphaBjDelta);
+
     algorithmFPType newAlphai = oldAlphai + yi * delta;
     algorithmFPType newAlphaj = oldAlphaj - yj * delta;
 
     /* Project alpha back to the feasible region */
-    algorithmFPType sum = yi * oldAlphai + yj * oldAlphaj;
+    // algorithmFPType sum = yi * oldAlphai + yj * oldAlphaj;
 
-    if (newAlphai > C)
-    {
-        newAlphai = C;
-    }
-    if (newAlphai < zero)
-    {
-        newAlphai = zero;
-    }
-    newAlphaj = yj * (sum - yi * newAlphai);
+    // if (newAlphai > C)
+    // {
+    //     newAlphai = C;
+    // }
+    // if (newAlphai < zero)
+    // {
+    //     newAlphai = zero;
+    // }
+    // newAlphaj = yj * (sum - yi * newAlphai);
 
-    if (newAlphaj > C)
-    {
-        newAlphaj = C;
-    }
-    if (newAlphaj < zero)
-    {
-        newAlphaj = zero;
-    }
-    newAlphai = yi * (sum - yj * newAlphaj);
+    // if (newAlphaj > C)
+    // {
+    //     newAlphaj = C;
+    // }
+    // if (newAlphaj < zero)
+    // {
+    //     newAlphaj = zero;
+    // }
+    // newAlphai = yi * (sum - yj * newAlphaj);
 
     _alpha[Bj] = newAlphaj;
     _alpha[Bi] = newAlphai;
@@ -631,11 +629,11 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::init(algorit
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(init);
 
-    const algorithmFPType negOne(-1.0);
-    algorithmFPType * grad = _grad.get();
+    algorithmFPType * grad    = _grad.get();
+    const algorithmFPType * y = _y.get();
     for (size_t i = 0; i < _nVectors; i++)
     {
-        grad[i] = negOne;
+        grad[i] = -y[i];
         updateI(C, i);
     }
 
@@ -665,22 +663,9 @@ inline void SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateI(algorithm
     algorithmFPType alphai = _alpha[index];
     algorithmFPType yi     = _y[index];
     Ii &= (char)shrink;
-    if (alphai < C && yi == +one)
-    {
-        Ii |= up;
-    }
-    if (alphai > zero && yi == -one)
-    {
-        Ii |= up;
-    }
-    if (alphai < C && yi == -one)
-    {
-        Ii |= low;
-    }
-    if (alphai > zero && yi == +one)
-    {
-        Ii |= low;
-    }
+
+    Ii |= isUpper(yi, alphai, C) ? up : free;
+    Ii |= isLower(yi, alphai, C) ? low : free;
     _I[index] = Ii;
 }
 
