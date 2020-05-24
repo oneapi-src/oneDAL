@@ -52,9 +52,12 @@
 #include "externals/service_blas.h"
 #include "externals/service_math.h"
 
+#include "algorithms/kernel/svm/svm_train_common.h"
 #include "algorithms/kernel/svm/svm_train_thunder_workset.h"
 #include "algorithms/kernel/svm/svm_train_thunder_cache.h"
 #include "algorithms/kernel/svm/svm_train_result.h"
+
+#include "algorithms/kernel/svm/svm_train_common_impl.i"
 
 #include <set>
 
@@ -74,6 +77,8 @@ template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::compute(const NumericTablePtr & xTable, NumericTable & yTable,
                                                                                      daal::algorithms::Model * r, const ParameterType * svmPar)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(COMPUTE);
+
     services::Status status;
 
     const algorithmFPType C(svmPar->C);
@@ -141,12 +146,12 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
     std::set<uint32_t> setws;
 
     size_t iter = 0;
-    for (; iter < maxIterations; iter++)
+    for (; iter < /*1 */ maxIterations; iter++)
     {
         if (iter != 0)
         {
             DAAL_CHECK_STATUS(status, workSet.copyLastToFirst());
-            DAAL_CHECK_STATUS(status, cachePtr->copyLastToFirst());
+            // DAAL_CHECK_STATUS(status, cachePtr->copyLastToFirst());
         }
 
         DAAL_CHECK_STATUS(status, workSet.select(y, alpha, grad, C));
@@ -208,28 +213,62 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
     algorithmFPType * oldAlphaLocal = buffer + nWS * MemSmoId::oldAlphaBuffID;
     algorithmFPType * kernelLocal   = buffer + nWS * MemSmoId::latest;
 
-    /* Gather data to local buffers */
-    for (size_t i = 0; i < nWS; i++)
     {
-        const size_t wsIndex = wsIndices[i];
-        yLocal[i]            = y[wsIndex];
-        gradLocal[i]         = grad[wsIndex];
-        oldAlphaLocal[i]     = alpha[wsIndex];
-        alphaLocal[i]        = alpha[wsIndex];
-        kdLocal[i]           = kernelWS[i * nVectors + wsIndices[i]];
+        DAAL_ITTNOTIFY_SCOPED_TASK(SMOBlockSolver.init);
 
-        char Ii = free;
-        Ii |= isUpper(yLocal[i], alphaLocal[i], C) ? up : free;
-        Ii |= isLower(yLocal[i], alphaLocal[i], C) ? low : free;
-        I[i] = Ii;
-        for (size_t j = 0; j < nWS; j++)
-        {
-            kernelLocal[i * nWS + j] = kernelWS[i * nVectors + wsIndices[j]];
-            // printf("%.2lf ", kernelLocal[i * nWS + j]);
-        }
-        // printf("\n");
+        /* Gather data to local buffers */
+
+        const size_t blockSize = 64;
+        const size_t nBlocks   = nWS / blockSize;
+        daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+            const size_t startRow = iBlock * blockSize;
+            for (size_t i = startRow; i < startRow + blockSize; i++)
+            {
+                const size_t wsIndex = wsIndices[i];
+                yLocal[i]            = y[wsIndex];
+                gradLocal[i]         = grad[wsIndex];
+                oldAlphaLocal[i]     = alpha[wsIndex];
+                alphaLocal[i]        = alpha[wsIndex];
+                kdLocal[i]           = kernelWS[i + wsIndices[i] * nWS];
+                // kdLocal[i] = kernelWS[i * nVectors + wsIndices[i]];
+
+                char Ii = free;
+                Ii |= isUpper(yLocal[i], alphaLocal[i], C) ? up : free;
+                Ii |= isLower(yLocal[i], alphaLocal[i], C) ? low : free;
+                I[i] = Ii;
+                for (size_t j = 0; j < nWS; j++)
+                {
+                    // kernelLocal[i * nWS + j] = kernelWS[i * nVectors + wsIndices[j]];
+                    kernelLocal[i * nWS + j] = kernelWS[i + wsIndices[j] * nWS];
+                    // printf("%.2lf ", kernelLocal[i * nWS + j]);
+                }
+                // printf("\n");
+            }
+        });
+
+        // for (size_t i = 0; i < nWS; i++)
+        // {
+        //     const size_t wsIndex = wsIndices[i];
+        //     yLocal[i]            = y[wsIndex];
+        //     gradLocal[i]         = grad[wsIndex];
+        //     oldAlphaLocal[i]     = alpha[wsIndex];
+        //     alphaLocal[i]        = alpha[wsIndex];
+        //     // kdLocal[i]           = kernelWS[i + wsIndices[i] * nWS];
+        //     // kdLocal[i] = kernelWS[i * nVectors + wsIndices[i]];
+
+        //     char Ii = free;
+        //     Ii |= isUpper(yLocal[i], alphaLocal[i], C) ? up : free;
+        //     Ii |= isLower(yLocal[i], alphaLocal[i], C) ? low : free;
+        //     I[i] = Ii;
+        //     for (size_t j = 0; j < nWS; j++)
+        //     {
+        //         kernelLocal[i * nWS + j] = kernelWS[i * nVectors + wsIndices[j]];
+        //         // kernelLocal[i * nWS + j] = kernelWS[i + wsIndices[j] * nWS];
+        //         // printf("%.2lf ", kernelLocal[i * nWS + j]);
+        //     }
+        //     // printf("\n");
+        // }
     }
-
     // for (size_t i = 0; i < nWS; i++)
     // {
     //     printf("%d ", (int)I[i]);
@@ -239,130 +278,76 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
     algorithmFPType delta    = algorithmFPType(0);
     algorithmFPType localEps = algorithmFPType(0);
     localDiff                = algorithmFPType(0);
-    size_t Bi                = 0;
-    size_t Bj                = 0;
+    int Bi                   = -1;
+    int Bj                   = -1;
 
     size_t iter = 0;
     for (; iter < innerMaxIterations; iter++)
     {
-        algorithmFPType GMin = MaxVal<algorithmFPType>::get();
-
-        /* Find i index of the working set (Bi) */
-        for (size_t i = 0; i < nWS; i++)
-        {
-            algorithmFPType objFunc = gradLocal[i];
-            if ((I[i] & up) && objFunc < GMin)
-            // if (isUpper(yLocal[i], alphaLocal[i], C) && objFunc < GMin)
-            {
-                GMin = objFunc;
-                Bi   = i;
-            }
-        }
-
+        algorithmFPType GMin  = HelperTrainSVM<algorithmFPType, cpu>::WSSi(nWS, gradLocal, I, Bi);
         algorithmFPType GMax  = -MaxVal<algorithmFPType>::get();
         algorithmFPType GMax2 = -MaxVal<algorithmFPType>::get();
 
         const algorithmFPType zero(0.0);
         const algorithmFPType two(2.0);
 
-        for (size_t i = 0; i < nWS; i++)
-        {
-            algorithmFPType grad = gradLocal[i];
-            if (!(I[i] & low)) continue;
-            // if (!isLower(yLocal[i], alphaLocal[i], C)) continue;
-            if (grad > GMax2)
-            {
-                GMax2 = grad;
-            }
-            if (grad < GMin)
-            {
-                continue;
-            }
-            algorithmFPType b = GMin - grad;
+        const algorithmFPType KBiBi      = kdLocal[Bi];
+        const algorithmFPType * KBiBlock = &kernelLocal[Bi * nWS];
 
-            const algorithmFPType Kii   = kdLocal[i];
-            const algorithmFPType KBiBi = kdLocal[Bi];
-            const algorithmFPType KiBi  = kernelLocal[Bi * nWS + i];
-
-            const algorithmFPType a = services::internal::max<cpu, algorithmFPType>(Kii + KBiBi - two * KiBi, tau);
-
-            const algorithmFPType dt      = b / a;
-            const algorithmFPType objFunc = b * dt;
-            if (objFunc > GMax)
-            {
-                GMax  = objFunc;
-                Bj    = i;
-                delta = -dt;
-            }
-        }
+        HelperTrainSVM<algorithmFPType, cpu>::WSSjLocal(0, nWS, KBiBlock, kdLocal, gradLocal, I, GMin, KBiBi, tau, Bj, GMax, GMax2, delta);
 
         localDiff = GMax2 - GMin;
-
-        {
-            const algorithmFPType KBjBj = kdLocal[Bj];
-            const algorithmFPType KBiBi = kdLocal[Bi];
-            const algorithmFPType KBjBi = kernelLocal[Bi * nWS + Bj];
-            // printf(">> Kernels: KBjBj %.2lf; KBiBi %.lf; KBjBi %.2lf \n", KBjBj, KBiBi, KBjBi);
-        }
 
         if (iter == 0)
         {
             localEps = services::internal::max<cpu, algorithmFPType>(eps, localDiff * (algorithmFPType)1e-1);
         }
-        // if (localDiff < localEps)
-        // {
-        //     break;
-        // }
-
-        /* Update coefficients */
-        const algorithmFPType alphaBiDelta = (yLocal[Bi] > 0.0f) ? C - alphaLocal[Bi] : alphaLocal[Bi];
-        const algorithmFPType alphaBjDelta =
-            services::internal::min<cpu, algorithmFPType>((yLocal[Bj] > 0.0f) ? alphaLocal[Bj] : C - alphaLocal[Bj], delta);
-        delta = services::internal::min<cpu, algorithmFPType>(alphaBiDelta, alphaBjDelta);
-
-        /* Update alpha */
-        alphaLocal[Bi] += delta * yLocal[Bi];
-        alphaLocal[Bj] -= delta * yLocal[Bj];
-
-        // printf(">> iter %lu: Bi %lu Bj %lu GMin %.2lf GMax2 %.2lf GMax %.2lf localDiff %.2lf delta %.2f alphaLocal[Bi]: %lf;  alphaLocal[Bj]: %lf\n",
-        // iter, Bi, Bj, GMin, GMax2, GMax, localDiff, delta, alphaLocal[Bi], alphaLocal[Bj]);
-
         if (localDiff < localEps)
         {
             break;
         }
 
+        const algorithmFPType yBi = yLocal[Bi];
+        const algorithmFPType yBj = yLocal[Bj];
+
+        /* Update coefficients */
+        const algorithmFPType alphaBiDelta = (yBi > 0.0f) ? C - alphaLocal[Bi] : alphaLocal[Bi];
+        const algorithmFPType alphaBjDelta = services::internal::min<cpu, algorithmFPType>((yBj > 0.0f) ? alphaLocal[Bj] : C - alphaLocal[Bj], delta);
+        delta                              = services::internal::min<cpu, algorithmFPType>(alphaBiDelta, alphaBjDelta);
+
+        /* Update alpha */
+        alphaLocal[Bi] += delta * yBi;
+        alphaLocal[Bj] -= delta * yLocal[Bj];
+
+        // printf(">> iter %lu: Bi %d Bj %d GMin %.2lf GMax2 %.2lf GMax %.2lf localDiff %.2lf delta %.2f alphaLocal[Bi]: %lf;  alphaLocal[Bj]: %lf\n",
+        //        iter, Bi, Bj, GMin, GMax2, GMax, localDiff, delta, alphaLocal[Bi], alphaLocal[Bj]);
+
         // printf(">>  alphaLocal[Bi]: %lf;  alphaLocal[Bj]: %lf yLocal[Bi]: %.0lf;  yLocal[Bj]: %.0lf\n", alphaLocal[Bi], alphaLocal[Bj], yLocal[Bi],
         //        yLocal[Bj]);
+
         /* Update up/low sets */
         char IBi = free;
-        IBi |= isUpper(yLocal[Bi], alphaLocal[Bi], C) ? up : free;
-        IBi |= isLower(yLocal[Bi], alphaLocal[Bi], C) ? low : free;
+        IBi |= isUpper(yBi, alphaLocal[Bi], C) ? up : free;
+        IBi |= isLower(yBi, alphaLocal[Bi], C) ? low : free;
         I[Bi] = IBi;
 
         char IBj = free;
-        IBj |= isUpper(yLocal[Bj], alphaLocal[Bj], C) ? up : free;
-        IBj |= isLower(yLocal[Bj], alphaLocal[Bj], C) ? low : free;
+        IBj |= isUpper(yBj, alphaLocal[Bj], C) ? up : free;
+        IBj |= isLower(yBj, alphaLocal[Bj], C) ? low : free;
         I[Bj] = IBj;
 
+        const algorithmFPType * KBjBlock = &kernelLocal[Bj * nWS];
         /* Update gradient */
         for (size_t i = 0; i < nWS; i++)
         {
-            const algorithmFPType KiBi = kernelLocal[Bi * nWS + i];
-            const algorithmFPType KiBj = kernelLocal[Bj * nWS + i];
+            const algorithmFPType KiBi = KBiBlock[i];
+            const algorithmFPType KiBj = KBjBlock[i];
             gradLocal[i] += delta * (KiBi - KiBj);
-            // printf("%.2lf ", gradLocal[i]);
         }
-        // printf("\n");
-        // for (size_t i = 0; i < nWS; i++)
-        // {
-        //     printf("%d ", (int)I[i]);
-        // }
-        // printf("\n");
     }
 
     {
-        printf(">> nInnerIter: %lu \t localDiff: %.3lf\n", iter, localDiff);
+        // printf(">> nInnerIter: %lu \t localDiff: %.3lf\n", iter, localDiff);
     }
 
     /* Compute diff and scatter to alpha vector */
@@ -380,10 +365,13 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::upd
                                                                                         const size_t nVectors, const size_t nWS)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(updateGrad);
-
-    char trans  = 'N';
-    DAAL_INT m_ = nVectors;
-    DAAL_INT n_ = nWS;
+    // TODO Parallel for col major? Need to check
+    // char trans  = 'N';
+    char trans = 'T';
+    // DAAL_INT m_ = nVectors;
+    DAAL_INT m_ = nWS;
+    DAAL_INT n_ = nVectors;
+    // DAAL_INT n_ = nWS;
     algorithmFPType alpha(1.0);
     DAAL_INT lda = m_;
     DAAL_INT incx(1);

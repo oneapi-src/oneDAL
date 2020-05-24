@@ -30,6 +30,7 @@
 #include "algorithms/svm/svm_train_types.h"
 #include "algorithms/kernel/kernel.h"
 #include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/svm/svm_train_common.h"
 
 #include "algorithms/kernel/svm/svm_train_boser_cache.i"
 
@@ -46,14 +47,6 @@ namespace internal
 using namespace daal::data_management;
 using namespace daal::internal;
 using namespace daal::services;
-
-enum SVMVectorStatus
-{
-    free   = 0x0,
-    up     = 0x1,
-    low    = 0x2,
-    shrink = 0x4
-};
 
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 struct SVMTrainTask
@@ -80,19 +73,10 @@ protected:
     bool findMaximumViolatingPair(size_t nActiveVectors, algorithmFPType tau, int & Bi, int & Bj, algorithmFPType & delta, algorithmFPType & ma,
                                   algorithmFPType & Ma, algorithmFPType & curEps, Status & s) const;
 
+    services::Status WSSj(size_t nActiveVectors, algorithmFPType tau, int Bi, algorithmFPType GMin, int & Bj, algorithmFPType & delta,
+                          algorithmFPType & res) const;
+
     Status reconstructGradient(size_t & nActiveVectors);
-
-    algorithmFPType WSSi(size_t nActiveVectors, int & Bi) const;
-
-    void WSSjLocalBaseline(const size_t jStart, const size_t jEnd, const algorithmFPType * KiBlock, const algorithmFPType GMax,
-                           const algorithmFPType Kii, const algorithmFPType tau, int & Bj, algorithmFPType & GMin, algorithmFPType & GMin2,
-                           algorithmFPType & delta) const;
-
-    void WSSjLocal(const size_t jStart, const size_t jEnd, const algorithmFPType * KiBlock, const algorithmFPType GMax, const algorithmFPType Kii,
-                   const algorithmFPType tau, int & Bj, algorithmFPType & GMin, algorithmFPType & GMin2, algorithmFPType & delta) const;
-
-    Status WSSj(size_t nActiveVectors, algorithmFPType tau, int Bi, algorithmFPType GMax, int & Bj, algorithmFPType & delta,
-                algorithmFPType & res) const;
 
     Status update(size_t nActiveVectors, algorithmFPType C, int Bi, int Bj, algorithmFPType delta);
 
@@ -102,15 +86,6 @@ protected:
     size_t doShrink(size_t nActiveVectors);
 
     inline void updateAlpha(algorithmFPType C, int Bi, int Bj, algorithmFPType delta, algorithmFPType & newDeltai, algorithmFPType & newDeltaj);
-
-    static bool isUpper(const algorithmFPType y, const algorithmFPType alpha, const algorithmFPType C)
-    {
-        return (y > 0 && alpha < C) || (y < 0 && alpha > 0);
-    }
-    static bool isLower(const algorithmFPType y, const algorithmFPType alpha, const algorithmFPType C)
-    {
-        return (y > 0 && alpha > 0) || (y < 0 && alpha < C);
-    }
 
 protected:
     const size_t _nVectors;                              //Number of observations in the input data set

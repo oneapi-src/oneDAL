@@ -47,18 +47,7 @@
 #include "service/kernel/service_data_utils.h"
 #include "externals/service_ittnotify.h"
 #include "algorithms/kernel/svm/svm_train_result.h"
-
-#if defined(__INTEL_COMPILER)
-    #if defined(_M_AMD64) || defined(__amd64) || defined(__x86_64) || defined(__x86_64__)
-        #if (__CPUID__(DAAL_CPU) == __avx512__)
-
-            // #include <immintrin.h>
-            // #include "algorithms/kernel/svm/svm_train_boser_avx512_impl.i"
-            // #include "algorithms/kernel/svm/inner/svm_train_boser_avx512_impl_v1.i"
-
-        #endif // __CPUID__(DAAL_CPU) == __avx512__
-    #endif     // defined (_M_AMD64) || defined (__amd64) || defined (__x86_64) || defined (__x86_64__)
-#endif         // __INTEL_COMPILER
+#include "algorithms/kernel/svm/svm_train_common_impl.i"
 
 namespace daal
 {
@@ -160,97 +149,6 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::compute(cons
 }
 
 /**
- * \brief Working set selection (WSS3) function.
- *        Select an index i from a pair of indices B = {i, j} using WSS 3 algorithm from [1].
- *
- * \param[in] nActiveVectors    number of observations in a training data set that are used
- *                              in sequential minimum optimization at the current iteration
- * \param[out] Bi            resulting index i
- *
- * \return The function returns m(alpha) = max(-y[i]*grad[i]): i belongs to I_UP (alpha)
- */
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-algorithmFPType SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSi(size_t nActiveVectors, int & Bi) const
-{
-    DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair.WSSi);
-
-    Bi                   = -1;
-    algorithmFPType GMin = (MaxVal<algorithmFPType>::get()); // some big negative number
-
-    const char * I               = _I.get();
-    const algorithmFPType * grad = _grad.get();
-    /* Find i index of the working set (Bi) */
-    for (size_t i = 0; i < nActiveVectors; i++)
-    {
-        const algorithmFPType objFunc = grad[i];
-        if ((I[i] & up) && objFunc < GMin)
-        {
-            GMin = objFunc;
-            Bi   = i;
-        }
-    }
-    return GMin;
-}
-
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-void SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSjLocalBaseline(const size_t jStart, const size_t jEnd, const algorithmFPType * KiBlock,
-                                                                          const algorithmFPType GMin, const algorithmFPType Kii,
-                                                                          const algorithmFPType tau, int & Bj, algorithmFPType & GMax,
-                                                                          algorithmFPType & GMax2, algorithmFPType & delta) const
-{
-    DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair.WSSj.WSSjLocal.WSSjLocalBaseline);
-    algorithmFPType fpMax = MaxVal<algorithmFPType>::get();
-    GMax                  = -fpMax; // some big negative number
-    GMax2                 = -fpMax;
-
-    const algorithmFPType zero(0.0);
-    const algorithmFPType two(2.0);
-
-    for (size_t j = jStart; j < jEnd; j++)
-    {
-        const algorithmFPType grad = _grad[j];
-        if ((_I[j] & low) != low)
-        {
-            continue;
-        }
-        if (grad > GMax2)
-        {
-            GMax2 = grad;
-        }
-        if (grad < GMin)
-        {
-            continue;
-        }
-
-        algorithmFPType b = GMin - grad;
-        algorithmFPType a = Kii + _kernelDiag[j] - two * KiBlock[j - jStart];
-        if (a <= zero)
-        {
-            a = tau;
-        }
-        algorithmFPType dt      = b / a;
-        algorithmFPType objFunc = b * dt;
-        if (objFunc > GMax)
-        {
-            GMax  = objFunc;
-            Bj    = j;
-            delta = -dt;
-        }
-    }
-}
-
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-void SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSjLocal(const size_t jStart, const size_t jEnd, const algorithmFPType * KiBlock,
-                                                                  const algorithmFPType GMin, const algorithmFPType Kii, const algorithmFPType tau,
-                                                                  int & Bj, algorithmFPType & GMax, algorithmFPType & GMax2,
-                                                                  algorithmFPType & delta) const
-{
-    DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair.WSSj.WSSjLocal);
-
-    WSSjLocalBaseline(jStart, jEnd, KiBlock, GMin, Kii, tau, Bj, GMax, GMax2, delta);
-}
-
-/**
  * \brief Working set selection (WSS3) function for the case when the matrix Q is cached.
  *        Select an index j from a pair of indices B = {i, j} using WSS 3 algorithm from [1].
  *
@@ -301,7 +199,8 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSj(size_t 
 
         int Bj_local = -1;
         algorithmFPType GMax_local, GMax2_local, delta_local;
-        WSSjLocal(jStart, jEnd, KiBlock, GMin, Kii, tau, Bj_local, GMax_local, GMax2_local, delta_local);
+        HelperTrainSVM<algorithmFPType, cpu>::WSSjLocal(jStart, jEnd, KiBlock, _kernelDiag.get(), _grad.get(), _I.get(), GMin, Kii, tau, Bj_local,
+                                                        GMax_local, GMax2_local, delta_local);
 
         if (GMax_local > GMax)
         {
@@ -326,7 +225,7 @@ bool SVMTrainTask<algorithmFPType, ParameterType, cpu>::findMaximumViolatingPair
     DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair);
 
     Bi = -1;
-    ma = WSSi(nActiveVectors, Bi);
+    ma = HelperTrainSVM<algorithmFPType, cpu>::WSSi(nActiveVectors, _grad.get(), _I.get(), Bi);
     if (Bi == -1) return false;
 
     Bj = -1;
@@ -410,29 +309,6 @@ inline void SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateAlpha(algor
 
     algorithmFPType newAlphai = oldAlphai + yi * delta;
     algorithmFPType newAlphaj = oldAlphaj - yj * delta;
-
-    /* Project alpha back to the feasible region */
-    // algorithmFPType sum = yi * oldAlphai + yj * oldAlphaj;
-
-    // if (newAlphai > C)
-    // {
-    //     newAlphai = C;
-    // }
-    // if (newAlphai < zero)
-    // {
-    //     newAlphai = zero;
-    // }
-    // newAlphaj = yj * (sum - yi * newAlphai);
-
-    // if (newAlphaj > C)
-    // {
-    //     newAlphaj = C;
-    // }
-    // if (newAlphaj < zero)
-    // {
-    //     newAlphaj = zero;
-    // }
-    // newAlphai = yi * (sum - yj * newAlphaj);
 
     _alpha[Bj] = newAlphaj;
     _alpha[Bi] = newAlphai;
@@ -664,8 +540,8 @@ inline void SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateI(algorithm
     algorithmFPType yi     = _y[index];
     Ii &= (char)shrink;
 
-    Ii |= isUpper(yi, alphai, C) ? up : free;
-    Ii |= isLower(yi, alphai, C) ? low : free;
+    Ii |= HelperTrainSVM<algorithmFPType, cpu>::isUpper(yi, alphai, C) ? up : free;
+    Ii |= HelperTrainSVM<algorithmFPType, cpu>::isLower(yi, alphai, C) ? low : free;
     _I[index] = Ii;
 }
 

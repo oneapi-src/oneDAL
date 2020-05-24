@@ -67,6 +67,7 @@ private:
     // The maximum block size
     // static const size_t maxBlockSize = 512;
     static const size_t maxBlockSize = 1024;
+    // static const size_t maxBlockSize = 2048;
 
     enum MemSmoId
     {

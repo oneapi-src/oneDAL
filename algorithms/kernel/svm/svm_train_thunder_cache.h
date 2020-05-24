@@ -30,6 +30,7 @@
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "data_management/data/numeric_table_sycl_homogen.h"
 #include "algorithms/kernel/svm/svm_train_cache.h"
+#include "externals/service_service.h"
 
 namespace daal
 {
@@ -108,7 +109,7 @@ public:
 
     services::Status copyDataByIndices(const uint32_t * wsIndices)
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(copyDataByIndices);
+        DAAL_ITTNOTIFY_SCOPED_TASK(cache.copyDataByIndices);
         services::Status status;
         NumericTable & x = *_xTable.get();
         const size_t p   = x.getNumberOfColumns();
@@ -146,6 +147,8 @@ public:
 
     services::Status copyLastToFirst() override
     {
+        DAAL_ITTNOTIFY_SCOPED_TASK(cache.copyLastToFirst);
+
         _nSelectRows = _blockSize / 2;
         if (!_isComputeSubKernel)
         {
@@ -155,8 +158,21 @@ public:
         const algorithmFPType * const dataIn = _cache.get() + _nSelectRows * _lineSize;
         algorithmFPType * dataOut            = _cache.get();
 
-        services::internal::daal_memcpy_s(dataOut, _nSelectRows * _lineSize * sizeof(algorithmFPType), dataIn,
-                                          _nSelectRows * _lineSize * sizeof(algorithmFPType));
+        const size_t blockSize     = _blockSize;
+        const size_t nCopyElements = _nSelectRows * _lineSize;
+        const size_t blockNum      = nCopyElements / blockSize;
+
+        daal::threader_for(blockNum, blockNum, [&](const size_t iBlock) {
+            const size_t startRow = iBlock * blockSize;
+            services::internal::daal_memcpy_s(&dataOut[startRow], blockSize * sizeof(algorithmFPType), &dataIn[startRow],
+                                              blockSize * sizeof(algorithmFPType));
+
+            // int status            = internal::Service<>::serv_memcpy_s(&dataOut[startRow], blockSize * sizeof(algorithmFPType), &dataIn[startRow],
+            //                                                 blockSize * sizeof(algorithmFPType));
+        });
+
+        // services::internal::daal_memcpy_s(dataOut, _nSelectRows * _lineSize * sizeof(algorithmFPType), dataIn,
+        //                                   _nSelectRows * _lineSize * sizeof(algorithmFPType));
         return services::Status();
     }
 
@@ -167,6 +183,8 @@ protected:
 
     services::Status reinit(const size_t blockSize)
     {
+        DAAL_ITTNOTIFY_SCOPED_TASK(cache.reinit);
+
         services::Status status;
         algorithmFPType * cacheHalf = _cache.get() + _lineSize * _nSelectRows;
         auto cacheTable             = HomogenNumericTableCPU<algorithmFPType, cpu>::create(cacheHalf, _lineSize, blockSize, &status);
@@ -191,11 +209,14 @@ protected:
 
     services::Status init(const size_t cacheSize)
     {
+        DAAL_ITTNOTIFY_SCOPED_TASK(cache.init);
+
         services::Status status;
         _cache.reset(_lineSize * _blockSize);
         DAAL_CHECK_MALLOC(_cache.get());
 
-        auto cacheTable = HomogenNumericTableCPU<algorithmFPType, cpu>::create(_cache.get(), _lineSize, _blockSize, &status);
+        auto cacheTable = HomogenNumericTableCPU<algorithmFPType, cpu>::create(_cache.get(), _blockSize, _lineSize, &status);
+        // auto cacheTable = HomogenNumericTableCPU<algorithmFPType, cpu>::create(_cache.get(), _lineSize, _blockSize, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
         const size_t p = _xTable->getNumberOfColumns();
@@ -207,8 +228,12 @@ protected:
         DAAL_CHECK_STATUS_VAR(status);
 
         _kernel->getParameter()->computationMode = kernel_function::matrixMatrix;
-        _kernel->getInput()->set(kernel_function::X, xWSTable);
-        _kernel->getInput()->set(kernel_function::Y, _xTable);
+        // _kernel->getInput()->set(kernel_function::X, xWSTable);
+        // _kernel->getInput()->set(kernel_function::Y, _xTable);
+
+        // Maybe store in Col Major?
+        _kernel->getInput()->set(kernel_function::X, _xTable);
+        _kernel->getInput()->set(kernel_function::Y, xWSTable);
 
         kernel_function::ResultPtr shRes(new kernel_function::Result());
         shRes->set(kernel_function::values, cacheTable);

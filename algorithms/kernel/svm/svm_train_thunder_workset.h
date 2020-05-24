@@ -61,7 +61,6 @@ struct TaskWorkingSet
     services::Status init()
     {
         services::Status status;
-        printf(">> TaskWorkingSet:init\n");
         _sortedFIndices.reset(_nVectors);
         DAAL_CHECK_MALLOC(_sortedFIndices.get());
 
@@ -82,7 +81,7 @@ struct TaskWorkingSet
 
     services::Status copyLastToFirst()
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(copyLastToFirst);
+        DAAL_ITTNOTIFY_SCOPED_TASK(select.copyLastToFirst);
 
         services::Status status;
         const size_t q = _nWS / 2;

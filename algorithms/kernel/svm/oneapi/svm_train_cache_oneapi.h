@@ -194,8 +194,8 @@ protected:
 
         DAAL_CHECK_STATUS_VAR(status);
         _kernel->getParameter()->computationMode = kernel_function::matrixMatrix;
-        _kernel->getInput()->set(kernel_function::X, xWSTable);
-        _kernel->getInput()->set(kernel_function::Y, xTable);
+        _kernel->getInput()->set(kernel_function::X, xTable);
+        _kernel->getInput()->set(kernel_function::Y, xWSTable);
 
         kernel_function::ResultPtr shRes(new kernel_function::Result());
         shRes->set(kernel_function::values, cacheTable);
@@ -217,8 +217,8 @@ protected:
 
         DAAL_CHECK_STATUS_VAR(status);
         _kernel->getParameter()->computationMode = kernel_function::matrixMatrix;
-        _kernel->getInput()->set(kernel_function::X, xWSTable);
-        _kernel->getInput()->set(kernel_function::Y, xTable);
+        _kernel->getInput()->set(kernel_function::X, xTable);
+        _kernel->getInput()->set(kernel_function::Y, xWSTable);
 
         kernel_function::ResultPtr shRes(new kernel_function::Result());
         shRes->set(kernel_function::values, cacheTable);
