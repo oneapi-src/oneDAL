@@ -1,6 +1,6 @@
-/* file: svm_two_class_model_builder.cpp */
+/* file: svm_two_class_thunder_dense_batch.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,13 +17,14 @@
 
 /*
 !  Content:
-!    C++ example of two-class support vector machine (SVM) classification
+!    C++ example of two-class support vector machine (SVM) classification using
+!    the Thunder method
 !
 !******************************************************************************/
 
 /**
- * <a name="DAAL-EXAMPLE-CPP-SVM_TWO_CLASS_MODEL_BUILDER"></a>
- * \example svm_two_class_model_builder.cpp
+ * <a name="DAAL-EXAMPLE-CPP-SVM_TWO_CLASS_THUNDER_DENSE_BATCH"></a>
+ * \example svm_two_class_thunder_dense_batch.cpp
  */
 
 #include "daal.h"
@@ -35,72 +36,67 @@ using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-string trainedModelsFileName = "../data/batch/svm_two_class_trained_model.csv";
-
-string testDatasetFileName = "../data/batch/svm_two_class_test_dense.csv";
+string trainDatasetFileName = "../data/batch/svm_two_class_train_dense.csv";
+string testDatasetFileName  = "../data/batch/svm_two_class_test_dense.csv";
 
 const size_t nFeatures = 20;
-const float bias       = -0.562F;
 
 /* Parameters for the SVM kernel function */
 kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<>());
 
+/* Model object for the SVM algorithm */
+svm::training::ResultPtr trainingResult;
+classifier::prediction::ResultPtr predictionResult;
 NumericTablePtr testGroundTruth;
 
-void testModel(svm::ModelPtr &);
-svm::ModelPtr buildModelFromTraining();
+void trainModel();
+void testModel();
+void printResults();
 
 int main(int argc, char * argv[])
 {
-    checkArguments(argc, argv, 2, &trainedModelsFileName, &testDatasetFileName);
+    checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
-    svm::ModelPtr builtModel = buildModelFromTraining();
-    testModel(builtModel);
+    trainModel();
+    testModel();
+    printResults();
 
     return 0;
 }
 
-svm::ModelPtr buildModelFromTraining()
+void trainModel()
 {
-    /* Initialize FileDataSource<CSVFeatureManager> to retrieve trained model .csv file */
-    FileDataSource<CSVFeatureManager> modelSource(trainedModelsFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
+    /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
+    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
-    /* Create Numeric Tables for supportVectors and classification coefficients */
+    /* Create Numeric Tables for training data and labels */
     NumericTablePtr trainData        = HomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
     NumericTablePtr trainGroundTruth = HomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
     NumericTablePtr mergedData       = MergedNumericTable::create(trainData, trainGroundTruth);
 
-    /* Retrieve the model from input file */
-    modelSource.loadDataBlock(mergedModel.get());
+    /* Retrieve the data from the input file */
+    trainDataSource.loadDataBlock(mergedData.get());
 
-    size_t nSV = supportVectors->getNumberOfRows();
+    /* Create an algorithm object to train the SVM model using the Thunder method */
+    svm::training::Batch<float, svm::training::thunder> algorithm;
 
-    svm::ModelBuilder<> modelBuilder(nFeatures, nSV);
-    /* write numbers in model */
-    BlockDescriptor<> blockResult;
-    supportVectors->getBlockOfRows(0, nSV, readOnly, blockResult);
-    float * first = blockResult.getBlockPtr();
-    float * last  = first + nSV * nFeatures;
+    algorithm.parameter.kernel            = kernel;
+    algorithm.parameter.C                 = 1.0;
+    algorithm.parameter.accuracyThreshold = 0.01;
+    algorithm.parameter.tau               = 1e-6;
 
-    modelBuilder.setSupportVectors(first, last);
+    /* Pass a training data set and dependent values to the algorithm */
+    algorithm.input.set(classifier::training::data, trainData);
+    algorithm.input.set(classifier::training::labels, trainGroundTruth);
 
-    supportVectors->releaseBlockOfRows(blockResult);
+    /* Build the SVM model */
+    algorithm.compute();
 
-    /* set Classification Coefficients */
-    classificationCoefficients->getBlockOfRows(0, nSV, readOnly, blockResult);
-    first = blockResult.getBlockPtr();
-    last  = first + nSV;
-
-    modelBuilder.setClassificationCoefficients(first, last);
-
-    classificationCoefficients->releaseBlockOfRows(blockResult);
-
-    modelBuilder.setBias(bias);
-
-    return modelBuilder.getModel();
+    /* Retrieve the algorithm results */
+    trainingResult = algorithm.getResult();
 }
 
-void testModel(svm::ModelPtr & inputModel)
+void testModel()
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
     FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
@@ -114,19 +110,23 @@ void testModel(svm::ModelPtr & inputModel)
     testDataSource.loadDataBlock(mergedData.get());
 
     /* Create an algorithm object to predict SVM values */
-    svm::prediction::Batch<float> algorithm;
+    svm::prediction::Batch<> algorithm;
 
     algorithm.parameter.kernel = kernel;
 
     /* Pass a testing data set and the trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
-
-    /* Set model created externaly */
-    algorithm.input.set(classifier::prediction::model, inputModel);
+    algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
 
     /* Predict SVM values */
     algorithm.compute();
 
-    printNumericTables<int, float>(testGroundTruth, algorithm.getResult()->get(classifier::prediction::prediction), "Ground truth",
-                                   "Classification results", "SVM classification sample program results (first 20 observations):", 20);
+    /* Retrieve the algorithm results */
+    predictionResult = algorithm.getResult();
+}
+
+void printResults()
+{
+    printNumericTables<int, float>(testGroundTruth, predictionResult->get(classifier::prediction::prediction), "Ground truth\t",
+                                   "Classification results", "SVM classification results (first 20 observations):", 20);
 }

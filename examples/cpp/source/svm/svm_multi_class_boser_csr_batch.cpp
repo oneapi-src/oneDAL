@@ -1,6 +1,6 @@
-/* file: svm_two_class_csr_batch.cpp */
+/* file: svm_multi_class_boser_csr_batch.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,13 +17,14 @@
 
 /*
 !  Content:
-!    C++ example of two-class support vector machine (SVM) classification
+!    C++ example of multi-class support vector machine (SVM) classification using
+!    the Boser method
 !
 !******************************************************************************/
 
 /**
- * <a name="DAAL-EXAMPLE-CPP-SVM_TWO_CLASS_CSR_BATCH"></a>
- * \example svm_two_class_csr_batch.cpp
+ * <a name="DAAL-EXAMPLE-CPP-SVM_MULTI_CLASS_BOSER_CSR_BATCH"></a>
+ * \example svm_multi_class_boser_csr_batch.cpp
  */
 
 #include "daal.h"
@@ -35,18 +36,21 @@ using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-string trainDatasetFileName = "../data/batch/svm_two_class_train_csr.csv";
-string trainLabelsFileName  = "../data/batch/svm_two_class_train_labels.csv";
+string trainDatasetFileName = "../data/batch/svm_multi_class_train_csr.csv";
+string trainLabelsFileName  = "../data/batch/svm_multi_class_train_labels.csv";
 
-string testDatasetFileName = "../data/batch/svm_two_class_test_csr.csv";
-string testLabelsFileName  = "../data/batch/svm_two_class_test_labels.csv";
+string testDatasetFileName = "../data/batch/svm_multi_class_test_csr.csv";
+string testLabelsFileName  = "../data/batch/svm_multi_class_test_labels.csv";
 
-/* Parameters for the SVM kernel function */
-kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<float, kernel_function::linear::fastCSR>());
+const size_t nClasses = 5;
 
-/* Model object for the SVM algorithm */
-svm::training::ResultPtr trainingResult;
+services::SharedPtr<svm::training::Batch<float, svm::training::boser> > training(new svm::training::Batch<float, svm::training::boser>());
+services::SharedPtr<svm::prediction::Batch<> > prediction(new svm::prediction::Batch<>());
+
+multi_class_classifier::training::ResultPtr trainingResult;
 classifier::prediction::ResultPtr predictionResult;
+kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<float, kernel_function::linear::fastCSR>());
+NumericTablePtr testGroundTruth;
 
 void trainModel();
 void testModel();
@@ -56,10 +60,13 @@ int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 4, &trainDatasetFileName, &trainLabelsFileName, &testDatasetFileName, &testLabelsFileName);
 
+    training->parameter.cacheSize = 100000000;
+    training->parameter.kernel    = kernel;
+    training->parameter.C         = 1.0;
+    prediction->parameter.kernel  = kernel;
+
     trainModel();
-
     testModel();
-
     printResults();
 
     return 0;
@@ -77,17 +84,17 @@ void trainModel()
     /* Retrieve the data from the input file */
     trainLabelsDataSource.loadDataBlock();
 
-    /* Create an algorithm object to train the SVM model */
-    svm::training::Batch<> algorithm;
+    /* Create an algorithm object to train the multi-class SVM model */
+    multi_class_classifier::training::Batch<> algorithm(nClasses);
 
-    algorithm.parameter.kernel    = kernel;
-    algorithm.parameter.cacheSize = 40000000;
+    algorithm.parameter.training   = training;
+    algorithm.parameter.prediction = prediction;
 
     /* Pass a training data set and dependent values to the algorithm */
     algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainLabelsDataSource.getNumericTable());
 
-    /* Build the SVM model */
+    /* Build the multi-class SVM model */
     algorithm.compute();
 
     /* Retrieve the algorithm results */
@@ -99,16 +106,17 @@ void testModel()
     /* Create Numeric Tables for testing data */
     NumericTablePtr testData(createSparseTable<float>(testDatasetFileName));
 
-    /* Create an algorithm object to predict SVM values */
-    svm::prediction::Batch<> algorithm;
+    /* Create an algorithm object to predict multi-class SVM values */
+    multi_class_classifier::prediction::Batch<> algorithm(nClasses);
 
-    algorithm.parameter.kernel = kernel;
+    algorithm.parameter.training   = training;
+    algorithm.parameter.prediction = prediction;
 
     /* Pass a testing data set and the trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
     algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
 
-    /* Predict SVM values */
+    /* Predict multi-class SVM values */
     algorithm.compute();
 
     /* Retrieve the algorithm results */
@@ -122,8 +130,8 @@ void printResults()
                                                            DataSource::doDictionaryFromContext);
     /* Retrieve the data from input file */
     testLabelsDataSource.loadDataBlock();
-    NumericTablePtr testGroundTruth = testLabelsDataSource.getNumericTable();
+    testGroundTruth = testLabelsDataSource.getNumericTable();
 
-    printNumericTables<int, float>(testGroundTruth, predictionResult->get(classifier::prediction::prediction), "Ground truth\t",
-                                   "Classification results", "SVM classification results (first 20 observations):", 20);
+    printNumericTables<int, int>(testGroundTruth, predictionResult->get(classifier::prediction::prediction), "Ground truth", "Classification results",
+                                 "Multi-class SVM classification sample program results (first 20 observations):", 20);
 }
