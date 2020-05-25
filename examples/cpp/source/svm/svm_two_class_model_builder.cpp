@@ -66,9 +66,9 @@ svm::ModelPtr buildModelFromTraining()
     FileDataSource<CSVFeatureManager> modelSource(trainedModelsFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for supportVectors and classification coefficients */
-    NumericTablePtr trainData        = HomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
-    NumericTablePtr trainGroundTruth = HomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
-    NumericTablePtr mergedData       = MergedNumericTable::create(trainData, trainGroundTruth);
+    NumericTablePtr supportVectors             = HomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
+    NumericTablePtr classificationCoefficients = HomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
+    NumericTablePtr mergedModel                = MergedNumericTable::create(supportVectors, classificationCoefficients);
 
     /* Retrieve the model from input file */
     modelSource.loadDataBlock(mergedModel.get());
