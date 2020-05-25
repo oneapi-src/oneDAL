@@ -75,9 +75,8 @@ jobs:
       conda create -q -y -n CB python=3.7 conda-build conda-verify
     displayName: Create Anaconda environment
   - script: |
-      export DPCPP_VAR=/opt/intel/inteloneapi/compiler/latest/env/vars.sh
+#      export DPCPP_VAR=/opt/intel/inteloneapi/compiler/latest/env/vars.sh
       export DAALROOT=$(Pipeline.Workspace)/daal/latest
-
       . $HOME/miniconda/etc/profile.d/conda.sh
       conda activate CB
       cd daal4py
