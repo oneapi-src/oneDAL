@@ -52,8 +52,8 @@ struct TaskWorkingSet
         IndexType val;
         static int compare(const void * a, const void * b)
         {
-            if (static_cast<const IdxType *>(a)->key < static_cast<const IdxType *>(b)->key) return -1;
-            return static_cast<const IdxType *>(a)->key > static_cast<const IdxType *>(b)->key;
+            if (static_cast<const IdxValType *>(a)->key < static_cast<const IdxValType *>(b)->key) return -1;
+            return static_cast<const IdxValType *>(a)->key > static_cast<const IdxValType *>(b)->key;
         }
         bool operator<(const IdxValType & o) const { return key < o.key; }
     };
@@ -118,7 +118,7 @@ struct TaskWorkingSet
             if (pLeft < _nVectors)
             {
                 IndexType i = sortedFIndices[pLeft].val;
-                while (_indicator[i] || !isUpper(y[i], alpha[i], C))
+                while (_indicator[i] || !HelperTrainSVM<algorithmFPType, cpu>::isUpper(y[i], alpha[i], C))
                 {
                     pLeft++;
                     if (pLeft == _nVectors)
@@ -138,7 +138,7 @@ struct TaskWorkingSet
             if (pRight >= 0)
             {
                 IndexType i = sortedFIndices[pRight].val;
-                while (_indicator[i] || !isLower(y[i], alpha[i], C))
+                while (_indicator[i] || !HelperTrainSVM<algorithmFPType, cpu>::isLower(y[i], alpha[i], C))
                 {
                     pRight--;
                     if (pRight == -1)
@@ -165,10 +165,6 @@ struct TaskWorkingSet
     const IndexType * getIndices() const { return _wsIndices.get(); }
 
 protected:
-    bool isUpper(const algorithmFPType y, const algorithmFPType alpha, const algorithmFPType C) { return y > 0 && alpha < C || y < 0 && alpha > 0; }
-
-    bool isLower(const algorithmFPType y, const algorithmFPType alpha, const algorithmFPType C) { return y > 0 && alpha > 0 || y < 0 && alpha < C; }
-
     size_t maxpow2(size_t n)
     {
         if (!(n & (n - 1)))
