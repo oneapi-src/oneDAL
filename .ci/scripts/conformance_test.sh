@@ -18,7 +18,9 @@ done
 
 conda create -y -n conformance python=3.7
 source activate conformance
-conda install -y -c conda-forge mpich tbb-devel numpy pytest scikit-learn
+conda install -y -c intel mpich tbb-devel numpy pytest scikit-learn
+conda remove -y daal4py --force
+conda remove -y daal --force
 export DAALROOT=${BUILD_DIR}/daal/latest
 conda install $HOME/miniconda/envs/CB/conda-bld/broken/*.tar.bz2
 
