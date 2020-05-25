@@ -29,7 +29,7 @@ namespace internal
 {
 template <typename IdxType>
 DAAL_EXPORT void trainTestSplit(NumericTable & inputTable, NumericTable & trainTable, NumericTable & testTable,
-                                NumericTable & trainIdxTable, NumericTable & testIdxTable, NumericTable & columnTypesTable);
+                                NumericTable & trainIdxTable, NumericTable & testIdxTable);
 
 } // namespace internal
 } // namespace data_management
