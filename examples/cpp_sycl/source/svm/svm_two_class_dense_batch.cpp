@@ -68,13 +68,8 @@ int main(int argc, char * argv[])
         daal::services::SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
-        if (device.is_gpu())
-            trainModel(svm::training::Batch<float, svm::training::thunder>());
-        else
-            trainModel(svm::training::Batch<float, svm::training::boser>());
-
+        trainModel(svm::training::Batch<float, svm::training::thunder>());
         testModel();
-
         printResults();
     }
 
@@ -94,7 +89,6 @@ void trainModel(algorithmType && algorithm)
     trainDataSource.loadDataBlock(mergedData.get());
 
     algorithm.parameter.kernel            = kernel;
-    algorithm.parameter.cacheSize         = 40000000;
     algorithm.parameter.C                 = 1.0;
     algorithm.parameter.accuracyThreshold = 0.01;
     algorithm.parameter.tau               = 1e-6;
