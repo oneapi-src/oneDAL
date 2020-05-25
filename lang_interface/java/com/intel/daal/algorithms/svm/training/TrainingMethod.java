@@ -23,6 +23,8 @@
  */
 package com.intel.daal.algorithms.svm.training;
 
+import java.lang.annotation.Native;
+
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__SVM__TRAINING__TRAININGMETHOD"></a>
  * @brief Available methods to train the SVM model
