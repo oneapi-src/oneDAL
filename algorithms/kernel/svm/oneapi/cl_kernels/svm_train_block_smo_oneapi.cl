@@ -109,7 +109,6 @@ DECLARE_SOURCE_DAAL(
 
         uint Bi = 0;
         uint Bj = 0;
-        algorithmFPType maxGrad;
 
         algorithmFPType ma;
 
@@ -138,7 +137,7 @@ DECLARE_SOURCE_DAAL(
 
             if (i == 0)
             {
-                maxGrad = maxValInd.value;
+                const algorithmFPType maxGrad = maxValInd.value;
 
                 /* for condition check: m(alpha) >= maxgrad */
                 localDiff = maxGrad - ma;

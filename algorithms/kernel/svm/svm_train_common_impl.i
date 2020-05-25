@@ -30,6 +30,7 @@
 #include "service/kernel/service_data_utils.h"
 #include "externals/service_ittnotify.h"
 #include "algorithms/kernel/svm/svm_train_result.h"
+#include "algorithms/kernel/svm/svm_train_common.h"
 
 #if defined(__INTEL_COMPILER)
     #if defined(_M_AMD64) || defined(__amd64) || defined(__x86_64) || defined(__x86_64__)
@@ -139,6 +140,56 @@ void HelperTrainSVM<algorithmFPType, cpu>::WSSjLocal(const size_t jStart, const 
     DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair.WSSj.WSSjLocal);
 
     WSSjLocalBaseline(jStart, jEnd, KiBlock, kernelDiag, grad, I, GMin, Kii, tau, Bj, GMax, GMax2, delta);
+}
+
+template <typename algorithmFPType, CpuType cpu>
+services::Status SubDataTaskCSR<algorithmFPType, cpu>::copyDataByIndices(const uint32_t * wsIndices, const NumericTablePtr & xTable)
+{
+    DAAL_ITTNOTIFY_SCOPED_TASK(cache.copyDataByIndices.CSR);
+    CSRNumericTableIface * csrIface = dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(xTable.get()));
+    _rowOffsets[0]                  = 1;
+    size_t dataIndex                = 0;
+    const size_t nRows              = this->_nSubsetVectors;
+    for (size_t i = 0; i < nRows; i++)
+    {
+        size_t iRows = wsIndices[i];
+        ReadRowsCSR<algorithmFPType, cpu> mtX(csrIface, iRows, 1);
+        DAAL_CHECK_BLOCK_STATUS(mtX);
+        const size_t nNonZeroValuesInRow = mtX.rows()[1] - mtX.rows()[0];
+        const size_t * colIndices        = mtX.cols();
+        const algorithmFPType * values   = mtX.values();
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
+        for (size_t j = 0; j < nNonZeroValuesInRow; j++, dataIndex++)
+        {
+            this->_data[dataIndex] = values[j];
+            _colIndices[dataIndex] = colIndices[j];
+        }
+        _rowOffsets[i + 1] = _rowOffsets[i] + nNonZeroValuesInRow;
+    }
+    return services::Status();
+}
+
+template <typename algorithmFPType, CpuType cpu>
+services::Status SubDataTaskDense<algorithmFPType, cpu>::copyDataByIndices(const uint32_t * wsIndices, const NumericTablePtr & xTable)
+{
+    DAAL_ITTNOTIFY_SCOPED_TASK(cache.copyDataByIndices.Dense);
+    NumericTable & x       = *xTable.get();
+    const size_t p         = x.getNumberOfColumns();
+    const size_t blockSize = 1;
+    const size_t nBlock    = this->_nSubsetVectors;
+    SafeStatus safeStat;
+    daal::threader_for(nBlock, nBlock, [&](const size_t iBlock) {
+        size_t iRows = wsIndices[iBlock];
+        ReadRows<algorithmFPType, cpu> mtX(x, iRows, 1);
+        DAAL_CHECK_BLOCK_STATUS_THR(mtX);
+        const algorithmFPType * const dataIn = mtX.get();
+        algorithmFPType * dataOut            = this->_data.get() + iBlock * p;
+        DAAL_CHECK_THR(!services::internal::daal_memcpy_s(dataOut, p * sizeof(algorithmFPType), dataIn, p * sizeof(algorithmFPType)),
+                       services::ErrorMemoryCopyFailedInternal);
+    });
+
+    return safeStat.detach();
 }
 
 } // namespace internal

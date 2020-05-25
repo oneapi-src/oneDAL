@@ -94,7 +94,7 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::compute(cons
 
     size_t nActiveVectors(_nVectors);
     algorithmFPType curEps = MaxVal<algorithmFPType>::get();
-    // if (!svmPar.doShrinking)
+    if (!svmPar.doShrinking)
     {
         size_t iter = 0;
         for (; s.ok() && (iter < svmPar.maxIterations) && (eps < curEps); ++iter)
@@ -104,47 +104,50 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::compute(cons
             if (!findMaximumViolatingPair(nActiveVectors, tau, Bi, Bj, delta, ma, Ma, curEps, s)) break;
             s = update(nActiveVectors, C, Bi, Bj, delta);
         }
-        printf(">> n_iter %lu\n", iter);
+        printf(">> n_iter[not Shrinking] %lu\n", iter);
         return s;
     }
 
-    // bool unshrink = false;
-    // for (size_t iter = 0, shrinkingIter = 1; (iter < svmPar.maxIterations) && (eps < curEps); ++iter, ++shrinkingIter)
-    // {
-    //     int Bi, Bj;
-    //     algorithmFPType delta, ma, Ma;
-    //     if (!findMaximumViolatingPair(nActiveVectors, tau, Bi, Bj, delta, ma, Ma, curEps, s)) return s;
+    bool unshrink = false;
+    size_t iter   = 0;
+    for (size_t shrinkingIter = 1; (iter < svmPar.maxIterations) && (eps < curEps); ++iter, ++shrinkingIter)
+    {
+        int Bi, Bj;
+        algorithmFPType delta, ma, Ma;
+        if (!findMaximumViolatingPair(nActiveVectors, tau, Bi, Bj, delta, ma, Ma, curEps, s)) return s;
 
-    //     if (curEps < eps)
-    //     {
-    //         /* Check the optimality condition for the task with excluded variables */
-    //         if (unshrink && nActiveVectors < _nVectors) s = reconstructGradient(nActiveVectors);
-    //         if (!s || !findMaximumViolatingPair(nActiveVectors, tau, Bi, Bj, delta, ma, Ma, curEps, s)) return s;
-    //         if (curEps < eps) return s; /* Here if the optimality condition holds for the excluded variables */
-    //         shrinkingIter = 0;
-    //     }
-    //     s = update(nActiveVectors, C, Bi, Bj, delta);
-    //     if ((shrinkingIter % svmPar.shrinkingStep) == 0)
-    //     {
-    //         if ((!unshrink) && (curEps < 10.0 * eps))
-    //         {
-    //             unshrink = true;
-    //             if (nActiveVectors < _nVectors)
-    //             {
-    //                 s = reconstructGradient(nActiveVectors);
-    //                 if (!s) return s;
-    //             }
-    //         }
-    //         /* Update shrinking flags and do shrinking if needed*/
-    //         if (updateShrinkingFlags(nActiveVectors, C, ma, Ma) > 0)
-    //         {
-    //             status |= _cache->updateShrinkingRowIndices(nActiveVectors, _I.get());
-    //             nActiveVectors = doShrink(nActiveVectors);
-    //         }
-    //     }
-    // }
-    // if (status) return status;
-    // if (nActiveVectors < _nVectors) s = reconstructGradient(nActiveVectors);
+        if (curEps < eps)
+        {
+            /* Check the optimality condition for the task with excluded variables */
+            if (unshrink && nActiveVectors < _nVectors) s = reconstructGradient(nActiveVectors);
+            if (!s || !findMaximumViolatingPair(nActiveVectors, tau, Bi, Bj, delta, ma, Ma, curEps, s)) return s;
+            if (curEps < eps) return s; /* Here if the optimality condition holds for the excluded variables */
+            shrinkingIter = 0;
+        }
+        s = update(nActiveVectors, C, Bi, Bj, delta);
+        if ((shrinkingIter % svmPar.shrinkingStep) == 0)
+        {
+            if ((!unshrink) && (curEps < 10.0 * eps))
+            {
+                unshrink = true;
+                if (nActiveVectors < _nVectors)
+                {
+                    s = reconstructGradient(nActiveVectors);
+                    if (!s) return s;
+                }
+            }
+            /* Update shrinking flags and do shrinking if needed*/
+            if (updateShrinkingFlags(nActiveVectors, C, ma, Ma) > 0)
+            {
+                status |= _cache->updateShrinkingRowIndices(nActiveVectors, _I.get());
+                nActiveVectors = doShrink(nActiveVectors);
+            }
+        }
+    }
+    if (status) return status;
+    if (nActiveVectors < _nVectors) s = reconstructGradient(nActiveVectors);
+    printf(">> n_iter[do Shrinking] %lu\n", iter);
+
     return s;
 }
 
@@ -257,7 +260,7 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::update(size_
 
     algorithmFPType * grad = _grad.get();
     services::Status s;
-    // daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
+
     for (size_t iBlock = 0; s.ok() && (iBlock < nBlocks); iBlock++)
     {
         size_t tStart = iBlock * blockSize;
@@ -277,7 +280,6 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::update(size_
             grad[t] += dyj * KjBlock[t - tStart];
         }
     }
-    // });
     return s;
 } // namespace internal
 
@@ -372,8 +374,8 @@ size_t SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateShrinkingFlags(s
     for (size_t i = 0; i < nActiveVectors; i++)
     {
         I[i] &= (~shrink);
-        const algorithmFPType yg = -y[i] * grad[i];
-        if (yg > ma)
+        const algorithmFPType gradi = grad[i];
+        if (gradi < ma)
         {
             if (alpha[i] <= 0.0 && y[i] == -1.0)
             {
@@ -386,7 +388,7 @@ size_t SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateShrinkingFlags(s
                 nShrink++;
             }
         }
-        if (yg < Ma)
+        if (gradi > Ma)
         {
             if (alpha[i] <= 0.0 && y[i] == 1.0)
             {
@@ -424,8 +426,7 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::reconstructG
     services::Status s;
     for (size_t i = nActiveVectors; i < _nVectors; i++)
     {
-        algorithmFPType yi = y[i];
-        grad[i]            = algorithmFPType(-1.0);
+        grad[i] = -y[i];
 
         for (size_t jBlock = 0; s.ok() && (jBlock < nBlocks); jBlock++)
         {
@@ -440,7 +441,7 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::reconstructG
             s                                = _cache->getRowBlock(i, jStart, (jEnd - jStart), cacheRow);
             for (size_t j = jStart; j < jEnd; j++)
             {
-                grad[i] += yi * y[j] * cacheRow[j - jStart] * alpha[j];
+                grad[i] += y[j] * cacheRow[j - jStart] * alpha[j];
             }
         }
     }

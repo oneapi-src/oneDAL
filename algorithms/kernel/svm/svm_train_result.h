@@ -24,6 +24,14 @@
 #ifndef __SVM_TRAIN_RESULT_H__
 #define __SVM_TRAIN_RESULT_H__
 
+#include "services/daal_defines.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_micro_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "service/kernel/service_utils.h"
+#include "service/kernel/service_data_utils.h"
+
 namespace daal
 {
 namespace algorithms
@@ -34,6 +42,8 @@ namespace training
 {
 namespace internal
 {
+using namespace daal::internal;
+
 /**
 * \brief Write support vectors and classification coefficients into output model
 */
@@ -100,7 +110,6 @@ protected:
             if (_alpha[i] != zero)
             {
                 svCoeff[iSV] = _y[i] * _alpha[i];
-                // svCoeff[iSV] = _alpha[i];
                 iSV++;
             }
         }
@@ -160,22 +169,27 @@ protected:
         DAAL_CHECK_BLOCK_STATUS(mtSv);
         algorithmFPType * sv = mtSv.get();
 
-        const algorithmFPType zero(0.0);
-        ReadRows<algorithmFPType, cpu> mtX;
-        for (size_t i = 0, iSV = 0; i < _nVectors; i++)
-        {
-            if (_alpha[i] == zero) continue;
-            const size_t rowIndex = _cache->getDataRowIndex(i);
-            mtX.set(const_cast<NumericTable *>(&xTable), rowIndex, 1);
-            DAAL_CHECK_BLOCK_STATUS(mtX);
-            const algorithmFPType * xi = mtX.get();
-            for (size_t j = 0; j < nFeatures; j++)
-            {
-                sv[iSV * nFeatures + j] = xi[j];
-            }
-            iSV++;
-        }
-        return s;
+        NumericTablePtr svIndicesTable = model.getSupportIndices();
+        ReadRows<int, cpu> mtSvIndices(svIndicesTable.get(), 0, nSV);
+        DAAL_CHECK_BLOCK_STATUS(mtSvIndices);
+        const int * svIndices = mtSvIndices.get();
+
+        const size_t p = xTable.getNumberOfColumns();
+
+        const size_t blockSize = 1;
+        const size_t nBlock    = nSV;
+
+        SafeStatus safeStat;
+        daal::threader_for(nBlock, nBlock, [&](const size_t iBlock) {
+            size_t iRows = svIndices[iBlock];
+            ReadRows<algorithmFPType, cpu> mtX(const_cast<NumericTable *>(&xTable), iRows, 1);
+            DAAL_CHECK_BLOCK_STATUS_THR(mtX);
+            const algorithmFPType * const dataIn = mtX.get();
+            algorithmFPType * dataOut            = sv + iBlock * p;
+            DAAL_CHECK_THR(!services::internal::daal_memcpy_s(dataOut, p * sizeof(algorithmFPType), dataIn, p * sizeof(algorithmFPType)),
+                           services::ErrorMemoryCopyFailedInternal);
+        });
+        return safeStat.detach();
     }
 
     /**
@@ -269,11 +283,8 @@ protected:
         algorithmFPType sum_yg = 0.0;
 
         const algorithmFPType fpMax = MaxVal<algorithmFPType>::get();
-        // algorithmFPType ub          = -(fpMax);
-        // algorithmFPType lb          = fpMax;
-
-        algorithmFPType ub = fpMax;
-        algorithmFPType lb = -fpMax;
+        algorithmFPType ub          = fpMax;
+        algorithmFPType lb          = -fpMax;
 
         for (size_t i = 0; i < _nVectors; i++)
         {

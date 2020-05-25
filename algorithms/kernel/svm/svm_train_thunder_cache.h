@@ -90,7 +90,6 @@ public:
                                                              const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel,
                                                              services::Status & status)
     {
-        status.clear();
         services::SharedPtr<thisType> res = services::SharedPtr<thisType>(new thisType(blockSize, lineSize, xTable, kernel));
         if (!res)
         {
@@ -107,27 +106,6 @@ public:
         return SVMCachePtr<thunder, algorithmFPType, cpu>(res);
     }
 
-    services::Status copyDataByIndices(const uint32_t * wsIndices)
-    {
-        DAAL_ITTNOTIFY_SCOPED_TASK(cache.copyDataByIndices);
-        services::Status status;
-        NumericTable & x = *_xTable.get();
-        const size_t p   = x.getNumberOfColumns();
-        // TODO: tbb::parallel_for
-        // TODO: copy CSR format in case when X - CSR
-        for (size_t i = 0; i < _blockSize; i++)
-        {
-            size_t iRows = wsIndices[i];
-            ReadRows<algorithmFPType, cpu> mtX(x, iRows, 1);
-            DAAL_CHECK_BLOCK_STATUS(mtX);
-            // DAAL_CHECK_BLOCK_STATUS_THR(mtX);
-            const algorithmFPType * const dataIn = mtX.get();
-            algorithmFPType * dataOut            = _xBlock.get() + i * p;
-            services::internal::daal_memcpy_s(dataOut, p * sizeof(algorithmFPType), dataIn, p * sizeof(algorithmFPType));
-        }
-        return status;
-    }
-
     services::Status getRowsBlock(const uint32_t * indices, algorithmFPType *& block) override
     {
         services::Status status;
@@ -138,7 +116,7 @@ public:
             indicesNew = indicesNew + _nSelectRows;
         }
 
-        DAAL_CHECK_STATUS(status, copyDataByIndices(indicesNew));
+        DAAL_CHECK_STATUS(status, _blockTask->copyDataByIndices(indicesNew, _xTable));
         DAAL_ITTNOTIFY_SCOPED_TASK(cacheCompute);
         DAAL_CHECK_STATUS(status, _kernel->computeNoThrow());
         block = _cache.get();
@@ -161,19 +139,14 @@ public:
         const size_t blockSize     = _blockSize;
         const size_t nCopyElements = _nSelectRows * _lineSize;
         const size_t blockNum      = nCopyElements / blockSize;
-
+        SafeStatus safeStat;
         daal::threader_for(blockNum, blockNum, [&](const size_t iBlock) {
             const size_t startRow = iBlock * blockSize;
-            services::internal::daal_memcpy_s(&dataOut[startRow], blockSize * sizeof(algorithmFPType), &dataIn[startRow],
-                                              blockSize * sizeof(algorithmFPType));
-
-            // int status            = internal::Service<>::serv_memcpy_s(&dataOut[startRow], blockSize * sizeof(algorithmFPType), &dataIn[startRow],
-            //                                                 blockSize * sizeof(algorithmFPType));
+            DAAL_CHECK_THR(!services::internal::daal_memcpy_s(&dataOut[startRow], blockSize * sizeof(algorithmFPType), &dataIn[startRow],
+                                                              blockSize * sizeof(algorithmFPType)),
+                           services::ErrorMemoryCopyFailedInternal);
         });
-
-        // services::internal::daal_memcpy_s(dataOut, _nSelectRows * _lineSize * sizeof(algorithmFPType), dataIn,
-        //                                   _nSelectRows * _lineSize * sizeof(algorithmFPType));
-        return services::Status();
+        return safeStat.detach();
     }
 
 protected:
@@ -192,12 +165,21 @@ protected:
         const size_t p = _xTable->getNumberOfColumns();
         DAAL_CHECK_STATUS_VAR(status);
 
-        // TODO: create CSR table in case when X - CSR
-        const NumericTablePtr xWSTable = HomogenNumericTableCPU<algorithmFPType, cpu>::create(_xBlock.get(), p, blockSize, &status);
+        SubDataTaskBase<algorithmFPType, cpu> * task = nullptr;
+        if (_xTable->getDataLayout() == NumericTableIface::csrArray)
+        {
+            task = SubDataTaskCSR<algorithmFPType, cpu>::create(_xTable, blockSize);
+        }
+        else
+        {
+            task = SubDataTaskDense<algorithmFPType, cpu>::create(p, blockSize);
+        }
+        DAAL_CHECK_MALLOC(task);
+        _blockTask = SubDataTaskBasePtr<algorithmFPType, cpu>(task);
 
         DAAL_CHECK_STATUS_VAR(status);
         _kernel->getParameter()->computationMode = kernel_function::matrixMatrix;
-        _kernel->getInput()->set(kernel_function::X, xWSTable);
+        _kernel->getInput()->set(kernel_function::X, _blockTask->getTableData());
         _kernel->getInput()->set(kernel_function::Y, _xTable);
 
         kernel_function::ResultPtr shRes(new kernel_function::Result());
@@ -209,36 +191,15 @@ protected:
 
     services::Status init(const size_t cacheSize)
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(cache.init);
-
         services::Status status;
         _cache.reset(_lineSize * _blockSize);
         DAAL_CHECK_MALLOC(_cache.get());
 
-        auto cacheTable = HomogenNumericTableCPU<algorithmFPType, cpu>::create(_cache.get(), _blockSize, _lineSize, &status);
-        // auto cacheTable = HomogenNumericTableCPU<algorithmFPType, cpu>::create(_cache.get(), _lineSize, _blockSize, &status);
+        // auto cacheTable = HomogenNumericTableCPU<algorithmFPType, cpu>::create(_cache.get(), _blockSize, _lineSize, &status);
+        auto cacheTable = HomogenNumericTableCPU<algorithmFPType, cpu>::create(_cache.get(), _lineSize, _blockSize, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        const size_t p = _xTable->getNumberOfColumns();
-        _xBlock.reset(_blockSize * p);
-        DAAL_CHECK_MALLOC(_xBlock.get());
-
-        // TODO: create CSR table in case when X - CSR
-        const NumericTablePtr xWSTable = HomogenNumericTableCPU<algorithmFPType, cpu>::create(_xBlock.get(), p, _blockSize, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-
-        _kernel->getParameter()->computationMode = kernel_function::matrixMatrix;
-        // _kernel->getInput()->set(kernel_function::X, xWSTable);
-        // _kernel->getInput()->set(kernel_function::Y, _xTable);
-
-        // Maybe store in Col Major?
-        _kernel->getInput()->set(kernel_function::X, _xTable);
-        _kernel->getInput()->set(kernel_function::Y, xWSTable);
-
-        kernel_function::ResultPtr shRes(new kernel_function::Result());
-        shRes->set(kernel_function::values, cacheTable);
-        _kernel->setResult(shRes);
-
+        DAAL_CHECK_STATUS(status, reinit(_blockSize));
         return status;
     }
 
@@ -246,8 +207,8 @@ protected:
     size_t _nSelectRows;
     bool _isComputeSubKernel;
     const NumericTablePtr & _xTable;
-    TArray<algorithmFPType, cpu> _xBlock; // [nWS x p]
-    TArray<algorithmFPType, cpu> _cache;  // [nWS x n]
+    SubDataTaskBasePtr<algorithmFPType, cpu> _blockTask;
+    TArray<algorithmFPType, cpu> _cache; // [nWS x n]
 };
 
 } // namespace internal

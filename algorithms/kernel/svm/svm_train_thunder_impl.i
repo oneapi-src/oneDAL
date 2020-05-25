@@ -17,7 +17,7 @@
 
 /*
 //++
-//  SVM training algorithm implementation
+//  SVM training algorithm implementation using Thunder method
 //--
 */
 /*
@@ -151,7 +151,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
         if (iter != 0)
         {
             DAAL_CHECK_STATUS(status, workSet.copyLastToFirst());
-            // DAAL_CHECK_STATUS(status, cachePtr->copyLastToFirst());
+            DAAL_CHECK_STATUS(status, cachePtr->copyLastToFirst());
         }
 
         DAAL_CHECK_STATUS(status, workSet.select(y, alpha, grad, C));
@@ -167,12 +167,12 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
             //     printf("%d, ", (int)wsIndices[i]);
             // }
             // printf("\n");
-            for (int i = 0; i < nWS; i++)
-            {
-                setws.insert(wsIndices[i]);
-            }
-            DAAL_ASSERT(setws.size() == nWS);
-            setws.clear();
+            // for (int i = 0; i < nWS; i++)
+            // {
+            //     setws.insert(wsIndices[i]);
+            // }
+            // DAAL_ASSERT(setws.size() == nWS);
+            // setws.clear();
         }
 
         algorithmFPType * kernelWS = nullptr;
@@ -217,11 +217,12 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
         DAAL_ITTNOTIFY_SCOPED_TASK(SMOBlockSolver.init);
 
         /* Gather data to local buffers */
-
-        const size_t blockSize = 64;
+        const size_t blockSize = services::internal::min<cpu, algorithmFPType>(nWS, 128);
         const size_t nBlocks   = nWS / blockSize;
         daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
             const size_t startRow = iBlock * blockSize;
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
             for (size_t i = startRow; i < startRow + blockSize; i++)
             {
                 const size_t wsIndex = wsIndices[i];
@@ -229,8 +230,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
                 gradLocal[i]         = grad[wsIndex];
                 oldAlphaLocal[i]     = alpha[wsIndex];
                 alphaLocal[i]        = alpha[wsIndex];
-                kdLocal[i]           = kernelWS[i + wsIndices[i] * nWS];
-                // kdLocal[i] = kernelWS[i * nVectors + wsIndices[i]];
+                // kdLocal[i]           = kernelWS[i + wsIndices[i] * nWS];
+                kdLocal[i] = kernelWS[i * nVectors + wsIndices[i]];
 
                 char Ii = free;
                 Ii |= isUpper(yLocal[i], alphaLocal[i], C) ? up : free;
@@ -238,42 +239,12 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
                 I[i] = Ii;
                 for (size_t j = 0; j < nWS; j++)
                 {
-                    // kernelLocal[i * nWS + j] = kernelWS[i * nVectors + wsIndices[j]];
-                    kernelLocal[i * nWS + j] = kernelWS[i + wsIndices[j] * nWS];
-                    // printf("%.2lf ", kernelLocal[i * nWS + j]);
+                    kernelLocal[i * nWS + j] = kernelWS[i * nVectors + wsIndices[j]];
+                    // kernelLocal[i * nWS + j] = kernelWS[i + wsIndices[j] * nWS];
                 }
-                // printf("\n");
             }
         });
-
-        // for (size_t i = 0; i < nWS; i++)
-        // {
-        //     const size_t wsIndex = wsIndices[i];
-        //     yLocal[i]            = y[wsIndex];
-        //     gradLocal[i]         = grad[wsIndex];
-        //     oldAlphaLocal[i]     = alpha[wsIndex];
-        //     alphaLocal[i]        = alpha[wsIndex];
-        //     // kdLocal[i]           = kernelWS[i + wsIndices[i] * nWS];
-        //     // kdLocal[i] = kernelWS[i * nVectors + wsIndices[i]];
-
-        //     char Ii = free;
-        //     Ii |= isUpper(yLocal[i], alphaLocal[i], C) ? up : free;
-        //     Ii |= isLower(yLocal[i], alphaLocal[i], C) ? low : free;
-        //     I[i] = Ii;
-        //     for (size_t j = 0; j < nWS; j++)
-        //     {
-        //         kernelLocal[i * nWS + j] = kernelWS[i * nVectors + wsIndices[j]];
-        //         // kernelLocal[i * nWS + j] = kernelWS[i + wsIndices[j] * nWS];
-        //         // printf("%.2lf ", kernelLocal[i * nWS + j]);
-        //     }
-        //     // printf("\n");
-        // }
     }
-    // for (size_t i = 0; i < nWS; i++)
-    // {
-    //     printf("%d ", (int)I[i]);
-    // }
-    // printf("\n");
 
     algorithmFPType delta    = algorithmFPType(0);
     algorithmFPType localEps = algorithmFPType(0);
@@ -338,6 +309,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
 
         const algorithmFPType * KBjBlock = &kernelLocal[Bj * nWS];
         /* Update gradient */
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < nWS; i++)
         {
             const algorithmFPType KiBi = KBiBlock[i];
@@ -351,6 +324,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
     }
 
     /* Compute diff and scatter to alpha vector */
+    PRAGMA_IVDEP
+    PRAGMA_VECTOR_ALWAYS
     for (size_t i = 0; i < nWS; i++)
     {
         deltaAlpha[i]       = (alphaLocal[i] - oldAlphaLocal[i]) * yLocal[i];
@@ -366,12 +341,12 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::upd
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(updateGrad);
     // TODO Parallel for col major? Need to check
-    // char trans  = 'N';
-    char trans = 'T';
-    // DAAL_INT m_ = nVectors;
-    DAAL_INT m_ = nWS;
-    DAAL_INT n_ = nVectors;
-    // DAAL_INT n_ = nWS;
+    char trans = 'N';
+    // char trans = 'T';
+    DAAL_INT m_ = nVectors;
+    // DAAL_INT m_ = nWS;
+    // DAAL_INT n_ = nVectors;
+    DAAL_INT n_ = nWS;
     algorithmFPType alpha(1.0);
     DAAL_INT lda = m_;
     DAAL_INT incx(1);
