@@ -1,6 +1,6 @@
-/* file: SVMMultiClassBoserDenseBatch.java */
+/* file: SVMMultiClassThunderCSRBatch.java */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,15 +19,15 @@
  //  Content:
  //     Java example of multi-class support vector machine (SVM) classification
  //
- //     The program trains multi-class SVM model on a supplied training data set
- //     in dense format and then performs classification of previously unseen
- //     data.
+ //     The program trains the multi-class SVM model on a supplied training
+ //     data set in compressed sparse rows (CSR) format and then performs
+ //     classification of previously unseen data.
  ////////////////////////////////////////////////////////////////////////////////
  */
 
 /**
- * <a name="DAAL-EXAMPLE-JAVA-SVMMULTICLASSBOSERDENSEBATCH">
- * @example SVMMultiClassBoserDenseBatch.java
+ * <a name="DAAL-EXAMPLE-JAVA-SVMMULTICLASSTHUNDERCSRBATCH">
+ * @example SVMMultiClassThunderCSRBatch.java
  */
 
 package com.intel.daal.examples.svm;
@@ -49,24 +49,28 @@ import com.intel.daal.data_management.data_source.FileDataSource;
 import com.intel.daal.examples.utils.Service;
 import com.intel.daal.services.DaalContext;
 
-class SVMMultiClassBoserDenseBatch {
+class SVMMultiClassThunderCSRBatch {
 
     /* Input data set parameters */
-    private static final String trainDatasetFileName = "../data/batch/svm_multi_class_train_dense.csv";
+    private static final String trainDatasetFileName     = "../data/batch/svm_multi_class_train_csr.csv";
+    private static final String trainGroundTruthFileName = "../data/batch/svm_multi_class_train_labels.csv";
 
-    private static final String testDatasetFileName  = "../data/batch/svm_multi_class_test_dense.csv";
+    private static final String testDatasetFileName     = "../data/batch/svm_multi_class_test_csr.csv";
+    private static final String testGroundTruthFileName = "../data/batch/svm_multi_class_test_labels.csv";
 
-    private static final int nFeatures     = 20;
     private static final int nClasses      = 5;
 
     private static TrainingResult   trainingResult;
     private static PredictionResult predictionResult;
-    private static NumericTable     testGroundTruth;
 
     private static com.intel.daal.algorithms.svm.training.TrainingBatch twoClassTraining;
     private static com.intel.daal.algorithms.svm.prediction.PredictionBatch twoClassPrediction;
 
     private static DaalContext context = new DaalContext();
+
+    private static com.intel.daal.algorithms.kernel_function.linear.Batch kernel =
+        new com.intel.daal.algorithms.kernel_function.linear.Batch(
+            context, Float.class, com.intel.daal.algorithms.kernel_function.linear.Method.fastCSR);
 
     public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException {
 
@@ -78,28 +82,24 @@ class SVMMultiClassBoserDenseBatch {
         context.dispose();
     }
 
-    private static void trainModel() {
+    private static void trainModel() throws java.io.IOException {
 
         twoClassTraining = new com.intel.daal.algorithms.svm.training.TrainingBatch(
-                context, Float.class, com.intel.daal.algorithms.svm.training.TrainingMethod.boser);
+                context, Float.class, com.intel.daal.algorithms.svm.training.TrainingMethod.thunder);
+        twoClassTraining.parameter.setKernel(kernel);
 
         twoClassPrediction = new com.intel.daal.algorithms.svm.prediction.PredictionBatch(
                 context, Float.class, com.intel.daal.algorithms.svm.prediction.PredictionMethod.defaultDense);
+        twoClassPrediction.parameter.setKernel(kernel);
 
         /* Retrieve the data from input data sets */
-        FileDataSource trainDataSource = new FileDataSource(context, trainDatasetFileName,
+        FileDataSource trainGroundTruthSource = new FileDataSource(context, trainGroundTruthFileName,
                 DataSource.DictionaryCreationFlag.DoDictionaryFromContext,
-                DataSource.NumericTableAllocationFlag.NotAllocateNumericTable);
+                DataSource.NumericTableAllocationFlag.DoAllocateNumericTable);
 
-        /* Create Numeric Tables for training data and labels */
-        NumericTable trainData = new HomogenNumericTable(context, Float.class, nFeatures, 0, NumericTable.AllocationFlag.DoNotAllocate);
-        NumericTable trainGroundTruth = new HomogenNumericTable(context, Float.class, 1, 0, NumericTable.AllocationFlag.DoNotAllocate);
-        MergedNumericTable mergedData = new MergedNumericTable(context);
-        mergedData.addNumericTable(trainData);
-        mergedData.addNumericTable(trainGroundTruth);
-
-        /* Retrieve the data from an input file */
-        trainDataSource.loadDataBlock(mergedData);
+        /* Load the data from the data files */
+        NumericTable trainData = Service.createSparseTable(context, trainDatasetFileName);
+        trainGroundTruthSource.loadDataBlock();
 
         /* Create an algorithm to train the multi-class SVM model */
         TrainingBatch algorithm = new TrainingBatch(context, Float.class, TrainingMethod.oneAgainstOne, nClasses);
@@ -110,27 +110,16 @@ class SVMMultiClassBoserDenseBatch {
 
         /* Pass a training data set and dependent values to the algorithm */
         algorithm.input.set(InputId.data, trainData);
-        algorithm.input.set(InputId.labels, trainGroundTruth);
+        algorithm.input.set(InputId.labels, trainGroundTruthSource.getNumericTable());
 
         /* Train the multi-class SVM model */
         trainingResult = algorithm.compute();
     }
 
-    private static void testModel() {
-
-        FileDataSource testDataSource = new FileDataSource(context, testDatasetFileName,
-                DataSource.DictionaryCreationFlag.DoDictionaryFromContext,
-                DataSource.NumericTableAllocationFlag.NotAllocateNumericTable);
+    private static void testModel() throws java.io.IOException {
 
         /* Create Numeric Tables for testing data and labels */
-        NumericTable testData = new HomogenNumericTable(context, Float.class, nFeatures, 0, NumericTable.AllocationFlag.DoNotAllocate);
-        testGroundTruth = new HomogenNumericTable(context, Float.class, 1, 0, NumericTable.AllocationFlag.DoNotAllocate);
-        MergedNumericTable mergedData = new MergedNumericTable(context);
-        mergedData.addNumericTable(testData);
-        mergedData.addNumericTable(testGroundTruth);
-
-        /* Retrieve the data from an input file */
-        testDataSource.loadDataBlock(mergedData);
+        NumericTable testData = Service.createSparseTable(context, testDatasetFileName);
 
         /* Create a numeric table to store the prediction results */
         PredictionBatch algorithm = new PredictionBatch(context, Float.class, PredictionMethod.multiClassClassifierWu, nClasses);
@@ -149,6 +138,13 @@ class SVMMultiClassBoserDenseBatch {
     }
 
     private static void printResults() {
+
+        FileDataSource testGroundTruthSource = new FileDataSource(context, testGroundTruthFileName,
+                DataSource.DictionaryCreationFlag.DoDictionaryFromContext,
+                DataSource.NumericTableAllocationFlag.DoAllocateNumericTable);
+        testGroundTruthSource.loadDataBlock();
+
+        NumericTable testGroundTruth = testGroundTruthSource.getNumericTable();
         NumericTable predictionResults = predictionResult.get(PredictionResultId.prediction);
         Service.printClassificationResult(testGroundTruth, predictionResults, "Ground truth", "Classification results",
                 "Multi-class SVM classification sample program results (first 20 observations):", 20);

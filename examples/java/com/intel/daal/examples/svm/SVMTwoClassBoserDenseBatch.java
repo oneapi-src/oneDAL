@@ -1,4 +1,4 @@
-/* file: SVMMultiClassBoserDenseBatch.java */
+/* file: SVMTwoClassBoserDenseBatch.java */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -17,30 +17,30 @@
 
 /*
  //  Content:
- //     Java example of multi-class support vector machine (SVM) classification
+ //     Java example of two-class support vector machine (SVM) classification
  //
- //     The program trains multi-class SVM model on a supplied training data set
+ //     The program trains the SVM model on a supplied training data set
  //     in dense format and then performs classification of previously unseen
  //     data.
  ////////////////////////////////////////////////////////////////////////////////
  */
 
 /**
- * <a name="DAAL-EXAMPLE-JAVA-SVMMULTICLASSBOSERDENSEBATCH">
- * @example SVMMultiClassBoserDenseBatch.java
+ * <a name="DAAL-EXAMPLE-JAVA-SVMTWOCLASSBOSERDENSEBATCH">
+ * @example SVMTwoClassBoserDenseBatch.java
  */
 
 package com.intel.daal.examples.svm;
 
-import com.intel.daal.algorithms.classifier.prediction.ModelInputId;
-import com.intel.daal.algorithms.classifier.prediction.NumericTableInputId;
-import com.intel.daal.algorithms.classifier.prediction.PredictionResult;
-import com.intel.daal.algorithms.classifier.prediction.PredictionResultId;
+import com.intel.daal.algorithms.classifier.prediction.*;
 import com.intel.daal.algorithms.classifier.training.InputId;
 import com.intel.daal.algorithms.classifier.training.TrainingResultId;
-import com.intel.daal.algorithms.multi_class_classifier.Model;
-import com.intel.daal.algorithms.multi_class_classifier.prediction.*;
-import com.intel.daal.algorithms.multi_class_classifier.training.*;
+import com.intel.daal.algorithms.svm.Model;
+import com.intel.daal.algorithms.svm.prediction.PredictionBatch;
+import com.intel.daal.algorithms.svm.prediction.PredictionMethod;
+import com.intel.daal.algorithms.svm.training.TrainingBatch;
+import com.intel.daal.algorithms.svm.training.TrainingMethod;
+import com.intel.daal.algorithms.svm.training.TrainingResult;
 import com.intel.daal.data_management.data.NumericTable;
 import com.intel.daal.data_management.data.HomogenNumericTable;
 import com.intel.daal.data_management.data.MergedNumericTable;
@@ -49,22 +49,18 @@ import com.intel.daal.data_management.data_source.FileDataSource;
 import com.intel.daal.examples.utils.Service;
 import com.intel.daal.services.DaalContext;
 
-class SVMMultiClassBoserDenseBatch {
+class SVMTwoClassBoserDenseBatch {
 
     /* Input data set parameters */
-    private static final String trainDatasetFileName = "../data/batch/svm_multi_class_train_dense.csv";
+    private static final String trainDatasetFileName     = "../data/batch/svm_two_class_train_dense.csv";
 
-    private static final String testDatasetFileName  = "../data/batch/svm_multi_class_test_dense.csv";
+    private static final String testDatasetFileName     = "../data/batch/svm_two_class_test_dense.csv";
 
     private static final int nFeatures     = 20;
-    private static final int nClasses      = 5;
 
     private static TrainingResult   trainingResult;
     private static PredictionResult predictionResult;
     private static NumericTable     testGroundTruth;
-
-    private static com.intel.daal.algorithms.svm.training.TrainingBatch twoClassTraining;
-    private static com.intel.daal.algorithms.svm.prediction.PredictionBatch twoClassPrediction;
 
     private static DaalContext context = new DaalContext();
 
@@ -79,13 +75,6 @@ class SVMMultiClassBoserDenseBatch {
     }
 
     private static void trainModel() {
-
-        twoClassTraining = new com.intel.daal.algorithms.svm.training.TrainingBatch(
-                context, Float.class, com.intel.daal.algorithms.svm.training.TrainingMethod.boser);
-
-        twoClassPrediction = new com.intel.daal.algorithms.svm.prediction.PredictionBatch(
-                context, Float.class, com.intel.daal.algorithms.svm.prediction.PredictionMethod.defaultDense);
-
         /* Retrieve the data from input data sets */
         FileDataSource trainDataSource = new FileDataSource(context, trainDatasetFileName,
                 DataSource.DictionaryCreationFlag.DoDictionaryFromContext,
@@ -101,23 +90,23 @@ class SVMMultiClassBoserDenseBatch {
         /* Retrieve the data from an input file */
         trainDataSource.loadDataBlock(mergedData);
 
-        /* Create an algorithm to train the multi-class SVM model */
-        TrainingBatch algorithm = new TrainingBatch(context, Float.class, TrainingMethod.oneAgainstOne, nClasses);
+        /* Create algorithm objects to train the two-class SVM model */
+        TrainingBatch algorithm = new TrainingBatch(context, Float.class, TrainingMethod.boser);
 
-        /* Set parameters for the multi-class SVM algorithm */
-        algorithm.parameter.setTraining(twoClassTraining);
-        algorithm.parameter.setPrediction(twoClassPrediction);
+        /* Set parameters for the two-class SVM algorithm */
+        algorithm.parameter.setCacheSize(40000000);
+        algorithm.parameter
+                .setKernel(new com.intel.daal.algorithms.kernel_function.linear.Batch(context, Float.class));
 
         /* Pass a training data set and dependent values to the algorithm */
         algorithm.input.set(InputId.data, trainData);
         algorithm.input.set(InputId.labels, trainGroundTruth);
 
-        /* Train the multi-class SVM model */
+        /* Train the two-class SVM model */
         trainingResult = algorithm.compute();
     }
 
     private static void testModel() {
-
         FileDataSource testDataSource = new FileDataSource(context, testDatasetFileName,
                 DataSource.DictionaryCreationFlag.DoDictionaryFromContext,
                 DataSource.NumericTableAllocationFlag.NotAllocateNumericTable);
@@ -132,11 +121,11 @@ class SVMMultiClassBoserDenseBatch {
         /* Retrieve the data from an input file */
         testDataSource.loadDataBlock(mergedData);
 
-        /* Create a numeric table to store the prediction results */
-        PredictionBatch algorithm = new PredictionBatch(context, Float.class, PredictionMethod.multiClassClassifierWu, nClasses);
+        /* Create algorithm objects to predict two-class SVM values with the defaultDense method */
+        PredictionBatch algorithm = new PredictionBatch(context, Float.class, PredictionMethod.defaultDense);
 
-        algorithm.parameter.setTraining(twoClassTraining);
-        algorithm.parameter.setPrediction(twoClassPrediction);
+        algorithm.parameter
+                .setKernel(new com.intel.daal.algorithms.kernel_function.linear.Batch(context, Float.class));
 
         Model model = trainingResult.get(TrainingResultId.model);
 
@@ -151,7 +140,7 @@ class SVMMultiClassBoserDenseBatch {
     private static void printResults() {
         NumericTable predictionResults = predictionResult.get(PredictionResultId.prediction);
         Service.printClassificationResult(testGroundTruth, predictionResults, "Ground truth", "Classification results",
-                "Multi-class SVM classification sample program results (first 20 observations):", 20);
+                "SVM classification results (first 20 observations):", 20);
         System.out.println("");
     }
 }

@@ -47,8 +47,10 @@ public final class TrainingMethod {
         return _value;
     }
 
-    private static final int BoserValue = 0;
+    @Native private static final int boserValue = 0;
+    @Native private static final int thunderValue         = 1;
 
-    public static final TrainingMethod boser = new TrainingMethod(BoserValue); /*!< Method proposed by Boser et al. */
+    public static final TrainingMethod boser   = new TrainingMethod(boserValue); /*!< Method proposed by Boser et al.   */
+    public static final TrainingMethod thunder = new TrainingMethod(boserValue); /*!< Method proposed by Thunder et al. */
 }
 /** @} */
