@@ -34,7 +34,7 @@ namespace internal
 {
 typedef daal::data_management::NumericTable::StorageLayout NTLayout;
 
-const size_t BLOCK_CONST = 2048;
+const size_t BLOCK_CONST      = 2048;
 const size_t THREADING_BORDER = 8388608;
 
 template <typename Func>
@@ -47,9 +47,8 @@ void runBlocks(const bool inParallel, const size_t nBlocks, Func func)
 }
 
 template <typename DataType, typename IdxType, daal::CpuType cpu>
-services::Status splitColumn(NumericTable & inputTable, NumericTable & trainTable, NumericTable & testTable,
-                             const IdxType * trainIdx, const IdxType * testIdx,
-                             const size_t nTrainRows, const size_t nTestRows, const size_t iCol, const size_t nThreads)
+services::Status splitColumn(NumericTable & inputTable, NumericTable & trainTable, NumericTable & testTable, const IdxType * trainIdx,
+                             const IdxType * testIdx, const size_t nTrainRows, const size_t nTestRows, const size_t iCol, const size_t nThreads)
 {
     services::Status s;
     const size_t BLOCK_SIZE = BLOCK_CONST;
@@ -59,63 +58,59 @@ services::Status splitColumn(NumericTable & inputTable, NumericTable & trainTabl
     trainTable.getBlockOfColumnValues(iCol, 0, nTrainRows, readWrite, trainBlock);
     testTable.getBlockOfColumnValues(iCol, 0, nTestRows, readWrite, testBlock);
     const DataType * origDataPtr = origBlock.getBlockPtr();
-    DataType * trainDataPtr = trainBlock.getBlockPtr();
-    DataType * testDataPtr = testBlock.getBlockPtr();
+    DataType * trainDataPtr      = trainBlock.getBlockPtr();
+    DataType * testDataPtr       = testBlock.getBlockPtr();
     DAAL_CHECK_MALLOC(origDataPtr);
     DAAL_CHECK_MALLOC(trainDataPtr);
     DAAL_CHECK_MALLOC(testDataPtr);
 
-    if ( nTrainRows > THREADING_BORDER && nThreads > 1 )
+    if (nTrainRows > THREADING_BORDER && nThreads > 1)
     {
         const size_t nTrainBlocks = daal::services::internal::max<cpu, size_t>(nTrainRows / BLOCK_SIZE, 1);
-        const int nTrainSurplus = nTrainRows - BLOCK_SIZE * nTrainBlocks;
+        const int nTrainSurplus   = nTrainRows - BLOCK_SIZE * nTrainBlocks;
 
         daal::threader_for(nTrainBlocks, nTrainBlocks, [&](size_t iBlock) {
             const size_t start = iBlock * BLOCK_SIZE;
             const size_t end   = iBlock == nTrainBlocks - 1 ? start + BLOCK_SIZE + nTrainSurplus : start + BLOCK_SIZE;
 
-            for (size_t i = start; i < end; ++i)
-                trainDataPtr[i] = origDataPtr[trainIdx[i]];
+            for (size_t i = start; i < end; ++i) trainDataPtr[i] = origDataPtr[trainIdx[i]];
         });
     }
     else
     {
-        for (size_t i = 0; i < nTrainRows; ++i)
-            trainDataPtr[i] = origDataPtr[trainIdx[i]];
+        for (size_t i = 0; i < nTrainRows; ++i) trainDataPtr[i] = origDataPtr[trainIdx[i]];
     }
 
-    if ( nTestRows > THREADING_BORDER && nThreads > 1 )
+    if (nTestRows > THREADING_BORDER && nThreads > 1)
     {
         const size_t nTestBlocks = daal::services::internal::max<cpu, size_t>(nTestRows / BLOCK_SIZE, 1);
-        const int nTestSurplus = nTestRows - BLOCK_SIZE * nTestBlocks;
+        const int nTestSurplus   = nTestRows - BLOCK_SIZE * nTestBlocks;
 
         daal::threader_for(nTestBlocks, nTestBlocks, [&](size_t iBlock) {
             const size_t start = iBlock * BLOCK_SIZE;
             const size_t end   = iBlock == nTestBlocks - 1 ? start + BLOCK_SIZE + nTestSurplus : start + BLOCK_SIZE;
 
-            for (size_t i = start; i < end; ++i)
-                testDataPtr[i] = origDataPtr[testIdx[i]];
+            for (size_t i = start; i < end; ++i) testDataPtr[i] = origDataPtr[testIdx[i]];
         });
     }
     else
     {
-        for (size_t i = 0; i < nTestRows; ++i)
-            testDataPtr[i] = origDataPtr[testIdx[i]];
+        for (size_t i = 0; i < nTestRows; ++i) testDataPtr[i] = origDataPtr[testIdx[i]];
     }
 
     return s;
 }
 
 template <typename DataType, typename IdxType, daal::CpuType cpu>
-services::Status assignRows(const DataType * origDataPtr, NumericTable & dataTable, NumericTable & idxTable,
-                            const size_t startRow, const size_t nRows, const size_t nColumns)
+services::Status assignRows(const DataType * origDataPtr, NumericTable & dataTable, NumericTable & idxTable, const size_t startRow,
+                            const size_t nRows, const size_t nColumns)
 {
     services::Status s;
     BlockDescriptor<DataType> dataBlock;
     BlockDescriptor<IdxType> idxBlock;
     dataTable.getBlockOfRows(startRow, startRow + nRows, readWrite, dataBlock);
     idxTable.getBlockOfColumnValues(0, startRow, nRows, readOnly, idxBlock);
-    DataType * dataPtr = dataBlock.getBlockPtr();
+    DataType * dataPtr     = dataBlock.getBlockPtr();
     const IdxType * idxPtr = idxBlock.getBlockPtr();
     DAAL_CHECK_MALLOC(dataPtr);
     DAAL_CHECK_MALLOC(idxPtr);
@@ -125,16 +120,14 @@ services::Status assignRows(const DataType * origDataPtr, NumericTable & dataTab
         const IdxType idx = idxPtr[i];
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t j = 0; j < nColumns; ++j)
-            dataPtr[i * nColumns + j] = origDataPtr[idxPtr[i] * nColumns + j];
+        for (size_t j = 0; j < nColumns; ++j) dataPtr[i * nColumns + j] = origDataPtr[idxPtr[i] * nColumns + j];
     }
     return s;
 }
 
 template <typename DataType, typename IdxType, daal::CpuType cpu>
-services::Status splitRows(NumericTable & inputTable, NumericTable & trainTable, NumericTable & testTable,
-                           NumericTable & trainIdxTable, NumericTable & testIdxTable,
-                           const size_t nTrainRows, const size_t nTestRows, const size_t nColumns, const size_t nThreads)
+services::Status splitRows(NumericTable & inputTable, NumericTable & trainTable, NumericTable & testTable, NumericTable & trainIdxTable,
+                           NumericTable & testIdxTable, const size_t nTrainRows, const size_t nTestRows, const size_t nColumns, const size_t nThreads)
 {
     services::Status s;
     const size_t BLOCK_SIZE = daal::services::internal::max<cpu, size_t>(BLOCK_CONST / nColumns, 1);
@@ -143,10 +136,10 @@ services::Status splitRows(NumericTable & inputTable, NumericTable & trainTable,
     const DataType * origDataPtr = origBlock.getBlockPtr();
     DAAL_CHECK_MALLOC(origDataPtr);
 
-    if ( nTrainRows * nColumns > THREADING_BORDER && nThreads > 1 )
+    if (nTrainRows * nColumns > THREADING_BORDER && nThreads > 1)
     {
         const size_t nTrainBlocks = daal::services::internal::max<cpu, size_t>(nTrainRows / BLOCK_SIZE, 1);
-        const int nTrainSurplus = nTrainRows - BLOCK_SIZE * nTrainBlocks;
+        const int nTrainSurplus   = nTrainRows - BLOCK_SIZE * nTrainBlocks;
 
         daal::threader_for(nTrainBlocks, nTrainBlocks, [&](size_t iBlock) {
             const size_t start = iBlock * BLOCK_SIZE;
@@ -160,10 +153,10 @@ services::Status splitRows(NumericTable & inputTable, NumericTable & trainTable,
         s |= assignRows<DataType, IdxType, cpu>(origDataPtr, trainTable, trainIdxTable, 0, nTrainRows, nColumns);
     }
 
-    if ( nTestRows * nColumns > THREADING_BORDER && nThreads > 1 )
+    if (nTestRows * nColumns > THREADING_BORDER && nThreads > 1)
     {
         const size_t nTestBlocks = daal::services::internal::max<cpu, size_t>(nTestRows / BLOCK_SIZE, 1);
-        const int nTestSurplus = nTestRows - BLOCK_SIZE * nTestBlocks;
+        const int nTestSurplus   = nTestRows - BLOCK_SIZE * nTestBlocks;
 
         daal::threader_for(nTestBlocks, nTestBlocks, [&](size_t iBlock) {
             const size_t start = iBlock * BLOCK_SIZE;
@@ -181,15 +174,15 @@ services::Status splitRows(NumericTable & inputTable, NumericTable & trainTable,
 }
 
 template <typename IdxType, daal::CpuType cpu>
-services::Status trainTestSplitImpl(NumericTable & inputTable, NumericTable & trainTable, NumericTable & testTable,
-                                    NumericTable & trainIdxTable, NumericTable & testIdxTable)
+services::Status trainTestSplitImpl(NumericTable & inputTable, NumericTable & trainTable, NumericTable & testTable, NumericTable & trainIdxTable,
+                                    NumericTable & testIdxTable)
 {
     services::Status s;
-    const size_t nThreads = threader_get_threads_number();
-    const NTLayout layout  = inputTable.getDataLayout();
-    const size_t nColumns = trainTable.getNumberOfColumns();
+    const size_t nThreads   = threader_get_threads_number();
+    const NTLayout layout   = inputTable.getDataLayout();
+    const size_t nColumns   = trainTable.getNumberOfColumns();
     const size_t nTrainRows = trainTable.getNumberOfRows();
-    const size_t nTestRows = testTable.getNumberOfRows();
+    const size_t nTestRows  = testTable.getNumberOfRows();
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nTrainRows + nTestRows, nColumns);
 
     NumericTableDictionaryPtr tableFeaturesDict = inputTable.getDictionarySharedPtr();
@@ -200,22 +193,22 @@ services::Status trainTestSplitImpl(NumericTable & inputTable, NumericTable & tr
         trainIdxTable.getBlockOfColumnValues(0, 0, nTrainRows, readOnly, trainIdxBlock);
         testIdxTable.getBlockOfColumnValues(0, 0, nTestRows, readOnly, testIdxBlock);
         const IdxType * trainIdx = trainIdxBlock.getBlockPtr();
-        const IdxType * testIdx = testIdxBlock.getBlockPtr();
+        const IdxType * testIdx  = testIdxBlock.getBlockPtr();
         DAAL_CHECK_MALLOC(trainIdx);
         DAAL_CHECK_MALLOC(testIdx);
 
         runBlocks(nColumns > 1 && nColumns * (nTrainRows + nTestRows) > THREADING_BORDER && nThreads > 1, nColumns, [&](size_t iCol) {
             switch ((*tableFeaturesDict)[iCol].getIndexType())
             {
-                case daal::data_management::features::IndexNumType::DAAL_INT32_S:
-                    s |= splitColumn<int, IdxType, cpu>(inputTable, trainTable, testTable, trainIdx, testIdx, nTrainRows, nTestRows, iCol, nThreads);
-                    break;
-                case daal::data_management::features::IndexNumType::DAAL_FLOAT32:
-                    s |= splitColumn<float, IdxType, cpu>(inputTable, trainTable, testTable, trainIdx, testIdx, nTrainRows, nTestRows, iCol, nThreads);
-                    break;
-                case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
-                    s |= splitColumn<double, IdxType, cpu>(inputTable, trainTable, testTable, trainIdx, testIdx, nTrainRows, nTestRows, iCol, nThreads);
-                    break;
+            case daal::data_management::features::IndexNumType::DAAL_INT32_S:
+                s |= splitColumn<int, IdxType, cpu>(inputTable, trainTable, testTable, trainIdx, testIdx, nTrainRows, nTestRows, iCol, nThreads);
+                break;
+            case daal::data_management::features::IndexNumType::DAAL_FLOAT32:
+                s |= splitColumn<float, IdxType, cpu>(inputTable, trainTable, testTable, trainIdx, testIdx, nTrainRows, nTestRows, iCol, nThreads);
+                break;
+            case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
+                s |= splitColumn<double, IdxType, cpu>(inputTable, trainTable, testTable, trainIdx, testIdx, nTrainRows, nTestRows, iCol, nThreads);
+                break;
             }
         });
     }
@@ -223,23 +216,26 @@ services::Status trainTestSplitImpl(NumericTable & inputTable, NumericTable & tr
     {
         switch ((*tableFeaturesDict)[0].getIndexType())
         {
-            case daal::data_management::features::IndexNumType::DAAL_INT32_S:
-                s |= splitRows<int, IdxType, cpu>(inputTable, trainTable, testTable, trainIdxTable, testIdxTable, nTrainRows, nTestRows, nColumns, nThreads);
-                break;
-            case daal::data_management::features::IndexNumType::DAAL_FLOAT32:
-                s |= splitRows<float, IdxType, cpu>(inputTable, trainTable, testTable, trainIdxTable, testIdxTable, nTrainRows, nTestRows, nColumns, nThreads);
-                break;
-            case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
-                s |= splitRows<double, IdxType, cpu>(inputTable, trainTable, testTable, trainIdxTable, testIdxTable, nTrainRows, nTestRows, nColumns, nThreads);
-                break;
+        case daal::data_management::features::IndexNumType::DAAL_INT32_S:
+            s |= splitRows<int, IdxType, cpu>(inputTable, trainTable, testTable, trainIdxTable, testIdxTable, nTrainRows, nTestRows, nColumns,
+                                              nThreads);
+            break;
+        case daal::data_management::features::IndexNumType::DAAL_FLOAT32:
+            s |= splitRows<float, IdxType, cpu>(inputTable, trainTable, testTable, trainIdxTable, testIdxTable, nTrainRows, nTestRows, nColumns,
+                                                nThreads);
+            break;
+        case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
+            s |= splitRows<double, IdxType, cpu>(inputTable, trainTable, testTable, trainIdxTable, testIdxTable, nTrainRows, nTestRows, nColumns,
+                                                 nThreads);
+            break;
         }
     }
     return s;
 }
 
 template <typename IdxType>
-DAAL_EXPORT void trainTestSplit(NumericTable & inputTable, NumericTable & trainTable, NumericTable & testTable,
-                                NumericTable & trainIdxTable, NumericTable & testIdxTable)
+DAAL_EXPORT void trainTestSplit(NumericTable & inputTable, NumericTable & trainTable, NumericTable & testTable, NumericTable & trainIdxTable,
+                                NumericTable & testIdxTable)
 {
 #define DAAL_TTS(cpuId, ...) trainTestSplitImpl<IdxType, cpuId>(__VA_ARGS__);
 
