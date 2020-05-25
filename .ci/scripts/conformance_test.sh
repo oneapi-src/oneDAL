@@ -22,7 +22,7 @@ conda install -y -c intel mpich tbb-devel numpy pytest scikit-learn
 conda remove -y daal4py --force
 conda remove -y daal --force
 export DAALROOT=${BUILD_DIR}/daal/latest
-conda install $HOME/miniconda/envs/CB/conda-bld/broken/*.tar.bz2
+conda install $HOME/miniconda/envs/CB/conda-bld/linux-64/daal4py*.tar.bz2
 
 cd .ci/scripts/conformance-scripts/
 python run_tests.py
