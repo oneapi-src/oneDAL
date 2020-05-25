@@ -6,7 +6,7 @@ while [[ $# -gt 0 ]]; do
         --alg-name)
         ALG_NAME="$2"
         ;;
-        --scikit-version)
+        --sklearn_version)
         SKLEARN_VER="$2"
         ;;
         *)
