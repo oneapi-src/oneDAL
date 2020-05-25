@@ -20,6 +20,7 @@
 
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "externals/service_ittnotify.h"
+#include "service/kernel/service_utils.h"
 
 namespace daal
 {
@@ -32,6 +33,7 @@ namespace training
 namespace internal
 {
 using namespace daal::services::internal;
+using namespace daal::internal;
 
 enum SVMVectorStatus
 {
@@ -66,6 +68,99 @@ private:
                                                    const algorithmFPType GMin, const algorithmFPType Kii, const algorithmFPType tau, int & Bj,
                                                    algorithmFPType & GMax, algorithmFPType & GMax2, algorithmFPType & delta);
 };
+
+template <typename algorithmFPType, CpuType cpu>
+class SubDataTaskBase
+{
+public:
+    DAAL_NEW_DELETE();
+    virtual ~SubDataTaskBase() {}
+
+    virtual services::Status copyDataByIndices(const uint32_t * wsIndices, const NumericTablePtr & xTable) = 0;
+
+    NumericTablePtr getTableData() const { return _dataTable; }
+
+protected:
+    SubDataTaskBase(const size_t nSubsetVectors, const size_t dataSize) : _nSubsetVectors(nSubsetVectors), _data(dataSize) {}
+    SubDataTaskBase(const size_t nSubsetVectors) : _nSubsetVectors(nSubsetVectors) {}
+
+    bool isValid() const { return _data.get(); }
+
+protected:
+    size_t _nSubsetVectors;
+    TArray<algorithmFPType, cpu> _data;
+    NumericTablePtr _dataTable;
+};
+
+template <typename algorithmFPType, CpuType cpu>
+class SubDataTaskCSR : public SubDataTaskBase<algorithmFPType, cpu>
+{
+public:
+    using super = SubDataTaskBase<algorithmFPType, cpu>;
+    static SubDataTaskCSR * create(const NumericTablePtr & xTable, const size_t nSubsetVectors)
+    {
+        auto val = new SubDataTaskCSR(xTable, nSubsetVectors);
+        if (val && val->isValid()) return val;
+        delete val;
+        val = nullptr;
+        return nullptr;
+    }
+
+private:
+    bool isValid() const { return super::isValid() && _colIndices.get() && this->_dataTable.get(); }
+
+    SubDataTaskCSR(const NumericTablePtr & xTable, const size_t nSubsetVectors) : super(nSubsetVectors)
+    {
+        const size_t p                  = xTable->getNumberOfColumns();
+        const size_t nRows              = xTable->getNumberOfRows();
+        CSRNumericTableIface * csrIface = dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(xTable.get()));
+        ReadRowsCSR<algorithmFPType, cpu> mtX(csrIface, 0, nRows);
+        const size_t * rowOffsets = mtX.rows();
+        const size_t maxDataSize  = rowOffsets[nRows] - rowOffsets[0];
+        this->_data.reset(maxDataSize);
+        _colIndices.reset(maxDataSize + nSubsetVectors + 1);
+        _rowOffsets = _colIndices.get() + maxDataSize;
+        if (this->_data.get())
+            this->_dataTable = CSRNumericTable::create(this->_data.get(), _colIndices.get(), _rowOffsets, p, nSubsetVectors,
+                                                       CSRNumericTableIface::CSRIndexing::oneBased);
+    }
+
+    virtual services::Status copyDataByIndices(const uint32_t * wsIndices, const NumericTablePtr & xTable);
+
+private:
+    TArray<size_t, cpu> _colIndices;
+    size_t * _rowOffsets;
+};
+
+template <typename algorithmFPType, CpuType cpu>
+class SubDataTaskDense : public SubDataTaskBase<algorithmFPType, cpu>
+{
+public:
+    using super = SubDataTaskBase<algorithmFPType, cpu>;
+    static SubDataTaskDense * create(const size_t nFeatures, const size_t nSubsetVectors)
+    {
+        auto val = new SubDataTaskDense(nFeatures, nSubsetVectors);
+        if (val && val->isValid()) return val;
+        delete val;
+        val = nullptr;
+        return nullptr;
+    }
+
+    virtual services::Status copyDataByIndices(const uint32_t * wsIndices, const NumericTablePtr & xTable);
+
+private:
+    bool isValid() const { return super::isValid() && this->_dataTable.get(); }
+
+    SubDataTaskDense(const size_t nFeatures, const size_t nSubsetVectors) : super(nSubsetVectors, nFeatures * nSubsetVectors)
+    {
+        services::Status status;
+        if (this->_data.get())
+            this->_dataTable = HomogenNumericTableCPU<algorithmFPType, cpu>::create(this->_data.get(), nFeatures, nSubsetVectors, &status);
+    }
+};
+
+template <typename algorithmFPType, CpuType cpu>
+using SubDataTaskBasePtr = services::SharedPtr<SubDataTaskBase<algorithmFPType, cpu> >;
 
 } // namespace internal
 } // namespace training
