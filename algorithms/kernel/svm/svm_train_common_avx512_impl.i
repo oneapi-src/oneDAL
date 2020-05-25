@@ -1,4 +1,4 @@
-/* file: svm_train_boser_avx512_impl.i */
+/* file: svm_train_common_avx512_impl.i */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
