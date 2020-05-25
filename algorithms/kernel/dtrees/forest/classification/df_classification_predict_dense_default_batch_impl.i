@@ -841,7 +841,7 @@ Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t 
                 {
                     prob_pd = _mm512_add_pd(prob_pd, _mm512_loadu_pd(prob_ptr[iTree + i] + displaces[i] * _nClasses + iBlock * 8));
                 }
-                _mm512_store_pd(prob_d + iBlock * 8, _mm512_add_pd(prob_pd, _mm512_load_pd(prob_d + iBlock * 8) ));
+                _mm512_store_pd(prob_d + iBlock * 8, _mm512_add_pd(prob_pd, _mm512_load_pd(prob_d + iBlock * 8)));
                 prob_pd = _mm512_set1_pd(0);
             }
             if (tailSize != 0)
