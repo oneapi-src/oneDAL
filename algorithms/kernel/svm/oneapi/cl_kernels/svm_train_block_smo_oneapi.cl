@@ -110,8 +110,6 @@ DECLARE_SOURCE_DAAL(
         uint Bi = 0;
         uint Bj = 0;
 
-        algorithmFPType ma;
-
         kd[i] = kernelWsRows[i * nVectors + wsIndex];
         barrier(CLK_LOCAL_MEM_FENCE);
 
@@ -126,8 +124,8 @@ DECLARE_SOURCE_DAAL(
 
             /* Find i index of the working set (Bi) */
             reduceArgMax(objFunc, localCache, &maxValInd);
-            Bi = maxValInd.index;
-            ma = -maxValInd.value;
+            Bi                       = maxValInd.index;
+            const algorithmFPType ma = -maxValInd.value;
 
             /* maxgrad(alpha) = max(grad[i]): i belongs to I_low (alpha) */
             objFunc[i] = isLower(alphai, yi, C) ? gradi : MIN_FLT;
@@ -196,26 +194,18 @@ DECLARE_SOURCE_DAAL(
             barrier(CLK_LOCAL_MEM_FENCE);
 
             const algorithmFPType delta = min(deltaBi, deltaBj);
-            if (i == 0)
-            {
-                // printf(">> iter %lu: Bi %lu Bj %lu GMin %.2lf GMax2 %.2lf GMax %.2lf localDiff %.2lf delta %.2f\n", iter, Bi, Bj, ma, maxGrad,
-                // maxValInd.value, localDiff, delta);
-            }
 
             if (i == Bi)
             {
                 alphai = alphai + yi * delta;
-                // printf("alphaBi %lf;\n", alphai);
             }
             if (i == Bj)
             {
                 alphai = alphai - yi * delta;
-                // printf("alphaBj %lf;\n", alphai);
             }
 
             /* Update gradient */
             gradi = gradi + delta * (KiBi - KiBj);
-            // printf("%d: %.2lf\n", i, gradi);
         }
         alpha[wsIndex] = alphai;
         deltaalpha[i]  = (alphai - oldalphai) * yi;

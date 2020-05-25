@@ -113,7 +113,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
     TaskWorkingSet<algorithmFPType, cpu> workSet(nVectors, maxBlockSize);
     DAAL_CHECK_STATUS(status, workSet.init());
     const size_t nWS = workSet.getSize();
-    printf(">> nWS %lu nVectors %lu\n", nWS, nVectors);
+    printf(">> nWS %d nVectors %d\n", (int)nWS, (int)nVectors);
     const size_t innerMaxIterations(nWS * cInnerIterations);
 
     algorithmFPType diff     = algorithmFPType(0);
@@ -187,7 +187,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
         diffPrev = diff;
     }
 
-    printf(">> Iter: %lu\n", iter);
+    printf(">> Iter: %d\n", (int)iter);
 
     SaveResultTask<algorithmFPType, cpu> saveResult(nVectors, y, alpha, grad, cachePtr.get());
     DAAL_CHECK_STATUS(status, saveResult.compute(*xTable, *static_cast<Model *>(r), C));

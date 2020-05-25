@@ -104,7 +104,7 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::compute(cons
             if (!findMaximumViolatingPair(nActiveVectors, tau, Bi, Bj, delta, ma, Ma, curEps, s)) break;
             s = update(nActiveVectors, C, Bi, Bj, delta);
         }
-        printf(">> n_iter[not Shrinking] %lu\n", iter);
+        printf(">> n_iter[not Shrinking] %d\n", (int)iter);
         return s;
     }
 
@@ -146,8 +146,6 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::compute(cons
     }
     if (status) return status;
     if (nActiveVectors < _nVectors) s = reconstructGradient(nActiveVectors);
-    printf(">> n_iter[do Shrinking] %lu\n", iter);
-
     return s;
 }
 

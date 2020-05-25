@@ -66,7 +66,7 @@ public:
         {
             if (_alpha[i] > zero) nSV++;
         }
-        printf(">> nSV %lu\n", nSV);
+        printf(">> nSV %d\n", (int)nSV);
 
         model.setNFeatures(xTable.getNumberOfColumns());
         services::Status s;
