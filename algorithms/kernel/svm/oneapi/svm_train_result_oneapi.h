@@ -102,7 +102,6 @@ protected:
         NumericTablePtr svCoeffTable = model.getClassificationCoefficients();
         DAAL_CHECK_STATUS(status, svCoeffTable->resize(nSV));
         if (nSV == 0) return status;
-        printf(">> nSV %lu\n", nSV);
 
         BlockDescriptor<algorithmFPType> svCoeffBlock;
         DAAL_CHECK_STATUS(status, svCoeffTable->getBlockOfRows(0, nSV, ReadWriteMode::writeOnly, svCoeffBlock));
@@ -193,7 +192,6 @@ protected:
             UniversalBuffer sumU = reduceRes.reduceRes;
             auto sumHost         = sumU.get<algorithmFPType>().toHost(data_management::readOnly, &status);
             bias                 = -*sumHost / algorithmFPType(nFree);
-            printf(">> 1bias %.3lf\n", bias);
         }
         else
         {
@@ -221,7 +219,6 @@ protected:
             }
 
             bias = -0.5 * (ub + lb);
-            printf(">> 2bias %.3lf\n", bias);
         }
 
         return status;
