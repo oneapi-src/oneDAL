@@ -234,8 +234,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
                 kdLocal[i] = kernelWS[i * nVectors + wsIndices[i]];
 
                 char Ii = free;
-                Ii |= isUpper(yLocal[i], alphaLocal[i], C) ? up : free;
-                Ii |= isLower(yLocal[i], alphaLocal[i], C) ? low : free;
+                Ii |= HelperTrainSVM<algorithmFPType, cpu>::isUpper(yLocal[i], alphaLocal[i], C) ? up : free;
+                Ii |= HelperTrainSVM<algorithmFPType, cpu>::isLower(yLocal[i], alphaLocal[i], C) ? low : free;
                 I[i] = Ii;
                 for (size_t j = 0; j < nWS; j++)
                 {
@@ -298,13 +298,13 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
 
         /* Update up/low sets */
         char IBi = free;
-        IBi |= isUpper(yBi, alphaLocal[Bi], C) ? up : free;
-        IBi |= isLower(yBi, alphaLocal[Bi], C) ? low : free;
+        IBi |= HelperTrainSVM<algorithmFPType, cpu>::isUpper(yBi, alphaLocal[Bi], C) ? up : free;
+        IBi |= HelperTrainSVM<algorithmFPType, cpu>::isLower(yBi, alphaLocal[Bi], C) ? low : free;
         I[Bi] = IBi;
 
         char IBj = free;
-        IBj |= isUpper(yBj, alphaLocal[Bj], C) ? up : free;
-        IBj |= isLower(yBj, alphaLocal[Bj], C) ? low : free;
+        IBj |= HelperTrainSVM<algorithmFPType, cpu>::isUpper(yBj, alphaLocal[Bj], C) ? up : free;
+        IBj |= HelperTrainSVM<algorithmFPType, cpu>::isLower(yBj, alphaLocal[Bj], C) ? low : free;
         I[Bj] = IBj;
 
         const algorithmFPType * KBjBlock = &kernelLocal[Bj * nWS];

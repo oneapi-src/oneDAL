@@ -78,15 +78,6 @@ private:
         oldAlphaBuffID = 4,
         latest         = oldAlphaBuffID + 1,
     };
-
-    static bool isUpper(const algorithmFPType y, const algorithmFPType alpha, const algorithmFPType C)
-    {
-        return (y > 0 && alpha < C) || (y < 0 && alpha > 0);
-    }
-    static bool isLower(const algorithmFPType y, const algorithmFPType alpha, const algorithmFPType C)
-    {
-        return (y > 0 && alpha > 0) || (y < 0 && alpha < C);
-    }
 };
 
 } // namespace internal
