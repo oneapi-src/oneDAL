@@ -59,6 +59,7 @@ public:
     services::Status compute(const NumericTable & xTable, Model & model, algorithmFPType C) const
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(saveResult);
+        services::Status s;
 
         const algorithmFPType zero(0.0);
         size_t nSV = 0;
@@ -66,10 +67,8 @@ public:
         {
             if (_alpha[i] > zero) nSV++;
         }
-        printf(">> nSV %d\n", (int)nSV);
 
         model.setNFeatures(xTable.getNumberOfColumns());
-        services::Status s;
         DAAL_CHECK_STATUS(s, setSVCoefficients(nSV, model));
         DAAL_CHECK_STATUS(s, setSVIndices(nSV, model));
         if (xTable.getDataLayout() == NumericTableIface::csrArray)
@@ -174,10 +173,8 @@ protected:
         DAAL_CHECK_BLOCK_STATUS(mtSvIndices);
         const int * svIndices = mtSvIndices.get();
 
-        const size_t p = xTable.getNumberOfColumns();
-
-        const size_t blockSize = 1;
-        const size_t nBlock    = nSV;
+        const size_t p      = xTable.getNumberOfColumns();
+        const size_t nBlock = nSV;
 
         SafeStatus safeStat;
         daal::threader_for(nBlock, nBlock, [&](const size_t iBlock) {

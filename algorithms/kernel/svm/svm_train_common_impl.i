@@ -90,7 +90,6 @@ void HelperTrainSVM<algorithmFPType, cpu>::WSSjLocalBaseline(const size_t jStart
                                                              const algorithmFPType GMin, const algorithmFPType Kii, const algorithmFPType tau,
                                                              int & Bj, algorithmFPType & GMax, algorithmFPType & GMax2, algorithmFPType & delta)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair.WSSj.WSSjLocal.WSSjLocalBaseline);
     algorithmFPType fpMax = MaxVal<algorithmFPType>::get();
     GMax                  = -fpMax; // some big negative number
     GMax2                 = -fpMax;
@@ -137,8 +136,6 @@ void HelperTrainSVM<algorithmFPType, cpu>::WSSjLocal(const size_t jStart, const 
                                                      const algorithmFPType GMin, const algorithmFPType Kii, const algorithmFPType tau, int & Bj,
                                                      algorithmFPType & GMax, algorithmFPType & GMax2, algorithmFPType & delta)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair.WSSj.WSSjLocal);
-
     WSSjLocalBaseline(jStart, jEnd, KiBlock, kernelDiag, grad, I, GMin, Kii, tau, Bj, GMax, GMax2, delta);
 }
 

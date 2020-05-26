@@ -59,10 +59,6 @@
 
 #include "algorithms/kernel/svm/svm_train_common_impl.i"
 
-#include <set>
-
-#define PRINT_N 16
-
 namespace daal
 {
 namespace algorithms
@@ -90,9 +86,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
 
     const size_t nVectors  = xTable->getNumberOfRows();
     const size_t nFeatures = xTable->getNumberOfColumns();
-    // ai = 0
 
-    TArrayCalloc<algorithmFPType, cpu> alphaTArray(nVectors);
+    TArray<algorithmFPType, cpu> alphaTArray(nVectors);
     DAAL_CHECK_MALLOC(alphaTArray.get());
     algorithmFPType * alpha = alphaTArray.get();
 
@@ -100,20 +95,20 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
     DAAL_CHECK_BLOCK_STATUS(mtY);
     const algorithmFPType * y = mtY.get();
 
-    // gradi = -yi
+    // gradi = -yi; ai = 0
     TArray<algorithmFPType, cpu> gradTArray(nVectors);
     DAAL_CHECK_MALLOC(gradTArray.get());
     algorithmFPType * grad = gradTArray.get();
 
     for (size_t i = 0; i < nVectors; i++)
     {
-        grad[i] = -y[i];
+        grad[i]  = -y[i];
+        alpha[i] = algorithmFPType(0);
     }
 
     TaskWorkingSet<algorithmFPType, cpu> workSet(nVectors, maxBlockSize);
     DAAL_CHECK_STATUS(status, workSet.init());
     const size_t nWS = workSet.getSize();
-    printf(">> nWS %d nVectors %d\n", (int)nWS, (int)nVectors);
     const size_t innerMaxIterations(nWS * cInnerIterations);
 
     algorithmFPType diff     = algorithmFPType(0);
@@ -130,23 +125,23 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
 
     SVMCachePtr<thunder, algorithmFPType, cpu> cachePtr;
 
-    TArray<char, cpu> I(nVectors);
+    TArray<char, cpu> I(nWS);
     DAAL_CHECK_MALLOC(I.get());
 
     if (cacheSize >= nVectors * nVectors * sizeof(algorithmFPType))
     {
+        const size_t defaultCacheSize = nWS;
         // TODO: support the simple cache for thunder method
-        cachePtr = SVMCache<thunder, noCache, algorithmFPType, cpu>::create(cacheSize, nWS, nVectors, xTable, kernel, status);
+        cachePtr = SVMCache<thunder, noCache, algorithmFPType, cpu>::create(defaultCacheSize, nVectors, xTable, kernel, status);
     }
     else
     {
-        cachePtr = SVMCache<thunder, noCache, algorithmFPType, cpu>::create(cacheSize, nWS, nVectors, xTable, kernel, status);
+        const size_t defaultCacheSize = nWS;
+        cachePtr                      = SVMCache<thunder, noCache, algorithmFPType, cpu>::create(defaultCacheSize, nVectors, xTable, kernel, status);
     }
 
-    std::set<uint32_t> setws;
-
     size_t iter = 0;
-    for (; iter < /*1 */ maxIterations; iter++)
+    for (; iter < maxIterations; iter++)
     {
         if (iter != 0)
         {
@@ -168,8 +163,6 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
         if (checkStopCondition(diff, diffPrev, eps, sameLocalDiff) && iter != 0) break;
         diffPrev = diff;
     }
-
-    printf(">> Iter: %d\n", (int)iter);
 
     SaveResultTask<algorithmFPType, cpu> saveResult(nVectors, y, alpha, grad, cachePtr.get());
     DAAL_CHECK_STATUS(status, saveResult.compute(*xTable, *static_cast<Model *>(r), C));
@@ -212,8 +205,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
                 gradLocal[i]         = grad[wsIndex];
                 oldAlphaLocal[i]     = alpha[wsIndex];
                 alphaLocal[i]        = alpha[wsIndex];
-                // kdLocal[i]           = kernelWS[i + wsIndices[i] * nWS];
-                kdLocal[i] = kernelWS[i * nVectors + wsIndices[i]];
+                kdLocal[i]           = kernelWS[i * nVectors + wsIndices[i]];
 
                 char Ii = free;
                 Ii |= HelperTrainSVM<algorithmFPType, cpu>::isUpper(yLocal[i], alphaLocal[i], C) ? up : free;
@@ -222,7 +214,6 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
                 for (size_t j = 0; j < nWS; j++)
                 {
                     kernelLocal[i * nWS + j] = kernelWS[i * nVectors + wsIndices[j]];
-                    // kernelLocal[i * nWS + j] = kernelWS[i + wsIndices[j] * nWS];
                 }
             }
         });
@@ -295,10 +286,6 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
         }
     }
 
-    {
-        // printf(">> nInnerIter: %lu \t localDiff: %.3lf\n", iter, localDiff);
-    }
-
     /* Compute diff and scatter to alpha vector */
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
@@ -316,12 +303,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::upd
                                                                                         const size_t nVectors, const size_t nWS)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(updateGrad);
-    // TODO Parallel for col major? Need to check
-    char trans = 'N';
-    // char trans = 'T';
+    char trans  = 'N';
     DAAL_INT m_ = nVectors;
-    // DAAL_INT m_ = nWS;
-    // DAAL_INT n_ = nVectors;
     DAAL_INT n_ = nWS;
     algorithmFPType alpha(1.0);
     DAAL_INT lda = m_;
