@@ -34,6 +34,7 @@
 #include "externals/service_blas.h"
 #include "externals/service_spblas.h"
 #include "service/kernel/service_data_utils.h"
+#include "service/kernel/service_environment.h"
 
 namespace daal
 {
@@ -85,7 +86,7 @@ struct TlsTask
         }
     }
 
-    static TlsTask<algorithmFPType, cpu> * create(int dim, int clNum, int maxBlockSize)
+    static TlsTask<algorithmFPType, cpu> * create(const size_t dim, const size_t clNum, const size_t maxBlockSize)
     {
         TlsTask<algorithmFPType, cpu> * result = new TlsTask<algorithmFPType, cpu>(dim, clNum, maxBlockSize);
         if (!result)
@@ -107,6 +108,47 @@ struct TlsTask
     size_t cNum               = 0;
     algorithmFPType * cValues = nullptr;
     size_t * cIndices         = nullptr;
+};
+
+template <Method method, typename algorithmFPType, CpuType cpu>
+struct BSHelper
+{
+    static size_t kmeansGetBlockSize(const size_t nRows, const size_t dim, const size_t clNum);
+};
+
+template <typename algorithmFPType, CpuType cpu>
+struct BSHelper<lloydDense, algorithmFPType, cpu>
+{
+    static size_t kmeansGetBlockSize(const size_t nRows, const size_t dim, const size_t clNum)
+    {
+        const double cacheFullness     = 0.8;
+        const size_t maxRowsPerBlock   = 512;
+        const size_t minRowsPerBlockL1 = 256;
+        const size_t minRowsPerBlockL2 = 8;
+        const size_t rowsFitL1         = (getL1CacheSize() / sizeof(algorithmFPType) - (clNum * dim)) / (clNum + dim) * cacheFullness;
+        const size_t rowsFitL2         = (getL2CacheSize() / sizeof(algorithmFPType) - (clNum * dim)) / (clNum + dim) * cacheFullness;
+        size_t blockSize               = 96;
+
+        if (rowsFitL1 >= minRowsPerBlockL1 && rowsFitL1 <= maxRowsPerBlock)
+        {
+            blockSize = rowsFitL1;
+        }
+        else if (rowsFitL2 >= minRowsPerBlockL2 && rowsFitL2 <= maxRowsPerBlock)
+        {
+            blockSize = rowsFitL2;
+        }
+        else if (rowsFitL2 >= maxRowsPerBlock)
+        {
+            blockSize = maxRowsPerBlock;
+        }
+        return blockSize;
+    }
+};
+
+template <typename algorithmFPType, CpuType cpu>
+struct BSHelper<lloydCSR, algorithmFPType, cpu>
+{
+    static size_t kmeansGetBlockSize(const size_t nRows, const size_t dim, const size_t clNum) { return 512; }
 };
 
 template <typename algorithmFPType>
