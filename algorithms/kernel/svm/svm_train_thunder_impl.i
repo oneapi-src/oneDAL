@@ -156,24 +156,6 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
 
         DAAL_CHECK_STATUS(status, workSet.select(y, alpha, grad, C));
         const uint32_t * wsIndices = workSet.getIndices();
-        {
-            // for (int i = 0; i < PRINT_N; i++)
-            // {
-            //     printf("%d, ", (int)wsIndices[i]);
-            // }
-            // printf(" ... ");
-            // for (int i = nWS - PRINT_N; i < nWS; i++)
-            // {
-            //     printf("%d, ", (int)wsIndices[i]);
-            // }
-            // printf("\n");
-            // for (int i = 0; i < nWS; i++)
-            // {
-            //     setws.insert(wsIndices[i]);
-            // }
-            // DAAL_ASSERT(setws.size() == nWS);
-            // setws.clear();
-        }
 
         algorithmFPType * kernelWS = nullptr;
         DAAL_CHECK_STATUS(status, cachePtr->getRowsBlock(wsIndices, kernelWS));
@@ -289,12 +271,6 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
         /* Update alpha */
         alphaLocal[Bi] += delta * yBi;
         alphaLocal[Bj] -= delta * yLocal[Bj];
-
-        // printf(">> iter %lu: Bi %d Bj %d GMin %.2lf GMax2 %.2lf GMax %.2lf localDiff %.2lf delta %.2f alphaLocal[Bi]: %lf;  alphaLocal[Bj]: %lf\n",
-        //        iter, Bi, Bj, GMin, GMax2, GMax, localDiff, delta, alphaLocal[Bi], alphaLocal[Bj]);
-
-        // printf(">>  alphaLocal[Bi]: %lf;  alphaLocal[Bj]: %lf yLocal[Bi]: %.0lf;  yLocal[Bj]: %.0lf\n", alphaLocal[Bi], alphaLocal[Bj], yLocal[Bi],
-        //        yLocal[Bj]);
 
         /* Update up/low sets */
         char IBi = free;
