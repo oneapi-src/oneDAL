@@ -83,7 +83,7 @@ jobs:
       conda build --override-channels -c conda-forge -c intel --no-test conda-recipe
     displayName: conda build
   - script: |
-      .ci/scripts/conformance-scripts/conformance_tests.sh --build-dir $(Pipeline.Workspace)
+      $(Pipeline.Workspace)/s/.ci/scripts/conformance-scripts/conformance_test.sh --build-dir $(Pipeline.Workspace)
     timeoutInMinutes: 15
     displayName: conformance
   - task: PublishPipelineArtifact@0
