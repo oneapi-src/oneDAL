@@ -19,11 +19,11 @@
 #include "data_management/data/numeric_table.h"
 #include "data_management/data/data_dictionary.h"
 #include "services/env_detect.h"
-#include "service_dispatch.h"
-#include "service_data_utils.h"
-#include "service_utils.h"
-#include "threading.h"
-#include "service_numeric_table.h"
+#include "externals/service_dispatch.h"
+#include "service/kernel/service_data_utils.h"
+#include "service/kernel/service_utils.h"
+#include "algorithms/threading/threading.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 #include "data_management/features/defines.h"
 
 namespace daal
@@ -46,6 +46,22 @@ void runBlocks(const bool inParallel, const size_t nBlocks, Func func)
         for (size_t i = 0; i < nBlocks; ++i) func(i);
 }
 
+template <typename DataType, typename IdxType>
+services::Status assignColumnValues(const DataType * origDataPtr, NumericTable & dataTable, const IdxType * idxPtr, const size_t startRow,
+                                    const size_t nRows, const size_t iCol)
+{
+    services::Status s;
+
+    BlockDescriptor<DataType> dataBlock;
+    dataTable.getBlockOfColumnValues(iCol, startRow, nRows, readWrite, dataBlock);
+    DataType * dataPtr = dataBlock.getBlockPtr();
+    DAAL_CHECK_MALLOC(dataPtr);
+
+    for (size_t i = 0; i < nRows; ++i) dataPtr[i] = origDataPtr[idxPtr[i]];
+
+    return s;
+}
+
 template <typename DataType, typename IdxType, daal::CpuType cpu>
 services::Status splitColumn(NumericTable & inputTable, NumericTable & trainTable, NumericTable & testTable, const IdxType * trainIdx,
                              const IdxType * testIdx, const size_t nTrainRows, const size_t nTestRows, const size_t iCol, const size_t nThreads)
@@ -55,14 +71,8 @@ services::Status splitColumn(NumericTable & inputTable, NumericTable & trainTabl
 
     BlockDescriptor<DataType> origBlock, trainBlock, testBlock;
     inputTable.getBlockOfColumnValues(iCol, 0, nTrainRows + nTestRows, readOnly, origBlock);
-    trainTable.getBlockOfColumnValues(iCol, 0, nTrainRows, readWrite, trainBlock);
-    testTable.getBlockOfColumnValues(iCol, 0, nTestRows, readWrite, testBlock);
     const DataType * origDataPtr = origBlock.getBlockPtr();
-    DataType * trainDataPtr      = trainBlock.getBlockPtr();
-    DataType * testDataPtr       = testBlock.getBlockPtr();
     DAAL_CHECK_MALLOC(origDataPtr);
-    DAAL_CHECK_MALLOC(trainDataPtr);
-    DAAL_CHECK_MALLOC(testDataPtr);
 
     if (nTrainRows > THREADING_BORDER && nThreads > 1)
     {
@@ -73,12 +83,12 @@ services::Status splitColumn(NumericTable & inputTable, NumericTable & trainTabl
             const size_t start = iBlock * BLOCK_SIZE;
             const size_t end   = iBlock == nTrainBlocks - 1 ? start + BLOCK_SIZE + nTrainSurplus : start + BLOCK_SIZE;
 
-            for (size_t i = start; i < end; ++i) trainDataPtr[i] = origDataPtr[trainIdx[i]];
+            assignColumnValues<DataType, IdxType>(origDataPtr, trainTable, trainIdx, start, end - start, iCol);
         });
     }
     else
     {
-        for (size_t i = 0; i < nTrainRows; ++i) trainDataPtr[i] = origDataPtr[trainIdx[i]];
+        assignColumnValues<DataType, IdxType>(origDataPtr, trainTable, trainIdx, 0, nTrainRows, iCol);
     }
 
     if (nTestRows > THREADING_BORDER && nThreads > 1)
@@ -90,18 +100,18 @@ services::Status splitColumn(NumericTable & inputTable, NumericTable & trainTabl
             const size_t start = iBlock * BLOCK_SIZE;
             const size_t end   = iBlock == nTestBlocks - 1 ? start + BLOCK_SIZE + nTestSurplus : start + BLOCK_SIZE;
 
-            for (size_t i = start; i < end; ++i) testDataPtr[i] = origDataPtr[testIdx[i]];
+            assignColumnValues<DataType, IdxType>(origDataPtr, testTable, testIdx, start, end - start, iCol);
         });
     }
     else
     {
-        for (size_t i = 0; i < nTestRows; ++i) testDataPtr[i] = origDataPtr[testIdx[i]];
+        assignColumnValues<DataType, IdxType>(origDataPtr, testTable, testIdx, 0, nTestRows, iCol);
     }
 
     return s;
 }
 
-template <typename DataType, typename IdxType, daal::CpuType cpu>
+template <typename DataType, typename IdxType>
 services::Status assignRows(const DataType * origDataPtr, NumericTable & dataTable, NumericTable & idxTable, const size_t startRow,
                             const size_t nRows, const size_t nColumns)
 {
@@ -145,12 +155,12 @@ services::Status splitRows(NumericTable & inputTable, NumericTable & trainTable,
             const size_t start = iBlock * BLOCK_SIZE;
             const size_t end   = iBlock == nTrainBlocks - 1 ? start + BLOCK_SIZE + nTrainSurplus : start + BLOCK_SIZE;
 
-            s |= assignRows<DataType, IdxType, cpu>(origDataPtr, trainTable, trainIdxTable, start, end - start, nColumns);
+            s |= assignRows<DataType, IdxType>(origDataPtr, trainTable, trainIdxTable, start, end - start, nColumns);
         });
     }
     else
     {
-        s |= assignRows<DataType, IdxType, cpu>(origDataPtr, trainTable, trainIdxTable, 0, nTrainRows, nColumns);
+        s |= assignRows<DataType, IdxType>(origDataPtr, trainTable, trainIdxTable, 0, nTrainRows, nColumns);
     }
 
     if (nTestRows * nColumns > THREADING_BORDER && nThreads > 1)
@@ -162,12 +172,12 @@ services::Status splitRows(NumericTable & inputTable, NumericTable & trainTable,
             const size_t start = iBlock * BLOCK_SIZE;
             const size_t end   = iBlock == nTestBlocks - 1 ? start + BLOCK_SIZE + nTestSurplus : start + BLOCK_SIZE;
 
-            s |= assignRows<DataType, IdxType, cpu>(origDataPtr, testTable, testIdxTable, start, end - start, nColumns);
+            s |= assignRows<DataType, IdxType>(origDataPtr, testTable, testIdxTable, start, end - start, nColumns);
         });
     }
     else
     {
-        s |= assignRows<DataType, IdxType, cpu>(origDataPtr, testTable, testIdxTable, 0, nTestRows, nColumns);
+        s |= assignRows<DataType, IdxType>(origDataPtr, testTable, testIdxTable, 0, nTestRows, nColumns);
     }
 
     return s;
