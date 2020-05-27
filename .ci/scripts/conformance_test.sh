@@ -27,5 +27,3 @@ conda install $HOME/miniconda/envs/CB/conda-bld/linux-64/daal4py*.tar.bz2
 cd .ci/scripts/conformance-scripts/
 python run_tests.py
 cd ../../..
-
-

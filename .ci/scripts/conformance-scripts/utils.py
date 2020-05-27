@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from datetime import datetime
 
 daalLine = "uses Intel® DAAL solver"
@@ -86,9 +87,3 @@ def make_report(algs_filename, report_filename):
 
     report_file.write(textHTML)
     report_file.close()
-    
-
-
-
-
-
