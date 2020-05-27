@@ -37,23 +37,23 @@ void HelperTrainSVM<float, avx512>::WSSjLocal(const size_t jStart, const size_t 
                                               float & GMax, float & GMax2, float & delta)
 {
     float fpMax      = MaxVal<float>::get();
-    float minusGMax2 = -fpMax; // store min(grad[i]) or max(y[i]*grad[i]), y[i]*grad[i] = -GMin2
-    float minusGMax  = -fpMax; // store min(-b^2/a) or max(b^2/a), b^2/a = -GMin
-    float minusGMin  = GMin;
+    float GMax2Local = -fpMax; // store min(grad[i]) or max(y[i]*grad[i]), y[i]*grad[i] = -GMin2
+    float GMaxLocal  = -fpMax; // store min(-b^2/a) or max(b^2/a), b^2/a = -GMin
+    float GMinLocal  = GMin;
 
     float zero(0.0);
     float two(2.0);
 
-    // generally, we find min(-y[i]*grad[i]).
-    // for performance considerations, it is better to find max(y[i]*grad[i]) instead.
-    __m512 valMinusGMax2 = _mm512_set1_ps(minusGMax2);
+    // generally, we find max(grad[i]).
+    // for performance considerations, it is better to find max(grad[i]) instead.
+    __m512 valGMax2 = _mm512_set1_ps(GMax2Local);
 
-    // generally, we find min(-b^2/a). For perf considerations, find max(b^2/a) instead.
-    __m512 valMinusGMax = _mm512_set1_ps(minusGMax);
+    // generally, we find max(b^2/a).
+    __m512 valGMax = _mm512_set1_ps(GMaxLocal);
 
     // constant used to select j so that ygrad = grad[i] < GMax.
     // for performance considerations, we select j so that grad = grad[i] >= GMax.
-    __m512 valMinusGMin = _mm512_set1_ps(minusGMin);
+    __m512 valGMin = _mm512_set1_ps(GMinLocal);
 
     // we minimize over index Bj. It is stored as vector.
     // We find 16 minimums in parallel to choose 1 later on reduction step.
@@ -75,7 +75,7 @@ void HelperTrainSVM<float, avx512>::WSSjLocal(const size_t jStart, const size_t 
     {
         // if (jEnd > jCur)  make mask?
         DAAL_ASSERT(j_cur <= services::internal::MaxVal<int>::get())
-        __m128i vec_I = _mm_load_si128((__m128i *)(&I[j_cur]));
+        __m128i vec_I = _mm_loadu_si128((__m128i *)(&I[j_cur]));
 
         // if ((_I[j] & low) != low) { continue; }
         __mmask16 mask1_ = _mm_cmpeq_epi8_mask(_mm_and_si128(vec_I, vecAllLow), vecAllLow);
@@ -86,12 +86,12 @@ void HelperTrainSVM<float, avx512>::WSSjLocal(const size_t jStart, const size_t 
 
         // find min(grad[j]) instead - here's where we find vector of min's.
         // result can be updated only if _I[j] is in I_low.
-        valMinusGMax2 = _mm512_mask_max_ps(valMinusGMax2, mask1_, valGrad, valMinusGMax2);
+        valGMax2 = _mm512_mask_max_ps(valGMax2, mask1_, valGrad, valGMax2);
 
-        // we select j so that -ygrad = grad[i] < (GE) GMin.
-        __mmask16 mask2_ = _mm512_cmp_ps_mask(valGrad, valMinusGMin, _CMP_GT_OS); // if (ygrad < minusGMax) { continue; }
-        mask2_           = _mm512_kand(mask1_, mask2_);                           // combine with previous mask
-        __m512 b_vec     = _mm512_sub_ps(valMinusGMin, valGrad);                  // b = Gmin - grad
+        // we select j so that grad = grad[i] < (GE) GMin.
+        __mmask16 mask2_ = _mm512_cmp_ps_mask(valGrad, valGMin, _CMP_GT_OS); // if (grad < GMaxLocal) { continue; }
+        mask2_           = _mm512_kand(mask1_, mask2_);                      // combine with previous mask
+        __m512 b_vec     = _mm512_sub_ps(valGMin, valGrad);                  // b = Gmin - grad
 
         // float a = Kii + _kernelDiag[j] - two * KiBlock[j - jStart] = Kii + _kernelDiag[j] - KiBlock[j - jStart] - KiBlock[j - jStart];
         // a_tmp = two * KiBlock[j - jStart] - kernelDiag[j]
@@ -110,34 +110,30 @@ void HelperTrainSVM<float, avx512>::WSSjLocal(const size_t jStart, const size_t 
 
         // generally, objFunc = b^2/a.
         // if (objFunc > GMax)
-        __mmask16 mask4_ = _mm512_cmp_ps_mask(objFunc_vec, valMinusGMax, _CMP_GE_OS);
-        mask4_           = _mm512_kand(mask2_, mask4_);                           // combine with previous masks
-        valMinusGMax     = _mm512_mask_mov_ps(valMinusGMax, mask4_, objFunc_vec); // GMax = b^2/a
-        Bj_vec           = _mm512_mask_mov_epi32(Bj_vec, mask4_, Bj_vec_cur);     // result index
+        __mmask16 mask4_ = _mm512_cmp_ps_mask(objFunc_vec, valGMax, _CMP_GE_OS);
+        mask4_           = _mm512_kand(mask2_, mask4_);                       // combine with previous masks
+        valGMax          = _mm512_mask_mov_ps(valGMax, mask4_, objFunc_vec);  // GMax = b^2/a
+        Bj_vec           = _mm512_mask_mov_epi32(Bj_vec, mask4_, Bj_vec_cur); // result index
     }
 
     // reduction:
-    TNArray<float, 16, avx512> minus_GMax_val(16);
-    TNArray<int, 16, avx512> Bj_val_overall(16);
-    TNArray<float, 16, avx512> minusGMax2_overall(16);
-
-    _mm512_storeu_ps(minus_GMax_val.get(), valMinusGMax);
-    _mm512_storeu_si512(Bj_val_overall.get(), Bj_vec);
-    _mm512_storeu_ps(minusGMax2_overall.get(), valMinusGMax2);
+    float * GMaxVal      = reinterpret_cast<float *>(&valGMax);
+    int * BjValOverall   = reinterpret_cast<int *>(&Bj_vec);
+    float * GMax2Overall = reinterpret_cast<float *>(&valGMax2);
 
     GMax  = -fpMax;
     GMax2 = -fpMax;
 
     for (size_t k = 0; k < 16; ++k)
     {
-        if (minus_GMax_val[k] > GMax)
+        if (GMaxVal[k] > GMax)
         {
-            GMax = minus_GMax_val[k];
-            Bj   = Bj_val_overall[k] + k; // from partial index to final
+            GMax = GMaxVal[k];
+            Bj   = BjValOverall[k] + k; // from partial index to final
         }
-        if (minusGMax2_overall[k] > GMax2)
+        if (GMax2Overall[k] > GMax2)
         {
-            GMax2 = minusGMax2_overall[k];
+            GMax2 = GMax2Overall[k];
         }
     }
 
@@ -193,14 +189,14 @@ void HelperTrainSVM<double, avx512>::WSSjLocal(const size_t jStart, const size_t
 
     // generally, we find min(grad[i]).
     // for performance considerations, it is better to find max(y[i]*grad[i]) instead.
-    __m512d valMinusGMax2 = _mm512_set1_pd(GMax2Local);
+    __m512d valGMax2 = _mm512_set1_pd(GMax2Local);
 
     // generally, we find min(-b^2/a). For perf considerations, find max(b^2/a) instead.
-    __m512d valMinusGMax = _mm512_set1_pd(GMaxLocal);
+    __m512d valGMax = _mm512_set1_pd(GMaxLocal);
 
     // constant used to select j so that ygrad = -y[i]*grad[i] < GMax.
     // for performance considerations, we select j so that -ygrad = y[i]*grad[i] >= GMax.
-    __m512d valMinusGMin = _mm512_set1_pd(GMin);
+    __m512d valGMin = _mm512_set1_pd(GMin);
 
     // we minimize over index Bj. It is stored as vector.
     // We find 8 minimums in parallel to choose 1 later on reduction step.
@@ -245,12 +241,12 @@ void HelperTrainSVM<double, avx512>::WSSjLocal(const size_t jStart, const size_t
 
         // find max(y[j]*grad[j]) instead - here's where we find vector of max's.
         // result can be updated only if _I[j] is in I_low.
-        valMinusGMax2 = _mm512_mask_max_pd(valMinusGMax2, mask1_, valGrad, valMinusGMax2);
+        valGMax2 = _mm512_mask_max_pd(valGMax2, mask1_, valGrad, valGMax2);
 
         // we select j so that -ygrad = y[i]*grad[i] >= (GE) -GMax.
-        __mmask8 mask2_ = _mm512_cmp_pd_mask(valGrad, valMinusGMin, _CMP_GT_OS); // if (ygrad < minusGMax) { continue; }
-        mask2_          = mask1_ & mask2_;                                       // combine with previous mask
-        __m512d b_vec   = _mm512_sub_pd(valMinusGMin, valGrad);                  // b = Gmax - (-y*grad) = y*grad - (-Gmax)
+        __mmask8 mask2_ = _mm512_cmp_pd_mask(valGrad, valGMin, _CMP_GT_OS); // if (ygrad < GMaxLocal) { continue; }
+        mask2_          = mask1_ & mask2_;                                  // combine with previous mask
+        __m512d b_vec   = _mm512_sub_pd(valGMin, valGrad);                  // b = Gmax - (-y*grad) = y*grad - (-Gmax)
 
         // float a = Kii + _kernelDiag[j] - two * KiBlock[j - jStart] = Kii + _kernelDiag[j] - KiBlock[j - jStart] - KiBlock[j - jStart];
         // a_tmp = two * KiBlock[j - jStart] - kernelDiag[j]
@@ -269,37 +265,30 @@ void HelperTrainSVM<double, avx512>::WSSjLocal(const size_t jStart, const size_t
 
         // generally, objFunc = -b^2/a.
         // if (objFunc <= GMin) -> if (-objFunc > -GMin)
-        __mmask8 mask4_ = _mm512_cmp_pd_mask(objFunc_vec, valMinusGMax, _CMP_GE_OS);
-        mask4_          = mask2_ & mask4_;                                       // combine with previous masks
-        valMinusGMax    = _mm512_mask_mov_pd(valMinusGMax, mask4_, objFunc_vec); // -GMin = b^2/a
-        Bj_vec          = _mm256_mask_mov_epi32(Bj_vec, mask4_, Bj_vec_cur);     // result index
+        __mmask8 mask4_ = _mm512_cmp_pd_mask(objFunc_vec, valGMax, _CMP_GE_OS);
+        mask4_          = mask2_ & mask4_;                                   // combine with previous masks
+        valGMax         = _mm512_mask_mov_pd(valGMax, mask4_, objFunc_vec);  // -GMin = b^2/a
+        Bj_vec          = _mm256_mask_mov_epi32(Bj_vec, mask4_, Bj_vec_cur); // result index
     }
 
     // reduction:
-    TNArray<double, 8, avx512> minus_GMax_val(8);
-    TNArray<int, 8, avx512> Bj_val_overall(8);
-    TNArray<double, 8, avx512> minusGMax2_overall(8);
-
-    unsigned char ones_all = 255; // all 8 bits are 1
-    __mmask8 maskOnes      = *((__mmask8 *)&ones_all);
-
-    _mm512_storeu_pd(minus_GMax_val.get(), valMinusGMax);
-    _mm256_mask_storeu_epi32(Bj_val_overall.get(), maskOnes, Bj_vec);
-    _mm512_storeu_pd(minusGMax2_overall.get(), valMinusGMax2);
+    double * GMaxVal      = reinterpret_cast<double *>(&valGMax);
+    int * BjValOverall    = reinterpret_cast<int *>(&Bj_vec);
+    double * GMax2Overall = reinterpret_cast<double *>(&valGMax2);
 
     GMax  = -fpMax;
     GMax2 = -fpMax;
 
     for (size_t k = 0; k < 8; ++k)
     {
-        if (minus_GMax_val[k] > GMax)
+        if (GMaxVal[k] > GMax)
         {
-            GMax = minus_GMax_val[k];
-            Bj   = Bj_val_overall[k] + k; // from partial index to final
+            GMax = GMaxVal[k];
+            Bj   = BjValOverall[k] + k; // from partial index to final
         }
-        if (minusGMax2_overall[k] > GMax2)
+        if (GMax2Overall[k] > GMax2)
         {
-            GMax2 = minusGMax2_overall[k];
+            GMax2 = GMax2Overall[k];
         }
     }
 
