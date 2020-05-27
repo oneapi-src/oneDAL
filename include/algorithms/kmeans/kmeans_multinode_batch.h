@@ -182,6 +182,9 @@ using interface1::MultiNodeBatchContainer;
 using interface1::MultiNodeBatch;
 using interface1::Method;
 using interface1::defaultDense;
+using Input     = algorithms::kmeans::Input;
+using Parameter = algorithms::kmeans::Parameter;
+using Result    = algorithms::kmeans::Result;
 
 } // namespace kmeans
 } // namespace preview
