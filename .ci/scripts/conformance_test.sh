@@ -17,13 +17,14 @@ while [[ $# -gt 0 ]]; do
 done
 
 conda create -y -n conformance python=3.7
-source activate conformance
+conda activate conformance
 conda install -y -c intel mpich tbb-devel numpy pytest scikit-learn
 conda remove -y daal4py --force
 conda remove -y daal --force
 export DAALROOT=${BUILD_DIR}/daal/latest
 conda install $HOME/miniconda/envs/CB/conda-bld/linux-64/daal4py*.tar.bz2
+conda list
 
 cd .ci/scripts/conformance-scripts/
-python run_tests.py
+python run_tests.py 0.22.1
 cd ../../..
