@@ -180,6 +180,8 @@ private:
 } // namespace interface1
 using interface1::MultiNodeBatchContainer;
 using interface1::MultiNodeBatch;
+using interface1::Method;
+using interface1::defaultDense;
 
 } // namespace kmeans
 } // namespace preview
