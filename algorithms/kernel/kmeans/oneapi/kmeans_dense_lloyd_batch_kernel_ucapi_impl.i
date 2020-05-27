@@ -221,7 +221,7 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
             DAAL_CHECK_STATUS_VAR(st);
             initDistances(context, init_distances, centroidsSq, distances, curBlockSize, nClusters, &st);
             DAAL_CHECK_STATUS_VAR(st);
-            computeDistances(context, data, inCentroids, distances, blockSize, nClusters, nFeatures, &st);
+            computeDistances(context, data, inCentroids, distances, curBlockSize, nClusters, nFeatures, &st);
             DAAL_CHECK_STATUS_VAR(st);
             computeAssignments(context, compute_assignments, distances, assignments, mindistances, curBlockSize, nClusters, &st);
             DAAL_CHECK_STATUS_VAR(st);
@@ -264,7 +264,7 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
                 }
                 objFuncCorrection += candidatesDists.get()[cPos];
                 BlockDescriptor<algorithmFPType> singleRow;
-                ntData->getBlockOfRows(0, blockSize, readOnly, singleRow);
+                ntData->getBlockOfRows(0, nRows, readOnly, singleRow);
                 auto row_data = singleRow.getBlockPtr();
                 for (int iFeature = 0; iFeature < nFeatures; iFeature++)
                     clusterFeatures.get()[iCl * nFeatures + iFeature] = row_data[id * nFeatures + iFeature];
@@ -316,7 +316,7 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
         DAAL_CHECK_STATUS_VAR(st);
         initDistances(context, init_distances, centroidsSq, distances, curBlockSize, nClusters, &st);
         DAAL_CHECK_STATUS_VAR(st);
-        computeDistances(context, data, inCentroids, distances, blockSize, nClusters, nFeatures, &st);
+        computeDistances(context, data, inCentroids, distances, curBlockSize, nClusters, nFeatures, &st);
         DAAL_CHECK_STATUS_VAR(st);
         computeAssignments(context, compute_assignments, distances, assignments, mindistances, curBlockSize, nClusters, &st);
         DAAL_CHECK_STATUS_VAR(st);
