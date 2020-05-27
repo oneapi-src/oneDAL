@@ -39,7 +39,6 @@ namespace decision_forest
 {
 namespace internal
 {
-
 template <typename algorithmFPType>
 services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::buildProgram(ClKernelFactoryIface & factory, const char * buildOptions)
 {
