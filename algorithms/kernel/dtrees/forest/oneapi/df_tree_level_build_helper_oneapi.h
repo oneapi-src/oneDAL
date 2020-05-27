@@ -17,8 +17,8 @@
 
 /*
 //++
-//  Implementation of a service class that provides 
-//  common kernels required for building tree levels 
+//  Implementation of a service class that provides
+//  common kernels required for building tree levels
 //--
 */
 
