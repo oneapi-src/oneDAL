@@ -7,6 +7,9 @@ while [[ $# -gt 0 ]]; do
         --build-dir)
         BUILD_DIR="$2"
         ;;
+        --conda-dir)
+        CONDA_DIR="$2"
+        ;;
         *)
         echo "Unknown option: $1"
         exit 1
@@ -16,8 +19,16 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-conda create -y -n conformance python=3.7
-conda activate conformance
+conda-env list
+conda create -y -n conf python=3.7
+echo PATH
+echo $PATH
+export PATH=${CONDA_DIR}/bin:$PATH
+echo PATH
+echo $PATH
+conda-env list
+source activate base
+conda activate conf
 conda install -y -c intel mpich tbb-devel numpy pytest scikit-learn
 conda remove -y daal4py --force
 conda remove -y daal --force
