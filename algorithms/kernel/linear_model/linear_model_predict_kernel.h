@@ -66,6 +66,8 @@ public:
 protected:
     void computeBlockOfResponses(DAAL_INT * numFeatures, DAAL_INT * numRows, const algorithmFpType * dataBlock, DAAL_INT * numBetas,
                                  const algorithmFpType * beta, DAAL_INT * numResponses, algorithmFpType * responseBlock, bool findBeta0);
+    void computeBlockOfResponsesSOA(DAAL_INT * numFeatures, DAAL_INT * numRows, const algorithmFpType * dataBlock, DAAL_INT * numBetas,
+                                    const algorithmFpType * beta, DAAL_INT * numResponses, algorithmFpType * responseBlock, bool findBeta0);
 
     static const size_t _numRowsInBlock = 256;
 };
