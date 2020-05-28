@@ -26,6 +26,8 @@ namespace internal
 {
 //returns size of L1 cache in bytes
 unsigned getL1CacheSize();
+//returns size of L2 cache in bytes
+unsigned getL2CacheSize();
 //returns size of LL (last level) cache in bytes
 unsigned getLLCacheSize();
 

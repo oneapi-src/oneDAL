@@ -26,7 +26,7 @@
 #define __DF_REGRESSION_TRAIN_DENSE_DEFAULT_IMPL_I__
 
 #include "algorithms/kernel/dtrees/forest/df_train_dense_default_impl.i"
-#include "algorithms/kernel/dtrees/forest/regression/df_regression_train_kernel.h"
+#include "algorithms/kernel/dtrees/forest/regression/df_regression_train_dense_default_kernel.h"
 #include "algorithms/kernel/dtrees/forest/regression/df_regression_model_impl.h"
 #include "algorithms/kernel/dtrees/dtrees_predict_dense_default_impl.i"
 #include "algorithms/kernel/dtrees/forest/regression/df_regression_training_types_result.h"
@@ -568,14 +568,15 @@ public:
 //////////////////////////////////////////////////////////////////////////////////////////
 // RegressionTrainBatchKernel
 //////////////////////////////////////////////////////////////////////////////////////////
-template <typename algorithmFPType, decision_forest::regression::training::Method method, CpuType cpu>
-services::Status RegressionTrainBatchKernel<algorithmFPType, method, cpu>::compute(HostAppIface * pHostApp, const NumericTable * x,
-                                                                                   const NumericTable * y, decision_forest::regression::Model & m,
-                                                                                   Result & res, const Parameter & par)
+template <typename algorithmFPType, CpuType cpu>
+services::Status RegressionTrainBatchKernel<algorithmFPType, defaultDense, cpu>::compute(HostAppIface * pHostApp, const NumericTable * x,
+                                                                                         const NumericTable * y,
+                                                                                         decision_forest::regression::Model & m, Result & res,
+                                                                                         const Parameter & par)
 {
     ResultData rd(par, res.get(variableImportance).get(), res.get(outOfBagError).get(), res.get(outOfBagErrorPerObservation).get());
     services::Status s = computeImpl<algorithmFPType, cpu, daal::algorithms::decision_forest::regression::internal::ModelImpl,
-                                     TrainBatchTask<algorithmFPType, method, cpu> >(
+                                     TrainBatchTask<algorithmFPType, defaultDense, cpu> >(
         pHostApp, x, y, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0);
     if (s.ok()) res.impl()->setEngine(rd.updatedEngine);
     return s;

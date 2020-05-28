@@ -27,6 +27,7 @@
 #include "services/daal_defines.h"
 #include "externals/service_memory.h"
 #include "service/kernel/data_management/service_numeric_table.h"
+#include "service/kernel/service_defines.h"
 
 #include "algorithms/kernel/kmeans/kmeans_lloyd_impl.i"
 #include "algorithms/kernel/kmeans/kmeans_lloyd_postprocessing.h"
@@ -136,15 +137,21 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
     TArray<size_t, cpu> cIndices(nClusters);
 
     algorithmFPType oldTargetFunc(0.0);
+
+    size_t blockSize = 0;
+    DAAL_SAFE_CPU_CALL((blockSize = BSHelper<method, algorithmFPType, cpu>::kmeansGetBlockSize(n, p, nClusters)), (blockSize = 512))
+
     size_t kIter;
+
     for (kIter = 0; kIter < nIter; kIter++)
     {
-        auto task = TaskKMeansLloyd<algorithmFPType, cpu>::create(p, nClusters, inClusters);
+        auto task = TaskKMeansLloyd<algorithmFPType, cpu>::create(p, nClusters, inClusters, blockSize);
         DAAL_CHECK(task.get(), services::ErrorMemoryAllocationFailed);
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(addNTToTaskThreaded);
             /* For the last iteration we do not need to recount of assignmets */
-            s = task->template addNTToTaskThreaded<method>(ntData, catCoef.get(), assignmetsNT && (kIter == nIter - 1) ? assignmetsNT : nullptr);
+            s = task->template addNTToTaskThreaded<method>(ntData, catCoef.get(), blockSize,
+                                                           assignmetsNT && (kIter == nIter - 1) ? assignmetsNT : nullptr);
         }
 
         if (!s)
@@ -227,7 +234,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
     if ((kIter != nIter || nIter == 0)
         && (par->resultsToEvaluate & computeAssignments || par->assignFlag || par->resultsToEvaluate & computeExactObjectiveFunction))
     {
-        PostProcessing<method, algorithmFPType, cpu>::computeAssignments(p, nClusters, clusters, ntData, catCoef.get(), assignmetsNT);
+        PostProcessing<method, algorithmFPType, cpu>::computeAssignments(p, nClusters, clusters, ntData, catCoef.get(), assignmetsNT, blockSize);
     }
 
     WriteOnlyRows<algorithmFPType, cpu> mtTarget(*const_cast<NumericTable *>(r[2]), 0, 1);
@@ -236,7 +243,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
     {
         algorithmFPType exactTargetFunc = algorithmFPType(0);
         PostProcessing<method, algorithmFPType, cpu>::computeExactObjectiveFunction(p, nClusters, clusters, ntData, catCoef.get(), assignmetsNT,
-                                                                                    exactTargetFunc);
+                                                                                    exactTargetFunc, blockSize);
 
         *mtTarget.get() = exactTargetFunc;
     }

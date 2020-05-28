@@ -1,0 +1,136 @@
+#===============================================================================
+# Copyright 2020 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#===============================================================================
+
+##  Content:
+##     Intel(R) Data Analytics Acceleration Library examples creation and run
+##******************************************************************************
+
+help:
+	@echo "Usage: make {libintel64|sointel64|help}"
+	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
+	@echo
+	@echo "name              - example name. Please see daal.lst file."
+	@echo
+	@echo "compiler_name     - the only supported compiler is clang (default value)"
+	@echo "                    Intel(R) oneAPI DPC++ compiler"
+	@echo
+	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
+	@echo
+	@echo "mode_name         - can be build or run. Default is run"
+
+##------------------------------------------------------------------------------
+## examples of using:
+##
+## make libintel64 example=pca   - build by Intel(R) oneAPI Compiler (as default)
+##                                 and run pca example for 64-bit
+##                                 applications, static linking
+##
+## make sointel64 compiler=clang   - build by Intel(R) oneAPI Compiler and run all examples
+##                                 of Intel(R) DAAL for
+##                                 64-bit applications, dynamic linking
+##
+## make sointel64                - build by Intel(R) oneAPI Compiler (as default)
+##                                 and run all examples for Intel(R)64 processor
+##                                 family  applications, dynamic linking
+##
+## make sointel64 mode=build     - build only (not run) by Intel(R) oneAPI Compiler
+##                                 (as default) all examples for Intel(R)64
+##                                 processor family  applications, dynamic linking
+##
+## make help                     - show help
+##
+##------------------------------------------------------------------------------
+
+include daal.lst
+
+ifndef example
+    example = $(ONECCL)
+endif
+
+ifndef compiler
+    compiler = clang
+endif
+
+ifneq ($(mode),build)
+    override mode = run
+endif
+
+ifndef DAALROOT
+    DAALROOT = ./../..
+endif
+DAAL_PATH = "$(DAALROOT)/lib/$(_IA)"
+
+ifndef TBBROOT
+    TBBROOT = ./../../../../tbb/latest
+endif
+TBB_PATH = "$(TBBROOT)/lib/$(_IA)/gcc4.8"
+
+EXT_LIB := -Bdynamic -lpthread -ldl -lOpenCL -lccl
+
+ifeq ($(RES_EXT),so)
+    DAAL_LIB_EXT := -Bdynamic
+else
+    DAAL_LIB_EXT := -Bstatic
+endif
+
+ifeq ($(threading),sequential)
+    DAAL_LIB_T := $(DAAL_LIB_EXT),-ldaal_sequential
+    EXT_LIB += $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
+else
+    override threading = parallel
+    DAAL_LIB_T := $(DAAL_LIB_EXT),-ldaal_thread
+    EXT_LIB += $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
+endif
+
+DAAL_LIB := -L$(DAAL_PATH),$(DAAL_LIB_EXT),-ldaal_core,-Bdynamic -Wl,$(DAAL_LIB_T)
+
+COPTS := -Wall -w -I./source/utils
+
+ifeq ($(compiler),clang)
+    CC = clang++
+    COPTS += -fsycl
+endif
+
+LOPTS := -Wl,--start-group -Wl,$(DAAL_LIB),$(EXT_LIB) $(DAAL_PATH)/libdaal_sycl.a -Wl,--end-group
+
+RES_DIR=_results/$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
+RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
+
+override proc = 2
+
+CC := $(if $(COVFILE), cov01 -1; covc -i  $(CC),$(CC))
+CRUN = mpirun
+RUNOPTS = -n $(proc) -ppn 1
+
+libintel64:
+	$(MAKE) _make_ex _IA=intel64 RES_EXT=a
+sointel64:
+	$(MAKE) _make_ex _IA=intel64 RES_EXT=so
+
+
+_make_ex: $(RES)
+
+.SECONDARY:
+$(RES_DIR)/%.exe: ./sources/%.cpp | $(RES_DIR)/.
+	$(CC) $(COPTS) $< -o $@ $(LOPTS)
+
+$(RES_DIR)/%.res: $(RES_DIR)/%.exe
+	$(CRUN) $(RUNOPTS) $< > $@
+
+#$(RES_DIR)/%.res:  $(RES_DIR)/%.exe
+#	$< > $@
+
+%/.:; mkdir -p $*

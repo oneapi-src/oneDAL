@@ -50,9 +50,12 @@ Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::compute(size_
     NumericTable * ntData        = const_cast<NumericTable *>(a[0]);
     NumericTable * ntAssignments = const_cast<NumericTable *>(r[5]);
 
+    const size_t n         = ntData->getNumberOfRows();
     const size_t p         = ntData->getNumberOfColumns();
     const size_t nClusters = par->nClusters;
     int result             = 0;
+    size_t blockSize       = 0;
+    DAAL_SAFE_CPU_CALL((blockSize = BSHelper<method, algorithmFPType, cpu>::kmeansGetBlockSize(n, p, nClusters)), (blockSize = 512))
 
     ReadRows<algorithmFPType, cpu> mtInitClusters(*const_cast<NumericTable *>(a[1]), 0, nClusters);
     DAAL_CHECK_BLOCK_STATUS(mtInitClusters);
@@ -113,17 +116,17 @@ Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::compute(size_
     Status s;
     algorithmFPType oldTargetFunc = (algorithmFPType)0.0;
     {
-        auto task = TaskKMeansLloyd<algorithmFPType, cpu>::create(p, nClusters, initClusters);
+        auto task = TaskKMeansLloyd<algorithmFPType, cpu>::create(p, nClusters, initClusters, blockSize);
         DAAL_CHECK(task.get(), services::ErrorMemoryAllocationFailed);
         DAAL_ASSERT(task);
 
         if (par->resultsToEvaluate & computeAssignments || par->assignFlag)
         {
-            s = task->template addNTToTaskThreaded<method>(ntData, catCoef.get(), ntAssignments);
+            s = task->template addNTToTaskThreaded<method>(ntData, catCoef.get(), blockSize, ntAssignments);
         }
         else
         {
-            s = task->template addNTToTaskThreaded<method>(ntData, catCoef.get());
+            s = task->template addNTToTaskThreaded<method>(ntData, catCoef.get(), blockSize);
         }
         if (!s)
         {

@@ -27,6 +27,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sgd_mini_log_loss_dense_bat
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pca_cor_dense_batch", "vcproj\pca_cor_dense_batch\pca_cor_dense_batch.vcxproj", "{3F3DB339-0194-4A03-A430-F547E94CD5CA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pca_cor_dense_online", "vcproj\pca_cor_dense_online\pca_cor_dense_online.vcxproj", "{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "datastructures_soa", "vcproj\datastructures_soa\datastructures_soa.vcxproj", "{0951F77E-EFD2-4A06-A012-29B275347620}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "datastructures_usm", "vcproj\datastructures_usm\datastructures_usm.vcxproj", "{E6E61E4A-BD29-4CBB-BB82-6F3BEBA5DAD3}"
@@ -44,6 +46,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "kernel_func_rbf_dense_batch", "vcproj\kernel_func_rbf_dense_batch\kernel_func_rbf_dense_batch.vcxproj", "{E444205E-54F4-459E-9715-FCFE1DEC2007}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "kernel_func_lin_dense_batch", "vcproj\kernel_func_lin_dense_batch\kernel_func_lin_dense_batch.vcxproj", "{96F48644-2CDD-4C0D-954C-3621972ABF9F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "df_reg_dense_batch", "vcproj\df_reg_dense_batch\df_reg_dense_batch.vcxproj", "{0AB49A34-5876-4C9F-A869-BF316D545232}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -249,6 +253,22 @@ Global
 		{3F3DB339-0194-4A03-A430-F547E94CD5CA}.Release.static.sequential|x64.Build.0 = Release.static.sequential|x64
 		{3F3DB339-0194-4A03-A430-F547E94CD5CA}.Release.static.threaded|x64.ActiveCfg = Release.static.threaded|x64
 		{3F3DB339-0194-4A03-A430-F547E94CD5CA}.Release.static.threaded|x64.Build.0 = Release.static.threaded|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Debug.dynamic.sequential|x64.ActiveCfg = Debug.dynamic.sequential|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Debug.dynamic.sequential|x64.Build.0 = Debug.dynamic.sequential|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Debug.dynamic.threaded|x64.ActiveCfg = Debug.dynamic.threaded|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Debug.dynamic.threaded|x64.Build.0 = Debug.dynamic.threaded|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Debug.static.sequential|x64.ActiveCfg = Debug.static.sequential|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Debug.static.sequential|x64.Build.0 = Debug.static.sequential|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Debug.static.threaded|x64.ActiveCfg = Debug.static.threaded|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Debug.static.threaded|x64.Build.0 = Debug.static.threaded|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Release.dynamic.sequential|x64.ActiveCfg = Release.dynamic.sequential|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Release.dynamic.sequential|x64.Build.0 = Release.dynamic.sequential|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Release.dynamic.threaded|x64.ActiveCfg = Release.dynamic.threaded|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Release.dynamic.threaded|x64.Build.0 = Release.dynamic.threaded|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Release.static.sequential|x64.ActiveCfg = Release.static.sequential|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Release.static.sequential|x64.Build.0 = Release.static.sequential|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Release.static.threaded|x64.ActiveCfg = Release.static.threaded|x64
+		{D9EF5223-6FF3-4C62-A0D5-1F50BFBE3B9C}.Release.static.threaded|x64.Build.0 = Release.static.threaded|x64
 		{0951F77E-EFD2-4A06-A012-29B275347620}.Debug.dynamic.sequential|x64.ActiveCfg = Debug.dynamic.sequential|x64
 		{0951F77E-EFD2-4A06-A012-29B275347620}.Debug.dynamic.sequential|x64.Build.0 = Debug.dynamic.sequential|x64
 		{0951F77E-EFD2-4A06-A012-29B275347620}.Debug.dynamic.threaded|x64.ActiveCfg = Debug.dynamic.threaded|x64
@@ -393,6 +413,22 @@ Global
 		{96F48644-2CDD-4C0D-954C-3621972ABF9F}.Release.static.sequential|x64.Build.0 = Release.static.sequential|x64
 		{96F48644-2CDD-4C0D-954C-3621972ABF9F}.Release.static.threaded|x64.ActiveCfg = Release.static.threaded|x64
 		{96F48644-2CDD-4C0D-954C-3621972ABF9F}.Release.static.threaded|x64.Build.0 = Release.static.threaded|x64
+		{0AB49A34-5876-4C9F-A869-BF316D545232}.Debug.dynamic.sequential|x64.ActiveCfg = Debug.dynamic.sequential|x64
+		{0AB49A34-5876-4C9F-A869-BF316D545232}.Debug.dynamic.sequential|x64.Build.0 = Debug.dynamic.sequential|x64
+		{0AB49A34-5876-4C9F-A869-BF316D545232}.Debug.dynamic.threaded|x64.ActiveCfg = Debug.dynamic.threaded|x64
+		{0AB49A34-5876-4C9F-A869-BF316D545232}.Debug.dynamic.threaded|x64.Build.0 = Debug.dynamic.threaded|x64
+		{0AB49A34-5876-4C9F-A869-BF316D545232}.Debug.static.sequential|x64.ActiveCfg = Debug.static.sequential|x64
+		{0AB49A34-5876-4C9F-A869-BF316D545232}.Debug.static.sequential|x64.Build.0 = Debug.static.sequential|x64
+		{0AB49A34-5876-4C9F-A869-BF316D545232}.Debug.static.threaded|x64.ActiveCfg = Debug.static.threaded|x64
+		{0AB49A34-5876-4C9F-A869-BF316D545232}.Debug.static.threaded|x64.Build.0 = Debug.static.threaded|x64
+		{0AB49A34-5876-4C9F-A869-BF316D545232}.Release.dynamic.sequential|x64.ActiveCfg = Release.dynamic.sequential|x64
+		{0AB49A34-5876-4C9F-A869-BF316D545232}.Release.dynamic.sequential|x64.Build.0 = Release.dynamic.sequential|x64
+		{0AB49A34-5876-4C9F-A869-BF316D545232}.Release.dynamic.threaded|x64.ActiveCfg = Release.dynamic.threaded|x64
+		{0AB49A34-5876-4C9F-A869-BF316D545232}.Release.dynamic.threaded|x64.Build.0 = Release.dynamic.threaded|x64
+		{0AB49A34-5876-4C9F-A869-BF316D545232}.Release.static.sequential|x64.ActiveCfg = Release.static.sequential|x64
+		{0AB49A34-5876-4C9F-A869-BF316D545232}.Release.static.sequential|x64.Build.0 = Release.static.sequential|x64
+		{0AB49A34-5876-4C9F-A869-BF316D545232}.Release.static.threaded|x64.ActiveCfg = Release.static.threaded|x64
+		{0AB49A34-5876-4C9F-A869-BF316D545232}.Release.static.threaded|x64.Build.0 = Release.static.threaded|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

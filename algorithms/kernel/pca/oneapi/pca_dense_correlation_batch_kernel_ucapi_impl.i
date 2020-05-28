@@ -1,6 +1,6 @@
 /* file: pca_dense_correlation_batch_kernel_ucapi_impl.i */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2019-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -48,16 +48,16 @@ namespace pca
 namespace internal
 {
 template <typename algorithmFPType>
-PCACorrelationKernelUCAPI<algorithmFPType>::PCACorrelationKernelUCAPI(const PCACorrelationBaseIfacePtr & host_impl)
+PCACorrelationKernelBatchUCAPI<algorithmFPType>::PCACorrelationKernelBatchUCAPI(const PCACorrelationBaseIfacePtr & host_impl)
 {
     _host_impl = host_impl;
 }
 
 template <typename algorithmFPType>
-Status PCACorrelationKernelUCAPI<algorithmFPType>::compute(bool isCorrelation, bool isDeterministic, NumericTable & dataTable,
-                                                           covariance::BatchImpl * covarianceAlg, DAAL_UINT64 resultsToCompute,
-                                                           NumericTable & eigenvectors, NumericTable & eigenvalues, NumericTable & means,
-                                                           NumericTable & variances)
+Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::compute(bool isCorrelation, bool isDeterministic, NumericTable & dataTable,
+                                                                covariance::BatchImpl * covarianceAlg, DAAL_UINT64 resultsToCompute,
+                                                                NumericTable & eigenvectors, NumericTable & eigenvalues, NumericTable & means,
+                                                                NumericTable & variances)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute);
     Status st;
@@ -184,8 +184,8 @@ Status PCACorrelationKernelUCAPI<algorithmFPType>::compute(bool isCorrelation, b
 }
 
 template <typename algorithmFPType>
-services::Status PCACorrelationKernelUCAPI<algorithmFPType>::correlationFromCovarianceTable(uint32_t nObservations, NumericTable & covariance,
-                                                                                            const services::Buffer<algorithmFPType> & variances)
+services::Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::correlationFromCovarianceTable(uint32_t nObservations, NumericTable & covariance,
+                                                                                                 const services::Buffer<algorithmFPType> & variances)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlationFromCovarianceTable);
     services::Status status;
@@ -208,9 +208,10 @@ services::Status PCACorrelationKernelUCAPI<algorithmFPType>::correlationFromCova
 }
 
 template <typename algorithmFPType>
-services::Status PCACorrelationKernelUCAPI<algorithmFPType>::calculateVariances(ExecutionContextIface & context,
-                                                                                const KernelPtr & calculateVariancesKernel, NumericTable & covariance,
-                                                                                const services::Buffer<algorithmFPType> & variances)
+services::Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::calculateVariances(ExecutionContextIface & context,
+                                                                                     const KernelPtr & calculateVariancesKernel,
+                                                                                     NumericTable & covariance,
+                                                                                     const services::Buffer<algorithmFPType> & variances)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.calculateVariances);
     services::Status status;
