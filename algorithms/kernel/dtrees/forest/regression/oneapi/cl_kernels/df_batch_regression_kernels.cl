@@ -29,7 +29,7 @@
 #define DECLARE_SOURCE(name, src) static const char * name = #src;
 
 DECLARE_SOURCE(
-    df_batch_regression_kernels,
+    df_batch_regression_kernels_part1,
 
     inline int fpEq(algorithmFPType a, algorithmFPType b) { return (int)(fabs(a - b) <= algorithmFPTypeAccuracy); }
 
@@ -47,20 +47,6 @@ DECLARE_SOURCE(
         *mrgSum2Cent = sum2Cent[0] + sum2Cent[1] + delta * delta * deltaScale;
         *mrgMean     = (mean[0] * n[0] + mean[1] * n[1]) * meanScale;
         *mrgN        = sumN1N2;
-    }
-
-    // merge to stats in one
-    void mergeStat(algorithmFPType n, algorithmFPType mean, algorithmFPType sum2Cent, algorithmFPType * mrgLN, algorithmFPType * mrgLMean,
-                   algorithmFPType * mrgLSum2Cent) {
-        algorithmFPType sumN1N2    = *mrgLN + n;
-        algorithmFPType mulN1N2    = *mrgLN * n;
-        algorithmFPType deltaScale = mulN1N2 / sumN1N2;
-        algorithmFPType meanScale  = (algorithmFPType)1 / sumN1N2;
-        algorithmFPType delta      = mean - *mrgLMean;
-
-        *mrgLSum2Cent = *mrgLSum2Cent + sum2Cent + delta * delta * deltaScale;
-        *mrgLMean     = (*mrgLMean * *mrgLN + mean * n) * meanScale;
-        *mrgLN        = sumN1N2;
     }
 
     // merge single value to stat
@@ -247,6 +233,41 @@ DECLARE_SOURCE(
                 if (updateImpDecreaseRequired) nodeImpDecreaseList[nodeId] = curImpDec / mrgN;
             }
         }
+    });
+
+DECLARE_SOURCE(
+    df_batch_regression_kernels_part2,
+
+    inline int fpEq(algorithmFPType a, algorithmFPType b) { return (int)(fabs(a - b) <= algorithmFPTypeAccuracy); }
+
+    inline int fpGt(algorithmFPType a, algorithmFPType b) { return (int)((a - b) > algorithmFPTypeAccuracy); }
+
+    // merge input arrs with stat values
+    void mergeStatArr(algorithmFPType * n, algorithmFPType * mean, algorithmFPType * sum2Cent, algorithmFPType * mrgN, algorithmFPType * mrgMean,
+                      algorithmFPType * mrgSum2Cent) {
+        algorithmFPType sumN1N2    = n[0] + n[1];
+        algorithmFPType mulN1N2    = n[0] * n[1];
+        algorithmFPType deltaScale = mulN1N2 / sumN1N2;
+        algorithmFPType meanScale  = (algorithmFPType)1 / sumN1N2;
+        algorithmFPType delta      = mean[1] - mean[0];
+
+        *mrgSum2Cent = sum2Cent[0] + sum2Cent[1] + delta * delta * deltaScale;
+        *mrgMean     = (mean[0] * n[0] + mean[1] * n[1]) * meanScale;
+        *mrgN        = sumN1N2;
+    }
+
+    // merge to stats in one
+    void mergeStat(algorithmFPType n, algorithmFPType mean, algorithmFPType sum2Cent, algorithmFPType * mrgLN, algorithmFPType * mrgLMean,
+                   algorithmFPType * mrgLSum2Cent) {
+        algorithmFPType sumN1N2    = *mrgLN + n;
+        algorithmFPType mulN1N2    = *mrgLN * n;
+        algorithmFPType deltaScale = mulN1N2 / sumN1N2;
+        algorithmFPType meanScale  = (algorithmFPType)1 / sumN1N2;
+        algorithmFPType delta      = mean - *mrgLMean;
+
+        *mrgLSum2Cent = *mrgLSum2Cent + sum2Cent + delta * delta * deltaScale;
+        *mrgLMean     = (*mrgLMean * *mrgLN + mean * n) * meanScale;
+        *mrgLN        = sumN1N2;
     }
 
     __kernel void computeBestSplitByHistogram(const __global algorithmFPType * histograms, const __global int * selectedFeatures,

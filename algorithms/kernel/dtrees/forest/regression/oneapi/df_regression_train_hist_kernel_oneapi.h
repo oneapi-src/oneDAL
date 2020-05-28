@@ -71,7 +71,8 @@ public:
                              Result & res, const Parameter & par);
 
 private:
-    services::Status buildProgram(oneapi::internal::ClKernelFactoryIface & factory, const char * buildOptions = nullptr);
+    services::Status buildProgram(oneapi::internal::ClKernelFactoryIface & factory, const char * programName, const char * programSrc,
+                                  const char * buildOptions);
 
     services::Status computeBestSplit(const oneapi::internal::UniversalBuffer & data, oneapi::internal::UniversalBuffer & treeOrder,
                                       oneapi::internal::UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,

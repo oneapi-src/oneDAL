@@ -29,7 +29,7 @@
 #define DECLARE_SOURCE(name, src) static const char * name = #src;
 
 DECLARE_SOURCE(
-    df_batch_classification_kernels,
+    df_batch_classification_kernels_part1,
 
     inline int fpEq(algorithmFPType a, algorithmFPType b) { return (int)(fabs(a - b) <= algorithmFPTypeAccuracy); }
 
@@ -249,7 +249,14 @@ DECLARE_SOURCE(
                 if (updateImpDecreaseRequired) nodeImpDecreaseList[nodeId] = bestImpDec;
             }
         }
-    }
+    });
+
+DECLARE_SOURCE(
+    df_batch_classification_kernels_part2,
+
+    inline int fpEq(algorithmFPType a, algorithmFPType b) { return (int)(fabs(a - b) <= algorithmFPTypeAccuracy); }
+
+    inline int fpGt(algorithmFPType a, algorithmFPType b) { return (int)((a - b) > algorithmFPTypeAccuracy); }
 
     __kernel void computeBestSplitByHistogram(const __global algorithmFPType * histograms, const __global int * selectedFeatures,
                                               int nSelectedFeatures, const __global int * binOffsets, __global int * nodeList,

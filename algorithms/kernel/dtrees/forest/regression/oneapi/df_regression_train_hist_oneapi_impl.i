@@ -82,7 +82,8 @@ static services::String getBuildOptions()
 }
 
 template <typename algorithmFPType>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::buildProgram(ClKernelFactoryIface & factory, const char * buildOptions)
+services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::buildProgram(ClKernelFactoryIface & factory, const char * programName,
+                                                                                       const char * programSrc, const char * buildOptions)
 {
     services::Status status;
 
@@ -102,7 +103,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::buildP
 
         services::String cachekey("__daal_algorithms_df_batch_regression_");
         cachekey.add(build_options);
-        factory.build(ExecutionTargetIds::device, cachekey.c_str(), df_batch_regression_kernels, build_options.c_str());
+        cachekey.add(programName);
+
+        factory.build(ExecutionTargetIds::device, cachekey.c_str(), programSrc, build_options.c_str());
     }
 
     return status;
@@ -602,13 +605,13 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
 
-    DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory, buildOptions.c_str()));
+    DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory, "part1", df_batch_regression_kernels_part1, buildOptions.c_str()));
+    kernelComputeBestSplitSinglePass = kernel_factory.getKernel("computeBestSplitSinglePass", &status);
 
+    DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory, "part2", df_batch_regression_kernels_part2, buildOptions.c_str()));
     kernelComputeBestSplitByHistogram = kernel_factory.getKernel("computeBestSplitByHistogram", &status);
-    kernelComputeBestSplitSinglePass  = kernel_factory.getKernel("computeBestSplitSinglePass", &status);
     kernelComputePartialHistograms    = kernel_factory.getKernel("computePartialHistograms", &status);
     kernelReducePartialHistograms     = kernel_factory.getKernel("reducePartialHistograms", &status);
-
     DAAL_CHECK_STATUS_VAR(status);
 
     dtrees::internal::BinParams prm(_maxBins, par.minObservationsInLeafNode);

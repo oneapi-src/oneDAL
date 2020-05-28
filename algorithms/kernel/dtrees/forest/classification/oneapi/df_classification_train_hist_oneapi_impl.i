@@ -111,7 +111,8 @@ static services::String getBuildOptions(size_t nClasses)
 }
 
 template <typename algorithmFPType>
-services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::buildProgram(ClKernelFactoryIface & factory, const char * buildOptions)
+services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::buildProgram(ClKernelFactoryIface & factory, const char * programName,
+                                                                                           const char * programSrc, const char * buildOptions)
 {
     services::Status status;
 
@@ -131,7 +132,9 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::bu
 
         services::String cachekey("__daal_algorithms_df_batch_classification_");
         cachekey.add(build_options);
-        factory.build(ExecutionTargetIds::device, cachekey.c_str(), df_batch_classification_kernels, build_options.c_str());
+        cachekey.add(programName);
+
+        factory.build(ExecutionTargetIds::device, cachekey.c_str(), programSrc, build_options.c_str());
     }
 
     return status;
@@ -278,7 +281,6 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
             int reduceLocalSize = 16; // add logic for its adjustment
 
             size_t nHistBins    = nSelectedFeatures * _nMaxBinsAmongFtrs;
-            nHistBins           = (nHistBins > _totalBins) ? _totalBins : nHistBins;
             size_t partHistSize = nHistBins * _nClasses;
 
             auto partialHistograms = context.allocate(TypeIds::id<algorithmFPType>(), nGroupNodes * nPartialHistograms * partHistSize, &status);
@@ -640,10 +642,11 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
 
-    DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory, buildOptions.c_str()));
+    DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory, "part1", df_batch_classification_kernels_part1, buildOptions.c_str()));
+    kernelComputeBestSplitSinglePass = kernel_factory.getKernel("computeBestSplitSinglePass", &status);
 
+    DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory, "part2", df_batch_classification_kernels_part2, buildOptions.c_str()));
     kernelComputeBestSplitByHistogram = kernel_factory.getKernel("computeBestSplitByHistogram", &status);
-    kernelComputeBestSplitSinglePass  = kernel_factory.getKernel("computeBestSplitSinglePass", &status);
     kernelComputePartialHistograms    = kernel_factory.getKernel("computePartialHistograms", &status);
     kernelReducePartialHistograms     = kernel_factory.getKernel("reducePartialHistograms", &status);
     DAAL_CHECK_STATUS_VAR(status);
