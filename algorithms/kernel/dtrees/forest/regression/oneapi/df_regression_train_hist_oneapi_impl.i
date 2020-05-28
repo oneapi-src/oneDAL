@@ -252,7 +252,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
             int reduceLocalSize = 16; // add logic for its adjustment
 
             size_t nHistBins    = nSelectedFeatures * _nMaxBinsAmongFtrs;
-            nHistBins           = (nHistBins > _totalBins) ? _totalBins : nHistBins;
             size_t partHistSize = nHistBins * _nHistProps;
 
             auto partialHistograms = context.allocate(TypeIds::id<algorithmFPType>(), nGroupNodes * nPartialHistograms * partHistSize, &status);
