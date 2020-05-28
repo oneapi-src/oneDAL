@@ -31,14 +31,9 @@
 DECLARE_SOURCE(
     df_batch_classification_kernels,
 
-    inline int fpEq(algorithmFPType a, algorithmFPType b) {
-        return (int)(fabs(a - b) <= algorithmFPTypeAccuracy);
-    } inline int fpGt(algorithmFPType a, algorithmFPType b) { return (int)((a - b) > algorithmFPTypeAccuracy); }
+    inline int fpEq(algorithmFPType a, algorithmFPType b) { return (int)(fabs(a - b) <= algorithmFPTypeAccuracy); }
 
-    __kernel void initializeTreeOrder(__global int * treeOrder) {
-        const int id  = get_global_id(0);
-        treeOrder[id] = id;
-    }
+    inline int fpGt(algorithmFPType a, algorithmFPType b) { return (int)((a - b) > algorithmFPTypeAccuracy); }
 
     __kernel void computeBestSplitSinglePass(const __global int * data, const __global int * treeOrder, const __global int * selectedFeatures,
                                              int nSelectedFeatures, const __global algorithmFPType * response, const __global int * binOffsets,

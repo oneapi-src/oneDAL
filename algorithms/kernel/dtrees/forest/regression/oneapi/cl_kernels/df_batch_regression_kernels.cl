@@ -1,4 +1,4 @@
-/* file: df_kernels.cl */
+/* file: df_batch_regression_kernels.cl */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -31,12 +31,10 @@
 DECLARE_SOURCE(
     df_batch_regression_kernels,
 
-    int fpIsEqual(algorithmFPType a, algorithmFPType b) { return (int)(fabs(a - b) <= algorithmFPTypeAccuracy); }
+    inline int fpEq(algorithmFPType a, algorithmFPType b) { return (int)(fabs(a - b) <= algorithmFPTypeAccuracy); }
 
-    __kernel void initializeTreeOrder(__global int * treeOrder) {
-        const int id  = get_global_id(0);
-        treeOrder[id] = id;
-    }
+    inline int fpGt(algorithmFPType a, algorithmFPType b) { return (int)((a - b) > algorithmFPTypeAccuracy); }
+
     // merge input arrs with stat values
     void mergeStatArr(algorithmFPType * n, algorithmFPType * mean, algorithmFPType * sum2Cent, algorithmFPType * mrgN, algorithmFPType * mrgMean,
                       algorithmFPType * mrgSum2Cent) {
@@ -74,10 +72,6 @@ DECLARE_SOURCE(
         *mrgSum2Cent += delta * (val - *mrgMean);
     }
 
-    void fillArr(algorithmFPType * arr, int len, algorithmFPType value) {
-        for (int i = 0; i < len; i++) arr[i] = value;
-    }
-
     __kernel void computeBestSplitSinglePass(const __global int * data, const __global int * treeOrder, const __global int * selectedFeatures,
                                              int nSelectedFeatures, const __global algorithmFPType * response, const __global int * binOffsets,
                                              __global int * nodeList, const __global int * nodeIndices, int nodeIndicesOffset,
@@ -89,6 +83,7 @@ DECLARE_SOURCE(
         // spliInfo will contain node impurity and mean
         const int nNodeProp = NODE_PROPS; // num of node properties in nodeList
         const int nImpProp  = IMPURITY_PROPS;
+        const int leafMark  = -1;
 
         const int local_id           = get_local_id(0);
         const int sub_group_local_id = get_sub_group_local_id();
@@ -111,10 +106,11 @@ DECLARE_SOURCE(
         __local algorithmFPType bufI[maxBinsBlocks]; // storage for impurity decrease
         __local int bufS[maxBinsBlocks * nNodeProp]; // storage for split info
 
-        algorithmFPType curImpDec = (algorithmFPType)-1e30;
-        int valNotFound           = 1 << 30;
-        int curFeatureValue       = -1;
-        int curFeatureId          = -1;
+        const algorithmFPType minImpDec = (algorithmFPType)-1e30;
+        algorithmFPType curImpDec       = minImpDec;
+        int valNotFound                 = 1 << 30;
+        int curFeatureValue             = leafMark;
+        int curFeatureId                = leafMark;
 
         nodeList[nodeId * nNodeProp + 2] = curFeatureId;
         nodeList[nodeId * nNodeProp + 3] = curFeatureValue;
@@ -123,6 +119,8 @@ DECLARE_SOURCE(
         algorithmFPType mrgN        = (algorithmFPType)0;
         algorithmFPType mrgMean     = (algorithmFPType)0;
         algorithmFPType mrgSum2Cent = (algorithmFPType)0;
+
+        algorithmFPType imp = (algorithmFPType)0; // node impurity
 
         algorithmFPType bestLN = (algorithmFPType)0;
 
@@ -173,9 +171,10 @@ DECLARE_SOURCE(
             mergeStatArr(mrgLRN, mrgLRMean, mrgLRSum2Cent, &mrgN, &mrgMean, &mrgSum2Cent);
 
             algorithmFPType impDec = mrgSum2Cent - (mrgLRSum2Cent[0] + mrgLRSum2Cent[1]);
+            imp                    = mrgSum2Cent / mrgN; // mrgN isn't 0 due to it is num of rows in node
 
-            if ((algorithmFPType)0 < impDec && (mrgSum2Cent / mrgN) >= impurityThreshold
-                && (curFeatureValue == -1 || impDec > curImpDec || (fpIsEqual(impDec, curImpDec) && featId < curFeatureId))
+            if ((algorithmFPType)0 < impDec && (!fpEq(imp, (algorithmFPType)0)) && imp >= impurityThreshold
+                && (curFeatureValue == leafMark || fpGt(impDec, curImpDec) || (fpEq(impDec, curImpDec) && featId < curFeatureId))
                 && mrgLRN[0] >= minObservationsInLeafNode && mrgLRN[1] >= minObservationsInLeafNode)
             {
                 curFeatureId    = featId;
@@ -188,25 +187,25 @@ DECLARE_SOURCE(
 
         algorithmFPType bestImpDec = sub_group_reduce_max(curImpDec);
 
-        int impDecIsBest     = fpIsEqual(bestImpDec, curImpDec);
+        int impDecIsBest     = fpEq(bestImpDec, curImpDec);
         int bestFeatureId    = sub_group_reduce_min(impDecIsBest ? curFeatureId : valNotFound);
         int bestFeatureValue = sub_group_reduce_min((bestFeatureId == curFeatureId && impDecIsBest) ? curFeatureValue : valNotFound);
 
-        if (curFeatureId == bestFeatureId && curFeatureValue == bestFeatureValue)
+        bool noneSplitFoundBySubGroup = ((leafMark == bestFeatureId) && (0 == sub_group_local_id));
+        bool mySplitIsBest            = (leafMark != bestFeatureId && curFeatureId == bestFeatureId && curFeatureValue == bestFeatureValue);
+        if (noneSplitFoundBySubGroup || mySplitIsBest)
         {
             if (1 == n_sub_groups)
             {
                 __global algorithmFPType * splitNodeInfo = splitInfo + nodeId * nImpProp;
-                nodeList[nodeId * nNodeProp + 2]         = curFeatureId == valNotFound ? -1 : curFeatureId;
-                nodeList[nodeId * nNodeProp + 3]         = curFeatureValue == valNotFound ? -1 : curFeatureValue;
+                nodeList[nodeId * nNodeProp + 2]         = curFeatureId == valNotFound ? leafMark : curFeatureId;
+                nodeList[nodeId * nNodeProp + 3]         = curFeatureValue == valNotFound ? leafMark : curFeatureValue;
                 nodeList[nodeId * nNodeProp + 4]         = (int)bestLN;
 
-                splitNodeInfo[0] = ((algorithmFPType)0 != mrgN) ? mrgSum2Cent / mrgN : (algorithmFPType)0;
+                splitNodeInfo[0] = imp;
                 splitNodeInfo[1] = mrgMean;
 
-                if (updateImpDecreaseRequired) nodeImpDecreaseList[nodeId] = ((algorithmFPType)0 != mrgN) ? curImpDec / mrgN : (algorithmFPType)0;
-
-                return;
+                if (updateImpDecreaseRequired) nodeImpDecreaseList[nodeId] = curImpDec / mrgN;
             }
             else
             {
@@ -222,7 +221,7 @@ DECLARE_SOURCE(
         if (1 < n_sub_groups && 0 == sub_group_id)
         {
             // first sub group for current node reduces over local buffer if required
-            algorithmFPType curImpDec = (sub_group_local_id < n_sub_groups) ? bufI[bufIdx + sub_group_local_id] : (algorithmFPType)0;
+            algorithmFPType curImpDec = (sub_group_local_id < n_sub_groups) ? bufI[bufIdx + sub_group_local_id] : minImpDec;
 
             int curFeatureId    = sub_group_local_id < n_sub_groups ? bufS[(bufIdx + sub_group_local_id) * nNodeProp + 0] : valNotFound;
             int curFeatureValue = sub_group_local_id < n_sub_groups ? bufS[(bufIdx + sub_group_local_id) * nNodeProp + 1] : valNotFound;
@@ -233,17 +232,19 @@ DECLARE_SOURCE(
             int bestFeatureId    = sub_group_reduce_min(bestImpDec == curImpDec ? curFeatureId : valNotFound);
             int bestFeatureValue = sub_group_reduce_min((bestFeatureId == curFeatureId && bestImpDec == curImpDec) ? curFeatureValue : valNotFound);
 
-            if (curFeatureId == bestFeatureId && curFeatureValue == bestFeatureValue)
+            bool noneSplitFoundBySubGroup = ((leafMark == bestFeatureId) && (0 == sub_group_local_id));
+            bool mySplitIsBest            = (leafMark != bestFeatureId && curFeatureId == bestFeatureId && curFeatureValue == bestFeatureValue);
+            if (noneSplitFoundBySubGroup || mySplitIsBest)
             {
                 __global algorithmFPType * splitNodeInfo = splitInfo + nodeId * nImpProp;
-                nodeList[nodeId * nNodeProp + 2]         = curFeatureId == valNotFound ? -1 : curFeatureId;
-                nodeList[nodeId * nNodeProp + 3]         = curFeatureValue == valNotFound ? -1 : curFeatureValue;
+                nodeList[nodeId * nNodeProp + 2]         = curFeatureId == valNotFound ? leafMark : curFeatureId;
+                nodeList[nodeId * nNodeProp + 3]         = curFeatureValue == valNotFound ? leafMark : curFeatureValue;
                 nodeList[nodeId * nNodeProp + 4]         = (int)LN;
 
-                splitNodeInfo[0] = ((algorithmFPType)0 != mrgN) ? mrgSum2Cent / mrgN : 0;
+                splitNodeInfo[0] = imp;
                 splitNodeInfo[1] = mrgMean;
 
-                if (updateImpDecreaseRequired) nodeImpDecreaseList[nodeId] = ((algorithmFPType)0 != mrgN) ? curImpDec / mrgN : (algorithmFPType)0;
+                if (updateImpDecreaseRequired) nodeImpDecreaseList[nodeId] = curImpDec / mrgN;
             }
         }
     }
@@ -265,6 +266,7 @@ DECLARE_SOURCE(
         const int sub_group_size     = get_sub_group_size();
         const int nodeIdx            = get_global_id(1);
         const int nodeId             = nodeIndices[nodeIndicesOffset + nodeIdx];
+        const int leafMark           = -1;
 
         const int local_size         = get_local_size(0);
         const int n_sub_groups       = local_size / sub_group_size; // num of subgroups for current node processing
@@ -281,10 +283,11 @@ DECLARE_SOURCE(
         __local algorithmFPType bufI[maxBinsBlocks]; // storage for impurity decrease
         __local int bufS[maxBinsBlocks * nNodeProp]; // storage for split info
 
-        int valNotFound           = 1 << 30;
-        int curFeatureValue       = -1;
-        int curFeatureId          = -1;
-        algorithmFPType curImpDec = (algorithmFPType)-1e30;
+        const algorithmFPType minImpDec = (algorithmFPType)-1e30;
+        int valNotFound                 = 1 << 30;
+        int curFeatureValue             = leafMark;
+        int curFeatureId                = leafMark;
+        algorithmFPType curImpDec       = minImpDec;
 
         nodeList[nodeId * nNodeProp + 2] = curFeatureId;
         nodeList[nodeId * nNodeProp + 3] = curFeatureValue;
@@ -293,6 +296,8 @@ DECLARE_SOURCE(
         algorithmFPType mrgN        = (algorithmFPType)0;
         algorithmFPType mrgMean     = (algorithmFPType)0;
         algorithmFPType mrgSum2Cent = (algorithmFPType)0;
+
+        algorithmFPType imp = (algorithmFPType)0; // node impurity
 
         algorithmFPType bestLN = (algorithmFPType)0;
 
@@ -352,9 +357,10 @@ DECLARE_SOURCE(
             mergeStatArr(mrgLRN, mrgLRMean, mrgLRSum2Cent, &mrgN, &mrgMean, &mrgSum2Cent);
 
             algorithmFPType impDec = mrgSum2Cent - (mrgLRSum2Cent[0] + mrgLRSum2Cent[1]);
+            imp                    = mrgSum2Cent / mrgN; // mrgN isn't 0 due to it is num of rows in node
 
-            if ((algorithmFPType)0 < impDec && (mrgSum2Cent / mrgN) >= impurityThreshold
-                && (curFeatureValue == -1 || impDec > curImpDec || (fpIsEqual(impDec, curImpDec) && featId < curFeatureId))
+            if ((algorithmFPType)0 < impDec && (!fpEq(imp, (algorithmFPType)0)) && imp >= impurityThreshold
+                && (curFeatureValue == leafMark || fpGt(impDec, curImpDec) || (fpEq(impDec, curImpDec) && featId < curFeatureId))
                 && mrgLRN[0] >= minObservationsInLeafNode && mrgLRN[1] >= minObservationsInLeafNode)
             {
                 curFeatureId    = featId;
@@ -367,24 +373,25 @@ DECLARE_SOURCE(
 
         algorithmFPType bestImpDec = sub_group_reduce_max(curImpDec);
 
-        int impDecIsBest     = fpIsEqual(bestImpDec, curImpDec);
+        int impDecIsBest     = fpEq(bestImpDec, curImpDec);
         int bestFeatureId    = sub_group_reduce_min(impDecIsBest ? curFeatureId : valNotFound);
         int bestFeatureValue = sub_group_reduce_min((bestFeatureId == curFeatureId && impDecIsBest) ? curFeatureValue : valNotFound);
 
-        if (curFeatureId == bestFeatureId && curFeatureValue == bestFeatureValue)
+        bool noneSplitFoundBySubGroup = ((leafMark == bestFeatureId) && (0 == sub_group_local_id));
+        bool mySplitIsBest            = (leafMark != bestFeatureId && curFeatureId == bestFeatureId && curFeatureValue == bestFeatureValue);
+        if (noneSplitFoundBySubGroup || mySplitIsBest)
         {
             if (1 == n_sub_groups)
             {
                 __global algorithmFPType * splitNodeInfo = splitInfo + nodeId * nImpProp;
-                nodeList[nodeId * nNodeProp + 2]         = curFeatureId == valNotFound ? -1 : curFeatureId;
-                nodeList[nodeId * nNodeProp + 3]         = curFeatureValue == valNotFound ? -1 : curFeatureValue;
+                nodeList[nodeId * nNodeProp + 2]         = curFeatureId == valNotFound ? leafMark : curFeatureId;
+                nodeList[nodeId * nNodeProp + 3]         = curFeatureValue == valNotFound ? leafMark : curFeatureValue;
                 nodeList[nodeId * nNodeProp + 4]         = (int)bestLN;
 
-                splitNodeInfo[0] = ((algorithmFPType)0 != mrgN) ? mrgSum2Cent / mrgN : (algorithmFPType)0;
+                splitNodeInfo[0] = imp;
                 splitNodeInfo[1] = mrgMean;
 
-                if (updateImpDecreaseRequired) nodeImpDecreaseList[nodeId] = ((algorithmFPType)0 != mrgN) ? curImpDec / mrgN : (algorithmFPType)0;
-                return;
+                if (updateImpDecreaseRequired) nodeImpDecreaseList[nodeId] = curImpDec / mrgN;
             }
             else
             {
@@ -400,7 +407,7 @@ DECLARE_SOURCE(
         if (1 < n_sub_groups && 0 == sub_group_id)
         {
             // first sub group for current node reduces over local buffer if required
-            algorithmFPType curImpDec = (sub_group_local_id < n_sub_groups) ? bufI[bufIdx + sub_group_local_id] : (algorithmFPType)0;
+            algorithmFPType curImpDec = (sub_group_local_id < n_sub_groups) ? bufI[bufIdx + sub_group_local_id] : minImpDec;
 
             int curFeatureId    = sub_group_local_id < n_sub_groups ? bufS[(bufIdx + sub_group_local_id) * nNodeProp + 0] : valNotFound;
             int curFeatureValue = sub_group_local_id < n_sub_groups ? bufS[(bufIdx + sub_group_local_id) * nNodeProp + 1] : valNotFound;
@@ -411,38 +418,20 @@ DECLARE_SOURCE(
             int bestFeatureId    = sub_group_reduce_min(bestImpDec == curImpDec ? curFeatureId : valNotFound);
             int bestFeatureValue = sub_group_reduce_min((bestFeatureId == curFeatureId && bestImpDec == curImpDec) ? curFeatureValue : valNotFound);
 
-            if (curFeatureId == bestFeatureId && curFeatureValue == bestFeatureValue)
+            bool noneSplitFoundBySubGroup = ((leafMark == bestFeatureId) && (0 == sub_group_local_id));
+            bool mySplitIsBest            = (leafMark != bestFeatureId && curFeatureId == bestFeatureId && curFeatureValue == bestFeatureValue);
+            if (noneSplitFoundBySubGroup || mySplitIsBest)
             {
                 __global algorithmFPType * splitNodeInfo = splitInfo + nodeId * nImpProp;
-                nodeList[nodeId * nNodeProp + 2]         = curFeatureId == valNotFound ? -1 : curFeatureId;
-                nodeList[nodeId * nNodeProp + 3]         = curFeatureValue == valNotFound ? -1 : curFeatureValue;
+                nodeList[nodeId * nNodeProp + 2]         = curFeatureId == valNotFound ? leafMark : curFeatureId;
+                nodeList[nodeId * nNodeProp + 3]         = curFeatureValue == valNotFound ? leafMark : curFeatureValue;
                 nodeList[nodeId * nNodeProp + 4]         = (int)LN;
 
-                splitNodeInfo[0] = ((algorithmFPType)0 != mrgN) ? mrgSum2Cent / mrgN : 0;
+                splitNodeInfo[0] = imp;
                 splitNodeInfo[1] = mrgMean;
 
-                if (updateImpDecreaseRequired) nodeImpDecreaseList[nodeId] = ((algorithmFPType)0 != mrgN) ? curImpDec / mrgN : (algorithmFPType)0;
+                if (updateImpDecreaseRequired) nodeImpDecreaseList[nodeId] = curImpDec / mrgN;
             }
-        }
-    }
-
-    __kernel void getNumOfSplitNodes(const __global int * nodeList, int nNodes, __global int * nSplitNodes) {
-        const int local_id   = get_sub_group_local_id();
-        const int local_size = get_sub_group_size();
-        const int nNodeProp  = NODE_PROPS; // num of node properties in node
-        const int badVal     = -1;
-
-        int sum = 0;
-        for (int i = local_id; i < nNodes; i += local_size)
-        {
-            sum += (int)(nodeList[i * nNodeProp + 2] != badVal);
-        }
-
-        sum = sub_group_reduce_add(sum);
-
-        if (local_id == 0)
-        {
-            nSplitNodes[0] = sum;
         }
     }
 
@@ -558,332 +547,6 @@ DECLARE_SOURCE(
             nodeHistogram[binId * nProp + 1] = mrgMean;
             nodeHistogram[binId * nProp + 2] = mrgSum2Cent;
         }
-    }
-
-    __kernel void partitionCopy(const __global int * treeOrderBuf, __global int * treeOrder, int offset) {
-        const int id           = get_global_id(0);
-        treeOrder[offset + id] = treeOrderBuf[offset + id];
-    }
-
-    __kernel void doLevelPartition(const __global int * data, const __global int * nodeList, const __global int * treeOrder,
-                                   __global int * treeOrderBuf, int nFeatures) {
-        const int nNodeProp  = NODE_PROPS; // num of split attributes for node
-        const int local_id   = get_sub_group_local_id();
-        const int nodeId     = get_global_id(1);
-        const int local_size = get_sub_group_size();
-
-        __global const int * node = nodeList + nodeId * nNodeProp;
-        const int offset          = node[0];
-        const int nRows           = node[1];
-        const int featId          = node[2];
-        const int splitVal        = node[3];
-        const int nRowsLeft       = node[4]; // num of items in Left part
-
-        if (featId < 0) // leaf node
-        {
-            return;
-        }
-
-        int sum = 0;
-
-        for (int i = local_id; i < nRows; i += local_size)
-        {
-            int id                        = treeOrder[offset + i];
-            int toRight                   = (int)(data[id * nFeatures + featId] > splitVal);
-            int boundary                  = sum + sub_group_scan_exclusive_add(toRight);
-            int posNew                    = (toRight ? nRowsLeft + boundary : i - boundary);
-            treeOrderBuf[offset + posNew] = id;
-            sum += sub_group_reduce_add(toRight);
-        }
-    }
-
-    __kernel void convertSplitToLeaf(__global int * nodeList) {
-        const int nNodeProp = NODE_PROPS; // num of split attributes for node
-        const int badVal    = -1;
-        const int id        = get_global_id(0);
-
-        nodeList[id * nNodeProp + 2] = badVal;
-        nodeList[id * nNodeProp + 3] = badVal;
-    }
-
-    __kernel void doNodesSplit(const __global int * nodeList, int nNodes, __global int * nodeListNew) {
-        const int nNodeProp  = NODE_PROPS; // num of split attributes for node
-        const int badVal     = -1;
-        const int local_id   = get_sub_group_local_id();
-        const int local_size = get_sub_group_size();
-
-        int nCreatedNodes = 0;
-        for (int i = local_id; i < nNodes; i += local_size)
-        {
-            int splitNode      = (int)(nodeList[i * nNodeProp + 2] != badVal); // featId != -1
-            int newLeftNodePos = nCreatedNodes + sub_group_scan_exclusive_add(splitNode) * 2;
-            if (splitNode)
-            {
-                // split parent node on left and right nodes
-                __global const int * nodeP = nodeList + i * nNodeProp;
-                __global int * nodeL       = nodeListNew + newLeftNodePos * nNodeProp;
-                __global int * nodeR       = nodeListNew + (newLeftNodePos + 1) * nNodeProp;
-
-                nodeL[0] = nodeP[0]; // rows offset
-                nodeL[1] = nodeP[4]; // nRows
-                nodeL[2] = badVal;   // featureId
-                nodeL[3] = badVal;   // featureVal
-                nodeL[4] = nodeP[4]; // num of items in Left part = nRows in new node
-
-                nodeR[0] = nodeL[0] + nodeL[1];
-                nodeR[1] = nodeP[1] - nodeL[1];
-                nodeR[2] = badVal;
-                nodeR[3] = badVal;
-                nodeR[4] = nodeR[1]; // num of items in Left part = nRows in new node
-            }
-            nCreatedNodes += sub_group_reduce_add(splitNode) * 2;
-        }
-    }
-
-    __kernel void splitNodeListOnGroupsBySize(const __global int * nodeList, int nNodes, __global int * bigNodesGroups, __global int * nodeIndices,
-                                              int minRowsBlock) {
-        /*for now only 3 groups are produced, may be more required*/
-        const int bigNodeLowBorderBlocksNum = BIG_NODE_LOW_BORDER_BLOCKS_NUM; // fine, need to experiment and find better one
-        const int blockSize                 = minRowsBlock;
-        const int nNodeProp                 = NODE_PROPS; // num of split attributes for node
-
-        const int local_id   = get_sub_group_local_id();
-        const int nodeId     = get_global_id(1);
-        const int local_size = get_sub_group_size();
-
-        int nBigNodes       = 0;
-        int maxBigBlocksNum = 1;
-        int nMidNodes       = 0;
-        int maxMidBlocksNum = 1;
-
-        /*calculate num of big and mid nodes*/
-        for (int i = local_id; i < nNodes; i += local_size)
-        {
-            int nRows   = nodeList[i * nNodeProp + 1];
-            int nBlocks = nRows / blockSize + !!(nRows % blockSize);
-
-            int bigNode = (int)(nBlocks > bigNodeLowBorderBlocksNum);
-            int midNode = (int)(nBlocks <= bigNodeLowBorderBlocksNum && nBlocks > 1);
-
-            nBigNodes += sub_group_reduce_add(bigNode);
-            nMidNodes += sub_group_reduce_add(midNode);
-            maxBigBlocksNum = max(maxBigBlocksNum, bigNode ? nBlocks : 0);
-            maxBigBlocksNum = sub_group_reduce_max(maxBigBlocksNum);
-            maxMidBlocksNum = max(maxMidBlocksNum, midNode ? nBlocks : 0);
-            maxMidBlocksNum = sub_group_reduce_max(maxMidBlocksNum);
-        }
-
-        nBigNodes = sub_group_broadcast(nBigNodes, 0);
-        nMidNodes = sub_group_broadcast(nMidNodes, 0);
-
-        if (0 == local_id)
-        {
-            bigNodesGroups[0] = nBigNodes;
-            bigNodesGroups[1] = maxBigBlocksNum;
-            bigNodesGroups[2] = nMidNodes;
-            bigNodesGroups[3] = maxMidBlocksNum;
-            bigNodesGroups[4] = nNodes - nBigNodes - nMidNodes;
-            bigNodesGroups[5] = 1;
-        }
-
-        int sumBig = 0;
-        int sumMid = 0;
-
-        /*split nodes on groups*/
-        for (int i = local_id; i < nNodes; i += local_size)
-        {
-            int nRows   = nodeList[i * nNodeProp + 1];
-            int nBlocks = nRows / blockSize + !!(nRows % blockSize);
-            int bigNode = (int)(nBlocks > bigNodeLowBorderBlocksNum);
-            int midNode = (int)(nBlocks <= bigNodeLowBorderBlocksNum && nBlocks > 1);
-
-            int boundaryBig = sumBig + sub_group_scan_exclusive_add(bigNode);
-            int boundaryMid = sumMid + sub_group_scan_exclusive_add(midNode);
-            int posNew      = (bigNode ? boundaryBig : (midNode ? nBigNodes + boundaryMid : nBigNodes + nMidNodes + i - boundaryBig - boundaryMid));
-            nodeIndices[posNew] = i;
-            sumBig += sub_group_reduce_add(bigNode);
-            sumMid += sub_group_reduce_add(midNode);
-        }
-    }
-
-    __kernel void updateMDIVarImportance(const __global int * nodeList, const __global algorithmFPType * nodeImpDecreaseList, int nNodes,
-                                         __global algorithmFPType * featureImportanceList) {
-        const int nNodeProp = NODE_PROPS; // num of node properties in nodeList
-
-        const int local_id           = get_local_id(0);
-        const int sub_group_local_id = get_sub_group_local_id();
-        const int sub_group_size     = get_sub_group_size();
-        const int local_size         = get_local_size(0);
-        const int n_sub_groups       = local_size / sub_group_size; // num of subgroups for current node processing
-        const int sub_group_id       = local_id / sub_group_size;
-        const int max_sub_groups_num = 16; //replace with define
-
-        const int bufIdx = get_global_id(1) % (max_sub_groups_num / n_sub_groups); // local buffer is shared between 16 sub groups
-        const int ftrId  = get_global_id(1);
-
-        const int leafMark             = -1;
-        const int nElementsForSubgroup = nNodes / n_sub_groups + !!(nNodes % n_sub_groups);
-
-        __local algorithmFPType bufI[max_sub_groups_num]; // storage for impurity decrease
-
-        int iStart = sub_group_id * nElementsForSubgroup;
-        int iEnd   = (sub_group_id + 1) * nElementsForSubgroup;
-
-        iEnd = (iEnd > nNodes) ? nNodes : iEnd;
-
-        algorithmFPType ftrImp = (algorithmFPType)0;
-
-        for (int nodeIdx = iStart + local_id; nodeIdx < iEnd; nodeIdx += local_size)
-        {
-            int splitFtrId = nodeList[nodeIdx * nNodeProp + 2];
-            ftrImp += sub_group_reduce_add((splitFtrId != leafMark && ftrId == splitFtrId) ? nodeImpDecreaseList[nodeIdx] : (algorithmFPType)0);
-        }
-
-        if (0 == sub_group_local_id)
-        {
-            if (1 == n_sub_groups)
-            {
-                featureImportanceList[ftrId] += ftrImp;
-                return;
-            }
-            else
-            {
-                bufI[bufIdx + sub_group_id] = ftrImp;
-            }
-        }
-
-        barrier(CLK_LOCAL_MEM_FENCE);
-        if (1 < n_sub_groups && 0 == sub_group_id)
-        {
-            // first sub group for current node reduces over local buffer if required
-            algorithmFPType ftrImp      = (sub_group_local_id < n_sub_groups) ? bufI[bufIdx + sub_group_local_id] : (algorithmFPType)0;
-            algorithmFPType totalFtrImp = sub_group_reduce_add(ftrImp);
-
-            if (0 == local_id)
-            {
-                featureImportanceList[ftrId] += totalFtrImp;
-            }
-        }
-    }
-
-    __kernel void markPresentRows(const __global int * rowsList, __global int * rowsBuffer, int nRows) {
-        const int n_groups             = get_num_groups(0);
-        const int n_sub_groups         = get_num_sub_groups();
-        const int n_total_sub_groups   = n_sub_groups * n_groups;
-        const int nElementsForSubgroup = nRows / n_total_sub_groups + !!(nRows % n_total_sub_groups);
-        const int local_size           = get_sub_group_size();
-
-        const int id           = get_local_id(0);
-        const int local_id     = get_sub_group_local_id();
-        const int sub_group_id = get_sub_group_id();
-        const int group_id     = get_group_id(0) * n_sub_groups + sub_group_id;
-
-        const int itemPresentMark = 1;
-
-        int iStart = group_id * nElementsForSubgroup;
-        int iEnd   = (group_id + 1) * nElementsForSubgroup;
-
-        iEnd = (iEnd > nRows) ? nRows : iEnd;
-
-        for (int i = iStart + local_id; i < iEnd; i += local_size)
-        {
-            rowsBuffer[rowsList[i]] = itemPresentMark;
-        }
-    }
-
-    __kernel void countAbsentRowsForBlocks(const __global int * rowsBuffer, __global int * partialSums, int nRows) {
-        const int n_groups             = get_num_groups(0);
-        const int n_sub_groups         = get_num_sub_groups();
-        const int n_total_sub_groups   = n_sub_groups * n_groups;
-        const int nElementsForSubgroup = nRows / n_total_sub_groups + !!(nRows % n_total_sub_groups);
-        const int local_size           = get_sub_group_size();
-
-        const int id           = get_local_id(0);
-        const int local_id     = get_sub_group_local_id();
-        const int sub_group_id = get_sub_group_id();
-        const int group_id     = get_group_id(0) * n_sub_groups + sub_group_id;
-
-        const int itemAbsentMark = -1;
-
-        int iStart = group_id * nElementsForSubgroup;
-        int iEnd   = (group_id + 1) * nElementsForSubgroup;
-
-        iEnd = (iEnd > nRows) ? nRows : iEnd;
-
-        int subSum = 0;
-
-        for (int i = iStart + local_id; i < iEnd; i += local_size)
-        {
-            subSum += (int)(itemAbsentMark == rowsBuffer[i]);
-        }
-
-        int sum = sub_group_reduce_add(subSum);
-
-        if (local_id == 0)
-        {
-            partialSums[group_id] = sum;
-        }
-    }
-
-    __kernel void countAbsentRowsTotal(const __global int * partialSums, __global int * partialPrefixSums, __global int * totalSum,
-                                       int nSubgroupSums) {
-        if (get_sub_group_id() > 0) return;
-
-        const int local_size = get_sub_group_size();
-        const int local_id   = get_sub_group_local_id();
-
-        int sum = 0;
-
-        for (int i = local_id; i < nSubgroupSums; i += local_size)
-        {
-            int value            = partialSums[i];
-            int boundary         = sub_group_scan_exclusive_add(value);
-            partialPrefixSums[i] = sum + boundary;
-            sum += sub_group_reduce_add(value);
-        }
-
-        if (local_id == 0)
-        {
-            totalSum[0] = sum;
-        }
-    }
-
-    __kernel void fillOOBRowsListByBlocks(const __global int * rowsBuffer, const __global int * partialPrefixSums, __global int * oobRowsList,
-                                          int nRows) {
-        const int n_groups           = get_num_groups(0);
-        const int n_sub_groups       = get_num_sub_groups();
-        const int n_total_sub_groups = n_sub_groups * n_groups;
-        const int local_size         = get_sub_group_size();
-
-        const int id           = get_local_id(0);
-        const int local_id     = get_sub_group_local_id();
-        const int sub_group_id = get_sub_group_id();
-        const int group_id     = get_group_id(0) * n_sub_groups + sub_group_id;
-
-        const int nElementsForSubgroup = nRows / n_total_sub_groups + !!(nRows % n_total_sub_groups);
-
-        const int itemAbsentMark = -1;
-
-        int iStart = group_id * nElementsForSubgroup;
-        int iEnd   = (group_id + 1) * nElementsForSubgroup;
-
-        iEnd = (iEnd > nRows) ? nRows : iEnd;
-
-        int groupOffset = partialPrefixSums[group_id];
-        int sum         = 0;
-
-        for (int i = iStart + local_id; i < iEnd; i += local_size)
-        {
-            int oobRow = (int)(itemAbsentMark == rowsBuffer[i]);
-            int pos    = groupOffset + sum + sub_group_scan_exclusive_add(oobRow);
-            if (oobRow)
-            {
-                oobRowsList[pos] = i;
-            }
-            sum += sub_group_reduce_add(oobRow);
-        }
-    }
-
-);
+    });
 
 #endif

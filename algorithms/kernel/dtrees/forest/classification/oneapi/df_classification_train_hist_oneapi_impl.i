@@ -277,7 +277,9 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
             //_maxLocalHistograms/2 (128) showed better performance than _maxLocalHistograms need to investigate
             int reduceLocalSize = 16; // add logic for its adjustment
 
-            size_t partHistSize = nSelectedFeatures * _nMaxBinsAmongFtrs * _nClasses;
+            size_t nHistBins    = nSelectedFeatures * _nMaxBinsAmongFtrs;
+            nHistBins           = (nHistBins > _totalBins) ? _totalBins : nHistBins;
+            size_t partHistSize = nHistBins * _nHistProps;
 
             auto partialHistograms = context.allocate(TypeIds::id<algorithmFPType>(), nGroupNodes * nPartialHistograms * partHistSize, &status);
             auto nodesHistograms   = context.allocate(TypeIds::id<algorithmFPType>(), nGroupNodes * partHistSize, &status);
@@ -652,6 +654,7 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
     DAAL_CHECK_MALLOC(featTypes.init(*x));
     DAAL_CHECK_STATUS(status, (indexedFeatures.init(*const_cast<NumericTable *>(x), &featTypes, &prm)));
 
+    _totalBins = indexedFeatures.totalBins();
     /* calculating the maximal number of bins for feature among all features */
     {
         auto binOffsetsHost = indexedFeatures.binOffsets().template get<int>().toHost(ReadWriteMode::readOnly);

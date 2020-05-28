@@ -172,6 +172,7 @@ private:
 
     size_t _nClasses;
     size_t _nMaxBinsAmongFtrs;
+    size_t _totalBins;
 };
 
 } // namespace internal
