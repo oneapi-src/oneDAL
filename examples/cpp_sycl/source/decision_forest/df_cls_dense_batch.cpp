@@ -41,7 +41,6 @@ using namespace daal::algorithms::decision_forest::classification;
 /* Input data set parameters */
 const string trainDatasetFileName = "../data/batch/df_classification_train.csv";
 const string testDatasetFileName  = "../data/batch/df_classification_test.csv";
-//const size_t categoricalFeaturesIndices[] = { 2 };
 const size_t categoricalFeaturesIndices[] = {};
 const size_t nFeatures                    = 3; /* Number of features in training and testing data sets */
 
