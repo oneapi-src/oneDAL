@@ -279,7 +279,7 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
 
             size_t nHistBins    = nSelectedFeatures * _nMaxBinsAmongFtrs;
             nHistBins           = (nHistBins > _totalBins) ? _totalBins : nHistBins;
-            size_t partHistSize = nHistBins * _nHistProps;
+            size_t partHistSize = nHistBins * _nClasses;
 
             auto partialHistograms = context.allocate(TypeIds::id<algorithmFPType>(), nGroupNodes * nPartialHistograms * partHistSize, &status);
             auto nodesHistograms   = context.allocate(TypeIds::id<algorithmFPType>(), nGroupNodes * partHistSize, &status);
