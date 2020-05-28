@@ -23,11 +23,7 @@ conda-env list
 conda create -y -n conf python=3.7
 echo PATH
 echo $PATH
-export PATH=${CONDA_DIR}/bin:$PATH
-echo PATH
-echo $PATH
 conda-env list
-source activate base
 conda activate conf
 conda install -y -c intel mpich tbb-devel numpy pytest scikit-learn
 conda remove -y daal4py --force

@@ -83,6 +83,7 @@ jobs:
       conda build --override-channels -c conda-forge -c intel --no-test conda-recipe
     displayName: conda build
   - script: |
+      . $HOME/miniconda/etc/profile.d/conda.sh
       $(Pipeline.Workspace)/s/.ci/scripts/conformance_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda
     timeoutInMinutes: 15
     displayName: conformance
