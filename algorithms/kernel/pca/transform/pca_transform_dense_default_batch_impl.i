@@ -34,6 +34,7 @@
 #include "service/kernel/service_unique_ptr.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "algorithms/kernel/service_error_handling.h"
+#include "algorithms/kernel/pca/transform/pca_transform_helper.h"
 
 namespace daal
 {
@@ -58,7 +59,6 @@ void TransformKernel<algorithmFPType, method, cpu>::computeTransformedBlock(DAAL
     char notrans         = 'N';
     algorithmFPType one  = 1.0;
     algorithmFPType zero = 0.0;
-
     Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, numComponents, numRows, numFeatures, &one, eigenvectors, numFeatures, dataBlock, numFeatures,
                                        &zero, resultBlock, numComponents);
 
@@ -98,18 +98,16 @@ services::Status TransformKernel<algorithmFPType, method, cpu>::compute(NumericT
     DAAL_INT numVectors    = data.getNumberOfRows();
     DAAL_INT numFeatures   = data.getNumberOfColumns();
     DAAL_INT numComponents = transformedData.getNumberOfColumns();
-
     /* Retrieve data associated with coefficients */
     ReadRows<algorithmFPType, cpu> basis(eigenvectors, 0, numComponents);
     DAAL_CHECK_BLOCK_STATUS(basis)
     const algorithmFPType * pBasis = basis.get();
-
-    size_t numRowsInBlock = _numRowsInBlock;
+    using BSHelper                 = BSHelper<algorithmFPType, cpu>;
+    size_t numRowsInBlock          = BSHelper::getBlockSize(numComponents, numFeatures, numVectors);
     if (numRowsInBlock < 1)
     {
         numRowsInBlock = 1;
     }
-
     /* Calculate number of blocks of rows including tail block */
     size_t numBlocks = numVectors / numRowsInBlock;
     if (numBlocks * numRowsInBlock < numVectors)

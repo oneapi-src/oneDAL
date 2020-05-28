@@ -72,8 +72,6 @@ public:
     */
     void computeTransformedBlock(DAAL_INT * numRows, DAAL_INT * numFeatures, DAAL_INT * numComponents, const algorithmFPType * dataBlock,
                                  const algorithmFPType * eigenvectors, algorithmFPType * resultBlock);
-
-    static const size_t _numRowsInBlock = 256;
 };
 } // namespace internal
 } // namespace transform

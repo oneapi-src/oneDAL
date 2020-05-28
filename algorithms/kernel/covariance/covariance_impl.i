@@ -34,6 +34,7 @@
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "algorithms/kernel/service_error_handling.h"
 #include "algorithms/threading/threading.h"
+#include "algorithms/kernel/covariance/covariance_helper.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;
@@ -121,19 +122,6 @@ private:
     TArrayScalableCalloc<algorithmFPType, cpu> crossProductArray;
 };
 
-/* Optimal block size for AVX512 low dimensions case (1024) and other CPU's and cases (140) */
-template <CpuType cpu>
-static inline size_t getBlockSize(size_t nrows)
-{
-    return 140;
-}
-
-template <>
-inline size_t getBlockSize<avx512>(size_t nrows)
-{
-    return (nrows > 5000 && nrows <= 50000) ? 1024 : 140;
-}
-
 /********************* updateDenseCrossProductAndSums ********************************************/
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatures, size_t nVectors, NumericTable * dataTable,
@@ -145,7 +133,8 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
         algorithmFPType nVectorsInv = 1.0 / (double)(nVectors);
 
         /* Split rows by blocks */
-        size_t numRowsInBlock = getBlockSize<cpu>(nVectors);
+        using BSHelper        = BSHelper<algorithmFPType, cpu>;
+        size_t numRowsInBlock = BSHelper::getBlockSize(nFeatures, nVectors);
         size_t numBlocks      = nVectors / numRowsInBlock;
         if (numBlocks * numRowsInBlock < nVectors)
         {
@@ -182,8 +171,7 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
 
             ReadRows<algorithmFPType, cpu, NumericTable> dataTableBD(dataTable, startRow, nRows);
             DAAL_CHECK_BLOCK_STATUS_THR(dataTableBD);
-            algorithmFPType * dataBlock_local = const_cast<algorithmFPType *>(dataTableBD.get());
-
+            algorithmFPType * dataBlock_local    = const_cast<algorithmFPType *>(dataTableBD.get());
             DAAL_INT nFeatures_local             = nFeatures;
             algorithmFPType * crossProduct_local = tls_data_local->crossProduct;
             algorithmFPType * sums_local         = tls_data_local->sums;
