@@ -1,4 +1,4 @@
-/* file: df_regression_train_hist_oneapi_impl.i */
+/* file: df_classification_train_hist_oneapi_impl.i */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -17,22 +17,21 @@
 
 /*
 //++
-//  Implementation of auxiliary functions for decision forest regression
+//  Implementation of auxiliary functions for decision forest classification
 //  hist method.
 //--
 */
 
-#ifndef __DF_REGRESSION_TRAIN_HIST_ONEAPI_IMPL_I__
-#define __DF_REGRESSION_TRAIN_HIST_ONEAPI_IMPL_I__
+#ifndef __DF_CLASSIFICATION_TRAIN_HIST_ONEAPI_IMPL_I__
+#define __DF_CLASSIFICATION_TRAIN_HIST_ONEAPI_IMPL_I__
 
-#include "algorithms/kernel/dtrees/forest/regression/oneapi/df_regression_train_hist_kernel_oneapi.h"
-#include "algorithms/kernel/engines/engine_types_internal.h"
-#include "algorithms/kernel/dtrees/forest/regression/oneapi/cl_kernels/df_batch_regression_kernels.cl"
+#include "algorithms/kernel/dtrees/forest/classification/oneapi/df_classification_train_hist_kernel_oneapi.h"
+#include "algorithms/kernel/dtrees/forest/classification/oneapi/cl_kernels/df_batch_classification_kernels.cl"
 
 #include "algorithms/kernel/dtrees/forest/oneapi/df_feature_type_helper_oneapi.i"
 #include "algorithms/kernel/dtrees/forest/oneapi/df_tree_level_build_helper_oneapi.i"
-#include "algorithms/kernel/dtrees/forest/regression/df_regression_model_impl.h"
-#include "algorithms/kernel/dtrees/forest/regression/oneapi/df_regression_tree_helper_impl.i"
+#include "algorithms/kernel/dtrees/forest/classification/df_classification_model_impl.h"
+#include "algorithms/kernel/dtrees/forest/classification/oneapi/df_classification_tree_helper_impl.i"
 
 #include "externals/service_ittnotify.h"
 #include "externals/service_rng.h"
@@ -45,10 +44,11 @@
 #include "service/kernel/service_algo_utils.h"
 #include "service/kernel/service_arrays.h"
 #include "service/kernel/service_utils.h"
+#include "algorithms/kernel/engines/engine_types_internal.h"
 #include "oneapi/internal/types.h"
 
 using namespace daal::algorithms::decision_forest::internal;
-using namespace daal::algorithms::decision_forest::regression::internal;
+using namespace daal::algorithms::decision_forest::classification::internal;
 
 namespace daal
 {
@@ -56,7 +56,7 @@ namespace algorithms
 {
 namespace decision_forest
 {
-namespace regression
+namespace classification
 {
 namespace training
 {
@@ -76,14 +76,43 @@ static services::String getFPTypeAccuracy()
     return services::String();
 }
 
-static services::String getBuildOptions()
+inline char * utoa(uint32_t value, char * buffer, size_t buffer_size)
 {
-    return " -D NODE_PROPS=5 -D IMPURITY_PROPS=2 -D HIST_PROPS=3 ";
+    size_t i = 0;
+    while (value && i < buffer_size - 1)
+    {
+        size_t rem  = value % 10;
+        buffer[i++] = 48 + rem;
+        value /= 10;
+    }
+
+    for (size_t j = 0; j < i - j - 1; j++)
+    {
+        char tmp          = buffer[j];
+        buffer[j]         = buffer[i - j - 1];
+        buffer[i - j - 1] = tmp;
+    }
+    buffer[i] = 0;
+    return buffer;
+}
+
+static services::String getBuildOptions(size_t nClasses)
+{
+    const uint32_t valBufSize = 16;
+    static char valBuffer[valBufSize];
+
+    services::String nClassesStr(utoa(static_cast<uint32_t>(nClasses), valBuffer, valBufSize));
+    services::String buildOptions = " -D NODE_PROPS=6 -D IMPURITY_PROPS=1 -D HIST_PROPS=";
+    buildOptions.add(nClassesStr);
+    buildOptions.add(" -D NUM_OF_CLASSES=");
+    buildOptions.add(nClassesStr);
+
+    return buildOptions;
 }
 
 template <typename algorithmFPType>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::buildProgram(ClKernelFactoryIface & factory, const char * programName,
-                                                                                       const char * programSrc, const char * buildOptions)
+services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::buildProgram(ClKernelFactoryIface & factory, const char * programName,
+                                                                                           const char * programSrc, const char * buildOptions)
 {
     services::Status status;
 
@@ -101,7 +130,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::buildP
             build_options.add(buildOptions);
         }
 
-        services::String cachekey("__daal_algorithms_df_batch_regression_");
+        services::String cachekey("__daal_algorithms_df_batch_classification_");
         cachekey.add(build_options);
         cachekey.add(programName);
 
@@ -112,7 +141,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::buildP
 }
 
 template <typename algorithmFPType>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::computeBestSplitByHistogram(
+services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::computeBestSplitByHistogram(
     const UniversalBuffer & nodeHistogramList, UniversalBuffer & selectedFeatures, size_t nSelectedFeatures, UniversalBuffer & nodeList,
     UniversalBuffer & nodeIndices, size_t nodeIndicesOffset, UniversalBuffer & binOffsets, UniversalBuffer & impList,
     UniversalBuffer & nodeImpDecreaseList, bool updateImpDecreaseRequired, size_t nNodes, size_t nMaxBinsAmongFtrs, size_t minObservationsInLeafNode,
@@ -162,7 +191,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 }
 
 template <typename algorithmFPType>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::computeBestSplitSinglePass(
+services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::computeBestSplitSinglePass(
     const UniversalBuffer & data, UniversalBuffer & treeOrder, UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
     const services::Buffer<algorithmFPType> & response, UniversalBuffer & binOffsets, UniversalBuffer & nodeList, UniversalBuffer & nodeIndices,
     size_t nodeIndicesOffset, UniversalBuffer & impList, UniversalBuffer & nodeImpDecreaseList, bool updateImpDecreaseRequired, size_t nFeatures,
@@ -214,7 +243,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 }
 
 template <typename algorithmFPType>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::computeBestSplit(
+services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::computeBestSplit(
     const UniversalBuffer & data, UniversalBuffer & treeOrder, UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
     const services::Buffer<algorithmFPType> & response, UniversalBuffer & nodeList, UniversalBuffer & binOffsets, UniversalBuffer & impList,
     UniversalBuffer & nodeImpDecreaseList, bool updateImpDecreaseRequired, size_t nFeatures, size_t nNodes, size_t minObservationsInLeafNode,
@@ -252,7 +281,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
             int reduceLocalSize = 16; // add logic for its adjustment
 
             size_t nHistBins    = nSelectedFeatures * _nMaxBinsAmongFtrs;
-            size_t partHistSize = nHistBins * _nHistProps;
+            size_t partHistSize = nHistBins * _nClasses;
 
             auto partialHistograms = context.allocate(TypeIds::id<algorithmFPType>(), nGroupNodes * nPartialHistograms * partHistSize, &status);
             auto nodesHistograms   = context.allocate(TypeIds::id<algorithmFPType>(), nGroupNodes * partHistSize, &status);
@@ -261,6 +290,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
             DAAL_CHECK_STATUS_VAR(computePartialHistograms(data, treeOrder, selectedFeatures, nSelectedFeatures, response, nodeList, nodeIndices,
                                                            groupIndicesOffset, binOffsets, _nMaxBinsAmongFtrs, nFeatures, nGroupNodes,
                                                            partialHistograms, nPartialHistograms));
+
             DAAL_CHECK_STATUS_VAR(reducePartialHistograms(partialHistograms, nodesHistograms, nPartialHistograms, nGroupNodes, nSelectedFeatures,
                                                           _nMaxBinsAmongFtrs, reduceLocalSize));
 
@@ -280,7 +310,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 }
 
 template <typename algorithmFPType>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::computePartialHistograms(
+services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::computePartialHistograms(
     const UniversalBuffer & data, UniversalBuffer & treeOrder, UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
     const services::Buffer<algorithmFPType> & response, UniversalBuffer & nodeList, UniversalBuffer & nodeIndices, size_t nodeIndicesOffset,
     UniversalBuffer & binOffsets, size_t nMaxBinsAmongFtrs, size_t nFeatures, size_t nNodes, UniversalBuffer & partialHistograms,
@@ -327,11 +357,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 }
 
 template <typename algorithmFPType>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::reducePartialHistograms(UniversalBuffer & partialHistograms,
-                                                                                                  UniversalBuffer & histograms,
-                                                                                                  size_t nPartialHistograms, size_t nNodes,
-                                                                                                  size_t nSelectedFeatures, size_t nMaxBinsAmongFtrs,
-                                                                                                  size_t reduceLocalSize)
+services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::reducePartialHistograms(
+    UniversalBuffer & partialHistograms, UniversalBuffer & histograms, size_t nPartialHistograms, size_t nNodes, size_t nSelectedFeatures,
+    size_t nMaxBinsAmongFtrs, size_t reduceLocalSize)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.reducePartialHistograms);
 
@@ -400,12 +428,10 @@ services::Status selectParallelizationTechnique(const Parameter & par, engines::
 /* following methods are related to results computation (OBB err, varImportance MDA/MDA_Scaled)*/
 /* they will be migrated on GPU when prediction layer forGPU is ready*/
 template <typename algorithmFPType>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::computeResults(const dtrees::internal::Tree & t, const algorithmFPType * x,
-                                                                                         const algorithmFPType * y, size_t nRows, size_t nFeatures,
-                                                                                         const UniversalBuffer & oobIndices, size_t nOOB,
-                                                                                         UniversalBuffer & oobBuf, algorithmFPType * varImp,
-                                                                                         algorithmFPType * varImpVariance, size_t nBuiltTrees,
-                                                                                         const engines::EnginePtr & engine, const Parameter & par)
+services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::computeResults(
+    const dtrees::internal::Tree & t, const algorithmFPType * x, const algorithmFPType * y, size_t nRows, size_t nFeatures,
+    const UniversalBuffer & oobIndices, size_t nOOB, UniversalBuffer & oobBuf, algorithmFPType * varImp, algorithmFPType * varImpVariance,
+    size_t nBuiltTrees, const engines::EnginePtr & engine, const Parameter & par)
 {
     services::Status status;
     const bool mdaRequired(par.varImportance == decision_forest::training::MDA_Raw || par.varImportance == decision_forest::training::MDA_Scaled);
@@ -450,17 +476,18 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 }
 
 template <typename algorithmFPType>
-algorithmFPType RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::computeOOBError(const dtrees::internal::Tree & t, const algorithmFPType * x,
-                                                                                         const algorithmFPType * y, const size_t nRows,
-                                                                                         const size_t nFeatures, const UniversalBuffer & indices,
-                                                                                         size_t n, UniversalBuffer oobBuf, services::Status * status)
+algorithmFPType ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::computeOOBError(const dtrees::internal::Tree & t,
+                                                                                             const algorithmFPType * x, const algorithmFPType * y,
+                                                                                             const size_t nRows, const size_t nFeatures,
+                                                                                             const UniversalBuffer & indices, size_t n,
+                                                                                             UniversalBuffer oobBuf, services::Status * status)
 {
     typedef DFTreeConverter<algorithmFPType, sse2> DFTreeConverterType;
     typename DFTreeConverterType::TreeHelperType mTreeHelper;
 
     auto rowsIndHost = indices.template get<int>().toHost(ReadWriteMode::readOnly);
     DAAL_CHECK_MALLOC(rowsIndHost.get());
-    auto oobBufHost = oobBuf.template get<algorithmFPType>().toHost(ReadWriteMode::readWrite);
+    auto oobBufHost = oobBuf.template get<uint32_t>().toHost(ReadWriteMode::readWrite);
     DAAL_CHECK_MALLOC(oobBufHost.get());
 
     //compute prediction error on each OOB row and get its mean online formulae (Welford)
@@ -469,11 +496,10 @@ algorithmFPType RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::compute
     algorithmFPType mean = algorithmFPType(0);
     for (size_t i = 0; i < n; i++)
     {
-        int rowInd                 = rowsIndHost.get()[i];
-        algorithmFPType prediction = mTreeHelper.predict(t, &x[rowInd * nFeatures]);
-        oobBufHost.get()[rowInd * 2 + 0] += prediction;
-        oobBufHost.get()[rowInd * 2 + 1] += algorithmFPType(1);
-        algorithmFPType val = (prediction - y[rowInd]) * (prediction - y[rowInd]);
+        int rowInd        = rowsIndHost.get()[i];
+        size_t prediction = mTreeHelper.predict(t, &x[rowInd * nFeatures]);
+        oobBufHost.get()[rowInd * _nClasses + prediction]++;
+        algorithmFPType val = algorithmFPType(prediction != size_t(y[rowInd]));
         mean += (val - mean) / algorithmFPType(i + 1);
     }
 
@@ -481,7 +507,7 @@ algorithmFPType RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::compute
 }
 
 template <typename algorithmFPType>
-algorithmFPType RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::computeOOBErrorPerm(
+algorithmFPType ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::computeOOBErrorPerm(
     const dtrees::internal::Tree & t, const algorithmFPType * x, const algorithmFPType * y, const size_t nRows, const size_t nFeatures,
     const UniversalBuffer & indices, const int * indicesPerm, const size_t testFtrInd, size_t n, services::Status * status)
 {
@@ -499,9 +525,9 @@ algorithmFPType RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::compute
         int rowInd     = rowsIndHost.get()[i];
         int rowIndPerm = indicesPerm[i];
         services::internal::tmemcpy<algorithmFPType, sse2>(buf.get(), &x[rowInd * nFeatures], nFeatures);
-        buf[testFtrInd]            = x[rowIndPerm * nFeatures + testFtrInd];
-        algorithmFPType prediction = mTreeHelper.predict(t, buf.get());
-        algorithmFPType val        = (prediction - y[rowInd]) * (prediction - y[rowInd]);
+        buf[testFtrInd]     = x[rowIndPerm * nFeatures + testFtrInd];
+        size_t prediction   = mTreeHelper.predict(t, buf.get());
+        algorithmFPType val = algorithmFPType(prediction != size_t(y[rowInd]));
         mean += (val - mean) / algorithmFPType(i + 1);
     }
 
@@ -509,27 +535,36 @@ algorithmFPType RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::compute
 }
 
 template <typename algorithmFPType>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::finalizeOOBError(const algorithmFPType * y, const UniversalBuffer & oobBuf,
-                                                                                           const size_t nRows, algorithmFPType * res,
-                                                                                           algorithmFPType * resPerObs)
+services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::finalizeOOBError(const algorithmFPType * y,
+                                                                                               const UniversalBuffer & oobBuf, const size_t nRows,
+                                                                                               algorithmFPType * res, algorithmFPType * resPerObs)
 {
-    auto oobBufHost = oobBuf.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly);
+    auto oobBufHost = oobBuf.template get<uint32_t>().toHost(ReadWriteMode::readOnly);
     DAAL_CHECK_MALLOC(oobBufHost.get());
 
     size_t nPredicted    = 0;
-    algorithmFPType _res = algorithmFPType(0);
+    algorithmFPType _res = 0;
 
     for (size_t i = 0; i < nRows; i++)
     {
-        algorithmFPType value = oobBufHost.get()[i * 2 + 0];
-        algorithmFPType count = oobBufHost.get()[i * 2 + 1];
-
-        if (algorithmFPType(0) != count)
+        size_t prediction = 0;
+        size_t expectation(y[i]);
+        size_t maxVal = 0;
+        for (size_t clsIdx = 0; clsIdx < _nClasses; clsIdx++)
         {
-            value /= count;
-            const algorithmFPType oobForObs = (value - y[i]) * (value - y[i]);
-            if (resPerObs) resPerObs[i] = oobForObs;
-            _res += oobForObs;
+            size_t val = oobBufHost.get()[i * _nClasses + clsIdx];
+            if (val > maxVal)
+            {
+                maxVal     = val;
+                prediction = clsIdx;
+            }
+        }
+
+        if (0 < maxVal)
+        {
+            algorithmFPType predictionRes = algorithmFPType(prediction != expectation);
+            if (resPerObs) resPerObs[i] = predictionRes;
+            _res += predictionRes;
             nPredicted++;
         }
         else if (resPerObs)
@@ -542,8 +577,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::finali
 }
 
 template <typename algorithmFPType>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::finalizeVarImp(const Parameter & par, algorithmFPType * varImp,
-                                                                                         algorithmFPType * varImpVariance, size_t nFeatures)
+services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::finalizeVarImp(const Parameter & par, algorithmFPType * varImp,
+                                                                                             algorithmFPType * varImpVariance, size_t nFeatures)
 {
     if (par.varImportance == decision_forest::training::MDA_Scaled)
     {
@@ -573,41 +608,44 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::finali
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-/* compute method for RegressionTrainBatchKernelOneAPI */
+/* compute method for ClassificationTrainBatchKernelOneAPI */
 ///////////////////////////////////////////////////////////////////////////////////////////
 template <typename algorithmFPType>
-services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::compute(HostAppIface * pHostApp, const NumericTable * x,
-                                                                                  const NumericTable * y, decision_forest::regression::Model & m,
-                                                                                  Result & res, const Parameter & par)
+services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::compute(HostAppIface * pHostApp, const NumericTable * x,
+                                                                                      const NumericTable * y,
+                                                                                      decision_forest::classification::Model & m, Result & res,
+                                                                                      const Parameter & par)
 {
     typedef DFTreeConverter<algorithmFPType, sse2> DFTreeConverterType;
     typedef TreeLevelRecord<algorithmFPType> TreeLevel;
 
     services::Status status;
 
+    _nClasses = par.nClasses;
+
     const size_t nRows             = x->getNumberOfRows();
     const size_t nFeatures         = x->getNumberOfColumns();
-    const size_t nSelectedFeatures = par.featuresPerNode ? par.featuresPerNode : (nFeatures > 3 ? nFeatures / 3 : 1);
+    const size_t nSelectedFeatures = par.featuresPerNode ? par.featuresPerNode : daal::internal::Math<algorithmFPType, sse2>::sSqrt(nFeatures);
 
     const bool mdaRequired(par.varImportance == decision_forest::training::MDA_Raw || par.varImportance == decision_forest::training::MDA_Scaled);
     const bool oobRequired =
         (par.resultsToCompute & (decision_forest::training::computeOutOfBagError | decision_forest::training::computeOutOfBagErrorPerObservation)
          || mdaRequired);
 
-    decision_forest::regression::internal::ModelImpl & mdImpl =
-        *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m);
+    decision_forest::classification::internal::ModelImpl & mdImpl =
+        *static_cast<daal::algorithms::decision_forest::classification::internal::ModelImpl *>(&m);
     DAAL_CHECK_MALLOC(mdImpl.resize(par.nTrees));
 
-    services::String buildOptions = getBuildOptions();
+    services::String buildOptions = getBuildOptions(_nClasses);
     DAAL_CHECK_STATUS_VAR(_treeLevelBuildHelper.init(buildOptions.c_str()));
 
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
 
-    DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory, "part1", df_batch_regression_kernels_part1, buildOptions.c_str()));
+    DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory, "part1", df_batch_classification_kernels_part1, buildOptions.c_str()));
     kernelComputeBestSplitSinglePass = kernel_factory.getKernel("computeBestSplitSinglePass", &status);
 
-    DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory, "part2", df_batch_regression_kernels_part2, buildOptions.c_str()));
+    DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory, "part2", df_batch_classification_kernels_part2, buildOptions.c_str()));
     kernelComputeBestSplitByHistogram = kernel_factory.getKernel("computeBestSplitByHistogram", &status);
     kernelComputePartialHistograms    = kernel_factory.getKernel("computePartialHistograms", &status);
     kernelReducePartialHistograms     = kernel_factory.getKernel("reducePartialHistograms", &status);
@@ -659,9 +697,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
     UniversalBuffer oobBufferPerObs;
     if (oobRequired)
     {
-        // oobBufferPerObs contains pair <cumulative value, count> for all out of bag observations for all trees
-        oobBufferPerObs = context.allocate(TypeIds::id<algorithmFPType>(), nRows * 2, &status);
-        context.fill(oobBufferPerObs, algorithmFPType(0), &status);
+        // oobBufferPerObs contains nClassed counters for all out of bag observations for all trees
+        oobBufferPerObs = context.allocate(TypeIds::id<uint32_t>(), nRows * _nClasses, &status);
+        context.fill(oobBufferPerObs, 0, &status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -705,7 +743,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
         UniversalBuffer oobRows;
 
         levelNodeLists.push_back(context.allocate(TypeIds::id<int>(), nNodes * TreeLevel::_nNodeSplitProps, &status));
-        levelNodeImpLists.push_back(context.allocate(TypeIds::id<algorithmFPType>(), nNodes * TreeLevel::_nNodeImpProps, &status));
+        levelNodeImpLists.push_back(context.allocate(TypeIds::id<algorithmFPType>(), nNodes * (TreeLevel::_nNodeImpProps + _nClasses), &status));
         DAAL_CHECK_STATUS_VAR(status);
 
         {
@@ -783,13 +821,13 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
             {
                 DAAL_CHECK_STATUS_VAR(_treeLevelBuildHelper.convertSplitToLeaf(nodeList, nNodes));
                 TreeLevel levelRecord;
-                DAAL_CHECK_STATUS_VAR(levelRecord.init(nodeList, impList, nNodes));
+                DAAL_CHECK_STATUS_VAR(levelRecord.init(nodeList, impList, nNodes, _nClasses));
                 DFTreeRecords.push_back(levelRecord);
                 break;
             }
 
             TreeLevel levelRecord;
-            DAAL_CHECK_STATUS_VAR(levelRecord.init(nodeList, impList, nNodes));
+            DAAL_CHECK_STATUS_VAR(levelRecord.init(nodeList, impList, nNodes, _nClasses));
             DFTreeRecords.push_back(levelRecord);
 
             if (mdiRequired)
@@ -808,7 +846,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
                 nNodesNewLevel *= 2;
 
                 auto nodeListNewLevel = context.allocate(TypeIds::id<int>(), nNodesNewLevel * TreeLevel::_nNodeSplitProps, &status);
-                auto impListNewLevel  = context.allocate(TypeIds::id<algorithmFPType>(), nNodesNewLevel * TreeLevel::_nNodeImpProps, &status);
+                auto impListNewLevel =
+                    context.allocate(TypeIds::id<algorithmFPType>(), nNodesNewLevel * (TreeLevel::_nNodeImpProps + _nClasses), &status);
                 DAAL_CHECK_STATUS_VAR(status);
 
                 DAAL_CHECK_STATUS_VAR(_treeLevelBuildHelper.doNodesSplit(nodeList, nNodes, nodeListNewLevel));
@@ -838,9 +877,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
         typename DFTreeConverterType::TreeHelperType mTreeHelper;
 
         DFTreeConverterType converter;
-        converter.convertToDFDecisionTree(DFTreeRecords, binValues.data(), mTreeHelper);
+        converter.convertToDFDecisionTree(DFTreeRecords, binValues.data(), mTreeHelper, _nClasses);
 
-        mdImpl.add(mTreeHelper._tree, 0 /*nClasses*/);
+        mdImpl.add(mTreeHelper._tree, _nClasses);
 
         DAAL_CHECK_STATUS_VAR(computeResults(mTreeHelper._tree, dataBlock.getBlockPtr(), responseBlock.getBlockPtr(), nSelectedRows, nFeatures,
                                              oobRows, nOOBRows, oobBufferPerObs, varImpBlock.getBlockPtr(), varImpVariance.get(), iter + 1,
@@ -889,7 +928,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 
 } /* namespace internal */
 } /* namespace training */
-} /* namespace regression */
+} /* namespace classification */
 } /* namespace decision_forest */
 } /* namespace algorithms */
 } /* namespace daal */

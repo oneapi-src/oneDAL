@@ -35,9 +35,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{0AB49A34-5876-4C9F-A869-BF316D545232}</ProjectGuid>
-    <RootNamespace>df_reg_dense_batch</RootNamespace>
-    <ProjectName>df_reg_dense_batch</ProjectName>
+    <ProjectGuid>{F14CFA96-1962-41BC-81BC-E1957F0C334E}</ProjectGuid>
+    <RootNamespace>df_cls_dense_batch</RootNamespace>
+    <ProjectName>df_cls_dense_batch</ProjectName>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -306,7 +306,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="$(ProjectDir)..\..\source\decision_forest\df_reg_dense_batch.cpp" />
+    <ClCompile Include="$(ProjectDir)..\..\source\decision_forest\df_cls_dense_batch.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
