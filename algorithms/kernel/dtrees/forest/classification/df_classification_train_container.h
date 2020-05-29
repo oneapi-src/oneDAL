@@ -28,6 +28,8 @@
 #include "algorithms/decision_forest/decision_forest_classification_training_types.h"
 #include "algorithms/decision_forest/decision_forest_classification_training_batch.h"
 #include "algorithms/kernel/dtrees/forest/classification/df_classification_train_kernel.h"
+#include "algorithms/kernel/dtrees/forest/classification/df_classification_train_dense_default_kernel.h"
+#include "algorithms/kernel/dtrees/forest/classification/oneapi/df_classification_train_hist_kernel_oneapi.h"
 #include "algorithms/kernel/dtrees/forest/classification/df_classification_model_impl.h"
 #include "service/kernel/service_algo_utils.h"
 
@@ -46,7 +48,17 @@ namespace interface2
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::ClassificationTrainBatchKernel, algorithmFPType, method);
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
+
+    if (method == hist && !deviceInfo.isCpu)
+    {
+        __DAAL_INITIALIZE_KERNELS_SYCL(internal::ClassificationTrainBatchKernelOneAPI, algorithmFPType, method);
+    }
+    else
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::ClassificationTrainBatchKernel, algorithmFPType, method);
+    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -58,6 +70,9 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
+
     classifier::training::Input * input = static_cast<classifier::training::Input *>(_in);
     Result * result                     = static_cast<Result *>(_res);
 
@@ -71,8 +86,16 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     const decision_forest::classification::training::Parameter * par = static_cast<decision_forest::classification::training::Parameter *>(_par);
     daal::services::Environment::env & env                           = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::ClassificationTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                       daal::services::internal::hostApp(*input), x, y, *m, *result, *par);
+    if (method == hist && !deviceInfo.isCpu)
+    {
+        __DAAL_CALL_KERNEL_SYCL(env, internal::ClassificationTrainBatchKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+                                daal::services::internal::hostApp(*input), x, y, *m, *result, *par);
+    }
+    else
+    {
+        __DAAL_CALL_KERNEL(env, internal::ClassificationTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+                           daal::services::internal::hostApp(*input), x, y, *m, *result, *par);
+    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>

@@ -27,6 +27,7 @@
 
 #include "algorithms/kernel/dtrees/forest/df_train_dense_default_impl.i"
 #include "algorithms/kernel/dtrees/forest/classification/df_classification_train_kernel.h"
+#include "algorithms/kernel/dtrees/forest/classification/df_classification_train_dense_default_kernel.h"
 #include "algorithms/kernel/dtrees/forest/classification/df_classification_model_impl.h"
 #include "algorithms/kernel/dtrees/dtrees_predict_dense_default_impl.i"
 #include "algorithms/kernel/dtrees/forest/classification/df_classification_training_types_result.h"
@@ -776,8 +777,8 @@ public:
 //////////////////////////////////////////////////////////////////////////////////////////
 // ClassificationTrainBatchKernel
 //////////////////////////////////////////////////////////////////////////////////////////
-template <typename algorithmFPType, Method method, CpuType cpu>
-services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::compute(
+template <typename algorithmFPType, CpuType cpu>
+services::Status ClassificationTrainBatchKernel<algorithmFPType, defaultDense, cpu>::compute(
     HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::classification::Model & m, Result & res,
     const decision_forest::classification::training::interface1::Parameter & par)
 {
@@ -797,14 +798,14 @@ services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::c
     return compute(pHostApp, x, y, m, res, tmpPar);
 }
 
-template <typename algorithmFPType, Method method, CpuType cpu>
-services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::compute(
+template <typename algorithmFPType, CpuType cpu>
+services::Status ClassificationTrainBatchKernel<algorithmFPType, defaultDense, cpu>::compute(
     HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::classification::Model & m, Result & res,
     const decision_forest::classification::training::Parameter & par)
 {
     ResultData rd(par, res.get(variableImportance).get(), res.get(outOfBagError).get(), res.get(outOfBagErrorPerObservation).get());
     services::Status s = computeImpl<algorithmFPType, cpu, daal::algorithms::decision_forest::classification::internal::ModelImpl,
-                                     TrainBatchTask<algorithmFPType, method, cpu> >(
+                                     TrainBatchTask<algorithmFPType, defaultDense, cpu> >(
         pHostApp, x, y, *static_cast<daal::algorithms::decision_forest::classification::internal::ModelImpl *>(&m), rd, par, par.nClasses);
     if (s.ok()) res.impl()->setEngine(rd.updatedEngine);
     return s;

@@ -54,7 +54,8 @@ namespace training
  */
 enum Method
 {
-    defaultDense = 0 /*!< Bagging, random choice of features, Gini impurity */
+    defaultDense = 0, /*!< Bagging, random choice of features, Gini impurity */
+    hist         = 1  /*!< Subset of splits(bins), bagging, random choice of features, variance-based impurity */
 };
 
 /**
