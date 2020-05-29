@@ -22,6 +22,7 @@
 #include "externals/service_dispatch.h"
 #include "service/kernel/service_data_utils.h"
 #include "service/kernel/service_utils.h"
+#include "service/kernel/service_defines.h"
 #include "algorithms/threading/threading.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "data_management/features/defines.h"
@@ -244,14 +245,20 @@ services::Status trainTestSplitImpl(NumericTable & inputTable, NumericTable & tr
 }
 
 template <typename IdxType>
+void trainTestSplitDispImpl(NumericTable & inputTable, NumericTable & trainTable, NumericTable & testTable, NumericTable & trainIdxTable,
+                            NumericTable & testIdxTable)
+{
+#define DAAL_TTS(cpuId, ...) trainTestSplitImpl<IdxType, cpuId>(__VA_ARGS__);
+    DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_TTS, inputTable, trainTable, testTable, trainIdxTable, testIdxTable);
+#undef DAAL_TTS
+}
+
+template <typename IdxType>
 DAAL_EXPORT void trainTestSplit(NumericTable & inputTable, NumericTable & trainTable, NumericTable & testTable, NumericTable & trainIdxTable,
                                 NumericTable & testIdxTable)
 {
-#define DAAL_TTS(cpuId, ...) trainTestSplitImpl<IdxType, cpuId>(__VA_ARGS__);
-
-    DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_TTS, inputTable, trainTable, testTable, trainIdxTable, testIdxTable);
-
-#undef DAAL_TTS
+    DAAL_SAFE_CPU_CALL((trainTestSplitDispImpl<IdxType>(inputTable, trainTable, testTable, trainIdxTable, testIdxTable)),
+                       (trainTestSplitImpl<IdxType, daal::CpuType::sse2>(inputTable, trainTable, testTable, trainIdxTable, testIdxTable)));
 }
 
 template DAAL_EXPORT void trainTestSplit<int>(NumericTable & inputTable, NumericTable & trainTable, NumericTable & testTable,
