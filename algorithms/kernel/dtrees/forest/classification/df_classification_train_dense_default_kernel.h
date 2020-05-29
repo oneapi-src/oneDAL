@@ -1,6 +1,6 @@
-/* file: df_classification_train_kernel.h */
+/* file: df_classification_train_dense_default_kernel.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,12 +22,12 @@
 //--
 */
 
-#ifndef __DF_CLASSFICATION_TRAIN_KERNEL_H__
-#define __DF_CLASSFICATION_TRAIN_KERNEL_H__
+#ifndef __DF_CLASSIFICATION_TRAIN_DENSE_DEFAULT_KERNEL_H__
+#define __DF_CLASSIFICATION_TRAIN_DENSE_DEFAULT_KERNEL_H__
 
 #include "data_management/data/numeric_table.h"
 #include "algorithms/algorithm_base_common.h"
-#include "algorithms/decision_forest/decision_forest_training_parameter.h"
+#include "algorithms/decision_forest/decision_forest_classification_training_types.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -44,20 +44,14 @@ namespace training
 {
 namespace internal
 {
-template <typename algorithmFPType, Method method, CpuType cpu>
-class ClassificationTrainBatchKernel : public daal::algorithms::Kernel
+template <typename algorithmFPType, CpuType cpu>
+class ClassificationTrainBatchKernel<algorithmFPType, defaultDense, cpu> : public daal::algorithms::Kernel
 {
 public:
     services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::classification::Model & m,
-                             Result & res, const decision_forest::classification::training::interface1::Parameter & par)
-    {
-        return services::ErrorMethodNotImplemented;
-    }
+                             Result & res, const decision_forest::classification::training::interface1::Parameter & par);
     services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::classification::Model & m,
-                             Result & res, const decision_forest::classification::training::Parameter & par)
-    {
-        return services::ErrorMethodNotImplemented;
-    }
+                             Result & res, const Parameter & par);
 };
 
 } // namespace internal
