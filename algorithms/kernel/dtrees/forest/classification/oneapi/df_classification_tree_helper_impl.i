@@ -1,4 +1,4 @@
-/* file: df_regression_tree_helper_impl.i */
+/* file: df_classification_tree_helper_impl.i */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -17,14 +17,14 @@
 
 /*
 //++
-//  Implementation of the class defining the decision forest regression tree
+//  Implementation of the class defining the decision forest classification tree
 //--
 */
 
-#ifndef __DF_REGRESSION_TREE_HELPER_IMPL__
-#define __DF_REGRESSION_TREE_HELPER_IMPL__
+#ifndef __DF_CLASSIFICATION_TREE_HELPER_IMPL__
+#define __DF_CLASSIFICATION_TREE_HELPER_IMPL__
 
-//#include "data_management/data/aos_numeric_table.h"
+#include "data_management/data/aos_numeric_table.h"
 #include "service/kernel/service_arrays.h"
 #include "algorithms/kernel/dtrees/dtrees_predict_dense_default_impl.i"
 
@@ -34,7 +34,7 @@ namespace algorithms
 {
 namespace decision_forest
 {
-namespace regression
+namespace classification
 {
 namespace internal
 {
@@ -42,19 +42,24 @@ using namespace daal::algorithms::dtrees::internal;
 using namespace daal::services::internal;
 
 template <typename algorithmFPType, CpuType cpu>
-class RegressionTreeHelperOneAPI
+class ClassificationTreeHelperOneAPI
 {
 public:
-    typedef dtrees::internal::TreeImpRegression<> TreeType;
+    typedef dtrees::internal::TreeImpClassification<> TreeType;
     typedef typename TreeType::NodeType NodeType;
 
-    typename NodeType::Leaf * makeLeaf(size_t n, algorithmFPType response, algorithmFPType impurity)
+    typename NodeType::Leaf * makeLeaf(size_t n, size_t response, algorithmFPType impurity, algorithmFPType * hist, size_t nClasses)
     {
-        typename NodeType::Leaf * pNode = _tree.allocator().allocLeaf(0);
+        typename NodeType::Leaf * pNode = _tree.allocator().allocLeaf(nClasses);
         DAAL_ASSERT(n > 0);
-        pNode->response = response;
-        pNode->count    = n;
-        pNode->impurity = impurity;
+        pNode->response.value = response;
+        pNode->count          = n;
+        pNode->impurity       = impurity;
+
+        for (size_t i = 0; i < nClasses; i++)
+        {
+            pNode->hist[i] = hist[i];
+        }
 
         return pNode;
     }
@@ -71,11 +76,11 @@ public:
         return pNode;
     }
 
-    algorithmFPType predict(const dtrees::internal::Tree & t, const algorithmFPType * x) const
+    size_t predict(const dtrees::internal::Tree & t, const algorithmFPType * x) const
     {
         const typename NodeType::Base * pNode = dtrees::prediction::internal::findNode<algorithmFPType, TreeType, cpu>(t, x);
         DAAL_ASSERT(pNode);
-        return pNode ? NodeType::castLeaf(pNode)->response : 0.0;
+        return NodeType::castLeaf(pNode)->response.value;
     }
 
     TreeType _tree;
@@ -84,10 +89,11 @@ public:
 template <typename algorithmFPType>
 struct TreeLevelRecord
 {
-    TreeLevelRecord() : _nodeList(nullptr), _impInfo(nullptr), _nNodes(0) {}
-    services::Status init(oneapi::internal::UniversalBuffer & nodeList, oneapi::internal::UniversalBuffer & impInfo, size_t nNodes)
+    TreeLevelRecord() : _nodeList(nullptr), _impInfo(nullptr), _nNodes(0), _nClasses(0) {}
+    services::Status init(oneapi::internal::UniversalBuffer & nodeList, oneapi::internal::UniversalBuffer & impInfo, size_t nNodes, size_t nClasses)
     {
-        _nNodes = nNodes;
+        _nNodes   = nNodes;
+        _nClasses = nClasses;
 
         auto nodeListHost = nodeList.template get<int>().toHost(ReadWriteMode::readOnly);
         _nodeList         = nodeListHost.get();
@@ -104,25 +110,27 @@ struct TreeLevelRecord
     int getRowsNum(size_t nodeIdx) { return _nodeList[nodeIdx * _nNodeSplitProps + 1]; }
     int getFtrIdx(size_t nodeIdx) { return _nodeList[nodeIdx * _nNodeSplitProps + 2]; }
     int getFtrVal(size_t nodeIdx) { return _nodeList[nodeIdx * _nNodeSplitProps + 3]; }
-    algorithmFPType getImpurity(size_t nodeIdx) { return _impInfo[nodeIdx * _nNodeImpProps + 0]; }
-    algorithmFPType getResponse(size_t nodeIdx) { return _impInfo[nodeIdx * _nNodeImpProps + 1]; }
-    bool hasUnorderedFtr(size_t nodeIdx) { return false; }
+    algorithmFPType getImpurity(size_t nodeIdx) { return _impInfo[nodeIdx * (_nNodeImpProps + _nClasses) + 0]; }
+    size_t getResponse(size_t nodeIdx) { return static_cast<size_t>(_nodeList[nodeIdx * _nNodeSplitProps + 5]); }
+    algorithmFPType * getHist(size_t nodeIdx) { return &_impInfo[nodeIdx * (_nNodeImpProps + _nClasses) + _nNodeImpProps]; }
+    bool hasUnorderedFtr(size_t nodeIdx) { return false; /* unordered features are not supported yet */ }
 
-    constexpr static int _nNodeImpProps   = 2;
-    constexpr static int _nNodeSplitProps = 5;
+    constexpr static int _nNodeImpProps   = 1;
+    constexpr static int _nNodeSplitProps = 6;
 
     int * _nodeList;
     algorithmFPType * _impInfo;
     size_t _nNodes;
+    size_t _nClasses;
 };
 
 template <typename algorithmFPType, CpuType cpu>
 struct DFTreeConverter
 {
-    typedef RegressionTreeHelperOneAPI<algorithmFPType, cpu> TreeHelperType;
+    typedef ClassificationTreeHelperOneAPI<algorithmFPType, cpu> TreeHelperType;
 
     void convertToDFDecisionTree(Collection<TreeLevelRecord<algorithmFPType> > & treeLevelsList, algorithmFPType ** binValues,
-                                 TreeHelperType & treeBuilder)
+                                 TreeHelperType & treeBuilder, size_t nClasses)
     {
         typedef TArray<typename TreeHelperType::NodeType::Base *, cpu> DFTreeNodesArr;
         typedef SharedPtr<DFTreeNodesArr> DFTreeNodesArrPtr;
@@ -147,8 +155,8 @@ struct DFTreeConverter
                 if (record.getFtrIdx(nodeIdx) == notFoundVal)
                 {
                     // leaf node
-                    dfTreeLevelNodes->get()[nodeIdx] =
-                        treeBuilder.makeLeaf(record.getRowsNum(nodeIdx), record.getResponse(nodeIdx), record.getImpurity(nodeIdx));
+                    dfTreeLevelNodes->get()[nodeIdx] = treeBuilder.makeLeaf(record.getRowsNum(nodeIdx), record.getResponse(nodeIdx),
+                                                                            record.getImpurity(nodeIdx), record.getHist(nodeIdx), nClasses);
                 }
                 else
                 {
@@ -169,7 +177,7 @@ struct DFTreeConverter
 };
 
 } // namespace internal
-} // namespace regression
+} // namespace classification
 } // namespace decision_forest
 } // namespace algorithms
 } // namespace daal

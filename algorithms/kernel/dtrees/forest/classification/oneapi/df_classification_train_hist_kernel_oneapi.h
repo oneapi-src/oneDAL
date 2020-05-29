@@ -1,4 +1,4 @@
-/* file: df_regression_train_hist_kernel_oneapi.h */
+/* file: df_classification_train_hist_kernel_oneapi.h */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -22,16 +22,16 @@
 //--
 */
 
-#ifndef __DF_REGRESSION_TRAIN_HIST_KERNEL_ONEAPI_H__
-#define __DF_REGRESSION_TRAIN_HIST_KERNEL_ONEAPI_H__
+#ifndef __DF_CLASSIFICATION_TRAIN_HIST_KERNEL_ONEAPI_H__
+#define __DF_CLASSIFICATION_TRAIN_HIST_KERNEL_ONEAPI_H__
 
 #include "oneapi/internal/types.h"
 #include "oneapi/internal/execution_context.h"
 #include "data_management/data/numeric_table.h"
 #include "algorithms/algorithm_base_common.h"
-#include "algorithms/kernel/dtrees/forest/regression/df_regression_model_impl.h"
-#include "algorithms/decision_forest/decision_forest_regression_training_types.h"
-#include "algorithms/decision_forest/decision_forest_regression_model.h"
+#include "algorithms/kernel/dtrees/forest/classification/df_classification_model_impl.h"
+#include "algorithms/decision_forest/decision_forest_classification_training_types.h"
+#include "algorithms/decision_forest/decision_forest_classification_model.h"
 #include "algorithms/kernel/dtrees/forest/oneapi/df_feature_type_helper_oneapi.h"
 #include "algorithms/kernel/dtrees/forest/oneapi/df_tree_level_build_helper_oneapi.h"
 
@@ -44,30 +44,54 @@ namespace algorithms
 {
 namespace decision_forest
 {
-namespace regression
+namespace classification
 {
 namespace training
 {
 namespace internal
 {
 template <typename algorithmFPType, Method method>
-class RegressionTrainBatchKernelOneAPI : public daal::algorithms::Kernel
+class ClassificationTrainBatchKernelOneAPI : public daal::algorithms::Kernel
 {
 public:
-    RegressionTrainBatchKernelOneAPI() {}
-    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::regression::Model & m,
+    ClassificationTrainBatchKernelOneAPI() {}
+    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::classification::Model & m,
                              Result & res, const Parameter & par)
+    {
+        return services::ErrorMethodNotImplemented;
+    }
+
+    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::classification::Model & m,
+                             Result & res, const decision_forest::classification::training::interface1::Parameter & par)
     {
         return services::ErrorMethodNotImplemented;
     }
 };
 
 template <typename algorithmFPType>
-class RegressionTrainBatchKernelOneAPI<algorithmFPType, hist> : public daal::algorithms::Kernel
+class ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist> : public daal::algorithms::Kernel
 {
 public:
-    RegressionTrainBatchKernelOneAPI() {}
-    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::regression::Model & m,
+    ClassificationTrainBatchKernelOneAPI() {}
+    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::classification::Model & m,
+                             Result & res, const decision_forest::classification::training::interface1::Parameter & par)
+    {
+        Parameter tmpPar(par.nClasses);
+        tmpPar.nTrees                      = par.nTrees;
+        tmpPar.observationsPerTreeFraction = par.observationsPerTreeFraction;
+        tmpPar.featuresPerNode             = par.featuresPerNode;
+        tmpPar.maxTreeDepth                = par.maxTreeDepth;
+        tmpPar.minObservationsInLeafNode   = par.minObservationsInLeafNode;
+        tmpPar.seed                        = par.seed;
+        tmpPar.engine                      = par.engine;
+        tmpPar.impurityThreshold           = par.impurityThreshold;
+        tmpPar.varImportance               = par.varImportance;
+        tmpPar.resultsToCompute            = par.resultsToCompute;
+        tmpPar.memorySavingMode            = par.memorySavingMode;
+        tmpPar.bootstrap                   = par.bootstrap;
+        return compute(pHostApp, x, y, m, res, tmpPar);
+    }
+    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::classification::Model & m,
                              Result & res, const Parameter & par);
 
 private:
@@ -134,9 +158,8 @@ private:
 
     decision_forest::internal::TreeLevelBuildHelperOneAPI<algorithmFPType> _treeLevelBuildHelper;
 
-    const uint32_t _maxWorkItemsPerGroup = 256;   // should be a power of two for interal needs
-    const uint32_t _maxLocalBuffer       = 30000; // should be less than a half of local memory (two buffers)
-    const uint32_t _preferableSubGroup   = 16;    // preferable maximal sub-group size
+    const uint32_t _maxWorkItemsPerGroup = 256; // should be a power of two for interal needs
+    const uint32_t _preferableSubGroup   = 16;  // preferable maximal sub-group size
     const uint32_t _maxLocalSize         = 128;
     const uint32_t _maxLocalSums         = 256;
     const uint32_t _maxLocalHistograms   = 256;
@@ -144,17 +167,17 @@ private:
     const uint32_t _minRowsBlock         = 256;
     const uint32_t _maxBins              = 256;
 
-    const uint32_t _nHistProps     = 3; // number of properties in bins histogram (i.e. n, mean and var)
     const uint32_t _nNodesGroups   = 3; // all nodes are split on groups (big, medium, small)
     const uint32_t _nodeGroupProps = 2; // each nodes Group contains props: numOfNodes, maxNumOfBlocks
 
+    size_t _nClasses;
     size_t _nMaxBinsAmongFtrs;
     size_t _totalBins;
 };
 
 } // namespace internal
 } // namespace training
-} // namespace regression
+} // namespace classification
 } // namespace decision_forest
 } // namespace algorithms
 } // namespace daal

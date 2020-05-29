@@ -1,4 +1,4 @@
-/* file: df_batch_regression_kernels.cl */
+/* file: df_batch_classification_kernels.cl */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -17,46 +17,23 @@
 
 /*
 //++
-//  Implementation of decision forest Batch Regression OpenCL kernels.
+//  Implementation of decision forest Batch classification OpenCL kernels.
 //--
 */
 
-#ifndef __DF_BATCH_REGRESSION_KERNELS_CL__
-#define __DF_BATCH_REGRESSION_KERNELS_CL__
+#ifndef __DF_BATCH_CLASSIFICATION_KERNELS_CL__
+#define __DF_BATCH_CLASSIFICATION_KERNELS_CL__
 
 #include <string.h>
 
 #define DECLARE_SOURCE(name, src) static const char * name = #src;
 
 DECLARE_SOURCE(
-    df_batch_regression_kernels_part1,
+    df_batch_classification_kernels_part1,
 
     inline int fpEq(algorithmFPType a, algorithmFPType b) { return (int)(fabs(a - b) <= algorithmFPTypeAccuracy); }
 
     inline int fpGt(algorithmFPType a, algorithmFPType b) { return (int)((a - b) > algorithmFPTypeAccuracy); }
-
-    // merge input arrs with stat values
-    void mergeStatArr(algorithmFPType * n, algorithmFPType * mean, algorithmFPType * sum2Cent, algorithmFPType * mrgN, algorithmFPType * mrgMean,
-                      algorithmFPType * mrgSum2Cent) {
-        algorithmFPType sumN1N2    = n[0] + n[1];
-        algorithmFPType mulN1N2    = n[0] * n[1];
-        algorithmFPType deltaScale = mulN1N2 / sumN1N2;
-        algorithmFPType meanScale  = (algorithmFPType)1 / sumN1N2;
-        algorithmFPType delta      = mean[1] - mean[0];
-
-        *mrgSum2Cent = sum2Cent[0] + sum2Cent[1] + delta * delta * deltaScale;
-        *mrgMean     = (mean[0] * n[0] + mean[1] * n[1]) * meanScale;
-        *mrgN        = sumN1N2;
-    }
-
-    // merge single value to stat
-    void mergeValToStat(algorithmFPType val, algorithmFPType * mrgN, algorithmFPType * mrgMean, algorithmFPType * mrgSum2Cent) {
-        *mrgN += (algorithmFPType)1;
-        algorithmFPType invN  = ((algorithmFPType)1) / *mrgN;
-        algorithmFPType delta = val - *mrgMean;
-        *mrgMean += delta * invN;
-        *mrgSum2Cent += delta * (val - *mrgMean);
-    }
 
     __kernel void computeBestSplitSinglePass(const __global int * data, const __global int * treeOrder, const __global int * selectedFeatures,
                                              int nSelectedFeatures, const __global algorithmFPType * response, const __global int * binOffsets,
@@ -67,8 +44,9 @@ DECLARE_SOURCE(
         // this kernel is targeted for processing nodes with small number of rows
         // nodeList will be updated with split attributes
         // spliInfo will contain node impurity and mean
-        const int nNodeProp = NODE_PROPS; // num of node properties in nodeList
-        const int nImpProp  = IMPURITY_PROPS;
+        const int nProp     = HIST_PROPS;                  // num of classes (i.e. classes)
+        const int nNodeProp = NODE_PROPS;                  // num of node properties in nodeList
+        const int nImpProp  = IMPURITY_PROPS + HIST_PROPS; // impurity + node classes histogram
         const int leafMark  = -1;
 
         const int local_id           = get_local_id(0);
@@ -93,22 +71,23 @@ DECLARE_SOURCE(
         __local int bufS[maxBinsBlocks * nNodeProp]; // storage for split info
 
         const algorithmFPType minImpDec = (algorithmFPType)-1e30;
-        algorithmFPType curImpDec       = minImpDec;
-        int valNotFound                 = 1 << 30;
-        int curFeatureValue             = leafMark;
-        int curFeatureId                = leafMark;
+        const int valNotFound           = 1 << 30;
+
+        algorithmFPType curImpDec = minImpDec;
+        int curFeatureValue       = leafMark;
+        int curFeatureId          = leafMark;
 
         nodeList[nodeId * nNodeProp + 2] = curFeatureId;
         nodeList[nodeId * nNodeProp + 3] = curFeatureValue;
         nodeList[nodeId * nNodeProp + 4] = nRows;
 
-        algorithmFPType mrgN        = (algorithmFPType)0;
-        algorithmFPType mrgMean     = (algorithmFPType)0;
-        algorithmFPType mrgSum2Cent = (algorithmFPType)0;
-
-        algorithmFPType imp = (algorithmFPType)0; // node impurity
+        algorithmFPType mrgN = (algorithmFPType)nRows;
 
         algorithmFPType bestLN = (algorithmFPType)0;
+
+        algorithmFPType mrgCls[nProp] = { (algorithmFPType)0 };
+
+        algorithmFPType imp = (algorithmFPType)1;
 
         int totalBins = 0;
 
@@ -138,26 +117,38 @@ DECLARE_SOURCE(
             }
             binId = i - passedBins;
 
-            mrgN        = (algorithmFPType)0;
-            mrgMean     = (algorithmFPType)0;
-            mrgSum2Cent = (algorithmFPType)0;
+            algorithmFPType mrgLRN[2]           = { (algorithmFPType)0 };
+            algorithmFPType mrgLRCls[nProp * 2] = { (algorithmFPType)0 };
 
-            algorithmFPType mrgLRN[2]        = { (algorithmFPType)0 };
-            algorithmFPType mrgLRMean[2]     = { (algorithmFPType)0 };
-            algorithmFPType mrgLRSum2Cent[2] = { (algorithmFPType)0 };
-
+            // calculating classes histogram
             for (int row = 0; row < nRows; row++)
             {
-                int id  = treeOrder[rowsOffset + row];
-                int bin = data[id * nFeatures + featId];
-
-                mergeValToStat(response[id], &mrgLRN[(int)(bin > binId)], &mrgLRMean[(int)(bin > binId)], &mrgLRSum2Cent[(int)(bin > binId)]);
+                int id      = treeOrder[rowsOffset + row];
+                int bin     = data[id * nFeatures + featId];
+                int classId = (int)response[id];
+                mrgLRN[(int)(bin > binId)] += (algorithmFPType)1;
+                mrgLRCls[nProp * (int)(bin > binId) + classId] += (algorithmFPType)1;
             }
 
-            mergeStatArr(mrgLRN, mrgLRMean, mrgLRSum2Cent, &mrgN, &mrgMean, &mrgSum2Cent);
+            imp                  = (algorithmFPType)1;
+            algorithmFPType impL = (algorithmFPType)1;
+            algorithmFPType impR = (algorithmFPType)1;
+            algorithmFPType div  = (algorithmFPType)1 / (mrgN * mrgN);
+            algorithmFPType divL = ((algorithmFPType)0 < mrgLRN[0]) ? (algorithmFPType)1 / (mrgLRN[0] * mrgLRN[0]) : (algorithmFPType)0;
+            algorithmFPType divR = ((algorithmFPType)0 < mrgLRN[1]) ? (algorithmFPType)1 / (mrgLRN[1] * mrgLRN[1]) : (algorithmFPType)0;
 
-            algorithmFPType impDec = mrgSum2Cent - (mrgLRSum2Cent[0] + mrgLRSum2Cent[1]);
-            imp                    = mrgSum2Cent / mrgN; // mrgN isn't 0 due to it is num of rows in node
+            for (int prop = 0; prop < nProp; prop++)
+            {
+                impL -= mrgLRCls[prop] * mrgLRCls[prop] * divL;
+                impR -= mrgLRCls[nProp + prop] * mrgLRCls[nProp + prop] * divR;
+                mrgCls[prop] = mrgLRCls[prop] + mrgLRCls[nProp + prop];
+                imp -= mrgCls[prop] * mrgCls[prop] * div;
+            }
+            impL = (algorithmFPType)0 < impL ? impL : (algorithmFPType)0;
+            impR = (algorithmFPType)0 < impR ? impR : (algorithmFPType)0;
+            imp  = (algorithmFPType)0 < imp ? imp : (algorithmFPType)0;
+
+            algorithmFPType impDec = imp - (mrgLRN[0] * impL + mrgLRN[1] * impR) / mrgN;
 
             if ((algorithmFPType)0 < impDec && (!fpEq(imp, (algorithmFPType)0)) && imp >= impurityThreshold
                 && (curFeatureValue == leafMark || fpGt(impDec, curImpDec) || (fpEq(impDec, curImpDec) && featId < curFeatureId))
@@ -184,14 +175,26 @@ DECLARE_SOURCE(
             if (1 == n_sub_groups)
             {
                 __global algorithmFPType * splitNodeInfo = splitInfo + nodeId * nImpProp;
-                nodeList[nodeId * nNodeProp + 2]         = curFeatureId == valNotFound ? leafMark : curFeatureId;
-                nodeList[nodeId * nNodeProp + 3]         = curFeatureValue == valNotFound ? leafMark : curFeatureValue;
-                nodeList[nodeId * nNodeProp + 4]         = (int)bestLN;
+                __global algorithmFPType * nodeHistInfo  = splitInfo + nodeId * nImpProp + IMPURITY_PROPS;
+                splitNodeInfo[0]                         = imp;
+                algorithmFPType maxVal                   = (algorithmFPType)0;
+                int maxInd                               = 0;
+                for (int i = 0; i < nProp; i++)
+                {
+                    nodeHistInfo[i] = mrgCls[i];
+                    if (mrgCls[i] > maxVal)
+                    {
+                        maxVal = mrgCls[i];
+                        maxInd = i;
+                    }
+                }
 
-                splitNodeInfo[0] = imp;
-                splitNodeInfo[1] = mrgMean;
+                nodeList[nodeId * nNodeProp + 2] = curFeatureId == valNotFound ? leafMark : curFeatureId;
+                nodeList[nodeId * nNodeProp + 3] = curFeatureValue == valNotFound ? leafMark : curFeatureValue;
+                nodeList[nodeId * nNodeProp + 4] = (int)bestLN;
+                nodeList[nodeId * nNodeProp + 5] = maxInd;
 
-                if (updateImpDecreaseRequired) nodeImpDecreaseList[nodeId] = curImpDec / mrgN;
+                if (updateImpDecreaseRequired) nodeImpDecreaseList[nodeId] = bestImpDec;
             }
             else
             {
@@ -215,60 +218,45 @@ DECLARE_SOURCE(
 
             algorithmFPType bestImpDec = sub_group_reduce_max(curImpDec);
 
-            int bestFeatureId    = sub_group_reduce_min(bestImpDec == curImpDec ? curFeatureId : valNotFound);
-            int bestFeatureValue = sub_group_reduce_min((bestFeatureId == curFeatureId && bestImpDec == curImpDec) ? curFeatureValue : valNotFound);
+            int impDecIsBest     = fpEq(bestImpDec, curImpDec);
+            int bestFeatureId    = sub_group_reduce_min(impDecIsBest ? curFeatureId : valNotFound);
+            int bestFeatureValue = sub_group_reduce_min((bestFeatureId == curFeatureId && impDecIsBest) ? curFeatureValue : valNotFound);
 
             bool noneSplitFoundBySubGroup = ((leafMark == bestFeatureId) && (0 == sub_group_local_id));
             bool mySplitIsBest            = (leafMark != bestFeatureId && curFeatureId == bestFeatureId && curFeatureValue == bestFeatureValue);
             if (noneSplitFoundBySubGroup || mySplitIsBest)
             {
                 __global algorithmFPType * splitNodeInfo = splitInfo + nodeId * nImpProp;
-                nodeList[nodeId * nNodeProp + 2]         = curFeatureId == valNotFound ? leafMark : curFeatureId;
-                nodeList[nodeId * nNodeProp + 3]         = curFeatureValue == valNotFound ? leafMark : curFeatureValue;
-                nodeList[nodeId * nNodeProp + 4]         = (int)LN;
+                __global algorithmFPType * nodeHistInfo  = splitInfo + nodeId * nImpProp + IMPURITY_PROPS;
+                splitNodeInfo[0]                         = imp;
+                algorithmFPType maxVal                   = (algorithmFPType)0;
+                int maxInd                               = 0;
+                for (int i = 0; i < nProp; i++)
+                {
+                    nodeHistInfo[i] = mrgCls[i];
+                    if (mrgCls[i] > maxVal)
+                    {
+                        maxVal = mrgCls[i];
+                        maxInd = i;
+                    }
+                }
 
-                splitNodeInfo[0] = imp;
-                splitNodeInfo[1] = mrgMean;
+                nodeList[nodeId * nNodeProp + 2] = curFeatureId == valNotFound ? leafMark : curFeatureId;
+                nodeList[nodeId * nNodeProp + 3] = curFeatureValue == valNotFound ? leafMark : curFeatureValue;
+                nodeList[nodeId * nNodeProp + 4] = (int)LN;
+                nodeList[nodeId * nNodeProp + 5] = maxInd;
 
-                if (updateImpDecreaseRequired) nodeImpDecreaseList[nodeId] = curImpDec / mrgN;
+                if (updateImpDecreaseRequired) nodeImpDecreaseList[nodeId] = bestImpDec;
             }
         }
     });
 
 DECLARE_SOURCE(
-    df_batch_regression_kernels_part2,
+    df_batch_classification_kernels_part2,
 
     inline int fpEq(algorithmFPType a, algorithmFPType b) { return (int)(fabs(a - b) <= algorithmFPTypeAccuracy); }
 
     inline int fpGt(algorithmFPType a, algorithmFPType b) { return (int)((a - b) > algorithmFPTypeAccuracy); }
-
-    // merge input arrs with stat values
-    void mergeStatArr(algorithmFPType * n, algorithmFPType * mean, algorithmFPType * sum2Cent, algorithmFPType * mrgN, algorithmFPType * mrgMean,
-                      algorithmFPType * mrgSum2Cent) {
-        algorithmFPType sumN1N2    = n[0] + n[1];
-        algorithmFPType mulN1N2    = n[0] * n[1];
-        algorithmFPType deltaScale = mulN1N2 / sumN1N2;
-        algorithmFPType meanScale  = (algorithmFPType)1 / sumN1N2;
-        algorithmFPType delta      = mean[1] - mean[0];
-
-        *mrgSum2Cent = sum2Cent[0] + sum2Cent[1] + delta * delta * deltaScale;
-        *mrgMean     = (mean[0] * n[0] + mean[1] * n[1]) * meanScale;
-        *mrgN        = sumN1N2;
-    }
-
-    // merge to stats in one
-    void mergeStat(algorithmFPType n, algorithmFPType mean, algorithmFPType sum2Cent, algorithmFPType * mrgLN, algorithmFPType * mrgLMean,
-                   algorithmFPType * mrgLSum2Cent) {
-        algorithmFPType sumN1N2    = *mrgLN + n;
-        algorithmFPType mulN1N2    = *mrgLN * n;
-        algorithmFPType deltaScale = mulN1N2 / sumN1N2;
-        algorithmFPType meanScale  = (algorithmFPType)1 / sumN1N2;
-        algorithmFPType delta      = mean - *mrgLMean;
-
-        *mrgLSum2Cent = *mrgLSum2Cent + sum2Cent + delta * delta * deltaScale;
-        *mrgLMean     = (*mrgLMean * *mrgLN + mean * n) * meanScale;
-        *mrgLN        = sumN1N2;
-    }
 
     __kernel void computeBestSplitByHistogram(const __global algorithmFPType * histograms, const __global int * selectedFeatures,
                                               int nSelectedFeatures, const __global int * binOffsets, __global int * nodeList,
@@ -279,9 +267,9 @@ DECLARE_SOURCE(
         // the difference is that here for each potential split point we pass through bins hist instead of rows
         // nodeList will be updated with split attributes in this kernel
         // spliInfo will contain node impurity and mean
-        const int nProp              = HIST_PROPS; // num of characteristics in histogram
-        const int nNodeProp          = NODE_PROPS; // num of node properties in nodeList
-        const int nImpProp           = IMPURITY_PROPS;
+        const int nProp              = HIST_PROPS;                  // classes histogram
+        const int nNodeProp          = NODE_PROPS;                  // num of node properties in nodeList
+        const int nImpProp           = IMPURITY_PROPS + HIST_PROPS; // impurity + node classes histogram
         const int local_id           = get_local_id(0);
         const int sub_group_local_id = get_sub_group_local_id();
         const int sub_group_size     = get_sub_group_size();
@@ -304,23 +292,25 @@ DECLARE_SOURCE(
         __local algorithmFPType bufI[maxBinsBlocks]; // storage for impurity decrease
         __local int bufS[maxBinsBlocks * nNodeProp]; // storage for split info
 
+        int valNotFound     = 1 << 30;
+        int curFeatureValue = leafMark;
+        int curFeatureId    = leafMark;
+
         const algorithmFPType minImpDec = (algorithmFPType)-1e30;
-        int valNotFound                 = 1 << 30;
-        int curFeatureValue             = leafMark;
-        int curFeatureId                = leafMark;
         algorithmFPType curImpDec       = minImpDec;
 
         nodeList[nodeId * nNodeProp + 2] = curFeatureId;
         nodeList[nodeId * nNodeProp + 3] = curFeatureValue;
         nodeList[nodeId * nNodeProp + 4] = nRows;
 
-        algorithmFPType mrgN        = (algorithmFPType)0;
-        algorithmFPType mrgMean     = (algorithmFPType)0;
-        algorithmFPType mrgSum2Cent = (algorithmFPType)0;
+        algorithmFPType mrgN = (algorithmFPType)nRows;
 
-        algorithmFPType imp = (algorithmFPType)0; // node impurity
+        algorithmFPType mrgLN = (algorithmFPType)0;
 
-        algorithmFPType bestLN = (algorithmFPType)0;
+        algorithmFPType bestLN        = (algorithmFPType)0;
+        algorithmFPType mrgCls[nProp] = { (algorithmFPType)0 };
+
+        algorithmFPType imp = (algorithmFPType)1;
 
         int totalBins = 0;
 
@@ -355,32 +345,43 @@ DECLARE_SOURCE(
             const __global algorithmFPType * histogramForFeature = nodeHistogram + currFtrIdx * nMaxBinsAmongFtrs * nProp;
 
             // calculate merged statistics
-            mrgN        = (algorithmFPType)0;
-            mrgMean     = (algorithmFPType)0;
-            mrgSum2Cent = (algorithmFPType)0;
 
-            algorithmFPType mrgLRN[2]        = { (algorithmFPType)0 };
-            algorithmFPType mrgLRMean[2]     = { (algorithmFPType)0 };
-            algorithmFPType mrgLRSum2Cent[2] = { (algorithmFPType)0 };
+            algorithmFPType mrgLRN[2]           = { (algorithmFPType)0 };
+            algorithmFPType mrgLRCls[nProp * 2] = { (algorithmFPType)0 };
 
             for (int tbin = 0; tbin < currFtrBins; tbin++)
             {
-                int binOffset     = tbin * nProp;
-                algorithmFPType n = histogramForFeature[binOffset + 0];
+                int binOffset = tbin * nProp;
+                for (int prop = 0; prop < nProp; prop++)
+                {
+                    mrgCls[prop] += histogramForFeature[binOffset + prop];
 
-                algorithmFPType mean     = histogramForFeature[binOffset + 1];
-                algorithmFPType sum2Cent = histogramForFeature[binOffset + 2];
-                if ((algorithmFPType)0 == n) continue;
-
-                mergeStat(n, mean, sum2Cent, &mrgLRN[(int)(tbin > binId)], &mrgLRMean[(int)(tbin > binId)], &mrgLRSum2Cent[(int)(tbin > binId)]);
+                    mrgLRN[(int)(tbin > binId)] += histogramForFeature[binOffset + prop];
+                    mrgLRCls[nProp * (int)(tbin > binId) + prop] += histogramForFeature[binOffset + prop];
+                }
             }
 
-            mergeStatArr(mrgLRN, mrgLRMean, mrgLRSum2Cent, &mrgN, &mrgMean, &mrgSum2Cent);
+            imp                  = (algorithmFPType)1;
+            algorithmFPType impL = (algorithmFPType)1;
+            algorithmFPType impR = (algorithmFPType)1;
+            algorithmFPType div  = (algorithmFPType)1 / (mrgN * mrgN);
+            algorithmFPType divL = ((algorithmFPType)0 < mrgLRN[0]) ? (algorithmFPType)1 / (mrgLRN[0] * mrgLRN[0]) : (algorithmFPType)0;
+            algorithmFPType divR = ((algorithmFPType)0 < mrgLRN[1]) ? (algorithmFPType)1 / (mrgLRN[1] * mrgLRN[1]) : (algorithmFPType)0;
 
-            algorithmFPType impDec = mrgSum2Cent - (mrgLRSum2Cent[0] + mrgLRSum2Cent[1]);
-            imp                    = mrgSum2Cent / mrgN; // mrgN isn't 0 due to it is num of rows in node
+            for (int prop = 0; prop < nProp; prop++)
+            {
+                impL -= mrgLRCls[prop] * mrgLRCls[prop] * divL;
+                impR -= mrgLRCls[nProp + prop] * mrgLRCls[nProp + prop] * divR;
+                mrgCls[prop] = mrgLRCls[prop] + mrgLRCls[nProp + prop];
+                imp -= mrgCls[prop] * mrgCls[prop] * div;
+            }
+            impL = (algorithmFPType)0 < impL ? impL : (algorithmFPType)0;
+            impR = (algorithmFPType)0 < impR ? impR : (algorithmFPType)0;
+            imp  = (algorithmFPType)0 < imp ? imp : (algorithmFPType)0;
 
-            if ((algorithmFPType)0 < impDec && (!fpEq(imp, (algorithmFPType)0)) && imp >= impurityThreshold
+            algorithmFPType impDec = imp - (mrgLRN[0] * impL + mrgLRN[1] * impR) / mrgN;
+
+            if ((algorithmFPType)0 < impDec && !fpEq(imp, (algorithmFPType)0) && imp >= impurityThreshold
                 && (curFeatureValue == leafMark || fpGt(impDec, curImpDec) || (fpEq(impDec, curImpDec) && featId < curFeatureId))
                 && mrgLRN[0] >= minObservationsInLeafNode && mrgLRN[1] >= minObservationsInLeafNode)
             {
@@ -405,14 +406,27 @@ DECLARE_SOURCE(
             if (1 == n_sub_groups)
             {
                 __global algorithmFPType * splitNodeInfo = splitInfo + nodeId * nImpProp;
-                nodeList[nodeId * nNodeProp + 2]         = curFeatureId == valNotFound ? leafMark : curFeatureId;
-                nodeList[nodeId * nNodeProp + 3]         = curFeatureValue == valNotFound ? leafMark : curFeatureValue;
-                nodeList[nodeId * nNodeProp + 4]         = (int)bestLN;
+                __global algorithmFPType * nodeHistInfo  = splitInfo + nodeId * nImpProp + IMPURITY_PROPS;
 
-                splitNodeInfo[0] = imp;
-                splitNodeInfo[1] = mrgMean;
+                splitNodeInfo[0]       = imp;
+                algorithmFPType maxVal = (algorithmFPType)0;
+                int maxInd             = 0;
+                for (int i = 0; i < nProp; i++)
+                {
+                    nodeHistInfo[i] = mrgCls[i];
+                    if (mrgCls[i] > maxVal)
+                    {
+                        maxVal = mrgCls[i];
+                        maxInd = i;
+                    }
+                }
 
-                if (updateImpDecreaseRequired) nodeImpDecreaseList[nodeId] = curImpDec / mrgN;
+                nodeList[nodeId * nNodeProp + 2] = curFeatureId == valNotFound ? leafMark : curFeatureId;
+                nodeList[nodeId * nNodeProp + 3] = curFeatureValue == valNotFound ? leafMark : curFeatureValue;
+                nodeList[nodeId * nNodeProp + 4] = (int)bestLN;
+                nodeList[nodeId * nNodeProp + 5] = maxInd;
+
+                if (updateImpDecreaseRequired) nodeImpDecreaseList[nodeId] = bestImpDec;
             }
             else
             {
@@ -444,14 +458,27 @@ DECLARE_SOURCE(
             if (noneSplitFoundBySubGroup || mySplitIsBest)
             {
                 __global algorithmFPType * splitNodeInfo = splitInfo + nodeId * nImpProp;
-                nodeList[nodeId * nNodeProp + 2]         = curFeatureId == valNotFound ? leafMark : curFeatureId;
-                nodeList[nodeId * nNodeProp + 3]         = curFeatureValue == valNotFound ? leafMark : curFeatureValue;
-                nodeList[nodeId * nNodeProp + 4]         = (int)LN;
+                __global algorithmFPType * nodeHistInfo  = splitInfo + nodeId * nImpProp + IMPURITY_PROPS;
 
-                splitNodeInfo[0] = imp;
-                splitNodeInfo[1] = mrgMean;
+                splitNodeInfo[0]       = imp;
+                algorithmFPType maxVal = (algorithmFPType)0;
+                int maxInd             = 0;
+                for (int i = 0; i < nProp; i++)
+                {
+                    nodeHistInfo[i] = mrgCls[i];
+                    if (mrgCls[i] > maxVal)
+                    {
+                        maxVal = mrgCls[i];
+                        maxInd = i;
+                    }
+                }
 
-                if (updateImpDecreaseRequired) nodeImpDecreaseList[nodeId] = curImpDec / mrgN;
+                nodeList[nodeId * nNodeProp + 2] = curFeatureId == valNotFound ? leafMark : curFeatureId;
+                nodeList[nodeId * nNodeProp + 3] = curFeatureValue == valNotFound ? leafMark : curFeatureValue;
+                nodeList[nodeId * nNodeProp + 4] = (int)LN;
+                nodeList[nodeId * nNodeProp + 5] = maxInd;
+
+                if (updateImpDecreaseRequired) nodeImpDecreaseList[nodeId] = bestImpDec;
             }
         }
     }
@@ -460,7 +487,7 @@ DECLARE_SOURCE(
                                            const __global int * nodeIndices, int nodeIndicesOffset, const __global int * selectedFeatures,
                                            const __global algorithmFPType * response, const __global int * binOffsets, int nMaxBinsAmongFtrs,
                                            int nFeatures, __global algorithmFPType * partialHistograms) {
-        const int nProp     = HIST_PROPS; // num of characteristics in histogram
+        const int nProp     = HIST_PROPS; // num of characteristics in histogram (i.e. classes)
         const int nNodeProp = NODE_PROPS; // num of node properties in nodeOffsets
 
         const int nodeIdx           = get_global_id(2);
@@ -493,20 +520,17 @@ DECLARE_SOURCE(
 
         for (int i = iStart; i < iEnd; i++)
         {
-            int id  = treeOrder[rowsOffset + i];
-            int bin = data[id * nFeatures + featId];
+            int id      = treeOrder[rowsOffset + i];
+            int bin     = data[id * nFeatures + featId];
+            int classId = (int)response[id];
 
-            histogram[bin * nProp + 0] += 1.0; // N + 1
-            algorithmFPType invN  = ((algorithmFPType)1) / histogram[bin * nProp + 0];
-            algorithmFPType delta = response[id] - histogram[bin * nProp + 1];                 // y[i] - mean
-            histogram[bin * nProp + 1] += delta * invN;                                        // updated mean
-            histogram[bin * nProp + 2] += delta * (response[id] - histogram[bin * nProp + 1]); // updated sum2Cent
+            histogram[bin * nProp + classId] += (algorithmFPType)1;
         }
     }
 
     __kernel void reducePartialHistograms(const __global algorithmFPType * partialHistograms, __global algorithmFPType * histograms,
                                           int nPartialHistograms, int nSelectedFeatures, int nMaxBinsAmongFtrs) {
-        const int nProp = HIST_PROPS; // num of characteristics in histogram
+        const int nProp = HIST_PROPS; // num of characteristics in histogram (i.e. classes)
         __local algorithmFPType buf[LOCAL_BUFFER_SIZE * nProp];
 
         const int nodeIdx    = get_global_id(2);
@@ -514,13 +538,10 @@ DECLARE_SOURCE(
         const int local_id   = get_local_id(1);
         const int local_size = get_local_size(1);
 
-        buf[local_id * nProp + 0] = (algorithmFPType)0;
-        buf[local_id * nProp + 1] = (algorithmFPType)0;
-        buf[local_id * nProp + 2] = (algorithmFPType)0;
-
-        algorithmFPType mrgN        = (algorithmFPType)0;
-        algorithmFPType mrgMean     = (algorithmFPType)0;
-        algorithmFPType mrgSum2Cent = (algorithmFPType)0;
+        for (int prop = 0; prop < nProp; prop++)
+        {
+            buf[local_id * nProp + prop] = (algorithmFPType)0;
+        }
 
         const __global algorithmFPType * nodePartialHistograms =
             partialHistograms + nodeIdx * nPartialHistograms * nSelectedFeatures * nMaxBinsAmongFtrs * nProp;
@@ -528,19 +549,11 @@ DECLARE_SOURCE(
 
         for (int i = local_id; i < nPartialHistograms; i += local_size)
         {
-            int offset        = i * nSelectedFeatures * nMaxBinsAmongFtrs * nProp + binId * nProp;
-            algorithmFPType n = nodePartialHistograms[offset + 0];
-
-            if ((algorithmFPType)0 == n) continue;
-
-            algorithmFPType mean     = nodePartialHistograms[offset + 1];
-            algorithmFPType sum2Cent = nodePartialHistograms[offset + 2];
-
-            mergeStat(n, mean, sum2Cent, &mrgN, &mrgMean, &mrgSum2Cent);
-
-            buf[local_id * nProp + 0] += n;
-            buf[local_id * nProp + 1] = mrgMean;
-            buf[local_id * nProp + 2] = mrgSum2Cent;
+            int offset = i * nSelectedFeatures * nMaxBinsAmongFtrs * nProp + binId * nProp;
+            for (int prop = 0; prop < nProp; prop++)
+            {
+                buf[local_id * nProp + prop] += nodePartialHistograms[offset + prop];
+            }
         }
 
         for (int offset = local_size / 2; offset > 0; offset >>= 1)
@@ -548,25 +561,19 @@ DECLARE_SOURCE(
             barrier(CLK_LOCAL_MEM_FENCE);
             if (local_id < offset)
             {
-                algorithmFPType n = buf[(local_id + offset) * nProp + 0];
-                if ((algorithmFPType)0 == n) continue;
-                algorithmFPType mean     = buf[(local_id + offset) * nProp + 1];
-                algorithmFPType sum2Cent = buf[(local_id + offset) * nProp + 2];
-
-                mergeStat(n, mean, sum2Cent, &mrgN, &mrgMean, &mrgSum2Cent);
-
-                buf[local_id * nProp + 0] += n;
-                buf[local_id * nProp + 1] = mrgMean;
-                buf[local_id * nProp + 2] = mrgSum2Cent;
+                for (int prop = 0; prop < nProp; prop++)
+                {
+                    buf[local_id * nProp + prop] += buf[(local_id + offset) * nProp + prop];
+                }
             }
         }
 
         if (local_id == 0)
         {
-            // item 0 collects all results in private vars
-            nodeHistogram[binId * nProp + 0] = mrgN;
-            nodeHistogram[binId * nProp + 1] = mrgMean;
-            nodeHistogram[binId * nProp + 2] = mrgSum2Cent;
+            for (int prop = 0; prop < nProp; prop++)
+            {
+                nodeHistogram[binId * nProp + prop] = buf[local_id + prop];
+            }
         }
     });
 
