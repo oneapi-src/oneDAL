@@ -86,10 +86,10 @@ training::ResultPtr trainModel(algorithmType && algorithm)
     algorithm.input.set(training::data, trainData);
     algorithm.input.set(training::dependentVariable, trainDependentVariable);
 
-    algorithm.parameter.nTrees           = nTrees;
-    algorithm.parameter.varImportance    = daal::algorithms::decision_forest::training::MDA_Raw;
-    algorithm.parameter.resultsToCompute = daal::algorithms::decision_forest::training::computeOutOfBagError
-                                           | daal::algorithms::decision_forest::training::computeOutOfBagErrorPerObservation;
+    algorithm.parameter().nTrees           = nTrees;
+    algorithm.parameter().varImportance    = daal::algorithms::decision_forest::training::MDA_Raw;
+    algorithm.parameter().resultsToCompute = daal::algorithms::decision_forest::training::computeOutOfBagError
+                                             | daal::algorithms::decision_forest::training::computeOutOfBagErrorPerObservation;
 
     /* Build the decision forest regression model */
     algorithm.compute();

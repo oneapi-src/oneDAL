@@ -44,8 +44,12 @@ const size_t categoricalFeaturesIndices[] = { 2 };
 const size_t nFeatures                    = 3; /* Number of features in training and testing data sets */
 
 /* Decision forest parameters */
-const size_t nTrees                    = 10;
-const size_t minObservationsInLeafNode = 8;
+const size_t nTrees                         = 10;
+const size_t minObservationsInLeafNode      = 8;
+const size_t minObservationsInSplitNode     = 16;
+const double minWeightFractionInLeafNode    = 0.0; /* It must be in segment [0.0, 0.5] */
+const double minImpurityDecreaseInSplitNode = 0.0; /* It must be greater than or equal to 0.0 */
+const size_t maxLeafNodes                   = 0;   /* Unlimited leaf node is 0 */
 
 const size_t nClasses = 5; /* Number of classes */
 
@@ -78,11 +82,15 @@ training::ResultPtr trainModel()
     algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainDependentVariable);
 
-    algorithm.parameter.nTrees                    = nTrees;
-    algorithm.parameter.featuresPerNode           = nFeatures;
-    algorithm.parameter.minObservationsInLeafNode = minObservationsInLeafNode;
-    algorithm.parameter.varImportance             = algorithms::decision_forest::training::MDI;
-    algorithm.parameter.resultsToCompute          = algorithms::decision_forest::training::computeOutOfBagError;
+    algorithm.parameter().nTrees                         = nTrees;
+    algorithm.parameter().featuresPerNode                = nFeatures;
+    algorithm.parameter().minObservationsInLeafNode      = minObservationsInLeafNode;
+    algorithm.parameter().minObservationsInSplitNode     = minObservationsInSplitNode;
+    algorithm.parameter().minWeightFractionInLeafNode    = minWeightFractionInLeafNode;
+    algorithm.parameter().minImpurityDecreaseInSplitNode = minImpurityDecreaseInSplitNode;
+    algorithm.parameter().maxLeafNodes                   = maxLeafNodes;
+    algorithm.parameter().varImportance                  = algorithms::decision_forest::training::MDI;
+    algorithm.parameter().resultsToCompute               = algorithms::decision_forest::training::computeOutOfBagError;
 
     /* Build the decision forest classification model */
     algorithm.compute();

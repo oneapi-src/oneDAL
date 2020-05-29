@@ -34,10 +34,10 @@ namespace classification
 {
 namespace training
 {
-namespace interface2
+namespace interface3
 {
 template class BatchContainer<DAAL_FPTYPE, hist, DAAL_CPU>;
-}
+} // namespace interface3
 namespace internal
 {
 template class ClassificationTrainBatchKernel<DAAL_FPTYPE, hist, DAAL_CPU>;

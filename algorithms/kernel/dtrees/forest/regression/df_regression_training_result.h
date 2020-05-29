@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __DF_REGRESSION_TRAINING_RESULT_
-#define __DF_REGRESSION_TRAINING_RESULT_
+#ifndef __DF_REGRESSION_TRAINING_RESULT_H__
+#define __DF_REGRESSION_TRAINING_RESULT_H__
 
 #include "algorithms/decision_forest/decision_forest_regression_training_types.h"
 #include "algorithms/kernel/dtrees/forest/regression/df_regression_model_impl.h"
@@ -41,12 +41,43 @@ namespace training
 {
 /**
  * Allocates memory to store the result of decision forest model-based training
- * \param[in] input Pointer to an object containing the input data
- * \param[in] method Computation method for the algorithm
- * \param[in] parameter %Parameter of decision forest model-based training
+ * \param[in] input       %Input object for the algorithm
+ * \param[in] method      Computation method for the algorithm
+ * \param[in] parameter   %Parameters of the algorithm
+ * \return Status of allocation
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const Parameter * parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input,
+                                              const daal::algorithms::decision_forest::regression::training::interface1::Parameter * parameter,
+                                              const int method)
+{
+    daal::algorithms::decision_forest::regression::training::interface2::Parameter tmpPar;
+    tmpPar.nTrees                      = parameter->nTrees;
+    tmpPar.observationsPerTreeFraction = parameter->observationsPerTreeFraction;
+    tmpPar.featuresPerNode             = parameter->featuresPerNode;
+    tmpPar.maxTreeDepth                = parameter->maxTreeDepth;
+    tmpPar.minObservationsInLeafNode   = parameter->minObservationsInLeafNode;
+    tmpPar.seed                        = parameter->seed;
+    tmpPar.engine                      = parameter->engine;
+    tmpPar.impurityThreshold           = parameter->impurityThreshold;
+    tmpPar.varImportance               = parameter->varImportance;
+    tmpPar.resultsToCompute            = parameter->resultsToCompute;
+    tmpPar.memorySavingMode            = parameter->memorySavingMode;
+    tmpPar.bootstrap                   = parameter->bootstrap;
+    return allocate<algorithmFPType>(input, &tmpPar, method);
+}
+
+/**
+ * Allocates memory to store the result of decision forest model-based training
+ * \param[in] input       %Input object for the algorithm
+ * \param[in] method      Computation method for the algorithm
+ * \param[in] parameter   %Parameters of the algorithm
+ * \return Status of allocation
+ */
+template <typename algorithmFPType>
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input,
+                                              const daal::algorithms::decision_forest::regression::training::interface2::Parameter * parameter,
+                                              const int method)
 {
     services::Status status;
     const Input * inp      = static_cast<const Input *>(input);

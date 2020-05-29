@@ -1,4 +1,4 @@
-/* file: df_regression_train_container.h */
+/* file: df_regression_train_container_v1.h */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -21,14 +21,13 @@
 //--
 */
 
-#ifndef __DF_REGRESSION_TRAIN_CONTAINER_H__
-#define __DF_REGRESSION_TRAIN_CONTAINER_H__
+#ifndef __DF_REGRESSION_TRAIN_CONTAINER_V1_H__
+#define __DF_REGRESSION_TRAIN_CONTAINER_V1_H__
 
 #include "algorithms/kernel/kernel.h"
 #include "algorithms/decision_forest/decision_forest_regression_training_types.h"
 #include "algorithms/decision_forest/decision_forest_regression_training_batch.h"
 #include "algorithms/kernel/dtrees/forest/regression/df_regression_train_kernel.h"
-#include "algorithms/kernel/dtrees/forest/regression/df_regression_train_dense_default_kernel.h"
 #include "algorithms/kernel/dtrees/forest/regression/oneapi/df_regression_train_hist_kernel_oneapi.h"
 #include "algorithms/kernel/dtrees/forest/regression/df_regression_model_impl.h"
 #include "service/kernel/service_algo_utils.h"
@@ -43,8 +42,24 @@ namespace regression
 {
 namespace training
 {
-namespace interface2
+namespace interface1
 {
+DAAL_FORCEINLINE void convertParameter(interface1::Parameter & par1, interface2::Parameter & par2)
+{
+    par2.nTrees                      = par1.nTrees;
+    par2.observationsPerTreeFraction = par1.observationsPerTreeFraction;
+    par2.featuresPerNode             = par1.featuresPerNode;
+    par2.maxTreeDepth                = par1.maxTreeDepth;
+    par2.minObservationsInLeafNode   = par1.minObservationsInLeafNode;
+    par2.seed                        = par1.seed;
+    par2.engine                      = par1.engine;
+    par2.impurityThreshold           = par1.impurityThreshold;
+    par2.varImportance               = par1.varImportance;
+    par2.resultsToCompute            = par1.resultsToCompute;
+    par2.memorySavingMode            = par1.memorySavingMode;
+    par2.bootstrap                   = par1.bootstrap;
+}
+
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
@@ -81,18 +96,23 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     decision_forest::regression::Model * m = result->get(model).get();
 
-    const decision_forest::regression::training::Parameter * par = static_cast<decision_forest::regression::training::Parameter *>(_par);
-    daal::services::Environment::env & env                       = *_env;
+    decision_forest::regression::training::interface1::Parameter * par =
+        static_cast<decision_forest::regression::training::interface1::Parameter *>(_par);
+    decision_forest::regression::training::interface2::Parameter par2;
+    convertParameter(*par, par2);
+    daal::services::Environment::env & env = *_env;
 
+    __DAAL_CALL_KERNEL(env, internal::RegressionTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+                       daal::services::internal::hostApp(*input), x, y, *m, *result, par2);
     if (method == hist && !deviceInfo.isCpu)
     {
         __DAAL_CALL_KERNEL_SYCL(env, internal::RegressionTrainBatchKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                                daal::services::internal::hostApp(*input), x, y, *m, *result, *par);
+                                daal::services::internal::hostApp(*input), x, y, *m, *result, par2);
     }
     else
     {
         __DAAL_CALL_KERNEL(env, internal::RegressionTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                           daal::services::internal::hostApp(*input), x, y, *m, *result, *par);
+                           daal::services::internal::hostApp(*input), x, y, *m, *result, par2);
     }
 }
 
@@ -106,7 +126,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::setupCompute()
     pImpl->clear();
     return services::Status();
 }
-} // namespace interface2
+} // namespace interface1
 } // namespace training
 } // namespace regression
 } // namespace decision_forest
