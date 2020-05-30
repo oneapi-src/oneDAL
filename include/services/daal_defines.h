@@ -28,6 +28,11 @@
 
 #include <cstddef> // for size_t
 
+#if !(defined(_MSC_VER) || defined(__INTEL_COMPILER))
+    #define __int32 int
+    #define __int64 long long int
+#endif
+
 #if defined(_WIN32) || defined(_WIN64)
     #ifdef __DAAL_IMPLEMENTATION
         #define DAAL_EXPORT __declspec(dllexport)

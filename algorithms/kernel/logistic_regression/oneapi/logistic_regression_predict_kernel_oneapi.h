@@ -26,6 +26,7 @@
 #define __LOGISTIC_REGRESSION_PREDICT_KERNEL_ONEAPI_H__
 
 #include "algorithms/logistic_regression/logistic_regression_training_types.h"
+#include "algorithms/logistic_regression/logistic_regression_predict.h"
 #include "algorithms/kernel/objective_function/common/oneapi/objective_function_utils_oneapi.h"
 #include "algorithms/kernel/objective_function/logistic_loss/oneapi/logistic_loss_dense_default_kernel_oneapi.h"
 #include "algorithms/kernel/objective_function/cross_entropy_loss/oneapi/cross_entropy_loss_dense_default_kernel_oneapi.h"
@@ -40,7 +41,7 @@ namespace prediction
 {
 namespace internal
 {
-template <typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method>
 class PredictBatchKernelOneAPI : public daal::algorithms::Kernel
 {
 public:

@@ -53,6 +53,141 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_FOREST__REGRESSION__TRAINING__BATCHCONTAINER"></a>
  * \brief Class containing methods for decision forest regression
+ *        model-based training using algorithmFPType precision arithmetic  \DAAL_DEPRECATED
+ */
+template <typename algorithmFPType, Method method, CpuType cpu>
+class BatchContainer : public TrainingContainerIface<batch>
+{
+public:
+    /**
+     * Constructs a container for decision forest model-based training with a specified environment
+     * in the batch processing mode
+     * \param[in] daalEnv   Environment object
+     */
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env * daalEnv);
+    /** Default destructor */
+    DAAL_DEPRECATED ~BatchContainer();
+    /**
+     * Computes the result of decision forest model-based training in the batch processing mode
+     * \return Status of computations
+     */
+    DAAL_DEPRECATED services::Status compute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status setupCompute() DAAL_C11_OVERRIDE;
+};
+
+/**
+ * <a name="DAAL-CLASS-ALGORITHMS__DECISION_FOREST__REGRESSION__TRAINING__BATCH"></a>
+ * \brief Provides methods for decision forest model-based training in the batch processing mode   \DAAL_DEPRECATED
+ * <!-- \n<a href="DAAL-REF-DECISION_FOREST__REGRESSION__TRAINING-ALGORITHM">decision forest algorithm description and usage models</a> -->
+ *
+ * \tparam algorithmFPType  Data type to use in intermediate computations for decision forest model-based training, double or float
+ * \tparam method           decision forest training method, \ref Method
+ *
+ * \par Enumerations
+ *      - \ref Method  Computation methods
+ *
+ * \par References
+ *      - \ref decision_forest::regression::interface1::Model "Model" class
+ *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ */
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+class DAAL_EXPORT Batch : public algorithms::regression::training::Batch
+{
+public:
+    typedef algorithms::decision_forest::regression::training::Input InputType;
+    typedef algorithms::decision_forest::regression::training::interface1::Parameter ParameterType;
+    typedef algorithms::decision_forest::regression::training::Result ResultType;
+
+    InputType input;         /*!< %Input data structure */
+    ParameterType parameter; /*!< %Training \ref interface1::Parameter "parameters" */
+
+    /** Default constructor */
+    DAAL_DEPRECATED Batch() : parameter()
+    {
+        initialize();
+        parameter.minObservationsInLeafNode = 5;
+    }
+
+    /**
+     * Constructs a decision forest training algorithm by copying input objects
+     * and parameters of another decision forest training algorithm in the batch processing mode
+     * \param[in] other Algorithm to use as the source to initialize the input objects
+     *                  and parameters of the algorithm
+     */
+    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> & other) : input(other.input), parameter(other.parameter) { initialize(); }
+
+    DAAL_DEPRECATED ~Batch() {}
+
+    DAAL_DEPRECATED_VIRTUAL virtual algorithms::regression::training::Input * getInput() DAAL_C11_OVERRIDE { return &input; }
+
+    /**
+     * Returns the method of the algorithm
+     * \return Method of the algorithm
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
+
+    /**
+     * Returns the structure that contains the result of decision forest model-based training
+     * \return Structure that contains the result of decision forest model-based training
+     */
+    DAAL_DEPRECATED ResultPtr getResult() { return ResultType::cast(_result); }
+
+    /**
+     * Resets the results of Decision forest model training algorithm
+     */
+    DAAL_DEPRECATED services::Status resetResult() DAAL_C11_OVERRIDE
+    {
+        _result.reset(new ResultType());
+        DAAL_CHECK(_result, services::ErrorNullResult);
+        _res = NULL;
+        return services::Status();
+    }
+
+    /**
+     * Returns a pointer to a newly allocated decision forest training algorithm
+     * with a copy of the input objects and parameters for this decision forest training algorithm
+     * in the batch processing mode
+     * \return Pointer to the newly allocated algorithm
+     */
+    DAAL_DEPRECATED services::SharedPtr<Batch<algorithmFPType, method> > clone() const
+    {
+        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
+    }
+
+protected:
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
+
+    services::Status allocateResult() DAAL_C11_OVERRIDE
+    {
+        services::Status s = getResult()->template allocate<algorithmFPType>(&input, &parameter, method);
+        _res               = _result.get();
+        return s;
+    }
+
+    void initialize()
+    {
+        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
+        _in  = &input;
+        _par = &parameter;
+        _result.reset(new ResultType());
+    }
+
+private:
+    Batch & operator=(const Batch &);
+};
+/** @} */
+} // namespace interface1
+
+namespace interface2
+{
+/**
+ * @defgroup decision_forest_regression_training_batch Batch
+ * @ingroup decision_forest_regression_training
+ * @{
+ */
+/**
+ * <a name="DAAL-CLASS-ALGORITHMS__DECISION_FOREST__REGRESSION__TRAINING__BATCHCONTAINER"></a>
+ * \brief Class containing methods for decision forest regression
  *        model-based training using algorithmFPType precision arithmetic
  */
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -98,15 +233,10 @@ public:
     typedef algorithms::decision_forest::regression::training::Parameter ParameterType;
     typedef algorithms::decision_forest::regression::training::Result ResultType;
 
-    InputType input;         /*!< %Input data structure */
-    ParameterType parameter; /*!< %Training \ref interface1::Parameter "parameters" */
+    InputType input; /*!< %Input data structure */
 
     /** Default constructor */
-    Batch() : parameter()
-    {
-        initialize();
-        parameter.minObservationsInLeafNode = 5;
-    }
+    Batch();
 
     /**
      * Constructs a decision forest training algorithm by copying input objects
@@ -114,7 +244,7 @@ public:
      * \param[in] other Algorithm to use as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> & other) : input(other.input), parameter(other.parameter) { initialize(); }
+    Batch(const Batch<algorithmFPType, method> & other);
 
     ~Batch() {}
 
@@ -151,21 +281,32 @@ public:
      */
     services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
+    /**
+    * Gets parameter of the algorithm
+    * \return parameter of the algorithm
+    */
+    ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
+
+    /**
+    * Gets parameter of the algorithm
+    * \return parameter of the algorithm
+    */
+    const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
+
 protected:
     virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = getResult()->template allocate<algorithmFPType>(&input, &parameter, method);
+        services::Status s = getResult()->template allocate<algorithmFPType>(&input, &parameter(), method);
         _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
-        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in  = &input;
-        _par = &parameter;
+        _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
+        _in = &input;
         _result.reset(new ResultType());
     }
 
@@ -173,9 +314,9 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
+} // namespace interface2
+using interface2::BatchContainer;
+using interface2::Batch;
 } // namespace training
 } // namespace regression
 } // namespace decision_forest

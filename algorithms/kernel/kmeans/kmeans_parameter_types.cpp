@@ -34,7 +34,7 @@ namespace algorithms
 {
 namespace kmeans
 {
-namespace interface1
+namespace interface2
 {
 /**
  *  Constructs parameters of the K-Means algorithm
@@ -42,7 +42,13 @@ namespace interface1
  *  \param[in] _maxIterations Number of iterations
  */
 Parameter::Parameter(size_t _nClusters, size_t _maxIterations)
-    : nClusters(_nClusters), maxIterations(_maxIterations), accuracyThreshold(0.0), gamma(1.0), distanceType(euclidean), assignFlag(true)
+    : nClusters(_nClusters),
+      maxIterations(_maxIterations),
+      accuracyThreshold(0.0),
+      gamma(1.0),
+      distanceType(euclidean),
+      resultsToEvaluate(computeCentroids | computeAssignments | computeExactObjectiveFunction),
+      assignFlag(false)
 {}
 
 /**
@@ -55,6 +61,7 @@ Parameter::Parameter(const Parameter & other)
       accuracyThreshold(other.accuracyThreshold),
       gamma(other.gamma),
       distanceType(other.distanceType),
+      resultsToEvaluate(other.resultsToEvaluate),
       assignFlag(other.assignFlag)
 {}
 
@@ -66,7 +73,7 @@ services::Status Parameter::check() const
     return services::Status();
 }
 
-} // namespace interface1
+} // namespace interface2
 } // namespace kmeans
 } // namespace algorithms
 } // namespace daal

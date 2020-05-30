@@ -74,6 +74,9 @@
     DECLARE_DAAL_STRING_CONST(correlation)                       \
     DECLARE_DAAL_STRING_CONST(mean)                              \
     DECLARE_DAAL_STRING_CONST(minObservationsInLeafNode)         \
+    DECLARE_DAAL_STRING_CONST(minObservationsInSplitNode)        \
+    DECLARE_DAAL_STRING_CONST(minWeightFractionInLeafNode)       \
+    DECLARE_DAAL_STRING_CONST(minImpurityDecreaseInSplitNode)    \
     DECLARE_DAAL_STRING_CONST(sum)                               \
     DECLARE_DAAL_STRING_CONST(penaltyL1)                         \
     DECLARE_DAAL_STRING_CONST(penaltyL2)                         \
@@ -161,6 +164,7 @@
     DECLARE_DAAL_STRING_CONST(logProbabilities)                  \
     DECLARE_DAAL_STRING_CONST(means)                             \
     DECLARE_DAAL_STRING_CONST(goalFunction)                      \
+    DECLARE_DAAL_STRING_CONST(objectiveFunction)                 \
     DECLARE_DAAL_STRING_CONST(nIterations)                       \
     DECLARE_DAAL_STRING_CONST(inputWeights)                      \
     DECLARE_DAAL_STRING_CONST(inputCovariances)                  \
@@ -213,7 +217,7 @@
     DECLARE_DAAL_STRING_CONST(candidates)                        \
     DECLARE_DAAL_STRING_CONST(candidateRating)                   \
     DECLARE_DAAL_STRING_CONST(partialSums)                       \
-    DECLARE_DAAL_STRING_CONST(partialGoalFunction)               \
+    DECLARE_DAAL_STRING_CONST(partialObjectiveFunction)          \
     DECLARE_DAAL_STRING_CONST(partialAssignments)                \
     DECLARE_DAAL_STRING_CONST(partialCandidatesDistances)        \
     DECLARE_DAAL_STRING_CONST(partialCandidatesCentroids)        \

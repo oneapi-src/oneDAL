@@ -103,12 +103,12 @@ private:
     AlgorithmDispatchContainer & operator=(const AlgorithmDispatchContainer &);
 };
 
-#define __DAAL_ALGORITHM_CONTAINER(Mode, ContainerTemplate, ...)                                                                        \
-    AlgorithmDispatchContainer<Mode, ContainerTemplate<__VA_ARGS__, sse2> DAAL_KERNEL_SSSE3_CONTAINER(ContainerTemplate, __VA_ARGS__)   \
-                                         DAAL_KERNEL_SSE42_CONTAINER(ContainerTemplate, __VA_ARGS__) DAAL_KERNEL_AVX_CONTAINER(         \
-                                             ContainerTemplate, __VA_ARGS__) DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__) \
-                                             DAAL_KERNEL_AVX512_MIC_CONTAINER(ContainerTemplate, __VA_ARGS__)                           \
-                                                 DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>
+#define __DAAL_ALGORITHM_CONTAINER(Mode, ContainerTemplate, ...)                                                                                    \
+    algorithms::AlgorithmDispatchContainer<Mode, ContainerTemplate<__VA_ARGS__, sse2> DAAL_KERNEL_SSSE3_CONTAINER(ContainerTemplate, __VA_ARGS__)   \
+                                                     DAAL_KERNEL_SSE42_CONTAINER(ContainerTemplate, __VA_ARGS__) DAAL_KERNEL_AVX_CONTAINER(         \
+                                                         ContainerTemplate, __VA_ARGS__) DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__) \
+                                                         DAAL_KERNEL_AVX512_MIC_CONTAINER(ContainerTemplate, __VA_ARGS__)                           \
+                                                             DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>
 
 /** @} */
 } // namespace interface1

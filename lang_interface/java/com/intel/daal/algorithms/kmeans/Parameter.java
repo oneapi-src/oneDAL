@@ -50,14 +50,33 @@ public class Parameter extends com.intel.daal.algorithms.Parameter {
      * @param accuracyThreshold     Threshold for the termination of the algorithm
      * @param gamma                 Weight used in distance calculation for categorical features
      * @param distanceType          Distance used in the algorithm
+     * @param resultsToEvaluate     64 bit integer flag that indicates the results to compute
+     */
+    public Parameter(DaalContext context, long nClusters, long maxIterations, double accuracyThreshold, double gamma,
+            DistanceType distanceType, long resultsToEvaluate) {
+        super(context);
+        this.distanceType = distanceType;
+        boolean assignFlag = true;
+        initialize(nClusters, maxIterations, accuracyThreshold, gamma, assignFlag, resultsToEvaluate);
+    }
+
+
+    /**
+     * Constructs a parameter
+     * @param context               Context to manage the parameter of the K-Means algorithm
+     * @param nClusters             Number of clusters
+     * @param maxIterations         Number of iterations
+     * @param accuracyThreshold     Threshold for the termination of the algorithm
+     * @param gamma                 Weight used in distance calculation for categorical features
+     * @param distanceType          Distance used in the algorithm
      * @param assignFlag            Flag to enable assignment of observations to clusters; assigns data points
      */
     public Parameter(DaalContext context, long nClusters, long maxIterations, double accuracyThreshold, double gamma,
             DistanceType distanceType, boolean assignFlag) {
         super(context);
         this.distanceType = distanceType;
-
-        initialize(nClusters, maxIterations, accuracyThreshold, gamma, assignFlag);
+        long resultsToEvaluate = ResultsToComputeId.computeCentroids | ResultsToComputeId.computeAssignments;
+        initialize(nClusters, maxIterations, accuracyThreshold, gamma, assignFlag, resultsToEvaluate);
     }
 
     /**
@@ -75,7 +94,8 @@ public class Parameter extends com.intel.daal.algorithms.Parameter {
         this.distanceType = distanceType;
 
         boolean assignFlag = true;
-        initialize(nClusters, maxIterations, accuracyThreshold, gamma, assignFlag);
+        long resultsToEvaluate = ResultsToComputeId.computeCentroids + ResultsToComputeId.computeAssignments;
+        initialize(nClusters, maxIterations, accuracyThreshold, gamma, assignFlag, resultsToEvaluate);
     }
 
     /**
@@ -89,8 +109,9 @@ public class Parameter extends com.intel.daal.algorithms.Parameter {
     public Parameter(DaalContext context, long nClusters, long maxIterations, double accuracyThreshold, double gamma) {
         super(context);
         boolean assignFlag = true;
+        long resultsToEvaluate = ResultsToComputeId.computeCentroids | ResultsToComputeId.computeAssignments;
         this.distanceType = DistanceType.euclidean;
-        initialize(nClusters, maxIterations, accuracyThreshold, gamma, assignFlag);
+        initialize(nClusters, maxIterations, accuracyThreshold, gamma, assignFlag, resultsToEvaluate);
     }
 
     /**
@@ -104,9 +125,10 @@ public class Parameter extends com.intel.daal.algorithms.Parameter {
         super(context);
 
         boolean assignFlag = true;
+        long resultsToEvaluate = ResultsToComputeId.computeCentroids | ResultsToComputeId.computeAssignments;
         this.distanceType = DistanceType.euclidean;
         double gamma = 1.0;
-        initialize(nClusters, maxIterations, accuracyThreshold, gamma, assignFlag);
+        initialize(nClusters, maxIterations, accuracyThreshold, gamma, assignFlag, resultsToEvaluate);
     }
 
     /**
@@ -121,13 +143,14 @@ public class Parameter extends com.intel.daal.algorithms.Parameter {
         this.distanceType = distanceType;
 
         boolean assignFlag = true;
+        long resultsToEvaluate = ResultsToComputeId.computeCentroids | ResultsToComputeId.computeAssignments;
         double gamma = 1.0;
         double accuracyThreshold = 0.0;
-        initialize(nClusters, maxIterations, accuracyThreshold, gamma, assignFlag);
+        initialize(nClusters, maxIterations, accuracyThreshold, gamma, assignFlag, resultsToEvaluate);
     }
 
     private void initialize(long nClusters, long maxIterations, double accuracyThreshold, double gamma,
-            boolean assignFlag) {
+            boolean assignFlag, long resultsToEvaluate) {
         if (this.distanceType == DistanceType.euclidean) {
             this.cObject = initEuclidean(nClusters, maxIterations);
         } else {
@@ -137,6 +160,7 @@ public class Parameter extends com.intel.daal.algorithms.Parameter {
         setAccuracyThreshold(accuracyThreshold);
         setGamma(gamma);
         setAssignFlag(assignFlag);
+        setResultsToEvaluate(resultsToEvaluate);
     }
 
     /**
@@ -188,6 +212,14 @@ public class Parameter extends com.intel.daal.algorithms.Parameter {
     }
 
     /**
+     * Retrieves the 64 bit integer flag that indicates the results to compute
+     * @return The 64 bit integer flag that indicates the results to compute
+     */
+    public long getResultsToEvaluate() {
+        return cGetResultsToEvaluate(this.cObject);
+    }
+
+    /**
     * Sets the number of clusters
     * @param nClusters Number of clusters
     */
@@ -227,6 +259,14 @@ public class Parameter extends com.intel.daal.algorithms.Parameter {
         cSetAssignFlag(this.cObject, assignFlag);
     }
 
+    /**
+     * Sets the 64 bit integer flag that indicates the results to compute
+     * @param setResultsToEvaluate The 64 bit integer flag that indicates the results to compute
+     */
+    public void setResultsToEvaluate(long setResultsToEvaluate) {
+        cSetResultsToEvaluate(this.cObject, setResultsToEvaluate);
+    }
+
     private native long initEuclidean(long nClusters, long maxIterations);
 
     private native long cGetNClusters(long parameterAddress);
@@ -239,6 +279,8 @@ public class Parameter extends com.intel.daal.algorithms.Parameter {
 
     private native boolean cGetAssignFlag(long parameterAddress);
 
+    private native long cGetResultsToEvaluate(long parameterAddress);
+
     private native void cSetNClusters(long parameterAddress, long nClusters);
 
     private native void cSetMaxIterations(long parameterAddress, long maxIterations);
@@ -248,5 +290,7 @@ public class Parameter extends com.intel.daal.algorithms.Parameter {
     private native void cSetGamma(long parameterAddress, double gamma);
 
     private native void cSetAssignFlag(long parameterAddress, boolean assignFlag);
+
+    private native void cSetResultsToEvaluate(long parameterAddress, long resultsToCompute);
 }
 /** @} */

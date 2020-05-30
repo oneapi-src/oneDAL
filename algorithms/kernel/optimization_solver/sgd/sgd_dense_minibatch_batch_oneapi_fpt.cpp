@@ -1,4 +1,4 @@
-/* file: sgd_dense_default_kernel_oneapi.h */
+/* file: sgd_dense_minibatch_batch_oneapi_fpt.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -15,16 +15,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
 //++
-//  Implementation of SGD dense defaultDense Batch Kernel for GPU.
+//  Implementation of sgd calculation functions.
 //--
-*/
-
-#ifndef __SGD_DENSE_DEFAULT_KERNEL_ONEAPI_H__
-#define __SGD_DENSE_DEFAULT_KERNEL_ONEAPI_H__
 
 #include "algorithms/kernel/optimization_solver/sgd/oneapi/sgd_dense_kernel_oneapi.h"
+#include "algorithms/kernel/optimization_solver/sgd/oneapi/sgd_dense_minibatch_oneapi_impl.i"
 
 namespace daal
 {
@@ -36,22 +32,9 @@ namespace sgd
 {
 namespace internal
 {
-template <typename algorithmFPType, CpuType cpu>
-class SGDKernelOneAPI<algorithmFPType, defaultDense, cpu> : public Kernel
-{
-public:
-    services::Status compute(HostAppIface * pHost, NumericTable * inputArgument, NumericTablePtr minimum, NumericTable * nIterations,
-                             Parameter<defaultDense> * parameter, NumericTable * learningRateSequence, NumericTable * batchIndices,
-                             OptionalArgument * optionalArgument, OptionalArgument * optionalResult, engines::BatchBase & engine)
-    {
-        return services::ErrorMethodNotImplemented;
-    }
-};
-
+template class SGDKernelOneAPI<DAAL_FPTYPE, miniBatch>;
 } // namespace internal
 } // namespace sgd
 } // namespace optimization_solver
 } // namespace algorithms
 } // namespace daal
-
-#endif

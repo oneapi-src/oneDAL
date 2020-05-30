@@ -61,6 +61,8 @@ class KMeansDenseBatchAssign {
         /* Create an algorithm for K-Means clustering to calculate only assignments */
         Batch algorithm = new Batch(context, Float.class, Method.lloydDense, nClusters, 0);
 
+        algorithm.parameter.setResultsToEvaluate(ResultsToComputeId.computeAssignments);
+
         /* Set an input object for the algorithm */
         algorithm.input.set(InputId.data, input);
         algorithm.input.set(InputId.inputCentroids, inputCentroids);

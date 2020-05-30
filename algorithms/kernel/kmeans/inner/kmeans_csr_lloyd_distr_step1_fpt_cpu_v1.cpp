@@ -1,4 +1,4 @@
-/* file: sgd_dense_minibatch_batch_oneapi_fpt_cpu.cpp */
+/* file: kmeans_csr_lloyd_distr_step1_fpt_cpu_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -15,37 +15,24 @@
 * limitations under the License.
 *******************************************************************************/
 
+/*
 //++
-//  Implementation of sgd calculation functions.
+//  Implementation of Lloyd method for K-means algorithm.
 //--
+*/
 
-#include "algorithms/kernel/optimization_solver/sgd/sgd_batch_container.h"
-#include "algorithms/kernel/optimization_solver/sgd/oneapi/sgd_dense_kernel_oneapi_instance.h"
+#include "algorithms/kernel/kmeans/inner/kmeans_container_v1.h"
 
 namespace daal
 {
 namespace algorithms
 {
-namespace optimization_solver
+namespace kmeans
 {
-namespace sgd
+namespace interface1
 {
-namespace interface2
-{
-template class BatchContainer<DAAL_FPTYPE, miniBatch, DAAL_CPU>;
-}
-
-namespace internal
-{
-template class SGDKernelOneAPI<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-template class SGDKernelOneAPI<DAAL_FPTYPE, miniBatch, DAAL_CPU>;
-template class SGDKernelOneAPI<DAAL_FPTYPE, momentum, DAAL_CPU>;
-} // namespace internal
-
-} // namespace sgd
-
-} // namespace optimization_solver
-
+template class DistributedContainer<step1Local, DAAL_FPTYPE, kmeans::lloydCSR, DAAL_CPU>;
+} // namespace interface1
+} // namespace kmeans
 } // namespace algorithms
-
 } // namespace daal

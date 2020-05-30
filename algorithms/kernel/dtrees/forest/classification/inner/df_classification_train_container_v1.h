@@ -28,6 +28,8 @@
 #include "algorithms/decision_forest/decision_forest_classification_training_types.h"
 #include "algorithms/decision_forest/decision_forest_classification_training_batch.h"
 #include "algorithms/kernel/dtrees/forest/classification/df_classification_train_kernel.h"
+#include "algorithms/kernel/dtrees/forest/classification/df_classification_train_dense_default_kernel.h"
+#include "algorithms/kernel/dtrees/forest/classification/oneapi/df_classification_train_hist_kernel_oneapi.h"
 #include "algorithms/kernel/dtrees/forest/classification/df_classification_model_impl.h"
 #include "service/kernel/service_algo_utils.h"
 
@@ -43,10 +45,36 @@ namespace training
 {
 namespace interface1
 {
+DAAL_FORCEINLINE void convertParameter(interface1::Parameter & par1, interface3::Parameter & par3)
+{
+    par3.nTrees                      = par1.nTrees;
+    par3.observationsPerTreeFraction = par1.observationsPerTreeFraction;
+    par3.featuresPerNode             = par1.featuresPerNode;
+    par3.maxTreeDepth                = par1.maxTreeDepth;
+    par3.minObservationsInLeafNode   = par1.minObservationsInLeafNode;
+    par3.seed                        = par1.seed;
+    par3.engine                      = par1.engine;
+    par3.impurityThreshold           = par1.impurityThreshold;
+    par3.varImportance               = par1.varImportance;
+    par3.resultsToCompute            = par1.resultsToCompute;
+    par3.memorySavingMode            = par1.memorySavingMode;
+    par3.bootstrap                   = par1.bootstrap;
+}
+
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::ClassificationTrainBatchKernel, algorithmFPType, method);
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
+
+    if (method == hist && !deviceInfo.isCpu)
+    {
+        __DAAL_INITIALIZE_KERNELS_SYCL(internal::ClassificationTrainBatchKernelOneAPI, algorithmFPType, method);
+    }
+    else
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::ClassificationTrainBatchKernel, algorithmFPType, method);
+    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -58,6 +86,9 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
+
     classifier::training::Input * input = static_cast<classifier::training::Input *>(_in);
     Result * result                     = static_cast<Result *>(_res);
 
@@ -66,12 +97,22 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     decision_forest::classification::Model * m = result->get(classifier::training::model).get();
 
-    const decision_forest::classification::training::interface1::Parameter * par =
+    decision_forest::classification::training::interface1::Parameter * par =
         static_cast<decision_forest::classification::training::interface1::Parameter *>(_par);
+    decision_forest::classification::training::interface3::Parameter par3(par->nClasses);
+    convertParameter(*par, par3);
     daal::services::Environment::env & env = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::ClassificationTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                       daal::services::internal::hostApp(*input), x, y, *m, *result, *par);
+    if (method == hist && !deviceInfo.isCpu)
+    {
+        __DAAL_CALL_KERNEL_SYCL(env, internal::ClassificationTrainBatchKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+                                daal::services::internal::hostApp(*input), x, y, *m, *result, par3);
+    }
+    else
+    {
+        __DAAL_CALL_KERNEL(env, internal::ClassificationTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+                           daal::services::internal::hostApp(*input), x, y, *m, *result, par3);
+    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>

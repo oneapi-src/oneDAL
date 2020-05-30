@@ -41,7 +41,21 @@ namespace internal
 {
 namespace interface1
 {
-static const char * zeLoaderName            = "libze_loader.so";
+            #ifdef __linux__
+
+static const char * zeLoaderName = "libze_loader.so";
+static const int libLoadFlags    = RTLD_NOLOAD | RTLD_NOW | RTLD_LOCAL;
+
+            #elif defined(_WIN64)
+
+static const char * zeLoaderName = "libze_loader.dll";
+static const int libLoadFlags    = 0;
+
+            #else
+
+                #error "Level Zero support is unavailable for this platform"
+
+            #endif
 static const char * zeModuleCreateFuncName  = "zeModuleCreate";
 static const char * zeModuleDestroyFuncName = "zeModuleDestroy";
 
@@ -54,7 +68,7 @@ public:
     {
         services::Status localStatus;
 
-        static services::internal::DynamicLibHelper zeLib(zeLoaderName, RTLD_NOLOAD | RTLD_NOW | RTLD_LOCAL, &localStatus);
+        static services::internal::DynamicLibHelper zeLib(zeLoaderName, libLoadFlags, &localStatus);
         if (!localStatus.ok())
         {
             services::internal::tryAssignStatus(status, localStatus);

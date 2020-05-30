@@ -1,4 +1,4 @@
-/* file: logistic_regression_predict_kernel_oneapi_instance.h */
+/* file: kmeans_csr_lloyd_batch_fpt_dispatcher_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -17,14 +17,17 @@
 
 /*
 //++
-//  Implementation of logistic regression Batch Kernel Adapter for GPU.
+//  Implementation of K-means algorithm container -- a class that contains
+//  Lloyd K-means kernels for supported architectures.
 //--
 */
 
-#ifndef __LOGISTIC_REGRESSION_TRAIN_KERNEL_ONEAPI_INSTANCE_H__
-#define __LOGISTIC_REGRESSION_TRAIN_KERNEL_ONEAPI_INSTANCE_H__
+#include "algorithms/kernel/kmeans/inner/kmeans_container_v1.h"
 
-#include "algorithms/kernel/logistic_regression/oneapi/logistic_regression_predict_kernel_oneapi.h"
-#include "algorithms/kernel/logistic_regression/oneapi/logistic_regression_predict_dense_default_batch_oneapi_impl.i"
-
-#endif
+namespace daal
+{
+namespace algorithms
+{
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kmeans::interface1::BatchContainer, batch, DAAL_FPTYPE, kmeans::lloydCSR)
+} // namespace algorithms
+} // namespace daal

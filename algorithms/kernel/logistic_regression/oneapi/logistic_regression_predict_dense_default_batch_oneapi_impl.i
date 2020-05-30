@@ -40,9 +40,9 @@ namespace internal
 using namespace daal::oneapi::internal;
 
 // Heaviside step function
-template <typename algorithmFPType, prediction::Method method, CpuType cpu>
-services::Status PredictBatchKernelOneAPI<algorithmFPType, method, cpu>::heaviside(const services::Buffer<algorithmFPType> & x,
-                                                                                   services::Buffer<algorithmFPType> & result, const uint32_t n)
+template <typename algorithmFPType, prediction::Method method>
+services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::heaviside(const services::Buffer<algorithmFPType> & x,
+                                                                              services::Buffer<algorithmFPType> & result, const uint32_t n)
 {
     services::Status status;
 
@@ -69,10 +69,10 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method, cpu>::heavisi
 }
 
 // Index max elements for each row
-template <typename algorithmFPType, prediction::Method method, CpuType cpu>
-services::Status PredictBatchKernelOneAPI<algorithmFPType, method, cpu>::argMax(const services::Buffer<algorithmFPType> & x,
-                                                                                services::Buffer<algorithmFPType> & result, const uint32_t n,
-                                                                                const uint32_t p)
+template <typename algorithmFPType, prediction::Method method>
+services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::argMax(const services::Buffer<algorithmFPType> & x,
+                                                                           services::Buffer<algorithmFPType> & result, const uint32_t n,
+                                                                           const uint32_t p)
 {
     services::Status status;
 
@@ -99,10 +99,10 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method, cpu>::argMax(
     return status;
 }
 
-template <typename algorithmFPType, prediction::Method method, CpuType cpu>
-services::Status PredictBatchKernelOneAPI<algorithmFPType, method, cpu>::compute(services::HostAppIface * pHostApp, NumericTable * x,
-                                                                                 const logistic_regression::Model * m, size_t nClasses,
-                                                                                 NumericTable * pRes, NumericTable * pProb, NumericTable * pLogProb)
+template <typename algorithmFPType, prediction::Method method>
+services::Status PredictBatchKernelOneAPI<algorithmFPType, method>::compute(services::HostAppIface * pHostApp, NumericTable * x,
+                                                                            const logistic_regression::Model * m, size_t nClasses,
+                                                                            NumericTable * pRes, NumericTable * pProb, NumericTable * pLogProb)
 {
     services::Status status;
 

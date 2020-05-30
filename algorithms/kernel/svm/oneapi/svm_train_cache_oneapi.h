@@ -129,6 +129,8 @@ public:
 
     services::Status compute(const NumericTablePtr & xTable, const services::Buffer<uint32_t> & wsIndices, const size_t p) override
     {
+        DAAL_ITTNOTIFY_SCOPED_TASK(cacheCompute);
+
         services::Status status;
         BlockDescriptor<algorithmFPType> xBlock;
 
@@ -205,10 +207,7 @@ protected:
     services::Status initSubKernel(const size_t blockSize, const NumericTablePtr & xTable)
     {
         services::Status status;
-        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
-
-        auto cacheHalf = _cacheBuff.getSubBuffer(_lineSize * _nSelectRows, _lineSize * blockSize, &status);
-
+        auto cacheHalf  = _cacheBuff.getSubBuffer(_lineSize * _nSelectRows, _lineSize * blockSize, &status);
         auto cacheTable = SyclHomogenNumericTable<algorithmFPType>::create(cacheHalf, _lineSize, blockSize, &status);
 
         const size_t p = xTable->getNumberOfColumns();

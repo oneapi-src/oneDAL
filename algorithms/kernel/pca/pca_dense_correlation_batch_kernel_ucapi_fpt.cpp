@@ -1,6 +1,6 @@
 /* file: pca_dense_correlation_batch_kernel_ucapi_fpt.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2019-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ namespace pca
 {
 namespace internal
 {
-template class PCACorrelationKernelUCAPI<DAAL_FPTYPE>;
+template class PCACorrelationKernelBatchUCAPI<DAAL_FPTYPE>;
 } // namespace internal
 } // namespace pca
 } // namespace algorithms

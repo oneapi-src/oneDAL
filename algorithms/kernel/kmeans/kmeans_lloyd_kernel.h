@@ -21,15 +21,12 @@
 //--
 */
 
-#ifndef _KMEANS_FPK_H
-#define _KMEANS_FPK_H
+#ifndef _KMEANS_LLOYD_KERNEL_H
+#define _KMEANS_LLOYD_KERNEL_H
 
 #include "algorithms/kmeans/kmeans_types.h"
-//#include "kmeans_batch.h"
 #include "algorithms/kernel/kernel.h"
 #include "data_management/data/numeric_table.h"
-
-using namespace daal::data_management;
 
 namespace daal
 {
@@ -39,6 +36,8 @@ namespace kmeans
 {
 namespace internal
 {
+using namespace daal::data_management;
+
 template <Method method, typename algorithmFPType, CpuType cpu>
 class KMeansBatchKernel : public Kernel
 {

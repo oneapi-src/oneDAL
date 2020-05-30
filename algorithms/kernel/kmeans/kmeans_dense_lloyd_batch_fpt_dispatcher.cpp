@@ -28,6 +28,32 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(kmeans::BatchContainer, batch, DAAL_FPTYPE, kmeans::lloydDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(kmeans::interface2::BatchContainer, batch, DAAL_FPTYPE, kmeans::lloydDense);
+
+namespace kmeans
+{
+namespace interface2
+{
+using BatchType = Batch<DAAL_FPTYPE, kmeans::lloydDense>;
+
+template <>
+BatchType::Batch(size_t nClusters, size_t nIterations)
+{
+    _par = new ParameterType(nClusters, nIterations);
+    initialize();
+}
+
+template <>
+BatchType::Batch(const BatchType & other)
+{
+    _par = new ParameterType(other.parameter());
+    initialize();
+    input.set(data, other.input.get(data));
+    input.set(inputCentroids, other.input.get(inputCentroids));
+}
+
+} // namespace interface2
+} // namespace kmeans
+
 } // namespace algorithms
 } // namespace daal

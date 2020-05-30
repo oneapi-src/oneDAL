@@ -61,6 +61,20 @@ static void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t * abcd)
 #endif
 }
 
+bool __daal_internal_is_intel_cpu()
+{
+    const uint32_t genu = 0x756e6547, inei = 0x49656e69, ntel = 0x6c65746e;
+    uint32_t abcd[4];
+    run_cpuid(0, 0, abcd);
+    return abcd[1] == genu && abcd[2] == ntel && abcd[3] == inei;
+}
+
+bool daal_check_is_intel_cpu()
+{
+    static const bool result = __daal_internal_is_intel_cpu();
+    return result;
+}
+
 static int check_cpuid(uint32_t eax, uint32_t ecx, int abcd_index, uint32_t mask)
 {
     uint32_t abcd[4];
@@ -247,12 +261,12 @@ int __daal_serv_cpu_detect(int enable)
 #if defined(__APPLE__)
     __daal_serv_CPUHasAVX512f_enable_it_mac();
 #endif
-    if (check_avx512_features())
+    if (check_avx512_features() && daal_check_is_intel_cpu())
     {
         return daal::avx512;
     }
 
-    if (check_avx512_mic_features())
+    if (check_avx512_mic_features() && daal_check_is_intel_cpu())
     {
         return daal::avx512_mic;
     }

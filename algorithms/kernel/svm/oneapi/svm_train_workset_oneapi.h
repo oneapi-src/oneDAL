@@ -49,8 +49,7 @@ struct TaskWorkingSet
     services::Status init()
     {
         services::Status status;
-        auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
-        const auto idType = TypeIds::id<algorithmFPType>();
+        auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
         _sortedFIndices = context.allocate(TypeIds::id<uint32_t>(), _nVectors, &status);
         DAAL_CHECK_STATUS_VAR(status);
@@ -89,6 +88,7 @@ struct TaskWorkingSet
     services::Status selectWS(const services::Buffer<algorithmFPType> & yBuff, const services::Buffer<algorithmFPType> & alphaBuff,
                               const services::Buffer<algorithmFPType> & fBuff, const algorithmFPType C)
     {
+        DAAL_ITTNOTIFY_SCOPED_TASK(selectWS);
         services::Status status;
         auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 

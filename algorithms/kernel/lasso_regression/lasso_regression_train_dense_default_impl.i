@@ -109,7 +109,6 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
         yMeansPtr = yMeans.get();
         DAAL_CHECK_MALLOC(yMeansPtr);
 
-        algorithmFPType ione    = 1.0;
         algorithmFPType neg_one = -1.0;
         DAAL_INT one            = 1;
         DAAL_INT zero           = 0;

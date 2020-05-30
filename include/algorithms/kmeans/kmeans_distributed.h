@@ -36,7 +36,7 @@ namespace algorithms
 {
 namespace kmeans
 {
-namespace interface1
+namespace interface2
 {
 /**
  * @defgroup kmeans_distributed Distributed
@@ -159,11 +159,7 @@ public:
      *  \param[in] nClusters  Number of clusters
      *  \param[in] assignFlag Flag to calculate partial assignment
      */
-    Distributed(size_t nClusters, bool assignFlag = false) : parameter(nClusters, 1)
-    {
-        initialize();
-        parameter.assignFlag = assignFlag;
-    }
+    Distributed(size_t nClusters, bool assignFlag = false);
 
     /**
      * Constructs K-Means algorithm by copying input objects and parameters
@@ -171,12 +167,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step1Local, algorithmFPType, method> & other) : parameter(other.parameter)
-    {
-        initialize();
-        input.set(data, other.input.get(data));
-        input.set(inputCentroids, other.input.get(inputCentroids));
-    }
+    Distributed(const Distributed<step1Local, algorithmFPType, method> & other);
 
     /**
     * Returns the method of the algorithm
@@ -234,6 +225,18 @@ public:
         return services::SharedPtr<Distributed<step1Local, algorithmFPType, method> >(cloneImpl());
     }
 
+    /**
+    * Gets parameter of the algorithm
+    * \return parameter of the algorithm
+    */
+    ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
+
+    /**
+    * Gets parameter of the algorithm
+    * \return parameter of the algorithm
+    */
+    const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
+
 protected:
     virtual Distributed<step1Local, algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
     {
@@ -262,12 +265,10 @@ protected:
     {
         Analysis<distributed>::_ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step1Local, algorithmFPType, method)(&_env);
         _in                        = &input;
-        _par                       = &parameter;
     }
 
 public:
-    InputType input;         /*!< %Input data structure */
-    ParameterType parameter; /*!< K-Means parameters structure */
+    InputType input; /*!< %Input data structure */
 
 private:
     PartialResultPtr _partialResult;
@@ -306,11 +307,7 @@ public:
      *  \param[in] nClusters   Number of clusters
      *  \param[in] nIterations Number of iterations
      */
-    Distributed(size_t nClusters, size_t nIterations = 1) : parameter(nClusters, nIterations)
-    {
-        initialize();
-        parameter.assignFlag = false;
-    }
+    Distributed(size_t nClusters, size_t nIterations = 1);
 
     /**
      * Constructs K-Means algorithm by copying input objects and parameters
@@ -318,11 +315,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step2Master, algorithmFPType, method> & other) : parameter(other.parameter)
-    {
-        initialize();
-        input.set(partialResults, other.input.get(partialResults));
-    }
+    Distributed(const Distributed<step2Master, algorithmFPType, method> & other);
 
     /**
     * Returns the method of the algorithm
@@ -405,6 +398,18 @@ public:
         return services::SharedPtr<Distributed<step2Master, algorithmFPType, method> >(cloneImpl());
     }
 
+    /**
+    * Gets parameter of the algorithm
+    * \return parameter of the algorithm
+    */
+    ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
+
+    /**
+    * Gets parameter of the algorithm
+    * \return parameter of the algorithm
+    */
+    const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
+
 protected:
     virtual Distributed<step2Master, algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
     {
@@ -433,12 +438,10 @@ protected:
     {
         Analysis<distributed>::_ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step2Master, algorithmFPType, method)(&_env);
         _in                        = &input;
-        _par                       = &parameter;
     }
 
 public:
-    InputType input;         /*!< %Input data structure */
-    ParameterType parameter; /*!< K-Means parameters structure */
+    InputType input; /*!< %Input data structure */
 
 private:
     PartialResultPtr _partialResult;
@@ -447,9 +450,10 @@ private:
     Distributed & operator=(const Distributed &);
 };
 /** @} */
-} // namespace interface1
-using interface1::DistributedContainer;
-using interface1::Distributed;
+} // namespace interface2
+
+using interface2::DistributedContainer;
+using interface2::Distributed;
 } // namespace kmeans
 } // namespace algorithms
 } // namespace daal

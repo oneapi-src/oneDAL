@@ -28,6 +28,8 @@
 #include "algorithms/decision_forest/decision_forest_regression_training_types.h"
 #include "algorithms/decision_forest/decision_forest_regression_training_batch.h"
 #include "algorithms/kernel/dtrees/forest/regression/df_regression_train_kernel.h"
+#include "algorithms/kernel/dtrees/forest/regression/df_regression_train_dense_default_kernel.h"
+#include "algorithms/kernel/dtrees/forest/regression/oneapi/df_regression_train_hist_kernel_oneapi.h"
 #include "algorithms/kernel/dtrees/forest/regression/df_regression_model_impl.h"
 #include "service/kernel/service_algo_utils.h"
 
@@ -41,10 +43,22 @@ namespace regression
 {
 namespace training
 {
+namespace interface2
+{
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::RegressionTrainBatchKernel, algorithmFPType, method);
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
+
+    if (method == hist && !deviceInfo.isCpu)
+    {
+        __DAAL_INITIALIZE_KERNELS_SYCL(internal::RegressionTrainBatchKernelOneAPI, algorithmFPType, method);
+    }
+    else
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::RegressionTrainBatchKernel, algorithmFPType, method);
+    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -56,6 +70,9 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
+
     Input * input   = static_cast<Input *>(_in);
     Result * result = static_cast<Result *>(_res);
 
@@ -64,11 +81,19 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     decision_forest::regression::Model * m = result->get(model).get();
 
-    const Parameter * par                  = static_cast<decision_forest::regression::training::Parameter *>(_par);
-    daal::services::Environment::env & env = *_env;
+    const decision_forest::regression::training::Parameter * par = static_cast<decision_forest::regression::training::Parameter *>(_par);
+    daal::services::Environment::env & env                       = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::RegressionTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                       daal::services::internal::hostApp(*input), x, y, *m, *result, *par);
+    if (method == hist && !deviceInfo.isCpu)
+    {
+        __DAAL_CALL_KERNEL_SYCL(env, internal::RegressionTrainBatchKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+                                daal::services::internal::hostApp(*input), x, y, *m, *result, *par);
+    }
+    else
+    {
+        __DAAL_CALL_KERNEL(env, internal::RegressionTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+                           daal::services::internal::hostApp(*input), x, y, *m, *result, *par);
+    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -81,7 +106,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::setupCompute()
     pImpl->clear();
     return services::Status();
 }
-
+} // namespace interface2
 } // namespace training
 } // namespace regression
 } // namespace decision_forest

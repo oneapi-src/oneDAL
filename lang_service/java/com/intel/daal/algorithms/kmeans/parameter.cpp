@@ -83,6 +83,16 @@ JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cGetA
 
 /*
  * Class:     com_intel_daal_algorithms_kmeans_Parameter
+ * Method:    cGetResultsToEvaluate
+ * Signature:(J)J
+ */
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cGetResultsToEvaluate(JNIEnv *, jobject, jlong parameterAddress)
+{
+    return ((Parameter *)parameterAddress)->resultsToEvaluate;
+}
+
+/*
+ * Class:     com_intel_daal_algorithms_kmeans_Parameter
  * Method:    cSetNClusters
  * Signature:(JJ)V
  */
@@ -131,4 +141,15 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cSetGamma
 JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cSetAssignFlag(JNIEnv *, jobject, jlong parameterAddress, jboolean assignFlag)
 {
     ((Parameter *)parameterAddress)->assignFlag = assignFlag;
+}
+
+/*
+ * Class:     com_intel_daal_algorithms_kmeans_Parameter
+ * Method:    SetResultsToEvaluate
+ * Signature:(JJ)V
+ */
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cSetResultsToEvaluate(JNIEnv *, jobject, jlong parameterAddress,
+                                                                                             jlong resultsToEvaluate)
+{
+    ((Parameter *)parameterAddress)->resultsToEvaluate = resultsToEvaluate;
 }

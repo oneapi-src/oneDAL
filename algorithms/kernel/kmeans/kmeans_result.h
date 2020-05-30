@@ -28,6 +28,7 @@
 #include "oneapi/internal/execution_context.h"
 #include "oneapi/internal/types.h"
 #include "data_management/data/numeric_table_sycl_homogen.h"
+#include "algorithms/kernel/kmeans/inner/kmeans_types_v1.h"
 
 using namespace daal::data_management;
 using namespace daal::oneapi::internal;
@@ -50,36 +51,63 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();
 
-    const Parameter * kmPar = static_cast<const Parameter *>(parameter);
+    const interface2::Parameter * kmPar2 = dynamic_cast<const interface2::Parameter *>(parameter);
+    const interface1::Parameter * kmPar1 = dynamic_cast<const interface1::Parameter *>(parameter);
+    if (kmPar1 == nullptr && kmPar2 == nullptr) return services::Status(daal::services::ErrorNullParameterNotSupported);
 
     Input * algInput = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
     size_t nFeatures = algInput->getNumberOfFeatures();
-    size_t nClusters = kmPar->nClusters;
-
+    size_t nRows     = algInput->get(data)->getNumberOfRows();
     services::Status status;
 
-    if (deviceInfo.isCpu)
+    if (kmPar2)
     {
-        set(centroids, HomogenNumericTable<algorithmFPType>::create(nFeatures, nClusters, NumericTable::doAllocate, &status));
-        set(objectiveFunction, HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, &status));
-        set(nIterations, HomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, &status));
+        size_t nClusters = kmPar2->nClusters;
 
-        if (kmPar->assignFlag)
+        if (deviceInfo.isCpu)
         {
-            size_t nRows = algInput->get(data)->getNumberOfRows();
-            set(assignments, HomogenNumericTable<int>::create(1, nRows, NumericTable::doAllocate, &status));
+            set(objectiveFunction, HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, &status));
+            set(nIterations, HomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, &status));
+
+            if (kmPar2->resultsToEvaluate & computeCentroids)
+            {
+                set(centroids, HomogenNumericTable<algorithmFPType>::create(nFeatures, nClusters, NumericTable::doAllocate, &status));
+            }
+            if (kmPar2->resultsToEvaluate & computeAssignments || kmPar2->assignFlag)
+            {
+                set(assignments, HomogenNumericTable<int>::create(1, nRows, NumericTable::doAllocate, &status));
+            }
+        }
+        else
+        {
+            set(centroids, SyclHomogenNumericTable<algorithmFPType>::create(nFeatures, nClusters, NumericTable::doAllocate, &status));
+            set(objectiveFunction, HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, &status));
+            set(nIterations, HomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, &status));
+            set(assignments, SyclHomogenNumericTable<int>::create(1, nRows, NumericTable::doAllocate, &status));
         }
     }
     else
     {
-        size_t nRows = algInput->get(data)->getNumberOfRows();
+        size_t nClusters = kmPar1->nClusters;
 
-        // W/a
-        set(centroids, SyclHomogenNumericTable<algorithmFPType>::create(nFeatures, nClusters, NumericTable::doAllocate, &status));
-        set(objectiveFunction, HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, &status));
+        if (deviceInfo.isCpu)
+        {
+            set(objectiveFunction, HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, &status));
+            set(nIterations, HomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, &status));
+            set(centroids, HomogenNumericTable<algorithmFPType>::create(nFeatures, nClusters, NumericTable::doAllocate, &status));
 
-        set(nIterations, HomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, &status));
-        set(assignments, SyclHomogenNumericTable<int>::create(1, nRows, NumericTable::doAllocate, &status));
+            if (kmPar1->assignFlag)
+            {
+                set(assignments, HomogenNumericTable<int>::create(1, nRows, NumericTable::doAllocate, &status));
+            }
+        }
+        else
+        {
+            set(centroids, SyclHomogenNumericTable<algorithmFPType>::create(nFeatures, nClusters, NumericTable::doAllocate, &status));
+            set(objectiveFunction, HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, &status));
+            set(nIterations, HomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, &status));
+            set(assignments, SyclHomogenNumericTable<int>::create(1, nRows, NumericTable::doAllocate, &status));
+        }
     }
 
     return status;

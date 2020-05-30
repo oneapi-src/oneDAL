@@ -1,4 +1,4 @@
-/* file: sgd_dense_kernel_oneapi_instance.h */
+/* file: kmeans_csr_lloyd_distr_step2_fpt_cpu_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -17,17 +17,22 @@
 
 /*
 //++
-//  Implementation of SGD dense minibatch Batch Kernel Adapter for GPU.
+//  Implementation of Lloyd method for K-means algorithm.
 //--
 */
 
-#ifndef __SGD_DENSE_KERNEL_ONEAPI_INSTANCE_H__
-#define __SGD_DENSE_KERNEL_ONEAPI_INSTANCE_H__
+#include "algorithms/kernel/kmeans/inner/kmeans_container_v1.h"
 
-#include "algorithms/kernel/optimization_solver/sgd/oneapi/sgd_dense_minibatch_kernel_oneapi.h"
-#include "algorithms/kernel/optimization_solver/sgd/oneapi/sgd_dense_minibatch_oneapi_impl.i"
-
-#include "algorithms/kernel/optimization_solver/sgd/oneapi/sgd_dense_momentum_kernel_oneapi.h"
-#include "algorithms/kernel/optimization_solver/sgd/oneapi/sgd_dense_default_kernel_oneapi.h"
-
-#endif
+namespace daal
+{
+namespace algorithms
+{
+namespace kmeans
+{
+namespace interface1
+{
+template class DistributedContainer<step2Master, DAAL_FPTYPE, lloydCSR, DAAL_CPU>;
+} // namespace interface1
+} // namespace kmeans
+} // namespace algorithms
+} // namespace daal

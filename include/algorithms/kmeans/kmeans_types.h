@@ -90,11 +90,10 @@ enum MasterInputId
  */
 enum PartialResultId
 {
-    nObservations,                                  /*!< Table containing the number of observations assigned to centroids */
-    partialSums,                                    /*!< Table containing the sum of observations assigned to centroids */
-    partialObjectiveFunction,                       /*!< Table containing an objective function value */
-    partialGoalFunction = partialObjectiveFunction, /*!< Table containing an objective function value \DAAL_DEPRECATED */
-    partialAssignments,                             /*!< Table containing assignments of observations to particular clusters */
+    nObservations,              /*!< Table containing the number of observations assigned to centroids */
+    partialSums,                /*!< Table containing the sum of observations assigned to centroids */
+    partialObjectiveFunction,   /*!< Table containing an objective function value */
+    partialAssignments,         /*!< Table containing assignments of observations to particular clusters */
     partialCandidatesDistances, /*!< Table containing goal function of observations most distant from their assigned cluster center */
     partialCandidatesCentroids, /*!< Table containing observations most distant from their assigned cluster center */
     lastPartialResultId = partialCandidatesCentroids
@@ -106,12 +105,22 @@ enum PartialResultId
  */
 enum ResultId
 {
-    centroids,                        /*!< Table containing cluster centroids */
-    assignments,                      /*!< Table containing assignments of observations to particular clusters */
-    objectiveFunction,                /*!< Table containing an objective function value */
-    goalFunction = objectiveFunction, /*!< Table containing an objective function value \DAAL_DEPRECATED */
-    nIterations,                      /*!< Table containing the number of executed iterations */
+    centroids,         /*!< Table containing cluster centroids */
+    assignments,       /*!< Table containing assignments of observations to particular clusters */
+    objectiveFunction, /*!< Table containing an objective function value */
+    nIterations,       /*!< Table containing the number of executed iterations */
     lastResultId = nIterations
+};
+
+/**
+* <a name="DAAL-ENUM-ALGORITHMS__KMEANS__RESULTTOCOMPUTEID"></a>
+* Available identifiers to specify the result to compute
+*/
+enum ResultToComputeId
+{
+    computeCentroids              = 0x00000001ULL, /*!< Compute table containing cluster centroids */
+    computeExactObjectiveFunction = 0x00000002ULL, /*!< Compute table containing exact objective function value >*/
+    computeAssignments            = 0x00000004ULL  /*!< Compute table containing assignments of observations to particular clusters >*/
 };
 
 /**
@@ -119,41 +128,6 @@ enum ResultId
  */
 namespace interface1
 {
-/**
- * <a name="DAAL-STRUCT-ALGORITHMS__KMEANS__PARAMETER"></a>
- * \brief Parameters for K-Means algorithm
- * \par Enumerations
- *      - \ref DistanceType Methods for distance computation
- *
- * \snippet kmeans/kmeans_types.h Parameter source code
- */
-/* [Parameter source code] */
-struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
-{
-    /**
-     *  Constructs parameters of K-Means algorithm
-     *  \param[in] _nClusters   Number of clusters
-     *  \param[in] _maxIterations Number of iterations
-     */
-    Parameter(size_t _nClusters, size_t _maxIterations);
-
-    /**
-     *  Constructs parameters of K-Means algorithm by copying another parameters of K-Means algorithm
-     *  \param[in] other    Parameters of K-Means algorithm
-     */
-    Parameter(const Parameter & other);
-
-    size_t nClusters;          /*!< Number of clusters */
-    size_t maxIterations;      /*!< Number of iterations */
-    double accuracyThreshold;  /*!< Threshold for the termination of the algorithm */
-    double gamma;              /*!< Weight used in distance computation for categorical features */
-    DistanceType distanceType; /*!< Distance used in the algorithm */
-    bool assignFlag;           /*!< Do data points assignment */
-
-    services::Status check() const DAAL_C11_OVERRIDE;
-};
-/* [Parameter source code] */
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INPUTIFACE"></a>
  * \brief Interface for input objects for K-Means algorithm in the batch and distributed processing modes
@@ -389,8 +363,53 @@ public:
      */
     services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
+
 } // namespace interface1
-using interface1::Parameter;
+
+/**
+ * \brief Contains version 2.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ */
+namespace interface2
+{
+/**
+ * <a name="DAAL-STRUCT-ALGORITHMS__KMEANS__PARAMETER"></a>
+ * \brief Parameters for K-Means algorithm
+ * \par Enumerations
+ *      - \ref DistanceType Methods for distance computation
+ *
+ * \snippet kmeans/kmeans_types.h Parameter source code
+ */
+/* [Parameter source code] */
+struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
+{
+    /**
+     *  Constructs parameters of K-Means algorithm
+     *  \param[in] _nClusters   Number of clusters
+     *  \param[in] _maxIterations Number of iterations
+     */
+    Parameter(size_t _nClusters, size_t _maxIterations);
+
+    /**
+     *  Constructs parameters of K-Means algorithm by copying another parameters of K-Means algorithm
+     *  \param[in] other    Parameters of K-Means algorithm
+     */
+    Parameter(const Parameter & other);
+
+    size_t nClusters;                /*!< Number of clusters */
+    size_t maxIterations;            /*!< Number of iterations */
+    double accuracyThreshold;        /*!< Threshold for the termination of the algorithm */
+    double gamma;                    /*!< Weight used in distance computation for categorical features */
+    DistanceType distanceType;       /*!< Distance used in the algorithm */
+    DAAL_UINT64 resultsToEvaluate;   /*!< 64 bit integer flag that indicates the results to compute */
+    DAAL_DEPRECATED bool assignFlag; /*!< Do data points assignment \DAAL_DEPRECATED */
+
+    services::Status check() const DAAL_C11_OVERRIDE;
+};
+/* [Parameter source code] */
+
+} // namespace interface2
+
+using interface2::Parameter;
 using interface1::InputIface;
 using interface1::Input;
 using interface1::PartialResult;
@@ -400,7 +419,7 @@ using interface1::ResultPtr;
 using interface1::DistributedStep2MasterInput;
 
 } // namespace kmeans
-/** @} */
 } // namespace algorithms
+/** @} */
 } // namespace daal
 #endif

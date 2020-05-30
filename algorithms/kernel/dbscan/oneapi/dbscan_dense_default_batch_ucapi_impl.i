@@ -102,7 +102,6 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::processResultsToCompute(DAAL_UIN
         return Status(ErrorNullPtr);
     }
 
-    auto & context           = Environment::getInstance()->getDefaultExecutionContext();
     const uint32_t nRows     = ntData->getNumberOfRows();
     const uint32_t nFeatures = ntData->getNumberOfColumns();
 

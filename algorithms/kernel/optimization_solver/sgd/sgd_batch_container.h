@@ -30,9 +30,6 @@
 #include "algorithms/kernel/optimization_solver/sgd/sgd_dense_momentum_kernel.h"
 #include "service/kernel/service_algo_utils.h"
 #include "algorithms/kernel/optimization_solver/sgd/oneapi/sgd_dense_kernel_oneapi.h"
-#include "algorithms/kernel/optimization_solver/sgd/oneapi/sgd_dense_momentum_kernel_oneapi.h"
-#include "algorithms/kernel/optimization_solver/sgd/oneapi/sgd_dense_minibatch_kernel_oneapi.h"
-#include "algorithms/kernel/optimization_solver/sgd/oneapi/sgd_dense_default_kernel_oneapi.h"
 
 namespace daal
 {
@@ -56,7 +53,7 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
     }
     else
     {
-        __DAAL_INITIALIZE_KERNELS(internal::SGDKernelOneAPI, algorithmFPType, method);
+        __DAAL_INITIALIZE_KERNELS_SYCL(internal::SGDKernelOneAPI, algorithmFPType, method);
     }
 }
 
@@ -95,9 +92,9 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     }
     else
     {
-        __DAAL_CALL_KERNEL(env, internal::SGDKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                           daal::services::internal::hostApp(*input), inputArgument, minimum, nIterations, parameter, learningRateSequence,
-                           batchIndices, optionalArgument, optionalResult, *parameter->engine);
+        __DAAL_CALL_KERNEL_SYCL(env, internal::SGDKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+                                daal::services::internal::hostApp(*input), inputArgument, minimum, nIterations, parameter, learningRateSequence,
+                                batchIndices, optionalArgument, optionalResult, *parameter->engine);
     }
 }
 
