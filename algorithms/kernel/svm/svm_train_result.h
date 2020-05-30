@@ -67,6 +67,7 @@ public:
         {
             if (_alpha[i] > zero) nSV++;
         }
+        printf("nSV %lu\n", nSV);
 
         model.setNFeatures(xTable.getNumberOfColumns());
         DAAL_CHECK_STATUS(s, setSVCoefficients(nSV, model));
@@ -276,8 +277,8 @@ protected:
         algorithmFPType bias;
         const algorithmFPType zero(0.0);
         const algorithmFPType one(1.0);
-        size_t num_yg          = 0;
-        algorithmFPType sum_yg = 0.0;
+        size_t nGrad            = 0;
+        algorithmFPType sumGrad = algorithmFPType(0.0);
 
         const algorithmFPType fpMax = MaxVal<algorithmFPType>::get();
         algorithmFPType ub          = fpMax;
@@ -291,44 +292,35 @@ protected:
             /* free SV: (0 < alpha < C)*/
             if (0 < dualCoeffi && dualCoeffi < C)
             {
-                sum_yg += gradi;
-                num_yg++;
+                sumGrad += gradi;
+                nGrad++;
             }
             else
             {
-                if (isUpper(_y[i], dualCoeffi, C))
+                if (HelperTrainSVM<algorithmFPType, cpu>::isUpper(_y[i], dualCoeffi, C))
                 {
                     ub = services::internal::min<cpu, algorithmFPType>(ub, gradi);
                 }
-                if (isLower(_y[i], dualCoeffi, C))
+                if (HelperTrainSVM<algorithmFPType, cpu>::isLower(_y[i], dualCoeffi, C))
                 {
                     lb = services::internal::max<cpu, algorithmFPType>(lb, gradi);
                 }
             }
         }
 
-        if (num_yg == 0)
+        if (nGrad == 0)
         {
             bias = -0.5 * (ub + lb);
         }
         else
         {
-            bias = -sum_yg / (algorithmFPType)num_yg;
+            bias = -sumGrad / algorithmFPType(nGrad);
         }
 
         return bias;
     }
 
 private:
-    static bool isUpper(const algorithmFPType y, const algorithmFPType alpha, const algorithmFPType C)
-    {
-        return (y > 0 && alpha < C) || (y < 0 && alpha > 0);
-    }
-    static bool isLower(const algorithmFPType y, const algorithmFPType alpha, const algorithmFPType C)
-    {
-        return (y > 0 && alpha > 0) || (y < 0 && alpha < C);
-    }
-
     const size_t _nVectors;                             //Number of observations in the input data set
     const algorithmFPType * _y;                         //Array of class labels
     const algorithmFPType * _alpha;                     //Array of classification coefficients
