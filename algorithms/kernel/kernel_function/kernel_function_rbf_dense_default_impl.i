@@ -44,6 +44,36 @@ namespace rbf
 namespace internal
 {
 template <typename algorithmFPType, CpuType cpu>
+struct KernelRBFTask
+{
+public:
+    DAAL_NEW_DELETE();
+    algorithmFPType * mklBuff;
+    algorithmFPType * sqrDataA2;
+
+    static KernelRBFTask * create(const size_t blockSize)
+    {
+        auto object = new KernelRBFTask(blockSize);
+        if (object && object->isValid()) return object;
+        delete object;
+        return nullptr;
+    }
+
+    bool isValid() const { return _buff.get(); }
+
+private:
+    KernelRBFTask(const size_t blockSize)
+    {
+        _buff.reset(blockSize * blockSize + blockSize);
+
+        mklBuff   = &_buff[0];
+        sqrDataA2 = &_buff[blockSize * blockSize];
+    }
+
+    TArrayScalable<algorithmFPType, cpu> _buff;
+};
+
+template <typename algorithmFPType, CpuType cpu>
 services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInternalVectorVector(const NumericTable * a1, const NumericTable * a2,
                                                                                                 NumericTable * r, const ParameterBase * par)
 {
@@ -125,7 +155,7 @@ template <typename algorithmFPType, CpuType cpu>
 services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInternalMatrixMatrix(const NumericTable * a1, const NumericTable * a2,
                                                                                                 NumericTable * r, const ParameterBase * par)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.computeMatrixMatrix);
+    DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.MatrixMatrix);
 
     SafeStatus safeStat;
 
@@ -139,60 +169,17 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
     char trans = 'T', notrans = 'N';
     algorithmFPType zero = 0.0, negTwo = -2.0;
 
+    const algorithmFPType coeffDiffMatrix = a1 == a2 ? algorithmFPType(2) : algorithmFPType(1);
+
     DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, nVectors1, nVectors2);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors1 + nVectors2, sizeof(algorithmFPType));
 
-    if (_aBuf.size() < nVectors1 + nVectors2)
-    {
-        printf("RESIZE\n");
-        _aBuf.reset(nVectors1 + nVectors2);
-        DAAL_CHECK(_aBuf.get(), services::ErrorMemoryAllocationFailed);
-    }
-    algorithmFPType * buffer = _aBuf.get();
-
-    algorithmFPType * sqrDataA1 = buffer;
-    // algorithmFPType * sqrDataA2 = buffer + nVectors1;
-
-    const size_t blockSize = 128;
+    const size_t blockSize = 256;
     const size_t nBlocks1  = nVectors1 / blockSize + !!(nVectors1 % blockSize);
     const size_t nBlocks2  = nVectors2 / blockSize + !!(nVectors2 % blockSize);
 
-    // printf("nBlocks1 %lu nBlocks2 %lu\n", nBlocks1, nBlocks2);
-
-    struct TslData
-    {
-    public:
-        algorithmFPType * mklBuff;
-        algorithmFPType * sqrDataA2;
-
-        static TslData * create(const size_t blockSize, const size_t nVectors2)
-        {
-            auto object = new TslData(blockSize, nVectors2);
-            if (!object)
-            {
-                return nullptr;
-            }
-            if (!(object->mklBuff) && !(object->sqrDataA2))
-            {
-                return nullptr;
-            }
-            return object;
-        }
-
-    private:
-        TslData(const size_t blockSize, const size_t nVectors2)
-        {
-            _array.reset(blockSize * blockSize + nVectors2);
-
-            mklBuff   = &_array[0];
-            sqrDataA2 = &_array[blockSize * blockSize];
-        }
-
-        TArrayScalable<algorithmFPType, cpu> _array;
-    };
-
-    daal::tls<TslData *> tslData([=, &safeStat]() {
-        auto tlsData = TslData::create(blockSize, nVectors2);
+    daal::tls<KernelRBFTask<algorithmFPType, cpu> *> tslTask([=, &safeStat]() {
+        auto tlsData = KernelRBFTask<algorithmFPType, cpu>::create(blockSize);
         if (!tlsData)
         {
             safeStat.add(services::ErrorMemoryAllocationFailed);
@@ -209,7 +196,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
         DAAL_CHECK_BLOCK_STATUS_THR(mtA1);
         const algorithmFPType * dataA1 = const_cast<algorithmFPType *>(mtA1.get());
 
-        WriteRows<algorithmFPType, cpu> mtR(r, startRow1, nRowsInBlock1);
+        WriteOnlyRows<algorithmFPType, cpu> mtR(r, startRow1, nRowsInBlock1);
         DAAL_CHECK_BLOCK_STATUS_THR(mtR);
         algorithmFPType * dataR = mtR.get();
 
@@ -218,10 +205,10 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
             DAAL_INT startRow2     = iBlock2 * blockSize;
             DAAL_INT endRow2       = startRow2 + nRowsInBlock2;
 
-            TslData * localTslData = tslData.local();
+            KernelRBFTask<algorithmFPType, cpu> * tlsLocal = tslTask.local();
 
-            algorithmFPType * mklBuff   = localTslData->mklBuff;
-            algorithmFPType * sqrDataA2 = localTslData->sqrDataA2;
+            algorithmFPType * mklBuff   = tlsLocal->mklBuff;
+            algorithmFPType * sqrDataA2 = tlsLocal->sqrDataA2;
 
             ReadRows<algorithmFPType, cpu> mtA2(*const_cast<NumericTable *>(a2), startRow2, nRowsInBlock2);
             DAAL_CHECK_BLOCK_STATUS_THR(mtA2);
@@ -234,33 +221,38 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
                 {
                     sqrDataA2[i] += dataA2[i * nFeatures + j] * dataA2[i * nFeatures + j];
                 }
+                sqrDataA2[i] *= coeffDiffMatrix;
             }
 
             Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, &nRowsInBlock2, &nRowsInBlock1, (DAAL_INT *)&nFeatures, &negTwo, dataA2,
                                                (DAAL_INT *)&nFeatures, dataA1, (DAAL_INT *)&nFeatures, &zero, mklBuff, (DAAL_INT *)&blockSize);
-
             for (size_t i = 0; i < nRowsInBlock1; ++i)
             {
                 algorithmFPType sqrDataA1 = zero;
-                for (size_t j = 0; j < nFeatures; ++j)
+                if (coeffDiffMatrix != algorithmFPType(2))
                 {
-                    sqrDataA1 += dataA1[i * nFeatures + j] * dataA1[i * nFeatures + j];
+                    for (size_t j = 0; j < nFeatures; ++j)
+                    {
+                        sqrDataA1 += dataA1[i * nFeatures + j] * dataA1[i * nFeatures + j];
+                    }
                 }
+                algorithmFPType * dataRBlock   = &dataR[i * nVectors2 + startRow2];
+                algorithmFPType * mklBuffBlock = &mklBuff[i * blockSize];
 
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
                 for (size_t j = 0; j < nRowsInBlock2; ++j)
                 {
-                    algorithmFPType rbf = (mklBuff[i * blockSize + j] + sqrDataA1 + sqrDataA2[j]) * coeff;
+                    algorithmFPType rbf = (mklBuffBlock[j] + sqrDataA1 + sqrDataA2[j]) * coeff;
                     rbf                 = services::internal::max<cpu, algorithmFPType>(rbf, Math<algorithmFPType, cpu>::vExpThreshold());
-                    rbf                 = Math<algorithmFPType, cpu>::sExp(rbf);
-                    dataR[i * nVectors2 + iBlock2 * blockSize + j] = rbf;
+                    dataRBlock[j]       = rbf;
                 }
+                Math<algorithmFPType, cpu>::vExp(nRowsInBlock2, dataRBlock, dataRBlock);
             }
         });
     });
 
-    tslData.reduce([](TslData * localTslData) { delete localTslData; });
+    tslTask.reduce([](KernelRBFTask<algorithmFPType, cpu> * tlsLocal) { delete tlsLocal; });
 
     return services::Status();
 }
