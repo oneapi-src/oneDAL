@@ -60,7 +60,6 @@ public:
 
         auto xBlockNT = getBlockNTData(startRow, nRows, status);
         DAAL_CHECK_STATUS_VAR(status);
-
         _shRes->set(kernel_function::values, shResNT);
         _kernel->getInput()->set(kernel_function::X, xBlockNT);
         _kernel->getParameter()->computationMode = kernel_function::matrixMatrix;
@@ -118,10 +117,13 @@ protected:
 
     NumericTablePtr getBlockNTData(const size_t startRow, const size_t nRows, services::Status & status) override
     {
-        ReadRows<algorithmFPType, cpu> xBlock(*Super::_xTable, startRow, nRows);
-        algorithmFPType * xData = const_cast<algorithmFPType *>(xBlock.get());
+        _xBlock.set(*Super::_xTable, startRow, nRows);
+        algorithmFPType * xData = const_cast<algorithmFPType *>(_xBlock.get());
         return HomogenNumericTableCPU<algorithmFPType, cpu>::create(xData, Super::_nFeatures, nRows, &status);
     }
+
+private:
+    ReadRows<algorithmFPType, cpu> _xBlock;
 };
 
 template <typename algorithmFPType, CpuType cpu>
@@ -149,10 +151,10 @@ protected:
 
     NumericTablePtr getBlockNTData(const size_t startRow, const size_t nRows, services::Status & status) override
     {
-        ReadRowsCSR<algorithmFPType, cpu> xBlock(dynamic_cast<CSRNumericTableIface *>(Super::_xTable.get()), startRow, nRows);
-        algorithmFPType * values = const_cast<algorithmFPType *>(xBlock.values());
-        size_t * cols            = const_cast<size_t *>(xBlock.cols());
-        size_t * rows            = const_cast<size_t *>(xBlock.rows());
+        _xBlock.set(dynamic_cast<CSRNumericTableIface *>(Super::_xTable.get()), startRow, nRows);
+        algorithmFPType * values = const_cast<algorithmFPType *>(_xBlock.values());
+        size_t * cols            = const_cast<size_t *>(_xBlock.cols());
+        size_t * rows            = const_cast<size_t *>(_xBlock.rows());
 
         _rowOffsets[0] = 1;
         PRAGMA_IVDEP
@@ -169,6 +171,7 @@ protected:
 
 private:
     TArrayScalable<size_t, cpu> _rowOffsets;
+    ReadRowsCSR<algorithmFPType, cpu> _xBlock;
 };
 
 template <typename algorithmFPType, CpuType cpu>
