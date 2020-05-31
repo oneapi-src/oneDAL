@@ -154,11 +154,8 @@ protected:
         _xBlock.set(dynamic_cast<CSRNumericTableIface *>(Super::_xTable.get()), startRow, nRows);
         algorithmFPType * values = const_cast<algorithmFPType *>(_xBlock.values());
         size_t * cols            = const_cast<size_t *>(_xBlock.cols());
-        size_t * rows            = const_cast<size_t *>(_xBlock.rows());
-
-        _rowOffsets[0] = 1;
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
+        const size_t * rows      = _xBlock.rows();
+        _rowOffsets[0]           = 1;
         for (size_t i = 0; i < nRows; i++)
         {
             const size_t nNonZeroValuesInRow = rows[i + 1] - rows[i];
@@ -256,7 +253,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
             }
         }); /* daal::threader_for */
 
-        tlsTask.reduce([](PredictTask<algorithmFPType, cpu> * local) { delete local; });
+        tlsTask.reduce([&](PredictTask<algorithmFPType, cpu> * local) { delete local; });
         return safeStat.detach();
     }
 };
