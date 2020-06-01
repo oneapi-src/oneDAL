@@ -133,7 +133,7 @@ public:
             _isComputeSubKernel = true;
         }
         const algorithmFPType * const dataIn = _cache.get() + _nSelectRows * _lineSize;
-        algorithmFPType * dataOut            = _cache.get();
+        algorithmFPType * const dataOut      = _cache.get();
 
         const size_t blockSize     = _cacheSize;
         const size_t nCopyElements = _nSelectRows * _lineSize;

@@ -113,14 +113,14 @@ void HelperTrainSVM<algorithmFPType, cpu>::WSSjLocalBaseline(const size_t jStart
             continue;
         }
 
-        algorithmFPType b = GMin - gradj;
-        algorithmFPType a = Kii + kernelDiag[j] - two * KiBlock[j - jStart];
+        const algorithmFPType b = GMin - gradj;
+        algorithmFPType a       = Kii + kernelDiag[j] - two * KiBlock[j - jStart];
         if (a <= zero)
         {
             a = tau;
         }
-        algorithmFPType dt      = b / a;
-        algorithmFPType objFunc = b * dt;
+        const algorithmFPType dt      = b / a;
+        const algorithmFPType objFunc = b * dt;
         if (objFunc > GMax)
         {
             GMax  = objFunc;
@@ -145,7 +145,6 @@ services::Status SubDataTaskCSR<algorithmFPType, cpu>::copyDataByIndices(const u
     DAAL_ITTNOTIFY_SCOPED_TASK(cache.copyDataByIndices.CSR);
     CSRNumericTableIface * csrIface = dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(xTable.get()));
     _rowOffsets[0]                  = 1;
-    size_t dataIndex                = 0;
     const size_t nRows              = this->_nSubsetVectors;
     for (size_t i = 0; i < nRows; i++)
     {
@@ -155,12 +154,22 @@ services::Status SubDataTaskCSR<algorithmFPType, cpu>::copyDataByIndices(const u
         const size_t nNonZeroValuesInRow = mtX.rows()[1] - mtX.rows()[0];
         const size_t * colIndices        = mtX.cols();
         const algorithmFPType * values   = mtX.values();
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for (size_t j = 0; j < nNonZeroValuesInRow; j++, dataIndex++)
+
         {
-            this->_data[dataIndex] = values[j];
-            _colIndices[dataIndex] = colIndices[j];
+            // Copy values
+            const algorithmFPType * const dataIn = values;
+            algorithmFPType * const dataOut      = this->_data.get();
+            DAAL_CHECK(!services::internal::daal_memcpy_s(dataOut, nNonZeroValuesInRow * sizeof(algorithmFPType), dataIn,
+                                                          nNonZeroValuesInRow * sizeof(algorithmFPType)),
+                       services::ErrorMemoryCopyFailedInternal);
+        }
+        {
+            // Copy col indices
+            const size_t * const dataIn = colIndices;
+            size_t * const dataOut      = _colIndices.get();
+            DAAL_CHECK(
+                !services::internal::daal_memcpy_s(dataOut, nNonZeroValuesInRow * sizeof(size_t), dataIn, nNonZeroValuesInRow * sizeof(size_t)),
+                services::ErrorMemoryCopyFailedInternal);
         }
         _rowOffsets[i + 1] = _rowOffsets[i] + nNonZeroValuesInRow;
     }

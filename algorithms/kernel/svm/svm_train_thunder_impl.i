@@ -128,6 +128,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
     TArray<char, cpu> I(nWS);
     DAAL_CHECK_MALLOC(I.get());
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors * sizeof(algorithmFPType), nVectors);
     if (cacheSize >= nVectors * nVectors * sizeof(algorithmFPType))
     {
         const size_t defaultCacheSize = nWS;

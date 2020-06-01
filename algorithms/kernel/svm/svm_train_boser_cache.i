@@ -55,7 +55,6 @@ class SVMCacheIface<boser, algorithmFPType, cpu> : public SVMCacheCommonIface<al
 public:
     virtual ~SVMCacheIface() {}
 
-    // virtual size_t getDataRowIndex(size_t rowIndex) const = 0;
     /**
      * Get block of values from the row of the matrix Q (kernel(x[i], x[j]))
      * \param[in] rowIndex      Index of the requested row

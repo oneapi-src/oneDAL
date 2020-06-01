@@ -82,7 +82,7 @@ void HelperTrainSVM<float, avx512>::WSSjLocal(const size_t jStart, const size_t 
 
         __m512i Bj_vec_cur = _mm512_set1_epi32((int)(j_cur));
         // vector grad[jcur:jcur+16] = _grad[jcur:jcur+16]
-        __m512 valGrad = _mm512_loadu_ps(&grad[j_cur]);
+        __m512 valGrad = _mm512_load_ps(&grad[j_cur]);
 
         // find min(grad[j]) instead - here's where we find vector of min's.
         // result can be updated only if _I[j] is in I_low.
@@ -96,7 +96,7 @@ void HelperTrainSVM<float, avx512>::WSSjLocal(const size_t jStart, const size_t 
         // float a = Kii + _kernelDiag[j] - two * KiBlock[j - jStart] = Kii + _kernelDiag[j] - KiBlock[j - jStart] - KiBlock[j - jStart];
         // a_tmp = two * KiBlock[j - jStart] - kernelDiag[j]
         __m512 KiBlock_vec    = _mm512_loadu_ps(KiBlock + j_cur - jStart);
-        __m512 kernelDiag_vec = _mm512_loadu_ps(&kernelDiag[j_cur]);
+        __m512 kernelDiag_vec = _mm512_load_ps(&kernelDiag[j_cur]);
         __m512 a_vec          = _mm512_fmsub_ps(two_vec, KiBlock_vec, kernelDiag_vec);
 
         // originally, if a < 0, a = tau
@@ -117,9 +117,9 @@ void HelperTrainSVM<float, avx512>::WSSjLocal(const size_t jStart, const size_t 
     }
 
     // reduction:
-    float * GMaxVal      = reinterpret_cast<float *>(&valGMax);
-    int * BjValOverall   = reinterpret_cast<int *>(&Bj_vec);
-    float * GMax2Overall = reinterpret_cast<float *>(&valGMax2);
+    const float * const GMaxVal      = reinterpret_cast<float * const>(&valGMax);
+    const int * const BjValOverall   = reinterpret_cast<int * const>(&Bj_vec);
+    const float * const GMax2Overall = reinterpret_cast<float * const>(&valGMax2);
 
     GMax  = -fpMax;
     GMax2 = -fpMax;
@@ -139,9 +139,9 @@ void HelperTrainSVM<float, avx512>::WSSjLocal(const size_t jStart, const size_t 
 
     if (Bj != -1)
     {
-        float gradBj = grad[Bj];
-        float b      = GMin - gradBj;
-        float a      = Kii + kernelDiag[Bj] - two * KiBlock[Bj - jStart];
+        const float gradBj = grad[Bj];
+        const float b      = GMin - gradBj;
+        float a            = Kii + kernelDiag[Bj] - two * KiBlock[Bj - jStart];
         if (a <= zero)
         {
             a = tau;
@@ -233,7 +233,7 @@ void HelperTrainSVM<double, avx512>::WSSjLocal(const size_t jStart, const size_t
         __m128i vec_I = _mm_maskz_loadu_epi8(mask_cmp, &I[j_cur]); // basically, I load 16 chars except last iteration
 
         // vector grad[jcur:jcur+16] = _grad[jcur:jcur+16]
-        __m512d valGrad = _mm512_loadu_pd(&grad[j_cur]);
+        __m512d valGrad = _mm512_load_pd(&grad[j_cur]);
 
         // if ((_I[j] & low) != low) { continue; }
         __mmask16 mask1_tmp_ = _mm_mask_cmpeq_epi8_mask(mask_cmp, _mm_and_si128(vec_I, vecAllLow), vecAllLow);
@@ -251,7 +251,7 @@ void HelperTrainSVM<double, avx512>::WSSjLocal(const size_t jStart, const size_t
         // float a = Kii + _kernelDiag[j] - two * KiBlock[j - jStart] = Kii + _kernelDiag[j] - KiBlock[j - jStart] - KiBlock[j - jStart];
         // a_tmp = two * KiBlock[j - jStart] - kernelDiag[j]
         __m512d KiBlock_vec    = _mm512_loadu_pd(KiBlock + j_cur - jStart);
-        __m512d kernelDiag_vec = _mm512_loadu_pd(&kernelDiag[j_cur]);
+        __m512d kernelDiag_vec = _mm512_load_pd(&kernelDiag[j_cur]);
         __m512d a_vec          = _mm512_fmsub_pd(two_vec, KiBlock_vec, kernelDiag_vec);
 
         // originally, if a < 0, a = tau
@@ -272,9 +272,9 @@ void HelperTrainSVM<double, avx512>::WSSjLocal(const size_t jStart, const size_t
     }
 
     // reduction:
-    double * GMaxVal      = reinterpret_cast<double *>(&valGMax);
-    int * BjValOverall    = reinterpret_cast<int *>(&Bj_vec);
-    double * GMax2Overall = reinterpret_cast<double *>(&valGMax2);
+    const double * const GMaxVal      = reinterpret_cast<double * const>(&valGMax);
+    const int * const BjValOverall    = reinterpret_cast<int * const>(&Bj_vec);
+    const double * const GMax2Overall = reinterpret_cast<double * const>(&valGMax2);
 
     GMax  = -fpMax;
     GMax2 = -fpMax;
@@ -294,9 +294,9 @@ void HelperTrainSVM<double, avx512>::WSSjLocal(const size_t jStart, const size_t
 
     if (Bj != -1)
     {
-        double gradBj = grad[Bj];
-        double b      = GMin - gradBj;
-        double a      = Kii + kernelDiag[Bj] - two * KiBlock[Bj - jStart];
+        const double gradBj = grad[Bj];
+        const double b      = GMin - gradBj;
+        double a            = Kii + kernelDiag[Bj] - two * KiBlock[Bj - jStart];
         if (a <= zero)
         {
             a = tau;
