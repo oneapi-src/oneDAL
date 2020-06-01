@@ -169,8 +169,6 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
     char trans = 'T', notrans = 'N';
     algorithmFPType zero = 0.0, negTwo = -2.0;
 
-    const algorithmFPType coeffDiffMatrix = a1 == a2 ? algorithmFPType(2) : algorithmFPType(1);
-
     DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, nVectors1, nVectors2);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors1 + nVectors2, sizeof(algorithmFPType));
 
@@ -221,7 +219,6 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
                 {
                     sqrDataA2[i] += dataA2[i * nFeatures + j] * dataA2[i * nFeatures + j];
                 }
-                sqrDataA2[i] *= coeffDiffMatrix;
             }
 
             Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, &nRowsInBlock2, &nRowsInBlock1, (DAAL_INT *)&nFeatures, &negTwo, dataA2,
@@ -229,12 +226,16 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
             for (size_t i = 0; i < nRowsInBlock1; ++i)
             {
                 algorithmFPType sqrDataA1 = zero;
-                if (coeffDiffMatrix != algorithmFPType(2))
+                if (a1 != a2)
                 {
                     for (size_t j = 0; j < nFeatures; ++j)
                     {
                         sqrDataA1 += dataA1[i * nFeatures + j] * dataA1[i * nFeatures + j];
                     }
+                }
+                else
+                {
+                    sqrDataA1 = sqrDataA2[i];
                 }
                 algorithmFPType * dataRBlock   = &dataR[i * nVectors2 + startRow2];
                 algorithmFPType * mklBuffBlock = &mklBuff[i * blockSize];
