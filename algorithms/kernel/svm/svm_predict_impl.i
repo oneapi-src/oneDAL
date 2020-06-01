@@ -73,7 +73,6 @@ protected:
     PredictTask(const size_t nRowsPerBlock, const NumericTablePtr & xTable, const NumericTablePtr & svTable, kernel_function::KernelIfacePtr & kernel)
         : _xTable(xTable), _nSV(svTable->getNumberOfRows()), _nFeatures(svTable->getNumberOfColumns())
     {
-        services::Status status;
         _buff.reset(_nSV * nRowsPerBlock);
         _kernel = kernel->clone();
         _shRes  = kernel_function::ResultPtr(new kernel_function::Result());
@@ -117,8 +116,8 @@ protected:
 
     NumericTablePtr getBlockNTData(const size_t startRow, const size_t nRows, services::Status & status) override
     {
-        _xBlock.set(*Super::_xTable, startRow, nRows);
-        algorithmFPType * xData = const_cast<algorithmFPType *>(_xBlock.get());
+        algorithmFPType * xData = const_cast<algorithmFPType *>(_xBlock.set(*Super::_xTable, startRow, nRows));
+        if (!xData) status |= services::Status(services::ErrorMemoryAllocationFailed);
         return HomogenNumericTableCPU<algorithmFPType, cpu>::create(xData, Super::_nFeatures, nRows, &status);
     }
 
@@ -155,7 +154,8 @@ protected:
         algorithmFPType * values = const_cast<algorithmFPType *>(_xBlock.values());
         size_t * cols            = const_cast<size_t *>(_xBlock.cols());
         const size_t * rows      = _xBlock.rows();
-        _rowOffsets[0]           = 1;
+        if (!values || !cols || !rows) status |= services::Status(services::ErrorMemoryAllocationFailed);
+        _rowOffsets[0] = 1;
         for (size_t i = 0; i < nRows; i++)
         {
             const size_t nNonZeroValuesInRow = rows[i + 1] - rows[i];
