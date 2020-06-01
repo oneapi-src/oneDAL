@@ -54,7 +54,8 @@ namespace training
  */
 enum Method
 {
-    defaultDense = 0 /*!< Bagging, random choice of features, Gini impurity */
+    defaultDense = 0, /*!< Bagging, random choice of features, Gini impurity */
+    hist         = 1  /*!< Subset of splits(bins), bagging, random choice of features, variance-based impurity */
 };
 
 /**
@@ -94,7 +95,7 @@ namespace interface1
  * \snippet decision_forest/decision_forest_classification_training_types.h Parameter source code
  */
 /* [interface1::Parameter source code] */
-struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter, public daal::algorithms::decision_forest::training::Parameter
+struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter, public daal::algorithms::decision_forest::training::interface1::Parameter
 {
     /** Default constructor */
     DAAL_DEPRECATED Parameter(size_t nClasses) : classifier::interface1::Parameter(nClasses) {}
@@ -110,6 +111,27 @@ namespace interface2
 {
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__DECISION_FOREST__CLASSIFICATION__TRAINING__PARAMETER"></a>
+ * \brief Decision forest algorithm parameters   \DAAL_DEPRECATED
+ *
+ * \snippet decision_forest/decision_forest_classification_training_types.h Parameter source code
+ */
+/* [interface2::Parameter source code] */
+struct DAAL_EXPORT Parameter : public classifier::Parameter, public daal::algorithms::decision_forest::training::interface1::Parameter
+{
+    /** Default constructor */
+    DAAL_DEPRECATED Parameter(size_t nClasses) : classifier::Parameter(nClasses) {}
+    DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
+};
+/* [interface2::Parameter source code] */
+} // namespace interface2
+
+/**
+ * \brief Contains version 3.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ */
+namespace interface3
+{
+/**
+ * <a name="DAAL-STRUCT-ALGORITHMS__DECISION_FOREST__CLASSIFICATION__TRAINING__PARAMETER"></a>
  * \brief Decision forest algorithm parameters
  *
  * \snippet decision_forest/decision_forest_classification_training_types.h Parameter source code
@@ -122,7 +144,7 @@ struct DAAL_EXPORT Parameter : public classifier::Parameter, public daal::algori
     services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [Parameter source code] */
-} // namespace interface2
+} // namespace interface3
 
 namespace interface1
 {
@@ -177,7 +199,7 @@ public:
     template <typename algorithmFPType>
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
-    /**s
+    /**
     * Checks the result of decision forest model-based training
     * \param[in] input   %Input object for the algorithm
     * \param[in] par     %Parameter of the algorithm
@@ -218,7 +240,7 @@ private:
 typedef services::SharedPtr<Result> ResultPtr;
 
 } // namespace interface1
-using interface2::Parameter;
+using interface3::Parameter;
 using interface1::Result;
 using interface1::ResultPtr;
 

@@ -34,10 +34,10 @@ namespace regression
 {
 namespace training
 {
-namespace interface1
+namespace interface2
 {
 template class BatchContainer<DAAL_FPTYPE, hist, DAAL_CPU>;
-}
+} // namespace interface2
 namespace internal
 {
 template class RegressionTrainBatchKernel<DAAL_FPTYPE, hist, DAAL_CPU>;

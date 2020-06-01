@@ -110,10 +110,28 @@ enum ResultEngineId
     lastResultEngineId = updatedEngine
 };
 
-/**
- * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface
- */
 namespace interface1
+{
+/**
+ * <a name="DAAL-CLASS-ALGORITHMS__DECISION_FOREST__REGRESSION__PARAMETER"></a>
+ * \brief Parameters for the decision forest algorithm   \DAAL_DEPRECATED
+ *
+ * \snippet decision_forest/decision_forest_regression_training_types.h Parameter source code
+ */
+/* [interface1::Parameter source code] */
+class DAAL_EXPORT Parameter : public daal::algorithms::Parameter, public daal::algorithms::decision_forest::training::interface1::Parameter
+{
+public:
+    DAAL_DEPRECATED Parameter();
+    DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
+};
+/* [interface1::Parameter source code] */
+} // namespace interface1
+
+/**
+ * \brief Contains version 2.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface
+ */
+namespace interface2
 {
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_FOREST__REGRESSION__PARAMETER"></a>
@@ -129,7 +147,13 @@ public:
     services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [Parameter source code] */
+} // namespace interface2
 
+/**
+ * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface
+ */
+namespace interface1
+{
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_FOREST__REGRESSSION__TRAINING__INPUT"></a>
  * \brief %Input objects for decision forest model-based training
@@ -182,13 +206,27 @@ public:
 
     /**
      * Allocates memory to store the result of decision forest model-based training
-     * \param[in] input Pointer to an object containing the input data
-     * \param[in] method Computation method for the algorithm
+     * \param[in] input     %Input object for the algorithm
+     * \param[in] method    Computation method for the algorithm
      * \param[in] parameter %Parameter of decision forest model-based training
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const Parameter * parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input,
+                                          const daal::algorithms::decision_forest::regression::training::interface1::Parameter * parameter,
+                                          const int method);
+
+    /**
+     * Allocates memory to store the result of decision forest model-based training
+     * \param[in] input     %Input object for the algorithm
+     * \param[in] method    Computation method for the algorithm
+     * \param[in] parameter %Parameter of decision forest model-based training
+     * \return Status of allocation
+     */
+    template <typename algorithmFPType>
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input,
+                                          const daal::algorithms::decision_forest::regression::training::interface2::Parameter * parameter,
+                                          const int method);
 
     /**
      * Returns the result of decision forest model-based training
@@ -257,9 +295,9 @@ private:
     Result & operator=(const Result &);
 };
 typedef services::SharedPtr<Result> ResultPtr;
-
 } // namespace interface1
-using interface1::Parameter;
+
+using interface2::Parameter;
 using interface1::Input;
 using interface1::Result;
 using interface1::ResultPtr;

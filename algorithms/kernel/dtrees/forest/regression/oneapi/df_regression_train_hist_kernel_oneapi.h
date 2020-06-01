@@ -33,6 +33,7 @@
 #include "algorithms/decision_forest/decision_forest_regression_training_types.h"
 #include "algorithms/decision_forest/decision_forest_regression_model.h"
 #include "algorithms/kernel/dtrees/forest/oneapi/df_feature_type_helper_oneapi.h"
+#include "algorithms/kernel/dtrees/forest/oneapi/df_tree_level_build_helper_oneapi.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -70,34 +71,8 @@ public:
                              Result & res, const Parameter & par);
 
 private:
-    services::Status initializeTreeOrder(size_t nRows, oneapi::internal::UniversalBuffer & treeOrder);
-
-    services::Status convertSplitToLeaf(oneapi::internal::UniversalBuffer & nodeList, size_t nNodes);
-
-    services::Status markPresentRows(const oneapi::internal::UniversalBuffer & rowsList, oneapi::internal::UniversalBuffer & rowsBuffer, size_t nRows,
-                                     size_t localSize, size_t nSubgroupSums);
-    services::Status countAbsentRowsForBlocks(const oneapi::internal::UniversalBuffer & rowsBuffer, size_t nRows,
-                                              oneapi::internal::UniversalBuffer & partialSums, size_t localSize, size_t nSubgroupSums);
-    services::Status countAbsentRowsTotal(const oneapi::internal::UniversalBuffer & partialSums,
-                                          oneapi::internal::UniversalBuffer & partialPrefixSums, oneapi::internal::UniversalBuffer & totalSum,
-                                          size_t localSize, size_t nSubgroupSums);
-    services::Status fillOOBRowsListByBlocks(const oneapi::internal::UniversalBuffer & rowsBuffer, size_t nRows,
-                                             const oneapi::internal::UniversalBuffer & partialPrefixSums,
-                                             oneapi::internal::UniversalBuffer & oobRowsList, size_t localSize, size_t nSubgroupSums);
-
-    services::Status getOOBRows(const oneapi::internal::UniversalBuffer & rowsList, size_t nRows, size_t & nOOBRows,
-                                oneapi::internal::UniversalBuffer & oobRowsList);
-
-    services::Status getNumOfSplitNodes(const oneapi::internal::UniversalBuffer & nodeList, size_t nNodes, size_t & nSplitNodes);
-
-    services::Status doNodesSplit(const oneapi::internal::UniversalBuffer & nodeList, size_t nNodes, oneapi::internal::UniversalBuffer & nodeListNew);
-
-    services::Status splitNodeListOnGroupsBySize(const oneapi::internal::UniversalBuffer & nodeList, size_t nNodes,
-                                                 oneapi::internal::UniversalBuffer & bigNodesGroups, oneapi::internal::UniversalBuffer & nodeIndeces);
-
-    services::Status doLevelPartition(const oneapi::internal::UniversalBuffer & data, oneapi::internal::UniversalBuffer & nodeList, size_t nNodes,
-                                      oneapi::internal::UniversalBuffer & treeOrder, oneapi::internal::UniversalBuffer & treeOrderBuf, size_t nRows,
-                                      size_t nFeatures);
+    services::Status buildProgram(oneapi::internal::ClKernelFactoryIface & factory, const char * programName, const char * programSrc,
+                                  const char * buildOptions);
 
     services::Status computeBestSplit(const oneapi::internal::UniversalBuffer & data, oneapi::internal::UniversalBuffer & treeOrder,
                                       oneapi::internal::UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
@@ -134,13 +109,6 @@ private:
                                              size_t nPartialHistograms, size_t nNodes, size_t nSelectedFeatures, size_t nMaxBinsAmongFtrs,
                                              size_t reduceLocalSize);
 
-    services::Status partitionCopy(oneapi::internal::UniversalBuffer & treeOrderBuf, oneapi::internal::UniversalBuffer & treeOrder, size_t iStart,
-                                   size_t nRows);
-
-    services::Status updateMDIVarImportance(const oneapi::internal::UniversalBuffer & nodeList,
-                                            const oneapi::internal::UniversalBuffer & nodeImpDecreaseList, size_t nNodes,
-                                            services::Buffer<algorithmFPType> & varImp, size_t nFeatures);
-
     services::Status computeResults(const dtrees::internal::Tree & t, const algorithmFPType * x, const algorithmFPType * y, const size_t nRows,
                                     const size_t nFeatures, const oneapi::internal::UniversalBuffer & oobIndices, size_t nOOB,
                                     oneapi::internal::UniversalBuffer & oobBuf, algorithmFPType * varImp, algorithmFPType * varImpVariance,
@@ -159,27 +127,12 @@ private:
 
     services::Status finalizeVarImp(const Parameter & par, algorithmFPType * varImp, algorithmFPType * varImpVariance, size_t nFeatures);
 
-    oneapi::internal::KernelPtr kernelBumper;
-
-    oneapi::internal::KernelPtr kernelInitializeTreeOrder;
     oneapi::internal::KernelPtr kernelComputePartialHistograms;
     oneapi::internal::KernelPtr kernelReducePartialHistograms;
     oneapi::internal::KernelPtr kernelComputeBestSplitByHistogram;
     oneapi::internal::KernelPtr kernelComputeBestSplitSinglePass;
-    oneapi::internal::KernelPtr kernelPartitionCopy;
 
-    oneapi::internal::KernelPtr kernelConvertSplitToLeaf;
-    oneapi::internal::KernelPtr kernelGetNumOfSplitNodes;
-    oneapi::internal::KernelPtr kernelDoNodesSplit;
-    oneapi::internal::KernelPtr kernelDoLevelPartition;
-    oneapi::internal::KernelPtr kernelSplitNodeListOnGroupsBySize;
-
-    oneapi::internal::KernelPtr kernelMarkPresentRows;
-    oneapi::internal::KernelPtr kernelCountAbsentRowsForBlocks;
-    oneapi::internal::KernelPtr kernelCountAbsentRowsTotal;
-    oneapi::internal::KernelPtr kernelFillOOBRowsListByBlocks;
-
-    oneapi::internal::KernelPtr kernelUpdateMDIVarImportance;
+    decision_forest::internal::TreeLevelBuildHelperOneAPI<algorithmFPType> _treeLevelBuildHelper;
 
     const uint32_t _maxWorkItemsPerGroup = 256;   // should be a power of two for interal needs
     const uint32_t _maxLocalBuffer       = 30000; // should be less than a half of local memory (two buffers)
@@ -194,6 +147,9 @@ private:
     const uint32_t _nHistProps     = 3; // number of properties in bins histogram (i.e. n, mean and var)
     const uint32_t _nNodesGroups   = 3; // all nodes are split on groups (big, medium, small)
     const uint32_t _nodeGroupProps = 2; // each nodes Group contains props: numOfNodes, maxNumOfBlocks
+
+    size_t _nMaxBinsAmongFtrs;
+    size_t _totalBins;
 };
 
 } // namespace internal

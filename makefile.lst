@@ -49,7 +49,7 @@ coordinate_descent += optimization_solver/coordinate_descent objective_function 
 objective_function += objective_function/inner objective_function/cross_entropy_loss objective_function/cross_entropy_loss/inner objective_function/logistic_loss objective_function/logistic_loss/inner objective_function/mse objective_function/mse/inner
 decision_tree += decision_tree/inner regression classifier classifier/inner
 dtrees/gbt += dtrees dtrees/gbt/classification dtrees/gbt/classification/inner dtrees/gbt/regression engines classifier classifier/inner regression objective_function
-dtrees/forest += dtrees dtrees/regression dtrees/forest/classification dtrees/forest/classification/inner dtrees/forest/regression engines classifier classifier/inner regression distributions
+dtrees/forest += dtrees dtrees/regression dtrees/forest/classification dtrees/forest/classification/inner dtrees/forest/regression dtrees/forest/regression/inner engines classifier classifier/inner regression distributions
 linear_regression += linear_model regression
 lasso_regression += linear_model regression optimization_solver objective_function engines
 ridge_regression += linear_model regression
@@ -90,6 +90,7 @@ CORE.ALGORITHMS.FULL :=                                                       \
     dtrees/forest/classification                                              \
     dtrees/forest/classification/inner                                        \
     dtrees/forest/regression                                                  \
+    dtrees/forest/regression/inner                                            \
     dtrees/gbt                                                                \
     dtrees/gbt/regression                                                     \
     dtrees/gbt/classification                                                 \

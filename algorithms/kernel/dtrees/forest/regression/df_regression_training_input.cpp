@@ -35,21 +35,24 @@ namespace decision_forest
 {
 namespace training
 {
-Status checkImpl(const decision_forest::training::Parameter & prm);
+Status checkImpl(const decision_forest::training::interface2::Parameter & prm);
 }
 
 namespace regression
 {
 namespace training
 {
-namespace interface1
+namespace interface2
 {
 Parameter::Parameter() {}
 Status Parameter::check() const
 {
     return decision_forest::training::checkImpl(*this);
 }
+} // namespace interface2
 
+namespace interface1
+{
 /** Default constructor */
 Input::Input() : algorithms::regression::training::Input(lastInputId + 1) {}
 
@@ -87,11 +90,28 @@ Status Input::check(const daal::algorithms::Parameter * par, int method) const
     NumericTablePtr dependentVariableTable = get(dependentVariable);
 
     DAAL_CHECK_EX(dependentVariableTable->getNumberOfColumns() == 1, ErrorIncorrectNumberOfColumns, ArgumentName, dependentVariableStr());
-    const Parameter * parameter = static_cast<const Parameter *>(par);
-    const size_t nSamplesPerTree(parameter->observationsPerTreeFraction * dataTable->getNumberOfRows());
-    DAAL_CHECK_EX(nSamplesPerTree > 0, ErrorIncorrectParameter, ParameterName, observationsPerTreeFractionStr());
-    const auto nFeatures = dataTable->getNumberOfColumns();
-    DAAL_CHECK_EX(parameter->featuresPerNode <= nFeatures, ErrorIncorrectParameter, ParameterName, featuresPerNodeStr());
+    const daal::algorithms::decision_forest::regression::training::interface1::Parameter * parameter1 =
+        dynamic_cast<const daal::algorithms::decision_forest::regression::training::interface1::Parameter *>(par);
+    const daal::algorithms::decision_forest::regression::training::interface2::Parameter * parameter2 =
+        dynamic_cast<const daal::algorithms::decision_forest::regression::training::interface2::Parameter *>(par);
+    if (parameter1 != NULL)
+    {
+        const size_t nSamplesPerTree(parameter1->observationsPerTreeFraction * dataTable->getNumberOfRows());
+        DAAL_CHECK_EX(nSamplesPerTree > 0, ErrorIncorrectParameter, ParameterName, observationsPerTreeFractionStr());
+        const auto nFeatures = dataTable->getNumberOfColumns();
+        DAAL_CHECK_EX(parameter1->featuresPerNode <= nFeatures, ErrorIncorrectParameter, ParameterName, featuresPerNodeStr());
+    }
+    else if (parameter2 != NULL)
+    {
+        const size_t nSamplesPerTree(parameter2->observationsPerTreeFraction * dataTable->getNumberOfRows());
+        DAAL_CHECK_EX(nSamplesPerTree > 0, ErrorIncorrectParameter, ParameterName, observationsPerTreeFractionStr());
+        const auto nFeatures = dataTable->getNumberOfColumns();
+        DAAL_CHECK_EX(parameter2->featuresPerNode <= nFeatures, ErrorIncorrectParameter, ParameterName, featuresPerNodeStr());
+    }
+    else
+    {
+        s = s ? s : services::Status(services::ErrorNullParameterNotSupported);
+    }
     return s;
 }
 

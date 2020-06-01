@@ -29,5 +29,33 @@ namespace algorithms
 {
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(decision_forest::regression::training::BatchContainer, batch, DAAL_FPTYPE,
                                            decision_forest::regression::training::hist)
+namespace decision_forest
+{
+namespace regression
+{
+namespace training
+{
+namespace interface2
+{
+using BatchType = Batch<DAAL_FPTYPE, decision_forest::regression::training::hist>;
+
+template <>
+BatchType::Batch()
+{
+    _par = new ParameterType;
+    initialize();
+    parameter().minObservationsInLeafNode = 5;
 }
+
+template <>
+BatchType::Batch(const BatchType & other) : input(other.input)
+{
+    _par = new ParameterType(other.parameter());
+    initialize();
+}
+} // namespace interface2
+} // namespace training
+} // namespace regression
+} // namespace decision_forest
+} // namespace algorithms
 } // namespace daal

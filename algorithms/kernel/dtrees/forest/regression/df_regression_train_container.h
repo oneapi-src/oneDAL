@@ -43,6 +43,8 @@ namespace regression
 {
 namespace training
 {
+namespace interface2
+{
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
@@ -79,8 +81,8 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     decision_forest::regression::Model * m = result->get(model).get();
 
-    const Parameter * par                  = static_cast<decision_forest::regression::training::Parameter *>(_par);
-    daal::services::Environment::env & env = *_env;
+    const decision_forest::regression::training::Parameter * par = static_cast<decision_forest::regression::training::Parameter *>(_par);
+    daal::services::Environment::env & env                       = *_env;
 
     if (method == hist && !deviceInfo.isCpu)
     {
@@ -104,7 +106,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::setupCompute()
     pImpl->clear();
     return services::Status();
 }
-
+} // namespace interface2
 } // namespace training
 } // namespace regression
 } // namespace decision_forest

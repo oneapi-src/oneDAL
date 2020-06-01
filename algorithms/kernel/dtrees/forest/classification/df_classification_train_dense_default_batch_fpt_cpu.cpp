@@ -34,15 +34,15 @@ namespace classification
 {
 namespace training
 {
-namespace interface2
+namespace interface3
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
+} // namespace interface3
 
 namespace internal
 {
 template class ClassificationTrainBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
+} // namespace internal
 } // namespace training
 } // namespace classification
 } // namespace decision_forest
