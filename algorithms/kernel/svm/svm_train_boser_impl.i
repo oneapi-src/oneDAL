@@ -173,8 +173,8 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSj(size_t 
 
     Bj                    = -1;
     algorithmFPType fpMax = MaxVal<algorithmFPType>::get();
-    algorithmFPType GMax  = -fpMax; // some big positive number
-    algorithmFPType GMax2 = -fpMax;
+    algorithmFPType GMax  = -fpMax; // some big negative number
+    algorithmFPType GMax2 = -fpMax; // some big negative number
 
     algorithmFPType Kii = _kernelDiag[Bi];
 

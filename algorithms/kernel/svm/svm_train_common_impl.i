@@ -144,8 +144,10 @@ services::Status SubDataTaskCSR<algorithmFPType, cpu>::copyDataByIndices(const u
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(cache.copyDataByIndices.CSR);
     CSRNumericTableIface * csrIface = dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(xTable.get()));
-    _rowOffsets[0]                  = 1;
-    const size_t nRows              = this->_nSubsetVectors;
+    DAAL_CHECK(!csrIface, services::ErrorEmptyCSRNumericTable);
+
+    _rowOffsets[0]     = 1;
+    const size_t nRows = this->_nSubsetVectors;
     for (size_t i = 0; i < nRows; i++)
     {
         size_t iRows = wsIndices[i];
