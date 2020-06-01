@@ -24,12 +24,14 @@ while [[ $# -gt 0 ]]; do
     shift
     shift
 done
+
 # set enviroment
+source ${CONDA_DIR}/etc/profile.d/conda.sh
 export PATH=${CONDA_DIR}/bin:$PATH
 source activate conf
 conda list
-. ${ONEAPI_DIR}/compiler/latest/env/vars.sh
-. ${BUILD_DIR}/daal/latest/env/vars.sh intel64
+source ${ONEAPI_DIR}/compiler/latest/env/vars.sh
+source ${BUILD_DIR}/daal/latest/env/vars.sh intel64
 cd ${DAAL4PY_DIR}
 
 # testing
