@@ -26,7 +26,7 @@ conda activate conf
 conda install -y -c intel mpich tbb-devel numpy pytest scikit-learn
 conda remove -y daal4py --force
 conda remove -y daal --force
-export DAALROOT=${BUILD_DIR}/daal/latest
+#export DAALROOT=${BUILD_DIR}/daal/latest
 echo DAALROOT
 echo $DAALROOT
 echo ${BUILD_DIR}/daal/latest
@@ -34,7 +34,8 @@ ls -l ${BUILD_DIR}/daal/latest
 conda install $HOME/miniconda/envs/CB/conda-bld/linux-64/daal4py*.tar.bz2
 conda list
 
-export DAALROOT=${BUILD_DIR}/daal/latest
+#export DAALROOT=${BUILD_DIR}/daal/latest
+. ${BUILD_DIR}/daal/latest/env/vars.sh intel64
 echo DAALROOT
 echo $DAALROOT
 echo ${BUILD_DIR}/daal/latest
