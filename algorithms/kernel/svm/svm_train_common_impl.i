@@ -144,11 +144,10 @@ services::Status SubDataTaskCSR<algorithmFPType, cpu>::copyDataByIndices(const u
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(cache.copyDataByIndices.CSR);
     CSRNumericTableIface * csrIface = dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(xTable.get()));
-    DAAL_CHECK(!csrIface, services::ErrorEmptyCSRNumericTable);
+    DAAL_CHECK(csrIface, services::ErrorEmptyCSRNumericTable);
 
-    _rowOffsets[0]     = 1;
-    const size_t nRows = this->_nSubsetVectors;
-    for (size_t i = 0; i < nRows; ++i)
+    _rowOffsets[0] = 1;
+    for (size_t i = 0; i < this->_nSubsetVectors; ++i)
     {
         size_t iRows = wsIndices[i];
         ReadRowsCSR<algorithmFPType, cpu> mtX(csrIface, iRows, 1);
@@ -156,11 +155,11 @@ services::Status SubDataTaskCSR<algorithmFPType, cpu>::copyDataByIndices(const u
         const size_t nNonZeroValuesInRow     = mtX.rows()[1] - mtX.rows()[0];
         const size_t * const colIndices      = mtX.cols();
         const algorithmFPType * const values = mtX.values();
-
+        const size_t offsetOut               = _rowOffsets[i] - _rowOffsets[0];
         {
             // Copy values
             const algorithmFPType * const dataIn = values;
-            algorithmFPType * const dataOut      = this->_data.get();
+            algorithmFPType * const dataOut      = this->_data.get() + offsetOut;
             DAAL_CHECK(!services::internal::daal_memcpy_s(dataOut, nNonZeroValuesInRow * sizeof(algorithmFPType), dataIn,
                                                           nNonZeroValuesInRow * sizeof(algorithmFPType)),
                        services::ErrorMemoryCopyFailedInternal);
@@ -168,7 +167,7 @@ services::Status SubDataTaskCSR<algorithmFPType, cpu>::copyDataByIndices(const u
         {
             // Copy col indices
             const size_t * const dataIn = colIndices;
-            size_t * const dataOut      = _colIndices.get();
+            size_t * const dataOut      = _colIndices.get() + offsetOut;
             DAAL_CHECK(
                 !services::internal::daal_memcpy_s(dataOut, nNonZeroValuesInRow * sizeof(size_t), dataIn, nNonZeroValuesInRow * sizeof(size_t)),
                 services::ErrorMemoryCopyFailedInternal);

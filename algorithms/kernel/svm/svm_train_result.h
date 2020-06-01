@@ -204,7 +204,7 @@ protected:
         size_t * const svRowOffsetsBuffer = aSvRowOffsets.get();
 
         CSRNumericTableIface * const csrIface = dynamic_cast<CSRNumericTableIface * const>(const_cast<NumericTable *>(&xTable));
-        DAAL_CHECK(!csrIface, services::ErrorEmptyCSRNumericTable);
+        DAAL_CHECK(csrIface, services::ErrorEmptyCSRNumericTable);
 
         ReadRowsCSR<algorithmFPType, cpu> mtX;
 
