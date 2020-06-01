@@ -13,6 +13,9 @@ while [[ $# -gt 0 ]]; do
         --oneapi-dir)
         ONEAPI_DIR="$2"
         ;;
+        --daal4py-dir)
+        DAAL4PY_DIR="$2"
+        ;;
         *)
         echo "Unknown option: $1"
         exit 1
@@ -21,21 +24,18 @@ while [[ $# -gt 0 ]]; do
     shift
     shift
 done
-
+# set enviroment
 export PATH=${CONDA_DIR}/bin:$PATH
-conda create -y -n conf python=3.7
-source activate base
-conda activate conf
-conda install -y -c intel mpich tbb-devel numpy pytest scikit-learn pandas
-conda remove -y daal4py --force
-conda remove -y daal --force
-
-conda install $HOME/miniconda/envs/CB/conda-bld/linux-64/daal4py*.tar.bz2
+source activate conf
 conda list
-
 . ${ONEAPI_DIR}/compiler/latest/env/vars.sh
 . ${BUILD_DIR}/daal/latest/env/vars.sh intel64
+cd ${DAAL4PY_DIR}
 
-cd .ci/scripts/conformance-scripts/
-python run_tests.py 0.22.1
-cd ../../..
+# testing
+python -c "import daal4py"
+mpirun -n 4 python -m unittest discover -v -s tests -p spmd*.py
+mpiexec -localonly -n 4 python -m unittest discover -v -s tests -p spmd*.py
+python -m unittest discover -v -s tests -p test*.py
+python -m daal4py examples/sycl/sklearn_sycl.py
+cd examples && python run_examples.py
