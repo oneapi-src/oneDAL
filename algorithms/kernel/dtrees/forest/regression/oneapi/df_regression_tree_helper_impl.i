@@ -24,7 +24,7 @@
 #ifndef __DF_REGRESSION_TREE_HELPER_IMPL__
 #define __DF_REGRESSION_TREE_HELPER_IMPL__
 
-#include "data_management/data/aos_numeric_table.h"
+//#include "data_management/data/aos_numeric_table.h"
 #include "service/kernel/service_arrays.h"
 #include "algorithms/kernel/dtrees/dtrees_predict_dense_default_impl.i"
 
@@ -85,10 +85,19 @@ template <typename algorithmFPType>
 struct TreeLevelRecord
 {
     TreeLevelRecord() : _nodeList(nullptr), _impInfo(nullptr), _nNodes(0) {}
-    TreeLevelRecord(oneapi::internal::UniversalBuffer & nodeList, oneapi::internal::UniversalBuffer & impInfo, size_t nNodes) : _nNodes(nNodes)
+    services::Status init(oneapi::internal::UniversalBuffer & nodeList, oneapi::internal::UniversalBuffer & impInfo, size_t nNodes)
     {
-        _nodeList = nodeList.template get<int>().toHost(ReadWriteMode::readOnly).get();
-        _impInfo  = impInfo.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly).get();
+        _nNodes = nNodes;
+
+        auto nodeListHost = nodeList.template get<int>().toHost(ReadWriteMode::readOnly);
+        _nodeList         = nodeListHost.get();
+        DAAL_CHECK_MALLOC(_nodeList);
+
+        auto impInfoHost = impInfo.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly);
+        _impInfo         = impInfoHost.get();
+        DAAL_CHECK_MALLOC(_impInfo);
+
+        return services::Status();
     }
 
     size_t getNodesNum() { return _nNodes; }

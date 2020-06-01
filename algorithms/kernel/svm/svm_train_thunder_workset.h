@@ -68,7 +68,7 @@ struct TaskWorkingSet
         DAAL_CHECK_MALLOC(_indicator.get());
         services::internal::service_memset_seq<bool, cpu>(_indicator.get(), false, _nVectors);
 
-        _nWS       = services::internal::min<cpu, algorithmFPType>(maxpow2(_nVectors), _maxWS);
+        _nWS       = services::internal::min<cpu, algorithmFPType>(maxPowTwo(_nVectors), _maxWS);
         _nSelected = 0;
 
         _wsIndices.reset(_nWS);
@@ -89,7 +89,7 @@ struct TaskWorkingSet
         services::internal::daal_memcpy_s(_wsIndices.get(), q * sizeof(IndexType), _wsIndices.get() + _nWS - q, q * sizeof(IndexType));
         _nSelected = q;
         services::internal::service_memset_seq<bool, cpu>(_indicator.get(), false, _nVectors);
-        for (size_t i = 0; i < q; i++)
+        for (size_t i = 0; i < q; ++i)
         {
             _indicator[_wsIndices[i]] = true;
         }
@@ -101,7 +101,7 @@ struct TaskWorkingSet
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(select);
         services::Status status;
-        IdxValType * sortedFIndices = _sortedFIndices.get();
+        IdxValType * const sortedFIndices = _sortedFIndices.get();
 
         for (size_t i = 0; i < _nVectors; ++i)
         {
@@ -131,7 +131,7 @@ struct TaskWorkingSet
                 {
                     _wsIndices[_nSelected] = i;
                     _indicator[i]          = true;
-                    _nSelected++;
+                    ++_nSelected;
                 }
             }
 
@@ -151,7 +151,7 @@ struct TaskWorkingSet
                 {
                     _wsIndices[_nSelected] = i;
                     _indicator[i]          = true;
-                    _nSelected++;
+                    ++_nSelected;
                 }
             }
         }
@@ -165,7 +165,7 @@ struct TaskWorkingSet
     const IndexType * getIndices() const { return _wsIndices.get(); }
 
 protected:
-    size_t maxpow2(size_t n)
+    size_t maxPowTwo(size_t n)
     {
         if (!(n & (n - 1)))
         {
@@ -176,7 +176,7 @@ protected:
         while (n > 1)
         {
             n >>= 1;
-            count++;
+            ++count;
         }
         return 1 << count;
     }

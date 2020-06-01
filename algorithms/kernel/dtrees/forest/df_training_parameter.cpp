@@ -35,11 +35,37 @@ namespace decision_forest
 {
 namespace training
 {
+namespace interface2
+{
 using namespace daal::services;
-Status checkImpl(const decision_forest::training::Parameter & prm)
+
+Parameter::Parameter()
+    : nTrees(100),
+      observationsPerTreeFraction(1.),
+      featuresPerNode(0),
+      maxTreeDepth(0),
+      minObservationsInLeafNode(0),
+      seed(77),
+      engine(engines::mt2203::Batch<>::create()),
+      impurityThreshold(0.),
+      varImportance(none),
+      resultsToCompute(0),
+      memorySavingMode(false),
+      bootstrap(true),
+      minObservationsInSplitNode(2),
+      minWeightFractionInLeafNode(0.),
+      minImpurityDecreaseInSplitNode(0.),
+      maxLeafNodes(0)
+{}
+} // namespace interface2
+Status checkImpl(const decision_forest::training::interface2::Parameter & prm)
 {
     DAAL_CHECK_EX(prm.nTrees, ErrorIncorrectParameter, ParameterName, nTreesStr());
     DAAL_CHECK_EX(prm.minObservationsInLeafNode, ErrorIncorrectParameter, ParameterName, minObservationsInLeafNodeStr());
+    DAAL_CHECK_EX(prm.minObservationsInSplitNode, ErrorIncorrectParameter, ParameterName, minObservationsInSplitNodeStr());
+    DAAL_CHECK_EX((prm.minWeightFractionInLeafNode >= 0.0) && (prm.minWeightFractionInLeafNode <= 0.5), ErrorIncorrectParameter, ParameterName,
+                  minWeightFractionInLeafNodeStr());
+    DAAL_CHECK_EX(prm.minImpurityDecreaseInSplitNode >= 0.0, ErrorIncorrectParameter, ParameterName, minImpurityDecreaseInSplitNodeStr());
     DAAL_CHECK_EX((prm.observationsPerTreeFraction > 0) && (prm.observationsPerTreeFraction <= 1), ErrorIncorrectParameter, ParameterName,
                   observationsPerTreeFractionStr());
     DAAL_CHECK_EX((prm.impurityThreshold >= 0), ErrorIncorrectParameter, ParameterName, impurityThresholdStr());
@@ -51,7 +77,6 @@ Status checkImpl(const decision_forest::training::Parameter & prm)
     }
     return s;
 }
-
 } // namespace training
 } // namespace decision_forest
 } // namespace algorithms

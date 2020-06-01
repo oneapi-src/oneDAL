@@ -60,12 +60,12 @@ public:
     virtual size_t getDataRowIndex(size_t rowIndex) const override { return rowIndex; }
 
 protected:
-    SVMCacheIface(const size_t blockSize, const size_t lineSize, const kernel_function::KernelIfacePtr & kernel)
-        : _lineSize(lineSize), _blockSize(blockSize), _kernel(kernel)
+    SVMCacheIface(const size_t cacheSize, const size_t lineSize, const kernel_function::KernelIfacePtr & kernel)
+        : _lineSize(lineSize), _cacheSize(cacheSize), _kernel(kernel)
     {}
 
     const size_t _lineSize;                        /*!< Number of elements in the cache line */
-    const size_t _blockSize;                       /*!< Number of cache lines */
+    const size_t _cacheSize;                       /*!< Number of cache lines */
     const kernel_function::KernelIfacePtr _kernel; /*!< Kernel function */
 };
 
@@ -79,18 +79,17 @@ class SVMCache<thunder, noCache, algorithmFPType, cpu> : public SVMCacheIface<th
     using thisType = SVMCache<thunder, noCache, algorithmFPType, cpu>;
     using super::_kernel;
     using super::_lineSize;
-    using super::_blockSize;
+    using super::_cacheSize;
 
 public:
     ~SVMCache() {}
 
     DAAL_NEW_DELETE();
 
-    static SVMCachePtr<thunder, algorithmFPType, cpu> create(const size_t cacheSize, const size_t blockSize, const size_t lineSize,
-                                                             const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel,
-                                                             services::Status & status)
+    static SVMCachePtr<thunder, algorithmFPType, cpu> create(const size_t cacheSize, const size_t lineSize, const NumericTablePtr & xTable,
+                                                             const kernel_function::KernelIfacePtr & kernel, services::Status & status)
     {
-        services::SharedPtr<thisType> res = services::SharedPtr<thisType>(new thisType(blockSize, lineSize, xTable, kernel));
+        services::SharedPtr<thisType> res = services::SharedPtr<thisType>(new thisType(cacheSize, lineSize, xTable, kernel));
         if (!res)
         {
             status.add(ErrorMemoryAllocationFailed);
@@ -127,16 +126,16 @@ public:
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(cache.copyLastToFirst);
 
-        _nSelectRows = _blockSize / 2;
+        _nSelectRows = _cacheSize / 2;
         if (!_isComputeSubKernel)
         {
             reinit(_nSelectRows);
             _isComputeSubKernel = true;
         }
         const algorithmFPType * const dataIn = _cache.get() + _nSelectRows * _lineSize;
-        algorithmFPType * dataOut            = _cache.get();
+        algorithmFPType * const dataOut      = _cache.get();
 
-        const size_t blockSize     = _blockSize;
+        const size_t blockSize     = _cacheSize;
         const size_t nCopyElements = _nSelectRows * _lineSize;
         const size_t blockNum      = nCopyElements / blockSize;
         SafeStatus safeStat;
@@ -150,17 +149,17 @@ public:
     }
 
 protected:
-    SVMCache(const size_t blockSize, const size_t lineSize, const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel)
-        : super(blockSize, lineSize, kernel), _nSelectRows(0), _isComputeSubKernel(false), _xTable(xTable)
+    SVMCache(const size_t cacheSize, const size_t lineSize, const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel)
+        : super(cacheSize, lineSize, kernel), _nSelectRows(0), _isComputeSubKernel(false), _xTable(xTable)
     {}
 
-    services::Status reinit(const size_t blockSize)
+    services::Status reinit(const size_t cacheSize)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(cache.reinit);
 
         services::Status status;
         algorithmFPType * cacheHalf = _cache.get() + _lineSize * _nSelectRows;
-        auto cacheTable             = HomogenNumericTableCPU<algorithmFPType, cpu>::create(cacheHalf, _lineSize, blockSize, &status);
+        auto cacheTable             = HomogenNumericTableCPU<algorithmFPType, cpu>::create(cacheHalf, _lineSize, cacheSize, &status);
 
         const size_t p = _xTable->getNumberOfColumns();
         DAAL_CHECK_STATUS_VAR(status);
@@ -168,11 +167,11 @@ protected:
         SubDataTaskBase<algorithmFPType, cpu> * task = nullptr;
         if (_xTable->getDataLayout() == NumericTableIface::csrArray)
         {
-            task = SubDataTaskCSR<algorithmFPType, cpu>::create(_xTable, blockSize);
+            task = SubDataTaskCSR<algorithmFPType, cpu>::create(_xTable, cacheSize);
         }
         else
         {
-            task = SubDataTaskDense<algorithmFPType, cpu>::create(p, blockSize);
+            task = SubDataTaskDense<algorithmFPType, cpu>::create(p, cacheSize);
         }
         DAAL_CHECK_MALLOC(task);
         _blockTask = SubDataTaskBasePtr<algorithmFPType, cpu>(task);
@@ -192,14 +191,12 @@ protected:
     services::Status init(const size_t cacheSize)
     {
         services::Status status;
-        _cache.reset(_lineSize * _blockSize);
+        _cache.reset(_lineSize * _cacheSize);
         DAAL_CHECK_MALLOC(_cache.get());
-
-        // auto cacheTable = HomogenNumericTableCPU<algorithmFPType, cpu>::create(_cache.get(), _blockSize, _lineSize, &status);
-        auto cacheTable = HomogenNumericTableCPU<algorithmFPType, cpu>::create(_cache.get(), _lineSize, _blockSize, &status);
+        auto cacheTable = HomogenNumericTableCPU<algorithmFPType, cpu>::create(_cache.get(), _lineSize, _cacheSize, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        DAAL_CHECK_STATUS(status, reinit(_blockSize));
+        DAAL_CHECK_STATUS(status, reinit(_cacheSize));
         return status;
     }
 
@@ -208,7 +205,7 @@ protected:
     bool _isComputeSubKernel;
     const NumericTablePtr & _xTable;
     SubDataTaskBasePtr<algorithmFPType, cpu> _blockTask;
-    TArray<algorithmFPType, cpu> _cache; // [nWS x n]
+    TArray<algorithmFPType, cpu> _cache;
 };
 
 } // namespace internal

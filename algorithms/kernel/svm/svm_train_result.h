@@ -59,17 +59,15 @@ public:
     services::Status compute(const NumericTable & xTable, Model & model, algorithmFPType C) const
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(saveResult);
+        services::Status s;
 
         const algorithmFPType zero(0.0);
         size_t nSV = 0;
-        for (size_t i = 0; i < _nVectors; i++)
+        for (size_t i = 0; i < _nVectors; ++i)
         {
             if (_alpha[i] > zero) nSV++;
         }
-        printf(">> nSV %d\n", (int)nSV);
-
         model.setNFeatures(xTable.getNumberOfColumns());
-        services::Status s;
         DAAL_CHECK_STATUS(s, setSVCoefficients(nSV, model));
         DAAL_CHECK_STATUS(s, setSVIndices(nSV, model));
         if (xTable.getDataLayout() == NumericTableIface::csrArray)
@@ -103,14 +101,14 @@ protected:
 
         WriteOnlyRows<algorithmFPType, cpu> mtSvCoeff(*svCoeffTable, 0, nSV);
         DAAL_CHECK_BLOCK_STATUS(mtSvCoeff);
-        algorithmFPType * svCoeff = mtSvCoeff.get();
+        algorithmFPType * const svCoeff = mtSvCoeff.get();
 
-        for (size_t i = 0, iSV = 0; i < _nVectors; i++)
+        for (size_t i = 0, iSV = 0; i < _nVectors; ++i)
         {
             if (_alpha[i] != zero)
             {
                 svCoeff[iSV] = _y[i] * _alpha[i];
-                iSV++;
+                ++iSV;
             }
         }
         return s;
@@ -132,16 +130,16 @@ protected:
 
         WriteOnlyRows<int, cpu> mtSvIndices(*svIndicesTable, 0, nSV);
         DAAL_CHECK_BLOCK_STATUS(mtSvIndices);
-        int * svIndices = mtSvIndices.get();
+        int * const svIndices = mtSvIndices.get();
 
         const algorithmFPType zero(0.0);
-        for (size_t i = 0, iSV = 0; i < _nVectors; i++)
+        for (size_t i = 0, iSV = 0; i < _nVectors; ++i)
         {
             if (_alpha[i] != zero)
             {
                 DAAL_ASSERT(_cache->getDataRowIndex(i) <= services::internal::MaxVal<int>::get())
                 svIndices[iSV] = (int)_cache->getDataRowIndex(i);
-                iSV++;
+                ++iSV;
             }
         }
         return s;
@@ -167,17 +165,15 @@ protected:
 
         WriteOnlyRows<algorithmFPType, cpu> mtSv(*svTable, 0, nSV);
         DAAL_CHECK_BLOCK_STATUS(mtSv);
-        algorithmFPType * sv = mtSv.get();
+        algorithmFPType * const sv = mtSv.get();
 
         NumericTablePtr svIndicesTable = model.getSupportIndices();
         ReadRows<int, cpu> mtSvIndices(svIndicesTable.get(), 0, nSV);
         DAAL_CHECK_BLOCK_STATUS(mtSvIndices);
-        const int * svIndices = mtSvIndices.get();
+        const int * const svIndices = mtSvIndices.get();
 
-        const size_t p = xTable.getNumberOfColumns();
-
-        const size_t blockSize = 1;
-        const size_t nBlock    = nSV;
+        const size_t p      = xTable.getNumberOfColumns();
+        const size_t nBlock = nSV;
 
         SafeStatus safeStat;
         daal::threader_for(nBlock, nBlock, [&](const size_t iBlock) {
@@ -205,15 +201,17 @@ protected:
 
         TArray<size_t, cpu> aSvRowOffsets(nSV + 1);
         DAAL_CHECK_MALLOC(aSvRowOffsets.get());
-        size_t * svRowOffsetsBuffer = aSvRowOffsets.get();
+        size_t * const svRowOffsetsBuffer = aSvRowOffsets.get();
 
-        CSRNumericTableIface * csrIface = dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(&xTable));
+        CSRNumericTableIface * const csrIface = dynamic_cast<CSRNumericTableIface * const>(const_cast<NumericTable *>(&xTable));
+        DAAL_CHECK(!csrIface, services::ErrorEmptyCSRNumericTable);
+
         ReadRowsCSR<algorithmFPType, cpu> mtX;
 
         const algorithmFPType zero(0.0);
         /* Calculate row offsets for the table that stores support vectors */
         svRowOffsetsBuffer[0] = 1;
-        for (size_t i = 0, iSV = 0; i < _nVectors; i++)
+        for (size_t i = 0, iSV = 0; i < _nVectors; ++i)
         {
             if (_alpha[i] > zero)
             {
@@ -244,18 +242,18 @@ protected:
 
         WriteOnlyRowsCSR<algorithmFPType, cpu> mtSv(*svTable, 0, nSV);
         DAAL_CHECK_BLOCK_STATUS(mtSv);
-        algorithmFPType * sv  = mtSv.values();
-        size_t * svColIndices = mtSv.cols();
+        algorithmFPType * sv        = mtSv.values();
+        size_t * const svColIndices = mtSv.cols();
 
-        for (size_t i = 0, iSV = 0, svOffset = 0; i < _nVectors; i++)
+        for (size_t i = 0, iSV = 0, svOffset = 0; i < _nVectors; ++i)
         {
             if (_alpha[i] == zero) continue;
             const size_t rowIndex = _cache->getDataRowIndex(i);
             mtX.set(csrIface, rowIndex, 1);
             DAAL_CHECK_BLOCK_STATUS(mtX);
-            const algorithmFPType * xi       = mtX.values();
-            const size_t * xiColIndices      = mtX.cols();
-            const size_t nNonZeroValuesInRow = mtX.rows()[1] - mtX.rows()[0];
+            const algorithmFPType * const xi  = mtX.values();
+            const size_t * const xiColIndices = mtX.cols();
+            const size_t nNonZeroValuesInRow  = mtX.rows()[1] - mtX.rows()[0];
             for (size_t j = 0; j < nNonZeroValuesInRow; j++, svOffset++)
             {
                 sv[svOffset]           = xi[j];
@@ -279,14 +277,14 @@ protected:
         algorithmFPType bias;
         const algorithmFPType zero(0.0);
         const algorithmFPType one(1.0);
-        size_t num_yg          = 0;
-        algorithmFPType sum_yg = 0.0;
+        size_t nGrad            = 0;
+        algorithmFPType sumGrad = algorithmFPType(0.0);
 
         const algorithmFPType fpMax = MaxVal<algorithmFPType>::get();
         algorithmFPType ub          = fpMax;
         algorithmFPType lb          = -fpMax;
 
-        for (size_t i = 0; i < _nVectors; i++)
+        for (size_t i = 0; i < _nVectors; ++i)
         {
             const algorithmFPType gradi      = _grad[i];
             const algorithmFPType dualCoeffi = _y[i] * _alpha[i];
@@ -294,44 +292,35 @@ protected:
             /* free SV: (0 < alpha < C)*/
             if (0 < dualCoeffi && dualCoeffi < C)
             {
-                sum_yg += gradi;
-                num_yg++;
+                sumGrad += gradi;
+                ++nGrad;
             }
             else
             {
-                if (isUpper(_y[i], dualCoeffi, C))
+                if (HelperTrainSVM<algorithmFPType, cpu>::isUpper(_y[i], dualCoeffi, C))
                 {
                     ub = services::internal::min<cpu, algorithmFPType>(ub, gradi);
                 }
-                if (isLower(_y[i], dualCoeffi, C))
+                if (HelperTrainSVM<algorithmFPType, cpu>::isLower(_y[i], dualCoeffi, C))
                 {
                     lb = services::internal::max<cpu, algorithmFPType>(lb, gradi);
                 }
             }
         }
 
-        if (num_yg == 0)
+        if (nGrad == 0)
         {
             bias = -0.5 * (ub + lb);
         }
         else
         {
-            bias = -sum_yg / (algorithmFPType)num_yg;
+            bias = -sumGrad / algorithmFPType(nGrad);
         }
 
         return bias;
     }
 
 private:
-    static bool isUpper(const algorithmFPType y, const algorithmFPType alpha, const algorithmFPType C)
-    {
-        return (y > 0 && alpha < C) || (y < 0 && alpha > 0);
-    }
-    static bool isLower(const algorithmFPType y, const algorithmFPType alpha, const algorithmFPType C)
-    {
-        return (y > 0 && alpha > 0) || (y < 0 && alpha < C);
-    }
-
     const size_t _nVectors;                             //Number of observations in the input data set
     const algorithmFPType * _y;                         //Array of class labels
     const algorithmFPType * _alpha;                     //Array of classification coefficients

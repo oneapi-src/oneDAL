@@ -813,14 +813,14 @@ Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t 
                 for (size_t i = 0; i < 16; ++i)
                 {
                     prob_ptr[iTree + i] = const_cast<double *>(_model->getProbas(iTree + i));
-                    prob_pd = _mm512_add_pd(prob_pd, _mm512_mask_load_pd(zero_pd, tail_mask, prob_ptr[iTree + i] + displaces[i] * _nClasses));
+                    prob_pd = _mm512_add_pd(prob_pd, _mm512_mask_loadu_pd(zero_pd, tail_mask, prob_ptr[iTree + i] + displaces[i] * _nClasses));
                 }
             }
             else
             {
                 for (size_t i = 0; i < 16; ++i)
                 {
-                    prob_pd = _mm512_add_pd(prob_pd, _mm512_mask_load_pd(zero_pd, tail_mask, prob_ptr[iTree + i] + displaces[i] * _nClasses));
+                    prob_pd = _mm512_add_pd(prob_pd, _mm512_mask_loadu_pd(zero_pd, tail_mask, prob_ptr[iTree + i] + displaces[i] * _nClasses));
                 }
             }
         }
@@ -839,16 +839,16 @@ Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t 
             {
                 for (size_t i = 0; i < 16; ++i)
                 {
-                    prob_pd = _mm512_add_pd(prob_pd, _mm512_load_pd(prob_ptr[iTree + i] + displaces[i] * _nClasses + iBlock * 8));
+                    prob_pd = _mm512_add_pd(prob_pd, _mm512_loadu_pd(prob_ptr[iTree + i] + displaces[i] * _nClasses + iBlock * 8));
                 }
-                _mm512_store_pd(prob_d + iBlock * 8, _mm512_add_pd(prob_pd, _mm512_mask_load_pd(zero_pd, tail_mask, prob_d + iBlock * 8)));
+                _mm512_store_pd(prob_d + iBlock * 8, _mm512_add_pd(prob_pd, _mm512_load_pd(prob_d + iBlock * 8)));
                 prob_pd = _mm512_set1_pd(0);
             }
             if (tailSize != 0)
             {
-                for (size_t i = 0; i < 16; i++)
+                for (size_t i = 0; i < 16; ++i)
                     prob_pd =
-                        _mm512_add_pd(prob_pd, _mm512_mask_load_pd(zero_pd, tail_mask, prob_ptr[iTree + i] + displaces[i] * _nClasses + iBlock * 8));
+                        _mm512_add_pd(prob_pd, _mm512_mask_loadu_pd(zero_pd, tail_mask, prob_ptr[iTree + i] + displaces[i] * _nClasses + iBlock * 8));
                 _mm512_mask_store_pd(prob_d + iBlock * 8, tail_mask,
                                      _mm512_add_pd(prob_pd, _mm512_mask_load_pd(zero_pd, tail_mask, prob_d + iBlock * 8)));
                 prob_pd = _mm512_set1_pd(0);

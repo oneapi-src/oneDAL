@@ -36,21 +36,38 @@ namespace classification
 {
 namespace training
 {
-namespace interface2
+namespace interface3
 {
+using BatchType = Batch<DAAL_FPTYPE, decision_forest::classification::training::defaultDense>;
+
 template <>
-DAAL_EXPORT services::Status Batch<DAAL_FPTYPE, decision_forest::classification::training::defaultDense>::checkComputeParams()
+BatchType::Batch(size_t nClasses)
+{
+    _par = new ParameterType(nClasses);
+    initialize();
+    parameter().minObservationsInLeafNode = 1;
+}
+
+template <>
+BatchType::Batch(const BatchType & other) : classifier::training::Batch(other), input(other.input)
+{
+    _par = new ParameterType(other.parameter());
+    initialize();
+}
+
+template <>
+DAAL_EXPORT services::Status BatchType::checkComputeParams()
 {
     services::Status s = classifier::training::Batch::checkComputeParams();
     if (!s) return s;
     const auto x         = input.get(classifier::training::data);
     const auto nFeatures = x->getNumberOfColumns();
-    DAAL_CHECK_EX(parameter.featuresPerNode <= nFeatures, services::ErrorIncorrectParameter, services::ParameterName, featuresPerNodeStr());
-    const size_t nSamplesPerTree(parameter.observationsPerTreeFraction * x->getNumberOfRows());
+    DAAL_CHECK_EX(parameter().featuresPerNode <= nFeatures, services::ErrorIncorrectParameter, services::ParameterName, featuresPerNodeStr());
+    const size_t nSamplesPerTree(parameter().observationsPerTreeFraction * x->getNumberOfRows());
     DAAL_CHECK_EX(nSamplesPerTree > 0, services::ErrorIncorrectParameter, services::ParameterName, observationsPerTreeFractionStr());
     return s;
 }
-} // namespace interface2
+} // namespace interface3
 } // namespace training
 } // namespace classification
 } // namespace decision_forest

@@ -111,12 +111,13 @@ private:
 
     SubDataTaskCSR(const NumericTablePtr & xTable, const size_t nSubsetVectors) : super(nSubsetVectors)
     {
-        const size_t p                  = xTable->getNumberOfColumns();
-        const size_t nRows              = xTable->getNumberOfRows();
-        CSRNumericTableIface * csrIface = dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(xTable.get()));
+        const size_t p                        = xTable->getNumberOfColumns();
+        const size_t nRows                    = xTable->getNumberOfRows();
+        CSRNumericTableIface * const csrIface = dynamic_cast<CSRNumericTableIface * const>(const_cast<NumericTable *>(xTable.get()));
+        if (!csrIface) return;
         ReadRowsCSR<algorithmFPType, cpu> mtX(csrIface, 0, nRows);
-        const size_t * rowOffsets = mtX.rows();
-        const size_t maxDataSize  = rowOffsets[nRows] - rowOffsets[0];
+        const size_t * const rowOffsets = mtX.rows();
+        const size_t maxDataSize        = rowOffsets[nRows] - rowOffsets[0];
         this->_data.reset(maxDataSize);
         _colIndices.reset(maxDataSize + nSubsetVectors + 1);
         _rowOffsets = _colIndices.get() + maxDataSize;

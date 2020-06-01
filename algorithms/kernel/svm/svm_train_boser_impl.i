@@ -104,7 +104,6 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::compute(cons
             if (!findMaximumViolatingPair(nActiveVectors, tau, Bi, Bj, delta, ma, Ma, curEps, s)) break;
             s = update(nActiveVectors, C, Bi, Bj, delta);
         }
-        printf(">> n_iter[not Shrinking] %d\n", (int)iter);
         return s;
     }
 
@@ -174,8 +173,8 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSj(size_t 
 
     Bj                    = -1;
     algorithmFPType fpMax = MaxVal<algorithmFPType>::get();
-    algorithmFPType GMax  = -fpMax; // some big positive number
-    algorithmFPType GMax2 = -fpMax;
+    algorithmFPType GMax  = -fpMax; // some big negative number
+    algorithmFPType GMax2 = -fpMax; // some big negative number
 
     algorithmFPType Kii = _kernelDiag[Bi];
 

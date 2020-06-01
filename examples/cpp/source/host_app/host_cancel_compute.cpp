@@ -111,11 +111,11 @@ training::ResultPtr trainModel()
     algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainDependentVariable);
 
-    algorithm.parameter.nTrees                    = nTrees;
-    algorithm.parameter.featuresPerNode           = nFeatures;
-    algorithm.parameter.minObservationsInLeafNode = minObservationsInLeafNode;
-    algorithm.parameter.varImportance             = algorithms::decision_forest::training::MDI;
-    algorithm.parameter.resultsToCompute          = algorithms::decision_forest::training::computeOutOfBagError;
+    algorithm.parameter().nTrees                    = nTrees;
+    algorithm.parameter().featuresPerNode           = nFeatures;
+    algorithm.parameter().minObservationsInLeafNode = minObservationsInLeafNode;
+    algorithm.parameter().varImportance             = algorithms::decision_forest::training::MDI;
+    algorithm.parameter().resultsToCompute          = algorithms::decision_forest::training::computeOutOfBagError;
 
     ExampleApp host(10); /* set the time limit to work before cancelling equal to 10 sec */
     algorithm.setHostApp(HostAppIfacePtr(&host, EmptyDeleter()));

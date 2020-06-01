@@ -62,12 +62,13 @@ private:
 
     // One of the conditions for stopping is diff stays unchanged. nNoChanges - number of repetitions
     static const size_t nNoChanges = 5;
-    // The maximum numbers of iteration of the subtask is number of observation in WS x cInnerIterations. It's enough to find minimum for subtask.
+    // The maximum numbers of iteration of the subtask is number of observation in WS x cInnerIterations.
+    // It's enough to find minimum for subtask.
     static const size_t cInnerIterations = 1000;
-    // The maximum block size
-    // static const size_t maxBlockSize = 512;
+    // The maximum block size for blocked SMO solver.
+    // Need of (maxBlockSize*5 + maxBlockSize*maxBlockSize)*sizeof(algorithmFPType) internal memory.
+    // It should get into the cache L2 (~1MB).
     static const size_t maxBlockSize = 1024;
-    // static const size_t maxBlockSize = 2048;
 
     enum MemSmoId
     {
