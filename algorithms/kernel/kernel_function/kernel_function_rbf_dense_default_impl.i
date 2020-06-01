@@ -221,8 +221,11 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
                 }
             }
 
-            Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, &nRowsInBlock2, &nRowsInBlock1, (DAAL_INT *)&nFeatures, &negTwo, dataA2,
-                                               (DAAL_INT *)&nFeatures, dataA1, (DAAL_INT *)&nFeatures, &zero, mklBuff, (DAAL_INT *)&blockSize);
+            DAAL_INT lda = nFeatures;
+            DAAL_INT ldb = nFeatures;
+            DAAL_INT ldc = blockSize;
+            Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, &nRowsInBlock2, &nRowsInBlock1, (DAAL_INT *)&nFeatures, &negTwo, dataA2, &ldb,
+                                               dataA1, &lda, &zero, mklBuff, &ldc);
             for (size_t i = 0; i < nRowsInBlock1; ++i)
             {
                 algorithmFPType sqrDataA1 = zero;
