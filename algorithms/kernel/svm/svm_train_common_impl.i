@@ -72,7 +72,7 @@ algorithmFPType HelperTrainSVM<algorithmFPType, cpu>::WSSi(size_t nActiveVectors
     algorithmFPType GMin = (MaxVal<algorithmFPType>::get()); // some big negative number
 
     /* Find i index of the working set (Bi) */
-    for (size_t i = 0; i < nActiveVectors; i++)
+    for (size_t i = 0; i < nActiveVectors; ++i)
     {
         const algorithmFPType objFunc = grad[i];
         if ((I[i] & up) && objFunc < GMin)
@@ -148,14 +148,14 @@ services::Status SubDataTaskCSR<algorithmFPType, cpu>::copyDataByIndices(const u
 
     _rowOffsets[0]     = 1;
     const size_t nRows = this->_nSubsetVectors;
-    for (size_t i = 0; i < nRows; i++)
+    for (size_t i = 0; i < nRows; ++i)
     {
         size_t iRows = wsIndices[i];
         ReadRowsCSR<algorithmFPType, cpu> mtX(csrIface, iRows, 1);
         DAAL_CHECK_BLOCK_STATUS(mtX);
-        const size_t nNonZeroValuesInRow = mtX.rows()[1] - mtX.rows()[0];
-        const size_t * colIndices        = mtX.cols();
-        const algorithmFPType * values   = mtX.values();
+        const size_t nNonZeroValuesInRow     = mtX.rows()[1] - mtX.rows()[0];
+        const size_t * const colIndices      = mtX.cols();
+        const algorithmFPType * const values = mtX.values();
 
         {
             // Copy values
