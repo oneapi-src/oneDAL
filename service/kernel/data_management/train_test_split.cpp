@@ -71,12 +71,11 @@ services::Status assignColumnSubset(const DataType * origDataPtr, NumericTable &
 
     if (nRows > THREADING_BORDER && nThreads > 1)
     {
-        const size_t nBlocks = daal::services::internal::max<cpu, size_t>(nRows / BLOCK_CONST, 1);
-        const int nSurplus   = nRows - BLOCK_CONST * nBlocks;
+        const size_t nBlocks = nRows / BLOCK_CONST + !!(nRows % BLOCK_CONST);
 
         daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
             const size_t start = iBlock * BLOCK_CONST;
-            const size_t end   = iBlock == nBlocks - 1 ? start + BLOCK_CONST + nSurplus : start + BLOCK_CONST;
+            const size_t end   = daal::services::internal::min<cpu, size_t>(start + BLOCK_CONST, nRows);
 
             s |= assignColumnValues<DataType, IdxType>(origDataPtr, dataTable, idxPtr, start, end - start, iCol);
         });
@@ -136,12 +135,11 @@ services::Status assignRowsSubset(const DataType * origDataPtr, NumericTable & d
 
     if (nRows * nColumns > THREADING_BORDER && nThreads > 1)
     {
-        const size_t nBlocks = daal::services::internal::max<cpu, size_t>(nRows / blockSize, 1);
-        const int nSurplus   = nRows - blockSize * nBlocks;
+        const size_t nBlocks = nRows / blockSize + !!(nRows % blockSize);
 
         daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
             const size_t start = iBlock * blockSize;
-            const size_t end   = iBlock == nBlocks - 1 ? start + blockSize + nSurplus : start + blockSize;
+            const size_t end   = daal::services::internal::min<cpu, size_t>(start + blockSize, nRows);
 
             s |= assignRows<DataType, IdxType>(origDataPtr, dataTable, idxTable, start, end - start, nColumns);
         });
