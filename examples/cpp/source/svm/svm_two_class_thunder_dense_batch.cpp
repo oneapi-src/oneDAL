@@ -1,6 +1,6 @@
-/* file: svm_two_class_dense_batch.cpp */
+/* file: svm_two_class_thunder_dense_batch.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,13 +17,14 @@
 
 /*
 !  Content:
-!    C++ example of two-class support vector machine (SVM) classification
+!    C++ example of two-class support vector machine (SVM) classification using
+!    the Thunder method
 !
 !******************************************************************************/
 
 /**
- * <a name="DAAL-EXAMPLE-CPP-SVM_TWO_CLASS_DENSE_BATCH"></a>
- * \example svm_two_class_dense_batch.cpp
+ * <a name="DAAL-EXAMPLE-CPP-SVM_TWO_CLASS_THUNDER_DENSE_BATCH"></a>
+ * \example svm_two_class_thunder_dense_batch.cpp
  */
 
 #include "daal.h"
@@ -36,8 +37,7 @@ using namespace daal::data_management;
 
 /* Input data set parameters */
 string trainDatasetFileName = "../data/batch/svm_two_class_train_dense.csv";
-
-string testDatasetFileName = "../data/batch/svm_two_class_test_dense.csv";
+string testDatasetFileName  = "../data/batch/svm_two_class_test_dense.csv";
 
 const size_t nFeatures = 20;
 
@@ -58,9 +58,7 @@ int main(int argc, char * argv[])
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
     trainModel();
-
     testModel();
-
     printResults();
 
     return 0;
@@ -72,18 +70,17 @@ void trainModel()
     FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and labels */
-    NumericTablePtr trainData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
-    NumericTablePtr trainGroundTruth(new HomogenNumericTable<>(1, 0, NumericTable::doNotAllocate));
-    NumericTablePtr mergedData(new MergedNumericTable(trainData, trainGroundTruth));
+    NumericTablePtr trainData        = HomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
+    NumericTablePtr trainGroundTruth = HomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
+    NumericTablePtr mergedData       = MergedNumericTable::create(trainData, trainGroundTruth);
 
     /* Retrieve the data from the input file */
     trainDataSource.loadDataBlock(mergedData.get());
 
-    /* Create an algorithm object to train the SVM model */
-    svm::training::Batch<> algorithm;
+    /* Create an algorithm object to train the SVM model using the Thunder method */
+    svm::training::Batch<float, svm::training::thunder> algorithm;
 
-    algorithm.parameter.kernel    = kernel;
-    algorithm.parameter.cacheSize = 40000000;
+    algorithm.parameter.kernel = kernel;
 
     /* Pass a training data set and dependent values to the algorithm */
     algorithm.input.set(classifier::training::data, trainData);
@@ -102,9 +99,9 @@ void testModel()
     FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for testing data and labels */
-    NumericTablePtr testData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
-    testGroundTruth = NumericTablePtr(new HomogenNumericTable<>(1, 0, NumericTable::doNotAllocate));
-    NumericTablePtr mergedData(new MergedNumericTable(testData, testGroundTruth));
+    NumericTablePtr testData   = HomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
+    testGroundTruth            = HomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
+    NumericTablePtr mergedData = MergedNumericTable::create(testData, testGroundTruth);
 
     /* Retrieve the data from input file */
     testDataSource.loadDataBlock(mergedData.get());

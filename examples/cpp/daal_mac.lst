@@ -141,12 +141,16 @@ DAAL  = assoc_rules_apriori_batch             \
         svd_dense_batch                       \
         svd_dense_distr                       \
         svd_dense_online                      \
-        svm_multi_class_dense_batch           \
+        svm_multi_class_boser_csr_batch       \
+        svm_multi_class_boser_dense_batch     \
         svm_multi_class_model_builder         \
-        svm_multi_class_csr_batch             \
-        svm_two_class_dense_batch             \
+        svm_multi_class_thunder_csr_batch     \
+        svm_multi_class_thunder_dense_batch   \
+        svm_two_class_boser_dense_batch       \
+        svm_two_class_thunder_dense_batch     \
         svm_two_class_model_builder           \
-        svm_two_class_csr_batch               \
+        svm_two_class_boser_csr_batch         \
+        svm_two_class_thunder_csr_batch       \
         library_version_info                  \
         quantiles_dense_batch                 \
         svm_two_class_metrics_dense_batch     \

@@ -168,13 +168,21 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "error_handling_nothrow", "v
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "error_handling_throw", "vcproj\error_handling_throw\error_handling_throw.vcxproj", "{8E460210-47C5-4046-B4F3-9E68C3FB24A4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "svm_two_class_dense_batch", "vcproj\svm_two_class_dense_batch\svm_two_class_dense_batch.vcxproj", "{8E460210-47C5-4046-B4F3-DC3C485449E2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "svm_two_class_boser_dense_batch", "vcproj\svm_two_class_boser_dense_batch\svm_two_class_boser_dense_batch.vcxproj", "{8E460210-47C5-4046-B4F3-DC3C485449E2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "svm_two_class_csr_batch", "vcproj\svm_two_class_csr_batch\svm_two_class_csr_batch.vcxproj", "{8E460210-47C5-4046-B4F3-1818702D321F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "svm_two_class_boser_csr_batch", "vcproj\svm_two_class_boser_csr_batch\svm_two_class_boser_csr_batch.vcxproj", "{8E460210-47C5-4046-B4F3-1818702D321F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "svm_multi_class_dense_batch", "vcproj\svm_multi_class_dense_batch\svm_multi_class_dense_batch.vcxproj", "{8E460210-47C5-4046-B4F3-FF0CE7F94F79}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "svm_multi_class_boser_dense_batch", "vcproj\svm_multi_class_boser_dense_batch\svm_multi_class_boser_dense_batch.vcxproj", "{8E460210-47C5-4046-B4F3-FF0CE7F94F79}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "svm_multi_class_csr_batch", "vcproj\svm_multi_class_csr_batch\svm_multi_class_csr_batch.vcxproj", "{8E460210-47C5-4046-B4F3-390AD64FB918}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "svm_multi_class_boser_csr_batch", "vcproj\svm_multi_class_boser_csr_batch\svm_multi_class_boser_csr_batch.vcxproj", "{8E460210-47C5-4046-B4F3-390AD64FB918}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "svm_two_class_thunder_dense_batch", "vcproj\svm_two_class_thunder_dense_batch\svm_two_class_thunder_dense_batch.vcxproj", "{8E460210-47C5-4046-B4F3-DC3C485449E2}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "svm_two_class_thunder_csr_batch", "vcproj\svm_two_class_thunder_csr_batch\svm_two_class_thunder_csr_batch.vcxproj", "{8E460210-47C5-4046-B4F3-1818702D321F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "svm_multi_class_thunder_dense_batch", "vcproj\svm_multi_class_thunder_dense_batch\svm_multi_class_thunder_dense_batch.vcxproj", "{8E460210-47C5-4046-B4F3-FF0CE7F94F79}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "svm_multi_class_thunder_csr_batch", "vcproj\svm_multi_class_thunder_csr_batch\svm_multi_class_thunder_csr_batch.vcxproj", "{8E460210-47C5-4046-B4F3-390AD64FB918}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sgd_dense_batch", "vcproj\sgd_dense_batch\sgd_dense_batch.vcxproj", "{8E460210-47C5-4046-B4F3-51C3F7A1C8B1}"
 EndProject

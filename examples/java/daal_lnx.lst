@@ -133,12 +133,16 @@ Java_example_list=( association_rules/AssocRulesAprioriBatch         \
                     svd/SVDDenseBatch                                \
                     svd/SVDDenseDistr                                \
                     svd/SVDDenseOnline                               \
-                    svm/SVMMultiClassDenseBatch                      \
-                    svm/SVMMultiClassCSRBatch                        \
+                    svm/SVMMultiClassBoserCSRBatch                   \
+                    svm/SVMMultiClassBoserDenseBatch                 \
                     svm/SVMMultiClassModelBuilder                    \
-                    svm/SVMTwoClassDenseBatch                        \
-                    svm/SVMTwoClassCSRBatch                          \
+                    svm/SVMMultiClassThunderCSRBatch                 \
+                    svm/SVMMultiClassThunderDenseBatch               \
+                    svm/SVMTwoClassBoserCSRBatch                     \
+                    svm/SVMTwoClassBoserCSRBatch                     \
                     svm/SVMTwoClassModelBuilder                      \
+                    svm/SVMTwoClassThunderCSRBatch                   \
+                    svm/SVMTwoClassThunderDenseBatch                 \
                     services/LibraryVersionInfoExample               \
                     quantiles/QuantilesDenseBatch                    \
                     pivoted_qr/PivotedQRDenseBatch                   \

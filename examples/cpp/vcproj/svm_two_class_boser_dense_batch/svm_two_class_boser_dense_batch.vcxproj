@@ -67,9 +67,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{8E460210-47C5-4046-B4F3-1818702D321F}</ProjectGuid>
-    <RootNamespace>svm_two_class_csr_batch</RootNamespace>
-    <ProjectName>svm_two_class_csr_batch</ProjectName>
+    <ProjectGuid>{8E460210-47C5-4046-B4F3-DC3C485449E2}</ProjectGuid>
+    <RootNamespace>svm_two_class_boser_dense_batch</RootNamespace>
+    <ProjectName>svm_two_class_boser_dense_batch</ProjectName>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -702,7 +702,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="$(ProjectDir)..\..\source\svm\svm_two_class_csr_batch.cpp" />
+    <ClCompile Include="$(ProjectDir)..\..\source\svm\svm_two_class_boser_dense_batch.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

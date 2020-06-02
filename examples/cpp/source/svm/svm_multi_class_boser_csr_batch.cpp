@@ -1,6 +1,6 @@
-/* file: svm_multi_class_dense_batch.cpp */
+/* file: svm_multi_class_boser_csr_batch.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,13 +17,14 @@
 
 /*
 !  Content:
-!    C++ example of multi-class support vector machine (SVM) classification
+!    C++ example of multi-class support vector machine (SVM) classification using
+!    the Boser method
 !
 !******************************************************************************/
 
 /**
- * <a name="DAAL-EXAMPLE-CPP-SVM_MULTI_CLASS_DENSE_BATCH"></a>
- * \example svm_multi_class_dense_batch.cpp
+ * <a name="DAAL-EXAMPLE-CPP-SVM_MULTI_CLASS_BOSER_CSR_BATCH"></a>
+ * \example svm_multi_class_boser_csr_batch.cpp
  */
 
 #include "daal.h"
@@ -35,19 +36,20 @@ using namespace daal::algorithms;
 using namespace daal::data_management;
 
 /* Input data set parameters */
-string trainDatasetFileName = "../data/batch/svm_multi_class_train_dense.csv";
+string trainDatasetFileName = "../data/batch/svm_multi_class_train_csr.csv";
+string trainLabelsFileName  = "../data/batch/svm_multi_class_train_labels.csv";
 
-string testDatasetFileName = "../data/batch/svm_multi_class_test_dense.csv";
+string testDatasetFileName = "../data/batch/svm_multi_class_test_csr.csv";
+string testLabelsFileName  = "../data/batch/svm_multi_class_test_labels.csv";
 
-const size_t nFeatures = 20;
-const size_t nClasses  = 5;
+const size_t nClasses = 5;
 
-services::SharedPtr<svm::training::Batch<> > training(new svm::training::Batch<>());
+services::SharedPtr<svm::training::Batch<float, svm::training::boser> > training(new svm::training::Batch<float, svm::training::boser>());
 services::SharedPtr<svm::prediction::Batch<> > prediction(new svm::prediction::Batch<>());
 
 multi_class_classifier::training::ResultPtr trainingResult;
 classifier::prediction::ResultPtr predictionResult;
-kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<>());
+kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<float, kernel_function::linear::fastCSR>());
 NumericTablePtr testGroundTruth;
 
 void trainModel();
@@ -56,16 +58,14 @@ void printResults();
 
 int main(int argc, char * argv[])
 {
-    checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
+    checkArguments(argc, argv, 4, &trainDatasetFileName, &trainLabelsFileName, &testDatasetFileName, &testLabelsFileName);
 
     training->parameter.cacheSize = 100000000;
     training->parameter.kernel    = kernel;
     prediction->parameter.kernel  = kernel;
 
     trainModel();
-
     testModel();
-
     printResults();
 
     return 0;
@@ -74,15 +74,14 @@ int main(int argc, char * argv[])
 void trainModel()
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> trainLabelsDataSource(trainLabelsFileName, DataSource::doAllocateNumericTable,
+                                                            DataSource::doDictionaryFromContext);
 
-    /* Create Numeric Tables for training data and labels */
-    NumericTablePtr trainData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
-    NumericTablePtr trainGroundTruth(new HomogenNumericTable<>(1, 0, NumericTable::doNotAllocate));
-    NumericTablePtr mergedData(new MergedNumericTable(trainData, trainGroundTruth));
+    /* Create numeric table for training data */
+    CSRNumericTablePtr trainData(createSparseTable<float>(trainDatasetFileName));
 
     /* Retrieve the data from the input file */
-    trainDataSource.loadDataBlock(mergedData.get());
+    trainLabelsDataSource.loadDataBlock();
 
     /* Create an algorithm object to train the multi-class SVM model */
     multi_class_classifier::training::Batch<> algorithm(nClasses);
@@ -92,7 +91,7 @@ void trainModel()
 
     /* Pass a training data set and dependent values to the algorithm */
     algorithm.input.set(classifier::training::data, trainData);
-    algorithm.input.set(classifier::training::labels, trainGroundTruth);
+    algorithm.input.set(classifier::training::labels, trainLabelsDataSource.getNumericTable());
 
     /* Build the multi-class SVM model */
     algorithm.compute();
@@ -103,16 +102,8 @@ void trainModel()
 
 void testModel()
 {
-    /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
-    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
-
-    /* Create Numeric Tables for testing data and labels */
-    NumericTablePtr testData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
-    testGroundTruth = NumericTablePtr(new HomogenNumericTable<>(1, 0, NumericTable::doNotAllocate));
-    NumericTablePtr mergedData(new MergedNumericTable(testData, testGroundTruth));
-
-    /* Retrieve the data from input file */
-    testDataSource.loadDataBlock(mergedData.get());
+    /* Create Numeric Tables for testing data */
+    NumericTablePtr testData(createSparseTable<float>(testDatasetFileName));
 
     /* Create an algorithm object to predict multi-class SVM values */
     multi_class_classifier::prediction::Batch<> algorithm(nClasses);
@@ -133,6 +124,13 @@ void testModel()
 
 void printResults()
 {
+    /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
+    FileDataSource<CSVFeatureManager> testLabelsDataSource(testLabelsFileName, DataSource::doAllocateNumericTable,
+                                                           DataSource::doDictionaryFromContext);
+    /* Retrieve the data from input file */
+    testLabelsDataSource.loadDataBlock();
+    testGroundTruth = testLabelsDataSource.getNumericTable();
+
     printNumericTables<int, int>(testGroundTruth, predictionResult->get(classifier::prediction::prediction), "Ground truth", "Classification results",
                                  "Multi-class SVM classification sample program results (first 20 observations):", 20);
 }

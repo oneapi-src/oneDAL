@@ -1,6 +1,6 @@
-/* file: SVMMultiClassCSRBatch.java */
+/* file: SVMTwoClassThunderCSRBatch.java */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,60 +17,49 @@
 
 /*
  //  Content:
- //     Java example of multi-class support vector machine (SVM) classification
+ //     Java example of two-class support vector machine (SVM) classification
  //
- //     The program trains the multi-class SVM model on a supplied training
- //     data set in compressed sparse rows (CSR) format and then performs
- //     classification of previously unseen data.
+ //     The program trains the SVM model on a supplied training data set
+ //     in compressed sparse rows (CSR) format and then performs classification
+ //     of previously unseen data.
  ////////////////////////////////////////////////////////////////////////////////
  */
 
 /**
- * <a name="DAAL-EXAMPLE-JAVA-SVMMULTICLASSCSRBATCH">
- * @example SVMMultiClassCSRBatch.java
+ * <a name="DAAL-EXAMPLE-JAVA-SVMTWOCLASSTHUNDERCSRBATCH">
+ * @example SVMTwoClassThunderCSRBatch.java
  */
 
 package com.intel.daal.examples.svm;
 
-import com.intel.daal.algorithms.classifier.prediction.ModelInputId;
-import com.intel.daal.algorithms.classifier.prediction.NumericTableInputId;
-import com.intel.daal.algorithms.classifier.prediction.PredictionResult;
-import com.intel.daal.algorithms.classifier.prediction.PredictionResultId;
+import com.intel.daal.algorithms.classifier.prediction.*;
 import com.intel.daal.algorithms.classifier.training.InputId;
 import com.intel.daal.algorithms.classifier.training.TrainingResultId;
-import com.intel.daal.algorithms.multi_class_classifier.Model;
-import com.intel.daal.algorithms.multi_class_classifier.prediction.*;
-import com.intel.daal.algorithms.multi_class_classifier.training.*;
+import com.intel.daal.algorithms.svm.Model;
+import com.intel.daal.algorithms.svm.prediction.PredictionBatch;
+import com.intel.daal.algorithms.svm.prediction.PredictionMethod;
+import com.intel.daal.algorithms.svm.training.*;
 import com.intel.daal.data_management.data.NumericTable;
 import com.intel.daal.data_management.data.HomogenNumericTable;
-import com.intel.daal.data_management.data.MergedNumericTable;
+import com.intel.daal.data_management.data.CSRNumericTable;
 import com.intel.daal.data_management.data_source.DataSource;
 import com.intel.daal.data_management.data_source.FileDataSource;
 import com.intel.daal.examples.utils.Service;
 import com.intel.daal.services.DaalContext;
 
-class SVMMultiClassCSRBatch {
+class SVMTwoClassThunderCSRBatch {
 
     /* Input data set parameters */
-    private static final String trainDatasetFileName     = "../data/batch/svm_multi_class_train_csr.csv";
-    private static final String trainGroundTruthFileName = "../data/batch/svm_multi_class_train_labels.csv";
+    private static final String trainDatasetFileName     = "../data/batch/svm_two_class_train_csr.csv";
+    private static final String trainGroundTruthFileName = "../data/batch/svm_two_class_train_labels.csv";
 
-    private static final String testDatasetFileName     = "../data/batch/svm_multi_class_test_csr.csv";
-    private static final String testGroundTruthFileName = "../data/batch/svm_multi_class_test_labels.csv";
-
-    private static final int nClasses      = 5;
+    private static final String testDatasetFileName     = "../data/batch/svm_two_class_test_csr.csv";
+    private static final String testGroundTruthFileName = "../data/batch/svm_two_class_test_labels.csv";
 
     private static TrainingResult   trainingResult;
     private static PredictionResult predictionResult;
 
-    private static com.intel.daal.algorithms.svm.training.TrainingBatch twoClassTraining;
-    private static com.intel.daal.algorithms.svm.prediction.PredictionBatch twoClassPrediction;
-
     private static DaalContext context = new DaalContext();
-
-    private static com.intel.daal.algorithms.kernel_function.linear.Batch kernel =
-        new com.intel.daal.algorithms.kernel_function.linear.Batch(
-            context, Float.class, com.intel.daal.algorithms.kernel_function.linear.Method.fastCSR);
 
     public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException {
 
@@ -84,14 +73,6 @@ class SVMMultiClassCSRBatch {
 
     private static void trainModel() throws java.io.IOException {
 
-        twoClassTraining = new com.intel.daal.algorithms.svm.training.TrainingBatch(
-                context, Float.class, com.intel.daal.algorithms.svm.training.TrainingMethod.boser);
-        twoClassTraining.parameter.setKernel(kernel);
-
-        twoClassPrediction = new com.intel.daal.algorithms.svm.prediction.PredictionBatch(
-                context, Float.class, com.intel.daal.algorithms.svm.prediction.PredictionMethod.defaultDense);
-        twoClassPrediction.parameter.setKernel(kernel);
-
         /* Retrieve the data from input data sets */
         FileDataSource trainGroundTruthSource = new FileDataSource(context, trainGroundTruthFileName,
                 DataSource.DictionaryCreationFlag.DoDictionaryFromContext,
@@ -101,18 +82,19 @@ class SVMMultiClassCSRBatch {
         NumericTable trainData = Service.createSparseTable(context, trainDatasetFileName);
         trainGroundTruthSource.loadDataBlock();
 
-        /* Create an algorithm to train the multi-class SVM model */
-        TrainingBatch algorithm = new TrainingBatch(context, Float.class, TrainingMethod.oneAgainstOne, nClasses);
+        /* Create algorithm objects to train the two-class SVM model */
+        TrainingBatch algorithm = new TrainingBatch(context, Float.class, TrainingMethod.thunder);
 
-        /* Set parameters for the multi-class SVM algorithm */
-        algorithm.parameter.setTraining(twoClassTraining);
-        algorithm.parameter.setPrediction(twoClassPrediction);
+        /* Set parameters for the two-class SVM algorithm */
+        algorithm.parameter.setKernel(
+            new com.intel.daal.algorithms.kernel_function.linear.Batch(
+                context, Float.class, com.intel.daal.algorithms.kernel_function.linear.Method.fastCSR));
 
         /* Pass a training data set and dependent values to the algorithm */
         algorithm.input.set(InputId.data, trainData);
         algorithm.input.set(InputId.labels, trainGroundTruthSource.getNumericTable());
 
-        /* Train the multi-class SVM model */
+        /* Train the two-class SVM model */
         trainingResult = algorithm.compute();
     }
 
@@ -121,11 +103,12 @@ class SVMMultiClassCSRBatch {
         /* Create Numeric Tables for testing data and labels */
         NumericTable testData = Service.createSparseTable(context, testDatasetFileName);
 
-        /* Create a numeric table to store the prediction results */
-        PredictionBatch algorithm = new PredictionBatch(context, Float.class, PredictionMethod.multiClassClassifierWu, nClasses);
+        /* Create algorithm objects to predict two-class SVM values with the defaultDense method */
+        PredictionBatch algorithm = new PredictionBatch(context, Float.class, PredictionMethod.defaultDense);
 
-        algorithm.parameter.setTraining(twoClassTraining);
-        algorithm.parameter.setPrediction(twoClassPrediction);
+        algorithm.parameter.setKernel(
+            new com.intel.daal.algorithms.kernel_function.linear.Batch(
+                context, Float.class, com.intel.daal.algorithms.kernel_function.linear.Method.fastCSR));
 
         Model model = trainingResult.get(TrainingResultId.model);
 
@@ -147,7 +130,7 @@ class SVMMultiClassCSRBatch {
         NumericTable testGroundTruth = testGroundTruthSource.getNumericTable();
         NumericTable predictionResults = predictionResult.get(PredictionResultId.prediction);
         Service.printClassificationResult(testGroundTruth, predictionResults, "Ground truth", "Classification results",
-                "Multi-class SVM classification sample program results (first 20 observations):", 20);
+                "SVM classification results (first 20 observations):", 20);
         System.out.println("");
     }
 }

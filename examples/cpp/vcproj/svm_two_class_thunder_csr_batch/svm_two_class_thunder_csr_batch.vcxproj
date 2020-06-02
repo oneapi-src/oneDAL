@@ -67,9 +67,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{8E460210-47C5-4046-B4F3-FF0CE7F94F79}</ProjectGuid>
-    <RootNamespace>svm_multi_class_dense_batch</RootNamespace>
-    <ProjectName>svm_multi_class_dense_batch</ProjectName>
+    <ProjectGuid>{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}</ProjectGuid>
+    <RootNamespace>svm_two_class_thunder_csr_batch</RootNamespace>
+    <ProjectName>svm_two_class_thunder_csr_batch</ProjectName>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -702,7 +702,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="$(ProjectDir)..\..\source\svm\svm_multi_class_dense_batch.cpp" />
+    <ClCompile Include="$(ProjectDir)..\..\source\svm\svm_two_class_thunder_csr_batch.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
