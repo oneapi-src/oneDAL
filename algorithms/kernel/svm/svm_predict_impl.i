@@ -1,4 +1,4 @@
-/* file: svm_predict_impl.i */
+/* file: svmpredict_impl.i */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __SVM_PREDICT_IMPL_I__
-#define __SVM_PREDICT_IMPL_I__
+#ifndef __SVmPREDICT_IMPL_I__
+#define __SVmPREDICT_IMPL_I__
 
 #include "externals/service_memory.h"
 #include "service/kernel/data_management/service_numeric_table.h"
@@ -179,7 +179,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         const size_t nVectors = xTable->getNumberOfRows();
         WriteOnlyColumns<algorithmFPType, cpu> mtR(r, 0, 0, nVectors);
         DAAL_CHECK_BLOCK_STATUS(mtR);
-        algorithmFPType * distance = mtR.get();
+        algorithmFPType * const distance = mtR.get();
 
         kernel_function::KernelIfacePtr kernel = par->kernel->clone();
         DAAL_CHECK(kernel, ErrorNullParameterNotSupported);
@@ -194,18 +194,14 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
             service_memset<algorithmFPType, cpu>(distance, zero, nVectors);
             return Status();
         }
-        else
-        {
-            service_memset<algorithmFPType, cpu>(distance, bias, nVectors);
-        }
         const NumericTablePtr svTable = model->getSupportVectors();
 
         ReadColumns<algorithmFPType, cpu> mtSVCoeff(*svCoeffTable, 0, 0, nSV);
         DAAL_CHECK_BLOCK_STATUS(mtSVCoeff);
         const algorithmFPType * svCoeff = mtSVCoeff.get();
 
-        size_t nRowsPerBlock = 1;
-        DAAL_SAFE_CPU_CALL((nRowsPerBlock = 256), (nRowsPerBlock = nVectors));
+        size_t nRowsPerBlock = 1024;
+        // DAAL_SAFE_CPU_CALL((nRowsPerBlock = 256), (nRowsPerBlock = nVectors));
 
         const size_t nBlocks = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
 
@@ -222,8 +218,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         });
 
         SafeStatus safeStat;
-
-        daal::threader_for(nBlocks, nBlocks, [&](int iBlock) {
+        daal::threader_for(nBlocks, nBlocks, [&](const int iBlock) {
             PredictTask<algorithmFPType, cpu> * tlsLocal = tlsTask.local();
 
             const size_t startRow          = iBlock * nRowsPerBlock;
@@ -232,24 +227,25 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
 
             DAAL_CHECK_THR(tlsLocal->kernelCompute(startRow, nRowsPerBlockReal), services::ErrorSVMPredictKernerFunctionCall);
 
-            const algorithmFPType * buf = tlsLocal->getBuff();
+            const algorithmFPType * const buf = tlsLocal->getBuff();
 
-            char trans  = 'T';
-            DAAL_INT m_ = nSV;
-            DAAL_INT n_ = nRowsPerBlockReal;
+            char trans = 'T';
+            DAAL_INT m = nSV;
+            DAAL_INT n = nRowsPerBlockReal;
             algorithmFPType alpha(1.0);
-            DAAL_INT lda = m_;
+            DAAL_INT lda = m;
             DAAL_INT incx(1);
             algorithmFPType beta(1.0);
             DAAL_INT incy(1);
 
+            service_memset_seq<algorithmFPType, cpu>(distance + startRow, bias, nRowsPerBlockReal);
             if (nBlocks == 1)
             {
-                Blas<algorithmFPType, cpu>::xgemv(&trans, &m_, &n_, &alpha, buf, &lda, svCoeff, &incx, &beta, distance + startRow, &incy);
+                Blas<algorithmFPType, cpu>::xgemv(&trans, &m, &n, &alpha, buf, &lda, svCoeff, &incx, &beta, distance + startRow, &incy);
             }
             else
             {
-                Blas<algorithmFPType, cpu>::xxgemv(&trans, &m_, &n_, &alpha, buf, &lda, svCoeff, &incx, &beta, distance + startRow, &incy);
+                Blas<algorithmFPType, cpu>::xxgemv(&trans, &m, &n, &alpha, buf, &lda, svCoeff, &incx, &beta, distance + startRow, &incy);
             }
         }); /* daal::threader_for */
 
