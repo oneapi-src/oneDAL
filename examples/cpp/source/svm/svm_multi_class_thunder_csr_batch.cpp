@@ -61,7 +61,6 @@ int main(int argc, char * argv[])
     checkArguments(argc, argv, 4, &trainDatasetFileName, &trainLabelsFileName, &testDatasetFileName, &testLabelsFileName);
 
     training->parameter.kernel   = kernel;
-    training->parameter.C        = 1.0;
     prediction->parameter.kernel = kernel;
 
     trainModel();

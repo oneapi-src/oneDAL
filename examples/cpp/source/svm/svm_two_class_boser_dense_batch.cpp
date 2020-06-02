@@ -80,11 +80,8 @@ void trainModel()
     /* Create an algorithm object to train the SVM model */
     svm::training::Batch<float, svm::training::boser> algorithm;
 
-    algorithm.parameter.kernel            = kernel;
-    algorithm.parameter.cacheSize         = 40000000;
-    algorithm.parameter.C                 = 1.0;
-    algorithm.parameter.accuracyThreshold = 0.01;
-    algorithm.parameter.tau               = 1e-6;
+    algorithm.parameter.kernel    = kernel;
+    algorithm.parameter.cacheSize = 40000000;
 
     /* Pass a training data set and dependent values to the algorithm */
     algorithm.input.set(classifier::training::data, trainData);
