@@ -366,9 +366,9 @@ release.HEADERS.COMMON := $(filter-out $(subst _$(_OS),,$(release.HEADERS.OSSPEC
 # List examples files to populate release/examples.
 expat = %.java %.cpp %.h %.txt %.csv
 expat += $(if $(OS_is_win),%.bat %.vcxproj %.filters %.user %.sln %makefile_$(_OS),%_$(_OS).lst %makefile_$(_OS) %_$(_OS).sh)
-release.EXAMPLES.CPP   := $(filter $(expat),$(shell find examples/cpp  -type f)) $(filter $(expat),$(shell find examples/cpp_sycl -type f))
-release.EXAMPLES.DATA  := $(filter $(expat),$(shell find examples/data -type f))
-release.EXAMPLES.JAVA  := $(filter $(expat),$(shell find examples/java -type f))
+release.EXAMPLES.CPP   := $(filter $(expat),$(shell find examples/daal/cpp  -type f)) $(filter $(expat),$(shell find examples/daal/cpp_sycl -type f))
+release.EXAMPLES.DATA  := $(filter $(expat),$(shell find examples/daal/data -type f))
+release.EXAMPLES.JAVA  := $(filter $(expat),$(shell find examples/daal/java -type f))
 
 # List env files to populate release.
 release.ENV = bin/vars_$(_OS).$(scr)
