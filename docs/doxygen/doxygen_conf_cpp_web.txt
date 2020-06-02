@@ -753,7 +753,7 @@ WARN_LOGFILE           =
 # spaces.
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = ./examples/cpp/source
+INPUT                  = ./examples/daal/cpp/source
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -822,7 +822,7 @@ EXCLUDE_SYMBOLS        = PointType UserInitialization
 # that contain example code fragments that are included (see the \include
 # command).
 
-EXAMPLE_PATH           = examples/cpp/source
+EXAMPLE_PATH           = examples/daal/cpp/source
 #                          include/algorithms     \
 #                          include/data_management
 

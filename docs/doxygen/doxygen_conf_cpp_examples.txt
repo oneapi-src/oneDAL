@@ -753,7 +753,7 @@ WARN_LOGFILE           =
 # spaces.
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = ./examples/cpp/source \
+INPUT                  = ./examples/daal/cpp/source \
                          ./docs/doxygen/custom/cpp
 
 # This tag can be used to specify the character encoding of the source files
@@ -824,7 +824,7 @@ EXCLUDE_SYMBOLS        = PointType UserInitialization
 # that contain example code fragments that are included (see the \include
 # command).
 
-EXAMPLE_PATH           = examples/cpp/source
+EXAMPLE_PATH           = examples/daal/cpp/source
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp and

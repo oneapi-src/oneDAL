@@ -417,8 +417,8 @@ THR.srcdir       := $(CPPDIR.daal)/algorithms/threading
 CORE.srcdir      := $(CPPDIR.daal)/algorithms/kernel
 EXTERNALS.srcdir := $(CPPDIR.daal)/externals
 
-CORE.SERV.srcdir          := $(DIR)/service/kernel
-CORE.SERV.COMPILER.srcdir := $(DIR)/service/kernel/compiler/$(CORE.SERV.COMPILER.$(COMPILER))
+CORE.SERV.srcdir          := $(CPPDIR.daal)/service/kernel
+CORE.SERV.COMPILER.srcdir := $(CPPDIR.daal)/service/kernel/compiler/$(CORE.SERV.COMPILER.$(COMPILER))
 
 CORE.srcdirs  := $(CORE.SERV.srcdir) $(CORE.srcdir)                  \
                  $(if $(DAALTHRS),,$(THR.srcdir))                    \
