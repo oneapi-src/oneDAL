@@ -132,39 +132,10 @@ services::Status KernelImplLinear<defaultDense, algorithmFPType, cpu>::computeIn
     algorithmFPType beta     = 0.0;
     algorithmFPType b        = (algorithmFPType)(linPar->b);
 
-    if (a1 != a2)
-    {
-        ReadRows<algorithmFPType, cpu> mtA2(*const_cast<NumericTable *>(a2), 0, nVectors2);
-        DAAL_CHECK_BLOCK_STATUS(mtA2);
-        const algorithmFPType * dataA2 = const_cast<algorithmFPType *>(mtA2.get());
-
-        const size_t blockSize = 256;
-        const size_t blockNum  = nVectors1 / blockSize + !!(nVectors1 % blockSize);
-
-        daal::threader_for(blockNum, blockNum, [&](const size_t iBlock) {
-            const size_t startRow       = iBlock * blockSize;
-            const size_t numRowsInBlock = (iBlock != blockNum - 1) ? blockSize : nVectors1 - iBlock * blockSize;
-
-            ReadRows<algorithmFPType, cpu> mtA1(*const_cast<NumericTable *>(a1), startRow, numRowsInBlock);
-            DAAL_CHECK_BLOCK_STATUS_THR(mtA1);
-            const algorithmFPType * blockPtr = const_cast<algorithmFPType *>(mtA1.get());
-
-            WriteOnlyRows<algorithmFPType, cpu> mtR(r, startRow, numRowsInBlock);
-            DAAL_CHECK_BLOCK_STATUS_THR(mtR);
-            algorithmFPType * dataR = mtR.get();
-
-            Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, (DAAL_INT *)&nVectors2, (DAAL_INT *)&numRowsInBlock, (DAAL_INT *)&nFeatures, &alpha,
-                                               (algorithmFPType *)dataA2, (DAAL_INT *)&nFeatures, (algorithmFPType *)blockPtr, (DAAL_INT *)&nFeatures,
-                                               &beta, dataR, (DAAL_INT *)&nVectors2);
-        });
-    }
-    else
-    {
-        services::Status retStat = Blas<algorithmFPType, cpu>::xgemm_blocked(&trans, &notrans, (DAAL_INT *)&nVectors2, (DAAL_INT *)&nVectors1,
-                                                                             (DAAL_INT *)&nFeatures, &alpha, a2, (DAAL_INT *)&nFeatures, a1,
-                                                                             (DAAL_INT *)&nFeatures, &beta, r, (DAAL_INT *)&nVectors2);
-        if (!retStat) return retStat;
-    }
+    const services::Status retStat =
+        Blas<algorithmFPType, cpu>::xgemm_blocked(&trans, &notrans, (DAAL_INT *)&nVectors2, (DAAL_INT *)&nVectors1, (DAAL_INT *)&nFeatures, &alpha,
+                                                  a2, (DAAL_INT *)&nFeatures, a1, (DAAL_INT *)&nFeatures, &beta, r, (DAAL_INT *)&nVectors2);
+    if (!retStat) return retStat;
 
     if (b != 0.0)
     {
