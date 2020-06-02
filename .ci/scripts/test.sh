@@ -54,7 +54,7 @@ if [ "${OS}" == "lnx" ]; then
 elif [ "${OS}" == "mac" ]; then
     compiler=${compiler:-clang}
 
-else 
+else
     echo "Error not supported OS: ${OS}"
     exit 1
 fi
@@ -72,7 +72,7 @@ else
     export LD_LIBRARY_PATH=${TBBROOT}/lib/${full_arch}/gcc4.8:${LD_LIBRARY_PATH}
 fi
 
-cd "${BUILD_DIR}/daal/latest/examples/cpp"
+cd "${BUILD_DIR}/daal/latest/examples/daal/cpp"
 
 for threading in parallel sequential; do
     for link_mode in static dynamic; do
