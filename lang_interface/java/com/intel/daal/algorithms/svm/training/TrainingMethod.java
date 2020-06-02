@@ -23,6 +23,8 @@
  */
 package com.intel.daal.algorithms.svm.training;
 
+import java.lang.annotation.Native;
+
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__SVM__TRAINING__TRAININGMETHOD"></a>
  * @brief Available methods to train the SVM model
@@ -47,8 +49,10 @@ public final class TrainingMethod {
         return _value;
     }
 
-    private static final int BoserValue = 0;
+    @Native private static final int boserValue   = 0;
+    @Native private static final int thunderValue = 1;
 
-    public static final TrainingMethod boser = new TrainingMethod(BoserValue); /*!< Method proposed by Boser et al. */
+    public static final TrainingMethod boser   = new TrainingMethod(boserValue);   /*!< Method proposed by Boser et al.   */
+    public static final TrainingMethod thunder = new TrainingMethod(thunderValue); /*!< Method proposed by Thunder et al. */
 }
 /** @} */

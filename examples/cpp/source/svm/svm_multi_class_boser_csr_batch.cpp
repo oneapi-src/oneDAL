@@ -1,6 +1,6 @@
-/* file: svm_multi_class_csr_batch.cpp */
+/* file: svm_multi_class_boser_csr_batch.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,13 +17,14 @@
 
 /*
 !  Content:
-!    C++ example of multi-class support vector machine (SVM) classification
+!    C++ example of multi-class support vector machine (SVM) classification using
+!    the Boser method
 !
 !******************************************************************************/
 
 /**
- * <a name="DAAL-EXAMPLE-CPP-SVM_MULTI_CLASS_CSR_BATCH"></a>
- * \example svm_multi_class_csr_batch.cpp
+ * <a name="DAAL-EXAMPLE-CPP-SVM_MULTI_CLASS_BOSER_CSR_BATCH"></a>
+ * \example svm_multi_class_boser_csr_batch.cpp
  */
 
 #include "daal.h"
@@ -42,7 +43,7 @@ string testLabelsFileName  = "../data/batch/svm_multi_class_test_labels.csv";
 
 const size_t nClasses = 5;
 
-services::SharedPtr<svm::training::Batch<> > training(new svm::training::Batch<>());
+services::SharedPtr<svm::training::Batch<float, svm::training::boser> > training(new svm::training::Batch<float, svm::training::boser>());
 services::SharedPtr<svm::prediction::Batch<> > prediction(new svm::prediction::Batch<>());
 
 multi_class_classifier::training::ResultPtr trainingResult;
@@ -63,9 +64,7 @@ int main(int argc, char * argv[])
     prediction->parameter.kernel  = kernel;
 
     trainModel();
-
     testModel();
-
     printResults();
 
     return 0;
