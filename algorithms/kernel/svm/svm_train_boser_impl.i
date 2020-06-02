@@ -45,18 +45,9 @@
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "service/kernel/service_utils.h"
 #include "service/kernel/service_data_utils.h"
-
-#if defined(__INTEL_COMPILER)
-    #if defined(_M_AMD64) || defined(__amd64) || defined(__x86_64) || defined(__x86_64__)
-        #if (__CPUID__(DAAL_CPU) == __avx512__)
-
-            #include <immintrin.h>
-            #include "algorithms/kernel/svm/svm_train_boser_avx512_impl.i"
-            #include "algorithms/kernel/svm/inner/svm_train_boser_avx512_impl_v1.i"
-
-        #endif // __CPUID__(DAAL_CPU) == __avx512__
-    #endif     // defined (_M_AMD64) || defined (__amd64) || defined (__x86_64) || defined (__x86_64__)
-#endif         // __INTEL_COMPILER
+#include "externals/service_ittnotify.h"
+#include "algorithms/kernel/svm/svm_train_result.h"
+#include "algorithms/kernel/svm/svm_train_common_impl.i"
 
 namespace daal
 {
@@ -76,27 +67,37 @@ services::Status SVMTrainImpl<boser, algorithmFPType, ParameterType, cpu>::compu
                                                                                    daal::algorithms::Model * r, const ParameterType * svmPar)
 {
     SVMTrainTask<algorithmFPType, ParameterType, cpu> task(xTable->getNumberOfRows());
-    Status s = task.setup(*svmPar, xTable, yTable);
+    services::Status s = task.setup(*svmPar, xTable, yTable);
     if (!s) return s;
     s = task.compute(*svmPar);
-    return s.ok() ? task.setResultsToModel(*xTable, *static_cast<Model *>(r), svmPar->C) : s;
+    DAAL_CHECK_STATUS(s, task.setResultsToModel(*xTable, *static_cast<Model *>(r), svmPar->C));
+    return s;
 }
 
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::compute(const ParameterType & svmPar)
+services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setResultsToModel(const NumericTable & xTable, Model & model,
+                                                                                      algorithmFPType C) const
+{
+    SaveResultTask<algorithmFPType, cpu> saveResult(_nVectors, _y.get(), _alpha.get(), _grad.get(), _cache);
+    return saveResult.compute(xTable, model, C);
+}
+
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::compute(const ParameterType & svmPar)
 {
     const algorithmFPType C(svmPar.C);
     const algorithmFPType eps(svmPar.accuracyThreshold);
     const algorithmFPType tau(svmPar.tau);
-    Status s = init(C);
-    Status status;
+    services::Status s = init(C);
+    services::Status status;
     if (!s) return s;
 
     size_t nActiveVectors(_nVectors);
     algorithmFPType curEps = MaxVal<algorithmFPType>::get();
     if (!svmPar.doShrinking)
     {
-        for (size_t iter = 0; s.ok() && (iter < svmPar.maxIterations) && (eps < curEps); ++iter)
+        size_t iter = 0;
+        for (; s.ok() && (iter < svmPar.maxIterations) && (eps < curEps); ++iter)
         {
             int Bi, Bj;
             algorithmFPType delta, ma, Ma;
@@ -107,7 +108,8 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::compute(const Paramete
     }
 
     bool unshrink = false;
-    for (size_t iter = 0, shrinkingIter = 1; (iter < svmPar.maxIterations) && (eps < curEps); ++iter, ++shrinkingIter)
+    size_t iter   = 0;
+    for (size_t shrinkingIter = 1; (iter < svmPar.maxIterations) && (eps < curEps); ++iter, ++shrinkingIter)
     {
         int Bi, Bj;
         algorithmFPType delta, ma, Ma;
@@ -146,356 +148,6 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::compute(const Paramete
     return s;
 }
 
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setResultsToModel(const NumericTable & xTable, Model & model, algorithmFPType C) const
-{
-    const algorithmFPType * alpha = _alpha.get();
-    const algorithmFPType zero(0.0);
-    size_t nSV = 0;
-    for (size_t i = 0; i < _nVectors; i++)
-    {
-        if (alpha[i] > zero) nSV++;
-    }
-
-    model.setNFeatures(xTable.getNumberOfColumns());
-    Status s;
-    DAAL_CHECK_STATUS(s, setSVCoefficients(nSV, model));
-    DAAL_CHECK_STATUS(s, setSVIndices(nSV, model));
-    if (xTable.getDataLayout() == NumericTableIface::csrArray)
-    {
-        DAAL_CHECK_STATUS(s, setSV_CSR(model, xTable, nSV));
-    }
-    else
-    {
-        DAAL_CHECK_STATUS(s, setSV_Dense(model, xTable, nSV));
-    }
-    /* Calculate bias and write it into model */
-    model.setBias(double(calculateBias(C)));
-    return s;
-}
-
-/**
- * \brief Write classification coefficients into resulting model
- *template <typename algorithmFPType, typename ParameterType, CpuType cpu>
- * \param[in]  nSV          Number of support vectors
- * \param[out] model        Resulting model
- */
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setSVCoefficients(size_t nSV, Model & model) const
-{
-    const algorithmFPType zero(0.0);
-    NumericTablePtr svCoeffTable = model.getClassificationCoefficients();
-    Status s;
-    DAAL_CHECK_STATUS(s, svCoeffTable->resize(nSV));
-
-    WriteOnlyRows<algorithmFPType, cpu> mtSvCoeff(*svCoeffTable, 0, nSV);
-    DAAL_CHECK_BLOCK_STATUS(mtSvCoeff);
-    algorithmFPType * svCoeff     = mtSvCoeff.get();
-    const algorithmFPType * y     = _y.get();
-    const algorithmFPType * alpha = _alpha.get();
-
-    for (size_t i = 0, iSV = 0; i < _nVectors; i++)
-    {
-        if (alpha[i] != zero)
-        {
-            svCoeff[iSV] = y[i] * alpha[i];
-            iSV++;
-        }
-    }
-    return s;
-}
-
-/**
- * \brief Write indices of the support vectors into resulting model
- *
- * \param[in]  nSV          Number of support vectors
- * \param[out] model        Resulting model
- */
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setSVIndices(size_t nSV, Model & model) const
-{
-    NumericTablePtr svIndicesTable = model.getSupportIndices();
-    Status s;
-    DAAL_CHECK_STATUS(s, svIndicesTable->resize(nSV));
-
-    WriteOnlyRows<int, cpu> mtSvIndices(*svIndicesTable, 0, nSV);
-    DAAL_CHECK_BLOCK_STATUS(mtSvIndices);
-    int * svIndices = mtSvIndices.get();
-
-    const algorithmFPType zero(0.0);
-    for (size_t i = 0, iSV = 0; i < _nVectors; i++)
-    {
-        if (_alpha[i] != zero)
-        {
-            DAAL_ASSERT(_cache->getDataRowIndex(i) <= services::internal::MaxVal<int>::get())
-            svIndices[iSV++] = (int)_cache->getDataRowIndex(i);
-        }
-    }
-    return s;
-}
-
-/**
- * \brief Write support vectors in dense format into resulting model
- *
- * \param[out] model        Resulting model
- * \param[in]  xTable       Input data set in dense layout
- * \param[in]  nSV          Number of support vectors
- */
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setSV_Dense(Model & model, const NumericTable & xTable, size_t nSV) const
-{
-    const size_t nFeatures = xTable.getNumberOfColumns();
-    /* Allocate memory for support vectors and coefficients */
-    NumericTablePtr svTable = model.getSupportVectors();
-    Status s;
-    DAAL_CHECK_STATUS(s, svTable->resize(nSV));
-    if (nSV == 0) return s;
-
-    WriteOnlyRows<algorithmFPType, cpu> mtSv(*svTable, 0, nSV);
-    DAAL_CHECK_BLOCK_STATUS(mtSv);
-    algorithmFPType * sv = mtSv.get();
-
-    const algorithmFPType zero(0.0);
-    ReadRows<algorithmFPType, cpu> mtX;
-    for (size_t i = 0, iSV = 0; i < _nVectors; i++)
-    {
-        if (_alpha[i] == zero) continue;
-        const size_t rowIndex = _cache->getDataRowIndex(i);
-        mtX.set(const_cast<NumericTable *>(&xTable), rowIndex, 1);
-        DAAL_CHECK_BLOCK_STATUS(mtX);
-        const algorithmFPType * xi = mtX.get();
-        for (size_t j = 0; j < nFeatures; j++)
-        {
-            sv[iSV * nFeatures + j] = xi[j];
-        }
-        iSV++;
-    }
-    return s;
-}
-
-/**
- * \brief Write support vectors in CSR format into resulting model
- *
- * \param[out] model        Resulting model
- * \param[in]  xTable       Input data set in CSR layout
- * \param[in]  nSV          Number of support vectors
- */
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setSV_CSR(Model & model, const NumericTable & xTable, size_t nSV) const
-{
-    TArray<size_t, cpu> aSvRowOffsets(nSV + 1);
-    DAAL_CHECK_MALLOC(aSvRowOffsets.get());
-    size_t * svRowOffsetsBuffer = aSvRowOffsets.get();
-
-    CSRNumericTableIface * csrIface = dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(&xTable));
-    ReadRowsCSR<algorithmFPType, cpu> mtX;
-
-    const algorithmFPType zero(0.0);
-    /* Calculate row offsets for the table that stores support vectors */
-    svRowOffsetsBuffer[0] = 1;
-    for (size_t i = 0, iSV = 0; i < _nVectors; i++)
-    {
-        if (_alpha[i] > zero)
-        {
-            const size_t rowIndex = _cache->getDataRowIndex(i);
-            mtX.set(csrIface, rowIndex, 1);
-            DAAL_CHECK_BLOCK_STATUS(mtX);
-            svRowOffsetsBuffer[iSV + 1] = svRowOffsetsBuffer[iSV] + (mtX.rows()[1] - mtX.rows()[0]);
-            iSV++;
-        }
-    }
-
-    Status s;
-    /* Allocate memory for storing support vectors and coefficients */
-    CSRNumericTablePtr svTable = services::staticPointerCast<CSRNumericTable, NumericTable>(model.getSupportVectors());
-    DAAL_CHECK_STATUS(s, svTable->resize(nSV));
-    if (nSV == 0) return s;
-
-    const size_t svDataSize = svRowOffsetsBuffer[nSV] - svRowOffsetsBuffer[0];
-    DAAL_CHECK_STATUS(s, svTable->allocateDataMemory(svDataSize));
-
-    /* Copy row offsets into the table */
-    size_t * svRowOffsets = nullptr;
-    svTable->getArrays<algorithmFPType>(NULL, NULL, &svRowOffsets);
-    for (size_t i = 0; i < nSV + 1; i++)
-    {
-        svRowOffsets[i] = svRowOffsetsBuffer[i];
-    }
-
-    WriteOnlyRowsCSR<algorithmFPType, cpu> mtSv(*svTable, 0, nSV);
-    DAAL_CHECK_BLOCK_STATUS(mtSv);
-    algorithmFPType * sv  = mtSv.values();
-    size_t * svColIndices = mtSv.cols();
-
-    for (size_t i = 0, iSV = 0, svOffset = 0; i < _nVectors; i++)
-    {
-        if (_alpha[i] == zero) continue;
-        const size_t rowIndex = _cache->getDataRowIndex(i);
-        mtX.set(csrIface, rowIndex, 1);
-        DAAL_CHECK_BLOCK_STATUS(mtX);
-        const algorithmFPType * xi       = mtX.values();
-        const size_t * xiColIndices      = mtX.cols();
-        const size_t nNonZeroValuesInRow = mtX.rows()[1] - mtX.rows()[0];
-        for (size_t j = 0; j < nNonZeroValuesInRow; j++, svOffset++)
-        {
-            sv[svOffset]           = xi[j];
-            svColIndices[svOffset] = xiColIndices[j];
-        }
-        iSV++;
-    }
-    return s;
-}
-
-/**
- * \brief Calculate SVM model bias
- *
- * \param[in]  C        Upper bound in constraints of the quadratic optimization problem
- * \return Bias for the SVM model
- */
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-algorithmFPType SVMTrainTask<algorithmFPType, ParameterType, cpu>::calculateBias(algorithmFPType C) const
-{
-    algorithmFPType bias;
-    const algorithmFPType zero(0.0);
-    const algorithmFPType one(1.0);
-    size_t num_yg          = 0;
-    algorithmFPType sum_yg = 0.0;
-
-    const algorithmFPType fpMax   = MaxVal<algorithmFPType>::get();
-    algorithmFPType ub            = -(fpMax);
-    algorithmFPType lb            = fpMax;
-    const algorithmFPType * alpha = _alpha.get();
-    const algorithmFPType * y     = _y.get();
-    const algorithmFPType * grad  = _grad.get();
-    for (size_t i = 0; i < _nVectors; i++)
-    {
-        const algorithmFPType yg = -y[i] * grad[i];
-        if (y[i] == -one && alpha[i] == C)
-        {
-            ub = ((ub > yg) ? ub : yg);
-        } /// SVM_MAX(ub, yg);
-        else if (y[i] == one && alpha[i] == C)
-        {
-            lb = ((lb < yg) ? lb : yg);
-        } /// SVM_MIN(lb, yg);
-        else if (y[i] == one && alpha[i] == zero)
-        {
-            ub = ((ub > yg) ? ub : yg);
-        } /// SVM_MAX(ub, yg);
-        else if (y[i] == -one && alpha[i] == zero)
-        {
-            lb = ((lb < yg) ? lb : yg);
-        } /// SVM_MIN(lb, yg);
-        else
-        {
-            sum_yg += yg;
-            num_yg++;
-        }
-    }
-
-    if (num_yg == 0)
-    {
-        bias = 0.5 * (ub + lb);
-    }
-    else
-    {
-        bias = sum_yg / (algorithmFPType)num_yg;
-    }
-
-    return bias;
-}
-
-/**
- * \brief Working set selection (WSS3) function.
- *        Select an index i from a pair of indices B = {i, j} using WSS 3 algorithm from [1].
- *
- * \param[in] nActiveVectors    number of observations in a training data set that are used
- *                              in sequential minimum optimization at the current iteration
- * \param[out] Bi            resulting index i
- *
- * \return The function returns m(alpha) = max(-y[i]*grad[i]): i belongs to I_UP (alpha)
- */
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-algorithmFPType SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSi(size_t nActiveVectors, int & Bi) const
-{
-    Bi                   = -1;
-    algorithmFPType GMax = -(MaxVal<algorithmFPType>::get()); // some big negative number
-
-    const char * I               = _I.get();
-    const algorithmFPType * grad = _grad.get();
-    const algorithmFPType * y    = _y.get();
-    /* Find i index of the working set (Bi) */
-    for (size_t i = 0; i < nActiveVectors; i++)
-    {
-        if ((I[i] & up) != up)
-        {
-            continue;
-        }
-        algorithmFPType objFunc = -y[i] * grad[i];
-        if (objFunc >= GMax)
-        {
-            GMax = objFunc;
-            Bi   = i;
-        }
-    }
-    return GMax;
-}
-
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-void SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSjLocalBaseline(const size_t jStart, const size_t jEnd, const algorithmFPType * KiBlock,
-                                                                          const algorithmFPType GMax, const algorithmFPType Kii,
-                                                                          const algorithmFPType tau, int & Bj, algorithmFPType & GMin,
-                                                                          algorithmFPType & GMin2, algorithmFPType & delta) const
-{
-    algorithmFPType fpMax = MaxVal<algorithmFPType>::get();
-    GMin                  = fpMax; // some big positive number
-    GMin2                 = fpMax;
-
-    const algorithmFPType zero(0.0);
-    const algorithmFPType two(2.0);
-
-    for (size_t j = jStart; j < jEnd; j++)
-    {
-        algorithmFPType ygrad = -_y[j] * _grad[j];
-        if ((_I[j] & low) != low)
-        {
-            continue;
-        }
-        if (ygrad <= GMin2)
-        {
-            GMin2 = ygrad;
-        }
-        if (ygrad >= GMax)
-        {
-            continue;
-        }
-
-        algorithmFPType b = GMax - ygrad;
-        algorithmFPType a = Kii + _kernelDiag[j] - two * KiBlock[j - jStart];
-        if (a <= zero)
-        {
-            a = tau;
-        }
-        algorithmFPType dt      = b / a;
-        algorithmFPType objFunc = -b * dt;
-        if (objFunc <= GMin)
-        {
-            GMin  = objFunc;
-            Bj    = j;
-            delta = dt;
-        }
-    }
-}
-
-template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-void SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSjLocal(const size_t jStart, const size_t jEnd, const algorithmFPType * KiBlock,
-                                                                  const algorithmFPType GMax, const algorithmFPType Kii, const algorithmFPType tau,
-                                                                  int & Bj, algorithmFPType & GMin, algorithmFPType & GMin2,
-                                                                  algorithmFPType & delta) const
-{
-    WSSjLocalBaseline(jStart, jEnd, KiBlock, GMax, Kii, tau, Bj, GMin, GMin2, delta);
-}
-
 /**
  * \brief Working set selection (WSS3) function for the case when the matrix Q is cached.
  *        Select an index j from a pair of indices B = {i, j} using WSS 3 algorithm from [1].
@@ -514,17 +166,19 @@ void SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSjLocal(const size_t j
  *              M(alpha) = min(-y[i]*grad[i]): i belongs to I_low(alpha)
  */
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSj(size_t nActiveVectors, algorithmFPType tau, int Bi, algorithmFPType GMax, int & Bj,
-                                                               algorithmFPType & delta, algorithmFPType & res) const
+services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSj(size_t nActiveVectors, algorithmFPType tau, int Bi, algorithmFPType GMin,
+                                                                         int & Bj, algorithmFPType & delta, algorithmFPType & res) const
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair.WSSj);
+
     Bj                    = -1;
     algorithmFPType fpMax = MaxVal<algorithmFPType>::get();
-    algorithmFPType GMin  = fpMax; // some big positive number
-    algorithmFPType GMin2 = fpMax;
+    algorithmFPType GMax  = -fpMax; // some big negative number
+    algorithmFPType GMax2 = -fpMax; // some big negative number
 
     algorithmFPType Kii = _kernelDiag[Bi];
 
-    Status s;
+    services::Status s;
     size_t nBlocks = nActiveVectors / kernelFunctionBlockSize;
     if (nBlocks * kernelFunctionBlockSize < nActiveVectors)
     {
@@ -544,59 +198,66 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSj(size_t nActiveVec
         if (!s) break;
 
         int Bj_local = -1;
-        algorithmFPType GMin_local, GMin2_local, delta_local;
-        WSSjLocal(jStart, jEnd, KiBlock, GMax, Kii, tau, Bj_local, GMin_local, GMin2_local, delta_local);
+        algorithmFPType GMax_local, GMax2_local, delta_local;
+        HelperTrainSVM<algorithmFPType, cpu>::WSSjLocal(jStart, jEnd, KiBlock, _kernelDiag.get(), _grad.get(), _I.get(), GMin, Kii, tau, Bj_local,
+                                                        GMax_local, GMax2_local, delta_local);
 
-        if (GMin_local <= GMin)
+        if (GMax_local > GMax)
         {
-            GMin  = GMin_local;
+            GMax  = GMax_local;
             Bj    = Bj_local;
             delta = delta_local;
         }
-        if (GMin2_local <= GMin2)
+        if (GMax2_local > GMax2)
         {
-            GMin2 = GMin2_local;
+            GMax2 = GMax2_local;
         }
     }
-    res = GMin2;
+    res = GMax2;
     return s;
 }
 
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 bool SVMTrainTask<algorithmFPType, ParameterType, cpu>::findMaximumViolatingPair(size_t nActiveVectors, algorithmFPType tau, int & Bi, int & Bj,
                                                                                  algorithmFPType & delta, algorithmFPType & ma, algorithmFPType & Ma,
-                                                                                 algorithmFPType & curEps, Status & s) const
+                                                                                 algorithmFPType & curEps, services::Status & s) const
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair);
+
     Bi = -1;
-    ma = WSSi(nActiveVectors, Bi);
+    ma = HelperTrainSVM<algorithmFPType, cpu>::WSSi(nActiveVectors, _grad.get(), _I.get(), Bi);
     if (Bi == -1) return false;
 
     Bj = -1;
     s |= WSSj(nActiveVectors, tau, Bi, ma, Bj, delta, Ma);
-    curEps = ma - Ma;
+    curEps = Ma - ma;
     return (Bj != -1);
 }
 
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::update(size_t nActiveVectors, algorithmFPType C, int Bi, int Bj, algorithmFPType delta)
+services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::update(size_t nActiveVectors, algorithmFPType C, int Bi, int Bj,
+                                                                           algorithmFPType delta)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(updateGrad);
+
     /* Update alpha */
     algorithmFPType newDeltai, newDeltaj;
     updateAlpha(C, Bi, Bj, delta, newDeltai, newDeltaj);
     updateI(C, Bj);
     updateI(C, Bi);
 
-    const algorithmFPType dyj = _y[Bj] * newDeltaj;
-    const algorithmFPType dyi = _y[Bi] * newDeltai;
+    const algorithmFPType * y = _y.get();
+    const algorithmFPType dyi = newDeltai * y[Bi];
+    const algorithmFPType dyj = newDeltaj * y[Bj];
 
     /* Update gradient */
     const size_t blockSize = (kernelFunctionBlockSize >> 1); // 2 rows from kernel function matrix are used
     size_t nBlocks         = nActiveVectors / blockSize;
     if (nBlocks * blockSize < nActiveVectors) ++nBlocks;
 
-    algorithmFPType * grad    = _grad.get();
-    const algorithmFPType * y = _y.get();
-    Status s;
+    algorithmFPType * grad = _grad.get();
+    services::Status s;
+
     for (size_t iBlock = 0; s.ok() && (iBlock < nBlocks); iBlock++)
     {
         size_t tStart = iBlock * blockSize;
@@ -612,12 +273,12 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::update(size_t nActiveV
 
         for (size_t t = tStart; t < tEnd; t++)
         {
-            grad[t] += dyi * y[t] * KiBlock[t - tStart];
-            grad[t] += dyj * y[t] * KjBlock[t - tStart];
+            grad[t] += dyi * KiBlock[t - tStart];
+            grad[t] += dyj * KjBlock[t - tStart];
         }
     }
     return s;
-}
+} // namespace internal
 
 /**
  * \brief Update the array of classification coefficients. Step 4 of the Algorithm 1 in [1].
@@ -633,37 +294,20 @@ template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 inline void SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateAlpha(algorithmFPType C, int Bi, int Bj, algorithmFPType delta,
                                                                            algorithmFPType & newDeltai, algorithmFPType & newDeltaj)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(updateAlpha);
+
     const algorithmFPType zero(0.0);
     const algorithmFPType oldAlphai = _alpha[Bi];
     const algorithmFPType oldAlphaj = _alpha[Bj];
     const algorithmFPType yi        = _y[Bi];
     const algorithmFPType yj        = _y[Bj];
 
+    const algorithmFPType alphaBiDelta = (yi > 0.0f) ? C - oldAlphai : oldAlphai;
+    const algorithmFPType alphaBjDelta = services::internal::min<cpu, algorithmFPType>((yj > 0.0f) ? oldAlphaj : C - oldAlphaj, delta);
+    delta                              = services::internal::min<cpu, algorithmFPType>(alphaBiDelta, alphaBjDelta);
+
     algorithmFPType newAlphai = oldAlphai + yi * delta;
     algorithmFPType newAlphaj = oldAlphaj - yj * delta;
-
-    /* Project alpha back to the feasible region */
-    algorithmFPType sum = yi * oldAlphai + yj * oldAlphaj;
-
-    if (newAlphai > C)
-    {
-        newAlphai = C;
-    }
-    if (newAlphai < zero)
-    {
-        newAlphai = zero;
-    }
-    newAlphaj = yj * (sum - yi * newAlphai);
-
-    if (newAlphaj > C)
-    {
-        newAlphaj = C;
-    }
-    if (newAlphaj < zero)
-    {
-        newAlphaj = zero;
-    }
-    newAlphai = yi * (sum - yj * newAlphaj);
 
     _alpha[Bj] = newAlphaj;
     _alpha[Bi] = newAlphai;
@@ -717,6 +361,8 @@ template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 size_t SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateShrinkingFlags(size_t nActiveVectors, algorithmFPType C, algorithmFPType ma,
                                                                                algorithmFPType Ma)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(updateShrinkingFlags);
+
     const algorithmFPType * y     = _y.get();
     const algorithmFPType * grad  = _grad.get();
     const algorithmFPType * alpha = _alpha.get();
@@ -725,8 +371,8 @@ size_t SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateShrinkingFlags(s
     for (size_t i = 0; i < nActiveVectors; i++)
     {
         I[i] &= (~shrink);
-        const algorithmFPType yg = -y[i] * grad[i];
-        if (yg > ma)
+        const algorithmFPType gradi = grad[i];
+        if (gradi < ma)
         {
             if (alpha[i] <= 0.0 && y[i] == -1.0)
             {
@@ -739,7 +385,7 @@ size_t SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateShrinkingFlags(s
                 nShrink++;
             }
         }
-        if (yg < Ma)
+        if (gradi > Ma)
         {
             if (alpha[i] <= 0.0 && y[i] == 1.0)
             {
@@ -764,7 +410,7 @@ size_t SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateShrinkingFlags(s
  *                           in sequential minimum optimization at the current iteration
  */
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::reconstructGradient(size_t & nActiveVectors)
+services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::reconstructGradient(size_t & nActiveVectors)
 {
     size_t nBlocks = _nVectors / kernelFunctionBlockSize;
     if (nBlocks * kernelFunctionBlockSize < _nVectors)
@@ -774,11 +420,10 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::reconstructGradient(si
     algorithmFPType * grad        = _grad.get();
     const algorithmFPType * y     = _y.get();
     const algorithmFPType * alpha = _alpha.get();
-    Status s;
+    services::Status s;
     for (size_t i = nActiveVectors; i < _nVectors; i++)
     {
-        algorithmFPType yi = y[i];
-        grad[i]            = algorithmFPType(-1.0);
+        grad[i] = -y[i];
 
         for (size_t jBlock = 0; s.ok() && (jBlock < nBlocks); jBlock++)
         {
@@ -793,7 +438,7 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::reconstructGradient(si
             s                                = _cache->getRowBlock(i, jStart, (jEnd - jStart), cacheRow);
             for (size_t j = jStart; j < jEnd; j++)
             {
-                grad[i] += yi * y[j] * cacheRow[j - jStart] * alpha[j];
+                grad[i] += y[j] * cacheRow[j - jStart] * alpha[j];
             }
         }
     }
@@ -809,7 +454,8 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::reconstructGradient(si
  * \param[in] yTable        Pointer to numeric table that contains class labels
  */
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setup(const ParameterType & svmPar, const NumericTablePtr & xTable, NumericTable & yTable)
+services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setup(const ParameterType & svmPar, const NumericTablePtr & xTable,
+                                                                          NumericTable & yTable)
 {
     _alpha.reset(_nVectors);
     daal::services::internal::service_memset<algorithmFPType, cpu>(_alpha.get(), algorithmFPType(0.0), _nVectors);
@@ -822,15 +468,15 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setup(const ParameterT
 
     kernel_function::KernelIfacePtr kernel = svmPar.kernel->clone();
     size_t cacheSize                       = svmPar.cacheSize;
-    Status s;
+    services::Status s;
     if (cacheSize >= _nVectors * _nVectors * sizeof(algorithmFPType))
     {
-        _cache = SVMCache<simpleCache, algorithmFPType, cpu>::create(_nVectors, svmPar.doShrinking, xTable, kernel, s);
+        _cache = SVMCache<boser, simpleCache, algorithmFPType, cpu>::create(_nVectors, svmPar.doShrinking, xTable, kernel, s);
     }
     else
     {
         cacheSize = kernelFunctionBlockSize;
-        _cache    = SVMCache<noCache, algorithmFPType, cpu>::create(cacheSize, _nVectors, svmPar.doShrinking, xTable, kernel, s);
+        _cache    = SVMCache<boser, noCache, algorithmFPType, cpu>::create(cacheSize, _nVectors, svmPar.doShrinking, xTable, kernel, s);
     }
     if (!s) return s;
     DAAL_ASSERT(_cache);
@@ -838,7 +484,7 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setup(const ParameterT
     DAAL_CHECK_BLOCK_STATUS(mtY);
     int result =
         daal::services::internal::daal_memcpy_s(_y.get(), _nVectors * sizeof(algorithmFPType), mtY.get(), _nVectors * sizeof(algorithmFPType));
-    return (!result) ? Status() : Status(ErrorMemoryCopyFailedInternal);
+    return (!result) ? services::Status() : services::Status(ErrorMemoryCopyFailedInternal);
 }
 
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
@@ -853,17 +499,19 @@ SVMTrainTask<algorithmFPType, ParameterType, cpu>::~SVMTrainTask()
  * \param[in] C     Upper bound in constraints of the quadratic optimization problem
  */
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::init(algorithmFPType C)
+services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::init(algorithmFPType C)
 {
-    const algorithmFPType negOne(-1.0);
-    algorithmFPType * grad = _grad.get();
+    DAAL_ITTNOTIFY_SCOPED_TASK(init);
+
+    algorithmFPType * grad    = _grad.get();
+    const algorithmFPType * y = _y.get();
     for (size_t i = 0; i < _nVectors; i++)
     {
-        grad[i] = negOne;
+        grad[i] = -y[i];
         updateI(C, i);
     }
 
-    Status s;
+    services::Status s;
     algorithmFPType * kernelDiag = _kernelDiag.get();
     for (size_t i = 0; s.ok() && (i < _nVectors); i++)
     {
@@ -889,22 +537,9 @@ inline void SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateI(algorithm
     algorithmFPType alphai = _alpha[index];
     algorithmFPType yi     = _y[index];
     Ii &= (char)shrink;
-    if (alphai < C && yi == +one)
-    {
-        Ii |= up;
-    }
-    if (alphai > zero && yi == -one)
-    {
-        Ii |= up;
-    }
-    if (alphai < C && yi == -one)
-    {
-        Ii |= low;
-    }
-    if (alphai > zero && yi == +one)
-    {
-        Ii |= low;
-    }
+
+    Ii |= HelperTrainSVM<algorithmFPType, cpu>::isUpper(yi, alphai, C) ? up : free;
+    Ii |= HelperTrainSVM<algorithmFPType, cpu>::isLower(yi, alphai, C) ? low : free;
     _I[index] = Ii;
 }
 
@@ -914,10 +549,10 @@ inline void SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateI(algorithm
  * \param[in] nActiveVectors Number of observations in a training data set that are used
  *                           in sequential minimum optimization at the current iteration
  * \param[in] I              Array of flags that describe the status of feature vectors
- * \return                   Status of the call
+ * \return                   services::Status of the call
  */
 template <typename algorithmFPType, CpuType cpu>
-Status SVMCache<noCache, algorithmFPType, cpu>::updateShrinkingRowIndices(size_t nActiveVectors, const char * I)
+services::Status SVMCache<boser, noCache, algorithmFPType, cpu>::updateShrinkingRowIndices(size_t nActiveVectors, const char * I)
 {
     size_t i = 0;
     size_t j = nActiveVectors - 1;
@@ -930,7 +565,7 @@ Status SVMCache<noCache, algorithmFPType, cpu>::updateShrinkingRowIndices(size_t
         i++;
         j--;
     }
-    return Status();
+    return services::Status();
 }
 
 /**
@@ -940,10 +575,10 @@ Status SVMCache<noCache, algorithmFPType, cpu>::updateShrinkingRowIndices(size_t
  * \param[in] nActiveVectors Number of observations in a training data set that are used
  *                           in sequential minimum optimization at the current iteration
  * \param[in] I              Array of flags that describe the status of feature vectors
- * \return                   Status of the call
+ * \return                   services::Status of the call
  */
 template <typename algorithmFPType, CpuType cpu>
-Status SVMCache<simpleCache, algorithmFPType, cpu>::updateShrinkingRowIndices(size_t nActiveVectors, const char * I)
+services::Status SVMCache<boser, simpleCache, algorithmFPType, cpu>::updateShrinkingRowIndices(size_t nActiveVectors, const char * I)
 {
     size_t i   = 0;
     size_t j   = nActiveVectors - 1;
@@ -980,7 +615,7 @@ Status SVMCache<simpleCache, algorithmFPType, cpu>::updateShrinkingRowIndices(si
         i++;
         j--;
     }
-    return (!result) ? Status() : Status(ErrorMemoryCopyFailedInternal);
+    return (!result) ? services::Status() : services::Status(ErrorMemoryCopyFailedInternal);
 }
 } // namespace internal
 } // namespace training
