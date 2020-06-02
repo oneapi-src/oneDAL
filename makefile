@@ -165,6 +165,8 @@ DAALTHRS ?= tbb seq
 DAALAY   ?= a y
 
 DIR:=.
+CPPDIR:=$(DIR)/cpp
+CPPDIR.daal:=$(CPPDIR)/daal
 WORKDIR    ?= $(DIR)/__work$(CMPLRDIRSUFF.$(COMPILER))/$(PLAT)
 RELEASEDIR ?= $(DIR)/__release_$(_OS)$(CMPLRDIRSUFF.$(COMPILER))
 RELEASEDIR.daal        := $(RELEASEDIR)/daal/latest
@@ -356,7 +358,7 @@ daaldep.rt.thr  := $(daaldep.$(PLAT).rt.thr)
 daaldep.rt.seq  := $(daaldep.$(PLAT).rt.seq)
 
 # List header files to populate release/include.
-release.HEADERS := $(shell find include -type f -name "*.h")
+release.HEADERS := $(shell find $(CPPDIR.daal)/include -type f -name "*.h")
 release.HEADERS.OSSPEC := $(foreach fn,$(release.HEADERS),$(if $(filter %$(_OS),$(basename $(fn))),$(fn)))
 release.HEADERS.COMMON := $(foreach fn,$(release.HEADERS),$(if $(filter $(addprefix %,$(OSList)),$(basename $(fn))),,$(fn)))
 release.HEADERS.COMMON := $(filter-out $(subst _$(_OS),,$(release.HEADERS.OSSPEC)),$(release.HEADERS.COMMON))
@@ -411,9 +413,9 @@ release.DOC.OSSPEC := $(foreach fn,$(release.DOC),$(if $(filter %$(_OS),$(basena
 include makefile.ver
 include makefile.lst
 
-THR.srcdir       := $(DIR)/algorithms/threading
-CORE.srcdir      := $(DIR)/algorithms/kernel
-EXTERNALS.srcdir := $(DIR)/externals
+THR.srcdir       := $(CPPDIR.daal)/algorithms/threading
+CORE.srcdir      := $(CPPDIR.daal)/algorithms/kernel
+EXTERNALS.srcdir := $(CPPDIR.daal)/externals
 
 CORE.SERV.srcdir          := $(DIR)/service/kernel
 CORE.SERV.COMPILER.srcdir := $(DIR)/service/kernel/compiler/$(CORE.SERV.COMPILER.$(COMPILER))
@@ -425,7 +427,7 @@ CORE.srcdirs  := $(CORE.SERV.srcdir) $(CORE.srcdir)                  \
                  $(CORE.SERV.COMPILER.srcdir) $(EXTERNALS.srcdir)    \
                  $(CORE.SERV.srcdir)/oneapi
 
-CORE.incdirs.common := $(RELEASEDIR.include) $(DIR) $(WORKDIR)
+CORE.incdirs.common := $(RELEASEDIR.include) $(CPPDIR.daal) $(WORKDIR)
 CORE.incdirs.thirdp := $(MKLFPKDIR.include) $(TBBDIR.include)
 CORE.incdirs := $(CORE.incdirs.common) $(CORE.incdirs.thirdp)
 
@@ -756,8 +758,8 @@ $2: $1 ; $(value mkdir)$(value cpy)
 	$(if $(filter %library_version_info.h,$2),+$(daalmake) -f makefile update_headers_version)
 	$(if $(USECPUS.out.defs.filter),$(if $(filter %daal_kernel_defines.h,$2),$(USECPUS.out.defs.filter) $2; rm -rf $(subst .h,.h.bak,$2)))
 endef
-$(foreach d,$(release.HEADERS.COMMON),$(eval $(call .release.dd,$d,$(subst include/,$(RELEASEDIR.include)/,$d),_release_c_h)))
-$(foreach d,$(release.HEADERS.OSSPEC),$(eval $(call .release.dd,$d,$(subst include/,$(RELEASEDIR.include)/,$(subst _$(_OS),,$d)),_release_c_h)))
+$(foreach d,$(release.HEADERS.COMMON),$(eval $(call .release.dd,$d,$(subst $(CPPDIR.daal)/include/,$(RELEASEDIR.include)/,$d),_release_c_h)))
+$(foreach d,$(release.HEADERS.OSSPEC),$(eval $(call .release.dd,$d,$(subst $(CPPDIR.daal)/include/,$(RELEASEDIR.include)/,$(subst _$(_OS),,$d)),_release_c_h)))
 
 #----- releasing static/dynamic Intel(R) TBB libraries
 $(RELEASEDIR.tbb.libia) $(RELEASEDIR.tbb.soia): _release_common
