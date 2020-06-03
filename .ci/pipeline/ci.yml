@@ -46,7 +46,54 @@ jobs:
       targetPath: '$(release.dir)'
   - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type)
-    displayName: 'examples'  
+    displayName: 'examples'
+- job: daal4py
+  dependsOn: Linux
+  timeoutInMinutes: 0
+  variables:
+    release.dir: '__release_lnx_gnu'
+    platform.type : 'lnx32e'
+  pool:
+    vmImage: 'ubuntu-18.04'
+    maxParallel: 2
+  steps:
+  - task: DownloadPipelineArtifact@2
+    inputs:
+      artifact: '$(platform.type) build'
+      path: $(Pipeline.Workspace)
+  - script: |
+        .ci/env/dpcpp.sh
+    displayName: 'create dpcpp enviroment'
+  - script: |
+      sudo apt-get install git
+      git clone https://github.com/IntelPython/daal4py.git
+    displayName: clone daal4py
+  - script: |
+      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+      bash miniconda.sh -b -p $HOME/miniconda
+      export PATH="$HOME/miniconda/bin:$PATH"
+      conda create -q -y -n CB python=3.7 conda-build conda-verify
+    displayName: Create Anaconda environment
+  - script: |
+      export DPCPP_VAR=/opt/intel/inteloneapi/compiler/latest/env/vars.sh
+      export DAALROOT=$(Pipeline.Workspace)/daal/latest
+      . $HOME/miniconda/etc/profile.d/conda.sh
+      conda activate CB
+      cd daal4py
+      conda build --override-channels -c conda-forge -c intel --no-test conda-recipe
+    displayName: conda build
+  - script: |
+      $(Pipeline.Workspace)/s/.ci/scripts/conformance_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/inteloneapi
+    timeoutInMinutes: 15
+    displayName: conformance
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: '$(platform.type) conformance tests report'
+      targetPath: '.ci/scripts/conformance-scripts/report.html'
+  - script: |
+      $(Pipeline.Workspace)/s/.ci/scripts/daal4py_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/inteloneapi --daal4py-dir $(Pipeline.Workspace)/s/daal4py
+    timeoutInMinutes: 15
+    displayName: daal4py test
 - job: macOS
   timeoutInMinutes: 0
   variables:

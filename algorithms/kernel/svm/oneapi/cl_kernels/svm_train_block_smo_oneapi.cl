@@ -88,7 +88,6 @@ DECLARE_SOURCE_DAAL(
                             __global algorithmFPType * deltaalpha, __global algorithmFPType * resinfo) {
         const uint i = get_local_id(0);
         __local algorithmFPType kd[WS_SIZE];
-
         const uint wsIndex = wsIndices[i];
 
         const algorithmFPType MIN_FLT = -FLT_MAX;
@@ -111,8 +110,6 @@ DECLARE_SOURCE_DAAL(
         uint Bi = 0;
         uint Bj = 0;
 
-        algorithmFPType ma;
-
         kd[i] = kernelWsRows[i * nVectors + wsIndex];
         barrier(CLK_LOCAL_MEM_FENCE);
 
@@ -127,8 +124,8 @@ DECLARE_SOURCE_DAAL(
 
             /* Find i index of the working set (Bi) */
             reduceArgMax(objFunc, localCache, &maxValInd);
-            Bi = maxValInd.index;
-            ma = -maxValInd.value;
+            Bi                       = maxValInd.index;
+            const algorithmFPType ma = -maxValInd.value;
 
             /* maxgrad(alpha) = max(grad[i]): i belongs to I_low (alpha) */
             objFunc[i] = isLower(alphai, yi, C) ? gradi : MIN_FLT;
@@ -197,6 +194,7 @@ DECLARE_SOURCE_DAAL(
             barrier(CLK_LOCAL_MEM_FENCE);
 
             const algorithmFPType delta = min(deltaBi, deltaBj);
+
             if (i == Bi)
             {
                 alphai = alphai + yi * delta;

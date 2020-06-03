@@ -67,10 +67,22 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     algorithms::Model * r = static_cast<daal::algorithms::Model *>(result->get(classifier::training::model).get());
 
-    svm::interface1::Parameter * par = static_cast<svm::interface1::Parameter *>(_par);
+    const svm::interface1::Parameter * const par1 = static_cast<svm::interface1::Parameter *>(_par);
+    svm::interface2::Parameter par2;
+
+    par2.nClasses          = par1->nClasses;
+    par2.C                 = par1->C;
+    par2.accuracyThreshold = par1->accuracyThreshold;
+    par2.tau               = par1->tau;
+    par2.maxIterations     = par1->maxIterations;
+    par2.kernel            = par1->kernel;
+    par2.shrinkingStep     = par1->shrinkingStep;
+    par2.doShrinking       = par1->doShrinking;
+    par2.cacheSize         = par1->cacheSize;
+
     services::Environment::env & env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType, svm::interface1::Parameter), compute, x, *y, r,
-                       par);
+    __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType, svm::interface2::Parameter), compute, x, *y, r,
+                       &par2);
 }
 } // namespace interface1
 } // namespace training
