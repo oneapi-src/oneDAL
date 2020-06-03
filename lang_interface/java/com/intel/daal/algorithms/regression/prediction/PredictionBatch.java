@@ -16,7 +16,6 @@
 *******************************************************************************/
 
 /**
- * @defgroup regression_prediction_batch Batch
  * @ingroup prediction
  * @{
  */

@@ -16,7 +16,6 @@
 *******************************************************************************/
 
 /**
- * @defgroup regression_training_batch Batch
  * @ingroup training
  * @{
  */
