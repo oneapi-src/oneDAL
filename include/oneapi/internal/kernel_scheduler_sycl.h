@@ -26,6 +26,7 @@
 
         #ifndef DAAL_DISABLE_LEVEL_ZERO
             #include "oneapi/internal/daal_ze_module_helper.h"
+            #include <CL/sycl/backend/Intel_level0.hpp>
         #endif // DAAL_DISABLE_LEVEL_ZERO
 
         #include <cstring>
@@ -371,7 +372,8 @@ public:
 
     cl::sycl::kernel toSycl(const cl::sycl::context & ctx) const
     {
-        cl::sycl::program prg { ctx, (cl_program)getProgramRef().getModuleLevelZero() };
+        cl::sycl::program prg = cl::sycl::level0::make<cl::sycl::program>(ctx, getProgramRef().getModuleLevelZero());
+
         return prg.get_kernel(_clKernelRef.getName());
     }
 

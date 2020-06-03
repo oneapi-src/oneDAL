@@ -96,7 +96,7 @@ public:
     #elif defined(_WIN32) || defined(_WIN64)
         void * sym = GetProcAddress((HMODULE)_handle, symName);
 
-        if (NULL != sym)
+        if (NULL == sym)
         {
             services::internal::tryAssignStatusAndThrow(status, services::ErrorCanNotLoadDynamicLibrarySymbol);
             return NULL;
