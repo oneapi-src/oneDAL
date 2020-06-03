@@ -84,15 +84,6 @@ public:
 
         _zeModuleCreateF = stZeModuleCreateF;
 
-        static zeModuleDestroyFT stZeModuleDestroy = zeLib.getSymbol<zeModuleDestroyFT>(zeModuleDestroyFuncName, &localStatus);
-        if (!localStatus.ok())
-        {
-            services::internal::tryAssignStatus(status, localStatus);
-            return;
-        }
-
-        _zeModuleDestroyF = stZeModuleDestroy;
-
         ze_module_desc_t desc { ZE_MODULE_DESC_VERSION_CURRENT };
         desc.format       = ZE_MODULE_FORMAT_NATIVE;
         desc.inputSize    = binarySize;
@@ -103,14 +94,30 @@ public:
         DAAL_CHECK_LEVEL_ZERO(_zeModuleCreateF(zeDevice, &desc, &_moduleLevelZero, nullptr), status);
     }
 
-    ~ZeModuleHelper() { _zeModuleDestroyF(_moduleLevelZero); }
+    ~ZeModuleHelper()
+    {
+        services::Status localStatus;
+
+        static services::internal::DynamicLibHelper zeLibD(zeLoaderName, libLoadFlags, &localStatus);
+        if (!localStatus.ok())
+        {
+            return;
+        }
+
+        zeModuleDestroyFT zeModuleDestroyF = zeLibD.getSymbol<zeModuleDestroyFT>(zeModuleDestroyFuncName, &localStatus);
+        if (!localStatus.ok())
+        {
+            return;
+        }
+
+        zeModuleDestroyF(_moduleLevelZero);
+    }
 
     ze_module_handle_t get() { return _moduleLevelZero; }
 
 private:
     ze_module_handle_t _moduleLevelZero;
     zeModuleCreateFT _zeModuleCreateF;
-    zeModuleDestroyFT _zeModuleDestroyF;
 };
 
 typedef services::SharedPtr<ZeModuleHelper> ZeModuleHelperPtr;
