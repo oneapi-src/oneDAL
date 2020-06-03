@@ -233,19 +233,19 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
             DAAL_INT m = nSV;
             DAAL_INT n = nRowsPerBlockReal;
             algorithmFPType alpha(1.0);
-            DAAL_INT lda = m;
-            DAAL_INT incx(1);
+            DAAL_INT ldA = m;
+            DAAL_INT incX(1);
             algorithmFPType beta(1.0);
-            DAAL_INT incy(1);
+            DAAL_INT incY(1);
 
             service_memset_seq<algorithmFPType, cpu>(distance + startRow, bias, nRowsPerBlockReal);
             if (nBlocks == 1)
             {
-                Blas<algorithmFPType, cpu>::xgemv(&trans, &m, &n, &alpha, buf, &lda, svCoeff, &incx, &beta, distance + startRow, &incy);
+                Blas<algorithmFPType, cpu>::xgemv(&trans, &m, &n, &alpha, buf, &ldA, svCoeff, &incX, &beta, distance + startRow, &incY);
             }
             else
             {
-                Blas<algorithmFPType, cpu>::xxgemv(&trans, &m, &n, &alpha, buf, &lda, svCoeff, &incx, &beta, distance + startRow, &incy);
+                Blas<algorithmFPType, cpu>::xxgemv(&trans, &m, &n, &alpha, buf, &ldA, svCoeff, &incX, &beta, distance + startRow, &incY);
             }
         }); /* daal::threader_for */
 
