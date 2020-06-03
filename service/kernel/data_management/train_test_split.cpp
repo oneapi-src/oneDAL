@@ -48,13 +48,13 @@ void runBlocks(const bool inParallel, const size_t nBlocks, Func func)
 }
 
 template <typename DataType, typename IdxType>
-services::Status assignColumnValues(const DataType * origDataPtr, NumericTable & dataTable, const IdxType * idxPtr, const size_t startRow,
+services::Status assignColumnValues(const DataType * origDataPtr, const NumericTablePtr dataTable, const IdxType * idxPtr, const size_t startRow,
                                     const size_t nRows, const size_t iCol)
 {
     services::Status s;
 
     BlockDescriptor<DataType> dataBlock;
-    dataTable.getBlockOfColumnValues(iCol, startRow, nRows, readWrite, dataBlock);
+    dataTable->getBlockOfColumnValues(iCol, startRow, nRows, readWrite, dataBlock);
     DataType * dataPtr = dataBlock.getBlockPtr();
     DAAL_CHECK_MALLOC(dataPtr);
 
@@ -64,7 +64,7 @@ services::Status assignColumnValues(const DataType * origDataPtr, NumericTable &
 }
 
 template <typename DataType, typename IdxType, daal::CpuType cpu>
-services::Status assignColumnSubset(const DataType * origDataPtr, NumericTable & dataTable, const IdxType * idxPtr, const size_t nRows,
+services::Status assignColumnSubset(const DataType * origDataPtr, const NumericTablePtr dataTable, const IdxType * idxPtr, const size_t nRows,
                                     const size_t iCol, const size_t nThreads)
 {
     services::Status s;
@@ -89,13 +89,14 @@ services::Status assignColumnSubset(const DataType * origDataPtr, NumericTable &
 }
 
 template <typename DataType, typename IdxType, daal::CpuType cpu>
-services::Status splitColumn(NumericTable & inputTable, NumericTable & trainTable, NumericTable & testTable, const IdxType * trainIdx,
-                             const IdxType * testIdx, const size_t nTrainRows, const size_t nTestRows, const size_t iCol, const size_t nThreads)
+services::Status splitColumn(const NumericTablePtr inputTable, const NumericTablePtr trainTable, const NumericTablePtr testTable,
+                             const IdxType * trainIdx, const IdxType * testIdx, const size_t nTrainRows, const size_t nTestRows, const size_t iCol,
+                             const size_t nThreads)
 {
     services::Status s;
 
     BlockDescriptor<DataType> origBlock, trainBlock, testBlock;
-    inputTable.getBlockOfColumnValues(iCol, 0, nTrainRows + nTestRows, readOnly, origBlock);
+    inputTable->getBlockOfColumnValues(iCol, 0, nTrainRows + nTestRows, readOnly, origBlock);
     const DataType * origDataPtr = origBlock.getBlockPtr();
     DAAL_CHECK_MALLOC(origDataPtr);
 
@@ -106,14 +107,14 @@ services::Status splitColumn(NumericTable & inputTable, NumericTable & trainTabl
 }
 
 template <typename DataType, typename IdxType>
-services::Status assignRows(const DataType * origDataPtr, NumericTable & dataTable, NumericTable & idxTable, const size_t startRow,
+services::Status assignRows(const DataType * origDataPtr, const NumericTablePtr dataTable, const NumericTablePtr idxTable, const size_t startRow,
                             const size_t nRows, const size_t nColumns)
 {
     services::Status s;
     BlockDescriptor<DataType> dataBlock;
     BlockDescriptor<IdxType> idxBlock;
-    dataTable.getBlockOfRows(startRow, startRow + nRows, readWrite, dataBlock);
-    idxTable.getBlockOfColumnValues(0, startRow, nRows, readOnly, idxBlock);
+    dataTable->getBlockOfRows(startRow, startRow + nRows, readWrite, dataBlock);
+    idxTable->getBlockOfColumnValues(0, startRow, nRows, readOnly, idxBlock);
     DataType * dataPtr     = dataBlock.getBlockPtr();
     const IdxType * idxPtr = idxBlock.getBlockPtr();
     DAAL_CHECK_MALLOC(dataPtr);
@@ -128,7 +129,7 @@ services::Status assignRows(const DataType * origDataPtr, NumericTable & dataTab
 }
 
 template <typename DataType, typename IdxType, daal::CpuType cpu>
-services::Status assignRowsSubset(const DataType * origDataPtr, NumericTable & dataTable, NumericTable & idxTable, const size_t nRows,
+services::Status assignRowsSubset(const DataType * origDataPtr, const NumericTablePtr dataTable, const NumericTablePtr idxTable, const size_t nRows,
                                   const size_t nColumns, const size_t nThreads, const size_t blockSize)
 {
     services::Status s;
@@ -153,13 +154,14 @@ services::Status assignRowsSubset(const DataType * origDataPtr, NumericTable & d
 }
 
 template <typename DataType, typename IdxType, daal::CpuType cpu>
-services::Status splitRows(NumericTable & inputTable, NumericTable & trainTable, NumericTable & testTable, NumericTable & trainIdxTable,
-                           NumericTable & testIdxTable, const size_t nTrainRows, const size_t nTestRows, const size_t nColumns, const size_t nThreads)
+services::Status splitRows(const NumericTablePtr inputTable, const NumericTablePtr trainTable, const NumericTablePtr testTable,
+                           const NumericTablePtr trainIdxTable, const NumericTablePtr testIdxTable, const size_t nTrainRows, const size_t nTestRows,
+                           const size_t nColumns, const size_t nThreads)
 {
     services::Status s;
     const size_t blockSize = daal::services::internal::max<cpu, size_t>(BLOCK_CONST / nColumns, 1);
     BlockDescriptor<DataType> origBlock;
-    inputTable.getBlockOfRows(0, nTrainRows + nTestRows, readOnly, origBlock);
+    inputTable->getBlockOfRows(0, nTrainRows + nTestRows, readOnly, origBlock);
     const DataType * origDataPtr = origBlock.getBlockPtr();
     DAAL_CHECK_MALLOC(origDataPtr);
 
@@ -170,24 +172,24 @@ services::Status splitRows(NumericTable & inputTable, NumericTable & trainTable,
 }
 
 template <typename IdxType, daal::CpuType cpu>
-services::Status trainTestSplitImpl(NumericTable & inputTable, NumericTable & trainTable, NumericTable & testTable, NumericTable & trainIdxTable,
-                                    NumericTable & testIdxTable)
+services::Status trainTestSplitImpl(const NumericTablePtr inputTable, const NumericTablePtr trainTable, const NumericTablePtr testTable,
+                                    const NumericTablePtr trainIdxTable, const NumericTablePtr testIdxTable)
 {
     services::Status s;
     const size_t nThreads   = threader_get_threads_number();
-    const NTLayout layout   = inputTable.getDataLayout();
-    const size_t nColumns   = trainTable.getNumberOfColumns();
-    const size_t nTrainRows = trainTable.getNumberOfRows();
-    const size_t nTestRows  = testTable.getNumberOfRows();
+    const NTLayout layout   = inputTable->getDataLayout();
+    const size_t nColumns   = trainTable->getNumberOfColumns();
+    const size_t nTrainRows = trainTable->getNumberOfRows();
+    const size_t nTestRows  = testTable->getNumberOfRows();
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nTrainRows + nTestRows, nColumns);
 
-    NumericTableDictionaryPtr tableFeaturesDict = inputTable.getDictionarySharedPtr();
+    NumericTableDictionaryPtr tableFeaturesDict = inputTable->getDictionarySharedPtr();
 
     if (layout == NTLayout::soa)
     {
         BlockDescriptor<IdxType> trainIdxBlock, testIdxBlock;
-        trainIdxTable.getBlockOfColumnValues(0, 0, nTrainRows, readOnly, trainIdxBlock);
-        testIdxTable.getBlockOfColumnValues(0, 0, nTestRows, readOnly, testIdxBlock);
+        trainIdxTable->getBlockOfColumnValues(0, 0, nTrainRows, readOnly, trainIdxBlock);
+        testIdxTable->getBlockOfColumnValues(0, 0, nTestRows, readOnly, testIdxBlock);
         const IdxType * trainIdx = trainIdxBlock.getBlockPtr();
         const IdxType * testIdx  = testIdxBlock.getBlockPtr();
         DAAL_CHECK_MALLOC(trainIdx);
@@ -227,8 +229,8 @@ services::Status trainTestSplitImpl(NumericTable & inputTable, NumericTable & tr
 }
 
 template <typename IdxType>
-void trainTestSplitDispImpl(NumericTable & inputTable, NumericTable & trainTable, NumericTable & testTable, NumericTable & trainIdxTable,
-                            NumericTable & testIdxTable)
+void trainTestSplitDispImpl(const NumericTablePtr inputTable, const NumericTablePtr trainTable, const NumericTablePtr testTable,
+                            const NumericTablePtr trainIdxTable, const NumericTablePtr testIdxTable)
 {
 #define DAAL_TTS(cpuId, ...) trainTestSplitImpl<IdxType, cpuId>(__VA_ARGS__);
     DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_TTS, inputTable, trainTable, testTable, trainIdxTable, testIdxTable);
@@ -236,15 +238,15 @@ void trainTestSplitDispImpl(NumericTable & inputTable, NumericTable & trainTable
 }
 
 template <typename IdxType>
-DAAL_EXPORT void trainTestSplit(NumericTable & inputTable, NumericTable & trainTable, NumericTable & testTable, NumericTable & trainIdxTable,
-                                NumericTable & testIdxTable)
+DAAL_EXPORT void trainTestSplit(const NumericTablePtr inputTable, const NumericTablePtr trainTable, const NumericTablePtr testTable,
+                                const NumericTablePtr trainIdxTable, const NumericTablePtr testIdxTable)
 {
     DAAL_SAFE_CPU_CALL((trainTestSplitDispImpl<IdxType>(inputTable, trainTable, testTable, trainIdxTable, testIdxTable)),
                        (trainTestSplitImpl<IdxType, daal::CpuType::sse2>(inputTable, trainTable, testTable, trainIdxTable, testIdxTable)));
 }
 
-template DAAL_EXPORT void trainTestSplit<int>(NumericTable & inputTable, NumericTable & trainTable, NumericTable & testTable,
-                                              NumericTable & trainIdxTable, NumericTable & testIdxTable);
+template DAAL_EXPORT void trainTestSplit<int>(const NumericTablePtr inputTable, const NumericTablePtr trainTable, const NumericTablePtr testTable,
+                                              const NumericTablePtr trainIdxTable, const NumericTablePtr testIdxTable);
 
 } // namespace internal
 } // namespace data_management
