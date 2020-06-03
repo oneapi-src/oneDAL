@@ -61,6 +61,27 @@ struct BlasGpu
         return status;
     }
 
+    static services::Status xgemv(const math::Layout layout, const math::Transpose trans, const uint32_t m, const uint32_t n,
+                                  const algorithmFPType alpha, const UniversalBuffer a_buffer, const uint32_t lda, const uint32_t offsetA,
+                                  const UniversalBuffer x_buffer, const uint32_t incx, const uint32_t offsetX, const algorithmFPType beta,
+                                  UniversalBuffer y_buffer, const uint32_t incy, const uint32_t offsetY)
+    {
+        services::Status status;
+
+        ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
+        if (layout == math::Layout::ColMajor)
+        {
+            ctx.gemv(trans, m, n, alpha, a_buffer, lda, offsetA, x_buffer, incx, offsetX, beta, y_buffer, incy, offsetY, &status);
+        }
+        else
+        {
+            const math::Transpose invert_trans = trans == math::Transpose::Trans ? math::Transpose::NoTrans : math::Transpose::Trans;
+            ctx.gemv(invert_trans, n, m, alpha, a_buffer, lda, offsetA, x_buffer, incx, offsetX, beta, y_buffer, incy, offsetY, &status);
+        }
+
+        return status;
+    }
+
     static services::Status xsyrk(const math::Layout layout, const math::UpLo upper_lower, const math::Transpose trans, const uint32_t n,
                                   const uint32_t k, const algorithmFPType alpha, const UniversalBuffer a_buffer, const uint32_t lda,
                                   const uint32_t offsetA, const algorithmFPType beta, UniversalBuffer c_buffer, const uint32_t ldc,

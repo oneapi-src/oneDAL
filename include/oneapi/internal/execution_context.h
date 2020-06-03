@@ -333,6 +333,10 @@ public:
                       size_t lda, size_t offsetA, const UniversalBuffer & b_buffer, size_t ldb, size_t offsetB, double beta,
                       UniversalBuffer & c_buffer, size_t ldc, size_t offsetC, services::Status * status = NULL) = 0;
 
+    virtual void gemv(math::Transpose trans, size_t m, size_t n, double alpha, const UniversalBuffer & a_buffer, size_t lda, size_t offsetA,
+                      const UniversalBuffer & x_buffer, size_t incx, size_t offsetX, double beta, UniversalBuffer & y_buffer, size_t incy,
+                      size_t offsetY, services::Status * status = NULL) = 0;
+
     virtual void syrk(math::UpLo upper_lower, math::Transpose trans, size_t n, size_t k, double alpha, const UniversalBuffer & a_buffer, size_t lda,
                       size_t offsetA, double beta, UniversalBuffer & c_buffer, size_t ldc, size_t offsetC, services::Status * status = NULL) = 0;
 
@@ -402,6 +406,13 @@ public:
               const UniversalBuffer & /*a_buffer*/, size_t /*lda*/, size_t /*offsetA*/, const UniversalBuffer & /*b_buffer*/, size_t /*ldb*/,
               size_t /*offsetB*/, double /*beta*/, UniversalBuffer & /*c_buffer*/, size_t /*ldc*/, size_t /*offsetC*/,
               services::Status * status = NULL) DAAL_C11_OVERRIDE
+    {
+        services::internal::tryAssignStatus(status, services::ErrorMethodNotImplemented);
+    }
+
+    void gemv(math::Transpose /*trans*/, size_t /*m*/, size_t /*n*/, double /*alpha*/, const UniversalBuffer & /*a_buffer*/, size_t /*lda*/,
+              size_t /*offsetA*/, const UniversalBuffer & /*x_buffer*/, size_t /*incx*/, size_t /*offsetX*/, double /*beta*/,
+              UniversalBuffer & /*y_buffer*/, size_t /*incy*/, size_t /*offsetY*/, services::Status * status = NULL) DAAL_C11_OVERRIDE
     {
         services::internal::tryAssignStatus(status, services::ErrorMethodNotImplemented);
     }
