@@ -196,15 +196,13 @@ services::Status trainTestSplitImpl(NumericTable & inputTable, NumericTable & tr
         runBlocks(nColumns > 1 && nColumns * (nTrainRows + nTestRows) > THREADING_BORDER && nThreads > 1, nColumns, [&](size_t iCol) {
             switch ((*tableFeaturesDict)[iCol].getIndexType())
             {
-            case daal::data_management::features::IndexNumType::DAAL_INT32_S:
-                s |= splitColumn<int, IdxType, cpu>(inputTable, trainTable, testTable, trainIdx, testIdx, nTrainRows, nTestRows, iCol, nThreads);
-                break;
             case daal::data_management::features::IndexNumType::DAAL_FLOAT32:
                 s |= splitColumn<float, IdxType, cpu>(inputTable, trainTable, testTable, trainIdx, testIdx, nTrainRows, nTestRows, iCol, nThreads);
                 break;
             case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
                 s |= splitColumn<double, IdxType, cpu>(inputTable, trainTable, testTable, trainIdx, testIdx, nTrainRows, nTestRows, iCol, nThreads);
                 break;
+            default: s |= splitColumn<int, IdxType, cpu>(inputTable, trainTable, testTable, trainIdx, testIdx, nTrainRows, nTestRows, iCol, nThreads);
             }
         });
     }
@@ -212,10 +210,6 @@ services::Status trainTestSplitImpl(NumericTable & inputTable, NumericTable & tr
     {
         switch ((*tableFeaturesDict)[0].getIndexType())
         {
-        case daal::data_management::features::IndexNumType::DAAL_INT32_S:
-            s |= splitRows<int, IdxType, cpu>(inputTable, trainTable, testTable, trainIdxTable, testIdxTable, nTrainRows, nTestRows, nColumns,
-                                              nThreads);
-            break;
         case daal::data_management::features::IndexNumType::DAAL_FLOAT32:
             s |= splitRows<float, IdxType, cpu>(inputTable, trainTable, testTable, trainIdxTable, testIdxTable, nTrainRows, nTestRows, nColumns,
                                                 nThreads);
@@ -224,6 +218,9 @@ services::Status trainTestSplitImpl(NumericTable & inputTable, NumericTable & tr
             s |= splitRows<double, IdxType, cpu>(inputTable, trainTable, testTable, trainIdxTable, testIdxTable, nTrainRows, nTestRows, nColumns,
                                                  nThreads);
             break;
+        default:
+            s |= splitRows<int, IdxType, cpu>(inputTable, trainTable, testTable, trainIdxTable, testIdxTable, nTrainRows, nTestRows, nColumns,
+                                              nThreads);
         }
     }
     return s;
