@@ -171,7 +171,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
     const algorithmFPType coeff = (algorithmFPType)(-0.5 / (rbfPar->sigma * rbfPar->sigma));
 
     char trans = 'T', notrans = 'N';
-    DAAL_INT one         = DAAL_INT(1);
+    DAAL_INT one         = 1;
     algorithmFPType zero = 0.0, negTwo = -2.0;
 
     DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, nVectors1, nVectors2);
