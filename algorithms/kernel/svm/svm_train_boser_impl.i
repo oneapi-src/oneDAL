@@ -531,8 +531,6 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::init(algorit
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 inline void SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateI(algorithmFPType C, size_t index)
 {
-    const algorithmFPType zero(0.0);
-    const algorithmFPType one(1.0);
     char Ii                = _I[index];
     algorithmFPType alphai = _alpha[index];
     algorithmFPType yi     = _y[index];
