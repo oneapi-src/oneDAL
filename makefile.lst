@@ -223,6 +223,9 @@ CORE.ALGORITHMS.INC :=                                                        \
 CORE.SERVICES       := compression            \
                        data_management
 
+ONEAPI.ALGOS        := pca
+
+
 JJ.ALGORITHMS       := adaboost                                                  \
                        adaboost/prediction                                       \
                        adaboost/quality_metric_set                               \
