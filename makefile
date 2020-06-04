@@ -89,6 +89,7 @@ y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib fbsd/so))
 -Fo    := $(if $(OS_is_win),-Fo,-o)
 -Q     := $(if $(OS_is_win),$(if $(COMPILER_is_vc),-,-Q),-)
 -cxx11 := $(if $(COMPILER_is_vc),,$(-Q)std=c++11)
+-cxx17 := $(if $(COMPILER_is_vc),,$(-Q)std=c++17)
 -fPIC  := $(if $(OS_is_win),,-fPIC)
 -Zl    := $(-Zl.$(COMPILER))
 -DEBC  := $(if $(REQDBG),$(-DEBC.$(COMPILER)) -DDEBUG_ASSERT) -DTBB_SUPPRESS_DEPRECATED_MESSAGES -D__TBB_LEGACY_MODE $(if $(REQPRF), -D__DAAL_ITTNOTIFY_ENABLE__)
@@ -167,6 +168,7 @@ DAALAY   ?= a y
 DIR:=.
 CPPDIR:=$(DIR)/cpp
 CPPDIR.daal:=$(CPPDIR)/daal
+CPPDIR.onedal:=$(CPPDIR)/oneapi/dal
 WORKDIR    ?= $(DIR)/__work$(CMPLRDIRSUFF.$(COMPILER))/$(PLAT)
 RELEASEDIR ?= $(DIR)/__release_$(_OS)$(CMPLRDIRSUFF.$(COMPILER))
 RELEASEDIR.daal        := $(RELEASEDIR)/daal/latest
@@ -256,6 +258,8 @@ mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl_dal_sycl.hpp $(MKLGPUFPKDIR.inc
 
 core_a    := $(plib)daal_core.$a
 core_y    := $(plib)daal_core.$y
+oneapi_a  := $(plib)onedal.$a
+oneapi_y  := $(plib)onedal.$y
 
 thr_tbb_a := $(plib)daal_thread.$a
 thr_seq_a := $(plib)daal_sequential.$a
@@ -543,6 +547,142 @@ $(CORE.tmpdir_y)/dll.res: $(VERSION_DATA_FILE)
 $(CORE.tmpdir_y)/dll.res: RCOPT += $(addprefix -I, $(CORE.incdirs.common))
 $(CORE.tmpdir_y)/%.res: %.rc | $(CORE.tmpdir_y)/. ; $(RC.COMPILE)
 
+
+#===============================================================================
+# oneAPI part
+#===============================================================================
+define .add_detail_backend
+$1 $(addsuffix /detail, $1) $(addsuffix /backend, $1)
+endef
+
+define .if_dir_exists
+$(eval dir :=)
+$(if $(filter $1,$(wildcard $2)), $(eval dir := $1))
+$(wildcard $1/*)
+endef
+
+ONEAPI.srcdir := $(CPPDIR.onedal)
+ONEAPI.srcdirs.base := $(ONEAPI.srcdir) \
+                       $(ONEAPI.srcdir)/algo \
+                       $(ONEAPI.srcdir)/data \
+                       $(ONEAPI.srcdir)/util \
+                       $(addprefix $(ONEAPI.srcdir)/algo/, $(ONEAPI.ALGOS))
+ONEAPI.srcdirs.detail := $(foreach _,$(ONEAPI.srcdirs.base),$(shell find $_ -maxdepth 1 -type d -name detail))
+ONEAPI.srcdirs.backend := $(foreach _,$(ONEAPI.srcdirs.base),$(shell find $_ -maxdepth 1 -type d -name backend))
+ONEAPI.srcdirs := $(ONEAPI.srcdirs.base) $(ONEAPI.srcdirs.detail) $(ONEAPI.srcdirs.backend)
+
+ONEAPI.incdirs.common := $(CPPDIR) $(CORE.incdirs.common)
+ONEAPI.incdirs.thirdp := $(MKLFPKDIR.include) $(TBBDIR.include)
+ONEAPI.incdirs := $(ONEAPI.incdirs.common) $(CORE.incdirs.thirdp)
+
+ONEAPI.tmpdir_a := $(WORKDIR)/oneapi_static
+ONEAPI.tmpdir_y := $(WORKDIR)/oneapi_dynamic
+ONEAPI.srcs     := $(wildcard $(ONEAPI.srcdirs.base:%=%/*.cpp)) \
+                   $(foreach x,$(ONEAPI.srcdirs.detail),$(shell find $x -type f -name "*.cpp")) \
+                   $(foreach x,$(ONEAPI.srcdirs.backend),$(shell find $x -type f -name "*.cpp"))
+ONEAPI.srcs     := $(filter-out %_test.cpp,$(ONEAPI.srcs))
+
+$(info $(ONEAPI.srcs))
+
+ONEAPI.srcs     := $(if $(OS_is_mac),$(ONEAPI.srcs),$(call notcontaining,_mac,$(ONEAPI.srcs)))
+ONEAPI.objs_a   := $(ONEAPI.srcs:%.cpp=$(ONEAPI.tmpdir_a)/%.$o)
+ONEAPI.objs_a   := $(filter-out core_threading_win_dll.$o,$(ONEAPI.objs_a))
+ONEAPI.objs_y   := $(ONEAPI.srcs:%.cpp=$(ONEAPI.tmpdir_y)/%.$o)
+ONEAPI.objs_y   := $(if $(OS_is_win),$(ONEAPI.objs_y),$(filter-out %core_threading_win_dll.$o,$(ONEAPI.objs_y)))
+
+ONEAPI.objs_a_tmp := $(call containing,_fpt,$(ONEAPI.objs_a))
+ONEAPI.objs_a     := $(call notcontaining,_fpt,$(ONEAPI.objs_a))
+ONEAPI.objs_a_tpl := $(subst _fpt,_fpt_flt,$(ONEAPI.objs_a_tmp)) $(subst _fpt,_fpt_dbl,$(ONEAPI.objs_a_tmp))
+ONEAPI.objs_a     := $(ONEAPI.objs_a) $(ONEAPI.objs_a_tpl)
+
+ONEAPI.objs_a_tmp := $(call containing,_cpu,$(ONEAPI.objs_a))
+ONEAPI.objs_a     := $(call notcontaining,_cpu,$(ONEAPI.objs_a))
+ONEAPI.objs_a_tpl := $(foreach ccc,$(USECPUS.files),$(subst _cpu,_cpu_$(ccc),$(ONEAPI.objs_a_tmp)))
+ONEAPI.objs_a     := $(ONEAPI.objs_a) $(ONEAPI.objs_a_tpl)
+
+ONEAPI.objs_y_tmp := $(call containing,_fpt,$(ONEAPI.objs_y))
+ONEAPI.objs_y     := $(call notcontaining,_fpt,$(ONEAPI.objs_y))
+ONEAPI.objs_y_tpl := $(subst _fpt,_fpt_flt,$(ONEAPI.objs_y_tmp)) $(subst _fpt,_fpt_dbl,$(ONEAPI.objs_y_tmp))
+ONEAPI.objs_y     := $(ONEAPI.objs_y) $(ONEAPI.objs_y_tpl)
+
+ONEAPI.objs_y_tmp := $(call containing,_cpu,$(ONEAPI.objs_y))
+ONEAPI.objs_y     := $(call notcontaining,_cpu,$(ONEAPI.objs_y))
+ONEAPI.objs_y_tpl := $(foreach ccc,$(USECPUS.files),$(subst _cpu,_cpu_$(ccc),$(ONEAPI.objs_y_tmp)))
+ONEAPI.objs_y     := $(ONEAPI.objs_y) $(ONEAPI.objs_y_tpl)
+
+-include $(ONEAPI.tmpdir_a)/*.d
+-include $(ONEAPI.tmpdir_y)/*.d
+
+$(ONEAPI.tmpdir_a)/$(oneapi_a:%.$a=%_link.txt): $(ONEAPI.objs_a) | $(ONEAPI.tmpdir_a)/. ; $(WRITE.PREREQS)
+$(ONEAPI.tmpdir_a)/$(oneapi_a:%.$a=%_link.$a):  LOPT:=
+$(ONEAPI.tmpdir_a)/$(oneapi_a:%.$a=%_link.$a):  $(ONEAPI.tmpdir_a)/$(oneapi_a:%.$a=%_link.txt) | $(ONEAPI.tmpdir_a)/. ; $(LINK.STATIC)
+$(WORKDIR.lib)/$(oneapi_a):                   LOPT:=
+$(WORKDIR.lib)/$(oneapi_a):                   $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) $(ONEAPI.tmpdir_a)/$(oneapi_a:%.$a=%_link.$a) ; $(LINK.STATIC)
+
+$(WORKDIR.lib)/$(oneapi_y): LOPT += $(-fPIC)
+$(WORKDIR.lib)/$(oneapi_y): LOPT += $(daaldep.rt.seq)
+$(WORKDIR.lib)/$(oneapi_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.dll=%_dll.lib),)
+ifdef OS_is_win
+$(WORKDIR.lib)/$(oneapi_y:%.dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y)
+endif
+$(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt): $(ONEAPI.objs_y) $(if $(OS_is_win),$(ONEAPI.tmpdir_y)/dll.res,) | $(ONEAPI.tmpdir_y)/. ; $(WRITE.PREREQS)
+$(WORKDIR.lib)/$(oneapi_y): $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt) $(if $(PLAT_is_win32e),$(CORE.srcdir)/export_win32e.def); $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
+
+$(ONEAPI.objs_a): $(ONEAPI.tmpdir_a)/inc_a_folders.txt
+$(ONEAPI.objs_a): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC)
+$(ONEAPI.objs_a): COPT += -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED
+$(ONEAPI.objs_a): COPT += @$(ONEAPI.tmpdir_a)/inc_a_folders.txt
+$(filter %threading.$o, $(ONEAPI.objs_a)): COPT += -D__DO_TBB_LAYER__
+$(call containing,_nrh, $(ONEAPI.objs_a)): COPT += $(p4_OPT)   -DDAAL_CPU=sse2
+$(call containing,_mrm, $(ONEAPI.objs_a)): COPT += $(mc_OPT)   -DDAAL_CPU=ssse3
+$(call containing,_neh, $(ONEAPI.objs_a)): COPT += $(mc3_OPT)  -DDAAL_CPU=sse42
+$(call containing,_snb, $(ONEAPI.objs_a)): COPT += $(avx_OPT)  -DDAAL_CPU=avx
+$(call containing,_hsw, $(ONEAPI.objs_a)): COPT += $(avx2_OPT) -DDAAL_CPU=avx2
+$(call containing,_knl, $(ONEAPI.objs_a)): COPT += $(knl_OPT)  -DDAAL_CPU=avx512_mic
+$(call containing,_skx, $(ONEAPI.objs_a)): COPT += $(skx_OPT)  -DDAAL_CPU=avx512
+$(call containing,_flt, $(ONEAPI.objs_a)): COPT += -DDAAL_FPTYPE=float
+$(call containing,_dbl, $(ONEAPI.objs_a)): COPT += -DDAAL_FPTYPE=double
+
+$(ONEAPI.objs_y): $(ONEAPI.tmpdir_y)/inc_y_folders.txt
+$(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC)
+$(ONEAPI.objs_y): COPT += -D__DAAL_IMPLEMENTATION -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG)
+$(ONEAPI.objs_y): COPT += @$(ONEAPI.tmpdir_y)/inc_y_folders.txt
+$(filter %threading.$o, $(ONEAPI.objs_y)): COPT += -D__DO_TBB_LAYER__
+$(call containing,_nrh, $(ONEAPI.objs_y)): COPT += $(p4_OPT)   -DDAAL_CPU=sse2
+$(call containing,_mrm, $(ONEAPI.objs_y)): COPT += $(mc_OPT)   -DDAAL_CPU=ssse3
+$(call containing,_neh, $(ONEAPI.objs_y)): COPT += $(mc3_OPT)  -DDAAL_CPU=sse42
+$(call containing,_snb, $(ONEAPI.objs_y)): COPT += $(avx_OPT)  -DDAAL_CPU=avx
+$(call containing,_hsw, $(ONEAPI.objs_y)): COPT += $(avx2_OPT) -DDAAL_CPU=avx2
+$(call containing,_knl, $(ONEAPI.objs_y)): COPT += $(knl_OPT)  -DDAAL_CPU=avx512_mic
+$(call containing,_skx, $(ONEAPI.objs_y)): COPT += $(skx_OPT)  -DDAAL_CPU=avx512
+$(call containing,_flt, $(ONEAPI.objs_y)): COPT += -DDAAL_FPTYPE=float
+$(call containing,_dbl, $(ONEAPI.objs_y)): COPT += -DDAAL_FPTYPE=double
+
+define .compile.template.oneapi.ay
+$(eval template_source_cpp := $(1:$2/%.$o=%.cpp))
+$(eval template_source_cpp := $(subst _fpt_flt,_fpt,$(template_source_cpp)))
+$(eval template_source_cpp := $(subst _fpt_dbl,_fpt,$(template_source_cpp)))
+$(eval template_source_cpp := $(subst _cpu_nrh,_cpu,$(template_source_cpp)))
+$(eval template_source_cpp := $(subst _cpu_mrm,_cpu,$(template_source_cpp)))
+$(eval template_source_cpp := $(subst _cpu_neh,_cpu,$(template_source_cpp)))
+$(eval template_source_cpp := $(subst _cpu_snb,_cpu,$(template_source_cpp)))
+$(eval template_source_cpp := $(subst _cpu_hsw,_cpu,$(template_source_cpp)))
+$(eval template_source_cpp := $(subst _cpu_knl,_cpu,$(template_source_cpp)))
+$(eval template_source_cpp := $(subst _cpu_skx,_cpu,$(template_source_cpp)))
+$1: $(template_source_cpp) ; mkdir -p $(dir $1) ; $(value C.COMPILE)
+endef
+
+$(ONEAPI.tmpdir_a)/inc_a_folders.txt: makefile.lst | $(ONEAPI.tmpdir_a)/. $(ONEAPI.incdirs) ; $(call WRITE.PREREQS,$(addprefix -I, $(ONEAPI.incdirs)),$(space))
+$(ONEAPI.tmpdir_y)/inc_y_folders.txt: makefile.lst | $(ONEAPI.tmpdir_y)/. $(ONEAPI.incdirs) ; $(call WRITE.PREREQS,$(addprefix -I, $(ONEAPI.incdirs)),$(space))
+
+$(foreach a,$(ONEAPI.objs_a),$(eval $(call .compile.template.oneapi.ay,$a,$(ONEAPI.tmpdir_a))))
+$(foreach a,$(ONEAPI.objs_y),$(eval $(call .compile.template.oneapi.ay,$a,$(ONEAPI.tmpdir_y))))
+
+$(ONEAPI.tmpdir_y)/dll.res: $(VERSION_DATA_FILE)
+$(ONEAPI.tmpdir_y)/dll.res: RCOPT += $(addprefix -I, $(ONEAPI.incdirs.common))
+$(ONEAPI.tmpdir_y)/%.res: %.rc | $(ONEAPI.tmpdir_y)/. ; $(RC.COMPILE)
+
+
 #===============================================================================
 # Threading parts
 #===============================================================================
@@ -676,6 +816,7 @@ _daal_jj: _daal_jar _daal_jni
 
 _daal_core:  info.building.core
 _daal_core:  $(WORKDIR.lib)/$(core_a) $(WORKDIR.lib)/$(core_y) ## TODO: move list of needed libs to one env var!!!
+_onedal:     $(WORKDIR.lib)/$(oneapi_a) $(WORKDIR.lib)/$(oneapi_y)
 _daal_thr:   info.building.threading
 _daal_thr:   $(if $(DAALTHRS),$(foreach ithr,$(DAALTHRS),_daal_thr_$(ithr)),)
 _daal_thr_tbb:   $(WORKDIR.lib)/$(thr_tbb_a) $(WORKDIR.lib)/$(thr_tbb_y)
