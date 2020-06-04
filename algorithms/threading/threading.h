@@ -318,6 +318,22 @@ inline bool is_in_parallel()
     return _daal_is_in_parallel();
 }
 
+template <typename Func>
+void runBlocks(const bool inParallel, const size_t nBlocks, Func func)
+{
+    if (inParallel)
+    {
+        threader_for(nBlocks, nBlocks, [&](size_t i) { func(i); });
+    }
+    else
+    {
+        for (size_t i = 0; i < nBlocks; ++i)
+        {
+            func(i);
+        }
+    }
+}
+
 } // namespace daal
 
 #endif

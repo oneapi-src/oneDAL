@@ -94,15 +94,6 @@ bool checkFiniteness(const size_t nElements, size_t nDataPtrs, size_t nElementsP
 const size_t BLOCK_SIZE       = 8192;
 const size_t THREADING_BORDER = 262144;
 
-template <typename Func>
-void runBlocks(bool inParallel, size_t nBlocks, Func func)
-{
-    if (inParallel)
-        daal::threader_for(nBlocks, nBlocks, [&](size_t i) { func(i); });
-    else
-        for (size_t i = 0; i < nBlocks; ++i) func(i);
-}
-
 template <typename DataType>
 DataType sumWithAVX512(size_t n, const DataType * dataPtr)
 {
@@ -143,7 +134,7 @@ DataType computeSumAVX512Impl(size_t nDataPtrs, size_t nElementsPerPtr, const Da
     if (!pSums) return getInf<DataType>();
     for (size_t iBlock = 0; iBlock < nTotalBlocks; ++iBlock) pSums[iBlock] = 0;
 
-    runBlocks(inParallel, nTotalBlocks, [&](size_t iBlock) {
+    daal::runBlocks(inParallel, nTotalBlocks, [&](size_t iBlock) {
         size_t ptrIdx        = iBlock / nBlocksPerPtr;
         size_t blockIdxInPtr = iBlock - nBlocksPerPtr * ptrIdx;
         size_t start         = blockIdxInPtr * nPerBlock;
@@ -177,7 +168,7 @@ services::Status checkFinitenessInBlocks(const float ** dataPtrs, bool inParalle
     DAAL_CHECK_MALLOC(notFinitePtr);
     for (size_t iBlock = 0; iBlock < nTotalBlocks; ++iBlock) notFinitePtr[iBlock] = false;
 
-    runBlocks(inParallel, nTotalBlocks, [&](size_t iBlock) {
+    daal::runBlocks(inParallel, nTotalBlocks, [&](size_t iBlock) {
         size_t ptrIdx        = iBlock / nBlocksPerPtr;
         size_t blockIdxInPtr = iBlock - nBlocksPerPtr * ptrIdx;
         size_t start         = blockIdxInPtr * nPerBlock;
@@ -232,7 +223,7 @@ services::Status checkFinitenessInBlocks(const double ** dataPtrs, bool inParall
     DAAL_CHECK_MALLOC(notFinitePtr);
     for (size_t iBlock = 0; iBlock < nTotalBlocks; ++iBlock) notFinitePtr[iBlock] = false;
 
-    runBlocks(inParallel, nTotalBlocks, [&](size_t iBlock) {
+    daal::runBlocks(inParallel, nTotalBlocks, [&](size_t iBlock) {
         size_t ptrIdx        = iBlock / nBlocksPerPtr;
         size_t blockIdxInPtr = iBlock - nBlocksPerPtr * ptrIdx;
         size_t start         = blockIdxInPtr * nPerBlock;
