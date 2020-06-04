@@ -16,7 +16,7 @@
 *******************************************************************************/
 
 /**
- * @ingroup stump_training
+ * @ingroup stump_regression_training
  * @{
  */
 package com.intel.daal.algorithms.stump.regression.training;

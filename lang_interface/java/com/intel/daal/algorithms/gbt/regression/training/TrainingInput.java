@@ -16,7 +16,7 @@
 *******************************************************************************/
 
 /**
- * @ingroup training
+ * @ingroup gbt_regression_training
  * @{
  */
 package com.intel.daal.algorithms.gbt.regression.training;

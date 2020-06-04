@@ -16,7 +16,8 @@
 *******************************************************************************/
 
 /**
- * @ingroup prediction
+ * @defgroup regression_prediction_batch Batch
+ * @ingroup regression_prediction
  * @{
  */
 package com.intel.daal.algorithms.regression.prediction;

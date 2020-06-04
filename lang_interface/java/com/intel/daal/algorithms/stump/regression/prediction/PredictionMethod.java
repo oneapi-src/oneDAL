@@ -16,7 +16,7 @@
 *******************************************************************************/
 
 /**
- * @ingroup stump_prediction
+ * @ingroup stump_regression_prediction
  * @{
  */
 /**

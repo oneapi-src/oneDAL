@@ -17,7 +17,7 @@
 
 /**
  * @defgroup classifier_training_online Online
- * @ingroup training
+ * @ingroup classifier_training
  * @{
  */
 package com.intel.daal.algorithms.classifier.training;
