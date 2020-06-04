@@ -1,4 +1,4 @@
-/* file: SVMTwoClassDenseBatch.java */
+/* file: SVMTwoClassBoserDenseBatch.java */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -26,8 +26,8 @@
  */
 
 /**
- * <a name="DAAL-EXAMPLE-JAVA-SVMTWOCLASSDENSEBATCH">
- * @example SVMTwoClassDenseBatch.java
+ * <a name="DAAL-EXAMPLE-JAVA-SVMTWOCLASSBOSERDENSEBATCH">
+ * @example SVMTwoClassBoserDenseBatch.java
  */
 
 package com.intel.daal.examples.svm;
@@ -49,7 +49,7 @@ import com.intel.daal.data_management.data_source.FileDataSource;
 import com.intel.daal.examples.utils.Service;
 import com.intel.daal.services.DaalContext;
 
-class SVMTwoClassDenseBatch {
+class SVMTwoClassBoserDenseBatch {
 
     /* Input data set parameters */
     private static final String trainDatasetFileName     = "../data/batch/svm_two_class_train_dense.csv";

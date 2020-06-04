@@ -1,6 +1,6 @@
-/* file: svm_multi_class_dense_batch.cpp */
+/* file: svm_multi_class_thunder_dense_batch.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,13 +17,14 @@
 
 /*
 !  Content:
-!    C++ example of multi-class support vector machine (SVM) classification
+!    C++ example of multi-class support vector machine (SVM) classification using
+!    the Thunder method
 !
 !******************************************************************************/
 
 /**
- * <a name="DAAL-EXAMPLE-CPP-SVM_MULTI_CLASS_DENSE_BATCH"></a>
- * \example svm_multi_class_dense_batch.cpp
+ * <a name="DAAL-EXAMPLE-CPP-SVM_MULTI_CLASS_THUNDER_DENSE_BATCH"></a>
+ * \example svm_multi_class_thunder_dense_batch.cpp
  */
 
 #include "daal.h"
@@ -32,16 +33,16 @@
 using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
+using namespace daal::data_management;
 
 /* Input data set parameters */
 string trainDatasetFileName = "../data/batch/svm_multi_class_train_dense.csv";
-
-string testDatasetFileName = "../data/batch/svm_multi_class_test_dense.csv";
+string testDatasetFileName  = "../data/batch/svm_multi_class_test_dense.csv";
 
 const size_t nFeatures = 20;
 const size_t nClasses  = 5;
 
-services::SharedPtr<svm::training::Batch<> > training(new svm::training::Batch<>());
+services::SharedPtr<svm::training::Batch<float, svm::training::thunder> > training(new svm::training::Batch<float, svm::training::thunder>());
 services::SharedPtr<svm::prediction::Batch<> > prediction(new svm::prediction::Batch<>());
 
 multi_class_classifier::training::ResultPtr trainingResult;
@@ -57,14 +58,11 @@ int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
-    training->parameter.cacheSize = 100000000;
-    training->parameter.kernel    = kernel;
-    prediction->parameter.kernel  = kernel;
+    training->parameter.kernel   = kernel;
+    prediction->parameter.kernel = kernel;
 
     trainModel();
-
     testModel();
-
     printResults();
 
     return 0;
@@ -76,9 +74,9 @@ void trainModel()
     FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and labels */
-    NumericTablePtr trainData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
-    NumericTablePtr trainGroundTruth(new HomogenNumericTable<>(1, 0, NumericTable::doNotAllocate));
-    NumericTablePtr mergedData(new MergedNumericTable(trainData, trainGroundTruth));
+    NumericTablePtr trainData        = HomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
+    NumericTablePtr trainGroundTruth = HomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
+    NumericTablePtr mergedData       = MergedNumericTable::create(trainData, trainGroundTruth);
 
     /* Retrieve the data from the input file */
     trainDataSource.loadDataBlock(mergedData.get());
@@ -106,9 +104,9 @@ void testModel()
     FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for testing data and labels */
-    NumericTablePtr testData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
-    testGroundTruth = NumericTablePtr(new HomogenNumericTable<>(1, 0, NumericTable::doNotAllocate));
-    NumericTablePtr mergedData(new MergedNumericTable(testData, testGroundTruth));
+    NumericTablePtr testData   = HomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
+    testGroundTruth            = HomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
+    NumericTablePtr mergedData = MergedNumericTable::create(testData, testGroundTruth);
 
     /* Retrieve the data from input file */
     testDataSource.loadDataBlock(mergedData.get());

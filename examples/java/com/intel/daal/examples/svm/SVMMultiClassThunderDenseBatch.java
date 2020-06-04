@@ -1,6 +1,6 @@
-/* file: SVMMultiClassDenseBatch.java */
+/* file: SVMMultiClassThunderDenseBatch.java */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@
  */
 
 /**
- * <a name="DAAL-EXAMPLE-JAVA-SVMMULTICLASSDENSEBATCH">
- * @example SVMMultiClassDenseBatch.java
+ * <a name="DAAL-EXAMPLE-JAVA-SVMMULTICLASSTHUNDERDENSEBATCH">
+ * @example SVMMultiClassThunderDenseBatch.java
  */
 
 package com.intel.daal.examples.svm;
@@ -49,7 +49,7 @@ import com.intel.daal.data_management.data_source.FileDataSource;
 import com.intel.daal.examples.utils.Service;
 import com.intel.daal.services.DaalContext;
 
-class SVMMultiClassDenseBatch {
+class SVMMultiClassThunderDenseBatch {
 
     /* Input data set parameters */
     private static final String trainDatasetFileName = "../data/batch/svm_multi_class_train_dense.csv";
@@ -81,7 +81,7 @@ class SVMMultiClassDenseBatch {
     private static void trainModel() {
 
         twoClassTraining = new com.intel.daal.algorithms.svm.training.TrainingBatch(
-                context, Float.class, com.intel.daal.algorithms.svm.training.TrainingMethod.boser);
+                context, Float.class, com.intel.daal.algorithms.svm.training.TrainingMethod.thunder);
 
         twoClassPrediction = new com.intel.daal.algorithms.svm.prediction.PredictionBatch(
                 context, Float.class, com.intel.daal.algorithms.svm.prediction.PredictionMethod.defaultDense);

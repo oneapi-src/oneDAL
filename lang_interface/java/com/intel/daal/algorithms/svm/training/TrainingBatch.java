@@ -83,7 +83,7 @@ public class TrainingBatch extends com.intel.daal.algorithms.classifier.training
             throw new IllegalArgumentException("type unsupported");
         }
 
-        if (this.method != TrainingMethod.boser) {
+        if (this.method != TrainingMethod.boser && this.method != TrainingMethod.thunder) {
             throw new IllegalArgumentException("method unsupported");
         }
 
