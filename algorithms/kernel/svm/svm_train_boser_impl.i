@@ -296,7 +296,6 @@ inline void SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateAlpha(algor
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(updateAlpha);
 
-    const algorithmFPType zero(0.0);
     const algorithmFPType oldAlphai = _alpha[Bi];
     const algorithmFPType oldAlphaj = _alpha[Bj];
     const algorithmFPType yi        = _y[Bi];

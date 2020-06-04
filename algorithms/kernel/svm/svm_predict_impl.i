@@ -1,4 +1,4 @@
-/* file: svmpredict_impl.i */
+/* file: svm_predict_impl.i */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __SVmPREDICT_IMPL_I__
-#define __SVmPREDICT_IMPL_I__
+#ifndef __SVM_PREDICT_IMPL_I__
+#define __SVM_PREDICT_IMPL_I__
 
 #include "externals/service_memory.h"
 #include "service/kernel/data_management/service_numeric_table.h"
