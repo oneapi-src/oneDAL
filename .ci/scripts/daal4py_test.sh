@@ -10,9 +10,6 @@ while [[ $# -gt 0 ]]; do
         --conda-dir)
         CONDA_DIR="$2"
         ;;
-        --oneapi-dir)
-        ONEAPI_DIR="$2"
-        ;;
         --daal4py-dir)
         DAAL4PY_DIR="$2"
         ;;
@@ -30,8 +27,7 @@ source ${CONDA_DIR}/etc/profile.d/conda.sh
 export PATH=${CONDA_DIR}/bin:$PATH
 source activate conf
 conda list
-source ${ONEAPI_DIR}/compiler/latest/env/vars.sh
-source ${BUILD_DIR}/daal/latest/env/vars.sh intel64
+source ${BUILD_DIR}/daal/bin/daalvars.sh intel64
 cd ${DAAL4PY_DIR}
 
 # testing

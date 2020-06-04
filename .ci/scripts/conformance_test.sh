@@ -10,9 +10,6 @@ while [[ $# -gt 0 ]]; do
         --conda-dir)
         CONDA_DIR="$2"
         ;;
-        --oneapi-dir)
-        ONEAPI_DIR="$2"
-        ;;
         *)
         echo "Unknown option: $1"
         exit 1
@@ -32,7 +29,7 @@ conda remove -y daal4py --force
 conda remove -y daal --force
 conda install $HOME/miniconda/envs/CB/conda-bld/linux-64/daal4py*.tar.bz2
 conda list
-source ${BUILD_DIR}/daal/latest/env/vars.sh intel64
+source ${BUILD_DIR}/daal/bin/daalvars.sh intel64
 
 # testing
 cd .ci/scripts/conformance-scripts/

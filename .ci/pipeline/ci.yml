@@ -72,14 +72,14 @@ jobs:
       conda create -q -y -n CB python=3.7 conda-build conda-verify
     displayName: Create Anaconda environment
   - script: |
-      export DAALROOT=$(Pipeline.Workspace)/daal/latest
+      export DAALROOT=$(Pipeline.Workspace)/daal
       . $HOME/miniconda/etc/profile.d/conda.sh
       conda activate CB
       cd daal4py
       conda build --override-channels -c conda-forge -c intel --no-test conda-recipe
     displayName: conda build
   - script: |
-      $(Pipeline.Workspace)/s/.ci/scripts/conformance_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/inteloneapi
+      $(Pipeline.Workspace)/s/.ci/scripts/conformance_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda
     timeoutInMinutes: 15
     displayName: conformance
   - task: PublishPipelineArtifact@0
@@ -87,7 +87,7 @@ jobs:
       artifactName: '$(platform.type) conformance tests report'
       targetPath: '.ci/scripts/conformance-scripts/report.html'
   - script: |
-      $(Pipeline.Workspace)/s/.ci/scripts/daal4py_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/inteloneapi --daal4py-dir $(Pipeline.Workspace)/s/daal4py
+      $(Pipeline.Workspace)/s/.ci/scripts/daal4py_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --daal4py-dir $(Pipeline.Workspace)/s/daal4py
     timeoutInMinutes: 15
     displayName: daal4py test
 - job: macOS
