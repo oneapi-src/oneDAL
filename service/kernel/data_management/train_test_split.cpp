@@ -190,18 +190,22 @@ services::Status trainTestSplitImpl(const NumericTablePtr inputTable, const Nume
         DAAL_CHECK_MALLOC(trainIdx);
         DAAL_CHECK_MALLOC(testIdx);
 
-        daal::runBlocks(nColumns > 1 && nColumns * (nTrainRows + nTestRows) > THREADING_BORDER && nThreads > 1, nColumns, [&](size_t iCol) {
-            switch ((*tableFeaturesDict)[iCol].getIndexType())
-            {
-            case daal::data_management::features::IndexNumType::DAAL_FLOAT32:
-                s |= splitColumn<float, IdxType, cpu>(inputTable, trainTable, testTable, trainIdx, testIdx, nTrainRows, nTestRows, iCol, nThreads);
-                break;
-            case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
-                s |= splitColumn<double, IdxType, cpu>(inputTable, trainTable, testTable, trainIdx, testIdx, nTrainRows, nTestRows, iCol, nThreads);
-                break;
-            default: s |= splitColumn<int, IdxType, cpu>(inputTable, trainTable, testTable, trainIdx, testIdx, nTrainRows, nTestRows, iCol, nThreads);
-            }
-        });
+        daal::conditional_threader_for(
+            nColumns > 1 && nColumns * (nTrainRows + nTestRows) > THREADING_BORDER && nThreads > 1, nColumns, [&](size_t iCol) {
+                switch ((*tableFeaturesDict)[iCol].getIndexType())
+                {
+                case daal::data_management::features::IndexNumType::DAAL_FLOAT32:
+                    s |=
+                        splitColumn<float, IdxType, cpu>(inputTable, trainTable, testTable, trainIdx, testIdx, nTrainRows, nTestRows, iCol, nThreads);
+                    break;
+                case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
+                    s |= splitColumn<double, IdxType, cpu>(inputTable, trainTable, testTable, trainIdx, testIdx, nTrainRows, nTestRows, iCol,
+                                                           nThreads);
+                    break;
+                default:
+                    s |= splitColumn<int, IdxType, cpu>(inputTable, trainTable, testTable, trainIdx, testIdx, nTrainRows, nTestRows, iCol, nThreads);
+                }
+            });
     }
     else
     {

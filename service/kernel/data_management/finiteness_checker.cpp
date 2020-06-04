@@ -134,7 +134,7 @@ DataType computeSumAVX512Impl(size_t nDataPtrs, size_t nElementsPerPtr, const Da
     if (!pSums) return getInf<DataType>();
     for (size_t iBlock = 0; iBlock < nTotalBlocks; ++iBlock) pSums[iBlock] = 0;
 
-    daal::runBlocks(inParallel, nTotalBlocks, [&](size_t iBlock) {
+    daal::conditional_threader_for(inParallel, nTotalBlocks, [&](size_t iBlock) {
         size_t ptrIdx        = iBlock / nBlocksPerPtr;
         size_t blockIdxInPtr = iBlock - nBlocksPerPtr * ptrIdx;
         size_t start         = blockIdxInPtr * nPerBlock;
@@ -168,7 +168,7 @@ services::Status checkFinitenessInBlocks(const float ** dataPtrs, bool inParalle
     DAAL_CHECK_MALLOC(notFinitePtr);
     for (size_t iBlock = 0; iBlock < nTotalBlocks; ++iBlock) notFinitePtr[iBlock] = false;
 
-    daal::runBlocks(inParallel, nTotalBlocks, [&](size_t iBlock) {
+    daal::conditional_threader_for(inParallel, nTotalBlocks, [&](size_t iBlock) {
         size_t ptrIdx        = iBlock / nBlocksPerPtr;
         size_t blockIdxInPtr = iBlock - nBlocksPerPtr * ptrIdx;
         size_t start         = blockIdxInPtr * nPerBlock;
@@ -223,7 +223,7 @@ services::Status checkFinitenessInBlocks(const double ** dataPtrs, bool inParall
     DAAL_CHECK_MALLOC(notFinitePtr);
     for (size_t iBlock = 0; iBlock < nTotalBlocks; ++iBlock) notFinitePtr[iBlock] = false;
 
-    daal::runBlocks(inParallel, nTotalBlocks, [&](size_t iBlock) {
+    daal::conditional_threader_for(inParallel, nTotalBlocks, [&](size_t iBlock) {
         size_t ptrIdx        = iBlock / nBlocksPerPtr;
         size_t blockIdxInPtr = iBlock - nBlocksPerPtr * ptrIdx;
         size_t start         = blockIdxInPtr * nPerBlock;
