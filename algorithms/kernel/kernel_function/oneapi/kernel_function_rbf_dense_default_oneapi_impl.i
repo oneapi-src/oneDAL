@@ -32,6 +32,8 @@
 #include "service/kernel/oneapi/reducer.h"
 #include "algorithms/kernel/kernel_function/oneapi/cl_kernels/kernel_function.cl"
 
+DAAL_ITTNOTIFY_DOMAIN(kernel_function.rbf.batch.oneapi);
+
 namespace daal
 {
 namespace algorithms
