@@ -204,8 +204,8 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         DAAL_SAFE_CPU_CALL((nRowsPerBlock = 256), (nRowsPerBlock = nVectors));
         const size_t nBlocks = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
 
-        /* TLS data initialization */
-        daal::tls<PredictTask<algorithmFPType, cpu> *> tlsTask([&]() {
+        /* LS data initialization */
+        daal::ls<PredictTask<algorithmFPType, cpu> *> lsTask([&]() {
             if (xTable->getDataLayout() == NumericTableIface::csrArray)
             {
                 return PredictTaskCSR<algorithmFPType, cpu>::create(nRowsPerBlock, xTable, svTable, kernel);
@@ -217,16 +217,16 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         });
 
         SafeStatus safeStat;
-        daal::threader_for(nBlocks, nBlocks, [&](const int iBlock) {
-            PredictTask<algorithmFPType, cpu> * tlsLocal = tlsTask.local();
+        daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+            PredictTask<algorithmFPType, cpu> * lsLocal = lsTask.local();
 
             const size_t startRow          = iBlock * nRowsPerBlock;
             const size_t nRowsPerBlockReal = (iBlock != nBlocks - 1) ? nRowsPerBlock : nVectors - iBlock * nRowsPerBlock;
 
-            DAAL_CHECK_THR(tlsLocal->kernelCompute(startRow, nRowsPerBlockReal), services::ErrorSVMPredictKernerFunctionCall);
+            DAAL_CHECK_THR(lsLocal->kernelCompute(startRow, nRowsPerBlockReal), services::ErrorSVMPredictKernerFunctionCall);
 
-            const algorithmFPType * const bufBlock = tlsLocal->getBuff();
-            algorithmFPType * const distanceBlock = distance + startRow;
+            const algorithmFPType * const bufBlock = lsLocal->getBuff();
+            algorithmFPType * const distanceBlock  = distance + startRow;
             service_memset_seq<algorithmFPType, cpu>(distanceBlock, bias, nRowsPerBlockReal);
 
             char trans = 'T';
@@ -247,7 +247,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
             }
         }); /* daal::threader_for */
 
-        tlsTask.reduce([&](PredictTask<algorithmFPType, cpu> * local) { delete local; });
+        lsTask.reduce([&](PredictTask<algorithmFPType, cpu> * local) { delete local; });
         return safeStat.detach();
     }
 };
