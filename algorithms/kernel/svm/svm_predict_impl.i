@@ -205,7 +205,8 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         const size_t nBlocks = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
 
         /* LS data initialization */
-        daal::ls<PredictTask<algorithmFPType, cpu> *> lsTask([&]() {
+        using TPredictTask = PredictTask<algorithmFPType, cpu>;
+        daal::ls<TPredictTask *> lsTask([&]() {
             if (xTable->getDataLayout() == NumericTableIface::csrArray)
             {
                 return PredictTaskCSR<algorithmFPType, cpu>::create(nRowsPerBlock, xTable, svTable, kernel);
@@ -217,8 +218,10 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         });
 
         SafeStatus safeStat;
+
         daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
-            PredictTask<algorithmFPType, cpu> * lsLocal = lsTask.local();
+            TPredictTask * lsLocal = lsTask.local();
+            DAAL_LS_RELEASE(TPredictTask, lsTask, lsLocal); //releases local storage when leaving this scope
 
             const size_t startRow          = iBlock * nRowsPerBlock;
             const size_t nRowsPerBlockReal = (iBlock != nBlocks - 1) ? nRowsPerBlock : nVectors - iBlock * nRowsPerBlock;
@@ -245,12 +248,12 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
             {
                 Blas<algorithmFPType, cpu>::xxgemv(&trans, &m, &n, &alpha, bufBlock, &ldA, svCoeff, &incX, &beta, distanceBlock, &incY);
             }
-        }); /* daal::threader_for */
+        }); // daal::threader_for
 
         lsTask.reduce([&](PredictTask<algorithmFPType, cpu> * local) { delete local; });
         return safeStat.detach();
     }
-};
+}; // namespace internal
 
 } // namespace internal
 } // namespace prediction
