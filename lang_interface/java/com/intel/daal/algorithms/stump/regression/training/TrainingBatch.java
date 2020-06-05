@@ -16,8 +16,8 @@
 *******************************************************************************/
 
 /**
- * @defgroup stump_training_batch Batch
- * @ingroup stump_training
+ * @defgroup stump_regression_training_batch Batch
+ * @ingroup stump_regression_training
  * @{
  */
 package com.intel.daal.algorithms.stump.regression.training;

@@ -16,7 +16,7 @@
 *******************************************************************************/
 
 /**
- * @ingroup training
+ * @ingroup decision_tree_regression_training
  * @{
  */
 package com.intel.daal.algorithms.decision_tree.regression.training;

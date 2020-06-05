@@ -16,7 +16,7 @@
 *******************************************************************************/
 
 /**
- * @defgroup training Training
+ * @defgroup regression_training Training
  * @brief Contains classes for training the model of the regression algorithms
  * @ingroup regressor
  * @{

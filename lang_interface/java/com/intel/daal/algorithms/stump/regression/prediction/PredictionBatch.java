@@ -16,8 +16,8 @@
 *******************************************************************************/
 
 /**
- * @defgroup stump_prediction_batch Batch
- * @ingroup stump_prediction
+ * @defgroup stump_regression_prediction_batch Batch
+ * @ingroup stump_regression_prediction
  * @{
  */
 package com.intel.daal.algorithms.stump.regression.prediction;
