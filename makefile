@@ -571,11 +571,6 @@ ONEAPI.srcdirs.detail := $(foreach _,$(ONEAPI.srcdirs.base),$(shell find $_ -max
 ONEAPI.srcdirs.backend := $(foreach _,$(ONEAPI.srcdirs.base),$(shell find $_ -maxdepth 1 -type d -name backend))
 ONEAPI.srcdirs := $(ONEAPI.srcdirs.base) $(ONEAPI.srcdirs.detail) $(ONEAPI.srcdirs.backend)
 
-# $(shell find $(ONEAPI.srcdir) -type f -name "*.cpp")
-# $(ONEAPI.srcdir)
-# $(call .add_detail_backend,$(ONEAPI.srcdir)/algo)
-# $(addprefix $(ONEAPI.srcdir)/algo/, $(ONEAPI.ALGOS))
-
 ONEAPI.incdirs.common := $(CPPDIR) $(CORE.incdirs.common)
 ONEAPI.incdirs.thirdp := $(MKLFPKDIR.include) $(TBBDIR.include)
 ONEAPI.incdirs := $(ONEAPI.incdirs.common) $(CORE.incdirs.thirdp)
