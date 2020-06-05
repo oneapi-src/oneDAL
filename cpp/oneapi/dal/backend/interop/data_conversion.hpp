@@ -103,4 +103,3 @@ void daal_convert(const void* src, void* dst,
 }
 
 } // namespace dal::backend::interop
-

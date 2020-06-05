@@ -168,4 +168,3 @@ template void homogen_table_impl::push_back_column(const array<double>& a, std::
 template void homogen_table_impl::push_back_column(const array<int32_t>& a, std::int64_t idx, const range& r);
 
 } // namespace dal::backend
-
