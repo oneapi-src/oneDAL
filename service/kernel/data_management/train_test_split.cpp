@@ -60,10 +60,9 @@ template <typename DataType, typename IdxType, daal::CpuType cpu>
 services::Status assignColumnSubset(const DataType * origDataPtr, const NumericTablePtr dataTable, const IdxType * idxPtr, const size_t nRows,
                                     const size_t iCol, const size_t nThreads)
 {
-    daal::SafeStatus s;
-
     if (nRows > THREADING_BORDER && nThreads > 1)
     {
+        daal::SafeStatus s;
         const size_t nBlocks = nRows / BLOCK_CONST + !!(nRows % BLOCK_CONST);
 
         daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
@@ -72,13 +71,12 @@ services::Status assignColumnSubset(const DataType * origDataPtr, const NumericT
 
             s |= assignColumnValues<DataType, IdxType>(origDataPtr, dataTable, idxPtr, start, end - start, iCol);
         });
+        return s.detach();
     }
     else
     {
-        s |= assignColumnValues<DataType, IdxType>(origDataPtr, dataTable, idxPtr, 0, nRows, iCol);
+        return assignColumnValues<DataType, IdxType>(origDataPtr, dataTable, idxPtr, 0, nRows, iCol);
     }
-
-    return s.detach();
 }
 
 template <typename DataType, typename IdxType, daal::CpuType cpu>
@@ -127,10 +125,9 @@ template <typename DataType, typename IdxType, daal::CpuType cpu>
 services::Status assignRowsSubset(const DataType * origDataPtr, const NumericTablePtr dataTable, const NumericTablePtr idxTable, const size_t nRows,
                                   const size_t nColumns, const size_t nThreads, const size_t blockSize)
 {
-    daal::SafeStatus s;
-
     if (nRows * nColumns > THREADING_BORDER && nThreads > 1)
     {
+        daal::SafeStatus s;
         const size_t nBlocks = nRows / blockSize + !!(nRows % blockSize);
 
         daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
@@ -139,13 +136,12 @@ services::Status assignRowsSubset(const DataType * origDataPtr, const NumericTab
 
             s |= assignRows<DataType, IdxType>(origDataPtr, dataTable, idxTable, start, end - start, nColumns);
         });
+        return s.detach();
     }
     else
     {
-        s |= assignRows<DataType, IdxType>(origDataPtr, dataTable, idxTable, 0, nRows, nColumns);
+        return assignRows<DataType, IdxType>(origDataPtr, dataTable, idxTable, 0, nRows, nColumns);
     }
-
-    return s.detach();
 }
 
 template <typename DataType, typename IdxType, daal::CpuType cpu>
@@ -170,7 +166,6 @@ template <typename IdxType, daal::CpuType cpu>
 services::Status trainTestSplitImpl(const NumericTablePtr inputTable, const NumericTablePtr trainTable, const NumericTablePtr testTable,
                                     const NumericTablePtr trainIdxTable, const NumericTablePtr testIdxTable)
 {
-    daal::SafeStatus s;
     const size_t nThreads   = threader_get_threads_number();
     const NTLayout layout   = inputTable->getDataLayout();
     const size_t nColumns   = trainTable->getNumberOfColumns();
@@ -182,6 +177,7 @@ services::Status trainTestSplitImpl(const NumericTablePtr inputTable, const Nume
 
     if (layout == NTLayout::soa)
     {
+        daal::SafeStatus s;
         BlockDescriptor<IdxType> trainIdxBlock, testIdxBlock;
         trainIdxTable->getBlockOfColumnValues(0, 0, nTrainRows, readOnly, trainIdxBlock);
         testIdxTable->getBlockOfColumnValues(0, 0, nTestRows, readOnly, testIdxBlock);
@@ -206,25 +202,25 @@ services::Status trainTestSplitImpl(const NumericTablePtr inputTable, const Nume
                     s |= splitColumn<int, IdxType, cpu>(inputTable, trainTable, testTable, trainIdx, testIdx, nTrainRows, nTestRows, iCol, nThreads);
                 }
             });
+        return s.detach();
     }
     else
     {
         switch ((*tableFeaturesDict)[0].getIndexType())
         {
         case daal::data_management::features::IndexNumType::DAAL_FLOAT32:
-            s |= splitRows<float, IdxType, cpu>(inputTable, trainTable, testTable, trainIdxTable, testIdxTable, nTrainRows, nTestRows, nColumns,
-                                                nThreads);
+            return splitRows<float, IdxType, cpu>(inputTable, trainTable, testTable, trainIdxTable, testIdxTable, nTrainRows, nTestRows, nColumns,
+                                                  nThreads);
             break;
         case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
-            s |= splitRows<double, IdxType, cpu>(inputTable, trainTable, testTable, trainIdxTable, testIdxTable, nTrainRows, nTestRows, nColumns,
-                                                 nThreads);
+            return splitRows<double, IdxType, cpu>(inputTable, trainTable, testTable, trainIdxTable, testIdxTable, nTrainRows, nTestRows, nColumns,
+                                                   nThreads);
             break;
         default:
-            s |= splitRows<int, IdxType, cpu>(inputTable, trainTable, testTable, trainIdxTable, testIdxTable, nTrainRows, nTestRows, nColumns,
-                                              nThreads);
+            return splitRows<int, IdxType, cpu>(inputTable, trainTable, testTable, trainIdxTable, testIdxTable, nTrainRows, nTestRows, nColumns,
+                                                nThreads);
         }
     }
-    return s.detach();
 }
 
 template <typename IdxType>
