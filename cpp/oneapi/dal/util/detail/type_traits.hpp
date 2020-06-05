@@ -22,16 +22,16 @@ namespace dal::detail {
 template<typename _Type>                                                                                \
 struct has_method_##checker_name {                                                                      \
 private:                                                                                                \
-	using pass = std::true_type;                                                                        \
-	using fail = std::false_type;                                                                       \
+    using pass = std::true_type;                                                                        \
+    using fail = std::false_type;                                                                       \
                                                                                                         \
-	template<typename U, return_value (U::*f)params> struct checker_t{};                                \
+    template<typename U, return_value (U::*f)params> struct checker_t{};                                \
                                                                                                         \
-	template<class U> static pass test(checker_t<U,&U::method_name>*);                                  \
-	template<class U> static fail test(...);                                                            \
+    template<class U> static pass test(checker_t<U,&U::method_name>*);                                  \
+    template<class U> static fail test(...);                                                            \
                                                                                                         \
 public:                                                                                                 \
-	static constexpr bool value = std::is_same_v<pass, decltype(test<_Type>(nullptr))>;                 \
+    static constexpr bool value = std::is_same_v<pass, decltype(test<_Type>(nullptr))>;                 \
 };                                                                                                      \
                                                                                                         \
 template <typename _Type>                                                                               \

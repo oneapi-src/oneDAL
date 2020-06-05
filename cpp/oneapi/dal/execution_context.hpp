@@ -61,5 +61,3 @@ inline auto make_context() {
 }
 
 } // namespace dal
-
-

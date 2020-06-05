@@ -39,5 +39,3 @@ inline auto make_context(const Queue& queue) {
 }
 
 } // namespace dal
-
-

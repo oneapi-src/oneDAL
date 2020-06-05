@@ -352,4 +352,3 @@ TEST(homogen_table_test, can_read_table_data_via_row_accessor_and_array_outside)
         ASSERT_EQ(data_ptr[i], data[i]);
     }
 }
-
