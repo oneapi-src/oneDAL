@@ -164,41 +164,6 @@ struct Blas
             lastBlockSizeB = blockSizeB;
         }
 
-        struct GemmTask
-        {
-        public:
-            DAAL_NEW_DELETE();
-            fpType * mklBuff;
-
-            static GemmTask * create(const size_t blockSizeA, const size_t blockSizeB)
-            {
-                auto object = new GemmTask(blockSizeA, blockSizeB);
-                if (object && object->isValid()) return object;
-                delete object;
-                return nullptr;
-            }
-
-            bool isValid() const { return _buff.get(); }
-
-        private:
-            GemmTask(const size_t blockSizeA, const size_t blockSizeB)
-            {
-                _buff.reset(blockSizeA * blockSizeB);
-                mklBuff = &_buff[0];
-            }
-
-            TArrayScalable<fpType, cpu> _buff;
-        };
-
-        daal::tls<GemmTask *> tslTask([=, &safeStat]() {
-            auto tlsData = GemmTask::create(blockSizeA, blockSizeB);
-            if (!tlsData)
-            {
-                safeStat.add(services::ErrorMemoryAllocationFailed);
-            }
-            return tlsData;
-        });
-
         /* Threaded loop by whole number of blocks */
         daal::threader_for(nBlocksB, nBlocksB, [&](SizeType iBlockB) {
             /* Current block size - can be less than general block size for last block */
@@ -219,30 +184,15 @@ struct Blas
                 SizeType nRowsInBlockA   = (iBlockA < (nBlocksA - 1)) ? blockSizeA : lastBlockSizeA;
                 const SizeType startRowA = iBlockA * blockSizeA;
 
-                GemmTask * const tlsLocal = tslTask.local();
-                DAAL_CHECK_MALLOC_THR(tlsLocal);
-                fpType * const mklBuff = tlsLocal->mklBuff;
-
                 /* Read rows for numeric tables */
                 ReadRows<fpType, cpu> mta(*const_cast<NumericTable *>(ta), startRowA, nRowsInBlockA);
                 DAAL_CHECK_BLOCK_STATUS_THR(mta);
                 const fpType * const a = mta.get();
 
-                SizeType ldBuff = blockSizeA;
                 /* Call to sequential GEMM */
-                xxgemm(transa, transb, &nRowsInBlockA, &nRowsInBlockB, &nCols, alpha, a, lda, b, ldb, beta, mklBuff, &ldBuff);
-
-                for (SizeType i = 0; i < nRowsInBlockB; i++)
-                {
-                    for (SizeType j = 0; j < nRowsInBlockA; j++)
-                    {
-                        c[i * *ldc + j + startRowA] = mklBuff[i * ldBuff + j];
-                    }
-                }
+                xxgemm(transa, transb, &nRowsInBlockA, &nRowsInBlockB, &nCols, alpha, a, lda, b, ldb, beta, c, ldc);
             });
         });
-
-        tslTask.reduce([](GemmTask * tlsLocal) { delete tlsLocal; });
 
         return safeStat.detach();
     } /* xgemm_blocked */

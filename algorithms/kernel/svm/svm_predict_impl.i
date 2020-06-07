@@ -201,7 +201,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         const algorithmFPType * const svCoeff = mtSVCoeff.get();
 
         size_t nRowsPerBlock = 1;
-        DAAL_SAFE_CPU_CALL((nRowsPerBlock = 1024), (nRowsPerBlock = nVectors));
+        DAAL_SAFE_CPU_CALL((nRowsPerBlock = 2048), (nRowsPerBlock = nVectors));
         const size_t nBlocks = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
 
         /* LS data initialization */
