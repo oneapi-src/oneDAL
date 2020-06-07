@@ -132,9 +132,10 @@ services::Status KernelImplLinear<defaultDense, algorithmFPType, cpu>::computeIn
     algorithmFPType beta     = 0.0;
     algorithmFPType b        = (algorithmFPType)(linPar->b);
 
-    const services::Status retStat =
-        Blas<algorithmFPType, cpu>::xgemm_blocked(&trans, &notrans, (DAAL_INT *)&nVectors2, (DAAL_INT *)&nVectors1, (DAAL_INT *)&nFeatures, &alpha,
-                                                  a2, (DAAL_INT *)&nFeatures, a1, (DAAL_INT *)&nFeatures, &beta, r, (DAAL_INT *)&nVectors2);
+    const size_t blockSize         = 256;
+    const services::Status retStat = Blas<algorithmFPType, cpu>::xgemm_blocked(
+        &trans, &notrans, (DAAL_INT *)&nVectors2, (DAAL_INT *)&nVectors1, (DAAL_INT *)&nFeatures, &alpha, a2, (DAAL_INT *)&nFeatures, a1,
+        (DAAL_INT *)&nFeatures, &beta, r, (DAAL_INT *)&nVectors2, blockSize, blockSize);
     if (!retStat) return retStat;
 
     if (b != 0.0)
@@ -155,13 +156,9 @@ services::Status KernelImplLinear<defaultDense, algorithmFPType, cpu>::computeIn
 }
 
 } // namespace internal
-
 } // namespace linear
-
 } // namespace kernel_function
-
 } // namespace algorithms
-
 } // namespace daal
 
 #endif
