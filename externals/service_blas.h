@@ -190,13 +190,13 @@ struct Blas
                 const fpType * const a = mta.get();
 
                 /* Call to sequential GEMM */
-                xxgemm(transa, transb, &nRowsInBlockA, &nRowsInBlockB, &nCols, alpha, a, lda, b, ldb, beta, c, ldc);
+                xxgemm(transa, transb, &nRowsInBlockA, &nRowsInBlockB, &nCols, alpha, a, lda, b, ldb, beta, c + startRowA, ldc);
             });
         });
 
         return safeStat.detach();
     } /* xgemm_blocked */
-};    // namespace internal
+};
 
 } // namespace internal
 } // namespace daal
