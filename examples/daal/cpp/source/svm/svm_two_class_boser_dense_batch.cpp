@@ -1,6 +1,6 @@
-/* file: svm_two_class_dense_batch.cpp */
+/* file: svm_two_class_boser_dense_batch.cpp */
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,24 +17,25 @@
 
 /*
 !  Content:
-!    C++ example of two-class support vector machine (SVM) classification with DPC++ interfaces
+!    C++ example of two-class support vector machine (SVM) classification using
+!    the Boser method
 !
 !******************************************************************************/
 
 /**
- * <a name="DAAL-EXAMPLE-CPP-SVM_TWO_CLASS_DENSE_BATCH"></a>
- * \example svm_two_class_dense_batch.cpp
+ * <a name="DAAL-EXAMPLE-CPP-SVM_TWO_CLASS_BOSER_DENSE_BATCH"></a>
+ * \example svm_two_class_boser_dense_batch.cpp
  */
 
-#include "daal_sycl.h"
+#include "daal.h"
 #include "service.h"
-#include "service_sycl.h"
 
 using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
+/* Input data set parameters */
 string trainDatasetFileName = "../data/batch/svm_two_class_train_dense.csv";
 string testDatasetFileName  = "../data/batch/svm_two_class_test_dense.csv";
 
@@ -48,8 +49,7 @@ svm::training::ResultPtr trainingResult;
 classifier::prediction::ResultPtr predictionResult;
 NumericTablePtr testGroundTruth;
 
-template <typename algorithmType>
-void trainModel(algorithmType && algorithm);
+void trainModel();
 void testModel();
 void printResults();
 
@@ -57,42 +57,33 @@ int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
-    for (const auto & deviceSelector : getListOfDevices())
-    {
-        const auto & nameDevice = deviceSelector.first;
-        const auto & device     = deviceSelector.second;
-
-        cl::sycl::queue queue(device);
-        std::cout << "Running on " << nameDevice << "\n\n";
-
-        daal::services::SyclExecutionContext ctx(queue);
-        services::Environment::getInstance()->setDefaultExecutionContext(ctx);
-
-        trainModel(svm::training::Batch<float, svm::training::thunder>());
-        testModel();
-        printResults();
-    }
+    trainModel();
+    testModel();
+    printResults();
 
     return 0;
 }
 
-template <typename algorithmType>
-void trainModel(algorithmType && algorithm)
+void trainModel()
 {
+    /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
     FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
-    auto trainData        = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
-    auto trainGroundTruth = SyclHomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
+    /* Create Numeric Tables for training data and labels */
+    NumericTablePtr trainData        = HomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
+    NumericTablePtr trainGroundTruth = HomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
+    NumericTablePtr mergedData       = MergedNumericTable::create(trainData, trainGroundTruth);
 
-    NumericTablePtr mergedData(new MergedNumericTable(trainData, trainGroundTruth));
-
+    /* Retrieve the data from the input file */
     trainDataSource.loadDataBlock(mergedData.get());
 
-    algorithm.parameter.kernel            = kernel;
-    algorithm.parameter.C                 = 1.0;
-    algorithm.parameter.accuracyThreshold = 0.01;
-    algorithm.parameter.tau               = 1e-6;
+    /* Create an algorithm object to train the SVM model */
+    svm::training::Batch<float, svm::training::boser> algorithm;
 
+    algorithm.parameter.kernel    = kernel;
+    algorithm.parameter.cacheSize = 40000000;
+
+    /* Pass a training data set and dependent values to the algorithm */
     algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainGroundTruth);
 
@@ -109,9 +100,9 @@ void testModel()
     FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for testing data and labels */
-    NumericTablePtr testData = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
-    testGroundTruth          = SyclHomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
-    NumericTablePtr mergedData(new MergedNumericTable(testData, testGroundTruth));
+    NumericTablePtr testData   = HomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
+    testGroundTruth            = HomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
+    NumericTablePtr mergedData = MergedNumericTable::create(testData, testGroundTruth);
 
     /* Retrieve the data from input file */
     testDataSource.loadDataBlock(mergedData.get());
