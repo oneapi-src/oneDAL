@@ -105,7 +105,7 @@ services::Status assignRows(const DataType * origDataPtr, const NumericTablePtr 
 {
     BlockDescriptor<DataType> dataBlock;
     BlockDescriptor<IdxType> idxBlock;
-    dataTable->getBlockOfRows(startRow, startRow + nRows, readWrite, dataBlock);
+    dataTable->getBlockOfRows(startRow, nRows, readWrite, dataBlock);
     idxTable->getBlockOfColumnValues(0, startRow, nRows, readOnly, idxBlock);
     DataType * dataPtr     = dataBlock.getBlockPtr();
     const IdxType * idxPtr = idxBlock.getBlockPtr();
