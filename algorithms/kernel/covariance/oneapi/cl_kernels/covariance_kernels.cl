@@ -61,6 +61,8 @@ DECLARE_SOURCE(
 
     __kernel void finalize(unsigned int nFeatures, algorithmFPType nObservations, __global algorithmFPType * crossProduct,
                            __global algorithmFPType * cov, __global algorithmFPType * diagCrossProduct, unsigned int isOutputCorrelationMatrix) {
+        const algorithmFPType epsilon = 1e-10;
+
         algorithmFPType invNObservationsM1 = (algorithmFPType)(1.0);
 
         if (nObservations > (algorithmFPType)(1.0))
@@ -86,8 +88,11 @@ DECLARE_SOURCE(
             }
             else if (global_row_id != global_col_id)
             {
-                algorithmFPType sqrtRowElement = (algorithmFPType)(1.0) / sqrt(crossProductRowElement);
-                algorithmFPType sqrtColElement = (algorithmFPType)(1.0) / sqrt(crossProductColElement);
+                //Handling cases when inversion can not be performed.
+                algorithmFPType sqrtRowElement =
+                    (crossProductRowElement > epsilon) ? (algorithmFPType)(1.0) / sqrt(crossProductRowElement) : (algorithmFPType)(0.0);
+                algorithmFPType sqrtColElement =
+                    (crossProductColElement > epsilon) ? (algorithmFPType)(1.0) / sqrt(crossProductColElement) : (algorithmFPType)(0.0);
 
                 covElement = crossProductElement * sqrtRowElement * sqrtColElement;
             }
