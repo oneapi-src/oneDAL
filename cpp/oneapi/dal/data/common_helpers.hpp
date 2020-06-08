@@ -47,6 +47,7 @@ constexpr auto get_data_type_size(data_type t) {
     else if (t == data_type::uint64) {
         return sizeof(uint64_t);
     }
+    return 0UL;
 }
 
 template <data_type t>

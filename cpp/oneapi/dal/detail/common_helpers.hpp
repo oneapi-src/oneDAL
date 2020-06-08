@@ -35,9 +35,8 @@ constexpr auto make_data_type_impl() {
         return data_type::float32;
     } else if constexpr (std::is_same_v<double, T>) {
         return data_type::float64;
-    } else {
-        throw std::logic_error{};
     }
+    throw std::invalid_argument{"T"};
 }
 
 } // namespace dal::detail
