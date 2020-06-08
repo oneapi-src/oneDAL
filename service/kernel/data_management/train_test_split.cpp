@@ -55,6 +55,8 @@ services::Status assignColumnValues(const DataType * origDataPtr, const NumericT
         dataPtr[i] = origDataPtr[idxPtr[i]];
     }
 
+    dataTable->releaseBlockOfColumnValues(dataBlock);
+
     return services::Status();
 }
 
@@ -96,6 +98,8 @@ services::Status splitColumn(const NumericTablePtr & inputTable, const NumericTa
     s |= assignColumnSubset<DataType, IdxType, cpu>(origDataPtr, trainTable, trainIdx, nTrainRows, iCol, nThreads);
     s |= assignColumnSubset<DataType, IdxType, cpu>(origDataPtr, testTable, testIdx, nTestRows, iCol, nThreads);
 
+    inputTable->releaseBlockOfColumnValues(origBlock);
+
     return s;
 }
 
@@ -121,6 +125,10 @@ services::Status assignRows(const DataType * origDataPtr, const NumericTablePtr 
             dataPtr[i * nColumns + j] = origDataPtr[idxPtr[i] * nColumns + j];
         }
     }
+
+    dataTable->releaseBlockOfRows(dataBlock);
+    idxTable->releaseBlockOfColumnValues(idxBlock);
+
     return services::Status();
 }
 
@@ -161,6 +169,8 @@ services::Status splitRows(const NumericTablePtr & inputTable, const NumericTabl
 
     s |= assignRowsSubset<DataType, IdxType, cpu>(origDataPtr, trainTable, trainIdxTable, nTrainRows, nColumns, nThreads, blockSize);
     s |= assignRowsSubset<DataType, IdxType, cpu>(origDataPtr, testTable, testIdxTable, nTestRows, nColumns, nThreads, blockSize);
+
+    inputTable->releaseBlockOfRows(origBlock);
 
     return s;
 }
@@ -205,6 +215,10 @@ services::Status trainTestSplitImpl(const NumericTablePtr & inputTable, const Nu
                     s |= splitColumn<int, IdxType, cpu>(inputTable, trainTable, testTable, trainIdx, testIdx, nTrainRows, nTestRows, iCol, nThreads);
                 }
             });
+
+        trainIdxTable->releaseBlockOfColumnValues(trainIdxBlock);
+        testIdxTable->releaseBlockOfColumnValues(testIdxBlock);
+
         return s.detach();
     }
     else
