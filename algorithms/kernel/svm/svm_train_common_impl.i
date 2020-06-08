@@ -181,10 +181,9 @@ template <typename algorithmFPType, CpuType cpu>
 services::Status SubDataTaskDense<algorithmFPType, cpu>::copyDataByIndices(const uint32_t * wsIndices, const NumericTablePtr & xTable)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(cache.copyDataByIndices.Dense);
-    NumericTable & x       = *xTable.get();
-    const size_t p         = x.getNumberOfColumns();
-    const size_t blockSize = 1;
-    const size_t nBlock    = this->_nSubsetVectors;
+    NumericTable & x    = *xTable.get();
+    const size_t p      = x.getNumberOfColumns();
+    const size_t nBlock = this->_nSubsetVectors;
     SafeStatus safeStat;
     daal::threader_for(nBlock, nBlock, [&](const size_t iBlock) {
         size_t iRows = wsIndices[iBlock];
