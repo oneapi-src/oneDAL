@@ -194,7 +194,6 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
             service_memset<algorithmFPType, cpu>(distance, zero, nVectors);
             return Status();
         }
-        const NumericTablePtr svTable = model->getSupportVectors();
 
         ReadColumns<algorithmFPType, cpu> mtSVCoeff(*svCoeffTable, 0, 0, nSV);
         DAAL_CHECK_BLOCK_STATUS(mtSVCoeff);
@@ -204,6 +203,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         DAAL_SAFE_CPU_CALL((nRowsPerBlock = 2048), (nRowsPerBlock = nVectors));
         const size_t nBlocks = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
 
+        const NumericTablePtr svTable = model->getSupportVectors();
         /* LS data initialization */
         using TPredictTask = PredictTask<algorithmFPType, cpu>;
         daal::ls<TPredictTask *> lsTask([&]() {
