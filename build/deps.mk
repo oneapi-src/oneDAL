@@ -69,15 +69,17 @@ endif
 $1 = $$(if $$(or $$(.sources-changed),$$(and $$(.mkfiles-changed),$$(call .trigger-changed,$3))),\
 	$$(call .debug.compile,$3) $2 && $$(call .save-trigger-value,$3) && $$(call .finalize-dep-gen),$$(strip \
 	$$(call .debug.skip)))
-	
+
 # Evaluate GNU Make construct after logging it to console
 .LE = $(if $(DEBUG_INCR_BUILDING_EVAL),$(info $1)) $(eval $1)
 
 # ---
 # Enhance build commands with support for dependency generation
 # (does not depend on macro from which particular command if called, only on command executable name)
-dep-gen-enhanced.icc   = $(call $(SELF),$1 $(.copt-gen-deps)) && $(.keep-raw-deps) sed -n $(sed.-i) $(sed.fix-deps) $(sed.rm-abs-paths) -e '/./{ p; $(sed.mk-phony-targets)}' $(.dep-file-tmp)
-dep-gen-enhanced.icl   = $(dep-gen-enhanced.icc)
+dep-gen-enhanced-common   = $(call $(SELF),$1 $(.copt-gen-deps)) && $(.keep-raw-deps) sed -n $(sed.-i) $(sed.fix-deps) $(sed.rm-abs-paths) -e '/./{ p; $(sed.mk-phony-targets)}' $(.dep-file-tmp)
+dep-gen-enhanced.icc   = $(dep-gen-enhanced-common)
+dep-gen-enhanced.icl   = $(dep-gen-enhanced-common)
+dep-gen-enhanced.g++   = $(dep-gen-enhanced-common)
 cmd-enhanced-with-dep-gen = $(or $(dep-gen-enhanced.$(call get-command-name,$($(SELF)))),$($(SELF)))
 
 $(call .inject.dep.gen, C.COMPILE,     $$(cmd-enhanced-with-dep-gen))
