@@ -45,7 +45,8 @@ namespace internal
 template <Method method, typename AlgorithmFPtype, typename ClsType, typename MccParType, CpuType cpu>
 struct MultiClassClassifierTrainKernel : public Kernel
 {
-    services::Status compute(const NumericTable * a0, const NumericTable * a1, daal::algorithms::Model * r, const daal::algorithms::Parameter * par);
+    services::Status compute(const NumericTable * a0, const NumericTable * a1, const NumericTable * a2, daal::algorithms::Model * r,
+                             const daal::algorithms::Parameter * par);
 };
 
 } // namespace internal
