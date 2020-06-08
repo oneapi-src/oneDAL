@@ -216,6 +216,7 @@ struct PostProcessing<lloydCSR, algorithmFPType, cpu>
 
         SafeStatus safeStat;
         CSRNumericTableIface * ntDataCsr = dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(ntData));
+        DAAL_CHECK(ntDataCsr, services::ErrorEmptyCSRNumericTable);
 
         daal::threader_for(nBlocks, nBlocks, [&](int iBlock) {
             algorithmFPType * x_clusters = tlsTask.local();
@@ -279,6 +280,8 @@ struct PostProcessing<lloydCSR, algorithmFPType, cpu>
         DAAL_CHECK_MALLOC(goalLocalData);
 
         CSRNumericTableIface * ntDataCsr = dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(ntData));
+        DAAL_CHECK(ntDataCsr, services::ErrorEmptyCSRNumericTable);
+
         SafeStatus safeStat;
         daal::threader_for(nBlocks, nBlocks, [&](const int iBlock) {
             const size_t blockSize = (iBlock == nBlocks - 1) ? n - iBlock * blockSizeDefault : blockSizeDefault;
