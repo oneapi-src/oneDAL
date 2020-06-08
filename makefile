@@ -361,6 +361,13 @@ daaldep.ipp     := $(daaldep.$(PLAT).ipp)
 daaldep.rt.thr  := $(daaldep.$(PLAT).rt.thr)
 daaldep.rt.seq  := $(daaldep.$(PLAT).rt.seq)
 
+# List oneAPI header files to populate release/include.
+release.ONEAPI.HEADERS.exclude := ! -path "*/backend/*" ! -path "*.impl.*"
+release.ONEAPI.HEADERS := $(shell find $(CPPDIR) -type f -name "*.hpp" $(release.ONEAPI.HEADERS.exclude))
+release.ONEAPI.HEADERS.OSSPEC := $(foreach fn,$(release.ONEAPI.HEADERS),$(if $(filter %$(_OS),$(basename $(fn))),$(fn)))
+release.ONEAPI.HEADERS.COMMON := $(foreach fn,$(release.ONEAPI.HEADERS),$(if $(filter $(addprefix %,$(OSList)),$(basename $(fn))),,$(fn)))
+release.ONEAPI.HEADERS.COMMON := $(filter-out $(subst _$(_OS),,$(release.ONEAPI.HEADERS.OSSPEC)),$(release.ONEAPI.HEADERS.COMMON))
+
 # List header files to populate release/include.
 release.HEADERS := $(shell find $(CPPDIR.daal)/include -type f -name "*.h")
 release.HEADERS.OSSPEC := $(foreach fn,$(release.HEADERS),$(if $(filter %$(_OS),$(basename $(fn))),$(fn)))
@@ -571,7 +578,7 @@ ONEAPI.srcdirs.detail := $(foreach _,$(ONEAPI.srcdirs.base),$(shell find $_ -max
 ONEAPI.srcdirs.backend := $(foreach _,$(ONEAPI.srcdirs.base),$(shell find $_ -maxdepth 1 -type d -name backend))
 ONEAPI.srcdirs := $(ONEAPI.srcdirs.base) $(ONEAPI.srcdirs.detail) $(ONEAPI.srcdirs.backend)
 
-ONEAPI.incdirs.common := $(CPPDIR) $(CORE.incdirs.common)
+ONEAPI.incdirs.common := $(CORE.incdirs.common) $(CPPDIR)
 ONEAPI.incdirs.thirdp := $(MKLFPKDIR.include) $(TBBDIR.include)
 ONEAPI.incdirs := $(ONEAPI.incdirs.common) $(CORE.incdirs.thirdp)
 
@@ -581,8 +588,6 @@ ONEAPI.srcs     := $(wildcard $(ONEAPI.srcdirs.base:%=%/*.cpp)) \
                    $(foreach x,$(ONEAPI.srcdirs.detail),$(shell find $x -type f -name "*.cpp")) \
                    $(foreach x,$(ONEAPI.srcdirs.backend),$(shell find $x -type f -name "*.cpp"))
 ONEAPI.srcs     := $(filter-out %_test.cpp,$(ONEAPI.srcs))
-
-$(info $(ONEAPI.srcs))
 
 ONEAPI.srcs     := $(if $(OS_is_mac),$(ONEAPI.srcs),$(call notcontaining,_mac,$(ONEAPI.srcs)))
 ONEAPI.objs_a   := $(ONEAPI.srcs:%.cpp=$(ONEAPI.tmpdir_a)/%.$o)
@@ -901,6 +906,8 @@ $2: $1 ; $(value mkdir)$(value cpy)
 endef
 $(foreach d,$(release.HEADERS.COMMON),$(eval $(call .release.dd,$d,$(subst $(CPPDIR.daal)/include/,$(RELEASEDIR.include)/,$d),_release_c_h)))
 $(foreach d,$(release.HEADERS.OSSPEC),$(eval $(call .release.dd,$d,$(subst $(CPPDIR.daal)/include/,$(RELEASEDIR.include)/,$(subst _$(_OS),,$d)),_release_c_h)))
+$(foreach d,$(release.ONEAPI.HEADERS.COMMON),$(eval $(call .release.dd,$d,$(subst $(CPPDIR)/,$(RELEASEDIR.include)/,$d),_release_c_h)))
+$(foreach d,$(release.ONEAPI.HEADERS.OSSPEC),$(eval $(call .release.dd,$d,$(subst $(CPPDIR)/,$(RELEASEDIR.include)/,$(subst _$(_OS),,$d)),_release_c_h)))
 
 #----- releasing static/dynamic Intel(R) TBB libraries
 $(RELEASEDIR.tbb.libia) $(RELEASEDIR.tbb.soia): _release_common
