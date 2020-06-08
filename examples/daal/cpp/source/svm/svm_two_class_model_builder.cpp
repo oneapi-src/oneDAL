@@ -70,6 +70,9 @@ svm::ModelPtr buildModelFromTraining()
     NumericTablePtr classificationCoefficients = HomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
     NumericTablePtr mergedModel                = MergedNumericTable::create(supportVectors, classificationCoefficients);
 
+    checkPtr(supportVectors.get());
+    checkPtr(classificationCoefficients.get());
+
     /* Retrieve the model from input file */
     modelSource.loadDataBlock(mergedModel.get());
 

@@ -155,13 +155,9 @@ services::Status KernelImplLinear<defaultDense, algorithmFPType, cpu>::computeIn
 }
 
 } // namespace internal
-
 } // namespace linear
-
 } // namespace kernel_function
-
 } // namespace algorithms
-
 } // namespace daal
 
 #endif
