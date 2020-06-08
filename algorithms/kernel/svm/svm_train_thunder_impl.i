@@ -81,8 +81,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
     const size_t cacheSize(svmPar->cacheSize);
     kernel_function::KernelIfacePtr kernel = svmPar->kernel->clone();
 
-    const size_t nVectors  = xTable->getNumberOfRows();
-    const size_t nFeatures = xTable->getNumberOfColumns();
+    const size_t nVectors = xTable->getNumberOfRows();
 
     TArray<algorithmFPType, cpu> alphaTArray(nVectors);
     DAAL_CHECK_MALLOC(alphaTArray.get());
@@ -106,13 +105,10 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
     TaskWorkingSet<algorithmFPType, cpu> workSet(nVectors, maxBlockSize);
     DAAL_CHECK_STATUS(status, workSet.init());
     const size_t nWS = workSet.getSize();
-    const size_t innerMaxIterations(nWS * cInnerIterations);
 
     algorithmFPType diff     = algorithmFPType(0);
     algorithmFPType diffPrev = algorithmFPType(0);
-
-    size_t innerIteration = 0;
-    size_t sameLocalDiff  = 0;
+    size_t sameLocalDiff     = 0;
 
     TArray<algorithmFPType, cpu> buffer(nWS * MemSmoId::latest + nWS * nWS);
     DAAL_CHECK_MALLOC(buffer.get());
@@ -226,9 +222,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
         algorithmFPType GMin  = HelperTrainSVM<algorithmFPType, cpu>::WSSi(nWS, gradLocal, I, Bi);
         algorithmFPType GMax  = -MaxVal<algorithmFPType>::get();
         algorithmFPType GMax2 = -MaxVal<algorithmFPType>::get();
-
         const algorithmFPType zero(0.0);
-        const algorithmFPType two(2.0);
 
         const algorithmFPType KBiBi            = kdLocal[Bi];
         const algorithmFPType * const KBiBlock = &kernelLocal[Bi * nWS];
@@ -250,8 +244,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
         const algorithmFPType yBj = yLocal[Bj];
 
         /* Update coefficients */
-        const algorithmFPType alphaBiDelta = (yBi > 0.0f) ? C - alphaLocal[Bi] : alphaLocal[Bi];
-        const algorithmFPType alphaBjDelta = services::internal::min<cpu, algorithmFPType>((yBj > 0.0f) ? alphaLocal[Bj] : C - alphaLocal[Bj], delta);
+        const algorithmFPType alphaBiDelta = (yBi > zero) ? C - alphaLocal[Bi] : alphaLocal[Bi];
+        const algorithmFPType alphaBjDelta = services::internal::min<cpu, algorithmFPType>((yBj > zero) ? alphaLocal[Bj] : C - alphaLocal[Bj], delta);
         delta                              = services::internal::min<cpu, algorithmFPType>(alphaBiDelta, alphaBjDelta);
 
         /* Update alpha */
