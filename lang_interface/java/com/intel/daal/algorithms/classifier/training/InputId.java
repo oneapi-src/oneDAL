@@ -16,7 +16,7 @@
 *******************************************************************************/
 
 /**
- * @defgroup training Training
+ * @defgroup classifier_training Training
  * @brief Contains classes for training the model of the classification algorithms
  * @ingroup classifier
  * @{

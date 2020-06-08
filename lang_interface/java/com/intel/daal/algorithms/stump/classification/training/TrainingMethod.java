@@ -16,15 +16,15 @@
 *******************************************************************************/
 
 /**
- * @defgroup stump Stump
+ * @defgroup stump_classification Classification Stump
  * @brief Contains classes to work with the decision stump training algorithm
- * @ingroup classifier
+ * @ingroup classification
  * @{
  */
 /**
- * @defgroup stump_training Training
+ * @defgroup stump_classification_training Training
  * @brief Contains classes to train the decision stump model
- * @ingroup stump
+ * @ingroup stump_classification
  * @{
  */
 /**

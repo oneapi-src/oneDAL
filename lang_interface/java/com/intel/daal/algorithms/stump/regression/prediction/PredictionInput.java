@@ -16,9 +16,9 @@
 *******************************************************************************/
 
 /**
- * @defgroup stump_prediction Prediction
+ * @defgroup stump_regression_prediction Prediction
  * @brief Contains classes to make prediction based on the decision stump model
- * @ingroup stump
+ * @ingroup stump_regression
  * @{
  */
 package com.intel.daal.algorithms.stump.regression.prediction;

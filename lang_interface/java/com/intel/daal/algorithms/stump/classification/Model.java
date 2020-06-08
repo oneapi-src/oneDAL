@@ -16,9 +16,9 @@
 *******************************************************************************/
 
 /**
- * @defgroup stump_classification Classification
+ * @defgroup stump_classification Classification Stump
  * @brief Contains classes for decision stump classification algorithm
- * @ingroup stump
+ * @ingroup classification
  * @{
  */
 

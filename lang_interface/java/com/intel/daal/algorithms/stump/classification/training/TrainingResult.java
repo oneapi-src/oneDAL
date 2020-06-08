@@ -16,7 +16,7 @@
 *******************************************************************************/
 
 /**
- * @ingroup stump_training
+ * @ingroup stump_classification_training
  * @{
  */
 package com.intel.daal.algorithms.stump.classification.training;

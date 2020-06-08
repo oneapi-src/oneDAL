@@ -16,7 +16,7 @@
 *******************************************************************************/
 
 /**
- * @defgroup prediction Prediction
+ * @defgroup classifier_prediction Prediction
  * @brief Contains classes for making prediction based on the classifier model
  * @ingroup classifier
  * @{

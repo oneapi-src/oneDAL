@@ -52,8 +52,9 @@ namespace training
  */
 enum Method
 {
-    boser = 0,          /*!< Method proposed by Boser et al. */
-    defaultDense = 0    /*!< Default method */
+    defaultDense = 0, /*!< Default method.                 */
+    boser        = 0, /*!< Method proposed by Boser et al. */
+    thunder      = 1  /*!< Method proposed by ThunderSVM. */
 };
 
 /**
@@ -90,14 +91,14 @@ public:
      * \return Status of computation
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
