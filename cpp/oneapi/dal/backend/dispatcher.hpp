@@ -66,7 +66,6 @@ constexpr auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
     else if (test_cpu_extension(cpu_ex, cpu_extension::avx)) {
         return op(cpu_dispatch_avx{});
     }
-    // TODO: Add more extensions
     return op(cpu_dispatch_default{});
 }
 

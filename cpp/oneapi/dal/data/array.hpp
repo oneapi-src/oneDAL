@@ -17,6 +17,7 @@
 #pragma once
 
 #include <variant>
+#include <algorithm>
 #include "oneapi/dal/detail/common.hpp"
 
 namespace dal {

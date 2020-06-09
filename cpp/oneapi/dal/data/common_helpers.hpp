@@ -28,7 +28,7 @@ constexpr data_type make_data_type() {
     return detail::make_data_type_impl<std::decay_t<T>>();
 }
 
-constexpr auto get_data_type_size(data_type t) {
+constexpr std::int64_t get_data_type_size(data_type t) {
     if (t == data_type::float32) {
         return sizeof(float);
     }
@@ -47,7 +47,7 @@ constexpr auto get_data_type_size(data_type t) {
     else if (t == data_type::uint64) {
         return sizeof(uint64_t);
     }
-    return 0UL;
+    return 0;
 }
 
 template <data_type t>
