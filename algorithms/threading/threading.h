@@ -318,6 +318,22 @@ inline bool is_in_parallel()
     return _daal_is_in_parallel();
 }
 
+template <typename Func>
+void conditional_threader_for(const bool inParallel, const size_t n, Func func)
+{
+    if (inParallel)
+    {
+        threader_for(n, n, [&](size_t i) { func(i); });
+    }
+    else
+    {
+        for (size_t i = 0; i < n; ++i)
+        {
+            func(i);
+        }
+    }
+}
+
 } // namespace daal
 
 #endif
