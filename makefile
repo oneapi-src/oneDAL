@@ -95,6 +95,7 @@ y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib fbsd/so))
 -DEBC  := $(if $(REQDBG),$(-DEBC.$(COMPILER)) -DDEBUG_ASSERT) -DTBB_SUPPRESS_DEPRECATED_MESSAGES -D__TBB_LEGACY_MODE $(if $(REQPRF), -D__DAAL_ITTNOTIFY_ENABLE__)
 -DEBJ  := $(if $(REQDBG),-g,-g:none)
 -DEBL  := $(if $(REQDBG),$(if $(OS_is_win),-debug,))
+-EHsc  := $(if $(OS_is_win),$(-Q)EHsc,)
 -sGRP  = $(if $(or $(OS_is_lnx),$(OS_is_fbsd)),-Wl$(comma)--start-group,)
 -eGRP  = $(if $(or $(OS_is_lnx),$(OS_is_fbsd)),-Wl$(comma)--end-group,)
 daalmake = $(if $(OS_is_fbsd),gmake,make)
@@ -639,7 +640,7 @@ $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt): $(ONEAPI.objs_y) $(if $(OS_is_wi
 $(WORKDIR.lib)/$(oneapi_y): $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt) $(if $(PLAT_is_win32e),$(CORE.srcdir)/export_win32e.def); $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
 $(ONEAPI.objs_a): $(ONEAPI.tmpdir_a)/inc_a_folders.txt
-$(ONEAPI.objs_a): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC)
+$(ONEAPI.objs_a): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc)
 $(ONEAPI.objs_a): COPT += -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED
 $(ONEAPI.objs_a): COPT += @$(ONEAPI.tmpdir_a)/inc_a_folders.txt
 $(filter %threading.$o, $(ONEAPI.objs_a)): COPT += -D__DO_TBB_LAYER__
@@ -654,7 +655,7 @@ $(call containing,_flt, $(ONEAPI.objs_a)): COPT += -DDAAL_FPTYPE=float
 $(call containing,_dbl, $(ONEAPI.objs_a)): COPT += -DDAAL_FPTYPE=double
 
 $(ONEAPI.objs_y): $(ONEAPI.tmpdir_y)/inc_y_folders.txt
-$(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC)
+$(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc)
 $(ONEAPI.objs_y): COPT += -D__DAAL_IMPLEMENTATION -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG)
 $(ONEAPI.objs_y): COPT += @$(ONEAPI.tmpdir_y)/inc_y_folders.txt
 $(filter %threading.$o, $(ONEAPI.objs_y)): COPT += -D__DO_TBB_LAYER__
