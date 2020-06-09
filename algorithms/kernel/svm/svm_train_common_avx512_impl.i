@@ -148,7 +148,6 @@ void HelperTrainSVM<float, avx512>::WSSjLocal(const size_t jStart, const size_t 
         }
         delta = b / a;
         GMax  = b * delta;
-        GMax2 = GMax2;
     }
     else
     {
@@ -303,7 +302,6 @@ void HelperTrainSVM<double, avx512>::WSSjLocal(const size_t jStart, const size_t
         }
         delta = b / a;
         GMax  = b * delta;
-        GMax2 = GMax2;
     }
     else
     {

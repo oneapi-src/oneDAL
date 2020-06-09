@@ -111,8 +111,8 @@ struct TaskWorkingSet
 
         daal::algorithms::internal::qSortByKey<IdxValType, cpu>(_nVectors, sortedFIndices);
 
-        IndexType pLeft  = 0;
-        IndexType pRight = _nVectors - 1;
+        int64_t pLeft  = 0;
+        int64_t pRight = _nVectors - 1;
         while (_nSelected < _nWS)
         {
             if (pLeft < _nVectors)
