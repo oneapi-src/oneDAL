@@ -62,8 +62,9 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     classifier::training::Input * input = static_cast<classifier::training::Input *>(_in);
     svm::training::Result * result      = static_cast<svm::training::Result *>(_res);
 
-    data_management::NumericTablePtr x = input->get(classifier::training::data);
-    data_management::NumericTablePtr y = input->get(classifier::training::labels);
+    const NumericTablePtr x = input->get(classifier::training::data);
+    const NumericTablePtr y = input->get(classifier::training::labels);
+    const NumericTablePtr weights;
 
     algorithms::Model * r = static_cast<daal::algorithms::Model *>(result->get(classifier::training::model).get());
 
@@ -81,8 +82,8 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     par2.cacheSize         = par1->cacheSize;
 
     services::Environment::env & env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType, svm::interface2::Parameter), compute, x, *y, r,
-                       &par2);
+    __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType, svm::interface2::Parameter), compute, x, weights,
+                       *y, r, &par2);
 }
 } // namespace interface1
 } // namespace training
