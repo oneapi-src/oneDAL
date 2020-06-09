@@ -223,7 +223,12 @@ CORE.ALGORITHMS.INC :=                                                        \
 CORE.SERVICES       := compression            \
                        data_management
 
-ONEAPI.ALGOS        := pca
+# Dependencies between oneAPI and core (CPU-only) algorithms
+ONEAPI.ALGOS.pca := CORE.pca
+
+# List of algorithms in oneAPI part
+ONEAPI.ALGOS := \
+    pca
 
 
 JJ.ALGORITHMS       := adaboost                                                  \
