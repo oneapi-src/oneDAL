@@ -149,7 +149,6 @@ protected:
      */
     services::Status setSV_Dense(Model & model, const NumericTable & xTable, size_t nSV) const
     {
-        const size_t nFeatures = xTable.getNumberOfColumns();
         /* Allocate memory for support vectors and coefficients */
         NumericTablePtr svTable = model.getSupportVectors();
         services::Status s;
@@ -165,11 +164,10 @@ protected:
         DAAL_CHECK_BLOCK_STATUS(mtSvIndices);
         const int * const svIndices = mtSvIndices.get();
 
-        const size_t p      = xTable.getNumberOfColumns();
-        const size_t nBlock = nSV;
+        const size_t p = xTable.getNumberOfColumns();
 
         SafeStatus safeStat;
-        daal::threader_for(nBlock, nBlock, [&](const size_t iBlock) {
+        daal::threader_for(nSV, nSV, [&](const size_t iBlock) {
             size_t iRows = svIndices[iBlock];
             ReadRows<algorithmFPType, cpu> mtX(const_cast<NumericTable *>(&xTable), iRows, 1);
             DAAL_CHECK_BLOCK_STATUS_THR(mtX);
@@ -263,9 +261,7 @@ protected:
      */
     algorithmFPType calculateBias(algorithmFPType C) const
     {
-        algorithmFPType bias;
-        const algorithmFPType zero(0.0);
-        const algorithmFPType one(1.0);
+        algorithmFPType bias    = algorithmFPType(0.0);
         size_t nGrad            = 0;
         algorithmFPType sumGrad = algorithmFPType(0.0);
 

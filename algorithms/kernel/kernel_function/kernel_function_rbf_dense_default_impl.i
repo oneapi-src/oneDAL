@@ -191,7 +191,6 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
     daal::threader_for(nBlocks1, nBlocks1, [&](const size_t iBlock1) {
         DAAL_INT nRowsInBlock1 = (iBlock1 != nBlocks1 - 1) ? blockSize : nVectors1 - iBlock1 * blockSize;
         DAAL_INT startRow1     = iBlock1 * blockSize;
-        DAAL_INT endRow1       = startRow1 + nRowsInBlock1;
 
         ReadRows<algorithmFPType, cpu> mtA1(*const_cast<NumericTable *>(a1), startRow1, nRowsInBlock1);
         DAAL_CHECK_BLOCK_STATUS_THR(mtA1);
@@ -204,7 +203,6 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
         daal::threader_for(nBlocks2, nBlocks2, [&, nVectors2, nBlocks2](const size_t iBlock2) {
             DAAL_INT nRowsInBlock2 = (iBlock2 != nBlocks2 - 1) ? blockSize : nVectors2 - iBlock2 * blockSize;
             DAAL_INT startRow2     = iBlock2 * blockSize;
-            DAAL_INT endRow2       = startRow2 + nRowsInBlock2;
 
             KernelRBFTask<algorithmFPType, cpu> * const tlsLocal = tslTask.local();
 

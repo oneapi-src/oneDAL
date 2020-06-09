@@ -192,8 +192,6 @@ struct PostProcessing<lloydCSR, algorithmFPType, cpu>
     static Status computeAssignments(const size_t p, const size_t nClusters, const algorithmFPType * const inClusters, const NumericTable * ntData,
                                      algorithmFPType * catCoef, NumericTable * ntAssign, const size_t blockSizeDefault)
     {
-        CSRNumericTableIface * ntDataCsr = dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(ntData));
-
         const size_t n       = ntData->getNumberOfRows();
         const size_t nBlocks = n / blockSizeDefault + !!(n % blockSizeDefault);
 
@@ -217,6 +215,8 @@ struct PostProcessing<lloydCSR, algorithmFPType, cpu>
         }
 
         SafeStatus safeStat;
+        CSRNumericTableIface * ntDataCsr = dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(ntData));
+        DAAL_CHECK(ntDataCsr, services::ErrorEmptyCSRNumericTable);
 
         daal::threader_for(nBlocks, nBlocks, [&](int iBlock) {
             algorithmFPType * x_clusters = tlsTask.local();
@@ -272,14 +272,15 @@ struct PostProcessing<lloydCSR, algorithmFPType, cpu>
                                                 const NumericTable * const ntData, const algorithmFPType * const catCoef, NumericTable * ntAssign,
                                                 algorithmFPType & objectiveFunction, const size_t blockSizeDefault)
     {
-        CSRNumericTableIface * ntDataCsr = dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(ntData));
-
         const size_t n       = ntData->getNumberOfRows();
         const size_t nBlocks = n / blockSizeDefault + !!(n % blockSizeDefault);
 
         TArrayScalable<algorithmFPType, cpu> goalLocal(nBlocks);
         algorithmFPType * goalLocalData = goalLocal.get();
         DAAL_CHECK_MALLOC(goalLocalData);
+
+        CSRNumericTableIface * ntDataCsr = dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(ntData));
+        DAAL_CHECK(ntDataCsr, services::ErrorEmptyCSRNumericTable);
 
         SafeStatus safeStat;
         daal::threader_for(nBlocks, nBlocks, [&](const int iBlock) {
