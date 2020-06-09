@@ -95,6 +95,7 @@ y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib fbsd/so))
 -DEBC  := $(if $(REQDBG),$(-DEBC.$(COMPILER)) -DDEBUG_ASSERT) -DTBB_SUPPRESS_DEPRECATED_MESSAGES -D__TBB_LEGACY_MODE $(if $(REQPRF), -D__DAAL_ITTNOTIFY_ENABLE__)
 -DEBJ  := $(if $(REQDBG),-g,-g:none)
 -DEBL  := $(if $(REQDBG),$(if $(OS_is_win),-debug,))
+-EHsc  := $(if $(OS_is_win),-EHsc,)
 -sGRP  = $(if $(or $(OS_is_lnx),$(OS_is_fbsd)),-Wl$(comma)--start-group,)
 -eGRP  = $(if $(or $(OS_is_lnx),$(OS_is_fbsd)),-Wl$(comma)--end-group,)
 daalmake = $(if $(OS_is_fbsd),gmake,make)
@@ -270,12 +271,17 @@ daal_jar  := daal.jar
 
 jni_so    := $(plib)JavaAPI.$y
 
-release.LIBS_A := $(core_a)                                                             \
+release.LIBS_A := $(core_a) \
                   $(if $(OS_is_win),$(foreach ilib,$(core_a),$(ilib:%.lib=%_dll.lib)),) \
                   $(if $(DAALTHRS),$(foreach i,$(DAALTHRS),$(thr_$(i)_a)),)
-release.LIBS_Y := $(core_y) $(if $(DAALTHRS),$(foreach i,$(DAALTHRS),$(thr_$(i)_y)),)
+release.LIBS_Y := $(core_y) \
+                  $(if $(DAALTHRS),$(foreach i,$(DAALTHRS),$(thr_$(i)_y)),)
 release.LIBS_J := $(jni_so)
 release.JARS = $(daal_jar)
+
+release.ONEAPI.LIBS_A := $(oneapi_a) \
+                         $(if $(OS_is_win),$(foreach ilib,$(oneapi_a),$(ilib:%.lib=%_dll.lib)),)
+release.ONEAPI.LIBS_Y := $(oneapi_y)
 
 # Libraries required for building
 daaldep.lnx32e.mkl.thr := $(MKLFPKDIR.libia)/$(plib)daal_mkl_thread.$a
@@ -362,7 +368,7 @@ daaldep.rt.thr  := $(daaldep.$(PLAT).rt.thr)
 daaldep.rt.seq  := $(daaldep.$(PLAT).rt.seq)
 
 # List oneAPI header files to populate release/include.
-release.ONEAPI.HEADERS.exclude := ! -path "*/backend/*" ! -path "*.impl.*"
+release.ONEAPI.HEADERS.exclude := ! -path "*/backend/*" ! -path "*.impl.*" ! -path "*_test.*"
 release.ONEAPI.HEADERS := $(shell find $(CPPDIR) -type f -name "*.hpp" $(release.ONEAPI.HEADERS.exclude))
 release.ONEAPI.HEADERS.OSSPEC := $(foreach fn,$(release.ONEAPI.HEADERS),$(if $(filter %$(_OS),$(basename $(fn))),$(fn)))
 release.ONEAPI.HEADERS.COMMON := $(foreach fn,$(release.ONEAPI.HEADERS),$(if $(filter $(addprefix %,$(OSList)),$(basename $(fn))),,$(fn)))
@@ -446,8 +452,8 @@ containing = $(foreach v,$2,$(if $(findstring $1,$v),$v))
 notcontaining = $(foreach v,$2,$(if $(findstring $1,$v),,$v))
 cpy = cp -fp "$<" "$@"
 
-CORE.tmpdir_a := $(WORKDIR)/kernel
-CORE.tmpdir_y := $(WORKDIR)/kernel_dll
+CORE.tmpdir_a := $(WORKDIR)/core_static
+CORE.tmpdir_y := $(WORKDIR)/core_dynamic
 CORE.srcs     := $(notdir $(wildcard $(CORE.srcdirs:%=%/*.cpp)))
 CORE.srcs     := $(if $(OS_is_mac),$(CORE.srcs),$(call notcontaining,_mac,$(CORE.srcs)))
 CORE.objs_a   := $(CORE.srcs:%.cpp=$(CORE.tmpdir_a)/%.$o)
@@ -634,7 +640,7 @@ $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt): $(ONEAPI.objs_y) $(if $(OS_is_wi
 $(WORKDIR.lib)/$(oneapi_y): $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt) $(if $(PLAT_is_win32e),$(CORE.srcdir)/export_win32e.def); $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
 $(ONEAPI.objs_a): $(ONEAPI.tmpdir_a)/inc_a_folders.txt
-$(ONEAPI.objs_a): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC)
+$(ONEAPI.objs_a): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc)
 $(ONEAPI.objs_a): COPT += -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED
 $(ONEAPI.objs_a): COPT += @$(ONEAPI.tmpdir_a)/inc_a_folders.txt
 $(filter %threading.$o, $(ONEAPI.objs_a)): COPT += -D__DO_TBB_LAYER__
@@ -649,7 +655,7 @@ $(call containing,_flt, $(ONEAPI.objs_a)): COPT += -DDAAL_FPTYPE=float
 $(call containing,_dbl, $(ONEAPI.objs_a)): COPT += -DDAAL_FPTYPE=double
 
 $(ONEAPI.objs_y): $(ONEAPI.tmpdir_y)/inc_y_folders.txt
-$(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC)
+$(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc)
 $(ONEAPI.objs_y): COPT += -D__DAAL_IMPLEMENTATION -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG)
 $(ONEAPI.objs_y): COPT += @$(ONEAPI.tmpdir_y)/inc_y_folders.txt
 $(filter %threading.$o, $(ONEAPI.objs_y)): COPT += -D__DO_TBB_LAYER__
@@ -692,8 +698,8 @@ $(ONEAPI.tmpdir_y)/%.res: %.rc | $(ONEAPI.tmpdir_y)/. ; $(RC.COMPILE)
 # Threading parts
 #===============================================================================
 THR.srcs     := threading.cpp service_thread_pinner.cpp
-THR.tmpdir_a := $(WORKDIR)/thread
-THR.tmpdir_y := $(WORKDIR)/thread_dll
+THR.tmpdir_a := $(WORKDIR)/threading_static
+THR.tmpdir_y := $(WORKDIR)/threading_dynamic
 THR_TBB.objs_a := $(addprefix $(THR.tmpdir_a)/,$(THR.srcs:%.cpp=%_tbb.$o))
 THR_TBB.objs_y := $(addprefix $(THR.tmpdir_y)/,$(THR.srcs:%.cpp=%_tbb.$o))
 THR_SEQ.objs_a := $(addprefix $(THR.tmpdir_a)/,$(THR.srcs:%.cpp=%_seq.$o))
@@ -811,17 +817,25 @@ $(JNI.tmpdir)/%.res: %.rc | $(JNI.tmpdir)/. ; $(RC.COMPILE)
 #===============================================================================
 # Top level targets
 #===============================================================================
-daal: $(if $(CORE.ALGORITHMS.CUSTOM),                                              \
-          _daal _release_c,                                                        \
-          _daal _daal_jj _release _release_doc                                     \
+daal: $(if $(CORE.ALGORITHMS.CUSTOM),           \
+          _daal _release_c,                     \
+          _daal _daal_jj _release _release_doc  \
       )
+
+
+onedal: $(if $(CORE.ALGORITHMS.CUSTOM),                        \
+          _daal _oneapi _release_oneapi_c,                     \
+          _daal _oneapi _daal_jj _release_oneapi _release_doc  \
+      )
+
+daal_c: _daal _release_c
+onedal_c: _daal _oneapi _release_oneapi_c
 
 _daal:    _daal_core _daal_thr
 _daal_jj: _daal_jar _daal_jni
 
 _daal_core:  info.building.core
 _daal_core:  $(WORKDIR.lib)/$(core_a) $(WORKDIR.lib)/$(core_y) ## TODO: move list of needed libs to one env var!!!
-_onedal:     $(WORKDIR.lib)/$(oneapi_a) $(WORKDIR.lib)/$(oneapi_y)
 _daal_thr:   info.building.threading
 _daal_thr:   $(if $(DAALTHRS),$(foreach ithr,$(DAALTHRS),_daal_thr_$(ithr)),)
 _daal_thr_tbb:   $(WORKDIR.lib)/$(thr_tbb_a) $(WORKDIR.lib)/$(thr_tbb_y)
@@ -833,6 +847,10 @@ _daal_jni: $(WORKDIR.lib)/$(jni_so)
 _release:    _release_c _release_jj
 _release_c:  _release_c_h _release_common
 _release_jj: _release_common
+
+_oneapi: $(WORKDIR.lib)/$(oneapi_a) $(WORKDIR.lib)/$(oneapi_y)
+_release_oneapi: _release _release_oneapi_c
+_release_oneapi_c: _release_oneapi_c_h
 
 #-------------------------------------------------------------------------------
 # Populating RELEASEDIR
@@ -850,6 +868,8 @@ endef
 $(foreach a,$(release.LIBS_A),$(eval $(call .release.ay,$a,$(RELEASEDIR.libia),_release_c)))
 $(foreach y,$(release.LIBS_Y),$(eval $(call .release.ay,$y,$(RELEASEDIR.soia),_release_c)))
 $(foreach j,$(release.LIBS_J),$(eval $(call .release.ay,$j,$(RELEASEDIR.soia),_release_jj)))
+$(foreach a,$(release.ONEAPI.LIBS_A),$(eval $(call .release.ay,$a,$(RELEASEDIR.libia),_release_oneapi_c)))
+$(foreach y,$(release.ONEAPI.LIBS_Y),$(eval $(call .release.ay,$y,$(RELEASEDIR.soia),_release_oneapi_c)))
 
 #----- releasing jar files
 _release_jj: $(addprefix $(RELEASEDIR.jardir)/,$(release.JARS))
@@ -897,6 +917,7 @@ $(foreach d,$(release.SAMPLES.JAVA),  $(eval $(call .release.d,$d,$(subst $(SAMP
 $(foreach d,$(release.SAMPLES.SCALA), $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),_release_jj)))
 
 $(CORE.incdirs): _release_c_h
+$(ONEAPI.incdirs): _release_oneapi_c_h
 
 define .release.dd
 $3: $2
@@ -906,8 +927,8 @@ $2: $1 ; $(value mkdir)$(value cpy)
 endef
 $(foreach d,$(release.HEADERS.COMMON),$(eval $(call .release.dd,$d,$(subst $(CPPDIR.daal)/include/,$(RELEASEDIR.include)/,$d),_release_c_h)))
 $(foreach d,$(release.HEADERS.OSSPEC),$(eval $(call .release.dd,$d,$(subst $(CPPDIR.daal)/include/,$(RELEASEDIR.include)/,$(subst _$(_OS),,$d)),_release_c_h)))
-$(foreach d,$(release.ONEAPI.HEADERS.COMMON),$(eval $(call .release.dd,$d,$(subst $(CPPDIR)/,$(RELEASEDIR.include)/,$d),_release_c_h)))
-$(foreach d,$(release.ONEAPI.HEADERS.OSSPEC),$(eval $(call .release.dd,$d,$(subst $(CPPDIR)/,$(RELEASEDIR.include)/,$(subst _$(_OS),,$d)),_release_c_h)))
+$(foreach d,$(release.ONEAPI.HEADERS.COMMON),$(eval $(call .release.dd,$d,$(subst $(CPPDIR)/,$(RELEASEDIR.include)/,$d),_release_oneapi_c_h)))
+$(foreach d,$(release.ONEAPI.HEADERS.OSSPEC),$(eval $(call .release.dd,$d,$(subst $(CPPDIR)/,$(RELEASEDIR.include)/,$(subst _$(_OS),,$d)),_release_oneapi_c_h)))
 
 #----- releasing static/dynamic Intel(R) TBB libraries
 $(RELEASEDIR.tbb.libia) $(RELEASEDIR.tbb.soia): _release_common

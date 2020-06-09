@@ -54,7 +54,7 @@ elif [ "${OS}" == "mac" ]; then
     export JAVA_HOME=$(/usr/libexec/java_home -v 12)
     java_os_name="darwin"
     with_gpu="false"
-else 
+else
     echo "Error not supported OS: ${OS}"
     exit 1
 fi
