@@ -54,7 +54,7 @@ elif [ "${OS}" == "mac" ]; then
     export JAVA_HOME=$(/usr/libexec/java_home -v 12)
     java_os_name="darwin"
     with_gpu="false"
-else 
+else
     echo "Error not supported OS: ${OS}"
     exit 1
 fi
@@ -74,6 +74,6 @@ echo "Set Java PATH and CPATH"
 export PATH=$JAVA_HOME/bin:$PATH
 export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/${java_os_name}:$CPATH
 echo "Calling make"
-make daal ${MAKE_OP} PLAT=${platform} COMPILER=${compiler} REQCPU="${CPU_OPTIMIZATIONS}"
+make onedal ${MAKE_OP} PLAT=${platform} COMPILER=${compiler} REQCPU="${CPU_OPTIMIZATIONS}"
 
 exit $?
