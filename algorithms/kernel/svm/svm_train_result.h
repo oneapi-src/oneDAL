@@ -281,28 +281,26 @@ protected:
 
         for (size_t i = 0; i < _nVectors; ++i)
         {
-            const algorithmFPType gradi      = _grad[i];
-            const algorithmFPType dualCoeffi = _y[i] * _alpha[i];
+            const algorithmFPType gradi = _grad[i];
+            const algorithmFPType yi    = _y[i];
+            const algorithmFPType cwi   = cw[i];
+            const algorithmFPType ai    = _alpha[i];
 
             /* free SV: (0 < alpha < C)*/
-            if (0 < dualCoeffi && dualCoeffi < cw[i])
+            if (0 < ai && ai < cw[i])
             {
                 sumGrad += gradi;
                 ++nGrad;
             }
-            else
+            if (HelperTrainSVM<algorithmFPType, cpu>::isUpper(yi, ai, cwi))
             {
-                if (HelperTrainSVM<algorithmFPType, cpu>::isUpper(_y[i], dualCoeffi, cw[i]))
-                {
-                    ub = services::internal::min<cpu, algorithmFPType>(ub, gradi);
-                }
-                if (HelperTrainSVM<algorithmFPType, cpu>::isLower(_y[i], dualCoeffi, cw[i]))
-                {
-                    lb = services::internal::max<cpu, algorithmFPType>(lb, gradi);
-                }
+                ub = services::internal::min<cpu, algorithmFPType>(ub, gradi);
+            }
+            if (HelperTrainSVM<algorithmFPType, cpu>::isLower(yi, ai, cwi))
+            {
+                lb = services::internal::max<cpu, algorithmFPType>(lb, gradi);
             }
         }
-
         if (nGrad == 0)
         {
             bias = -0.5 * (ub + lb);
