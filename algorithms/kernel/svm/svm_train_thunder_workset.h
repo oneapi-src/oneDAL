@@ -113,7 +113,7 @@ struct TaskWorkingSet
 
         int64_t pLeft  = 0;
         int64_t pRight = _nVectors - 1;
-        while (_nSelected < _nWS)
+        while (_nSelected < _nWS && (pRight >= 0 || pLeft < _nVectors))
         {
             if (pLeft < _nVectors)
             {
@@ -156,8 +156,19 @@ struct TaskWorkingSet
             }
         }
 
+        // For cases, when weights are zero
+        pLeft = 0;
+        while (_nSelected < _nWS)
+        {
+            if (!_indicator[pLeft])
+            {
+                _wsIndices[_nSelected] = pLeft;
+                _indicator[pLeft]      = true;
+                ++_nSelected;
+            }
+            ++pLeft;
+        }
         DAAL_ASSERT(_nSelected == _nWS);
-
         _nSelected = 0;
         return status;
     }
