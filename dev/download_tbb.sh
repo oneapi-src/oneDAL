@@ -33,7 +33,7 @@ fi
 
 TBB_PACKAGE="${TBB_VERSION}_${TBB_OS}"
 TBB_URL=${TBB_URL_ROOT}${TBB_PACKAGE}.tgz
-DST=`dirname $0`/../externals/tbb
+DST=`dirname $0`/../__deps/tbb
 mkdir -p ${DST}/${OS}
 DST=`cd ${DST};pwd`
 
@@ -53,7 +53,7 @@ if [ ! -d "${DST}/${OS}/bin" ]; then
     echo "Download from ${TBB_URL} to ${DST} failed"
     exit 1
   fi
-  
+
   echo tar -xvf "${DST}/${TBB_PACKAGE}.tgz" -C ${DST}
   tar -C ${DST}/${OS} --strip-components=1 -xvf "${DST}/${TBB_PACKAGE}.tgz" ${TBB_VERSION}
   echo "Downloaded and unpacked Intel(R) TBB to ${DST}/${OS}"

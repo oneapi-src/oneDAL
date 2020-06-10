@@ -63,7 +63,7 @@ fi
 source ${BUILD_DIR}/daal/latest/env/vars.sh
 
 #setup env for TBB
-export TBBROOT=$(pwd)/externals/tbb/${OS}
+export TBBROOT=$(pwd)/__deps/tbb/${OS}
 export CPATH=${TBBROOT}/include:$CPATH
 export LIBRARY_PATH=${TBBROOT}/lib/${full_arch}/gcc4.8:${TBBROOT}/lib:${LIBRARY_PATH}
 if [ "${OS}" == "mac" ]; then
