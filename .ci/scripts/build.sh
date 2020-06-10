@@ -74,6 +74,6 @@ echo "Set Java PATH and CPATH"
 export PATH=$JAVA_HOME/bin:$PATH
 export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/${java_os_name}:$CPATH
 echo "Calling make"
-make onedal ${MAKE_OP} PLAT=${platform} COMPILER=${compiler} REQCPU="${CPU_OPTIMIZATIONS}"
+make daal ${MAKE_OP} PLAT=${platform} COMPILER=${compiler} REQCPU="${CPU_OPTIMIZATIONS}"
 
 exit $?
