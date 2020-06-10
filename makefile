@@ -62,7 +62,7 @@ PLAT_is_$(PLAT)          := yes
 # Compiler specific part
 #===============================================================================
 
-include build/cmplr.$(COMPILER).mk
+include dev/make/cmplr.$(COMPILER).mk
 
 $(if $(filter $(PLATs.$(COMPILER)),$(PLAT)),,$(error PLAT for $(COMPILER) must be defined to one of $(PLATs.$(COMPILER))))
 
@@ -70,8 +70,8 @@ $(if $(filter $(PLATs.$(COMPILER)),$(PLAT)),,$(error PLAT for $(COMPILER) must b
 # Dependencies generation
 #===============================================================================
 
-include build/common.mk
-include build/deps.mk
+include dev/make/common.mk
+include dev/make/deps.mk
 
 #===============================================================================
 # Common macros
@@ -388,13 +388,13 @@ release.EXAMPLES.DATA  := $(filter $(expat),$(shell find examples/daal/data -typ
 release.EXAMPLES.JAVA  := $(filter $(expat),$(shell find examples/daal/java -type f))
 
 # List env files to populate release.
-release.ENV = bin/vars_$(_OS).$(scr)
+release.ENV = deploy/local/vars_$(_OS).$(scr)
 
 # List modulefiles to populate release.
-release.MODULEFILES = bin/dal bin/dal32
+release.MODULEFILES = deploy/local/dal deploy/local/dal32
 
 # List config files to populate release.
-release.CONF = bin/config.txt
+release.CONF = deploy/local/config.txt
 
 # List samples files to populate release/examples.
 SAMPLES.srcdir:= $(DIR)/samples
@@ -879,7 +879,7 @@ $(RELEASEDIR.jardir)/%.jar: $(WORKDIR.lib)/%.jar | $(RELEASEDIR.jardir)/. ; $(cp
 define .release.x
 $3: $2/$(subst _$(_OS),,$1)
 $2/$(subst _$(_OS),,$1): $(DIR)/$1 | $(dir $2/$1)/.
-	$(if $(filter %makefile_win,$1),python ./bin/utils/generate_win_makefile.py $(dir $(DIR)/$1) $(dir $2/$1),$(value cpy))
+	$(if $(filter %makefile_win,$1),python ./deploy/local/generate_win_makefile.py $(dir $(DIR)/$1) $(dir $2/$1),$(value cpy))
 	$(if $(filter %.sh %.bat,$1),chmod +x $$@)
 endef
 $(foreach x,$(release.EXAMPLES.DATA),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_common)))
