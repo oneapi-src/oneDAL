@@ -246,7 +246,7 @@ releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb.$(y) $(TBBDIR.soia)/$(plib)tbbmal
 
 RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/oneapi/internal/math
 
-MKLGPUFPKDIR:= $(if $(wildcard $(DIR)/externals/mklgpufpk/$(_OS)/*),$(DIR)/externals/mklgpufpk/$(_OS),$(subst \,/,$(MKLGPUFPKROOT)))
+MKLGPUFPKDIR:= $(if $(wildcard $(DIR)/__deps/mklgpufpk/$(_OS)/*),$(DIR)/__deps/mklgpufpk/$(_OS),$(subst \,/,$(MKLGPUFPKROOT)))
 MKLGPUFPKDIR.include := $(MKLGPUFPKDIR)/include
 MKLGPUFPKDIR.libia   := $(MKLGPUFPKDIR)/lib/$(_IA)
 
