@@ -87,8 +87,8 @@ MKLFPK_PACKAGE="mklfpk_${MKLFPK_OS}_${MKLFPK_VERSION}"
 MKLGPUFPK_PACKAGE="mklgpufpk_${MKLFPK_OS}_${MKLGPUFPK_VERSION}"
 MKLFPK_URL=${MKLFPK_URL_ROOT}${MKLFPK_PACKAGE}.tgz
 MKLGPUFPK_URL=${MKLFPK_URL_ROOT}${MKLGPUFPK_PACKAGE}.tgz
-CPUCOND=`dirname $0`/../externals/mklfpk
-GPUCOND=`dirname $0`/../externals/mklgpufpk
+CPUCOND=`dirname $0`/../__deps/mklfpk
+GPUCOND=`dirname $0`/../__deps/mklgpufpk
 CPUDST="${CPUCOND}"
 GPUDST="${GPUCOND}/${MKLFPK_OS}"
 

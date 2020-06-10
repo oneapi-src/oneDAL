@@ -5,7 +5,8 @@
 __release*
 __work*
 
+# External dependencies
+__deps*
+
 # Visual Studio related files, e.g., ".vscode"
 .vs*
-
-
