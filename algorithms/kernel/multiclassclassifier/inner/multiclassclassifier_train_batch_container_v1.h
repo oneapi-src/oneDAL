@@ -58,9 +58,11 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     const classifier::training::Input * const input = static_cast<classifier::training::Input *>(_in);
     Result * result                                 = static_cast<Result *>(_res);
 
-    const NumericTable * a[2];
-    a[0]                              = static_cast<NumericTable *>(input->get(classifier::training::data).get());
-    a[1]                              = static_cast<NumericTable *>(input->get(classifier::training::labels).get());
+    const NumericTable * a[3];
+    a[0] = static_cast<NumericTable *>(input->get(classifier::training::data).get());
+    a[1] = static_cast<NumericTable *>(input->get(classifier::training::labels).get());
+    a[2] = nullptr;
+
     multi_class_classifier::Model * r = static_cast<multi_class_classifier::Model *>(result->get(classifier::training::model).get());
 
     const multi_class_classifier::interface1::Parameter * par = static_cast<const multi_class_classifier::interface1::Parameter *>(_par);
@@ -68,7 +70,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     __DAAL_CALL_KERNEL(
         env, internal::MultiClassClassifierTrainKernel,
         __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType, classifier::training::interface1::Batch, multi_class_classifier::interface1::Parameter),
-        compute, a[0], a[1], r, par);
+        compute, a[0], a[1], a[2], r, par);
 }
 
 } // namespace interface1
