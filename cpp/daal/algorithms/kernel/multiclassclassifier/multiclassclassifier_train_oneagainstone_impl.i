@@ -49,7 +49,8 @@ namespace internal
 {
 template <typename algorithmFPType, typename ClsType, typename MccParType, CpuType cpu>
 services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, ClsType, MccParType, cpu>::compute(
-    const NumericTable * xTable, const NumericTable * yTable, daal::algorithms::Model * r, const daal::algorithms::Parameter * par)
+    const NumericTable * xTable, const NumericTable * yTable, const NumericTable * wTable, daal::algorithms::Model * r,
+    const daal::algorithms::Parameter * par)
 {
     Model * model             = static_cast<Model *>(r);
     const MccParType * mccPar = static_cast<const MccParType *>(par);
@@ -57,7 +58,12 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
     const size_t nVectors = xTable->getNumberOfRows();
     ReadColumns<int, cpu> mtY(*const_cast<NumericTable *>(yTable), 0, 0, nVectors);
     DAAL_CHECK_BLOCK_STATUS(mtY);
-    const int * y          = mtY.get();
+    const int * y = mtY.get();
+
+    ReadColumns<algorithmFPType, cpu> mtW(const_cast<NumericTable *>(wTable), 0, 0, nVectors);
+    DAAL_CHECK_BLOCK_STATUS(mtW);
+    const algorithmFPType * weights = mtW.get();
+
     const size_t nFeatures = xTable->getNumberOfColumns();
     model->setNFeatures(nFeatures);
     services::SharedPtr<ClsType> simpleTrainingInit = mccPar->training->clone();
@@ -74,8 +80,10 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
     /* Allocate memory for storing subsets of input data */
     daal::ls<TSubTask *> lsTask([=, &simpleTrainingInit]() {
         if (xTable->getDataLayout() == NumericTableIface::csrArray)
-            return (TSubTask *)SubTaskCSR<algorithmFPType, ClsType, cpu>::create(nFeatures, nSubsetVectors, dataSize, xTable, simpleTrainingInit);
-        return (TSubTask *)SubTaskDense<algorithmFPType, ClsType, cpu>::create(nFeatures, nSubsetVectors, dataSize, xTable, simpleTrainingInit);
+            return (TSubTask *)SubTaskCSR<algorithmFPType, ClsType, cpu>::create(nFeatures, nSubsetVectors, dataSize, xTable, weights,
+                                                                                 simpleTrainingInit);
+        return (TSubTask *)SubTaskDense<algorithmFPType, ClsType, cpu>::create(nFeatures, nSubsetVectors, dataSize, xTable, weights,
+                                                                               simpleTrainingInit);
     });
 
     SafeStatus safeStat;
@@ -180,6 +188,10 @@ Status SubTaskDense<algorithmFPType, ClsType, cpu>::copyDataIntoSubtable(size_t 
         PRAGMA_VECTOR_ALWAYS
         for (size_t jx = 0; jx < nFeatures; jx++) this->_subsetX.get()[nRows * nFeatures + jx] = _mtX.get()[jx];
         this->_subsetY[nRows] = label;
+        if (this->_weights)
+        {
+            this->_subsetW[nRows] = this->_weights[ix];
+        }
         ++nRows;
     }
     return Status();
@@ -207,6 +219,11 @@ Status SubTaskCSR<algorithmFPType, ClsType, cpu>::copyDataIntoSubtable(size_t nF
         }
         _rowOffsetsX[nRows + 1] = _rowOffsetsX[nRows] + nNonZeroValuesInRow;
         this->_subsetY[nRows]   = label;
+        if (this->_weights)
+        {
+            this->_subsetW[nRows] = this->_weights[ix];
+        }
+
         ++nRows;
     }
     return Status();
