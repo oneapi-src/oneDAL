@@ -47,59 +47,56 @@ public:
     services::Status compute(const NumericTable * const * a, const NumericTable * const * r, const Parameter * par);
 
 private:
-    void computeSquares(oneapi::internal::ExecutionContextIface & context, const oneapi::internal::KernelPtr & kernel_compute_squares,
-                        const services::Buffer<algorithmFPType> & data, oneapi::internal::UniversalBuffer & dataSq, uint32_t nRows,
+    void computeSquares(const services::Buffer<algorithmFPType> & data, oneapi::internal::UniversalBuffer & dataSq, uint32_t nRows,
                         uint32_t nFeatures, services::Status * st);
 
-    void initDistances(oneapi::internal::ExecutionContextIface & context, const oneapi::internal::KernelPtr & kernel_distances_init,
-                       oneapi::internal::UniversalBuffer & centroidsSq, oneapi::internal::UniversalBuffer & distances, uint32_t blockSize,
-                       uint32_t nClusters, services::Status * st);
-
-    void computeDistances(oneapi::internal::ExecutionContextIface & context, const services::Buffer<algorithmFPType> & data,
-                          const services::Buffer<algorithmFPType> & centroids, oneapi::internal::UniversalBuffer & distances, uint32_t blockSize,
+    void computeDistances(const services::Buffer<algorithmFPType> & data, const services::Buffer<algorithmFPType> & centroids, uint32_t blockSize,
                           uint32_t nClusters, uint32_t nFeatures, services::Status * st);
 
-    void computeAssignments(oneapi::internal::ExecutionContextIface & context, const oneapi::internal::KernelPtr & kernel_compute_assignments,
-                            oneapi::internal::UniversalBuffer & distances, const services::Buffer<int> & assignments,
-                            oneapi::internal::UniversalBuffer & mindistances, uint32_t blockSize, uint32_t nClusters, services::Status * st);
+    void computeAssignments(const services::Buffer<int> & assignments, uint32_t blockSize, uint32_t nClusters, services::Status * st);
 
-    void computePartialCandidates(oneapi::internal::ExecutionContextIface & context, const oneapi::internal::KernelPtr & kernel_partial_candidates,
-                                  const services::Buffer<int> & assignments, oneapi::internal::UniversalBuffer & mindistances,
-                                  oneapi::internal::UniversalBuffer & dataSq, oneapi::internal::UniversalBuffer & candidates,
-                                  oneapi::internal::UniversalBuffer & candidateDistances, oneapi::internal::UniversalBuffer & partialCandidates,
-                                  oneapi::internal::UniversalBuffer & partialCandidateDistances, uint32_t blockSize, uint32_t nClusters,
-                                  uint32_t reset, services::Status * st);
+    void computePartialCandidates(const services::Buffer<int> & assignments, uint32_t blockSize, uint32_t nClusters, uint32_t reset,
+                                  services::Status * st);
 
-    void mergePartialCandidates(oneapi::internal::ExecutionContextIface & context, const oneapi::internal::KernelPtr & kernel_merge_candidates,
-                                oneapi::internal::UniversalBuffer & candidates, oneapi::internal::UniversalBuffer & candidateDistances,
-                                oneapi::internal::UniversalBuffer & partialCandidates, oneapi::internal::UniversalBuffer & partialCandidateDistances,
-                                uint32_t nClusters, services::Status * st);
+    void mergePartialCandidates(uint32_t nClusters, services::Status * st);
 
-    void partialReduceCentroids(oneapi::internal::ExecutionContextIface & context,
-                                const oneapi::internal::KernelPtr & kernel_partial_reduce_centroids, const services::Buffer<algorithmFPType> & data,
-                                oneapi::internal::UniversalBuffer & distances, const services::Buffer<int> & assignments,
-                                oneapi::internal::UniversalBuffer & partialCentroids, oneapi::internal::UniversalBuffer & partialCentroidsCounters,
-                                uint32_t blockSize, uint32_t nClusters, uint32_t nFeatures, uint32_t nPartialCentroids, uint32_t doReset,
-                                services::Status * st);
+    void partialReduceCentroids(const services::Buffer<algorithmFPType> & data, const services::Buffer<int> & assignments, uint32_t blockSize,
+                                uint32_t nClusters, uint32_t nFeatures, uint32_t doReset, services::Status * st);
 
-    void mergeReduceCentroids(oneapi::internal::ExecutionContextIface & context, const oneapi::internal::KernelPtr & kernel_merge_reduce_centroids,
-                              oneapi::internal::UniversalBuffer & partialCentroids, oneapi::internal::UniversalBuffer & partialCentroidsCounters,
-                              const services::Buffer<algorithmFPType> & centroids, uint32_t nClusters, uint32_t nFeatures, uint32_t nPartialCentroids,
-                              services::Status * st);
+    void mergeReduceCentroids(const services::Buffer<algorithmFPType> & centroids, uint32_t nClusters, uint32_t nFeatures, services::Status * st);
 
-    void updateObjectiveFunction(oneapi::internal::ExecutionContextIface & context, const oneapi::internal::KernelPtr & kernel_update_goal_function,
-                                 oneapi::internal::UniversalBuffer & dataSq, oneapi::internal::UniversalBuffer & distances,
-                                 const services::Buffer<int> & assignments, const services::Buffer<algorithmFPType> & objFunction, uint32_t blockSize,
+    void updateObjectiveFunction(const services::Buffer<int> & assignments, const services::Buffer<algorithmFPType> & objFunction, uint32_t blockSize,
                                  uint32_t nClusters, uint32_t doReset, services::Status * st);
+    void getNumEmptyClusters(uint32_t nClusters, services::Status * st);
+    void buildProgram(oneapi::internal::ClKernelFactoryIface & kernelFactory, uint32_t nClusters, daal::services::Status * st);
+    services::Status setEmptyClusters(NumericTable * const ntData, uint32_t nRows, uint32_t nClusters, uint32_t nFeatures,
+                                      services::Buffer<algorithmFPType> & outCentroids, algorithmFPType & objFuncCorrection);
+    services::Status initializeBuffers(uint32_t nClusters, uint32_t nFeatures, uint32_t blockSize);
+    services::Status getBlockSize(uint32_t nRows, uint32_t nClusters, uint32_t nFeatures, uint32_t & blockSize);
     uint32_t getCandidatePartNum(uint32_t nClusters);
     uint32_t getWorkgroupsCount(uint32_t rows);
     uint32_t getComputeSquaresWorkgroupsCount(uint32_t nFeatures);
     const char * getComputeSquaresKernelName(uint32_t nFeatures);
-    const char * getBuildOptions(uint32_t nClusters);
+    services::String getBuildOptions(uint32_t nClusters);
+
+    oneapi::internal::UniversalBuffer _dataSq;
+    oneapi::internal::UniversalBuffer _centroidsSq;
+    oneapi::internal::UniversalBuffer _distances;
+    oneapi::internal::UniversalBuffer _mindistances;
+    oneapi::internal::UniversalBuffer _candidates;
+    oneapi::internal::UniversalBuffer _candidateDistances;
+    oneapi::internal::UniversalBuffer _partialCandidates;
+    oneapi::internal::UniversalBuffer _partialCandidateDistances;
+    oneapi::internal::UniversalBuffer _partialCentroids;
+    oneapi::internal::UniversalBuffer _partialCentroidsCounters;
+    oneapi::internal::UniversalBuffer _numEmptyClusters;
 
     const uint32_t _maxWorkItemsPerGroup = 128;   // should be a power of two for interal needs
     const uint32_t _maxLocalBuffer       = 30000; // should be less than a half of local memory (two buffers)
     const uint32_t _preferableSubGroup   = 16;    // preferable maximal sub-group size
+    const uint32_t _nPartialCentroids    = 128;
+    const uint32_t _nValuesInBlock       = 1024 * 1024 * 1024 / sizeof(algorithmFPType);
+    const uint32_t _nMinRows             = 1;
 };
 
 } // namespace internal

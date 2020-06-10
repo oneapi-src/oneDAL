@@ -133,8 +133,8 @@ DECLARE_SOURCE(
         }
     }
 
-    __kernel void reduce_assignments(__global const algorithmFPType * distances, __global int * assignments, __global algorithmFPType * mindistances,
-                                     int N, int K) {
+    __kernel void reduce_assignments(__global const algorithmFPType * centroidsSq, __global const algorithmFPType * distances,
+                                     __global int * assignments, __global algorithmFPType * mindistances, int N, int K) {
         const int global_id = get_global_id(0);
         const int size      = get_local_size(1);
         const int local_id  = get_local_id(1);
@@ -147,7 +147,8 @@ DECLARE_SOURCE(
         int minIdx             = -1;
         for (int i = 0; i < numgrp; i++)
         {
-            algorithmFPType curVal   = (i == numgrp - 1 && local_id >= rem) ? HUGE : distances[global_id + N * (local_id + i * size)];
+            algorithmFPType curVal =
+                (i == numgrp - 1 && local_id >= rem) ? HUGE : (distances[global_id + N * (local_id + i * size)] + centroidsSq[local_id + i * size]);
             algorithmFPType localMin = sub_group_reduce_min(curVal);
             if (localMin < minVal)
             {
@@ -156,7 +157,8 @@ DECLARE_SOURCE(
             }
         }
         int curInd = 1;
-        if (minIdx < numgrp - 1 || local_id < rem) curInd = (distances[global_id + N * (local_id + minIdx * size)] > minVal) ? 1 : -local_id;
+        if (minIdx < numgrp - 1 || local_id < rem)
+            curInd = (distances[global_id + N * (local_id + minIdx * size)] + centroidsSq[local_id + minIdx * size] > minVal) ? 1 : -local_id;
         int ind = minIdx * size - sub_group_reduce_min(curInd);
         if (local_id == 0)
         {
@@ -408,6 +410,24 @@ DECLARE_SOURCE(
         }
     }
 
+    __kernel void count_empty_clusters(__global const int * partialCentroidsCounters, int K, int parts, __global int * numEmptyClusters) {
+        const int local_id   = get_local_id(1);
+        const int local_size = get_local_size(1);
+
+        int numEmpty = 0;
+        for (int i = local_id; i < K; i += local_size)
+        {
+            int count = 0;
+            for (int j = 0; j < parts; j++)
+            {
+                count += partialCentroidsCounters[j * K + i];
+            }
+            numEmpty += count > 0 ? 0 : 1;
+        }
+        numEmpty = sub_group_reduce_add(numEmpty);
+        if (local_id == 0) numEmptyClusters[0] = numEmpty;
+    }
+
     __kernel void update_objective_function(__global const algorithmFPType * dataSq, __global const algorithmFPType * distances,
                                             __global const int * assignments, __global algorithmFPType * objFunction, int N, int K) {
         const int local_id   = get_local_id(0);
@@ -420,7 +440,7 @@ DECLARE_SOURCE(
         for (int i = local_id; i < N; i += local_size)
         {
             const int cl_id = assignments[i];
-            local_sum[local_id] += 2 * (dataSq[i] + distances[i + cl_id * N]);
+            local_sum[local_id] += 2 * (dataSq[i] + distances[i]);
         }
 
         __sum_reduce(local_sum, local_id, local_size);
