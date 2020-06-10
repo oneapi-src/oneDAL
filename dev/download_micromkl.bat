@@ -28,11 +28,11 @@ set MKLGPUPACKAGE=mklgpufpk_win_%MKLGPUVERSION%
 set MKLURL=%MKLURLROOT%%MKLPACKAGE%.zip
 set MKLGPUURL=%MKLURLROOT%%MKLGPUPACKAGE%.zip
 if /i "%1"=="" (
-	set CPUCOND=%~dp0..\externals\mklfpk
-	set GPUCOND=%~dp0..\externals\mklgpufpk
+	set CPUCOND=%~dp0..\__deps\mklfpk
+	set GPUCOND=%~dp0..\__deps\mklgpufpk
 ) else (
-	set CPUCOND=%1\..\externals\mklfpk
-	set GPUCOND=%1\..\externals\mklgpufpk
+	set CPUCOND=%1\..\__deps\mklfpk
+	set GPUCOND=%1\..\__deps\mklgpufpk
 )
 
 set CPUDST=%CPUCOND%

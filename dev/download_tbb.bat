@@ -27,9 +27,9 @@ set TBBPACKAGE=%TBBVERSION%_win
 
 set TBBURL=%TBBURLROOT%%TBBPACKAGE%.zip
 if /i "%1"=="" (
-	set DST=%~dp0..\externals\tbb
+	set DST=%~dp0..\__deps\tbb
 ) else (
-	set DST=%1\..\externals\tbb
+	set DST=%1\..\__deps\tbb
 )
 
 if not exist %DST% powershell.exe -command "New-Item -Path \"%DST%\" -ItemType Directory"
