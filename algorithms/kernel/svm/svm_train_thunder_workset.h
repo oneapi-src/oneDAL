@@ -95,7 +95,7 @@ struct TaskWorkingSet
         return status;
     }
 
-    services::Status select(const algorithmFPType * y, const algorithmFPType * alpha, const algorithmFPType * f, const algorithmFPType C)
+    services::Status select(const algorithmFPType * y, const algorithmFPType * alpha, const algorithmFPType * f, const algorithmFPType * cw)
     {
         services::Status status;
         IdxValType * const sortedFIndices = _sortedFIndices.get();
@@ -115,7 +115,7 @@ struct TaskWorkingSet
             if (pLeft < _nVectors)
             {
                 IndexType i = sortedFIndices[pLeft].val;
-                while (_indicator[i] || !HelperTrainSVM<algorithmFPType, cpu>::isUpper(y[i], alpha[i], C))
+                while (_indicator[i] || !HelperTrainSVM<algorithmFPType, cpu>::isUpper(y[i], alpha[i], cw[i]))
                 {
                     pLeft++;
                     if (pLeft == _nVectors)
@@ -135,7 +135,7 @@ struct TaskWorkingSet
             if (pRight >= 0)
             {
                 IndexType i = sortedFIndices[pRight].val;
-                while (_indicator[i] || !HelperTrainSVM<algorithmFPType, cpu>::isLower(y[i], alpha[i], C))
+                while (_indicator[i] || !HelperTrainSVM<algorithmFPType, cpu>::isLower(y[i], alpha[i], cw[i]))
                 {
                     pRight--;
                     if (pRight == -1)

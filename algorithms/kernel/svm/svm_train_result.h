@@ -56,7 +56,7 @@ public:
         : _nVectors(nVectors), _y(y), _alpha(alpha), _grad(grad), _cache(cache)
     {}
 
-    services::Status compute(const NumericTable & xTable, Model & model, algorithmFPType C) const
+    services::Status compute(const NumericTable & xTable, Model & model, const algorithmFPType * cw) const
     {
         services::Status s;
 
@@ -78,7 +78,7 @@ public:
             DAAL_CHECK_STATUS(s, setSV_Dense(model, xTable, nSV));
         }
         /* Calculate bias and write it into model */
-        model.setBias(double(calculateBias(C)));
+        model.setBias(double(calculateBias(cw)));
         return s;
     }
 
@@ -259,7 +259,7 @@ protected:
      * \param[in]  C        Upper bound in constraints of the quadratic optimization problem
      * \return Bias for the SVM model
      */
-    algorithmFPType calculateBias(algorithmFPType C) const
+    algorithmFPType calculateBias(const algorithmFPType * cw) const
     {
         algorithmFPType bias    = algorithmFPType(0.0);
         size_t nGrad            = 0;
@@ -275,18 +275,18 @@ protected:
             const algorithmFPType dualCoeffi = _y[i] * _alpha[i];
 
             /* free SV: (0 < alpha < C)*/
-            if (0 < dualCoeffi && dualCoeffi < C)
+            if (0 < dualCoeffi && dualCoeffi < cw[i])
             {
                 sumGrad += gradi;
                 ++nGrad;
             }
             else
             {
-                if (HelperTrainSVM<algorithmFPType, cpu>::isUpper(_y[i], dualCoeffi, C))
+                if (HelperTrainSVM<algorithmFPType, cpu>::isUpper(_y[i], dualCoeffi, cw[i]))
                 {
                     ub = services::internal::min<cpu, algorithmFPType>(ub, gradi);
                 }
-                if (HelperTrainSVM<algorithmFPType, cpu>::isLower(_y[i], dualCoeffi, C))
+                if (HelperTrainSVM<algorithmFPType, cpu>::isLower(_y[i], dualCoeffi, cw[i]))
                 {
                     lb = services::internal::max<cpu, algorithmFPType>(lb, gradi);
                 }
