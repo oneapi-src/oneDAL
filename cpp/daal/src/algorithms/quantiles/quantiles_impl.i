@@ -24,7 +24,7 @@
 #ifndef __QUANTILES_IMPL__
 #define __QUANTILES_IMPL__
 
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 #include "src/externals/service_memory.h"
 #include "src/externals/service_math.h"
 #include "src/externals/service_stat.h"

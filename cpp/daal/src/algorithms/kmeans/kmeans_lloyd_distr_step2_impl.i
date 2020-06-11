@@ -26,7 +26,7 @@
 #include "src/threading/threading.h"
 #include "services/daal_defines.h"
 #include "src/externals/service_memory.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 
 #include "src/algorithms/kmeans/kmeans_lloyd_impl.i"
 

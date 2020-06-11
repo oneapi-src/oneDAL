@@ -25,7 +25,7 @@
 #define __EM_GMM_INIT_DENSE_DEFAULT_BATCH_KERNEL_H__
 
 #include "src/algorithms/kernel.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 #include "data_management/data/numeric_table.h"
 #include "data_management/data/homogen_numeric_table.h"
 #include "src/externals/service_memory.h"

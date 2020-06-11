@@ -26,7 +26,7 @@
 
 #include "data_management/data/numeric_table.h"
 #include "algorithms/sorting/sorting_batch.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 #include "src/externals/service_stat.h"
 
 using namespace daal::internal;

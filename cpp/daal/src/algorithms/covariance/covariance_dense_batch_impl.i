@@ -27,7 +27,7 @@
 #include "src/algorithms/covariance/covariance_kernel.h"
 #include "src/algorithms/covariance/covariance_impl.i"
 
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 
 namespace daal
 {

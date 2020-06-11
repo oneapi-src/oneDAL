@@ -28,8 +28,8 @@
 #include "src/externals/service_memory.h"
 #include "src/externals/service_math.h"
 #include "src/services/service_defines.h"
-#include "src/services/data_management/service_micro_table.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_micro_table.h"
+#include "src/data_management/service_numeric_table.h"
 
 #include "src/algorithms/qr/qr_dense_default_kernel.h"
 

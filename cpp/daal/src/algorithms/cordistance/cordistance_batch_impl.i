@@ -26,7 +26,7 @@
 #include "src/externals/service_blas.h"
 #include "src/threading/threading.h"
 #include "src/algorithms/service_error_handling.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 
 static const int blockSizeDefault = 128;
 #include "src/algorithms/cordistance/cordistance_full_impl.i"

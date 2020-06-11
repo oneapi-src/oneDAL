@@ -26,7 +26,7 @@
 
 #include "algorithms/em/em_gmm.h"
 #include "src/algorithms/em/em_gmm_dense_default_batch_kernel.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 
 namespace daal
 {

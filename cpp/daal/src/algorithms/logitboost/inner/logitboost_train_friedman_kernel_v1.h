@@ -39,7 +39,7 @@
 
 #include "src/threading/threading.h"
 #include "src/externals/service_memory.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 #include "src/services/service_data_utils.h"
 
 #include "src/algorithms/logitboost/inner/logitboost_train_kernel_v1.h"

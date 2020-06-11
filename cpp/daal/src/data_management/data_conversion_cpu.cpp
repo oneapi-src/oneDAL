@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "src/services/data_management/data_conversion_cpu.h"
+#include "src/data_management/data_conversion_cpu.h"
 #include "data_management/data/internal/conversion.h"
 #include "src/externals/service_memory.h"
 

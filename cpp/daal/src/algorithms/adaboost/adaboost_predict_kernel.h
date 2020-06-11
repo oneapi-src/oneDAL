@@ -28,7 +28,7 @@
 #include "algorithms/boosting/adaboost_predict.h"
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 #include "src/services/service_environment.h"
 
 using namespace daal::data_management;
