@@ -26,7 +26,7 @@
 
 #include "src/algorithms/dtrees/dtrees_feature_type_helper.h"
 #include "src/algorithms/dtrees/gbt/oneapi/gbt_feature_type_helper_oneapi.h"
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "src/algorithms/service_error_handling.h"
 #include "src/algorithms/service_sort.h"
 #include "src/algorithms/dtrees/service_array.h"

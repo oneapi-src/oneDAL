@@ -23,9 +23,9 @@
 #include "services/daal_defines.h"
 #if !(defined DAAL_THREAD_PINNING_DISABLED)
 
-    #include "algorithms/threading/service_thread_pinner.h"
+    #include "src/threading/service_thread_pinner.h"
     #include "services/daal_memory.h"
-    #include "algorithms/threading/threading.h"
+    #include "src/threading/threading.h"
 
     #if defined(__DO_TBB_LAYER__)
 

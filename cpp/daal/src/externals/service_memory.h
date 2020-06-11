@@ -27,7 +27,7 @@
 #include "services/daal_defines.h"
 #include "services/daal_memory.h"
 #include "service/kernel/service_defines.h"
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 
 namespace daal
 {

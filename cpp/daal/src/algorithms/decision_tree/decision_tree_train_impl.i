@@ -25,7 +25,7 @@
 #define __DECISION_TREE_TRAIN_IMPL_I__
 
 #include "data_management/data/numeric_table.h"
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "src/algorithms/decision_tree/decision_tree_impl.i"
 #include "service/kernel/service_utils.h"
 #include "src/algorithms/service_sort.h"

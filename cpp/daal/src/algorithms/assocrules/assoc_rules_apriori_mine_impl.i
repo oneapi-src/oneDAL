@@ -29,7 +29,7 @@
 #include "externals/service_math.h"
 #include "src/algorithms/service_sort.h"
 
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "src/algorithms/assocrules/assoc_rules_apriori_types.i"
 #include "src/algorithms/assocrules/assoc_rules_apriori_tree.i"
 

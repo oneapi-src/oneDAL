@@ -36,7 +36,7 @@
 #include "src/algorithms/qr/qr_dense_default_impl.i"
 #include "src/algorithms/qr/qr_dense_default_batch_impl.i"
 
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;

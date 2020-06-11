@@ -23,7 +23,7 @@
 #include "service/kernel/service_data_utils.h"
 #include "service/kernel/service_utils.h"
 #include "service/kernel/service_defines.h"
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "data_management/features/defines.h"
 #include "src/algorithms/service_error_handling.h"

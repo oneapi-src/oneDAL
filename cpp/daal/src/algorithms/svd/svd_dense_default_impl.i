@@ -30,7 +30,7 @@
 #include "externals/service_blas.h"
 #include "externals/service_lapack.h"
 
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;

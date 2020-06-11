@@ -28,7 +28,7 @@
 #include "src/algorithms/dtrees/dtrees_model_impl.h"
 #include "src/algorithms/dtrees/dtrees_train_data_helper.i"
 #include "src/algorithms/dtrees/gbt/gbt_internal.h"
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "src/algorithms/dtrees/gbt/gbt_model_impl.h"
 #include "services/daal_atomic_int.h"
 #include "externals/service_service.h"

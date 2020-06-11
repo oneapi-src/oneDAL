@@ -24,7 +24,7 @@
 #ifndef __STUMP_TRAIN_IMPL_I__
 #define __STUMP_TRAIN_IMPL_I__
 
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "data_management/data/numeric_table.h"
 #include "service/kernel/service_utils.h"
 #include "service/kernel/service_data_utils.h"

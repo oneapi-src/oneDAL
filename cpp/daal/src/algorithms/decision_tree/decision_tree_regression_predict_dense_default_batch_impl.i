@@ -24,7 +24,7 @@
 #ifndef __DECISION_TREE_REGRESSION_PREDICT_DENSE_DEFAULT_BATCH_IMPL_I__
 #define __DECISION_TREE_REGRESSION_PREDICT_DENSE_DEFAULT_BATCH_IMPL_I__
 
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "services/daal_defines.h"
 #include "algorithms/algorithm.h"
 #include "service/kernel/service_utils.h"
