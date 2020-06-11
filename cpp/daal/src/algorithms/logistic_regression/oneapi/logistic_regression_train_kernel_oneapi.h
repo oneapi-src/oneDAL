@@ -26,7 +26,7 @@
 #define __LOGISTIC_REGRESSION_TRAIN_KERNEL_ONEAPI_H__
 
 #include "algorithms/logistic_regression/logistic_regression_training_types.h"
-#include "algorithms/kernel/objective_function/common/oneapi/objective_function_utils_oneapi.h"
+#include "src/algorithms/objective_function/common/oneapi/objective_function_utils_oneapi.h"
 
 namespace daal
 {

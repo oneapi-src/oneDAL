@@ -28,7 +28,7 @@
 #include "data_management/data/numeric_table.h"
 #include "algorithms/algorithm_base_common.h"
 #include "algorithms/linear_regression/linear_regression_training_types.h"
-#include "algorithms/kernel/linear_model/oneapi/linear_model_train_normeq_kernel_oneapi.h"
+#include "src/algorithms/linear_model/oneapi/linear_model_train_normeq_kernel_oneapi.h"
 #include "algorithms/algorithm_kernel.h"
 
 namespace daal

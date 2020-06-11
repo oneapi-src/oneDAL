@@ -19,7 +19,7 @@
 //  Implementation of minmax calculation algorithm container.
 //--
 
-#include "algorithms/kernel/normalization/minmax/minmax_batch_container.h"
+#include "src/algorithms/normalization/minmax/minmax_batch_container.h"
 
 namespace daal
 {

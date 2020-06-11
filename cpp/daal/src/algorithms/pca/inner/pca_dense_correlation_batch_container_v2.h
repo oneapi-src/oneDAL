@@ -24,9 +24,9 @@
 #ifndef __PCA_DENSE_CORRELATION_BATCH_CONTAINER_V2_H__
 #define __PCA_DENSE_CORRELATION_BATCH_CONTAINER_V2_H__
 
-#include "algorithms/kernel/kernel.h"
-#include "algorithms/kernel/pca/inner/pca_batch_v2.h"
-#include "algorithms/kernel/pca/pca_dense_correlation_batch_kernel.h"
+#include "src/algorithms/kernel.h"
+#include "src/algorithms/pca/inner/pca_batch_v2.h"
+#include "src/algorithms/pca/pca_dense_correlation_batch_kernel.h"
 
 namespace daal
 {

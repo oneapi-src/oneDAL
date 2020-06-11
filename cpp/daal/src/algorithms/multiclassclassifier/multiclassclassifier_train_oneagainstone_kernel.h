@@ -26,7 +26,7 @@
 #define __MULTICLASSCLASSIFIER_TRAIN_ONEAGAINSTONE_KERNEL_H__
 
 #include "algorithms/multi_class_classifier/multi_class_classifier_model.h"
-#include "algorithms/kernel/service_sort.h"
+#include "src/algorithms/service_sort.h"
 #include "externals/service_memory.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 

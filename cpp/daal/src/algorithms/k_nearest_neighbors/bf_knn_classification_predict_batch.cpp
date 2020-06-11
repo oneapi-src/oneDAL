@@ -16,7 +16,7 @@
 *******************************************************************************/
 
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_predict_types.h"
-#include "algorithms/kernel/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
+#include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
 #include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;

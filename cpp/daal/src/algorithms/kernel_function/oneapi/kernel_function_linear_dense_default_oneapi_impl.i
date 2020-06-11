@@ -27,8 +27,8 @@
 #include "algorithms/kernel_function/kernel_function_types_linear.h"
 
 #include "externals/service_stat.h"
-#include "algorithms/kernel/service_error_handling.h"
-#include "algorithms/kernel/kernel_function/oneapi/cl_kernels/kernel_function.cl"
+#include "src/algorithms/service_error_handling.h"
+#include "src/algorithms/kernel_function/oneapi/cl_kernels/kernel_function.cl"
 #include "externals/service_ittnotify.h"
 #include "service/kernel/oneapi/blas_gpu.h"
 #include "service/kernel/oneapi/reducer.h"

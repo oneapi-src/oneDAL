@@ -30,7 +30,7 @@
 #include "externals/service_ittnotify.h"
 #include "service/kernel/oneapi/blas_gpu.h"
 #include "service/kernel/oneapi/reducer.h"
-#include "algorithms/kernel/kernel_function/oneapi/cl_kernels/kernel_function.cl"
+#include "src/algorithms/kernel_function/oneapi/cl_kernels/kernel_function.cl"
 
 DAAL_ITTNOTIFY_DOMAIN(kernel_function.rbf.batch.oneapi);
 

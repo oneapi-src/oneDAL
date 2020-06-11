@@ -23,7 +23,7 @@
 */
 
 #include "algorithms/boosting/brownboost_predict.h"
-#include "algorithms/kernel/brownboost/inner/brownboost_predict_batch_container_v1.h"
+#include "src/algorithms/brownboost/inner/brownboost_predict_batch_container_v1.h"
 
 namespace daal
 {

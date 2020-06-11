@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/cholesky/cholesky.h"
-#include "algorithms/kernel/cholesky/cholesky_kernel.h"
+#include "src/algorithms/cholesky/cholesky_kernel.h"
 
 namespace daal
 {

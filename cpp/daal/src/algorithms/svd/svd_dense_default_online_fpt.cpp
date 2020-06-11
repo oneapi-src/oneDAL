@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/svd/svd_dense_default_online.h"
+#include "src/algorithms/svd/svd_dense_default_online.h"
 namespace daal
 {
 namespace algorithms

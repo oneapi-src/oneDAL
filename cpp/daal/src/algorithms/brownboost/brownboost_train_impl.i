@@ -42,7 +42,7 @@
 #include "algorithms/weak_learner/weak_learner_model.h"
 #include "algorithms/classifier/classifier_model.h"
 #include "algorithms/boosting/brownboost_model.h"
-#include "algorithms/kernel/brownboost/brownboost_train_kernel.h"
+#include "src/algorithms/brownboost/brownboost_train_kernel.h"
 
 namespace daal
 {

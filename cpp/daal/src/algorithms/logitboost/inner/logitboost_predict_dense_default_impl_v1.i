@@ -32,7 +32,7 @@
 
 #include "externals/service_memory.h"
 #include "service/kernel/data_management/service_numeric_table.h"
-#include "algorithms/kernel/logitboost/logitboost_impl.i"
+#include "src/algorithms/logitboost/logitboost_impl.i"
 
 using namespace daal::algorithms::logitboost::internal;
 

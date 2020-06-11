@@ -21,9 +21,9 @@
 //--
 */
 
-#include "algorithms/kernel/logistic_regression/logistic_regression_predict_kernel.h"
-#include "algorithms/kernel/logistic_regression/logistic_regression_predict_dense_default_batch_impl.i"
-#include "algorithms/kernel/logistic_regression/logistic_regression_predict_container.h"
+#include "src/algorithms/logistic_regression/logistic_regression_predict_kernel.h"
+#include "src/algorithms/logistic_regression/logistic_regression_predict_dense_default_batch_impl.i"
+#include "src/algorithms/logistic_regression/logistic_regression_predict_container.h"
 
 namespace daal
 {

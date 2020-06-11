@@ -22,7 +22,7 @@
 #ifndef __LBFGS_DENSE_DEFAULT_KERNEL_H__
 #define __LBFGS_DENSE_DEFAULT_KERNEL_H__
 
-#include "algorithms/kernel/optimization_solver/lbfgs/lbfgs_base.h"
+#include "src/algorithms/optimization_solver/lbfgs/lbfgs_base.h"
 
 using namespace daal::data_management;
 

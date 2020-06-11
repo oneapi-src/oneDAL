@@ -34,7 +34,7 @@
 #include "externals/service_blas.h"
 #include "externals/service_spblas.h"
 #include "service/kernel/data_management/service_numeric_table.h"
-#include "algorithms/kernel/service_error_handling.h"
+#include "src/algorithms/service_error_handling.h"
 
 #if (__CPUID__(DAAL_CPU) >= __avx512_mic__)
 

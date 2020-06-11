@@ -32,7 +32,7 @@
 #include "algorithms/decision_tree/decision_tree_regression_training_batch.h"
 #include "algorithms/regression/regression_training_types.h"
 #include "algorithms/stump/stump_regression_model.h"
-#include "algorithms/kernel/decision_tree/decision_tree_regression_model_impl.h"
+#include "src/algorithms/decision_tree/decision_tree_regression_model_impl.h"
 
 using namespace daal::data_management;
 using namespace daal::algorithms;

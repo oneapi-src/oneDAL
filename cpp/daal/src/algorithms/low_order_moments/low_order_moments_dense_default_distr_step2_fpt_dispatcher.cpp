@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/low_order_moments/low_order_moments_container.h"
+#include "src/algorithms/low_order_moments/low_order_moments_container.h"
 
 namespace daal
 {

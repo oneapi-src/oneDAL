@@ -23,7 +23,7 @@
 
 #include "algorithms/decision_forest/decision_forest_classification_model_builder.h"
 #include "algorithms/decision_forest/decision_forest_classification_model.h"
-#include "algorithms/kernel/dtrees/dtrees_model_impl.h"
+#include "src/algorithms/dtrees/dtrees_model_impl.h"
 #include "../df_classification_model_impl.h"
 
 using namespace daal::data_management;

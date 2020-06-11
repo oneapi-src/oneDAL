@@ -21,8 +21,8 @@
 //--
 */
 
-#include "algorithms/kernel/pca/oneapi/pca_dense_correlation_batch_kernel_ucapi.h"
-#include "algorithms/kernel/pca/oneapi/pca_dense_correlation_batch_kernel_ucapi_impl.i"
+#include "src/algorithms/pca/oneapi/pca_dense_correlation_batch_kernel_ucapi.h"
+#include "src/algorithms/pca/oneapi/pca_dense_correlation_batch_kernel_ucapi_impl.i"
 
 namespace daal
 {

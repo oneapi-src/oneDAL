@@ -29,8 +29,8 @@
 #include "service/kernel/service_defines.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 
-#include "algorithms/kernel/svd/svd_dense_default_kernel.h"
-#include "algorithms/kernel/svd/svd_dense_default_impl.i"
+#include "src/algorithms/svd/svd_dense_default_kernel.h"
+#include "src/algorithms/svd/svd_dense_default_impl.i"
 
 #include "algorithms/threading/threading.h"
 

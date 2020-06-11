@@ -24,7 +24,7 @@
 #ifndef __KERNEL_FUNCTION_DENSE_RBF_KERNEL_ONEAPI_H__
 #define __KERNEL_FUNCTION_DENSE_RBF_KERNEL_ONEAPI_H__
 
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "algorithms/kernel_function/kernel_function_rbf.h"
 

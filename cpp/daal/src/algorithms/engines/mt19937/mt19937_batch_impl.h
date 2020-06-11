@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/engines/mt19937/mt19937.h"
-#include "algorithms/kernel/engines/engine_batch_impl.h"
+#include "src/algorithms/engines/engine_batch_impl.h"
 #include "externals/service_rng.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 

@@ -23,7 +23,7 @@
 #define __MCG59_KERNEL_H__
 
 #include "algorithms/engines/mcg59/mcg59.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 
 using namespace daal::services;

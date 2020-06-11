@@ -21,9 +21,9 @@
 //--
 */
 
-#include "algorithms/kernel/quantiles/quantiles_batch_container.h"
-#include "algorithms/kernel/quantiles/quantiles_kernel.h"
-#include "algorithms/kernel/quantiles/quantiles_impl.i"
+#include "src/algorithms/quantiles/quantiles_batch_container.h"
+#include "src/algorithms/quantiles/quantiles_kernel.h"
+#include "src/algorithms/quantiles/quantiles_impl.i"
 
 namespace daal
 {

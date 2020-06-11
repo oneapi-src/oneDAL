@@ -27,9 +27,9 @@
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "externals/service_memory.h"
 #include "externals/service_spblas.h"
-#include "algorithms/kernel/service_sort.h"
-#include "algorithms/kernel/implicit_als/implicit_als_train_dense_default_batch_common.i"
-#include "algorithms/kernel/implicit_als/implicit_als_train_utils.h"
+#include "src/algorithms/service_sort.h"
+#include "src/algorithms/implicit_als/implicit_als_train_dense_default_batch_common.i"
+#include "src/algorithms/implicit_als/implicit_als_train_utils.h"
 #include "service/kernel/daal_strings.h"
 #include "service/kernel/service_data_utils.h"
 

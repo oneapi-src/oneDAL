@@ -29,9 +29,9 @@
 #include "externals/service_math.h"
 #include "service/kernel/service_utils.h"
 #include "data_management/data/numeric_table.h"
-#include "algorithms/kernel/decision_tree/decision_tree_regression_model_impl.h"
-#include "algorithms/kernel/decision_tree/decision_tree_regression_train_kernel.h"
-#include "algorithms/kernel/decision_tree/decision_tree_train_impl.i"
+#include "src/algorithms/decision_tree/decision_tree_regression_model_impl.h"
+#include "src/algorithms/decision_tree/decision_tree_regression_train_kernel.h"
+#include "src/algorithms/decision_tree/decision_tree_train_impl.i"
 
 namespace daal
 {

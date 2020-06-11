@@ -25,7 +25,7 @@
 #define __ZSCORE_RESULT_H__
 
 #include "algorithms/normalization/zscore_types.h"
-#include "algorithms/kernel/normalization/zscore/inner/zscore_result_v1.h"
+#include "src/algorithms/normalization/zscore/inner/zscore_result_v1.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

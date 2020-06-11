@@ -22,9 +22,9 @@
 */
 
 #include "algorithms/gradient_boosted_trees/gbt_training_parameter.h"
-#include "algorithms/kernel/dtrees/gbt/gbt_training_parameter.h"
+#include "src/algorithms/dtrees/gbt/gbt_training_parameter.h"
 #include "service/kernel/daal_strings.h"
-#include "algorithms/kernel/dtrees/gbt/gbt_internal.h"
+#include "src/algorithms/dtrees/gbt/gbt_internal.h"
 #include "algorithms/engines/mt19937/mt19937.h"
 
 using namespace daal::data_management;

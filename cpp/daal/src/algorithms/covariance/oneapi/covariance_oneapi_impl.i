@@ -30,7 +30,7 @@
 #include "services/error_indexes.h"
 #include "service/kernel/oneapi/blas_gpu.h"
 #include "service/kernel/oneapi/reducer.h"
-#include "algorithms/kernel/covariance/oneapi/cl_kernels/covariance_kernels.cl"
+#include "src/algorithms/covariance/oneapi/cl_kernels/covariance_kernels.cl"
 #include "externals/service_ittnotify.h"
 #include "service/kernel/service_data_utils.h"
 

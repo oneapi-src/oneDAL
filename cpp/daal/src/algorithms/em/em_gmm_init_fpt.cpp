@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/em/em_gmm_init.h"
+#include "src/algorithms/em/em_gmm_init.h"
 
 namespace daal
 {

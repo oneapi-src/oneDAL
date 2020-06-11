@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_classification_training_result.h"
+#include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_training_result.h"
 
 namespace daal
 {

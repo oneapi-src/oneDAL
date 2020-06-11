@@ -25,7 +25,7 @@
 #define __PIVOTED_QR_KERNEL_H__
 
 #include "algorithms/pivoted_qr/pivoted_qr_batch.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;

@@ -25,7 +25,7 @@
 #define __MT2203_BATCH_CONTAINER_H__
 
 #include "algorithms/engines/mt2203/mt2203.h"
-#include "algorithms/kernel/engines/mt2203/mt2203_kernel.h"
+#include "src/algorithms/engines/mt2203/mt2203_kernel.h"
 
 namespace daal
 {

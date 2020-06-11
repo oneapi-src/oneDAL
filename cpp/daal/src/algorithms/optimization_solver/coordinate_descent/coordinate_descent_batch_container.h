@@ -25,7 +25,7 @@
 #define __COORDINATE_DESCENT_BATCH_CONTAINER_H__
 
 #include "algorithms/optimization_solver/coordinate_descent/coordinate_descent_batch.h"
-#include "algorithms/kernel/optimization_solver/coordinate_descent/coordinate_descent_dense_default_kernel.h"
+#include "src/algorithms/optimization_solver/coordinate_descent/coordinate_descent_dense_default_kernel.h"
 #include "service/kernel/service_algo_utils.h"
 
 namespace daal

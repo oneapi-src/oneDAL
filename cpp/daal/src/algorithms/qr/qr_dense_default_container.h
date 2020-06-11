@@ -26,7 +26,7 @@
 #include "algorithms/qr/qr_batch.h"
 #include "algorithms/qr/qr_online.h"
 #include "algorithms/qr/qr_distributed.h"
-#include "algorithms/kernel/qr/qr_dense_default_kernel.h"
+#include "src/algorithms/qr/qr_dense_default_kernel.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 
 namespace daal

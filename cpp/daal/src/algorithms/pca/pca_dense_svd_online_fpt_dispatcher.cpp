@@ -20,8 +20,8 @@
 //--
 
 #include "algorithms/pca/pca_online.h"
-#include "algorithms/kernel/pca/pca_dense_svd_online_container.h"
-#include "algorithms/kernel/pca/pca_dense_svd_online_kernel.h"
+#include "src/algorithms/pca/pca_dense_svd_online_container.h"
+#include "src/algorithms/pca/pca_dense_svd_online_kernel.h"
 
 namespace daal
 {

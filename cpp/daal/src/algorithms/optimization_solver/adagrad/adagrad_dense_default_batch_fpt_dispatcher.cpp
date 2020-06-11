@@ -19,7 +19,7 @@
 //  Implementation of adagrad calculation algorithm container.
 //--
 
-#include "algorithms/kernel/optimization_solver/adagrad/adagrad_batch_container.h"
+#include "src/algorithms/optimization_solver/adagrad/adagrad_batch_container.h"
 
 namespace daal
 {

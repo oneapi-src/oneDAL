@@ -22,7 +22,7 @@
 //--
 */
 
-#include "algorithms/kernel/naivebayes/naivebayes_predict_container.h"
+#include "src/algorithms/naivebayes/naivebayes_predict_container.h"
 
 namespace daal
 {

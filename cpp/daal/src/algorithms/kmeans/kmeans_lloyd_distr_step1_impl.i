@@ -28,7 +28,7 @@
 #include "externals/service_memory.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 
-#include "algorithms/kernel/kmeans/kmeans_lloyd_impl.i"
+#include "src/algorithms/kmeans/kmeans_lloyd_impl.i"
 
 using namespace daal::internal;
 using namespace daal::services::internal;

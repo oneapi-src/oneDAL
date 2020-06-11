@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/normalization/zscore/inner/zscore_result_v1.h"
+#include "src/algorithms/normalization/zscore/inner/zscore_result_v1.h"
 #include "service/kernel/serialization_utils.h"
 #include "service/kernel/daal_strings.h"
 

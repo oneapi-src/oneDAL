@@ -21,9 +21,9 @@
 //--
 */
 
-#include "algorithms/kernel/naivebayes/naivebayes_predict_kernel.h"
-#include "algorithms/kernel/naivebayes/naivebayes_predict_fast_impl.i"
-#include "algorithms/kernel/naivebayes/naivebayes_predict_container.h"
+#include "src/algorithms/naivebayes/naivebayes_predict_kernel.h"
+#include "src/algorithms/naivebayes/naivebayes_predict_fast_impl.i"
+#include "src/algorithms/naivebayes/naivebayes_predict_container.h"
 
 namespace daal
 {

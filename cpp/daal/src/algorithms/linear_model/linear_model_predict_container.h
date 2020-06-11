@@ -27,9 +27,9 @@
 #define __LINEAR_MODEL_PREDICT_CONTAINER_H__
 
 #include "algorithms/linear_model/linear_model_predict.h"
-#include "algorithms/kernel/linear_model/linear_model_predict_kernel.h"
+#include "src/algorithms/linear_model/linear_model_predict_kernel.h"
 
-#include "algorithms/kernel/linear_model/oneapi/linear_model_predict_kernel_oneapi.h"
+#include "src/algorithms/linear_model/oneapi/linear_model_predict_kernel_oneapi.h"
 
 namespace daal
 {

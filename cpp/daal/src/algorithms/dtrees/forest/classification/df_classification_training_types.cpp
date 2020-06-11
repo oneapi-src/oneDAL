@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/dtrees/forest/classification/df_classification_training_types_result.h"
+#include "src/algorithms/dtrees/forest/classification/df_classification_training_types_result.h"
 #include "service/kernel/serialization_utils.h"
 #include "service/kernel/daal_strings.h"
 

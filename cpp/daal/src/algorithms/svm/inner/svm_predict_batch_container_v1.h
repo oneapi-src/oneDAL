@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/svm/svm_predict.h"
-#include "algorithms/kernel/svm/svm_predict_kernel.h"
+#include "src/algorithms/svm/svm_predict_kernel.h"
 #include "algorithms/classifier/classifier_predict_types.h"
 
 namespace daal

@@ -21,9 +21,9 @@
 //--
 */
 
-#include "algorithms/kernel/kernel_function/kernel_function_linear_batch_container.h"
-#include "algorithms/kernel/kernel_function/kernel_function_linear_csr_fast_kernel.h"
-#include "algorithms/kernel/kernel_function/kernel_function_linear_csr_fast_impl.i"
+#include "src/algorithms/kernel_function/kernel_function_linear_batch_container.h"
+#include "src/algorithms/kernel_function/kernel_function_linear_csr_fast_kernel.h"
+#include "src/algorithms/kernel_function/kernel_function_linear_csr_fast_impl.i"
 
 namespace daal
 {

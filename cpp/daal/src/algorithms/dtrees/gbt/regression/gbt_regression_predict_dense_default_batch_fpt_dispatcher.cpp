@@ -23,7 +23,7 @@
 //--
 */
 
-#include "algorithms/kernel/dtrees/gbt/regression/gbt_regression_predict_container.h"
+#include "src/algorithms/dtrees/gbt/regression/gbt_regression_predict_container.h"
 
 namespace daal
 {

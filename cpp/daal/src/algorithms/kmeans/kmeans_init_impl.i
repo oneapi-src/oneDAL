@@ -27,8 +27,8 @@
 #include "services/daal_defines.h"
 #include "externals/service_memory.h"
 #include "service/kernel/data_management/service_numeric_table.h"
-#include "algorithms/kernel/distributions/uniform/uniform_kernel.h"
-#include "algorithms/kernel/distributions/uniform/uniform_impl.i"
+#include "src/algorithms/distributions/uniform/uniform_kernel.h"
+#include "src/algorithms/distributions/uniform/uniform_impl.i"
 #include "service/kernel/service_data_utils.h"
 
 namespace daal

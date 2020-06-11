@@ -29,7 +29,7 @@
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
 #include "services/daal_defines.h"
-#include "algorithms/kernel/normalization/zscore/inner/zscore_types_v1.h"
+#include "src/algorithms/normalization/zscore/inner/zscore_types_v1.h"
 
 namespace daal
 {

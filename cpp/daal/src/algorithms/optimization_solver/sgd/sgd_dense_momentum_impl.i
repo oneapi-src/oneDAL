@@ -28,7 +28,7 @@
 #include "externals/service_math.h"
 #include "service/kernel/service_utils.h"
 #include "service/kernel/data_management/service_numeric_table.h"
-#include "algorithms/kernel/optimization_solver/iterative_solver_kernel.h"
+#include "src/algorithms/optimization_solver/iterative_solver_kernel.h"
 #include "algorithms/threading/threading.h"
 #include "service/kernel/service_data_utils.h"
 

@@ -27,7 +27,7 @@
 
 #include "algorithms/threading/threading.h"
 #include "algorithms/dbscan/dbscan_types.h"
-#include "algorithms/kernel/dbscan/dbscan_utils.h"
+#include "src/algorithms/dbscan/dbscan_utils.h"
 
 using namespace daal::internal;
 using namespace daal::services;

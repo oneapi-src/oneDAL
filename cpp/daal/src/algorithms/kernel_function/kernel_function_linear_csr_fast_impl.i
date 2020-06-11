@@ -25,7 +25,7 @@
 #define __KERNEL_FUNCTION_LINEAR_CSR_FAST_IMPL_I__
 
 #include "algorithms/kernel_function/kernel_function_types_linear.h"
-#include "algorithms/kernel/kernel_function/kernel_function_csr_impl.i"
+#include "src/algorithms/kernel_function/kernel_function_csr_impl.i"
 
 #include "algorithms/threading/threading.h"
 #include "externals/service_spblas.h"

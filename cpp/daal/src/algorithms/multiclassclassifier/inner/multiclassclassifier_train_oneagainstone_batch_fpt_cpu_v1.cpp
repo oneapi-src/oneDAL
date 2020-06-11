@@ -22,10 +22,10 @@
 //--
 */
 
-#include "algorithms/kernel/multiclassclassifier/inner/multiclassclassifier_train_batch_container_v1.h"
-#include "algorithms/kernel/multiclassclassifier/multiclassclassifier_train_kernel.h"
-#include "algorithms/kernel/multiclassclassifier/multiclassclassifier_train_oneagainstone_kernel.h"
-#include "algorithms/kernel/multiclassclassifier/multiclassclassifier_train_oneagainstone_impl.i"
+#include "src/algorithms/multiclassclassifier/inner/multiclassclassifier_train_batch_container_v1.h"
+#include "src/algorithms/multiclassclassifier/multiclassclassifier_train_kernel.h"
+#include "src/algorithms/multiclassclassifier/multiclassclassifier_train_oneagainstone_kernel.h"
+#include "src/algorithms/multiclassclassifier/multiclassclassifier_train_oneagainstone_impl.i"
 
 namespace daal
 {

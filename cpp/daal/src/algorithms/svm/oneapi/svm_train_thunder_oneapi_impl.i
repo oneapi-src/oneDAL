@@ -50,11 +50,11 @@
 #include "externals/service_memory.h"
 #include "externals/service_ittnotify.h"
 #include "externals/service_service.h"
-#include "algorithms/kernel/svm/oneapi/cl_kernels/svm_train_block_smo_oneapi.cl"
+#include "src/algorithms/svm/oneapi/cl_kernels/svm_train_block_smo_oneapi.cl"
 
-#include "algorithms/kernel/svm/oneapi/svm_train_cache_oneapi.h"
-#include "algorithms/kernel/svm/oneapi/svm_train_workset_oneapi.h"
-#include "algorithms/kernel/svm/oneapi/svm_train_result_oneapi.h"
+#include "src/algorithms/svm/oneapi/svm_train_cache_oneapi.h"
+#include "src/algorithms/svm/oneapi/svm_train_workset_oneapi.h"
+#include "src/algorithms/svm/oneapi/svm_train_result_oneapi.h"
 
 DAAL_ITTNOTIFY_DOMAIN(svm_train.default.batch);
 

@@ -29,7 +29,7 @@
 #include "externals/service_blas.h"
 #include "externals/service_stat.h"
 #include "externals/service_math.h"
-#include "algorithms/kernel/service_sort.h"
+#include "src/algorithms/service_sort.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;

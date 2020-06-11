@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/linear_model/oneapi/linear_model_train_normeq_kernel_oneapi.h"
+#include "src/algorithms/linear_model/oneapi/linear_model_train_normeq_kernel_oneapi.h"
 #include "oneapi/internal/math/types.h"
 #include "service/kernel/oneapi/lapack_gpu.h"
 #include "externals/service_lapack.h"

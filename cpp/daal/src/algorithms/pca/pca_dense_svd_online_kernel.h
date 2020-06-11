@@ -26,9 +26,9 @@
 
 #include "algorithms/pca/pca_online.h"
 #include "algorithms/pca/pca_types.h"
-#include "algorithms/kernel/svd/svd_dense_default_kernel.h"
+#include "src/algorithms/svd/svd_dense_default_kernel.h"
 
-#include "algorithms/kernel/pca/pca_dense_svd_base.h"
+#include "src/algorithms/pca/pca_dense_svd_base.h"
 
 namespace daal
 {

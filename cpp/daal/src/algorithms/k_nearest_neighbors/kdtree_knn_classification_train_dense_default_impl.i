@@ -32,12 +32,12 @@
 #include "service/kernel/service_data_utils.h"
 #include "externals/service_math.h"
 #include "externals/service_rng.h"
-#include "algorithms/kernel/service_sort.h"
+#include "src/algorithms/service_sort.h"
 #include "data_management/data/numeric_table.h"
-#include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
-#include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_classification_train_kernel.h"
-#include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_impl.i"
-#include "algorithms/kernel/engines/engine_batch_impl.h"
+#include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
+#include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_train_kernel.h"
+#include "src/algorithms/k_nearest_neighbors/kdtree_knn_impl.i"
+#include "src/algorithms/engines/engine_batch_impl.h"
 
 #if defined(__INTEL_COMPILER_BUILD_DATE)
     #include <immintrin.h>

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/normalization/zscore/zscore_result.h"
+#include "src/algorithms/normalization/zscore/zscore_result.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

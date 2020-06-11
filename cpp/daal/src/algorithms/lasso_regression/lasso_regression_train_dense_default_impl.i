@@ -25,9 +25,9 @@
 #ifndef __LASSO_REGRESSION_TRAIN_DENSE_DEFAULT_IMPL_I__
 #define __LASSO_REGRESSION_TRAIN_DENSE_DEFAULT_IMPL_I__
 
-#include "algorithms/kernel/lasso_regression/lasso_regression_train_kernel.h"
-#include "algorithms/kernel/lasso_regression/lasso_regression_model_impl.h"
-#include "algorithms/kernel/service_error_handling.h"
+#include "src/algorithms/lasso_regression/lasso_regression_train_kernel.h"
+#include "src/algorithms/lasso_regression/lasso_regression_model_impl.h"
+#include "src/algorithms/service_error_handling.h"
 #include "service/kernel/service_algo_utils.h"
 #include "algorithms/optimization_solver/objective_function/mse_batch.h"
 #include "algorithms/optimization_solver/coordinate_descent/coordinate_descent_batch.h"

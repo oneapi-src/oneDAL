@@ -29,8 +29,8 @@
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "service/kernel/service_defines.h"
 
-#include "algorithms/kernel/kmeans/kmeans_lloyd_impl.i"
-#include "algorithms/kernel/kmeans/kmeans_lloyd_postprocessing.h"
+#include "src/algorithms/kmeans/kmeans_lloyd_impl.i"
+#include "src/algorithms/kmeans/kmeans_lloyd_postprocessing.h"
 
 #include "externals/service_ittnotify.h"
 

@@ -26,20 +26,20 @@
 
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
-#include "algorithms/kernel/logistic_regression/logistic_regression_predict_kernel.h"
+#include "src/algorithms/logistic_regression/logistic_regression_predict_kernel.h"
 #include "algorithms/threading/threading.h"
 #include "services/daal_defines.h"
-#include "algorithms/kernel/logistic_regression/logistic_regression_model_impl.h"
+#include "src/algorithms/logistic_regression/logistic_regression_model_impl.h"
 #include "service/kernel/data_management/service_numeric_table.h"
-#include "algorithms/kernel/service_error_handling.h"
+#include "src/algorithms/service_error_handling.h"
 #include "externals/service_memory.h"
 #include "externals/service_math.h"
 #include "service/kernel/service_data_utils.h"
 #include "service/kernel/service_algo_utils.h"
 #include "service/kernel/service_environment.h"
 #include "externals/service_blas.h"
-#include "algorithms/kernel/objective_function/cross_entropy_loss/cross_entropy_loss_dense_default_batch_kernel.h"
-#include "algorithms/kernel/objective_function/logistic_loss/logistic_loss_dense_default_batch_kernel.h"
+#include "src/algorithms/objective_function/cross_entropy_loss/cross_entropy_loss_dense_default_batch_kernel.h"
+#include "src/algorithms/objective_function/logistic_loss/logistic_loss_dense_default_batch_kernel.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;

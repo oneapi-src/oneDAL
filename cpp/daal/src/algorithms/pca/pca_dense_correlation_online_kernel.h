@@ -27,7 +27,7 @@
 #include "algorithms/pca/pca_types.h"
 #include "service/kernel/service_defines.h"
 #include "services/error_handling.h"
-#include "algorithms/kernel/pca/pca_dense_correlation_base.h"
+#include "src/algorithms/pca/pca_dense_correlation_base.h"
 
 namespace daal
 {

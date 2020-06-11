@@ -24,10 +24,10 @@
 #ifndef __GBT_REGRESSION_MODEL_IMPL__
 #define __GBT_REGRESSION_MODEL_IMPL__
 
-#include "algorithms/kernel/dtrees/gbt/gbt_model_impl.h"
+#include "src/algorithms/dtrees/gbt/gbt_model_impl.h"
 #include "algorithms/gradient_boosted_trees/gbt_regression_model.h"
 #include "algorithms/gradient_boosted_trees/gbt_regression_model_builder.h"
-#include "algorithms/kernel/regression/regression_model_impl.h"
+#include "src/algorithms/regression/regression_model_impl.h"
 
 namespace daal
 {

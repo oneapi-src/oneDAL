@@ -26,14 +26,14 @@
 
 #include "data_management/data/numeric_table.h"
 #include "algorithms/threading/threading.h"
-#include "algorithms/kernel/decision_tree/decision_tree_impl.i"
+#include "src/algorithms/decision_tree/decision_tree_impl.i"
 #include "service/kernel/service_utils.h"
-#include "algorithms/kernel/service_sort.h"
+#include "src/algorithms/service_sort.h"
 #include "externals/service_math.h"
 #include "service/kernel/service_data_utils.h"
-#include "algorithms/kernel/service_threading.h"
+#include "src/algorithms/service_threading.h"
 #include "data_management/features/defines.h"
-#include "algorithms/kernel/service_error_handling.h"
+#include "src/algorithms/service_error_handling.h"
 
 namespace daal
 {

@@ -29,7 +29,7 @@
 #include "service/kernel/data_management/service_micro_table.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "data_management/data/numeric_table_sycl_homogen.h"
-#include "algorithms/kernel/svm/svm_train_cache.h"
+#include "src/algorithms/svm/svm_train_cache.h"
 #include "externals/service_service.h"
 
 namespace daal

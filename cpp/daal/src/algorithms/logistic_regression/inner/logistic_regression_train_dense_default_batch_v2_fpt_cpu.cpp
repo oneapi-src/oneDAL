@@ -21,8 +21,8 @@
 //--
 */
 
-#include "algorithms/kernel/logistic_regression/inner/logistic_regression_train_container_v2.h"
-#include "algorithms/kernel/logistic_regression/inner/logistic_regression_train_dense_default_v2_impl.i"
+#include "src/algorithms/logistic_regression/inner/logistic_regression_train_container_v2.h"
+#include "src/algorithms/logistic_regression/inner/logistic_regression_train_dense_default_v2_impl.i"
 
 namespace daal
 {

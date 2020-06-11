@@ -28,11 +28,11 @@
 DAAL_ITTNOTIFY_DOMAIN(pca.dense.correlation.batch.oneapi);
 
 #include "services/env_detect.h"
-#include "algorithms/kernel/pca/oneapi/cl_kernels/pca_cl_kernels.cl"
+#include "src/algorithms/pca/oneapi/cl_kernels/pca_cl_kernels.cl"
 #include "data_management/data/numeric_table_sycl_homogen.h"
 #include "service/kernel/oneapi/blas_gpu.h"
 #include "service/kernel/oneapi/reducer.h"
-#include "algorithms/kernel/covariance/oneapi/covariance_oneapi_impl.i"
+#include "src/algorithms/covariance/oneapi/covariance_oneapi_impl.i"
 
 using namespace daal::services;
 using namespace daal::internal;

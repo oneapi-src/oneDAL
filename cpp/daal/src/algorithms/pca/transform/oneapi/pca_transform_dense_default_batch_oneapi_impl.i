@@ -27,7 +27,7 @@
 #include "externals/service_ittnotify.h"
 DAAL_ITTNOTIFY_DOMAIN(pca.transform.batch.oneapi);
 
-#include "algorithms/kernel/pca/transform/oneapi/cl_kernels/pca_transform_cl_kernels.cl"
+#include "src/algorithms/pca/transform/oneapi/cl_kernels/pca_transform_cl_kernels.cl"
 
 using namespace daal::services;
 using namespace daal::oneapi::internal;

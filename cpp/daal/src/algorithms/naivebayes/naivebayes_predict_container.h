@@ -23,7 +23,7 @@
 */
 
 #include "algorithms/naive_bayes/multinomial_naive_bayes_predict.h"
-#include "algorithms/kernel/naivebayes/naivebayes_predict_kernel.h"
+#include "src/algorithms/naivebayes/naivebayes_predict_kernel.h"
 
 namespace daal
 {

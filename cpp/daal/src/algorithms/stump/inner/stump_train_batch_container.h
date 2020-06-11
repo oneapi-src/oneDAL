@@ -26,7 +26,7 @@
 #define __STUMP_TRAIN_BATCH_CONTAINER_H__
 
 #include "algorithms/stump/stump_training_batch.h"
-#include "algorithms/kernel/stump/inner/stump_train_kernel.h"
+#include "src/algorithms/stump/inner/stump_train_kernel.h"
 
 namespace daal
 {

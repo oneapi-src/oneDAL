@@ -24,7 +24,7 @@
 #ifndef __DBSCAN_KERNEL_UCAPI_H
 #define __DBSCAN_KERNEL_UCAPI_H
 
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "oneapi/internal/execution_context.h"
 

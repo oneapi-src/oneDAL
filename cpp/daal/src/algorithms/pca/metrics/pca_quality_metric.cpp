@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/pca/pca_quality_metric_set_batch.h"
-#include "algorithms/kernel/pca/metrics/pca_explained_variance_default_batch_container.h"
+#include "src/algorithms/pca/metrics/pca_explained_variance_default_batch_container.h"
 #include "algorithms/pca/pca_explained_variance_batch.h"
 #include "services/daal_defines.h"
 #include "service/kernel/serialization_utils.h"

@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/stump/stump_regression_model.h"
-#include "algorithms/kernel/stump/stump_regression_model_visitor.h"
+#include "src/algorithms/stump/stump_regression_model_visitor.h"
 
 namespace daal
 {

@@ -22,9 +22,9 @@
 */
 
 #include "algorithms/svm/svm_predict.h"
-#include "algorithms/kernel/svm/svm_predict_kernel.h"
+#include "src/algorithms/svm/svm_predict_kernel.h"
 #include "algorithms/classifier/classifier_predict_types.h"
-#include "algorithms/kernel/svm/oneapi/svm_predict_kernel_oneapi.h"
+#include "src/algorithms/svm/oneapi/svm_predict_kernel_oneapi.h"
 
 namespace daal
 {

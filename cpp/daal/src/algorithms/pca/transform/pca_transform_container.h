@@ -27,9 +27,9 @@
 #define __PCA_TRANSFORM_CONTAINER_H__
 
 #include "algorithms/pca/transform/pca_transform_batch.h"
-#include "algorithms/kernel/pca/transform/pca_transform_kernel.h"
+#include "src/algorithms/pca/transform/pca_transform_kernel.h"
 #include "oneapi/internal/utils.h"
-#include "algorithms/kernel/pca/transform/oneapi/pca_transform_dense_default_batch_oneapi.h"
+#include "src/algorithms/pca/transform/oneapi/pca_transform_dense_default_batch_oneapi.h"
 
 namespace daal
 {

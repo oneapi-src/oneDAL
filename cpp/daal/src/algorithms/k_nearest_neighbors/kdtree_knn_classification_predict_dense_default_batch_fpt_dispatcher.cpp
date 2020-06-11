@@ -22,7 +22,7 @@
 //--
 */
 
-#include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_classification_predict_dense_default_batch_container.h"
+#include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_predict_dense_default_batch_container.h"
 
 namespace daal
 {

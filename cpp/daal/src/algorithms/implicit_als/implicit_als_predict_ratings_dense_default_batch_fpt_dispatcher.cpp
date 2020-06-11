@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "algorithms/implicit_als/implicit_als_predict_ratings_batch.h"
 
 namespace daal

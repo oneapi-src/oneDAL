@@ -21,9 +21,9 @@
 //--
 */
 
-#include "algorithms/kernel/sorting/sorting_batch_container.h"
-#include "algorithms/kernel/sorting/sorting_kernel.h"
-#include "algorithms/kernel/sorting/sorting_impl.i"
+#include "src/algorithms/sorting/sorting_batch_container.h"
+#include "src/algorithms/sorting/sorting_kernel.h"
+#include "src/algorithms/sorting/sorting_impl.i"
 
 namespace daal
 {

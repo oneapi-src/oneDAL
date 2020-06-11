@@ -24,7 +24,7 @@
 #ifndef __PCA_DENSE_CORRELATION_BASE_IFACE_H__
 #define __PCA_DENSE_CORRELATION_BASE_IFACE_H__
 
-#include "algorithms/kernel/pca/pca_dense_base_iface.h"
+#include "src/algorithms/pca/pca_dense_base_iface.h"
 
 namespace daal
 {

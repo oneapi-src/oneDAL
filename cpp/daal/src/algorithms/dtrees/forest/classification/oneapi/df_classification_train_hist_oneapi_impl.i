@@ -25,13 +25,13 @@
 #ifndef __DF_CLASSIFICATION_TRAIN_HIST_ONEAPI_IMPL_I__
 #define __DF_CLASSIFICATION_TRAIN_HIST_ONEAPI_IMPL_I__
 
-#include "algorithms/kernel/dtrees/forest/classification/oneapi/df_classification_train_hist_kernel_oneapi.h"
-#include "algorithms/kernel/dtrees/forest/classification/oneapi/cl_kernels/df_batch_classification_kernels.cl"
+#include "src/algorithms/dtrees/forest/classification/oneapi/df_classification_train_hist_kernel_oneapi.h"
+#include "src/algorithms/dtrees/forest/classification/oneapi/cl_kernels/df_batch_classification_kernels.cl"
 
-#include "algorithms/kernel/dtrees/forest/oneapi/df_feature_type_helper_oneapi.i"
-#include "algorithms/kernel/dtrees/forest/oneapi/df_tree_level_build_helper_oneapi.i"
-#include "algorithms/kernel/dtrees/forest/classification/df_classification_model_impl.h"
-#include "algorithms/kernel/dtrees/forest/classification/oneapi/df_classification_tree_helper_impl.i"
+#include "src/algorithms/dtrees/forest/oneapi/df_feature_type_helper_oneapi.i"
+#include "src/algorithms/dtrees/forest/oneapi/df_tree_level_build_helper_oneapi.i"
+#include "src/algorithms/dtrees/forest/classification/df_classification_model_impl.h"
+#include "src/algorithms/dtrees/forest/classification/oneapi/df_classification_tree_helper_impl.i"
 
 #include "externals/service_ittnotify.h"
 #include "externals/service_rng.h"
@@ -44,7 +44,7 @@
 #include "service/kernel/service_algo_utils.h"
 #include "service/kernel/service_arrays.h"
 #include "service/kernel/service_utils.h"
-#include "algorithms/kernel/engines/engine_types_internal.h"
+#include "src/algorithms/engines/engine_types_internal.h"
 #include "oneapi/internal/types.h"
 
 using namespace daal::algorithms::decision_forest::internal;

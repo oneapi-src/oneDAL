@@ -30,9 +30,9 @@
 #include "service/kernel/service_utils.h"
 #include "service/kernel/service_data_utils.h"
 #include "data_management/data/numeric_table.h"
-#include "algorithms/kernel/decision_tree/decision_tree_classification_predict_dense_default_batch.h"
-#include "algorithms/kernel/decision_tree/decision_tree_classification_model_impl.h"
-#include "algorithms/kernel/decision_tree/decision_tree_impl.i"
+#include "src/algorithms/decision_tree/decision_tree_classification_predict_dense_default_batch.h"
+#include "src/algorithms/decision_tree/decision_tree_classification_model_impl.h"
+#include "src/algorithms/decision_tree/decision_tree_impl.i"
 
 namespace daal
 {

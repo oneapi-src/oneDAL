@@ -21,9 +21,9 @@
 //--
 */
 
-#include "algorithms/kernel/logitboost/inner/logitboost_predict_batch_container_v1.h"
-#include "algorithms/kernel/logitboost/inner/logitboost_predict_dense_default_kernel_v1.h"
-#include "algorithms/kernel/logitboost/inner/logitboost_predict_dense_default_impl_v1.i"
+#include "src/algorithms/logitboost/inner/logitboost_predict_batch_container_v1.h"
+#include "src/algorithms/logitboost/inner/logitboost_predict_dense_default_kernel_v1.h"
+#include "src/algorithms/logitboost/inner/logitboost_predict_dense_default_impl_v1.i"
 
 namespace daal
 {

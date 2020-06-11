@@ -21,9 +21,9 @@
 //--
 */
 
-#include "algorithms/kernel/brownboost/inner/brownboost_train_batch_container_v1.h"
-#include "algorithms/kernel/brownboost/inner/brownboost_train_kernel_v1.h"
-#include "algorithms/kernel/brownboost/inner/brownboost_train_impl_v1.i"
+#include "src/algorithms/brownboost/inner/brownboost_train_batch_container_v1.h"
+#include "src/algorithms/brownboost/inner/brownboost_train_kernel_v1.h"
+#include "src/algorithms/brownboost/inner/brownboost_train_impl_v1.i"
 
 namespace daal
 {

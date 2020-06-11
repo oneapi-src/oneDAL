@@ -21,10 +21,10 @@
 //--
 */
 
-#include "algorithms/kernel/adaboost/inner/adaboost_predict_batch_container_v1.h"
-#include "algorithms/kernel/adaboost/inner/adaboost_predict_kernel_v1.h"
-#include "algorithms/kernel/adaboost/inner/adaboost_predict_impl_v1.i"
-#include "algorithms/kernel/boosting/inner/boosting_predict_impl.i"
+#include "src/algorithms/adaboost/inner/adaboost_predict_batch_container_v1.h"
+#include "src/algorithms/adaboost/inner/adaboost_predict_kernel_v1.h"
+#include "src/algorithms/adaboost/inner/adaboost_predict_impl_v1.i"
+#include "src/algorithms/boosting/inner/boosting_predict_impl.i"
 
 namespace daal
 {

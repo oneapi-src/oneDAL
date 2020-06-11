@@ -25,7 +25,7 @@
 #define __LOGISTIC_LOSS_DENSE_DEFAULT_BATCH_CONTAINER_V1_H__
 
 #include "algorithms/optimization_solver/objective_function/logistic_loss_batch.h"
-#include "algorithms/kernel/objective_function/logistic_loss/inner/logistic_loss_dense_default_batch_kernel_v1.h"
+#include "src/algorithms/objective_function/logistic_loss/inner/logistic_loss_dense_default_batch_kernel_v1.h"
 
 namespace daal
 {

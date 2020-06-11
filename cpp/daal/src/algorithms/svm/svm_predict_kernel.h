@@ -28,7 +28,7 @@
 #include "algorithms/model.h"
 #include "services/daal_defines.h"
 #include "algorithms/svm/svm_predict_types.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 
 namespace daal
 {

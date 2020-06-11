@@ -25,8 +25,8 @@
 #ifndef __DF_TREE_LEVEL_BUILD_HELPER_ONEAPI_H__
 #define __DF_TREE_LEVEL_BUILD_HELPER_ONEAPI_H__
 
-#include "algorithms/kernel/service_error_handling.h"
-#include "algorithms/kernel/dtrees/service_array.h"
+#include "src/algorithms/service_error_handling.h"
+#include "src/algorithms/dtrees/service_array.h"
 #include "service/kernel/service_arrays.h"
 #include "externals/service_memory.h"
 #include "service/kernel/service_data_utils.h"

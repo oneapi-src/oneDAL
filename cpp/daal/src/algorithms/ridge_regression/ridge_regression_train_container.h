@@ -24,11 +24,11 @@
 #ifndef __RIDGE_REGRESSION_TRAIN_CONTAINER_H__
 #define __RIDGE_REGRESSION_TRAIN_CONTAINER_H__
 
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "algorithms/ridge_regression/ridge_regression_training_batch.h"
 #include "algorithms/ridge_regression/ridge_regression_training_online.h"
 #include "algorithms/ridge_regression/ridge_regression_training_distributed.h"
-#include "algorithms/kernel/ridge_regression/ridge_regression_train_kernel.h"
+#include "src/algorithms/ridge_regression/ridge_regression_train_kernel.h"
 #include "algorithms/ridge_regression/ridge_regression_ne_model.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 

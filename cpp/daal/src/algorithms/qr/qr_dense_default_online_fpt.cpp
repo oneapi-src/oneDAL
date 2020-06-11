@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/qr/qr_dense_default_online.h"
+#include "src/algorithms/qr/qr_dense_default_online.h"
 namespace daal
 {
 namespace algorithms

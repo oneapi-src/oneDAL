@@ -24,9 +24,9 @@
 #ifndef __DF_REGRESSION_MODEL_IMPL__
 #define __DF_REGRESSION_MODEL_IMPL__
 
-#include "algorithms/kernel/dtrees/dtrees_model_impl.h"
+#include "src/algorithms/dtrees/dtrees_model_impl.h"
 #include "algorithms/decision_forest/decision_forest_regression_model.h"
-#include "algorithms/kernel/regression/regression_model_impl.h"
+#include "src/algorithms/regression/regression_model_impl.h"
 
 namespace daal
 {

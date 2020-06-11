@@ -19,9 +19,9 @@
 //  Implementation of adagrad calculation.
 //--
 
-#include "algorithms/kernel/optimization_solver/adagrad/adagrad_batch_container.h"
-#include "algorithms/kernel/optimization_solver/adagrad/adagrad_dense_default_kernel.h"
-#include "algorithms/kernel/optimization_solver/adagrad/adagrad_dense_default_impl.i"
+#include "src/algorithms/optimization_solver/adagrad/adagrad_batch_container.h"
+#include "src/algorithms/optimization_solver/adagrad/adagrad_dense_default_kernel.h"
+#include "src/algorithms/optimization_solver/adagrad/adagrad_dense_default_impl.i"
 
 namespace daal
 {

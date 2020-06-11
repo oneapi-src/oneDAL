@@ -24,12 +24,12 @@
 #ifndef __DECISION_TREE_CLASSIFICATION_TRAIN_CONTAINER_V1_H__
 #define __DECISION_TREE_CLASSIFICATION_TRAIN_CONTAINER_V1_H__
 
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "services/daal_shared_ptr.h"
 #include "algorithms/decision_tree/decision_tree_classification_training_batch.h"
-#include "algorithms/kernel/decision_tree/decision_tree_classification_train_kernel.h"
-#include "algorithms/kernel/decision_tree/decision_tree_classification_model_impl.h"
+#include "src/algorithms/decision_tree/decision_tree_classification_train_kernel.h"
+#include "src/algorithms/decision_tree/decision_tree_classification_model_impl.h"
 
 namespace daal
 {

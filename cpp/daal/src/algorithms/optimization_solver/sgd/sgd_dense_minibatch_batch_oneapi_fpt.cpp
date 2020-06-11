@@ -19,8 +19,8 @@
 //  Implementation of sgd calculation functions.
 //--
 
-#include "algorithms/kernel/optimization_solver/sgd/oneapi/sgd_dense_kernel_oneapi.h"
-#include "algorithms/kernel/optimization_solver/sgd/oneapi/sgd_dense_minibatch_oneapi_impl.i"
+#include "src/algorithms/optimization_solver/sgd/oneapi/sgd_dense_kernel_oneapi.h"
+#include "src/algorithms/optimization_solver/sgd/oneapi/sgd_dense_minibatch_oneapi_impl.i"
 
 namespace daal
 {

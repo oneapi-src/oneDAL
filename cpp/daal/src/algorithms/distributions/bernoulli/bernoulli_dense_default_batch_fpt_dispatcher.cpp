@@ -19,7 +19,7 @@
 //  Implementation of bernoulli algorithm container.
 //--
 
-#include "algorithms/kernel/distributions/bernoulli/bernoulli_batch_container.h"
+#include "src/algorithms/distributions/bernoulli/bernoulli_batch_container.h"
 
 namespace daal
 {

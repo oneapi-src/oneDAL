@@ -21,8 +21,8 @@
 //--
 */
 
-#include "algorithms/kernel/dtrees/forest/regression/oneapi/df_regression_train_hist_kernel_oneapi.h"
-#include "algorithms/kernel/dtrees/forest/regression/oneapi/df_regression_train_hist_oneapi_impl.i"
+#include "src/algorithms/dtrees/forest/regression/oneapi/df_regression_train_hist_kernel_oneapi.h"
+#include "src/algorithms/dtrees/forest/regression/oneapi/df_regression_train_hist_oneapi_impl.i"
 
 namespace daal
 {

@@ -25,10 +25,10 @@
 #include "externals/service_memory.h"
 #include "service/kernel/service_data_utils.h"
 #include "service/kernel/data_management/service_numeric_table.h"
-#include "algorithms/kernel/em/em_gmm_dense_default_batch_kernel.h"
-#include "algorithms/kernel/em/em_gmm_dense_default_batch_task.h"
+#include "src/algorithms/em/em_gmm_dense_default_batch_kernel.h"
+#include "src/algorithms/em/em_gmm_dense_default_batch_task.h"
 #include "algorithms/threading/threading.h"
-#include "algorithms/kernel/service_error_handling.h"
+#include "src/algorithms/service_error_handling.h"
 #include "service/kernel/service_utils.h"
 
 using namespace daal::internal;

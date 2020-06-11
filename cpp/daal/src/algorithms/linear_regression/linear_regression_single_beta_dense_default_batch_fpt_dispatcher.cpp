@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/linear_regression/linear_regression_single_beta_dense_default_batch_container.h"
+#include "src/algorithms/linear_regression/linear_regression_single_beta_dense_default_batch_container.h"
 
 namespace daal
 {

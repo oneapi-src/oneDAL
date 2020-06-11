@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/linear_regression/linear_regression_qr_model_impl.h"
+#include "src/algorithms/linear_regression/linear_regression_qr_model_impl.h"
 #include "data_management/data/homogen_numeric_table.h"
 
 namespace daal

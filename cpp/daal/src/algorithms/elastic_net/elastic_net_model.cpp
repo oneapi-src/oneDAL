@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/elastic_net/elastic_net_model_impl.h"
+#include "src/algorithms/elastic_net/elastic_net_model_impl.h"
 #include "service/kernel/serialization_utils.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 

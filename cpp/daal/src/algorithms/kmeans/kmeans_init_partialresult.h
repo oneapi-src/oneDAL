@@ -25,7 +25,7 @@
 #define __KMEANS_INIT_PARTIALRESULT_
 
 #include "algorithms/kmeans/kmeans_init_types.h"
-#include "algorithms/kernel/kmeans/kmeans_init_impl.h"
+#include "src/algorithms/kmeans/kmeans_init_impl.h"
 
 using namespace daal::data_management;
 

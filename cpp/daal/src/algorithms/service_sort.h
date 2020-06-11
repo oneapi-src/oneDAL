@@ -25,7 +25,7 @@
 #define __SERVICE_SORT_H__
 
 #include "service/kernel/service_utils.h"
-#include "algorithms/kernel/service_heap.h"
+#include "src/algorithms/service_heap.h"
 #include "services/collection.h"
 
 #if defined(__INTEL_COMPILER_BUILD_DATE)

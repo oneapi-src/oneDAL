@@ -21,8 +21,8 @@
 //--
 */
 
-#include "algorithms/kernel/objective_function/cross_entropy_loss/oneapi/cross_entropy_loss_dense_default_kernel_oneapi.h"
-#include "algorithms/kernel/objective_function/cross_entropy_loss/oneapi/cross_entropy_loss_dense_default_oneapi_impl.i"
+#include "src/algorithms/objective_function/cross_entropy_loss/oneapi/cross_entropy_loss_dense_default_kernel_oneapi.h"
+#include "src/algorithms/objective_function/cross_entropy_loss/oneapi/cross_entropy_loss_dense_default_oneapi_impl.i"
 
 namespace daal
 {

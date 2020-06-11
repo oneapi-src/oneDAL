@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/linear_regression/linear_regression_train_container.h"
+#include "src/algorithms/linear_regression/linear_regression_train_container.h"
 
 namespace daal
 {
