@@ -244,7 +244,7 @@ releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb.$(y) $(TBBDIR.soia)/$(plib)tbbmal
                      $(if $(OS_is_mac),$(if $(wildcard $(TBBDIR.soia)/libtbb.12.dylib),$(wildcard $(TBBDIR.soia)/libtbb.12.dylib)))
 
 
-RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/oneapi/internal/math
+RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/sycl/internal/math
 
 MKLGPUFPKDIR:= $(if $(wildcard $(DIR)/__deps/mklgpufpk/$(_OS)/*),$(DIR)/__deps/mklgpufpk/$(_OS),$(subst \,/,$(MKLGPUFPKROOT)))
 MKLGPUFPKDIR.include := $(MKLGPUFPKDIR)/include
@@ -430,19 +430,20 @@ release.DOC.OSSPEC := $(foreach fn,$(release.DOC),$(if $(filter %$(_OS),$(basena
 include makefile.ver
 include makefile.lst
 
-THR.srcdir       := $(CPPDIR.daal)/algorithms/threading
-CORE.srcdir      := $(CPPDIR.daal)/algorithms/kernel
-EXTERNALS.srcdir := $(CPPDIR.daal)/externals
+THR.srcdir       := $(CPPDIR.daal)/src/threading
+CORE.srcdir      := $(CPPDIR.daal)/src/algorithms
+EXTERNALS.srcdir := $(CPPDIR.daal)/src/externals
 
-CORE.SERV.srcdir          := $(CPPDIR.daal)/service/kernel
-CORE.SERV.COMPILER.srcdir := $(CPPDIR.daal)/service/kernel/compiler/$(CORE.SERV.COMPILER.$(COMPILER))
+CORE.SERV.srcdir          := $(CPPDIR.daal)/src/services
+CORE.SERV.COMPILER.srcdir := $(CPPDIR.daal)/src/services/compiler/$(CORE.SERV.COMPILER.$(COMPILER))
 
 CORE.srcdirs  := $(CORE.SERV.srcdir) $(CORE.srcdir)                  \
                  $(if $(DAALTHRS),,$(THR.srcdir))                    \
                  $(addprefix $(CORE.SERV.srcdir)/, $(CORE.SERVICES)) \
                  $(addprefix $(CORE.srcdir)/, $(CORE.ALGORITHMS))    \
                  $(CORE.SERV.COMPILER.srcdir) $(EXTERNALS.srcdir)    \
-                 $(CORE.SERV.srcdir)/oneapi
+                 $(CPPDIR.daal)/src/sycl \
+                 $(CPPDIR.daal)/src/data_management
 
 CORE.incdirs.common := $(RELEASEDIR.include) $(CPPDIR.daal) $(WORKDIR)
 CORE.incdirs.thirdp := $(MKLFPKDIR.include) $(TBBDIR.include)
