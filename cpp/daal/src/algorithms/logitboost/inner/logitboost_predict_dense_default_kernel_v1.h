@@ -25,7 +25,7 @@
 #define __LOGITBOOST_PREDICT_DENSE_DEFAULT_KERNEL_V1_H__
 
 #include "algorithms/algorithm.h"
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/data_management/service_numeric_table.h"
 #include "algorithms/boosting/logitboost_model.h"
 #include "services/daal_defines.h"
 

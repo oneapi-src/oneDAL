@@ -19,15 +19,15 @@
 #define __BF_KNN_CLASSIFICATION_PREDICT_KERNEL_UCAPI_IMPL_I__
 
 #include "algorithms/engines/engine.h"
-#include "service/kernel/oneapi/reducer.h"
-#include "service/kernel/oneapi/select_indexed.h"
-#include "service/kernel/oneapi/sorter.h"
+#include "src/services/oneapi/reducer.h"
+#include "src/services/oneapi/select_indexed.h"
+#include "src/services/oneapi/sorter.h"
 #include "services/daal_defines.h"
 
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_predict_kernel_ucapi.h"
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
 
-#include "service/kernel/oneapi/blas_gpu.h"
+#include "src/services/oneapi/blas_gpu.h"
 #include "src/algorithms/k_nearest_neighbors/oneapi/cl_kernels/bf_knn_cl_kernels.cl"
 
 #include "externals/service_ittnotify.h"

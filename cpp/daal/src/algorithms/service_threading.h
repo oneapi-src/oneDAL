@@ -24,7 +24,7 @@
 #define __SERVICE_THREADING_H__
 #include "src/threading/threading.h"
 #include "externals/service_memory.h"
-#include "service/kernel/service_allocators.h"
+#include "src/services/service_allocators.h"
 
 namespace daal
 {

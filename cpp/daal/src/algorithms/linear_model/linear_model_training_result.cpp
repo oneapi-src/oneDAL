@@ -23,8 +23,8 @@
 
 #include "services/daal_defines.h"
 #include "algorithms/linear_model/linear_model_training_types.h"
-#include "service/kernel/serialization_utils.h"
-#include "service/kernel/daal_strings.h"
+#include "src/services/serialization_utils.h"
+#include "src/services/daal_strings.h"
 
 namespace daal
 {

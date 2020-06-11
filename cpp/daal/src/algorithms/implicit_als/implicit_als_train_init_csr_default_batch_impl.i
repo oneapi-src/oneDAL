@@ -26,7 +26,7 @@
 
 #include "externals/service_memory.h"
 #include "externals/service_spblas.h"
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/data_management/service_numeric_table.h"
 
 namespace daal
 {

@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/linear_model/linear_model_predict_types.h"
-#include "service/kernel/serialization_utils.h"
-#include "service/kernel/daal_strings.h"
+#include "src/services/serialization_utils.h"
+#include "src/services/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

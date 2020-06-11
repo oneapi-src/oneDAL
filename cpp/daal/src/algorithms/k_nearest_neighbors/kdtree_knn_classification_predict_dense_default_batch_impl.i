@@ -26,11 +26,11 @@
 
 #include "src/threading/threading.h"
 #include "services/daal_defines.h"
-#include "service/kernel/service_utils.h"
+#include "src/services/service_utils.h"
 #include "algorithms/algorithm.h"
 #include "services/daal_atomic_int.h"
 #include "externals/service_memory.h"
-#include "service/kernel/service_data_utils.h"
+#include "src/services/service_data_utils.h"
 #include "externals/service_math.h"
 #include "externals/service_rng.h"
 #include "src/algorithms/service_sort.h"

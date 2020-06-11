@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/optimization_solver/coordinate_descent/coordinate_descent_types.h"
-#include "service/kernel/serialization_utils.h"
-#include "service/kernel/daal_strings.h"
+#include "src/services/serialization_utils.h"
+#include "src/services/daal_strings.h"
 
 namespace daal
 {

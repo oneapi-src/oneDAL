@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/gradient_boosted_trees/gbt_regression_predict_types.h"
-#include "service/kernel/serialization_utils.h"
-#include "service/kernel/daal_strings.h"
+#include "src/services/serialization_utils.h"
+#include "src/services/daal_strings.h"
 #include "src/algorithms/dtrees/gbt/regression/gbt_regression_model_impl.h"
 
 using namespace daal::data_management;

@@ -25,11 +25,11 @@
 #define __KERNEL_FUNCTION_RBF_DENSE_DEFAULT_IMPL_ONEAPI_I__
 
 #include "algorithms/kernel_function/kernel_function_types_rbf.h"
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/data_management/service_numeric_table.h"
 #include "externals/service_math.h"
 #include "externals/service_ittnotify.h"
-#include "service/kernel/oneapi/blas_gpu.h"
-#include "service/kernel/oneapi/reducer.h"
+#include "src/services/oneapi/blas_gpu.h"
+#include "src/services/oneapi/reducer.h"
 #include "src/algorithms/kernel_function/oneapi/cl_kernels/kernel_function.cl"
 
 DAAL_ITTNOTIFY_DOMAIN(kernel_function.rbf.batch.oneapi);

@@ -18,7 +18,7 @@
 #ifndef __PARTITION_H__
 #define __PARTITION_H__
 
-#include "service/kernel/oneapi/math_service_types.h"
+#include "src/services/oneapi/math_service_types.h"
 #include "services/buffer.h"
 #include "oneapi/internal/types_utils.h"
 #include "oneapi/internal/execution_context.h"

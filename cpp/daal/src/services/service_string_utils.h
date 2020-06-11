@@ -22,7 +22,7 @@
 #include <cstring>
 
 #include "services/daal_string.h"
-#include "service/kernel/service_defines.h"
+#include "src/services/service_defines.h"
 #include "externals/service_service.h"
 
 namespace daal

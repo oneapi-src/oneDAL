@@ -22,7 +22,7 @@
 */
 
 #include "src/algorithms/linear_regression/linear_regression_qr_model_impl.h"
-#include "service/kernel/serialization_utils.h"
+#include "src/services/serialization_utils.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

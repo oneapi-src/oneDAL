@@ -36,8 +36,8 @@
 #include "externals/service_memory.h"
 #include "data_management/data/csr_numeric_table.h"
 
-#include "service/kernel/service_data_utils.h"
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/service_data_utils.h"
+#include "src/services/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 
 #if (__CPUID__(DAAL_CPU) >= __avx512_mic__)

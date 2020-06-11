@@ -27,8 +27,8 @@
 
 #include <cmath>
 #include "externals/service_math.h"
-#include "service/kernel/service_data_utils.h"
-#include "service/kernel/service_utils.h"
+#include "src/services/service_data_utils.h"
+#include "src/services/service_utils.h"
 
 namespace daal
 {

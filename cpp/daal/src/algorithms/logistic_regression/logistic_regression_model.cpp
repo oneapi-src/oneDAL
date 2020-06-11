@@ -22,8 +22,8 @@
 */
 
 #include "src/algorithms/logistic_regression/logistic_regression_model_impl.h"
-#include "service/kernel/serialization_utils.h"
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/serialization_utils.h"
+#include "src/services/data_management/service_numeric_table.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

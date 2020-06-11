@@ -31,7 +31,7 @@
 #include "src/algorithms/linear_regression/linear_regression_train_kernel.h"
 #include "algorithms/linear_regression/linear_regression_ne_model.h"
 #include "algorithms/linear_regression/linear_regression_qr_model.h"
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/data_management/service_numeric_table.h"
 #include "oneapi/internal/utils.h"
 
 #include "src/algorithms/linear_regression/oneapi/linear_regression_train_kernel_oneapi.h"

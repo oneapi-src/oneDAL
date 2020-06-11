@@ -21,8 +21,8 @@
 //--
 */
 #include "externals/service_math.h"
-#include "service/kernel/service_utils.h"
-#include "service/kernel/service_environment.h"
+#include "src/services/service_utils.h"
+#include "src/services/service_environment.h"
 
 #include "externals/service_ittnotify.h"
 

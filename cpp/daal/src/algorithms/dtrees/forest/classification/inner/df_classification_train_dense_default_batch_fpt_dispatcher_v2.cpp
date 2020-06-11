@@ -22,7 +22,7 @@
 */
 
 #include "src/algorithms/dtrees/forest/classification/inner/df_classification_train_container_v2.h"
-#include "service/kernel/daal_strings.h"
+#include "src/services/daal_strings.h"
 
 namespace daal
 {

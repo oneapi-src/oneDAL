@@ -28,7 +28,7 @@
 #include "src/algorithms/optimization_solver/sgd/inner/sgd_dense_default_kernel_v1.h"
 #include "src/algorithms/optimization_solver/sgd/inner/sgd_dense_minibatch_kernel_v1.h"
 #include "src/algorithms/optimization_solver/sgd/inner/sgd_dense_momentum_kernel_v1.h"
-#include "service/kernel/service_algo_utils.h"
+#include "src/services/service_algo_utils.h"
 
 namespace daal
 {

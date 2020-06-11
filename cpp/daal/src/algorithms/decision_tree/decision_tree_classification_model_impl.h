@@ -26,7 +26,7 @@
 
 #include "algorithms/decision_tree/decision_tree_classification_model.h"
 #include "src/algorithms/classifier/classifier_model_impl.h"
-#include "service/kernel/service_defines.h"
+#include "src/services/service_defines.h"
 
 namespace daal
 {

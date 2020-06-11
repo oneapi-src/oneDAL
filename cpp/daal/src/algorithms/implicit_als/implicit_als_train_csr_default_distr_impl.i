@@ -24,11 +24,11 @@
 #ifndef __IMPLICIT_ALS_TRAIN_CSR_DEFAULT_DISTR_IMPL_I__
 #define __IMPLICIT_ALS_TRAIN_CSR_DEFAULT_DISTR_IMPL_I__
 
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/data_management/service_numeric_table.h"
 #include "externals/service_memory.h"
 #include "src/algorithms/service_error_handling.h"
 #include "externals/service_blas.h"
-#include "service/kernel/service_data_utils.h"
+#include "src/services/service_data_utils.h"
 
 namespace daal
 {

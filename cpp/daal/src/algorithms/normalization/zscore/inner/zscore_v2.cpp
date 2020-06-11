@@ -23,9 +23,9 @@
 
 #include "src/algorithms/normalization/zscore/inner/zscore_types_v2.h"
 #include "src/algorithms/normalization/zscore/inner/zscore_result_v1.h"
-#include "service/kernel/serialization_utils.h"
-#include "service/kernel/daal_strings.h"
-#include "service/kernel/service_defines.h"
+#include "src/services/serialization_utils.h"
+#include "src/services/daal_strings.h"
+#include "src/services/service_defines.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

@@ -24,7 +24,7 @@
 #ifndef __SERVICE_DATA_UTILS_H__
 #define __SERVICE_DATA_UTILS_H__
 
-#include "service/kernel/service_defines.h"
+#include "src/services/service_defines.h"
 
 namespace daal
 {

@@ -25,13 +25,13 @@
 #ifndef __ASSOC_RULES_APRIORI_IMPL_I__
 #define __ASSOC_RULES_APRIORI_IMPL_I__
 
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/data_management/service_numeric_table.h"
 #include "src/algorithms/service_sort.h"
 
 #include "src/algorithms/assocrules/assoc_rules_apriori_mine_impl.i"
 #include "src/algorithms/assocrules/assoc_rules_apriori_discover_impl.i"
 
-#include "service/kernel/service_data_utils.h"
+#include "src/services/service_data_utils.h"
 
 using namespace daal::algorithms::internal;
 using namespace daal::services;

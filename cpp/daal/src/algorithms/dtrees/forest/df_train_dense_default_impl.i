@@ -29,7 +29,7 @@
 #include "src/threading/threading.h"
 #include "src/algorithms/dtrees/dtrees_model_impl.h"
 #include "src/algorithms/engines/engine_types_internal.h"
-#include "service/kernel/service_defines.h"
+#include "src/services/service_defines.h"
 #include "src/algorithms/distributions/uniform/uniform_kernel.h"
 
 using namespace daal::algorithms::dtrees::training::internal;

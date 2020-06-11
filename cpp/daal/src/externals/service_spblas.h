@@ -27,7 +27,7 @@
 #include "services/daal_defines.h"
 #include "externals/service_memory.h"
 #include "externals/service_math.h"
-#include "service/kernel/service_arrays.h"
+#include "src/services/service_arrays.h"
 
 #include "externals/service_spblas_mkl.h"
 

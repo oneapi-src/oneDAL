@@ -23,7 +23,7 @@
 
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
-#include "service/kernel/service_data_utils.h"
+#include "src/services/service_data_utils.h"
 
 #include "src/threading/threading.h"
 #include "algorithms/dbscan/dbscan_types.h"

@@ -24,7 +24,7 @@
 #ifndef __SVM_TRAIN_THUNDER_WORKSET_H__
 #define __SVM_TRAIN_THUNDER_WORKSET_H__
 
-#include "service/kernel/service_utils.h"
+#include "src/services/service_utils.h"
 #include "src/algorithms/service_sort.h"
 
 namespace daal

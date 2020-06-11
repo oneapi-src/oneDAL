@@ -29,7 +29,7 @@
 #include "src/algorithms/dtrees/gbt/gbt_predict_dense_default_impl.i"
 #include "algorithms/tree_utils/tree_utils_regression.h"
 #include "src/algorithms/dtrees/dtrees_model_impl_common.h"
-#include "service/kernel/service_arrays.h"
+#include "src/services/service_arrays.h"
 
 using namespace daal::data_management;
 

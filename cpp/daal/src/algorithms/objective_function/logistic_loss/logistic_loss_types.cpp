@@ -23,7 +23,7 @@
 
 #include "algorithms/optimization_solver/objective_function/logistic_loss_types.h"
 #include "data_management/data/numeric_table.h"
-#include "service/kernel/daal_strings.h"
+#include "src/services/daal_strings.h"
 
 using namespace daal::data_management;
 

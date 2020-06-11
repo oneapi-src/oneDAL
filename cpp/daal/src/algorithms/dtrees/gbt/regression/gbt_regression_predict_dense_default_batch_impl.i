@@ -30,7 +30,7 @@
 #include "src/threading/threading.h"
 #include "services/daal_defines.h"
 #include "src/algorithms/dtrees/gbt/regression/gbt_regression_model_impl.h"
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 #include "externals/service_memory.h"
 #include "src/algorithms/dtrees/regression/dtrees_regression_predict_dense_default_impl.i"

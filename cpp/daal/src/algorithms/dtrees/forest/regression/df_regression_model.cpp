@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/decision_forest/decision_forest_regression_model.h"
-#include "service/kernel/serialization_utils.h"
+#include "src/services/serialization_utils.h"
 #include "src/algorithms/dtrees/forest/regression/df_regression_model_impl.h"
 #include "src/algorithms/dtrees/dtrees_model_impl_common.h"
 

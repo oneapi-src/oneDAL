@@ -30,7 +30,7 @@
 #include "src/algorithms/dtrees/gbt/regression/gbt_regression_train_kernel.h"
 #include "src/algorithms/dtrees/gbt/regression/oneapi/gbt_regression_train_kernel_oneapi.h"
 #include "src/algorithms/dtrees/gbt/regression/gbt_regression_model_impl.h"
-#include "service/kernel/service_algo_utils.h"
+#include "src/services/service_algo_utils.h"
 
 namespace daal
 {

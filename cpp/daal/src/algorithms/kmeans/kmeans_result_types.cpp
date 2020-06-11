@@ -23,8 +23,8 @@
 
 #include "algorithms/kmeans/kmeans_types.h"
 #include "services/daal_defines.h"
-#include "service/kernel/serialization_utils.h"
-#include "service/kernel/daal_strings.h"
+#include "src/services/serialization_utils.h"
+#include "src/services/daal_strings.h"
 #include "src/algorithms/kmeans/inner/kmeans_types_v1.h"
 
 using namespace daal::data_management;
