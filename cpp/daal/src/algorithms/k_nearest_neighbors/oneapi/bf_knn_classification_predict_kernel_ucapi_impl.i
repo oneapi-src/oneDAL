@@ -24,11 +24,11 @@
 #include "service/kernel/oneapi/sorter.h"
 #include "services/daal_defines.h"
 
-#include "algorithms/kernel/k_nearest_neighbors/oneapi/bf_knn_classification_predict_kernel_ucapi.h"
-#include "algorithms/kernel/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
+#include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_predict_kernel_ucapi.h"
+#include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
 
 #include "service/kernel/oneapi/blas_gpu.h"
-#include "algorithms/kernel/k_nearest_neighbors/oneapi/cl_kernels/bf_knn_cl_kernels.cl"
+#include "src/algorithms/k_nearest_neighbors/oneapi/cl_kernels/bf_knn_cl_kernels.cl"
 
 #include "externals/service_ittnotify.h"
 

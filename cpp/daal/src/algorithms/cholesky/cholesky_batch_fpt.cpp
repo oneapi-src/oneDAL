@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/cholesky/cholesky_batch.h"
+#include "src/algorithms/cholesky/cholesky_batch.h"
 namespace daal
 {
 namespace algorithms

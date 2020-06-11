@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/decision_tree/inner/decision_tree_classification_train_container_v1.h"
+#include "src/algorithms/decision_tree/inner/decision_tree_classification_train_container_v1.h"
 
 namespace daal
 {

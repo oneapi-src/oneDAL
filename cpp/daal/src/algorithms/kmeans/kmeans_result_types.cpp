@@ -25,7 +25,7 @@
 #include "services/daal_defines.h"
 #include "service/kernel/serialization_utils.h"
 #include "service/kernel/daal_strings.h"
-#include "algorithms/kernel/kmeans/inner/kmeans_types_v1.h"
+#include "src/algorithms/kmeans/inner/kmeans_types_v1.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

@@ -24,9 +24,9 @@
 */
 
 #include "algorithms/multi_class_classifier/multi_class_classifier_predict.h"
-#include "algorithms/kernel/multiclassclassifier/multiclassclassifier_predict_kernel.h"
-#include "algorithms/kernel/multiclassclassifier/multiclassclassifier_predict_mccwu_kernel.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/multiclassclassifier/multiclassclassifier_predict_kernel.h"
+#include "src/algorithms/multiclassclassifier/multiclassclassifier_predict_mccwu_kernel.h"
+#include "src/algorithms/kernel.h"
 
 using namespace daal::data_management;
 

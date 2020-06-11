@@ -22,7 +22,7 @@
 //--
 */
 
-#include "algorithms/kernel/assocrules/assoc_rules_batch_container.h"
+#include "src/algorithms/assocrules/assoc_rules_batch_container.h"
 
 namespace daal
 {

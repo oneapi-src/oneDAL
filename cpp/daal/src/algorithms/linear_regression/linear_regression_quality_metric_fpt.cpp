@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/linear_regression/linear_regression_quality_metric.h"
+#include "src/algorithms/linear_regression/linear_regression_quality_metric.h"
 
 namespace daal
 {

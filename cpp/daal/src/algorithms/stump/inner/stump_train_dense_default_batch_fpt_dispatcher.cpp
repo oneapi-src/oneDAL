@@ -22,7 +22,7 @@
 //--
 */
 
-#include "algorithms/kernel/stump/inner/stump_train_batch_container.h"
+#include "src/algorithms/stump/inner/stump_train_batch_container.h"
 
 namespace daal
 {

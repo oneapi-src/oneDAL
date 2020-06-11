@@ -25,7 +25,7 @@
 #define __COSDISTANCE_KERNEL_H__
 
 #include "algorithms/distance/cosine_distance.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;

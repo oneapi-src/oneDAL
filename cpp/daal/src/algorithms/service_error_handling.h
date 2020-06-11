@@ -24,7 +24,7 @@
 #define __SERVICE_ERROR_HANDLING_H__
 
 #include "services/error_handling.h"
-#include "algorithms/kernel/service_threading.h"
+#include "src/algorithms/service_threading.h"
 
 namespace daal
 {

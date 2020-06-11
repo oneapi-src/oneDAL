@@ -30,7 +30,7 @@
 #include "externals/service_math.h"
 #include "externals/service_blas.h"
 #include "externals/service_lapack.h"
-#include "algorithms/kernel/outlierdetection_multivariate/outlierdetection_multivariate_kernel.h"
+#include "src/algorithms/outlierdetection_multivariate/outlierdetection_multivariate_kernel.h"
 
 namespace daal
 {

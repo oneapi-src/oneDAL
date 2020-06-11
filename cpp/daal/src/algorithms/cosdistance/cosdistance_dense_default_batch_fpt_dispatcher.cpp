@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/cosdistance/cosdistance_batch_container.h"
+#include "src/algorithms/cosdistance/cosdistance_batch_container.h"
 
 namespace daal
 {

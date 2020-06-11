@@ -22,9 +22,9 @@
 */
 
 #include "algorithms/normalization/zscore.h"
-#include "algorithms/kernel/normalization/zscore/zscore_base.h"
-#include "algorithms/kernel/normalization/zscore/zscore_dense_default_kernel.h"
-#include "algorithms/kernel/normalization/zscore/zscore_dense_sum_kernel.h"
+#include "src/algorithms/normalization/zscore/zscore_base.h"
+#include "src/algorithms/normalization/zscore/zscore_dense_default_kernel.h"
+#include "src/algorithms/normalization/zscore/zscore_dense_sum_kernel.h"
 
 namespace daal
 {

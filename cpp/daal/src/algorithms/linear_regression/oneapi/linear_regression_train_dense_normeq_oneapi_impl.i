@@ -25,7 +25,7 @@
 #ifndef __LINEAR_REGRESSION_TRAIN_DENSE_NORMEQ_ONEAPI_IMPL_I__
 #define __LINEAR_REGRESSION_TRAIN_DENSE_NORMEQ_ONEAPI_IMPL_I__
 
-#include "algorithms/kernel/linear_regression/oneapi/linear_regression_train_kernel_oneapi.h"
+#include "src/algorithms/linear_regression/oneapi/linear_regression_train_kernel_oneapi.h"
 
 namespace daal
 {

@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/engines/mcg59/mcg59.h"
-#include "algorithms/kernel/engines/engine_batch_impl.h"
+#include "src/algorithms/engines/engine_batch_impl.h"
 #include "externals/service_rng.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 

@@ -28,8 +28,8 @@
 #include "externals/service_lapack.h"
 #include "algorithms/threading/threading.h"
 #include "service/kernel/data_management/service_numeric_table.h"
-#include "algorithms/kernel/service_error_handling.h"
-#include "algorithms/kernel/linear_regression/linear_regression_group_of_betas_dense_default_batch_kernel.h"
+#include "src/algorithms/service_error_handling.h"
+#include "src/algorithms/linear_regression/linear_regression_group_of_betas_dense_default_batch_kernel.h"
 
 using namespace daal::internal;
 using namespace daal::services;

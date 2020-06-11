@@ -29,7 +29,7 @@
 #include "externals/service_math.h"
 #include "service/kernel/service_data_utils.h"
 #include "externals/service_memory.h"
-#include "algorithms/kernel/service_error_handling.h"
+#include "src/algorithms/service_error_handling.h"
 
 namespace daal
 {

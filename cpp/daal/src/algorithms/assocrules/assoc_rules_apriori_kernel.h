@@ -24,11 +24,11 @@
 #ifndef __ASSOC_RULES_APRIORI_KERNEL_H__
 #define __ASSOC_RULES_APRIORI_KERNEL_H__
 
-#include "algorithms/kernel/assocrules/assoc_rules_kernel.h"
+#include "src/algorithms/assocrules/assoc_rules_kernel.h"
 
-#include "algorithms/kernel/assocrules/assoc_rules_apriori_itemset.i"
-#include "algorithms/kernel/assocrules/assoc_rules_apriori_types.i"
-#include "algorithms/kernel/assocrules/assoc_rules_apriori_tree.i"
+#include "src/algorithms/assocrules/assoc_rules_apriori_itemset.i"
+#include "src/algorithms/assocrules/assoc_rules_apriori_types.i"
+#include "src/algorithms/assocrules/assoc_rules_apriori_tree.i"
 
 namespace daal
 {

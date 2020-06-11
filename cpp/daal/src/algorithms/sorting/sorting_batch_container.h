@@ -25,8 +25,8 @@
 #define __SORTING_BATCH_CONTAINER_H__
 
 #include "algorithms/sorting/sorting_batch.h"
-#include "algorithms/kernel/sorting/sorting_kernel.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/sorting/sorting_kernel.h"
+#include "src/algorithms/kernel.h"
 #include "data_management/data/homogen_numeric_table.h"
 
 namespace daal

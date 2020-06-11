@@ -19,7 +19,7 @@
 //  Instantiation of LBFGS computation functions for specific CPUs.
 //--
 
-#include "algorithms/kernel/optimization_solver/lbfgs/inner/lbfgs_batch_container_v1.h"
+#include "src/algorithms/optimization_solver/lbfgs/inner/lbfgs_batch_container_v1.h"
 
 namespace daal
 {

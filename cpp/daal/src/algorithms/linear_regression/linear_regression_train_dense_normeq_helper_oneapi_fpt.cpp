@@ -22,8 +22,8 @@
 //--
 */
 
-#include "algorithms/kernel/linear_regression/oneapi/linear_regression_train_kernel_oneapi.h"
-#include "algorithms/kernel/linear_regression/oneapi/linear_regression_train_dense_normeq_helper_oneapi_impl.i"
+#include "src/algorithms/linear_regression/oneapi/linear_regression_train_kernel_oneapi.h"
+#include "src/algorithms/linear_regression/oneapi/linear_regression_train_dense_normeq_helper_oneapi_impl.i"
 
 namespace daal
 {

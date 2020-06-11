@@ -21,11 +21,11 @@
 //--
 */
 
-#include "algorithms/kernel/em/em_gmm_init_dense_default_batch_kernel.h"
-#include "algorithms/kernel/em/em_gmm_dense_default_batch_kernel.h"
+#include "src/algorithms/em/em_gmm_init_dense_default_batch_kernel.h"
+#include "src/algorithms/em/em_gmm_dense_default_batch_kernel.h"
 #include "service/kernel/service_data_utils.h"
 #include "externals/service_stat.h"
-#include "algorithms/kernel/distributions/uniform/uniform_impl.i"
+#include "src/algorithms/distributions/uniform/uniform_impl.i"
 
 using namespace daal::data_management;
 using namespace daal::internal;

@@ -27,7 +27,7 @@
 #include "service/kernel/oneapi/blas_gpu.h"
 #include "externals/service_ittnotify.h"
 #include "data_management/data/numeric_table_sycl_homogen.h"
-#include "algorithms/kernel/svm/oneapi/svm_helper_oneapi.h"
+#include "src/algorithms/svm/oneapi/svm_helper_oneapi.h"
 
 DAAL_ITTNOTIFY_DOMAIN(svm_predict.default.batch);
 

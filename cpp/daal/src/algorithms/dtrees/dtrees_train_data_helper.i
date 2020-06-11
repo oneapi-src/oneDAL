@@ -31,9 +31,9 @@
 #include "externals/service_rng.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "service/kernel/service_data_utils.h"
-#include "algorithms/kernel/service_sort.h"
+#include "src/algorithms/service_sort.h"
 #include "externals/service_math.h"
-#include "algorithms/kernel/dtrees/dtrees_feature_type_helper.i"
+#include "src/algorithms/dtrees/dtrees_feature_type_helper.i"
 
 typedef int IndexType;
 

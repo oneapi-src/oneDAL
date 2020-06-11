@@ -42,10 +42,10 @@
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "service/kernel/service_data_utils.h"
 #include "service/kernel/service_utils.h"
-#include "algorithms/kernel/service_threading.h"
-#include "algorithms/kernel/service_error_handling.h"
-#include "algorithms/kernel/logitboost/logitboost_impl.i"
-#include "algorithms/kernel/logitboost/logitboost_train_friedman_aux.i"
+#include "src/algorithms/service_threading.h"
+#include "src/algorithms/service_error_handling.h"
+#include "src/algorithms/logitboost/logitboost_impl.i"
+#include "src/algorithms/logitboost/logitboost_train_friedman_aux.i"
 
 using namespace daal::algorithms::logitboost::internal;
 using namespace daal::internal;

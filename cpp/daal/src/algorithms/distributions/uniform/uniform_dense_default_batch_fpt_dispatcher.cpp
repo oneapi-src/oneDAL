@@ -19,7 +19,7 @@
 //  Implementation of uniform algorithm container.
 //--
 
-#include "algorithms/kernel/distributions/uniform/uniform_batch_container.h"
+#include "src/algorithms/distributions/uniform/uniform_batch_container.h"
 
 namespace daal
 {

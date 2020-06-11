@@ -24,7 +24,7 @@
 #ifndef __IMPLICIT_ALS_PREDICT_RATINGS_DENSE_DEFAULT_IMPL_I__
 #define __IMPLICIT_ALS_PREDICT_RATINGS_DENSE_DEFAULT_IMPL_I__
 
-#include "algorithms/kernel/implicit_als/implicit_als_predict_ratings_dense_default_kernel.h"
+#include "src/algorithms/implicit_als/implicit_als_predict_ratings_dense_default_kernel.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "externals/service_blas.h"
 

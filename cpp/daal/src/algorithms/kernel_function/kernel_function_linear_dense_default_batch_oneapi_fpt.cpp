@@ -21,8 +21,8 @@
 //--
 */
 
-#include "algorithms/kernel/kernel_function/oneapi/kernel_function_linear_dense_default_kernel_oneapi.h"
-#include "algorithms/kernel/kernel_function/oneapi/kernel_function_linear_dense_default_oneapi_impl.i"
+#include "src/algorithms/kernel_function/oneapi/kernel_function_linear_dense_default_kernel_oneapi.h"
+#include "src/algorithms/kernel_function/oneapi/kernel_function_linear_dense_default_oneapi_impl.i"
 
 namespace daal
 {

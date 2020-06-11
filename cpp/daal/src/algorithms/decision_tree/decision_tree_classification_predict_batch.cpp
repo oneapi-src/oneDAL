@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/decision_tree/decision_tree_classification_predict_types.h"
-#include "algorithms/kernel/decision_tree/decision_tree_classification_model_impl.h"
+#include "src/algorithms/decision_tree/decision_tree_classification_model_impl.h"
 
 namespace daal
 {

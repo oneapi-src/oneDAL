@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/linear_regression/linear_regression_training_partialresult.h"
+#include "src/algorithms/linear_regression/linear_regression_training_partialresult.h"
 
 namespace daal
 {

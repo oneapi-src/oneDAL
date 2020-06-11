@@ -23,7 +23,7 @@
 #define __MSE_DENSE_DEFAULT_BATCH_KERNEL_H__
 
 #include "algorithms/optimization_solver/objective_function/mse_batch.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "externals/service_blas.h"
 #include "data_management/data/numeric_table.h"

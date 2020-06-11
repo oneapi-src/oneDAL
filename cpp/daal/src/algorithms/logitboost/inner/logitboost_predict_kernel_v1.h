@@ -26,7 +26,7 @@
 #define __LOGITBOOST_PREDICT_KERNEL_V1_H__
 
 #include "algorithms/boosting/logitboost_predict.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::data_management;

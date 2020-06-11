@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/normalization/zscore_types.h"
-#include "algorithms/kernel/normalization/zscore/zscore_result.h"
+#include "src/algorithms/normalization/zscore/zscore_result.h"
 #include "service/kernel/serialization_utils.h"
 #include "service/kernel/daal_strings.h"
 #include "service/kernel/service_defines.h"

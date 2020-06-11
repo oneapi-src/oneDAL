@@ -19,9 +19,9 @@
 //  Implementation of cross_entropy_loss calculation functions.
 //--
 
-#include "algorithms/kernel/objective_function/cross_entropy_loss/cross_entropy_loss_dense_default_batch_kernel.h"
-#include "algorithms/kernel/objective_function/cross_entropy_loss/cross_entropy_loss_dense_default_batch_impl.i"
-#include "algorithms/kernel/objective_function/cross_entropy_loss/cross_entropy_loss_dense_default_batch_container.h"
+#include "src/algorithms/objective_function/cross_entropy_loss/cross_entropy_loss_dense_default_batch_kernel.h"
+#include "src/algorithms/objective_function/cross_entropy_loss/cross_entropy_loss_dense_default_batch_impl.i"
+#include "src/algorithms/objective_function/cross_entropy_loss/cross_entropy_loss_dense_default_batch_container.h"
 
 namespace daal
 {

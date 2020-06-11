@@ -25,7 +25,7 @@
 #define __SVM_TRAIN_RESULT_H__
 
 #include "services/daal_defines.h"
-#include "algorithms/kernel/service_error_handling.h"
+#include "src/algorithms/service_error_handling.h"
 #include "externals/service_memory.h"
 #include "service/kernel/data_management/service_micro_table.h"
 #include "service/kernel/data_management/service_numeric_table.h"

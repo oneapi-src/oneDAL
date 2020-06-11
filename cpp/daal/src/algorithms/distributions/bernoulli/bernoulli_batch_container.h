@@ -25,7 +25,7 @@
 #define __BERNOULLI_BATCH_CONTAINER_H__
 
 #include "algorithms/distributions/bernoulli/bernoulli.h"
-#include "algorithms/kernel/distributions/bernoulli/bernoulli_kernel.h"
+#include "src/algorithms/distributions/bernoulli/bernoulli_kernel.h"
 
 namespace daal
 {

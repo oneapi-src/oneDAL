@@ -21,8 +21,8 @@
 //--
 */
 
-#include "algorithms/kernel/pca/transform/pca_transform_container.h"
-#include "algorithms/kernel/pca/transform/oneapi/pca_transform_dense_default_batch_oneapi_impl.i"
+#include "src/algorithms/pca/transform/pca_transform_container.h"
+#include "src/algorithms/pca/transform/oneapi/pca_transform_dense_default_batch_oneapi_impl.i"
 
 namespace daal
 {

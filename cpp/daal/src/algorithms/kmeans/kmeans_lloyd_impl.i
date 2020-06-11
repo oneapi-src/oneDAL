@@ -25,14 +25,14 @@
 #include "externals/service_memory.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "service/kernel/service_defines.h"
-#include "algorithms/kernel/service_error_handling.h"
+#include "src/algorithms/service_error_handling.h"
 
 #include "algorithms/threading/threading.h"
 #include "externals/service_blas.h"
 #include "externals/service_spblas.h"
 #include "service/kernel/service_data_utils.h"
 
-#include "algorithms/kernel/kmeans/kmeans_lloyd_helper.h"
+#include "src/algorithms/kmeans/kmeans_lloyd_helper.h"
 
 namespace daal
 {

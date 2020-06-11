@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/kmeans/inner/kmeans_types_v1.h"
+#include "src/algorithms/kmeans/inner/kmeans_types_v1.h"
 #include "services/daal_defines.h"
 #include "service/kernel/daal_strings.h"
 

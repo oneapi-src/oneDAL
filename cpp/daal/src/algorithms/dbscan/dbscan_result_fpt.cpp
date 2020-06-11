@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/dbscan/dbscan_result.h"
+#include "src/algorithms/dbscan/dbscan_result.h"
 
 namespace daal
 {

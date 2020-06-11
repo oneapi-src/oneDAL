@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/linear_model/linear_model_train_qr_finalize_impl.i"
+#include "src/algorithms/linear_model/linear_model_train_qr_finalize_impl.i"
 
 namespace daal
 {

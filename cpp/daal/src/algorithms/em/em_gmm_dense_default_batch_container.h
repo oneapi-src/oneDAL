@@ -25,7 +25,7 @@
 #define __EM_GMM_DENSE_DEFAULT_BATCH_CONTAINER_H__
 
 #include "algorithms/em/em_gmm.h"
-#include "algorithms/kernel/em/em_gmm_dense_default_batch_kernel.h"
+#include "src/algorithms/em/em_gmm_dense_default_batch_kernel.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 
 namespace daal

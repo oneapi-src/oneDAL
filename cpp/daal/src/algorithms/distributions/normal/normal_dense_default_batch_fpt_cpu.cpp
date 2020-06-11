@@ -19,9 +19,9 @@
 //  Implementation of normal algorithm functions.
 //--
 
-#include "algorithms/kernel/distributions/normal/normal_batch_container.h"
-#include "algorithms/kernel/distributions/normal/normal_kernel.h"
-#include "algorithms/kernel/distributions/normal/normal_impl.i"
+#include "src/algorithms/distributions/normal/normal_batch_container.h"
+#include "src/algorithms/distributions/normal/normal_kernel.h"
+#include "src/algorithms/distributions/normal/normal_impl.i"
 
 namespace daal
 {

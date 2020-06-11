@@ -26,15 +26,15 @@
 
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
-#include "algorithms/kernel/dtrees/gbt/regression/gbt_regression_predict_kernel.h"
+#include "src/algorithms/dtrees/gbt/regression/gbt_regression_predict_kernel.h"
 #include "algorithms/threading/threading.h"
 #include "services/daal_defines.h"
-#include "algorithms/kernel/dtrees/gbt/regression/gbt_regression_model_impl.h"
+#include "src/algorithms/dtrees/gbt/regression/gbt_regression_model_impl.h"
 #include "service/kernel/data_management/service_numeric_table.h"
-#include "algorithms/kernel/service_error_handling.h"
+#include "src/algorithms/service_error_handling.h"
 #include "externals/service_memory.h"
-#include "algorithms/kernel/dtrees/regression/dtrees_regression_predict_dense_default_impl.i"
-#include "algorithms/kernel/dtrees/gbt/gbt_predict_dense_default_impl.i"
+#include "src/algorithms/dtrees/regression/dtrees_regression_predict_dense_default_impl.i"
+#include "src/algorithms/dtrees/gbt/gbt_predict_dense_default_impl.i"
 
 using namespace daal::internal;
 using namespace daal::services::internal;

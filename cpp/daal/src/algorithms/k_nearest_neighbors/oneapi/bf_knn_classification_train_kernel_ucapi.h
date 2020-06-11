@@ -19,9 +19,9 @@
 #define __BF_KNN_CLASSIFICATION_TRAIN_KERNEL_UCAPI_H__
 
 #include "data_management/data/numeric_table.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_training_types.h"
-#include "algorithms/kernel/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
+#include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
 
 namespace daal
 {

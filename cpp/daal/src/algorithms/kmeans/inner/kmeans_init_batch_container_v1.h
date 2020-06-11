@@ -24,8 +24,8 @@
 #ifndef __KMEANS_INIT_CONTAINER_V1_H__
 #define __KMEANS_INIT_CONTAINER_V1_H__
 
-#include "algorithms/kernel/kmeans/inner/kmeans_init_batch_v1.h"
-#include "algorithms/kernel/kmeans/kmeans_init_container.h"
+#include "src/algorithms/kmeans/inner/kmeans_init_batch_v1.h"
+#include "src/algorithms/kmeans/kmeans_init_container.h"
 
 namespace daal
 {

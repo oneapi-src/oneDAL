@@ -21,9 +21,9 @@
 //--
 */
 
-#include "algorithms/kernel/linear_model/linear_model_predict_kernel.h"
-#include "algorithms/kernel/linear_model/linear_model_predict_dense_default_batch_impl.i"
-#include "algorithms/kernel/linear_model/linear_model_predict_container.h"
+#include "src/algorithms/linear_model/linear_model_predict_kernel.h"
+#include "src/algorithms/linear_model/linear_model_predict_dense_default_batch_impl.i"
+#include "src/algorithms/linear_model/linear_model_predict_container.h"
 
 namespace daal
 {

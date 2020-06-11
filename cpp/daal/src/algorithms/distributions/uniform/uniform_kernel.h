@@ -24,9 +24,9 @@
 
 #include "algorithms/distributions/uniform/uniform.h"
 
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
-#include "algorithms/kernel/engines/engine_batch_impl.h"
+#include "src/algorithms/engines/engine_batch_impl.h"
 
 #include "externals/service_rng.h"
 #include "service/kernel/service_unique_ptr.h"

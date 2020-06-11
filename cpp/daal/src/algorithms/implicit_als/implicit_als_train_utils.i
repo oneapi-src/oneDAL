@@ -18,9 +18,9 @@
 #ifndef __IMPLICIT_ALS_TRAIN_UTILS_I__
 #define __IMPLICIT_ALS_TRAIN_UTILS_I__
 
-#include "algorithms/kernel/implicit_als/implicit_als_train_utils.h"
+#include "src/algorithms/implicit_als/implicit_als_train_utils.h"
 #include "externals/service_memory.h"
-#include "algorithms/kernel/service_sort.h"
+#include "src/algorithms/service_sort.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::internal;

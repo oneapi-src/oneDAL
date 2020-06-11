@@ -25,7 +25,7 @@
 #define __PCA_TYPES_V2_H__
 
 #include "algorithms/pca/pca_types.h"
-#include "algorithms/kernel/normalization/zscore/inner/zscore_v2.h"
+#include "src/algorithms/normalization/zscore/inner/zscore_v2.h"
 
 namespace daal
 {

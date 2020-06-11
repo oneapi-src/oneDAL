@@ -23,7 +23,7 @@
 */
 
 #include "algorithms/boosting/adaboost_predict.h"
-#include "algorithms/kernel/adaboost/inner/adaboost_predict_batch_container_v1.h"
+#include "src/algorithms/adaboost/inner/adaboost_predict_batch_container_v1.h"
 
 namespace daal
 {

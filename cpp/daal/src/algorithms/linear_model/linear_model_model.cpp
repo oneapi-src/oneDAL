@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/linear_model/linear_model_model_impl.h"
+#include "src/algorithms/linear_model/linear_model_model_impl.h"
 #include "algorithms/linear_model/linear_model_model.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "service/kernel/daal_strings.h"

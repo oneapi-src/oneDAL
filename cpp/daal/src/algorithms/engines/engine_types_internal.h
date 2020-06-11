@@ -22,7 +22,7 @@
 #ifndef __ENGINE_TYPES_INTERNAL_H__
 #define __ENGINE_TYPES_INTERNAL_H__
 
-#include "algorithms/kernel/engines/engine_batch_impl.h"
+#include "src/algorithms/engines/engine_batch_impl.h"
 #include "algorithms/engines/engine_family.h"
 #include "service/kernel/service_arrays.h"
 

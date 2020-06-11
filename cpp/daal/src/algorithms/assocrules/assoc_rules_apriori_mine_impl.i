@@ -27,11 +27,11 @@
 
 #include "externals/service_memory.h"
 #include "externals/service_math.h"
-#include "algorithms/kernel/service_sort.h"
+#include "src/algorithms/service_sort.h"
 
 #include "algorithms/threading/threading.h"
-#include "algorithms/kernel/assocrules/assoc_rules_apriori_types.i"
-#include "algorithms/kernel/assocrules/assoc_rules_apriori_tree.i"
+#include "src/algorithms/assocrules/assoc_rules_apriori_types.i"
+#include "src/algorithms/assocrules/assoc_rules_apriori_tree.i"
 
 using namespace daal::algorithms::internal;
 

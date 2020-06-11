@@ -25,7 +25,7 @@
 #define __IMPLICIT_ALS_PREDICT_RATINGS_DENSE_DEFAULT_CONTAINER_H__
 
 #include "algorithms/implicit_als/implicit_als_predict_ratings_batch.h"
-#include "algorithms/kernel/implicit_als/implicit_als_predict_ratings_dense_default_kernel.h"
+#include "src/algorithms/implicit_als/implicit_als_predict_ratings_dense_default_kernel.h"
 
 namespace daal
 {

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/low_order_moments/moments_online.h"
+#include "src/algorithms/low_order_moments/moments_online.h"
 
 namespace daal
 {

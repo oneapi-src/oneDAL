@@ -19,7 +19,7 @@
 //  Implementation of saga calculation algorithm container.
 //--
 
-#include "algorithms/kernel/optimization_solver/saga/inner/saga_batch_container_v1.h"
+#include "src/algorithms/optimization_solver/saga/inner/saga_batch_container_v1.h"
 
 namespace daal
 {

@@ -28,7 +28,7 @@
 
 DAAL_ITTNOTIFY_DOMAIN(cross_entropy_loss.dense.default.batch);
 
-#include "algorithms/kernel/objective_function/common/objective_function_utils.i"
+#include "src/algorithms/objective_function/common/objective_function_utils.i"
 
 namespace daal
 {

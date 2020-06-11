@@ -26,8 +26,8 @@
 
 #include "algorithms/threading/threading.h"
 #include "externals/service_memory.h"
-#include "algorithms/kernel/assocrules/assoc_rules_apriori_itemset.i"
-#include "algorithms/kernel/assocrules/assoc_rules_apriori_types.i"
+#include "src/algorithms/assocrules/assoc_rules_apriori_itemset.i"
+#include "src/algorithms/assocrules/assoc_rules_apriori_types.i"
 
 namespace daal
 {

@@ -29,7 +29,7 @@
 #include "algorithms/boosting/logitboost_model.h"
 #include "services/daal_defines.h"
 
-#include "algorithms/kernel/logitboost/logitboost_predict_kernel.h"
+#include "src/algorithms/logitboost/logitboost_predict_kernel.h"
 
 namespace daal
 {

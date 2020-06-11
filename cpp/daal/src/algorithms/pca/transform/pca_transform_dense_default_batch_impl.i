@@ -33,7 +33,7 @@
 #include "externals/service_math.h"
 #include "service/kernel/service_unique_ptr.h"
 #include "service/kernel/data_management/service_numeric_table.h"
-#include "algorithms/kernel/service_error_handling.h"
+#include "src/algorithms/service_error_handling.h"
 
 namespace daal
 {

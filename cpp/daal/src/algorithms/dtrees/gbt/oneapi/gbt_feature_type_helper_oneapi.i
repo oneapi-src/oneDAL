@@ -20,7 +20,7 @@
 //  GPU-dependent initialization of service data structure
 //--
 */
-#include "algorithms/kernel/dtrees/dtrees_feature_type_helper.h"
+#include "src/algorithms/dtrees/dtrees_feature_type_helper.h"
 
 #include "service/kernel/service_data_utils.h"
 #include "externals/service_ittnotify.h"

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/classifier/binary_confusion_matrix_dense_default_batch_container.h"
+#include "src/algorithms/classifier/binary_confusion_matrix_dense_default_batch_container.h"
 
 namespace daal
 {

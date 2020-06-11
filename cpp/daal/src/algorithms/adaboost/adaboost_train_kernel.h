@@ -26,7 +26,7 @@
 
 #include "algorithms/boosting/adaboost_model.h"
 #include "algorithms/boosting/adaboost_training_types.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::data_management;

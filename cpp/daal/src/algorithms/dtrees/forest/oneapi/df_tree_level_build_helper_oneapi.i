@@ -20,8 +20,8 @@
 // Implementation of common functions for building tree level
 //--
 */
-#include "algorithms/kernel/dtrees/forest/oneapi/df_tree_level_build_helper_oneapi.h"
-#include "algorithms/kernel/dtrees/forest/oneapi/cl_kernels/df_tree_level_build_helper_kernels.cl"
+#include "src/algorithms/dtrees/forest/oneapi/df_tree_level_build_helper_oneapi.h"
+#include "src/algorithms/dtrees/forest/oneapi/cl_kernels/df_tree_level_build_helper_kernels.cl"
 
 #include "service/kernel/service_data_utils.h"
 #include "externals/service_ittnotify.h"

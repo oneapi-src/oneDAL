@@ -25,7 +25,7 @@
 #define __LINEAR_REGRESSION_SINGLE_BETA_DENSE_DEFAULT_BATCH_KERNEL_H__
 
 #include "algorithms/linear_regression/linear_regression_single_beta_types.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "algorithms/algorithm_base_common.h"
 

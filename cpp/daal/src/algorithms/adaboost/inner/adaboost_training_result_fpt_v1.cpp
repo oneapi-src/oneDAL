@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/adaboost/inner/adaboost_training_result_v1.h"
+#include "src/algorithms/adaboost/inner/adaboost_training_result_v1.h"
 
 namespace daal
 {

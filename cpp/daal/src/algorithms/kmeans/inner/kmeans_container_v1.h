@@ -25,11 +25,11 @@
 #ifndef __KMEANS_CONTAINER_V1_H__
 #define __KMEANS_CONTAINER_V1_H__
 
-#include "algorithms/kernel/kmeans/kmeans_lloyd_kernel.h"
-#include "algorithms/kernel/kmeans/oneapi/kmeans_dense_lloyd_batch_kernel_ucapi.h"
-#include "algorithms/kernel/kmeans/inner/kmeans_batch_v1.h"
-#include "algorithms/kernel/kmeans/inner/kmeans_distributed_v1.h"
-#include "algorithms/kernel/kmeans/inner/kmeans_types_v1.h"
+#include "src/algorithms/kmeans/kmeans_lloyd_kernel.h"
+#include "src/algorithms/kmeans/oneapi/kmeans_dense_lloyd_batch_kernel_ucapi.h"
+#include "src/algorithms/kmeans/inner/kmeans_batch_v1.h"
+#include "src/algorithms/kmeans/inner/kmeans_distributed_v1.h"
+#include "src/algorithms/kmeans/inner/kmeans_types_v1.h"
 #include "oneapi/internal/execution_context.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 

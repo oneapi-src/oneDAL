@@ -24,8 +24,8 @@
 #ifndef __COVARIANCE_DENSE_ONLINE_IMPL_I__
 #define __COVARIANCE_DENSE_ONLINE_IMPL_I__
 
-#include "algorithms/kernel/covariance/covariance_kernel.h"
-#include "algorithms/kernel/covariance/covariance_impl.i"
+#include "src/algorithms/covariance/covariance_kernel.h"
+#include "src/algorithms/covariance/covariance_impl.i"
 
 namespace daal
 {

@@ -27,7 +27,7 @@
 #include "data_management/data/numeric_table.h"
 #include "algorithms/model.h"
 #include "algorithms/svm/svm_predict_types.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 
 namespace daal
 {

@@ -20,7 +20,7 @@
 #include "service/kernel/oneapi/cl_kernels/select_indexed.cl"
 #include "oneapi/internal/utils.h"
 #include "externals/service_rng.h"
-#include "algorithms/kernel/engines/engine_batch_impl.h"
+#include "src/algorithms/engines/engine_batch_impl.h"
 #include "services/daal_string.h"
 #include "externals/service_ittnotify.h"
 

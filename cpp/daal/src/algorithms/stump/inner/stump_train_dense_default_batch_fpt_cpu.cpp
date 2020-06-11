@@ -21,10 +21,10 @@
 //--
 */
 
-#include "algorithms/kernel/stump/inner/stump_train_batch_container.h"
-#include "algorithms/kernel/stump/inner/stump_train_kernel.h"
-#include "algorithms/kernel/stump/inner/stump_train_aux.i"
-#include "algorithms/kernel/stump/inner/stump_train_impl.i"
+#include "src/algorithms/stump/inner/stump_train_batch_container.h"
+#include "src/algorithms/stump/inner/stump_train_kernel.h"
+#include "src/algorithms/stump/inner/stump_train_aux.i"
+#include "src/algorithms/stump/inner/stump_train_impl.i"
 
 namespace daal
 {

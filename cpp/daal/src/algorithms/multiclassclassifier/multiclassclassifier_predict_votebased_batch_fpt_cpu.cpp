@@ -22,9 +22,9 @@
 //--
 */
 
-#include "algorithms/kernel/multiclassclassifier/multiclassclassifier_predict_batch_container.h"
-#include "algorithms/kernel/multiclassclassifier/multiclassclassifier_predict_kernel.h"
-#include "algorithms/kernel/multiclassclassifier/multiclassclassifier_predict_votebased_impl.i"
+#include "src/algorithms/multiclassclassifier/multiclassclassifier_predict_batch_container.h"
+#include "src/algorithms/multiclassclassifier/multiclassclassifier_predict_kernel.h"
+#include "src/algorithms/multiclassclassifier/multiclassclassifier_predict_votebased_impl.i"
 
 namespace daal
 {

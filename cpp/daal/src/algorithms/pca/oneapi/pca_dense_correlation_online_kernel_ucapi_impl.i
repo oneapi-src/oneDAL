@@ -28,7 +28,7 @@
 DAAL_ITTNOTIFY_DOMAIN(pca.dense.correlation.online.oneapi);
 
 #include "services/env_detect.h"
-#include "algorithms/kernel/covariance/oneapi/covariance_oneapi_impl.i"
+#include "src/algorithms/covariance/oneapi/covariance_oneapi_impl.i"
 #include "pca_dense_correlation_online_kernel_ucapi.h"
 
 using namespace daal::services;

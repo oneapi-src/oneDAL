@@ -21,8 +21,8 @@
 //--
 */
 
-#include "algorithms/kernel/linear_model/oneapi/linear_model_predict_kernel_oneapi.h"
-#include "algorithms/kernel/linear_model/oneapi/linear_model_predict_dense_default_batch_oneapi_impl.i"
+#include "src/algorithms/linear_model/oneapi/linear_model_predict_kernel_oneapi.h"
+#include "src/algorithms/linear_model/oneapi/linear_model_predict_dense_default_batch_oneapi_impl.i"
 
 namespace daal
 {

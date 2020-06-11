@@ -26,7 +26,7 @@
 
 #include "services/env_detect.h"
 #include "services/comm_detect.h"
-#include "algorithms/kernel/kmeans/oneapi/cl_kernels/kmeans_cl_kernels_distr.cl"
+#include "src/algorithms/kmeans/oneapi/cl_kernels/kmeans_cl_kernels_distr.cl"
 #include "oneapi/internal/execution_context.h"
 #include "oneapi/internal/communicator.h"
 #include "oneapi/internal/types.h"

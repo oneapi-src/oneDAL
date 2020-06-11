@@ -25,11 +25,11 @@
 #ifndef __DF_REGRESSION_TRAIN_DENSE_DEFAULT_IMPL_I__
 #define __DF_REGRESSION_TRAIN_DENSE_DEFAULT_IMPL_I__
 
-#include "algorithms/kernel/dtrees/forest/df_train_dense_default_impl.i"
-#include "algorithms/kernel/dtrees/forest/regression/df_regression_train_dense_default_kernel.h"
-#include "algorithms/kernel/dtrees/forest/regression/df_regression_model_impl.h"
-#include "algorithms/kernel/dtrees/dtrees_predict_dense_default_impl.i"
-#include "algorithms/kernel/dtrees/forest/regression/df_regression_training_types_result.h"
+#include "src/algorithms/dtrees/forest/df_train_dense_default_impl.i"
+#include "src/algorithms/dtrees/forest/regression/df_regression_train_dense_default_kernel.h"
+#include "src/algorithms/dtrees/forest/regression/df_regression_model_impl.h"
+#include "src/algorithms/dtrees/dtrees_predict_dense_default_impl.i"
+#include "src/algorithms/dtrees/forest/regression/df_regression_training_types_result.h"
 
 namespace daal
 {

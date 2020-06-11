@@ -24,8 +24,8 @@
 #ifndef __COVARIANCE_DENSE_ONLINE_ONEAPI_IMPL_I__
 #define __COVARIANCE_DENSE_ONLINE_ONEAPI_IMPL_I__
 
-#include "algorithms/kernel/covariance/oneapi/covariance_kernel_oneapi.h"
-#include "algorithms/kernel/covariance/oneapi/covariance_oneapi_impl.i"
+#include "src/algorithms/covariance/oneapi/covariance_kernel_oneapi.h"
+#include "src/algorithms/covariance/oneapi/covariance_oneapi_impl.i"
 #include <iostream>
 
 using namespace daal::oneapi::internal;

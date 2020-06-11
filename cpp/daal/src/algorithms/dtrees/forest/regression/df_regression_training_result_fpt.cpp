@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/dtrees/forest/regression/df_regression_training_result.h"
+#include "src/algorithms/dtrees/forest/regression/df_regression_training_result.h"
 
 namespace daal
 {

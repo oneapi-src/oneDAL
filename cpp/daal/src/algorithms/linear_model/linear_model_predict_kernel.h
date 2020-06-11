@@ -27,7 +27,7 @@
 
 #include "algorithms/linear_model/linear_model_predict.h"
 #include "externals/service_memory.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "externals/service_blas.h"
 

@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "algorithms/kernel/normalization/minmax/minmax_moments.h"
+#include "src/algorithms/normalization/minmax/minmax_moments.h"
 
 using namespace daal::services;
 using namespace daal::data_management;

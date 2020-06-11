@@ -21,9 +21,9 @@
 //--
 */
 
-#include "algorithms/kernel/svm/svm_train_batch_container.h"
-#include "algorithms/kernel/svm/svm_train_thunder_kernel.h"
-#include "algorithms/kernel/svm/svm_train_thunder_impl.i"
+#include "src/algorithms/svm/svm_train_batch_container.h"
+#include "src/algorithms/svm/svm_train_thunder_kernel.h"
+#include "src/algorithms/svm/svm_train_thunder_impl.i"
 
 namespace daal
 {

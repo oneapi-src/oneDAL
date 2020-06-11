@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/naivebayes/naivebayes_train_partial_result.h"
+#include "src/algorithms/naivebayes/naivebayes_train_partial_result.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/em/em_gmm_init_dense_default_batch_kernel.h"
+#include "src/algorithms/em/em_gmm_init_dense_default_batch_kernel.h"
 #include "data_management/data/homogen_numeric_table.h"
 
 namespace daal

@@ -30,7 +30,7 @@
 #include "algorithms/kernel_function/kernel_function_linear.h"
 #include "algorithms/kernel_function/kernel_function_rbf.h"
 #include "service/kernel/data_management/service_micro_table.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 
 namespace daal
 {

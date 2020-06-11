@@ -26,8 +26,8 @@
 #define __LINEAR_REGRESSION_NE_MODEL_IMPL_H__
 
 #include "algorithms/linear_regression/linear_regression_ne_model.h"
-#include "algorithms/kernel/linear_model/linear_model_model_impl.h"
-#include "algorithms/kernel/linear_regression/linear_regression_model_impl.h"
+#include "src/algorithms/linear_model/linear_model_model_impl.h"
+#include "src/algorithms/linear_regression/linear_regression_model_impl.h"
 
 namespace daal
 {

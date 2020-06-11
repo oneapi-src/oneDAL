@@ -21,9 +21,9 @@
 //--
 */
 
-#include "algorithms/kernel/objective_function/logistic_loss/oneapi/logistic_loss_dense_default_kernel_oneapi.h"
-#include "algorithms/kernel/objective_function/logistic_loss/oneapi/logistic_loss_dense_default_oneapi_impl.i"
-#include "algorithms/kernel/objective_function/logistic_loss/logistic_loss_dense_default_batch_container.h"
+#include "src/algorithms/objective_function/logistic_loss/oneapi/logistic_loss_dense_default_kernel_oneapi.h"
+#include "src/algorithms/objective_function/logistic_loss/oneapi/logistic_loss_dense_default_oneapi_impl.i"
+#include "src/algorithms/objective_function/logistic_loss/logistic_loss_dense_default_batch_container.h"
 
 namespace daal
 {

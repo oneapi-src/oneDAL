@@ -21,9 +21,9 @@
 //--
 */
 
-#include "algorithms/kernel/pivoted_qr/pivoted_qr_batch_container.h"
-#include "algorithms/kernel/pivoted_qr/pivoted_qr_kernel.h"
-#include "algorithms/kernel/pivoted_qr/pivoted_qr_impl.i"
+#include "src/algorithms/pivoted_qr/pivoted_qr_batch_container.h"
+#include "src/algorithms/pivoted_qr/pivoted_qr_kernel.h"
+#include "src/algorithms/pivoted_qr/pivoted_qr_impl.i"
 
 namespace daal
 {

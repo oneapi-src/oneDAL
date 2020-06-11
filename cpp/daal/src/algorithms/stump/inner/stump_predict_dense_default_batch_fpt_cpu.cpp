@@ -21,9 +21,9 @@
 //--
 */
 
-#include "algorithms/kernel/stump/inner/stump_predict_batch_container.h"
-#include "algorithms/kernel/stump/inner/stump_predict_kernel.h"
-#include "algorithms/kernel/stump/inner/stump_predict_impl.i"
+#include "src/algorithms/stump/inner/stump_predict_batch_container.h"
+#include "src/algorithms/stump/inner/stump_predict_kernel.h"
+#include "src/algorithms/stump/inner/stump_predict_impl.i"
 
 namespace daal
 {

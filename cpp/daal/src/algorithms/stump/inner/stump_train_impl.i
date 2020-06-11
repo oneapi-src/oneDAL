@@ -29,9 +29,9 @@
 #include "service/kernel/service_utils.h"
 #include "service/kernel/service_data_utils.h"
 #include "externals/service_memory.h"
-#include "algorithms/kernel/stump/inner/stump_train_kernel.h"
+#include "src/algorithms/stump/inner/stump_train_kernel.h"
 #include "service/kernel/data_management/service_numeric_table.h"
-#include "algorithms/kernel/service_error_handling.h"
+#include "src/algorithms/service_error_handling.h"
 
 namespace daal
 {

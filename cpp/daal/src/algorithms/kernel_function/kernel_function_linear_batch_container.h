@@ -22,9 +22,9 @@
 */
 
 #include "algorithms/kernel_function/kernel_function_linear.h"
-#include "algorithms/kernel/kernel_function/kernel_function_linear_dense_default_kernel.h"
-#include "algorithms/kernel/kernel_function/kernel_function_linear_csr_fast_kernel.h"
-#include "algorithms/kernel/kernel_function/oneapi/kernel_function_linear_dense_default_kernel_oneapi.h"
+#include "src/algorithms/kernel_function/kernel_function_linear_dense_default_kernel.h"
+#include "src/algorithms/kernel_function/kernel_function_linear_csr_fast_kernel.h"
+#include "src/algorithms/kernel_function/oneapi/kernel_function_linear_dense_default_kernel_oneapi.h"
 
 namespace daal
 {

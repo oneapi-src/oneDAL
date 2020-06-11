@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/pca/pca_onlineparameter_correlation.h"
+#include "src/algorithms/pca/pca_onlineparameter_correlation.h"
 
 namespace daal
 {

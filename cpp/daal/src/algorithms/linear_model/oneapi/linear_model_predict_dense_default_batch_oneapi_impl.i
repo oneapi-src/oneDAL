@@ -24,11 +24,11 @@
 #ifndef __LINEAR_MODEL_PREDICT_DENSE_DEFAULT_BATCH_ONEAPI_IMPL_I__
 #define __LINEAR_MODEL_PREDICT_DENSE_DEFAULT_BATCH_ONEAPI_IMPL_I__
 
-#include "algorithms/kernel/linear_model/oneapi/linear_model_predict_kernel_oneapi.h"
+#include "src/algorithms/linear_model/oneapi/linear_model_predict_kernel_oneapi.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "service/kernel/oneapi/blas_gpu.h"
 #include "oneapi/internal/utils.h"
-#include "algorithms/kernel/linear_model/oneapi/cl_kernel/linear_model_prediction.cl"
+#include "src/algorithms/linear_model/oneapi/cl_kernel/linear_model_prediction.cl"
 
 namespace daal
 {

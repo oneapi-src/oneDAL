@@ -33,11 +33,11 @@
 #include "service/kernel/service_data_utils.h"
 #include "externals/service_math.h"
 #include "externals/service_rng.h"
-#include "algorithms/kernel/service_sort.h"
+#include "src/algorithms/service_sort.h"
 #include "data_management/data/numeric_table.h"
-#include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_classification_predict_dense_default_batch.h"
-#include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
-#include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_impl.i"
+#include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_predict_dense_default_batch.h"
+#include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
+#include "src/algorithms/k_nearest_neighbors/kdtree_knn_impl.i"
 
 namespace daal
 {

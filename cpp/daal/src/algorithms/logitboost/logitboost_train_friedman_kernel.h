@@ -42,7 +42,7 @@
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "service/kernel/service_data_utils.h"
 
-#include "algorithms/kernel/logitboost/logitboost_train_kernel.h"
+#include "src/algorithms/logitboost/logitboost_train_kernel.h"
 
 namespace daal
 {

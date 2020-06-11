@@ -26,7 +26,7 @@
 #include "algorithms/threading/threading.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "data_management/features/defines.h"
-#include "algorithms/kernel/service_error_handling.h"
+#include "src/algorithms/service_error_handling.h"
 
 namespace daal
 {

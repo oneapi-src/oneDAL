@@ -30,10 +30,10 @@
 #include "service/kernel/service_utils.h"
 #include "data_management/data/numeric_table.h"
 #include "service/kernel/data_management/service_numeric_table.h"
-#include "algorithms/kernel/decision_tree/decision_tree_regression_model_impl.h"
-#include "algorithms/kernel/decision_tree/decision_tree_regression_train_kernel.h"
-#include "algorithms/kernel/decision_tree/decision_tree_train_impl.i"
-#include "algorithms/kernel/decision_tree/decision_tree_regression_split_criterion.i"
+#include "src/algorithms/decision_tree/decision_tree_regression_model_impl.h"
+#include "src/algorithms/decision_tree/decision_tree_regression_train_kernel.h"
+#include "src/algorithms/decision_tree/decision_tree_train_impl.i"
+#include "src/algorithms/decision_tree/decision_tree_regression_split_criterion.i"
 
 namespace daal
 {

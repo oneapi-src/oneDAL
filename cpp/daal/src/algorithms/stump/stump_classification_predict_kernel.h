@@ -26,7 +26,7 @@
 
 #include "algorithms/stump/stump_classification_model.h"
 #include "algorithms/stump/stump_classification_predict.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;

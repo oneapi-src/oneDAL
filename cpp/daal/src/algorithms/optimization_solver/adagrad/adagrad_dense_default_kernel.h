@@ -23,7 +23,7 @@
 #define __ADAGRAD_DENSE_DEFAULT_KERNEL_H__
 
 #include "algorithms/optimization_solver/adagrad/adagrad_batch.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "externals/service_math.h"
 #include "service/kernel/data_management/service_micro_table.h"

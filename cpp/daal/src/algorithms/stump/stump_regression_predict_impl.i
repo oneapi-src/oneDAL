@@ -32,7 +32,7 @@
 #include "algorithms/decision_tree/decision_tree_regression_predict.h"
 #include "algorithms/decision_tree/decision_tree_regression_predict_types.h"
 #include "algorithms/stump/stump_regression_model.h"
-#include "algorithms/kernel/decision_tree/decision_tree_regression_model_impl.h"
+#include "src/algorithms/decision_tree/decision_tree_regression_model_impl.h"
 
 namespace daal
 {

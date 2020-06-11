@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/gradient_boosted_trees/gbt_classification_training_types.h"
-#include "algorithms/kernel/dtrees/gbt/classification/gbt_classification_model_impl.h"
+#include "src/algorithms/dtrees/gbt/classification/gbt_classification_model_impl.h"
 
 namespace daal
 {
