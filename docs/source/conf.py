@@ -81,10 +81,12 @@ exclude_patterns = ["opt-notice.rst", 'dev_guide/data-management/numeric-tables/
                     'dev_guide/algorithms/kmeans/includes/*',
                     'notes/issues/2021.1-beta06/includes/*']
 
-extlinks = {'cpp_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/cpp/source/%s', ''),
-'java_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/java/com/intel/daal/examples/%s', ''),
-'daal4py_example': ('https://github.com/IntelPython/daal4py/tree/master/examples/%s', ''),
-'cpp_sample': ('https://github.com/oneapi-src/oneDAL/tree/master/samples/cpp/%s', '')}
+extlinks = {
+    'cpp_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/%s', ''),
+    'java_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/%s', ''),
+    'daal4py_example': ('https://github.com/IntelPython/daal4py/tree/master/examples/%s', ''),
+    'cpp_sample': ('https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/%s', '')
+}
 
 # -- Options for HTML output -------------------------------------------------
 
