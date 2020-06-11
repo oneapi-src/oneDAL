@@ -18,9 +18,9 @@
 #ifndef __REDUCER_H__
 #define __REDUCER_H__
 
-#include "src/services/oneapi/math_service_types.h"
+#include "src/oneapi/math_service_types.h"
 #include "services/buffer.h"
-#include "src/services/oneapi/cl_kernels/sum_reducer.cl"
+#include "src/oneapi/cl_kernels/sum_reducer.cl"
 #include "oneapi/internal/types_utils.h"
 #include "oneapi/internal/execution_context.h"
 

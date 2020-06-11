@@ -21,8 +21,8 @@
 //--
 */
 
-#include "src/services/oneapi/math_service_types.h"
-#include "src/services/oneapi/blas_gpu.h"
+#include "src/oneapi/math_service_types.h"
+#include "src/oneapi/blas_gpu.h"
 #include "src/algorithms/objective_function/cross_entropy_loss/oneapi/cl_kernel/cross_entropy_loss_dense_default.cl"
 #include "src/externals/service_ittnotify.h"
 

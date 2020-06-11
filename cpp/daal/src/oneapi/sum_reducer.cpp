@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "src/services/oneapi/reducer.h"
+#include "src/oneapi/reducer.h"
 #include "services/env_detect.h"
 #include "src/externals/service_ittnotify.h"
 

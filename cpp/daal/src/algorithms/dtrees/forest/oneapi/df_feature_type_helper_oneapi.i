@@ -23,7 +23,7 @@
 #include "src/algorithms/dtrees/dtrees_feature_type_helper.h"
 
 #include "src/services/service_data_utils.h"
-#include "src/services/oneapi/sorter.h"
+#include "src/oneapi/sorter.h"
 #include "src/externals/service_ittnotify.h"
 
 DAAL_ITTNOTIFY_DOMAIN(df.common.oneapi);
