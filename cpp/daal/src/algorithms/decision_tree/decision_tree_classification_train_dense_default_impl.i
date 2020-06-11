@@ -28,7 +28,7 @@
 #include "src/externals/service_math.h"
 #include "src/externals/service_memory.h"
 #include "src/services/service_utils.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 #include "data_management/data/numeric_table.h"
 #include "src/algorithms/decision_tree/decision_tree_classification_model_impl.h"
 #include "src/algorithms/decision_tree/decision_tree_classification_train_kernel.h"

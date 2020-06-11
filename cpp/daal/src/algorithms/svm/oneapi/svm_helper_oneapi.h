@@ -18,7 +18,7 @@
 #ifndef __SVM_HELPER_ONEAPI_H__
 #define __SVM_HELPER_ONEAPI_H__
 
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 #include "src/services/oneapi/sorter.h"
 #include "src/services/oneapi/partition.h"
 #include "src/externals/service_ittnotify.h"

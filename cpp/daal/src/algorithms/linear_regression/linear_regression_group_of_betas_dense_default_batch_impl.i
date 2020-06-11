@@ -27,7 +27,7 @@
 #include "src/externals/service_memory.h"
 #include "src/externals/service_lapack.h"
 #include "src/threading/threading.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 #include "src/algorithms/linear_regression/linear_regression_group_of_betas_dense_default_batch_kernel.h"
 

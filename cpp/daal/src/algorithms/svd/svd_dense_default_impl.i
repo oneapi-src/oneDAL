@@ -26,7 +26,7 @@
 
 #include "src/externals/service_math.h"
 #include "src/services/service_defines.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 #include "src/externals/service_blas.h"
 #include "src/externals/service_lapack.h"
 

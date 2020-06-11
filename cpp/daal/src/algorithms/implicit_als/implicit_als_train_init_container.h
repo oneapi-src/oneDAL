@@ -27,7 +27,7 @@
 #include "algorithms/implicit_als/implicit_als_training_init_batch.h"
 #include "algorithms/implicit_als/implicit_als_training_init_distributed.h"
 #include "src/algorithms/implicit_als/implicit_als_train_init_kernel.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 
 namespace daal
 {

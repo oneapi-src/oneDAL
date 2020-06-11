@@ -30,7 +30,7 @@
 #include "services/daal_defines.h"
 #include "services/error_handling.h"
 #include "src/externals/service_memory.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 #include "src/externals/service_math.h"
 #include "src/algorithms/service_kernel_math.h"
 #include "src/algorithms/service_error_handling.h"

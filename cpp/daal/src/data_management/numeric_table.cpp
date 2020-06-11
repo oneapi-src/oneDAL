@@ -31,7 +31,7 @@
 #include "data_management/data/memory_block.h"
 #include "data_management/data/matrix.h"
 #include "data_management/data/internal/base_arrow_numeric_table.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 #include "src/services/service_defines.h"
 
 using namespace daal::services;

@@ -25,7 +25,7 @@
 #define __KERNEL_FUNCTION_RBF_DENSE_DEFAULT_IMPL_I__
 
 #include "algorithms/kernel_function/kernel_function_types_rbf.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 #include "src/externals/service_math.h"
 #include "src/externals/service_blas.h"
 #include "src/externals/service_ittnotify.h"
