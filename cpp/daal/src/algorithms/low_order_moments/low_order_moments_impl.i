@@ -25,7 +25,7 @@
 #define __LOW_ORDER_MOMENTS_IMPL_I__
 
 #include "src/algorithms/low_order_moments/low_order_moments_kernel.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 
 #include "src/externals/service_stat.h"

@@ -18,7 +18,7 @@
 #ifndef __SVM_TRAIN_COMMON_H__
 #define __SVM_TRAIN_COMMON_H__
 
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 #include "src/externals/service_ittnotify.h"
 #include "src/services/service_utils.h"
 

@@ -24,7 +24,7 @@
 #include "src/externals/service_stat.h"
 #include "src/externals/service_memory.h"
 #include "src/services/service_data_utils.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/em/em_gmm_dense_default_batch_kernel.h"
 #include "src/algorithms/em/em_gmm_dense_default_batch_task.h"
 #include "src/threading/threading.h"

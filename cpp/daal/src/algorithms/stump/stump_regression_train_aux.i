@@ -26,8 +26,8 @@
 
 #include "services/daal_defines.h"
 #include "src/externals/service_memory.h"
-#include "src/services/data_management/service_micro_table.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_micro_table.h"
+#include "src/data_management/service_numeric_table.h"
 #include "algorithms/decision_tree/decision_tree_model.h"
 #include "algorithms/decision_tree/decision_tree_regression_training_batch.h"
 #include "algorithms/regression/regression_training_types.h"

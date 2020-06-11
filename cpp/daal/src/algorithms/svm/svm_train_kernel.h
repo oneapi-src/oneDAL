@@ -29,7 +29,7 @@
 #include "services/daal_defines.h"
 #include "algorithms/svm/svm_train_types.h"
 #include "src/algorithms/kernel.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/svm/svm_train_common.h"
 
 #include "src/algorithms/svm/svm_train_boser_cache.i"

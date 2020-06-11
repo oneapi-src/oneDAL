@@ -25,7 +25,7 @@
 #define __IMPLICIT_ALS_PREDICT_RATINGS_DENSE_DEFAULT_IMPL_I__
 
 #include "src/algorithms/implicit_als/implicit_als_predict_ratings_dense_default_kernel.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 #include "src/externals/service_blas.h"
 
 using namespace daal::data_management;

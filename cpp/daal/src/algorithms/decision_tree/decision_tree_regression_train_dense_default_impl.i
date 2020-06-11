@@ -29,7 +29,7 @@
 #include "src/externals/service_math.h"
 #include "src/services/service_utils.h"
 #include "data_management/data/numeric_table.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/decision_tree/decision_tree_regression_model_impl.h"
 #include "src/algorithms/decision_tree/decision_tree_regression_train_kernel.h"
 #include "src/algorithms/decision_tree/decision_tree_train_impl.i"

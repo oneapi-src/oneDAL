@@ -33,7 +33,7 @@
 #include "src/services/service_data_utils.h"
 #include "src/externals/service_blas.h"
 #include "src/externals/service_spblas.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 
 #if (__CPUID__(DAAL_CPU) >= __avx512_mic__)

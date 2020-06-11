@@ -26,7 +26,7 @@
 
 #include "algorithms/kernel_function/kernel_function_types_rbf.h"
 #include "src/externals/service_math.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/kernel_function/kernel_function_csr_impl.i"
 #include "src/threading/threading.h"
 

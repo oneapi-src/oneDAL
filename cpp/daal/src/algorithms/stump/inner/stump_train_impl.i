@@ -30,7 +30,7 @@
 #include "src/services/service_data_utils.h"
 #include "src/externals/service_memory.h"
 #include "src/algorithms/stump/inner/stump_train_kernel.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 
 namespace daal

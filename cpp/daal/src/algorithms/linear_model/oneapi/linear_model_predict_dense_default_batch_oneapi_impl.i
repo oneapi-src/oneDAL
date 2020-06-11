@@ -25,7 +25,7 @@
 #define __LINEAR_MODEL_PREDICT_DENSE_DEFAULT_BATCH_ONEAPI_IMPL_I__
 
 #include "src/algorithms/linear_model/oneapi/linear_model_predict_kernel_oneapi.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 #include "src/services/oneapi/blas_gpu.h"
 #include "oneapi/internal/utils.h"
 #include "src/algorithms/linear_model/oneapi/cl_kernel/linear_model_prediction.cl"

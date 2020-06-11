@@ -25,7 +25,7 @@
 #define __PCA_DENSE_BASE_IFACE_H__
 
 #include "src/services/service_defines.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_numeric_table.h"
 #include "services/error_handling.h"
 
 using namespace daal::internal;

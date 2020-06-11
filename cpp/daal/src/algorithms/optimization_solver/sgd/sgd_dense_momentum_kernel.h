@@ -28,8 +28,8 @@
 #include "src/algorithms/optimization_solver/iterative_solver_kernel.h"
 #include "src/algorithms/optimization_solver/sgd/sgd_dense_kernel.h"
 #include "src/algorithms/optimization_solver/sgd/sgd_dense_minibatch_kernel.h"
-#include "src/services/data_management/service_micro_table.h"
-#include "src/services/data_management/service_numeric_table.h"
+#include "src/data_management/service_micro_table.h"
+#include "src/data_management/service_numeric_table.h"
 #include "src/externals/service_math.h"
 #include "src/services/service_utils.h"
 
