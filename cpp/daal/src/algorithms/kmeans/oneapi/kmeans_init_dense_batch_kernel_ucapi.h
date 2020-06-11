@@ -24,8 +24,8 @@
 #ifndef _KMEANS_INIT_DENSE_BATCH_KERNEL_UCAPI_H
 #define _KMEANS_INIT_DENSE_BATCH_KERNEL_UCAPI_H
 
-#include "oneapi/internal/types.h"
-#include "oneapi/internal/execution_context.h"
+#include "sycl/internal/types.h"
+#include "sycl/internal/execution_context.h"
 #include "algorithms/kmeans/kmeans_init_types.h"
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"

@@ -28,8 +28,8 @@
 #include "src/data_management/service_numeric_table.h"
 #include "src/externals/service_math.h"
 #include "src/externals/service_ittnotify.h"
-#include "src/oneapi/blas_gpu.h"
-#include "src/oneapi/reducer.h"
+#include "src/sycl/blas_gpu.h"
+#include "src/sycl/reducer.h"
 #include "src/algorithms/kernel_function/oneapi/cl_kernels/kernel_function.cl"
 
 DAAL_ITTNOTIFY_DOMAIN(kernel_function.rbf.batch.oneapi);

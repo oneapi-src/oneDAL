@@ -22,8 +22,8 @@
 */
 
 #include "src/algorithms/kmeans/oneapi/cl_kernels/kmeans_init_cl_kernels.cl"
-#include "oneapi/internal/execution_context.h"
-#include "oneapi/internal/types.h"
+#include "sycl/internal/execution_context.h"
+#include "sycl/internal/types.h"
 
 #include "data_management/data/numeric_table.h"
 #include "services/daal_defines.h"

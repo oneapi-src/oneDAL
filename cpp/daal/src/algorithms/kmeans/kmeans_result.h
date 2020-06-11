@@ -25,8 +25,8 @@
 #define __KMEANS_RESULT_
 
 #include "algorithms/kmeans/kmeans_types.h"
-#include "oneapi/internal/execution_context.h"
-#include "oneapi/internal/types.h"
+#include "sycl/internal/execution_context.h"
+#include "sycl/internal/types.h"
 #include "data_management/data/numeric_table_sycl_homogen.h"
 #include "src/algorithms/kmeans/inner/kmeans_types_v1.h"
 
