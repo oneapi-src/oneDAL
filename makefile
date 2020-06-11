@@ -400,21 +400,21 @@ release.CONF = deploy/local/config.txt
 SAMPLES.srcdir:= $(DIR)/samples
 spat = %.scala %.java %.cpp %.h %.txt %.csv %.html %.png %.parquet %.blob
 spat += $(if $(OS_is_win),%.bat %.vcxproj %.filters %.user %.sln,%_$(_OS).lst %makefile_$(_OS) %.sh)
-release.SAMPLES.CPP  := $(if $(wildcard $(SAMPLES.srcdir)/cpp/*),                                                        \
+release.SAMPLES.CPP  := $(if $(wildcard $(SAMPLES.srcdir)/daal/cpp/*),                                                   \
                           $(if $(OS_is_mac),                                                                             \
-                            $(filter $(spat),$(shell find $(SAMPLES.srcdir)/cpp -not -wholename '*mpi*' -type f))        \
+                            $(filter $(spat),$(shell find $(SAMPLES.srcdir)/daal/cpp -not -wholename '*mpi*' -type f))   \
                           ,                                                                                              \
-                            $(filter $(spat),$(shell find $(SAMPLES.srcdir)/cpp -type f))                                \
+                            $(filter $(spat),$(shell find $(SAMPLES.srcdir)/daal/cpp -type f))                           \
                           )                                                                                              \
                         )
-release.SAMPLES.JAVA := $(if $(wildcard $(SAMPLES.srcdir)/java/*),                                                       \
-                          $(if $(or $(OS_is_lnx),$(OS_is_mac),$(OS_is_fbsd)),                                                          \
-                            $(filter $(spat),$(shell find $(SAMPLES.srcdir)/java -type f))                               \
+release.SAMPLES.JAVA := $(if $(wildcard $(SAMPLES.srcdir)/daal/java/*),                                                  \
+                          $(if $(or $(OS_is_lnx),$(OS_is_mac),$(OS_is_fbsd)),                                            \
+                            $(filter $(spat),$(shell find $(SAMPLES.srcdir)/daal/java -type f))                          \
                           )                                                                                              \
                         )
-release.SAMPLES.SCALA := $(if $(wildcard $(SAMPLES.srcdir)/scala/*),                                                     \
-                          $(if $(or $(OS_is_lnx),$(OS_is_mac),$(OS_is_fbsd)),                                                          \
-                            $(filter $(spat),$(shell find $(SAMPLES.srcdir)/scala -type f))                              \
+release.SAMPLES.SCALA := $(if $(wildcard $(SAMPLES.srcdir)/daal/scala/*),                                                \
+                          $(if $(or $(OS_is_lnx),$(OS_is_mac),$(OS_is_fbsd)),                                            \
+                            $(filter $(spat),$(shell find $(SAMPLES.srcdir)/daal/scala -type f))                         \
                           )                                                                                              \
                         )
 
