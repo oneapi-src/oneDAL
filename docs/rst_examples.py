@@ -20,7 +20,7 @@ import shutil
 
 def create_rst(filedir, filename):
     rst_content = '.. _' + filename + ':' + '\n\n' + filename + '\n' + '#' * len(filename) + '\n' + '\n' + \
-    '.. literalinclude:: ../../../examples/cpp_sycl/source/' + filedir + \
+    '.. literalinclude:: ../../../examples/daal/cpp_sycl/source/' + filedir + \
     '/' + filename + '\n' + '  ' + ':language: cpp' + '\n'
 
     return(rst_content)
@@ -42,8 +42,8 @@ def write_examples(files, path):
             rst_file.write(create_rst(file[0], file[1]))
 
 def run(script_dir):
-    example_path = os.path.join(script_dir, '..', 'examples', 'cpp_sycl', 'source')
-    rst_path = os.path.join(script_dir, 'source', 'examples_sycl')
+    example_path = os.path.join(script_dir, '..', 'examples', 'daal', 'cpp_sycl', 'source')
+    rst_path = os.path.join(script_dir, 'source', 'daal', 'examples_sycl')
 
     if os.path.exists(rst_path):
         shutil.rmtree(rst_path)
