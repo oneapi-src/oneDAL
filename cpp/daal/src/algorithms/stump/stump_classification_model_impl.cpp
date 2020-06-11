@@ -25,9 +25,9 @@
 #include "algorithms/stump/stump_classification_model.h"
 #include "src/algorithms/classifier/classifier_model_impl.h"
 #include "src/algorithms/decision_tree/decision_tree_classification_model_impl.h"
-#include "service/kernel/service_defines.h"
-#include "service/kernel/serialization_utils.h"
-#include "service/kernel/daal_strings.h"
+#include "src/services/service_defines.h"
+#include "src/services/serialization_utils.h"
+#include "src/services/daal_strings.h"
 #include "src/algorithms/stump/stump_classification_model_visitor.h"
 
 namespace daal

@@ -25,7 +25,7 @@
 #define __SERVICE_HEAP_H__
 
 #include "services/daal_defines.h"
-#include "service/kernel/service_utils.h"
+#include "src/services/service_utils.h"
 
 namespace daal
 {

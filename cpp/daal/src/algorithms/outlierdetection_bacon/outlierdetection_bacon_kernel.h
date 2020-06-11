@@ -26,7 +26,7 @@
 
 #include "algorithms/outlier_detection/outlier_detection_bacon.h"
 #include "src/algorithms/kernel.h"
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/data_management/service_numeric_table.h"
 #include "externals/service_math.h"
 
 using namespace daal::internal;

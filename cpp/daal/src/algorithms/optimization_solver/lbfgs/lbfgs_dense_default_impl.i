@@ -26,7 +26,7 @@
 
 #include "externals/service_blas.h"
 #include "externals/service_rng.h"
-#include "service/kernel/service_data_utils.h"
+#include "src/services/service_data_utils.h"
 
 using namespace daal::internal;
 using namespace daal::services;

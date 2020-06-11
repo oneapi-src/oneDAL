@@ -30,14 +30,14 @@
 #include "src/threading/threading.h"
 #include "services/daal_defines.h"
 #include "src/algorithms/dtrees/gbt/classification/gbt_classification_model_impl.h"
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 #include "externals/service_memory.h"
 #include "src/algorithms/dtrees/regression/dtrees_regression_predict_dense_default_impl.i"
 #include "src/algorithms/dtrees/gbt/regression/gbt_regression_predict_dense_default_batch_impl.i"
 #include "src/algorithms/dtrees/gbt/gbt_predict_dense_default_impl.i"
 #include "src/algorithms/objective_function/cross_entropy_loss/cross_entropy_loss_dense_default_batch_kernel.h"
-#include "service/kernel/service_algo_utils.h"
+#include "src/services/service_algo_utils.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;

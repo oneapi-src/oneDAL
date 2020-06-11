@@ -25,7 +25,7 @@
 #define __PCA_DENSE_CORRELATION_DISTR_STEP2_KERNEL_H__
 
 #include "algorithms/pca/pca_types.h"
-#include "service/kernel/service_defines.h"
+#include "src/services/service_defines.h"
 #include "services/error_handling.h"
 #include "src/algorithms/pca/pca_dense_correlation_base.h"
 

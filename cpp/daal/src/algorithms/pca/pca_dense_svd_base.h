@@ -24,7 +24,7 @@
 #ifndef __PCA_DENSE_SVD_BASE_H__
 #define __PCA_DENSE_SVD_BASE_H__
 
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/data_management/service_numeric_table.h"
 #include "src/algorithms/pca/pca_dense_base.h"
 
 namespace daal

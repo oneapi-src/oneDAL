@@ -32,7 +32,7 @@
 #include "src/algorithms/kmeans/oneapi/kmeans_dense_lloyd_batch_kernel_ucapi.h"
 #include "oneapi/internal/execution_context.h"
 
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/data_management/service_numeric_table.h"
 
 namespace daal
 {

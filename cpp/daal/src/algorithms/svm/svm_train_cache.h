@@ -24,7 +24,7 @@
 #ifndef __SVM_TRAIN_CACHE_H__
 #define __SVM_TRAIN_CACHE_H__
 
-#include "service/kernel/service_utils.h"
+#include "src/services/service_utils.h"
 #include "externals/service_memory.h"
 
 namespace daal

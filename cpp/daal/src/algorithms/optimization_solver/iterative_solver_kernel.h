@@ -25,13 +25,13 @@
 #include "src/algorithms/kernel.h"
 #include "externals/service_rng.h"
 #include "externals/service_math.h"
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 #include "data_management/data/memory_block.h"
 #include "src/threading/threading.h"
 #include "src/algorithms/distributions/uniform/uniform_kernel.h"
 #include "src/algorithms/distributions/uniform/uniform_impl.i"
-#include "service/kernel/service_data_utils.h"
+#include "src/services/service_data_utils.h"
 
 using namespace daal::data_management;
 using namespace daal::internal;

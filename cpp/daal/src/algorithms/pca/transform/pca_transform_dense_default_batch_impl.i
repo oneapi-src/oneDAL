@@ -31,8 +31,8 @@
 
 #include "externals/service_blas.h"
 #include "externals/service_math.h"
-#include "service/kernel/service_unique_ptr.h"
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/service_unique_ptr.h"
+#include "src/services/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 
 namespace daal

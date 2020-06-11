@@ -24,9 +24,9 @@
 #ifndef __SVM_TRAIN_RESULT_ONEAPI_H__
 #define __SVM_TRAIN_RESULT_ONEAPI_H__
 
-#include "service/kernel/service_utils.h"
+#include "src/services/service_utils.h"
 #include "src/algorithms/svm/oneapi/svm_helper_oneapi.h"
-#include "service/kernel/oneapi/reducer.h"
+#include "src/services/oneapi/reducer.h"
 
 namespace daal
 {

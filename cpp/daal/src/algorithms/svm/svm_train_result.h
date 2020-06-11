@@ -27,10 +27,10 @@
 #include "services/daal_defines.h"
 #include "src/algorithms/service_error_handling.h"
 #include "externals/service_memory.h"
-#include "service/kernel/data_management/service_micro_table.h"
-#include "service/kernel/data_management/service_numeric_table.h"
-#include "service/kernel/service_utils.h"
-#include "service/kernel/service_data_utils.h"
+#include "src/services/data_management/service_micro_table.h"
+#include "src/services/data_management/service_numeric_table.h"
+#include "src/services/service_utils.h"
+#include "src/services/service_data_utils.h"
 
 namespace daal
 {

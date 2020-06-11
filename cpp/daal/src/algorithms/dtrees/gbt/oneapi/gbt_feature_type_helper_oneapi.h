@@ -31,8 +31,8 @@
 #include "src/algorithms/service_sort.h"
 #include "src/algorithms/dtrees/service_array.h"
 #include "externals/service_memory.h"
-#include "service/kernel/service_data_utils.h"
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/service_data_utils.h"
+#include "src/services/data_management/service_numeric_table.h"
 
 #include "src/algorithms/dtrees/gbt/oneapi/cl_kernels/gbt_common_kernels.cl"
 

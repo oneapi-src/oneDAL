@@ -16,8 +16,8 @@
 *******************************************************************************/
 
 #include "services/daal_defines.h"
-#include "service/kernel/oneapi/select_indexed.h"
-#include "service/kernel/oneapi/cl_kernels/select_indexed.cl"
+#include "src/services/oneapi/select_indexed.h"
+#include "src/services/oneapi/cl_kernels/select_indexed.cl"
 #include "oneapi/internal/utils.h"
 #include "externals/service_rng.h"
 #include "src/algorithms/engines/engine_batch_impl.h"

@@ -24,10 +24,10 @@
 #ifndef __SVM_TRAIN_CACHE_ONEAPI_H__
 #define __SVM_TRAIN_CACHE_ONEAPI_H__
 
-#include "service/kernel/service_utils.h"
+#include "src/services/service_utils.h"
 #include "externals/service_memory.h"
-#include "service/kernel/data_management/service_micro_table.h"
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/data_management/service_micro_table.h"
+#include "src/services/data_management/service_numeric_table.h"
 #include "data_management/data/numeric_table_sycl_homogen.h"
 #include "src/algorithms/svm/oneapi/svm_helper_oneapi.h"
 

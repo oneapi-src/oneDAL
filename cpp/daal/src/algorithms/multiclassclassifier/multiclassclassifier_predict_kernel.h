@@ -29,8 +29,8 @@
 #include "algorithms/model.h"
 #include "algorithms/algorithm.h"
 #include "algorithms/multi_class_classifier/multi_class_classifier_predict_types.h"
-#include "service/kernel/service_defines.h"
-#include "service/kernel/service_arrays.h"
+#include "src/services/service_defines.h"
+#include "src/services/service_arrays.h"
 
 using namespace daal::data_management;
 using namespace daal::services::internal;

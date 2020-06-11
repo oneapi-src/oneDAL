@@ -26,7 +26,7 @@
 
 #include "algorithms/optimization_solver/saga/saga_batch.h"
 #include "src/algorithms/optimization_solver/saga/saga_dense_default_kernel.h"
-#include "service/kernel/service_algo_utils.h"
+#include "src/services/service_algo_utils.h"
 
 namespace daal
 {

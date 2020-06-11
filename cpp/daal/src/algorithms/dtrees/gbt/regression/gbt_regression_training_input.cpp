@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/gradient_boosted_trees/gbt_regression_training_types.h"
-#include "service/kernel/daal_strings.h"
+#include "src/services/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

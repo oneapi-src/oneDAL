@@ -23,7 +23,7 @@
 
 #include "src/algorithms/elastic_net/elastic_net_train_container.h"
 
-#include "service/kernel/daal_strings.h"
+#include "src/services/daal_strings.h"
 
 namespace daal
 {

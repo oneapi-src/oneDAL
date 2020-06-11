@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/implicit_als/implicit_als_training_init_types.h"
-#include "service/kernel/data_management/service_numeric_table.h"
-#include "service/kernel/daal_strings.h"
+#include "src/services/data_management/service_numeric_table.h"
+#include "src/services/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

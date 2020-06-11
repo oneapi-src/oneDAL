@@ -25,9 +25,9 @@
 #define __DECISION_TREE_REGRESSION_SPLIT_CRITERION_I__
 
 #include "services/daal_defines.h"
-#include "service/kernel/service_data_utils.h"
+#include "src/services/service_data_utils.h"
 #include "externals/service_math.h"
-#include "service/kernel/service_utils.h"
+#include "src/services/service_utils.h"
 #include "data_management/data/numeric_table.h"
 #include "src/algorithms/decision_tree/decision_tree_regression_model_impl.h"
 #include "src/algorithms/decision_tree/decision_tree_regression_train_kernel.h"

@@ -28,11 +28,11 @@
 #include "src/algorithms/elastic_net/elastic_net_train_kernel.h"
 #include "src/algorithms/elastic_net/elastic_net_model_impl.h"
 #include "src/algorithms/service_error_handling.h"
-#include "service/kernel/service_algo_utils.h"
+#include "src/services/service_algo_utils.h"
 #include "algorithms/optimization_solver/objective_function/mse_batch.h"
 #include "algorithms/optimization_solver/coordinate_descent/coordinate_descent_batch.h"
 
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/data_management/service_numeric_table.h"
 #include "externals/service_math.h"
 #include "data_management/data/soa_numeric_table.h"
 #include "externals/service_blas.h"

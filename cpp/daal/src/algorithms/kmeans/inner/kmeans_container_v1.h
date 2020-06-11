@@ -31,7 +31,7 @@
 #include "src/algorithms/kmeans/inner/kmeans_distributed_v1.h"
 #include "src/algorithms/kmeans/inner/kmeans_types_v1.h"
 #include "oneapi/internal/execution_context.h"
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/data_management/service_numeric_table.h"
 
 namespace daal
 {

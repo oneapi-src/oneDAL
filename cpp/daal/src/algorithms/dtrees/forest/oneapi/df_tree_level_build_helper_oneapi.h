@@ -27,9 +27,9 @@
 
 #include "src/algorithms/service_error_handling.h"
 #include "src/algorithms/dtrees/service_array.h"
-#include "service/kernel/service_arrays.h"
+#include "src/services/service_arrays.h"
 #include "externals/service_memory.h"
-#include "service/kernel/service_data_utils.h"
+#include "src/services/service_data_utils.h"
 
 #include "oneapi/internal/execution_context.h"
 #include "oneapi/internal/types.h"

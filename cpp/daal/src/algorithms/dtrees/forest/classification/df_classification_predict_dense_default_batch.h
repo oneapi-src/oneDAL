@@ -29,7 +29,7 @@
 #include "externals/service_memory.h"
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
-#include "service/kernel/service_algo_utils.h"
+#include "src/services/service_algo_utils.h"
 
 using namespace daal::data_management;
 

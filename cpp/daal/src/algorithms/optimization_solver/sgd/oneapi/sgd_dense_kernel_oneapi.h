@@ -27,7 +27,7 @@
 #include "data_management/data/numeric_table.h"
 #include "src/algorithms/optimization_solver/iterative_solver_kernel.h"
 #include "src/algorithms/optimization_solver/sgd/sgd_dense_kernel.h"
-#include "service/kernel/service_algo_utils.h"
+#include "src/services/service_algo_utils.h"
 
 namespace daal
 {

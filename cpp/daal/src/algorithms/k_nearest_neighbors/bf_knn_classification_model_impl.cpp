@@ -16,8 +16,8 @@
 *******************************************************************************/
 
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
-#include "service/kernel/serialization_utils.h"
-#include "service/kernel/daal_strings.h"
+#include "src/services/serialization_utils.h"
+#include "src/services/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

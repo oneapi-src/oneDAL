@@ -27,7 +27,7 @@
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
 #include "services/daal_defines.h"
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/data_management/service_numeric_table.h"
 
 namespace daal
 {

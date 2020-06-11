@@ -24,7 +24,7 @@
 
 #include "algorithms/optimization_solver/objective_function/mse_batch.h"
 #include "src/algorithms/kernel.h"
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/data_management/service_numeric_table.h"
 #include "externals/service_blas.h"
 #include "data_management/data/numeric_table.h"
 #include "data_management/data/soa_numeric_table.h"

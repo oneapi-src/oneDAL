@@ -31,7 +31,7 @@
 #include "data_management/data/symmetric_matrix.h"
 #include "data_management/data/matrix.h"
 #include "data_management/data/data_collection.h"
-#include "service/kernel/serialization_utils.h"
+#include "src/services/serialization_utils.h"
 
 #include "data_management/data/numeric_table_sycl_homogen.h"
 

@@ -31,7 +31,7 @@
 #include "src/algorithms/dtrees/forest/classification/df_classification_train_dense_default_kernel.h"
 #include "src/algorithms/dtrees/forest/classification/oneapi/df_classification_train_hist_kernel_oneapi.h"
 #include "src/algorithms/dtrees/forest/classification/df_classification_model_impl.h"
-#include "service/kernel/service_algo_utils.h"
+#include "src/services/service_algo_utils.h"
 
 namespace daal
 {

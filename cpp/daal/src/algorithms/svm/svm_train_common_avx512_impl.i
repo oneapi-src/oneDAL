@@ -19,7 +19,7 @@
  * Contains optimizations for AVX512.
 */
 
-#include "service/kernel/service_data_utils.h"
+#include "src/services/service_data_utils.h"
 
 namespace daal
 {

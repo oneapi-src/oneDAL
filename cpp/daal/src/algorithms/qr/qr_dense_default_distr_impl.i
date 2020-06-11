@@ -27,8 +27,8 @@
 #include "externals/service_lapack.h"
 #include "externals/service_memory.h"
 #include "externals/service_math.h"
-#include "service/kernel/service_defines.h"
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/service_defines.h"
+#include "src/services/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 
 #include "src/algorithms/qr/qr_dense_default_impl.i"

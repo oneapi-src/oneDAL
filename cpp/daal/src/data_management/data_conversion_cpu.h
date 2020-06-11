@@ -18,7 +18,7 @@
 #ifndef __KERNEL_DATA_MANAGEMENT_DATA_CONVERSION_CPU_H__
 #define __KERNEL_DATA_MANAGEMENT_DATA_CONVERSION_CPU_H__
 
-#include "service/kernel/service_defines.h"
+#include "src/services/service_defines.h"
 
 namespace daal
 {

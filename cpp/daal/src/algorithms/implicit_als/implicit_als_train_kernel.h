@@ -30,7 +30,7 @@
 #include "src/algorithms/kernel.h"
 #include "src/threading/threading.h"
 
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/data_management/service_numeric_table.h"
 #include "externals/service_memory.h"
 
 using namespace daal::services::internal;

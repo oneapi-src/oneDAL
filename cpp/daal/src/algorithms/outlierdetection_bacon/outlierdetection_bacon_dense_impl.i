@@ -26,7 +26,7 @@
 
 #include "data_management/data/numeric_table.h"
 #include "algorithms/outlier_detection/outlier_detection_bacon_types.h"
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/data_management/service_numeric_table.h"
 #include "externals/service_math.h"
 #include "externals/service_stat.h"
 

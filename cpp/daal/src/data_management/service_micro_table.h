@@ -27,7 +27,7 @@
 #include "data_management/data/numeric_table.h"
 #include "data_management/data/csr_numeric_table.h"
 #include "data_management/data/symmetric_matrix.h"
-#include "service/kernel/service_defines.h"
+#include "src/services/service_defines.h"
 
 using namespace daal::data_management;
 

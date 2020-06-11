@@ -26,7 +26,7 @@
 #include "src/algorithms/kmeans/kmeans_init_impl.h"
 #include "data_management/data/row_merged_numeric_table.h"
 #include "data_management/data/memory_block.h"
-#include "service/kernel/daal_strings.h"
+#include "src/services/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

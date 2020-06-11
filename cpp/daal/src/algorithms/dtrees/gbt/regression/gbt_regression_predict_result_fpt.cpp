@@ -23,7 +23,7 @@
 
 #include "algorithms/gradient_boosted_trees/gbt_regression_predict_types.h"
 #include "data_management/data/homogen_numeric_table.h"
-#include "service/kernel/daal_strings.h"
+#include "src/services/daal_strings.h"
 
 namespace daal
 {

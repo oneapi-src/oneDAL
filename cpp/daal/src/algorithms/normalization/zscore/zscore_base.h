@@ -27,7 +27,7 @@
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "externals/service_math.h"
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 #include "src/threading/threading.h"
 

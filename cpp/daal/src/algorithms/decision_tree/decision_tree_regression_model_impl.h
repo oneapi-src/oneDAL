@@ -26,7 +26,7 @@
 
 #include "algorithms/decision_tree/decision_tree_regression_model.h"
 #include "src/algorithms/regression/regression_model_impl.h"
-#include "service/kernel/service_defines.h"
+#include "src/services/service_defines.h"
 
 namespace daal
 {

@@ -29,7 +29,7 @@
 #include "src/algorithms/dtrees/dtrees_train_data_helper.i"
 #include "src/algorithms/dtrees/dtrees_predict_dense_default_impl.i"
 #include "src/algorithms/dtrees/gbt/gbt_train_aux.i"
-#include "service/kernel/service_defines.h"
+#include "src/services/service_defines.h"
 #include "src/algorithms/dtrees/gbt/gbt_train_hist_kernel.i"
 
 namespace daal

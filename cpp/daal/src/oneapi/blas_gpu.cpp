@@ -17,8 +17,8 @@
 
 #include "oneapi/internal/math/reference_gemm.h"
 #include "oneapi/internal/math/reference_axpy.h"
-#include "service/kernel/oneapi/blas_gpu.h"
-#include "service/kernel/oneapi/cl_kernels/kernel_blas.cl"
+#include "src/services/oneapi/blas_gpu.h"
+#include "src/services/oneapi/cl_kernels/kernel_blas.cl"
 
 namespace daal
 {

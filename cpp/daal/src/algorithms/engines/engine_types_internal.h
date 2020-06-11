@@ -24,7 +24,7 @@
 
 #include "src/algorithms/engines/engine_batch_impl.h"
 #include "algorithms/engines/engine_family.h"
-#include "service/kernel/service_arrays.h"
+#include "src/services/service_arrays.h"
 
 namespace daal
 {
