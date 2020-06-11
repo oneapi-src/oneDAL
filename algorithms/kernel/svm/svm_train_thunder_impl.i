@@ -70,7 +70,9 @@ namespace training
 namespace internal
 {
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::compute(const NumericTablePtr & xTable, NumericTable & yTable,
+services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::compute(const NumericTablePtr & xTable, const NumericTablePtr & wTable,
+                                                                                     NumericTable & yTable,
+
                                                                                      daal::algorithms::Model * r, const ParameterType * svmPar)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(COMPUTE);
@@ -88,21 +90,36 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
 
     TArray<algorithmFPType, cpu> alphaTArray(nVectors);
     DAAL_CHECK_MALLOC(alphaTArray.get());
-    algorithmFPType * alpha = alphaTArray.get();
+    algorithmFPType * const alpha = alphaTArray.get();
 
-    ReadColumns<algorithmFPType, cpu> mtY(yTable, 0, 0, nVectors);
-    DAAL_CHECK_BLOCK_STATUS(mtY);
-    const algorithmFPType * y = mtY.get();
-
-    // gradi = -yi; ai = 0
     TArray<algorithmFPType, cpu> gradTArray(nVectors);
     DAAL_CHECK_MALLOC(gradTArray.get());
-    algorithmFPType * grad = gradTArray.get();
+    algorithmFPType * const grad = gradTArray.get();
 
-    for (size_t i = 0; i < nVectors; i++)
+    TArray<algorithmFPType, cpu> cwTArray(nVectors);
+    DAAL_CHECK_MALLOC(cwTArray.get());
+    algorithmFPType * const cw = cwTArray.get();
+
+    TArray<algorithmFPType, cpu> yTArray(nVectors);
+    DAAL_CHECK_MALLOC(yTArray.get());
+    algorithmFPType * const y = yTArray.get();
+
     {
-        grad[i]  = -y[i];
-        alpha[i] = algorithmFPType(0);
+        ReadColumns<algorithmFPType, cpu> mtY(yTable, 0, 0, nVectors);
+        DAAL_CHECK_BLOCK_STATUS(mtY);
+        const algorithmFPType * const yIn = mtY.get();
+
+        ReadColumns<algorithmFPType, cpu> mtW(wTable.get(), 0, 0, nVectors);
+        DAAL_CHECK_BLOCK_STATUS(mtW);
+        const algorithmFPType * weights = mtW.get();
+        // gradi = -yi; ai = 0; ci = c*wi
+        for (size_t i = 0; i < nVectors; i++)
+        {
+            y[i]     = yIn[i] == 0 ? algorithmFPType(-1) : yIn[i];
+            grad[i]  = -y[i];
+            alpha[i] = algorithmFPType(0);
+            cw[i]    = weights ? weights[i] * C : C;
+        }
     }
 
     TaskWorkingSet<algorithmFPType, cpu> workSet(nVectors, maxBlockSize);
@@ -146,23 +163,23 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
             DAAL_CHECK_STATUS(status, cachePtr->copyLastToFirst());
         }
 
-        DAAL_CHECK_STATUS(status, workSet.select(y, alpha, grad, C));
+        DAAL_CHECK_STATUS(status, workSet.select(y, alpha, grad, cw));
         const uint32_t * wsIndices = workSet.getIndices();
 
         algorithmFPType * kernelWS = nullptr;
         DAAL_CHECK_STATUS(status, cachePtr->getRowsBlock(wsIndices, kernelWS));
 
         DAAL_CHECK_STATUS(
-            status, SMOBlockSolver(y, grad, wsIndices, kernelWS, nVectors, nWS, C, eps, tau, buffer.get(), I.get(), alpha, deltaAlpha.get(), diff));
+            status, SMOBlockSolver(y, grad, wsIndices, kernelWS, nVectors, nWS, cw, eps, tau, buffer.get(), I.get(), alpha, deltaAlpha.get(), diff));
 
         DAAL_CHECK_STATUS(status, updateGrad(kernelWS, deltaAlpha.get(), grad, nVectors, nWS));
 
-        if (checkStopCondition(diff, diffPrev, eps, sameLocalDiff) && iter != 0) break;
+        if (checkStopCondition(diff, diffPrev, eps, sameLocalDiff) && iter > nNoChanges) break;
         diffPrev = diff;
     }
 
     SaveResultTask<algorithmFPType, cpu> saveResult(nVectors, y, alpha, grad, cachePtr.get());
-    DAAL_CHECK_STATUS(status, saveResult.compute(*xTable, *static_cast<Model *>(r), C));
+    DAAL_CHECK_STATUS(status, saveResult.compute(*xTable, *static_cast<Model *>(r), cw));
 
     return status;
 }
@@ -170,7 +187,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMOBlockSolver(
     const algorithmFPType * y, const algorithmFPType * grad, const uint32_t * wsIndices, const algorithmFPType * kernelWS, const size_t nVectors,
-    const size_t nWS, const double C, const double eps, const double tau, algorithmFPType * buffer, char * I, algorithmFPType * alpha,
+    const size_t nWS, const algorithmFPType * cw, const double eps, const double tau, algorithmFPType * buffer, char * I, algorithmFPType * alpha,
     algorithmFPType * deltaAlpha, algorithmFPType & localDiff) const
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(SMOBlockSolver);
@@ -183,6 +200,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
     algorithmFPType * const gradLocal     = buffer + nWS * MemSmoId::gradBuffID;
     algorithmFPType * const kdLocal       = buffer + nWS * MemSmoId::kdBuffID;
     algorithmFPType * const oldAlphaLocal = buffer + nWS * MemSmoId::oldAlphaBuffID;
+    algorithmFPType * const cwLocal       = buffer + nWS * MemSmoId::cwBuffID;
     algorithmFPType * const kernelLocal   = buffer + nWS * MemSmoId::latest;
 
     {
@@ -202,11 +220,12 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
                 gradLocal[i]         = grad[wsIndex];
                 oldAlphaLocal[i]     = alpha[wsIndex];
                 alphaLocal[i]        = alpha[wsIndex];
+                cwLocal[i]           = cw[wsIndex];
                 kdLocal[i]           = kernelWS[i * nVectors + wsIndices[i]];
 
                 char Ii = free;
-                Ii |= HelperTrainSVM<algorithmFPType, cpu>::isUpper(yLocal[i], alphaLocal[i], C) ? up : free;
-                Ii |= HelperTrainSVM<algorithmFPType, cpu>::isLower(yLocal[i], alphaLocal[i], C) ? low : free;
+                Ii |= HelperTrainSVM<algorithmFPType, cpu>::isUpper(yLocal[i], alphaLocal[i], cwLocal[i]) ? up : free;
+                Ii |= HelperTrainSVM<algorithmFPType, cpu>::isLower(yLocal[i], alphaLocal[i], cwLocal[i]) ? low : free;
                 I[i] = Ii;
                 for (size_t j = 0; j < nWS; ++j)
                 {
@@ -250,23 +269,24 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::SMO
         const algorithmFPType yBj = yLocal[Bj];
 
         /* Update coefficients */
-        const algorithmFPType alphaBiDelta = (yBi > zero) ? C - alphaLocal[Bi] : alphaLocal[Bi];
-        const algorithmFPType alphaBjDelta = services::internal::min<cpu, algorithmFPType>((yBj > zero) ? alphaLocal[Bj] : C - alphaLocal[Bj], delta);
-        delta                              = services::internal::min<cpu, algorithmFPType>(alphaBiDelta, alphaBjDelta);
+        const algorithmFPType alphaBiDelta = (yBi > zero) ? cwLocal[Bi] - alphaLocal[Bi] : alphaLocal[Bi];
+        const algorithmFPType alphaBjDelta =
+            services::internal::min<cpu, algorithmFPType>((yBj > zero) ? alphaLocal[Bj] : cwLocal[Bj] - alphaLocal[Bj], delta);
+        delta = services::internal::min<cpu, algorithmFPType>(alphaBiDelta, alphaBjDelta);
 
         /* Update alpha */
         alphaLocal[Bi] += delta * yBi;
-        alphaLocal[Bj] -= delta * yLocal[Bj];
+        alphaLocal[Bj] -= delta * yBj;
 
         /* Update up/low sets */
         char IBi = free;
-        IBi |= HelperTrainSVM<algorithmFPType, cpu>::isUpper(yBi, alphaLocal[Bi], C) ? up : free;
-        IBi |= HelperTrainSVM<algorithmFPType, cpu>::isLower(yBi, alphaLocal[Bi], C) ? low : free;
+        IBi |= HelperTrainSVM<algorithmFPType, cpu>::isUpper(yBi, alphaLocal[Bi], cwLocal[Bi]) ? up : free;
+        IBi |= HelperTrainSVM<algorithmFPType, cpu>::isLower(yBi, alphaLocal[Bi], cwLocal[Bi]) ? low : free;
         I[Bi] = IBi;
 
         char IBj = free;
-        IBj |= HelperTrainSVM<algorithmFPType, cpu>::isUpper(yBj, alphaLocal[Bj], C) ? up : free;
-        IBj |= HelperTrainSVM<algorithmFPType, cpu>::isLower(yBj, alphaLocal[Bj], C) ? low : free;
+        IBj |= HelperTrainSVM<algorithmFPType, cpu>::isUpper(yBj, alphaLocal[Bj], cwLocal[Bj]) ? up : free;
+        IBj |= HelperTrainSVM<algorithmFPType, cpu>::isLower(yBj, alphaLocal[Bj], cwLocal[Bj]) ? low : free;
         I[Bj] = IBj;
 
         const algorithmFPType * const KBjBlock = &kernelLocal[Bj * nWS];

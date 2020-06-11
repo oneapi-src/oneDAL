@@ -71,6 +71,11 @@ public:
         DAAL_CHECK(input, services::ErrorNullInput);
         input->set(classifier::training::data, _subsetXTable);
         input->set(classifier::training::labels, _subsetYTable);
+        if (_weights)
+        {
+            _subsetWTable->resize(nRowsInSubset);
+            input->set(classifier::training::weights, _subsetWTable);
+        }
         services::Status s;
         DAAL_CHECK_STATUS(s, _simpleTraining->resetResult());
         return _simpleTraining->computeNoThrow();
@@ -81,12 +86,19 @@ public:
 protected:
     typedef HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
 
-    SubTask(size_t nSubsetVectors, size_t dataSize, const services::SharedPtr<ClsType> & st) : _subsetX(dataSize + nSubsetVectors), _subsetY(nullptr)
+    SubTask(size_t nSubsetVectors, size_t dataSize, const algorithmFPType * weights, const services::SharedPtr<ClsType> & st)
+        : _subsetX(dataSize + nSubsetVectors), _subsetY(nullptr), _weights(weights)
     {
         services::Status status;
         if (!_subsetX.get()) return;
         _subsetY      = _subsetX.get() + dataSize;
         _subsetYTable = HomogenNT::create(_subsetY, 1, nSubsetVectors, &status);
+        if (_weights)
+        {
+            _subsetW.reset(nSubsetVectors);
+            _subsetWTable = HomogenNT::create(_subsetW.get(), 1, nSubsetVectors, &status);
+        }
+
         if (!status) return;
         _simpleTraining = st->clone();
     }
@@ -99,8 +111,11 @@ protected:
 protected:
     TArray<algorithmFPType, cpu> _subsetX;
     algorithmFPType * _subsetY;
+    const algorithmFPType * _weights;
+    TArray<algorithmFPType, cpu> _subsetW;
     NumericTablePtr _subsetYTable;
     NumericTablePtr _subsetXTable;
+    NumericTablePtr _subsetWTable;
     services::SharedPtr<ClsType> _simpleTraining;
 };
 
@@ -109,10 +124,11 @@ class SubTaskCSR : public SubTask<algorithmFPType, ClsType, cpu>
 {
 public:
     typedef SubTask<algorithmFPType, ClsType, cpu> super;
-    static SubTaskCSR * create(size_t nFeatures, size_t nSubsetVectors, size_t dataSize, const NumericTable * xTable,
+    static SubTaskCSR * create(size_t nFeatures, size_t nSubsetVectors, size_t dataSize, const NumericTable * xTable, const algorithmFPType * weights,
                                const services::SharedPtr<ClsType> & st)
     {
-        auto val = new SubTaskCSR(nFeatures, nSubsetVectors, dataSize, dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(xTable)), st);
+        auto val = new SubTaskCSR(nFeatures, nSubsetVectors, dataSize, dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(xTable)),
+                                  weights, st);
         if (val && val->isValid()) return val;
         delete val;
         val = nullptr;
@@ -122,8 +138,9 @@ public:
 private:
     bool isValid() const { return super::isValid() && _colIndicesX.get() && this->_subsetXTable.get(); }
 
-    SubTaskCSR(size_t nFeatures, size_t nSubsetVectors, size_t dataSize, CSRNumericTableIface * xTable, const services::SharedPtr<ClsType> & st)
-        : super(nSubsetVectors, dataSize, st), _mtX(xTable), _colIndicesX(dataSize + nSubsetVectors + 1), _rowOffsetsX(nullptr)
+    SubTaskCSR(size_t nFeatures, size_t nSubsetVectors, size_t dataSize, CSRNumericTableIface * xTable, const algorithmFPType * weights,
+               const services::SharedPtr<ClsType> & st)
+        : super(nSubsetVectors, dataSize, weights, st), _mtX(xTable), _colIndicesX(dataSize + nSubsetVectors + 1), _rowOffsetsX(nullptr)
     {
         if (_colIndicesX.get())
         {
@@ -150,9 +167,9 @@ class SubTaskDense : public SubTask<algorithmFPType, ClsType, cpu>
 public:
     typedef SubTask<algorithmFPType, ClsType, cpu> super;
     static SubTaskDense * create(size_t nFeatures, size_t nSubsetVectors, size_t dataSize, const NumericTable * xTable,
-                                 const services::SharedPtr<ClsType> & st)
+                                 const algorithmFPType * weights, const services::SharedPtr<ClsType> & st)
     {
-        auto val = new SubTaskDense(nFeatures, nSubsetVectors, dataSize, xTable, st);
+        auto val = new SubTaskDense(nFeatures, nSubsetVectors, dataSize, xTable, weights, st);
         if (val && val->isValid()) return val;
         delete val;
         val = nullptr;
@@ -163,8 +180,9 @@ private:
     typedef HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     bool isValid() const { return super::isValid() && this->_subsetXTable.get(); }
 
-    SubTaskDense(size_t nFeatures, size_t nSubsetVectors, size_t dataSize, const NumericTable * xTable, const services::SharedPtr<ClsType> & st)
-        : super(nSubsetVectors, dataSize, st), _mtX(const_cast<NumericTable *>(xTable))
+    SubTaskDense(size_t nFeatures, size_t nSubsetVectors, size_t dataSize, const NumericTable * xTable, const algorithmFPType * weights,
+                 const services::SharedPtr<ClsType> & st)
+        : super(nSubsetVectors, dataSize, weights, st), _mtX(const_cast<NumericTable *>(xTable))
     {
         services::Status status;
         if (this->_subsetX.get()) this->_subsetXTable = HomogenNT::create(this->_subsetX.get(), nFeatures, nSubsetVectors, &status);
@@ -182,7 +200,7 @@ template <typename algorithmFPType, typename ClsType, typename MccParType, CpuTy
 class MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, ClsType, MccParType, cpu> : public Kernel
 {
 public:
-    services::Status compute(const NumericTable * xTable, const NumericTable * yTable, daal::algorithms::Model * r,
+    services::Status compute(const NumericTable * xTable, const NumericTable * yTable, const NumericTable * wTable, daal::algorithms::Model * r,
                              const daal::algorithms::Parameter * par);
 
 protected:
