@@ -30,7 +30,7 @@
 #include "services/daal_defines.h"
 #include "externals/service_blas.h"
 #include "service/kernel/data_management/service_numeric_table.h"
-#include "algorithms/kernel/service_error_handling.h"
+#include "src/algorithms/service_error_handling.h"
 
 namespace daal
 {

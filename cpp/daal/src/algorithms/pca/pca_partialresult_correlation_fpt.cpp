@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/pca/pca_partialresult_correlation.h"
+#include "src/algorithms/pca/pca_partialresult_correlation.h"
 
 namespace daal
 {

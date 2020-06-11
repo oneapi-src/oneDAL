@@ -27,7 +27,7 @@
 
 #include "algorithms/kmeans/kmeans_types.h"
 #include "algorithms/kmeans/kmeans_multinode_batch.h"
-#include "algorithms/kernel/kmeans/oneapi/kmeans_oneccl_dense_lloyd_batch_kernel_ucapi.h"
+#include "src/algorithms/kmeans/oneapi/kmeans_oneccl_dense_lloyd_batch_kernel_ucapi.h"
 #include "oneapi/internal/execution_context.h"
 
 namespace daal

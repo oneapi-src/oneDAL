@@ -21,9 +21,9 @@
 //--
 */
 
-#include "algorithms/kernel/stump/stump_regression_predict_batch_container.h"
-#include "algorithms/kernel/stump/stump_regression_predict_kernel.h"
-#include "algorithms/kernel/stump/stump_regression_predict_impl.i"
+#include "src/algorithms/stump/stump_regression_predict_batch_container.h"
+#include "src/algorithms/stump/stump_regression_predict_kernel.h"
+#include "src/algorithms/stump/stump_regression_predict_impl.i"
 
 namespace daal
 {

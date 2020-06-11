@@ -23,7 +23,7 @@
 */
 
 #include "algorithms/boosting/adaboost_training_batch.h"
-#include "algorithms/kernel/adaboost/adaboost_train_batch_container.h"
+#include "src/algorithms/adaboost/adaboost_train_batch_container.h"
 
 namespace daal
 {

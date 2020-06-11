@@ -26,7 +26,7 @@
 #include "algorithms/naive_bayes/multinomial_naive_bayes_training_online.h"
 #include "algorithms/naive_bayes/multinomial_naive_bayes_training_distributed.h"
 #include "algorithms/naive_bayes/multinomial_naive_bayes_training_types.h"
-#include "algorithms/kernel/naivebayes/naivebayes_train_kernel.h"
+#include "src/algorithms/naivebayes/naivebayes_train_kernel.h"
 
 namespace daal
 {

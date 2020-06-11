@@ -21,9 +21,9 @@
 //--
 */
 
-#include "algorithms/kernel/svm/svm_predict_batch_container.h"
-#include "algorithms/kernel/svm/svm_predict_kernel.h"
-#include "algorithms/kernel/svm/svm_predict_impl.i"
+#include "src/algorithms/svm/svm_predict_batch_container.h"
+#include "src/algorithms/svm/svm_predict_kernel.h"
+#include "src/algorithms/svm/svm_predict_impl.i"
 
 namespace daal
 {

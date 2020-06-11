@@ -19,7 +19,7 @@
 //  Implementation of normal algorithm container.
 //--
 
-#include "algorithms/kernel/distributions/normal/normal_batch_container.h"
+#include "src/algorithms/distributions/normal/normal_batch_container.h"
 
 namespace daal
 {

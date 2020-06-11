@@ -22,7 +22,7 @@
 //--
 */
 
-#include "algorithms/kernel/kmeans/kmeans_multinode_batch_container.h"
+#include "src/algorithms/kmeans/kmeans_multinode_batch_container.h"
 
 namespace daal
 {

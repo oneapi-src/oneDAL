@@ -23,7 +23,7 @@
 #define __MT19937_KERNEL_H__
 
 #include "algorithms/engines/mt19937/mt19937.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 
 using namespace daal::services;

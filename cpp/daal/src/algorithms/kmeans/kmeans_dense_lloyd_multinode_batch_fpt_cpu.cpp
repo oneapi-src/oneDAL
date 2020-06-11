@@ -21,9 +21,9 @@
 //--
 */
 
-#include "algorithms/kernel/kmeans/oneapi/kmeans_oneccl_dense_lloyd_batch_kernel_ucapi.h"
-#include "algorithms/kernel/kmeans/oneapi/kmeans_oneccl_dense_lloyd_batch_kernel_ucapi_impl.i"
-#include "algorithms/kernel/kmeans/kmeans_multinode_batch_container.h"
+#include "src/algorithms/kmeans/oneapi/kmeans_oneccl_dense_lloyd_batch_kernel_ucapi.h"
+#include "src/algorithms/kmeans/oneapi/kmeans_oneccl_dense_lloyd_batch_kernel_ucapi_impl.i"
+#include "src/algorithms/kmeans/kmeans_multinode_batch_container.h"
 
 namespace daal
 {

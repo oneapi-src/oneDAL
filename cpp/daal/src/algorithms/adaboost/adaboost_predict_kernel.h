@@ -26,7 +26,7 @@
 
 #include "algorithms/boosting/adaboost_model.h"
 #include "algorithms/boosting/adaboost_predict.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "service/kernel/service_environment.h"

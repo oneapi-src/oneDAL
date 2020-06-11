@@ -24,7 +24,7 @@
 #ifndef __PCA_DENSE_BASE_H__
 #define __PCA_DENSE_BASE_H__
 
-#include "algorithms/kernel/pca/pca_dense_base_iface.h"
+#include "src/algorithms/pca/pca_dense_base_iface.h"
 
 using namespace daal::internal;
 

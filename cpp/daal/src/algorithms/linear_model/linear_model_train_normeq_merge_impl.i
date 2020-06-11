@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/linear_model/linear_model_train_normeq_kernel.h"
+#include "src/algorithms/linear_model/linear_model_train_normeq_kernel.h"
 #include "algorithms/threading/threading.h"
 
 namespace daal

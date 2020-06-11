@@ -23,7 +23,7 @@
 //--
 */
 
-#include "algorithms/kernel/dtrees/gbt/classification/gbt_classification_predict_container.h"
+#include "src/algorithms/dtrees/gbt/classification/gbt_classification_predict_container.h"
 
 namespace daal
 {

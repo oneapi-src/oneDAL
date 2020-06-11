@@ -52,12 +52,12 @@
 #include "externals/service_blas.h"
 #include "externals/service_math.h"
 
-#include "algorithms/kernel/svm/svm_train_common.h"
-#include "algorithms/kernel/svm/svm_train_thunder_workset.h"
-#include "algorithms/kernel/svm/svm_train_thunder_cache.h"
-#include "algorithms/kernel/svm/svm_train_result.h"
+#include "src/algorithms/svm/svm_train_common.h"
+#include "src/algorithms/svm/svm_train_thunder_workset.h"
+#include "src/algorithms/svm/svm_train_thunder_cache.h"
+#include "src/algorithms/svm/svm_train_result.h"
 
-#include "algorithms/kernel/svm/svm_train_common_impl.i"
+#include "src/algorithms/svm/svm_train_common_impl.i"
 
 namespace daal
 {

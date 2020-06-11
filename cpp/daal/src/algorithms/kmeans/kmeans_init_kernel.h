@@ -25,7 +25,7 @@
 #define _KMEANS_INIT_H
 
 #include "algorithms/kmeans/kmeans_init_types.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "data_management/data/memory_block.h"
 

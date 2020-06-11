@@ -25,9 +25,9 @@
 #define __SGD_BATCH_CONTAINER_V1_H__
 
 #include "algorithms/optimization_solver/sgd/sgd_batch.h"
-#include "algorithms/kernel/optimization_solver/sgd/inner/sgd_dense_default_kernel_v1.h"
-#include "algorithms/kernel/optimization_solver/sgd/inner/sgd_dense_minibatch_kernel_v1.h"
-#include "algorithms/kernel/optimization_solver/sgd/inner/sgd_dense_momentum_kernel_v1.h"
+#include "src/algorithms/optimization_solver/sgd/inner/sgd_dense_default_kernel_v1.h"
+#include "src/algorithms/optimization_solver/sgd/inner/sgd_dense_minibatch_kernel_v1.h"
+#include "src/algorithms/optimization_solver/sgd/inner/sgd_dense_momentum_kernel_v1.h"
 #include "service/kernel/service_algo_utils.h"
 
 namespace daal

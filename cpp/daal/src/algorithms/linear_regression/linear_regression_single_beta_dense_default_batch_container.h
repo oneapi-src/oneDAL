@@ -25,7 +25,7 @@
 #define __LINEAR_REGRESSION_SINGLE_BETA_DENSE_DEFAULT_BATCH_CONTAINER_H__
 
 #include "algorithms/linear_regression/linear_regression_single_beta_batch.h"
-#include "algorithms/kernel/linear_regression/linear_regression_single_beta_dense_default_batch_kernel.h"
+#include "src/algorithms/linear_regression/linear_regression_single_beta_dense_default_batch_kernel.h"
 
 namespace daal
 {

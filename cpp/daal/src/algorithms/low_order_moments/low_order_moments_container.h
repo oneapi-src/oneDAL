@@ -24,13 +24,13 @@
 #ifndef __LOW_ORDER_MOMENTS_CONTAINER_H__
 #define __LOW_ORDER_MOMENTS_CONTAINER_H__
 
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "algorithms/moments/low_order_moments_batch.h"
 #include "algorithms/moments/low_order_moments_online.h"
 #include "algorithms/moments/low_order_moments_distributed.h"
-#include "algorithms/kernel/low_order_moments/low_order_moments_kernel.h"
-#include "algorithms/kernel/low_order_moments/oneapi/low_order_moments_kernel_batch_oneapi.h"
-#include "algorithms/kernel/low_order_moments/oneapi/low_order_moments_kernel_online_oneapi.h"
+#include "src/algorithms/low_order_moments/low_order_moments_kernel.h"
+#include "src/algorithms/low_order_moments/oneapi/low_order_moments_kernel_batch_oneapi.h"
+#include "src/algorithms/low_order_moments/oneapi/low_order_moments_kernel_online_oneapi.h"
 #include "oneapi/internal/utils.h"
 
 namespace daal

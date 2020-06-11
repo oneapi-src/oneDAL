@@ -25,7 +25,7 @@
 #define __MCG59_BATCH_CONTAINER_H__
 
 #include "algorithms/engines/mcg59/mcg59.h"
-#include "algorithms/kernel/engines/mcg59/mcg59_kernel.h"
+#include "src/algorithms/engines/mcg59/mcg59_kernel.h"
 
 namespace daal
 {

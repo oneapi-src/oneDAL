@@ -26,7 +26,7 @@
 
 //#include "data_management/data/aos_numeric_table.h"
 #include "service/kernel/service_arrays.h"
-#include "algorithms/kernel/dtrees/dtrees_predict_dense_default_impl.i"
+#include "src/algorithms/dtrees/dtrees_predict_dense_default_impl.i"
 
 namespace daal
 {

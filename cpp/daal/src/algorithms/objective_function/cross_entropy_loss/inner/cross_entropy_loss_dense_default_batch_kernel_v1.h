@@ -23,7 +23,7 @@
 #define __CROSS_ENTROPY_LOSS_DENSE_DEFAULT_BATCH_KERNEL_V1_H__
 
 #include "algorithms/optimization_solver/objective_function/cross_entropy_loss_batch.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "externals/service_blas.h"
 #include "data_management/data/numeric_table.h"

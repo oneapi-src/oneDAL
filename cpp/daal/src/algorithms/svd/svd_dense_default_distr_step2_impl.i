@@ -28,9 +28,9 @@
 #include "externals/service_math.h"
 #include "service/kernel/service_defines.h"
 #include "service/kernel/data_management/service_numeric_table.h"
-#include "algorithms/kernel/service_error_handling.h"
+#include "src/algorithms/service_error_handling.h"
 
-#include "algorithms/kernel/svd/svd_dense_default_impl.i"
+#include "src/algorithms/svd/svd_dense_default_impl.i"
 
 #include "algorithms/threading/threading.h"
 

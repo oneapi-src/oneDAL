@@ -25,7 +25,7 @@
 #define __ASSOC_RULES_KERNEL_H__
 
 #include "algorithms/association_rules/apriori_types.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 
 #include "data_management/data/numeric_table.h"
 

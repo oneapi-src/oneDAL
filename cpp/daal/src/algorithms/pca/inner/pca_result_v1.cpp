@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/pca/inner/pca_result_v1.h"
+#include "src/algorithms/pca/inner/pca_result_v1.h"
 #include "service/kernel/serialization_utils.h"
 #include "service/kernel/daal_strings.h"
 #include "service/kernel/service_defines.h"

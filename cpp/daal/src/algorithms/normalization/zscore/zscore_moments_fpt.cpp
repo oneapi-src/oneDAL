@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "algorithms/kernel/normalization/zscore/zscore_moments.h"
+#include "src/algorithms/normalization/zscore/zscore_moments.h"
 
 using namespace daal::services;
 using namespace daal::data_management;

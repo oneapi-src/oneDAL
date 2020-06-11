@@ -21,8 +21,8 @@
 //--
 */
 
-#include "algorithms/kernel/normalization/zscore/inner/zscore_types_v1.h"
-#include "algorithms/kernel/normalization/zscore/inner/zscore_result_v1.h"
+#include "src/algorithms/normalization/zscore/inner/zscore_types_v1.h"
+#include "src/algorithms/normalization/zscore/inner/zscore_result_v1.h"
 #include "service/kernel/serialization_utils.h"
 #include "service/kernel/daal_strings.h"
 #include "service/kernel/service_defines.h"

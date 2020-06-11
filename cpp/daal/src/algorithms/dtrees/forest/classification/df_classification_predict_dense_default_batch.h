@@ -27,7 +27,7 @@
 
 #include "algorithms/decision_forest/decision_forest_classification_predict.h"
 #include "externals/service_memory.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "service/kernel/service_algo_utils.h"
 

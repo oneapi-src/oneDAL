@@ -22,13 +22,13 @@
 #ifndef __ZSCORE_BASE_H__
 #define __ZSCORE_BASE_H__
 
-#include "algorithms/kernel/normalization/zscore/inner/zscore_v1.h"
-#include "algorithms/kernel/normalization/zscore/inner/zscore_v2.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/normalization/zscore/inner/zscore_v1.h"
+#include "src/algorithms/normalization/zscore/inner/zscore_v2.h"
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "externals/service_math.h"
 #include "service/kernel/data_management/service_numeric_table.h"
-#include "algorithms/kernel/service_error_handling.h"
+#include "src/algorithms/service_error_handling.h"
 #include "algorithms/threading/threading.h"
 
 using namespace daal::data_management;
@@ -93,6 +93,6 @@ class ZScoreKernel : public ZScoreKernelBase<algorithmFPType, cpu>
 } // namespace algorithms
 } // namespace daal
 
-#include "algorithms/kernel/normalization/zscore/zscore_impl.i"
+#include "src/algorithms/normalization/zscore/zscore_impl.i"
 
 #endif

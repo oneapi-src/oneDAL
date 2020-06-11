@@ -25,13 +25,13 @@
 #include "externals/service_math.h"
 #include "externals/service_blas.h"
 #include "algorithms/threading/threading.h"
-#include "algorithms/kernel/service_error_handling.h"
+#include "src/algorithms/service_error_handling.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 
 static const int blockSizeDefault = 128;
-#include "algorithms/kernel/cordistance/cordistance_full_impl.i"
-#include "algorithms/kernel/cordistance/cordistance_up_impl.i"
-#include "algorithms/kernel/cordistance/cordistance_lp_impl.i"
+#include "src/algorithms/cordistance/cordistance_full_impl.i"
+#include "src/algorithms/cordistance/cordistance_up_impl.i"
+#include "src/algorithms/cordistance/cordistance_lp_impl.i"
 
 using namespace daal::internal;
 

@@ -21,8 +21,8 @@
 //--
 */
 
-#include "algorithms/kernel/elastic_net/elastic_net_train_container.h"
-#include "algorithms/kernel/elastic_net/elastic_net_train_dense_default_impl.i"
+#include "src/algorithms/elastic_net/elastic_net_train_container.h"
+#include "src/algorithms/elastic_net/elastic_net_train_dense_default_impl.i"
 
 namespace daal
 {

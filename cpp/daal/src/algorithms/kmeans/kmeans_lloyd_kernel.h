@@ -25,7 +25,7 @@
 #define _KMEANS_LLOYD_KERNEL_H
 
 #include "algorithms/kmeans/kmeans_types.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 
 namespace daal

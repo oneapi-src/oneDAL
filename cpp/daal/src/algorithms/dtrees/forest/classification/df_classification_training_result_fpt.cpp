@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/dtrees/forest/classification/df_classification_training_result.h"
+#include "src/algorithms/dtrees/forest/classification/df_classification_training_result.h"
 
 namespace daal
 {

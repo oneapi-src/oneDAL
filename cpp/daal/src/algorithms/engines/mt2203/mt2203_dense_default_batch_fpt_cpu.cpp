@@ -19,9 +19,9 @@
 //  Implementation of mt2203 calculation functions.
 //--
 
-#include "algorithms/kernel/engines/mt2203/mt2203_batch_container.h"
-#include "algorithms/kernel/engines/mt2203/mt2203_kernel.h"
-#include "algorithms/kernel/engines/mt2203/mt2203_impl.i"
+#include "src/algorithms/engines/mt2203/mt2203_batch_container.h"
+#include "src/algorithms/engines/mt2203/mt2203_kernel.h"
+#include "src/algorithms/engines/mt2203/mt2203_impl.i"
 
 namespace daal
 {

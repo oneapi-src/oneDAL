@@ -25,7 +25,7 @@
 #define __SVM_TRAIN_WORKSET_ONEAPI_H__
 
 #include "service/kernel/service_utils.h"
-#include "algorithms/kernel/svm/oneapi/svm_helper_oneapi.h"
+#include "src/algorithms/svm/oneapi/svm_helper_oneapi.h"
 
 namespace daal
 {

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/objective_function/logistic_loss/oneapi/cl_kernel/logistic_loss_dense_default.cl"
+#include "src/algorithms/objective_function/logistic_loss/oneapi/cl_kernel/logistic_loss_dense_default.cl"
 #include "service/kernel/service_utils.h"
 #include "externals/service_math.h"
 

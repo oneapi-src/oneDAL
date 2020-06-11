@@ -24,7 +24,7 @@
 #ifndef __BOOSTING_PREDICT_KERNEL_H__
 #define __BOOSTING_PREDICT_KERNEL_H__
 
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 
 using namespace daal::data_management;
 

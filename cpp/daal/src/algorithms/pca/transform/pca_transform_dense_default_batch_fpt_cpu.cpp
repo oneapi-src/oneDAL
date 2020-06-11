@@ -21,9 +21,9 @@
 //--
 */
 
-#include "algorithms/kernel/pca/transform/pca_transform_container.h"
-#include "algorithms/kernel/pca/transform/pca_transform_kernel.h"
-#include "algorithms/kernel/pca/transform/pca_transform_dense_default_batch_impl.i"
+#include "src/algorithms/pca/transform/pca_transform_container.h"
+#include "src/algorithms/pca/transform/pca_transform_kernel.h"
+#include "src/algorithms/pca/transform/pca_transform_dense_default_batch_impl.i"
 
 namespace daal
 {

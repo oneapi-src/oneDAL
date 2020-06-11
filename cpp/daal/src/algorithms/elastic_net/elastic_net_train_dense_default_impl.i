@@ -25,9 +25,9 @@
 #ifndef __ELASTIC_NET_TRAIN_DENSE_DEFAULT_IMPL_I__
 #define __ELASTIC_NET_TRAIN_DENSE_DEFAULT_IMPL_I__
 
-#include "algorithms/kernel/elastic_net/elastic_net_train_kernel.h"
-#include "algorithms/kernel/elastic_net/elastic_net_model_impl.h"
-#include "algorithms/kernel/service_error_handling.h"
+#include "src/algorithms/elastic_net/elastic_net_train_kernel.h"
+#include "src/algorithms/elastic_net/elastic_net_model_impl.h"
+#include "src/algorithms/service_error_handling.h"
 #include "service/kernel/service_algo_utils.h"
 #include "algorithms/optimization_solver/objective_function/mse_batch.h"
 #include "algorithms/optimization_solver/coordinate_descent/coordinate_descent_batch.h"

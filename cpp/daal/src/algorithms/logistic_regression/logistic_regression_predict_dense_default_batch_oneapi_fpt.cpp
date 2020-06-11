@@ -21,8 +21,8 @@
 //--
 */
 
-#include "algorithms/kernel/logistic_regression/oneapi/logistic_regression_predict_kernel_oneapi.h"
-#include "algorithms/kernel/logistic_regression/oneapi/logistic_regression_predict_dense_default_batch_oneapi_impl.i"
+#include "src/algorithms/logistic_regression/oneapi/logistic_regression_predict_kernel_oneapi.h"
+#include "src/algorithms/logistic_regression/oneapi/logistic_regression_predict_dense_default_batch_oneapi_impl.i"
 
 namespace daal
 {

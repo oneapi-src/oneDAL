@@ -22,10 +22,10 @@
 */
 
 #include "algorithms/svm/svm_train.h"
-#include "algorithms/kernel/svm/svm_train_kernel.h"
-#include "algorithms/kernel/svm/svm_train_boser_kernel.h"
+#include "src/algorithms/svm/svm_train_kernel.h"
+#include "src/algorithms/svm/svm_train_boser_kernel.h"
 #include "algorithms/classifier/classifier_training_types.h"
-#include "algorithms/kernel/svm/oneapi/svm_train_thunder_kernel_oneapi.h"
+#include "src/algorithms/svm/oneapi/svm_train_thunder_kernel_oneapi.h"
 
 namespace daal
 {

@@ -25,7 +25,7 @@
 #define __CROSS_ENTROPY_LOSS_DENSE_DEFAULT_KERNEL_ONEAPI_H__
 
 #include "service/kernel/oneapi/blas_gpu.h"
-#include "algorithms/kernel/objective_function/common/oneapi/objective_function_utils_oneapi.h"
+#include "src/algorithms/objective_function/common/oneapi/objective_function_utils_oneapi.h"
 #include "algorithms/optimization_solver/objective_function/cross_entropy_loss_types.h"
 
 namespace daal

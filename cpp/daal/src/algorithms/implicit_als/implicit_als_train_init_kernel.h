@@ -27,7 +27,7 @@
 
 #include "algorithms/implicit_als/implicit_als_training_init_batch.h"
 #include "algorithms/implicit_als/implicit_als_model.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 
 namespace daal
 {

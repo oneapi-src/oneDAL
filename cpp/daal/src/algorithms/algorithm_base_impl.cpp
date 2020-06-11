@@ -23,7 +23,7 @@
 
 #include "algorithms/algorithm_base.h"
 #include "algorithms/algorithm_base_mode_impl.h"
-#include "algorithms/kernel/argument_storage.h"
+#include "src/algorithms/argument_storage.h"
 #include "service/kernel/service_algo_utils.h"
 
 #include "algorithms/threading/service_thread_pinner.h"

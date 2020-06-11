@@ -24,11 +24,11 @@
 #ifndef __LASSO_REGRESSION_TRAIN_CONTAINER_H__
 #define __LASSO_REGRESSION_TRAIN_CONTAINER_H__
 
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "algorithms/lasso_regression/lasso_regression_training_types.h"
 #include "algorithms/lasso_regression/lasso_regression_training_batch.h"
-#include "algorithms/kernel/lasso_regression/lasso_regression_train_kernel.h"
-#include "algorithms/kernel/lasso_regression/lasso_regression_model_impl.h"
+#include "src/algorithms/lasso_regression/lasso_regression_train_kernel.h"
+#include "src/algorithms/lasso_regression/lasso_regression_model_impl.h"
 #include "algorithms/optimization_solver/sgd/sgd_batch.h"
 #include "service/kernel/service_algo_utils.h"
 

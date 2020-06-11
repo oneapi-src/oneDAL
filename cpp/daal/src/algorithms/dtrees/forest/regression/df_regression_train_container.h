@@ -24,13 +24,13 @@
 #ifndef __DF_REGRESSION_TRAIN_CONTAINER_H__
 #define __DF_REGRESSION_TRAIN_CONTAINER_H__
 
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "algorithms/decision_forest/decision_forest_regression_training_types.h"
 #include "algorithms/decision_forest/decision_forest_regression_training_batch.h"
-#include "algorithms/kernel/dtrees/forest/regression/df_regression_train_kernel.h"
-#include "algorithms/kernel/dtrees/forest/regression/df_regression_train_dense_default_kernel.h"
-#include "algorithms/kernel/dtrees/forest/regression/oneapi/df_regression_train_hist_kernel_oneapi.h"
-#include "algorithms/kernel/dtrees/forest/regression/df_regression_model_impl.h"
+#include "src/algorithms/dtrees/forest/regression/df_regression_train_kernel.h"
+#include "src/algorithms/dtrees/forest/regression/df_regression_train_dense_default_kernel.h"
+#include "src/algorithms/dtrees/forest/regression/oneapi/df_regression_train_hist_kernel_oneapi.h"
+#include "src/algorithms/dtrees/forest/regression/df_regression_model_impl.h"
 #include "service/kernel/service_algo_utils.h"
 
 namespace daal

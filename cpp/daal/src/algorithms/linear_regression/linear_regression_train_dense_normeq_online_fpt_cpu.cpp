@@ -22,8 +22,8 @@
 //--
 */
 
-#include "algorithms/kernel/linear_regression/linear_regression_train_container.h"
-#include "algorithms/kernel/linear_regression/linear_regression_train_dense_normeq_impl.i"
+#include "src/algorithms/linear_regression/linear_regression_train_container.h"
+#include "src/algorithms/linear_regression/linear_regression_train_dense_normeq_impl.i"
 
 namespace daal
 {

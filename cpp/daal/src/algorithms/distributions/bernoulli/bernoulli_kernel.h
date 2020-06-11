@@ -23,11 +23,11 @@
 #define __BERNOULLI_KERNEL_H__
 
 #include "algorithms/distributions/bernoulli/bernoulli.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "externals/service_rng.h"
-#include "algorithms/kernel/distributions/uniform/uniform_kernel.h"
+#include "src/algorithms/distributions/uniform/uniform_kernel.h"
 
 using namespace daal::services;
 using namespace daal::data_management;

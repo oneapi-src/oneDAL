@@ -25,9 +25,9 @@
 #ifndef __DTREES_PREDICT_DENSE_DEFAULT_IMPL_I__
 #define __DTREES_PREDICT_DENSE_DEFAULT_IMPL_I__
 
-#include "algorithms/kernel/dtrees/dtrees_model_impl.h"
+#include "src/algorithms/dtrees/dtrees_model_impl.h"
 #include "service/kernel/service_data_utils.h"
-#include "algorithms/kernel/dtrees/dtrees_feature_type_helper.h"
+#include "src/algorithms/dtrees/dtrees_feature_type_helper.h"
 #include "service/kernel/service_environment.h"
 
 using namespace daal::internal;

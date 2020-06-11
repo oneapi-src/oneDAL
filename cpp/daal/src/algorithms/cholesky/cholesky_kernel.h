@@ -23,7 +23,7 @@
 #define __CHOLESKY_KERNEL_H__
 
 #include "algorithms/cholesky/cholesky.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "externals/service_lapack.h"
 

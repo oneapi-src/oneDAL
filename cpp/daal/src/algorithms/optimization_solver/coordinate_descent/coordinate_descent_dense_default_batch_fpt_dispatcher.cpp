@@ -19,7 +19,7 @@
 //  Implementation of coordinate_descent calculation algorithm container.
 //--
 
-#include "algorithms/kernel/optimization_solver/coordinate_descent/coordinate_descent_batch_container.h"
+#include "src/algorithms/optimization_solver/coordinate_descent/coordinate_descent_batch_container.h"
 
 namespace daal
 {

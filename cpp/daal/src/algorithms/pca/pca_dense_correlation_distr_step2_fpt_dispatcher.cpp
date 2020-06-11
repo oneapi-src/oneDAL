@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/pca/pca_distributed.h"
-#include "algorithms/kernel/pca/pca_dense_correlation_distr_step2_container.h"
-#include "algorithms/kernel/pca/pca_dense_correlation_distr_step2_kernel.h"
+#include "src/algorithms/pca/pca_dense_correlation_distr_step2_container.h"
+#include "src/algorithms/pca/pca_dense_correlation_distr_step2_kernel.h"
 
 namespace daal
 {

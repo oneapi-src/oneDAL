@@ -21,9 +21,9 @@
 //--
 */
 
-#include "algorithms/kernel/kmeans/kmeans_lloyd_kernel.h"
-#include "algorithms/kernel/kmeans/kmeans_lloyd_distr_step1_impl.i"
-#include "algorithms/kernel/kmeans/kmeans_container.h"
+#include "src/algorithms/kmeans/kmeans_lloyd_kernel.h"
+#include "src/algorithms/kmeans/kmeans_lloyd_distr_step1_impl.i"
+#include "src/algorithms/kmeans/kmeans_container.h"
 
 namespace daal
 {

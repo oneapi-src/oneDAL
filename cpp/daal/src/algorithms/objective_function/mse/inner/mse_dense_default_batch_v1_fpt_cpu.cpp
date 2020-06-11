@@ -19,10 +19,10 @@
 //  Implementation of mse calculation functions.
 //--
 
-#include "algorithms/kernel/objective_function/mse/inner/mse_dense_default_batch_kernel_v1.h"
-#include "algorithms/kernel/objective_function/mse/inner/mse_dense_default_batch_task_v1_impl.i"
-#include "algorithms/kernel/objective_function/mse/inner/mse_dense_default_batch_v1_impl.i"
-#include "algorithms/kernel/objective_function/mse/inner/mse_dense_default_batch_container_v1.h"
+#include "src/algorithms/objective_function/mse/inner/mse_dense_default_batch_kernel_v1.h"
+#include "src/algorithms/objective_function/mse/inner/mse_dense_default_batch_task_v1_impl.i"
+#include "src/algorithms/objective_function/mse/inner/mse_dense_default_batch_v1_impl.i"
+#include "src/algorithms/objective_function/mse/inner/mse_dense_default_batch_container_v1.h"
 
 namespace daal
 {

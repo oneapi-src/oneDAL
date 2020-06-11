@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/pca/metrics/pca_explained_variance_default_batch_container.h"
+#include "src/algorithms/pca/metrics/pca_explained_variance_default_batch_container.h"
 
 namespace daal
 {

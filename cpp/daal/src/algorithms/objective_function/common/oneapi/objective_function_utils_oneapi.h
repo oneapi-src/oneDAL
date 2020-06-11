@@ -18,7 +18,7 @@
 #ifndef __OBJECTIVE_FUNCTION_UTILS_H__
 #define __OBJECTIVE_FUNCTION_UTILS_H__
 
-#include "algorithms/kernel/objective_function/common/oneapi/cl_kernel/objective_function_utils.cl"
+#include "src/algorithms/objective_function/common/oneapi/cl_kernel/objective_function_utils.cl"
 #include "service/kernel/data_management/service_numeric_table.h"
 
 namespace daal

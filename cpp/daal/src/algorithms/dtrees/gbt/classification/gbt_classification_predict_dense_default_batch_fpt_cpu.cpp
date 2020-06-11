@@ -21,9 +21,9 @@
 //--
 */
 
-#include "algorithms/kernel/dtrees/gbt/classification/gbt_classification_predict_kernel.h"
-#include "algorithms/kernel/dtrees/gbt/classification/gbt_classification_predict_dense_default_batch_impl.i"
-#include "algorithms/kernel/dtrees/gbt/classification/gbt_classification_predict_container.h"
+#include "src/algorithms/dtrees/gbt/classification/gbt_classification_predict_kernel.h"
+#include "src/algorithms/dtrees/gbt/classification/gbt_classification_predict_dense_default_batch_impl.i"
+#include "src/algorithms/dtrees/gbt/classification/gbt_classification_predict_container.h"
 
 namespace daal
 {

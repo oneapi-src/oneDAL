@@ -27,7 +27,7 @@
 #include "externals/service_math.h"
 #include "externals/service_memory.h"
 #include "service/kernel/data_management/service_numeric_table.h"
-#include "algorithms/kernel/service_error_handling.h"
+#include "src/algorithms/service_error_handling.h"
 #include "algorithms/threading/threading.h"
 
 #include "externals/service_ittnotify.h"

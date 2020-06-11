@@ -25,14 +25,14 @@
 #ifndef __DF_REGRESSION_TRAIN_HIST_ONEAPI_IMPL_I__
 #define __DF_REGRESSION_TRAIN_HIST_ONEAPI_IMPL_I__
 
-#include "algorithms/kernel/dtrees/forest/regression/oneapi/df_regression_train_hist_kernel_oneapi.h"
-#include "algorithms/kernel/engines/engine_types_internal.h"
-#include "algorithms/kernel/dtrees/forest/regression/oneapi/cl_kernels/df_batch_regression_kernels.cl"
+#include "src/algorithms/dtrees/forest/regression/oneapi/df_regression_train_hist_kernel_oneapi.h"
+#include "src/algorithms/engines/engine_types_internal.h"
+#include "src/algorithms/dtrees/forest/regression/oneapi/cl_kernels/df_batch_regression_kernels.cl"
 
-#include "algorithms/kernel/dtrees/forest/oneapi/df_feature_type_helper_oneapi.i"
-#include "algorithms/kernel/dtrees/forest/oneapi/df_tree_level_build_helper_oneapi.i"
-#include "algorithms/kernel/dtrees/forest/regression/df_regression_model_impl.h"
-#include "algorithms/kernel/dtrees/forest/regression/oneapi/df_regression_tree_helper_impl.i"
+#include "src/algorithms/dtrees/forest/oneapi/df_feature_type_helper_oneapi.i"
+#include "src/algorithms/dtrees/forest/oneapi/df_tree_level_build_helper_oneapi.i"
+#include "src/algorithms/dtrees/forest/regression/df_regression_model_impl.h"
+#include "src/algorithms/dtrees/forest/regression/oneapi/df_regression_tree_helper_impl.i"
 
 #include "externals/service_ittnotify.h"
 #include "externals/service_rng.h"

@@ -46,8 +46,8 @@
 #include "service/kernel/service_utils.h"
 #include "service/kernel/service_data_utils.h"
 #include "externals/service_ittnotify.h"
-#include "algorithms/kernel/svm/svm_train_result.h"
-#include "algorithms/kernel/svm/svm_train_common_impl.i"
+#include "src/algorithms/svm/svm_train_result.h"
+#include "src/algorithms/svm/svm_train_common_impl.i"
 
 namespace daal
 {

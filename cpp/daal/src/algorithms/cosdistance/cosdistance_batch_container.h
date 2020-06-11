@@ -25,7 +25,7 @@
 #define __COSDISTANCE_BATCH_CONTAINER_H__
 
 #include "algorithms/distance/cosine_distance.h"
-#include "algorithms/kernel/cosdistance/cosdistance_kernel.h"
+#include "src/algorithms/cosdistance/cosdistance_kernel.h"
 
 namespace daal
 {

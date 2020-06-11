@@ -21,8 +21,8 @@
 //--
 */
 
-#include "algorithms/kernel/svm/oneapi/svm_predict_kernel_oneapi.h"
-#include "algorithms/kernel/svm/oneapi/svm_predict_oneapi_impl.i"
+#include "src/algorithms/svm/oneapi/svm_predict_kernel_oneapi.h"
+#include "src/algorithms/svm/oneapi/svm_predict_oneapi_impl.i"
 
 namespace daal
 {

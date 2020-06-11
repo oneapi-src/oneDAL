@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "algorithms/kernel/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
+#include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
 #include "service/kernel/serialization_utils.h"
 #include "service/kernel/daal_strings.h"
 

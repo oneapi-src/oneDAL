@@ -21,9 +21,9 @@
 //--
 */
 
-#include "algorithms/kernel/naivebayes/naivebayes_train_kernel.h"
-#include "algorithms/kernel/naivebayes/naivebayes_train_impl.i"
-#include "algorithms/kernel/naivebayes/naivebayes_train_container.h"
+#include "src/algorithms/naivebayes/naivebayes_train_kernel.h"
+#include "src/algorithms/naivebayes/naivebayes_train_impl.i"
+#include "src/algorithms/naivebayes/naivebayes_train_container.h"
 
 namespace daal
 {

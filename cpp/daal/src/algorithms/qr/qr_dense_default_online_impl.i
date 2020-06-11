@@ -31,10 +31,10 @@
 #include "service/kernel/data_management/service_micro_table.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 
-#include "algorithms/kernel/qr/qr_dense_default_kernel.h"
+#include "src/algorithms/qr/qr_dense_default_kernel.h"
 
-#include "algorithms/kernel/qr/qr_dense_default_impl.i"
-#include "algorithms/kernel/qr/qr_dense_default_batch_impl.i"
+#include "src/algorithms/qr/qr_dense_default_impl.i"
+#include "src/algorithms/qr/qr_dense_default_batch_impl.i"
 
 #include "algorithms/threading/threading.h"
 

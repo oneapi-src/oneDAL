@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/outlierdetection_multivariate/outlierdetection_multivariate_batch.h"
+#include "src/algorithms/outlierdetection_multivariate/outlierdetection_multivariate_batch.h"
 
 namespace daal
 {

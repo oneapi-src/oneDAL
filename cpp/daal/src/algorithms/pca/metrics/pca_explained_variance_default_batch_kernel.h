@@ -25,7 +25,7 @@
 #define __PCA_EXPLAINED_VARIANCE_DEFAULT_BATCH_KERNEL_H__
 
 #include "algorithms/pca/pca_explained_variance_types.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "algorithms/algorithm_base_common.h"
 

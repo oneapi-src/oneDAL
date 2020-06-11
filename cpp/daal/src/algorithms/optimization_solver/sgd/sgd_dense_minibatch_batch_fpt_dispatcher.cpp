@@ -19,7 +19,7 @@
 //  Implementation of sgd calculation algorithm container.
 //--
 
-#include "algorithms/kernel/optimization_solver/sgd/sgd_batch_container.h"
+#include "src/algorithms/optimization_solver/sgd/sgd_batch_container.h"
 
 namespace daal
 {

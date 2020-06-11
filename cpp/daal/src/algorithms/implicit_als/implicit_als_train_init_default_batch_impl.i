@@ -24,9 +24,9 @@
 #ifndef __IMPLICIT_ALS_TRAIN_INIT_DEFAULT_BATCH_IMPL_I__
 #define __IMPLICIT_ALS_TRAIN_INIT_DEFAULT_BATCH_IMPL_I__
 
-#include "algorithms/kernel/distributions/uniform/uniform_kernel.h"
-#include "algorithms/kernel/distributions/uniform/uniform_impl.i"
-#include "algorithms/kernel/service_error_handling.h"
+#include "src/algorithms/distributions/uniform/uniform_kernel.h"
+#include "src/algorithms/distributions/uniform/uniform_impl.i"
+#include "src/algorithms/service_error_handling.h"
 
 namespace daal
 {

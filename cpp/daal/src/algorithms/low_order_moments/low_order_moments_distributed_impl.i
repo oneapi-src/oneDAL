@@ -24,8 +24,8 @@
 #ifndef __LOW_ORDER_MOMENTS_DISTRIBUTED_IMPL_I__
 #define __LOW_ORDER_MOMENTS_DISTRIBUTED_IMPL_I__
 
-#include "algorithms/kernel/low_order_moments/low_order_moments_kernel.h"
-#include "algorithms/kernel/low_order_moments/low_order_moments_impl.i"
+#include "src/algorithms/low_order_moments/low_order_moments_kernel.h"
+#include "src/algorithms/low_order_moments/low_order_moments_impl.i"
 
 namespace daal
 {

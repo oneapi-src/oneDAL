@@ -22,7 +22,7 @@
 //--
 */
 
-#include "algorithms/kernel/implicit_als/implicit_als_train_container.h"
+#include "src/algorithms/implicit_als/implicit_als_train_container.h"
 
 namespace daal
 {

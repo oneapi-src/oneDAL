@@ -26,7 +26,7 @@
 
 #include "algorithms/pca/transform/pca_transform_batch.h"
 #include "externals/service_memory.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "externals/service_blas.h"
 

@@ -21,9 +21,9 @@
 //--
 */
 
-#include "algorithms/kernel/cordistance/cordistance_batch_container.h"
-#include "algorithms/kernel/cordistance/cordistance_kernel.h"
-#include "algorithms/kernel/cordistance/cordistance_batch_impl.i"
+#include "src/algorithms/cordistance/cordistance_batch_container.h"
+#include "src/algorithms/cordistance/cordistance_kernel.h"
+#include "src/algorithms/cordistance/cordistance_batch_impl.i"
 
 namespace daal
 {

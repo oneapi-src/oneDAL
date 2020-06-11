@@ -24,11 +24,11 @@
 #ifndef __LOGISTIC_REGRESSION_TRAIN_CONTAINER_H__
 #define __LOGISTIC_REGRESSION_TRAIN_CONTAINER_H__
 
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "algorithms/logistic_regression/logistic_regression_training_types.h"
 #include "algorithms/logistic_regression/logistic_regression_training_batch.h"
-#include "algorithms/kernel/logistic_regression/inner/logistic_regression_train_kernel_v2.h"
-#include "algorithms/kernel/logistic_regression/logistic_regression_model_impl.h"
+#include "src/algorithms/logistic_regression/inner/logistic_regression_train_kernel_v2.h"
+#include "src/algorithms/logistic_regression/logistic_regression_model_impl.h"
 #include "algorithms/optimization_solver/sgd/sgd_batch.h"
 #include "service/kernel/service_algo_utils.h"
 

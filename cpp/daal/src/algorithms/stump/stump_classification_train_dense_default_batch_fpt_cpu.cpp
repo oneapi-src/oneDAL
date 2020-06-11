@@ -21,9 +21,9 @@
 //--
 */
 
-#include "algorithms/kernel/stump/stump_classification_train_batch_container.h"
-#include "algorithms/kernel/stump/stump_classification_train_kernel.h"
-#include "algorithms/kernel/stump/stump_classification_train_aux.i"
+#include "src/algorithms/stump/stump_classification_train_batch_container.h"
+#include "src/algorithms/stump/stump_classification_train_kernel.h"
+#include "src/algorithms/stump/stump_classification_train_aux.i"
 
 namespace daal
 {

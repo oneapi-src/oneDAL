@@ -20,7 +20,7 @@
 
 #include "algorithms/threading/threading.h"
 #include "service/kernel/service_string_utils.h"
-#include "algorithms/kernel/service_error_handling.h"
+#include "src/algorithms/service_error_handling.h"
 
 namespace daal
 {

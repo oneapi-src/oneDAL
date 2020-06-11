@@ -21,9 +21,9 @@
 //--
 */
 
-#include "algorithms/kernel/cosdistance/cosdistance_batch_container.h"
-#include "algorithms/kernel/cosdistance/cosdistance_kernel.h"
-#include "algorithms/kernel/cosdistance/cosdistance_batch_impl.i"
+#include "src/algorithms/cosdistance/cosdistance_batch_container.h"
+#include "src/algorithms/cosdistance/cosdistance_kernel.h"
+#include "src/algorithms/cosdistance/cosdistance_batch_impl.i"
 
 namespace daal
 {

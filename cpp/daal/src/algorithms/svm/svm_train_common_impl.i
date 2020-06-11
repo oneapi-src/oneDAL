@@ -29,15 +29,15 @@
 #include "service/kernel/service_utils.h"
 #include "service/kernel/service_data_utils.h"
 #include "externals/service_ittnotify.h"
-#include "algorithms/kernel/svm/svm_train_result.h"
-#include "algorithms/kernel/svm/svm_train_common.h"
+#include "src/algorithms/svm/svm_train_result.h"
+#include "src/algorithms/svm/svm_train_common.h"
 
 #if defined(__INTEL_COMPILER)
     #if defined(_M_AMD64) || defined(__amd64) || defined(__x86_64) || defined(__x86_64__)
         #if (__CPUID__(DAAL_CPU) == __avx512__)
 
             #include <immintrin.h>
-            #include "algorithms/kernel/svm/svm_train_common_avx512_impl.i"
+            #include "src/algorithms/svm/svm_train_common_avx512_impl.i"
 
         #endif // __CPUID__(DAAL_CPU) == __avx512__
     #endif     // defined (_M_AMD64) || defined (__amd64) || defined (__x86_64) || defined (__x86_64__)

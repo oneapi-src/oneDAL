@@ -24,10 +24,10 @@
 #ifndef __PCA_DENSE_SVD_DISTR_STEP2_CONTAINER_H__
 #define __PCA_DENSE_SVD_DISTR_STEP2_CONTAINER_H__
 
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "algorithms/pca/pca_distributed.h"
-#include "algorithms/kernel/pca/pca_dense_svd_distr_step2_kernel.h"
-#include "algorithms/kernel/pca/pca_dense_svd_container.h"
+#include "src/algorithms/pca/pca_dense_svd_distr_step2_kernel.h"
+#include "src/algorithms/pca/pca_dense_svd_container.h"
 
 namespace daal
 {

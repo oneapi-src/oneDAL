@@ -24,18 +24,18 @@
 #ifndef __DF_FEATURE_TYPE_HELPER_ONEAPI_H__
 #define __DF_FEATURE_TYPE_HELPER_ONEAPI_H__
 
-#include "algorithms/kernel/dtrees/dtrees_feature_type_helper.h"
-#include "algorithms/kernel/dtrees/forest/oneapi/df_feature_type_helper_oneapi.h"
+#include "src/algorithms/dtrees/dtrees_feature_type_helper.h"
+#include "src/algorithms/dtrees/forest/oneapi/df_feature_type_helper_oneapi.h"
 #include "algorithms/threading/threading.h"
-#include "algorithms/kernel/service_error_handling.h"
-#include "algorithms/kernel/service_sort.h"
-#include "algorithms/kernel/dtrees/service_array.h"
+#include "src/algorithms/service_error_handling.h"
+#include "src/algorithms/service_sort.h"
+#include "src/algorithms/dtrees/service_array.h"
 #include "service/kernel/service_arrays.h"
 #include "externals/service_memory.h"
 #include "service/kernel/service_data_utils.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 
-#include "algorithms/kernel/dtrees/forest/oneapi/cl_kernels/df_common_kernels.cl"
+#include "src/algorithms/dtrees/forest/oneapi/cl_kernels/df_common_kernels.cl"
 
 #include "oneapi/internal/execution_context.h"
 #include "oneapi/internal/types.h"

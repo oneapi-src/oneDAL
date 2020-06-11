@@ -21,8 +21,8 @@
 //--
 */
 
-#include "algorithms/kernel/dtrees/gbt/regression/oneapi/gbt_regression_train_kernel_oneapi.h"
-#include "algorithms/kernel/dtrees/gbt/regression/oneapi/gbt_regression_train_dense_default_oneapi_impl.i"
+#include "src/algorithms/dtrees/gbt/regression/oneapi/gbt_regression_train_kernel_oneapi.h"
+#include "src/algorithms/dtrees/gbt/regression/oneapi/gbt_regression_train_dense_default_oneapi_impl.i"
 
 namespace daal
 {

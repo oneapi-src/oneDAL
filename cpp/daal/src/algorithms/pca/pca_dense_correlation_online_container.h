@@ -24,10 +24,10 @@
 #ifndef __PCA_DENSE_CORRELATION_ONLINE_CONTAINER_H__
 #define __PCA_DENSE_CORRELATION_ONLINE_CONTAINER_H__
 
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "algorithms/pca/pca_online.h"
-#include "algorithms/kernel/pca/pca_dense_correlation_online_kernel.h"
-#include "algorithms/kernel/pca/oneapi/pca_dense_correlation_online_kernel_ucapi.h"
+#include "src/algorithms/pca/pca_dense_correlation_online_kernel.h"
+#include "src/algorithms/pca/oneapi/pca_dense_correlation_online_kernel_ucapi.h"
 
 namespace daal
 {

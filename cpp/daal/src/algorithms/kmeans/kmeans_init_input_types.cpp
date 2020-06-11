@@ -23,7 +23,7 @@
 
 #include "algorithms/kmeans/kmeans_init_types.h"
 #include "services/daal_defines.h"
-#include "algorithms/kernel/kmeans/kmeans_init_impl.h"
+#include "src/algorithms/kmeans/kmeans_init_impl.h"
 #include "data_management/data/row_merged_numeric_table.h"
 #include "data_management/data/memory_block.h"
 #include "service/kernel/daal_strings.h"

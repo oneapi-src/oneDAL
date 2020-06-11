@@ -21,8 +21,8 @@
 //--
 */
 
-#include "algorithms/kernel/optimization_solver/sgd/oneapi/cl_kernel/sgd_dense_minibatch.cl"
-#include "algorithms/kernel/optimization_solver/iterative_solver_kernel.h"
+#include "src/algorithms/optimization_solver/sgd/oneapi/cl_kernel/sgd_dense_minibatch.cl"
+#include "src/algorithms/optimization_solver/iterative_solver_kernel.h"
 #include "data_management/data/numeric_table_sycl_homogen.h"
 #include "externals/service_math.h"
 

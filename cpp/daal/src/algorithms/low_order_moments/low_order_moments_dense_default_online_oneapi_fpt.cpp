@@ -24,8 +24,8 @@
 #include "externals/service_ittnotify.h"
 DAAL_ITTNOTIFY_DOMAIN(low_order_moments.dense.online.oneapi);
 
-#include "algorithms/kernel/low_order_moments/low_order_moments_container.h"
-#include "algorithms/kernel/low_order_moments/oneapi/low_order_moments_online_oneapi_impl.i"
+#include "src/algorithms/low_order_moments/low_order_moments_container.h"
+#include "src/algorithms/low_order_moments/oneapi/low_order_moments_online_oneapi_impl.i"
 
 namespace daal
 {

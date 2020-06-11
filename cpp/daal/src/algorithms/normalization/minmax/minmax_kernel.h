@@ -23,11 +23,11 @@
 #define __MINMAX_KERNEL_H__
 
 #include "algorithms/normalization/minmax.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "algorithms/threading/threading.h"
 #include "service/kernel/data_management/service_numeric_table.h"
-#include "algorithms/kernel/service_error_handling.h"
+#include "src/algorithms/service_error_handling.h"
 
 using namespace daal::services::internal;
 using namespace daal::internal;

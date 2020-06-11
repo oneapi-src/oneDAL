@@ -26,7 +26,7 @@
 
 #include "algorithms/naive_bayes/multinomial_naive_bayes_model.h"
 #include "algorithms/naive_bayes/multinomial_naive_bayes_training_types.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;

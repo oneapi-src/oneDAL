@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/kernel/brownboost/brownboost_training_result.h"
+#include "src/algorithms/brownboost/brownboost_training_result.h"
 
 namespace daal
 {

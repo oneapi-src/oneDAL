@@ -25,8 +25,8 @@
 #define __LOGITBOOST_TRAIN_BATCH_CONTAINER_V1_H__
 
 #include "algorithms/boosting/logitboost_training_batch.h"
-#include "algorithms/kernel/logitboost/inner/logitboost_train_friedman_kernel_v1.h"
-#include "algorithms/kernel/kernel.h"
+#include "src/algorithms/logitboost/inner/logitboost_train_friedman_kernel_v1.h"
+#include "src/algorithms/kernel.h"
 
 namespace daal
 {

@@ -28,7 +28,7 @@
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
 #include "services/daal_defines.h"
-#include "algorithms/kernel/kmeans/inner/kmeans_types_v1.h"
+#include "src/algorithms/kmeans/inner/kmeans_types_v1.h"
 
 namespace daal
 {

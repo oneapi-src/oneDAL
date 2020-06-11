@@ -21,9 +21,9 @@
 //--
 */
 
-#include "algorithms/kernel/assocrules/assoc_rules_batch_container.h"
-#include "algorithms/kernel/assocrules/assoc_rules_apriori_kernel.h"
-#include "algorithms/kernel/assocrules/assoc_rules_apriori_impl.i"
+#include "src/algorithms/assocrules/assoc_rules_batch_container.h"
+#include "src/algorithms/assocrules/assoc_rules_apriori_kernel.h"
+#include "src/algorithms/assocrules/assoc_rules_apriori_impl.i"
 
 namespace daal
 {
