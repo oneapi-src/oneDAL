@@ -29,7 +29,7 @@
 #include "externals/service_lapack.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "service/kernel/service_data_utils.h"
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "src/algorithms/service_error_handling.h"
 
 using namespace daal::internal;

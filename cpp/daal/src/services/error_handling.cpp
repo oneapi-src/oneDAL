@@ -18,7 +18,7 @@
 #include "services/error_handling.h"
 #include "data_management/features/defines.h"
 
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "service/kernel/service_string_utils.h"
 #include "src/algorithms/service_error_handling.h"
 

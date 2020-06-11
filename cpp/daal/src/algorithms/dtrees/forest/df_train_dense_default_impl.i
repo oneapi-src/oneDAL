@@ -26,7 +26,7 @@
 #define __DF_TRAIN_DENSE_DEFAULT_IMPL_I__
 
 #include "src/algorithms/dtrees/dtrees_train_data_helper.i"
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "src/algorithms/dtrees/dtrees_model_impl.h"
 #include "src/algorithms/engines/engine_types_internal.h"
 #include "service/kernel/service_defines.h"

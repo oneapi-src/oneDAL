@@ -37,7 +37,7 @@
 #ifndef __LOGITBOOST_TRAIN_FRIEDMAN_IMPL_V1_I__
 #define __LOGITBOOST_TRAIN_FRIEDMAN_IMPL_V1_I__
 
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "externals/service_memory.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "service/kernel/service_data_utils.h"

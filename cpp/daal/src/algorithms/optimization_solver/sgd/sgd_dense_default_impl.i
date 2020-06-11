@@ -29,7 +29,7 @@
 #include "externals/service_math.h"
 #include "service/kernel/service_utils.h"
 #include "src/algorithms/optimization_solver/iterative_solver_kernel.h"
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "service/kernel/service_data_utils.h"
 
 using namespace daal::internal;

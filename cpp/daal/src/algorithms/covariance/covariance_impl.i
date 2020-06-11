@@ -33,7 +33,7 @@
 #include "externals/service_stat.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "externals/service_ittnotify.h"
 
 using namespace daal::internal;

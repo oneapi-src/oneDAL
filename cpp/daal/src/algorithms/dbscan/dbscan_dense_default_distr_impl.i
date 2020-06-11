@@ -25,7 +25,7 @@
 #include "data_management/data/numeric_table.h"
 #include "service/kernel/service_data_utils.h"
 
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "algorithms/dbscan/dbscan_types.h"
 #include "src/algorithms/dbscan/dbscan_utils.h"
 

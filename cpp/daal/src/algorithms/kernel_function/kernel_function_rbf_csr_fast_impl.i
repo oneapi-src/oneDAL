@@ -28,7 +28,7 @@
 #include "externals/service_math.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "src/algorithms/kernel_function/kernel_function_csr_impl.i"
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 
 #include "externals/service_spblas.h"
 

@@ -27,7 +27,7 @@
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
 #include "src/algorithms/dtrees/forest/classification/df_classification_predict_dense_default_batch.h"
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "services/daal_defines.h"
 #include "src/algorithms/dtrees/forest/classification/df_classification_model_impl.h"
 #include "service/kernel/data_management/service_numeric_table.h"

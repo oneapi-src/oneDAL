@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "services/daal_memory.h"
 
 #if defined(__DO_TBB_LAYER__)

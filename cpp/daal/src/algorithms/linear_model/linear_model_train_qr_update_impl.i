@@ -24,7 +24,7 @@
 #include "src/algorithms/linear_model/linear_model_train_qr_kernel.h"
 #include "externals/service_lapack.h"
 #include "src/algorithms/service_error_handling.h"
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 
 namespace daal
 {

@@ -27,7 +27,7 @@
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
 #include "src/algorithms/logistic_regression/logistic_regression_predict_kernel.h"
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "services/daal_defines.h"
 #include "src/algorithms/logistic_regression/logistic_regression_model_impl.h"
 #include "service/kernel/data_management/service_numeric_table.h"

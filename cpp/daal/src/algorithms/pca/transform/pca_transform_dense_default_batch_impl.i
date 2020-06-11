@@ -26,7 +26,7 @@
 
 #include "services/daal_defines.h"
 #include "algorithms/algorithm.h"
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "data_management/data/numeric_table.h"
 
 #include "externals/service_blas.h"

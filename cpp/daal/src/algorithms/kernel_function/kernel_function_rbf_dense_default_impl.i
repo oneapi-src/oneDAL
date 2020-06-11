@@ -29,7 +29,7 @@
 #include "externals/service_math.h"
 #include "externals/service_blas.h"
 #include "externals/service_ittnotify.h"
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 
 using namespace daal::data_management;
 
