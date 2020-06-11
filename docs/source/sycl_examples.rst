@@ -21,4 +21,4 @@ DPC++ Examples
    :maxdepth: 1
    :glob:
    
-   examples_sycl/*
+   daal/examples_sycl/*
