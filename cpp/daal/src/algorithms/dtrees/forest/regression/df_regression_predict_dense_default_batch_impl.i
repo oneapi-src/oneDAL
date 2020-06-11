@@ -32,7 +32,7 @@
 #include "src/algorithms/dtrees/forest/regression/df_regression_model_impl.h"
 #include "src/services/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
-#include "externals/service_memory.h"
+#include "src/externals/service_memory.h"
 #include "src/algorithms/dtrees/regression/dtrees_regression_predict_dense_default_impl.i"
 #include "src/services/service_algo_utils.h"
 

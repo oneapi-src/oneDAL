@@ -30,7 +30,7 @@
 #include "src/services/oneapi/blas_gpu.h"
 #include "src/algorithms/k_nearest_neighbors/oneapi/cl_kernels/bf_knn_cl_kernels.cl"
 
-#include "externals/service_ittnotify.h"
+#include "src/externals/service_ittnotify.h"
 
 namespace daal
 {

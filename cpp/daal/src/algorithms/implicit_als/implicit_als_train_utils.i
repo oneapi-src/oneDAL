@@ -19,7 +19,7 @@
 #define __IMPLICIT_ALS_TRAIN_UTILS_I__
 
 #include "src/algorithms/implicit_als/implicit_als_train_utils.h"
-#include "externals/service_memory.h"
+#include "src/externals/service_memory.h"
 #include "src/algorithms/service_sort.h"
 #include "src/services/data_management/service_numeric_table.h"
 

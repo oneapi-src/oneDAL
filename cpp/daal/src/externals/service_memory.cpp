@@ -21,8 +21,8 @@
 //--
 */
 
-#include "externals/service_memory.h"
-#include "externals/service_service.h"
+#include "src/externals/service_memory.h"
+#include "src/externals/service_service.h"
 
 void * daal::services::daal_malloc(size_t size, size_t alignment)
 {

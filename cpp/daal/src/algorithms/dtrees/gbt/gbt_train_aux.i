@@ -31,7 +31,7 @@
 #include "src/threading/threading.h"
 #include "src/algorithms/dtrees/gbt/gbt_model_impl.h"
 #include "services/daal_atomic_int.h"
-#include "externals/service_service.h"
+#include "src/externals/service_service.h"
 
 namespace daal
 {

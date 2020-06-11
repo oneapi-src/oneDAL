@@ -26,7 +26,7 @@
 
 #include "src/services/data_management/service_micro_table.h"
 #include "src/services/data_management/service_numeric_table.h"
-#include "externals/service_math.h"
+#include "src/externals/service_math.h"
 #include "src/services/service_utils.h"
 #include "src/algorithms/optimization_solver/iterative_solver_kernel.h"
 #include "src/threading/threading.h"

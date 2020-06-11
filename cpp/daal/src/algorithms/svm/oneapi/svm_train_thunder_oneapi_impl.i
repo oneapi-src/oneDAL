@@ -47,9 +47,9 @@
 #include "src/services/service_utils.h"
 #include "src/services/service_data_utils.h"
 #include "src/services/oneapi/blas_gpu.h"
-#include "externals/service_memory.h"
-#include "externals/service_ittnotify.h"
-#include "externals/service_service.h"
+#include "src/externals/service_memory.h"
+#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_service.h"
 #include "src/algorithms/svm/oneapi/cl_kernels/svm_train_block_smo_oneapi.cl"
 
 #include "src/algorithms/svm/oneapi/svm_train_cache_oneapi.h"

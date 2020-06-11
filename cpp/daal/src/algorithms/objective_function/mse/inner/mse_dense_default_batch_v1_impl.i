@@ -20,7 +20,7 @@
 //  Implementation of mse algorithm
 //--
 */
-#include "externals/service_math.h"
+#include "src/externals/service_math.h"
 
 namespace daal
 {

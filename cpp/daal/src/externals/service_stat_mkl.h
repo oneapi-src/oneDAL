@@ -25,7 +25,7 @@
 #define __SERVICE_STAT_MKL_H__
 
 #include "vmlvsl.h"
-#include "externals/service_stat_rng_mkl.h"
+#include "src/externals/service_stat_rng_mkl.h"
 
 #if defined(_WIN64) || defined(__x86_64__)
     #define __SS_ILP_FLAG__ 1

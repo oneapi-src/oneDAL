@@ -31,7 +31,7 @@
 #include "services/daal_defines.h"
 #include "src/algorithms/dtrees/forest/classification/df_classification_model_impl.h"
 #include "src/services/data_management/service_numeric_table.h"
-#include "externals/service_memory.h"
+#include "src/externals/service_memory.h"
 #include "src/algorithms/dtrees/dtrees_predict_dense_default_impl.i"
 #include "src/algorithms/service_error_handling.h"
 #include "src/services/service_arrays.h"

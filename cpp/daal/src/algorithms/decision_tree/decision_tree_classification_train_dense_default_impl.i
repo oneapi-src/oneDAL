@@ -25,8 +25,8 @@
 #define __DECISION_TREE_CLASSIFICATION_TRAIN_DENSE_DEFAULT_IMPL_I__
 
 #include "services/daal_defines.h"
-#include "externals/service_math.h"
-#include "externals/service_memory.h"
+#include "src/externals/service_math.h"
+#include "src/externals/service_memory.h"
 #include "src/services/service_utils.h"
 #include "src/services/data_management/service_numeric_table.h"
 #include "data_management/data/numeric_table.h"

@@ -26,7 +26,7 @@
 #include "services/env_detect.h"
 #include "services/daal_defines.h"
 #include "src/services/service_defines.h"
-#include "externals/service_service.h"
+#include "src/externals/service_service.h"
 #include "src/threading/threading.h"
 #include "services/error_indexes.h"
 

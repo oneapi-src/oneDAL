@@ -24,11 +24,11 @@
 #ifndef __SVM_TRAIN_COMMON_IMPL_I__
 #define __SVM_TRAIN_COMMON_IMPL_I__
 
-#include "externals/service_memory.h"
+#include "src/externals/service_memory.h"
 #include "src/services/data_management/service_numeric_table.h"
 #include "src/services/service_utils.h"
 #include "src/services/service_data_utils.h"
-#include "externals/service_ittnotify.h"
+#include "src/externals/service_ittnotify.h"
 #include "src/algorithms/svm/svm_train_result.h"
 #include "src/algorithms/svm/svm_train_common.h"
 

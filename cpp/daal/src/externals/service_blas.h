@@ -25,8 +25,8 @@
 #define __SERVICE_BLAS_H__
 
 #include "services/daal_defines.h"
-#include "externals/service_memory.h"
-#include "externals/service_blas_mkl.h"
+#include "src/externals/service_memory.h"
+#include "src/externals/service_blas_mkl.h"
 #include "src/algorithms/service_error_handling.h"
 #include "src/services/data_management/service_numeric_table.h"
 

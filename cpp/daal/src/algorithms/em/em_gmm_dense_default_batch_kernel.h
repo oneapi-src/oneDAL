@@ -27,7 +27,7 @@
 #include "algorithms/em/em_gmm.h"
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
-#include "externals/service_blas.h"
+#include "src/externals/service_blas.h"
 #include "src/algorithms/em/em_gmm_dense_default_batch_task.h"
 
 using namespace daal::data_management;

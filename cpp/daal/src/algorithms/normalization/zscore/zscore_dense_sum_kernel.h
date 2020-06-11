@@ -24,8 +24,8 @@
 #ifndef __ZSCORE_DENSE_SUM_KERNEL_H__
 #define __ZSCORE_DENSE_SUM_KERNEL_H__
 
-#include "externals/service_math.h"
-#include "externals/service_memory.h"
+#include "src/externals/service_math.h"
+#include "src/externals/service_memory.h"
 
 using namespace daal::internal;
 using namespace daal::services;

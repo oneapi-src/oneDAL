@@ -24,7 +24,7 @@
 #include "algorithms/dbscan/dbscan_types.h"
 #include "src/algorithms/dbscan/oneapi/dbscan_kernel_ucapi.h"
 #include "src/algorithms/dbscan/oneapi/cl_kernels/dbscan_cl_kernels.cl"
-#include "externals/service_ittnotify.h"
+#include "src/externals/service_ittnotify.h"
 
 using namespace daal::services;
 using namespace daal::oneapi::internal;

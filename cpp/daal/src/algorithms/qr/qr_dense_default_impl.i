@@ -24,10 +24,10 @@
 #ifndef __QR_UTILS_IMPL_I__
 #define __QR_UTILS_IMPL_I__
 
-#include "externals/service_blas.h"
-#include "externals/service_lapack.h"
-#include "externals/service_memory.h"
-#include "externals/service_math.h"
+#include "src/externals/service_blas.h"
+#include "src/externals/service_lapack.h"
+#include "src/externals/service_memory.h"
+#include "src/externals/service_math.h"
 #include "src/services/service_defines.h"
 #include "src/services/data_management/service_micro_table.h"
 #include "src/services/data_management/service_numeric_table.h"

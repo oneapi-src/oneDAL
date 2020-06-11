@@ -22,8 +22,8 @@
 */
 
 #include "src/algorithms/linear_model/linear_model_train_normeq_kernel.h"
-#include "externals/service_lapack.h"
-#include "externals/service_ittnotify.h"
+#include "src/externals/service_lapack.h"
+#include "src/externals/service_ittnotify.h"
 
 namespace daal
 {

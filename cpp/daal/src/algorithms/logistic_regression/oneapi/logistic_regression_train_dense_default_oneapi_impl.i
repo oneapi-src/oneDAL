@@ -29,7 +29,7 @@
 #include "algorithms/optimization_solver/objective_function/cross_entropy_loss_batch.h"
 #include "data_management/data/numeric_table_sycl_homogen.h"
 
-#include "externals/service_ittnotify.h"
+#include "src/externals/service_ittnotify.h"
 DAAL_ITTNOTIFY_DOMAIN(logistic_regression.training.batch.oneapi);
 
 namespace daal

@@ -25,7 +25,7 @@
 
 #if !(defined DAAL_CPU_TOPO_DISABLED)
 
-    #include "externals/service_memory.h"
+    #include "src/externals/service_memory.h"
     #include "src/services/service_topo.h"
 
     #ifdef __FreeBSD__

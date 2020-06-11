@@ -34,9 +34,9 @@
 #include "src/algorithms/dtrees/forest/regression/df_regression_model_impl.h"
 #include "src/algorithms/dtrees/forest/regression/oneapi/df_regression_tree_helper_impl.i"
 
-#include "externals/service_ittnotify.h"
-#include "externals/service_rng.h"
-#include "externals/service_math.h" //will remove after migrating finalize MDA to GPU
+#include "src/externals/service_ittnotify.h"
+#include "src/externals/service_rng.h"
+#include "src/externals/service_math.h" //will remove after migrating finalize MDA to GPU
 #include "services/buffer.h"
 #include "data_management/data/numeric_table.h"
 #include "services/env_detect.h"
