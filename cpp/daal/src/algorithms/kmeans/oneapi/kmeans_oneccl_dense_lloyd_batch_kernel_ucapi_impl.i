@@ -30,7 +30,7 @@
 #include "oneapi/internal/execution_context.h"
 #include "oneapi/internal/communicator.h"
 #include "oneapi/internal/types.h"
-#include "src/services/oneapi/blas_gpu.h"
+#include "src/oneapi/blas_gpu.h"
 
 #include "src/externals/service_ittnotify.h"
 

@@ -24,7 +24,7 @@
 #include "services/env_detect.h"
 #include "services/buffer.h"
 #include "services/error_handling.h"
-#include "src/services/oneapi/cl_kernels/math.cl"
+#include "src/oneapi/cl_kernels/math.cl"
 
 namespace daal
 {

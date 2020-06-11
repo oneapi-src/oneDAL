@@ -46,7 +46,7 @@
 
 #include "src/services/service_utils.h"
 #include "src/services/service_data_utils.h"
-#include "src/services/oneapi/blas_gpu.h"
+#include "src/oneapi/blas_gpu.h"
 #include "src/externals/service_memory.h"
 #include "src/externals/service_ittnotify.h"
 #include "src/externals/service_service.h"

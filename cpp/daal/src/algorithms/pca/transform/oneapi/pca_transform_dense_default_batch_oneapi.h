@@ -27,7 +27,7 @@
 #include "oneapi/internal/types.h"
 #include "oneapi/internal/execution_context.h"
 #include "algorithms/pca/pca_types.h"
-#include "src/services/oneapi/blas_gpu.h"
+#include "src/oneapi/blas_gpu.h"
 
 namespace daal
 {

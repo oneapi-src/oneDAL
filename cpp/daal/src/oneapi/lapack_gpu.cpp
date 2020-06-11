@@ -18,8 +18,8 @@
 #include "oneapi/internal/math/reference_lapack.h"
 #include "src/externals/service_lapack.h"
 #include "services/error_handling.h"
-#include "src/services/oneapi/blas_gpu.h"
-#include "src/services/oneapi/cl_kernels/kernel_blas.cl"
+#include "src/oneapi/blas_gpu.h"
+#include "src/oneapi/cl_kernels/kernel_blas.cl"
 
 namespace daal
 {

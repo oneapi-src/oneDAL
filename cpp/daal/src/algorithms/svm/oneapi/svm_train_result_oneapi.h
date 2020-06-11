@@ -26,7 +26,7 @@
 
 #include "src/services/service_utils.h"
 #include "src/algorithms/svm/oneapi/svm_helper_oneapi.h"
-#include "src/services/oneapi/reducer.h"
+#include "src/oneapi/reducer.h"
 
 namespace daal
 {
