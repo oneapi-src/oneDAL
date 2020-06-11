@@ -25,7 +25,7 @@
 #include "src/algorithms/service_error_handling.h"
 #include "src/algorithms/service_sort.h"
 #include "src/algorithms/dtrees/service_array.h"
-#include "externals/service_memory.h"
+#include "src/externals/service_memory.h"
 
 namespace daal
 {

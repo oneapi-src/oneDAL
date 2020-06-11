@@ -27,7 +27,7 @@
 #include "algorithms/outlier_detection/outlier_detection_multivariate.h"
 #include "src/algorithms/kernel.h"
 #include "src/services/data_management/service_numeric_table.h"
-#include "externals/service_math.h"
+#include "src/externals/service_math.h"
 
 using namespace daal::internal;
 using namespace daal::data_management;

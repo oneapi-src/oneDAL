@@ -26,8 +26,8 @@
 
 #include "algorithms/kernel_function/kernel_function_types_rbf.h"
 #include "src/services/data_management/service_numeric_table.h"
-#include "externals/service_math.h"
-#include "externals/service_ittnotify.h"
+#include "src/externals/service_math.h"
+#include "src/externals/service_ittnotify.h"
 #include "src/services/oneapi/blas_gpu.h"
 #include "src/services/oneapi/reducer.h"
 #include "src/algorithms/kernel_function/oneapi/cl_kernels/kernel_function.cl"

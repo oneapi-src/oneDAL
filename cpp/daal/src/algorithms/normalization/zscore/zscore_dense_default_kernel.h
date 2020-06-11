@@ -24,7 +24,7 @@
 #ifndef __ZSCORE_DENSE_DEFAULT_KERNEL_H__
 #define __ZSCORE_DENSE_DEFAULT_KERNEL_H__
 
-#include "externals/service_math.h"
+#include "src/externals/service_math.h"
 
 namespace daal
 {

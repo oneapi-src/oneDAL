@@ -26,9 +26,9 @@
 
 #include "algorithms/kernel_function/kernel_function_types_rbf.h"
 #include "src/services/data_management/service_numeric_table.h"
-#include "externals/service_math.h"
-#include "externals/service_blas.h"
-#include "externals/service_ittnotify.h"
+#include "src/externals/service_math.h"
+#include "src/externals/service_blas.h"
+#include "src/externals/service_ittnotify.h"
 #include "src/threading/threading.h"
 
 using namespace daal::data_management;

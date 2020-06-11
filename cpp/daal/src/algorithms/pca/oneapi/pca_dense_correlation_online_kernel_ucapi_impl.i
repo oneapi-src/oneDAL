@@ -24,7 +24,7 @@
 #ifndef __PCA_DENSE_CORRELATION_ONLINE_KERNEL_UCAPI_IMPL__
 #define __PCA_DENSE_CORRELATION_ONLINE_KERNEL_UCAPI_IMPL__
 
-#include "externals/service_ittnotify.h"
+#include "src/externals/service_ittnotify.h"
 DAAL_ITTNOTIFY_DOMAIN(pca.dense.correlation.online.oneapi);
 
 #include "services/env_detect.h"

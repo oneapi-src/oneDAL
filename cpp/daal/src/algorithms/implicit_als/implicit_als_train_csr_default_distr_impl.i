@@ -25,9 +25,9 @@
 #define __IMPLICIT_ALS_TRAIN_CSR_DEFAULT_DISTR_IMPL_I__
 
 #include "src/services/data_management/service_numeric_table.h"
-#include "externals/service_memory.h"
+#include "src/externals/service_memory.h"
 #include "src/algorithms/service_error_handling.h"
-#include "externals/service_blas.h"
+#include "src/externals/service_blas.h"
 #include "src/services/service_data_utils.h"
 
 namespace daal

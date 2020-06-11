@@ -21,7 +21,7 @@
 //--
 */
 
-#include "externals/service_service.h"
+#include "src/externals/service_service.h"
 
 float daal::services::daal_string_to_float(const char * nptr, char ** endptr)
 {

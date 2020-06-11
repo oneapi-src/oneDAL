@@ -21,7 +21,7 @@
 #include "src/services/data_management/service_numeric_table.h"
 #include "src/services/oneapi/sorter.h"
 #include "src/services/oneapi/partition.h"
-#include "externals/service_ittnotify.h"
+#include "src/externals/service_ittnotify.h"
 #include "src/algorithms/svm/oneapi/cl_kernels/svm_kernels.cl"
 
 namespace daal

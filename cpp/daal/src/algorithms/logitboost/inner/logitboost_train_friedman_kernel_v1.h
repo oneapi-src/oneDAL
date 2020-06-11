@@ -38,7 +38,7 @@
 #define __LOGITBOOST_TRAIN_FRIEDMAN_KERNEL_V1_H__
 
 #include "src/threading/threading.h"
-#include "externals/service_memory.h"
+#include "src/externals/service_memory.h"
 #include "src/services/data_management/service_numeric_table.h"
 #include "src/services/service_data_utils.h"
 

@@ -24,8 +24,8 @@
 #ifndef __IMPLICIT_ALS_TRAIN_INIT_CSR_DEFAULT_BATCH_IMPL_I__
 #define __IMPLICIT_ALS_TRAIN_INIT_CSR_DEFAULT_BATCH_IMPL_I__
 
-#include "externals/service_memory.h"
-#include "externals/service_spblas.h"
+#include "src/externals/service_memory.h"
+#include "src/externals/service_spblas.h"
 #include "src/services/data_management/service_numeric_table.h"
 
 namespace daal

@@ -25,10 +25,10 @@
 #define __SERVICE_STAT_H__
 
 #include "services/daal_defines.h"
-#include "externals/service_memory.h"
-#include "externals/service_blas.h"
+#include "src/externals/service_memory.h"
+#include "src/externals/service_blas.h"
 
-#include "externals/service_stat_mkl.h"
+#include "src/externals/service_stat_mkl.h"
 
 namespace daal
 {

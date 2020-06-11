@@ -19,7 +19,7 @@
 
 #include "services/daal_string.h"
 #include "src/services/service_defines.h"
-#include "externals/service_service.h"
+#include "src/externals/service_service.h"
 
 namespace daal
 {

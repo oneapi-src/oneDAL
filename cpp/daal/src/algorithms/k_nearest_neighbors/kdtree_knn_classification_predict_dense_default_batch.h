@@ -26,10 +26,10 @@
 
 #include "algorithms/k_nearest_neighbors/kdtree_knn_classification_predict.h"
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
-#include "externals/service_memory.h"
+#include "src/externals/service_memory.h"
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
-#include "externals/service_blas.h"
+#include "src/externals/service_blas.h"
 #include "src/services/service_arrays.h"
 
 namespace daal

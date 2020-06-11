@@ -30,7 +30,7 @@
 #include "services/error_indexes.h"
 #include "src/algorithms/low_order_moments/oneapi/cl_kernels/low_order_moments_kernels_all.h"
 #include "src/algorithms/low_order_moments/oneapi/low_order_moments_kernel_online_oneapi.h"
-#include "externals/service_ittnotify.h"
+#include "src/externals/service_ittnotify.h"
 #include "oneapi/internal/utils.h"
 
 using namespace daal::services::internal;

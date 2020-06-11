@@ -23,7 +23,7 @@
 
 #include "algorithms/engines/mt19937/mt19937.h"
 #include "src/algorithms/engines/engine_batch_impl.h"
-#include "externals/service_rng.h"
+#include "src/externals/service_rng.h"
 #include "src/services/data_management/service_numeric_table.h"
 
 static const int leapfrogMethodErrcode  = -1002;

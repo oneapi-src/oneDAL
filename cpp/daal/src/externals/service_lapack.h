@@ -25,9 +25,9 @@
 #define __SERVICE_LAPACK_H__
 
 #include "services/daal_defines.h"
-#include "externals/service_dispatch.h"
-#include "externals/service_memory.h"
-#include "externals/service_lapack_mkl.h"
+#include "src/externals/service_dispatch.h"
+#include "src/externals/service_memory.h"
+#include "src/externals/service_lapack_mkl.h"
 
 #define DAAL_CALL_LAPACK_CPU_FUNC(cpuId, fpType, funcName, ...) Lapack<fpType, cpuId>::funcName(__VA_ARGS__)
 

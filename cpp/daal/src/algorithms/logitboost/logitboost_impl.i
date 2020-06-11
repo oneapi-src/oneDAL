@@ -26,7 +26,7 @@
 #define __LOGITBOOST_IMPL_I__
 
 #include <cmath>
-#include "externals/service_math.h"
+#include "src/externals/service_math.h"
 #include "src/services/service_data_utils.h"
 #include "src/services/service_utils.h"
 

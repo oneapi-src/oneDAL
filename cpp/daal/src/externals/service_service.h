@@ -24,7 +24,7 @@
 #ifndef __SERVICE_SERVICE_H__
 #define __SERVICE_SERVICE_H__
 
-#include "externals/service_service_mkl.h"
+#include "src/externals/service_service_mkl.h"
 #include "services/daal_memory.h"
 
 namespace daal

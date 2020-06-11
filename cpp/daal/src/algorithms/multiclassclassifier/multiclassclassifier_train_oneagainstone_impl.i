@@ -30,7 +30,7 @@
 #include "src/threading/threading.h"
 #include "src/algorithms/service_sort.h"
 #include "src/algorithms/service_error_handling.h"
-#include "externals/service_blas.h"
+#include "src/externals/service_blas.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;

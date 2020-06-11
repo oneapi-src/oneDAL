@@ -26,7 +26,7 @@
 #define __LOGISTIC_REGRESSION_PREDICT_DENSE_DEFAULT_BATCH_H__
 
 #include "algorithms/logistic_regression/logistic_regression_predict.h"
-#include "externals/service_memory.h"
+#include "src/externals/service_memory.h"
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 

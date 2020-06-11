@@ -19,7 +19,7 @@
 #include "data_management/data/numeric_table.h"
 #include "services/env_detect.h"
 #include "src/services/service_data_utils.h"
-#include "externals/service_dispatch.h"
+#include "src/externals/service_dispatch.h"
 #include "src/threading/threading.h"
 #include "service_numeric_table.h"
 
