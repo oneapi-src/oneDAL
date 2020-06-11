@@ -55,9 +55,9 @@ struct SVMTrainTask
 
     SVMTrainTask(size_t nVectors) : _cache(nullptr), _nVectors(nVectors) {}
 
-    Status init(algorithmFPType C, const NumericTablePtr & wTable);
+    Status init(algorithmFPType C, const NumericTablePtr & wTable, NumericTable & yTable);
 
-    Status setup(const ParameterType & svmPar, const NumericTablePtr & xTable, NumericTable & yTable);
+    Status setup(const ParameterType & svmPar, const NumericTablePtr & xTable);
 
     /* Perform Sequential Minimum Optimization (SMO) algorithm to find optimal coefficients alpha */
     Status compute(const ParameterType & svmPar);

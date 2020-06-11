@@ -65,9 +65,9 @@ services::Status SVMTrainImpl<boser, algorithmFPType, ParameterType, cpu>::compu
                                                                                    const ParameterType * svmPar)
 {
     SVMTrainTask<algorithmFPType, ParameterType, cpu> task(xTable->getNumberOfRows());
-    services::Status s = task.setup(*svmPar, xTable, yTable);
+    services::Status s = task.setup(*svmPar, xTable);
     if (!s) return s;
-    DAAL_CHECK_STATUS(s, task.init(svmPar->C, wTable));
+    DAAL_CHECK_STATUS(s, task.init(svmPar->C, wTable, yTable));
     DAAL_CHECK_STATUS(s, task.compute(*svmPar));
     DAAL_CHECK_STATUS(s, task.setResultsToModel(*xTable, *static_cast<Model *>(r)));
     return s;
@@ -439,11 +439,9 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::reconstructG
  *
  * \param[in] svmPar        Parameters of the algorithm
  * \param[in] xTable        Pointer to numeric table that contains input data set
- * \param[in] yTable        Pointer to numeric table that contains class labels
  */
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setup(const ParameterType & svmPar, const NumericTablePtr & xTable,
-                                                                          NumericTable & yTable)
+services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setup(const ParameterType & svmPar, const NumericTablePtr & xTable)
 {
     _alpha.reset(_nVectors);
     daal::services::internal::service_memset<algorithmFPType, cpu>(_alpha.get(), algorithmFPType(0.0), _nVectors);
@@ -467,13 +465,7 @@ services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setup(const 
         cacheSize = kernelFunctionBlockSize;
         _cache    = SVMCache<boser, noCache, algorithmFPType, cpu>::create(cacheSize, _nVectors, svmPar.doShrinking, xTable, kernel, s);
     }
-    if (!s) return s;
-    DAAL_ASSERT(_cache);
-    ReadColumns<algorithmFPType, cpu> mtY(yTable, 0, 0, _nVectors);
-    DAAL_CHECK_BLOCK_STATUS(mtY);
-    int result =
-        daal::services::internal::daal_memcpy_s(_y.get(), _nVectors * sizeof(algorithmFPType), mtY.get(), _nVectors * sizeof(algorithmFPType));
-    return (!result) ? services::Status() : services::Status(ErrorMemoryCopyFailedInternal);
+    return s;
 }
 
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
@@ -486,19 +478,26 @@ SVMTrainTask<algorithmFPType, ParameterType, cpu>::~SVMTrainTask()
  * \brief Initialize the intermediate data used in SVM training
  *
  * \param[in] C     Upper bound in constraints of the quadratic optimization problem
+*  \param[in] wTable        Pointer to numeric table that contains weights
+*  \param[in] yTable        Pointer to numeric table that contains class labels
  */
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::init(algorithmFPType C, const NumericTablePtr & wTable)
+services::Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::init(algorithmFPType C, const NumericTablePtr & wTable, NumericTable & yTable)
 {
     ReadColumns<algorithmFPType, cpu> mtW(wTable.get(), 0, 0, _nVectors);
     DAAL_CHECK_BLOCK_STATUS(mtW);
-    const algorithmFPType * weights = mtW.get();
+    const algorithmFPType * const weights = mtW.get();
 
-    algorithmFPType * const grad    = _grad.get();
-    const algorithmFPType * const y = _y.get();
-    algorithmFPType * const cw      = _cw.get();
+    ReadColumns<algorithmFPType, cpu> mtY(yTable, 0, 0, _nVectors);
+    DAAL_CHECK_BLOCK_STATUS(mtY);
+    const algorithmFPType * const yIn = mtY.get();
+
+    algorithmFPType * const grad = _grad.get();
+    algorithmFPType * const y    = _y.get();
+    algorithmFPType * const cw   = _cw.get();
     for (size_t i = 0; i < _nVectors; i++)
     {
+        y[i]    = yIn[i] == 0 ? algorithmFPType(-1) : yIn[i];
         grad[i] = -y[i];
         cw[i]   = weights ? weights[i] * C : C;
         updateI(i);

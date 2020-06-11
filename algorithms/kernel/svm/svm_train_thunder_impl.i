@@ -87,27 +87,32 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
 
     TArray<algorithmFPType, cpu> alphaTArray(nVectors);
     DAAL_CHECK_MALLOC(alphaTArray.get());
-    algorithmFPType * alpha = alphaTArray.get();
-
-    ReadColumns<algorithmFPType, cpu> mtY(yTable, 0, 0, nVectors);
-    DAAL_CHECK_BLOCK_STATUS(mtY);
-    const algorithmFPType * y = mtY.get();
+    algorithmFPType * const alpha = alphaTArray.get();
 
     TArray<algorithmFPType, cpu> gradTArray(nVectors);
     DAAL_CHECK_MALLOC(gradTArray.get());
-    algorithmFPType * grad = gradTArray.get();
+    algorithmFPType * const grad = gradTArray.get();
 
     TArray<algorithmFPType, cpu> cwTArray(nVectors);
     DAAL_CHECK_MALLOC(cwTArray.get());
-    algorithmFPType * cw = cwTArray.get();
+    algorithmFPType * const cw = cwTArray.get();
+
+    TArray<algorithmFPType, cpu> yTArray(nVectors);
+    DAAL_CHECK_MALLOC(yTArray.get());
+    algorithmFPType * const y = yTArray.get();
 
     {
+        ReadColumns<algorithmFPType, cpu> mtY(yTable, 0, 0, nVectors);
+        DAAL_CHECK_BLOCK_STATUS(mtY);
+        const algorithmFPType * const yIn = mtY.get();
+
         ReadColumns<algorithmFPType, cpu> mtW(wTable.get(), 0, 0, nVectors);
         DAAL_CHECK_BLOCK_STATUS(mtW);
         const algorithmFPType * weights = mtW.get();
         // gradi = -yi; ai = 0; ci = c*wi
         for (size_t i = 0; i < nVectors; i++)
         {
+            y[i]     = yIn[i] == 0 ? algorithmFPType(-1) : yIn[i];
             grad[i]  = -y[i];
             alpha[i] = algorithmFPType(0);
             cw[i]    = weights ? weights[i] * C : C;
@@ -166,7 +171,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
 
         DAAL_CHECK_STATUS(status, updateGrad(kernelWS, deltaAlpha.get(), grad, nVectors, nWS));
 
-        if (checkStopCondition(diff, diffPrev, eps, sameLocalDiff) && iter != 0) break;
+        if (checkStopCondition(diff, diffPrev, eps, sameLocalDiff) && iter > nNoChanges) break;
         diffPrev = diff;
     }
 
