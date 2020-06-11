@@ -30,8 +30,8 @@
 #include "src/algorithms/service_error_handling.h"
 #include "src/algorithms/kernel_function/oneapi/cl_kernels/kernel_function.cl"
 #include "src/externals/service_ittnotify.h"
-#include "src/services/oneapi/blas_gpu.h"
-#include "src/services/oneapi/reducer.h"
+#include "src/oneapi/blas_gpu.h"
+#include "src/oneapi/reducer.h"
 
 namespace daal
 {

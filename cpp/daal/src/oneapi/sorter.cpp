@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "src/services/oneapi/sorter.h"
+#include "src/oneapi/sorter.h"
 #include "oneapi/internal/utils.h"
 #include "src/externals/service_ittnotify.h"
 

@@ -15,10 +15,10 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "src/services/oneapi/reducer.h"
+#include "src/oneapi/reducer.h"
 #include "services/env_detect.h"
 #include "src/externals/service_ittnotify.h"
-#include "src/services/oneapi/cl_kernels/op_reducer.cl"
+#include "src/oneapi/cl_kernels/op_reducer.cl"
 
 namespace daal
 {
