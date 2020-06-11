@@ -36,8 +36,8 @@
 
 #include "src/algorithms/dtrees/gbt/oneapi/cl_kernels/gbt_common_kernels.cl"
 
-#include "oneapi/internal/execution_context.h"
-#include "oneapi/internal/types.h"
+#include "sycl/internal/execution_context.h"
+#include "sycl/internal/types.h"
 
 namespace daal
 {

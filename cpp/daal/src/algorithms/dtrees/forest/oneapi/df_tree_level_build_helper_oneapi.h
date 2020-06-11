@@ -31,8 +31,8 @@
 #include "src/externals/service_memory.h"
 #include "src/services/service_data_utils.h"
 
-#include "oneapi/internal/execution_context.h"
-#include "oneapi/internal/types.h"
+#include "sycl/internal/execution_context.h"
+#include "sycl/internal/types.h"
 
 namespace daal
 {

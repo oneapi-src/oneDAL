@@ -25,8 +25,8 @@
 #ifndef __DF_REGRESSION_TRAIN_HIST_KERNEL_ONEAPI_H__
 #define __DF_REGRESSION_TRAIN_HIST_KERNEL_ONEAPI_H__
 
-#include "oneapi/internal/types.h"
-#include "oneapi/internal/execution_context.h"
+#include "sycl/internal/types.h"
+#include "sycl/internal/execution_context.h"
 #include "data_management/data/numeric_table.h"
 #include "algorithms/algorithm_base_common.h"
 #include "src/algorithms/dtrees/forest/regression/df_regression_model_impl.h"

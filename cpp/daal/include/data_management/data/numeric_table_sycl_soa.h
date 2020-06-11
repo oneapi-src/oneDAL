@@ -20,7 +20,7 @@
 
 #include "data_management/data/numeric_table_sycl.h"
 #include "data_management/data/soa_numeric_table.h"
-#include "oneapi/internal/buffer_utils.h"
+#include "sycl/internal/buffer_utils.h"
 
 namespace daal
 {

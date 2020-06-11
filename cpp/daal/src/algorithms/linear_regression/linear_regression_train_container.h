@@ -32,7 +32,7 @@
 #include "algorithms/linear_regression/linear_regression_ne_model.h"
 #include "algorithms/linear_regression/linear_regression_qr_model.h"
 #include "src/data_management/service_numeric_table.h"
-#include "oneapi/internal/utils.h"
+#include "sycl/internal/utils.h"
 
 #include "src/algorithms/linear_regression/oneapi/linear_regression_train_kernel_oneapi.h"
 

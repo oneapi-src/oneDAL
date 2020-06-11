@@ -27,10 +27,10 @@
 #include "services/env_detect.h"
 #include "services/comm_detect.h"
 #include "src/algorithms/kmeans/oneapi/cl_kernels/kmeans_cl_kernels_distr.cl"
-#include "oneapi/internal/execution_context.h"
-#include "oneapi/internal/communicator.h"
-#include "oneapi/internal/types.h"
-#include "src/oneapi/blas_gpu.h"
+#include "sycl/internal/execution_context.h"
+#include "sycl/internal/communicator.h"
+#include "sycl/internal/types.h"
+#include "src/sycl/blas_gpu.h"
 
 #include "src/externals/service_ittnotify.h"
 

@@ -25,7 +25,7 @@
 #include "data_management/data/numeric_table_sycl.h"
 #include "data_management/data/internal/conversion.h"
 #include "data_management/data/homogen_numeric_table.h"
-#include "oneapi/internal/utils.h"
+#include "sycl/internal/utils.h"
 
 namespace daal
 {

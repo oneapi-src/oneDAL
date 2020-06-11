@@ -25,7 +25,7 @@
 
 #include "algorithms/moments/low_order_moments_types.h"
 #include "data_management/data/numeric_table_sycl_homogen.h"
-#include "oneapi/internal/utils.h"
+#include "sycl/internal/utils.h"
 
 using namespace daal::data_management;
 

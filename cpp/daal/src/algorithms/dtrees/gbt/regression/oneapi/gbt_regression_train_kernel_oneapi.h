@@ -25,8 +25,8 @@
 #ifndef __GBT_REGRESSION_TRAIN_KERNEL_ONEAPI_H__
 #define __GBT_REGRESSION_TRAIN_KERNEL_ONEAPI_H__
 
-#include "oneapi/internal/types.h"
-#include "oneapi/internal/execution_context.h"
+#include "sycl/internal/types.h"
+#include "sycl/internal/execution_context.h"
 #include "data_management/data/numeric_table.h"
 #include "algorithms/algorithm_base_common.h"
 #include "algorithms/gradient_boosted_trees/gbt_regression_training_types.h"

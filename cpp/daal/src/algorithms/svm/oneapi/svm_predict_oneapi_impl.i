@@ -24,7 +24,7 @@
 #ifndef __SVM_PREDICT_ONEAPI_IMPL_I__
 #define __SVM_PREDICT_ONEAPI_IMPL_I__
 
-#include "src/oneapi/blas_gpu.h"
+#include "src/sycl/blas_gpu.h"
 #include "src/externals/service_ittnotify.h"
 #include "data_management/data/numeric_table_sycl_homogen.h"
 #include "src/algorithms/svm/oneapi/svm_helper_oneapi.h"

@@ -20,7 +20,7 @@
 
 #include "services/daal_shared_ptr.h"
 #include "services/internal/utilities.h"
-#include "oneapi/internal/communicator.h"
+#include "sycl/internal/communicator.h"
 
 namespace daal
 {
@@ -79,7 +79,7 @@ using interface1::Communicator;
 } // namespace daal
 
 #ifdef DAAL_SYCL_INTERFACE
-    #include "oneapi/internal/communicator_oneccl_sycl.h"
+    #include "sycl/internal/communicator_oneccl_sycl.h"
 
 namespace daal
 {

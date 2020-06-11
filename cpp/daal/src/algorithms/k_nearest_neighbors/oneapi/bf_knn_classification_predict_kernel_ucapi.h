@@ -22,7 +22,7 @@
 #include "data_management/data/numeric_table.h"
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_predict_types.h"
-#include "oneapi/internal/execution_context.h"
+#include "sycl/internal/execution_context.h"
 
 namespace daal
 {
