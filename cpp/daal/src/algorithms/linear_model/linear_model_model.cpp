@@ -23,8 +23,8 @@
 
 #include "src/algorithms/linear_model/linear_model_model_impl.h"
 #include "algorithms/linear_model/linear_model_model.h"
-#include "service/kernel/data_management/service_numeric_table.h"
-#include "service/kernel/daal_strings.h"
+#include "src/services/data_management/service_numeric_table.h"
+#include "src/services/daal_strings.h"
 
 namespace daal
 {

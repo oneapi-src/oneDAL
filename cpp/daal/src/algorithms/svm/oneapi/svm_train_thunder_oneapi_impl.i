@@ -44,9 +44,9 @@
 #ifndef __SVM_TRAIN_THUNDER_ONEAPI_IMPL_I__
 #define __SVM_TRAIN_THUNDER_ONEAPI_IMPL_I__
 
-#include "service/kernel/service_utils.h"
-#include "service/kernel/service_data_utils.h"
-#include "service/kernel/oneapi/blas_gpu.h"
+#include "src/services/service_utils.h"
+#include "src/services/service_data_utils.h"
+#include "src/services/oneapi/blas_gpu.h"
 #include "externals/service_memory.h"
 #include "externals/service_ittnotify.h"
 #include "externals/service_service.h"

@@ -26,7 +26,7 @@
 
 #include "externals/service_math.h"
 #include "externals/service_memory.h"
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/data_management/service_numeric_table.h"
 #include "src/algorithms/pca/pca_dense_correlation_online_kernel.h"
 
 namespace daal

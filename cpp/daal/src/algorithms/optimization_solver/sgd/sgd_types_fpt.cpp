@@ -23,7 +23,7 @@
 
 #include "algorithms/optimization_solver/iterative_solver/iterative_solver_types.h"
 #include "algorithms/optimization_solver/sgd/sgd_types.h"
-#include "service/kernel/service_data_utils.h"
+#include "src/services/service_data_utils.h"
 #include "data_management/data/numeric_table_sycl_homogen.h"
 
 using namespace daal::data_management;

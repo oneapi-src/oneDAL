@@ -28,7 +28,7 @@
 #include "algorithms/multi_class_classifier/multi_class_classifier_model.h"
 #include "src/algorithms/service_sort.h"
 #include "externals/service_memory.h"
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/data_management/service_numeric_table.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;

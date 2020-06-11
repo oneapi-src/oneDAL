@@ -20,7 +20,7 @@
 //--
 
 #include "algorithms/distributions/bernoulli/bernoulli_types.h"
-#include "service/kernel/daal_strings.h"
+#include "src/services/daal_strings.h"
 
 namespace daal
 {

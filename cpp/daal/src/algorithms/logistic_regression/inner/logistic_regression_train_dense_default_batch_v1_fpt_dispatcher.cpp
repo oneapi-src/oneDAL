@@ -22,7 +22,7 @@
 */
 
 #include "src/algorithms/logistic_regression/inner/logistic_regression_train_container_v1.h"
-#include "service/kernel/daal_strings.h"
+#include "src/services/daal_strings.h"
 
 namespace daal
 {

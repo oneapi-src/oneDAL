@@ -30,7 +30,7 @@
 #include "src/algorithms/dtrees/gbt/gbt_train_dense_default_impl.i"
 #include "src/algorithms/dtrees/gbt/gbt_train_tree_builder.i"
 #include "src/algorithms/service_error_handling.h"
-#include "service/kernel/service_algo_utils.h"
+#include "src/services/service_algo_utils.h"
 
 using namespace daal::algorithms::dtrees::training::internal;
 using namespace daal::algorithms::gbt::training::internal;

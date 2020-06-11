@@ -25,7 +25,7 @@
 #define __DF_REGRESSION_TREE_HELPER_IMPL__
 
 //#include "data_management/data/aos_numeric_table.h"
-#include "service/kernel/service_arrays.h"
+#include "src/services/service_arrays.h"
 #include "src/algorithms/dtrees/dtrees_predict_dense_default_impl.i"
 
 namespace daal

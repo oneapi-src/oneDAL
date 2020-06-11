@@ -18,7 +18,7 @@
 #ifndef __SERVICE_ARRAYS_H__
 #define __SERVICE_ARRAYS_H__
 
-#include "service/kernel/service_allocators.h"
+#include "src/services/service_allocators.h"
 
 namespace daal
 {

@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/boosting/logitboost_training_types.h"
-#include "service/kernel/serialization_utils.h"
+#include "src/services/serialization_utils.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

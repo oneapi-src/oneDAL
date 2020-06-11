@@ -23,8 +23,8 @@
 
 #include "algorithms/optimization_solver/iterative_solver/iterative_solver_types.h"
 #include "data_management/data/numeric_table.h"
-#include "service/kernel/serialization_utils.h"
-#include "service/kernel/daal_strings.h"
+#include "src/services/serialization_utils.h"
+#include "src/services/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

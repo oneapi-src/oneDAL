@@ -25,7 +25,7 @@
 
 #include "algorithms/gradient_boosted_trees/gbt_regression_predict.h"
 #include "src/algorithms/dtrees/gbt/regression/gbt_regression_predict_kernel.h"
-#include "service/kernel/service_algo_utils.h"
+#include "src/services/service_algo_utils.h"
 
 namespace daal
 {

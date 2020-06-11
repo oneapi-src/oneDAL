@@ -27,8 +27,8 @@
 #include "data_management/data/numeric_table.h"
 #include "algorithms/quantiles/quantiles_batch.h"
 
-#include "service/kernel/service_defines.h"
-#include "service/kernel/data_management/service_micro_table.h"
+#include "src/services/service_defines.h"
+#include "src/services/data_management/service_micro_table.h"
 
 using namespace daal::data_management;
 

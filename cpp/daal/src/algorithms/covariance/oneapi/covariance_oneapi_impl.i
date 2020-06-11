@@ -28,11 +28,11 @@
 #include "data_management/data/numeric_table.h"
 #include "services/env_detect.h"
 #include "services/error_indexes.h"
-#include "service/kernel/oneapi/blas_gpu.h"
-#include "service/kernel/oneapi/reducer.h"
+#include "src/services/oneapi/blas_gpu.h"
+#include "src/services/oneapi/reducer.h"
 #include "src/algorithms/covariance/oneapi/cl_kernels/covariance_kernels.cl"
 #include "externals/service_ittnotify.h"
-#include "service/kernel/service_data_utils.h"
+#include "src/services/service_data_utils.h"
 
 using namespace daal::services::internal;
 using namespace daal::oneapi::internal;

@@ -18,9 +18,9 @@
 #ifndef __SVM_TRAIN_COMMON_H__
 #define __SVM_TRAIN_COMMON_H__
 
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/data_management/service_numeric_table.h"
 #include "externals/service_ittnotify.h"
-#include "service/kernel/service_utils.h"
+#include "src/services/service_utils.h"
 
 namespace daal
 {

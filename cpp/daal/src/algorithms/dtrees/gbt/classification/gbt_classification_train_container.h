@@ -29,7 +29,7 @@
 #include "algorithms/gradient_boosted_trees/gbt_classification_training_batch.h"
 #include "src/algorithms/dtrees/gbt/classification/gbt_classification_train_kernel.h"
 #include "src/algorithms/dtrees/gbt/classification/gbt_classification_model_impl.h"
-#include "service/kernel/service_algo_utils.h"
+#include "src/services/service_algo_utils.h"
 
 namespace daal
 {

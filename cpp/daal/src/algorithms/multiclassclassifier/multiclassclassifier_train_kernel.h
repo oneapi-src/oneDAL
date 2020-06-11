@@ -28,7 +28,7 @@
 #include "algorithms/model.h"
 #include "algorithms/algorithm.h"
 #include "algorithms/multi_class_classifier/multi_class_classifier_train_types.h"
-#include "service/kernel/service_defines.h"
+#include "src/services/service_defines.h"
 
 using namespace daal::data_management;
 

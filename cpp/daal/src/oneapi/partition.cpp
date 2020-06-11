@@ -15,10 +15,10 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "service/kernel/oneapi/partition.h"
+#include "src/services/oneapi/partition.h"
 #include "services/env_detect.h"
 #include "externals/service_ittnotify.h"
-#include "service/kernel/oneapi/cl_kernels/partition.cl"
+#include "src/services/oneapi/cl_kernels/partition.cl"
 
 namespace daal
 {

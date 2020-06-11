@@ -22,7 +22,7 @@
 */
 
 #include "src/algorithms/linear_model/oneapi/linear_model_train_normeq_kernel_oneapi.h"
-#include "service/kernel/oneapi/blas_gpu.h"
+#include "src/services/oneapi/blas_gpu.h"
 #include "oneapi/internal/utils.h"
 #include "externals/service_ittnotify.h"
 #include "src/algorithms/linear_model/oneapi/cl_kernel/reduce_results.cl"

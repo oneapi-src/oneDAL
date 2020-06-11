@@ -24,7 +24,7 @@
 #define __QR_DENSE_DEFAULT_DISTR_STEP2__
 
 #include "algorithms/qr/qr_types.h"
-#include "service/kernel/service_data_utils.h"
+#include "src/services/service_data_utils.h"
 
 using namespace daal::services;
 

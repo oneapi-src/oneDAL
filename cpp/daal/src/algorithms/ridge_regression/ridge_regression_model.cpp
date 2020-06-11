@@ -24,7 +24,7 @@
 #include "algorithms/ridge_regression/ridge_regression_model.h"
 #include "algorithms/ridge_regression/ridge_regression_ne_model.h"
 #include "data_management/data/homogen_numeric_table.h"
-#include "service/kernel/daal_strings.h"
+#include "src/services/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

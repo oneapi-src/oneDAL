@@ -24,8 +24,8 @@
 #include "algorithms/boosting/adaboost_model.h"
 #include "algorithms/stump/stump_classification_training_batch.h"
 #include "algorithms/stump/stump_classification_predict.h"
-#include "service/kernel/serialization_utils.h"
-#include "service/kernel/daal_strings.h"
+#include "src/services/serialization_utils.h"
+#include "src/services/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

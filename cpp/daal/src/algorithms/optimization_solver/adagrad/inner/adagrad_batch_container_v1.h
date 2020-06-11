@@ -26,7 +26,7 @@
 
 #include "algorithms/optimization_solver/adagrad/adagrad_batch.h"
 #include "src/algorithms/optimization_solver/adagrad/inner/adagrad_dense_default_kernel_v1.h"
-#include "service/kernel/service_algo_utils.h"
+#include "src/services/service_algo_utils.h"
 
 namespace daal
 {

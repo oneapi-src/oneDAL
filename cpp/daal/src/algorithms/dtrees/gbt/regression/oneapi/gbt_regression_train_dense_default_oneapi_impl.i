@@ -37,8 +37,8 @@
 #include "data_management/data/numeric_table.h"
 #include "services/env_detect.h"
 #include "services/error_indexes.h"
-#include "service/kernel/service_data_utils.h"
-#include "service/kernel/service_algo_utils.h"
+#include "src/services/service_data_utils.h"
+#include "src/services/service_algo_utils.h"
 #include "oneapi/internal/types.h"
 
 using namespace daal::algorithms::dtrees::training::internal;

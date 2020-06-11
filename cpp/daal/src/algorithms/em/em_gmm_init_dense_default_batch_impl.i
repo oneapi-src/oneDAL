@@ -23,7 +23,7 @@
 
 #include "src/algorithms/em/em_gmm_init_dense_default_batch_kernel.h"
 #include "src/algorithms/em/em_gmm_dense_default_batch_kernel.h"
-#include "service/kernel/service_data_utils.h"
+#include "src/services/service_data_utils.h"
 #include "externals/service_stat.h"
 #include "src/algorithms/distributions/uniform/uniform_impl.i"
 

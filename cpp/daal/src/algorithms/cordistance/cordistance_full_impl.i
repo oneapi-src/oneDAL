@@ -20,7 +20,7 @@
 //  Implementation of correlation distance for result in full layout.
 //--
 */
-#include "service/kernel/service_defines.h"
+#include "src/services/service_defines.h"
 using namespace daal::internal;
 
 namespace daal

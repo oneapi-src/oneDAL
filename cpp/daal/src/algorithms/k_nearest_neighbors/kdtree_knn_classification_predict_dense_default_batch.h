@@ -30,7 +30,7 @@
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "externals/service_blas.h"
-#include "service/kernel/service_arrays.h"
+#include "src/services/service_arrays.h"
 
 namespace daal
 {

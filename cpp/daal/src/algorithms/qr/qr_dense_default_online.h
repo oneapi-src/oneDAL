@@ -24,7 +24,7 @@
 #define __QR_DENSE_DEFAULT_ONLINE__
 
 #include "algorithms/qr/qr_types.h"
-#include "service/kernel/daal_strings.h"
+#include "src/services/daal_strings.h"
 
 using namespace daal::services;
 using namespace daal::data_management;

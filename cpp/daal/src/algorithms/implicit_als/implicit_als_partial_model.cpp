@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/implicit_als/implicit_als_model.h"
-#include "service/kernel/daal_strings.h"
+#include "src/services/daal_strings.h"
 
 namespace daal
 {

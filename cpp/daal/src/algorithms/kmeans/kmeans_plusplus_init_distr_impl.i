@@ -27,11 +27,11 @@
 #include "services/daal_defines.h"
 #include "externals/service_memory.h"
 #include "src/algorithms/service_error_handling.h"
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/data_management/service_numeric_table.h"
 #include "src/algorithms/service_sort.h"
 #include "src/algorithms/kmeans/kmeans_plusplus_init_impl.i"
 #include "src/algorithms/distributions/uniform/uniform_kernel.h"
-#include "service/kernel/service_data_utils.h"
+#include "src/services/service_data_utils.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;

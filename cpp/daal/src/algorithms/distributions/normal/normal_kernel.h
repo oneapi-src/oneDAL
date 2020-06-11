@@ -29,8 +29,8 @@
 #include "src/algorithms/engines/engine_batch_impl.h"
 
 #include "externals/service_rng.h"
-#include "service/kernel/service_unique_ptr.h"
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/service_unique_ptr.h"
+#include "src/services/data_management/service_numeric_table.h"
 
 using namespace daal::services;
 using namespace daal::internal;

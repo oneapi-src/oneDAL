@@ -25,7 +25,7 @@
 #define __BROWNBOOST_PREDICT_IMPL_I__
 
 #include "externals/service_math.h"
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/services/data_management/service_numeric_table.h"
 #include "externals/service_memory.h"
 
 namespace daal
