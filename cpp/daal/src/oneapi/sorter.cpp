@@ -17,7 +17,7 @@
 
 #include "src/services/oneapi/sorter.h"
 #include "oneapi/internal/utils.h"
-#include "externals/service_ittnotify.h"
+#include "src/externals/service_ittnotify.h"
 
 namespace daal
 {

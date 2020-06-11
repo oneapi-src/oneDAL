@@ -25,7 +25,7 @@
 #include "data_management/data/numeric_table.h"
 #include "src/threading/threading.h"
 #include "services/daal_defines.h"
-#include "externals/service_memory.h"
+#include "src/externals/service_memory.h"
 #include "src/algorithms/service_error_handling.h"
 #include "src/services/data_management/service_numeric_table.h"
 #include "src/algorithms/service_sort.h"

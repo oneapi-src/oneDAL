@@ -19,7 +19,7 @@
 #define __SERVICE_ALLOCATORS_H__
 
 #include "src/services/service_utils.h"
-#include "externals/service_memory.h"
+#include "src/externals/service_memory.h"
 #include "src/services/service_type_traits.h"
 
 namespace daal

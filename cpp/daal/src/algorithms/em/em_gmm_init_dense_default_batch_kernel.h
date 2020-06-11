@@ -28,7 +28,7 @@
 #include "src/services/data_management/service_numeric_table.h"
 #include "data_management/data/numeric_table.h"
 #include "data_management/data/homogen_numeric_table.h"
-#include "externals/service_memory.h"
+#include "src/externals/service_memory.h"
 #include "algorithms/em/em_gmm_init_types.h"
 #include "algorithms/em/em_gmm_init_batch.h"
 #include "algorithms/em/em_gmm.h"

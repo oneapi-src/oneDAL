@@ -26,7 +26,7 @@
 
 #include "services/daal_defines.h"
 #include "src/services/service_data_utils.h"
-#include "externals/service_math.h"
+#include "src/externals/service_math.h"
 #include "src/services/service_utils.h"
 #include "data_management/data/numeric_table.h"
 #include "src/algorithms/decision_tree/decision_tree_regression_model_impl.h"

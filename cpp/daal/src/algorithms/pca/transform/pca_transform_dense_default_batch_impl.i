@@ -29,8 +29,8 @@
 #include "src/threading/threading.h"
 #include "data_management/data/numeric_table.h"
 
-#include "externals/service_blas.h"
-#include "externals/service_math.h"
+#include "src/externals/service_blas.h"
+#include "src/externals/service_math.h"
 #include "src/services/service_unique_ptr.h"
 #include "src/services/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"

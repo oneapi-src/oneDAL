@@ -24,13 +24,13 @@
 #ifndef __PCA_DENSE_CORRELATION_BATCH_IMPL_I__
 #define __PCA_DENSE_CORRELATION_BATCH_IMPL_I__
 
-#include "externals/service_math.h"
-#include "externals/service_memory.h"
+#include "src/externals/service_math.h"
+#include "src/externals/service_memory.h"
 #include "src/services/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 #include "src/threading/threading.h"
 
-#include "externals/service_ittnotify.h"
+#include "src/externals/service_ittnotify.h"
 
 DAAL_ITTNOTIFY_DOMAIN(pca.dense.correlation.batch);
 

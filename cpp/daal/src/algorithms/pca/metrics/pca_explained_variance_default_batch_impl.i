@@ -24,9 +24,9 @@
 #ifndef __PCA_EXPLAINED_VARIANCE_DEFAULT_BATCH_IMPL_I__
 #define __PCA_EXPLAINED_VARIANCE_DEFAULT_BATCH_IMPL_I__
 
-#include "externals/service_memory.h"
-#include "externals/service_math.h"
-#include "externals/service_lapack.h"
+#include "src/externals/service_memory.h"
+#include "src/externals/service_math.h"
+#include "src/externals/service_lapack.h"
 #include "src/services/data_management/service_numeric_table.h"
 #include "src/services/service_data_utils.h"
 #include "src/threading/threading.h"

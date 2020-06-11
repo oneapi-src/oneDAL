@@ -26,8 +26,8 @@
 
 #include "algorithms/kernel_function/kernel_function_types_linear.h"
 
-#include "externals/service_blas.h"
-#include "externals/service_stat.h"
+#include "src/externals/service_blas.h"
+#include "src/externals/service_stat.h"
 #include "src/threading/threading.h"
 #include "src/algorithms/service_error_handling.h"
 

@@ -26,7 +26,7 @@
 
 #include "src/algorithms/implicit_als/implicit_als_predict_ratings_dense_default_kernel.h"
 #include "src/services/data_management/service_numeric_table.h"
-#include "externals/service_blas.h"
+#include "src/externals/service_blas.h"
 
 using namespace daal::data_management;
 using namespace daal::internal;

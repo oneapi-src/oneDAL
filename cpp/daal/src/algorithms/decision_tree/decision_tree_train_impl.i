@@ -29,7 +29,7 @@
 #include "src/algorithms/decision_tree/decision_tree_impl.i"
 #include "src/services/service_utils.h"
 #include "src/algorithms/service_sort.h"
-#include "externals/service_math.h"
+#include "src/externals/service_math.h"
 #include "src/services/service_data_utils.h"
 #include "src/algorithms/service_threading.h"
 #include "data_management/features/defines.h"

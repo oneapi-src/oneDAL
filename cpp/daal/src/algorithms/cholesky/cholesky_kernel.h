@@ -25,7 +25,7 @@
 #include "algorithms/cholesky/cholesky.h"
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
-#include "externals/service_lapack.h"
+#include "src/externals/service_lapack.h"
 
 using namespace daal::data_management;
 

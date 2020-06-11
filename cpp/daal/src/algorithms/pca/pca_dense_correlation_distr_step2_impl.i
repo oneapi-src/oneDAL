@@ -24,8 +24,8 @@
 #ifndef __PCA_DENSE_CORRELATION_DISTR_STEP2_IMPL_I__
 #define __PCA_DENSE_CORRELATION_DISTR_STEP2_IMPL_I__
 
-#include "externals/service_math.h"
-#include "externals/service_memory.h"
+#include "src/externals/service_math.h"
+#include "src/externals/service_memory.h"
 #include "src/services/data_management/service_numeric_table.h"
 #include "src/algorithms/pca/pca_dense_correlation_distr_step2_kernel.h"
 

@@ -32,7 +32,7 @@
 #include "oneapi/internal/types.h"
 #include "src/services/oneapi/blas_gpu.h"
 
-#include "externals/service_ittnotify.h"
+#include "src/externals/service_ittnotify.h"
 
 DAAL_ITTNOTIFY_DOMAIN(kmeans.dense.lloyd.batch.oneapi);
 

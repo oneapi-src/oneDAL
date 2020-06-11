@@ -24,8 +24,8 @@
 #ifndef __LINEAR_REGRESSION_GROUP_OF_BETAS_DEFAULT_IMPL_I__
 #define __LINEAR_REGRESSION_GROUP_OF_BETAS_DEFAULT_IMPL_I__
 
-#include "externals/service_memory.h"
-#include "externals/service_lapack.h"
+#include "src/externals/service_memory.h"
+#include "src/externals/service_lapack.h"
 #include "src/threading/threading.h"
 #include "src/services/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"

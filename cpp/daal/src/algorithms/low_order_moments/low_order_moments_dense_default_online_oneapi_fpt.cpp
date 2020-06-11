@@ -21,7 +21,7 @@
 //--
 */
 
-#include "externals/service_ittnotify.h"
+#include "src/externals/service_ittnotify.h"
 DAAL_ITTNOTIFY_DOMAIN(low_order_moments.dense.online.oneapi);
 
 #include "src/algorithms/low_order_moments/low_order_moments_container.h"

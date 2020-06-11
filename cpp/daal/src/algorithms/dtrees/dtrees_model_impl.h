@@ -29,7 +29,7 @@
 #include "src/services/service_defines.h"
 #include "data_management/data/homogen_numeric_table.h"
 #include "data_management/data/aos_numeric_table.h"
-#include "externals/service_memory.h"
+#include "src/externals/service_memory.h"
 #include "src/services/service_utils.h"
 
 typedef size_t ClassIndexType;

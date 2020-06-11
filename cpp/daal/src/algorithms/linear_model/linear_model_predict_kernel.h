@@ -26,10 +26,10 @@
 #define __LINEAR_MODEL_PREDICT_KERNEL_H__
 
 #include "algorithms/linear_model/linear_model_predict.h"
-#include "externals/service_memory.h"
+#include "src/externals/service_memory.h"
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
-#include "externals/service_blas.h"
+#include "src/externals/service_blas.h"
 
 using namespace daal::data_management;
 

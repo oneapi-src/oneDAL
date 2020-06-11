@@ -26,9 +26,9 @@
 
 #include "src/algorithms/pca/pca_dense_correlation_base_iface.h"
 #include "algorithms/pca/pca_types.h"
-#include "externals/service_lapack.h"
+#include "src/externals/service_lapack.h"
 #include "src/algorithms/pca/pca_dense_base.h"
-#include "externals/service_math.h"
+#include "src/externals/service_math.h"
 
 using namespace daal::internal;
 

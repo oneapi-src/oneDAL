@@ -28,7 +28,7 @@
 #include "src/algorithms/kernel_function/kernel_function_csr_impl.i"
 
 #include "src/threading/threading.h"
-#include "externals/service_spblas.h"
+#include "src/externals/service_spblas.h"
 
 namespace daal
 {

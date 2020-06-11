@@ -32,8 +32,8 @@
 #include "src/threading/threading.h"
 #include "services/daal_defines.h"
 
-#include "externals/service_math.h"
-#include "externals/service_memory.h"
+#include "src/externals/service_math.h"
+#include "src/externals/service_memory.h"
 #include "data_management/data/csr_numeric_table.h"
 
 #include "src/services/service_data_utils.h"

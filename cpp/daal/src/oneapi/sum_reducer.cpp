@@ -17,7 +17,7 @@
 
 #include "src/services/oneapi/reducer.h"
 #include "services/env_detect.h"
-#include "externals/service_ittnotify.h"
+#include "src/externals/service_ittnotify.h"
 
 namespace daal
 {

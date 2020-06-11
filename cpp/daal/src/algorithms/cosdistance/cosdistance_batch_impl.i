@@ -22,8 +22,8 @@
 */
 
 #include "services/daal_defines.h"
-#include "externals/service_math.h"
-#include "externals/service_blas.h"
+#include "src/externals/service_math.h"
+#include "src/externals/service_blas.h"
 #include "src/threading/threading.h"
 #include "src/algorithms/service_error_handling.h"
 #include "src/services/data_management/service_numeric_table.h"

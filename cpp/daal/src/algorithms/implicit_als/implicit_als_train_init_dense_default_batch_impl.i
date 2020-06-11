@@ -25,8 +25,8 @@
 #define __IMPLICIT_ALS_TRAIN_INIT_DENSE_DEFAULT_BATCH_IMPL_I__
 
 #include "src/services/data_management/service_numeric_table.h"
-#include "externals/service_memory.h"
-#include "externals/service_blas.h"
+#include "src/externals/service_memory.h"
+#include "src/externals/service_blas.h"
 #include "src/algorithms/implicit_als/implicit_als_train_init_kernel.h"
 
 namespace daal

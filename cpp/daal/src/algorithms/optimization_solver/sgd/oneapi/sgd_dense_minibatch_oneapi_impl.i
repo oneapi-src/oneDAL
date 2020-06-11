@@ -24,9 +24,9 @@
 #include "src/algorithms/optimization_solver/sgd/oneapi/cl_kernel/sgd_dense_minibatch.cl"
 #include "src/algorithms/optimization_solver/iterative_solver_kernel.h"
 #include "data_management/data/numeric_table_sycl_homogen.h"
-#include "externals/service_math.h"
+#include "src/externals/service_math.h"
 
-#include "externals/service_ittnotify.h"
+#include "src/externals/service_ittnotify.h"
 
 DAAL_ITTNOTIFY_DOMAIN(optimization_solver.sgd.batch.oneapi);
 

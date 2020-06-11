@@ -25,7 +25,7 @@
 #define __SGD_DENSE_MOMENTUM_IMPL_V1_I__
 
 #include "src/services/data_management/service_numeric_table.h"
-#include "externals/service_math.h"
+#include "src/externals/service_math.h"
 #include "src/services/service_utils.h"
 #include "src/services/data_management/service_numeric_table.h"
 #include "src/algorithms/optimization_solver/iterative_solver_kernel.h"

@@ -24,7 +24,7 @@
 #ifndef __DTREES_FEATURE_TYPE_HELPER_H__
 #define __DTREES_FEATURE_TYPE_HELPER_H__
 
-#include "externals/service_memory.h"
+#include "src/externals/service_memory.h"
 #include "src/services/data_management/service_numeric_table.h"
 
 typedef double ModelFPType;
