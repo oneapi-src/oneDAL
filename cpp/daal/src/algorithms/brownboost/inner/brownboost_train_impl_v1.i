@@ -33,7 +33,7 @@
 
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "services/daal_defines.h"
 #include "externals/service_math.h"
 #include "externals/service_memory.h"

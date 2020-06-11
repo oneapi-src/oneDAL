@@ -33,7 +33,7 @@
 #define __MULTICLASSCLASSIFIER_PREDICT_MCCWU_IMPL_I__
 
 #include "algorithms/multi_class_classifier/multi_class_classifier_model.h"
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "externals/service_math.h"
 #include "externals/service_memory.h"
 #include "service/kernel/service_data_utils.h"

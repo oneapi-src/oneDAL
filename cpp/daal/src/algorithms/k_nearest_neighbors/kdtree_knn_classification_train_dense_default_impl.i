@@ -25,7 +25,7 @@
 #define __KDTREE_KNN_CLASSIFICATION_TRAIN_DENSE_DEFAULT_IMPL_I__
 
 #include "services/daal_defines.h"
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "services/daal_atomic_int.h"
 #include "externals/service_memory.h"
 #include "service/kernel/data_management/service_numeric_table.h"

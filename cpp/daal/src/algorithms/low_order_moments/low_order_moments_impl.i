@@ -32,7 +32,7 @@
 #include "externals/service_math.h"
 #include "service/kernel/service_data_utils.h"
 #include "externals/service_memory.h"
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 
 using namespace daal::internal;
 using namespace daal::services;

@@ -20,7 +20,7 @@
 #include "services/env_detect.h"
 #include "service/kernel/service_data_utils.h"
 #include "externals/service_dispatch.h"
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "service_numeric_table.h"
 
 namespace daal

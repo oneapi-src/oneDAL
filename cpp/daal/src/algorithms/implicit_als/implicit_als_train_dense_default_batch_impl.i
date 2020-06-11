@@ -24,7 +24,7 @@
 #ifndef __IMPLICIT_ALS_TRAIN_DENSE_DEFAULT_BATCH_IMPL_I__
 #define __IMPLICIT_ALS_TRAIN_DENSE_DEFAULT_BATCH_IMPL_I__
 
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "externals/service_blas.h"
 #include "externals/service_lapack.h"
 #include "src/algorithms/service_error_handling.h"

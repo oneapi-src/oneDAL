@@ -26,7 +26,7 @@
 
 #include "algorithms/dbscan/dbscan_types.h"
 
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "services/daal_defines.h"
 #include "services/error_handling.h"
 #include "externals/service_memory.h"

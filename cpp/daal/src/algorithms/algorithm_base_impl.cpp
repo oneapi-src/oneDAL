@@ -26,7 +26,7 @@
 #include "src/algorithms/argument_storage.h"
 #include "service/kernel/service_algo_utils.h"
 
-#include "algorithms/threading/service_thread_pinner.h"
+#include "src/threading/service_thread_pinner.h"
 #include "service/kernel/service_topo.h"
 
 namespace daal

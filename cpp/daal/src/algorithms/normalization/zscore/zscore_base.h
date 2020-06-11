@@ -29,7 +29,7 @@
 #include "externals/service_math.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

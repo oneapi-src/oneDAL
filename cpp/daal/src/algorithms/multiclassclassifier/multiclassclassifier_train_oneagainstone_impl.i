@@ -27,7 +27,7 @@
 
 #include "algorithms/multi_class_classifier/multi_class_classifier_model.h"
 
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "src/algorithms/service_sort.h"
 #include "src/algorithms/service_error_handling.h"
 #include "externals/service_blas.h"

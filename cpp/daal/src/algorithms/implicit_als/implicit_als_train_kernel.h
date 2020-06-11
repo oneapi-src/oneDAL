@@ -28,7 +28,7 @@
 #include "algorithms/implicit_als/implicit_als_training_batch.h"
 #include "algorithms/implicit_als/implicit_als_model.h"
 #include "src/algorithms/kernel.h"
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "externals/service_memory.h"

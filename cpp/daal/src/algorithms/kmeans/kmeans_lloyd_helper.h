@@ -30,7 +30,7 @@
 #include "service/kernel/service_defines.h"
 #include "src/algorithms/service_error_handling.h"
 
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "externals/service_blas.h"
 #include "externals/service_spblas.h"
 #include "service/kernel/service_data_utils.h"

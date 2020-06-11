@@ -25,7 +25,7 @@
 #include "algorithms/normalization/minmax.h"
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
-#include "algorithms/threading/threading.h"
+#include "src/threading/threading.h"
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 
