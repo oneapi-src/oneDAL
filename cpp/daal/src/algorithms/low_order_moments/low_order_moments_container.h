@@ -31,7 +31,7 @@
 #include "src/algorithms/low_order_moments/low_order_moments_kernel.h"
 #include "src/algorithms/low_order_moments/oneapi/low_order_moments_kernel_batch_oneapi.h"
 #include "src/algorithms/low_order_moments/oneapi/low_order_moments_kernel_online_oneapi.h"
-#include "oneapi/internal/utils.h"
+#include "sycl/internal/utils.h"
 
 namespace daal
 {

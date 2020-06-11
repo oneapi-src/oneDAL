@@ -24,10 +24,10 @@
 #ifndef __PCA_TRANSFORM_DENSE_DEFAULT_BATCH_ONEAPI_H__
 #define __PCA_TRANSFORM_DENSE_DEFAULT_BATCH_ONEAPI_H__
 
-#include "oneapi/internal/types.h"
-#include "oneapi/internal/execution_context.h"
+#include "sycl/internal/types.h"
+#include "sycl/internal/execution_context.h"
 #include "algorithms/pca/pca_types.h"
-#include "src/oneapi/blas_gpu.h"
+#include "src/sycl/blas_gpu.h"
 
 namespace daal
 {

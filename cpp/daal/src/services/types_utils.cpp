@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/internal/types_utils.h"
+#include "sycl/internal/types_utils.h"
 
 namespace daal
 {

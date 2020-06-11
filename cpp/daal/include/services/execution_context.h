@@ -19,7 +19,7 @@
 #define __DAAL_SERVICES_EXECUTION_CONTEXT_H__
 
 #include "services/internal/utilities.h"
-#include "oneapi/internal/execution_context.h"
+#include "sycl/internal/execution_context.h"
 
 namespace daal
 {
@@ -80,7 +80,7 @@ using interface1::CpuExecutionContext;
 } // namespace daal
 
 #ifdef DAAL_SYCL_INTERFACE
-    #include "oneapi/internal/execution_context_sycl.h"
+    #include "sycl/internal/execution_context_sycl.h"
 
 namespace daal
 {

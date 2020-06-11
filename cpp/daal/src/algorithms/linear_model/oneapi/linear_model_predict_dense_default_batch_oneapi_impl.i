@@ -26,8 +26,8 @@
 
 #include "src/algorithms/linear_model/oneapi/linear_model_predict_kernel_oneapi.h"
 #include "src/data_management/service_numeric_table.h"
-#include "src/oneapi/blas_gpu.h"
-#include "oneapi/internal/utils.h"
+#include "src/sycl/blas_gpu.h"
+#include "sycl/internal/utils.h"
 #include "src/algorithms/linear_model/oneapi/cl_kernel/linear_model_prediction.cl"
 
 namespace daal

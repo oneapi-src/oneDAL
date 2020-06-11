@@ -39,7 +39,7 @@
 #include "services/error_indexes.h"
 #include "src/services/service_data_utils.h"
 #include "src/services/service_algo_utils.h"
-#include "oneapi/internal/types.h"
+#include "sycl/internal/types.h"
 
 using namespace daal::algorithms::dtrees::training::internal;
 using namespace daal::algorithms::gbt::internal;

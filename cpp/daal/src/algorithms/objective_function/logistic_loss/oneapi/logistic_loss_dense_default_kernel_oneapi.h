@@ -24,7 +24,7 @@
 #ifndef __LOGISTIC_LOSS_DENSE_DEFAULT_KERNEL_ONEAPI_H__
 #define __LOGISTIC_LOSS_DENSE_DEFAULT_KERNEL_ONEAPI_H__
 
-#include "src/oneapi/blas_gpu.h"
+#include "src/sycl/blas_gpu.h"
 #include "src/algorithms/objective_function/common/oneapi/objective_function_utils_oneapi.h"
 #include "algorithms/optimization_solver/objective_function/logistic_loss_types.h"
 

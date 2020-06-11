@@ -45,7 +45,7 @@
 #include "src/services/service_arrays.h"
 #include "src/services/service_utils.h"
 #include "src/algorithms/engines/engine_types_internal.h"
-#include "oneapi/internal/types.h"
+#include "sycl/internal/types.h"
 
 using namespace daal::algorithms::decision_forest::internal;
 using namespace daal::algorithms::decision_forest::classification::internal;
