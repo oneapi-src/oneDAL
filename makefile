@@ -760,25 +760,27 @@ $(THR.tmpdir_y)/%_seq.res: %.rc | $(THR.tmpdir_y)/. ; $(RC.COMPILE)
 #===============================================================================
 # Java/JNI part
 #===============================================================================
-JAVA.srcdir      := $(DIR)/lang_interface/java
+JAVA.srcdir      := $(DIR)/java
 JAVA.srcdir.full := $(JAVA.srcdir)/com/intel/daal
 JAVA.tmpdir      := $(WORKDIR)/java_tmpdir
 
-JNI.srcdir       := $(DIR)/lang_service/java
+JNI.srcdir       := $(DIR)/java
 JNI.srcdir.full  := $(JNI.srcdir)/com/intel/daal
 JNI.tmpdir       := $(WORKDIR)/jni_tmpdir
 
 JAVA.srcdirs := $(JAVA.srcdir.full)                                                                                         \
                 $(JAVA.srcdir.full)/algorithms $(addprefix $(JAVA.srcdir.full)/algorithms/,$(JJ.ALGORITHMS))                \
                 $(JAVA.srcdir.full)/data_management $(addprefix $(JAVA.srcdir.full)/data_management/,$(JJ.DATA_MANAGEMENT)) \
-                $(JAVA.srcdir.full)/services $(JAVA.srcdir.full)/utils
+                $(JAVA.srcdir.full)/services \
+				$(JAVA.srcdir.full)/utils
 JAVA.srcs.f := $(wildcard $(JAVA.srcdirs:%=%/*.java))
 JAVA.srcs   := $(subst $(JAVA.srcdir)/,,$(JAVA.srcs.f))
 
 JNI.srcdirs := $(JNI.srcdir.full)                                                                                         \
                $(JNI.srcdir.full)/algorithms $(addprefix $(JNI.srcdir.full)/algorithms/,$(JJ.ALGORITHMS))                 \
                $(JNI.srcdir.full)/data_management $(addprefix $(JNI.srcdir.full)/data_management/,$(JJ.DATA_MANAGEMENT)) \
-               $(JNI.srcdir.full)/services
+               $(JNI.srcdir.full)/services \
+			   $(JNI.srcdir.full)/utils
 JNI.srcs.f := $(wildcard $(JNI.srcdirs:%=%/*.cpp))
 JNI.srcs   := $(subst $(JNI.srcdir)/,,$(JNI.srcs.f))
 JNI.objs   := $(addprefix $(JNI.tmpdir)/,$(JNI.srcs:%.cpp=%.$o))
@@ -807,7 +809,7 @@ $(JNI.objs): $(WORKDIR.lib)/$(daal_jar)
 $(JNI.objs): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC) -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED
 $(JNI.objs): COPT += @$(JNI.tmpdir)/inc_j_folders.txt
 
-$(JNI.tmpdir)/inc_j_folders.txt: makefile.lst | $(JNI.tmpdir)/. ; $(call WRITE.PREREQS,$(addprefix -I,$(JNI.tmpdir) $(CORE.incdirs.common) $(CORE.incdirs.thirdp) $(JNI.srcdir.full)/include),$(space))
+$(JNI.tmpdir)/inc_j_folders.txt: makefile.lst | $(JNI.tmpdir)/. ; $(call WRITE.PREREQS,$(addprefix -I,$(JNI.tmpdir) $(CORE.incdirs.common) $(CORE.incdirs.thirdp) $(JNI.srcdir)),$(space))
 
 $(JNI.objs): $(JNI.tmpdir)/%.$o: $(JNI.srcdir)/%.cpp; mkdir -p $(@D); $(C.COMPILE)
 
