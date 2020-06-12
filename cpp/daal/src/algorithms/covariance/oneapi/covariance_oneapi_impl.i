@@ -50,7 +50,7 @@ namespace internal
 template <typename algorithmFPType>
 static void __buildProgram(ClKernelFactoryIface & factory)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute.buildProgram);
+    DAAL_ITTNOTIFY_SCOPED_TASK(covariance.internal_function.buildProgram);
 
     auto fptype_name   = getKeyFPType<algorithmFPType>();
     auto build_options = fptype_name;
@@ -87,7 +87,7 @@ static KernelNDRange getKernelNDRange(size_t localRangeSize, size_t globalRangeS
 template <typename algorithmFPType, Method method>
 services::Status prepareSums(NumericTable * dataTable, const services::Buffer<algorithmFPType> & sumsBuffer)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute.prepareSums);
+    DAAL_ITTNOTIFY_SCOPED_TASK(covariance.internal_function.prepareSums);
 
     const size_t nFeatures = dataTable->getNumberOfColumns();
     auto & context         = services::Environment::getInstance()->getDefaultExecutionContext();
@@ -116,7 +116,7 @@ services::Status prepareSums(NumericTable * dataTable, const services::Buffer<al
 template <typename algorithmFPType>
 services::Status prepareCrossProduct(size_t nFeatures, const services::Buffer<algorithmFPType> & crossProductBuffer)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute.prepareCrossProduct);
+    DAAL_ITTNOTIFY_SCOPED_TASK(covariance.internal_function.prepareCrossProduct);
 
     const algorithmFPType zero = 0.0;
 
@@ -133,7 +133,7 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
                                                 const services::Buffer<algorithmFPType> & crossProduct,
                                                 const services::Buffer<algorithmFPType> & sums)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateCrossProductAndSums);
+    DAAL_ITTNOTIFY_SCOPED_TASK(covariance.internal_function.updateCrossProductAndSums);
     auto & context              = services::Environment::getInstance()->getDefaultExecutionContext();
     bool nonNormalizedFastDense = ((!isNormalized) && (method == defaultDense || method == sumDense));
 
@@ -153,7 +153,7 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
             DAAL_CHECK_STATUS_VAR(status);
 
             {
-                DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateCrossProductAndSums.gemmSums);
+                DAAL_ITTNOTIFY_SCOPED_TASK(covariance.compute_internal_function.updateCrossProductAndSums.gemmSums);
 
                 status |= BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::Trans, math::Transpose::NoTrans, nFeatures,
                                                           nFeatures, 1, algorithmFPType(1.0), sums, nFeatures, 0, sums, nFeatures, 0,
@@ -163,7 +163,7 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
         }
 
         {
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateCrossProductAndSums.gemmData);
+            DAAL_ITTNOTIFY_SCOPED_TASK(covariance.internal_function.updateCrossProductAndSums.gemmData);
 
             status |= BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::Trans, math::Transpose::NoTrans, nFeatures, nFeatures,
                                                       nVectors, algorithmFPType(1.0), dataBlock, nFeatures, 0, dataBlock, nFeatures, 0, beta,
@@ -185,7 +185,7 @@ services::Status mergeCrossProduct(size_t nFeatures, const services::Buffer<algo
                                    const services::Buffer<algorithmFPType> & crossProduct, const services::Buffer<algorithmFPType> & sums,
                                    algorithmFPType nObservations)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute.mergeCrossProduct);
+    DAAL_ITTNOTIFY_SCOPED_TASK(covariance.internal_function.mergeCrossProduct);
 
     if (nFeatures > services::internal::MaxVal<uint32_t>::get())
     {
@@ -228,7 +228,7 @@ services::Status mergeCrossProduct(size_t nFeatures, const services::Buffer<algo
 template <typename algorithmFPType, Method method>
 services::Status mergeSums(size_t nFeatures, const services::Buffer<algorithmFPType> & partialSums, const services::Buffer<algorithmFPType> & sums)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute.mergeSums);
+    DAAL_ITTNOTIFY_SCOPED_TASK(covariance.internal_function.mergeSums);
     services::Status status;
 
     status |= BlasGpu<algorithmFPType>::xaxpy(nFeatures, 1, partialSums, 1, sums, 1);
@@ -244,7 +244,7 @@ services::Status prepareMeansAndCrossProductDiag(size_t nFeatures, algorithmFPTy
                                                  const services::Buffer<algorithmFPType> & diagCrossProduct,
                                                  const services::Buffer<algorithmFPType> & sums, const services::Buffer<algorithmFPType> & mean)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute.prepareMeansAndCrossProductDiag);
+    DAAL_ITTNOTIFY_SCOPED_TASK(covariance.internal_function.prepareMeansAndCrossProductDiag);
 
     if (nFeatures > services::internal::MaxVal<uint32_t>::get())
     {
@@ -280,7 +280,7 @@ services::Status finalize(size_t nFeatures, algorithmFPType nObservations, const
                           const services::Buffer<algorithmFPType> & cov, const services::Buffer<algorithmFPType> & diagCrossProduct,
                           const Parameter * parameter)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute.finalize);
+    DAAL_ITTNOTIFY_SCOPED_TASK(covariance.internal_function.finalize);
 
     if (nFeatures > services::internal::MaxVal<uint32_t>::get())
     {
@@ -320,7 +320,7 @@ template <typename algorithmFPType, Method method>
 services::Status calculateCrossProductAndSums(NumericTable * dataTable, const services::Buffer<algorithmFPType> & crossProduct,
                                               const services::Buffer<algorithmFPType> & sums)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute.calculateCrossProductAndSums);
+    DAAL_ITTNOTIFY_SCOPED_TASK(covariance.internal_function.calculateCrossProductAndSums);
     services::Status status;
 
     const size_t nFeatures  = dataTable->getNumberOfColumns();
@@ -351,7 +351,7 @@ services::Status finalizeCovariance(size_t nFeatures, algorithmFPType nObservati
                                     const services::Buffer<algorithmFPType> & sums, const services::Buffer<algorithmFPType> & cov,
                                     const services::Buffer<algorithmFPType> & mean, const Parameter * parameter)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute.finalizeCovariance);
+    DAAL_ITTNOTIFY_SCOPED_TASK(covariance.internal_function.finalizeCovariance);
     services::Status status;
 
     auto & context = services::Environment::getInstance()->getDefaultExecutionContext();

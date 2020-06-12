@@ -55,12 +55,12 @@ Status PCACorrelationKernelOnlineUCAPI<algorithmFPType>::compute(const data_mana
                                                                  PartialResult<correlationDense> * partialResult,
                                                                  const OnlineParameter<algorithmFPType, correlationDense> * parameter)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute);
+    DAAL_ITTNOTIFY_SCOPED_TASK(PCA.online.compute);
     parameter->covariance->input.set(covariance::data, pData);
     parameter->covariance->parameter.outputMatrixType = covariance::correlationMatrix;
 
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(compute.covariance);
+        DAAL_ITTNOTIFY_SCOPED_TASK(PCA.online.compute.covariance);
         DAAL_CHECK_STATUS_VAR(parameter->covariance->computeNoThrow());
     }
     DAAL_CHECK_STATUS_VAR(copyCovarianceResultToPartialResult(parameter->covariance->getPartialResult().get(), partialResult));
@@ -72,7 +72,7 @@ template <typename algorithmFPType>
 services::Status PCACorrelationKernelOnlineUCAPI<algorithmFPType>::copyCovarianceResultToPartialResult(
     const covariance::PartialResult * covariancePres, PartialResult<correlationDense> * partialResult)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute.copy.to.partial.result);
+    DAAL_ITTNOTIFY_SCOPED_TASK(PCA.online.compute_internal_function.copy.to.partial.result);
     DAAL_CHECK_STATUS_VAR(copyIfNeeded(covariancePres->get(covariance::sum).get(), partialResult->get(sumCorrelation).get()));
     DAAL_CHECK_STATUS_VAR(copyIfNeeded(covariancePres->get(covariance::nObservations).get(), partialResult->get(nObservationsCorrelation).get()));
     DAAL_CHECK_STATUS_VAR(copyIfNeeded(covariancePres->get(covariance::crossProduct).get(), partialResult->get(crossProductCorrelation).get()));
@@ -83,6 +83,7 @@ template <typename algorithmFPType>
 services::Status PCACorrelationKernelOnlineUCAPI<algorithmFPType>::copyIfNeeded(const data_management::NumericTable * src,
                                                                                 data_management::NumericTable * dst)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(PCA.online.compute_internal_function.copyIfNeeded);
     if (src == dst) return services::Status();
 
     DAAL_ASSERT(dst->getNumberOfRows() == src->getNumberOfRows());
@@ -117,14 +118,17 @@ Status PCACorrelationKernelOnlineUCAPI<algorithmFPType>::finalize(PartialResult<
                                                                   data_management::NumericTable & eigenvectors,
                                                                   data_management::NumericTable & eigenvalues)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(finalize);
+    DAAL_ITTNOTIFY_SCOPED_TASK(PCA.online.finalize);
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(compute.covariance.finalize);
+        DAAL_ITTNOTIFY_SCOPED_TASK(PCA.online.finalize.covariance.finalize);
         DAAL_CHECK_STATUS_VAR(parameter->covariance->finalizeCompute());
     }
 
     data_management::NumericTablePtr correlation = parameter->covariance->getResult()->get(covariance::covariance);
-    DAAL_CHECK_STATUS_VAR(_host_impl->computeCorrelationEigenvalues(*correlation, eigenvectors, eigenvalues));
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(PCA.online.finalize.computeCorrelationEigenvalues);
+        DAAL_CHECK_STATUS_VAR(_host_impl->computeCorrelationEigenvalues(*correlation, eigenvectors, eigenvalues));
+    }
 
     return services::Status();
 }

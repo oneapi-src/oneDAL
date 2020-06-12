@@ -63,6 +63,7 @@ services::Status CovarianceDenseOnlineKernel<algorithmFPType, method, cpu>::comp
                                                                                     NumericTable * crossProductTable, NumericTable * sumTable,
                                                                                     const Parameter * parameter)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(covariance.dense.online.compute);
     const size_t nFeatures  = dataTable->getNumberOfColumns();
     const size_t nVectors   = dataTable->getNumberOfRows();
     const bool isNormalized = dataTable->isNormalized(NumericTableIface::standardScoreNormalized);
@@ -117,6 +118,7 @@ services::Status CovarianceDenseOnlineKernel<algorithmFPType, method, cpu>::fina
                                                                                             NumericTable * covTable, NumericTable * meanTable,
                                                                                             const Parameter * parameter)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(covariance.dense.online.finalize);
     return finalizeCovariance<algorithmFPType, cpu>(nObservationsTable, crossProductTable, sumTable, covTable, meanTable, parameter);
 }
 

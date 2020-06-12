@@ -43,7 +43,7 @@ template <typename algorithmFPType, Method method>
 services::Status CovarianceDenseBatchKernelOneAPI<algorithmFPType, method>::compute(NumericTable * dataTable, NumericTable * covTable,
                                                                                     NumericTable * meanTable, const Parameter * parameter)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(computeDenseBatch);
+    DAAL_ITTNOTIFY_SCOPED_TASK(covariance.dense.batch.compute);
 
     services::Status status;
 

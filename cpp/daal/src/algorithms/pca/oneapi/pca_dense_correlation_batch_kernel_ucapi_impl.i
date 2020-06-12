@@ -59,7 +59,7 @@ Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::compute(bool isCorrelati
                                                                 NumericTable & eigenvectors, NumericTable & eigenvalues, NumericTable & means,
                                                                 NumericTable & variances)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute);
+    DAAL_ITTNOTIFY_SCOPED_TASK(PCA.batch.compute);
     Status st;
 
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
@@ -73,7 +73,7 @@ Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::compute(bool isCorrelati
     cachekey.add(fptype_name);
 
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(compute.buildProgram);
+        DAAL_ITTNOTIFY_SCOPED_TASK(PCA.batch.compute.buildProgram);
         kernel_factory.build(ExecutionTargetIds::device, cachekey.c_str(), pca_cl_kernels, build_options.c_str());
     }
 
@@ -84,11 +84,11 @@ Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::compute(bool isCorrelati
 
     if (isCorrelation)
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation);
+        DAAL_ITTNOTIFY_SCOPED_TASK(PCA.batch.compute.isCorrelation);
 
         if (resultsToCompute & mean)
         {
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation.fillTable(means));
+            DAAL_ITTNOTIFY_SCOPED_TASK(PCA.batch.compute.correlation.fillTable(means));
 
             BlockDescriptor<algorithmFPType> meansBlock;
             means.getBlockOfRows(0, 1, readWrite, meansBlock);
@@ -100,7 +100,7 @@ Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::compute(bool isCorrelati
 
         if (resultsToCompute & variance)
         {
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation.fillTable(variances));
+            DAAL_ITTNOTIFY_SCOPED_TASK(PCA.batch.compute.correlation.fillTable(variances));
 
             BlockDescriptor<algorithmFPType> varBlock;
             variances.getBlockOfRows(0, 1, readWrite, varBlock);
@@ -111,16 +111,16 @@ Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::compute(bool isCorrelati
         }
 
         {
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation.eigenvalues);
+            DAAL_ITTNOTIFY_SCOPED_TASK(PCA.batch.compute.correlation.eigenvalues);
             DAAL_CHECK_STATUS(st, _host_impl->computeCorrelationEigenvalues(dataTable, eigenvectors, eigenvalues));
         }
     }
     else
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(compute.full);
+        DAAL_ITTNOTIFY_SCOPED_TASK(PCA.batch.compute.full);
         DAAL_CHECK(covarianceAlg, services::ErrorNullPtr);
         {
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.covariance);
+            DAAL_ITTNOTIFY_SCOPED_TASK(PCA.batch.compute.full.covariance);
             DAAL_CHECK_STATUS(st, covarianceAlg->computeNoThrow());
         }
 
@@ -169,14 +169,14 @@ Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::compute(bool isCorrelati
         }
 
         {
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.computeEigenvalues);
+            DAAL_ITTNOTIFY_SCOPED_TASK(PCA.batch.compute.full.computeEigenvalues);
             DAAL_CHECK_STATUS(st, _host_impl->computeCorrelationEigenvalues(covarianceTable, eigenvectors, eigenvalues));
         }
     }
 
     if (isDeterministic)
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(compute.signFlipEigenvectors);
+        DAAL_ITTNOTIFY_SCOPED_TASK(PCA.batch.compute.signFlipEigenvectors);
         DAAL_CHECK_STATUS(st, _host_impl->signFlipEigenvectors(eigenvectors));
     }
 
@@ -187,7 +187,7 @@ template <typename algorithmFPType>
 services::Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::correlationFromCovarianceTable(uint32_t nObservations, NumericTable & covariance,
                                                                                                  const services::Buffer<algorithmFPType> & variances)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlationFromCovarianceTable);
+    DAAL_ITTNOTIFY_SCOPED_TASK(PCA.batch.compute_internal_function.correlationFromCovarianceTable);
     services::Status status;
 
     uint32_t nFeatures = covariance.getNumberOfRows();
@@ -213,7 +213,7 @@ services::Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::calculateVaria
                                                                                      NumericTable & covariance,
                                                                                      const services::Buffer<algorithmFPType> & variances)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute.calculateVariances);
+    DAAL_ITTNOTIFY_SCOPED_TASK(PCA.batch.compute_internal_function.calculateVariances);
     services::Status status;
 
     uint32_t nFeatures = covariance.getNumberOfRows();

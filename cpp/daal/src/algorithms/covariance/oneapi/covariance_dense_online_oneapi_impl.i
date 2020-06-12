@@ -51,7 +51,7 @@ services::Status CovarianceDenseOnlineKernelOneAPI<algorithmFPType, method>::com
                                                                                      NumericTable * crossProductTable, NumericTable * sumTable,
                                                                                      const Parameter * parameter)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(computeDenseOnline);
+    DAAL_ITTNOTIFY_SCOPED_TASK(covariance.dense.online.compute);
     services::Status status;
 
     auto & context                       = Environment::getInstance()->getDefaultExecutionContext();
@@ -134,6 +134,7 @@ services::Status CovarianceDenseOnlineKernelOneAPI<algorithmFPType, method>::fin
                                                                                              NumericTable * sumTable, NumericTable * covTable,
                                                                                              NumericTable * meanTable, const Parameter * parameter)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(covariance.dense.online.finalize);
     services::Status status;
 
     const size_t nFeatures          = crossProductTable->getNumberOfColumns();

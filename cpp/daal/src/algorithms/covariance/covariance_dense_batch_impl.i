@@ -41,7 +41,7 @@ template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status CovarianceDenseBatchKernel<algorithmFPType, method, cpu>::compute(NumericTable * dataTable, NumericTable * covTable,
                                                                                    NumericTable * meanTable, const Parameter * parameter)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(computeDenseBatch);
+    DAAL_ITTNOTIFY_SCOPED_TASK(covariance.dense.batch.compute);
 
     algorithmFPType nObservations = 0.0;
 

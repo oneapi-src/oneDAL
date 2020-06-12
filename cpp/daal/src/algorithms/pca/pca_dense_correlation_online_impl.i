@@ -24,6 +24,9 @@
 #ifndef __PCA_DENSE_CORRELATION_ONLINE_IMPL_I__
 #define __PCA_DENSE_CORRELATION_ONLINE_IMPL_I__
 
+#include "src/externals/service_ittnotify.h"
+DAAL_ITTNOTIFY_DOMAIN(PCA.dense.online);
+
 #include "src/externals/service_math.h"
 #include "src/externals/service_memory.h"
 #include "src/data_management/service_numeric_table.h"
@@ -42,6 +45,8 @@ services::Status PCACorrelationKernel<online, algorithmFPType, cpu>::compute(con
                                                                              PartialResult<correlationDense> * partialResult,
                                                                              const OnlineParameter<algorithmFPType, correlationDense> * parameter)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(PCA.dense.online.compute);
+
     parameter->covariance->input.set(covariance::data, pData);
     parameter->covariance->parameter.outputMatrixType = covariance::correlationMatrix;
 
@@ -56,11 +61,16 @@ services::Status PCACorrelationKernel<online, algorithmFPType, cpu>::finalize(Pa
                                                                               data_management::NumericTable & eigenvectors,
                                                                               data_management::NumericTable & eigenvalues)
 {
-    services::Status s = parameter->covariance->finalizeCompute();
-    if (!s) return s;
+    DAAL_ITTNOTIFY_SCOPED_TASK(PCA.dense.online.finalize);
+
+    DAAL_CHECK_STATUS_VAR(parameter->covariance->finalizeCompute());
 
     data_management::NumericTablePtr correlation = parameter->covariance->getResult()->get(covariance::covariance);
-    return this->computeCorrelationEigenvalues(*correlation, eigenvectors, eigenvalues);
+
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(PCA.dense.online.finalize.computeCorrelationEigenvalues);
+        return this->computeCorrelationEigenvalues(*correlation, eigenvectors, eigenvalues);
+    }
 }
 
 template <typename algorithmFPType, CpuType cpu>
