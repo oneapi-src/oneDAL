@@ -350,8 +350,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::upd
     SafeStatus safeStat;
     const size_t nBlocksWS = nWS / _blockSizeWS;
 
-    const size_t blockSize   = 256;
-    const size_t nBlocksGrad = nVectors / blockSize + !!(nVectors % blockSize);
+    size_t blockSize   = 256;
+    size_t nBlocksGrad = (nVectors / blockSize) + !!(nVectors % blockSize);
 
     DAAL_INT incX(1);
     DAAL_INT incY(1);
