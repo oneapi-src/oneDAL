@@ -101,7 +101,7 @@ public:
     }
 
     template <typename featureType>
-    services::Status setAllFeatures() DAAL_C11_OVERRIDE
+    services::Status setAllFeatures()
     {
         NumericTableFeatureCPU<cpu> defaultFeature;
         defaultFeature.template setType<featureType>();
