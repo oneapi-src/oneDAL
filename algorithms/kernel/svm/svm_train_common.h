@@ -20,6 +20,7 @@
 
 #include "service/kernel/data_management/service_numeric_table.h"
 #include "service/kernel/service_utils.h"
+#include "algorithms/kernel/service_hash_table.h"
 
 namespace daal
 {
@@ -68,6 +69,74 @@ private:
                                                    algorithmFPType & GMax, algorithmFPType & GMax2, algorithmFPType & delta);
 };
 
+template <CpuType cpu, typename TKey>
+class LRUCache
+{
+public:
+    LRUCache(const size_t capacity) : _capacity(capacity), _hashmap(capacity * 2)
+    {
+        _freeIndexCache = -1;
+        _count          = 0;
+        _head           = nullptr;
+        _tail           = nullptr;
+    }
+
+    ~LRUCache()
+    {
+        LRUNode * curr = _head;
+        while (curr)
+        {
+            LRUNode * next = curr->next;
+            delete curr;
+            curr = next;
+        }
+    }
+
+    void put(const TKey key);
+    int64_t getFreeIndex() const { return _freeIndexCache; }
+    int64_t get(const TKey key);
+
+private:
+    class LRUNode
+    {
+    public:
+        DAAL_NEW_DELETE();
+        static LRUNode * create(const TKey key, int64_t value)
+        {
+            auto val = new LRUNode(key, value);
+            if (val) return val;
+            delete val;
+            return nullptr;
+        }
+
+        TKey getKey() const { return key_; }
+        int64_t getValue() const { return value_; }
+
+        void setKey(const TKey key) { key_ = key; }
+        void setValue(const int64_t value) { value_ = value; }
+
+    public:
+        LRUNode * next;
+        LRUNode * prev;
+
+    private:
+        LRUNode(const TKey key, int64_t value) : key_(key), value_(value), next(nullptr), prev(nullptr) {}
+        TKey key_;
+        int64_t value_;
+    };
+
+    const size_t _capacity;
+    algorithms::internal::HashTable<cpu, TKey, LRUNode *> _hashmap;
+    LRUNode * _head;
+    LRUNode * _tail;
+    size_t _count;
+    int64_t _freeIndexCache;
+
+private:
+    void enqueue(LRUNode * node);
+    int64_t dequeue();
+};
+
 template <typename algorithmFPType, CpuType cpu>
 class SubDataTaskBase
 {
@@ -75,18 +144,18 @@ public:
     DAAL_NEW_DELETE();
     virtual ~SubDataTaskBase() {}
 
-    virtual services::Status copyDataByIndices(const uint32_t * wsIndices, const NumericTablePtr & xTable) = 0;
+    virtual services::Status copyDataByIndices(const uint32_t * wsIndices, const size_t nSubsetVectors, const NumericTablePtr & xTable) = 0;
 
     NumericTablePtr getTableData() const { return _dataTable; }
 
 protected:
-    SubDataTaskBase(const size_t nSubsetVectors, const size_t dataSize) : _nSubsetVectors(nSubsetVectors), _data(dataSize) {}
-    SubDataTaskBase(const size_t nSubsetVectors) : _nSubsetVectors(nSubsetVectors) {}
+    SubDataTaskBase(const size_t nMaxSubsetVectors, const size_t dataSize) : _nMaxSubsetVectors(nMaxSubsetVectors), _data(dataSize) {}
+    SubDataTaskBase(const size_t nMaxSubsetVectors) : _nMaxSubsetVectors(nMaxSubsetVectors) {}
 
     bool isValid() const { return _data.get(); }
 
 protected:
-    size_t _nSubsetVectors;
+    size_t _nMaxSubsetVectors;
     TArray<algorithmFPType, cpu> _data;
     NumericTablePtr _dataTable;
 };
@@ -96,9 +165,9 @@ class SubDataTaskCSR : public SubDataTaskBase<algorithmFPType, cpu>
 {
 public:
     using super = SubDataTaskBase<algorithmFPType, cpu>;
-    static SubDataTaskCSR * create(const NumericTablePtr & xTable, const size_t nSubsetVectors)
+    static SubDataTaskCSR * create(const NumericTablePtr & xTable, const size_t nMaxSubsetVectors)
     {
-        auto val = new SubDataTaskCSR(xTable, nSubsetVectors);
+        auto val = new SubDataTaskCSR(xTable, nMaxSubsetVectors);
         if (val && val->isValid()) return val;
         delete val;
         val = nullptr;
@@ -108,7 +177,7 @@ public:
 private:
     bool isValid() const { return super::isValid() && _colIndices.get() && this->_dataTable.get(); }
 
-    SubDataTaskCSR(const NumericTablePtr & xTable, const size_t nSubsetVectors) : super(nSubsetVectors)
+    SubDataTaskCSR(const NumericTablePtr & xTable, const size_t nMaxSubsetVectors) : super(nMaxSubsetVectors)
     {
         const size_t p                        = xTable->getNumberOfColumns();
         const size_t nRows                    = xTable->getNumberOfRows();
@@ -118,14 +187,14 @@ private:
         const size_t * const rowOffsets = mtX.rows();
         const size_t maxDataSize        = rowOffsets[nRows] - rowOffsets[0];
         this->_data.reset(maxDataSize);
-        _colIndices.reset(maxDataSize + nSubsetVectors + 1);
+        _colIndices.reset(maxDataSize + nMaxSubsetVectors + 1);
         _rowOffsets = _colIndices.get() + maxDataSize;
         if (this->_data.get())
-            this->_dataTable = CSRNumericTable::create(this->_data.get(), _colIndices.get(), _rowOffsets, p, nSubsetVectors,
+            this->_dataTable = CSRNumericTable::create(this->_data.get(), _colIndices.get(), _rowOffsets, p, nMaxSubsetVectors,
                                                        CSRNumericTableIface::CSRIndexing::oneBased);
     }
 
-    virtual services::Status copyDataByIndices(const uint32_t * wsIndices, const NumericTablePtr & xTable);
+    virtual services::Status copyDataByIndices(const uint32_t * wsIndices, const size_t nSubsetVectors, const NumericTablePtr & xTable);
 
 private:
     TArray<size_t, cpu> _colIndices;
@@ -137,25 +206,25 @@ class SubDataTaskDense : public SubDataTaskBase<algorithmFPType, cpu>
 {
 public:
     using super = SubDataTaskBase<algorithmFPType, cpu>;
-    static SubDataTaskDense * create(const size_t nFeatures, const size_t nSubsetVectors)
+    static SubDataTaskDense * create(const size_t nFeatures, const size_t nMaxSubsetVectors)
     {
-        auto val = new SubDataTaskDense(nFeatures, nSubsetVectors);
+        auto val = new SubDataTaskDense(nFeatures, nMaxSubsetVectors);
         if (val && val->isValid()) return val;
         delete val;
         val = nullptr;
         return nullptr;
     }
 
-    virtual services::Status copyDataByIndices(const uint32_t * wsIndices, const NumericTablePtr & xTable);
+    virtual services::Status copyDataByIndices(const uint32_t * wsIndices, const size_t nSubsetVectors, const NumericTablePtr & xTable);
 
 private:
     bool isValid() const { return super::isValid() && this->_dataTable.get(); }
 
-    SubDataTaskDense(const size_t nFeatures, const size_t nSubsetVectors) : super(nSubsetVectors, nFeatures * nSubsetVectors)
+    SubDataTaskDense(const size_t nFeatures, const size_t nMaxSubsetVectors) : super(nMaxSubsetVectors, nFeatures * nMaxSubsetVectors)
     {
         services::Status status;
         if (this->_data.get())
-            this->_dataTable = HomogenNumericTableCPU<algorithmFPType, cpu>::create(this->_data.get(), nFeatures, nSubsetVectors, &status);
+            this->_dataTable = HomogenNumericTableCPU<algorithmFPType, cpu>::create(this->_data.get(), nFeatures, nMaxSubsetVectors, &status);
     }
 };
 

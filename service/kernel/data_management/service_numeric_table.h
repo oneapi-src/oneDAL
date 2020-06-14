@@ -25,6 +25,7 @@
 #define __SERVICE_NUMERIC_TABLE_H__
 
 #include "data_management/data/homogen_numeric_table.h"
+#include "data_management/data/soa_numeric_table.h"
 #include "data_management/data/csr_numeric_table.h"
 #include "data_management/data/symmetric_matrix.h"
 #include "service/kernel/service_defines.h"
@@ -63,13 +64,48 @@ public:
         if (nfeat) setNumberOfFeatures(nfeat);
     };
 
+    NumericTableDictionaryCPU(size_t nfeat, FeaturesEqual featuresEqual, services::Status & st)
+    {
+        _nfeat         = 0;
+        _dict          = (NumericTableFeature *)(new NumericTableFeatureCPU<cpu>[1]);
+        _featuresEqual = featuresEqual;
+        if (nfeat)
+        {
+            st |= setNumberOfFeatures(nfeat);
+        }
+    };
+
+    static services::SharedPtr<NumericTableDictionaryCPU<cpu> > create(size_t nfeat, FeaturesEqual featuresEqual = notEqual,
+                                                                       services::Status * stat = NULL)
+    {
+        DAAL_DEFAULT_CREATE_TEMPLATE_IMPL_EX(NumericTableDictionaryCPU, DAAL_TEMPLATE_ARGUMENTS(cpu), nfeat, featuresEqual);
+    }
+
     services::Status setAllFeatures(const NumericTableFeature & defaultFeature) DAAL_C11_OVERRIDE
     {
-        if (_nfeat > 0)
+        if (_featuresEqual == DictionaryIface::equal)
         {
-            _dict[0] = defaultFeature;
+            if (_nfeat > 0)
+            {
+                _dict[0] = defaultFeature;
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < _nfeat; i++)
+            {
+                _dict[i] = defaultFeature;
+            }
         }
         return services::Status();
+    }
+
+    template <typename featureType>
+    services::Status setAllFeatures() DAAL_C11_OVERRIDE
+    {
+        NumericTableFeatureCPU<cpu> defaultFeature;
+        defaultFeature.template setType<featureType>();
+        return setAllFeatures(defaultFeature);
     }
 
     services::Status setNumberOfFeatures(size_t nfeat) DAAL_C11_OVERRIDE
@@ -78,6 +114,9 @@ public:
         return services::Status();
     }
 };
+
+// template<CpuType cpu>
+// using Dictionary<NumericTableFeature, SERIALIZATION_DATADICTIONARY_NT_ID> NumericTableDictionary;
 
 template <typename T, CpuType cpu>
 class HomogenNumericTableCPU
@@ -321,6 +360,72 @@ public:
 
 private:
     NumericTableDictionary * _cpuDict;
+};
+
+template <CpuType cpu>
+class SOANumericTableCPU : public SOANumericTable
+{
+public:
+    SOANumericTableCPU(size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual, services::Status & st)
+        : SOANumericTable(nColumns, nRows, featuresEqual)
+    {}
+    static services::SharedPtr<SOANumericTableCPU<cpu> > create(size_t nColumns = 0, size_t nRows = 0,
+                                                                DictionaryIface::FeaturesEqual featuresEqual = DictionaryIface::notEqual,
+                                                                services::Status * stat                      = NULL)
+    {
+        DAAL_DEFAULT_CREATE_TEMPLATE_IMPL_EX(SOANumericTableCPU, DAAL_TEMPLATE_ARGUMENTS(cpu), nColumns, nRows, featuresEqual);
+    }
+
+    SOANumericTableCPU(NumericTableDictionaryPtr ddict, size_t nRows, AllocationFlag memoryAllocationFlag, services::Status & st)
+        : SOANumericTable(ddict, nRows, memoryAllocationFlag)
+    {}
+
+    static services::SharedPtr<SOANumericTableCPU<cpu> > create(NumericTableDictionaryPtr ddict, size_t nRows,
+                                                                AllocationFlag memoryAllocationFlag = notAllocate, services::Status * stat = NULL)
+    {
+        DAAL_DEFAULT_CREATE_TEMPLATE_IMPL_EX(SOANumericTableCPU, DAAL_TEMPLATE_ARGUMENTS(cpu), ddict, nRows, memoryAllocationFlag);
+    }
+
+    template <typename T>
+    services::Status setArray(const services::SharedPtr<T> & ptr, size_t idx)
+    {
+        if (_partialMemStatus != notAllocated && _partialMemStatus != userAllocated)
+        {
+            return services::Status(services::ErrorIncorrectNumberOfFeatures);
+        }
+
+        if (idx < getNumberOfColumns() && idx < _arrays.size())
+        {
+            _ddict->setFeature<T>(idx);
+
+            if (!_arrays[idx] && ptr)
+            {
+                _arraysInitialized++;
+            }
+
+            if (_arrays[idx] && !ptr)
+            {
+                _arraysInitialized--;
+            }
+
+            _arrays[idx] = services::reinterpretPointerCast<byte, T>(ptr);
+        }
+        else
+        {
+            return services::Status(services::ErrorIncorrectNumberOfFeatures);
+        }
+
+        _partialMemStatus = userAllocated;
+
+        if (_arraysInitialized == getNumberOfColumns())
+        {
+            _memStatus = userAllocated;
+        }
+        DAAL_CHECK_STATUS_VAR(generatesOffsets())
+        return services::Status();
+    }
+
+    virtual ~SOANumericTableCPU() {}
 };
 
 template <typename algorithmFPType, typename algorithmFPAccessType, CpuType cpu, ReadWriteMode mode, typename NumericTableType>

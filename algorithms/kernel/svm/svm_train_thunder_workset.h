@@ -26,6 +26,7 @@
 
 #include "service/kernel/service_utils.h"
 #include "algorithms/kernel/service_sort.h"
+#include "algorithms/kernel/service_heap.h"
 
 namespace daal
 {
@@ -44,18 +45,17 @@ struct TaskWorkingSet
 {
     using IndexType = uint32_t;
 
-    TaskWorkingSet(const size_t nVectors, const size_t maxWS) : _nVectors(nVectors), _maxWS(maxWS) {}
+    TaskWorkingSet(const size_t nNonZeroWeights, const size_t nVectors, const size_t maxWS)
+        : _nNonZeroWeights(nNonZeroWeights), _nVectors(nVectors), _maxWS(maxWS)
+    {}
 
     struct IdxValType
     {
         algorithmFPType key;
         IndexType val;
-        static int compare(const void * a, const void * b)
-        {
-            if (static_cast<const IdxValType *>(a)->key < static_cast<const IdxValType *>(b)->key) return -1;
-            return static_cast<const IdxValType *>(a)->key > static_cast<const IdxValType *>(b)->key;
-        }
+
         bool operator<(const IdxValType & o) const { return key < o.key; }
+        bool operator>(const IdxValType & o) const { return key > o.key; }
     };
 
     services::Status init()
@@ -68,7 +68,7 @@ struct TaskWorkingSet
         DAAL_CHECK_MALLOC(_indicator.get());
         services::internal::service_memset_seq<bool, cpu>(_indicator.get(), false, _nVectors);
 
-        _nWS       = services::internal::min<cpu, algorithmFPType>(maxPowTwo(_nVectors), _maxWS);
+        _nWS       = services::internal::min<cpu, algorithmFPType>(maxPowTwo(_nNonZeroWeights), _maxWS);
         _nSelected = 0;
 
         _wsIndices.reset(_nWS);
@@ -98,63 +98,71 @@ struct TaskWorkingSet
     services::Status select(const algorithmFPType * y, const algorithmFPType * alpha, const algorithmFPType * f, const algorithmFPType * cw)
     {
         services::Status status;
-        IdxValType * const sortedFIndices = _sortedFIndices.get();
+        IdxValType * sortedFIndices = _sortedFIndices.get();
 
-        for (size_t i = 0; i < _nVectors; ++i)
-        {
-            _sortedFIndices[i].key = f[i];
-            _sortedFIndices[i].val = i;
-        }
-
-        daal::algorithms::internal::qSortByKey<IdxValType, cpu>(_nVectors, sortedFIndices);
-
-        int64_t pLeft  = 0;
-        int64_t pRight = _nVectors - 1;
-        while (_nSelected < _nWS && (pRight >= 0 || pLeft < _nVectors))
-        {
-            if (pLeft < _nVectors)
+        const size_t blockSize = 16384;
+        const size_t nBlocks   = _nVectors / blockSize + !!(_nVectors % blockSize);
+        daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+            const size_t startRow = iBlock * blockSize;
+            const size_t endRow   = (iBlock != nBlocks - 1) ? startRow + blockSize : _nVectors;
+            for (size_t i = startRow; i < endRow; ++i)
             {
-                IndexType i = sortedFIndices[pLeft].val;
-                while (_indicator[i] || !HelperTrainSVM<algorithmFPType, cpu>::isUpper(y[i], alpha[i], cw[i]))
-                {
-                    pLeft++;
-                    if (pLeft == _nVectors)
-                    {
-                        break;
-                    }
-                    i = sortedFIndices[pLeft].val;
-                }
+                sortedFIndices[i].key = f[i];
+                sortedFIndices[i].val = i;
+            }
+        });
+
+        algorithms::internal::qSortByKey<IdxValType, cpu>(_nVectors, sortedFIndices);
+
+        {
+            int64_t pLeft  = 0;
+            int64_t pRight = _nVectors - 1;
+            while (_nSelected < _nWS && (pRight >= 0 || pLeft < _nVectors))
+            {
                 if (pLeft < _nVectors)
                 {
-                    _wsIndices[_nSelected] = i;
-                    _indicator[i]          = true;
-                    ++_nSelected;
-                }
-            }
-
-            if (pRight >= 0)
-            {
-                IndexType i = sortedFIndices[pRight].val;
-                while (_indicator[i] || !HelperTrainSVM<algorithmFPType, cpu>::isLower(y[i], alpha[i], cw[i]))
-                {
-                    pRight--;
-                    if (pRight == -1)
+                    IndexType i = sortedFIndices[pLeft].val;
+                    while (_indicator[i] || !HelperTrainSVM<algorithmFPType, cpu>::isUpper(y[i], alpha[i], cw[i]))
                     {
-                        break;
+                        pLeft++;
+                        if (pLeft == _nVectors)
+                        {
+                            break;
+                        }
+                        i = sortedFIndices[pLeft].val;
                     }
-                    i = sortedFIndices[pRight].val;
+                    if (pLeft < _nVectors)
+                    {
+                        _wsIndices[_nSelected] = i;
+                        _indicator[i]          = true;
+                        ++_nSelected;
+                    }
                 }
+
                 if (pRight >= 0)
                 {
-                    _wsIndices[_nSelected] = i;
-                    _indicator[i]          = true;
-                    ++_nSelected;
+                    IndexType i = sortedFIndices[pRight].val;
+                    while (_indicator[i] || !HelperTrainSVM<algorithmFPType, cpu>::isLower(y[i], alpha[i], cw[i]))
+                    {
+                        pRight--;
+                        if (pRight == -1)
+                        {
+                            break;
+                        }
+                        i = sortedFIndices[pRight].val;
+                    }
+                    if (pRight >= 0)
+                    {
+                        _wsIndices[_nSelected] = i;
+                        _indicator[i]          = true;
+                        ++_nSelected;
+                    }
                 }
             }
         }
 
         // For cases, when weights are zero
-        pLeft = 0;
+        int64_t pLeft = 0;
         while (_nSelected < _nWS)
         {
             if (!_indicator[pLeft])
@@ -190,6 +198,7 @@ protected:
     }
 
 private:
+    size_t _nNonZeroWeights;
     size_t _nVectors;
     size_t _maxWS;
     size_t _nSelected;
