@@ -203,7 +203,6 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
         if (checkStopCondition(diff, diffPrev, eps, sameLocalDiff) && iter >= nNoChanges) break;
         diffPrev = diff;
     }
-    // printf("nIter: %lu; diff: %.3lf\n", iter, diff);
     SaveResultTask<algorithmFPType, cpu> saveResult(nVectors, y, alpha, grad, cachePtr.get());
     DAAL_CHECK_STATUS(status, saveResult.compute(*xTable, *static_cast<Model *>(r), cw));
 
@@ -361,8 +360,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::upd
         const size_t startRowWS           = iBlock * _blockSizeWS;
         const algorithmFPType deltaalphai = deltaalpha[startRowWS];
 
-        daal::threader_for(blockSize, blockSize, [&](const size_t iBlockGrad) {
-            const size_t nRowsInBlockGrad = (iBlockGrad != blockSize - 1) ? blockSize : nVectors - iBlockGrad * blockSize;
+        daal::threader_for(nBlocksGrad, nBlocksGrad, [&](const size_t iBlockGrad) {
+            const size_t nRowsInBlockGrad = (iBlockGrad != nBlocksGrad - 1) ? blockSize : nVectors - iBlockGrad * blockSize;
             const size_t startRowGrad     = iBlockGrad * blockSize;
             algorithmFPType * gradi       = &gradBuff[nVectors * iBlock + startRowGrad];
 
