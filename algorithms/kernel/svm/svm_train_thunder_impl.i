@@ -351,8 +351,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::upd
     SafeStatus safeStat;
     const size_t nBlocksWS = nWS / _blockSizeWS;
 
-    const size_t blockSizeGrad = 256;
-    const size_t nBlocksGrad   = nVectors / blockSizeGrad + !!(nVectors % blockSizeGrad);
+    const size_t blockSize   = 256;
+    const size_t nBlocksGrad = nVectors / blockSize + !!(nVectors % blockSize);
 
     DAAL_INT incX(1);
     DAAL_INT incY(1);
@@ -361,9 +361,9 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::upd
         const size_t startRowWS           = iBlock * _blockSizeWS;
         const algorithmFPType deltaalphai = deltaalpha[startRowWS];
 
-        daal::threader_for(nBlocksGrad, nBlocksGrad, [&](const size_t iBlockGrad) {
-            const size_t nRowsInBlockGrad = (iBlockGrad != nBlocksGrad - 1) ? blockSizeGrad : nVectors - iBlockGrad * blockSizeGrad;
-            const size_t startRowGrad     = iBlockGrad * blockSizeGrad;
+        daal::threader_for(blockSize, blockSize, [&](const size_t iBlockGrad) {
+            const size_t nRowsInBlockGrad = (iBlockGrad != blockSize - 1) ? blockSize : nVectors - iBlockGrad * blockSize;
+            const size_t startRowGrad     = iBlockGrad * blockSize;
             algorithmFPType * gradi       = &gradBuff[nVectors * iBlock + startRowGrad];
 
             ReadColumns<algorithmFPType, cpu> mtKernel(kernelWS.get(), startRowWS, startRowGrad, nRowsInBlockGrad);
