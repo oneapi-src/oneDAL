@@ -58,16 +58,18 @@ class NumericTableDictionaryCPU : public NumericTableDictionary
 public:
     NumericTableDictionaryCPU(size_t nfeat)
     {
-        _nfeat         = 0;
-        _dict          = (NumericTableFeature *)(new NumericTableFeatureCPU<cpu>[1]);
+        _nfeat = 0;
+        // _dict          = (NumericTableFeature *)(new NumericTableFeatureCPU<cpu>[1]);
+        _dict          = nullptr;
         _featuresEqual = DictionaryIface::equal;
         if (nfeat) setNumberOfFeatures(nfeat);
     };
 
     NumericTableDictionaryCPU(size_t nfeat, FeaturesEqual featuresEqual, services::Status & st)
     {
-        _nfeat         = 0;
-        _dict          = (NumericTableFeature *)(new NumericTableFeatureCPU<cpu>[1]);
+        _nfeat = 0;
+        _dict  = 0;
+        // _dict          = (NumericTableFeature *)(new NumericTableFeatureCPU<cpu>[1]);
         _featuresEqual = featuresEqual;
         if (nfeat)
         {
@@ -111,6 +113,14 @@ public:
     services::Status setNumberOfFeatures(size_t nfeat) DAAL_C11_OVERRIDE
     {
         _nfeat = nfeat;
+        if (_featuresEqual == DictionaryIface::equal)
+        {
+            _dict = new NumericTableFeatureCPU<cpu>[1];
+        }
+        else
+        {
+            _dict = new NumericTableFeatureCPU<cpu>[_nfeat];
+        }
         return services::Status();
     }
 };
@@ -364,9 +374,25 @@ class SOANumericTableCPU : public SOANumericTable
 {
 public:
     SOANumericTableCPU(size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual, services::Status & st)
-        : SOANumericTable(nColumns, nRows, featuresEqual)
+    // : NumericTable(services::SharedPtr<NumericTableDictionaryCPU<cpu> >(new NumericTableDictionaryCPU<cpu>(nColumns, featuresEqual, st)))
     {
-        _ddict = NumericTableDictionaryCPU<cpu>::create(nColumns, featuresEqual);
+        _arrays            = services::Collection<services::SharedPtr<byte> >(nColumns);
+        _obsnum            = nRows;
+        _ddict             = services::SharedPtr<NumericTableDictionaryCPU<cpu> >(new NumericTableDictionaryCPU<cpu>(nColumns, featuresEqual, st));
+        _memStatus         = notAllocated;
+        _normalizationFlag = NumericTable::nonNormalized;
+
+        // _arraysInitialized(0),
+        // _partialMemStatus(notAllocated)
+
+        _layout = soa;
+        _index  = 0;
+        // _arrays.resize(nColumns);
+        if (!resizePointersArray(nColumns))
+        {
+            this->_status.add(services::ErrorMemoryAllocationFailed);
+            return;
+        }
     }
     static services::SharedPtr<SOANumericTableCPU<cpu> > create(size_t nColumns = 0, size_t nRows = 0,
                                                                 DictionaryIface::FeaturesEqual featuresEqual = DictionaryIface::notEqual,
@@ -374,6 +400,23 @@ public:
     {
         DAAL_DEFAULT_CREATE_TEMPLATE_IMPL_EX(SOANumericTableCPU, DAAL_TEMPLATE_ARGUMENTS(cpu), nColumns, nRows, featuresEqual);
     }
+
+    // static services::SharedPtr<SOANumericTableCPU<cpu> > create(size_t nColumns = 0, size_t nRows = 0,
+    //                                                             DictionaryIface::FeaturesEqual featuresEqual = DictionaryIface::notEqual,
+    //                                                             services::Status * stat                      = NULL)
+    // {
+    //     NumericTableDictionaryPtr ddict = NumericTableDictionaryCPU<cpu>::create(nColumns, featuresEqual);
+    //     // DAAL_CHECK_STATUS(status, dict->template setAllFeatures<algorithmFPType>());
+
+    //     auto res = create(ddict, nRows, doNotAllocate, stat);
+    //     if (!res->resizePointersArray(nColumns))
+    //     {
+    //         stat->add(services::ErrorMemoryAllocationFailed);
+    //     }
+
+    //     res->setNumberOfColumnsImpl(nColumns);
+    //     return res;
+    // }
 
     SOANumericTableCPU(NumericTableDictionaryPtr ddict, size_t nRows, AllocationFlag memoryAllocationFlag, services::Status & st)
         : SOANumericTable(ddict, nRows, memoryAllocationFlag)

@@ -117,7 +117,7 @@ public:
                     // If index in cache
                     DAAL_ASSERT(cacheIndex < _cacheSize)
                     auto cachei = services::reinterpretPointerCast<algorithmFPType, byte>(_cache->getArraySharedPtr(cacheIndex));
-                    kernelResultTable->template setArray<algorithmFPType>(cachei, i);
+                    DAAL_CHECK_STATUS(status, kernelResultTable->template setArray<algorithmFPType>(cachei, i));
                 }
                 else
                 {
@@ -125,7 +125,7 @@ public:
                     cacheIndex = _lruCache.getFreeIndex();
                     DAAL_ASSERT(cacheIndex < _cacheSize)
                     auto cachei = services::reinterpretPointerCast<algorithmFPType, byte>(_cache->getArraySharedPtr(cacheIndex));
-                    kernelResultTable->template setArray<algorithmFPType>(cachei, i);
+                    DAAL_CHECK_STATUS(status, kernelResultTable->template setArray<algorithmFPType>(cachei, i));
                     _kernelIndex[nIndicesForKernel]         = cacheIndex;
                     _kernelOriginalIndex[nIndicesForKernel] = indices[i];
                     ++nIndicesForKernel;
@@ -155,7 +155,7 @@ protected:
         {
             const size_t cacheIndex = _kernelIndex[i];
             auto cachei             = services::reinterpretPointerCast<algorithmFPType, byte>(_cache->getArraySharedPtr(cacheIndex));
-            kernelComputeTable->template setArray<algorithmFPType>(cachei, i);
+            DAAL_CHECK_STATUS(status, kernelComputeTable->template setArray<algorithmFPType>(cachei, i));
         }
 
         DAAL_CHECK_STATUS(status, _blockTask->copyDataByIndices(indices, nWorkElements, _xTable));
