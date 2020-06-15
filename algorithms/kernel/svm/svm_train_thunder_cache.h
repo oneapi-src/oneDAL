@@ -177,7 +177,6 @@ protected:
     services::Status init(const size_t nSize)
     {
         services::Status status;
-        // printf("cacheSize %lu _lineSize %lu nSize %lu\n", _cacheSize, _lineSize, nSize);
         _kernelIndex.reset(nSize);
         DAAL_CHECK_MALLOC(_kernelIndex.get());
         _kernelOriginalIndex.reset(nSize);
