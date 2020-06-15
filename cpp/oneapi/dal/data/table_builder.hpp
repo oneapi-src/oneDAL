@@ -63,21 +63,17 @@ public:
     template <typename DataType>
     homogen_table_builder(std::int64_t row_count, std::int64_t column_count,
                           const DataType* data_pointer,
-                          data_layout layout = data_layout::row_major);
+                          homogen_data_layout layout = homogen_data_layout::row_major);
 
     template <typename DataType, typename = std::enable_if_t<!std::is_pointer_v<DataType>>>
     homogen_table_builder(std::int64_t row_count, std::int64_t column_count,
                           DataType value,
-                          data_layout layout = data_layout::row_major);
+                          homogen_data_layout layout = homogen_data_layout::row_major);
 
     template <typename DataType>
     homogen_table_builder(std::int64_t column_count, const array<DataType>& data,
-                          data_layout layout = data_layout::row_major);
+                          homogen_data_layout layout = homogen_data_layout::row_major);
 
-    // TODO:
-    // homogen_table_builder(std::int64_t row_count, std::int64_t column_count,
-    //                       const void* data_pointer, const feature_info& finfo,
-    //                       data_layout layout = data_layout::row_major);
 
     homogen_table_builder(homogen_table&&);
 
