@@ -311,18 +311,16 @@ services::Status allValuesAreFiniteImpl(NumericTable & table, bool allowNaN, boo
     const size_t nElements = nRows * nColumns;
     const NTLayout layout  = table.getDataLayout();
 
-    size_t nDataPtrs, nElementsPerPtr;
+    size_t nDataPtrs;
     if (layout == NTLayout::soa)
     {
         // SOA layout: pointer for each column
-        nDataPtrs       = nColumns;
-        nElementsPerPtr = nRows;
+        nDataPtrs = nColumns;
     }
     else
     {
         // AOS layout: one pointer for all data
-        nDataPtrs       = 1;
-        nElementsPerPtr = nRows * nColumns;
+        nDataPtrs = 1;
     }
 
     NumericTableDictionaryPtr tableFeaturesDict = table.getDictionarySharedPtr();
@@ -360,7 +358,7 @@ services::Status allValuesAreFiniteImpl(NumericTable & table, bool allowNaN, boo
             DAAL_CHECK_BLOCK_STATUS(dataBlock);
             const DataType * dataPtr = dataBlock.get();
 
-            sum += computeSum<DataType, cpu>(1, nElementsPerPtr, &dataPtr);
+            sum += computeSum<DataType, cpu>(1, nElements, &dataPtr);
         }
         sumIsFinite &= !valuesAreNotFinite(&sum, 1, false);
     }
@@ -371,7 +369,7 @@ services::Status allValuesAreFiniteImpl(NumericTable & table, bool allowNaN, boo
         return s;
     }
 
-    // second stage: chech finiteness of all values
+    // second stage: check finiteness of all values
     bool valuesAreFinite = true;
     for (size_t i = 0; (i < nDataPtrs) && valuesAreFinite; ++i)
     {
@@ -403,7 +401,7 @@ services::Status allValuesAreFiniteImpl(NumericTable & table, bool allowNaN, boo
             DAAL_CHECK_BLOCK_STATUS(dataBlock);
             const DataType * dataPtr = dataBlock.get();
 
-            valuesAreFinite &= checkFiniteness<DataType, cpu>(nRows, 1, nRows, &dataPtr, allowNaN);
+            valuesAreFinite &= checkFiniteness<DataType, cpu>(nElements, 1, nElements, &dataPtr, allowNaN);
         }
     }
 
