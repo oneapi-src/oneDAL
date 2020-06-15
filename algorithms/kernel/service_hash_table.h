@@ -66,7 +66,8 @@ public:
     {
         for (size_t i = 0; i < _size; ++i)
         {
-            _table[i] = nullptr;
+            _table[i].next   = nullptr;
+            _table[i].isFree = true;
         }
     }
 
@@ -74,30 +75,40 @@ public:
     {
         for (size_t i = 0; i < _size; ++i)
         {
-            Entry * curr = _table[i];
-
+            Entry * curr = _table[i].next;
             while (curr)
             {
                 Entry * next = curr->next;
                 delete curr;
                 curr = next;
             }
-            _table[i] = nullptr;
         }
     }
 
     bool find(const KeyType & key, ValueType & value)
     {
         const size_t id = _hashFunc(key) % _size;
-        Entry * entry   = _table[id];
-        while (entry)
+        if (_table[id].isFree)
         {
-            if (entry->key == key)
+            return false;
+        }
+        else if (_table[id].key == key)
+        {
+            value = _table[id].value;
+            return true;
+        }
+        else
+        {
+            Entry * entry = _table[id].next;
+            while (entry)
             {
-                value = entry->value;
-                return true;
+                if (entry->key == key)
+                {
+                    value = entry->value;
+                    return true;
+                }
+                entry = entry->next;
             }
-            entry = entry->next;
         }
         return false;
     }
@@ -105,28 +116,37 @@ public:
     void insert(const KeyType & key, const ValueType & value)
     {
         const size_t id = _hashFunc(key) % _size;
-        Entry * entry   = _table[id];
-        Entry * prev    = nullptr;
-        while (entry && entry->key != key)
+        if (_table[id].isFree)
         {
-            prev  = entry;
-            entry = entry->next;
-        }
-        if (entry)
-        {
-            entry->value = value;
+            _table[id].isFree = false;
+            _table[id].key    = key;
+            _table[id].value  = value;
         }
         else
         {
-            entry = Entry::create(key, value);
-            if (!entry) return;
-            if (prev)
+            Entry * entry = _table[id].next;
+            Entry * prev  = nullptr;
+            while (entry && entry->key != key)
             {
-                prev->next = entry;
+                prev  = entry;
+                entry = entry->next;
+            }
+            if (entry)
+            {
+                entry->value = value;
             }
             else
             {
-                _table[id] = entry;
+                entry = Entry::create(key, value);
+                if (!entry) return;
+                if (prev)
+                {
+                    prev->next = entry;
+                }
+                else
+                {
+                    _table[id].next = entry;
+                }
             }
         }
     }
@@ -134,25 +154,43 @@ public:
     void erase(const KeyType & key)
     {
         const size_t id = _hashFunc(key) % _size;
-        Entry * entry   = _table[id];
-        Entry * prev    = nullptr;
+        Entry * entry   = _table[id].next;
+        if (_table[id].isFree) return;
 
-        while (entry && entry->key != key)
+        if (_table[id].key == key)
         {
-            prev  = entry;
-            entry = entry->next;
-        }
-        if (entry)
-        {
-            if (prev)
+            if (entry)
             {
-                prev->next = entry->next;
+                _table[id].key   = entry->key;
+                _table[id].value = entry->value;
+                _table[id].next  = entry->next;
+                delete entry;
             }
             else
             {
-                _table[id] = entry->next;
+                _table[id].isFree = true;
             }
-            delete entry;
+        }
+        else
+        {
+            Entry * prev = nullptr;
+            while (entry && entry->key != key)
+            {
+                prev  = entry;
+                entry = entry->next;
+            }
+            if (entry)
+            {
+                if (prev)
+                {
+                    prev->next = entry->next;
+                }
+                else
+                {
+                    _table[id].next = entry->next;
+                }
+                delete entry;
+            }
         }
     }
 
@@ -177,8 +215,16 @@ private:
         Entry(const KeyType & keyIn, const ValueType & valueIn) : key(keyIn), value(valueIn), next(nullptr) {}
     };
 
+    struct FirstEntry
+    {
+        KeyType key;
+        ValueType value;
+        Entry * next;
+        bool isFree;
+    };
+
     const size_t _size;
-    TArray<Entry *, cpu> _table;
+    TArray<FirstEntry, cpu> _table;
     HashFuncType _hashFunc;
 };
 
