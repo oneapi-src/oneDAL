@@ -115,9 +115,6 @@ public:
     }
 };
 
-// template<CpuType cpu>
-// using Dictionary<NumericTableFeature, SERIALIZATION_DATADICTIONARY_NT_ID> NumericTableDictionary;
-
 template <typename T, CpuType cpu>
 class HomogenNumericTableCPU
 {};
@@ -368,7 +365,9 @@ class SOANumericTableCPU : public SOANumericTable
 public:
     SOANumericTableCPU(size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual, services::Status & st)
         : SOANumericTable(nColumns, nRows, featuresEqual)
-    {}
+    {
+        _ddict = NumericTableDictionaryCPU<cpu>::create(nColumns, featuresEqual);
+    }
     static services::SharedPtr<SOANumericTableCPU<cpu> > create(size_t nColumns = 0, size_t nRows = 0,
                                                                 DictionaryIface::FeaturesEqual featuresEqual = DictionaryIface::notEqual,
                                                                 services::Status * stat                      = NULL)
