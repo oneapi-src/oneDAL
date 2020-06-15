@@ -138,7 +138,7 @@ struct TaskWorkingSet
                         ++_nSelected;
                     }
                 }
-
+                if (_nSelected == _nWS) break;
                 if (pRight >= 0)
                 {
                     IndexType i = sortedFIndices[pRight].val;
