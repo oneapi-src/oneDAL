@@ -502,6 +502,7 @@ private:
         return services::Status();
     }
 
+protected:
     template <typename T>
     services::Status getTBlock(size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
     {
