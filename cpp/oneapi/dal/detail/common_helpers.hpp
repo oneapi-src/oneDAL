@@ -35,8 +35,10 @@ constexpr auto make_data_type_impl() {
     } else if constexpr (std::is_same_v<double, T>) {
         return data_type::float64;
     } else {
-        return;
+        static_assert("unknown data type");
     }
+
+    return data_type::float32; // should never come here
 }
 
 } // namespace dal::detail

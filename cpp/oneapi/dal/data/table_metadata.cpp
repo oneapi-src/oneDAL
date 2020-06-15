@@ -14,7 +14,7 @@
  * limitations under the License.
  *******************************************************************************/
 
-#include "onedal/table_metadata.hpp"
+#include "oneapi/dal/data/table_metadata.hpp"
 
 using std::int64_t;
 
