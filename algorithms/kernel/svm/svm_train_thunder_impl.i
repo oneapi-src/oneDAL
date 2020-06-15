@@ -173,7 +173,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors * sizeof(algorithmFPType), nVectors);
 
-    size_t defaultCacheSize = services::internal::min<cpu, algorithmFPType>(nVectors, cacheSize / (nVectors / sizeof(algorithmFPType)));
+    size_t defaultCacheSize = services::internal::min<cpu, algorithmFPType>(nVectors, cacheSize / nVectors / sizeof(algorithmFPType));
     defaultCacheSize        = services::internal::max<cpu, algorithmFPType>(nWS, defaultCacheSize);
     auto cachePtr           = SVMCache<thunder, lruCache, algorithmFPType, cpu>::create(defaultCacheSize, nWS, nVectors, xTable, kernel, status);
 
