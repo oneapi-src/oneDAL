@@ -33,6 +33,16 @@ constexpr daal::CpuType get_daal_cpu_type<cpu_dispatch_default>(cpu_dispatch_def
 }
 
 template <>
+constexpr daal::CpuType get_daal_cpu_type<cpu_dispatch_ssse3>(cpu_dispatch_ssse3) {
+    return daal::CpuType::ssse3;
+}
+
+template <>
+constexpr daal::CpuType get_daal_cpu_type<cpu_dispatch_sse42>(cpu_dispatch_sse42) {
+    return daal::CpuType::sse42;
+}
+
+template <>
 constexpr daal::CpuType get_daal_cpu_type<cpu_dispatch_avx>(cpu_dispatch_avx) {
     return daal::CpuType::avx;
 }

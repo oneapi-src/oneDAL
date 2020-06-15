@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "daal/algorithms/kernel/pca/pca_dense_correlation_batch_kernel.h"
+#include "daal/src/algorithms/pca/pca_dense_correlation_batch_kernel.h"
 
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
