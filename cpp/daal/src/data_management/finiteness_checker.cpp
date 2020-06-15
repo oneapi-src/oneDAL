@@ -22,8 +22,7 @@
 #include "src/externals/service_dispatch.h"
 #include "src/threading/threading.h"
 #include "service_numeric_table.h"
-#include "algorithms/kernel/service_error_handling.h"
-#include "service/kernel/data_management/service_numeric_table.h"
+#include "src/algorithms/service_error_handling.h"
 
 namespace daal
 {
