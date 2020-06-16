@@ -714,7 +714,7 @@ $(ONEAPI.tmpdir_y)/dll.res: $(VERSION_DATA_FILE)
 $(ONEAPI.tmpdir_y)/dll.res: RCOPT += $(addprefix -I, $(ONEAPI.incdirs.common))
 $(ONEAPI.tmpdir_y)/%.res: %.rc | $(ONEAPI.tmpdir_y)/. ; $(RC.COMPILE)
 
-$(ONEAPI_DISPATCHER_CPU_FILE): $(ONEAPI.srcdir)/backend/dispatcher_cpu.hpp # ; $(value cpy)
+$(ONEAPI_DISPATCHER_CPU_FILE): $(ONEAPI.srcdir)/backend/dispatcher_cpu.hpp
 	cp -fp $< $@
 	$(USECPUS.oneapi.out.defs.filter) $@
 
