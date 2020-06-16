@@ -1,4 +1,3 @@
-#Documentation owner
-/docs/      @outoftardis
-*.md        @outoftardis
-
+#Documentation owners and reviewers
+/docs/      @outoftardis @averbukh @Vika-F
+*.md        @outoftardis @averbukh @Vika-F
