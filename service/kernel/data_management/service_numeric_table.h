@@ -58,8 +58,7 @@ class NumericTableDictionaryCPU : public NumericTableDictionary
 public:
     NumericTableDictionaryCPU(size_t nfeat)
     {
-        _nfeat = 0;
-        // _dict          = (NumericTableFeature *)(new NumericTableFeatureCPU<cpu>[1]);
+        _nfeat         = 0;
         _dict          = nullptr;
         _featuresEqual = DictionaryIface::equal;
         if (nfeat) setNumberOfFeatures(nfeat);
@@ -67,9 +66,8 @@ public:
 
     NumericTableDictionaryCPU(size_t nfeat, FeaturesEqual featuresEqual, services::Status & st)
     {
-        _nfeat = 0;
-        _dict  = 0;
-        // _dict          = (NumericTableFeature *)(new NumericTableFeatureCPU<cpu>[1]);
+        _nfeat         = 0;
+        _dict          = 0;
         _featuresEqual = featuresEqual;
         if (nfeat)
         {
@@ -376,21 +374,8 @@ public:
     SOANumericTableCPU(size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual, services::Status & st)
         : SOANumericTable(services::SharedPtr<NumericTableDictionaryCPU<cpu> >(new NumericTableDictionaryCPU<cpu>(nColumns, featuresEqual, st)),
                           nRows, doNotAllocate)
-
-    // : NumericTable(services::SharedPtr<NumericTableDictionaryCPU<cpu> >(new NumericTableDictionaryCPU<cpu>(nColumns, featuresEqual, st)))
     {
         _arrays = services::Collection<services::SharedPtr<byte> >(nColumns);
-        // _obsnum            = nRows;
-        // _ddict             = services::SharedPtr<NumericTableDictionaryCPU<cpu> >(new NumericTableDictionaryCPU<cpu>(nColumns, featuresEqual, st));
-        // _memStatus         = notAllocated;
-        // _normalizationFlag = NumericTable::nonNormalized;
-        // _layout = soa;
-        // _index  = 0;
-        // if (!resizePointersArray(nColumns))
-        // {
-        //     this->_status.add(services::ErrorMemoryAllocationFailed);
-        //     return;
-        // }
     }
     static services::SharedPtr<SOANumericTableCPU<cpu> > create(size_t nColumns = 0, size_t nRows = 0,
                                                                 DictionaryIface::FeaturesEqual featuresEqual = DictionaryIface::notEqual,
@@ -445,6 +430,19 @@ public:
     services::Status releaseBlockOfColumnValues(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE { return releaseTFeature<double>(block); }
     services::Status releaseBlockOfColumnValues(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE { return releaseTFeature<float>(block); }
     services::Status releaseBlockOfColumnValues(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE { return releaseTFeature<int>(block); }
+
+    services::SharedPtr<byte> getArraySharedPtr(size_t idx)
+    {
+        if (idx < _ddict->getNumberOfFeatures())
+        {
+            return _arrays[idx];
+        }
+        else
+        {
+            this->_status.add(services::ErrorIncorrectNumberOfFeatures);
+            return services::SharedPtr<byte>();
+        }
+    }
 
     template <typename T>
     services::Status setArray(const services::SharedPtr<T> & ptr, size_t idx)
