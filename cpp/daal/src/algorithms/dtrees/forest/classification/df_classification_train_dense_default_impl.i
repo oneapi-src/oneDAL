@@ -94,15 +94,18 @@ public:
     }
 
     void calcImpurity(const IndexType * aIdx, size_t n, ImpurityData & imp) const;
+
+    template <bool isSetPar>
     bool findBestSplitForFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
                                  const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split, double minWeightLeaf) const
     {
         return split.featureUnordered ?
-                   findBestSplitCategoricalFeature(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf) :
-                   findBestSplitOrderedFeature(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf);
+                   findBestSplitCategoricalFeature<isSetPar>(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf) :
+                   findBestSplitOrderedFeature<isSetPar>(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf);
     }
     bool terminateCriteria(ImpurityData & imp, algorithmFPType impurityThreshold, size_t nSamples) const { return imp.value() < impurityThreshold; }
 
+    template <bool isSetPar>
     int findBestSplitForFeatureSorted(algorithmFPType * featureBuf, IndexType iFeature, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
                                       const ImpurityData & curImpurity, TSplitData & split, double minWeightLeaf) const;
     void finalizeBestSplit(const IndexType * aIdx, size_t n, IndexType iFeature, size_t idxFeatureValueBestSplit, TSplitData & bestSplit,
@@ -213,9 +216,11 @@ private:
         for (size_t iClass = 0; iClass < _nClasses; ++iClass) histRight[iClass] = histTotal[iClass] - histLeft[iClass];
     }
 
+    template <bool isSetPar>
     bool findBestSplitOrderedFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
                                      const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
                                      double minWeightLeaf) const;
+    template <bool isSetPar>
     bool findBestSplitCategoricalFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
                                          const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
                                          double minWeightLeaf) const;
@@ -229,6 +234,11 @@ private:
     //work variables used in memory saving mode only
     mutable ImpurityData _impLeft;
     mutable ImpurityData _impRight;
+    template <bool isSetPar>
+    bool isCompare(const size_t i, const double x) const
+    {
+        return isSetPar ? i < x : false;
+    }
 };
 
 #ifdef DEBUG_CHECK_IMPURITY
@@ -289,6 +299,7 @@ void UnorderedRespHelper<algorithmFPType, cpu>::simpleSplit(const algorithmFPTyp
 }
 
 template <typename algorithmFPType, CpuType cpu>
+template <bool isSetPar>
 bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n,
                                                                             size_t nMinSplitPart, const algorithmFPType accuracy,
                                                                             const ImpurityData & curImpurity, TSplitData & split,
@@ -311,7 +322,7 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
     for (size_t i = 1; i < (n - nMinSplitPart + 1); ++i)
     {
         const bool bSameFeaturePrev(featureVal[i] <= featureVal[i - 1] + accuracy);
-        if (bSameFeaturePrev || (i < nMinSplitPart) || (i < minWeightLeaf) || ((n - i) < minWeightLeaf))
+        if (bSameFeaturePrev || (i < nMinSplitPart) || isCompare<isSetPar>(i, minWeightLeaf) || isCompare<isSetPar>(n - i, minWeightLeaf))
         {
             //can't make a split
             //update impurity and continue
@@ -389,6 +400,7 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(cons
 }
 
 template <typename algorithmFPType, CpuType cpu>
+template <bool isSetPar>
 bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitCategoricalFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n,
                                                                                 size_t nMinSplitPart, const algorithmFPType accuracy,
                                                                                 const ImpurityData & curImpurity, TSplitData & split,
@@ -414,7 +426,9 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitCategoricalFeature(
             xi = this->_aResponse[aIdx[i]].val;
             ++_impLeft.hist[xi];
         }
-        if ((count < nMinSplitPart) || ((n - count) < nMinSplitPart) || (count < minWeightLeaf) || ((n - count) < minWeightLeaf)) continue;
+        if ((count < nMinSplitPart) || ((n - count) < nMinSplitPart) || isCompare<isSetPar>(count, minWeightLeaf)
+            || isCompare<isSetPar>(n - count, minWeightLeaf))
+            continue;
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         for (size_t j = 0; j < _nClasses; ++j) _impRight.hist[j] = curImpurity.hist[j] - _impLeft.hist[j];
@@ -469,6 +483,7 @@ void countResponses(SizeType nClasses, SizeType n, const IndexType * aIdx, const
 }
 
 template <typename algorithmFPType, CpuType cpu>
+template <bool isSetPar>
 int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(algorithmFPType * featureBuf, IndexType iFeature, const IndexType * aIdx,
                                                                              size_t n, size_t nMinSplitPart, const ImpurityData & curImpurity,
                                                                              TSplitData & split, double minWeightLeaf) const
@@ -495,7 +510,7 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(alg
         if (!nFeatIdx[i]) continue;
         nLeft = (split.featureUnordered ? nFeatIdx[i] : nLeft + nFeatIdx[i]);
         if ((nLeft == n) //last split
-            || ((n - nLeft) < nMinSplitPart) || ((n - nLeft) < minWeightLeaf))
+            || ((n - nLeft) < nMinSplitPart) || isCompare<isSetPar>(n - nLeft, minWeightLeaf))
             break;
 
         if (!split.featureUnordered)
@@ -504,7 +519,7 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(alg
             PRAGMA_VECTOR_ALWAYS
             for (size_t iClass = 0; iClass < _nClasses; ++iClass) histLeft[iClass] += nSamplesPerClass[i * _nClasses + iClass];
         }
-        if ((nLeft < nMinSplitPart) || (nLeft < minWeightLeaf)) continue;
+        if ((nLeft < nMinSplitPart) || isCompare<isSetPar>(nLeft, minWeightLeaf)) continue;
 
         if (split.featureUnordered)
         {
@@ -560,6 +575,7 @@ void UnorderedRespHelper<algorithmFPType, cpu>::finalizeBestSplit(const IndexTyp
 }
 #else
 template <typename algorithmFPType, CpuType cpu>
+template <bool isSetPar>
 int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(algorithmFPType * featureBuf, IndexType iFeature, const IndexType * aIdx,
                                                                              size_t n, size_t nMinSplitPart, const ImpurityData & curImpurity,
                                                                              TSplitData & split, double minWeightLeaf) const
@@ -597,7 +613,7 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(alg
         if (!nFeatIdx[i]) continue;
         nLeft = (split.featureUnordered ? nFeatIdx[i] : nLeft + nFeatIdx[i]);
         if ((nLeft == n) //last split
-            || ((n - nLeft) < nMinSplitPart) || ((n - nLeft) < minWeightLeaf))
+            || ((n - nLeft) < nMinSplitPart) || isCompare<isSetPar>(n - nLeft, minWeightLeaf))
             break;
 
         if (!split.featureUnordered)
@@ -606,7 +622,7 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(alg
             PRAGMA_VECTOR_ALWAYS
             for (size_t iClass = 0; iClass < _nClasses; ++iClass) histLeft[iClass] += nSamplesPerClass[i * _nClasses + iClass];
         }
-        if ((nLeft < nMinSplitPart) || nLeft < minWeightLeaf) continue;
+        if ((nLeft < nMinSplitPart) || isCompare<isSetPar>(nLeft, minWeightLeaf)) continue;
 
         if (split.featureUnordered)
         {

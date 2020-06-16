@@ -107,8 +107,11 @@ public:
     }
 
     void calcImpurity(const IndexType * aIdx, size_t n, ImpurityData & imp) const;
+
+    template <bool isSetPar>
     bool findBestSplitForFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
                                  const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split, double minWeightLeaf) const;
+    template <bool isSetPar>
     int findBestSplitForFeatureSorted(algorithmFPType * featureBuf, IndexType iFeature, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
                                       const ImpurityData & curImpurity, TSplitData & split, double minWeightLeaf) const;
     void finalizeBestSplit(const IndexType * aIdx, size_t n, IndexType iFeature, size_t idxFeatureValueBestSplit, TSplitData & bestSplit,
@@ -162,9 +165,11 @@ private:
 #ifdef DEBUG_CHECK_IMPURITY
     algorithmFPType calcResponse(algorithmFPType & res, const IndexType * idx, size_t n) const;
 #endif
+    template <bool isSetPar>
     bool findBestSplitOrderedFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
                                      const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
                                      double minWeightLeaf) const;
+    template <bool isSetPar>
     bool findBestSplitCategoricalFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
                                          const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
                                          double minWeightLeaf) const;
@@ -172,6 +177,11 @@ private:
 private:
     //buffer for the computation using indexed features
     mutable TVector<IndexType, cpu, DefaultAllocator<cpu> > _idxFeatureBuf;
+    template <bool isSetPar>
+    bool isCompare(const size_t i, const double x) const
+    {
+        return isSetPar ? i < x : false;
+    }
 };
 
 #ifdef DEBUG_CHECK_IMPURITY
@@ -262,13 +272,15 @@ void OrderedRespHelper<algorithmFPType, cpu>::simpleSplit(const algorithmFPType 
 }
 
 template <typename algorithmFPType, CpuType cpu>
+template <bool isSetPar>
 bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n,
                                                                       size_t nMinSplitPart, const algorithmFPType accuracy,
                                                                       const ImpurityData & curImpurity, TSplitData & split,
                                                                       double minWeightLeaf) const
 {
-    return split.featureUnordered ? findBestSplitCategoricalFeature(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf) :
-                                    findBestSplitOrderedFeature(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf);
+    return split.featureUnordered ?
+               findBestSplitCategoricalFeature<isSetPar>(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf) :
+               findBestSplitOrderedFeature<isSetPar>(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf);
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -312,6 +324,7 @@ void OrderedRespHelper<algorithmFPType, cpu>::finalizeBestSplit(const IndexType 
 }
 
 template <typename algorithmFPType, CpuType cpu>
+template <bool isSetPar>
 int OrderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(algorithmFPType * buf, IndexType iFeature, const IndexType * aIdx,
                                                                            size_t n, size_t nMinSplitPart, const ImpurityData & curImpurity,
                                                                            TSplitData & split, double minWeightLeaf) const
@@ -351,10 +364,10 @@ int OrderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(algor
         if (!nFeatIdx[i]) continue;
         nLeft = (split.featureUnordered ? nFeatIdx[i] : nLeft + nFeatIdx[i]);
         if ((nLeft == n) //last split
-            || ((n - nLeft) < nMinSplitPart) || ((n - nLeft) < minWeightLeaf))
+            || ((n - nLeft) < nMinSplitPart) || isCompare<isSetPar>(n - nLeft, minWeightLeaf))
             break;
         sumLeft = (split.featureUnordered ? buf[i] : sumLeft + buf[i]);
-        if ((nLeft < minWeightLeaf) || (nLeft < minWeightLeaf)) continue;
+        if ((nLeft < nMinSplitPart) || isCompare<isSetPar>(nLeft, minWeightLeaf)) continue;
         intermSummFPType sumRight = sumTotal - sumLeft;
         //the part of the impurity decrease dependent on split itself
         const intermSummFPType impDecreasePart = sumLeft * sumLeft / intermSummFPType(nLeft) + sumRight * sumRight / intermSummFPType(n - nLeft);
@@ -375,6 +388,7 @@ int OrderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(algor
 }
 
 template <typename algorithmFPType, CpuType cpu>
+template <bool isSetPar>
 bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n,
                                                                           size_t nMinSplitPart, const algorithmFPType accuracy,
                                                                           const ImpurityData & curImpurity, TSplitData & split,
@@ -397,7 +411,7 @@ bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(const 
     for (size_t i = 1; i < (n - nMinSplitPart + 1); ++i)
     {
         const bool bSameFeaturePrev(featureVal[i] <= featureVal[i - 1] + accuracy);
-        if (!(bSameFeaturePrev || (i < nMinSplitPart) || (i < minWeightLeaf) || ((n - i) < minWeightLeaf)))
+        if (!(bSameFeaturePrev || (i < nMinSplitPart) || isCompare<isSetPar>(i, minWeightLeaf) || isCompare<isSetPar>(n - i, minWeightLeaf)))
         {
             //can make a split
             //nLeft == i, nRight == n - i
@@ -434,6 +448,7 @@ bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(const 
 }
 
 template <typename algorithmFPType, CpuType cpu>
+template <bool isSetPar>
 bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitCategoricalFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n,
                                                                               size_t nMinSplitPart, const algorithmFPType accuracy,
                                                                               const ImpurityData & curImpurity, TSplitData & split,
@@ -453,7 +468,9 @@ bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitCategoricalFeature(co
         const size_t iStart         = i;
         for (++i; (i < n) && (featureVal[i] == first); ++count, ++i)
             ;
-        if ((count < nMinSplitPart) || ((n - count) < nMinSplitPart) || (count < minWeightLeaf) || ((n - count) < minWeightLeaf)) continue;
+        if ((count < nMinSplitPart) || ((n - count) < nMinSplitPart) || isCompare<isSetPar>(count, minWeightLeaf)
+            || isCompare<isSetPar>(n - count, minWeightLeaf))
+            continue;
 
         if ((i == n) && (nDiffFeatureValues == 2) && bFound) break; //only 2 feature values, one possible split, already found
 

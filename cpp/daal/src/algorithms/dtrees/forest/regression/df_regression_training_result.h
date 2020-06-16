@@ -51,20 +51,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
                                               const daal::algorithms::decision_forest::regression::training::interface1::Parameter * parameter,
                                               const int method)
 {
-    daal::algorithms::decision_forest::regression::training::interface2::Parameter tmpPar;
-    tmpPar.nTrees                      = parameter->nTrees;
-    tmpPar.observationsPerTreeFraction = parameter->observationsPerTreeFraction;
-    tmpPar.featuresPerNode             = parameter->featuresPerNode;
-    tmpPar.maxTreeDepth                = parameter->maxTreeDepth;
-    tmpPar.minObservationsInLeafNode   = parameter->minObservationsInLeafNode;
-    tmpPar.seed                        = parameter->seed;
-    tmpPar.engine                      = parameter->engine;
-    tmpPar.impurityThreshold           = parameter->impurityThreshold;
-    tmpPar.varImportance               = parameter->varImportance;
-    tmpPar.resultsToCompute            = parameter->resultsToCompute;
-    tmpPar.memorySavingMode            = parameter->memorySavingMode;
-    tmpPar.bootstrap                   = parameter->bootstrap;
-    return allocate<algorithmFPType>(input, &tmpPar, method);
+    return allocate<algorithmFPType>(input, parameter, method);
 }
 
 /**
@@ -75,29 +62,57 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
  * \return Status of allocation
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input,
-                                              const daal::algorithms::decision_forest::regression::training::interface2::Parameter * parameter,
-                                              const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status status;
+    const daal::algorithms::decision_forest::training::interface1::Parameter * parameter1 =
+        dynamic_cast<const daal::algorithms::decision_forest::training::interface1::Parameter *>(parameter);
+    const daal::algorithms::decision_forest::training::interface2::Parameter * parameter2 =
+        dynamic_cast<const daal::algorithms::decision_forest::training::interface2::Parameter *>(parameter);
     const Input * inp      = static_cast<const Input *>(input);
     const size_t nFeatures = inp->get(data)->getNumberOfColumns();
     set(model, daal::algorithms::decision_forest::regression::ModelPtr(new decision_forest::regression::internal::ModelImpl(nFeatures)));
-    if (parameter->resultsToCompute & decision_forest::training::computeOutOfBagError)
+    if (parameter1 != NULL)
     {
-        set(outOfBagError,
-            NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(1, 1, data_management::NumericTable::doAllocate, status)));
+        if (parameter1->resultsToCompute & decision_forest::training::computeOutOfBagError)
+        {
+            set(outOfBagError, NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(
+                                   1, 1, data_management::NumericTable::doAllocate, status)));
+        }
+        if (parameter1->resultsToCompute & decision_forest::training::computeOutOfBagErrorPerObservation)
+        {
+            const size_t nObs = inp->get(data)->getNumberOfRows();
+            set(outOfBagErrorPerObservation, NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(
+                                                 1, nObs, data_management::NumericTable::doAllocate, status)));
+        }
+        if (parameter1->varImportance != decision_forest::training::none)
+        {
+            set(variableImportance, NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(
+                                        nFeatures, 1, data_management::NumericTable::doAllocate, status)));
+        }
     }
-    if (parameter->resultsToCompute & decision_forest::training::computeOutOfBagErrorPerObservation)
+    else if (parameter2 != NULL)
     {
-        const size_t nObs = inp->get(data)->getNumberOfRows();
-        set(outOfBagErrorPerObservation, NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(
-                                             1, nObs, data_management::NumericTable::doAllocate, status)));
+        if (parameter2->resultsToCompute & decision_forest::training::computeOutOfBagError)
+        {
+            set(outOfBagError, NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(
+                                   1, 1, data_management::NumericTable::doAllocate, status)));
+        }
+        if (parameter2->resultsToCompute & decision_forest::training::computeOutOfBagErrorPerObservation)
+        {
+            const size_t nObs = inp->get(data)->getNumberOfRows();
+            set(outOfBagErrorPerObservation, NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(
+                                                 1, nObs, data_management::NumericTable::doAllocate, status)));
+        }
+        if (parameter2->varImportance != decision_forest::training::none)
+        {
+            set(variableImportance, NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(
+                                        nFeatures, 1, data_management::NumericTable::doAllocate, status)));
+        }
     }
-    if (parameter->varImportance != decision_forest::training::none)
+    else
     {
-        set(variableImportance, NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(
-                                    nFeatures, 1, data_management::NumericTable::doAllocate, status)));
+        status = status ? status : services::Status(services::ErrorNullParameterNotSupported);
     }
     return status;
 }
