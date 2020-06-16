@@ -14,11 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "daal/include/data_management/data/internal/conversion.h"
+#include <stdexcept>
+#include <daal/include/data_management/data/internal/conversion.h>
 
 #include "oneapi/dal/common.hpp"
-
-#include <stdexcept>
 
 namespace dal::backend::interop {
 

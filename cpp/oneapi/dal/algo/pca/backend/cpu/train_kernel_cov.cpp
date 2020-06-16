@@ -14,12 +14,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "daal/src/algorithms/pca/pca_dense_correlation_batch_kernel.h"
+#include <daal/src/algorithms/pca/pca_dense_correlation_batch_kernel.h>
 
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/train_kernel.hpp"
-
 
 namespace dal {
 namespace decomposition {
@@ -64,8 +63,8 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     covariance_alg.input.set(daal_cov::data, daal_data);
 
     constexpr bool is_correlation = false;
-    constexpr uint64_t results_to_compute = int64_t(daal_pca::mean ||
-                                                    daal_pca::variance ||
+    constexpr uint64_t results_to_compute = int64_t(daal_pca::mean |
+                                                    daal_pca::variance |
                                                     daal_pca::eigenvalue);
 
     interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(

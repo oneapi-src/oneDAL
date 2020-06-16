@@ -96,6 +96,7 @@ y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib fbsd/so))
 -DEBJ  := $(if $(REQDBG),-g,-g:none)
 -DEBL  := $(if $(REQDBG),$(if $(OS_is_win),-debug,))
 -EHsc  := $(if $(OS_is_win),-EHsc,)
+-isystem := $(if $(OS_is_win),-I,-isystem)
 -sGRP  = $(if $(or $(OS_is_lnx),$(OS_is_fbsd)),-Wl$(comma)--start-group,)
 -eGRP  = $(if $(or $(OS_is_lnx),$(OS_is_fbsd)),-Wl$(comma)--end-group,)
 daalmake = $(if $(OS_is_fbsd),gmake,make)
@@ -603,8 +604,8 @@ ONEAPI.srcdirs.detail := $(foreach _,$(ONEAPI.srcdirs.base),$(shell find $_ -max
 ONEAPI.srcdirs.backend := $(foreach _,$(ONEAPI.srcdirs.base),$(shell find $_ -maxdepth 1 -type d -name backend))
 ONEAPI.srcdirs := $(ONEAPI.srcdirs.base) $(ONEAPI.srcdirs.detail) $(ONEAPI.srcdirs.backend)
 
-ONEAPI.incdirs.common := $(CORE.incdirs.common) $(CPPDIR)
-ONEAPI.incdirs.thirdp := $(MKLFPKDIR.include) $(TBBDIR.include)
+ONEAPI.incdirs.common := $(CPPDIR)
+ONEAPI.incdirs.thirdp := $(CORE.incdirs.common) $(MKLFPKDIR.include) $(TBBDIR.include)
 ONEAPI.incdirs := $(ONEAPI.incdirs.common) $(CORE.incdirs.thirdp)
 
 ONEAPI.tmpdir_a := $(WORKDIR)/oneapi_static
@@ -660,7 +661,7 @@ $(WORKDIR.lib)/$(oneapi_y): $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) $(ONEAP
 
 $(ONEAPI.objs_a): $(ONEAPI_DISPATCHER_CPU_FILE)
 $(ONEAPI.objs_a): $(ONEAPI.tmpdir_a)/inc_a_folders.txt
-$(ONEAPI.objs_a): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc)
+$(ONEAPI.objs_a): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic.opts)
 $(ONEAPI.objs_a): COPT += -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED
 $(ONEAPI.objs_a): COPT += @$(ONEAPI.tmpdir_a)/inc_a_folders.txt
 $(filter %threading.$o, $(ONEAPI.objs_a)): COPT += -D__DO_TBB_LAYER__
@@ -676,7 +677,7 @@ $(call containing,_dbl, $(ONEAPI.objs_a)): COPT += -DDAAL_FPTYPE=double
 
 $(ONEAPI.objs_y): $(ONEAPI_DISPATCHER_CPU_FILE)
 $(ONEAPI.objs_y): $(ONEAPI.tmpdir_y)/inc_y_folders.txt
-$(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc)
+$(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic.opts)
 $(ONEAPI.objs_y): COPT += -D__DAAL_IMPLEMENTATION -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG)
 $(ONEAPI.objs_y): COPT += @$(ONEAPI.tmpdir_y)/inc_y_folders.txt
 $(filter %threading.$o, $(ONEAPI.objs_y)): COPT += -D__DO_TBB_LAYER__
@@ -704,14 +705,16 @@ $(eval template_source_cpp := $(subst _cpu_skx,_cpu,$(template_source_cpp)))
 $1: $(template_source_cpp) ; mkdir -p $(dir $1) ; $(value C.COMPILE)
 endef
 
-$(ONEAPI.tmpdir_a)/inc_a_folders.txt: makefile.lst | $(ONEAPI.tmpdir_a)/. $(ONEAPI.incdirs) ; $(call WRITE.PREREQS,$(addprefix -I, $(ONEAPI.incdirs)),$(space))
-$(ONEAPI.tmpdir_y)/inc_y_folders.txt: makefile.lst | $(ONEAPI.tmpdir_y)/. $(ONEAPI.incdirs) ; $(call WRITE.PREREQS,$(addprefix -I, $(ONEAPI.incdirs)),$(space))
+ONEAPI.include_options := $(addprefix -I, $(ONEAPI.incdirs.common)) \
+                          $(addprefix $(-isystem), $(ONEAPI.incdirs.thirdp))
+$(ONEAPI.tmpdir_a)/inc_a_folders.txt: makefile.lst | $(ONEAPI.tmpdir_a)/. $(ONEAPI.incdirs) ; $(call WRITE.PREREQS,$(ONEAPI.include_options),$(space))
+$(ONEAPI.tmpdir_y)/inc_y_folders.txt: makefile.lst | $(ONEAPI.tmpdir_y)/. $(ONEAPI.incdirs) ; $(call WRITE.PREREQS,$(ONEAPI.include_options),$(space))
 
 $(foreach a,$(ONEAPI.objs_a),$(eval $(call .compile.template.oneapi.ay,$a,$(ONEAPI.tmpdir_a))))
 $(foreach a,$(ONEAPI.objs_y),$(eval $(call .compile.template.oneapi.ay,$a,$(ONEAPI.tmpdir_y))))
 
 $(ONEAPI.tmpdir_y)/dll.res: $(VERSION_DATA_FILE)
-$(ONEAPI.tmpdir_y)/dll.res: RCOPT += $(addprefix -I, $(ONEAPI.incdirs.common))
+$(ONEAPI.tmpdir_y)/dll.res: RCOPT += $(addprefix -I, $(ONEAPI.incdirs))
 $(ONEAPI.tmpdir_y)/%.res: %.rc | $(ONEAPI.tmpdir_y)/. ; $(RC.COMPILE)
 
 $(ONEAPI_DISPATCHER_CPU_FILE): $(ONEAPI.srcdir)/backend/dispatcher_cpu.hpp

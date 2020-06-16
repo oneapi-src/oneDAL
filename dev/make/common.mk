@@ -74,7 +74,7 @@ md5sum.cmd.fbsd = md5 -q
 # Enable compiler-provided defences as recommended by Intel Security Development Lifecycle document (SW.01)
 secure.opts.icc.win = -GS
 secure.opts.icc.lnx = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector-strong
-                                                                         
+
 secure.opts.icc.mac = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector
 secure.opts.icc.fbsd = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector-strong
 
@@ -87,6 +87,9 @@ RC.COMPILE = rc.exe $(RCOPT) -fo$@ $<
 
 C.COMPILE = $(if $(COMPILER.$(_OS).$(COMPILER)),$(COMPILER.$(_OS).$(COMPILER)),$(error COMPILER.$(_OS).$(COMPILER) must be defined)) \
             -c $(secure.opts.icc.$(_OS)) $(COPT) $(INCLUDES) $1 $(-Fo)$@ $<
+
+# Enable additional options to follow ISO C++ standards
+pedantic.opts = $(pedantic.opts.$(_OS).$(COMPILER))
 
 # Write target's dependencies to target file
 # Args:

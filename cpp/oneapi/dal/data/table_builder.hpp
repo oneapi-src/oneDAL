@@ -23,8 +23,8 @@ namespace dal {
 
 template <typename T>
 struct is_table_builder_impl {
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(table, build_table, ());
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(detail::dense_storage_iface<detail::storage_readable_writable>&, get_storage, ());
+    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(table, build_table, ())
+    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(detail::dense_storage_iface<detail::storage_readable_writable>&, get_storage, ())
 
     static constexpr bool value = has_method_build_table_v<T> && has_method_get_storage_v<T>;
 };

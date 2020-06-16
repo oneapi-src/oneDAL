@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "daal/include/services/env_detect.h"
+#include <daal/include/services/env_detect.h>
 
 #include "oneapi/dal/backend/dispatcher.hpp"
 
