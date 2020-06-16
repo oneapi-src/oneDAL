@@ -40,6 +40,7 @@ ARCH=${platform:3:3}
 CPU_OPTIMIZATIONS="avx2"
 
 if [ "${OS}" == "lnx" ]; then
+    make_target="onedal"
     compiler=${compiler:-gnu}
     export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
     java_os_name="linux"
@@ -50,6 +51,7 @@ if [ "${OS}" == "lnx" ]; then
             with_gpu="false"
     fi
 elif [ "${OS}" == "mac" ]; then
+    make_target="daal"
     compiler=${compiler:-clang}
     export JAVA_HOME=$(/usr/libexec/java_home -v 12)
     java_os_name="darwin"
@@ -61,9 +63,9 @@ fi
 
 #setting build parrlelization based on number of thereads
 if [ "$(uname)" == "Linux" ]; then
-    MAKE_OP="-j$(grep -c processor /proc/cpuinfo)"
+    make_op="-j$(grep -c processor /proc/cpuinfo)"
 else
-    MAKE_OP="-j$(sysctl -n hw.physicalcpu)"
+    make_op="-j$(sysctl -n hw.physicalcpu)"
 fi
 
 #main actions
@@ -74,6 +76,6 @@ echo "Set Java PATH and CPATH"
 export PATH=$JAVA_HOME/bin:$PATH
 export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/${java_os_name}:$CPATH
 echo "Calling make"
-make onedal ${MAKE_OP} PLAT=${platform} COMPILER=${compiler} REQCPU="${CPU_OPTIMIZATIONS}"
+make ${make_target} ${make_op} PLAT=${platform} COMPILER=${compiler} REQCPU="${CPU_OPTIMIZATIONS}"
 
 exit $?
