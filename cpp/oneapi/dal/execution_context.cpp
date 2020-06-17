@@ -15,12 +15,13 @@
 *******************************************************************************/
 
 #include "oneapi/dal/execution_context.hpp"
+#include "oneapi/dal/backend/interop/common.hpp"
 
 namespace dal {
 
 class detail::default_execution_context_impl : public base {
 public:
-    cpu_extension cpu_extensions_mask = cpu_extension::avx2;
+    cpu_extension cpu_extensions_mask = backend::interop::detect_top_cpu_extension();
 };
 
 using detail::default_execution_context_impl;
