@@ -86,10 +86,13 @@ jobs:
       $(Pipeline.Workspace)/s/.ci/scripts/conformance_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/inteloneapi
     timeoutInMinutes: 15
     displayName: conformance
+  - script: |
+      cp -R $(Pipeline.Workspace)/s/.ci/scripts/conformance-scripts/_log_* $(Build.ArtifactStagingDirectory)/
+    displayName: copy report
   - task: PublishPipelineArtifact@0
     inputs:
       artifactName: '$(platform.type) conformance tests report'
-      targetPath: '.ci/scripts/conformance-scripts/report.html'
+      targetPath: '$(Build.ArtifactStagingDirectory)/'
   - script: |
       $(Pipeline.Workspace)/s/.ci/scripts/daal4py_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/inteloneapi --daal4py-dir $(Pipeline.Workspace)/s/daal4py
     timeoutInMinutes: 15
