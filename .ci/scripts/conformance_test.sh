@@ -38,5 +38,5 @@ source ${BUILD_DIR}/daal/latest/env/vars.sh intel64
 
 # testing
 cd .ci/scripts/conformance-scripts/
-python run_tests.py 0.22.1
+python run_tests.py 0.23.1
 cd ../../..
