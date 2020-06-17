@@ -212,9 +212,9 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input,
-                                          const daal::algorithms::decision_forest::regression::training::interface1::Parameter * parameter,
-                                          const int method);
+    DAAL_DEPRECATED DAAL_EXPORT services::Status allocate(
+        const daal::algorithms::Input * input, const daal::algorithms::decision_forest::regression::training::interface1::Parameter * parameter,
+        const int method);
 
     /**
      * Allocates memory to store the result of decision forest model-based training
@@ -224,9 +224,7 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input,
-                                          const daal::algorithms::decision_forest::regression::training::interface2::Parameter * parameter,
-                                          const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Returns the result of decision forest model-based training
