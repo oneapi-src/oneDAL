@@ -37,6 +37,67 @@ SOANumericTable::SOANumericTable(size_t nColumns, size_t nRows, DictionaryIface:
     }
 }
 
+services::SharedPtr<SOANumericTable> SOANumericTable::create(size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual,
+                                                             services::Status * stat)
+{
+    DAAL_DEFAULT_CREATE_IMPL_EX(SOANumericTable, nColumns, nRows, featuresEqual);
+}
+
+SOANumericTable::SOANumericTable(NumericTableDictionaryPtr ddict, size_t nRows, AllocationFlag memoryAllocationFlag)
+    : NumericTable(ddict), _arraysInitialized(0), _partialMemStatus(notAllocated)
+{
+    _layout     = soa;
+    _arrOffsets = NULL;
+    _index      = 0;
+    this->_status |= setNumberOfRowsImpl(nRows);
+    if (!resizePointersArray(getNumberOfColumns()))
+    {
+        this->_status.add(services::ErrorMemoryAllocationFailed);
+        return;
+    }
+    if (memoryAllocationFlag == doAllocate)
+    {
+        this->_status |= allocateDataMemoryImpl();
+    }
+}
+
+services::SharedPtr<SOANumericTable> SOANumericTable::create(NumericTableDictionaryPtr ddict, size_t nRows, AllocationFlag memoryAllocationFlag,
+                                                             services::Status * stat)
+{
+    DAAL_DEFAULT_CREATE_IMPL_EX(SOANumericTable, ddict, nRows, memoryAllocationFlag);
+}
+
+SOANumericTable::SOANumericTable(size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual, services::Status & st)
+    : NumericTable(nColumns, nRows, featuresEqual, st), _arrays(nColumns), _arraysInitialized(0), _partialMemStatus(notAllocated)
+{
+    _layout     = soa;
+    _arrOffsets = NULL;
+    _index      = 0;
+    if (!resizePointersArray(nColumns))
+    {
+        st.add(services::ErrorMemoryAllocationFailed);
+        return;
+    }
+}
+
+SOANumericTable::SOANumericTable(NumericTableDictionaryPtr ddict, size_t nRows, AllocationFlag memoryAllocationFlag, services::Status & st)
+    : NumericTable(ddict, st), _arraysInitialized(0), _partialMemStatus(notAllocated)
+{
+    _layout     = soa;
+    _arrOffsets = NULL;
+    _index      = 0;
+    st |= setNumberOfRowsImpl(nRows);
+    if (!resizePointersArray(getNumberOfColumns()))
+    {
+        st.add(services::ErrorMemoryAllocationFailed);
+        return;
+    }
+    if (memoryAllocationFlag == doAllocate)
+    {
+        st |= allocateDataMemoryImpl();
+    }
+}
+
 services::Status SOANumericTable::searchMinPointer()
 {
     size_t ncols = getNumberOfColumns();
@@ -130,67 +191,6 @@ void SOANumericTable::freeDataMemoryImpl()
 
     _partialMemStatus = notAllocated;
     _memStatus        = notAllocated;
-}
-
-services::SharedPtr<SOANumericTable> SOANumericTable::create(size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual,
-                                                             services::Status * stat)
-{
-    DAAL_DEFAULT_CREATE_IMPL_EX(SOANumericTable, nColumns, nRows, featuresEqual);
-}
-
-SOANumericTable::SOANumericTable(NumericTableDictionaryPtr ddict, size_t nRows, AllocationFlag memoryAllocationFlag)
-    : NumericTable(ddict), _arraysInitialized(0), _partialMemStatus(notAllocated)
-{
-    _layout     = soa;
-    _arrOffsets = NULL;
-    _index      = 0;
-    this->_status |= setNumberOfRowsImpl(nRows);
-    if (!resizePointersArray(getNumberOfColumns()))
-    {
-        this->_status.add(services::ErrorMemoryAllocationFailed);
-        return;
-    }
-    if (memoryAllocationFlag == doAllocate)
-    {
-        this->_status |= allocateDataMemoryImpl();
-    }
-}
-
-services::SharedPtr<SOANumericTable> SOANumericTable::create(NumericTableDictionaryPtr ddict, size_t nRows, AllocationFlag memoryAllocationFlag,
-                                                             services::Status * stat)
-{
-    DAAL_DEFAULT_CREATE_IMPL_EX(SOANumericTable, ddict, nRows, memoryAllocationFlag);
-}
-
-SOANumericTable::SOANumericTable(size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual, services::Status & st)
-    : NumericTable(nColumns, nRows, featuresEqual, st), _arrays(nColumns), _arraysInitialized(0), _partialMemStatus(notAllocated)
-{
-    _layout     = soa;
-    _arrOffsets = NULL;
-    _index      = 0;
-    if (!resizePointersArray(nColumns))
-    {
-        st.add(services::ErrorMemoryAllocationFailed);
-        return;
-    }
-}
-
-SOANumericTable::SOANumericTable(NumericTableDictionaryPtr ddict, size_t nRows, AllocationFlag memoryAllocationFlag, services::Status & st)
-    : NumericTable(ddict, st), _arraysInitialized(0), _partialMemStatus(notAllocated)
-{
-    _layout     = soa;
-    _arrOffsets = NULL;
-    _index      = 0;
-    st |= setNumberOfRowsImpl(nRows);
-    if (!resizePointersArray(getNumberOfColumns()))
-    {
-        st.add(services::ErrorMemoryAllocationFailed);
-        return;
-    }
-    if (memoryAllocationFlag == doAllocate)
-    {
-        st |= allocateDataMemoryImpl();
-    }
 }
 
 } // namespace interface1

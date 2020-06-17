@@ -483,30 +483,6 @@ public:
         return services::Status();
     }
 
-    template <typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive * arch)
-    {
-        NumericTable::serialImpl<Archive, onDeserialize>(arch);
-
-        if (onDeserialize)
-        {
-            allocateDataMemoryImpl();
-        }
-
-        size_t ncol  = _ddict->getNumberOfFeatures();
-        size_t nrows = getNumberOfRows();
-
-        for (size_t i = 0; i < ncol; i++)
-        {
-            NumericTableFeature f = (*_ddict)[i];
-            void * ptr            = getArraySharedPtr(i).get();
-
-            arch->set((char *)ptr, nrows * f.typeSize);
-        }
-
-        return services::Status();
-    }
-
     virtual ~SOANumericTableCPU() {}
 };
 
