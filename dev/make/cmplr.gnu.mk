@@ -38,7 +38,7 @@ pedantic.opts.lnx.gnu = -pedantic \
                         -Werror=return-type \
                         -Werror=uninitialized \
                         -Werror=unknown-pragmas \
-                        -Wno-unused-parameter \
+                        -Wno-unused-parameter
 
 p4_OPT.gnu   = $(-Q)$(if $(IA_is_ia32),march=pentium4,march=nocona)
 mc_OPT.gnu   = $(-Q)$(if $(IA_is_ia32),march=pentium4,march=nocona)
