@@ -719,7 +719,7 @@ $(ONEAPI.tmpdir_y)/%.res: %.rc | $(ONEAPI.tmpdir_y)/. ; $(RC.COMPILE)
 
 $(ONEAPI_DISPATCHER_CPU_FILE): $(ONEAPI.srcdir)/backend/dispatcher_cpu.hpp
 	cp -fp $< $@
-	$(USECPUS.oneapi.out.defs.filter) $@
+	$(if $(USECPUS.out.defs.filter), $(USECPUS.oneapi.out.defs.filter) $@)
 
 #===============================================================================
 # Threading parts
