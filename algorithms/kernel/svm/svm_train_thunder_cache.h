@@ -52,9 +52,7 @@ class SVMCacheIface<thunder, algorithmFPType, cpu> : public SVMCacheCommonIface<
 public:
     virtual ~SVMCacheIface() {}
 
-    virtual services::Status getRowsBlock(const uint32_t * indices, algorithmFPType *& block) = 0;
-
-    virtual services::Status copyLastToFirst() = 0;
+    virtual services::Status getRowsBlock(const uint32_t * const indices, const size_t n, NumericTablePtr & block) = 0;
 
     virtual size_t getDataRowIndex(size_t rowIndex) const override { return rowIndex; }
 
@@ -69,13 +67,13 @@ protected:
 };
 
 /**
- * No cache: kernel function values are not cached
+ * LRU cache: kernel function values are cached
  */
 template <typename algorithmFPType, CpuType cpu>
-class SVMCache<thunder, noCache, algorithmFPType, cpu> : public SVMCacheIface<thunder, algorithmFPType, cpu>
+class SVMCache<thunder, lruCache, algorithmFPType, cpu> : public SVMCacheIface<thunder, algorithmFPType, cpu>
 {
     using super    = SVMCacheIface<thunder, algorithmFPType, cpu>;
-    using thisType = SVMCache<thunder, noCache, algorithmFPType, cpu>;
+    using thisType = SVMCache<thunder, lruCache, algorithmFPType, cpu>;
     using super::_kernel;
     using super::_lineSize;
     using super::_cacheSize;
@@ -85,8 +83,9 @@ public:
 
     DAAL_NEW_DELETE();
 
-    static SVMCachePtr<thunder, algorithmFPType, cpu> create(const size_t cacheSize, const size_t lineSize, const NumericTablePtr & xTable,
-                                                             const kernel_function::KernelIfacePtr & kernel, services::Status & status)
+    static SVMCachePtr<thunder, algorithmFPType, cpu> create(const size_t cacheSize, const size_t nSize, const size_t lineSize,
+                                                             const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel,
+                                                             services::Status & status)
     {
         services::SharedPtr<thisType> res = services::SharedPtr<thisType>(new thisType(cacheSize, lineSize, xTable, kernel));
         if (!res)
@@ -95,7 +94,7 @@ public:
         }
         else
         {
-            status = res->init(cacheSize);
+            status = res->init(nSize);
             if (!status)
             {
                 res.reset();
@@ -104,102 +103,113 @@ public:
         return SVMCachePtr<thunder, algorithmFPType, cpu>(res);
     }
 
-    services::Status getRowsBlock(const uint32_t * indices, algorithmFPType *& block) override
+    services::Status getRowsBlock(const uint32_t * const indices, const size_t n, NumericTablePtr & block) override
     {
         services::Status status;
-
-        uint32_t * indicesNew = const_cast<uint32_t *>(indices);
-        if (_isComputeSubKernel)
+        auto kernelResultTable   = SOANumericTableCPU<cpu>::create(n, _lineSize, DictionaryIface::FeaturesEqual::equal, &status);
+        size_t nIndicesForKernel = 0;
         {
-            indicesNew = indicesNew + _nSelectRows;
+            for (int i = 0; i < n; ++i)
+            {
+                int64_t cacheIndex = _lruCache.get(indices[i]);
+                if (cacheIndex != -1)
+                {
+                    // If index in cache
+                    DAAL_ASSERT(cacheIndex < _cacheSize)
+                    auto cachei = services::reinterpretPointerCast<algorithmFPType, byte>(_cache->getArraySharedPtr(cacheIndex));
+                    DAAL_CHECK_STATUS(status, kernelResultTable->template setArray<algorithmFPType>(cachei, i));
+                }
+                else
+                {
+                    _lruCache.put(indices[i]);
+                    cacheIndex = _lruCache.getFreeIndex();
+                    DAAL_ASSERT(cacheIndex < _cacheSize)
+                    auto cachei = services::reinterpretPointerCast<algorithmFPType, byte>(_cache->getArraySharedPtr(cacheIndex));
+                    DAAL_CHECK_STATUS(status, kernelResultTable->template setArray<algorithmFPType>(cachei, i));
+                    _kernelIndex[nIndicesForKernel]         = cacheIndex;
+                    _kernelOriginalIndex[nIndicesForKernel] = indices[i];
+                    ++nIndicesForKernel;
+                }
+            }
         }
-
-        DAAL_CHECK_STATUS(status, _blockTask->copyDataByIndices(indicesNew, _xTable));
-        DAAL_CHECK_STATUS(status, _kernel->computeNoThrow());
-        block = _cache.get();
+        if (nIndicesForKernel != 0)
+        {
+            DAAL_CHECK_STATUS(status, computeKernel(nIndicesForKernel, _kernelOriginalIndex.get()));
+        }
+        block = kernelResultTable;
         return status;
-    }
-
-    services::Status copyLastToFirst() override
-    {
-        _nSelectRows = _cacheSize / 2;
-        if (!_isComputeSubKernel)
-        {
-            reinit(_nSelectRows);
-            _isComputeSubKernel = true;
-        }
-        const algorithmFPType * const dataIn = _cache.get() + _nSelectRows * _lineSize;
-        algorithmFPType * const dataOut      = _cache.get();
-
-        const size_t blockSize     = _cacheSize;
-        const size_t nCopyElements = _nSelectRows * _lineSize;
-        const size_t blockNum      = nCopyElements / blockSize;
-        SafeStatus safeStat;
-        daal::threader_for(blockNum, blockNum, [&](const size_t iBlock) {
-            const size_t startRow = iBlock * blockSize;
-            DAAL_CHECK_THR(!services::internal::daal_memcpy_s(&dataOut[startRow], blockSize * sizeof(algorithmFPType), &dataIn[startRow],
-                                                              blockSize * sizeof(algorithmFPType)),
-                           services::ErrorMemoryCopyFailedInternal);
-        });
-        return safeStat.detach();
     }
 
 protected:
     SVMCache(const size_t cacheSize, const size_t lineSize, const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel)
-        : super(cacheSize, lineSize, kernel), _nSelectRows(0), _isComputeSubKernel(false), _xTable(xTable)
+        : super(cacheSize, lineSize, kernel), _lruCache(cacheSize), _xTable(xTable)
     {}
 
-    services::Status reinit(const size_t cacheSize)
+    services::Status computeKernel(const size_t nWorkElements, const uint32_t * indices)
     {
         services::Status status;
-        algorithmFPType * cacheHalf = _cache.get() + _lineSize * _nSelectRows;
-        auto cacheTable             = HomogenNumericTableCPU<algorithmFPType, cpu>::create(cacheHalf, _lineSize, cacheSize, &status);
+        auto kernelComputeTable = SOANumericTableCPU<cpu>::create(nWorkElements, _lineSize, DictionaryIface::FeaturesEqual::equal, &status);
+        DAAL_CHECK_STATUS_VAR(status);
 
-        const size_t p = _xTable->getNumberOfColumns();
+        for (size_t i = 0; i < nWorkElements; ++i)
+        {
+            const size_t cacheIndex = _kernelIndex[i];
+            auto cachei             = services::reinterpretPointerCast<algorithmFPType, byte>(_cache->getArraySharedPtr(cacheIndex));
+            DAAL_CHECK_STATUS(status, kernelComputeTable->template setArray<algorithmFPType>(cachei, i));
+        }
+
+        DAAL_CHECK_STATUS(status, _blockTask->copyDataByIndices(indices, nWorkElements, _xTable));
+
+        DAAL_CHECK_STATUS_VAR(status);
+        _kernel->getParameter()->computationMode = kernel_function::matrixMatrix;
+
+        _kernel->getInput()->set(kernel_function::X, _xTable);
+        _kernel->getInput()->set(kernel_function::Y, _blockTask->getTableData());
+
+        kernel_function::ResultPtr shRes(new kernel_function::Result());
+        shRes->set(kernel_function::values, kernelComputeTable);
+        _kernel->setResult(shRes);
+        DAAL_CHECK_STATUS(status, _kernel->computeNoThrow());
+
+        return status;
+    }
+
+    services::Status init(const size_t nSize)
+    {
+        services::Status status;
+        _kernelIndex.reset(nSize);
+        DAAL_CHECK_MALLOC(_kernelIndex.get());
+        _kernelOriginalIndex.reset(nSize);
+        DAAL_CHECK_MALLOC(_kernelOriginalIndex.get());
+
+        auto dict = NumericTableDictionaryCPU<cpu>::create(_cacheSize, DictionaryIface::FeaturesEqual::equal, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+        DAAL_CHECK_STATUS(status, dict->template setAllFeatures<algorithmFPType>());
+        _cache = SOANumericTableCPU<cpu>::create(dict, _lineSize, NumericTable::AllocationFlag::doAllocate, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
         SubDataTaskBase<algorithmFPType, cpu> * task = nullptr;
         if (_xTable->getDataLayout() == NumericTableIface::csrArray)
         {
-            task = SubDataTaskCSR<algorithmFPType, cpu>::create(_xTable, cacheSize);
+            task = SubDataTaskCSR<algorithmFPType, cpu>::create(_xTable, nSize);
         }
         else
         {
-            task = SubDataTaskDense<algorithmFPType, cpu>::create(p, cacheSize);
+            task = SubDataTaskDense<algorithmFPType, cpu>::create(_xTable->getNumberOfColumns(), nSize);
         }
+
         DAAL_CHECK_MALLOC(task);
         _blockTask = SubDataTaskBasePtr<algorithmFPType, cpu>(task);
-
-        DAAL_CHECK_STATUS_VAR(status);
-        _kernel->getParameter()->computationMode = kernel_function::matrixMatrix;
-        _kernel->getInput()->set(kernel_function::X, _blockTask->getTableData());
-        _kernel->getInput()->set(kernel_function::Y, _xTable);
-
-        kernel_function::ResultPtr shRes(new kernel_function::Result());
-        shRes->set(kernel_function::values, cacheTable);
-        _kernel->setResult(shRes);
-
-        return status;
-    }
-
-    services::Status init(const size_t cacheSize)
-    {
-        services::Status status;
-        _cache.reset(_lineSize * _cacheSize);
-        DAAL_CHECK_MALLOC(_cache.get());
-        auto cacheTable = HomogenNumericTableCPU<algorithmFPType, cpu>::create(_cache.get(), _lineSize, _cacheSize, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-
-        DAAL_CHECK_STATUS(status, reinit(_cacheSize));
         return status;
     }
 
 protected:
-    size_t _nSelectRows;
-    bool _isComputeSubKernel;
+    LRUCache<cpu, uint32_t> _lruCache;
     const NumericTablePtr & _xTable;
     SubDataTaskBasePtr<algorithmFPType, cpu> _blockTask;
-    TArray<algorithmFPType, cpu> _cache;
+    TArray<uint32_t, cpu> _kernelOriginalIndex;
+    TArray<uint32_t, cpu> _kernelIndex;
+    services::SharedPtr<SOANumericTableCPU<cpu> > _cache;
 };
 
 } // namespace internal
