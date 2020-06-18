@@ -177,7 +177,8 @@ Status DistributedPartialResultStep4::check(const daal::algorithms::Input * inpu
             DAAL_CHECK_EX((*dcPartitionedPartialOrders)[i], ErrorNullNumericTable, ArgumentName, partitionedPartialOrdersStr());
             NumericTablePtr ntPartitionedPartialOrders = NumericTable::cast((*dcPartitionedPartialOrders)[i]);
             DAAL_CHECK_EX(ntPartitionedPartialOrders, ErrorIncorrectElementInNumericTableCollection, ArgumentName, partitionedPartialOrdersStr());
-            DAAL_CHECK_STATUS_VAR(checkNumericTable(ntPartitionedPartialOrders.get(), partitionedPartialOrdersStr(), unexpectedLayouts, 0, 2, 0, false));
+            DAAL_CHECK_STATUS_VAR(
+                checkNumericTable(ntPartitionedPartialOrders.get(), partitionedPartialOrdersStr(), unexpectedLayouts, 0, 2, 0, false));
         }
     }
     return Status();
