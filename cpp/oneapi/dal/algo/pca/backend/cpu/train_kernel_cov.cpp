@@ -20,10 +20,7 @@
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/train_kernel.hpp"
 
-namespace oneapi::dal {
-namespace decomposition {
-namespace pca {
-namespace backend {
+namespace oneapi::dal::pca::backend {
 
 using std::int64_t;
 using dal::backend::context_cpu;
@@ -103,7 +100,4 @@ struct train_kernel_cpu<Float, method::cov> {
 template struct train_kernel_cpu<float, method::cov>;
 template struct train_kernel_cpu<double, method::cov>;
 
-} // namespace backend
-} // namespace pca
-} // namespace decomposition
-} // namespace oneapi::dal
+} // namespace oneapi::dal::pca::backend

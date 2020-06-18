@@ -16,10 +16,7 @@
 
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel.hpp"
 
-namespace oneapi::dal {
-namespace decomposition {
-namespace pca {
-namespace backend {
+namespace oneapi::dal::pca::backend {
 
 template <typename Float>
 struct train_kernel_gpu<Float, method::svd> {
@@ -33,7 +30,4 @@ struct train_kernel_gpu<Float, method::svd> {
 template struct train_kernel_gpu<float, method::svd>;
 template struct train_kernel_gpu<double, method::svd>;
 
-} // namespace backend
-} // namespace pca
-} // namespace decomposition
-} // namespace oneapi::dal
+} // namespace oneapi::dal::pca::backend

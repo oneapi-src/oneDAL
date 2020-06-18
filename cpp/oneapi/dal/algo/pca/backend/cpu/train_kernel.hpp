@@ -19,10 +19,7 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/algo/pca/train_types.hpp"
 
-namespace oneapi::dal {
-namespace decomposition {
-namespace pca {
-namespace backend {
+namespace oneapi::dal::pca::backend {
 
 template <typename Float, typename Method>
 struct train_kernel_cpu {
@@ -31,7 +28,4 @@ struct train_kernel_cpu {
                           const train_input& input) const;
 };
 
-} // namespace backend
-} // namespace pca
-} // namespace decomposition
-} // namespace oneapi::dal
+} // namespace oneapi::dal::pca::backend

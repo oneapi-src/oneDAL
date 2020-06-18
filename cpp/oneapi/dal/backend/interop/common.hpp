@@ -21,9 +21,7 @@
 
 #include "oneapi/dal/backend/dispatcher.hpp"
 
-namespace oneapi::dal {
-namespace backend {
-namespace interop {
+namespace oneapi::dal::backend::interop {
 
 template <typename DispatchId>
 constexpr daal::CpuType to_daal_cpu_type(DispatchId);
@@ -86,6 +84,4 @@ inline auto call_daal_kernel(const context_cpu& ctx, Args&&... args) {
     });
 }
 
-} // namespace interop
-} // namespace backend
-} // namespace oneapi::dal
+} // namespace oneapi::dal::backend::interop

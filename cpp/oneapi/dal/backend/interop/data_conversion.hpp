@@ -21,6 +21,7 @@
 
 namespace oneapi::dal::backend::interop {
 
+// TODO: Remove using namespace
 using namespace daal::data_management;
 
 features::IndexNumType getIndexNumType(data_type t) {

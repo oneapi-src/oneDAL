@@ -19,10 +19,7 @@
 #include "oneapi/dal/algo/pca/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel.hpp"
 
-namespace oneapi::dal {
-namespace decomposition {
-namespace pca {
-namespace detail {
+namespace oneapi::dal::pca::detail {
 
 template <typename Float, typename Method>
 struct train_ops_dispatcher<data_parallel_execution_context, Float, Method> {
@@ -44,7 +41,4 @@ INSTANTIATE(float, method::svd)
 INSTANTIATE(double, method::cov)
 INSTANTIATE(double, method::svd)
 
-} // namespace detail
-} // namespace oneapi::dal
-} // namespace decomposition
-} // namespace pca
+} // namespace oneapi::dal::pca::detail

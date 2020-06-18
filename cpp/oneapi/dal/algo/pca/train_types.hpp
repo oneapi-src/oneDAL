@@ -18,9 +18,7 @@
 
 #include "oneapi/dal/algo/pca/common.hpp"
 
-namespace oneapi::dal {
-namespace decomposition {
-namespace pca {
+namespace oneapi::dal::pca {
 
 namespace detail {
 class train_input_impl;
@@ -77,6 +75,4 @@ class train_result {
     dal::detail::pimpl<detail::train_result_impl> impl_;
 };
 
-} // namespace pca
-} // namespace decomposition
-} // namespace oneapi::dal
+} // namespace oneapi::dal::pca

@@ -18,10 +18,7 @@
 #include "oneapi/dal/algo/pca/detail/train_ops.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/train_kernel.hpp"
 
-namespace oneapi::dal {
-namespace decomposition {
-namespace pca {
-namespace detail {
+namespace oneapi::dal::pca::detail {
 
 template <typename Float, typename Method>
 struct train_ops_dispatcher<default_execution_context, Float, Method> {
@@ -42,7 +39,4 @@ INSTANTIATE(float, method::svd)
 INSTANTIATE(double, method::cov)
 INSTANTIATE(double, method::svd)
 
-} // namespace detail
-} // namespace pca
-} // namespace decomposition
-} // namespace oneapi::dal
+} // namespace oneapi::dal::pca::detail

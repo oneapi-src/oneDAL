@@ -16,9 +16,7 @@
 
 #include "oneapi/dal/algo/pca/common.hpp"
 
-namespace oneapi::dal {
-namespace decomposition {
-namespace pca {
+namespace oneapi::dal::pca {
 
 class detail::descriptor_impl : public base {
   public:
@@ -63,6 +61,4 @@ void model::set_eigenvectors_impl(const table& value) {
     impl_->eigenvectors = value;
 }
 
-} // namespace pca
-} // namespace decomposition
-} // namespace oneapi::dal
+} // namespace oneapi::dal::pca

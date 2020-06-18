@@ -19,9 +19,7 @@
 #include "oneapi/dal/data/table.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
-namespace oneapi::dal {
-namespace decomposition {
-namespace pca {
+namespace oneapi::dal::pca {
 
 namespace detail {
 struct tag {};
@@ -89,6 +87,4 @@ class model : public base {
     dal::detail::pimpl<detail::model_impl> impl_;
 };
 
-} // namespace pca
-} // namespace decomposition
-} // namespace oneapi::dal
+} // namespace oneapi::dal::pca

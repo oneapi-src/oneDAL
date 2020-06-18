@@ -17,9 +17,7 @@
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/algo/pca/train_types.hpp"
 
-namespace oneapi::dal {
-namespace decomposition {
-namespace pca {
+namespace oneapi::dal::pca {
 
 class detail::train_input_impl : public base {
   public:
@@ -80,6 +78,4 @@ void train_result::set_explained_variance_impl(const table& value) {
     impl_->explained_variance = value;
 }
 
-} // namespace pca
-} // namespace decomposition
-} // namespace oneapi::dal
+} // namespace oneapi::dal::pca

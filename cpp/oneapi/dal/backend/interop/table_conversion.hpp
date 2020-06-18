@@ -21,9 +21,7 @@
 #include "oneapi/dal/data/table_builder.hpp"
 #include "oneapi/dal/data/accessor.hpp"
 
-namespace oneapi::dal {
-namespace backend {
-namespace interop {
+namespace oneapi::dal::backend::interop {
 
 template <typename T>
 struct daal_array_owner {
@@ -56,6 +54,4 @@ inline auto convert_to_daal_homogen_table(array<T>& data,
         daal_data, column_count, row_count);
 }
 
-} // namespace interop
-} // namespace backend
-} // namespace oneapi::dal
+} // namespace oneapi::dal::backend::interop

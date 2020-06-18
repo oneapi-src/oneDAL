@@ -18,8 +18,7 @@
 
 #include "oneapi/dal/execution_context.hpp"
 
-namespace oneapi::dal {
-namespace detail {
+namespace oneapi::dal::detail {
 
 template <typename Descriptor, typename Tag>
 struct train_ops;
@@ -54,5 +53,4 @@ auto train_dispatch_by_ctx(Head&& head, Tail&&... tail) {
                                    std::forward<Tail>(tail)...);
 }
 
-} // namespace detail
-} // namespace oneapi::dal
+} // namespace oneapi::dal::detail
