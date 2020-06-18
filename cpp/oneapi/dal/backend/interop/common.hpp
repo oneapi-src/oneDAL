@@ -16,7 +16,8 @@
 
 #pragma once
 
-#include "daal/include/services/env_detect.h"
+#include <daal/include/services/env_detect.h>
+#include <daal/src/services/service_defines.h>
 
 #include "oneapi/dal/backend/dispatcher.hpp"
 
@@ -25,32 +26,62 @@ namespace backend {
 namespace interop {
 
 template <typename DispatchId>
-constexpr daal::CpuType get_daal_cpu_type(DispatchId);
+constexpr daal::CpuType to_daal_cpu_type(DispatchId);
 
 template <>
-constexpr daal::CpuType get_daal_cpu_type<cpu_dispatch_default>(cpu_dispatch_default) {
+constexpr daal::CpuType to_daal_cpu_type<cpu_dispatch_default>(cpu_dispatch_default) {
     return daal::CpuType::sse2;
 }
 
 template <>
-constexpr daal::CpuType get_daal_cpu_type<cpu_dispatch_avx>(cpu_dispatch_avx) {
+constexpr daal::CpuType to_daal_cpu_type<cpu_dispatch_ssse3>(cpu_dispatch_ssse3) {
+    return daal::CpuType::ssse3;
+}
+
+template <>
+constexpr daal::CpuType to_daal_cpu_type<cpu_dispatch_sse42>(cpu_dispatch_sse42) {
+    return daal::CpuType::sse42;
+}
+
+template <>
+constexpr daal::CpuType to_daal_cpu_type<cpu_dispatch_avx>(cpu_dispatch_avx) {
     return daal::CpuType::avx;
 }
 
 template <>
-constexpr daal::CpuType get_daal_cpu_type<cpu_dispatch_avx2>(cpu_dispatch_avx2) {
+constexpr daal::CpuType to_daal_cpu_type<cpu_dispatch_avx2>(cpu_dispatch_avx2) {
     return daal::CpuType::avx2;
 }
 
 template <>
-constexpr daal::CpuType get_daal_cpu_type<cpu_dispatch_avx512>(cpu_dispatch_avx512) {
+constexpr daal::CpuType to_daal_cpu_type<cpu_dispatch_avx512>(cpu_dispatch_avx512) {
     return daal::CpuType::avx512;
+}
+
+inline constexpr cpu_extension from_daal_cpu_type(daal::CpuType cpu) {
+    switch (cpu) {
+        case daal::sse2:   return cpu_extension::sse2;
+        case daal::ssse3:  return cpu_extension::ssse3;
+        case daal::sse42:  return cpu_extension::sse42;
+        case daal::avx:    return cpu_extension::avx;
+        case daal::avx2:   return cpu_extension::avx2;
+        case daal::avx512: return cpu_extension::avx512;
+        case daal::avx512_mic:
+        case daal::avx512_mic_e1:
+            break;
+    }
+    return cpu_extension::none;
+}
+
+inline cpu_extension detect_top_cpu_extension() {
+    const auto daal_cpu = (daal::CpuType)__daal_serv_cpu_detect(0);
+    return from_daal_cpu_type(daal_cpu);
 }
 
 template <typename Float, template <typename, daal::CpuType> typename CpuKernel, typename... Args>
 inline auto call_daal_kernel(const context_cpu& ctx, Args&&... args) {
     return dal::backend::dispatch_by_cpu(ctx, [&](const auto cpu) {
-        constexpr daal::CpuType daal_cpu_type = get_daal_cpu_type(cpu);
+        constexpr daal::CpuType daal_cpu_type = to_daal_cpu_type(cpu);
         return CpuKernel<Float, daal_cpu_type>().compute(args...);
     });
 }
