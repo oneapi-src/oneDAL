@@ -102,6 +102,8 @@ struct TaskWorkingSet
         services::Status status;
         IdxValType * sortedFIndices = _sortedFIndices.get();
 
+        /* The operation copy is lightweight, therefore a large size is chosen
+            so that the number of blocks is a reasonable number. */
         const size_t blockSize = 16384;
         const size_t nBlocks   = _nVectors / blockSize + !!(_nVectors % blockSize);
         daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {

@@ -71,7 +71,7 @@ namespace internal
 {
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::compute(const NumericTablePtr & xTable, const NumericTablePtr & wTable,
-                                                                                     NumericTable & yTable, daal::algorithms::Model * r,
+                                                                                     const NumericTable & yTable, daal::algorithms::Model * r,
                                                                                      const ParameterType * svmPar)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(COMPUTE);
@@ -107,22 +107,18 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
 
     size_t nNonZeroWeights = nVectors;
     {
+        /* The operation copy is lightweight, therefore a large size is chosen
+            so that the number of blocks is a reasonable number. */
         const size_t blockSize = 16384;
         const size_t nBlocks   = nVectors / blockSize + !!(nVectors % blockSize);
 
         DAAL_ITTNOTIFY_SCOPED_TASK(init.set);
-        TArrayScalable<size_t, cpu> weightsCounter;
-        if (wTable.get())
-        {
-            weightsCounter.reset(blockSize);
-            DAAL_CHECK_MALLOC(weightsCounter.get());
-        }
-
+        TlsSum<size_t, cpu> weightsCounter(1);
         daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
             const size_t startRow     = iBlock * blockSize;
             const size_t nRowsInBlock = (iBlock != nBlocks - 1) ? blockSize : nVectors - iBlock * blockSize;
 
-            ReadColumns<algorithmFPType, cpu> mtY(yTable, 0, startRow, nRowsInBlock);
+            ReadColumns<algorithmFPType, cpu> mtY(const_cast<NumericTable &>(yTable), 0, startRow, nRowsInBlock);
             DAAL_CHECK_BLOCK_STATUS_THR(mtY);
             const algorithmFPType * const yIn = mtY.get();
 
@@ -130,9 +126,10 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
             DAAL_CHECK_BLOCK_STATUS_THR(mtW);
             const algorithmFPType * weights = mtW.get();
 
+            size_t * wc = nullptr;
             if (weights)
             {
-                weightsCounter[iBlock] = 0;
+                wc = weightsCounter.local();
             }
             for (size_t i = 0; i < nRowsInBlock; ++i)
             {
@@ -142,18 +139,14 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
                 cw[i + startRow]    = weights ? weights[i] * C : C;
                 if (weights)
                 {
-                    weightsCounter[iBlock] += static_cast<size_t>(weights[i] != algorithmFPType(0));
+                    *wc += static_cast<size_t>(weights[i] != algorithmFPType(0));
                 }
             }
         });
 
         if (wTable.get())
         {
-            nNonZeroWeights = 0;
-            for (size_t iBlock = 0; iBlock < nBlocks; iBlock++)
-            {
-                nNonZeroWeights += weightsCounter[iBlock];
-            }
+            weightsCounter.reduceTo(&nNonZeroWeights, 1);
         }
     }
 

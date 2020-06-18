@@ -47,7 +47,7 @@ template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 struct SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu> : public Kernel
 {
     services::Status compute(const data_management::NumericTablePtr & xTable, const data_management::NumericTablePtr & wTable,
-                             data_management::NumericTable & yTable, daal::algorithms::Model * r, const ParameterType * par);
+                             const data_management::NumericTable & yTable, daal::algorithms::Model * r, const ParameterType * par);
 
 private:
     services::Status SMOBlockSolver(const algorithmFPType * y, const algorithmFPType * grad, const uint32_t * wsIndices,
@@ -69,7 +69,7 @@ private:
     static const size_t cInnerIterations = 100;
     // The maximum block size for blocked SMO solver.
     // Need of (maxBlockSize*6 + maxBlockSize*maxBlockSize)*sizeof(algorithmFPType) internal memory.
-    // It should get into the cache L2 (~1MB).
+    // It should fit into the cache L2 including the use of hardware prefetch.
     static const size_t maxBlockSize = 2048;
 
     enum MemSmoId
