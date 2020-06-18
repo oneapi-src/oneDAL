@@ -849,7 +849,7 @@ services::Status DistributedInput<step8Local>::check(const daal::algorithms::Par
 
     {
         NumericTablePtr ntClusterStructure = get(step8InputClusterStructure);
-        
+
         if (ntClusterStructure->getNumberOfRows() != 0)
         {
             int unexpectedLayouts = (int)packed_mask;
@@ -1200,7 +1200,7 @@ services::Status DistributedInput<step12Local>::check(const daal::algorithms::Pa
 
     if (NumericTable::cast((*dcOrders)[0])->getNumberOfRows() != 0)
     {
-    for (size_t i = 0; i < nQueriesBlocks; i++)
+        for (size_t i = 0; i < nQueriesBlocks; i++)
         {
             DAAL_CHECK_EX((*dcOrders)[i], ErrorNullNumericTable, ArgumentName, step12PartialOrdersStr());
             NumericTablePtr ntOrders = NumericTable::cast((*dcOrders)[i]);

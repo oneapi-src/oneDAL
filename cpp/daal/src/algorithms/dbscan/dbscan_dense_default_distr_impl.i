@@ -245,7 +245,7 @@ Status DBSCANDistrStep4Kernel<algorithmFPType, method, cpu>::compute(const DataC
 
     int result = 0;
 
-    size_t splitDim = -1;
+    size_t splitDim   = -1;
     size_t valuedPart = 0;
     for (size_t part = 0; part < nBlocks; part++)
     {

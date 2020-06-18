@@ -236,7 +236,7 @@ DAAL_EXPORT services::Status DistributedPartialResultStep8::allocate(const daal:
 
     services::Status status;
 
-     if (nRows != 0)
+    if (nRows != 0)
     {
         set(step8ClusterStructure, HomogenNumericTable<int>::create(4, nRows, NumericTable::doAllocate, &status));
     }
