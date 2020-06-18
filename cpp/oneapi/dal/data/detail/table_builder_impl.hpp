@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/data/table.hpp"
 
-namespace dal::detail {
+namespace oneapi::dal::detail {
 
 class table_builder_impl_iface {
 public:
@@ -53,4 +53,4 @@ private:
     Impl impl_;
 };
 
-} // namespace dal::detail
+} // namespace oneapi::dal::detail

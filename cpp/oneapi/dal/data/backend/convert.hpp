@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/common.hpp"
 
-namespace dal::backend {
+namespace oneapi::dal::backend {
 
 void convert_vector(const void* src, void* dst,
                     data_type src_type, data_type dest_type,
@@ -29,4 +29,4 @@ void convert_vector(const void* src, void* dst,
                     std::int64_t src_stride, std::int64_t dst_stride,
                     std::int64_t size);
 
-} // namespace dal::backend
+} // namespace oneapi::dal::backend

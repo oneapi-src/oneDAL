@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/data/detail/table_impl_iface.hpp"
 
-namespace dal::detail {
+namespace oneapi::dal::detail {
 
 template <typename TableImpl>
 class table_impl_wrapper : public table_impl_iface,
@@ -175,4 +175,4 @@ private:
     Impl impl_;
 };
 
-} // namespace dal::detail
+} // namespace oneapi::dal::detail

@@ -17,7 +17,7 @@
 #include "oneapi/dal/data/backend/homogen_table_impl.hpp"
 #include "oneapi/dal/data/table_builder.hpp"
 
-namespace dal {
+namespace oneapi::dal {
 namespace backend {
 
 class table_builder_impl {
@@ -124,4 +124,4 @@ template homogen_table_builder::homogen_table_builder(std::int64_t, const array<
 template homogen_table_builder::homogen_table_builder(std::int64_t, const array<double>&, data_layout);
 template homogen_table_builder::homogen_table_builder(std::int64_t, const array<std::int32_t>&, data_layout);
 
-} // namespace dal
+} // namespace oneapi::dal

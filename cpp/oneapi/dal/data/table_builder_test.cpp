@@ -18,7 +18,7 @@
 #include "oneapi/dal/table_builder.hpp"
 #include "oneapi/dal/accessor.hpp"
 
-using namespace dal;
+using namespace oneapi::dal;
 
 TEST(table_builder_test, can_modify_table) {
     float data[] = {

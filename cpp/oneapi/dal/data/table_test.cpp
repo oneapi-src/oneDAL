@@ -18,7 +18,7 @@
 #include "oneapi/dal/data/table.hpp"
 #include "oneapi/dal/data/accessor.hpp"
 
-using namespace dal;
+using namespace oneapi::dal;
 
 TEST(table_test, can_construct_empty_table) {
     table t;

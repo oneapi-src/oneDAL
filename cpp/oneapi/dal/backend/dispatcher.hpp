@@ -30,7 +30,7 @@
     #include "_onedal_dispatcher_cpu.hpp"
 #endif
 
-namespace dal {
+namespace oneapi::dal {
 namespace backend {
 
 template <typename ... Kernels>
@@ -100,4 +100,4 @@ constexpr auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
 }
 
 }  // namespace backend
-}  // namespace dal
+}  // namespace oneapi::dal

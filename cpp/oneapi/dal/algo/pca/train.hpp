@@ -20,7 +20,7 @@
 #include "oneapi/dal/algo/pca/train_types.hpp"
 #include "oneapi/dal/algo/pca/detail/train_ops.hpp"
 
-namespace dal {
+namespace oneapi::dal {
 namespace detail {
 
 template <typename Descriptor>
@@ -28,4 +28,4 @@ struct train_ops<Descriptor, decomposition::pca::detail::tag>
   : decomposition::pca::detail::train_ops<Descriptor> {};
 
 } // namespace detail
-} // namespace dal
+} // namespace oneapi::dal

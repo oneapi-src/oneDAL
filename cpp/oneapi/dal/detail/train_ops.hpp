@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/execution_context.hpp"
 
-namespace dal {
+namespace oneapi::dal {
 namespace detail {
 
 template <typename Descriptor, typename Tag>
@@ -55,4 +55,4 @@ auto train_dispatch_by_ctx(Head&& head, Tail&&... tail) {
 }
 
 } // namespace detail
-} // namespace dal
+} // namespace oneapi::dal

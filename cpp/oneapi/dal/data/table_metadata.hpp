@@ -19,7 +19,7 @@
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/data/array.hpp"
 
-namespace dal {
+namespace oneapi::dal {
 
 enum class data_layout {
     row_major,
@@ -77,4 +77,4 @@ struct table_metadata {
     array<feature_info> features;
 };
 
-} // namespace dal
+} // namespace oneapi::dal

@@ -19,7 +19,7 @@
 #include "oneapi/dal/data_parallel.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 
-namespace dal {
+namespace oneapi::dal {
 namespace backend {
 
 class context_gpu {};
@@ -36,4 +36,4 @@ struct kernel_dispatcher<CpuKernel, GpuKernel> {
 };
 
 }  // namespace backend
-}  // namespace dal
+}  // namespace oneapi::dal

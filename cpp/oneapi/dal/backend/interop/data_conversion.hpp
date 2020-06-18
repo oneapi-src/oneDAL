@@ -19,7 +19,7 @@
 
 #include "oneapi/dal/common.hpp"
 
-namespace dal::backend::interop {
+namespace oneapi::dal::backend::interop {
 
 using namespace daal::data_management;
 
@@ -101,4 +101,4 @@ void daal_convert(const void* src, void* dst,
                             size, src, src_stride, dst, dst_stride);
 }
 
-} // namespace dal::backend::interop
+} // namespace oneapi::dal::backend::interop

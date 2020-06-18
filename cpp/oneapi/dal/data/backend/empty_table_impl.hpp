@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/data/table_metadata.hpp"
 
-namespace dal::backend {
+namespace oneapi::dal::backend {
 
 class empty_table_impl {
 public:
@@ -56,4 +56,4 @@ public:
     }
 };
 
-} // namespace dal::backend
+} // namespace oneapi::dal::backend

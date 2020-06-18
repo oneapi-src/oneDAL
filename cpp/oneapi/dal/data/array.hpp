@@ -20,7 +20,7 @@
 #include <algorithm>
 #include "oneapi/dal/detail/common.hpp"
 
-namespace dal {
+namespace oneapi::dal {
 
 template <typename T>
 class array {
@@ -184,4 +184,4 @@ private:
     std::int64_t capacity_;
 };
 
-} // namespace dal
+} // namespace oneapi::dal

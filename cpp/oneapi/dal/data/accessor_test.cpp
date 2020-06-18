@@ -17,7 +17,7 @@
 #include "gtest/gtest.h"
 #include "oneapi/dal/accessor.hpp"
 
-using namespace dal;
+using namespace oneapi::dal;
 using std::int32_t;
 
 TEST(column_accessor_test, can_get_first_column_from_homogen_table) {

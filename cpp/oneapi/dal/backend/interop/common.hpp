@@ -21,7 +21,7 @@
 
 #include "oneapi/dal/backend/dispatcher.hpp"
 
-namespace dal {
+namespace oneapi::dal {
 namespace backend {
 namespace interop {
 
@@ -88,4 +88,4 @@ inline auto call_daal_kernel(const context_cpu& ctx, Args&&... args) {
 
 } // namespace interop
 } // namespace backend
-} // namespace dal
+} // namespace oneapi::dal

@@ -18,11 +18,11 @@
 
 #include "oneapi/dal/detail/train_ops.hpp"
 
-namespace dal {
+namespace oneapi::dal {
 
 template <typename... Args>
 auto train(Args&&... args) {
     return detail::train_dispatch_by_ctx(std::forward<Args>(args)...);
 }
 
-} // namespace dal
+} // namespace oneapi::dal

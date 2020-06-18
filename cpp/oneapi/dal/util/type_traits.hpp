@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/util/detail/type_traits.hpp"
 
-namespace dal {
+namespace oneapi::dal {
 
 template <typename T>
 struct is_table_impl {
@@ -78,4 +78,4 @@ struct is_homogen_table_impl {
 template <typename T>
 inline constexpr bool is_homogen_table_impl_v = is_homogen_table_impl<T>::value;
 
-} // namespace dal
+} // namespace oneapi::dal

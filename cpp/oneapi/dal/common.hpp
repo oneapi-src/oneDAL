@@ -18,7 +18,7 @@
 
 #include <cstdint>
 
-namespace dal {
+namespace oneapi::dal {
 
 using byte_t = std::uint8_t;
 
@@ -51,4 +51,4 @@ public:
     std::int64_t end_idx;
 };
 
-} // namespace dal
+} // namespace oneapi::dal

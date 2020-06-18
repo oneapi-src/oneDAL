@@ -16,7 +16,7 @@
 
 #pragma once
 
-namespace dal::detail {
+namespace oneapi::dal::detail {
 
 #define INSTANTIATE_HAS_METHOD_CHECKER(return_value, method_name, params, checker_name)                 \
 template<typename _Type>                                                                                \
@@ -40,4 +40,4 @@ static inline constexpr bool has_method_##checker_name ##_v = has_method_##check
 #define INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(return_value, method_name, params) \
     INSTANTIATE_HAS_METHOD_CHECKER(return_value, method_name, params, method_name)
 
-} // namespace dal::detail
+} // namespace oneapi::dal::detail

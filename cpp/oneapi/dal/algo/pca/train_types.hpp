@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/algo/pca/common.hpp"
 
-namespace dal {
+namespace oneapi::dal {
 namespace decomposition {
 namespace pca {
 
@@ -79,4 +79,4 @@ class train_result {
 
 } // namespace pca
 } // namespace decomposition
-} // namespace dal
+} // namespace oneapi::dal

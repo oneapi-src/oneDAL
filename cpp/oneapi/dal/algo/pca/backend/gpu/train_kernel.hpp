@@ -19,7 +19,7 @@
 #include "oneapi/dal/backend/dispatcher_dp.hpp"
 #include "oneapi/dal/algo/pca/train_types.hpp"
 
-namespace dal {
+namespace oneapi::dal {
 namespace decomposition {
 namespace pca {
 namespace backend {
@@ -34,4 +34,4 @@ struct train_kernel_gpu {
 } // namespace detail
 } // namespace pca
 } // namespace decomposition
-} // namespace dal
+} // namespace oneapi::dal

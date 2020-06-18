@@ -21,7 +21,7 @@
 #include "oneapi/dal/data/table_builder.hpp"
 #include "oneapi/dal/data/accessor.hpp"
 
-namespace dal {
+namespace oneapi::dal {
 namespace backend {
 namespace interop {
 
@@ -58,4 +58,4 @@ inline auto convert_to_daal_homogen_table(array<T>& data,
 
 } // namespace interop
 } // namespace backend
-} // namespace dal
+} // namespace oneapi::dal

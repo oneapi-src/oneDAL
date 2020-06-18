@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/execution_context.hpp"
 
-namespace dal {
+namespace oneapi::dal {
 
 namespace detail {
 class data_parallel_execution_context;
@@ -38,4 +38,4 @@ inline auto make_context(const Queue& queue) {
     return data_parallel_execution_context();
 }
 
-} // namespace dal
+} // namespace oneapi::dal

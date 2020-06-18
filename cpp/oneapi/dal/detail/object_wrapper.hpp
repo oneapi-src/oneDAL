@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/detail/common.hpp"
 
-namespace dal {
+namespace oneapi::dal {
 namespace detail {
 
 class object_wrapper_iface {
@@ -80,4 +80,4 @@ const Object& unwrap_object(const object_wrapper& wrapper) {
 }
 
 } // namespace detail
-} // namespace dal
+} // namespace oneapi::dal

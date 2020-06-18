@@ -17,7 +17,7 @@
 #include "gtest/gtest.h"
 #include "oneapi/dal/data/array.hpp"
 
-using namespace dal;
+using namespace oneapi::dal;
 using std::int32_t;
 
 TEST(array_test, can_construct_empty_array) {

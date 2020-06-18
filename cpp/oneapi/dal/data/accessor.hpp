@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/data/table_builder.hpp"
 
-namespace dal {
+namespace oneapi::dal {
 
 template <typename T>
 class row_accessor {
@@ -103,4 +103,4 @@ private:
     storage_t& storage_;
 };
 
-} // namespace dal
+} // namespace oneapi::dal

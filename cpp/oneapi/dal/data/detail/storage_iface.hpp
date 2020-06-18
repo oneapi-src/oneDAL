@@ -19,7 +19,7 @@
 #include <utility>
 #include "oneapi/dal/data/array.hpp"
 
-namespace dal::detail {
+namespace oneapi::dal::detail {
 
 struct storage_readable {};
 struct storage_writable {};
@@ -74,4 +74,4 @@ struct get_dense_storage_iface<const AccessType> {
 template <typename AccessType>
 using get_dense_storage_iface_t = typename get_dense_storage_iface<AccessType>::type;
 
-} // namespace dal::detail
+} // namespace oneapi::dal::detail

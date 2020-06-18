@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/algo/pca/train_types.hpp"
 
-namespace dal {
+namespace oneapi::dal {
 namespace decomposition {
 namespace pca {
 namespace detail {
@@ -50,6 +50,6 @@ struct train_ops {
 };
 
 } // namespace detail
-} // namespace dal
+} // namespace oneapi::dal
 } // namespace decomposition
 } // namespace pca

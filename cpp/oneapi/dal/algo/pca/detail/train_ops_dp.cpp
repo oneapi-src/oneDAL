@@ -19,7 +19,7 @@
 #include "oneapi/dal/algo/pca/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel.hpp"
 
-namespace dal {
+namespace oneapi::dal {
 namespace decomposition {
 namespace pca {
 namespace detail {
@@ -45,6 +45,6 @@ INSTANTIATE(double, method::cov)
 INSTANTIATE(double, method::svd)
 
 } // namespace detail
-} // namespace dal
+} // namespace oneapi::dal
 } // namespace decomposition
 } // namespace pca

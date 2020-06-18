@@ -19,7 +19,7 @@
 #include <stdexcept>
 #include "oneapi/dal/common.hpp"
 
-namespace dal::detail {
+namespace oneapi::dal::detail {
 
 template <typename T>
 constexpr auto make_data_type_impl() {
@@ -39,4 +39,4 @@ constexpr auto make_data_type_impl() {
     throw std::invalid_argument{"T"};
 }
 
-} // namespace dal::detail
+} // namespace oneapi::dal::detail

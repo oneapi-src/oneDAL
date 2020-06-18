@@ -19,7 +19,7 @@
 #include "oneapi/dal/data/table_metadata.hpp"
 #include "oneapi/dal/data/detail/storage_iface.hpp"
 
-namespace dal::detail {
+namespace oneapi::dal::detail {
 
 class table_impl_iface : public dense_storage_iface<storage_readable_writable> {
 public:
@@ -33,4 +33,4 @@ public:
     virtual const void* get_data() const = 0;
 };
 
-} // namespace dal::detail
+} // namespace oneapi::dal::detail

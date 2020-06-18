@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/detail/common.hpp"
 
-namespace dal {
+namespace oneapi::dal {
 
 /* Forward declarations */
 class default_execution_context;
@@ -60,4 +60,4 @@ inline auto make_context() {
     return default_execution_context();
 }
 
-} // namespace dal
+} // namespace oneapi::dal

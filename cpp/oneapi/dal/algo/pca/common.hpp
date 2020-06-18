@@ -19,7 +19,7 @@
 #include "oneapi/dal/data/table.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
-namespace dal {
+namespace oneapi::dal {
 namespace decomposition {
 namespace pca {
 
@@ -91,4 +91,4 @@ class model : public base {
 
 } // namespace pca
 } // namespace decomposition
-} // namespace dal
+} // namespace oneapi::dal

@@ -19,7 +19,7 @@
 #include <memory>
 #include "oneapi/dal/common.hpp"
 
-namespace dal::detail {
+namespace oneapi::dal::detail {
 
 template <typename T>
 using shared = std::shared_ptr<T>;
@@ -65,4 +65,4 @@ Object make_from_pointer(typename Object::pimpl::element_type* pointer) {
     return pimpl_accessor().template make_from_pointer<Object>(pointer);
 }
 
-}  // namespace dal::detail
+}  // namespace oneapi::dal::detail
