@@ -88,6 +88,7 @@ jobs:
     displayName: conformance
   - script: |
       cp -R $(Pipeline.Workspace)/s/.ci/scripts/conformance-scripts/_log_* $(Build.ArtifactStagingDirectory)/
+      cp -R $(Pipeline.Workspace)/s/.ci/scripts/conformance-scripts/report.html $(Build.ArtifactStagingDirectory)/
     displayName: copy report
   - task: PublishPipelineArtifact@0
     inputs:

@@ -15,7 +15,7 @@ if __name__ == "__main__":
 
     print("Confromance testing start")
     for alg_name in algs:
-        os.system("bash ./download_tests.sh --alg-name %s --sklearn-version %s &>> _log_downloads" % (alg_name, sklearn_version))
+        os.system("bash ./download_tests.sh --alg-name %s --sklearn-version %s" % (alg_name, sklearn_version))
         print(alg_name)
 
         os.system("IDP_SKLEARN_VERBOSE=INFO python -m daal4py -m pytest -s --disable-warnings test_%(alg)s.py > _log_%(alg)s.txt" % {"alg": alg_name})
