@@ -68,7 +68,6 @@ inline constexpr cpu_extension from_daal_cpu_type(daal::CpuType cpu) {
         case daal::avx512: return cpu_extension::avx512;
         case daal::avx512_mic:
         case daal::avx512_mic_e1:
-        case daal::lastCpuType:
             break;
     }
     return cpu_extension::none;
