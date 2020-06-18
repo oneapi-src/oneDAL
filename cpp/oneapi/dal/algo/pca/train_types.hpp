@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/pca/common.hpp"
+#include "oneapi/dal/exception.hpp"
 
 namespace oneapi::dal::pca {
 

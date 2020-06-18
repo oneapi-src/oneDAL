@@ -19,6 +19,7 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/train_kernel.hpp"
+#include "oneapi/dal/backend/interop/error_convertor.hpp"
 
 namespace oneapi::dal::pca::backend {
 
@@ -64,7 +65,7 @@ static train_result call_daal_kernel(const context_cpu& ctx,
                                                     daal_pca::variance |
                                                     daal_pca::eigenvalue);
 
-    interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(
+    const auto status = interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(
         ctx,
         is_correlation,
         desc.get_is_deterministic(),
@@ -75,6 +76,10 @@ static train_result call_daal_kernel(const context_cpu& ctx,
         *daal_eigenvalues,
         *daal_means,
         *daal_variances);
+
+    if (!status) {
+        interop::status_to_exception_default(status);
+    }
 
     return train_result()
         .set_model(model().set_eigenvectors(homogen_table_builder{ component_count, arr_eigvec }.build()))

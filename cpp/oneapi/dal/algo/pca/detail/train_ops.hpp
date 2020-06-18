@@ -17,6 +17,8 @@
 #pragma once
 
 #include "oneapi/dal/algo/pca/train_types.hpp"
+#include "oneapi/dal/exception.hpp"
+#include <string>
 
 namespace oneapi::dal::pca::detail {
 
@@ -36,7 +38,9 @@ struct train_ops {
   using descriptor_base_t = descriptor_base;
 
   void validate(const Descriptor& params, const train_input& input) const {
-
+    if (!(input.get_data().has_data())) {
+      throw domain_error("Input table should be not empty");
+    }
   }
 
   template <typename Context>
