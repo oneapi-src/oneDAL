@@ -354,7 +354,7 @@ int OrderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(algor
             || ((n - nLeft) < nMinSplitPart) || ((n - nLeft) < minWeightLeaf))
             break;
         sumLeft = (split.featureUnordered ? buf[i] : sumLeft + buf[i]);
-        if ((nLeft < minWeightLeaf) || (nLeft < minWeightLeaf)) continue;
+        if ((nLeft < nMinSplitPart) || (nLeft < minWeightLeaf)) continue;
         intermSummFPType sumRight = sumTotal - sumLeft;
         //the part of the impurity decrease dependent on split itself
         const intermSummFPType impDecreasePart = sumLeft * sumLeft / intermSummFPType(nLeft) + sumRight * sumRight / intermSummFPType(n - nLeft);

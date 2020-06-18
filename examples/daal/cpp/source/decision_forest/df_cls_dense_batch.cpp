@@ -49,7 +49,6 @@ const size_t minObservationsInLeafNode      = 8;
 const size_t minObservationsInSplitNode     = 16;
 const double minWeightFractionInLeafNode    = 0.0; /* It must be in segment [0.0, 0.5] */
 const double minImpurityDecreaseInSplitNode = 0.0; /* It must be greater than or equal to 0.0 */
-const size_t maxLeafNodes                   = 0;   /* Unlimited leaf node is 0 */
 
 const size_t nClasses = 5; /* Number of classes */
 
@@ -88,7 +87,6 @@ training::ResultPtr trainModel()
     algorithm.parameter().minObservationsInSplitNode     = minObservationsInSplitNode;
     algorithm.parameter().minWeightFractionInLeafNode    = minWeightFractionInLeafNode;
     algorithm.parameter().minImpurityDecreaseInSplitNode = minImpurityDecreaseInSplitNode;
-    algorithm.parameter().maxLeafNodes                   = maxLeafNodes;
     algorithm.parameter().varImportance                  = algorithms::decision_forest::training::MDI;
     algorithm.parameter().resultsToCompute               = algorithms::decision_forest::training::computeOutOfBagError;
 

@@ -371,8 +371,7 @@ protected:
           _accuracy(daal::services::internal::EpsilonVal<algorithmFPType>::get()),
           _minSamplesSplit(2),
           _minWeightLeaf(0.),
-          _minImpurityDecrease(0. - daal::services::internal::EpsilonVal<algorithmFPType>::get() * x->getNumberOfRows()),
-          _remainingLeafNodes(0)
+          _minImpurityDecrease(0. - daal::services::internal::EpsilonVal<algorithmFPType>::get() * x->getNumberOfRows())
     {
         if (_impurityThreshold < _accuracy) _impurityThreshold = _accuracy;
 
@@ -385,7 +384,6 @@ protected:
             _minWeightLeaf       = par.minWeightFractionInLeafNode * x->getNumberOfRows(); // no sample_weight
             _minImpurityDecrease = par.minImpurityDecreaseInSplitNode * x->getNumberOfRows()
                                    - daal::services::internal::EpsilonVal<algorithmFPType>::get() * x->getNumberOfRows();
-            _remainingLeafNodes = par.maxLeafNodes;
         }
     }
 
@@ -402,16 +400,13 @@ protected:
         DAAL_ASSERT(iBuf < _nFeatureBufs);
         return _aFeatureIndexBuf[iBuf].get();
     }
-    bool terminateCriteria(size_t nSamples, size_t level, typename DataHelper::ImpurityData & imp)
+    bool terminateCriteria(size_t nSamples, size_t level, typename DataHelper::ImpurityData & imp) const
     {
         const daal::algorithms::decision_forest::training::interface2::Parameter * algParameter =
             dynamic_cast<const daal::algorithms::decision_forest::training::interface2::Parameter *>(&_par);
         if (algParameter != NULL)
         {
-            bool isLeaf = ((_par.maxLeafNodes > 0) && (_remainingLeafNodes == 0)) ? true : false;
-            if (_remainingLeafNodes > 0) _remainingLeafNodes = _remainingLeafNodes - 1;
-
-            return (isLeaf || (nSamples < 2 * _par.minObservationsInLeafNode) || (nSamples < _minSamplesSplit) || (nSamples < 2 * _minWeightLeaf)
+            return ((nSamples < 2 * _par.minObservationsInLeafNode) || (nSamples < _minSamplesSplit) || (nSamples < 2 * _minWeightLeaf)
                     || _helper.terminateCriteria(imp, _impurityThreshold, nSamples) || ((_par.maxTreeDepth > 0) && (level >= _par.maxTreeDepth)));
         }
         else
@@ -499,7 +494,6 @@ protected:
     size_t _minSamplesSplit;
     double _minWeightLeaf;
     double _minImpurityDecrease;
-    size_t _remainingLeafNodes;
 };
 
 template <typename algorithmFPType, typename DataHelper, CpuType cpu>
