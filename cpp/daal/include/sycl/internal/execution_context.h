@@ -52,8 +52,6 @@ public:
 
     explicit KernelRange(size_t upper1, size_t upper2, size_t upper3) : _upper1(upper1), _upper2(upper2), _upper3(upper3), _dimensions(3) {}
 
-    KernelRange(const KernelRange & range) : _upper1(range._upper1), _upper2(range._upper2), _upper3(range._upper3), _dimensions(range._dimensions) {}
-
     size_t upper1() const { return _upper1; }
 
     size_t upper2() const { return _upper2; }
