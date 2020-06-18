@@ -66,6 +66,7 @@ public:
         {
             if (_alpha[i] > zero) nSV++;
         }
+
         model.setNFeatures(xTable.getNumberOfColumns());
         DAAL_CHECK_STATUS(s, setSVCoefficients(nSV, model));
         DAAL_CHECK_STATUS(s, setSVIndices(nSV, model));
