@@ -51,24 +51,26 @@ struct SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu> : public Kerne
 
 private:
     services::Status SMOBlockSolver(const algorithmFPType * y, const algorithmFPType * grad, const uint32_t * wsIndices,
-                                    const algorithmFPType * kernelWS, const size_t nVectors, const size_t nWS, const algorithmFPType * cw,
+                                    const NumericTablePtr & kernelWS, const size_t nVectors, const size_t nWS, const algorithmFPType * cw,
                                     const double eps, const double tau, algorithmFPType * buffer, char * I, algorithmFPType * alpha,
                                     algorithmFPType * deltaAlpha, algorithmFPType & localDiff) const;
 
-    services::Status updateGrad(const algorithmFPType * kernelWS, const algorithmFPType * deltaalpha, algorithmFPType * grad, const size_t nVectors,
-                                const size_t nWS);
+    services::Status updateGrad(const NumericTablePtr & kernelWS, const algorithmFPType * deltaalpha, algorithmFPType * tmpgrad,
+                                algorithmFPType * grad, const size_t nVectors, const size_t nWS);
 
     bool checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev, const algorithmFPType eps, size_t & sameLocalDiff);
+
+    size_t _blockSizeWS;
 
     // One of the conditions for stopping is diff stays unchanged. nNoChanges - number of repetitions
     static const size_t nNoChanges = 5;
     // The maximum numbers of iteration of the subtask is number of observation in WS x cInnerIterations.
     // It's enough to find minimum for subtask.
-    static const size_t cInnerIterations = 1000;
+    static const size_t cInnerIterations = 100;
     // The maximum block size for blocked SMO solver.
     // Need of (maxBlockSize*6 + maxBlockSize*maxBlockSize)*sizeof(algorithmFPType) internal memory.
     // It should get into the cache L2 (~1MB).
-    static const size_t maxBlockSize = 1024;
+    static const size_t maxBlockSize = 2048;
 
     enum MemSmoId
     {
