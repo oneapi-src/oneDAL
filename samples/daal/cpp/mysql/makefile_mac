@@ -50,7 +50,7 @@ ifeq (,$(filter gnu clang,$(compiler)))
 endif
 
 ifndef DAALROOT
-    DAALROOT = ../..
+    DAALROOT = ../../..
 endif
 
 ifndef sample

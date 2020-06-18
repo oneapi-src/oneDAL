@@ -69,12 +69,12 @@ ifneq ($(mode),build)
 endif
 
 ifndef DAALROOT
-    DAALROOT = ./../..
+    DAALROOT = ./../../../..
 endif
 DAAL_PATH = "$(DAALROOT)/lib/$(_IA)"
 
 ifndef TBBROOT
-    TBBROOT = ./../../../../tbb/latest
+    TBBROOT = ./../../../../../../tbb/latest
 endif
 TBB_PATH = "$(TBBROOT)/lib/$(_IA)/gcc4.8"
 

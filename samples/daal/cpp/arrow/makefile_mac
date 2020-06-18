@@ -50,7 +50,7 @@ ifndef compiler
 endif
 
 ifndef DAALROOT
-    DAALROOT = ./../../..
+    DAALROOT = ./../../../..
 endif
 
 
