@@ -50,6 +50,16 @@ constexpr std::int64_t get_data_type_size(data_type t) {
     return 0;
 }
 
+constexpr bool is_floating_point(data_type t) {
+    if (t == data_type::bfloat16 ||
+        t == data_type::float32 ||
+        t == data_type::float64) {
+            return true;
+    } else {
+        return false;
+    }
+}
+
 template <data_type t>
 struct integral_data_type { };
 

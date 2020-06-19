@@ -78,13 +78,13 @@ table_builder::table_builder(table&& t)
 template <typename DataType>
 homogen_table_builder::homogen_table_builder(std::int64_t row_count, std::int64_t column_count,
                                              const DataType* data_pointer,
-                                             data_layout layout)
+                                             homogen_data_layout layout)
     : homogen_table_builder(homogen_table{ row_count, column_count, data_pointer, layout }) {}
 
 template <typename DataType, typename>
 homogen_table_builder::homogen_table_builder(std::int64_t row_count, std::int64_t column_count,
                                              DataType value,
-                                             data_layout layout)
+                                             homogen_data_layout layout)
     : table_builder(backend::homogen_table_builder_impl {
         backend::homogen_table_builder_impl::pimpl_t {
             new detail::homogen_table_impl_wrapper { backend::homogen_table_impl{ row_count, column_count, value, layout } }
@@ -94,7 +94,7 @@ homogen_table_builder::homogen_table_builder(std::int64_t row_count, std::int64_
 template <typename DataType>
 homogen_table_builder::homogen_table_builder(std::int64_t column_count,
                                              const array<DataType>& data,
-                                             data_layout layout)
+                                             homogen_data_layout layout)
     : table_builder(backend::homogen_table_builder_impl {
         backend::homogen_table_builder_impl::pimpl_t {
             new detail::homogen_table_impl_wrapper { backend::homogen_table_impl{ column_count, data, layout } }
@@ -112,16 +112,16 @@ homogen_table homogen_table_builder::build() const {
     return impl.build_homogen_table();
 }
 
-template homogen_table_builder::homogen_table_builder(std::int64_t, std::int64_t, const float*, data_layout);
-template homogen_table_builder::homogen_table_builder(std::int64_t, std::int64_t, const double*, data_layout);
-template homogen_table_builder::homogen_table_builder(std::int64_t, std::int64_t, const std::int32_t*, data_layout);
+template homogen_table_builder::homogen_table_builder(std::int64_t, std::int64_t, const float*, homogen_data_layout);
+template homogen_table_builder::homogen_table_builder(std::int64_t, std::int64_t, const double*, homogen_data_layout);
+template homogen_table_builder::homogen_table_builder(std::int64_t, std::int64_t, const std::int32_t*, homogen_data_layout);
 
-template homogen_table_builder::homogen_table_builder(std::int64_t, std::int64_t, float, data_layout);
-template homogen_table_builder::homogen_table_builder(std::int64_t, std::int64_t, double, data_layout);
-template homogen_table_builder::homogen_table_builder(std::int64_t, std::int64_t, std::int32_t, data_layout);
+template homogen_table_builder::homogen_table_builder(std::int64_t, std::int64_t, float, homogen_data_layout);
+template homogen_table_builder::homogen_table_builder(std::int64_t, std::int64_t, double, homogen_data_layout);
+template homogen_table_builder::homogen_table_builder(std::int64_t, std::int64_t, std::int32_t, homogen_data_layout);
 
-template homogen_table_builder::homogen_table_builder(std::int64_t, const array<float>&, data_layout);
-template homogen_table_builder::homogen_table_builder(std::int64_t, const array<double>&, data_layout);
-template homogen_table_builder::homogen_table_builder(std::int64_t, const array<std::int32_t>&, data_layout);
+template homogen_table_builder::homogen_table_builder(std::int64_t, const array<float>&, homogen_data_layout);
+template homogen_table_builder::homogen_table_builder(std::int64_t, const array<double>&, homogen_data_layout);
+template homogen_table_builder::homogen_table_builder(std::int64_t, const array<std::int32_t>&, homogen_data_layout);
 
 } // namespace oneapi::dal

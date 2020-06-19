@@ -111,7 +111,7 @@ public:
         return impl_.get_row_count();
     }
 
-    virtual const table_metadata& get_metadata() const override {
+    virtual const homogen_table_metadata& get_metadata() const override {
         return impl_.get_metadata();
     }
 

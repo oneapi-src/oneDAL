@@ -31,6 +31,7 @@ public:
 class homogen_table_impl_iface : public table_impl_iface {
 public:
     virtual const void* get_data() const = 0;
+    virtual const homogen_table_metadata& get_metadata() const = 0;
 };
 
 } // namespace oneapi::dal::detail
