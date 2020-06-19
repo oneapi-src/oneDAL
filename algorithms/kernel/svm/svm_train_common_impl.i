@@ -217,8 +217,8 @@ int64_t LRUCache<cpu, TKey>::dequeue()
     if (_head == _tail)
     {
         delete _head;
-        _head == nullptr;
-        _tail == nullptr;
+        _head = nullptr;
+        _tail = nullptr;
     }
     else
     {
