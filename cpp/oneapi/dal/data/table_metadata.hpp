@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "onedapi/dal/common_helpers.hpp"
 #include "oneapi/dal/data/array.hpp"
+#include "oneapi/dal/data/common_helpers.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal {

@@ -14,11 +14,11 @@
  * limitations under the License.
  *******************************************************************************/
 
-#include "onedal/table_metadata.hpp"
+#include "oneapi/dal/data/table_metadata.hpp"
 
 using std::int64_t;
 
-namespace dal {
+namespace oneapi::dal {
 namespace detail {
 
 struct table_feature_impl {
@@ -178,4 +178,4 @@ homogen_table_metadata& homogen_table_metadata::set_data_layout(homogen_data_lay
     return *this;
 }
 
-} // namespace dal
+} // namespace oneapi::dal
