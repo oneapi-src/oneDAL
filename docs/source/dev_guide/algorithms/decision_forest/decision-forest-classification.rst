@@ -171,12 +171,12 @@ following parameters:
      
        For CPU:
 
-       - `defaultDense`
+       - ``defaultDense`` - default performance-oriented method
 
        For GPU:
 
-       - `hist`
-      
+       - ``hist`` - :ref:`inexact computation method <df_inexact_method>` (also called `histogram`)
+
    * - nClasses
      - Not applicable.
      - The number of classes. A required parameter.

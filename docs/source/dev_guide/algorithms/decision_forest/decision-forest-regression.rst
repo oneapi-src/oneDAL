@@ -110,11 +110,11 @@ the training algorithm for decision forest regression has the following paramete
 
        For CPU:
 
-       - `defaultDense`
+       - ``defaultDense`` - default performance-oriented method
 
        For GPU:
 
-       - `hist`
+       - ``hist`` - :ref:`inexact computation method <df_inexact_method>` (also called `histogram`)
       
 
 Output

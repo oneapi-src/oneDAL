@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _cross_entropy_loss:
+
 Cross-entropy Loss
 ==================
 
