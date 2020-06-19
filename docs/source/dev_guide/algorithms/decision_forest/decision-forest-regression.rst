@@ -106,8 +106,16 @@ the training algorithm for decision forest regression has the following paramete
      - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
    * - method
      - defaultDense
-     - The computation method used by the decision forest regression. The
-       only prediction method supported so far is the default dense method.
+     - The computation method used by the decision forest regression.
+
+       For CPU:
+
+       - `defaultDense`
+
+       For GPU:
+
+       - `hist`
+      
 
 Output
 ******

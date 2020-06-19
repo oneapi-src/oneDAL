@@ -73,6 +73,10 @@ For the following algorithms, only listed methods are supported on GPU:
      - ``thunder``
 
        .. note:: This method is not supported on CPU.
+   * - :ref:`decision_forest`
+     - ``hist``
+
+       .. note:: This method is not supported on CPU.
 
 Parameters
 **********

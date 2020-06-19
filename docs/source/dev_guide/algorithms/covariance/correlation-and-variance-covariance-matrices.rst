@@ -175,6 +175,8 @@ At this moment, the description of
 `distributed processing for Correlation and Variance-Covariance Matrices <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-1>`_
 is only available in Developer Guide for Intel(R) DAAL.
 
+.. note:: Distributed processing mode for Correlation and Variance-Covariance Matrices is not available on GPU.
+
 Examples
 ========
 

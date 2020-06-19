@@ -163,12 +163,20 @@ following parameters:
      - Default Value
      - Description
    * - algorithmFPType
-     - ?
+     - float
      - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
    * - method
      - defaultDense
-     - The computation method used by the decision forest classification. The
-       only prediction method supported so far is the default dense method.
+     - The computation method used by the decision forest classification.
+     
+       For CPU:
+
+       - `defaultDense`
+
+       For GPU:
+
+       - `hist`
+      
    * - nClasses
      - Not applicable.
      - The number of classes. A required parameter.

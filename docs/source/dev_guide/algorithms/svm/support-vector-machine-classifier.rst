@@ -158,8 +158,13 @@ At the training stage, SVM classifier has the following parameters:
      - ``defaultDense``
      - The computation method used by the SVM classifier. Available methods for the training stage:
 
-       - ``defaultDense`` – Boser method [Boser92]_
-       - ``thunder`` - Thunder method [Wen2018]_
+       For CPU:
+
+        - ``defaultDense`` – Boser method [Boser92]_
+
+       For GPU:
+
+        - ``thunder`` - Thunder method [Wen2018]_
 
    * - ``nClasses``
      - :math:`2`
