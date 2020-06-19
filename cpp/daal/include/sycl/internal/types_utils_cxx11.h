@@ -145,6 +145,9 @@ public:
     }
 };
 
+template <typename algorithmType>
+services::Status fillBuffer(services::Buffer<algorithmType> & buf, size_t nElems, algorithmType val);
+
 /**
  *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__BUFFERFILLER"></a>
  *  \brief Fills UniversalBuffers with single value
@@ -163,12 +166,8 @@ private:
         template <typename T>
         void operator()(Typelist<T>)
         {
-            auto dst              = dstUnivers.get<T>().toSycl();
-            cl::sycl::event event = queue.submit([&](cl::sycl::handler & cgh) {
-                auto acc = dst.template get_access<cl::sycl::access::mode::write>(cgh);
-                cgh.fill(acc, static_cast<T>(value));
-            });
-            event.wait();
+            auto dst = dstUnivers.get<T>();
+            fillBuffer(dst, dst.size(), static_cast<T>(value));
         }
     };
 
