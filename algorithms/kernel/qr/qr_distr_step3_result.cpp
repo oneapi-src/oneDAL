@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/qr/qr_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -56,7 +56,7 @@ ResultPtr DistributedPartialResultStep3::get(DistributedPartialResultStep3Id id)
  * \param[in] id    Identifier of the result
  * \param[in] value Pointer to the Result object
  */
-void DistributedPartialResultStep3::set(DistributedPartialResultStep3Id id, const ResultPtr &value)
+void DistributedPartialResultStep3::set(DistributedPartialResultStep3Id id, const ResultPtr & value)
 {
     Argument::set(id, staticPointerCast<SerializationIface, Result>(value));
 }
@@ -67,24 +67,27 @@ void DistributedPartialResultStep3::set(DistributedPartialResultStep3Id id, cons
  * \param[in] parameter Pointer to parameters
  * \param[in] method Computation method
  */
-Status DistributedPartialResultStep3::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedPartialResultStep3::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    DistributedStep3Input *qrInput   = static_cast<DistributedStep3Input *>(const_cast<daal::algorithms::Input *>(input  ));
-    int unexpectedLayouts = (int)packed_mask;
-    DataCollectionPtr qCollection = qrInput->get(inputOfStep3FromStep1);
-    size_t nFeatures = 0;
-    size_t nVectors = 0;
-    size_t qSize = qCollection->size();
-    for(size_t i = 0 ; i < qSize ; i++)
+    DistributedStep3Input * qrInput = static_cast<DistributedStep3Input *>(const_cast<daal::algorithms::Input *>(input));
+    int unexpectedLayouts           = (int)packed_mask;
+    DataCollectionPtr qCollection   = qrInput->get(inputOfStep3FromStep1);
+    size_t nFeatures                = 0;
+    size_t nVectors                 = 0;
+    size_t qSize                    = qCollection->size();
+    for (size_t i = 0; i < qSize; i++)
     {
-        NumericTable  *numTableInQCollection = static_cast<NumericTable *>((*qCollection)[i].get());
-        nFeatures  = numTableInQCollection->getNumberOfColumns();
+        NumericTable * numTableInQCollection = static_cast<NumericTable *>((*qCollection)[i].get());
+        nFeatures                            = numTableInQCollection->getNumberOfColumns();
         nVectors += numTableInQCollection->getNumberOfRows();
     }
-    if(get(finalResultFromStep3))
+    if (get(finalResultFromStep3))
     {
         Status s = checkNumericTable(get(finalResultFromStep3)->get(matrixQ).get(), matrixQStr(), unexpectedLayouts, 0, nFeatures, nVectors);
-        if(!s) { return s; }
+        if (!s)
+        {
+            return s;
+        }
     }
     return Status();
 }
@@ -94,18 +97,21 @@ Status DistributedPartialResultStep3::check(const daal::algorithms::Input *input
  * \param[in] parameter Pointer to parameters
  * \param[in] method Computation method
  */
-Status DistributedPartialResultStep3::check(const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedPartialResultStep3::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     int unexpectedLayouts = (int)packed_mask;
-    if(get(finalResultFromStep3))
+    if (get(finalResultFromStep3))
     {
-        Status s =  checkNumericTable(get(finalResultFromStep3)->get(matrixQ).get(), matrixQStr(), unexpectedLayouts);
-        if(!s) { return s; }
+        Status s = checkNumericTable(get(finalResultFromStep3)->get(matrixQ).get(), matrixQStr(), unexpectedLayouts);
+        if (!s)
+        {
+            return s;
+        }
     }
     return Status();
 }
 
 } // namespace interface1
 } // namespace qr
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

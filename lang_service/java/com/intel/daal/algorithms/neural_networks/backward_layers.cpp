@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::neural_networks;
@@ -30,10 +30,9 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cInit
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_BackwardLayers_cInit
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_BackwardLayers_cInit(JNIEnv * env, jobject thisObj)
 {
-    return (jlong)(new SharedPtr<Collection<layers::backward::LayerIfacePtr > >(new Collection<layers::backward::LayerIfacePtr >()));
+    return (jlong)(new SharedPtr<Collection<layers::backward::LayerIfacePtr> >(new Collection<layers::backward::LayerIfacePtr>()));
 }
 
 /*
@@ -41,10 +40,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_Backward
  * Method:    cSize
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_BackwardLayers_cSize
-(JNIEnv *env, jobject thisObj, jlong colAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_BackwardLayers_cSize(JNIEnv * env, jobject thisObj, jlong colAddr)
 {
-    return (*(SharedPtr<Collection<layers::backward::LayerIfacePtr > >*)colAddr)->size();
+    return (*(SharedPtr<Collection<layers::backward::LayerIfacePtr> > *)colAddr)->size();
 }
 
 /*
@@ -52,11 +50,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_Backward
  * Method:    cGet
  * Signature: (JJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_BackwardLayers_cGet
-(JNIEnv *env, jobject thisObj, jlong colAddr, jlong index)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_BackwardLayers_cGet(JNIEnv * env, jobject thisObj, jlong colAddr, jlong index)
 {
-    return (jlong) (new layers::backward::LayerIfacePtr
-        ((*(SharedPtr<Collection<layers::backward::LayerIfacePtr > >*)colAddr)->get((size_t)index)));
+    return (jlong)(new layers::backward::LayerIfacePtr((*(SharedPtr<Collection<layers::backward::LayerIfacePtr> > *)colAddr)->get((size_t)index)));
 }
 
 /*
@@ -64,11 +60,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_Backward
  * Method:    cPushBack
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_BackwardLayers_cPushBack
-(JNIEnv *env, jobject thisObj, jlong colAddr, jlong layerAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_BackwardLayers_cPushBack(JNIEnv * env, jobject thisObj, jlong colAddr,
+                                                                                                jlong layerAddr)
 {
-    (*(SharedPtr<Collection<layers::backward::LayerIfacePtr > >*)colAddr)->
-        push_back(*((layers::backward::LayerIfacePtr *)layerAddr));
+    (*(SharedPtr<Collection<layers::backward::LayerIfacePtr> > *)colAddr)->push_back(*((layers::backward::LayerIfacePtr *)layerAddr));
 }
 
 /*
@@ -76,8 +71,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_BackwardL
  * Method:    cDispose
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_BackwardLayers_cDispose
-(JNIEnv *env, jobject thisObj, jlong addr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_BackwardLayers_cDispose(JNIEnv * env, jobject thisObj, jlong addr)
 {
-    delete(SharedPtr<Collection<layers::backward::LayerIfacePtr > > *)addr;
+    delete (SharedPtr<Collection<layers::backward::LayerIfacePtr> > *)addr;
 }

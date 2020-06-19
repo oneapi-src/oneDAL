@@ -19,10 +19,9 @@
 //  Implementation of transposed convolution 2d calculation functions.
 //--
 
-
-#include "transposed_conv2d_layer_forward_batch_container.h"
-#include "transposed_conv2d_layer_forward_kernel.h"
-#include "transposed_conv2d_layer_forward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/transposed_conv2d_layer/forward/transposed_conv2d_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/transposed_conv2d_layer/forward/transposed_conv2d_layer_forward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/transposed_conv2d_layer/forward/transposed_conv2d_layer_forward_impl.i"
 
 namespace daal
 {
@@ -34,21 +33,20 @@ namespace layers
 {
 namespace transposed_conv2d
 {
-
 namespace forward
 {
 namespace interface1
 {
 template class neural_networks::layers::transposed_conv2d::forward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 namespace internal
 {
 template class TransposedConv2dKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 
-}
-}
-}
-}
-}
+} // namespace transposed_conv2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

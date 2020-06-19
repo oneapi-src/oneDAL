@@ -18,15 +18,14 @@
 #include "services/error_handling.h"
 #include "data_management/features/defines.h"
 
-#include "threading.h"
-#include "service_string_utils.h"
-#include "service_error_handling.h"
+#include "algorithms/threading/threading.h"
+#include "service/kernel/service_string_utils.h"
+#include "algorithms/kernel/service_error_handling.h"
 
 namespace daal
 {
 namespace services
 {
-
 /*
     Example:
 
@@ -41,13 +40,12 @@ namespace services
 
 namespace
 {
-
 /**
 * <a name="DAAL-ENUM-SERVICES__MESSAGE"></a>
 * \brief Class that represents Message
 * \tparam IDType Type of message
 */
-template<class IDType>
+template <class IDType>
 class Message
 {
 public:
@@ -56,7 +54,7 @@ public:
     * \param[in] id Error identifier
     * \param[in] description Description for message
     */
-    Message(const IDType &id, const char *description) : _id(id), _description(description) {};
+    Message(const IDType & id, const char * description) : _id(id), _description(description) {};
 
     /**
     * Destructor of Message class
@@ -73,7 +71,7 @@ public:
     * Returns description of a message
     * \return description of a message
     */
-    const char *description() const { return _description.c_str(); }
+    const char * description() const { return _description.c_str(); }
 
 private:
     IDType _id;
@@ -85,7 +83,7 @@ private:
 * \brief Class that represents an Message collection
 * \tparam IDType Type of message in message collection
 */
-template<class IDType>
+template <class IDType>
 class MessageCollection : public Collection<SharedPtr<Message<IDType> > >
 {
 public:
@@ -102,22 +100,31 @@ public:
     */
     services::SharedPtr<Message<IDType> > find(IDType id) const
     {
-        bool found = false;
+        bool found   = false;
         size_t index = 0;
 
-        if(this->size() == 0) { return find(_noMessageFound); }
-
-        for(size_t i = 0; i < this->size() && found == false; i++)
+        if (this->size() == 0)
         {
-            if((*this)[i]->id() == id)
+            return find(_noMessageFound);
+        }
+
+        for (size_t i = 0; i < this->size() && found == false; i++)
+        {
+            if ((*this)[i]->id() == id)
             {
                 found = true;
                 index = i;
             }
         }
 
-        if(found) { return (*this)[index]; }
-        else { return find(_noMessageFound); }
+        if (found)
+        {
+            return (*this)[index];
+        }
+        else
+        {
+            return find(_noMessageFound);
+        }
     }
 
     /**
@@ -139,20 +146,14 @@ public:
     /**
     * Constructs an error message collection
     */
-    ErrorMessageCollection() : MessageCollection<ErrorID>(NoErrorMessageFound)
-    {
-        parseResourceFile();
-    }
+    ErrorMessageCollection() : MessageCollection<ErrorID>(NoErrorMessageFound) { parseResourceFile(); }
 
     /**
     * Destructor of an error message collection
     */
     ~ErrorMessageCollection() {}
 
-    void add(ErrorID id, const char* value)
-    {
-        push_back(services::SharedPtr<Message<ErrorID> >(new Message<ErrorID>(id, value)));
-    }
+    void add(ErrorID id, const char * value) { push_back(services::SharedPtr<Message<ErrorID> >(new Message<ErrorID>(id, value))); }
 
 protected:
     void parseResourceFile();
@@ -168,51 +169,44 @@ public:
     /**
     * Construct an error detail collection
     */
-    ErrorDetailCollection(): MessageCollection<ErrorDetailID>(NoErrorMessageDetailFound)
-    {
-        parseResourceFile();
-    }
+    ErrorDetailCollection() : MessageCollection<ErrorDetailID>(NoErrorMessageDetailFound) { parseResourceFile(); }
 
     /**
     * Destructor of an error detail collection
     */
     ~ErrorDetailCollection() {}
 
-    void add(ErrorDetailID id, const char* value)
-    {
-        push_back(services::SharedPtr<Message<ErrorDetailID> >(new Message<ErrorDetailID>(id, value)));
-    }
+    void add(ErrorDetailID id, const char * value) { push_back(services::SharedPtr<Message<ErrorDetailID> >(new Message<ErrorDetailID>(id, value))); }
 
 protected:
     void parseResourceFile();
 };
 
-const ErrorMessageCollection& errorMessageCollection()
+const ErrorMessageCollection & errorMessageCollection()
 {
     static const ErrorMessageCollection inst;
     return inst;
 }
 
-const ErrorDetailCollection& errorDetailCollection()
+const ErrorDetailCollection & errorDetailCollection()
 {
     static const ErrorDetailCollection inst;
     return inst;
 }
 
-int cat(const char *source, char *destination)
+int cat(const char * source, char * destination)
 {
-    return daal::internal::Service<>::serv_strncat_s(destination,
-                                                     DAAL_MAX_STRING_SIZE, source,
+    return daal::internal::Service<>::serv_strncat_s(destination, DAAL_MAX_STRING_SIZE, source,
                                                      DAAL_MAX_STRING_SIZE - strnlen(destination, DAAL_MAX_STRING_SIZE));
 }
-}
+} // namespace
 
 /**
 * <a name="DAAL-ENUM-SERVICES__ERRORDETAILIMPL"></a>
 * \brief Class that implements error detail interface
 * \tparam Type of value in an error detail
 */
-template<typename T>
+template <typename T>
 class ErrorDetailImpl : public ErrorDetail
 {
 public:
@@ -223,12 +217,12 @@ public:
     * \param[in] id    Error identifier
     * \param[in] value Value of error detail
     */
-    ErrorDetailImpl(ErrorDetailID id, const T &value) : ErrorDetail(id), _value(value) {}
+    ErrorDetailImpl(ErrorDetailID id, const T & value) : ErrorDetail(id), _value(value) {}
 
     /**
     * Destructor
     */
-    ~ErrorDetailImpl(){}
+    ~ErrorDetailImpl() {}
 
     /**
     * Returns value of an error detail
@@ -240,43 +234,40 @@ public:
     * Returns copy of this object
     * \return copy of this object
     */
-    virtual ErrorDetail* clone() const { return new ErrorDetailImpl<T>(id(), value()); }
+    virtual ErrorDetail * clone() const { return new ErrorDetailImpl<T>(id(), value()); }
 
     /**
     * Adds description of the error detail to the given string
     * \param[in] str String to add descrition to
     */
-    virtual void describe(char* str) const;
+    virtual void describe(char * str) const;
 
 private:
     const T _value;
 };
 
-template<typename T>
-void ErrorDetailImpl<T>::describe(char* str) const
+template <typename T>
+void ErrorDetailImpl<T>::describe(char * str) const
 {
     daal::internal::Service<>::serv_strncat_s(str, DAAL_MAX_STRING_SIZE, errorDetailCollection().find(id())->description(),
                                               DAAL_MAX_STRING_SIZE - strnlen(str, DAAL_MAX_STRING_SIZE));
-    daal::internal::Service<>::serv_strncat_s(str, DAAL_MAX_STRING_SIZE, ": ",
-                                              DAAL_MAX_STRING_SIZE - strnlen(str, DAAL_MAX_STRING_SIZE));
+    daal::internal::Service<>::serv_strncat_s(str, DAAL_MAX_STRING_SIZE, ": ", DAAL_MAX_STRING_SIZE - strnlen(str, DAAL_MAX_STRING_SIZE));
     char buffer[DAAL_MAX_STRING_SIZE] = { 0 };
     internal::toStringBuffer<T>(value(), buffer);
-    daal::internal::Service<>::serv_strncat_s(str, DAAL_MAX_STRING_SIZE, buffer,
-                                              DAAL_MAX_STRING_SIZE - strnlen(str, DAAL_MAX_STRING_SIZE));
+    daal::internal::Service<>::serv_strncat_s(str, DAAL_MAX_STRING_SIZE, buffer, DAAL_MAX_STRING_SIZE - strnlen(str, DAAL_MAX_STRING_SIZE));
 
-    daal::internal::Service<>::serv_strncat_s(str, DAAL_MAX_STRING_SIZE, "\n",
-                                              DAAL_MAX_STRING_SIZE - strnlen(str, DAAL_MAX_STRING_SIZE));
+    daal::internal::Service<>::serv_strncat_s(str, DAAL_MAX_STRING_SIZE, "\n", DAAL_MAX_STRING_SIZE - strnlen(str, DAAL_MAX_STRING_SIZE));
 }
 
-Error::Error(const ErrorID id) : _id(id), _details(nullptr){}
+Error::Error(const ErrorID id) : _id(id), _details(nullptr) {}
 
-Error::Error(const Error &e) : _id(e._id), _details(nullptr)
+Error::Error(const Error & e) : _id(e._id), _details(nullptr)
 {
-    ErrorDetail* pCur = nullptr;
-    for(auto ptr = e.details(); ptr; ptr = ptr->next())
+    ErrorDetail * pCur = nullptr;
+    for (auto ptr = e.details(); ptr; ptr = ptr->next())
     {
         auto pClone = ptr->clone();
-        if(pCur)
+        if (pCur)
         {
             pCur->addNext(pClone);
             pCur = pClone;
@@ -290,7 +281,7 @@ Error::Error(const Error &e) : _id(e._id), _details(nullptr)
 
 Error::~Error()
 {
-    for(auto ptr = _details; ptr;)
+    for (auto ptr = _details; ptr;)
     {
         auto tmp = ptr->next();
         delete ptr;
@@ -298,16 +289,20 @@ Error::~Error()
     }
 }
 
-const char *Error::description() const { return errorMessageCollection().find(_id)->description(); }
-
-Error& Error::addDetail(ErrorDetail* detail)
+const char * Error::description() const
 {
-    if(detail)
+    return errorMessageCollection().find(_id)->description();
+}
+
+Error & Error::addDetail(ErrorDetail * detail)
+{
+    if (detail)
     {
         auto ptr = _details;
-        if(ptr)
+        if (ptr)
         {
-            for(; ptr->next(); ptr = ptr->next());
+            for (; ptr->next(); ptr = ptr->next())
+                ;
             ptr->addNext(detail);
         }
         else
@@ -316,17 +311,17 @@ Error& Error::addDetail(ErrorDetail* detail)
     return *this;
 }
 
-Error& Error::addIntDetail(ErrorDetailID id, int value)
+Error & Error::addIntDetail(ErrorDetailID id, int value)
 {
     return addDetail(new ErrorDetailImpl<int>(id, value));
 }
 
-Error& Error::addDoubleDetail(ErrorDetailID id, double value)
+Error & Error::addDoubleDetail(ErrorDetailID id, double value)
 {
     return addDetail(new ErrorDetailImpl<double>(id, value));
 }
 
-Error& Error::addStringDetail(ErrorDetailID id, const String &value)
+Error & Error::addStringDetail(ErrorDetailID id, const String & value)
 {
     return addDetail(new ErrorDetailImpl<String>(id, value));
 }
@@ -343,118 +338,117 @@ ErrorPtr Error::create(ErrorID id, ErrorDetailID det, int value)
     return ptr;
 }
 
-ErrorPtr Error::create(ErrorID id, ErrorDetailID det, const String& value)
+ErrorPtr Error::create(ErrorID id, ErrorDetailID det, const String & value)
 {
     ErrorPtr ptr(new Error(id));
     ptr->addStringDetail(det, value);
     return ptr;
 }
 
-KernelErrorCollection::KernelErrorCollection(const KernelErrorCollection &other) : super(other), _description(0)
-{
-}
+KernelErrorCollection::KernelErrorCollection(const KernelErrorCollection & other) : super(other), _description(0) {}
 
-Error& KernelErrorCollection::add(const ErrorID &id)
+Error & KernelErrorCollection::add(const ErrorID & id)
 {
-    if(size())
+    if (size())
     {
         auto pLast = (*this)[size() - 1];
-        if(pLast && (pLast->id() == id) && !pLast->details())
-            return *pLast; //no error duplication in the collection
+        if (pLast && (pLast->id() == id) && !pLast->details()) return *pLast; //no error duplication in the collection
     }
     ErrorPtr p(new Error(id));
     push_back(p);
     return *p.get();
 }
 
-void KernelErrorCollection::add(const ErrorPtr &e)
+void KernelErrorCollection::add(const ErrorPtr & e)
 {
-    if(e.get() && !e->details())
+    if (e.get() && !e->details())
     {
-        if(size())
+        if (size())
         {
             auto pLast = (*this)[size() - 1];
-            if(pLast && (pLast->id() == e->id()) && !pLast->details())
-                return; //no error duplication in the collection
+            if (pLast && (pLast->id() == e->id()) && !pLast->details()) return; //no error duplication in the collection
         }
     }
     push_back(e);
 }
 
-void KernelErrorCollection::add(const services::SharedPtr<KernelErrorCollection> &e)
+void KernelErrorCollection::add(const services::SharedPtr<KernelErrorCollection> & e)
 {
     add(*e);
 }
 
-void KernelErrorCollection::add(const KernelErrorCollection &o)
+void KernelErrorCollection::add(const KernelErrorCollection & o)
 {
-    const super& c = o;
-    size_t i = 0;
-    if(size() && o.size())
+    const super & c = o;
+    size_t i        = 0;
+    if (size() && o.size())
     {
         auto pLast = (*this)[size() - 1];
-        if(pLast && !pLast->details())
+        if (pLast && !pLast->details())
         {
             auto pFirst = o[0];
-            if(pFirst && !pFirst->details() && (pLast->id() == pFirst->id()))
-                ++i;//no error duplication in the collection
+            if (pFirst && !pFirst->details() && (pLast->id() == pFirst->id())) ++i; //no error duplication in the collection
         }
     }
-    for(; i < o.size(); i++)
-        push_back(c[i]);
+    for (; i < o.size(); i++) push_back(c[i]);
 }
 
 KernelErrorCollection::~KernelErrorCollection()
 {
-    if(_description)
+    if (_description)
     {
         daal_free(_description);
         _description = NULL;
     }
 }
 
-const char *KernelErrorCollection::getDescription() const
+const char * KernelErrorCollection::getDescription() const
 {
-    if(size() == 0)
+    if (size() == 0)
     {
-        if(_description) { daal_free(_description); }
-        _description = (char *)daal::services::daal_calloc(sizeof(char) * 1);
+        if (_description)
+        {
+            daal_free(_description);
+        }
+        _description    = (char *)daal::services::daal_calloc(sizeof(char) * 1);
         _description[0] = '\0';
         return _description;
     }
 
-    size_t descriptionSize = 0;
-    char **errorDescription = (char **)daal::services::daal_calloc(sizeof(char *) * size());
+    size_t descriptionSize   = 0;
+    char ** errorDescription = (char **)daal::services::daal_calloc(sizeof(char *) * size());
 
-    for(size_t i = 0; i < size(); i++)
+    for (size_t i = 0; i < size(); i++)
     {
-        errorDescription[i] = (char *)daal::services::daal_calloc(sizeof(char) * (DAAL_MAX_STRING_SIZE));
+        errorDescription[i]    = (char *)daal::services::daal_calloc(sizeof(char) * (DAAL_MAX_STRING_SIZE));
         errorDescription[i][0] = '\0';
 
         services::SharedPtr<Error> e = _array[i];
 
-        const char *currentDescription = errorMessageCollection().find(e->id())->description();
+        const char * currentDescription = errorMessageCollection().find(e->id())->description();
         cat(currentDescription, errorDescription[i]);
 
-        const char *newLine = "\n";
+        const char * newLine = "\n";
         cat(newLine, errorDescription[i]);
 
-        if(e->details())
+        if (e->details())
         {
-            const char *details = "Details:\n";
+            const char * details = "Details:\n";
             cat(details, errorDescription[i]);
-            for(const auto* ptr = e->details(); ptr; ptr = ptr->next())
-                ptr->describe(errorDescription[i]);
+            for (const auto * ptr = e->details(); ptr; ptr = ptr->next()) ptr->describe(errorDescription[i]);
         }
 
         descriptionSize += strnlen(errorDescription[i], DAAL_MAX_STRING_SIZE);
     }
 
-    if(_description) { daal_free(_description); }
-    _description = (char *)daal::services::daal_calloc(sizeof(char) * (descriptionSize + 1));
+    if (_description)
+    {
+        daal_free(_description);
+    }
+    _description    = (char *)daal::services::daal_calloc(sizeof(char) * (descriptionSize + 1));
     _description[0] = '\0';
 
-    for(size_t i = 0; i < size(); i++)
+    for (size_t i = 0; i < size(); i++)
     {
         cat(errorDescription[i], _description);
         daal_free(errorDescription[i]);
@@ -466,24 +460,27 @@ const char *KernelErrorCollection::getDescription() const
     return _description;
 }
 
-size_t KernelErrorCollection::size() const { return super::size(); }
+size_t KernelErrorCollection::size() const
+{
+    return super::size();
+}
 
-Error* KernelErrorCollection::at(size_t index)
+Error * KernelErrorCollection::at(size_t index)
 {
     return super::operator[](index).get();
 }
 
-const Error* KernelErrorCollection::at(size_t index) const
+const Error * KernelErrorCollection::at(size_t index) const
 {
     return super::operator[](index).get();
 }
 
-Error* KernelErrorCollection::operator[](size_t index)
+Error * KernelErrorCollection::operator[](size_t index)
 {
     return super::operator[](index).get();
 }
 
-const Error* KernelErrorCollection::operator[](size_t index) const
+const Error * KernelErrorCollection::operator[](size_t index) const
 {
     return super::operator[](index).get();
 }
@@ -491,20 +488,16 @@ const Error* KernelErrorCollection::operator[](size_t index) const
 /////////////////////////////////////////////////////////////////////////////////////////
 // Status
 /////////////////////////////////////////////////////////////////////////////////////////
-class SharedErrorCollection: public KernelErrorCollection
+class SharedErrorCollection : public KernelErrorCollection
 {
 public:
-    SharedErrorCollection() : _nRefs(1){}
-    SharedErrorCollection(const SharedErrorCollection& o) : KernelErrorCollection(o), _nRefs(1){}
-    SharedErrorCollection(const KernelErrorCollection& o) : KernelErrorCollection(o), _nRefs(1){}
-    void addRef()
-    {
-        _nRefs.inc();
-    }
+    SharedErrorCollection() : _nRefs(1) {}
+    SharedErrorCollection(const SharedErrorCollection & o) : KernelErrorCollection(o), _nRefs(1) {}
+    SharedErrorCollection(const KernelErrorCollection & o) : KernelErrorCollection(o), _nRefs(1) {}
+    void addRef() { _nRefs.inc(); }
     void release()
     {
-        if(!_nRefs.dec())
-            delete this;
+        if (!_nRefs.dec()) delete this;
     }
     int numRefs() const { return _nRefs.get(); }
 
@@ -512,66 +505,59 @@ private:
     AtomicInt _nRefs;
 };
 
-Status::Status(ErrorID id): _impl(nullptr)
+Status::Status(ErrorID id) : _impl(nullptr)
 {
     add(id);
 }
 
-Status::Status(const ErrorPtr &e): _impl(nullptr)
+Status::Status(const ErrorPtr & e) : _impl(nullptr)
 {
     add(e);
 }
 
-Status::Status(const Status& other) : _impl(other._impl)
+Status::Status(const Status & other) : _impl(other._impl)
 {
-    if(_impl)
-        static_cast<SharedErrorCollection*>(_impl)->addRef();
+    if (_impl) static_cast<SharedErrorCollection *>(_impl)->addRef();
 }
 
-Status& Status::operator=(const Status& other)
+Status & Status::operator=(const Status & other)
 {
-    if(_impl)
-        static_cast<SharedErrorCollection*>(_impl)->release();
+    if (_impl) static_cast<SharedErrorCollection *>(_impl)->release();
     _impl = other._impl;
-    if(_impl)
-        static_cast<SharedErrorCollection*>(_impl)->addRef();
+    if (_impl) static_cast<SharedErrorCollection *>(_impl)->addRef();
     return *this;
 }
 
-Status::Status(const KernelErrorCollection &e) : _impl(nullptr)
+Status::Status(const KernelErrorCollection & e) : _impl(nullptr)
 {
-    if(e.size())
-        _impl = new SharedErrorCollection(e);
+    if (e.size()) _impl = new SharedErrorCollection(e);
 }
 
-Status::Status(const ErrorCollection& e) : _impl(nullptr)
+Status::Status(const ErrorCollection & e) : _impl(nullptr)
 {
-    if(e.size())
-        _impl = new SharedErrorCollection(*e.getErrors());
+    if (e.size()) _impl = new SharedErrorCollection(*e.getErrors());
 }
 
 Status::~Status()
 {
-    if(_impl)
-        static_cast<SharedErrorCollection*>(_impl)->release();
+    if (_impl) static_cast<SharedErrorCollection *>(_impl)->release();
 }
 
 void Status::clear()
 {
-    if(_impl)
+    if (_impl)
     {
-        static_cast<SharedErrorCollection*>(_impl)->release();
+        static_cast<SharedErrorCollection *>(_impl)->release();
         _impl = nullptr;
     }
 }
 
-static SharedErrorCollection* getOwnCopy(void*& ptr)
+static SharedErrorCollection * getOwnCopy(void *& ptr)
 {
-    SharedErrorCollection* res = static_cast<SharedErrorCollection* >(ptr);
-    if(res)
+    SharedErrorCollection * res = static_cast<SharedErrorCollection *>(ptr);
+    if (res)
     {
-        if(res->numRefs() == 1)
-            return res;
+        if (res->numRefs() == 1) return res;
         res = new SharedErrorCollection(*res);
     }
     else
@@ -582,43 +568,43 @@ static SharedErrorCollection* getOwnCopy(void*& ptr)
     return res;
 }
 
-Status& Status::add(ErrorID id)
+Status & Status::add(ErrorID id)
 {
     getOwnCopy(_impl)->add(id);
     return *this;
 }
 
-Status& Status::add(const ErrorPtr &e)
+Status & Status::add(const ErrorPtr & e)
 {
     getOwnCopy(_impl)->add(e);
     return *this;
 }
 
-Status& Status::add(const Status& other)
+Status & Status::add(const Status & other)
 {
-    if(other._impl)
+    if (other._impl)
     {
-        if(_impl)
-            getOwnCopy(_impl)->add(*static_cast<SharedErrorCollection*>(other._impl));
+        if (_impl)
+            getOwnCopy(_impl)->add(*static_cast<SharedErrorCollection *>(other._impl));
         else
         {
             _impl = other._impl;
-            static_cast<SharedErrorCollection*>(_impl)->addRef();
+            static_cast<SharedErrorCollection *>(_impl)->addRef();
         }
     }
     return *this;
 }
 
-const char* Status::getDescription() const
+const char * Status::getDescription() const
 {
-    return _impl ? static_cast<SharedErrorCollection*>(_impl)->getDescription() : nullptr;
+    return _impl ? static_cast<SharedErrorCollection *>(_impl)->getDescription() : nullptr;
 }
 
 services::ErrorCollectionPtr Status::getCollection() const
 {
-    if(_impl)
+    if (_impl)
     {
-        const SharedErrorCollection& impl = *static_cast<const SharedErrorCollection*>(_impl);
+        const SharedErrorCollection & impl = *static_cast<const SharedErrorCollection *>(_impl);
         return services::ErrorCollectionPtr(new services::ErrorCollection(impl));
     }
     return services::ErrorCollectionPtr(new services::ErrorCollection());
@@ -781,7 +767,8 @@ void ErrorMessageCollection::parseResourceFile()
     add(ErrorEMInitIncorrectDepthNumberIterations, "Incorrect depth number of iterations value in EM init parameter");
     add(ErrorEMInitIncorrectNumberOfTrials, "Incorrect number of trials value in EM initialization parameter");
     add(ErrorEMInitIncorrectNumberOfComponents, "Incorrect number of components value in EM initialization parameter");
-    add(ErrorEMInitInconsistentNumberOfComponents, "Inconsistent number of component: number of observations should be greater than number of components");
+    add(ErrorEMInitInconsistentNumberOfComponents,
+        "Inconsistent number of component: number of observations should be greater than number of components");
     add(ErrorVarianceComputation, "Error during variance computation");
 
     // KernelFunction errors: -6200..-6399
@@ -817,7 +804,8 @@ void ErrorMessageCollection::parseResourceFile()
     add(ErrorPCACorrelationInputDataTypeSupportsOfflineModeOnly, "This type of the input data supports only offline mode of the computations");
     add(ErrorIncorrectCrossProductTableSize, "Number of columns or rows in cross-product numeric table is incorrect");
     add(ErrorCrossProductTableIsNotSquare, "Number of columns or rows in cross-product numeric table is not equal");
-    add(ErrorInputCorrelationNotSupportedInOnlineAndDistributed, "Input correlation matrix is not supported in online and distributed computation modes");
+    add(ErrorInputCorrelationNotSupportedInOnlineAndDistributed,
+        "Input correlation matrix is not supported in online and distributed computation modes");
     add(ErrorIncorrectNComponents, "Incorrect nComponents parameter: nComponents should be less or equal to number of columns in testing dataset");
 
     // QR errors: -8000..-8199
@@ -825,7 +813,8 @@ void ErrorMessageCollection::parseResourceFile()
 
     // Stump errors: -8200..-8399
     add(ErrorStumpIncorrectSplitFeature, "Incorrect split feature: split feature should be less than number of columns in testing dataset");
-    add(ErrorStumpInvalidInputCategoricalData, "Invalid stump training data: all features in the input table are categorical and each feature has < 2 categories");
+    add(ErrorStumpInvalidInputCategoricalData,
+        "Invalid stump training data: all features in the input table are categorical and each feature has < 2 categories");
 
     // LCN errors: -8400..-8599
     add(ErrorLCNinnerConvolution, "Error in convolution 2d layer");
@@ -981,8 +970,7 @@ void ErrorDetailCollection::parseResourceFile()
     add(ActualValue, "Actual");
 }
 
-}
-
+} // namespace services
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Mutex
@@ -994,32 +982,25 @@ Mutex::Mutex() : _impl(nullptr)
 
 Mutex::~Mutex()
 {
-    if(_impl)
-        _daal_del_mutex(_impl);
+    if (_impl) _daal_del_mutex(_impl);
 }
 
 void Mutex::lock()
 {
-    if(_impl)
-        _daal_lock_mutex(_impl);
+    if (_impl) _daal_lock_mutex(_impl);
 }
 
 void Mutex::unlock()
 {
-    if(_impl)
-        _daal_unlock_mutex(_impl);
+    if (_impl) _daal_unlock_mutex(_impl);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // SafeStatus
 /////////////////////////////////////////////////////////////////////////////////////////
-SafeStatus::SafeStatus()
-{
-}
+SafeStatus::SafeStatus() {}
 
-SafeStatus::SafeStatus(const services::Status& s) :_val(s)
-{
-}
+SafeStatus::SafeStatus(const services::Status & s) : _val(s) {}
 
 bool SafeStatus::ok() const
 {
@@ -1027,7 +1008,7 @@ bool SafeStatus::ok() const
     return _val.ok();
 }
 
-SafeStatus& SafeStatus::add(services::ErrorID id)
+SafeStatus & SafeStatus::add(services::ErrorID id)
 {
     {
         AUTOLOCK(_m);
@@ -1036,7 +1017,7 @@ SafeStatus& SafeStatus::add(services::ErrorID id)
     return *this;
 }
 
-SafeStatus& SafeStatus::add(const services::ErrorPtr& e)
+SafeStatus & SafeStatus::add(const services::ErrorPtr & e)
 {
     {
         AUTOLOCK(_m);
@@ -1045,9 +1026,9 @@ SafeStatus& SafeStatus::add(const services::ErrorPtr& e)
     return *this;
 }
 
-SafeStatus& SafeStatus::add(const services::Status& s)
+SafeStatus & SafeStatus::add(const services::Status & s)
 {
-    if(!s)
+    if (!s)
     {
         AUTOLOCK(_m);
         _val.add(s);
@@ -1059,8 +1040,8 @@ services::Status SafeStatus::detach()
 {
     AUTOLOCK(_m);
     services::Status s = _val;
-    _val = services::Status();
+    _val               = services::Status();
     return s;
 }
 
-}
+} // namespace daal

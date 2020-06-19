@@ -24,8 +24,8 @@
 #ifndef __SMOOTHRELU_LAYER_BACKWARD_BATCH_CONTAINER_H__
 #define __SMOOTHRELU_LAYER_BACKWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/smoothrelu/smoothrelu_layer.h"
-#include "smoothrelu_layer_backward_kernel.h"
+#include "algorithms/neural_networks/layers/smoothrelu/smoothrelu_layer.h"
+#include "algorithms/kernel/neural_networks/layers/smoothrelu_layer/backward/smoothrelu_layer_backward_kernel.h"
 
 namespace daal
 {
@@ -41,34 +41,38 @@ namespace backward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::SmoothReLUKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    smoothrelu::backward::Input *input = static_cast<smoothrelu::backward::Input *>(_in);
-    smoothrelu::backward::Result *result = static_cast<smoothrelu::backward::Result *>(_res);
+    smoothrelu::backward::Input * input   = static_cast<smoothrelu::backward::Input *>(_in);
+    smoothrelu::backward::Result * result = static_cast<smoothrelu::backward::Result *>(_res);
 
-    const Parameter *param = static_cast<const Parameter *>(_par);
-    if (!param->propagateGradient) { return services::Status(); }
+    const Parameter * param = static_cast<const Parameter *>(_par);
+    if (!param->propagateGradient)
+    {
+        return services::Status();
+    }
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    Tensor *inputTensor        = input->get(layers::backward::inputGradient).get();
-    Tensor *forwardValueTensor = input->get(smoothrelu::auxData).get();
-    Tensor *resultTensor       = result->get(layers::backward::gradient).get();
+    Tensor * inputTensor        = input->get(layers::backward::inputGradient).get();
+    Tensor * forwardValueTensor = input->get(smoothrelu::auxData).get();
+    Tensor * resultTensor       = result->get(layers::backward::gradient).get();
 
-    __DAAL_CALL_KERNEL(env, internal::SmoothReLUKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputTensor, *forwardValueTensor, *resultTensor);
+    __DAAL_CALL_KERNEL(env, internal::SmoothReLUKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputTensor, *forwardValueTensor,
+                       *resultTensor);
 }
 } // namespace interface1
 } // namespace backward

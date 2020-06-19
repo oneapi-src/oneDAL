@@ -19,18 +19,17 @@
 //  Declaration of template function that calculate uniforms.
 //--
 
-
 #ifndef __UNIFORM_INITIALIZER_KERNEL_H__
 #define __UNIFORM_INITIALIZER_KERNEL_H__
 
-#include "kernel.h"
-#include "service_tensor.h"
-#include "uniform_kernel.h"
+#include "algorithms/kernel/kernel.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "algorithms/kernel/distributions/uniform/uniform_kernel.h"
 
-#include "neural_networks/initializers/uniform/uniform_initializer.h"
-#include "neural_networks/initializers/uniform/uniform_initializer_types.h"
+#include "algorithms/neural_networks/initializers/uniform/uniform_initializer.h"
+#include "algorithms/neural_networks/initializers/uniform/uniform_initializer_types.h"
 
-#include "uniform_initializer_task_descriptor.h"
+#include "algorithms/kernel/neural_networks/initializers/uniform/uniform_initializer_task_descriptor.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -48,22 +47,21 @@ namespace uniform
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for uniform calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class UniformKernel : public Kernel
 {
 public:
-    Status compute(const UniformInitializerTaskDescriptor &desc);
+    Status compute(const UniformInitializerTaskDescriptor & desc);
 };
 
-} // internal
-} // uniform
-} // initializers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace uniform
+} // namespace initializers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

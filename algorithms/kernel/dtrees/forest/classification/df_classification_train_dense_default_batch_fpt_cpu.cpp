@@ -21,8 +21,8 @@
 //--
 */
 
-#include "df_classification_train_container.h"
-#include "df_classification_train_dense_default_impl.i"
+#include "algorithms/kernel/dtrees/forest/classification/df_classification_train_container.h"
+#include "algorithms/kernel/dtrees/forest/classification/df_classification_train_dense_default_impl.i"
 
 namespace daal
 {
@@ -43,8 +43,8 @@ namespace internal
 {
 template class ClassificationTrainBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
-}
-}
-}
-}
-}
+} // namespace training
+} // namespace classification
+} // namespace decision_forest
+} // namespace algorithms
+} // namespace daal

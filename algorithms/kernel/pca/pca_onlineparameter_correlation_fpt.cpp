@@ -21,7 +21,7 @@
 //--
 */
 
-#include "pca_onlineparameter_correlation.h"
+#include "algorithms/kernel/pca/pca_onlineparameter_correlation.h"
 
 namespace daal
 {
@@ -29,7 +29,6 @@ namespace algorithms
 {
 namespace pca
 {
-
 /**
  * Constructs the ridge regression model
  * \param[in] featnum Number of features in the training data
@@ -38,9 +37,9 @@ namespace pca
  * \param[in] dummy   Dummy variable for the templated constructor
  */
 
-template DAAL_EXPORT OnlineParameter<DAAL_FPTYPE, correlationDense>::OnlineParameter(const services::SharedPtr<covariance::OnlineImpl> &covariance);
+template DAAL_EXPORT OnlineParameter<DAAL_FPTYPE, correlationDense>::OnlineParameter(const services::SharedPtr<covariance::OnlineImpl> & covariance);
 template DAAL_EXPORT services::Status OnlineParameter<DAAL_FPTYPE, correlationDense>::check() const;
 
-}// namespace pca
-}// namespace algorithms
-}// namespace daal
+} // namespace pca
+} // namespace algorithms
+} // namespace daal

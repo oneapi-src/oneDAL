@@ -21,7 +21,7 @@
 //--
 */
 
-#include "decision_tree_regression_training_result.h"
+#include "algorithms/kernel/decision_tree/decision_tree_regression_training_result.h"
 
 namespace daal
 {
@@ -33,7 +33,6 @@ namespace regression
 {
 namespace training
 {
-
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const Parameter * parameter, int method);
 
 } // namespace training

@@ -24,8 +24,8 @@
 #ifndef __XAVIER_INITIALIZER_BATCH_CONTAINER_H__
 #define __XAVIER_INITIALIZER_BATCH_CONTAINER_H__
 
-#include "neural_networks/initializers/xavier/xavier_initializer.h"
-#include "xavier_initializer_kernel.h"
+#include "algorithms/neural_networks/initializers/xavier/xavier_initializer.h"
+#include "algorithms/kernel/neural_networks/initializers/xavier/xavier_initializer_kernel.h"
 
 namespace daal
 {
@@ -39,28 +39,27 @@ namespace xavier
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::XavierKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    initializers::Result *result = static_cast<initializers::Result *>(_res);
-    xavier::Parameter *parameter = static_cast<xavier::Parameter *>(_par);
+    initializers::Result * result = static_cast<initializers::Result *>(_res);
+    xavier::Parameter * parameter = static_cast<xavier::Parameter *>(_par);
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
     __DAAL_CALL_KERNEL(env, internal::XavierKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-        internal::XavierInitializerTaskDescriptor(result, parameter)
-    );
+                       internal::XavierInitializerTaskDescriptor(result, parameter));
 }
 } // namespace interface1
 } // namespace xavier

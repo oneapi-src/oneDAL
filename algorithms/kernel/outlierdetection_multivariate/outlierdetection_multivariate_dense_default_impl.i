@@ -24,13 +24,13 @@
 #ifndef __MULTIVARIATE_OUTLIER_DETECTION_DENSE_DEFAULT_IMPL_I__
 #define __MULTIVARIATE_OUTLIER_DETECTION_DENSE_DEFAULT_IMPL_I__
 
-#include "numeric_table.h"
-#include "outlier_detection_multivariate_types.h"
-#include "service_numeric_table.h"
-#include "service_math.h"
-#include "service_blas.h"
-#include "service_lapack.h"
-#include "outlierdetection_multivariate_kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/outlier_detection/outlier_detection_multivariate_types.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_math.h"
+#include "externals/service_blas.h"
+#include "externals/service_lapack.h"
+#include "algorithms/kernel/outlierdetection_multivariate/outlierdetection_multivariate_kernel.h"
 
 namespace daal
 {
@@ -40,34 +40,29 @@ namespace multivariate_outlier_detection
 {
 namespace internal
 {
-
 using namespace daal::internal;
 using namespace daal::services;
 using namespace daal::data_management;
 
 template <typename algorithmFPType, Method method, CpuType cpu>
-inline void OutlierDetectionKernel<algorithmFPType, method, cpu>::
-mahalanobisDistance(const size_t nFeatures,
-                    const size_t nVectors,
-                    const algorithmFPType *data,
-                    const algorithmFPType *location,
-                    const algorithmFPType *invScatter,
-                    algorithmFPType *distance,
-                    algorithmFPType *buffer)
+inline void OutlierDetectionKernel<algorithmFPType, method, cpu>::mahalanobisDistance(const size_t nFeatures, const size_t nVectors,
+                                                                                      const algorithmFPType * data, const algorithmFPType * location,
+                                                                                      const algorithmFPType * invScatter, algorithmFPType * distance,
+                                                                                      algorithmFPType * buffer)
 {
-    algorithmFPType *dataCen            = buffer;
-    algorithmFPType *dataCenInvScatter  = buffer + nFeatures * nVectors;
+    algorithmFPType * dataCen           = buffer;
+    algorithmFPType * dataCenInvScatter = buffer + nFeatures * nVectors;
 
-    DAAL_INT dim = (DAAL_INT)nFeatures;
-    DAAL_INT n   = (DAAL_INT)nVectors;
-    char side = 'L';
-    char uplo = 'U';
+    DAAL_INT dim         = (DAAL_INT)nFeatures;
+    DAAL_INT n           = (DAAL_INT)nVectors;
+    char side            = 'L';
+    char uplo            = 'U';
     algorithmFPType one  = (algorithmFPType)1.0;
     algorithmFPType zero = (algorithmFPType)0.0;
     DAAL_INT info;
 
-    const algorithmFPType *dataPtr    = data;
-    algorithmFPType *dataCenPtr = dataCen;
+    const algorithmFPType * dataPtr = data;
+    algorithmFPType * dataCenPtr    = dataCen;
     for (size_t i = 0; i < nVectors; i++, dataPtr += nFeatures, dataCenPtr += nFeatures)
     {
         PRAGMA_IVDEP
@@ -78,11 +73,10 @@ mahalanobisDistance(const size_t nFeatures,
         }
     }
 
-    Blas<algorithmFPType, cpu>::xsymm(&side, &uplo, &dim, &n, &one, invScatter, &dim, dataCen, &dim, &zero,
-                                      dataCenInvScatter, &dim);
+    Blas<algorithmFPType, cpu>::xsymm(&side, &uplo, &dim, &n, &one, invScatter, &dim, dataCen, &dim, &zero, dataCenInvScatter, &dim);
 
-    dataCenPtr = dataCen;
-    algorithmFPType *dataCenInvScatterPtr = dataCenInvScatter;
+    dataCenPtr                             = dataCen;
+    algorithmFPType * dataCenInvScatterPtr = dataCenInvScatter;
     for (size_t i = 0; i < nVectors; i++, dataCenPtr += nFeatures, dataCenInvScatterPtr += nFeatures)
     {
         distance[i] = zero;
@@ -96,22 +90,18 @@ mahalanobisDistance(const size_t nFeatures,
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
-inline Status OutlierDetectionKernel<algorithmFPType, method, cpu>::
-computeInternal(const size_t nFeatures,
-                const size_t nVectors,
-                NumericTable &dataTable,
-                NumericTable &resultTable,
-                const algorithmFPType *locationArray,
-                const algorithmFPType *scatterArray,
-                const algorithmFPType thresholdValue,
-                algorithmFPType *buffer)
+inline Status OutlierDetectionKernel<algorithmFPType, method, cpu>::computeInternal(const size_t nFeatures, const size_t nVectors,
+                                                                                    NumericTable & dataTable, NumericTable & resultTable,
+                                                                                    const algorithmFPType * locationArray,
+                                                                                    const algorithmFPType * scatterArray,
+                                                                                    const algorithmFPType thresholdValue, algorithmFPType * buffer)
 {
     ReadRows<algorithmFPType, cpu> dataBlock(dataTable);
     WriteOnlyRows<algorithmFPType, cpu> resultBlock(resultTable);
 
-    algorithmFPType one  = (algorithmFPType)1.0;
-    algorithmFPType zero = (algorithmFPType)0.0;
-    algorithmFPType *invScatter = buffer;
+    algorithmFPType one          = (algorithmFPType)1.0;
+    algorithmFPType zero         = (algorithmFPType)0.0;
+    algorithmFPType * invScatter = buffer;
 
     for (size_t i = 0; i < nFeatures * nFeatures; i++)
     {
@@ -120,7 +110,7 @@ computeInternal(const size_t nFeatures,
 
     /* Calculate inverse of data variance-covariance matrix */
     DAAL_INT dim = (DAAL_INT)nFeatures;
-    char uplo = 'U';
+    char uplo    = 'U';
     DAAL_INT info;
     Lapack<algorithmFPType, cpu>::xpotrf(&uplo, &dim, invScatter, &dim, &info);
     DAAL_CHECK(info == 0, ErrorOutlierDetectionInternal);
@@ -137,7 +127,7 @@ computeInternal(const size_t nFeatures,
     /* Process input data table in blocks */
     for (size_t iBlock = 0; iBlock < nBlocks; iBlock++)
     {
-        size_t startRow = iBlock * blockSize;
+        size_t startRow     = iBlock * blockSize;
         size_t nRowsInBlock = blockSize;
         if (startRow + nRowsInBlock > nVectors)
         {
@@ -145,15 +135,14 @@ computeInternal(const size_t nFeatures,
         }
         DAAL_INT n = (DAAL_INT)nRowsInBlock;
 
-        const algorithmFPType *data = dataBlock.next(startRow, nRowsInBlock);
+        const algorithmFPType * data = dataBlock.next(startRow, nRowsInBlock);
         DAAL_CHECK_BLOCK_STATUS(dataBlock)
 
-        algorithmFPType *weight = resultBlock.next(startRow, nRowsInBlock);
+        algorithmFPType * weight = resultBlock.next(startRow, nRowsInBlock);
         DAAL_CHECK_BLOCK_STATUS(resultBlock)
 
         /* Calculate mahalanobis distances for a block of observations */
-        mahalanobisDistance(nFeatures, nRowsInBlock, data, locationArray, invScatter, weight,
-                            buffer + nFeatures * nFeatures);
+        mahalanobisDistance(nFeatures, nRowsInBlock, data, locationArray, invScatter, weight, buffer + nFeatures * nFeatures);
 
         for (size_t i = 0; i < nRowsInBlock; i++)
         {
@@ -171,12 +160,9 @@ computeInternal(const size_t nFeatures,
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
-Status OutlierDetectionKernel<algorithmFPType, method, cpu>::
-compute(NumericTable &dataTable,
-        NumericTable *locationTable,
-        NumericTable *scatterTable,
-        NumericTable *thresholdTable,
-        NumericTable &resultTable)
+Status OutlierDetectionKernel<algorithmFPType, method, cpu>::compute(NumericTable & dataTable, NumericTable * locationTable,
+                                                                     NumericTable * scatterTable, NumericTable * thresholdTable,
+                                                                     NumericTable & resultTable)
 {
     size_t nFeatures = dataTable.getNumberOfColumns();
     size_t nVectors  = dataTable.getNumberOfRows();
@@ -184,13 +170,14 @@ compute(NumericTable &dataTable,
     TArray<algorithmFPType, cpu> locationPtr, scatterPtr, thresholdPtr;
     ReadRows<algorithmFPType, cpu> locationBlock(locationTable), scatterBlock(scatterTable), thresholdBlock(thresholdTable);
 
-    algorithmFPType *locationArray =  (locationTable) ?   const_cast<algorithmFPType *>(locationBlock.next(0, 1)) :        locationPtr.reset(nFeatures);
-    algorithmFPType *scatterArray =   (scatterTable) ?    const_cast<algorithmFPType *>(scatterBlock.next(0, nFeatures)) : scatterPtr.reset(nFeatures * nFeatures);
-    algorithmFPType *thresholdArray = (thresholdTable) ?  const_cast<algorithmFPType *>(thresholdBlock.next(0, 1)) :       thresholdPtr.reset(1);
+    algorithmFPType * locationArray = (locationTable) ? const_cast<algorithmFPType *>(locationBlock.next(0, 1)) : locationPtr.reset(nFeatures);
+    algorithmFPType * scatterArray =
+        (scatterTable) ? const_cast<algorithmFPType *>(scatterBlock.next(0, nFeatures)) : scatterPtr.reset(nFeatures * nFeatures);
+    algorithmFPType * thresholdArray = (thresholdTable) ? const_cast<algorithmFPType *>(thresholdBlock.next(0, 1)) : thresholdPtr.reset(1);
 
     DAAL_CHECK(locationArray && scatterArray && thresholdArray, ErrorMemoryAllocationFailed)
 
-    if(!locationTable || !scatterTable || !thresholdTable)
+    if (!locationTable || !scatterTable || !thresholdTable)
     {
         defaultInitialization(locationArray, scatterArray, thresholdArray, nFeatures);
     }
@@ -200,29 +187,22 @@ compute(NumericTable &dataTable,
     TArray<algorithmFPType, cpu> bufferPtr(bufferSize);
     DAAL_CHECK(bufferPtr.get(), ErrorMemoryAllocationFailed)
 
-        /* Calculate results */
-    return computeInternal(nFeatures, nVectors, dataTable, resultTable,
-                           locationArray,
-                           scatterArray,
-                           thresholdArray[0],
-                           bufferPtr.get());
+    /* Calculate results */
+    return computeInternal(nFeatures, nVectors, dataTable, resultTable, locationArray, scatterArray, thresholdArray[0], bufferPtr.get());
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
-void OutlierDetectionKernel<algorithmFPType, method, cpu>::defaultInitialization(
-    algorithmFPType *locationArray,
-    algorithmFPType *scatterArray,
-    algorithmFPType *thresholdArray,
-    const size_t nFeatures)
+void OutlierDetectionKernel<algorithmFPType, method, cpu>::defaultInitialization(algorithmFPType * locationArray, algorithmFPType * scatterArray,
+                                                                                 algorithmFPType * thresholdArray, const size_t nFeatures)
 {
-    for(size_t i = 0; i < nFeatures; i++)
+    for (size_t i = 0; i < nFeatures; i++)
     {
-        locationArray[i]  = 0.0;
-        for(size_t j = 0; j < nFeatures; j++)
+        locationArray[i] = 0.0;
+        for (size_t j = 0; j < nFeatures; j++)
         {
             scatterArray[i * nFeatures + j] = 0.0;
         }
-        scatterArray[i * nFeatures + i]   = 1.0;
+        scatterArray[i * nFeatures + i] = 1.0;
     }
     thresholdArray[0] = 3.0;
 }

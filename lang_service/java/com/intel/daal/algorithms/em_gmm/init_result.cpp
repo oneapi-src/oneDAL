@@ -20,14 +20,14 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_em_gmm_init_InitResult.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::em_gmm::init;
 
 #include "com_intel_daal_algorithms_em_gmm_init_InitResultId.h"
-#define WeightsValue     com_intel_daal_algorithms_em_gmm_init_InitResultId_weightsValue
-#define MeansValue       com_intel_daal_algorithms_em_gmm_init_InitResultId_meansValue
+#define WeightsValue com_intel_daal_algorithms_em_gmm_init_InitResultId_weightsValue
+#define MeansValue   com_intel_daal_algorithms_em_gmm_init_InitResultId_meansValue
 #include "com_intel_daal_algorithms_em_gmm_init_InitResultCovariancesId.h"
 #define CovariancesValue com_intel_daal_algorithms_em_gmm_init_InitResultCovariancesId_covariancesValue
 
@@ -36,8 +36,7 @@ using namespace daal::algorithms::em_gmm::init;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitResult_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitResult_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<em_gmm::init::Result>::newObj();
 }
@@ -47,8 +46,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitResult_c
  * Method:    cGetResultTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitResult_cGetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitResult_cGetResultTable(JNIEnv * env, jobject thisObj, jlong resAddr, jint id)
 {
     return jniArgument<em_gmm::init::Result>::get<em_gmm::init::ResultId, NumericTable>(resAddr, id);
 }
@@ -58,8 +56,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitResult_c
  * Method:    cGetCovariancesDataCollection
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitResult_cGetCovariancesDataCollection
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitResult_cGetCovariancesDataCollection(JNIEnv * env, jobject thisObj,
+                                                                                                             jlong resAddr, jint id)
 {
     return jniArgument<em_gmm::init::Result>::get<em_gmm::init::ResultCovariancesId, DataCollection>(resAddr, id);
 }
@@ -69,8 +67,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitResult_c
  * Method:    cGetResultCovarianceTable
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitResult_cGetResultCovarianceTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jint index)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitResult_cGetResultCovarianceTable(JNIEnv * env, jobject thisObj, jlong resAddr,
+                                                                                                         jint id, jint index)
 {
     return jniArgument<em_gmm::init::Result>::get<em_gmm::init::ResultCovariancesId, NumericTable>(resAddr, covariances, index);
 }
@@ -80,13 +78,22 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitResult_c
  * Method:    cSetResultTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitResult_cSetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitResult_cSetResultTable(JNIEnv * env, jobject thisObj, jlong resAddr, jint id,
+                                                                                              jlong ntAddr)
 {
     ResultId cid;
-    if(id == WeightsValue) { cid = weights; }
-    else if(id == MeansValue) { cid = means; }
-    else { return; }
+    if (id == WeightsValue)
+    {
+        cid = weights;
+    }
+    else if (id == MeansValue)
+    {
+        cid = means;
+    }
+    else
+    {
+        return;
+    }
 
     jniArgument<em_gmm::init::Result>::set<em_gmm::init::ResultId, NumericTable>(resAddr, cid, ntAddr);
 }
@@ -96,12 +103,18 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitResult_cS
  * Method:    cSetCovarianceCollection
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitResult_cSetCovarianceCollection
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong dcAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitResult_cSetCovarianceCollection(JNIEnv * env, jobject thisObj, jlong resAddr,
+                                                                                                       jint id, jlong dcAddr)
 {
     ResultCovariancesId cid;
-    if(id == CovariancesValue) { cid = covariances; }
-    else { return; }
+    if (id == CovariancesValue)
+    {
+        cid = covariances;
+    }
+    else
+    {
+        return;
+    }
 
     jniArgument<em_gmm::init::Result>::set<em_gmm::init::ResultCovariancesId, DataCollection>(resAddr, cid, dcAddr);
 }

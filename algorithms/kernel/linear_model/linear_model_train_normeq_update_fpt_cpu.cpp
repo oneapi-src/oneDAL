@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "linear_model_train_normeq_update_impl.i"
+#include "algorithms/kernel/linear_model/linear_model_train_normeq_update_impl.i"
 
 namespace daal
 {
@@ -31,8 +31,8 @@ namespace internal
 {
 template class UpdateKernel<DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
-}
+} // namespace training
+} // namespace normal_equations
+} // namespace linear_model
+} // namespace algorithms
+} // namespace daal

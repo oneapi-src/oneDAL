@@ -25,10 +25,10 @@
 #ifndef __LOGITBOOST_TRAIN_KERNEL_V1_H__
 #define __LOGITBOOST_TRAIN_KERNEL_V1_H__
 
-#include "logitboost_model.h"
-#include "logitboost_training_types.h"
-#include "kernel.h"
-#include "numeric_table.h"
+#include "algorithms/boosting/logitboost_model.h"
+#include "algorithms/boosting/logitboost_training_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;
 
@@ -42,7 +42,6 @@ namespace training
 {
 namespace internal
 {
-
 /**
  *  \brief Construct Logit Boost classifier model.
  *
@@ -57,12 +56,12 @@ struct I1LogitBoostTrainKernel : public Kernel
 {
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
-    services::Status compute(const size_t na, NumericTablePtr a[], Model *r, const Parameter *par);
+    services::Status compute(const size_t na, NumericTablePtr a[], Model * r, const Parameter * par);
 };
-} // namespace daal::algorithms::logitboost::training::internal
-}
-}
-}
+} // namespace internal
+} // namespace training
+} // namespace logitboost
+} // namespace algorithms
 } // namespace daal
 
 #endif

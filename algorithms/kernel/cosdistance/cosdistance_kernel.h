@@ -24,9 +24,9 @@
 #ifndef __COSDISTANCE_KERNEL_H__
 #define __COSDISTANCE_KERNEL_H__
 
-#include "cosine_distance.h"
-#include "kernel.h"
-#include "numeric_table.h"
+#include "algorithms/distance/cosine_distance.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;
 
@@ -38,12 +38,12 @@ namespace cosine_distance
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class DistanceKernel : public Kernel
 {
 public:
-    services::Status compute(const size_t na, const NumericTable *const *a, const size_t nr, NumericTable *r[], const daal::algorithms::Parameter *par);
+    services::Status compute(const size_t na, const NumericTable * const * a, const size_t nr, NumericTable * r[],
+                             const daal::algorithms::Parameter * par);
 };
 
 } // namespace internal

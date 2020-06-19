@@ -18,16 +18,14 @@
 #include <jni.h>
 
 #include "daal.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 #include "com_intel_daal_algorithms_classifier_training_TrainingResultId.h"
 #include "com_intel_daal_algorithms_logitboost_training_TrainingResult.h"
 
 using namespace daal;
 using namespace daal::algorithms;
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logitboost_training_TrainingResult_cGetModel
-(JNIEnv *, jobject, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logitboost_training_TrainingResult_cGetModel(JNIEnv *, jobject, jlong resAddr, jint id)
 {
-    return jniArgument<logitboost::training::Result>
-        ::get<classifier::training::ResultId, logitboost::Model>(resAddr, classifier::training::model);
+    return jniArgument<logitboost::training::Result>::get<classifier::training::ResultId, logitboost::Model>(resAddr, classifier::training::model);
 }

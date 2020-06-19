@@ -21,8 +21,8 @@
 //--
 */
 
-#include "decision_tree_classification_train_container.h"
-#include "decision_tree_classification_train_dense_default_impl.i"
+#include "algorithms/kernel/decision_tree/decision_tree_classification_train_container.h"
+#include "algorithms/kernel/decision_tree/decision_tree_classification_train_dense_default_impl.i"
 
 namespace daal
 {
@@ -34,7 +34,6 @@ namespace classification
 {
 namespace training
 {
-
 namespace interface2
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
@@ -42,7 +41,6 @@ template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
 namespace internal
 {
-
 template class DecisionTreeTrainBatchKernel<DAAL_FPTYPE, decision_tree::classification::Parameter, defaultDense, DAAL_CPU>;
 
 } // namespace internal

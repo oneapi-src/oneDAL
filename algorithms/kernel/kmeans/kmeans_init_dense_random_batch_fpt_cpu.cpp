@@ -21,9 +21,9 @@
 //--
 */
 
-#include "kmeans_init_kernel.h"
-#include "kmeans_init_impl.i"
-#include "kmeans_init_container.h"
+#include "algorithms/kernel/kmeans/kmeans_init_kernel.h"
+#include "algorithms/kernel/kmeans/kmeans_init_impl.i"
+#include "algorithms/kernel/kmeans/kmeans_init_container.h"
 
 namespace daal
 {
@@ -40,8 +40,8 @@ template class BatchContainer<DAAL_FPTYPE, randomDense, DAAL_CPU>;
 namespace internal
 {
 template class KMeansInitKernel<randomDense, DAAL_FPTYPE, DAAL_CPU>;
-} // namespace daal::algorithms::kmeans::init::internal
-} // namespace daal::algorithms::kmeans::init
-} // namespace daal::algorithms::kmeans
-} // namespace daal::algorithms
+} // namespace internal
+} // namespace init
+} // namespace kmeans
+} // namespace algorithms
 } // namespace daal

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "linear_model_train_qr_common_impl.i"
+#include "algorithms/kernel/linear_model/linear_model_train_qr_common_impl.i"
 
 namespace daal
 {
@@ -37,8 +37,8 @@ namespace internal
 {
 template class CommonKernel<DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
-}
+} // namespace training
+} // namespace qr
+} // namespace linear_model
+} // namespace algorithms
+} // namespace daal

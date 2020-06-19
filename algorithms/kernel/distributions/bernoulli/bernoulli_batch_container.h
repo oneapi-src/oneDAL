@@ -24,8 +24,8 @@
 #ifndef __BERNOULLI_BATCH_CONTAINER_H__
 #define __BERNOULLI_BATCH_CONTAINER_H__
 
-#include "distributions/bernoulli/bernoulli.h"
-#include "bernoulli_kernel.h"
+#include "algorithms/distributions/bernoulli/bernoulli.h"
+#include "algorithms/kernel/distributions/bernoulli/bernoulli_kernel.h"
 
 namespace daal
 {
@@ -37,30 +37,32 @@ namespace bernoulli
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv) : AnalysisContainerIface<batch>(daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : AnalysisContainerIface<batch>(daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::BernoulliKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    bernoulli::Parameter<algorithmFPType> *parameter = static_cast<bernoulli::Parameter<algorithmFPType> *>(_par);;
-    daal::services::Environment::env &env = *_env;
+    bernoulli::Parameter<algorithmFPType> * parameter = static_cast<bernoulli::Parameter<algorithmFPType> *>(_par);
+    ;
+    daal::services::Environment::env & env = *_env;
 
-    distributions::Result *result = static_cast<distributions::Result *>(_res);
+    distributions::Result * result = static_cast<distributions::Result *>(_res);
 
     result->set(distributions::randomNumbers, static_cast<const distributions::Input *>(_in)->get(distributions::tableToFill));
-    NumericTable *resultTable = result->get(distributions::randomNumbers).get();
+    NumericTable * resultTable = result->get(distributions::randomNumbers).get();
 
-    __DAAL_CALL_KERNEL(env, internal::BernoulliKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, parameter->p, *parameter->engine, resultTable);
+    __DAAL_CALL_KERNEL(env, internal::BernoulliKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, parameter->p, *parameter->engine,
+                       resultTable);
 }
 } // namespace interface1
 } // namespace bernoulli

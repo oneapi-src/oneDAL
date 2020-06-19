@@ -21,9 +21,9 @@
 //--
 */
 
-#include "apriori.h"
-#include "assoc_rules_kernel.h"
-#include "assoc_rules_apriori_kernel.h"
+#include "algorithms/association_rules/apriori.h"
+#include "algorithms/kernel/assocrules/assoc_rules_kernel.h"
+#include "algorithms/kernel/assocrules/assoc_rules_apriori_kernel.h"
 
 namespace daal
 {
@@ -31,36 +31,36 @@ namespace algorithms
 {
 namespace association_rules
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv) : AnalysisContainerIface<batch>(daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : AnalysisContainerIface<batch>(daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::AssociationRulesKernel, method, algorithmFPType);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    Result *result = static_cast<Result *>(_res);
-    Input *input = static_cast<Input *>(_in);
+    Result * result = static_cast<Result *>(_res);
+    Input * input   = static_cast<Input *>(_in);
 
-    NumericTable *a0 = input->get(data).get();
+    NumericTable * a0 = input->get(data).get();
 
-    Parameter *algParameter = static_cast<Parameter *>(const_cast<daal::algorithms::Parameter *>(_par));
+    Parameter * algParameter = static_cast<Parameter *>(const_cast<daal::algorithms::Parameter *>(_par));
 
-    NumericTable* r[lastResultId + 1];
-    r[largeItemsets] = result->get(largeItemsets).get();
+    NumericTable * r[lastResultId + 1];
+    r[largeItemsets]        = result->get(largeItemsets).get();
     r[largeItemsetsSupport] = result->get(largeItemsetsSupport).get();
-    r[antecedentItemsets] = algParameter->discoverRules ? result->get(antecedentItemsets).get() : 0;
-    r[consequentItemsets] = algParameter->discoverRules ? result->get(consequentItemsets).get() : 0;
-    r[confidence] = algParameter->discoverRules ? result->get(confidence).get() : 0;
+    r[antecedentItemsets]   = algParameter->discoverRules ? result->get(antecedentItemsets).get() : 0;
+    r[consequentItemsets]   = algParameter->discoverRules ? result->get(consequentItemsets).get() : 0;
+    r[confidence]           = algParameter->discoverRules ? result->get(confidence).get() : 0;
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
     __DAAL_CALL_KERNEL(env, internal::AssociationRulesKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a0, r, algParameter);
 }
 

@@ -21,9 +21,9 @@
 //--
 */
 
-#include "decision_tree_regression_model_impl.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/kernel/decision_tree/decision_tree_regression_model_impl.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -44,12 +44,12 @@ Model::Model() : _impl(new ModelImpl()) {}
 
 Model::~Model() {}
 
-Model::Model(services::Status &st) : _impl(new ModelImpl())
+Model::Model(services::Status & st) : _impl(new ModelImpl())
 {
-   DAAL_CHECK_COND_ERROR(_impl, st, services::ErrorMemoryAllocationFailed);
+    DAAL_CHECK_COND_ERROR(_impl, st, services::ErrorMemoryAllocationFailed);
 }
 
-services::SharedPtr<Model> Model::create(services::Status *stat)
+services::SharedPtr<Model> Model::create(services::Status * stat)
 {
     DAAL_DEFAULT_CREATE_IMPL(Model);
 }
@@ -59,11 +59,10 @@ size_t Model::getNumberOfFeatures() const
     return _impl->getNumberOfFeatures();
 }
 
-services::Status Model::serializeImpl(data_management::InputDataArchive  * arch)
+services::Status Model::serializeImpl(data_management::InputDataArchive * arch)
 {
     algorithms::regression::Model::serialImpl<data_management::InputDataArchive, false>(arch);
     _impl->serialImpl<data_management::InputDataArchive, false>(arch);
-
 
     return services::Status();
 }
@@ -71,19 +70,31 @@ services::Status Model::serializeImpl(data_management::InputDataArchive  * arch)
 services::Status Model::deserializeImpl(const data_management::OutputDataArchive * arch)
 {
     algorithms::regression::Model::serialImpl<const data_management::OutputDataArchive, true>(arch);
-    _impl->serialImpl<const data_management::OutputDataArchive, true>(arch,
-        COMPUTE_DAAL_VERSION(arch->getMajorVersion(), arch->getMinorVersion(), arch->getUpdateVersion()));
+    _impl->serialImpl<const data_management::OutputDataArchive, true>(
+        arch, COMPUTE_DAAL_VERSION(arch->getMajorVersion(), arch->getMinorVersion(), arch->getUpdateVersion()));
 
     return services::Status();
 }
 
-void Model::traverseDF(algorithms::regression::TreeNodeVisitor& visitor) const { _impl->traverseDF(visitor); }
+void Model::traverseDF(algorithms::regression::TreeNodeVisitor & visitor) const
+{
+    _impl->traverseDF(visitor);
+}
 
-void Model::traverseBF(algorithms::regression::TreeNodeVisitor& visitor) const { _impl->traverseBF(visitor); }
+void Model::traverseBF(algorithms::regression::TreeNodeVisitor & visitor) const
+{
+    _impl->traverseBF(visitor);
+}
 
-void Model::traverseDFS(tree_utils::regression::TreeNodeVisitor& visitor) const { _impl->traverseDFS(visitor); }
+void Model::traverseDFS(tree_utils::regression::TreeNodeVisitor & visitor) const
+{
+    _impl->traverseDFS(visitor);
+}
 
-void Model::traverseBFS(tree_utils::regression::TreeNodeVisitor& visitor) const { _impl->traverseBFS(visitor); }
+void Model::traverseBFS(tree_utils::regression::TreeNodeVisitor & visitor) const
+{
+    _impl->traverseBFS(visitor);
+}
 
 services::Status Parameter::check() const
 {

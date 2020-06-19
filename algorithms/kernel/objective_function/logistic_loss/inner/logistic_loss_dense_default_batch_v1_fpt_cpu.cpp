@@ -19,10 +19,9 @@
 //  Implementation of logloss calculation functions.
 //--
 
-#include "logistic_loss_dense_default_batch_kernel_v1.h"
-#include "logistic_loss_dense_default_batch_v1_impl.i"
-#include "logistic_loss_dense_default_batch_container_v1.h"
-
+#include "algorithms/kernel/objective_function/logistic_loss/inner/logistic_loss_dense_default_batch_kernel_v1.h"
+#include "algorithms/kernel/objective_function/logistic_loss/inner/logistic_loss_dense_default_batch_v1_impl.i"
+#include "algorithms/kernel/objective_function/logistic_loss/inner/logistic_loss_dense_default_batch_container_v1.h"
 
 namespace daal
 {
@@ -32,7 +31,6 @@ namespace optimization_solver
 {
 namespace logistic_loss
 {
-
 namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

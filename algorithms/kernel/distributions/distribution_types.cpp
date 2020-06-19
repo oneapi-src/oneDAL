@@ -19,9 +19,9 @@
 //  Implementation of distribution types.
 //--
 
-#include "distributions/distribution_types.h"
-#include "daal_strings.h"
-#include "mt19937_batch_impl.h"
+#include "algorithms/distributions/distribution_types.h"
+#include "service/kernel/daal_strings.h"
+#include "algorithms/kernel/engines/mt19937/mt19937_batch_impl.h"
 
 namespace daal
 {
@@ -31,26 +31,25 @@ namespace distributions
 {
 namespace interface1
 {
-
 ParameterBase::ParameterBase() : engine(engines::mt19937::Batch<>::create()) {}
 ParameterBase::~ParameterBase() {}
 
 Input::Input() : daal::algorithms::Input(1) {}
 Input::~Input() {}
 
-Input::Input(const Input& other) : daal::algorithms::Input(other){}
+Input::Input(const Input & other) : daal::algorithms::Input(other) {}
 
 data_management::NumericTablePtr Input::get(InputId id) const
 {
     return data_management::NumericTable::cast(Argument::get(id));
 }
 
-void Input::set(InputId id, const data_management::NumericTablePtr &ptr)
+void Input::set(InputId id, const data_management::NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-services::Status Input::check(const daal::algorithms::Parameter *par, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
     DAAL_CHECK(Argument::size() == 1, services::ErrorIncorrectNumberOfInputNumericTables);
 
@@ -66,16 +65,16 @@ data_management::NumericTablePtr Result::get(ResultId id) const
     return data_management::NumericTable::cast(Argument::get(id));
 }
 
-void Result::set(ResultId id, const data_management::NumericTablePtr &ptr)
+void Result::set(ResultId id, const data_management::NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     DAAL_CHECK(Argument::size() == 1, services::ErrorIncorrectNumberOfInputNumericTables);
 
-    const Input *algInput = static_cast<const Input *>(input);
+    const Input * algInput = static_cast<const Input *>(input);
     DAAL_CHECK(algInput, services::ErrorNullInput);
 
     const int expectedLayouts = (int)data_management::NumericTableIface::soa | (int)data_management::NumericTableIface::aos;

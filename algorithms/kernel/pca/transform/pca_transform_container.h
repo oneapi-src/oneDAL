@@ -26,8 +26,8 @@
 #ifndef __PCA_TRANSFORM_CONTAINER_H__
 #define __PCA_TRANSFORM_CONTAINER_H__
 
-#include "pca_transform_batch.h"
-#include "pca_transform_kernel.h"
+#include "algorithms/pca/transform/pca_transform_batch.h"
+#include "algorithms/kernel/pca/transform/pca_transform_kernel.h"
 
 namespace daal
 {
@@ -37,9 +37,8 @@ namespace pca
 {
 namespace transform
 {
-
 template <typename algorithmFPType, transform::Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv) : AnalysisContainerIface<batch>(daalEnv)
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : AnalysisContainerIface<batch>(daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::TransformKernel, algorithmFPType, method);
 }
@@ -53,20 +52,18 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, transform::Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    Input *input = static_cast<Input *>(_in);
-    Result *result = static_cast<Result *>(_res);
+    Input * input   = static_cast<Input *>(_in);
+    Result * result = static_cast<Result *>(_res);
 
-    bool hasTransform = input->get(dataForTransform).get() != nullptr;
-    NumericTable *pMeans = hasTransform ? input->get(dataForTransform, mean).get() : NULL;
-    NumericTable *pVariances = hasTransform ? input->get(dataForTransform, variance).get() : NULL;
-    NumericTable *pEigenvalues = hasTransform ? input->get(dataForTransform, eigenvalue).get() : NULL;
+    bool hasTransform           = input->get(dataForTransform).get() != nullptr;
+    NumericTable * pMeans       = hasTransform ? input->get(dataForTransform, mean).get() : NULL;
+    NumericTable * pVariances   = hasTransform ? input->get(dataForTransform, variance).get() : NULL;
+    NumericTable * pEigenvalues = hasTransform ? input->get(dataForTransform, eigenvalue).get() : NULL;
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::TransformKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                       *(input->get(data)),
-                       *(input->get(eigenvectors)),
-                       pMeans, pVariances, pEigenvalues, *(result->get(transformedData)));
+    __DAAL_CALL_KERNEL(env, internal::TransformKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *(input->get(data)),
+                       *(input->get(eigenvectors)), pMeans, pVariances, pEigenvalues, *(result->get(transformedData)));
 }
 
 } // namespace transform

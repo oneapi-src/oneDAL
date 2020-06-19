@@ -19,11 +19,10 @@
 //  Declaration of template function that calculate relus.
 //--
 
-
 #ifndef __RELU_CSR_FAST_KERNEL_H__
 #define __RELU_CSR_FAST_KERNEL_H__
 
-#include "relu_base.h"
+#include "algorithms/kernel/math/relu/relu_base.h"
 
 namespace daal
 {
@@ -35,16 +34,15 @@ namespace relu
 {
 namespace internal
 {
-
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class ReLUKernel<algorithmFPType, fastCSR, cpu> : public ReLUKernelBase<algorithmFPType, fastCSR, cpu>
 {
 protected:
-    Status processBlock(const NumericTable &inputTable, size_t nInputColumns, size_t nProcessedRows, size_t nRowsInCurrentBlock,
-                        NumericTable &resultTable);
+    Status processBlock(const NumericTable & inputTable, size_t nInputColumns, size_t nProcessedRows, size_t nRowsInCurrentBlock,
+                        NumericTable & resultTable);
 };
 
-} // namespace daal::internal
+} // namespace internal
 } // namespace relu
 } // namespace math
 } // namespace algorithms

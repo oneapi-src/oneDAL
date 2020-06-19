@@ -24,11 +24,11 @@
 #ifndef __ADABOOST_PREDICT_KERNEL_H__
 #define __ADABOOST_PREDICT_KERNEL_H__
 
-#include "adaboost_model.h"
-#include "adaboost_predict.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "boosting_predict_kernel.h"
+#include "algorithms/boosting/adaboost_model.h"
+#include "algorithms/boosting/adaboost_predict.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/kernel/boosting/inner/boosting_predict_kernel.h"
 
 using namespace daal::data_management;
 using namespace daal::algorithms::boosting::prediction::internal;
@@ -47,17 +47,17 @@ template <Method method, typename algorithmFPtype, CpuType cpu>
 class AdaBoostPredictKernel : public Kernel
 {
 public:
-    services::Status compute(const NumericTablePtr &x, const Model *m, const NumericTablePtr &r, const Parameter *par);
-    services::Status computeImpl(const NumericTablePtr &xTable, const Model *m, size_t nWeakLearners, const algorithmFPtype *alpha, algorithmFPtype *r,
-                                 const Parameter *par);
-    services::Status computeCommon(const NumericTablePtr &xTable,
-                                   const Model *m, size_t nWeakLearners, const algorithmFPtype *alpha, algorithmFPtype *r, const Parameter *par);
-    services::Status computeSammeProbability(const algorithmFPtype *p, size_t nVectors, size_t nClasses, algorithmFPtype *h);
+    services::Status compute(const NumericTablePtr & x, const Model * m, const NumericTablePtr & r, const Parameter * par);
+    services::Status computeImpl(const NumericTablePtr & xTable, const Model * m, size_t nWeakLearners, const algorithmFPtype * alpha,
+                                 algorithmFPtype * r, const Parameter * par);
+    services::Status computeCommon(const NumericTablePtr & xTable, const Model * m, size_t nWeakLearners, const algorithmFPtype * alpha,
+                                   algorithmFPtype * r, const Parameter * par);
+    services::Status computeSammeProbability(const algorithmFPtype * p, size_t nVectors, size_t nClasses, algorithmFPtype * h);
 };
-} // namespace daal::algorithms::adaboost::prediction::internal
-}
-}
-}
+} // namespace internal
+} // namespace prediction
+} // namespace adaboost
+} // namespace algorithms
 } // namespace daal
 
 #endif

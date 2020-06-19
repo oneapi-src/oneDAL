@@ -24,12 +24,12 @@
 #ifndef __LOGITBOOST_PREDICT_DENSE_DEFAULT_KERNEL_H__
 #define __LOGITBOOST_PREDICT_DENSE_DEFAULT_KERNEL_H__
 
-#include "algorithm.h"
-#include "service_numeric_table.h"
-#include "logitboost_model.h"
-#include "daal_defines.h"
+#include "algorithms/algorithm.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/boosting/logitboost_model.h"
+#include "services/daal_defines.h"
 
-#include "logitboost_predict_kernel.h"
+#include "algorithms/kernel/logitboost/logitboost_predict_kernel.h"
 
 namespace daal
 {
@@ -45,14 +45,14 @@ namespace internal
  *  \brief Specialization of the structure that contains kernels
  *  for Logit Boost prediction calculation using Fast method
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 struct LogitBoostPredictKernel<defaultDense, algorithmFPType, cpu> : public Kernel
 {
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
-    services::Status compute(const NumericTablePtr& a, const Model *m, NumericTable *r, const Parameter *par);
+    services::Status compute(const NumericTablePtr & a, const Model * m, NumericTable * r, const Parameter * par);
 };
-} // namepsace internal
+} // namespace internal
 } // namespace prediction
 } // namespace logitboost
 } // namespace algorithms

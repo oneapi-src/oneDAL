@@ -19,8 +19,7 @@
 //  Implementation of abs calculation algorithm container.
 //--
 
-
-#include "abs_batch_container.h"
+#include "algorithms/kernel/math/abs/abs_batch_container.h"
 
 namespace daal
 {

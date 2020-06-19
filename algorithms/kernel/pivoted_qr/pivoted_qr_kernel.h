@@ -24,9 +24,9 @@
 #ifndef __PIVOTED_QR_KERNEL_H__
 #define __PIVOTED_QR_KERNEL_H__
 
-#include "pivoted_qr_batch.h"
-#include "kernel.h"
-#include "numeric_table.h"
+#include "algorithms/pivoted_qr/pivoted_qr_batch.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;
 
@@ -38,21 +38,20 @@ namespace pivoted_qr
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for QR calculation
  */
-template<daal::algorithms::pivoted_qr::Method method, typename algorithmFPType, CpuType cpu>
+template <daal::algorithms::pivoted_qr::Method method, typename algorithmFPType, CpuType cpu>
 class PivotedQRKernel : public Kernel
 {
 public:
-    services::Status compute(const NumericTable &dataTable, NumericTable &QTable, NumericTable &RTable, NumericTable &PTable, NumericTable *permutedColumns);
-
+    services::Status compute(const NumericTable & dataTable, NumericTable & QTable, NumericTable & RTable, NumericTable & PTable,
+                             NumericTable * permutedColumns);
 };
 
-} // namespace daal::internal
-}
-}
+} // namespace internal
+} // namespace pivoted_qr
+} // namespace algorithms
 } // namespace daal
 
 #endif

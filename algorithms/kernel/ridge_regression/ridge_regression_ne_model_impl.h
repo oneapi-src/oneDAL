@@ -26,7 +26,7 @@
 #define __RIDGE_REGRESSION_NE_MODEL_IMPL_H__
 
 #include "algorithms/ridge_regression/ridge_regression_ne_model.h"
-#include "linear_model_model_impl.h"
+#include "algorithms/kernel/linear_model/linear_model_model_impl.h"
 
 namespace daal
 {
@@ -53,7 +53,7 @@ public:
      * \param[in] dummy   Dummy variable for the templated constructor
      */
     template <typename modelFPType>
-    ModelNormEqInternal(size_t featnum, size_t nrhs, const ridge_regression::Parameter &par, modelFPType dummy, services::Status &s);
+    ModelNormEqInternal(size_t featnum, size_t nrhs, const ridge_regression::Parameter & par, modelFPType dummy, services::Status & s);
 
     ModelNormEqInternal() {}
 
@@ -77,11 +77,11 @@ public:
     NumericTablePtr getXTYTable();
 
 protected:
-    NumericTablePtr _xtxTable;        /* Table holding a partial sum of X'*X */
-    NumericTablePtr _xtyTable;        /* Table holding a partial sum of X'*Y */
+    NumericTablePtr _xtxTable; /* Table holding a partial sum of X'*X */
+    NumericTablePtr _xtyTable; /* Table holding a partial sum of X'*Y */
 
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         super::serialImpl<Archive, onDeserialize>(arch);
 
@@ -92,8 +92,7 @@ protected:
     }
 };
 
-class ModelNormEqImpl : public ridge_regression::ModelNormEq,
-                        public ModelNormEqInternal
+class ModelNormEqImpl : public ridge_regression::ModelNormEq, public ModelNormEqInternal
 {
 public:
     typedef ModelNormEqInternal ImplType;
@@ -106,8 +105,8 @@ public:
      * \param[in] dummy   Dummy variable for the templated constructor
      */
     template <typename modelFPType>
-    ModelNormEqImpl(size_t featnum, size_t nrhs, const ridge_regression::Parameter &par, modelFPType dummy, services::Status &s) :
-        ImplType(featnum, nrhs, par, dummy, s)
+    ModelNormEqImpl(size_t featnum, size_t nrhs, const ridge_regression::Parameter & par, modelFPType dummy, services::Status & s)
+        : ImplType(featnum, nrhs, par, dummy, s)
     {}
 
     ModelNormEqImpl() {}
@@ -135,13 +134,13 @@ public:
      * Returns the number of regression coefficients
      * \return Number of regression coefficients
      */
-    size_t getNumberOfBetas() const DAAL_C11_OVERRIDE  { return ImplType::getNumberOfBetas(); }
+    size_t getNumberOfBetas() const DAAL_C11_OVERRIDE { return ImplType::getNumberOfBetas(); }
 
     /**
      * Returns the number of responses in the training data set
      * \return Number of responses in the training data set
      */
-    size_t getNumberOfResponses() const DAAL_C11_OVERRIDE  { return ImplType::getNumberOfResponses(); }
+    size_t getNumberOfResponses() const DAAL_C11_OVERRIDE { return ImplType::getNumberOfResponses(); }
 
     /**
      * Returns true if the regression model contains the intercept term, and false otherwise
@@ -162,15 +161,14 @@ public:
     data_management::NumericTablePtr getBeta() DAAL_C11_OVERRIDE { return ImplType::getBeta(); }
 
 protected:
-
-    services::Status serializeImpl(InputDataArchive  *arch) DAAL_C11_OVERRIDE
+    services::Status serializeImpl(InputDataArchive * arch) DAAL_C11_OVERRIDE
     {
         ImplType::serialImpl<InputDataArchive, false>(arch);
 
         return services::Status();
     }
 
-    services::Status deserializeImpl(const OutputDataArchive *arch) DAAL_C11_OVERRIDE
+    services::Status deserializeImpl(const OutputDataArchive * arch) DAAL_C11_OVERRIDE
     {
         ImplType::serialImpl<const OutputDataArchive, true>(arch);
 
@@ -178,8 +176,8 @@ protected:
     }
 };
 
-}
-}
-}
-}
+} // namespace internal
+} // namespace ridge_regression
+} // namespace algorithms
+} // namespace daal
 #endif

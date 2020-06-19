@@ -24,12 +24,12 @@
 #ifndef __KDTREE_KNN_CLASSIFICATION_TRAIN_CONTAINER_V1_H__
 #define __KDTREE_KNN_CLASSIFICATION_TRAIN_CONTAINER_V1_H__
 
-#include "kernel.h"
+#include "algorithms/kernel/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "services/daal_shared_ptr.h"
-#include "kdtree_knn_classification_training_batch.h"
-#include "kdtree_knn_classification_train_kernel.h"
-#include "kdtree_knn_classification_model_impl.h"
+#include "algorithms/k_nearest_neighbors/kdtree_knn_classification_training_batch.h"
+#include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_classification_train_kernel.h"
+#include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
 
 namespace daal
 {
@@ -39,7 +39,6 @@ namespace kdtree_knn_classification
 {
 namespace training
 {
-
 using namespace daal::data_management;
 
 namespace interface1
@@ -48,7 +47,7 @@ namespace interface1
  *  \brief Initialize list of K-Nearest Neighbors kernels with implementations for supported architectures
  */
 template <typename algorithmFpType, training::Method method, CpuType cpu>
-BatchContainer<algorithmFpType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+BatchContainer<algorithmFpType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::KNNClassificationTrainBatchKernel, algorithmFpType, method);
 }
@@ -67,7 +66,7 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 {
     services::Status status;
     const classifier::training::Input * const input = static_cast<classifier::training::Input *>(_in);
-    Result * const result = static_cast<Result *>(_res);
+    Result * const result                           = static_cast<Result *>(_res);
 
     const NumericTablePtr x = input->get(classifier::training::data);
     const NumericTablePtr y = input->get(classifier::training::labels);
@@ -86,10 +85,10 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
         return status;
     }
 
-    __DAAL_CALL_KERNEL(env, internal::KNNClassificationTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType, method),    \
-                       compute, r->impl()->getData().get(), r->impl()->getLabels().get(), r.get(), *par->engine);
+    __DAAL_CALL_KERNEL(env, internal::KNNClassificationTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType, method), compute,
+                       r->impl()->getData().get(), r->impl()->getLabels().get(), r.get(), *par->engine);
 }
-}
+} // namespace interface1
 
 } // namespace training
 } // namespace kdtree_knn_classification

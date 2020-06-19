@@ -21,10 +21,10 @@
 //--
 */
 
-#include "kernel_function_linear.h"
-#include "kernel_function_linear_batch_container.h"
-#include "kernel_function_linear_dense_default_kernel.h"
-#include "kernel_function_linear_csr_fast_kernel.h"
+#include "algorithms/kernel_function/kernel_function_linear.h"
+#include "algorithms/kernel/kernel_function/kernel_function_linear_batch_container.h"
+#include "algorithms/kernel/kernel_function/kernel_function_linear_dense_default_kernel.h"
+#include "algorithms/kernel/kernel_function/kernel_function_linear_csr_fast_kernel.h"
 
 namespace daal
 {
@@ -32,9 +32,7 @@ namespace algorithms
 {
 namespace kernel_function
 {
-
-Result::Result() : daal::algorithms::Result(lastResultId + 1)
-{}
+Result::Result() : daal::algorithms::Result(lastResultId + 1) {}
 
 } // namespace kernel_function
 } // namespace algorithms

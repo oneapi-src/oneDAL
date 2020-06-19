@@ -21,8 +21,8 @@
 //--
 */
 
-#include "relu_types.h"
-#include "service_numeric_table.h"
+#include "algorithms/math/relu_types.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::services;
 using namespace daal::internal;
@@ -44,16 +44,16 @@ namespace interface1
  * \param[in] method Computation method of the rectified linear function
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method)
+DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
     Status s;
-    Input *algInput = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
+    Input * algInput = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
     DAAL_CHECK(algInput, ErrorNullInput);
 
     NumericTablePtr inputTable = algInput->get(data);
     DAAL_CHECK(inputTable.get(), ErrorNullInputNumericTable);
 
-    if(method == fastCSR)
+    if (method == fastCSR)
     {
         NumericTableIface::StorageLayout layout = inputTable->getDataLayout();
         DAAL_CHECK(layout == NumericTableIface::csrArray, ErrorIncorrectTypeOfInputNumericTable);
@@ -65,15 +65,17 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input, const 
     }
     else
     {
-        set(value, HomogenNumericTable<algorithmFPType>::create(inputTable->getNumberOfColumns(), inputTable->getNumberOfRows(), NumericTable::doAllocate, &s));
+        set(value, HomogenNumericTable<algorithmFPType>::create(inputTable->getNumberOfColumns(), inputTable->getNumberOfRows(),
+                                                                NumericTable::doAllocate, &s));
     }
     return s;
 }
 
-template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                          const int method);
 
-}// namespace interface1
-}// namespace relu
-}// namespace math
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace relu
+} // namespace math
+} // namespace algorithms
+} // namespace daal

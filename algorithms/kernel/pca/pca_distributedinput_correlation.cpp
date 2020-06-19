@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/pca/pca_types.h"
-#include "daal_strings.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -35,20 +35,19 @@ namespace pca
 {
 namespace interface1
 {
-
 DistributedInput<correlationDense>::DistributedInput() : InputIface(lastStep2MasterInputId + 1)
 {
     Argument::set(partialResults, DataCollectionPtr(new DataCollection()));
 }
 
-DistributedInput<correlationDense>::DistributedInput(const DistributedInput<correlationDense>& other) : InputIface(other){}
+DistributedInput<correlationDense>::DistributedInput(const DistributedInput<correlationDense> & other) : InputIface(other) {}
 
 /**
  * Sets input objects for the PCA on the second step in the distributed processing mode
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Input object that corresponds to the given identifier
  */
-void DistributedInput<correlationDense>::set(Step2MasterInputId id, const DataCollectionPtr &ptr)
+void DistributedInput<correlationDense>::set(Step2MasterInputId id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -70,7 +69,7 @@ DataCollectionPtr DistributedInput<correlationDense>::get(Step2MasterInputId id)
 SharedPtr<PartialResult<correlationDense> > DistributedInput<correlationDense>::getPartialResult(size_t id) const
 {
     DataCollectionPtr partialResultsCollection = staticPointerCast<DataCollection, SerializationIface>(get(partialResults));
-    if(partialResultsCollection->size() <= id)
+    if (partialResultsCollection->size() <= id)
     {
         return SharedPtr<PartialResult<correlationDense> >();
     }
@@ -82,7 +81,7 @@ SharedPtr<PartialResult<correlationDense> > DistributedInput<correlationDense>::
  * \param[in] id      Identifier of the argument
  * \param[in] value   Pointer to the argument
  */
-void DistributedInput<correlationDense>::add(Step2MasterInputId id, const SharedPtr<PartialResult<correlationDense> > &value)
+void DistributedInput<correlationDense>::add(Step2MasterInputId id, const SharedPtr<PartialResult<correlationDense> > & value)
 {
     DataCollectionPtr collection = staticPointerCast<DataCollection, SerializationIface>(get(id));
     collection->push_back(value);
@@ -102,14 +101,14 @@ size_t DistributedInput<correlationDense>::getNFeatures() const
 * \param[in] parameter Algorithm %parameter
 * \param[in] method    Computation  method
 */
-Status DistributedInput<correlationDense>::check(const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedInput<correlationDense>::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     DataCollectionPtr collection = DataCollection::cast(Argument::get(partialResults));
     DAAL_CHECK(collection, ErrorNullPartialResultDataCollection);
     size_t nBlocks = collection->size();
     DAAL_CHECK(nBlocks > 0, ErrorIncorrectNumberOfInputNumericTables);
 
-    for(size_t i = 0; i < nBlocks; i++)
+    for (size_t i = 0; i < nBlocks; i++)
     {
         SharedPtr<PartialResult<defaultDense> > partRes = staticPointerCast<PartialResult<defaultDense>, SerializationIface>((*collection)[i]);
         DAAL_CHECK(partRes, ErrorIncorrectElementInPartialResultCollection);
@@ -117,8 +116,8 @@ Status DistributedInput<correlationDense>::check(const daal::algorithms::Paramet
 
     Status s;
     int packedLayouts = packed_mask;
-    int csrLayout = (int)NumericTableIface::csrArray;
-    for(size_t j = 0; j < nBlocks; j++)
+    int csrLayout     = (int)NumericTableIface::csrArray;
+    for (size_t j = 0; j < nBlocks; j++)
     {
         NumericTablePtr nObservationsCorrelation = getPartialResult(j)->get(pca::nObservationsCorrelation);
         DAAL_CHECK_STATUS(s, checkNumericTable(nObservationsCorrelation.get(), nObservationsCorrelationStr(), csrLayout, 0, 1, 1));

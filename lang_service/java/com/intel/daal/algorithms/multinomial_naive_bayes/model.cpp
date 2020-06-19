@@ -24,10 +24,9 @@ using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_Model_cGetLogP
-(JNIEnv *env, jobject thisObj, jlong modelAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_Model_cGetLogP(JNIEnv * env, jobject thisObj, jlong modelAddr)
 {
-    NumericTablePtr *nt = new NumericTablePtr();
+    NumericTablePtr * nt                  = new NumericTablePtr();
     multinomial_naive_bayes::ModelPtr res = *(multinomial_naive_bayes::ModelPtr *)modelAddr;
 
     *nt = res->getLogP();
@@ -35,10 +34,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes
     return (jlong)nt;
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_Model_cGetLogTheta
-(JNIEnv *env, jobject thisObj, jlong modelAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_Model_cGetLogTheta(JNIEnv * env, jobject thisObj, jlong modelAddr)
 {
-    NumericTablePtr *nt = new NumericTablePtr();
+    NumericTablePtr * nt                  = new NumericTablePtr();
     multinomial_naive_bayes::ModelPtr res = *(multinomial_naive_bayes::ModelPtr *)modelAddr;
 
     *nt = res->getLogTheta();
@@ -46,8 +44,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes
     return (jlong)nt;
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_Model_cGetNFeatures
-(JNIEnv *env, jobject thisObj, jlong modelAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_Model_cGetNFeatures(JNIEnv * env, jobject thisObj, jlong modelAddr)
 {
     multinomial_naive_bayes::ModelPtr res = *(multinomial_naive_bayes::ModelPtr *)modelAddr;
 

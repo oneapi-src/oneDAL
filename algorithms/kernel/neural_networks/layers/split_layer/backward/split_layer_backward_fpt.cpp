@@ -21,10 +21,10 @@
 //--
 */
 
-#include "split_layer_backward_types.h"
-#include "split_layer_types.h"
+#include "algorithms/neural_networks/layers/split/split_layer_backward_types.h"
+#include "algorithms/neural_networks/layers/split/split_layer_types.h"
 
-#include "service_mkl_tensor.h"
+#include "service/kernel/data_management/service_mkl_tensor.h"
 
 namespace daal
 {
@@ -47,33 +47,36 @@ namespace interface1
  * \param[in] parameter %Parameter of the backward split layer
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const Parameter *param = static_cast<const Parameter *>(parameter);
-    if (!param->propagateGradient) { return services::Status(); }
+    const Parameter * param = static_cast<const Parameter *>(parameter);
+    if (!param->propagateGradient)
+    {
+        return services::Status();
+    }
 
     if (!get(layers::backward::gradient))
     {
-        const Input *in = static_cast<const Input *>(input);
+        const Input * in = static_cast<const Input *>(input);
 
         data_management::TensorPtr valueTable = in->get(inputGradientCollection, 0);
         DAAL_CHECK(valueTable, services::ErrorNullInputNumericTable);
 
         if (!get(layers::backward::gradient))
         {
-            set(layers::backward::gradient, data_management::TensorPtr(new internal::MklTensor<algorithmFPType>(
-                                                                                        valueTable->getDimensions())));
+            set(layers::backward::gradient, data_management::TensorPtr(new internal::MklTensor<algorithmFPType>(valueTable->getDimensions())));
         }
     }
     return services::Status();
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace backward
-}// namespace split
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace split
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

@@ -21,9 +21,9 @@
 //--
 */
 
-#include "multi_class_classifier_train_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/multi_class_classifier/multi_class_classifier_train_types.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -54,7 +54,7 @@ daal::algorithms::multi_class_classifier::ModelPtr Result::get(classifier::train
  * \param[in] parameter Pointer to the structure of the algorithm parameters
  * \param[in] method    Computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, checkImpl(input, parameter));
@@ -62,35 +62,35 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
     size_t nClasses;
     {
         auto par1 = dynamic_cast<const multi_class_classifier::interface1::Parameter *>(parameter);
-        if(par1)
+        if (par1)
         {
             nClasses = par1->nClasses;
             DAAL_CHECK_EX(par1->training.get(), services::ErrorNullAuxiliaryAlgorithm, services::ParameterName, trainingStr());
         }
 
         auto par2 = dynamic_cast<const multi_class_classifier::Parameter *>(parameter);
-        if(par2)
+        if (par2)
         {
             nClasses = par2->nClasses;
             DAAL_CHECK_EX(par2->training.get(), services::ErrorNullAuxiliaryAlgorithm, services::ParameterName, trainingStr());
         }
 
-        if(par1 == nullptr && par2 == nullptr) return services::Status(services::ErrorNullParameterNotSupported);
+        if (par1 == nullptr && par2 == nullptr) return services::Status(services::ErrorNullParameterNotSupported);
     }
     daal::algorithms::multi_class_classifier::ModelPtr m = get(classifier::training::model);
-    if(m->getNumberOfTwoClassClassifierModels() == 0)
+    if (m->getNumberOfTwoClassClassifierModels() == 0)
     {
         return services::Status(services::ErrorModelNotFullInitialized);
     }
-    if(m->getNumberOfTwoClassClassifierModels() != nClasses * (nClasses - 1) / 2)
+    if (m->getNumberOfTwoClassClassifierModels() != nClasses * (nClasses - 1) / 2)
     {
         return services::Status(services::ErrorModelNotFullInitialized);
     }
     return s;
 }
 
-}// namespace interface1
-}// namespace training
-}// namespace multi_class_classifier
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace training
+} // namespace multi_class_classifier
+} // namespace algorithms
+} // namespace daal

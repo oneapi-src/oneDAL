@@ -24,15 +24,15 @@
 #ifndef __STUMP_REGRESSION_PREDICT_IMPL_I__
 #define __STUMP_REGRESSION_PREDICT_IMPL_I__
 
-#include "algorithm.h"
-#include "numeric_table.h"
-#include "daal_defines.h"
-#include "daal_shared_ptr.h"
-#include "service_numeric_table.h"
+#include "algorithms/algorithm.h"
+#include "data_management/data/numeric_table.h"
+#include "services/daal_defines.h"
+#include "services/daal_shared_ptr.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 #include "algorithms/decision_tree/decision_tree_regression_predict.h"
 #include "algorithms/decision_tree/decision_tree_regression_predict_types.h"
 #include "algorithms/stump/stump_regression_model.h"
-#include "decision_tree_regression_model_impl.h"
+#include "algorithms/kernel/decision_tree/decision_tree_regression_model_impl.h"
 
 namespace daal
 {
@@ -52,15 +52,17 @@ using namespace daal::algorithms;
 using namespace daal::services;
 
 template <Method method, typename algorithmFPtype, CpuType cpu>
-services::Status StumpPredictKernel<method, algorithmFPtype, cpu>::compute(const NumericTable *xTable,
-        const stump::regression::Model *m, NumericTable *rTable,
-        const Parameter *par)
+services::Status StumpPredictKernel<method, algorithmFPtype, cpu>::compute(const NumericTable * xTable, const stump::regression::Model * m,
+                                                                           NumericTable * rTable, const Parameter * par)
 {
     services::Status s;
     decision_tree::regression::prediction::Batch<> treeAlgorithm;
 
-    treeAlgorithm.input.set(daal::algorithms::decision_tree::regression::prediction::data, NumericTablePtr(const_cast<NumericTable *>(xTable), EmptyDeleter()));
-    treeAlgorithm.input.set(daal::algorithms::decision_tree::regression::prediction::model, decision_tree::regression::ModelPtr(static_cast<decision_tree::regression::Model*>(const_cast<stump::regression::Model*>(m)), EmptyDeleter()));
+    treeAlgorithm.input.set(daal::algorithms::decision_tree::regression::prediction::data,
+                            NumericTablePtr(const_cast<NumericTable *>(xTable), EmptyDeleter()));
+    treeAlgorithm.input.set(daal::algorithms::decision_tree::regression::prediction::model,
+                            decision_tree::regression::ModelPtr(
+                                static_cast<decision_tree::regression::Model *>(const_cast<stump::regression::Model *>(m)), EmptyDeleter()));
     decision_tree::regression::prediction::ResultPtr treeResult(new decision_tree::regression::prediction::Result());
     treeResult->set(decision_tree::regression::prediction::prediction, NumericTablePtr(rTable, EmptyDeleter()));
     treeAlgorithm.setResult(treeResult);
@@ -70,11 +72,11 @@ services::Status StumpPredictKernel<method, algorithmFPtype, cpu>::compute(const
     return s;
 }
 
-} // namespace daal::algorithms::stump::regression::prediction::internal
-}
-}
-}
-}
+} // namespace internal
+} // namespace prediction
+} // namespace regression
+} // namespace stump
+} // namespace algorithms
 } // namespace daal
 
 #endif

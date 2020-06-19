@@ -21,10 +21,10 @@
 //--
 */
 
-#include "svm_train.h"
-#include "svm_train_kernel.h"
-#include "svm_train_boser_kernel.h"
-#include "classifier_training_types.h"
+#include "algorithms/svm/svm_train.h"
+#include "algorithms/kernel/svm/svm_train_kernel.h"
+#include "algorithms/kernel/svm/svm_train_boser_kernel.h"
+#include "algorithms/classifier/classifier_training_types.h"
 
 namespace daal
 {
@@ -36,11 +36,16 @@ namespace training
 {
 namespace interface1
 {
+using namespace daal::data_management;
+using namespace daal::internal;
+using namespace daal::services::internal;
+using namespace daal::services;
+
 /**
 *  \brief Initialize list of SVM kernels with implementations for supported architectures
 */
 template <typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::SVMTrainImpl, method, svm::interface1::Parameter, algorithmFPType);
 }
@@ -54,20 +59,33 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    classifier::training::Input *input = static_cast<classifier::training::Input *>(_in);
-    svm::training::Result *result = static_cast<svm::training::Result *>(_res);
-    size_t na = input->size();
+    classifier::training::Input * input = static_cast<classifier::training::Input *>(_in);
+    svm::training::Result * result      = static_cast<svm::training::Result *>(_res);
 
-    NumericTablePtr x = input->get(classifier::training::data);
-    NumericTablePtr y = input->get(classifier::training::labels);
+    const NumericTablePtr x = input->get(classifier::training::data);
+    const NumericTablePtr y = input->get(classifier::training::labels);
+    const NumericTablePtr weights;
 
-    daal::algorithms::Model *r = static_cast<daal::algorithms::Model *>(result->get(classifier::training::model).get());
+    algorithms::Model * r = static_cast<daal::algorithms::Model *>(result->get(classifier::training::model).get());
 
-    svm::interface1::Parameter *par = static_cast<svm::interface1::Parameter *>(_par);
-    daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType, svm::interface1::Parameter), compute, x, *y, r, par);
+    const svm::interface1::Parameter * const par1 = static_cast<svm::interface1::Parameter *>(_par);
+    svm::interface2::Parameter par2;
+
+    par2.nClasses          = par1->nClasses;
+    par2.C                 = par1->C;
+    par2.accuracyThreshold = par1->accuracyThreshold;
+    par2.tau               = par1->tau;
+    par2.maxIterations     = par1->maxIterations;
+    par2.kernel            = par1->kernel;
+    par2.shrinkingStep     = par1->shrinkingStep;
+    par2.doShrinking       = par1->doShrinking;
+    par2.cacheSize         = par1->cacheSize;
+
+    services::Environment::env & env = *_env;
+    __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType, svm::interface2::Parameter), compute, x, weights,
+                       *y, r, &par2);
 }
-}
+} // namespace interface1
 } // namespace training
 } // namespace svm
 } // namespace algorithms

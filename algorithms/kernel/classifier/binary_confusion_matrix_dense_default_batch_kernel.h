@@ -24,9 +24,9 @@
 #ifndef __BINARY_CONFUSION_MATRIX_DENSE_DEFAULT_BATCH_KERNEL_H__
 #define __BINARY_CONFUSION_MATRIX_DENSE_DEFAULT_BATCH_KERNEL_H__
 
-#include "binary_confusion_matrix_types.h"
-#include "kernel.h"
-#include "numeric_table.h"
+#include "algorithms/classifier/binary_confusion_matrix_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;
 
@@ -42,23 +42,21 @@ namespace binary_confusion_matrix
 {
 namespace internal
 {
-
-template<Method method, typename algorithmFPType, CpuType cpu>
+template <Method method, typename algorithmFPType, CpuType cpu>
 class BinaryConfusionMatrixKernel : public Kernel
 {
 public:
     virtual ~BinaryConfusionMatrixKernel() {}
 
-    services::Status compute(const NumericTable *predictedLabels, const NumericTable *groundTruthLabels,
-                             NumericTable *confusionMatrix, NumericTable *accuracyMeasures,
-                             const binary_confusion_matrix::Parameter *parameter);
+    services::Status compute(const NumericTable * predictedLabels, const NumericTable * groundTruthLabels, NumericTable * confusionMatrix,
+                             NumericTable * accuracyMeasures, const binary_confusion_matrix::Parameter * parameter);
 };
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace binary_confusion_matrix
+} // namespace quality_metric
+} // namespace classifier
+} // namespace algorithms
+} // namespace daal
 
 #endif

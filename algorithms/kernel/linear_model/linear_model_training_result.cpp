@@ -23,8 +23,8 @@
 
 #include "services/daal_defines.h"
 #include "algorithms/linear_model/linear_model_training_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -39,30 +39,29 @@ namespace interface1
 using namespace daal::data_management;
 using namespace daal::services;
 
-Result::Result(size_t nElements) : regression::training::Result(nElements)
-{}
+Result::Result(size_t nElements) : regression::training::Result(nElements) {}
 
 linear_model::ModelPtr Result::get(ResultId id) const
 {
     return linear_model::Model::cast(regression::training::Result::get(regression::training::ResultId(id)));
 }
 
-void Result::set(ResultId id, const linear_model::ModelPtr &value)
+void Result::set(ResultId id, const linear_model::ModelPtr & value)
 {
     regression::training::Result::set(regression::training::ResultId(id), value);
 }
 
-Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     Status s;
     DAAL_CHECK_STATUS(s, regression::training::Result::check(input, par, method));
 
-    const Input *in = static_cast<const Input*>(input);
+    const Input * in                   = static_cast<const Input *>(input);
     const linear_model::ModelPtr model = get(training::model);
-    const size_t nFeatures = in->get(data)->getNumberOfColumns();
+    const size_t nFeatures             = in->get(data)->getNumberOfColumns();
     DAAL_CHECK_EX(model->getNumberOfFeatures() == nFeatures, ErrorIncorrectNumberOfFeatures, services::ArgumentName, modelStr())
 
-    const size_t nBeta = nFeatures + 1;
+    const size_t nBeta      = nFeatures + 1;
     const size_t nResponses = in->get(dependentVariables)->getNumberOfColumns();
 
     DAAL_CHECK_STATUS(s, linear_model::checkModel(model.get(), *par, nBeta, nResponses));
@@ -70,8 +69,8 @@ Status Result::check(const daal::algorithms::Input *input, const daal::algorithm
     return s;
 }
 
-}
-}
-}
-}
-}
+} // namespace interface1
+} // namespace training
+} // namespace linear_model
+} // namespace algorithms
+} // namespace daal

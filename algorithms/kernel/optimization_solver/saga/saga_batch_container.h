@@ -24,9 +24,9 @@
 #ifndef __SAGA_BATCH_CONTAINER_H__
 #define __SAGA_BATCH_CONTAINER_H__
 
-#include "saga_batch.h"
-#include "saga_dense_default_kernel.h"
-#include "service_algo_utils.h"
+#include "algorithms/optimization_solver/saga/saga_batch.h"
+#include "algorithms/kernel/optimization_solver/saga/saga_dense_default_kernel.h"
+#include "service/kernel/service_algo_utils.h"
 
 namespace daal
 {
@@ -36,41 +36,40 @@ namespace optimization_solver
 {
 namespace saga
 {
-
 namespace interface2
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::SagaKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    Input *input = static_cast<Input *>(_in);
-    Result *result = static_cast<Result *>(_res);
-    Parameter *parameter = static_cast<Parameter *>(_par);
+    Input * input         = static_cast<Input *>(_in);
+    Result * result       = static_cast<Result *>(_res);
+    Parameter * parameter = static_cast<Parameter *>(_par);
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    NumericTable *inputArgument           = input->get(iterative_solver::inputArgument).get();
+    NumericTable * inputArgument = input->get(iterative_solver::inputArgument).get();
 
-    NumericTable *minimum                 = result->get(iterative_solver::minimum).get();
-    NumericTable *nIterations             = result->get(iterative_solver::nIterations).get();
+    NumericTable * minimum     = result->get(iterative_solver::minimum).get();
+    NumericTable * nIterations = result->get(iterative_solver::nIterations).get();
 
-    NumericTable *gradientsTableInput  = input->get(saga::gradientsTable).get();
-    NumericTable *gradientsTableResult = result->get(gradientsTable).get();
+    NumericTable * gradientsTableInput  = input->get(saga::gradientsTable).get();
+    NumericTable * gradientsTableResult = result->get(gradientsTable).get();
 
     __DAAL_CALL_KERNEL(env, internal::SagaKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-        daal::services::internal::hostApp(*input), inputArgument, minimum, nIterations,
-        gradientsTableInput, gradientsTableResult, parameter, *parameter->engine);
+                       daal::services::internal::hostApp(*input), inputArgument, minimum, nIterations, gradientsTableInput, gradientsTableResult,
+                       parameter, *parameter->engine);
 }
 
 } // namespace interface2

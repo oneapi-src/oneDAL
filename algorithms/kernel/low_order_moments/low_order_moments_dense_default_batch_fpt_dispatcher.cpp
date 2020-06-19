@@ -21,7 +21,7 @@
 //--
 */
 
-#include "low_order_moments_container.h"
+#include "algorithms/kernel/low_order_moments/low_order_moments_container.h"
 
 namespace daal
 {
@@ -29,4 +29,4 @@ namespace algorithms
 {
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER(low_order_moments::BatchContainer, batch, DAAL_FPTYPE, low_order_moments::defaultDense)
 }
-}
+} // namespace daal

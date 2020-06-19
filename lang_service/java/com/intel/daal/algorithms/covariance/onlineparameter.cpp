@@ -20,9 +20,9 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_covariance_OnlineParameter.h"
 
-#include "covariance_types.i"
+#include "lang_service/java/com/intel/daal/algorithms/covariance/covariance_types.i"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::covariance;
@@ -32,8 +32,8 @@ using namespace daal::algorithms::covariance;
  * Method:    cSetCParameterObject
  * Signature: (JJIIII)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_OnlineParameter_cSetCParameterObject
-(JNIEnv *env, jobject thisObj, jlong parameterAddr, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_OnlineParameter_cSetCParameterObject(JNIEnv * env, jobject thisObj,
+                                                                                                      jlong parameterAddr, jlong algAddr)
 {
     using namespace daal::services;
     using namespace daal::algorithms;

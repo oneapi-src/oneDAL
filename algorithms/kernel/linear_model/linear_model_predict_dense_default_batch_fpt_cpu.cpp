@@ -21,9 +21,9 @@
 //--
 */
 
-#include "linear_model_predict_kernel.h"
-#include "linear_model_predict_dense_default_batch_impl.i"
-#include "linear_model_predict_container.h"
+#include "algorithms/kernel/linear_model/linear_model_predict_kernel.h"
+#include "algorithms/kernel/linear_model/linear_model_predict_dense_default_batch_impl.i"
+#include "algorithms/kernel/linear_model/linear_model_predict_container.h"
 
 namespace daal
 {
@@ -41,7 +41,7 @@ namespace internal
 {
 template class PredictKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace prediction
+} // namespace linear_model
+} // namespace algorithms
+} // namespace daal

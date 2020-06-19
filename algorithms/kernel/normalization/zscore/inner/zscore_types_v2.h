@@ -24,7 +24,7 @@
 #ifndef __ZSCORE_TYPES_V2_H__
 #define __ZSCORE_TYPES_V2_H__
 
-#include "zscore_types.h"
+#include "algorithms/normalization/zscore_types.h"
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
 #include "data_management/data/homogen_numeric_table.h"
@@ -69,13 +69,13 @@ namespace zscore
  */
 namespace interface2
 {
-
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__NORMALIZATION__ZSCORE__PARAMETER"></a>
 * \brief Class that specifies the parameters of the algorithm in the batch computing mode
 */
-template<typename algorithmFPType, Method method>
-class DAAL_EXPORT Parameter {};
+template <typename algorithmFPType, Method method>
+class DAAL_EXPORT Parameter
+{};
 
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__NORMALIZATION__ZSCORE__BASEPARAMETER"></a>
@@ -85,14 +85,14 @@ class DAAL_EXPORT BaseParameter : public daal::algorithms::Parameter
 {
 public:
     BaseParameter();
-    DAAL_UINT64 resultsToCompute;  /*!< 64 bit integer flag that indicates the results to compute */
+    DAAL_UINT64 resultsToCompute; /*!< 64 bit integer flag that indicates the results to compute */
 };
 
 // /**
 //  * <a name="DAAL-CLASS-ALGORITHMS__NORMALIZATION__ZSCORE__PARAMETER"></a>
 //  * \brief Class that specifies the parameters of the default algorithm in the batch computing mode
 //  */
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 class DAAL_EXPORT Parameter<algorithmFPType, sumDense> : public BaseParameter
 {
 public:
@@ -103,14 +103,14 @@ public:
 //  * <a name="DAAL-CLASS-ALGORITHMS__NORMALIZATION__ZSCORE__PARAMETER"></a>
 //  * \brief Class that specifies the parameters of the default algorithm in the batch computing mode
 //  */
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 class DAAL_EXPORT Parameter<algorithmFPType, defaultDense> : public BaseParameter
 {
 public:
     /** Constructs z-score normalization parameters */
-    Parameter(const services::SharedPtr<low_order_moments::BatchImpl> &momentsForParameter =
-                  services::SharedPtr<low_order_moments::Batch<algorithmFPType, low_order_moments::defaultDense> >
-              (new low_order_moments::Batch<algorithmFPType, low_order_moments::defaultDense>()));
+    Parameter(const services::SharedPtr<low_order_moments::BatchImpl> & momentsForParameter =
+                  services::SharedPtr<low_order_moments::Batch<algorithmFPType, low_order_moments::defaultDense> >(
+                      new low_order_moments::Batch<algorithmFPType, low_order_moments::defaultDense>()));
 
     services::SharedPtr<low_order_moments::BatchImpl> moments; /*!< Pointer to the algorithm that computes the low order moments */
 

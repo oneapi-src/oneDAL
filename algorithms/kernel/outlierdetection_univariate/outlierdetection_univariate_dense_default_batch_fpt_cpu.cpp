@@ -21,9 +21,9 @@
 //--
 */
 
-#include "outlierdetection_univariate_batch_container.h"
-#include "outlierdetection_univariate_kernel.h"
-#include "outlierdetection_univariate_dense_default_impl.i"
+#include "algorithms/kernel/outlierdetection_univariate/outlierdetection_univariate_batch_container.h"
+#include "algorithms/kernel/outlierdetection_univariate/outlierdetection_univariate_kernel.h"
+#include "algorithms/kernel/outlierdetection_univariate/outlierdetection_univariate_dense_default_impl.i"
 
 namespace daal
 {
@@ -33,13 +33,11 @@ namespace univariate_outlier_detection
 {
 namespace interface1
 {
-
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
 }
 namespace internal
 {
-
 template class OutlierDetectionKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
 } // namespace internal

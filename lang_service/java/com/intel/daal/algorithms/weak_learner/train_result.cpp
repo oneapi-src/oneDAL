@@ -33,16 +33,16 @@ using namespace daal::services;
  * Method:    cGetMinimum
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_weak_1learner_training_TrainingResult_cGetModel
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_weak_1learner_training_TrainingResult_cGetModel(JNIEnv * env, jobject thisObj, jlong resAddr,
+                                                                                                       jint id)
 {
-    ModelPtr *nt = new ModelPtr();
-    SerializationIfacePtr *res = (SerializationIfacePtr *)resAddr;
+    ModelPtr * nt               = new ModelPtr();
+    SerializationIfacePtr * res = (SerializationIfacePtr *)resAddr;
 
     classifier::training::ResultId cid = (classifier::training::ResultId)id;
 
-    classifier::training::Result *result = (classifier::training::Result *)(res->get());
-    *nt = result->get(cid);
+    classifier::training::Result * result = (classifier::training::Result *)(res->get());
+    *nt                                   = result->get(cid);
 
     return (jlong)nt;
 }

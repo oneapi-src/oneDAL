@@ -21,10 +21,10 @@
 //--
 */
 
-#include "logistic_layer_backward_types.h"
-#include "logistic_layer_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/layers/logistic/logistic_layer_backward_types.h"
+#include "algorithms/neural_networks/layers/logistic/logistic_layer_types.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -43,7 +43,7 @@ namespace interface1
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_NEURAL_NETWORKS_LAYERS_LOGISTIC_BACKWARD_RESULT_ID);
 /** \brief Default constructor */
 Input::Input() {};
-Input::Input(const Input& other) : super(other) {}
+Input::Input(const Input & other) : super(other) {}
 
 /**
  * Returns an input object for the backward logistic layer
@@ -62,10 +62,10 @@ data_management::TensorPtr Input::get(LayerDataId id) const
  * \param[in] id     Identifier of the input object
  * \param[in] value  Pointer to the input object
  */
-void Input::set(LayerDataId id, const data_management::TensorPtr &value)
+void Input::set(LayerDataId id, const data_management::TensorPtr & value)
 {
     layers::LayerDataPtr layerData = get(layers::backward::inputFromForward);
-    (*layerData)[id] = value;
+    (*layerData)[id]               = value;
 }
 
 /**
@@ -73,24 +73,27 @@ void Input::set(LayerDataId id, const data_management::TensorPtr &value)
  * \param[in] par     Algorithm parameter
  * \param[in] method  Computation method
  */
-services::Status Input::check(const daal::algorithms::Parameter *par, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
-    const layers::Parameter *parameter = static_cast<const Parameter *>(par);
-    if (!parameter->propagateGradient) { return services::Status(); }
+    const layers::Parameter * parameter = static_cast<const Parameter *>(par);
+    if (!parameter->propagateGradient)
+    {
+        return services::Status();
+    }
 
     services::Status s;
     DAAL_CHECK_STATUS(s, layers::backward::Input::check(par, method));
 
-    const services::Collection<size_t> &inputDimensions = get(layers::backward::inputGradient)->getDimensions();
+    const services::Collection<size_t> & inputDimensions = get(layers::backward::inputGradient)->getDimensions();
 
-    if(!parameter->predictionStage)
+    if (!parameter->predictionStage)
     {
         return data_management::checkTensor(get(logistic::auxValue).get(), auxValueStr(), &inputDimensions);
     }
     return s;
 }
 
-    /** \brief Default constructor */
+/** \brief Default constructor */
 Result::Result() : layers::backward::Result() {};
 
 /**
@@ -99,19 +102,22 @@ Result::Result() : layers::backward::Result() {};
  * \param[in] par     %Parameter of the algorithm
  * \param[in] method  Computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
-    const layers::Parameter *parameter = static_cast<const Parameter *>(par);
-    if (!parameter->propagateGradient) { return services::Status(); }
+    const layers::Parameter * parameter = static_cast<const Parameter *>(par);
+    if (!parameter->propagateGradient)
+    {
+        return services::Status();
+    }
 
-    const Input *in = static_cast<const Input *>(input);
+    const Input * in = static_cast<const Input *>(input);
     return data_management::checkTensor(get(layers::backward::gradient).get(), gradientStr(), &(in->get(logistic::auxValue)->getDimensions()));
 }
 
-}// namespace interface1
-}// namespace backward
-}// namespace logistic
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace logistic
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

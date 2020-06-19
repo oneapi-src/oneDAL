@@ -21,8 +21,8 @@
 //--
 */
 
-#include "implicit_als_training_types.h"
-#include "daal_strings.h"
+#include "algorithms/implicit_als/implicit_als_training_types.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -46,8 +46,7 @@ Input::Input() : daal::algorithms::Input(lastModelInputId + 1) {}
  */
 data_management::NumericTablePtr Input::get(NumericTableInputId id) const
 {
-    return services::staticPointerCast<data_management::NumericTable,
-           data_management::SerializationIface>(Argument::get(id));
+    return services::staticPointerCast<data_management::NumericTable, data_management::SerializationIface>(Argument::get(id));
 }
 
 /**
@@ -65,7 +64,7 @@ ModelPtr Input::get(ModelInputId id) const
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(NumericTableInputId id, const data_management::NumericTablePtr &ptr)
+void Input::set(NumericTableInputId id, const data_management::NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -75,7 +74,7 @@ void Input::set(NumericTableInputId id, const data_management::NumericTablePtr &
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(ModelInputId id, const ModelPtr &ptr)
+void Input::set(ModelInputId id, const ModelPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -84,32 +83,36 @@ void Input::set(ModelInputId id, const ModelPtr &ptr)
  * Returns the number of users equal to the number of rows in the input data set
  * \return Number of users
  */
-size_t Input::getNumberOfUsers() const { return get(data)->getNumberOfRows(); }
+size_t Input::getNumberOfUsers() const
+{
+    return get(data)->getNumberOfRows();
+}
 
 /**
  * Returns the number of items equal to the number of columns in the input data set
  * \return Number of items
  */
-size_t Input::getNumberOfItems() const { return get(data)->getNumberOfColumns(); }
+size_t Input::getNumberOfItems() const
+{
+    return get(data)->getNumberOfColumns();
+}
 
 /**
  * Checks the parameters and input objects for the implicit ALS training algorithm
  * \param[in] parameter %Parameter of the algorithm
  * \param[in] method    Computation method of the algorithm
  */
-services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     DAAL_CHECK(parameter, ErrorNullParameterNotSupported);
-    const Parameter *alsParameter = static_cast<const Parameter *>(parameter);
-    const size_t nFactors = alsParameter->nFactors;
+    const Parameter * alsParameter = static_cast<const Parameter *>(parameter);
+    const size_t nFactors          = alsParameter->nFactors;
 
     services::Status s;
-    if(method == defaultDense)
+    if (method == defaultDense)
     {
-        const int unexpectedLayouts = (int)NumericTableIface::upperPackedTriangularMatrix |
-                                (int)NumericTableIface::lowerPackedTriangularMatrix |
-                                (int)NumericTableIface::upperPackedSymmetricMatrix  |
-                                (int)NumericTableIface::lowerPackedSymmetricMatrix;
+        const int unexpectedLayouts = (int)NumericTableIface::upperPackedTriangularMatrix | (int)NumericTableIface::lowerPackedTriangularMatrix
+                                      | (int)NumericTableIface::upperPackedSymmetricMatrix | (int)NumericTableIface::lowerPackedSymmetricMatrix;
         DAAL_CHECK_STATUS(s, checkNumericTable(get(data).get(), dataStr(), unexpectedLayouts));
     }
     else
@@ -119,9 +122,9 @@ services::Status Input::check(const daal::algorithms::Parameter *parameter, int 
     }
 
     NumericTablePtr dataTable = get(data);
-    const size_t nUsers = dataTable->getNumberOfRows();
-    const size_t nItems = dataTable->getNumberOfColumns();
-    ModelPtr model = get(inputModel);
+    const size_t nUsers       = dataTable->getNumberOfRows();
+    const size_t nItems       = dataTable->getNumberOfColumns();
+    ModelPtr model            = get(inputModel);
     DAAL_CHECK(model, ErrorNullModel);
 
     const int unexpectedLayouts = (int)packed_mask;
@@ -130,8 +133,8 @@ services::Status Input::check(const daal::algorithms::Parameter *parameter, int 
     return s;
 }
 
-}// namespace interface1
-}// namespace training
-}// namespace implicit_als
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace training
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal

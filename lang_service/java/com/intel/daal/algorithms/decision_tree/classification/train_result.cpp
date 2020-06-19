@@ -20,23 +20,23 @@
 
 #include "daal.h"
 #include "com_intel_daal_algorithms_decision_tree_classification_training_TrainingResult.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 
-namespace dtc = daal::algorithms::decision_tree::classification;
+namespace dtc  = daal::algorithms::decision_tree::classification;
 namespace dtct = daal::algorithms::decision_tree::classification::training;
 
 #include "com_intel_daal_algorithms_classifier_training_TrainingResultId.h"
-#define modelId  com_intel_daal_algorithms_classifier_training_TrainingResultId_Model
+#define modelId com_intel_daal_algorithms_classifier_training_TrainingResultId_Model
 
 /*
 * Class:     com_intel_daal_algorithms_decision_tree_classification_training_TrainingResult
 * Method:    cGetModel
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_classification_training_TrainingResult_cGetModel
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_classification_training_TrainingResult_cGetModel(JNIEnv * env, jobject thisObj,
+                                                                                                                       jlong resAddr, jint id)
 {
     if (id == modelId)
     {

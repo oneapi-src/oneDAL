@@ -21,7 +21,7 @@
 #include "com_intel_daal_algorithms_pca_Batch.h"
 #include "com_intel_daal_algorithms_pca_Method.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::pca;
@@ -31,8 +31,7 @@ using namespace daal::algorithms::pca;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_Batch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_Batch_cInit(JNIEnv * env, jobject thisObj, jint prec, jint method)
 {
     return jniBatch<pca::Method, Batch, correlationDense, svdDense>::newObj(prec, method);
 }
@@ -42,8 +41,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_Batch_cInit
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_Batch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_Batch_cInitParameter(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<pca::Method, Batch, correlationDense, svdDense>::getParameter(prec, method, algAddr);
 }
@@ -53,8 +51,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_Batch_cInitParameter
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_Batch_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_Batch_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<pca::Method, Batch, correlationDense, svdDense>::getInput(prec, method, algAddr);
 }
@@ -64,8 +61,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_Batch_cGetInput
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_Batch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_Batch_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<pca::Method, Batch, correlationDense, svdDense>::getResult(prec, method, algAddr);
 }
@@ -75,8 +71,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_Batch_cGetResult
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_Batch_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_Batch_cSetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method,
+                                                                           jlong resultAddr)
 {
     jniBatch<pca::Method, Batch, correlationDense, svdDense>::setResult<pca::Result>(prec, method, algAddr, resultAddr);
 }
@@ -86,8 +82,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_Batch_cSetResult
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_Batch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_Batch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<pca::Method, Batch, correlationDense, svdDense>::getClone(prec, method, algAddr);
 }

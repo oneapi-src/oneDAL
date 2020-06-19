@@ -21,9 +21,9 @@
 //--
 */
 
-#include "pooling1d_layer_backward_types.h"
-#include "pooling1d_layer_types.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/layers/pooling1d/pooling1d_layer_backward_types.h"
+#include "algorithms/neural_networks/layers/pooling1d/pooling1d_layer_types.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::services;
 
@@ -43,7 +43,7 @@ namespace interface1
 {
 /** Default constructor */
 Input::Input() {}
-Input::Input(const Input& other) : super(other) {}
+Input::Input(const Input & other) : super(other) {}
 
 /**
  * Return the collection with gradient size
@@ -53,22 +53,25 @@ services::Collection<size_t> Input::getGradientSize() const
 {
     services::Collection<size_t> dims;
     data_management::NumericTablePtr inputDims = getAuxInputDimensions();
-    if(!data_management::checkNumericTable(inputDims.get(), auxInputDimensionsStr())) { return dims; }
+    if (!data_management::checkNumericTable(inputDims.get(), auxInputDimensionsStr()))
+    {
+        return dims;
+    }
 
     data_management::BlockDescriptor<int> block;
     inputDims->getBlockOfRows(0, 1, data_management::readOnly, block);
-    int *inputDimsArray = block.getBlockPtr();
-    for(size_t i = 0; i < inputDims->getNumberOfColumns(); i++)
+    int * inputDimsArray = block.getBlockPtr();
+    for (size_t i = 0; i < inputDims->getNumberOfColumns(); i++)
     {
-        dims.push_back((size_t) inputDimsArray[i]);
+        dims.push_back((size_t)inputDimsArray[i]);
     }
     inputDims->releaseBlockOfRows(block);
     return dims;
 }
 
-services::Collection<size_t> Input::getInputGradientSize(const pooling1d::Parameter *parameter) const
+services::Collection<size_t> Input::getInputGradientSize(const pooling1d::Parameter * parameter) const
 {
-    const Parameter *param = static_cast<const Parameter *>(parameter);
+    const Parameter * param                = static_cast<const Parameter *>(parameter);
     services::Collection<size_t> inputDims = getGradientSize();
 
     inputDims[param->index.size[0]] =
@@ -82,7 +85,7 @@ size_t Input::computeInputDimension(size_t maskDim, size_t kernelSize, size_t pa
     return inputDim;
 }
 
-    /** Default constructor */
+/** Default constructor */
 Result::Result() {}
 
 /**
@@ -91,15 +94,18 @@ Result::Result() {}
  * \param[in] parameter %Parameter of the layer
  * \param[in] method Computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Parameter *param = static_cast<const Parameter *>(parameter);
-    if (!param->propagateGradient) { return services::Status(); }
+    const Parameter * param = static_cast<const Parameter *>(parameter);
+    if (!param->propagateGradient)
+    {
+        return services::Status();
+    }
 
     services::Status s;
     DAAL_CHECK_STATUS(s, layers::backward::Result::check(input, parameter, method));
 
-    const Input *algInput = static_cast<const Input *>(input);
+    const Input * algInput = static_cast<const Input *>(input);
 
     //get expected gradient dimensions
     services::Collection<size_t> gradientDims = algInput->getGradientSize();
@@ -108,18 +114,16 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
     DAAL_CHECK_EX(param->stride.size[0] != 0, services::ErrorIncorrectParameter, services::ParameterName, stridesStr());
 
     size_t index = param->index.size[0];
-    DAAL_CHECK_EX(index <= gradientDims.size() - 1, services::ErrorIncorrectParameter, services::ParameterName,
-                  indicesStr());
-    DAAL_CHECK_EX((param->kernelSize.size[0] != 0 &&
-                   param->kernelSize.size[0] <= gradientDims[index] + 2 * param->padding.size[0]), services::ErrorIncorrectParameter, services::ParameterName,
-                  kernelSizesStr());
+    DAAL_CHECK_EX(index <= gradientDims.size() - 1, services::ErrorIncorrectParameter, services::ParameterName, indicesStr());
+    DAAL_CHECK_EX((param->kernelSize.size[0] != 0 && param->kernelSize.size[0] <= gradientDims[index] + 2 * param->padding.size[0]),
+                  services::ErrorIncorrectParameter, services::ParameterName, kernelSizesStr());
     return s;
 }
 
-}// namespace interface1
-}// namespace backward
-}// namespace pooling1d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace pooling1d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

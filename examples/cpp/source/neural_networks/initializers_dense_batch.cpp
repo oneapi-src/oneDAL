@@ -40,7 +40,7 @@ using namespace daal::algorithms::neural_networks::layers;
 using namespace daal::data_management;
 using namespace daal::services;
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     /* Create collection of dimension sizes of the input data tensor */
     Collection<size_t> inDims;
@@ -63,7 +63,6 @@ int main(int argc, char *argv[])
     /* Print the results of the truncated gaussian initializer */
     printTensor(tensorData, "Data with truncated gaussian distribution:");
 
-
     /* Fill tensor data using gaussian initializer */
     /* Create an algorithm to initialize data using default method */
     initializers::gaussian::Batch<> gaussInitializer(1.0, 0.5);
@@ -77,7 +76,6 @@ int main(int argc, char *argv[])
     /* Print the results of the gaussian initializer */
     printTensor(tensorData, "Data with gaussian distribution:");
 
-
     /* Fill tensor data using uniform initializer */
     /* Create an algorithm to initialize data using default method */
     initializers::uniform::Batch<> uniformInitializer(-5.0, 5.0);
@@ -90,7 +88,6 @@ int main(int argc, char *argv[])
 
     /* Print the results of the uniform initializer */
     printTensor(tensorData, "Data with uniform distribution:");
-
 
     /* Fill layer weights using xavier initializer */
     /* Create an algorithm to compute forward fully-connected layer results using default method */

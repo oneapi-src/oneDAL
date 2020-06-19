@@ -19,16 +19,15 @@
 //  Implementation of the backward dropout layer
 //--
 
-
 #ifndef __DROPOUT_LAYER_BACKWARD_KERNEL_H__
 #define __DROPOUT_LAYER_BACKWARD_KERNEL_H__
 
-#include "neural_networks/layers/dropout/dropout_layer.h"
-#include "neural_networks/layers/dropout/dropout_layer_types.h"
-#include "kernel.h"
-#include "service_math.h"
-#include "numeric_table.h"
-#include "service_tensor.h"
+#include "algorithms/neural_networks/layers/dropout/dropout_layer.h"
+#include "algorithms/neural_networks/layers/dropout/dropout_layer_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "externals/service_math.h"
+#include "data_management/data/numeric_table.h"
+#include "service/kernel/data_management/service_tensor.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -47,35 +46,28 @@ namespace backward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for dropout calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class DropoutKernel : public Kernel
 {
 public:
-    services::Status compute(const Tensor &inputGradientTable,
-                             const Tensor &maskTable,
-                             Tensor &resultTable);
+    services::Status compute(const Tensor & inputGradientTable, const Tensor & maskTable, Tensor & resultTable);
 
 private:
     const size_t _nRowsInBlock = 5000;
 
-    inline services::Status processBlock(
-        const Tensor &inputGradientTable,
-        const Tensor &maskTable,
-        const size_t nProcessedRows,
-        const size_t nRowsInCurrentBlock,
-        Tensor &resultTable);
+    inline services::Status processBlock(const Tensor & inputGradientTable, const Tensor & maskTable, const size_t nProcessedRows,
+                                         const size_t nRowsInCurrentBlock, Tensor & resultTable);
 };
 
-} // internal
-} // backward
-} // dropout
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace backward
+} // namespace dropout
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

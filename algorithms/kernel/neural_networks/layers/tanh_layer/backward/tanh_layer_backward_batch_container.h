@@ -24,8 +24,8 @@
 #ifndef __TANH_LAYER_BACKWARD_BATCH_CONTAINER_H__
 #define __TANH_LAYER_BACKWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/tanh/tanh_layer.h"
-#include "tanh_layer_backward_kernel.h"
+#include "algorithms/neural_networks/layers/tanh/tanh_layer.h"
+#include "algorithms/kernel/neural_networks/layers/tanh_layer/backward/tanh_layer_backward_kernel.h"
 
 namespace daal
 {
@@ -41,34 +41,38 @@ namespace backward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::TanhKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    const Parameter *param = static_cast<const Parameter *>(_par);
-    if (!param->propagateGradient) { return services::Status(); }
+    const Parameter * param = static_cast<const Parameter *>(_par);
+    if (!param->propagateGradient)
+    {
+        return services::Status();
+    }
 
-    tanh::backward::Input *input = static_cast<tanh::backward::Input *>(_in);
-    tanh::backward::Result *result = static_cast<tanh::backward::Result *>(_res);
+    tanh::backward::Input * input   = static_cast<tanh::backward::Input *>(_in);
+    tanh::backward::Result * result = static_cast<tanh::backward::Result *>(_res);
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    Tensor *inputTensor         = input->get(layers::backward::inputGradient).get();
-    Tensor *forwardOutputTensor = input->get(tanh::auxValue).get();
-    Tensor *resultTensor        = result->get(layers::backward::gradient).get();
+    Tensor * inputTensor         = input->get(layers::backward::inputGradient).get();
+    Tensor * forwardOutputTensor = input->get(tanh::auxValue).get();
+    Tensor * resultTensor        = result->get(layers::backward::gradient).get();
 
-    __DAAL_CALL_KERNEL(env, internal::TanhKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputTensor, *forwardOutputTensor, *resultTensor);
+    __DAAL_CALL_KERNEL(env, internal::TanhKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputTensor, *forwardOutputTensor,
+                       *resultTensor);
 }
 } // namespace interface1
 } // namespace backward

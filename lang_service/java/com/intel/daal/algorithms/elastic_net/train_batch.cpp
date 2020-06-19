@@ -19,7 +19,7 @@
 
 #include "com_intel_daal_algorithms_elastic_net_training_TrainingBatch.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_elastic_net_training_TrainingMethod.h"
 
@@ -43,8 +43,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_Tra
  * Signature: (JII)J
  */
 JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_TrainingBatch_cInitTrainParameter(JNIEnv * env, jobject thisObj,
-                                                                                                               jlong algAddr, jint prec,
-                                                                                                               jint method)
+                                                                                                               jlong algAddr, jint prec, jint method)
 {
     return jniBatch<elastic_net::training::Method, Batch, defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -54,8 +53,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_Tra
  * Method:    cGetInput
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_TrainingBatch_cGetInput(JNIEnv * env, jobject thisObj,
-                                                                                                     jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_TrainingBatch_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                     jint prec, jint method)
 {
     return jniBatch<elastic_net::training::Method, Batch, defaultDense>::getInput(prec, method, algAddr);
 }
@@ -65,8 +64,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_Tra
  * Method:    cGetResult
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_TrainingBatch_cGetResult(JNIEnv * env, jobject thisObj,
-                                                                                                      jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_TrainingBatch_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                      jint prec, jint method)
 {
     return jniBatch<elastic_net::training::Method, Batch, defaultDense>::getResult(prec, method, algAddr);
 }

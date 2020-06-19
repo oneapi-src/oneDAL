@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::normalization::minmax;
@@ -30,8 +30,7 @@ using namespace daal::algorithms::normalization::minmax;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Result_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Result_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<normalization::minmax::Result>::newObj();
 }
@@ -41,11 +40,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Resu
  * Method:    cGetNormalizedData
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Result_cGetNormalizedData
-(JNIEnv *env, jobject thisObj, jlong resAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Result_cGetNormalizedData(JNIEnv * env, jobject thisObj, jlong resAddr)
 {
-    return jniArgument<normalization::minmax::Result>::
-        get<normalization::minmax::ResultId, NumericTable>(resAddr, normalization::minmax::normalizedData);
+    return jniArgument<normalization::minmax::Result>::get<normalization::minmax::ResultId, NumericTable>(resAddr,
+                                                                                                          normalization::minmax::normalizedData);
 }
 
 /*
@@ -53,9 +51,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Resu
  * Method:    cSetNormalizedData
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Result_cSetNormalizedData
-(JNIEnv *env, jobject thisObj, jlong resAddr, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Result_cSetNormalizedData(JNIEnv * env, jobject thisObj, jlong resAddr,
+                                                                                                     jlong ntAddr)
 {
-    jniArgument<normalization::minmax::Result>::
-        set<normalization::minmax::ResultId, NumericTable>(resAddr, normalization::minmax::normalizedData, ntAddr);
+    jniArgument<normalization::minmax::Result>::set<normalization::minmax::ResultId, NumericTable>(resAddr, normalization::minmax::normalizedData,
+                                                                                                   ntAddr);
 }

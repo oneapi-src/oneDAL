@@ -22,7 +22,7 @@
 //--
 */
 
-#include "stump_regression_predict_batch_container.h"
+#include "algorithms/kernel/stump/stump_regression_predict_batch_container.h"
 
 namespace daal
 {
@@ -38,18 +38,15 @@ namespace prediction
 {
 namespace interface1
 {
-
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 Batch<algorithmFPType, method>::Batch()
 {
     _par = new ParameterType();
     initialize();
 }
 
-template<typename algorithmFPType, Method method>
-Batch<algorithmFPType, method>::Batch(const Batch &other) :
-    algorithms::regression::prediction::Batch(other),
-    input(other.input)
+template <typename algorithmFPType, Method method>
+Batch<algorithmFPType, method>::Batch(const Batch & other) : algorithms::regression::prediction::Batch(other), input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();

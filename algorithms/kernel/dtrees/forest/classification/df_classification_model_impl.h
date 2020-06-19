@@ -24,9 +24,9 @@
 #ifndef __DTREES_CLASSIFICATION_MODEL_IMPL__
 #define __DTREES_CLASSIFICATION_MODEL_IMPL__
 
-#include "dtrees_model_impl.h"
+#include "algorithms/kernel/dtrees/dtrees_model_impl.h"
 #include "algorithms/decision_forest/decision_forest_classification_model.h"
-#include "classifier_model_impl.h"
+#include "algorithms/kernel/classifier/classifier_model_impl.h"
 #include "algorithms/decision_forest/decision_forest_classification_model_builder.h"
 
 namespace daal
@@ -39,8 +39,9 @@ namespace classification
 {
 namespace internal
 {
-
-class ModelImpl : public decision_forest::classification::Model, public algorithms::classifier::internal::ModelInternal, public dtrees::internal::ModelImpl
+class ModelImpl : public decision_forest::classification::Model,
+                  public algorithms::classifier::internal::ModelInternal,
+                  public dtrees::internal::ModelImpl
 {
 public:
     friend class decision_forest::classification::interface1::ModelBuilder;
@@ -49,7 +50,7 @@ public:
     typedef algorithms::classifier::internal::ModelInternal ClassifierImplType;
     typedef dtrees::internal::TreeImpClassification<> TreeType;
     ModelImpl(size_t nFeatures = 0) : ClassifierImplType(nFeatures) {}
-    ~ModelImpl(){}
+    ~ModelImpl() {}
 
     //Implementation of classifier::Model
     virtual size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE { return ClassifierImplType::getNumberOfFeatures(); }
@@ -59,22 +60,22 @@ public:
 
     //Implementation of decision_forest::classification::Model
     virtual size_t numberOfTrees() const DAAL_C11_OVERRIDE;
-    virtual void traverseDF(size_t iTree, classifier::TreeNodeVisitor& visitor) const DAAL_C11_OVERRIDE;
-    virtual void traverseBF(size_t iTree, classifier::TreeNodeVisitor& visitor) const DAAL_C11_OVERRIDE;
+    virtual void traverseDF(size_t iTree, classifier::TreeNodeVisitor & visitor) const DAAL_C11_OVERRIDE;
+    virtual void traverseBF(size_t iTree, classifier::TreeNodeVisitor & visitor) const DAAL_C11_OVERRIDE;
     virtual void clear() DAAL_C11_OVERRIDE { ImplType::clear(); }
 
-    virtual void traverseDFS(size_t iTree, tree_utils::classification::interface1::TreeNodeVisitor& visitor) const DAAL_C11_OVERRIDE;
-    virtual void traverseBFS(size_t iTree, tree_utils::classification::interface1::TreeNodeVisitor& visitor) const DAAL_C11_OVERRIDE;
+    virtual void traverseDFS(size_t iTree, tree_utils::classification::interface1::TreeNodeVisitor & visitor) const DAAL_C11_OVERRIDE;
+    virtual void traverseBFS(size_t iTree, tree_utils::classification::interface1::TreeNodeVisitor & visitor) const DAAL_C11_OVERRIDE;
 
     virtual services::Status serializeImpl(data_management::InputDataArchive * arch) DAAL_C11_OVERRIDE;
     virtual services::Status deserializeImpl(const data_management::OutputDataArchive * arch) DAAL_C11_OVERRIDE;
 
-    bool add(const TreeType& tree, size_t nClasses);
+    bool add(const TreeType & tree, size_t nClasses);
 
     virtual size_t getNumberOfTrees() const DAAL_C11_OVERRIDE;
 
-    virtual void traverseDFS(size_t iTree, tree_utils::classification::TreeNodeVisitor& visitor) const DAAL_C11_OVERRIDE;
-    virtual void traverseBFS(size_t iTree, tree_utils::classification::TreeNodeVisitor& visitor) const DAAL_C11_OVERRIDE;
+    virtual void traverseDFS(size_t iTree, tree_utils::classification::TreeNodeVisitor & visitor) const DAAL_C11_OVERRIDE;
+    virtual void traverseBFS(size_t iTree, tree_utils::classification::TreeNodeVisitor & visitor) const DAAL_C11_OVERRIDE;
 };
 
 } // namespace internal

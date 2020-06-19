@@ -21,7 +21,7 @@
 //--
 */
 
-#include "binary_confusion_matrix.h"
+#include "algorithms/kernel/classifier/binary_confusion_matrix.h"
 
 namespace daal
 {
@@ -33,8 +33,8 @@ namespace quality_metric
 {
 namespace binary_confusion_matrix
 {
-
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
 } // namespace binary_confusion_matrix
 } // namespace quality_metric

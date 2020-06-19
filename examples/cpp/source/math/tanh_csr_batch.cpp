@@ -42,7 +42,7 @@ using namespace daal::algorithms::math;
 /* Input data set parameters */
 string datasetName = "../data/batch/covcormoments_csr.csv";
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetName);
 

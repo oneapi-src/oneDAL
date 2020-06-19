@@ -21,9 +21,9 @@
 //--
 */
 
-#include "quantiles_batch_container.h"
-#include "quantiles_kernel.h"
-#include "quantiles_impl.i"
+#include "algorithms/kernel/quantiles/quantiles_batch_container.h"
+#include "algorithms/kernel/quantiles/quantiles_kernel.h"
+#include "algorithms/kernel/quantiles/quantiles_impl.i"
 
 namespace daal
 {
@@ -33,16 +33,14 @@ namespace quantiles
 {
 namespace interface1
 {
-
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
 }
 namespace internal
 {
-
 template class QuantilesKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 
-} // namespace daal::algorithms::quantiles::internal
-} // namespace daal::algorithms::quantiles
-} // namespace daal::algorithms
+} // namespace internal
+} // namespace quantiles
+} // namespace algorithms
 } // namespace daal

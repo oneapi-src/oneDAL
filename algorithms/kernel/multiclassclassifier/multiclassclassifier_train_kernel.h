@@ -24,11 +24,11 @@
 #ifndef __MULTICLASSCLASSIFIER_TRAIN_KERNEL_H__
 #define __MULTICLASSCLASSIFIER_TRAIN_KERNEL_H__
 
-#include "numeric_table.h"
-#include "model.h"
-#include "algorithm.h"
-#include "multi_class_classifier_train_types.h"
-#include "service_defines.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/model.h"
+#include "algorithms/algorithm.h"
+#include "algorithms/multi_class_classifier/multi_class_classifier_train_types.h"
+#include "service/kernel/service_defines.h"
 
 using namespace daal::data_management;
 
@@ -42,12 +42,11 @@ namespace training
 {
 namespace internal
 {
-
-template<Method method, typename AlgorithmFPtype, typename ClsType, typename MccParType, CpuType cpu>
+template <Method method, typename AlgorithmFPtype, typename ClsType, typename MccParType, CpuType cpu>
 struct MultiClassClassifierTrainKernel : public Kernel
 {
-    services::Status compute(const NumericTable *a0, const NumericTable *a1, daal::algorithms::Model *r,
-                             const daal::algorithms::Parameter *par);
+    services::Status compute(const NumericTable * a0, const NumericTable * a1, const NumericTable * a2, daal::algorithms::Model * r,
+                             const daal::algorithms::Parameter * par);
 };
 
 } // namespace internal
@@ -59,6 +58,5 @@ struct MultiClassClassifierTrainKernel : public Kernel
 } // namespace algorithms
 
 } // namespace daal
-
 
 #endif

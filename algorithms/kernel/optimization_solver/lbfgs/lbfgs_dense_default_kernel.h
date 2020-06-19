@@ -19,11 +19,10 @@
 //  Declaration of template function that computes LBFGS.
 //--
 
-
 #ifndef __LBFGS_DENSE_DEFAULT_KERNEL_H__
 #define __LBFGS_DENSE_DEFAULT_KERNEL_H__
 
-#include "lbfgs_base.h"
+#include "algorithms/kernel/optimization_solver/lbfgs/lbfgs_base.h"
 
 using namespace daal::data_management;
 
@@ -37,25 +36,26 @@ namespace lbfgs
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for LBFGS computation
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class LBFGSKernel<algorithmFPType, defaultDense, cpu> : public Kernel
 {
 public:
-    services::Status compute(HostAppIface* pHost, NumericTable* correctionPairsInput, NumericTable* correctionIndicesInput,
-                 NumericTable *inputArgument, NumericTable* averageArgLIterInput, OptionalArgument *optionalArgumentInput, NumericTable *correctionPairsResult,
-                 NumericTable *correctionIndicesResult, NumericTable *minimum, NumericTable *nIterationsNT, NumericTable *averageArgLIterResult,
-                 OptionalArgument *optionalArgumentResult, Parameter *parameter, engines::BatchBase &engine);
-    services::Status compute1(HostAppIface* pHost, NumericTable* correctionPairsInput, NumericTable* correctionIndicesInput,
-                 NumericTable *inputArgument, NumericTable* averageArgLIterInput, OptionalArgument *optionalArgumentInput, NumericTable *correctionPairsResult,
-                 NumericTable *correctionIndicesResult, NumericTable *minimum, NumericTable *nIterationsNT, NumericTable *averageArgLIterResult,
-                 OptionalArgument *optionalArgumentResult, interface1::Parameter *parameter, engines::BatchBase &engine);
+    services::Status compute(HostAppIface * pHost, NumericTable * correctionPairsInput, NumericTable * correctionIndicesInput,
+                             NumericTable * inputArgument, NumericTable * averageArgLIterInput, OptionalArgument * optionalArgumentInput,
+                             NumericTable * correctionPairsResult, NumericTable * correctionIndicesResult, NumericTable * minimum,
+                             NumericTable * nIterationsNT, NumericTable * averageArgLIterResult, OptionalArgument * optionalArgumentResult,
+                             Parameter * parameter, engines::BatchBase & engine);
+    services::Status compute1(HostAppIface * pHost, NumericTable * correctionPairsInput, NumericTable * correctionIndicesInput,
+                              NumericTable * inputArgument, NumericTable * averageArgLIterInput, OptionalArgument * optionalArgumentInput,
+                              NumericTable * correctionPairsResult, NumericTable * correctionIndicesResult, NumericTable * minimum,
+                              NumericTable * nIterationsNT, NumericTable * averageArgLIterResult, OptionalArgument * optionalArgumentResult,
+                              interface1::Parameter * parameter, engines::BatchBase & engine);
 };
 
-} // namespace daal::internal
+} // namespace internal
 
 } // namespace lbfgs
 

@@ -22,9 +22,9 @@
 */
 
 #include "algorithms/decision_forest/decision_forest_regression_model.h"
-#include "serialization_utils.h"
-#include "df_regression_model_impl.h"
-#include "dtrees_model_impl_common.h"
+#include "service/kernel/serialization_utils.h"
+#include "algorithms/kernel/dtrees/forest/regression/df_regression_model_impl.h"
+#include "algorithms/kernel/dtrees/dtrees_model_impl_common.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -34,25 +34,22 @@ namespace daal
 {
 namespace algorithms
 {
-
 typedef decision_forest::regression::internal::ModelImpl::TreeType::NodeType::Leaf TLeaf;
 
 namespace decision_forest
 {
-
 namespace regression
 {
 namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS2(Model, internal::ModelImpl, SERIALIZATION_DECISION_FOREST_REGRESSION_MODEL_ID);
 
-Model::Model(){}
+Model::Model() {}
 
-}
+} // namespace interface1
 
 namespace internal
 {
-
 size_t ModelImpl::numberOfTrees() const
 {
     return ImplType::size();
@@ -63,35 +60,31 @@ size_t ModelImpl::getNumberOfTrees() const
     return ImplType::size();
 }
 
-void ModelImpl::traverseDF(size_t iTree, algorithms::regression::TreeNodeVisitor& visitor) const
+void ModelImpl::traverseDF(size_t iTree, algorithms::regression::TreeNodeVisitor & visitor) const
 {
-    if(iTree >= size())
-        return;
-    const DecisionTreeTable& t = *at(iTree);
-    const DecisionTreeNode* aNode = (const DecisionTreeNode*)t.getArray();
-    if(aNode)
+    if (iTree >= size()) return;
+    const DecisionTreeTable & t    = *at(iTree);
+    const DecisionTreeNode * aNode = (const DecisionTreeNode *)t.getArray();
+    if (aNode)
     {
         auto onSplitNodeFunc = [&aNode, &visitor](size_t iRowInTable, size_t level) -> bool {
             return visitSplit(iRowInTable, level, aNode, visitor);
         };
 
-        auto onLeafNodeFunc = [&aNode, &visitor](size_t iRowInTable, size_t level) -> bool {
-            return visitLeaf(iRowInTable, level, aNode, visitor);
-        };
+        auto onLeafNodeFunc = [&aNode, &visitor](size_t iRowInTable, size_t level) -> bool { return visitLeaf(iRowInTable, level, aNode, visitor); };
 
         traverseNodeDF(0, 0, aNode, onSplitNodeFunc, onLeafNodeFunc);
     }
 }
 
-void ModelImpl::traverseBF(size_t iTree, algorithms::regression::TreeNodeVisitor& visitor) const
+void ModelImpl::traverseBF(size_t iTree, algorithms::regression::TreeNodeVisitor & visitor) const
 {
-    if(iTree >= size())
-        return;
-    const DecisionTreeTable& t = *at(iTree);
-    const DecisionTreeNode* aNode = (const DecisionTreeNode*)t.getArray();
-    NodeIdxArray aCur;//nodes of current layer
-    NodeIdxArray aNext;//nodes of next layer
-    if(aNode)
+    if (iTree >= size()) return;
+    const DecisionTreeTable & t    = *at(iTree);
+    const DecisionTreeNode * aNode = (const DecisionTreeNode *)t.getArray();
+    NodeIdxArray aCur;  //nodes of current layer
+    NodeIdxArray aNext; //nodes of next layer
+    if (aNode)
     {
         aCur.push_back(0);
 
@@ -99,23 +92,20 @@ void ModelImpl::traverseBF(size_t iTree, algorithms::regression::TreeNodeVisitor
             return visitSplit(iRowInTable, level, aNode, visitor);
         };
 
-        auto onLeafNodeFunc = [&aNode, &visitor](size_t iRowInTable, size_t level) -> bool {
-            return visitLeaf(iRowInTable, level, aNode, visitor);
-        };
+        auto onLeafNodeFunc = [&aNode, &visitor](size_t iRowInTable, size_t level) -> bool { return visitLeaf(iRowInTable, level, aNode, visitor); };
 
         traverseNodesBF(0, aCur, aNext, aNode, onSplitNodeFunc, onLeafNodeFunc);
     }
 }
 
-void ModelImpl::traverseDFS(size_t iTree, tree_utils::regression::TreeNodeVisitor& visitor) const
+void ModelImpl::traverseDFS(size_t iTree, tree_utils::regression::TreeNodeVisitor & visitor) const
 {
-    if(iTree >= size())
-        return;
-    const DecisionTreeTable& t = *at(iTree);
-    const DecisionTreeNode* aNode = (const DecisionTreeNode*)t.getArray();
-    const double *imp = getImpVals(iTree);
-    const int *nodeSamplesCount = getNodeSampleCount(iTree);
-    if(aNode)
+    if (iTree >= size()) return;
+    const DecisionTreeTable & t    = *at(iTree);
+    const DecisionTreeNode * aNode = (const DecisionTreeNode *)t.getArray();
+    const double * imp             = getImpVals(iTree);
+    const int * nodeSamplesCount   = getNodeSampleCount(iTree);
+    if (aNode)
     {
         tree_utils::SplitNodeDescriptor descSplit;
         tree_utils::regression::LeafNodeDescriptor descLeaf;
@@ -132,17 +122,16 @@ void ModelImpl::traverseDFS(size_t iTree, tree_utils::regression::TreeNodeVisito
     }
 }
 
-void ModelImpl::traverseBFS(size_t iTree, tree_utils::regression::TreeNodeVisitor& visitor) const
+void ModelImpl::traverseBFS(size_t iTree, tree_utils::regression::TreeNodeVisitor & visitor) const
 {
-    if(iTree >= size())
-        return;
-    const DecisionTreeTable& t = *at(iTree);
-    const DecisionTreeNode* aNode = (const DecisionTreeNode*)t.getArray();
-    const double *imp = getImpVals(iTree);
-    const int *nodeSamplesCount = getNodeSampleCount(iTree);
-    NodeIdxArray aCur;//nodes of current layer
-    NodeIdxArray aNext;//nodes of next layer
-    if(aNode)
+    if (iTree >= size()) return;
+    const DecisionTreeTable & t    = *at(iTree);
+    const DecisionTreeNode * aNode = (const DecisionTreeNode *)t.getArray();
+    const double * imp             = getImpVals(iTree);
+    const int * nodeSamplesCount   = getNodeSampleCount(iTree);
+    NodeIdxArray aCur;  //nodes of current layer
+    NodeIdxArray aNext; //nodes of next layer
+    if (aNode)
     {
         tree_utils::SplitNodeDescriptor descSplit;
         tree_utils::regression::LeafNodeDescriptor descLeaf;
@@ -160,7 +149,7 @@ void ModelImpl::traverseBFS(size_t iTree, tree_utils::regression::TreeNodeVisito
     }
 }
 
-services::Status ModelImpl::serializeImpl(data_management::InputDataArchive  * arch)
+services::Status ModelImpl::serializeImpl(data_management::InputDataArchive * arch)
 {
     auto s = RegressionImplType::serialImpl<data_management::InputDataArchive, false>(arch);
     return s.add(ImplType::serialImpl<data_management::InputDataArchive, false>(arch));
@@ -172,10 +161,10 @@ services::Status ModelImpl::deserializeImpl(const data_management::OutputDataArc
     return s.add(ImplType::serialImpl<const data_management::OutputDataArchive, true>(arch));
 }
 
-bool ModelImpl::add(const TreeType& tree, size_t nClasses)
+bool ModelImpl::add(const TreeType & tree, size_t nClasses)
 {
     DAAL_CHECK_STATUS_VAR(!(size() >= _serializationData->size()));
-    size_t i = _nTree.inc();
+    size_t i           = _nTree.inc();
     const size_t nNode = tree.getNumberOfNodes();
 
     auto pTbl           = new DecisionTreeTable(nNode);
@@ -201,7 +190,7 @@ bool ModelImpl::add(const TreeType& tree, size_t nClasses)
     return true;
 }
 
-} // namespace interface1
+} // namespace internal
 } // namespace regression
 } // namespace decision_forest
 } // namespace algorithms

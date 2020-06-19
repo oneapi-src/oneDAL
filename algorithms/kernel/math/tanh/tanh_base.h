@@ -19,17 +19,16 @@
 //  Declaration of template function that calculate hyperbolic tangent.
 //--
 
-
 #ifndef __TANH_BASE_H__
 #define __TANH_BASE_H__
 
-#include "math/tanh.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "service_numeric_table.h"
-#include "service_error_handling.h"
-#include "service_math.h"
-#include "threading.h"
+#include "algorithms/math/tanh.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "externals/service_math.h"
+#include "algorithms/threading/threading.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -50,23 +49,24 @@ namespace internal
  *  in case floating point type of intermediate calculations
  *  and method of calculations are different
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class TanhKernelBase : public Kernel
 {
 public:
-    Status compute(const NumericTable *inputTable, NumericTable *resultTable);
+    Status compute(const NumericTable * inputTable, NumericTable * resultTable);
 
 protected:
     static const size_t _nRowsInBlock = 5000;
 
-    virtual Status processBlock(const NumericTable &inputTable, size_t nInputColumns, size_t nProcessedRows, size_t nRowsInCurrentBlock,
-                                NumericTable &resultTable) = 0;
+    virtual Status processBlock(const NumericTable & inputTable, size_t nInputColumns, size_t nProcessedRows, size_t nRowsInCurrentBlock,
+                                NumericTable & resultTable) = 0;
 };
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-class TanhKernel {};
+template <typename algorithmFPType, Method method, CpuType cpu>
+class TanhKernel
+{};
 
-} // namespace daal::internal
+} // namespace internal
 } // namespace tanh
 } // namespace math
 } // namespace algorithms

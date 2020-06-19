@@ -22,16 +22,16 @@
 #ifndef __TRUNCATED_GAUSSIAN_INITIALIZER_KERNEL_H__
 #define __TRUNCATED_GAUSSIAN_INITIALIZER_KERNEL_H__
 
-#include "kernel.h"
-#include "service_math.h"
-#include "service_tensor.h"
-#include "threading.h"
-#include "uniform_kernel.h"
+#include "algorithms/kernel/kernel.h"
+#include "externals/service_math.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "algorithms/threading/threading.h"
+#include "algorithms/kernel/distributions/uniform/uniform_kernel.h"
 
-#include "neural_networks/initializers/truncated_gaussian/truncated_gaussian_initializer.h"
-#include "neural_networks/initializers/truncated_gaussian/truncated_gaussian_initializer_types.h"
+#include "algorithms/neural_networks/initializers/truncated_gaussian/truncated_gaussian_initializer.h"
+#include "algorithms/neural_networks/initializers/truncated_gaussian/truncated_gaussian_initializer_types.h"
 
-#include "truncated_gaussian_task_descriptor.h"
+#include "algorithms/kernel/neural_networks/initializers/truncated_gaussian/truncated_gaussian_task_descriptor.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -49,26 +49,25 @@ namespace truncated_gaussian
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for truncated_gaussian calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class TruncatedGaussianKernel : public Kernel
 {
 public:
-    Status compute(const TruncatedGaussianInitializerTaskDescriptor<algorithmFPType> &desc);
+    Status compute(const TruncatedGaussianInitializerTaskDescriptor<algorithmFPType> & desc);
 
 private:
     algorithmFPType getCDFNormal(algorithmFPType p, algorithmFPType mean, algorithmFPType sigma);
     const size_t _nElemsInBlock = 1000;
 };
 
-} // internal
-} // truncated_gaussian
-} // initializers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace truncated_gaussian
+} // namespace initializers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

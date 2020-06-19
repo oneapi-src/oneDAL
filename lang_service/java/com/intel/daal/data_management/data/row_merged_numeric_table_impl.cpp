@@ -18,10 +18,10 @@
 #include <jni.h>
 
 #include "com_intel_daal_data_management_data_RowMergedNumericTableImpl.h"
-#include "numeric_table.h"
-#include "row_merged_numeric_table.h"
+#include "data_management/data/numeric_table.h"
+#include "data_management/data/row_merged_numeric_table.h"
 #include "daal.h"
-#include "common_helpers_functions.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers_functions.h"
 
 using namespace daal;
 using namespace daal::data_management;
@@ -31,18 +31,17 @@ using namespace daal::data_management;
  * Method:    cNewRowMergedNumericTable
  * Signature:()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_cNewRowMergedNumericTable
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_cNewRowMergedNumericTable(JNIEnv * env, jobject thisObj)
 {
     // Create C++ object of the class NumericTable
-    NumericTable *tbl = new RowMergedNumericTable();
+    NumericTable * tbl = new RowMergedNumericTable();
     /*if(!tbl->status())
     {
         services::Status s = tbl->status();
         delete tbl;
         DAAL_CHECK_THROW(s);
     }*/
-    return (jlong)new NumericTablePtr(tbl);
+    return (jlong) new NumericTablePtr(tbl);
 }
 
 /*
@@ -50,13 +49,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumer
  * Method:    cAddDataCollection
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_cAddNumericTable
-(JNIEnv *env, jobject thisObj, jlong rowMergedNumericTableAddr, jlong numericTableAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_cAddNumericTable(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong rowMergedNumericTableAddr,
+                                                                                                            jlong numericTableAddr)
 {
-    data_management::RowMergedNumericTablePtr pRowMergedNumericTable =
-            (*(data_management::RowMergedNumericTablePtr *)rowMergedNumericTableAddr);
-    data_management::NumericTablePtr pNumericTable =
-            (*(data_management::NumericTablePtr *)numericTableAddr);
+    data_management::RowMergedNumericTablePtr pRowMergedNumericTable = (*(data_management::RowMergedNumericTablePtr *)rowMergedNumericTableAddr);
+    data_management::NumericTablePtr pNumericTable                   = (*(data_management::NumericTablePtr *)numericTableAddr);
     pRowMergedNumericTable->addNumericTable(pNumericTable);
 }
 
@@ -65,11 +63,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumeri
  * Method:    cGetNumberOfColumns
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_cGetNumberOfColumns
-(JNIEnv *env, jobject thisObj, jlong rowMergedNumericTableAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_cGetNumberOfColumns(JNIEnv * env, jobject thisObj,
+                                                                                                                jlong rowMergedNumericTableAddr)
 {
-    data_management::RowMergedNumericTablePtr pRowMergedNumericTable =
-            (*(data_management::RowMergedNumericTablePtr *)rowMergedNumericTableAddr);
+    data_management::RowMergedNumericTablePtr pRowMergedNumericTable = (*(data_management::RowMergedNumericTablePtr *)rowMergedNumericTableAddr);
     return pRowMergedNumericTable->getNumberOfColumns();
 }
 
@@ -78,21 +75,23 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumer
  * Method:    releaseFloatBlockBuffer
  * Signature:(JJJLjava/nio/ByteBuffer;)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_releaseFloatBlockBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_releaseFloatBlockBuffer(JNIEnv * env, jobject thisObj,
+                                                                                                                   jlong numTableAddr,
+                                                                                                                   jlong vectorIndex, jlong vectorNum,
+                                                                                                                   jobject byteBuffer)
 {
     using namespace daal;
-    RowMergedNumericTable *nt = (*(RowMergedNumericTablePtr *)numTableAddr).get();
+    RowMergedNumericTable * nt = (*(RowMergedNumericTablePtr *)numTableAddr).get();
     BlockDescriptor<float> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfRows(vectorIndex, vectorNum, writeOnly, block));
 
-    float* data = block.getBlockPtr();
+    float * data = block.getBlockPtr();
 
-    const float *src = (float *)(env->GetDirectBufferAddress(byteBuffer));
+    const float * src = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum * nCols; i++)
+    for (size_t i = 0; i < vectorNum * nCols; i++)
     {
         data[i] = src[i];
     }
@@ -105,20 +104,20 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumeri
  * Method:    releaseDoubleBlockBuffer
  * Signature:(JJJLjava/nio/ByteBuffer;)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_releaseDoubleBlockBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_releaseDoubleBlockBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
     using namespace daal;
-    RowMergedNumericTable *nt = (*(RowMergedNumericTablePtr *)numTableAddr).get();
+    RowMergedNumericTable * nt = (*(RowMergedNumericTablePtr *)numTableAddr).get();
     BlockDescriptor<double> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfRows(vectorIndex, vectorNum, writeOnly, block));
 
-    double *data = block.getBlockPtr();
-    const double *src = (double *)(env->GetDirectBufferAddress(byteBuffer));
+    double * data      = block.getBlockPtr();
+    const double * src = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum * nCols; i++)
+    for (size_t i = 0; i < vectorNum * nCols; i++)
     {
         data[i] = src[i];
     }
@@ -131,21 +130,23 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumeri
  * Method:    releaseIntBlockBuffer
  * Signature:(JJJLjava/nio/ByteBuffer;)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_releaseIntBlockBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_releaseIntBlockBuffer(JNIEnv * env, jobject thisObj,
+                                                                                                                 jlong numTableAddr,
+                                                                                                                 jlong vectorIndex, jlong vectorNum,
+                                                                                                                 jobject byteBuffer)
 {
     using namespace daal;
-    RowMergedNumericTable *nt = (*(RowMergedNumericTablePtr *)numTableAddr).get();
+    RowMergedNumericTable * nt = (*(RowMergedNumericTablePtr *)numTableAddr).get();
     BlockDescriptor<int> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfRows(vectorIndex, vectorNum, writeOnly, block));
 
-    int* data = block.getBlockPtr();
+    int * data = block.getBlockPtr();
 
-    const int *src = (int *)(env->GetDirectBufferAddress(byteBuffer));
+    const int * src = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum * nCols; i++)
+    for (size_t i = 0; i < vectorNum * nCols; i++)
     {
         data[i] = src[i];
     }
@@ -158,21 +159,23 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumeri
  * Method:    getDoubleBlockBuffer
  * Signature:(JJJLjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_getDoubleBlockBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_getDoubleBlockBuffer(JNIEnv * env, jobject thisObj,
+                                                                                                                   jlong numTableAddr,
+                                                                                                                   jlong vectorIndex, jlong vectorNum,
+                                                                                                                   jobject byteBuffer)
 {
     using namespace daal;
-    RowMergedNumericTable *nt = (*(RowMergedNumericTablePtr *)numTableAddr).get();
+    RowMergedNumericTable * nt = (*(RowMergedNumericTablePtr *)numTableAddr).get();
     BlockDescriptor<double> block;
 
     size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfRows(vectorIndex, vectorNum, readOnly, block));
 
-    const double *data = block.getBlockPtr();
+    const double * data = block.getBlockPtr();
 
-    double *dst = (double *)(env->GetDirectBufferAddress(byteBuffer));
+    double * dst = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum * nCols; i++)
+    for (size_t i = 0; i < vectorNum * nCols; i++)
     {
         dst[i] = data[i];
     }
@@ -186,21 +189,23 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_RowMergedNum
  * Method:    getFloatBlockBuffer
  * Signature:(JJJLjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_getFloatBlockBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_getFloatBlockBuffer(JNIEnv * env, jobject thisObj,
+                                                                                                                  jlong numTableAddr,
+                                                                                                                  jlong vectorIndex, jlong vectorNum,
+                                                                                                                  jobject byteBuffer)
 {
     using namespace daal;
-    RowMergedNumericTable *nt = (*(RowMergedNumericTablePtr *)numTableAddr).get();
+    RowMergedNumericTable * nt = (*(RowMergedNumericTablePtr *)numTableAddr).get();
     BlockDescriptor<float> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfRows(vectorIndex, vectorNum, readOnly, block));
 
-    const float *data = block.getBlockPtr();
+    const float * data = block.getBlockPtr();
 
-    float *dst = (float *)(env->GetDirectBufferAddress(byteBuffer));
+    float * dst = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum * nCols; i++)
+    for (size_t i = 0; i < vectorNum * nCols; i++)
     {
         dst[i] = data[i];
     }
@@ -214,21 +219,22 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_RowMergedNum
  * Method:    getIntBlockBuffer
  * Signature:(JJJLjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_getIntBlockBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_getIntBlockBuffer(JNIEnv * env, jobject thisObj,
+                                                                                                                jlong numTableAddr, jlong vectorIndex,
+                                                                                                                jlong vectorNum, jobject byteBuffer)
 {
     using namespace daal;
-    RowMergedNumericTable *nt = (*(RowMergedNumericTablePtr *)numTableAddr).get();
+    RowMergedNumericTable * nt = (*(RowMergedNumericTablePtr *)numTableAddr).get();
     BlockDescriptor<int> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfRows(vectorIndex, vectorNum, readOnly, block));
 
-    const int *data = block.getBlockPtr();
+    const int * data = block.getBlockPtr();
 
-    int *dst = (int *)(env->GetDirectBufferAddress(byteBuffer));
+    int * dst = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum * nCols; i++)
+    for (size_t i = 0; i < vectorNum * nCols; i++)
     {
         dst[i] = data[i];
     }
@@ -242,21 +248,21 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_RowMergedNum
  * Method:    getDoubleColumnBuffer
  * Signature:(JJJJLjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_getDoubleColumnBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_getDoubleColumnBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
     using namespace daal;
-    RowMergedNumericTable *nt = (*(RowMergedNumericTablePtr *)numTableAddr).get();
+    RowMergedNumericTable * nt = (*(RowMergedNumericTablePtr *)numTableAddr).get();
     BlockDescriptor<double> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, readOnly, block));
 
-    const double *data = block.getBlockPtr();
+    const double * data = block.getBlockPtr();
 
-    double *dst = (double *)(env->GetDirectBufferAddress(byteBuffer));
+    double * dst = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum; i++)
+    for (size_t i = 0; i < vectorNum; i++)
     {
         dst[i] = data[i];
     }
@@ -270,21 +276,21 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_RowMergedNum
  * Method:    getFloatColumnBuffer
  * Signature:(JJJJLjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_getFloatColumnBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_getFloatColumnBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
     using namespace daal;
-    RowMergedNumericTable *nt = (*(RowMergedNumericTablePtr *)numTableAddr).get();
+    RowMergedNumericTable * nt = (*(RowMergedNumericTablePtr *)numTableAddr).get();
     BlockDescriptor<float> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, readOnly, block));
 
-    const float *data = block.getBlockPtr();
+    const float * data = block.getBlockPtr();
 
-    float *dst = (float *)(env->GetDirectBufferAddress(byteBuffer));
+    float * dst = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum; i++)
+    for (size_t i = 0; i < vectorNum; i++)
     {
         dst[i] = data[i];
     }
@@ -298,21 +304,21 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_RowMergedNum
  * Method:    getIntColumnBuffer
  * Signature:(JJJJLjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_getIntColumnBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_getIntColumnBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
     using namespace daal;
-    RowMergedNumericTable *nt = (*(RowMergedNumericTablePtr *)numTableAddr).get();
+    RowMergedNumericTable * nt = (*(RowMergedNumericTablePtr *)numTableAddr).get();
     BlockDescriptor<int> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, readOnly, block));
 
-    const int *data = block.getBlockPtr();
+    const int * data = block.getBlockPtr();
 
-    int *dst = (int *)(env->GetDirectBufferAddress(byteBuffer));
+    int * dst = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum; i++)
+    for (size_t i = 0; i < vectorNum; i++)
     {
         dst[i] = data[i];
     }
@@ -326,21 +332,21 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_RowMergedNum
  * Method:    releaseFloatColumnBuffer
  * Signature:(JJJJLjava/nio/ByteBuffer;)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_releaseFloatColumnBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_releaseFloatColumnBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
     using namespace daal;
-    RowMergedNumericTable *nt = (*(RowMergedNumericTablePtr *)numTableAddr).get();
+    RowMergedNumericTable * nt = (*(RowMergedNumericTablePtr *)numTableAddr).get();
     BlockDescriptor<float> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, writeOnly, block));
 
-    float* data = block.getBlockPtr();
+    float * data = block.getBlockPtr();
 
-    const float *src = (float *)(env->GetDirectBufferAddress(byteBuffer));
+    const float * src = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum; i++)
+    for (size_t i = 0; i < vectorNum; i++)
     {
         data[i] = src[i];
     }
@@ -353,21 +359,21 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumeri
  * Method:    releaseDoubleColumnBuffer
  * Signature:(JJJJLjava/nio/ByteBuffer;)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_releaseDoubleColumnBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_releaseDoubleColumnBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
     using namespace daal;
-    RowMergedNumericTable *nt = (*(RowMergedNumericTablePtr *)numTableAddr).get();
+    RowMergedNumericTable * nt = (*(RowMergedNumericTablePtr *)numTableAddr).get();
     BlockDescriptor<double> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, writeOnly, block));
 
-    double *data = block.getBlockPtr();
+    double * data = block.getBlockPtr();
 
-    const double *src = (double *)(env->GetDirectBufferAddress(byteBuffer));
+    const double * src = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum; i++)
+    for (size_t i = 0; i < vectorNum; i++)
     {
         data[i] = src[i];
     }
@@ -380,21 +386,21 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumeri
  * Method:    releaseIntColumnBuffer
  * Signature:(JJJJLjava/nio/ByteBuffer;)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_releaseIntColumnBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumericTableImpl_releaseIntColumnBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
     using namespace daal;
-    RowMergedNumericTable *nt = (*(RowMergedNumericTablePtr *)numTableAddr).get();
+    RowMergedNumericTable * nt = (*(RowMergedNumericTablePtr *)numTableAddr).get();
     BlockDescriptor<int> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, writeOnly, block));
 
-    int* data = block.getBlockPtr();
+    int * data = block.getBlockPtr();
 
-    const int *src = (int *)(env->GetDirectBufferAddress(byteBuffer));
+    const int * src = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum; i++)
+    for (size_t i = 0; i < vectorNum; i++)
     {
         data[i] = src[i];
     }

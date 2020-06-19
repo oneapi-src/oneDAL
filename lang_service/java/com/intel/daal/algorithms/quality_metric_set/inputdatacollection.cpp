@@ -30,11 +30,10 @@ using namespace daal::algorithms::quality_metric_set;
  * Method:    cInit
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_quality_1metric_1set_InputDataCollection_cInit
-  (JNIEnv *, jobject, jlong algAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_quality_1metric_1set_InputDataCollection_cInit(JNIEnv *, jobject, jlong algAddr)
 {
-    InputDataCollectionPtr inputPtr = ((Batch*)algAddr)->getInputDataCollection();
-    InputDataCollectionPtr *shPtr = new InputDataCollectionPtr(inputPtr);
+    InputDataCollectionPtr inputPtr = ((Batch *)algAddr)->getInputDataCollection();
+    InputDataCollectionPtr * shPtr  = new InputDataCollectionPtr(inputPtr);
     return (jlong)shPtr;
 }
 
@@ -43,13 +42,13 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_quality_1metric_1set_Inpu
  * Method:    cAddInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_quality_1metric_1set_InputDataCollection_cAddInput
-  (JNIEnv *, jobject, jlong colAddr, jint key, jlong inputAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_quality_1metric_1set_InputDataCollection_cAddInput(JNIEnv *, jobject, jlong colAddr, jint key,
+                                                                                                         jlong inputAddr)
 {
-     InputDataCollectionPtr * shPtr = (InputDataCollectionPtr *)colAddr;
-     InputDataCollection * inCol = shPtr->get();
-     InputPtr shInputPtr((Input*)inputAddr);
-     inCol->add(key, shInputPtr);
+    InputDataCollectionPtr * shPtr = (InputDataCollectionPtr *)colAddr;
+    InputDataCollection * inCol    = shPtr->get();
+    InputPtr shInputPtr((Input *)inputAddr);
+    inCol->add(key, shInputPtr);
 }
 
 /*
@@ -57,10 +56,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_quality_1metric_1set_Input
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_quality_1metric_1set_InputDataCollection_cGetInput
-  (JNIEnv *, jobject, jlong colAddr, jint key)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_quality_1metric_1set_InputDataCollection_cGetInput(JNIEnv *, jobject, jlong colAddr, jint key)
 {
-    InputDataCollectionPtr shPtr = *(InputDataCollectionPtr*)colAddr;
-    InputPtr inShPtr = shPtr->getInput((size_t)key);
+    InputDataCollectionPtr shPtr = *(InputDataCollectionPtr *)colAddr;
+    InputPtr inShPtr             = shPtr->getInput((size_t)key);
     return (jlong)(inShPtr.get());
 }

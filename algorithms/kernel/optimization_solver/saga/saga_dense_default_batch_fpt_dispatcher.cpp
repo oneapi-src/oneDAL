@@ -19,8 +19,7 @@
 //  Implementation of saga calculation algorithm container.
 //--
 
-
-#include "saga_batch_container.h"
+#include "algorithms/kernel/optimization_solver/saga/saga_batch_container.h"
 
 namespace daal
 {
@@ -32,28 +31,25 @@ namespace optimization_solver
 {
 namespace saga
 {
-
 namespace interface2
 {
 using BatchType = Batch<DAAL_FPTYPE, optimization_solver::saga::defaultDense>;
 
-template<>
-BatchType::Batch(const sum_of_functions::BatchPtr& objectiveFunction)
+template <>
+BatchType::Batch(const sum_of_functions::BatchPtr & objectiveFunction)
 {
     _par = new algorithms::optimization_solver::saga::Parameter(objectiveFunction);
     initialize();
 }
 
-template<>
-BatchType::Batch(const BatchType &other) :
-    iterative_solver::Batch(other),
-    input(other.input)
+template <>
+BatchType::Batch(const BatchType & other) : iterative_solver::Batch(other), input(other.input)
 {
     _par = new algorithms::optimization_solver::saga::Parameter(other.parameter());
     initialize();
 }
 
-template<>
+template <>
 services::SharedPtr<BatchType> BatchType::create()
 {
     return services::SharedPtr<BatchType>(new BatchType());

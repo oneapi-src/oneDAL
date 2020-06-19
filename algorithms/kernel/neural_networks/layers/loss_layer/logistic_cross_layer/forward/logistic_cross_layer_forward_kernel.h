@@ -19,18 +19,17 @@
 //  Implementation of the forward logistic cross layer
 //--
 
-
 #ifndef __LOGISTIC_CROSS_LAYER_FORWARD_KERNEL_H__
 #define __LOGISTIC_CROSS_LAYER_FORWARD_KERNEL_H__
 
 // #include "neural_networks/layers/logistic_layer/forward/logistic_layer_forward_kernel.h"
-#include "neural_networks/layers/loss/logistic_cross_layer.h"
-#include "neural_networks/layers/loss/logistic_cross_layer_types.h"
-#include "neural_networks/layers/loss/logistic_cross_layer_forward_types.h"
-#include "kernel.h"
-#include "service_math.h"
-#include "service_tensor.h"
-#include "service_numeric_table.h"
+#include "algorithms/neural_networks/layers/loss/logistic_cross_layer.h"
+#include "algorithms/neural_networks/layers/loss/logistic_cross_layer_types.h"
+#include "algorithms/neural_networks/layers/loss/logistic_cross_layer_forward_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "externals/service_math.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -54,20 +53,20 @@ namespace internal
 /**
  *  \brief Kernel for logistic_cross calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class LogisticCrossKernel : public Kernel
 {
 public:
-    services::Status compute(const Tensor &inputTensor, const Tensor &groundTruthTensor, Tensor &resultTensor);
+    services::Status compute(const Tensor & inputTensor, const Tensor & groundTruthTensor, Tensor & resultTensor);
 };
 
-} // internal
-} // forward
-} // logistic_cross
-} // loss
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace forward
+} // namespace logistic_cross
+} // namespace loss
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

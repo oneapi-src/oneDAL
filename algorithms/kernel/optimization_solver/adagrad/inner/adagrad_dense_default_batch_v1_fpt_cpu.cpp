@@ -19,10 +19,9 @@
 //  Implementation of adagrad calculation.
 //--
 
-
-#include "adagrad_batch_container_v1.h"
-#include "adagrad_dense_default_kernel_v1.h"
-#include "adagrad_dense_default_v1_impl.i"
+#include "algorithms/kernel/optimization_solver/adagrad/inner/adagrad_batch_container_v1.h"
+#include "algorithms/kernel/optimization_solver/adagrad/inner/adagrad_dense_default_kernel_v1.h"
+#include "algorithms/kernel/optimization_solver/adagrad/inner/adagrad_dense_default_v1_impl.i"
 
 namespace daal
 {
@@ -32,7 +31,6 @@ namespace optimization_solver
 {
 namespace adagrad
 {
-
 namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

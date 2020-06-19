@@ -24,17 +24,16 @@
 #ifndef __QR_UTILS_IMPL_I__
 #define __QR_UTILS_IMPL_I__
 
-#include "service_blas.h"
-#include "service_lapack.h"
-#include "service_memory.h"
-#include "service_math.h"
-#include "service_defines.h"
-#include "service_micro_table.h"
-#include "service_numeric_table.h"
-#include "service_error_handling.h"
+#include "externals/service_blas.h"
+#include "externals/service_lapack.h"
+#include "externals/service_memory.h"
+#include "externals/service_math.h"
+#include "service/kernel/service_defines.h"
+#include "service/kernel/data_management/service_micro_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
 
-#include "threading.h"
-
+#include "algorithms/threading/threading.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;
@@ -48,7 +47,6 @@ namespace qr
 {
 namespace internal
 {
-
 /*
     assumed n < m
   Input:
@@ -59,8 +57,7 @@ namespace internal
 
 */
 template <typename algorithmFPType, CpuType cpu>
-Status compute_QR_on_one_node( DAAL_INT m, DAAL_INT n, algorithmFPType *a_q, DAAL_INT lda_q, algorithmFPType *r,
-                                            DAAL_INT ldr )
+Status compute_QR_on_one_node(DAAL_INT m, DAAL_INT n, algorithmFPType * a_q, DAAL_INT lda_q, algorithmFPType * r, DAAL_INT ldr)
 {
     typedef Lapack<algorithmFPType, cpu> lapack;
 
@@ -70,13 +67,13 @@ Status compute_QR_on_one_node( DAAL_INT m, DAAL_INT n, algorithmFPType *a_q, DAA
     DAAL_CHECK(tau.get(), services::ErrorMemoryAllocationFailed);
 
     // buffers
-    algorithmFPType  workQuery[2];
+    algorithmFPType workQuery[2];
 
-    DAAL_INT mklStatus =  0;
+    DAAL_INT mklStatus = 0;
     DAAL_INT workDim   = -1;
 
     // buffer size query
-    lapack::xgeqrf( m, n, a_q, lda_q, tau.get(), workQuery, workDim, &mklStatus );
+    lapack::xgeqrf(m, n, a_q, lda_q, tau.get(), workQuery, workDim, &mklStatus);
 
     workDim = workQuery[0];
 
@@ -85,34 +82,32 @@ Status compute_QR_on_one_node( DAAL_INT m, DAAL_INT n, algorithmFPType *a_q, DAA
     DAAL_CHECK(work.get(), services::ErrorMemoryAllocationFailed);
 
     // Compute QR decomposition
-    lapack::xgeqrf( m, n, a_q, lda_q, tau.get(), work.get(), workDim, &mklStatus );
+    lapack::xgeqrf(m, n, a_q, lda_q, tau.get(), work.get(), workDim, &mklStatus);
 
-    if ( mklStatus != 0 )
-        return services::ErrorQRInternal;
+    if (mklStatus != 0) return services::ErrorQRInternal;
 
     // Get R of the QR factorization formed by xgeqrf
-    for (auto i = 1; i <= n; i++ )
+    for (auto i = 1; i <= n; i++)
     {
-        for(auto j = 0; j < i; j++)
+        for (auto j = 0; j < i; j++)
         {
-            r[(i - 1)*ldr + j] = a_q[(i - 1) * lda_q + j];
+            r[(i - 1) * ldr + j] = a_q[(i - 1) * lda_q + j];
         }
-        for (auto j = i; j < n; j++ )
+        for (auto j = i; j < n; j++)
         {
-            r[(i - 1)*ldr + j] = (algorithmFPType)0.0;
+            r[(i - 1) * ldr + j] = (algorithmFPType)0.0;
         }
     }
 
     // Get Q of the QR factorization formed by xgeqrf
-    lapack::xorgqr( m, n, n, a_q, lda_q, tau.get(), work.get(), workDim, &mklStatus );
+    lapack::xorgqr(m, n, n, a_q, lda_q, tau.get(), work.get(), workDim, &mklStatus);
 
     DAAL_CHECK(!mklStatus, services::ErrorQRInternal);
     return Status();
 }
 
 template <typename algorithmFPType, CpuType cpu>
-Status compute_QR_on_one_node_seq( DAAL_INT m, DAAL_INT n, algorithmFPType *a_q, DAAL_INT lda_q, algorithmFPType *r,
-                                          DAAL_INT ldr )
+Status compute_QR_on_one_node_seq(DAAL_INT m, DAAL_INT n, algorithmFPType * a_q, DAAL_INT lda_q, algorithmFPType * r, DAAL_INT ldr)
 {
     typedef Lapack<algorithmFPType, cpu> lapack;
 
@@ -121,13 +116,13 @@ Status compute_QR_on_one_node_seq( DAAL_INT m, DAAL_INT n, algorithmFPType *a_q,
     TArrayScalable<algorithmFPType, cpu> tau(n);
 
     // buffers
-    algorithmFPType  workQuery[2];
+    algorithmFPType workQuery[2];
 
-    DAAL_INT mklStatus =  0;
+    DAAL_INT mklStatus = 0;
     DAAL_INT workDim   = -1;
 
     // buffer size query
-    lapack::xxgeqrf( m, n, a_q, lda_q, tau.get(), workQuery, workDim, &mklStatus );
+    lapack::xxgeqrf(m, n, a_q, lda_q, tau.get(), workQuery, workDim, &mklStatus);
 
     workDim = workQuery[0];
 
@@ -135,21 +130,20 @@ Status compute_QR_on_one_node_seq( DAAL_INT m, DAAL_INT n, algorithmFPType *a_q,
     TArrayScalable<algorithmFPType, cpu> work(workDim);
 
     // Compute QR decomposition
-    lapack::xxgeqrf( m, n, a_q, lda_q, tau.get(), work.get(), workDim, &mklStatus );
+    lapack::xxgeqrf(m, n, a_q, lda_q, tau.get(), work.get(), workDim, &mklStatus);
 
-    if (mklStatus)
-        return services::ErrorQRInternal;
+    if (mklStatus) return services::ErrorQRInternal;
 
     // Get R of the QR factorization formed by xgeqrf
-    for (auto i = 1; i <= n; i++ )
+    for (auto i = 1; i <= n; i++)
     {
-        for (auto j = 0; j < i; j++ )
+        for (auto j = 0; j < i; j++)
         {
-            r[(i - 1)*ldr + j] = a_q[(i - 1) * lda_q + j];
+            r[(i - 1) * ldr + j] = a_q[(i - 1) * lda_q + j];
         }
-        for (auto j = i; j < n; j++ )
+        for (auto j = i; j < n; j++)
         {
-            r[(i - 1)*ldr + j] = (algorithmFPType)0.0;
+            r[(i - 1) * ldr + j] = (algorithmFPType)0.0;
         }
     }
 
@@ -161,33 +155,32 @@ Status compute_QR_on_one_node_seq( DAAL_INT m, DAAL_INT n, algorithmFPType *a_q,
 }
 
 template <typename algorithmFPType, CpuType cpu>
-void compute_gemm_on_one_node( DAAL_INT m, DAAL_INT n, algorithmFPType *a, DAAL_INT lda, algorithmFPType *b, DAAL_INT ldb,
-                                        algorithmFPType *c, DAAL_INT ldc)
+void compute_gemm_on_one_node(DAAL_INT m, DAAL_INT n, algorithmFPType * a, DAAL_INT lda, algorithmFPType * b, DAAL_INT ldb, algorithmFPType * c,
+                              DAAL_INT ldc)
 {
     algorithmFPType one  = algorithmFPType(1.0);
     algorithmFPType zero = algorithmFPType(0.0);
 
     char notrans = 'N';
 
-    Blas<algorithmFPType, cpu>::xgemm( &notrans, &notrans, &m, &n, &n, &one, a, &lda, b, &ldb, &zero, c, &ldc);
+    Blas<algorithmFPType, cpu>::xgemm(&notrans, &notrans, &m, &n, &n, &one, a, &lda, b, &ldb, &zero, c, &ldc);
 }
-
 
 template <typename algorithmFPType, CpuType cpu>
-void compute_gemm_on_one_node_seq( DAAL_INT m, DAAL_INT n, algorithmFPType *a, DAAL_INT lda, algorithmFPType *b, DAAL_INT ldb,
-                                            algorithmFPType *c, DAAL_INT ldc)
+void compute_gemm_on_one_node_seq(DAAL_INT m, DAAL_INT n, algorithmFPType * a, DAAL_INT lda, algorithmFPType * b, DAAL_INT ldb, algorithmFPType * c,
+                                  DAAL_INT ldc)
 {
     algorithmFPType one  = algorithmFPType(1.0);
     algorithmFPType zero = algorithmFPType(0.0);
 
     char notrans = 'N';
 
-    Blas<algorithmFPType, cpu>::xxgemm( &notrans, &notrans, &m, &n, &n, &one, a, &lda, b, &ldb, &zero, c, &ldc);
+    Blas<algorithmFPType, cpu>::xxgemm(&notrans, &notrans, &m, &n, &n, &one, a, &lda, b, &ldb, &zero, c, &ldc);
 }
 
-} // namespace daal::internal
-}
-}
+} // namespace internal
+} // namespace qr
+} // namespace algorithms
 } // namespace daal
 
 #endif

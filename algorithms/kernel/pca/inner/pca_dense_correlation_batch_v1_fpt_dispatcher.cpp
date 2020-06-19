@@ -21,7 +21,7 @@
 //--
 */
 
-#include "pca/inner/pca_dense_correlation_batch_container_v1.h"
+#include "algorithms/kernel/pca/inner/pca_dense_correlation_batch_container_v1.h"
 
 namespace daal
 {
@@ -29,4 +29,4 @@ namespace algorithms
 {
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER_KM(pca::interface1::BatchContainer, batch, DAAL_FPTYPE, pca::correlationDense)
 } // namespace algorithms
-} // namespace daall
+} // namespace daal

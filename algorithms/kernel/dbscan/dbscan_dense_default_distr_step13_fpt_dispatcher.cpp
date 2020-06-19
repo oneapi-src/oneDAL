@@ -22,20 +22,18 @@
 //--
 */
 
-#include "dbscan_container.h"
+#include "algorithms/kernel/dbscan/dbscan_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(dbscan::DistributedContainer, distributed, step13Local,  \
-    DAAL_FPTYPE, dbscan::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(dbscan::DistributedContainer, distributed, step13Local, DAAL_FPTYPE, dbscan::defaultDense)
 
 namespace dbscan
 {
 namespace interface1
 {
-
 using DistributedType = Distributed<step13Local, DAAL_FPTYPE, defaultDense>;
 
 template <>
@@ -45,7 +43,7 @@ DistributedType::Distributed()
 }
 
 template <>
-DistributedType::Distributed(const DistributedType &other) : input(other.input)
+DistributedType::Distributed(const DistributedType & other) : input(other.input)
 {
     initialize();
 }

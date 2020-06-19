@@ -22,13 +22,13 @@
 //--
 */
 
-#include "implicit_als_train_container.h"
+#include "algorithms/kernel/implicit_als/implicit_als_train_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(implicit_als::training::DistributedContainer, distributed, step3Local,  \
-    DAAL_FPTYPE, implicit_als::training::fastCSR)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(implicit_als::training::DistributedContainer, distributed, step3Local, DAAL_FPTYPE,
+                                      implicit_als::training::fastCSR)
 }
-}
+} // namespace daal

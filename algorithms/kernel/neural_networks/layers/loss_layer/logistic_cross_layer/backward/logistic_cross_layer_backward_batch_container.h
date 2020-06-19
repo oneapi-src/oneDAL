@@ -24,8 +24,8 @@
 #ifndef __LOGISTIC_CROSS_LAYER_BACKWARD_BATCH_CONTAINER_H__
 #define __LOGISTIC_CROSS_LAYER_BACKWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/loss/logistic_cross_layer.h"
-#include "logistic_cross_layer_backward_kernel.h"
+#include "algorithms/neural_networks/layers/loss/logistic_cross_layer.h"
+#include "algorithms/kernel/neural_networks/layers/loss_layer/logistic_cross_layer/backward/logistic_cross_layer_backward_kernel.h"
 
 namespace daal
 {
@@ -43,34 +43,38 @@ namespace backward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::LogisticCrossKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    logistic_cross::backward::Input *input = static_cast<logistic_cross::backward::Input *>(_in);
-    logistic_cross::backward::Result *result = static_cast<logistic_cross::backward::Result *>(_res);
+    logistic_cross::backward::Input * input   = static_cast<logistic_cross::backward::Input *>(_in);
+    logistic_cross::backward::Result * result = static_cast<logistic_cross::backward::Result *>(_res);
 
-    logistic_cross::Parameter *parameter = static_cast<logistic_cross::Parameter *>(_par);
-    if (!parameter->propagateGradient) { return services::Status(); }
+    logistic_cross::Parameter * parameter = static_cast<logistic_cross::Parameter *>(_par);
+    if (!parameter->propagateGradient)
+    {
+        return services::Status();
+    }
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    Tensor *dataTensor        = input->get(logistic_cross::auxData).get();
-    Tensor *groundTruthTensor = input->get(logistic_cross::auxGroundTruth).get();
-    Tensor *resultTensor      = result->get(layers::backward::gradient).get();
+    Tensor * dataTensor        = input->get(logistic_cross::auxData).get();
+    Tensor * groundTruthTensor = input->get(logistic_cross::auxGroundTruth).get();
+    Tensor * resultTensor      = result->get(layers::backward::gradient).get();
 
-    __DAAL_CALL_KERNEL(env, internal::LogisticCrossKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *dataTensor, *groundTruthTensor, *resultTensor);
+    __DAAL_CALL_KERNEL(env, internal::LogisticCrossKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *dataTensor, *groundTruthTensor,
+                       *resultTensor);
 }
 } // namespace interface1
 } // namespace backward

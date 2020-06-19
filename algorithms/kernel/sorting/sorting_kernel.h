@@ -24,10 +24,10 @@
 #ifndef __SORTING_KERNEL_H__
 #define __SORTING_KERNEL_H__
 
-#include "numeric_table.h"
-#include "sorting_batch.h"
-#include "service_numeric_table.h"
-#include "service_stat.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/sorting/sorting_batch.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_stat.h"
 
 using namespace daal::internal;
 using namespace daal::services;
@@ -41,17 +41,16 @@ namespace sorting
 {
 namespace internal
 {
-
-template<Method method, typename algorithmFPType, CpuType cpu>
+template <Method method, typename algorithmFPType, CpuType cpu>
 struct SortingKernel : public Kernel
 {
     virtual ~SortingKernel() {}
-    Status compute(const NumericTable &inputTable, NumericTable &outputTable);
+    Status compute(const NumericTable & inputTable, NumericTable & outputTable);
 };
 
-} // namespace daal::algorithms::sorting::internal
-} // namespace daal::algorithms::sorting
-} // namespace daal::algorithms
+} // namespace internal
+} // namespace sorting
+} // namespace algorithms
 } // namespace daal
 
 #endif

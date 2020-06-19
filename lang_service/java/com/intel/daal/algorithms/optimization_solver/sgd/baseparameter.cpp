@@ -21,7 +21,7 @@
 
 #include "com_intel_daal_algorithms_optimization_solver_sgd_BaseParameter.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::optimization_solver;
@@ -31,10 +31,10 @@ using namespace daal::algorithms::optimization_solver;
  * Method:    cSetBatchIndices
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_BaseParameter_cSetBatchIndices
-(JNIEnv *, jobject, jlong parAddr, jlong cBatchIndices)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_BaseParameter_cSetBatchIndices(JNIEnv *, jobject, jlong parAddr,
+                                                                                                              jlong cBatchIndices)
 {
-    SerializationIfacePtr *ntShPtr = (SerializationIfacePtr *)cBatchIndices;
+    SerializationIfacePtr * ntShPtr               = (SerializationIfacePtr *)cBatchIndices;
     ((sgd::BaseParameter *)parAddr)->batchIndices = staticPointerCast<NumericTable, SerializationIface>(*ntShPtr);
 }
 
@@ -43,24 +43,23 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_B
  * Method:    cGetBatchIndices
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_BaseParameter_cGetBatchIndices
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_BaseParameter_cGetBatchIndices(JNIEnv *, jobject, jlong parAddr)
 {
-    NumericTablePtr *ntShPtr = new NumericTablePtr();
-    *ntShPtr = ((sgd::BaseParameter *)parAddr)->batchIndices;
+    NumericTablePtr * ntShPtr = new NumericTablePtr();
+    *ntShPtr                  = ((sgd::BaseParameter *)parAddr)->batchIndices;
     return (jlong)ntShPtr;
 }
-
 
 /*
  * Class:     com_intel_daal_algorithms_optimization_solver_sgd_BaseParameter
  * Method:    cSetLearningRateSequence
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_BaseParameter_cSetLearningRateSequence
-(JNIEnv *, jobject, jlong parAddr, jlong cLearningRateSequence)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_BaseParameter_cSetLearningRateSequence(JNIEnv *, jobject,
+                                                                                                                      jlong parAddr,
+                                                                                                                      jlong cLearningRateSequence)
 {
-    SerializationIfacePtr *ntShPtr = (SerializationIfacePtr *)cLearningRateSequence;
+    SerializationIfacePtr * ntShPtr                       = (SerializationIfacePtr *)cLearningRateSequence;
     ((sgd::BaseParameter *)parAddr)->learningRateSequence = staticPointerCast<NumericTable, SerializationIface>(*ntShPtr);
 }
 
@@ -69,11 +68,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_B
  * Method:    cGetLearningRateSequence
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_BaseParameter_cGetLearningRateSequence
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_BaseParameter_cGetLearningRateSequence(JNIEnv *, jobject,
+                                                                                                                       jlong parAddr)
 {
-    NumericTablePtr *ntShPtr = new NumericTablePtr();
-    *ntShPtr = ((sgd::BaseParameter *)parAddr)->learningRateSequence;
+    NumericTablePtr * ntShPtr = new NumericTablePtr();
+    *ntShPtr                  = ((sgd::BaseParameter *)parAddr)->learningRateSequence;
     return (jlong)ntShPtr;
 }
 
@@ -82,8 +81,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_
  * Method:    cSetSeed
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_BaseParameter_cSetSeed
-(JNIEnv *, jobject, jlong parAddr, jint seed)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_BaseParameter_cSetSeed(JNIEnv *, jobject, jlong parAddr, jint seed)
 {
     ((sgd::BaseParameter *)parAddr)->seed = seed;
 }
@@ -93,8 +91,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_B
  * Method:    cGetSeed
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_BaseParameter_cGetSeed
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_BaseParameter_cGetSeed(JNIEnv *, jobject, jlong parAddr)
 {
     return ((sgd::BaseParameter *)parAddr)->seed;
 }
@@ -104,8 +101,8 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_B
  * Method:    cSetEngine
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_BaseParameter_cSetEngine
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong engineAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_BaseParameter_cSetEngine(JNIEnv * env, jobject thisObj,
+                                                                                                        jlong cParameter, jlong engineAddr)
 {
-    (((sgd::BaseParameter *)cParameter))->engine = staticPointerCast<engines::BatchBase, AlgorithmIface> (*(SharedPtr<AlgorithmIface> *)engineAddr);
+    (((sgd::BaseParameter *)cParameter))->engine = staticPointerCast<engines::BatchBase, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)engineAddr);
 }

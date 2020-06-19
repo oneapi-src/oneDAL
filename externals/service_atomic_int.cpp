@@ -22,58 +22,58 @@
 */
 
 #include "tbb/atomic.h"
-#include "daal_atomic_int.h"
+#include "services/daal_atomic_int.h"
 
 /*
 //++
 //  Implementation of Atomic<dataType> methods
 //--
 */
-template<typename dataType>
+template <typename dataType>
 daal::services::Atomic<dataType>::Atomic() : _ptr(nullptr)
 {
     this->_ptr = new tbb::atomic<dataType>();
 }
 
-template<typename dataType>
+template <typename dataType>
 daal::services::Atomic<dataType>::Atomic(dataType value) : _ptr(nullptr)
 {
-    tbb::atomic<dataType> *atomicPtr = new tbb::atomic<dataType>();
-    *atomicPtr = value;
-    this->_ptr = atomicPtr;
+    tbb::atomic<dataType> * atomicPtr = new tbb::atomic<dataType>();
+    *atomicPtr                        = value;
+    this->_ptr                        = atomicPtr;
 }
 
-template<typename dataType>
+template <typename dataType>
 daal::services::Atomic<dataType>::~Atomic()
 {
     delete (tbb::atomic<dataType> *)(this->_ptr);
 }
 
-template<typename dataType>
+template <typename dataType>
 dataType daal::services::Atomic<dataType>::inc()
 {
-    tbb::atomic<dataType> *atomicPtr = (tbb::atomic<dataType> *)(this->_ptr);
+    tbb::atomic<dataType> * atomicPtr = (tbb::atomic<dataType> *)(this->_ptr);
     return ++(*atomicPtr);
 }
 
-template<typename dataType>
+template <typename dataType>
 dataType daal::services::Atomic<dataType>::dec()
 {
-    tbb::atomic<dataType> *atomicPtr = (tbb::atomic<dataType> *)(this->_ptr);
+    tbb::atomic<dataType> * atomicPtr = (tbb::atomic<dataType> *)(this->_ptr);
     return --(*atomicPtr);
 }
 
-template<typename dataType>
+template <typename dataType>
 void daal::services::Atomic<dataType>::set(dataType value)
 {
-    tbb::atomic<dataType> *atomicPtr = (tbb::atomic<dataType> *)(this->_ptr);
-    *atomicPtr = value;
+    tbb::atomic<dataType> * atomicPtr = (tbb::atomic<dataType> *)(this->_ptr);
+    *atomicPtr                        = value;
 }
 
-template<typename dataType>
+template <typename dataType>
 dataType daal::services::Atomic<dataType>::get() const
 {
-    tbb::atomic<dataType> *atomicPtr = (tbb::atomic<dataType> *)(this->_ptr);
+    tbb::atomic<dataType> * atomicPtr = (tbb::atomic<dataType> *)(this->_ptr);
     return *atomicPtr;
 }
 
@@ -90,6 +90,6 @@ namespace interface1
 {
 template class Atomic<int>;
 template class Atomic<size_t>;
-}
-}
-}
+} // namespace interface1
+} // namespace services
+} // namespace daal

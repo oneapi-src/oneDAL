@@ -31,26 +31,23 @@ namespace abs
 {
 namespace internal
 {
-
-template<typename algorithmFPType, CpuType cpu>
-inline Status AbsKernel<algorithmFPType, defaultDense, cpu>::processBlock(const NumericTable &inputTable,
-                                                                          size_t nInputColumns,
-                                                                          size_t nProcessedRows,
-                                                                          size_t nRowsInCurrentBlock,
-                                                                          NumericTable &resultTable)
+template <typename algorithmFPType, CpuType cpu>
+inline Status AbsKernel<algorithmFPType, defaultDense, cpu>::processBlock(const NumericTable & inputTable, size_t nInputColumns,
+                                                                          size_t nProcessedRows, size_t nRowsInCurrentBlock,
+                                                                          NumericTable & resultTable)
 {
     ReadRows<algorithmFPType, cpu, NumericTable> inputBlock(const_cast<NumericTable &>(inputTable), nProcessedRows, nRowsInCurrentBlock);
     DAAL_CHECK_BLOCK_STATUS(inputBlock);
-    const algorithmFPType* inputArray = inputBlock.get();
+    const algorithmFPType * inputArray = inputBlock.get();
 
     WriteRows<algorithmFPType, cpu, NumericTable> resultBlock(resultTable, nProcessedRows, nRowsInCurrentBlock);
     DAAL_CHECK_BLOCK_STATUS(resultBlock);
-    algorithmFPType* resultArray = resultBlock.get();
+    algorithmFPType * resultArray = resultBlock.get();
 
     const size_t nDataElements = nRowsInCurrentBlock * nInputColumns;
-    for(size_t i = 0; i < nDataElements; i++)
+    for (size_t i = 0; i < nDataElements; i++)
     {
-        if(inputArray[i] >= (algorithmFPType)0)
+        if (inputArray[i] >= (algorithmFPType)0)
         {
             resultArray[i] = inputArray[i];
         }
@@ -62,7 +59,7 @@ inline Status AbsKernel<algorithmFPType, defaultDense, cpu>::processBlock(const 
     return Status();
 }
 
-} // namespace daal::internal
+} // namespace internal
 } // namespace abs
 } // namespace math
 } // namespace algorithms

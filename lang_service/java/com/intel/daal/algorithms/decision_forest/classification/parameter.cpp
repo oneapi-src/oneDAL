@@ -18,18 +18,23 @@
 #include <jni.h>
 
 #include "daal.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 #include "com_intel_daal_algorithms_decision_forest_classification_prediction_Parameter.h"
 
 USING_COMMON_NAMESPACES()
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_prediction_Parameter_cSetVotingMethod(JNIEnv * env, jobject thisObj, jlong self, jint votingMethod)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_prediction_Parameter_cSetVotingMethod(JNIEnv * env,
+                                                                                                                            jobject thisObj,
+                                                                                                                            jlong self,
+                                                                                                                            jint votingMethod)
 {
     unpack<decision_forest::classification::prediction::Parameter>(self).votingMethod =
         static_cast<decision_forest::classification::prediction::VotingMethod>(votingMethod);
 }
 
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_prediction_Parameter_cGetVotingMethod(JNIEnv * env, jobject thisObj, jlong self)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_prediction_Parameter_cGetVotingMethod(JNIEnv * env,
+                                                                                                                            jobject thisObj,
+                                                                                                                            jlong self)
 {
     return static_cast<jint>(unpack<decision_forest::classification::prediction::Parameter>(self).votingMethod);
 }

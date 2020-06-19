@@ -21,9 +21,9 @@
 //--
 */
 
-#include "smoothrelu_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/math/smoothrelu_types.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -56,7 +56,7 @@ NumericTablePtr Input::get(InputId id) const
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the object
  */
-void Input::set(InputId id, const NumericTablePtr &ptr)
+void Input::set(InputId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -66,7 +66,7 @@ void Input::set(InputId id, const NumericTablePtr &ptr)
  * \param[in] par     %Parameter of algorithm
  * \param[in] method  Computation method of the algorithm
  */
-Status Input::check(const daal::algorithms::Parameter *par, int method) const
+Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
     DAAL_CHECK(Argument::size() == 1, ErrorIncorrectNumberOfInputNumericTables);
 
@@ -91,7 +91,7 @@ NumericTablePtr Result::get(ResultId id) const
  * \param[in] id    Identifier of the result
  * \param[in] ptr   Pointer to the result
  */
-void Result::set(ResultId id, const NumericTablePtr &ptr)
+void Result::set(ResultId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -102,30 +102,28 @@ void Result::set(ResultId id, const NumericTablePtr &ptr)
  * \param[in] par     %Parameter of algorithm
  * \param[in] method  Computation method of the algorithm
  */
-Status Result::check(const daal::algorithms::Input *in, const daal::algorithms::Parameter *par, int method) const
+Status Result::check(const daal::algorithms::Input * in, const daal::algorithms::Parameter * par, int method) const
 {
     DAAL_CHECK(Argument::size() == 1, ErrorIncorrectNumberOfOutputNumericTables);
     DAAL_CHECK(in != 0, ErrorNullInput);
 
-    NumericTablePtr dataTable = (static_cast<const Input *>(in))->get(data);
+    NumericTablePtr dataTable   = (static_cast<const Input *>(in))->get(data);
     NumericTablePtr resultTable = get(value);
 
     Status s;
     DAAL_CHECK_STATUS(s, checkNumericTable(dataTable.get(), dataStr()));
 
-    const size_t nDataRows = dataTable->getNumberOfRows();
+    const size_t nDataRows    = dataTable->getNumberOfRows();
     const size_t nDataColumns = dataTable->getNumberOfColumns();
 
-    const int unexpectedLayouts = (int)NumericTableIface::upperPackedSymmetricMatrix |
-                                  (int)NumericTableIface::lowerPackedSymmetricMatrix |
-                                  (int)NumericTableIface::upperPackedTriangularMatrix |
-                                  (int)NumericTableIface::lowerPackedTriangularMatrix |
-                                  (int)NumericTableIface::csrArray;
+    const int unexpectedLayouts = (int)NumericTableIface::upperPackedSymmetricMatrix | (int)NumericTableIface::lowerPackedSymmetricMatrix
+                                  | (int)NumericTableIface::upperPackedTriangularMatrix | (int)NumericTableIface::lowerPackedTriangularMatrix
+                                  | (int)NumericTableIface::csrArray;
     return checkNumericTable(resultTable.get(), valueStr(), unexpectedLayouts, 0, nDataColumns, nDataRows);
 }
 
-}// namespace interface1
-}// namespace smoothrelu
-}// namespace math
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace smoothrelu
+} // namespace math
+} // namespace algorithms
+} // namespace daal

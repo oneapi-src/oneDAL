@@ -20,11 +20,11 @@
 
 #include "daal.h"
 #include "com_intel_daal_algorithms_decision_tree_regression_Parameter.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 
-namespace dt = decision_tree;
+namespace dt  = decision_tree;
 namespace dtr = decision_tree::regression;
 
 /*
@@ -32,10 +32,9 @@ namespace dtr = decision_tree::regression;
 * Method:    cGetPruning
 * Signature: (J)I
 */
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_Parameter_cGetPruning
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_Parameter_cGetPruning(JNIEnv * env, jobject thisObj, jlong parAddr)
 {
-    return(jlong)(*(dtr::Parameter *)parAddr).pruning;
+    return (jlong)(*(dtr::Parameter *)parAddr).pruning;
 }
 
 /*
@@ -43,8 +42,8 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_
 * Method:    cSetPruning
 * Signature: (JI)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_Parameter_cSetPruning
-(JNIEnv *env, jobject thisObj, jlong parAddr, jint value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_Parameter_cSetPruning(JNIEnv * env, jobject thisObj, jlong parAddr,
+                                                                                                      jint value)
 {
     (*(dtr::Parameter *)parAddr).pruning = (dt::Pruning)value;
 }
@@ -54,10 +53,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_
 * Method:    cGetMaxTreeDepth
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_Parameter_cGetMaxTreeDepth
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_Parameter_cGetMaxTreeDepth(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong parAddr)
 {
-    return(jlong)(*(dtr::Parameter *)parAddr).maxTreeDepth;
+    return (jlong)(*(dtr::Parameter *)parAddr).maxTreeDepth;
 }
 
 /*
@@ -65,8 +64,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression
 * Method:    cSetMaxTreeDepth
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_Parameter_cSetMaxTreeDepth
-(JNIEnv *env, jobject thisObj, jlong parAddr, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_Parameter_cSetMaxTreeDepth(JNIEnv * env, jobject thisObj,
+                                                                                                           jlong parAddr, jlong value)
 {
     (*(dtr::Parameter *)parAddr).maxTreeDepth = (size_t)value;
 }
@@ -76,10 +75,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_
 * Method:    cGetMinObservationsInLeafNodes
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_Parameter_cGetMinObservationsInLeafNodes
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_Parameter_cGetMinObservationsInLeafNodes(JNIEnv * env,
+                                                                                                                          jobject thisObj,
+                                                                                                                          jlong parAddr)
 {
-    return(jlong)(*(dtr::Parameter *)parAddr).minObservationsInLeafNodes;
+    return (jlong)(*(dtr::Parameter *)parAddr).minObservationsInLeafNodes;
 }
 
 /*
@@ -87,8 +87,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression
 * Method:    cSetMinObservationsInLeafNodes
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_Parameter_cSetMinObservationsInLeafNodes
-(JNIEnv *env, jobject thisObj, jlong parAddr, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_Parameter_cSetMinObservationsInLeafNodes(JNIEnv * env,
+                                                                                                                         jobject thisObj,
+                                                                                                                         jlong parAddr, jlong value)
 {
     (*(dtr::Parameter *)parAddr).minObservationsInLeafNodes = (size_t)value;
 }

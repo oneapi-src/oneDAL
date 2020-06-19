@@ -21,8 +21,8 @@
 //--
 */
 
-#include "cholesky.h"
-#include "cholesky_kernel.h"
+#include "algorithms/cholesky/cholesky.h"
+#include "algorithms/kernel/cholesky/cholesky_kernel.h"
 
 namespace daal
 {
@@ -32,33 +32,32 @@ namespace cholesky
 {
 namespace interface1
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv) : AnalysisContainerIface<batch>(daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : AnalysisContainerIface<batch>(daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::CholeskyKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    Input *input = static_cast<Input *>(_in);
-    Result *result = static_cast<Result *>(_res);
+    Input * input   = static_cast<Input *>(_in);
+    Result * result = static_cast<Result *>(_res);
 
-    daal::algorithms::Parameter *par = nullptr;
-    daal::services::Environment::env &env = *_env;
+    daal::algorithms::Parameter * par      = nullptr;
+    daal::services::Environment::env & env = *_env;
 
     __DAAL_CALL_KERNEL(env, internal::CholeskyKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, input->get(data).get(),
-                                                                              result->get(choleskyFactor).get(), par);
+                       result->get(choleskyFactor).get(), par);
 }
 
-}
+} // namespace interface1
 } // namespace cholesky
 } // namespace algorithms
 } // namespace daal

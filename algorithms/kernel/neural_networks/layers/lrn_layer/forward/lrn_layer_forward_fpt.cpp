@@ -21,11 +21,11 @@
 //--
 */
 
-#include "lrn_layer_forward_types.h"
-#include "lrn_layer_types.h"
+#include "algorithms/neural_networks/layers/lrn/lrn_layer_forward_types.h"
+#include "algorithms/neural_networks/layers/lrn/lrn_layer_types.h"
 
-#include "tensor.h"
-#include "service_mkl_tensor.h"
+#include "data_management/data/tensor.h"
+#include "service/kernel/data_management/service_mkl_tensor.h"
 
 namespace daal
 {
@@ -41,7 +41,6 @@ namespace forward
 {
 namespace interface1
 {
-
 using namespace daal::data_management;
 
 /**
@@ -51,13 +50,13 @@ using namespace daal::data_management;
  * \param[in] parameter %Parameter of the forward local response normalization layer
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     using daal::data_management::Tensor;
     using daal::data_management::TensorPtr;
     using daal::internal::MklTensor;
 
-    const layers::forward::Input *in = static_cast<const layers::forward::Input * >(input);
+    const layers::forward::Input * in = static_cast<const layers::forward::Input *>(input);
 
     if (!get(layers::forward::value))
     {
@@ -73,20 +72,21 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     }
 
     services::Status s;
-    const layers::Parameter *par = static_cast<const layers::Parameter * >(parameter);
-    if(!par->predictionStage)
+    const layers::Parameter * par = static_cast<const layers::Parameter *>(parameter);
+    if (!par->predictionStage)
     {
         s |= setResultForBackward(input);
     }
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace forward
-}// namespace lrn
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace lrn
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

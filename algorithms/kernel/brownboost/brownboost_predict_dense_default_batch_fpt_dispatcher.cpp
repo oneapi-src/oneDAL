@@ -22,8 +22,8 @@
 //--
 */
 
-#include "brownboost_predict.h"
-#include "brownboost_predict_batch_container.h"
+#include "algorithms/boosting/brownboost_predict.h"
+#include "algorithms/kernel/brownboost/brownboost_predict_batch_container.h"
 
 namespace daal
 {
@@ -46,7 +46,7 @@ Batch<DAAL_FPTYPE, brownboost::prediction::defaultDense>::Batch()
 
 using BatchType = Batch<DAAL_FPTYPE, brownboost::prediction::defaultDense>;
 template <>
-Batch<DAAL_FPTYPE, brownboost::prediction::defaultDense>::Batch(const BatchType &other) : classifier::prediction::Batch(other), input(other.input)
+Batch<DAAL_FPTYPE, brownboost::prediction::defaultDense>::Batch(const BatchType & other) : classifier::prediction::Batch(other), input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();

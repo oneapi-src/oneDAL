@@ -18,7 +18,7 @@
 #include <jni.h>
 #include "daal.h"
 #include "com_intel_daal_algorithms_elastic_net_TrainParameter.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 
@@ -38,8 +38,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_Trai
  * Method:    cGetInterceptFlag
  * Signature:(J)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_TrainingParameter_cGetInterceptFlag(JNIEnv * env,
-                                                                                                                    jobject thisObj,
+JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_TrainingParameter_cGetInterceptFlag(JNIEnv * env, jobject thisObj,
                                                                                                                     jlong parAddr)
 {
     return ((elastic_net::training::Parameter *)parAddr)->interceptFlag;
@@ -50,9 +49,7 @@ JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_
  * Method:    cSetPenaltyL1
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_TrainParameter_cSetPenaltyL1(JNIEnv * env,
-                                                                                                jobject thisObj,
-                                                                                                jlong parAddr,
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_TrainParameter_cSetPenaltyL1(JNIEnv * env, jobject thisObj, jlong parAddr,
                                                                                                 jlong cPenaltyL1)
 {
     SerializationIfacePtr * const ntShPtr                    = (SerializationIfacePtr *)cPenaltyL1;
@@ -64,9 +61,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_TrainParamete
  * Method:    cSetPenaltyL2
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_TrainParameter_cSetPenaltyL2(JNIEnv * env,
-                                                                                                jobject thisObj,
-                                                                                                jlong parAddr,
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_TrainParameter_cSetPenaltyL2(JNIEnv * env, jobject thisObj, jlong parAddr,
                                                                                                 jlong cPenaltyL2)
 {
     SerializationIfacePtr * const ntShPtr                    = (SerializationIfacePtr *)cPenaltyL2;
@@ -124,10 +119,8 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_elastic_1net_TrainParamete
  * Method:    cSetOptResultToCompute
  * Signature:(JZ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_TrainingParameter_cSetOptResultToCompute(JNIEnv * env,
-                                                                                                                     jobject thisObj,
-                                                                                                                     jlong parAddr,
-                                                                                                                     jint optResult)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_TrainingParameter_cSetOptResultToCompute(JNIEnv * env, jobject thisObj,
+                                                                                                                     jlong parAddr, jint optResult)
 {
     (*(elastic_net::training::Parameter *)parAddr).optResultToCompute = optResult;
 }
@@ -137,8 +130,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_Trai
  * Method:    cGetOptResultToCompute
  * Signature:(J)Z
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_TrainingParameter_cGetOptResultToCompute(JNIEnv * env,
-                                                                                                                     jobject thisObj,
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_TrainingParameter_cGetOptResultToCompute(JNIEnv * env, jobject thisObj,
                                                                                                                      jlong parAddr)
 {
     return (*(elastic_net::training::Parameter *)parAddr).optResultToCompute;
@@ -149,8 +141,9 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_Trai
  * Method:    cSetOptimizationSolver
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_TrainingParameter_cSetOptimizationSolver(
-    JNIEnv * env, jobject thisObj, jlong parAddr, jlong optimizationSolverAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_TrainingParameter_cSetOptimizationSolver(JNIEnv * env, jobject thisObj,
+                                                                                                                     jlong parAddr,
+                                                                                                                     jlong optimizationSolverAddr)
 {
     (((elastic_net::training::Parameter *)parAddr))->optimizationSolver =
         staticPointerCast<optimization_solver::iterative_solver::Batch, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)optimizationSolverAddr);
@@ -161,8 +154,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_Trai
  * Method:    cGetOptimizationSolver
  * Signature: (JJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_TrainingParameter_cGetOptimizationSolver(JNIEnv * env,
-                                                                                                                      jobject thisObj,
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_TrainingParameter_cGetOptimizationSolver(JNIEnv * env, jobject thisObj,
                                                                                                                       jlong parAddr)
 {
     SharedPtr<optimization_solver::iterative_solver::Batch> * opt =

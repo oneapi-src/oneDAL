@@ -24,8 +24,8 @@
 #ifndef __MSE_DENSE_DEFAULT_BATCH_CONTAINER_V1_H__
 #define __MSE_DENSE_DEFAULT_BATCH_CONTAINER_V1_H__
 
-#include "mse_batch.h"
-#include "mse_dense_default_batch_kernel_v1.h"
+#include "algorithms/optimization_solver/objective_function/mse_batch.h"
+#include "algorithms/kernel/objective_function/mse/inner/mse_dense_default_batch_kernel_v1.h"
 
 namespace daal
 {
@@ -37,52 +37,51 @@ namespace mse
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::I1MSEKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    Input *input = static_cast<Input *>(_in);
-    objective_function::Result *result = static_cast<objective_function::Result *>(_res);
-    interface1::Parameter *parameter = static_cast<interface1::Parameter *>(_par);
+    Input * input                       = static_cast<Input *>(_in);
+    objective_function::Result * result = static_cast<objective_function::Result *>(_res);
+    interface1::Parameter * parameter   = static_cast<interface1::Parameter *>(_par);
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    NumericTable *data               = input->get(mse::data).get();
-    NumericTable *dependentVariables = input->get(mse::dependentVariables).get();
-    NumericTable *argument           = input->get(mse::argument).get();
+    NumericTable * data               = input->get(mse::data).get();
+    NumericTable * dependentVariables = input->get(mse::dependentVariables).get();
+    NumericTable * argument           = input->get(mse::argument).get();
 
-    NumericTable *value    = nullptr;
-    NumericTable *hessian  = nullptr;
-    NumericTable *gradient = nullptr;
+    NumericTable * value    = nullptr;
+    NumericTable * hessian  = nullptr;
+    NumericTable * gradient = nullptr;
 
-    NumericTable *nonSmoothTermValue = nullptr;
-    NumericTable *proximalProjection = nullptr;
-    NumericTable *lipschitzConstant =  nullptr;
+    NumericTable * nonSmoothTermValue = nullptr;
+    NumericTable * proximalProjection = nullptr;
+    NumericTable * lipschitzConstant  = nullptr;
 
-    NumericTable *componentOfGradient = nullptr;
-    NumericTable *componentOfHessianDiagonal  = nullptr;
-    NumericTable *componentOfProximalProjection    = nullptr;
-
+    NumericTable * componentOfGradient           = nullptr;
+    NumericTable * componentOfHessianDiagonal    = nullptr;
+    NumericTable * componentOfProximalProjection = nullptr;
 
     bool valueFlag = ((parameter->resultsToCompute & objective_function::value) != 0) ? true : false;
-    if(valueFlag)
+    if (valueFlag)
     {
         value = result->get(objective_function::valueIdx).get();
     }
 
     bool hessianFlag = ((parameter->resultsToCompute & objective_function::hessian) != 0) ? true : false;
-    if(hessianFlag)
+    if (hessianFlag)
     {
         hessian = result->get(objective_function::hessianIdx).get();
     }
@@ -93,21 +92,21 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
         gradient = result->get(objective_function::gradientIdx).get();
     }
 
-    if(parameter->resultsToCompute & objective_function::nonSmoothTermValue)
+    if (parameter->resultsToCompute & objective_function::nonSmoothTermValue)
     {
         nonSmoothTermValue = result->get(objective_function::nonSmoothTermValueIdx).get();
     }
-    if(parameter->resultsToCompute & objective_function::proximalProjection)
+    if (parameter->resultsToCompute & objective_function::proximalProjection)
     {
         proximalProjection = result->get(objective_function::proximalProjectionIdx).get();
     }
-    if(parameter->resultsToCompute & objective_function::lipschitzConstant)
+    if (parameter->resultsToCompute & objective_function::lipschitzConstant)
     {
         lipschitzConstant = result->get(objective_function::lipschitzConstantIdx).get();
     }
 
-    __DAAL_CALL_KERNEL(env, internal::I1MSEKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, data, dependentVariables, argument, value,
-                                                                         hessian, gradient, nonSmoothTermValue, proximalProjection, lipschitzConstant, parameter);
+    __DAAL_CALL_KERNEL(env, internal::I1MSEKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, data, dependentVariables, argument,
+                       value, hessian, gradient, nonSmoothTermValue, proximalProjection, lipschitzConstant, parameter);
 }
 
 } // namespace interface1

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "covariance_result.h"
+#include "algorithms/kernel/covariance/covariance_result.h"
 
 namespace daal
 {
@@ -29,10 +29,11 @@ namespace algorithms
 {
 namespace covariance
 {
-
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult *partialResult, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult * partialResult,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
 } // namespace covariance
-}// namespace algorithms
-}// namespace daal
+} // namespace algorithms
+} // namespace daal

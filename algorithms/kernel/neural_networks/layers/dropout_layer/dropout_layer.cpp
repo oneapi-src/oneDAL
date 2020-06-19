@@ -21,8 +21,8 @@
 //--
 */
 
-#include "dropout_layer_types.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/layers/dropout/dropout_layer_types.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -36,24 +36,24 @@ namespace dropout
 {
 namespace interface1
 {
-
-Parameter::Parameter(const double retainRatio_, const size_t seed_) : retainRatio(retainRatio_), seed(seed_), engine(engines::mt19937::Batch<>::create()) {};
+Parameter::Parameter(const double retainRatio_, const size_t seed_)
+    : retainRatio(retainRatio_), seed(seed_), engine(engines::mt19937::Batch<>::create()) {};
 
 /**
  * Checks the correctness of the parameter
  */
 services::Status Parameter::check() const
 {
-    if(retainRatio <= 0.0)
+    if (retainRatio <= 0.0)
     {
         return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ArgumentName, retainRatioStr()));
     }
     return services::Status();
 }
 
-}// namespace interface1
-}// namespace dropout
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace dropout
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/kmeans/kmeans_init_types.h"
-#include "daal_defines.h"
-#include "daal_strings.h"
+#include "services/daal_defines.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -38,17 +38,30 @@ namespace init
 {
 namespace interface1
 {
-
-Parameter::Parameter(size_t _nClusters, size_t _offset, size_t _seed) : nClusters(_nClusters), offset(_offset), nRowsTotal(0), seed(_seed),
-    oversamplingFactor(0.5), nRounds(5), engine(engines::mt19937::Batch<>::create(_seed)) {}
+Parameter::Parameter(size_t _nClusters, size_t _offset, size_t _seed)
+    : nClusters(_nClusters),
+      offset(_offset),
+      nRowsTotal(0),
+      seed(_seed),
+      oversamplingFactor(0.5),
+      nRounds(5),
+      engine(engines::mt19937::Batch<>::create(_seed))
+{}
 
 /**
  * Constructs parameters of the algorithm that computes initial clusters for the K-Means algorithm
  * by copying another parameters object
  * \param[in] other    Parameters of the K-Means algorithm
  */
-Parameter::Parameter(const Parameter &other) : nClusters(other.nClusters), offset(other.offset), nRowsTotal(other.nRowsTotal), seed(other.seed),
-    oversamplingFactor(other.oversamplingFactor), nRounds(other.nRounds), engine(other.engine) {}
+Parameter::Parameter(const Parameter & other)
+    : nClusters(other.nClusters),
+      offset(other.offset),
+      nRowsTotal(other.nRowsTotal),
+      seed(other.seed),
+      oversamplingFactor(other.oversamplingFactor),
+      nRounds(other.nRounds),
+      engine(other.engine)
+{}
 
 services::Status Parameter::check() const
 {
@@ -56,12 +69,12 @@ services::Status Parameter::check() const
     return services::Status();
 }
 
-DistributedStep2LocalPlusPlusParameter::DistributedStep2LocalPlusPlusParameter(size_t _nClusters, bool bFirstIteration) :
-    Parameter(_nClusters), outputForStep5Required(false), firstIteration(bFirstIteration)
+DistributedStep2LocalPlusPlusParameter::DistributedStep2LocalPlusPlusParameter(size_t _nClusters, bool bFirstIteration)
+    : Parameter(_nClusters), outputForStep5Required(false), firstIteration(bFirstIteration)
 {}
 
-DistributedStep2LocalPlusPlusParameter::DistributedStep2LocalPlusPlusParameter(const DistributedStep2LocalPlusPlusParameter &other) :
-    Parameter(other), outputForStep5Required(other.outputForStep5Required), firstIteration(other.firstIteration)
+DistributedStep2LocalPlusPlusParameter::DistributedStep2LocalPlusPlusParameter(const DistributedStep2LocalPlusPlusParameter & other)
+    : Parameter(other), outputForStep5Required(other.outputForStep5Required), firstIteration(other.firstIteration)
 {}
 
 services::Status DistributedStep2LocalPlusPlusParameter::check() const
@@ -73,17 +86,14 @@ services::Status DistributedStep2LocalPlusPlusParameter::check() const
 
 namespace interface2
 {
-
-Parameter::Parameter(size_t nClusters, size_t offset, size_t seed) : interface1::Parameter(nClusters, offset, seed), nTrials(1)
-{}
+Parameter::Parameter(size_t nClusters, size_t offset, size_t seed) : interface1::Parameter(nClusters, offset, seed), nTrials(1) {}
 
 /**
  * Constructs parameters of the algorithm that computes initial clusters for the K-Means algorithm
  * by copying another parameters object
  * \param[in] other    Parameters of the K-Means algorithm
  */
-Parameter::Parameter(const Parameter &other) : interface1::Parameter(other), nTrials(other.nTrials)
-{}
+Parameter::Parameter(const Parameter & other) : interface1::Parameter(other), nTrials(other.nTrials) {}
 
 services::Status Parameter::check() const
 {
@@ -96,5 +106,5 @@ services::Status Parameter::check() const
 
 } // namespace init
 } // namespace kmeans
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

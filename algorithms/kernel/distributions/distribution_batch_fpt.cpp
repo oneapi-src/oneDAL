@@ -21,7 +21,7 @@
 //--
 */
 
-#include "distribution_batch.h"
+#include "algorithms/kernel/distributions/distribution_batch.h"
 
 namespace daal
 {
@@ -31,8 +31,8 @@ namespace distributions
 {
 namespace interface1
 {
-
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                                    const int method);
 
 } // namespace interface1
 } // namespace distributions

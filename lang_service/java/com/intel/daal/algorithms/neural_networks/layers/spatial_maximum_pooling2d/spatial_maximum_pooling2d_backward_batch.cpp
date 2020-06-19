@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 using namespace daal;
 using namespace daal::algorithms::neural_networks::layers;
@@ -30,24 +30,24 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1maximum_1pooling2d_SpatialMaximumPooling2dBackwardBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method, jlong pyramidHeigh, jlong nDim)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1maximum_1pooling2d_SpatialMaximumPooling2dBackwardBatch_cInit(
+    JNIEnv * env, jobject thisObj, jint prec, jint method, jlong pyramidHeigh, jlong nDim)
 {
-    return jniBatch<spatial_maximum_pooling2d::Method, spatial_maximum_pooling2d::backward::Batch, spatial_maximum_pooling2d::defaultDense>::
-           newObj(prec, method, pyramidHeigh, nDim);
+    return jniBatch<spatial_maximum_pooling2d::Method, spatial_maximum_pooling2d::backward::Batch, spatial_maximum_pooling2d::defaultDense>::newObj(
+        prec, method, pyramidHeigh, nDim);
 }
-
 
 /*
  * Class:     com_intel_daal_algorithms_neural_networks_layers_maximum_1pooling2d_SpatialMaximumPooling2dBackwardBatch
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1maximum_1pooling2d_SpatialMaximumPooling2dBackwardBatch_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL
+    Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1maximum_1pooling2d_SpatialMaximumPooling2dBackwardBatch_cGetInput(
+        JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<spatial_maximum_pooling2d::Method, spatial_maximum_pooling2d::backward::Batch, spatial_maximum_pooling2d::defaultDense>::
-           getInput(prec, method, algAddr);
+    return jniBatch<spatial_maximum_pooling2d::Method, spatial_maximum_pooling2d::backward::Batch, spatial_maximum_pooling2d::defaultDense>::getInput(
+        prec, method, algAddr);
 }
 
 /*
@@ -55,11 +55,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1maximum_1pooling2d_SpatialMaximumPooling2dBackwardBatch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL
+    Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1maximum_1pooling2d_SpatialMaximumPooling2dBackwardBatch_cInitParameter(
+        JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<spatial_maximum_pooling2d::Method, spatial_maximum_pooling2d::backward::Batch, spatial_maximum_pooling2d::defaultDense>::
-           getParameter(prec, method, algAddr);
+    return jniBatch<spatial_maximum_pooling2d::Method, spatial_maximum_pooling2d::backward::Batch,
+                    spatial_maximum_pooling2d::defaultDense>::getParameter(prec, method, algAddr);
 }
 
 /*
@@ -67,11 +68,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1maximum_1pooling2d_SpatialMaximumPooling2dBackwardBatch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL
+    Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1maximum_1pooling2d_SpatialMaximumPooling2dBackwardBatch_cGetResult(
+        JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<spatial_maximum_pooling2d::Method, spatial_maximum_pooling2d::backward::Batch, spatial_maximum_pooling2d::defaultDense>::
-           getResult(prec, method, algAddr);
+    return jniBatch<spatial_maximum_pooling2d::Method, spatial_maximum_pooling2d::backward::Batch,
+                    spatial_maximum_pooling2d::defaultDense>::getResult(prec, method, algAddr);
 }
 
 /*
@@ -79,11 +81,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1maximum_1pooling2d_SpatialMaximumPooling2dBackwardBatch_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resAddr)
+JNIEXPORT void JNICALL
+    Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1maximum_1pooling2d_SpatialMaximumPooling2dBackwardBatch_cSetResult(
+        JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resAddr)
 {
-    jniBatch<spatial_maximum_pooling2d::Method, spatial_maximum_pooling2d::backward::Batch, spatial_maximum_pooling2d::defaultDense>::
-    setResult<spatial_maximum_pooling2d::backward::Result>(prec, method, algAddr, resAddr);
+    jniBatch<spatial_maximum_pooling2d::Method, spatial_maximum_pooling2d::backward::Batch,
+             spatial_maximum_pooling2d::defaultDense>::setResult<spatial_maximum_pooling2d::backward::Result>(prec, method, algAddr, resAddr);
 }
 
 /*
@@ -91,9 +94,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_sp
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1maximum_1pooling2d_SpatialMaximumPooling2dBackwardBatch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL
+    Java_com_intel_daal_algorithms_neural_1networks_layers_spatial_1maximum_1pooling2d_SpatialMaximumPooling2dBackwardBatch_cClone(
+        JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<spatial_maximum_pooling2d::Method, spatial_maximum_pooling2d::backward::Batch, spatial_maximum_pooling2d::defaultDense>::
-           getClone(prec, method, algAddr);
+    return jniBatch<spatial_maximum_pooling2d::Method, spatial_maximum_pooling2d::backward::Batch, spatial_maximum_pooling2d::defaultDense>::getClone(
+        prec, method, algAddr);
 }

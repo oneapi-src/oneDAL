@@ -21,11 +21,11 @@
 //--
 */
 
-#include "concat_layer_backward_types.h"
-#include "concat_layer_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
-#include "service_numeric_table.h"
+#include "algorithms/neural_networks/layers/concat/concat_layer_backward_types.h"
+#include "algorithms/neural_networks/layers/concat/concat_layer_types.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -47,7 +47,7 @@ namespace interface1
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_NEURAL_NETWORKS_LAYERS_CONCAT_BACKWARD_RESULT_ID);
 /** \brief Default constructor */
 Input::Input() {};
-Input::Input(const Input& other) : super(other) {}
+Input::Input(const Input & other) : super(other) {}
 
 /**
 * Returns input object of the backward concat layer
@@ -56,8 +56,7 @@ Input::Input(const Input& other) : super(other) {}
 */
 NumericTablePtr Input::get(layers::concat::LayerDataId id) const
 {
-    return staticPointerCast<NumericTable, SerializationIface>
-           ((*get(layers::backward::inputFromForward))[id]);
+    return staticPointerCast<NumericTable, SerializationIface>((*get(layers::backward::inputFromForward))[id]);
 }
 
 /**
@@ -65,10 +64,10 @@ NumericTablePtr Input::get(layers::concat::LayerDataId id) const
 * \param[in] id      Identifier of the input object
 * \param[in] value   Pointer to the object
 */
-void Input::set(layers::concat::LayerDataId id, const NumericTablePtr &value)
+void Input::set(layers::concat::LayerDataId id, const NumericTablePtr & value)
 {
     LayerDataPtr layerData = get(layers::backward::inputFromForward);
-    (*layerData)[id] = value;
+    (*layerData)[id]       = value;
 }
 
 /**
@@ -76,10 +75,13 @@ void Input::set(layers::concat::LayerDataId id, const NumericTablePtr &value)
 * \param[in] par     %Parameter of algorithm
 * \param[in] method  Computation method of the algorithm
 */
-Status Input::check(const daal::algorithms::Parameter *par, int method) const
+Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
-    const Parameter *algParameter = static_cast<const Parameter *>(par);
-    if (!algParameter->propagateGradient) { return Status(); }
+    const Parameter * algParameter = static_cast<const Parameter *>(par);
+    if (!algParameter->propagateGradient)
+    {
+        return Status();
+    }
 
     const size_t concatDimension = algParameter->concatDimension;
 
@@ -93,7 +95,6 @@ Status Input::check(const daal::algorithms::Parameter *par, int method) const
     LayerDataPtr layerData = get(layers::backward::inputFromForward);
     DAAL_CHECK(layerData, ErrorNullLayerData);
 
-
     NumericTablePtr dimsNT = get(auxInputDimensions);
     DAAL_CHECK((dimsNT.get() != 0), ErrorNullNumericTable);
     DAAL_CHECK((dimsNT->getNumberOfRows() == 1), ErrorIncorrectNumberOfRowsInInputNumericTable);
@@ -103,7 +104,7 @@ Status Input::check(const daal::algorithms::Parameter *par, int method) const
 
     data_management::BlockDescriptor<int> block;
     dimsNT->getBlockOfRows(0, 1, data_management::readOnly, block);
-    int *auxDims = block.getBlockPtr();
+    int * auxDims = block.getBlockPtr();
 
     size_t sum = 0;
     for (size_t i = 0; i < inputSize; i++)
@@ -117,7 +118,7 @@ Status Input::check(const daal::algorithms::Parameter *par, int method) const
     return checkTensor(inputGradientTensor.get(), inputGradientStr(), &inputGradientDims);
 }
 
-    /** \brief Default constructor */
+/** \brief Default constructor */
 Result::Result() : layers::backward::Result() {};
 
 /**
@@ -138,10 +139,10 @@ TensorPtr Result::get(layers::backward::ResultLayerDataId id, size_t index) cons
  * \param[in] value    Pointer to the object
  * \param[in] index    Index of the result object
  */
-void Result::set(layers::backward::ResultLayerDataId id, const TensorPtr &value, size_t index)
+void Result::set(layers::backward::ResultLayerDataId id, const TensorPtr & value, size_t index)
 {
     LayerDataPtr layerData = get(id);
-    (*layerData)[index] = value;
+    (*layerData)[index]    = value;
 }
 
 /**
@@ -160,16 +161,19 @@ TensorPtr Result::getGradient(size_t index) const
  * \param[in] par     %Parameter of the algorithm
  * \param[in] method  Computation method
  */
-Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
-    const Parameter *parameter = static_cast<const Parameter *>(par);
-    if (!parameter->propagateGradient) { return Status(); }
+    const Parameter * parameter = static_cast<const Parameter *>(par);
+    if (!parameter->propagateGradient)
+    {
+        return Status();
+    }
 
     DAAL_CHECK((Argument::size() == 4), ErrorIncorrectNumberOfInputNumericTables);
 
-    const Input *algInput = static_cast<const Input *>(input);
+    const Input * algInput       = static_cast<const Input *>(input);
     const size_t concatDimension = parameter->concatDimension;
-    LayerDataPtr layerData = get(layers::backward::resultLayerData);
+    LayerDataPtr layerData       = get(layers::backward::resultLayerData);
     DAAL_CHECK(layerData, ErrorNullLayerData);
 
     const size_t nInputs = layerData->size();
@@ -184,12 +188,13 @@ Status Result::check(const daal::algorithms::Input *input, const daal::algorithm
     for (size_t i = 0; i < nInputs; i++)
     {
         TensorPtr layerDataTensor = get(layers::backward::resultLayerData, i);
-        dims[concatDimension] = layerDataTensor->getDimensionSize(concatDimension);
+        dims[concatDimension]     = layerDataTensor->getDimensionSize(concatDimension);
         sum += dims[concatDimension];
 
         DAAL_CHECK_STATUS(s, checkTensor(layerDataTensor.get(), resultLayerDataStr(), &dims));
     }
-    DAAL_CHECK((sum == inputGradientTensor->getDimensionSize(concatDimension)), Error::create(ErrorIncorrectSizeOfDimensionInTensor, ArgumentName, inputGradientStr()));
+    DAAL_CHECK((sum == inputGradientTensor->getDimensionSize(concatDimension)),
+               Error::create(ErrorIncorrectSizeOfDimensionInTensor, ArgumentName, inputGradientStr()));
 
     return s;
 }
@@ -198,21 +203,24 @@ Status Result::check(const daal::algorithms::Input *input, const daal::algorithm
  * Returns the layout of the result object for the layer algorithm
  * \return Layout of the result object for the layer algorithm
  */
-LayerResultLayout Result::getLayout() const  { return collectionResult; }
+LayerResultLayout Result::getLayout() const
+{
+    return collectionResult;
+}
 
 size_t Result::getElem(NumericTablePtr nt, size_t index) const
 {
     BlockDescriptor<int> block;
     nt->getBlockOfRows(0, 1, readOnly, block);
-    int *dataArray = block.getBlockPtr();
+    int * dataArray = block.getBlockPtr();
     nt->releaseBlockOfRows(block);
     return (size_t)dataArray[index];
 }
 
-}// namespace interface1
-}// namespace backward
-}// namespace concat
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace concat
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

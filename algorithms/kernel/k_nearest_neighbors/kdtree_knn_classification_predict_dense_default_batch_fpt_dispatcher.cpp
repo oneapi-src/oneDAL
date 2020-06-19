@@ -22,15 +22,15 @@
 //--
 */
 
-#include "kdtree_knn_classification_predict_dense_default_batch_container.h"
+#include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_classification_predict_dense_default_batch_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kdtree_knn_classification::prediction::interface1::BatchContainer, batch, DAAL_FPTYPE, \
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kdtree_knn_classification::prediction::interface1::BatchContainer, batch, DAAL_FPTYPE,
                                       kdtree_knn_classification::prediction::defaultDense)
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kdtree_knn_classification::prediction::BatchContainer, batch, DAAL_FPTYPE, \
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kdtree_knn_classification::prediction::BatchContainer, batch, DAAL_FPTYPE,
                                       kdtree_knn_classification::prediction::defaultDense)
 
 } // namespace algorithms

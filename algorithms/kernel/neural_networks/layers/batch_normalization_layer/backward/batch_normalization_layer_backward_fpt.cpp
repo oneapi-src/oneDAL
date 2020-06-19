@@ -21,9 +21,9 @@
 //--
 */
 
-#include "batch_normalization_layer_backward_types.h"
-#include "batch_normalization_layer_types.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/layers/batch_normalization/batch_normalization_layer_backward_types.h"
+#include "algorithms/neural_networks/layers/batch_normalization/batch_normalization_layer_types.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -46,10 +46,10 @@ namespace interface1
  * \param[in] method Computation method for the layer
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const Input *in = static_cast<const Input *>(input);
-    const Parameter *algParameter = static_cast<const Parameter *>(parameter);
+    const Input * in               = static_cast<const Input *>(input);
+    const Parameter * algParameter = static_cast<const Parameter *>(parameter);
 
     data_management::TensorPtr inputGradientTensor = in->get(layers::backward::inputGradient);
 
@@ -61,7 +61,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
         DAAL_ALLOCATE_TENSOR_AND_SET(s, layers::backward::gradient, inputGradientTensor->getDimensions());
     }
 
-    size_t dimension = algParameter->dimension;
+    size_t dimension     = algParameter->dimension;
     size_t dimensionSize = inputGradientTensor->getDimensionSize(dimension);
     services::Collection<size_t> requiredDimensionSizes(1);
     requiredDimensionSizes[0] = dimensionSize;
@@ -77,12 +77,13 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace backward
-}// namespace batch_normalization
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace batch_normalization
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

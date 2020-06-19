@@ -24,11 +24,11 @@
 #ifndef __PCA_DENSE_SVD_ONLINE_KERNEL_H__
 #define __PCA_DENSE_SVD_ONLINE_KERNEL_H__
 
-#include "pca_online.h"
-#include "pca_types.h"
-#include "svd/svd_dense_default_kernel.h"
+#include "algorithms/pca/pca_online.h"
+#include "algorithms/pca/pca_types.h"
+#include "algorithms/kernel/svd/svd_dense_default_kernel.h"
 
-#include "pca_dense_svd_base.h"
+#include "algorithms/kernel/pca/pca_dense_svd_base.h"
 
 namespace daal
 {
@@ -38,30 +38,24 @@ namespace pca
 {
 namespace internal
 {
-
 template <typename algorithmFPType, CpuType cpu>
 class PCASVDOnlineKernel : public PCASVDKernelBase<algorithmFPType, cpu>
 {
 public:
     PCASVDOnlineKernel() {}
 
-    services::Status compute(InputDataType type, const data_management::NumericTablePtr &data,
-                 data_management::NumericTable &nObservations,
-                 data_management::NumericTable &auxiliaryTable,
-                 data_management::NumericTable &sumSVD,
-                 data_management::NumericTable &sumSquaresSVD);
+    services::Status compute(InputDataType type, const data_management::NumericTablePtr & data, data_management::NumericTable & nObservations,
+                             data_management::NumericTable & auxiliaryTable, data_management::NumericTable & sumSVD,
+                             data_management::NumericTable & sumSquaresSVD);
 
-    services::Status finalizeMerge(InputDataType type, const data_management::NumericTablePtr &nObservationsTable,
-                       data_management::NumericTable &eigenvalues,
-                       data_management::NumericTable &eigenvectors,
-                       data_management::DataCollectionPtr &rTables);
+    services::Status finalizeMerge(InputDataType type, const data_management::NumericTablePtr & nObservationsTable,
+                                   data_management::NumericTable & eigenvalues, data_management::NumericTable & eigenvectors,
+                                   data_management::DataCollectionPtr & rTables);
 
 protected:
-    services::Status normalizeDataset(const NumericTablePtr &data,
-        size_t totalObservations,
-        NumericTable &nObservations, NumericTable &sumSVD,
-        NumericTable &sumSquaresSVD, data_management::NumericTablePtr& normalizedData);
-    services::Status decompose(const NumericTable *normalizedDataTable, NumericTable &auxiliaryTable);
+    services::Status normalizeDataset(const NumericTablePtr & data, size_t totalObservations, NumericTable & nObservations, NumericTable & sumSVD,
+                                      NumericTable & sumSquaresSVD, data_management::NumericTablePtr & normalizedData);
+    services::Status decompose(const NumericTable * normalizedDataTable, NumericTable & auxiliaryTable);
 };
 
 } // namespace internal

@@ -21,11 +21,11 @@
 //--
 */
 
-#include "elu_layer_forward_types.h"
-#include "elu_layer_types.h"
-#include "service_mkl_tensor.h"
-#include "tensor.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/layers/elu/elu_layer_forward_types.h"
+#include "algorithms/neural_networks/layers/elu/elu_layer_types.h"
+#include "service/kernel/data_management/service_mkl_tensor.h"
+#include "data_management/data/tensor.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -41,7 +41,6 @@ namespace forward
 {
 namespace interface1
 {
-
 using namespace daal::services;
 using namespace daal::data_management;
 
@@ -52,16 +51,14 @@ using namespace daal::data_management;
 * \param[in] method     Computation method for the algorithm
 */
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input,
-                                    const daal::algorithms::Parameter *parameter,
-                                    const int method)
+DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     Status status;
 
     auto in  = static_cast<const layers::forward::Input *>(input);
     auto par = static_cast<const layers::Parameter *>(parameter);
 
-    const Tensor *dataTensor = in->get(layers::forward::data).get();
+    const Tensor * dataTensor = in->get(layers::forward::data).get();
     DAAL_CHECK(dataTensor, Error::create(ErrorNullTensor, ArgumentName, dataStr()));
 
     if (!get(layers::forward::value))
@@ -83,8 +80,7 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input,
 
     if (!get(layers::elu::auxIntermediateValue) && !par->predictionStage)
     {
-        const TensorPtr auxIntermediateValueTensor = HomogenTensor<algorithmFPType>::create(
-            dataTensor->getDimensions(), Tensor::doAllocate, &status);
+        const TensorPtr auxIntermediateValueTensor = HomogenTensor<algorithmFPType>::create(dataTensor->getDimensions(), Tensor::doAllocate, &status);
 
         DAAL_CHECK_STATUS_VAR(status);
         set(layers::elu::auxIntermediateValue, auxIntermediateValueTensor);
@@ -98,8 +94,7 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input,
     return status;
 }
 
-template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input,
-                                                          const daal::algorithms::Parameter *parameter,
+template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
                                                           const int method);
 
 } // namespace interface1

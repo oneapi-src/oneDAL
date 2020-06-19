@@ -19,10 +19,9 @@
 //  Implementation of convolution2d calculation functions.
 //--
 
-
-#include "convolution2d_layer_forward_batch_container.h"
-#include "convolution2d_layer_forward_kernel.h"
-#include "convolution2d_layer_forward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/convolution2d_layer/forward/convolution2d_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/convolution2d_layer/forward/convolution2d_layer_forward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/convolution2d_layer/forward/convolution2d_layer_forward_impl.i"
 
 namespace daal
 {
@@ -34,21 +33,20 @@ namespace layers
 {
 namespace convolution2d
 {
-
 namespace forward
 {
 namespace interface1
 {
 template class neural_networks::layers::convolution2d::forward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 namespace internal
 {
 template class Convolution2dKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 
-}
-}
-}
-}
-}
+} // namespace convolution2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

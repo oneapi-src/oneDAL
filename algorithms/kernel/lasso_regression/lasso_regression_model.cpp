@@ -21,9 +21,9 @@
 //--
 */
 
-#include "lasso_regression_model_impl.h"
-#include "serialization_utils.h"
-#include "service_numeric_table.h"
+#include "algorithms/kernel/lasso_regression/lasso_regression_model_impl.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -39,7 +39,7 @@ namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS2(Model, internal::ModelImpl, SERIALIZATION_LASSO_REGRESSION_MODEL_ID);
 }
-services::Status checkModel(lasso_regression::Model* model, const daal::algorithms::Parameter &par, size_t nBeta, size_t nResponses, int method)
+services::Status checkModel(lasso_regression::Model * model, const daal::algorithms::Parameter & par, size_t nBeta, size_t nResponses, int method)
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, linear_model::checkModel(model, par, nBeta, nResponses));

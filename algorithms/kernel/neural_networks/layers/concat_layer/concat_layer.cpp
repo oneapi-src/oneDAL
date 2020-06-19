@@ -21,7 +21,7 @@
 //--
 */
 
-#include "concat_layer_types.h"
+#include "algorithms/neural_networks/layers/concat/concat_layer_types.h"
 
 namespace daal
 {
@@ -41,9 +41,9 @@ namespace interface1
 */
 Parameter::Parameter(size_t concatDimension) : concatDimension(concatDimension) {};
 
-}// namespace interface1
-}// namespace concat
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace concat
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

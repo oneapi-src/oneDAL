@@ -32,16 +32,15 @@ namespace gbt
 {
 namespace internal
 {
-
 /**
 * Parallel options in GBT training algorithm
 */
 enum ParallelOptions
 {
     parallelFeatures = 1, /*!< Process features in parallel threads when finding splits */
-    parallelNodes = 2,    /*!< Process nodes in parallel threads when building a tree */
-    parallelTrees = 4,    /*!< Multi-class classification only: process single class tree in a separate thread */
-    parallelAll = (parallelFeatures | parallelNodes | parallelTrees)
+    parallelNodes    = 2, /*!< Process nodes in parallel threads when building a tree */
+    parallelTrees    = 4, /*!< Multi-class classification only: process single class tree in a separate thread */
+    parallelAll      = (parallelFeatures | parallelNodes | parallelTrees)
 };
 
 } // namespace internal

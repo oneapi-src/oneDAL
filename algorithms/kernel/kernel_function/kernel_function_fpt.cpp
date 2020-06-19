@@ -21,7 +21,7 @@
 //--
 */
 
-#include "kernel_function_types.h"
+#include "algorithms/kernel_function/kernel_function_types.h"
 
 namespace daal
 {
@@ -38,21 +38,23 @@ namespace interface1
  * \param[in] method       Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
-    const Input *algInput = static_cast<const Input *>(input);
+    const Input * algInput = static_cast<const Input *>(input);
 
     const size_t nVectors1 = algInput->get(X)->getNumberOfRows();
     const size_t nVectors2 = algInput->get(Y)->getNumberOfRows();
 
     services::Status status;
-    set(values, data_management::HomogenNumericTable<algorithmFPType>::create(nVectors2, nVectors1, data_management::NumericTable::doAllocate, &status));
+    set(values,
+        data_management::HomogenNumericTable<algorithmFPType>::create(nVectors2, nVectors1, data_management::NumericTable::doAllocate, &status));
     return status;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                                    const int method);
 
-}// namespace interface1
-}// namespace kernel function
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace kernel_function
+} // namespace algorithms
+} // namespace daal

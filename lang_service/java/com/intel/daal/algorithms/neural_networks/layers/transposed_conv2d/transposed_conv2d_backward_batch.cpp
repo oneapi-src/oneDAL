@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::neural_networks::layers;
@@ -30,24 +30,23 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dBackwardBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dBackwardBatch_cInit(JNIEnv * env,
+                                                                                                                                      jobject thisObj,
+                                                                                                                                      jint prec,
+                                                                                                                                      jint method)
 {
-    return jniBatch<transposed_conv2d::Method, transposed_conv2d::backward::Batch, transposed_conv2d::defaultDense>::
-           newObj(prec, method);
+    return jniBatch<transposed_conv2d::Method, transposed_conv2d::backward::Batch, transposed_conv2d::defaultDense>::newObj(prec, method);
 }
-
 
 /*
  * Class:     com_intel_daal_algorithms_neural_networks_layers_transposed_conv2d_TransposedConv2dBackwardBatch
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dBackwardBatch_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dBackwardBatch_cGetInput(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<transposed_conv2d::Method, transposed_conv2d::backward::Batch, transposed_conv2d::defaultDense>::
-           getInput(prec, method, algAddr);
+    return jniBatch<transposed_conv2d::Method, transposed_conv2d::backward::Batch, transposed_conv2d::defaultDense>::getInput(prec, method, algAddr);
 }
 
 /*
@@ -55,11 +54,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_t
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dBackwardBatch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dBackwardBatch_cInitParameter(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<transposed_conv2d::Method, transposed_conv2d::backward::Batch, transposed_conv2d::defaultDense>::
-           getParameter(prec, method, algAddr);
+    return jniBatch<transposed_conv2d::Method, transposed_conv2d::backward::Batch, transposed_conv2d::defaultDense>::getParameter(prec, method,
+                                                                                                                                  algAddr);
 }
 
 /*
@@ -67,11 +66,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_t
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dBackwardBatch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dBackwardBatch_cGetResult(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<transposed_conv2d::Method, transposed_conv2d::backward::Batch, transposed_conv2d::defaultDense>::
-           getResult(prec, method, algAddr);
+    return jniBatch<transposed_conv2d::Method, transposed_conv2d::backward::Batch, transposed_conv2d::defaultDense>::getResult(prec, method, algAddr);
 }
 
 /*
@@ -79,11 +77,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_t
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dBackwardBatch_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dBackwardBatch_cSetResult(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resAddr)
 {
-    jniBatch<transposed_conv2d::Method, transposed_conv2d::backward::Batch, transposed_conv2d::defaultDense>::
-    setResult<transposed_conv2d::backward::Result>(prec, method, algAddr, resAddr);
+    jniBatch<transposed_conv2d::Method, transposed_conv2d::backward::Batch,
+             transposed_conv2d::defaultDense>::setResult<transposed_conv2d::backward::Result>(prec, method, algAddr, resAddr);
 }
 
 /*
@@ -91,9 +89,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_tr
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dBackwardBatch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dBackwardBatch_cClone(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<transposed_conv2d::Method, transposed_conv2d::backward::Batch, transposed_conv2d::defaultDense>::
-           getClone(prec, method, algAddr);
+    return jniBatch<transposed_conv2d::Method, transposed_conv2d::backward::Batch, transposed_conv2d::defaultDense>::getClone(prec, method, algAddr);
 }

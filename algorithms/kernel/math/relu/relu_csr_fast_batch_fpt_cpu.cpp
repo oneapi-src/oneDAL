@@ -19,12 +19,11 @@
 //  Implementation of relu calculation functions.
 //--
 
-
-#include "relu_batch_container.h"
-#include "relu_base.h"
-#include "relu_csr_fast_kernel.h"
-#include "relu_impl.i"
-#include "relu_csr_fast_impl.i"
+#include "algorithms/kernel/math/relu/relu_batch_container.h"
+#include "algorithms/kernel/math/relu/relu_base.h"
+#include "algorithms/kernel/math/relu/relu_csr_fast_kernel.h"
+#include "algorithms/kernel/math/relu/relu_impl.i"
+#include "algorithms/kernel/math/relu/relu_csr_fast_impl.i"
 
 namespace daal
 {
@@ -42,8 +41,8 @@ namespace internal
 {
 template class ReLUKernel<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
 template class ReLUKernelBase<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace relu
+} // namespace math
+} // namespace algorithms
+} // namespace daal

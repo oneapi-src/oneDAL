@@ -22,29 +22,27 @@
 //--
 */
 
-#include "dbscan_container.h"
+#include "algorithms/kernel/dbscan/dbscan_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(dbscan::DistributedContainer, distributed, step6Local,  \
-    DAAL_FPTYPE, dbscan::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(dbscan::DistributedContainer, distributed, step6Local, DAAL_FPTYPE, dbscan::defaultDense)
 
 namespace dbscan
 {
 namespace interface1
 {
-
 using DistributedType = Distributed<step6Local, DAAL_FPTYPE, defaultDense>;
 
 template <>
 DistributedType::Distributed(size_t blockIndex, size_t nBlocks, DAAL_FPTYPE epsilon, size_t minObservations)
 {
-    ParameterType *par = new ParameterType();
-    par->blockIndex = blockIndex;
-    par->nBlocks = nBlocks;
-    par->epsilon = epsilon;
+    ParameterType * par  = new ParameterType();
+    par->blockIndex      = blockIndex;
+    par->nBlocks         = nBlocks;
+    par->epsilon         = epsilon;
     par->minObservations = minObservations;
 
     _par = par;
@@ -52,7 +50,7 @@ DistributedType::Distributed(size_t blockIndex, size_t nBlocks, DAAL_FPTYPE epsi
 }
 
 template <>
-DistributedType::Distributed(const DistributedType &other) : input(other.input)
+DistributedType::Distributed(const DistributedType & other) : input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();

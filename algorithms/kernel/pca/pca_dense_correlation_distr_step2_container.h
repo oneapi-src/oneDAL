@@ -24,9 +24,9 @@
 #ifndef __PCA_DENSE_CORRELATION_DISTR_STEP2_CONTAINER_H__
 #define __PCA_DENSE_CORRELATION_DISTR_STEP2_CONTAINER_H__
 
-#include "kernel.h"
-#include "pca_distributed.h"
-#include "pca_dense_correlation_distr_step2_kernel.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/pca/pca_distributed.h"
+#include "algorithms/kernel/pca/pca_dense_correlation_distr_step2_kernel.h"
 
 namespace daal
 {
@@ -34,10 +34,8 @@ namespace algorithms
 {
 namespace pca
 {
-
 template <typename algorithmFPType, CpuType cpu>
-DistributedContainer<step2Master, algorithmFPType, correlationDense, cpu>::DistributedContainer(daal::services::Environment::env
-                                                                                                *daalEnv)
+DistributedContainer<step2Master, algorithmFPType, correlationDense, cpu>::DistributedContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::PCACorrelationKernel, distributed, algorithmFPType);
 }
@@ -51,14 +49,14 @@ DistributedContainer<step2Master, algorithmFPType, correlationDense, cpu>::~Dist
 template <typename algorithmFPType, CpuType cpu>
 services::Status DistributedContainer<step2Master, algorithmFPType, correlationDense, cpu>::compute()
 {
-    DistributedInput<correlationDense> *input = static_cast<DistributedInput<correlationDense> *>(_in);
-    PartialResult<correlationDense> *partialResult = static_cast<PartialResult<correlationDense> *>(_pres);
-    DistributedParameter<step2Master, algorithmFPType, correlationDense> *parameter =
+    DistributedInput<correlationDense> * input      = static_cast<DistributedInput<correlationDense> *>(_in);
+    PartialResult<correlationDense> * partialResult = static_cast<PartialResult<correlationDense> *>(_pres);
+    DistributedParameter<step2Master, algorithmFPType, correlationDense> * parameter =
         static_cast<DistributedParameter<step2Master, algorithmFPType, correlationDense> *>(_par);
-    services::Environment::env &env = *_env;
+    services::Environment::env & env = *_env;
 
     services::Status s = __DAAL_CALL_KERNEL_STATUS(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(distributed, algorithmFPType),
-                       compute, input, partialResult, parameter);
+                                                   compute, input, partialResult, parameter);
 
     input->get(partialResults)->clear();
     return s;
@@ -67,22 +65,22 @@ services::Status DistributedContainer<step2Master, algorithmFPType, correlationD
 template <typename algorithmFPType, CpuType cpu>
 services::Status DistributedContainer<step2Master, algorithmFPType, correlationDense, cpu>::finalizeCompute()
 {
-    PartialResult<correlationDense> *partialResult = static_cast<PartialResult<correlationDense> *>(_pres);
-    Result *result = static_cast<Result *>(_res);
-    DistributedParameter<step2Master, algorithmFPType, correlationDense> *parameter =
+    PartialResult<correlationDense> * partialResult = static_cast<PartialResult<correlationDense> *>(_pres);
+    Result * result                                 = static_cast<Result *>(_res);
+    DistributedParameter<step2Master, algorithmFPType, correlationDense> * parameter =
         static_cast<DistributedParameter<step2Master, algorithmFPType, correlationDense> *>(_par);
 
     data_management::NumericTablePtr eigenvalues  = result->get(pca::eigenvalues);
     data_management::NumericTablePtr eigenvectors = result->get(pca::eigenvectors);
 
-    services::Environment::env &env = *_env;
+    services::Environment::env & env = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(distributed, algorithmFPType),
-                       finalize, partialResult, parameter, *eigenvectors, *eigenvalues);
+    __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(distributed, algorithmFPType), finalize, partialResult, parameter,
+                       *eigenvectors, *eigenvalues);
 }
 
-}
-}
+} // namespace pca
+} // namespace algorithms
 } // namespace daal
 
 #endif

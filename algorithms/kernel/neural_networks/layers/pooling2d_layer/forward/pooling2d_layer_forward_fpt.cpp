@@ -21,11 +21,11 @@
 //--
 */
 
-#include "pooling2d_layer_forward_types.h"
-#include "pooling2d_layer_types.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/layers/pooling2d/pooling2d_layer_forward_types.h"
+#include "algorithms/neural_networks/layers/pooling2d/pooling2d_layer_types.h"
+#include "service/kernel/daal_strings.h"
 
-#include "service_mkl_tensor.h"
+#include "service/kernel/data_management/service_mkl_tensor.h"
 
 namespace daal
 {
@@ -41,7 +41,6 @@ namespace forward
 {
 namespace interface1
 {
-
 /**
  * Allocates memory to store the result of the forward 2D pooling layer
  * \param[in] input Pointer to an object containing the input data
@@ -49,21 +48,20 @@ namespace interface1
  * \param[in] parameter %Parameter of the forward 2D pooling layer
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     using daal::data_management::Tensor;
     using daal::internal::MklTensor;
 
-    const Input *in = static_cast<const Input *>(input);
-    const Parameter *algParameter = static_cast<const Parameter *>(parameter);
+    const Input * in               = static_cast<const Input *>(input);
+    const Parameter * algParameter = static_cast<const Parameter *>(parameter);
 
     services::Collection<size_t> valueDims(in->get(layers::forward::data)->getDimensions());
     computeValueDimensions(valueDims, algParameter);
 
     if (!get(layers::forward::value))
     {
-        set(layers::forward::value, data_management::TensorPtr(
-                new MklTensor<algorithmFPType>(valueDims, data_management::Tensor::doAllocate)));
+        set(layers::forward::value, data_management::TensorPtr(new MklTensor<algorithmFPType>(valueDims, data_management::Tensor::doAllocate)));
     }
     if (!get(layers::forward::resultForBackward))
     {
@@ -72,12 +70,13 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return services::Status();
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace forward
-}// namespace pooling2d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace pooling2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

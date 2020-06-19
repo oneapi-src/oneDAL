@@ -68,7 +68,7 @@ int main()
     eltwise_sum::forward::ResultPtr forwardResult = eltwiseSumLayerForward.getResult();
     printTensor(forwardResult->get(forward::value), "Forward element-wise sum layer result (first 5 rows):", 5);
     printNumericTable(forwardResult->get(eltwise_sum::auxNumberOfCoefficients),
-        "Forward element-wise sum layer number of inputs (number of coefficients)", 1);
+                      "Forward element-wise sum layer number of inputs (number of coefficients)", 1);
 
     /* Create an algorithm to compute backward element-wise sum layer results using default method */
     eltwise_sum::backward::Batch<> eltwiseSumLayerBackward;
@@ -85,8 +85,7 @@ int main()
 
     for (size_t i = 0; i < nInputs; i++)
     {
-        printTensor(backwardResult->get(backward::resultLayerData, i),
-            "Backward element-wise sum layer backward result (first 5 rows):", 5);
+        printTensor(backwardResult->get(backward::resultLayerData, i), "Backward element-wise sum layer backward result (first 5 rows):", 5);
     }
 
     return 0;

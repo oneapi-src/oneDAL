@@ -24,8 +24,8 @@
 #ifndef __MT19937_BATCH_CONTAINER_H__
 #define __MT19937_BATCH_CONTAINER_H__
 
-#include "engines/mt19937/mt19937.h"
-#include "mt19937_kernel.h"
+#include "algorithms/engines/mt19937/mt19937.h"
+#include "algorithms/kernel/engines/mt19937/mt19937_kernel.h"
 
 namespace daal
 {
@@ -37,25 +37,24 @@ namespace mt19937
 {
 namespace interface1
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv) : AnalysisContainerIface<batch>(daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : AnalysisContainerIface<batch>(daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::Mt19937Kernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    daal::services::Environment::env &env = *_env;
-    engines::Result *result   = static_cast<engines::Result *>(_res);
-    NumericTable *resultTable = result->get(engines::randomNumbers).get();
+    daal::services::Environment::env & env = *_env;
+    engines::Result * result               = static_cast<engines::Result *>(_res);
+    NumericTable * resultTable             = result->get(engines::randomNumbers).get();
 
     __DAAL_CALL_KERNEL(env, internal::Mt19937Kernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, resultTable);
 }

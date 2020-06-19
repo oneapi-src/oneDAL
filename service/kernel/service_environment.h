@@ -24,9 +24,10 @@ namespace services
 {
 namespace internal
 {
-
 //returns size of L1 cache in bytes
 unsigned getL1CacheSize();
+//returns size of L2 cache in bytes
+unsigned getL2CacheSize();
 //returns size of LL (last level) cache in bytes
 unsigned getLLCacheSize();
 
@@ -45,8 +46,8 @@ unsigned getNumElementsFitInL1Cache(size_t sizeofAnElement, size_t defaultNumEle
 //param defaultNumElements - return this number of element if cache size system method call failed
 unsigned getNumElementsFitInLLCache(size_t sizeofAnElement, size_t defaultNumElements);
 
-}
-}
-}
+} // namespace internal
+} // namespace services
+} // namespace daal
 
 #endif /* __SERVICE_ENVIRONMENT_H__ */

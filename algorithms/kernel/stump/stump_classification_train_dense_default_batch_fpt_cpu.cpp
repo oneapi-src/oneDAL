@@ -21,9 +21,9 @@
 //--
 */
 
-#include "stump_classification_train_batch_container.h"
-#include "stump_classification_train_kernel.h"
-#include "stump_classification_train_aux.i"
+#include "algorithms/kernel/stump/stump_classification_train_batch_container.h"
+#include "algorithms/kernel/stump/stump_classification_train_kernel.h"
+#include "algorithms/kernel/stump/stump_classification_train_aux.i"
 
 namespace daal
 {
@@ -43,8 +43,8 @@ namespace internal
 {
 template class StumpTrainKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
-}
+} // namespace training
+} // namespace classification
+} // namespace stump
+} // namespace algorithms
+} // namespace daal

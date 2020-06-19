@@ -17,7 +17,7 @@
 
 /**
  * @defgroup regression_training_batch Batch
- * @ingroup training
+ * @ingroup regression_training
  * @{
  */
 package com.intel.daal.algorithms.regression.training;

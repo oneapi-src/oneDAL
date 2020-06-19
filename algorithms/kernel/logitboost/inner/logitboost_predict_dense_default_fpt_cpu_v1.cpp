@@ -21,9 +21,9 @@
 //--
 */
 
-#include "logitboost_predict_batch_container_v1.h"
-#include "logitboost_predict_dense_default_kernel_v1.h"
-#include "logitboost_predict_dense_default_impl_v1.i"
+#include "algorithms/kernel/logitboost/inner/logitboost_predict_batch_container_v1.h"
+#include "algorithms/kernel/logitboost/inner/logitboost_predict_dense_default_kernel_v1.h"
+#include "algorithms/kernel/logitboost/inner/logitboost_predict_dense_default_impl_v1.i"
 
 namespace daal
 {
@@ -41,7 +41,7 @@ namespace internal
 {
 template struct I1LogitBoostPredictKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace prediction
+} // namespace logitboost
+} // namespace algorithms
+} // namespace daal

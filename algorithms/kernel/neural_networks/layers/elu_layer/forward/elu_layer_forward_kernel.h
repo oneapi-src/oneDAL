@@ -19,13 +19,12 @@
 //  Declaration of template function that calculate ELU.
 //--
 
-
 #ifndef __ELU_LAYER_FORWARD_KERNEL_H__
 #define __ELU_LAYER_FORWARD_KERNEL_H__
 
-#include "kernel.h"
-#include "elu_common.h"
-#include "service_numeric_table.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/kernel/neural_networks/layers/elu_layer/elu_common.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 namespace daal
 {
@@ -41,7 +40,6 @@ namespace forward
 {
 namespace internal
 {
-
 using namespace daal::services;
 using namespace daal::data_management;
 
@@ -51,7 +49,7 @@ using elu::internal::ScalableTlsBuffer;
 /**
  *  \brief Kernel for ELU calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class ELUKernel : public Kernel
 {
 private:
@@ -59,55 +57,34 @@ private:
     ScalableTlsBuffer<BlockSizeType, cpu> _indicesTls;
 
 public:
-    ELUKernel() : _intermediateValuesTls( elu::internal::getMaxBlockSize<algorithmFPType, cpu>() ),
-                  _indicesTls( elu::internal::getMaxBlockSize<algorithmFPType, cpu>() ) { }
+    ELUKernel()
+        : _intermediateValuesTls(elu::internal::getMaxBlockSize<algorithmFPType, cpu>()),
+          _indicesTls(elu::internal::getMaxBlockSize<algorithmFPType, cpu>())
+    {}
 
-    Status compute(const Parameter &parameter,
-                   const Tensor &dataTensor,
-                         Tensor &valueTensor,
-                         Tensor *auxValueTensor);
+    Status compute(const Parameter & parameter, const Tensor & dataTensor, Tensor & valueTensor, Tensor * auxValueTensor);
 
 private:
+    Status computeLayoutAgnostic(const Tensor & dataTensor, Tensor & valueTensor, Tensor * auxValueTensor, algorithmFPType alpha);
 
-    Status computeLayoutAgnostic(const Tensor &dataTensor,
-                                       Tensor &valueTensor,
-                                       Tensor *auxValueTensor,
-                                       algorithmFPType alpha);
+    Status computeInMKLLayout(const Tensor & dataTensor, Tensor & valueTensor, Tensor * auxValueTensor, algorithmFPType alpha);
 
-    Status computeInMKLLayout(const Tensor &dataTensor,
-                                    Tensor &valueTensor,
-                                    Tensor *auxValueTensor,
-                                    algorithmFPType alpha);
+    void computeInRawLayout(const algorithmFPType * data, algorithmFPType * value, algorithmFPType * auxValue, algorithmFPType alpha,
+                            size_t dataSize);
 
-    void computeInRawLayout(const algorithmFPType *data,
-                                  algorithmFPType *value,
-                                  algorithmFPType *auxValue,
-                                  algorithmFPType alpha,
-                                  size_t dataSize);
+    void computeBlock(const algorithmFPType * data, algorithmFPType * value, algorithmFPType * auxValue, algorithmFPType alpha, size_t blockSize);
 
-    void computeBlock(const algorithmFPType *data,
-                            algorithmFPType *value,
-                            algorithmFPType *auxValue,
-                            algorithmFPType alpha,
-                            size_t blockSize);
+    void computeInRawLayoutPrediction(const algorithmFPType * data, algorithmFPType * value, algorithmFPType alpha, size_t dataSize);
 
-    void computeInRawLayoutPrediction(const algorithmFPType *data,
-                                            algorithmFPType *value,
-                                            algorithmFPType alpha,
-                                            size_t dataSize);
-
-    void computeBlockPrediction(const algorithmFPType *data,
-                                      algorithmFPType *value,
-                                      algorithmFPType alpha,
-                                      size_t blockSize);
+    void computeBlockPrediction(const algorithmFPType * data, algorithmFPType * value, algorithmFPType alpha, size_t blockSize);
 };
 
-} // internal
-} // forward
-} // elu
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace forward
+} // namespace elu
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

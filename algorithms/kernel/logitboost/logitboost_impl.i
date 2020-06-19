@@ -26,9 +26,9 @@
 #define __LOGITBOOST_IMPL_I__
 
 #include <cmath>
-#include "service_math.h"
-#include "service_data_utils.h"
-#include "service_utils.h"
+#include "externals/service_math.h"
+#include "service/kernel/service_data_utils.h"
+#include "service/kernel/service_utils.h"
 
 namespace daal
 {
@@ -38,7 +38,6 @@ namespace logitboost
 {
 namespace internal
 {
-
 /**
  *  \brief Update additive function's F values.
  *         Step 2.b) of the Algorithm 6 from [1] (page 356).
@@ -56,32 +55,32 @@ namespace internal
  *                          values for the first sample come first,
  *                          for the second - second, etc)
  */
-template<typename algorithmFPType, CpuType cpu>
-void UpdateF(size_t dim, size_t n, size_t nc, const algorithmFPType *pred, algorithmFPType *F)
+template <typename algorithmFPType, CpuType cpu>
+void UpdateF(size_t dim, size_t n, size_t nc, const algorithmFPType * pred, algorithmFPType * F)
 {
     const algorithmFPType inv_nc = 1.0 / (algorithmFPType)nc;
-    const algorithmFPType coef = (algorithmFPType)(nc - 1) / (algorithmFPType)nc;
+    const algorithmFPType coef   = (algorithmFPType)(nc - 1) / (algorithmFPType)nc;
 
-    for ( size_t i = 0; i < n; i++ )
+    for (size_t i = 0; i < n; i++)
     {
-        for ( size_t j = 0; j < nc; j++ )
+        for (size_t j = 0; j < nc; j++)
         {
             algorithmFPType rj = pred[j * n + i];
-            algorithmFPType s = rj;
+            algorithmFPType s  = rj;
 
-            for( size_t k = 0; k < j; k++ )
+            for (size_t k = 0; k < j; k++)
             {
                 algorithmFPType r = pred[k * n + i];
                 s += r;
             }
 
-            for( size_t k = j + 1; k < nc; k++ )
+            for (size_t k = j + 1; k < nc; k++)
             {
                 algorithmFPType r = pred[k * n + i];
                 s += r;
             }
 
-            F[i * nc + j] += coef * ( rj - s * inv_nc );
+            F[i * nc + j] += coef * (rj - s * inv_nc);
         }
     }
 }
@@ -94,17 +93,17 @@ void UpdateF(size_t dim, size_t n, size_t nc, const algorithmFPType *pred, algor
  *  \param F[in]    Values of additive function
  *  \param P[out]   Probailities matrix of size nc x n
  */
-template<typename algorithmFPType, CpuType cpu>
-void UpdateP( size_t nc, size_t n, algorithmFPType *F, algorithmFPType *P, algorithmFPType *Fbuf )
+template <typename algorithmFPType, CpuType cpu>
+void UpdateP(size_t nc, size_t n, algorithmFPType * F, algorithmFPType * P, algorithmFPType * Fbuf)
 {
     const algorithmFPType overflowThreshold = daal::services::internal::MaxVal<algorithmFPType>::get();
 
-    for ( size_t i = 0; i < n; i++ )
+    for (size_t i = 0; i < n; i++)
     {
-        daal::internal::Math<algorithmFPType,cpu>::vExp(nc, F + i * nc, Fbuf);
+        daal::internal::Math<algorithmFPType, cpu>::vExp(nc, F + i * nc, Fbuf);
         algorithmFPType s = 0.0;
 
-        for ( size_t j = 0; j < nc; j++ )
+        for (size_t j = 0; j < nc; j++)
         {
             // if low accuracy exp() returns NaN\Inf - convert it to some positive big value
             Fbuf[j] = services::internal::infToBigValue<cpu>(Fbuf[j]);
@@ -113,20 +112,19 @@ void UpdateP( size_t nc, size_t n, algorithmFPType *F, algorithmFPType *P, algor
 
         algorithmFPType invs = (algorithmFPType)1.0 / s;
 
-       PRAGMA_IVDEP
-       PRAGMA_VECTOR_ALWAYS
-        for ( size_t j = 0; j < nc; j++ )
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
+        for (size_t j = 0; j < nc; j++)
         {
             // Normalize probabilities
             P[j * n + i] = Fbuf[j] * invs;
         }
-
     }
 }
 
-} // namespace daal::algorithms::logitboost::internal
-}
-}
+} // namespace internal
+} // namespace logitboost
+} // namespace algorithms
 } // namespace daal
 
 #endif

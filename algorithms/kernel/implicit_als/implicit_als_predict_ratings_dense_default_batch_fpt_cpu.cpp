@@ -21,9 +21,9 @@
 //--
 */
 
-#include "implicit_als_predict_ratings_dense_default_kernel.h"
-#include "implicit_als_predict_ratings_dense_default_container.h"
-#include "implicit_als_predict_ratings_dense_default_impl.i"
+#include "algorithms/kernel/implicit_als/implicit_als_predict_ratings_dense_default_kernel.h"
+#include "algorithms/kernel/implicit_als/implicit_als_predict_ratings_dense_default_container.h"
+#include "algorithms/kernel/implicit_als/implicit_als_predict_ratings_dense_default_impl.i"
 
 namespace daal
 {
@@ -43,8 +43,8 @@ namespace internal
 {
 template class ImplicitALSPredictKernel<DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
-}
+} // namespace ratings
+} // namespace prediction
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal

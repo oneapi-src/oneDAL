@@ -24,8 +24,8 @@
 #ifndef __MULTICLASS_CONFUSION_MATRIX_DEFAULT_IMPL_I__
 #define __MULTICLASS_CONFUSION_MATRIX_DEFAULT_IMPL_I__
 
-#include "service_memory.h"
-#include "service_numeric_table.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::internal;
 using namespace daal::services;
@@ -43,22 +43,21 @@ namespace multiclass_confusion_matrix
 {
 namespace internal
 {
-
-template<Method method, typename algorithmFPType, CpuType cpu>
-Status MultiClassConfusionMatrixKernel<method, algorithmFPType, cpu>::compute(const NumericTable *predictedLabelsTable,
-                                                                              const NumericTable *groundTruthLabelsTable,
-                                                                              NumericTable *confusionMatrixTable,
-                                                                              NumericTable *accuracyMeasuresTable,
-                                                                              const multiclass_confusion_matrix::Parameter *parameter)
+template <Method method, typename algorithmFPType, CpuType cpu>
+Status MultiClassConfusionMatrixKernel<method, algorithmFPType, cpu>::compute(const NumericTable * predictedLabelsTable,
+                                                                              const NumericTable * groundTruthLabelsTable,
+                                                                              NumericTable * confusionMatrixTable,
+                                                                              NumericTable * accuracyMeasuresTable,
+                                                                              const multiclass_confusion_matrix::Parameter * parameter)
 {
     const algorithmFPType zero = 0.0;
 
     const size_t nVectors = predictedLabelsTable->getNumberOfRows();
 
     /* Get input data */
-    ReadColumns<algorithmFPType, cpu> mtPredictedLabels(*const_cast<NumericTable*>(predictedLabelsTable), 0, 0, nVectors);
+    ReadColumns<algorithmFPType, cpu> mtPredictedLabels(*const_cast<NumericTable *>(predictedLabelsTable), 0, 0, nVectors);
     DAAL_CHECK_BLOCK_STATUS(mtPredictedLabels);
-    ReadColumns<algorithmFPType, cpu> mtGroundTruthLabels(*const_cast<NumericTable*>(groundTruthLabelsTable), 0, 0, nVectors);
+    ReadColumns<algorithmFPType, cpu> mtGroundTruthLabels(*const_cast<NumericTable *>(groundTruthLabelsTable), 0, 0, nVectors);
     DAAL_CHECK_BLOCK_STATUS(mtGroundTruthLabels);
 
     /* Get memory to write the results */
@@ -68,15 +67,15 @@ Status MultiClassConfusionMatrixKernel<method, algorithmFPType, cpu>::compute(co
     WriteOnlyRows<algorithmFPType, cpu> mtAccuracyMeasures(accuracyMeasuresTable, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(mtAccuracyMeasures);
 
-    const algorithmFPType *predictedLabelsData = mtPredictedLabels.get();
-    const algorithmFPType *groundTruthLabelsData = mtGroundTruthLabels.get();
-    int *confusionMatrixData = mtConfusionMatrix.get();
-    algorithmFPType *accuracyMeasuresData = mtAccuracyMeasures.get();
+    const algorithmFPType * predictedLabelsData   = mtPredictedLabels.get();
+    const algorithmFPType * groundTruthLabelsData = mtGroundTruthLabels.get();
+    int * confusionMatrixData                     = mtConfusionMatrix.get();
+    algorithmFPType * accuracyMeasuresData        = mtAccuracyMeasures.get();
 
     const algorithmFPType invNVectors = 1.0 / algorithmFPType(nVectors);
     const algorithmFPType invNClasses = 1.0 / algorithmFPType(nClasses);
-    algorithmFPType beta = parameter->beta;
-    algorithmFPType beta2 = beta * beta;
+    algorithmFPType beta              = parameter->beta;
+    algorithmFPType beta2             = beta * beta;
 
     service_memset<int, cpu>(confusionMatrixData, 0, nClasses * nClasses);
 
@@ -97,22 +96,22 @@ Status MultiClassConfusionMatrixKernel<method, algorithmFPType, cpu>::compute(co
     TArray<algorithmFPType, cpu> aTn(nClasses);
     TArray<algorithmFPType, cpu> aFn(nClasses);
 
-    algorithmFPType* tp = aTp.get();
-    algorithmFPType* fp = aFp.get();
-    algorithmFPType* tn = aTn.get();
-    algorithmFPType* fn = aFn.get();
+    algorithmFPType * tp = aTp.get();
+    algorithmFPType * fp = aFp.get();
+    algorithmFPType * tn = aTn.get();
+    algorithmFPType * fn = aFn.get();
     DAAL_CHECK(tp && fp && tn && fn, ErrorMemoryAllocationFailed);
 
     algorithmFPType fpNVectors(nVectors);
     for (size_t i = 0; i < nClasses; i++)
     {
-        tp[i] = confusionMatrixData[i*nClasses + i];
+        tp[i] = confusionMatrixData[i * nClasses + i];
         fp[i] = -tp[i];
         fn[i] = -tp[i];
         for (size_t j = 0; j < nClasses; j++)
         {
-            fn[i] += confusionMatrixData[i*nClasses + j];
-            fp[i] += confusionMatrixData[j*nClasses + i];
+            fn[i] += confusionMatrixData[i * nClasses + j];
+            fp[i] += confusionMatrixData[j * nClasses + i];
         }
         tn[i] = fpNVectors - tp[i] - fp[i] - fn[i];
     }
@@ -142,27 +141,27 @@ Status MultiClassConfusionMatrixKernel<method, algorithmFPType, cpu>::compute(co
     /* Error rate */
     accuracyMeasuresData[1] *= (invNVectors * invNClasses);
     /* Micro Precision */
-    accuracyMeasuresData[2]  = tpSum / accuracyMeasuresData[2];
+    accuracyMeasuresData[2] = tpSum / accuracyMeasuresData[2];
     /* Micro Recall */
-    accuracyMeasuresData[3]  = tpSum / accuracyMeasuresData[3];
+    accuracyMeasuresData[3] = tpSum / accuracyMeasuresData[3];
     /* Micro F-score */
-    accuracyMeasuresData[4]  = ((beta2 + 1.0) * accuracyMeasuresData[2] * accuracyMeasuresData[3]) /
-                               (beta2 * accuracyMeasuresData[2] + accuracyMeasuresData[3]);
+    accuracyMeasuresData[4] =
+        ((beta2 + 1.0) * accuracyMeasuresData[2] * accuracyMeasuresData[3]) / (beta2 * accuracyMeasuresData[2] + accuracyMeasuresData[3]);
     /* Macro Precision */
     accuracyMeasuresData[5] *= invNClasses;
     /* Macro Recall */
     accuracyMeasuresData[6] *= invNClasses;
     /* Macro F-score */
-    accuracyMeasuresData[7]  = ((beta2 + 1.0) * accuracyMeasuresData[5] * accuracyMeasuresData[6]) /
-                               (beta2 * accuracyMeasuresData[5] + accuracyMeasuresData[6]);
+    accuracyMeasuresData[7] =
+        ((beta2 + 1.0) * accuracyMeasuresData[5] * accuracyMeasuresData[6]) / (beta2 * accuracyMeasuresData[5] + accuracyMeasuresData[6]);
     return Status();
 }
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace multiclass_confusion_matrix
+} // namespace quality_metric
+} // namespace classifier
+} // namespace algorithms
+} // namespace daal
 
 #endif

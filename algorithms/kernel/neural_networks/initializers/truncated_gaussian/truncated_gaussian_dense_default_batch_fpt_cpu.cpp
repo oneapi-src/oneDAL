@@ -19,10 +19,9 @@
 //  Implementation of truncated gaussian initializer functions.
 //--
 
-
-#include "truncated_gaussian_batch_container.h"
-#include "truncated_gaussian_kernel.h"
-#include "truncated_gaussian_impl.i"
+#include "algorithms/kernel/neural_networks/initializers/truncated_gaussian/truncated_gaussian_batch_container.h"
+#include "algorithms/kernel/neural_networks/initializers/truncated_gaussian/truncated_gaussian_kernel.h"
+#include "algorithms/kernel/neural_networks/initializers/truncated_gaussian/truncated_gaussian_impl.i"
 
 namespace daal
 {
@@ -34,19 +33,18 @@ namespace initializers
 {
 namespace truncated_gaussian
 {
-
 namespace interface1
 {
 template class neural_networks::initializers::truncated_gaussian::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 
 namespace internal
 {
 template class TruncatedGaussianKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
+} // namespace internal
 
-}
-}
-}
-}
-}
+} // namespace truncated_gaussian
+} // namespace initializers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

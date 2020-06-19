@@ -22,27 +22,26 @@
 #include "com_intel_daal_algorithms_gbt_classification_training_Parameter.h"
 #include "com_intel_daal_algorithms_gbt_classification_training_TrainingResult.h"
 #include "algorithms/gradient_boosted_trees/gbt_classification_training_types.h"
-#include "common_helpers.h"
-#include "common_defines.i"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_defines.i"
 
 USING_COMMON_NAMESPACES()
 
-namespace gbtc = gbt::classification;
-namespace gbtt = gbt::training;
+namespace gbtc  = gbt::classification;
+namespace gbtt  = gbt::training;
 namespace gbtct = daal::algorithms::gbt::classification::training;
 
 #include "com_intel_daal_algorithms_classifier_training_TrainingResultId.h"
-#define ModelResult  com_intel_daal_algorithms_classifier_training_TrainingResultId_Model
+#define ModelResult com_intel_daal_algorithms_classifier_training_TrainingResultId_Model
 
 /*
 * Class:     com_intel_daal_algorithms_gbt_classification_training_Parameter
 * Method:    cGetSplitMethod
 * Signature: (J)I
 */
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cGetSplitMethod
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cGetSplitMethod(JNIEnv *, jobject, jlong parAddr)
 {
-    return(jint)(*(gbtct::Parameter *)parAddr).splitMethod;
+    return (jint)(*(gbtct::Parameter *)parAddr).splitMethod;
 }
 
 /*
@@ -50,8 +49,8 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_gbt_classification_trainin
 * Method:    cSetSplitMethod
 * Signature: (JI)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cSetSplitMethod
-(JNIEnv *, jobject, jlong parAddr, jint value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cSetSplitMethod(JNIEnv *, jobject, jlong parAddr,
+                                                                                                            jint value)
 {
     (*(gbtct::Parameter *)parAddr).splitMethod = (gbtt::SplitMethod)value;
 }
@@ -61,10 +60,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_trainin
 * Method:    cGetMaxIterations
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cGetMaxIterations
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cGetMaxIterations(JNIEnv *, jobject, jlong parAddr)
 {
-    return(jlong)(*(gbtct::Parameter *)parAddr).maxIterations;
+    return (jlong)(*(gbtct::Parameter *)parAddr).maxIterations;
 }
 
 /*
@@ -72,8 +70,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_traini
 * Method:    cSetMaxIterations
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cSetMaxIterations
-(JNIEnv *, jobject, jlong parAddr, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cSetMaxIterations(JNIEnv *, jobject, jlong parAddr,
+                                                                                                              jlong value)
 {
     (*(gbtct::Parameter *)parAddr).maxIterations = value;
 }
@@ -83,8 +81,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_trainin
 * Method:    cSetObservationsPerTreeFraction
 * Signature: (JD)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cSetObservationsPerTreeFraction
-(JNIEnv *, jobject, jlong parAddr, jdouble value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cSetObservationsPerTreeFraction(JNIEnv *, jobject,
+                                                                                                                            jlong parAddr,
+                                                                                                                            jdouble value)
 {
     (*(gbtct::Parameter *)parAddr).observationsPerTreeFraction = value;
 }
@@ -94,10 +93,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_trainin
 * Method:    cGetObservationsPerTreeFraction
 * Signature: (J)D
 */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cGetObservationsPerTreeFraction
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cGetObservationsPerTreeFraction(JNIEnv *, jobject,
+                                                                                                                               jlong parAddr)
 {
-    return(jdouble)(*(gbtct::Parameter *)parAddr).observationsPerTreeFraction;
+    return (jdouble)(*(gbtct::Parameter *)parAddr).observationsPerTreeFraction;
 }
 
 /*
@@ -105,10 +104,9 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_gbt_classification_trai
 * Method:    cGetFeaturesPerNode
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cGetFeaturesPerNode
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cGetFeaturesPerNode(JNIEnv *, jobject, jlong parAddr)
 {
-    return(jlong)(*(gbtct::Parameter *)parAddr).featuresPerNode;
+    return (jlong)(*(gbtct::Parameter *)parAddr).featuresPerNode;
 }
 
 /*
@@ -116,8 +114,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_traini
 * Method:    cSetFeaturesPerNode
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cSetFeaturesPerNode
-(JNIEnv *, jobject, jlong parAddr, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cSetFeaturesPerNode(JNIEnv *, jobject, jlong parAddr,
+                                                                                                                jlong value)
 {
     (*(gbtct::Parameter *)parAddr).featuresPerNode = value;
 }
@@ -127,10 +125,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_trainin
 * Method:    cGetMaxTreeDepth
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cGetMaxTreeDepth
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cGetMaxTreeDepth(JNIEnv *, jobject, jlong parAddr)
 {
-    return(jlong)(*(gbtct::Parameter *)parAddr).maxTreeDepth;
+    return (jlong)(*(gbtct::Parameter *)parAddr).maxTreeDepth;
 }
 
 /*
@@ -138,8 +135,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_traini
 * Method:    cSetMaxTreeDepth
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cSetMaxTreeDepth
-(JNIEnv *, jobject, jlong parAddr, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cSetMaxTreeDepth(JNIEnv *, jobject, jlong parAddr,
+                                                                                                             jlong value)
 {
     (*(gbtct::Parameter *)parAddr).maxTreeDepth = value;
 }
@@ -149,10 +146,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_trainin
 * Method:    cGetMinObservationsInLeafNode
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cGetMinObservationsInLeafNode
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cGetMinObservationsInLeafNode(JNIEnv *, jobject,
+                                                                                                                           jlong parAddr)
 {
-    return(jlong)(*(gbtct::Parameter *)parAddr).minObservationsInLeafNode;
+    return (jlong)(*(gbtct::Parameter *)parAddr).minObservationsInLeafNode;
 }
 
 /*
@@ -160,8 +157,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_traini
 * Method:    cSetMinObservationsInLeafNode
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cSetMinObservationsInLeafNode
-(JNIEnv *, jobject, jlong parAddr, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cSetMinObservationsInLeafNode(JNIEnv *, jobject,
+                                                                                                                          jlong parAddr, jlong value)
 {
     (*(gbtct::Parameter *)parAddr).minObservationsInLeafNode = value;
 }
@@ -171,10 +168,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_trainin
  * Method:    cSetEngine
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_training_Parameter_cSetEngine
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong engineAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_training_Parameter_cSetEngine(JNIEnv * env, jobject thisObj,
+                                                                                                                    jlong cParameter,
+                                                                                                                    jlong engineAddr)
 {
-    (((gbtct::Parameter *)cParameter))->engine = staticPointerCast<engines::BatchBase, AlgorithmIface> (*(SharedPtr<AlgorithmIface> *)engineAddr);
+    (((gbtct::Parameter *)cParameter))->engine = staticPointerCast<engines::BatchBase, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)engineAddr);
 }
 
 /*
@@ -182,8 +180,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classific
 * Method:    cSetShrinkage
 * Signature: (JD)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cSetShrinkage
-(JNIEnv *, jobject, jlong parAddr, jdouble value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cSetShrinkage(JNIEnv *, jobject, jlong parAddr,
+                                                                                                          jdouble value)
 {
     (*(gbtct::Parameter *)parAddr).shrinkage = value;
 }
@@ -193,10 +191,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_trainin
 * Method:    cGetShrinkage
 * Signature: (J)D
 */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cGetShrinkage
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cGetShrinkage(JNIEnv *, jobject, jlong parAddr)
 {
-    return(jdouble)(*(gbtct::Parameter *)parAddr).shrinkage;
+    return (jdouble)(*(gbtct::Parameter *)parAddr).shrinkage;
 }
 
 /*
@@ -204,8 +201,8 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_gbt_classification_trai
 * Method:    cSetMinSplitLoss
 * Signature: (JD)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cSetMinSplitLoss
-(JNIEnv *, jobject, jlong parAddr, jdouble value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cSetMinSplitLoss(JNIEnv *, jobject, jlong parAddr,
+                                                                                                             jdouble value)
 {
     (*(gbtct::Parameter *)parAddr).minSplitLoss = value;
 }
@@ -215,10 +212,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_trainin
 * Method:    cGetMinSplitLoss
 * Signature: (J)D
 */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cGetMinSplitLoss
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cGetMinSplitLoss(JNIEnv *, jobject, jlong parAddr)
 {
-    return(jdouble)(*(gbtct::Parameter *)parAddr).minSplitLoss;
+    return (jdouble)(*(gbtct::Parameter *)parAddr).minSplitLoss;
 }
 
 /*
@@ -226,8 +222,8 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_gbt_classification_trai
 * Method:    cSetLambda
 * Signature: (JD)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cSetLambda
-(JNIEnv *, jobject, jlong parAddr, jdouble value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cSetLambda(JNIEnv *, jobject, jlong parAddr,
+                                                                                                       jdouble value)
 {
     (*(gbtct::Parameter *)parAddr).lambda = value;
 }
@@ -237,10 +233,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_trainin
 * Method:    cGetLambda
 * Signature: (J)D
 */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cGetLambda
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cGetLambda(JNIEnv *, jobject, jlong parAddr)
 {
-    return(jdouble)(*(gbtct::Parameter *)parAddr).lambda;
+    return (jdouble)(*(gbtct::Parameter *)parAddr).lambda;
 }
 
 /*
@@ -248,8 +243,7 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_gbt_classification_trai
 * Method:    cSetMaxBins
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cSetMaxBins
-(JNIEnv *, jobject, jlong parAddr, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cSetMaxBins(JNIEnv *, jobject, jlong parAddr, jlong value)
 {
     (*(gbtct::Parameter *)parAddr).maxBins = value;
 }
@@ -259,10 +253,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_trainin
 * Method:    cGetMaxBins
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cGetMaxBins
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cGetMaxBins(JNIEnv *, jobject, jlong parAddr)
 {
-    return(jlong)(*(gbtct::Parameter *)parAddr).maxBins;
+    return (jlong)(*(gbtct::Parameter *)parAddr).maxBins;
 }
 
 /*
@@ -270,8 +263,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_traini
 * Method:    cSetMinBinSize
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cSetMinBinSize
-(JNIEnv *, jobject, jlong parAddr, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cSetMinBinSize(JNIEnv *, jobject, jlong parAddr,
+                                                                                                           jlong value)
 {
     (*(gbtct::Parameter *)parAddr).minBinSize = value;
 }
@@ -281,10 +274,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_gbt_classification_trainin
 * Method:    cGetMinBinSize
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cGetMinBinSize
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_Parameter_cGetMinBinSize(JNIEnv *, jobject, jlong parAddr)
 {
-    return(jlong)(*(gbtct::Parameter *)parAddr).minBinSize;
+    return (jlong)(*(gbtct::Parameter *)parAddr).minBinSize;
 }
 
 /*
@@ -292,14 +284,15 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_traini
 * Method:    cGetResult
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_TrainingResult_cGetResult
-(JNIEnv *, jobject, jlong algAddr, jint cmode)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_TrainingResult_cGetResult(JNIEnv *, jobject, jlong algAddr,
+                                                                                                             jint cmode)
 {
-    SerializationIfacePtr *ptr = new SerializationIfacePtr();
+    SerializationIfacePtr * ptr = new SerializationIfacePtr();
 
-    if(cmode == jBatch)
+    if (cmode == jBatch)
     {
-        SharedPtr<classifier::training::Batch> alg = staticPointerCast<classifier::training::Batch, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
+        SharedPtr<classifier::training::Batch> alg =
+            staticPointerCast<classifier::training::Batch, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
         *ptr = alg->getResult();
     }
     return (jlong)ptr;
@@ -310,21 +303,18 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_traini
 * Method:    cGetModel
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_TrainingResult_cGetModel
-(JNIEnv *, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_TrainingResult_cGetModel(JNIEnv *, jobject thisObj, jlong resAddr,
+                                                                                                            jint id)
 {
-    gbtc::ModelPtr *m = new gbtc::ModelPtr();
+    gbtc::ModelPtr * m = new gbtc::ModelPtr();
     classifier::training::ResultPtr res =
         services::staticPointerCast<classifier::training::Result, SerializationIface>(*((SerializationIfacePtr *)resAddr));
 
     jlong resModel = 0;
-    switch(id)
+    switch (id)
     {
-    case ModelResult:
-        *m = services::staticPointerCast<gbtc::Model, classifier::Model>(res->get(classifier::training::model));
-        break;
-    default:
-        break;
+    case ModelResult: *m = services::staticPointerCast<gbtc::Model, classifier::Model>(res->get(classifier::training::model)); break;
+    default: break;
     }
     return (jlong)m;
 }

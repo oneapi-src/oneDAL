@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/pca/pca_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -36,7 +36,7 @@ namespace pca
 {
 namespace interface1
 {
-__DAAL_REGISTER_SERIALIZATION_CLASS3(PartialResult,svdDense,SERIALIZATION_PCA_PARTIAL_RESULT_SVD_ID);
+__DAAL_REGISTER_SERIALIZATION_CLASS3(PartialResult, svdDense, SERIALIZATION_PCA_PARTIAL_RESULT_SVD_ID);
 
 PartialResult<svdDense>::PartialResult() : PartialResultBase(lastPartialSVDCollectionResultId + 1) {};
 
@@ -50,7 +50,10 @@ NumericTablePtr PartialResult<svdDense>::get(PartialSVDTableResultId id) const
     return staticPointerCast<NumericTable, SerializationIface>(Argument::get(id));
 }
 
-size_t PartialResult<svdDense>::getNFeatures() const { return get(sumSVD)->getNumberOfColumns(); }
+size_t PartialResult<svdDense>::getNFeatures() const
+{
+    return get(sumSVD)->getNumberOfColumns();
+}
 
 /**
 * Gets partial results of the PCA SVD algorithm
@@ -68,11 +71,10 @@ DataCollectionPtr PartialResult<svdDense>::get(PartialSVDCollectionResultId id) 
  * \param[in] elementId     Identifier of the collection element
  * \return                  Input object that corresponds to the given identifier
 */
-NumericTablePtr PartialResult<svdDense>::get(PartialSVDCollectionResultId id, const size_t &elementId) const
+NumericTablePtr PartialResult<svdDense>::get(PartialSVDCollectionResultId id, const size_t & elementId) const
 {
     DataCollectionPtr collection = get(id);
-    if(!collection.get() || elementId >= collection->size())
-        return NumericTablePtr();
+    if (!collection.get() || elementId >= collection->size()) return NumericTablePtr();
     return staticPointerCast<NumericTable, SerializationIface>((*collection)[elementId]);
 }
 
@@ -81,7 +83,7 @@ NumericTablePtr PartialResult<svdDense>::get(PartialSVDCollectionResultId id, co
  * \param[in] id      Identifier of the result
  * \param[in] value   Pointer to  the object
  */
-void PartialResult<svdDense>::set(PartialSVDTableResultId id, const NumericTablePtr &value)
+void PartialResult<svdDense>::set(PartialSVDTableResultId id, const NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
@@ -91,7 +93,7 @@ void PartialResult<svdDense>::set(PartialSVDTableResultId id, const NumericTable
  * \param[in] id      Identifier of the result
  * \param[in] value   Pointer to the object
  */
-void PartialResult<svdDense>::set(PartialSVDCollectionResultId id, const DataCollectionPtr &value)
+void PartialResult<svdDense>::set(PartialSVDCollectionResultId id, const DataCollectionPtr & value)
 {
     Argument::set(id, staticPointerCast<SerializationIface, DataCollection>(value));
 }
@@ -101,10 +103,9 @@ void PartialResult<svdDense>::set(PartialSVDCollectionResultId id, const DataCol
  * \param[in] id      Identifier of the argument
  * \param[in] value   Pointer to the object
  */
-void PartialResult<svdDense>::add(const PartialSVDCollectionResultId &id, const DataCollectionPtr &value)
+void PartialResult<svdDense>::add(const PartialSVDCollectionResultId & id, const DataCollectionPtr & value)
 {
-    DataCollectionPtr collection =
-        staticPointerCast<DataCollection, SerializationIface>(Argument::get(id));
+    DataCollectionPtr collection = staticPointerCast<DataCollection, SerializationIface>(Argument::get(id));
     collection->push_back(value);
 }
 
@@ -114,9 +115,9 @@ void PartialResult<svdDense>::add(const PartialSVDCollectionResultId &id, const 
 * \param[in] parameter  %Parameter of algorithm
 * \param[in] method     Computation method
 */
-Status PartialResult<svdDense>::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+Status PartialResult<svdDense>::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    const InputIface *in = static_cast<const InputIface *>(input);
+    const InputIface * in = static_cast<const InputIface *>(input);
     DAAL_CHECK(!in->isCorrelation(), ErrorInputCorrelationNotSupportedInOnlineAndDistributed);
     return checkImpl(in->getNFeatures());
 }
@@ -126,22 +127,21 @@ Status PartialResult<svdDense>::check(const daal::algorithms::Input *input, cons
 * \param[in] method     Computation method
 * \param[in] par        %Parameter of algorithm
 */
-Status PartialResult<svdDense>::check(const daal::algorithms::Parameter *par, int method) const
+Status PartialResult<svdDense>::check(const daal::algorithms::Parameter * par, int method) const
 {
     return checkImpl(0);
 }
 
 Status PartialResult<svdDense>::checkImpl(size_t nFeatures) const
 {
-    int packedLayouts = packed_mask;
-    int csrLayout = (int)NumericTableIface::csrArray;
+    int packedLayouts             = packed_mask;
+    int csrLayout                 = (int)NumericTableIface::csrArray;
     NumericTablePtr sumSquaresSVD = get(pca::sumSquaresSVD);
 
     Status s;
     DAAL_CHECK_STATUS(s, checkNumericTable(get(pca::nObservationsSVD).get(), nObservationsSVDStr(), csrLayout, 0, 1, 1));
     DAAL_CHECK_STATUS(s, checkNumericTable(sumSquaresSVD.get(), sumSquaresSVDStr(), packedLayouts, 0, nFeatures, 1));
-    DAAL_CHECK_STATUS(s, checkNumericTable(get(pca::sumSVD).get(), sumSVDStr(), packedLayouts, 0,
-                sumSquaresSVD->getNumberOfColumns(), 1));
+    DAAL_CHECK_STATUS(s, checkNumericTable(get(pca::sumSVD).get(), sumSVDStr(), packedLayouts, 0, sumSquaresSVD->getNumberOfColumns(), 1));
     DAAL_CHECK(get(pca::auxiliaryData), ErrorNullAuxiliaryDataCollection);
     return s;
 }

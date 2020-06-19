@@ -24,8 +24,8 @@
 #ifndef __DROPOUT_LAYER_FORWARD_BATCH_CONTAINER_H__
 #define __DROPOUT_LAYER_FORWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/dropout/dropout_layer.h"
-#include "dropout_layer_forward_kernel.h"
+#include "algorithms/neural_networks/layers/dropout/dropout_layer.h"
+#include "algorithms/kernel/neural_networks/layers/dropout_layer/forward/dropout_layer_forward_kernel.h"
 
 namespace daal
 {
@@ -41,55 +41,53 @@ namespace forward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::DropoutKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    dropout::forward::Input *input = static_cast<dropout::forward::Input *>(_in);
-    dropout::forward::Result *result = static_cast<dropout::forward::Result *>(_res);
+    dropout::forward::Input * input   = static_cast<dropout::forward::Input *>(_in);
+    dropout::forward::Result * result = static_cast<dropout::forward::Result *>(_res);
 
-    dropout::Parameter *parameter = static_cast<dropout::Parameter *>(_par);
-    daal::services::Environment::env &env = *_env;
+    dropout::Parameter * parameter         = static_cast<dropout::Parameter *>(_par);
+    daal::services::Environment::env & env = *_env;
 
-    Tensor *inputTensor  = input->get(layers::forward::data).get();
-    Tensor *resultTensor = result->get(layers::forward::value).get();
-    Tensor *maskTensor   = nullptr;
-    if(parameter->predictionStage == false)
+    Tensor * inputTensor  = input->get(layers::forward::data).get();
+    Tensor * resultTensor = result->get(layers::forward::value).get();
+    Tensor * maskTensor   = nullptr;
+    if (parameter->predictionStage == false)
     {
         maskTensor = result->get(auxRetainMask).get();
     }
 
-    __DAAL_CALL_KERNEL(env, internal::DropoutKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),
-        compute, *inputTensor, *resultTensor, maskTensor, *parameter);
+    __DAAL_CALL_KERNEL(env, internal::DropoutKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputTensor, *resultTensor,
+                       maskTensor, *parameter);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::setupCompute()
 {
-    dropout::Parameter *parameter = static_cast<dropout::Parameter *>(_par);
-    daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::DropoutKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),
-        initialize, *parameter);
+    dropout::Parameter * parameter         = static_cast<dropout::Parameter *>(_par);
+    daal::services::Environment::env & env = *_env;
+    __DAAL_CALL_KERNEL(env, internal::DropoutKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), initialize, *parameter);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::resetCompute()
 {
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
     __DAAL_CALL_KERNEL(env, internal::DropoutKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), reset);
 }
-
 
 } // namespace interface1
 } // namespace forward

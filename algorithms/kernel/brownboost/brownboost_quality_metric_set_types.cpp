@@ -21,7 +21,7 @@
 //--
 */
 
-#include "brownboost_quality_metric_set_types.h"
+#include "algorithms/boosting/brownboost_quality_metric_set_types.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -36,7 +36,6 @@ namespace quality_metric_set
 {
 namespace interface1
 {
-
 /**
  * Returns the result of the quality metrics algorithm
  * \param[in] id   Identifier of the result
@@ -57,12 +56,11 @@ classifier::quality_metric::binary_confusion_matrix::InputPtr InputDataCollectio
 {
     DAAL_ASSERT(id >= 0)
     return staticPointerCast<classifier::quality_metric::binary_confusion_matrix::Input, algorithms::Input>(
-            algorithms::quality_metric_set::InputDataCollection::getInput((size_t)id));
+        algorithms::quality_metric_set::InputDataCollection::getInput((size_t)id));
 }
 
-
-} //namespace interface1
-} //namespace quality_metric_set
-} //namespace brownboost
-} //namespace algorithms
-} //namespace daal
+} // namespace interface1
+} // namespace quality_metric_set
+} // namespace brownboost
+} // namespace algorithms
+} // namespace daal

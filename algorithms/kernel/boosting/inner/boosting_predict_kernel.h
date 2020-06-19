@@ -24,7 +24,7 @@
 #ifndef __BOOSTING_PREDICT_KERNEL_H__
 #define __BOOSTING_PREDICT_KERNEL_H__
 
-#include "kernel.h"
+#include "algorithms/kernel/kernel.h"
 
 using namespace daal::data_management;
 
@@ -38,19 +38,18 @@ namespace prediction
 {
 namespace internal
 {
-
 template <typename algorithmFPType, CpuType cpu>
 class BoostingPredictKernel : public Kernel
 {
 protected:
-    services::Status compute(const NumericTablePtr& xTable, const Model *m, size_t nWeakLearners,
-                             const algorithmFPType *alpha, algorithmFPType *r, const Parameter *par);
+    services::Status compute(const NumericTablePtr & xTable, const Model * m, size_t nWeakLearners, const algorithmFPType * alpha,
+                             algorithmFPType * r, const Parameter * par);
 };
 
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace prediction
+} // namespace boosting
+} // namespace algorithms
+} // namespace daal
 
 #endif

@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 using namespace daal;
 using namespace daal::data_management;
@@ -31,11 +31,10 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatForwardBatch_cInit
-  (JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatForwardBatch_cInit(JNIEnv * env, jobject thisObj,
+                                                                                                               jint prec, jint method)
 {
-    return jniBatch<concat::Method, concat::forward::Batch, concat::defaultDense>::
-        newObj(prec, method);
+    return jniBatch<concat::Method, concat::forward::Batch, concat::defaultDense>::newObj(prec, method);
 }
 
 /*
@@ -43,11 +42,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_c
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatForwardBatch_cInitParameter
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatForwardBatch_cInitParameter(JNIEnv * env, jobject thisObj,
+                                                                                                                        jlong algAddr, jint prec,
+                                                                                                                        jint method)
 {
-    return jniBatch<concat::Method, concat::forward::Batch, concat::defaultDense>::
-        getParameter(prec, method, algAddr);
+    return jniBatch<concat::Method, concat::forward::Batch, concat::defaultDense>::getParameter(prec, method, algAddr);
 }
 
 /*
@@ -55,11 +54,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_c
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatForwardBatch_cGetInput
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatForwardBatch_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                                   jlong algAddr, jint prec,
+                                                                                                                   jint method)
 {
-    return jniBatch<concat::Method, concat::forward::Batch, concat::defaultDense>::
-        getInput(prec, method, algAddr);
+    return jniBatch<concat::Method, concat::forward::Batch, concat::defaultDense>::getInput(prec, method, algAddr);
 }
 
 /*
@@ -67,11 +66,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_c
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatForwardBatch_cGetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatForwardBatch_cGetResult(JNIEnv * env, jobject thisObj,
+                                                                                                                    jlong algAddr, jint prec,
+                                                                                                                    jint method)
 {
-    return jniBatch<concat::Method, concat::forward::Batch, concat::defaultDense>::
-        getResult(prec, method, algAddr);
+    return jniBatch<concat::Method, concat::forward::Batch, concat::defaultDense>::getResult(prec, method, algAddr);
 }
 
 /*
@@ -79,11 +78,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_c
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatForwardBatch_cSetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatForwardBatch_cSetResult(JNIEnv * env, jobject thisObj,
+                                                                                                                   jlong algAddr, jint prec,
+                                                                                                                   jint method, jlong resAddr)
 {
-    jniBatch<concat::Method, concat::forward::Batch, concat::defaultDense>::
-        setResult<concat::forward::Result>(prec, method, algAddr, resAddr);
+    jniBatch<concat::Method, concat::forward::Batch, concat::defaultDense>::setResult<concat::forward::Result>(prec, method, algAddr, resAddr);
 }
 
 /*
@@ -91,9 +90,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_co
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatForwardBatch_cClone
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatForwardBatch_cClone(JNIEnv * env, jobject thisObj,
+                                                                                                                jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<concat::Method, concat::forward::Batch, concat::defaultDense>::
-        getClone(prec, method, algAddr);
+    return jniBatch<concat::Method, concat::forward::Batch, concat::defaultDense>::getClone(prec, method, algAddr);
 }

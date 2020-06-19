@@ -21,9 +21,9 @@
 //--
 */
 
-#include "outlierdetection_bacon_batch_container.h"
-#include "outlierdetection_bacon_kernel.h"
-#include "outlierdetection_bacon_dense_impl.i"
+#include "algorithms/kernel/outlierdetection_bacon/outlierdetection_bacon_batch_container.h"
+#include "algorithms/kernel/outlierdetection_bacon/outlierdetection_bacon_kernel.h"
+#include "algorithms/kernel/outlierdetection_bacon/outlierdetection_bacon_dense_impl.i"
 
 namespace daal
 {
@@ -31,16 +31,13 @@ namespace algorithms
 {
 namespace bacon_outlier_detection
 {
-
 namespace interface1
 {
-
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
 }
 namespace internal
 {
-
 template class OutlierDetectionKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
 } // namespace internal

@@ -24,12 +24,12 @@
 #ifndef __DECISION_TREE_CLASSIFICATION_TRAIN_CONTAINER_V1_H__
 #define __DECISION_TREE_CLASSIFICATION_TRAIN_CONTAINER_V1_H__
 
-#include "kernel.h"
+#include "algorithms/kernel/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "services/daal_shared_ptr.h"
-#include "decision_tree_classification_training_batch.h"
-#include "decision_tree_classification_train_kernel.h"
-#include "decision_tree_classification_model_impl.h"
+#include "algorithms/decision_tree/decision_tree_classification_training_batch.h"
+#include "algorithms/kernel/decision_tree/decision_tree_classification_train_kernel.h"
+#include "algorithms/kernel/decision_tree/decision_tree_classification_model_impl.h"
 
 namespace daal
 {
@@ -49,7 +49,7 @@ using namespace daal::data_management;
  *  \brief Initialize list of Decision tree kernels with implementations for supported architectures
  */
 template <typename algorithmFPType, training::Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::DecisionTreeTrainBatchKernel, algorithmFPType, decision_tree::classification::interface1::Parameter, method);
 }
@@ -67,22 +67,24 @@ template <typename algorithmFPType, training::Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
     const decision_tree::classification::training::Input * const input = static_cast<decision_tree::classification::training::Input *>(_in);
-    Result * const result = static_cast<Result *>(_res);
+    Result * const result                                              = static_cast<Result *>(_res);
 
-    const NumericTableConstPtr x = input->get(classifier::training::data);
-    const NumericTableConstPtr y = input->get(classifier::training::labels);
+    const NumericTableConstPtr x  = input->get(classifier::training::data);
+    const NumericTableConstPtr y  = input->get(classifier::training::labels);
     const NumericTableConstPtr px = input->get(dataForPruning);
     const NumericTableConstPtr py = input->get(labelsForPruning);
 
     const ModelPtr r = result->get(classifier::training::model);
 
-    const decision_tree::classification::interface1::Parameter * const par = static_cast<decision_tree::classification::interface1::Parameter*>(_par);
+    const decision_tree::classification::interface1::Parameter * const par =
+        static_cast<decision_tree::classification::interface1::Parameter *>(_par);
     daal::services::Environment::env & env = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::DecisionTreeTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, decision_tree::classification::interface1::Parameter, method),    \
-                       compute, x.get(), y.get(), 0, px.get(), py.get(), r.get(), par);
+    __DAAL_CALL_KERNEL(env, internal::DecisionTreeTrainBatchKernel,
+                       __DAAL_KERNEL_ARGUMENTS(algorithmFPType, decision_tree::classification::interface1::Parameter, method), compute, x.get(),
+                       y.get(), 0, px.get(), py.get(), r.get(), par);
 }
-}
+} // namespace interface1
 } // namespace training
 } // namespace classification
 } // namespace decision_tree

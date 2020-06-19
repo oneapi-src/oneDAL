@@ -24,11 +24,11 @@
 #ifndef __BACONOUTLIER_DETECTION_DENSE_BACON_IMPL_I__
 #define __BACONOUTLIER_DETECTION_DENSE_BACON_IMPL_I__
 
-#include "numeric_table.h"
-#include "outlier_detection_bacon_types.h"
-#include "service_numeric_table.h"
-#include "service_math.h"
-#include "service_stat.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/outlier_detection/outlier_detection_bacon_types.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_math.h"
+#include "externals/service_stat.h"
 
 namespace daal
 {
@@ -38,13 +38,13 @@ namespace bacon_outlier_detection
 {
 namespace internal
 {
-
 using namespace daal::internal;
 using namespace daal::data_management;
 using namespace daal::services;
 
 template <typename algorithmFPType, Method method, CpuType cpu>
-services::Status OutlierDetectionKernel<algorithmFPType, method, cpu>::compute(NumericTable &dataTable, NumericTable &resultTable, const Parameter &par)
+services::Status OutlierDetectionKernel<algorithmFPType, method, cpu>::compute(NumericTable & dataTable, NumericTable & resultTable,
+                                                                               const Parameter & par)
 {
     const __int64 nBaconParams = 3;
     algorithmFPType baconParams[nBaconParams];
@@ -75,8 +75,8 @@ services::Status OutlierDetectionKernel<algorithmFPType, method, cpu>::compute(N
     WriteOnlyRows<algorithmFPType, cpu> resultBlock(resultTable, 0, nVectors);
     DAAL_CHECK_BLOCK_STATUS(resultBlock)
 
-    const algorithmFPType *data = dataBlock.get();
-    algorithmFPType *weight = resultBlock.get();
+    const algorithmFPType * data = dataBlock.get();
+    algorithmFPType * weight     = resultBlock.get();
 
     Statistics<algorithmFPType, cpu>::xoutlierdetection(data, (__int64)nFeatures, (__int64)nVectors, nBaconParams, baconParams, weight);
 

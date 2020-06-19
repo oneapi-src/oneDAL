@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::neural_networks;
@@ -30,8 +30,7 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cInit
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionParameter_cInit
-  (JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionParameter_cInit(JNIEnv * env, jobject thisObj)
 {
     return (jlong)(new prediction::Parameter());
 }
@@ -41,8 +40,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_predicti
  * Method:    cGetBatchSize
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionParameter_cGetBatchSize
-  (JNIEnv *env, jobject thisObj, jlong addr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionParameter_cGetBatchSize(JNIEnv * env, jobject thisObj,
+                                                                                                                     jlong addr)
 {
     return (jlong)(((prediction::Parameter *)addr)->batchSize);
 }
@@ -52,8 +51,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_predicti
  * Method:    cSetBatchSize
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionParameter_cSetBatchSize
-  (JNIEnv *env, jobject thisObj, jlong addr, jlong batchSize)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_prediction_PredictionParameter_cSetBatchSize(JNIEnv * env, jobject thisObj,
+                                                                                                                    jlong addr, jlong batchSize)
 {
     ((prediction::Parameter *)addr)->batchSize = batchSize;
 }

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "layer_forward_container_base.h"
+#include "algorithms/neural_networks/layers/layer_forward_container_base.h"
 
 namespace daal
 {
@@ -35,26 +35,25 @@ namespace forward
 {
 namespace interface1
 {
-
 services::Status LayerContainerIfaceImpl::completeInput()
 {
-    neural_networks::layers::forward::Input *input = static_cast<neural_networks::layers::forward::Input *>(_in);
-    neural_networks::layers::forward::Result *result = static_cast<neural_networks::layers::forward::Result *>(_res);
-    neural_networks::layers::Parameter *parameter = static_cast<neural_networks::layers::Parameter *>(_par);
+    neural_networks::layers::forward::Input * input   = static_cast<neural_networks::layers::forward::Input *>(_in);
+    neural_networks::layers::forward::Result * result = static_cast<neural_networks::layers::forward::Result *>(_res);
+    neural_networks::layers::Parameter * parameter    = static_cast<neural_networks::layers::Parameter *>(_par);
 
     services::Status s;
 
     DAAL_CHECK_STATUS(s, allocateInput());
     DAAL_CHECK_STATUS(s, initializeInput());
 
-    if(!parameter->predictionStage)
+    if (!parameter->predictionStage)
     {
         result->setResultForBackward(input);
     }
     return s;
 }
 
-services::Status LayerContainerIfaceImpl:: allocateInput()
+services::Status LayerContainerIfaceImpl::allocateInput()
 {
     return services::Status();
 }
@@ -64,24 +63,27 @@ services::Status LayerContainerIfaceImpl:: allocateInput()
  */
 services::Status LayerContainerIfaceImpl::initializeInput()
 {
-    neural_networks::layers::Parameter *param = static_cast<neural_networks::layers::Parameter *>(_par);
-    if( !param ) { return services::Status(); }
+    neural_networks::layers::Parameter * param = static_cast<neural_networks::layers::Parameter *>(_par);
+    if (!param)
+    {
+        return services::Status();
+    }
     const bool needToInitialize = !(param->weightsAndBiasesInitialized);
 
     services::Status s;
     services::SharedPtr<data_management::Tensor> tensor;
 
-    neural_networks::layers::forward::Input *input = static_cast<neural_networks::layers::forward::Input *>(_in);
+    neural_networks::layers::forward::Input * input = static_cast<neural_networks::layers::forward::Input *>(_in);
 
     tensor = input->get(weights);
-    if (needToInitialize && tensor && tensor->getDimensions().size() )
+    if (needToInitialize && tensor && tensor->getDimensions().size())
     {
         param->weightsInitializer->input.set(initializers::data, tensor);
         s |= param->weightsInitializer->compute();
     }
 
     tensor = input->get(biases);
-    if (needToInitialize && tensor && tensor->getDimensions().size() )
+    if (needToInitialize && tensor && tensor->getDimensions().size())
     {
         param->biasesInitializer->input.set(initializers::data, tensor);
         s |= param->biasesInitializer->compute();
@@ -91,9 +93,9 @@ services::Status LayerContainerIfaceImpl::initializeInput()
     return s;
 }
 
-}// namespace interface1
-}// namespace forward
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

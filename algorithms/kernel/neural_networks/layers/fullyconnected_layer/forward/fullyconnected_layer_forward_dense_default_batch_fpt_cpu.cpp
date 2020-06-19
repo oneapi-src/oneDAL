@@ -19,10 +19,9 @@
 //  Implementation of fullyconnected calculation functions.
 //--
 
-
-#include "fullyconnected_layer_forward_batch_container.h"
-#include "fullyconnected_layer_forward_kernel.h"
-#include "fullyconnected_layer_forward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/fullyconnected_layer/forward/fullyconnected_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/fullyconnected_layer/forward/fullyconnected_layer_forward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/fullyconnected_layer/forward/fullyconnected_layer_forward_impl.i"
 
 namespace daal
 {
@@ -34,21 +33,20 @@ namespace layers
 {
 namespace fullyconnected
 {
-
 namespace forward
 {
 namespace interface1
 {
 template class neural_networks::layers::fullyconnected::forward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 namespace internal
 {
 template class FullyconnectedKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 
-}
-}
-}
-}
-}
+} // namespace fullyconnected
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

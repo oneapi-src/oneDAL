@@ -19,9 +19,8 @@
 //  Implementation of uniform distribution algorithm and types methods.
 //--
 
-
-#include "distributions/uniform/uniform_types.h"
-#include "daal_strings.h"
+#include "algorithms/distributions/uniform/uniform_types.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -33,20 +32,20 @@ namespace uniform
 {
 namespace interface1
 {
- /**
+/**
   * Check the correctness of the %Parameter object
   */
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 DAAL_EXPORT services::Status Parameter<algorithmFPType>::check() const
 {
     DAAL_CHECK_EX(a < b, services::ErrorIncorrectParameter, services::ParameterName, aStr());
     return services::Status();
 }
 
- template DAAL_EXPORT services::Status Parameter<DAAL_FPTYPE>::check() const;
+template DAAL_EXPORT services::Status Parameter<DAAL_FPTYPE>::check() const;
 
-} // interface1
-} // uniform
-} // distributions
-} // algorithms
-} // daal
+} // namespace interface1
+} // namespace uniform
+} // namespace distributions
+} // namespace algorithms
+} // namespace daal

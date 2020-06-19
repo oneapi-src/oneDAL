@@ -24,8 +24,8 @@
 #ifndef __UNIFORM_INITIALIZER_BATCH_CONTAINER_H__
 #define __UNIFORM_INITIALIZER_BATCH_CONTAINER_H__
 
-#include "neural_networks/initializers/uniform/uniform_initializer.h"
-#include "uniform_initializer_kernel.h"
+#include "algorithms/neural_networks/initializers/uniform/uniform_initializer.h"
+#include "algorithms/kernel/neural_networks/initializers/uniform/uniform_initializer_kernel.h"
 
 namespace daal
 {
@@ -39,28 +39,27 @@ namespace uniform
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::UniformKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    initializers::Result *result  = static_cast<initializers::Result *>(_res);
-    uniform::Parameter *parameter = static_cast<uniform::Parameter *>(_par);
+    initializers::Result * result  = static_cast<initializers::Result *>(_res);
+    uniform::Parameter * parameter = static_cast<uniform::Parameter *>(_par);
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
     __DAAL_CALL_KERNEL(env, internal::UniformKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-        internal::UniformInitializerTaskDescriptor(result, parameter)
-    );
+                       internal::UniformInitializerTaskDescriptor(result, parameter));
 }
 } // namespace interface1
 } // namespace uniform

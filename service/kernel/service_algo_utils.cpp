@@ -21,9 +21,9 @@
 //--
 */
 
-#include "error_indexes.h"
-#include "error_handling.h"
-#include "service_algo_utils.h"
+#include "services/error_indexes.h"
+#include "services/error_handling.h"
+#include "service/kernel/service_algo_utils.h"
 
 namespace daal
 {
@@ -31,42 +31,33 @@ namespace services
 {
 namespace interface1
 {
-
-HostAppIface::HostAppIface() :_impl(nullptr)
-{
-}
+HostAppIface::HostAppIface() : _impl(nullptr) {}
 
 HostAppIface::~HostAppIface()
 {
     delete _impl;
     _impl = NULL;
 }
-}// namespace interface1
+} // namespace interface1
 
 namespace internal
 {
-
-bool isCancelled(services::Status& s, services::HostAppIface* pHostApp)
+bool isCancelled(services::Status & s, services::HostAppIface * pHostApp)
 {
-    if(!pHostApp || !pHostApp->isCancelled())
-        return false;
+    if (!pHostApp || !pHostApp->isCancelled()) return false;
     s.add(services::ErrorUserCancelled);
     return true;
 }
 
-HostAppHelper::HostAppHelper(HostAppIface* hostApp, size_t maxJobsBeforeCheck) :
-_hostApp(hostApp), _maxJobsBeforeCheck(maxJobsBeforeCheck),
-_nJobsAfterLastCheck(0)
-{
-}
+HostAppHelper::HostAppHelper(HostAppIface * hostApp, size_t maxJobsBeforeCheck)
+    : _hostApp(hostApp), _maxJobsBeforeCheck(maxJobsBeforeCheck), _nJobsAfterLastCheck(0)
+{}
 
-bool HostAppHelper::isCancelled(services::Status& s, size_t nJobsToDo)
+bool HostAppHelper::isCancelled(services::Status & s, size_t nJobsToDo)
 {
-    if(!_hostApp)
-        return false;
+    if (!_hostApp) return false;
     _nJobsAfterLastCheck += nJobsToDo;
-    if(_nJobsAfterLastCheck < _maxJobsBeforeCheck)
-        return false;
+    if (_nJobsAfterLastCheck < _maxJobsBeforeCheck) return false;
     _nJobsAfterLastCheck = 0;
     return services::internal::isCancelled(s, _hostApp);
 }
@@ -82,6 +73,6 @@ void HostAppHelper::reset(size_t maxJobsBeforeCheck)
     _nJobsAfterLastCheck = 0;
 }
 
-}// namespace internal
-}// namespace services
-}// namespace daal
+} // namespace internal
+} // namespace services
+} // namespace daal

@@ -19,18 +19,17 @@
 //  Declaration of template function that calculate gaussian.
 //--
 
-
 #ifndef __GAUSSIAN_INITIALIZER_KERNEL_H__
 #define __GAUSSIAN_INITIALIZER_KERNEL_H__
 
-#include "kernel.h"
-#include "service_tensor.h"
+#include "algorithms/kernel/kernel.h"
+#include "service/kernel/data_management/service_tensor.h"
 
-#include "neural_networks/initializers/gaussian/gaussian_initializer.h"
-#include "neural_networks/initializers/gaussian/gaussian_initializer_types.h"
-#include "normal_kernel.h"
+#include "algorithms/neural_networks/initializers/gaussian/gaussian_initializer.h"
+#include "algorithms/neural_networks/initializers/gaussian/gaussian_initializer_types.h"
+#include "algorithms/kernel/distributions/normal/normal_kernel.h"
 
-#include "gaussian_initializer_task_descriptor.h"
+#include "algorithms/kernel/neural_networks/initializers/gaussian/gaussian_initializer_task_descriptor.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -48,22 +47,21 @@ namespace gaussian
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for gaussian calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class GaussianKernel : public Kernel
 {
 public:
-    Status compute(const GaussianInitializerTaskDescriptor &desc);
+    Status compute(const GaussianInitializerTaskDescriptor & desc);
 };
 
-} // internal
-} // gaussian
-} // initializers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace gaussian
+} // namespace initializers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

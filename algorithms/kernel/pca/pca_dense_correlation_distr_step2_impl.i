@@ -24,10 +24,10 @@
 #ifndef __PCA_DENSE_CORRELATION_DISTR_STEP2_IMPL_I__
 #define __PCA_DENSE_CORRELATION_DISTR_STEP2_IMPL_I__
 
-#include "service_math.h"
-#include "service_memory.h"
-#include "service_numeric_table.h"
-#include "pca_dense_correlation_distr_step2_kernel.h"
+#include "externals/service_math.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/pca/pca_dense_correlation_distr_step2_kernel.h"
 
 namespace daal
 {
@@ -37,13 +37,12 @@ namespace pca
 {
 namespace internal
 {
-
 template <typename algorithmFPType, CpuType cpu>
-services::Status PCACorrelationKernel<distributed, algorithmFPType, cpu>::compute(DistributedInput<correlationDense> *input,
-                                                                      PartialResult<correlationDense> *partialResult,
-    const DistributedParameter<step2Master, algorithmFPType, correlationDense> *parameter)
+services::Status PCACorrelationKernel<distributed, algorithmFPType, cpu>::compute(
+    DistributedInput<correlationDense> * input, PartialResult<correlationDense> * partialResult,
+    const DistributedParameter<step2Master, algorithmFPType, correlationDense> * parameter)
 {
-    for(size_t i = 0; i < input->get(partialResults)->size(); i++)
+    for (size_t i = 0; i < input->get(partialResults)->size(); i++)
     {
         covariance::PartialResultPtr covariancePartialResult(new covariance::PartialResult());
         covariancePartialResult->set(covariance::nObservations, input->getPartialResult(i)->get(pca::nObservationsCorrelation));
@@ -56,14 +55,13 @@ services::Status PCACorrelationKernel<distributed, algorithmFPType, cpu>::comput
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status PCACorrelationKernel<distributed, algorithmFPType, cpu>::finalize(PartialResult<correlationDense> *partialResult,
-    const DistributedParameter<step2Master, algorithmFPType, correlationDense> *parameter,
-    data_management::NumericTable& eigenvectors, data_management::NumericTable& eigenvalues)
+services::Status PCACorrelationKernel<distributed, algorithmFPType, cpu>::finalize(
+    PartialResult<correlationDense> * partialResult, const DistributedParameter<step2Master, algorithmFPType, correlationDense> * parameter,
+    data_management::NumericTable & eigenvectors, data_management::NumericTable & eigenvalues)
 {
     parameter->covariance->parameter.outputMatrixType = covariance::correlationMatrix;
-    services::Status s = parameter->covariance->finalizeCompute();
-    if(!s)
-        return s;
+    services::Status s                                = parameter->covariance->finalizeCompute();
+    if (!s) return s;
 
     data_management::NumericTablePtr correlation = parameter->covariance->getResult()->get(covariance::covariance);
     return this->computeCorrelationEigenvalues(*correlation, eigenvectors, eigenvalues);

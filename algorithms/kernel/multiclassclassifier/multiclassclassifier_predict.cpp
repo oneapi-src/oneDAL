@@ -21,8 +21,8 @@
 //--
 */
 
-#include "multi_class_classifier_predict_types.h"
-#include "daal_strings.h"
+#include "algorithms/multi_class_classifier/multi_class_classifier_predict_types.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -35,7 +35,7 @@ namespace prediction
 namespace interface1
 {
 Input::Input() {}
-Input::Input(const Input& other) : classifier::prediction::Input(other){}
+Input::Input(const Input & other) : classifier::prediction::Input(other) {}
 
 /**
  * Returns the input Numeric Table object in the prediction stage of the classification algorithm
@@ -62,7 +62,7 @@ multi_class_classifier::ModelPtr Input::get(classifier::prediction::ModelInputId
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr &ptr)
+void Input::set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -72,7 +72,7 @@ void Input::set(classifier::prediction::NumericTableInputId id, const data_manag
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(classifier::prediction::ModelInputId id, const multi_class_classifier::ModelPtr &ptr)
+void Input::set(classifier::prediction::ModelInputId id, const multi_class_classifier::ModelPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -82,20 +82,18 @@ void Input::set(classifier::prediction::ModelInputId id, const multi_class_class
  * \param[in] parameter Pointer to the structure of the algorithm parameters
  * \param[in] method    Computation method
  */
-services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, classifier::prediction::Input::check(parameter, method));
     {
         auto par1 = dynamic_cast<const multi_class_classifier::interface1::Parameter *>(parameter);
-        if(par1)
-            DAAL_CHECK_EX(par1->prediction.get(), services::ErrorNullAuxiliaryAlgorithm, services::ParameterName, predictionStr());
+        if (par1) DAAL_CHECK_EX(par1->prediction.get(), services::ErrorNullAuxiliaryAlgorithm, services::ParameterName, predictionStr());
 
         auto par2 = dynamic_cast<const multi_class_classifier::Parameter *>(parameter);
-        if(par2)
-            DAAL_CHECK_EX(par2->prediction.get(), services::ErrorNullAuxiliaryAlgorithm, services::ParameterName, predictionStr());
+        if (par2) DAAL_CHECK_EX(par2->prediction.get(), services::ErrorNullAuxiliaryAlgorithm, services::ParameterName, predictionStr());
 
-        if(par1 == nullptr && par2 == nullptr) return services::Status(services::ErrorNullParameterNotSupported);
+        if (par1 == nullptr && par2 == nullptr) return services::Status(services::ErrorNullParameterNotSupported);
     }
 
     multi_class_classifier::ModelPtr m = get(classifier::prediction::model);
@@ -103,8 +101,8 @@ services::Status Input::check(const daal::algorithms::Parameter *parameter, int 
     return s;
 }
 
-}// namespace interface1
-}// namespace prediction
-}// namespace multi_class_classifier
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace prediction
+} // namespace multi_class_classifier
+} // namespace algorithms
+} // namespace daal

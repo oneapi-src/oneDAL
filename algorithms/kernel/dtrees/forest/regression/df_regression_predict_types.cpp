@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/decision_forest/decision_forest_regression_predict_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -44,7 +44,7 @@ __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_DECISION_FOREST_REGRES
 
 /** Default constructor */
 Input::Input() : algorithms::regression::prediction::Input(lastModelInputId + 1) {}
-Input::Input(const Input &other) : algorithms::regression::prediction::Input(other) {}
+Input::Input(const Input & other) : algorithms::regression::prediction::Input(other) {}
 
 /**
  * Returns an input object for making decision forest model-based prediction
@@ -71,7 +71,7 @@ decision_forest::regression::ModelPtr Input::get(ModelInputId id) const
  * \param[in] id      Identifier of the input object
  * \param[in] value   %Input object
  */
-void Input::set(NumericTableInputId id, const NumericTablePtr &value)
+void Input::set(NumericTableInputId id, const NumericTablePtr & value)
 {
     algorithms::regression::prediction::Input::set(algorithms::regression::prediction::NumericTableInputId(id), value);
 }
@@ -81,7 +81,7 @@ void Input::set(NumericTableInputId id, const NumericTablePtr &value)
  * \param[in] id      Identifier of the input object
  * \param[in] value   %Input object
  */
-void Input::set(ModelInputId id, const decision_forest::regression::ModelPtr &value)
+void Input::set(ModelInputId id, const decision_forest::regression::ModelPtr & value)
 {
     algorithms::regression::prediction::Input::set(algorithms::regression::prediction::ModelInputId(id), value);
 }
@@ -89,7 +89,7 @@ void Input::set(ModelInputId id, const decision_forest::regression::ModelPtr &va
 /**
  * Checks an input object for making decision forest model-based prediction
  */
-services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     Status s;
     DAAL_CHECK_STATUS(s, algorithms::regression::prediction::Input::check(parameter, method));
@@ -114,7 +114,7 @@ NumericTablePtr Result::get(ResultId id) const
  * \param[in] id      Identifier of the input object
  * \param[in] value   %Input object
  */
-void Result::set(ResultId id, const NumericTablePtr &value)
+void Result::set(ResultId id, const NumericTablePtr & value)
 {
     algorithms::regression::prediction::Result::set(algorithms::regression::prediction::ResultId(id), value);
 }
@@ -125,14 +125,13 @@ void Result::set(ResultId id, const NumericTablePtr &value)
  * \param[in] par     %Parameter of the algorithm
  * \param[in] method  Computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     Status s;
     DAAL_CHECK_STATUS(s, algorithms::regression::prediction::Result::check(input, par, method));
     DAAL_CHECK_EX(get(prediction)->getNumberOfColumns() == 1, ErrorIncorrectNumberOfColumns, ArgumentName, predictionStr());
     return s;
 }
-
 
 } // namespace interface1
 } // namespace prediction

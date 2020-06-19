@@ -19,7 +19,7 @@
 
 #include "daal.h"
 #include "com_intel_daal_algorithms_adaboost_prediction_PredictionBatch.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 
@@ -28,11 +28,11 @@ USING_COMMON_NAMESPACES();
  * Method:    cInit
  * Signature:(II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_adaboost_prediction_PredictionBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method, jlong nClasses)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_adaboost_prediction_PredictionBatch_cInit(JNIEnv * env, jobject thisObj, jint prec,
+                                                                                                 jint method, jlong nClasses)
 {
-    return jniBatch<adaboost::prediction::Method, adaboost::prediction::Batch,
-                    adaboost::prediction::defaultDense, adaboost::prediction::sammeR>::newObj(prec, method, (size_t)nClasses);
+    return jniBatch<adaboost::prediction::Method, adaboost::prediction::Batch, adaboost::prediction::defaultDense,
+                    adaboost::prediction::sammeR>::newObj(prec, method, (size_t)nClasses);
 }
 
 /*
@@ -40,16 +40,16 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_adaboost_prediction_Predi
  * Method:    cInitParameter
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_adaboost_prediction_PredictionBatch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_adaboost_prediction_PredictionBatch_cInitParameter(JNIEnv * env, jobject thisObj,
+                                                                                                          jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<adaboost::prediction::Method, adaboost::prediction::Batch,
-                    adaboost::prediction::defaultDense, adaboost::prediction::sammeR>::getParameter(prec, method, algAddr);
+    return jniBatch<adaboost::prediction::Method, adaboost::prediction::Batch, adaboost::prediction::defaultDense,
+                    adaboost::prediction::sammeR>::getParameter(prec, method, algAddr);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_adaboost_prediction_PredictionBatch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_adaboost_prediction_PredictionBatch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                  jint prec, jint method)
 {
-    return jniBatch<adaboost::prediction::Method, adaboost::prediction::Batch,
-                    adaboost::prediction::defaultDense, adaboost::prediction::sammeR>::getClone(prec, method, algAddr);
+    return jniBatch<adaboost::prediction::Method, adaboost::prediction::Batch, adaboost::prediction::defaultDense,
+                    adaboost::prediction::sammeR>::getClone(prec, method, algAddr);
 }

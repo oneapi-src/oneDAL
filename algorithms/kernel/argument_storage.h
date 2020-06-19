@@ -22,8 +22,8 @@
 */
 #ifndef __ARGUMENT_STORAGE_H__
 #define __ARGUMENT_STORAGE_H__
-#include "data_collection.h"
-#include "service_defines.h"
+#include "data_management/data/data_collection.h"
+#include "service/kernel/service_defines.h"
 
 namespace daal
 {
@@ -31,7 +31,6 @@ namespace algorithms
 {
 namespace internal
 {
-
 class ArgumentStorage : public data_management::DataCollection
 {
 public:
@@ -41,11 +40,11 @@ public:
     };
     DAAL_CAST_OPERATOR(ArgumentStorage);
     ArgumentStorage(const size_t n) : data_management::DataCollection(n) {}
-    ArgumentStorage(const ArgumentStorage& o) : data_management::DataCollection(o), _extensions(o._extensions){}
+    ArgumentStorage(const ArgumentStorage & o) : data_management::DataCollection(o), _extensions(o._extensions) {}
     virtual ~ArgumentStorage() {}
 
     services::SharedPtr<Base> getExtension(Extension type);
-    void setExtension(Extension type, const services::SharedPtr<Base>& ptr);
+    void setExtension(Extension type, const services::SharedPtr<Base> & ptr);
 
 protected:
     typedef services::SharedPtr<Base> BasePtr;
@@ -53,8 +52,8 @@ protected:
     BasePtrCollection _extensions;
 };
 
-}// namespace internal
-}// namespace algorithms
-}// namespace daal
+} // namespace internal
+} // namespace algorithms
+} // namespace daal
 
 #endif

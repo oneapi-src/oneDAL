@@ -19,21 +19,20 @@
 //  Declaration of template function that calculate local contrast normalization.
 //--
 
-
 #ifndef __LCN_LAYER_BACKWARD_KERNEL_H__
 #define __LCN_LAYER_BACKWARD_KERNEL_H__
 
-#include "neural_networks/layers/lcn/lcn_layer.h"
-#include "neural_networks/layers/lcn/lcn_layer_types.h"
-#include "convolution2d_layer_backward.h"
-#include "kernel.h"
-#include "service_math.h"
-#include "service_tensor.h"
-#include "service_numeric_table.h"
-#include "convolution2d_layer_backward_kernel.h"
-#include "threading.h"
-#include "service_memory.h"
-#include "layers_threading.h"
+#include "algorithms/neural_networks/layers/lcn/lcn_layer.h"
+#include "algorithms/neural_networks/layers/lcn/lcn_layer_types.h"
+#include "algorithms/neural_networks/layers/convolution2d/convolution2d_layer_backward.h"
+#include "algorithms/kernel/kernel.h"
+#include "externals/service_math.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/neural_networks/layers/convolution2d_layer/backward/convolution2d_layer_backward_kernel.h"
+#include "algorithms/threading/threading.h"
+#include "externals/service_memory.h"
+#include "algorithms/kernel/neural_networks/layers/layers_threading.h"
 
 using namespace daal::algorithms::neural_networks::layers::convolution2d::backward::internal;
 using namespace daal::data_management;
@@ -58,15 +57,15 @@ namespace internal
 /**
  *  \brief Kernel for lcn calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class LCNKernel : public Kernel
 {
 public:
-    services::Status compute(const Tensor &auxCenteredDataTensor, const Tensor &auxSigmaTensor, const Tensor &auxCTensor,
-                                                      const Tensor &auxInvMaxTensor, const Tensor &kernelTensor, const Tensor &inGradTensor,
-                                                      Tensor &gradientTensor, const lcn::Parameter &parameter);
-    services::Status initialize(const Tensor &auxCenteredDataTensor, const Tensor &auxSigmaTensor, const Tensor &auxCTensor,
-                                                         const Tensor &kernelTensor, const lcn::Parameter &parameter);
+    services::Status compute(const Tensor & auxCenteredDataTensor, const Tensor & auxSigmaTensor, const Tensor & auxCTensor,
+                             const Tensor & auxInvMaxTensor, const Tensor & kernelTensor, const Tensor & inGradTensor, Tensor & gradientTensor,
+                             const lcn::Parameter & parameter);
+    services::Status initialize(const Tensor & auxCenteredDataTensor, const Tensor & auxSigmaTensor, const Tensor & auxCTensor,
+                                const Tensor & kernelTensor, const lcn::Parameter & parameter);
     services::Status reset();
 
 private:
@@ -102,15 +101,15 @@ private:
 
     convolution2d::Parameter convParameter;
 
-    void getFixedDimsIndexes(size_t *fDims, size_t i);
+    void getFixedDimsIndexes(size_t * fDims, size_t i);
 };
 
-} // internal
-} // backward
-} // lcn
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace backward
+} // namespace lcn
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

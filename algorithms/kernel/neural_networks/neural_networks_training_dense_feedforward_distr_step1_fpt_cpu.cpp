@@ -19,10 +19,9 @@
 //  Implementation of neural networks calculation functions.
 //--
 
-
-#include "neural_networks_training_distr_container.h"
-#include "neural_networks_training_feedforward_kernel.h"
-#include "neural_networks_training_feedforward_impl.i"
+#include "algorithms/kernel/neural_networks/neural_networks_training_distr_container.h"
+#include "algorithms/kernel/neural_networks/neural_networks_training_feedforward_kernel.h"
+#include "algorithms/kernel/neural_networks/neural_networks_training_feedforward_impl.i"
 
 namespace daal
 {
@@ -40,7 +39,7 @@ namespace internal
 {
 template class TrainingKernelDistributed<DAAL_FPTYPE, feedforwardDense, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace training
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

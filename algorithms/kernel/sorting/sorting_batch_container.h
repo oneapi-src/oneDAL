@@ -24,10 +24,10 @@
 #ifndef __SORTING_BATCH_CONTAINER_H__
 #define __SORTING_BATCH_CONTAINER_H__
 
-#include "sorting_batch.h"
-#include "sorting_kernel.h"
-#include "kernel.h"
-#include "homogen_numeric_table.h"
+#include "algorithms/sorting/sorting_batch.h"
+#include "algorithms/kernel/sorting/sorting_kernel.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/homogen_numeric_table.h"
 
 namespace daal
 {
@@ -35,32 +35,32 @@ namespace algorithms
 {
 namespace sorting
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-
     __DAAL_INITIALIZE_KERNELS(internal::SortingKernel, defaultDense, algorithmFPType);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    Result *result = static_cast<Result *>(_res);
-    Input *input   = static_cast<Input *>(_in);
+    Result * result = static_cast<Result *>(_res);
+    Input * input   = static_cast<Input *>(_in);
 
-    daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::SortingKernel, __DAAL_KERNEL_ARGUMENTS(defaultDense, algorithmFPType), compute, *(input->get(data).get()), *(result->get(sortedData).get()));
+    daal::services::Environment::env & env = *_env;
+    __DAAL_CALL_KERNEL(env, internal::SortingKernel, __DAAL_KERNEL_ARGUMENTS(defaultDense, algorithmFPType), compute, *(input->get(data).get()),
+                       *(result->get(sortedData).get()));
 }
 
-} // namespace daal::algorithms::sorting
+} // namespace sorting
 
-} // namespace daal::algorithms
+} // namespace algorithms
 
 } // namespace daal
 

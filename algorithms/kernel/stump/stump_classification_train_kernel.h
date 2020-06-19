@@ -24,10 +24,10 @@
 #ifndef __STUMP_CLASSIFICATION_TRAIN_KERNEL_H__
 #define __STUMP_CLASSIFICATION_TRAIN_KERNEL_H__
 
-#include "stump_classification_training_types.h"
-#include "stump_classification_model.h"
-#include "kernel.h"
-#include "numeric_table.h"
+#include "algorithms/stump/stump_classification_training_types.h"
+#include "algorithms/stump/stump_classification_model.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;
 
@@ -43,23 +43,22 @@ namespace training
 {
 namespace internal
 {
-
-template <Method method, typename algorithmFPtype , CpuType cpu>
+template <Method method, typename algorithmFPtype, CpuType cpu>
 class StumpTrainKernel : public Kernel
 {
 public:
-    services::Status compute(size_t n, const NumericTable *const *a, Model *r, const Parameter *par);
+    services::Status compute(size_t n, const NumericTable * const * a, Model * r, const Parameter * par);
 
 private:
-    services::Status changeMinusOneToZero(NumericTable *yTable);
-    services::Status changeZeroToMinusOne(NumericTable *yTable);
+    services::Status changeMinusOneToZero(NumericTable * yTable);
+    services::Status changeZeroToMinusOne(NumericTable * yTable);
 };
 
-} // namespace daal::algorithms::stump::classification::training::internal
-}
-}
-}
-}
+} // namespace internal
+} // namespace training
+} // namespace classification
+} // namespace stump
+} // namespace algorithms
 } // namespace daal
 
 #endif

@@ -21,25 +21,24 @@
 //--
 */
 
-#include "daal_strings.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
-
-const char* s_stringConsts[] = {
+const char * s_stringConsts[] = {
 #define DECLARE_DAAL_STRING_CONST(arg1) #arg1,
-    DAAL_STRINGS_LIST()
-    ""//last
+    DAAL_STRINGS_LIST() "" //last
 };
 #undef DECLARE_DAAL_STRING_CONST
 
-#define DECLARE_DAAL_STRING_CONST(arg1) const char * arg1##Str() { return s_stringConsts[arg1##EStr]; }
+#define DECLARE_DAAL_STRING_CONST(arg1) \
+    const char * arg1##Str() { return s_stringConsts[arg1##EStr]; }
 DAAL_STRINGS_LIST()
 #undef DECLARE_DAAL_STRING_CONST
 
-const char *getStr(EStringConst eStr)
+const char * getStr(EStringConst eStr)
 {
     return s_stringConsts[eStr];
 }
 
-}
+} // namespace daal

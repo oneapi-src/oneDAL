@@ -19,8 +19,7 @@
 //  Implementation of backward pooling layer.
 //--
 
-
-#include "stochastic_pooling2d_layer_backward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/pooling2d_layer/backward/stochastic_pooling2d_layer_backward_batch_container.h"
 
 namespace daal
 {
@@ -32,17 +31,16 @@ namespace layers
 {
 namespace stochastic_pooling2d
 {
-
 namespace backward
 {
 namespace interface1
 {
 template class neural_networks::layers::stochastic_pooling2d::backward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
-} // backward
+} // namespace interface1
+} // namespace backward
 
-}
-}
-}
-}
-}
+} // namespace stochastic_pooling2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

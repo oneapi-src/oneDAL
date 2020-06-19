@@ -21,9 +21,9 @@
 //--
 */
 
-#include "pca_dense_correlation_online_container.h"
-#include "pca_dense_correlation_online_kernel.h"
-#include "pca_dense_correlation_online_impl.i"
+#include "algorithms/kernel/pca/pca_dense_correlation_online_container.h"
+#include "algorithms/kernel/pca/pca_dense_correlation_online_kernel.h"
+#include "algorithms/kernel/pca/pca_dense_correlation_online_impl.i"
 
 namespace daal
 {
@@ -39,6 +39,6 @@ namespace internal
 {
 template class PCACorrelationKernel<online, DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
+} // namespace pca
+} // namespace algorithms
+} // namespace daal

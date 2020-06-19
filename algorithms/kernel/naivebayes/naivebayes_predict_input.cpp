@@ -21,8 +21,8 @@
 //--
 */
 
-#include "multinomial_naive_bayes_predict_types.h"
-#include "daal_strings.h"
+#include "algorithms/naive_bayes/multinomial_naive_bayes_predict_types.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -38,7 +38,7 @@ namespace prediction
 namespace interface1
 {
 Input::Input() {}
-Input::Input(const Input& other) : classifier::prediction::Input(other){}
+Input::Input(const Input & other) : classifier::prediction::Input(other) {}
 
 /**
  * Returns the input Numeric Table object in the prediction stage of the classification algorithm
@@ -65,7 +65,7 @@ multinomial_naive_bayes::ModelPtr Input::get(classifier::prediction::ModelInputI
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr &ptr)
+void Input::set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -75,7 +75,7 @@ void Input::set(classifier::prediction::NumericTableInputId id, const data_manag
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(classifier::prediction::ModelInputId id, const multinomial_naive_bayes::ModelPtr &ptr)
+void Input::set(classifier::prediction::ModelInputId id, const multinomial_naive_bayes::ModelPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -85,7 +85,7 @@ void Input::set(classifier::prediction::ModelInputId id, const multinomial_naive
  * \param[in] parameter Pointer to the structure of the algorithm parameters
  * \param[in] method    Computation method
  */
-services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, classifier::prediction::Input::check(parameter, method));
@@ -105,12 +105,13 @@ services::Status Input::check(const daal::algorithms::Parameter *parameter, int 
 
     size_t nClasses = 0;
     {
-        const multinomial_naive_bayes::interface1::Parameter *algPar1 = dynamic_cast<const multinomial_naive_bayes::interface1::Parameter *>(parameter);
-        if(algPar1) nClasses = algPar1->nClasses;
+        const multinomial_naive_bayes::interface1::Parameter * algPar1 =
+            dynamic_cast<const multinomial_naive_bayes::interface1::Parameter *>(parameter);
+        if (algPar1) nClasses = algPar1->nClasses;
     }
     {
-        const multinomial_naive_bayes::Parameter *algPar2 = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
-        if(algPar2) nClasses = algPar2->nClasses;
+        const multinomial_naive_bayes::Parameter * algPar2 = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
+        if (algPar2) nClasses = algPar2->nClasses;
     }
     DAAL_CHECK_EX(nClasses > 0, ErrorNullParameterNotSupported, ArgumentName, nClassesStr());
 
@@ -119,8 +120,8 @@ services::Status Input::check(const daal::algorithms::Parameter *parameter, int 
     return s;
 }
 
-}// namespace interface1
-}// namespace prediction
-}// namespace multinomial_naive_bayes
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace prediction
+} // namespace multinomial_naive_bayes
+} // namespace algorithms
+} // namespace daal

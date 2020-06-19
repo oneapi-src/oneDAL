@@ -21,11 +21,11 @@
 //--
 */
 
-#include "elu_layer_backward_types.h"
-#include "elu_layer_types.h"
+#include "algorithms/neural_networks/layers/elu/elu_layer_backward_types.h"
+#include "algorithms/neural_networks/layers/elu/elu_layer_types.h"
 
-#include "daal_strings.h"
-#include "service_mkl_tensor.h"
+#include "service/kernel/daal_strings.h"
+#include "service/kernel/data_management/service_mkl_tensor.h"
 
 namespace daal
 {
@@ -41,7 +41,6 @@ namespace backward
 {
 namespace interface1
 {
-
 using namespace daal::services;
 using namespace daal::data_management;
 
@@ -52,17 +51,18 @@ using namespace daal::data_management;
  * \param[in] parameter %Parameter of the backward ELU layer
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input,
-                                    const daal::algorithms::Parameter *parameter,
-                                    const int method)
+DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     Status status;
 
-    auto *in  = static_cast<const Input *>(input);
-    auto *par = static_cast<const Parameter *>(parameter);
-    if (!par->propagateGradient) { return services::Status(); }
+    auto * in  = static_cast<const Input *>(input);
+    auto * par = static_cast<const Parameter *>(parameter);
+    if (!par->propagateGradient)
+    {
+        return services::Status();
+    }
 
-    const Tensor *inputGradientTensor = in->get(layers::backward::inputGradient).get();
+    const Tensor * inputGradientTensor = in->get(layers::backward::inputGradient).get();
     DAAL_CHECK(inputGradientTensor, Error::create(ErrorNullTensor, ArgumentName, inputGradientStr()));
 
     if (!get(layers::backward::gradient))
@@ -76,8 +76,7 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input,
     return services::Status();
 }
 
-template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input,
-                                                          const daal::algorithms::Parameter *parameter,
+template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
                                                           const int method);
 
 } // namespace interface1

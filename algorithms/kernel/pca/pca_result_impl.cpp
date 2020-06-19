@@ -21,8 +21,8 @@
 //--
 */
 
-#include "pca_result_impl.h"
-#include "daal_strings.h"
+#include "algorithms/kernel/pca/pca_result_impl.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -33,10 +33,8 @@ namespace algorithms
 {
 namespace pca
 {
-
 namespace interface3
 {
-
 /**
 * Checks the results of the PCA algorithm implementation
 * \param[in] nFeatures      Number of features

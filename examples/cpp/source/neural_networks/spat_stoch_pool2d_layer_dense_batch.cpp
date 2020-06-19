@@ -42,22 +42,16 @@ using namespace daal::algorithms::neural_networks;
 using namespace daal::data_management;
 using namespace daal::services;
 
-static const size_t nDim = 4;
-static const size_t dims[] = {2, 3, 2, 4};
-static float dataArray[2][3][2][4] = {{{{ 1,  2,  3,  4},
-                                    { 5,  6,  7,  8}},
-                                                    {{ 9, 10, 11, 12},
-                                                    {13, 14, 15, 16}},
-                                                                    {{17, 18, 19, 20},
-                                                                     {21, 22, 23, 24}}},
-                                  {{{ 10, 20, 30, 40},
-                                    { 50, 60, 70, 80}},
-                                                    {{ 90, 100, 110, 120},
-                                                    {130, 140, 150, 160}},
-                                                                    {{170, 180, 190, 200},
-                                                                     {210, 220, 230, 240}}}};
+static const size_t nDim           = 4;
+static const size_t dims[]         = { 2, 3, 2, 4 };
+static float dataArray[2][3][2][4] = {
+    { { { 1, 2, 3, 4 }, { 5, 6, 7, 8 } }, { { 9, 10, 11, 12 }, { 13, 14, 15, 16 } }, { { 17, 18, 19, 20 }, { 21, 22, 23, 24 } } },
+    { { { 10, 20, 30, 40 }, { 50, 60, 70, 80 } },
+      { { 90, 100, 110, 120 }, { 130, 140, 150, 160 } },
+      { { 170, 180, 190, 200 }, { 210, 220, 230, 240 } } }
+};
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     TensorPtr data(new HomogenTensor<>(nDim, dims, (float *)dataArray));
 

@@ -24,11 +24,10 @@
 #ifndef __LINEAR_REGRESSION_GROUP_OF_BETAS_DENSE_DEFAULT_BATCH_KERNEL_H__
 #define __LINEAR_REGRESSION_GROUP_OF_BETAS_DENSE_DEFAULT_BATCH_KERNEL_H__
 
-#include "linear_regression_group_of_betas_types.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "algorithm_base_common.h"
-
+#include "algorithms/linear_regression/linear_regression_group_of_betas_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/algorithm_base_common.h"
 
 namespace daal
 {
@@ -42,26 +41,25 @@ namespace group_of_betas
 {
 namespace internal
 {
-
 using namespace daal::data_management;
 
-template<Method method, typename algorithmFPType, CpuType cpu>
+template <Method method, typename algorithmFPType, CpuType cpu>
 class GroupOfBetasKernel : public daal::algorithms::Kernel
 {
 public:
     virtual ~GroupOfBetasKernel() {}
-    services::Status compute(const NumericTable* y, const NumericTable* z, const NumericTable* zReducedModel,
-        size_t numBeta, size_t numBetaReducedModel, algorithmFPType accuracyThreshold, NumericTable* out[]);
+    services::Status compute(const NumericTable * y, const NumericTable * z, const NumericTable * zReducedModel, size_t numBeta,
+                             size_t numBetaReducedModel, algorithmFPType accuracyThreshold, NumericTable * out[]);
 
 protected:
     static const size_t _nRowsInBlock = 1024;
 };
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace group_of_betas
+} // namespace quality_metric
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal
 
 #endif

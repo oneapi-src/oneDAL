@@ -19,7 +19,7 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_dbscan_Input.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::dbscan;
@@ -29,8 +29,7 @@ using namespace daal::algorithms::dbscan;
 * Method:    cSetData
 * Signature:(JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Input_cSetData
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Input_cSetData(JNIEnv *, jobject, jlong inputAddr, jint id, jlong ntAddr)
 {
     jniInput<dbscan::Input>::set<InputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -40,8 +39,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Input_cSetData
 * Method:    cGetData
 * Signature:(JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Input_cGetData
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Input_cGetData(JNIEnv *, jobject, jlong inputAddr, jint id)
 {
     return jniInput<dbscan::Input>::get<InputId, NumericTable>(inputAddr, id);
 }

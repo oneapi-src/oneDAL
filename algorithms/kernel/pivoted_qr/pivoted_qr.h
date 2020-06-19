@@ -23,7 +23,7 @@
 #ifndef __PIVOTED_QR_BATCH__
 #define __PIVOTED_QR_BATCH__
 
-#include "pivoted_qr_types.h"
+#include "algorithms/pivoted_qr/pivoted_qr_types.h"
 
 using namespace daal::data_management;
 
@@ -33,7 +33,6 @@ namespace algorithms
 {
 namespace pivoted_qr
 {
-
 /**
  * Allocates memory for storing final results of the pivoted QR algorithm
  * \param[in] input        Pointer to input object
@@ -41,7 +40,7 @@ namespace pivoted_qr
  * \param[in] method       Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status s;
     size_t m = static_cast<const Input *>(input)->get(data)->getNumberOfColumns();
@@ -53,8 +52,8 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return s;
 }
 
-}// namespace pivoted_qr
-}// namespace algorithms
-}// namespace daal
+} // namespace pivoted_qr
+} // namespace algorithms
+} // namespace daal
 
 #endif

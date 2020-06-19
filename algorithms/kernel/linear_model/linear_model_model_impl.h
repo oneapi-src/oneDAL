@@ -24,7 +24,7 @@
 #ifndef __LINEAR_MODEL_MODEL_IMPL_H__
 #define __LINEAR_MODEL_MODEL_IMPL_H__
 
-#include "linear_model_model.h"
+#include "algorithms/linear_model/linear_model_model.h"
 
 namespace daal
 {
@@ -49,20 +49,19 @@ public:
      * \param[in] par        Parameters of the linear model
      * \param[in] dummy      Dummy variable for the templated constructor
      */
-    template<typename modelFPType>
-    ModelInternal(size_t nFeatures, size_t nResponses, const linear_model::Parameter &par, modelFPType dummy);
+    template <typename modelFPType>
+    ModelInternal(size_t nFeatures, size_t nResponses, const linear_model::Parameter & par, modelFPType dummy);
 
     /**
      * Constructs the linear model
      * \param[in] beta  Numeric table that contains the linear model coefficients
      * \param[in] par   Parameters of the linear model
      */
-    ModelInternal(const data_management::NumericTablePtr &beta, const linear_model::Parameter &par = Parameter());
+    ModelInternal(const data_management::NumericTablePtr & beta, const linear_model::Parameter & par = Parameter());
 
     ModelInternal();
 
-    virtual ~ModelInternal()
-    {}
+    virtual ~ModelInternal() {}
 
     /**
      * Initializes the coefficients of the linear model
@@ -99,14 +98,14 @@ public:
     data_management::NumericTablePtr getBeta();
 
 protected:
-    bool _interceptFlag;     /* Flag. True if the ridge regression model contains the intercept term;
+    bool _interceptFlag;                    /* Flag. True if the ridge regression model contains the intercept term;
                                 false otherwise. */
-    data_management::NumericTablePtr _beta;    /* Table that contains resulting coefficients */
+    data_management::NumericTablePtr _beta; /* Table that contains resulting coefficients */
 
-    services::Status setToZero(data_management::NumericTable &table);
+    services::Status setToZero(data_management::NumericTable & table);
 
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         arch->set(_interceptFlag);
 
@@ -119,11 +118,10 @@ protected:
 /**
  * \brief Class that connects the interface and implementation
  */
-class ModelImpl : public linear_model::Model,
-                  public ModelInternal
+class ModelImpl : public linear_model::Model, public ModelInternal
 {
 public:
-    typedef ModelInternal   ImplType;
+    typedef ModelInternal ImplType;
 
     /**
      * Constructs the linear model
@@ -132,9 +130,9 @@ public:
      * \param[in] par        Parameters of the linear model
      * \param[in] dummy      Dummy variable for the templated constructor
      */
-    template<typename modelFPType>
-    ModelImpl(size_t nFeatures, size_t nResponses, const linear_model::Parameter &par, modelFPType dummy) :
-        ImplType(nFeatures, nResponses, par, dummy)
+    template <typename modelFPType>
+    ModelImpl(size_t nFeatures, size_t nResponses, const linear_model::Parameter & par, modelFPType dummy)
+        : ImplType(nFeatures, nResponses, par, dummy)
     {}
 
     /**
@@ -142,9 +140,7 @@ public:
      * \param[in] beta  Numeric table that contains the linear model coefficients
      * \param[in] par   Parameters of the linear model
      */
-    ModelImpl(const data_management::NumericTablePtr &beta, const linear_model::Parameter &par = Parameter()) :
-        ImplType(beta, par)
-    {}
+    ModelImpl(const data_management::NumericTablePtr & beta, const linear_model::Parameter & par = Parameter()) : ImplType(beta, par) {}
 
     /**
      * Initializes the coefficients of the linear model
@@ -155,13 +151,13 @@ public:
      * Returns the number of regression coefficients
      * \return Number of regression coefficients
      */
-    size_t getNumberOfBetas() const DAAL_C11_OVERRIDE  { return ImplType::getNumberOfBetas(); }
+    size_t getNumberOfBetas() const DAAL_C11_OVERRIDE { return ImplType::getNumberOfBetas(); }
 
     /**
      * Returns the number of responses in the training data set
      * \return Number of responses in the training data set
      */
-    size_t getNumberOfResponses() const DAAL_C11_OVERRIDE  { return ImplType::getNumberOfResponses(); }
+    size_t getNumberOfResponses() const DAAL_C11_OVERRIDE { return ImplType::getNumberOfResponses(); }
 
     /**
      * Returns true if the regression model contains the intercept term, and false otherwise
@@ -182,8 +178,8 @@ public:
     data_management::NumericTablePtr getBeta() DAAL_C11_OVERRIDE { return ImplType::getBeta(); }
 };
 
-}
-}
-}
-}
+} // namespace internal
+} // namespace linear_model
+} // namespace algorithms
+} // namespace daal
 #endif

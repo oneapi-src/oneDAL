@@ -19,7 +19,7 @@
 #include <jni.h>
 #include "daal.h"
 #include "com_intel_daal_algorithms_pca_quality_metric_ExplainedVarianceResult.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::pca::quality_metric;
@@ -35,8 +35,8 @@ using namespace daal::algorithms::pca::quality_metric::explained_variance;
 * Method:    cSetResultTable
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceResult_cSetResultTable
-(JNIEnv *, jobject, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceResult_cSetResultTable(JNIEnv *, jobject, jlong resAddr,
+                                                                                                                  jint id, jlong ntAddr)
 {
     jniArgument<explained_variance::Result>::set<explained_variance::ResultId, NumericTable>(resAddr, id, ntAddr);
 }
@@ -46,15 +46,14 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_Explai
 * Method:    cGetResultTable
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceResult_cGetResultTable
-(JNIEnv *, jobject, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceResult_cGetResultTable(JNIEnv *, jobject, jlong resAddr,
+                                                                                                                   jint id)
 {
-    if(id == ExplainedVariances)
+    if (id == ExplainedVariances)
         return jniArgument<explained_variance::Result>::get<explained_variance::ResultId, NumericTable>(resAddr, explainedVariances);
-    if(id == ExplainedVariancesRatios)
+    if (id == ExplainedVariancesRatios)
         return jniArgument<explained_variance::Result>::get<explained_variance::ResultId, NumericTable>(resAddr, explainedVariancesRatios);
-    if(id == NoiseVariance)
-        return jniArgument<explained_variance::Result>::get<explained_variance::ResultId, NumericTable>(resAddr, noiseVariance);
+    if (id == NoiseVariance) return jniArgument<explained_variance::Result>::get<explained_variance::ResultId, NumericTable>(resAddr, noiseVariance);
     return (jlong)0;
 }
 
@@ -63,8 +62,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_Expla
 * Method:    cNewResult
 * Signature: ()J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceResult_cNewResult
-(JNIEnv *, jobject)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceResult_cNewResult(JNIEnv *, jobject)
 {
     return jniArgument<explained_variance::Result>::newObj();
 }

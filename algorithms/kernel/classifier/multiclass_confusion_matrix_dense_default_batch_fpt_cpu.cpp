@@ -21,9 +21,9 @@
 //--
 */
 
-#include "multiclass_confusion_matrix_dense_default_batch_kernel.h"
-#include "multiclass_confusion_matrix_dense_default_batch_impl.i"
-#include "multiclass_confusion_matrix_dense_default_batch_container.h"
+#include "algorithms/kernel/classifier/multiclass_confusion_matrix_dense_default_batch_kernel.h"
+#include "algorithms/kernel/classifier/multiclass_confusion_matrix_dense_default_batch_impl.i"
+#include "algorithms/kernel/classifier/multiclass_confusion_matrix_dense_default_batch_container.h"
 
 namespace daal
 {
@@ -43,8 +43,8 @@ namespace internal
 {
 template class MultiClassConfusionMatrixKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
-}
+} // namespace multiclass_confusion_matrix
+} // namespace quality_metric
+} // namespace classifier
+} // namespace algorithms
+} // namespace daal

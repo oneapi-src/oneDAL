@@ -25,10 +25,10 @@
 #ifndef __DF_REGRESSION_PREDICT_DENSE_DEFAULT_BATCH_H__
 #define __DF_REGRESSION_PREDICT_DENSE_DEFAULT_BATCH_H__
 
-#include "decision_forest_regression_predict.h"
-#include "service_memory.h"
-#include "kernel.h"
-#include "numeric_table.h"
+#include "algorithms/decision_forest/decision_forest_regression_predict.h"
+#include "externals/service_memory.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;
 
@@ -44,7 +44,6 @@ namespace prediction
 {
 namespace internal
 {
-
 template <typename algorithmFpType, decision_forest::regression::prediction::Method method, CpuType cpu>
 class PredictKernel : public daal::algorithms::Kernel
 {
@@ -57,14 +56,14 @@ public:
      *  \param r[out]   Prediction results
      *  \param par[in]  decision forest algorithm parameters
      */
-    services::Status compute(services::HostAppIface* pHostApp, const NumericTable *a, const regression::Model *m, NumericTable *r);
+    services::Status compute(services::HostAppIface * pHostApp, const NumericTable * a, const regression::Model * m, NumericTable * r);
 };
 
 } // namespace internal
-}
-}
-}
-}
+} // namespace prediction
+} // namespace regression
+} // namespace decision_forest
+} // namespace algorithms
 } // namespace daal
 
 #endif

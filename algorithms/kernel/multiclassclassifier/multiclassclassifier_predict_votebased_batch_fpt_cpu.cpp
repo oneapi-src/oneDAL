@@ -22,9 +22,9 @@
 //--
 */
 
-#include "multiclassclassifier_predict_batch_container.h"
-#include "multiclassclassifier_predict_kernel.h"
-#include "multiclassclassifier_predict_votebased_impl.i"
+#include "algorithms/kernel/multiclassclassifier/multiclassclassifier_predict_batch_container.h"
+#include "algorithms/kernel/multiclassclassifier/multiclassclassifier_predict_kernel.h"
+#include "algorithms/kernel/multiclassclassifier/multiclassclassifier_predict_votebased_impl.i"
 
 namespace daal
 {
@@ -40,7 +40,8 @@ template class BatchContainer<DAAL_FPTYPE, voteBased, training::oneAgainstOne, D
 }
 namespace internal
 {
-template class MultiClassClassifierPredictKernel<voteBased, training::oneAgainstOne, DAAL_FPTYPE, classifier::prediction::Batch, multi_class_classifier::Parameter, DAAL_CPU>;
+template class MultiClassClassifierPredictKernel<voteBased, training::oneAgainstOne, DAAL_FPTYPE, classifier::prediction::Batch,
+                                                 multi_class_classifier::Parameter, DAAL_CPU>;
 } // namespace internal
 } // namespace prediction
 } // namespace multi_class_classifier

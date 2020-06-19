@@ -19,20 +19,19 @@
 //  Implementation of the backward softmax cross layer
 //--
 
-
 #ifndef __SOFTMAX_CROSS_LAYER_BACKWARD_KERNEL_H__
 #define __SOFTMAX_CROSS_LAYER_BACKWARD_KERNEL_H__
 
-#include "neural_networks/layers/loss/softmax_cross_layer.h"
-#include "neural_networks/layers/loss/softmax_cross_layer_types.h"
-#include "neural_networks/layers/loss/softmax_cross_layer_backward_types.h"
-#include "kernel.h"
-#include "service_math.h"
-#include "service_error_handling.h"
-#include "service_tensor.h"
-#include "numeric_table.h"
-#include "threading.h"
-#include "layers_threading.h"
+#include "algorithms/neural_networks/layers/loss/softmax_cross_layer.h"
+#include "algorithms/neural_networks/layers/loss/softmax_cross_layer_types.h"
+#include "algorithms/neural_networks/layers/loss/softmax_cross_layer_backward_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "externals/service_math.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/threading/threading.h"
+#include "algorithms/kernel/neural_networks/layers/layers_threading.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -53,30 +52,19 @@ namespace backward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for softmax_cross calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class SoftmaxCrossKernel : public Kernel
 {
 public:
-    Status compute(
-        const Tensor &probTensor,
-        const Tensor &groundTruthTensor,
-        const softmax_cross::Parameter &parameter,
-        Tensor &resultTensor);
+    Status compute(const Tensor & probTensor, const Tensor & groundTruthTensor, const softmax_cross::Parameter & parameter, Tensor & resultTensor);
 
 private:
     const size_t _nRowsInBlock = 5000;
-    Status processBlock(
-        const Tensor &probTensor,
-        const Tensor &groundTruthTensor,
-        const size_t nProcessedRows,
-        const size_t nRowsInCurrentBlock,
-        const size_t dim,
-        Tensor &gradientTensor);
-
+    Status processBlock(const Tensor & probTensor, const Tensor & groundTruthTensor, const size_t nProcessedRows, const size_t nRowsInCurrentBlock,
+                        const size_t dim, Tensor & gradientTensor);
 };
 
 } // namespace internal

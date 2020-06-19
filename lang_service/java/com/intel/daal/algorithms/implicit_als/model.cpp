@@ -30,10 +30,9 @@ using namespace daal::data_management;
  * Method:    cGetUsersFactors
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_Model_cGetUsersFactors
-(JNIEnv *env, jobject thisObj, jlong modAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_Model_cGetUsersFactors(JNIEnv * env, jobject thisObj, jlong modAddr)
 {
-    NumericTablePtr *nt = new NumericTablePtr();
+    NumericTablePtr * nt                   = new NumericTablePtr();
     algorithms::implicit_als::ModelPtr res = *(algorithms::implicit_als::ModelPtr *)modAddr;
 
     *nt = res->getUsersFactors();
@@ -46,10 +45,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_Model_cGetU
  * Method:    cGetItemsFactors
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_Model_cGetItemsFactors
-(JNIEnv *env, jobject thisObj, jlong modAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_Model_cGetItemsFactors(JNIEnv * env, jobject thisObj, jlong modAddr)
 {
-    NumericTablePtr *nt = new NumericTablePtr();
+    NumericTablePtr * nt                   = new NumericTablePtr();
     algorithms::implicit_als::ModelPtr res = *(algorithms::implicit_als::ModelPtr *)modAddr;
 
     *nt = res->getItemsFactors();

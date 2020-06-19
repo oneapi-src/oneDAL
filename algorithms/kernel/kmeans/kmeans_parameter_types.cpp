@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/kmeans/kmeans_types.h"
-#include "daal_defines.h"
-#include "daal_strings.h"
+#include "services/daal_defines.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -34,27 +34,35 @@ namespace algorithms
 {
 namespace kmeans
 {
-
-namespace interface1
+namespace interface2
 {
-
 /**
  *  Constructs parameters of the K-Means algorithm
  *  \param[in] _nClusters   Number of clusters
  *  \param[in] _maxIterations Number of iterations
  */
-Parameter::Parameter(size_t _nClusters, size_t _maxIterations) :
-    nClusters(_nClusters), maxIterations(_maxIterations), accuracyThreshold(0.0), gamma(1.0),
-    distanceType(euclidean), assignFlag(true) {}
+Parameter::Parameter(size_t _nClusters, size_t _maxIterations)
+    : nClusters(_nClusters),
+      maxIterations(_maxIterations),
+      accuracyThreshold(0.0),
+      gamma(1.0),
+      distanceType(euclidean),
+      resultsToEvaluate(computeCentroids | computeAssignments | computeExactObjectiveFunction),
+      assignFlag(false)
+{}
 
 /**
  *  Constructs parameters of the K-Means algorithm by copying another parameters of the K-Means algorithm
  *  \param[in] other    Parameters of the K-Means algorithm
  */
-Parameter::Parameter(const Parameter &other) :
-    nClusters(other.nClusters), maxIterations(other.maxIterations),
-    accuracyThreshold(other.accuracyThreshold), gamma(other.gamma),
-    distanceType(other.distanceType), assignFlag(other.assignFlag)
+Parameter::Parameter(const Parameter & other)
+    : nClusters(other.nClusters),
+      maxIterations(other.maxIterations),
+      accuracyThreshold(other.accuracyThreshold),
+      gamma(other.gamma),
+      distanceType(other.distanceType),
+      resultsToEvaluate(other.resultsToEvaluate),
+      assignFlag(other.assignFlag)
 {}
 
 services::Status Parameter::check() const
@@ -65,7 +73,7 @@ services::Status Parameter::check() const
     return services::Status();
 }
 
-} // namespace interface1
+} // namespace interface2
 } // namespace kmeans
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

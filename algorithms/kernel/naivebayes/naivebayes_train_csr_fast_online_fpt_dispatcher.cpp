@@ -22,15 +22,15 @@
 //--
 */
 
-#include "naivebayes_train_container.h"
+#include "algorithms/kernel/naivebayes/naivebayes_train_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(multinomial_naive_bayes::training::interface1::OnlineContainer, online, DAAL_FPTYPE, \
-    multinomial_naive_bayes::training::fastCSR)
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(multinomial_naive_bayes::training::OnlineContainer, online, DAAL_FPTYPE, \
-    multinomial_naive_bayes::training::fastCSR)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(multinomial_naive_bayes::training::interface1::OnlineContainer, online, DAAL_FPTYPE,
+                                      multinomial_naive_bayes::training::fastCSR)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(multinomial_naive_bayes::training::OnlineContainer, online, DAAL_FPTYPE,
+                                      multinomial_naive_bayes::training::fastCSR)
 } // namespace algorithms
 } // namespace daal

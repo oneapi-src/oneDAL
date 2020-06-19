@@ -17,7 +17,7 @@
 
 /**
  * @defgroup classifier_prediction_batch Batch
- * @ingroup prediction
+ * @ingroup classifier_prediction
  * @{
  */
 package com.intel.daal.algorithms.classifier.prediction;

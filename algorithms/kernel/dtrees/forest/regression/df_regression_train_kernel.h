@@ -25,9 +25,9 @@
 #ifndef __DF_REGRESSION_TRAIN_KERNEL_H__
 #define __DF_REGRESSION_TRAIN_KERNEL_H__
 
-#include "numeric_table.h"
-#include "algorithm_base_common.h"
-#include "decision_forest_regression_training_types.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/algorithm_base_common.h"
+#include "algorithms/decision_forest/decision_forest_regression_training_types.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -44,21 +44,19 @@ namespace training
 {
 namespace internal
 {
-
 template <typename algorithmFPType, Method method, CpuType cpu>
 class RegressionTrainBatchKernel : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(HostAppIface* pHostApp, const NumericTable *x, const NumericTable *y,
-        decision_forest::regression::Model& m, Result& res, const Parameter& par);
+    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::regression::Model & m,
+                             Result & res, const Parameter & par);
 };
 
 } // namespace internal
-}
-}
-}
-}
+} // namespace training
+} // namespace regression
+} // namespace decision_forest
+} // namespace algorithms
 } // namespace daal
-
 
 #endif

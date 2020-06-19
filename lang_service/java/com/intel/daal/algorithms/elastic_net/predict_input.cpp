@@ -19,7 +19,7 @@
 
 #include "com_intel_daal_algorithms_elastic_net_prediction_Input.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_elastic_net_prediction_PredictionMethod.h"
 #define defaultDenseValue com_intel_daal_algorithms_elastic_net_prediction_PredictionMethod_defaultDenseValue
@@ -35,8 +35,8 @@ using namespace daal::algorithms::elastic_net::prediction;
  * Method:    cSetInput
  * Signature:(JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_prediction_Input_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
-                                                                                              jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_prediction_Input_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id,
+                                                                                              jlong ntAddr)
 {
     if (id == dataId)
     {

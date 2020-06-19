@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/decision_tree/decision_tree_regression_training_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -37,12 +37,11 @@ namespace training
 {
 namespace interface1
 {
-
 using namespace daal::data_management;
 using namespace daal::services;
 
 Input::Input() : algorithms::regression::training::Input(lastInputId + 1) {}
-Input::Input(const Input &other) : algorithms::regression::training::Input(other) {}
+Input::Input(const Input & other) : algorithms::regression::training::Input(other) {}
 
 NumericTablePtr Input::get(decision_tree::regression::training::InputId id) const
 {
@@ -83,12 +82,11 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter)
     {
         const NumericTablePtr dataForPruningTable = get(dataForPruning);
         DAAL_CHECK_STATUS(s, checkNumericTable(dataForPruningTable.get(), dataForPruningStr(), 0, 0, this->getNumberOfFeatures()));
-        const int unexpectedLabelsLayouts = (int)NumericTableIface::upperPackedSymmetricMatrix
-                                            | (int)NumericTableIface::lowerPackedSymmetricMatrix
+        const int unexpectedLabelsLayouts = (int)NumericTableIface::upperPackedSymmetricMatrix | (int)NumericTableIface::lowerPackedSymmetricMatrix
                                             | (int)NumericTableIface::upperPackedTriangularMatrix
                                             | (int)NumericTableIface::lowerPackedTriangularMatrix;
-        DAAL_CHECK_STATUS(s, checkNumericTable(get(dependentVariablesForPruning).get(), dependentVariablesForPruningStr(), unexpectedLabelsLayouts,
-                          0, 1, dataForPruningTable->getNumberOfRows()));
+        DAAL_CHECK_STATUS(s, checkNumericTable(get(dependentVariablesForPruning).get(), dependentVariablesForPruningStr(), unexpectedLabelsLayouts, 0,
+                                               1, dataForPruningTable->getNumberOfRows()));
     }
     else
     {

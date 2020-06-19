@@ -25,9 +25,9 @@
 #ifndef __BROWNBOOST_TRAIN_BATCH_CONTAINER_V1_H___
 #define __BROWNBOOST_TRAIN_BATCH_CONTAINER_V1_H___
 
-#include "brownboost_training_batch.h"
-#include "brownboost_train_kernel_v1.h"
-#include "kernel.h"
+#include "algorithms/boosting/brownboost_training_batch.h"
+#include "algorithms/kernel/brownboost/inner/brownboost_train_kernel_v1.h"
+#include "algorithms/kernel/kernel.h"
 
 namespace daal
 {
@@ -39,39 +39,39 @@ namespace training
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::I1BrownBoostTrainKernel, method, algorithmFPType);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    brownboost::training::interface1::Result *result = static_cast<brownboost::training::interface1::Result *>(_res);
-    classifier::training::interface1::Input *input = static_cast<classifier::training::interface1::Input *>(_in);
+    brownboost::training::interface1::Result * result = static_cast<brownboost::training::interface1::Result *>(_res);
+    classifier::training::interface1::Input * input   = static_cast<classifier::training::interface1::Input *>(_in);
 
     size_t n = input->size();
 
     NumericTablePtr a[2];
-    a[0] = services::staticPointerCast<NumericTable>(input->get(classifier::training::data));
-    a[1] = services::staticPointerCast<NumericTable>(input->get(classifier::training::labels));
-    brownboost::interface1::Model *r = static_cast<brownboost::interface1::Model *>(result->get(classifier::training::model).get());
-    brownboost::interface1::Parameter *par = static_cast<brownboost::interface1::Parameter *>(_par);
+    a[0]                                    = services::staticPointerCast<NumericTable>(input->get(classifier::training::data));
+    a[1]                                    = services::staticPointerCast<NumericTable>(input->get(classifier::training::labels));
+    brownboost::interface1::Model * r       = static_cast<brownboost::interface1::Model *>(result->get(classifier::training::model).get());
+    brownboost::interface1::Parameter * par = static_cast<brownboost::interface1::Parameter *>(_par);
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
     __DAAL_CALL_KERNEL(env, internal::I1BrownBoostTrainKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, n, a, r, par);
 }
-}
-}
-}
-}
+} // namespace interface1
+} // namespace training
+} // namespace brownboost
+} // namespace algorithms
 } // namespace daal
 
 #endif // __BROWNBOOST_TRAINING_BATCH_CONTAINER_V1_H___

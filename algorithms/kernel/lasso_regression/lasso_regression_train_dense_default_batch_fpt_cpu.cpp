@@ -21,8 +21,8 @@
 //--
 */
 
-#include "lasso_regression_train_container.h"
-#include "lasso_regression_train_dense_default_impl.i"
+#include "algorithms/kernel/lasso_regression/lasso_regression_train_container.h"
+#include "algorithms/kernel/lasso_regression/lasso_regression_train_dense_default_impl.i"
 
 namespace daal
 {
@@ -41,7 +41,7 @@ namespace internal
 template class TrainBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
 
-}
-}
-}
-}
+} // namespace training
+} // namespace lasso_regression
+} // namespace algorithms
+} // namespace daal

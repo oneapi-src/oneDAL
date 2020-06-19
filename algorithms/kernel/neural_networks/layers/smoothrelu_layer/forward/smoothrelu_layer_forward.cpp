@@ -21,10 +21,10 @@
 //--
 */
 
-#include "smoothrelu_layer_forward_types.h"
-#include "smoothrelu_layer_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/layers/smoothrelu/smoothrelu_layer_forward_types.h"
+#include "algorithms/neural_networks/layers/smoothrelu/smoothrelu_layer_types.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -43,13 +43,13 @@ namespace interface1
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_NEURAL_NETWORKS_LAYERS_SMOOTHRELU_FORWARD_RESULT_ID);
 /** Default constructor */
 Input::Input() {};
-Input::Input(const Input& other) : super(other) {}
+Input::Input(const Input & other) : super(other) {}
 
 /**
  * Returns dimensions of weights tensor
  * \return Dimensions of weights tensor
  */
-const services::Collection<size_t> Input::getWeightsSizes(const layers::Parameter *parameter) const
+const services::Collection<size_t> Input::getWeightsSizes(const layers::Parameter * parameter) const
 {
     return services::Collection<size_t>();
 }
@@ -58,7 +58,7 @@ const services::Collection<size_t> Input::getWeightsSizes(const layers::Paramete
  * Returns dimensions of biases tensor
  * \return Dimensions of biases tensor
  */
-const services::Collection<size_t> Input::getBiasesSizes(const layers::Parameter *parameter) const
+const services::Collection<size_t> Input::getBiasesSizes(const layers::Parameter * parameter) const
 {
     return services::Collection<size_t>();
 }
@@ -83,7 +83,7 @@ data_management::TensorPtr Result::get(LayerDataId id) const
  * \param[in] id      Identifier of the result
  * \param[in] value   Result
  */
-void Result::set(LayerDataId id, const data_management::TensorPtr &value)
+void Result::set(LayerDataId id, const data_management::TensorPtr & value)
 {
     layers::LayerDataPtr layerData =
         services::staticPointerCast<layers::LayerData, data_management::SerializationIface>(Argument::get(layers::forward::resultForBackward));
@@ -96,17 +96,17 @@ void Result::set(LayerDataId id, const data_management::TensorPtr &value)
  * \param[in] par     %Parameter of the layer
  * \param[in] method  Computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, layers::forward::Result::check(input, par, method));
 
-    const Input *in = static_cast<const Input *>(input);
-    const services::Collection<size_t> &inputDimensions = in->get(layers::forward::data)->getDimensions();
+    const Input * in                                     = static_cast<const Input *>(input);
+    const services::Collection<size_t> & inputDimensions = in->get(layers::forward::data)->getDimensions();
     DAAL_CHECK_STATUS(s, data_management::checkTensor(get(layers::forward::value).get(), valueStr(), &inputDimensions));
 
-    const layers::Parameter *parameter = static_cast<const layers::Parameter * >(par);
-    if(!parameter->predictionStage)
+    const layers::Parameter * parameter = static_cast<const layers::Parameter *>(par);
+    if (!parameter->predictionStage)
     {
         DAAL_CHECK_STATUS(s, data_management::checkTensor(get(smoothrelu::auxData).get(), auxDataStr(), &inputDimensions));
     }
@@ -117,9 +117,9 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
  * Sets the result that is used in backward smooth relu layer
  * \param[in] input     Pointer to an object containing the input data
  */
-services::Status Result::setResultForBackward(const daal::algorithms::Input *input)
+services::Status Result::setResultForBackward(const daal::algorithms::Input * input)
 {
-    const layers::forward::Input *in = static_cast<const layers::forward::Input * >(input);
+    const layers::forward::Input * in = static_cast<const layers::forward::Input *>(input);
     set(auxData, in->get(layers::forward::data));
     return services::Status();
 }
@@ -128,16 +128,16 @@ services::Status Result::setResultForBackward(const daal::algorithms::Input *inp
  * Returns dimensions of value tensor
  * \return Dimensions of value tensor
  */
-const services::Collection<size_t> Result::getValueSize(const services::Collection<size_t> &inputSize,
-                                                        const daal::algorithms::Parameter *par, const int method) const
+const services::Collection<size_t> Result::getValueSize(const services::Collection<size_t> & inputSize, const daal::algorithms::Parameter * par,
+                                                        const int method) const
 {
     return inputSize;
 }
 
-}// namespace interface1
-}// namespace forward
-}// namespace smoothrelu
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace smoothrelu
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

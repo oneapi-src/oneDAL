@@ -21,17 +21,17 @@
 //--
 */
 
-#include "multi_class_classifier_predict.h"
-#include "multiclassclassifier_predict_batch_container.h"
+#include "algorithms/multi_class_classifier/multi_class_classifier_predict.h"
+#include "algorithms/kernel/multiclassclassifier/multiclassclassifier_predict_batch_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(multi_class_classifier::prediction::interface1::BatchContainer, batch, DAAL_FPTYPE,  \
-    multi_class_classifier::prediction::multiClassClassifierWu, multi_class_classifier::training::oneAgainstOne)
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(multi_class_classifier::prediction::BatchContainer, batch, DAAL_FPTYPE,  \
-    multi_class_classifier::prediction::multiClassClassifierWu, multi_class_classifier::training::oneAgainstOne)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(multi_class_classifier::prediction::interface1::BatchContainer, batch, DAAL_FPTYPE,
+                                      multi_class_classifier::prediction::multiClassClassifierWu, multi_class_classifier::training::oneAgainstOne)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(multi_class_classifier::prediction::BatchContainer, batch, DAAL_FPTYPE,
+                                      multi_class_classifier::prediction::multiClassClassifierWu, multi_class_classifier::training::oneAgainstOne)
 
 } // namespace algorithms
 } // namespace daal

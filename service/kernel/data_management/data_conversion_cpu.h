@@ -18,7 +18,7 @@
 #ifndef __KERNEL_DATA_MANAGEMENT_DATA_CONVERSION_CPU_H__
 #define __KERNEL_DATA_MANAGEMENT_DATA_CONVERSION_CPU_H__
 
-#include "service_defines.h"
+#include "service/kernel/service_defines.h"
 
 namespace daal
 {
@@ -38,14 +38,14 @@ void vectorCopyInternal(const size_t nrows, const size_t ncols, void * dst, void
 template <typename T1, typename T2, CpuType cpu>
 void vectorConvertFuncCpu(size_t n, const void * src, void * dst);
 
-template<typename T1, typename T2, CpuType cpu>
-void vectorConvertFuncCpu(size_t n, const void *src, void *dst);
+template <typename T1, typename T2, CpuType cpu>
+void vectorConvertFuncCpu(size_t n, const void * src, void * dst);
 
-template<typename T1, typename T2, CpuType cpu>
-void vectorStrideConvertFuncCpu(size_t n, const void *src, size_t srcByteStride, void *dst, size_t dstByteStride);
+template <typename T1, typename T2, CpuType cpu>
+void vectorStrideConvertFuncCpu(size_t n, const void * src, size_t srcByteStride, void * dst, size_t dstByteStride);
 
-template<typename T, CpuType cpu>
-void vectorAssignValueToArrayCpu(void* const ptr, const size_t n, const void* const value);
+template <typename T, CpuType cpu>
+void vectorAssignValueToArrayCpu(void * const ptr, const size_t n, const void * const value);
 
 } // namespace internal
 } // namespace data_management

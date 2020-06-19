@@ -19,18 +19,17 @@
 //  Declaration of template function that calculate convolution2ds.
 //--
 
-
 #ifndef __CONVOLUTION2D_LAYER_BACKWARD_KERNEL_H__
 #define __CONVOLUTION2D_LAYER_BACKWARD_KERNEL_H__
 
-#include "neural_networks/layers/convolution2d/convolution2d_layer.h"
-#include "neural_networks/layers/convolution2d/convolution2d_layer_types.h"
-#include "kernel.h"
-#include "service_math.h"
-#include "numeric_table.h"
-#include "service_dnn.h"
-#include "service_dnn_internal.h"
-#include "layers_threading.h"
+#include "algorithms/neural_networks/layers/convolution2d/convolution2d_layer.h"
+#include "algorithms/neural_networks/layers/convolution2d/convolution2d_layer_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "externals/service_math.h"
+#include "data_management/data/numeric_table.h"
+#include "externals/service_dnn.h"
+#include "algorithms/kernel/service_dnn_internal.h"
+#include "algorithms/kernel/neural_networks/layers/layers_threading.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -49,18 +48,17 @@ namespace backward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for convolution2d calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class Convolution2dKernel : public Kernel
 {
 public:
     services::Status initialize(bool resultFlag = true, bool wDerFlag = true, bool bDerFlag = true);
 
-    services::Status compute(Tensor *inGradTensor, Tensor *xTensor, Tensor *wTensor,
-    const convolution2d::Parameter &parameter, Tensor *wDerTensor, Tensor *bDerTensor, Tensor *resultTensor);
+    services::Status compute(Tensor * inGradTensor, Tensor * xTensor, Tensor * wTensor, const convolution2d::Parameter & parameter,
+                             Tensor * wDerTensor, Tensor * bDerTensor, Tensor * resultTensor);
 
     services::Status reset();
 
@@ -92,12 +90,12 @@ private:
     dnnPrimitive_t convBias = NULL;
 };
 
-} // internal
-} // backward
-} // convolution2d
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace backward
+} // namespace convolution2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

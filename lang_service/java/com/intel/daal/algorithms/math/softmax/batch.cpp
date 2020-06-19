@@ -18,7 +18,7 @@
 #include <jni.h>
 #include "com_intel_daal_algorithms_math_softmax_Batch.h"
 #include "daal.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::math;
@@ -28,8 +28,7 @@ using namespace daal::algorithms::math;
  * Method:    cInit
  * Signature:(II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_softmax_Batch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_softmax_Batch_cInit(JNIEnv * env, jobject thisObj, jint prec, jint method)
 {
     return jniBatch<softmax::Method, softmax::Batch, softmax::defaultDense>::newObj(prec, method);
 }
@@ -39,8 +38,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_softmax_Batch_cInit
  * Method:    cSetResult
  * Signature:(JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_math_softmax_Batch_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_math_softmax_Batch_cSetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                    jint method, jlong resultAddr)
 {
     jniBatch<softmax::Method, softmax::Batch, softmax::defaultDense>::setResult<softmax::Result>(prec, method, algAddr, resultAddr);
 }
@@ -50,8 +49,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_math_softmax_Batch_cSetRes
  * Method:    cGetResult
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_softmax_Batch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_softmax_Batch_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                     jint method)
 {
     return jniBatch<softmax::Method, softmax::Batch, softmax::defaultDense>::getResult(prec, method, algAddr);
 }
@@ -61,8 +60,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_softmax_Batch_cGetRe
  * Method:    cGetINput
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_softmax_Batch_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_softmax_Batch_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                    jint method)
 {
     return jniBatch<softmax::Method, softmax::Batch, softmax::defaultDense>::getInput(prec, method, algAddr);
 }
@@ -72,8 +71,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_softmax_Batch_cGetIn
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_softmax_Batch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_softmax_Batch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<softmax::Method, softmax::Batch, softmax::defaultDense>::getClone(prec, method, algAddr);
 }

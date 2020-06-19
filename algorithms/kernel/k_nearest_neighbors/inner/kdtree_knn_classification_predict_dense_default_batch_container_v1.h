@@ -22,8 +22,8 @@
 //--
 */
 
-#include "kdtree_knn_classification_predict.h"
-#include "kdtree_knn_classification_predict_dense_default_batch.h"
+#include "algorithms/k_nearest_neighbors/kdtree_knn_classification_predict.h"
+#include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_classification_predict_dense_default_batch.h"
 
 namespace daal
 {
@@ -35,7 +35,6 @@ namespace prediction
 {
 namespace interface1
 {
-
 template <typename algorithmFpType, Method method, CpuType cpu>
 BatchContainer<algorithmFpType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
 {
@@ -51,21 +50,21 @@ BatchContainer<algorithmFpType, method, cpu>::~BatchContainer()
 template <typename algorithmFpType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 {
-    const classifier::prediction::Input * const input = static_cast<const classifier::prediction::Input *>(_in);
+    const classifier::prediction::Input * const input         = static_cast<const classifier::prediction::Input *>(_in);
     classifier::prediction::interface1::Result * const result = static_cast<classifier::prediction::interface1::Result *>(_res);
 
     const data_management::NumericTableConstPtr a = input->get(classifier::prediction::data);
-    const classifier::ModelConstPtr m = input->get(classifier::prediction::model);
-    const data_management::NumericTablePtr r = result->get(classifier::prediction::prediction);
+    const classifier::ModelConstPtr m             = input->get(classifier::prediction::model);
+    const data_management::NumericTablePtr r      = result->get(classifier::prediction::prediction);
 
     const daal::algorithms::Parameter * const par = _par;
-    daal::services::Environment::env & env = *_env;
+    daal::services::Environment::env & env        = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::KNNClassificationPredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType, method), \
-                       compute, a.get(), m.get(), r.get(), par);
+    __DAAL_CALL_KERNEL(env, internal::KNNClassificationPredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType, method), compute, a.get(), m.get(),
+                       r.get(), par);
 }
 
-}
+} // namespace interface1
 } // namespace prediction
 } // namespace kdtree_knn_classification
 } // namespace algorithms

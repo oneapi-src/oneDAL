@@ -24,8 +24,8 @@
 #ifndef __PRELU_LAYER_BACKWARD_BATCH_CONTAINER_H__
 #define __PRELU_LAYER_BACKWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/prelu/prelu_layer.h"
-#include "prelu_layer_backward_kernel.h"
+#include "algorithms/neural_networks/layers/prelu/prelu_layer.h"
+#include "algorithms/kernel/neural_networks/layers/prelu_layer/backward/prelu_layer_backward_kernel.h"
 
 namespace daal
 {
@@ -41,36 +41,36 @@ namespace backward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::PReLUKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    prelu::backward::Input *input = static_cast<prelu::backward::Input *>(_in);
-    prelu::backward::Result *result = static_cast<prelu::backward::Result *>(_res);
+    prelu::backward::Input * input   = static_cast<prelu::backward::Input *>(_in);
+    prelu::backward::Result * result = static_cast<prelu::backward::Result *>(_res);
 
-    prelu::Parameter *parameter = static_cast<prelu::Parameter *>(_par);
-    daal::services::Environment::env &env = *_env;
+    prelu::Parameter * parameter           = static_cast<prelu::Parameter *>(_par);
+    daal::services::Environment::env & env = *_env;
 
-    Tensor *inGradTensor  = input->get(layers::backward::inputGradient).get();
-    Tensor *xTensor       = input->get(prelu::auxData).get();
-    Tensor *wTensor       = input->get(prelu::auxWeights).get();
-    Tensor *wDerTensor    = result->get(layers::backward::weightDerivatives).get();
-    Tensor *resultTensor  = result->get(layers::backward::gradient).get();
+    Tensor * inGradTensor = input->get(layers::backward::inputGradient).get();
+    Tensor * xTensor      = input->get(prelu::auxData).get();
+    Tensor * wTensor      = input->get(prelu::auxWeights).get();
+    Tensor * wDerTensor   = result->get(layers::backward::weightDerivatives).get();
+    Tensor * resultTensor = result->get(layers::backward::gradient).get();
 
     internal::PReLUTask<algorithmFPType, method, cpu> task(*inGradTensor, *xTensor, *wTensor, *wDerTensor, *resultTensor, *parameter);
 
-    __DAAL_CALL_KERNEL(env, internal::PReLUKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, task, *parameter );
+    __DAAL_CALL_KERNEL(env, internal::PReLUKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, task, *parameter);
 }
 } // namespace interface1
 } // namespace backward

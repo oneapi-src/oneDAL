@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_neural_networks_layers_loss_LossForwardInputId.h"
 #define dataId        com_intel_daal_algorithms_neural_networks_layers_loss_LossForwardInputId_dataId
@@ -36,8 +36,8 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_loss_LossForwardInput_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_loss_LossForwardInput_cSetInput(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong inputAddr, jint id, jlong ntAddr)
 {
     if (id == dataId || id == weightsId || id == biasesId || id == groundTruthId)
     {
@@ -50,8 +50,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lo
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_loss_LossForwardInput_cGetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_loss_LossForwardInput_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                               jlong inputAddr, jint id)
 {
     if (id == dataId || id == weightsId || id == biasesId || id == groundTruthId)
     {

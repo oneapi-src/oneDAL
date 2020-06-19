@@ -24,8 +24,8 @@
 #ifndef __FULLYCONNECTED_LAYER_FORWARD_BATCH_CONTAINER_H__
 #define __FULLYCONNECTED_LAYER_FORWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/fullyconnected/fullyconnected_layer.h"
-#include "fullyconnected_layer_forward_kernel.h"
+#include "algorithms/neural_networks/layers/fullyconnected/fullyconnected_layer.h"
+#include "algorithms/kernel/neural_networks/layers/fullyconnected_layer/forward/fullyconnected_layer_forward_kernel.h"
 
 namespace daal
 {
@@ -41,40 +41,40 @@ namespace forward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::FullyconnectedKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::setupCompute()
 {
     return completeInput();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    fullyconnected::forward::Input *input = static_cast<fullyconnected::forward::Input *>(_in);
-    fullyconnected::forward::Result *result = static_cast<fullyconnected::forward::Result *>(_res);
+    fullyconnected::forward::Input * input   = static_cast<fullyconnected::forward::Input *>(_in);
+    fullyconnected::forward::Result * result = static_cast<fullyconnected::forward::Result *>(_res);
 
-    fullyconnected::Parameter *parameter = static_cast<fullyconnected::Parameter *>(_par);
-    daal::services::Environment::env &env = *_env;
+    fullyconnected::Parameter * parameter  = static_cast<fullyconnected::Parameter *>(_par);
+    daal::services::Environment::env & env = *_env;
 
-    Tensor *inputTensor   = input->get(layers::forward::data).get();
-    Tensor *wTensor       = input->get(layers::forward::weights).get();
-    Tensor *bTensor       = input->get(layers::forward::biases).get();
-    Tensor *resultTensor  = result->get(layers::forward::value).get();
+    Tensor * inputTensor  = input->get(layers::forward::data).get();
+    Tensor * wTensor      = input->get(layers::forward::weights).get();
+    Tensor * bTensor      = input->get(layers::forward::biases).get();
+    Tensor * resultTensor = result->get(layers::forward::value).get();
 
     __DAAL_CALL_KERNEL(env, internal::FullyconnectedKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputTensor, *wTensor,
-                                                                                    *bTensor, *resultTensor, *parameter);
+                       *bTensor, *resultTensor, *parameter);
 }
 } // namespace interface1
 } // namespace forward

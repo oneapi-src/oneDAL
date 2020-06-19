@@ -19,8 +19,7 @@
 //  Implementation of logistic calculation algorithm container.
 //--
 
-
-#include "logistic_batch_container.h"
+#include "algorithms/kernel/math/logistic/logistic_batch_container.h"
 
 namespace daal
 {

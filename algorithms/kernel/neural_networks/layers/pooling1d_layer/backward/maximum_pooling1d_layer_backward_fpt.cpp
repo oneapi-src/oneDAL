@@ -21,8 +21,8 @@
 //--
 */
 
-#include "maximum_pooling1d_layer_backward_types.h"
-#include "maximum_pooling1d_layer_types.h"
+#include "algorithms/neural_networks/layers/pooling1d/maximum_pooling1d_layer_backward_types.h"
+#include "algorithms/neural_networks/layers/pooling1d/maximum_pooling1d_layer_types.h"
 
 namespace daal
 {
@@ -45,20 +45,24 @@ namespace interface1
  * \param[in] method Computation method for the layer
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const Parameter *param = static_cast<const Parameter *>(parameter);
-    if (!param->propagateGradient) { return services::Status(); }
+    const Parameter * param = static_cast<const Parameter *>(parameter);
+    if (!param->propagateGradient)
+    {
+        return services::Status();
+    }
 
     return pooling1d::backward::Result::allocate<algorithmFPType>(input, parameter, method);
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace backward
-}// namespace maximum_pooling1d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace maximum_pooling1d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

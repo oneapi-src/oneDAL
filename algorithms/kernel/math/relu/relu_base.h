@@ -19,16 +19,15 @@
 //  Declaration of template function that calculate relus.
 //--
 
-
 #ifndef __RELU_BASE_H__
 #define __RELU_BASE_H__
 
-#include "math/relu.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "service_numeric_table.h"
-#include "service_error_handling.h"
-#include "threading.h"
+#include "algorithms/math/relu.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "algorithms/threading/threading.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -49,23 +48,24 @@ namespace internal
  *  in case floating point type of intermediate calculations
  *  and method of calculations are different
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class ReLUKernelBase : public Kernel
 {
 public:
-    Status compute(const NumericTable *inputTable, NumericTable *resultTable);
+    Status compute(const NumericTable * inputTable, NumericTable * resultTable);
 
 private:
     size_t _nRowsInBlock = 5000;
 
-    virtual Status processBlock(const NumericTable &inputTable, size_t nInputColumns, size_t nProcessedRows, size_t nRowsInCurrentBlock,
-                                NumericTable &resultTable) = 0;
+    virtual Status processBlock(const NumericTable & inputTable, size_t nInputColumns, size_t nProcessedRows, size_t nRowsInCurrentBlock,
+                                NumericTable & resultTable) = 0;
 };
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-class ReLUKernel {};
+template <typename algorithmFPType, Method method, CpuType cpu>
+class ReLUKernel
+{};
 
-} // namespace daal::internal
+} // namespace internal
 } // namespace relu
 } // namespace math
 } // namespace algorithms

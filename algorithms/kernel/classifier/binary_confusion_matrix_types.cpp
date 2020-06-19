@@ -21,10 +21,9 @@
 //--
 */
 
-
-#include "binary_confusion_matrix_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/classifier/binary_confusion_matrix_types.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -41,7 +40,6 @@ namespace binary_confusion_matrix
 {
 namespace interface1
 {
-
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_CLASSIFIER_BINARY_CONFUSION_MATRIX_RESULT_ID);
 Parameter::Parameter(double beta) : beta(beta) {}
 
@@ -50,7 +48,6 @@ Status Parameter::check() const
     DAAL_CHECK_EX(beta > 0, ErrorIncorrectParameter, ParameterName, betaStr());
     return Status();
 }
-
 
 Input::Input() : daal::algorithms::Input(lastInputId + 1) {}
 
@@ -69,7 +66,7 @@ NumericTablePtr Input::get(InputId id) const
  * \param[in] id    Identifier of the input object
  * \param[in] value Pointer to the input object
  */
-void Input::set(InputId id, const NumericTablePtr &value)
+void Input::set(InputId id, const NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
@@ -79,10 +76,10 @@ void Input::set(InputId id, const NumericTablePtr &value)
  * \param[in] parameter Pointer to the algorithm parameters
  * \param[in] method    Computation method
  */
-Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     Status s;
-    NumericTablePtr predictedLabelsTable = get(predictedLabels);
+    NumericTablePtr predictedLabelsTable   = get(predictedLabels);
     NumericTablePtr groundTruthLabelsTable = get(groundTruthLabels);
 
     const int unexpectedLayouts = (int)packed_mask;
@@ -91,7 +88,6 @@ Status Input::check(const daal::algorithms::Parameter *parameter, int method) co
     const size_t nRows = predictedLabelsTable->getNumberOfRows();
     return checkNumericTable(groundTruthLabelsTable.get(), groundTruthLabelsStr(), unexpectedLayouts, 0, 1, nRows);
 }
-
 
 Result::Result() : daal::algorithms::Result(lastResultId + 1) {}
 
@@ -110,7 +106,7 @@ NumericTablePtr Result::get(ResultId id) const
  * \param[in] id    Identifier of the result, \ref ResultId
  * \param[in] value Pointer to the result
  */
-void Result::set(ResultId id, const NumericTablePtr &value)
+void Result::set(ResultId id, const NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
@@ -121,18 +117,18 @@ void Result::set(ResultId id, const NumericTablePtr &value)
  * \param[in] parameter Pointer to the algorithm parameters
  * \param[in] method    Computation method
  */
-Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     Status s;
     NumericTablePtr confusionMatrixTable = get(confusionMatrix);
-    NumericTablePtr binaryMetricsTable = get(binaryMetrics);
-    const int unexpectedLayouts = (int)packed_mask;
+    NumericTablePtr binaryMetricsTable   = get(binaryMetrics);
+    const int unexpectedLayouts          = (int)packed_mask;
     DAAL_CHECK_STATUS(s, checkNumericTable(confusionMatrixTable.get(), confusionMatrixStr(), unexpectedLayouts, 0, 2, 2));
     return checkNumericTable(binaryMetricsTable.get(), binaryMetricsStr(), unexpectedLayouts, 0, 6, 1);
 }
 
 } // namespace interface1
-} // binary_confusion_matrix
+} // namespace binary_confusion_matrix
 } // namespace quality_metric
 } // namespace classifier
 } // namespace algorithms

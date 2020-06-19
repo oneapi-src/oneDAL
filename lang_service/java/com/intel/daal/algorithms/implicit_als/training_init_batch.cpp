@@ -21,9 +21,9 @@
 
 #include "com_intel_daal_algorithms_implicit_als_training_init_InitBatch.h"
 
-#include "implicit_als_init_defines.i"
+#include "lang_service/java/com/intel/daal/algorithms/implicit_als/implicit_als_init_defines.i"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::implicit_als::training::init;
@@ -33,8 +33,8 @@ using namespace daal::algorithms::implicit_als::training::init;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitBatch_cInit(JNIEnv * env, jobject thisObj, jint prec,
+                                                                                                   jint method)
 {
     return jniBatch<implicit_als::training::init::Method, Batch, fastCSR, defaultDense>::newObj(prec, method);
 }
@@ -44,8 +44,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_in
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitBatch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitBatch_cInitParameter(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong algAddr, jint prec, jint method)
 {
     return jniBatch<implicit_als::training::init::Method, Batch, fastCSR, defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -55,8 +55,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_in
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitBatch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitBatch_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                        jint prec, jint method)
 {
     return jniBatch<implicit_als::training::init::Method, Batch, fastCSR, defaultDense>::getResult(prec, method, algAddr);
 }
@@ -66,11 +66,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_in
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitBatch_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitBatch_cSetResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                       jint prec, jint method, jlong resultAddr)
 {
-    jniBatch<implicit_als::training::init::Method, Batch, fastCSR, defaultDense>::
-        setResult<implicit_als::training::init::Result>(prec, method, algAddr, resultAddr);
+    jniBatch<implicit_als::training::init::Method, Batch, fastCSR, defaultDense>::setResult<implicit_als::training::init::Result>(
+        prec, method, algAddr, resultAddr);
 }
 
 /*
@@ -78,8 +78,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_ini
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitBatch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitBatch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                    jint prec, jint method)
 {
     return jniBatch<implicit_als::training::init::Method, Batch, fastCSR, defaultDense>::getClone(prec, method, algAddr);
 }

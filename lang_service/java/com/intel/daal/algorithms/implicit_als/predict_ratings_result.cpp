@@ -21,7 +21,7 @@
 
 #include "com_intel_daal_algorithms_implicit_als_prediction_ratings_RatingsResult.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::implicit_als::prediction::ratings;
@@ -31,8 +31,7 @@ using namespace daal::algorithms::implicit_als::prediction::ratings;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsResult_cNewResult
-  (JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsResult_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<implicit_als::prediction::ratings::Result>::newObj();
 }
@@ -42,8 +41,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_
  * Method:    cGetNumericTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsResult_cGetNumericTable
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsResult_cGetNumericTable(JNIEnv * env, jobject thisObj,
+                                                                                                                       jlong resAddr, jint id)
 {
     return jniArgument<implicit_als::prediction::ratings::Result>::get<ResultId, NumericTable>(resAddr, id);
 }
@@ -53,8 +52,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_
  * Method:    cSetNumericTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsResult_cSetNumericTable
-  (JNIEnv *, jobject, jlong resAddr, jint id, jlong numTableAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsResult_cSetNumericTable(JNIEnv *, jobject,
+                                                                                                                      jlong resAddr, jint id,
+                                                                                                                      jlong numTableAddr)
 {
     jniArgument<implicit_als::prediction::ratings::Result>::set<ResultId, NumericTable>(resAddr, id, numTableAddr);
 }

@@ -21,10 +21,10 @@
 //--
 */
 
-#include "stump_train_batch_container.h"
-#include "stump_train_kernel.h"
-#include "stump_train_aux.i"
-#include "stump_train_impl.i"
+#include "algorithms/kernel/stump/inner/stump_train_batch_container.h"
+#include "algorithms/kernel/stump/inner/stump_train_kernel.h"
+#include "algorithms/kernel/stump/inner/stump_train_aux.i"
+#include "algorithms/kernel/stump/inner/stump_train_impl.i"
 
 namespace daal
 {
@@ -42,7 +42,7 @@ namespace internal
 {
 template class StumpTrainKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace training
+} // namespace stump
+} // namespace algorithms
+} // namespace daal

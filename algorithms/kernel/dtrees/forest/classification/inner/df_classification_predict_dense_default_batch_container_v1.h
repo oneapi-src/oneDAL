@@ -23,9 +23,9 @@
 //--
 */
 
-#include "decision_forest_classification_predict.h"
-#include "df_classification_predict_dense_default_batch.h"
-#include "service_algo_utils.h"
+#include "algorithms/decision_forest/decision_forest_classification_predict.h"
+#include "algorithms/kernel/dtrees/forest/classification/df_classification_predict_dense_default_batch.h"
+#include "service/kernel/service_algo_utils.h"
 
 namespace daal
 {
@@ -39,9 +39,8 @@ namespace prediction
 {
 namespace interface1
 {
-
 template <typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv) : PredictionContainerIface()
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
 {
     __DAAL_INITIALIZE_KERNELS(internal::PredictKernel, algorithmFPType, method);
 }
@@ -55,7 +54,7 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    const Input * const input                           = static_cast<Input *>(_in);
+    const Input * const input                     = static_cast<Input *>(_in);
     classifier::prediction::Result * const result = static_cast<classifier::prediction::Result *>(_res);
 
     const NumericTable * const a = static_cast<NumericTable *>(input->get(classifier::prediction::data).get());
@@ -69,11 +68,11 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     const VotingMethod defaultVotingMethod = VotingMethod::unweighted;
 
     __DAAL_CALL_KERNEL(env, internal::PredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                       daal::services::internal::hostApp(*const_cast<Input*>(input)), a, m, r, nullptr, par->nClasses, defaultVotingMethod);
+                       daal::services::internal::hostApp(*const_cast<Input *>(input)), a, m, r, nullptr, par->nClasses, defaultVotingMethod);
 }
-}
-}
-}
-}
-}
-}
+} // namespace interface1
+} // namespace prediction
+} // namespace classification
+} // namespace decision_forest
+} // namespace algorithms
+} // namespace daal

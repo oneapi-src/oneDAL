@@ -21,9 +21,9 @@
 //--
 */
 
-#include "covariance_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/covariance/covariance_types.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -36,10 +36,8 @@ namespace covariance
 {
 namespace interface1
 {
-
 __DAAL_REGISTER_SERIALIZATION_CLASS(PartialResult, SERIALIZATION_COVARIANCE_PARTIAL_RESULT_ID);
-PartialResult::PartialResult() : daal::algorithms::PartialResult(lastPartialResultId + 1)
-    {}
+PartialResult::PartialResult() : daal::algorithms::PartialResult(lastPartialResultId + 1) {}
 
 /**
  * Gets the number of columns in the partial result of the correlation or variance-covariance matrix algorithm
@@ -48,7 +46,7 @@ PartialResult::PartialResult() : daal::algorithms::PartialResult(lastPartialResu
 size_t PartialResult::getNumberOfFeatures() const
 {
     NumericTablePtr ntPtr = NumericTable::cast(Argument::get(crossProduct));
-    if(ntPtr)
+    if (ntPtr)
     {
         return ntPtr->getNumberOfColumns();
     }
@@ -70,7 +68,7 @@ NumericTablePtr PartialResult::get(PartialResultId id) const
  * \param[in] id    Identifier of the partial result
  * \param[in] ptr   Pointer to the partial result
  */
-void PartialResult::set(PartialResultId id, const NumericTablePtr &ptr)
+void PartialResult::set(PartialResultId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -81,10 +79,10 @@ void PartialResult::set(PartialResultId id, const NumericTablePtr &ptr)
  * \param[in] parameter Pointer to the structure of algorithm parameters
  * \param[in] method    Computation method
  */
-services::Status PartialResult::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status PartialResult::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    const InputIface *algInput = static_cast<const InputIface *>(input);
-    size_t nFeatures = algInput->getNumberOfFeatures();
+    const InputIface * algInput = static_cast<const InputIface *>(input);
+    size_t nFeatures            = algInput->getNumberOfFeatures();
     return checkImpl(nFeatures);
 }
 
@@ -93,7 +91,7 @@ services::Status PartialResult::check(const daal::algorithms::Input *input, cons
  * \param[in] parameter Pointer to the structure of the parameters of the algorithm
  * \param[in] method    Computation method
  */
-services::Status PartialResult::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status PartialResult::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     size_t nFeatures = getNumberOfFeatures();
     return checkImpl(nFeatures);
@@ -105,22 +103,20 @@ services::Status PartialResult::checkImpl(size_t nFeatures) const
     services::Status s;
 
     unexpectedLayouts = (int)NumericTableIface::csrArray;
-    s |= checkNumericTable(get(nObservations).get(),  nObservationsStr(), unexpectedLayouts, 0, 1, 1);
-    if(!s) return s;
+    s |= checkNumericTable(get(nObservations).get(), nObservationsStr(), unexpectedLayouts, 0, 1, 1);
+    if (!s) return s;
 
-    unexpectedLayouts |= (int)NumericTableIface::upperPackedTriangularMatrix |
-                         (int)NumericTableIface::lowerPackedTriangularMatrix;
+    unexpectedLayouts |= (int)NumericTableIface::upperPackedTriangularMatrix | (int)NumericTableIface::lowerPackedTriangularMatrix;
     s |= checkNumericTable(get(crossProduct).get(), crossProductCorrelationStr(), unexpectedLayouts, 0, nFeatures, nFeatures);
-    if(!s) return s;
+    if (!s) return s;
 
-    unexpectedLayouts |= (int)NumericTableIface::upperPackedSymmetricMatrix |
-                         (int)NumericTableIface::lowerPackedSymmetricMatrix;
+    unexpectedLayouts |= (int)NumericTableIface::upperPackedSymmetricMatrix | (int)NumericTableIface::lowerPackedSymmetricMatrix;
     s |= checkNumericTable(get(sum).get(), sumStr(), unexpectedLayouts, 0, nFeatures, 1);
     return s;
 }
 
-}//namespace interface1
+} //namespace interface1
 
-}//namespace covariance
-}// namespace algorithms
-}// namespace daal
+} //namespace covariance
+} // namespace algorithms
+} // namespace daal

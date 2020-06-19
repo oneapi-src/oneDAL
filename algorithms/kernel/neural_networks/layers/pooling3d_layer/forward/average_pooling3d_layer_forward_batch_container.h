@@ -24,8 +24,8 @@
 #ifndef __AVERAGE_POOLING3D_LAYER_FORWARD_BATCH_CONTAINER_H__
 #define __AVERAGE_POOLING3D_LAYER_FORWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/pooling3d/average_pooling3d_layer_forward.h"
-#include "average_pooling3d_layer_forward_kernel.h"
+#include "algorithms/neural_networks/layers/pooling3d/average_pooling3d_layer_forward.h"
+#include "algorithms/kernel/neural_networks/layers/pooling3d_layer/forward/average_pooling3d_layer_forward_kernel.h"
 
 namespace daal
 {
@@ -41,32 +41,32 @@ namespace forward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::PoolingKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    average_pooling3d::forward::Input *input = static_cast<average_pooling3d::forward::Input *>(_in);
-    average_pooling3d::forward::Result *result = static_cast<average_pooling3d::forward::Result *>(_res);
+    average_pooling3d::forward::Input * input   = static_cast<average_pooling3d::forward::Input *>(_in);
+    average_pooling3d::forward::Result * result = static_cast<average_pooling3d::forward::Result *>(_res);
 
-    average_pooling3d::Parameter *parameter = static_cast<average_pooling3d::Parameter *>(_par);
-    daal::services::Environment::env &env = *_env;
+    average_pooling3d::Parameter * parameter = static_cast<average_pooling3d::Parameter *>(_par);
+    daal::services::Environment::env & env   = *_env;
 
-    Tensor *dataTensor  = input->get(layers::forward::data).get();
-    Tensor *valueTensor = result->get(layers::forward::value).get();
+    Tensor * dataTensor  = input->get(layers::forward::data).get();
+    Tensor * valueTensor = result->get(layers::forward::value).get();
 
-    __DAAL_CALL_KERNEL(env, internal::PoolingKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                       *dataTensor, *parameter, *valueTensor);
+    __DAAL_CALL_KERNEL(env, internal::PoolingKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *dataTensor, *parameter,
+                       *valueTensor);
 }
 } // namespace interface1
 } // namespace forward

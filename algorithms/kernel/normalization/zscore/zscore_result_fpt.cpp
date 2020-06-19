@@ -21,7 +21,7 @@
 //--
 */
 
-#include "zscore_result.h"
+#include "algorithms/kernel/normalization/zscore/zscore_result.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -34,7 +34,6 @@ namespace normalization
 {
 namespace zscore
 {
-
 namespace interface2
 {
 /**
@@ -43,35 +42,34 @@ namespace interface2
 * \param[in] parameter Pointer to algorithm parameter
 */
 template <typename algorithmFPType>
-Status ResultImpl::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter)
+Status ResultImpl::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter)
 {
     Status status = interface1::ResultImpl::allocate<algorithmFPType>(input);
     DAAL_CHECK_STATUS_VAR(status);
 
-    const Input *in = static_cast<const Input *>(input);
+    const Input * in = static_cast<const Input *>(input);
     DAAL_CHECK(in, ErrorNullInput);
 
     NumericTablePtr dataTable = in->get(zscore::data);
     DAAL_CHECK(dataTable, ErrorNullInputNumericTable);
 
     const size_t nFeatures = dataTable->getNumberOfColumns();
-    const size_t nVectors = dataTable->getNumberOfRows();
+    const size_t nVectors  = dataTable->getNumberOfRows();
 
     if (parameter != NULL)
     {
-        const BaseParameter *algParameter = static_cast<const BaseParameter *>(parameter);
+        const BaseParameter * algParameter = static_cast<const BaseParameter *>(parameter);
         DAAL_CHECK(algParameter, ErrorNullParameterNotSupported);
 
         if (algParameter->resultsToCompute & mean)
         {
-            (*this)[means] = HomogenNumericTable<algorithmFPType>::create
-                    (nFeatures, 1, NumericTableIface::doAllocate, algorithmFPType(0.), &status);
+            (*this)[means] = HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTableIface::doAllocate, algorithmFPType(0.), &status);
             DAAL_CHECK_STATUS_VAR(status);
         }
         if (algParameter->resultsToCompute & variance)
         {
-            (*this)[variances] = HomogenNumericTable<algorithmFPType>::create
-                    (nFeatures, 1, NumericTableIface::doAllocate, algorithmFPType(0.), &status);
+            (*this)[variances] =
+                HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTableIface::doAllocate, algorithmFPType(0.), &status);
             DAAL_CHECK_STATUS_VAR(status);
         }
     }
@@ -79,11 +77,11 @@ Status ResultImpl::allocate(const daal::algorithms::Input *input, const daal::al
     return status;
 }
 
-template DAAL_EXPORT Status ResultImpl::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter);
+template DAAL_EXPORT Status ResultImpl::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter);
 
-}// namespace interface2
+} // namespace interface2
 
-}// namespace zscore
-}// namespace normalization
-}// namespace algorithms
-}// namespace daal
+} // namespace zscore
+} // namespace normalization
+} // namespace algorithms
+} // namespace daal

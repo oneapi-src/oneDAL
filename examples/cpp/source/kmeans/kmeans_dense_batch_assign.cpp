@@ -34,18 +34,17 @@ using namespace daal;
 using namespace daal::algorithms;
 
 /* Input data set parameters */
-string datasetFileName     = "../data/batch/kmeans_dense.csv";
+string datasetFileName = "../data/batch/kmeans_dense.csv";
 
 /* K-Means algorithm parameters */
-const size_t nClusters   = 20;
+const size_t nClusters = 20;
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Initialize FileDataSource to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable,
-                                                 DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Retrieve the data from the input file */
     dataSource.loadDataBlock();
@@ -61,8 +60,10 @@ int main(int argc, char *argv[])
     /* Create an algorithm object for the K-Means algorithm to calculate only assignments */
     kmeans::Batch<> algorithm(nClusters, 0);
 
-    algorithm.input.set(kmeans::data,           dataSource.getNumericTable());
+    algorithm.input.set(kmeans::data, dataSource.getNumericTable());
     algorithm.input.set(kmeans::inputCentroids, centroids);
+
+    algorithm.parameter().resultsToEvaluate = kmeans::computeAssignments;
 
     algorithm.compute();
 

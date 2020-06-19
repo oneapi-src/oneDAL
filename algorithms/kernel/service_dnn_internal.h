@@ -24,25 +24,26 @@
 #ifndef __SERVICE_DNN_INTERNAL_H__
 #define __SERVICE_DNN_INTERNAL_H__
 
-#include "service_defines.h"
-#include "service_dnn.h"
+#include "service/kernel/service_defines.h"
+#include "externals/service_dnn.h"
 
-#define ON_ERR(err)                                                                        \
-{                                                                                          \
-    if ((err) != E_SUCCESS)                                                                \
-    {                                                                                      \
-        if ((err) == E_MEMORY_ERROR)                                                       \
-        { return services::Status(services::ErrorMemoryAllocationFailed);  }               \
-        return  services::Status(services::ErrorConvolutionInternal);                      \
-    }                                                                                      \
-}
+#define ON_ERR(err)                                                             \
+    {                                                                           \
+        if ((err) != E_SUCCESS)                                                 \
+        {                                                                       \
+            if ((err) == E_MEMORY_ERROR)                                        \
+            {                                                                   \
+                return services::Status(services::ErrorMemoryAllocationFailed); \
+            }                                                                   \
+            return services::Status(services::ErrorConvolutionInternal);        \
+        }                                                                       \
+    }
 
 namespace daal
 {
 namespace internal
 {
-
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class DnnLayout
 {
 public:
@@ -50,7 +51,7 @@ public:
 
     DnnLayout() : layout(nullptr), err(E_SUCCESS) {}
 
-    DnnLayout(size_t dim, size_t *size, size_t *strides) : layout(nullptr), err(E_SUCCESS)
+    DnnLayout(size_t dim, size_t * size, size_t * strides) : layout(nullptr), err(E_SUCCESS)
     {
         err = dnn::xLayoutCreate(&layout, dim, size, strides);
     }
@@ -60,28 +61,25 @@ public:
         err = dnn::xLayoutCreateFromPrimitive(&layout, primitive, resource);
     }
 
-    DnnLayout& operator=(DnnLayout&& source)
+    DnnLayout & operator=(DnnLayout && source)
     {
         free();
-        layout = source.layout;
+        layout        = source.layout;
         source.layout = nullptr;
         return *this;
     }
 
-    ~DnnLayout()
-    {
-        free();
-    }
+    ~DnnLayout() { free(); }
 
     void free()
     {
-        if( layout != NULL )
+        if (layout != NULL)
         {
             dnn::xLayoutDelete(layout);
         }
     }
 
-    dnnLayout_t& get() { return layout; }
+    dnnLayout_t & get() { return layout; }
 
     dnnError_t err;
 
@@ -89,20 +87,15 @@ protected:
     dnnLayout_t layout;
 };
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class DnnBuffer
 {
 public:
     typedef Dnn<algorithmFPType, cpu> dnn;
 
-    DnnBuffer(): buffer(0)
-    {
-    }
+    DnnBuffer() : buffer(0) {}
 
-    DnnBuffer(dnnLayout_t layout)
-    {
-        err = dnn::xAllocateBuffer((void**)&buffer, layout);
-    }
+    DnnBuffer(dnnLayout_t layout) { err = dnn::xAllocateBuffer((void **)&buffer, layout); }
 
     ~DnnBuffer()
     {
@@ -112,20 +105,21 @@ public:
         }
     }
 
-    algorithmFPType* get() { return buffer; }
+    algorithmFPType * get() { return buffer; }
 
-    algorithmFPType* allocate(dnnLayout_t layout)
+    algorithmFPType * allocate(dnnLayout_t layout)
     {
-        err = dnn::xAllocateBuffer((void**)&buffer, layout);
+        err = dnn::xAllocateBuffer((void **)&buffer, layout);
         return buffer;
     }
 
     dnnError_t err;
+
 protected:
-    algorithmFPType *buffer;
+    algorithmFPType * buffer;
 };
 
-}
-}
+} // namespace internal
+} // namespace daal
 
 #endif

@@ -21,8 +21,8 @@
 //--
 */
 
-#include "linear_model_train_qr_kernel.h"
-#include "service_lapack.h"
+#include "algorithms/kernel/linear_model/linear_model_train_qr_kernel.h"
+#include "externals/service_lapack.h"
 
 namespace daal
 {

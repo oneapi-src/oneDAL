@@ -25,12 +25,12 @@
 #ifndef __MULTICLASSCLASSIFIER_PREDICT_FPK_H__
 #define __MULTICLASSCLASSIFIER_PREDICT_FPK_H__
 
-#include "numeric_table.h"
-#include "model.h"
-#include "algorithm.h"
-#include "multi_class_classifier_predict_types.h"
-#include "service_defines.h"
-#include "service_arrays.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/model.h"
+#include "algorithms/algorithm.h"
+#include "algorithms/multi_class_classifier/multi_class_classifier_predict_types.h"
+#include "service/kernel/service_defines.h"
+#include "service/kernel/service_arrays.h"
 
 using namespace daal::data_management;
 using namespace daal::services::internal;
@@ -45,27 +45,25 @@ namespace prediction
 {
 namespace internal
 {
-template<prediction::Method pmethod, training::Method tmethod, typename algorithmFPType, typename ClsType, typename MultiClsParam, CpuType cpu>
+template <prediction::Method pmethod, training::Method tmethod, typename algorithmFPType, typename ClsType, typename MultiClsParam, CpuType cpu>
 struct MultiClassClassifierPredictKernel : public Kernel
 {
-    services::Status compute(const NumericTable *a, const daal::algorithms::Model *m, NumericTable *r,
-                             const daal::algorithms::Parameter *par);
+    services::Status compute(const NumericTable * a, const daal::algorithms::Model * m, NumericTable * r, const daal::algorithms::Parameter * par);
 };
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 size_t getMultiClassClassifierPredictBlockSize()
 {
     return 128;
 }
 
-template<typename algorithmFPType, CpuType cpu>
-services::Status getNonEmptyClassMap(size_t &nClasses, const Model *model, size_t *nonEmptyClassMap)
+template <typename algorithmFPType, CpuType cpu>
+services::Status getNonEmptyClassMap(size_t & nClasses, const Model * model, size_t * nonEmptyClassMap)
 {
     TArray<bool, cpu> nonEmptyClassBuffer(nClasses);
     DAAL_CHECK_MALLOC(nonEmptyClassBuffer.get());
-    bool *nonEmptyClass = (bool *)nonEmptyClassBuffer.get();
-    for (size_t i = 0; i < nClasses; i++)
-        nonEmptyClass[i] = false;
+    bool * nonEmptyClass = (bool *)nonEmptyClassBuffer.get();
+    for (size_t i = 0; i < nClasses; i++) nonEmptyClass[i] = false;
 
     for (size_t i = 1, imodel = 0; i < nClasses; i++)
     {
@@ -80,8 +78,7 @@ services::Status getNonEmptyClassMap(size_t &nClasses, const Model *model, size_
     size_t nNonEmptyClasses = 0;
     for (size_t i = 0; i < nClasses; i++)
     {
-        if (nonEmptyClass[i])
-            nonEmptyClassMap[nNonEmptyClasses++] = i;
+        if (nonEmptyClass[i]) nonEmptyClassMap[nNonEmptyClasses++] = i;
     }
     nClasses = nNonEmptyClasses;
     return services::Status();

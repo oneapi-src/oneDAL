@@ -19,8 +19,7 @@
 //  Implementation of softmax layer container.
 //--
 
-
-#include "softmax_layer_backward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/softmax_layer/backward/softmax_layer_backward_batch_container.h"
 
 namespace daal
 {

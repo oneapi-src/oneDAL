@@ -21,7 +21,7 @@
 //--
 */
 
-#include "pca_distributedparameter_correlation.h"
+#include "algorithms/kernel/pca/pca_distributedparameter_correlation.h"
 
 namespace daal
 {
@@ -29,10 +29,10 @@ namespace algorithms
 {
 namespace pca
 {
-
-template DAAL_EXPORT DistributedParameter<step2Master, DAAL_FPTYPE, correlationDense>::DistributedParameter(const services::SharedPtr<covariance::DistributedIface<step2Master> > &covariance);
+template DAAL_EXPORT DistributedParameter<step2Master, DAAL_FPTYPE, correlationDense>::DistributedParameter(
+    const services::SharedPtr<covariance::DistributedIface<step2Master> > & covariance);
 template DAAL_EXPORT services::Status DistributedParameter<step2Master, DAAL_FPTYPE, correlationDense>::check() const;
 
-}// namespace pca
-}// namespace algorithms
-}// namespace daal
+} // namespace pca
+} // namespace algorithms
+} // namespace daal

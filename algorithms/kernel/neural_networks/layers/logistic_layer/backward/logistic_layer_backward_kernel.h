@@ -19,16 +19,15 @@
 //  Declaration of template function that calculate logistic functions.
 //--
 
-
 #ifndef __LOGISTIC_LAYER_BACKWARD_KERNEL_H__
 #define __LOGISTIC_LAYER_BACKWARD_KERNEL_H__
 
-#include "neural_networks/layers/logistic/logistic_layer.h"
-#include "neural_networks/layers/logistic/logistic_layer_types.h"
-#include "kernel.h"
-#include "service_math.h"
-#include "numeric_table.h"
-#include "layers_threading.h"
+#include "algorithms/neural_networks/layers/logistic/logistic_layer.h"
+#include "algorithms/neural_networks/layers/logistic/logistic_layer_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "externals/service_math.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/kernel/neural_networks/layers/layers_threading.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -48,23 +47,22 @@ namespace backward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for logistic function calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class LogisticKernel : public Kernel
 {
 public:
-    services::Status compute(const Tensor &inputTensor, Tensor &resultTensor, Tensor &forwardOutputTensor);
+    services::Status compute(const Tensor & inputTensor, Tensor & resultTensor, Tensor & forwardOutputTensor);
 };
 
-} // internal
-} // backward
-} // logistic
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace backward
+} // namespace logistic
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

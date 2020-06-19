@@ -41,18 +41,13 @@ using namespace daal::algorithms::neural_networks::layers;
 using namespace daal::data_management;
 using namespace daal::services;
 
-static const size_t nDim = 3;
-static const size_t dims[] = {3, 2, 4};
-static const size_t gtDims[] = {3, 1, 4};
-static float gTArray[3][1][4] = {{{1, 0, 0, 1}},
-                                                {{0, 0, 1, 1}},
-                                                                {{1, 0, 0, 1}}};
-static float dataArray[3][2][4] = {{{ 1,  2,  3,  4},
-                                    { 5,  6,  7,  8}},
-                                                    {{9, 10, 11, 12},
-                                                    {13, 14, 15, 16}},
-                                                                    {{17, 18, 19, 20},
-                                                                    {21, 22, 23, 24}}};
+static const size_t nDim        = 3;
+static const size_t dims[]      = { 3, 2, 4 };
+static const size_t gtDims[]    = { 3, 1, 4 };
+static float gTArray[3][1][4]   = { { { 1, 0, 0, 1 } }, { { 0, 0, 1, 1 } }, { { 1, 0, 0, 1 } } };
+static float dataArray[3][2][4] = { { { 1, 2, 3, 4 }, { 5, 6, 7, 8 } },
+                                    { { 9, 10, 11, 12 }, { 13, 14, 15, 16 } },
+                                    { { 17, 18, 19, 20 }, { 21, 22, 23, 24 } } };
 
 int main()
 {
@@ -75,7 +70,8 @@ int main()
     /* Print the results of the forward softmax cross-entropy layer */
     loss::softmax_cross::forward::ResultPtr forwardResult = softmaxCrossEntropyLayerForward.getResult();
     printTensor(forwardResult->get(forward::value), "Forward softmax cross-entropy layer result (first 5 rows):", 5);
-    printTensor(forwardResult->get(loss::softmax_cross::auxProbabilities), "Softmax Cross-Entropy layer probabilities estimations (first 5 rows):", 5);
+    printTensor(forwardResult->get(loss::softmax_cross::auxProbabilities),
+                "Softmax Cross-Entropy layer probabilities estimations (first 5 rows):", 5);
     printTensor(forwardResult->get(loss::softmax_cross::auxGroundTruth), "Softmax Cross-Entropy layer ground truth (first 5 rows):", 5);
 
     /* Create an algorithm to compute backward softmax cross-entropy layer results using default method */

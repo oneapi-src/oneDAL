@@ -24,8 +24,8 @@
 #ifndef __SERVICE_HEAP_H__
 #define __SERVICE_HEAP_H__
 
-#include "daal_defines.h"
-#include "service_utils.h"
+#include "services/daal_defines.h"
+#include "service/kernel/service_utils.h"
 
 namespace daal
 {
@@ -33,12 +33,23 @@ namespace algorithms
 {
 namespace internal
 {
-
 using namespace services::internal;
 
-template <CpuType cpu, typename T> DAAL_FORCEINLINE T heapLeftChildIndex(T index) { return 2 * index + 1; }
-template <CpuType cpu, typename T> DAAL_FORCEINLINE T heapRightChildIndex(T index) { return 2 * index + 2; }
-template <CpuType cpu, typename T> DAAL_FORCEINLINE T heapParentIndex(T index) { return (index - 1) / 2; }
+template <CpuType cpu, typename T>
+DAAL_FORCEINLINE T heapLeftChildIndex(T index)
+{
+    return 2 * index + 1;
+}
+template <CpuType cpu, typename T>
+DAAL_FORCEINLINE T heapRightChildIndex(T index)
+{
+    return 2 * index + 2;
+}
+template <CpuType cpu, typename T>
+DAAL_FORCEINLINE T heapParentIndex(T index)
+{
+    return (index - 1) / 2;
+}
 
 template <CpuType cpu, typename RandomAccessIterator, typename Diff, typename Compare>
 DAAL_FORCEINLINE void internalAdjustMaxHeap(RandomAccessIterator first, RandomAccessIterator /*last*/, Diff count, Diff i, Compare compare)
@@ -56,7 +67,10 @@ DAAL_FORCEINLINE void internalAdjustMaxHeap(RandomAccessIterator first, RandomAc
             largest = r;
         }
 
-        if (largest == i) { break; }
+        if (largest == i)
+        {
+            break;
+        }
         iterSwap<cpu>(first + i, first + largest);
     }
 }
@@ -76,8 +90,11 @@ template <CpuType cpu, typename RandomAccessIterator, typename Compare>
 void makeMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare compare)
 {
     const auto count = last - first;
-    auto i = count / 2;
-    while (0 < i) { internalAdjustMaxHeap<cpu>(first, last, count, --i, compare); }
+    auto i           = count / 2;
+    while (0 < i)
+    {
+        internalAdjustMaxHeap<cpu>(first, last, count, --i, compare);
+    }
 }
 
 template <CpuType cpu, typename RandomAccessIterator, typename Compare>

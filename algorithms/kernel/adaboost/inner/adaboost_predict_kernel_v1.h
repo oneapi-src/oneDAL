@@ -24,11 +24,11 @@
 #ifndef __ADABOOST_PREDICT_KERNEL_H_V1__
 #define __ADABOOST_PREDICT_KERNEL_H_V1__
 
-#include "adaboost_model.h"
-#include "adaboost_predict.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "boosting_predict_kernel.h"
+#include "algorithms/boosting/adaboost_model.h"
+#include "algorithms/boosting/adaboost_predict.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/kernel/boosting/inner/boosting_predict_kernel.h"
 
 using namespace daal::data_management;
 using namespace daal::algorithms::boosting::prediction::internal;
@@ -43,19 +43,19 @@ namespace prediction
 {
 namespace internal
 {
-
 template <Method method, typename algorithmFPtype, CpuType cpu>
 class I1AdaBoostPredictKernel : public BoostingPredictKernel<algorithmFPtype, cpu>
 {
     using BoostingPredictKernel<algorithmFPtype, cpu>::compute;
+
 public:
-    services::Status compute(const NumericTablePtr &x, const daal::algorithms::adaboost::interface1::Model *m,
-                             const NumericTablePtr &r, const daal::algorithms::adaboost::interface1::Parameter *par);
+    services::Status compute(const NumericTablePtr & x, const daal::algorithms::adaboost::interface1::Model * m, const NumericTablePtr & r,
+                             const daal::algorithms::adaboost::interface1::Parameter * par);
 };
-} // namespace daal::algorithms::adaboost::prediction::internal
-}
-}
-}
+} // namespace internal
+} // namespace prediction
+} // namespace adaboost
+} // namespace algorithms
 } // namespace daal
 
 #endif

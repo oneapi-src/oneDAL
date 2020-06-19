@@ -21,8 +21,8 @@
 //--
 */
 
-#include "lcn_layer_types.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/layers/lcn/lcn_layer_types.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -34,7 +34,6 @@ namespace layers
 {
 namespace lcn
 {
-
 namespace interface1
 {
 /**
@@ -60,11 +59,11 @@ Parameter::Parameter() : indices(2, 3), sigmaDegenerateCasesThreshold(0.0001)
 services::Status Parameter::check() const
 {
     services::Status s;
-    if(indices.dims[0] > 3 || indices.dims[1] > 3)
+    if (indices.dims[0] > 3 || indices.dims[1] > 3)
     {
         return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ArgumentName, indicesStr()));
     }
-    if(sumDimension)
+    if (sumDimension)
     {
         DAAL_CHECK_STATUS(s, data_management::checkNumericTable(sumDimension.get(), dimensionStr(), 0, 0, 1, 1));
 
@@ -72,10 +71,10 @@ services::Status Parameter::check() const
 
         data_management::BlockDescriptor<int> block;
         dimensionTable->getBlockOfRows(0, 1, data_management::readOnly, block);
-        int *dataInt = block.getBlockPtr();
-        size_t dim = dataInt[0];
+        int * dataInt = block.getBlockPtr();
+        size_t dim    = dataInt[0];
 
-        if(dim > 1)
+        if (dim > 1)
         {
             return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ArgumentName, dimensionStr()));
         }
@@ -84,9 +83,9 @@ services::Status Parameter::check() const
     return s;
 }
 
-}// namespace interface1
-}// namespace lcn
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace lcn
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

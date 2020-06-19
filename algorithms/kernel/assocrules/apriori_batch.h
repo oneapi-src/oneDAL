@@ -23,7 +23,7 @@
 #ifndef __APRIORI_BATCH__
 #define __APRIORI_BATCH__
 
-#include "apriori_types.h"
+#include "algorithms/association_rules/apriori_types.h"
 
 using namespace daal::data_management;
 
@@ -35,7 +35,6 @@ namespace association_rules
 {
 namespace interface1
 {
-
 /**
  * Allocates memory for storing Association Rules algorithm results
  * \param[in] input         Pointer to input structure
@@ -43,15 +42,15 @@ namespace interface1
  * \param[in] method        Computation method of the algorithm
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    Parameter *algParameter = static_cast<Parameter *>(const_cast<daal::algorithms::Parameter *>(parameter));
+    Parameter * algParameter = static_cast<Parameter *>(const_cast<daal::algorithms::Parameter *>(parameter));
 
     services::Status status;
     set(largeItemsets, HomogenNumericTable<size_t>::create(2, 0, NumericTableIface::notAllocate, &status));
     set(largeItemsetsSupport, HomogenNumericTable<size_t>::create(2, 0, NumericTableIface::notAllocate, &status));
 
-    if(algParameter->discoverRules)
+    if (algParameter->discoverRules)
     {
         set(antecedentItemsets, HomogenNumericTable<size_t>::create(2, 0, NumericTableIface::notAllocate, &status));
         set(consequentItemsets, HomogenNumericTable<size_t>::create(2, 0, NumericTableIface::notAllocate, &status));
@@ -60,9 +59,9 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return status;
 }
 
-}// namespace interface1
-}// namespace association_rules
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace association_rules
+} // namespace algorithms
+} // namespace daal
 
 #endif

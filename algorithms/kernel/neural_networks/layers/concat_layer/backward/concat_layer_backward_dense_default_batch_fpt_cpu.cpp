@@ -19,10 +19,9 @@
 //  Implementation of concat calculation functions.
 //--
 
-
-#include "concat_layer_backward_batch_container.h"
-#include "concat_layer_backward_kernel.h"
-#include "concat_layer_backward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/concat_layer/backward/concat_layer_backward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/concat_layer/backward/concat_layer_backward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/concat_layer/backward/concat_layer_backward_impl.i"
 
 namespace daal
 {
@@ -34,21 +33,20 @@ namespace layers
 {
 namespace concat
 {
-
 namespace backward
 {
 namespace interface1
 {
 template class neural_networks::layers::concat::backward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 namespace internal
 {
 template class ConcatKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
-} // backward
+} // namespace internal
+} // namespace backward
 
-}
-}
-}
-}
-}
+} // namespace concat
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

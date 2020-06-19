@@ -21,10 +21,10 @@
 //--
 */
 
-#include "batch_normalization_layer_forward_types.h"
-#include "batch_normalization_layer_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/layers/batch_normalization/batch_normalization_layer_forward_types.h"
+#include "algorithms/neural_networks/layers/batch_normalization/batch_normalization_layer_types.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::services;
 
@@ -45,16 +45,16 @@ namespace interface1
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_NEURAL_NETWORKS_LAYERS_BATCH_NORMALIZATION_FORWARD_RESULT_ID);
 /** Default constructor */
 Input::Input() : layers::forward::Input(lastInputLayerDataId + 1) {}
-Input::Input(const Input& other) : super(other) {}
+Input::Input(const Input & other) : super(other) {}
 
 /**
  * Returns dimensions of weights tensor
  * \return Dimensions of weights tensor
  */
-const services::Collection<size_t> Input::getWeightsSizes(const layers::Parameter *parameter) const
+const services::Collection<size_t> Input::getWeightsSizes(const layers::Parameter * parameter) const
 {
-    const Parameter *algParameter =  static_cast<const Parameter *>(parameter);
-    const services::Collection<size_t> &dims = get(layers::forward::data)->getDimensions();
+    const Parameter * algParameter            = static_cast<const Parameter *>(parameter);
+    const services::Collection<size_t> & dims = get(layers::forward::data)->getDimensions();
     services::Collection<size_t> wDims(1);
     wDims[0] = dims[algParameter->dimension];
     return wDims;
@@ -64,7 +64,7 @@ const services::Collection<size_t> Input::getWeightsSizes(const layers::Paramete
  * Returns dimensions of biases tensor
  * \return Dimensions of biases tensor
  */
-const services::Collection<size_t> Input::getBiasesSizes(const layers::Parameter *parameter) const
+const services::Collection<size_t> Input::getBiasesSizes(const layers::Parameter * parameter) const
 {
     return getWeightsSizes(parameter);
 }
@@ -84,7 +84,7 @@ data_management::TensorPtr Input::get(InputLayerDataId id) const
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Input object to set
  */
-void Input::set(InputLayerDataId id, const data_management::TensorPtr &ptr)
+void Input::set(InputLayerDataId id, const data_management::TensorPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -94,19 +94,19 @@ void Input::set(InputLayerDataId id, const data_management::TensorPtr &ptr)
  * \param[in] parameter %Parameter of layer
  * \param[in] method    Computation method of the layer
  */
-services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Parameter *algParameter = static_cast<const Parameter *>(parameter);
+    const Parameter * algParameter = static_cast<const Parameter *>(parameter);
 
     data_management::TensorPtr dataTensor = get(layers::forward::data);
     services::Status s;
     DAAL_CHECK_TENSOR(s, dataTensor.get(), dataStr());
 
-    const services::Collection<size_t> &dataDims = dataTensor->getDimensions();
+    const services::Collection<size_t> & dataDims = dataTensor->getDimensions();
 
     size_t dimension = algParameter->dimension;
-    double alpha = algParameter->alpha;
-    double epsilon = algParameter->epsilon;
+    double alpha     = algParameter->alpha;
+    double epsilon   = algParameter->epsilon;
     DAAL_CHECK_EX(dimension <= dataDims.size(), services::ErrorIncorrectParameter, services::ParameterName, dimensionStr());
     DAAL_CHECK_EX((alpha > 0.0 && alpha < 1.0), services::ErrorIncorrectParameter, services::ParameterName, alphaStr());
     DAAL_CHECK_EX(epsilon > 0.0 && epsilon < 1.0, services::ErrorIncorrectParameter, services::ParameterName, epsilonStr());
@@ -116,11 +116,11 @@ services::Status Input::check(const daal::algorithms::Parameter *parameter, int 
     weightDims[0] = dimensionSize;
 
     DAAL_CHECK_TENSOR(s, get(layers::forward::weights).get(), weightsStr(), &weightDims);
-    DAAL_CHECK_TENSOR(s, get(layers::forward::biases).get(),  biasesStr(),  &weightDims);
+    DAAL_CHECK_TENSOR(s, get(layers::forward::biases).get(), biasesStr(), &weightDims);
 
     if (algParameter->predictionStage)
     {
-        DAAL_CHECK_TENSOR(s, get(populationMean).get(),     populationMeanStr(),     &weightDims);
+        DAAL_CHECK_TENSOR(s, get(populationMean).get(), populationMeanStr(), &weightDims);
         DAAL_CHECK_TENSOR(s, get(populationVariance).get(), populationVarianceStr(), &weightDims);
     }
 
@@ -134,8 +134,8 @@ Result::Result() {}
  * Returns dimensions of value tensor
  * \return Dimensions of value tensor
  */
-const services::Collection<size_t> Result::getValueSize(const services::Collection<size_t> &inputSize,
-                                                        const daal::algorithms::Parameter *par, const int method) const
+const services::Collection<size_t> Result::getValueSize(const services::Collection<size_t> & inputSize, const daal::algorithms::Parameter * par,
+                                                        const int method) const
 {
     return inputSize;
 }
@@ -144,10 +144,10 @@ const services::Collection<size_t> Result::getValueSize(const services::Collecti
  * Sets the result that is used in backward batch normalization layer
  * \param[in] input     Pointer to an object containing the input data
  */
-services::Status Result::setResultForBackward(const daal::algorithms::Input *input)
+services::Status Result::setResultForBackward(const daal::algorithms::Input * input)
 {
-    const Input *in = static_cast<const Input *>(input);
-    set(auxData,    in->get(layers::forward::data));
+    const Input * in = static_cast<const Input *>(input);
+    set(auxData, in->get(layers::forward::data));
     set(auxWeights, in->get(layers::forward::weights));
     return services::Status();
 }
@@ -168,10 +168,10 @@ data_management::TensorPtr Result::get(LayerDataId id) const
  * \param[in] id    Identifier of the result
  * \param[in] ptr   Result
  */
-void Result::set(LayerDataId id, const data_management::TensorPtr &ptr)
+void Result::set(LayerDataId id, const data_management::TensorPtr & ptr)
 {
     layers::LayerDataPtr layerData = get(layers::forward::resultForBackward);
-    (*layerData)[id] = ptr;
+    (*layerData)[id]               = ptr;
 }
 
 /**
@@ -180,15 +180,15 @@ void Result::set(LayerDataId id, const data_management::TensorPtr &ptr)
  * \param[in] parameter %Parameter of the layer
  * \param[in] method    Computation method of the layer
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s;
-    const Input *algInput = static_cast<const Input *>(input);
-    const Parameter *algParameter = static_cast<const Parameter *>(parameter);
-    size_t dimension = algParameter->dimension;
+    const Input * algInput         = static_cast<const Input *>(input);
+    const Parameter * algParameter = static_cast<const Parameter *>(parameter);
+    size_t dimension               = algParameter->dimension;
 
-    data_management::TensorPtr dataTensor = algInput->get(layers::forward::data);
-    const services::Collection<size_t> &dataDims = dataTensor->getDimensions();
+    data_management::TensorPtr dataTensor         = algInput->get(layers::forward::data);
+    const services::Collection<size_t> & dataDims = dataTensor->getDimensions();
 
     data_management::TensorPtr valueTensor = get(layers::forward::value);
     DAAL_CHECK_TENSOR(s, valueTensor.get(), valueStr(), &dataDims);
@@ -200,21 +200,21 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
     LayerDataPtr layerData = get(layers::forward::resultForBackward);
     if (!layerData) return services::Status(services::ErrorNullLayerData);
 
-    if(!algParameter->predictionStage)
+    if (!algParameter->predictionStage)
     {
-        DAAL_CHECK_TENSOR(s, get(auxMean).get(),               auxMeanStr(),               &auxDims);
-        DAAL_CHECK_TENSOR(s, get(auxStandardDeviation).get(),  auxStandardDeviationStr(),  &auxDims);
-        DAAL_CHECK_TENSOR(s, get(auxData).get(),               auxDataStr(),               &dataDims);
-        DAAL_CHECK_TENSOR(s, get(auxWeights).get(),            auxWeightsStr(),            &auxDims);
-        DAAL_CHECK_TENSOR(s, get(auxPopulationMean).get(),     auxPopulationMeanStr(),     &auxDims);
+        DAAL_CHECK_TENSOR(s, get(auxMean).get(), auxMeanStr(), &auxDims);
+        DAAL_CHECK_TENSOR(s, get(auxStandardDeviation).get(), auxStandardDeviationStr(), &auxDims);
+        DAAL_CHECK_TENSOR(s, get(auxData).get(), auxDataStr(), &dataDims);
+        DAAL_CHECK_TENSOR(s, get(auxWeights).get(), auxWeightsStr(), &auxDims);
+        DAAL_CHECK_TENSOR(s, get(auxPopulationMean).get(), auxPopulationMeanStr(), &auxDims);
         DAAL_CHECK_TENSOR(s, get(auxPopulationVariance).get(), auxPopulationVarianceStr(), &auxDims);
     }
     return s;
 }
-}// namespace interface1
-}// namespace forward
-}// namespace batch_normalization
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace batch_normalization
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

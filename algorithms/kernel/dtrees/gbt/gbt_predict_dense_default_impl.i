@@ -25,11 +25,11 @@
 #ifndef __GBT_PREDICT_DENSE_DEFAULT_IMPL_I__
 #define __GBT_PREDICT_DENSE_DEFAULT_IMPL_I__
 
-#include "dtrees_model_impl.h"
-#include "dtrees_train_data_helper.i"
-#include "dtrees_predict_dense_default_impl.i"
-#include "dtrees_feature_type_helper.h"
-#include "gbt_internal.h"
+#include "algorithms/kernel/dtrees/dtrees_model_impl.h"
+#include "algorithms/kernel/dtrees/dtrees_train_data_helper.i"
+#include "algorithms/kernel/dtrees/dtrees_predict_dense_default_impl.i"
+#include "algorithms/kernel/dtrees/dtrees_feature_type_helper.h"
+#include "algorithms/kernel/dtrees/gbt/gbt_internal.h"
 
 namespace daal
 {
@@ -41,34 +41,33 @@ namespace prediction
 {
 namespace internal
 {
-
-typedef float    ModelFPType;
+typedef float ModelFPType;
 typedef uint32_t FeatureIndexType;
 const FeatureIndexType VECTOR_BLOCK_SIZE = 64;
 
 template <typename algorithmFPType, typename DecisionTreeType, CpuType cpu>
-inline void predictForTreeVector(const DecisionTreeType& t, const FeatureTypes& featTypes, const algorithmFPType* x, algorithmFPType v[])
+inline void predictForTreeVector(const DecisionTreeType & t, const FeatureTypes & featTypes, const algorithmFPType * x, algorithmFPType v[])
 {
-    const ModelFPType* const values = t.getSplitPoints() - 1;
-    const FeatureIndexType* const fIndexes = t.getFeatureIndexesForSplit() - 1;
-    const FeatureIndexType nFeat = featTypes.getNumberOfFeatures();
+    const ModelFPType * const values        = t.getSplitPoints() - 1;
+    const FeatureIndexType * const fIndexes = t.getFeatureIndexesForSplit() - 1;
+    const FeatureIndexType nFeat            = featTypes.getNumberOfFeatures();
 
     FeatureIndexType i[VECTOR_BLOCK_SIZE];
     services::internal::service_memset_seq<FeatureIndexType, cpu>(i, FeatureIndexType(1), VECTOR_BLOCK_SIZE);
 
     const FeatureIndexType maxLvl = t.getMaxLvl();
 
-    if(featTypes.hasUnorderedFeatures())
+    if (featTypes.hasUnorderedFeatures())
     {
-        for(FeatureIndexType itr = 0; itr < maxLvl; itr++)
+        for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
             for (FeatureIndexType k = 0; k < VECTOR_BLOCK_SIZE; k++)
             {
-                const FeatureIndexType idx = i[k];
+                const FeatureIndexType idx          = i[k];
                 const FeatureIndexType splitFeature = fIndexes[idx];
-                const ModelFPType valueFromDataSet  = x[splitFeature + k*nFeat];
+                const ModelFPType valueFromDataSet  = x[splitFeature + k * nFeat];
                 const ModelFPType splitPoint        = values[idx];
 
                 i[k] = idx * 2 + (featTypes.isUnordered(splitFeature) ? valueFromDataSet != splitPoint : valueFromDataSet > splitPoint);
@@ -77,14 +76,14 @@ inline void predictForTreeVector(const DecisionTreeType& t, const FeatureTypes& 
     }
     else
     {
-        for(FeatureIndexType itr = 0; itr < maxLvl; itr++)
+        for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
             for (FeatureIndexType k = 0; k < VECTOR_BLOCK_SIZE; k++)
             {
                 const FeatureIndexType idx = i[k];
-                i[k] = idx * 2 + (x[fIndexes[idx] + k*nFeat] > values[idx]);
+                i[k]                       = idx * 2 + (x[fIndexes[idx] + k * nFeat] > values[idx]);
             }
         }
     }
@@ -98,25 +97,25 @@ inline void predictForTreeVector(const DecisionTreeType& t, const FeatureTypes& 
 }
 
 template <typename algorithmFPType, typename DecisionTreeType, CpuType cpu>
-inline algorithmFPType predictForTree(const DecisionTreeType& t, const FeatureTypes& featTypes, const algorithmFPType* x)
+inline algorithmFPType predictForTree(const DecisionTreeType & t, const FeatureTypes & featTypes, const algorithmFPType * x)
 {
-    const ModelFPType* const values = (const ModelFPType*) t.getSplitPoints() - 1;
-    const FeatureIndexType* const fIndexes = t.getFeatureIndexesForSplit() - 1;
+    const ModelFPType * const values        = (const ModelFPType *)t.getSplitPoints() - 1;
+    const FeatureIndexType * const fIndexes = t.getFeatureIndexesForSplit() - 1;
 
     const FeatureIndexType maxLvl = t.getMaxLvl();
 
     FeatureIndexType i = 1;
 
-    if(featTypes.hasUnorderedFeatures())
+    if (featTypes.hasUnorderedFeatures())
     {
-        for(FeatureIndexType itr = 0; itr < maxLvl; itr++)
+        for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
         {
             i = i * 2 + (featTypes.isUnordered(fIndexes[i]) ? int(x[fIndexes[i]]) != int(values[i]) : x[fIndexes[i]] > values[i]);
         }
     }
     else
     {
-        for(FeatureIndexType itr = 0; itr < maxLvl; itr++)
+        for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
         {
             i = i * 2 + (x[fIndexes[i]] > values[i]);
         }
@@ -128,16 +127,16 @@ inline algorithmFPType predictForTree(const DecisionTreeType& t, const FeatureTy
 template <typename algorithmFPType>
 struct TileDimensions
 {
-    size_t nRowsTotal = 0;
-    size_t nTreesTotal = 0;
-    size_t nCols = 0;
-    size_t nRowsInBlock = 0;
+    size_t nRowsTotal    = 0;
+    size_t nTreesTotal   = 0;
+    size_t nCols         = 0;
+    size_t nRowsInBlock  = 0;
     size_t nTreesInBlock = 0;
-    size_t nDataBlocks = 0;
-    size_t nTreeBlocks = 0;
+    size_t nDataBlocks   = 0;
+    size_t nTreeBlocks   = 0;
 
-    TileDimensions(const NumericTable& data, size_t nTrees) :
-        nTreesTotal(nTrees), nRowsTotal(data.getNumberOfRows()), nCols(data.getNumberOfColumns())
+    TileDimensions(const NumericTable & data, size_t nTrees)
+        : nTreesTotal(nTrees), nRowsTotal(data.getNumberOfRows()), nCols(data.getNumberOfColumns())
     {
         nRowsInBlock = nRowsTotal;
 
@@ -153,7 +152,7 @@ struct TileDimensions
         nDataBlocks = nRowsTotal / nRowsInBlock;
 
         nTreesInBlock = nTreesTotal;
-        nTreeBlocks = 1;
+        nTreeBlocks   = 1;
     }
 };
 

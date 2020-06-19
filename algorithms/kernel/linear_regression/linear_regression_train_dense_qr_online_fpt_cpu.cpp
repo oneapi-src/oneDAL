@@ -22,8 +22,8 @@
 //--
 */
 
-#include "linear_regression_train_container.h"
-#include "linear_regression_train_dense_qr_impl.i"
+#include "algorithms/kernel/linear_regression/linear_regression_train_container.h"
+#include "algorithms/kernel/linear_regression/linear_regression_train_dense_qr_impl.i"
 
 namespace daal
 {
@@ -41,7 +41,7 @@ namespace internal
 {
 template class OnlineKernel<DAAL_FPTYPE, qrDense, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace training
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal

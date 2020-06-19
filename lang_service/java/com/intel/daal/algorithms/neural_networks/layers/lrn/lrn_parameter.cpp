@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::neural_networks::layers;
@@ -30,8 +30,7 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnParameter_cInit
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnParameter_cInit(JNIEnv * env, jobject thisObj)
 {
     return (jlong)(new lrn::Parameter);
 }
@@ -41,11 +40,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_l
  * Method:    cGetDimension
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnParameter_cGetDimension
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnParameter_cGetDimension(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong cParameter)
 {
-    NumericTablePtr *ntShPtr = new NumericTablePtr();
-    *ntShPtr = (((lrn::Parameter *)cParameter))->dimension;
+    NumericTablePtr * ntShPtr = new NumericTablePtr();
+    *ntShPtr                  = (((lrn::Parameter *)cParameter))->dimension;
     return (jlong)ntShPtr;
 }
 
@@ -54,10 +53,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_l
  * Method:    cSetDimension
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnParameter_cSetDimension
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong dimension)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnParameter_cSetDimension(JNIEnv * env, jobject thisObj,
+                                                                                                             jlong cParameter, jlong dimension)
 {
-    SerializationIfacePtr *ntShPtr = (SerializationIfacePtr *)dimension;
+    SerializationIfacePtr * ntShPtr             = (SerializationIfacePtr *)dimension;
     (((lrn::Parameter *)cParameter))->dimension = staticPointerCast<NumericTable, SerializationIface>(*ntShPtr);
 }
 
@@ -66,8 +65,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lr
  * Method:    cGetkappa
  * Signature: (J)J
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnParameter_cGetkappa
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnParameter_cGetkappa(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong cParameter)
 {
     return (jlong)((((lrn::Parameter *)cParameter))->kappa);
 }
@@ -77,8 +76,8 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers
  * Method:    cSetKappa
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnParameter_cSetKappa
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong kappa)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnParameter_cSetKappa(JNIEnv * env, jobject thisObj,
+                                                                                                         jlong cParameter, jlong kappa)
 {
     (((lrn::Parameter *)cParameter))->kappa = (size_t)kappa;
 }
@@ -88,8 +87,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lr
  * Method:    cGetAlpha
  * Signature: (J)J
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnParameter_cGetAlpha
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnParameter_cGetAlpha(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong cParameter)
 {
     return (jlong)((((lrn::Parameter *)cParameter))->alpha);
 }
@@ -99,8 +98,8 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers
  * Method:    cSetAlpha
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnParameter_cSetAlpha
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong alpha)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnParameter_cSetAlpha(JNIEnv * env, jobject thisObj,
+                                                                                                         jlong cParameter, jlong alpha)
 {
     (((lrn::Parameter *)cParameter))->alpha = alpha;
 }
@@ -110,8 +109,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lr
  * Method:    cGetBeta
  * Signature: (J)J
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnParameter_cGetBeta
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnParameter_cGetBeta(JNIEnv * env, jobject thisObj,
+                                                                                                           jlong cParameter)
 {
     return (jlong)((((lrn::Parameter *)cParameter))->beta);
 }
@@ -121,8 +120,8 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers
  * Method:    cSetBeta
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnParameter_cSetBeta
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong beta)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnParameter_cSetBeta(JNIEnv * env, jobject thisObj,
+                                                                                                        jlong cParameter, jlong beta)
 {
     (((lrn::Parameter *)cParameter))->beta = beta;
 }
@@ -132,8 +131,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lr
  * Method:    cGetNAdjust
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnParameter_cGetNAdjust
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnParameter_cGetNAdjust(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong cParameter)
 {
     return (jlong)((((lrn::Parameter *)cParameter))->nAdjust);
 }
@@ -143,8 +142,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_l
  * Method:    cSetNAdjust
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnParameter_cSetNAdjust
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong nAdjust)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_lrn_LrnParameter_cSetNAdjust(JNIEnv * env, jobject thisObj,
+                                                                                                           jlong cParameter, jlong nAdjust)
 {
     (((lrn::Parameter *)cParameter))->nAdjust = (size_t)nAdjust;
 }

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "logitboost_train_batch_container.h"
+#include "algorithms/kernel/logitboost/logitboost_train_batch_container.h"
 
 namespace daal
 {
@@ -35,8 +35,7 @@ namespace training
 {
 namespace interface2
 {
-
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 Batch<algorithmFPType, method>::Batch(size_t nClasses)
 {
     _par = new ParameterType();
@@ -44,10 +43,8 @@ Batch<algorithmFPType, method>::Batch(size_t nClasses)
     parameter().nClasses = nClasses;
 }
 
-template<typename algorithmFPType, Method method>
-Batch<algorithmFPType, method>::Batch(const Batch &other) :
-    classifier::training::Batch(other),
-    input(other.input)
+template <typename algorithmFPType, Method method>
+Batch<algorithmFPType, method>::Batch(const Batch & other) : classifier::training::Batch(other), input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();

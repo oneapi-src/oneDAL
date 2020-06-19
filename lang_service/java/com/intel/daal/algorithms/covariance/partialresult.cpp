@@ -20,9 +20,9 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_covariance_PartialResult.h"
 
-#include "covariance_types.i"
+#include "lang_service/java/com/intel/daal/algorithms/covariance/covariance_types.i"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::covariance;
@@ -32,8 +32,7 @@ using namespace daal::algorithms::covariance;
  * Method:    cNewPartialResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_PartialResult_cNewPartialResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_PartialResult_cNewPartialResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<covariance::PartialResult>::newObj();
 }
@@ -43,8 +42,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_PartialResult_
  * Method:    cGetPartialResultTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_PartialResult_cGetPartialResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_PartialResult_cGetPartialResultTable(JNIEnv * env, jobject thisObj, jlong resAddr,
+                                                                                                       jint id)
 {
     return jniArgument<covariance::PartialResult>::get<covariance::PartialResultId, NumericTable>(resAddr, id);
 }
@@ -54,8 +53,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_PartialResult_
  * Method:    cSetPartialResultTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_PartialResult_cSetPartialResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_PartialResult_cSetPartialResultTable(JNIEnv * env, jobject thisObj, jlong resAddr,
+                                                                                                      jint id, jlong ntAddr)
 {
     jniArgument<covariance::PartialResult>::set<covariance::PartialResultId, NumericTable>(resAddr, id, ntAddr);
 }

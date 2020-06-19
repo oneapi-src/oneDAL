@@ -24,9 +24,9 @@
 #ifndef __ADAGRAD_BATCH_CONTAINER_V1_H__
 #define __ADAGRAD_BATCH_CONTAINER_V1_H__
 
-#include "adagrad_batch.h"
-#include "adagrad_dense_default_kernel_v1.h"
-#include "service_algo_utils.h"
+#include "algorithms/optimization_solver/adagrad/adagrad_batch.h"
+#include "algorithms/kernel/optimization_solver/adagrad/inner/adagrad_dense_default_kernel_v1.h"
+#include "service/kernel/service_algo_utils.h"
 
 namespace daal
 {
@@ -38,40 +38,39 @@ namespace adagrad
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::I1AdagradKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    interface1::Input *input = static_cast<Input *>(_in);
-    interface1::Result *result = static_cast<Result *>(_res);
-    interface1::Parameter *parameter = static_cast<Parameter *>(_par);
+    interface1::Input * input         = static_cast<Input *>(_in);
+    interface1::Result * result       = static_cast<Result *>(_res);
+    interface1::Parameter * parameter = static_cast<Parameter *>(_par);
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    NumericTable *inputArgument           = input->get(iterative_solver::inputArgument).get();
-    NumericTable *gradientSquareSumInput  = input->get(adagrad::gradientSquareSum).get();
-    OptionalArgument *optionalArgument    = input->get(iterative_solver::optionalArgument).get();
+    NumericTable * inputArgument          = input->get(iterative_solver::inputArgument).get();
+    NumericTable * gradientSquareSumInput = input->get(adagrad::gradientSquareSum).get();
+    OptionalArgument * optionalArgument   = input->get(iterative_solver::optionalArgument).get();
 
-    NumericTable *minimum                 = result->get(iterative_solver::minimum).get();
-    NumericTable *nIterations             = result->get(iterative_solver::nIterations).get();
-    NumericTable *gradientSquareSumResult = result->get(gradientSquareSum).get();
-    OptionalArgument *optionalResult      = result->get(iterative_solver::optionalResult).get();
+    NumericTable * minimum                 = result->get(iterative_solver::minimum).get();
+    NumericTable * nIterations             = result->get(iterative_solver::nIterations).get();
+    NumericTable * gradientSquareSumResult = result->get(gradientSquareSum).get();
+    OptionalArgument * optionalResult      = result->get(iterative_solver::optionalResult).get();
 
     __DAAL_CALL_KERNEL(env, internal::I1AdagradKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-        daal::services::internal::hostApp(*input), inputArgument, minimum, nIterations,
-        gradientSquareSumResult, gradientSquareSumInput, optionalArgument,
-        optionalResult, parameter, *parameter->engine);
+                       daal::services::internal::hostApp(*input), inputArgument, minimum, nIterations, gradientSquareSumResult,
+                       gradientSquareSumInput, optionalArgument, optionalResult, parameter, *parameter->engine);
 }
 
 } // namespace interface1

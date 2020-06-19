@@ -21,9 +21,9 @@
 //--
 */
 
-#include "kdtree_knn_classification_predict_dense_default_batch.h"
-#include "kdtree_knn_classification_predict_dense_default_batch_impl.i"
-#include "kdtree_knn_classification_predict_dense_default_batch_container_v1.h"
+#include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_classification_predict_dense_default_batch.h"
+#include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_classification_predict_dense_default_batch_impl.i"
+#include "algorithms/kernel/k_nearest_neighbors/inner/kdtree_knn_classification_predict_dense_default_batch_container_v1.h"
 
 namespace daal
 {

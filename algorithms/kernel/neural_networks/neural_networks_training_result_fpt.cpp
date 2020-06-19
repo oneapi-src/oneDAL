@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "neural_networks_training_result.h"
+#include "algorithms/neural_networks/neural_networks_training_result.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -28,16 +28,16 @@ namespace neural_networks
 {
 namespace training
 {
-
-template<typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+template <typename algorithmFPType>
+DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     return Status();
 }
 
-template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                          const int method);
 
-}
-}
-}
-}
+} // namespace training
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

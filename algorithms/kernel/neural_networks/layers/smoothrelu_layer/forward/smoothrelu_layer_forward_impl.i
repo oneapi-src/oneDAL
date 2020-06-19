@@ -41,36 +41,36 @@ namespace forward
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status SmoothReLUKernel<algorithmFPType, method, cpu>::compute(const Tensor &inputTensor, Tensor &resultTensor)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status SmoothReLUKernel<algorithmFPType, method, cpu>::compute(const Tensor & inputTensor, Tensor & resultTensor)
 {
     __DAAL_MAKE_TENSOR_THREADSAFE(&resultTensor)
 
-    Status s = computeImpl<cpu>(inputTensor, [=, &inputTensor, &resultTensor](size_t fDimN, size_t *fDims, size_t nRowsToProcess, const TensorOffsetLayout &layout) -> Status
-    {
-        ReadSubtensor<algorithmFPType, cpu, Tensor> inputBlock(const_cast<Tensor &>(inputTensor), fDimN, fDims, 0, nRowsToProcess, layout);
-        DAAL_CHECK_BLOCK_STATUS(inputBlock);
-        const algorithmFPType *inputArray = inputBlock.get();
+    Status s = computeImpl<cpu>(
+        inputTensor,
+        [=, &inputTensor, &resultTensor](size_t fDimN, size_t * fDims, size_t nRowsToProcess, const TensorOffsetLayout & layout) -> Status {
+            ReadSubtensor<algorithmFPType, cpu, Tensor> inputBlock(const_cast<Tensor &>(inputTensor), fDimN, fDims, 0, nRowsToProcess, layout);
+            DAAL_CHECK_BLOCK_STATUS(inputBlock);
+            const algorithmFPType * inputArray = inputBlock.get();
 
-        WriteSubtensor<algorithmFPType, cpu, Tensor> resultBlock(resultTensor, fDimN, fDims, 0, nRowsToProcess, layout);
-        DAAL_CHECK_BLOCK_STATUS(resultBlock);
-        algorithmFPType *resultArray = resultBlock.get();
+            WriteSubtensor<algorithmFPType, cpu, Tensor> resultBlock(resultTensor, fDimN, fDims, 0, nRowsToProcess, layout);
+            DAAL_CHECK_BLOCK_STATUS(resultBlock);
+            algorithmFPType * resultArray = resultBlock.get();
 
-        algorithmFPType one = (algorithmFPType)1.0;
-        size_t nDataElements = inputBlock.getSize();
+            algorithmFPType one  = (algorithmFPType)1.0;
+            size_t nDataElements = inputBlock.getSize();
 
-        //res = log(1+exp(in))
-        daal::internal::Math<algorithmFPType,cpu>::vExp(nDataElements, const_cast<algorithmFPType *>(inputArray), resultArray);
-        daal::internal::Math<algorithmFPType,cpu>::vLog1p(nDataElements, resultArray, resultArray);
+            //res = log(1+exp(in))
+            daal::internal::Math<algorithmFPType, cpu>::vExp(nDataElements, const_cast<algorithmFPType *>(inputArray), resultArray);
+            daal::internal::Math<algorithmFPType, cpu>::vLog1p(nDataElements, resultArray, resultArray);
 
-        return Status();
-    });
+            return Status();
+        });
     return s;
 }
 
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 } // namespace smoothrelu
 } // namespace layers
 } // namespace neural_networks

@@ -19,7 +19,7 @@
 //  Implementation of logistic function calculation algorithm container.
 //--
 
-#include "logistic_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/logistic_layer/forward/logistic_layer_forward_batch_container.h"
 
 namespace daal
 {
@@ -32,9 +32,9 @@ namespace layers
 namespace forward
 {
 __DAAL_INSTANTIATE_DISPATCH_LAYER_CONTAINER_FORWARD(neural_networks::layers::logistic::forward::BatchContainer, DAAL_FPTYPE,
-                                      neural_networks::layers::logistic::defaultDense)
+                                                    neural_networks::layers::logistic::defaultDense)
 }
-}
-}
-}
-}
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

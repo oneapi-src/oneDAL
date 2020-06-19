@@ -21,8 +21,8 @@
 //--
 */
 
-#include "transposed_conv2d_layer_backward_types.h"
-#include "transposed_conv2d_layer_types.h"
+#include "algorithms/neural_networks/layers/transposed_conv2d/transposed_conv2d_layer_backward_types.h"
+#include "algorithms/neural_networks/layers/transposed_conv2d/transposed_conv2d_layer_types.h"
 
 namespace daal
 {
@@ -47,14 +47,14 @@ namespace interface1
  * \return Status of computations
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     using daal::data_management::Tensor;
     using daal::data_management::TensorPtr;
     using daal::data_management::HomogenTensor;
 
-    const Input *in = static_cast<const Input *>(input);
-    const Parameter *param =  static_cast<const Parameter * >(parameter);
+    const Input * in        = static_cast<const Input *>(input);
+    const Parameter * param = static_cast<const Parameter *>(parameter);
 
     TensorPtr auxDataTable = in->get(auxData);
     TensorPtr wTable       = in->get(auxWeights);
@@ -79,10 +79,10 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return s;
 }
 
-}// namespace interface1
-}// namespace forward
-}// namespace transposed_conv2d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace transposed_conv2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

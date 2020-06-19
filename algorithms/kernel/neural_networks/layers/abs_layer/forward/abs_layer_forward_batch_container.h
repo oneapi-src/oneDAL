@@ -24,8 +24,8 @@
 #ifndef __ABS_LAYER_FORWARD_BATCH_CONTAINER_H__
 #define __ABS_LAYER_FORWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/abs/abs_layer.h"
-#include "abs_layer_forward_kernel.h"
+#include "algorithms/neural_networks/layers/abs/abs_layer.h"
+#include "algorithms/kernel/neural_networks/layers/abs_layer/forward/abs_layer_forward_kernel.h"
 
 namespace daal
 {
@@ -41,29 +41,29 @@ namespace forward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::AbsKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    abs::forward::Input *input = static_cast<abs::forward::Input *>(_in);
-    abs::forward::Result *result = static_cast<abs::forward::Result *>(_res);
+    abs::forward::Input * input   = static_cast<abs::forward::Input *>(_in);
+    abs::forward::Result * result = static_cast<abs::forward::Result *>(_res);
 
-    daal::algorithms::Parameter *par = NULL;
-    daal::services::Environment::env &env = *_env;
+    daal::algorithms::Parameter * par      = NULL;
+    daal::services::Environment::env & env = *_env;
 
-    Tensor *inputTensor  = input->get(layers::forward::data).get();
-    Tensor *resultTensor = result->get(layers::forward::value).get();
+    Tensor * inputTensor  = input->get(layers::forward::data).get();
+    Tensor * resultTensor = result->get(layers::forward::value).get();
 
     __DAAL_CALL_KERNEL(env, internal::AbsKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputTensor, *resultTensor);
 }

@@ -22,8 +22,8 @@
 //--
 */
 
-#include "decision_tree_regression_predict.h"
-#include "decision_tree_regression_predict_dense_default_batch.h"
+#include "algorithms/decision_tree/decision_tree_regression_predict.h"
+#include "algorithms/kernel/decision_tree/decision_tree_regression_predict_dense_default_batch.h"
 
 namespace daal
 {
@@ -37,7 +37,6 @@ namespace prediction
 {
 namespace interface2
 {
-
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
 {
@@ -54,19 +53,19 @@ template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
     const Input * const input = static_cast<const Input *>(_in);
-    Result * const result = static_cast<Result *>(_res);
+    Result * const result     = static_cast<Result *>(_res);
 
     const data_management::NumericTableConstPtr a = input->get(data);
-    const ModelConstPtr m = input->get(model);
-    const data_management::NumericTablePtr r = result->get(prediction);
+    const ModelConstPtr m                         = input->get(model);
+    const data_management::NumericTablePtr r      = result->get(prediction);
 
     const daal::algorithms::Parameter * const par = _par;
-    daal::services::Environment::env & env = *_env;
+    daal::services::Environment::env & env        = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::DecisionTreePredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), \
-                       compute, a.get(), m.get(), r.get(), par);
+    __DAAL_CALL_KERNEL(env, internal::DecisionTreePredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, a.get(), m.get(), r.get(),
+                       par);
 }
-}
+} // namespace interface2
 } // namespace prediction
 } // namespace regression
 } // namespace decision_tree

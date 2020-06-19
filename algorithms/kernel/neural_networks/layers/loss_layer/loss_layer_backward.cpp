@@ -21,8 +21,8 @@
 //--
 */
 
-#include "loss_layer_backward_types.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/layers/loss/loss_layer_backward_types.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -40,25 +40,25 @@ namespace interface1
 {
 /** Default constructor */
 Input::Input() {};
-Input::Input(const Input& other) : super(other) {}
+Input::Input(const Input & other) : super(other) {}
 
 /**
  * Checks an input object for the backward loss layer
  * \param[in] par     Algorithm parameter
  * \param[in] method  Computation method
  */
-services::Status Input::check(const daal::algorithms::Parameter *par, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
-    const layers::Parameter *parameter = static_cast<const Parameter *>(par);
+    const layers::Parameter * parameter = static_cast<const Parameter *>(par);
     if (!parameter->propagateGradient) return services::Status();
 
-    if(Argument::size() != 2) return services::Status(services::ErrorIncorrectNumberOfInputNumericTables);
+    if (Argument::size() != 2) return services::Status(services::ErrorIncorrectNumberOfInputNumericTables);
     LayerDataPtr layerData = get(layers::backward::inputFromForward);
     if (!layerData) return services::Status(services::ErrorNullLayerData);
     return services::Status();
 }
 
-    /** Default constructor */
+/** Default constructor */
 Result::Result() : layers::backward::Result() {};
 
 /**
@@ -67,15 +67,15 @@ Result::Result() : layers::backward::Result() {};
  * \param[in] par     %Parameter of the layer
  * \param[in] method  Computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     return services::Status();
 }
 
-}// namespace interface1
-}// namespace backward
-}// namespace loss
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace loss
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

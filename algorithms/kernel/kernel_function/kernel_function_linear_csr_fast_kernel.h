@@ -24,8 +24,8 @@
 #ifndef __KERNEL_FUNCTION_LINEAR_CSR_KERNEL_H__
 #define __KERNEL_FUNCTION_LINEAR_CSR_KERNEL_H__
 
-#include "kernel_function_csr_base.h"
-#include "kernel_function_linear_base.h"
+#include "algorithms/kernel/kernel_function/kernel_function_csr_base.h"
+#include "algorithms/kernel/kernel_function/kernel_function_linear_base.h"
 
 using namespace daal::internal;
 
@@ -39,16 +39,17 @@ namespace linear
 {
 namespace internal
 {
-
 template <typename algorithmFPType, CpuType cpu>
-struct KernelImplLinear<fastCSR, algorithmFPType, cpu> :
-    public daal::algorithms::kernel_function::internal::KernelCSRImplBase<algorithmFPType, cpu>
+struct KernelImplLinear<fastCSR, algorithmFPType, cpu> : public daal::algorithms::kernel_function::internal::KernelCSRImplBase<algorithmFPType, cpu>
 {
     using daal::algorithms::kernel_function::internal::KernelCSRImplBase<algorithmFPType, cpu>::computeDotProduct;
 
-    virtual services::Status computeInternalVectorVector(const NumericTable *a1, const NumericTable *a2, NumericTable *r, const ParameterBase *par);
-    virtual services::Status computeInternalMatrixVector(const NumericTable *a1, const NumericTable *a2, NumericTable *r, const ParameterBase *par);
-    virtual services::Status computeInternalMatrixMatrix(const NumericTable *a1, const NumericTable *a2, NumericTable *r, const ParameterBase *par);
+    virtual services::Status computeInternalVectorVector(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
+                                                         const ParameterBase * par);
+    virtual services::Status computeInternalMatrixVector(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
+                                                         const ParameterBase * par);
+    virtual services::Status computeInternalMatrixMatrix(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
+                                                         const ParameterBase * par);
 };
 
 } // namespace internal

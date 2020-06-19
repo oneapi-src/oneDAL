@@ -24,11 +24,11 @@
 #ifndef __SPATIAL_POOLING2D_LAYER_INTERNAL_PARAMETER_H__
 #define __SPATIAL_POOLING2D_LAYER_INTERNAL_PARAMETER_H__
 
-#include "service_utils.h"
-#include "tensor.h"
-#include "collection.h"
-#include "service_blas.h"
-#include "neural_networks/layers/pooling2d/pooling2d_layer_types.h"
+#include "service/kernel/service_utils.h"
+#include "data_management/data/tensor.h"
+#include "services/collection.h"
+#include "externals/service_blas.h"
+#include "algorithms/neural_networks/layers/pooling2d/pooling2d_layer_types.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -45,32 +45,31 @@ namespace spatial_pooling2d
 {
 namespace internal
 {
-
 enum Method
 {
-    maximum = 0,
-    average = 1,
+    maximum    = 0,
+    average    = 1,
     stochastic = 2
 };
 
-template<CpuType cpu>
+template <CpuType cpu>
 class CommonSpatialPoolingFunctions
 {
 public:
-    static void setParameter(const pooling2d::Parameter &src, pooling2d::Parameter &dst)
+    static void setParameter(const pooling2d::Parameter & src, pooling2d::Parameter & dst)
     {
-        dst.indices = src.indices;
+        dst.indices     = src.indices;
         dst.kernelSizes = src.kernelSizes;
-        dst.strides = src.strides;
-        dst.paddings = src.paddings;
+        dst.strides     = src.strides;
+        dst.paddings    = src.paddings;
     }
 };
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace spatial_pooling2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

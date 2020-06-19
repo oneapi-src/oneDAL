@@ -21,9 +21,9 @@
 //--
 */
 
-#include "svd_dense_default_kernel.h"
-#include "svd_dense_default_distr_step3_impl.i"
-#include "svd_dense_default_container.h"
+#include "algorithms/kernel/svd/svd_dense_default_kernel.h"
+#include "algorithms/kernel/svd/svd_dense_default_distr_step3_impl.i"
+#include "algorithms/kernel/svd/svd_dense_default_container.h"
 
 namespace daal
 {
@@ -39,6 +39,6 @@ namespace internal
 {
 template class SVDDistributedStep3Kernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
-}
-}
-}
+} // namespace svd
+} // namespace algorithms
+} // namespace daal

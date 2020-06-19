@@ -19,7 +19,6 @@
 //  JNI layer for multi_class_classifier_Parameter
 //--
 
-
 #include <jni.h>
 #include "com_intel_daal_algorithms_multi_class_classifier_Parameter.h"
 #include "daal.h"
@@ -29,8 +28,8 @@
  * Method:    cSetNClasses
  * Signature:(JJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_Parameter_cSetNClasses
-(JNIEnv *env, jobject obj, jlong parAddr, jlong val)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_Parameter_cSetNClasses(JNIEnv * env, jobject obj, jlong parAddr,
+                                                                                                      jlong val)
 {
     ((daal::algorithms::multi_class_classifier::Parameter *)parAddr)->nClasses = val;
 }
@@ -40,10 +39,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_P
  * Method:    cGetNClasses
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_Parameter_cGetNClasses
-(JNIEnv *env, jobject obj, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_Parameter_cGetNClasses(JNIEnv * env, jobject obj, jlong parAddr)
 {
-    return((daal::algorithms::multi_class_classifier::Parameter *)parAddr)->nClasses;
+    return ((daal::algorithms::multi_class_classifier::Parameter *)parAddr)->nClasses;
 }
 
 /*
@@ -51,8 +49,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_
  * Method:    cSetMaxIterations
  * Signature:(JJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_Parameter_cSetMaxIterations
-(JNIEnv *env, jobject obj, jlong parAddr, jlong val)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_Parameter_cSetMaxIterations(JNIEnv * env, jobject obj, jlong parAddr,
+                                                                                                           jlong val)
 {
     ((daal::algorithms::multi_class_classifier::Parameter *)parAddr)->maxIterations = val;
 }
@@ -62,10 +60,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_P
  * Method:    cGetMaxIterations
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_Parameter_cGetMaxIterations
-(JNIEnv *env, jobject obj, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_Parameter_cGetMaxIterations(JNIEnv * env, jobject obj, jlong parAddr)
 {
-    return((daal::algorithms::multi_class_classifier::Parameter *)parAddr)->maxIterations;
+    return ((daal::algorithms::multi_class_classifier::Parameter *)parAddr)->maxIterations;
 }
 
 /*
@@ -73,8 +70,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_
  * Method:    cSetAccuracyThreshold
  * Signature:(JD)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_Parameter_cSetAccuracyThreshold
-(JNIEnv *env, jobject obj, jlong parAddr, jdouble val)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_Parameter_cSetAccuracyThreshold(JNIEnv * env, jobject obj,
+                                                                                                               jlong parAddr, jdouble val)
 {
     ((daal::algorithms::multi_class_classifier::Parameter *)parAddr)->accuracyThreshold = val;
 }
@@ -84,10 +81,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_P
  * Method:    cGetAccuracyThreshold
  * Signature:(J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_Parameter_cGetAccuracyThreshold
-(JNIEnv *env, jobject obj, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_Parameter_cGetAccuracyThreshold(JNIEnv * env, jobject obj,
+                                                                                                                  jlong parAddr)
 {
-    return((daal::algorithms::multi_class_classifier::Parameter *)parAddr)->accuracyThreshold;
+    return ((daal::algorithms::multi_class_classifier::Parameter *)parAddr)->accuracyThreshold;
 }
 
 /*
@@ -95,13 +92,12 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifie
  * Method:    cSetTraining
  * Signature:(JJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_Parameter_cSetTraining
-(JNIEnv *env, jobject obj, jlong parAddr, jlong trainingAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_Parameter_cSetTraining(JNIEnv * env, jobject obj, jlong parAddr,
+                                                                                                      jlong trainingAddr)
 {
     using namespace daal::algorithms;
     daal::services::SharedPtr<classifier::training::Batch> training =
-        daal::services::staticPointerCast<classifier::training::Batch, AlgorithmIface>
-            (*(daal::services::SharedPtr<AlgorithmIface> *)trainingAddr);
+        daal::services::staticPointerCast<classifier::training::Batch, AlgorithmIface>(*(daal::services::SharedPtr<AlgorithmIface> *)trainingAddr);
     ((daal::algorithms::multi_class_classifier::Parameter *)parAddr)->training = training;
 }
 
@@ -110,12 +106,12 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_P
  * Method:    cSetPrediction
  * Signature:(JJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_Parameter_cSetPrediction
-(JNIEnv *env, jobject obj, jlong parAddr, jlong predictionAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_Parameter_cSetPrediction(JNIEnv * env, jobject obj, jlong parAddr,
+                                                                                                        jlong predictionAddr)
 {
     using namespace daal::algorithms;
     daal::services::SharedPtr<classifier::prediction::Batch> prediction =
-        daal::services::staticPointerCast<classifier::prediction::Batch, AlgorithmIface>
-            (*(daal::services::SharedPtr<AlgorithmIface> *)predictionAddr);
+        daal::services::staticPointerCast<classifier::prediction::Batch, AlgorithmIface>(
+            *(daal::services::SharedPtr<AlgorithmIface> *)predictionAddr);
     ((daal::algorithms::multi_class_classifier::Parameter *)parAddr)->prediction = prediction;
 }

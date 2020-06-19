@@ -19,15 +19,14 @@
 //  Declaration of template function that calculate sgd.
 //--
 
-
 #ifndef __SGD_DENSE_DEFAULT_KERNEL_V1_H__
 #define __SGD_DENSE_DEFAULT_KERNEL_V1_H__
 
-#include "sgd_batch.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "iterative_solver_kernel.h"
-#include "sgd_dense_kernel_v1.h"
+#include "algorithms/optimization_solver/sgd/sgd_batch.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/kernel/optimization_solver/iterative_solver_kernel.h"
+#include "algorithms/kernel/optimization_solver/sgd/inner/sgd_dense_kernel_v1.h"
 
 using namespace daal::data_management;
 
@@ -41,22 +40,19 @@ namespace sgd
 {
 namespace internal
 {
-
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class I1SGDKernel<algorithmFPType, defaultDense, cpu> : public iterative_solver::internal::IterativeSolverKernel<algorithmFPType, cpu>
 {
 public:
-    services::Status compute(HostAppIface* pHost, NumericTable *inputArgument,
-        NumericTable *minimum, NumericTable *nIterations,
-        interface1::Parameter<defaultDense> *parameter, NumericTable *learningRateSequence,
-        NumericTable *batchIndices, OptionalArgument *optionalArgument, OptionalArgument *optionalResult, engines::BatchBase &engine);
+    services::Status compute(HostAppIface * pHost, NumericTable * inputArgument, NumericTable * minimum, NumericTable * nIterations,
+                             interface1::Parameter<defaultDense> * parameter, NumericTable * learningRateSequence, NumericTable * batchIndices,
+                             OptionalArgument * optionalArgument, OptionalArgument * optionalResult, engines::BatchBase & engine);
 
     using iterative_solver::internal::IterativeSolverKernel<algorithmFPType, cpu>::vectorNorm;
     using iterative_solver::internal::IterativeSolverKernel<algorithmFPType, cpu>::getRandom;
 };
 
-
-} // namespace daal::internal
+} // namespace internal
 
 } // namespace sgd
 

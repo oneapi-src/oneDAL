@@ -21,10 +21,10 @@
 //--
 */
 
-#include "brownboost_predict_batch_container.h"
-#include "brownboost_predict_kernel.h"
-#include "brownboost_predict_impl.i"
-#include "boosting_predict_impl.i"
+#include "algorithms/kernel/brownboost/brownboost_predict_batch_container.h"
+#include "algorithms/kernel/brownboost/brownboost_predict_kernel.h"
+#include "algorithms/kernel/brownboost/brownboost_predict_impl.i"
+#include "algorithms/kernel/boosting/inner/boosting_predict_impl.i"
 
 namespace daal
 {
@@ -42,7 +42,7 @@ namespace internal
 {
 template class BrownBoostPredictKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace prediction
+} // namespace brownboost
+} // namespace algorithms
+} // namespace daal

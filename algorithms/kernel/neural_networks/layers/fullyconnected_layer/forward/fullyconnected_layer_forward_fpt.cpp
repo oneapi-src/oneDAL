@@ -21,8 +21,8 @@
 //--
 */
 
-#include "fullyconnected_layer_forward_types.h"
-#include "fullyconnected_layer_types.h"
+#include "algorithms/neural_networks/layers/fullyconnected/fullyconnected_layer_forward_types.h"
+#include "algorithms/neural_networks/layers/fullyconnected/fullyconnected_layer_types.h"
 
 namespace daal
 {
@@ -44,22 +44,22 @@ namespace interface1
  * \param[in] method    Computation method for the layer
 */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Input::allocate(const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Input::allocate(const daal::algorithms::Parameter * parameter, const int method)
 {
     using daal::services::SharedPtr;
     using daal::data_management::Tensor;
     using daal::data_management::HomogenTensor;
 
-    const Parameter *param =  static_cast<const Parameter *>(parameter);
+    const Parameter * param = static_cast<const Parameter *>(parameter);
 
     services::Status s;
 
-    if( !get(layers::forward::weights) )
+    if (!get(layers::forward::weights))
     {
         DAAL_ALLOCATE_TENSOR_AND_SET(s, layers::forward::weights, getWeightsSizes(param));
     }
 
-    if( !get(layers::forward::biases) )
+    if (!get(layers::forward::biases))
     {
         DAAL_ALLOCATE_TENSOR_AND_SET(s, layers::forward::biases, getBiasesSizes(param));
     }
@@ -72,18 +72,18 @@ DAAL_EXPORT services::Status Input::allocate(const daal::algorithms::Parameter *
  * \param[in] method    Computation method for the layer
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const Input *in = static_cast<const Input * >(input);
+    const Input * in = static_cast<const Input *>(input);
     services::Status s;
     if (!get(layers::forward::value))
     {
-        const services::Collection<size_t> &valueDims = getValueSize(in->get(layers::forward::data)->getDimensions(), parameter, method);
+        const services::Collection<size_t> & valueDims = getValueSize(in->get(layers::forward::data)->getDimensions(), parameter, method);
         DAAL_ALLOCATE_TENSOR_AND_SET(s, layers::forward::value, valueDims);
     }
 
-    const layers::Parameter *par = static_cast<const layers::Parameter * >(parameter);
-    if(!par->predictionStage)
+    const layers::Parameter * par = static_cast<const layers::Parameter *>(parameter);
+    if (!par->predictionStage)
     {
         if (!get(layers::forward::resultForBackward))
         {
@@ -94,13 +94,14 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return s;
 }
 
-template DAAL_EXPORT services::Status Input::allocate<DAAL_FPTYPE>(const daal::algorithms::Parameter *parameter, const int method);
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Input::allocate<DAAL_FPTYPE>(const daal::algorithms::Parameter * parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace forward
-}// namespace fullyconnected
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace fullyconnected
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

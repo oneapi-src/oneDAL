@@ -24,15 +24,15 @@
 #ifndef __LOGITBOOST_PREDICT_DENSE_DEFAULT_IMPL_I__
 #define __LOGITBOOST_PREDICT_DENSE_DEFAULT_IMPL_I__
 
-#include "algorithm.h"
-#include "numeric_table.h"
-#include "logitboost_model.h"
-#include "threading.h"
-#include "daal_defines.h"
+#include "algorithms/algorithm.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/boosting/logitboost_model.h"
+#include "algorithms/threading/threading.h"
+#include "services/daal_defines.h"
 
-#include "service_memory.h"
-#include "service_numeric_table.h"
-#include "logitboost_impl.i"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/logitboost/logitboost_impl.i"
 
 using namespace daal::algorithms::logitboost::internal;
 
@@ -48,15 +48,16 @@ namespace internal
 {
 using namespace daal::internal;
 
-template<typename algorithmFPType, CpuType cpu>
-services::Status LogitBoostPredictKernel<defaultDense, algorithmFPType, cpu>::compute( const NumericTablePtr& a, const Model *m, NumericTable *r, const Parameter *par )
+template <typename algorithmFPType, CpuType cpu>
+services::Status LogitBoostPredictKernel<defaultDense, algorithmFPType, cpu>::compute(const NumericTablePtr & a, const Model * m, NumericTable * r,
+                                                                                      const Parameter * par)
 {
-    Parameter *parameter = const_cast<Parameter *>(par);
-    const size_t dim = a->getNumberOfColumns();       /* Number of features in input dataset */
-    const size_t n   = a->getNumberOfRows();          /* Number of observations in input dataset */
-    const size_t nc  = parameter->nClasses;           /* Number of classes */
-    const size_t M   = m->getIterations();            /* Number of terms of additive regression in the model */
-    Model *boostModel = const_cast<Model *>(m);
+    Parameter * parameter = const_cast<Parameter *>(par);
+    const size_t dim      = a->getNumberOfColumns(); /* Number of features in input dataset */
+    const size_t n        = a->getNumberOfRows();    /* Number of observations in input dataset */
+    const size_t nc       = parameter->nClasses;     /* Number of classes */
+    const size_t M        = m->getIterations();      /* Number of terms of additive regression in the model */
+    Model * boostModel    = const_cast<Model *>(m);
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, nc);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * nc, sizeof(algorithmFPType));
@@ -70,12 +71,12 @@ services::Status LogitBoostPredictKernel<defaultDense, algorithmFPType, cpu>::co
 
     services::Status s;
     services::SharedPtr<regression::prediction::Batch> learnerPredict = parameter->weakLearnerPrediction;
-    regression::prediction::Input *predictInput = learnerPredict->getInput();
+    regression::prediction::Input * predictInput                      = learnerPredict->getInput();
     DAAL_CHECK(predictInput, services::ErrorNullInput);
     predictInput->set(regression::prediction::data, a);
 
     /* Calculate additive function values */
-    for ( size_t m = 0; m < M; m++ )
+    for (size_t m = 0; m < M; m++)
     {
         for (size_t j = 0; j < nc; j++)
         {
@@ -95,18 +96,18 @@ services::Status LogitBoostPredictKernel<defaultDense, algorithmFPType, cpu>::co
     /* Calculate classes labels for input data */
     WriteOnlyColumns<int, cpu> rCols(*r, 0, 0, n);
     DAAL_CHECK_BLOCK_STATUS(rCols);
-    int *cl = rCols.get();
+    int * cl = rCols.get();
     DAAL_ASSERT(cl);
 
-    for ( size_t i = 0; i < n; i++ )
+    for (size_t i = 0; i < n; i++)
     {
-        int idx = 0;
+        int idx              = 0;
         algorithmFPType fmax = F[i * nc];
-        for ( int j = 1; j < nc; j++ )
+        for (int j = 1; j < nc; j++)
         {
-            if ( F[i * nc + j] > fmax )
+            if (F[i * nc + j] > fmax)
             {
-                idx = j;
+                idx  = j;
                 fmax = F[i * nc + j];
             }
         }
@@ -114,7 +115,7 @@ services::Status LogitBoostPredictKernel<defaultDense, algorithmFPType, cpu>::co
     }
     return s;
 }
-} // namepsace internal
+} // namespace internal
 } // namespace prediction
 } // namespace logitboost
 } // namespace algorithms

@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::neural_networks::layers;
@@ -30,8 +30,8 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cInit
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cInit(JNIEnv * env,
+                                                                                                                                  jobject thisObj)
 {
     return (jlong)(new transposed_conv2d::Parameter);
 }
@@ -41,8 +41,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_t
  * Method:    cGetGroupDimension
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cGetGroupDimension
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cGetGroupDimension(
+    JNIEnv * env, jobject thisObj, jlong cParameter)
 {
     return (jlong)((((transposed_conv2d::Parameter *)cParameter))->groupDimension);
 }
@@ -52,8 +52,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_t
  * Method:    cSetGroupDimension
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cSetGroupDimension
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong groupDimension)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cSetGroupDimension(
+    JNIEnv * env, jobject thisObj, jlong cParameter, jlong groupDimension)
 {
     (((transposed_conv2d::Parameter *)cParameter))->groupDimension = (size_t)groupDimension;
 }
@@ -63,8 +63,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_tr
  * Method:    cgetNKernels
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cgetNKernels
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cgetNKernels(
+    JNIEnv * env, jobject thisObj, jlong cParameter)
 {
     return (jlong)((((transposed_conv2d::Parameter *)cParameter))->nKernels);
 }
@@ -74,8 +74,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_t
  * Method:    csetNKernels
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_csetNKernels
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong nKernels)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_csetNKernels(
+    JNIEnv * env, jobject thisObj, jlong cParameter, jlong nKernels)
 {
     (((transposed_conv2d::Parameter *)cParameter))->nKernels = (size_t)nKernels;
 }
@@ -85,8 +85,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_tr
  * Method:    cgetNGroups
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cgetNGroups
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cgetNGroups(
+    JNIEnv * env, jobject thisObj, jlong cParameter)
 {
     return (jlong)((((transposed_conv2d::Parameter *)cParameter))->nGroups);
 }
@@ -96,8 +96,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_t
  * Method:    csetNGroups
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_csetNGroups
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong nGroups)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_csetNGroups(
+    JNIEnv * env, jobject thisObj, jlong cParameter, jlong nGroups)
 {
     (((transposed_conv2d::Parameter *)cParameter))->nGroups = (size_t)nGroups;
 }
@@ -107,8 +107,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_tr
  * Method:    cSetKernelSize
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cSetKernelSize
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong first, jlong second)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cSetKernelSize(
+    JNIEnv * env, jobject thisObj, jlong cParameter, jlong first, jlong second)
 {
     (((transposed_conv2d::Parameter *)cParameter))->kernelSizes.size[0] = first;
     (((transposed_conv2d::Parameter *)cParameter))->kernelSizes.size[1] = second;
@@ -119,8 +119,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_tr
  * Method:    cSetValueSizes
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cSetValueSizes
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong first, jlong second)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cSetValueSizes(
+    JNIEnv * env, jobject thisObj, jlong cParameter, jlong first, jlong second)
 {
     (((transposed_conv2d::Parameter *)cParameter))->valueSizes.size[0] = first;
     (((transposed_conv2d::Parameter *)cParameter))->valueSizes.size[1] = second;
@@ -131,8 +131,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_tr
  * Method:    cSetStride
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cSetStride
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong first, jlong second)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cSetStride(
+    JNIEnv * env, jobject thisObj, jlong cParameter, jlong first, jlong second)
 {
     (((transposed_conv2d::Parameter *)cParameter))->strides.size[0] = first;
     (((transposed_conv2d::Parameter *)cParameter))->strides.size[1] = second;
@@ -143,8 +143,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_tr
  * Method:    cSetIndices
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cSetIndices
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong first, jlong second)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cSetIndices(
+    JNIEnv * env, jobject thisObj, jlong cParameter, jlong first, jlong second)
 {
     (((transposed_conv2d::Parameter *)cParameter))->indices.dims[0] = first;
     (((transposed_conv2d::Parameter *)cParameter))->indices.dims[1] = second;
@@ -155,8 +155,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_tr
  * Method:    cSetPadding
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cSetPadding
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong first, jlong second)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cSetPadding(
+    JNIEnv * env, jobject thisObj, jlong cParameter, jlong first, jlong second)
 {
     (((transposed_conv2d::Parameter *)cParameter))->paddings.size[0] = first;
     (((transposed_conv2d::Parameter *)cParameter))->paddings.size[1] = second;
@@ -167,8 +167,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_tr
  * Method:    cGetKernelSize
  * Signature: (J)J
  */
-JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cGetKernelSize
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cGetKernelSize(
+    JNIEnv * env, jobject thisObj, jlong cParameter)
 {
     jlongArray sizeArray;
     sizeArray = env->NewLongArray(2);
@@ -185,8 +185,8 @@ JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_lay
  * Method:    cGetValueSizes
  * Signature: (J)J
  */
-JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cGetValueSizes
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cGetValueSizes(
+    JNIEnv * env, jobject thisObj, jlong cParameter)
 {
     jlongArray sizeArray;
     sizeArray = env->NewLongArray(2);
@@ -203,8 +203,8 @@ JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_lay
  * Method:    cGetKernelSize
  * Signature: (J)J
  */
-JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cGetStride
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cGetStride(
+    JNIEnv * env, jobject thisObj, jlong cParameter)
 {
     jlongArray sizeArray;
     sizeArray = env->NewLongArray(2);
@@ -221,8 +221,8 @@ JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_lay
  * Method:    cGetKernelSize
  * Signature: (J)J
  */
-JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cGetPadding
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cGetPadding(
+    JNIEnv * env, jobject thisObj, jlong cParameter)
 {
     jlongArray sizeArray;
     sizeArray = env->NewLongArray(2);
@@ -239,8 +239,8 @@ JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_lay
  * Method:    cGetKernelSize
  * Signature: (J)J
  */
-JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cGetIndices
-(JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jlongArray JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_transposed_1conv2d_TransposedConv2dParameter_cGetIndices(
+    JNIEnv * env, jobject thisObj, jlong cParameter)
 {
     jlongArray sizeArray;
     sizeArray = env->NewLongArray(2);

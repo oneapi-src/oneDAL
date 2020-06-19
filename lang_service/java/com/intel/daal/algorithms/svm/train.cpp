@@ -21,7 +21,7 @@
 #include "com_intel_daal_algorithms_svm_training_TrainingResult.h"
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_classifier_training_TrainingResultId.h"
 #define innerModelId com_intel_daal_algorithms_classifier_training_TrainingResultId_Model
@@ -34,10 +34,9 @@ using namespace daal::algorithms::svm::training;
  * Method:    cInit
  * Signature:(II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_training_TrainingBatch_cInit
-(JNIEnv *env, jobject obj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_training_TrainingBatch_cInit(JNIEnv * env, jobject obj, jint prec, jint method)
 {
-    return jniBatch<svm::training::Method, svm::training::Batch, boser>::newObj(prec, method);
+    return jniBatch<svm::training::Method, svm::training::Batch, boser, thunder>::newObj(prec, method);
 }
 
 /*
@@ -45,10 +44,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_training_TrainingBatc
  * Method:    cInitParameter
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_training_TrainingBatch_cInitParameter
-(JNIEnv *env, jobject obj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_training_TrainingBatch_cInitParameter(JNIEnv * env, jobject obj, jlong algAddr, jint prec,
+                                                                                                 jint method)
 {
-    return jniBatch<svm::training::Method, svm::training::Batch, boser>::getParameter(prec, method, algAddr);
+    return jniBatch<svm::training::Method, svm::training::Batch, boser, thunder>::getParameter(prec, method, algAddr);
 }
 
 /*
@@ -56,10 +55,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_training_TrainingBatc
  * Method:    cGetInput
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_training_TrainingBatch_cGetInput
-(JNIEnv *env, jobject obj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_training_TrainingBatch_cGetInput(JNIEnv * env, jobject obj, jlong algAddr, jint prec,
+                                                                                            jint method)
 {
-    return jniBatch<svm::training::Method, svm::training::Batch, boser>::getInput(prec, method, algAddr);
+    return jniBatch<svm::training::Method, svm::training::Batch, boser, thunder>::getInput(prec, method, algAddr);
 }
 
 /*
@@ -67,10 +66,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_training_TrainingBatc
  * Method:    cGetResult
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_training_TrainingBatch_cGetResult
-(JNIEnv *env, jobject obj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_training_TrainingBatch_cGetResult(JNIEnv * env, jobject obj, jlong algAddr, jint prec,
+                                                                                             jint method)
 {
-    return jniBatch<svm::training::Method, svm::training::Batch, boser>::getResult(prec, method, algAddr);
+    return jniBatch<svm::training::Method, svm::training::Batch, boser, thunder>::getResult(prec, method, algAddr);
 }
 
 /*
@@ -78,8 +77,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_training_TrainingBatc
  * Method:    cGetModel
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_training_TrainingResult_cGetModel
-(JNIEnv *env, jobject obj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_training_TrainingResult_cGetModel(JNIEnv * env, jobject obj, jlong resAddr, jint id)
 {
     if (id == innerModelId)
     {
@@ -94,8 +92,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_training_TrainingResu
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_training_TrainingBatch_cClone
-(JNIEnv *env, jobject obj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_training_TrainingBatch_cClone(JNIEnv * env, jobject obj, jlong algAddr, jint prec,
+                                                                                         jint method)
 {
-    return jniBatch<svm::training::Method, svm::training::Batch, boser>::getClone(prec, method, algAddr);
+    return jniBatch<svm::training::Method, svm::training::Batch, boser, thunder>::getClone(prec, method, algAddr);
 }

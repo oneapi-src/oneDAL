@@ -21,10 +21,10 @@
 //--
 */
 
-#include "maximum_pooling2d_layer_forward_types.h"
-#include "maximum_pooling2d_layer_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/layers/pooling2d/maximum_pooling2d_layer_forward_types.h"
+#include "algorithms/neural_networks/layers/pooling2d/maximum_pooling2d_layer_types.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -71,10 +71,10 @@ data_management::NumericTablePtr Result::get(LayerDataNumericTableId id) const
  * \param[in] id Identifier of the result
  * \param[in] ptr Result
  */
-void Result::set(LayerDataId id, const data_management::TensorPtr &ptr)
+void Result::set(LayerDataId id, const data_management::TensorPtr & ptr)
 {
     layers::LayerDataPtr layerData = get(layers::forward::resultForBackward);
-    (*layerData)[id] = ptr;
+    (*layerData)[id]               = ptr;
 }
 
 /**
@@ -82,10 +82,10 @@ void Result::set(LayerDataId id, const data_management::TensorPtr &ptr)
  * \param[in] id Identifier of the result
  * \param[in] ptr Result
  */
-void Result::set(LayerDataNumericTableId id, const data_management::NumericTablePtr &ptr)
+void Result::set(LayerDataNumericTableId id, const data_management::NumericTablePtr & ptr)
 {
     layers::LayerDataPtr layerData = get(layers::forward::resultForBackward);
-    (*layerData)[id] = ptr;
+    (*layerData)[id]               = ptr;
 }
 
 /**
@@ -94,32 +94,34 @@ void Result::set(LayerDataNumericTableId id, const data_management::NumericTable
  * \param[in] parameter %Parameter of the layer
  * \param[in] method    Computation method of the layer
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, pooling2d::forward::Result::check(input, parameter, method));
 
-    const Parameter *param =  static_cast<const Parameter *>(parameter);
+    const Parameter * param = static_cast<const Parameter *>(parameter);
 
-    if(!param->predictionStage)
+    if (!param->predictionStage)
     {
-        const Input *in = static_cast<const Input *>(input);
+        const Input * in = static_cast<const Input *>(input);
 
-        const services::Collection<size_t> &valueDimensions = get(layers::forward::value)->getDimensions();
-        DAAL_CHECK_STATUS(s, data_management::checkTensor(get(maximum_pooling2d::auxSelectedIndices).get(), auxSelectedIndicesStr(), &valueDimensions));
+        const services::Collection<size_t> & valueDimensions = get(layers::forward::value)->getDimensions();
+        DAAL_CHECK_STATUS(s,
+                          data_management::checkTensor(get(maximum_pooling2d::auxSelectedIndices).get(), auxSelectedIndicesStr(), &valueDimensions));
 
-        const services::Collection<size_t> &dataDims = in->get(layers::forward::data)->getDimensions();
+        const services::Collection<size_t> & dataDims       = in->get(layers::forward::data)->getDimensions();
         data_management::NumericTablePtr auxInputDimensions = get(maximum_pooling2d::auxInputDimensions);
 
-        DAAL_CHECK_STATUS(s, data_management::checkNumericTable(auxInputDimensions.get(), auxInputDimensionsStr(), data_management::packed_mask, 0, dataDims.size(), 1));
+        DAAL_CHECK_STATUS(s, data_management::checkNumericTable(auxInputDimensions.get(), auxInputDimensionsStr(), data_management::packed_mask, 0,
+                                                                dataDims.size(), 1));
     }
     return s;
 }
 
-}// namespace interface1
-}// namespace forward
-}// namespace maximum_pooling2d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace maximum_pooling2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

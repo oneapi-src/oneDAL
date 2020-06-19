@@ -24,9 +24,9 @@
 #ifndef __LOGITBOOST_TRAIN_BATCH_CONTAINER_H__
 #define __LOGITBOOST_TRAIN_BATCH_CONTAINER_H__
 
-#include "logitboost_training_batch.h"
-#include "logitboost_train_friedman_kernel.h"
-#include "kernel.h"
+#include "algorithms/boosting/logitboost_training_batch.h"
+#include "algorithms/kernel/logitboost/logitboost_train_friedman_kernel.h"
+#include "algorithms/kernel/kernel.h"
 
 namespace daal
 {
@@ -38,39 +38,39 @@ namespace training
 {
 namespace interface2
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::LogitBoostTrainKernel, method, algorithmFPType);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    classifier::training::Input *input = static_cast<classifier::training::Input *>(_in);
-    classifier::training::Result *result = static_cast<classifier::training::Result *>(_res);
+    classifier::training::Input * input   = static_cast<classifier::training::Input *>(_in);
+    classifier::training::Result * result = static_cast<classifier::training::Result *>(_res);
 
     size_t na = input->size();
 
     NumericTablePtr a[2];
-    a[0] = services::staticPointerCast<NumericTable>(input->get(classifier::training::data));
-    a[1] = services::staticPointerCast<NumericTable>(input->get(classifier::training::labels));
-    logitboost::Model *r = static_cast<logitboost::Model *>(result->get(classifier::training::model).get());
-    logitboost::Parameter *par = static_cast<logitboost::Parameter *>(_par);
+    a[0]                        = services::staticPointerCast<NumericTable>(input->get(classifier::training::data));
+    a[1]                        = services::staticPointerCast<NumericTable>(input->get(classifier::training::labels));
+    logitboost::Model * r       = static_cast<logitboost::Model *>(result->get(classifier::training::model).get());
+    logitboost::Parameter * par = static_cast<logitboost::Parameter *>(_par);
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
     __DAAL_CALL_KERNEL(env, internal::LogitBoostTrainKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, na, a, r, par);
 }
-}
-} // namespace daal::algorithms::logitboost::training
-}
-}
+} // namespace interface2
+} // namespace training
+} // namespace logitboost
+} // namespace algorithms
 } // namespace daal
 
 #endif // __LOGITBOOST_TRAIN_BATCH_CONTAINER_H__

@@ -21,10 +21,10 @@
 //--
 */
 
-#include "zscore.h"
-#include "zscore_base.h"
-#include "zscore_dense_default_kernel.h"
-#include "zscore_dense_sum_kernel.h"
+#include "algorithms/normalization/zscore.h"
+#include "algorithms/kernel/normalization/zscore/zscore_base.h"
+#include "algorithms/kernel/normalization/zscore/zscore_dense_default_kernel.h"
+#include "algorithms/kernel/normalization/zscore/zscore_dense_sum_kernel.h"
 
 namespace daal
 {
@@ -34,47 +34,44 @@ namespace normalization
 {
 namespace zscore
 {
-
 namespace interface3
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv) : AnalysisContainerIface<batch>(daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : AnalysisContainerIface<batch>(daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::ZScoreKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    Input *input = static_cast<Input *>(_in);
-    Result *result = static_cast<Result *>(_res);
-    daal::algorithms::Parameter *par = _par;
-    daal::services::Environment::env &env = *_env;
+    Input * input                          = static_cast<Input *>(_in);
+    Result * result                        = static_cast<Result *>(_res);
+    daal::algorithms::Parameter * par      = _par;
+    daal::services::Environment::env & env = *_env;
 
-    NumericTablePtr inputTable  = input->get(data);
-    NumericTablePtr resultTable = result->get(normalizedData);
-    NumericTablePtr resultMeans = result->get(means);
+    NumericTablePtr inputTable      = input->get(data);
+    NumericTablePtr resultTable     = result->get(normalizedData);
+    NumericTablePtr resultMeans     = result->get(means);
     NumericTablePtr resultVariances = result->get(variances);
 
     if (method == defaultDense)
     {
-        Parameter<algorithmFPType, defaultDense> *parameter = static_cast<Parameter<algorithmFPType, defaultDense> *>(par);
+        Parameter<algorithmFPType, defaultDense> * parameter = static_cast<Parameter<algorithmFPType, defaultDense> *>(par);
         parameter->moments->input.set(low_order_moments::data, inputTable);
     }
 
-    __DAAL_CALL_KERNEL(env, internal::ZScoreKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),
-                       compute, *inputTable, *resultTable, *resultMeans, *resultVariances, *par);
-
+    __DAAL_CALL_KERNEL(env, internal::ZScoreKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputTable, *resultTable,
+                       *resultMeans, *resultVariances, *par);
 }
 
-} // interface 3
+} // namespace interface3
 
 } // namespace zscore
 } // namespace normalization

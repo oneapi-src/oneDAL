@@ -21,7 +21,7 @@
 //--
 */
 
-#include "decision_tree_classification_training_result.h"
+#include "algorithms/kernel/decision_tree/decision_tree_classification_training_result.h"
 
 namespace daal
 {
@@ -33,8 +33,9 @@ namespace classification
 {
 namespace training
 {
-
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const decision_tree::classification::interface1::Parameter * parameter, int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const decision_tree::classification::interface1::Parameter * parameter,
+                                                                    int method);
 
 } // namespace training
 } // namespace classification

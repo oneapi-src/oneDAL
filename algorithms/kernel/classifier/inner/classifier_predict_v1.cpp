@@ -21,9 +21,9 @@
 //--
 */
 
-#include "classifier_predict_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/classifier/classifier_predict_types.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -54,7 +54,7 @@ data_management::NumericTablePtr Result::get(ResultId id) const
  * \param[in] id    Identifier of the prediction result, \ref ResultId
  * \param[in] value Pointer to the prediction result
  */
-void Result::set(ResultId id, const data_management::NumericTablePtr &value)
+void Result::set(ResultId id, const data_management::NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
@@ -65,21 +65,20 @@ void Result::set(ResultId id, const data_management::NumericTablePtr &value)
  * \param[in] parameter Pointer to the algorithm parameters
  * \param[in] method    Computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
-           int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     return checkImpl(input, parameter);
 }
 
-services::Status Result::checkImpl(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter) const
+services::Status Result::checkImpl(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter) const
 {
-    size_t nRows = (static_cast<const InputIface *>(input))->getNumberOfRows();
+    size_t nRows                              = (static_cast<const InputIface *>(input))->getNumberOfRows();
     data_management::NumericTablePtr resTable = get(prediction);
 
     return data_management::checkNumericTable(resTable.get(), predictionStr(), data_management::packed_mask, 0, 1, nRows);
 }
-}
-}
-}
-}
-}
+} // namespace interface1
+} // namespace prediction
+} // namespace classifier
+} // namespace algorithms
+} // namespace daal

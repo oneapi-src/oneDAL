@@ -20,7 +20,7 @@
 
 #include "daal.h"
 #include "com_intel_daal_algorithms_gbt_classification_training_TrainingBatch.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 namespace gbtct = daal::algorithms::gbt::classification::training;
@@ -30,8 +30,8 @@ namespace gbtct = daal::algorithms::gbt::classification::training;
 * Method:    cInit
 * Signature: (IIJ)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_TrainingBatch_cInit
-(JNIEnv *, jobject thisObj, jint prec, jint method, jlong nClasses)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_TrainingBatch_cInit(JNIEnv *, jobject thisObj, jint prec,
+                                                                                                       jint method, jlong nClasses)
 {
     return jniBatch<gbtct::Method, gbtct::Batch, gbtct::defaultDense>::newObj(prec, method, nClasses);
 }
@@ -41,8 +41,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_traini
 * Method:    cInitParameter
 * Signature: (JIII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_TrainingBatch_cInitParameter
-(JNIEnv *, jobject thisObj, jlong algAddr, jint prec, jint method, jint cmode)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_TrainingBatch_cInitParameter(JNIEnv *, jobject thisObj,
+                                                                                                                jlong algAddr, jint prec, jint method,
+                                                                                                                jint cmode)
 {
     return jniBatch<gbtct::Method, gbtct::Batch, gbtct::defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -52,8 +53,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_traini
 * Method:    cClone
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_TrainingBatch_cClone
-(JNIEnv *, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_training_TrainingBatch_cClone(JNIEnv *, jobject thisObj, jlong algAddr,
+                                                                                                        jint prec, jint method)
 {
     return jniBatch<gbtct::Method, gbtct::Batch, gbtct::defaultDense>::getClone(prec, method, algAddr);
 }

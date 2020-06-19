@@ -27,11 +27,12 @@ using namespace daal::algorithms::linear_regression::quality_metric_set;
 * Method:    cInit
 * Signature: (JJ)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_1set_QualityMetricSetBatch_cInit
-(JNIEnv *, jobject, jlong nBeta, jlong nBetaReducedModel)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_1set_QualityMetricSetBatch_cInit(JNIEnv *, jobject,
+                                                                                                                           jlong nBeta,
+                                                                                                                           jlong nBetaReducedModel)
 {
     jlong addr = 0;
-    addr = (jlong)(new Batch(nBeta, nBetaReducedModel));
+    addr       = (jlong)(new Batch(nBeta, nBetaReducedModel));
     return addr;
 }
 
@@ -40,10 +41,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_qualit
 * Method:    cInitParameter
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_1set_QualityMetricSetBatch_cInitParameter
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_1set_QualityMetricSetBatch_cInitParameter(JNIEnv *, jobject,
+                                                                                                                                    jlong parAddr)
 {
     jlong addr = 0;
-    addr = (jlong)& ((*(Batch *)parAddr).parameter);
+    addr       = (jlong) & ((*(Batch *)parAddr).parameter);
     return addr;
 }

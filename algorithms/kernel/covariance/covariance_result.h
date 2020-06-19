@@ -24,7 +24,7 @@
 #ifndef __COVARIANCE_RESULT_
 #define __COVARIANCE_RESULT_
 
-#include "covariance_types.h"
+#include "algorithms/covariance/covariance_types.h"
 
 using namespace daal::data_management;
 namespace daal
@@ -33,7 +33,6 @@ namespace algorithms
 {
 namespace covariance
 {
-
 /**
  * Allocates memory to store final results of the correlation or variance-covariance matrix algorithm
  * \param[in] input     %Input objects of the algorithm
@@ -41,10 +40,10 @@ namespace covariance
  * \param[in] method    Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const Input *algInput = static_cast<const Input *>(input);
-    size_t nColumns = algInput->getNumberOfFeatures();
+    const Input * algInput = static_cast<const Input *>(input);
+    size_t nColumns        = algInput->getNumberOfFeatures();
     services::Status status;
 
     set(covariance, HomogenNumericTable<algorithmFPType>::create(nColumns, nColumns, NumericTable::doAllocate, &status));
@@ -60,10 +59,11 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
  * \param[in] method             Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialResult *partialResult, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialResult * partialResult, const daal::algorithms::Parameter * parameter,
+                                              const int method)
 {
-    const PartialResult *pres = static_cast<const PartialResult *>(partialResult);
-    size_t nColumns = pres->getNumberOfFeatures();
+    const PartialResult * pres = static_cast<const PartialResult *>(partialResult);
+    size_t nColumns            = pres->getNumberOfFeatures();
     services::Status status;
 
     set(covariance, HomogenNumericTable<algorithmFPType>::create(nColumns, nColumns, NumericTable::doAllocate, &status));

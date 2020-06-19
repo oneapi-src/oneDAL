@@ -22,13 +22,14 @@
 //--
 */
 
-#include "stump_classification_predict_batch_container.h"
+#include "algorithms/kernel/stump/stump_classification_predict_batch_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(stump::classification::prediction::BatchContainer, batch, DAAL_FPTYPE, stump::classification::prediction::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(stump::classification::prediction::BatchContainer, batch, DAAL_FPTYPE,
+                                      stump::classification::prediction::defaultDense)
 
 namespace stump
 {
@@ -38,18 +39,15 @@ namespace prediction
 {
 namespace interface1
 {
-
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 Batch<algorithmFPType, method>::Batch(size_t nClasses)
 {
     _par = new ParameterType(nClasses);
     initialize();
 }
 
-template<typename algorithmFPType, Method method>
-Batch<algorithmFPType, method>::Batch(const Batch &other) :
-    classifier::prediction::Batch(other),
-    input(other.input)
+template <typename algorithmFPType, Method method>
+Batch<algorithmFPType, method>::Batch(const Batch & other) : classifier::prediction::Batch(other), input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();

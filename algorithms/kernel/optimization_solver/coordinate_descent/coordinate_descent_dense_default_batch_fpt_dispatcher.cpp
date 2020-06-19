@@ -19,14 +19,14 @@
 //  Implementation of coordinate_descent calculation algorithm container.
 //--
 
-
-#include "coordinate_descent_batch_container.h"
+#include "algorithms/kernel/optimization_solver/coordinate_descent/coordinate_descent_batch_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(optimization_solver::coordinate_descent::BatchContainer, batch, DAAL_FPTYPE, optimization_solver::coordinate_descent::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(optimization_solver::coordinate_descent::BatchContainer, batch, DAAL_FPTYPE,
+                                      optimization_solver::coordinate_descent::defaultDense)
 
 namespace optimization_solver
 {
@@ -36,23 +36,21 @@ namespace interface1
 {
 using BatchType = Batch<DAAL_FPTYPE, optimization_solver::coordinate_descent::defaultDense>;
 
-template<>
-BatchType::Batch(const sum_of_functions::BatchPtr& objectiveFunction)
+template <>
+BatchType::Batch(const sum_of_functions::BatchPtr & objectiveFunction)
 {
     _par = new algorithms::optimization_solver::coordinate_descent::Parameter(objectiveFunction);
     initialize();
 }
 
-template<>
-BatchType::Batch(const BatchType &other) :
-    iterative_solver::Batch(other),
-    input(other.input)
+template <>
+BatchType::Batch(const BatchType & other) : iterative_solver::Batch(other), input(other.input)
 {
     _par = new algorithms::optimization_solver::coordinate_descent::Parameter(other.parameter());
     initialize();
 }
 
-template<>
+template <>
 services::SharedPtr<BatchType> BatchType::create()
 {
     return services::SharedPtr<BatchType>(new BatchType());

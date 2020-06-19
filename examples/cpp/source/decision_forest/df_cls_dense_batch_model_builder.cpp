@@ -37,20 +37,19 @@ using namespace daal::algorithms;
 using namespace daal::algorithms::decision_forest::classification;
 
 /* Input data set parameters */
-const string testDatasetFileName  = "../data/batch/df_classification_model_builder_test.csv";
+const string testDatasetFileName          = "../data/batch/df_classification_model_builder_test.csv";
 const size_t categoricalFeaturesIndices[] = { 2 };
-const size_t nFeatures  = 3;  /* Number of features in training and testing data sets */
+const size_t nFeatures                    = 3; /* Number of features in training and testing data sets */
 
 /* Decision forest parameters */
-const size_t nTrees = 3;
-const size_t nClasses = 5;  /* Number of classes */
+const size_t nTrees   = 3;
+const size_t nClasses = 5; /* Number of classes */
 
-
-void testModel(decision_forest::classification::ModelPtr& model);
+void testModel(decision_forest::classification::ModelPtr & model);
 decision_forest::classification::ModelPtr buildModel();
-void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTablePtr& pDependentVar);
+void loadData(const std::string & fileName, NumericTablePtr & pData, NumericTablePtr & pDependentVar);
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &testDatasetFileName);
 
@@ -65,20 +64,20 @@ decision_forest::classification::ModelPtr buildModel()
     const size_t nNodes = 3;
 
     ModelBuilder modelBuilder(nClasses, nTrees);
-    ModelBuilder::TreeId tree1 =  modelBuilder.createTree(nNodes);
+    ModelBuilder::TreeId tree1   = modelBuilder.createTree(nNodes);
     ModelBuilder::NodeId root1   = modelBuilder.addSplitNode(tree1, ModelBuilder::noParent, 0, 0, 0.174108);
     ModelBuilder::NodeId child12 = modelBuilder.addLeafNode(tree1, root1, 1, 4);
-    double proba11[] = {0.8, 0.1, 0.0, 0.1, 0.0};
+    double proba11[]             = { 0.8, 0.1, 0.0, 0.1, 0.0 };
     ModelBuilder::NodeId child11 = modelBuilder.addLeafNodeByProba(tree1, root1, 0, proba11);
 
-    ModelBuilder::TreeId tree2 = modelBuilder.createTree(nNodes);
-    ModelBuilder::NodeId root2 = modelBuilder.addSplitNode(tree2, ModelBuilder::noParent, 0, 1, 0.571184);
+    ModelBuilder::TreeId tree2   = modelBuilder.createTree(nNodes);
+    ModelBuilder::NodeId root2   = modelBuilder.addSplitNode(tree2, ModelBuilder::noParent, 0, 1, 0.571184);
     ModelBuilder::NodeId child22 = modelBuilder.addLeafNode(tree2, root2, 1, 4);
     ModelBuilder::NodeId child21 = modelBuilder.addLeafNode(tree2, root2, 0, 2);
 
     ModelBuilder::TreeId tree3   = modelBuilder.createTree(nNodes);
     ModelBuilder::NodeId root3   = modelBuilder.addSplitNode(tree3, ModelBuilder::noParent, 0, 0, 0.303995);
-    double proba32[] = {0.05, 0.1, 0.0, 0.1, 0.75};
+    double proba32[]             = { 0.05, 0.1, 0.0, 0.1, 0.75 };
     ModelBuilder::NodeId child32 = modelBuilder.addLeafNodeByProba(tree3, root3, 1, proba32);
     ModelBuilder::NodeId child31 = modelBuilder.addLeafNode(tree3, root3, 0, 2);
     modelBuilder.setNFeatures(nFeatures);
@@ -86,9 +85,8 @@ decision_forest::classification::ModelPtr buildModel()
     return modelBuilder.getModel();
 }
 
-void testModel(decision_forest::classification::ModelPtr& model)
+void testModel(decision_forest::classification::ModelPtr & model)
 {
-
     /* Create Numeric Tables for testing data and ground truth values */
     NumericTablePtr testData;
     NumericTablePtr testGroundTruth;
@@ -112,17 +110,14 @@ void testModel(decision_forest::classification::ModelPtr& model)
 
     /* Retrieve the algorithm results */
     classifier::prediction::ResultPtr predictionResult = algorithm.getResult();
-    printNumericTable(predictionResult->get(classifier::prediction::prediction),
-        "Decision forest prediction results (first 10 rows):", 10);
+    printNumericTable(predictionResult->get(classifier::prediction::prediction), "Decision forest prediction results (first 10 rows):", 10);
     printNumericTable(testGroundTruth, "Ground truth (first 10 rows):", 10);
 }
 
-void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTablePtr& pDependentVar)
+void loadData(const std::string & fileName, NumericTablePtr & pData, NumericTablePtr & pDependentVar)
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> trainDataSource(fileName,
-        DataSource::notAllocateNumericTable,
-        DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> trainDataSource(fileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and dependent variables */
     pData.reset(new HomogenNumericTable<>(nFeatures, 0, NumericTable::notAllocate));
@@ -133,6 +128,6 @@ void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTableP
     trainDataSource.loadDataBlock(mergedData.get());
 
     NumericTableDictionaryPtr pDictionary = pData->getDictionarySharedPtr();
-    for(size_t i = 0, n = sizeof(categoricalFeaturesIndices) / sizeof(categoricalFeaturesIndices[0]); i < n; ++i)
+    for (size_t i = 0, n = sizeof(categoricalFeaturesIndices) / sizeof(categoricalFeaturesIndices[0]); i < n; ++i)
         (*pDictionary)[categoricalFeaturesIndices[i]].featureType = data_feature_utils::DAAL_CATEGORICAL;
 }

@@ -21,12 +21,12 @@
 //--
 */
 
-#include "kmeans/inner/kmeans_init_container_v1.h"
+#include "algorithms/kernel/kmeans/inner/kmeans_init_container_v1.h"
 
 namespace daal
 {
 namespace algorithms
 {
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER_KM(kmeans::init::interface1::BatchContainer, batch, DAAL_FPTYPE, kmeans::init::plusPlusCSR)
-} // namespace daal::algorithms
+} // namespace algorithms
 } // namespace daal

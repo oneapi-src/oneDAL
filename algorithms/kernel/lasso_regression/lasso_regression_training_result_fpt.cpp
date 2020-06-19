@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/lasso_regression/lasso_regression_training_types.h"
-#include "lasso_regression_model_impl.h"
+#include "algorithms/kernel/lasso_regression/lasso_regression_model_impl.h"
 
 namespace daal
 {
@@ -30,7 +30,6 @@ namespace algorithms
 {
 namespace lasso_regression
 {
-
 namespace training
 {
 using namespace daal::services;
@@ -40,28 +39,28 @@ using namespace daal::services;
  * \param[in] parameter %Parameter of lasso regression model-based training
  * \param[in] method Computation method for the algorithm
  */
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const Parameter * parameter, const int method)
 {
     const Input * const in = static_cast<const Input *>(input);
 
     Status s;
     const algorithmFPType dummy = 1.0;
-    lasso_regression::internal::ModelImpl* mImpl = new lasso_regression::internal::ModelImpl(in->getNumberOfFeatures(),
-                                                                                    in->getNumberOfDependentVariables(),
-                                                                                    *parameter, dummy, s);
+    lasso_regression::internal::ModelImpl * mImpl =
+        new lasso_regression::internal::ModelImpl(in->getNumberOfFeatures(), in->getNumberOfDependentVariables(), *parameter, dummy, s);
     DAAL_CHECK_MALLOC(mImpl)
     set(model, lasso_regression::ModelPtr(mImpl));
 
-    if(parameter->optResultToCompute & computeGramMatrix)
-        set(gramMatrixId, data_management::HomogenNumericTable<algorithmFPType>::create(in->getNumberOfFeatures(),
-            in->getNumberOfFeatures(), data_management::NumericTableIface::doAllocate, &s));
+    if (parameter->optResultToCompute & computeGramMatrix)
+        set(gramMatrixId, data_management::HomogenNumericTable<algorithmFPType>::create(in->getNumberOfFeatures(), in->getNumberOfFeatures(),
+                                                                                        data_management::NumericTableIface::doAllocate, &s));
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const Parameter * parameter,
+                                                                    const int method);
 
-}// namespace training
-}// namespace lasso_regression
-}// namespace algorithms
-}// namespace daal
+} // namespace training
+} // namespace lasso_regression
+} // namespace algorithms
+} // namespace daal

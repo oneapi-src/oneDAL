@@ -20,7 +20,7 @@
 #include "com_intel_daal_algorithms_kernel_function_rbf_Result.h"
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::kernel_function::rbf;
@@ -34,8 +34,7 @@ using namespace daal::algorithms::kernel_function::rbf;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Batch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Batch_cInit(JNIEnv * env, jobject thisObj, jint prec, jint method)
 {
     return jniBatch<kernel_function::rbf::Method, Batch, defaultDense, fastCSR>::newObj(prec, method);
 }
@@ -45,8 +44,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Batc
  * Method:    cGetParameter
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Batch_cGetParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Batch_cGetParameter(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                jint prec, jint method)
 {
     return jniBatch<kernel_function::rbf::Method, Batch, defaultDense, fastCSR>::getParameter(prec, method, algAddr);
 }
@@ -56,8 +55,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Batc
  * Method:    cSetResult
  * Signature:(JIIJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Batch_cSetResult
-(JNIEnv *env, jobject obj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Batch_cSetResult(JNIEnv * env, jobject obj, jlong algAddr, jint prec,
+                                                                                            jint method, jlong resultAddr)
 {
     jniBatch<kernel_function::rbf::Method, Batch, defaultDense, fastCSR>::setResult<kernel_function::Result>(prec, method, algAddr, resultAddr);
 }
@@ -67,8 +66,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Batch
  * Method:    cGetResult
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Batch_cGetResult
-(JNIEnv *env, jobject obj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Batch_cGetResult(JNIEnv * env, jobject obj, jlong algAddr, jint prec,
+                                                                                             jint method)
 {
     return jniBatch<kernel_function::rbf::Method, Batch, defaultDense, fastCSR>::getResult(prec, method, algAddr);
 }
@@ -78,8 +77,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Batc
  * Method:    cGetInput
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Batch_cGetInput
-(JNIEnv *env, jobject obj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Batch_cGetInput(JNIEnv * env, jobject obj, jlong algAddr, jint prec,
+                                                                                            jint method)
 {
     return jniBatch<kernel_function::rbf::Method, Batch, defaultDense, fastCSR>::getInput(prec, method, algAddr);
 }
@@ -89,8 +88,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Batc
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Batch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Batch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                         jint method)
 {
     return jniBatch<kernel_function::rbf::Method, Batch, defaultDense, fastCSR>::getClone(prec, method, algAddr);
 }
@@ -100,8 +99,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Batc
  * Method:    cGetResult
  * Signature:()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Result_cNewResult
-(JNIEnv *env, jobject obj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Result_cNewResult(JNIEnv * env, jobject obj)
 {
     return jniArgument<kernel_function::Result>::newObj();
 }
@@ -111,8 +109,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Resu
  * Method:    cGetResultTable
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Result_cGetResultTable
-(JNIEnv *env, jobject obj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Result_cGetResultTable(JNIEnv * env, jobject obj, jlong resAddr, jint id)
 {
     return jniArgument<kernel_function::Result>::get<kernel_function::ResultId, NumericTable>(resAddr, id);
 }
@@ -122,8 +119,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Resu
  * Method:    cSetResultTable
  * Signature:(JJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Result_cSetResultTable
-(JNIEnv *env, jobject obj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_rbf_Result_cSetResultTable(JNIEnv * env, jobject obj, jlong resAddr, jint id,
+                                                                                                  jlong ntAddr)
 {
     jniArgument<kernel_function::Result>::set<kernel_function::ResultId, NumericTable>(resAddr, id, ntAddr);
 }

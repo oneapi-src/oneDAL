@@ -21,9 +21,9 @@
 //--
 */
 
-#include "stump_classification_predict_batch_container.h"
-#include "stump_classification_predict_kernel.h"
-#include "stump_classification_predict_impl.i"
+#include "algorithms/kernel/stump/stump_classification_predict_batch_container.h"
+#include "algorithms/kernel/stump/stump_classification_predict_kernel.h"
+#include "algorithms/kernel/stump/stump_classification_predict_impl.i"
 
 namespace daal
 {
@@ -43,8 +43,8 @@ namespace internal
 {
 template class StumpPredictKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
-}
+} // namespace prediction
+} // namespace classification
+} // namespace stump
+} // namespace algorithms
+} // namespace daal

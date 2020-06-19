@@ -21,8 +21,8 @@
 //--
 */
 
-#include "covariance_types.h"
-#include "daal_strings.h"
+#include "algorithms/covariance/covariance_types.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -35,9 +35,7 @@ namespace covariance
 {
 namespace interface1
 {
-
-Input::Input() : InputIface(lastInputId + 1)
-    {}
+Input::Input() : InputIface(lastInputId + 1) {}
 
 /**
  * Returns number of columns in the input data set
@@ -46,7 +44,7 @@ Input::Input() : InputIface(lastInputId + 1)
 size_t Input::getNumberOfFeatures() const
 {
     NumericTablePtr ntPtr = NumericTable::cast(get(data));
-    if(ntPtr)
+    if (ntPtr)
     {
         return ntPtr->getNumberOfColumns();
     }
@@ -68,7 +66,7 @@ NumericTablePtr Input::get(InputId id) const
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the object
  */
-void Input::set(InputId id, const NumericTablePtr &ptr)
+void Input::set(InputId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -78,7 +76,7 @@ void Input::set(InputId id, const NumericTablePtr &ptr)
  * \param[in] parameter Pointer to the structure of algorithm parameters
  * \param[in] method    Computation method
  */
-services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s;
     int expectedLayouts = 0;
@@ -89,7 +87,7 @@ services::Status Input::check(const daal::algorithms::Parameter *parameter, int 
     }
 
     s |= checkNumericTable(get(data).get(), dataStr(), 0, expectedLayouts);
-    if(!s) return s;
+    if (!s) return s;
 
     if (method == sumDense || method == sumCSR)
     {
@@ -100,8 +98,8 @@ services::Status Input::check(const daal::algorithms::Parameter *parameter, int 
     return s;
 }
 
-}//namespace interface1
+} //namespace interface1
 
-}//namespace covariance
-}// namespace algorithms
-}// namespace daal
+} //namespace covariance
+} // namespace algorithms
+} // namespace daal

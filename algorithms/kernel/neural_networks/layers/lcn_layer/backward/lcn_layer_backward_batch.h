@@ -21,8 +21,8 @@
 //--
 */
 
-#include "lcn_layer_backward_types.h"
-#include "lcn_layer_types.h"
+#include "algorithms/neural_networks/layers/lcn/lcn_layer_backward_types.h"
+#include "algorithms/neural_networks/layers/lcn/lcn_layer_types.h"
 
 namespace daal
 {
@@ -45,16 +45,19 @@ namespace interface1
  * \param[in] method    Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     using daal::data_management::Tensor;
     using daal::data_management::TensorPtr;
     using daal::data_management::HomogenTensor;
 
-    const Parameter *param =  static_cast<const Parameter * >(parameter);
-    if (!param->propagateGradient) { return services::Status(); }
+    const Parameter * param = static_cast<const Parameter *>(parameter);
+    if (!param->propagateGradient)
+    {
+        return services::Status();
+    }
 
-    const Input *in = static_cast<const Input *>(input);
+    const Input * in = static_cast<const Input *>(input);
 
     TensorPtr centeredDataTensor = in->get(auxCenteredData);
     TensorPtr sigmaTensor        = in->get(auxSigma);
@@ -70,10 +73,10 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return s;
 }
 
-}// namespace interface1
-}// namespace forward
-}// namespace lcn
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace lcn
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "stump_regression_predict_batch.h"
+#include "algorithms/kernel/stump/stump_regression_predict_batch.h"
 
 namespace daal
 {
@@ -33,9 +33,8 @@ namespace regression
 {
 namespace prediction
 {
-
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par,
-                                                        const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                                    const int method);
 
 } // namespace prediction
 } // namespace regression

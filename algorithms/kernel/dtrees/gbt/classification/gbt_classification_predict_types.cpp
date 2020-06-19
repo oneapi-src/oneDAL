@@ -22,9 +22,9 @@
 */
 
 #include "algorithms/gradient_boosted_trees/gbt_classification_predict_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
-#include "gbt_classification_model_impl.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
+#include "algorithms/kernel/dtrees/gbt/classification/gbt_classification_model_impl.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -41,7 +41,6 @@ namespace prediction
 {
 namespace interface1
 {
-
 /**
  * Returns an input object for making gradient boosted trees model-based prediction
  * \param[in] id    Identifier of the input object
@@ -67,7 +66,7 @@ gbt::classification::ModelPtr Input::get(classifier::prediction::ModelInputId id
  * \param[in] id      Identifier of the input object
  * \param[in] value   %Input object
  */
-void Input::set(classifier::prediction::NumericTableInputId id, const NumericTablePtr &value)
+void Input::set(classifier::prediction::NumericTableInputId id, const NumericTablePtr & value)
 {
     algorithms::classifier::prediction::Input::set(id, value);
 }
@@ -77,7 +76,7 @@ void Input::set(classifier::prediction::NumericTableInputId id, const NumericTab
  * \param[in] id      Identifier of the input object
  * \param[in] value   %Input object
  */
-void Input::set(classifier::prediction::ModelInputId id, const gbt::classification::ModelPtr &value)
+void Input::set(classifier::prediction::ModelInputId id, const gbt::classification::ModelPtr & value)
 {
     algorithms::classifier::prediction::Input::set(id, value);
 }
@@ -85,37 +84,39 @@ void Input::set(classifier::prediction::ModelInputId id, const gbt::classificati
 /**
  * Checks an input object for making gradient boosted trees model-based prediction
  */
-services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     Status s;
     DAAL_CHECK_STATUS(s, algorithms::classifier::prediction::Input::check(parameter, method));
     ModelPtr m = get(classifier::prediction::model);
-    const daal::algorithms::gbt::classification::internal::ModelImpl* pModel =
-        static_cast<const daal::algorithms::gbt::classification::internal::ModelImpl*>(m.get());
+    const daal::algorithms::gbt::classification::internal::ModelImpl * pModel =
+        static_cast<const daal::algorithms::gbt::classification::internal::ModelImpl *>(m.get());
     DAAL_ASSERT(pModel);
     DAAL_CHECK(pModel->getNumberOfTrees(), services::ErrorNullModel);
 
     size_t nClasses = 0, nIterations = 0;
-    const gbt::classification::prediction::interface1::Parameter* pPrm1 = dynamic_cast<const gbt::classification::prediction::interface1::Parameter*>(parameter);
+    const gbt::classification::prediction::interface1::Parameter * pPrm1 =
+        dynamic_cast<const gbt::classification::prediction::interface1::Parameter *>(parameter);
     if (pPrm1)
     {
-        nClasses = pPrm1->nClasses;
+        nClasses    = pPrm1->nClasses;
         nIterations = pPrm1->nIterations;
     }
     else
     {
-        const gbt::classification::prediction::interface2::Parameter* pPrm2 = dynamic_cast<const gbt::classification::prediction::interface2::Parameter*>(parameter);
+        const gbt::classification::prediction::interface2::Parameter * pPrm2 =
+            dynamic_cast<const gbt::classification::prediction::interface2::Parameter *>(parameter);
         if (pPrm2)
         {
-            nClasses = pPrm2->nClasses;
+            nClasses    = pPrm2->nClasses;
             nIterations = pPrm2->nIterations;
         }
-        else return services::ErrorNullParameterNotSupported;
+        else
+            return services::ErrorNullParameterNotSupported;
     }
 
     auto maxNIterations = pModel->getNumberOfTrees();
-    if(nClasses > 2)
-        maxNIterations /= nClasses;
+    if (nClasses > 2) maxNIterations /= nClasses;
     DAAL_CHECK((nClasses < 3) || (pModel->getNumberOfTrees() % nClasses == 0), services::ErrorGbtIncorrectNumberOfTrees);
     DAAL_CHECK((nIterations == 0) || (nIterations <= maxNIterations), services::ErrorGbtPredictIncorrectNumberOfIterations);
     return s;

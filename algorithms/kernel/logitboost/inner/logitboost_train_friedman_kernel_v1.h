@@ -37,12 +37,12 @@
 #ifndef __LOGITBOOST_TRAIN_FRIEDMAN_KERNEL_V1_H__
 #define __LOGITBOOST_TRAIN_FRIEDMAN_KERNEL_V1_H__
 
-#include "threading.h"
-#include "service_memory.h"
-#include "service_numeric_table.h"
-#include "service_data_utils.h"
+#include "algorithms/threading/threading.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "service/kernel/service_data_utils.h"
 
-#include "logitboost_train_kernel_v1.h"
+#include "algorithms/kernel/logitboost/inner/logitboost_train_kernel_v1.h"
 
 namespace daal
 {
@@ -54,20 +54,19 @@ namespace training
 {
 namespace internal
 {
-
 /**
  *  \brief Specialization of the structure that contains kernels for
  *  Logit Boost model training using Friedman method
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 struct I1LogitBoostTrainKernel<friedman, algorithmFPType, cpu> : public Kernel
 {
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
-    services::Status compute(const size_t na, NumericTablePtr a[], logitboost::interface1::Model *r, const logitboost::interface1::Parameter *par);
+    services::Status compute(const size_t na, NumericTablePtr a[], logitboost::interface1::Model * r, const logitboost::interface1::Parameter * par);
 };
-} // namepsace internal
-} // namespace prediction
+} // namespace internal
+} // namespace training
 } // namespace logitboost
 } // namespace algorithms
 } // namespace daal

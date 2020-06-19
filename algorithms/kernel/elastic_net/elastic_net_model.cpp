@@ -21,9 +21,9 @@
 //--
 */
 
-#include "elastic_net_model_impl.h"
-#include "serialization_utils.h"
-#include "service_numeric_table.h"
+#include "algorithms/kernel/elastic_net/elastic_net_model_impl.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

@@ -21,8 +21,8 @@
 //--
 */
 
-#include "linear_regression_ne_model_impl.h"
-#include "serialization_utils.h"
+#include "algorithms/kernel/linear_regression/linear_regression_ne_model_impl.h"
+#include "service/kernel/serialization_utils.h"
 
 namespace daal
 {
@@ -52,13 +52,19 @@ Status ModelNormEqInternal::initialize()
  * Returns a Numeric table that contains partial sums X'*X
  * \return Numeric table that contains partial sums X'*X
  */
-NumericTablePtr ModelNormEqInternal::getXTXTable() { return _xtxTable; }
+NumericTablePtr ModelNormEqInternal::getXTXTable()
+{
+    return _xtxTable;
+}
 
 /**
  * Returns a Numeric table that contains partial sums X'*Y
  * \return Numeric table that contains partial sums X'*Y
      */
-NumericTablePtr ModelNormEqInternal::getXTYTable() { return _xtyTable; }
+NumericTablePtr ModelNormEqInternal::getXTYTable()
+{
+    return _xtyTable;
+}
 
 } // namespace internal
 } // namespace linear_regression

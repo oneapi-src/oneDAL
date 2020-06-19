@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::neural_networks;
@@ -30,8 +30,7 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cInit
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingModel_cInit__
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingModel_cInit__(JNIEnv * env, jobject thisObj)
 {
     return (jlong)(new training::ModelPtr(new training::Model()));
 }
@@ -41,8 +40,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cInit
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingModel_cInit__J
-(JNIEnv *env, jobject thisObj, jlong modelAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingModel_cInit__J(JNIEnv * env, jobject thisObj,
+                                                                                                        jlong modelAddr)
 {
     training::ModelPtr model = *((training::ModelPtr *)modelAddr);
     return (jlong)(new training::ModelPtr(new training::Model(*model)));
@@ -53,17 +52,19 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cInitialize
  * Signature: (JI[JJJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingModel_cInitialize
-  (JNIEnv *env, jobject thisObj, jlong cModel, jint prec, jlongArray dataSizeArray, jlong topologyAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingModel_cInitialize(JNIEnv * env, jobject thisObj, jlong cModel,
+                                                                                                          jint prec, jlongArray dataSizeArray,
+                                                                                                          jlong topologyAddr)
 {
     training::TopologyPtr topology = *(training::TopologyPtr *)topologyAddr;
 
-    size_t len = (size_t)(env->GetArrayLength(dataSizeArray));
-    jlong *dataSize = env->GetLongArrayElements(dataSizeArray, 0);
+    size_t len       = (size_t)(env->GetArrayLength(dataSizeArray));
+    jlong * dataSize = env->GetLongArrayElements(dataSizeArray, 0);
 
     Collection<size_t> dataSizeCollection;
 
-    for (size_t i = 0; i < len; i++) {
+    for (size_t i = 0; i < len; i++)
+    {
         dataSizeCollection.push_back((size_t)dataSize[i]);
     }
 
@@ -86,12 +87,12 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_
  * Method:    cGetForwardLayers
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingModel_cGetForwardLayers
-(JNIEnv *env, jobject thisObj, jlong cModel)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingModel_cGetForwardLayers(JNIEnv * env, jobject thisObj,
+                                                                                                                 jlong cModel)
 {
-    training::ModelPtr model = *((training::ModelPtr *)cModel);
-    ForwardLayersPtr *forwardLayersAddr = new ForwardLayersPtr(model->getForwardLayers());
-    return (jlong) forwardLayersAddr;
+    training::ModelPtr model             = *((training::ModelPtr *)cModel);
+    ForwardLayersPtr * forwardLayersAddr = new ForwardLayersPtr(model->getForwardLayers());
+    return (jlong)forwardLayersAddr;
 }
 
 /*
@@ -99,13 +100,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cGetForwardLayer
  * Signature: (JJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingModel_cGetForwardLayer
-(JNIEnv *env, jobject thisObj, jlong cModel, jlong index)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingModel_cGetForwardLayer(JNIEnv * env, jobject thisObj,
+                                                                                                                jlong cModel, jlong index)
 {
-    training::ModelPtr model = *((training::ModelPtr *)cModel);
-    layers::forward::LayerIfacePtr *forwardLayerAddr =
-        new layers::forward::LayerIfacePtr(model->getForwardLayer((size_t)index));
-    return (jlong) forwardLayerAddr;
+    training::ModelPtr model                          = *((training::ModelPtr *)cModel);
+    layers::forward::LayerIfacePtr * forwardLayerAddr = new layers::forward::LayerIfacePtr(model->getForwardLayer((size_t)index));
+    return (jlong)forwardLayerAddr;
 }
 
 /*
@@ -113,12 +113,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cGetBackwardLayers
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingModel_cGetBackwardLayers
-(JNIEnv *env, jobject thisObj, jlong cModel)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingModel_cGetBackwardLayers(JNIEnv * env, jobject thisObj,
+                                                                                                                  jlong cModel)
 {
-    training::ModelPtr model = *((training::ModelPtr *)cModel);
-    BackwardLayersPtr *backwardLayersAddr = new BackwardLayersPtr(model->getBackwardLayers());
-    return (jlong) backwardLayersAddr;
+    training::ModelPtr model               = *((training::ModelPtr *)cModel);
+    BackwardLayersPtr * backwardLayersAddr = new BackwardLayersPtr(model->getBackwardLayers());
+    return (jlong)backwardLayersAddr;
 }
 
 /*
@@ -126,13 +126,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cGetBackwardLayer
  * Signature: (JJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingModel_cGetBackwardLayer
-(JNIEnv *env, jobject thisObj, jlong cModel, jlong index)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingModel_cGetBackwardLayer(JNIEnv * env, jobject thisObj,
+                                                                                                                 jlong cModel, jlong index)
 {
-    training::ModelPtr model = *((training::ModelPtr *)cModel);
-    layers::backward::LayerIfacePtr *backwardLayerAddr =
-        new layers::backward::LayerIfacePtr(model->getBackwardLayer((size_t)index));
-    return (jlong) backwardLayerAddr;
+    training::ModelPtr model                            = *((training::ModelPtr *)cModel);
+    layers::backward::LayerIfacePtr * backwardLayerAddr = new layers::backward::LayerIfacePtr(model->getBackwardLayer((size_t)index));
+    return (jlong)backwardLayerAddr;
 }
 
 /*
@@ -140,12 +139,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cGetNextLayers
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingModel_cGetNextLayers
-(JNIEnv *env, jobject thisObj, jlong cModel)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingModel_cGetNextLayers(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong cModel)
 {
-    training::ModelPtr model = *((training::ModelPtr *)cModel);
-    SharedPtr<Collection<layers::NextLayers> > *nextLayersCollectionAddr = new SharedPtr<Collection<layers::NextLayers> >(model->getNextLayers());
-    return (jlong) nextLayersCollectionAddr;
+    training::ModelPtr model                                              = *((training::ModelPtr *)cModel);
+    SharedPtr<Collection<layers::NextLayers> > * nextLayersCollectionAddr = new SharedPtr<Collection<layers::NextLayers> >(model->getNextLayers());
+    return (jlong)nextLayersCollectionAddr;
 }
 
 /*
@@ -153,17 +152,17 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cGetPredictionModel
  * Signature: (IJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingModel_cGetPredictionModel
-(JNIEnv *env, jobject thisObj, jint prec, jlong cModel)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingModel_cGetPredictionModel(JNIEnv * env, jobject thisObj,
+                                                                                                                   jint prec, jlong cModel)
 {
     training::ModelPtr model = *((training::ModelPtr *)cModel);
     if (prec == 0)
     {
-        return (jlong) (new prediction::ModelPtr(model->getPredictionModel<double>()));
+        return (jlong)(new prediction::ModelPtr(model->getPredictionModel<double>()));
     }
     else
     {
-        return (jlong) (new prediction::ModelPtr(model->getPredictionModel<float>()));
+        return (jlong)(new prediction::ModelPtr(model->getPredictionModel<float>()));
     }
 }
 
@@ -172,12 +171,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cGetWeightsAndBiases
  * Signature: (IJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingModel_cGetWeightsAndBiases
-(JNIEnv *env, jobject thisObj, jlong cModel)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingModel_cGetWeightsAndBiases(JNIEnv * env, jobject thisObj,
+                                                                                                                    jlong cModel)
 {
     training::ModelPtr model = *((training::ModelPtr *)cModel);
 
-    NumericTablePtr *nt = new NumericTablePtr();
+    NumericTablePtr * nt = new NumericTablePtr();
 
     *nt = model->getWeightsAndBiases();
 
@@ -189,11 +188,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training
  * Method:    cSetWeightsAndBiases
  * Signature: (IJ)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingModel_cSetWeightsAndBiases
-(JNIEnv *env, jobject thisObj, jlong cModel, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_TrainingModel_cSetWeightsAndBiases(JNIEnv * env, jobject thisObj,
+                                                                                                                   jlong cModel, jlong ntAddr)
 {
     training::ModelPtr model = *((training::ModelPtr *)cModel);
 
-    SerializationIfacePtr *ntShPtr = (SerializationIfacePtr *)ntAddr;
+    SerializationIfacePtr * ntShPtr = (SerializationIfacePtr *)ntAddr;
     model->setWeightsAndBiases(staticPointerCast<NumericTable, SerializationIface>(*ntShPtr));
 }

@@ -19,15 +19,14 @@
 //  Declaration of template function that calculate saga.
 //--
 
-
 #ifndef __SAGA_DENSE_DEFAULT_KERNEL_V1_H__
 #define __SAGA_DENSE_DEFAULT_KERNEL_V1_H__
 
-#include "saga_batch.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "service_math.h"
-#include "service_micro_table.h"
+#include "algorithms/optimization_solver/saga/saga_batch.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "externals/service_math.h"
+#include "service/kernel/data_management/service_micro_table.h"
 
 using namespace daal::data_management;
 using namespace daal::internal;
@@ -43,17 +42,16 @@ namespace saga
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-class I1SagaKernel: public Kernel
+template <typename algorithmFPType, Method method, CpuType cpu>
+class I1SagaKernel : public Kernel
 {
 public:
-    services::Status compute(HostAppIface* pHost, NumericTable *inputArgument, NumericTable *minimum, NumericTable *nIterations,
-                             NumericTable *gradientsTableInput, NumericTable *gradientsTableResult, interface1::Parameter *parameter, engines::BatchBase &engine);
-
+    services::Status compute(HostAppIface * pHost, NumericTable * inputArgument, NumericTable * minimum, NumericTable * nIterations,
+                             NumericTable * gradientsTableInput, NumericTable * gradientsTableResult, interface1::Parameter * parameter,
+                             engines::BatchBase & engine);
 };
 
-} // namespace daal::internal
+} // namespace internal
 
 } // namespace saga
 

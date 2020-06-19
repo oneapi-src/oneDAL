@@ -19,7 +19,7 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_em_gmm_Input.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::em_gmm;
@@ -32,8 +32,8 @@ using namespace daal::algorithms::em_gmm;
  * Method:    cInit
  * Signature: (JIII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_Input_cInit
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jint cmode)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_Input_cInit(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method,
+                                                                           jint cmode)
 {
     return jniBatch<em_gmm::Method, Batch, defaultDense>::getInput(prec, method, algAddr);
 }
@@ -43,8 +43,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_Input_cInit
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_Input_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_Input_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
 {
     jniInput<em_gmm::Input>::set<em_gmm::InputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -54,8 +53,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_Input_cSetInput
  * Method:    cSetInputInputValues
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_Input_cSetInputInputValues
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong initResultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_Input_cSetInputInputValues(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id,
+                                                                                         jlong initResultAddr)
 {
     jniInput<em_gmm::Input>::set<em_gmm::InputValuesId, em_gmm::init::Result>(inputAddr, id, initResultAddr);
 }
@@ -65,20 +64,18 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_Input_cSetInputInp
  * Method:    cSetInputCovariances
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_Input_cSetInputCovariances
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong initCovariancesCollectionAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_Input_cSetInputCovariances(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id,
+                                                                                         jlong initCovariancesCollectionAddr)
 {
     jniInput<em_gmm::Input>::set<em_gmm::InputCovariancesId, DataCollection>(inputAddr, id, initCovariancesCollectionAddr);
 }
-
 
 /*
  * Class:     com_intel_daal_algorithms_em_gmm_Input
  * Method:    cGetInputTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_Input_cGetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_Input_cGetInputTable(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id)
 {
     return jniInput<em_gmm::Input>::get<em_gmm::InputId, NumericTable>(inputAddr, id);
 }
@@ -88,8 +85,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_Input_cGetInputTa
  * Method:    cGetInputCovariancesDataCollection
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_Input_cGetInputCovariancesDataCollection
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_Input_cGetInputCovariancesDataCollection(JNIEnv * env, jobject thisObj,
+                                                                                                        jlong inputAddr, jint id)
 {
     return jniInput<em_gmm::Input>::get<em_gmm::InputCovariancesId, DataCollection>(inputAddr, id);
 }

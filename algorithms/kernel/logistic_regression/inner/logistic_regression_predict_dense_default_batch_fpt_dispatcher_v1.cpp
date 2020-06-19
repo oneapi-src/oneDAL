@@ -23,14 +23,14 @@
 //--
 */
 
-#include "logistic_regression_predict_container_v1.h"
+#include "algorithms/kernel/logistic_regression/inner/logistic_regression_predict_container_v1.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(logistic_regression::prediction::interface1::BatchContainer, batch,\
-    DAAL_FPTYPE, logistic_regression::prediction::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(logistic_regression::prediction::interface1::BatchContainer, batch, DAAL_FPTYPE,
+                                      logistic_regression::prediction::defaultDense)
 namespace logistic_regression
 {
 namespace prediction
@@ -46,13 +46,14 @@ Batch<DAAL_FPTYPE, logistic_regression::prediction::defaultDense>::Batch(size_t 
 
 using BatchType = Batch<DAAL_FPTYPE, logistic_regression::prediction::defaultDense>;
 template <>
-Batch<DAAL_FPTYPE, logistic_regression::prediction::defaultDense>::Batch(const BatchType &other): classifier::prediction::interface1::Batch(other), input(other.input)
+Batch<DAAL_FPTYPE, logistic_regression::prediction::defaultDense>::Batch(const BatchType & other)
+    : classifier::prediction::interface1::Batch(other), input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();
 }
-}
-}
-}
-}
+} // namespace interface1
+} // namespace prediction
+} // namespace logistic_regression
+} // namespace algorithms
 } // namespace daal

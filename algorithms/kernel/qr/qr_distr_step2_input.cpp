@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/qr/qr_types.h"
-#include "daal_strings.h"
-#include "service_data_utils.h"
+#include "service/kernel/daal_strings.h"
+#include "service/kernel/service_data_utils.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -36,22 +36,20 @@ namespace qr
 {
 namespace interface1
 {
-
 /** Default constructor */
 DistributedStep2Input::DistributedStep2Input() : daal::algorithms::Input(lastMasterInputId + 1)
 {
-    Argument::set(inputOfStep2FromStep1,
-                  data_management::KeyValueDataCollectionPtr(new data_management::KeyValueDataCollection()));
+    Argument::set(inputOfStep2FromStep1, data_management::KeyValueDataCollectionPtr(new data_management::KeyValueDataCollection()));
 }
 
 /** Copy constructor */
-DistributedStep2Input::DistributedStep2Input(const DistributedStep2Input& other) : daal::algorithms::Input(other){}
+DistributedStep2Input::DistributedStep2Input(const DistributedStep2Input & other) : daal::algorithms::Input(other) {}
 
 /**
  * Returns the number of columns in the input data set
  * \return Number of columns in the input data set
  */
-void DistributedStep2Input::set(MasterInputId id, const KeyValueDataCollectionPtr &ptr)
+void DistributedStep2Input::set(MasterInputId id, const KeyValueDataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -72,10 +70,10 @@ KeyValueDataCollectionPtr DistributedStep2Input::get(MasterInputId id) const
  * \param[in] key   Key to use to retrieve data
  * \param[in] value Pointer to the input object value
  */
-void DistributedStep2Input::add(MasterInputId id, size_t key, const DataCollectionPtr &value)
+void DistributedStep2Input::add(MasterInputId id, size_t key, const DataCollectionPtr & value)
 {
     KeyValueDataCollectionPtr collection = staticPointerCast<KeyValueDataCollection, SerializationIface>(Argument::get(id));
-    (*collection)[key] = value;
+    (*collection)[key]                   = value;
 }
 
 /**
@@ -85,13 +83,13 @@ void DistributedStep2Input::add(MasterInputId id, size_t key, const DataCollecti
 size_t DistributedStep2Input::getNBlocks()
 {
     KeyValueDataCollectionPtr kvDC = get(inputOfStep2FromStep1);
-    size_t nNodes = kvDC->size();
+    size_t nNodes                  = kvDC->size();
     DAAL_ASSERT(nNodes <= services::internal::MaxVal<int>::get())
     size_t nBlocks = 0;
-    for(size_t i = 0 ; i < nNodes ; i++)
+    for (size_t i = 0; i < nNodes; i++)
     {
         DataCollectionPtr nodeCollection = staticPointerCast<DataCollection, SerializationIface>((*kvDC).getValueByIndex((int)i));
-        size_t nodeSize = nodeCollection->size();
+        size_t nodeSize                  = nodeCollection->size();
         nBlocks += nodeSize;
     }
     return nBlocks;
@@ -101,7 +99,7 @@ size_t DistributedStep2Input::getNBlocks()
  * Returns the number of columns in the input data set
  * \return Number of columns in the input data set
  */
-Status DistributedStep2Input::getNumberOfColumns(size_t *nFeatures) const
+Status DistributedStep2Input::getNumberOfColumns(size_t * nFeatures) const
 {
     KeyValueDataCollectionPtr inputKeyValueDC = get(inputOfStep2FromStep1);
     // check key-value dataCollection;
@@ -126,7 +124,10 @@ Status DistributedStep2Input::getNumberOfColumns(size_t *nFeatures) const
     DAAL_CHECK_EX(firstNumTableInFirstNodeCollection, ErrorIncorrectElementInNumericTableCollection, ArgumentName, QRNodeCollectionStr());
 
     Status s = checkNumericTable(firstNumTableInFirstNodeCollection.get(), QRNodeCollectionNTStr());
-    if(!s) { return s; }
+    if (!s)
+    {
+        return s;
+    }
 
     *nFeatures = firstNumTableInFirstNodeCollection->getNumberOfColumns();
     return Status();
@@ -137,12 +138,12 @@ Status DistributedStep2Input::getNumberOfColumns(size_t *nFeatures) const
  * \param[in] parameter Pointer to the parameters
  * \param[in] method Computation method
  */
-Status DistributedStep2Input::check(const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedStep2Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     // check key-value dataCollection;
     KeyValueDataCollectionPtr inputKeyValueDC = get(inputOfStep2FromStep1);
-    size_t nFeatures = 0;
-    Status s = getNumberOfColumns(&nFeatures);
+    size_t nFeatures                          = 0;
+    Status s                                  = getNumberOfColumns(&nFeatures);
     DAAL_CHECK_STATUS_VAR(s)
 
     DAAL_CHECK_EX(nFeatures, ErrorIncorrectNumberOfColumns, ArgumentName, QRNodeCollectionNTStr());
@@ -150,7 +151,7 @@ Status DistributedStep2Input::check(const daal::algorithms::Parameter *parameter
     size_t nNodes = inputKeyValueDC->size();
     DAAL_CHECK(nNodes <= services::internal::MaxVal<int>::get(), ErrorIncorrectNumberOfNodes)
     // check all dataCollection in key-value dataCollection
-    for(size_t i = 0 ; i < nNodes ; i++)
+    for (size_t i = 0; i < nNodes; i++)
     {
         DAAL_CHECK_EX((*inputKeyValueDC).getValueByIndex((int)i), ErrorNullInputDataCollection, ArgumentName, QRNodeCollectionStr());
         DataCollectionPtr nodeCollection = DataCollection::cast((*inputKeyValueDC).getValueByIndex((int)i));
@@ -159,7 +160,7 @@ Status DistributedStep2Input::check(const daal::algorithms::Parameter *parameter
         DAAL_CHECK_EX(nodeSize > 0, ErrorIncorrectNumberOfElementsInInputCollection, ArgumentName, QRNodeCollectionStr());
 
         // check all numeric tables in dataCollection
-        for(size_t j = 0 ; j < nodeSize ; j++)
+        for (size_t j = 0; j < nodeSize; j++)
         {
             DAAL_CHECK_EX((*nodeCollection)[j], ErrorNullNumericTable, ArgumentName, QRNodeCollectionNTStr());
             NumericTablePtr numTableInNodeCollection = NumericTable::cast((*nodeCollection)[j]);
@@ -174,5 +175,5 @@ Status DistributedStep2Input::check(const daal::algorithms::Parameter *parameter
 
 } // namespace interface1
 } // namespace qr
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

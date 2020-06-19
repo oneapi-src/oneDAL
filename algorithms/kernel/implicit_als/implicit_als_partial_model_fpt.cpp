@@ -21,8 +21,8 @@
 //--
 */
 
-#include "implicit_als_model.h"
-#include "service_data_utils.h"
+#include "algorithms/implicit_als/implicit_als_model.h"
+#include "service/kernel/service_data_utils.h"
 
 namespace daal
 {
@@ -30,22 +30,21 @@ namespace algorithms
 {
 namespace implicit_als
 {
-
 using namespace daal::data_management;
 
-template<typename modelFPType>
-DAAL_EXPORT services::Status PartialModel::initialize(const Parameter &parameter, size_t size)
+template <typename modelFPType>
+DAAL_EXPORT services::Status PartialModel::initialize(const Parameter & parameter, size_t size)
 {
     services::Status s;
 
     const size_t nFactors = parameter.nFactors;
-    _factors = HomogenNumericTable<modelFPType>::create(nFactors, size, NumericTableIface::doAllocate, &s);
+    _factors              = HomogenNumericTable<modelFPType>::create(nFactors, size, NumericTableIface::doAllocate, &s);
     DAAL_CHECK_STATUS_VAR(s);
 
     _indices = HomogenNumericTable<int>::create(1, size, NumericTableIface::doAllocate, &s);
     DAAL_CHECK_STATUS_VAR(s);
 
-    int *indicesData = HomogenNumericTable<int>::cast(_indices)->getArray();
+    int * indicesData = HomogenNumericTable<int>::cast(_indices)->getArray();
     DAAL_CHECK(size <= services::internal::MaxVal<int>::get(), services::ErrorIncorrectSizeOfArray)
     const int iSize = (int)size;
     for (int i = 0; i < iSize; i++)
@@ -56,15 +55,14 @@ DAAL_EXPORT services::Status PartialModel::initialize(const Parameter &parameter
     return s;
 }
 
-template<typename modelFPType>
-DAAL_EXPORT services::Status PartialModel::initialize(const Parameter &parameter, size_t offset,
-                                                      const NumericTablePtr &indices)
+template <typename modelFPType>
+DAAL_EXPORT services::Status PartialModel::initialize(const Parameter & parameter, size_t offset, const NumericTablePtr & indices)
 {
     DAAL_CHECK(indices, services::ErrorNullInputNumericTable);
 
     services::Status s;
     const size_t nFactors = parameter.nFactors;
-    const size_t size = indices->getNumberOfRows();
+    const size_t size     = indices->getNumberOfRows();
 
     _factors = HomogenNumericTable<modelFPType>::create(nFactors, size, NumericTableIface::doAllocate, &s);
     DAAL_CHECK_STATUS_VAR(s);
@@ -74,10 +72,10 @@ DAAL_EXPORT services::Status PartialModel::initialize(const Parameter &parameter
 
     BlockDescriptor<int> block;
     indices->getBlockOfRows(0, size, readOnly, block);
-    const int *srcIndicesData = block.getBlockPtr();
+    const int * srcIndicesData = block.getBlockPtr();
     DAAL_CHECK_MALLOC(srcIndicesData);
 
-    int *dstIndicesData = HomogenNumericTable<int>::cast(_indices)->getArray();
+    int * dstIndicesData = HomogenNumericTable<int>::cast(_indices)->getArray();
     DAAL_CHECK(offset <= services::internal::MaxVal<int>::get(), services::ErrorIncorrectOffset)
     const int iOffset = (int)offset;
     for (size_t i = 0; i < size; i++)
@@ -96,8 +94,8 @@ DAAL_EXPORT services::Status PartialModel::initialize(const Parameter &parameter
  * \param[in] dummy     Dummy variable for the templated constructor
  * \DAAL_DEPRECATED_USE{ Model::create }
  */
-template<typename modelFPType>
-DAAL_EXPORT PartialModel::PartialModel(const Parameter &parameter, size_t size, modelFPType dummy)
+template <typename modelFPType>
+DAAL_EXPORT PartialModel::PartialModel(const Parameter & parameter, size_t size, modelFPType dummy)
 {
     initialize<modelFPType>(parameter, size);
 }
@@ -110,23 +108,21 @@ DAAL_EXPORT PartialModel::PartialModel(const Parameter &parameter, size_t size, 
  * \param[in] dummy     Dummy variable for the templated constructor
  * \DAAL_DEPRECATED_USE{ Model::create }
  */
-template<typename modelFPType>
-DAAL_EXPORT PartialModel::PartialModel(const Parameter &parameter, size_t offset,
-                                       data_management::NumericTablePtr indices, modelFPType dummy)
+template <typename modelFPType>
+DAAL_EXPORT PartialModel::PartialModel(const Parameter & parameter, size_t offset, data_management::NumericTablePtr indices, modelFPType dummy)
 {
     initialize<modelFPType>(parameter, offset, indices);
 }
 
-template<typename modelFPType>
-DAAL_EXPORT PartialModel::PartialModel(const Parameter &parameter, size_t size, modelFPType dummy, services::Status &st)
+template <typename modelFPType>
+DAAL_EXPORT PartialModel::PartialModel(const Parameter & parameter, size_t size, modelFPType dummy, services::Status & st)
 {
     st |= initialize<modelFPType>(parameter, size);
 }
 
-template<typename modelFPType>
-DAAL_EXPORT PartialModel::PartialModel(const Parameter &parameter, size_t offset,
-                                       const data_management::NumericTablePtr &indices,
-                                       modelFPType dummy, services::Status &st)
+template <typename modelFPType>
+DAAL_EXPORT PartialModel::PartialModel(const Parameter & parameter, size_t offset, const data_management::NumericTablePtr & indices,
+                                       modelFPType dummy, services::Status & st)
 {
     st |= initialize<modelFPType>(parameter, offset, indices);
 }
@@ -139,10 +135,9 @@ DAAL_EXPORT PartialModel::PartialModel(const Parameter &parameter, size_t offset
  * \param[out] stat     Status of the model construction
  * \return Partial implicit ALS model with the specified indices and factors
  */
-template<typename modelFPType>
-DAAL_EXPORT PartialModelPtr PartialModel::create(const Parameter &parameter, size_t offset,
-                                                 const data_management::NumericTablePtr &indices,
-                                                 services::Status *stat)
+template <typename modelFPType>
+DAAL_EXPORT PartialModelPtr PartialModel::create(const Parameter & parameter, size_t offset, const data_management::NumericTablePtr & indices,
+                                                 services::Status * stat)
 {
     DAAL_DEFAULT_CREATE_IMPL_EX(PartialModel, parameter, offset, indices, (modelFPType)0);
 }
@@ -154,32 +149,24 @@ DAAL_EXPORT PartialModelPtr PartialModel::create(const Parameter &parameter, siz
  * \param[out] stat     Status of the model construction
  * \return Partial implicit ALS model of a specified size
  */
-template<typename modelFPType>
-DAAL_EXPORT PartialModelPtr PartialModel::create(const Parameter &parameter, size_t size,
-                                                 services::Status *stat)
+template <typename modelFPType>
+DAAL_EXPORT PartialModelPtr PartialModel::create(const Parameter & parameter, size_t size, services::Status * stat)
 {
     DAAL_DEFAULT_CREATE_IMPL_EX(PartialModel, parameter, size, (modelFPType)0);
 }
 
-template DAAL_EXPORT PartialModel::PartialModel(const Parameter&, size_t, DAAL_FPTYPE);
-template DAAL_EXPORT PartialModel::PartialModel(const Parameter&, size_t,
-                                                NumericTablePtr, DAAL_FPTYPE);
-template DAAL_EXPORT PartialModel::PartialModel(const Parameter&, size_t,
-                                                DAAL_FPTYPE, services::Status&);
-template DAAL_EXPORT PartialModel::PartialModel(const Parameter&, size_t,
-                                                const NumericTablePtr&,
-                                                DAAL_FPTYPE, services::Status&);
+template DAAL_EXPORT PartialModel::PartialModel(const Parameter &, size_t, DAAL_FPTYPE);
+template DAAL_EXPORT PartialModel::PartialModel(const Parameter &, size_t, NumericTablePtr, DAAL_FPTYPE);
+template DAAL_EXPORT PartialModel::PartialModel(const Parameter &, size_t, DAAL_FPTYPE, services::Status &);
+template DAAL_EXPORT PartialModel::PartialModel(const Parameter &, size_t, const NumericTablePtr &, DAAL_FPTYPE, services::Status &);
 
-template DAAL_EXPORT PartialModelPtr PartialModel::create<DAAL_FPTYPE>(const Parameter&, size_t,
-                                                                       const NumericTablePtr&,
-                                                                       services::Status*);
-template DAAL_EXPORT PartialModelPtr PartialModel::create<DAAL_FPTYPE>(const Parameter&, size_t,
-                                                                       services::Status*);
+template DAAL_EXPORT PartialModelPtr PartialModel::create<DAAL_FPTYPE>(const Parameter &, size_t, const NumericTablePtr &, services::Status *);
+template DAAL_EXPORT PartialModelPtr PartialModel::create<DAAL_FPTYPE>(const Parameter &, size_t, services::Status *);
 
-template DAAL_EXPORT services::Status PartialModel::initialize<DAAL_FPTYPE>(const Parameter &parameter, size_t size);
-template DAAL_EXPORT services::Status PartialModel::initialize<DAAL_FPTYPE>(const Parameter &parameter, size_t offset,
-                                                                            const NumericTablePtr &indices);
+template DAAL_EXPORT services::Status PartialModel::initialize<DAAL_FPTYPE>(const Parameter & parameter, size_t size);
+template DAAL_EXPORT services::Status PartialModel::initialize<DAAL_FPTYPE>(const Parameter & parameter, size_t offset,
+                                                                            const NumericTablePtr & indices);
 
-}// namespace implicit_als
-}// namespace algorithms
-}// namespace daal
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal

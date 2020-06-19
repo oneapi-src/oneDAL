@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/qr/qr_types.h"
-#include "daal_strings.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -35,11 +35,10 @@ namespace qr
 {
 namespace interface1
 {
-
 /** Default constructor */
 DistributedStep3Input::DistributedStep3Input() : daal::algorithms::Input(lastFinalizeOnLocalInputId + 1) {}
 
-DistributedStep3Input::DistributedStep3Input(const DistributedStep3Input& other) : daal::algorithms::Input(other){}
+DistributedStep3Input::DistributedStep3Input(const DistributedStep3Input & other) : daal::algorithms::Input(other) {}
 
 /**
  * Returns input object for the QR decomposition algorithm
@@ -56,12 +55,12 @@ DataCollectionPtr DistributedStep3Input::get(FinalizeOnLocalInputId id) const
  * \param[in] id    Identifier of the input object
  * \param[in] value Pointer to the input object value
  */
-void DistributedStep3Input::set(FinalizeOnLocalInputId id, const DataCollectionPtr &value)
+void DistributedStep3Input::set(FinalizeOnLocalInputId id, const DataCollectionPtr & value)
 {
     Argument::set(id, value);
 }
 
-Status DistributedStep3Input::getSizes(size_t& nFeatures, size_t& nVectors) const
+Status DistributedStep3Input::getSizes(size_t & nFeatures, size_t & nVectors) const
 {
     DataCollectionPtr qCollection = get(inputOfStep3FromStep1);
     DataCollectionPtr rCollection = get(inputOfStep3FromStep2);
@@ -75,11 +74,14 @@ Status DistributedStep3Input::getSizes(size_t& nFeatures, size_t& nVectors) cons
     DAAL_CHECK_EX((*qCollection)[0], ErrorNullNumericTable, ArgumentName, qCollectionStr());
 
     NumericTablePtr numTableInQCollection = NumericTable::cast((*qCollection)[0]);
-    Status s = checkNumericTable(numTableInQCollection.get(), qCollectionStr());
-    if(!s) { return s; }
+    Status s                              = checkNumericTable(numTableInQCollection.get(), qCollectionStr());
+    if (!s)
+    {
+        return s;
+    }
 
     nFeatures = numTableInQCollection->getNumberOfColumns();
-    nVectors = numTableInQCollection->getNumberOfRows();
+    nVectors  = numTableInQCollection->getNumberOfRows();
     return Status();
 }
 
@@ -88,19 +90,22 @@ Status DistributedStep3Input::getSizes(size_t& nFeatures, size_t& nVectors) cons
  * \param[in] parameter Pointer to the parameters
  * \param[in] method Computation method
  */
-Status DistributedStep3Input::check(const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedStep3Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     DataCollectionPtr qCollection = get(inputOfStep3FromStep1);
     DataCollectionPtr rCollection = get(inputOfStep3FromStep2);
     DAAL_CHECK_EX(qCollection, ErrorNullInputDataCollection, ArgumentName, inputOfStep3FromStep2Str());
     DAAL_CHECK_EX(rCollection, ErrorNullInputDataCollection, ArgumentName, inputOfStep3FromStep1Str());
 
-    size_t nodeSize = qCollection->size();
+    size_t nodeSize  = qCollection->size();
     size_t nFeatures = 0;
-    size_t nVectors = 0;
-    Status s = this->getSizes(nFeatures, nVectors);
-    if(!s) { return s; }
-    for(size_t i = 0 ; i < nodeSize ; i++)
+    size_t nVectors  = 0;
+    Status s         = this->getSizes(nFeatures, nVectors);
+    if (!s)
+    {
+        return s;
+    }
+    for (size_t i = 0; i < nodeSize; i++)
     {
         DAAL_CHECK_EX((*qCollection)[i], ErrorNullNumericTable, ArgumentName, qCollectionStr());
         DAAL_CHECK_EX((*rCollection)[i], ErrorNullNumericTable, ArgumentName, rCollectionStr());
@@ -113,15 +118,21 @@ Status DistributedStep3Input::check(const daal::algorithms::Parameter *parameter
 
         int unexpectedLayouts = (int)packed_mask;
         s |= checkNumericTable(numTableInQCollection.get(), qCollectionStr(), unexpectedLayouts, 0, nFeatures);
-        if(!s) { return s; }
+        if (!s)
+        {
+            return s;
+        }
         DAAL_CHECK_EX(numTableInQCollection->getNumberOfRows() >= nFeatures, ErrorNullNumericTable, ArgumentName, rCollectionStr());
         s |= checkNumericTable(numTableInRCollection.get(), rCollectionStr(), unexpectedLayouts, 0, nFeatures, nFeatures);
-        if(!s) { return s; }
+        if (!s)
+        {
+            return s;
+        }
     }
     return Status();
 }
 
 } // namespace interface1
 } // namespace qr
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

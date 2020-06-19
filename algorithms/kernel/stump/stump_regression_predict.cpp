@@ -21,10 +21,10 @@
 //--
 */
 
-#include "algorithm.h"
-#include "serialization_utils.h"
+#include "algorithms/algorithm.h"
+#include "service/kernel/serialization_utils.h"
 #include "algorithms/stump/stump_regression_predict_types.h"
-#include "daal_strings.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -38,14 +38,13 @@ namespace prediction
 {
 namespace interface1
 {
-
 using namespace daal::data_management;
 using namespace daal::services;
 
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_STUMP_REGRESSION_PREDICTION_RESULT_ID);
 
 Input::Input() : algorithms::regression::prediction::Input(algorithms::regression::prediction::lastModelInputId + 1) {}
-Input::Input(const Input &other) : daal::algorithms::regression::prediction::Input(other) {}
+Input::Input(const Input & other) : daal::algorithms::regression::prediction::Input(other) {}
 
 /**
  * Returns the input Numeric Table object in the prediction stage of the regression algorithm
@@ -72,7 +71,7 @@ stump::regression::ModelPtr Input::get(daal::algorithms::regression::prediction:
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(daal::algorithms::regression::prediction::NumericTableInputId id, const data_management::NumericTablePtr &ptr)
+void Input::set(daal::algorithms::regression::prediction::NumericTableInputId id, const data_management::NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -82,7 +81,7 @@ void Input::set(daal::algorithms::regression::prediction::NumericTableInputId id
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(daal::algorithms::regression::prediction::ModelInputId id, const stump::regression::ModelPtr &ptr)
+void Input::set(daal::algorithms::regression::prediction::ModelInputId id, const stump::regression::ModelPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -92,14 +91,15 @@ void Input::set(daal::algorithms::regression::prediction::ModelInputId id, const
  * \param[in] parameter Pointer to the structure of the algorithm parameters
  * \param[in] method    Computation method
  */
-services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, daal::algorithms::regression::prediction::Input::check(parameter, method));
 
-    stump::regression::ModelPtr m = get(daal::algorithms::regression::prediction::model);
+    stump::regression::ModelPtr m  = get(daal::algorithms::regression::prediction::model);
     const size_t modelSplitFeature = m->getSplitFeature();
-    DAAL_CHECK(modelSplitFeature < get(daal::algorithms::regression::prediction::data)->getNumberOfColumns(), services::ErrorStumpIncorrectSplitFeature);
+    DAAL_CHECK(modelSplitFeature < get(daal::algorithms::regression::prediction::data)->getNumberOfColumns(),
+               services::ErrorStumpIncorrectSplitFeature);
     return services::Status();
 }
 
@@ -110,11 +110,11 @@ NumericTablePtr Result::get(ResultId id) const
     return algorithms::regression::prediction::Result::get(algorithms::regression::prediction::ResultId(id));
 }
 
-void Result::set(ResultId id, const NumericTablePtr &value)
+void Result::set(ResultId id, const NumericTablePtr & value)
 {
     algorithms::regression::prediction::Result::set(algorithms::regression::prediction::ResultId(id), value);
 }
-Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     Status s;
     DAAL_CHECK_STATUS(s, algorithms::regression::prediction::Result::check(input, par, method));
@@ -122,9 +122,9 @@ Status Result::check(const daal::algorithms::Input *input, const daal::algorithm
     return s;
 }
 
-}// namespace interface1
-}// namespace prediction
-}// namespace regression
-}// namespace stump
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace prediction
+} // namespace regression
+} // namespace stump
+} // namespace algorithms
+} // namespace daal

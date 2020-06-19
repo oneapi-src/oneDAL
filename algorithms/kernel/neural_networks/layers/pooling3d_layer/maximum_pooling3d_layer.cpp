@@ -21,7 +21,7 @@
 //--
 */
 
-#include "maximum_pooling3d_layer_types.h"
+#include "algorithms/neural_networks/layers/pooling3d/maximum_pooling3d_layer_types.h"
 
 namespace daal
 {
@@ -53,19 +53,16 @@ namespace interface1
  * \param[in] thirdPadding      Number of data elements to implicitly add to the the third dimension
  *                              of the 3D subtensor on which the pooling is performed
  */
-Parameter::Parameter(size_t firstIndex, size_t secondIndex, size_t thirdIndex,
-size_t firstKernelSize, size_t secondKernelSize, size_t thirdKernelSize,
-          size_t firstStride, size_t secondStride, size_t thirdStride,
-          size_t firstPadding, size_t secondPadding, size_t thirdPadding) :
-    layers::pooling3d::Parameter(firstIndex, secondIndex, thirdIndex,
-                                 firstKernelSize, secondKernelSize, thirdKernelSize,
-                                 firstStride, secondStride, thirdStride,
-                                 firstPadding, secondPadding, thirdPadding)
+Parameter::Parameter(size_t firstIndex, size_t secondIndex, size_t thirdIndex, size_t firstKernelSize, size_t secondKernelSize,
+                     size_t thirdKernelSize, size_t firstStride, size_t secondStride, size_t thirdStride, size_t firstPadding, size_t secondPadding,
+                     size_t thirdPadding)
+    : layers::pooling3d::Parameter(firstIndex, secondIndex, thirdIndex, firstKernelSize, secondKernelSize, thirdKernelSize, firstStride, secondStride,
+                                   thirdStride, firstPadding, secondPadding, thirdPadding)
 {}
 
-}// namespace interface1
-}// namespace maximum_pooling3d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace maximum_pooling3d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

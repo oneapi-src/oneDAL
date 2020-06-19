@@ -21,24 +21,23 @@
 #include "com_intel_daal_algorithms_kmeans_init_InitDistributedStep1Local.h"
 #include "com_intel_daal_algorithms_kmeans_init_InitDistributedStep2Local.h"
 #include "com_intel_daal_algorithms_kmeans_init_InitDistributedStep4Local.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::kmeans::init;
 
-#define AllMethodsList\
-    kmeans::init::Method, Distributed, deterministicDense, randomDense, plusPlusDense, parallelPlusDense, \
-    deterministicCSR, randomCSR, plusPlusCSR, parallelPlusCSR
+#define AllMethodsList                                                                                                                              \
+    kmeans::init::Method, Distributed, deterministicDense, randomDense, plusPlusDense, parallelPlusDense, deterministicCSR, randomCSR, plusPlusCSR, \
+        parallelPlusCSR
 
-#define PlusPlusMethodsList\
-    kmeans::init::Method, Distributed, plusPlusDense, parallelPlusDense, plusPlusCSR, parallelPlusCSR
+#define PlusPlusMethodsList kmeans::init::Method, Distributed, plusPlusDense, parallelPlusDense, plusPlusCSR, parallelPlusCSR
 /*
  * Class:     com_intel_daal_algorithms_kmeans_Distributed
  * Method:    cInit
  * Signature:(IIJJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep1Local_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method, jlong nClusters, jlong offset)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep1Local_cInit(JNIEnv * env, jobject thisObj, jint prec,
+                                                                                                   jint method, jlong nClusters, jlong offset)
 {
     return jniDistributed<step1Local, AllMethodsList>::newObj(prec, method, nClusters, offset);
 }
@@ -48,10 +47,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribut
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep1Local_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep1Local_cInitParameter(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong algAddr, jint prec, jint method)
 {
-    return jniDistributed<step1Local, AllMethodsList>::getParameter(prec,method,algAddr);
+    return jniDistributed<step1Local, AllMethodsList>::getParameter(prec, method, algAddr);
 }
 
 /*
@@ -59,10 +58,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribut
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep1Local_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep1Local_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                       jint prec, jint method)
 {
-    return jniDistributed<step1Local, AllMethodsList>::getInput(prec,method,algAddr);
+    return jniDistributed<step1Local, AllMethodsList>::getInput(prec, method, algAddr);
 }
 
 /*
@@ -70,10 +69,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribut
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep1Local_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep1Local_cSetResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                       jint prec, jint method, jlong resultAddr)
 {
-    jniDistributed<step1Local,AllMethodsList>::setResult<kmeans::init::Result>(prec,method,algAddr,resultAddr);
+    jniDistributed<step1Local, AllMethodsList>::setResult<kmeans::init::Result>(prec, method, algAddr, resultAddr);
 }
 
 /*
@@ -81,10 +80,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribute
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep1Local_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep1Local_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                        jint prec, jint method)
 {
-    return jniDistributed<step1Local,AllMethodsList>::getResult(prec,method,algAddr);
+    return jniDistributed<step1Local, AllMethodsList>::getResult(prec, method, algAddr);
 }
 
 /*
@@ -92,10 +91,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribut
  * Method:    cSetPartialResult
  * Signature: (JIIJZ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep1Local_cSetPartialResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong partialResultAddr, jboolean initFlag)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep1Local_cSetPartialResult(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong algAddr, jint prec, jint method,
+                                                                                                              jlong partialResultAddr,
+                                                                                                              jboolean initFlag)
 {
-    jniDistributed<step1Local,AllMethodsList>::setPartialResult<kmeans::init::PartialResult>(prec,method,algAddr,partialResultAddr);
+    jniDistributed<step1Local, AllMethodsList>::setPartialResult<kmeans::init::PartialResult>(prec, method, algAddr, partialResultAddr);
 }
 
 /*
@@ -103,10 +104,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribute
  * Method:    cGetPartialResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep1Local_cGetPartialResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep1Local_cGetPartialResult(JNIEnv * env, jobject thisObj,
+                                                                                                               jlong algAddr, jint prec, jint method)
 {
-    return jniDistributed<step1Local,AllMethodsList>::getPartialResult(prec,method,algAddr);
+    return jniDistributed<step1Local, AllMethodsList>::getPartialResult(prec, method, algAddr);
 }
 
 /*
@@ -114,10 +115,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribut
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep1Local_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep1Local_cClone(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                    jint prec, jint method)
 {
-    return jniDistributed<step1Local,AllMethodsList>::getClone(prec,method,algAddr);
+    return jniDistributed<step1Local, AllMethodsList>::getClone(prec, method, algAddr);
 }
 
 /////////////////////////////////////// plusPlus methods ///////////////////////////////////////////////////////
@@ -127,8 +128,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribut
 * Method:    cInit
 * Signature: (IIJZ)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep2Local_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method, jlong nClusters, jboolean bFirstIteration)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep2Local_cInit(JNIEnv * env, jobject thisObj, jint prec,
+                                                                                                   jint method, jlong nClusters,
+                                                                                                   jboolean bFirstIteration)
 {
     return jniDistributed<step2Local, PlusPlusMethodsList>::newObj(prec, method, nClusters, bFirstIteration);
 }
@@ -138,8 +140,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribut
 * Method:    cInitParameter
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep2Local_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep2Local_cInitParameter(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong algAddr, jint prec, jint method)
 {
     return jniDistributed<step2Local, PlusPlusMethodsList>::getParameter(prec, method, algAddr);
 }
@@ -149,8 +151,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribut
 * Method:    cGetInput
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep2Local_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep2Local_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                       jint prec, jint method)
 {
     return jniDistributed<step2Local, PlusPlusMethodsList>::getInput(prec, method, algAddr);
 }
@@ -160,11 +162,13 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribut
 * Method:    cSetPartialResult
 * Signature: (JIIJZ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep2Local_cSetPartialResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong partialResultAddr, jboolean initFlag)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep2Local_cSetPartialResult(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong algAddr, jint prec, jint method,
+                                                                                                              jlong partialResultAddr,
+                                                                                                              jboolean initFlag)
 {
-    jniDistributed<step2Local, PlusPlusMethodsList>::setPartialResult<
-        kmeans::init::DistributedStep2LocalPlusPlusPartialResult>(prec, method, algAddr, partialResultAddr);
+    jniDistributed<step2Local, PlusPlusMethodsList>::setPartialResult<kmeans::init::DistributedStep2LocalPlusPlusPartialResult>(prec, method, algAddr,
+                                                                                                                                partialResultAddr);
 }
 
 /*
@@ -172,8 +176,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribute
 * Method:    cGetPartialResult
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep2Local_cGetPartialResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep2Local_cGetPartialResult(JNIEnv * env, jobject thisObj,
+                                                                                                               jlong algAddr, jint prec, jint method)
 {
     return jniDistributed<step2Local, PlusPlusMethodsList>::getPartialResult(prec, method, algAddr);
 }
@@ -183,8 +187,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribut
 * Method:    cClone
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep2Local_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep2Local_cClone(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                    jint prec, jint method)
 {
     return jniDistributed<step2Local, PlusPlusMethodsList>::getClone(prec, method, algAddr);
 }
@@ -195,8 +199,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribut
 * Method:    cInit
 * Signature: (IIJ)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep4Local_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method, jlong nClusters)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep4Local_cInit(JNIEnv * env, jobject thisObj, jint prec,
+                                                                                                   jint method, jlong nClusters)
 {
     return jniDistributed<step4Local, PlusPlusMethodsList>::newObj(prec, method, nClusters);
 }
@@ -206,8 +210,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribut
 * Method:    cInitParameter
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep4Local_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep4Local_cInitParameter(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong algAddr, jint prec, jint method)
 {
     return jniDistributed<step4Local, PlusPlusMethodsList>::getParameter(prec, method, algAddr);
 }
@@ -217,8 +221,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribut
 * Method:    cGetInput
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep4Local_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep4Local_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                       jint prec, jint method)
 {
     return jniDistributed<step4Local, PlusPlusMethodsList>::getInput(prec, method, algAddr);
 }
@@ -228,11 +232,13 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribut
 * Method:    cSetPartialResult
 * Signature: (JIIJZ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep4Local_cSetPartialResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong partialResultAddr, jboolean initFlag)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep4Local_cSetPartialResult(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong algAddr, jint prec, jint method,
+                                                                                                              jlong partialResultAddr,
+                                                                                                              jboolean initFlag)
 {
-    jniDistributed<step4Local, PlusPlusMethodsList>::setPartialResult<
-        kmeans::init::DistributedStep4LocalPlusPlusPartialResult>(prec, method, algAddr, partialResultAddr);
+    jniDistributed<step4Local, PlusPlusMethodsList>::setPartialResult<kmeans::init::DistributedStep4LocalPlusPlusPartialResult>(prec, method, algAddr,
+                                                                                                                                partialResultAddr);
 }
 
 /*
@@ -240,8 +246,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribute
 * Method:    cGetPartialResult
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep4Local_cGetPartialResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep4Local_cGetPartialResult(JNIEnv * env, jobject thisObj,
+                                                                                                               jlong algAddr, jint prec, jint method)
 {
     return jniDistributed<step4Local, PlusPlusMethodsList>::getPartialResult(prec, method, algAddr);
 }
@@ -251,8 +257,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistribut
 * Method:    cClone
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep4Local_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep4Local_cClone(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                    jint prec, jint method)
 {
     return jniDistributed<step4Local, PlusPlusMethodsList>::getClone(prec, method, algAddr);
 }

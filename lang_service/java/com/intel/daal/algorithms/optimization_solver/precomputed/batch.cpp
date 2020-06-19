@@ -21,7 +21,7 @@
 
 #include "com_intel_daal_algorithms_optimization_solver_precomputed_Batch.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::optimization_solver;
@@ -31,8 +31,8 @@ using namespace daal::algorithms::optimization_solver;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_precomputed_Batch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_precomputed_Batch_cInit(JNIEnv * env, jobject thisObj, jint prec,
+                                                                                                    jint method)
 {
     return jniBatch<precomputed::Method, precomputed::Batch, precomputed::defaultDense>::newObj(prec, method);
 }
@@ -42,8 +42,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_prec
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_precomputed_Batch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_precomputed_Batch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                     jint prec, jint method)
 {
     return jniBatch<precomputed::Method, precomputed::Batch, precomputed::defaultDense>::getClone(prec, method, algAddr);
 }
@@ -53,8 +53,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_prec
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_precomputed_Batch_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_precomputed_Batch_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                        jint prec, jint method)
 {
     return jniBatch<precomputed::Method, precomputed::Batch, precomputed::defaultDense>::getInput(prec, method, algAddr);
 }
@@ -64,8 +64,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_prec
  * Method:    cGetParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_precomputed_Batch_cGetParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_precomputed_Batch_cGetParameter(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong algAddr, jint prec, jint method)
 {
     return jniBatch<precomputed::Method, precomputed::Batch, precomputed::defaultDense>::getParameter(prec, method, algAddr);
 }

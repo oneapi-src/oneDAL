@@ -21,8 +21,8 @@
 //--
 */
 
-#include "ridge_regression_train_container.h"
-#include "ridge_regression_train_dense_normeq_distr_step2_impl.i"
+#include "algorithms/kernel/ridge_regression/ridge_regression_train_container.h"
+#include "algorithms/kernel/ridge_regression/ridge_regression_train_dense_normeq_distr_step2_impl.i"
 
 namespace daal
 {
@@ -34,14 +34,12 @@ namespace training
 {
 namespace interface1
 {
-
 template class DistributedContainer<step2Master, DAAL_FPTYPE, normEqDense, DAAL_CPU>;
 
 } // namespace interface1
 
 namespace internal
 {
-
 template class DistributedKernel<DAAL_FPTYPE, normEqDense, DAAL_CPU>;
 
 } // namespace internal

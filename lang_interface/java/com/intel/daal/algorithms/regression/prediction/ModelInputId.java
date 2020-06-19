@@ -16,7 +16,7 @@
 *******************************************************************************/
 
 /**
- * @defgroup prediction Prediction
+ * @defgroup regression_prediction Prediction
  * @brief Contains classes for making prediction based on the regression model
  * @ingroup regressor
  * @{

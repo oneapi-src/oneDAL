@@ -18,8 +18,8 @@
 #ifndef __GAUSSIAN_INITIALIZER_TASK_DESCRIPTOR_H__
 #define __GAUSSIAN_INITIALIZER_TASK_DESCRIPTOR_H__
 
-#include "neural_networks/initializers/gaussian/gaussian_initializer.h"
-#include "neural_networks/initializers/gaussian/gaussian_initializer_types.h"
+#include "algorithms/neural_networks/initializers/gaussian/gaussian_initializer.h"
+#include "algorithms/neural_networks/initializers/gaussian/gaussian_initializer_types.h"
 
 namespace daal
 {
@@ -33,24 +33,23 @@ namespace gaussian
 {
 namespace internal
 {
-
 class GaussianInitializerTaskDescriptor
 {
 public:
-    GaussianInitializerTaskDescriptor(Result *re, Parameter *pa);
+    GaussianInitializerTaskDescriptor(Result * re, Parameter * pa);
 
-    engines::BatchBase          *engine;
-    data_management::Tensor     *result;
-    layers::forward::LayerIface *layer;
+    engines::BatchBase * engine;
+    data_management::Tensor * result;
+    layers::forward::LayerIface * layer;
     double a;
     double sigma;
 };
 
-} // internal
-} // gaussian
-} // initializers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace gaussian
+} // namespace initializers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

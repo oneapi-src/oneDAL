@@ -23,7 +23,7 @@
 
 #include "algorithms/linear_regression/linear_regression_predict_types.h"
 #include "algorithms/linear_model/linear_model_predict.h"
-#include "serialization_utils.h"
+#include "service/kernel/serialization_utils.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -68,7 +68,7 @@ linear_regression::ModelPtr Input::get(ModelInputId id) const
  * \param[in] id      Identifier of the input object
  * \param[in] value   %Input object
  */
-void Input::set(NumericTableInputId id, const NumericTablePtr &value)
+void Input::set(NumericTableInputId id, const NumericTablePtr & value)
 {
     linear_model::prediction::Input::set(linear_model::prediction::NumericTableInputId(id), value);
 }
@@ -78,7 +78,7 @@ void Input::set(NumericTableInputId id, const NumericTablePtr &value)
  * \param[in] id      Identifier of the input object
  * \param[in] value   %Input object
  */
-void Input::set(ModelInputId id, const linear_regression::ModelPtr &value)
+void Input::set(ModelInputId id, const linear_regression::ModelPtr & value)
 {
     linear_model::prediction::Input::set(linear_model::prediction::ModelInputId(id), value);
 }
@@ -100,7 +100,7 @@ NumericTablePtr Result::get(ResultId id) const
  * \param[in] id      Identifier of the input object
  * \param[in] value   %Input object
  */
-void Result::set(ResultId id, const NumericTablePtr &value)
+void Result::set(ResultId id, const NumericTablePtr & value)
 {
     linear_model::prediction::Result::set(linear_model::prediction::ResultId(id), value);
 }

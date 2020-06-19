@@ -24,7 +24,7 @@
 #ifndef __POOLING3D_LAYER_IMPL_I__
 #define __POOLING3D_LAYER_IMPL_I__
 
-#include "service_sort.h"
+#include "algorithms/kernel/service_sort.h"
 
 namespace daal
 {
@@ -38,23 +38,21 @@ namespace pooling3d
 {
 namespace internal
 {
-
-template<CpuType cpu>
+template <CpuType cpu>
 struct Parameter
 {
     /*
      * Input data tensor is viewed by this method as a 7-dimensional tensor of size:
      * offset[0] * dataSize[0] * offset[1] * dataSize[1] * offset[2] * dataSize[2] * offset[3]
      */
-    Parameter(const size_t *inputIndices, const size_t *inputPadding, const size_t *inputStride,
-              const size_t *inputKernelSize,
-              const Tensor &dataTensor, const Collection<size_t> &dims, const Collection<size_t> &valueDims)
+    Parameter(const size_t * inputIndices, const size_t * inputPadding, const size_t * inputStride, const size_t * inputKernelSize,
+              const Tensor & dataTensor, const Collection<size_t> & dims, const Collection<size_t> & valueDims)
     {
         /* Get indices from the parameters of the layer */
         size_t indicesOrder[nKernelDims];
         for (size_t i = 0; i < nKernelDims; i++)
         {
-            indices[i] = (DAAL_INT)inputIndices[i];
+            indices[i]      = (DAAL_INT)inputIndices[i];
             indicesOrder[i] = i;
         }
 
@@ -79,13 +77,13 @@ struct Parameter
         }
 
         size_t nDims = dims.size();
-        offset[0] = (indices[0] == 0 ? 1 : dataTensor.getSize(0, indices[0]));
+        offset[0]    = (indices[0] == 0 ? 1 : dataTensor.getSize(0, indices[0]));
         for (size_t d = 1; d < nKernelDims; d++)
         {
             offset[d] = (indices[d - 1] + 1 == indices[d] ? 1 : dataTensor.getSize(indices[d - 1] + 1, indices[d] - indices[d - 1] - 1));
         }
-        offset[nKernelDims] = (indices[nKernelDims - 1] == nDims - 1 ? 1 :
-            dataTensor.getSize(indices[nKernelDims - 1] + 1, nDims - indices[nKernelDims - 1] - 1));
+        offset[nKernelDims] =
+            (indices[nKernelDims - 1] == nDims - 1 ? 1 : dataTensor.getSize(indices[nKernelDims - 1] + 1, nDims - indices[nKernelDims - 1] - 1));
     }
 
     static size_t const nKernelDims = 3; /*!< Number of kernel dimensions */
@@ -96,15 +94,15 @@ struct Parameter
     DAAL_INT kernelSize[nKernelDims];
 
     DAAL_INT offset[nKernelDims + 1];
-    DAAL_INT dataSize[nKernelDims];      // size of the input 3D subtensor over which the kernel is applied
-    DAAL_INT valueSize[nKernelDims];     // size of the output 3D subtensor over which the kernel is applied
+    DAAL_INT dataSize[nKernelDims];  // size of the input 3D subtensor over which the kernel is applied
+    DAAL_INT valueSize[nKernelDims]; // size of the output 3D subtensor over which the kernel is applied
 };
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace pooling3d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

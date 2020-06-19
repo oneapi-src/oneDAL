@@ -24,11 +24,11 @@
 #ifndef __EM_GMM_DENSE_DEFAULT_BATCH_KERNEL_H__
 #define __EM_GMM_DENSE_DEFAULT_BATCH_KERNEL_H__
 
-#include "em_gmm.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "service_blas.h"
-#include "em_gmm_dense_default_batch_task.h"
+#include "algorithms/em/em_gmm.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "externals/service_blas.h"
+#include "algorithms/kernel/em/em_gmm_dense_default_batch_task.h"
 
 using namespace daal::data_management;
 
@@ -40,34 +40,23 @@ namespace em_gmm
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class EMKernel : public Kernel
 {
 public:
     typedef SharedPtr<GmmModel<algorithmFPType, cpu> > GmmModelPtr;
     EMKernel() {};
 
-    services::Status compute(NumericTable &dataTable,
-                             NumericTable &initialWeights,
-                             NumericTable &initialMeans,
-                             NumericTable **initialCovariances,
-                             NumericTable &resultWeights,
-                             NumericTable &resultMeans,
-                             NumericTable **resultCovariances,
-                             NumericTable &resultNIterations,
-                             NumericTable &resultGoalFunction,
-                             const Parameter &par);
+    services::Status compute(NumericTable & dataTable, NumericTable & initialWeights, NumericTable & initialMeans, NumericTable ** initialCovariances,
+                             NumericTable & resultWeights, NumericTable & resultMeans, NumericTable ** resultCovariances,
+                             NumericTable & resultNIterations, NumericTable & resultGoalFunction, const Parameter & par);
 };
 
-template<typename algorithmFPType, CpuType cpu>
-void stepM_mergePartialSums(
-    algorithmFPType *cp_n, algorithmFPType *cp_m,
-    algorithmFPType *mean_n, algorithmFPType *mean_m,
-    algorithmFPType &w_n, algorithmFPType &w_m,
-    size_t nFeatures, GmmModel<algorithmFPType, cpu> *covs);
+template <typename algorithmFPType, CpuType cpu>
+void stepM_mergePartialSums(algorithmFPType * cp_n, algorithmFPType * cp_m, algorithmFPType * mean_n, algorithmFPType * mean_m, algorithmFPType & w_n,
+                            algorithmFPType & w_m, size_t nFeatures, GmmModel<algorithmFPType, cpu> * covs);
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class EMKernelTask
 {
     typedef SharedPtr<GmmModel<algorithmFPType, cpu> > GmmModelPtr;
@@ -75,13 +64,11 @@ class EMKernelTask
     typedef GmmModelFull<algorithmFPType, cpu> GmmModelFullType;
 
     SharedPtr<GmmModel<algorithmFPType, cpu> > initializeCovariances();
+
 public:
-    EMKernelTask(NumericTable &dataTable,
-                 NumericTable &initialWeights, NumericTable &initialMeans, NumericTable **initialCovariances,
-                 NumericTable &resultWeights, NumericTable &resultMeans, NumericTable **resultCovariances,
-                 NumericTable &resultNIterations,
-                 NumericTable &resultGoalFunction,
-                 const Parameter &par);
+    EMKernelTask(NumericTable & dataTable, NumericTable & initialWeights, NumericTable & initialMeans, NumericTable ** initialCovariances,
+                 NumericTable & resultWeights, NumericTable & resultMeans, NumericTable ** resultCovariances, NumericTable & resultNIterations,
+                 NumericTable & resultGoalFunction, const Parameter & par);
 
     services::Status compute();
 
@@ -90,21 +77,17 @@ public:
     void setResultToZero();
     Status stepM_merge(size_t iteration);
 
-    static void stepE(const size_t nVectorsInCurrentBlock, Task<algorithmFPType, cpu> &t, em_gmm::CovarianceStorageId covType);
-    static algorithmFPType computePartialLogLikelyhood(const size_t nVectorsInCurrentBlock, Task<algorithmFPType, cpu> &t);
-    static Status stepM_partial(const size_t nVectorsInCurrentBlock, Task<algorithmFPType, cpu> &t, em_gmm::CovarianceStorageId covType);
-    static void stepM_mergePartialSums(
-        algorithmFPType *cp_n, algorithmFPType *cp_m,
-        algorithmFPType *mean_n, algorithmFPType *mean_m,
-        algorithmFPType &w_n, algorithmFPType &w_m,
-        size_t nFeatures, GmmModel<algorithmFPType, cpu> *covs);
+    static void stepE(const size_t nVectorsInCurrentBlock, Task<algorithmFPType, cpu> & t, em_gmm::CovarianceStorageId covType);
+    static algorithmFPType computePartialLogLikelyhood(const size_t nVectorsInCurrentBlock, Task<algorithmFPType, cpu> & t);
+    static Status stepM_partial(const size_t nVectorsInCurrentBlock, Task<algorithmFPType, cpu> & t, em_gmm::CovarianceStorageId covType);
+    static void stepM_mergePartialSums(algorithmFPType * cp_n, algorithmFPType * cp_m, algorithmFPType * mean_n, algorithmFPType * mean_m,
+                                       algorithmFPType & w_n, algorithmFPType & w_m, size_t nFeatures, GmmModel<algorithmFPType, cpu> * covs);
 
-
-    algorithmFPType *alpha;
-    algorithmFPType *means;
-    algorithmFPType *logAlpha;
-    int *iterCounterArray;
-    algorithmFPType *logLikelyhoodArray;
+    algorithmFPType * alpha;
+    algorithmFPType * means;
+    algorithmFPType * logAlpha;
+    int * iterCounterArray;
+    algorithmFPType * logLikelyhoodArray;
 
     size_t blockSizeDefault;
     size_t nBlocks;
@@ -123,16 +106,16 @@ public:
     WriteRows<int, cpu, NumericTable> nIterationsBD;
     WriteRows<algorithmFPType, cpu, NumericTable> goalFunctionBD;
 
-    NumericTable &dataTable;
-    NumericTable &initialWeights;
-    NumericTable &initialMeans;
-    NumericTable **initialCovariances;
-    NumericTable &resultWeights;
-    NumericTable &resultMeans;
-    NumericTable **resultCovariances;
-    NumericTable &resultNIterations;
-    NumericTable &resultGoalFunction;
-    const Parameter &par;
+    NumericTable & dataTable;
+    NumericTable & initialWeights;
+    NumericTable & initialMeans;
+    NumericTable ** initialCovariances;
+    NumericTable & resultWeights;
+    NumericTable & resultMeans;
+    NumericTable ** resultCovariances;
+    NumericTable & resultNIterations;
+    NumericTable & resultGoalFunction;
+    const Parameter & par;
 };
 
 } // namespace internal

@@ -26,8 +26,8 @@
 #ifndef __LINEAR_MODEL_PREDICT_CONTAINER_H__
 #define __LINEAR_MODEL_PREDICT_CONTAINER_H__
 
-#include "linear_model_predict.h"
-#include "linear_model_predict_kernel.h"
+#include "algorithms/linear_model/linear_model_predict.h"
+#include "algorithms/kernel/linear_model/linear_model_predict_kernel.h"
 
 namespace daal
 {
@@ -37,9 +37,8 @@ namespace linear_model
 {
 namespace prediction
 {
-
 template <typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv) : PredictionContainerIface()
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
 {
     __DAAL_INITIALIZE_KERNELS(internal::PredictKernel, algorithmFPType, method);
 }
@@ -53,20 +52,20 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    Input *input = static_cast<Input *>(_in);
-    Result *result = static_cast<Result *>(_res);
+    Input * input   = static_cast<Input *>(_in);
+    Result * result = static_cast<Result *>(_res);
 
-    NumericTable *a = static_cast<NumericTable *>(input->get(data).get());
-    linear_model::Model *m    = static_cast<linear_model::Model    *>(input->get(model).get());
-    NumericTable *r = static_cast<NumericTable *>(result->get(prediction).get());
+    NumericTable * a        = static_cast<NumericTable *>(input->get(data).get());
+    linear_model::Model * m = static_cast<linear_model::Model *>(input->get(model).get());
+    NumericTable * r        = static_cast<NumericTable *>(result->get(prediction).get());
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
     __DAAL_CALL_KERNEL(env, internal::PredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, a, m, r);
 }
 
-}
-}
-}
+} // namespace prediction
+} // namespace linear_model
+} // namespace algorithms
 } // namespace daal
 #endif

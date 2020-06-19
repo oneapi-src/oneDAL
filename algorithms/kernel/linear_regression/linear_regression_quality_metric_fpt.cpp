@@ -21,7 +21,7 @@
 //--
 */
 
-#include "linear_regression_quality_metric.h"
+#include "algorithms/kernel/linear_regression/linear_regression_quality_metric.h"
 
 namespace daal
 {
@@ -33,8 +33,8 @@ namespace quality_metric
 {
 namespace single_beta
 {
-
-template services::Status DAAL_EXPORT Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+template services::Status DAAL_EXPORT Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                                    const int method);
 
 } // namespace single_beta
 } // namespace quality_metric

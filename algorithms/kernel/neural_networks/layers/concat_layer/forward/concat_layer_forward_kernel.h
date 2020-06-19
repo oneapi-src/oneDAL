@@ -19,16 +19,15 @@
 //  Declaration of template function that calculate concats.
 //--
 
-
 #ifndef __CONCAT_LAYER_FORWARD_KERNEL_H__
 #define __CONCAT_LAYER_FORWARD_KERNEL_H__
 
-#include "neural_networks/layers/concat/concat_layer.h"
-#include "neural_networks/layers/concat/concat_layer_types.h"
-#include "kernel.h"
-#include "service_dnn.h"
-#include "service_dnn_internal.h"
-#include "layers_threading.h"
+#include "algorithms/neural_networks/layers/concat/concat_layer.h"
+#include "algorithms/neural_networks/layers/concat/concat_layer_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "externals/service_dnn.h"
+#include "algorithms/kernel/service_dnn_internal.h"
+#include "algorithms/kernel/neural_networks/layers/layers_threading.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -50,12 +49,11 @@ namespace internal
 /**
  *  \brief Kernel for concat calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class ConcatKernel : public Kernel
 {
 public:
-    services::Status compute(size_t nInputs, Tensor *inputTensors[], const concat::Parameter *parameter,
-                 Tensor *resultTensor);
+    services::Status compute(size_t nInputs, Tensor * inputTensors[], const concat::Parameter * parameter, Tensor * resultTensor);
 
     ~ConcatKernel()
     {
@@ -65,23 +63,24 @@ public:
         }
         if (inputLayouts)
         {
-            delete [] inputLayouts;
+            delete[] inputLayouts;
         }
     }
+
 private:
     typedef daal::internal::Dnn<algorithmFPType, cpu> dnn;
 
     const size_t _nRowsInBlock = 5000;
 
-    dnnPrimitive_t concatPrim = NULL;
-    dnnLayout_t *inputLayouts = NULL;
+    dnnPrimitive_t concatPrim  = NULL;
+    dnnLayout_t * inputLayouts = NULL;
 };
-} // internal
-} // forward
-} // concat
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace forward
+} // namespace concat
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

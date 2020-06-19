@@ -32,31 +32,31 @@ namespace algorithms
 {
 namespace pca
 {
-
 /**
  * Allocates memory to store partial results of the PCA  SVD algorithm
  * \param[in] input     Pointer to an object containing input data
  * \param[in] parameter Pointer to the structure of algorithm parameters
  * \param[in] method    Computation method
  */
-template<typename algorithmFPType>
-DAAL_EXPORT services::Status PartialResult<correlationDense>::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+template <typename algorithmFPType>
+DAAL_EXPORT services::Status PartialResult<correlationDense>::allocate(const daal::algorithms::Input * input,
+                                                                       const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status s;
     set(nObservationsCorrelation,
         data_management::HomogenNumericTable<algorithmFPType>::create(1, 1, data_management::NumericTableIface::doAllocate, 0, &s));
-    set(sumCorrelation,
-        data_management::HomogenNumericTable<algorithmFPType>::create((static_cast<const InputIface *>(input))->getNFeatures(), 1,
-                                                             data_management::NumericTableIface::doAllocate, 0, &s));
+    set(sumCorrelation, data_management::HomogenNumericTable<algorithmFPType>::create((static_cast<const InputIface *>(input))->getNFeatures(), 1,
+                                                                                      data_management::NumericTableIface::doAllocate, 0, &s));
     set(crossProductCorrelation,
         data_management::HomogenNumericTable<algorithmFPType>::create((static_cast<const InputIface *>(input))->getNFeatures(),
-                                                             (static_cast<const InputIface *>(input))->getNFeatures(),
-                                                             data_management::NumericTableIface::doAllocate, 0, &s));
+                                                                      (static_cast<const InputIface *>(input))->getNFeatures(),
+                                                                      data_management::NumericTableIface::doAllocate, 0, &s));
     return s;
 };
 
-template<typename algorithmFPType>
-DAAL_EXPORT services::Status PartialResult<correlationDense>::initialize(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+template <typename algorithmFPType>
+DAAL_EXPORT services::Status PartialResult<correlationDense>::initialize(const daal::algorithms::Input * input,
+                                                                         const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, get(nObservationsCorrelation)->assign((algorithmFPType)0.0))

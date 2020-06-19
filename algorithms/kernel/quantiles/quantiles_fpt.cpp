@@ -21,7 +21,7 @@
 //--
 */
 
-#include "quantiles_types.h"
+#include "algorithms/quantiles/quantiles_types.h"
 
 namespace daal
 {
@@ -38,23 +38,24 @@ namespace interface1
  * \param[in] method    Algorithm computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status s;
-    const Input *in = static_cast<const Input *>(input);
-    const Parameter *par = static_cast<const Parameter *>(parameter);
+    const Input * in      = static_cast<const Input *>(input);
+    const Parameter * par = static_cast<const Parameter *>(parameter);
 
-    size_t nFeatures = in->get(data)->getNumberOfColumns();
+    size_t nFeatures       = in->get(data)->getNumberOfColumns();
     size_t nQuantileOrders = par->quantileOrders->getNumberOfColumns();
 
-    set(quantiles, data_management::HomogenNumericTable<algorithmFPType>::create(nQuantileOrders, nFeatures,
-                                                                                data_management::NumericTable::doAllocate, &s));
+    set(quantiles,
+        data_management::HomogenNumericTable<algorithmFPType>::create(nQuantileOrders, nFeatures, data_management::NumericTable::doAllocate, &s));
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                                    const int method);
 
-}// namespace interface1
-}// namespace quantiles
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace quantiles
+} // namespace algorithms
+} // namespace daal

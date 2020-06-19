@@ -21,8 +21,8 @@
 //--
 */
 
-#include "mse_dense_default_batch_kernel.h"
-#include "service_blas.h"
+#include "algorithms/kernel/objective_function/mse/mse_dense_default_batch_kernel.h"
+#include "externals/service_blas.h"
 
 namespace daal
 {
@@ -34,62 +34,53 @@ namespace mse
 {
 namespace internal
 {
-
 using namespace daal::data_management;
 using namespace daal::internal;
 using namespace daal::services;
 static const size_t blockSizeDefault = 512;
 
-template<typename algorithmFPType, CpuType cpu>
-MSETask<algorithmFPType, cpu>::MSETask(NumericTable *data, NumericTable *dependentVariables, NumericTable *argument,
-    NumericTable *value, NumericTable *hessian, NumericTable *gradient, Parameter *parameter) :
-    ntData(data),
-    ntDependentVariables(dependentVariables),
-    ntArgument(argument),
-    ntValue(value),
-    ntHessian(hessian),
-    ntGradient(gradient)
+template <typename algorithmFPType, CpuType cpu>
+MSETask<algorithmFPType, cpu>::MSETask(NumericTable * data, NumericTable * dependentVariables, NumericTable * argument, NumericTable * value,
+                                       NumericTable * hessian, NumericTable * gradient, Parameter * parameter)
+    : ntData(data), ntDependentVariables(dependentVariables), ntArgument(argument), ntValue(value), ntHessian(hessian), ntGradient(gradient)
 {
-    valueFlag = ((parameter->resultsToCompute & objective_function::value) != 0) ? true : false;
-    hessianFlag = ((parameter->resultsToCompute & objective_function::hessian) != 0) ? true : false;
+    valueFlag    = ((parameter->resultsToCompute & objective_function::value) != 0) ? true : false;
+    hessianFlag  = ((parameter->resultsToCompute & objective_function::hessian) != 0) ? true : false;
     gradientFlag = ((parameter->resultsToCompute & objective_function::gradient) != 0) ? true : false;
 
     argumentSize = ntArgument->getNumberOfRows();
-    nTheta = argumentSize - 1;
+    nTheta       = argumentSize - 1;
 }
 
-template<typename algorithmFPType, CpuType cpu>
-Status MSETask<algorithmFPType, cpu>::init(algorithmFPType *&pArgumentArray)
+template <typename algorithmFPType, CpuType cpu>
+Status MSETask<algorithmFPType, cpu>::init(algorithmFPType *& pArgumentArray)
 {
-    Status s = ntArgument->getBlockOfRows(0, argumentSize, readOnly, argumentBlock);
+    Status s       = ntArgument->getBlockOfRows(0, argumentSize, readOnly, argumentBlock);
     pArgumentArray = argumentBlock.getBlockPtr();
     return s;
 }
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 MSETask<algorithmFPType, cpu>::~MSETask()
 {
     ntArgument->releaseBlockOfRows(argumentBlock);
 }
 
-template<typename algorithmFPType, CpuType cpu>
-Status MSETask<algorithmFPType, cpu>::getResultValues(
-    algorithmFPType *&value,
-    algorithmFPType *&gradient,
-    algorithmFPType *&hessian)
+template <typename algorithmFPType, CpuType cpu>
+Status MSETask<algorithmFPType, cpu>::getResultValues(algorithmFPType *& value, algorithmFPType *& gradient, algorithmFPType *& hessian)
 {
     Status s;
-    if(valueFlag)
+    if (valueFlag)
     {
         DAAL_CHECK_STATUS(s, ntValue->getBlockOfRows(0, 1, writeOnly, valueBlock));
         value = valueBlock.getBlockPtr();
     }
-    if(hessianFlag)
+    if (hessianFlag)
     {
         DAAL_CHECK_STATUS(s, ntHessian->getBlockOfRows(0, argumentSize, writeOnly, hessianBlock));
         hessian = hessianBlock.getBlockPtr();
     }
-    if(gradientFlag)
+    if (gradientFlag)
     {
         DAAL_CHECK_STATUS(s, ntGradient->getBlockOfRows(0, argumentSize, writeOnly, gradientBlock));
         gradient = gradientBlock.getBlockPtr();
@@ -97,34 +88,31 @@ Status MSETask<algorithmFPType, cpu>::getResultValues(
     return s;
 }
 
-template<typename algorithmFPType, CpuType cpu>
-void MSETask<algorithmFPType, cpu>::setResultValuesToZero(
-    algorithmFPType *value,
-    algorithmFPType *gradient,
-    algorithmFPType *hessian)
+template <typename algorithmFPType, CpuType cpu>
+void MSETask<algorithmFPType, cpu>::setResultValuesToZero(algorithmFPType * value, algorithmFPType * gradient, algorithmFPType * hessian)
 {
-    algorithmFPType zero = (algorithmFPType) 0.0;
-    if(valueFlag)
+    algorithmFPType zero = (algorithmFPType)0.0;
+    if (valueFlag)
     {
         value[0] = zero;
     }
-    if(hessianFlag)
+    if (hessianFlag)
     {
-        for(size_t j = 0; j < argumentSize * argumentSize; j++)
+        for (size_t j = 0; j < argumentSize * argumentSize; j++)
         {
             hessian[j] = zero;
         }
     }
-    if(gradientFlag)
+    if (gradientFlag)
     {
-        for(size_t j = 0; j < argumentSize; j++)
+        for (size_t j = 0; j < argumentSize; j++)
         {
             gradient[j] = zero;
         }
     }
 }
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 void MSETask<algorithmFPType, cpu>::releaseResultValues()
 {
     if (valueFlag)
@@ -141,36 +129,31 @@ void MSETask<algorithmFPType, cpu>::releaseResultValues()
     }
 }
 
-template<typename algorithmFPType, CpuType cpu>
-MSETaskAll<algorithmFPType, cpu>::MSETaskAll(NumericTable *data, NumericTable *dependentVariables, NumericTable *argument, NumericTable *value,
-    NumericTable *hessian, NumericTable *gradient, Parameter *parameter, size_t blockSizeDefault) :
-    super(data, dependentVariables, argument, value, hessian, gradient, parameter)
+template <typename algorithmFPType, CpuType cpu>
+MSETaskAll<algorithmFPType, cpu>::MSETaskAll(NumericTable * data, NumericTable * dependentVariables, NumericTable * argument, NumericTable * value,
+                                             NumericTable * hessian, NumericTable * gradient, Parameter * parameter, size_t blockSizeDefault)
+    : super(data, dependentVariables, argument, value, hessian, gradient, parameter)
 {
     batchSize = ntData->getNumberOfRows();
     xMultTheta.reset(batchSize < blockSizeDefault ? batchSize : blockSizeDefault);
 }
 
-template<typename algorithmFPType, CpuType cpu>
-Status MSETaskAll<algorithmFPType, cpu>::init(algorithmFPType *&pArgumentArray)
+template <typename algorithmFPType, CpuType cpu>
+Status MSETaskAll<algorithmFPType, cpu>::init(algorithmFPType *& pArgumentArray)
 {
     Status s = super::init(pArgumentArray);
-    if(!s)
-        return s;
+    if (!s) return s;
     DAAL_CHECK_MALLOC(xMultTheta.get());
     return s;
 }
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 MSETaskAll<algorithmFPType, cpu>::~MSETaskAll()
-{
-}
+{}
 
-template<typename algorithmFPType, CpuType cpu>
-Status MSETaskAll<algorithmFPType, cpu>::getCurrentBlock(
-    size_t startIdx,
-    size_t blockSize,
-    algorithmFPType *&pBlockData,
-    algorithmFPType *&pBlockDependentVariables)
+template <typename algorithmFPType, CpuType cpu>
+Status MSETaskAll<algorithmFPType, cpu>::getCurrentBlock(size_t startIdx, size_t blockSize, algorithmFPType *& pBlockData,
+                                                         algorithmFPType *& pBlockDependentVariables)
 {
     Status s;
     DAAL_CHECK_STATUS(s, ntData->getBlockOfRows(startIdx, blockSize, readOnly, dataBlock));
@@ -180,34 +163,32 @@ Status MSETaskAll<algorithmFPType, cpu>::getCurrentBlock(
     return s;
 }
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 void MSETaskAll<algorithmFPType, cpu>::releaseCurrentBlock()
 {
     ntData->releaseBlockOfRows(dataBlock);
     ntDependentVariables->releaseBlockOfRows(dependentVariablesBlock);
 }
 
-template<typename algorithmFPType, CpuType cpu>
-MSETaskSample<algorithmFPType, cpu>::MSETaskSample(NumericTable *data, NumericTable *dependentVariables, NumericTable *argument,
-    NumericTable *value, NumericTable *hessian, NumericTable *gradient, Parameter *parameter, size_t blockSizeDefault) :
-    MSETask<algorithmFPType, cpu>(data, dependentVariables, argument, value, hessian, gradient, parameter),
-    ntIndices(parameter->batchIndices.get())
+template <typename algorithmFPType, CpuType cpu>
+MSETaskSample<algorithmFPType, cpu>::MSETaskSample(NumericTable * data, NumericTable * dependentVariables, NumericTable * argument,
+                                                   NumericTable * value, NumericTable * hessian, NumericTable * gradient, Parameter * parameter,
+                                                   size_t blockSizeDefault)
+    : MSETask<algorithmFPType, cpu>(data, dependentVariables, argument, value, hessian, gradient, parameter), ntIndices(parameter->batchIndices.get())
 {
     batchSize = parameter->batchIndices->getNumberOfColumns();
 }
 
-template<typename algorithmFPType, CpuType cpu>
-Status MSETaskSample<algorithmFPType, cpu>::init(algorithmFPType *&pArgumentArray)
+template <typename algorithmFPType, CpuType cpu>
+Status MSETaskSample<algorithmFPType, cpu>::init(algorithmFPType *& pArgumentArray)
 {
     Status s = super::init(pArgumentArray);
-    if(s)
-        s = ntIndices->getBlockOfRows(0, 1, readOnly, indicesBlock);
-    if(!s)
-        return s;
-    indicesArray = indicesBlock.getBlockPtr();
+    if (s) s = ntIndices->getBlockOfRows(0, 1, readOnly, indicesBlock);
+    if (!s) return s;
+    indicesArray                = indicesBlock.getBlockPtr();
     const size_t allocationSize = (batchSize < blockSizeDefault ? batchSize : blockSizeDefault);
 
-    if(nTheta > 0)
+    if (nTheta > 0)
     {
         dataBlockMemory.reset(allocationSize * nTheta);
         DAAL_CHECK_MALLOC(dataBlockMemory.get());
@@ -218,25 +199,22 @@ Status MSETaskSample<algorithmFPType, cpu>::init(algorithmFPType *&pArgumentArra
     return s;
 }
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 MSETaskSample<algorithmFPType, cpu>::~MSETaskSample()
 {
     ntIndices->releaseBlockOfRows(indicesBlock);
 }
 
-template<typename algorithmFPType, CpuType cpu>
-Status MSETaskSample<algorithmFPType, cpu>::getCurrentBlock(
-    size_t startIdx,
-    size_t blockSize,
-    algorithmFPType *&pBlockData,
-    algorithmFPType *&pBlockDependentVariables)
+template <typename algorithmFPType, CpuType cpu>
+Status MSETaskSample<algorithmFPType, cpu>::getCurrentBlock(size_t startIdx, size_t blockSize, algorithmFPType *& pBlockData,
+                                                            algorithmFPType *& pBlockDependentVariables)
 {
     Status s;
     algorithmFPType *dataArray = nullptr, *dependentVariablesArray = nullptr;
     size_t index;
-    pBlockData = dataBlockMemory.get();
+    pBlockData               = dataBlockMemory.get();
     pBlockDependentVariables = dependentVariablesBlockMemory.get();
-    for(size_t idx = 0; idx < blockSize; idx++)
+    for (size_t idx = 0; idx < blockSize; idx++)
     {
         index = indicesArray[startIdx + idx];
         DAAL_CHECK_STATUS(s, ntData->getBlockOfRows(index, 1, readOnly, dataBlock));
@@ -244,7 +222,7 @@ Status MSETaskSample<algorithmFPType, cpu>::getCurrentBlock(
         DAAL_CHECK_STATUS(s, ntDependentVariables->getBlockOfRows(index, 1, readOnly, dependentVariablesBlock));
         dependentVariablesArray = dependentVariablesBlock.getBlockPtr();
 
-        for(size_t j = 0; j < nTheta; j++)
+        for (size_t j = 0; j < nTheta; j++)
         {
             pBlockData[idx * nTheta + j] = dataArray[j];
         }
@@ -256,10 +234,11 @@ Status MSETaskSample<algorithmFPType, cpu>::getCurrentBlock(
     return s;
 }
 
-template<typename algorithmFPType, CpuType cpu>
-void MSETaskSample<algorithmFPType, cpu>::releaseCurrentBlock() {}
+template <typename algorithmFPType, CpuType cpu>
+void MSETaskSample<algorithmFPType, cpu>::releaseCurrentBlock()
+{}
 
-} // namespace daal::internal
+} // namespace internal
 
 } // namespace mse
 

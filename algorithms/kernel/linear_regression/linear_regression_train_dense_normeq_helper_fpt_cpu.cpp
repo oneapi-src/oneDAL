@@ -22,7 +22,7 @@
 //--
 */
 
-#include "linear_regression_train_dense_normeq_helper_impl.i"
+#include "algorithms/kernel/linear_regression/linear_regression_train_dense_normeq_helper_impl.i"
 
 namespace daal
 {
@@ -36,7 +36,7 @@ namespace internal
 {
 template class KernelHelper<DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace training
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal

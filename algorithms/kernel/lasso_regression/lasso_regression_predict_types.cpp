@@ -22,9 +22,9 @@
 */
 
 #include "algorithms/lasso_regression/lasso_regression_predict_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
-#include "lasso_regression_model_impl.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
+#include "algorithms/kernel/lasso_regression/lasso_regression_model_impl.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -39,12 +39,11 @@ namespace prediction
 {
 namespace interface1
 {
-
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_LASSO_REGRESSION_PREDICTION_RESULT_ID);
 
 /** Default constructor */
 Input::Input() : linear_model::prediction::Input(lastModelInputId + 1) {}
-Input::Input(const Input& other) : linear_model::prediction::Input(other){}
+Input::Input(const Input & other) : linear_model::prediction::Input(other) {}
 
 /**
  * Returns an input object for making lasso regression model-based prediction
@@ -71,7 +70,7 @@ lasso_regression::ModelPtr Input::get(ModelInputId id) const
  * \param[in] id      Identifier of the input object
  * \param[in] value   %Input object
  */
-void Input::set(NumericTableInputId id, const NumericTablePtr &value)
+void Input::set(NumericTableInputId id, const NumericTablePtr & value)
 {
     linear_model::prediction::Input::set(linear_model::prediction::NumericTableInputId(id), value);
 }
@@ -85,7 +84,6 @@ void Input::set(ModelInputId id, const lasso_regression::ModelPtr & value)
 {
     linear_model::prediction::Input::set(linear_model::prediction::ModelInputId(id), value);
 }
-
 
 Result::Result() : linear_model::prediction::Result(lastResultId + 1) {}
 
@@ -104,7 +102,7 @@ NumericTablePtr Result::get(ResultId id) const
  * \param[in] id      Identifier of the input object
  * \param[in] value   %Input object
  */
-void Result::set(ResultId id, const NumericTablePtr &value)
+void Result::set(ResultId id, const NumericTablePtr & value)
 {
     linear_model::prediction::Result::set(linear_model::prediction::ResultId(id), value);
 }

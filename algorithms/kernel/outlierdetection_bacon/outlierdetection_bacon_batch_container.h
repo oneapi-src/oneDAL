@@ -21,8 +21,8 @@
 //--
 */
 
-#include "outlier_detection_bacon.h"
-#include "outlierdetection_bacon_kernel.h"
+#include "algorithms/outlier_detection/outlier_detection_bacon.h"
+#include "algorithms/kernel/outlierdetection_bacon/outlierdetection_bacon_kernel.h"
 
 namespace daal
 {
@@ -32,9 +32,8 @@ namespace bacon_outlier_detection
 {
 namespace interface1
 {
-
 template <typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::OutlierDetectionKernel, algorithmFPType, method);
 }
@@ -48,18 +47,18 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    Input *input = static_cast<Input *>(_in);
-    Result *result = static_cast<Result *>(_res);
-    Parameter *par = static_cast<Parameter *>(_par);
+    Input * input   = static_cast<Input *>(_in);
+    Result * result = static_cast<Result *>(_res);
+    Parameter * par = static_cast<Parameter *>(_par);
 
-    NumericTable &data    = *(static_cast<NumericTable *>(input->get(InputId::data).get()));
-    NumericTable &weights = *(static_cast<NumericTable *>(result->get(ResultId::weights).get()));
+    NumericTable & data    = *(static_cast<NumericTable *>(input->get(InputId::data).get()));
+    NumericTable & weights = *(static_cast<NumericTable *>(result->get(ResultId::weights).get()));
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
     __DAAL_CALL_KERNEL(env, internal::OutlierDetectionKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, defaultDense), compute, data, weights, *par);
 }
 
-}
+} // namespace interface1
 
 } // namespace bacon_outlier_detection
 

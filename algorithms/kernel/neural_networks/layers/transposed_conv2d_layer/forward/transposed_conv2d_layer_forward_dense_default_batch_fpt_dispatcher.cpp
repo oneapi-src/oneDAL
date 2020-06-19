@@ -19,8 +19,7 @@
 //  Implementation of transposed convolution 2d calculation algorithm container.
 //--
 
-
-#include "transposed_conv2d_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/transposed_conv2d_layer/forward/transposed_conv2d_layer_forward_batch_container.h"
 
 namespace daal
 {
@@ -33,9 +32,9 @@ namespace layers
 namespace forward
 {
 __DAAL_INSTANTIATE_DISPATCH_LAYER_CONTAINER_FORWARD(neural_networks::layers::transposed_conv2d::forward::interface1::BatchContainer, DAAL_FPTYPE,
-                                      neural_networks::layers::transposed_conv2d::defaultDense)
+                                                    neural_networks::layers::transposed_conv2d::defaultDense)
 }
-}
-}
-}
-}
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

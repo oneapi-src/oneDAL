@@ -21,9 +21,9 @@
 //--
 */
 
-#include "em_gmm_init_dense_default_batch_kernel.h"
-#include "em_gmm_init_dense_default_batch_impl.i"
-#include "em_gmm_init_dense_default_batch_container.h"
+#include "algorithms/kernel/em/em_gmm_init_dense_default_batch_kernel.h"
+#include "algorithms/kernel/em/em_gmm_init_dense_default_batch_impl.i"
+#include "algorithms/kernel/em/em_gmm_init_dense_default_batch_container.h"
 
 namespace daal
 {
@@ -35,13 +35,11 @@ namespace init
 {
 namespace interface1
 {
-
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
 }
 namespace internal
 {
-
 template class EMInitKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
 } // namespace internal

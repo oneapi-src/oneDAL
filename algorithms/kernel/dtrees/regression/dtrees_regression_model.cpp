@@ -21,7 +21,7 @@
 //--
 */
 
-#include "dtrees_model_impl_common.h"
+#include "algorithms/kernel/dtrees/dtrees_model_impl_common.h"
 #include "algorithms/regression/tree_traverse.h"
 #include "algorithms/tree_utils/tree_utils_regression.h"
 
@@ -33,60 +33,59 @@ namespace daal
 {
 namespace algorithms
 {
-
 typedef daal::algorithms::dtrees::internal::TreeNodeRegression<RegressionFPType>::Leaf TLeaf;
 
 namespace dtrees
 {
 namespace internal
 {
-template<>
-void writeLeaf(const TLeaf& l, DecisionTreeNode& row)
+template <>
+void writeLeaf(const TLeaf & l, DecisionTreeNode & row)
 {
-    row.leftIndexOrClass = 0;
+    row.leftIndexOrClass       = 0;
     row.featureValueOrResponse = l.response;
 }
 
-template<>
-bool visitSplit(size_t iRowInTable, size_t level, const DecisionTreeNode* aNode, algorithms::regression::TreeNodeVisitor& visitor)
+template <>
+bool visitSplit(size_t iRowInTable, size_t level, const DecisionTreeNode * aNode, algorithms::regression::TreeNodeVisitor & visitor)
 {
-    const DecisionTreeNode& n = aNode[iRowInTable];
+    const DecisionTreeNode & n = aNode[iRowInTable];
     return visitor.onSplitNode(level, n.featureIndex, n.featureValueOrResponse);
 }
 
-template<>
-bool visitLeaf(size_t iRowInTable, size_t level, const DecisionTreeNode* aNode, algorithms::regression::TreeNodeVisitor& visitor)
+template <>
+bool visitLeaf(size_t iRowInTable, size_t level, const DecisionTreeNode * aNode, algorithms::regression::TreeNodeVisitor & visitor)
 {
-    const DecisionTreeNode& n = aNode[iRowInTable];
+    const DecisionTreeNode & n = aNode[iRowInTable];
     return visitor.onLeafNode(level, n.featureValueOrResponse);
 }
 
-template<>
-bool visitSplit(size_t iRowInTable, size_t level, tree_utils::SplitNodeDescriptor& descSplit, const DecisionTreeNode* aNode, const double *imp,
-    const int *nodeSamplesCount, tree_utils::regression::TreeNodeVisitor& visitor)
+template <>
+bool visitSplit(size_t iRowInTable, size_t level, tree_utils::SplitNodeDescriptor & descSplit, const DecisionTreeNode * aNode, const double * imp,
+                const int * nodeSamplesCount, tree_utils::regression::TreeNodeVisitor & visitor)
 {
-    const DecisionTreeNode& n                       = aNode[iRowInTable];
-    if(imp)              descSplit.impurity         = imp[iRowInTable];
-    if(nodeSamplesCount) descSplit.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
-    descSplit.featureIndex                          = n.featureIndex;
-    descSplit.featureValue                          = n.featureValueOrResponse;
-    descSplit.level                                 = level;
+    const DecisionTreeNode & n = aNode[iRowInTable];
+    if (imp) descSplit.impurity = imp[iRowInTable];
+    if (nodeSamplesCount) descSplit.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
+    descSplit.featureIndex = n.featureIndex;
+    descSplit.featureValue = n.featureValueOrResponse;
+    descSplit.level        = level;
     return visitor.onSplitNode(descSplit);
 }
 
-template<>
-bool visitLeaf(size_t iRowInTable, size_t level, tree_utils::regression::LeafNodeDescriptor& descLeaf, const DecisionTreeNode* aNode, const double *imp,
-    const int *nodeSamplesCount, tree_utils::regression::TreeNodeVisitor& visitor)
+template <>
+bool visitLeaf(size_t iRowInTable, size_t level, tree_utils::regression::LeafNodeDescriptor & descLeaf, const DecisionTreeNode * aNode,
+               const double * imp, const int * nodeSamplesCount, tree_utils::regression::TreeNodeVisitor & visitor)
 {
-    const DecisionTreeNode& n                      = aNode[iRowInTable];
-    if(imp)              descLeaf.impurity         = imp[iRowInTable];
-    if(nodeSamplesCount) descLeaf.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
-    descLeaf.level                                 = level;
-    descLeaf.response                              = n.featureValueOrResponse;
+    const DecisionTreeNode & n = aNode[iRowInTable];
+    if (imp) descLeaf.impurity = imp[iRowInTable];
+    if (nodeSamplesCount) descLeaf.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
+    descLeaf.level    = level;
+    descLeaf.response = n.featureValueOrResponse;
     return visitor.onLeafNode(descLeaf);
 }
 
-} // namespace dtrees
 } // namespace internal
+} // namespace dtrees
 } // namespace algorithms
 } // namespace daal

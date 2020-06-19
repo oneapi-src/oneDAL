@@ -24,8 +24,8 @@
 #ifndef __LOGISTIC_LAYER_BACKWARD_BATCH_CONTAINER_H__
 #define __LOGISTIC_LAYER_BACKWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/logistic/logistic_layer.h"
-#include "logistic_layer_backward_kernel.h"
+#include "algorithms/neural_networks/layers/logistic/logistic_layer.h"
+#include "algorithms/kernel/neural_networks/layers/logistic_layer/backward/logistic_layer_backward_kernel.h"
 
 namespace daal
 {
@@ -41,35 +41,38 @@ namespace backward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::LogisticKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    logistic::backward::Input *input   = static_cast<logistic::backward::Input *>(_in);
-    logistic::backward::Result *result = static_cast<logistic::backward::Result *>(_res);
+    logistic::backward::Input * input   = static_cast<logistic::backward::Input *>(_in);
+    logistic::backward::Result * result = static_cast<logistic::backward::Result *>(_res);
 
-    const layers::Parameter *parameter = static_cast<const Parameter *>(_par);
-    if (!parameter->propagateGradient) { return services::Status(); }
+    const layers::Parameter * parameter = static_cast<const Parameter *>(_par);
+    if (!parameter->propagateGradient)
+    {
+        return services::Status();
+    }
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    Tensor *inputTensor         = input->get(layers::backward::inputGradient).get();
-    Tensor *resultTensor        = result->get(layers::backward::gradient).get();
-    Tensor *forwardOutputTensor = input->get(logistic::auxValue).get();
+    Tensor * inputTensor         = input->get(layers::backward::inputGradient).get();
+    Tensor * resultTensor        = result->get(layers::backward::gradient).get();
+    Tensor * forwardOutputTensor = input->get(logistic::auxValue).get();
 
-    __DAAL_CALL_KERNEL(env, internal::LogisticKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputTensor,
-                       *resultTensor, *forwardOutputTensor);
+    __DAAL_CALL_KERNEL(env, internal::LogisticKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputTensor, *resultTensor,
+                       *forwardOutputTensor);
 }
 } // namespace interface1
 } // namespace backward

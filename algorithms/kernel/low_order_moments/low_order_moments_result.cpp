@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/moments/low_order_moments_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -55,7 +55,7 @@ NumericTablePtr Result::get(ResultId id) const
  * \param[in] id    Identifier of the final result
  * \param[in] value Pointer to the final result
  */
-void Result::set(ResultId id, const NumericTablePtr &value)
+void Result::set(ResultId id, const NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
@@ -66,7 +66,7 @@ void Result::set(ResultId id, const NumericTablePtr &value)
  * \param[in] par           %Parameter of the algorithm
  * \param[in] method        Computation method
  */
-services::Status Result::check(const daal::algorithms::PartialResult *partialResult, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::PartialResult * partialResult, const daal::algorithms::Parameter * par, int method) const
 {
     size_t nFeatures = static_cast<const PartialResult *>(partialResult)->get(partialMinimum)->getNumberOfColumns();
     return checkImpl(nFeatures);
@@ -78,7 +78,7 @@ services::Status Result::check(const daal::algorithms::PartialResult *partialRes
  * \param[in] par       Pointer to the structure of algorithm parameters
  * \param[in] method    Computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     size_t nFeatures = 0;
     services::Status s;
@@ -91,13 +91,14 @@ services::Status Result::checkImpl(size_t nFeatures) const
     services::Status s;
     const int unexpectedLayouts = (int)packed_mask;
 
-    const char* errorMessages[] = {minimumStr(), maximumStr(), sumStr(), sumSquaresStr(), sumSquaresCenteredStr(), meanStr(),
-        secondOrderRawMomentStr(), varianceStr(), standardDeviationStr(), variationStr() };
+    const char * errorMessages[] = {
+        minimumStr(),  maximumStr(),           sumStr(),      sumSquaresStr(), sumSquaresCenteredStr(), meanStr(), secondOrderRawMomentStr(),
+        varianceStr(), standardDeviationStr(), variationStr()
+    };
 
-    for(size_t i = 0; i < lastResultId + 1; i++)
+    for (size_t i = 0; i < lastResultId + 1; i++)
     {
-        DAAL_CHECK_STATUS(s, checkNumericTable(get((ResultId)i).get(), errorMessages[i],
-            unexpectedLayouts, 0, nFeatures, 1));
+        DAAL_CHECK_STATUS(s, checkNumericTable(get((ResultId)i).get(), errorMessages[i], unexpectedLayouts, 0, nFeatures, 1));
     }
     return s;
 }

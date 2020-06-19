@@ -21,7 +21,7 @@
 //--
 */
 
-#include "kmeans_init_container.h"
+#include "algorithms/kernel/kmeans/kmeans_init_container.h"
 
 namespace daal
 {
@@ -35,18 +35,17 @@ namespace init
 {
 namespace interface2
 {
-
 template <>
-Batch<DAAL_FPTYPE, kmeans::init::randomDense>::Batch(size_t nClasses) : BatchBase(new ParameterType(nClasses)),
-    parameter(*static_cast<ParameterType*>(_par))
+Batch<DAAL_FPTYPE, kmeans::init::randomDense>::Batch(size_t nClasses)
+    : BatchBase(new ParameterType(nClasses)), parameter(*static_cast<ParameterType *>(_par))
 {
     initialize();
 }
 
 using BatchType = Batch<DAAL_FPTYPE, kmeans::init::randomDense>;
 template <>
-Batch<DAAL_FPTYPE, kmeans::init::randomDense>::Batch(const BatchType &other) : BatchBase(new ParameterType(other.parameter)),
-    parameter(*static_cast<ParameterType*>(_par)), input(other.input)
+Batch<DAAL_FPTYPE, kmeans::init::randomDense>::Batch(const BatchType & other)
+    : BatchBase(new ParameterType(other.parameter)), parameter(*static_cast<ParameterType *>(_par)), input(other.input)
 {
     initialize();
 }
@@ -55,5 +54,5 @@ Batch<DAAL_FPTYPE, kmeans::init::randomDense>::Batch(const BatchType &other) : B
 } // namespace init
 } // namespace kmeans
 
-} // namespace daal::algorithms
+} // namespace algorithms
 } // namespace daal

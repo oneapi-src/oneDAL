@@ -36,7 +36,6 @@ namespace prediction
 {
 namespace interface1
 {
-
 /**
  * Returns the input Numeric Table object in the prediction stage of the classification algorithm
  * \param[in] id    Identifier of the input NumericTable object
@@ -62,7 +61,7 @@ logitboost::interface1::ModelPtr Input::get(classifier::prediction::ModelInputId
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(classifier::prediction::NumericTableInputId id, const NumericTablePtr &ptr)
+void Input::set(classifier::prediction::NumericTableInputId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -72,7 +71,7 @@ void Input::set(classifier::prediction::NumericTableInputId id, const NumericTab
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(classifier::prediction::ModelInputId id, const logitboost::interface1::ModelPtr &ptr)
+void Input::set(classifier::prediction::ModelInputId id, const logitboost::interface1::ModelPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -82,13 +81,12 @@ void Input::set(classifier::prediction::ModelInputId id, const logitboost::inter
  * \param[in] parameter Pointer to the structure of the algorithm parameters
  * \param[in] method    Computation method
  */
-services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s = classifier::prediction::interface1::Input::check(parameter, method);
-    if(!s) return s;
+    if (!s) return s;
 
-    logitboost::interface1::ModelPtr m =
-        staticPointerCast<logitboost::interface1::Model, classifier::Model>(get(classifier::prediction::model));
+    logitboost::interface1::ModelPtr m = staticPointerCast<logitboost::interface1::Model, classifier::Model>(get(classifier::prediction::model));
     DAAL_CHECK(m->getNumberOfWeakLearners() > 0, ErrorModelNotFullInitialized);
     return s;
 }

@@ -19,10 +19,9 @@
 //  Implementation of the backward local response normalization layer
 //--
 
-
-#include "lrn_layer_backward_batch_container.h"
-#include "lrn_layer_backward_kernel.h"
-#include "lrn_layer_backward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/lrn_layer/backward/lrn_layer_backward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/lrn_layer/backward/lrn_layer_backward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/lrn_layer/backward/lrn_layer_backward_impl.i"
 
 namespace daal
 {
@@ -34,21 +33,20 @@ namespace layers
 {
 namespace lrn
 {
-
 namespace backward
 {
 namespace interface1
 {
 template class neural_networks::layers::lrn::backward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 namespace internal
 {
 template class LRNKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
-} // backward
+} // namespace internal
+} // namespace backward
 
-}
-}
-}
-}
-}
+} // namespace lrn
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

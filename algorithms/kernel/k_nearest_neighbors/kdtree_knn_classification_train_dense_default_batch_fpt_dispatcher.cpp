@@ -21,15 +21,15 @@
 //--
 */
 
-#include "kdtree_knn_classification_train_container.h"
+#include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_classification_train_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kdtree_knn_classification::training::interface1::BatchContainer, batch, DAAL_FPTYPE, \
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kdtree_knn_classification::training::interface1::BatchContainer, batch, DAAL_FPTYPE,
                                       kdtree_knn_classification::training::defaultDense)
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kdtree_knn_classification::training::BatchContainer, batch, DAAL_FPTYPE, \
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kdtree_knn_classification::training::BatchContainer, batch, DAAL_FPTYPE,
                                       kdtree_knn_classification::training::defaultDense)
 } // namespace algorithms
 } // namespace daal

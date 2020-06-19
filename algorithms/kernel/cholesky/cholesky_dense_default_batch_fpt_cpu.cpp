@@ -19,10 +19,9 @@
 //  Implementation of cholesky calculation functions.
 //--
 
-
-#include "cholesky_batch_container.h"
-#include "cholesky_kernel.h"
-#include "cholesky_impl.i"
+#include "algorithms/kernel/cholesky/cholesky_batch_container.h"
+#include "algorithms/kernel/cholesky/cholesky_kernel.h"
+#include "algorithms/kernel/cholesky/cholesky_impl.i"
 
 namespace daal
 {
@@ -30,7 +29,6 @@ namespace algorithms
 {
 namespace cholesky
 {
-
 namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
@@ -41,6 +39,6 @@ namespace internal
 template class CholeskyKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
 
-}
-}
-}
+} // namespace cholesky
+} // namespace algorithms
+} // namespace daal

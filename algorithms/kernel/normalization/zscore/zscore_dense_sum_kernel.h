@@ -24,8 +24,8 @@
 #ifndef __ZSCORE_DENSE_SUM_KERNEL_H__
 #define __ZSCORE_DENSE_SUM_KERNEL_H__
 
-#include "service_math.h"
-#include "service_memory.h"
+#include "externals/service_math.h"
+#include "externals/service_memory.h"
 
 using namespace daal::internal;
 using namespace daal::services;
@@ -41,21 +41,18 @@ namespace zscore
 {
 namespace internal
 {
-
 /**
 *  \brief Specialization of the structure that contains kernels for z-score normalization using sumDense method
 */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class ZScoreKernel<algorithmFPType, sumDense, cpu> : public ZScoreKernelBase<algorithmFPType, cpu>
 {
 public:
-    Status computeMeanVariance_thr(NumericTable& inputTable,
-                                   algorithmFPType* resultMean,
-                                   algorithmFPType* resultVariance,
-                                   const daal::algorithms::Parameter& parameter) DAAL_C11_OVERRIDE;
+    Status computeMeanVariance_thr(NumericTable & inputTable, algorithmFPType * resultMean, algorithmFPType * resultVariance,
+                                   const daal::algorithms::Parameter & parameter) DAAL_C11_OVERRIDE;
 };
 
-} // namespace daal::internal
+} // namespace internal
 } // namespace zscore
 } // namespace normalization
 } // namespace algorithms

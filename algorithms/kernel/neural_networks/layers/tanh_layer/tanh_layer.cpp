@@ -21,7 +21,7 @@
 //--
 */
 
-#include "tanh_layer_types.h"
+#include "algorithms/neural_networks/layers/tanh/tanh_layer_types.h"
 
 namespace daal
 {
@@ -40,9 +40,9 @@ namespace interface1
  */
 Parameter::Parameter() {};
 
-}// namespace interface1
-}// namespace tanh
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace tanh
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "linear_regression_training_result.h"
+#include "algorithms/kernel/linear_regression/linear_regression_training_result.h"
 
 namespace daal
 {
@@ -31,11 +31,12 @@ namespace linear_regression
 {
 namespace training
 {
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const Parameter * parameter,
+                                                                    const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult * partialResult,
+                                                                    const Parameter * parameter, const int method);
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const Parameter *parameter, const int method);
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult *partialResult, const Parameter *parameter, const int method);
-
-}// namespace training
-}// namespace linear_regression
-}// namespace algorithms
-}// namespace daal
+} // namespace training
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal

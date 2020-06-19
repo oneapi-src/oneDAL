@@ -19,14 +19,13 @@
 //  Implementation of reshape layer.
 //--
 
-
 #ifndef __RESHAPE_LAYER_BACKWARD_KERNEL_H__
 #define __RESHAPE_LAYER_BACKWARD_KERNEL_H__
 
-#include "neural_networks/layers/reshape/reshape_layer.h"
-#include "neural_networks/layers/reshape/reshape_layer_types.h"
-#include "kernel.h"
-#include "layers_threading.h"
+#include "algorithms/neural_networks/layers/reshape/reshape_layer.h"
+#include "algorithms/neural_networks/layers/reshape/reshape_layer_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/kernel/neural_networks/layers/layers_threading.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -46,23 +45,22 @@ namespace backward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for reshape calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class ReshapeKernel : public Kernel
 {
 public:
-    services::Status compute(const Tensor &inputTensor, Tensor &resultTensor);
+    services::Status compute(const Tensor & inputTensor, Tensor & resultTensor);
 };
 
-} // internal
-} // backward
-} // reshape
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace backward
+} // namespace reshape
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

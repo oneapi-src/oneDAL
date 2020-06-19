@@ -21,8 +21,8 @@
 //--
 */
 
-#include "neural_networks_learnable_parameters.h"
-#include "neural_networks_weights_and_biases.h"
+#include "algorithms/neural_networks/neural_networks_learnable_parameters.h"
+#include "algorithms/kernel/neural_networks/neural_networks_weights_and_biases.h"
 
 namespace daal
 {
@@ -30,15 +30,17 @@ namespace algorithms
 {
 namespace neural_networks
 {
-
 template class TensorWeightsAndBiases<DAAL_FPTYPE>;
 template class NumericTableWeightsAndBiases<DAAL_FPTYPE>;
 
-template<typename modelFPType>
+template <typename modelFPType>
 services::Status DAAL_EXPORT ModelImpl::createWeightsAndBiases(bool checkAllocation)
 {
     using namespace services;
-    if (_weightsAndBiasesCreated) { return services::Status(); }
+    if (_weightsAndBiasesCreated)
+    {
+        return services::Status();
+    }
     services::Status s;
 
     if (checkAllocation)
@@ -54,14 +56,13 @@ services::Status DAAL_EXPORT ModelImpl::createWeightsAndBiases(bool checkAllocat
     {
         _weightsAndBiases = TensorWeightsAndBiases<modelFPType>::create(_forwardLayers, &s);
     }
-    if (s)
-        _weightsAndBiasesCreated = true;
+    if (s) _weightsAndBiasesCreated = true;
 
     return s;
 }
 
 template DAAL_EXPORT services::Status ModelImpl::createWeightsAndBiases<DAAL_FPTYPE>(bool checkAllocation);
 
-}
-}
-}
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

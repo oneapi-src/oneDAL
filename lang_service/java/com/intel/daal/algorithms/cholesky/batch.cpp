@@ -18,7 +18,7 @@
 #include <jni.h>
 #include "com_intel_daal_algorithms_cholesky_Batch.h"
 #include "daal.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #define DefaultMethodValue com_intel_daal_algorithms_cholesky_Method_DefaultMethodValue
 
@@ -30,8 +30,7 @@ using namespace daal::algorithms::cholesky;
  * Method:    cInit
  * Signature:(II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cholesky_Batch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cholesky_Batch_cInit(JNIEnv * env, jobject thisObj, jint prec, jint method)
 {
     return jniBatch<cholesky::Method, Batch, defaultDense>::newObj(prec, method);
 }
@@ -41,8 +40,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cholesky_Batch_cInit
  * Method:    cGetResult
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cholesky_Batch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cholesky_Batch_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<cholesky::Method, Batch, defaultDense>::getResult(prec, method, algAddr);
 }
@@ -52,8 +50,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cholesky_Batch_cGetResult
  * Method:    cSetResult
  * Signature:(JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_cholesky_Batch_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_cholesky_Batch_cSetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method,
+                                                                                jlong resultAddr)
 {
     jniBatch<cholesky::Method, Batch, defaultDense>::setResult<cholesky::Result>(prec, method, algAddr, resultAddr);
 }
@@ -63,8 +61,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_cholesky_Batch_cSetResult
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cholesky_Batch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_cholesky_Batch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<cholesky::Method, Batch, defaultDense>::getClone(prec, method, algAddr);
 }

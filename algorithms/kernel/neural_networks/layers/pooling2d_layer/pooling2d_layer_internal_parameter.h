@@ -24,10 +24,10 @@
 #ifndef __POOLING2D_LAYER_INTERNAL_PARAMETER_H__
 #define __POOLING2D_LAYER_INTERNAL_PARAMETER_H__
 
-#include "service_utils.h"
-#include "tensor.h"
-#include "collection.h"
-#include "service_blas.h"
+#include "service/kernel/service_utils.h"
+#include "data_management/data/tensor.h"
+#include "services/collection.h"
+#include "externals/service_blas.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -44,15 +44,14 @@ namespace pooling2d
 {
 namespace internal
 {
-
 struct Parameter
 {
     /*
      * Input data tensor is viewed by this method as a 5-dimensional tensor of size:
      * offsetBefore * firstSize * offsetBetween * secondSize * offsetAfter
      */
-    Parameter(const size_t *indices, const size_t *padding, const size_t *stride, const size_t *kernelSize,
-              const Tensor &dataTensor, const Collection<size_t> &dims, const Collection<size_t> &valueDims);
+    Parameter(const size_t * indices, const size_t * padding, const size_t * stride, const size_t * kernelSize, const Tensor & dataTensor,
+              const Collection<size_t> & dims, const Collection<size_t> & valueDims);
 
     DAAL_INT firstIndex;
     DAAL_INT secondIndex;
@@ -71,25 +70,22 @@ struct Parameter
     DAAL_INT secondOutSize;
     DAAL_INT offsetAfter;
 
-    bool getPaddingFlag(DAAL_INT fi, DAAL_INT si)
-    {
-        return ((fi < 0) || (fi >= firstSize) || (si < 0) || (si >= secondSize));
-    }
+    bool getPaddingFlag(DAAL_INT fi, DAAL_INT si) { return ((fi < 0) || (fi >= firstSize) || (si < 0) || (si >= secondSize)); }
 
 private:
-    void swap(DAAL_INT &x, DAAL_INT &y)
+    void swap(DAAL_INT & x, DAAL_INT & y)
     {
         DAAL_INT tmp = x;
-        x = y;
-        y = tmp;
+        x            = y;
+        y            = tmp;
     }
 };
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace pooling2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

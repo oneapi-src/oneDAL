@@ -30,8 +30,8 @@ using namespace daal::services;
  * Method:    cGetLowerBound
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformParameter_cGetNumberOfComponents
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformParameter_cGetNumberOfComponents(JNIEnv * env, jobject thisObj,
+                                                                                                               jlong parAddr)
 {
     return (jlong)(reinterpret_cast<pca::transform::Parameter *>(parAddr)->nComponents);
 }
@@ -41,8 +41,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformPa
  * Method:    cSetLowerBound
  * Signature:(JJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformParameter_cSetNumberOfComponents
-(JNIEnv *env, jobject thisObj, jlong parAddr, jlong nComponents)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformParameter_cSetNumberOfComponents(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong parAddr, jlong nComponents)
 {
     reinterpret_cast<pca::transform::Parameter *>(parAddr)->nComponents = nComponents;
 }

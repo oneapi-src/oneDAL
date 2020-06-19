@@ -24,10 +24,10 @@
 #ifndef __OUTLIERDETECTION_BACON_KERNEL_H__
 #define __OUTLIERDETECTION_BACON_KERNEL_H__
 
-#include "outlier_detection_bacon.h"
-#include "kernel.h"
-#include "service_numeric_table.h"
-#include "service_math.h"
+#include "algorithms/outlier_detection/outlier_detection_bacon.h"
+#include "algorithms/kernel/kernel.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_math.h"
 
 using namespace daal::internal;
 using namespace daal::data_management;
@@ -40,11 +40,10 @@ namespace bacon_outlier_detection
 {
 namespace internal
 {
-
 template <typename algorithmFPType, Method method, CpuType cpu>
 struct OutlierDetectionKernel : public Kernel
 {
-    services::Status compute(NumericTable &data, NumericTable &weights, const Parameter &par);
+    services::Status compute(NumericTable & data, NumericTable & weights, const Parameter & par);
 };
 
 } // namespace internal

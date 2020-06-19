@@ -21,8 +21,8 @@
 //--
 */
 
-#include "linear_regression_qr_model_impl.h"
-#include "serialization_utils.h"
+#include "algorithms/kernel/linear_regression/linear_regression_qr_model_impl.h"
+#include "service/kernel/serialization_utils.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -53,14 +53,20 @@ Status ModelQRInternal::initialize()
  * Returns a Numeric table that contains the R factor of QR decomposition
  * \return Numeric table that contains the R factor of QR decomposition
  */
-NumericTablePtr ModelQRInternal::getRTable() { return _rTable; }
+NumericTablePtr ModelQRInternal::getRTable()
+{
+    return _rTable;
+}
 
 /**
  * Returns a Numeric table that contains Q'*Y, where Q is the factor of QR decomposition for a data block,
  * Y is the respective block of the matrix of responses
  * \return Numeric table that contains partial sums Q'*Y
  */
-NumericTablePtr ModelQRInternal::getQTYTable() { return _qtyTable; }
+NumericTablePtr ModelQRInternal::getQTYTable()
+{
+    return _qtyTable;
+}
 
 } // namespace internal
 } // namespace linear_regression

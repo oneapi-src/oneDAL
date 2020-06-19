@@ -21,9 +21,9 @@
 //--
 */
 
-#include "qr_dense_default_kernel.h"
-#include "qr_dense_default_distr_impl.i"
-#include "qr_dense_default_container.h"
+#include "algorithms/kernel/qr/qr_dense_default_kernel.h"
+#include "algorithms/kernel/qr/qr_dense_default_distr_impl.i"
+#include "algorithms/kernel/qr/qr_dense_default_container.h"
 
 namespace daal
 {
@@ -39,6 +39,6 @@ namespace internal
 {
 template class QRDistributedStep2Kernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
-}
-}
-}
+} // namespace qr
+} // namespace algorithms
+} // namespace daal

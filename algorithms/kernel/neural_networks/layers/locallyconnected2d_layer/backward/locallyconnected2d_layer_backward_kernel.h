@@ -19,17 +19,16 @@
 //  Declaration of template function that calculate locallyconnected2ds.
 //--
 
-
 #ifndef __LOCALLYCONNECTED2D_LAYER_BACKWARD_KERNEL_H__
 #define __LOCALLYCONNECTED2D_LAYER_BACKWARD_KERNEL_H__
 
-#include "neural_networks/layers/locallyconnected2d/locallyconnected2d_layer.h"
-#include "neural_networks/layers/locallyconnected2d/locallyconnected2d_layer_types.h"
-#include "kernel.h"
-#include "service_math.h"
-#include "numeric_table.h"
-#include "service_tensor.h"
-#include "service_blas.h"
+#include "algorithms/neural_networks/layers/locallyconnected2d/locallyconnected2d_layer.h"
+#include "algorithms/neural_networks/layers/locallyconnected2d/locallyconnected2d_layer_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "externals/service_math.h"
+#include "data_management/data/numeric_table.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "externals/service_blas.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -48,26 +47,24 @@ namespace backward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for locallyconnected2d calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class LocallyConnected2dKernel : public Kernel
 {
 public:
-    services::Status compute(const Tensor &inGradTensor, Tensor &gradientTensor, Tensor &auxDataTensor,
-                                                        Tensor &auxWeightsTensor, Tensor &wDerTensor, Tensor &bDerTensor,
-                                                        const locallyconnected2d::Parameter &parameter);
+    services::Status compute(const Tensor & inGradTensor, Tensor & gradientTensor, Tensor & auxDataTensor, Tensor & auxWeightsTensor,
+                             Tensor & wDerTensor, Tensor & bDerTensor, const locallyconnected2d::Parameter & parameter);
     DAAL_INT _floor(DAAL_INT numerator, DAAL_INT denominator);
 };
 
-} // internal
-} // backward
-} // locallyconnected2d
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace backward
+} // namespace locallyconnected2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

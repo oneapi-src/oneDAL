@@ -21,8 +21,8 @@
 //--
 */
 
-#include "softmax_layer_forward_types.h"
-#include "softmax_layer_types.h"
+#include "algorithms/neural_networks/layers/softmax/softmax_layer_forward_types.h"
+#include "algorithms/neural_networks/layers/softmax/softmax_layer_types.h"
 
 namespace daal
 {
@@ -45,16 +45,16 @@ namespace interface1
 * \param[in] method    Computation method
 */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
-    const layers::forward::Input *in = static_cast<const layers::forward::Input * >(input);
+    const layers::forward::Input * in = static_cast<const layers::forward::Input *>(input);
     services::Status s;
     if (!get(layers::forward::value))
     {
         DAAL_ALLOCATE_TENSOR_AND_SET(s, layers::forward::value, in->get(layers::forward::data)->getDimensions());
     }
-    const layers::Parameter *parameter = static_cast<const layers::Parameter * >(par);
-    if(!parameter->predictionStage)
+    const layers::Parameter * parameter = static_cast<const layers::Parameter *>(par);
+    if (!parameter->predictionStage)
     {
         if (!get(layers::forward::resultForBackward))
         {
@@ -65,12 +65,13 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace forward
-}// namespace softmax
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace softmax
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

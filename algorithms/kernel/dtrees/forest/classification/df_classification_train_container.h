@@ -24,12 +24,12 @@
 #ifndef __DF_CLASSIFICATION_TRAIN_CONTAINER_H__
 #define __DF_CLASSIFICATION_TRAIN_CONTAINER_H__
 
-#include "kernel.h"
-#include "decision_forest_classification_training_types.h"
-#include "decision_forest_classification_training_batch.h"
-#include "df_classification_train_kernel.h"
-#include "df_classification_model_impl.h"
-#include "service_algo_utils.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/decision_forest/decision_forest_classification_training_types.h"
+#include "algorithms/decision_forest/decision_forest_classification_training_batch.h"
+#include "algorithms/kernel/dtrees/forest/classification/df_classification_train_kernel.h"
+#include "algorithms/kernel/dtrees/forest/classification/df_classification_model_impl.h"
+#include "service/kernel/service_algo_utils.h"
 
 namespace daal
 {
@@ -43,9 +43,8 @@ namespace training
 {
 namespace interface2
 {
-
 template <typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::ClassificationTrainBatchKernel, algorithmFPType, method);
 }
@@ -59,39 +58,38 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    classifier::training::Input *input = static_cast<classifier::training::Input *>(_in);
-    Result *result = static_cast<Result *>(_res);
+    classifier::training::Input * input = static_cast<classifier::training::Input *>(_in);
+    Result * result                     = static_cast<Result *>(_res);
 
-    NumericTable *x = input->get(classifier::training::data).get();
-    NumericTable *y = input->get(classifier::training::labels).get();
+    NumericTable * x = input->get(classifier::training::data).get();
+    NumericTable * y = input->get(classifier::training::labels).get();
 
-    decision_forest::classification::Model *m = result->get(classifier::training::model).get();
+    decision_forest::classification::Model * m = result->get(classifier::training::model).get();
     m->setNFeatures(x->getNumberOfColumns());
 
-    const decision_forest::classification::training::Parameter *par =
-        static_cast<decision_forest::classification::training::Parameter*>(_par);
-    daal::services::Environment::env &env = *_env;
+    const decision_forest::classification::training::Parameter * par = static_cast<decision_forest::classification::training::Parameter *>(_par);
+    daal::services::Environment::env & env                           = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::ClassificationTrainBatchKernel,
-        __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, daal::services::internal::hostApp(*input), x, y, *m, *result, *par);
+    __DAAL_CALL_KERNEL(env, internal::ClassificationTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+                       daal::services::internal::hostApp(*input), x, y, *m, *result, *par);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::setupCompute()
 {
-    Result *result = static_cast<Result *>(_res);
-    decision_forest::classification::Model *m = result->get(classifier::training::model).get();
-    decision_forest::classification::internal::ModelImpl* pImpl = dynamic_cast<decision_forest::classification::internal::ModelImpl*>(m);
+    Result * result                                              = static_cast<Result *>(_res);
+    decision_forest::classification::Model * m                   = result->get(classifier::training::model).get();
+    decision_forest::classification::internal::ModelImpl * pImpl = dynamic_cast<decision_forest::classification::internal::ModelImpl *>(m);
     DAAL_ASSERT(pImpl);
     pImpl->clear();
     return services::Status();
 }
 
-}
-}
-}
-}
-}
-}
+} // namespace interface2
+} // namespace training
+} // namespace classification
+} // namespace decision_forest
+} // namespace algorithms
+} // namespace daal
 
 #endif

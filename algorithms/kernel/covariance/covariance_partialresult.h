@@ -24,7 +24,7 @@
 #ifndef __COVARIANCE_PARTIALRESULT_
 #define __COVARIANCE_PARTIALRESULT_
 
-#include "covariance_types.h"
+#include "algorithms/covariance/covariance_types.h"
 
 using namespace daal::data_management;
 namespace daal
@@ -33,7 +33,6 @@ namespace algorithms
 {
 namespace covariance
 {
-
 /**
  * Allocates memory to store partial results of the correlation or variance-covariance matrix algorithm
  * \param[in] input     %Input objects of the algorithm
@@ -41,10 +40,11 @@ namespace covariance
  * \param[in] method    Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                     const int method)
 {
-    const InputIface *algInput = static_cast<const InputIface *>(input);
-    size_t nColumns = algInput->getNumberOfFeatures();
+    const InputIface * algInput = static_cast<const InputIface *>(input);
+    size_t nColumns             = algInput->getNumberOfFeatures();
     services::Status status;
 
     set(nObservations, HomogenNumericTable<size_t>::create(1, 1, NumericTable::doAllocate, &status));
@@ -54,10 +54,11 @@ DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Inp
 }
 
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status PartialResult::initialize(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status PartialResult::initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                       const int method)
 {
-    const InputIface *algInput = static_cast<const InputIface *>(input);
-    size_t nColumns = algInput->getNumberOfFeatures();
+    const InputIface * algInput = static_cast<const InputIface *>(input);
+    size_t nColumns             = algInput->getNumberOfFeatures();
 
     get(nObservations)->assign((algorithmFPType)0.0);
     get(crossProduct)->assign((algorithmFPType)0.0);

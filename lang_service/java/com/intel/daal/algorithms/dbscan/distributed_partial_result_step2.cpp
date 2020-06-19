@@ -19,13 +19,13 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_dbscan_DistributedPartialResultStep2.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::dbscan;
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep2_cNewDistributedPartialResultStep2
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep2_cNewDistributedPartialResultStep2(JNIEnv * env,
+                                                                                                                              jobject thisObj)
 {
     return jniArgument<DistributedPartialResultStep2>::newObj();
 }
@@ -35,8 +35,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartial
  * Method:    cGetNumericTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep2_cGetNumericTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep2_cGetNumericTable(JNIEnv * env, jobject thisObj,
+                                                                                                             jlong resAddr, jint id)
 {
     return jniArgument<DistributedPartialResultStep2>::get<DistributedPartialResultStep2Id, NumericTable>(resAddr, id);
 }
@@ -46,8 +46,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartial
  * Method:    cSetNumericTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep2_cSetNumericTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep2_cSetNumericTable(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong resAddr, jint id, jlong ntAddr)
 {
     jniArgument<DistributedPartialResultStep2>::set<DistributedPartialResultStep2Id, NumericTable>(resAddr, id, ntAddr);
 }

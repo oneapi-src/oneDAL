@@ -17,7 +17,7 @@
 
 /**
  * @defgroup classifier_training_batch Batch
- * @ingroup training
+ * @ingroup classifier_training
  * @{
  */
 package com.intel.daal.algorithms.classifier.training;

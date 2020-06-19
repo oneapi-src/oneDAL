@@ -28,8 +28,8 @@ using namespace daal::data_management;
  * Method:    cInit
  * Signature:(I)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_zlib_ZlibCompressionParameter_cSetGzHeader
-(JNIEnv *env, jobject, jlong parAddr, jboolean header)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_zlib_ZlibCompressionParameter_cSetGzHeader(JNIEnv * env, jobject,
+                                                                                                                   jlong parAddr, jboolean header)
 {
     (*((ZlibCompressionParameter *)parAddr)).gzHeader = header;
 }
@@ -39,8 +39,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_zlib_Zli
 * Method:    cGetCompressionLevel
 * Signature:(J)I
 */
-JNIEXPORT jboolean JNICALL Java_com_intel_daal_data_1management_compression_zlib_ZlibCompressionParameter_cGetGzHeader
-(JNIEnv *env, jobject, jlong parAddr)
+JNIEXPORT jboolean JNICALL Java_com_intel_daal_data_1management_compression_zlib_ZlibCompressionParameter_cGetGzHeader(JNIEnv * env, jobject,
+                                                                                                                       jlong parAddr)
 {
-    return(jboolean)(*((ZlibCompressionParameter *)parAddr)).gzHeader;
+    return (jboolean)(*((ZlibCompressionParameter *)parAddr)).gzHeader;
 }

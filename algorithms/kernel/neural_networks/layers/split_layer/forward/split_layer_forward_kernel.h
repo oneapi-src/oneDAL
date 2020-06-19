@@ -19,16 +19,15 @@
 //  Declaration of template function that calculate splits.
 //--
 
-
 #ifndef __SPLIT_LAYER_FORWARD_KERNEL_H__
 #define __SPLIT_LAYER_FORWARD_KERNEL_H__
 
-#include "neural_networks/layers/split/split_layer.h"
-#include "neural_networks/layers/split/split_layer_types.h"
-#include "kernel.h"
-#include "service_dnn.h"
-#include "service_dnn_internal.h"
-#include "layers_threading.h"
+#include "algorithms/neural_networks/layers/split/split_layer.h"
+#include "algorithms/neural_networks/layers/split/split_layer_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "externals/service_dnn.h"
+#include "algorithms/kernel/service_dnn_internal.h"
+#include "algorithms/kernel/neural_networks/layers/layers_threading.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -50,25 +49,25 @@ namespace internal
 /**
  *  \brief Kernel for split calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class SplitKernel : public Kernel
 {
 public:
-    services::Status compute(Tensor *inputTensor, Tensor *resultTensors[], size_t nOutputs);
+    services::Status compute(Tensor * inputTensor, Tensor * resultTensors[], size_t nOutputs);
 
 private:
     typedef daal::internal::Dnn<algorithmFPType, cpu> dnn;
 
     const size_t _nRowsInBlock = 5000;
 
-    inline Status processBlock(Tensor *inputTensor, size_t nProcessedRows, size_t nRowsInCurrentBlock, Tensor *resultTensor);
+    inline Status processBlock(Tensor * inputTensor, size_t nProcessedRows, size_t nRowsInCurrentBlock, Tensor * resultTensor);
 };
-} // internal
-} // forward
-} // split
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace forward
+} // namespace split
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

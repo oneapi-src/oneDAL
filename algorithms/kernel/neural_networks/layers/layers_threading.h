@@ -18,12 +18,12 @@
 #ifndef __LAYERS_THREADING_H__
 #define __LAYERS_THREADING_H__
 
-#include "tensor.h"
-#include "threading.h"
-#include "service_tensor.h"
-#include "service_numeric_table.h"
-#include "service_error_handling.h"
-#include "service_mkl_tensor.h"
+#include "data_management/data/tensor.h"
+#include "algorithms/threading/threading.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "service/kernel/data_management/service_mkl_tensor.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -39,13 +39,13 @@ namespace layers
 {
 namespace internal
 {
-
-inline void getNumberOfFixedDims(const TensorOffsetLayout &inputLayout, const Collection<size_t> &dims, size_t &fDimN, const size_t minElementsNumInBlock)
+inline void getNumberOfFixedDims(const TensorOffsetLayout & inputLayout, const Collection<size_t> & dims, size_t & fDimN,
+                                 const size_t minElementsNumInBlock)
 {
-    const Collection<size_t> &inputOffsets = inputLayout.getOffsets();
-    size_t nDims = dims.size();
+    const Collection<size_t> & inputOffsets = inputLayout.getOffsets();
+    size_t nDims                            = dims.size();
 
-    for(int idx = nDims - 1; idx >= 0; idx--)
+    for (int idx = nDims - 1; idx >= 0; idx--)
     {
         if (inputOffsets[idx] > minElementsNumInBlock)
         {
@@ -55,7 +55,7 @@ inline void getNumberOfFixedDims(const TensorOffsetLayout &inputLayout, const Co
     }
 }
 
-inline void getFixedDimsIndexes(const size_t fDimN, size_t *fDims, const Collection<size_t> &dims, const size_t i)
+inline void getFixedDimsIndexes(const size_t fDimN, size_t * fDims, const Collection<size_t> & dims, const size_t i)
 {
     size_t offsetAfter = dims[fDimN - 1];
 
@@ -63,10 +63,10 @@ inline void getFixedDimsIndexes(const size_t fDimN, size_t *fDims, const Collect
     fDims[fDimN - 1] = i % dims[fDimN - 1];
 
     /* Count indexes starting from the penultimate element of the fDims[] array*/
-    for(size_t j = fDimN - 1; j > 0; j--)
+    for (size_t j = fDimN - 1; j > 0; j--)
     {
         size_t totalOffset = offsetAfter * dims[j - 1];
-        size_t nTimes = i / totalOffset;
+        size_t nTimes      = i / totalOffset;
 
         fDims[j - 1] = (i - totalOffset * nTimes) / offsetAfter;
 
@@ -77,28 +77,28 @@ inline void getFixedDimsIndexes(const size_t fDimN, size_t *fDims, const Collect
 #undef __DAAL_MAKE_TENSOR_THREADSAFE
 #define __DAAL_MAKE_TENSOR_THREADSAFE(TensorPtr)                            \
     {                                                                       \
-        if (dynamic_cast<MklTensor<float>*>(TensorPtr))                     \
+        if (dynamic_cast<MklTensor<float> *>(TensorPtr))                    \
         {                                                                   \
-            dynamic_cast<MklTensor<float>*>(TensorPtr)->syncDnnToPlain();   \
+            dynamic_cast<MklTensor<float> *>(TensorPtr)->syncDnnToPlain();  \
         }                                                                   \
-        if (dynamic_cast<MklTensor<double>*>(TensorPtr))                    \
+        if (dynamic_cast<MklTensor<double> *>(TensorPtr))                   \
         {                                                                   \
-            dynamic_cast<MklTensor<double>*>(TensorPtr)->syncDnnToPlain();  \
+            dynamic_cast<MklTensor<double> *>(TensorPtr)->syncDnnToPlain(); \
         }                                                                   \
     }
 
-template<CpuType cpu, typename F>
-Status computeImpl(const Tensor &inputTensor, const F &processBlock, const size_t minElementsNumInBlock = 997)
+template <CpuType cpu, typename F>
+Status computeImpl(const Tensor & inputTensor, const F & processBlock, const size_t minElementsNumInBlock = 997)
 {
-    __DAAL_MAKE_TENSOR_THREADSAFE(const_cast<Tensor*>(&inputTensor));
+    __DAAL_MAKE_TENSOR_THREADSAFE(const_cast<Tensor *>(&inputTensor));
 
-    const Collection<size_t> &dims = inputTensor.getDimensions();
-    TensorOffsetLayout inputLayout = inputTensor.createRawSubtensorLayout();
+    const Collection<size_t> & dims = inputTensor.getDimensions();
+    TensorOffsetLayout inputLayout  = inputTensor.createRawSubtensorLayout();
 
     size_t fDimN = 0;
     getNumberOfFixedDims(inputLayout, dims, fDimN, minElementsNumInBlock);
 
-    if(fDimN == 0)
+    if (fDimN == 0)
     {
         return processBlock(fDimN, 0, dims[fDimN], inputLayout);
     }
@@ -107,25 +107,24 @@ Status computeImpl(const Tensor &inputTensor, const F &processBlock, const size_
         size_t nBlocks = inputTensor.getSize(0, fDimN);
 
         SafeStatus safeStat;
-        daal::threader_for(nBlocks, nBlocks, [ =, &safeStat, &dims ](size_t i)
-        {
+        daal::threader_for(nBlocks, nBlocks, [=, &safeStat, &dims](size_t i) {
             TArray<size_t, cpu> fdimsBlock(fDimN);
-            size_t *fDims = fdimsBlock.get();
+            size_t * fDims = fdimsBlock.get();
             DAAL_CHECK_THR(fDims, ErrorMemoryAllocationFailed);
 
             getFixedDimsIndexes(fDimN, fDims, dims, i);
             Status localStatus = processBlock(fDimN, fDims, dims[fDimN], inputLayout);
             DAAL_CHECK_STATUS_THR(localStatus);
-        } );
+        });
         DAAL_CHECK_SAFE_STATUS();
     }
     return Status();
 }
 
-} // internal
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

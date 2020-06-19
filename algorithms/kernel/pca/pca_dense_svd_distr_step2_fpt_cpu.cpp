@@ -19,9 +19,9 @@
 //  Implementation of PCA calculation functions.
 //--
 
-#include "pca_dense_svd_distr_step2_container.h"
-#include "pca_dense_svd_distr_step2_kernel.h"
-#include "pca_dense_svd_distr_step2_impl.i"
+#include "algorithms/kernel/pca/pca_dense_svd_distr_step2_container.h"
+#include "algorithms/kernel/pca/pca_dense_svd_distr_step2_kernel.h"
+#include "algorithms/kernel/pca/pca_dense_svd_distr_step2_impl.i"
 
 namespace daal
 {
@@ -37,6 +37,6 @@ namespace internal
 {
 template class PCASVDStep2MasterKernel<DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
+} // namespace pca
+} // namespace algorithms
+} // namespace daal

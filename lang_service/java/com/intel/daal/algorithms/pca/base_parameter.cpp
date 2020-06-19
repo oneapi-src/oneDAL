@@ -30,57 +30,58 @@ using namespace daal::data_management;
 #define CorrelationDenseValue com_intel_daal_algorithms_pca_Method_correlationDenseValue
 #define SVDDenseValue         com_intel_daal_algorithms_pca_Method_svdDenseValue
 
-#include "common_defines.i"
+#include "lang_service/java/com/intel/daal/include/common_defines.i"
 
 /*
  * Class:     com_intel_daal_algorithms_pca_BaseParameter
  * Method:    cSetCovariance
  * Signature: (JJJIIII)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_BaseParameter_cSetCovariance
-(JNIEnv *env, jobject thisObj, jlong parAddr, jlong covarianceAddr, jint method, jint cmode, jint computeStep, jint prec)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_BaseParameter_cSetCovariance(JNIEnv * env, jobject thisObj, jlong parAddr,
+                                                                                       jlong covarianceAddr, jint method, jint cmode,
+                                                                                       jint computeStep, jint prec)
 {
     using namespace daal::algorithms::pca;
 
-    if(method == CorrelationDenseValue)
+    if (method == CorrelationDenseValue)
     {
-        if(cmode == jBatch)
+        if (cmode == jBatch)
         {
-            if(prec == 0) //double
+            if (prec == 0) //double
             {
-                BatchParameter<double, correlationDense> *parameterAddr = (BatchParameter<double, correlationDense> *)parAddr;
-                parameterAddr->covariance = *((SharedPtr<daal::algorithms::covariance::BatchImpl> *)covarianceAddr);
+                BatchParameter<double, correlationDense> * parameterAddr = (BatchParameter<double, correlationDense> *)parAddr;
+                parameterAddr->covariance                                = *((SharedPtr<daal::algorithms::covariance::BatchImpl> *)covarianceAddr);
             }
             else
             {
-                BatchParameter<float, correlationDense> *parameterAddr = (BatchParameter<float, correlationDense> *)parAddr;
-                parameterAddr->covariance = *((SharedPtr<daal::algorithms::covariance::BatchImpl> *)covarianceAddr);
+                BatchParameter<float, correlationDense> * parameterAddr = (BatchParameter<float, correlationDense> *)parAddr;
+                parameterAddr->covariance                               = *((SharedPtr<daal::algorithms::covariance::BatchImpl> *)covarianceAddr);
             }
         }
-        else if(cmode == jOnline || (cmode == jDistributed && computeStep == jStep1Local))
+        else if (cmode == jOnline || (cmode == jDistributed && computeStep == jStep1Local))
         {
-            if(prec == 0) //double
+            if (prec == 0) //double
             {
-                OnlineParameter<double, correlationDense> *parameterAddr = (OnlineParameter<double, correlationDense> *)parAddr;
-                parameterAddr->covariance = *((SharedPtr<daal::algorithms::covariance::OnlineImpl> *)covarianceAddr);
+                OnlineParameter<double, correlationDense> * parameterAddr = (OnlineParameter<double, correlationDense> *)parAddr;
+                parameterAddr->covariance                                 = *((SharedPtr<daal::algorithms::covariance::OnlineImpl> *)covarianceAddr);
             }
             else
             {
-                OnlineParameter<float, correlationDense> *parameterAddr = (OnlineParameter<float, correlationDense> *)parAddr;
-                parameterAddr->covariance = *((SharedPtr<daal::algorithms::covariance::OnlineImpl> *)covarianceAddr);
+                OnlineParameter<float, correlationDense> * parameterAddr = (OnlineParameter<float, correlationDense> *)parAddr;
+                parameterAddr->covariance                                = *((SharedPtr<daal::algorithms::covariance::OnlineImpl> *)covarianceAddr);
             }
         }
-        else if(cmode == jDistributed)
+        else if (cmode == jDistributed)
         {
-            if(prec == 0) //double
+            if (prec == 0) //double
             {
-                DistributedParameter<step2Master, double, correlationDense> *parameterAddr =
+                DistributedParameter<step2Master, double, correlationDense> * parameterAddr =
                     (DistributedParameter<step2Master, double, correlationDense> *)parAddr;
                 parameterAddr->covariance = *((SharedPtr<daal::algorithms::covariance::DistributedIface<step2Master> > *)covarianceAddr);
             }
             else
             {
-                DistributedParameter<step2Master, float, correlationDense> *parameterAddr =
+                DistributedParameter<step2Master, float, correlationDense> * parameterAddr =
                     (DistributedParameter<step2Master, float, correlationDense> *)parAddr;
                 parameterAddr->covariance = *((SharedPtr<daal::algorithms::covariance::DistributedIface<step2Master> > *)covarianceAddr);
             }

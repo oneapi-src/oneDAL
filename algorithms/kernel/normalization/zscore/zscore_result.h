@@ -24,8 +24,8 @@
 #ifndef __ZSCORE_RESULT_H__
 #define __ZSCORE_RESULT_H__
 
-#include "zscore_types.h"
-#include "inner/zscore_result_v1.h"
+#include "algorithms/normalization/zscore_types.h"
+#include "algorithms/kernel/normalization/zscore/inner/zscore_result_v1.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -38,17 +38,15 @@ namespace normalization
 {
 namespace zscore
 {
-
 namespace interface2
 {
-
 class ResultImpl : public interface1::ResultImpl
 {
 public:
     DAAL_CAST_OPERATOR(ResultImpl);
 
     ResultImpl(const size_t n) : interface1::ResultImpl(n) {}
-    ResultImpl(const ResultImpl& o) : interface1::ResultImpl(o){}
+    ResultImpl(const ResultImpl & o) : interface1::ResultImpl(o) {}
 
     using DataCollection::operator[];
     virtual ~ResultImpl() {};
@@ -61,7 +59,7 @@ public:
     * \return Status of computations
     */
     template <typename algorithmFPType>
-    services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter);
+    services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter);
 
     /**
     * Checks the correctness of the Result object
@@ -70,14 +68,14 @@ public:
     *
     * \return Status of computations
     */
-    services::Status check(const daal::algorithms::Input *in, const daal::algorithms::Parameter *par) const;
+    services::Status check(const daal::algorithms::Input * in, const daal::algorithms::Parameter * par) const;
 };
 
-}// namespace interface2
+} // namespace interface2
 
-}// namespace zscore
-}// namespace normalization
-}// namespace algorithms
-}// namespace daal
+} // namespace zscore
+} // namespace normalization
+} // namespace algorithms
+} // namespace daal
 
 #endif

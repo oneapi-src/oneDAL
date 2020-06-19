@@ -23,12 +23,12 @@
 
 #include "algorithms/decision_tree/decision_tree_regression_model.h"
 #include "algorithms/stump/stump_regression_model.h"
-#include "regression_model_impl.h"
-#include "decision_tree_regression_model_impl.h"
-#include "service_defines.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
-#include "stump_regression_model_visitor.h"
+#include "algorithms/kernel/regression/regression_model_impl.h"
+#include "algorithms/kernel/decision_tree/decision_tree_regression_model_impl.h"
+#include "service/kernel/service_defines.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
+#include "algorithms/kernel/stump/stump_regression_model_visitor.h"
 
 namespace daal
 {
@@ -40,7 +40,6 @@ namespace regression
 {
 namespace interface1
 {
-
 using namespace daal::data_management;
 using namespace daal::services;
 
@@ -48,16 +47,19 @@ __DAAL_REGISTER_SERIALIZATION_CLASS(Model, SERIALIZATION_STUMP_REGRESSION_MODEL_
 
 Model::~Model() {}
 
-Model::Model(services::Status &st) : decision_tree::regression::Model()
+Model::Model(services::Status & st) : decision_tree::regression::Model()
 {
-    if(!impl()) { st.add(services::ErrorMemoryAllocationFailed); }
+    if (!impl())
+    {
+        st.add(services::ErrorMemoryAllocationFailed);
+    }
 }
 
-services::SharedPtr<Model> Model::create(services::Status *stat)
+services::SharedPtr<Model> Model::create(services::Status * stat)
 {
     DAAL_DEFAULT_CREATE_IMPL(Model);
 }
-services::Status Model::serializeImpl(data_management::InputDataArchive   *arch)
+services::Status Model::serializeImpl(data_management::InputDataArchive * arch)
 {
     daal::algorithms::regression::Model::serialImpl<data_management::InputDataArchive, false>(arch);
     impl()->serialImpl<data_management::InputDataArchive, false>(arch);
@@ -65,11 +67,11 @@ services::Status Model::serializeImpl(data_management::InputDataArchive   *arch)
     return services::Status();
 }
 
-services::Status Model::deserializeImpl(const data_management::OutputDataArchive *arch)
+services::Status Model::deserializeImpl(const data_management::OutputDataArchive * arch)
 {
     daal::algorithms::regression::Model::serialImpl<const data_management::OutputDataArchive, true>(arch);
-    impl()->serialImpl<const data_management::OutputDataArchive, true>(arch,
-            COMPUTE_DAAL_VERSION(arch->getMajorVersion(), arch->getMinorVersion(), arch->getUpdateVersion()));
+    impl()->serialImpl<const data_management::OutputDataArchive, true>(
+        arch, COMPUTE_DAAL_VERSION(arch->getMajorVersion(), arch->getMinorVersion(), arch->getUpdateVersion()));
 
     return services::Status();
 }
@@ -80,7 +82,6 @@ size_t Model::getSplitFeature() const
     traverseDFS(visitor);
     return visitor.splitFeature;
 }
-
 
 services::Status Parameter::check() const
 {

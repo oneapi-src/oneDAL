@@ -23,7 +23,7 @@
 #ifndef __SVD_DENSE_DEFAULT_BATCH__
 #define __SVD_DENSE_DEFAULT_BATCH__
 
-#include "svd_types.h"
+#include "algorithms/svd/svd_types.h"
 
 using namespace daal::services;
 using namespace daal::data_management;
@@ -36,7 +36,6 @@ namespace svd
 {
 namespace interface1
 {
-
 /**
  * Allocates memory to store final results of the SVD algorithm
  * \param[in] input     Pointer to the input object
@@ -44,9 +43,9 @@ namespace interface1
  * \param[in] method    Algorithm computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const Input *in = static_cast<const Input *>(input);
+    const Input * in = static_cast<const Input *>(input);
     return allocateImpl<algorithmFPType>(in->get(data)->getNumberOfColumns(), in->get(data)->getNumberOfRows());
 }
 
@@ -57,9 +56,9 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input, const 
  * \param[in] method         Algorithm computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::PartialResult *partialResult, daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT Status Result::allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter, const int method)
 {
-    const OnlinePartialResult *in = static_cast<const OnlinePartialResult *>(partialResult);
+    const OnlinePartialResult * in = static_cast<const OnlinePartialResult *>(partialResult);
     return allocateImpl<algorithmFPType>(in->getNumberOfColumns(), in->getNumberOfRows());
 }
 
@@ -75,16 +74,16 @@ DAAL_EXPORT Status Result::allocateImpl(size_t m, size_t n)
     Status st;
     set(singularValues, HomogenNumericTable<algorithmFPType>::create(m, 1, NumericTable::doAllocate, &st));
     set(rightSingularMatrix, HomogenNumericTable<algorithmFPType>::create(m, m, NumericTable::doAllocate, &st));
-    if(n != 0)
+    if (n != 0)
     {
         set(leftSingularMatrix, HomogenNumericTable<algorithmFPType>::create(m, n, NumericTable::doAllocate, &st));
     }
     return st;
 }
 
-}// namespace interface1
-}// namespace svd
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace svd
+} // namespace algorithms
+} // namespace daal
 
 #endif

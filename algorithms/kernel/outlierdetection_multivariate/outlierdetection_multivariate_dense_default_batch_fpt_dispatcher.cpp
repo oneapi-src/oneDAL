@@ -21,13 +21,14 @@
 //--
 */
 
-#include "outlierdetection_multivariate_batch_container.h"
+#include "algorithms/kernel/outlierdetection_multivariate/outlierdetection_multivariate_batch_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(multivariate_outlier_detection::BatchContainer, batch, DAAL_FPTYPE, multivariate_outlier_detection::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(multivariate_outlier_detection::BatchContainer, batch, DAAL_FPTYPE,
+                                      multivariate_outlier_detection::defaultDense)
 /**
  * Added to support deprecated baconDense value
  */

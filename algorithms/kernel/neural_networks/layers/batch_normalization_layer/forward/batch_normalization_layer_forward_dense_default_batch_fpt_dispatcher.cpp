@@ -19,8 +19,7 @@
 //  Implementation of forward batch normalization layer container.
 //--
 
-
-#include "batch_normalization_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/batch_normalization_layer/forward/batch_normalization_layer_forward_batch_container.h"
 
 namespace daal
 {
@@ -33,9 +32,9 @@ namespace layers
 namespace forward
 {
 __DAAL_INSTANTIATE_DISPATCH_LAYER_CONTAINER_FORWARD(neural_networks::layers::batch_normalization::forward::interface1::BatchContainer, DAAL_FPTYPE,
-                                      neural_networks::layers::batch_normalization::defaultDense)
+                                                    neural_networks::layers::batch_normalization::defaultDense)
 }
-}
-}
-}
-}
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

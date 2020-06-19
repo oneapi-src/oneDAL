@@ -24,17 +24,17 @@
 #ifndef __DF_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_IMPL_I__
 #define __DF_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_IMPL_I__
 
-#include "algorithm.h"
-#include "numeric_table.h"
-#include "df_classification_predict_dense_default_batch.h"
-#include "threading.h"
-#include "daal_defines.h"
-#include "df_classification_model_impl.h"
-#include "service_numeric_table.h"
-#include "service_memory.h"
-#include "dtrees_predict_dense_default_impl.i"
-#include "service_error_handling.h"
-#include "service_arrays.h"
+#include "algorithms/algorithm.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/kernel/dtrees/forest/classification/df_classification_predict_dense_default_batch.h"
+#include "algorithms/threading/threading.h"
+#include "services/daal_defines.h"
+#include "algorithms/kernel/dtrees/forest/classification/df_classification_model_impl.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_memory.h"
+#include "algorithms/kernel/dtrees/dtrees_predict_dense_default_impl.i"
+#include "algorithms/kernel/service_error_handling.h"
+#include "service/kernel/service_arrays.h"
 #include "algorithms/decision_forest/decision_forest_classification_model.h"
 
 using namespace daal::internal;
@@ -59,13 +59,13 @@ typedef int32_t featureIndexType;
 #define _DEFAULT_BLOCK_SIZE                      32
 #define _DEFAULT_BLOCK_SIZE_COMMON               22
 #define _MIN_TREES_FOR_THREADING                 100
-#define _SCALE_FACTOR_FOR_VECT_PARALLEL_COMPUTE  0.3  /* scale tree size to chose whethever vectorized or not compute path in parallel mode */
-#define _MIN_NUMBER_OF_ROWS_FOR_VECT_SEQ_COMPUTE 32 /* min number of rows to be predicted by vectorized compute path in sequential mode */
+#define _SCALE_FACTOR_FOR_VECT_PARALLEL_COMPUTE  0.3 /* scale tree size to chose whethever vectorized or not compute path in parallel mode */
+#define _MIN_NUMBER_OF_ROWS_FOR_VECT_SEQ_COMPUTE 32  /* min number of rows to be predicted by vectorized compute path in sequential mode */
 
 template <typename algorithmFPType, CpuType cpu>
-DAAL_FORCEINLINE void fillResults(const size_t nClasses, const enum VotingMethod votingMethod, const size_t blockSize,
-    const double * const probas, const leftOrClassType * const classes, const uint32_t * const leafsIndexes,
-    algorithmFPType * const resPtr) {
+DAAL_FORCEINLINE void fillResults(const size_t nClasses, const enum VotingMethod votingMethod, const size_t blockSize, const double * const probas,
+                                  const leftOrClassType * const classes, const uint32_t * const leafsIndexes, algorithmFPType * const resPtr)
+{
     if (votingMethod == VotingMethod::unweighted || probas == nullptr)
     {
         PRAGMA_IVDEP
@@ -116,47 +116,54 @@ protected:
 
 public:
     PredictClassificationTask()
-        : _data(nullptr), _res(nullptr), _prob(nullptr), _model(nullptr), _nClasses(0), _votingMethod(lastResultId),
-          _sumTreeSize(0), _cachedData(nullptr), _cachedModel(nullptr), _averageTreeSize(0), _cachedNClasses(0)
+        : _data(nullptr),
+          _res(nullptr),
+          _prob(nullptr),
+          _model(nullptr),
+          _nClasses(0),
+          _votingMethod(lastResultId),
+          _sumTreeSize(0),
+          _cachedData(nullptr),
+          _cachedModel(nullptr),
+          _averageTreeSize(0),
+          _cachedNClasses(0)
     {}
 
-    void setParams(const NumericTable * const x, NumericTable * const y, NumericTable * const prob,
-        const dtrees::internal::ModelImpl * const m, const size_t nClasses, const VotingMethod votingMethod)
+    void setParams(const NumericTable * const x, NumericTable * const y, NumericTable * const prob, const dtrees::internal::ModelImpl * const m,
+                   const size_t nClasses, const VotingMethod votingMethod)
     {
-        _data = x;
-        _res = y;
-        _prob = prob;
-        _model = m;
-        _nClasses = nClasses;
+        _data         = x;
+        _res          = y;
+        _prob         = prob;
+        _model        = m;
+        _nClasses     = nClasses;
         _votingMethod = votingMethod;
     }
 
     Status run(services::HostAppIface * pHostApp);
 
 protected:
-    void predictByTrees(const size_t iFirstTree, const size_t nTrees, const algorithmFPType * const x,
-        algorithmFPType * const resPtr, const size_t nTreesTotal);
+    void predictByTrees(const size_t iFirstTree, const size_t nTrees, const algorithmFPType * const x, algorithmFPType * const resPtr,
+                        const size_t nTreesTotal);
 
-    void predictByTreesWithoutConversion(const size_t iFirstTree, const size_t nTrees,
-                                         const algorithmFPType * const x, double * const prob, const size_t nTreesTotal);
+    void predictByTreesWithoutConversion(const size_t iFirstTree, const size_t nTrees, const algorithmFPType * const x, double * const prob,
+                                         const size_t nTreesTotal);
 
-    void predictByTree(const algorithmFPType * const x, const size_t sizeOfBlock, const size_t nCols,
-                       const featureIndexType * const tFI, const leftOrClassType * const tLC,
-                       const algorithmFPType * const tFV, algorithmFPType * const prob, const size_t iTree);
+    void predictByTree(const algorithmFPType * const x, const size_t sizeOfBlock, const size_t nCols, const featureIndexType * const tFI,
+                       const leftOrClassType * const tLC, const algorithmFPType * const tFV, algorithmFPType * const prob, const size_t iTree);
 
-    void predictByTreeCommon(const algorithmFPType * const x, const size_t sizeOfBlock, const size_t nCols,
-                             const featureIndexType * const fi, const leftOrClassType * const lc,
-                             const algorithmFPType * const fv, algorithmFPType * const prob, const size_t iTree);
+    void predictByTreeCommon(const algorithmFPType * const x, const size_t sizeOfBlock, const size_t nCols, const featureIndexType * const fi,
+                             const leftOrClassType * const lc, const algorithmFPType * const fv, algorithmFPType * const prob, const size_t iTree);
 
-    void parallelPredict(const algorithmFPType * const aX, const DecisionTreeNode * const aNode, const size_t treeSize,
-                         const size_t nBlocks, const size_t nCols, const size_t blockSize, const size_t residualSize,
-                         algorithmFPType * const prob, const size_t iTree);
+    void parallelPredict(const algorithmFPType * const aX, const DecisionTreeNode * const aNode, const size_t treeSize, const size_t nBlocks,
+                         const size_t nCols, const size_t blockSize, const size_t residualSize, algorithmFPType * const prob, const size_t iTree);
 
     Status predictByAllTrees(const size_t nTreesTotal, const DimType & dim);
 
     Status predictAllPointsByAllTrees(const size_t nTreesTotal);
 
-    Status predictByBlocksOfTrees(services::HostAppIface * const pHostApp, const size_t nTreesTotal, const DimType & dim, algorithmFPType * const aClsCounters);
+    Status predictByBlocksOfTrees(services::HostAppIface * const pHostApp, const size_t nTreesTotal, const DimType & dim,
+                                  algorithmFPType * const aClsCounters);
 
     Status predictOneRowByAllTrees(const size_t nTreesTotal);
 
@@ -170,9 +177,10 @@ protected:
         return services::internal::getMaxElementIndex<ClassIndexType, cpu>(counts, _nClasses);
     }
 
-    DAAL_FORCEINLINE void predictByTreeInternal(size_t check, const size_t blockSize, const size_t nCols, uint32_t * const currentNodes, bool * const isSplits,
-                                                const algorithmFPType * const x, const featureIndexType * const fi, const leftOrClassType * const lc,
-                                                const algorithmFPType * const fv, algorithmFPType * const resPtr, const size_t iTree)
+    DAAL_FORCEINLINE void predictByTreeInternal(size_t check, const size_t blockSize, const size_t nCols, uint32_t * const currentNodes,
+                                                bool * const isSplits, const algorithmFPType * const x, const featureIndexType * const fi,
+                                                const leftOrClassType * const lc, const algorithmFPType * const fv, algorithmFPType * const resPtr,
+                                                const size_t iTree)
     {
         for (; check > 0;)
         {
@@ -189,8 +197,7 @@ protected:
             }
         }
         const double * probas = _model->getProbas(iTree);
-        fillResults<algorithmFPType, cpu>(_nClasses, _votingMethod, blockSize, probas,
-           lc, currentNodes, resPtr);
+        fillResults<algorithmFPType, cpu>(_nClasses, _votingMethod, blockSize, probas, lc, currentNodes, resPtr);
     }
 
 protected:
@@ -209,10 +216,10 @@ protected:
     services::internal::TArray<leftOrClassType, cpu> _tLC;
     services::internal::TArray<algorithmFPType, cpu> _tFV;
     services::internal::TArray<int, cpu> _displaces;
-    services::internal::TArray<double*, cpu> _probas;
+    services::internal::TArray<double *, cpu> _probas;
     services::internal::TArray<double, cpu> _probas_d;
     services::internal::TArray<ClassIndexType, cpu> _val;
-    NumericTable* _cachedData;
+    NumericTable * _cachedData;
     size_t _sumTreeSize;
     size_t _averageTreeSize;
     WriteOnlyRows<algorithmFPType, cpu> _resBD;
@@ -226,12 +233,12 @@ protected:
 template <typename algorithmFPType, prediction::Method method, CpuType cpu>
 services::Status PredictKernel<algorithmFPType, method, cpu>::compute(services::HostAppIface * const pHostApp, const NumericTable * const x,
                                                                       const decision_forest::classification::Model * const m, NumericTable * const r,
-                                                                      NumericTable * const prob, const size_t nClasses, const VotingMethod votingMethod)
+                                                                      NumericTable * const prob, const size_t nClasses,
+                                                                      const VotingMethod votingMethod)
 {
     const daal::algorithms::decision_forest::classification::internal::ModelImpl * const pModel =
         static_cast<const daal::algorithms::decision_forest::classification::internal::ModelImpl * const>(m);
-    if(_task == nullptr)
-        _task = new PredictClassificationTask<algorithmFPType, cpu>();
+    if (_task == nullptr) _task = new PredictClassificationTask<algorithmFPType, cpu>();
     _task->setParams(x, r, prob, pModel, nClasses, votingMethod);
     return _task->run(pHostApp);
 }
@@ -241,7 +248,7 @@ void PredictClassificationTask<algorithmFPType, cpu>::predictByTrees(const size_
                                                                      algorithmFPType * const resPtr, const size_t nTreesTotal)
 {
     const algorithmFPType inverseTreesCount = 1.0 / algorithmFPType(nTreesTotal);
-    const size_t iLastTree            = iFirstTree + nTrees;
+    const size_t iLastTree                  = iFirstTree + nTrees;
     for (size_t iTree = iFirstTree; iTree < iLastTree; ++iTree)
     {
         const dtrees::internal::DecisionTreeNode * const pNode =
@@ -269,11 +276,12 @@ void PredictClassificationTask<algorithmFPType, cpu>::predictByTrees(const size_
 }
 
 template <typename algorithmFPType, CpuType cpu>
-void PredictClassificationTask<algorithmFPType, cpu>::predictByTreesWithoutConversion(const size_t iFirstTree, const size_t nTrees, const algorithmFPType * const x,
-                                                                                      double * const resPtr, const size_t nTreesTotal)
+void PredictClassificationTask<algorithmFPType, cpu>::predictByTreesWithoutConversion(const size_t iFirstTree, const size_t nTrees,
+                                                                                      const algorithmFPType * const x, double * const resPtr,
+                                                                                      const size_t nTreesTotal)
 {
     DAAL_ASSERT(resPtr);
-    const size_t iLastTree            = iFirstTree + nTrees;
+    const size_t iLastTree = iFirstTree + nTrees;
     for (size_t iTree = iFirstTree; iTree < iLastTree; ++iTree)
     {
         const dtrees::internal::DecisionTreeNode * const pNode =
@@ -284,10 +292,10 @@ void PredictClassificationTask<algorithmFPType, cpu>::predictByTreesWithoutConve
         const double * probas                                = nullptr;
 
         double ** const prob_ptr = _probas.get();
-        if(prob_ptr[iTree] == nullptr)
+        if (prob_ptr[iTree] == nullptr)
         {
-            prob_ptr[iTree] = const_cast<double* >(_model->getProbas(iTree));
-            probas = prob_ptr[iTree];
+            prob_ptr[iTree] = const_cast<double *>(_model->getProbas(iTree));
+            probas          = prob_ptr[iTree];
         }
         else
         {
@@ -311,9 +319,10 @@ void PredictClassificationTask<algorithmFPType, cpu>::predictByTreesWithoutConve
 }
 
 template <typename algorithmFPType, CpuType cpu>
-void PredictClassificationTask<algorithmFPType, cpu>::parallelPredict(const algorithmFPType * const aX, const DecisionTreeNode * const aNode, const size_t treeSize,
-                                                                      const size_t nBlocks, const size_t nCols, const size_t blockSize, const size_t residualSize,
-                                                                      algorithmFPType * const prob, const size_t iTree)
+void PredictClassificationTask<algorithmFPType, cpu>::parallelPredict(const algorithmFPType * const aX, const DecisionTreeNode * const aNode,
+                                                                      const size_t treeSize, const size_t nBlocks, const size_t nCols,
+                                                                      const size_t blockSize, const size_t residualSize, algorithmFPType * const prob,
+                                                                      const size_t iTree)
 {
     services::internal::TArray<featureIndexType, cpu> tFI(treeSize);
     services::internal::TArray<leftOrClassType, cpu> tLC(treeSize);
@@ -339,13 +348,13 @@ void PredictClassificationTask<algorithmFPType, cpu>::parallelPredict(const algo
     {
         predictByTree(aX + nBlocks * blockSize * nCols, residualSize, nCols, fi, lc, fv, prob + nBlocks * blockSize * _nClasses, iTree);
     }
-
 }
 
 template <typename algorithmFPType, CpuType cpu>
-void PredictClassificationTask<algorithmFPType, cpu>::predictByTreeCommon(const algorithmFPType * const x, const size_t sizeOfBlock, const size_t nCols,
-                                                                          const featureIndexType * const fi, const leftOrClassType * const lc,
-                                                                          const algorithmFPType * const fv, algorithmFPType * const prob, const size_t iTree)
+void PredictClassificationTask<algorithmFPType, cpu>::predictByTreeCommon(const algorithmFPType * const x, const size_t sizeOfBlock,
+                                                                          const size_t nCols, const featureIndexType * const fi,
+                                                                          const leftOrClassType * const lc, const algorithmFPType * const fv,
+                                                                          algorithmFPType * const prob, const size_t iTree)
 {
     size_t check = 0;
     check        = fi[0] != -1;
@@ -377,11 +386,11 @@ void PredictClassificationTask<algorithmFPType, cpu>::predictByTreeCommon(const 
 template <typename algorithmFPType, CpuType cpu>
 void PredictClassificationTask<algorithmFPType, cpu>::predictByTree(const algorithmFPType * const x, const size_t sizeOfBlock, const size_t nCols,
                                                                     const featureIndexType * const tFI, const leftOrClassType * const tLC,
-                                                                    const algorithmFPType * const tFV, algorithmFPType * const prob, const size_t iTree)
+                                                                    const algorithmFPType * const tFV, algorithmFPType * const prob,
+                                                                    const size_t iTree)
 {
     predictByTreeCommon(x, sizeOfBlock, nCols, tFI, tLC, tFV, prob, iTree);
 }
-
 
 #if defined(__INTEL_COMPILER)
 
@@ -435,8 +444,7 @@ void PredictClassificationTask<float, avx512>::predictByTree(const float * const
         }
         const double * probas = _model->getProbas(iTree);
 
-        fillResults<float, avx512>(_nClasses, _votingMethod, _DEFAULT_BLOCK_SIZE, probas,
-            left_son, idx, resPtr);
+        fillResults<float, avx512>(_nClasses, _votingMethod, _DEFAULT_BLOCK_SIZE, probas, left_son, idx, resPtr);
     }
     else
     {
@@ -490,8 +498,7 @@ void PredictClassificationTask<double, avx512>::predictByTree(const double * con
 
         const double * probas = _model->getProbas(iTree);
 
-        fillResults<double, avx512>(_nClasses, _votingMethod, _DEFAULT_BLOCK_SIZE, probas,
-            left_son, idx, resPtr);
+        fillResults<double, avx512>(_nClasses, _votingMethod, _DEFAULT_BLOCK_SIZE, probas, left_son, idx, resPtr);
     }
     else
     {
@@ -499,8 +506,6 @@ void PredictClassificationTask<double, avx512>::predictByTree(const double * con
     }
 }
 #endif
-
-
 
 template <typename algorithmFPType, CpuType cpu>
 Status PredictClassificationTask<algorithmFPType, cpu>::predictByAllTrees(const size_t nTreesTotal, const DimType & dim)
@@ -530,7 +535,8 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictByAllTrees(const 
                 }
             });
         });
-    } else
+    }
+    else
     {
         ClassesCounterTls lsData(_nClasses);
         daal::threader_for(dim.nDataBlocks, dim.nDataBlocks, [&](const size_t iBlock) {
@@ -549,7 +555,6 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictByAllTrees(const 
                     res[iRow] = algorithmFPType(getMaxClass(val));
                 }
             });
-
         });
     }
     return safeStat.detach();
@@ -558,13 +563,13 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictByAllTrees(const 
 template <typename algorithmFPType, CpuType cpu>
 Status PredictClassificationTask<algorithmFPType, cpu>::predictOneRowByAllTrees(const size_t nTreesTotal)
 {
-    if(_nClasses != _cachedNClasses)
+    if (_nClasses != _cachedNClasses)
     {
         _probas_d.reset(_nClasses);
         _cachedNClasses = _nClasses;
     }
 
-    if(_cachedModel != _model)
+    if (_cachedModel != _model)
     {
         _cachedModel = _model;
         _aTree.reset(nTreesTotal);
@@ -579,16 +584,16 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictOneRowByAllTrees(
             prob_ptr[i] = nullptr;
         }
         _averageTreeSize = _averageTreeSize / nTreesTotal;
-        _sumTreeSize = 0;
+        _sumTreeSize     = 0;
     }
 
-    algorithmFPType * resPtr = nullptr;
+    algorithmFPType * resPtr  = nullptr;
     algorithmFPType * probPtr = nullptr;
 
     const HomogenNumericTable<algorithmFPType> * const resNT  = dynamic_cast<HomogenNumericTable<algorithmFPType> *>(_res);
     const HomogenNumericTable<algorithmFPType> * const probNT = dynamic_cast<HomogenNumericTable<algorithmFPType> *>(_prob);
-    const size_t nRows = _data->getNumberOfRows();
-    if(resNT == nullptr)
+    const size_t nRows                                        = _data->getNumberOfRows();
+    if (resNT == nullptr)
     {
         _resBD.set(_res, 0, nRows);
         DAAL_CHECK_BLOCK_STATUS(_resBD);
@@ -599,7 +604,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictOneRowByAllTrees(
         resPtr = resNT->getArray();
     }
 
-    if(probNT == nullptr)
+    if (probNT == nullptr)
     {
         _probBD.set(_prob, 0, nRows);
         DAAL_CHECK_BLOCK_STATUS(_probBD);
@@ -610,23 +615,20 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictOneRowByAllTrees(
         probPtr = probNT->getArray();
     }
 
-
     const bool bUseTLS(_nClasses > s_cMaxClassesBufSize);
     const size_t nCols(_data->getNumberOfColumns());
     daal::SafeStatus safeStat;
 
     const HomogenNumericTable<algorithmFPType> * const hmgData = dynamic_cast<const HomogenNumericTable<algorithmFPType> *>(_data);
-    if(hmgData == nullptr)
-        _xBD.set(const_cast<NumericTable *>(_data), 0, 1);
-    const algorithmFPType* const x_ptr = hmgData != nullptr ? hmgData->getArray() : _xBD.get();
+    if (hmgData == nullptr) _xBD.set(const_cast<NumericTable *>(_data), 0, 1);
+    const algorithmFPType * const x_ptr = hmgData != nullptr ? hmgData->getArray() : _xBD.get();
 
-    double* prob_d = _probas_d.get();
+    double * prob_d = _probas_d.get();
 
     DAAL_ASSERT(prob_d);
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
-    for(size_t i =0; i < _nClasses; ++i)
-        prob_d[i] = 0;
+    for (size_t i = 0; i < _nClasses; ++i) prob_d[i] = 0;
 
     predictByTreesWithoutConversion(0, nTreesTotal, x_ptr, prob_d, nTreesTotal);
 
@@ -635,13 +637,13 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictOneRowByAllTrees(
         resPtr[0] = algorithmFPType(services::internal::getMaxElementIndex<double, cpu>(prob_d, _nClasses));
     }
     algorithmFPType inverseTreesCount = 1.0 / algorithmFPType(nTreesTotal);
-    if(probPtr != nullptr)
+    if (probPtr != nullptr)
     {
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         for (size_t j = 0; j < _nClasses; ++j)
         {
-            prob_d[j]  *= inverseTreesCount;
+            prob_d[j] *= inverseTreesCount;
             probPtr[j] = prob_d[j];
         }
     }
@@ -653,7 +655,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictOneRowByAllTrees(
 template <>
 Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t nTreesTotal)
 {
-    if(_cachedModel != _model)
+    if (_cachedModel != _model)
     {
         _cachedModel = _model;
         _aTree.reset(nTreesTotal);
@@ -665,26 +667,26 @@ Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t 
             _averageTreeSize += _aTree[i]->getNumberOfRows();
         }
         _averageTreeSize = _averageTreeSize / nTreesTotal;
-        _sumTreeSize = 0;
+        _sumTreeSize     = 0;
     }
 
-    if(_nClasses != _cachedNClasses)
+    if (_nClasses != _cachedNClasses)
     {
         _probas_d.reset(_nClasses);
         _val.reset(_nClasses);
         _cachedNClasses = _nClasses;
     }
 
-    if(_sumTreeSize == 0)
+    if (_sumTreeSize == 0)
     {
         _probas.reset(nTreesTotal);
-        double** prob_ptr = _probas.get();
+        double ** prob_ptr = _probas.get();
         _displaces.reset(nTreesTotal);
-        int* disp = _displaces.get();
-        for(size_t iTree = 0; iTree < nTreesTotal; ++iTree)
+        int * disp = _displaces.get();
+        for (size_t iTree = 0; iTree < nTreesTotal; ++iTree)
         {
             _sumTreeSize += _aTree[iTree]->getNumberOfRows();
-            disp[iTree] = -1;
+            disp[iTree]     = -1;
             prob_ptr[iTree] = nullptr;
         }
         _tFI.reset(_sumTreeSize);
@@ -692,13 +694,13 @@ Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t 
         _tFV.reset(_sumTreeSize);
     }
 
-    float * resPtr = nullptr;
-    float * probPtr = nullptr;
-    ClassIndexType* valPtr = nullptr;
+    float * resPtr                      = nullptr;
+    float * probPtr                     = nullptr;
+    ClassIndexType * valPtr             = nullptr;
     HomogenNumericTable<float> * resNT  = dynamic_cast<HomogenNumericTable<float> *>(_res);
     HomogenNumericTable<float> * probNT = dynamic_cast<HomogenNumericTable<float> *>(_prob);
-    const size_t nRows = _data->getNumberOfRows();
-    if(resNT == nullptr)
+    const size_t nRows                  = _data->getNumberOfRows();
+    if (resNT == nullptr)
     {
         _resBD.set(_res, 0, nRows);
         DAAL_CHECK_BLOCK_STATUS(_resBD);
@@ -709,7 +711,7 @@ Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t 
         resPtr = resNT->getArray();
     }
 
-    if(probNT == nullptr)
+    if (probNT == nullptr)
     {
         _probBD.set(_prob, 0, nRows);
         DAAL_CHECK_BLOCK_STATUS(_probBD);
@@ -720,47 +722,45 @@ Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t 
         probPtr = probNT->getArray();
     }
 
-
     const size_t nCols(_data->getNumberOfColumns());
     Status status;
 
-    if(_prob != nullptr)
+    if (_prob != nullptr)
     {
         DAAL_ASSERT(probPtr);
         services::internal::service_memset<float, avx512>(probPtr, float(0), _nClasses);
     }
 
-    const HomogenNumericTable<float> * hmgData               = dynamic_cast<const HomogenNumericTable<float> *>(_data);
-    if(hmgData == nullptr)
-        _xBD.set(const_cast<NumericTable *>(_data), 0, 1);
+    const HomogenNumericTable<float> * hmgData = dynamic_cast<const HomogenNumericTable<float> *>(_data);
+    if (hmgData == nullptr) _xBD.set(const_cast<NumericTable *>(_data), 0, 1);
 
-    const float* x_ptr = hmgData != nullptr ? hmgData->getArray() : _xBD.get();
+    const float * x_ptr = hmgData != nullptr ? hmgData->getArray() : _xBD.get();
 
     __m512d prob_pd = _mm512_set1_pd(0);
     __m512d zero_pd = _mm512_set1_pd(0);
 
-    const size_t nVectorBlocks = nTreesTotal/16;
+    const size_t nVectorBlocks = nTreesTotal / 16;
 
     featureIndexType * fi = _tFI.get();
     leftOrClassType * lc  = _tLC.get();
     float * const fv      = _tFV.get();
-    int* const disp       = _displaces.get();
+    int * const disp      = _displaces.get();
 
     const size_t nBlocksOfClasses = _nClasses / 8;
-    const size_t tailSize = _nClasses % 8;
-    __mmask8 tail_mask = 0xff >> (8 - tailSize);
+    const size_t tailSize         = _nClasses % 8;
+    __mmask8 tail_mask            = 0xff >> (8 - tailSize);
 
-    double* prob_d = _probas_d.get();
+    double * prob_d = _probas_d.get();
     DAAL_ASSERT(prob_d)
     services::internal::service_memset<double, avx512>(prob_d, double(0), _nClasses);
 
     size_t iTree = 0;
-    for(; iTree < nVectorBlocks*16; iTree+=16)
+    for (; iTree < nVectorBlocks * 16; iTree += 16)
     {
-        if(disp[iTree] == -1)
+        if (disp[iTree] == -1)
         {
             size_t displace = (iTree == 0) ? 0 : (disp[iTree - 1] + _aTree[iTree - 1]->getNumberOfRows());
-            for(size_t i = 0; i < 16; ++i)
+            for (size_t i = 0; i < 16; ++i)
             {
                 const size_t treeSize          = _aTree[iTree + i]->getNumberOfRows();
                 const DecisionTreeNode * aNode = (const DecisionTreeNode *)(*_aTree[iTree + i]).getArray();
@@ -777,27 +777,29 @@ Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t 
             }
         }
         __mmask16 isSplit = 1;
-        __m512i offset = _mm512_set_epi32(disp[iTree + 15], disp[iTree + 14], disp[iTree + 13], disp[iTree + 12], disp[iTree + 11], disp[iTree + 10], disp[iTree + 9], disp[iTree + 8], disp[iTree + 7], disp[iTree + 6], disp[iTree + 5], disp[iTree + 4], disp[iTree + 3], disp[iTree + 2], disp[iTree + 1], disp[iTree + 0]);
+        __m512i offset = _mm512_set_epi32(disp[iTree + 15], disp[iTree + 14], disp[iTree + 13], disp[iTree + 12], disp[iTree + 11], disp[iTree + 10],
+                                          disp[iTree + 9], disp[iTree + 8], disp[iTree + 7], disp[iTree + 6], disp[iTree + 5], disp[iTree + 4],
+                                          disp[iTree + 3], disp[iTree + 2], disp[iTree + 1], disp[iTree + 0]);
 
-        __m512i nOne   = _mm512_set1_epi32(-1);
-        __m512i zero   = _mm512_set1_epi32(0);
-        __m512 zero_ps = _mm512_set1_ps(0);
-        __m512 one_ps =  _mm512_set1_ps(1);
-        __m512 max_ps =  _mm512_set1_ps(-1);
-        __m512i one    = _mm512_set1_epi32(1);
-        __m512i idx =    _mm512_set_epi32(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+        __m512i nOne        = _mm512_set1_epi32(-1);
+        __m512i zero        = _mm512_set1_epi32(0);
+        __m512 zero_ps      = _mm512_set1_ps(0);
+        __m512 one_ps       = _mm512_set1_ps(1);
+        __m512 max_ps       = _mm512_set1_ps(-1);
+        __m512i one         = _mm512_set1_epi32(1);
+        __m512i idx         = _mm512_set_epi32(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         __mmask16 ones_mask = 0xffff;
 
-        while(isSplit)
+        while (isSplit)
         {
             __m512i offset_tmp = _mm512_add_epi32(offset, idx);
-            __m512i f_i = _mm512_mask_i32gather_epi32(zero, ones_mask, offset_tmp, fi, 4);
+            __m512i f_i        = _mm512_mask_i32gather_epi32(zero, ones_mask, offset_tmp, fi, 4);
 
             isSplit = _mm512_cmp_epi32_mask(f_i, nOne, _MM_CMPINT_NE);
 
-            __m512  x_v = _mm512_mask_i32gather_ps(zero_ps, isSplit, f_i, x_ptr, 4);
+            __m512 x_v = _mm512_mask_i32gather_ps(zero_ps, isSplit, f_i, x_ptr, 4);
 
-            __m512  f_v = _mm512_mask_i32gather_ps(zero_ps, ones_mask, offset_tmp, fv, 4);
+            __m512 f_v = _mm512_mask_i32gather_ps(zero_ps, ones_mask, offset_tmp, fv, 4);
 
             __mmask16 res = _mm512_cmp_ps_mask(x_v, f_v, _CMP_GT_OS);
 
@@ -805,65 +807,66 @@ Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t 
 
             idx = _mm512_mask_add_epi32(idx, isSplit, _mm512_mask_add_epi32(zero, res, one, zero), l_c);
         }
-        alignas(64) int displaces[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-        _mm512_store_epi32(displaces,idx);
+        alignas(64) int displaces[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        _mm512_store_epi32(displaces, idx);
 
-        double** const prob_ptr = _probas.get();
+        double ** const prob_ptr = _probas.get();
 
-        if(nBlocksOfClasses == 0)
+        if (nBlocksOfClasses == 0)
         {
-            if(prob_ptr[iTree] == nullptr)
+            if (prob_ptr[iTree] == nullptr)
             {
-                for(size_t i = 0; i < 16; ++i)
+                for (size_t i = 0; i < 16; ++i)
                 {
-                    prob_ptr[iTree + i] = const_cast<double* >(_model->getProbas(iTree + i));
-                    prob_pd = _mm512_add_pd(prob_pd, _mm512_mask_loadu_pd(zero_pd, tail_mask, prob_ptr[iTree + i] + displaces[i]*_nClasses) );
+                    prob_ptr[iTree + i] = const_cast<double *>(_model->getProbas(iTree + i));
+                    prob_pd = _mm512_add_pd(prob_pd, _mm512_mask_loadu_pd(zero_pd, tail_mask, prob_ptr[iTree + i] + displaces[i] * _nClasses));
                 }
             }
             else
             {
-                for(size_t i = 0; i < 16; ++i)
+                for (size_t i = 0; i < 16; ++i)
                 {
-                    prob_pd = _mm512_add_pd(prob_pd, _mm512_mask_loadu_pd(zero_pd, tail_mask, prob_ptr[iTree + i] + displaces[i]*_nClasses) );
+                    prob_pd = _mm512_add_pd(prob_pd, _mm512_mask_loadu_pd(zero_pd, tail_mask, prob_ptr[iTree + i] + displaces[i] * _nClasses));
                 }
             }
         }
         else
         {
-            if(prob_ptr[iTree] == nullptr)
+            if (prob_ptr[iTree] == nullptr)
             {
-                for(size_t i = 0; i < 16; ++i)
+                for (size_t i = 0; i < 16; ++i)
                 {
-                    prob_ptr[iTree + i] = const_cast<double* >(_model->getProbas(iTree + i));
+                    prob_ptr[iTree + i] = const_cast<double *>(_model->getProbas(iTree + i));
                 }
             }
 
             size_t iBlock = 0;
-            for(; iBlock < nBlocksOfClasses; ++iBlock)
+            for (; iBlock < nBlocksOfClasses; ++iBlock)
             {
-                for(size_t i = 0; i < 16; ++i)
+                for (size_t i = 0; i < 16; ++i)
                 {
-                    prob_pd = _mm512_add_pd(prob_pd, _mm512_loadu_pd(prob_ptr[iTree + i] + displaces[i]*_nClasses + iBlock*8) );
+                    prob_pd = _mm512_add_pd(prob_pd, _mm512_loadu_pd(prob_ptr[iTree + i] + displaces[i] * _nClasses + iBlock * 8));
                 }
-                _mm512_store_pd(prob_d + iBlock*8, _mm512_add_pd(prob_pd, _mm512_load_pd(prob_d + iBlock*8) ));
+                _mm512_store_pd(prob_d + iBlock * 8, _mm512_add_pd(prob_pd, _mm512_load_pd(prob_d + iBlock * 8)));
                 prob_pd = _mm512_set1_pd(0);
             }
-            if(tailSize != 0)
+            if (tailSize != 0)
             {
-                for(size_t i = 0; i < 16; ++i)
-                    prob_pd = _mm512_add_pd(prob_pd, _mm512_mask_loadu_pd(zero_pd, tail_mask, prob_ptr[iTree + i] + displaces[i]*_nClasses + iBlock*8) );
-                _mm512_mask_store_pd(prob_d + iBlock*8,tail_mask, _mm512_add_pd(prob_pd, _mm512_mask_load_pd(zero_pd, tail_mask, prob_d + iBlock*8) ));
+                for (size_t i = 0; i < 16; ++i)
+                    prob_pd =
+                        _mm512_add_pd(prob_pd, _mm512_mask_loadu_pd(zero_pd, tail_mask, prob_ptr[iTree + i] + displaces[i] * _nClasses + iBlock * 8));
+                _mm512_mask_store_pd(prob_d + iBlock * 8, tail_mask,
+                                     _mm512_add_pd(prob_pd, _mm512_mask_load_pd(zero_pd, tail_mask, prob_d + iBlock * 8)));
                 prob_pd = _mm512_set1_pd(0);
             }
         }
     }
 
-
-    if(nBlocksOfClasses == 0)
+    if (nBlocksOfClasses == 0)
     {
-        _mm512_mask_store_pd(prob_d,tail_mask,prob_pd);
+        _mm512_mask_store_pd(prob_d, tail_mask, prob_pd);
     }
-    if(iTree != nTreesTotal)  //do inference on tailed trees
+    if (iTree != nTreesTotal) //do inference on tailed trees
     {
         const size_t tailSize = nTreesTotal - iTree;
         predictByTreesWithoutConversion(iTree, tailSize, x_ptr, prob_d, nTreesTotal);
@@ -873,13 +876,13 @@ Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t 
         resPtr[0] = float(services::internal::getMaxElementIndex<double, avx512>(prob_d, _nClasses));
     }
     float inverseTreesCount = 1.0 / float(nTreesTotal);
-    if(probPtr != nullptr)
+    if (probPtr != nullptr)
     {
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         for (size_t j = 0; j < _nClasses; ++j)
         {
-            prob_d[j]  *= inverseTreesCount;
+            prob_d[j] *= inverseTreesCount;
             probPtr[j] = prob_d[j];
         }
     }
@@ -891,7 +894,7 @@ Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t 
 template <typename algorithmFPType, CpuType cpu>
 Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTrees(size_t nTreesTotal)
 {
-    const size_t nRows           = _data->getNumberOfRows();
+    const size_t nRows = _data->getNumberOfRows();
     WriteOnlyRows<algorithmFPType, cpu> resBD(_res, 0, nRows);
     DAAL_CHECK_BLOCK_STATUS(resBD);
     WriteOnlyRows<algorithmFPType, cpu> probBD(_prob, 0, nRows);
@@ -901,10 +904,10 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
     algorithmFPType * const res  = resBD.get();
     algorithmFPType * const prob = probBD.get();
     daal::SafeStatus safeStat;
-    const size_t nRowsOfRes   = _data->getNumberOfRows();
-    const size_t blockSize    = cpu == avx512 ? _DEFAULT_BLOCK_SIZE : _DEFAULT_BLOCK_SIZE_COMMON;
-    const size_t nBlocks      = nRowsOfRes / blockSize;
-    const size_t residualSize = nRowsOfRes - nBlocks * blockSize;
+    const size_t nRowsOfRes        = _data->getNumberOfRows();
+    const size_t blockSize         = cpu == avx512 ? _DEFAULT_BLOCK_SIZE : _DEFAULT_BLOCK_SIZE_COMMON;
+    const size_t nBlocks           = nRowsOfRes / blockSize;
+    const size_t residualSize      = nRowsOfRes - nBlocks * blockSize;
     algorithmFPType * commonBufVal = nullptr;
     services::internal::TArray<algorithmFPType, cpu> commonBufValT;
     if (prob == nullptr)
@@ -919,15 +922,15 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
     }
     ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), 0, nRowsOfRes);
     DAAL_CHECK_BLOCK_STATUS(xBD);
-    const algorithmFPType * const aX = xBD.get();
+    const algorithmFPType * const aX         = xBD.get();
     const algorithmFPType inverseNTreesTotal = (algorithmFPType)1.0 / algorithmFPType(nTreesTotal);
     daal::TlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> > * tlsDataPtr = nullptr;
     if (numberOfTrees > _MIN_TREES_FOR_THREADING)
     {
-        tlsDataPtr = new daal::TlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> >(_nClasses * nRowsOfRes);
-        auto& tlsData = *tlsDataPtr;
+        tlsDataPtr     = new daal::TlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> >(_nClasses * nRowsOfRes);
+        auto & tlsData = *tlsDataPtr;
         daal::threader_for(numberOfTrees, numberOfTrees, [&, nCols](const size_t iTree) {
-            const size_t treeSize          = _aTree[iTree]->getNumberOfRows();
+            const size_t treeSize                = _aTree[iTree]->getNumberOfRows();
             const DecisionTreeNode * const aNode = (const DecisionTreeNode *)(*_aTree[iTree]).getArray();
             parallelPredict(aX, aNode, treeSize, nBlocks, nCols, blockSize, residualSize, tlsData.local(), iTree);
         });
@@ -965,7 +968,8 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
         else
         {
             algorithmFPType * const localPtr = tlsData.local();
-            if (prob == nullptr) {
+            if (prob == nullptr)
+            {
                 commonBufVal = tlsData.local();
             }
             else
@@ -1006,31 +1010,29 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
     if (res != nullptr)
     {
         daal::threader_for(nRowsOfRes, nRowsOfRes,
-                [&](const size_t iRes) { res[iRes] = algorithmFPType(getMaxClass(commonBufVal + iRes * _nClasses));
-            });
+                           [&](const size_t iRes) { res[iRes] = algorithmFPType(getMaxClass(commonBufVal + iRes * _nClasses)); });
     }
     delete tlsDataPtr;
     return safeStat.detach();
 }
 
-
 template <typename algorithmFPType, CpuType cpu>
 Status PredictClassificationTask<algorithmFPType, cpu>::run(services::HostAppIface * const pHostApp)
 {
     const auto nTreesTotal = _model->size();
-    if(_cachedData != _data)
+    if (_cachedData != _data)
     {
         _featHelper.clearBuf();
         DAAL_CHECK_MALLOC(_featHelper.init(*_data));
         _cachedData = const_cast<NumericTable *>(_data);
     }
     const bool hasUnorderedFeatures = _featHelper.hasUnorderedFeatures();
-    if(_data->getNumberOfRows() == 1 && !(hasUnorderedFeatures))
+    if (_data->getNumberOfRows() == 1 && !(hasUnorderedFeatures))
     {
         return predictOneRowByAllTrees(nTreesTotal);
     }
     const size_t rowsNumber = _res ? _res->getNumberOfRows() : _prob->getNumberOfRows();
-    if(_cachedModel != _model)
+    if (_cachedModel != _model)
     {
         _cachedModel = _model;
         _aTree.reset(nTreesTotal);
@@ -1042,7 +1044,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::run(services::HostAppIfa
             _averageTreeSize += _aTree[i]->getNumberOfRows();
         }
         _averageTreeSize = _averageTreeSize / nTreesTotal;
-        _sumTreeSize = 0;
+        _sumTreeSize     = 0;
     }
 
     if (hasUnorderedFeatures
@@ -1097,7 +1099,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictByBlocksOfTrees(s
             const size_t nRowsToProcess = (iBlock == dim.nDataBlocks - 1) ? dim.nRowsTotal - iStartRow : dim.nRowsInBlock;
             ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), iStartRow, nRowsToProcess);
             DAAL_CHECK_BLOCK_STATUS_THR(xBD);
-            algorithmFPType * res  = resBD.get() + iStartRow;
+            algorithmFPType * res = resBD.get() + iStartRow;
 
             if (probBDPtr != nullptr)
             {

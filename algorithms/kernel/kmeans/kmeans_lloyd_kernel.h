@@ -21,15 +21,12 @@
 //--
 */
 
-#ifndef _KMEANS_FPK_H
-#define _KMEANS_FPK_H
+#ifndef _KMEANS_LLOYD_KERNEL_H
+#define _KMEANS_LLOYD_KERNEL_H
 
-#include "kmeans_types.h"
-//#include "kmeans_batch.h"
-#include "kernel.h"
-#include "numeric_table.h"
-
-using namespace daal::data_management;
+#include "algorithms/kmeans/kmeans_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
 
 namespace daal
 {
@@ -39,33 +36,34 @@ namespace kmeans
 {
 namespace internal
 {
+using namespace daal::data_management;
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-class KMeansBatchKernel: public Kernel
+class KMeansBatchKernel : public Kernel
 {
 public:
-    services::Status compute(const NumericTable *const *a, const NumericTable *const *r, const Parameter *par);
+    services::Status compute(const NumericTable * const * a, const NumericTable * const * r, const Parameter * par);
 };
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-class KMeansDistributedStep1Kernel: public Kernel
+class KMeansDistributedStep1Kernel : public Kernel
 {
 public:
-    services::Status compute(size_t na, const NumericTable *const *a, size_t nr, const NumericTable *const *r, const Parameter *par);
-    services::Status finalizeCompute(size_t na, const NumericTable *const *a, size_t nr, const NumericTable *const *r, const Parameter *par);
+    services::Status compute(size_t na, const NumericTable * const * a, size_t nr, const NumericTable * const * r, const Parameter * par);
+    services::Status finalizeCompute(size_t na, const NumericTable * const * a, size_t nr, const NumericTable * const * r, const Parameter * par);
 };
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-class KMeansDistributedStep2Kernel: public Kernel
+class KMeansDistributedStep2Kernel : public Kernel
 {
 public:
-    services::Status compute(size_t na, const NumericTable *const *a, size_t nr, const NumericTable *const *r, const Parameter *par);
-    services::Status finalizeCompute(size_t na, const NumericTable *const *a, size_t nr, const NumericTable *const *r, const Parameter *par);
+    services::Status compute(size_t na, const NumericTable * const * a, size_t nr, const NumericTable * const * r, const Parameter * par);
+    services::Status finalizeCompute(size_t na, const NumericTable * const * a, size_t nr, const NumericTable * const * r, const Parameter * par);
 };
 
-} // namespace daal::algorithms::kmeans::internal
-} // namespace daal::algorithms::kmeans
-} // namespace daal::algorithms
+} // namespace internal
+} // namespace kmeans
+} // namespace algorithms
 } // namespace daal
 
 #endif

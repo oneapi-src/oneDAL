@@ -24,8 +24,8 @@
 #ifndef __RELU_LAYER_BACKWARD_BATCH_CONTAINER_H__
 #define __RELU_LAYER_BACKWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/relu/relu_layer.h"
-#include "relu_layer_backward_kernel.h"
+#include "algorithms/neural_networks/layers/relu/relu_layer.h"
+#include "algorithms/kernel/neural_networks/layers/relu_layer/backward/relu_layer_backward_kernel.h"
 
 namespace daal
 {
@@ -41,34 +41,38 @@ namespace backward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::ReLUKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    const layers::Parameter *par = static_cast<const layers::Parameter *>(_par);
-    if (!par->propagateGradient) { return services::Status(); }
+    const layers::Parameter * par = static_cast<const layers::Parameter *>(_par);
+    if (!par->propagateGradient)
+    {
+        return services::Status();
+    }
 
-    relu::backward::Input *input = static_cast<relu::backward::Input *>(_in);
-    relu::backward::Result *result = static_cast<relu::backward::Result *>(_res);
+    relu::backward::Input * input   = static_cast<relu::backward::Input *>(_in);
+    relu::backward::Result * result = static_cast<relu::backward::Result *>(_res);
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    Tensor *inputGradientTensor = input->get(layers::backward::inputGradient).get();
-    Tensor *forwardDataTensor   = input->get(relu::auxData).get();
-    Tensor *resultTensor        = result->get(layers::backward::gradient).get();
+    Tensor * inputGradientTensor = input->get(layers::backward::inputGradient).get();
+    Tensor * forwardDataTensor   = input->get(relu::auxData).get();
+    Tensor * resultTensor        = result->get(layers::backward::gradient).get();
 
-    __DAAL_CALL_KERNEL(env, internal::ReLUKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputGradientTensor, *forwardDataTensor, *resultTensor);
+    __DAAL_CALL_KERNEL(env, internal::ReLUKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputGradientTensor, *forwardDataTensor,
+                       *resultTensor);
 }
 } // namespace interface1
 } // namespace backward

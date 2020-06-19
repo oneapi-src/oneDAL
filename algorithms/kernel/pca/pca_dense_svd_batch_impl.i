@@ -24,11 +24,11 @@
 #ifndef __PCA_DENSE_SVD_BATCH_IMPL_I__
 #define __PCA_DENSE_SVD_BATCH_IMPL_I__
 
-#include "service_math.h"
-#include "service_memory.h"
-#include "service_numeric_table.h"
-#include "service_error_handling.h"
-#include "threading.h"
+#include "externals/service_math.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "algorithms/threading/threading.h"
 
 namespace daal
 {
@@ -38,14 +38,13 @@ namespace pca
 {
 namespace internal
 {
-
 using namespace daal::services::internal;
 using namespace daal::data_management;
 using namespace daal::internal;
 
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::compute(InputDataType type,
-    const NumericTablePtr &data, NumericTable &eigenvalues, NumericTable &eigenvectors)
+services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::compute(InputDataType type, const NumericTablePtr & data,
+                                                                                 NumericTable & eigenvalues, NumericTable & eigenvectors)
 {
     NumericTablePtr normalizedData;
     if (type == normalizedDataset)
@@ -55,25 +54,21 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::compute
     else
     {
         services::Status s = normalizeDataset(data, normalizedData);
-        if (!s)
-            return s;
+        if (!s) return s;
     }
 
     Status s = decompose(normalizedData.get(), eigenvalues, eigenvectors);
-    if (s)
-        s = this->scaleSingularValues(eigenvalues, data->getNumberOfRows());
+    if (s) s = this->scaleSingularValues(eigenvalues, data->getNumberOfRows());
     return s;
 }
 
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::compute
-        (InputDataType type,
-         NumericTable& data,
-         const ParameterType* parameter,
-         NumericTable &eigenvalues, NumericTable &eigenvectors,
-         NumericTable &means, NumericTable &variances)
+services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::compute(InputDataType type, NumericTable & data,
+                                                                                 const ParameterType * parameter, NumericTable & eigenvalues,
+                                                                                 NumericTable & eigenvectors, NumericTable & means,
+                                                                                 NumericTable & variances)
 {
-    NumericTable* normalizedData;
+    NumericTable * normalizedData;
     Status status;
     if (type == normalizedDataset)
     {
@@ -95,16 +90,15 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::compute
 
         if (parameter->resultsToCompute & mean)
         {
-            auto& zmeans = *(normalizationAlgorithm->getResult()->get(normalization::zscore::means));
+            auto & zmeans = *(normalizationAlgorithm->getResult()->get(normalization::zscore::means));
             DAAL_CHECK_STATUS(status, this->copyTable(zmeans, means));
         }
 
         if (parameter->resultsToCompute & variance)
         {
-            auto& zvariances = *(normalizationAlgorithm->getResult()->get(normalization::zscore::variances));
+            auto & zvariances = *(normalizationAlgorithm->getResult()->get(normalization::zscore::variances));
             DAAL_CHECK_STATUS(status, this->copyTable(zvariances, variances));
         }
-
     }
 
     DAAL_CHECK_STATUS(status, this->decompose(normalizedData, eigenvalues, eigenvectors));
@@ -114,55 +108,50 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::compute
         DAAL_CHECK_STATUS(status, this->signFlipEigenvectors(eigenvectors));
     }
 
-
     return status;
 }
 
-
-
-
 /********************* tls_data_t class *******************************************************/
-template<typename algorithmFPType, CpuType cpu> struct tls_data_t
+template <typename algorithmFPType, CpuType cpu>
+struct tls_data_t
 {
     DAAL_NEW_DELETE();
-    algorithmFPType *mean;
-    algorithmFPType *variance;
-    algorithmFPType  nvectors;
+    algorithmFPType * mean;
+    algorithmFPType * variance;
+    algorithmFPType nvectors;
 
     tls_data_t(size_t nFeatures) : mean(nullptr), variance(nullptr), nvectors(0)
     {
-        mean  = service_scalable_calloc<algorithmFPType, cpu>(nFeatures);
-        variance  = service_scalable_calloc<algorithmFPType, cpu>(nFeatures);
+        mean     = service_scalable_calloc<algorithmFPType, cpu>(nFeatures);
+        variance = service_scalable_calloc<algorithmFPType, cpu>(nFeatures);
     }
 
     bool isValid() const { return mean && variance; }
 
     ~tls_data_t()
     {
-        if(mean)
-            service_scalable_free<algorithmFPType, cpu>( mean );
-        if(variance)
-            service_scalable_free<algorithmFPType, cpu>( variance );
+        if (mean) service_scalable_free<algorithmFPType, cpu>(mean);
+        if (variance) service_scalable_free<algorithmFPType, cpu>(variance);
     }
 };
 
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::normalizeDataset(const data_management::NumericTablePtr& data,
-    NumericTablePtr& normalizedData)
+services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::normalizeDataset(const data_management::NumericTablePtr & data,
+                                                                                          NumericTablePtr & normalizedData)
 {
     using data_management::NumericTable;
     using data_management::HomogenNumericTable;
     using daal::internal::HomogenNumericTableCPU;
 
     const size_t nObservations = data->getNumberOfRows();
-    const size_t nFeatures = data->getNumberOfColumns();
+    const size_t nFeatures     = data->getNumberOfColumns();
 
-    ReadRows<algorithmFPType, cpu> block(const_cast<NumericTable&>(*data), 0, nObservations);
+    ReadRows<algorithmFPType, cpu> block(const_cast<NumericTable &>(*data), 0, nObservations);
     DAAL_CHECK_BLOCK_STATUS(block);
-    const algorithmFPType *dataArray = block.get();
+    const algorithmFPType * dataArray = block.get();
 
     Status status;
-    HomogenNumericTableCPU<algorithmFPType, cpu> *normalized = new HomogenNumericTableCPU<algorithmFPType, cpu>(nFeatures, nObservations, status);
+    HomogenNumericTableCPU<algorithmFPType, cpu> * normalized = new HomogenNumericTableCPU<algorithmFPType, cpu>(nFeatures, nObservations, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     normalized->assign(0);
@@ -170,7 +159,7 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::normali
 
     WriteRows<algorithmFPType, cpu> normalizedBlock(*normalizedData, 0, nObservations);
     DAAL_CHECK_BLOCK_STATUS(normalizedBlock);
-    algorithmFPType *normalizedDataArray = normalizedBlock.get();
+    algorithmFPType * normalizedDataArray = normalizedBlock.get();
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, sizeof(algorithmFPType));
 
@@ -180,18 +169,17 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::normali
 
 #define _BLOCK_SIZE_ 256
     /* Split rows by blocks, block size cannot be less than nObservations */
-    size_t numRowsInBlock = (nObservations > _BLOCK_SIZE_)?_BLOCK_SIZE_:nObservations;
+    size_t numRowsInBlock = (nObservations > _BLOCK_SIZE_) ? _BLOCK_SIZE_ : nObservations;
     /* Number of blocks */
-    size_t numBlocks   = nObservations / numRowsInBlock;
+    size_t numBlocks = nObservations / numRowsInBlock;
     /* Last block can be bigger than others */
-    size_t numRowsInLastBlock = numRowsInBlock + ( nObservations - numBlocks * numRowsInBlock);
+    size_t numRowsInLastBlock = numRowsInBlock + (nObservations - numBlocks * numRowsInBlock);
 
     SafeStatus safeStat;
     /* TLS data initialization */
-    daal::tls<tls_data_t<algorithmFPType, cpu> *> tls_data([=, &safeStat]()
-    {
-        auto ptr = new tls_data_t<algorithmFPType, cpu>( nFeatures );
-        if(!ptr || !ptr->isValid())
+    daal::tls<tls_data_t<algorithmFPType, cpu> *> tls_data([=, &safeStat]() {
+        auto ptr = new tls_data_t<algorithmFPType, cpu>(nFeatures);
+        if (!ptr || !ptr->isValid())
         {
             safeStat.add(services::ErrorMemoryAllocationFailed);
             delete ptr;
@@ -201,46 +189,40 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::normali
     });
 
     /* Compute partial means and variances for each block */
-    daal::threader_for( numBlocks, numBlocks, [ & ](int iBlock)
-    {
-        struct tls_data_t<algorithmFPType, cpu> *tls_data_local = tls_data.local();
-        if(!tls_data_local)
-            return;
+    daal::threader_for(numBlocks, numBlocks, [&](int iBlock) {
+        struct tls_data_t<algorithmFPType, cpu> * tls_data_local = tls_data.local();
+        if (!tls_data_local) return;
 
-        size_t nVectors_local = (iBlock < (numBlocks-1))?numRowsInBlock:numRowsInLastBlock;
+        size_t nVectors_local = (iBlock < (numBlocks - 1)) ? numRowsInBlock : numRowsInLastBlock;
         size_t startRow       = iBlock * numRowsInBlock;
 
-        const algorithmFPType *dataArray_local = dataArray + startRow * nFeatures;
-        algorithmFPType *mean_local      = tls_data_local->mean;
-        algorithmFPType *variance_local  = tls_data_local->variance;
+        const algorithmFPType * dataArray_local = dataArray + startRow * nFeatures;
+        algorithmFPType * mean_local            = tls_data_local->mean;
+        algorithmFPType * variance_local        = tls_data_local->variance;
 
-        for(int i = 0; i < nVectors_local; i++)
+        for (int i = 0; i < nVectors_local; i++)
         {
             const algorithmFPType _invN = algorithmFPType(1.0) / algorithmFPType(tls_data_local->nvectors + 1);
 
-           PRAGMA_IVDEP
-           PRAGMA_VECTOR_ALWAYS
-            for(int j = 0; j < nFeatures; j++)
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (int j = 0; j < nFeatures; j++)
             {
-                const algorithmFPType delta_local  = dataArray_local[i * nFeatures + j] - mean_local[j];
+                const algorithmFPType delta_local = dataArray_local[i * nFeatures + j] - mean_local[j];
 
-                mean_local[j]      += delta_local * _invN;
-                variance_local[j]  += delta_local *
-                                      ( dataArray_local[i*nFeatures + j] - mean_local[j] );
+                mean_local[j] += delta_local * _invN;
+                variance_local[j] += delta_local * (dataArray_local[i * nFeatures + j] - mean_local[j]);
             }
 
             tls_data_local->nvectors++;
         }
-
-    } );
+    });
 
     algorithmFPType n_current = 0;
 
     /* Merge mean and variance arrays by blocks */
-    tls_data.reduce( [ =, &inv_sigma_total, &mean_total, &n_current ]( tls_data_t<algorithmFPType, cpu> *tls_data_local )
-    {
-        if(!tls_data_local)
-            return;
+    tls_data.reduce([=, &inv_sigma_total, &mean_total, &n_current](tls_data_t<algorithmFPType, cpu> * tls_data_local) {
+        if (!tls_data_local) return;
 
         /* loop invariants */
         const algorithmFPType n_local           = tls_data_local->nvectors;
@@ -252,69 +234,62 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::normali
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for(int j = 0; j < nFeatures; j++)
+        for (int j = 0; j < nFeatures; j++)
         {
-            const algorithmFPType _delta       = tls_data_local->mean[j] - mean_total[j];
-            const algorithmFPType _vl          = tls_data_local->variance[j];        /* local variances are not scaled yet */
-            const algorithmFPType _vt          = inv_sigma_total[j] * (n_current - 1); /* merged variances are already scaled */
+            const algorithmFPType _delta = tls_data_local->mean[j] - mean_total[j];
+            const algorithmFPType _vl    = tls_data_local->variance[j];          /* local variances are not scaled yet */
+            const algorithmFPType _vt    = inv_sigma_total[j] * (n_current - 1); /* merged variances are already scaled */
 
             /* merging variances */
-            inv_sigma_total[j]  = ( _vt + _vl +
-                                    _delta*_delta * n1_m_n2_o_n1_p_n2 )
-                                    * inv_n1_p_n2_m1;
+            inv_sigma_total[j] = (_vt + _vl + _delta * _delta * n1_m_n2_o_n1_p_n2) * inv_n1_p_n2_m1;
             /* merging means */
-            mean_total[j]       = ( mean_total[j] * n_current +
-                                    tls_data_local->mean[j] * n_local )
-                                    * inv_n1_p_n2;
+            mean_total[j] = (mean_total[j] * n_current + tls_data_local->mean[j] * n_local) * inv_n1_p_n2;
         }
 
         /* Increase number of already merged values */
         n_current += n_local;
 
         delete tls_data_local;
-    } );
-    if(!safeStat)
-        return safeStat.detach();
-
+    });
+    if (!safeStat) return safeStat.detach();
 
     /* Convert array of variances to inverse sigma's */
-   PRAGMA_IVDEP
-   PRAGMA_VECTOR_ALWAYS
-    for(int j = 0; j < nFeatures; j++)
+    PRAGMA_IVDEP
+    PRAGMA_VECTOR_ALWAYS
+    for (int j = 0; j < nFeatures; j++)
     {
-        if(inv_sigma_total[j])
-            inv_sigma_total[j] = algorithmFPType(1.0) / daal::internal::Math<algorithmFPType, cpu>::sSqrt(inv_sigma_total[j]);
+        if (inv_sigma_total[j]) inv_sigma_total[j] = algorithmFPType(1.0) / daal::internal::Math<algorithmFPType, cpu>::sSqrt(inv_sigma_total[j]);
     }
 
     /* Final normalization threaded loop */
-    daal::threader_for( numBlocks, numBlocks, [ & ](int iBlock)
-    {
-        size_t nVectors_local = (iBlock < (numBlocks-1))?numRowsInBlock:numRowsInLastBlock;
+    daal::threader_for(numBlocks, numBlocks, [&](int iBlock) {
+        size_t nVectors_local = (iBlock < (numBlocks - 1)) ? numRowsInBlock : numRowsInLastBlock;
         size_t startRow       = iBlock * numRowsInBlock;
 
-        const algorithmFPType *dataArray_local = dataArray + startRow * nFeatures;
-        algorithmFPType *normDataArray_local = normalizedDataArray + startRow * nFeatures;
+        const algorithmFPType * dataArray_local = dataArray + startRow * nFeatures;
+        algorithmFPType * normDataArray_local   = normalizedDataArray + startRow * nFeatures;
 
-        for(int i = 0; i < nVectors_local; i++)
+        for (int i = 0; i < nVectors_local; i++)
         {
-           PRAGMA_IVDEP
-           PRAGMA_VECTOR_ALWAYS
-            for(int j = 0; j < nFeatures; j++)
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (int j = 0; j < nFeatures; j++)
             {
                 normDataArray_local[i * nFeatures + j] = (dataArray_local[i * nFeatures + j] - mean_total[j]) * inv_sigma_total[j];
             }
         }
-    } );
+    });
     return services::Status();
 }
 
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::decompose(const NumericTable *normalizedDataTable,
-    data_management::NumericTable& eigenvalues, data_management::NumericTable& eigenvectors)
+services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::decompose(const NumericTable * normalizedDataTable,
+                                                                                   data_management::NumericTable & eigenvalues,
+                                                                                   data_management::NumericTable & eigenvectors)
 {
-    const NumericTable *const *svdInputs = &normalizedDataTable;
+    const NumericTable * const * svdInputs = &normalizedDataTable;
 
-    NumericTable *svdResults[3] = {&eigenvalues, nullptr, &eigenvectors };
+    NumericTable * svdResults[3] = { &eigenvalues, nullptr, &eigenvectors };
     svd::Parameter params;
     params.leftSingularMatrix = svd::notRequired;
     daal::algorithms::svd::internal::SVDBatchKernel<algorithmFPType, svd::defaultDense, cpu> svdKernel;

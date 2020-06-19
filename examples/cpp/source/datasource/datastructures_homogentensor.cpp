@@ -35,44 +35,46 @@ using namespace data_management;
 
 int main()
 {
-    float data[3][3][3] = {{{1,2,3},{4,5,6},{7,8,9}},{{11,12,13},{14,15,16},{17,18,19}},{{21,22,23},{24,25,26},{27,28,29}}};
+    float data[3][3][3] = { { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } },
+                            { { 11, 12, 13 }, { 14, 15, 16 }, { 17, 18, 19 } },
+                            { { 21, 22, 23 }, { 24, 25, 26 }, { 27, 28, 29 } } };
 
-    size_t nDim = 3, dims[] = {3,3,3};
+    size_t nDim = 3, dims[] = { 3, 3, 3 };
 
     printf("Initial data:\n");
-    for(size_t i= 0;i<dims[0]*dims[1]*dims[2];i++)
+    for (size_t i = 0; i < dims[0] * dims[1] * dims[2]; i++)
     {
-        printf("% 5.1f ", ((float*)data)[i]);
+        printf("% 5.1f ", ((float *)data)[i]);
     }
     printf("\n");
 
-    services::SharedPtr<HomogenTensor<> > hc = HomogenTensor<>::create(nDim, dims, (float*)data);
+    services::SharedPtr<HomogenTensor<> > hc = HomogenTensor<>::create(nDim, dims, (float *)data);
     checkPtr(hc.get());
 
     SubtensorDescriptor<float> subtensor;
-    size_t fDimN = 2, fDims[] = {0,1};
+    size_t fDimN = 2, fDims[] = { 0, 1 };
     hc->getSubtensor(fDimN, fDims, 1, 2, readWrite, subtensor);
 
     size_t d = subtensor.getNumberOfDims();
     printf("Subtensor dimensions: %i\n", (int)(d));
     size_t n = subtensor.getSize();
     printf("Subtensor size:       %i\n", (int)(n));
-    float* p = subtensor.getPtr();
+    float * p = subtensor.getPtr();
     printf("Subtensor data:\n");
-    for(size_t i= 0;i<n;i++)
+    for (size_t i = 0; i < n; i++)
     {
         printf("% 5.1lf ", p[i]);
     }
     printf("\n");
 
-    p[0]=-1;
+    p[0] = -1;
 
     hc->releaseSubtensor(subtensor);
 
     printf("Data after modification:\n");
-    for(size_t i= 0;i<dims[0]*dims[1]*dims[2];i++)
+    for (size_t i = 0; i < dims[0] * dims[1] * dims[2]; i++)
     {
-        printf("% 5.1f ", ((float*)data)[i]);
+        printf("% 5.1f ", ((float *)data)[i]);
     }
     printf("\n");
 

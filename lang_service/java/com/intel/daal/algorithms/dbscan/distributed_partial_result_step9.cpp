@@ -19,13 +19,13 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_dbscan_DistributedPartialResultStep9.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::dbscan;
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep9_cNewDistributedPartialResultStep9
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep9_cNewDistributedPartialResultStep9(JNIEnv * env,
+                                                                                                                              jobject thisObj)
 {
     return jniArgument<DistributedPartialResultStep9>::newObj();
 }
@@ -35,8 +35,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartial
  * Method:    cGetDataCollection
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep9_cGetDataCollection
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep9_cGetDataCollection(JNIEnv * env, jobject thisObj,
+                                                                                                               jlong resAddr, jint id)
 {
     return jniArgument<DistributedPartialResultStep9>::get<DistributedPartialResultStep9Id, DataCollection>(resAddr, id);
 }
@@ -46,8 +46,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartial
  * Method:    cSetDataCollection
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep9_cSetDataCollection
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong dcAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep9_cSetDataCollection(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong resAddr, jint id, jlong dcAddr)
 {
     jniArgument<DistributedPartialResultStep9>::set<DistributedPartialResultStep9Id, DataCollection>(resAddr, id, dcAddr);
 }

@@ -21,8 +21,8 @@
 //--
 */
 
-#include "loss_layer_forward_types.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/layers/loss/loss_layer_forward_types.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -56,7 +56,7 @@ data_management::TensorPtr Input::get(forward::InputId id) const
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the object
  */
-void Input::set(InputId id, const data_management::TensorPtr &ptr)
+void Input::set(InputId id, const data_management::TensorPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -65,7 +65,7 @@ void Input::set(InputId id, const data_management::TensorPtr &ptr)
  * Returns dimensions of weights tensor
  * \return Dimensions of weights tensor
  */
-const services::Collection<size_t> Input::getWeightsSizes(const layers::Parameter *parameter) const
+const services::Collection<size_t> Input::getWeightsSizes(const layers::Parameter * parameter) const
 {
     return services::Collection<size_t>();
 }
@@ -74,12 +74,12 @@ const services::Collection<size_t> Input::getWeightsSizes(const layers::Paramete
  * Returns dimensions of biases tensor
  * \return Dimensions of biases tensor
  */
-const services::Collection<size_t> Input::getBiasesSizes(const layers::Parameter *parameter) const
+const services::Collection<size_t> Input::getBiasesSizes(const layers::Parameter * parameter) const
 {
     return services::Collection<size_t>();
 }
 
-   /** Default constructor */
+/** Default constructor */
 Result::Result() : layers::forward::Result() {};
 
 /**
@@ -88,9 +88,9 @@ Result::Result() : layers::forward::Result() {};
  * \param[in] par     %Parameter of the loss layer
  * \param[in] method  Computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
-    const Input *in = static_cast<const Input *>(input);
+    const Input * in = static_cast<const Input *>(input);
     services::Status s;
     DAAL_CHECK_STATUS(s, data_management::checkTensor(in->get(layers::forward::data).get(), dataStr()));
 
@@ -102,16 +102,16 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
  * Returns dimensions of value tensor
  * \return Dimensions of value tensor
  */
-const services::Collection<size_t> Result::getValueSize(const services::Collection<size_t> &inputSize,
-        const daal::algorithms::Parameter *par, const int method) const
+const services::Collection<size_t> Result::getValueSize(const services::Collection<size_t> & inputSize, const daal::algorithms::Parameter * par,
+                                                        const int method) const
 {
     return inputSize;
 }
 
-}// namespace interface1
-}// namespace forward
-}// namespace loss
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace loss
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

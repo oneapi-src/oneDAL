@@ -24,9 +24,9 @@
 #ifndef __CONCAT_LAYER_FORWARD_BATCH_CONTAINER_H__
 #define __CONCAT_LAYER_FORWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/concat/concat_layer.h"
-#include "concat_layer_forward_kernel.h"
-#include "service_numeric_table.h"
+#include "algorithms/neural_networks/layers/concat/concat_layer.h"
+#include "algorithms/kernel/neural_networks/layers/concat_layer/forward/concat_layer_forward_kernel.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::internal;
 
@@ -44,36 +44,36 @@ namespace forward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::ConcatKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    concat::forward::Input *input = static_cast<concat::forward::Input *>(_in);
-    concat::forward::Result *result = static_cast<concat::forward::Result *>(_res);
+    concat::forward::Input * input   = static_cast<concat::forward::Input *>(_in);
+    concat::forward::Result * result = static_cast<concat::forward::Result *>(_res);
 
-    concat::Parameter *parameter = static_cast<concat::Parameter *>(_par);
-    daal::services::Environment::env &env = *_env;
+    concat::Parameter * parameter          = static_cast<concat::Parameter *>(_par);
+    daal::services::Environment::env & env = *_env;
 
     const size_t nInputs = input->get(layers::forward::inputLayerData)->size();
 
-    Tensor *resultTensor  = result->get(layers::forward::value).get();
+    Tensor * resultTensor = result->get(layers::forward::value).get();
 
     TArray<Tensor *, cpu> inputBlock(nInputs);
-    Tensor **inputTensors = inputBlock.get();
+    Tensor ** inputTensors = inputBlock.get();
     DAAL_CHECK_MALLOC(inputTensors);
 
-    for(size_t i = 0; i < nInputs; i++)
+    for (size_t i = 0; i < nInputs; i++)
     {
         inputTensors[i] = input->get(layers::forward::inputLayerData, i).get();
     }

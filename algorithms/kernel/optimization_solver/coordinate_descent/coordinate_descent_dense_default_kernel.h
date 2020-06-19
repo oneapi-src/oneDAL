@@ -19,15 +19,14 @@
 //  Declaration of template function that calculate coordinate_descent.
 //--
 
-
 #ifndef __COORDINATE_DESCENT_DENSE_DEFAULT_KERNEL_H__
 #define __COORDINATE_DESCENT_DENSE_DEFAULT_KERNEL_H__
 
-#include "coordinate_descent_batch.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "service_math.h"
-#include "service_micro_table.h"
+#include "algorithms/optimization_solver/coordinate_descent/coordinate_descent_batch.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "externals/service_math.h"
+#include "service/kernel/data_management/service_micro_table.h"
 
 using namespace daal::data_management;
 using namespace daal::internal;
@@ -43,15 +42,16 @@ namespace coordinate_descent
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-class CoordinateDescentKernel: public Kernel
+template <typename algorithmFPType, Method method, CpuType cpu>
+class CoordinateDescentKernel : public Kernel
 {
 public:
-    services::Status compute(HostAppIface* pHost, NumericTable *inputArgument, NumericTable *minimum, NumericTable *nIterations, Parameter *parameter, engines::BatchBase &engine, optimization_solver::objective_function::ResultPtr& hesGr, optimization_solver::objective_function::ResultPtr& prox);
+    services::Status compute(HostAppIface * pHost, NumericTable * inputArgument, NumericTable * minimum, NumericTable * nIterations,
+                             Parameter * parameter, engines::BatchBase & engine, optimization_solver::objective_function::ResultPtr & hesGr,
+                             optimization_solver::objective_function::ResultPtr & prox);
 };
 
-} // namespace daal::internal
+} // namespace internal
 
 } // namespace coordinate_descent
 

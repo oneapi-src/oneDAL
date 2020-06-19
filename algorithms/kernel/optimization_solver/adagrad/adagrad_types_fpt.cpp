@@ -33,7 +33,6 @@ namespace optimization_solver
 {
 namespace adagrad
 {
-
 namespace interface2
 {
 /**
@@ -43,21 +42,21 @@ namespace interface2
 * \param[in] method Computation method of the algorithm
 */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
     services::Status s = super::allocate<algorithmFPType>(input, par, method);
-    if(!s) return s;
-    const Parameter *algParam = static_cast<const Parameter *>(par);
-    if(!algParam->optionalResultRequired)
+    if (!s) return s;
+    const Parameter * algParam = static_cast<const Parameter *>(par);
+    if (!algParam->optionalResultRequired)
     {
         return s;
     }
     algorithms::OptionalArgumentPtr pOpt = get(iterative_solver::optionalResult);
-    if(pOpt.get())
+    if (pOpt.get())
     {
-        if(pOpt->size() != lastOptionalData + 1)
+        if (pOpt->size() != lastOptionalData + 1)
         {
-            return s;    //error, will be found in check
+            return s; //error, will be found in check
         }
     }
     else
@@ -65,10 +64,10 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
         pOpt = algorithms::OptionalArgumentPtr(new algorithms::OptionalArgument(lastOptionalData + 1));
         Argument::set(iterative_solver::optionalResult, pOpt);
     }
-    const Input *algInput = static_cast<const Input *>(input);
-    const size_t nRows = algInput->get(iterative_solver::inputArgument)->getNumberOfRows();
-    NumericTablePtr pTbl = NumericTable::cast(pOpt->get(gradientSquareSum));
-    if(!pTbl.get())
+    const Input * algInput = static_cast<const Input *>(input);
+    const size_t nRows     = algInput->get(iterative_solver::inputArgument)->getNumberOfRows();
+    NumericTablePtr pTbl   = NumericTable::cast(pOpt->get(gradientSquareSum));
+    if (!pTbl.get())
     {
         pTbl = HomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTable::doAllocate, 0.0, &s);
         pOpt->set(gradientSquareSum, pTbl);
@@ -77,10 +76,11 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     }
     return s;
 }
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                                    const int method);
 
 } // namespace interface2
 } // namespace adagrad
 } // namespace optimization_solver
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

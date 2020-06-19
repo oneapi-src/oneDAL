@@ -21,7 +21,7 @@
 //--
 */
 #include "algorithms/pca/pca_types.h"
-#include "pca/inner/pca_result_v1.h"
+#include "algorithms/kernel/pca/inner/pca_result_v1.h"
 
 namespace daal
 {
@@ -31,15 +31,14 @@ namespace pca
 {
 namespace interface1
 {
-
 /**
  * Allocates memory for storing partial results of the PCA algorithm
  * \param[in] input Pointer to an object containing input data
  * \param[in] parameter Algorithm parameter
  * \param[in] method Computation method
  */
-template<typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, daal::algorithms::Parameter *parameter, const Method method)
+template <typename algorithmFPType>
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, daal::algorithms::Parameter * parameter, const Method method)
 {
     auto impl = ResultImpl::cast(getStorage(*this));
     DAAL_CHECK(impl, services::ErrorNullPtr);
@@ -52,8 +51,9 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
  * \param[in] parameter Parameter of the algorithm
  * \param[in] method        Computation method
  */
-template<typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialResult *partialResult, daal::algorithms::Parameter *parameter, const Method method)
+template <typename algorithmFPType>
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter,
+                                              const Method method)
 {
     auto impl = ResultImpl::cast(getStorage(*this));
     DAAL_CHECK(impl, services::ErrorNullPtr);
@@ -61,8 +61,10 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialRes
     return impl->allocate<algorithmFPType>(partialResult);
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, daal::algorithms::Parameter *parameter, const Method method);
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult *partialResult, daal::algorithms::Parameter *parameter, const Method method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, daal::algorithms::Parameter * parameter,
+                                                                    const Method method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult * partialResult,
+                                                                    daal::algorithms::Parameter * parameter, const Method method);
 
 /**
  * Allocates memory for storing partial results of the PCA algorithm
@@ -70,10 +72,10 @@ template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::
  * \param[in] parameter Algorithm parameter
  * \param[in] method Computation method
  */
-template<typename algorithmFPType>
-services::Status ResultImpl::allocate(const daal::algorithms::Input *input)
+template <typename algorithmFPType>
+services::Status ResultImpl::allocate(const daal::algorithms::Input * input)
 {
-    const InputIface *in = static_cast<const InputIface *>(input);
+    const InputIface * in = static_cast<const InputIface *>(input);
     DAAL_CHECK(in, services::ErrorNullPtr);
     size_t nFeatures = in->getNFeatures();
 
@@ -85,10 +87,10 @@ services::Status ResultImpl::allocate(const daal::algorithms::Input *input)
  * \param[in] parameter Parameter of the algorithm
  * \param[in] method        Computation method
  */
-template<typename algorithmFPType>
-services::Status ResultImpl::allocate(const daal::algorithms::PartialResult *partialResult)
+template <typename algorithmFPType>
+services::Status ResultImpl::allocate(const daal::algorithms::PartialResult * partialResult)
 {
-    const PartialResultBase *partialRes = static_cast<const PartialResultBase *>(partialResult);
+    const PartialResultBase * partialRes = static_cast<const PartialResultBase *>(partialResult);
     DAAL_CHECK(partialRes, services::ErrorNullPtr);
     size_t nFeatures = partialRes->getNFeatures();
 
@@ -105,20 +107,22 @@ services::Status ResultImpl::allocate(size_t nFeatures)
 {
     services::Status status;
 
-    setTable(eigenvalues, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTableIface::doAllocate, 0, &status));
+    setTable(eigenvalues,
+             data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTableIface::doAllocate, 0, &status));
     DAAL_CHECK_STATUS_VAR(status);
 
-    setTable(eigenvectors, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, nFeatures, data_management::NumericTableIface::doAllocate, 0, &status));
+    setTable(eigenvectors, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, nFeatures,
+                                                                                         data_management::NumericTableIface::doAllocate, 0, &status));
     DAAL_CHECK_STATUS_VAR(status);
 
     return status;
 }
 
 template services::Status ResultImpl::allocate<DAAL_FPTYPE>(size_t nFeatures);
-template services::Status ResultImpl::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input);
-template services::Status ResultImpl::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult *partialResult);
+template services::Status ResultImpl::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input);
+template services::Status ResultImpl::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult * partialResult);
 
-}// interface1
-}// namespace pca
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace pca
+} // namespace algorithms
+} // namespace daal

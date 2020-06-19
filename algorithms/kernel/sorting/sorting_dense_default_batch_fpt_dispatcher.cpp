@@ -21,7 +21,7 @@
 //--
 */
 
-#include "sorting_batch_container.h"
+#include "algorithms/kernel/sorting/sorting_batch_container.h"
 
 namespace daal
 {
@@ -29,6 +29,6 @@ namespace algorithms
 {
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER(sorting::BatchContainer, batch, DAAL_FPTYPE, sorting::defaultDense)
 
-} // namespace daal::algorithms
+} // namespace algorithms
 
 } // namespace daal

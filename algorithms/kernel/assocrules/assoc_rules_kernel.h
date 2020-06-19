@@ -24,10 +24,10 @@
 #ifndef __ASSOC_RULES_KERNEL_H__
 #define __ASSOC_RULES_KERNEL_H__
 
-#include "apriori_types.h"
-#include "kernel.h"
+#include "algorithms/association_rules/apriori_types.h"
+#include "algorithms/kernel/kernel.h"
 
-#include "numeric_table.h"
+#include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;
 
@@ -39,7 +39,6 @@ namespace association_rules
 {
 namespace internal
 {
-
 /**
  *  Structure that contains kernels for association rules mining
  */
@@ -48,7 +47,7 @@ class AssociationRulesKernel : public Kernel
 {
 public:
     /** Find "large" item sets and build association rules */
-    services::Status compute(const NumericTable *a, NumericTable *r[], const daal::algorithms::Parameter *parameter);
+    services::Status compute(const NumericTable * a, NumericTable * r[], const daal::algorithms::Parameter * parameter);
 };
 
 } // namespace internal

@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::normalization::zscore;
@@ -30,8 +30,7 @@ using namespace daal::algorithms::normalization::zscore;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Batch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Batch_cInit(JNIEnv * env, jobject thisObj, jint prec, jint method)
 {
     return jniBatch<normalization::zscore::Method, Batch, defaultDense, sumDense>::newObj(prec, method);
 }
@@ -41,8 +40,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Batc
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Batch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Batch_cInitParameter(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                 jint prec, jint method)
 {
     return jniBatch<normalization::zscore::Method, Batch, defaultDense, sumDense>::getParameter(prec, method, algAddr);
 }
@@ -52,8 +51,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Batc
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Batch_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Batch_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                            jint method)
 {
     return jniBatch<normalization::zscore::Method, Batch, defaultDense, sumDense>::getInput(prec, method, algAddr);
 }
@@ -63,8 +62,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Batc
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Batch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Batch_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                             jint method)
 {
     return jniBatch<normalization::zscore::Method, Batch, defaultDense, sumDense>::getResult(prec, method, algAddr);
 }
@@ -74,11 +73,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Batc
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Batch_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Batch_cSetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                            jint method, jlong resultAddr)
 {
-    jniBatch<normalization::zscore::Method, Batch, defaultDense, sumDense>::
-        setResult<normalization::zscore::Result>(prec, method, algAddr, resultAddr);
+    jniBatch<normalization::zscore::Method, Batch, defaultDense, sumDense>::setResult<normalization::zscore::Result>(prec, method, algAddr,
+                                                                                                                     resultAddr);
 }
 
 /*
@@ -86,8 +85,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Batch
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Batch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Batch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                         jint method)
 {
     return jniBatch<normalization::zscore::Method, Batch, defaultDense, sumDense>::getClone(prec, method, algAddr);
 }

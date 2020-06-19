@@ -24,9 +24,9 @@
 #ifndef __PCA_DENSE_CORRELATION_BATCH_CONTAINER_V1_H__
 #define __PCA_DENSE_CORRELATION_BATCH_CONTAINER_V1_H__
 
-#include "kernel.h"
-#include "pca/inner/pca_batch_v1.h"
-#include "pca_dense_correlation_batch_kernel.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/kernel/pca/inner/pca_batch_v1.h"
+#include "algorithms/kernel/pca/pca_dense_correlation_batch_kernel.h"
 
 namespace daal
 {
@@ -36,9 +36,8 @@ namespace pca
 {
 namespace interface1
 {
-
 template <typename algorithmFPType, CpuType cpu>
-BatchContainer<algorithmFPType, correlationDense, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+BatchContainer<algorithmFPType, correlationDense, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::PCACorrelationKernel, batch, algorithmFPType);
 }
@@ -52,23 +51,23 @@ BatchContainer<algorithmFPType, correlationDense, cpu>::~BatchContainer()
 template <typename algorithmFPType, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, correlationDense, cpu>::compute()
 {
-    Input *input = static_cast<Input *>(_in);
-    Result *result = static_cast<Result *>(_res);
-    daal::algorithms::Parameter *par = _par;
+    Input * input                     = static_cast<Input *>(_in);
+    Result * result                   = static_cast<Result *>(_res);
+    daal::algorithms::Parameter * par = _par;
 
-    interface1::BatchParameter<algorithmFPType, correlationDense> *parameter =
+    interface1::BatchParameter<algorithmFPType, correlationDense> * parameter =
         static_cast<interface1::BatchParameter<algorithmFPType, correlationDense> *>(_par);
 
-    services::Environment::env &env = *_env;
+    services::Environment::env & env = *_env;
 
-    data_management::NumericTablePtr data = input->get(pca::data);
+    data_management::NumericTablePtr data         = input->get(pca::data);
     data_management::NumericTablePtr eigenvectors = result->get(pca::eigenvectors);
     data_management::NumericTablePtr eigenvalues  = result->get(pca::eigenvalues);
 
     parameter->covariance->input.set(covariance::data, data);
 
-    __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(batch, algorithmFPType), compute,
-                       input->isCorrelation(), *data, parameter->covariance.get(), *eigenvectors, *eigenvalues);
+    __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(batch, algorithmFPType), compute, input->isCorrelation(), *data,
+                       parameter->covariance.get(), *eigenvectors, *eigenvalues);
 }
 
 } // namespace interface1

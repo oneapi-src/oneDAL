@@ -24,16 +24,16 @@
 #ifndef __QR_KERNEL_BATCH_IMPL_I__
 #define __QR_KERNEL_BATCH_IMPL_I__
 
-#include "service_lapack.h"
-#include "service_memory.h"
-#include "service_math.h"
-#include "service_defines.h"
-#include "service_numeric_table.h"
-#include "service_error_handling.h"
+#include "externals/service_lapack.h"
+#include "externals/service_memory.h"
+#include "externals/service_math.h"
+#include "service/kernel/service_defines.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
 
-#include "qr_dense_default_impl.i"
+#include "algorithms/kernel/qr/qr_dense_default_impl.i"
 
-#include "threading.h"
+#include "algorithms/threading/threading.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;
@@ -47,64 +47,62 @@ namespace qr
 {
 namespace internal
 {
-
-#include "qr_dense_default_pcl_impl.i"
+#include "algorithms/kernel/qr/qr_dense_default_pcl_impl.i"
 
 /**
  *  \brief Kernel for QR calculation
  */
 template <typename algorithmFPType, daal::algorithms::qr::Method method, CpuType cpu>
-Status QRBatchKernel<algorithmFPType, method, cpu>::compute(const size_t na, const NumericTable *const *a,
-                                                          const size_t nr, NumericTable *r[], const daal::algorithms::Parameter *par)
+Status QRBatchKernel<algorithmFPType, method, cpu>::compute(const size_t na, const NumericTable * const * a, const size_t nr, NumericTable * r[],
+                                                            const daal::algorithms::Parameter * par)
 {
-    NumericTable *ntAi = const_cast<NumericTable *>(a[0]);
+    NumericTable * ntAi = const_cast<NumericTable *>(a[0]);
 
-    const size_t  n = ntAi->getNumberOfColumns();
-    const size_t  m = ntAi->getNumberOfRows();
-    const size_t  t = threader_get_threads_number();
+    const size_t n = ntAi->getNumberOfColumns();
+    const size_t m = ntAi->getNumberOfRows();
+    const size_t t = threader_get_threads_number();
 
-    if(m >= 2*n)
+    if (m >= 2 * n)
     {
-        if((m > n*t) && (n>10) && (!(n>=200 && m<=100000)))
-            return QRBatchKernel<algorithmFPType, method, cpu>::compute_pcl( na, a, nr, r, par);
-        return QRBatchKernel<algorithmFPType, method, cpu>::compute_thr( na, a, nr, r, par);
+        if ((m > n * t) && (n > 10) && (!(n >= 200 && m <= 100000)))
+            return QRBatchKernel<algorithmFPType, method, cpu>::compute_pcl(na, a, nr, r, par);
+        return QRBatchKernel<algorithmFPType, method, cpu>::compute_thr(na, a, nr, r, par);
     }
-    return QRBatchKernel<algorithmFPType, method, cpu>::compute_seq( na, a, nr, r, par);
+    return QRBatchKernel<algorithmFPType, method, cpu>::compute_seq(na, a, nr, r, par);
 }
 
-
 template <typename algorithmFPType, daal::algorithms::qr::Method method, CpuType cpu>
-Status QRBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na, const NumericTable *const *a,
-                                                                             const size_t nr, NumericTable *r[], const daal::algorithms::Parameter *par)
+Status QRBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na, const NumericTable * const * a, const size_t nr, NumericTable * r[],
+                                                                const daal::algorithms::Parameter * par)
 {
-    NumericTable *ntAi = const_cast<NumericTable *>(a[0]);
-    NumericTable *ntRi = const_cast<NumericTable *>(r[1]);
+    NumericTable * ntAi = const_cast<NumericTable *>(a[0]);
+    NumericTable * ntRi = const_cast<NumericTable *>(r[1]);
 
-    const size_t  n   = ntAi->getNumberOfColumns();
-    const size_t  m   = ntAi->getNumberOfRows();
+    const size_t n = ntAi->getNumberOfColumns();
+    const size_t m = ntAi->getNumberOfRows();
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, m);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * m, sizeof(algorithmFPType));
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, n);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * n, sizeof(algorithmFPType));
     TArray<algorithmFPType, cpu> QiTPtr(n * m);
-    algorithmFPType *QiT = QiTPtr.get();
+    algorithmFPType * QiT = QiTPtr.get();
     TArray<algorithmFPType, cpu> RiTPtr(n * n);
-    algorithmFPType *RiT = RiTPtr.get();
+    algorithmFPType * RiT = RiTPtr.get();
     DAAL_CHECK(QiT && RiT, ErrorMemoryAllocationFailed);
 
     //copy Ai to QiT, transposed
     {
         ReadRows<algorithmFPType, cpu, NumericTable> aiBlock(ntAi, 0, m);
         DAAL_CHECK_BLOCK_STATUS(aiBlock);
-        const algorithmFPType *Ai = aiBlock.get();
-        for(size_t i = 0; i < n; i++)
-    {
-            for(size_t j = 0; j < m; j++)
+        const algorithmFPType * Ai = aiBlock.get();
+        for (size_t i = 0; i < n; i++)
         {
-            QiT[i * m + j] = Ai[i + j * n];
+            for (size_t j = 0; j < m; j++)
+            {
+                QiT[i * m + j] = Ai[i + j * n];
+            }
         }
-    }
     }
 
     DAAL_INT ldAi = m;
@@ -114,13 +112,13 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na,
 
     //copy QiT to Qi, transposed
     {
-        NumericTable *ntQi = const_cast<NumericTable *>(r[0]);
+        NumericTable * ntQi = const_cast<NumericTable *>(r[0]);
         WriteOnlyRows<algorithmFPType, cpu, NumericTable> qiBlock(ntQi, 0, m); /* Qi = Qin[m][n] */
         DAAL_CHECK_BLOCK_STATUS(qiBlock);
-        algorithmFPType *Qi = qiBlock.get();
-            for(size_t i = 0; i < n; i++)
+        algorithmFPType * Qi = qiBlock.get();
+        for (size_t i = 0; i < n; i++)
         {
-                for(size_t j = 0; j < m; j++)
+            for (size_t j = 0; j < m; j++)
             {
                 Qi[i + j * n] = QiT[i * m + j];
             }
@@ -129,32 +127,31 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na,
 
     //copy RiT to Ri, transposed
     {
-        WriteOnlyRows<algorithmFPType, cpu, NumericTable> riBlock(ntRi, 0, n);  /* Ri = Ri [n][n] */
+        WriteOnlyRows<algorithmFPType, cpu, NumericTable> riBlock(ntRi, 0, n); /* Ri = Ri [n][n] */
         DAAL_CHECK_BLOCK_STATUS(riBlock);
-        algorithmFPType *Ri = riBlock.get();
-        for(size_t i = 0; i < n; i++)
+        algorithmFPType * Ri = riBlock.get();
+        for (size_t i = 0; i < n; i++)
         {
             size_t j = 0;
-            for(; j <= i; j++)
+            for (; j <= i; j++)
             {
-            Ri[i + j * n] = RiT[i * n + j];
+                Ri[i + j * n] = RiT[i * n + j];
+            }
+            for (; j < n; j++)
+            {
+                Ri[i + j * n] = 0.0;
+            }
         }
-            for(; j < n; j++)
-        {
-            Ri[i + j * n] = 0.0;
-        }
-    }
     }
     return Status();
 }
 
 /* Max number of blocks depending on arch */
-#if( __CPUID__(DAAL_CPU) >= __avx512_mic__ )
+#if (__CPUID__(DAAL_CPU) >= __avx512_mic__)
     #define DEF_MAX_BLOCKS 256
 #else
     #define DEF_MAX_BLOCKS 128
 #endif
-
 
 /*
     Algorithm for parallel QR computation:
@@ -178,15 +175,15 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na,
     Notice: before and after QR and GEMM computations matrices need to be transposed
 */
 template <typename algorithmFPType, daal::algorithms::qr::Method method, CpuType cpu>
-Status QRBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na, const NumericTable *const *a,
-                                                              const size_t nr, NumericTable *r[], const daal::algorithms::Parameter *par)
+Status QRBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na, const NumericTable * const * a, const size_t nr, NumericTable * r[],
+                                                                const daal::algorithms::Parameter * par)
 {
-    NumericTable *ntA_input  = const_cast<NumericTable *>(a[0]);
-    NumericTable *ntQ_output = const_cast<NumericTable *>(r[0]);
-    NumericTable *ntR_output = const_cast<NumericTable *>(r[1]);
+    NumericTable * ntA_input  = const_cast<NumericTable *>(a[0]);
+    NumericTable * ntQ_output = const_cast<NumericTable *>(r[0]);
+    NumericTable * ntR_output = const_cast<NumericTable *>(r[1]);
 
-    const size_t  n = ntA_input->getNumberOfColumns();
-    const size_t  m = ntA_input->getNumberOfRows();
+    const size_t n = ntA_input->getNumberOfColumns();
+    const size_t m = ntA_input->getNumberOfRows();
 
     size_t rows = m;
     size_t cols = n;
@@ -194,12 +191,12 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na,
     /* Getting real pointers to output array */
     WriteOnlyRows<algorithmFPType, cpu, NumericTable> bkQ_output(ntQ_output, 0, m);
     DAAL_CHECK_BLOCK_STATUS(bkQ_output);
-    algorithmFPType *Q_output = bkQ_output.get();
+    algorithmFPType * Q_output = bkQ_output.get();
 
     /* Block size calculation (empirical) */
-    const int bshift = (rows <= 10000 )?11:12;
-    int bsize  = ((rows*cols)>>bshift) & (~0xf);
-    bsize = (bsize < 200)?200:bsize;
+    const int bshift = (rows <= 10000) ? 11 : 12;
+    int bsize        = ((rows * cols) >> bshift) & (~0xf);
+    bsize            = (bsize < 200) ? 200 : bsize;
 
     /*
     Calculate sizes:
@@ -207,11 +204,11 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na,
     brows      = number of rows in blocks,
     brows_last = number of rows in last block,
     */
-    size_t def_min_brows = rows/DEF_MAX_BLOCKS; // min block size
-    size_t brows      = ( rows > bsize )? bsize:rows; /* brows cannot be less than rows */
-    brows             = ( brows < cols )? cols:brows; /* brows cannot be less than cols */
-    brows             = (brows < def_min_brows)?def_min_brows:brows; /* brows cannot be less than n/DEF_MAX_BLOCKS */
-    size_t blocks     = rows / brows;
+    size_t def_min_brows = rows / DEF_MAX_BLOCKS;                           // min block size
+    size_t brows         = (rows > bsize) ? bsize : rows;                   /* brows cannot be less than rows */
+    brows                = (brows < cols) ? cols : brows;                   /* brows cannot be less than cols */
+    brows                = (brows < def_min_brows) ? def_min_brows : brows; /* brows cannot be less than n/DEF_MAX_BLOCKS */
+    size_t blocks        = rows / brows;
 
     size_t brows_last = brows + (rows - blocks * brows); /* last block is generally biggest */
 
@@ -221,11 +218,11 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na,
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * n, blocks);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, len, sizeof(algorithmFPType));
     TArray<algorithmFPType, cpu> R_buffPtr(n * n);
-    algorithmFPType *R_buff = R_buffPtr.get();
+    algorithmFPType * R_buff = R_buffPtr.get();
     DAAL_CHECK(R_buff, ErrorMemoryAllocationFailed);
 
     TArray<algorithmFPType, cpu> RT_buffPtr(len);
-    algorithmFPType *RT_buff = RT_buffPtr.get();
+    algorithmFPType * RT_buff = RT_buffPtr.get();
     DAAL_CHECK(RT_buff, ErrorMemoryAllocationFailed);
 
     SafeStatus safeStat;
@@ -235,29 +232,30 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na,
         /* Getting real pointers to input array */
         ReadRows<algorithmFPType, cpu, NumericTable> bkA_input(ntA_input, 0, m);
         DAAL_CHECK_BLOCK_STATUS(bkA_input);
-        const algorithmFPType *A_input = bkA_input.get();
+        const algorithmFPType * A_input = bkA_input.get();
 
-        daal::threader_for(blocks, blocks, [=, &safeStat](int k)
-        {
-            const algorithmFPType *A_block = A_input + k * brows * cols;
-            algorithmFPType *Q_block = Q_output + k * brows * cols;
+        daal::threader_for(blocks, blocks, [=, &safeStat](int k) {
+            const algorithmFPType * A_block = A_input + k * brows * cols;
+            algorithmFPType * Q_block       = Q_output + k * brows * cols;
 
-        /* Last block size brows_last (generally larger than other blocks) */
+            /* Last block size brows_last (generally larger than other blocks) */
             const size_t brows_local = (k == (blocks - 1)) ? brows_last : brows;
-            const size_t cols_local = cols;
+            const size_t cols_local  = cols;
 
             TArrayScalable<algorithmFPType, cpu> QT_local_Arr(cols_local * brows_local);
-            algorithmFPType *QT_local = QT_local_Arr.get();
+            algorithmFPType * QT_local = QT_local_Arr.get();
             TArrayScalable<algorithmFPType, cpu> RT_local_Arr(cols_local * cols_local);
-            algorithmFPType *RT_local = RT_local_Arr.get();
+            algorithmFPType * RT_local = RT_local_Arr.get();
 
             DAAL_CHECK_THR(QT_local && RT_local, ErrorMemoryAllocationFailed);
 
             /* Get transposed Q from A */
-            for(int i = 0; i < cols_local; i++) {
-            PRAGMA_IVDEP
-                for(int j = 0; j < brows_local; j++) {
-                    QT_local[i*brows_local + j] = A_block[i + j*cols_local];
+            for (int i = 0; i < cols_local; i++)
+            {
+                PRAGMA_IVDEP
+                for (int j = 0; j < brows_local; j++)
+                {
+                    QT_local[i * brows_local + j] = A_block[i + j * cols_local];
                 }
             }
 
@@ -266,25 +264,30 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na,
             DAAL_CHECK_STATUS_THR(ec);
 
             /* Transpose Q */
-            for(int i = 0; i < cols_local; i++) {
-            PRAGMA_IVDEP
-                for(int j = 0; j < brows_local; j++) {
-                    Q_block[i + j*cols_local] = QT_local[i*brows_local + j];
+            for (int i = 0; i < cols_local; i++)
+            {
+                PRAGMA_IVDEP
+                for (int j = 0; j < brows_local; j++)
+                {
+                    Q_block[i + j * cols_local] = QT_local[i * brows_local + j];
                 }
             }
 
             /* Transpose R and zero lower values */
-            for(int i = 0; i < cols_local; i++) {
+            for (int i = 0; i < cols_local; i++)
+            {
                 int j;
                 PRAGMA_IVDEP
-                for(j = 0; j <= i; j++) {
-                    RT_buff[k*cols_local + i*cols_local*blocks + j] = RT_local[i*cols_local + j];
+                for (j = 0; j <= i; j++)
+                {
+                    RT_buff[k * cols_local + i * cols_local * blocks + j] = RT_local[i * cols_local + j];
                 }
                 PRAGMA_IVDEP
-                for(; j < cols_local; j++) {
-                    RT_buff[k*cols_local + i*cols_local*blocks + j] = 0.0;
-        }
-        }
+                for (; j < cols_local; j++)
+                {
+                    RT_buff[k * cols_local + i * cols_local * blocks + j] = 0.0;
+                }
+            }
         });
     }
 
@@ -301,10 +304,12 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na,
     {
         WriteOnlyRows<algorithmFPType, cpu, NumericTable> bkR_output(ntR_output, 0, n);
         DAAL_CHECK_BLOCK_STATUS(bkR_output);
-        algorithmFPType *R_output = bkR_output.get();
-        for(int i = 0; i < cols; i++) {
+        algorithmFPType * R_output = bkR_output.get();
+        for (int i = 0; i < cols; i++)
+        {
             PRAGMA_IVDEP
-            for(int j = 0; j < cols; j++) {
+            for (int j = 0; j < cols; j++)
+            {
                 R_output[i + j * cols] = R_buff[i * cols + j];
             }
         }
@@ -312,62 +317,67 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na,
     /* Step3: calculate Q by merging Q*RB */
     /* ================================== */
 
-    daal::threader_for( blocks, blocks, [=, &safeStat](int k)
-    {
-        algorithmFPType *Q_block         = Q_output  + k * brows * cols;
+    daal::threader_for(blocks, blocks, [=, &safeStat](int k) {
+        algorithmFPType * Q_block = Q_output + k * brows * cols;
 
         /* Last block size brows_last (generally larger than other blocks) */
-        size_t brows_local = (k==(blocks-1))?brows_last:brows;
+        size_t brows_local = (k == (blocks - 1)) ? brows_last : brows;
         size_t cols_local  = cols;
 
         TArrayScalable<algorithmFPType, cpu> QT_local_Arr(cols_local * brows_local);
-        algorithmFPType *QT_local = QT_local_Arr.get();
+        algorithmFPType * QT_local = QT_local_Arr.get();
         TArrayScalable<algorithmFPType, cpu> RT_local_Arr(cols_local * cols_local);
-        algorithmFPType *RT_local = RT_local_Arr.get();
+        algorithmFPType * RT_local = RT_local_Arr.get();
         TArrayScalable<algorithmFPType, cpu> QT_result_local_Arr(cols_local * brows_local);
-        algorithmFPType *QT_result_local = QT_result_local_Arr.get();
+        algorithmFPType * QT_result_local = QT_result_local_Arr.get();
 
         DAAL_CHECK_THR(QT_local && QT_result_local && RT_local, ErrorMemoryAllocationFailed);
 
-            /* Transpose RB */
-        for(int i = 0; i < cols_local; i++) {
+        /* Transpose RB */
+        for (int i = 0; i < cols_local; i++)
+        {
             PRAGMA_IVDEP
-            for(int j = 0; j < cols_local; j++) {
-                RT_local[j*cols_local + i] = RT_buff[j*cols_local*blocks + k*cols_local + i];
+            for (int j = 0; j < cols_local; j++)
+            {
+                RT_local[j * cols_local + i] = RT_buff[j * cols_local * blocks + k * cols_local + i];
             }
         }
 
-            /* Transpose Q to QT */
-        for(int i = 0; i < cols_local; i++) {
+        /* Transpose Q to QT */
+        for (int i = 0; i < cols_local; i++)
+        {
             PRAGMA_IVDEP
-            for(int j = 0; j < brows_local; j++) {
-                QT_local[i*brows_local + j] = Q_block[i + j*cols_local];
+            for (int j = 0; j < brows_local; j++)
+            {
+                QT_local[i * brows_local + j] = Q_block[i + j * cols_local];
             }
         }
 
-            /* Call GEMMs to multiply Q*R */
-        compute_gemm_on_one_node_seq<algorithmFPType, cpu>(brows_local, cols_local,
-            QT_local, brows_local, RT_local, cols_local, QT_result_local, brows_local );
+        /* Call GEMMs to multiply Q*R */
+        compute_gemm_on_one_node_seq<algorithmFPType, cpu>(brows_local, cols_local, QT_local, brows_local, RT_local, cols_local, QT_result_local,
+                                                           brows_local);
 
-            /* Transpose result Q */
-        for(int i = 0; i < cols_local; i++) {
+        /* Transpose result Q */
+        for (int i = 0; i < cols_local; i++)
+        {
             PRAGMA_IVDEP
-            for(int j = 0; j < brows_local; j++) {
-                Q_block[i + j*cols_local] = QT_result_local[i*brows_local + j];
+            for (int j = 0; j < brows_local; j++)
+            {
+                Q_block[i + j * cols_local] = QT_result_local[i * brows_local + j];
+            }
         }
-        }
-    } );
+    });
 
     return safeStat.detach();
 }
 
 template <typename algorithmFPType, daal::algorithms::qr::Method method, CpuType cpu>
-Status QRBatchKernel<algorithmFPType, method, cpu>::compute_pcl(const size_t na, const NumericTable *const *a,
-                                                                   const size_t nr, NumericTable *r[], const daal::algorithms::Parameter *par)
+Status QRBatchKernel<algorithmFPType, method, cpu>::compute_pcl(const size_t na, const NumericTable * const * a, const size_t nr, NumericTable * r[],
+                                                                const daal::algorithms::Parameter * par)
 {
-    NumericTable *ntAi = const_cast<NumericTable *>(a[0]);
-    NumericTable *ntQi = const_cast<NumericTable *>(r[0]);
-    NumericTable *ntRi = const_cast<NumericTable *>(r[1]);
+    NumericTable * ntAi = const_cast<NumericTable *>(a[0]);
+    NumericTable * ntQi = const_cast<NumericTable *>(r[0]);
+    NumericTable * ntRi = const_cast<NumericTable *>(r[1]);
 
     const size_t n = ntAi->getNumberOfColumns();
     const size_t m = ntAi->getNumberOfRows();
@@ -388,10 +398,9 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_pcl(const size_t na,
     return Status();
 }
 
-
-} // namespace daal::internal
-}
-}
+} // namespace internal
+} // namespace qr
+} // namespace algorithms
 } // namespace daal
 
 #endif

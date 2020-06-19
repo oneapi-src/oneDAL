@@ -21,7 +21,7 @@
 //--
 */
 
-#include "split_layer_types.h"
+#include "algorithms/neural_networks/layers/split/split_layer_types.h"
 
 namespace daal
 {
@@ -42,9 +42,9 @@ namespace interface1
 */
 Parameter::Parameter(size_t nOutputs, size_t nInputs) : nOutputs(nOutputs), nInputs(nInputs) {};
 
-}// namespace interface1
-}// namespace split
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace split
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

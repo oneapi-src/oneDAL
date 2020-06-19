@@ -21,9 +21,9 @@
 //--
 */
 
-#include "cosine_distance_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/distance/cosine_distance_types.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -54,7 +54,7 @@ data_management::NumericTablePtr Input::get(InputId id) const
 * \param[in] id    Identifier of the input object
 * \param[in] ptr   Pointer to the object
 */
-void Input::set(InputId id, const data_management::NumericTablePtr &ptr)
+void Input::set(InputId id, const data_management::NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -64,13 +64,12 @@ void Input::set(InputId id, const data_management::NumericTablePtr &ptr)
 * \param[in] par     %Parameter of the algorithm
 * \param[in] method  computation method
 */
-services::Status Input::check(const daal::algorithms::Parameter *par, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
     return data_management::checkNumericTable(get(data).get(), dataStr());
 }
 
 Result::Result() : daal::algorithms::Result(lastResultId + 1) {}
-
 
 /**
  * Returns the result of the cosine distance algorithm
@@ -87,7 +86,7 @@ data_management::NumericTablePtr Result::get(ResultId id) const
  * \param[in] id    Identifier of the partial result
  * \param[in] ptr   Pointer to the result object
  */
-void Result::set(ResultId id, const data_management::NumericTablePtr &ptr)
+void Result::set(ResultId id, const data_management::NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -98,19 +97,18 @@ void Result::set(ResultId id, const data_management::NumericTablePtr &ptr)
 * \param[in] par     %Parameter of the algorithm
 * \param[in] method  Computation method
 */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
-    const Input *algInput = static_cast<const Input *>(input);
+    const Input * algInput = static_cast<const Input *>(input);
 
-    size_t nVectors  = algInput->get(data)->getNumberOfRows();
-    int unexpectedLayouts = (int)data_management::NumericTableIface::csrArray |
-                            (int)data_management::NumericTableIface::upperPackedTriangularMatrix |
-                            (int)data_management::NumericTableIface::lowerPackedTriangularMatrix;
+    size_t nVectors       = algInput->get(data)->getNumberOfRows();
+    int unexpectedLayouts = (int)data_management::NumericTableIface::csrArray | (int)data_management::NumericTableIface::upperPackedTriangularMatrix
+                            | (int)data_management::NumericTableIface::lowerPackedTriangularMatrix;
 
     return data_management::checkNumericTable(get(cosineDistance).get(), cosineDistanceStr(), unexpectedLayouts, 0, nVectors, nVectors);
 }
 
-}// namespace interface1
-}// namespace cosine_distance
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace cosine_distance
+} // namespace algorithms
+} // namespace daal

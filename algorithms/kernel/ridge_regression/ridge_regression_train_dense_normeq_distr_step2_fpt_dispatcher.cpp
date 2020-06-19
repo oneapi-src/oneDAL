@@ -21,12 +21,13 @@
 //--
 */
 
-#include "ridge_regression_train_container.h"
+#include "algorithms/kernel/ridge_regression/ridge_regression_train_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(ridge_regression::training::DistributedContainer, distributed, step2Master, DAAL_FPTYPE, ridge_regression::training::normEqDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(ridge_regression::training::DistributedContainer, distributed, step2Master, DAAL_FPTYPE,
+                                      ridge_regression::training::normEqDense)
 } // namespace algorithms
 } // namespace daal

@@ -21,9 +21,9 @@
 //--
 */
 
-#include "kmeans_lloyd_kernel.h"
-#include "kmeans_lloyd_distr_step1_impl.i"
-#include "kmeans_container.h"
+#include "algorithms/kernel/kmeans/kmeans_lloyd_kernel.h"
+#include "algorithms/kernel/kmeans/kmeans_lloyd_distr_step1_impl.i"
+#include "algorithms/kernel/kmeans/kmeans_container.h"
 
 namespace daal
 {
@@ -31,14 +31,14 @@ namespace algorithms
 {
 namespace kmeans
 {
-namespace interface1
+namespace interface2
 {
-template class DistributedContainer<step1Local, DAAL_FPTYPE, lloydCSR, DAAL_CPU>;
+template class DistributedContainer<step1Local, DAAL_FPTYPE, kmeans::lloydCSR, DAAL_CPU>;
 }
 namespace internal
 {
-template class KMeansDistributedStep1Kernel<lloydCSR, DAAL_FPTYPE, DAAL_CPU>;
-} // namespace daal::algorithms::kmeans::internal
-} // namespace daal::algorithms::kmeans
-} // namespace daal::algorithms
+template class KMeansDistributedStep1Kernel<kmeans::lloydCSR, DAAL_FPTYPE, DAAL_CPU>;
+} // namespace internal
+} // namespace kmeans
+} // namespace algorithms
 } // namespace daal

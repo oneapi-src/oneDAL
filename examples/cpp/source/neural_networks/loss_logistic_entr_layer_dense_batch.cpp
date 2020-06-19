@@ -42,13 +42,13 @@ using namespace daal::data_management;
 using namespace daal::services;
 
 /* Input data set parameters */
-string datasetName = "../data/batch/logistic_cross_entropy_layer.csv";
+string datasetName            = "../data/batch/logistic_cross_entropy_layer.csv";
 string datasetGroundTruthName = "../data/batch/logistic_cross_entropy_layer_ground_truth.csv";
 
 int main()
 {
     /* Read datasetFileName from a file and create a tensor to store input data */
-    TensorPtr tensorData = readTensorFromCSV(datasetName);
+    TensorPtr tensorData  = readTensorFromCSV(datasetName);
     TensorPtr groundTruth = readTensorFromCSV(datasetGroundTruthName);
 
     /* Create an algorithm to compute forward logistic cross-entropy layer results using default method */

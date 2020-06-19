@@ -21,9 +21,9 @@
 //--
 */
 
-#include "layer_backward_types.h"
-#include "layer_types.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/layers/layer_backward_types.h"
+#include "algorithms/neural_networks/layers/layer_types.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -37,8 +37,8 @@ namespace backward
 {
 namespace interface1
 {
-InputIface::InputIface(const InputIface& other) : daal::algorithms::Input(other) {}
-Input::Input(const Input& other) : InputIface(other){}
+InputIface::InputIface(const InputIface & other) : daal::algorithms::Input(other) {}
+Input::Input(const Input & other) : InputIface(other) {}
 
 /** \brief Constructor */
 Input::Input() : InputIface(lastInputLayerDataId + 1)
@@ -71,7 +71,7 @@ LayerDataPtr Input::get(InputLayerDataId id) const
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the object
  */
-void Input::set(InputId id, const data_management::TensorPtr &ptr)
+void Input::set(InputId id, const data_management::TensorPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -81,7 +81,7 @@ void Input::set(InputId id, const data_management::TensorPtr &ptr)
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the object
  */
-void Input::set(InputLayerDataId id, const LayerDataPtr &ptr)
+void Input::set(InputLayerDataId id, const LayerDataPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -91,7 +91,7 @@ void Input::set(InputLayerDataId id, const LayerDataPtr &ptr)
  * \param[in] igTensor  Tensor with input gradient
  * \param[in] index     Index of the tensor with input gradient
  */
-services::Status Input::addInputGradient(const data_management::TensorPtr &igTensor, size_t index)
+services::Status Input::addInputGradient(const data_management::TensorPtr & igTensor, size_t index)
 {
     set(layers::backward::inputGradient, igTensor);
     return services::Status();
@@ -112,12 +112,12 @@ services::Status Input::setInputFromForward(forward::ResultPtr result)
  * \param[in] par     %Parameter of algorithm
  * \param[in] method  Computation method of the algorithm
  */
-services::Status Input::check(const daal::algorithms::Parameter *par, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
-    if(Argument::size() != 2) return services::Status(services::ErrorIncorrectNumberOfInputNumericTables);
+    if (Argument::size() != 2) return services::Status(services::ErrorIncorrectNumberOfInputNumericTables);
     services::Status s;
     s |= data_management::checkTensor(get(inputGradient).get(), inputGradientStr());
-    if(!s) return s;
+    if (!s) return s;
 
     LayerDataPtr layerData = get(inputFromForward);
     if (!layerData) return services::Status(services::ErrorNullLayerData);
@@ -128,7 +128,10 @@ services::Status Input::check(const daal::algorithms::Parameter *par, int method
  * Returns the layout of the input object for the layer algorithm
  * \return Layout of the input object for the layer algorithm
  */
-LayerInputLayout Input::getLayout() const { return tensorInput; }
+LayerInputLayout Input::getLayout() const
+{
+    return tensorInput;
+}
 
 /**
  * Returns result of the layer algorithm
@@ -151,7 +154,7 @@ Result::Result() : daal::algorithms::Result(lastResultLayerDataId + 1)
  * \param[in] id    Identifier of the result
  * \param[in] ptr   Pointer to the result
  */
-void Result::set(ResultId id, const data_management::TensorPtr &ptr)
+void Result::set(ResultId id, const data_management::TensorPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -171,7 +174,7 @@ LayerDataPtr Result::get(backward::ResultLayerDataId id) const
  * \param[in] id    Identifier of the result object
  * \param[in] ptr   Pointer to the object
  */
-void Result::set(ResultLayerDataId id, const LayerDataPtr &ptr)
+void Result::set(ResultLayerDataId id, const LayerDataPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -182,16 +185,16 @@ void Result::set(ResultLayerDataId id, const LayerDataPtr &ptr)
  * \param[in] parameter     %Parameter of algorithm
  * \param[in] method        Computation method of the algorithm
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    if(Argument::size() != 4) return services::Status(services::ErrorIncorrectNumberOfInputNumericTables);
+    if (Argument::size() != 4) return services::Status(services::ErrorIncorrectNumberOfInputNumericTables);
     services::Status s;
 
-    const layers::Parameter *param = static_cast<const layers::Parameter *>(parameter);
+    const layers::Parameter * param = static_cast<const layers::Parameter *>(parameter);
     if (param->propagateGradient)
     {
         s |= data_management::checkTensor(get(gradient).get(), gradientStr());
-        if(!s) return s;
+        if (!s) return s;
     }
     return s;
 }
@@ -200,7 +203,10 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
  * Returns the layout of the result object for the layer algorithm
  * \return Layout of the result object for the layer algorithm
  */
-LayerResultLayout Result::getLayout() const { return tensorResult; }
+LayerResultLayout Result::getLayout() const
+{
+    return tensorResult;
+}
 
 /**
  * Returns resulting gradient of the layer algorithm
@@ -212,9 +218,9 @@ data_management::TensorPtr Result::getGradient(size_t index) const
     return get(layers::backward::gradient);
 }
 
-}// namespace interface1
-}// namespace backward
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

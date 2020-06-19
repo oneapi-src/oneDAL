@@ -18,8 +18,8 @@
 #ifndef __BATCH_NORMALIZATION_LAYER_FORWARD_TASK_DESCRIPTOR_H__
 #define __BATCH_NORMALIZATION_LAYER_FORWARD_TASK_DESCRIPTOR_H__
 
-#include "neural_networks/layers/batch_normalization/batch_normalization_layer_forward.h"
-#include "neural_networks/layers/batch_normalization/batch_normalization_layer_forward_types.h"
+#include "algorithms/neural_networks/layers/batch_normalization/batch_normalization_layer_forward.h"
+#include "algorithms/neural_networks/layers/batch_normalization/batch_normalization_layer_forward_types.h"
 
 namespace daal
 {
@@ -35,31 +35,30 @@ namespace forward
 {
 namespace internal
 {
-
 class BatchNormalizationTaskDescriptor
 {
 public:
-    BatchNormalizationTaskDescriptor(Input *in, Result *re, Parameter *pa);
+    BatchNormalizationTaskDescriptor(Input * in, Result * re, Parameter * pa);
 
-    data_management::Tensor *input;
-    data_management::Tensor *weights;
-    data_management::Tensor *biases;
-    data_management::Tensor *inPopMean;
-    data_management::Tensor *inPopVariance;
-    data_management::Tensor *value;
-    data_management::Tensor *auxMean;
-    data_management::Tensor *auxStd;
-    data_management::Tensor *auxPopMean;
-    data_management::Tensor *auxPopVariance;
-    Parameter *parameter;
+    data_management::Tensor * input;
+    data_management::Tensor * weights;
+    data_management::Tensor * biases;
+    data_management::Tensor * inPopMean;
+    data_management::Tensor * inPopVariance;
+    data_management::Tensor * value;
+    data_management::Tensor * auxMean;
+    data_management::Tensor * auxStd;
+    data_management::Tensor * auxPopMean;
+    data_management::Tensor * auxPopVariance;
+    Parameter * parameter;
 };
 
-} // internal
-} // forward
-} // batch_normalization
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace forward
+} // namespace batch_normalization
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

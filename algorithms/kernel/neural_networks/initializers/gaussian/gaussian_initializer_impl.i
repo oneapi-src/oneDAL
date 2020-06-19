@@ -24,7 +24,7 @@
 #ifndef __GAUSSIAN_INITIALIZER_IMPL_I__
 #define __GAUSSIAN_INITIALIZER_IMPL_I__
 
-#include "initializers_impl.i"
+#include "algorithms/kernel/neural_networks/initializers/initializers_impl.i"
 
 namespace daal
 {
@@ -38,25 +38,23 @@ namespace gaussian
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status GaussianKernel<algorithmFPType, method, cpu>::compute(const GaussianInitializerTaskDescriptor &desc)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status GaussianKernel<algorithmFPType, method, cpu>::compute(const GaussianInitializerTaskDescriptor & desc)
 {
     initializers::internal::EngineImpl<cpu> engine(desc.engine);
     DAAL_CHECK_MALLOC(engine.get());
 
     WriteOnlySubtensor<algorithmFPType, cpu, Tensor> resultSubtensor(desc.result, 0, 0, 0, desc.result->getDimensionSize(0));
     DAAL_CHECK_BLOCK_STATUS(resultSubtensor);
-    algorithmFPType *resultArray = resultSubtensor.get();
+    algorithmFPType * resultArray = resultSubtensor.get();
 
     size_t size = desc.result->getSize();
 
     distributions::normal::Parameter<algorithmFPType> normalParameter((algorithmFPType)desc.a, (algorithmFPType)desc.sigma);
-    return distributions::normal::internal::NormalKernelDefault<algorithmFPType, cpu>::compute(
-        &normalParameter, *engine, size, resultArray);
+    return distributions::normal::internal::NormalKernelDefault<algorithmFPType, cpu>::compute(&normalParameter, *engine, size, resultArray);
 }
 
-} // internal
+} // namespace internal
 } // namespace gaussian
 } // namespace initializers
 } // namespace neural_networks

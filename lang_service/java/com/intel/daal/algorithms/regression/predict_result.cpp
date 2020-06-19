@@ -20,7 +20,7 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_regression_prediction_PredictionResult.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::regression;
@@ -31,8 +31,7 @@ using namespace daal::algorithms::regression::prediction;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_regression_prediction_PredictionResult_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_regression_prediction_PredictionResult_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<regression::prediction::Result>::newObj();
 }
@@ -42,15 +41,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_regression_prediction_Pre
  * Method:    cGetResult
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_regression_prediction_PredictionResult_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr )
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_regression_prediction_PredictionResult_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    SerializationIfacePtr *ptr = new SerializationIfacePtr();
+    SerializationIfacePtr * ptr = new SerializationIfacePtr();
 
-    SharedPtr<Batch> alg =
-        staticPointerCast<Batch, AlgorithmIface>
-            (*(SharedPtr<AlgorithmIface> *)algAddr);
-    *ptr = alg->getResult();
+    SharedPtr<Batch> alg = staticPointerCast<Batch, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
+    *ptr                 = alg->getResult();
     return (jlong)ptr;
 }
 /*
@@ -58,11 +54,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_regression_prediction_Pre
  * Method:    cGetMinimum
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_regression_prediction_PredictionResult_cGetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_regression_prediction_PredictionResult_cGetResultTable(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong resAddr, jint id)
 {
-    return jniArgument<regression::prediction::Result>::
-        get<regression::prediction::ResultId, NumericTable>(resAddr, (regression::prediction::ResultId)id);
+    return jniArgument<regression::prediction::Result>::get<regression::prediction::ResultId, NumericTable>(resAddr,
+                                                                                                            (regression::prediction::ResultId)id);
 }
 
 /*
@@ -70,9 +66,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_regression_prediction_Pre
  * Method:    cSetResultTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_regression_prediction_PredictionResult_cSetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_regression_prediction_PredictionResult_cSetResultTable(JNIEnv * env, jobject thisObj,
+                                                                                                             jlong resAddr, jint id, jlong ntAddr)
 {
-    jniArgument<regression::prediction::Result>::
-        set<regression::prediction::ResultId, NumericTable>(resAddr, id, ntAddr);
+    jniArgument<regression::prediction::Result>::set<regression::prediction::ResultId, NumericTable>(resAddr, id, ntAddr);
 }

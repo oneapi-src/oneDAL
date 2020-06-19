@@ -19,10 +19,9 @@
 //  Implementation of forward pooling layer.
 //--
 
-
-#include "spatial_stochastic_pooling2d_layer_forward_batch_container.h"
-#include "spatial_pooling2d_layer_forward_kernel.h"
-#include "spatial_pooling2d_layer_forward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/spatial_pooling2d_layer/forward/spatial_stochastic_pooling2d_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/spatial_pooling2d_layer/forward/spatial_pooling2d_layer_forward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/spatial_pooling2d_layer/forward/spatial_pooling2d_layer_forward_impl.i"
 
 namespace daal
 {
@@ -34,16 +33,15 @@ namespace layers
 {
 namespace spatial_stochastic_pooling2d
 {
-
 namespace forward
 {
 namespace interface1
 {
 template class neural_networks::layers::spatial_stochastic_pooling2d::forward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
-} // forward
+} // namespace interface1
+} // namespace forward
 
-}
+} // namespace spatial_stochastic_pooling2d
 
 namespace spatial_pooling2d
 {
@@ -52,11 +50,11 @@ namespace forward
 namespace internal
 {
 template class PoolingKernel<DAAL_FPTYPE, spatial_pooling2d::internal::stochastic, DAAL_CPU>;
-} // internal
-}
-}
+} // namespace internal
+} // namespace forward
+} // namespace spatial_pooling2d
 
-}
-}
-}
-}
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

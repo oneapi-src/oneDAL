@@ -21,7 +21,7 @@
 //--
 */
 
-#include "covariance_container.h"
+#include "algorithms/kernel/covariance/covariance_container.h"
 
 namespace daal
 {
@@ -29,4 +29,4 @@ namespace algorithms
 {
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER(covariance::BatchContainer, batch, DAAL_FPTYPE, covariance::singlePassDense)
 }
-}
+} // namespace daal

@@ -19,13 +19,13 @@
 #include "com_intel_daal_algorithms_neural_networks_training_DistributedStep1LocalInput.h"
 
 #include "daal.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_neural_networks_training_TrainingInputId.h"
 #define dataId        com_intel_daal_algorithms_neural_networks_training_TrainingInputId_dataId
 #define groundTruthId com_intel_daal_algorithms_neural_networks_training_TrainingInputId_groundTruthId
 #include "com_intel_daal_algorithms_neural_networks_training_DistributedStep1LocalInputId.h"
-#define inputModelId  com_intel_daal_algorithms_neural_networks_training_DistributedStep1LocalInputId_inputModelId
+#define inputModelId com_intel_daal_algorithms_neural_networks_training_DistributedStep1LocalInputId_inputModelId
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::neural_networks;
@@ -35,8 +35,9 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cSetModel
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep1LocalInput_cSetModel
-  (JNIEnv *, jobject, jlong inputAddr, jint id, jlong modelAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep1LocalInput_cSetModel(JNIEnv *, jobject,
+                                                                                                                     jlong inputAddr, jint id,
+                                                                                                                     jlong modelAddr)
 {
     if (id == inputModelId)
     {
@@ -49,8 +50,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_
  * Method:    cGetModel
  * Signature: (JIJ)V
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep1LocalInput_cGetModel
-  (JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_training_DistributedStep1LocalInput_cGetModel(JNIEnv *, jobject,
+                                                                                                                      jlong inputAddr, jint id)
 {
     if (id == inputModelId)
     {

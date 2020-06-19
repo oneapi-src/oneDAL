@@ -24,7 +24,7 @@
 #ifndef __IMPLICIT_ALS_TRAIN_DENSE_DEFAULT_BATCH_COMMON_I__
 #define __IMPLICIT_ALS_TRAIN_DENSE_DEFAULT_BATCH_COMMON_I__
 
-#include "service_blas.h"
+#include "externals/service_blas.h"
 
 namespace daal
 {
@@ -37,23 +37,21 @@ namespace training
 namespace internal
 {
 template <typename algorithmFPType, CpuType cpu>
-void computeXtX(
-    size_t *nRows, size_t *nCols, algorithmFPType *beta, algorithmFPType *x, size_t *ldx,
-    algorithmFPType *xtx, size_t *ldxtx)
+void computeXtX(size_t * nRows, size_t * nCols, algorithmFPType * beta, algorithmFPType * x, size_t * ldx, algorithmFPType * xtx, size_t * ldxtx)
 {
     /* SYRK parameters */
-    char uplo = 'U';
-    char trans = 'N';
+    char uplo             = 'U';
+    char trans            = 'N';
     algorithmFPType alpha = 1.0;
 
-    daal::internal::Blas<algorithmFPType, cpu>::xsyrk(&uplo, &trans, (DAAL_INT *)nCols, (DAAL_INT *)nRows, &alpha, x, (DAAL_INT *)ldx, beta,
-                       xtx, (DAAL_INT *)ldxtx);
+    daal::internal::Blas<algorithmFPType, cpu>::xsyrk(&uplo, &trans, (DAAL_INT *)nCols, (DAAL_INT *)nRows, &alpha, x, (DAAL_INT *)ldx, beta, xtx,
+                                                      (DAAL_INT *)ldxtx);
 }
 
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace training
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal
 
 #endif

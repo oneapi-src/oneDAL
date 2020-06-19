@@ -34,15 +34,14 @@ namespace stump
 {
 namespace regression
 {
-
 /** Visitor class implementing TreeNodeVisitor interface, prints out tree nodes of the model when it is called back by model traversal method */
 class StumpNodeVisitor : public daal::algorithms::tree_utils::regression::TreeNodeVisitor
 {
 public:
-    StumpNodeVisitor(): leftIsSet(false), splitFeature(0), isOneLeaf(true), leftValue(0), rightValue(0), splitValue(0) {}
-    virtual bool onLeafNode(const daal::algorithms::tree_utils::regression::LeafNodeDescriptor &desc)
+    StumpNodeVisitor() : leftIsSet(false), splitFeature(0), isOneLeaf(true), leftValue(0), rightValue(0), splitValue(0) {}
+    virtual bool onLeafNode(const daal::algorithms::tree_utils::regression::LeafNodeDescriptor & desc)
     {
-        if(!leftIsSet)
+        if (!leftIsSet)
         {
             leftValue = desc.response;
             leftIsSet = true;
@@ -51,11 +50,11 @@ public:
         return true;
     }
 
-    virtual bool onSplitNode(const daal::algorithms::tree_utils::regression::SplitNodeDescriptor &desc)
+    virtual bool onSplitNode(const daal::algorithms::tree_utils::regression::SplitNodeDescriptor & desc)
     {
-        isOneLeaf = false;
+        isOneLeaf    = false;
         splitFeature = desc.featureIndex;
-        splitValue = desc.featureValue;
+        splitValue   = desc.featureValue;
         return true;
     }
     bool leftIsSet;
@@ -66,9 +65,9 @@ public:
     double splitValue;
 };
 
-}// namespace regression
-}// namespace stump
-}// namespace algorithms
-}// namespace daal
+} // namespace regression
+} // namespace stump
+} // namespace algorithms
+} // namespace daal
 
 #endif

@@ -21,9 +21,9 @@
 //--
 */
 
-#include "gbt_classification_predict_kernel.h"
-#include "gbt_classification_predict_dense_default_batch_impl.i"
-#include "gbt_classification_predict_container_v1.h"
+#include "algorithms/kernel/dtrees/gbt/classification/gbt_classification_predict_kernel.h"
+#include "algorithms/kernel/dtrees/gbt/classification/gbt_classification_predict_dense_default_batch_impl.i"
+#include "algorithms/kernel/dtrees/gbt/classification/inner/gbt_classification_predict_container_v1.h"
 
 namespace daal
 {
@@ -39,8 +39,8 @@ namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
-}
-}
-}
-}
-}
+} // namespace prediction
+} // namespace classification
+} // namespace gbt
+} // namespace algorithms
+} // namespace daal

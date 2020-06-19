@@ -22,10 +22,10 @@
 #ifndef __AVERAGE_POOLING1D_LAYER_FORWARD_KERNEL_H__
 #define __AVERAGE_POOLING1D_LAYER_FORWARD_KERNEL_H__
 
-#include "neural_networks/layers/pooling1d/average_pooling1d_layer_forward.h"
-#include "neural_networks/layers/pooling1d/average_pooling1d_layer_forward_types.h"
-#include "kernel.h"
-#include "tensor.h"
+#include "algorithms/neural_networks/layers/pooling1d/average_pooling1d_layer_forward.h"
+#include "algorithms/neural_networks/layers/pooling1d/average_pooling1d_layer_forward_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/tensor.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -44,24 +44,22 @@ namespace forward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for forward pooling layer results computation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class PoolingKernel : public Kernel
 {
 public:
     /* Computes the results of forward batch normalization layer */
-    services::Status compute(const Tensor &dataTensor, const average_pooling1d::Parameter &parameter, Tensor &valueTensor);
-
+    services::Status compute(const Tensor & dataTensor, const average_pooling1d::Parameter & parameter, Tensor & valueTensor);
 };
-} // internal
-} // forward
-} // average_pooling1d
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace forward
+} // namespace average_pooling1d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

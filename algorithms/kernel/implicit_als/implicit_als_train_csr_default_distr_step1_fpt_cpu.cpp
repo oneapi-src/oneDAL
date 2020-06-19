@@ -21,11 +21,11 @@
 //--
 */
 
-#include "implicit_als_train_kernel.h"
-#include "implicit_als_train_csr_default_distr_impl.i"
-#include "implicit_als_train_dense_default_batch_aux.i"
-#include "implicit_als_train_dense_default_batch_impl.i"
-#include "implicit_als_train_container.h"
+#include "algorithms/kernel/implicit_als/implicit_als_train_kernel.h"
+#include "algorithms/kernel/implicit_als/implicit_als_train_csr_default_distr_impl.i"
+#include "algorithms/kernel/implicit_als/implicit_als_train_dense_default_batch_aux.i"
+#include "algorithms/kernel/implicit_als/implicit_als_train_dense_default_batch_impl.i"
+#include "algorithms/kernel/implicit_als/implicit_als_train_container.h"
 
 namespace daal
 {
@@ -37,13 +37,13 @@ namespace training
 {
 namespace interface1
 {
-template class DistributedContainer<step1Local,  DAAL_FPTYPE, fastCSR, DAAL_CPU>;
+template class DistributedContainer<step1Local, DAAL_FPTYPE, fastCSR, DAAL_CPU>;
 }
 namespace internal
 {
 template class ImplicitALSTrainDistrStep1Kernel<DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace training
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal

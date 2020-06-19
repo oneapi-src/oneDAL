@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/optimization_solver/objective_function/mse_types.h"
-#include "numeric_table.h"
-#include "daal_strings.h"
+#include "data_management/data/numeric_table.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 
@@ -46,17 +46,15 @@ namespace interface1
                                all terms will be used in the computations.
  * \param[in] resultsToCompute 64 bit integer flag that indicates the results to compute
  */
-Parameter::Parameter(size_t numberOfTerms, data_management::NumericTablePtr batchIndices, const DAAL_UINT64 resultsToCompute) :
-                     sum_of_functions::interface1::Parameter(numberOfTerms, batchIndices, resultsToCompute)
+Parameter::Parameter(size_t numberOfTerms, data_management::NumericTablePtr batchIndices, const DAAL_UINT64 resultsToCompute)
+    : sum_of_functions::interface1::Parameter(numberOfTerms, batchIndices, resultsToCompute)
 {}
 
 /**
  * Constructs an Parameter by copying input objects and parameters of another Parameter
  * \param[in] other An object to be used as the source to initialize object
  */
-Parameter::Parameter(const Parameter &other) :
-    sum_of_functions::interface1::Parameter(other)
-{}
+Parameter::Parameter(const Parameter & other) : sum_of_functions::interface1::Parameter(other) {}
 
 /**
  * Checks the correctness of the parameter
@@ -67,17 +65,16 @@ services::Status Parameter::check() const
 }
 
 /** Default constructor */
-Input::Input() : sum_of_functions::interface1::Input(lastInputId + 1)
-{}
+Input::Input() : sum_of_functions::interface1::Input(lastInputId + 1) {}
 
-Input::Input(const Input& other) : sum_of_functions::interface1::Input(other){}
+Input::Input(const Input & other) : sum_of_functions::interface1::Input(other) {}
 
 /**
  * Sets one input object for Mean squared error objective function
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the object
  */
-void Input::set(InputId id, const data_management::NumericTablePtr &ptr)
+void Input::set(InputId id, const data_management::NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -107,7 +104,7 @@ algorithms::OptionalArgumentPtr Input::get(OptionalInputId id) const
 * \param[in] id    Identifier of the input object
 * \param[in] ptr   Pointer to the object
 */
-void Input::set(OptionalInputId id, const algorithms::OptionalArgumentPtr &ptr)
+void Input::set(OptionalInputId id, const algorithms::OptionalArgumentPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -120,7 +117,7 @@ void Input::set(OptionalInputId id, const algorithms::OptionalArgumentPtr &ptr)
 data_management::NumericTablePtr Input::get(OptionalDataId id) const
 {
     algorithms::OptionalArgumentPtr pOpt = get(optimization_solver::mse::optionalArgument);
-    if(pOpt.get())
+    if (pOpt.get())
     {
         return NumericTable::cast(pOpt->get(id));
     }
@@ -132,10 +129,10 @@ data_management::NumericTablePtr Input::get(OptionalDataId id) const
 * \param[in] id    Identifier of the input object
 * \param[in] ptr   Pointer to the object
 */
-void Input::set(OptionalDataId id, const data_management::NumericTablePtr &ptr)
+void Input::set(OptionalDataId id, const data_management::NumericTablePtr & ptr)
 {
     algorithms::OptionalArgumentPtr pOpt = get(optimization_solver::mse::optionalArgument);
-    if(!pOpt.get())
+    if (!pOpt.get())
     {
         pOpt = algorithms::OptionalArgumentPtr(new algorithms::OptionalArgument(lastOptionalData + 1));
         set(optimization_solver::mse::optionalArgument, pOpt);
@@ -148,15 +145,14 @@ void Input::set(OptionalDataId id, const data_management::NumericTablePtr &ptr)
  * \param[in] par       Pointer to the structure of the algorithm parameters
  * \param[in] method    Computation method
  */
-services::Status Input::check(const daal::algorithms::Parameter *par, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
     sum_of_functions::interface1::Input::check(par, method);
 
     DAAL_CHECK(Argument::size() == 3, services::ErrorIncorrectNumberOfInputNumericTables);
 
     services::Status s = checkNumericTable(get(data).get(), dataStr(), 0, 0);
-    if(!s)
-        return s;
+    if (!s) return s;
     const size_t nColsInData = get(data)->getNumberOfColumns();
     const size_t nRowsInData = get(data)->getNumberOfRows();
 
@@ -171,5 +167,5 @@ services::Status Input::check(const daal::algorithms::Parameter *par, int method
 
 } // namespace mse
 } // namespace optimization_solver
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

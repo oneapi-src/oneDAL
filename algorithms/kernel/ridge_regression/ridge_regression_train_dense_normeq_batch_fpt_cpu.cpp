@@ -22,8 +22,8 @@
 //--
 */
 
-#include "ridge_regression_train_container.h"
-#include "ridge_regression_train_dense_normeq_impl.i"
+#include "algorithms/kernel/ridge_regression/ridge_regression_train_container.h"
+#include "algorithms/kernel/ridge_regression/ridge_regression_train_dense_normeq_impl.i"
 
 namespace daal
 {
@@ -35,14 +35,12 @@ namespace training
 {
 namespace interface1
 {
-
 template class BatchContainer<DAAL_FPTYPE, normEqDense, DAAL_CPU>;
 
 } // namespace interface1
 
 namespace internal
 {
-
 template class BatchKernel<DAAL_FPTYPE, normEqDense, DAAL_CPU>;
 
 } // namespace internal

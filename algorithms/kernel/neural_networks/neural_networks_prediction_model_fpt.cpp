@@ -21,7 +21,7 @@
 //--
 */
 
-#include "neural_networks_prediction_model.h"
+#include "algorithms/neural_networks/neural_networks_prediction_model.h"
 
 namespace daal
 {
@@ -31,7 +31,6 @@ namespace neural_networks
 {
 namespace prediction
 {
-
 /**
  * Constructs model object for the prediction stage of neural network
  * from the list of forward stages of the layers and the list of connections between the layers.
@@ -44,21 +43,21 @@ namespace prediction
  *                                          otherwise weights and biases are allocated as separate tensors
  * \DAAL_DEPRECATED_USE{ Model::create }
  */
-template<typename modelFPType>
-DAAL_EXPORT Model::Model(const neural_networks::ForwardLayersPtr &forwardLayersForModel,
-                         const services::SharedPtr<services::Collection<layers::NextLayers> > &nextLayersForModel,
-                         modelFPType dummy, bool storeWeightsInTable) :
-    ModelImpl(forwardLayersForModel, nextLayersForModel, storeWeightsInTable), _allocatedBatchSize(0)
+template <typename modelFPType>
+DAAL_EXPORT Model::Model(const neural_networks::ForwardLayersPtr & forwardLayersForModel,
+                         const services::SharedPtr<services::Collection<layers::NextLayers> > & nextLayersForModel, modelFPType dummy,
+                         bool storeWeightsInTable)
+    : ModelImpl(forwardLayersForModel, nextLayersForModel, storeWeightsInTable), _allocatedBatchSize(0)
 {
     bool checkWeightsAndBiasesAlloc = false;
     createWeightsAndBiases<modelFPType>(checkWeightsAndBiasesAlloc);
 }
 
-template<typename modelFPType>
-DAAL_EXPORT Model::Model(const neural_networks::ForwardLayersPtr &forwardLayersForModel,
-                         const services::SharedPtr<services::Collection<layers::NextLayers> > &nextLayersForModel,
-                         modelFPType dummy, bool storeWeightsInTable, services::Status &st) :
-    ModelImpl(forwardLayersForModel, nextLayersForModel, storeWeightsInTable, st), _allocatedBatchSize(0)
+template <typename modelFPType>
+DAAL_EXPORT Model::Model(const neural_networks::ForwardLayersPtr & forwardLayersForModel,
+                         const services::SharedPtr<services::Collection<layers::NextLayers> > & nextLayersForModel, modelFPType dummy,
+                         bool storeWeightsInTable, services::Status & st)
+    : ModelImpl(forwardLayersForModel, nextLayersForModel, storeWeightsInTable, st), _allocatedBatchSize(0)
 {
     bool checkWeightsAndBiasesAlloc = false;
     st |= createWeightsAndBiases<modelFPType>(checkWeightsAndBiasesAlloc);
@@ -75,25 +74,23 @@ DAAL_EXPORT Model::Model(const neural_networks::ForwardLayersPtr &forwardLayersF
  * \param[out] stat                  Status of the model construction
  * \return Model object for the prediction stage of neural network
  */
-template<typename modelFPType>
-DAAL_EXPORT ModelPtr Model::create(const neural_networks::ForwardLayersPtr &forwardLayersForModel,
-                                   const services::SharedPtr<services::Collection<layers::NextLayers> > &nextLayersForModel,
-                                   bool storeWeightsInTable, services::Status *stat)
+template <typename modelFPType>
+DAAL_EXPORT ModelPtr Model::create(const neural_networks::ForwardLayersPtr & forwardLayersForModel,
+                                   const services::SharedPtr<services::Collection<layers::NextLayers> > & nextLayersForModel,
+                                   bool storeWeightsInTable, services::Status * stat)
 {
     DAAL_DEFAULT_CREATE_IMPL_EX(Model, forwardLayersForModel, nextLayersForModel, (modelFPType)0.0, storeWeightsInTable);
 }
 
-template DAAL_EXPORT Model::Model(const neural_networks::ForwardLayersPtr &,
-                                  const services::SharedPtr<services::Collection<layers::NextLayers> >&,
+template DAAL_EXPORT Model::Model(const neural_networks::ForwardLayersPtr &, const services::SharedPtr<services::Collection<layers::NextLayers> > &,
                                   DAAL_FPTYPE, bool);
 
-template DAAL_EXPORT Model::Model(const neural_networks::ForwardLayersPtr &,
-                                  const services::SharedPtr<services::Collection<layers::NextLayers> >&,
-                                  DAAL_FPTYPE, bool, services::Status&);
+template DAAL_EXPORT Model::Model(const neural_networks::ForwardLayersPtr &, const services::SharedPtr<services::Collection<layers::NextLayers> > &,
+                                  DAAL_FPTYPE, bool, services::Status &);
 
-template DAAL_EXPORT ModelPtr Model::create<DAAL_FPTYPE>(const neural_networks::ForwardLayersPtr&,
-                                                         const services::SharedPtr<services::Collection<layers::NextLayers> >&,
-                                                         bool, services::Status*);
+template DAAL_EXPORT ModelPtr Model::create<DAAL_FPTYPE>(const neural_networks::ForwardLayersPtr &,
+                                                         const services::SharedPtr<services::Collection<layers::NextLayers> > &, bool,
+                                                         services::Status *);
 
 } // namespace prediction
 } // namespace neural_networks

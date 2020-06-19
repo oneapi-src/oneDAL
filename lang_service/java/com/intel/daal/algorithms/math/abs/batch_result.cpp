@@ -18,7 +18,7 @@
 #include <jni.h>
 #include "com_intel_daal_algorithms_math_abs_Result.h"
 #include "daal.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::math;
@@ -28,8 +28,7 @@ using namespace daal::algorithms::math;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_abs_Result_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_abs_Result_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<abs::Result>::newObj();
 }
@@ -39,14 +38,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_abs_Result_cNewResul
  * Method:    cGetValue
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_abs_Result_cGetValue
-(JNIEnv *env, jobject thisObj, jlong resAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_abs_Result_cGetValue(JNIEnv * env, jobject thisObj, jlong resAddr)
 {
     return jniArgument<abs::Result>::get<abs::ResultId, NumericTable>(resAddr, abs::value);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_math_abs_Result_cSetValue
-(JNIEnv *env, jobject thisObj, jlong resAddr, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_math_abs_Result_cSetValue(JNIEnv * env, jobject thisObj, jlong resAddr, jlong ntAddr)
 {
     jniArgument<abs::Result>::set<abs::ResultId, NumericTable>(resAddr, abs::value, ntAddr);
 }

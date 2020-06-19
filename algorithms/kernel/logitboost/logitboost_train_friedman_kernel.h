@@ -37,12 +37,12 @@
 #ifndef __LOGITBOOST_TRAIN_FRIEDMAN_KERNEL_H__
 #define __LOGITBOOST_TRAIN_FRIEDMAN_KERNEL_H__
 
-#include "threading.h"
-#include "service_memory.h"
-#include "service_numeric_table.h"
-#include "service_data_utils.h"
+#include "algorithms/threading/threading.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "service/kernel/service_data_utils.h"
 
-#include "logitboost_train_kernel.h"
+#include "algorithms/kernel/logitboost/logitboost_train_kernel.h"
 
 namespace daal
 {
@@ -58,15 +58,15 @@ namespace internal
  *  \brief Specialization of the structure that contains kernels for
  *  Logit Boost model training using Friedman method
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 struct LogitBoostTrainKernel<friedman, algorithmFPType, cpu> : public Kernel
 {
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
-    services::Status compute(const size_t na, NumericTablePtr a[], Model *r, const Parameter *par);
+    services::Status compute(const size_t na, NumericTablePtr a[], Model * r, const Parameter * par);
 };
-} // namepsace internal
-} // namespace prediction
+} // namespace internal
+} // namespace training
 } // namespace logitboost
 } // namespace algorithms
 } // namespace daal

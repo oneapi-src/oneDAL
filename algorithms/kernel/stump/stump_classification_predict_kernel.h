@@ -24,10 +24,10 @@
 #ifndef __STUMP_CLASSIFICATION_PREDICT_KERNEL_H__
 #define __STUMP_CLASSIFICATION_PREDICT_KERNEL_H__
 
-#include "stump_classification_model.h"
-#include "stump_classification_predict.h"
-#include "kernel.h"
-#include "numeric_table.h"
+#include "algorithms/stump/stump_classification_model.h"
+#include "algorithms/stump/stump_classification_predict.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;
 
@@ -43,21 +43,22 @@ namespace prediction
 {
 namespace internal
 {
-
 template <Method method, typename algorithmFPtype, CpuType cpu>
 class StumpPredictKernel : public Kernel
 {
 public:
-    services::Status compute(const NumericTable *x, const stump::classification::Model *m, NumericTable *rLabels, NumericTable *rPred, const Parameter *par);
+    services::Status compute(const NumericTable * x, const stump::classification::Model * m, NumericTable * rLabels, NumericTable * rPred,
+                             const Parameter * par);
+
 private:
-    services::Status changeZeroToMinusOne(NumericTable *yTable);
+    services::Status changeZeroToMinusOne(NumericTable * yTable);
 };
 
-} // namespace daal::algorithms::stump::classification::prediction::internal
-}
-}
-}
-}
+} // namespace internal
+} // namespace prediction
+} // namespace classification
+} // namespace stump
+} // namespace algorithms
 } // namespace daal
 
 #endif

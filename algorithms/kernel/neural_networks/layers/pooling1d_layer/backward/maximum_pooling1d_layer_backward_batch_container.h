@@ -24,8 +24,8 @@
 #ifndef __MAXIMUM_POOLING1D_LAYER_BACKWARD_BATCH_CONTAINER_H__
 #define __MAXIMUM_POOLING1D_LAYER_BACKWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/pooling1d/maximum_pooling1d_layer.h"
-#include "maximum_pooling1d_layer_backward_kernel.h"
+#include "algorithms/neural_networks/layers/pooling1d/maximum_pooling1d_layer.h"
+#include "algorithms/kernel/neural_networks/layers/pooling1d_layer/backward/maximum_pooling1d_layer_backward_kernel.h"
 
 namespace daal
 {
@@ -41,35 +41,38 @@ namespace backward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::PoolingKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    maximum_pooling1d::backward::Input *input = static_cast<maximum_pooling1d::backward::Input *>(_in);
-    maximum_pooling1d::backward::Result *result = static_cast<maximum_pooling1d::backward::Result *>(_res);
+    maximum_pooling1d::backward::Input * input   = static_cast<maximum_pooling1d::backward::Input *>(_in);
+    maximum_pooling1d::backward::Result * result = static_cast<maximum_pooling1d::backward::Result *>(_res);
 
-    Tensor *inputGradTensor = input->get(layers::backward::inputGradient).get();
-    Tensor *selectedPosTensor = input->get(auxSelectedIndices).get();
-    Tensor *gradTensor = result->get(layers::backward::gradient).get();
+    Tensor * inputGradTensor   = input->get(layers::backward::inputGradient).get();
+    Tensor * selectedPosTensor = input->get(auxSelectedIndices).get();
+    Tensor * gradTensor        = result->get(layers::backward::gradient).get();
 
-    maximum_pooling1d::Parameter *parameter = static_cast<maximum_pooling1d::Parameter *>(_par);
-    if (!parameter->propagateGradient) { return services::Status(); }
+    maximum_pooling1d::Parameter * parameter = static_cast<maximum_pooling1d::Parameter *>(_par);
+    if (!parameter->propagateGradient)
+    {
+        return services::Status();
+    }
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::PoolingKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),   \
-                       compute, *inputGradTensor, *selectedPosTensor, *gradTensor, *parameter);
+    __DAAL_CALL_KERNEL(env, internal::PoolingKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputGradTensor, *selectedPosTensor,
+                       *gradTensor, *parameter);
 }
 } // namespace interface1
 } // namespace backward

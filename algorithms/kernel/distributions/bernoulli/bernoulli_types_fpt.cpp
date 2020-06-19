@@ -19,9 +19,8 @@
 //  Implementation of bernoulli distribution algorithm and types methods.
 //--
 
-
-#include "distributions/bernoulli/bernoulli_types.h"
-#include "daal_strings.h"
+#include "algorithms/distributions/bernoulli/bernoulli_types.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -33,20 +32,20 @@ namespace bernoulli
 {
 namespace interface1
 {
- /**
+/**
   * Check the correctness of the %Parameter object
   */
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 DAAL_EXPORT services::Status Parameter<algorithmFPType>::check() const
 {
-    DAAL_CHECK_EX( (algorithmFPType)0.0 <= p && p <= (algorithmFPType)1.0, services::ErrorIncorrectParameter, services::ParameterName, pStr());
+    DAAL_CHECK_EX((algorithmFPType)0.0 <= p && p <= (algorithmFPType)1.0, services::ErrorIncorrectParameter, services::ParameterName, pStr());
     return services::Status();
 }
 
- template DAAL_EXPORT services::Status Parameter<DAAL_FPTYPE>::check() const;
+template DAAL_EXPORT services::Status Parameter<DAAL_FPTYPE>::check() const;
 
-} // interface1
-} // bernoulli
-} // distributions
-} // algorithms
-} // daal
+} // namespace interface1
+} // namespace bernoulli
+} // namespace distributions
+} // namespace algorithms
+} // namespace daal

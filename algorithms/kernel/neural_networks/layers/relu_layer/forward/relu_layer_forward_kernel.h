@@ -19,16 +19,15 @@
 //  Declaration of template function that calculate relus.
 //--
 
-
 #ifndef __RELU_LAYER_FORWARD_KERNEL_H__
 #define __RELU_LAYER_FORWARD_KERNEL_H__
 
-#include "neural_networks/layers/relu/relu_layer.h"
-#include "neural_networks/layers/relu/relu_layer_types.h"
-#include "kernel.h"
-#include "layers_threading.h"
-#include "service_dnn.h"
-#include "service_dnn_internal.h"
+#include "algorithms/neural_networks/layers/relu/relu_layer.h"
+#include "algorithms/neural_networks/layers/relu/relu_layer_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/kernel/neural_networks/layers/layers_threading.h"
+#include "externals/service_dnn.h"
+#include "algorithms/kernel/service_dnn_internal.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -51,11 +50,11 @@ namespace internal
 /**
  *  \brief Kernel for relu calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class ReLUKernel : public Kernel
 {
 public:
-    services::Status compute(const Tensor &inputTensor, Tensor &resultTensor);
+    services::Status compute(const Tensor & inputTensor, Tensor & resultTensor);
 
     ~ReLUKernel()
     {
@@ -71,12 +70,12 @@ private:
     dnnPrimitive_t reluPrim = NULL;
 };
 
-} // internal
-} // forward
-} // relu
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace forward
+} // namespace relu
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

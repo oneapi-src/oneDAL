@@ -21,7 +21,7 @@
 
 #include "com_intel_daal_algorithms_optimization_solver_iterative_solver_Input.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::optimization_solver;
@@ -31,8 +31,8 @@ using namespace daal::algorithms::optimization_solver;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Input_cSetInput
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Input_cSetInput(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                             jint id, jlong ntAddr)
 {
     jniInput<iterative_solver::Input>::set<iterative_solver::InputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -42,8 +42,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_itera
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Input_cGetInput
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Input_cGetInput(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                              jint id)
 {
     return jniInput<iterative_solver::Input>::get<iterative_solver::InputId, NumericTable>(inputAddr, id);
 }
@@ -53,8 +53,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iter
 * Method:    cSetOptionalInput
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Input_cSetOptionalInput
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong argAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Input_cSetOptionalInput(JNIEnv *, jobject,
+                                                                                                                     jlong inputAddr, jint id,
+                                                                                                                     jlong argAddr)
 {
     jniInput<iterative_solver::Input>::set<iterative_solver::OptionalInputId, OptionalArgument>(inputAddr, id, argAddr);
 }
@@ -64,8 +65,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_itera
 * Method:    cGetOptionalInput
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Input_cGetOptionalInput
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Input_cGetOptionalInput(JNIEnv *, jobject,
+                                                                                                                      jlong inputAddr, jint id)
 {
     return jniInput<iterative_solver::Input>::get<iterative_solver::OptionalInputId, OptionalArgument>(inputAddr, id);
 }

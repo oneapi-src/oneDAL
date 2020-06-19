@@ -19,11 +19,10 @@
 //  Declaration of template function that calculate abss.
 //--
 
-
 #ifndef __ABS_DENSE_DEFAULT_KERNEL_H__
 #define __ABS_DENSE_DEFAULT_KERNEL_H__
 
-#include "abs_base.h"
+#include "algorithms/kernel/math/abs/abs_base.h"
 
 namespace daal
 {
@@ -35,15 +34,15 @@ namespace abs
 {
 namespace internal
 {
-
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class AbsKernel<algorithmFPType, defaultDense, cpu> : public AbsKernelBase<algorithmFPType, defaultDense, cpu>
 {
 protected:
-    Status processBlock(const NumericTable &inputTable, size_t nInputColumns, size_t nProcessedRows, size_t nRowsInCurrentBlock, NumericTable &resultTable);
+    Status processBlock(const NumericTable & inputTable, size_t nInputColumns, size_t nProcessedRows, size_t nRowsInCurrentBlock,
+                        NumericTable & resultTable);
 };
 
-} // namespace daal::internal
+} // namespace internal
 } // namespace abs
 } // namespace math
 } // namespace algorithms

@@ -24,9 +24,9 @@
 #ifndef __MULTICLASS_CONFUSION_MATRIX_DENSE_DEFAULT_BATCH_KERNEL_H__
 #define __MULTICLASS_CONFUSION_MATRIX_DENSE_DEFAULT_BATCH_KERNEL_H__
 
-#include "multiclass_confusion_matrix_types.h"
-#include "kernel.h"
-#include "numeric_table.h"
+#include "algorithms/classifier/multiclass_confusion_matrix_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;
 
@@ -42,23 +42,21 @@ namespace multiclass_confusion_matrix
 {
 namespace internal
 {
-
-template<Method method, typename algorithmFPType, CpuType cpu>
+template <Method method, typename algorithmFPType, CpuType cpu>
 class MultiClassConfusionMatrixKernel : public Kernel
 {
 public:
     virtual ~MultiClassConfusionMatrixKernel() {}
 
-    services::Status compute(const NumericTable *predictedLabels, const NumericTable *groundTruthLabels,
-                             NumericTable *confusionMatrix, NumericTable *accuracyMeasures,
-                             const multiclass_confusion_matrix::Parameter *parameter);
+    services::Status compute(const NumericTable * predictedLabels, const NumericTable * groundTruthLabels, NumericTable * confusionMatrix,
+                             NumericTable * accuracyMeasures, const multiclass_confusion_matrix::Parameter * parameter);
 };
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace multiclass_confusion_matrix
+} // namespace quality_metric
+} // namespace classifier
+} // namespace algorithms
+} // namespace daal
 
 #endif

@@ -19,18 +19,17 @@
 //  Declaration of template function that calculate sgd.
 //--
 
-
 #ifndef __SGD_DENSE_MINIBATCH_KERNEL_H__
 #define __SGD_DENSE_MINIBATCH_KERNEL_H__
 
-#include "sgd_batch.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "iterative_solver_kernel.h"
-#include "sgd_dense_kernel.h"
-#include "service_numeric_table.h"
-#include "service_math.h"
-#include "service_utils.h"
+#include "algorithms/optimization_solver/sgd/sgd_batch.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/kernel/optimization_solver/iterative_solver_kernel.h"
+#include "algorithms/kernel/optimization_solver/sgd/sgd_dense_kernel.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_math.h"
+#include "service/kernel/service_utils.h"
 
 using namespace daal::data_management;
 using namespace daal::internal;
@@ -46,69 +45,46 @@ namespace sgd
 {
 namespace internal
 {
-
 /**
 * Statuses of the indices of objective function terms that are used for gradient
 */
 enum IndicesStatus
 {
-    random = 0,     /*!< Indices of the terms are generated randomly */
-    user   = 1,     /*!< Indices of the terms are provided by user */
-    all    = 2      /*!< All objective function terms are used for computations */
+    random = 0, /*!< Indices of the terms are generated randomly */
+    user   = 1, /*!< Indices of the terms are provided by user */
+    all    = 2  /*!< All objective function terms are used for computations */
 };
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class SGDKernel<algorithmFPType, miniBatch, cpu> : public iterative_solver::internal::IterativeSolverKernel<algorithmFPType, cpu>
 {
 public:
-    services::Status compute(HostAppIface* pHost, NumericTable *inputArgument, NumericTable *minimum, NumericTable *nIterations,
-                 Parameter<miniBatch> *parameter, NumericTable *learningRateSequence,
-                 NumericTable *batchIndices, OptionalArgument *optionalArgument, OptionalArgument *optionalResult, engines::BatchBase &engine);
+    services::Status compute(HostAppIface * pHost, NumericTable * inputArgument, NumericTable * minimum, NumericTable * nIterations,
+                             Parameter<miniBatch> * parameter, NumericTable * learningRateSequence, NumericTable * batchIndices,
+                             OptionalArgument * optionalArgument, OptionalArgument * optionalResult, engines::BatchBase & engine);
     using iterative_solver::internal::IterativeSolverKernel<algorithmFPType, cpu>::vectorNorm;
 };
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 struct SGDMiniBatchTask
 {
-    SGDMiniBatchTask(
-        size_t nFeatures_,
-        NumericTable *resultTable,
-        NumericTable *startValueTable,
-        NumericTable *nIterationsTable
-    );
+    SGDMiniBatchTask(size_t nFeatures_, NumericTable * resultTable, NumericTable * startValueTable, NumericTable * nIterationsTable);
 
-    SGDMiniBatchTask(
-        size_t batchSize_,
-        size_t nFeatures_,
-        size_t maxIterations_,
-        size_t nTerms_,
-        NumericTable *resultTable,
-        NumericTable *startValueTable,
-        NumericTable *learningRateSequenceTable,
-        NumericTable *conservativeSequenceTable,
-        NumericTable *nIterationsTable,
-        NumericTable *batchIndicesTable,
-        NumericTable *pastWorkValueResultNT,
-        NumericTable *lastIterationResultNT
-    );
+    SGDMiniBatchTask(size_t batchSize_, size_t nFeatures_, size_t maxIterations_, size_t nTerms_, NumericTable * resultTable,
+                     NumericTable * startValueTable, NumericTable * learningRateSequenceTable, NumericTable * conservativeSequenceTable,
+                     NumericTable * nIterationsTable, NumericTable * batchIndicesTable, NumericTable * pastWorkValueResultNT,
+                     NumericTable * lastIterationResultNT);
 
     virtual ~SGDMiniBatchTask();
 
-    services::Status init(NumericTable *startValueTable);
+    services::Status init(NumericTable * startValueTable);
 
-    services::Status init(NumericTable *startValueTable,
-        NumericTable *learningRateSequenceTable,
-        NumericTable *conservativeSequenceTable,
-        NumericTable *nIterationsTable,
-        NumericTable *batchIndicesTable,
-        OptionalArgument *optionalInput);
+    services::Status init(NumericTable * startValueTable, NumericTable * learningRateSequenceTable, NumericTable * conservativeSequenceTable,
+                          NumericTable * nIterationsTable, NumericTable * batchIndicesTable, OptionalArgument * optionalInput);
 
-    services::Status setStartValue(NumericTable *startValueTable);
+    services::Status setStartValue(NumericTable * startValueTable);
 
-    void makeStep(const algorithmFPType *gradient,
-        algorithmFPType learningRate,
-        algorithmFPType consCoeff,
-        size_t argumentSize);
+    void makeStep(const algorithmFPType * gradient, algorithmFPType learningRate, algorithmFPType consCoeff, size_t argumentSize);
 
     size_t batchSize;
     size_t argumentSize;
@@ -119,17 +95,17 @@ struct SGDMiniBatchTask
 
     services::Status _status;
 
-    int             *nProceededIterations;
-    const algorithmFPType *learningRateArray;
-    const algorithmFPType *consCoeffsArray;
-    size_t          learningRateLength;
-    size_t          consCoeffsLength;
+    int * nProceededIterations;
+    const algorithmFPType * learningRateArray;
+    const algorithmFPType * consCoeffsArray;
+    size_t learningRateLength;
+    size_t consCoeffsLength;
     TArray<algorithmFPType, cpu> prevWorkValue;
-    IndicesStatus   indicesStatus;
+    IndicesStatus indicesStatus;
 
     WriteRows<algorithmFPType, cpu> mtWorkValue;
-    SharedPtr<daal::internal::HomogenNumericTableCPU<int, cpu>> ntBatchIndices;
-    SharedPtr<daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu>> ntWorkValue;
+    SharedPtr<daal::internal::HomogenNumericTableCPU<int, cpu> > ntBatchIndices;
+    SharedPtr<daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> > ntWorkValue;
     ReadRows<algorithmFPType, cpu> mtLearningRate;
     ReadRows<algorithmFPType, cpu> mtConsCoeffs;
     WriteRows<int, cpu> mtNIterations;
@@ -139,7 +115,7 @@ struct SGDMiniBatchTask
     NumericTablePtr pastWorkValueResult;
 };
 
-} // namespace daal::internal
+} // namespace internal
 
 } // namespace sgd
 

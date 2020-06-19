@@ -19,7 +19,7 @@
 
 #include "daal.h"
 #include "com_intel_daal_algorithms_logistic_regression_training_TrainingParameter.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 
@@ -28,8 +28,8 @@ USING_COMMON_NAMESPACES();
  * Method:    cSetInterceptFlag
  * Signature:(JZ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logistic_1regression_training_TrainingParameter_cSetInterceptFlag
-(JNIEnv *env, jobject thisObj, jlong algAddr, jboolean flag)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logistic_1regression_training_TrainingParameter_cSetInterceptFlag(JNIEnv * env, jobject thisObj,
+                                                                                                                        jlong algAddr, jboolean flag)
 {
     (*(logistic_regression::training::Parameter *)algAddr).interceptFlag = flag;
 }
@@ -39,10 +39,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logistic_1regression_train
  * Method:    cGetInterceptFlag
  * Signature:(J)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_logistic_1regression_training_TrainingParameter_cGetInterceptFlag
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_logistic_1regression_training_TrainingParameter_cGetInterceptFlag(JNIEnv * env,
+                                                                                                                            jobject thisObj,
+                                                                                                                            jlong algAddr)
 {
-    return(*(logistic_regression::training::Parameter *)algAddr).interceptFlag;
+    return (*(logistic_regression::training::Parameter *)algAddr).interceptFlag;
 }
 
 /*
@@ -50,8 +51,8 @@ JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_logistic_1regression_t
  * Method:    cSetPenaltyL1
  * Signature:(JZ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logistic_1regression_training_TrainingParameter_cSetPenaltyL1
-(JNIEnv *env, jobject thisObj, jlong algAddr, jfloat penaltyL1)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logistic_1regression_training_TrainingParameter_cSetPenaltyL1(JNIEnv * env, jobject thisObj,
+                                                                                                                    jlong algAddr, jfloat penaltyL1)
 {
     (*(logistic_regression::training::Parameter *)algAddr).penaltyL1 = penaltyL1;
 }
@@ -61,10 +62,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logistic_1regression_train
  * Method:    cGetPenaltyL1
  * Signature:(J)Z
  */
-JNIEXPORT jfloat JNICALL Java_com_intel_daal_algorithms_logistic_1regression_training_TrainingParameter_cGetPenaltyL1
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT jfloat JNICALL Java_com_intel_daal_algorithms_logistic_1regression_training_TrainingParameter_cGetPenaltyL1(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong algAddr)
 {
-    return(*(logistic_regression::training::Parameter *)algAddr).penaltyL1;
+    return (*(logistic_regression::training::Parameter *)algAddr).penaltyL1;
 }
 
 /*
@@ -72,8 +73,8 @@ JNIEXPORT jfloat JNICALL Java_com_intel_daal_algorithms_logistic_1regression_tra
  * Method:    cSetPenaltyL2
  * Signature:(JZ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logistic_1regression_training_TrainingParameter_cSetPenaltyL2
-(JNIEnv *env, jobject thisObj, jlong algAddr, jfloat penaltyL2)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logistic_1regression_training_TrainingParameter_cSetPenaltyL2(JNIEnv * env, jobject thisObj,
+                                                                                                                    jlong algAddr, jfloat penaltyL2)
 {
     (*(logistic_regression::training::Parameter *)algAddr).penaltyL2 = penaltyL2;
 }
@@ -83,10 +84,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logistic_1regression_train
  * Method:    cGetPenaltyL2
  * Signature:(J)Z
  */
-JNIEXPORT jfloat JNICALL Java_com_intel_daal_algorithms_logistic_1regression_training_TrainingParameter_cGetPenaltyL2
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT jfloat JNICALL Java_com_intel_daal_algorithms_logistic_1regression_training_TrainingParameter_cGetPenaltyL2(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong algAddr)
 {
-    return(*(logistic_regression::training::Parameter *)algAddr).penaltyL2;
+    return (*(logistic_regression::training::Parameter *)algAddr).penaltyL2;
 }
 
 /*
@@ -94,8 +95,9 @@ JNIEXPORT jfloat JNICALL Java_com_intel_daal_algorithms_logistic_1regression_tra
  * Method:    cSetOptimizationSolver
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_TrainingParameter_cSetOptimizationSolver
-(JNIEnv *env, jobject thisObj, jlong cTrainingParameter, jlong optimizationSolverAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_TrainingParameter_cSetOptimizationSolver(
+    JNIEnv * env, jobject thisObj, jlong cTrainingParameter, jlong optimizationSolverAddr)
 {
-    (((logistic_regression::training::Parameter *)cTrainingParameter))->optimizationSolver = staticPointerCast<optimization_solver::iterative_solver::Batch, AlgorithmIface> (*(SharedPtr<AlgorithmIface> *)optimizationSolverAddr);
+    (((logistic_regression::training::Parameter *)cTrainingParameter))->optimizationSolver =
+        staticPointerCast<optimization_solver::iterative_solver::Batch, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)optimizationSolverAddr);
 }

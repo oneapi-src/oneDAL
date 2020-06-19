@@ -19,18 +19,17 @@
 //  Declaration of template function that calculate convolution2ds.
 //--
 
-
 #ifndef __CONVOLUTION2D_LAYER_FORWARD_KERNEL_H__
 #define __CONVOLUTION2D_LAYER_FORWARD_KERNEL_H__
 
-#include "neural_networks/layers/convolution2d/convolution2d_layer.h"
-#include "neural_networks/layers/convolution2d/convolution2d_layer_types.h"
-#include "kernel.h"
-#include "service_math.h"
-#include "numeric_table.h"
-#include "service_dnn.h"
-#include "service_dnn_internal.h"
-#include "layers_threading.h"
+#include "algorithms/neural_networks/layers/convolution2d/convolution2d_layer.h"
+#include "algorithms/neural_networks/layers/convolution2d/convolution2d_layer_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "externals/service_math.h"
+#include "data_management/data/numeric_table.h"
+#include "externals/service_dnn.h"
+#include "algorithms/kernel/service_dnn_internal.h"
+#include "algorithms/kernel/neural_networks/layers/layers_threading.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -52,17 +51,17 @@ namespace internal
 /**
  *  \brief Kernel for convolution2d calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class Convolution2dKernel : public Kernel
 {
 public:
     Convolution2dKernel() : convPrim(NULL) {}
 
-    services::Status compute(Tensor *inputTensor, Tensor *wTensor, Tensor *bTensor,
-                                                                const convolution2d::Parameter &parameter, Tensor *resultTensor);
+    services::Status compute(Tensor * inputTensor, Tensor * wTensor, Tensor * bTensor, const convolution2d::Parameter & parameter,
+                             Tensor * resultTensor);
 
-    services::Status initialize(const services::Collection<size_t>& inDimsFull, const services::Collection<size_t>& wDims,
-                                                                const convolution2d::Parameter &parameter, const services::Collection<size_t> &outDimsFull);
+    services::Status initialize(const services::Collection<size_t> & inDimsFull, const services::Collection<size_t> & wDims,
+                                const convolution2d::Parameter & parameter, const services::Collection<size_t> & outDimsFull);
 
     services::Status reset();
 
@@ -73,33 +72,33 @@ private:
 
     static const size_t dimension = 4;
 
-    size_t inputSize    [ dimension ];
-    size_t inputStrides [ dimension ];
-    size_t outputSize   [ dimension ];
-    size_t outputStrides[ dimension ];
-    size_t filterSize   [ dimension + 1 ];
-    size_t filterStrides[ dimension + 1 ];
+    size_t inputSize[dimension];
+    size_t inputStrides[dimension];
+    size_t outputSize[dimension];
+    size_t outputStrides[dimension];
+    size_t filterSize[dimension + 1];
+    size_t filterStrides[dimension + 1];
 
-    size_t  biasSize   [1];
-    size_t  biasStrides[1];
+    size_t biasSize[1];
+    size_t biasStrides[1];
 
     size_t convolutionStride[2];
-    int    inputOffset      [2];
+    int inputOffset[2];
 
-    xDnnLayout ltUserInput ;
-    xDnnLayout ltUserFilt  ;
-    xDnnLayout ltUserBias  ;
+    xDnnLayout ltUserInput;
+    xDnnLayout ltUserFilt;
+    xDnnLayout ltUserBias;
     xDnnLayout ltUserOutput;
 
     dnnPrimitive_t convPrim;
 };
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 
-} // convolution2d
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace convolution2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

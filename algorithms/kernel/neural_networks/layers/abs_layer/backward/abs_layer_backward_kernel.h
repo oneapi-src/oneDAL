@@ -19,14 +19,13 @@
 //  Implementation of abs layer.
 //--
 
-
 #ifndef __ABS_LAYER_BACKWARD_KERNEL_H__
 #define __ABS_LAYER_BACKWARD_KERNEL_H__
 
-#include "neural_networks/layers/abs/abs_layer.h"
-#include "neural_networks/layers/abs/abs_layer_types.h"
-#include "kernel.h"
-#include "layers_threading.h"
+#include "algorithms/neural_networks/layers/abs/abs_layer.h"
+#include "algorithms/neural_networks/layers/abs/abs_layer_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/kernel/neural_networks/layers/layers_threading.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -46,23 +45,22 @@ namespace backward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for abs calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class AbsKernel : public Kernel
 {
 public:
-    services::Status compute(const Tensor &inputTensor, const Tensor &dataTensor, Tensor &resultTensor);
+    services::Status compute(const Tensor & inputTensor, const Tensor & dataTensor, Tensor & resultTensor);
 };
 
-} // internal
-} // backward
-} // abs
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace backward
+} // namespace abs
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

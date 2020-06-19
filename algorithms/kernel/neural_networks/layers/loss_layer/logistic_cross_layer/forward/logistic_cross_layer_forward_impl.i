@@ -43,30 +43,30 @@ namespace forward
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status LogisticCrossKernel<algorithmFPType, method, cpu>::compute(const Tensor &inputTensor, const Tensor &groundTruthTensor, Tensor &resultTensor)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status LogisticCrossKernel<algorithmFPType, method, cpu>::compute(const Tensor & inputTensor, const Tensor & groundTruthTensor,
+                                                                            Tensor & resultTensor)
 {
     size_t nRowsToProcess = inputTensor.getDimensionSize(0);
     TArray<algorithmFPType, cpu> sPtr(nRowsToProcess);
-    algorithmFPType *s = sPtr.get();
+    algorithmFPType * s = sPtr.get();
 
-    ReadSubtensor<algorithmFPType, cpu, Tensor> inputBlock(const_cast<Tensor&>(inputTensor), 0, 0, 0, nRowsToProcess);
+    ReadSubtensor<algorithmFPType, cpu, Tensor> inputBlock(const_cast<Tensor &>(inputTensor), 0, 0, 0, nRowsToProcess);
     DAAL_CHECK_BLOCK_STATUS(inputBlock);
-    const algorithmFPType *inputArray = inputBlock.get();
+    const algorithmFPType * inputArray = inputBlock.get();
 
-    ReadSubtensor<algorithmFPType, cpu, Tensor> groundTruthBlock(const_cast<Tensor&>(groundTruthTensor), 0, 0, 0, nRowsToProcess);
+    ReadSubtensor<algorithmFPType, cpu, Tensor> groundTruthBlock(const_cast<Tensor &>(groundTruthTensor), 0, 0, 0, nRowsToProcess);
     DAAL_CHECK_BLOCK_STATUS(groundTruthBlock);
-    const algorithmFPType *groundTruthArray = groundTruthBlock.get();
+    const algorithmFPType * groundTruthArray = groundTruthBlock.get();
 
     WriteSubtensor<algorithmFPType, cpu, Tensor> resultBlock(resultTensor, 0, 0, 0, nRowsToProcess);
     DAAL_CHECK_BLOCK_STATUS(resultBlock);
-    algorithmFPType &loss = resultBlock.get()[0];
+    algorithmFPType & loss = resultBlock.get()[0];
 
     size_t nDataElements = inputBlock.getSize();
-    for(size_t i = 0; i < nDataElements; i++)
+    for (size_t i = 0; i < nDataElements; i++)
     {
-        if(inputArray[i] >= (algorithmFPType)0)
+        if (inputArray[i] >= (algorithmFPType)0)
         {
             s[i] = -inputArray[i];
         }
@@ -76,18 +76,18 @@ services::Status LogisticCrossKernel<algorithmFPType, method, cpu>::compute(cons
         }
     }
     Math<algorithmFPType, cpu>::vExp(nDataElements, s, s);
-    for(size_t i = 0; i < nDataElements; i++)
+    for (size_t i = 0; i < nDataElements; i++)
     {
         s[i] += 1.0;
     }
     Math<algorithmFPType, cpu>::vLog(nDataElements, s, s);
-    for(size_t i = 0; i < nDataElements; i++)
+    for (size_t i = 0; i < nDataElements; i++)
     {
         s[i] = inputArray[i] * ((inputArray[i] > 0) - groundTruthArray[i]) + s[i];
     }
 
     loss = 0;
-    for(size_t i = 0; i < nDataElements; i++)
+    for (size_t i = 0; i < nDataElements; i++)
     {
         loss += s[i];
     }

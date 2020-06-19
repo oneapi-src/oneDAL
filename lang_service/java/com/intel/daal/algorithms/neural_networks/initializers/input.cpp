@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_neural_networks_initializers_InputId.h"
 #define dataId com_intel_daal_algorithms_neural_networks_initializers_InputId_dataId
@@ -33,8 +33,8 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_Input_cSetInput
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong tensorAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_Input_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                                    jint id, jlong tensorAddr)
 {
     if (id == dataId)
     {
@@ -47,8 +47,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializ
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_Input_cGetInput
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_Input_cGetInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                                     jint id)
 {
     return jniInput<initializers::Input>::get<initializers::InputId, Tensor>(inputAddr, id);
 }

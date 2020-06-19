@@ -20,7 +20,7 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_low_order_moments_Online.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::low_order_moments;
@@ -30,11 +30,10 @@ using namespace daal::algorithms::low_order_moments;
  * Method:    cInit
  * Signature:(II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Online_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Online_cInit(JNIEnv * env, jobject thisObj, jint prec, jint method)
 {
-    return jniOnline<low_order_moments::Method, Online, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::
-        newObj(prec, method);
+    return jniOnline<low_order_moments::Method, Online, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::newObj(prec,
+                                                                                                                                         method);
 }
 
 /*
@@ -42,11 +41,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Onlin
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Online_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Online_cSetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                            jint method, jlong resultAddr)
 {
-    jniOnline<low_order_moments::Method, Online, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::
-        setResult<low_order_moments::Result>(prec, method, algAddr, resultAddr);
+    jniOnline<low_order_moments::Method, Online, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR,
+              sumCSR>::setResult<low_order_moments::Result>(prec, method, algAddr, resultAddr);
 }
 
 /*
@@ -54,11 +53,12 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Online
  * Method:    cSetPartialResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Online_cSetPartialResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong partialResultAddr, jboolean initFlag)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Online_cSetPartialResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                   jint prec, jint method, jlong partialResultAddr,
+                                                                                                   jboolean initFlag)
 {
-    jniOnline<low_order_moments::Method, Online, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::
-        setPartialResult<low_order_moments::PartialResult>(prec, method, algAddr, partialResultAddr, initFlag);
+    jniOnline<low_order_moments::Method, Online, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR,
+              sumCSR>::setPartialResult<low_order_moments::PartialResult>(prec, method, algAddr, partialResultAddr, initFlag);
 }
 
 /*
@@ -66,11 +66,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Online
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Online_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Online_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                             jint method)
 {
-    return jniOnline<low_order_moments::Method, Online, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::
-        getResult(prec, method, algAddr);
+    return jniOnline<low_order_moments::Method, Online, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::getResult(
+        prec, method, algAddr);
 }
 
 /*
@@ -78,11 +78,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Onlin
  * Method:    cGetPartialResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Online_cGetPartialResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Online_cGetPartialResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                    jint prec, jint method)
 {
-    return jniOnline<low_order_moments::Method, Online, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::
-        getPartialResult(prec, method, algAddr);
+    return jniOnline<low_order_moments::Method, Online, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::getPartialResult(
+        prec, method, algAddr);
 }
 
 /*
@@ -90,11 +90,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Onlin
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Online_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Online_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                            jint method)
 {
-    return jniOnline<low_order_moments::Method, Online, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::
-        getInput(prec, method, algAddr);
+    return jniOnline<low_order_moments::Method, Online, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::getInput(
+        prec, method, algAddr);
 }
 
 /*
@@ -102,11 +102,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Onlin
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Online_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Online_cInitParameter(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                 jint prec, jint method)
 {
-    return jniOnline<low_order_moments::Method, Online, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::
-        getParameter(prec, method, algAddr);
+    return jniOnline<low_order_moments::Method, Online, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::getParameter(
+        prec, method, algAddr);
 }
 
 /*
@@ -114,9 +114,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Onlin
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Online_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Online_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                         jint method)
 {
-    return jniOnline<low_order_moments::Method, Online, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::
-        getClone(prec, method, algAddr);
+    return jniOnline<low_order_moments::Method, Online, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::getClone(
+        prec, method, algAddr);
 }

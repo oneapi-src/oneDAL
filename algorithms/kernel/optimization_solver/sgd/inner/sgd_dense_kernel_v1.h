@@ -19,12 +19,11 @@
 //  Declaration of template function that calculate sgd.
 //--
 
-
 #ifndef __SGD_DENSE_KERNEL_V1_H__
 #define __SGD_DENSE_KERNEL_V1_H__
 
-#include "iterative_solver_kernel.h"
-#include "sgd_types.h"
+#include "algorithms/kernel/optimization_solver/iterative_solver_kernel.h"
+#include "algorithms/optimization_solver/sgd/sgd_types.h"
 
 namespace daal
 {
@@ -36,13 +35,11 @@ namespace sgd
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class I1SGDKernel : public iterative_solver::internal::IterativeSolverKernel<algorithmFPType, cpu>
 {};
 
-
-} // namespace daal::internal
+} // namespace internal
 
 } // namespace sgd
 

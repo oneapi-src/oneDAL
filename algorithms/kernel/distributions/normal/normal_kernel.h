@@ -22,15 +22,15 @@
 #ifndef __NORMAL_KERNEL_H__
 #define __NORMAL_KERNEL_H__
 
-#include "distributions/normal/normal.h"
+#include "algorithms/distributions/normal/normal.h"
 
-#include "kernel.h"
-#include "numeric_table.h"
-#include "engine_batch_impl.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/kernel/engines/engine_batch_impl.h"
 
-#include "service_rng.h"
-#include "service_unique_ptr.h"
-#include "service_numeric_table.h"
+#include "externals/service_rng.h"
+#include "service/kernel/service_unique_ptr.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::services;
 using namespace daal::internal;
@@ -49,17 +49,19 @@ namespace internal
 /**
  *  \brief Kernel for normal calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class NormalKernel : public Kernel
 {
 public:
-    static Status compute(const normal::Parameter<algorithmFPType> *parameter, engines::BatchBase &engine, NumericTable *resultTable);
-    static Status compute(const normal::Parameter<algorithmFPType> *parameter, engines::BatchBase &engine, size_t n, algorithmFPType *resultArray);
-    static Status compute(const normal::Parameter<algorithmFPType> *parameter, UniquePtr<engines::internal::BatchBaseImpl, cpu> &enginePtr, size_t n, algorithmFPType *resultArray);
-    static Status compute(const normal::Parameter<algorithmFPType> *parameter, engines::internal::BatchBaseImpl &engine, size_t n, algorithmFPType *resultArray);
+    static Status compute(const normal::Parameter<algorithmFPType> * parameter, engines::BatchBase & engine, NumericTable * resultTable);
+    static Status compute(const normal::Parameter<algorithmFPType> * parameter, engines::BatchBase & engine, size_t n, algorithmFPType * resultArray);
+    static Status compute(const normal::Parameter<algorithmFPType> * parameter, UniquePtr<engines::internal::BatchBaseImpl, cpu> & enginePtr,
+                          size_t n, algorithmFPType * resultArray);
+    static Status compute(const normal::Parameter<algorithmFPType> * parameter, engines::internal::BatchBaseImpl & engine, size_t n,
+                          algorithmFPType * resultArray);
 };
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 using NormalKernelDefault = NormalKernel<algorithmFPType, normal::defaultDense, cpu>;
 
 } // namespace internal

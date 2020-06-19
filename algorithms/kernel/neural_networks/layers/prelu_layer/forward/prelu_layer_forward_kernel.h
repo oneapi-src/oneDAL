@@ -19,18 +19,17 @@
 //  Implementation of prelu calculation functions.
 //--
 
-
 #ifndef __PRELU_LAYER_FORWARD_KERNEL_H__
 #define __PRELU_LAYER_FORWARD_KERNEL_H__
 
-#include "neural_networks/layers/prelu/prelu_layer.h"
-#include "neural_networks/layers/prelu/prelu_layer_types.h"
-#include "kernel.h"
-#include "service_tensor.h"
-#include "service_numeric_table.h"
-#include "threading.h"
-#include "layers_threading.h"
-#include "service_memory.h"
+#include "algorithms/neural_networks/layers/prelu/prelu_layer.h"
+#include "algorithms/neural_networks/layers/prelu/prelu_layer_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/threading/threading.h"
+#include "algorithms/kernel/neural_networks/layers/layers_threading.h"
+#include "externals/service_memory.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -55,26 +54,27 @@ namespace internal
 /**
  *  \brief Kernel for prelu calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class PReLUKernel : public Kernel
 {
 public:
-    services::Status compute(const Tensor &inputTensor, const Tensor &wTensor, Tensor &resultTensor, const prelu::Parameter &parameter);
+    services::Status compute(const Tensor & inputTensor, const Tensor & wTensor, Tensor & resultTensor, const prelu::Parameter & parameter);
+
 private:
-    void getNumberOfFixedDimensions(TensorOffsetLayout &inputLayout, const Collection<size_t> &dims, size_t wEndDim, size_t &fDimN, size_t &wOffset, size_t minElementsNumInBlock);
-    Status processBlock(const Tensor &inputTensor, Tensor &resultTensor, const algorithmFPType *wArray, size_t fDimN,
-                                                             size_t *fDims, const TensorOffsetLayout &layout, size_t wSize,
-                                                             size_t wOffset, size_t wStart, size_t wLen, const Collection<size_t> &inDims,
-                                                             const Collection<size_t> &wOffsets);
+    void getNumberOfFixedDimensions(TensorOffsetLayout & inputLayout, const Collection<size_t> & dims, size_t wEndDim, size_t & fDimN,
+                                    size_t & wOffset, size_t minElementsNumInBlock);
+    Status processBlock(const Tensor & inputTensor, Tensor & resultTensor, const algorithmFPType * wArray, size_t fDimN, size_t * fDims,
+                        const TensorOffsetLayout & layout, size_t wSize, size_t wOffset, size_t wStart, size_t wLen,
+                        const Collection<size_t> & inDims, const Collection<size_t> & wOffsets);
 
     size_t _nElemsInBlock = 1000;
 };
-} // internal
-} // forward
-} // prelu
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace forward
+} // namespace prelu
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

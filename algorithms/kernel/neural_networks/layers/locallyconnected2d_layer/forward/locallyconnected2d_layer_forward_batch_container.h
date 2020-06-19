@@ -24,8 +24,8 @@
 #ifndef __LOCALLYCONNECTED2D_LAYER_FORWARD_BATCH_CONTAINER_H__
 #define __LOCALLYCONNECTED2D_LAYER_FORWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/locallyconnected2d/locallyconnected2d_layer.h"
-#include "locallyconnected2d_layer_forward_kernel.h"
+#include "algorithms/neural_networks/layers/locallyconnected2d/locallyconnected2d_layer.h"
+#include "algorithms/kernel/neural_networks/layers/locallyconnected2d_layer/forward/locallyconnected2d_layer_forward_kernel.h"
 
 namespace daal
 {
@@ -41,40 +41,40 @@ namespace forward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::LocallyConnected2dKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::setupCompute()
 {
     return completeInput();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    locallyconnected2d::forward::Input *input = static_cast<locallyconnected2d::forward::Input *>(_in);
-    locallyconnected2d::forward::Result *result = static_cast<locallyconnected2d::forward::Result *>(_res);
+    locallyconnected2d::forward::Input * input   = static_cast<locallyconnected2d::forward::Input *>(_in);
+    locallyconnected2d::forward::Result * result = static_cast<locallyconnected2d::forward::Result *>(_res);
 
-    locallyconnected2d::Parameter *parameter = static_cast<locallyconnected2d::Parameter *>(_par);
-    daal::services::Environment::env &env = *_env;
+    locallyconnected2d::Parameter * parameter = static_cast<locallyconnected2d::Parameter *>(_par);
+    daal::services::Environment::env & env    = *_env;
 
-    Tensor *inputTensor        = input->get(layers::forward::data).get();
-    Tensor *weightsTensor      = input->get(layers::forward::weights).get();
-    Tensor *biasesTensor       = input->get(layers::forward::biases).get();
-    Tensor *valueTensor        = result->get(layers::forward::value).get();
+    Tensor * inputTensor   = input->get(layers::forward::data).get();
+    Tensor * weightsTensor = input->get(layers::forward::weights).get();
+    Tensor * biasesTensor  = input->get(layers::forward::biases).get();
+    Tensor * valueTensor   = result->get(layers::forward::value).get();
 
-    __DAAL_CALL_KERNEL(env, internal::LocallyConnected2dKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-        *inputTensor, *weightsTensor, *biasesTensor, *valueTensor, *parameter);
+    __DAAL_CALL_KERNEL(env, internal::LocallyConnected2dKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputTensor,
+                       *weightsTensor, *biasesTensor, *valueTensor, *parameter);
 }
 } // namespace interface1
 } // namespace forward

@@ -23,8 +23,8 @@
 
 #include "services/daal_defines.h"
 #include "algorithms/regression/regression_training_types.h"
-#include "daal_strings.h"
-#include "daal_strings.h"
+#include "service/kernel/daal_strings.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -39,32 +39,31 @@ namespace interface1
 using namespace daal::data_management;
 using namespace daal::services;
 
-Result::Result(size_t nElements) : daal::algorithms::Result(nElements)
-{}
+Result::Result(size_t nElements) : daal::algorithms::Result(nElements) {}
 
 regression::ModelPtr Result::get(ResultId id) const
 {
     return staticPointerCast<regression::Model, SerializationIface>(Argument::get(id));
 }
 
-void Result::set(ResultId id, const regression::ModelPtr &value)
+void Result::set(ResultId id, const regression::ModelPtr & value)
 {
     Argument::set(id, value);
 }
 
-Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
-    const Input *algInput = static_cast<const Input *>(input);
+    const Input * algInput          = static_cast<const Input *>(input);
     const NumericTablePtr dataTable = algInput->get(data);
-    const ModelConstPtr m = get(model);
+    const ModelConstPtr m           = get(model);
 
     DAAL_CHECK(m, ErrorNullModel);
 
     return Status();
 }
 
-}
-}
-}
-}
-}
+} // namespace interface1
+} // namespace training
+} // namespace regression
+} // namespace algorithms
+} // namespace daal

@@ -19,10 +19,9 @@
 //  Implementation of element-wise sum calculation functions.
 //--
 
-
-#include "eltwise_sum_layer_forward_batch_container.h"
-#include "eltwise_sum_layer_forward_kernel.h"
-#include "eltwise_sum_layer_forward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/eltwise_sum_layer/forward/eltwise_sum_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/eltwise_sum_layer/forward/eltwise_sum_layer_forward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/eltwise_sum_layer/forward/eltwise_sum_layer_forward_impl.i"
 
 namespace daal
 {
@@ -34,21 +33,20 @@ namespace layers
 {
 namespace eltwise_sum
 {
-
 namespace forward
 {
 namespace interface1
 {
 template class neural_networks::layers::eltwise_sum::forward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 namespace internal
 {
 template class EltwiseSumKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 
-}
-}
-}
-}
-}
+} // namespace eltwise_sum
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

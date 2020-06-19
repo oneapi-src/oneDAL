@@ -36,12 +36,12 @@ using namespace daal::algorithms;
 typedef float algorithmFPType; /* Algorithm floating-point type */
 
 /* Input data set parameters */
-string datasetFileName     = "../data/batch/kmeans_csr.csv";
+string datasetFileName = "../data/batch/kmeans_csr.csv";
 
 /* K-Means algorithm parameters */
-const size_t nClusters   = 20;
+const size_t nClusters = 20;
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 
@@ -59,8 +59,10 @@ int main(int argc, char *argv[])
     /* Create an algorithm object for the K-Means algorithm to calculate only assignments */
     kmeans::Batch<algorithmFPType, kmeans::lloydCSR> algorithm(nClusters, 0);
 
-    algorithm.input.set(kmeans::data,           dataTable);
+    algorithm.input.set(kmeans::data, dataTable);
     algorithm.input.set(kmeans::inputCentroids, centroids);
+
+    algorithm.parameter().resultsToEvaluate = kmeans::computeAssignments;
 
     algorithm.compute();
 

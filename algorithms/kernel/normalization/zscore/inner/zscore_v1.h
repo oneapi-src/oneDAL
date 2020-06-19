@@ -25,11 +25,11 @@
 #ifndef __ZSCORE_V1_H__
 #define __ZSCORE_V1_H__
 
-#include "zscore.h"
+#include "algorithms/normalization/zscore.h"
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
 #include "services/daal_defines.h"
-#include "zscore_types_v1.h"
+#include "algorithms/kernel/normalization/zscore/inner/zscore_types_v1.h"
 
 namespace daal
 {
@@ -39,7 +39,6 @@ namespace normalization
 {
 namespace zscore
 {
-
 namespace interface1
 {
 /** @defgroup zscore_batch Batch
@@ -55,7 +54,7 @@ namespace interface1
  * \tparam algorithmFPType  Data type to use in intermediate computations for the z-score normalization algorithms, double or float
  * \tparam method           Z-score normalization computation method, daal::algorithms::normalization::zscore::Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
@@ -64,7 +63,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~BatchContainer();
     /**
@@ -88,28 +87,22 @@ public:
  *      - daal::algorithms::normalization::zscore::InputId  Identifiers of z-score normalization input objects
  *      - daal::algorithms::normalization::zscore::ResultId Identifiers of z-score normalization results
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public daal::algorithms::Analysis<batch>
 {
 public:
-    Input input;                               /*!< %input data structure */
-    Parameter<algorithmFPType, method> parameter;      /*!< Parameters */
+    Input input;                                  /*!< %input data structure */
+    Parameter<algorithmFPType, method> parameter; /*!< Parameters */
 
     /** Default constructor     */
-    Batch()
-    {
-        initialize();
-    }
+    Batch() { initialize(); }
 
     /**
      * Constructs z-score normalization algorithm by copying input objects
      * of another z-score normalization algorithm
      * \param[in] other An algorithm to be used as the source to initialize the input objects of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) : input(other.input), parameter(other.parameter)
-    {
-        initialize();
-    }
+    Batch(const Batch<algorithmFPType, method> & other) : input(other.input), parameter(other.parameter) { initialize(); }
 
     virtual ~Batch() {}
 
@@ -117,16 +110,13 @@ public:
     * Returns method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains computed results of the z-score normalization
      * \return Structure that contains computed results of the z-score normalization
      */
-    ResultPtr getResult()
-    {
-        return _result;
-    }
+    ResultPtr getResult() { return _result; }
 
     /**
      * Registers user-allocated memory to store results of the z-score normalization algorithms
@@ -134,11 +124,11 @@ public:
      *
      * \return Status of computations
      */
-    services::Status setResult(const ResultPtr &result)
+    services::Status setResult(const ResultPtr & result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -147,34 +137,27 @@ public:
      * with a copy of input objects of this z-score normalization algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Batch<algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _result->allocate<algorithmFPType>(&input, method);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
         Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in  = &input;
-        _par = &parameter;
+        _in                  = &input;
+        _par                 = &parameter;
         _result.reset(new Result());
     }
 
     ResultPtr _result;
-
 };
 /** @} */
 } // namespace interface1

@@ -21,13 +21,12 @@
 //--
 */
 
-#include "linear_regression_train_container.h"
+#include "algorithms/kernel/linear_regression/linear_regression_train_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(linear_regression::training::OnlineContainer, online, DAAL_FPTYPE,    \
-    linear_regression::training::qrDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(linear_regression::training::OnlineContainer, online, DAAL_FPTYPE, linear_regression::training::qrDense)
 }
 } // namespace daal

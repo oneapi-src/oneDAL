@@ -25,6 +25,7 @@
 #define __KMEANS_PARTIALRESULT_
 
 #include "algorithms/kmeans/kmeans_types.h"
+#include "algorithms/kernel/kmeans/inner/kmeans_types_v1.h"
 
 using namespace daal::data_management;
 
@@ -34,7 +35,6 @@ namespace algorithms
 {
 namespace kmeans
 {
-
 /**
  * Allocates memory to store partial results of the K-Means algorithm
  * \param[in] input        Pointer to the structure of the input objects
@@ -42,12 +42,15 @@ namespace kmeans
  * \param[in] method       Computation method of the algorithm
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                     const int method)
 {
-    const Parameter *kmPar = static_cast<const Parameter *>(parameter);
+    const interface2::Parameter * kmPar2 = dynamic_cast<const interface2::Parameter *>(parameter);
+    const interface1::Parameter * kmPar1 = dynamic_cast<const interface1::Parameter *>(parameter);
+    if (kmPar1 == nullptr && kmPar2 == nullptr) return services::Status(daal::services::ErrorNullParameterNotSupported);
 
     size_t nFeatures = static_cast<const InputIface *>(input)->getNumberOfFeatures();
-    size_t nClusters = kmPar->nClusters;
+    size_t nClusters = kmPar2 ? kmPar2->nClusters : kmPar1->nClusters;
 
     services::Status status;
     set(nObservations, HomogenNumericTable<algorithmFPType>::create(1, nClusters, NumericTable::doAllocate, &status));
@@ -61,11 +64,23 @@ DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Inp
     set(partialCandidatesCentroids, HomogenNumericTable<algorithmFPType>::create(nFeatures, nClusters, NumericTable::doAllocate, &status));
     DAAL_CHECK_STATUS_VAR(status);
 
-    const Input *step1Input = dynamic_cast<const Input *>(input);
-    if (kmPar->assignFlag && step1Input)
+    const Input * step1Input = dynamic_cast<const Input *>(input);
+
+    if (kmPar2)
     {
-        const size_t nRows = step1Input->get(data)->getNumberOfRows();
-        set(partialAssignments, HomogenNumericTable<int>::create(1, nRows, NumericTable::doAllocate, &status));
+        if ((kmPar2->resultsToEvaluate & computeAssignments || kmPar2->assignFlag) && step1Input)
+        {
+            const size_t nRows = step1Input->get(data)->getNumberOfRows();
+            set(partialAssignments, HomogenNumericTable<int>::create(1, nRows, NumericTable::doAllocate, &status));
+        }
+    }
+    else
+    {
+        if (kmPar1->assignFlag && step1Input)
+        {
+            const size_t nRows = step1Input->get(data)->getNumberOfRows();
+            set(partialAssignments, HomogenNumericTable<int>::create(1, nRows, NumericTable::doAllocate, &status));
+        }
     }
 
     return status;

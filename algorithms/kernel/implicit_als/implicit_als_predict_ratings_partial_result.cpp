@@ -21,9 +21,9 @@
 //--
 */
 
-#include "implicit_als_predict_ratings_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/implicit_als/implicit_als_predict_ratings_types.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -60,7 +60,7 @@ ResultPtr PartialResult::get(PartialResultId id) const
  * \param[in] id    Identifier of the partial result
  * \param[in] ptr   Pointer to the new partial result object
  */
-void PartialResult::set(PartialResultId id, const ResultPtr &ptr)
+void PartialResult::set(PartialResultId id, const ResultPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -71,22 +71,21 @@ void PartialResult::set(PartialResultId id, const ResultPtr &ptr)
  * \param[in] parameter %Parameter of the algorithm
  * \param[in] method    Computation method
  */
-services::Status PartialResult::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status PartialResult::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    ResultPtr result = get(finalResult);
-    const InputIface *algInput = static_cast<const InputIface *>(input);
+    ResultPtr result            = get(finalResult);
+    const InputIface * algInput = static_cast<const InputIface *>(input);
 
     const size_t nUsers = algInput->getNumberOfUsers();
     const size_t nItems = algInput->getNumberOfItems();
 
     const int unexpectedLayouts = (int)packed_mask;
-    if(result)
-        return checkNumericTable(result->get(prediction).get(), predictionStr(), unexpectedLayouts, 0, nItems, nUsers);
+    if (result) return checkNumericTable(result->get(prediction).get(), predictionStr(), unexpectedLayouts, 0, nItems, nUsers);
     return services::Status();
 }
-}// namespace interface1
-}// namespace ratings
-}// namespace prediction
-}// namespace implicit_als
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace ratings
+} // namespace prediction
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal

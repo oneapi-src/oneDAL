@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/decision_forest/decision_forest_classification_predict_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -40,7 +40,6 @@ namespace prediction
 {
 namespace interface1
 {
-
 /** Default constructor */
 Input::Input() : classifier::prediction::Input() {}
 
@@ -69,7 +68,7 @@ decision_forest::classification::ModelPtr Input::get(classifier::prediction::Mod
  * \param[in] id      Identifier of the input object
  * \param[in] value   %Input object
  */
-void Input::set(classifier::prediction::NumericTableInputId id, const NumericTablePtr &value)
+void Input::set(classifier::prediction::NumericTableInputId id, const NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
@@ -79,7 +78,7 @@ void Input::set(classifier::prediction::NumericTableInputId id, const NumericTab
  * \param[in] id      Identifier of the input object
  * \param[in] value   %Input object
  */
-void Input::set(classifier::prediction::ModelInputId id, const decision_forest::classification::ModelPtr &value)
+void Input::set(classifier::prediction::ModelInputId id, const decision_forest::classification::ModelPtr & value)
 {
     Argument::set(id, value);
 }
@@ -87,7 +86,7 @@ void Input::set(classifier::prediction::ModelInputId id, const decision_forest::
 /**
  * Checks an input object for making decision forest model-based prediction
  */
-services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     DAAL_CHECK(Argument::size() == 2, ErrorIncorrectNumberOfInputNumericTables);
     NumericTablePtr dataTable = get(classifier::prediction::data);
@@ -104,7 +103,7 @@ services::Status Input::check(const daal::algorithms::Parameter *parameter, int 
     }
     else
     {
-        const auto nFeatures = dataTable->getNumberOfColumns();
+        const auto nFeatures      = dataTable->getNumberOfColumns();
         const auto nFeaturesModel = m->getNFeatures();
 
         DAAL_CHECK(nFeaturesModel == nFeatures, services::ErrorIncorrectNumberOfColumnsInInputNumericTable);

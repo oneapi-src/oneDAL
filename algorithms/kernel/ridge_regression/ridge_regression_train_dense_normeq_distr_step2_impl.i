@@ -25,7 +25,7 @@
 #ifndef __RIDGE_REGRESSION_TRAIN_DENSE_NORMEQ_DISTR_STEP2_IMPL_I__
 #define __RIDGE_REGRESSION_TRAIN_DENSE_NORMEQ_DISTR_STEP2_IMPL_I__
 
-#include "ridge_regression_train_kernel.h"
+#include "algorithms/kernel/ridge_regression/ridge_regression_train_kernel.h"
 
 namespace daal
 {
@@ -40,20 +40,19 @@ namespace internal
 using namespace daal::algorithms::linear_model::normal_equations::training::internal;
 
 template <typename algorithmFPType, CpuType cpu>
-Status DistributedKernel<algorithmFPType, training::normEqDense, cpu>::compute(
-    size_t n, NumericTable **partialxtx, NumericTable **partialxty,
-    NumericTable &xtx, NumericTable &xty) const
+Status DistributedKernel<algorithmFPType, training::normEqDense, cpu>::compute(size_t n, NumericTable ** partialxtx, NumericTable ** partialxty,
+                                                                               NumericTable & xtx, NumericTable & xty) const
 {
     return MergeKernelType::compute(n, partialxtx, partialxty, xtx, xty);
 }
 
 template <typename algorithmFPType, CpuType cpu>
-Status DistributedKernel<algorithmFPType, training::normEqDense, cpu>::finalizeCompute(
-    const NumericTable &xtx, const NumericTable &xty, NumericTable &xtxFinal, NumericTable &xtyFinal,
-    NumericTable &beta, bool interceptFlag, const NumericTable &ridge) const
+Status DistributedKernel<algorithmFPType, training::normEqDense, cpu>::finalizeCompute(const NumericTable & xtx, const NumericTable & xty,
+                                                                                       NumericTable & xtxFinal, NumericTable & xtyFinal,
+                                                                                       NumericTable & beta, bool interceptFlag,
+                                                                                       const NumericTable & ridge) const
 {
-    return FinalizeKernelType::compute(xtx, xty, xtxFinal, xtyFinal, beta, interceptFlag,
-                                       KernelHelper<algorithmFPType, cpu>(ridge));
+    return FinalizeKernelType::compute(xtx, xty, xtxFinal, xtyFinal, beta, interceptFlag, KernelHelper<algorithmFPType, cpu>(ridge));
 }
 
 } // namespace internal

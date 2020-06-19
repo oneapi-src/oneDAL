@@ -19,7 +19,7 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_dbscan_DistributedStep13LocalInput.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::dbscan;
@@ -29,8 +29,8 @@ using namespace daal::algorithms::dbscan;
 * Method:    cSetDataCollection
 * Signature:(JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep13LocalInput_cSetDataCollection
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong dcAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep13LocalInput_cSetDataCollection(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                            jint id, jlong dcAddr)
 {
     jniInput<DistributedInput<step13Local> >::set<Step13LocalCollectionInputId, DataCollection>(inputAddr, id, dcAddr);
 }
@@ -40,8 +40,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep13Lo
 * Method:    cAddNumericTable
 * Signature:(JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep13LocalInput_cAddNumericTable
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep13LocalInput_cAddNumericTable(JNIEnv *, jobject, jlong inputAddr, jint id,
+                                                                                                          jlong ntAddr)
 {
     jniInput<DistributedInput<step13Local> >::add<Step13LocalCollectionInputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -51,8 +51,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep13Lo
 * Method:    cGetDataCollection
 * Signature:(JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep13LocalInput_cGetDataCollection
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep13LocalInput_cGetDataCollection(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                             jint id)
 {
     return jniInput<DistributedInput<step13Local> >::get<Step13LocalCollectionInputId, DataCollection>(inputAddr, id);
 }

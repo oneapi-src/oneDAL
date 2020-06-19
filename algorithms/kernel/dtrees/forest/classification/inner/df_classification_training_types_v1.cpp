@@ -21,9 +21,9 @@
 //--
 */
 
-#include "df_classification_training_types_result.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/kernel/dtrees/forest/classification/df_classification_training_types_result.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -47,7 +47,7 @@ services::Status Parameter::check() const
     DAAL_CHECK_STATUS(s, decision_forest::training::checkImpl(*this));
     return s;
 }
-}
+} // namespace interface1
 
 } // namespace training
 } // namespace classification

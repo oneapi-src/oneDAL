@@ -21,12 +21,12 @@
 //--
 */
 
-#include "quantiles_batch_container.h"
+#include "algorithms/kernel/quantiles/quantiles_batch_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER(quantiles::BatchContainer, batch, DAAL_FPTYPE, quantiles::defaultDense)
-} // namespace daal::algorithms
+} // namespace algorithms
 } // namespace daal

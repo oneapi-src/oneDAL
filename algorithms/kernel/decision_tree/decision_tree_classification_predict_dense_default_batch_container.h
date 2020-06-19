@@ -22,8 +22,8 @@
 //--
 */
 
-#include "decision_tree_classification_predict.h"
-#include "decision_tree_classification_predict_dense_default_batch.h"
+#include "algorithms/decision_tree/decision_tree_classification_predict.h"
+#include "algorithms/kernel/decision_tree/decision_tree_classification_predict_dense_default_batch.h"
 
 namespace daal
 {
@@ -53,22 +53,23 @@ template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
     const classifier::prediction::Input * const input = static_cast<const classifier::prediction::Input *>(_in);
-    classifier::prediction::Result * const result = static_cast<classifier::prediction::Result *>(_res);
-    classifier::Parameter * const parameter = static_cast<classifier::Parameter *>(_par);
+    classifier::prediction::Result * const result     = static_cast<classifier::prediction::Result *>(_res);
+    classifier::Parameter * const parameter           = static_cast<classifier::Parameter *>(_par);
 
     const data_management::NumericTableConstPtr a = input->get(classifier::prediction::data);
-    const classifier::ModelConstPtr m = input->get(classifier::prediction::model);
-    const data_management::NumericTablePtr r = result->get(classifier::prediction::prediction);
+    const classifier::ModelConstPtr m             = input->get(classifier::prediction::model);
+    const data_management::NumericTablePtr r      = result->get(classifier::prediction::prediction);
     data_management::NumericTablePtr prob; // Used to prevent shared pointer release
-    data_management::NumericTable * const p = ((parameter->resultsToEvaluate & classifier::computeClassProbabilities) != 0)
-                                              ? (prob = result->get(classifier::prediction::probabilities)).get() : nullptr;
+    data_management::NumericTable * const p = ((parameter->resultsToEvaluate & classifier::computeClassProbabilities) != 0) ?
+                                                  (prob = result->get(classifier::prediction::probabilities)).get() :
+                                                  nullptr;
 
     daal::services::Environment::env & env = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::DecisionTreePredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), \
-                       compute, a.get(), m.get(), r.get(), p, parameter->nClasses);
+    __DAAL_CALL_KERNEL(env, internal::DecisionTreePredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, a.get(), m.get(), r.get(),
+                       p, parameter->nClasses);
 }
-}
+} // namespace interface2
 } // namespace prediction
 } // namespace classification
 } // namespace decision_tree

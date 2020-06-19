@@ -16,7 +16,7 @@
 *******************************************************************************/
 
 #include "algorithms/linear_regression/linear_regression_model_builder.h"
-#include "linear_regression_model_impl.h"
+#include "algorithms/kernel/linear_regression/linear_regression_model_impl.h"
 #include "data_management/data/homogen_numeric_table.h"
 
 namespace daal
@@ -29,24 +29,24 @@ namespace interface1
 {
 using namespace daal::data_management;
 
-template<typename modelFPType>
-ModelBuilder<modelFPType>::ModelBuilder(size_t nFeatures, size_t nResponses): _nFeatures(nFeatures), _nResponses(nResponses)
+template <typename modelFPType>
+ModelBuilder<modelFPType>::ModelBuilder(size_t nFeatures, size_t nResponses) : _nFeatures(nFeatures), _nResponses(nResponses)
 {
-    Parameter* p = new Parameter;
-    p->interceptFlag = true; /* default intercept flag is true but can be changed via setInterceptFlag */
+    Parameter * p     = new Parameter;
+    p->interceptFlag  = true; /* default intercept flag is true but can be changed via setInterceptFlag */
     modelFPType dummy = 1.0;
-    _modelPtr = linear_regression::ModelPtr(new linear_regression::internal::ModelImpl(_nFeatures, _nResponses, *p, dummy));
+    _modelPtr         = linear_regression::ModelPtr(new linear_regression::internal::ModelImpl(_nFeatures, _nResponses, *p, dummy));
 }
 
-template<typename modelFPType>
+template <typename modelFPType>
 void ModelBuilder<modelFPType>::setInterceptFlag(bool interceptFlag)
 {
-    linear_regression::internal::ModelImpl* m = static_cast<linear_regression::internal::ModelImpl*>(_modelPtr.get());
+    linear_regression::internal::ModelImpl * m = static_cast<linear_regression::internal::ModelImpl *>(_modelPtr.get());
     m->setInterceptFlag(interceptFlag);
 }
 
 template class ModelBuilder<DAAL_FPTYPE>;
-}
-}
-}
-}
+} // namespace interface1
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal

@@ -21,7 +21,6 @@
 //--
 */
 
-
 #ifndef __POOLING1D_LAYER_IMPL_I__
 #define __POOLING1D_LAYER_IMPL_I__
 
@@ -37,22 +36,21 @@ namespace pooling1d
 {
 namespace internal
 {
-
 struct Parameter
 {
     /*
      * Input data tensor of size dims is viewed by this method as a 3-dimensional tensor of size:
      * offsetBefore * firstSize * offsetAfter
      */
-    Parameter(size_t index, size_t inputPadding, size_t inputStride, size_t inputKernelSize,
-              const Tensor &dataTensor, const Collection<size_t> &dims, const Collection<size_t> &valueDims) :
-        padding(inputPadding), stride(inputStride), kernelSize(inputKernelSize)
+    Parameter(size_t index, size_t inputPadding, size_t inputStride, size_t inputKernelSize, const Tensor & dataTensor,
+              const Collection<size_t> & dims, const Collection<size_t> & valueDims)
+        : padding(inputPadding), stride(inputStride), kernelSize(inputKernelSize)
     {
         DAAL_INT nDims = (DAAL_INT)dims.size();
-        offsetBefore = (index == 0 ? 1 : dataTensor.getSize(0, index));
-        firstSize = dims[index];
-        firstOutSize = valueDims[index];
-        offsetAfter = ((DAAL_INT)index == nDims - 1 ? 1 : dataTensor.getSize(index + 1, nDims - (DAAL_INT)index - 1));
+        offsetBefore   = (index == 0 ? 1 : dataTensor.getSize(0, index));
+        firstSize      = dims[index];
+        firstOutSize   = valueDims[index];
+        offsetAfter    = ((DAAL_INT)index == nDims - 1 ? 1 : dataTensor.getSize(index + 1, nDims - (DAAL_INT)index - 1));
     }
 
     DAAL_INT padding;
@@ -65,11 +63,11 @@ struct Parameter
     DAAL_INT offsetAfter;
 };
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace pooling1d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

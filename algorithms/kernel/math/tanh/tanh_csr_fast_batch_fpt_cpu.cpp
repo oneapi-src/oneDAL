@@ -19,11 +19,11 @@
 //  Implementation of hyperbolic tangent calculation functions.
 //--
 
-#include "tanh_batch_container.h"
-#include "tanh_base.h"
-#include "tanh_csr_fast_kernel.h"
-#include "tanh_impl.i"
-#include "tanh_csr_fast_impl.i"
+#include "algorithms/kernel/math/tanh/tanh_batch_container.h"
+#include "algorithms/kernel/math/tanh/tanh_base.h"
+#include "algorithms/kernel/math/tanh/tanh_csr_fast_kernel.h"
+#include "algorithms/kernel/math/tanh/tanh_impl.i"
+#include "algorithms/kernel/math/tanh/tanh_csr_fast_impl.i"
 
 namespace daal
 {
@@ -41,8 +41,8 @@ namespace internal
 {
 template class TanhKernel<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
 template class TanhKernelBase<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace tanh
+} // namespace math
+} // namespace algorithms
+} // namespace daal

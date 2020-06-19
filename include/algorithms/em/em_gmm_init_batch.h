@@ -27,7 +27,7 @@
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
 #include "services/daal_defines.h"
-#include "em_gmm_init_types.h"
+#include "algorithms/em/em_gmm_init_types.h"
 
 namespace daal
 {

@@ -19,8 +19,7 @@
 //  Implementation of uniform calculation algorithm container.
 //--
 
-
-#include "uniform_initializer_batch_container.h"
+#include "algorithms/kernel/neural_networks/initializers/uniform/uniform_initializer_batch_container.h"
 
 namespace daal
 {

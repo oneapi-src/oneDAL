@@ -21,11 +21,11 @@
 //--
 */
 
-#include "pca/inner/pca_types_v2.h"
-#include "pca/inner/pca_result_v2.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
-#include "service_defines.h"
+#include "algorithms/kernel/pca/inner/pca_types_v2.h"
+#include "algorithms/kernel/pca/inner/pca_result_v2.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
+#include "service/kernel/service_defines.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -36,14 +36,13 @@ namespace algorithms
 {
 namespace pca
 {
-
 namespace interface2
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_PCA_RESULT_ID);
 
-Result::Result(const Result& o)
+Result::Result(const Result & o)
 {
-    ResultImpl* pImpl = dynamic_cast<ResultImpl*>(getStorage(o).get());
+    ResultImpl * pImpl = dynamic_cast<ResultImpl *>(getStorage(o).get());
     DAAL_ASSERT(pImpl);
     Argument::setStorage(data_management::DataCollectionPtr(new ResultImpl(*pImpl)));
 }
@@ -71,15 +70,14 @@ NumericTablePtr Result::get(ResultId id) const
 data_management::KeyValueDataCollectionPtr Result::get(ResultCollectionId id) const
 {
     KeyValueDataCollectionPtr pResultsCollection = KeyValueDataCollectionPtr(new KeyValueDataCollection());
-    KeyValueDataCollection& resultsCollection = *pResultsCollection;
-    resultsCollection[mean] = get(means);
-    resultsCollection[variance] = get(variances);
-    resultsCollection[eigenvalue] = NumericTablePtr();
-    auto impl = ResultImpl::cast(getStorage(*this));
-    if(impl)
+    KeyValueDataCollection & resultsCollection   = *pResultsCollection;
+    resultsCollection[mean]                      = get(means);
+    resultsCollection[variance]                  = get(variances);
+    resultsCollection[eigenvalue]                = NumericTablePtr();
+    auto impl                                    = ResultImpl::cast(getStorage(*this));
+    if (impl)
     {
-        if(impl->isWhitening)
-            resultsCollection[eigenvalue] = get(eigenvalues);
+        if (impl->isWhitening) resultsCollection[eigenvalue] = get(eigenvalues);
     }
 
     return pResultsCollection;
@@ -91,27 +89,23 @@ data_management::KeyValueDataCollectionPtr Result::get(ResultCollectionId id) co
 * \param[in] id          Identifier of the results collection
 * \param[in] collection  PCA results collection
 */
-void Result::set(ResultCollectionId id, data_management::KeyValueDataCollectionPtr& collection)
+void Result::set(ResultCollectionId id, data_management::KeyValueDataCollectionPtr & collection)
 {
     if (collection.get() != NULL)
     {
-        KeyValueDataCollection& resultsCollection = *collection;
-        if (resultsCollection[mean].get() != NULL)
-            set(means, NumericTable::cast(resultsCollection[mean]));
-        if (resultsCollection[variance].get() != NULL)
-            set(variances, NumericTable::cast(resultsCollection[variance]));
-        if (resultsCollection[eigenvalue].get() != NULL)
-            set(eigenvalues, NumericTable::cast(resultsCollection[eigenvalue]));
+        KeyValueDataCollection & resultsCollection = *collection;
+        if (resultsCollection[mean].get() != NULL) set(means, NumericTable::cast(resultsCollection[mean]));
+        if (resultsCollection[variance].get() != NULL) set(variances, NumericTable::cast(resultsCollection[variance]));
+        if (resultsCollection[eigenvalue].get() != NULL) set(eigenvalues, NumericTable::cast(resultsCollection[eigenvalue]));
     }
 }
-
 
 /**
  * Sets results of the PCA algorithm
  * \param[in] id      Identifier of the result
  * \param[in] value   Pointer to the object
  */
-void Result::set(ResultId id, const NumericTablePtr &value)
+void Result::set(ResultId id, const NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
@@ -124,7 +118,7 @@ void Result::set(ResultId id, const NumericTablePtr &value)
 *
 * \return Status
 */
-services::Status Result::check(const daal::algorithms::PartialResult *pr, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::PartialResult * pr, const daal::algorithms::Parameter * parameter, int method) const
 {
     auto impl = interface1::ResultImpl::cast(getStorage(*this));
     DAAL_CHECK(impl, ErrorNullPtr);
@@ -165,19 +159,19 @@ services::Status Result::checkImpl(size_t nFeatures, size_t nComponents, DAAL_UI
 *
 * \return Status
 */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    size_t nComponents = 0;
+    size_t nComponents           = 0;
     DAAL_UINT64 resultsToCompute = eigenvalue;
 
-    const auto* par = dynamic_cast<const BaseBatchParameter*>(parameter);
+    const auto * par = dynamic_cast<const BaseBatchParameter *>(parameter);
     if (par != NULL)
     {
-        nComponents = par->nComponents;
+        nComponents      = par->nComponents;
         resultsToCompute = par->resultsToCompute;
     }
 
-    const interface1::InputIface *in = static_cast<const interface1::InputIface *>(input);
+    const interface1::InputIface * in = static_cast<const interface1::InputIface *>(input);
     DAAL_CHECK(in, ErrorNullPtr);
 
     return checkImpl(in->getNFeatures(), nComponents, resultsToCompute);

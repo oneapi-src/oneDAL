@@ -21,10 +21,10 @@
 //--
 */
 
-#include "linear_model_train_normeq_kernel.h"
-#include "service_blas.h"
-#include "service_error_handling.h"
-#include "threading.h"
+#include "algorithms/kernel/linear_model/linear_model_train_normeq_kernel.h"
+#include "externals/service_blas.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "algorithms/threading/threading.h"
 
 namespace daal
 {
@@ -78,15 +78,14 @@ Status ThreadingTask<algorithmFPType, cpu>::update(DAAL_INT startRow, DAAL_INT n
 
     _xBlock.set(const_cast<NumericTable &>(xTable), startRow, nRows);
     DAAL_CHECK_BLOCK_STATUS(_xBlock);
-    const algorithmFPType *x = _xBlock.get();
+    const algorithmFPType * x = _xBlock.get();
 
     _yBlock.set(const_cast<NumericTable &>(yTable), startRow, nRows);
     DAAL_CHECK_BLOCK_STATUS(_yBlock);
-    const algorithmFPType *y = _yBlock.get();
+    const algorithmFPType * y = _yBlock.get();
 
-    Blas<algorithmFPType, cpu>::xxsyrk(&up, &notrans, &nFeatures, &nRows, &alpha,
-                                       const_cast<algorithmFPType *>(x), &nFeatures, &alpha,
-                                       _xtx, &_nBetasIntercept);
+    Blas<algorithmFPType, cpu>::xxsyrk(&up, &notrans, &nFeatures, &nRows, &alpha, const_cast<algorithmFPType *>(x), &nFeatures, &alpha, _xtx,
+                                       &_nBetasIntercept);
 
     if (nFeatures < _nBetasIntercept)
     {
@@ -106,8 +105,8 @@ Status ThreadingTask<algorithmFPType, cpu>::update(DAAL_INT startRow, DAAL_INT n
         xtxPtr[nFeatures] += algorithmFPType(nRows);
     }
 
-    Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &nFeatures, &_nResponses, &nRows, &alpha, x,
-                                       &nFeatures, y, &_nResponses, &alpha, _xty, &_nBetasIntercept);
+    Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &nFeatures, &_nResponses, &nRows, &alpha, x, &nFeatures, y, &_nResponses, &alpha, _xty,
+                                       &_nBetasIntercept);
 
     if (nFeatures < _nBetasIntercept)
     {
@@ -130,14 +129,14 @@ void ThreadingTask<algorithmFPType, cpu>::reduce(algorithmFPType * xtx, algorith
 {
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
-    for( size_t i = 0; i < (_nBetasIntercept * _nBetasIntercept); i++)
+    for (size_t i = 0; i < (_nBetasIntercept * _nBetasIntercept); i++)
     {
         xtx[i] += _xtx[i];
     }
 
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
-    for( size_t i = 0; i < (_nBetasIntercept * _nResponses); i++)
+    for (size_t i = 0; i < (_nBetasIntercept * _nResponses); i++)
     {
         xty[i] += _xty[i];
     }

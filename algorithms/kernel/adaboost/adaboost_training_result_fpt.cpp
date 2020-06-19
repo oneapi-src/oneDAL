@@ -21,7 +21,7 @@
 //--
 */
 
-#include "adaboost_training_result.h"
+#include "algorithms/kernel/adaboost/adaboost_training_result.h"
 
 namespace daal
 {
@@ -31,8 +31,9 @@ namespace adaboost
 {
 namespace training
 {
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
-}// namespace training
-}// namespace adaboost
-}// namespace algorithms
-}// namespace daal
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
+} // namespace training
+} // namespace adaboost
+} // namespace algorithms
+} // namespace daal

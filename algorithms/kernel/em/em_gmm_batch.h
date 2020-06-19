@@ -24,7 +24,7 @@
 #ifndef __EM_BATCH_
 #define __EM_BATCH_
 
-#include "em_gmm_types.h"
+#include "algorithms/em/em_gmm_types.h"
 
 using namespace daal::data_management;
 
@@ -34,7 +34,6 @@ namespace algorithms
 {
 namespace em_gmm
 {
-
 /**
  * Allocates memory for storing results of the EM for GMM algorithm
  * \param[in] input     Pointer to the input structure
@@ -42,10 +41,10 @@ namespace em_gmm
  * \param[in] method    Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    Input *algInput = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
-    const Parameter *algParameter = static_cast<const Parameter *>(parameter);
+    Input * algInput               = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
+    const Parameter * algParameter = static_cast<const Parameter *>(parameter);
 
     size_t nFeatures   = algInput->get(data)->getNumberOfColumns();
     size_t nComponents = algParameter->nComponents;
@@ -56,9 +55,9 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     set(means, HomogenNumericTable<algorithmFPType>::create(nFeatures, nComponents, NumericTable::doAllocate, 0, &status));
 
     DataCollectionPtr covarianceCollection = DataCollectionPtr(new DataCollection());
-    for(size_t i = 0; i < nComponents; i++)
+    for (size_t i = 0; i < nComponents; i++)
     {
-        if(algParameter->covarianceStorage == diagonal)
+        if (algParameter->covarianceStorage == diagonal)
         {
             covarianceCollection->push_back(HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, 0, &status));
         }

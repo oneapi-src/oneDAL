@@ -21,9 +21,9 @@
 //--
 */
 
-#include "brownboost_train_batch_container_v1.h"
-#include "brownboost_train_kernel_v1.h"
-#include "brownboost_train_impl_v1.i"
+#include "algorithms/kernel/brownboost/inner/brownboost_train_batch_container_v1.h"
+#include "algorithms/kernel/brownboost/inner/brownboost_train_kernel_v1.h"
+#include "algorithms/kernel/brownboost/inner/brownboost_train_impl_v1.i"
 
 namespace daal
 {
@@ -41,7 +41,7 @@ namespace internal
 {
 template class I1BrownBoostTrainKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace training
+} // namespace brownboost
+} // namespace algorithms
+} // namespace daal

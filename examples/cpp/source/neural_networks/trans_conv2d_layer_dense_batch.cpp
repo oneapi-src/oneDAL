@@ -44,7 +44,7 @@ using namespace daal::services;
 /* Input data set name */
 string datasetFileName = "../data/batch/layer.csv";
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 
@@ -60,7 +60,6 @@ int main(int argc, char *argv[])
     transposed_conv2d::forward::Batch<> transposedConv2dLayerForward;
     transposedConv2dLayerForward.input.set(forward::data, tensorData);
 
-
     /* Compute forward two-dimensional transposed convolution layer results */
     transposedConv2dLayerForward.compute();
 
@@ -69,8 +68,7 @@ int main(int argc, char *argv[])
     printTensor(forwardResult->get(forward::value), "Two-dimensional transposed convolution layer result (first 5 rows):", 5, 15);
     printTensor(forwardResult->get(transposed_conv2d::auxWeights), "Two-dimensional transposed convolution layer weights (first 5 rows):", 5, 15);
 
-
-    const Collection<size_t> &gDims = forwardResult->get(forward::value)->getDimensions();
+    const Collection<size_t> & gDims = forwardResult->get(forward::value)->getDimensions();
     /* Create input gradient tensor for backward two-dimensional transposed convolution layer */
     TensorPtr tensorDataBack = TensorPtr(new HomogenTensor<>(gDims, Tensor::doAllocate, 0.01f));
 
@@ -78,7 +76,6 @@ int main(int argc, char *argv[])
     transposed_conv2d::backward::Batch<> transposedConv2dLayerBackward;
     transposedConv2dLayerBackward.input.set(backward::inputGradient, tensorDataBack);
     transposedConv2dLayerBackward.input.set(backward::inputFromForward, forwardResult->get(forward::resultForBackward));
-
 
     /* Compute backward two-dimensional transposed convolution layer results */
     transposedConv2dLayerBackward.compute();

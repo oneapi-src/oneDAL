@@ -15,53 +15,51 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "collection.h"
-#include "data_collection.h"
-#include "memory_block.h"
+#include "services/internal/collection.h"
+#include "data_management/data/data_collection.h"
+#include "data_management/data/memory_block.h"
 
 namespace daal
 {
 namespace data_management
 {
-
 namespace interface1
 {
-
 DataCollection::DataCollection(size_t n) : super(n) {}
 
 DataCollection::DataCollection() : super() {}
 
-DataCollection::DataCollection(const DataCollection& other) : super(other) {}
+DataCollection::DataCollection(const DataCollection & other) : super(other) {}
 
-const SerializationIfacePtr& DataCollection::operator[](size_t index) const
+const SerializationIfacePtr & DataCollection::operator[](size_t index) const
 {
     return super::operator[](index);
 }
 
-SerializationIfacePtr& DataCollection::operator[](size_t index)
+SerializationIfacePtr & DataCollection::operator[](size_t index)
 {
     return super::operator[](index);
 }
 
-SerializationIfacePtr &DataCollection::get(size_t index)
+SerializationIfacePtr & DataCollection::get(size_t index)
 {
     return super::get(index);
 }
 
-const SerializationIfacePtr& DataCollection::get(size_t index) const
+const SerializationIfacePtr & DataCollection::get(size_t index) const
 {
     return super::get(index);
 }
 
-DataCollection& DataCollection::push_back(const SerializationIfacePtr &x)
+DataCollection & DataCollection::push_back(const SerializationIfacePtr & x)
 {
     super::push_back(x);
     return *this;
 }
 
-DataCollection& DataCollection::operator << (const SerializationIfacePtr &x)
+DataCollection & DataCollection::operator<<(const SerializationIfacePtr & x)
 {
-    super::operator << (x);
+    super::operator<<(x);
     return *this;
 }
 
@@ -85,9 +83,9 @@ bool DataCollection::resize(size_t newCapacity)
     return super::resize(newCapacity);
 }
 
-MemoryBlock::MemoryBlock(size_t n): _size(n), _value(NULL)
+MemoryBlock::MemoryBlock(size_t n) : _size(n), _value(NULL)
 {
-    _value = (byte*)daal::services::daal_calloc(n);
+    _value = (byte *)daal::services::daal_calloc(n);
 }
 
 MemoryBlock::~MemoryBlock()
@@ -97,24 +95,24 @@ MemoryBlock::~MemoryBlock()
 
 void MemoryBlock::reserve(size_t n)
 {
-    if(n > size())
+    if (n > size())
     {
         daal::services::daal_free(_value);
-        _value = (byte*)daal::services::daal_calloc(n);
-        _size = n;
+        _value = (byte *)daal::services::daal_calloc(n);
+        _size  = n;
     }
 }
 
 void MemoryBlock::release()
 {
-    if(_value)
+    if (_value)
     {
         daal::services::daal_free(_value);
         _value = NULL;
-        _size = 0;
+        _size  = 0;
     }
 }
 
-}
-}
-}
+} // namespace interface1
+} // namespace data_management
+} // namespace daal

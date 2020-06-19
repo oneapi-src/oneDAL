@@ -19,7 +19,7 @@
 
 #include "com_intel_daal_algorithms_elastic_net_training_TrainingResult.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_elastic_net_training_TrainingResultId.h"
 #define ModelId com_intel_daal_algorithms_elastic_net_training_TrainingResultId_ModelId
@@ -42,8 +42,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_Tra
  * Method:    cGetModel
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_TrainingResult_cGetModel(JNIEnv * env, jobject thisObj,
-                                                                                                      jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_training_TrainingResult_cGetModel(JNIEnv * env, jobject thisObj, jlong resAddr,
+                                                                                                      jint id)
 {
     if (id == ModelId)
     {

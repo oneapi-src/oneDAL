@@ -21,8 +21,8 @@
 //--
 */
 
-#include "classifier_training_types.h"
-#include "serialization_utils.h"
+#include "algorithms/classifier/classifier_training_types.h"
+#include "service/kernel/serialization_utils.h"
 
 namespace daal
 {
@@ -39,7 +39,8 @@ __DAAL_REGISTER_SERIALIZATION_CLASS(PartialResult, SERIALIZATION_CLASSIFIER_TRAI
 PartialResult::PartialResult() : daal::algorithms::PartialResult(lastPartialResultId + 1) {};
 
 /**
- * Returns the partial result in the training stage of the classification algorithm
+ * Returns the partial result in the training stage of the classification
+ * algorithm
  * \param[in] id   Identifier of the partial result, \ref PartialResultId
  * \return         Partial result that corresponds to the given identifier
  */
@@ -53,7 +54,7 @@ classifier::ModelPtr PartialResult::get(PartialResultId id) const
  * \param[in] id    Identifier of the partial result, \ref PartialResultId
  * \param[in] value Pointer to the partial result
  */
-void PartialResult::set(PartialResultId id, const daal::algorithms::classifier::ModelPtr &value)
+void PartialResult::set(PartialResultId id, const daal::algorithms::classifier::ModelPtr & value)
 {
     Argument::set(id, value);
 }
@@ -64,20 +65,20 @@ void PartialResult::set(PartialResultId id, const daal::algorithms::classifier::
  * \param[in] parameter Pointer to the structure of the algorithm parameters
  * \param[in] method    Computation method
  */
-services::Status PartialResult::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status PartialResult::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     return checkImpl(input, parameter);
 }
 
-services::Status PartialResult::checkImpl(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter) const
+services::Status PartialResult::checkImpl(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter) const
 {
     daal::algorithms::classifier::ModelPtr m = get(partialModel);
     DAAL_CHECK(m, services::ErrorNullModel);
     return services::Status();
 }
 
-}
-}
-}
-}
-}
+} // namespace interface1
+} // namespace training
+} // namespace classifier
+} // namespace algorithms
+} // namespace daal

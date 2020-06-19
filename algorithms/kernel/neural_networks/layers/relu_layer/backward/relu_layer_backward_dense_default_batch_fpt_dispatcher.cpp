@@ -19,8 +19,7 @@
 //  Implementation of relu calculation algorithm container.
 //--
 
-
-#include "relu_layer_backward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/relu_layer/backward/relu_layer_backward_batch_container.h"
 
 namespace daal
 {

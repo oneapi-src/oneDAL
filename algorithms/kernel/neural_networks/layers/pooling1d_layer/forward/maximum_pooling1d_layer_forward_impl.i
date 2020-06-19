@@ -24,13 +24,13 @@
 #ifndef __MAXIMUM_POOLING1D_LAYER_FORWARD_KERNEL_IMPL_I__
 #define __MAXIMUM_POOLING1D_LAYER_FORWARD_KERNEL_IMPL_I__
 
-#include "service_memory.h"
-#include "service_data_utils.h"
-#include "service_blas.h"
-#include "service_tensor.h"
-#include "service_numeric_table.h"
+#include "externals/service_memory.h"
+#include "service/kernel/service_data_utils.h"
+#include "externals/service_blas.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
-#include "pooling1d_layer_impl.i"
+#include "algorithms/kernel/neural_networks/layers/pooling1d_layer/pooling1d_layer_impl.i"
 
 using namespace daal::services;
 using namespace daal::internal;
@@ -49,36 +49,35 @@ namespace forward
 {
 namespace internal
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status PoolingKernel<algorithmFPType, method, cpu>::compute(const Tensor &dataTensor, Tensor &valueTensor,
-        Tensor *selectedPosTensor, const maximum_pooling1d::Parameter &parameter)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status PoolingKernel<algorithmFPType, method, cpu>::compute(const Tensor & dataTensor, Tensor & valueTensor, Tensor * selectedPosTensor,
+                                                                      const maximum_pooling1d::Parameter & parameter)
 {
     const algorithmFPType zero = 0.0;
 
-    const Collection<size_t> &dims = dataTensor.getDimensions();
-    const Collection<size_t> &valueDims = valueTensor.getDimensions();
+    const Collection<size_t> & dims      = dataTensor.getDimensions();
+    const Collection<size_t> & valueDims = valueTensor.getDimensions();
 
-    ReadSubtensor<algorithmFPType, cpu> dataSubtensor(const_cast<Tensor&>(dataTensor), 0, 0, 0, dims[0]);
+    ReadSubtensor<algorithmFPType, cpu> dataSubtensor(const_cast<Tensor &>(dataTensor), 0, 0, 0, dims[0]);
     DAAL_CHECK_BLOCK_STATUS(dataSubtensor);
-    const algorithmFPType *data = dataSubtensor.get();
+    const algorithmFPType * data = dataSubtensor.get();
 
     WriteOnlySubtensor<algorithmFPType, cpu> valueSubtensor(valueTensor, 0, 0, 0, valueDims[0]);
     DAAL_CHECK_BLOCK_STATUS(valueSubtensor);
-    algorithmFPType *value = valueSubtensor.get();
+    algorithmFPType * value = valueSubtensor.get();
 
-    int *selectedPos = nullptr;
+    int * selectedPos = nullptr;
     WriteOnlySubtensor<int, cpu> selectedPosSubtensor;
-    if(parameter.predictionStage == false)
+    if (parameter.predictionStage == false)
     {
         selectedPosSubtensor.set(*selectedPosTensor, 0, 0, 0, valueDims[0]);
         DAAL_CHECK_BLOCK_STATUS(selectedPosSubtensor);
-        selectedPos = selectedPosSubtensor.get();
+        selectedPos                  = selectedPosSubtensor.get();
         const size_t selectedPosSize = selectedPosTensor->getSize();
         daal::services::internal::service_memset<int, cpu>(selectedPos, 0, selectedPosSize);
     }
 
-    pooling1d::internal::Parameter par(parameter.index .size[0], parameter.padding   .size[0],
-                                       parameter.stride.size[0], parameter.kernelSize.size[0],
+    pooling1d::internal::Parameter par(parameter.index.size[0], parameter.padding.size[0], parameter.stride.size[0], parameter.kernelSize.size[0],
                                        dataTensor, dims, valueDims);
 
     for (DAAL_INT i = 0; i < par.offsetBefore; i++)
@@ -98,25 +97,25 @@ services::Status PoolingKernel<algorithmFPType, method, cpu>::compute(const Tens
                 const DAAL_INT valueIndex = j + par.offsetAfter * (fo + par.firstOutSize * i);
 
                 algorithmFPType max = -(services::internal::MaxVal<algorithmFPType>::get());
-                DAAL_INT maxIdx = -1;
+                DAAL_INT maxIdx     = -1;
 
                 /*
                  * Loop over the kernel
                  */
                 for (DAAL_INT fi = f; fi < f + par.kernelSize; fi++)
                 {
-                    const DAAL_INT dataIndex = j + par.offsetAfter * (fi + par.firstSize * i);
-                    const bool paddingFlag = (fi < 0) || (fi >= par.firstSize);
+                    const DAAL_INT dataIndex        = j + par.offsetAfter * (fi + par.firstSize * i);
+                    const bool paddingFlag          = (fi < 0) || (fi >= par.firstSize);
                     const algorithmFPType dataValue = (paddingFlag ? zero : data[dataIndex]);
 
                     if (dataValue > max)
                     {
-                        max = dataValue;
+                        max    = dataValue;
                         maxIdx = fi - f;
                     }
                 }
                 value[valueIndex] = max;
-                if(selectedPos)
+                if (selectedPos)
                 {
                     selectedPos[valueIndex] = maxIdx;
                 }

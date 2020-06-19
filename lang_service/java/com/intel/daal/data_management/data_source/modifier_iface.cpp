@@ -17,7 +17,7 @@
 
 #include "com_intel_daal_data_management_data_source_ModifierIface.h"
 
-#include "csv_feature_manager.h"
+#include "data_management/data_source/csv_feature_manager.h"
 
 using namespace daal;
 using namespace daal::data_management;
@@ -27,8 +27,7 @@ using namespace daal::data_management;
  * Method:    cDispose
  * Signature:(J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_1source_ModifierIface_cDispose
-(JNIEnv *env, jobject obj, jlong ptr)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_1source_ModifierIface_cDispose(JNIEnv * env, jobject obj, jlong ptr)
 {
-    delete(services::SharedPtr<ModifierIface> *)ptr;
+    delete (services::SharedPtr<ModifierIface> *)ptr;
 }

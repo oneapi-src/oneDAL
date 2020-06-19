@@ -22,8 +22,8 @@
 //--
 */
 
-#include "adaboost_training_batch.h"
-#include "adaboost_train_batch_container.h"
+#include "algorithms/boosting/adaboost_training_batch.h"
+#include "algorithms/kernel/adaboost/adaboost_train_batch_container.h"
 
 namespace daal
 {
@@ -38,23 +38,21 @@ namespace training
 {
 namespace interface2
 {
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 Batch<algorithmFPType, method>::Batch(size_t nClasses)
 {
     _par = new ParameterType(nClasses);
     initialize();
 }
 
-template<typename algorithmFPType, Method method>
-Batch<algorithmFPType, method>::Batch(const Batch &other) :
-    classifier::training::Batch(other),
-    input(other.input)
+template <typename algorithmFPType, Method method>
+Batch<algorithmFPType, method>::Batch(const Batch & other) : classifier::training::Batch(other), input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();
 }
 
-#define INSTANTIATE_CONSTRUCTORS(algorithmFPType, method) \
+#define INSTANTIATE_CONSTRUCTORS(algorithmFPType, method)   \
     template Batch<algorithmFPType, method>::Batch(size_t); \
     template Batch<algorithmFPType, method>::Batch(const Batch &);
 

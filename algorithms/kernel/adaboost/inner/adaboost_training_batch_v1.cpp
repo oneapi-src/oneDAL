@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/boosting/adaboost_training_types.h"
-#include "serialization_utils.h"
+#include "service/kernel/serialization_utils.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -37,12 +37,12 @@ namespace training
 {
 namespace interface1
 {
-
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_ADABOOST_TRAINING_RESULT_ID);
 
 /**
  * Returns the model trained with the AdaBoost algorithm
- * \param[in] id    Identifier of the result, \ref classifier::training::ResultId
+ * \param[in] id    Identifier of the result, \ref
+ * classifier::training::ResultId
  * \return          Model trained with the AdaBoost algorithm
  */
 daal::algorithms::adaboost::interface1::ModelPtr Result::get(classifier::training::ResultId id) const
@@ -50,15 +50,14 @@ daal::algorithms::adaboost::interface1::ModelPtr Result::get(classifier::trainin
     return staticPointerCast<daal::algorithms::adaboost::interface1::Model, SerializationIface>(Argument::get(id));
 }
 
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     Status s = classifier::training::interface1::Result::check(input, parameter, method);
-    if(!s) return s;
+    if (!s) return s;
     daal::algorithms::adaboost::interface1::ModelPtr m = get(classifier::training::model);
     DAAL_CHECK(m->getAlpha(), ErrorModelNotFullInitialized);
     return s;
 }
-
 
 } // namespace interface1
 } // namespace training

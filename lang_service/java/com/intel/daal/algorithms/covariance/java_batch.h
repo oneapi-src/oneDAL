@@ -29,7 +29,7 @@
 
 #include "algorithms/covariance/covariance_types.h"
 #include "algorithms/covariance/covariance_batch.h"
-#include "java_callback.h"
+#include "lang_service/java/com/intel/daal/include/java_callback.h"
 #include "java_batch_container.h"
 
 namespace daal
@@ -38,7 +38,6 @@ namespace algorithms
 {
 namespace covariance
 {
-
 using namespace daal::data_management;
 using namespace daal::services;
 
@@ -49,23 +48,23 @@ class JavaBatch : public BatchImpl
 {
 public:
     /** Default constructor */
-    JavaBatch(JavaVM *_jvm, jobject _javaObject)
+    JavaBatch(JavaVM * _jvm, jobject _javaObject)
     {
-        JavaBatchContainer* _container = new JavaBatchContainer(_jvm, _javaObject);
+        JavaBatchContainer * _container = new JavaBatchContainer(_jvm, _javaObject);
         _container->setJavaResult(_result);
         _container->setEnvironment(&_env);
 
-        this->_ac = _container ;
+        this->_ac = _container;
     };
 
     virtual ~JavaBatch() {}
 
     virtual int getMethod() const DAAL_C11_OVERRIDE { return 0; } // To make the class non-abstract
 
-    virtual services::Status setResult(const ResultPtr &result) DAAL_C11_OVERRIDE
+    virtual services::Status setResult(const ResultPtr & result) DAAL_C11_OVERRIDE
     {
         _result = result;
-        (static_cast<JavaBatchContainer*>(this->_ac))->setJavaResult(_result);
+        (static_cast<JavaBatchContainer *>(this->_ac))->setJavaResult(_result);
         _res = _result.get();
         return services::Status();
     }
@@ -73,16 +72,16 @@ public:
 protected:
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE // To make the class non-abstract
     {
-        services::Status s = _result->allocate<double>(_in, (daal::algorithms::Parameter *) (&parameter), 0);
-        _res = _result.get();
+        services::Status s = _result->allocate<double>(_in, (daal::algorithms::Parameter *)(&parameter), 0);
+        _res               = _result.get();
         return services::Status();
     }
 
     virtual JavaBatch * cloneImpl() const DAAL_C11_OVERRIDE { return NULL; }
 };
 
-} // namespace daal::algorithms::covariance
-} // namespace daal::algorithms
+} // namespace covariance
+} // namespace algorithms
 } // namespace daal
 
 #endif

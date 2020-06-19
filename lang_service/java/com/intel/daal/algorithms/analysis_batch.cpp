@@ -18,10 +18,10 @@
 #include <jni.h>
 
 #include "com_intel_daal_algorithms_AnalysisBatch.h"
-#include "daal_defines.h"
-#include "algorithm.h"
+#include "services/daal_defines.h"
+#include "algorithms/algorithm.h"
 #include "daal.h"
-#include "common_helpers_functions.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers_functions.h"
 
 using namespace daal;
 using namespace daal::algorithms;
@@ -32,12 +32,9 @@ using namespace daal::services;
  * Method:    cCompute
  * Signature:(J)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_AnalysisBatch_cCompute
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_AnalysisBatch_cCompute(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    SharedPtr<Analysis<batch> > alg =
-        staticPointerCast<Analysis<batch>, AlgorithmIface>
-            (*(SharedPtr<AlgorithmIface> *)algAddr);
+    SharedPtr<Analysis<batch> > alg = staticPointerCast<Analysis<batch>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
     DAAL_CHECK_THROW(alg->compute());
 }
 
@@ -46,12 +43,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_AnalysisBatch_cCompute
  * Method:    cCheckComputeParams
  * Signature:(J)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_AnalysisBatch_cCheckComputeParams
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_AnalysisBatch_cCheckComputeParams(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    SharedPtr<Analysis<batch> > alg =
-        staticPointerCast<Analysis<batch>, AlgorithmIface>
-            (*(SharedPtr<AlgorithmIface> *)algAddr);
+    SharedPtr<Analysis<batch> > alg = staticPointerCast<Analysis<batch>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
     DAAL_CHECK_THROW(alg->checkComputeParams());
 }
 
@@ -60,8 +54,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_AnalysisBatch_cCheckComput
  * Method:    cDispose
  * Signature:(J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_AnalysisBatch_cDispose
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_AnalysisBatch_cDispose(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    delete(SharedPtr<AlgorithmIface> *)algAddr;
+    delete (SharedPtr<AlgorithmIface> *)algAddr;
 }

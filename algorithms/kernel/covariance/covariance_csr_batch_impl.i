@@ -24,8 +24,8 @@
 #ifndef __COVARIANCE_CSR_BATCH_IMPL_I__
 #define __COVARIANCE_CSR_BATCH_IMPL_I__
 
-#include "covariance_kernel.h"
-#include "covariance_impl.i"
+#include "algorithms/kernel/covariance/covariance_kernel.h"
+#include "algorithms/kernel/covariance/covariance_impl.i"
 
 namespace daal
 {
@@ -35,29 +35,25 @@ namespace covariance
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status CovarianceCSRBatchKernel<algorithmFPType, method, cpu>::compute(
-    NumericTable *dataTable,
-    NumericTable *covTable,
-    NumericTable *meanTable,
-    const Parameter *parameter)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status CovarianceCSRBatchKernel<algorithmFPType, method, cpu>::compute(NumericTable * dataTable, NumericTable * covTable,
+                                                                                 NumericTable * meanTable, const Parameter * parameter)
 {
     algorithmFPType nObservations = 0.0;
 
-    const size_t nFeatures = dataTable->getNumberOfColumns();
-    const size_t nVectors  = dataTable->getNumberOfRows();
-    CSRNumericTableIface *csrDataTable = dynamic_cast<CSRNumericTableIface* >(dataTable);
+    const size_t nFeatures              = dataTable->getNumberOfColumns();
+    const size_t nVectors               = dataTable->getNumberOfRows();
+    CSRNumericTableIface * csrDataTable = dynamic_cast<CSRNumericTableIface *>(dataTable);
 
-    DEFINE_TABLE_BLOCK_EX ( ReadRowsCSR,   dataBlock,         csrDataTable, 0, nVectors );
-    DEFINE_TABLE_BLOCK    ( WriteOnlyRows, sumBlock,          meanTable                 );
-    DEFINE_TABLE_BLOCK    ( WriteOnlyRows, crossProductBlock, covTable                  );
+    DEFINE_TABLE_BLOCK_EX(ReadRowsCSR, dataBlock, csrDataTable, 0, nVectors);
+    DEFINE_TABLE_BLOCK(WriteOnlyRows, sumBlock, meanTable);
+    DEFINE_TABLE_BLOCK(WriteOnlyRows, crossProductBlock, covTable);
 
-    algorithmFPType *sums         = sumBlock.get();
-    algorithmFPType *crossProduct = crossProductBlock.get();
-    algorithmFPType *data         = const_cast<algorithmFPType*>(dataBlock.values());
-    size_t          *colIndices   = dataBlock.cols();
-    size_t          *rowOffsets   = dataBlock.rows();
+    algorithmFPType * sums         = sumBlock.get();
+    algorithmFPType * crossProduct = crossProductBlock.get();
+    algorithmFPType * data         = const_cast<algorithmFPType *>(dataBlock.values());
+    size_t * colIndices            = dataBlock.cols();
+    size_t * rowOffsets            = dataBlock.rows();
 
     services::Status status;
 
@@ -67,8 +63,8 @@ services::Status CovarianceCSRBatchKernel<algorithmFPType, method, cpu>::compute
     status |= prepareCrossProduct<algorithmFPType, cpu>(nFeatures, crossProduct);
     DAAL_CHECK_STATUS_VAR(status);
 
-    status |= updateCSRCrossProductAndSums<algorithmFPType, method, cpu>(nFeatures, nVectors,
-        data, colIndices, rowOffsets, crossProduct, sums, &nObservations);
+    status |= updateCSRCrossProductAndSums<algorithmFPType, method, cpu>(nFeatures, nVectors, data, colIndices, rowOffsets, crossProduct, sums,
+                                                                         &nObservations);
     DAAL_CHECK_STATUS_VAR(status);
 
     const algorithmFPType invNRows = 1.0 / (algorithmFPType)nVectors;
@@ -77,20 +73,19 @@ services::Status CovarianceCSRBatchKernel<algorithmFPType, method, cpu>::compute
         for (size_t j = 0; j < i; j++)
         {
             crossProduct[i * nFeatures + j] -= sums[i] * sums[j] * invNRows;
-            crossProduct[j * nFeatures + i]  = crossProduct[i * nFeatures + j];
+            crossProduct[j * nFeatures + i] = crossProduct[i * nFeatures + j];
         }
         crossProduct[i * nFeatures + i] -= sums[i] * sums[i] * invNRows;
     }
 
-    status |= finalizeCovariance<algorithmFPType, cpu>(nFeatures, nObservations,
-        crossProduct, sums, crossProduct, sums, parameter);
+    status |= finalizeCovariance<algorithmFPType, cpu>(nFeatures, nObservations, crossProduct, sums, crossProduct, sums, parameter);
 
     return status;
 }
 
-} // internal
-} // covariance
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace covariance
+} // namespace algorithms
+} // namespace daal
 
 #endif

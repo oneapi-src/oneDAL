@@ -24,7 +24,7 @@
 #ifndef __ZSCORE_DENSE_DEFAULT_IMPL_I__
 #define __ZSCORE_DENSE_DEFAULT_IMPL_I__
 
-#include "zscore_moments.h"
+#include "algorithms/kernel/normalization/zscore/zscore_moments.h"
 
 namespace daal
 {
@@ -36,15 +36,12 @@ namespace zscore
 {
 namespace internal
 {
-
-template<typename algorithmFPType, CpuType cpu>
-Status ZScoreKernel<algorithmFPType, defaultDense, cpu>::computeMeanVariance_thr
-        (NumericTable& inputTable,
-         algorithmFPType* resultMean,
-         algorithmFPType* resultVariance,
-         const daal::algorithms::Parameter& par)
+template <typename algorithmFPType, CpuType cpu>
+Status ZScoreKernel<algorithmFPType, defaultDense, cpu>::computeMeanVariance_thr(NumericTable & inputTable, algorithmFPType * resultMean,
+                                                                                 algorithmFPType * resultVariance,
+                                                                                 const daal::algorithms::Parameter & par)
 {
-    auto* parameter = static_cast<Parameter<algorithmFPType, defaultDense> *>(const_cast<daal::algorithms::Parameter *>(&par));
+    auto * parameter = static_cast<Parameter<algorithmFPType, defaultDense> *>(const_cast<daal::algorithms::Parameter *>(&par));
     return computeMeansAndVariances(parameter->moments.get(), inputTable, resultMean, resultVariance);
 }
 

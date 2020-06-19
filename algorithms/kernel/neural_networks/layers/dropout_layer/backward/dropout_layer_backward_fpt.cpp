@@ -21,8 +21,8 @@
 //--
 */
 
-#include "dropout_layer_backward_types.h"
-#include "dropout_layer_types.h"
+#include "algorithms/neural_networks/layers/dropout/dropout_layer_backward_types.h"
+#include "algorithms/neural_networks/layers/dropout/dropout_layer_types.h"
 
 namespace daal
 {
@@ -45,12 +45,15 @@ namespace interface1
  * \param[in] parameter %Parameter of the backward dropout layer
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const layers::Parameter *param = static_cast<const layers::Parameter * >(parameter);
-    if (!param->propagateGradient) { return services::Status(); }
+    const layers::Parameter * param = static_cast<const layers::Parameter *>(parameter);
+    if (!param->propagateGradient)
+    {
+        return services::Status();
+    }
     services::Status s;
-    const Input *in = static_cast<const Input *>(input);
+    const Input * in = static_cast<const Input *>(input);
 
     data_management::TensorPtr valueTable = in->get(dropout::auxRetainMask);
 
@@ -63,12 +66,13 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace backward
-}// namespace dropout
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace dropout
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

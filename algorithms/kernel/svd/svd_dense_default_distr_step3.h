@@ -23,7 +23,7 @@
 #ifndef __SVD_DENSE_DEFAULT_DISTR_STEP3__
 #define __SVD_DENSE_DEFAULT_DISTR_STEP3__
 
-#include "svd_types.h"
+#include "algorithms/svd/svd_types.h"
 
 using namespace daal::services;
 
@@ -35,7 +35,6 @@ namespace svd
 {
 namespace interface1
 {
-
 /**
  * Allocates memory to store partial results of the SVD algorithm
  * \param[in] input     Pointer to the input object
@@ -43,7 +42,8 @@ namespace interface1
  * \param[in] method    Algorithm computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status DistributedPartialResultStep3::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT Status DistributedPartialResultStep3::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                           const int method)
 {
     Argument::set(finalResultFromStep3, ResultPtr(new Result()));
     return Status();
@@ -55,15 +55,15 @@ DAAL_EXPORT Status DistributedPartialResultStep3::allocate(const daal::algorithm
  * \param[in]  qCollection  DataCollection of all partial results from step 1 of the SVD algorithm in the distributed processing mode
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status DistributedPartialResultStep3::setPartialResultStorage(data_management::DataCollection *qCollection)
+DAAL_EXPORT Status DistributedPartialResultStep3::setPartialResultStorage(data_management::DataCollection * qCollection)
 {
     size_t qSize = qCollection->size();
-    size_t m = 0;
-    size_t n = 0;
-    for(size_t i = 0 ; i < qSize ; i++)
+    size_t m     = 0;
+    size_t n     = 0;
+    for (size_t i = 0; i < qSize; i++)
     {
-        data_management::NumericTable  *qNT = static_cast<data_management::NumericTable *>((*qCollection)[i].get());
-        m  = qNT->getNumberOfColumns();
+        data_management::NumericTable * qNT = static_cast<data_management::NumericTable *>((*qCollection)[i].get());
+        m                                   = qNT->getNumberOfColumns();
         n += qNT->getNumberOfRows();
     }
     ResultPtr result = services::staticPointerCast<Result, data_management::SerializationIface>(Argument::get(finalResultFromStep3));
@@ -71,9 +71,9 @@ DAAL_EXPORT Status DistributedPartialResultStep3::setPartialResultStorage(data_m
     return result->allocateImpl<algorithmFPType>(m, n);
 }
 
-}// namespace interface1
-}// namespace svd
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace svd
+} // namespace algorithms
+} // namespace daal
 
 #endif

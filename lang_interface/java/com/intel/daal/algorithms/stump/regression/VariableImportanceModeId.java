@@ -16,7 +16,7 @@
 *******************************************************************************/
 
 /**
- * @defgroup stump Stump
+ * @defgroup stump_regression Regression Stump
  * @brief Contains classes to work with the decision stump training algorithm
  * @ingroup regression
  * @{

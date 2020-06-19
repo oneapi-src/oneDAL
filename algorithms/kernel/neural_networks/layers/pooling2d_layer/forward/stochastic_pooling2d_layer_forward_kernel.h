@@ -22,16 +22,16 @@
 #ifndef __STOCHASTIC_POOLING2D_LAYER_FORWARD_KERNEL_H__
 #define __STOCHASTIC_POOLING2D_LAYER_FORWARD_KERNEL_H__
 
-#include "neural_networks/layers/pooling2d/stochastic_pooling2d_layer_forward.h"
-#include "neural_networks/layers/pooling2d/stochastic_pooling2d_layer_forward_types.h"
-#include "pooling2d_layer_internal_parameter.h"
-#include "service_blas.h"
-#include "kernel.h"
-#include "tensor.h"
-#include "service_memory.h"
-#include "service_data_utils.h"
-#include "service_tensor.h"
-#include "service_numeric_table.h"
+#include "algorithms/neural_networks/layers/pooling2d/stochastic_pooling2d_layer_forward.h"
+#include "algorithms/neural_networks/layers/pooling2d/stochastic_pooling2d_layer_forward_types.h"
+#include "algorithms/kernel/neural_networks/layers/pooling2d_layer/pooling2d_layer_internal_parameter.h"
+#include "externals/service_blas.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/tensor.h"
+#include "externals/service_memory.h"
+#include "service/kernel/service_data_utils.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -51,50 +51,36 @@ namespace forward
 {
 namespace internal
 {
-
-
 /**
  *  \brief Kernel for forward pooling layer results computation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class PoolingKernel : public Kernel
 {
 public:
     /* Computes the results of forward batch normalization layer */
-    services::Status compute(const Tensor &dataTensor, Tensor &valueTensor,
-                 Tensor *selectedPosTensor, const stochastic_pooling2d::Parameter &parameter, engines::BatchBase &engine);
+    services::Status compute(const Tensor & dataTensor, Tensor & valueTensor, Tensor * selectedPosTensor,
+                             const stochastic_pooling2d::Parameter & parameter, engines::BatchBase & engine);
 
 private:
     algorithmFPType invIntMaxVal;
 
-    inline void computeWeightedAverage(
-    const algorithmFPType *dataSlice,
-    DAAL_INT f,
-    DAAL_INT s,
-    algorithmFPType *kernelWeights,
-    pooling2d::internal::Parameter &par,
-    algorithmFPType &value);
+    inline void computeWeightedAverage(const algorithmFPType * dataSlice, DAAL_INT f, DAAL_INT s, algorithmFPType * kernelWeights,
+                                       pooling2d::internal::Parameter & par, algorithmFPType & value);
 
-    inline void getMultivariateRandomDataValue(
-    const algorithmFPType *dataSlice,
-    DAAL_INT f,
-    DAAL_INT s,
-    algorithmFPType *weights,
-    size_t nWeights,
-    pooling2d::internal::Parameter &par,
-    algorithmFPType &value,
-    int &selectedPos);
+    inline void getMultivariateRandomDataValue(const algorithmFPType * dataSlice, DAAL_INT f, DAAL_INT s, algorithmFPType * weights, size_t nWeights,
+                                               pooling2d::internal::Parameter & par, algorithmFPType & value, int & selectedPos);
 
-    inline size_t getMultinomialRandomValue(algorithmFPType *weights, size_t nWeights, const int uniformRandVal);
-    Status getUniformRandFrom0to1(int* uniformRand, const size_t nUniformRand, engines::BatchBase &engine);
+    inline size_t getMultinomialRandomValue(algorithmFPType * weights, size_t nWeights, const int uniformRandVal);
+    Status getUniformRandFrom0to1(int * uniformRand, const size_t nUniformRand, engines::BatchBase & engine);
 };
 
-} // internal
-} // forward
-} // stochastic_pooling2d
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace forward
+} // namespace stochastic_pooling2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

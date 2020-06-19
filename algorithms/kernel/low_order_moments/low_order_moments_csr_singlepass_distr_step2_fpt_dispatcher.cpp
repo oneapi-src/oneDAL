@@ -21,13 +21,13 @@
 //--
 */
 
-#include "low_order_moments_container.h"
+#include "algorithms/kernel/low_order_moments/low_order_moments_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(low_order_moments::DistributedContainer, distributed,    \
-    step2Master, DAAL_FPTYPE, low_order_moments::singlePassCSR)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(low_order_moments::DistributedContainer, distributed, step2Master, DAAL_FPTYPE,
+                                      low_order_moments::singlePassCSR)
 }
-}
+} // namespace daal

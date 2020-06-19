@@ -19,14 +19,14 @@
 //  Implementation of logloss calculation algorithm container.
 //--
 
-
-#include "logistic_loss_dense_default_batch_container_v1.h"
+#include "algorithms/kernel/objective_function/logistic_loss/inner/logistic_loss_dense_default_batch_container_v1.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(optimization_solver::logistic_loss::interface1::BatchContainer, batch, DAAL_FPTYPE, optimization_solver::logistic_loss::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(optimization_solver::logistic_loss::interface1::BatchContainer, batch, DAAL_FPTYPE,
+                                      optimization_solver::logistic_loss::defaultDense)
 
 namespace optimization_solver
 {
@@ -36,7 +36,7 @@ namespace interface1
 {
 using BatchType = Batch<DAAL_FPTYPE, optimization_solver::logistic_loss::defaultDense>;
 
-template<>
+template <>
 services::SharedPtr<BatchType> BatchType::create(size_t numberOfTerms)
 {
     return services::SharedPtr<BatchType>(new BatchType(numberOfTerms));

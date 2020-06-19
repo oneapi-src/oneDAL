@@ -25,11 +25,11 @@
 #ifndef __LINEAR_MODEL_PREDICT_KERNEL_H__
 #define __LINEAR_MODEL_PREDICT_KERNEL_H__
 
-#include "linear_model_predict.h"
-#include "service_memory.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "service_blas.h"
+#include "algorithms/linear_model/linear_model_predict.h"
+#include "externals/service_memory.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "externals/service_blas.h"
 
 using namespace daal::data_management;
 
@@ -43,7 +43,6 @@ namespace prediction
 {
 namespace internal
 {
-
 template <typename algorithmFpType, prediction::Method method, CpuType cpu>
 class PredictKernel : public daal::algorithms::Kernel
 {
@@ -55,27 +54,26 @@ public:
      *  \param m[in]    Linear regression model obtained on training stage
      *  \param r[out]   Prediction results
      */
-    services::Status compute(const NumericTable *a, const linear_model::Model *m, NumericTable *r);
+    services::Status compute(const NumericTable * a, const linear_model::Model * m, NumericTable * r);
 };
 
 template <typename algorithmFpType, CpuType cpu>
 class PredictKernel<algorithmFpType, defaultDense, cpu> : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(const NumericTable *a, const linear_model::Model *m, NumericTable *r);
+    services::Status compute(const NumericTable * a, const linear_model::Model * m, NumericTable * r);
 
 protected:
-    void computeBlockOfResponses(DAAL_INT *numFeatures, DAAL_INT *numRows, const algorithmFpType *dataBlock,
-                                 DAAL_INT *numBetas, const algorithmFpType *beta,
-                                 DAAL_INT *numResponses, algorithmFpType *responseBlock, bool findBeta0);
+    void computeBlockOfResponses(DAAL_INT * numFeatures, DAAL_INT * numRows, const algorithmFpType * dataBlock, DAAL_INT * numBetas,
+                                 const algorithmFpType * beta, DAAL_INT * numResponses, algorithmFpType * responseBlock, bool findBeta0);
 
     static const size_t _numRowsInBlock = 256;
 };
 
 } // namespace internal
-}
-}
-}
+} // namespace prediction
+} // namespace linear_model
+} // namespace algorithms
 } // namespace daal
 
 #endif

@@ -22,8 +22,8 @@
 //--
 */
 
-#include "brownboost_predict.h"
-#include "brownboost_predict_kernel.h"
+#include "algorithms/boosting/brownboost_predict.h"
+#include "algorithms/kernel/brownboost/brownboost_predict_kernel.h"
 
 namespace daal
 {
@@ -35,35 +35,35 @@ namespace prediction
 {
 namespace interface2
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::BrownBoostPredictKernel, method, algorithmFPType);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    classifier::prediction::Result *result = static_cast<classifier::prediction::Result *>(_res);
-    classifier::prediction::Input *input = static_cast<classifier::prediction::Input *>(_in);
+    classifier::prediction::Result * result = static_cast<classifier::prediction::Result *>(_res);
+    classifier::prediction::Input * input   = static_cast<classifier::prediction::Input *>(_in);
 
-    NumericTablePtr a = input->get(classifier::prediction::data);
-    brownboost::Model *m = static_cast<brownboost::Model *>(input->get(classifier::prediction::model).get());
-    NumericTablePtr r = result->get(classifier::prediction::prediction);
-    brownboost::Parameter *par = static_cast<brownboost::Parameter *>(_par);
+    NumericTablePtr a           = input->get(classifier::prediction::data);
+    brownboost::Model * m       = static_cast<brownboost::Model *>(input->get(classifier::prediction::model).get());
+    NumericTablePtr r           = result->get(classifier::prediction::prediction);
+    brownboost::Parameter * par = static_cast<brownboost::Parameter *>(_par);
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
     __DAAL_CALL_KERNEL(env, internal::BrownBoostPredictKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, m, r, par);
 }
-}
+} // namespace interface2
 
-} // namespace daal::algorithms::brownboost::prediction
-}
-}
+} // namespace prediction
+} // namespace brownboost
+} // namespace algorithms
 } // namespace daal

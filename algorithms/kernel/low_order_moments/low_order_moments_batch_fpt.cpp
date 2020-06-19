@@ -21,7 +21,7 @@
 //--
 */
 
-#include "moments_batch.h"
+#include "algorithms/kernel/low_order_moments/moments_batch.h"
 
 namespace daal
 {
@@ -29,10 +29,11 @@ namespace algorithms
 {
 namespace low_order_moments
 {
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                                    const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult * input, daal::algorithms::Parameter * par,
+                                                                    const int method);
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult *input, daal::algorithms::Parameter *par, const int method);
-
-}// namespace low_order_moments
-}// namespace algorithms
-}// namespace daal
+} // namespace low_order_moments
+} // namespace algorithms
+} // namespace daal

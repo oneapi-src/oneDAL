@@ -20,11 +20,11 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_classifier_quality_metric_binary_confusion_matrix_BinaryConfusionMatrixResult.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_classifier_quality_metric_binary_confusion_matrix_BinaryConfusionMatrixResultId.h"
 #define ConfusionMatrix com_intel_daal_algorithms_classifier_quality_metric_binary_confusion_matrix_BinaryConfusionMatrixResultId_ConfusionMatrix
-#define BinaryMetrics com_intel_daal_algorithms_classifier_quality_metric_binary_confusion_matrix_BinaryConfusionMatrixResultId_BinaryMetrics
+#define BinaryMetrics   com_intel_daal_algorithms_classifier_quality_metric_binary_confusion_matrix_BinaryConfusionMatrixResultId_BinaryMetrics
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::classifier::quality_metric;
@@ -35,9 +35,11 @@ using namespace daal::algorithms::classifier::quality_metric::binary_confusion_m
  * Method:    cSetResultTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void
-JNICALL Java_com_intel_daal_algorithms_classifier_quality_1metric_binary_1confusion_1matrix_BinaryConfusionMatrixResult_cSetResultTable
-(JNIEnv *, jobject, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL
+    Java_com_intel_daal_algorithms_classifier_quality_1metric_binary_1confusion_1matrix_BinaryConfusionMatrixResult_cSetResultTable(JNIEnv *, jobject,
+                                                                                                                                    jlong resAddr,
+                                                                                                                                    jint id,
+                                                                                                                                    jlong ntAddr)
 {
     jniArgument<binary_confusion_matrix::Result>::set<binary_confusion_matrix::ResultId, NumericTable>(resAddr, id, ntAddr);
 }
@@ -47,25 +49,25 @@ JNICALL Java_com_intel_daal_algorithms_classifier_quality_1metric_binary_1confus
  * Method:    cGetResultTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong
-JNICALL Java_com_intel_daal_algorithms_classifier_quality_1metric_binary_1confusion_1matrix_BinaryConfusionMatrixResult_cGetResultTable
-(JNIEnv *, jobject, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL
+    Java_com_intel_daal_algorithms_classifier_quality_1metric_binary_1confusion_1matrix_BinaryConfusionMatrixResult_cGetResultTable(JNIEnv *, jobject,
+                                                                                                                                    jlong resAddr,
+                                                                                                                                    jint id)
 {
     if (id == ConfusionMatrix)
     {
         return jniArgument<binary_confusion_matrix::Result>::get<binary_confusion_matrix::ResultId, NumericTable>(resAddr, confusionMatrix);
-    } else if (id == BinaryMetrics)
+    }
+    else if (id == BinaryMetrics)
     {
         return jniArgument<binary_confusion_matrix::Result>::get<binary_confusion_matrix::ResultId, NumericTable>(resAddr, binaryMetrics);
     }
 
     return (jlong)0;
-
 }
 
 JNIEXPORT jlong JNICALL
-Java_com_intel_daal_algorithms_classifier_quality_1metric_binary_1confusion_1matrix_BinaryConfusionMatrixResult_cNewResult
-(JNIEnv *, jobject)
+    Java_com_intel_daal_algorithms_classifier_quality_1metric_binary_1confusion_1matrix_BinaryConfusionMatrixResult_cNewResult(JNIEnv *, jobject)
 {
     return jniArgument<binary_confusion_matrix::Result>::newObj();
 }

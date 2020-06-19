@@ -21,7 +21,7 @@
 //--
 */
 
-#include "implicit_als_model.h"
+#include "algorithms/implicit_als/implicit_als_model.h"
 
 namespace daal
 {
@@ -29,26 +29,31 @@ namespace algorithms
 {
 namespace implicit_als
 {
-
-template<typename modelFPType>
-DAAL_EXPORT Model::Model(size_t nUsers, size_t nItems, const Parameter &parameter, modelFPType dummy)
+template <typename modelFPType>
+DAAL_EXPORT Model::Model(size_t nUsers, size_t nItems, const Parameter & parameter, modelFPType dummy)
 {
     const size_t nFactors = parameter.nFactors;
     _usersFactors.reset(new data_management::HomogenNumericTable<modelFPType>(nFactors, nUsers, data_management::NumericTableIface::doAllocate, 0));
     _itemsFactors.reset(new data_management::HomogenNumericTable<modelFPType>(nFactors, nItems, data_management::NumericTableIface::doAllocate, 0));
 }
 
-template<typename modelFPType>
-DAAL_EXPORT Model::Model(size_t nUsers, size_t nItems, const Parameter &parameter, modelFPType dummy, services::Status &st)
+template <typename modelFPType>
+DAAL_EXPORT Model::Model(size_t nUsers, size_t nItems, const Parameter & parameter, modelFPType dummy, services::Status & st)
 {
     using namespace daal::data_management;
     const size_t nFactors = parameter.nFactors;
 
     _usersFactors = HomogenNumericTable<modelFPType>::create(nFactors, nUsers, NumericTableIface::doAllocate, 0, &st);
-    if (!st) { return; }
+    if (!st)
+    {
+        return;
+    }
 
     _itemsFactors = HomogenNumericTable<modelFPType>::create(nFactors, nItems, NumericTableIface::doAllocate, 0, &st);
-    if (!st) { return; }
+    if (!st)
+    {
+        return;
+    }
 }
 
 /**
@@ -58,19 +63,16 @@ DAAL_EXPORT Model::Model(size_t nUsers, size_t nItems, const Parameter &paramete
  * \param[in]  parameter Implicit ALS parameters
  * \param[out] stat      Status of the model construction
  */
-template<typename modelFPType>
-DAAL_EXPORT ModelPtr Model::create(size_t nUsers, size_t nItems,
-                                   const Parameter &parameter,
-                                   services::Status *stat)
+template <typename modelFPType>
+DAAL_EXPORT ModelPtr Model::create(size_t nUsers, size_t nItems, const Parameter & parameter, services::Status * stat)
 {
     DAAL_DEFAULT_CREATE_IMPL_EX(Model, nUsers, nItems, parameter, (modelFPType)0 /* dummy */);
 }
 
-template DAAL_EXPORT Model::Model(size_t, size_t, const Parameter&, DAAL_FPTYPE);
-template DAAL_EXPORT Model::Model(size_t, size_t, const Parameter&, DAAL_FPTYPE, services::Status&);
-template DAAL_EXPORT ModelPtr Model::create<DAAL_FPTYPE>(size_t, size_t,
-                                                         const Parameter&, services::Status*);
+template DAAL_EXPORT Model::Model(size_t, size_t, const Parameter &, DAAL_FPTYPE);
+template DAAL_EXPORT Model::Model(size_t, size_t, const Parameter &, DAAL_FPTYPE, services::Status &);
+template DAAL_EXPORT ModelPtr Model::create<DAAL_FPTYPE>(size_t, size_t, const Parameter &, services::Status *);
 
-}// namespace implicit_als
-}// namespace algorithms
-}// namespace daal
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal

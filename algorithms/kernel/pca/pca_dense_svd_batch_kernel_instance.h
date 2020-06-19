@@ -21,9 +21,9 @@
 //--
 */
 
-#include "pca_dense_svd_batch_kernel.h"
-#include "pca_dense_svd_batch_impl.i"
-#include "pca/inner/pca_types_v2.h"
+#include "algorithms/kernel/pca/pca_dense_svd_batch_kernel.h"
+#include "algorithms/kernel/pca/pca_dense_svd_batch_impl.i"
+#include "algorithms/kernel/pca/inner/pca_types_v2.h"
 
 namespace daal
 {
@@ -37,7 +37,7 @@ template class PCASVDBatchKernel<DAAL_FPTYPE, interface2::BatchParameter<DAAL_FP
 
 template class PCASVDBatchKernel<DAAL_FPTYPE, interface3::BatchParameter<DAAL_FPTYPE, pca::svdDense>, DAAL_CPU>;
 
-}
-}
-}
-}
+} // namespace internal
+} // namespace pca
+} // namespace algorithms
+} // namespace daal

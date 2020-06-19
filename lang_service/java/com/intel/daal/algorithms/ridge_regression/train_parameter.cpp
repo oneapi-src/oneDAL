@@ -29,10 +29,10 @@ using namespace daal::data_management;
  * Method:    cSetRidgeParameters
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_ridge_1regression_TrainParameter_cSetRidgeParameters
-(JNIEnv * env, jobject thisObj, jlong parAddr, jlong cRidgeParameters)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_ridge_1regression_TrainParameter_cSetRidgeParameters(JNIEnv * env, jobject thisObj,
+                                                                                                           jlong parAddr, jlong cRidgeParameters)
 {
-    SerializationIfacePtr * const ntShPtr = (SerializationIfacePtr *)cRidgeParameters;
+    SerializationIfacePtr * const ntShPtr                          = (SerializationIfacePtr *)cRidgeParameters;
     ((ridge_regression::TrainParameter *)parAddr)->ridgeParameters = staticPointerCast<NumericTable, SerializationIface>(*ntShPtr);
 }
 
@@ -41,10 +41,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_ridge_1regression_TrainPar
  * Method:    cGetRidgeParameters
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_ridge_1regression_TrainParameter_cGetRidgeParameters
-(JNIEnv * env, jobject thisObj, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_ridge_1regression_TrainParameter_cGetRidgeParameters(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong parAddr)
 {
     NumericTablePtr * const ntShPtr = new NumericTablePtr();
-    *ntShPtr = ((ridge_regression::TrainParameter *)parAddr)->ridgeParameters;
+    *ntShPtr                        = ((ridge_regression::TrainParameter *)parAddr)->ridgeParameters;
     return (jlong)ntShPtr;
 }

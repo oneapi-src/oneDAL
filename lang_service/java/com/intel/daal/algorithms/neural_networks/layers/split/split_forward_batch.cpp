@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::neural_networks::layers;
@@ -30,11 +30,10 @@ using namespace daal::algorithms::neural_networks::layers;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitForwardBatch_cInit
-  (JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitForwardBatch_cInit(JNIEnv * env, jobject thisObj, jint prec,
+                                                                                                             jint method)
 {
-    return jniBatch<split::Method, split::forward::Batch, split::defaultDense>::
-        newObj(prec, method);
+    return jniBatch<split::Method, split::forward::Batch, split::defaultDense>::newObj(prec, method);
 }
 
 /*
@@ -42,11 +41,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitForwardBatch_cInitParameter
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitForwardBatch_cInitParameter(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong algAddr, jint prec,
+                                                                                                                      jint method)
 {
-    return jniBatch<split::Method, split::forward::Batch, split::defaultDense>::
-        getParameter(prec, method, algAddr);
+    return jniBatch<split::Method, split::forward::Batch, split::defaultDense>::getParameter(prec, method, algAddr);
 }
 
 /*
@@ -54,11 +53,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitForwardBatch_cGetInput
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitForwardBatch_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                                 jlong algAddr, jint prec,
+                                                                                                                 jint method)
 {
-    return jniBatch<split::Method, split::forward::Batch, split::defaultDense>::
-        getInput(prec, method, algAddr);
+    return jniBatch<split::Method, split::forward::Batch, split::defaultDense>::getInput(prec, method, algAddr);
 }
 
 /*
@@ -66,11 +65,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitForwardBatch_cGetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitForwardBatch_cGetResult(JNIEnv * env, jobject thisObj,
+                                                                                                                  jlong algAddr, jint prec,
+                                                                                                                  jint method)
 {
-    return jniBatch<split::Method, split::forward::Batch, split::defaultDense>::
-        getResult(prec, method, algAddr);
+    return jniBatch<split::Method, split::forward::Batch, split::defaultDense>::getResult(prec, method, algAddr);
 }
 
 /*
@@ -78,11 +77,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_s
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitForwardBatch_cSetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitForwardBatch_cSetResult(JNIEnv * env, jobject thisObj,
+                                                                                                                 jlong algAddr, jint prec,
+                                                                                                                 jint method, jlong resAddr)
 {
-    jniBatch<split::Method, split::forward::Batch, split::defaultDense>::
-        setResult<split::forward::Result>(prec, method, algAddr, resAddr);
+    jniBatch<split::Method, split::forward::Batch, split::defaultDense>::setResult<split::forward::Result>(prec, method, algAddr, resAddr);
 }
 
 /*
@@ -90,9 +89,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_sp
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitForwardBatch_cClone
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_split_SplitForwardBatch_cClone(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<split::Method, split::forward::Batch, split::defaultDense>::
-        getClone(prec, method, algAddr);
+    return jniBatch<split::Method, split::forward::Batch, split::defaultDense>::getClone(prec, method, algAddr);
 }

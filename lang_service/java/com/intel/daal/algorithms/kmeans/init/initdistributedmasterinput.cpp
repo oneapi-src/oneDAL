@@ -20,7 +20,7 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_kmeans_init_InitDistributedStep2MasterInput.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::kmeans::init;
@@ -30,8 +30,9 @@ using namespace daal::algorithms::kmeans::init;
  * Method:    cAddInput
  * Signature: (JIJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep2MasterInput_cAddInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong partialResultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_init_InitDistributedStep2MasterInput_cAddInput(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong inputAddr, jint id,
+                                                                                                            jlong partialResultAddr)
 {
     jniInput<DistributedStep2MasterInput>::add<DistributedStep2MasterInputId, kmeans::init::PartialResult>(inputAddr, id, partialResultAddr);
 }

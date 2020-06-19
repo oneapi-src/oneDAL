@@ -21,7 +21,7 @@
 //--
 */
 
-#include "pca_quality_metric.h"
+#include "algorithms/kernel/pca/metrics/pca_quality_metric.h"
 
 namespace daal
 {
@@ -33,8 +33,8 @@ namespace quality_metric
 {
 namespace explained_variance
 {
-
-template services::Status DAAL_EXPORT Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+template services::Status DAAL_EXPORT Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                                    const int method);
 
 } // namespace explained_variance
 } // namespace quality_metric

@@ -19,15 +19,14 @@
 //  Declaration of template function that calculate logloss.
 //--
 
-
 #ifndef __LOGISTIC_LOSS_DENSE_DEFAULT_BATCH_KERNEL_V1_H__
 #define __LOGISTIC_LOSS_DENSE_DEFAULT_BATCH_KERNEL_V1_H__
 
-#include "logistic_loss_batch.h"
-#include "kernel.h"
-#include "service_numeric_table.h"
-#include "service_blas.h"
-#include "numeric_table.h"
+#include "algorithms/optimization_solver/objective_function/logistic_loss_batch.h"
+#include "algorithms/kernel/kernel.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_blas.h"
+#include "data_management/data/numeric_table.h"
 
 namespace daal
 {
@@ -39,28 +38,29 @@ namespace logistic_loss
 {
 namespace internal
 {
-
 using namespace daal::data_management;
 using namespace daal::internal;
 using namespace daal::services;
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class I1LogLossKernel : public Kernel
 {
 public:
-    services::Status compute(NumericTable *data, NumericTable *dependentVariables, NumericTable *argument,
-                          NumericTable *value, NumericTable *hessian, NumericTable *gradient, NumericTable *nonSmoothTermValue, NumericTable *proximalProjection, NumericTable *lipschitzConstant,interface1::Parameter *parameter);
-    static void applyBeta(const algorithmFPType* x, const algorithmFPType* beta, algorithmFPType* xb, size_t nRows, size_t nCols, bool bIntercept);
-    static void applyBetaThreaded(const algorithmFPType* x, const algorithmFPType* beta, algorithmFPType* xb, size_t nRows, size_t nCols, bool bIntercept);
-    static void sigmoid(const algorithmFPType* f, algorithmFPType* s, size_t n);
+    services::Status compute(NumericTable * data, NumericTable * dependentVariables, NumericTable * argument, NumericTable * value,
+                             NumericTable * hessian, NumericTable * gradient, NumericTable * nonSmoothTermValue, NumericTable * proximalProjection,
+                             NumericTable * lipschitzConstant, interface1::Parameter * parameter);
+    static void applyBeta(const algorithmFPType * x, const algorithmFPType * beta, algorithmFPType * xb, size_t nRows, size_t nCols, bool bIntercept);
+    static void applyBetaThreaded(const algorithmFPType * x, const algorithmFPType * beta, algorithmFPType * xb, size_t nRows, size_t nCols,
+                                  bool bIntercept);
+    static void sigmoid(const algorithmFPType * f, algorithmFPType * s, size_t n);
 
 protected:
-    services::Status doCompute(const algorithmFPType* x, const algorithmFPType* y,
-        size_t n, size_t p, NumericTable *betaNT, NumericTable *valueNT,
-        NumericTable *hessianNT, NumericTable *gradientNT, NumericTable *nonSmoothTermValue, NumericTable *proximalProjection, NumericTable *lipschitzConstant, interface1::Parameter *parameter);
+    services::Status doCompute(const algorithmFPType * x, const algorithmFPType * y, size_t n, size_t p, NumericTable * betaNT,
+                               NumericTable * valueNT, NumericTable * hessianNT, NumericTable * gradientNT, NumericTable * nonSmoothTermValue,
+                               NumericTable * proximalProjection, NumericTable * lipschitzConstant, interface1::Parameter * parameter);
 };
 
-} // namespace daal::internal
+} // namespace internal
 
 } // namespace logistic_loss
 

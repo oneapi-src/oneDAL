@@ -21,9 +21,9 @@
 
 #include "com_intel_daal_algorithms_implicit_als_training_init_InitResult.h"
 
-#include "implicit_als_init_defines.i"
+#include "lang_service/java/com/intel/daal/algorithms/implicit_als/implicit_als_init_defines.i"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::implicit_als;
@@ -34,8 +34,7 @@ using namespace daal::algorithms::implicit_als::training::init;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitResult_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitResult_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<implicit_als::training::init::Result>::newObj();
 }
@@ -45,13 +44,13 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_in
  * Method:    cGetResultModel
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitResult_cGetResultModel
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitResult_cGetResultModel(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong resAddr, jint id)
 {
     if (id == initModelId)
     {
-        return jniArgument<implicit_als::training::init::Result>::
-            get<training::init::ResultId, implicit_als::Model>(resAddr, training::init::ResultId::model);
+        return jniArgument<implicit_als::training::init::Result>::get<training::init::ResultId, implicit_als::Model>(resAddr,
+                                                                                                                     training::init::ResultId::model);
     }
 
     return (jlong)0;
@@ -62,12 +61,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_in
  * Method:    cSetResultModel
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitResult_cSetResultModel
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong mdlAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitResult_cSetResultModel(JNIEnv * env, jobject thisObj,
+                                                                                                             jlong resAddr, jint id, jlong mdlAddr)
 {
     if (id == initModelId)
     {
-        jniArgument<implicit_als::training::init::Result>::
-            set<training::init::ResultId, implicit_als::Model>(resAddr, training::init::ResultId::model, mdlAddr);
+        jniArgument<implicit_als::training::init::Result>::set<training::init::ResultId, implicit_als::Model>(
+            resAddr, training::init::ResultId::model, mdlAddr);
     }
 }

@@ -20,15 +20,14 @@
 
 #include <jni.h>
 
-#include "java_numeric_table.h"
-#include "common_defines.i"
+#include "lang_service/java/com/intel/daal/data_management/data/java_numeric_table.h"
+#include "lang_service/java/com/intel/daal/include/common_defines.i"
 
 using namespace daal::data_management;
 
 namespace daal
 {
-
-void JavaNumericTableBase::setJavaVM(JavaVM *jvm)
+void JavaNumericTableBase::setJavaVM(JavaVM * jvm)
 {
     if (globalJavaVM == NULL)
     {
@@ -41,7 +40,7 @@ void JavaNumericTableBase::setJavaVM(JavaVM *jvm)
     }
 }
 
-JavaVM* JavaNumericTableBase::getJavaVM()
+JavaVM * JavaNumericTableBase::getJavaVM()
 {
     return globalJavaVM;
 }
@@ -62,12 +61,12 @@ template class JavaNumericTable<SERIALIZATION_JAVANIO_SOA_NT_ID>;
 template class JavaNumericTable<SERIALIZATION_JAVANIO_PACKEDSYMMETRIC_NT_ID>;
 template class JavaNumericTable<SERIALIZATION_JAVANIO_PACKEDTRIANGULAR_NT_ID>;
 
-IMPLEMENT_SERIALIZABLE_TAGT(JavaNumericTable,SERIALIZATION_JAVANIO_CSR_NT_ID);
-IMPLEMENT_SERIALIZABLE_TAGT(JavaNumericTable,SERIALIZATION_JAVANIO_HOMOGEN_NT_ID);
-IMPLEMENT_SERIALIZABLE_TAGT(JavaNumericTable,SERIALIZATION_JAVANIO_AOS_NT_ID);
-IMPLEMENT_SERIALIZABLE_TAGT(JavaNumericTable,SERIALIZATION_JAVANIO_SOA_NT_ID);
-IMPLEMENT_SERIALIZABLE_TAGT(JavaNumericTable,SERIALIZATION_JAVANIO_PACKEDSYMMETRIC_NT_ID);
-IMPLEMENT_SERIALIZABLE_TAGT(JavaNumericTable,SERIALIZATION_JAVANIO_PACKEDTRIANGULAR_NT_ID);
+IMPLEMENT_SERIALIZABLE_TAGT(JavaNumericTable, SERIALIZATION_JAVANIO_CSR_NT_ID);
+IMPLEMENT_SERIALIZABLE_TAGT(JavaNumericTable, SERIALIZATION_JAVANIO_HOMOGEN_NT_ID);
+IMPLEMENT_SERIALIZABLE_TAGT(JavaNumericTable, SERIALIZATION_JAVANIO_AOS_NT_ID);
+IMPLEMENT_SERIALIZABLE_TAGT(JavaNumericTable, SERIALIZATION_JAVANIO_SOA_NT_ID);
+IMPLEMENT_SERIALIZABLE_TAGT(JavaNumericTable, SERIALIZATION_JAVANIO_PACKEDSYMMETRIC_NT_ID);
+IMPLEMENT_SERIALIZABLE_TAGT(JavaNumericTable, SERIALIZATION_JAVANIO_PACKEDTRIANGULAR_NT_ID);
 
 } // namespace daal
 

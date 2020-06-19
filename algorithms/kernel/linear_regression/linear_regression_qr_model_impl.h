@@ -26,8 +26,8 @@
 #define __LINEAR_REGRESSION_QR_MODEL_IMPL_H__
 
 #include "algorithms/linear_regression/linear_regression_qr_model.h"
-#include "linear_model_model_impl.h"
-#include "linear_regression_model_impl.h"
+#include "algorithms/kernel/linear_model/linear_model_model_impl.h"
+#include "algorithms/kernel/linear_regression/linear_regression_model_impl.h"
 
 namespace daal
 {
@@ -55,7 +55,7 @@ public:
      * \param[in] dummy   Dummy variable for the templated constructor
      */
     template <typename modelFPType>
-    ModelQRInternal(size_t featnum, size_t nrhs, const linear_regression::Parameter &par, modelFPType dummy, Status &st);
+    ModelQRInternal(size_t featnum, size_t nrhs, const linear_regression::Parameter & par, modelFPType dummy, Status & st);
 
     ModelQRInternal() {}
 
@@ -83,8 +83,8 @@ protected:
     NumericTablePtr _rTable;
     NumericTablePtr _qtyTable;
 
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         super::serialImpl<Archive, onDeserialize>(arch);
 
@@ -95,8 +95,7 @@ protected:
     }
 };
 
-class ModelQRImpl : public linear_regression::ModelQR,
-                    public ModelQRInternal
+class ModelQRImpl : public linear_regression::ModelQR, public ModelQRInternal
 {
 public:
     typedef ModelQRInternal ImplType;
@@ -109,8 +108,8 @@ public:
      * \param[in] dummy   Dummy variable for the templated constructor
      */
     template <typename modelFPType>
-    ModelQRImpl(size_t featnum, size_t nrhs, const linear_regression::Parameter &par, modelFPType dummy, Status &st) :
-        ImplType(featnum, nrhs, par, dummy, st)
+    ModelQRImpl(size_t featnum, size_t nrhs, const linear_regression::Parameter & par, modelFPType dummy, Status & st)
+        : ImplType(featnum, nrhs, par, dummy, st)
     {}
 
     ModelQRImpl() {}
@@ -139,13 +138,13 @@ public:
      * Returns the number of regression coefficients
      * \return Number of regression coefficients
      */
-    size_t getNumberOfBetas() const DAAL_C11_OVERRIDE  { return ImplType::getNumberOfBetas(); }
+    size_t getNumberOfBetas() const DAAL_C11_OVERRIDE { return ImplType::getNumberOfBetas(); }
 
     /**
      * Returns the number of responses in the training data set
      * \return Number of responses in the training data set
      */
-    size_t getNumberOfResponses() const DAAL_C11_OVERRIDE  { return ImplType::getNumberOfResponses(); }
+    size_t getNumberOfResponses() const DAAL_C11_OVERRIDE { return ImplType::getNumberOfResponses(); }
 
     /**
      * Returns true if the regression model contains the intercept term, and false otherwise
@@ -166,15 +165,14 @@ public:
     data_management::NumericTablePtr getBeta() DAAL_C11_OVERRIDE { return ImplType::getBeta(); }
 
 protected:
-
-    services::Status serializeImpl(InputDataArchive  *arch) DAAL_C11_OVERRIDE
+    services::Status serializeImpl(InputDataArchive * arch) DAAL_C11_OVERRIDE
     {
         ImplType::serialImpl<InputDataArchive, false>(arch);
 
         return services::Status();
     }
 
-    services::Status deserializeImpl(const OutputDataArchive *arch) DAAL_C11_OVERRIDE
+    services::Status deserializeImpl(const OutputDataArchive * arch) DAAL_C11_OVERRIDE
     {
         ImplType::serialImpl<const OutputDataArchive, true>(arch);
 
@@ -182,8 +180,8 @@ protected:
     }
 };
 
-}
-}
-}
-}
+} // namespace internal
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal
 #endif

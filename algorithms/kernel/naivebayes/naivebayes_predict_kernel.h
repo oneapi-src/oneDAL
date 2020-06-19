@@ -24,10 +24,10 @@
 #ifndef _NAIVEBAYES_ASSIGN_FPK_H
 #define _NAIVEBAYES_ASSIGN_FPK_H
 
-#include "multinomial_naive_bayes_model.h"
-#include "multinomial_naive_bayes_predict_types.h"
-#include "kernel.h"
-#include "numeric_table.h"
+#include "algorithms/naive_bayes/multinomial_naive_bayes_model.h"
+#include "algorithms/naive_bayes/multinomial_naive_bayes_predict_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;
 
@@ -41,13 +41,12 @@ namespace prediction
 {
 namespace internal
 {
-
 template <typename intFPtype, Method method, CpuType cpu>
 class NaiveBayesPredictKernel : public Kernel
 {
 public:
-    services::Status compute(const NumericTable *a, const Model *m, NumericTable *r, const multinomial_naive_bayes::interface1::Parameter *par);
-    services::Status compute(const NumericTable *a, const Model *m, NumericTable *r, const Parameter *par);
+    services::Status compute(const NumericTable * a, const Model * m, NumericTable * r, const multinomial_naive_bayes::interface1::Parameter * par);
+    services::Status compute(const NumericTable * a, const Model * m, NumericTable * r, const Parameter * par);
 };
 
 } // namespace internal

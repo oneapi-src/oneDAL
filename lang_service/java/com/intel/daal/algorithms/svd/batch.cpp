@@ -19,7 +19,7 @@
 
 #include "com_intel_daal_algorithms_svd_Batch.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::svd;
@@ -29,8 +29,7 @@ using namespace daal::algorithms::svd;
  * Method:    cInit
  * Signature:(II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Batch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Batch_cInit(JNIEnv * env, jobject thisObj, jint prec, jint method)
 {
     return jniBatch<svd::Method, Batch, defaultDense>::newObj(prec, method);
 }
@@ -40,8 +39,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Batch_cInit
  * Method:    cInitParameter
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Batch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Batch_cInitParameter(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<svd::Method, Batch, defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -51,8 +49,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Batch_cInitParameter
  * Method:    cGetInput
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Batch_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Batch_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<svd::Method, Batch, defaultDense>::getInput(prec, method, algAddr);
 }
@@ -62,8 +59,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Batch_cGetInput
  * Method:    cGetResult
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Batch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Batch_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<svd::Method, Batch, defaultDense>::getResult(prec, method, algAddr);
 }
@@ -73,8 +69,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Batch_cGetResult
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_Batch_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_Batch_cSetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method,
+                                                                           jlong resultAddr)
 {
     jniBatch<svd::Method, Batch, defaultDense>::setResult<svd::Result>(prec, method, algAddr, resultAddr);
 }
@@ -84,8 +80,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_Batch_cSetResult
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Batch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Batch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<svd::Method, Batch, defaultDense>::getClone(prec, method, algAddr);
 }

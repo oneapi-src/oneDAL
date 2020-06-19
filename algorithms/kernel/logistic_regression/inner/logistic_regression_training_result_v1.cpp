@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/logistic_regression/logistic_regression_training_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -34,7 +34,6 @@ namespace algorithms
 {
 namespace logistic_regression
 {
-
 namespace training
 {
 namespace interface1
@@ -47,20 +46,19 @@ logistic_regression::ModelPtr Result::get(classifier::training::ResultId id) con
     return logistic_regression::Model::cast(algorithms::classifier::training::Result::get(id));
 }
 
-void Result::set(classifier::training::ResultId id, const logistic_regression::ModelPtr &value)
+void Result::set(classifier::training::ResultId id, const logistic_regression::ModelPtr & value)
 {
     algorithms::classifier::training::Result::set(id, value);
 }
 
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     return algorithms::classifier::training::Result::check(input, par, method);
 }
 
-Parameter::Parameter(size_t nClasses, const SolverPtr& solver):
-    classifier::interface1::Parameter(nClasses), interceptFlag(true), penaltyL1(0.), penaltyL2(0), optimizationSolver(solver)
-{
-}
+Parameter::Parameter(size_t nClasses, const SolverPtr & solver)
+    : classifier::interface1::Parameter(nClasses), interceptFlag(true), penaltyL1(0.), penaltyL2(0), optimizationSolver(solver)
+{}
 
 Status Parameter::check() const
 {
@@ -68,7 +66,6 @@ Status Parameter::check() const
     DAAL_CHECK_EX(penaltyL2 >= 0, services::ErrorIncorrectParameter, services::ParameterName, penaltyL2Str());
     return services::Status();
 }
-
 
 } // namespace interface1
 

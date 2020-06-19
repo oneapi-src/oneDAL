@@ -19,16 +19,15 @@
 //  Declaration of template function that calculate mse.
 //--
 
-
 #ifndef __MSE_DENSE_DEFAULT_BATCH_KERNEL_H__
 #define __MSE_DENSE_DEFAULT_BATCH_KERNEL_H__
 
-#include "mse_batch.h"
-#include "kernel.h"
-#include "service_numeric_table.h"
-#include "service_blas.h"
-#include "numeric_table.h"
-#include "soa_numeric_table.h"
+#include "algorithms/optimization_solver/objective_function/mse_batch.h"
+#include "algorithms/kernel/kernel.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_blas.h"
+#include "data_management/data/numeric_table.h"
+#include "data_management/data/soa_numeric_table.h"
 
 namespace daal
 {
@@ -40,26 +39,24 @@ namespace mse
 {
 namespace internal
 {
-
 using namespace daal::data_management;
 using namespace daal::internal;
 using namespace daal::services;
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 struct MSETask
 {
     DAAL_NEW_DELETE();
-    MSETask(NumericTable *data, NumericTable *dependentVariables, NumericTable *argument,
-            NumericTable *value, NumericTable *hessian, NumericTable *gradient, Parameter *parameter);
+    MSETask(NumericTable * data, NumericTable * dependentVariables, NumericTable * argument, NumericTable * value, NumericTable * hessian,
+            NumericTable * gradient, Parameter * parameter);
     virtual ~MSETask();
 
-    virtual Status init(algorithmFPType *&pArgumentArray);
-    virtual Status getCurrentBlock(size_t startIdx, size_t blockSize,
-        algorithmFPType *&pBlockData, algorithmFPType *&pBlockDependentVariables) = 0;
-    virtual void releaseCurrentBlock() = 0;
+    virtual Status init(algorithmFPType *& pArgumentArray);
+    virtual Status getCurrentBlock(size_t startIdx, size_t blockSize, algorithmFPType *& pBlockData, algorithmFPType *& pBlockDependentVariables) = 0;
+    virtual void releaseCurrentBlock()                                                                                                            = 0;
 
-    void setResultValuesToZero(algorithmFPType *value, algorithmFPType *gradient, algorithmFPType *hessian);
-    Status getResultValues(algorithmFPType *&value, algorithmFPType *&gradient, algorithmFPType *&hessian);
+    void setResultValuesToZero(algorithmFPType * value, algorithmFPType * gradient, algorithmFPType * hessian);
+    Status getResultValues(algorithmFPType *& value, algorithmFPType *& gradient, algorithmFPType *& hessian);
     void releaseResultValues();
 
     BlockDescriptor<algorithmFPType> dataBlock;
@@ -69,12 +66,12 @@ struct MSETask
     BlockDescriptor<algorithmFPType> valueBlock;
     BlockDescriptor<algorithmFPType> hessianBlock;
 
-    NumericTable *ntData;
-    NumericTable *ntDependentVariables;
-    NumericTable *ntArgument;
-    NumericTable *ntGradient;
-    NumericTable *ntValue;
-    NumericTable *ntHessian;
+    NumericTable * ntData;
+    NumericTable * ntDependentVariables;
+    NumericTable * ntArgument;
+    NumericTable * ntGradient;
+    NumericTable * ntValue;
+    NumericTable * ntHessian;
 
     bool valueFlag;
     bool hessianFlag;
@@ -85,7 +82,7 @@ struct MSETask
     TArray<algorithmFPType, cpu> xMultTheta;
 };
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 struct MSETaskAll : public MSETask<algorithmFPType, cpu>
 {
     typedef MSETask<algorithmFPType, cpu> super;
@@ -115,18 +112,18 @@ struct MSETaskAll : public MSETask<algorithmFPType, cpu>
     using super::batchSize;
     using super::xMultTheta;
 
-    MSETaskAll(NumericTable *data, NumericTable *dependentVariables, NumericTable *argument, NumericTable *value, NumericTable *hessian, NumericTable *gradient,
-               Parameter *parameter, size_t blockSizeDefault);
+    MSETaskAll(NumericTable * data, NumericTable * dependentVariables, NumericTable * argument, NumericTable * value, NumericTable * hessian,
+               NumericTable * gradient, Parameter * parameter, size_t blockSizeDefault);
     virtual ~MSETaskAll();
 
-    virtual Status init(algorithmFPType *&pArgumentArray) DAAL_C11_OVERRIDE;
+    virtual Status init(algorithmFPType *& pArgumentArray) DAAL_C11_OVERRIDE;
 
-    virtual Status getCurrentBlock(size_t startIdx, size_t blockSize,
-        algorithmFPType *&pBlockData, algorithmFPType *&pBlockDependentVariables) DAAL_C11_OVERRIDE;
+    virtual Status getCurrentBlock(size_t startIdx, size_t blockSize, algorithmFPType *& pBlockData,
+                                   algorithmFPType *& pBlockDependentVariables) DAAL_C11_OVERRIDE;
     virtual void releaseCurrentBlock() DAAL_C11_OVERRIDE;
 };
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 struct MSETaskSample : public MSETask<algorithmFPType, cpu>
 {
     typedef MSETask<algorithmFPType, cpu> super;
@@ -157,57 +154,73 @@ struct MSETaskSample : public MSETask<algorithmFPType, cpu>
     using super::batchSize;
     using super::xMultTheta;
 
-    MSETaskSample(NumericTable *data, NumericTable *dependentVariables, NumericTable *argument,
-                  NumericTable *value, NumericTable *hessian, NumericTable *gradient, Parameter *parameter, size_t blockSizeDefault);
+    MSETaskSample(NumericTable * data, NumericTable * dependentVariables, NumericTable * argument, NumericTable * value, NumericTable * hessian,
+                  NumericTable * gradient, Parameter * parameter, size_t blockSizeDefault);
     virtual ~MSETaskSample();
 
-    virtual Status init(algorithmFPType *&pArgumentArray) DAAL_C11_OVERRIDE;
-    virtual Status getCurrentBlock(size_t startIdx, size_t blockSize,
-        algorithmFPType *&pBlockData, algorithmFPType *&pBlockDependentVariables) DAAL_C11_OVERRIDE;
+    virtual Status init(algorithmFPType *& pArgumentArray) DAAL_C11_OVERRIDE;
+    virtual Status getCurrentBlock(size_t startIdx, size_t blockSize, algorithmFPType *& pBlockData,
+                                   algorithmFPType *& pBlockDependentVariables) DAAL_C11_OVERRIDE;
     virtual void releaseCurrentBlock() DAAL_C11_OVERRIDE;
 
-    NumericTable *ntIndices;
+    NumericTable * ntIndices;
     BlockDescriptor<int> indicesBlock;
-    int *indicesArray;
+    int * indicesArray;
 
     TArray<algorithmFPType, cpu> dataBlockMemory;
     TArray<algorithmFPType, cpu> dependentVariablesBlockMemory;
 };
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class MSEKernel : public Kernel
 {
 public:
-    services::Status compute(NumericTable *data, NumericTable *dependentVariables, NumericTable *argument,
-                             NumericTable *value, NumericTable *hessian, NumericTable *gradient,
-                             NumericTable *nonSmoothTermValue, NumericTable *proximalProjection,
-                             NumericTable *lipschitzConstant,
-                             NumericTable *componentOfGradient, NumericTable *componentOfHessianDiagonal,
-                             NumericTable *componentOfProximalProjection, Parameter *parameter);
-    MSEKernel(): hessianDiagonal(0), hessianDiagonalPtr(nullptr), residual(0), residualPtr(nullptr),
-                 previousInputData(nullptr), previousFeatureId(-1), previousFeatureValuesPtr(nullptr), previousFeatureValues(0),
-                 computeViaGramMatrix(false), gramMatrix(0), gramMatrixPtr(nullptr), XY(0), XYPtr(nullptr), gradientForGram(0),
-                 gradientForGramPtr(nullptr), xNT(nullptr), X(nullptr), dot(0), dotPtr(nullptr),betaNT(nullptr), b(nullptr),
-                 gradNT(nullptr), gr(nullptr), hesDiagonalNT(nullptr), h(nullptr), penaltyL1NT(nullptr), penaltyL1Ptr(nullptr),
-                 penaltyL2NT(nullptr), penaltyL2Ptr(nullptr), proxNT(nullptr), proxPtr(nullptr), transposedData(false){};
+    services::Status compute(NumericTable * data, NumericTable * dependentVariables, NumericTable * argument, NumericTable * value,
+                             NumericTable * hessian, NumericTable * gradient, NumericTable * nonSmoothTermValue, NumericTable * proximalProjection,
+                             NumericTable * lipschitzConstant, NumericTable * componentOfGradient, NumericTable * componentOfHessianDiagonal,
+                             NumericTable * componentOfProximalProjection, Parameter * parameter);
+    MSEKernel()
+        : hessianDiagonal(0),
+          hessianDiagonalPtr(nullptr),
+          residual(0),
+          residualPtr(nullptr),
+          previousInputData(nullptr),
+          previousFeatureId(-1),
+          previousFeatureValuesPtr(nullptr),
+          previousFeatureValues(0),
+          computeViaGramMatrix(false),
+          gramMatrix(0),
+          gramMatrixPtr(nullptr),
+          XY(0),
+          XYPtr(nullptr),
+          gradientForGram(0),
+          gradientForGramPtr(nullptr),
+          xNT(nullptr),
+          dot(0),
+          dotPtr(nullptr),
+          betaNT(nullptr),
+          b(nullptr),
+          gradNT(nullptr),
+          gr(nullptr),
+          hesDiagonalNT(nullptr),
+          h(nullptr),
+          penaltyL1NT(nullptr),
+          penaltyL2NT(nullptr),
+          proxNT(nullptr),
+          proxPtr(nullptr),
+          transposedData(false),
+          l1(0.0f),
+          l2(0.0f),
+          soaPtr(nullptr),
+          X(nullptr) {};
+
 private:
-    void computeMSE(
-        size_t blockSize,
-        MSETask<algorithmFPType, cpu>& task,
-        algorithmFPType *data,
-        algorithmFPType *argumentArray,
-        algorithmFPType *dependentVariablesArray,
-        algorithmFPType *value,
-        algorithmFPType *gradient,
-        algorithmFPType *hessian);
+    void computeMSE(size_t blockSize, MSETask<algorithmFPType, cpu> & task, algorithmFPType * data, algorithmFPType * argumentArray,
+                    algorithmFPType * dependentVariablesArray, algorithmFPType * value, algorithmFPType * gradient, algorithmFPType * hessian);
 
-    void normalizeResults(
-        MSETask<algorithmFPType, cpu> &task,
-        algorithmFPType *value,
-        algorithmFPType *gradient,
-        algorithmFPType *hessian);
+    void normalizeResults(MSETask<algorithmFPType, cpu> & task, algorithmFPType * value, algorithmFPType * gradient, algorithmFPType * hessian);
 
-    Status run(MSETask<algorithmFPType, cpu>& task);
+    Status run(MSETask<algorithmFPType, cpu> & task);
 
     TArray<algorithmFPType, cpu> residual;
     TArray<algorithmFPType, cpu> gramMatrix;
@@ -216,41 +229,43 @@ private:
     TArray<algorithmFPType, cpu> hessianDiagonal;
     TArray<algorithmFPType, cpu> gradientForGram;
     TArray<algorithmFPType, cpu> previousFeatureValues;
-    algorithmFPType* residualPtr;
-    algorithmFPType* hessianDiagonalPtr;
-    algorithmFPType* previousInputData;
-    algorithmFPType* gramMatrixPtr;
-    algorithmFPType* XYPtr;
-    algorithmFPType* gradientForGramPtr;
+    algorithmFPType * residualPtr;
+    algorithmFPType * hessianDiagonalPtr;
+    NumericTable * previousInputData;
+    algorithmFPType * gramMatrixPtr;
+    algorithmFPType * XYPtr;
+    algorithmFPType * gradientForGramPtr;
     bool computeViaGramMatrix;
 
     int previousFeatureId;
-    algorithmFPType* previousFeatureValuesPtr;
+    algorithmFPType * previousFeatureValuesPtr;
 
     NumericTable * xNT;
-    algorithmFPType* X;
     TArray<algorithmFPType, cpu> dot;
-    algorithmFPType* dotPtr;
+    algorithmFPType * dotPtr;
     NumericTable * betaNT;
-    algorithmFPType* b;
+    algorithmFPType * b;
 
     NumericTable * gradNT;
-    algorithmFPType* gr;
+    algorithmFPType * gr;
 
     NumericTable * hesDiagonalNT;
-    algorithmFPType* h;
+    algorithmFPType * h;
 
     NumericTable * penaltyL1NT;
-    float* penaltyL1Ptr;
     NumericTable * penaltyL2NT;
-    float* penaltyL2Ptr;
     NumericTable * proxNT;
-    algorithmFPType* proxPtr;
-    ReadRows<algorithmFPType, cpu> XPtr;
+    algorithmFPType * proxPtr;
     bool transposedData;
+
+    float l1;
+    float l2;
+
+    SOANumericTable * soaPtr;
+    algorithmFPType * X;
 };
 
-} // namespace daal::internal
+} // namespace internal
 
 } // namespace mse
 

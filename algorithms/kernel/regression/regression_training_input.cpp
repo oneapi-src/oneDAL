@@ -23,7 +23,7 @@
 */
 
 #include "algorithms/regression/regression_training_types.h"
-#include "daal_strings.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -37,24 +37,22 @@ namespace interface1
 {
 using namespace daal::data_management;
 using namespace daal::services;
-Input::Input(size_t nElements) : daal::algorithms::Input(nElements)
-{}
-Input::Input(const Input& other) : daal::algorithms::Input(other)
-{}
+Input::Input(size_t nElements) : daal::algorithms::Input(nElements) {}
+Input::Input(const Input & other) : daal::algorithms::Input(other) {}
 
 data_management::NumericTablePtr Input::get(InputId id) const
 {
     return NumericTable::cast(Argument::get(id));
 }
 
-void Input::set(InputId id, const data_management::NumericTablePtr &value)
+void Input::set(InputId id, const data_management::NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
 
-Status Input::check(const daal::algorithms::Parameter *par, int method) const
+Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
-    const NumericTablePtr dataTable = get(data);
+    const NumericTablePtr dataTable              = get(data);
     const NumericTablePtr dependentVariableTable = get(dependentVariables);
 
     Status s;
@@ -65,8 +63,8 @@ Status Input::check(const daal::algorithms::Parameter *par, int method) const
     return checkNumericTable(dependentVariableTable.get(), dependentVariableStr(), 0, 0, 0, nRowsInData);
 }
 
-}
-}
-}
-}
-}
+} // namespace interface1
+} // namespace training
+} // namespace regression
+} // namespace algorithms
+} // namespace daal

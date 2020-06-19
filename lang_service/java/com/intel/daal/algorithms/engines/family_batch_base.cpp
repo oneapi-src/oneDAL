@@ -29,11 +29,10 @@ using namespace daal::algorithms;
  * Method:    cAdd
  * Signature: (J)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_engines_FamilyBatchBase_cAdd
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jlong numberOfStreams)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_engines_FamilyBatchBase_cAdd(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                   jlong numberOfStreams)
 {
-    (staticPointerCast<engines::FamilyBatchBase, AlgorithmIface>(
-        *((SharedPtr<AlgorithmIface> *)algAddr)))->add(numberOfStreams);
+    (staticPointerCast<engines::FamilyBatchBase, AlgorithmIface>(*((SharedPtr<AlgorithmIface> *)algAddr)))->add(numberOfStreams);
 }
 
 /*
@@ -41,11 +40,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_engines_FamilyBatchBase_cA
  * Method:    cGetNumberOfStreams
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_engines_FamilyBatchBase_cGetNumberOfStreams
-  (JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_engines_FamilyBatchBase_cGetNumberOfStreams(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    return (staticPointerCast<engines::FamilyBatchBase, AlgorithmIface>(
-        *((SharedPtr<AlgorithmIface> *)algAddr)))->getNumberOfStreams();
+    return (staticPointerCast<engines::FamilyBatchBase, AlgorithmIface>(*((SharedPtr<AlgorithmIface> *)algAddr)))->getNumberOfStreams();
 }
 
 /*
@@ -53,9 +50,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_engines_FamilyBatchBase_c
  * Method:    cGetMaxNumberOfStreams
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_engines_FamilyBatchBase_cGetMaxNumberOfStreams
-  (JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_engines_FamilyBatchBase_cGetMaxNumberOfStreams(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    return (staticPointerCast<engines::FamilyBatchBase, AlgorithmIface>(
-        *((SharedPtr<AlgorithmIface> *)algAddr)))->getMaxNumberOfStreams();
+    return (staticPointerCast<engines::FamilyBatchBase, AlgorithmIface>(*((SharedPtr<AlgorithmIface> *)algAddr)))->getMaxNumberOfStreams();
 }

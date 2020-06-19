@@ -23,14 +23,14 @@
 //--
 */
 
-#include "gbt_classification_predict_container.h"
+#include "algorithms/kernel/dtrees/gbt/classification/gbt_classification_predict_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(gbt::classification::prediction::BatchContainer, batch,\
-    DAAL_FPTYPE, gbt::classification::prediction::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(gbt::classification::prediction::BatchContainer, batch, DAAL_FPTYPE,
+                                      gbt::classification::prediction::defaultDense)
 
 namespace gbt
 {
@@ -49,15 +49,16 @@ Batch<DAAL_FPTYPE, gbt::classification::prediction::defaultDense>::Batch(size_t 
 
 using BatchType = Batch<DAAL_FPTYPE, gbt::classification::prediction::defaultDense>;
 template <>
-Batch<DAAL_FPTYPE, gbt::classification::prediction::defaultDense>::Batch(const BatchType &other) : classifier::prediction::Batch(other), input(other.input)
+Batch<DAAL_FPTYPE, gbt::classification::prediction::defaultDense>::Batch(const BatchType & other)
+    : classifier::prediction::Batch(other), input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();
 }
-}
-}
-}
-}
+} // namespace interface2
+} // namespace prediction
+} // namespace classification
+} // namespace gbt
 
-}
+} // namespace algorithms
 } // namespace daal

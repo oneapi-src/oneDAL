@@ -24,10 +24,10 @@
 #ifndef __IMPLICIT_ALS_TRAIN_INIT_DENSE_DEFAULT_BATCH_IMPL_I__
 #define __IMPLICIT_ALS_TRAIN_INIT_DENSE_DEFAULT_BATCH_IMPL_I__
 
-#include "service_numeric_table.h"
-#include "service_memory.h"
-#include "service_blas.h"
-#include "implicit_als_train_init_kernel.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_memory.h"
+#include "externals/service_blas.h"
+#include "algorithms/kernel/implicit_als/implicit_als_train_init_kernel.h"
 
 namespace daal
 {
@@ -41,16 +41,16 @@ namespace init
 {
 namespace internal
 {
-
 using namespace daal::services::internal;
 using namespace daal::internal;
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status ImplicitALSInitKernel<algorithmFPType, defaultDense, cpu>::compute(
-                 const NumericTable *dataTable, NumericTable *itemsFactorsTable, NumericTable* usersFactorsTable, const Parameter *parameter, engines::BatchBase &engine)
+services::Status ImplicitALSInitKernel<algorithmFPType, defaultDense, cpu>::compute(const NumericTable * dataTable, NumericTable * itemsFactorsTable,
+                                                                                    NumericTable * usersFactorsTable, const Parameter * parameter,
+                                                                                    engines::BatchBase & engine)
 {
-    const size_t nUsers = dataTable->getNumberOfRows();
-    const size_t nItems = dataTable->getNumberOfColumns();
+    const size_t nUsers   = dataTable->getNumberOfRows();
+    const size_t nItems   = dataTable->getNumberOfColumns();
     const size_t nFactors = parameter->nFactors;
 
     const size_t bufSz = (nItems > nFactors ? nItems : nFactors);
@@ -63,26 +63,25 @@ services::Status ImplicitALSInitKernel<algorithmFPType, defaultDense, cpu>::comp
     DAAL_CHECK_MALLOC(ones.get() && itemsSum.get());
 
     {
-        ReadRows<algorithmFPType, cpu> mtData(*const_cast<NumericTable*>(dataTable), 0, nUsers);
+        ReadRows<algorithmFPType, cpu> mtData(*const_cast<NumericTable *>(dataTable), 0, nUsers);
         DAAL_CHECK_BLOCK_STATUS(mtData);
-        const algorithmFPType *data = mtData.get();
+        const algorithmFPType * data = mtData.get();
         const algorithmFPType one(1.0);
         service_memset<algorithmFPType, cpu>(ones.get(), one, nUsers);
-    /* Parameters of GEMV function */
-    char transa = 'N';
-    algorithmFPType alpha = 1.0;
-    algorithmFPType beta  = 0.0;
-        DAAL_INT ione = 1;
+        /* Parameters of GEMV function */
+        char transa           = 'N';
+        algorithmFPType alpha = 1.0;
+        algorithmFPType beta  = 0.0;
+        DAAL_INT ione         = 1;
 
-    /* Compute sum of rows of input matrix */
-        Blas<algorithmFPType, cpu>::xgemv(&transa, (DAAL_INT *)&nItems, (DAAL_INT *)&nUsers, &alpha,
-            const_cast<algorithmFPType*>(data), (DAAL_INT *)&nItems,
-            ones.get(), (DAAL_INT *)&ione, &beta, itemsSum.get(), &ione);
+        /* Compute sum of rows of input matrix */
+        Blas<algorithmFPType, cpu>::xgemv(&transa, (DAAL_INT *)&nItems, (DAAL_INT *)&nUsers, &alpha, const_cast<algorithmFPType *>(data),
+                                          (DAAL_INT *)&nItems, ones.get(), (DAAL_INT *)&ione, &beta, itemsSum.get(), &ione);
     }
 
     WriteOnlyRows<algorithmFPType, cpu> mtItemsFactors(itemsFactorsTable, 0, nItems);
     DAAL_CHECK_BLOCK_STATUS(mtItemsFactors);
-    algorithmFPType *itemsFactors = mtItemsFactors.get();
+    algorithmFPType * itemsFactors = mtItemsFactors.get();
 
     DAAL_CHECK_STATUS_VAR(this->randFactors(nItems, nFactors, itemsFactors, engine));
 
@@ -95,12 +94,11 @@ services::Status ImplicitALSInitKernel<algorithmFPType, defaultDense, cpu>::comp
     return services::Status();
 }
 
-
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace init
+} // namespace training
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal
 
 #endif

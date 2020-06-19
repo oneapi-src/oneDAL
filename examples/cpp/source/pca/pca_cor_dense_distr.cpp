@@ -39,13 +39,10 @@ const size_t nBlocks         = 4;
 const size_t nVectorsInBlock = 250;
 size_t nFeatures;
 
-const string dataFileNames[] =
-{
-    "../data/distributed/pca_normalized_1.csv", "../data/distributed/pca_normalized_2.csv",
-    "../data/distributed/pca_normalized_3.csv", "../data/distributed/pca_normalized_4.csv"
-};
+const string dataFileNames[] = { "../data/distributed/pca_normalized_1.csv", "../data/distributed/pca_normalized_2.csv",
+                                 "../data/distributed/pca_normalized_3.csv", "../data/distributed/pca_normalized_4.csv" };
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 4, &dataFileNames[0], &dataFileNames[1], &dataFileNames[2], &dataFileNames[3]);
 
@@ -55,8 +52,7 @@ int main(int argc, char *argv[])
     for (size_t i = 0; i < nBlocks; i++)
     {
         /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-        FileDataSource<CSVFeatureManager> dataSource(dataFileNames[i], DataSource::doAllocateNumericTable,
-                                                     DataSource::doDictionaryFromContext);
+        FileDataSource<CSVFeatureManager> dataSource(dataFileNames[i], DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
         /* Retrieve the input data */
         dataSource.loadDataBlock(nVectorsInBlock);

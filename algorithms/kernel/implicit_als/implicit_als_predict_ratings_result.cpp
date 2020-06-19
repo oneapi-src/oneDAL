@@ -21,9 +21,9 @@
 //--
 */
 
-#include "implicit_als_predict_ratings_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/implicit_als/implicit_als_predict_ratings_types.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -58,7 +58,7 @@ data_management::NumericTablePtr Result::get(ResultId id) const
  * \param[in] id    Identifier of the prediction result, \ref ResultId
  * \param[in] ptr   Pointer to the prediction result
  */
-void Result::set(ResultId id, const data_management::NumericTablePtr &ptr)
+void Result::set(ResultId id, const data_management::NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -69,19 +69,19 @@ void Result::set(ResultId id, const data_management::NumericTablePtr &ptr)
  * \param[in] parameter   %Parameter of the algorithm
  * \param[in] method      Computation method of the algorithm
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    const InputIface *algInput = static_cast<const InputIface *>(input);
-    const size_t nUsers = algInput->getNumberOfUsers();
-    const size_t nItems = algInput->getNumberOfItems();
+    const InputIface * algInput = static_cast<const InputIface *>(input);
+    const size_t nUsers         = algInput->getNumberOfUsers();
+    const size_t nItems         = algInput->getNumberOfItems();
 
     const int unexpectedLayouts = (int)packed_mask;
     return checkNumericTable(get(prediction).get(), predictionStr(), unexpectedLayouts, 0, nItems, nUsers);
 }
 
-}// namespace interface1
-}// namespace ratings
-}// namespace prediction
-}// namespace implicit_als
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace ratings
+} // namespace prediction
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal

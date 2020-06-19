@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/boosting/brownboost_training_types.h"
-#include "serialization_utils.h"
+#include "service/kernel/serialization_utils.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -41,7 +41,8 @@ __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_BROWNBOOST_TRAINING_RE
 
 /**
  * Returns the model trained with the BrownBoost algorithm
- * \param[in] id    Identifier of the result, \ref classifier::training::ResultId
+ * \param[in] id    Identifier of the result, \ref
+ * classifier::training::ResultId
  * \return          Model trained with the BrownBoost algorithm
  */
 daal::algorithms::brownboost::ModelPtr Result::get(classifier::training::ResultId id) const
@@ -49,10 +50,10 @@ daal::algorithms::brownboost::ModelPtr Result::get(classifier::training::ResultI
     return staticPointerCast<daal::algorithms::brownboost::Model, SerializationIface>(Argument::get(id));
 }
 
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s = classifier::training::Result::check(input, parameter, method);
-    if(!s) return s;
+    if (!s) return s;
     daal::algorithms::brownboost::ModelPtr m = get(classifier::training::model);
     DAAL_CHECK(m->getAlpha(), ErrorModelNotFullInitialized);
     return s;

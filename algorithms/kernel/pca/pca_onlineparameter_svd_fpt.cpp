@@ -21,7 +21,7 @@
 //--
 */
 
-#include "pca_onlineparameter_svd.h"
+#include "algorithms/kernel/pca/pca_onlineparameter_svd.h"
 
 namespace daal
 {
@@ -29,10 +29,9 @@ namespace algorithms
 {
 namespace pca
 {
-
 template DAAL_EXPORT OnlineParameter<DAAL_FPTYPE, svdDense>::OnlineParameter();
 template DAAL_EXPORT services::Status OnlineParameter<DAAL_FPTYPE, svdDense>::check() const;
 
-}// namespace pca
-}// namespace algorithms
-}// namespace daal
+} // namespace pca
+} // namespace algorithms
+} // namespace daal

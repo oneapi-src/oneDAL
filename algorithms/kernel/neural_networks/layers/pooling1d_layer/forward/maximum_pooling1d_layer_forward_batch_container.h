@@ -24,8 +24,8 @@
 #ifndef __MAXIMUM_POOLING1D_LAYER_FORWARD_BATCH_CONTAINER_H__
 #define __MAXIMUM_POOLING1D_LAYER_FORWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/pooling1d/maximum_pooling1d_layer.h"
-#include "maximum_pooling1d_layer_forward_kernel.h"
+#include "algorithms/neural_networks/layers/pooling1d/maximum_pooling1d_layer.h"
+#include "algorithms/kernel/neural_networks/layers/pooling1d_layer/forward/maximum_pooling1d_layer_forward_kernel.h"
 
 namespace daal
 {
@@ -41,38 +41,38 @@ namespace forward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::PoolingKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    maximum_pooling1d::forward::Input *input = static_cast<maximum_pooling1d::forward::Input *>(_in);
-    maximum_pooling1d::forward::Result *result = static_cast<maximum_pooling1d::forward::Result *>(_res);
-    maximum_pooling1d::Parameter *parameter = static_cast<maximum_pooling1d::Parameter *>(_par);
+    maximum_pooling1d::forward::Input * input   = static_cast<maximum_pooling1d::forward::Input *>(_in);
+    maximum_pooling1d::forward::Result * result = static_cast<maximum_pooling1d::forward::Result *>(_res);
+    maximum_pooling1d::Parameter * parameter    = static_cast<maximum_pooling1d::Parameter *>(_par);
 
-    data_management::Tensor *dataTensor = input->get(layers::forward::data).get();
-    data_management::Tensor *valueTensor = result->get(layers::forward::value).get();
+    data_management::Tensor * dataTensor  = input->get(layers::forward::data).get();
+    data_management::Tensor * valueTensor = result->get(layers::forward::value).get();
 
-    data_management::Tensor *selectedPosTensor = nullptr;
-    if(parameter->predictionStage == false)
+    data_management::Tensor * selectedPosTensor = nullptr;
+    if (parameter->predictionStage == false)
     {
         selectedPosTensor = result->get(auxSelectedIndices).get();
     }
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::PoolingKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, \
-                       *dataTensor, *valueTensor, selectedPosTensor, *parameter);
+    __DAAL_CALL_KERNEL(env, internal::PoolingKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *dataTensor, *valueTensor,
+                       selectedPosTensor, *parameter);
 }
 } // namespace interface1
 } // namespace forward

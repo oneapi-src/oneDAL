@@ -62,11 +62,11 @@ int main()
 
     /* Print the results of the forward local contrast normalization layer */
     lcn::forward::ResultPtr forwardResult = lcnLayerForward.getResult();
-    printTensor(forwardResult->get(forward::value),       "Forward local contrast normalization layer result:");
+    printTensor(forwardResult->get(forward::value), "Forward local contrast normalization layer result:");
     printTensor(forwardResult->get(lcn::auxCenteredData), "Centered data tensor:");
-    printTensor(forwardResult->get(lcn::auxSigma),        "Sigma tensor:");
-    printTensor(forwardResult->get(lcn::auxC),            "C tensor:");
-    printTensor(forwardResult->get(lcn::auxInvMax),       "Inverted max(sigma, C):");
+    printTensor(forwardResult->get(lcn::auxSigma), "Sigma tensor:");
+    printTensor(forwardResult->get(lcn::auxC), "C tensor:");
+    printTensor(forwardResult->get(lcn::auxInvMax), "Inverted max(sigma, C):");
 
     /* Create input gradient tensor for backward local contrast normalization layer */
     TensorPtr tensorDataBack = TensorPtr(new HomogenTensor<>(inDims, Tensor::doAllocate, 0.01f));

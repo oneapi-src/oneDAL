@@ -22,7 +22,7 @@
 //--
 */
 
-#include "brownboost_train_batch_container_v1.h"
+#include "algorithms/kernel/brownboost/inner/brownboost_train_batch_container_v1.h"
 
 namespace daal
 {

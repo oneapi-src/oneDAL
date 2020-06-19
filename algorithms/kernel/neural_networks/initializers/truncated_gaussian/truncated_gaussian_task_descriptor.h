@@ -18,8 +18,8 @@
 #ifndef __TRUNCATED_GAUSSIAN_INITIALIZER_TASK_DESCRIPTOR_H__
 #define __TRUNCATED_GAUSSIAN_INITIALIZER_TASK_DESCRIPTOR_H__
 
-#include "neural_networks/initializers/truncated_gaussian/truncated_gaussian_initializer.h"
-#include "neural_networks/initializers/truncated_gaussian/truncated_gaussian_initializer_types.h"
+#include "algorithms/neural_networks/initializers/truncated_gaussian/truncated_gaussian_initializer.h"
+#include "algorithms/neural_networks/initializers/truncated_gaussian/truncated_gaussian_initializer_types.h"
 
 namespace daal
 {
@@ -33,27 +33,26 @@ namespace truncated_gaussian
 {
 namespace internal
 {
-
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 class TruncatedGaussianInitializerTaskDescriptor
 {
 public:
-    TruncatedGaussianInitializerTaskDescriptor(Result *re, Parameter<algorithmFPType> *pa);
+    TruncatedGaussianInitializerTaskDescriptor(Result * re, Parameter<algorithmFPType> * pa);
 
-    engines::BatchBase          *engine;
-    data_management::Tensor     *result;
-    layers::forward::LayerIface *layer;
+    engines::BatchBase * engine;
+    data_management::Tensor * result;
+    layers::forward::LayerIface * layer;
     double mean;
     double sigma;
     algorithmFPType a;
     algorithmFPType b;
 };
 
-} // internal
-} // truncated_gaussian
-} // initializers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace truncated_gaussian
+} // namespace initializers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

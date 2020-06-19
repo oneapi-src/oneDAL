@@ -22,9 +22,9 @@
 */
 
 #include "algorithms/optimization_solver/iterative_solver/iterative_solver_types.h"
-#include "numeric_table.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "data_management/data/numeric_table.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -41,22 +41,23 @@ namespace interface2
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_ITERATIVE_SOLVER_RESULT_ID);
 
-Parameter::Parameter(const sum_of_functions::BatchPtr &function_, const size_t nIterations_, const double accuracyThreshold_, bool optionalResultReq, size_t batchSize_):
-    nIterations(nIterations_), accuracyThreshold(accuracyThreshold_), optionalResultRequired(optionalResultReq), batchSize(batchSize_)
+Parameter::Parameter(const sum_of_functions::BatchPtr & function_, const size_t nIterations_, const double accuracyThreshold_, bool optionalResultReq,
+                     size_t batchSize_)
+    : nIterations(nIterations_), accuracyThreshold(accuracyThreshold_), optionalResultRequired(optionalResultReq), batchSize(batchSize_)
 {
-    if(function_)
+    if (function_)
     {
         function = function_->clone();
     }
 }
 
-Parameter::Parameter(const Parameter &other) :
-    nIterations(other.nIterations),
-    accuracyThreshold(other.accuracyThreshold),
-    optionalResultRequired(other.optionalResultRequired),
-    batchSize(other.batchSize)
+Parameter::Parameter(const Parameter & other)
+    : nIterations(other.nIterations),
+      accuracyThreshold(other.accuracyThreshold),
+      optionalResultRequired(other.optionalResultRequired),
+      batchSize(other.batchSize)
 {
-    if(other.function)
+    if (other.function)
     {
         function = other.function->clone();
     }
@@ -72,14 +73,14 @@ services::Status Parameter::check() const
 }
 
 Input::Input() : daal::algorithms::Input(lastOptionalInputId + 1) {}
-Input::Input(const Input& other) : daal::algorithms::Input(other){}
+Input::Input(const Input & other) : daal::algorithms::Input(other) {}
 
 data_management::NumericTablePtr Input::get(InputId id) const
 {
     return services::staticPointerCast<data_management::NumericTable, data_management::SerializationIface>(Argument::get(id));
 }
 
-void Input::set(InputId id, const data_management::NumericTablePtr &ptr)
+void Input::set(InputId id, const data_management::NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -89,7 +90,7 @@ algorithms::OptionalArgumentPtr Input::get(OptionalInputId id) const
     return services::staticPointerCast<algorithms::OptionalArgument, data_management::SerializationIface>(Argument::get(id));
 }
 
-void Input::set(OptionalInputId id, const algorithms::OptionalArgumentPtr &ptr)
+void Input::set(OptionalInputId id, const algorithms::OptionalArgumentPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -97,17 +98,17 @@ void Input::set(OptionalInputId id, const algorithms::OptionalArgumentPtr &ptr)
 NumericTablePtr Input::get(OptionalDataId id) const
 {
     algorithms::OptionalArgumentPtr pOpt = get(iterative_solver::optionalArgument);
-    if(pOpt.get())
+    if (pOpt.get())
     {
         return NumericTable::cast(pOpt->get(id));
     }
     return NumericTablePtr();
 }
 
-void Input::set(OptionalDataId id, const NumericTablePtr &ptr)
+void Input::set(OptionalDataId id, const NumericTablePtr & ptr)
 {
     algorithms::OptionalArgumentPtr pOpt = get(iterative_solver::optionalArgument);
-    if(!pOpt.get())
+    if (!pOpt.get())
     {
         // pOpt = algorithms::OptionalArgumentPtr(new algorithms::OptionalArgument(optionalDataSize));
         set(iterative_solver::optionalArgument, pOpt);
@@ -115,10 +116,9 @@ void Input::set(OptionalDataId id, const NumericTablePtr &ptr)
     pOpt->set(id, ptr);
 }
 
-
-services::Status Input::check(const daal::algorithms::Parameter *par, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
-    if(this->size() != 2) return services::Status(services::ErrorIncorrectNumberOfInputNumericTables);
+    if (this->size() != 2) return services::Status(services::ErrorIncorrectNumberOfInputNumericTables);
     return checkNumericTable(get(inputArgument).get(), inputArgumentStr(), 0, 0, 1);
 }
 
@@ -127,7 +127,7 @@ data_management::NumericTablePtr Result::get(ResultId id) const
     return services::staticPointerCast<data_management::NumericTable, data_management::SerializationIface>(Argument::get(id));
 }
 
-void Result::set(ResultId id, const data_management::NumericTablePtr &ptr)
+void Result::set(ResultId id, const data_management::NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -137,7 +137,7 @@ algorithms::OptionalArgumentPtr Result::get(OptionalResultId id) const
     return services::staticPointerCast<algorithms::OptionalArgument, data_management::SerializationIface>(Argument::get(id));
 }
 
-void Result::set(OptionalResultId id, const algorithms::OptionalArgumentPtr &ptr)
+void Result::set(OptionalResultId id, const algorithms::OptionalArgumentPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -145,17 +145,17 @@ void Result::set(OptionalResultId id, const algorithms::OptionalArgumentPtr &ptr
 NumericTablePtr Result::get(OptionalDataId id) const
 {
     algorithms::OptionalArgumentPtr pOpt = get(iterative_solver::optionalResult);
-    if(pOpt.get())
+    if (pOpt.get())
     {
         return NumericTable::cast(pOpt->get(id));
     }
     return NumericTablePtr();
 }
 
-void Result::set(OptionalDataId id, const NumericTablePtr &ptr)
+void Result::set(OptionalDataId id, const NumericTablePtr & ptr)
 {
     algorithms::OptionalArgumentPtr pOpt = get(iterative_solver::optionalResult);
-    if(!pOpt.get())
+    if (!pOpt.get())
     {
         // pOpt = algorithms::OptionalArgumentPtr(new algorithms::OptionalArgument(optionalDataSize));
         set(iterative_solver::optionalResult, pOpt);
@@ -163,21 +163,20 @@ void Result::set(OptionalDataId id, const NumericTablePtr &ptr)
     pOpt->set(id, ptr);
 }
 
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par,
-                   int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
-    if(Argument::size() != 3) return services::Status(services::ErrorIncorrectNumberOfOutputNumericTables);
+    if (Argument::size() != 3) return services::Status(services::ErrorIncorrectNumberOfOutputNumericTables);
 
-    const Input *algInput = static_cast<const Input *>(input);
-    size_t nRows = algInput->get(inputArgument)->getNumberOfRows();
+    const Input * algInput = static_cast<const Input *>(input);
+    size_t nRows           = algInput->get(inputArgument)->getNumberOfRows();
 
     services::Status s = checkNumericTable(get(minimum).get(), minimumStr(), 0, 0, 1, nRows);
-    if(!s) return s;
+    if (!s) return s;
     return checkNumericTable(get(nIterations).get(), nIterationsStr(), 0, 0, 1, 1);
 }
 
 } // namespace interface2
 } // namespace iterative_solver
 } // namespace optimization_solver
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

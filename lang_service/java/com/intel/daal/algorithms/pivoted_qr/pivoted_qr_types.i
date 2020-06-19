@@ -21,4 +21,4 @@ using namespace daal;
 using namespace daal::algorithms;
 
 typedef pivoted_qr::Batch<double, pivoted_qr::defaultDense> qr_of_d_def;
-typedef pivoted_qr::Batch<float,  pivoted_qr::defaultDense> qr_of_s_def;
+typedef pivoted_qr::Batch<float, pivoted_qr::defaultDense> qr_of_s_def;

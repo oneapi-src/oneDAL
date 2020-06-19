@@ -19,14 +19,14 @@
 //  Instantiation of LBFGS algorithm container.
 //--
 
-
-#include "lbfgs_batch_container_v1.h"
+#include "algorithms/kernel/optimization_solver/lbfgs/inner/lbfgs_batch_container_v1.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(optimization_solver::lbfgs::interface1::BatchContainer, batch, DAAL_FPTYPE, optimization_solver::lbfgs::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(optimization_solver::lbfgs::interface1::BatchContainer, batch, DAAL_FPTYPE,
+                                      optimization_solver::lbfgs::defaultDense)
 
 namespace optimization_solver
 {
@@ -36,7 +36,7 @@ namespace interface1
 {
 using BatchType = Batch<DAAL_FPTYPE, optimization_solver::lbfgs::defaultDense>;
 
-template<>
+template <>
 services::SharedPtr<BatchType> BatchType::create()
 {
     return services::SharedPtr<BatchType>(new BatchType());

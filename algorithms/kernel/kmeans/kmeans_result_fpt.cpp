@@ -21,7 +21,7 @@
 //--
 */
 
-#include "kmeans_result.h"
+#include "algorithms/kernel/kmeans/kmeans_result.h"
 
 namespace daal
 {
@@ -29,10 +29,11 @@ namespace algorithms
 {
 namespace kmeans
 {
-
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult *partialResult, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult * partialResult,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
 } // namespace kmeans
-}// namespace algorithms
-}// namespace daal
+} // namespace algorithms
+} // namespace daal

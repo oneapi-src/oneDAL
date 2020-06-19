@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "aos_numeric_table.h"
+#include "data_management/data/aos_numeric_table.h"
 
 namespace daal
 {
@@ -23,8 +23,7 @@ namespace data_management
 {
 namespace interface1
 {
-
-AOSNumericTable::AOSNumericTable(size_t structSize, size_t ncol, size_t nrow): NumericTable(ncol, nrow)
+AOSNumericTable::AOSNumericTable(size_t structSize, size_t ncol, size_t nrow) : NumericTable(ncol, nrow)
 {
     _layout     = aos;
     _structSize = structSize;
@@ -32,7 +31,8 @@ AOSNumericTable::AOSNumericTable(size_t structSize, size_t ncol, size_t nrow): N
     initOffsets();
 }
 
-AOSNumericTable::AOSNumericTable(size_t structSize, size_t ncol, size_t nrow, services::Status &st): NumericTable(ncol, nrow, DictionaryIface::notEqual, st)//?
+AOSNumericTable::AOSNumericTable(size_t structSize, size_t ncol, size_t nrow, services::Status & st)
+    : NumericTable(ncol, nrow, DictionaryIface::notEqual, st) //?
 {
     _layout     = aos;
     _structSize = structSize;
@@ -40,12 +40,11 @@ AOSNumericTable::AOSNumericTable(size_t structSize, size_t ncol, size_t nrow, se
     st |= initOffsets();
 }
 
-services::SharedPtr<AOSNumericTable> AOSNumericTable::create(size_t structSize, size_t ncol, size_t nrow,
-                                                             services::Status *stat)
+services::SharedPtr<AOSNumericTable> AOSNumericTable::create(size_t structSize, size_t ncol, size_t nrow, services::Status * stat)
 {
     DAAL_DEFAULT_CREATE_IMPL_EX(AOSNumericTable, structSize, ncol, nrow);
 }
 
-}
-}
-}
+} // namespace interface1
+} // namespace data_management
+} // namespace daal

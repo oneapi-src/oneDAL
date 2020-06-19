@@ -38,16 +38,16 @@ namespace backward
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status LocallyConnected2dKernel<algorithmFPType, method, cpu>::compute(const Tensor &inGradTensor, Tensor &gradientTensor, Tensor &auxDataTensor,
-                                                        Tensor &auxWeightsTensor, Tensor &wDerTensor, Tensor &bDerTensor,
-                                                        const locallyconnected2d::Parameter &parameter)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status LocallyConnected2dKernel<algorithmFPType, method, cpu>::compute(const Tensor & inGradTensor, Tensor & gradientTensor,
+                                                                                 Tensor & auxDataTensor, Tensor & auxWeightsTensor,
+                                                                                 Tensor & wDerTensor, Tensor & bDerTensor,
+                                                                                 const locallyconnected2d::Parameter & parameter)
 {
     Status s;
 
-    const services::Collection<size_t> &inGradDims   = inGradTensor.getDimensions();
-    const services::Collection<size_t> &auxDataDims  = auxDataTensor.getDimensions();
+    const services::Collection<size_t> & inGradDims  = inGradTensor.getDimensions();
+    const services::Collection<size_t> & auxDataDims = auxDataTensor.getDimensions();
 
     size_t nAuxWeightsRows = auxWeightsTensor.getDimensions()[0];
     size_t nBDerRows       = bDerTensor.getDimensions()[0];
@@ -62,7 +62,7 @@ services::Status LocallyConnected2dKernel<algorithmFPType, method, cpu>::compute
 
     const size_t dimsArray[4] = { batchDim, groupDim, firstIdx, secondIdx };
 
-    size_t n1  = auxDataDims[batchDim];
+    size_t n1   = auxDataDims[batchDim];
     DAAL_INT n2 = (DAAL_INT)auxDataDims[groupDim];
     DAAL_INT n3 = (DAAL_INT)auxDataDims[firstIdx];
     DAAL_INT n4 = (DAAL_INT)auxDataDims[secondIdx];
@@ -79,49 +79,49 @@ services::Status LocallyConnected2dKernel<algorithmFPType, method, cpu>::compute
     DAAL_INT m4       = (DAAL_INT)parameter.kernelSizes.size[1];
 
     TensorOffsetLayout inputLayout = auxDataTensor.createDefaultSubtensorLayout();
-    DAAL_CHECK_STATUS(s, inputLayout.shuffleDimensions(services::Collection<size_t>( 4, dimsArray)));
+    DAAL_CHECK_STATUS(s, inputLayout.shuffleDimensions(services::Collection<size_t>(4, dimsArray)));
 
     ReadSubtensor<algorithmFPType, cpu, Tensor> auxWeightsBlock;
-    algorithmFPType *auxWeightsArray;
+    algorithmFPType * auxWeightsArray;
 
     WriteSubtensor<algorithmFPType, cpu, Tensor> gradientBlock;
-    algorithmFPType *gradientArray;
+    algorithmFPType * gradientArray;
     ReadSubtensor<algorithmFPType, cpu, Tensor> inGradBlock;
     ReadSubtensor<algorithmFPType, cpu, Tensor> auxDataBlock;
 
     WriteSubtensor<algorithmFPType, cpu, Tensor> wDerBlock(wDerTensor, 0, 0, 0, nAuxWeightsRows);
     DAAL_CHECK_BLOCK_STATUS(wDerBlock);
-    algorithmFPType *wDerArray = wDerBlock.get();
+    algorithmFPType * wDerArray = wDerBlock.get();
 
     WriteSubtensor<algorithmFPType, cpu, Tensor> bDerBlock(bDerTensor, 0, 0, 0, nBDerRows);
     DAAL_CHECK_BLOCK_STATUS(bDerBlock);
-    algorithmFPType *bDerArray = bDerBlock.get();
+    algorithmFPType * bDerArray = bDerBlock.get();
 
     const algorithmFPType zero = 0.0;
-    const algorithmFPType one = 1.0;
+    const algorithmFPType one  = 1.0;
 
-    for(size_t i = 0; i < bDerTensor.getSize(); i++)
+    for (size_t i = 0; i < bDerTensor.getSize(); i++)
     {
         bDerArray[i] = zero;
     }
 
-    for(size_t i = 0; i < wDerTensor.getSize(); i++)
+    for (size_t i = 0; i < wDerTensor.getSize(); i++)
     {
         wDerArray[i] = zero;
     }
 
-    DAAL_INT gradientIndex   = 0;
-    DAAL_INT inGradIndex     = 0;
-    DAAL_INT weightsIndex    = 0;
-    DAAL_INT biasIndex       = 0;
-    DAAL_INT auxDataIndex    = 0;
-    DAAL_INT index           = 0;
-    DAAL_INT wDerIndex       = 0;
+    DAAL_INT gradientIndex = 0;
+    DAAL_INT inGradIndex   = 0;
+    DAAL_INT weightsIndex  = 0;
+    DAAL_INT biasIndex     = 0;
+    DAAL_INT auxDataIndex  = 0;
+    DAAL_INT index         = 0;
+    DAAL_INT wDerIndex     = 0;
 
     algorithmFPType divider = one / (algorithmFPType)n1;
-    DAAL_INT offsetBefore = nKernels * l3 * l4;
-    DAAL_INT d = 0;
-    DAAL_INT e = 0;
+    DAAL_INT offsetBefore   = nKernels * l3 * l4;
+    DAAL_INT d              = 0;
+    DAAL_INT e              = 0;
 
     if (parameter.propagateGradient)
     {
@@ -134,16 +134,15 @@ services::Status LocallyConnected2dKernel<algorithmFPType, method, cpu>::compute
        inGradArray  [t] [q * nKernels / nGroups + r] [a] [b]
        auxWeightsArray  [q * nKernels / nGroups + r] [a] [b] [c] [i - a * s3 + p3] [j - b * s4 + p4]
     */
-    for(size_t t = 0; t < n1; t++)
+    for (size_t t = 0; t < n1; t++)
     {
-
         inGradBlock.set(const_cast<Tensor &>(inGradTensor), 1, &t, 0, (size_t)nKernels);
         DAAL_CHECK_BLOCK_STATUS(inGradBlock);
-        const algorithmFPType *inGradArray = inGradBlock.get();
+        const algorithmFPType * inGradArray = inGradBlock.get();
 
         auxDataBlock.set(auxDataTensor, 1, &t, 0, (size_t)n2, inputLayout);
         DAAL_CHECK_BLOCK_STATUS(auxDataBlock);
-        const algorithmFPType *auxDataArray = auxDataBlock.get();
+        const algorithmFPType * auxDataArray = auxDataBlock.get();
 
         if (parameter.propagateGradient)
         {
@@ -151,31 +150,32 @@ services::Status LocallyConnected2dKernel<algorithmFPType, method, cpu>::compute
             DAAL_CHECK_BLOCK_STATUS(gradientBlock);
             gradientArray = gradientBlock.get();
 
-            for(DAAL_INT q = 0; q < nGroups; q++)
+            for (DAAL_INT q = 0; q < nGroups; q++)
             {
-                for(DAAL_INT c = 0; c < m2; c++)
+                for (DAAL_INT c = 0; c < m2; c++)
                 {
-                    for(DAAL_INT i = 0; i < n3; i++)
+                    for (DAAL_INT i = 0; i < n3; i++)
                     {
-                        for(DAAL_INT j = 0; j < n4; j++)
+                        for (DAAL_INT j = 0; j < n4; j++)
                         {
-                            gradientIndex = j + (i + (c + q * m2) * n3) * n4;
+                            gradientIndex                = j + (i + (c + q * m2) * n3) * n4;
                             gradientArray[gradientIndex] = zero;
 
-                            for(DAAL_INT r = 0; r < nk; r++)
+                            for (DAAL_INT r = 0; r < nk; r++)
                             {
-                                for(DAAL_INT a = _floor(i - m3 + p3, s3) + 1; a <= (i + p3) / s3; a++)
+                                for (DAAL_INT a = _floor(i - m3 + p3, s3) + 1; a <= (i + p3) / s3; a++)
                                 {
-                                    if(a >= 0 && a < l3)
+                                    if (a >= 0 && a < l3)
                                     {
-                                        for(DAAL_INT b = _floor(j - m4 + p4, s4) + 1; b <= (j + p4) / s4; b++)
+                                        for (DAAL_INT b = _floor(j - m4 + p4, s4) + 1; b <= (j + p4) / s4; b++)
                                         {
-                                            if(b >= 0 && b < l4)
+                                            if (b >= 0 && b < l4)
                                             {
-                                                inGradIndex  = b + (a + (r + q * nk) * l3) * l4;
-                                                weightsIndex = j - b * s4 + p4 + (i - a * s3 + p3 + (c + (b + (a + (r + q * nk) * l3) * l4) * m2) * m3) * m4;
+                                                inGradIndex = b + (a + (r + q * nk) * l3) * l4;
+                                                weightsIndex =
+                                                    j - b * s4 + p4 + (i - a * s3 + p3 + (c + (b + (a + (r + q * nk) * l3) * l4) * m2) * m3) * m4;
                                                 /* calculate gradient */
-                                                gradientArray[gradientIndex] += inGradArray[inGradIndex] *  auxWeightsArray[weightsIndex];
+                                                gradientArray[gradientIndex] += inGradArray[inGradIndex] * auxWeightsArray[weightsIndex];
                                             }
                                         }
                                     }
@@ -187,7 +187,7 @@ services::Status LocallyConnected2dKernel<algorithmFPType, method, cpu>::compute
             }
         }
 
-        for(DAAL_INT q = 0; q < nGroups; q++)
+        for (DAAL_INT q = 0; q < nGroups; q++)
         {
             /*
                auxDataArray [t] [c + q * m2] [i * s3 - p3 + u] [j * s4 - p4 + v]
@@ -195,29 +195,29 @@ services::Status LocallyConnected2dKernel<algorithmFPType, method, cpu>::compute
                wDerArray        [r + q * nk] [i] [j] [c] [u] [v]
                bDerArray        [r + q * nk] [i] [j]
             */
-            for(DAAL_INT r = 0; r < nk; r++)
+            for (DAAL_INT r = 0; r < nk; r++)
             {
-                for(DAAL_INT i = 0; i < l3; i++)
+                for (DAAL_INT i = 0; i < l3; i++)
                 {
-                    for(DAAL_INT j = 0; j < l4; j++)
+                    for (DAAL_INT j = 0; j < l4; j++)
                     {
-                        index   = j + (i + (r + q * nk) * l3) * l4;
+                        index = j + (i + (r + q * nk) * l3) * l4;
                         /* calculate biases derivatives */
                         bDerArray[index] += divider * inGradArray[index];
 
-                        for(DAAL_INT c = 0; c < m2; c++)
+                        for (DAAL_INT c = 0; c < m2; c++)
                         {
-                            for(DAAL_INT u = 0; u < m3; u++)
+                            for (DAAL_INT u = 0; u < m3; u++)
                             {
-                                for(DAAL_INT v = 0; v < m4; v++)
+                                for (DAAL_INT v = 0; v < m4; v++)
                                 {
                                     wDerIndex = v + (u + (c + (j + (i + (r + q * nk) * l3) * l4) * m2) * m3) * m4;
-                                    d = i * s3 - p3 + u;
-                                    e = j * s4 - p4 + v;
+                                    d         = i * s3 - p3 + u;
+                                    e         = j * s4 - p4 + v;
 
-                                    if(e >= 0 && d >= 0 && e < n4 && d < n3)
+                                    if (e >= 0 && d >= 0 && e < n4 && d < n3)
                                     {
-                                        auxDataIndex = e + (d + (c + q * m2) * n3) * n4 ;
+                                        auxDataIndex = e + (d + (c + q * m2) * n3) * n4;
                                         /* calculate weights derivatives */
                                         wDerArray[wDerIndex] += divider * inGradArray[index] * auxDataArray[auxDataIndex];
                                     }
@@ -232,17 +232,17 @@ services::Status LocallyConnected2dKernel<algorithmFPType, method, cpu>::compute
     return s;
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 DAAL_INT LocallyConnected2dKernel<algorithmFPType, method, cpu>::_floor(DAAL_INT numerator, DAAL_INT denominator)
 {
-    double result = (double)numerator / (double)denominator;
+    double result    = (double)numerator / (double)denominator;
     DAAL_INT _result = (DAAL_INT)result;
 
     return (result < (double)_result) ? (_result - 1) : _result;
 }
 
-} // internal
-} // backward
+} // namespace internal
+} // namespace backward
 } // namespace locallyconnected2d
 } // namespace layers
 } // namespace neural_networks

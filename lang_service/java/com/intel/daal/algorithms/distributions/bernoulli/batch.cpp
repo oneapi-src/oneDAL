@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms;
@@ -30,11 +30,11 @@ using namespace daal::algorithms;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_bernoulli_Batch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method, jdouble p)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_bernoulli_Batch_cInit(JNIEnv * env, jobject thisObj, jint prec, jint method,
+                                                                                           jdouble p)
 {
-    return jniBatch<distributions::bernoulli::Method, distributions::bernoulli::Batch, distributions::bernoulli::defaultDense>::newObj(
-               prec, method, p);
+    return jniBatch<distributions::bernoulli::Method, distributions::bernoulli::Batch, distributions::bernoulli::defaultDense>::newObj(prec, method,
+                                                                                                                                       p);
 }
 
 /*
@@ -42,8 +42,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_bernoulli_B
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_bernoulli_Batch_cInitParameter
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_bernoulli_Batch_cInitParameter(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                    jint prec, jint method)
 {
     return jniBatch<distributions::bernoulli::Method, distributions::bernoulli::Batch, distributions::bernoulli::defaultDense>::getParameter(
         prec, method, algAddr);
@@ -54,8 +54,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_bernoulli_B
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_bernoulli_Batch_cGetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_bernoulli_Batch_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                jint prec, jint method)
 {
     return jniBatch<distributions::bernoulli::Method, distributions::bernoulli::Batch, distributions::bernoulli::defaultDense>::getResult(
         prec, method, algAddr);
@@ -66,9 +66,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_bernoulli_B
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_bernoulli_Batch_cClone
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_bernoulli_Batch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                            jint method)
 {
-    return jniBatch<distributions::bernoulli::Method, distributions::bernoulli::Batch, distributions::bernoulli::defaultDense>::getClone(
-        prec, method, algAddr);
+    return jniBatch<distributions::bernoulli::Method, distributions::bernoulli::Batch, distributions::bernoulli::defaultDense>::getClone(prec, method,
+                                                                                                                                         algAddr);
 }

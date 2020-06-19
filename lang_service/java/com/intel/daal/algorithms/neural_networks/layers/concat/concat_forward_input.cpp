@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_neural_networks_layers_ForwardInputLayerDataId.h"
 #define inputLayerDataId com_intel_daal_algorithms_neural_networks_layers_ForwardInputLayerDataId_inputLayerDataId
@@ -34,8 +34,9 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatForwardInput_cSetInput
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr, jlong index)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatForwardInput_cSetInput(JNIEnv * env, jobject thisObj,
+                                                                                                                  jlong inputAddr, jint id,
+                                                                                                                  jlong ntAddr, jlong index)
 {
     if (id == inputLayerDataId)
     {
@@ -48,8 +49,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_co
  * Method:    cGetInput
  * Signature: (JIJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatForwardInput_cGetInput
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong index)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_concat_ConcatForwardInput_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                                   jlong inputAddr, jint id,
+                                                                                                                   jlong index)
 {
     if (id == inputLayerDataId)
     {

@@ -24,8 +24,8 @@
 #ifndef __COVARIANCE_CSR_ONLINE_IMPL_I__
 #define __COVARIANCE_CSR_ONLINE_IMPL_I__
 
-#include "covariance_kernel.h"
-#include "covariance_impl.i"
+#include "algorithms/kernel/covariance/covariance_kernel.h"
+#include "algorithms/kernel/covariance/covariance_impl.i"
 
 namespace daal
 {
@@ -35,18 +35,10 @@ namespace covariance
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status computeSumCSR(
-    size_t nFeatures,
-    size_t nVectors,
-    algorithmFPType *data,
-    size_t *colIndices,
-    size_t *rowOffsets,
-    algorithmFPType *crossProduct,
-    algorithmFPType *partialCrossProduct,
-    algorithmFPType *sums,
-    algorithmFPType *nObservations)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status computeSumCSR(size_t nFeatures, size_t nVectors, algorithmFPType * data, size_t * colIndices, size_t * rowOffsets,
+                               algorithmFPType * crossProduct, algorithmFPType * partialCrossProduct, algorithmFPType * sums,
+                               algorithmFPType * nObservations)
 {
     algorithmFPType invNObservations = 1.0;
     if (nObservations[0] > 0.5)
@@ -61,8 +53,8 @@ services::Status computeSumCSR(
         }
     }
 
-    services::Status status = updateCSRCrossProductAndSums<algorithmFPType, method, cpu>(
-        nFeatures, nVectors, data, colIndices, rowOffsets, partialCrossProduct, sums, nObservations);
+    services::Status status = updateCSRCrossProductAndSums<algorithmFPType, method, cpu>(nFeatures, nVectors, data, colIndices, rowOffsets,
+                                                                                         partialCrossProduct, sums, nObservations);
     DAAL_CHECK_STATUS_VAR(status);
 
     invNObservations = 1.0 / nObservations[0];
@@ -81,23 +73,15 @@ services::Status computeSumCSR(
     return status;
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status computeOtherMethods(
-    size_t nFeatures,
-    size_t nVectors,
-    algorithmFPType *data,
-    size_t *colIndices,
-    size_t *rowOffsets,
-    algorithmFPType *crossProduct,
-    algorithmFPType *partialCrossProduct,
-    algorithmFPType *sums,
-    algorithmFPType *partialSums,
-    algorithmFPType *nObservations)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status computeOtherMethods(size_t nFeatures, size_t nVectors, algorithmFPType * data, size_t * colIndices, size_t * rowOffsets,
+                                     algorithmFPType * crossProduct, algorithmFPType * partialCrossProduct, algorithmFPType * sums,
+                                     algorithmFPType * partialSums, algorithmFPType * nObservations)
 {
     algorithmFPType partialNObservations = 0.0;
 
-    services::Status status = updateCSRCrossProductAndSums<algorithmFPType, method, cpu>(nFeatures, nVectors,
-        data, colIndices, rowOffsets, partialCrossProduct, partialSums, &partialNObservations);
+    services::Status status = updateCSRCrossProductAndSums<algorithmFPType, method, cpu>(nFeatures, nVectors, data, colIndices, rowOffsets,
+                                                                                         partialCrossProduct, partialSums, &partialNObservations);
     DAAL_CHECK_STATUS_VAR(status);
 
     algorithmFPType invPartialNObservations = 1.0 / partialNObservations;
@@ -111,75 +95,68 @@ services::Status computeOtherMethods(
         partialCrossProduct[i * nFeatures + i] -= partialSums[i] * partialSums[i] * invPartialNObservations;
     }
 
-    mergeCrossProductAndSums<algorithmFPType, cpu>(nFeatures, partialCrossProduct,
-        partialSums, &partialNObservations, crossProduct, sums, nObservations);
+    mergeCrossProductAndSums<algorithmFPType, cpu>(nFeatures, partialCrossProduct, partialSums, &partialNObservations, crossProduct, sums,
+                                                   nObservations);
 
     return status;
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status CovarianceCSROnlineKernel<algorithmFPType, method, cpu>::compute(
-    NumericTable *dataTable,
-    NumericTable *nObservationsTable,
-    NumericTable *crossProductTable,
-    NumericTable *sumTable,
-    const Parameter *parameter)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status CovarianceCSROnlineKernel<algorithmFPType, method, cpu>::compute(NumericTable * dataTable, NumericTable * nObservationsTable,
+                                                                                  NumericTable * crossProductTable, NumericTable * sumTable,
+                                                                                  const Parameter * parameter)
 {
-    const size_t nFeatures = dataTable->getNumberOfColumns();
-    const size_t nVectors  = dataTable->getNumberOfRows();
-    CSRNumericTableIface *csrDataTable = dynamic_cast<CSRNumericTableIface* >(dataTable);
+    const size_t nFeatures              = dataTable->getNumberOfColumns();
+    const size_t nVectors               = dataTable->getNumberOfRows();
+    CSRNumericTableIface * csrDataTable = dynamic_cast<CSRNumericTableIface *>(dataTable);
 
-    DEFINE_TABLE_BLOCK_EX ( ReadRowsCSR, dataBlock,          csrDataTable,      0, nVectors );
-    DEFINE_TABLE_BLOCK    ( WriteRows,   sumBlock,           sumTable                       );
-    DEFINE_TABLE_BLOCK    ( WriteRows,   crossProductBlock,  crossProductTable              );
-    DEFINE_TABLE_BLOCK    ( WriteRows,   nObservationsBlock, nObservationsTable             );
+    DEFINE_TABLE_BLOCK_EX(ReadRowsCSR, dataBlock, csrDataTable, 0, nVectors);
+    DEFINE_TABLE_BLOCK(WriteRows, sumBlock, sumTable);
+    DEFINE_TABLE_BLOCK(WriteRows, crossProductBlock, crossProductTable);
+    DEFINE_TABLE_BLOCK(WriteRows, nObservationsBlock, nObservationsTable);
 
-    algorithmFPType *sums          = sumBlock.get();
-    algorithmFPType *crossProduct  = crossProductBlock.get();
-    algorithmFPType *nObservations = nObservationsBlock.get();
-    algorithmFPType *data          = const_cast<algorithmFPType*>(dataBlock.values());
-    size_t          *colIndices    = dataBlock.cols();
-    size_t          *rowOffsets    = dataBlock.rows();
+    algorithmFPType * sums          = sumBlock.get();
+    algorithmFPType * crossProduct  = crossProductBlock.get();
+    algorithmFPType * nObservations = nObservationsBlock.get();
+    algorithmFPType * data          = const_cast<algorithmFPType *>(dataBlock.values());
+    size_t * colIndices             = dataBlock.cols();
+    size_t * rowOffsets             = dataBlock.rows();
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, nFeatures);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures * nFeatures, sizeof(algorithmFPType));
 
     TArrayCalloc<algorithmFPType, cpu> partialCrossProductArray(nFeatures * nFeatures);
     DAAL_CHECK_MALLOC(partialCrossProductArray.get());
-    algorithmFPType *partialCrossProduct = partialCrossProductArray.get();
+    algorithmFPType * partialCrossProduct = partialCrossProductArray.get();
 
     if (method != sumCSR)
     {
-        return computeSumCSR<algorithmFPType, method, cpu>(nFeatures, nVectors, data,
-            colIndices, rowOffsets, crossProduct, partialCrossProduct, sums, nObservations);
+        return computeSumCSR<algorithmFPType, method, cpu>(nFeatures, nVectors, data, colIndices, rowOffsets, crossProduct, partialCrossProduct, sums,
+                                                           nObservations);
     }
     else
     {
-        NumericTable *userSumsTable = dataTable->basicStatistics.get(NumericTable::sum).get();
-        DEFINE_TABLE_BLOCK( ReadRows, userSumsBlock, userSumsTable );
-        algorithmFPType *partialSums = const_cast<algorithmFPType *>(userSumsBlock.get());
+        NumericTable * userSumsTable = dataTable->basicStatistics.get(NumericTable::sum).get();
+        DEFINE_TABLE_BLOCK(ReadRows, userSumsBlock, userSumsTable);
+        algorithmFPType * partialSums = const_cast<algorithmFPType *>(userSumsBlock.get());
 
-        return computeOtherMethods<algorithmFPType, method, cpu>(nFeatures, nVectors, data, colIndices,
-            rowOffsets, crossProduct, partialCrossProduct, sums, partialSums, nObservations);
+        return computeOtherMethods<algorithmFPType, method, cpu>(nFeatures, nVectors, data, colIndices, rowOffsets, crossProduct, partialCrossProduct,
+                                                                 sums, partialSums, nObservations);
     }
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status CovarianceCSROnlineKernel<algorithmFPType, method, cpu>::finalizeCompute(
-    NumericTable *nObservationsTable,
-    NumericTable *crossProductTable,
-    NumericTable *sumTable,
-    NumericTable *covTable,
-    NumericTable *meanTable,
-    const Parameter *parameter)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status CovarianceCSROnlineKernel<algorithmFPType, method, cpu>::finalizeCompute(NumericTable * nObservationsTable,
+                                                                                          NumericTable * crossProductTable, NumericTable * sumTable,
+                                                                                          NumericTable * covTable, NumericTable * meanTable,
+                                                                                          const Parameter * parameter)
 {
-    return finalizeCovariance<algorithmFPType, cpu>(nObservationsTable,
-        crossProductTable, sumTable, covTable, meanTable, parameter);
+    return finalizeCovariance<algorithmFPType, cpu>(nObservationsTable, crossProductTable, sumTable, covTable, meanTable, parameter);
 }
 
-} // internal
-} // covariance
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace covariance
+} // namespace algorithms
+} // namespace daal
 
 #endif

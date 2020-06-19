@@ -29,10 +29,9 @@ using namespace daal::data_management;
  * Method:    cNewDataCollection
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_KeyValueDataCollection_cNewDataCollection
-  (JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_KeyValueDataCollection_cNewDataCollection(JNIEnv * env, jobject thisObj)
 {
-    KeyValueDataCollection *collection = new KeyValueDataCollection();
+    KeyValueDataCollection * collection = new KeyValueDataCollection();
     return (jlong)(new SerializationIfacePtr(collection));
 }
 
@@ -41,12 +40,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_KeyValueDataCo
  * Method:    cGetValue
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_KeyValueDataCollection_cGetValue
-  (JNIEnv *env, jobject thisObj, jlong collectionAddr, jint key)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_KeyValueDataCollection_cGetValue(JNIEnv * env, jobject thisObj,
+                                                                                                   jlong collectionAddr, jint key)
 {
-    SerializationIfacePtr *collectionShPtr = (SerializationIfacePtr *)collectionAddr;
-    KeyValueDataCollection *collection = static_cast<KeyValueDataCollection *>(collectionShPtr->get());
-    SerializationIfacePtr *value = new SerializationIfacePtr((*collection)[(size_t)key]);
+    SerializationIfacePtr * collectionShPtr = (SerializationIfacePtr *)collectionAddr;
+    KeyValueDataCollection * collection     = static_cast<KeyValueDataCollection *>(collectionShPtr->get());
+    SerializationIfacePtr * value           = new SerializationIfacePtr((*collection)[(size_t)key]);
     return (jlong)value;
 }
 
@@ -55,13 +54,13 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_KeyValueDataCo
  * Method:    cSetValue
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_KeyValueDataCollection_cSetValue
-  (JNIEnv *env, jobject thisObj, jlong collectionAddr, jint key, jlong valueAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_KeyValueDataCollection_cSetValue(JNIEnv * env, jobject thisObj, jlong collectionAddr,
+                                                                                                  jint key, jlong valueAddr)
 {
-    SerializationIfacePtr *collectionShPtr = (SerializationIfacePtr *)collectionAddr;
-    SerializationIfacePtr *valueShPtr = (SerializationIfacePtr *)valueAddr;
-    KeyValueDataCollection *collection = static_cast<KeyValueDataCollection *>(collectionShPtr->get());
-    (*collection)[(size_t)key] = *valueShPtr;
+    SerializationIfacePtr * collectionShPtr = (SerializationIfacePtr *)collectionAddr;
+    SerializationIfacePtr * valueShPtr      = (SerializationIfacePtr *)valueAddr;
+    KeyValueDataCollection * collection     = static_cast<KeyValueDataCollection *>(collectionShPtr->get());
+    (*collection)[(size_t)key]              = *valueShPtr;
 }
 
 /*
@@ -69,11 +68,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_KeyValueDataCol
  * Method:    cSize
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_KeyValueDataCollection_cSize
-  (JNIEnv *env, jobject thisObj, jlong collectionAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_KeyValueDataCollection_cSize(JNIEnv * env, jobject thisObj, jlong collectionAddr)
 {
-    SerializationIfacePtr *collectionShPtr = (SerializationIfacePtr *)collectionAddr;
-    KeyValueDataCollection *collection = static_cast<KeyValueDataCollection *>(collectionShPtr->get());
+    SerializationIfacePtr * collectionShPtr = (SerializationIfacePtr *)collectionAddr;
+    KeyValueDataCollection * collection     = static_cast<KeyValueDataCollection *>(collectionShPtr->get());
     return (jlong)(collection->size());
 }
 
@@ -82,12 +80,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_KeyValueDataCo
  * Method:    cGetKeyByIndex
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_KeyValueDataCollection_cGetKeyByIndex
-  (JNIEnv *env, jobject thisObj, jlong collectionAddr, jint index)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_KeyValueDataCollection_cGetKeyByIndex(JNIEnv * env, jobject thisObj,
+                                                                                                        jlong collectionAddr, jint index)
 {
-    SerializationIfacePtr *collectionShPtr = (SerializationIfacePtr *)collectionAddr;
-    KeyValueDataCollection *collection = static_cast<KeyValueDataCollection *>(collectionShPtr->get());
-    size_t key = collection->getKeyByIndex((size_t)index);
+    SerializationIfacePtr * collectionShPtr = (SerializationIfacePtr *)collectionAddr;
+    KeyValueDataCollection * collection     = static_cast<KeyValueDataCollection *>(collectionShPtr->get());
+    size_t key                              = collection->getKeyByIndex((size_t)index);
     return (jlong)(key);
 }
 
@@ -96,12 +94,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_KeyValueDataCo
  * Method:    cGetValueByIndex
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_KeyValueDataCollection_cGetValueByIndex
-  (JNIEnv *env, jobject thisObj, jlong collectionAddr, jint index)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_KeyValueDataCollection_cGetValueByIndex(JNIEnv * env, jobject thisObj,
+                                                                                                          jlong collectionAddr, jint index)
 {
-    SerializationIfacePtr *collectionShPtr = (SerializationIfacePtr *)collectionAddr;
-    KeyValueDataCollection *collection = static_cast<KeyValueDataCollection *>(collectionShPtr->get());
-    SerializationIfacePtr *valueShPtr = new SerializationIfacePtr(
-        collection->getValueByIndex((size_t)index));
+    SerializationIfacePtr * collectionShPtr = (SerializationIfacePtr *)collectionAddr;
+    KeyValueDataCollection * collection     = static_cast<KeyValueDataCollection *>(collectionShPtr->get());
+    SerializationIfacePtr * valueShPtr      = new SerializationIfacePtr(collection->getValueByIndex((size_t)index));
     return (jlong)valueShPtr;
 }

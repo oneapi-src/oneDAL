@@ -21,15 +21,15 @@
 //--
 */
 
-#include "df_classification_train_container.h"
-#include "daal_strings.h"
+#include "algorithms/kernel/dtrees/forest/classification/df_classification_train_container.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_forest::classification::training::BatchContainer, batch, DAAL_FPTYPE, \
-    decision_forest::classification::training::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_forest::classification::training::BatchContainer, batch, DAAL_FPTYPE,
+                                      decision_forest::classification::training::defaultDense)
 namespace decision_forest
 {
 namespace classification
@@ -38,24 +38,21 @@ namespace training
 {
 namespace interface2
 {
-template<>
+template <>
 DAAL_EXPORT services::Status Batch<DAAL_FPTYPE, decision_forest::classification::training::defaultDense>::checkComputeParams()
 {
     services::Status s = classifier::training::Batch::checkComputeParams();
-    if(!s)
-        return s;
-    const auto x = input.get(classifier::training::data);
+    if (!s) return s;
+    const auto x         = input.get(classifier::training::data);
     const auto nFeatures = x->getNumberOfColumns();
-    DAAL_CHECK_EX(parameter.featuresPerNode <= nFeatures,
-        services::ErrorIncorrectParameter, services::ParameterName, featuresPerNodeStr());
-    const size_t nSamplesPerTree(parameter.observationsPerTreeFraction*x->getNumberOfRows());
-    DAAL_CHECK_EX(nSamplesPerTree > 0,
-        services::ErrorIncorrectParameter, services::ParameterName, observationsPerTreeFractionStr());
+    DAAL_CHECK_EX(parameter.featuresPerNode <= nFeatures, services::ErrorIncorrectParameter, services::ParameterName, featuresPerNodeStr());
+    const size_t nSamplesPerTree(parameter.observationsPerTreeFraction * x->getNumberOfRows());
+    DAAL_CHECK_EX(nSamplesPerTree > 0, services::ErrorIncorrectParameter, services::ParameterName, observationsPerTreeFractionStr());
     return s;
 }
-}
-}
-}
-}
-}
+} // namespace interface2
+} // namespace training
+} // namespace classification
+} // namespace decision_forest
+} // namespace algorithms
 } // namespace daal

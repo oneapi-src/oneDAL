@@ -23,9 +23,9 @@
 
 #include "algorithms/gradient_boosted_trees/gbt_regression_model_builder.h"
 #include "algorithms/gradient_boosted_trees/gbt_regression_model.h"
-#include "../../dtrees_model_impl.h"
-#include "../gbt_model_impl.h"
-#include "gbt_regression_model_impl.h"
+#include "algorithms/kernel/dtrees/dtrees_model_impl.h"
+#include "algorithms/kernel/dtrees/gbt/gbt_model_impl.h"
+#include "algorithms/kernel/dtrees/gbt/regression/gbt_regression_model_impl.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -40,10 +40,10 @@ namespace regression
 {
 namespace interface1
 {
-
 services::Status ModelBuilder::convertModelInternal()
 {
-    gbt::regression::internal::ModelImpl& modelImplRef = daal::algorithms::dtrees::internal::getModelRef<daal::algorithms::gbt::regression::internal::ModelImpl,ModelPtr>(_model);
+    gbt::regression::internal::ModelImpl & modelImplRef =
+        daal::algorithms::dtrees::internal::getModelRef<daal::algorithms::gbt::regression::internal::ModelImpl, ModelPtr>(_model);
     return daal::algorithms::gbt::internal::ModelImpl::convertDecisionTreesToGbtTrees(modelImplRef._serializationData);
 }
 
@@ -52,7 +52,8 @@ services::Status ModelBuilder::initialize(size_t nFeatures, size_t nIterations)
     auto modelImpl = new gbt::regression::internal::ModelImpl(nFeatures);
     DAAL_CHECK_MALLOC(modelImpl)
     _model.reset(modelImpl);
-    gbt::regression::internal::ModelImpl& modelImplRef = daal::algorithms::dtrees::internal::getModelRef<daal::algorithms::gbt::regression::internal::ModelImpl,ModelPtr>(_model);
+    gbt::regression::internal::ModelImpl & modelImplRef =
+        daal::algorithms::dtrees::internal::getModelRef<daal::algorithms::gbt::regression::internal::ModelImpl, ModelPtr>(_model);
 
     modelImplRef.resize(nIterations);
     modelImplRef._impurityTables.reset();
@@ -61,26 +62,32 @@ services::Status ModelBuilder::initialize(size_t nFeatures, size_t nIterations)
     return services::Status();
 }
 
-services::Status ModelBuilder::createTreeInternal(size_t nNodes, TreeId& resId)
+services::Status ModelBuilder::createTreeInternal(size_t nNodes, TreeId & resId)
 {
-    gbt::regression::internal::ModelImpl& modelImplRef = daal::algorithms::dtrees::internal::getModelRef<daal::algorithms::gbt::regression::internal::ModelImpl,ModelPtr>(_model);
+    gbt::regression::internal::ModelImpl & modelImplRef =
+        daal::algorithms::dtrees::internal::getModelRef<daal::algorithms::gbt::regression::internal::ModelImpl, ModelPtr>(_model);
     return daal::algorithms::dtrees::internal::createTreeInternal(modelImplRef._serializationData, nNodes, resId);
 }
 
-services::Status ModelBuilder::addLeafNodeInternal(TreeId treeId, NodeId parentId, size_t position, double response, NodeId& res)
+services::Status ModelBuilder::addLeafNodeInternal(TreeId treeId, NodeId parentId, size_t position, double response, NodeId & res)
 {
-    gbt::regression::internal::ModelImpl& modelImplRef = daal::algorithms::dtrees::internal::getModelRef<daal::algorithms::gbt::regression::internal::ModelImpl,ModelPtr>(_model);
-    return daal::algorithms::dtrees::internal::addLeafNodeInternal<double>(modelImplRef._serializationData, treeId, parentId, position, response, res);
+    gbt::regression::internal::ModelImpl & modelImplRef =
+        daal::algorithms::dtrees::internal::getModelRef<daal::algorithms::gbt::regression::internal::ModelImpl, ModelPtr>(_model);
+    return daal::algorithms::dtrees::internal::addLeafNodeInternal<double>(modelImplRef._serializationData, treeId, parentId, position, response,
+                                                                           res);
 }
 
-services::Status ModelBuilder::addSplitNodeInternal(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue, NodeId& res)
+services::Status ModelBuilder::addSplitNodeInternal(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue,
+                                                    NodeId & res)
 {
-    gbt::regression::internal::ModelImpl& modelImplRef = daal::algorithms::dtrees::internal::getModelRef<daal::algorithms::gbt::regression::internal::ModelImpl,ModelPtr>(_model);
-    return daal::algorithms::dtrees::internal::addSplitNodeInternal(modelImplRef._serializationData, treeId, parentId, position, featureIndex, featureValue, res);
+    gbt::regression::internal::ModelImpl & modelImplRef =
+        daal::algorithms::dtrees::internal::getModelRef<daal::algorithms::gbt::regression::internal::ModelImpl, ModelPtr>(_model);
+    return daal::algorithms::dtrees::internal::addSplitNodeInternal(modelImplRef._serializationData, treeId, parentId, position, featureIndex,
+                                                                    featureValue, res);
 }
 
 } // namespace interface1
-} // namespace classification
-} // namespace decision_forest
+} // namespace regression
+} // namespace gbt
 } // namespace algorithms
 } // namespace daal

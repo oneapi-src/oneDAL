@@ -33,17 +33,17 @@ using namespace std;
 using namespace daal;
 using namespace data_management;
 
-string datasetFileName  = "../data/batch/logitboost_train.csv";
+string datasetFileName = "../data/batch/logitboost_train.csv";
 
-DataBlock rawData;        /* Data to compress */
-DataBlock compressedData;  /* Result of compression */
-DataBlock deCompressedData;    /* Result of decompression */
+DataBlock rawData;          /* Data to compress */
+DataBlock compressedData;   /* Result of compression */
+DataBlock deCompressedData; /* Result of decompression */
 
 void prepareMemory();
 void releaseMemory();
 void printCRC32();
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     /* Create a compressor */
     Compressor<zlib> compressor;
     compressor.parameter.gzHeader = true;
-    compressor.parameter.level = level9;
+    compressor.parameter.level    = level9;
 
     /* Create a stream for compression */
     CompressionStream comprStream(&compressor);
@@ -100,18 +100,18 @@ int main(int argc, char *argv[])
 void prepareMemory()
 {
     /* Allocate memory for raw data and read an input file */
-    byte *data;
+    byte * data;
     rawData.setSize(readTextFile(datasetFileName, &data));
     rawData.setPtr(data);
 }
 
 void printCRC32()
 {
-    unsigned int crcRawData = 0;
+    unsigned int crcRawData          = 0;
     unsigned int crcDecompressedData = 0;
 
     /* Compute checksums for raw data and the decompressed data */
-    crcRawData = getCRC32(rawData.getPtr(), crcRawData, rawData.getSize());
+    crcRawData          = getCRC32(rawData.getPtr(), crcRawData, rawData.getSize());
     crcDecompressedData = getCRC32(deCompressedData.getPtr(), crcDecompressedData, deCompressedData.getSize());
 
     cout << endl << "Compression example program results:" << endl << endl;
@@ -135,16 +135,16 @@ void printCRC32()
 
 void releaseMemory()
 {
-    if(compressedData.getPtr())
+    if (compressedData.getPtr())
     {
-        delete [] compressedData.getPtr();
+        delete[] compressedData.getPtr();
     }
-    if(deCompressedData.getPtr())
+    if (deCompressedData.getPtr())
     {
-        delete [] deCompressedData.getPtr();
+        delete[] deCompressedData.getPtr();
     }
-    if(rawData.getPtr())
+    if (rawData.getPtr())
     {
-        delete [] rawData.getPtr();
+        delete[] rawData.getPtr();
     }
 }

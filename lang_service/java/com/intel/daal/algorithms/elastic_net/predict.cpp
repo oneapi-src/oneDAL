@@ -19,7 +19,7 @@
 
 #include "com_intel_daal_algorithms_elastic_net_prediction_PredictionBatch.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_elastic_net_prediction_PredictionMethod.h"
 #define defaultDense com_intel_daal_algorithms_elastic_net_prediction_PredictionMethod_defaultDenseValue
@@ -43,8 +43,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_prediction_P
  * Method:    cGetInput
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_prediction_PredictionBatch_cGetInput(JNIEnv * env, jobject thisObj,
-                                                                                                         jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_prediction_PredictionBatch_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                         jint prec, jint method)
 {
     return jniBatch<elastic_net::prediction::Method, Batch, defaultDense>::getInput(prec, method, algAddr);
 }
@@ -65,9 +65,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_prediction_P
  * Method:    cSetResult
  * Signature:(JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_prediction_PredictionBatch_cSetResult(JNIEnv * env, jobject thisObj,
-                                                                                                         jlong algAddr, jint prec, jint method,
-                                                                                                         jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_prediction_PredictionBatch_cSetResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                         jint prec, jint method, jlong resultAddr)
 {
     jniBatch<elastic_net::prediction::Method, Batch, defaultDense>::setResult<elastic_net::prediction::Result>(prec, method, algAddr, resultAddr);
 }
@@ -77,8 +76,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_elastic_1net_prediction_Pr
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_prediction_PredictionBatch_cClone(JNIEnv * env, jobject thisObj,
-                                                                                                      jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_elastic_1net_prediction_PredictionBatch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                      jint prec, jint method)
 {
     return jniBatch<elastic_net::prediction::Method, Batch, defaultDense>::getClone(prec, method, algAddr);
 }

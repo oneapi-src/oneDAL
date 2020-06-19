@@ -21,7 +21,7 @@
 //--
 */
 
-#include "fullyconnected_layer_types.h"
+#include "algorithms/neural_networks/layers/fullyconnected/fullyconnected_layer_types.h"
 
 namespace daal
 {
@@ -41,9 +41,9 @@ namespace interface1
  */
 Parameter::Parameter(size_t _nOutputs) : nOutputs(_nOutputs) {}
 
-}// namespace interface1
-}// namespace fullyconnected
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace fullyconnected
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

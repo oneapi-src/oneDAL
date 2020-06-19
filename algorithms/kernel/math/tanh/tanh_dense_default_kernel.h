@@ -19,11 +19,10 @@
 //  Declaration of template function that calculate hyperbolic tangent.
 //--
 
-
 #ifndef __TANH_DENSE_DEFAULT_KERNEL_H__
 #define __TANH_DENSE_DEFAULT_KERNEL_H__
 
-#include "tanh_base.h"
+#include "algorithms/kernel/math/tanh/tanh_base.h"
 
 namespace daal
 {
@@ -35,16 +34,15 @@ namespace tanh
 {
 namespace internal
 {
-
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class TanhKernel<algorithmFPType, defaultDense, cpu> : public TanhKernelBase<algorithmFPType, defaultDense, cpu>
 {
 protected:
-    Status processBlock(const NumericTable &inputTable, size_t nInputColumns, size_t nProcessedRows, size_t nRowsInCurrentBlock,
-                        NumericTable &resultTable);
+    Status processBlock(const NumericTable & inputTable, size_t nInputColumns, size_t nProcessedRows, size_t nRowsInCurrentBlock,
+                        NumericTable & resultTable);
 };
 
-} // namespace daal::internal
+} // namespace internal
 } // namespace tanh
 } // namespace math
 } // namespace algorithms

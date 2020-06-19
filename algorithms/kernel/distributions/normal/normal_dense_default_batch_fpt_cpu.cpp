@@ -19,9 +19,9 @@
 //  Implementation of normal algorithm functions.
 //--
 
-#include "normal_batch_container.h"
-#include "normal_kernel.h"
-#include "normal_impl.i"
+#include "algorithms/kernel/distributions/normal/normal_batch_container.h"
+#include "algorithms/kernel/distributions/normal/normal_kernel.h"
+#include "algorithms/kernel/distributions/normal/normal_impl.i"
 
 namespace daal
 {
@@ -31,7 +31,6 @@ namespace distributions
 {
 namespace normal
 {
-
 namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

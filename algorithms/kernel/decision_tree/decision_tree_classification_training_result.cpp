@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/decision_tree/decision_tree_classification_training_types.h"
-#include "serialization_utils.h"
+#include "service/kernel/serialization_utils.h"
 
 namespace daal
 {
@@ -36,7 +36,6 @@ namespace training
 {
 namespace interface1
 {
-
 using namespace daal::data_management;
 using namespace daal::services;
 

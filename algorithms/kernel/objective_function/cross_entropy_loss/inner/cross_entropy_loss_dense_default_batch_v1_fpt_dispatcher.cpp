@@ -19,14 +19,14 @@
 //  Implementation of cross_entropy_loss calculation algorithm container.
 //--
 
-
-#include "cross_entropy_loss_dense_default_batch_container_v1.h"
+#include "algorithms/kernel/objective_function/cross_entropy_loss/inner/cross_entropy_loss_dense_default_batch_container_v1.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(optimization_solver::cross_entropy_loss::interface1::BatchContainer, batch, DAAL_FPTYPE, optimization_solver::cross_entropy_loss::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(optimization_solver::cross_entropy_loss::interface1::BatchContainer, batch, DAAL_FPTYPE,
+                                      optimization_solver::cross_entropy_loss::defaultDense)
 
 namespace optimization_solver
 {
@@ -36,14 +36,13 @@ namespace interface1
 {
 using BatchType = Batch<DAAL_FPTYPE, optimization_solver::cross_entropy_loss::defaultDense>;
 
-template<>
+template <>
 services::SharedPtr<BatchType> BatchType::create(size_t nClasses, size_t numberOfTerms)
 {
     return services::SharedPtr<BatchType>(new BatchType(nClasses, numberOfTerms));
 }
 
 } // namespace interface1
-
 
 } // namespace cross_entropy_loss
 } // namespace optimization_solver

@@ -30,10 +30,9 @@ using namespace daal::data_management;
  * Method:    cGetBeta
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_Model_cGetBeta
-(JNIEnv *env, jobject thisObj, jlong modAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_Model_cGetBeta(JNIEnv * env, jobject thisObj, jlong modAddr)
 {
-    NumericTablePtr * const nt = new NumericTablePtr();
+    NumericTablePtr * const nt                    = new NumericTablePtr();
     algorithms::logistic_regression::ModelPtr res = *(algorithms::logistic_regression::ModelPtr *)modAddr;
 
     *nt = res->getBeta();
@@ -46,8 +45,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_Mode
  * Method:    cGetNumberOfBetas
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_Model_cGetNumberOfBetas
-(JNIEnv *env, jobject thisObj, jlong modAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_Model_cGetNumberOfBetas(JNIEnv * env, jobject thisObj, jlong modAddr)
 {
     algorithms::logistic_regression::ModelPtr res = *(algorithms::logistic_regression::ModelPtr *)modAddr;
 

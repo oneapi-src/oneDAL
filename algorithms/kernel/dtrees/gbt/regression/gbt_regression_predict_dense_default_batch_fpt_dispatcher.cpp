@@ -23,14 +23,13 @@
 //--
 */
 
-#include "gbt_regression_predict_container.h"
+#include "algorithms/kernel/dtrees/gbt/regression/gbt_regression_predict_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(gbt::regression::prediction::BatchContainer, batch,\
-    DAAL_FPTYPE, gbt::regression::prediction::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(gbt::regression::prediction::BatchContainer, batch, DAAL_FPTYPE, gbt::regression::prediction::defaultDense)
 namespace gbt
 {
 namespace regression
@@ -48,14 +47,14 @@ Batch<DAAL_FPTYPE, gbt::regression::prediction::defaultDense>::Batch()
 
 using BatchType = Batch<DAAL_FPTYPE, gbt::regression::prediction::defaultDense>;
 template <>
-Batch<DAAL_FPTYPE, gbt::regression::prediction::defaultDense>::Batch(const BatchType &other) : input(other.input)
+Batch<DAAL_FPTYPE, gbt::regression::prediction::defaultDense>::Batch(const BatchType & other) : input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();
 }
-}
-}
-}
-}
-}
+} // namespace interface1
+} // namespace prediction
+} // namespace regression
+} // namespace gbt
+} // namespace algorithms
 } // namespace daal

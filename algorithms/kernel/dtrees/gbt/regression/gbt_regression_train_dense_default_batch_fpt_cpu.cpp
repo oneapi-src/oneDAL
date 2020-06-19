@@ -21,8 +21,8 @@
 //--
 */
 
-#include "gbt_regression_train_container.h"
-#include "gbt_regression_train_dense_default_impl.i"
+#include "algorithms/kernel/dtrees/gbt/regression/gbt_regression_train_container.h"
+#include "algorithms/kernel/dtrees/gbt/regression/gbt_regression_train_dense_default_impl.i"
 
 namespace daal
 {
@@ -43,8 +43,8 @@ namespace internal
 template class RegressionTrainBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
 
-}
-}
-}
-}
-}
+} // namespace training
+} // namespace regression
+} // namespace gbt
+} // namespace algorithms
+} // namespace daal

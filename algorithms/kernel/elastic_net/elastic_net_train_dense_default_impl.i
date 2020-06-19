@@ -25,15 +25,17 @@
 #ifndef __ELASTIC_NET_TRAIN_DENSE_DEFAULT_IMPL_I__
 #define __ELASTIC_NET_TRAIN_DENSE_DEFAULT_IMPL_I__
 
-#include "elastic_net_train_kernel.h"
-#include "elastic_net_model_impl.h"
-#include "service_error_handling.h"
-#include "service_algo_utils.h"
+#include "algorithms/kernel/elastic_net/elastic_net_train_kernel.h"
+#include "algorithms/kernel/elastic_net/elastic_net_model_impl.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "service/kernel/service_algo_utils.h"
 #include "algorithms/optimization_solver/objective_function/mse_batch.h"
 #include "algorithms/optimization_solver/coordinate_descent/coordinate_descent_batch.h"
 
-#include "service_numeric_table.h"
-#include "service_math.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_math.h"
+#include "data_management/data/soa_numeric_table.h"
+#include "externals/service_blas.h"
 
 using namespace daal::algorithms::elastic_net::training::internal;
 using namespace daal::algorithms::optimization_solver;
@@ -54,10 +56,11 @@ namespace internal
 //////////////////////////////////////////////////////////////////////////////////////////
 template <typename algorithmFPType, elastic_net::training::Method method, CpuType cpu>
 services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
-    const HostAppIfacePtr & pHost, const NumericTablePtr & x, const NumericTablePtr & y, elastic_net::Model & m, Result & res,
-    const Parameter & par, services::SharedPtr<daal::algorithms::optimization_solver::mse::Batch<algorithmFPType> > & objFunc)
+    const HostAppIfacePtr & pHost, const NumericTablePtr & x, const NumericTablePtr & y, elastic_net::Model & m, Result & res, const Parameter & par,
+    services::SharedPtr<daal::algorithms::optimization_solver::mse::Batch<algorithmFPType> > & objFunc)
 {
     services::Status s;
+    SafeStatus safeStat;
     const size_t nFeatures           = x->getNumberOfColumns();
     const size_t nRows               = x->getNumberOfRows();
     const size_t p                   = nFeatures + 1;
@@ -101,41 +104,70 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
             DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
         }
 
-        daal::internal::WriteRows<algorithmFPType, cpu> xBD(xTrain.get(), 0, nRows);
-        DAAL_CHECK_BLOCK_STATUS(xBD);
-        daal::internal::WriteRows<algorithmFPType, cpu> yBD(yTrain.get(), 0, nRows);
-        DAAL_CHECK_BLOCK_STATUS(yBD);
-        algorithmFPType * const xPtr = xBD.get();
-        algorithmFPType * const yPtr = yBD.get();
-
         algorithmFPType inversedNRows = (algorithmFPType)1.0 / (algorithmFPType)nRows;
         yMeans.reset(nDependentVariables);
         yMeansPtr = yMeans.get();
         DAAL_CHECK_MALLOC(yMeansPtr);
-        for (size_t i = 0; i < nDependentVariables; i++) //[TBD] do in parallel
-        {
-            yMeansPtr[i] = 0;
-        }
-        for (size_t i = 0; i < nRows; i++)
-        {
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
-            for (size_t id = 0; id < nDependentVariables; ++id)
+
+        algorithmFPType neg_one = -1.0;
+        DAAL_INT one            = 1;
+        DAAL_INT zero           = 0;
+        DAAL_INT n              = nRows;
+        DAAL_INT p              = nFeatures;
+
+        const size_t blockSize = 256;
+        size_t nBlocks         = nRows / blockSize;
+        nBlocks += (nBlocks * blockSize != nRows);
+
+        TlsSum<algorithmFPType, cpu> yTlsData(nDependentVariables);
+        daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+            algorithmFPType * local = yTlsData.local();
+            const size_t startRow   = iBlock * blockSize;
+            const size_t finishRow  = (iBlock + 1 == nBlocks ? nRows : (iBlock + 1) * blockSize);
+            DAAL_INT numRowsInBlock = finishRow - startRow;
+
+            daal::internal::ReadRows<algorithmFPType, cpu> yBD(yTrain.get(), startRow, numRowsInBlock);
+            DAAL_CHECK_BLOCK_STATUS_THR(yBD);
+            const algorithmFPType * yPtr = yBD.get();
+
+            for (size_t i = 0; i < numRowsInBlock; ++i)
             {
-                yMeansPtr[id] += yPtr[i * nDependentVariables + id];
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for (size_t id = 0; id < nDependentVariables; ++id)
+                {
+                    local[id] += yPtr[i * nDependentVariables + id];
+                }
             }
-        }
+        });
+        yTlsData.reduceTo(yMeansPtr, nDependentVariables);
+
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < nDependentVariables; ++i)
         {
             yMeansPtr[i] *= inversedNRows;
         }
-        for (size_t i = 0; i < nRows; i++)
-        {
-            for (size_t id = 0; id < nDependentVariables; ++id)
+
+        daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+            const size_t startRow   = iBlock * blockSize;
+            const size_t finishRow  = (iBlock + 1 == nBlocks ? nRows : (iBlock + 1) * blockSize);
+            DAAL_INT numRowsInBlock = finishRow - startRow;
+
+            daal::internal::WriteOnlyRows<algorithmFPType, cpu> yBD(yTrain.get(), startRow, numRowsInBlock);
+            DAAL_CHECK_BLOCK_STATUS_THR(yBD);
+            algorithmFPType * yPtr = yBD.get();
+
+            for (size_t i = 0; i < numRowsInBlock; ++i)
             {
-                yPtr[i * nDependentVariables + id] -= yMeansPtr[id];
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for (size_t id = 0; id < nDependentVariables; ++id)
+                {
+                    yPtr[i * nDependentVariables + id] -= yMeansPtr[id];
+                }
             }
-        }
+        });
 
         xMeans.reset(nFeatures);
         xMeansPtr = xMeans.get();
@@ -143,54 +175,65 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
 
         for (size_t i = 0; i < nFeatures; ++i) xMeansPtr[i] = 0;
 
-        const size_t blockSize = 256;
-        size_t nBlocks         = nRows / blockSize;
-        nBlocks += (nBlocks * blockSize != nRows);
-
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, sizeof(algorithmFPType));
 
-        TlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> > tlsData(nFeatures);
+        TlsSum<algorithmFPType, cpu> tlsData(nFeatures);
         daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
-            algorithmFPType * sum  = tlsData.local();
-            const size_t startRow  = iBlock * blockSize;
-            const size_t finishRow = (iBlock + 1 == nBlocks ? nRows : (iBlock + 1) * blockSize);
-            for (size_t i = startRow; i < finishRow; i++)
+            algorithmFPType * const sum = tlsData.local();
+            const size_t startRow       = iBlock * blockSize;
+            const size_t finishRow      = (iBlock + 1 == nBlocks ? nRows : (iBlock + 1) * blockSize);
+            DAAL_INT numRowsInBlock     = finishRow - startRow;
+
+            daal::internal::ReadRows<algorithmFPType, cpu> xBD(xTrain.get(), startRow, numRowsInBlock);
+            DAAL_CHECK_BLOCK_STATUS_THR(xBD);
+            const algorithmFPType * xPtr = xBD.get();
+
+            for (size_t i = 0; i < numRowsInBlock; ++i)
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t j = 0; j < nFeatures; j++)
+                for (size_t j = 0; j < nFeatures; ++j)
                 {
-                    sum[j] += xPtr[i * nFeatures + j];
+                    sum[j] += xPtr[i * p + j];
                 }
             }
         });
-        tlsData.reduce([&](algorithmFPType * localSum) {
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
-            for (size_t j = 0; j < nFeatures; j++)
-            {
-                xMeansPtr[j] += localSum[j];
-            }
-        });
+        tlsData.reduceTo(xMeansPtr, nFeatures);
 
         for (size_t i = 0; i < nFeatures; ++i)
         {
             xMeansPtr[i] *= inversedNRows;
         }
 
-        daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
-            const size_t startRow  = iBlock * blockSize;
-            const size_t finishRow = (iBlock + 1 == nBlocks ? nRows : (iBlock + 1) * blockSize);
-            for (size_t i = startRow; i < finishRow; i++)
-            {
-                PRAGMA_IVDEP
-                PRAGMA_VECTOR_ALWAYS
+        const SOANumericTable * soaPtr = dynamic_cast<SOANumericTable *>(xTrain.get());
+
+        if (soaPtr)
+        {
+            daal::threader_for(nFeatures, nFeatures, [&](const size_t j) {
+                daal::internal::WriteColumns<algorithmFPType, cpu> xBD(xTrain.get(), j, 0, nRows);
+                DAAL_CHECK_BLOCK_STATUS_THR(xBD);
+                algorithmFPType * xPtr = xBD.get();
+
+                daal::internal::Blas<algorithmFPType, cpu>::xxaxpy(&n, &neg_one, xMeansPtr + j, &zero, xPtr, &one);
+            });
+        }
+        else
+        {
+            daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+                const size_t startRow   = iBlock * blockSize;
+                const size_t finishRow  = (iBlock + 1 == nBlocks ? nRows : (iBlock + 1) * blockSize);
+                DAAL_INT numRowsInBlock = finishRow - startRow;
+
+                daal::internal::WriteRows<algorithmFPType, cpu> xBD(xTrain.get(), startRow, numRowsInBlock);
+                DAAL_CHECK_BLOCK_STATUS_THR(xBD);
+                algorithmFPType * xPtr = xBD.get();
+
                 for (size_t j = 0; j < nFeatures; j++)
                 {
-                    xPtr[i * nFeatures + j] -= xMeansPtr[j];
+                    daal::internal::Blas<algorithmFPType, cpu>::xxaxpy(&numRowsInBlock, &neg_one, xMeansPtr + j, &zero, xPtr + j, &p);
                 }
-            }
-        });
+            });
+        }
     }
     services::SharedPtr<optimization_solver::iterative_solver::Batch> pSolver(par.optimizationSolver); //par.optimizationSolver->clone();
     if (!pSolver.get())

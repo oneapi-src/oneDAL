@@ -21,7 +21,7 @@
 //--
 */
 
-#include "softmax_layer_types.h"
+#include "algorithms/neural_networks/layers/softmax/softmax_layer_types.h"
 
 namespace daal
 {
@@ -45,11 +45,11 @@ Parameter::Parameter(size_t _dimension) : dimension(_dimension) {}
  *  Constructs parameters of the softmax layer by copying another parameters of the softmax layer
  *  \param[in] other    Parameters of the softmax layer
  */
-Parameter::Parameter(const Parameter &other) : dimension(other.dimension) {}
+Parameter::Parameter(const Parameter & other) : dimension(other.dimension) {}
 
-}// namespace interface1
-}// namespace softmax
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace softmax
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

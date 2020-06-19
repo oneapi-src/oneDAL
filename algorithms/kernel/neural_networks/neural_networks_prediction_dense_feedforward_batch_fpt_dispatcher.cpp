@@ -19,14 +19,12 @@
 //  Implementation of neural networks algorithm container.
 //--
 
-
-#include "neural_networks_prediction_batch_container.h"
+#include "algorithms/kernel/neural_networks/neural_networks_prediction_batch_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(neural_networks::prediction::BatchContainer, batch, DAAL_FPTYPE,
-                                      neural_networks::prediction::feedforwardDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(neural_networks::prediction::BatchContainer, batch, DAAL_FPTYPE, neural_networks::prediction::feedforwardDense)
 }
 } // namespace daal

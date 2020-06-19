@@ -25,8 +25,8 @@
 #ifndef __LOGISTIC_REGRESSION_TRAIN_KERNEL_V1_H__
 #define __LOGISTIC_REGRESSION_TRAIN_KERNEL_V1_H__
 
-#include "numeric_table.h"
-#include "algorithm_base_common.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/algorithm_base_common.h"
 #include "algorithms/logistic_regression/logistic_regression_training_types.h"
 
 using namespace daal::data_management;
@@ -42,20 +42,18 @@ namespace training
 {
 namespace internal
 {
-
 template <typename algorithmFPType, Method method, CpuType cpu>
 class I1TrainBatchKernel : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(const HostAppIfacePtr& pHost, const NumericTablePtr& x, const NumericTablePtr& y,
-        logistic_regression::Model& m, interface1::Result& res, const interface1::Parameter& par);
+    services::Status compute(const HostAppIfacePtr & pHost, const NumericTablePtr & x, const NumericTablePtr & y, logistic_regression::Model & m,
+                             interface1::Result & res, const interface1::Parameter & par);
 };
 
 } // namespace internal
-}// namespace training
-}// namespace logistic_regression
-}// namespace algorithms
-}// namespace daal
-
+} // namespace training
+} // namespace logistic_regression
+} // namespace algorithms
+} // namespace daal
 
 #endif

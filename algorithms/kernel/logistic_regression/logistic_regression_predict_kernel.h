@@ -26,9 +26,9 @@
 #define __LOGISTIC_REGRESSION_PREDICT_DENSE_DEFAULT_BATCH_H__
 
 #include "algorithms/logistic_regression/logistic_regression_predict.h"
-#include "service_memory.h"
-#include "kernel.h"
-#include "numeric_table.h"
+#include "externals/service_memory.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;
 
@@ -42,7 +42,6 @@ namespace prediction
 {
 namespace internal
 {
-
 template <typename algorithmFpType, logistic_regression::prediction::Method method, CpuType cpu>
 class PredictKernel : public daal::algorithms::Kernel
 {
@@ -57,8 +56,8 @@ public:
      *  \param pProbab[out] Probability prediction results
      *  \param pLogProbab[out] Log of probability prediction results
      */
-    services::Status compute(services::HostAppIface* pHostApp, const NumericTable *a, const logistic_regression::Model *m, size_t nClasses,
-        NumericTable* pRes, NumericTable* pProbab, NumericTable* pLogProbab);
+    services::Status compute(services::HostAppIface * pHostApp, const NumericTable * a, const logistic_regression::Model * m, size_t nClasses,
+                             NumericTable * pRes, NumericTable * pProbab, NumericTable * pLogProbab);
 };
 
 } // namespace internal

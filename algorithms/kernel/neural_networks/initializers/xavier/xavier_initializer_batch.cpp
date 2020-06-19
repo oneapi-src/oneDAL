@@ -19,9 +19,8 @@
 //  Implementation of Xavier calculation functions.
 //--
 
-
-#include "neural_networks/initializers/xavier/xavier_initializer.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/initializers/xavier/xavier_initializer.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -35,16 +34,15 @@ namespace xavier
 {
 namespace interface1
 {
-
 services::Status Parameter::check() const
 {
     DAAL_CHECK_EX(layer, services::ErrorNullAuxiliaryAlgorithm, services::ParameterName, layerStr());
     return services::Status();
 }
 
-} // interface1
-} // xavier
-} // initializers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace interface1
+} // namespace xavier
+} // namespace initializers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

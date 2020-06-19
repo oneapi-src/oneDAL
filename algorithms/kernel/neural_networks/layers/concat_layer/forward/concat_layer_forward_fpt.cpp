@@ -21,10 +21,10 @@
 //--
 */
 
-#include "concat_layer_forward_types.h"
-#include "concat_layer_types.h"
-#include "service_mkl_tensor.h"
-#include "tensor.h"
+#include "algorithms/neural_networks/layers/concat/concat_layer_forward_types.h"
+#include "algorithms/neural_networks/layers/concat/concat_layer_types.h"
+#include "service/kernel/data_management/service_mkl_tensor.h"
+#include "data_management/data/tensor.h"
 
 using namespace daal::services;
 using namespace daal::data_management;
@@ -50,18 +50,18 @@ namespace interface1
 * \param[in] method    Computation method for the algorithm
 */
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     using daal::data_management::Tensor;
     using daal::data_management::TensorPtr;
     using daal::internal::MklTensor;
 
-    const Input *in = static_cast<const Input * >(input);
-    const Parameter *par = static_cast<const Parameter *>(parameter);
+    const Input * in      = static_cast<const Input *>(input);
+    const Parameter * par = static_cast<const Parameter *>(parameter);
 
     TensorPtr valueTable = in->get(layers::forward::inputLayerData, 0);
 
-    const size_t nInputs = in->get(layers::forward::inputLayerData)->size();
+    const size_t nInputs         = in->get(layers::forward::inputLayerData)->size();
     const size_t concatDimension = par->concatDimension;
 
     size_t sum = 0;
@@ -73,7 +73,7 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input, const 
     DAAL_CHECK(valueTable, ErrorNullInputNumericTable);
 
     Collection<size_t> dimsCollection = valueTable->getDimensions();
-    dimsCollection[concatDimension] = sum;
+    dimsCollection[concatDimension]   = sum;
 
     if (!get(layers::forward::value))
     {
@@ -82,14 +82,14 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input, const 
     set(layers::forward::resultForBackward, LayerDataPtr(new LayerData()));
 
     Status s;
-    SharedPtr<data_management::HomogenNumericTable<size_t> > auxDimTable = data_management::HomogenNumericTable<size_t>::create
-                                                                                   (nInputs, 1, data_management::NumericTable::doAllocate, &s);
+    SharedPtr<data_management::HomogenNumericTable<size_t> > auxDimTable =
+        data_management::HomogenNumericTable<size_t>::create(nInputs, 1, data_management::NumericTable::doAllocate, &s);
 
-    size_t *auxDimArray = auxDimTable->getArray();
+    size_t * auxDimArray = auxDimTable->getArray();
 
     for (size_t i = 0; i < nInputs; i++)
     {
-        size_t dim = (in->get(layers::forward::inputLayerData, i))->getDimensionSize(concatDimension);
+        size_t dim     = (in->get(layers::forward::inputLayerData, i))->getDimensionSize(concatDimension);
         auxDimArray[i] = dim;
     }
 
@@ -97,12 +97,13 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input, const 
     return s;
 }
 
-template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                          const int method);
 
-}// namespace interface1
-}// namespace forward
-}// namespace concat
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace concat
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

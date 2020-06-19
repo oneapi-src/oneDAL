@@ -19,9 +19,8 @@
 //  Implementation of gaussian calculation functions.
 //--
 
-
-#include "neural_networks/initializers/gaussian/gaussian_initializer.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/initializers/gaussian/gaussian_initializer.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -35,16 +34,15 @@ namespace gaussian
 {
 namespace interface1
 {
-
 services::Status Parameter::check() const
 {
     DAAL_CHECK_EX(sigma > 0, services::ErrorIncorrectParameter, services::ParameterName, sigmaStr());
     return services::Status();
 }
 
-} // interface1
-} // gaussian
-} // initializers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace interface1
+} // namespace gaussian
+} // namespace initializers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

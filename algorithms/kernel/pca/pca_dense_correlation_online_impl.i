@@ -24,10 +24,10 @@
 #ifndef __PCA_DENSE_CORRELATION_ONLINE_IMPL_I__
 #define __PCA_DENSE_CORRELATION_ONLINE_IMPL_I__
 
-#include "service_math.h"
-#include "service_memory.h"
-#include "service_numeric_table.h"
-#include "pca_dense_correlation_online_kernel.h"
+#include "externals/service_math.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/pca/pca_dense_correlation_online_kernel.h"
 
 namespace daal
 {
@@ -37,32 +37,27 @@ namespace pca
 {
 namespace internal
 {
-
 template <typename algorithmFPType, CpuType cpu>
-services::Status PCACorrelationKernel<online, algorithmFPType, cpu>::compute(
-    const data_management::NumericTablePtr& pData,
-    PartialResult<correlationDense> *partialResult,
-    const OnlineParameter<algorithmFPType, correlationDense> *parameter)
+services::Status PCACorrelationKernel<online, algorithmFPType, cpu>::compute(const data_management::NumericTablePtr & pData,
+                                                                             PartialResult<correlationDense> * partialResult,
+                                                                             const OnlineParameter<algorithmFPType, correlationDense> * parameter)
 {
     parameter->covariance->input.set(covariance::data, pData);
     parameter->covariance->parameter.outputMatrixType = covariance::correlationMatrix;
 
     services::Status s = parameter->covariance->computeNoThrow();
-    if(s)
-        s = copyCovarianceResultToPartialResult(parameter->covariance->getPartialResult().get(), partialResult);
+    if (s) s = copyCovarianceResultToPartialResult(parameter->covariance->getPartialResult().get(), partialResult);
     return s;
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status PCACorrelationKernel<online, algorithmFPType, cpu>::finalize(
-    PartialResult<correlationDense> *partialResult,
-    const OnlineParameter<algorithmFPType, correlationDense> *parameter,
-    data_management::NumericTable& eigenvectors,
-    data_management::NumericTable& eigenvalues)
+services::Status PCACorrelationKernel<online, algorithmFPType, cpu>::finalize(PartialResult<correlationDense> * partialResult,
+                                                                              const OnlineParameter<algorithmFPType, correlationDense> * parameter,
+                                                                              data_management::NumericTable & eigenvectors,
+                                                                              data_management::NumericTable & eigenvalues)
 {
     services::Status s = parameter->covariance->finalizeCompute();
-    if(!s)
-        return s;
+    if (!s) return s;
 
     data_management::NumericTablePtr correlation = parameter->covariance->getResult()->get(covariance::covariance);
     return this->computeCorrelationEigenvalues(*correlation, eigenvectors, eigenvalues);
@@ -70,8 +65,7 @@ services::Status PCACorrelationKernel<online, algorithmFPType, cpu>::finalize(
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status PCACorrelationKernel<online, algorithmFPType, cpu>::copyCovarianceResultToPartialResult(
-    covariance::PartialResult *covariancePres,
-    PartialResult<correlationDense> *partialResult)
+    covariance::PartialResult * covariancePres, PartialResult<correlationDense> * partialResult)
 {
     services::Status s = copyIfNeeded(covariancePres->get(covariance::sum).get(), partialResult->get(sumCorrelation).get());
     s |= copyIfNeeded(covariancePres->get(covariance::nObservations).get(), partialResult->get(nObservationsCorrelation).get());
@@ -80,25 +74,25 @@ services::Status PCACorrelationKernel<online, algorithmFPType, cpu>::copyCovaria
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status PCACorrelationKernel<online, algorithmFPType, cpu>::copyIfNeeded(data_management::NumericTable *src, data_management::NumericTable *dst)
+services::Status PCACorrelationKernel<online, algorithmFPType, cpu>::copyIfNeeded(data_management::NumericTable * src,
+                                                                                  data_management::NumericTable * dst)
 {
-    if(src == dst)
-        return services::Status();
+    if (src == dst) return services::Status();
 
     const size_t nRows = dst->getNumberOfRows();
     const size_t nCols = dst->getNumberOfColumns();
 
     ReadRows<algorithmFPType, cpu> srcBlock(*src, 0, nRows);
     DAAL_CHECK_BLOCK_STATUS(srcBlock);
-    const algorithmFPType *srcArray = srcBlock.get();
+    const algorithmFPType * srcArray = srcBlock.get();
 
     WriteOnlyRows<algorithmFPType, cpu> dstBlock(*dst, 0, nRows);
     DAAL_CHECK_BLOCK_STATUS(srcBlock);
-    algorithmFPType *dstArray = dstBlock.get();
+    algorithmFPType * dstArray = dstBlock.get();
 
     const size_t nDataElements = nRows * nCols;
-    int result = daal::services::internal::daal_memcpy_s(dstArray, nDataElements * sizeof(algorithmFPType),
-                                                         srcArray, nDataElements * sizeof(algorithmFPType));
+    int result =
+        daal::services::internal::daal_memcpy_s(dstArray, nDataElements * sizeof(algorithmFPType), srcArray, nDataElements * sizeof(algorithmFPType));
     return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 

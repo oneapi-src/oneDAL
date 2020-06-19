@@ -24,10 +24,10 @@
 #ifndef __COVARIANCE_CSR_BATCH_IMPL_I__
 #define __COVARIANCE_CSR_BATCH_IMPL_I__
 
-#include "covariance_kernel.h"
-#include "covariance_impl.i"
+#include "algorithms/kernel/covariance/covariance_kernel.h"
+#include "algorithms/kernel/covariance/covariance_impl.i"
 
-#include "service_numeric_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 namespace daal
 {
@@ -37,13 +37,9 @@ namespace covariance
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status CovarianceDenseBatchKernel<algorithmFPType, method, cpu>::compute(
-    NumericTable *dataTable,
-    NumericTable *covTable,
-    NumericTable *meanTable,
-    const Parameter *parameter)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status CovarianceDenseBatchKernel<algorithmFPType, method, cpu>::compute(NumericTable * dataTable, NumericTable * covTable,
+                                                                                   NumericTable * meanTable, const Parameter * parameter)
 {
     algorithmFPType nObservations = 0.0;
 
@@ -51,11 +47,11 @@ services::Status CovarianceDenseBatchKernel<algorithmFPType, method, cpu>::compu
     const size_t nVectors   = dataTable->getNumberOfRows();
     const bool isNormalized = dataTable->isNormalized(NumericTableIface::standardScoreNormalized);
 
-    DEFINE_TABLE_BLOCK( WriteOnlyRows, sumBlock,           meanTable );
-    DEFINE_TABLE_BLOCK( WriteOnlyRows, crossProductBlock,  covTable  );
+    DEFINE_TABLE_BLOCK(WriteOnlyRows, sumBlock, meanTable);
+    DEFINE_TABLE_BLOCK(WriteOnlyRows, crossProductBlock, covTable);
 
-    algorithmFPType *sums          = sumBlock.get();
-    algorithmFPType *crossProduct  = crossProductBlock.get();
+    algorithmFPType * sums         = sumBlock.get();
+    algorithmFPType * crossProduct = crossProductBlock.get();
 
     services::Status status;
 
@@ -65,19 +61,18 @@ services::Status CovarianceDenseBatchKernel<algorithmFPType, method, cpu>::compu
     status |= prepareCrossProduct<algorithmFPType, cpu>(nFeatures, crossProduct);
     DAAL_CHECK_STATUS_VAR(status);
 
-    status |= updateDenseCrossProductAndSums<algorithmFPType, method, cpu>(isNormalized, nFeatures,
-        nVectors, dataTable, crossProduct, sums, &nObservations);
+    status |= updateDenseCrossProductAndSums<algorithmFPType, method, cpu>(isNormalized, nFeatures, nVectors, dataTable, crossProduct, sums,
+                                                                           &nObservations);
     DAAL_CHECK_STATUS_VAR(status);
 
-    status |= finalizeCovariance<algorithmFPType, cpu>(
-        nFeatures, nObservations, crossProduct, sums, crossProduct, sums, parameter);
+    status |= finalizeCovariance<algorithmFPType, cpu>(nFeatures, nObservations, crossProduct, sums, crossProduct, sums, parameter);
 
     return status;
 }
 
-} // internal
-} // covariance
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace covariance
+} // namespace algorithms
+} // namespace daal
 
 #endif

@@ -37,7 +37,7 @@ namespace algorithms
 namespace kmeans
 {
 
-namespace interface1
+namespace interface2
 {
 /**
  * @defgroup kmeans_batch Batch
@@ -97,10 +97,7 @@ public:
      *  \param[in] nClusters   Number of clusters
      *  \param[in] nIterations Number of iterations
      */
-    Batch(size_t nClusters, size_t nIterations = 1) : parameter(nClusters, nIterations)
-    {
-        initialize();
-    }
+    Batch(size_t nClusters, size_t nIterations = 1);
 
     /**
      * Constructs K-Means algorithm by copying input objects and parameters
@@ -108,12 +105,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) : parameter(other.parameter)
-    {
-        initialize();
-        input.set(data, other.input.get(data));
-        input.set(inputCentroids, other.input.get(inputCentroids));
-    }
+    Batch(const Batch<algorithmFPType, method> & other);
 
     /**
     * Returns the method of the algorithm
@@ -152,6 +144,18 @@ public:
         return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
     }
 
+    /**
+    * Gets parameter of the algorithm
+    * \return parameter of the algorithm
+    */
+    ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
+
+    /**
+    * Gets parameter of the algorithm
+    * \return parameter of the algorithm
+    */
+    const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
+
 protected:
     virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
     {
@@ -169,21 +173,20 @@ protected:
     void initialize()
     {
         Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in  = &input;
-        _par = &parameter;
+        _in                  = &input;
     }
 
 public:
-    InputType input;            /*!< %Input data structure */
-    ParameterType parameter;    /*!< K-Means parameters structure */
+    InputType input; /*!< %Input data structure */
 
 private:
     ResultPtr _result;
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
+} // namespace interface2
+
+using interface2::BatchContainer;
+using interface2::Batch;
 
 } // namespace daal::algorithms::kmeans
 } // namespace daal::algorithms

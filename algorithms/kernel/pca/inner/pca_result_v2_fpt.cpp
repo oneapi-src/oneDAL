@@ -20,8 +20,8 @@
 //  Implementation of PCA algorithm interface.
 //--
 */
-#include "pca/inner/pca_types_v2.h"
-#include "pca/inner/pca_result_v2.h"
+#include "algorithms/kernel/pca/inner/pca_types_v2.h"
+#include "algorithms/kernel/pca/inner/pca_result_v2.h"
 
 namespace daal
 {
@@ -31,23 +31,22 @@ namespace pca
 {
 namespace interface2
 {
-
 /**
  * Allocates memory for storing partial results of the PCA algorithm
  * \param[in] input Pointer to an object containing input data
  * \param[in] parameter Algorithm parameter
  * \param[in] method Computation method
  */
-template<typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, daal::algorithms::Parameter *parameter, const Method method)
+template <typename algorithmFPType>
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, daal::algorithms::Parameter * parameter, const Method method)
 {
-    size_t nComponents = 0;
+    size_t nComponents           = 0;
     DAAL_UINT64 resultsToCompute = eigenvalue;
 
-    const auto* par = dynamic_cast<const interface2::BaseBatchParameter*>(parameter);
+    const auto * par = dynamic_cast<const interface2::BaseBatchParameter *>(parameter);
     if (par != NULL)
     {
-        nComponents = par->nComponents;
+        nComponents      = par->nComponents;
         resultsToCompute = par->resultsToCompute;
     }
 
@@ -63,10 +62,11 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
  * \param[in] parameter Parameter of the algorithm
  * \param[in] method        Computation method
  */
-template<typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialResult *partialResult, daal::algorithms::Parameter *parameter, const Method method)
+template <typename algorithmFPType>
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter,
+                                              const Method method)
 {
-    size_t nComponents = 0;
+    size_t nComponents           = 0;
     DAAL_UINT64 resultsToCompute = eigenvalue;
 
     auto impl = ResultImpl::cast(getStorage(*this));
@@ -75,10 +75,12 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialRes
     return impl->allocate<algorithmFPType>(partialResult, nComponents, resultsToCompute);
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, daal::algorithms::Parameter *parameter, const Method method);
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult *partialResult, daal::algorithms::Parameter *parameter, const Method method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, daal::algorithms::Parameter * parameter,
+                                                                    const Method method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult * partialResult,
+                                                                    daal::algorithms::Parameter * parameter, const Method method);
 
-}// interface2
-}// namespace pca
-}// namespace algorithms
-}// namespace daal
+} // namespace interface2
+} // namespace pca
+} // namespace algorithms
+} // namespace daal

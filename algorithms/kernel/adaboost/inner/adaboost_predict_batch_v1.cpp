@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/boosting/adaboost_predict_types.h"
-#include "daal_strings.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -37,9 +37,9 @@ namespace prediction
 {
 namespace interface1
 {
-
 /**
- * Returns the input Numeric Table object in the prediction stage of the classification algorithm
+ * Returns the input Numeric Table object in the prediction stage of the
+ * classification algorithm
  * \param[in] id    Identifier of the input NumericTable object
  * \return          %Input object that corresponds to the given identifier
  */
@@ -49,7 +49,8 @@ NumericTablePtr Input::get(classifier::prediction::NumericTableInputId id) const
 }
 
 /**
- * Returns the input Model object in the prediction stage of the AdaBoost algorithm
+ * Returns the input Model object in the prediction stage of the AdaBoost
+ * algorithm
  * \param[in] id    Identifier of the input Model object
  * \return          %Input object that corresponds to the given identifier
  */
@@ -59,11 +60,12 @@ adaboost::interface1::ModelPtr Input::get(classifier::prediction::ModelInputId i
 }
 
 /**
- * Sets the input NumericTable object in the prediction stage of the classification algorithm
+ * Sets the input NumericTable object in the prediction stage of the
+ * classification algorithm
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(classifier::prediction::NumericTableInputId id, const NumericTablePtr &ptr)
+void Input::set(classifier::prediction::NumericTableInputId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -73,7 +75,7 @@ void Input::set(classifier::prediction::NumericTableInputId id, const NumericTab
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(classifier::prediction::ModelInputId id, const adaboost::interface1::ModelPtr &ptr)
+void Input::set(classifier::prediction::ModelInputId id, const adaboost::interface1::ModelPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -83,21 +85,26 @@ void Input::set(classifier::prediction::ModelInputId id, const adaboost::interfa
  * \param[in] parameter Pointer to the structure of the algorithm parameters
  * \param[in] method    Computation method
  */
-Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     Status s = classifier::prediction::interface1::Input::check(parameter, method);
-    if(!s) { return s; }
+    if (!s)
+    {
+        return s;
+    }
 
     adaboost::interface1::ModelPtr m = get(classifier::prediction::model);
     DAAL_CHECK(m->getNumberOfWeakLearners() > 0, ErrorModelNotFullInitialized);
 
     s |= checkNumericTable(m->getAlpha().get(), alphaStr());
-    if(!s) { return Status(ErrorModelNotFullInitialized); }
+    if (!s)
+    {
+        return Status(ErrorModelNotFullInitialized);
+    }
 
     DAAL_CHECK(m->getNumberOfWeakLearners() == m->getAlpha()->getNumberOfRows(), ErrorIncorrectSizeOfModel);
     return s;
 }
-
 
 } // namespace interface1
 } // namespace prediction

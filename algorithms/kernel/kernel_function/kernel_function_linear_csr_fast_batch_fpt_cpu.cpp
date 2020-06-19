@@ -21,9 +21,9 @@
 //--
 */
 
-#include "kernel_function_linear_batch_container.h"
-#include "kernel_function_linear_csr_fast_kernel.h"
-#include "kernel_function_linear_csr_fast_impl.i"
+#include "algorithms/kernel/kernel_function/kernel_function_linear_batch_container.h"
+#include "algorithms/kernel/kernel_function/kernel_function_linear_csr_fast_kernel.h"
+#include "algorithms/kernel/kernel_function/kernel_function_linear_csr_fast_impl.i"
 
 namespace daal
 {
@@ -35,14 +35,12 @@ namespace linear
 {
 namespace interface1
 {
-
-template class BatchContainer<DAAL_FPTYPE, fastCSR,      DAAL_CPU>;
+template class BatchContainer<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
 
 }
 namespace internal
 {
-
-template class KernelImplLinear<fastCSR,      DAAL_FPTYPE, DAAL_CPU>;
+template class KernelImplLinear<fastCSR, DAAL_FPTYPE, DAAL_CPU>;
 
 } // namespace internal
 

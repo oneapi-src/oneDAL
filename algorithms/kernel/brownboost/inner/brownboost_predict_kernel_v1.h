@@ -24,11 +24,11 @@
 #ifndef __BROWNBOOST_PREDICT_KERNEL_V1_H___
 #define __BROWNBOOST_PREDICT_KERNEL_V1_H___
 
-#include "brownboost_model.h"
-#include "brownboost_predict.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "boosting_predict_kernel.h"
+#include "algorithms/boosting/brownboost_model.h"
+#include "algorithms/boosting/brownboost_predict.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/kernel/boosting/inner/boosting_predict_kernel.h"
 
 using namespace daal::data_management;
 using namespace daal::algorithms::boosting::prediction::internal;
@@ -43,20 +43,20 @@ namespace prediction
 {
 namespace internal
 {
-
 template <Method method, typename algorithmFPtype, CpuType cpu>
 class I1BrownBoostPredictKernel : public BoostingPredictKernel<algorithmFPtype, cpu>
 {
     using BoostingPredictKernel<algorithmFPtype, cpu>::compute;
+
 public:
-    services::Status compute(const NumericTablePtr &x, const brownboost::interface1::Model *m,
-                             NumericTablePtr &r, const brownboost::interface1::Parameter *par);
+    services::Status compute(const NumericTablePtr & x, const brownboost::interface1::Model * m, NumericTablePtr & r,
+                             const brownboost::interface1::Parameter * par);
 };
 
-} // namespace daal::algorithms::brownboost::prediction::internal
-}
-}
-}
+} // namespace internal
+} // namespace prediction
+} // namespace brownboost
+} // namespace algorithms
 } // namespace daal
 
 #endif

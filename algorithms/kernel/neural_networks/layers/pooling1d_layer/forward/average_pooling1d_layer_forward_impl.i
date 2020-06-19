@@ -24,12 +24,12 @@
 #ifndef __AVERAGE_POOLING1D_LAYER_FORWARD_IMPL_I__
 #define __AVERAGE_POOLING1D_LAYER_FORWARD_IMPL_I__
 
-#include "service_memory.h"
-#include "service_data_utils.h"
-#include "service_blas.h"
-#include "service_tensor.h"
+#include "externals/service_memory.h"
+#include "service/kernel/service_data_utils.h"
+#include "externals/service_blas.h"
+#include "service/kernel/data_management/service_tensor.h"
 
-#include "pooling1d_layer_impl.i"
+#include "algorithms/kernel/neural_networks/layers/pooling1d_layer/pooling1d_layer_impl.i"
 
 using namespace daal::services;
 using namespace daal::internal;
@@ -48,26 +48,25 @@ namespace forward
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status PoolingKernel<algorithmFPType, method, cpu>::compute(const Tensor &dataTensor, const average_pooling1d::Parameter &parameter, Tensor &valueTensor)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status PoolingKernel<algorithmFPType, method, cpu>::compute(const Tensor & dataTensor, const average_pooling1d::Parameter & parameter,
+                                                                      Tensor & valueTensor)
 {
     const algorithmFPType zero = 0.0;
-    const algorithmFPType one = 1.0;
+    const algorithmFPType one  = 1.0;
 
-    const Collection<size_t> &dims = dataTensor.getDimensions();
-    const Collection<size_t> &valueDims = valueTensor.getDimensions();
+    const Collection<size_t> & dims      = dataTensor.getDimensions();
+    const Collection<size_t> & valueDims = valueTensor.getDimensions();
 
-    ReadSubtensor<algorithmFPType, cpu> dataBlock(const_cast<Tensor&>(dataTensor), 0, 0, 0, dims[0]);
+    ReadSubtensor<algorithmFPType, cpu> dataBlock(const_cast<Tensor &>(dataTensor), 0, 0, 0, dims[0]);
     DAAL_CHECK_BLOCK_STATUS(dataBlock);
-    const algorithmFPType *data = dataBlock.get();
+    const algorithmFPType * data = dataBlock.get();
 
     WriteOnlySubtensor<algorithmFPType, cpu> valueBlock(valueTensor, 0, 0, 0, valueDims[0]);
     DAAL_CHECK_BLOCK_STATUS(valueBlock);
-    algorithmFPType *value = valueBlock.get();
+    algorithmFPType * value = valueBlock.get();
 
-    pooling1d::internal::Parameter par(parameter.index .size[0], parameter.padding   .size[0],
-                                       parameter.stride.size[0], parameter.kernelSize.size[0],
+    pooling1d::internal::Parameter par(parameter.index.size[0], parameter.padding.size[0], parameter.stride.size[0], parameter.kernelSize.size[0],
                                        dataTensor, dims, valueDims);
 
     const algorithmFPType divisor = 1.0 / (algorithmFPType)(par.kernelSize);
@@ -93,8 +92,8 @@ services::Status PoolingKernel<algorithmFPType, method, cpu>::compute(const Tens
                  */
                 for (DAAL_INT fi = f; fi < f + par.kernelSize; fi++)
                 {
-                    DAAL_INT dataIndex = j + par.offsetAfter * (fi + par.firstSize * i);
-                    bool paddingFlag = (fi < 0) || (fi >= par.firstSize);
+                    DAAL_INT dataIndex        = j + par.offsetAfter * (fi + par.firstSize * i);
+                    bool paddingFlag          = (fi < 0) || (fi >= par.firstSize);
                     algorithmFPType dataValue = (paddingFlag ? zero : data[dataIndex]);
 
                     average += dataValue;

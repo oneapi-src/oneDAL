@@ -21,10 +21,10 @@
 //--
 */
 
-#include "spatial_average_pooling2d_layer_types.h"
-#include "spatial_average_pooling2d_layer_forward_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/layers/spatial_pooling2d/spatial_average_pooling2d_layer_types.h"
+#include "algorithms/neural_networks/layers/spatial_pooling2d/spatial_average_pooling2d_layer_forward_types.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -60,10 +60,10 @@ data_management::NumericTablePtr Result::get(LayerDataId id) const
  * \param[in] id Identifier of the result
  * \param[in] ptr Result
  */
-void Result::set(LayerDataId id, const data_management::NumericTablePtr &ptr)
+void Result::set(LayerDataId id, const data_management::NumericTablePtr & ptr)
 {
     layers::LayerDataPtr layerData = get(layers::forward::resultForBackward);
-    (*layerData)[id] = ptr;
+    (*layerData)[id]               = ptr;
 }
 
 /**
@@ -72,17 +72,17 @@ void Result::set(LayerDataId id, const data_management::NumericTablePtr &ptr)
  * \param[in] parameter %Parameter of the layer
  * \param[in] method    Computation method of the layer
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, spatial_pooling2d::forward::Result::check(input, parameter, method));
     return s;
 }
 
-}// namespace interface1
-}// namespace forward
-}// namespace spatial_average_pooling2d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace spatial_average_pooling2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

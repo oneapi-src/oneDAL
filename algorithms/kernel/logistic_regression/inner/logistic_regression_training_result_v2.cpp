@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/logistic_regression/logistic_regression_training_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -34,13 +34,12 @@ namespace algorithms
 {
 namespace logistic_regression
 {
-
 namespace training
 {
 namespace interface2
 {
-Parameter::Parameter(size_t nClasses, const SolverPtr& solver):
-    classifier::interface1::Parameter(nClasses), interceptFlag(true), penaltyL1(0.), penaltyL2(0), optimizationSolver(solver)
+Parameter::Parameter(size_t nClasses, const SolverPtr & solver)
+    : classifier::interface1::Parameter(nClasses), interceptFlag(true), penaltyL1(0.), penaltyL2(0), optimizationSolver(solver)
 {}
 
 Status Parameter::check() const

@@ -19,8 +19,7 @@
 //  Implementation of backward pooling layer container.
 //--
 
-
-#include "average_pooling2d_layer_backward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/pooling2d_layer/backward/average_pooling2d_layer_backward_batch_container.h"
 
 namespace daal
 {

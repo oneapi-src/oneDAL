@@ -25,7 +25,7 @@
 #ifndef __LINEAR_REGRESSION_TRAIN_DENSE_NORMEQ_HELPER_IMPL_I__
 #define __LINEAR_REGRESSION_TRAIN_DENSE_NORMEQ_HELPER_IMPL_I__
 
-#include "linear_regression_train_kernel.h"
+#include "algorithms/kernel/linear_regression/linear_regression_train_kernel.h"
 
 namespace daal
 {
@@ -40,16 +40,15 @@ namespace internal
 using namespace daal::algorithms::linear_model::normal_equations::training::internal;
 
 template <typename algorithmFPType, CpuType cpu>
-Status KernelHelper<algorithmFPType, cpu>::computeBetasImpl(DAAL_INT p, const algorithmFPType *a,
-                                                            algorithmFPType *aCopy, DAAL_INT ny,
-                                                            algorithmFPType *b, bool inteceptFlag) const
+Status KernelHelper<algorithmFPType, cpu>::computeBetasImpl(DAAL_INT p, const algorithmFPType * a, algorithmFPType * aCopy, DAAL_INT ny,
+                                                            algorithmFPType * b, bool inteceptFlag) const
 {
     return FinalizeKernel<algorithmFPType, cpu>::solveSystem(p, aCopy, ny, b, ErrorLinearRegressionInternal);
 }
-} // internal
-} // training
-} // linear_regression
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace training
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal
 
 #endif

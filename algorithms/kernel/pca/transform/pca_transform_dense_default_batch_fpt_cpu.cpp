@@ -21,9 +21,9 @@
 //--
 */
 
-#include "pca_transform_container.h"
-#include "pca_transform_kernel.h"
-#include "pca_transform_dense_default_batch_impl.i"
+#include "algorithms/kernel/pca/transform/pca_transform_container.h"
+#include "algorithms/kernel/pca/transform/pca_transform_kernel.h"
+#include "algorithms/kernel/pca/transform/pca_transform_dense_default_batch_impl.i"
 
 namespace daal
 {
@@ -41,7 +41,7 @@ namespace internal
 {
 template class TransformKernel<DAAL_FPTYPE, transform::defaultDense, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace transform
+} // namespace pca
+} // namespace algorithms
+} // namespace daal

@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/decision_tree/decision_tree_classification_predict_types.h"
-#include "decision_tree_classification_model_impl.h"
+#include "algorithms/kernel/decision_tree/decision_tree_classification_model_impl.h"
 
 namespace daal
 {
@@ -36,7 +36,6 @@ namespace prediction
 {
 namespace interface1
 {
-
 using namespace daal::data_management;
 using namespace daal::services;
 

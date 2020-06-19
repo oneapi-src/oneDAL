@@ -19,11 +19,10 @@
 //  Implementation of mse calculation functions.
 //--
 
-
-#include "mse_dense_default_batch_kernel.h"
-#include "mse_dense_default_batch_task_impl.i"
-#include "mse_dense_default_batch_impl.i"
-#include "mse_dense_default_batch_container.h"
+#include "algorithms/kernel/objective_function/mse/mse_dense_default_batch_kernel.h"
+#include "algorithms/kernel/objective_function/mse/mse_dense_default_batch_task_impl.i"
+#include "algorithms/kernel/objective_function/mse/mse_dense_default_batch_impl.i"
+#include "algorithms/kernel/objective_function/mse/mse_dense_default_batch_container.h"
 
 namespace daal
 {
@@ -33,7 +32,6 @@ namespace optimization_solver
 {
 namespace mse
 {
-
 namespace interface2
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

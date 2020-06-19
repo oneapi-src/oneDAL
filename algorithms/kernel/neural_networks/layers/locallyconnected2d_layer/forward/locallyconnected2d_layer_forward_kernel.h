@@ -19,16 +19,15 @@
 //  Declaration of template function that calculate locallyconnected2ds.
 //--
 
-
 #ifndef __LOCALLYCONNECTED2D_LAYER_FORWARD_KERNEL_H__
 #define __LOCALLYCONNECTED2D_LAYER_FORWARD_KERNEL_H__
 
-#include "neural_networks/layers/locallyconnected2d/locallyconnected2d_layer.h"
-#include "neural_networks/layers/locallyconnected2d/locallyconnected2d_layer_types.h"
-#include "kernel.h"
-#include "service_math.h"
-#include "numeric_table.h"
-#include "service_tensor.h"
+#include "algorithms/neural_networks/layers/locallyconnected2d/locallyconnected2d_layer.h"
+#include "algorithms/neural_networks/layers/locallyconnected2d/locallyconnected2d_layer_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "externals/service_math.h"
+#include "data_management/data/numeric_table.h"
+#include "service/kernel/data_management/service_tensor.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -50,19 +49,20 @@ namespace internal
 /**
  *  \brief Kernel for locallyconnected2d calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class LocallyConnected2dKernel : public Kernel
 {
 public:
-    services::Status compute(const Tensor &inputTensor, const Tensor &weightsTensor, const Tensor &biasesTensor, Tensor &valueTensor, const locallyconnected2d::Parameter &parameter);
+    services::Status compute(const Tensor & inputTensor, const Tensor & weightsTensor, const Tensor & biasesTensor, Tensor & valueTensor,
+                             const locallyconnected2d::Parameter & parameter);
 };
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 
-} // locallyconnected2d
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace locallyconnected2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

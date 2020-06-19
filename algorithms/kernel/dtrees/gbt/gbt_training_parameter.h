@@ -37,7 +37,7 @@ namespace gbt
 {
 namespace training
 {
-    Status checkImpl(const gbt::training::Parameter& prm);
+Status checkImpl(const gbt::training::Parameter & prm);
 }
 } // namespace gbt
 } // namespace algorithms

@@ -34,18 +34,18 @@
 #ifndef __ADABOOST_TRAIN_IMPL_V1_I__
 #define __ADABOOST_TRAIN_IMPL_V1_I__
 
-#include "algorithm.h"
-#include "numeric_table.h"
-#include "threading.h"
-#include "daal_defines.h"
-#include "service_math.h"
-#include "service_memory.h"
-#include "service_micro_table.h"
-#include "service_numeric_table.h"
-#include "service_data_utils.h"
+#include "algorithms/algorithm.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/threading/threading.h"
+#include "services/daal_defines.h"
+#include "externals/service_math.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_micro_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "service/kernel/service_data_utils.h"
 
-#include "weak_learner_model.h"
-#include "adaboost_model.h"
+#include "algorithms/weak_learner/weak_learner_model.h"
+#include "algorithms/boosting/adaboost_model.h"
 
 using namespace daal::data_management;
 using namespace daal::internal;
@@ -68,13 +68,18 @@ using namespace daal::internal;
  *  \brief AdaBoost algorithm kernel
  *
  *  \param nVectors[in]               Number of observations
- *  \param weakLearnerInputTables[in] Array of 3 numeric tables [xTable, yTable, wTable] needed to train weak learner.
+ *  \param weakLearnerInputTables[in] Array of 3 numeric tables [xTable, yTable,
+ *wTable] needed to train weak learner.
  *                                    xTable - holds matrix of observations
- *                                    yTable - holds array of class labels, y[i] is from {-1, 1}
- *                                    wTable - holds array of obserwations' weights
- *  \param hTable[in,out]             Table to store weak learner's classificatiion results
+ *                                    yTable - holds array of class labels, y[i]
+ *is from {-1, 1}
+ *                                    wTable - holds array of obserwations'
+ *weights
+ *  \param hTable[in,out]             Table to store weak learner's
+ *classificatiion results
  *  \param y[in]                      Array of classification labels
- *  \param h[in,out]                  Array of weak learner's classificatiion results
+ *  \param h[in,out]                  Array of weak learner's classificatiion
+ *results
  *  \param w[in,out]                  Array of observations' weights
  *  \param boostModel[in]             Ada Boost model
  *  \param parameter[in]              Ada Boost parameters
@@ -84,18 +89,18 @@ using namespace daal::internal;
  *
  */
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaBoostFreundKernel(
-    size_t nVectors, NumericTablePtr weakLearnerInputTables[],
-    const HomogenNTPtr &hTable, const algorithmFPType *y,
-    adaboost::interface1::Model *boostModel, const adaboost::interface1::Parameter *parameter, size_t &nWeakLearners,
-    algorithmFPType *alpha)
+services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaBoostFreundKernel(size_t nVectors, NumericTablePtr weakLearnerInputTables[],
+                                                                                           const HomogenNTPtr & hTable, const algorithmFPType * y,
+                                                                                           adaboost::interface1::Model * boostModel,
+                                                                                           const adaboost::interface1::Parameter * parameter,
+                                                                                           size_t & nWeakLearners, algorithmFPType * alpha)
 {
-    algorithmFPType *w = static_cast<HomogenNT *>(weakLearnerInputTables[2].get())->getArray();
-    algorithmFPType *h = hTable->getArray();
+    algorithmFPType * w = static_cast<HomogenNT *>(weakLearnerInputTables[2].get())->getArray();
+    algorithmFPType * h = hTable->getArray();
 
     /* Floating point constants */
-    const algorithmFPType zero = (algorithmFPType)0.0;
-    const algorithmFPType one  = (algorithmFPType)1.0;
+    const algorithmFPType zero        = (algorithmFPType)0.0;
+    const algorithmFPType one         = (algorithmFPType)1.0;
     const algorithmFPType invNVectors = one / (algorithmFPType)nVectors;
 
     /* Get number of AdaBoost iterations */
@@ -104,8 +109,9 @@ services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaBoostFr
 
     /* Allocate memory for storing intermediate results */
     /* Vector of flags.
-    errFlag[i] == -1.0, if weak classifier's classification result agrees with actual class label;
-    errFlag[i] == 1.0, otherwise */
+  errFlag[i] == -1.0, if weak classifier's classification result agrees with
+  actual class label;
+  errFlag[i] == 1.0, otherwise */
     daal::internal::TArray<algorithmFPType, cpu> aErrFlag(nVectors);
     DAAL_CHECK(aErrFlag.get(), services::ErrorMemoryAllocationFailed);
 
@@ -116,14 +122,14 @@ services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaBoostFr
     }
 
     services::SharedPtr<weak_learner::training::Batch> learnerTrain = parameter->weakLearnerTraining->clone();
-    classifier::training::interface1::Input *trainInput = learnerTrain->getInput();
+    classifier::training::interface1::Input * trainInput            = learnerTrain->getInput();
     DAAL_CHECK(trainInput, services::ErrorNullInput);
-    trainInput->set(classifier::training::data,    weakLearnerInputTables[0]);
-    trainInput->set(classifier::training::labels,  weakLearnerInputTables[1]);
+    trainInput->set(classifier::training::data, weakLearnerInputTables[0]);
+    trainInput->set(classifier::training::labels, weakLearnerInputTables[1]);
     trainInput->set(classifier::training::weights, weakLearnerInputTables[2]);
 
     services::SharedPtr<weak_learner::prediction::Batch> learnerPredict = parameter->weakLearnerPrediction->clone();
-    classifier::prediction::interface1::Input *predictInput = learnerPredict->getInput();
+    classifier::prediction::interface1::Input * predictInput            = learnerPredict->getInput();
     DAAL_CHECK(predictInput, services::ErrorNullInput);
     predictInput->set(classifier::prediction::data, weakLearnerInputTables[0]);
 
@@ -132,7 +138,7 @@ services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaBoostFr
     predictionRes->set(classifier::prediction::prediction, NumericTablePtr(hTable));
     learnerPredict->setResult(predictionRes);
 
-    nWeakLearners = 0;
+    nWeakLearners            = 0;
     algorithmFPType maxAlpha = zero;
 
     /* Clear the collection of weak learners models in the boosting model */
@@ -144,8 +150,7 @@ services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaBoostFr
         nWeakLearners++;
 
         /* Make weak learner to allocate new memory for storing training result */
-        if (m > 0)
-            learnerTrain->resetResult();
+        if (m > 0) learnerTrain->resetResult();
 
         /* Train weak learner's model */
         DAAL_CHECK_STATUS(s, learnerTrain->computeNoThrow());
@@ -161,10 +166,11 @@ services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaBoostFr
         predictInput->set(classifier::prediction::model, learnerModel);
         DAAL_CHECK_STATUS(s, learnerPredict->computeNoThrow());
 
-        /* Calculate weighted error and errFlag: product of predicted * ground_truth */
-        size_t nErr = 0;
-        algorithmFPType errM = zero;
-        algorithmFPType* errFlag = aErrFlag.get();
+        /* Calculate weighted error and errFlag: product of predicted * ground_truth
+     */
+        size_t nErr               = 0;
+        algorithmFPType errM      = zero;
+        algorithmFPType * errFlag = aErrFlag.get();
         for (size_t i = 0; i < nVectors; i++)
         {
             errFlag[i] = -one;
@@ -190,14 +196,14 @@ services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaBoostFr
             break;
         }
 
-        algorithmFPType cM = 0.5 * daal::internal::Math<algorithmFPType,cpu>::sLog((one - errM) / errM);
+        algorithmFPType cM = 0.5 * daal::internal::Math<algorithmFPType, cpu>::sLog((one - errM) / errM);
 
         /* Update weights */
         for (size_t i = 0; i < nVectors; i++)
         {
             errFlag[i] *= cM;
         }
-        daal::internal::Math<algorithmFPType,cpu>::vExp(nVectors, errFlag, errFlag);
+        daal::internal::Math<algorithmFPType, cpu>::vExp(nVectors, errFlag, errFlag);
         algorithmFPType wSum = zero;
         for (size_t i = 0; i < nVectors; i++)
         {
@@ -211,16 +217,21 @@ services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaBoostFr
         }
         alpha[m] = cM;
 
-        if (errM < accThr) { break; }
-        if (alpha[m] > maxAlpha) { maxAlpha = alpha[m]; }
+        if (errM < accThr)
+        {
+            break;
+        }
+        if (alpha[m] > maxAlpha)
+        {
+            maxAlpha = alpha[m];
+        }
     }
     return s;
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::compute(NumericTablePtr *a,
-        adaboost::interface1::Model *r,
-        const adaboost::interface1::Parameter *parameter)
+services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::compute(NumericTablePtr * a, adaboost::interface1::Model * r,
+                                                                              const adaboost::interface1::Parameter * parameter)
 {
     NumericTablePtr xTable = a[0];
     NumericTablePtr yTable = a[1];
@@ -228,9 +239,10 @@ services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::compute(Nu
 
     const size_t nVectors = xTable->getNumberOfRows();
 
-    size_t nWeakLearners = 0;               /* Number of weak learners */
+    size_t nWeakLearners = 0; /* Number of weak learners */
 
-    /* Allocate memory for storing weak learners' models and boosting coefficients */
+    /* Allocate memory for storing weak learners' models and boosting coefficients
+   */
     daal::internal::TArray<algorithmFPType, cpu> alpha(parameter->maxIterations); /* AdaBoost coefficients */
     DAAL_CHECK(alpha.get(), services::ErrorMemoryAllocationFailed);
 
@@ -240,7 +252,7 @@ services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::compute(Nu
     HomogenNTPtr wTable(HomogenNT::create(1, nVectors, &s));
     DAAL_CHECK_STATUS_VAR(s);
 
-    NumericTablePtr weakLearnerInputTables[] = {xTable, yTable, wTable};
+    NumericTablePtr weakLearnerInputTables[] = { xTable, yTable, wTable };
 
     /* Run AdaBoost training */
     {
@@ -256,18 +268,18 @@ services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::compute(Nu
     DAAL_CHECK_STATUS(s, alphaTable->resize(nWeakLearners));
     WriteOnlyColumns<algorithmFPType, cpu> mtAlpha(*alphaTable, 0, 0, nWeakLearners);
     DAAL_CHECK_BLOCK_STATUS(mtAlpha);
-    algorithmFPType *resAlpha = mtAlpha.get();
+    algorithmFPType * resAlpha = mtAlpha.get();
     DAAL_ASSERT(resAlpha);
-    for(size_t i = 0; i < nWeakLearners; i++)
+    for (size_t i = 0; i < nWeakLearners; i++)
     {
-        resAlpha[i]  = alpha[i];
+        resAlpha[i] = alpha[i];
     }
     return s;
 }
-} // namespace daal::algorithms::adaboost::training::internal
-}
-}
-}
+} // namespace internal
+} // namespace training
+} // namespace adaboost
+} // namespace algorithms
 } // namespace daal
 
 #endif

@@ -24,11 +24,11 @@
 #ifndef __QUANTILES_KERNEL_H__
 #define __QUANTILES_KERNEL_H__
 
-#include "numeric_table.h"
-#include "quantiles_batch.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/quantiles/quantiles_batch.h"
 
-#include "service_defines.h"
-#include "service_micro_table.h"
+#include "service/kernel/service_defines.h"
+#include "service/kernel/data_management/service_micro_table.h"
 
 using namespace daal::data_management;
 
@@ -40,21 +40,19 @@ namespace quantiles
 {
 namespace internal
 {
-
-template<Method method, typename algorithmFPType, CpuType cpu>
+template <Method method, typename algorithmFPType, CpuType cpu>
 struct QuantilesKernel : public Kernel
 {
     virtual ~QuantilesKernel() {}
-    services::Status compute(const NumericTable &dataTable, const NumericTable& quantileOrdersTable, NumericTable &quantilesTable);
+    services::Status compute(const NumericTable & dataTable, const NumericTable & quantileOrdersTable, NumericTable & quantilesTable);
 };
 
-} // namespace daal::algorithms::quantiles::internal
+} // namespace internal
 
-} // namespace daal::algorithms::quantiles
+} // namespace quantiles
 
-} // namespace daal::algorithms
+} // namespace algorithms
 
 } // namespace daal
-
 
 #endif

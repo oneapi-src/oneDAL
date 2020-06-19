@@ -24,7 +24,7 @@
 #include <jni.h>
 #include "com_intel_daal_algorithms_multi_class_classifier_prediction_PredictionBatch.h"
 #include "daal.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::multi_class_classifier::prediction;
@@ -35,11 +35,11 @@ using namespace daal::algorithms::multi_class_classifier::training;
  * Method:    cInit
  * Signature:(II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_prediction_PredictionBatch_cInit
-(JNIEnv *env, jobject obj, jint prec, jint method, jlong nClasses)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_prediction_PredictionBatch_cInit(JNIEnv * env, jobject obj, jint prec,
+                                                                                                                 jint method, jlong nClasses)
 {
-    return jniBatchClassifier<multi_class_classifier::prediction::Method, multi_class_classifier::training::Method,
-        oneAgainstOne, multi_class_classifier::prediction::Batch, multiClassClassifierWu, voteBased>::newObj(prec, method, nClasses);
+    return jniBatchClassifier<multi_class_classifier::prediction::Method, multi_class_classifier::training::Method, oneAgainstOne,
+                              multi_class_classifier::prediction::Batch, multiClassClassifierWu, voteBased>::newObj(prec, method, nClasses);
 }
 
 /*
@@ -47,11 +47,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_
  * Method:    cInitParameter
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_prediction_PredictionBatch_cInitParameter
-(JNIEnv *env, jobject obj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_prediction_PredictionBatch_cInitParameter(JNIEnv * env, jobject obj,
+                                                                                                                          jlong algAddr, jint prec,
+                                                                                                                          jint method)
 {
-    return jniBatchClassifier<multi_class_classifier::prediction::Method, multi_class_classifier::training::Method,
-        oneAgainstOne, multi_class_classifier::prediction::Batch, multiClassClassifierWu, voteBased>::getParameter(prec, method, algAddr);
+    return jniBatchClassifier<multi_class_classifier::prediction::Method, multi_class_classifier::training::Method, oneAgainstOne,
+                              multi_class_classifier::prediction::Batch, multiClassClassifierWu, voteBased>::getParameter(prec, method, algAddr);
 }
 
 /*
@@ -59,9 +60,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_prediction_PredictionBatch_cClone
-(JNIEnv *env, jobject obj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_prediction_PredictionBatch_cClone(JNIEnv * env, jobject obj,
+                                                                                                                  jlong algAddr, jint prec,
+                                                                                                                  jint method)
 {
-    return jniBatchClassifier<multi_class_classifier::prediction::Method, multi_class_classifier::training::Method,
-        oneAgainstOne, multi_class_classifier::prediction::Batch, multiClassClassifierWu, voteBased>::getClone(prec, method, algAddr);
+    return jniBatchClassifier<multi_class_classifier::prediction::Method, multi_class_classifier::training::Method, oneAgainstOne,
+                              multi_class_classifier::prediction::Batch, multiClassClassifierWu, voteBased>::getClone(prec, method, algAddr);
 }

@@ -37,12 +37,11 @@ using namespace daal::algorithms;
 /* Input data set parameters */
 const string datasetFileName = "../data/batch/covcormoments_dense.csv";
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable,
-                                                 DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Retrieve the data from the input file */
     dataSource.loadDataBlock();
@@ -61,7 +60,7 @@ int main(int argc, char *argv[])
     covariance::ResultPtr res = algorithm.getResult();
 
     printNumericTable(res->get(covariance::correlation), "Correlation matrix:");
-    printNumericTable(res->get(covariance::mean),        "Mean vector:");
+    printNumericTable(res->get(covariance::mean), "Mean vector:");
 
     return 0;
 }

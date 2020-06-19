@@ -21,9 +21,9 @@
 //--
 */
 
-#include "logitboost_train_batch_container.h"
-#include "logitboost_train_friedman_kernel.h"
-#include "logitboost_train_friedman_impl.i"
+#include "algorithms/kernel/logitboost/logitboost_train_batch_container.h"
+#include "algorithms/kernel/logitboost/logitboost_train_friedman_kernel.h"
+#include "algorithms/kernel/logitboost/logitboost_train_friedman_impl.i"
 
 namespace daal
 {
@@ -41,7 +41,7 @@ namespace internal
 {
 template struct LogitBoostTrainKernel<friedman, DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace training
+} // namespace logitboost
+} // namespace algorithms
+} // namespace daal

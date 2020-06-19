@@ -21,8 +21,8 @@
 //--
 */
 
-#include "covariance_container.h"
-#include "covariance_dense_online_impl.i"
+#include "algorithms/kernel/covariance/covariance_container.h"
+#include "algorithms/kernel/covariance/covariance_dense_online_impl.i"
 
 namespace daal
 {
@@ -38,6 +38,6 @@ namespace internal
 {
 template class CovarianceDenseOnlineKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
-}
-}
-}
+} // namespace covariance
+} // namespace algorithms
+} // namespace daal

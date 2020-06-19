@@ -19,14 +19,13 @@
 //  Declaration of template function that calculate choleskys.
 //--
 
-
 #ifndef __CHOLESKY_KERNEL_H__
 #define __CHOLESKY_KERNEL_H__
 
-#include "cholesky.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "service_lapack.h"
+#include "algorithms/cholesky/cholesky.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "externals/service_lapack.h"
 
 using namespace daal::data_management;
 
@@ -43,25 +42,24 @@ namespace internal
  *  in case floating point type of intermediate calculations
  *  and method of calculations are different
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class CholeskyKernel : public Kernel
 {
 public:
-    services::Status compute(NumericTable *a, NumericTable *r, const daal::algorithms::Parameter *par);
+    services::Status compute(NumericTable * a, NumericTable * r, const daal::algorithms::Parameter * par);
 
 private:
-    services::Status copyMatrix(NumericTableIface::StorageLayout iLayout, const algorithmFPType *pA,
-                    NumericTableIface::StorageLayout rLayout, algorithmFPType *pL, size_t dim) const;
-    services::Status performCholesky(NumericTableIface::StorageLayout rLayout, algorithmFPType *pL, size_t dim);
-    bool copyToFullMatrix(NumericTableIface::StorageLayout iLayout, const algorithmFPType *pA, algorithmFPType *pL,
-                          size_t dim) const;
-    services::Status copyToLowerTrianglePacked(NumericTableIface::StorageLayout iLayout, const algorithmFPType *pA, algorithmFPType *pL,
+    services::Status copyMatrix(NumericTableIface::StorageLayout iLayout, const algorithmFPType * pA, NumericTableIface::StorageLayout rLayout,
+                                algorithmFPType * pL, size_t dim) const;
+    services::Status performCholesky(NumericTableIface::StorageLayout rLayout, algorithmFPType * pL, size_t dim);
+    bool copyToFullMatrix(NumericTableIface::StorageLayout iLayout, const algorithmFPType * pA, algorithmFPType * pL, size_t dim) const;
+    services::Status copyToLowerTrianglePacked(NumericTableIface::StorageLayout iLayout, const algorithmFPType * pA, algorithmFPType * pL,
                                                size_t dim) const;
 };
 
-} // namespace daal::internal
-}
-}
+} // namespace internal
+} // namespace cholesky
+} // namespace algorithms
 } // namespace daal
 
 #endif

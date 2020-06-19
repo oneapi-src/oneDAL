@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/k_nearest_neighbors/kdtree_knn_classification_predict_types.h"
-#include "kdtree_knn_classification_model_impl.h"
-#include "daal_strings.h"
+#include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -38,7 +38,6 @@ namespace prediction
 {
 namespace interface1
 {
-
 /** Default constructor */
 Input::Input() : classifier::prediction::Input() {}
 
@@ -77,10 +76,10 @@ void Input::set(classifier::prediction::ModelInputId id, const kdtree_knn_classi
  * \param[in] parameter Pointer to the structure of the algorithm parameters
  * \param[in] method    Computation method
  */
-services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s = classifier::prediction::Input::check(parameter, method);
-    if(!s) return s;
+    if (!s) return s;
 
     const kdtree_knn_classification::ModelPtr m = get(classifier::prediction::model);
     ErrorCollection errors;

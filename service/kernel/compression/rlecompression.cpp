@@ -21,32 +21,30 @@
 //--
 */
 
-#include "rlecompression.h"
+#include "data_management/compression/rlecompression.h"
 #include "ipp.h"
-#include "daal_memory.h"
+#include "services/daal_memory.h"
 
 #if defined(_MSC_VER)
-#define EXPECT(x, y) (x)
+    #define EXPECT(x, y) (x)
 #else
-#define EXPECT(x, y) (__builtin_expect((x),(y)))
+    #define EXPECT(x, y) (__builtin_expect((x), (y)))
 #endif
 
 namespace daal
 {
 namespace data_management
 {
-
-Compressor<rle>::Compressor() :
-    data_management::CompressorImpl()
+Compressor<rle>::Compressor() : data_management::CompressorImpl()
 {
     _headBytes = 8;
     if (!(parameter.isBlockHeader))
     {
         _headBytes = 0;
     }
-    _next_in = NULL;
-    _avail_in = 0;
-    _next_out = NULL;
+    _next_in   = NULL;
+    _avail_in  = 0;
+    _next_out  = NULL;
     _avail_out = 0;
 
     ippInit();
@@ -62,49 +60,47 @@ void Compressor<rle>::initialize()
     _isInitialized = true;
 }
 
-Compressor<rle>::~Compressor()
-{
-}
+Compressor<rle>::~Compressor() {}
 
 void Compressor<rle>::finalizeCompression()
 {
-    _next_in = NULL;
-    _avail_in = 0;
-    _next_out = NULL;
+    _next_in   = NULL;
+    _avail_in  = 0;
+    _next_out  = NULL;
     _avail_out = 0;
 }
 
-void Compressor<rle>::setInputDataBlock(byte *in, size_t len, size_t off)
+void Compressor<rle>::setInputDataBlock(byte * in, size_t len, size_t off)
 {
-    if(_isInitialized == false)
+    if (_isInitialized == false)
     {
         initialize();
     }
 
     checkInputParams(in, len);
-    if(this->_errors->size() != 0)
+    if (this->_errors->size() != 0)
     {
         finalizeCompression();
         return;
     }
 
     _avail_in = len;
-    _next_in = in + off;
+    _next_in  = in + off;
 }
 
-void Compressor<rle>::run(byte *out, size_t outLen, size_t off)
+void Compressor<rle>::run(byte * out, size_t outLen, size_t off)
 {
-    if(_isInitialized == false)
+    if (_isInitialized == false)
     {
         this->_errors->add(services::ErrorRleInternal);
         return;
     }
 
-    int tmp_avail_in = 0;
+    int tmp_avail_in  = 0;
     int tmp_avail_out = 0;
 
     checkOutputParams(out, outLen);
-    if(this->_errors->size() != 0)
+    if (this->_errors->size() != 0)
     {
         finalizeCompression();
         return;
@@ -117,14 +113,13 @@ void Compressor<rle>::run(byte *out, size_t outLen, size_t off)
         return;
     }
 
-    _avail_out = outLen;
-    _next_out = out + off;
+    _avail_out            = outLen;
+    _next_out             = out + off;
     this->_isOutBlockFull = 0;
-    tmp_avail_in = _avail_in;
-    tmp_avail_out = _avail_out - _headBytes;
+    tmp_avail_in          = _avail_in;
+    tmp_avail_out         = _avail_out - _headBytes;
 
-    int errCode = ippsEncodeRLE_8u((Ipp8u **)&_next_in, &tmp_avail_in, (Ipp8u *)((byte *)_next_out + _headBytes),
-                                   &tmp_avail_out);
+    int errCode = ippsEncodeRLE_8u((Ipp8u **)&_next_in, &tmp_avail_in, (Ipp8u *)((byte *)_next_out + _headBytes), &tmp_avail_out);
 
     switch (errCode)
     {
@@ -135,23 +130,21 @@ void Compressor<rle>::run(byte *out, size_t outLen, size_t off)
         return;
     case ippStsDstSizeLessExpected:
         _avail_out -= (tmp_avail_out + _headBytes);
-        this->_usedOutBlockSize = tmp_avail_out + _headBytes;
-        this->_isOutBlockFull = 1;
+        this->_usedOutBlockSize  = tmp_avail_out + _headBytes;
+        this->_isOutBlockFull    = 1;
         ((Ipp32u *)_next_out)[0] = _avail_in - tmp_avail_in;
         ((Ipp32u *)_next_out)[1] = tmp_avail_out;
-        _avail_in = tmp_avail_in;
+        _avail_in                = tmp_avail_in;
         return;
-    default:
-        break;
+    default: break;
     }
     ((Ipp32u *)_next_out)[0] = _avail_in - tmp_avail_in;
     ((Ipp32u *)_next_out)[1] = tmp_avail_out;
-    this->_usedOutBlockSize = tmp_avail_out + _headBytes;
+    this->_usedOutBlockSize  = tmp_avail_out + _headBytes;
     finalizeCompression();
 }
 
-Decompressor<rle>::Decompressor() :
-    data_management::DecompressorImpl()
+Decompressor<rle>::Decompressor() : data_management::DecompressorImpl()
 {
     _headBytes = 8;
     if (!(parameter.isBlockHeader))
@@ -159,13 +152,13 @@ Decompressor<rle>::Decompressor() :
         _headBytes = 0;
     }
 
-    _internalBuff = NULL;
+    _internalBuff    = NULL;
     _internalBuffLen = 0;
     _internalBuffOff = 0;
 
-    _next_in = NULL;
-    _avail_in = 0;
-    _next_out = NULL;
+    _next_in   = NULL;
+    _avail_in  = 0;
+    _next_out  = NULL;
     _avail_out = 0;
 
     ippInit();
@@ -195,63 +188,63 @@ void Decompressor<rle>::finalizeCompression()
     {
         daal::services::daal_free(_internalBuff);
     }
-    _internalBuff = NULL;
+    _internalBuff    = NULL;
     _internalBuffLen = 0;
     _internalBuffOff = 0;
 
-    _next_in = NULL;
-    _avail_in = 0;
-    _next_out = NULL;
+    _next_in   = NULL;
+    _avail_in  = 0;
+    _next_out  = NULL;
     _avail_out = 0;
 }
 
-void Decompressor<rle>::setInputDataBlock(byte *in, size_t len, size_t off)
+void Decompressor<rle>::setInputDataBlock(byte * in, size_t len, size_t off)
 {
-    if(_isInitialized == false)
+    if (_isInitialized == false)
     {
         initialize();
     }
 
     checkInputParams(in, len);
-    if(this->_errors->size() != 0)
+    if (this->_errors->size() != 0)
     {
         finalizeCompression();
         return;
     }
 
     _avail_in = len;
-    _next_in = in + off;
+    _next_in  = in + off;
 }
 
-void Decompressor<rle>::run(byte *out, size_t outLen, size_t off)
+void Decompressor<rle>::run(byte * out, size_t outLen, size_t off)
 {
-    if(_isInitialized == false)
+    if (_isInitialized == false)
     {
         this->_errors->add(services::ErrorRleInternal);
         return;
     }
 
-    int tmp_avail_in = 0;
+    int tmp_avail_in  = 0;
     int tmp_avail_out = 0;
 
     Ipp32u uncompressedBlockSize = 0;
-    Ipp32u compressedBlockSize = 0;
+    Ipp32u compressedBlockSize   = 0;
 
-    Ipp8u *tmp_in_ptr = NULL;
+    Ipp8u * tmp_in_ptr = NULL;
 
     checkOutputParams(out, outLen);
-    if(this->_errors->size() != 0)
+    if (this->_errors->size() != 0)
     {
         finalizeCompression();
         return;
     }
-    _avail_out = outLen;
-    _next_out = out + off;
-    this->_isOutBlockFull = 0;
+    _avail_out              = outLen;
+    _next_out               = out + off;
+    this->_isOutBlockFull   = 0;
     this->_usedOutBlockSize = 0;
-    tmp_avail_in = _avail_in;
-    tmp_avail_out = _avail_out;
-    int result = 0;
+    tmp_avail_in            = _avail_in;
+    tmp_avail_out           = _avail_out;
+    int result              = 0;
 
     if (_headBytes > 0)
     {
@@ -259,9 +252,8 @@ void Decompressor<rle>::run(byte *out, size_t outLen, size_t off)
         {
             if (_avail_out < _internalBuffLen - _internalBuffOff)
             {
-
-                result |= daal::services::internal::daal_memcpy_s((void*)(_next_out),_avail_out,
-                                                                  (void*)(((byte *)_internalBuff)+_internalBuffOff),_avail_out);
+                result |= daal::services::internal::daal_memcpy_s((void *)(_next_out), _avail_out,
+                                                                  (void *)(((byte *)_internalBuff) + _internalBuffOff), _avail_out);
                 if (result)
                 {
                     this->_errors->add(services::ErrorMemoryCopyFailedInternal);
@@ -270,15 +262,15 @@ void Decompressor<rle>::run(byte *out, size_t outLen, size_t off)
 
                 _internalBuffOff += _avail_out;
                 this->_usedOutBlockSize += _avail_out;
-                _avail_out = 0;
+                _avail_out            = 0;
                 this->_isOutBlockFull = 1;
                 return;
             }
             else
             {
-
-                result |= daal::services::internal::daal_memcpy_s((void*)(_next_out),_internalBuffLen - _internalBuffOff,
-                                                                  (void*)(((byte *)_internalBuff)+_internalBuffOff),_internalBuffLen - _internalBuffOff);
+                result |= daal::services::internal::daal_memcpy_s((void *)(_next_out), _internalBuffLen - _internalBuffOff,
+                                                                  (void *)(((byte *)_internalBuff) + _internalBuffOff),
+                                                                  _internalBuffLen - _internalBuffOff);
                 if (result)
                 {
                     this->_errors->add(services::ErrorMemoryCopyFailedInternal);
@@ -287,9 +279,9 @@ void Decompressor<rle>::run(byte *out, size_t outLen, size_t off)
 
                 this->_usedOutBlockSize += _internalBuffLen - _internalBuffOff;
                 _avail_out = _avail_out - (_internalBuffLen - _internalBuffOff);
-                _next_out = (void *)((byte *)_next_out + (_internalBuffLen - _internalBuffOff));
+                _next_out  = (void *)((byte *)_next_out + (_internalBuffLen - _internalBuffOff));
                 daal::services::daal_free(_internalBuff);
-                _internalBuff = NULL;
+                _internalBuff    = NULL;
                 _internalBuffLen = 0;
                 _internalBuffOff = 0;
                 if (_avail_in == 0)
@@ -301,7 +293,7 @@ void Decompressor<rle>::run(byte *out, size_t outLen, size_t off)
 
         do
         {
-            if (EXPECT(_avail_in < _headBytes,0))
+            if (EXPECT(_avail_in < _headBytes, 0))
             {
                 finalizeCompression();
                 this->_errors->add(services::ErrorRleDataFormatLessThenHeader);
@@ -309,11 +301,11 @@ void Decompressor<rle>::run(byte *out, size_t outLen, size_t off)
             }
 
             uncompressedBlockSize = ((Ipp32u *)((byte *)_next_in))[0];
-            compressedBlockSize = ((Ipp32u *)((byte *)_next_in))[1];
-            _next_in = (void *)((byte *)_next_in + _headBytes);
-            tmp_avail_in = compressedBlockSize;
+            compressedBlockSize   = ((Ipp32u *)((byte *)_next_in))[1];
+            _next_in              = (void *)((byte *)_next_in + _headBytes);
+            tmp_avail_in          = compressedBlockSize;
 
-            if (EXPECT(_avail_in < compressedBlockSize + _headBytes,0))
+            if (EXPECT(_avail_in < compressedBlockSize + _headBytes, 0))
             {
                 finalizeCompression();
                 this->_errors->add(services::ErrorRleDataFormatNotFullBlock);
@@ -322,35 +314,31 @@ void Decompressor<rle>::run(byte *out, size_t outLen, size_t off)
             if (_avail_out < uncompressedBlockSize)
             {
                 _internalBuff = daal::services::daal_calloc(uncompressedBlockSize);
-                if (EXPECT(_internalBuff == NULL,0))
+                if (EXPECT(_internalBuff == NULL, 0))
                 {
                     this->_errors->add(services::ErrorMemoryAllocationFailed);
                     return;
                 }
                 _internalBuffLen = uncompressedBlockSize;
                 _internalBuffOff = 0;
-                tmp_avail_out = uncompressedBlockSize;
-                tmp_in_ptr = (Ipp8u *)_next_in;
+                tmp_avail_out    = uncompressedBlockSize;
+                tmp_in_ptr       = (Ipp8u *)_next_in;
 
                 int errCode = ippsDecodeRLE_8u((Ipp8u **)&tmp_in_ptr, &tmp_avail_in, (Ipp8u *)_internalBuff, &tmp_avail_out);
-                if (EXPECT(errCode != ippStsNoErr,0))
+                if (EXPECT(errCode != ippStsNoErr, 0))
                 {
                     finalizeCompression();
                     switch (errCode)
                     {
-                    case ippStsSrcDataErr:
-                        this->_errors->add(services::ErrorRleDataFormat);
-                        return;
+                    case ippStsSrcDataErr: this->_errors->add(services::ErrorRleDataFormat); return;
                     case ippStsSizeErr:
                     case ippStsDstSizeLessExpected:
-                    default:
-                        this->_errors->add(services::ErrorRleInternal);
-                        return;
+                    default: this->_errors->add(services::ErrorRleInternal); return;
                     }
                 }
 
-                result |= daal::services::internal::daal_memcpy_s((void*)(_next_out),_avail_out,
-                                                                  (void*)(((byte *)_internalBuff)+_internalBuffOff),_avail_out);
+                result |= daal::services::internal::daal_memcpy_s((void *)(_next_out), _avail_out,
+                                                                  (void *)(((byte *)_internalBuff) + _internalBuffOff), _avail_out);
                 if (result)
                 {
                     this->_errors->add(services::ErrorMemoryCopyFailedInternal);
@@ -359,53 +347,48 @@ void Decompressor<rle>::run(byte *out, size_t outLen, size_t off)
 
                 _internalBuffOff += _avail_out;
                 this->_usedOutBlockSize += _avail_out;
-                _avail_out = 0;
+                _avail_out            = 0;
                 this->_isOutBlockFull = 1;
-                if (EXPECT(tmp_avail_in > compressedBlockSize,0))
+                if (EXPECT(tmp_avail_in > compressedBlockSize, 0))
                 {
                     finalizeCompression();
                     this->_errors->add(services::ErrorRleInternal);
                     return;
                 }
                 _avail_in = _avail_in - (compressedBlockSize - tmp_avail_in + _headBytes);
-                _next_in = ((byte *)_next_in + (compressedBlockSize - tmp_avail_in));
+                _next_in  = ((byte *)_next_in + (compressedBlockSize - tmp_avail_in));
                 return;
             }
 
             tmp_avail_out = _avail_out;
-            tmp_in_ptr = (Ipp8u *)_next_in;
-            int errCode = ippsDecodeRLE_8u((Ipp8u **)&tmp_in_ptr, &tmp_avail_in, (Ipp8u *)_next_out, &tmp_avail_out);
-            if (EXPECT(errCode != ippStsNoErr,0))
+            tmp_in_ptr    = (Ipp8u *)_next_in;
+            int errCode   = ippsDecodeRLE_8u((Ipp8u **)&tmp_in_ptr, &tmp_avail_in, (Ipp8u *)_next_out, &tmp_avail_out);
+            if (EXPECT(errCode != ippStsNoErr, 0))
             {
                 finalizeCompression();
                 switch (errCode)
                 {
-                case ippStsSrcDataErr:
-                    this->_errors->add(services::ErrorRleDataFormat);
-                    return;
+                case ippStsSrcDataErr: this->_errors->add(services::ErrorRleDataFormat); return;
                 case ippStsSizeErr:
                 case ippStsDstSizeLessExpected:
-                default:
-                    this->_errors->add(services::ErrorRleInternal);
-                    return;
+                default: this->_errors->add(services::ErrorRleInternal); return;
                 }
             }
 
-            if (EXPECT(tmp_avail_in > compressedBlockSize,0))
+            if (EXPECT(tmp_avail_in > compressedBlockSize, 0))
             {
                 finalizeCompression();
                 this->_errors->add(services::ErrorRleInternal);
                 return;
             }
             _avail_in = _avail_in - (compressedBlockSize - tmp_avail_in + _headBytes);
-            _next_in = ((byte *)_next_in + (compressedBlockSize - tmp_avail_in));
+            _next_in  = ((byte *)_next_in + (compressedBlockSize - tmp_avail_in));
 
             _avail_out = _avail_out - tmp_avail_out;
-            _next_out = (byte *)_next_out + tmp_avail_out;
+            _next_out  = (byte *)_next_out + tmp_avail_out;
             this->_usedOutBlockSize += tmp_avail_out;
 
-        }
-        while (_avail_in > 0 && _avail_out > 0);
+        } while (_avail_in > 0 && _avail_out > 0);
 
         if (_avail_in > 0)
         {
@@ -430,13 +413,11 @@ void Decompressor<rle>::run(byte *out, size_t outLen, size_t off)
         case ippStsDstSizeLessExpected:
             _avail_out -= tmp_avail_out;
             this->_usedOutBlockSize = tmp_avail_out;
-            this->_isOutBlockFull = 1;
-            _avail_in = tmp_avail_in;
+            this->_isOutBlockFull   = 1;
+            _avail_in               = tmp_avail_in;
             return;
-        default:
-            break;
+        default: break;
         }
-
     }
 
     this->_usedOutBlockSize = tmp_avail_out;

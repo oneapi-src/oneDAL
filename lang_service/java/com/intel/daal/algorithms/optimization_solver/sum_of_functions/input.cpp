@@ -21,7 +21,7 @@
 
 #include "com_intel_daal_algorithms_optimization_solver_sum_of_functions_Input.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::optimization_solver;
@@ -31,8 +31,8 @@ using namespace daal::algorithms::optimization_solver;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1of_1functions_Input_cSetInput
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1of_1functions_Input_cSetInput(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                              jint id, jlong ntAddr)
 {
     jniInput<sum_of_functions::Input>::set<sum_of_functions::InputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -42,8 +42,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1of_1functions_Input_cGetInput
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1of_1functions_Input_cGetInput(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                               jint id)
 {
     return jniInput<sum_of_functions::Input>::get<sum_of_functions::InputId, NumericTable>(inputAddr, id);
 }
@@ -53,28 +53,24 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_
  * Method:    cSetCInput
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1of_1functions_Input_cSetCInput
-(JNIEnv *, jobject, jlong inputAddr, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1of_1functions_Input_cSetCInput(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                               jlong algAddr)
 {
-    sum_of_functions::Input *inputPtr = (sum_of_functions::Input *)inputAddr;
+    sum_of_functions::Input * inputPtr = (sum_of_functions::Input *)inputAddr;
 
-    SharedPtr<sum_of_functions::Batch> alg =
-        staticPointerCast<sum_of_functions::Batch, AlgorithmIface>
-        (*(SharedPtr<AlgorithmIface> *)algAddr);
-    alg->sumOfFunctionsInput = inputPtr;
+    SharedPtr<sum_of_functions::Batch> alg = staticPointerCast<sum_of_functions::Batch, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
+    alg->sumOfFunctionsInput               = inputPtr;
 }
-
 
 /*
  * Class:     com_intel_daal_algorithms_optimization_solver_sum_of_functions_Input
  * Method:    cCreateInput
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1of_1functions_Input_cCreateInput
-(JNIEnv *, jobject)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1of_1functions_Input_cCreateInput(JNIEnv *, jobject)
 {
     jlong addr = 0;
-    addr = (jlong)(new sum_of_functions::Input());
+    addr       = (jlong)(new sum_of_functions::Input());
     return addr;
 }
 
@@ -83,9 +79,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_
  * Method:    cInputDispose
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1of_1functions_Input_cInputDispose
-(JNIEnv *, jobject, jlong createdInput)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1of_1functions_Input_cInputDispose(JNIEnv *, jobject,
+                                                                                                                  jlong createdInput)
 {
-    sum_of_functions::Input* ptr = (sum_of_functions::Input *) createdInput;
+    sum_of_functions::Input * ptr = (sum_of_functions::Input *)createdInput;
     delete ptr;
 }

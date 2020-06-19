@@ -21,7 +21,7 @@
 //--
 */
 
-#include "qr_dense_default_distr_step3.h"
+#include "algorithms/kernel/qr/qr_dense_default_distr_step3.h"
 namespace daal
 {
 namespace algorithms
@@ -30,11 +30,13 @@ namespace qr
 {
 namespace interface1
 {
+template DAAL_EXPORT services::Status DistributedPartialResultStep3::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                                           const daal::algorithms::Parameter * parameter,
+                                                                                           const int method);
+template DAAL_EXPORT services::Status DistributedPartialResultStep3::setPartialResultStorage<DAAL_FPTYPE>(
+    data_management::DataCollection * qCollection);
 
-template DAAL_EXPORT services::Status DistributedPartialResultStep3::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
-template DAAL_EXPORT services::Status DistributedPartialResultStep3::setPartialResultStorage<DAAL_FPTYPE>(data_management::DataCollection *qCollection);
-
-}// namespace interface1
-}// namespace qr
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace qr
+} // namespace algorithms
+} // namespace daal

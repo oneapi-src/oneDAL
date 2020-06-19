@@ -19,9 +19,8 @@
 //  Implementation of initializer types.
 //--
 
-
-#include "neural_networks/initializers/initializer_types.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/initializers/initializer_types.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -33,24 +32,22 @@ namespace initializers
 {
 namespace interface1
 {
-
-services::Status Input::check(const daal::algorithms::Parameter *par, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
     DAAL_CHECK(Argument::size() == 1, services::ErrorIncorrectNumberOfInputNumericTables);
     return data_management::checkTensor(get(data).get(), dataStr());
 }
 
-services::Status Result::check(const daal::algorithms::Input *input,
-    const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     DAAL_CHECK(Argument::size() == 1, services::ErrorIncorrectNumberOfInputNumericTables);
 
-    const Input *algInput = static_cast<const Input *>(input);
+    const Input * algInput = static_cast<const Input *>(input);
     return data_management::checkTensor(get(value).get(), valueStr(), &(algInput->get(data)->getDimensions()));
 }
 
-} // interface1
-} // initializers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace interface1
+} // namespace initializers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

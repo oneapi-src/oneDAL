@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #include "com_intel_daal_algorithms_neural_networks_layers_average_pooling1d_AveragePooling1dLayerDataId.h"
 #define auxInputDimensionsId com_intel_daal_algorithms_neural_networks_layers_average_pooling1d_AveragePooling1dLayerDataId_auxInputDimensionsId
@@ -33,20 +33,19 @@ using namespace daal::algorithms::neural_networks::layers::average_pooling1d;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_average_1pooling1d_AveragePooling1dForwardResult_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL
+    Java_com_intel_daal_algorithms_neural_1networks_layers_average_1pooling1d_AveragePooling1dForwardResult_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<forward::Result>::newObj();
 }
-
 
 /*
  * Class:     com_intel_daal_algorithms_neural_networks_layers_average_1pooling1d_AveragePooling1dForwardResult
  * Method:    cGetValue
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_average_1pooling1d_AveragePooling1dForwardResult_cGetValue
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_average_1pooling1d_AveragePooling1dForwardResult_cGetValue(
+    JNIEnv * env, jobject thisObj, jlong resAddr, jint id)
 {
     if (id == auxInputDimensionsId)
     {
@@ -61,8 +60,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_a
  * Method:    cSetValue
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_average_1pooling1d_AveragePooling1dForwardResult_cSetValue
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_neural_1networks_layers_average_1pooling1d_AveragePooling1dForwardResult_cSetValue(
+    JNIEnv * env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
 {
     if (id == auxInputDimensionsId)
     {

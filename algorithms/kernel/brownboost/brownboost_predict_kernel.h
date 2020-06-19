@@ -24,11 +24,11 @@
 #ifndef __BROWNBOOST_PREDICT_KERNEL_H__
 #define __BROWNBOOST_PREDICT_KERNEL_H__
 
-#include "brownboost_model.h"
-#include "brownboost_predict.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "boosting_predict_kernel.h"
+#include "algorithms/boosting/brownboost_model.h"
+#include "algorithms/boosting/brownboost_predict.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/kernel/boosting/inner/boosting_predict_kernel.h"
 
 using namespace daal::data_management;
 using namespace daal::algorithms::boosting::prediction::internal;
@@ -47,14 +47,14 @@ template <Method method, typename algorithmFPtype, CpuType cpu>
 class BrownBoostPredictKernel : public Kernel
 {
 public:
-    services::Status compute(const NumericTablePtr &x, const Model *m, const NumericTablePtr &r, const Parameter *par);
-    services::Status computeImpl(const NumericTablePtr &xTable, const Model *m, size_t nWeakLearners, const algorithmFPtype *alpha, algorithmFPtype *r,
-                                 const Parameter *par);
+    services::Status compute(const NumericTablePtr & x, const Model * m, const NumericTablePtr & r, const Parameter * par);
+    services::Status computeImpl(const NumericTablePtr & xTable, const Model * m, size_t nWeakLearners, const algorithmFPtype * alpha,
+                                 algorithmFPtype * r, const Parameter * par);
 };
-} // namespace daal::algorithms::brownboost::prediction::internal
-}
-}
-}
+} // namespace internal
+} // namespace prediction
+} // namespace brownboost
+} // namespace algorithms
 } // namespace daal
 
 #endif

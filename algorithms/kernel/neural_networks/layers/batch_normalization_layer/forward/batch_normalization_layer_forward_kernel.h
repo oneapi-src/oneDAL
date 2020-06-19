@@ -22,19 +22,19 @@
 #ifndef __BATCH_NORMALIZATION_LAYER_FORWARD_KERNEL_H__
 #define __BATCH_NORMALIZATION_LAYER_FORWARD_KERNEL_H__
 
-#include "neural_networks/layers/batch_normalization/batch_normalization_layer_forward.h"
-#include "neural_networks/layers/batch_normalization/batch_normalization_layer_forward_types.h"
+#include "algorithms/neural_networks/layers/batch_normalization/batch_normalization_layer_forward.h"
+#include "algorithms/neural_networks/layers/batch_normalization/batch_normalization_layer_forward_types.h"
 
-#include "kernel.h"
-#include "threading.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/threading/threading.h"
 
-#include "service_math.h"
-#include "service_tensor.h"
-#include "service_unique_ptr.h"
-#include "service_numeric_table.h"
+#include "externals/service_math.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/service_unique_ptr.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
-#include "batch_normalization_layer_forward_task.h"
-#include "batch_normalization_layer_forward_task_descriptor.h"
+#include "algorithms/kernel/neural_networks/layers/batch_normalization_layer/forward/batch_normalization_layer_forward_task.h"
+#include "algorithms/kernel/neural_networks/layers/batch_normalization_layer/forward/batch_normalization_layer_forward_task_descriptor.h"
 
 namespace daal
 {
@@ -50,31 +50,30 @@ namespace forward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for forward batch normalization layer results computation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchNormalizationKernel : public Kernel
 {
 private:
     typedef CommonBatchNormalizationTask<algorithmFPType, method, cpu> InternalBatchNormalizationTask;
 
 public:
-    services::Status initialize(const BatchNormalizationTaskDescriptor &descriptor);
-    services::Status compute(const BatchNormalizationTaskDescriptor &descriptor);
+    services::Status initialize(const BatchNormalizationTaskDescriptor & descriptor);
+    services::Status compute(const BatchNormalizationTaskDescriptor & descriptor);
     services::Status reset();
 
 private:
     UniquePtr<InternalBatchNormalizationTask, cpu> _task;
 };
 
-} // internal
-} // forward
-} // batch_normalization
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace forward
+} // namespace batch_normalization
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

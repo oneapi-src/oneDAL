@@ -23,9 +23,9 @@
 //--
 */
 
-#include "gbt_regression_predict.h"
-#include "gbt_regression_predict_kernel.h"
-#include "service_algo_utils.h"
+#include "algorithms/gradient_boosted_trees/gbt_regression_predict.h"
+#include "algorithms/kernel/dtrees/gbt/regression/gbt_regression_predict_kernel.h"
+#include "service/kernel/service_algo_utils.h"
 
 namespace daal
 {
@@ -37,9 +37,8 @@ namespace regression
 {
 namespace prediction
 {
-
 template <typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv) : PredictionContainerIface()
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
 {
     __DAAL_INITIALIZE_KERNELS(internal::PredictKernel, algorithmFPType, method);
 }
@@ -53,21 +52,21 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    Input *input = static_cast<Input *>(_in);
-    Result *result = static_cast<Result *>(_res);
+    Input * input   = static_cast<Input *>(_in);
+    Result * result = static_cast<Result *>(_res);
 
-    NumericTable *a = static_cast<NumericTable *>(input->get(data).get());
-    daal::algorithms::gbt::regression::Model *m = static_cast<daal::algorithms::gbt::regression::Model *>(input->get(model).get());
-    NumericTable *r = static_cast<NumericTable *>(result->get(prediction).get());
-    const gbt::regression::prediction::Parameter *par = static_cast<gbt::regression::prediction::Parameter*>(_par);
+    NumericTable * a                                   = static_cast<NumericTable *>(input->get(data).get());
+    daal::algorithms::gbt::regression::Model * m       = static_cast<daal::algorithms::gbt::regression::Model *>(input->get(model).get());
+    NumericTable * r                                   = static_cast<NumericTable *>(result->get(prediction).get());
+    const gbt::regression::prediction::Parameter * par = static_cast<gbt::regression::prediction::Parameter *>(_par);
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
     __DAAL_CALL_KERNEL(env, internal::PredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-        daal::services::internal::hostApp(*input), a, m, r, par->nIterations);
+                       daal::services::internal::hostApp(*input), a, m, r, par->nIterations);
 }
 
-}
-}
-}
-}
+} // namespace prediction
+} // namespace regression
+} // namespace gbt
+} // namespace algorithms
 } // namespace daal

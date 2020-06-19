@@ -25,10 +25,10 @@
 #ifndef __GBT_CLASSIFICATION_TRAIN_KERNEL_H__
 #define __GBT_CLASSIFICATION_TRAIN_KERNEL_H__
 
-#include "numeric_table.h"
-#include "algorithm_base_common.h"
-#include "gbt_classification_training_types.h"
-#include "engine_batch_impl.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/algorithm_base_common.h"
+#include "algorithms/gradient_boosted_trees/gbt_classification_training_types.h"
+#include "algorithms/kernel/engines/engine_batch_impl.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -45,25 +45,22 @@ namespace training
 {
 namespace internal
 {
-
 template <typename algorithmFPType, Method method, CpuType cpu>
 class ClassificationTrainBatchKernel : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(HostAppIface* pHost, const NumericTable *x, const NumericTable *y,
-        gbt::classification::Model& m, Result& res, const interface1::Parameter& par,
-        engines::internal::BatchBaseImpl& engine); // remove this function when interface1::Parameter becomes deprecated
-    services::Status compute(HostAppIface* pHost, const NumericTable *x, const NumericTable *y,
-        gbt::classification::Model& m, Result& res, const interface2::Parameter& par,
-        engines::internal::BatchBaseImpl& engine);
+    services::Status compute(HostAppIface * pHost, const NumericTable * x, const NumericTable * y, gbt::classification::Model & m, Result & res,
+                             const interface1::Parameter & par,
+                             engines::internal::BatchBaseImpl & engine); // remove this function when interface1::Parameter becomes deprecated
+    services::Status compute(HostAppIface * pHost, const NumericTable * x, const NumericTable * y, gbt::classification::Model & m, Result & res,
+                             const interface2::Parameter & par, engines::internal::BatchBaseImpl & engine);
 };
 
 } // namespace internal
-}
-}
-}
-}
+} // namespace training
+} // namespace classification
+} // namespace gbt
+} // namespace algorithms
 } // namespace daal
-
 
 #endif

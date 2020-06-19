@@ -22,13 +22,13 @@
 //--
 */
 
-#include "decision_tree_regression_predict_dense_default_batch_container.h"
+#include "algorithms/kernel/decision_tree/decision_tree_regression_predict_dense_default_batch_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_tree::regression::prediction::BatchContainer, batch, DAAL_FPTYPE, \
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_tree::regression::prediction::BatchContainer, batch, DAAL_FPTYPE,
                                       decision_tree::regression::prediction::defaultDense)
 
 } // namespace algorithms

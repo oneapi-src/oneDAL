@@ -21,7 +21,7 @@
 //--
 */
 
-#include "implicit_als_train_init_parameter.h"
+#include "algorithms/kernel/implicit_als/implicit_als_train_init_parameter.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -38,11 +38,11 @@ namespace init
 {
 namespace internal
 {
-SharedPtr<HomogenNumericTable<int> > getPartition(const init::DistributedParameter *parameter, services::Status &st)
+SharedPtr<HomogenNumericTable<int> > getPartition(const init::DistributedParameter * parameter, services::Status & st)
 {
-    NumericTable *partitionTable = parameter->partition.get();
-    size_t nRows = partitionTable->getNumberOfRows();
-    size_t nParts = nRows - 1;
+    NumericTable * partitionTable = parameter->partition.get();
+    size_t nRows                  = partitionTable->getNumberOfRows();
+    size_t nParts                 = nRows - 1;
     BlockDescriptor<int> block;
     if (nRows == 1)
     {
@@ -53,11 +53,11 @@ SharedPtr<HomogenNumericTable<int> > getPartition(const init::DistributedParamet
     SharedPtr<HomogenNumericTable<int> > nt = HomogenNumericTable<int>::create(1, nParts + 1, NumericTable::doAllocate, st);
     if (!st) return nt;
 
-    int *partition = nt->getArray();
+    int * partition = nt->getArray();
     if (nRows == 1)
     {
         size_t nUsersInPart = parameter->fullNUsers / nParts;
-        partition[0] = 0;
+        partition[0]        = 0;
         for (size_t i = 1; i < nParts; i++)
         {
             partition[i] = partition[i - 1] + nUsersInPart;
@@ -67,7 +67,7 @@ SharedPtr<HomogenNumericTable<int> > getPartition(const init::DistributedParamet
     else
     {
         partitionTable->getBlockOfRows(0, nRows, readOnly, block);
-        int *srcPartition = block.getBlockPtr();
+        int * srcPartition = block.getBlockPtr();
         for (size_t i = 0; i < nParts + 1; i++)
         {
             partition[i] = srcPartition[i];
@@ -77,9 +77,9 @@ SharedPtr<HomogenNumericTable<int> > getPartition(const init::DistributedParamet
     return nt;
 }
 
-}// namespace internal
-}// namespace init
-}// namespace training
-}// namespace implicit_als
-}// namespace algorithms
-}// namespace daal
+} // namespace internal
+} // namespace init
+} // namespace training
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal

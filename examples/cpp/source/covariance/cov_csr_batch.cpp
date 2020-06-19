@@ -39,7 +39,7 @@ using namespace daal::algorithms;
  */
 const string datasetFileName = "../data/batch/covcormoments_csr.csv";
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
     covariance::ResultPtr res = algorithm.getResult();
 
     printNumericTable(res->get(covariance::covariance), "Covariance matrix (upper left square 10*10) :", 10, 10);
-    printNumericTable(res->get(covariance::mean),       "Mean vector:", 1, 10);
+    printNumericTable(res->get(covariance::mean), "Mean vector:", 1, 10);
 
     return 0;
 }

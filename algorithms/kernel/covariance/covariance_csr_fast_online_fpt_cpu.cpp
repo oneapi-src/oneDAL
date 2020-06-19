@@ -21,8 +21,8 @@
 //--
 */
 
-#include "covariance_container.h"
-#include "covariance_csr_online_impl.i"
+#include "algorithms/kernel/covariance/covariance_container.h"
+#include "algorithms/kernel/covariance/covariance_csr_online_impl.i"
 
 namespace daal
 {
@@ -38,6 +38,6 @@ namespace internal
 {
 template class CovarianceCSROnlineKernel<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
 }
-}
-}
-}
+} // namespace covariance
+} // namespace algorithms
+} // namespace daal

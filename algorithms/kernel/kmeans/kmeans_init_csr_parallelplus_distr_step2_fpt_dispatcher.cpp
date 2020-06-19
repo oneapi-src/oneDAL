@@ -21,13 +21,13 @@
 //--
 */
 
-#include "kmeans_init_container.h"
+#include "algorithms/kernel/kmeans/kmeans_init_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kmeans::init::DistributedContainer, distributed, step2Local,  DAAL_FPTYPE, kmeans::init::parallelPlusCSR)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kmeans::init::DistributedContainer, distributed, step2Local, DAAL_FPTYPE, kmeans::init::parallelPlusCSR)
 
 namespace kmeans
 {
@@ -35,19 +35,18 @@ namespace init
 {
 namespace interface2
 {
-
 using DistributedType = Distributed<step2Local, DAAL_FPTYPE, kmeans::init::parallelPlusCSR>;
 
 template <>
-DistributedType::Distributed(size_t nClusters, bool bFirstIteration) : DistributedStep2LocalPlusPlusBase(new ParameterType(nClusters, bFirstIteration)),
-    parameter(*static_cast<ParameterType*>(_par))
+DistributedType::Distributed(size_t nClusters, bool bFirstIteration)
+    : DistributedStep2LocalPlusPlusBase(new ParameterType(nClusters, bFirstIteration)), parameter(*static_cast<ParameterType *>(_par))
 {
     initialize();
 }
 
 template <>
-DistributedType::Distributed(const DistributedType &other) : DistributedStep2LocalPlusPlusBase(new ParameterType(other.parameter)),
-    parameter(*static_cast<ParameterType*>(_par)), input(other.input)
+DistributedType::Distributed(const DistributedType & other)
+    : DistributedStep2LocalPlusPlusBase(new ParameterType(other.parameter)), parameter(*static_cast<ParameterType *>(_par)), input(other.input)
 {
     initialize();
 }
@@ -56,5 +55,5 @@ DistributedType::Distributed(const DistributedType &other) : DistributedStep2Loc
 } // namespace init
 } // namespace kmeans
 
-} // namespace daal::algorithms
+} // namespace algorithms
 } // namespace daal

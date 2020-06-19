@@ -25,9 +25,9 @@
 #ifndef __DF_CLASSFICATION_TRAIN_KERNEL_H__
 #define __DF_CLASSFICATION_TRAIN_KERNEL_H__
 
-#include "numeric_table.h"
-#include "algorithm_base_common.h"
-#include "decision_forest_training_parameter.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/algorithm_base_common.h"
+#include "algorithms/decision_forest/decision_forest_training_parameter.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -44,26 +44,21 @@ namespace training
 {
 namespace internal
 {
-
 template <typename algorithmFPType, Method method, CpuType cpu>
 class ClassificationTrainBatchKernel : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(HostAppIface* pHostApp, const NumericTable *x, const NumericTable *y,
-        decision_forest::classification::Model& m,
-        Result& res, const decision_forest::classification::training::interface1::Parameter& par);
-    services::Status compute(HostAppIface* pHostApp, const NumericTable *x, const NumericTable *y,
-        decision_forest::classification::Model& m,
-        Result& res, const decision_forest::classification::training::Parameter& par);
-
+    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::classification::Model & m,
+                             Result & res, const decision_forest::classification::training::interface1::Parameter & par);
+    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::classification::Model & m,
+                             Result & res, const decision_forest::classification::training::Parameter & par);
 };
 
 } // namespace internal
-}
-}
-}
-}
+} // namespace training
+} // namespace classification
+} // namespace decision_forest
+} // namespace algorithms
 } // namespace daal
-
 
 #endif

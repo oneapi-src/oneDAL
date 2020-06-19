@@ -21,7 +21,7 @@
 //--
 */
 
-#include "abs_layer_types.h"
+#include "algorithms/neural_networks/layers/abs/abs_layer_types.h"
 
 namespace daal
 {
@@ -40,9 +40,9 @@ namespace interface1
  */
 Parameter::Parameter() {};
 
-}// namespace interface1
-}// namespace abs
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace abs
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

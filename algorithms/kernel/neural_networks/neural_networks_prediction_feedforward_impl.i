@@ -36,17 +36,21 @@ namespace internal
 {
 using namespace daal::services;
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status NeuralNetworksFeedforwardPredictionKernel<algorithmFPType, method, cpu>::initialize(
-    const Input *input, const neural_networks::prediction::Parameter *parameter, Result *result)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status NeuralNetworksFeedforwardPredictionKernel<algorithmFPType, method, cpu>::initialize(const Input * input,
+                                                                                           const neural_networks::prediction::Parameter * parameter,
+                                                                                           Result * result)
 {
     nLayers   = input->get(prediction::model)->getLayers()->size();
     nSamples  = input->get(prediction::data)->getDimensions().get(0);
     batchSize = parameter->batchSize;
-    if (nSamples < batchSize) { return Status(); }
+    if (nSamples < batchSize)
+    {
+        return Status();
+    }
 
     /* Get the number of last layers in the network and their indeces */
-    Collection<layers::NextLayers> *nextLayers = input->get(prediction::model)->getNextLayers().get();
+    Collection<layers::NextLayers> * nextLayers       = input->get(prediction::model)->getNextLayers().get();
     KeyValueDataCollectionPtr predictionCollectionPtr = result->get(prediction::predictionCollection);
 
     lastLayersIndices.reset(new LastLayerIndices(nextLayers, predictionCollectionPtr));
@@ -56,7 +60,7 @@ Status NeuralNetworksFeedforwardPredictionKernel<algorithmFPType, method, cpu>::
 
     /* Create a tensor to pass as an input to the first forward layer in neural network */
     Collection<size_t> sampleSize = input->get(prediction::data)->getDimensions();
-    sampleSize[0] = batchSize;
+    sampleSize[0]                 = batchSize;
     Status s;
     sample = HomogenTensor<algorithmFPType>::create(sampleSize, Tensor::doNotAllocate, &s);
     DAAL_CHECK_STATUS_VAR(s);
@@ -75,13 +79,16 @@ Status NeuralNetworksFeedforwardPredictionKernel<algorithmFPType, method, cpu>::
 /**
  *  \brief Kernel for Neural Network prediction
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status NeuralNetworksFeedforwardPredictionKernel<algorithmFPType, method, cpu>::compute(const Input *input, Result *result)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status NeuralNetworksFeedforwardPredictionKernel<algorithmFPType, method, cpu>::compute(const Input * input, Result * result)
 {
     Status s;
     ForwardLayersPtr forwardLayers = input->get(prediction::model)->getLayers();
-    TensorPtr data = input->get(prediction::data);
-    if (nSamples < batchSize) { return s; }
+    TensorPtr data                 = input->get(prediction::data);
+    if (nSamples < batchSize)
+    {
+        return s;
+    }
 
     forwardLayers->get(0)->getLayerInput()->set(forward::data, sample);
 
@@ -101,15 +108,15 @@ Status NeuralNetworksFeedforwardPredictionKernel<algorithmFPType, method, cpu>::
         predictions[i].set(*predictionTensor, 0, 0, 0, 0);
     }
 
-    for(size_t i = 0; i < nSamples - batchSize + 1; i += batchSize)
+    for (size_t i = 0; i < nSamples - batchSize + 1; i += batchSize)
     {
         /* Retrieve next batch of input data and pass it to the first layer */
-        const algorithmFPType *sampleArray = sampleSubtensor.next(0, 0, i, batchSize);
+        const algorithmFPType * sampleArray = sampleSubtensor.next(0, 0, i, batchSize);
         DAAL_CHECK_BLOCK_STATUS(sampleSubtensor)
         sample->setArray(const_cast<algorithmFPType *>(sampleArray));
 
         /* Forward pass through the neural network */
-        for(size_t layerId = 0; layerId < nLayers; layerId++)
+        for (size_t layerId = 0; layerId < nLayers; layerId++)
         {
             layers::forward::LayerIfacePtr forwardLayer = forwardLayers->get(layerId);
             DAAL_CHECK_STATUS(s, processLayerErrors(layerId, forwardLayer->computeNoThrow()))
@@ -118,9 +125,9 @@ Status NeuralNetworksFeedforwardPredictionKernel<algorithmFPType, method, cpu>::
         /* Copy results from the last layers into the user provided memory */
         for (size_t j = 0; j < nLastLayers; j++)
         {
-            const algorithmFPType *lastLayerResultArray = lastLayerResults[j].next(0, 0, 0, batchSize);
+            const algorithmFPType * lastLayerResultArray = lastLayerResults[j].next(0, 0, 0, batchSize);
             DAAL_CHECK_BLOCK_STATUS(lastLayerResults[j])
-            algorithmFPType *predictionArray = predictions[j].next(0, 0, i, batchSize);
+            algorithmFPType * predictionArray = predictions[j].next(0, 0, i, batchSize);
             DAAL_CHECK_BLOCK_STATUS(predictions[j])
 
             size_t blockSize = lastLayerResults[j].getSize() * sizeof(algorithmFPType);
@@ -130,7 +137,7 @@ Status NeuralNetworksFeedforwardPredictionKernel<algorithmFPType, method, cpu>::
     return s;
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 Status NeuralNetworksFeedforwardPredictionKernel<algorithmFPType, method, cpu>::reset()
 {
     lastLayersIndices.reset();
@@ -141,7 +148,7 @@ Status NeuralNetworksFeedforwardPredictionKernel<algorithmFPType, method, cpu>::
 }
 
 } // namespace internal
-} // namespace feedforward
+} // namespace prediction
 } // namespace neural_networks
 } // namespace algorithms
 } // namespace daal

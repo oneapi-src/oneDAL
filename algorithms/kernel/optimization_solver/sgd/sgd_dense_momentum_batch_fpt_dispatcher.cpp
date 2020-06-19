@@ -19,8 +19,7 @@
 //  Implementation of sgd calculation algorithm container.
 //--
 
-
-#include "sgd_batch_container.h"
+#include "algorithms/kernel/optimization_solver/sgd/sgd_batch_container.h"
 
 namespace daal
 {
@@ -32,12 +31,11 @@ namespace optimization_solver
 {
 namespace sgd
 {
-
 namespace interface2
 {
 using BatchType = Batch<DAAL_FPTYPE, optimization_solver::sgd::momentum>;
 
-template<>
+template <>
 services::SharedPtr<BatchType> BatchType::create()
 {
     return services::SharedPtr<BatchType>(new BatchType());

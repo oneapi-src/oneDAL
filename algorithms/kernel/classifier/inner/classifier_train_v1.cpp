@@ -21,9 +21,9 @@
 //--
 */
 
-#include "classifier_training_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/classifier/classifier_training_types.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 #include "data_management/data/numeric_table.h"
 #include "data_management/data/numeric_types.h"
 
@@ -37,13 +37,13 @@ namespace interface1
 {
 services::Status Parameter::check() const
 {
-    if(nClasses == 0)
+    if (nClasses == 0)
     {
         return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, nClassesStr()));
     }
     return services::Status();
 }
-}
-}
-}
-}
+} // namespace interface1
+} // namespace classifier
+} // namespace algorithms
+} // namespace daal

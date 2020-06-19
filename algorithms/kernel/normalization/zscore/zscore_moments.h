@@ -18,7 +18,7 @@
 #ifndef __ZSCORE_MOMENTS_H__
 #define __ZSCORE_MOMENTS_H__
 
-#include "zscore.h"
+#include "algorithms/normalization/zscore.h"
 
 namespace daal
 {
@@ -30,13 +30,11 @@ namespace zscore
 {
 namespace internal
 {
-template<typename algorithmFPType>
-services::Status computeMeansAndVariances(low_order_moments::BatchImpl *moments,
-                                          const daal::data_management::NumericTable &dataTable,
-                                          algorithmFPType* resultMean,
-                                          algorithmFPType* resultVariance);
+template <typename algorithmFPType>
+services::Status computeMeansAndVariances(low_order_moments::BatchImpl * moments, const daal::data_management::NumericTable & dataTable,
+                                          algorithmFPType * resultMean, algorithmFPType * resultVariance);
 
-} // namespace daal::internal
+} // namespace internal
 } // namespace zscore
 } // namespace normalization
 } // namespace algorithms

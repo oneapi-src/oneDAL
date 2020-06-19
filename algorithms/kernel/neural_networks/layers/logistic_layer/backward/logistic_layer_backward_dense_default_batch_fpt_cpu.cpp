@@ -19,10 +19,9 @@
 //  Implementation of logistic function calculation functions.
 //--
 
-
-#include "logistic_layer_backward_batch_container.h"
-#include "logistic_layer_backward_kernel.h"
-#include "logistic_layer_backward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/logistic_layer/backward/logistic_layer_backward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/logistic_layer/backward/logistic_layer_backward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/logistic_layer/backward/logistic_layer_backward_impl.i"
 
 namespace daal
 {
@@ -34,21 +33,20 @@ namespace layers
 {
 namespace logistic
 {
-
 namespace backward
 {
 namespace interface1
 {
 template class neural_networks::layers::logistic::backward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 namespace internal
 {
 template class LogisticKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
-} // backward
+} // namespace internal
+} // namespace backward
 
-}
-}
-}
-}
-}
+} // namespace logistic
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

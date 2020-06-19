@@ -21,13 +21,13 @@
 //--
 */
 
-#include "linear_regression_group_of_betas_dense_default_batch_container.h"
+#include "algorithms/kernel/linear_regression/linear_regression_group_of_betas_dense_default_batch_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(linear_regression::quality_metric::group_of_betas::BatchContainer, batch, DAAL_FPTYPE, \
-    linear_regression::quality_metric::group_of_betas::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(linear_regression::quality_metric::group_of_betas::BatchContainer, batch, DAAL_FPTYPE,
+                                      linear_regression::quality_metric::group_of_betas::defaultDense)
 }
-}
+} // namespace daal

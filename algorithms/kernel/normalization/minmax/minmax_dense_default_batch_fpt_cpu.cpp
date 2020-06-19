@@ -19,10 +19,9 @@
 //  Implementation of minmax calculation functions.
 //--
 
-
-#include "minmax_batch_container.h"
-#include "minmax_kernel.h"
-#include "minmax_impl.i"
+#include "algorithms/kernel/normalization/minmax/minmax_batch_container.h"
+#include "algorithms/kernel/normalization/minmax/minmax_kernel.h"
+#include "algorithms/kernel/normalization/minmax/minmax_impl.i"
 
 namespace daal
 {
@@ -32,7 +31,6 @@ namespace normalization
 {
 namespace minmax
 {
-
 namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
@@ -43,7 +41,7 @@ namespace internal
 template class MinMaxKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
 
-}
-}
-}
-}
+} // namespace minmax
+} // namespace normalization
+} // namespace algorithms
+} // namespace daal

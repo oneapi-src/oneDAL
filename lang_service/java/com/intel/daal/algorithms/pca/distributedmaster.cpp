@@ -21,7 +21,7 @@
 #include "com_intel_daal_algorithms_pca_DistributedStep2Master.h"
 #include "com_intel_daal_algorithms_pca_Method.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #define CorrelationDenseValue com_intel_daal_algorithms_pca_Method_correlationDenseValue
 #define SVDDenseValue         com_intel_daal_algorithms_pca_Method_svdDenseValue
@@ -34,8 +34,7 @@ using namespace daal::algorithms::pca;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_DistributedStep2Master_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_DistributedStep2Master_cInit(JNIEnv * env, jobject thisObj, jint prec, jint method)
 {
     return jniDistributed<step2Master, pca::Method, Distributed, correlationDense, svdDense>::newObj(prec, method);
 }
@@ -45,8 +44,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_DistributedStep2Maste
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_DistributedStep2Master_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_DistributedStep2Master_cInitParameter(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                 jint prec, jint method)
 {
     return jniDistributed<step2Master, pca::Method, Distributed, correlationDense, svdDense>::getParameter(prec, method, algAddr);
 }
@@ -56,8 +55,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_DistributedStep2Maste
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_DistributedStep2Master_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_DistributedStep2Master_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                            jint method)
 {
     return jniDistributed<step2Master, pca::Method, Distributed, correlationDense, svdDense>::getInput(prec, method, algAddr);
 }
@@ -67,8 +66,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_DistributedStep2Maste
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_DistributedStep2Master_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_DistributedStep2Master_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                             jint method)
 {
     return jniDistributed<step2Master, pca::Method, Distributed, correlationDense, svdDense>::getResult(prec, method, algAddr);
 }
@@ -78,8 +77,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_DistributedStep2Maste
  * Method:    cGetPartialResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_DistributedStep2Master_cGetPartialResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_DistributedStep2Master_cGetPartialResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                    jint prec, jint method)
 {
     return jniDistributed<step2Master, pca::Method, Distributed, correlationDense, svdDense>::getPartialResult(prec, method, algAddr);
 }
@@ -89,8 +88,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_DistributedStep2Maste
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_DistributedStep2Master_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_DistributedStep2Master_cSetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                            jint method, jlong resultAddr)
 {
     jniDistributed<step2Master, pca::Method, Distributed, correlationDense, svdDense>::setResult<pca::Result>(prec, method, algAddr, resultAddr);
 }
@@ -100,11 +99,12 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_DistributedStep2Master
  * Method:    cSetPartialResult
  * Signature: (JIIJZ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_DistributedStep2Master_cSetPartialResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong partialResultAddr, jboolean initFlag)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_DistributedStep2Master_cSetPartialResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                   jint prec, jint method, jlong partialResultAddr,
+                                                                                                   jboolean initFlag)
 {
-    jniDistributed<step2Master, pca::Method, Distributed, correlationDense, svdDense>::
-        setPartialResultImpl<pca::PartialResult>(prec, method, algAddr, partialResultAddr);
+    jniDistributed<step2Master, pca::Method, Distributed, correlationDense, svdDense>::setPartialResultImpl<pca::PartialResult>(prec, method, algAddr,
+                                                                                                                                partialResultAddr);
 }
 
 /*
@@ -112,8 +112,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_DistributedStep2Master
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_DistributedStep2Master_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_DistributedStep2Master_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                         jint method)
 {
     return jniDistributed<step2Master, pca::Method, Distributed, correlationDense, svdDense>::getClone(prec, method, algAddr);
 }

@@ -24,8 +24,8 @@
 #ifndef __UNIFORM_BATCH_CONTAINER_H__
 #define __UNIFORM_BATCH_CONTAINER_H__
 
-#include "distributions/uniform/uniform.h"
-#include "uniform_kernel.h"
+#include "algorithms/distributions/uniform/uniform.h"
+#include "algorithms/kernel/distributions/uniform/uniform_kernel.h"
 
 namespace daal
 {
@@ -37,30 +37,31 @@ namespace uniform
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv) : AnalysisContainerIface<batch>(daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : AnalysisContainerIface<batch>(daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::UniformKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    uniform::Parameter<algorithmFPType> *parameter = static_cast<uniform::Parameter<algorithmFPType> *>(_par);
-    daal::services::Environment::env &env = *_env;
+    uniform::Parameter<algorithmFPType> * parameter = static_cast<uniform::Parameter<algorithmFPType> *>(_par);
+    daal::services::Environment::env & env          = *_env;
 
-    distributions::Result *result = static_cast<distributions::Result *>(_res);
+    distributions::Result * result = static_cast<distributions::Result *>(_res);
 
     result->set(distributions::randomNumbers, static_cast<const distributions::Input *>(_in)->get(distributions::tableToFill));
-    NumericTable *resultTable = result->get(distributions::randomNumbers).get();
+    NumericTable * resultTable = result->get(distributions::randomNumbers).get();
 
-    __DAAL_CALL_KERNEL(env, internal::UniformKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *parameter, *parameter->engine, resultTable);
+    __DAAL_CALL_KERNEL(env, internal::UniformKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *parameter, *parameter->engine,
+                       resultTable);
 }
 } // namespace interface1
 } // namespace uniform

@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::normalization::zscore;
@@ -30,8 +30,7 @@ using namespace daal::algorithms::normalization::zscore;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Result_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Result_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<normalization::zscore::Result>::newObj();
 }
@@ -41,11 +40,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Resu
  * Method:    cGetResultNumericTable
  * Signature: (JJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Result_cGetResultNumericTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Result_cGetResultNumericTable(JNIEnv * env, jobject thisObj,
+                                                                                                          jlong resAddr, jint id)
 {
-    return jniArgument<normalization::zscore::Result>::
-        get<normalization::zscore::ResultId, NumericTable>(resAddr, id);
+    return jniArgument<normalization::zscore::Result>::get<normalization::zscore::ResultId, NumericTable>(resAddr, id);
 }
 
 /*
@@ -53,9 +51,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Resu
  * Method:    cSetResultNumericTable
  * Signature: (JJJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Result_cSetResultNumericTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Result_cSetResultNumericTable(JNIEnv * env, jobject thisObj, jlong resAddr,
+                                                                                                         jint id, jlong ntAddr)
 {
-    jniArgument<normalization::zscore::Result>::
-        set<normalization::zscore::ResultId, NumericTable>(resAddr, id, ntAddr);
+    jniArgument<normalization::zscore::Result>::set<normalization::zscore::ResultId, NumericTable>(resAddr, id, ntAddr);
 }

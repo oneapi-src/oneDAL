@@ -21,16 +21,15 @@
 //--
 */
 
-#include "lasso_regression_train_container.h"
+#include "algorithms/kernel/lasso_regression/lasso_regression_train_container.h"
 
-#include "daal_strings.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(lasso_regression::training::BatchContainer, batch, DAAL_FPTYPE, \
-    lasso_regression::training::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(lasso_regression::training::BatchContainer, batch, DAAL_FPTYPE, lasso_regression::training::defaultDense)
 
 namespace lasso_regression
 {
@@ -39,7 +38,7 @@ namespace training
 namespace interface1
 {
 template <>
-Batch<DAAL_FPTYPE, lasso_regression::training::defaultDense>::Batch(const optimization_solver::iterative_solver::BatchPtr& solver)
+Batch<DAAL_FPTYPE, lasso_regression::training::defaultDense>::Batch(const optimization_solver::iterative_solver::BatchPtr & solver)
 {
     _par = new ParameterType(solver);
     initialize();
@@ -47,14 +46,14 @@ Batch<DAAL_FPTYPE, lasso_regression::training::defaultDense>::Batch(const optimi
 
 using BatchType = Batch<DAAL_FPTYPE, lasso_regression::training::defaultDense>;
 template <>
-Batch<DAAL_FPTYPE, lasso_regression::training::defaultDense>::Batch(const BatchType &other): input(other.input)
+Batch<DAAL_FPTYPE, lasso_regression::training::defaultDense>::Batch(const BatchType & other) : input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();
 }
 
-}
-}
-}
-}
+} // namespace interface1
+} // namespace training
+} // namespace lasso_regression
+} // namespace algorithms
 } // namespace daal

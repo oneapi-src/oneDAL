@@ -24,8 +24,8 @@
 #ifndef __LOW_ORDER_MOMENTS_DISTRIBUTED_IMPL_I__
 #define __LOW_ORDER_MOMENTS_DISTRIBUTED_IMPL_I__
 
-#include "low_order_moments_kernel.h"
-#include "low_order_moments_impl.i"
+#include "algorithms/kernel/low_order_moments/low_order_moments_kernel.h"
+#include "algorithms/kernel/low_order_moments/low_order_moments_impl.i"
 
 namespace daal
 {
@@ -36,18 +36,16 @@ namespace low_order_moments
 namespace internal
 {
 using namespace daal::services;
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status LowOrderMomentsDistributedKernel<algorithmFPType, method, cpu>::compute(
-            data_management::DataCollection *partialResultsCollection,
-            PartialResult *partialResult, const Parameter *parameter)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status LowOrderMomentsDistributedKernel<algorithmFPType, method, cpu>::compute(data_management::DataCollection * partialResultsCollection,
+                                                                                         PartialResult * partialResult, const Parameter * parameter)
 {
     services::Status status;
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, partialResultsCollection->size(), sizeof(int));
 
     TArray<int, cpu> partialNObservations(partialResultsCollection->size());
-    if (!partialNObservations.get())
-        return Status(services::ErrorMemoryAllocationFailed);
+    if (!partialNObservations.get()) return Status(services::ErrorMemoryAllocationFailed);
 
     mergeNObservations<algorithmFPType, cpu>(partialResultsCollection, partialResult, partialNObservations.get());
     status |= mergeMinAndMax<algorithmFPType, cpu>(partialResultsCollection, partialResult);
@@ -55,25 +53,21 @@ services::Status LowOrderMomentsDistributedKernel<algorithmFPType, method, cpu>:
     return status;
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status LowOrderMomentsDistributedKernel<algorithmFPType, method, cpu>::finalizeCompute(
-            NumericTable *nObservationsTable,
-            NumericTable *sumTable, NumericTable *sumSqTable, NumericTable *sumSqCenTable,
-            NumericTable *meanTable, NumericTable *raw2MomTable, NumericTable *varianceTable,
-            NumericTable *stDevTable, NumericTable *variationTable,
-            const Parameter *parameter)
+    NumericTable * nObservationsTable, NumericTable * sumTable, NumericTable * sumSqTable, NumericTable * sumSqCenTable, NumericTable * meanTable,
+    NumericTable * raw2MomTable, NumericTable * varianceTable, NumericTable * stDevTable, NumericTable * variationTable, const Parameter * parameter)
 {
-    LowOrderMomentsFinalizeTask<algorithmFPType, cpu> task(
-        nObservationsTable, sumTable, sumSqTable, sumSqCenTable, meanTable,
-        raw2MomTable, varianceTable, stDevTable, variationTable);
+    LowOrderMomentsFinalizeTask<algorithmFPType, cpu> task(nObservationsTable, sumTable, sumSqTable, sumSqCenTable, meanTable, raw2MomTable,
+                                                           varianceTable, stDevTable, variationTable);
 
     finalize<algorithmFPType, cpu>(task);
     return Status();
 }
 
-}
-}
-}
-}
+} // namespace internal
+} // namespace low_order_moments
+} // namespace algorithms
+} // namespace daal
 
 #endif

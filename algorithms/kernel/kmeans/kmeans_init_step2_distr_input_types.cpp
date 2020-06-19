@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/kmeans/kmeans_init_types.h"
-#include "daal_defines.h"
-#include "daal_strings.h"
+#include "services/daal_defines.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -38,7 +38,6 @@ namespace init
 {
 namespace interface1
 {
-
 DistributedStep2MasterInput::DistributedStep2MasterInput() : InputIface(lastDistributedStep2MasterInputId + 1)
 {
     Argument::set(partialResults, DataCollectionPtr(new DataCollection()));
@@ -61,7 +60,7 @@ DataCollectionPtr DistributedStep2MasterInput::get(DistributedStep2MasterInputId
 * \param[in] id    Identifier of the input object
 * \param[in] ptr   Pointer to the object
 */
-void DistributedStep2MasterInput::set(DistributedStep2MasterInputId id, const DataCollectionPtr &ptr)
+void DistributedStep2MasterInput::set(DistributedStep2MasterInputId id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, staticPointerCast<SerializationIface, DataCollection>(ptr));
 }
@@ -72,17 +71,16 @@ void DistributedStep2MasterInput::set(DistributedStep2MasterInputId id, const Da
  * \param[in] id    Identifier of the parameter
  * \param[in] value Pointer to the new parameter value
  */
-void DistributedStep2MasterInput::add(DistributedStep2MasterInputId id, const PartialResultPtr &value)
+void DistributedStep2MasterInput::add(DistributedStep2MasterInputId id, const PartialResultPtr & value)
 {
-    DataCollectionPtr collection
-        = staticPointerCast<DataCollection, SerializationIface>(Argument::get(id));
-    collection->push_back( value );
+    DataCollectionPtr collection = staticPointerCast<DataCollection, SerializationIface>(Argument::get(id));
+    collection->push_back(value);
 }
 
-static size_t getNumFeatures(const SerializationIfacePtr& partResVal)
+static size_t getNumFeatures(const SerializationIfacePtr & partResVal)
 {
     PartialResultPtr partRes = dynamicPointerCast<PartialResult, SerializationIface>(partResVal);
-    auto nt = partRes->get(partialClusters);
+    auto nt                  = partRes->get(partialClusters);
     return nt.get() ? nt->getNumberOfColumns() : 0;
 }
 
@@ -93,9 +91,9 @@ static size_t getNumFeatures(const SerializationIfacePtr& partResVal)
 size_t DistributedStep2MasterInput::getNumberOfFeatures() const
 {
     DataCollectionPtr collection = get(partialResults);
-    const size_t nBlocks = collection->size();
-    size_t nFeatures = 0;
-    for(size_t i = 0; i < nBlocks && !nFeatures; i++)
+    const size_t nBlocks         = collection->size();
+    size_t nFeatures             = 0;
+    for (size_t i = 0; i < nBlocks && !nFeatures; i++)
     {
         nFeatures = getNumFeatures((*collection)[i]);
     }
@@ -103,7 +101,7 @@ size_t DistributedStep2MasterInput::getNumberOfFeatures() const
 }
 
 template <typename Type>
-Type getSingleValue(NumericTable& tbl)
+Type getSingleValue(NumericTable & tbl)
 {
     BlockDescriptor<Type> block;
     tbl.getBlockOfRows(0, 1, readOnly, block);
@@ -112,8 +110,8 @@ Type getSingleValue(NumericTable& tbl)
     return value;
 }
 
-static services::Status checkPartialResult(const SerializationIfacePtr& ptr, const Parameter *kmPar,
-    int unexpectedLayouts, size_t nFeatures, int& nClusters)
+static services::Status checkPartialResult(const SerializationIfacePtr & ptr, const Parameter * kmPar, int unexpectedLayouts, size_t nFeatures,
+                                           int & nClusters)
 {
     PartialResultPtr pPres = dynamicPointerCast<PartialResult, SerializationIface>(ptr);
     DAAL_CHECK(pPres, ErrorIncorrectElementInPartialResultCollection);
@@ -125,14 +123,14 @@ static services::Status checkPartialResult(const SerializationIfacePtr& ptr, con
     const int nPartClusters = getSingleValue<int>(*pPartialClustersNumber);
     DAAL_CHECK((nPartClusters >= 0) && (nPartClusters <= kmPar->nClusters), ErrorIncorrectNumberOfPartialClusters);
     auto pPartialClusters = pPres->get(partialClusters);
-    if(pPartialClusters.get())
+    if (pPartialClusters.get())
     {
         DAAL_CHECK(pPartialClusters->getNumberOfRows() >= nPartClusters, ErrorIncorrectNumberOfPartialClusters);
-        DAAL_CHECK_STATUS(s, checkNumericTable(pPartialClusters.get(), partialClustersStr(),
-            unexpectedLayouts, 0, nFeatures, pPartialClusters->getNumberOfRows()));
+        DAAL_CHECK_STATUS(
+            s, checkNumericTable(pPartialClusters.get(), partialClustersStr(), unexpectedLayouts, 0, nFeatures, pPartialClusters->getNumberOfRows()));
         nClusters += nPartClusters;
     }
-    else if(nPartClusters)
+    else if (nPartClusters)
     {
         return services::Status(ErrorIncorrectNumberOfPartialClusters);
     }
@@ -145,26 +143,25 @@ static services::Status checkPartialResult(const SerializationIfacePtr& ptr, con
 * \param[in] par     %Parameter of the algorithm
 * \param[in] method  Computation method of the algorithm
 */
-services::Status DistributedStep2MasterInput::check(const daal::algorithms::Parameter *par, int method) const
+services::Status DistributedStep2MasterInput::check(const daal::algorithms::Parameter * par, int method) const
 {
-    const interface1::Parameter *kmPar = static_cast<const interface1::Parameter *>(par);
-    DataCollectionPtr collection = get(partialResults);
+    const interface1::Parameter * kmPar = static_cast<const interface1::Parameter *>(par);
+    DataCollectionPtr collection        = get(partialResults);
 
     DAAL_CHECK(collection, ErrorNullInputDataCollection);
     const size_t nBlocks = collection->size();
     DAAL_CHECK(nBlocks > 0, ErrorIncorrectNumberOfInputNumericTables);
 
     const int unexpectedLayouts = (int)packed_mask;
-    int nClusters = 0;
-    int nFeatures = 0;
+    int nClusters               = 0;
+    int nFeatures               = 0;
     services::Status s;
-    for(size_t i = 0; i < nBlocks; i++)
+    for (size_t i = 0; i < nBlocks; i++)
     {
         s |= checkPartialResult((*collection)[i], kmPar, unexpectedLayouts, nFeatures, nClusters);
-        if(s && !nFeatures)
-            nFeatures = getNumFeatures((*collection)[i]);
+        if (s && !nFeatures) nFeatures = getNumFeatures((*collection)[i]);
     }
-    if(!s) return s;
+    if (!s) return s;
     DAAL_CHECK(nClusters == kmPar->nClusters, ErrorIncorrectTotalNumberOfPartialClusters);
     return s;
 }
@@ -172,5 +169,5 @@ services::Status DistributedStep2MasterInput::check(const daal::algorithms::Para
 } // namespace interface1
 } // namespace init
 } // namespace kmeans
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

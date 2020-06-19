@@ -16,11 +16,11 @@
 *******************************************************************************/
 
 #include <jni.h>
-#include "pivoted_qr_types.i"
+#include "lang_service/java/com/intel/daal/algorithms/pivoted_qr/pivoted_qr_types.i"
 
 #include "com_intel_daal_algorithms_pivoted_qr_Input.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::pivoted_qr;
@@ -30,10 +30,10 @@ using namespace daal::algorithms::pivoted_qr;
  * Method:    cSetInputTable
  * Signature:(JIJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pivoted_1qr_Input_cSetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pivoted_1qr_Input_cSetInputTable(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id,
+                                                                                       jlong ntAddr)
 {
-    if(id != data) return;
+    if (id != data) return;
     jniInput<pivoted_qr::Input>::set<pivoted_qr::InputId, NumericTable>(inputAddr, id, ntAddr);
 }
 
@@ -42,9 +42,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pivoted_1qr_Input_cSetInpu
  * Method:    cGetInputTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pivoted_1qr_Input_cGetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pivoted_1qr_Input_cGetInputTable(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id)
 {
-    if(id != data) return (jlong)0;
+    if (id != data) return (jlong)0;
     return jniInput<pivoted_qr::Input>::get<pivoted_qr::InputId, NumericTable>(inputAddr, id);
 }

@@ -22,12 +22,12 @@
 #ifndef __BERNOULLI_KERNEL_H__
 #define __BERNOULLI_KERNEL_H__
 
-#include "distributions/bernoulli/bernoulli.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "service_numeric_table.h"
-#include "service_rng.h"
-#include "uniform_kernel.h"
+#include "algorithms/distributions/bernoulli/bernoulli.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_rng.h"
+#include "algorithms/kernel/distributions/uniform/uniform_kernel.h"
 
 using namespace daal::services;
 using namespace daal::data_management;
@@ -45,16 +45,16 @@ namespace internal
 /**
  *  \brief Kernel for bernoulli calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BernoulliKernel : public Kernel
 {
 public:
-    static Status compute(algorithmFPType p, engines::BatchBase &engine, NumericTable *resultTable);
-    static Status computeInt(int *resultArray, size_t n, algorithmFPType p, engines::BatchBase &engine);
-    static Status computeFPType(NumericTable *resultTable, algorithmFPType p, engines::BatchBase &engine);
+    static Status compute(algorithmFPType p, engines::BatchBase & engine, NumericTable * resultTable);
+    static Status computeInt(int * resultArray, size_t n, algorithmFPType p, engines::BatchBase & engine);
+    static Status computeFPType(NumericTable * resultTable, algorithmFPType p, engines::BatchBase & engine);
 };
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 using BernoulliKernelDefault = BernoulliKernel<algorithmFPType, bernoulli::defaultDense, cpu>;
 
 } // namespace internal

@@ -20,7 +20,7 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_multivariate_outlier_detection_Input.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::multivariate_outlier_detection;
@@ -30,8 +30,8 @@ using namespace daal::algorithms::multivariate_outlier_detection;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multivariate_1outlier_1detection_Input_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multivariate_1outlier_1detection_Input_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                                       jint id, jlong ntAddr)
 {
     jniInput<multivariate_outlier_detection::Input>::set<multivariate_outlier_detection::InputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -41,8 +41,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multivariate_1outlier_1det
  * Method:    cGetInputTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multivariate_1outlier_1detection_Input_cGetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multivariate_1outlier_1detection_Input_cGetInputTable(JNIEnv * env, jobject thisObj,
+                                                                                                             jlong inputAddr, jint id)
 {
     return jniInput<multivariate_outlier_detection::Input>::get<multivariate_outlier_detection::InputId, NumericTable>(inputAddr, id);
 }

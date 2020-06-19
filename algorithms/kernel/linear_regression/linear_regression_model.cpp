@@ -25,7 +25,7 @@
 #include "algorithms/linear_regression/linear_regression_ne_model.h"
 #include "algorithms/linear_regression/linear_regression_qr_model.h"
 #include "algorithms/linear_regression/linear_regression_training_types.h"
-#include "daal_strings.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -36,26 +36,24 @@ namespace algorithms
 {
 namespace linear_regression
 {
-
-Status checkModel(
-    linear_regression::Model* model, const daal::algorithms::Parameter &par, size_t nBeta, size_t nResponses, int method)
+Status checkModel(linear_regression::Model * model, const daal::algorithms::Parameter & par, size_t nBeta, size_t nResponses, int method)
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, linear_model::checkModel(model, par, nBeta, nResponses));
 
     size_t dimWithoutBeta = (model->getInterceptFlag() ? nBeta : nBeta - 1);
 
-    if(method == linear_regression::training::normEqDense)
+    if (method == linear_regression::training::normEqDense)
     {
-        linear_regression::ModelNormEq* modelNormEq = dynamic_cast<linear_regression::ModelNormEq*>(model);
+        linear_regression::ModelNormEq * modelNormEq = dynamic_cast<linear_regression::ModelNormEq *>(model);
         DAAL_CHECK(modelNormEq, ErrorIncorrectTypeOfModel);
 
         DAAL_CHECK_STATUS(s, checkNumericTable(modelNormEq->getXTXTable().get(), XTXTableStr(), 0, 0, dimWithoutBeta, dimWithoutBeta));
         DAAL_CHECK_STATUS(s, checkNumericTable(modelNormEq->getXTYTable().get(), XTYTableStr(), 0, 0, dimWithoutBeta, nResponses));
     }
-    else if(method == linear_regression::training::qrDense)
+    else if (method == linear_regression::training::qrDense)
     {
-        linear_regression::ModelQR* modelQR = dynamic_cast<linear_regression::ModelQR*>(model);
+        linear_regression::ModelQR * modelQR = dynamic_cast<linear_regression::ModelQR *>(model);
         DAAL_CHECK(modelQR, ErrorIncorrectTypeOfModel);
 
         DAAL_CHECK_STATUS(s, checkNumericTable(modelQR->getRTable().get(), RTableStr(), 0, 0, dimWithoutBeta, dimWithoutBeta));

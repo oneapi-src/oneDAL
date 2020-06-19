@@ -18,8 +18,8 @@
 #ifndef __XAVIER_INITIALIZER_TASK_DESCRIPTOR_H__
 #define __XAVIER_INITIALIZER_TASK_DESCRIPTOR_H__
 
-#include "neural_networks/initializers/xavier/xavier_initializer.h"
-#include "neural_networks/initializers/xavier/xavier_initializer_types.h"
+#include "algorithms/neural_networks/initializers/xavier/xavier_initializer.h"
+#include "algorithms/neural_networks/initializers/xavier/xavier_initializer_types.h"
 
 namespace daal
 {
@@ -33,22 +33,21 @@ namespace xavier
 {
 namespace internal
 {
-
 class XavierInitializerTaskDescriptor
 {
 public:
-    XavierInitializerTaskDescriptor(Result *re, Parameter *pa);
+    XavierInitializerTaskDescriptor(Result * re, Parameter * pa);
 
-    engines::BatchBase          *engine;
-    data_management::Tensor     *result;
-    layers::forward::LayerIface *layer;
+    engines::BatchBase * engine;
+    data_management::Tensor * result;
+    layers::forward::LayerIface * layer;
 };
 
-} // internal
-} // xavier
-} // initializers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace xavier
+} // namespace initializers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

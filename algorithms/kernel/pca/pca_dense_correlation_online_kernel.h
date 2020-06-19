@@ -24,10 +24,10 @@
 #ifndef __PCA_DENSE_CORRELATION_ONLINE_KERNEL_H__
 #define __PCA_DENSE_CORRELATION_ONLINE_KERNEL_H__
 
-#include "pca_types.h"
-#include "service_defines.h"
+#include "algorithms/pca/pca_types.h"
+#include "service/kernel/service_defines.h"
 #include "services/error_handling.h"
-#include "pca_dense_correlation_base.h"
+#include "algorithms/kernel/pca/pca_dense_correlation_base.h"
 
 namespace daal
 {
@@ -37,24 +37,21 @@ namespace pca
 {
 namespace internal
 {
-
 template <typename algorithmFPType, CpuType cpu>
 class PCACorrelationKernel<online, algorithmFPType, cpu> : public PCACorrelationBase<algorithmFPType, cpu>
 {
 public:
     explicit PCACorrelationKernel() {};
 
-    services::Status compute(const data_management::NumericTablePtr& pData,
-                 PartialResult<correlationDense> *partialResult,
-        const OnlineParameter<algorithmFPType, correlationDense> *parameter);
+    services::Status compute(const data_management::NumericTablePtr & pData, PartialResult<correlationDense> * partialResult,
+                             const OnlineParameter<algorithmFPType, correlationDense> * parameter);
 
-    services::Status finalize(PartialResult<correlationDense> *partialResult,
-        const OnlineParameter<algorithmFPType, correlationDense> *parameter,
-        data_management::NumericTable& eigenvectors, data_management::NumericTable& eigenvalues);
+    services::Status finalize(PartialResult<correlationDense> * partialResult, const OnlineParameter<algorithmFPType, correlationDense> * parameter,
+                              data_management::NumericTable & eigenvectors, data_management::NumericTable & eigenvalues);
 
 private:
-    services::Status copyIfNeeded(data_management::NumericTable* src, data_management::NumericTable* dst);
-    services::Status copyCovarianceResultToPartialResult(covariance::PartialResult* covariancePres, PartialResult<correlationDense> *partialResult);
+    services::Status copyIfNeeded(data_management::NumericTable * src, data_management::NumericTable * dst);
+    services::Status copyCovarianceResultToPartialResult(covariance::PartialResult * covariancePres, PartialResult<correlationDense> * partialResult);
 };
 
 } // namespace internal

@@ -25,10 +25,10 @@
 #ifndef __GBT_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_H__
 #define __GBT_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_H__
 
-#include "gbt_classification_predict.h"
-#include "service_memory.h"
-#include "kernel.h"
-#include "numeric_table.h"
+#include "algorithms/gradient_boosted_trees/gbt_classification_predict.h"
+#include "externals/service_memory.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;
 
@@ -44,7 +44,6 @@ namespace prediction
 {
 namespace internal
 {
-
 template <typename algorithmFpType, gbt::classification::prediction::Method method, CpuType cpu>
 class PredictKernel : public daal::algorithms::Kernel
 {
@@ -58,15 +57,15 @@ public:
      *  \param nClasses[in]     Number of classes in gradient boosted trees algorithm parameter
      *  \param nIterations[in]  Number of iterations to predict in gradient boosted trees algorithm parameter
      */
-    services::Status compute(services::HostAppIface* pHostApp, const NumericTable *a, const classification::Model *m, NumericTable *r, NumericTable *prob,
-        size_t nClasses, size_t nIterations);
+    services::Status compute(services::HostAppIface * pHostApp, const NumericTable * a, const classification::Model * m, NumericTable * r,
+                             NumericTable * prob, size_t nClasses, size_t nIterations);
 };
 
 } // namespace internal
-}
-}
-}
-}
+} // namespace prediction
+} // namespace classification
+} // namespace gbt
+} // namespace algorithms
 } // namespace daal
 
 #endif

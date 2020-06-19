@@ -19,8 +19,7 @@
 //  Implementation of ELU calculation algorithm container.
 //--
 
-
-#include "elu_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/elu_layer/forward/elu_layer_forward_batch_container.h"
 
 namespace daal
 {
@@ -33,9 +32,9 @@ namespace layers
 namespace forward
 {
 __DAAL_INSTANTIATE_DISPATCH_LAYER_CONTAINER_FORWARD(neural_networks::layers::elu::forward::interface1::BatchContainer, DAAL_FPTYPE,
-                                      neural_networks::layers::elu::defaultDense)
+                                                    neural_networks::layers::elu::defaultDense)
 }
-}
-}
-}
-}
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

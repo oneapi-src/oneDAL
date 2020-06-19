@@ -19,17 +19,16 @@
 //  Declaration of template function that calculate hyperbolic tangent functions.
 //--
 
-
 #ifndef __TANH_LAYER_FORWARD_KERNEL_H__
 #define __TANH_LAYER_FORWARD_KERNEL_H__
 
-#include "neural_networks/layers/tanh/tanh_layer.h"
-#include "neural_networks/layers/tanh/tanh_layer_types.h"
-#include "kernel.h"
-#include "service_math.h"
-#include "numeric_table.h"
-#include "service_math.h"
-#include "layers_threading.h"
+#include "algorithms/neural_networks/layers/tanh/tanh_layer.h"
+#include "algorithms/neural_networks/layers/tanh/tanh_layer_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "externals/service_math.h"
+#include "data_management/data/numeric_table.h"
+#include "externals/service_math.h"
+#include "algorithms/kernel/neural_networks/layers/layers_threading.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -52,19 +51,19 @@ namespace internal
 /**
  *  \brief Kernel for hyperbolic tangent function calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class TanhKernel : public Kernel
 {
 public:
-    services::Status compute(const Tensor &inputTensor, Tensor &resultTensor);
+    services::Status compute(const Tensor & inputTensor, Tensor & resultTensor);
 };
 
-} // internal
-} // forward
-} // tanh
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace forward
+} // namespace tanh
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

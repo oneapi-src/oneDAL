@@ -22,11 +22,11 @@
 #ifndef __AVERAGE_POOLING3D_LAYER_FORWARD_KERNEL_H__
 #define __AVERAGE_POOLING3D_LAYER_FORWARD_KERNEL_H__
 
-#include "neural_networks/layers/pooling3d/average_pooling3d_layer_forward.h"
-#include "neural_networks/layers/pooling3d/average_pooling3d_layer_forward_types.h"
-#include "kernel.h"
-#include "tensor.h"
-#include "service_blas.h"
+#include "algorithms/neural_networks/layers/pooling3d/average_pooling3d_layer_forward.h"
+#include "algorithms/neural_networks/layers/pooling3d/average_pooling3d_layer_forward_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/tensor.h"
+#include "externals/service_blas.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -45,34 +45,31 @@ namespace forward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for forward pooling layer results computation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class PoolingKernel : public Kernel
 {
 public:
     /* Computes the results of forward pooling layer */
-    services::Status compute(const Tensor &dataTensor, const average_pooling3d::Parameter &parameter,Tensor &valueTensor);
+    services::Status compute(const Tensor & dataTensor, const average_pooling3d::Parameter & parameter, Tensor & valueTensor);
 
 protected:
-    void recurrentCompute(size_t d,
-                DAAL_INT *ii, DAAL_INT *ik, DAAL_INT *iv,
-                const DAAL_INT *padding, const DAAL_INT *stride, const DAAL_INT *kernelSize,
-                const DAAL_INT* dataSize, const DAAL_INT* valueSize,
-                const DAAL_INT* offset, DAAL_INT* dataOffset, DAAL_INT* valueOffset,
-                const algorithmFPType *data, algorithmFPType *value, algorithmFPType divisor);
+    void recurrentCompute(size_t d, DAAL_INT * ii, DAAL_INT * ik, DAAL_INT * iv, const DAAL_INT * padding, const DAAL_INT * stride,
+                          const DAAL_INT * kernelSize, const DAAL_INT * dataSize, const DAAL_INT * valueSize, const DAAL_INT * offset,
+                          DAAL_INT * dataOffset, DAAL_INT * valueOffset, const algorithmFPType * data, algorithmFPType * value,
+                          algorithmFPType divisor);
 
     static size_t const nKernelDims = 3; /*!< Number of kernel dimensions */
 };
 
-} // internal
-} // forward
-} // average_pooling3d
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace forward
+} // namespace average_pooling3d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

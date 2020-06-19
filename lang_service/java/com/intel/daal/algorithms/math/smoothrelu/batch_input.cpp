@@ -18,27 +18,26 @@
 #include <jni.h>
 #include "com_intel_daal_algorithms_math_smoothrelu_Input.h"
 #include "daal.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::math;
 
 #include "com_intel_daal_algorithms_math_smoothrelu_InputId.h"
-#define InputDataId        com_intel_daal_algorithms_math_smoothrelu_InputId_dataId
+#define InputDataId com_intel_daal_algorithms_math_smoothrelu_InputId_dataId
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_math_smoothrelu_Input_cSetInput
-(JNIEnv *jenv, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_math_smoothrelu_Input_cSetInput(JNIEnv * jenv, jobject thisObj, jlong inputAddr, jint id,
+                                                                                      jlong ntAddr)
 {
-    if(id == InputDataId)
+    if (id == InputDataId)
     {
         jniInput<smoothrelu::Input>::set<smoothrelu::InputId, NumericTable>(inputAddr, id, ntAddr);
     }
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_smoothrelu_Input_cGetInputTable
-(JNIEnv *jenv, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_smoothrelu_Input_cGetInputTable(JNIEnv * jenv, jobject thisObj, jlong inputAddr, jint id)
 {
-    if(id == InputDataId)
+    if (id == InputDataId)
     {
         return jniInput<smoothrelu::Input>::get<smoothrelu::InputId, NumericTable>(inputAddr, id);
     }

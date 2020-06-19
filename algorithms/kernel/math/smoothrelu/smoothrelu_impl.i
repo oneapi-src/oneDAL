@@ -31,23 +31,20 @@ namespace smoothrelu
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-inline Status SmoothReLUKernel<algorithmFPType, method, cpu>::processBlock(const NumericTable &inputTable,
-                                                                           size_t nInputColumns,
-                                                                           size_t nProcessedRows,
-                                                                           size_t nRowsInCurrentBlock,
-                                                                           NumericTable &resultTable)
+template <typename algorithmFPType, Method method, CpuType cpu>
+inline Status SmoothReLUKernel<algorithmFPType, method, cpu>::processBlock(const NumericTable & inputTable, size_t nInputColumns,
+                                                                           size_t nProcessedRows, size_t nRowsInCurrentBlock,
+                                                                           NumericTable & resultTable)
 {
     ReadRows<algorithmFPType, cpu, NumericTable> inputBlock(const_cast<NumericTable *>(&inputTable), nProcessedRows, nRowsInCurrentBlock);
     DAAL_CHECK_BLOCK_STATUS(inputBlock);
-    const algorithmFPType* inputArray = inputBlock.get();
+    const algorithmFPType * inputArray = inputBlock.get();
 
     WriteRows<algorithmFPType, cpu, NumericTable> resultBlock(&resultTable, nProcessedRows, nRowsInCurrentBlock);
     DAAL_CHECK_BLOCK_STATUS(resultBlock);
-    algorithmFPType* resultArray = resultBlock.get();
+    algorithmFPType * resultArray = resultBlock.get();
 
-    const algorithmFPType one = (algorithmFPType)1.0;
+    const algorithmFPType one  = (algorithmFPType)1.0;
     const size_t nDataElements = nRowsInCurrentBlock * nInputColumns;
 
     /* res = log(1+exp(in)) */
@@ -59,30 +56,29 @@ inline Status SmoothReLUKernel<algorithmFPType, method, cpu>::processBlock(const
 /**
  *  \brief Kernel for SmoothReLU calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status SmoothReLUKernel<algorithmFPType, method, cpu>::compute(const NumericTable *inputTable, NumericTable *resultTable)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status SmoothReLUKernel<algorithmFPType, method, cpu>::compute(const NumericTable * inputTable, NumericTable * resultTable)
 {
-    const size_t nInputRows = inputTable->getNumberOfRows();
+    const size_t nInputRows    = inputTable->getNumberOfRows();
     const size_t nInputColumns = inputTable->getNumberOfColumns();
 
     size_t nBlocks = nInputRows / _nRowsInBlock;
     nBlocks += (nBlocks * _nRowsInBlock != nInputRows);
 
     SafeStatus safeStat;
-    daal::threader_for(nBlocks, nBlocks, [ =, &safeStat ](int block)
-    {
+    daal::threader_for(nBlocks, nBlocks, [=, &safeStat](int block) {
         size_t nRowsToProcess = _nRowsInBlock;
-        if( block == nBlocks - 1 )
+        if (block == nBlocks - 1)
         {
             nRowsToProcess = nInputRows - block * _nRowsInBlock;
         }
 
         safeStat |= processBlock(*inputTable, nInputColumns, block * _nRowsInBlock, nRowsToProcess, *resultTable);
-    } );
+    });
     return safeStat.detach();
 }
 
-} // namespace daal::internal
+} // namespace internal
 } // namespace smoothrelu
 } // namespace math
 } // namespace algorithms

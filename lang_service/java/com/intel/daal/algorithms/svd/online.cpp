@@ -18,7 +18,7 @@
 #include <jni.h>
 #include "com_intel_daal_algorithms_svd_Online.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::svd;
@@ -28,8 +28,7 @@ using namespace daal::algorithms::svd;
  * Method:    cInitOnline
  * Signature:(II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Online_cInitOnline
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Online_cInitOnline(JNIEnv * env, jobject thisObj, jint prec, jint method)
 {
     return jniOnline<svd::Method, Online, defaultDense>::newObj(prec, method);
 }
@@ -39,8 +38,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Online_cInitOnline
  * Method:    cInitParameter
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Online_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Online_cInitParameter(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniOnline<svd::Method, Online, defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -50,8 +48,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Online_cInitParameter
  * Method:    cInput
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Online_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Online_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniOnline<svd::Method, Online, defaultDense>::getInput(prec, method, algAddr);
 }
@@ -61,8 +58,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Online_cGetInput
  * Method:    cGetResult
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Online_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Online_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniOnline<svd::Method, Online, defaultDense>::getResult(prec, method, algAddr);
 }
@@ -72,8 +68,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Online_cGetResult
  * Method:    cGetPartial
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Online_cGetPartialResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Online_cGetPartialResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                    jint method)
 {
     return jniOnline<svd::Method, Online, defaultDense>::getPartialResult(prec, method, algAddr);
 }
@@ -83,8 +79,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Online_cGetPartialRes
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_Online_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_Online_cSetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method,
+                                                                            jlong resultAddr)
 {
     jniOnline<svd::Method, Online, defaultDense>::setResult<svd::Result>(prec, method, algAddr, resultAddr);
 }
@@ -94,8 +90,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_Online_cSetResult
  * Method:    cSetPartialResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_Online_cSetPartialResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong partialResultAddr, jboolean initFlag)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_Online_cSetPartialResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                   jint method, jlong partialResultAddr, jboolean initFlag)
 {
     jniOnline<svd::Method, Online, defaultDense>::setPartialResult<svd::OnlinePartialResult>(prec, method, algAddr, partialResultAddr);
 }
@@ -105,8 +101,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_Online_cSetPartialResu
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Online_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Online_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniOnline<svd::Method, Online, defaultDense>::getClone(prec, method, algAddr);
 }

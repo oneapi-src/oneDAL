@@ -20,8 +20,8 @@
 //  Implementation of locally connected calculation algorithm and types methods.
 //--
 */
-#include "locallyconnected2d_layer_forward_types.h"
-#include "locallyconnected2d_layer_types.h"
+#include "algorithms/neural_networks/layers/locallyconnected2d/locallyconnected2d_layer_forward_types.h"
+#include "algorithms/neural_networks/layers/locallyconnected2d/locallyconnected2d_layer_types.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -46,21 +46,21 @@ namespace interface1
  * \param[in] method    Computation method for the layer
 */
 template <typename algorithmFPType>
-services::Status DAAL_EXPORT Input::allocate(const daal::algorithms::Parameter *parameter, const int method)
+services::Status DAAL_EXPORT Input::allocate(const daal::algorithms::Parameter * parameter, const int method)
 {
     using daal::services::SharedPtr;
     using daal::data_management::Tensor;
     using daal::data_management::HomogenTensor;
 
-    const Parameter *param =  static_cast<const Parameter * >(parameter);
+    const Parameter * param = static_cast<const Parameter *>(parameter);
     services::Status s;
-    if( !get(layers::forward::weights) )
+    if (!get(layers::forward::weights))
     {
         TensorPtr tensor = HomogenTensor<algorithmFPType>::create(getWeightsSizes(param), Tensor::doAllocate, &s);
         set(layers::forward::weights, tensor);
     }
 
-    if( !get(layers::forward::biases) )
+    if (!get(layers::forward::biases))
     {
         TensorPtr tensor = HomogenTensor<algorithmFPType>::create(getBiasesSizes(param), Tensor::doAllocate, &s);
         set(layers::forward::biases, tensor);
@@ -75,21 +75,21 @@ services::Status DAAL_EXPORT Input::allocate(const daal::algorithms::Parameter *
  * \param[in] method    Computation method for the layer
  */
 template <typename algorithmFPType>
-services::Status DAAL_EXPORT Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+services::Status DAAL_EXPORT Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     using namespace data_management;
-    const Input *in = static_cast<const Input * >(input);
+    const Input * in = static_cast<const Input *>(input);
 
     services::Status s;
-    const services::Collection<size_t> &inDims = in->get(layers::forward::data)->getDimensions();
+    const services::Collection<size_t> & inDims = in->get(layers::forward::data)->getDimensions();
 
     if (!get(layers::forward::value))
     {
         set(layers::forward::value, HomogenTensor<algorithmFPType>::create(getValueSize(inDims, parameter, method), Tensor::doAllocate, &s));
     }
 
-    const layers::Parameter *par = static_cast<const layers::Parameter * >(parameter);
-    if(!par->predictionStage)
+    const layers::Parameter * par = static_cast<const layers::Parameter *>(parameter);
+    if (!par->predictionStage)
     {
         set(layers::forward::resultForBackward, LayerDataPtr(new LayerData()));
         s |= setResultForBackward(input);
@@ -97,13 +97,14 @@ services::Status DAAL_EXPORT Result::allocate(const daal::algorithms::Input *inp
     return services::Status();
 }
 
-template DAAL_EXPORT services::Status Input::allocate<DAAL_FPTYPE>(const daal::algorithms::Parameter *parameter, const int method);
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Input::allocate<DAAL_FPTYPE>(const daal::algorithms::Parameter * parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace forward
-}// namespace locallyconnected2d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace locallyconnected2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

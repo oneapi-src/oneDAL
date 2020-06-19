@@ -36,19 +36,19 @@ using namespace daal;
 using namespace daal::algorithms::decision_forest::regression;
 
 /* Input data set parameters */
-const string trainDatasetFileName = "../data/batch/df_regression_train.csv";
-const string testDatasetFileName  = "../data/batch/df_regression_test.csv";
+const string trainDatasetFileName         = "../data/batch/df_regression_train.csv";
+const string testDatasetFileName          = "../data/batch/df_regression_test.csv";
 const size_t categoricalFeaturesIndices[] = { 3 };
-const size_t nFeatures = 13;  /* Number of features in training and testing data sets */
+const size_t nFeatures                    = 13; /* Number of features in training and testing data sets */
 
 /* Decision forest parameters */
 const size_t nTrees = 100;
 
 training::ResultPtr trainModel();
-void testModel(const training::ResultPtr& res);
-void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTablePtr& pDependentVar);
+void testModel(const training::ResultPtr & res);
+void loadData(const std::string & fileName, NumericTablePtr & pData, NumericTablePtr & pDependentVar);
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
@@ -73,10 +73,10 @@ training::ResultPtr trainModel()
     algorithm.input.set(training::data, trainData);
     algorithm.input.set(training::dependentVariable, trainDependentVariable);
 
-    algorithm.parameter.nTrees = nTrees;
-    algorithm.parameter.varImportance = daal::algorithms::decision_forest::training::MDA_Raw;
-    algorithm.parameter.resultsToCompute = daal::algorithms::decision_forest::training::computeOutOfBagError |
-        daal::algorithms::decision_forest::training::computeOutOfBagErrorPerObservation;
+    algorithm.parameter.nTrees           = nTrees;
+    algorithm.parameter.varImportance    = daal::algorithms::decision_forest::training::MDA_Raw;
+    algorithm.parameter.resultsToCompute = daal::algorithms::decision_forest::training::computeOutOfBagError
+                                           | daal::algorithms::decision_forest::training::computeOutOfBagErrorPerObservation;
 
     /* Build the decision forest regression model */
     algorithm.compute();
@@ -89,7 +89,7 @@ training::ResultPtr trainModel()
     return trainingResult;
 }
 
-void testModel(const training::ResultPtr& trainingResult)
+void testModel(const training::ResultPtr & trainingResult)
 {
     /* Create Numeric Tables for testing data and ground truth values */
     NumericTablePtr testData;
@@ -109,17 +109,14 @@ void testModel(const training::ResultPtr& trainingResult)
 
     /* Retrieve the algorithm results */
     prediction::ResultPtr predictionResult = algorithm.getResult();
-    printNumericTable(predictionResult->get(prediction::prediction),
-        "Decision forest prediction results (first 10 rows):", 10);
+    printNumericTable(predictionResult->get(prediction::prediction), "Decision forest prediction results (first 10 rows):", 10);
     printNumericTable(testGroundTruth, "Ground truth (first 10 rows):", 10);
 }
 
-void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTablePtr& pDependentVar)
+void loadData(const std::string & fileName, NumericTablePtr & pData, NumericTablePtr & pDependentVar)
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> trainDataSource(fileName,
-        DataSource::notAllocateNumericTable,
-        DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> trainDataSource(fileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and dependent variables */
     pData.reset(new HomogenNumericTable<>(nFeatures, 0, NumericTable::notAllocate));
@@ -130,6 +127,6 @@ void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTableP
     trainDataSource.loadDataBlock(mergedData.get());
 
     NumericTableDictionaryPtr pDictionary = pData->getDictionarySharedPtr();
-    for(size_t i = 0, n = sizeof(categoricalFeaturesIndices) / sizeof(categoricalFeaturesIndices[0]); i < n; ++i)
+    for (size_t i = 0, n = sizeof(categoricalFeaturesIndices) / sizeof(categoricalFeaturesIndices[0]); i < n; ++i)
         (*pDictionary)[categoricalFeaturesIndices[i]].featureType = data_feature_utils::DAAL_CATEGORICAL;
 }

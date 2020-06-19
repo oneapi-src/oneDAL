@@ -21,10 +21,10 @@
 //--
 */
 
-#include "adaboost_predict_batch_container.h"
-#include "adaboost_predict_kernel.h"
-#include "adaboost_predict_impl.i"
-#include "boosting_predict_impl.i"
+#include "algorithms/kernel/adaboost/adaboost_predict_batch_container.h"
+#include "algorithms/kernel/adaboost/adaboost_predict_kernel.h"
+#include "algorithms/kernel/adaboost/adaboost_predict_impl.i"
+#include "algorithms/kernel/boosting/inner/boosting_predict_impl.i"
 
 namespace daal
 {
@@ -38,13 +38,13 @@ namespace interface2
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 template class BatchContainer<DAAL_FPTYPE, sammeR, DAAL_CPU>;
-}
+} // namespace interface2
 namespace internal
 {
 template class AdaBoostPredictKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 template class AdaBoostPredictKernel<sammeR, DAAL_FPTYPE, DAAL_CPU>;
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace prediction
+} // namespace adaboost
+} // namespace algorithms
+} // namespace daal

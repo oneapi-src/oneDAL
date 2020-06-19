@@ -19,17 +19,16 @@
 //  Declaration of template function that calculate fullyconnecteds.
 //--
 
-
 #ifndef __FULLYCONNECTED_LAYER_FORWARD_KERNEL_H__
 #define __FULLYCONNECTED_LAYER_FORWARD_KERNEL_H__
 
-#include "neural_networks/layers/fullyconnected/fullyconnected_layer.h"
-#include "neural_networks/layers/fullyconnected/fullyconnected_layer_types.h"
-#include "kernel.h"
-#include "service_math.h"
-#include "numeric_table.h"
-#include "service_error_handling.h"
-#include "service_tensor.h"
+#include "algorithms/neural_networks/layers/fullyconnected/fullyconnected_layer.h"
+#include "algorithms/neural_networks/layers/fullyconnected/fullyconnected_layer_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "externals/service_math.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "service/kernel/data_management/service_tensor.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -51,19 +50,20 @@ namespace internal
 /**
  *  \brief Kernel for fullyconnected calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class FullyconnectedKernel : public Kernel
 {
 public:
-    services::Status compute( const Tensor &inputTensor, const Tensor &wTensor, const Tensor &bTensor, Tensor &resultTensor, const fullyconnected::Parameter &parameter );
+    services::Status compute(const Tensor & inputTensor, const Tensor & wTensor, const Tensor & bTensor, Tensor & resultTensor,
+                             const fullyconnected::Parameter & parameter);
 };
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 
-} // fullyconnected
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace fullyconnected
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

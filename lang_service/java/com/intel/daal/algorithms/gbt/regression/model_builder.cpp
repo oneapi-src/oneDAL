@@ -20,7 +20,7 @@
 
 #include "daal.h"
 #include "com_intel_daal_algorithms_gbt_regression_ModelBuilder.h"
-#include "common_helpers_functions.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers_functions.h"
 
 using namespace daal;
 using namespace daal::algorithms::gbt::regression;
@@ -32,13 +32,12 @@ using namespace daal::services;
 * Method:    cInit
 * Signature: (JIII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_ModelBuilder_cInit
-(JNIEnv *env, jobject, jlong nFeatures, jlong nIterations)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_ModelBuilder_cInit(JNIEnv * env, jobject, jlong nFeatures, jlong nIterations)
 {
     jlong modelBuilderAddr = (jlong)(new SharedPtr<ModelBuilder>(new ModelBuilder(nFeatures, nIterations)));
 
-    services::SharedPtr<ModelBuilder> *ptr = new services::SharedPtr<ModelBuilder>();
-    *ptr = staticPointerCast<ModelBuilder>(*(SharedPtr<ModelBuilder> *)modelBuilderAddr);
+    services::SharedPtr<ModelBuilder> * ptr = new services::SharedPtr<ModelBuilder>();
+    *ptr                                    = staticPointerCast<ModelBuilder>(*(SharedPtr<ModelBuilder> *)modelBuilderAddr);
     DAAL_CHECK_THROW((*ptr)->getStatus());
 
     return modelBuilderAddr;
@@ -49,12 +48,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_ModelBuild
 * Method:    cCreateTree
 * Signature: (JIII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_ModelBuilder_cCreateTree
-(JNIEnv *env, jobject, jlong algAddr, jlong nNodes)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_ModelBuilder_cCreateTree(JNIEnv * env, jobject, jlong algAddr, jlong nNodes)
 {
-    services::SharedPtr<ModelBuilder> *ptr = new services::SharedPtr<ModelBuilder>();
-    *ptr = staticPointerCast<ModelBuilder>(*(SharedPtr<ModelBuilder> *)algAddr);
-    long treeId = (*ptr)->createTree(nNodes);
+    services::SharedPtr<ModelBuilder> * ptr = new services::SharedPtr<ModelBuilder>();
+    *ptr                                    = staticPointerCast<ModelBuilder>(*(SharedPtr<ModelBuilder> *)algAddr);
+    long treeId                             = (*ptr)->createTree(nNodes);
     DAAL_CHECK_THROW((*ptr)->getStatus());
     return treeId;
 }
@@ -64,12 +62,13 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_ModelBuild
 * Method:    cAddSplitNode
 * Signature: (JIII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_ModelBuilder_cAddSplitNode
-(JNIEnv *env, jobject, jlong algAddr, jlong treeId, jlong parentId, jlong position, jlong featureIndex, jdouble featureValue)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_ModelBuilder_cAddSplitNode(JNIEnv * env, jobject, jlong algAddr, jlong treeId,
+                                                                                                 jlong parentId, jlong position, jlong featureIndex,
+                                                                                                 jdouble featureValue)
 {
-    services::SharedPtr<ModelBuilder> *ptr = new services::SharedPtr<ModelBuilder>();
-    *ptr = staticPointerCast<ModelBuilder>(*(SharedPtr<ModelBuilder> *)algAddr);
-    long nodeId = (*ptr)->addSplitNode(treeId, parentId, position, featureIndex, static_cast<double>(featureValue));
+    services::SharedPtr<ModelBuilder> * ptr = new services::SharedPtr<ModelBuilder>();
+    *ptr                                    = staticPointerCast<ModelBuilder>(*(SharedPtr<ModelBuilder> *)algAddr);
+    long nodeId                             = (*ptr)->addSplitNode(treeId, parentId, position, featureIndex, static_cast<double>(featureValue));
     DAAL_CHECK_THROW((*ptr)->getStatus());
     return nodeId;
 }
@@ -79,12 +78,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_ModelBuild
 * Method:    cAddLeafNode
 * Signature: (JIII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_ModelBuilder_cAddLeafNode
-(JNIEnv *env, jobject, jlong algAddr, jlong treeId, jlong parentId, jlong position, jdouble response)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_ModelBuilder_cAddLeafNode(JNIEnv * env, jobject, jlong algAddr, jlong treeId,
+                                                                                                jlong parentId, jlong position, jdouble response)
 {
-    services::SharedPtr<ModelBuilder> *ptr = new services::SharedPtr<ModelBuilder>();
-    *ptr = staticPointerCast<ModelBuilder>(*(SharedPtr<ModelBuilder> *)algAddr);
-    long nodeId = (*ptr)->addLeafNode(treeId, parentId, position, response);
+    services::SharedPtr<ModelBuilder> * ptr = new services::SharedPtr<ModelBuilder>();
+    *ptr                                    = staticPointerCast<ModelBuilder>(*(SharedPtr<ModelBuilder> *)algAddr);
+    long nodeId                             = (*ptr)->addLeafNode(treeId, parentId, position, response);
     DAAL_CHECK_THROW((*ptr)->getStatus());
     return nodeId;
 }
@@ -94,12 +93,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_ModelBuild
  * Method:    cGetModel
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_ModelBuilder_cGetModel
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_ModelBuilder_cGetModel(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    services::SharedPtr<ModelBuilder> *ptr = new services::SharedPtr<ModelBuilder>();
-    *ptr = staticPointerCast<ModelBuilder>(*(SharedPtr<ModelBuilder> *)algAddr);
-    ModelPtr *model = new ModelPtr;
-    *model = staticPointerCast<Model>((*ptr)->getModel());
+    services::SharedPtr<ModelBuilder> * ptr = new services::SharedPtr<ModelBuilder>();
+    *ptr                                    = staticPointerCast<ModelBuilder>(*(SharedPtr<ModelBuilder> *)algAddr);
+    ModelPtr * model                        = new ModelPtr;
+    *model                                  = staticPointerCast<Model>((*ptr)->getModel());
     return (jlong)model;
 }

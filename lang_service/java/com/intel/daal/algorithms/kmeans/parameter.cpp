@@ -26,10 +26,9 @@ using namespace daal::algorithms::kmeans;
  * Method:    initEuclidean
  * Signature:(JJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_initEuclidean
-(JNIEnv *, jobject, jlong nClusters, jlong maxIterations)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_initEuclidean(JNIEnv *, jobject, jlong nClusters, jlong maxIterations)
 {
-    return(jlong)(new Parameter(nClusters, maxIterations));
+    return (jlong)(new Parameter(nClusters, maxIterations));
 }
 
 /*
@@ -37,10 +36,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_initEucl
  * Method:    cGetNClusters
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cGetNClusters
-(JNIEnv *, jobject, jlong parameterAddress)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cGetNClusters(JNIEnv *, jobject, jlong parameterAddress)
 {
-    return((Parameter *)parameterAddress)->nClusters;
+    return ((Parameter *)parameterAddress)->nClusters;
 }
 
 /*
@@ -48,10 +46,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cGetNClu
  * Method:    cGetMaxIterations
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cGetMaxIterations
-(JNIEnv *, jobject, jlong parameterAddress)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cGetMaxIterations(JNIEnv *, jobject, jlong parameterAddress)
 {
-    return((Parameter *)parameterAddress)->maxIterations;
+    return ((Parameter *)parameterAddress)->maxIterations;
 }
 
 /*
@@ -59,10 +56,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cGetMaxI
  * Method:    cGetAccuracyThreshold
  * Signature:(J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cGetAccuracyThreshold
-(JNIEnv *, jobject, jlong parameterAddress)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cGetAccuracyThreshold(JNIEnv *, jobject, jlong parameterAddress)
 {
-    return((Parameter *)parameterAddress)->accuracyThreshold;
+    return ((Parameter *)parameterAddress)->accuracyThreshold;
 }
 
 /*
@@ -70,10 +66,9 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cGetAc
  * Method:    cGetGamma
  * Signature:(J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cGetGamma
-(JNIEnv *, jobject, jlong parameterAddress)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cGetGamma(JNIEnv *, jobject, jlong parameterAddress)
 {
-    return((Parameter *)parameterAddress)->gamma;
+    return ((Parameter *)parameterAddress)->gamma;
 }
 
 /*
@@ -81,10 +76,19 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cGetGa
  * Method:    cGetAssignFlag
  * Signature:(J)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cGetAssignFlag
-(JNIEnv *, jobject, jlong parameterAddress)
+JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cGetAssignFlag(JNIEnv *, jobject, jlong parameterAddress)
 {
-    return((Parameter *)parameterAddress)->assignFlag;
+    return ((Parameter *)parameterAddress)->assignFlag;
+}
+
+/*
+ * Class:     com_intel_daal_algorithms_kmeans_Parameter
+ * Method:    cGetResultsToEvaluate
+ * Signature:(J)J
+ */
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cGetResultsToEvaluate(JNIEnv *, jobject, jlong parameterAddress)
+{
+    return ((Parameter *)parameterAddress)->resultsToEvaluate;
 }
 
 /*
@@ -92,8 +96,7 @@ JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cGetA
  * Method:    cSetNClusters
  * Signature:(JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cSetNClusters
-(JNIEnv *, jobject, jlong parameterAddress, jlong nClusters)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cSetNClusters(JNIEnv *, jobject, jlong parameterAddress, jlong nClusters)
 {
     ((Parameter *)parameterAddress)->nClusters = nClusters;
 }
@@ -103,8 +106,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cSetNClus
  * Method:    cSetMaxIterations
  * Signature:(JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cSetMaxIterations
-(JNIEnv *, jobject, jlong parameterAddress, jlong maxIterations)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cSetMaxIterations(JNIEnv *, jobject, jlong parameterAddress,
+                                                                                         jlong maxIterations)
 {
     ((Parameter *)parameterAddress)->maxIterations = maxIterations;
 }
@@ -114,8 +117,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cSetMaxIt
  * Method:    cSetAccuracyThreshold
  * Signature:(JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cSetAccuracyThreshold
-(JNIEnv *, jobject, jlong parameterAddress, jdouble accuracyThreshold)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cSetAccuracyThreshold(JNIEnv *, jobject, jlong parameterAddress,
+                                                                                             jdouble accuracyThreshold)
 {
     ((Parameter *)parameterAddress)->accuracyThreshold = accuracyThreshold;
 }
@@ -125,8 +128,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cSetAccur
  * Method:    cSetGamma
  * Signature:(JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cSetGamma
-(JNIEnv *, jobject, jlong parameterAddress, jdouble gamma)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cSetGamma(JNIEnv *, jobject, jlong parameterAddress, jdouble gamma)
 {
     ((Parameter *)parameterAddress)->gamma = gamma;
 }
@@ -136,8 +138,18 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cSetGamma
  * Method:    cSetAssignFlag
  * Signature:(JZ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cSetAssignFlag
-(JNIEnv *, jobject, jlong parameterAddress, jboolean assignFlag)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cSetAssignFlag(JNIEnv *, jobject, jlong parameterAddress, jboolean assignFlag)
 {
     ((Parameter *)parameterAddress)->assignFlag = assignFlag;
+}
+
+/*
+ * Class:     com_intel_daal_algorithms_kmeans_Parameter
+ * Method:    SetResultsToEvaluate
+ * Signature:(JJ)V
+ */
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kmeans_Parameter_cSetResultsToEvaluate(JNIEnv *, jobject, jlong parameterAddress,
+                                                                                             jlong resultsToEvaluate)
+{
+    ((Parameter *)parameterAddress)->resultsToEvaluate = resultsToEvaluate;
 }

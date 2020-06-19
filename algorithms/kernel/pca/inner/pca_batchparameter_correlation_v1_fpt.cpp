@@ -21,7 +21,7 @@
 //--
 */
 
-#include "pca/inner/pca_types_v1.h"
+#include "algorithms/kernel/pca/inner/pca_types_v1.h"
 
 namespace daal
 {
@@ -31,22 +31,22 @@ namespace pca
 {
 namespace interface1
 {
-
 /** Constructs PCA parameters */
-template<typename algorithmFPType>
-DAAL_EXPORT BatchParameter<algorithmFPType, correlationDense>::BatchParameter(const services::SharedPtr<covariance::BatchImpl> &covariance) : covariance(covariance) {};
+template <typename algorithmFPType>
+DAAL_EXPORT BatchParameter<algorithmFPType, correlationDense>::BatchParameter(const services::SharedPtr<covariance::BatchImpl> & covariance)
+    : covariance(covariance) {};
 
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 DAAL_EXPORT services::Status BatchParameter<algorithmFPType, correlationDense>::check() const
 {
     DAAL_CHECK(covariance, services::ErrorNullAuxiliaryAlgorithm);
     return services::Status();
 }
 
-template DAAL_EXPORT BatchParameter<DAAL_FPTYPE, correlationDense>::BatchParameter(const services::SharedPtr<covariance::BatchImpl> &covariance);
+template DAAL_EXPORT BatchParameter<DAAL_FPTYPE, correlationDense>::BatchParameter(const services::SharedPtr<covariance::BatchImpl> & covariance);
 template DAAL_EXPORT services::Status BatchParameter<DAAL_FPTYPE, correlationDense>::check() const;
 
-}// namespace interface1
-}// namespace pca
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace pca
+} // namespace algorithms
+} // namespace daal

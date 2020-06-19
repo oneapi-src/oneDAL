@@ -19,9 +19,8 @@
 //  Implementation of forward pooling layer results computation.
 //--
 
-
-#include "stochastic_pooling2d_layer_forward_batch_container.h"
-#include "stochastic_pooling2d_layer_forward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/pooling2d_layer/forward/stochastic_pooling2d_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/pooling2d_layer/forward/stochastic_pooling2d_layer_forward_impl.i"
 
 namespace daal
 {
@@ -33,21 +32,20 @@ namespace layers
 {
 namespace stochastic_pooling2d
 {
-
 namespace forward
 {
 namespace interface1
 {
 template class neural_networks::layers::stochastic_pooling2d::forward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 namespace internal
 {
 template class PoolingKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 
-}
-}
-}
-}
-}
+} // namespace stochastic_pooling2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

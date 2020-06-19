@@ -19,16 +19,15 @@
 //  Declaration of template function that calculate minmax.
 //--
 
-
 #ifndef __MINMAX_KERNEL_H__
 #define __MINMAX_KERNEL_H__
 
-#include "normalization/minmax.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "threading.h"
-#include "service_numeric_table.h"
-#include "service_error_handling.h"
+#include "algorithms/normalization/minmax.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/threading/threading.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
 
 using namespace daal::services::internal;
 using namespace daal::internal;
@@ -50,23 +49,21 @@ namespace internal
  *  in case floating point type of intermediate calculations
  *  and method of calculations are different
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class MinMaxKernel : public Kernel
 {
 public:
-    Status compute(const NumericTable &inputTable, NumericTable &resultTable,
-                   const NumericTable &minimums, const NumericTable &maximums,
+    Status compute(const NumericTable & inputTable, NumericTable & resultTable, const NumericTable & minimums, const NumericTable & maximums,
                    const algorithmFPType lowerBound, const algorithmFPType upperBound);
 
 protected:
-    Status processBlock(const NumericTable &inputTable, NumericTable &resultTable,
-                        const algorithmFPType *scale, const algorithmFPType *shift,
+    Status processBlock(const NumericTable & inputTable, NumericTable & resultTable, const algorithmFPType * scale, const algorithmFPType * shift,
                         const size_t startRowIndex, const size_t blockSize);
 
     static const size_t BLOCK_SIZE_NORM = 256;
 };
 
-} // namespace daal::internal
+} // namespace internal
 } // namespace minmax
 } // namespace normalization
 } // namespace algorithms

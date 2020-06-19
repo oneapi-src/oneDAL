@@ -21,7 +21,7 @@
 //--
 */
 
-#include "pca/pca_types.h"
+#include "algorithms/pca/pca_types.h"
 
 namespace daal
 {
@@ -31,9 +31,8 @@ namespace pca
 {
 namespace interface3
 {
-
-BaseBatchParameter::BaseBatchParameter():resultsToCompute(none), nComponents(0), isDeterministic(false) {}
-}
-}
-}
-}
+BaseBatchParameter::BaseBatchParameter() : resultsToCompute(none), nComponents(0), isDeterministic(false) {}
+} // namespace interface3
+} // namespace pca
+} // namespace algorithms
+} // namespace daal

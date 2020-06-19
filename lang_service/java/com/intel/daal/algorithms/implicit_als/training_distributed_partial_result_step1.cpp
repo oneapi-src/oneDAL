@@ -21,9 +21,9 @@
 
 #include "com_intel_daal_algorithms_implicit_als_training_DistributedPartialResultStep1.h"
 
-#include "implicit_als_training_defines.i"
+#include "lang_service/java/com/intel/daal/algorithms/implicit_als/implicit_als_training_defines.i"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::implicit_als;
@@ -34,8 +34,8 @@ using namespace daal::algorithms::implicit_als::training;
  * Method:    cNewDistributedPartialResultStep1
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedPartialResultStep1_cNewDistributedPartialResultStep1
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedPartialResultStep1_cNewDistributedPartialResultStep1(
+    JNIEnv * env, jobject thisObj)
 {
     return jniArgument<DistributedPartialResultStep1>::newObj();
 }
@@ -45,11 +45,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_Di
  * Method:    cGetNumericTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedPartialResultStep1_cGetNumericTable
-(JNIEnv *env, jobject thisObj, jlong partialResultAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedPartialResultStep1_cGetNumericTable(JNIEnv * env,
+                                                                                                                             jobject thisObj,
+                                                                                                                             jlong partialResultAddr,
+                                                                                                                             jint id)
 {
-    return jniArgument<DistributedPartialResultStep1>::
-        get<DistributedPartialResultStep1Id, NumericTable>(partialResultAddr, id);
+    return jniArgument<DistributedPartialResultStep1>::get<DistributedPartialResultStep1Id, NumericTable>(partialResultAddr, id);
 }
 
 /*
@@ -57,9 +58,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_Di
  * Method:    cSetNumericTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedPartialResultStep1_cSetNumericTable
-(JNIEnv *env, jobject thisObj, jlong partialResultAddr, jint id, jlong numTableAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_DistributedPartialResultStep1_cSetNumericTable(
+    JNIEnv * env, jobject thisObj, jlong partialResultAddr, jint id, jlong numTableAddr)
 {
-    jniArgument<DistributedPartialResultStep1>::
-        set<DistributedPartialResultStep1Id, NumericTable>(partialResultAddr, id, numTableAddr);
+    jniArgument<DistributedPartialResultStep1>::set<DistributedPartialResultStep1Id, NumericTable>(partialResultAddr, id, numTableAddr);
 }

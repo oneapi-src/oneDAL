@@ -24,8 +24,8 @@
 #ifndef __AVERAGE_POOLING1D_LAYER_BACKWARD_BATCH_CONTAINER_H__
 #define __AVERAGE_POOLING1D_LAYER_BACKWARD_BATCH_CONTAINER_H__
 
-#include "neural_networks/layers/pooling1d/average_pooling1d_layer_backward.h"
-#include "average_pooling1d_layer_backward_kernel.h"
+#include "algorithms/neural_networks/layers/pooling1d/average_pooling1d_layer_backward.h"
+#include "algorithms/kernel/neural_networks/layers/pooling1d_layer/backward/average_pooling1d_layer_backward_kernel.h"
 
 namespace daal
 {
@@ -41,34 +41,37 @@ namespace backward
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::PoolingKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    average_pooling1d::backward::Input *input = static_cast<average_pooling1d::backward::Input *>(_in);
-    average_pooling1d::backward::Result *result = static_cast<average_pooling1d::backward::Result *>(_res);
+    average_pooling1d::backward::Input * input   = static_cast<average_pooling1d::backward::Input *>(_in);
+    average_pooling1d::backward::Result * result = static_cast<average_pooling1d::backward::Result *>(_res);
 
-    average_pooling1d::Parameter *parameter = static_cast<average_pooling1d::Parameter *>(_par);
-    if (!parameter->propagateGradient) { return services::Status(); }
+    average_pooling1d::Parameter * parameter = static_cast<average_pooling1d::Parameter *>(_par);
+    if (!parameter->propagateGradient)
+    {
+        return services::Status();
+    }
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    Tensor *inputTensor = input->get(layers::backward::inputGradient).get();
-    Tensor *gradTensor = result->get(layers::backward::gradient).get();
+    Tensor * inputTensor = input->get(layers::backward::inputGradient).get();
+    Tensor * gradTensor  = result->get(layers::backward::gradient).get();
 
-    __DAAL_CALL_KERNEL(env, internal::PoolingKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),   \
-                       compute, *inputTensor, *parameter, *gradTensor);
+    __DAAL_CALL_KERNEL(env, internal::PoolingKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputTensor, *parameter,
+                       *gradTensor);
 }
 } // namespace interface1
 } // namespace backward

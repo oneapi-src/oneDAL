@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "xavier_initializer_task_descriptor.h"
+#include "algorithms/kernel/neural_networks/initializers/xavier/xavier_initializer_task_descriptor.h"
 
 namespace daal
 {
@@ -29,17 +29,16 @@ namespace xavier
 {
 namespace internal
 {
-
-XavierInitializerTaskDescriptor::XavierInitializerTaskDescriptor(Result *re, Parameter *pa)
+XavierInitializerTaskDescriptor::XavierInitializerTaskDescriptor(Result * re, Parameter * pa)
 {
     engine = pa->engine.get();
     layer  = pa->layer.get();
     result = re->get(initializers::value).get();
 }
 
-} // internal
-} // xavier
-} // initializers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace xavier
+} // namespace initializers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

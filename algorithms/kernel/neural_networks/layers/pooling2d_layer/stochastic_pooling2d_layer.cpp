@@ -21,7 +21,7 @@
 //--
 */
 
-#include "stochastic_pooling2d_layer_types.h"
+#include "algorithms/neural_networks/layers/pooling2d/stochastic_pooling2d_layer_types.h"
 
 namespace daal
 {
@@ -48,15 +48,17 @@ namespace interface1
  * \param[in] secondPadding     Number of data elements to implicitly add to the the second dimension
  *                              of the 2D subtensor on which the pooling is performed
  */
-Parameter::Parameter(size_t firstIndex, size_t secondIndex, size_t firstKernelSize, size_t secondKernelSize,
-          size_t firstStride, size_t secondStride, size_t firstPadding, size_t secondPadding) :
-    layers::pooling2d::Parameter(firstIndex, secondIndex, firstKernelSize, secondKernelSize,
-                                 firstStride, secondStride, firstPadding, secondPadding), seed(777), engine(engines::mt19937::Batch<>::create())
+Parameter::Parameter(size_t firstIndex, size_t secondIndex, size_t firstKernelSize, size_t secondKernelSize, size_t firstStride, size_t secondStride,
+                     size_t firstPadding, size_t secondPadding)
+    : layers::pooling2d::Parameter(firstIndex, secondIndex, firstKernelSize, secondKernelSize, firstStride, secondStride, firstPadding,
+                                   secondPadding),
+      seed(777),
+      engine(engines::mt19937::Batch<>::create())
 {}
 
-}// namespace interface1
-}// namespace stochastic_pooling2d
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace stochastic_pooling2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

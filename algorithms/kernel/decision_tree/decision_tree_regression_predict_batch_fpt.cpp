@@ -21,7 +21,7 @@
 //--
 */
 
-#include "decision_tree_regression_predict_batch.h"
+#include "algorithms/kernel/decision_tree/decision_tree_regression_predict_batch.h"
 
 namespace daal
 {
@@ -33,9 +33,8 @@ namespace regression
 {
 namespace prediction
 {
-
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par,
-                                                        const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                                    const int method);
 
 } // namespace prediction
 } // namespace regression

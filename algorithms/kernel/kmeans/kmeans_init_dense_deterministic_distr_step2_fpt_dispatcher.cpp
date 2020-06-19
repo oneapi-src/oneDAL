@@ -21,13 +21,14 @@
 //--
 */
 
-#include "kmeans_init_container.h"
+#include "algorithms/kernel/kmeans/kmeans_init_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kmeans::init::interface2::DistributedContainer, distributed, step2Master, DAAL_FPTYPE, kmeans::init::deterministicDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kmeans::init::interface2::DistributedContainer, distributed, step2Master, DAAL_FPTYPE,
+                                      kmeans::init::deterministicDense)
 
 namespace kmeans
 {
@@ -35,21 +36,20 @@ namespace init
 {
 namespace interface2
 {
-
 using DistributedType = Distributed<step2Master, DAAL_FPTYPE, kmeans::init::deterministicDense>;
 
 template <>
-DistributedType::Distributed(size_t nClusters, size_t offset) : DistributedBase(new ParameterType(nClusters, offset)),
-    parameter(*static_cast<ParameterType*>(_par))
+DistributedType::Distributed(size_t nClusters, size_t offset)
+    : DistributedBase(new ParameterType(nClusters, offset)), parameter(*static_cast<ParameterType *>(_par))
 {
-    Analysis<distributed>::_ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step2Master,
-        DAAL_FPTYPE, kmeans::init::deterministicDense)(&_env);
-    _in  = &input;
+    Analysis<distributed>::_ac =
+        new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step2Master, DAAL_FPTYPE, kmeans::init::deterministicDense)(&_env);
+    _in = &input;
 }
 
 } // namespace interface2
 } // namespace init
 } // namespace kmeans
 
-} // namespace daal::algorithms
+} // namespace algorithms
 } // namespace daal

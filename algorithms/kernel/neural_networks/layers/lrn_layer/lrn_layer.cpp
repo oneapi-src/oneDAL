@@ -21,7 +21,7 @@
 //--
 */
 
-#include "lrn_layer_types.h"
+#include "algorithms/neural_networks/layers/lrn/lrn_layer_types.h"
 
 namespace daal
 {
@@ -43,37 +43,28 @@ namespace interface1
 *  \param[in] beta_      Value of hyper-parameter beta
 *  \param[in] nAdjust_   Value of hyper-parameter n
 */
-Parameter::Parameter(data_management::NumericTablePtr dimension_,
-                     const double kappa_,
-                     const double alpha_,
-                     const double beta_ ,
-                     const size_t nAdjust_) :
-    dimension(dimension_),
-    kappa(kappa_),
-    alpha(alpha_),
-    beta(beta_),
-    nAdjust(nAdjust_)
-{};
+Parameter::Parameter(data_management::NumericTablePtr dimension_, const double kappa_, const double alpha_, const double beta_, const size_t nAdjust_)
+    : dimension(dimension_), kappa(kappa_), alpha(alpha_), beta(beta_), nAdjust(nAdjust_) {};
 
-    /**
+/**
  * Checks the correctness of the parameter
  */
 services::Status Parameter::check() const
 {
     services::SharedPtr<services::Error> error(new services::Error());
-    if(dimension.get() == NULL)
+    if (dimension.get() == NULL)
     {
         error->setId(services::ErrorIncorrectParameter);
     }
-    else if(dimension->getNumberOfRows() != 1)
+    else if (dimension->getNumberOfRows() != 1)
     {
         error->setId(services::ErrorIncorrectNumberOfObservations);
     }
-    else if(dimension->getNumberOfColumns() != 1)
+    else if (dimension->getNumberOfColumns() != 1)
     {
         error->setId(services::ErrorIncorrectNumberOfFeatures);
     }
-    if(error->id() != services::NoErrorMessageFound)
+    if (error->id() != services::NoErrorMessageFound)
     {
         error->addStringDetail(services::ArgumentName, "dimension");
         return services::Status(error);
@@ -81,9 +72,9 @@ services::Status Parameter::check() const
     return services::Status();
 }
 
-}// namespace interface1
-}// namespace lrn
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace lrn
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

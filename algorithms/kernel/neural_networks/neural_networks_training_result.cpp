@@ -15,8 +15,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "neural_networks_training_result.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/neural_networks_training_result.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -29,7 +29,6 @@ namespace neural_networks
 {
 namespace training
 {
-
 Result::Result() : daal::algorithms::Result(lastResultId + 1)
 {
     set(model, Model::create());
@@ -40,20 +39,21 @@ ModelPtr Result::get(ResultId id) const
     return Model::cast(Argument::get(id));
 }
 
-void Result::set(ResultId id, const ModelPtr &value)
+void Result::set(ResultId id, const ModelPtr & value)
 {
     Argument::set(id, value);
 }
 
-Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     ModelPtr trainModel = get(model);
     DAAL_CHECK(trainModel, ErrorNullModel)
-    const Parameter *param = static_cast<const Parameter *>(par);
-    if(param->optimizationSolver)
+    const Parameter * param = static_cast<const Parameter *>(par);
+    if (param->optimizationSolver)
     {
         size_t batchSizeFromModel = 0;
-        if(trainModel->getForwardLayer(0) && trainModel->getForwardLayer(0)->getLayerInput() && trainModel->getForwardLayer(0)->getLayerInput()->get(layers::forward::data))
+        if (trainModel->getForwardLayer(0) && trainModel->getForwardLayer(0)->getLayerInput()
+            && trainModel->getForwardLayer(0)->getLayerInput()->get(layers::forward::data))
         {
             batchSizeFromModel = trainModel->getForwardLayer(0)->getLayerInput()->get(layers::forward::data)->getDimensionSize(0);
         }
@@ -62,7 +62,7 @@ Status Result::check(const daal::algorithms::Input *input, const daal::algorithm
     return Status();
 }
 
-}
-}
-}
-}
+} // namespace training
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

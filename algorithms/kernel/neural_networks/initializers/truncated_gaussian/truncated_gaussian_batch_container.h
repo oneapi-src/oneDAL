@@ -24,8 +24,8 @@
 #ifndef __TRUNCATED_GAUSSIAN_INITIALIZER_BATCH_CONTAINER_H__
 #define __TRUNCATED_GAUSSIAN_INITIALIZER_BATCH_CONTAINER_H__
 
-#include "neural_networks/initializers/truncated_gaussian/truncated_gaussian_initializer.h"
-#include "truncated_gaussian_kernel.h"
+#include "algorithms/neural_networks/initializers/truncated_gaussian/truncated_gaussian_initializer.h"
+#include "algorithms/kernel/neural_networks/initializers/truncated_gaussian/truncated_gaussian_kernel.h"
 
 namespace daal
 {
@@ -39,30 +39,29 @@ namespace truncated_gaussian
 {
 namespace interface1
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::TruncatedGaussianKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
     typedef truncated_gaussian::Parameter<algorithmFPType> ParameterType;
 
-    initializers::Result *result = static_cast<initializers::Result *>(_res);
-    ParameterType *parameter     = static_cast<ParameterType *>(_par);
+    initializers::Result * result = static_cast<initializers::Result *>(_res);
+    ParameterType * parameter     = static_cast<ParameterType *>(_par);
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
     __DAAL_CALL_KERNEL(env, internal::TruncatedGaussianKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-        internal::TruncatedGaussianInitializerTaskDescriptor<algorithmFPType>(result, parameter)
-    );
+                       internal::TruncatedGaussianInitializerTaskDescriptor<algorithmFPType>(result, parameter));
 }
 } // namespace interface1
 } // namespace truncated_gaussian

@@ -18,7 +18,7 @@
 #include <jni.h>
 #include "com_intel_daal_algorithms_math_relu_Batch.h"
 #include "daal.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 #define FastCSRMethodValue com_intel_daal_algorithms_math_relu_Method_FastCSRMethodValue
 USING_COMMON_NAMESPACES()
@@ -29,8 +29,7 @@ using namespace daal::algorithms::math;
  * Method:    cInit
  * Signature:(II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_relu_Batch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_relu_Batch_cInit(JNIEnv * env, jobject thisObj, jint prec, jint method)
 {
     return jniBatch<relu::Method, relu::Batch, relu::defaultDense, relu::fastCSR>::newObj(prec, method);
 }
@@ -40,8 +39,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_relu_Batch_cInit
  * Method:    cSetResult
  * Signature:(JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_math_relu_Batch_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_math_relu_Batch_cSetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method,
+                                                                                 jlong resultAddr)
 {
     jniBatch<relu::Method, relu::Batch, relu::defaultDense, relu::fastCSR>::setResult<relu::Result>(prec, method, algAddr, resultAddr);
 }
@@ -51,8 +50,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_math_relu_Batch_cSetResult
  * Method:    cGetResult
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_relu_Batch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_relu_Batch_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                  jint method)
 {
     return jniBatch<relu::Method, relu::Batch, relu::defaultDense, relu::fastCSR>::getResult(prec, method, algAddr);
 }
@@ -62,8 +61,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_relu_Batch_cGetResul
  * Method:    cGetInput
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_relu_Batch_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_relu_Batch_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<relu::Method, relu::Batch, relu::defaultDense, relu::fastCSR>::getInput(prec, method, algAddr);
 }
@@ -73,8 +71,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_relu_Batch_cGetInput
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_relu_Batch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_math_relu_Batch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<relu::Method, relu::Batch, relu::defaultDense, relu::fastCSR>::getClone(prec, method, algAddr);
 }

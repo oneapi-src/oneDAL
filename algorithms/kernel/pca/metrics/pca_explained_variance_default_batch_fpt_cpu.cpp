@@ -21,9 +21,9 @@
 //--
 */
 
-#include "pca_explained_variance_default_batch_kernel.h"
-#include "pca_explained_variance_default_batch_impl.i"
-#include "pca_explained_variance_default_batch_container.h"
+#include "algorithms/kernel/pca/metrics/pca_explained_variance_default_batch_kernel.h"
+#include "algorithms/kernel/pca/metrics/pca_explained_variance_default_batch_impl.i"
+#include "algorithms/kernel/pca/metrics/pca_explained_variance_default_batch_container.h"
 
 namespace daal
 {
@@ -43,8 +43,8 @@ namespace internal
 {
 template class ExplainedVarianceKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
-}
+} // namespace explained_variance
+} // namespace quality_metric
+} // namespace pca
+} // namespace algorithms
+} // namespace daal

@@ -21,9 +21,9 @@
 //--
 */
 
-#include "kmeans_init_kernel.h"
-#include "kmeans_init_container.h"
-#include "kmeans_plusplus_init_distr_impl.i"
+#include "algorithms/kernel/kmeans/kmeans_init_kernel.h"
+#include "algorithms/kernel/kmeans/kmeans_init_container.h"
+#include "algorithms/kernel/kmeans/kmeans_plusplus_init_distr_impl.i"
 
 namespace daal
 {
@@ -40,8 +40,8 @@ template class DistributedContainer<step3Master, DAAL_FPTYPE, plusPlusDense, DAA
 namespace internal
 {
 template class KMeansInitStep3MasterKernel<plusPlusDense, DAAL_FPTYPE, DAAL_CPU>;
-} // namespace daal::algorithms::kmeans::init::internal
-} // namespace daal::algorithms::kmeans::init
-} // namespace daal::algorithms::kmeans
-} // namespace daal::algorithms
+} // namespace internal
+} // namespace init
+} // namespace kmeans
+} // namespace algorithms
 } // namespace daal

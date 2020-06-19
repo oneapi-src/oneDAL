@@ -29,7 +29,7 @@ using namespace daal::algorithms;
  */
 JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cInitDefault(JNIEnv *, jobject)
 {
-    return(jlong)(new svm::Parameter());
+    return (jlong)(new svm::Parameter());
 }
 
 /*
@@ -41,7 +41,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cInitWithKe
 {
     kernel_function::KernelIfacePtr kernel =
         staticPointerCast<kernel_function::KernelIface, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)kernelAddr);
-    return(jlong)(new svm::Parameter(kernel));
+    return (jlong)(new svm::Parameter(kernel));
 }
 
 /*
@@ -49,8 +49,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cInitWithKe
  * Method:    cSetC
  * Signature:(JD)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cSetC
-(JNIEnv *env, jobject obj, jlong parAddr, jdouble val)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cSetC(JNIEnv * env, jobject obj, jlong parAddr, jdouble val)
 {
     ((svm::Parameter *)parAddr)->C = val;
 }
@@ -60,10 +59,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cSetC
  * Method:    cGetC
  * Signature:(J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cGetC
-(JNIEnv *env, jobject obj, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cGetC(JNIEnv * env, jobject obj, jlong parAddr)
 {
-    return(jdouble)((svm::Parameter *)parAddr)->C;
+    return (jdouble)((svm::Parameter *)parAddr)->C;
 }
 
 /*
@@ -71,8 +69,7 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cGetC
  * Method:    cSetAccuracyThreshold
  * Signature:(JD)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cSetAccuracyThreshold
-(JNIEnv *env, jobject obj, jlong parAddr, jdouble val)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cSetAccuracyThreshold(JNIEnv * env, jobject obj, jlong parAddr, jdouble val)
 {
     ((svm::Parameter *)parAddr)->accuracyThreshold = val;
 }
@@ -82,10 +79,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cSetAccuracy
  * Method:    cGetAccuracyThreshold
  * Signature:(J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cGetAccuracyThreshold
-(JNIEnv *env, jobject obj, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cGetAccuracyThreshold(JNIEnv * env, jobject obj, jlong parAddr)
 {
-    return(jdouble)((svm::Parameter *)parAddr)->accuracyThreshold;
+    return (jdouble)((svm::Parameter *)parAddr)->accuracyThreshold;
 }
 
 /*
@@ -93,8 +89,7 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cGetAccur
  * Method:    cSetTau
  * Signature:(JD)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cSetTau
-(JNIEnv *env, jobject obj, jlong parAddr, jdouble val)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cSetTau(JNIEnv * env, jobject obj, jlong parAddr, jdouble val)
 {
     ((svm::Parameter *)parAddr)->tau = val;
 }
@@ -104,10 +99,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cSetTau
  * Method:    cGetTau
  * Signature:(J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cGetTau
-(JNIEnv *env, jobject obj, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cGetTau(JNIEnv * env, jobject obj, jlong parAddr)
 {
-    return(jdouble)((svm::Parameter *)parAddr)->tau;
+    return (jdouble)((svm::Parameter *)parAddr)->tau;
 }
 
 /*
@@ -115,8 +109,7 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cGetTau
  * Method:    cSetMaxIterations
  * Signature:(JJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cSetMaxIterations
-(JNIEnv *env, jobject obj, jlong parAddr, jlong val)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cSetMaxIterations(JNIEnv * env, jobject obj, jlong parAddr, jlong val)
 {
     ((svm::Parameter *)parAddr)->maxIterations = val;
 }
@@ -126,10 +119,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cSetMaxItera
  * Method:    cGetMaxIterations
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cGetMaxIterations
-(JNIEnv *env, jobject obj, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cGetMaxIterations(JNIEnv * env, jobject obj, jlong parAddr)
 {
-    return(jlong)((svm::Parameter *)parAddr)->maxIterations;
+    return (jlong)((svm::Parameter *)parAddr)->maxIterations;
 }
 
 /*
@@ -137,8 +129,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cGetMaxIter
  * Method:    cSetCacheSize
  * Signature:(JJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cSetCacheSize
-(JNIEnv *env, jobject obj, jlong parAddr, jlong val)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cSetCacheSize(JNIEnv * env, jobject obj, jlong parAddr, jlong val)
 {
     ((svm::Parameter *)parAddr)->cacheSize = val;
 }
@@ -148,10 +139,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cSetCacheSiz
  * Method:    cGetCacheSize
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cGetCacheSize
-(JNIEnv *env, jobject obj, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cGetCacheSize(JNIEnv * env, jobject obj, jlong parAddr)
 {
-    return(jlong)((svm::Parameter *)parAddr)->cacheSize;
+    return (jlong)((svm::Parameter *)parAddr)->cacheSize;
 }
 
 /*
@@ -159,8 +149,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cGetCacheSi
  * Method:    cSetDoShrinking
  * Signature:(JZ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cSetDoShrinking
-(JNIEnv *env, jobject obj, jlong parAddr, jboolean val)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cSetDoShrinking(JNIEnv * env, jobject obj, jlong parAddr, jboolean val)
 {
     ((svm::Parameter *)parAddr)->doShrinking = val;
 }
@@ -170,10 +159,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cSetDoShrink
  * Method:    cGetDoShrinking
  * Signature:(J)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cGetDoShrinking
-(JNIEnv *env, jobject obj, jlong parAddr)
+JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cGetDoShrinking(JNIEnv * env, jobject obj, jlong parAddr)
 {
-    return(jboolean)((svm::Parameter *)parAddr)->doShrinking;
+    return (jboolean)((svm::Parameter *)parAddr)->doShrinking;
 }
 
 /*
@@ -181,8 +169,7 @@ JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cGetDoSh
  * Method:    cSetShrinkingStep
  * Signature:(JJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cSetShrinkingStep
-(JNIEnv *env, jobject obj, jlong parAddr, jlong val)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cSetShrinkingStep(JNIEnv * env, jobject obj, jlong parAddr, jlong val)
 {
     ((svm::Parameter *)parAddr)->shrinkingStep = val;
 }
@@ -192,10 +179,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cSetShrinkin
  * Method:    cGetShrinkingStep
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cGetShrinkingStep
-(JNIEnv *env, jobject obj, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cGetShrinkingStep(JNIEnv * env, jobject obj, jlong parAddr)
 {
-    return(jlong)((svm::Parameter *)parAddr)->shrinkingStep;
+    return (jlong)((svm::Parameter *)parAddr)->shrinkingStep;
 }
 
 /*
@@ -203,8 +189,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cGetShrinki
  * Method:    cSetKernel
  * Signature:(JJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cSetKernel
-(JNIEnv *env, jobject obj, jlong parAddr, jlong kernelAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svm_Parameter_cSetKernel(JNIEnv * env, jobject obj, jlong parAddr, jlong kernelAddr)
 {
     kernel_function::KernelIfacePtr kernel =
         staticPointerCast<kernel_function::KernelIface, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)kernelAddr);

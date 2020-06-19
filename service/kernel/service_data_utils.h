@@ -24,7 +24,7 @@
 #ifndef __SERVICE_DATA_UTILS_H__
 #define __SERVICE_DATA_UTILS_H__
 
-#include "service_defines.h"
+#include "service/kernel/service_defines.h"
 
 namespace daal
 {
@@ -32,142 +32,98 @@ namespace services
 {
 namespace internal
 {
-
-template<typename T>
+template <typename T>
 struct MaxVal
 {
-    DAAL_FORCEINLINE static T get()
-    {
-        return 0;
-    }
+    DAAL_FORCEINLINE static T get() { return 0; }
 };
 
-template<>
+template <>
 struct MaxVal<int>
 {
-    DAAL_FORCEINLINE static int get()
-    {
-        return INT_MAX;
-    }
+    DAAL_FORCEINLINE static int get() { return INT_MAX; }
 };
 
-
-template<>
+template <>
 struct MaxVal<long long>
 {
-    DAAL_FORCEINLINE static long long get()
-    {
-        return LLONG_MAX;
-    }
+    DAAL_FORCEINLINE static long long get() { return LLONG_MAX; }
 };
 
-template<>
+template <>
 struct MaxVal<double>
 {
-    DAAL_FORCEINLINE static double get()
-    {
-        return DBL_MAX;
-    }
+    DAAL_FORCEINLINE static double get() { return DBL_MAX; }
 };
 
-template<>
+template <>
 struct MaxVal<float>
 {
-    DAAL_FORCEINLINE static float get()
-    {
-        return FLT_MAX;
-    }
+    DAAL_FORCEINLINE static float get() { return FLT_MAX; }
 };
 
-template<typename T>
+template <typename T>
 struct MinVal
 {
-    DAAL_FORCEINLINE static T get()
-    {
-        return 0;
-    }
+    DAAL_FORCEINLINE static T get() { return 0; }
 };
 
-template<>
+template <>
 struct MinVal<int>
 {
-    DAAL_FORCEINLINE static int get()
-    {
-        return INT_MIN;
-    }
+    DAAL_FORCEINLINE static int get() { return INT_MIN; }
 };
 
-template<>
+template <>
 struct MinVal<double>
 {
-    DAAL_FORCEINLINE static double get()
-    {
-        return DBL_MIN;
-    }
+    DAAL_FORCEINLINE static double get() { return DBL_MIN; }
 };
 
-template<>
+template <>
 struct MinVal<float>
 {
-    DAAL_FORCEINLINE static float get()
-    {
-        return FLT_MIN;
-    }
+    DAAL_FORCEINLINE static float get() { return FLT_MIN; }
 };
 
-template<typename T>
+template <typename T>
 struct EpsilonVal
 {
-    DAAL_FORCEINLINE static T get()
-    {
-        return 0;
-    }
+    DAAL_FORCEINLINE static T get() { return 0; }
 };
 
-template<>
+template <>
 struct EpsilonVal<double>
 {
-    DAAL_FORCEINLINE static double get()
-    {
-        return DBL_EPSILON;
-    }
+    DAAL_FORCEINLINE static double get() { return DBL_EPSILON; }
 };
 
-template<>
+template <>
 struct EpsilonVal<float>
 {
-    DAAL_FORCEINLINE static float get()
-    {
-        return FLT_EPSILON;
-    }
+    DAAL_FORCEINLINE static float get() { return FLT_EPSILON; }
 };
 
-template<typename T, CpuType cpu>
+template <typename T, CpuType cpu>
 struct SignBit;
 
-template<CpuType cpu>
+template <CpuType cpu>
 struct SignBit<float, cpu>
 {
-    static int get(float val)
-    {
-        return ((_daal_sp_union_t*)&val)->bits.sign;
-    }
+    static int get(float val) { return ((_daal_sp_union_t *)&val)->bits.sign; }
 };
 
-template<CpuType cpu>
+template <CpuType cpu>
 struct SignBit<double, cpu>
 {
-    static int get(double val)
-    {
-        return ((_daal_dp_union_t*)&val)->bits.sign;
-    }
+    static int get(double val) { return ((_daal_dp_union_t *)&val)->bits.sign; }
 };
 
-template<typename T1, typename T2, CpuType cpu>
-void vectorConvertFuncCpu(size_t n, void *src, void *dst);
+template <typename T1, typename T2, CpuType cpu>
+void vectorConvertFuncCpu(size_t n, void * src, void * dst);
 
-template<typename T1, typename T2, CpuType cpu>
-void vectorStrideConvertFuncCpu(size_t n, void *src, size_t srcByteStride, void *dst, size_t dstByteStride);
+template <typename T1, typename T2, CpuType cpu>
+void vectorStrideConvertFuncCpu(size_t n, void * src, size_t srcByteStride, void * dst, size_t dstByteStride);
 
 } // namespace internal
 } // namespace services

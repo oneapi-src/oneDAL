@@ -22,7 +22,7 @@
 //--
 */
 
-#include "stump_predict_batch_container.h"
+#include "algorithms/kernel/stump/inner/stump_predict_batch_container.h"
 
 namespace daal
 {
@@ -30,4 +30,4 @@ namespace algorithms
 {
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER(stump::prediction::BatchContainer, batch, DAAL_FPTYPE, stump::prediction::defaultDense)
 }
-}
+} // namespace daal

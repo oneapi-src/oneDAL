@@ -21,7 +21,7 @@
 //--
 */
 
-#include "layer_types.h"
+#include "algorithms/neural_networks/layers/layer_types.h"
 
 namespace daal
 {
@@ -33,17 +33,18 @@ namespace layers
 {
 namespace interface1
 {
-
 /** Default constructor */
-Parameter::Parameter() : predictionStage(false), propagateGradient(true),
-    weightsInitializer(new initializers::uniform::Batch<>()),
-    biasesInitializer(new initializers::uniform::Batch<>()),
-    weightsAndBiasesInitialized(false),
-    allowInplaceComputation(true)
+Parameter::Parameter()
+    : predictionStage(false),
+      propagateGradient(true),
+      weightsInitializer(new initializers::uniform::Batch<>()),
+      biasesInitializer(new initializers::uniform::Batch<>()),
+      weightsAndBiasesInitialized(false),
+      allowInplaceComputation(true)
 {}
 
-}// namespace interface1
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

@@ -29,7 +29,7 @@
 #include "data_management/data/data_serialize.h"
 #include "services/daal_defines.h"
 #include "services/collection.h"
-#include "neural_networks_prediction_input.h"
+#include "algorithms/neural_networks/neural_networks_prediction_input.h"
 
 namespace daal
 {

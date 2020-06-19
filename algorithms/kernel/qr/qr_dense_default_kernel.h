@@ -24,9 +24,9 @@
 #ifndef __QR_FPK_H__
 #define __QR_FPK_H__
 
-#include "qr_batch.h"
-#include "kernel.h"
-#include "numeric_table.h"
+#include "algorithms/qr/qr_batch.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;
 
@@ -38,56 +38,52 @@ namespace qr
 {
 namespace internal
 {
-
-template<typename algorithmFPType, daal::algorithms::qr::Method method, CpuType cpu>
+template <typename algorithmFPType, daal::algorithms::qr::Method method, CpuType cpu>
 class QRBatchKernel : public Kernel
 {
 public:
-    services::Status compute(const size_t na, const NumericTable *const *a,
-                        const size_t nr, NumericTable *r[], const daal::algorithms::Parameter *par = 0);
+    services::Status compute(const size_t na, const NumericTable * const * a, const size_t nr, NumericTable * r[],
+                             const daal::algorithms::Parameter * par = 0);
 
-    services::Status compute_seq(const size_t na, const NumericTable *const *a,
-                        const size_t nr, NumericTable *r[], const daal::algorithms::Parameter *par = 0);
+    services::Status compute_seq(const size_t na, const NumericTable * const * a, const size_t nr, NumericTable * r[],
+                                 const daal::algorithms::Parameter * par = 0);
 
-    services::Status compute_thr(const size_t na, const NumericTable *const *a,
-                        const size_t nr, NumericTable *r[], const daal::algorithms::Parameter *par = 0);
+    services::Status compute_thr(const size_t na, const NumericTable * const * a, const size_t nr, NumericTable * r[],
+                                 const daal::algorithms::Parameter * par = 0);
 
-    services::Status compute_pcl(const size_t na, const NumericTable *const *a,
-                        const size_t nr, NumericTable *r[], const daal::algorithms::Parameter *par = 0);
-
+    services::Status compute_pcl(const size_t na, const NumericTable * const * a, const size_t nr, NumericTable * r[],
+                                 const daal::algorithms::Parameter * par = 0);
 };
 
-template<typename algorithmFPType, daal::algorithms::qr::Method method, CpuType cpu>
+template <typename algorithmFPType, daal::algorithms::qr::Method method, CpuType cpu>
 class QROnlineKernel : public Kernel
 {
 public:
-    services::Status compute(const size_t na, const NumericTable *const *a,
-                        const size_t nr, NumericTable *r[], const daal::algorithms::Parameter *par = 0);
-    services::Status finalizeCompute(const size_t na, const NumericTable *const *a,
-                        const size_t nr, NumericTable *r[], const daal::algorithms::Parameter *par = 0);
+    services::Status compute(const size_t na, const NumericTable * const * a, const size_t nr, NumericTable * r[],
+                             const daal::algorithms::Parameter * par = 0);
+    services::Status finalizeCompute(const size_t na, const NumericTable * const * a, const size_t nr, NumericTable * r[],
+                                     const daal::algorithms::Parameter * par = 0);
 };
 
-template<typename algorithmFPType, daal::algorithms::qr::Method method, CpuType cpu>
+template <typename algorithmFPType, daal::algorithms::qr::Method method, CpuType cpu>
 class QRDistributedStep2Kernel : public Kernel
 {
 public:
-    services::Status compute(const size_t na, const NumericTable *const *a,
-                        const size_t nr, NumericTable *r0, NumericTable *r[], const daal::algorithms::Parameter *par = 0, data_management::KeyValueDataCollection *inCollection = NULL);
-
+    services::Status compute(const size_t na, const NumericTable * const * a, const size_t nr, NumericTable * r0, NumericTable * r[],
+                             const daal::algorithms::Parameter * par = 0, data_management::KeyValueDataCollection * inCollection = NULL);
 };
 
-template<typename algorithmFPType, daal::algorithms::qr::Method method, CpuType cpu>
+template <typename algorithmFPType, daal::algorithms::qr::Method method, CpuType cpu>
 class QRDistributedStep3Kernel : public Kernel
 {
 public:
-    services::Status compute(const size_t na, const NumericTable *const *a,
-                        const size_t nr, NumericTable *r[], const daal::algorithms::Parameter *par = 0);
-
+    services::Status compute(const size_t na, const NumericTable * const * a, const size_t nr, NumericTable * r[],
+                             const daal::algorithms::Parameter * par = 0);
 };
 
-} // namespace daal::internal
-}
-}
+} // namespace internal
+} // namespace qr
+} // namespace algorithms
 } // namespace daal
 
 #endif

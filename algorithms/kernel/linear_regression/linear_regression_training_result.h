@@ -25,8 +25,8 @@
 #define __LINEAR_REGRESSION_TRAINING_RESULT_
 
 #include "algorithms/linear_regression/linear_regression_training_types.h"
-#include "linear_regression_ne_model_impl.h"
-#include "linear_regression_qr_model_impl.h"
+#include "algorithms/kernel/linear_regression/linear_regression_ne_model_impl.h"
+#include "algorithms/kernel/linear_regression/linear_regression_qr_model_impl.h"
 
 namespace daal
 {
@@ -44,20 +44,22 @@ using namespace daal::services;
  * \param[in] method Computation method for the algorithm
  * \param[in] parameter %Parameter of linear regression model-based training
  */
-template<typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input, const Parameter *parameter, const int method)
+template <typename algorithmFPType>
+DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const Parameter * parameter, const int method)
 {
-    const Input *in = static_cast<const Input *>(input);
+    const Input * in = static_cast<const Input *>(input);
 
     Status s;
     const algorithmFPType dummy = 1.0;
-    if(method == qrDense)
+    if (method == qrDense)
     {
-        set(model, linear_regression::ModelPtr(new linear_regression::internal::ModelQRImpl(in->getNumberOfFeatures(), in->getNumberOfDependentVariables(), *parameter, dummy, s)));
+        set(model, linear_regression::ModelPtr(new linear_regression::internal::ModelQRImpl(
+                       in->getNumberOfFeatures(), in->getNumberOfDependentVariables(), *parameter, dummy, s)));
     }
-    else if(method == normEqDense)
+    else if (method == normEqDense)
     {
-        set(model, linear_regression::ModelPtr(new linear_regression::internal::ModelNormEqImpl(in->getNumberOfFeatures(), in->getNumberOfDependentVariables(), *parameter, dummy, s)));
+        set(model, linear_regression::ModelPtr(new linear_regression::internal::ModelNormEqImpl(
+                       in->getNumberOfFeatures(), in->getNumberOfDependentVariables(), *parameter, dummy, s)));
     }
 
     return s;
@@ -69,20 +71,22 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input, const 
  * \param[in] method        Computation method of the algorithm
  * \param[in] parameter     %Parameter of linear regression model-based training
  */
-template<typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::PartialResult *partialResult, const Parameter *parameter, const int method)
+template <typename algorithmFPType>
+DAAL_EXPORT Status Result::allocate(const daal::algorithms::PartialResult * partialResult, const Parameter * parameter, const int method)
 {
-    const PartialResult *partialRes = static_cast<const PartialResult *>(partialResult);
+    const PartialResult * partialRes = static_cast<const PartialResult *>(partialResult);
 
     Status s;
     const algorithmFPType dummy = 1.0;
-    if(method == qrDense)
+    if (method == qrDense)
     {
-        set(model, linear_regression::ModelPtr(new linear_regression::internal::ModelQRImpl(partialRes->getNumberOfFeatures(), partialRes->getNumberOfDependentVariables(), *parameter, dummy, s)));
+        set(model, linear_regression::ModelPtr(new linear_regression::internal::ModelQRImpl(
+                       partialRes->getNumberOfFeatures(), partialRes->getNumberOfDependentVariables(), *parameter, dummy, s)));
     }
-    else if(method == normEqDense)
+    else if (method == normEqDense)
     {
-        set(model, linear_regression::ModelPtr(new linear_regression::internal::ModelNormEqImpl(partialRes->getNumberOfFeatures(), partialRes->getNumberOfDependentVariables(), *parameter, dummy, s)));
+        set(model, linear_regression::ModelPtr(new linear_regression::internal::ModelNormEqImpl(
+                       partialRes->getNumberOfFeatures(), partialRes->getNumberOfDependentVariables(), *parameter, dummy, s)));
     }
 
     return s;

@@ -21,8 +21,8 @@
 //--
 */
 
-#include "low_order_moments_container.h"
-#include "low_order_moments_batch_impl.i"
+#include "algorithms/kernel/low_order_moments/low_order_moments_container.h"
+#include "algorithms/kernel/low_order_moments/low_order_moments_batch_impl.i"
 
 namespace daal
 {
@@ -38,6 +38,6 @@ namespace internal
 {
 template class LowOrderMomentsBatchKernel<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
 }
-}
-}
-}
+} // namespace low_order_moments
+} // namespace algorithms
+} // namespace daal

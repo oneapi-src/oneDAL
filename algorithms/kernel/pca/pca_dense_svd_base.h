@@ -24,8 +24,8 @@
 #ifndef __PCA_DENSE_SVD_BASE_H__
 #define __PCA_DENSE_SVD_BASE_H__
 
-#include "service_numeric_table.h"
-#include "pca_dense_base.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/pca/pca_dense_base.h"
 
 namespace daal
 {
@@ -37,11 +37,10 @@ namespace internal
 {
 enum InputDataType
 {
-    nonNormalizedDataset = 0,   /*!< Original, non-normalized data set */
-    normalizedDataset    = 1,   /*!< Normalized data set whose feature vectors have zero average and unit variance */
-    correlation          = 2    /*!< Correlation matrix */
+    nonNormalizedDataset = 0, /*!< Original, non-normalized data set */
+    normalizedDataset    = 1, /*!< Normalized data set whose feature vectors have zero average and unit variance */
+    correlation          = 2  /*!< Correlation matrix */
 };
-
 
 template <typename algorithmFPType, CpuType cpu>
 class PCASVDKernelBase : public PCADenseBase<algorithmFPType, cpu>
@@ -51,16 +50,16 @@ public:
     virtual ~PCASVDKernelBase() {}
 
 protected:
-    services::Status scaleSingularValues(data_management::NumericTable& eigenvaluesTable, size_t nVectors);
+    services::Status scaleSingularValues(data_management::NumericTable & eigenvaluesTable, size_t nVectors);
 };
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status PCASVDKernelBase<algorithmFPType, cpu>::scaleSingularValues(NumericTable& eigenvaluesTable, size_t nVectors)
+services::Status PCASVDKernelBase<algorithmFPType, cpu>::scaleSingularValues(NumericTable & eigenvaluesTable, size_t nVectors)
 {
     const size_t nFeatures = eigenvaluesTable.getNumberOfColumns();
     daal::internal::WriteRows<algorithmFPType, cpu> block(eigenvaluesTable, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(block);
-    algorithmFPType *eigenvalues = block.get();
+    algorithmFPType * eigenvalues = block.get();
 
     for (size_t i = 0; i < nFeatures; i++)
     {

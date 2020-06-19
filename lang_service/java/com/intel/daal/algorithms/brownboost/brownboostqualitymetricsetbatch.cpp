@@ -27,10 +27,9 @@ using namespace daal::algorithms::brownboost::quality_metric_set;
  * Method:    cInit
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_brownboost_quality_1metric_1set_QualityMetricSetBatch_cInit
-(JNIEnv *, jobject)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_brownboost_quality_1metric_1set_QualityMetricSetBatch_cInit(JNIEnv *, jobject)
 {
     jlong addr = 0;
-    addr = (jlong)(new Batch());
+    addr       = (jlong)(new Batch());
     return addr;
 }

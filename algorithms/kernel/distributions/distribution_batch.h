@@ -23,7 +23,7 @@
 #ifndef __DISTRIBUTION_BATCH__
 #define __DISTRIBUTION_BATCH__
 
-#include "distribution_types.h"
+#include "algorithms/distributions/distribution_types.h"
 
 namespace daal
 {
@@ -33,11 +33,10 @@ namespace distributions
 {
 namespace interface1
 {
-
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
-    const Input *algInput = static_cast<const Input *>(input);
+    const Input * algInput = static_cast<const Input *>(input);
 
     set(randomNumbers, algInput->get(tableToFill));
     return services::Status();

@@ -24,13 +24,13 @@
 #ifndef __MAXIMUM_POOLING3D_LAYER_BACKWARD_IMPL_I__
 #define __MAXIMUM_POOLING3D_LAYER_BACKWARD_IMPL_I__
 
-#include "service_sort.h"
-#include "service_memory.h"
-#include "service_blas.h"
-#include "service_tensor.h"
-#include "service_numeric_table.h"
+#include "algorithms/kernel/service_sort.h"
+#include "externals/service_memory.h"
+#include "externals/service_blas.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
-#include "pooling3d_layer_impl.i"
+#include "algorithms/kernel/neural_networks/layers/pooling3d_layer/pooling3d_layer_impl.i"
 
 using namespace daal::services;
 using namespace daal::internal;
@@ -49,39 +49,36 @@ namespace backward
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status PoolingKernel<algorithmFPType, method, cpu>::compute(const Tensor &inputGradTensor,
-        const Tensor &selectedPosTensor, Tensor &gradTensor,
-        const maximum_pooling3d::Parameter &parameter)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status PoolingKernel<algorithmFPType, method, cpu>::compute(const Tensor & inputGradTensor, const Tensor & selectedPosTensor,
+                                                                      Tensor & gradTensor, const maximum_pooling3d::Parameter & parameter)
 {
     const algorithmFPType zero = 0.0;
 
-    const Collection<size_t> &inputDims = inputGradTensor.getDimensions();
-    const Collection<size_t> &gradDims = gradTensor.getDimensions();
+    const Collection<size_t> & inputDims = inputGradTensor.getDimensions();
+    const Collection<size_t> & gradDims  = gradTensor.getDimensions();
 
-    ReadSubtensor<algorithmFPType, cpu> inputGradSubtensor(const_cast<Tensor&>(inputGradTensor), 0, 0, 0, inputDims[0]);
+    ReadSubtensor<algorithmFPType, cpu> inputGradSubtensor(const_cast<Tensor &>(inputGradTensor), 0, 0, 0, inputDims[0]);
     DAAL_CHECK_BLOCK_STATUS(inputGradSubtensor);
-    const algorithmFPType *inputGrad = inputGradSubtensor.get();
+    const algorithmFPType * inputGrad = inputGradSubtensor.get();
 
-    ReadSubtensor<int, cpu> selectedPosSubtensor(const_cast<Tensor&>(selectedPosTensor), 0, 0, 0, inputDims[0]);
+    ReadSubtensor<int, cpu> selectedPosSubtensor(const_cast<Tensor &>(selectedPosTensor), 0, 0, 0, inputDims[0]);
     DAAL_CHECK_BLOCK_STATUS(selectedPosSubtensor);
-    const int *selectedPos = selectedPosSubtensor.get();
+    const int * selectedPos = selectedPosSubtensor.get();
 
     WriteOnlySubtensor<algorithmFPType, cpu> gradSubtensor(gradTensor, 0, 0, 0, gradDims[0]);
     DAAL_CHECK_BLOCK_STATUS(gradSubtensor);
-    algorithmFPType *grad = gradSubtensor.get();
+    algorithmFPType * grad = gradSubtensor.get();
 
     const size_t gradientSize = gradTensor.getSize();
     daal::services::internal::service_memset<algorithmFPType, cpu>(grad, zero, gradientSize);
 
-    pooling3d::internal::Parameter<cpu> par(parameter.indices.size, parameter.paddings   .size,
-                                            parameter.strides.size, parameter.kernelSizes.size,
+    pooling3d::internal::Parameter<cpu> par(parameter.indices.size, parameter.paddings.size, parameter.strides.size, parameter.kernelSizes.size,
                                             gradTensor, gradDims, inputDims);
 
-    DAAL_INT ii[nKernelDims + 1];    // index of the input data
-    DAAL_INT ik[nKernelDims];        // index of the kernel
-    DAAL_INT iv[nKernelDims];        // index of the value
+    DAAL_INT ii[nKernelDims + 1]; // index of the input data
+    DAAL_INT ik[nKernelDims];     // index of the kernel
+    DAAL_INT iv[nKernelDims];     // index of the value
     DAAL_INT inputOffset[nKernelDims + 1];
     DAAL_INT gradOffset[nKernelDims + 1];
 
@@ -90,17 +87,18 @@ services::Status PoolingKernel<algorithmFPType, method, cpu>::compute(const Tens
         inputOffset[0] = 0;
         gradOffset[0]  = 0;
 
-        recurrentCompute(0, ii, ik, iv, par.padding, par.stride, par.kernelSize, par.dataSize, par.valueSize,
-            par.offset, gradOffset, inputOffset, inputGrad, grad, selectedPos);
+        recurrentCompute(0, ii, ik, iv, par.padding, par.stride, par.kernelSize, par.dataSize, par.valueSize, par.offset, gradOffset, inputOffset,
+                         inputGrad, grad, selectedPos);
     }
     return Status();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-void PoolingKernel<algorithmFPType, method, cpu>::recurrentCompute(size_t d,
-        DAAL_INT *ii, DAAL_INT *ik, DAAL_INT *iv, const DAAL_INT *padding, const DAAL_INT *stride, const DAAL_INT *kernelSize,
-        const DAAL_INT *gradSize, const DAAL_INT *inputSize, const DAAL_INT *offset, DAAL_INT *gradOffset, DAAL_INT *inputOffset,
-        const algorithmFPType *inputGrad, algorithmFPType *grad, const int *selectedPos)
+template <typename algorithmFPType, Method method, CpuType cpu>
+void PoolingKernel<algorithmFPType, method, cpu>::recurrentCompute(size_t d, DAAL_INT * ii, DAAL_INT * ik, DAAL_INT * iv, const DAAL_INT * padding,
+                                                                   const DAAL_INT * stride, const DAAL_INT * kernelSize, const DAAL_INT * gradSize,
+                                                                   const DAAL_INT * inputSize, const DAAL_INT * offset, DAAL_INT * gradOffset,
+                                                                   DAAL_INT * inputOffset, const algorithmFPType * inputGrad, algorithmFPType * grad,
+                                                                   const int * selectedPos)
 {
     const algorithmFPType zero = 0.0;
     if (d < nKernelDims)
@@ -111,12 +109,12 @@ void PoolingKernel<algorithmFPType, method, cpu>::recurrentCompute(size_t d,
         for (ik[d] = -padding[d], iv[d] = 0; iv[d] < inputSize[d]; ik[d] += stride[d], iv[d]++)
         {
             inputOffset[d + 1] = offset[d + 1] * (iv[d] + inputSize[d] * (ii[d] + inputOffset[d]));
-            gradOffset[d + 1]  = offset[d + 1] * (ik[d] + gradSize[d]  * (ii[d] + gradOffset[d]));
+            gradOffset[d + 1]  = offset[d + 1] * (ik[d] + gradSize[d] * (ii[d] + gradOffset[d]));
 
             for (ii[d + 1] = 0; ii[d + 1] < offset[d + 1]; ii[d + 1]++)
             {
-                recurrentCompute(d + 1, ii, ik, iv, padding, stride, kernelSize, gradSize, inputSize,
-                                 offset, gradOffset, inputOffset, inputGrad, grad, selectedPos);
+                recurrentCompute(d + 1, ii, ik, iv, padding, stride, kernelSize, gradSize, inputSize, offset, gradOffset, inputOffset, inputGrad,
+                                 grad, selectedPos);
             }
         }
     }
@@ -127,28 +125,28 @@ void PoolingKernel<algorithmFPType, method, cpu>::recurrentCompute(size_t d,
          */
         DAAL_INT inputIndex = ii[3] + inputOffset[3];
 
-        DAAL_INT iwk[nKernelDims];              // index of the gradient within kernel
+        DAAL_INT iwk[nKernelDims]; // index of the gradient within kernel
         DAAL_INT gradKernelOffset[nKernelDims];
 
         if (selectedPos[inputIndex] >= 0)
         {
             DAAL_INT kernelSize01 = kernelSize[1] * kernelSize[2];
-            iwk[0] = selectedPos[inputIndex] / kernelSize01;
-            DAAL_INT residual = selectedPos[inputIndex] - iwk[0] * kernelSize01;
-            iwk[1] = residual / kernelSize[2];
-            iwk[2] = residual - iwk[1] * kernelSize[2];
-            bool paddingFlag = false;
+            iwk[0]                = selectedPos[inputIndex] / kernelSize01;
+            DAAL_INT residual     = selectedPos[inputIndex] - iwk[0] * kernelSize01;
+            iwk[1]                = residual / kernelSize[2];
+            iwk[2]                = residual - iwk[1] * kernelSize[2];
+            bool paddingFlag      = false;
             for (size_t i = 0; i < nKernelDims; i++)
             {
                 DAAL_INT iwkShifted = ik[i] + iwk[i];
-                paddingFlag = (paddingFlag || (iwkShifted < 0) || (iwkShifted >= gradSize[i]));
+                paddingFlag         = (paddingFlag || (iwkShifted < 0) || (iwkShifted >= gradSize[i]));
             }
             if (!paddingFlag)
             {
                 gradKernelOffset[0] = offset[1] * iwk[0];
                 gradKernelOffset[1] = offset[2] * (iwk[1] + gradSize[1] * gradKernelOffset[0]);
                 gradKernelOffset[2] = offset[3] * (iwk[2] + gradSize[2] * gradKernelOffset[1]);
-                DAAL_INT gradIndex = ii[3] + gradOffset[nKernelDims] + gradKernelOffset[nKernelDims - 1];
+                DAAL_INT gradIndex  = ii[3] + gradOffset[nKernelDims] + gradKernelOffset[nKernelDims - 1];
                 grad[gradIndex] += inputGrad[inputIndex];
             }
         }

@@ -24,10 +24,10 @@
 #ifndef __GBT_REGRESSION_MODEL_IMPL__
 #define __GBT_REGRESSION_MODEL_IMPL__
 
-#include "gbt_model_impl.h"
+#include "algorithms/kernel/dtrees/gbt/gbt_model_impl.h"
 #include "algorithms/gradient_boosted_trees/gbt_regression_model.h"
 #include "algorithms/gradient_boosted_trees/gbt_regression_model_builder.h"
-#include "../regression/regression_model_impl.h"
+#include "algorithms/kernel/regression/regression_model_impl.h"
 
 namespace daal
 {
@@ -39,28 +39,27 @@ namespace regression
 {
 namespace internal
 {
-
 class ModelImpl : public daal::algorithms::gbt::regression::Model,
-    public algorithms::regression::internal::ModelInternal,
-    public daal::algorithms::gbt::internal::ModelImpl
+                  public algorithms::regression::internal::ModelInternal,
+                  public daal::algorithms::gbt::internal::ModelImpl
 {
 public:
     friend class gbt::regression::ModelBuilder;
     typedef gbt::internal::ModelImpl ImplType;
     typedef algorithms::regression::internal::ModelInternal RegressionImplType;
 
-    ModelImpl(size_t nFeatures = 0) : RegressionImplType(nFeatures){}
-    ~ModelImpl(){}
+    ModelImpl(size_t nFeatures = 0) : RegressionImplType(nFeatures) {}
+    ~ModelImpl() {}
 
-    virtual size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE{ return RegressionImplType::getNumberOfFeatures(); }
+    virtual size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE { return RegressionImplType::getNumberOfFeatures(); }
 
     //Implementation of regression::Model
     virtual size_t numberOfTrees() const DAAL_C11_OVERRIDE;
-    virtual void traverseDF(size_t iTree, algorithms::regression::TreeNodeVisitor& visitor) const DAAL_C11_OVERRIDE;
-    virtual void traverseBF(size_t iTree, algorithms::regression::TreeNodeVisitor& visitor) const DAAL_C11_OVERRIDE;
+    virtual void traverseDF(size_t iTree, algorithms::regression::TreeNodeVisitor & visitor) const DAAL_C11_OVERRIDE;
+    virtual void traverseBF(size_t iTree, algorithms::regression::TreeNodeVisitor & visitor) const DAAL_C11_OVERRIDE;
     virtual void clear() DAAL_C11_OVERRIDE { ImplType::clear(); }
-    virtual void traverseDFS(size_t iTree, tree_utils::regression::TreeNodeVisitor& visitor) const DAAL_C11_OVERRIDE;
-    virtual void traverseBFS(size_t iTree, tree_utils::regression::TreeNodeVisitor& visitor) const DAAL_C11_OVERRIDE;
+    virtual void traverseDFS(size_t iTree, tree_utils::regression::TreeNodeVisitor & visitor) const DAAL_C11_OVERRIDE;
+    virtual void traverseBFS(size_t iTree, tree_utils::regression::TreeNodeVisitor & visitor) const DAAL_C11_OVERRIDE;
 
     virtual services::Status serializeImpl(data_management::InputDataArchive * arch) DAAL_C11_OVERRIDE;
     virtual services::Status deserializeImpl(const data_management::OutputDataArchive * arch) DAAL_C11_OVERRIDE;

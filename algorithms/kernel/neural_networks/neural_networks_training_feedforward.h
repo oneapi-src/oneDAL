@@ -28,7 +28,7 @@
 #include "algorithms/optimization_solver/objective_function/precomputed_batch.h"
 #include "algorithms/optimization_solver/iterative_solver/iterative_solver_batch.h"
 #include "algorithms/neural_networks/neural_networks_types.h"
-#include "service_numeric_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 namespace daal
 {
@@ -40,24 +40,23 @@ namespace internal
 {
 using namespace daal::internal;
 
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 class Solver
 {
 public:
     typedef optimization_solver::precomputed::Batch<algorithmFPType> ObjectiveFunction;
-    typedef services::SharedPtr<optimization_solver::iterative_solver::Batch>  IterativeSolverPtr;
+    typedef services::SharedPtr<optimization_solver::iterative_solver::Batch> IterativeSolverPtr;
 
     Solver();
     ~Solver();
-    services::Status updateWeightsAndBiases(
-                const data_management::NumericTablePtr &weightsAndBiases,
-                const data_management::NumericTablePtr &weightsAndBiasesDerivatives);
+    services::Status updateWeightsAndBiases(const data_management::NumericTablePtr & weightsAndBiases,
+                                            const data_management::NumericTablePtr & weightsAndBiasesDerivatives);
 
     data_management::NumericTablePtr getMinimum();
-    services::Status init(const IterativeSolverPtr &_solver);
+    services::Status init(const IterativeSolverPtr & _solver);
     services::Status setSolverOptionalResult(algorithms::OptionalArgumentPtr optRes)
     {
-        if(solverResult && optRes)
+        if (solverResult && optRes)
         {
             solverResult->set(optimization_solver::iterative_solver::optionalResult, optRes);
         }
@@ -65,14 +64,15 @@ public:
     }
     algorithms::OptionalArgumentPtr getSolverOptionalResult()
     {
-        if(solverResult)
+        if (solverResult)
         {
             return solverResult->get(optimization_solver::iterative_solver::optionalResult);
         }
         return algorithms::OptionalArgumentPtr();
     }
-    size_t getNIterations() const {return _nIterationSolver;}
-    size_t getBatchSize() const {return _batchSize;}
+    size_t getNIterations() const { return _nIterationSolver; }
+    size_t getBatchSize() const { return _batchSize; }
+
 protected:
     services::SharedPtr<ObjectiveFunction> precomputed;
     IterativeSolverPtr solver;
@@ -85,7 +85,7 @@ protected:
 class LearnableLayerIndices
 {
 public:
-    LearnableLayerIndices(ForwardLayers *forwardLayers);
+    LearnableLayerIndices(ForwardLayers * forwardLayers);
     virtual ~LearnableLayerIndices();
 
     size_t nLearnable() const;
@@ -93,14 +93,15 @@ public:
     size_t layerIndex(size_t idx) const;
 
     bool isValid() const;
+
 protected:
     size_t nLearnableLayers;
     TArray<size_t, sse2> layerIndices;
 };
 
-}
-}
-}
-}
+} // namespace internal
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

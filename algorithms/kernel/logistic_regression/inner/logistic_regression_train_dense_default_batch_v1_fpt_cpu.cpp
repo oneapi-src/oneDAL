@@ -21,8 +21,8 @@
 //--
 */
 
-#include "logistic_regression_train_container_v1.h"
-#include "logistic_regression_train_dense_default_v1_impl.i"
+#include "algorithms/kernel/logistic_regression/inner/logistic_regression_train_container_v1.h"
+#include "algorithms/kernel/logistic_regression/inner/logistic_regression_train_dense_default_v1_impl.i"
 
 namespace daal
 {
@@ -42,7 +42,7 @@ namespace internal
 template class I1TrainBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
 
-}// namespace training
-}// namespace logistic_regression
-}// namespace algorithms
-}// namespace daal
+} // namespace training
+} // namespace logistic_regression
+} // namespace algorithms
+} // namespace daal

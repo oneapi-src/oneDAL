@@ -22,14 +22,14 @@
 #ifndef __ZSCORE_BASE_H__
 #define __ZSCORE_BASE_H__
 
-#include "inner/zscore_v1.h"
-#include "inner/zscore_v2.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "service_math.h"
-#include "service_numeric_table.h"
-#include "service_error_handling.h"
-#include "threading.h"
+#include "algorithms/kernel/normalization/zscore/inner/zscore_v1.h"
+#include "algorithms/kernel/normalization/zscore/inner/zscore_v2.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "externals/service_math.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "algorithms/threading/threading.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -50,11 +50,10 @@ namespace internal
  *  in case floating point type of intermediate calculations
  *  and method of calculations are different
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class ZScoreKernelBase : public Kernel
 {
 public:
-
     /**
     *  \brief Function that computes z-score normalization for interface1
     *
@@ -62,7 +61,7 @@ public:
     *  \param resultTable[out]  Table that stores algotithm's results
     *  \param parameter[in]     Parameters of the algorithm
     */
-    Status compute(NumericTable &inputTable, NumericTable &resultTable, const daal::algorithms::Parameter &parameter);
+    Status compute(NumericTable & inputTable, NumericTable & resultTable, const daal::algorithms::Parameter & parameter);
 
     /**
      *  \brief Function that computes z-score normalization
@@ -73,34 +72,27 @@ public:
      *  \param resultVariances[out]  Table that stores variances results
      *  \param parameter[in]     Parameters of the algorithm
      */
-    Status compute(NumericTable &inputTable, NumericTable &resultTable,
-                   NumericTable &resultMeans,
-                   NumericTable &resultVariances,
-                   const daal::algorithms::Parameter &parameter);
+    Status compute(NumericTable & inputTable, NumericTable & resultTable, NumericTable & resultMeans, NumericTable & resultVariances,
+                   const daal::algorithms::Parameter & parameter);
 
 protected:
-    Status common_compute(NumericTable &inputTable,
-                          NumericTable &resultTable,
-                          algorithmFPType* means_total,
-                          algorithmFPType* variances_total,
-                          const daal::algorithms::Parameter &parameter);
+    Status common_compute(NumericTable & inputTable, NumericTable & resultTable, algorithmFPType * means_total, algorithmFPType * variances_total,
+                          const daal::algorithms::Parameter & parameter);
 
-    virtual Status computeMeanVariance_thr(NumericTable &inputTable,
-                                           algorithmFPType* resultMean,
-                                           algorithmFPType* resultVariance,
-                                           const daal::algorithms::Parameter &parameter) = 0;
+    virtual Status computeMeanVariance_thr(NumericTable & inputTable, algorithmFPType * resultMean, algorithmFPType * resultVariance,
+                                           const daal::algorithms::Parameter & parameter) = 0;
 };
 
 template <typename algorithmFPType, Method method, CpuType cpu>
 class ZScoreKernel : public ZScoreKernelBase<algorithmFPType, cpu>
 {};
 
-} // namespace daal::internal
+} // namespace internal
 } // namespace zscore
 } // namespace normalization
 } // namespace algorithms
 } // namespace daal
 
-#include "zscore_impl.i"
+#include "algorithms/kernel/normalization/zscore/zscore_impl.i"
 
 #endif

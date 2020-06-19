@@ -21,9 +21,9 @@
 //--
 */
 
-#include "sorting_batch_container.h"
-#include "sorting_kernel.h"
-#include "sorting_impl.i"
+#include "algorithms/kernel/sorting/sorting_batch_container.h"
+#include "algorithms/kernel/sorting/sorting_kernel.h"
+#include "algorithms/kernel/sorting/sorting_impl.i"
 
 namespace daal
 {
@@ -33,19 +33,17 @@ namespace sorting
 {
 namespace interface1
 {
-
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
 }
 namespace internal
 {
-
 template class SortingKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 
-} // namespace daal::algorithms::sorting::internal
+} // namespace internal
 
-} // namespace daal::algorithms::sorting
+} // namespace sorting
 
-} // namespace daal::algorithms
+} // namespace algorithms
 
 } // namespace daal

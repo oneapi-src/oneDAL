@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/ridge_regression/ridge_regression_predict_types.h"
-#include "serialization_utils.h"
+#include "service/kernel/serialization_utils.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -41,7 +41,7 @@ __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_RIDGE_REGRESSION_PREDI
 
 /** Default constructor */
 Input::Input() : linear_model::prediction::Input(lastModelInputId + 1) {}
-Input::Input(const Input& other) : linear_model::prediction::Input(other){}
+Input::Input(const Input & other) : linear_model::prediction::Input(other) {}
 
 /**
  * Returns an input object for making ridge regression model-based prediction
@@ -68,7 +68,7 @@ ridge_regression::ModelPtr Input::get(ModelInputId id) const
  * \param[in] id      Identifier of the input object
  * \param[in] value   %Input object
  */
-void Input::set(NumericTableInputId id, const NumericTablePtr &value)
+void Input::set(NumericTableInputId id, const NumericTablePtr & value)
 {
     linear_model::prediction::Input::set(linear_model::prediction::NumericTableInputId(id), value);
 }
@@ -82,7 +82,6 @@ void Input::set(ModelInputId id, const ridge_regression::ModelPtr & value)
 {
     linear_model::prediction::Input::set(linear_model::prediction::ModelInputId(id), value);
 }
-
 
 Result::Result() : linear_model::prediction::Result(lastResultId + 1) {}
 
@@ -101,7 +100,7 @@ NumericTablePtr Result::get(ResultId id) const
  * \param[in] id      Identifier of the input object
  * \param[in] value   %Input object
  */
-void Result::set(ResultId id, const NumericTablePtr &value)
+void Result::set(ResultId id, const NumericTablePtr & value)
 {
     linear_model::prediction::Result::set(linear_model::prediction::ResultId(id), value);
 }

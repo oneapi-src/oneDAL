@@ -42,7 +42,7 @@ using namespace daal::data_management;
 using namespace daal::services;
 
 /* Input data set parameters */
-string datasetName = "../data/batch/layer.csv";
+string datasetName     = "../data/batch/layer.csv";
 const size_t dimension = 1;
 
 int main()
@@ -65,8 +65,8 @@ int main()
     printTensor(forwardResult->get(forward::value), "Forward softmax layer result (first 5 rows):", 5);
 
     /* Get the size of forward softmax layer output */
-    const Collection<size_t> &gDims = forwardResult->get(forward::value)->getDimensions();
-    TensorPtr tensorDataBack = TensorPtr(new HomogenTensor<>(gDims, Tensor::doAllocate, 0.01f));
+    const Collection<size_t> & gDims = forwardResult->get(forward::value)->getDimensions();
+    TensorPtr tensorDataBack         = TensorPtr(new HomogenTensor<>(gDims, Tensor::doAllocate, 0.01f));
 
     /* Create an algorithm to compute backward softmax layer results using default method */
     softmax::backward::Batch<> softmaxLayerBackward;

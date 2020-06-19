@@ -21,9 +21,9 @@
 //--
 */
 
-#include "classifier_predict_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/classifier/classifier_predict_types.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -45,9 +45,9 @@ Input::Input() : InputIface(lastModelInputId + 1) {}
  */
 size_t Input::getNumberOfRows() const
 {
-    size_t nRows = 0;
+    size_t nRows                               = 0;
     data_management::NumericTablePtr dataTable = get(data);
-    if(dataTable)
+    if (dataTable)
     {
         nRows = dataTable->getNumberOfRows();
     }
@@ -59,7 +59,8 @@ size_t Input::getNumberOfRows() const
 }
 
 /**
- * Returns the input Numeric Table object in the prediction stage of the classification algorithm
+ * Returns the input Numeric Table object in the prediction stage of the
+ * classification algorithm
  * \param[in] id    Identifier of the input NumericTable object
  * \return          Input object that corresponds to the given identifier
  */
@@ -69,7 +70,8 @@ data_management::NumericTablePtr Input::get(NumericTableInputId id) const
 }
 
 /**
- * Returns the input Model object in the prediction stage of the classification algorithm
+ * Returns the input Model object in the prediction stage of the classification
+ * algorithm
  * \param[in] id    Identifier of the input Model object
  * \return          Input object that corresponds to the given identifier
  */
@@ -79,21 +81,23 @@ classifier::ModelPtr Input::get(ModelInputId id) const
 }
 
 /**
- * Sets the input NumericTable object in the prediction stage of the classification algorithm
+ * Sets the input NumericTable object in the prediction stage of the
+ * classification algorithm
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(NumericTableInputId id, const data_management::NumericTablePtr &ptr)
+void Input::set(NumericTableInputId id, const data_management::NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
 /**
- * Sets the input Model object in the prediction stage of the classifier algorithm
+ * Sets the input Model object in the prediction stage of the classifier
+ * algorithm
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(ModelInputId id, const ModelPtr &ptr)
+void Input::set(ModelInputId id, const ModelPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -103,17 +107,17 @@ void Input::set(ModelInputId id, const ModelPtr &ptr)
  * \param[in] parameter Pointer to the structure of the algorithm parameters
  * \param[in] method    Computation method
  */
-services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     return checkImpl(parameter);
 }
 
-services::Status Input::checkImpl(const daal::algorithms::Parameter *parameter) const
+services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter) const
 {
     services::Status s;
-    if(parameter != NULL)
+    if (parameter != NULL)
     {
-        const Parameter *algParameter = static_cast<const Parameter *>(parameter);
+        const Parameter * algParameter = static_cast<const Parameter *>(parameter);
         DAAL_CHECK_EX(algParameter->nClasses > 1, services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
     }
 
@@ -129,7 +133,7 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter *parameter) 
     DAAL_CHECK_EX(trainingDataFeatures == predictionDataFeatures, services::ErrorIncorrectNumberOfColumns, services::ArgumentName, dataStr());
     return s;
 }
-}
+} // namespace interface1
 
 namespace interface2
 {
@@ -153,7 +157,7 @@ data_management::NumericTablePtr Result::get(ResultId id) const
  * \param[in] id    Identifier of the prediction result, \ref ResultId
  * \param[in] value Pointer to the prediction result
  */
-void Result::set(ResultId id, const data_management::NumericTablePtr &value)
+void Result::set(ResultId id, const data_management::NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
@@ -164,13 +168,12 @@ void Result::set(ResultId id, const data_management::NumericTablePtr &value)
  * \param[in] parameter Pointer to the algorithm parameters
  * \param[in] method    Computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
-           int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     return checkImpl(input, parameter);
 }
 
-services::Status Result::checkImpl(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter) const
+services::Status Result::checkImpl(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter) const
 {
     services::Status s;
     const size_t nRows = (static_cast<const InputIface *>(input))->getNumberOfRows();
@@ -182,17 +185,19 @@ services::Status Result::checkImpl(const daal::algorithms::Input *input, const d
     const Parameter * const par = static_cast<const Parameter *>(parameter);
     DAAL_CHECK(par, services::ErrorNullParameterNotSupported);
 
-    if(par->resultsToEvaluate & computeClassLabels)
+    if (par->resultsToEvaluate & computeClassLabels)
         DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(prediction).get(), predictionStr(), data_management::packed_mask, 0, 1, nRows));
-    if(par->resultsToEvaluate & computeClassProbabilities)
-        DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(probabilities).get(), probabilitiesStr(), data_management::packed_mask, 0, par->nClasses, nRows));
-    if(par->resultsToEvaluate & computeClassLogProbabilities)
-        DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(logProbabilities).get(), logProbabilitiesStr(), data_management::packed_mask, 0, par->nClasses, nRows));
+    if (par->resultsToEvaluate & computeClassProbabilities)
+        DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(probabilities).get(), probabilitiesStr(), data_management::packed_mask, 0,
+                                                                par->nClasses, nRows));
+    if (par->resultsToEvaluate & computeClassLogProbabilities)
+        DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(logProbabilities).get(), logProbabilitiesStr(), data_management::packed_mask, 0,
+                                                                par->nClasses, nRows));
 
     return s;
 }
-}
-}
-}
-}
-}
+} // namespace interface2
+} // namespace prediction
+} // namespace classifier
+} // namespace algorithms
+} // namespace daal

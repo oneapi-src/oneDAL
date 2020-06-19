@@ -21,8 +21,8 @@
 //--
 */
 
-#include "gbt_classification_train_container_v1.h"
-#include "gbt_classification_train_dense_default_impl.i"
+#include "algorithms/kernel/dtrees/gbt/classification/inner/gbt_classification_train_container_v1.h"
+#include "algorithms/kernel/dtrees/gbt/classification/gbt_classification_train_dense_default_impl.i"
 
 namespace daal
 {
@@ -38,8 +38,8 @@ namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
-}
-}
-}
-}
-}
+} // namespace training
+} // namespace classification
+} // namespace gbt
+} // namespace algorithms
+} // namespace daal

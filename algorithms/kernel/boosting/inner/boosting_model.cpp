@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/boosting/boosting_model.h"
-#include "daal_strings.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -35,20 +35,20 @@ namespace boosting
 {
 namespace interface1
 {
-
 /** Default constructor. Sets the decision stump as the default weak learner */
-Parameter::Parameter() :
-    weakLearnerTraining(new stump::training::Batch<>),
-    weakLearnerPrediction(new stump::prediction::Batch<>) {}
+Parameter::Parameter() : weakLearnerTraining(new stump::training::Batch<>), weakLearnerPrediction(new stump::prediction::Batch<>) {}
 
 /**
- * Constructs %boosting algorithm parameters from weak learner training and prediction algorithms
- * \param[in] wlTrain       Pointer to the training algorithm of the weak learner
- * \param[in] wlPredict     Pointer to the prediction algorithm of the weak learner
+ * Constructs %boosting algorithm parameters from weak learner training and
+ * prediction algorithms
+ * \param[in] wlTrain       Pointer to the training algorithm of the weak
+ * learner
+ * \param[in] wlPredict     Pointer to the prediction algorithm of the weak
+ * learner
  */
-Parameter::Parameter(const SharedPtr<weak_learner::training::Batch>& wlTrain,
-    const SharedPtr<weak_learner::prediction::Batch>& wlPredict) :
-    weakLearnerTraining(wlTrain), weakLearnerPrediction(wlPredict) {}
+Parameter::Parameter(const SharedPtr<weak_learner::training::Batch> & wlTrain, const SharedPtr<weak_learner::prediction::Batch> & wlPredict)
+    : weakLearnerTraining(wlTrain), weakLearnerPrediction(wlPredict)
+{}
 
 Status Parameter::check() const
 {
@@ -60,15 +60,17 @@ Status Parameter::check() const
     return s;
 }
 
-Model::Model(size_t nFeatures, services::Status &st) :
-    _nFeatures(nFeatures),
-    _models(new data_management::DataCollection())
+Model::Model(size_t nFeatures, services::Status & st) : _nFeatures(nFeatures), _models(new data_management::DataCollection())
 {
-    if (!_models) { st.add(services::ErrorMemoryAllocationFailed); }
+    if (!_models)
+    {
+        st.add(services::ErrorMemoryAllocationFailed);
+    }
 }
 
 /**
- *  Returns the number of weak learners constructed during training of the %boosting algorithm
+ *  Returns the number of weak learners constructed during training of the
+ * %boosting algorithm
  *  \return The number of weak learners
  */
 size_t Model::getNumberOfWeakLearners() const
@@ -77,13 +79,14 @@ size_t Model::getNumberOfWeakLearners() const
 }
 
 /**
- *  Returns weak learner model constructed during training of the %boosting algorithm
+ *  Returns weak learner model constructed during training of the %boosting
+ * algorithm
  *  \param[in] idx  Index of the model in the collection
  *  \return Weak Learner model corresponding to the index idx
  */
 weak_learner::ModelPtr Model::getWeakLearnerModel(size_t idx) const
 {
-    if(idx < _models->size())
+    if (idx < _models->size())
     {
         return staticPointerCast<weak_learner::Model, SerializationIface>((*_models)[idx]);
     }
@@ -103,7 +106,6 @@ void Model::clearWeakLearnerModels()
 {
     _models->clear();
 }
-
 
 } // namespace interface1
 } // namespace boosting

@@ -23,7 +23,7 @@
 
 #include "services/daal_defines.h"
 #include "algorithms/linear_model/linear_model_training_types.h"
-#include "daal_strings.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -35,10 +35,9 @@ namespace training
 {
 namespace interface1
 {
-PartialResult::PartialResult(size_t nElements) : regression::training::PartialResult(nElements)
-{}
-}
-}
-}
-}
-}
+PartialResult::PartialResult(size_t nElements) : regression::training::PartialResult(nElements) {}
+} // namespace interface1
+} // namespace training
+} // namespace linear_model
+} // namespace algorithms
+} // namespace daal

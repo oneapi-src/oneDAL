@@ -21,14 +21,14 @@
 //--
 */
 
-#include "kernel.h"
-#include "implicit_als_predict_ratings_batch.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/implicit_als/implicit_als_predict_ratings_batch.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(implicit_als::prediction::ratings::BatchContainer, batch, \
-                                      DAAL_FPTYPE, implicit_als::prediction::ratings::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(implicit_als::prediction::ratings::BatchContainer, batch, DAAL_FPTYPE,
+                                      implicit_als::prediction::ratings::defaultDense)
 }
-}
+} // namespace daal

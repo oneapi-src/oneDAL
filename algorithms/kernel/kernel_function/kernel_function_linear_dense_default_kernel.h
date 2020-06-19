@@ -24,8 +24,8 @@
 #ifndef __KERNEL_FUNCTION_DENSE_KERNEL_H__
 #define __KERNEL_FUNCTION_DENSE_KERNEL_H__
 
-#include "kernel_function_dense_base.h"
-#include "kernel_function_linear_base.h"
+#include "algorithms/kernel/kernel_function/kernel_function_dense_base.h"
+#include "algorithms/kernel/kernel_function/kernel_function_linear_base.h"
 
 using namespace daal::internal;
 
@@ -39,19 +39,20 @@ namespace linear
 {
 namespace internal
 {
-
 template <typename algorithmFPType, CpuType cpu>
-struct KernelImplLinear<defaultDense, algorithmFPType, cpu> :
-    public daal::algorithms::kernel_function::internal::KernelImplBase<algorithmFPType, cpu>
+struct KernelImplLinear<defaultDense, algorithmFPType, cpu> : public daal::algorithms::kernel_function::internal::KernelImplBase<algorithmFPType, cpu>
 {
-    virtual services::Status computeInternalVectorVector(const NumericTable *a1, const NumericTable *a2, NumericTable *r, const ParameterBase *par);
-    virtual services::Status computeInternalMatrixVector(const NumericTable *a1, const NumericTable *a2, NumericTable *r, const ParameterBase *par);
-    virtual services::Status computeInternalMatrixMatrix(const NumericTable *a1, const NumericTable *a2, NumericTable *r, const ParameterBase *par);
+    virtual services::Status computeInternalVectorVector(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
+                                                         const ParameterBase * par);
+    virtual services::Status computeInternalMatrixVector(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
+                                                         const ParameterBase * par);
+    virtual services::Status computeInternalMatrixMatrix(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
+                                                         const ParameterBase * par);
 };
 
-} //internal
+} // namespace internal
 
-} //linear
+} // namespace linear
 
 } // namespace kernel_function
 

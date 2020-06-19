@@ -19,8 +19,7 @@
 //  Implementation of concat layer container.
 //--
 
-
-#include "concat_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/concat_layer/forward/concat_layer_forward_batch_container.h"
 
 namespace daal
 {
@@ -33,9 +32,9 @@ namespace layers
 namespace forward
 {
 __DAAL_INSTANTIATE_DISPATCH_LAYER_CONTAINER_FORWARD(neural_networks::layers::concat::forward::interface1::BatchContainer, DAAL_FPTYPE,
-                                      neural_networks::layers::concat::defaultDense)
+                                                    neural_networks::layers::concat::defaultDense)
 }
-}
-}
-}
-}
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

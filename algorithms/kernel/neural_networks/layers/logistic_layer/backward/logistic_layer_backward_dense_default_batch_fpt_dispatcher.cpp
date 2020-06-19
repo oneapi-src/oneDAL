@@ -19,8 +19,7 @@
 //  Implementation of logistic function calculation algorithm container.
 //--
 
-
-#include "logistic_layer_backward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/logistic_layer/backward/logistic_layer_backward_batch_container.h"
 
 namespace daal
 {

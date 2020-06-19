@@ -22,9 +22,9 @@
 #ifndef __MCG59_KERNEL_H__
 #define __MCG59_KERNEL_H__
 
-#include "engines/mcg59/mcg59.h"
-#include "kernel.h"
-#include "numeric_table.h"
+#include "algorithms/engines/mcg59/mcg59.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
 
 using namespace daal::services;
 using namespace daal::data_management;
@@ -42,11 +42,11 @@ namespace internal
 /**
  *  \brief Kernel for mcg59 calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class Mcg59Kernel : public Kernel
 {
 public:
-    Status compute(NumericTable *resultTable);
+    Status compute(NumericTable * resultTable);
 };
 
 } // namespace internal

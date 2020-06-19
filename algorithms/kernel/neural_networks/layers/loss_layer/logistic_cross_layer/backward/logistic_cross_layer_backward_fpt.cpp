@@ -21,9 +21,9 @@
 //--
 */
 
-#include "logistic_cross_layer_types.h"
-#include "logistic_cross_layer_backward_types.h"
-#include "daal_strings.h"
+#include "algorithms/neural_networks/layers/loss/logistic_cross_layer_types.h"
+#include "algorithms/neural_networks/layers/loss/logistic_cross_layer_backward_types.h"
+#include "service/kernel/daal_strings.h"
 using namespace daal::services;
 
 namespace daal
@@ -49,15 +49,18 @@ namespace interface1
  * \param[in] parameter %Parameter of the backward logistic cross-entropy layer
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const layers::Parameter *param = static_cast<const Parameter *>(parameter);
-    if (!param->propagateGradient) { return services::Status(); }
+    const layers::Parameter * param = static_cast<const Parameter *>(parameter);
+    if (!param->propagateGradient)
+    {
+        return services::Status();
+    }
 
     services::Status s;
     if (!get(layers::backward::gradient))
     {
-        const Input *in = static_cast<const Input *>(input);
+        const Input * in = static_cast<const Input *>(input);
 
         data_management::TensorPtr probabilitiesTable = in->get(auxData);
 
@@ -68,13 +71,14 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace backward
-}// namespace logistic_cross
-}// namespace loss
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace logistic_cross
+} // namespace loss
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

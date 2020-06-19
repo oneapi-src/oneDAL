@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/k_nearest_neighbors/kdtree_knn_classification_training_types.h"
-#include "serialization_utils.h"
+#include "service/kernel/serialization_utils.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -48,8 +48,7 @@ Result::Result() : classifier::training::Result() {}
  */
 daal::algorithms::kdtree_knn_classification::ModelPtr Result::get(classifier::training::ResultId id) const
 {
-    return services::staticPointerCast<daal::algorithms::kdtree_knn_classification::Model,
-                                      data_management::SerializationIface>(Argument::get(id));
+    return services::staticPointerCast<daal::algorithms::kdtree_knn_classification::Model, data_management::SerializationIface>(Argument::get(id));
 }
 
 } // namespace interface1

@@ -25,8 +25,8 @@
 #ifndef __LASSO_REGRESSION_TRAIN_KERNEL_H__
 #define __LASSO_REGRESSION_TRAIN_KERNEL_H__
 
-#include "numeric_table.h"
-#include "algorithm_base_common.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/algorithm_base_common.h"
 #include "algorithms/optimization_solver/objective_function/mse_batch.h"
 #include "algorithms/lasso_regression/lasso_regression_training_types.h"
 
@@ -43,20 +43,19 @@ namespace training
 {
 namespace internal
 {
-
 template <typename algorithmFPType, Method method, CpuType cpu>
 class TrainBatchKernel : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(const HostAppIfacePtr& pHost, const NumericTablePtr& x, const NumericTablePtr& y,
-        lasso_regression::Model& m, Result& res, const Parameter& par, services::SharedPtr<daal::algorithms::optimization_solver::mse::Batch<algorithmFPType> >& objFunc);
+    services::Status compute(const HostAppIfacePtr & pHost, const NumericTablePtr & x, const NumericTablePtr & y, lasso_regression::Model & m,
+                             Result & res, const Parameter & par,
+                             services::SharedPtr<daal::algorithms::optimization_solver::mse::Batch<algorithmFPType> > & objFunc);
 };
 
 } // namespace internal
-}
-}
-}
+} // namespace training
+} // namespace lasso_regression
+} // namespace algorithms
 } // namespace daal
-
 
 #endif

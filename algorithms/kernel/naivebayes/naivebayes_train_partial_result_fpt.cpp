@@ -21,7 +21,7 @@
 //--
 */
 
-#include "naivebayes_train_partial_result.h"
+#include "algorithms/kernel/naivebayes/naivebayes_train_partial_result.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -36,12 +36,13 @@ namespace training
 {
 namespace interface1
 {
+template DAAL_EXPORT Status PartialResult::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                                 const int method);
+template DAAL_EXPORT Status PartialResult::initialize<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                   const daal::algorithms::Parameter * parameter, const int method);
 
-template DAAL_EXPORT Status PartialResult::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
-template DAAL_EXPORT Status PartialResult::initialize<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
-
-}// namespace interface1
-}// namespace training
-}// namespace multinomial_naive_bayes
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace training
+} // namespace multinomial_naive_bayes
+} // namespace algorithms
+} // namespace daal

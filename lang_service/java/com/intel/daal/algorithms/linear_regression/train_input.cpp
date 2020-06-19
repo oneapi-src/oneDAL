@@ -21,7 +21,7 @@
 #include "com_intel_daal_algorithms_linear_regression_training_DistributedStep2MasterInput.h"
 #include "com_intel_daal_algorithms_linear_regression_training_TrainingMethod.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::linear_regression;
@@ -31,8 +31,8 @@ using namespace daal::algorithms::linear_regression;
  * Method:    cSetInput
  * Signature:(JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_Input_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_Input_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                                  jint id, jlong ntAddr)
 {
     jniInput<linear_regression::training::Input>::set<linear_regression::training::InputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -42,8 +42,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_trainin
  * Method:    cGetInput
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_Input_cGetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_Input_cGetInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                                   jint id)
 {
     return jniInput<linear_regression::training::Input>::get<linear_regression::training::InputId, NumericTable>(inputAddr, id);
 }
@@ -53,9 +53,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_traini
  * Method:    cAddInput
  * Signature:(JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_DistributedStep2MasterInput_cAddInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong presAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_DistributedStep2MasterInput_cAddInput(JNIEnv * env, jobject thisObj,
+                                                                                                                        jlong inputAddr, jint id,
+                                                                                                                        jlong presAddr)
 {
-    jniInput<linear_regression::training::DistributedInput<step2Master> >::
-        add<linear_regression::training::Step2MasterInputId, training::PartialResult>(inputAddr, id, presAddr);
+    jniInput<linear_regression::training::DistributedInput<step2Master> >::add<linear_regression::training::Step2MasterInputId,
+                                                                               training::PartialResult>(inputAddr, id, presAddr);
 }

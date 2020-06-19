@@ -18,8 +18,8 @@
 #ifndef __UNOFORM_INITIALIZER_TASK_DESCRIPTOR_H__
 #define __UNOFORM_INITIALIZER_TASK_DESCRIPTOR_H__
 
-#include "neural_networks/initializers/uniform/uniform_initializer.h"
-#include "neural_networks/initializers/uniform/uniform_initializer_types.h"
+#include "algorithms/neural_networks/initializers/uniform/uniform_initializer.h"
+#include "algorithms/neural_networks/initializers/uniform/uniform_initializer_types.h"
 
 namespace daal
 {
@@ -33,24 +33,23 @@ namespace uniform
 {
 namespace internal
 {
-
 class UniformInitializerTaskDescriptor
 {
 public:
-    UniformInitializerTaskDescriptor(Result *re, Parameter *pa);
+    UniformInitializerTaskDescriptor(Result * re, Parameter * pa);
 
-    engines::BatchBase          *engine;
-    data_management::Tensor     *result;
-    layers::forward::LayerIface *layer;
+    engines::BatchBase * engine;
+    data_management::Tensor * result;
+    layers::forward::LayerIface * layer;
     double a;
     double b;
 };
 
-} // internal
-} // uniform
-} // initializers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace uniform
+} // namespace initializers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

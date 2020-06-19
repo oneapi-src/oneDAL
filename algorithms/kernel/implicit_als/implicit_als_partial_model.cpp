@@ -21,8 +21,8 @@
 //--
 */
 
-#include "implicit_als_model.h"
-#include "daal_strings.h"
+#include "algorithms/implicit_als/implicit_als_model.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {
@@ -30,14 +30,12 @@ namespace algorithms
 {
 namespace implicit_als
 {
-DAAL_EXPORT PartialModel::PartialModel()
+DAAL_EXPORT PartialModel::PartialModel() {}
+
+DAAL_EXPORT PartialModel::PartialModel(data_management::NumericTablePtr factors, data_management::NumericTablePtr indices)
+    : _factors(factors), _indices(indices)
 {}
 
-DAAL_EXPORT PartialModel::PartialModel(data_management::NumericTablePtr factors,
-                                       data_management::NumericTablePtr indices) :
-    _factors(factors), _indices(indices)
-{}
-
-}// namespace implicit_als
-}// namespace algorithms
-}// namespace daal
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal

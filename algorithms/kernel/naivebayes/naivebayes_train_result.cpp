@@ -21,9 +21,9 @@
 //--
 */
 
-#include "multinomial_naive_bayes_training_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/naive_bayes/multinomial_naive_bayes_training_types.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -34,7 +34,6 @@ namespace algorithms
 {
 namespace multinomial_naive_bayes
 {
-
 namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Model, SERIALIZATION_NAIVE_BAYES_MODEL_ID);
@@ -63,14 +62,14 @@ multinomial_naive_bayes::ModelPtr Result::get(classifier::training::ResultId id)
 * \param[in] parameter     Parameter of the algorithm
 * \param[in] method        Computation method
 */
-services::Status Result::check(const daal::algorithms::PartialResult *partialResult, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::PartialResult * partialResult, const daal::algorithms::Parameter * parameter, int method) const
 {
     Status s;
 
-    const PartialResult *pres = static_cast<const PartialResult *>(partialResult);
-    size_t nFeatures = pres->getNumberOfFeatures();
+    const PartialResult * pres = static_cast<const PartialResult *>(partialResult);
+    size_t nFeatures           = pres->getNumberOfFeatures();
 
-    DAAL_CHECK_STATUS(s,checkImpl(nFeatures,parameter));
+    DAAL_CHECK_STATUS(s, checkImpl(nFeatures, parameter));
 
     return s;
 }
@@ -81,21 +80,21 @@ services::Status Result::check(const daal::algorithms::PartialResult *partialRes
  * \param[in] parameter  %Parameter of algorithm
  * \param[in] method     Computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     Status s;
     DAAL_CHECK_STATUS(s, classifier::training::Result::checkImpl(input, parameter));
 
-    const classifier::training::InputIface *algInput = static_cast<const classifier::training::InputIface *>(input);
+    const classifier::training::InputIface * algInput = static_cast<const classifier::training::InputIface *>(input);
 
     size_t nFeatures = algInput->getNumberOfFeatures();
 
-    DAAL_CHECK_STATUS(s, checkImpl(nFeatures,parameter));
+    DAAL_CHECK_STATUS(s, checkImpl(nFeatures, parameter));
 
     return s;
 }
 
-services::Status Result::checkImpl(size_t nFeatures,const daal::algorithms::Parameter* parameter) const
+services::Status Result::checkImpl(size_t nFeatures, const daal::algorithms::Parameter * parameter) const
 {
     Status s;
     ModelPtr resModel = get(classifier::training::model);
@@ -107,18 +106,19 @@ services::Status Result::checkImpl(size_t nFeatures,const daal::algorithms::Para
     size_t nClasses = 0;
     NumericTablePtr alphaTable;
     {
-        const multinomial_naive_bayes::Parameter *algPar = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
-        if(algPar)
+        const multinomial_naive_bayes::Parameter * algPar = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
+        if (algPar)
         {
-            nClasses = algPar->nClasses;
+            nClasses   = algPar->nClasses;
             alphaTable = algPar->alpha;
         }
     }
     {
-        const multinomial_naive_bayes::interface1::Parameter *algPar = dynamic_cast<const multinomial_naive_bayes::interface1::Parameter *>(parameter);
-        if(algPar)
+        const multinomial_naive_bayes::interface1::Parameter * algPar =
+            dynamic_cast<const multinomial_naive_bayes::interface1::Parameter *>(parameter);
+        if (algPar)
         {
-            nClasses = algPar->nClasses;
+            nClasses   = algPar->nClasses;
             alphaTable = algPar->alpha;
         }
     }
@@ -126,7 +126,7 @@ services::Status Result::checkImpl(size_t nFeatures,const daal::algorithms::Para
     s |= checkNumericTable(resModel->getLogP().get(), logPStr(), 0, 0, 1, nClasses);
     s |= checkNumericTable(resModel->getLogTheta().get(), logThetaStr(), 0, 0, nFeatures, nClasses);
 
-    if(alphaTable)
+    if (alphaTable)
     {
         s |= checkNumericTable(alphaTable.get(), alphaStr(), 0, 0, nFeatures, 1);
     }
@@ -134,8 +134,8 @@ services::Status Result::checkImpl(size_t nFeatures,const daal::algorithms::Para
     return s;
 }
 
-}// namespace interface1
-}// namespace training
-}// namespace multinomial_naive_bayes
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace training
+} // namespace multinomial_naive_bayes
+} // namespace algorithms
+} // namespace daal

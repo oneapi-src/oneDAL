@@ -24,10 +24,10 @@
 #ifndef __ADABOOST_PREDICT_IMPL_I_V1__
 #define __ADABOOST_PREDICT_IMPL_I_V1__
 
-#include "service_numeric_table.h"
-#include "collection.h"
-#include "service_math.h"
-#include "service_data_utils.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "services/collection.h"
+#include "externals/service_math.h"
+#include "service/kernel/service_data_utils.h"
 
 namespace daal
 {
@@ -42,8 +42,10 @@ namespace internal
 using namespace daal::internal;
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status I1AdaBoostPredictKernel<method, algorithmFPType, cpu>::compute(const NumericTablePtr& xTable,
-    const daal::algorithms::adaboost::interface1::Model *boostModel, const NumericTablePtr& rTable, const daal::algorithms::adaboost::interface1::Parameter *par)
+services::Status I1AdaBoostPredictKernel<method, algorithmFPType, cpu>::compute(const NumericTablePtr & xTable,
+                                                                                const daal::algorithms::adaboost::interface1::Model * boostModel,
+                                                                                const NumericTablePtr & rTable,
+                                                                                const daal::algorithms::adaboost::interface1::Parameter * par)
 {
     const size_t nVectors = xTable->getNumberOfRows();
 
@@ -51,7 +53,7 @@ services::Status I1AdaBoostPredictKernel<method, algorithmFPType, cpu>::compute(
     services::Status s;
     WriteOnlyColumns<algorithmFPType, cpu> mtR(*rTable, 0, 0, nVectors);
     DAAL_CHECK_BLOCK_STATUS(mtR);
-    algorithmFPType *r = mtR.get();
+    algorithmFPType * r = mtR.get();
     DAAL_ASSERT(r);
 
     {
@@ -62,17 +64,17 @@ services::Status I1AdaBoostPredictKernel<method, algorithmFPType, cpu>::compute(
     }
 
     const algorithmFPType zero = (algorithmFPType)0.0;
-    const algorithmFPType one = (algorithmFPType)1.0;
-    for(size_t j = 0; j < nVectors; j++)
+    const algorithmFPType one  = (algorithmFPType)1.0;
+    for (size_t j = 0; j < nVectors; j++)
     {
         r[j] = ((r[j] >= zero) ? one : -one);
     }
     return s;
 }
-} // namespace daal::algorithms::adaboost::prediction::internal
-}
-}
-}
+} // namespace internal
+} // namespace prediction
+} // namespace adaboost
+} // namespace algorithms
 } // namespace daal
 
 #endif

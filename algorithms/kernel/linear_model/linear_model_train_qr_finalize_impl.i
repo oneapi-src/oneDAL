@@ -21,8 +21,8 @@
 //--
 */
 
-#include "linear_model_train_qr_kernel.h"
-#include "service_lapack.h"
+#include "algorithms/kernel/linear_model/linear_model_train_qr_kernel.h"
+#include "externals/service_lapack.h"
 
 namespace daal
 {
@@ -42,12 +42,10 @@ using namespace daal::internal;
 using namespace daal::services::internal;
 
 template <typename algorithmFPType, CpuType cpu>
-Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &rTable,
-                                                     const NumericTable &qtyTable,
-                                                     NumericTable &rFinalTable, NumericTable &qtyFinalTable,
-                                                     NumericTable &betaTable, bool interceptFlag)
+Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable & rTable, const NumericTable & qtyTable, NumericTable & rFinalTable,
+                                                     NumericTable & qtyFinalTable, NumericTable & betaTable, bool interceptFlag)
 {
-    const DAAL_INT nBetas    (betaTable.getNumberOfColumns());
+    const DAAL_INT nBetas(betaTable.getNumberOfColumns());
     const DAAL_INT nResponses(betaTable.getNumberOfRows());
     const DAAL_INT nBetasIntercept = (interceptFlag ? nBetas : (nBetas - 1));
 
@@ -55,42 +53,42 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &rTable,
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nResponses * nBetasIntercept, sizeof(algorithmFPType));
 
     TArrayScalable<algorithmFPType, cpu> betaBufferArray(nResponses * nBetasIntercept);
-    algorithmFPType *betaBuffer = betaBufferArray.get();
+    algorithmFPType * betaBuffer = betaBufferArray.get();
     DAAL_CHECK_MALLOC(betaBuffer);
 
     {
         ReadRowsType rBlock(const_cast<NumericTable &>(rTable), 0, nBetasIntercept);
         DAAL_CHECK_BLOCK_STATUS(rBlock);
-        const algorithmFPType *r = rBlock.get();
+        const algorithmFPType * r = rBlock.get();
 
         {
             ReadRowsType qtyBlock(const_cast<NumericTable &>(qtyTable), 0, nResponses);
             DAAL_CHECK_BLOCK_STATUS(qtyBlock);
-            const algorithmFPType *qty = qtyBlock.get();
+            const algorithmFPType * qty = qtyBlock.get();
 
             if (&rTable != &rFinalTable || &qtyTable != &qtyFinalTable)
             {
                 int result = 0;
                 WriteOnlyRowsType rFinalBlock(rFinalTable, 0, nBetasIntercept);
                 DAAL_CHECK_BLOCK_STATUS(rFinalBlock);
-                algorithmFPType *rFinal = rFinalBlock.get();
+                algorithmFPType * rFinal = rFinalBlock.get();
 
                 WriteOnlyRowsType qtyFinalBlock(qtyFinalTable, 0, nResponses);
                 DAAL_CHECK_BLOCK_STATUS(qtyFinalBlock);
-                algorithmFPType *qtyFinal = qtyFinalBlock.get();
+                algorithmFPType * qtyFinal = qtyFinalBlock.get();
 
-                const size_t   rSizeInBytes(sizeof(algorithmFPType) * nBetasIntercept * nBetasIntercept);
+                const size_t rSizeInBytes(sizeof(algorithmFPType) * nBetasIntercept * nBetasIntercept);
                 const size_t qtySizeInBytes(sizeof(algorithmFPType) * nBetasIntercept * nResponses);
 
-                result |= daal::services::internal::daal_memcpy_s(  rFinal,   rSizeInBytes,   r,   rSizeInBytes);
+                result |= daal::services::internal::daal_memcpy_s(rFinal, rSizeInBytes, r, rSizeInBytes);
                 result |= daal::services::internal::daal_memcpy_s(qtyFinal, qtySizeInBytes, qty, qtySizeInBytes);
                 DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
             }
 
             for (size_t i = 0; i < nResponses; i++)
             {
-              PRAGMA_IVDEP
-              PRAGMA_VECTOR_ALWAYS
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
                 for (size_t j = 0; j < nBetasIntercept; j++)
                 {
                     betaBuffer[i * nBetasIntercept + j] = qty[j * nResponses + i];
@@ -100,28 +98,26 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &rTable,
 
         /* Solve triangular linear system R'*beta = Y*Q' */
         DAAL_INT info(0);
-        char up = 'U';
-        char trans = 'T';
+        char up     = 'U';
+        char trans  = 'T';
         char nodiag = 'N';
-        Lapack<algorithmFPType, cpu>::xtrtrs(&up, &trans, &nodiag, const_cast<DAAL_INT *>(&nBetasIntercept),
-                                             const_cast<DAAL_INT *>(&nResponses),
-                                             const_cast<algorithmFPType *>(r),
-                                             const_cast<DAAL_INT *>(&nBetasIntercept), betaBuffer,
+        Lapack<algorithmFPType, cpu>::xtrtrs(&up, &trans, &nodiag, const_cast<DAAL_INT *>(&nBetasIntercept), const_cast<DAAL_INT *>(&nResponses),
+                                             const_cast<algorithmFPType *>(r), const_cast<DAAL_INT *>(&nBetasIntercept), betaBuffer,
                                              const_cast<DAAL_INT *>(&nBetasIntercept), &info);
         DAAL_CHECK(info == 0, services::ErrorLinearRegressionInternal);
     }
 
     WriteOnlyRowsType betaBlock(betaTable, 0, nResponses);
     DAAL_CHECK_BLOCK_STATUS(betaBlock);
-    algorithmFPType *beta = betaBlock.get();
+    algorithmFPType * beta = betaBlock.get();
 
     if (nBetasIntercept == nBetas)
     {
-        for(size_t i = 0; i < nResponses; i++)
+        for (size_t i = 0; i < nResponses; i++)
         {
-          PRAGMA_IVDEP
-          PRAGMA_VECTOR_ALWAYS
-            for(size_t j = 1; j < nBetas; j++)
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (size_t j = 1; j < nBetas; j++)
             {
                 beta[i * nBetas + j] = betaBuffer[i * nBetas + j - 1];
             }
@@ -130,11 +126,11 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &rTable,
     }
     else
     {
-        for(size_t i = 0; i < nResponses; i++)
+        for (size_t i = 0; i < nResponses; i++)
         {
-          PRAGMA_IVDEP
-          PRAGMA_VECTOR_ALWAYS
-            for(size_t j = 0; j < nBetas - 1; j++)
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (size_t j = 0; j < nBetas - 1; j++)
             {
                 beta[i * nBetas + j + 1] = betaBuffer[i * nBetasIntercept + j];
             }
@@ -145,9 +141,9 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &rTable,
     return services::Status();
 }
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace training
+} // namespace qr
+} // namespace linear_model
+} // namespace algorithms
+} // namespace daal

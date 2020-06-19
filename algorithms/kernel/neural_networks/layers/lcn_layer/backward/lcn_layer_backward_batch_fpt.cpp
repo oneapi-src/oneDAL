@@ -21,7 +21,7 @@
 //--
 */
 
-#include "lcn_layer_backward_batch.h"
+#include "algorithms/kernel/neural_networks/layers/lcn_layer/backward/lcn_layer_backward_batch.h"
 
 namespace daal
 {
@@ -37,13 +37,13 @@ namespace backward
 {
 namespace interface1
 {
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
-
-}// namespace interface1
-}// namespace forward
-}// namespace lcn
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace backward
+} // namespace lcn
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

@@ -24,12 +24,12 @@
 #ifndef __ELU_LAYER_BACKWARD_IMPL_I__
 #define __ELU_LAYER_BACKWARD_IMPL_I__
 
-#include "elu_common.h"
+#include "algorithms/kernel/neural_networks/layers/elu_layer/elu_common.h"
 
-#include "service_math.h"
-#include "service_tensor.h"
-#include "service_mkl_tensor.h"
-#include "service_numeric_table.h"
+#include "externals/service_math.h"
+#include "service/kernel/data_management/service_tensor.h"
+#include "service/kernel/data_management/service_mkl_tensor.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 namespace daal
 {
@@ -45,15 +45,11 @@ namespace backward
 {
 namespace internal
 {
-
 using namespace daal::internal;
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status ELUKernel<algorithmFPType, method, cpu>::compute(const Parameter &parameter,
-                                                        const Tensor &inputGradientTensor,
-                                                        const Tensor &auxDataTensor,
-                                                        const Tensor *auxValueTensor,
-                                                              Tensor &gradientTensor)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status ELUKernel<algorithmFPType, method, cpu>::compute(const Parameter & parameter, const Tensor & inputGradientTensor, const Tensor & auxDataTensor,
+                                                        const Tensor * auxValueTensor, Tensor & gradientTensor)
 {
     if (!auxValueTensor)
     {
@@ -62,9 +58,7 @@ Status ELUKernel<algorithmFPType, method, cpu>::compute(const Parameter &paramet
     }
     else
     {
-        if (elu::internal::canComputeInMklLayout<algorithmFPType, cpu>(auxDataTensor,
-                                                                       inputGradientTensor,
-                                                                       gradientTensor))
+        if (elu::internal::canComputeInMklLayout<algorithmFPType, cpu>(auxDataTensor, inputGradientTensor, gradientTensor))
         {
             return computeInMklLayout(inputGradientTensor, auxDataTensor, *auxValueTensor, gradientTensor);
         }
@@ -75,11 +69,9 @@ Status ELUKernel<algorithmFPType, method, cpu>::compute(const Parameter &paramet
     }
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status ELUKernel<algorithmFPType, method, cpu>::computeLayoutAgnostic(const Tensor &inputGradientTensor,
-                                                                      const Tensor &auxDataTensor,
-                                                                      const Tensor &auxValueTensor,
-                                                                            Tensor &gradientTensor)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status ELUKernel<algorithmFPType, method, cpu>::computeLayoutAgnostic(const Tensor & inputGradientTensor, const Tensor & auxDataTensor,
+                                                                      const Tensor & auxValueTensor, Tensor & gradientTensor)
 {
     ReadSubtensor<algorithmFPType, cpu> inputGradientBlock(const_cast<Tensor &>(inputGradientTensor));
     DAAL_CHECK_BLOCK_STATUS(inputGradientBlock);
@@ -93,62 +85,44 @@ Status ELUKernel<algorithmFPType, method, cpu>::computeLayoutAgnostic(const Tens
     WriteSubtensor<algorithmFPType, cpu> gradientBlock(gradientTensor);
     DAAL_CHECK_BLOCK_STATUS(gradientBlock);
 
-    computeInRawLayout(inputGradientBlock.get(),
-                       auxDataBlock.get(),
-                       auxValueBlock.get(),
-                       gradientBlock.get(),
-                       inputGradientBlock.getSize());
+    computeInRawLayout(inputGradientBlock.get(), auxDataBlock.get(), auxValueBlock.get(), gradientBlock.get(), inputGradientBlock.getSize());
 
     return Status();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status ELUKernel<algorithmFPType, method, cpu>::computeInMklLayout(const Tensor &inputGradientTensor,
-                                                                   const Tensor &auxDataTensor,
-                                                                   const Tensor &auxValueTensor,
-                                                                         Tensor &gradientTensor)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status ELUKernel<algorithmFPType, method, cpu>::computeInMklLayout(const Tensor & inputGradientTensor, const Tensor & auxDataTensor,
+                                                                   const Tensor & auxValueTensor, Tensor & gradientTensor)
 {
     using MklTensorType = MklTensor<algorithmFPType>;
 
     /* We assume tensros can be casted and check was performed by the caller of this function */
-    auto &inputGradientMklTensor = const_cast<MklTensorType &>(static_cast<const MklTensorType &>(inputGradientTensor));
-    auto &auxDataMklTensor       = const_cast<MklTensorType &>(static_cast<const MklTensorType &>(auxDataTensor));
-    auto &gradientMklTensor      = static_cast<MklTensorType &>(gradientTensor);
+    auto & inputGradientMklTensor = const_cast<MklTensorType &>(static_cast<const MklTensorType &>(inputGradientTensor));
+    auto & auxDataMklTensor       = const_cast<MklTensorType &>(static_cast<const MklTensorType &>(auxDataTensor));
+    auto & gradientMklTensor      = static_cast<MklTensorType &>(gradientTensor);
     gradientMklTensor.setDnnLayout(inputGradientMklTensor.getSharedDnnLayout());
 
     ReadSubtensor<algorithmFPType, cpu> auxValueBlock(const_cast<Tensor &>(auxValueTensor));
     DAAL_CHECK_BLOCK_STATUS(auxValueBlock);
 
-    computeInRawLayout(inputGradientMklTensor.getDnnArray(),
-                       auxDataMklTensor.getDnnArray(),
-                       auxValueBlock.get(),
-                       gradientMklTensor.getDnnArray(),
+    computeInRawLayout(inputGradientMklTensor.getDnnArray(), auxDataMklTensor.getDnnArray(), auxValueBlock.get(), gradientMklTensor.getDnnArray(),
                        inputGradientMklTensor.getSize());
 
     return Status();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-void ELUKernel<algorithmFPType, method, cpu>::computeInRawLayout(const algorithmFPType *inputGradient,
-                                                                 const algorithmFPType *auxData,
-                                                                 const algorithmFPType *auxValue,
-                                                                       algorithmFPType *gradient,
-                                                                       size_t dataSize)
+template <typename algorithmFPType, Method method, CpuType cpu>
+void ELUKernel<algorithmFPType, method, cpu>::computeInRawLayout(const algorithmFPType * inputGradient, const algorithmFPType * auxData,
+                                                                 const algorithmFPType * auxValue, algorithmFPType * gradient, size_t dataSize)
 {
-    elu::internal::computeThreaded<algorithmFPType, cpu>(dataSize,
-    [ & ](size_t offset, size_t blockSize)
-    {
-        computeBlock(inputGradient + offset, auxData + offset,
-                     auxValue + offset, gradient + offset, blockSize);
+    elu::internal::computeThreaded<algorithmFPType, cpu>(dataSize, [&](size_t offset, size_t blockSize) {
+        computeBlock(inputGradient + offset, auxData + offset, auxValue + offset, gradient + offset, blockSize);
     });
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-void ELUKernel<algorithmFPType, method, cpu>::computeBlock(const algorithmFPType *inputGradient,
-                                                           const algorithmFPType *auxData,
-                                                           const algorithmFPType *auxValue,
-                                                                 algorithmFPType *gradient,
-                                                                 size_t blockSize)
+template <typename algorithmFPType, Method method, CpuType cpu>
+void ELUKernel<algorithmFPType, method, cpu>::computeBlock(const algorithmFPType * inputGradient, const algorithmFPType * auxData,
+                                                           const algorithmFPType * auxValue, algorithmFPType * gradient, size_t blockSize)
 {
     BlockSizeType auxValueCounter = 0;
     for (BlockSizeType i = 0; i < blockSize; ++i)
@@ -164,11 +138,9 @@ void ELUKernel<algorithmFPType, method, cpu>::computeBlock(const algorithmFPType
     }
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status ELUKernel<algorithmFPType, method, cpu>::computeWithoutAuxValues(const Tensor &inputGradientTensor,
-                                                                        const Tensor &auxDataTensor,
-                                                                              Tensor &gradientTensor,
-                                                                              algorithmFPType alpha)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status ELUKernel<algorithmFPType, method, cpu>::computeWithoutAuxValues(const Tensor & inputGradientTensor, const Tensor & auxDataTensor,
+                                                                        Tensor & gradientTensor, algorithmFPType alpha)
 {
     ReadSubtensor<algorithmFPType, cpu> inputGradientBlock(const_cast<Tensor &>(inputGradientTensor));
     DAAL_CHECK_BLOCK_STATUS(inputGradientBlock);
@@ -179,37 +151,30 @@ Status ELUKernel<algorithmFPType, method, cpu>::computeWithoutAuxValues(const Te
     WriteSubtensor<algorithmFPType, cpu> gradientBlock(gradientTensor);
     DAAL_CHECK_BLOCK_STATUS(gradientBlock);
 
-    const algorithmFPType *inputGradient = inputGradientBlock.get();
-    const algorithmFPType *auxData       = auxDataBlock.get();
-          algorithmFPType *gradient      = gradientBlock.get();
+    const algorithmFPType * inputGradient = inputGradientBlock.get();
+    const algorithmFPType * auxData       = auxDataBlock.get();
+    algorithmFPType * gradient            = gradientBlock.get();
 
-    elu::internal::computeThreaded<algorithmFPType, cpu>(inputGradientTensor.getSize(),
-    [ & ](size_t offset, size_t blockSize)
-    {
-        computeBlockWithoutAuxValues(inputGradient + offset, auxData + offset,
-                                     gradient + offset, alpha, blockSize);
+    elu::internal::computeThreaded<algorithmFPType, cpu>(inputGradientTensor.getSize(), [&](size_t offset, size_t blockSize) {
+        computeBlockWithoutAuxValues(inputGradient + offset, auxData + offset, gradient + offset, alpha, blockSize);
     });
 
     return Status();
 }
 
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-void ELUKernel<algorithmFPType, method, cpu>::computeBlockWithoutAuxValues(const algorithmFPType *inputGradient,
-                                                                           const algorithmFPType *auxData,
-                                                                                 algorithmFPType *gradient,
-                                                                                 algorithmFPType alpha,
-                                                                                 size_t blockSize)
+template <typename algorithmFPType, Method method, CpuType cpu>
+void ELUKernel<algorithmFPType, method, cpu>::computeBlockWithoutAuxValues(const algorithmFPType * inputGradient, const algorithmFPType * auxData,
+                                                                           algorithmFPType * gradient, algorithmFPType alpha, size_t blockSize)
 {
-    algorithmFPType *expValues = _intermediateValuesTls.local();
-    BlockSizeType *indices = _indicesTls.local();
+    algorithmFPType * expValues = _intermediateValuesTls.local();
+    BlockSizeType * indices     = _indicesTls.local();
 
     BlockSizeType expValuesSize = 0;
     for (BlockSizeType i = 0; i < blockSize; i++)
     {
         if (auxData[i] < (algorithmFPType)0.0)
         {
-            indices[expValuesSize] = i;
+            indices[expValuesSize]   = i;
             expValues[expValuesSize] = auxData[i];
             expValuesSize++;
         }
@@ -222,19 +187,18 @@ void ELUKernel<algorithmFPType, method, cpu>::computeBlockWithoutAuxValues(const
         Math<algorithmFPType, cpu>::vExp(expValuesSize, expValues, expValues);
     }
 
-  PRAGMA_VECTOR_ALWAYS
+    PRAGMA_VECTOR_ALWAYS
     for (BlockSizeType i = 0; i < expValuesSize; i++)
     {
         expValues[i] *= alpha;
     }
 
-  PRAGMA_IVDEP
+    PRAGMA_IVDEP
     for (BlockSizeType i = 0; i < expValuesSize; i++)
     {
         gradient[indices[i]] *= expValues[i];
     }
 }
-
 
 } // namespace internal
 } // namespace backward

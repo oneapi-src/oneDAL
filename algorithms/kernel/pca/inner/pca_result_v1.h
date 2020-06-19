@@ -24,10 +24,9 @@
 #ifndef __PCA_RESULT_V1_H__
 #define __PCA_RESULT_V1_H__
 
-#include "pca/inner/pca_types_v1.h"
+#include "algorithms/kernel/pca/inner/pca_types_v1.h"
 #include "data_management/data/data_collection.h"
 #include "data_management/data/numeric_table.h"
-
 
 namespace daal
 {
@@ -37,14 +36,13 @@ namespace pca
 {
 namespace interface1
 {
-
 class ResultImpl : public data_management::interface1::DataCollection
 {
 public:
     DAAL_CAST_OPERATOR(ResultImpl);
 
     ResultImpl(const size_t n);
-    ResultImpl(const ResultImpl& o);
+    ResultImpl(const ResultImpl & o);
     virtual ~ResultImpl();
 
     /**
@@ -53,7 +51,7 @@ public:
     * \return Status of computations
     */
     template <typename algorithmFPType>
-    services::Status allocate(const daal::algorithms::Input *input);
+    services::Status allocate(const daal::algorithms::Input * input);
 
     /**
     * Allocates memory for storing partial results of the PCA algorithm
@@ -61,7 +59,7 @@ public:
     * \return Status of computations
     */
     template <typename algorithmFPType>
-    services::Status allocate(const daal::algorithms::PartialResult *partialResult);
+    services::Status allocate(const daal::algorithms::PartialResult * partialResult);
 
     /**
     * Checks the results of the PCA algorithm implementation
@@ -80,7 +78,6 @@ public:
     virtual void setTable(size_t key, data_management::NumericTablePtr table);
 
 protected:
-
     /**
     * Allocates memory for storing partial results of the PCA algorithm
     * \param[in] nFeatures Number of features
@@ -88,10 +85,9 @@ protected:
     */
     template <typename algorithmFPType>
     services::Status allocate(size_t nFeatures);
-
 };
 
-} // interface1
+} // namespace interface1
 } // namespace pca
 } // namespace algorithms
 } // namespace daal

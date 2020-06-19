@@ -21,8 +21,8 @@
 //--
 */
 
-#include "softmax_cross_layer_types.h"
-#include "softmax_cross_layer_forward_types.h"
+#include "algorithms/neural_networks/layers/loss/softmax_cross_layer_types.h"
+#include "algorithms/neural_networks/layers/loss/softmax_cross_layer_forward_types.h"
 
 namespace daal
 {
@@ -40,7 +40,6 @@ namespace forward
 {
 namespace interface1
 {
-
 /**
  * Allocates memory to store the result of the forward softmax cross-entropy layer
  * \param[in] input Pointer to an object containing the input data
@@ -48,9 +47,9 @@ namespace interface1
  * \param[in] parameter %Parameter of the forward softmax cross-entropy layer
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const Input *in = static_cast<const Input * >(input);
+    const Input * in = static_cast<const Input *>(input);
 
     services::Status s;
     services::Collection<size_t> valueDim(1);
@@ -68,21 +67,22 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     {
         DAAL_ALLOCATE_TENSOR_AND_SET(s, auxProbabilities, in->get(layers::forward::data)->getDimensions());
     }
-    const layers::Parameter *par = static_cast<const layers::Parameter * >(parameter);
-    if(!par->predictionStage)
+    const layers::Parameter * par = static_cast<const layers::Parameter *>(parameter);
+    if (!par->predictionStage)
     {
         s |= setResultForBackward(input);
     }
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace forward
-}// namespace softmax_cross
-}// namespace loss
-}// namespace layers
-}// namespace neural_networks
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace forward
+} // namespace softmax_cross
+} // namespace loss
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

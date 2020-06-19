@@ -22,14 +22,14 @@
 #ifndef __AVERAGE_POOLING2D_LAYER_FORWARD_KERNEL_H__
 #define __AVERAGE_POOLING2D_LAYER_FORWARD_KERNEL_H__
 
-#include "neural_networks/layers/pooling2d/average_pooling2d_layer_forward.h"
-#include "neural_networks/layers/pooling2d/average_pooling2d_layer_forward_types.h"
-#include "pooling2d_layer_internal_parameter.h"
-#include "tensor.h"
-#include "pooling2d_layer_forward_impl.i"
-#include "service_dnn.h"
-#include "service_dnn_internal.h"
-#include "layers_threading.h"
+#include "algorithms/neural_networks/layers/pooling2d/average_pooling2d_layer_forward.h"
+#include "algorithms/neural_networks/layers/pooling2d/average_pooling2d_layer_forward_types.h"
+#include "algorithms/kernel/neural_networks/layers/pooling2d_layer/pooling2d_layer_internal_parameter.h"
+#include "data_management/data/tensor.h"
+#include "algorithms/kernel/neural_networks/layers/pooling2d_layer/forward/pooling2d_layer_forward_impl.i"
+#include "externals/service_dnn.h"
+#include "algorithms/kernel/service_dnn_internal.h"
+#include "algorithms/kernel/neural_networks/layers/layers_threading.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -48,19 +48,17 @@ namespace forward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for forward pooling layer results computation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class PoolingKernel : public pooling2d::forward::internal::PoolingKernel<algorithmFPType, cpu>
 {
 public:
     /* Computes the results of forward pooling layer */
-    services::Status compute(const Tensor &dataTensor, const average_pooling2d::Parameter &parameter, Tensor &valueTensor);
+    services::Status compute(const Tensor & dataTensor, const average_pooling2d::Parameter & parameter, Tensor & valueTensor);
 
-    services::Status initialize(const services::Collection<size_t> &inDimsFull,
-                                const services::Collection<size_t> &outDimsFull);
+    services::Status initialize(const services::Collection<size_t> & inDimsFull, const services::Collection<size_t> & outDimsFull);
 
     ~PoolingKernel()
     {
@@ -69,40 +67,39 @@ public:
             dnn::xDelete(avePoolPrim);
         }
     }
+
 protected:
     typedef daal::internal::Dnn<algorithmFPType, cpu> dnn;
     typedef daal::internal::DnnLayout<algorithmFPType, cpu> xDnnLayout;
 
     using pooling2d::forward::internal::PoolingKernel<algorithmFPType, cpu>::defaultCompute;
 
-    virtual void defaultInnerLoop(const pooling2d::internal::Parameter &par,
-                                  DAAL_INT i, DAAL_INT f, DAAL_INT k, DAAL_INT s, DAAL_INT j,
-                                  const algorithmFPType *data, algorithmFPType *valuePtr);
+    virtual void defaultInnerLoop(const pooling2d::internal::Parameter & par, DAAL_INT i, DAAL_INT f, DAAL_INT k, DAAL_INT s, DAAL_INT j,
+                                  const algorithmFPType * data, algorithmFPType * valuePtr);
 
-    virtual void defaultInnerLoop(const pooling2d::internal::Parameter &par,
-                                  DAAL_INT i, DAAL_INT f, DAAL_INT k, DAAL_INT s, DAAL_INT j,
-                                  const algorithmFPType *data, algorithmFPType *valuePtr, int *selectedPos)
+    virtual void defaultInnerLoop(const pooling2d::internal::Parameter & par, DAAL_INT i, DAAL_INT f, DAAL_INT k, DAAL_INT s, DAAL_INT j,
+                                  const algorithmFPType * data, algorithmFPType * valuePtr, int * selectedPos)
     {
         defaultInnerLoop(par, i, f, k, s, j, data, valuePtr);
     }
 
     dnnPrimitive_t avePoolPrim = NULL;
 
-    size_t *outputSize = NULL;
+    size_t * outputSize = NULL;
     TArray<size_t, cpu> outputSizePtr;
 
-    size_t *outputStrides = NULL;
+    size_t * outputStrides = NULL;
     TArray<size_t, cpu> outputStridesPtr;
 
     xDnnLayout ltUserOutput;
 };
 
-} // internal
-} // forward
-} // average_pooling2d
-} // layers
-} // neural_networks
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace forward
+} // namespace average_pooling2d
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal
 
 #endif

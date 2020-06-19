@@ -22,9 +22,9 @@
 */
 
 #include "algorithms/elastic_net/elastic_net_predict_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
-#include "elastic_net_model_impl.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
+#include "algorithms/kernel/elastic_net/elastic_net_model_impl.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

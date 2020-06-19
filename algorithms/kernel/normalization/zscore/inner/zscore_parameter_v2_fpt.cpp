@@ -21,7 +21,7 @@
 //--
 */
 
-#include "zscore_types_v2.h"
+#include "algorithms/kernel/normalization/zscore/inner/zscore_types_v2.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -34,34 +34,34 @@ namespace normalization
 {
 namespace zscore
 {
-
 namespace interface2
 {
-    /** Constructs z-score normalization parameters */
-    template<typename algorithmFPType>
-    DAAL_EXPORT Parameter<algorithmFPType, defaultDense>::Parameter(const SharedPtr<low_order_moments::BatchImpl> &moments) : BaseParameter(), moments(moments) {};
+/** Constructs z-score normalization parameters */
+template <typename algorithmFPType>
+DAAL_EXPORT Parameter<algorithmFPType, defaultDense>::Parameter(const SharedPtr<low_order_moments::BatchImpl> & moments)
+    : BaseParameter(), moments(moments) {};
 
-    /** Constructs z-score normalization parameters */
-    template<typename algorithmFPType>
-    DAAL_EXPORT Parameter<algorithmFPType, sumDense>::Parameter() : BaseParameter() {};
+/** Constructs z-score normalization parameters */
+template <typename algorithmFPType>
+DAAL_EXPORT Parameter<algorithmFPType, sumDense>::Parameter() : BaseParameter() {};
 
-    /**
+/**
     * Check the correctness of the %Parameter object
     */
-    template<typename algorithmFPType>
-    DAAL_EXPORT Status Parameter<algorithmFPType, defaultDense>::check() const
-    {
-        DAAL_CHECK(moments.get() != 0, ErrorNullParameterNotSupported);
-        return Status();
-    }
+template <typename algorithmFPType>
+DAAL_EXPORT Status Parameter<algorithmFPType, defaultDense>::check() const
+{
+    DAAL_CHECK(moments.get() != 0, ErrorNullParameterNotSupported);
+    return Status();
+}
 
-    template DAAL_EXPORT Parameter<DAAL_FPTYPE, defaultDense>::Parameter(const SharedPtr<low_order_moments::BatchImpl> &moments);
-    template DAAL_EXPORT Parameter<DAAL_FPTYPE, sumDense>::Parameter();
-    template DAAL_EXPORT Status Parameter<DAAL_FPTYPE, defaultDense>::check() const;
+template DAAL_EXPORT Parameter<DAAL_FPTYPE, defaultDense>::Parameter(const SharedPtr<low_order_moments::BatchImpl> & moments);
+template DAAL_EXPORT Parameter<DAAL_FPTYPE, sumDense>::Parameter();
+template DAAL_EXPORT Status Parameter<DAAL_FPTYPE, defaultDense>::check() const;
 
-}// namespace interface2
+} // namespace interface2
 
-}// namespace zscore
-}// namespace normalization
-}// namespace algorithms
-}// namespace daal
+} // namespace zscore
+} // namespace normalization
+} // namespace algorithms
+} // namespace daal

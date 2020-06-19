@@ -20,7 +20,7 @@
 
 #include "daal.h"
 
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::neural_networks;
@@ -30,11 +30,12 @@ using namespace daal::algorithms::neural_networks;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_gaussian_GaussianBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method, jdouble a, jdouble sigma)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_gaussian_GaussianBatch_cInit(JNIEnv * env, jobject thisObj,
+                                                                                                                  jint prec, jint method, jdouble a,
+                                                                                                                  jdouble sigma)
 {
-    return jniBatch<initializers::gaussian::Method, initializers::gaussian::Batch, initializers::gaussian::defaultDense>::newObj(
-               prec, method, a, sigma);
+    return jniBatch<initializers::gaussian::Method, initializers::gaussian::Batch, initializers::gaussian::defaultDense>::newObj(prec, method, a,
+                                                                                                                                 sigma);
 }
 
 /*
@@ -42,11 +43,13 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initiali
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_gaussian_GaussianBatch_cInitParameter
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_gaussian_GaussianBatch_cInitParameter(JNIEnv * env,
+                                                                                                                           jobject thisObj,
+                                                                                                                           jlong algAddr, jint prec,
+                                                                                                                           jint method)
 {
-    return jniBatch<initializers::gaussian::Method, initializers::gaussian::Batch, initializers::gaussian::defaultDense>::getParameter(
-        prec, method, algAddr);
+    return jniBatch<initializers::gaussian::Method, initializers::gaussian::Batch, initializers::gaussian::defaultDense>::getParameter(prec, method,
+                                                                                                                                       algAddr);
 }
 
 /*
@@ -54,11 +57,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initiali
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_gaussian_GaussianBatch_cGetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_gaussian_GaussianBatch_cGetResult(JNIEnv * env, jobject thisObj,
+                                                                                                                       jlong algAddr, jint prec,
+                                                                                                                       jint method)
 {
-    return jniBatch<initializers::gaussian::Method, initializers::gaussian::Batch, initializers::gaussian::defaultDense>::getResult(
-        prec, method, algAddr);
+    return jniBatch<initializers::gaussian::Method, initializers::gaussian::Batch, initializers::gaussian::defaultDense>::getResult(prec, method,
+                                                                                                                                    algAddr);
 }
 
 /*
@@ -66,9 +70,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initiali
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_gaussian_GaussianBatch_cClone
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_neural_1networks_initializers_gaussian_GaussianBatch_cClone(JNIEnv * env, jobject thisObj,
+                                                                                                                   jlong algAddr, jint prec,
+                                                                                                                   jint method)
 {
-    return jniBatch<initializers::gaussian::Method, initializers::gaussian::Batch, initializers::gaussian::defaultDense>::getClone(
-        prec, method, algAddr);
+    return jniBatch<initializers::gaussian::Method, initializers::gaussian::Batch, initializers::gaussian::defaultDense>::getClone(prec, method,
+                                                                                                                                   algAddr);
 }

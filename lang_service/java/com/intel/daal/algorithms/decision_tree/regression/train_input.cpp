@@ -20,7 +20,7 @@
 
 #include "daal.h"
 #include "com_intel_daal_algorithms_decision_tree_regression_training_TrainingInput.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 
@@ -31,8 +31,9 @@ namespace dtrt = daal::algorithms::decision_tree::regression::training;
 * Method:    cSetInput
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_training_TrainingInput_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_training_TrainingInput_cSetInput(JNIEnv * env, jobject thisObj,
+                                                                                                                 jlong inputAddr, jint id,
+                                                                                                                 jlong ntAddr)
 {
     jniInput<dtrt::Input>::set<dtrt::InputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -42,8 +43,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_
 * Method:    cGetInput
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_training_TrainingInput_cGetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_training_TrainingInput_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                                  jlong inputAddr, jint id)
 {
     return jniInput<dtrt::Input>::get<dtrt::InputId, NumericTable>(inputAddr, id);
 }
@@ -53,10 +54,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression
 * Method:    cGetNumberOfFeatures
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_training_TrainingInput_cGetNumberOfFeatures
-(JNIEnv *env, jobject thisObj, jlong inputAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_training_TrainingInput_cGetNumberOfFeatures(JNIEnv * env,
+                                                                                                                             jobject thisObj,
+                                                                                                                             jlong inputAddr)
 {
-    return ((dtrt::Input*)inputAddr)->getNumberOfFeatures();
+    return ((dtrt::Input *)inputAddr)->getNumberOfFeatures();
 }
 
 /*
@@ -64,8 +66,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression
 * Method:    cGetNumberOfDependentVariables
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_training_TrainingInput_cGetNumberOfDependentVariables
-(JNIEnv *env, jobject thisObj, jlong inputAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_training_TrainingInput_cGetNumberOfDependentVariables(
+    JNIEnv * env, jobject thisObj, jlong inputAddr)
 {
-    return ((dtrt::Input*)inputAddr)->getNumberOfDependentVariables();
+    return ((dtrt::Input *)inputAddr)->getNumberOfDependentVariables();
 }

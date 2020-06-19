@@ -19,17 +19,16 @@
 //  Declaration of template function that calculate eltwise_sums.
 //--
 
-
 #ifndef __ELTWISE_SUM_LAYER_BACKWARD_KERNEL_H__
 #define __ELTWISE_SUM_LAYER_BACKWARD_KERNEL_H__
 
-#include "neural_networks/layers/eltwise_sum/eltwise_sum_layer.h"
-#include "neural_networks/layers/eltwise_sum/eltwise_sum_layer_types.h"
+#include "algorithms/neural_networks/layers/eltwise_sum/eltwise_sum_layer.h"
+#include "algorithms/neural_networks/layers/eltwise_sum/eltwise_sum_layer_types.h"
 
-#include "kernel.h"
-#include "layers_threading.h"
-#include "service_numeric_table.h"
-#include "service_error_handling.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/kernel/neural_networks/layers/layers_threading.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
 
 using namespace daal::services;
 using namespace daal::data_management;
@@ -49,23 +48,19 @@ namespace backward
 {
 namespace internal
 {
-
 /**
  *  \brief Kernel for eltwise_sum calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class EltwiseSumKernel : public Kernel
 {
 public:
-    services::Status compute(Tensor *inputGradient, Tensor *coefficients,
-        Tensor **outputs, size_t nOutputs);
+    services::Status compute(Tensor * inputGradient, Tensor * coefficients, Tensor ** outputs, size_t nOutputs);
 
 private:
-    services::Status processOutputTensor(Tensor *inputGradient,
-        const algorithmFPType *coefficientsArray, Tensor *output, size_t outputIndex);
+    services::Status processOutputTensor(Tensor * inputGradient, const algorithmFPType * coefficientsArray, Tensor * output, size_t outputIndex);
 
-    bool checkForInPlace(const Tensor *inputGradient, const Tensor *coefficients,
-        Tensor **outputs, size_t nOutputs);
+    bool checkForInPlace(const Tensor * inputGradient, const Tensor * coefficients, Tensor ** outputs, size_t nOutputs);
 };
 
 } // namespace internal

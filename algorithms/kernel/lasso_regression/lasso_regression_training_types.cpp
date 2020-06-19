@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/lasso_regression/lasso_regression_training_types.h"
-#include "daal_strings.h"
+#include "service/kernel/daal_strings.h"
 using namespace daal::data_management;
 using namespace daal::services;
 
@@ -36,9 +36,8 @@ namespace training
 {
 namespace interface1
 {
-
 Input::Input() : linear_model::training::Input(lastOptionalInputId + 1) {}
-Input::Input(const Input& other) : linear_model::training::Input(other){}
+Input::Input(const Input & other) : linear_model::training::Input(other) {}
 
 /**
  * Returns an input object for lasso regression model-based training
@@ -55,7 +54,7 @@ NumericTablePtr Input::get(InputId id) const
  * \param[in] id      Identifier of the input object
  * \param[in] value   Pointer to the object
  */
-void Input::set(InputId id, const NumericTablePtr &value)
+void Input::set(InputId id, const NumericTablePtr & value)
 {
     linear_model::training::Input::set(linear_model::training::InputId(id), value);
 }
@@ -75,7 +74,7 @@ algorithms::OptionalArgumentPtr Input::get(OptionalInputId id) const
 * \param[in] id    Identifier of the input object
 * \param[in] ptr   Pointer to the object
 */
-void Input::set(OptionalInputId id, const algorithms::OptionalArgumentPtr &ptr)
+void Input::set(OptionalInputId id, const algorithms::OptionalArgumentPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -88,7 +87,7 @@ void Input::set(OptionalInputId id, const algorithms::OptionalArgumentPtr &ptr)
 data_management::NumericTablePtr Input::get(OptionalDataId id) const
 {
     algorithms::OptionalArgumentPtr pOpt = get(lasso_regression::training::optionalArgument);
-    if(pOpt.get())
+    if (pOpt.get())
     {
         return NumericTable::cast(pOpt->get(id));
     }
@@ -100,10 +99,10 @@ data_management::NumericTablePtr Input::get(OptionalDataId id) const
 * \param[in] id    Identifier of the input object
 * \param[in] ptr   Pointer to the object
 */
-void Input::set(OptionalDataId id, const data_management::NumericTablePtr &ptr)
+void Input::set(OptionalDataId id, const data_management::NumericTablePtr & ptr)
 {
     algorithms::OptionalArgumentPtr pOpt = get(lasso_regression::training::optionalArgument);
-    if(!pOpt.get())
+    if (!pOpt.get())
     {
         pOpt = algorithms::OptionalArgumentPtr(new algorithms::OptionalArgument(lasso_regression::training::lastOptionalData + 1));
         set(lasso_regression::training::optionalArgument, pOpt);
@@ -115,13 +114,19 @@ void Input::set(OptionalDataId id, const data_management::NumericTablePtr &ptr)
  * Returns the number of columns in the input data set
  * \return Number of columns in the input data set
  */
-size_t Input::getNumberOfFeatures() const { return get(data)->getNumberOfColumns(); }
+size_t Input::getNumberOfFeatures() const
+{
+    return get(data)->getNumberOfColumns();
+}
 
 /**
 * Returns the number of dependent variables
 * \return Number of dependent variables
 */
-size_t Input::getNumberOfDependentVariables() const { return get(dependentVariables)->getNumberOfColumns(); }
+size_t Input::getNumberOfDependentVariables() const
+{
+    return get(dependentVariables)->getNumberOfColumns();
+}
 
 /**
 * Checks an input object for the lasso regression algorithm
@@ -130,7 +135,7 @@ size_t Input::getNumberOfDependentVariables() const { return get(dependentVariab
 *
  * \return Status of computations
  */
-services::Status Input::check(const daal::algorithms::Parameter *par, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
     Status s;
     DAAL_CHECK_STATUS(s, linear_model::training::Input::check(par, method));
@@ -139,9 +144,9 @@ services::Status Input::check(const daal::algorithms::Parameter *par, int method
     DAAL_CHECK(dataTable.get(), services::ErrorNullPtr);
 
     const NumericTablePtr dependentVariableTable = get(dependentVariables);
-    const size_t nColumnsInDepVariable = dependentVariableTable->getNumberOfColumns();
+    const size_t nColumnsInDepVariable           = dependentVariableTable->getNumberOfColumns();
 
-    const Parameter *parameter   = static_cast<Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
+    const Parameter * parameter = static_cast<Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
     DAAL_CHECK_STATUS(s, parameter->check());
 
     const size_t lassoParamsNumberOfColumns = parameter->lassoParameters->getNumberOfColumns();
@@ -149,11 +154,13 @@ services::Status Input::check(const daal::algorithms::Parameter *par, int method
     return services::Status();
 }
 
-Parameter::Parameter(const SolverPtr& solver): linear_model::Parameter(),
-    lassoParameters(new HomogenNumericTable<double>(1, 1, NumericTableIface::doAllocate, 0.1)),
-    optimizationSolver(solver), dataUseInComputation(doUse), optResultToCompute(0)
-{
-}
+Parameter::Parameter(const SolverPtr & solver)
+    : linear_model::Parameter(),
+      lassoParameters(new HomogenNumericTable<double>(1, 1, NumericTableIface::doAllocate, 0.1)),
+      optimizationSolver(solver),
+      dataUseInComputation(doUse),
+      optResultToCompute(0)
+{}
 
 services::Status Parameter::check() const
 {

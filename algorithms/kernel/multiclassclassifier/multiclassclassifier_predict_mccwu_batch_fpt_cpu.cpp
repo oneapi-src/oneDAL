@@ -22,10 +22,10 @@
 //--
 */
 
-#include "multiclassclassifier_predict_batch_container.h"
-#include "multiclassclassifier_predict_kernel.h"
-#include "multiclassclassifier_predict_mccwu_kernel.h"
-#include "multiclassclassifier_predict_mccwu_impl.i"
+#include "algorithms/kernel/multiclassclassifier/multiclassclassifier_predict_batch_container.h"
+#include "algorithms/kernel/multiclassclassifier/multiclassclassifier_predict_kernel.h"
+#include "algorithms/kernel/multiclassclassifier/multiclassclassifier_predict_mccwu_kernel.h"
+#include "algorithms/kernel/multiclassclassifier/multiclassclassifier_predict_mccwu_impl.i"
 
 namespace daal
 {
@@ -41,7 +41,8 @@ template class BatchContainer<DAAL_FPTYPE, multiClassClassifierWu, training::one
 }
 namespace internal
 {
-template class MultiClassClassifierPredictKernel<multiClassClassifierWu, training::oneAgainstOne, DAAL_FPTYPE, classifier::prediction::Batch, multi_class_classifier::Parameter, DAAL_CPU>;
+template class MultiClassClassifierPredictKernel<multiClassClassifierWu, training::oneAgainstOne, DAAL_FPTYPE, classifier::prediction::Batch,
+                                                 multi_class_classifier::Parameter, DAAL_CPU>;
 } // namespace internal
 } // namespace prediction
 } // namespace multi_class_classifier

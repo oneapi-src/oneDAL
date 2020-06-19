@@ -19,9 +19,9 @@
 //  Implementation of local contrast normalization functions.
 //--
 
-#include "lcn_layer_forward_batch_container.h"
-#include "lcn_layer_forward_kernel.h"
-#include "lcn_layer_forward_impl.i"
+#include "algorithms/kernel/neural_networks/layers/lcn_layer/forward/lcn_layer_forward_batch_container.h"
+#include "algorithms/kernel/neural_networks/layers/lcn_layer/forward/lcn_layer_forward_kernel.h"
+#include "algorithms/kernel/neural_networks/layers/lcn_layer/forward/lcn_layer_forward_impl.i"
 
 namespace daal
 {
@@ -33,21 +33,20 @@ namespace layers
 {
 namespace lcn
 {
-
 namespace forward
 {
 namespace interface1
 {
 template class neural_networks::layers::lcn::forward::BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // interface1
+} // namespace interface1
 namespace internal
 {
 template class LCNKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // internal
-} // forward
+} // namespace internal
+} // namespace forward
 
-}
-}
-}
-}
-}
+} // namespace lcn
+} // namespace layers
+} // namespace neural_networks
+} // namespace algorithms
+} // namespace daal

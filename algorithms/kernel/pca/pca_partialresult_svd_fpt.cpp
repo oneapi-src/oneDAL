@@ -21,7 +21,7 @@
 //--
 */
 
-#include "pca_partialresult_svd.h"
+#include "algorithms/kernel/pca/pca_partialresult_svd.h"
 
 namespace daal
 {
@@ -29,10 +29,12 @@ namespace algorithms
 {
 namespace pca
 {
+template DAAL_EXPORT services::Status PartialResult<svdDense>::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                                     const daal::algorithms::Parameter * parameter, const int method);
+template DAAL_EXPORT services::Status PartialResult<svdDense>::initialize<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                                       const daal::algorithms::Parameter * parameter,
+                                                                                       const int method);
 
-template DAAL_EXPORT services::Status PartialResult<svdDense>::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
-template DAAL_EXPORT services::Status PartialResult<svdDense>::initialize<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
-
-}// namespace pca
-}// namespace algorithms
-}// namespace daal
+} // namespace pca
+} // namespace algorithms
+} // namespace daal

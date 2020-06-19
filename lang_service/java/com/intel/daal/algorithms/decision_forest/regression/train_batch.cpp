@@ -20,7 +20,7 @@
 
 #include "daal.h"
 #include "com_intel_daal_algorithms_decision_forest_regression_training_TrainingBatch.h"
-#include "common_helpers.h"
+#include "lang_service/java/com/intel/daal/include/common_helpers.h"
 
 USING_COMMON_NAMESPACES()
 namespace dfrt = daal::algorithms::decision_forest::regression::training;
@@ -30,8 +30,8 @@ namespace dfrt = daal::algorithms::decision_forest::regression::training;
 * Method:    cInit
 * Signature: (IIJ)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_TrainingBatch_cInit
-(JNIEnv *, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_TrainingBatch_cInit(JNIEnv *, jobject thisObj, jint prec,
+                                                                                                                jint method)
 {
     return jniBatch<dfrt::Method, dfrt::Batch, dfrt::defaultDense>::newObj(prec, method);
 }
@@ -41,8 +41,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressi
 * Method:    cInitParameter
 * Signature: (JIII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_TrainingBatch_cInitParameter
-(JNIEnv *, jobject thisObj, jlong algAddr, jint prec, jint method, jint cmode)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_TrainingBatch_cInitParameter(JNIEnv *, jobject thisObj,
+                                                                                                                         jlong algAddr, jint prec,
+                                                                                                                         jint method, jint cmode)
 {
     return jniBatch<dfrt::Method, dfrt::Batch, dfrt::defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -52,8 +53,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressi
 * Method:    cClone
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_TrainingBatch_cClone
-(JNIEnv *, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_TrainingBatch_cClone(JNIEnv *, jobject thisObj,
+                                                                                                                 jlong algAddr, jint prec,
+                                                                                                                 jint method)
 {
     return jniBatch<dfrt::Method, dfrt::Batch, dfrt::defaultDense>::getClone(prec, method, algAddr);
 }
