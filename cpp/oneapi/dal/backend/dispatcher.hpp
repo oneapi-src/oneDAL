@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,8 +30,7 @@
     #include "_onedal_dispatcher_cpu.hpp"
 #endif
 
-namespace dal {
-namespace backend {
+namespace oneapi::dal::backend {
 
 template <typename ... Kernels>
 struct kernel_dispatcher {};
@@ -99,5 +98,4 @@ constexpr auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
     return op(cpu_dispatch_default{});
 }
 
-}  // namespace backend
-}  // namespace dal
+}  // namespace oneapi::dal::backend

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/data/table_builder.hpp"
 
-namespace dal {
+namespace oneapi::dal {
 
 template <typename T>
 class row_accessor {
@@ -103,4 +103,4 @@ private:
     storage_t& storage_;
 };
 
-} // namespace dal
+} // namespace oneapi::dal

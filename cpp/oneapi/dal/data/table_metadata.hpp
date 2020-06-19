@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/data/array.hpp"
 
-namespace dal {
+namespace oneapi::dal {
 
 enum class data_layout {
     row_major,
@@ -77,4 +77,4 @@ struct table_metadata {
     array<feature_info> features;
 };
 
-} // namespace dal
+} // namespace oneapi::dal

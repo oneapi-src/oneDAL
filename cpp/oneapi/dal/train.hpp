@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,11 +18,11 @@
 
 #include "oneapi/dal/detail/train_ops.hpp"
 
-namespace dal {
+namespace oneapi::dal {
 
 template <typename... Args>
 auto train(Args&&... args) {
     return detail::train_dispatch_by_ctx(std::forward<Args>(args)...);
 }
 
-} // namespace dal
+} // namespace oneapi::dal

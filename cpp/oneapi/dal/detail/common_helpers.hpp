@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 #include <stdexcept>
 #include "oneapi/dal/common.hpp"
 
-namespace dal::detail {
+namespace oneapi::dal::detail {
 
 template <typename T>
 constexpr auto make_data_type_impl() {
@@ -39,4 +39,4 @@ constexpr auto make_data_type_impl() {
     throw std::invalid_argument{"T"};
 }
 
-} // namespace dal::detail
+} // namespace oneapi::dal::detail

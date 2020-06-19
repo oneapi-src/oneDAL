@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,9 +17,7 @@
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/algo/pca/train_types.hpp"
 
-namespace dal {
-namespace decomposition {
-namespace pca {
+namespace oneapi::dal::pca {
 
 class detail::train_input_impl : public base {
   public:
@@ -80,6 +78,4 @@ void train_result::set_explained_variance_impl(const table& value) {
     impl_->explained_variance = value;
 }
 
-} // namespace pca
-} // namespace decomposition
-} // namespace dal
+} // namespace oneapi::dal::pca

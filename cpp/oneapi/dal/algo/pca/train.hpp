@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,12 +20,10 @@
 #include "oneapi/dal/algo/pca/train_types.hpp"
 #include "oneapi/dal/algo/pca/detail/train_ops.hpp"
 
-namespace dal {
-namespace detail {
+namespace oneapi::dal::detail {
 
 template <typename Descriptor>
-struct train_ops<Descriptor, decomposition::pca::detail::tag>
-  : decomposition::pca::detail::train_ops<Descriptor> {};
+struct train_ops<Descriptor, dal::pca::detail::tag>
+  : dal::pca::detail::train_ops<Descriptor> {};
 
-} // namespace detail
-} // namespace dal
+} // namespace oneapi::dal::detail

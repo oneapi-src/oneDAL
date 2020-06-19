@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 
 using std::int64_t;
 
-namespace dal {
+namespace oneapi::dal {
 
 table::table()
     : table(backend::empty_table_impl{}) {}
@@ -68,4 +68,4 @@ template homogen_table::homogen_table(int64_t, int64_t, const float*, data_layou
 template homogen_table::homogen_table(int64_t, int64_t, const double*, data_layout);
 template homogen_table::homogen_table(int64_t, int64_t, const std::int32_t*, data_layout);
 
-} // namespace dal
+} // namespace oneapi::dal

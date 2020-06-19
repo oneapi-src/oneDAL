@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 #include "oneapi/dal/data/detail/table_impl_wrapper.hpp"
 #include "oneapi/dal/util/type_traits.hpp"
 
-namespace dal {
+namespace oneapi::dal {
 
 class table {
     friend detail::pimpl_accessor;
@@ -88,4 +88,4 @@ private:
         : table(impl) {}
 };
 
-} // namespace dal
+} // namespace oneapi::dal

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 #include "oneapi/dal/table_builder.hpp"
 #include "oneapi/dal/accessor.hpp"
 
-using namespace dal;
+using namespace oneapi::dal;
 
 TEST(table_builder_test, can_modify_table) {
     float data[] = {

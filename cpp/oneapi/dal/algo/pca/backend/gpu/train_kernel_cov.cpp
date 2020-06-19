@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,10 +16,7 @@
 
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel.hpp"
 
-namespace dal {
-namespace decomposition {
-namespace pca {
-namespace backend {
+namespace oneapi::dal::pca::backend {
 
 template <typename Float>
 struct train_kernel_gpu<Float, method::cov> {
@@ -33,7 +30,4 @@ struct train_kernel_gpu<Float, method::cov> {
 template struct train_kernel_gpu<float, method::cov>;
 template struct train_kernel_gpu<double, method::cov>;
 
-} // namespace backend
-} // namespace pca
-} // namespace decomposition
-} // namespace dal
+} // namespace oneapi::dal::pca::backend

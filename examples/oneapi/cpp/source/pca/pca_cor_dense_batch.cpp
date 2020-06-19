@@ -21,6 +21,8 @@
 #include "oneapi/dal/data/accessor.hpp"
 #include "oneapi/dal/algo/pca.hpp"
 
+using namespace oneapi;
+
 std::ostream &operator <<(std::ostream& stream, const dal::table& table) {
     auto arr = dal::row_accessor<const float>(table).pull();
     const auto x = arr.get_data();
@@ -38,11 +40,8 @@ std::ostream &operator <<(std::ostream& stream, const dal::table& table) {
 }
 
 int main(int argc, char const *argv[]) {
-    using namespace dal::decomposition;
-
     constexpr std::int64_t row_count = 5;
     constexpr std::int64_t column_count = 3;
-
 
     const float data[] = {
         1.f,  2.f,  3.f,
@@ -54,7 +53,7 @@ int main(int argc, char const *argv[]) {
 
     const auto data_table = dal::homogen_table{ row_count, column_count, data };
 
-    const auto pca_desc = pca::descriptor<>()
+    const auto pca_desc = dal::pca::descriptor<>()
         .set_component_count(3)
         .set_is_deterministic(true);
 

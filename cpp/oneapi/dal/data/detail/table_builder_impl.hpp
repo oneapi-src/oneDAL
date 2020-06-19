@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/data/table.hpp"
 
-namespace dal::detail {
+namespace oneapi::dal::detail {
 
 class table_builder_impl_iface {
 public:
@@ -53,4 +53,4 @@ private:
     Impl impl_;
 };
 
-} // namespace dal::detail
+} // namespace oneapi::dal::detail

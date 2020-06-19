@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 #include "oneapi/dal/data/table.hpp"
 #include "oneapi/dal/data/accessor.hpp"
 
-using namespace dal;
+using namespace oneapi::dal;
 
 TEST(table_test, can_construct_empty_table) {
     table t;

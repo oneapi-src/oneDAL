@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,8 +18,7 @@
 
 #include "oneapi/dal/execution_context.hpp"
 
-namespace dal {
-namespace detail {
+namespace oneapi::dal::detail {
 
 template <typename Descriptor, typename Tag>
 struct train_ops;
@@ -54,5 +53,4 @@ auto train_dispatch_by_ctx(Head&& head, Tail&&... tail) {
                                    std::forward<Tail>(tail)...);
 }
 
-} // namespace detail
-} // namespace dal
+} // namespace oneapi::dal::detail

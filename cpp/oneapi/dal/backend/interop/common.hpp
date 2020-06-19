@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,9 +21,7 @@
 
 #include "oneapi/dal/backend/dispatcher.hpp"
 
-namespace dal {
-namespace backend {
-namespace interop {
+namespace oneapi::dal::backend::interop {
 
 template <typename DispatchId>
 constexpr daal::CpuType to_daal_cpu_type(DispatchId);
@@ -86,6 +84,4 @@ inline auto call_daal_kernel(const context_cpu& ctx, Args&&... args) {
     });
 }
 
-} // namespace interop
-} // namespace backend
-} // namespace dal
+} // namespace oneapi::dal::backend::interop

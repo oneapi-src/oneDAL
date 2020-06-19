@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 #include <memory>
 #include "oneapi/dal/common.hpp"
 
-namespace dal::detail {
+namespace oneapi::dal::detail {
 
 template <typename T>
 using shared = std::shared_ptr<T>;
@@ -65,4 +65,4 @@ Object make_from_pointer(typename Object::pimpl::element_type* pointer) {
     return pimpl_accessor().template make_from_pointer<Object>(pointer);
 }
 
-}  // namespace dal::detail
+}  // namespace oneapi::dal::detail

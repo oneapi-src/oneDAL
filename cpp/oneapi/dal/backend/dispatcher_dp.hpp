@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,8 +19,7 @@
 #include "oneapi/dal/data_parallel.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 
-namespace dal {
-namespace backend {
+namespace oneapi::dal::backend {
 
 class context_gpu {};
 
@@ -35,5 +34,4 @@ struct kernel_dispatcher<CpuKernel, GpuKernel> {
     }
 };
 
-}  // namespace backend
-}  // namespace dal
+}  // namespace oneapi::dal::backend

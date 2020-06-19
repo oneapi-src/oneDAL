@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 #include "oneapi/dal/execution_context.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 
-namespace dal {
+namespace oneapi::dal {
 
 class detail::default_execution_context_impl : public base {
 public:
@@ -38,4 +38,4 @@ cpu_extension default_execution_context::get_enabled_cpu_extensions() const noex
     return impl_->cpu_extensions_mask;
 }
 
-} // namespace dal
+} // namespace oneapi::dal

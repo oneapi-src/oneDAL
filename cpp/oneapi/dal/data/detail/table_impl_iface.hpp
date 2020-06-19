@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 #include "oneapi/dal/data/table_metadata.hpp"
 #include "oneapi/dal/data/detail/storage_iface.hpp"
 
-namespace dal::detail {
+namespace oneapi::dal::detail {
 
 class table_impl_iface : public dense_storage_iface<storage_readable_writable> {
 public:
@@ -33,4 +33,4 @@ public:
     virtual const void* get_data() const = 0;
 };
 
-} // namespace dal::detail
+} // namespace oneapi::dal::detail

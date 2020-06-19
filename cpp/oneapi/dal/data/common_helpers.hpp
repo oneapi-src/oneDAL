@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/detail/common_helpers.hpp"
 
-namespace dal {
+namespace oneapi::dal {
 
 template <typename T>
 constexpr data_type make_data_type() {
@@ -86,4 +86,4 @@ struct integral_data_type<data_type::uint64> {
 template <data_type t>
 using integral_data_type_t = typename integral_data_type<t>::type;
 
-} // namespace dal
+} // namespace oneapi::dal

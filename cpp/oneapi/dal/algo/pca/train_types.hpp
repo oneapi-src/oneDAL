@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,9 +18,7 @@
 
 #include "oneapi/dal/algo/pca/common.hpp"
 
-namespace dal {
-namespace decomposition {
-namespace pca {
+namespace oneapi::dal::pca {
 
 namespace detail {
 class train_input_impl;
@@ -77,6 +75,4 @@ class train_result {
     dal::detail::pimpl<detail::train_result_impl> impl_;
 };
 
-} // namespace pca
-} // namespace decomposition
-} // namespace dal
+} // namespace oneapi::dal::pca

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,9 +21,7 @@
 #include "oneapi/dal/data/table_builder.hpp"
 #include "oneapi/dal/data/accessor.hpp"
 
-namespace dal {
-namespace backend {
-namespace interop {
+namespace oneapi::dal::backend::interop {
 
 template <typename T>
 struct daal_array_owner {
@@ -56,6 +54,4 @@ inline auto convert_to_daal_homogen_table(array<T>& data,
         daal_data, column_count, row_count);
 }
 
-} // namespace interop
-} // namespace backend
-} // namespace dal
+} // namespace oneapi::dal::backend::interop

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,9 +19,7 @@
 #include "oneapi/dal/data/table.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
-namespace dal {
-namespace decomposition {
-namespace pca {
+namespace oneapi::dal::pca {
 
 namespace detail {
 struct tag {};
@@ -89,6 +87,4 @@ class model : public base {
     dal::detail::pimpl<detail::model_impl> impl_;
 };
 
-} // namespace pca
-} // namespace decomposition
-} // namespace dal
+} // namespace oneapi::dal::pca

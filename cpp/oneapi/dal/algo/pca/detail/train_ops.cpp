@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,10 +18,7 @@
 #include "oneapi/dal/algo/pca/detail/train_ops.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/train_kernel.hpp"
 
-namespace dal {
-namespace decomposition {
-namespace pca {
-namespace detail {
+namespace oneapi::dal::pca::detail {
 
 template <typename Float, typename Method>
 struct train_ops_dispatcher<default_execution_context, Float, Method> {
@@ -42,7 +39,4 @@ INSTANTIATE(float, method::svd)
 INSTANTIATE(double, method::cov)
 INSTANTIATE(double, method::svd)
 
-} // namespace detail
-} // namespace pca
-} // namespace decomposition
-} // namespace dal
+} // namespace oneapi::dal::pca::detail

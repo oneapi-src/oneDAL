@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,10 +19,7 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/algo/pca/train_types.hpp"
 
-namespace dal {
-namespace decomposition {
-namespace pca {
-namespace backend {
+namespace oneapi::dal::pca::backend {
 
 template <typename Float, typename Method>
 struct train_kernel_cpu {
@@ -31,7 +28,4 @@ struct train_kernel_cpu {
                           const train_input& input) const;
 };
 
-} // namespace backend
-} // namespace pca
-} // namespace decomposition
-} // namespace dal
+} // namespace oneapi::dal::pca::backend

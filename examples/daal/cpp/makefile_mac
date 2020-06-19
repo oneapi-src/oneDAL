@@ -80,7 +80,7 @@ ifneq ($(mode),build)
 endif
 
 ifndef DAALROOT
-    DAALROOT = ./../..
+    DAALROOT = ./../../..
 endif
 DAAL_PATH = "$(DAALROOT)/lib"
 TBB_PATH = "$(TBBROOT)/lib"

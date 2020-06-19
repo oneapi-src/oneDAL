@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 
 #include <cstdint>
 
-namespace dal {
+namespace oneapi::dal {
 
 using byte_t = std::uint8_t;
 
@@ -51,4 +51,4 @@ public:
     std::int64_t end_idx;
 };
 
-} // namespace dal
+} // namespace oneapi::dal

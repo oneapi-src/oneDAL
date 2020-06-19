@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/common.hpp"
 
-namespace dal::backend {
+namespace oneapi::dal::backend {
 
 void convert_vector(const void* src, void* dst,
                     data_type src_type, data_type dest_type,
@@ -29,4 +29,4 @@ void convert_vector(const void* src, void* dst,
                     std::int64_t src_stride, std::int64_t dst_stride,
                     std::int64_t size);
 
-} // namespace dal::backend
+} // namespace oneapi::dal::backend

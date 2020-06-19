@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 #include "gtest/gtest.h"
 #include "oneapi/dal/accessor.hpp"
 
-using namespace dal;
+using namespace oneapi::dal;
 using std::int32_t;
 
 TEST(column_accessor_test, can_get_first_column_from_homogen_table) {

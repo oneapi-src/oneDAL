@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 
 #include <cstring>
 
-namespace dal::backend {
+namespace oneapi::dal::backend {
 
 using std::int32_t;
 
@@ -167,4 +167,4 @@ template void homogen_table_impl::push_back_column(const array<float>& a, std::i
 template void homogen_table_impl::push_back_column(const array<double>& a, std::int64_t idx, const range& r);
 template void homogen_table_impl::push_back_column(const array<int32_t>& a, std::int64_t idx, const range& r);
 
-} // namespace dal::backend
+} // namespace oneapi::dal::backend

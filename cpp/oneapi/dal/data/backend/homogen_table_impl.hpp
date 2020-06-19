@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 #include "oneapi/dal/data/common_helpers.hpp"
 #include "oneapi/dal/data/table_metadata.hpp"
 
-namespace dal::backend {
+namespace oneapi::dal::backend {
 
 class homogen_table_impl {
 public:
@@ -110,4 +110,4 @@ private:
     array<byte_t> data_;
 };
 
-} // namespace dal::backend
+} // namespace oneapi::dal::backend
