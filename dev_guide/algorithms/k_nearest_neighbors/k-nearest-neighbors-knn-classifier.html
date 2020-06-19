@@ -106,6 +106,12 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cpu-vs-gpu.html">CPU and GPU Support</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../cpu-vs-gpu.html#computation-modes">Computation modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cpu-vs-gpu.html#methods">Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cpu-vs-gpu.html#parameters">Parameters</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../legal.html">Notices and Disclaimers</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Developer Guide</span></p>
@@ -515,6 +521,8 @@
 </li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">k-Nearest Neighbors (kNN) Classifier</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#details">Details</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#k-d-tree">K-D tree</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#brute-force">Brute Force</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#training-stage">Training Stage</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#prediction-stage">Prediction Stage</a></li>
 </ul>
@@ -598,7 +606,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#prediction">Prediction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#id4">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#id7">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#performance-considerations">Performance Considerations</a></li>
@@ -672,24 +680,30 @@
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../sycl_examples.html">DPC++ Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/bf_knn_dense_batch.html">bf_knn_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/cor_dense_batch.html">cor_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/cor_dense_online.html">cor_dense_online.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/datastructures_soa.html">datastructures_soa.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/datastructures_usm.html">datastructures_usm.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/dbscan_dense_batch.html">dbscan_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/gbt_reg_dense_batch.html">gbt_reg_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/kmeans_dense_batch.html">kmeans_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/kmeans_init_dense_batch.html">kmeans_init_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/lin_reg_norm_eq_dense_batch.html">lin_reg_norm_eq_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/lin_reg_norm_eq_dense_online.html">lin_reg_norm_eq_dense_online.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/log_reg_binary_dense_batch.html">log_reg_binary_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/log_reg_dense_batch.html">log_reg_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/low_order_moms_dense_batch.html">low_order_moms_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/low_order_moms_dense_online.html">low_order_moms_dense_online.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/pca_transform_dense_batch.html">pca_transform_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/sgd_mini_log_loss_dense_batch.html">sgd_mini_log_loss_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/bf_knn_dense_batch.html">bf_knn_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/cor_dense_batch.html">cor_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/cor_dense_online.html">cor_dense_online.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/datastructures_soa.html">datastructures_soa.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/datastructures_usm.html">datastructures_usm.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/dbscan_dense_batch.html">dbscan_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/df_cls_dense_batch.html">df_cls_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/df_reg_dense_batch.html">df_reg_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/gbt_reg_dense_batch.html">gbt_reg_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/kernel_func_lin_dense_batch.html">kernel_func_lin_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/kernel_func_rbf_dense_batch.html">kernel_func_rbf_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/kmeans_dense_batch.html">kmeans_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/kmeans_init_dense_batch.html">kmeans_init_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/lin_reg_norm_eq_dense_batch.html">lin_reg_norm_eq_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/lin_reg_norm_eq_dense_online.html">lin_reg_norm_eq_dense_online.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/log_reg_binary_dense_batch.html">log_reg_binary_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/log_reg_dense_batch.html">log_reg_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/low_order_moms_dense_batch.html">low_order_moms_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/low_order_moms_dense_online.html">low_order_moms_dense_online.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/pca_cor_dense_online.html">pca_cor_dense_online.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/pca_transform_dense_batch.html">pca_transform_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/sgd_mini_log_loss_dense_batch.html">sgd_mini_log_loss_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/svm_two_class_dense_batch.html">svm_two_class_dense_batch.cpp</a></li>
 </ul>
 </li>
 </ul>
@@ -878,7 +892,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="k-nearest-neighbors-knn-classifier">
-<h1>k-Nearest Neighbors (kNN) Classifier<a class="headerlink" href="#k-nearest-neighbors-knn-classifier" title="Permalink to this headline">¶</a></h1>
+<span id="knn"></span><h1>k-Nearest Neighbors (kNN) Classifier<a class="headerlink" href="#k-nearest-neighbors-knn-classifier" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 </div>
 <p>k-Nearest Neighbors (kNN) classification is a non-parametric
@@ -891,15 +905,12 @@ by the type of distance (for example, Euclidian) in a
 multidimensional feature space.</p>
 <div class="section" id="details">
 <h2>Details<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h2>
-<p>The library provides kNN classification based on multidimensional
-binary search tree (K-D tree, where D means the dimension and K means
-the number of dimensions in the feature space). For more details, see
-<a class="reference internal" href="../../../bibliography.html#james2013" id="id1"><span>[James2013]</span></a>, <a class="reference internal" href="../../../bibliography.html#patwary2016" id="id2"><span>[Patwary2016]</span></a>.</p>
-<p>Given n feature vectors <span class="math notranslate nohighlight">\(x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})\)</span> of size <span class="math notranslate nohighlight">\(p\)</span> and a vector
-of class labels <span class="math notranslate nohighlight">\(y = (y_1, \ldots, y_n)\)</span>, where <span class="math notranslate nohighlight">\(y_i \in \{0, 1, \ldots, C-1\}\)</span>
-and <span class="math notranslate nohighlight">\(C\)</span> is the number of classes, describes the
-class to which the feature vector <span class="math notranslate nohighlight">\(x_i\)</span> belongs, the problem is
-to build a kNN classifier.</p>
+<p>The problem is to build a kNN classifier given the following:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(n\)</span> feature vectors <span class="math notranslate nohighlight">\(x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})\)</span> of size <span class="math notranslate nohighlight">\(p\)</span></p></li>
+<li><p>a vector of class labels <span class="math notranslate nohighlight">\(y = (y_1, \ldots, y_n)\)</span>, there <span class="math notranslate nohighlight">\(C\)</span> is the number of classes and
+<span class="math notranslate nohighlight">\(y_i \in \{0, 1, \ldots, C-1\}\)</span> describes the class the feature vector <span class="math notranslate nohighlight">\(x_i\)</span> belongs to</p></li>
+</ul>
 <p>Given a positive integer parameter <span class="math notranslate nohighlight">\(k\)</span> and a test observation
 <span class="math notranslate nohighlight">\(x_0\)</span>, the kNN classifier does the following:</p>
 <ol class="arabic simple">
@@ -911,10 +922,22 @@ fraction of vectors in <span class="math notranslate nohighlight">\(N_0\)</span>
 <li><p>Assigns the class with the largest probability to the test
 observation <span class="math notranslate nohighlight">\(x_0\)</span></p></li>
 </ol>
-<p>oneDAL version of the kNN algorithm uses the PANDA algorithm
-[Patwary2016]
-that uses a space-partitioning data structure known as K-D tree. Each
-non-leaf node of a tree contains the identifier of a feature along
+<p>The library provides kNN classification with the following methods:</p>
+<ul class="simple">
+<li><p>K-D tree</p></li>
+<li><p>Brute Force</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Brute Force method is only supported on GPU.</p>
+</div>
+<div class="section" id="k-d-tree">
+<h3>K-D tree<a class="headerlink" href="#k-d-tree" title="Permalink to this headline">¶</a></h3>
+<p>K-D tree, or a multidimensional binary search tree, is a space-partitioning data structure, where D is the dimension and K is
+the number of dimensions in the feature space. For more details, see <a class="reference internal" href="../../../bibliography.html#james2013" id="id1"><span>[James2013]</span></a>, <a class="reference internal" href="../../../bibliography.html#patwary2016" id="id2"><span>[Patwary2016]</span></a>.</p>
+<p>oneDAL version of the kNN algorithm with K-D trees uses the PANDA algorithm
+<a class="reference internal" href="../../../bibliography.html#patwary2016" id="id3"><span>[Patwary2016]</span></a>.</p>
+<p>Each non-leaf node of a tree contains the identifier of a feature along
 which to split the feature space and an appropriate feature value (a
 cut-point) that defines the splitting hyperplane to partition the
 feature space into two parts. Each leaf node of the tree has an
@@ -922,8 +945,16 @@ associated subset (a bucket) of elements of the training data set.
 Feature vectors from any bucket belong to the region of the space
 defined by tree nodes on the path from the root node to the
 respective leaf.</p>
+</div>
+<div class="section" id="brute-force">
+<h3>Brute Force<a class="headerlink" href="#brute-force" title="Permalink to this headline">¶</a></h3>
+<p>Brute Force is a naïve neighbor search that computes distances between all pairs of feature vactors
+in a data set.</p>
+</div>
 <div class="section" id="training-stage">
 <h3>Training Stage<a class="headerlink" href="#training-stage" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="training-using-k-d-tree">
+<h4>Training using K-D Tree<a class="headerlink" href="#training-using-k-d-tree" title="Permalink to this headline">¶</a></h4>
 <p>For each non-leaf node, the process of building a K-D tree
 involves the choice of the feature (that is, dimension in the
 feature space) and the value for this feature (a cut-point) to
@@ -933,8 +964,8 @@ level of the tree deals with ever smaller part of the feature
 space.</p>
 <p>The PANDA algorithm constructs the K-D tree by choosing the
 dimension with the maximum variance for splitting
-[Patwary2016].
-Therefore, for each new non-leaf node of the tree, the algorithm
+<a class="reference internal" href="../../../bibliography.html#patwary2016" id="id4"><span>[Patwary2016]</span></a>.</p>
+<p>Therefore, for each new non-leaf node of the tree, the algorithm
 computes the variance of values that belong to the respective
 region of the space for each of the features and chooses the
 feature with the largest variance. Due to high computational cost
@@ -949,11 +980,19 @@ threshold. Once the threshold is reached, PANDA stops growing the
 tree and associates the feature vectors with the bucket of the
 respective leaf node.</p>
 </div>
+<div class="section" id="training-using-brute-force">
+<h4>Training using Brute Force<a class="headerlink" href="#training-using-brute-force" title="Permalink to this headline">¶</a></h4>
+<p>For training with the Brute Force method, the algorithm uses
+all feature vectors from the training data set.</p>
+</div>
+</div>
 <div class="section" id="prediction-stage">
 <h3>Prediction Stage<a class="headerlink" href="#prediction-stage" title="Permalink to this headline">¶</a></h3>
 <p>Given kNN classifier and query vectors <span class="math notranslate nohighlight">\(x_0, \ldots, x_r\)</span>,
-the problem is to calculate the labels for those
-vectors. To solve the problem for each given query vector
+the problem is to calculate the labels for those vectors.</p>
+<div class="section" id="prediction-using-k-d-tree">
+<h4>Prediction using K-D Tree<a class="headerlink" href="#prediction-using-k-d-tree" title="Permalink to this headline">¶</a></h4>
+<p>To solve the problem for each given query vector
 <span class="math notranslate nohighlight">\(x_i\)</span>, the algorithm traverses the K-D tree to find feature
 vectors associated with a leaf node that are closest to
 <span class="math notranslate nohighlight">\(x_i\)</span>. During the search, the algorithm limits exploration
@@ -963,6 +1002,7 @@ from the <span class="math notranslate nohighlight">\(k^{th}\)</span> neighbor. 
 updated during the tree traverse.</p>
 </div>
 </div>
+</div>
 <div class="section" id="batch-processing">
 <h2>Batch Processing<a class="headerlink" href="#batch-processing" title="Permalink to this headline">¶</a></h2>
 <p>kNN classification follows the general workflow described in
@@ -970,7 +1010,7 @@ updated during the tree traverse.</p>
 <div class="section" id="training">
 <h3>Training<a class="headerlink" href="#training" title="Permalink to this headline">¶</a></h3>
 <p>For a description of the input and output, refer to Usage Model: Training and Prediction.</p>
-<p>At the training stage, K-D tree based kNN classifier has the
+<p>At the training stage, both Brute Force and K-D tree based kNN classifiesr have the
 following parameters:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
@@ -985,36 +1025,36 @@ following parameters:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>algorithmFPType</p></td>
-<td><p>float</p></td>
-<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be float or double.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p>method</p></td>
-<td><p>defaultDense</p></td>
-<td><p>The computation method used by the K-D tree based kNN classification.
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
+<td><p>The computation method used by kNN classification.
 The only training method supported so far is the default dense method.</p></td>
 </tr>
-<tr class="row-even"><td><p>nClasses</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nClasses</span></code></p></td>
 <td><p><span class="math notranslate nohighlight">\(2\)</span></p></td>
 <td><p>The number of classes.</p></td>
 </tr>
-<tr class="row-odd"><td><p>dataUseInModel</p></td>
-<td><p>doNotUse</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dataUseInModel</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">doNotUse</span></code></p></td>
 <td><p>A parameter to enable/disable use of the input data set in the kNN
 model. Possible values:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>doNotUse - the algorithm does not include the input data and labels
+<li><p><code class="docutils literal notranslate"><span class="pre">doNotUse</span></code> - the algorithm does not include the input data and labels
 in the trained kNN model but creates a copy of the input data set.</p></li>
-<li><p>doUse - the algorithm includes the input data and labels in the trained kNN model.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">doUse</span></code> - the algorithm includes the input data and labels in the trained kNN model.</p></li>
 </ul>
 </div></blockquote>
 <p>The algorithm reorders feature vectors and corresponding labels in the
 input data set or its copy to improve performance at the prediction stage.</p>
-<p>If the value is doUse, do not deallocate the memory for input data and labels.</p>
+<p>If the value is <code class="docutils literal notranslate"><span class="pre">doUse</span></code>, do not deallocate the memory for input data and labels.</p>
 </td>
 </tr>
-<tr class="row-even"><td><p>engine</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">engine</span></code></p></td>
 <td><p>SharePtr&lt; engines:: mt19937:: Batch&gt;()</p></td>
 <td><p>Pointer to the random number generator engine that is used internally to
 perform sampling needed to choose dimensions and cut-points for the K-D tree.</p></td>
@@ -1025,7 +1065,7 @@ perform sampling needed to choose dimensions and cut-points for the K-D tree.</p
 <div class="section" id="prediction">
 <h3>Prediction<a class="headerlink" href="#prediction" title="Permalink to this headline">¶</a></h3>
 <p>For a description of the input and output, refer to Usage Model: Training and Prediction.</p>
-<p>At the prediction stage, K-D tree based kNN classifier has the
+<p>At the prediction stage, both Brute Force and K-D tree based kNN classifiesr have the
 following parameters:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
@@ -1040,16 +1080,16 @@ following parameters:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>algorithmFPType</p></td>
-<td><p>float</p></td>
-<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be float or double.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The floating-point type that the algorithm uses for intermediate computations. Can be <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p>method</p></td>
-<td><p>defaultDense</p></td>
-<td><p>The computation method used by the K-D tree based kNN classification.
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
+<td><p>The computation method used kNN classification.
 The only prediction method supported so far is the default dense method.</p></td>
 </tr>
-<tr class="row-even"><td><p>nClasses</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nClasses</span></code></p></td>
 <td><p><span class="math notranslate nohighlight">\(2\)</span></p></td>
 <td><p>The number of classes.</p></td>
 </tr>
@@ -1084,19 +1124,19 @@ The only prediction method supported so far is the default dense method.</p></td
 <div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-0 active docutils container">
 <p>Batch Processing:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="../../../examples_sycl/bf_knn_dense_batch.html#bf-knn-dense-batch-cpp"><span class="std std-ref">bf_knn_dense_batch.cpp</span></a></p></li>
+<li><p><a class="reference internal" href="../../../daal/examples_sycl/bf_knn_dense_batch.html#bf-knn-dense-batch-cpp"><span class="std std-ref">bf_knn_dense_batch.cpp</span></a></p></li>
 </ul>
 </div>
 <div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-1 docutils container">
 <p>Batch Processing:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/cpp/source/k_nearest_neighbors/kdtree_knn_dense_batch.cpp">kdtree_knn_dense_batch.cpp</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/k_nearest_neighbors/kdtree_knn_dense_batch.cpp">kdtree_knn_dense_batch.cpp</a></p></li>
 </ul>
 </div>
 <div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-2 docutils container">
 <p>Batch Processing:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/java/com/intel/daal/examples/kdtree_knn_classification/KDTreeKNNDenseBatch.java">KDTreeKNNDenseBatch.java</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/kdtree_knn_classification/KDTreeKNNDenseBatch.java">KDTreeKNNDenseBatch.java</a></p></li>
 </ul>
 </div>
 </div>

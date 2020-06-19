@@ -185,6 +185,12 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Data Mining, (First Edition) Addison-Wesley Longman Publishing
    Co., Inc. Boston, MA, USA, 2005, ISBN: 032132136.
 
+.. [Wen2018]
+
+    Wen, Zeyi, Jiashuai Shi, Qinbin Li, Bingsheng He, and Jian Chen.
+    ThunderSVM: A fast SVM library on GPUs and CPUs.
+    The Journal of Machine Learning Research, 19, 1-5 (2018). 
+
 .. [Wu04] 
    Ting-Fan Wu, Chih-Jen Lin, Ruby C. Weng. *Probability Estimates
    for Multi-class Classification by Pairwise Coupling*. Journal of

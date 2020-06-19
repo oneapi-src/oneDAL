@@ -71,6 +71,8 @@ The objective function has the following parameters:
        proximalProjectionOfCertainFeature
           Certain component of proximal projection
 
+       .. note:: On GPU, ``resultsToCompute`` only computes ``value``, ``gradient``, and ``hessian``.
+
 Output
 ******
 

@@ -106,6 +106,12 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cpu-vs-gpu.html">CPU and GPU Support</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../cpu-vs-gpu.html#computation-modes">Computation modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cpu-vs-gpu.html#methods">Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cpu-vs-gpu.html#parameters">Parameters</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../legal.html">Notices and Disclaimers</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Developer Guide</span></p>
@@ -515,6 +521,8 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html">k-Nearest Neighbors (kNN) Classifier</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#details">Details</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#k-d-tree">K-D tree</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#brute-force">Brute Force</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training-stage">Training Stage</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction-stage">Prediction Stage</a></li>
 </ul>
@@ -598,7 +606,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#prediction">Prediction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#id4">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#id7">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#performance-considerations">Performance Considerations</a></li>
@@ -672,24 +680,30 @@
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../sycl_examples.html">DPC++ Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/bf_knn_dense_batch.html">bf_knn_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/cor_dense_batch.html">cor_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/cor_dense_online.html">cor_dense_online.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/datastructures_soa.html">datastructures_soa.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/datastructures_usm.html">datastructures_usm.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/dbscan_dense_batch.html">dbscan_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/gbt_reg_dense_batch.html">gbt_reg_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/kmeans_dense_batch.html">kmeans_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/kmeans_init_dense_batch.html">kmeans_init_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/lin_reg_norm_eq_dense_batch.html">lin_reg_norm_eq_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/lin_reg_norm_eq_dense_online.html">lin_reg_norm_eq_dense_online.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/log_reg_binary_dense_batch.html">log_reg_binary_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/log_reg_dense_batch.html">log_reg_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/low_order_moms_dense_batch.html">low_order_moms_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/low_order_moms_dense_online.html">low_order_moms_dense_online.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/pca_transform_dense_batch.html">pca_transform_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/sgd_mini_log_loss_dense_batch.html">sgd_mini_log_loss_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/bf_knn_dense_batch.html">bf_knn_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/cor_dense_batch.html">cor_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/cor_dense_online.html">cor_dense_online.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/datastructures_soa.html">datastructures_soa.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/datastructures_usm.html">datastructures_usm.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/dbscan_dense_batch.html">dbscan_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/df_cls_dense_batch.html">df_cls_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/df_reg_dense_batch.html">df_reg_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/gbt_reg_dense_batch.html">gbt_reg_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/kernel_func_lin_dense_batch.html">kernel_func_lin_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/kernel_func_rbf_dense_batch.html">kernel_func_rbf_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/kmeans_dense_batch.html">kmeans_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/kmeans_init_dense_batch.html">kmeans_init_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/lin_reg_norm_eq_dense_batch.html">lin_reg_norm_eq_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/lin_reg_norm_eq_dense_online.html">lin_reg_norm_eq_dense_online.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/log_reg_binary_dense_batch.html">log_reg_binary_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/log_reg_dense_batch.html">log_reg_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/low_order_moms_dense_batch.html">low_order_moms_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/low_order_moms_dense_online.html">low_order_moms_dense_online.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/pca_cor_dense_online.html">pca_cor_dense_online.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/pca_transform_dense_batch.html">pca_transform_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/sgd_mini_log_loss_dense_batch.html">sgd_mini_log_loss_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/svm_two_class_dense_batch.html">svm_two_class_dense_batch.cpp</a></li>
 </ul>
 </li>
 </ul>
@@ -878,7 +892,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="k-means-clustering">
-<h1>K-Means Clustering<a class="headerlink" href="#k-means-clustering" title="Permalink to this headline">¶</a></h1>
+<span id="kmeans"></span><h1>K-Means Clustering<a class="headerlink" href="#k-means-clustering" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 </div>
 <p>K-Means is among the most popular and simplest clustering methods. It
@@ -1019,7 +1033,7 @@ more details, see the <em>PartialResult</em> description at Step 1 <a class="ref
 </div>
 </div>
 <div class="section" id="initialization">
-<h2>Initialization<a class="headerlink" href="#initialization" title="Permalink to this headline">¶</a></h2>
+<span id="kmeans-init"></span><h2>Initialization<a class="headerlink" href="#initialization" title="Permalink to this headline">¶</a></h2>
 <p>The K-Means clustering algorithm requires initialization of
 centroids as an explicit step. Initialization flow depends by the
 computation mode. Skip this step if you already calculated initial
@@ -1033,8 +1047,8 @@ described below. Pass the Input ID as a parameter to the methods
 that provide input for your algorithm.</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
+<col style="width: 14%" />
+<col style="width: 86%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Input ID</p></th>
@@ -1042,11 +1056,15 @@ that provide input for your algorithm.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>data</p></td>
-<td><p>Pointer to the <span class="math notranslate nohighlight">\(n \times p\)</span> numeric table with the data to be clustered. The input can be an object of any class derived from NumericTable.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">data</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(n \times p\)</span> numeric table with the data to be clustered.</p></td>
 </tr>
 </tbody>
 </table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The input can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p>
+</div>
 </div>
 <div class="section" id="parameters">
 <h4>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h4>
@@ -1055,10 +1073,10 @@ for K-Means clustering, which depend on the initialization method
 parameter method.</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 50%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter</p></th>
@@ -1068,49 +1086,66 @@ parameter method.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>algorithmFPType</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
 <td><p>any</p></td>
-<td><p>float</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
 <td><p>The floating-point type that the algorithm uses for intermediate computations. Can be float or double.</p></td>
 </tr>
-<tr class="row-odd"><td><p>method</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
 <td><p>Not applicable</p></td>
-<td><p>defaultDense</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
 <td><p>Available initialization methods for K-Means clustering:</p>
+<p>For CPU:</p>
 <ul class="simple">
-<li><p>defaultDense - uses first nClusters points as initial centroids</p></li>
-<li><p>deterministicCSR - uses first nClusters points as initial centroids for data in a CSR numeric table</p></li>
-<li><p>randomDense - uses random nClusters points as initial centroids</p></li>
-<li><p>randomCSR - uses random nClusters points as initial centroids for data in a CSR numeric table</p></li>
-<li><p>plusPlusDense - uses K-Means++ algorithm <a class="reference internal" href="../../../bibliography.html#arthur2007" id="id4"><span>[Arthur2007]</span></a></p></li>
-<li><p>plusPlusCSR - uses K-Means++ algorithm for data in a CSR numeric table</p></li>
-<li><p>parallelPlusDense - uses parallel K-Means++ algorithm [Bahmani2012]</p></li>
-<li><p>parallelPlusCSR - uses parallel K-Means++ algorithm for data in a CSR numeric table</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code> - uses first nClusters points as initial centroids</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">deterministicCSR</span></code> - uses first nClusters points as initial centroids for data in a CSR numeric table</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">randomDense</span></code> - uses random nClusters points as initial centroids</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">randomCSR</span></code> - uses random nClusters points as initial centroids for data in a CSR numeric table</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plusPlusDense</span></code> - uses K-Means++ algorithm <a class="reference internal" href="../../../bibliography.html#arthur2007" id="id4"><span>[Arthur2007]</span></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plusPlusCSR</span></code> - uses K-Means++ algorithm for data in a CSR numeric table</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">parallelPlusDense</span></code> - uses parallel K-Means++ algorithm [Bahmani2012]</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">parallelPlusCSR</span></code> - uses parallel K-Means++ algorithm for data in a CSR numeric table</p></li>
 </ul>
-<p>For more details, see the algorithm description.</p>
+<p>For GPU:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code> - uses first nClusters points as initial centroids</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">randomDense</span></code> - uses random nClusters points as initial centroids</p></li>
+</ul>
 </td>
 </tr>
-<tr class="row-even"><td><p>nClusters</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nClusters</span></code></p></td>
 <td><p>any</p></td>
 <td><p>Not applicable</p></td>
 <td><p>The number of clusters. Required.</p></td>
 </tr>
-<tr class="row-odd"><td><p>nTrials</p></td>
-<td><p>parallelPlusDense, parallelPlusCSR</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nTrials</span></code></p></td>
+<td><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">parallelPlusDense</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">parallelPlusCSR</span></code></p></li>
+</ul>
+</td>
 <td><p><span class="math notranslate nohighlight">\(1\)</span></p></td>
 <td><p>The number of trails to generate all clusters but the first initial cluster. For details, see <a class="reference internal" href="../../../bibliography.html#arthur2007" id="id5"><span>[Arthur2007]</span></a>, section 5</p></td>
 </tr>
-<tr class="row-even"><td><p>oversamplingFactor</p></td>
-<td><p>parallelPlusDense, parallelPlusCSR</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oversamplingFactor</span></code></p></td>
+<td><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">parallelPlusDense</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">parallelPlusCSR</span></code></p></li>
+</ul>
+</td>
 <td><p><span class="math notranslate nohighlight">\(0.5\)</span></p></td>
 <td><p>A fraction of nClusters in each of nRounds of parallel K-Means++. L=nClusters*oversamplingFactor points are sampled in a round. For details, see <a class="reference internal" href="../../../bibliography.html#bahmani2012" id="id6"><span>[Bahmani2012]</span></a>, section 3.3.</p></td>
 </tr>
-<tr class="row-odd"><td><p>nRounds</p></td>
-<td><p>parallelPlusDense, parallelPlusCSR</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nRounds</span></code></p></td>
+<td><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">parallelPlusDense</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">parallelPlusCSR</span></code></p></li>
+</ul>
+</td>
 <td><p><span class="math notranslate nohighlight">\(5\)</span></p></td>
 <td><p>The number of rounds for parallel K-Means++. (L*nRounds) must be greater than nClusters. For details, see <a class="reference internal" href="../../../bibliography.html#bahmani2012" id="id7"><span>[Bahmani2012]</span></a>, section 3.3.</p></td>
 </tr>
-<tr class="row-even"><td><p>engine</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">engine</span></code></p></td>
 <td><p>any</p></td>
 <td><p>SharePtr&lt; engines:: mt19937:: Batch&gt;()</p></td>
 <td><p>Pointer to the random number generator engine that is used internally for random numbers generation.</p></td>
@@ -1125,8 +1160,8 @@ result described below. Pass the Result ID as a parameter to the
 methods that access the results of your algorithm.</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
+<col style="width: 14%" />
+<col style="width: 86%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Result ID</p></th>
@@ -1134,11 +1169,17 @@ methods that access the results of your algorithm.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>centroids</p></td>
-<td><p>Pointer to the <span class="math notranslate nohighlight">\(nClusters \times p\)</span> numeric table with the cluster centroids. By default, this result is an object of the HomogenNumericTable class, but you can define the result as an object of any class derived from NumericTable except PackedTriangularMatrix, PackedSymmetricMatrix, and CSRNumericTable.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">centroids</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(nClusters \times p\)</span> numeric table with the cluster centroids.</p></td>
 </tr>
 </tbody>
 </table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
 </div>
 </div>
 <div class="section" id="distributed-processing">
@@ -1158,10 +1199,10 @@ is only available in Developer Guide for Intel(R) DAAL.</p>
 <p>The K-Means clustering algorithm accepts the input described
 below. Pass the Input ID as a parameter to the methods that
 provide input for your algorithm.</p>
-<table class="docutils align-left">
+<table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
+<col style="width: 14%" />
+<col style="width: 86%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Input ID</p></th>
@@ -1169,23 +1210,27 @@ provide input for your algorithm.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>data</p></td>
-<td><p>Pointer to the <span class="math notranslate nohighlight">\(n \times p\)</span> numeric table with the data to be clustered. The input can be an object of any class derived from NumericTable.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">data</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(n \times p\)</span> numeric table with the data to be clustered.</p></td>
 </tr>
-<tr class="row-odd"><td><p>inputCentroids</p></td>
-<td><p>Pointer to the <span class="math notranslate nohighlight">\(nClusters \times p\)</span> numeric table with the initial centroids. The input can be an object of any class derived from NumericTable.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">inputCentroids</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(nClusters \times p\)</span> numeric table with the initial centroids.</p></td>
 </tr>
 </tbody>
 </table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The input for <code class="docutils literal notranslate"><span class="pre">data</span></code> and <code class="docutils literal notranslate"><span class="pre">inputCentroids</span></code> can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>.</p>
+</div>
 </div>
 <div class="section" id="algorithm-parameters">
 <h4>Algorithm Parameters<a class="headerlink" href="#algorithm-parameters" title="Permalink to this headline">¶</a></h4>
 <p>The K-Means clustering algorithm has the following parameters:</p>
-<table class="docutils align-left">
+<table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 75%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter</p></th>
@@ -1194,44 +1239,64 @@ provide input for your algorithm.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>algorithmFPType</p></td>
-<td><p>float</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">algorithmFPType</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
 <td><p>The floating-point type that the algorithm uses for intermediate computations. Can be float or double.</p></td>
 </tr>
-<tr class="row-odd"><td><p>method</p></td>
-<td><p>defaultDense</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code></p></td>
 <td><p>Available computation methods for K-Means clustering:</p>
+<p>For CPU:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>defaultDense - implementation of Lloyd’s algorithm</p></li>
-<li><p>lloydCSR - implementation of Lloyd’s algorithm for CSR numeric tables</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code> - implementation of Lloyd’s algorithm</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lloydCSR</span></code> - implementation of Lloyd’s algorithm for CSR numeric tables</p></li>
+</ul>
+</div></blockquote>
+<p>For GPU:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code> - implementation of Lloyd’s algorithm</p></li>
 </ul>
 </div></blockquote>
 </td>
 </tr>
-<tr class="row-even"><td><p>nClusters</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nClusters</span></code></p></td>
 <td><p>Not applicable</p></td>
 <td><p>The number of clusters. Required to initialize the algorithm.</p></td>
 </tr>
-<tr class="row-odd"><td><p>maxIterations</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">maxIterations</span></code></p></td>
 <td><p>Not applicable</p></td>
 <td><p>The number of iterations. Required to initialize the algorithm.</p></td>
 </tr>
-<tr class="row-even"><td><p>accuracyThreshold</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">accuracyThreshold</span></code></p></td>
 <td><p><span class="math notranslate nohighlight">\(0.0\)</span></p></td>
 <td><p>The threshold for termination of the algorithm.</p></td>
 </tr>
-<tr class="row-odd"><td><p>gamma</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">gamma</span></code></p></td>
 <td><p><span class="math notranslate nohighlight">\(1.0\)</span></p></td>
 <td><p>The weight to be used in distance calculation for binary categorical features.</p></td>
 </tr>
-<tr class="row-even"><td><p>distanceType</p></td>
-<td><p>euclidean</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">distanceType</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">euclidean</span></code></p></td>
 <td><p>The measure of closeness between points (observations) being clustered. The only distance type supported so far is the Euclidian distance.</p></td>
 </tr>
-<tr class="row-odd"><td><p>assignFlag</p></td>
-<td><p>true</p></td>
+<tr class="row-odd"><td><p><strong>DEPRECATED:</strong> <code class="docutils literal notranslate"><span class="pre">assignFlag</span></code></p>
+<p><strong>USE INSTEAD:</strong> <code class="docutils literal notranslate"><span class="pre">resultsToEvaluate</span></code></p>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
 <td><p>A flag that enables computation of assignments, that is, assigning cluster indices to respective observations.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">resultsToEvaluate</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">computeCentroids</span></code> | <code class="docutils literal notranslate"><span class="pre">computeAssignments</span></code> | <code class="docutils literal notranslate"><span class="pre">computeExactObjectiveFunction</span></code></p></td>
+<td><p>The 64-bit integer flag that specifies which extra characteristics of the K-Means to compute.</p>
+<p>Provide one of the following values to request a single characteristic or use bitwise OR to request a combination of the characteristics:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">computeCentroids</span></code> for computation centroids.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">computeAssignments</span></code> for computation of assignments, that is, assigning cluster indices to respective observations.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">computeExactObjectiveFunction</span></code> for computation of exact ObjectiveFunction.</p></li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -1241,10 +1306,10 @@ provide input for your algorithm.</p>
 <p>The K-Means clustering algorithm calculates the result described
 below. Pass the Result ID as a parameter to the methods that access
 the results of your algorithm.</p>
-<table class="docutils align-left">
+<table class="colwidths-given docutils align-left">
 <colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
+<col style="width: 14%" />
+<col style="width: 86%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Result ID</p></th>
@@ -1252,41 +1317,59 @@ the results of your algorithm.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>centroids</p></td>
-<td><p>Pointer to the <span class="math notranslate nohighlight">\(nClusters \times p\)</span> numeric table with the cluster centroids.
-By default, this result is an object of the HomogenNumericTable class,
-but you can define the result as an object of any class derived from
-NumericTable except PackedTriangularMatrix, PackedSymmetricMatrix, and
-CSRNumericTable.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">centroids</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(nClusters \times p\)</span> numeric table with the cluster centroids,
+computed when <code class="docutils literal notranslate"><span class="pre">computeCentroids</span></code> option is enabled.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
+</td>
 </tr>
-<tr class="row-odd"><td><p>assignments</p></td>
-<td><p>Use when assignFlag=true. Pointer to the <span class="math notranslate nohighlight">\(n \times 1\)</span> numeric table with
-assignments of cluster indices to feature vectors in the input data. By
-default, this result is an object of the HomogenNumericTable class, but
-you can define the result as an object of any class derived from
-NumericTable except PackedTriangularMatrix, PackedSymmetricMatrix, and
-CSRNumericTable.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">assignments</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(n \times 1\)</span> numeric table with
+assignments of cluster indices to feature vectors in the input data,
+computed when <code class="docutils literal notranslate"><span class="pre">computeAssignments</span></code> option is enabled.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
+</td>
 </tr>
-<tr class="row-even"><td><p>objectiveFunction</p></td>
-<td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times 1\)</span> numeric table with the value of the goal function.
-By default, this result is an object of the HomogenNumericTable class,
-but you can define the result as an object of any class derived from
-NumericTable except CSRNumericTable.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">objectiveFunction</span></code></p></td>
+<td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times 1\)</span> numeric table with the minimum value of the objective function
+obtained at the last iteration of the algorithm, might be inexact.
+When <code class="docutils literal notranslate"><span class="pre">computeExactObjectiveFunction</span></code> option is enabled, exact objective function is computed.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
+</td>
 </tr>
-<tr class="row-odd"><td><p>nIterations</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nIterations</span></code></p></td>
 <td><p>Pointer to the <span class="math notranslate nohighlight">\(1 \times 1\)</span> numeric table with the actual number of iterations
-done by the algorithm. By default, this result is an object of the
-HomogenNumericTable class, but you can define the result as an object of
-any class derived from NumericTable except PackedTriangularMatrix,
-PackedSymmetricMatrix, and CSRNumericTable.</p></td>
+done by the algorithm.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+</div>
+</td>
 </tr>
 </tbody>
 </table>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>You can skip update of centroids and objectiveFunction in the
-result and compute assignments using original inputCentroids. To
-do this, set assignFlag to true and maxIterations to zero.</p>
+result and compute assignments using original inputCentroids.
+To do this, set <code class="docutils literal notranslate"><span class="pre">resultsToEvaluate</span></code> flag only to <code class="docutils literal notranslate"><span class="pre">computeAssignments</span></code> and <code class="docutils literal notranslate"><span class="pre">maxIterations</span></code> to zero.</p>
 </div>
 </div>
 </div>
@@ -1321,32 +1404,32 @@ is only available in Developer Guide for Intel(R) DAAL.</p>
 <div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-0 active docutils container">
 <p>Batch Processing:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="../../../examples_sycl/kmeans_dense_batch.html#kmeans-dense-batch-cpp"><span class="std std-ref">kmeans_dense_batch.cpp</span></a></p></li>
-<li><p><a class="reference internal" href="../../../examples_sycl/kmeans_init_dense_batch.html#kmeans-init-dense-batch-cpp"><span class="std std-ref">kmeans_init_dense_batch.cpp</span></a></p></li>
+<li><p><a class="reference internal" href="../../../daal/examples_sycl/kmeans_dense_batch.html#kmeans-dense-batch-cpp"><span class="std std-ref">kmeans_dense_batch.cpp</span></a></p></li>
+<li><p><a class="reference internal" href="../../../daal/examples_sycl/kmeans_init_dense_batch.html#kmeans-init-dense-batch-cpp"><span class="std std-ref">kmeans_init_dense_batch.cpp</span></a></p></li>
 </ul>
 </div>
 <div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-1 docutils container">
 <p>Batch Processing:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/cpp/source/kmeans/kmeans_dense_batch.cpp">kmeans_dense_batch.cpp</a></p></li>
-<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/cpp/source/kmeans/kmeans_csr_batch.cpp">kmeans_csr_batch.cpp</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/kmeans/kmeans_dense_batch.cpp">kmeans_dense_batch.cpp</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/kmeans/kmeans_csr_batch.cpp">kmeans_csr_batch.cpp</a></p></li>
 </ul>
 <p>Distributed Processing:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/cpp/source/kmeans/kmeans_dense_distr.cpp">kmeans_dense_distr.cpp</a></p></li>
-<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/cpp/source/kmeans/kmeans_csr_distr.cpp">kmeans_csr_distr.cpp</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/kmeans/kmeans_dense_distr.cpp">kmeans_dense_distr.cpp</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/kmeans/kmeans_csr_distr.cpp">kmeans_csr_distr.cpp</a></p></li>
 </ul>
 </div>
 <div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-2 docutils container">
 <p>Batch Processing:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/java/com/intel/daal/examples/kmeans/KMeansDenseBatch.java">KMeansDenseBatch.java</a></p></li>
-<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/java/com/intel/daal/examples/kmeans/KMeansCSRBatch.java">KMeansCSRBatch.java</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/kmeans/KMeansDenseBatch.java">KMeansDenseBatch.java</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/kmeans/KMeansCSRBatch.java">KMeansCSRBatch.java</a></p></li>
 </ul>
 <p>Distributed Processing</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/java/com/intel/daal/examples/kmeans/KMeansDenseDistr.java">KMeansDenseDistr.java</a></p></li>
-<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/java/com/intel/daal/examples/kmeans/KMeansCSRDistr.java">KMeansCSRDistr.java</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/kmeans/KMeansDenseDistr.java">KMeansDenseDistr.java</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/kmeans/KMeansCSRDistr.java">KMeansCSRDistr.java</a></p></li>
 </ul>
 </div>
 </div>

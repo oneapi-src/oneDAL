@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _objective_function:
+
 Objective Function
 ==================
 
@@ -60,3 +62,4 @@ where :math:`F(\theta)` is a smooth and :math:`M(\theta)` is a non-smooth functi
    objective-functions/logistic-loss.rst
    objective-functions/cross-entropy.rst
   
+.. note:: On GPU, only :ref:`logistic_loss` and :ref:`cross_entropy_loss` are supported, :ref:`mse` is not supported.

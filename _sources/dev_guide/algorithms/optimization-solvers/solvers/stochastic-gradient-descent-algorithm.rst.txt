@@ -115,7 +115,7 @@ them are required only for specific values of the computation
 method parameter method:
 
 .. list-table::
-   :widths: 25 25 25 25
+   :widths: 10 10 10 30
    :header-rows: 1
    :align: left
 
@@ -124,44 +124,53 @@ method parameter method:
      - Default Value
      - Description
    * - algorithmFPType
-     - defaultDense, miniBatch, or momentum
-     - float
+     - ``defaultDense``, ``miniBatch``, ``momentum``
+     - ``float``
      - The floating-point type that the algorithm uses for intermediate
        computations. Can be float or double.
-   * - method
+   * - ``method``
      - Not applicable
-     - defaultDense
+     - ``defaultDense``
      - Available computation methods:
 
-       - defaultDense
-       - miniBatch
-       - momentum
-   * - batchIndices
-     - defaultDense, miniBatch, or momentum
-     - NULL
+       For CPU:
+
+       - ``defaultDense``
+       - ``miniBatch``
+       - ``momentum``
+
+       For GPU:
+
+       - ``miniBatch``
+
+   * - ``batchIndices``
+     - ``defaultDense``, ``miniBatch``, ``momentum``
+     - ``NULL``
      - The numeric table with 32-bit integer indices of terms in the objective
        function. The method parameter determines the size of the numeric table:
-       - defaultDense:nIterations x 1
-       - miniBatch or momentum: nIterations x batchSize
+
+       - ``defaultDense``: ``nIterations`` x 1
+       - ``miniBatch`` and ``momentum``: ``nIterations`` x ``batchSize``
+
        If no indices are provided, the implementation generates random indices.
 
-       This parameter can be an object of any class derived fromNumericTable
-       except PackedTriangularMatrix, PackedSymmetricMatrix, and
-       CSRNumericTable.
-   * - batchSize
-     - miniBatch or momentum
-     - 128
-     - Number of batch indices to compute the stochastic gradient. If batchSize
-       equals the number of terms in the objective function, no random sampling
+       .. include: ../../../includes/parameter_numeric_table
+
+   * - ``batchSize``
+     - ``miniBatch``,``momentum``
+     - :math:`128`
+     - Number of batch indices to compute the stochastic gradient.
+     
+       If ``batchSize`` equals the number of terms in the objective function, no random sampling
        is performed, and all terms are used to calculate the gradient.
 
        The algorithm ignores this parameter if the batchIndices parameter is
        provided.
 
-       For the defaultDense value of method, one term is used to compute the
+       For the ``defaultDense`` value of method, one term is used to compute the
        gradient on each iteration.
-   * - conservativeSequence
-     - miniBatch
+   * - ``conservativeSequence``
+     - ``miniBatch``
      - Numeric table of size :math:`1 \times 1` that contains the default conservative coefficient equal to 1.
      - The numeric table of size :math:`1 \times \text{nIterations}` or :math:`1 \times 1`. The contents of the
        table depend on its size:
@@ -169,34 +178,29 @@ method parameter method:
         - size = :math:`1 \times \text{nIterations}`: values of the conservative coefficient sequence :math:`\gamma^k` for :math:`k = 1, \ldots, \text{nIterations}`.
         - size = :math:`1 \times 1` the value of conservative coefficient at each iteration :math:`\gamma^1 = \ldots = \gamma^\text{nIterations}`.
 
-       This parameter can be an object of any class derived fromNumericTable
-       except PackedTriangularMatrix, PackedSymmetricMatrix, and
-       CSRNumericTable.
+       .. include: ../../../includes/parameter_numeric_table
 
-
-   * - innerNIterations
-     - miniBatch
-     - 5
+   * - ``innerNIterations``
+     - ``miniBatch``
+     - :math:`5`
      - The number of inner iterations for the miniBatch method.
-   * - learningRateSequence
-     - defaultDense, miniBatch, or momentum
-     - Numeric table of size :math:`1 \times 1` that contains the default step length equal
-       to 1.
+   * - ``learningRateSequence``
+     - ``defaultDense``, ``miniBatch``, ``momentum``
+     - Numeric table of size :math:`1 \times 1` that contains the default step length equal to 1.
      - The numeric table of size :math:`1 \times \text{nIterations}` or :math:`1 \times 1`. The contents of the
        table depend on its size:
 
         - size = :math:`1 \times \text{nIterations}`: values of the learning rate sequence :math:`\eta^k` for :math:`k = 1, \ldots, \text{nIterations}`.
         - size = :math:`1 \times 1`: the value of learning rate at each iteration :math:`\eta^1 = \ldots = \eta^\text{nIterations}`.
 
-       This parameter can be an object of any class derived fromNumericTable
-       except PackedTriangularMatrix, PackedSymmetricMatrix, and
-       CSRNumericTable.
-   * - momentum
-     - momentum
-     - 0.9
+       .. include: ../../../includes/parameter_numeric_table
+
+   * - ``momentum``
+     - ``momentum``
+     - :math:`0.9`
      - The momentum value.
-   * - engine
-     - defaultDense, miniBatch, or momentum
+   * - ``engine``
+     - ``defaultDense``, ``miniBatch``, ``momentum``
      - SharePtr< engines:: mt19937:: Batch>()
      - Pointer to the random number generator engine that is used internally
        for generation of 32-bit integer indices of terms in the objective function.

@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _kmeans:
+
 K-Means Clustering
 ==================
 
@@ -213,6 +215,7 @@ overall goal function:
  *PartialResult*, and collected on the master node (Step 2). For
  more details, see the *PartialResult* description at Step 1 [Tan2005]_.
 
+.. _kmeans_init:
 
 Initialization
 **************

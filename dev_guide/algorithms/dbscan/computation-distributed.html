@@ -100,6 +100,12 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cpu-vs-gpu.html">CPU and GPU Support</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../cpu-vs-gpu.html#computation-modes">Computation modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cpu-vs-gpu.html#methods">Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cpu-vs-gpu.html#parameters">Parameters</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../legal.html">Notices and Disclaimers</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Developer Guide</span></p>
@@ -509,6 +515,8 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html">k-Nearest Neighbors (kNN) Classifier</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#details">Details</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#k-d-tree">K-D tree</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#brute-force">Brute Force</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training-stage">Training Stage</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction-stage">Prediction Stage</a></li>
 </ul>
@@ -592,7 +600,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#prediction">Prediction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#id4">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#id7">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#performance-considerations">Performance Considerations</a></li>
@@ -666,24 +674,30 @@
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../sycl_examples.html">DPC++ Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/bf_knn_dense_batch.html">bf_knn_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/cor_dense_batch.html">cor_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/cor_dense_online.html">cor_dense_online.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/datastructures_soa.html">datastructures_soa.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/datastructures_usm.html">datastructures_usm.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/dbscan_dense_batch.html">dbscan_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/gbt_reg_dense_batch.html">gbt_reg_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/kmeans_dense_batch.html">kmeans_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/kmeans_init_dense_batch.html">kmeans_init_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/lin_reg_norm_eq_dense_batch.html">lin_reg_norm_eq_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/lin_reg_norm_eq_dense_online.html">lin_reg_norm_eq_dense_online.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/log_reg_binary_dense_batch.html">log_reg_binary_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/log_reg_dense_batch.html">log_reg_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/low_order_moms_dense_batch.html">low_order_moms_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/low_order_moms_dense_online.html">low_order_moms_dense_online.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/pca_transform_dense_batch.html">pca_transform_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples_sycl/sgd_mini_log_loss_dense_batch.html">sgd_mini_log_loss_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/bf_knn_dense_batch.html">bf_knn_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/cor_dense_batch.html">cor_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/cor_dense_online.html">cor_dense_online.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/datastructures_soa.html">datastructures_soa.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/datastructures_usm.html">datastructures_usm.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/dbscan_dense_batch.html">dbscan_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/df_cls_dense_batch.html">df_cls_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/df_reg_dense_batch.html">df_reg_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/gbt_reg_dense_batch.html">gbt_reg_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/kernel_func_lin_dense_batch.html">kernel_func_lin_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/kernel_func_rbf_dense_batch.html">kernel_func_rbf_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/kmeans_dense_batch.html">kmeans_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/kmeans_init_dense_batch.html">kmeans_init_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/lin_reg_norm_eq_dense_batch.html">lin_reg_norm_eq_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/lin_reg_norm_eq_dense_online.html">lin_reg_norm_eq_dense_online.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/log_reg_binary_dense_batch.html">log_reg_binary_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/log_reg_dense_batch.html">log_reg_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/low_order_moms_dense_batch.html">low_order_moms_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/low_order_moms_dense_online.html">low_order_moms_dense_online.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/pca_cor_dense_online.html">pca_cor_dense_online.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/pca_transform_dense_batch.html">pca_transform_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/sgd_mini_log_loss_dense_batch.html">sgd_mini_log_loss_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/svm_two_class_dense_batch.html">svm_two_class_dense_batch.cpp</a></li>
 </ul>
 </li>
 </ul>
@@ -977,8 +991,8 @@ This information will be required to reconstruct initial blocks after transferri
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
-but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>,
-<code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
 </tr>
@@ -1071,8 +1085,8 @@ first row contains minimum value of each feature, second row contains maximum va
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
-but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>,
-<code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
 </tr>
@@ -1174,8 +1188,8 @@ For more details, <a class="reference internal" href="../../usage/algorithms.htm
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
-but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>,
-<code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
 </tr>
@@ -1295,8 +1309,8 @@ containing observations for processing on nodes participating in current iterati
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
-but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>,
-<code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
 </tr>
@@ -1468,7 +1482,12 @@ The numeric tables in the collection can be an object of any class derived from 
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p>If flag is set to false, all neighborhoods will be computed and stored prior to clustering.
 It will require up to <span class="math notranslate nohighlight">\(O(|\text{sum of sizes of neighborhoods}|)\)</span> of additional memory,
-which in worst case can be <span class="math notranslate nohighlight">\(O(|\text{number of observations}|^2)\)</span>. However, in general, performance may be better.</p></td>
+which in worst case can be <span class="math notranslate nohighlight">\(O(|\text{number of observations}|^2)\)</span>. However, in general, performance may be better.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">memorySavingMode</span></code> could be <code class="docutils literal notranslate"><span class="pre">false</span></code> only on CPU.</p>
+</div>
+</td>
 </tr>
 </tbody>
 </table>
@@ -1553,8 +1572,8 @@ containing information about current clustering state of observations processed 
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
-but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>,
-<code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
 </tr>
@@ -1564,8 +1583,8 @@ the clustering process is finished for current node.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
-but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>,
-<code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
 </tr>
@@ -1574,8 +1593,8 @@ but you can define the result as an object of any class derived from <code class
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
-but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>,
-<code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
 </tr>
@@ -1674,8 +1693,8 @@ that the clustering process is finished on all nodes.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
-but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>,
-<code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
 </tr>
@@ -1789,8 +1808,8 @@ containing information about current clustering state of observations processed 
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
-but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>,
-<code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
 </tr>
@@ -1799,8 +1818,8 @@ but you can define the result as an object of any class derived from <code class
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
-but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>,
-<code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
 </tr>
@@ -1809,8 +1828,8 @@ but you can define the result as an object of any class derived from <code class
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
-but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>,
-<code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
 </tr>
@@ -1907,8 +1926,8 @@ For more details, <a class="reference internal" href="../../usage/algorithms.htm
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
-but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>,
-<code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
 </tr>
@@ -2034,8 +2053,8 @@ For more details, <a class="reference internal" href="../../usage/algorithms.htm
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
-but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>,
-<code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
 </tr>
@@ -2044,8 +2063,8 @@ but you can define the result as an object of any class derived from <code class
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
-but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>,
-<code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
 </tr>
@@ -2161,8 +2180,8 @@ containing information about current clustering state of observations processed 
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
-but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>,
-<code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
 </tr>
@@ -2171,8 +2190,8 @@ but you can define the result as an object of any class derived from <code class
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
-but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>,
-<code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
 </tr>
@@ -2379,8 +2398,8 @@ processed on <a class="reference internal" href="#dbscan-step-1"><span class="st
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
-but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>,
-<code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
 </tr>
@@ -2403,8 +2422,8 @@ containing clusters assigning queries that should be processed on the local node
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, this result is an object of the <code class="docutils literal notranslate"><span class="pre">HomogenNumericTable</span></code> class,
-but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code> except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>,
-<code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
+but you can define the result as an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
+except for <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>, and <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 </div>
 </td>
 </tr>
