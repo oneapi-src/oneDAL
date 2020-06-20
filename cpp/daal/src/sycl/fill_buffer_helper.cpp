@@ -65,16 +65,16 @@ services::Status fillBuffer(services::Buffer<algorithmType> & buf, size_t nElems
     return status;
 }
 
-template services::Status fillBuffer<float>(services::Buffer<float> & buf, size_t nElems, float val);
-template services::Status fillBuffer<double>(services::Buffer<double> & buf, size_t nElems, double val);
-template services::Status fillBuffer<int8_t>(services::Buffer<int8_t> & buf, size_t nElems, int8_t val);
-template services::Status fillBuffer<int16_t>(services::Buffer<int16_t> & buf, size_t nElems, int16_t val);
-template services::Status fillBuffer<int32_t>(services::Buffer<int32_t> & buf, size_t nElems, int32_t val);
-template services::Status fillBuffer<int64_t>(services::Buffer<int64_t> & buf, size_t nElems, int64_t val);
-template services::Status fillBuffer<uint8_t>(services::Buffer<uint8_t> & buf, size_t nElems, uint8_t val);
-template services::Status fillBuffer<uint16_t>(services::Buffer<uint16_t> & buf, size_t nElems, uint16_t val);
-template services::Status fillBuffer<uint32_t>(services::Buffer<uint32_t> & buf, size_t nElems, uint32_t val);
-template services::Status fillBuffer<uint64_t>(services::Buffer<uint64_t> & buf, size_t nElems, uint64_t val);
+template DAAL_EXPORT services::Status fillBuffer<float>(services::Buffer<float> & buf, size_t nElems, float val);
+template DAAL_EXPORT services::Status fillBuffer<double>(services::Buffer<double> & buf, size_t nElems, double val);
+template DAAL_EXPORT services::Status fillBuffer<int8_t>(services::Buffer<int8_t> & buf, size_t nElems, int8_t val);
+template DAAL_EXPORT services::Status fillBuffer<int16_t>(services::Buffer<int16_t> & buf, size_t nElems, int16_t val);
+template DAAL_EXPORT services::Status fillBuffer<int32_t>(services::Buffer<int32_t> & buf, size_t nElems, int32_t val);
+template DAAL_EXPORT services::Status fillBuffer<int64_t>(services::Buffer<int64_t> & buf, size_t nElems, int64_t val);
+template DAAL_EXPORT services::Status fillBuffer<uint8_t>(services::Buffer<uint8_t> & buf, size_t nElems, uint8_t val);
+template DAAL_EXPORT services::Status fillBuffer<uint16_t>(services::Buffer<uint16_t> & buf, size_t nElems, uint16_t val);
+template DAAL_EXPORT services::Status fillBuffer<uint32_t>(services::Buffer<uint32_t> & buf, size_t nElems, uint32_t val);
+template DAAL_EXPORT services::Status fillBuffer<uint64_t>(services::Buffer<uint64_t> & buf, size_t nElems, uint64_t val);
 
 } // namespace interface1
 } // namespace internal
