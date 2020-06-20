@@ -36,7 +36,7 @@
     <LocalDebuggerWorkingDirectory>$(ProjectDir)..\..</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release.static.threaded|x64'">
-    <LocalDebuggerEnvironment>PATH=$(SolutionDir)..\..\redist\intel64;$(SolutionDir)..\..\..\..\tbb\latest\redist\intel64\vc_mt;$(PATH)</LocalDebuggerEnvironment>
+    <LocalDebuggerEnvironment>PATH=$(ProjectDir)..\..\..\..\..\redist\intel64_win\tbb\vc_mt;$(ProjectDir)..\..\..\..\..\redist\intel64_win\daal;%PATH%</LocalDebuggerEnvironment>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerCommandArguments>
     </LocalDebuggerCommandArguments>
