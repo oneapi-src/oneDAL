@@ -19,13 +19,15 @@
 ##******************************************************************************
 
 help:
-	@echo "Usage: make {libia32|soia32|libintel64|sointel64|help}"
+	@echo "Usage: make {libintel64|dylibintel64|help}"
 	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
 	@echo
 	@echo "name              - example name. Please see daal.lst file"
 	@echo
-	@echo "compiler_name     - can be intel, gnu or clang. Default value is intel."
-	@echo "                    Intel(R) C++ Compiler as default"
+	@echo "compiler_name     - can be gnu, clang, or intel. Default value is intel."
+	@echo "                    Intel(R) C Compiler as default."
+	@echo "                    If compiler=gnu then GNU C compiler will be used."
+	@echo "                    If compiler=clang then Clang C compiler will be used."
 	@echo
 	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
 	@echo
@@ -34,26 +36,30 @@ help:
 ##------------------------------------------------------------------------------
 ## examples of using:
 ##
-## make libia32 example=assoc_rules_apriori_batch  - build  by Intel(R) C++ Compiler (as default)
-##                                 and  run  association_rules  example  for 32-bit
-##                                 applications, static linking
-##
-## make soia32 compiler=gnu      - build by GNU C++ compiler and run all examples
-##                                 of Intel(R) DAAL for
-##                                 32-bit applications, dynamic linking
-##
-## make libintel64 compiler=gnu  - build by GNU C++ compiler and run all example
-##                                 of Intel(R) DAAL for
+## make libintel64 example=assoc_rules_apriori_batch  - build  by Intel(R) C++ Compiler (as default) and
+##                                 run association_rules example for
 ##                                 Intel(R) 64 processor family applications,
 ##                                 static linking
 ##
-## make sointel64                - build by Intel(R) C++ Compiler (as default)
-##                                 and run all examples for Intel(R)64 processor
-##                                 family  applications, dynamic linking
+## make dylibia32 compiler=clang - build by Clang C++ compiler and
+##                                 run all examples of Intel(R) DAAL for
+##                                 Intel(R) 64 processor family applications,
+##                                 dynamic linking
 ##
-## make sointel64 mode=build     - build only (not run) by Intel(R) C++ Compiler
-##                                 (as default) all examples for Intel(R)64
-##                                 processor family  applications, dynamic linking
+## make libintel64 compiler=gnu  - build by GNU C++ compiler and
+##                                 run all examples of Intel(R) DAAL for
+##                                 Intel(R) 64 processor family applications,
+##                                 static linking
+##
+## make dylibintel64             - build by Intel(R) C++ Compiler (as default)
+##                                 and run all examples of Intel(R) DAAL for
+##                                 Intel(R) 64 processor family applications,
+##                                 dynamic linking
+##
+## make dylibintel64 mode=build  - build only (not run) by Intel(R) C++ Compiler (as default)
+##                                 all examples of Intel(R) DAAL for
+##                                 Intel(R) 64 processor family applications,
+##                                 dynamic linking
 ##
 ## make help                     - show help
 ##
@@ -65,10 +71,8 @@ ifndef example
     example = $(DAAL)
 endif
 
-ifneq ($(compiler),gnu)
-    ifneq ($(compiler),clang)
-        override compiler = intel
-    endif
+ifeq (,$(filter gnu clang,$(compiler)))
+    override compiler = intel
 endif
 
 ifneq ($(mode),build)
@@ -78,27 +82,23 @@ endif
 ifndef DAALROOT
     DAALROOT = ./../../..
 endif
-DAAL_PATH = "$(DAALROOT)/lib/$(_IA)"
+DAAL_PATH = "$(DAALROOT)/lib"
+TBB_PATH = "$(TBBROOT)/lib"
 
-ifndef TBBROOT
-    TBBROOT = ./../../../../../tbb/latest
-endif
-TBB_PATH = "$(TBBROOT)/lib/$(_IA)/gcc4.8"
-
-EXT_LIB := -lpthread -ldl
+EXT_LIB := -ldl
 
 ifeq ($(threading),sequential)
     DAAL_LIB_T := $(DAAL_PATH)/libdaal_sequential.$(RES_EXT)
-    EXT_LIB += $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
+    EXT_LIB += -ltbb -ltbbmalloc
 else
     override threading = parallel
     DAAL_LIB_T := $(DAAL_PATH)/libdaal_thread.$(RES_EXT)
-    EXT_LIB += $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
+    EXT_LIB += -ltbb -ltbbmalloc
 endif
 
 DAAL_LIB := $(DAAL_PATH)/libonedal.$(RES_EXT) \
             $(DAAL_PATH)/libdaal_core.$(RES_EXT) \
-            $(DAAL_LIB_T)
+			$(DAAL_LIB_T)
 
 COPTS := -std=c++17 \
          -pedantic \
@@ -109,39 +109,35 @@ COPTS := -std=c++17 \
          -Werror=uninitialized \
          -Werror=unknown-pragmas \
          -Wno-unused-parameter \
+		 -stdlib=libc++ \
          -I./source/utils
 
-LOPTS := -Wl,--start-group $(DAAL_LIB) $(EXT_LIB) -Wl,--end-group
+LOPTS := $(DAAL_LIB) $(EXT_LIB)
 
-RES_DIR=_results/$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
+RES_DIR=_results/$(compiler)_intel64_$(threading)_$(RES_EXT)
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
 
 ifeq ($(compiler),intel)
     CC = icc
-    COPTS += $(if $(COVFILE), $(if $(filter ia32, $(_IA)), -m32, -m64))
 endif
 
 ifeq ($(compiler),gnu)
     CC = g++
-    COPTS += $(if $(filter ia32, $(_IA)), -m32, -m64)
+    COPTS += -m64
 endif
 
 ifeq ($(compiler),clang)
     CC = clang++
-    COPTS += $(if $(filter ia32, $(_IA)), -m32, -m64)
+    COPTS += -m64
 endif
 
-CC := $(if $(COVFILE), cov01 -1; covc -i  $(CC),$(CC))
+RPATH=-Wl,-rpath,$(DAAL_PATH) -Wl,-rpath,$(TBB_PATH)
 
-
-libia32:
-	$(MAKE) _make_ex _IA=ia32 RES_EXT=a
-soia32:
-	$(MAKE) _make_ex _IA=ia32 RES_EXT=so
 libintel64:
-	$(MAKE) _make_ex _IA=intel64 RES_EXT=a
-sointel64:
-	$(MAKE) _make_ex _IA=intel64 RES_EXT=so
+	$(MAKE) _make_ex RES_EXT=a
+dylibintel64:
+	$(MAKE) _make_ex RES_EXT=dylib
+
 
 
 _make_ex: $(RES)
@@ -151,7 +147,7 @@ vpath %.cpp $(addprefix ./source/,pca)
 
 .SECONDARY:
 $(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.
-	$(CC) $(COPTS) $< -o $@ $(LOPTS)
+	$(CC) $(COPTS) $< -o $@ $(RPATH) $(LOPTS)
 
 $(RES_DIR)/%.res:  $(RES_DIR)/%.exe
 	$< > $@
