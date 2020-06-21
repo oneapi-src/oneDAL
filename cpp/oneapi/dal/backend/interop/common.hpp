@@ -38,9 +38,6 @@ template <> struct to_daal_cpu_type<cpu_dispatch_avx>     : daal_cpu_value<daal:
 template <> struct to_daal_cpu_type<cpu_dispatch_avx2>    : daal_cpu_value<daal::avx2> {};
 template <> struct to_daal_cpu_type<cpu_dispatch_avx512>  : daal_cpu_value<daal::avx512> {};
 
-template <typename DispatchId>
-constexpr daal::CpuType to_daal_cpu_type_v = to_daal_cpu_type<DispatchId>::value;
-
 inline constexpr cpu_extension from_daal_cpu_type(daal::CpuType cpu) {
     switch (cpu) {
         case daal::sse2:   return cpu_extension::sse2;
@@ -64,7 +61,7 @@ inline cpu_extension detect_top_cpu_extension() {
 template <typename Float, template <typename, daal::CpuType> typename CpuKernel, typename... Args>
 inline auto call_daal_kernel(const context_cpu& ctx, Args&&... args) {
     return dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-        return CpuKernel<Float, to_daal_cpu_type_v<decltype(cpu)>>().compute(std::forward<Args>(args)...);
+        return CpuKernel<Float, to_daal_cpu_type<decltype(cpu)>::value>().compute(std::forward<Args>(args)...);
     });
 }
 
