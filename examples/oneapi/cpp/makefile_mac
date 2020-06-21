@@ -98,7 +98,7 @@ endif
 
 DAAL_LIB := $(DAAL_PATH)/libonedal.$(RES_EXT) \
             $(DAAL_PATH)/libdaal_core.$(RES_EXT) \
-			$(DAAL_LIB_T)
+            $(DAAL_LIB_T)
 
 COPTS := -std=c++17 \
          -pedantic \
@@ -109,7 +109,7 @@ COPTS := -std=c++17 \
          -Werror=uninitialized \
          -Werror=unknown-pragmas \
          -Wno-unused-parameter \
-		 -stdlib=libc++ \
+         -stdlib=libc++ \
          -I./source/utils
 
 LOPTS := $(DAAL_LIB) $(EXT_LIB)
