@@ -27,7 +27,7 @@
 #include <stdint.h>
 #include "services/env_detect.h"
 
-int __daal_serv_cpu_detect(int);
+DAAL_EXPORT int __daal_serv_cpu_detect(int);
 
 bool daal_check_is_intel_cpu();
 

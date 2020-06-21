@@ -24,37 +24,22 @@
 namespace oneapi::dal::backend::interop {
 
 template <typename DispatchId>
-constexpr daal::CpuType to_daal_cpu_type(DispatchId);
+struct to_daal_cpu_type;
 
-template <>
-constexpr daal::CpuType to_daal_cpu_type<cpu_dispatch_default>(cpu_dispatch_default) {
-    return daal::CpuType::sse2;
-}
+template <daal::CpuType cpu>
+struct daal_cpu_value {
+    constexpr static daal::CpuType value = cpu;
+};
 
-template <>
-constexpr daal::CpuType to_daal_cpu_type<cpu_dispatch_ssse3>(cpu_dispatch_ssse3) {
-    return daal::CpuType::ssse3;
-}
+template <> struct to_daal_cpu_type<cpu_dispatch_default> : daal_cpu_value<daal::sse2> {};
+template <> struct to_daal_cpu_type<cpu_dispatch_ssse3>   : daal_cpu_value<daal::ssse3> {};
+template <> struct to_daal_cpu_type<cpu_dispatch_sse42>   : daal_cpu_value<daal::sse42> {};
+template <> struct to_daal_cpu_type<cpu_dispatch_avx>     : daal_cpu_value<daal::avx> {};
+template <> struct to_daal_cpu_type<cpu_dispatch_avx2>    : daal_cpu_value<daal::avx2> {};
+template <> struct to_daal_cpu_type<cpu_dispatch_avx512>  : daal_cpu_value<daal::avx512> {};
 
-template <>
-constexpr daal::CpuType to_daal_cpu_type<cpu_dispatch_sse42>(cpu_dispatch_sse42) {
-    return daal::CpuType::sse42;
-}
-
-template <>
-constexpr daal::CpuType to_daal_cpu_type<cpu_dispatch_avx>(cpu_dispatch_avx) {
-    return daal::CpuType::avx;
-}
-
-template <>
-constexpr daal::CpuType to_daal_cpu_type<cpu_dispatch_avx2>(cpu_dispatch_avx2) {
-    return daal::CpuType::avx2;
-}
-
-template <>
-constexpr daal::CpuType to_daal_cpu_type<cpu_dispatch_avx512>(cpu_dispatch_avx512) {
-    return daal::CpuType::avx512;
-}
+template <typename DispatchId>
+constexpr daal::CpuType to_daal_cpu_type_v = to_daal_cpu_type<DispatchId>::value;
 
 inline constexpr cpu_extension from_daal_cpu_type(daal::CpuType cpu) {
     switch (cpu) {
@@ -78,9 +63,8 @@ inline cpu_extension detect_top_cpu_extension() {
 
 template <typename Float, template <typename, daal::CpuType> typename CpuKernel, typename... Args>
 inline auto call_daal_kernel(const context_cpu& ctx, Args&&... args) {
-    return dal::backend::dispatch_by_cpu(ctx, [&](const auto cpu) {
-        constexpr daal::CpuType daal_cpu_type = to_daal_cpu_type(cpu);
-        return CpuKernel<Float, daal_cpu_type>().compute(args...);
+    return dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+        return CpuKernel<Float, to_daal_cpu_type_v<decltype(cpu)>>().compute(std::forward<Args>(args)...);
     });
 }
 
