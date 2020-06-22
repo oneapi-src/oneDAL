@@ -14,11 +14,44 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <daal/src/algorithms/pca/pca_dense_correlation_batch_kernel.h>
+#include <daal/include/algorithms/pca/pca_types.h>
+#include <daal/include/algorithms/covariance/covariance_batch.h>
+#include <daal/include/data_management/data/numeric_table.h>
 
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/train_kernel.hpp"
+
+/* Instead of including PCA kernels directly from DAAL, we use forward
+ * declarations due to the following reasons: 
+ * - `PCACorrelationKernel` is partially implemented in the header file (see
+ *   `pca_dense_correlation_batch_kernel.h`), so its implementation may be
+ *   inlined to this file if `#include` is used.
+ * - The inlining leads to breaking CPU-dispatching mechanism implemented in
+ *   DAAL.
+ */
+namespace daal::algorithms::pca::internal {
+
+template <ComputeMode Mode, typename Float, CpuType Cpu>
+class PCACorrelationKernel;
+
+template <typename Float, CpuType Cpu>
+class PCACorrelationKernel<batch, Float, Cpu> {
+public:
+    PCACorrelationKernel();
+
+    services::Status compute(bool isCorrelation, 
+                             bool isDeterministic, 
+                             const data_management::NumericTable& dataTable,
+                             covariance::BatchImpl* covarianceAlg, 
+                             DAAL_UINT64 resultsToCompute, 
+                             data_management::NumericTable& eigenvectors,
+                             data_management::NumericTable& eigenvalues, 
+                             data_management::NumericTable& means,
+                             data_management::NumericTable& variances);
+};
+
+} // namespace daal::algorithms::pca::internal
 
 namespace oneapi::dal::pca::backend {
 
