@@ -47,7 +47,7 @@ public:
     const table_metadata& get_metadata() const;
 
     std::int64_t get_kind() const {
-        return 0;
+        return pure_empty_table_kind_;
     }
 
 protected:
@@ -57,6 +57,7 @@ protected:
     void init_impl(pimpl::element_type* impl);
 
 private:
+    static constexpr std::int64_t pure_empty_table_kind_ = 0;
     pimpl impl_;
 };
 

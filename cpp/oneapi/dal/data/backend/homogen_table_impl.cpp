@@ -37,7 +37,7 @@ void homogen_table_impl::pull_rows(array<T>& block, const range& rows) const {
         throw std::runtime_error("unsupported data layout");
     }
 
-    auto feature_type = meta_.get_feature(0).get_data_type();
+    const auto feature_type = meta_.get_feature(0).get_data_type();
     if (block_dtype == feature_type) {
         auto row_data = reinterpret_cast<const T*>(data_.get_data());
         auto row_start_pointer = row_data + rows.start_idx * p;
@@ -71,7 +71,7 @@ void homogen_table_impl::push_back_rows(const array<T>& block, const range& rows
     }
 
     data_.unique();
-    auto feature_type = meta_.get_feature(0).get_data_type();
+    const auto feature_type = meta_.get_feature(0).get_data_type();
     if (block_dtype == feature_type) {
         auto row_data = reinterpret_cast<T*>(data_.get_mutable_data());
         auto row_start_pointer = row_data + rows.start_idx * p;
@@ -82,7 +82,7 @@ void homogen_table_impl::push_back_rows(const array<T>& block, const range& rows
             std::memcpy(row_start_pointer, block.get_data(), block_size * sizeof(T));
         }
     } else {
-        auto type_size = get_data_type_size(feature_type);
+        const auto type_size = get_data_type_size(feature_type);
         auto row_start_pointer = data_.get_mutable_data() + rows.start_idx * p * type_size;
 
         backend::convert_vector(block.get_data(), row_start_pointer,
@@ -103,7 +103,7 @@ void homogen_table_impl::pull_column(array<T>& block, int64_t idx, const range& 
         throw std::runtime_error("unsupported data layout");
     }
 
-    auto feature_type = meta_.get_feature(0).get_data_type();
+    const auto feature_type = meta_.get_feature(0).get_data_type();
     if (block_dtype == feature_type && p == 1) {
         // TODO: assert idx == 0
 

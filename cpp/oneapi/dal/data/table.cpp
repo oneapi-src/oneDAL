@@ -72,12 +72,12 @@ homogen_table::homogen_table(int64_t row_count, int64_t column_count,
     : homogen_table(backend::homogen_table_impl(row_count, column_count, data_pointer, layout)) {}
 
 const homogen_table_metadata& homogen_table::get_metadata() const {
-    auto& impl = detail::get_impl<detail::homogen_table_impl_iface>(*this);
+    const auto& impl = detail::get_impl<detail::homogen_table_impl_iface>(*this);
     return impl.get_metadata();
 }
 
 const void* homogen_table::get_data() const {
-    auto& impl = detail::get_impl<detail::homogen_table_impl_iface>(*this);
+    const auto& impl = detail::get_impl<detail::homogen_table_impl_iface>(*this);
     return impl.get_data();
 }
 
