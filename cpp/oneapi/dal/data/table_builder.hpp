@@ -32,7 +32,7 @@ struct is_table_builder_impl {
 template <typename T>
 inline constexpr bool is_table_builder_impl_v = is_table_builder_impl<T>::value;
 
-class table_builder {
+class ONEAPI_DAL_EXPORT table_builder {
     friend detail::pimpl_accessor;
 
 public:
@@ -57,7 +57,7 @@ private:
     detail::pimpl<detail::table_builder_impl_iface> impl_;
 };
 
-class homogen_table_builder : public table_builder {
+class ONEAPI_DAL_EXPORT homogen_table_builder : public table_builder {
 public:
     // TODO: revise - const DataType* or DataType*
     template <typename DataType>

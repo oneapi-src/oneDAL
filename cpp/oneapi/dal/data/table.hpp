@@ -23,7 +23,7 @@
 
 namespace oneapi::dal {
 
-class table {
+class ONEAPI_DAL_EXPORT table {
     friend detail::pimpl_accessor;
     using pimpl = detail::pimpl<detail::table_impl_iface>;
 
@@ -56,7 +56,7 @@ private:
     pimpl impl_;
 };
 
-class homogen_table : public table {
+class ONEAPI_DAL_EXPORT homogen_table : public table {
     friend detail::pimpl_accessor;
     using pimpl = detail::pimpl<detail::homogen_table_impl_iface>;
 
@@ -71,9 +71,9 @@ public:
     }
 
     template <typename DataType>
-    homogen_table(std::int64_t row_count, std::int64_t column_count,
-                  const DataType* data_pointer,
-                  data_layout layout = data_layout::row_major);
+    homogen_table(
+        std::int64_t row_count, std::int64_t column_count,
+        const DataType* data_pointer, data_layout layout = data_layout::row_major);
 
     template <typename DataType>
     const DataType* get_data() const {

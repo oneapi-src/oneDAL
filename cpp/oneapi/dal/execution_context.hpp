@@ -39,7 +39,7 @@ enum class cpu_extension : uint64_t {
     avx512 = 1U << 5
 };
 
-class default_execution_context : public base {
+class ONEAPI_DAL_EXPORT default_execution_context : public base {
 public:
     using tag_t = detail::execution_context_tag;
     default_execution_context();

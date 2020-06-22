@@ -59,13 +59,14 @@ void table::init_impl(detail::table_impl_iface* impl) {
 }
 
 template <typename DataType>
-homogen_table::homogen_table(int64_t row_count, int64_t column_count,
-                             const DataType* data_pointer,
-                             data_layout layout)
+homogen_table::homogen_table(
+        int64_t row_count, int64_t column_count,
+        const DataType* data_pointer,
+        data_layout layout)
     : homogen_table(backend::homogen_table_impl(row_count, column_count, data_pointer, layout)) {}
 
-template homogen_table::homogen_table(int64_t, int64_t, const float*, data_layout);
-template homogen_table::homogen_table(int64_t, int64_t, const double*, data_layout);
-template homogen_table::homogen_table(int64_t, int64_t, const std::int32_t*, data_layout);
+template ONEAPI_DAL_EXPORT homogen_table::homogen_table(int64_t, int64_t, const float*, data_layout);
+template ONEAPI_DAL_EXPORT homogen_table::homogen_table(int64_t, int64_t, const double*, data_layout);
+template ONEAPI_DAL_EXPORT homogen_table::homogen_table(int64_t, int64_t, const std::int32_t*, data_layout);
 
 } // namespace oneapi::dal
