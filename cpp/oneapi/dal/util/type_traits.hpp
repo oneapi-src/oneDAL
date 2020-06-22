@@ -105,8 +105,8 @@ inline constexpr bool is_table_impl_v = is_table_impl<T>::value;
 
 template <typename T>
 struct is_homogen_table_impl {
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(const void*, get_data, () const);
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(const homogen_table_metadata&, get_metadata, () const);
+    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(const void*, get_data, () const)
+    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(const homogen_table_metadata&, get_metadata, () const)
 
     using base = is_table_impl<T>;
 
