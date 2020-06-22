@@ -85,8 +85,8 @@ const void* homogen_table::get_data() const {
     return impl.get_data();
 }
 
-template homogen_table::homogen_table(int64_t, int64_t, const float*, homogen_data_layout);
-template homogen_table::homogen_table(int64_t, int64_t, const double*, homogen_data_layout);
-template homogen_table::homogen_table(int64_t, int64_t, const std::int32_t*, homogen_data_layout);
+template ONEAPI_DAL_EXPORT homogen_table::homogen_table(int64_t, int64_t, const float*, homogen_data_layout);
+template ONEAPI_DAL_EXPORT homogen_table::homogen_table(int64_t, int64_t, const double*, homogen_data_layout);
+template ONEAPI_DAL_EXPORT homogen_table::homogen_table(int64_t, int64_t, const std::int32_t*, homogen_data_layout);
 
 } // namespace oneapi::dal
