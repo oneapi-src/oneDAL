@@ -65,8 +65,8 @@ private:
 
     void mergeReduceCentroids(const services::Buffer<algorithmFPType> & centroids, uint32_t nClusters, uint32_t nFeatures, services::Status * st);
 
-    void updateObjectiveFunction(const services::Buffer<int> & assignments, const services::Buffer<algorithmFPType> & objFunction, uint32_t blockSize,
-                                 uint32_t nClusters, uint32_t doReset, services::Status * st);
+    void updateObjectiveFunction(const services::Buffer<algorithmFPType> & objFunction, uint32_t blockSize, uint32_t nClusters, uint32_t doReset,
+                                 services::Status * st);
     void getNumEmptyClusters(uint32_t nClusters, services::Status * st);
     void buildProgram(oneapi::internal::ClKernelFactoryIface & kernelFactory, uint32_t nClusters, daal::services::Status * st);
     services::Status setEmptyClusters(NumericTable * const ntData, uint32_t nRows, uint32_t nClusters, uint32_t nFeatures,
@@ -91,12 +91,12 @@ private:
     oneapi::internal::UniversalBuffer _partialCentroidsCounters;
     oneapi::internal::UniversalBuffer _numEmptyClusters;
 
-    const uint32_t _maxWorkItemsPerGroup = 128;   // should be a power of two for interal needs
-    const uint32_t _maxLocalBuffer       = 30000; // should be less than a half of local memory (two buffers)
-    const uint32_t _preferableSubGroup   = 16;    // preferable maximal sub-group size
-    const uint32_t _nPartialCentroids    = 128;
-    const uint32_t _nValuesInBlock       = 1024 * 1024 * 1024 / sizeof(algorithmFPType);
-    const uint32_t _nMinRows             = 1;
+    const uint32_t _maxWorkItemsPerGroup = 128;                                          // should be a power of two for interal needs
+    const uint32_t _maxLocalBuffer       = 30000;                                        // should be less than a half of local memory (two buffers)
+    const uint32_t _preferableSubGroup   = 16;                                           // preferable maximal sub-group size
+    const uint32_t _nPartialCentroids    = 128;                                          // Recommended number of partial centroids
+    const uint32_t _nValuesInBlock       = 1024 * 1024 * 1024 / sizeof(algorithmFPType); // Max block size is 1GB
+    const uint32_t _nMinRows             = 1;                                            // At least a single row should fit into block
 };
 
 } // namespace internal

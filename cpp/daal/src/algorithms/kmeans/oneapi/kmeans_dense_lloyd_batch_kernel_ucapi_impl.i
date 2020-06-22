@@ -207,7 +207,7 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
                 }
                 needCandidates = hasEmptyClusters;
             }
-            updateObjectiveFunction(assignments, objFunction, range.count, nClusters, int(block == 0), &st);
+            updateObjectiveFunction(objFunction, range.count, nClusters, int(block == 0), &st);
             DAAL_CHECK_STATUS_VAR(st);
             DAAL_CHECK_STATUS_VAR(ntData->releaseBlockOfRows(dataRows));
             DAAL_CHECK_STATUS_VAR(ntAssignments->releaseBlockOfRows(assignmentsRows));
@@ -270,7 +270,7 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
         DAAL_CHECK_STATUS_VAR(st);
         computeSquares(data, _dataSq, range.count, nFeatures, &st);
         DAAL_CHECK_STATUS_VAR(st);
-        updateObjectiveFunction(assignments, objFunction, range.count, nClusters, int(block == 0), &st);
+        updateObjectiveFunction(objFunction, range.count, nClusters, int(block == 0), &st);
         DAAL_CHECK_STATUS_VAR(st);
         DAAL_CHECK_STATUS_VAR(ntData->releaseBlockOfRows(dataRows));
         DAAL_CHECK_STATUS_VAR(ntAssignments->releaseBlockOfRows(assignmentsRows));
@@ -460,13 +460,21 @@ void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::computeAssignments(const
     auto kernel           = kernel_factory.getKernel("reduce_assignments", st);
     DAAL_CHECK_STATUS_PTR(st);
 
-    KernelArguments args(6);
+    KernelArguments args(7);
     args.set(0, _centroidsSq, AccessModeIds::read);
     args.set(1, _distances, AccessModeIds::read);
-    args.set(2, assignments, AccessModeIds::write);
-    args.set(3, _mindistances, AccessModeIds::write);
-    args.set(4, blockSize);
-    args.set(5, nClusters);
+    args.set(2, blockSize);
+    args.set(3, nClusters);
+    if (TypeIds::id<algorithmFPType>() == TypeIds::float32)
+    {
+        args.set(4, FLT_MAX);
+    }
+    else
+    {
+        args.set(4, DBL_MAX);
+    }
+    args.set(5, assignments, AccessModeIds::write);
+    args.set(6, _mindistances, AccessModeIds::write);
 
     KernelRange local_range(1, _preferableSubGroup);
     KernelRange global_range(blockSize, _preferableSubGroup);
@@ -530,7 +538,7 @@ void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::mergePartialCandidates(u
     args.set(1, _candidateDistances, AccessModeIds::write);
     args.set(2, _partialCandidates, AccessModeIds::read);
     args.set(3, _partialCandidateDistances, AccessModeIds::read);
-    args.set(4, (int)nClusters);
+    args.set(4, nClusters);
 
     int num_parts = getCandidatePartNum(nClusters);
     if (num_parts > _preferableSubGroup) num_parts = _preferableSubGroup;
@@ -604,8 +612,7 @@ void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::mergeReduceCentroids(con
 }
 
 template <typename algorithmFPType>
-void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::updateObjectiveFunction(const Buffer<int> & assignments,
-                                                                                const Buffer<algorithmFPType> & objFunction, uint32_t blockSize,
+void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::updateObjectiveFunction(const Buffer<algorithmFPType> & objFunction, uint32_t blockSize,
                                                                                 uint32_t nClusters, uint32_t doReset, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateObjectiveFunction);
@@ -629,13 +636,12 @@ void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::updateObjectiveFunction(
     auto kernel           = kernel_factory.getKernel("update_objective_function", st);
     DAAL_CHECK_STATUS_PTR(st);
 
-    KernelArguments args(6);
+    KernelArguments args(5);
     args.set(0, _dataSq, AccessModeIds::read);
     args.set(1, _mindistances, AccessModeIds::read);
-    args.set(2, assignments, AccessModeIds::read);
-    args.set(3, objFunction, AccessModeIds::write);
-    args.set(4, (int)blockSize);
-    args.set(5, (int)nClusters);
+    args.set(2, blockSize);
+    args.set(3, nClusters);
+    args.set(4, objFunction, AccessModeIds::write);
 
     KernelRange local_range(_maxWorkItemsPerGroup);
     KernelRange global_range(_maxWorkItemsPerGroup);
