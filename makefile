@@ -937,7 +937,7 @@ $(RELEASEDIR.daal)/$1/$2: \
 endef
 
 $(eval $(call .release.x.sln,examples/daal/cpp,DAALExamples.sln,_release_c))
-$(eval $(call .release.x.sln,examples/daal/cpp_sycl,DAALExamples.sln,_release_c))
+$(eval $(call .release.x.sln,examples/daal/cpp_sycl,DAALExamples_sycl.sln,_release_c))
 $(eval $(call .release.x.sln,examples/oneapi/cpp,oneDALExamples.sln,_release_oneapi_c))
 endif
 
