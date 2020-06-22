@@ -682,7 +682,7 @@ $(call containing,_dbl, $(ONEAPI.objs_a)): COPT += -DDAAL_FPTYPE=double
 $(ONEAPI.objs_y): $(ONEAPI_DISPATCHER_CPU_FILE)
 $(ONEAPI.objs_y): $(ONEAPI.tmpdir_y)/inc_y_folders.txt
 $(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic.opts)
-$(ONEAPI.objs_y): COPT += -D__DAAL_IMPLEMENTATION -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG)
+$(ONEAPI.objs_y): COPT += -D__ONEAPI_DAL_ENABLE_DLL_EXPORT__ -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG)
 $(ONEAPI.objs_y): COPT += @$(ONEAPI.tmpdir_y)/inc_y_folders.txt
 $(filter %threading.$o, $(ONEAPI.objs_y)): COPT += -D__DO_TBB_LAYER__
 $(call containing,_nrh, $(ONEAPI.objs_y)): COPT += $(p4_OPT)   -DDAAL_CPU=sse2
@@ -913,13 +913,33 @@ $(RELEASEDIR.jardir)/%.jar: $(WORKDIR.lib)/%.jar | $(RELEASEDIR.jardir)/. ; $(cp
 define .release.x
 $3: $2/$(subst _$(_OS),,$1)
 $2/$(subst _$(_OS),,$1): $(DIR)/$1 | $(dir $2/$1)/.
-	$(if $(filter %makefile_win,$1),python ./deploy/local/win_examples/generate_win_makefile.py $(dir $(DIR)/$1) $(dir $2/$1),$(value cpy))
+	$(if $(filter %makefile_win,$1),python ./deploy/local/generate_win_makefile.py $(dir $(DIR)/$1) $(dir $2/$1),$(value cpy))
 	$(if $(filter %.sh %.bat,$1),chmod +x $$@)
 endef
 $(foreach x,$(release.EXAMPLES.DATA),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_common)))
 $(foreach x,$(release.EXAMPLES.CPP),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_c)))
 $(foreach x,$(release.EXAMPLES.JAVA),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_jj)))
 $(foreach x,$(release.ONEAPI.EXAMPLES.CPP),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_c)))
+
+#----- releasing VS solutions
+ifeq ($(OS_is_win),yes)
+# $1: Relative examples directiry
+# $2: Solution filename
+# $3: Target to trigger
+define .release.x.sln
+$3: $(RELEASEDIR.daal)/$1/$2
+$(RELEASEDIR.daal)/$1/$2: \
+        $1/daal_win.vcxproj.tpl \
+        $1/daal_win.vcxproj.filters.tpl \
+        $1/daal_win.vcxproj.user.tpl \
+        $1/daal_win.sln.tpl
+	python ./deploy/local/generate_win_solution.py $1 $(RELEASEDIR.daal)/$1 $2
+endef
+
+$(eval $(call .release.x.sln,examples/daal/cpp,DAALExamples.sln,_release_c))
+$(eval $(call .release.x.sln,examples/daal/cpp_sycl,DAALExamples.sln,_release_c))
+$(eval $(call .release.x.sln,examples/oneapi/cpp,oneDALExamples.sln,_release_oneapi_c))
+endif
 
 #----- releasing environment scripts
 define .release.x
