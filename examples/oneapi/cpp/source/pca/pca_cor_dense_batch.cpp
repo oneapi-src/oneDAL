@@ -17,6 +17,7 @@
 #include "oneapi/dal/data/table.hpp"
 #include "oneapi/dal/data/accessor.hpp"
 #include "oneapi/dal/algo/pca.hpp"
+
 #include "service.hpp"
 
 using namespace oneapi;

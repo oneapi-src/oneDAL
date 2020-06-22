@@ -19,8 +19,11 @@
 #include <iomanip>
 #include <iostream>
 
-std::ostream &operator <<(std::ostream& stream, const dal::table& table) {
-    auto arr = dal::row_accessor<const float>(table).pull();
+#include "oneapi/dal/data/table.hpp"
+#include "oneapi/dal/data/accessor.hpp"
+
+std::ostream &operator <<(std::ostream& stream, const oneapi::dal::table& table) {
+    auto arr = oneapi::dal::row_accessor<const float>(table).pull();
     const auto x = arr.get_data();
 
     for (std::int64_t i = 0; i < table.get_row_count(); i++) {
