@@ -27,8 +27,6 @@ namespace oneapi
 {
 namespace internal
 {
-namespace interface1
-{
 template <typename algorithmType>
 static void buildProgram(ClKernelFactoryIface & kernelFactory)
 {
@@ -76,7 +74,6 @@ template DAAL_EXPORT services::Status fillBuffer<uint16_t>(services::Buffer<uint
 template DAAL_EXPORT services::Status fillBuffer<uint32_t>(services::Buffer<uint32_t> & buf, size_t nElems, uint32_t val);
 template DAAL_EXPORT services::Status fillBuffer<uint64_t>(services::Buffer<uint64_t> & buf, size_t nElems, uint64_t val);
 
-} // namespace interface1
 } // namespace internal
 } // namespace oneapi
 } // namespace daal
