@@ -62,7 +62,7 @@ PLAT_is_$(PLAT)          := yes
 # Compiler specific part
 #===============================================================================
 
-include build/cmplr.$(COMPILER).mk
+include dev/make/cmplr.$(COMPILER).mk
 
 $(if $(filter $(PLATs.$(COMPILER)),$(PLAT)),,$(error PLAT for $(COMPILER) must be defined to one of $(PLATs.$(COMPILER))))
 
@@ -70,8 +70,8 @@ $(if $(filter $(PLATs.$(COMPILER)),$(PLAT)),,$(error PLAT for $(COMPILER) must b
 # Dependencies generation
 #===============================================================================
 
-include build/common.mk
-include build/deps.mk
+include dev/make/common.mk
+include dev/make/deps.mk
 
 #===============================================================================
 # Common macros
@@ -89,11 +89,14 @@ y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib fbsd/so))
 -Fo    := $(if $(OS_is_win),-Fo,-o)
 -Q     := $(if $(OS_is_win),$(if $(COMPILER_is_vc),-,-Q),-)
 -cxx11 := $(if $(COMPILER_is_vc),,$(-Q)std=c++11)
+-cxx17 := $(if $(COMPILER_is_vc),,$(-Q)std=c++17)
 -fPIC  := $(if $(OS_is_win),,-fPIC)
 -Zl    := $(-Zl.$(COMPILER))
 -DEBC  := $(if $(REQDBG),$(-DEBC.$(COMPILER)) -DDEBUG_ASSERT) -DTBB_SUPPRESS_DEPRECATED_MESSAGES -D__TBB_LEGACY_MODE $(if $(REQPRF), -D__DAAL_ITTNOTIFY_ENABLE__)
 -DEBJ  := $(if $(REQDBG),-g,-g:none)
 -DEBL  := $(if $(REQDBG),$(if $(OS_is_win),-debug,))
+-EHsc  := $(if $(OS_is_win),-EHsc,)
+-isystem := $(if $(OS_is_win),-I,-isystem)
 -sGRP  = $(if $(or $(OS_is_lnx),$(OS_is_fbsd)),-Wl$(comma)--start-group,)
 -eGRP  = $(if $(or $(OS_is_lnx),$(OS_is_fbsd)),-Wl$(comma)--end-group,)
 daalmake = $(if $(OS_is_fbsd),gmake,make)
@@ -118,6 +121,22 @@ USECPUS.out.defs := $(subst sse2,^\#define DAAL_KERNEL_SSE2\b,$(subst ssse3,^\#d
                     $(subst avx512_mic,^\#define DAAL_KERNEL_AVX512_MIC\b,$(USECPUS.out))))))))
 USECPUS.out.defs := $(subst $(space)^,|^,$(strip $(USECPUS.out.defs)))
 USECPUS.out.defs.filter := $(if $(USECPUS.out.defs),sed $(sed.-b) $(sed.-i) -E -e 's/$(USECPUS.out.defs)/$(sed.eol)/')
+
+USECPUS.oneapi.out.defs := \
+    $(subst ssse3,^\#define ONEDAL_CPU_DISPATCH_SSSE3\b, \
+        $(subst sse42,^\#define ONEDAL_CPU_DISPATCH_SSE42\b, \
+            $(subst avx,^\#define ONEDAL_CPU_DISPATCH_AVX\b, \
+                $(subst avx2,^\#define ONEDAL_CPU_DISPATCH_AVX2\b, \
+                    $(subst avx512,^\#define ONEDAL_CPU_DISPATCH_AVX512\b, \
+                        $(USECPUS.out) \
+                    ) \
+                ) \
+            ) \
+	    ) \
+	)
+USECPUS.oneapi.out.defs := $(subst $(space)^,|^,$(strip $(USECPUS.oneapi.out.defs)))
+USECPUS.oneapi.out.defs.filter := $(if $(USECPUS.oneapi.out.defs),sed $(sed.-b) $(sed.-i) -E -e 's/$(USECPUS.oneapi.out.defs)/$(sed.eol)/')
+
 
 #===============================================================================
 # Paths
@@ -165,6 +184,9 @@ DAALTHRS ?= tbb seq
 DAALAY   ?= a y
 
 DIR:=.
+CPPDIR:=$(DIR)/cpp
+CPPDIR.daal:=$(CPPDIR)/daal
+CPPDIR.onedal:=$(CPPDIR)/oneapi/dal
 WORKDIR    ?= $(DIR)/__work$(CMPLRDIRSUFF.$(COMPILER))/$(PLAT)
 RELEASEDIR ?= $(DIR)/__release_$(_OS)$(CMPLRDIRSUFF.$(COMPILER))
 RELEASEDIR.daal        := $(RELEASEDIR)/daal/latest
@@ -183,9 +205,9 @@ WORKDIR.lib := $(WORKDIR)/daal/lib
 COVFILE   := $(subst BullseyeStub,$(RELEASEDIR.daal)/Bullseye_$(_IA).cov,$(COVFILE))
 COV.libia := $(if $(BULLSEYEROOT),$(BULLSEYEROOT)/lib)
 
-MKLFPKDIR:= $(if $(wildcard $(DIR)/externals/mklfpk/$(_OS)/*),$(DIR)/externals/mklfpk,                            \
+MKLFPKDIR:= $(if $(wildcard $(DIR)/__deps/mklfpk/$(_OS)/*),$(DIR)/__deps/mklfpk,                            \
                 $(if $(wildcard $(MKLFPKROOT)/include/*),$(subst \,/,$(MKLFPKROOT)),                              \
-                    $(error Can`t find MKLFPK libs nether in $(DIR)/externals/mklfpk/$(_OS) not in MKLFPKROOT.)))
+                    $(error Can`t find MKLFPK libs nether in $(DIR)/__deps/mklfpk/$(_OS) not in MKLFPKROOT.)))
 MKLFPKDIR.include := $(MKLFPKDIR)/include $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/include
 MKLFPKDIR.libia   := $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/lib/$(_IA)
 
@@ -195,9 +217,9 @@ frompf1 = $(shell echo $1 | sed 's/111/\\ /g' | sed 's/222/(/g' | sed 's/333/)/g
 
 
 #============================= TBB folders =====================================
-TBBDIR := $(if $(wildcard $(DIR)/externals/tbb/$(_OS)/*),$(DIR)/externals/tbb/$(_OS)$(if $(OS_is_win),/tbb))
+TBBDIR := $(if $(wildcard $(DIR)/__deps/tbb/$(_OS)/*),$(DIR)/__deps/tbb/$(_OS)$(if $(OS_is_win),/tbb))
 TBBDIR.2 := $(if $(TBBDIR),$(TBBDIR),$(call topf,$$TBBROOT))
-TBBDIR.2 := $(if $(TBBDIR.2),$(TBBDIR.2),$(error Can`t find TBB neither in $(DIR)/externals/tbb nor in $$TBBROOT))
+TBBDIR.2 := $(if $(TBBDIR.2),$(TBBDIR.2),$(error Can`t find TBB neither in $(DIR)/__deps/tbb nor in $$TBBROOT))
 
 TBBDIR.include := $(if $(TBBDIR),$(TBBDIR)/include/tbb $(TBBDIR)/include)
 
@@ -239,9 +261,9 @@ releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb.$(y) $(TBBDIR.soia)/$(plib)tbbmal
                      $(if $(OS_is_mac),$(if $(wildcard $(TBBDIR.soia)/libtbb.12.dylib),$(wildcard $(TBBDIR.soia)/libtbb.12.dylib)))
 
 
-RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/oneapi/internal/math
+RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/sycl/internal/math
 
-MKLGPUFPKDIR:= $(if $(wildcard $(DIR)/externals/mklgpufpk/$(_OS)/*),$(DIR)/externals/mklgpufpk/$(_OS),$(subst \,/,$(MKLGPUFPKROOT)))
+MKLGPUFPKDIR:= $(if $(wildcard $(DIR)/__deps/mklgpufpk/$(_OS)/*),$(DIR)/__deps/mklgpufpk/$(_OS),$(subst \,/,$(MKLGPUFPKROOT)))
 MKLGPUFPKDIR.include := $(MKLGPUFPKDIR)/include
 MKLGPUFPKDIR.libia   := $(MKLGPUFPKDIR)/lib/$(_IA)
 
@@ -254,6 +276,8 @@ mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl_dal_sycl.hpp $(MKLGPUFPKDIR.inc
 
 core_a    := $(plib)daal_core.$a
 core_y    := $(plib)daal_core.$y
+oneapi_a  := $(plib)onedal.$a
+oneapi_y  := $(plib)onedal.$y
 
 thr_tbb_a := $(plib)daal_thread.$a
 thr_seq_a := $(plib)daal_sequential.$a
@@ -264,12 +288,17 @@ daal_jar  := daal.jar
 
 jni_so    := $(plib)JavaAPI.$y
 
-release.LIBS_A := $(core_a)                                                             \
+release.LIBS_A := $(core_a) \
                   $(if $(OS_is_win),$(foreach ilib,$(core_a),$(ilib:%.lib=%_dll.lib)),) \
                   $(if $(DAALTHRS),$(foreach i,$(DAALTHRS),$(thr_$(i)_a)),)
-release.LIBS_Y := $(core_y) $(if $(DAALTHRS),$(foreach i,$(DAALTHRS),$(thr_$(i)_y)),)
+release.LIBS_Y := $(core_y) \
+                  $(if $(DAALTHRS),$(foreach i,$(DAALTHRS),$(thr_$(i)_y)),)
 release.LIBS_J := $(jni_so)
 release.JARS = $(daal_jar)
+
+release.ONEAPI.LIBS_A := $(oneapi_a) \
+                         $(if $(OS_is_win),$(foreach ilib,$(oneapi_a),$(ilib:%.lib=%_dll.lib)),)
+release.ONEAPI.LIBS_Y := $(oneapi_y)
 
 # Libraries required for building
 daaldep.lnx32e.mkl.thr := $(MKLFPKDIR.libia)/$(plib)daal_mkl_thread.$a
@@ -300,7 +329,7 @@ daaldep.win32e.vml :=
 daaldep.win32e.ipp :=
 daaldep.win32e.rt.thr  := -LIBPATH:$(RELEASEDIR.tbb.libia) tbb.lib tbbmalloc.lib libcpmt.lib libcmt.lib $(if $(CHECK_DLL_SIG),Wintrust.lib)
 daaldep.win32e.rt.seq  := libcpmt.lib libcmt.lib $(if $(CHECK_DLL_SIG),Wintrust.lib)
-daaldep.win32e.threxport := export_lnx32e.def
+daaldep.win32e.threxport := export.def
 
 daaldep.win32.mkl.thr := $(MKLFPKDIR.libia)/daal_mkl_thread.$a
 daaldep.win32.mkl.seq := $(MKLFPKDIR.libia)/daal_mkl_sequential.$a
@@ -355,47 +384,55 @@ daaldep.ipp     := $(daaldep.$(PLAT).ipp)
 daaldep.rt.thr  := $(daaldep.$(PLAT).rt.thr)
 daaldep.rt.seq  := $(daaldep.$(PLAT).rt.seq)
 
+# List oneAPI header files to populate release/include.
+release.ONEAPI.HEADERS.exclude := ! -path "*/backend/*" ! -path "*.impl.*" ! -path "*_test.*"
+release.ONEAPI.HEADERS := $(shell find $(CPPDIR) -type f -name "*.hpp" $(release.ONEAPI.HEADERS.exclude))
+release.ONEAPI.HEADERS.OSSPEC := $(foreach fn,$(release.ONEAPI.HEADERS),$(if $(filter %$(_OS),$(basename $(fn))),$(fn)))
+release.ONEAPI.HEADERS.COMMON := $(foreach fn,$(release.ONEAPI.HEADERS),$(if $(filter $(addprefix %,$(OSList)),$(basename $(fn))),,$(fn)))
+release.ONEAPI.HEADERS.COMMON := $(filter-out $(subst _$(_OS),,$(release.ONEAPI.HEADERS.OSSPEC)),$(release.ONEAPI.HEADERS.COMMON))
+
 # List header files to populate release/include.
-release.HEADERS := $(shell find include -type f -name "*.h")
+release.HEADERS := $(shell find $(CPPDIR.daal)/include -type f -name "*.h")
 release.HEADERS.OSSPEC := $(foreach fn,$(release.HEADERS),$(if $(filter %$(_OS),$(basename $(fn))),$(fn)))
 release.HEADERS.COMMON := $(foreach fn,$(release.HEADERS),$(if $(filter $(addprefix %,$(OSList)),$(basename $(fn))),,$(fn)))
 release.HEADERS.COMMON := $(filter-out $(subst _$(_OS),,$(release.HEADERS.OSSPEC)),$(release.HEADERS.COMMON))
 
 # List examples files to populate release/examples.
-expat = %.java %.cpp %.h %.txt %.csv
+expat = %.java %.cpp %.h %.hpp %.txt %.csv
 expat += $(if $(OS_is_win),%.bat %.vcxproj %.filters %.user %.sln %makefile_$(_OS),%_$(_OS).lst %makefile_$(_OS) %_$(_OS).sh)
-release.EXAMPLES.CPP   := $(filter $(expat),$(shell find examples/cpp  -type f)) $(filter $(expat),$(shell find examples/cpp_sycl -type f))
-release.EXAMPLES.DATA  := $(filter $(expat),$(shell find examples/data -type f))
-release.EXAMPLES.JAVA  := $(filter $(expat),$(shell find examples/java -type f))
+release.EXAMPLES.CPP   := $(filter $(expat),$(shell find examples/daal/cpp  -type f)) $(filter $(expat),$(shell find examples/daal/cpp_sycl -type f))
+release.EXAMPLES.DATA  := $(filter $(expat),$(shell find examples/daal/data -type f))
+release.EXAMPLES.JAVA  := $(filter $(expat),$(shell find examples/daal/java -type f))
+release.ONEAPI.EXAMPLES.CPP := $(filter $(expat),$(shell find examples/oneapi/cpp -type f))
 
 # List env files to populate release.
-release.ENV = bin/vars_$(_OS).$(scr)
+release.ENV = deploy/local/vars_$(_OS).$(scr)
 
 # List modulefiles to populate release.
-release.MODULEFILES = bin/dal bin/dal32
+release.MODULEFILES = deploy/local/dal deploy/local/dal32
 
 # List config files to populate release.
-release.CONF = bin/config.txt
+release.CONF = deploy/local/config.txt
 
 # List samples files to populate release/examples.
 SAMPLES.srcdir:= $(DIR)/samples
 spat = %.scala %.java %.cpp %.h %.txt %.csv %.html %.png %.parquet %.blob
 spat += $(if $(OS_is_win),%.bat %.vcxproj %.filters %.user %.sln,%_$(_OS).lst %makefile_$(_OS) %.sh)
-release.SAMPLES.CPP  := $(if $(wildcard $(SAMPLES.srcdir)/cpp/*),                                                        \
+release.SAMPLES.CPP  := $(if $(wildcard $(SAMPLES.srcdir)/daal/cpp/*),                                                   \
                           $(if $(OS_is_mac),                                                                             \
-                            $(filter $(spat),$(shell find $(SAMPLES.srcdir)/cpp -not -wholename '*mpi*' -type f))        \
+                            $(filter $(spat),$(shell find $(SAMPLES.srcdir)/daal/cpp -not -wholename '*mpi*' -type f))   \
                           ,                                                                                              \
-                            $(filter $(spat),$(shell find $(SAMPLES.srcdir)/cpp -type f))                                \
+                            $(filter $(spat),$(shell find $(SAMPLES.srcdir)/daal/cpp -type f))                           \
                           )                                                                                              \
                         )
-release.SAMPLES.JAVA := $(if $(wildcard $(SAMPLES.srcdir)/java/*),                                                       \
-                          $(if $(or $(OS_is_lnx),$(OS_is_mac),$(OS_is_fbsd)),                                                          \
-                            $(filter $(spat),$(shell find $(SAMPLES.srcdir)/java -type f))                               \
+release.SAMPLES.JAVA := $(if $(wildcard $(SAMPLES.srcdir)/daal/java/*),                                                  \
+                          $(if $(or $(OS_is_lnx),$(OS_is_mac),$(OS_is_fbsd)),                                            \
+                            $(filter $(spat),$(shell find $(SAMPLES.srcdir)/daal/java -type f))                          \
                           )                                                                                              \
                         )
-release.SAMPLES.SCALA := $(if $(wildcard $(SAMPLES.srcdir)/scala/*),                                                     \
-                          $(if $(or $(OS_is_lnx),$(OS_is_mac),$(OS_is_fbsd)),                                                          \
-                            $(filter $(spat),$(shell find $(SAMPLES.srcdir)/scala -type f))                              \
+release.SAMPLES.SCALA := $(if $(wildcard $(SAMPLES.srcdir)/daal/scala/*),                                                \
+                          $(if $(or $(OS_is_lnx),$(OS_is_mac),$(OS_is_fbsd)),                                            \
+                            $(filter $(spat),$(shell find $(SAMPLES.srcdir)/daal/scala -type f))                         \
                           )                                                                                              \
                         )
 
@@ -411,21 +448,22 @@ release.DOC.OSSPEC := $(foreach fn,$(release.DOC),$(if $(filter %$(_OS),$(basena
 include makefile.ver
 include makefile.lst
 
-THR.srcdir       := $(DIR)/algorithms/threading
-CORE.srcdir      := $(DIR)/algorithms/kernel
-EXTERNALS.srcdir := $(DIR)/externals
+THR.srcdir       := $(CPPDIR.daal)/src/threading
+CORE.srcdir      := $(CPPDIR.daal)/src/algorithms
+EXTERNALS.srcdir := $(CPPDIR.daal)/src/externals
 
-CORE.SERV.srcdir          := $(DIR)/service/kernel
-CORE.SERV.COMPILER.srcdir := $(DIR)/service/kernel/compiler/$(CORE.SERV.COMPILER.$(COMPILER))
+CORE.SERV.srcdir          := $(CPPDIR.daal)/src/services
+CORE.SERV.COMPILER.srcdir := $(CPPDIR.daal)/src/services/compiler/$(CORE.SERV.COMPILER.$(COMPILER))
 
 CORE.srcdirs  := $(CORE.SERV.srcdir) $(CORE.srcdir)                  \
                  $(if $(DAALTHRS),,$(THR.srcdir))                    \
                  $(addprefix $(CORE.SERV.srcdir)/, $(CORE.SERVICES)) \
                  $(addprefix $(CORE.srcdir)/, $(CORE.ALGORITHMS))    \
                  $(CORE.SERV.COMPILER.srcdir) $(EXTERNALS.srcdir)    \
-                 $(CORE.SERV.srcdir)/oneapi
+                 $(CPPDIR.daal)/src/sycl \
+                 $(CPPDIR.daal)/src/data_management
 
-CORE.incdirs.common := $(RELEASEDIR.include) $(DIR) $(WORKDIR)
+CORE.incdirs.common := $(RELEASEDIR.include) $(CPPDIR.daal) $(WORKDIR)
 CORE.incdirs.thirdp := $(MKLFPKDIR.include) $(TBBDIR.include)
 CORE.incdirs := $(CORE.incdirs.common) $(CORE.incdirs.thirdp)
 
@@ -433,8 +471,8 @@ containing = $(foreach v,$2,$(if $(findstring $1,$v),$v))
 notcontaining = $(foreach v,$2,$(if $(findstring $1,$v),,$v))
 cpy = cp -fp "$<" "$@"
 
-CORE.tmpdir_a := $(WORKDIR)/kernel
-CORE.tmpdir_y := $(WORKDIR)/kernel_dll
+CORE.tmpdir_a := $(WORKDIR)/core_static
+CORE.tmpdir_y := $(WORKDIR)/core_dynamic
 CORE.srcs     := $(notdir $(wildcard $(CORE.srcdirs:%=%/*.cpp)))
 CORE.srcs     := $(if $(OS_is_mac),$(CORE.srcs),$(call notcontaining,_mac,$(CORE.srcs)))
 CORE.objs_a   := $(CORE.srcs:%.cpp=$(CORE.tmpdir_a)/%.$o)
@@ -541,12 +579,154 @@ $(CORE.tmpdir_y)/dll.res: $(VERSION_DATA_FILE)
 $(CORE.tmpdir_y)/dll.res: RCOPT += $(addprefix -I, $(CORE.incdirs.common))
 $(CORE.tmpdir_y)/%.res: %.rc | $(CORE.tmpdir_y)/. ; $(RC.COMPILE)
 
+
+#===============================================================================
+# oneAPI part
+#===============================================================================
+define .add_detail_backend
+$1 $(addsuffix /detail, $1) $(addsuffix /backend, $1)
+endef
+
+define .if_dir_exists
+$(eval dir :=)
+$(if $(filter $1,$(wildcard $2)), $(eval dir := $1))
+$(wildcard $1/*)
+endef
+
+ONEAPI_DISPATCHER_CPU_FILE = $(WORKDIR)/_onedal_dispatcher_cpu.hpp
+ONEAPI.srcdir := $(CPPDIR.onedal)
+ONEAPI.srcdirs.base := $(ONEAPI.srcdir) \
+                       $(ONEAPI.srcdir)/algo \
+                       $(ONEAPI.srcdir)/data \
+                       $(ONEAPI.srcdir)/util \
+                       $(addprefix $(ONEAPI.srcdir)/algo/, $(ONEAPI.ALGOS))
+ONEAPI.srcdirs.detail := $(foreach _,$(ONEAPI.srcdirs.base),$(shell find $_ -maxdepth 1 -type d -name detail))
+ONEAPI.srcdirs.backend := $(foreach _,$(ONEAPI.srcdirs.base),$(shell find $_ -maxdepth 1 -type d -name backend))
+ONEAPI.srcdirs := $(ONEAPI.srcdirs.base) $(ONEAPI.srcdirs.detail) $(ONEAPI.srcdirs.backend)
+
+ONEAPI.incdirs.common := $(CPPDIR)
+ONEAPI.incdirs.thirdp := $(CORE.incdirs.common) $(MKLFPKDIR.include) $(TBBDIR.include)
+ONEAPI.incdirs := $(ONEAPI.incdirs.common) $(CORE.incdirs.thirdp)
+
+ONEAPI.tmpdir_a := $(WORKDIR)/oneapi_static
+ONEAPI.tmpdir_y := $(WORKDIR)/oneapi_dynamic
+ONEAPI.srcs     := $(wildcard $(ONEAPI.srcdirs.base:%=%/*.cpp)) \
+                   $(foreach x,$(ONEAPI.srcdirs.detail),$(shell find $x -type f -name "*.cpp")) \
+                   $(foreach x,$(ONEAPI.srcdirs.backend),$(shell find $x -type f -name "*.cpp"))
+ONEAPI.srcs     := $(filter-out %_test.cpp,$(ONEAPI.srcs))
+
+ONEAPI.srcs     := $(if $(OS_is_mac),$(ONEAPI.srcs),$(call notcontaining,_mac,$(ONEAPI.srcs)))
+ONEAPI.objs_a   := $(ONEAPI.srcs:%.cpp=$(ONEAPI.tmpdir_a)/%.$o)
+ONEAPI.objs_a   := $(filter-out core_threading_win_dll.$o,$(ONEAPI.objs_a))
+ONEAPI.objs_y   := $(ONEAPI.srcs:%.cpp=$(ONEAPI.tmpdir_y)/%.$o)
+ONEAPI.objs_y   := $(if $(OS_is_win),$(ONEAPI.objs_y),$(filter-out %core_threading_win_dll.$o,$(ONEAPI.objs_y)))
+
+ONEAPI.objs_a_tmp := $(call containing,_fpt,$(ONEAPI.objs_a))
+ONEAPI.objs_a     := $(call notcontaining,_fpt,$(ONEAPI.objs_a))
+ONEAPI.objs_a_tpl := $(subst _fpt,_fpt_flt,$(ONEAPI.objs_a_tmp)) $(subst _fpt,_fpt_dbl,$(ONEAPI.objs_a_tmp))
+ONEAPI.objs_a     := $(ONEAPI.objs_a) $(ONEAPI.objs_a_tpl)
+
+ONEAPI.objs_a_tmp := $(call containing,_cpu,$(ONEAPI.objs_a))
+ONEAPI.objs_a     := $(call notcontaining,_cpu,$(ONEAPI.objs_a))
+ONEAPI.objs_a_tpl := $(foreach ccc,$(USECPUS.files),$(subst _cpu,_cpu_$(ccc),$(ONEAPI.objs_a_tmp)))
+ONEAPI.objs_a     := $(ONEAPI.objs_a) $(ONEAPI.objs_a_tpl)
+
+ONEAPI.objs_y_tmp := $(call containing,_fpt,$(ONEAPI.objs_y))
+ONEAPI.objs_y     := $(call notcontaining,_fpt,$(ONEAPI.objs_y))
+ONEAPI.objs_y_tpl := $(subst _fpt,_fpt_flt,$(ONEAPI.objs_y_tmp)) $(subst _fpt,_fpt_dbl,$(ONEAPI.objs_y_tmp))
+ONEAPI.objs_y     := $(ONEAPI.objs_y) $(ONEAPI.objs_y_tpl)
+
+ONEAPI.objs_y_tmp := $(call containing,_cpu,$(ONEAPI.objs_y))
+ONEAPI.objs_y     := $(call notcontaining,_cpu,$(ONEAPI.objs_y))
+ONEAPI.objs_y_tpl := $(foreach ccc,$(USECPUS.files),$(subst _cpu,_cpu_$(ccc),$(ONEAPI.objs_y_tmp)))
+ONEAPI.objs_y     := $(ONEAPI.objs_y) $(ONEAPI.objs_y_tpl)
+
+-include $(ONEAPI.tmpdir_a)/*.d
+-include $(ONEAPI.tmpdir_y)/*.d
+
+$(ONEAPI.tmpdir_a)/$(oneapi_a:%.$a=%_link.txt): $(ONEAPI.objs_a) | $(ONEAPI.tmpdir_a)/. ; $(WRITE.PREREQS)
+$(ONEAPI.tmpdir_a)/$(oneapi_a:%.$a=%_link.$a):  LOPT:=
+$(ONEAPI.tmpdir_a)/$(oneapi_a:%.$a=%_link.$a):  $(ONEAPI.tmpdir_a)/$(oneapi_a:%.$a=%_link.txt) | $(ONEAPI.tmpdir_a)/. ; $(LINK.STATIC)
+$(WORKDIR.lib)/$(oneapi_a):                   LOPT:=
+$(WORKDIR.lib)/$(oneapi_a):                   $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) $(ONEAPI.tmpdir_a)/$(oneapi_a:%.$a=%_link.$a) ; $(LINK.STATIC)
+
+$(WORKDIR.lib)/$(oneapi_y): LOPT += $(-fPIC)
+$(WORKDIR.lib)/$(oneapi_y): LOPT += $(daaldep.rt.seq)
+$(WORKDIR.lib)/$(oneapi_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.dll=%_dll.lib),)
+ifdef OS_is_win
+$(WORKDIR.lib)/$(oneapi_y:%.dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y)
+endif
+$(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt): $(ONEAPI.objs_y) $(if $(OS_is_win),$(ONEAPI.tmpdir_y)/dll.res,) | $(ONEAPI.tmpdir_y)/. ; $(WRITE.PREREQS)
+$(WORKDIR.lib)/$(oneapi_y): $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt) $(if $(PLAT_is_win32e),$(CORE.srcdir)/export_win32e.def); $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
+
+$(ONEAPI.objs_a): $(ONEAPI_DISPATCHER_CPU_FILE)
+$(ONEAPI.objs_a): $(ONEAPI.tmpdir_a)/inc_a_folders.txt
+$(ONEAPI.objs_a): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic.opts)
+$(ONEAPI.objs_a): COPT += -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED
+$(ONEAPI.objs_a): COPT += @$(ONEAPI.tmpdir_a)/inc_a_folders.txt
+$(filter %threading.$o, $(ONEAPI.objs_a)): COPT += -D__DO_TBB_LAYER__
+$(call containing,_nrh, $(ONEAPI.objs_a)): COPT += $(p4_OPT)   -DDAAL_CPU=sse2
+$(call containing,_mrm, $(ONEAPI.objs_a)): COPT += $(mc_OPT)   -DDAAL_CPU=ssse3
+$(call containing,_neh, $(ONEAPI.objs_a)): COPT += $(mc3_OPT)  -DDAAL_CPU=sse42
+$(call containing,_snb, $(ONEAPI.objs_a)): COPT += $(avx_OPT)  -DDAAL_CPU=avx
+$(call containing,_hsw, $(ONEAPI.objs_a)): COPT += $(avx2_OPT) -DDAAL_CPU=avx2
+$(call containing,_knl, $(ONEAPI.objs_a)): COPT += $(knl_OPT)  -DDAAL_CPU=avx512_mic
+$(call containing,_skx, $(ONEAPI.objs_a)): COPT += $(skx_OPT)  -DDAAL_CPU=avx512
+$(call containing,_flt, $(ONEAPI.objs_a)): COPT += -DDAAL_FPTYPE=float
+$(call containing,_dbl, $(ONEAPI.objs_a)): COPT += -DDAAL_FPTYPE=double
+
+$(ONEAPI.objs_y): $(ONEAPI_DISPATCHER_CPU_FILE)
+$(ONEAPI.objs_y): $(ONEAPI.tmpdir_y)/inc_y_folders.txt
+$(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic.opts)
+$(ONEAPI.objs_y): COPT += -D__DAAL_IMPLEMENTATION -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG)
+$(ONEAPI.objs_y): COPT += @$(ONEAPI.tmpdir_y)/inc_y_folders.txt
+$(filter %threading.$o, $(ONEAPI.objs_y)): COPT += -D__DO_TBB_LAYER__
+$(call containing,_nrh, $(ONEAPI.objs_y)): COPT += $(p4_OPT)   -DDAAL_CPU=sse2
+$(call containing,_mrm, $(ONEAPI.objs_y)): COPT += $(mc_OPT)   -DDAAL_CPU=ssse3
+$(call containing,_neh, $(ONEAPI.objs_y)): COPT += $(mc3_OPT)  -DDAAL_CPU=sse42
+$(call containing,_snb, $(ONEAPI.objs_y)): COPT += $(avx_OPT)  -DDAAL_CPU=avx
+$(call containing,_hsw, $(ONEAPI.objs_y)): COPT += $(avx2_OPT) -DDAAL_CPU=avx2
+$(call containing,_knl, $(ONEAPI.objs_y)): COPT += $(knl_OPT)  -DDAAL_CPU=avx512_mic
+$(call containing,_skx, $(ONEAPI.objs_y)): COPT += $(skx_OPT)  -DDAAL_CPU=avx512
+$(call containing,_flt, $(ONEAPI.objs_y)): COPT += -DDAAL_FPTYPE=float
+$(call containing,_dbl, $(ONEAPI.objs_y)): COPT += -DDAAL_FPTYPE=double
+
+define .compile.template.oneapi.ay
+$(eval template_source_cpp := $(1:$2/%.$o=%.cpp))
+$(eval template_source_cpp := $(subst _fpt_flt,_fpt,$(template_source_cpp)))
+$(eval template_source_cpp := $(subst _fpt_dbl,_fpt,$(template_source_cpp)))
+$(eval template_source_cpp := $(subst _cpu_nrh,_cpu,$(template_source_cpp)))
+$(eval template_source_cpp := $(subst _cpu_mrm,_cpu,$(template_source_cpp)))
+$(eval template_source_cpp := $(subst _cpu_neh,_cpu,$(template_source_cpp)))
+$(eval template_source_cpp := $(subst _cpu_snb,_cpu,$(template_source_cpp)))
+$(eval template_source_cpp := $(subst _cpu_hsw,_cpu,$(template_source_cpp)))
+$(eval template_source_cpp := $(subst _cpu_knl,_cpu,$(template_source_cpp)))
+$(eval template_source_cpp := $(subst _cpu_skx,_cpu,$(template_source_cpp)))
+$1: $(template_source_cpp) ; mkdir -p $(dir $1) ; $(value C.COMPILE)
+endef
+
+ONEAPI.include_options := $(addprefix -I, $(ONEAPI.incdirs.common)) \
+                          $(addprefix $(-isystem), $(ONEAPI.incdirs.thirdp))
+$(ONEAPI.tmpdir_a)/inc_a_folders.txt: makefile.lst | $(ONEAPI.tmpdir_a)/. $(ONEAPI.incdirs) ; $(call WRITE.PREREQS,$(ONEAPI.include_options),$(space))
+$(ONEAPI.tmpdir_y)/inc_y_folders.txt: makefile.lst | $(ONEAPI.tmpdir_y)/. $(ONEAPI.incdirs) ; $(call WRITE.PREREQS,$(ONEAPI.include_options),$(space))
+
+$(foreach a,$(ONEAPI.objs_a),$(eval $(call .compile.template.oneapi.ay,$a,$(ONEAPI.tmpdir_a))))
+$(foreach a,$(ONEAPI.objs_y),$(eval $(call .compile.template.oneapi.ay,$a,$(ONEAPI.tmpdir_y))))
+
+$(ONEAPI.tmpdir_y)/dll.res: $(VERSION_DATA_FILE)
+$(ONEAPI.tmpdir_y)/dll.res: RCOPT += $(addprefix -I, $(ONEAPI.incdirs))
+$(ONEAPI.tmpdir_y)/%.res: %.rc | $(ONEAPI.tmpdir_y)/. ; $(RC.COMPILE)
+
+$(ONEAPI_DISPATCHER_CPU_FILE): $(ONEAPI.srcdir)/backend/dispatcher_cpu.hpp
+	cp -fp $< $@
+	$(if $(USECPUS.out.defs.filter), $(USECPUS.oneapi.out.defs.filter) $@)
+
 #===============================================================================
 # Threading parts
 #===============================================================================
 THR.srcs     := threading.cpp service_thread_pinner.cpp
-THR.tmpdir_a := $(WORKDIR)/thread
-THR.tmpdir_y := $(WORKDIR)/thread_dll
+THR.tmpdir_a := $(WORKDIR)/threading_static
+THR.tmpdir_y := $(WORKDIR)/threading_dynamic
 THR_TBB.objs_a := $(addprefix $(THR.tmpdir_a)/,$(THR.srcs:%.cpp=%_tbb.$o))
 THR_TBB.objs_y := $(addprefix $(THR.tmpdir_y)/,$(THR.srcs:%.cpp=%_tbb.$o))
 THR_SEQ.objs_a := $(addprefix $(THR.tmpdir_a)/,$(THR.srcs:%.cpp=%_seq.$o))
@@ -606,25 +786,27 @@ $(THR.tmpdir_y)/%_seq.res: %.rc | $(THR.tmpdir_y)/. ; $(RC.COMPILE)
 #===============================================================================
 # Java/JNI part
 #===============================================================================
-JAVA.srcdir      := $(DIR)/lang_interface/java
+JAVA.srcdir      := $(DIR)/java
 JAVA.srcdir.full := $(JAVA.srcdir)/com/intel/daal
 JAVA.tmpdir      := $(WORKDIR)/java_tmpdir
 
-JNI.srcdir       := $(DIR)/lang_service/java
+JNI.srcdir       := $(DIR)/java
 JNI.srcdir.full  := $(JNI.srcdir)/com/intel/daal
 JNI.tmpdir       := $(WORKDIR)/jni_tmpdir
 
 JAVA.srcdirs := $(JAVA.srcdir.full)                                                                                         \
                 $(JAVA.srcdir.full)/algorithms $(addprefix $(JAVA.srcdir.full)/algorithms/,$(JJ.ALGORITHMS))                \
                 $(JAVA.srcdir.full)/data_management $(addprefix $(JAVA.srcdir.full)/data_management/,$(JJ.DATA_MANAGEMENT)) \
-                $(JAVA.srcdir.full)/services $(JAVA.srcdir.full)/utils
+                $(JAVA.srcdir.full)/services \
+				$(JAVA.srcdir.full)/utils
 JAVA.srcs.f := $(wildcard $(JAVA.srcdirs:%=%/*.java))
 JAVA.srcs   := $(subst $(JAVA.srcdir)/,,$(JAVA.srcs.f))
 
 JNI.srcdirs := $(JNI.srcdir.full)                                                                                         \
                $(JNI.srcdir.full)/algorithms $(addprefix $(JNI.srcdir.full)/algorithms/,$(JJ.ALGORITHMS))                 \
                $(JNI.srcdir.full)/data_management $(addprefix $(JNI.srcdir.full)/data_management/,$(JJ.DATA_MANAGEMENT)) \
-               $(JNI.srcdir.full)/services
+               $(JNI.srcdir.full)/services \
+			   $(JNI.srcdir.full)/utils
 JNI.srcs.f := $(wildcard $(JNI.srcdirs:%=%/*.cpp))
 JNI.srcs   := $(subst $(JNI.srcdir)/,,$(JNI.srcs.f))
 JNI.objs   := $(addprefix $(JNI.tmpdir)/,$(JNI.srcs:%.cpp=%.$o))
@@ -653,7 +835,7 @@ $(JNI.objs): $(WORKDIR.lib)/$(daal_jar)
 $(JNI.objs): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC) -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED
 $(JNI.objs): COPT += @$(JNI.tmpdir)/inc_j_folders.txt
 
-$(JNI.tmpdir)/inc_j_folders.txt: makefile.lst | $(JNI.tmpdir)/. ; $(call WRITE.PREREQS,$(addprefix -I,$(JNI.tmpdir) $(CORE.incdirs.common) $(CORE.incdirs.thirdp) $(JNI.srcdir.full)/include),$(space))
+$(JNI.tmpdir)/inc_j_folders.txt: makefile.lst | $(JNI.tmpdir)/. ; $(call WRITE.PREREQS,$(addprefix -I,$(JNI.tmpdir) $(CORE.incdirs.common) $(CORE.incdirs.thirdp) $(JNI.srcdir)),$(space))
 
 $(JNI.objs): $(JNI.tmpdir)/%.$o: $(JNI.srcdir)/%.cpp; mkdir -p $(@D); $(C.COMPILE)
 
@@ -664,10 +846,19 @@ $(JNI.tmpdir)/%.res: %.rc | $(JNI.tmpdir)/. ; $(RC.COMPILE)
 #===============================================================================
 # Top level targets
 #===============================================================================
-daal: $(if $(CORE.ALGORITHMS.CUSTOM),                                              \
-          _daal _release_c,                                                        \
-          _daal _daal_jj _release _release_doc                                     \
+daal: $(if $(CORE.ALGORITHMS.CUSTOM),           \
+          _daal _release_c,                     \
+          _daal _daal_jj _release _release_doc  \
       )
+
+
+onedal: $(if $(CORE.ALGORITHMS.CUSTOM),                                 \
+          _daal _oneapi _release_c _release_oneapi_c,                   \
+          _daal _oneapi _daal_jj _release _release_oneapi _release_doc  \
+      )
+
+daal_c: _daal _release_c
+onedal_c: daal_c _oneapi _release_oneapi_c
 
 _daal:    _daal_core _daal_thr
 _daal_jj: _daal_jar _daal_jni
@@ -686,6 +877,11 @@ _release:    _release_c _release_jj
 _release_c:  _release_c_h _release_common
 _release_jj: _release_common
 
+_oneapi: info.building.oneapi
+_oneapi: $(WORKDIR.lib)/$(oneapi_a) $(WORKDIR.lib)/$(oneapi_y)
+_release_oneapi: _release_oneapi_c
+_release_oneapi_c: _release_oneapi_c_h
+
 #-------------------------------------------------------------------------------
 # Populating RELEASEDIR
 #-------------------------------------------------------------------------------
@@ -702,6 +898,8 @@ endef
 $(foreach a,$(release.LIBS_A),$(eval $(call .release.ay,$a,$(RELEASEDIR.libia),_release_c)))
 $(foreach y,$(release.LIBS_Y),$(eval $(call .release.ay,$y,$(RELEASEDIR.soia),_release_c)))
 $(foreach j,$(release.LIBS_J),$(eval $(call .release.ay,$j,$(RELEASEDIR.soia),_release_jj)))
+$(foreach a,$(release.ONEAPI.LIBS_A),$(eval $(call .release.ay,$a,$(RELEASEDIR.libia),_release_oneapi_c)))
+$(foreach y,$(release.ONEAPI.LIBS_Y),$(eval $(call .release.ay,$y,$(RELEASEDIR.soia),_release_oneapi_c)))
 
 #----- releasing jar files
 _release_jj: $(addprefix $(RELEASEDIR.jardir)/,$(release.JARS))
@@ -711,12 +909,13 @@ $(RELEASEDIR.jardir)/%.jar: $(WORKDIR.lib)/%.jar | $(RELEASEDIR.jardir)/. ; $(cp
 define .release.x
 $3: $2/$(subst _$(_OS),,$1)
 $2/$(subst _$(_OS),,$1): $(DIR)/$1 | $(dir $2/$1)/.
-	$(if $(filter %makefile_win,$1),python ./bin/utils/generate_win_makefile.py $(dir $(DIR)/$1) $(dir $2/$1),$(value cpy))
+	$(if $(filter %makefile_win,$1),python ./deploy/local/generate_win_makefile.py $(dir $(DIR)/$1) $(dir $2/$1),$(value cpy))
 	$(if $(filter %.sh %.bat,$1),chmod +x $$@)
 endef
 $(foreach x,$(release.EXAMPLES.DATA),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_common)))
 $(foreach x,$(release.EXAMPLES.CPP),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_c)))
 $(foreach x,$(release.EXAMPLES.JAVA),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_jj)))
+$(foreach x,$(release.ONEAPI.EXAMPLES.CPP),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_c)))
 
 #----- releasing environment scripts
 define .release.x
@@ -749,6 +948,7 @@ $(foreach d,$(release.SAMPLES.JAVA),  $(eval $(call .release.d,$d,$(subst $(SAMP
 $(foreach d,$(release.SAMPLES.SCALA), $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),_release_jj)))
 
 $(CORE.incdirs): _release_c_h
+$(ONEAPI.incdirs): _release_oneapi_c_h
 
 define .release.dd
 $3: $2
@@ -756,8 +956,15 @@ $2: $1 ; $(value mkdir)$(value cpy)
 	$(if $(filter %library_version_info.h,$2),+$(daalmake) -f makefile update_headers_version)
 	$(if $(USECPUS.out.defs.filter),$(if $(filter %daal_kernel_defines.h,$2),$(USECPUS.out.defs.filter) $2; rm -rf $(subst .h,.h.bak,$2)))
 endef
-$(foreach d,$(release.HEADERS.COMMON),$(eval $(call .release.dd,$d,$(subst include/,$(RELEASEDIR.include)/,$d),_release_c_h)))
-$(foreach d,$(release.HEADERS.OSSPEC),$(eval $(call .release.dd,$d,$(subst include/,$(RELEASEDIR.include)/,$(subst _$(_OS),,$d)),_release_c_h)))
+$(foreach d,$(release.HEADERS.COMMON),$(eval $(call .release.dd,$d,$(subst $(CPPDIR.daal)/include/,$(RELEASEDIR.include)/,$d),_release_c_h)))
+$(foreach d,$(release.HEADERS.OSSPEC),$(eval $(call .release.dd,$d,$(subst $(CPPDIR.daal)/include/,$(RELEASEDIR.include)/,$(subst _$(_OS),,$d)),_release_c_h)))
+
+define .release.oneapi.dd
+$3: $2
+$2: $1 ; $(value mkdir)$(value cpy)
+endef
+$(foreach d,$(release.ONEAPI.HEADERS.COMMON),$(eval $(call .release.oneapi.dd,$d,$(subst $(CPPDIR)/,$(RELEASEDIR.include)/,$d),_release_oneapi_c_h)))
+$(foreach d,$(release.ONEAPI.HEADERS.OSSPEC),$(eval $(call .release.oneapi.dd,$d,$(subst $(CPPDIR)/,$(RELEASEDIR.include)/,$(subst _$(_OS),,$d)),_release_oneapi_c_h)))
 
 #----- releasing static/dynamic Intel(R) TBB libraries
 $(RELEASEDIR.tbb.libia) $(RELEASEDIR.tbb.soia): _release_common
@@ -807,6 +1014,6 @@ Flags:
 endef
 
 daal_dbg:
-	@echo "1" "!$(wildcard $(TBBDIR.soia)/libtbb.so.2)!"
-	@echo "2" "!$(wildcard $(TBBDIR.soia)/libtbb.so.12)!"
-	@echo "3" "!$(releasetbb.LIBS_Y)!"
+	@echo "1" "!$(mklgpufpk.LIBS_A)!"
+	@echo "2" "!$(MKLGPUFPKDIR)!"
+	@echo "3" "!$(MKLGPUFPKROOT)!"

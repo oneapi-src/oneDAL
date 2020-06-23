@@ -69,15 +69,15 @@ For details, see [System Requirements for oneDAL](https://software.intel.com/en-
             export PATH=$JAVA_HOME/bin:$PATH
             export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/linux:$CPATH
 
-5. Download and set an environment for mklfpk libs:
+5. Download and set an environment for micromkl libs:
 
     - **Windows\***:
 
-            .\scripts\mklfpk.bat
+            .\dev\download_micromkl.bat
 
     - **Linux\***:
 
-            ./scripts/mklfpk.sh
+            ./dev/download/download_micromkl.sh
 
 6. Download and install Intel(R) Threading Building Blocks (Intel(R) TBB):
 
@@ -94,9 +94,9 @@ For details, see [System Requirements for oneDAL](https://software.intel.com/en-
 
     Alternatively, you can use scripts to do this for you (Linux\*):
 
-            ./scripts/tbb.sh
+            ./dev/download_tbb.sh
 
-7. Downloan and install Python 3.7 (Windows\* only).
+7. Download and install Python 3.7 (Windows\* only).
 
 8. Build oneDAL via command-line interface. Choose the appropriate commands based on the platform and the compiler you use:
 

@@ -38,7 +38,7 @@ PROJECT_NAME           = "Java* API Reference for Intel(R) Data Analytics Accele
 # could be handy for archiving the generated documentation or if some version
 # control system is used.
 
-PROJECT_NUMBER         = "2021.1-beta07"
+PROJECT_NUMBER         = "2021.1-beta08"
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer a
@@ -753,7 +753,7 @@ WARN_LOGFILE           =
 # spaces.
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = ./examples/java/com/intel/daal/examples \
+INPUT                  = ./examples/daal/java/com/intel/daal/examples \
                          ./docs/doxygen/custom/java
 
 # This tag can be used to specify the character encoding of the source files
@@ -823,7 +823,7 @@ EXCLUDE_SYMBOLS        = Utils StatusChecker Service PointType
 # that contain example code fragments that are included (see the \include
 # command).
 
-EXAMPLE_PATH           = examples/java/com/intel/daal/examples
+EXAMPLE_PATH           = examples/daal/java/com/intel/daal/examples
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp and
