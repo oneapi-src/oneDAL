@@ -15,7 +15,6 @@
 *******************************************************************************/
 
 #include "gtest/gtest.h"
-#include <CL/sycl.hpp>
 
 #define ENABLE_DATA_PARALLEL_EXECUTION
 #include "oneapi/dal/data/array.hpp"
