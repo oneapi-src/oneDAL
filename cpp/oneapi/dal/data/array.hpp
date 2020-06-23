@@ -69,7 +69,12 @@ public:
     static array<T> full(sycl::queue q, std::int64_t element_count, K&& element,
                          sycl::usm::alloc kind = sycl::usm::alloc::shared) {
         auto* data = sycl::malloc<T>(element_count, q.get_device(), q.get_context(), kind);
-        auto event = q.fill<T>(data, std::forward<K>(element), element_count);
+        auto event = q.submit([&](sycl::handler& cgh) {
+            cgh.parallel_for<class array_full>(sycl::range<1>(element_count),
+                                               [=](sycl::id<1> idx) {
+                data[idx[0]] = element;
+            });
+        });
         event.wait();
 
         return array<T> {
