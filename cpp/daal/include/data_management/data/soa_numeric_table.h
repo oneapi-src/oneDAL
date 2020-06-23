@@ -344,52 +344,8 @@ protected:
     WrappedRawPointer _wrapOffsets;
     size_t _index;
 
-    bool resizePointersArray(size_t nColumns)
-    {
-        if (_arrays.size() >= nColumns)
-        {
-            size_t counter = 0;
-            for (size_t i = 0; i < nColumns; i++)
-            {
-                counter += (_arrays[i] != 0);
-            }
-            _arraysInitialized = counter;
-
-            if (_arraysInitialized == nColumns)
-            {
-                _memStatus = _partialMemStatus;
-            }
-            else
-            {
-                _memStatus = notAllocated;
-            }
-
-            return true;
-        }
-
-        bool is_resized = _arrays.resize(nColumns);
-        if (is_resized)
-        {
-            _memStatus = notAllocated;
-        }
-
-        _wrapOffsets.deallocate();
-        _index = 0;
-
-        return is_resized;
-    }
-
-    services::Status setNumberOfColumnsImpl(size_t ncol) DAAL_C11_OVERRIDE
-    {
-        services::Status s;
-        DAAL_CHECK_STATUS(s, NumericTable::setNumberOfColumnsImpl(ncol));
-
-        if (!resizePointersArray(ncol))
-        {
-            return services::Status(services::ErrorMemoryAllocationFailed);
-        }
-        return s;
-    }
+    bool resizePointersArray(size_t nColumns);
+    services::Status setNumberOfColumnsImpl(size_t ncol) DAAL_C11_OVERRIDE;
 
     services::Status allocateDataMemoryImpl(daal::MemType /*type*/ = daal::dram) DAAL_C11_OVERRIDE
     {
@@ -440,15 +396,7 @@ protected:
         return services::Status();
     }
 
-    void freeDataMemoryImpl() DAAL_C11_OVERRIDE
-    {
-        _arrays.clear();
-        _arrays.resize(_ddict->getNumberOfFeatures());
-        _arraysInitialized = 0;
-
-        _partialMemStatus = notAllocated;
-        _memStatus        = notAllocated;
-    }
+    void freeDataMemoryImpl() DAAL_C11_OVERRIDE;
 
     template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)
@@ -474,7 +422,6 @@ protected:
         return services::Status();
     }
 
-private:
     services::Status generatesOffsets()
     {
         if (isHomogeneousFloatOrDouble() && isAllCompleted())
@@ -485,6 +432,7 @@ private:
         return services::Status();
     }
 
+private:
     bool isAllCompleted() const
     {
         const size_t ncols = getNumberOfColumns();
@@ -497,38 +445,9 @@ private:
         return true;
     }
 
-    services::Status searchMinPointer()
-    {
-        const size_t ncols = getNumberOfColumns();
+    services::Status searchMinPointer();
 
-        DAAL_CHECK_MALLOC(_wrapOffsets.allocate(ncols));
-        _index              = 0;
-        char const * ptrMin = (char *)_arrays[0].get();
-
-        /* search index for min pointer */
-        for (size_t i = 1; i < ncols; ++i)
-        {
-            if ((char *)_arrays[i].get() < ptrMin)
-            {
-                _index = i;
-                ptrMin = (char *)_arrays[i].get();
-            }
-        }
-
-        DAAL_ASSERT(_wrapOffsets.count() >= ncols)
-
-        /* compute offsets */
-        for (size_t i = 0; i < ncols; ++i)
-        {
-            char const * const pv = (char *)(_arrays[i].get());
-            /* unsigned long long is equal to DAAL_UINT64 and LLONG_MAX is always fit to unsigned long long */
-            DAAL_ASSERT(static_cast<DAAL_UINT64>(pv - ptrMin) <= static_cast<DAAL_UINT64>(LLONG_MAX))
-            _wrapOffsets.get()[i] = static_cast<DAAL_INT64>(pv - ptrMin);
-        }
-
-        return services::Status();
-    }
-
+protected:
     template <typename T>
     services::Status getTBlock(size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
     {
@@ -665,7 +584,6 @@ private:
             }
 
             byte * location = _arrays[feat_idx].get() + idx * f.typeSize;
-
             if (!block.resizeBuffer(1, nrows))
             {
                 return services::Status(services::ErrorMemoryAllocationFailed);
