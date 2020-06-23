@@ -61,8 +61,15 @@ public:
 public:
     array()
         : data_owned_ptr_(nullptr),
-            size_(0),
-            capacity_(0) {}
+          size_(0),
+          capacity_(0) {}
+
+    template <typename U = T*>
+    explicit array(U data, std::int64_t size)
+        : data_owned_ptr_(nullptr),
+          data_(data),
+          size_(size),
+          capacity_(0) {}
 
     template <typename Deleter>
     explicit array(T* data, std::int64_t size, Deleter&& deleter)

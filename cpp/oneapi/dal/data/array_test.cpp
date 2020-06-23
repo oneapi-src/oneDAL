@@ -225,3 +225,23 @@ TEST(array_test, can_make_owning_array_from_non_owning_readonly) {
         ASSERT_FLOAT_EQ(arr[i], data[i]);
     }
 }
+
+TEST(array_test, can_construct_non_owning_read_write_array) {
+    float data[] = { 1.0f, 2.0f, 3.0f };
+    array<float> arr { data, 3 };
+
+    ASSERT_EQ(arr.get_size(), 3);
+    ASSERT_EQ(arr.get_data(), data);
+    ASSERT_TRUE(arr.has_mutable_data());
+    ASSERT_FALSE(arr.is_data_owner());
+}
+
+TEST(array_test, can_construct_non_owning_read_only_array) {
+    float data[] = { 1.0f, 2.0f, 3.0f };
+    array<float> arr { static_cast<const float*>(data), 3 };
+
+    ASSERT_EQ(arr.get_size(), 3);
+    ASSERT_EQ(arr.get_data(), data);
+    ASSERT_FALSE(arr.has_mutable_data());
+    ASSERT_FALSE(arr.is_data_owner());
+}
