@@ -58,6 +58,21 @@ public:
         return array<T> { data, element_count, default_delete{} };
     }
 
+#ifdef ENABLE_DATA_PARALLEL_EXECUTION
+    static array<T> zeros(cl::sycl::queue q, std::int64_t element_count) {
+        auto* data = cl::sycl::malloc<T>(element_count,
+                                         q.get_device(), q.get_context(),
+                                         cl::sycl::usm::alloc::shared);
+        auto event = q.memset(data, 0, sizeof(T)*element_count);
+        event.wait();
+
+        return array<T> {
+            data, element_count,
+            [q](T* memory) { cl::sycl::free(memory, q); }
+        };
+    }
+#endif
+
 public:
     array()
         : data_owned_ptr_(nullptr),
