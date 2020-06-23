@@ -30,8 +30,6 @@
 #include "service.h"
 #include "service_sycl.h"
 #include "services/comm_detect.h"
-#include <algorithm>
-#include <random>
 
 using namespace std;
 using namespace daal;
@@ -48,23 +46,14 @@ const size_t nIterations = 5;
 int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
-    auto all_platforms = cl::sycl::platform::get_platforms();
-    for(const auto & platform : all_platforms)
+
+    for (const auto & deviceSelector : getListOfDevices())
     {
-        std::vector<cl::sycl::device> gpu_devices = platform.get_devices(cl::sycl::info::device_type::gpu);
-        if(gpu_devices.size() == 0) continue;
-        std::cout << "Platform name:  " << platform.get_info<cl::sycl::info::platform::name>() << "; GPU devices: " << gpu_devices.size() << std::endl;
-
-        std::vector<size_t> device_indices;
-        for(size_t index = 0; index < gpu_devices.size(); index++)
-            device_indices.push_back(index);
-        
-        auto const seed = std::random_device()();
-        std::mt19937 random_engine(seed);
-        std::shuffle(std::begin(device_indices), std::end(device_indices), random_engine);
-        cl::sycl::queue queue(gpu_devices[device_indices[0]]);
-
-        std::cout << "Running on GPU #" << device_indices[0] << std::endl;
+        const auto & nameDevice = deviceSelector.first;
+        const auto & device     = deviceSelector.second;
+        if (!device.is_gpu()) continue;
+        cl::sycl::queue queue(device);
+        std::cout << "Running on " << nameDevice << "\n\n";
 
         daal::services::SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
@@ -99,7 +88,6 @@ int main(int argc, char * argv[])
         printNumericTable(((kmeans::Result *)algorithm.getResult().get())->get(kmeans::assignments), "First 10 cluster assignments:", 10);
         printNumericTable(((kmeans::Result *)algorithm.getResult().get())->get(kmeans::centroids), "First 10 dimensions of centroids:", 20, 10);
         printNumericTable(((kmeans::Result *)algorithm.getResult().get())->get(kmeans::objectiveFunction), "Objective function value:");
-        return 0;
     }
 
     return 0;
