@@ -30,7 +30,7 @@ TEST(array_test, can_construct_empty_array) {
 }
 
 TEST(array_test, can_construct_array_of_zeros) {
-    array<float> arr(5);
+    auto arr = array<float>::zeros(5);
 
     ASSERT_EQ(arr.get_size(), 5);
     ASSERT_EQ(arr.get_capacity(), 5);
@@ -43,7 +43,7 @@ TEST(array_test, can_construct_array_of_zeros) {
 }
 
 TEST(array_test, can_construct_array_of_ones) {
-    array arr(5, 1.0f);
+    auto arr = array<float>::full(5, 1.0f);
 
     ASSERT_EQ(arr.get_size(), 5);
     ASSERT_EQ(arr.get_capacity(), 5);
@@ -75,7 +75,7 @@ TEST(array_test, can_construct_array_from_raw_pointer) {
 }
 
 TEST(array_test, can_construct_array_reference) {
-    array<float> arr(5);
+    auto arr = array<float>::zeros(5);
     array<float> arr2 = arr;
 
     ASSERT_EQ(arr.get_size(), arr2.get_size());
@@ -91,7 +91,7 @@ TEST(array_test, can_construct_array_reference) {
 }
 
 TEST(array_test, can_reset_array) {
-    array<float> arr(5);
+    auto arr = array<float>::zeros(5);
     arr.reset();
 
     ASSERT_EQ(arr.get_size(), 0);
@@ -101,7 +101,7 @@ TEST(array_test, can_reset_array) {
 }
 
 TEST(array_test, can_reset_array_with_bigger_size) {
-    array<float> arr(5);
+    auto arr = array<float>::zeros(5);
     arr.reset(10);
 
     ASSERT_EQ(arr.get_size(), 10);
@@ -111,7 +111,7 @@ TEST(array_test, can_reset_array_with_bigger_size) {
 }
 
 TEST(array_test, can_reset_array_with_smaller_size) {
-    array<float> arr(5);
+    auto arr = array<float>::zeros(5);
     arr.reset(4);
 
     ASSERT_EQ(arr.get_size(), 4);
@@ -121,7 +121,7 @@ TEST(array_test, can_reset_array_with_smaller_size) {
 }
 
 TEST(array_test, can_reset_array_with_raw_pointer) {
-    array<float> arr(5);
+    auto arr = array<float>::zeros(5);
 
     constexpr int64_t size = 10;
     auto ptr = new float[size];
@@ -136,7 +136,7 @@ TEST(array_test, can_reset_array_with_raw_pointer) {
 }
 
 TEST(array_test, can_reset_array_with_non_owning_raw_pointer) {
-    array<float> arr(5);
+    auto arr = array<float>::zeros(5);
 
     constexpr int64_t size = 10;
     const float* ptr = new float[size];
@@ -153,7 +153,7 @@ TEST(array_test, can_reset_array_with_non_owning_raw_pointer) {
 }
 
 TEST(array_test, can_resize_array_with_bigger_size) {
-    array<float> arr(5);
+    auto arr = array<float>::zeros(5);
     arr.resize(10);
 
     ASSERT_EQ(arr.get_size(), 10);
@@ -163,7 +163,7 @@ TEST(array_test, can_resize_array_with_bigger_size) {
 }
 
 TEST(array_test, can_resize_array_with_smaller_size) {
-    array<float> arr(5);
+    auto arr = array<float>::zeros(5);
     arr.resize(4);
 
     ASSERT_EQ(arr.get_size(), 4);

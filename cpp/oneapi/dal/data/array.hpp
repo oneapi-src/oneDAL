@@ -18,6 +18,7 @@
 
 #include <variant>
 #include <algorithm>
+#include <cstring>
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal {
@@ -40,20 +41,28 @@ public:
     using default_delete = std::default_delete<T[]>;
 
 public:
+    template <typename K>
+    static array<T> full(std::int64_t element_count, K&& element) {
+        auto* data = new T[element_count];
+
+        for (std::int64_t i = 0; i < element_count; i++) {
+            data[i] = std::forward<K>(element);
+        }
+
+        return array<T> { data, element_count, default_delete{} };
+    }
+
+    static array<T> zeros(std::int64_t element_count) {
+        auto* data = new T[element_count];
+        std::memset(data, 0, sizeof(T)*element_count);
+        return array<T> { data, element_count, default_delete{} };
+    }
+
+public:
     array()
         : data_owned_ptr_(nullptr),
             size_(0),
             capacity_(0) {}
-
-    explicit array(std::int64_t element_count, T element = {}) // TODO: Use custom oneDAL allocator
-        : data_owned_ptr_(new T[element_count], default_delete{}),
-            data_(data_owned_ptr_.get()),
-            size_(element_count),
-            capacity_(element_count) {
-        for (std::int64_t i = 0; i < size_; i++) {
-            (*this)[i] = element;
-        }
-    }
 
     template <typename Deleter>
     explicit array(T* data, std::int64_t size, Deleter&& deleter)

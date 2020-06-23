@@ -41,10 +41,10 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     const int64_t component_count = desc.get_component_count();
 
     auto arr_data = row_accessor<const Float>{ data }.pull();
-    array<Float> arr_eigvec{ column_count * component_count };
-    array<Float> arr_eigval{ 1 * component_count };
-    array<Float> arr_means{ 1 * component_count };
-    array<Float> arr_vars{ 1 * component_count };
+    auto arr_eigvec = array<Float>::zeros(column_count * component_count);
+    auto arr_eigval = array<Float>::zeros(1 * component_count);
+    auto arr_means = array<Float>::zeros(1 * component_count);
+    auto arr_vars = array<Float>::zeros(1 * component_count);
 
     // TODO: read-only access performed with deep copy of data since daal numeric tables are mutable.
     // Need to create special immutable homogen table on daal interop side
