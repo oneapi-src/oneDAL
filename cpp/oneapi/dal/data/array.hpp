@@ -65,10 +65,22 @@ public:
     }
 
 #ifdef ENABLE_DATA_PARALLEL_EXECUTION
-    static array<T> zeros(sycl::queue q, std::int64_t element_count) {
-        auto* data = sycl::malloc<T>(element_count,
-                                     q.get_device(), q.get_context(),
-                                     sycl::usm::alloc::shared);
+    template <typename K>
+    static array<T> full(sycl::queue q, std::int64_t element_count, K&& element,
+                         sycl::usm::alloc kind = sycl::usm::alloc::shared) {
+        auto* data = sycl::malloc<T>(element_count, q.get_device(), q.get_context(), kind);
+        auto event = q.fill<T>(data, std::forward<K>(element), element_count);
+        event.wait();
+
+        return array<T> {
+            data, element_count,
+            [q](T* memory) { sycl::free(memory, q); }
+        };
+    }
+
+    static array<T> zeros(sycl::queue q, std::int64_t element_count,
+                          sycl::usm::alloc kind = sycl::usm::alloc::shared) {
+        auto* data = sycl::malloc<T>(element_count, q.get_device(), q.get_context(), kind);
         auto event = q.memset(data, 0, sizeof(T)*element_count);
         event.wait();
 

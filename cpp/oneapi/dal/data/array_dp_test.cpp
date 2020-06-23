@@ -37,3 +37,18 @@ TEST(array_dp_test, can_construct_array_of_zeros) {
         ASSERT_FLOAT_EQ(arr[i], 0.0f);
     }
 }
+
+TEST(array_test, can_construct_array_of_ones) {
+    sycl::queue q { sycl::gpu_selector() };
+
+    auto arr = array<float>::full(5, 1.0f);
+
+    ASSERT_EQ(arr.get_size(), 5);
+    ASSERT_EQ(arr.get_capacity(), 5);
+    ASSERT_TRUE(arr.is_data_owner());
+    ASSERT_TRUE(arr.has_mutable_data());
+
+    for (int32_t i = 0; i < arr.get_size(); i++) {
+        ASSERT_FLOAT_EQ(arr[i], 1.0f);
+    }
+}
