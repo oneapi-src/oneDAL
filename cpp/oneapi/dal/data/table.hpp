@@ -71,8 +71,11 @@ public:
               typename = std::enable_if_t<is_homogen_table_impl_v<std::decay_t<Impl>>>>
     homogen_table(Impl&& impl) {
         // TODO: usage of protected method of base class: a point to break inheritance?
-        init_impl(new detail::homogen_table_impl_wrapper(std::forward<Impl>(impl),
-                                                         homogen_table::kind()));
+        auto* wrapper = new detail::homogen_table_impl_wrapper{
+            std::forward<Impl>(impl),
+            homogen_table::kind()
+        };
+        init_impl(wrapper);
     }
 
     template <typename DataType>

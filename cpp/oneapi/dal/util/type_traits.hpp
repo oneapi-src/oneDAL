@@ -78,7 +78,7 @@ struct is_table_impl {
                                    (const array<std::int32_t>&, std::int64_t, const range&),
                                    push_back_column_int32)
 
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(std::int64_t, get_kind, () const);
+    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(std::int64_t, get_kind, () const)
 
     static constexpr bool can_pull_rows = has_method_pull_rows_float_v<T> &&
                                           has_method_pull_rows_double_v<T> &&
