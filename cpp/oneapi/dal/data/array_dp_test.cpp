@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "gtest/gtest.h"
-#include <cl/sycl.hpp>
+#include <CL/sycl.hpp>
 
 #define ENABLE_DATA_PARALLEL_EXECUTION
 #include "oneapi/dal/data/array.hpp"
@@ -24,7 +24,7 @@ using namespace oneapi::dal;
 using std::int32_t;
 
 TEST(array_dp_test, can_construct_array_of_zeros) {
-    cl::sycl::queue q { cl::sycl::gpu_selector() };
+    sycl::queue q { sycl::gpu_selector() };
 
     auto arr = array<float>::zeros(q, 5);
 

@@ -19,7 +19,13 @@
 #include <variant>
 #include <algorithm>
 #include <cstring>
+
+#ifdef ENABLE_DATA_PARALLEL_EXECUTION
+#include <CL/sycl.hpp>
+#endif
+
 #include "oneapi/dal/detail/common.hpp"
+
 
 namespace oneapi::dal {
 
@@ -59,16 +65,16 @@ public:
     }
 
 #ifdef ENABLE_DATA_PARALLEL_EXECUTION
-    static array<T> zeros(cl::sycl::queue q, std::int64_t element_count) {
-        auto* data = cl::sycl::malloc<T>(element_count,
-                                         q.get_device(), q.get_context(),
-                                         cl::sycl::usm::alloc::shared);
+    static array<T> zeros(sycl::queue q, std::int64_t element_count) {
+        auto* data = sycl::malloc<T>(element_count,
+                                     q.get_device(), q.get_context(),
+                                     sycl::usm::alloc::shared);
         auto event = q.memset(data, 0, sizeof(T)*element_count);
         event.wait();
 
         return array<T> {
             data, element_count,
-            [q](T* memory) { cl::sycl::free(memory, q); }
+            [q](T* memory) { sycl::free(memory, q); }
         };
     }
 #endif
