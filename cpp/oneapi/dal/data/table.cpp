@@ -54,6 +54,10 @@ const table_metadata& table::get_metadata() const {
     return impl_->get_metadata();
 }
 
+int64_t table::get_kind() const {
+    return impl_->get_kind();
+}
+
 void table::init_impl(detail::table_impl_iface* impl) {
     impl_ = pimpl { impl };
 }

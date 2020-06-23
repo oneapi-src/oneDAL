@@ -87,7 +87,10 @@ homogen_table_builder::homogen_table_builder(std::int64_t row_count, std::int64_
                                              homogen_data_layout layout)
     : table_builder(backend::homogen_table_builder_impl {
         backend::homogen_table_builder_impl::pimpl_t {
-            new detail::homogen_table_impl_wrapper { backend::homogen_table_impl{ row_count, column_count, value, layout } }
+            new detail::homogen_table_impl_wrapper {
+                backend::homogen_table_impl{ row_count, column_count, value, layout },
+                homogen_table::kind()
+            }
         }
     }) {}
 
@@ -97,7 +100,10 @@ homogen_table_builder::homogen_table_builder(std::int64_t column_count,
                                              homogen_data_layout layout)
     : table_builder(backend::homogen_table_builder_impl {
         backend::homogen_table_builder_impl::pimpl_t {
-            new detail::homogen_table_impl_wrapper { backend::homogen_table_impl{ column_count, data, layout } }
+            new detail::homogen_table_impl_wrapper {
+                backend::homogen_table_impl{ column_count, data, layout },
+                homogen_table::kind()
+            }
         }
     }) {}
 

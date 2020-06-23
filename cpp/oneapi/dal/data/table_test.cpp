@@ -30,6 +30,8 @@ TEST(table_test, can_construct_empty_table) {
 
 TEST(table_test, can_set_custom_implementation) {
     struct table_impl {
+        const std::int64_t kind = 123456;
+
         std::int64_t get_column_count() const noexcept {
             return 10;
         }
@@ -40,6 +42,10 @@ TEST(table_test, can_set_custom_implementation) {
 
         const table_metadata& get_metadata() const noexcept {
             return m;
+        }
+
+        std::int64_t get_kind() const {
+            return kind;
         }
 
         void pull_rows(array<float>& a, const range& r) const {}
@@ -61,6 +67,7 @@ TEST(table_test, can_set_custom_implementation) {
 
     table t { table_impl{} };
     ASSERT_TRUE(t.has_data());
+    ASSERT_EQ(t.get_kind(), table_impl{}.get_kind());
 }
 
 TEST(homogen_table_test, can_construct_empty_table) {
@@ -285,6 +292,7 @@ TEST(homogen_table_test, can_upcast_table) {
     ASSERT_EQ(3, t.get_row_count());
     ASSERT_EQ(2, t.get_column_count());
     ASSERT_EQ(data_type::float32, t.get_metadata().get_feature(0).get_data_type());
+    ASSERT_EQ(t.get_kind(), homogen_table::kind());
 }
 
 TEST(homogen_table_test, can_read_table_data_via_row_accessor) {
