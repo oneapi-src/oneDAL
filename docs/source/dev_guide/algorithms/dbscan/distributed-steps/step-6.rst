@@ -51,8 +51,6 @@ In this step, the DBSCAN algorithm has the following parameters:
        which in worst case can be :math:`O(|\text{number of observations}|^2)`. However, in general, performance may be better.
 
 
-       .. note:: ``memorySavingMode`` could be ``false`` only on CPU.
-
 In this step, the DBSCAN algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
 For more details, :ref:`algorithms`.

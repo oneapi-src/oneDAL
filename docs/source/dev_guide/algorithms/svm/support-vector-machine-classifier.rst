@@ -229,19 +229,29 @@ Examples
 
 .. tabs::
 
+  .. tab:: DPC++
+
+    Batch Processing:
+    
+    -  :ref:`svm_two_class_dense_batch.cpp`
+
   .. tab:: C++
+  
+    Batch Processing:
 
-   Batch Processing:
-
-   -  :cpp_example:`svm_two_class_dense_batch.cpp <svm/svm_two_class_dense_batch.cpp>`
-   -  :cpp_example:`svm_two_class_csr_batch.cpp <svm/svm_two_class_csr_batch.cpp>`
+    -  :cpp_example:`svm_two_class_boser_dense_batch.cpp <svm/svm_two_class_boser_dense_batch.cpp>`
+    -  :cpp_example:`svm_two_class_boser_csr_batch.cpp <svm/svm_two_class_boser_csr_batch.cpp>`
+    -  :cpp_example:`svm_two_class_thunder_dense_batch.cpp <svm/svm_two_class_thunder_dense_batch.cpp>`
+    -  :cpp_example:`svm_two_class_thunder_csr_batch.cpp <svm/svm_two_class_thunder_csr_batch.cpp>`
 
   .. tab:: Java*
-   
-   Batch Processing:
+  
+    Batch Processing:
 
-   -  :java_example:`SVMTwoClassDenseBatch.java <svm/SVMTwoClassDenseBatch.java>`
-   -  :java_example:`SVMTwoClassCSRBatch.java <svm/SVMTwoClassCSRBatch.java>`
+    -  :java_example:`SVMTwoClassBoserDenseBatch.java <svm/SVMTwoClasBosersDenseBatch.java>`
+    -  :java_example:`SVMTwoClassBoserCSRBatch.java <svm/SVMTwoClassBoserCSRBatch.java>`
+    -  :java_example:`SVMTwoClassThunderDenseBatch.java <svm/SVMTwoClassThunderDenseBatch.java>`
+    -  :java_example:`SVMTwoClassThunderCSRBatch.java <svm/SVMTwoClassThunderCSRBatch.java>`
 
 .. Python*:
 

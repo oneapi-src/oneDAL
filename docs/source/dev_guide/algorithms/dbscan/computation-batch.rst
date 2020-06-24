@@ -79,12 +79,12 @@ For more details, see :ref:`algorithms`.
 
    * - Input ID
      - Input
-   * - data
+   * - ``data``
      - Pointer to the :math:`n \times p` numeric table with the data to be clustered.
 
        .. note:: The input can be an object of any class derived from ``NumericTable``.
 
-   * - weights
+   * - ``weights``
      - Optional input. Pointer to the :math:`n \times 1` numeric table with weights of observations.
 
        .. note::
@@ -93,6 +93,10 @@ For more details, see :ref:`algorithms`.
          except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``.
          
          By default all weights are equal to :math:`1`.
+
+       .. note::
+
+         This parameter is not supported on GPU.
 
 Algorithm Output
 ****************

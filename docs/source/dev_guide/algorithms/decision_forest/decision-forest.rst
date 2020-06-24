@@ -49,12 +49,12 @@ internal nodes :math:`t` represent a binary test (split) dividing their
 subset :math:`X_t` in two subsets :math:`X_{t_L}` and :math:`X_{t_R}`,
 corresponding to their children :math:`t_L` and :math:`t_R`.
 
-.. _df_inexact_method:
+.. _df_inexact_hist_method:
 
-Inexact Computation Method
-++++++++++++++++++++++++++
+Inexact Histogram Computation Method
+++++++++++++++++++++++++++++++++++++
 
-In inexact method, also called histogram method, only a selected subset of splits is considered for computation of a best split.
+In inexact histogram method only a selected subset of splits is considered for computation of a best split.
 This subset is computed for each feature at the initialization stage of the algorithm. After the set of splits is computed,
 each value from initially provided data is substituted with the value of the corresponding bin.
 The bins are continuous intervals between the selected splits.
@@ -100,8 +100,8 @@ each terminal node :math:`t`:
    :math:`\Delta i` in all :math:`s_{j,t}` splits.
 -  Apply this procedure recursively to :math:`t_L` and :math:`t_R`.
 
-Creation of a Bootstrap Set
-+++++++++++++++++++++++++++
+Random Numbers Generation
++++++++++++++++++++++++++
 
 To create a *bootstrap* set and choose feature indices in the
 performant way, the training algorithm requires the source of

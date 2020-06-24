@@ -55,10 +55,8 @@ Given a positive integer parameter :math:`k` and a test observation
 
 The library provides kNN classification with the following methods:
 
-- K-D tree
-- Brute Force 
-
-.. note:: Brute Force method is only supported on GPU.
+- K-D tree (only suppored on CPU)
+- Brute Force (only suppored on GPU)
 
 K-D tree
 --------
