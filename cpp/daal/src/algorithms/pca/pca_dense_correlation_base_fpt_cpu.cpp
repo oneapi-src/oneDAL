@@ -1,4 +1,4 @@
-/* file: pca_dense_base_iface.h */
+/* file: pca_dense_correlation_base_fpt_cpu.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -15,18 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Interface of base functions calculating dense PCA.
-//--
-*/
-
-#ifndef __PCA_DENSE_BASE_IFACE_H__
-#define __PCA_DENSE_BASE_IFACE_H__
-
-#include "src/services/service_defines.h"
-#include "src/data_management/service_numeric_table.h"
-#include "services/error_handling.h"
+#include "src/algorithms/pca/pca_dense_correlation_base_impl.i"
 
 namespace daal
 {
@@ -36,19 +25,8 @@ namespace pca
 {
 namespace internal
 {
-
-template <typename algorithmFPType>
-class PCADenseBaseIface
-{
-public:
-    virtual services::Status signFlipEigenvectors(NumericTable & eigenvectors) const     = 0;
-    virtual services::Status fillTable(NumericTable & table, algorithmFPType val) const  = 0;
-    virtual services::Status copyTable(NumericTable & source, NumericTable & dest) const = 0;
-};
-
+template class DAAL_EXPORT PCACorrelationBase<DAAL_FPTYPE, DAAL_CPU>;
 } // namespace internal
 } // namespace pca
 } // namespace algorithms
 } // namespace daal
-
-#endif
