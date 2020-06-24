@@ -22,6 +22,7 @@
 
 #ifdef ENABLE_DATA_PARALLEL_EXECUTION
 #include <CL/sycl.hpp>
+#include "oneapi/dal/detail/common_dp.hpp"
 #endif
 
 #include "oneapi/dal/detail/common.hpp"
@@ -44,6 +45,9 @@ class array {
 
 public:
     using default_delete = std::default_delete<T[]>;
+#ifdef ENABLE_DATA_PARALLEL_EXECUTION
+    using dp_default_delete = detail::dp_default_delete<T>;
+#endif
 
 public:
     template <typename K>
@@ -236,15 +240,15 @@ public:
         auto context = queue.get_context();
         auto* new_data = sycl::malloc<T>(count, device, context, kind);
 
-        reset(new_data, count, [queue](T* memory) { sycl::free(memory, queue); });
+        reset(new_data, count, dp_default_delete{ queue });
     }
 
     void reset(sycl::queue queue,
                T* data, std::int64_t count,
                sycl::vector_class<sycl::event> dependencies = {}) {
-        reset(data, count, [queue](T* memory) { sycl::free(memory, queue); });
+        reset(data, count, dp_default_delete{ queue });
         for (auto& event : dependencies) {
-                event.wait();
+            event.wait();
         }
     }
 #endif
