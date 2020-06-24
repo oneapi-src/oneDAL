@@ -66,7 +66,6 @@ inline table convert_from_daal_homogen_table(const daal::data_management::Numeri
     nt->getBlockOfRows(0, row_count, daal::data_management::readOnly, block);
     T* data = block.getBlockPtr();
     array<T> arr(data, row_count * column_count, [nt, block](T* p) mutable {
-        p = nullptr;
         nt->releaseBlockOfRows(block);
     });
     return homogen_table_builder{ column_count, arr }.build();

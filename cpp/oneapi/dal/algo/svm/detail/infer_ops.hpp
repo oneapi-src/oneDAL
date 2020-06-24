@@ -29,7 +29,7 @@ template <typename Descriptor>
 struct infer_ops {
     using float_t           = typename Descriptor::float_t;
     using task_t            = typename Descriptor::task_t;
-    using method_t          = typename method::by_default;
+    using method_t          = method::by_default;
     using input_t           = infer_input;
     using result_t          = infer_result;
     using descriptor_base_t = descriptor_base;
