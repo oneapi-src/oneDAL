@@ -26,7 +26,6 @@
 
 #include "oneapi/dal/detail/common.hpp"
 
-
 namespace oneapi::dal {
 
 template <typename T>
@@ -66,33 +65,31 @@ public:
 
 #ifdef ENABLE_DATA_PARALLEL_EXECUTION
     template <typename K>
-    static array<T> full(sycl::queue q, std::int64_t element_count, K&& element,
+    static array<T> full(sycl::queue queue,
+                         std::int64_t element_count, K&& element,
                          sycl::usm::alloc kind = sycl::usm::alloc::shared) {
-        auto* data = sycl::malloc<T>(element_count, q.get_device(), q.get_context(), kind);
+        auto device = queue.get_device();
+        auto context = queue.get_context();
+        auto* data = sycl::malloc<T>(element_count, device, context, kind);
         auto event = q.submit([&](sycl::handler& cgh) {
             cgh.parallel_for<class array_full>(sycl::range<1>(element_count),
                                                [=](sycl::id<1> idx) {
                 data[idx[0]] = element;
             });
         });
-        event.wait();
 
-        return array<T> {
-            data, element_count,
-            [q](T* memory) { sycl::free(memory, q); }
-        };
+        return array<T> { queue, data, element_count, event };
     }
 
-    static array<T> zeros(sycl::queue q, std::int64_t element_count,
+    static array<T> zeros(sycl::queue queue,
+                          std::int64_t element_count,
                           sycl::usm::alloc kind = sycl::usm::alloc::shared) {
-        auto* data = sycl::malloc<T>(element_count, q.get_device(), q.get_context(), kind);
-        auto event = q.memset(data, 0, sizeof(T)*element_count);
-        event.wait();
+        auto device = queue.get_device();
+        auto context = queue.get_context();
+        auto* data = sycl::malloc<T>(element_count, device, context, kind);
+        auto event = queue.memset(data, 0, sizeof(T)*element_count);
 
-        return array<T> {
-            data, element_count,
-            [q](T* memory) { sycl::free(memory, q); }
-        };
+        return array<T> { queue, data, element_count, event };
     }
 #endif
 
@@ -102,7 +99,13 @@ public:
           size_(0),
           capacity_(0) {}
 
-    template <typename U = T*>
+    explicit array(std::int64_t count)
+        : array() {
+        reset(count);
+    }
+
+    template <typename U = T*,
+              typename = std::enable_if_t<std::is_pointer_v<U>>>
     explicit array(U data, std::int64_t size)
         : data_owned_ptr_(nullptr),
           data_(data),
@@ -111,10 +114,25 @@ public:
 
     template <typename Deleter>
     explicit array(T* data, std::int64_t size, Deleter&& deleter)
-        : data_owned_ptr_(data, std::forward<Deleter>(deleter)),
-            data_(data),
-            size_(size),
-            capacity_(size) {}
+        : array() {
+        reset(data, size, std::forward<Deleter>(deleter);)
+    }
+
+#ifdef ENABLE_DATA_PARALLEL_EXECUTION
+    explicit array(sycl::queue queue,
+                   std::int64_t count,
+                   sycl::usm::alloc kind = sycl::usm::alloc::shared)
+        : array() {
+        reset(queue, count, kind);
+    }
+
+    explicit array(sycl::queue queue,
+                   T* data, std::int64_t size,
+                   sycl::vector_class<sycl::event> dependencies = {})
+        : array() {
+            reset(queue, data, size, dependencies);
+        }
+#endif
 
     T* get_mutable_data() const {
         return std::get<T*>(data_); // TODO: convert to dal exception
@@ -148,6 +166,24 @@ public:
         }
     }
 
+#ifdef ENABLE_DATA_PARALLEL_EXECUTION
+    array& unique(sycl::queue queue,
+                  sycl::usm::alloc kind = sycl::usm::alloc::shared) {
+        if (is_data_owner() || size_ == 0) {
+            return *this;
+        } else {
+            auto immutable_data = get_data();
+            auto device = queue.get_device();
+            auto context = queue.get_context();
+            auto* copy_data = sycl::malloc<T>(size_, device, context, kind);
+            auto event = queue.memcpy(copy_data, immutable_data, sizeof(T)*size_);
+
+            reset(queue, copy_data, size_, event);
+            return *this;
+        }
+    }
+#endif
+
     std::int64_t get_size() const {
         return size_;
     }
@@ -176,10 +212,7 @@ public:
     }
 
     void reset(std::int64_t size) {
-        data_owned_ptr_.reset(new T[size], default_delete{});
-        data_ = data_owned_ptr_.get();
-        size_ = size;
-        capacity_ = size;
+        reset(new T[size], size, default_delete{});
     }
 
     template <typename Deleter>
@@ -190,6 +223,27 @@ public:
         size_ = size;
         capacity_ = size;
     }
+
+#ifdef ENABLE_DATA_PARALLEL_EXECUTION
+    void reset(sycl::queue queue,
+               std::int64_t size,
+               sycl::usm::alloc kind = sycl::usm::alloc::shared) {
+        auto device = queue.get_device();
+        auto context = queue.get_context();
+        auto* new_data = sycl::malloc<T>(size, device, context, kind);
+
+        reset(new_data, size, [queue](T* memory) { sycl::free(memory, queue); });
+    }
+
+    void reset(sycl::queue queue,
+               T* data, std::int64_t count,
+               sycl::vector_class<sycl::event> dependencies = {}) {
+        reset(data, count, [queue](T* memory) { sycl::free(memory, queue); });
+        for (auto& event : dependencies) {
+                event.wait();
+        }
+    }
+#endif
 
     template <typename U = T*>
     void reset_not_owning(U data = nullptr, std::int64_t size = 0) {
@@ -221,6 +275,35 @@ public:
             size_ = size;
         }
     }
+
+#ifdef ENABLE_DATA_PARALLEL_EXECUTION
+    void resize(sycl::queue queue,
+                std::int64_t size,
+                sycl::usm::alloc kind = sycl::usm::alloc::shared) {
+        if (is_data_owner() == false) {
+            throw std::runtime_error("cannot resize array with non-owning data");
+        } else if (size <= 0) {
+            reset_not_owning();
+        } else if (get_capacity() < size) {
+            auto device = queue.get_device();
+            auto context = queue.get_context();
+            auto* new_data = sycl::malloc<T>(size, device, context, kind);
+
+            std::int64_t min_size = std::min(size, get_size());
+            auto event = queue.memcpy(new_data, this->get_data(), sizeof(T)*min_size);
+
+            try {
+                reset(queue, new_data, size, event);
+            } catch (const std::exception&) {
+                sycl::free(new_data);
+                throw;
+            }
+
+        } else {
+            size_ = size;
+        }
+    }
+#endif
 
     const T& operator [](std::int64_t index) const {
         return get_data()[index];
