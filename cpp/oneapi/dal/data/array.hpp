@@ -47,56 +47,56 @@ public:
 
 public:
     template <typename K>
-    static array<T> full(std::int64_t element_count, K&& element) {
-        auto* data = new T[element_count];
+    static array<T> full(std::int64_t count, K&& element) {
+        auto* data = new T[count];
 
-        for (std::int64_t i = 0; i < element_count; i++) {
+        for (std::int64_t i = 0; i < count; i++) {
             data[i] = std::forward<K>(element);
         }
 
-        return array<T> { data, element_count, default_delete{} };
+        return array<T> { data, count, default_delete{} };
     }
 
-    static array<T> zeros(std::int64_t element_count) {
-        auto* data = new T[element_count];
-        std::memset(data, 0, sizeof(T)*element_count);
-        return array<T> { data, element_count, default_delete{} };
+    static array<T> zeros(std::int64_t count) {
+        auto* data = new T[count];
+        std::memset(data, 0, sizeof(T)*count);
+        return array<T> { data, count, default_delete{} };
     }
 
 #ifdef ENABLE_DATA_PARALLEL_EXECUTION
     template <typename K>
     static array<T> full(sycl::queue queue,
-                         std::int64_t element_count, K&& element,
+                         std::int64_t count, K&& element,
                          sycl::usm::alloc kind = sycl::usm::alloc::shared) {
         auto device = queue.get_device();
         auto context = queue.get_context();
-        auto* data = sycl::malloc<T>(element_count, device, context, kind);
+        auto* data = sycl::malloc<T>(count, device, context, kind);
         auto event = q.submit([&](sycl::handler& cgh) {
-            cgh.parallel_for<class array_full>(sycl::range<1>(element_count),
+            cgh.parallel_for<class array_full>(sycl::range<1>(count),
                                                [=](sycl::id<1> idx) {
                 data[idx[0]] = element;
             });
         });
 
-        return array<T> { queue, data, element_count, event };
+        return array<T> { queue, data, count, event };
     }
 
     static array<T> zeros(sycl::queue queue,
-                          std::int64_t element_count,
+                          std::int64_t count,
                           sycl::usm::alloc kind = sycl::usm::alloc::shared) {
         auto device = queue.get_device();
         auto context = queue.get_context();
-        auto* data = sycl::malloc<T>(element_count, device, context, kind);
-        auto event = queue.memset(data, 0, sizeof(T)*element_count);
+        auto* data = sycl::malloc<T>(count, device, context, kind);
+        auto event = queue.memset(data, 0, sizeof(T)*count);
 
-        return array<T> { queue, data, element_count, event };
+        return array<T> { queue, data, count, event };
     }
 #endif
 
 public:
     array()
         : data_owned_ptr_(nullptr),
-          size_(0),
+          count_(0),
           capacity_(0) {}
 
     explicit array(std::int64_t count)
@@ -106,16 +106,16 @@ public:
 
     template <typename U = T*,
               typename = std::enable_if_t<std::is_pointer_v<U>>>
-    explicit array(U data, std::int64_t size)
+    explicit array(U data, std::int64_t count)
         : data_owned_ptr_(nullptr),
           data_(data),
-          size_(size),
+          count_(count),
           capacity_(0) {}
 
     template <typename Deleter>
-    explicit array(T* data, std::int64_t size, Deleter&& deleter)
+    explicit array(T* data, std::int64_t count, Deleter&& deleter)
         : array() {
-        reset(data, size, std::forward<Deleter>(deleter);)
+        reset(data, count, std::forward<Deleter>(deleter));
     }
 
 #ifdef ENABLE_DATA_PARALLEL_EXECUTION
@@ -127,10 +127,10 @@ public:
     }
 
     explicit array(sycl::queue queue,
-                   T* data, std::int64_t size,
+                   T* data, std::int64_t count,
                    sycl::vector_class<sycl::event> dependencies = {})
         : array() {
-            reset(queue, data, size, dependencies);
+            reset(queue, data, count, dependencies);
         }
 #endif
 
@@ -151,17 +151,17 @@ public:
     }
 
     array& unique() {
-        if (is_data_owner() || size_ == 0) {
+        if (is_data_owner() || count_ == 0) {
             return *this;
         } else {
             auto immutable_data = get_data();
-            auto copy_data = new T[size_];
+            auto copy_data = new T[count_];
 
-            for (std::int64_t i = 0; i < size_; i++) {
+            for (std::int64_t i = 0; i < count_; i++) {
                 copy_data[i] = immutable_data[i];
             }
 
-            reset(copy_data, size_, default_delete{});
+            reset(copy_data, count_, default_delete{});
             return *this;
         }
     }
@@ -169,23 +169,27 @@ public:
 #ifdef ENABLE_DATA_PARALLEL_EXECUTION
     array& unique(sycl::queue queue,
                   sycl::usm::alloc kind = sycl::usm::alloc::shared) {
-        if (is_data_owner() || size_ == 0) {
+        if (is_data_owner() || count_ == 0) {
             return *this;
         } else {
             auto immutable_data = get_data();
             auto device = queue.get_device();
             auto context = queue.get_context();
-            auto* copy_data = sycl::malloc<T>(size_, device, context, kind);
-            auto event = queue.memcpy(copy_data, immutable_data, sizeof(T)*size_);
+            auto* copy_data = sycl::malloc<T>(count_, device, context, kind);
+            auto event = queue.memcpy(copy_data, immutable_data, sizeof(T)*count_);
 
-            reset(queue, copy_data, size_, event);
+            reset(queue, copy_data, count_, event);
             return *this;
         }
     }
 #endif
 
+    std::int64_t get_count() const {
+        return count_;
+    }
+
     std::int64_t get_size() const {
-        return size_;
+        return count_ * sizeof(T);
     }
 
     std::int64_t get_capacity() const {
@@ -207,32 +211,32 @@ public:
     void reset() {
         data_owned_ptr_.reset();
         data_ = std::variant<T*, const T*>();
-        size_ = 0;
+        count_ = 0;
         capacity_ = 0;
     }
 
-    void reset(std::int64_t size) {
-        reset(new T[size], size, default_delete{});
+    void reset(std::int64_t count) {
+        reset(new T[count], count, default_delete{});
     }
 
     template <typename Deleter>
-    void reset(T* data, std::int64_t size, Deleter&& deleter) {
+    void reset(T* data, std::int64_t count, Deleter&& deleter) {
         // TODO: check input parameters
         data_owned_ptr_.reset(data, std::forward<Deleter>(deleter));
         data_ = data_owned_ptr_.get();
-        size_ = size;
-        capacity_ = size;
+        count_ = count;
+        capacity_ = count;
     }
 
 #ifdef ENABLE_DATA_PARALLEL_EXECUTION
     void reset(sycl::queue queue,
-               std::int64_t size,
+               std::int64_t count,
                sycl::usm::alloc kind = sycl::usm::alloc::shared) {
         auto device = queue.get_device();
         auto context = queue.get_context();
-        auto* new_data = sycl::malloc<T>(size, device, context, kind);
+        auto* new_data = sycl::malloc<T>(count, device, context, kind);
 
-        reset(new_data, size, [queue](T* memory) { sycl::free(memory, queue); });
+        reset(new_data, count, [queue](T* memory) { sycl::free(memory, queue); });
     }
 
     void reset(sycl::queue queue,
@@ -246,61 +250,61 @@ public:
 #endif
 
     template <typename U = T*>
-    void reset_not_owning(U data = nullptr, std::int64_t size = 0) {
+    void reset_not_owning(U data = nullptr, std::int64_t count = 0) {
         data_ = data;
-        size_ = size;
+        count_ = count;
     }
 
-    void resize(std::int64_t size) {
+    void resize(std::int64_t count) {
         if (is_data_owner() == false) {
             throw std::runtime_error("cannot resize array with non-owning data");
-        } else if (size <= 0) {
+        } else if (count <= 0) {
             reset_not_owning();
-        } else if (get_capacity() < size) {
-            T* new_data = new T[size];
-            std::int64_t min_size = std::min(size, get_size());
+        } else if (get_capacity() < count) {
+            T* new_data = new T[count];
+            std::int64_t min_count = std::min(count, get_count());
 
-            for (std::int64_t i = 0; i < min_size; i++) {
+            for (std::int64_t i = 0; i < min_count; i++) {
                 new_data[i] = (*this)[i];
             }
 
             try {
-                reset(new_data, size, default_delete{});
+                reset(new_data, count, default_delete{});
             } catch (const std::exception&) {
                 delete[] new_data;
                 throw;
             }
 
         } else {
-            size_ = size;
+            count_ = count;
         }
     }
 
 #ifdef ENABLE_DATA_PARALLEL_EXECUTION
     void resize(sycl::queue queue,
-                std::int64_t size,
+                std::int64_t count,
                 sycl::usm::alloc kind = sycl::usm::alloc::shared) {
         if (is_data_owner() == false) {
             throw std::runtime_error("cannot resize array with non-owning data");
-        } else if (size <= 0) {
+        } else if (count <= 0) {
             reset_not_owning();
-        } else if (get_capacity() < size) {
+        } else if (get_capacity() < count) {
             auto device = queue.get_device();
             auto context = queue.get_context();
-            auto* new_data = sycl::malloc<T>(size, device, context, kind);
+            auto* new_data = sycl::malloc<T>(count, device, context, kind);
 
-            std::int64_t min_size = std::min(size, get_size());
-            auto event = queue.memcpy(new_data, this->get_data(), sizeof(T)*min_size);
+            std::int64_t min_count = std::min(count, get_count());
+            auto event = queue.memcpy(new_data, this->get_data(), sizeof(T)*min_count);
 
             try {
-                reset(queue, new_data, size, event);
+                reset(queue, new_data, count, event);
             } catch (const std::exception&) {
                 sycl::free(new_data);
                 throw;
             }
 
         } else {
-            size_ = size;
+            count_ = count;
         }
     }
 #endif
@@ -317,7 +321,7 @@ private:
     detail::shared<T> data_owned_ptr_;
     std::variant<T*, const T*> data_;
 
-    std::int64_t size_;
+    std::int64_t count_;
     std::int64_t capacity_;
 };
 

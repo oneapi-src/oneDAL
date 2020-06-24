@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "gtest/gtest.h"
-#include "oneapi/dal/accessor.hpp"
+#include "oneapi/dal/data/accessor.hpp"
 
 using namespace oneapi::dal;
 using std::int32_t;
@@ -32,11 +32,11 @@ TEST(column_accessor_test, can_get_first_column_from_homogen_table) {
     column_accessor<const float> acc { t };
     auto col = acc.pull(0);
 
-    ASSERT_EQ(col.get_size(), t.get_row_count());
+    ASSERT_EQ(col.get_count(), t.get_row_count());
     ASSERT_TRUE(col.is_data_owner());
     ASSERT_TRUE(col.has_mutable_data());
 
-    for (std::int64_t i = 0; i < col.get_size(); i++) {
+    for (std::int64_t i = 0; i < col.get_count(); i++) {
         ASSERT_FLOAT_EQ(col[i], t.get_data<float>()[i*t.get_column_count()]);
     }
 }
@@ -53,11 +53,11 @@ TEST(column_accessor_test, can_get_second_column_from_homogen_table_with_convers
     column_accessor<const double> acc { t };
     auto col = acc.pull(1);
 
-    ASSERT_EQ(col.get_size(), t.get_row_count());
+    ASSERT_EQ(col.get_count(), t.get_row_count());
     ASSERT_TRUE(col.is_data_owner());
     ASSERT_TRUE(col.has_mutable_data());
 
-    for (std::int64_t i = 0; i < col.get_size(); i++) {
+    for (std::int64_t i = 0; i < col.get_count(); i++) {
         ASSERT_DOUBLE_EQ(col[i], double(t.get_data<float>()[i*t.get_column_count() + 1]));
     }
 }
@@ -74,11 +74,11 @@ TEST(column_accessor_test, can_get_first_column_from_homogen_table_with_subset_o
     column_accessor<const float> acc { t };
     auto col = acc.pull(0, {1, 3});
 
-    ASSERT_EQ(col.get_size(), 2);
+    ASSERT_EQ(col.get_count(), 2);
     ASSERT_TRUE(col.is_data_owner());
     ASSERT_TRUE(col.has_mutable_data());
 
-    for (std::int64_t i = 0; i < col.get_size(); i++) {
+    for (std::int64_t i = 0; i < col.get_count(); i++) {
         ASSERT_FLOAT_EQ(col[i], t.get_data<float>()[2 + i*t.get_column_count()]);
     }
 }
@@ -90,9 +90,9 @@ TEST(column_accessor_test, can_get_columns_from_homogen_table_builder) {
         for (std::int64_t col_idx = 0; col_idx < 2; col_idx++) {
             auto col = acc.pull(col_idx);
 
-            ASSERT_EQ(col.get_size(), 3);
+            ASSERT_EQ(col.get_count(), 3);
             col.unique();
-            for (std::int64_t i = 0; i < col.get_size(); i++) {
+            for (std::int64_t i = 0; i < col.get_count(); i++) {
                 ASSERT_DOUBLE_EQ(col[i], 0.0);
                 col[i] = col_idx + 1;
             }
@@ -107,8 +107,8 @@ TEST(column_accessor_test, can_get_columns_from_homogen_table_builder) {
         for (std::int64_t col_idx = 0; col_idx < 2; col_idx++) {
             const auto col = acc.pull(col_idx);
 
-            ASSERT_EQ(col.get_size(), 3);
-            for (std::int64_t i = 0; i < col.get_size(); i++) {
+            ASSERT_EQ(col.get_count(), 3);
+            for (std::int64_t i = 0; i < col.get_count(); i++) {
                 ASSERT_FLOAT_EQ(col[i], col_idx + 1);
             }
         }

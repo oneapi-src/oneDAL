@@ -304,11 +304,11 @@ TEST(homogen_table_test, can_read_table_data_via_row_accessor) {
     homogen_table t { 2, 3, data };
     const auto rows_block = row_accessor<const double>(t).pull({0, -1});
 
-    ASSERT_EQ(t.get_row_count() * t.get_column_count(), rows_block.get_size());
+    ASSERT_EQ(t.get_row_count() * t.get_column_count(), rows_block.get_count());
     ASSERT_EQ(data, rows_block.get_data());
     ASSERT_FALSE(rows_block.is_data_owner());
 
-    for (std::int64_t i = 0; i < rows_block.get_size(); i++) {
+    for (std::int64_t i = 0; i < rows_block.get_count(); i++) {
         ASSERT_EQ(rows_block[i], data[i]);
     }
 }
@@ -322,11 +322,11 @@ TEST(homogen_table_test, can_read_table_data_via_row_accessor_with_conversion) {
     homogen_table t { 2, 3, data };
     auto rows_block = row_accessor<const double>(t).pull({0, -1});
 
-    ASSERT_EQ(t.get_row_count() * t.get_column_count(), rows_block.get_size());
+    ASSERT_EQ(t.get_row_count() * t.get_column_count(), rows_block.get_count());
     ASSERT_NE((void*)data, (void*)rows_block.get_data());
     ASSERT_TRUE(rows_block.is_data_owner());
 
-    for (std::int64_t i = 0; i < rows_block.get_size(); i++) {
+    for (std::int64_t i = 0; i < rows_block.get_count(); i++) {
         ASSERT_DOUBLE_EQ(rows_block[i], static_cast<double>(data[i]));
     }
 }
@@ -342,7 +342,7 @@ TEST(homogen_table_test, can_read_table_data_via_row_accessor_and_array_outside)
 
     auto rows_ptr = row_accessor<const float>(t).pull(arr, {0, -1});
 
-    ASSERT_EQ(t.get_row_count() * t.get_column_count(), arr.get_size());
+    ASSERT_EQ(t.get_row_count() * t.get_column_count(), arr.get_count());
     ASSERT_EQ(arr.get_capacity(), 10);
     ASSERT_FALSE(arr.is_data_owner());
 
@@ -350,7 +350,7 @@ TEST(homogen_table_test, can_read_table_data_via_row_accessor_and_array_outside)
     ASSERT_EQ(data, arr.get_data());
 
     auto data_ptr = arr.get_data();
-    for (std::int64_t i = 0; i < arr.get_size(); i++) {
+    for (std::int64_t i = 0; i < arr.get_count(); i++) {
         ASSERT_EQ(rows_ptr[i], data[i]);
         ASSERT_EQ(data_ptr[i], data[i]);
     }
