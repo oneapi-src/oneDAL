@@ -58,12 +58,18 @@ constexpr daal::CpuType to_daal_cpu_type<cpu_dispatch_avx512>(cpu_dispatch_avx51
 
 inline constexpr cpu_extension from_daal_cpu_type(daal::CpuType cpu) {
     switch (cpu) {
-        case daal::sse2:   return cpu_extension::sse2;
-        case daal::ssse3:  return cpu_extension::ssse3;
-        case daal::sse42:  return cpu_extension::sse42;
-        case daal::avx:    return cpu_extension::avx;
-        case daal::avx2:   return cpu_extension::avx2;
-        case daal::avx512: return cpu_extension::avx512;
+        case daal::sse2:
+            return cpu_extension::sse2;
+        case daal::ssse3:
+            return cpu_extension::ssse3;
+        case daal::sse42:
+            return cpu_extension::sse42;
+        case daal::avx:
+            return cpu_extension::avx;
+        case daal::avx2:
+            return cpu_extension::avx2;
+        case daal::avx512:
+            return cpu_extension::avx512;
         case daal::avx512_mic:
         case daal::avx512_mic_e1:
             break;

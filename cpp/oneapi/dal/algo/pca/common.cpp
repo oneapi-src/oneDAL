@@ -19,21 +19,20 @@
 namespace oneapi::dal::pca {
 
 class detail::descriptor_impl : public base {
-  public:
+public:
     std::int64_t component_count = -1;
-    bool is_deterministic = false;
+    bool is_deterministic        = false;
 };
 
 class detail::model_impl : public base {
-  public:
+public:
     table eigenvectors;
 };
 
 using detail::descriptor_impl;
 using detail::model_impl;
 
-descriptor_base::descriptor_base()
-    : impl_(new descriptor_impl{}) {}
+descriptor_base::descriptor_base() : impl_(new descriptor_impl{}) {}
 
 std::int64_t descriptor_base::get_component_count() const {
     return impl_->component_count;

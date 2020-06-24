@@ -14,21 +14,20 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/algo/pca/train_types.hpp"
+#include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::pca {
 
 class detail::train_input_impl : public base {
-  public:
-    train_input_impl(const table& data)
-        : data(data) {}
+public:
+    train_input_impl(const table& data) : data(data) {}
 
     table data;
 };
 
 class detail::train_result_impl : public base {
-  public:
+public:
     model trained_model;
     table eigenvalues;
     table explained_variance;
@@ -37,8 +36,7 @@ class detail::train_result_impl : public base {
 using detail::train_input_impl;
 using detail::train_result_impl;
 
-train_input::train_input(const table& data)
-    : impl_(new train_input_impl(data)) {}
+train_input::train_input(const table& data) : impl_(new train_input_impl(data)) {}
 
 table train_input::get_data() const {
     return impl_->data;

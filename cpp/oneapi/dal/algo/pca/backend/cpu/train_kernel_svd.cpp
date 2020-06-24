@@ -20,11 +20,11 @@ namespace oneapi::dal::pca::backend {
 
 template <typename Float>
 struct train_kernel_cpu<Float, method::svd> {
-  train_result operator()(const dal::backend::context_cpu& ctx,
-                          const descriptor_base& params,
-                          const train_input& input) const {
-    return train_result();
-  }
+    train_result operator()(const dal::backend::context_cpu& ctx,
+                            const descriptor_base& params,
+                            const train_input& input) const {
+        return train_result();
+    }
 };
 
 template struct train_kernel_cpu<float, method::svd>;
