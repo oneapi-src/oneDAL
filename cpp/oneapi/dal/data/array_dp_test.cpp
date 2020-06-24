@@ -37,7 +37,7 @@ TEST(array_dp_test, can_construct_array_of_zeros) {
     }
 }
 
-TEST(array_test, can_construct_array_of_ones) {
+TEST(array_dp_test, can_construct_array_of_ones) {
     sycl::queue q { sycl::gpu_selector() };
 
     auto arr = array<float>::full(5, 1.0f);
@@ -50,4 +50,119 @@ TEST(array_test, can_construct_array_of_ones) {
     for (int32_t i = 0; i < arr.get_count(); i++) {
         ASSERT_FLOAT_EQ(arr[i], 1.0f);
     }
+}
+
+TEST(array_dp_test, can_construct_device_array_without_initialization) {
+    sycl::queue q { sycl::gpu_selector() };
+
+    array<float> arr { q, 10, sycl::usm::alloc::device };
+
+    ASSERT_EQ(arr.get_count(), 10);
+    ASSERT_EQ(arr.get_capacity(), 10);
+    ASSERT_TRUE(arr.is_data_owner());
+    ASSERT_TRUE(arr.has_mutable_data());
+
+    ASSERT_EQ(sycl::get_pointer_type(arr.get_data(), q.get_context()),
+              sycl::usm::alloc::device);
+}
+
+TEST(array_dp_test, can_construct_array_with_events) {
+    sycl::queue q { sycl::gpu_selector() };
+
+    constexpr std::int64_t count = 10;
+
+    auto* data = sycl::malloc_shared<float>(count, q);
+    auto event = q.submit([&](sycl::handler& cgh){
+        cgh.parallel_for(sycl::range<1>(count), [=](sycl::id<1> idx) {
+            data[idx[0]] = idx;
+        });
+    });
+
+    array<float> arr { q, data, 10, { event } };
+
+    ASSERT_EQ(arr.get_count(), 10);
+    ASSERT_EQ(arr.get_capacity(), 10);
+    ASSERT_TRUE(arr.is_data_owner());
+    ASSERT_TRUE(arr.has_mutable_data());
+
+    for (int32_t i = 0; i < arr.get_count(); i++) {
+        ASSERT_FLOAT_EQ(arr[i], float(i));
+    }
+}
+
+TEST(array_dp_test, can_make_owning_array_from_non_owning) {
+    sycl::queue q { sycl::gpu_selector() };
+
+    array<float> arr;
+
+    float data[] = { 1.f, 2.f, 3.f };
+    arr.reset_not_owning(data, 3);
+
+    ASSERT_EQ(arr.get_count(), 3);
+    ASSERT_EQ(arr.get_capacity(), 0);
+    ASSERT_EQ(arr.get_data(), data);
+    ASSERT_EQ(arr.get_mutable_data(), data);
+    ASSERT_TRUE(arr.has_mutable_data());
+    ASSERT_FALSE(arr.is_data_owner());
+
+    arr.unique(q, sycl::usm::alloc::shared);
+
+    ASSERT_EQ(arr.get_count(), 3);
+    ASSERT_EQ(arr.get_capacity(), 3);
+    ASSERT_NE(arr.get_data(), data);
+    ASSERT_NE(arr.get_mutable_data(), data);
+    ASSERT_TRUE(arr.has_mutable_data());
+    ASSERT_TRUE(arr.is_data_owner());
+
+    for (int64_t i = 0; i < arr.get_count(); i++) {
+        ASSERT_FLOAT_EQ(arr[i], data[i]);
+    }
+}
+
+TEST(array_dp_test, can_reset_array_with_bigger_size) {
+    sycl::queue q { sycl::gpu_selector() };
+
+    auto arr = array<float>::zeros(q, 5);
+    arr.reset(q, 10);
+
+    ASSERT_EQ(arr.get_count(), 10);
+    ASSERT_EQ(arr.get_capacity(), 10);
+    ASSERT_TRUE(arr.is_data_owner());
+    ASSERT_TRUE(arr.has_mutable_data());
+}
+
+TEST(array_dp_test, can_reset_array_with_smaller_size) {
+    sycl::queue q { sycl::gpu_selector() };
+
+    auto arr = array<float>::zeros(q, 5);
+    arr.reset(q, 4);
+
+    ASSERT_EQ(arr.get_count(), 4);
+    ASSERT_EQ(arr.get_capacity(), 4);
+    ASSERT_TRUE(arr.is_data_owner());
+    ASSERT_TRUE(arr.has_mutable_data());
+}
+
+TEST(array_dp_test, can_reset_array_with_raw_pointer) {
+    sycl::queue q { sycl::gpu_selector() };
+
+    auto arr = array<float>::zeros(q, 5);
+
+    constexpr int64_t count = 10;
+    auto* data = sycl::malloc_shared<float>(count, q);
+    auto event = q.submit([&](sycl::handler& cgh){
+        cgh.parallel_for(sycl::range<1>(count), [=](sycl::id<1> idx) {
+            data[idx[0]] = idx;
+        });
+    });
+
+    arr.reset(q, data, count, {event});
+
+    ASSERT_EQ(arr.get_size(), count * sizeof(float));
+    ASSERT_EQ(arr.get_count(), count);
+    ASSERT_EQ(arr.get_capacity(), count);
+    ASSERT_TRUE(arr.is_data_owner());
+    ASSERT_TRUE(arr.has_mutable_data());
+    ASSERT_EQ(arr.get_mutable_data(), data);
+    ASSERT_EQ(arr.get_data(), data);
 }

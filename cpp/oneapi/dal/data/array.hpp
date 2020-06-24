@@ -71,14 +71,14 @@ public:
         auto device = queue.get_device();
         auto context = queue.get_context();
         auto* data = sycl::malloc<T>(count, device, context, kind);
-        auto event = q.submit([&](sycl::handler& cgh) {
+        auto event = queue.submit([&](sycl::handler& cgh) {
             cgh.parallel_for<class array_full>(sycl::range<1>(count),
                                                [=](sycl::id<1> idx) {
                 data[idx[0]] = element;
             });
         });
 
-        return array<T> { queue, data, count, event };
+        return array<T> { queue, data, count, {event} };
     }
 
     static array<T> zeros(sycl::queue queue,
@@ -89,7 +89,7 @@ public:
         auto* data = sycl::malloc<T>(count, device, context, kind);
         auto event = queue.memset(data, 0, sizeof(T)*count);
 
-        return array<T> { queue, data, count, event };
+        return array<T> { queue, data, count, {event} };
     }
 #endif
 
@@ -178,7 +178,7 @@ public:
             auto* copy_data = sycl::malloc<T>(count_, device, context, kind);
             auto event = queue.memcpy(copy_data, immutable_data, sizeof(T)*count_);
 
-            reset(queue, copy_data, count_, event);
+            reset(queue, copy_data, count_, {event});
             return *this;
         }
     }
@@ -297,7 +297,7 @@ public:
             auto event = queue.memcpy(new_data, this->get_data(), sizeof(T)*min_count);
 
             try {
-                reset(queue, new_data, count, event);
+                reset(queue, new_data, count, {event});
             } catch (const std::exception&) {
                 sycl::free(new_data);
                 throw;
