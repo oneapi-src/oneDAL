@@ -25,7 +25,6 @@ namespace pca
 {
 namespace internal
 {
-
 using namespace daal::internal;
 
 template <typename algorithmFPType, CpuType cpu>
