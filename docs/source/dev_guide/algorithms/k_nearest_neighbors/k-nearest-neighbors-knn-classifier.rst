@@ -79,8 +79,9 @@ respective leaf.
 Brute Force
 -----------
 
-Brute Force is a naïve neighbor search that computes distances between all pairs of feature vactors
-in a data set.
+The main idea of the Brute Force method is to calculate all of the distances from each query feature vector
+to each reference feature vector in the training data set and then select :math:`k` objects 
+that are closest to the query point.
 
 Training Stage
 --------------
@@ -121,8 +122,8 @@ respective leaf node.
 Training using Brute Force
 ++++++++++++++++++++++++++
 
-For training with the Brute Force method, the algorithm uses
-all feature vectors from the training data set.
+During training with the Brute Force method, the algorithm copies all feature vectors from the training data set
+to calculate their distances to the query feature vectors.
 
 Prediction Stage
 ----------------
