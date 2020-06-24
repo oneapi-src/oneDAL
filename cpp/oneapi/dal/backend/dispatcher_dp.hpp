@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "oneapi/dal/data_parallel.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
+#include "oneapi/dal/data_parallel.hpp"
 
 namespace oneapi::dal::backend {
 
@@ -25,13 +25,13 @@ class context_gpu {};
 
 template <typename CpuKernel, typename GpuKernel>
 struct kernel_dispatcher<CpuKernel, GpuKernel> {
-    template <typename ... Args>
-    auto operator() (const data_parallel_execution_context& ctx, Args&& ...args) const {
+    template <typename... Args>
+    auto operator()(const data_parallel_execution_context& ctx, Args&&... args) const {
         // TODO: Dispatch to GPU
         // TODO: Extract context_cpu from data_parallel_execution_context
-        auto cpu_ctx = context_cpu{default_execution_context{}};
+        auto cpu_ctx = context_cpu{ default_execution_context{} };
         return CpuKernel()(cpu_ctx, std::forward<Args>(args)...);
     }
 };
 
-}  // namespace oneapi::dal::backend
+} // namespace oneapi::dal::backend

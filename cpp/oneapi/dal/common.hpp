@@ -27,19 +27,11 @@ public:
     virtual ~base() = default;
 };
 
-enum class data_type {
-    int32,
-    int64,
-    uint32,
-    uint64,
-    float32,
-    float64
-};
+enum class data_type { int32, int64, uint32, uint64, float32, float64 };
 
 struct range {
 public:
-    range(std::int64_t start, std::int64_t end)
-        : start_idx(start), end_idx(end) {}
+    range(std::int64_t start, std::int64_t end) : start_idx(start), end_idx(end) {}
 
     std::int64_t get_element_count(std::int64_t max_end_index) const noexcept {
         // TODO: handle error if (max_end_index + end_idx) < 0

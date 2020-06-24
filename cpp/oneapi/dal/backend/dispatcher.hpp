@@ -32,27 +32,27 @@
 
 namespace oneapi::dal::backend {
 
-template <typename ... Kernels>
+template <typename... Kernels>
 struct kernel_dispatcher {};
 
 class context_cpu {
-  public:
+public:
     explicit context_cpu(const default_execution_context& ctx)
-        : cpu_extensions_(ctx.get_enabled_cpu_extensions()) {}
+            : cpu_extensions_(ctx.get_enabled_cpu_extensions()) {}
 
     cpu_extension get_enabled_cpu_extensions() const {
         return cpu_extensions_;
     }
 
-  private:
+private:
     cpu_extension cpu_extensions_;
 };
 
 template <typename CpuKernel>
 struct kernel_dispatcher<CpuKernel> {
-    template <typename ... Args>
-    auto operator() (const default_execution_context& ctx, Args&& ...args) const {
-        return CpuKernel()(context_cpu{ctx}, std::forward<Args>(args)...);
+    template <typename... Args>
+    auto operator()(const default_execution_context& ctx, Args&&... args) const {
+        return CpuKernel()(context_cpu{ ctx }, std::forward<Args>(args)...);
     }
 };
 
@@ -70,32 +70,18 @@ inline bool test_cpu_extension(cpu_extension mask, cpu_extension test) {
 template <typename Op>
 constexpr auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
     const cpu_extension cpu_ex = ctx.get_enabled_cpu_extensions();
-    ONEDAL_IF_CPU_DISPATCH_AVX512(
-        if (test_cpu_extension(cpu_ex, cpu_extension::avx512)) {
-            return op(cpu_dispatch_avx512{});
-        }
-    )
+    ONEDAL_IF_CPU_DISPATCH_AVX512(if (test_cpu_extension(cpu_ex, cpu_extension::avx512)) {
+        return op(cpu_dispatch_avx512{});
+    })
     ONEDAL_IF_CPU_DISPATCH_AVX2(
-        if (test_cpu_extension(cpu_ex, cpu_extension::avx2)) {
-            return op(cpu_dispatch_avx2{});
-        }
-    )
+        if (test_cpu_extension(cpu_ex, cpu_extension::avx2)) { return op(cpu_dispatch_avx2{}); })
     ONEDAL_IF_CPU_DISPATCH_AVX(
-        if (test_cpu_extension(cpu_ex, cpu_extension::avx)) {
-            return op(cpu_dispatch_avx{});
-        }
-    )
+        if (test_cpu_extension(cpu_ex, cpu_extension::avx)) { return op(cpu_dispatch_avx{}); })
     ONEDAL_IF_CPU_DISPATCH_SSE42(
-        if (test_cpu_extension(cpu_ex, cpu_extension::sse42)) {
-            return op(cpu_dispatch_sse42{});
-        }
-    )
+        if (test_cpu_extension(cpu_ex, cpu_extension::sse42)) { return op(cpu_dispatch_sse42{}); })
     ONEDAL_IF_CPU_DISPATCH_SSSE3(
-        if (test_cpu_extension(cpu_ex, cpu_extension::ssse3)) {
-            return op(cpu_dispatch_ssse3{});
-        }
-    )
+        if (test_cpu_extension(cpu_ex, cpu_extension::ssse3)) { return op(cpu_dispatch_ssse3{}); })
     return op(cpu_dispatch_default{});
 }
 
-}  // namespace oneapi::dal::backend
+} // namespace oneapi::dal::backend

@@ -46,7 +46,7 @@ public:
 
     cpu_extension get_enabled_cpu_extensions() const noexcept;
 
-    auto &set_enabled_cpu_extensions(const cpu_extension& extensions) noexcept {
+    auto& set_enabled_cpu_extensions(const cpu_extension& extensions) noexcept {
         set_enabled_cpu_extensions_impl(extensions);
         return *this;
     }
