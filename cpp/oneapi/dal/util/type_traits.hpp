@@ -38,7 +38,6 @@ struct is_table_impl {
                                    pull_rows,
                                    (array<std::int32_t>&, const range&)const,
                                    pull_rows_int32)
-
     INSTANTIATE_HAS_METHOD_CHECKER(void,
                                    push_back_rows,
                                    (const array<float>&, const range&),
@@ -51,7 +50,6 @@ struct is_table_impl {
                                    push_back_rows,
                                    (const array<std::int32_t>&, const range&),
                                    push_back_rows_int32)
-
     INSTANTIATE_HAS_METHOD_CHECKER(void,
                                    pull_column,
                                    (array<float>&, std::int64_t, const range&)const,
@@ -64,7 +62,6 @@ struct is_table_impl {
                                    pull_column,
                                    (array<std::int32_t>&, std::int64_t, const range&)const,
                                    pull_column_int32)
-
     INSTANTIATE_HAS_METHOD_CHECKER(void,
                                    push_back_column,
                                    (const array<float>&, std::int64_t, const range&),
