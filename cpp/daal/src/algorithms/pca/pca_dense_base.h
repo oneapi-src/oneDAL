@@ -35,6 +35,7 @@ namespace pca
 {
 namespace internal
 {
+
 template <typename algorithmFPType, CpuType cpu>
 class PCADenseBase : public Kernel
 {

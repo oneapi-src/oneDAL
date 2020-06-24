@@ -37,7 +37,8 @@ namespace pca
 namespace internal
 {
 template <typename algorithmFPType, CpuType cpu>
-class PCACorrelationBase : public PCACorrelationBaseIface<algorithmFPType>, public PCADenseBase<algorithmFPType, cpu>
+class PCACorrelationBase : public PCACorrelationBaseIface<algorithmFPType>,
+                           public PCADenseBase<algorithmFPType, cpu>
 {
 public:
     explicit PCACorrelationBase() {};
