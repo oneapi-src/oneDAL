@@ -29,7 +29,7 @@ public:
         : queue_(queue) {}
 
     void operator()(T* data) {
-        sycl::free(memory, queue_);
+        sycl::free(data, queue_);
     }
 
 private:
