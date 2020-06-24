@@ -1,18 +1,18 @@
 /*******************************************************************************
- * Copyright 2020 Intel Corporation
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *******************************************************************************/
+* Copyright 2020 Intel Corporation
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*******************************************************************************/
 
 #include "oneapi/dal/algo/svm.hpp"
 #include "oneapi/dal/data/accessor.hpp"
@@ -42,10 +42,20 @@ int main(int argc, char const *argv[]) {
   constexpr std::int64_t row_count_train = 6;
   constexpr std::int64_t column_count = 2;
   const float x_train[] = {
-      -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f,
+      -2.f, -1.f,
+      -1.f, -1.f,
+      -1.f, -2.f,
+      +1.f, +1.f,
+      +1.f, +2.f,
+      +2.f, +1.f,
   };
   const float y_train[] = {
-      -1.f, -1.f, -1.f, +1.f, +1.f, +1.f,
+      -1.f,
+      -1.f,
+      -1.f,
+      +1.f,
+      +1.f,
+      +1.f,
   };
 
   const auto x_train_table =
@@ -69,7 +79,9 @@ int main(int argc, char const *argv[]) {
 
   constexpr std::int64_t row_count_test = 3;
   const float x_test[] = {
-      -1.f, -1.f, +2.f, +2.f, +3.f, +2.f,
+      -1.f, -1.f,
+      +2.f, +2.f,
+      +3.f, +2.f,
   };
   const float y_true[] = {
       -1.f,
