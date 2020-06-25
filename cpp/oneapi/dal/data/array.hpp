@@ -21,11 +21,8 @@
 #include <cstring>
 #include <stdexcept> // TODO: change by onedal exceptions
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
-#include "oneapi/dal/detail/common_dpc.hpp"
-#endif
-
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/detail/memory.hpp"
 
 namespace oneapi::dal {
 
@@ -52,13 +49,8 @@ public:
 public:
     template <typename K>
     static array<T> full(std::int64_t count, K&& element) {
-        auto* data = new T[count];
-
-        for (std::int64_t i = 0; i < count; i++) {
-            data[i] = std::forward<K>(element);
-        }
-
-        return array<T> { data, count, default_delete{} };
+        return full_impl(detail::host_policy{},
+            count, std::forward<K>(element), detail::host_only_alloc{});
     }
 
     static array<T> zeros(std::int64_t count) {
@@ -72,17 +64,7 @@ public:
     static array<T> full(sycl::queue queue,
                          std::int64_t count, K&& element,
                          sycl::usm::alloc kind = sycl::usm::alloc::shared) {
-        auto device = queue.get_device();
-        auto context = queue.get_context();
-        auto* data = sycl::malloc<T>(count, device, context, kind);
-        auto event = queue.submit([&](sycl::handler& cgh) {
-            cgh.parallel_for<class array_full>(sycl::range<1>(count),
-                                               [=](sycl::id<1> idx) {
-                data[idx[0]] = element;
-            });
-        });
-
-        return array<T> { queue, data, count, {event} };
+        return full_impl(queue, count, std::forward<K>(element), kind);
     }
 
     static array<T> zeros(sycl::queue queue,
@@ -303,7 +285,7 @@ public:
             try {
                 reset(queue, new_data, count, {event});
             } catch (const std::exception&) {
-                sycl::free(new_data);
+                sycl::free(new_data, queue);
                 throw;
             }
 
@@ -319,6 +301,15 @@ public:
 
     T& operator [](std::int64_t index) {
         return get_mutable_data()[index];
+    }
+private:
+    template <typename K, typename Policy, typename AllocKind>
+    static array<T> full_impl(Policy&& policy,
+                              std::int64_t count, K&& element,
+                              AllocKind&& kind) {
+        auto* data = detail::malloc<T>(policy, count, kind);
+        detail::fill(policy, data, count, element);
+        return array<T> { data, count, [policy](T* pointer) { detail::free(policy, pointer); } };
     }
 
 private:

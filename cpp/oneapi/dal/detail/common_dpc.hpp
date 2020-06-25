@@ -17,11 +17,15 @@
 #pragma once
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-
 #include <CL/sycl.hpp>
+#endif // ONEAPI_DAL_DATA_PARALLEL
 
 namespace oneapi::dal::detail {
 
+struct host_policy{};
+struct host_only_alloc{};
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
 template <typename T>
 class dpc_default_delete {
 public:
@@ -36,7 +40,7 @@ private:
     sycl::queue queue_;
 };
 
+#endif // ONEAPI_DAL_DATA_PARALLEL
+
 } // namespace oneapi::dal::detail
 
-
-#endif // ONEAPI_DAL_DATA_PARALLEL
