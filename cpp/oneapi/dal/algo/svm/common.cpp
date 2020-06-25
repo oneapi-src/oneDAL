@@ -20,12 +20,17 @@ namespace oneapi::dal::svm {
 
 class detail::descriptor_impl : public base {
 public:
-    double c                         = 1.0;
-    double accuracy_threshold        = 0.001;
-    std::int64_t max_iteration_count = 100000;
-    double cache_size                = 200.0;
-    double tau                       = 1e-6;
-    bool shrinking                   = true;
+    explicit descriptor_impl(detail::object_wrapper_iface &kernel) : kernel(kernel) {
+        // Пропросить кернела
+    }
+
+    double c                            = 1.0;
+    double accuracy_threshold           = 0.001;
+    std::int64_t max_iteration_count    = 100000;
+    double cache_size                   = 200.0;
+    double tau                          = 1e-6;
+    bool shrinking                      = true;
+    detail::object_wrapper_iface kernel = ;
 };
 
 class detail::model_impl : public base {
@@ -39,7 +44,7 @@ public:
 using detail::descriptor_impl;
 using detail::model_impl;
 
-descriptor_base::descriptor_base() : impl_(new descriptor_impl{}) {}
+descriptor_base::descriptor_base() : impl_(new descriptor_impl{ descriptor_base::kernel_t{} }) {}
 
 double descriptor_base::get_c() const {
     return impl_->c;
@@ -87,6 +92,12 @@ void descriptor_base::set_tau_impl(const double value) {
 
 void descriptor_base::set_shrinking_impl(const bool value) {
     impl_->shrinking = value;
+}
+
+void descriptor_base::set_kernel_impl(detail::object_wrapper_iface &kernel) {}
+
+const detail::object_wrapper_iface &descriptor_base::get_kernel_impl() const {
+    return impl_->kernel;
 }
 
 model::model() : impl_(new model_impl{}) {}

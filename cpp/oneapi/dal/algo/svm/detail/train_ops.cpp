@@ -20,23 +20,36 @@
 
 namespace oneapi::dal::svm::detail {
 
-template <typename Float, typename Task, typename Method>
+template <typename Float, typename Task, typename Method, typename Kernel>
 struct train_ops_dispatcher<default_execution_context, Float, Task, Method> {
     train_result operator()(const default_execution_context& ctx,
                             const descriptor_base& desc,
                             const train_input& input) const {
         using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Task, Method>>;
+            dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Task, Method, Kernel>>;
         return kernel_dispatcher_t()(ctx, desc, input);
     }
 };
 
-#define INSTANTIATE(F, T, M) \
-    template struct train_ops_dispatcher<default_execution_context, F, T, M>;
+#define INSTANTIATE(F, T, M, K) \
+    template struct train_ops_dispatcher<default_execution_context, F, T, M, K>;
 
-INSTANTIATE(float, task::classification, method::smo)
-INSTANTIATE(float, task::classification, method::thunder)
-INSTANTIATE(double, task::classification, method::smo)
-INSTANTIATE(double, task::classification, method::thunder)
+#define INSTANTIATE_FOR_KERNEL(K)                                \
+    INSTANTIATE(float, task::classification, method::smo, K)     \
+    INSTANTIATE(float, task::classification, method::thunder, K) \
+    INSTANTIATE(double, task::classification, method::smo, K)    \
+    INSTANTIATE(double, task::classification, method::thunder, K)
+
+INSTANTIATE_FOR_KERNEL(kernel_linear::descriptor_base)
+INSTANTIATE_FOR_KERNEL(kernel_rbf::descriptor_base)
+
+#define INSTANTIATE_FOR_FLOAT(F)                                                        \
+    INSTANTIATE(F, task::classification, method::smo, kernel_linear::descriptor<F>)     \
+    INSTANTIATE(F, task::classification, method::thunder, kernel_linear::descriptor<F>) \
+    INSTANTIATE(F, task::classification, method::smo, kernel_rbf::descriptor<F>)        \
+    INSTANTIATE(F, task::classification, method::thunder, kernel_rbf::descriptor<F>)
+
+INSTANTIATE_FOR_KERNEL(float)
+INSTANTIATE_FOR_KERNEL(double)
 
 } // namespace oneapi::dal::svm::detail
