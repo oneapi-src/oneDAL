@@ -22,7 +22,7 @@
 using namespace oneapi::dal;
 using std::int32_t;
 
-TEST(array_dp_test, can_construct_array_of_zeros) {
+TEST(array_dpc_test, can_construct_array_of_zeros) {
     sycl::queue q { sycl::gpu_selector() };
 
     auto arr = array<float>::zeros(q, 5);
@@ -37,7 +37,7 @@ TEST(array_dp_test, can_construct_array_of_zeros) {
     }
 }
 
-TEST(array_dp_test, can_construct_array_of_ones) {
+TEST(array_dpc_test, can_construct_array_of_ones) {
     sycl::queue q { sycl::gpu_selector() };
 
     auto arr = array<float>::full(5, 1.0f);
@@ -52,7 +52,7 @@ TEST(array_dp_test, can_construct_array_of_ones) {
     }
 }
 
-TEST(array_dp_test, can_construct_device_array_without_initialization) {
+TEST(array_dpc_test, can_construct_device_array_without_initialization) {
     sycl::queue q { sycl::gpu_selector() };
 
     array<float> arr { q, 10, sycl::usm::alloc::device };
@@ -66,7 +66,7 @@ TEST(array_dp_test, can_construct_device_array_without_initialization) {
               sycl::usm::alloc::device);
 }
 
-TEST(array_dp_test, can_construct_array_with_events) {
+TEST(array_dpc_test, can_construct_array_with_events) {
     sycl::queue q { sycl::gpu_selector() };
 
     constexpr std::int64_t count = 10;
@@ -90,7 +90,7 @@ TEST(array_dp_test, can_construct_array_with_events) {
     }
 }
 
-TEST(array_dp_test, can_make_owning_array_from_non_owning) {
+TEST(array_dpc_test, can_make_owning_array_from_non_owning) {
     sycl::queue q { sycl::gpu_selector() };
 
     array<float> arr;
@@ -119,7 +119,7 @@ TEST(array_dp_test, can_make_owning_array_from_non_owning) {
     }
 }
 
-TEST(array_dp_test, can_reset_array_with_bigger_size) {
+TEST(array_dpc_test, can_reset_array_with_bigger_size) {
     sycl::queue q { sycl::gpu_selector() };
 
     auto arr = array<float>::zeros(q, 5);
@@ -131,7 +131,7 @@ TEST(array_dp_test, can_reset_array_with_bigger_size) {
     ASSERT_TRUE(arr.has_mutable_data());
 }
 
-TEST(array_dp_test, can_reset_array_with_smaller_size) {
+TEST(array_dpc_test, can_reset_array_with_smaller_size) {
     sycl::queue q { sycl::gpu_selector() };
 
     auto arr = array<float>::zeros(q, 5);
@@ -143,7 +143,7 @@ TEST(array_dp_test, can_reset_array_with_smaller_size) {
     ASSERT_TRUE(arr.has_mutable_data());
 }
 
-TEST(array_dp_test, can_reset_array_with_raw_pointer) {
+TEST(array_dpc_test, can_reset_array_with_raw_pointer) {
     sycl::queue q { sycl::gpu_selector() };
 
     auto arr = array<float>::zeros(q, 5);
