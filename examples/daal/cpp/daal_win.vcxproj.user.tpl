@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug.static.threaded|Win32'">
     <LocalDebuggerEnvironment>PATH=$(SolutionDir)..\..\..\redist\ia32;$(SolutionDir)..\..\..\..\..\tbb\latest\redist\ia32\vc_mt;$(PATH)</LocalDebuggerEnvironment>
