@@ -36,11 +36,11 @@ multidimensional feature space.
 Details
 =======
 
-The problem is to build a kNN classifier given the following:
-
-- :math:`n` feature vectors :math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})` of size :math:`p` 
-- a vector of class labels :math:`y = (y_1, \ldots, y_n)`, there :math:`C` is the number of classes and 
-  :math:`y_i \in \{0, 1, \ldots, C-1\}` describes the class the feature vector :math:`x_i` belongs to
+Given n feature vectors :math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})` of size :math:`p` and a vector
+of class labels :math:`y = (y_1, \ldots, y_n)`, where :math:`y_i \in \{0, 1, \ldots, C-1\}`
+and :math:`C` is the number of classes, describes the
+class to which the feature vector :math:`x_i` belongs, the problem is
+to build a kNN classifier.
 
 Given a positive integer parameter :math:`k` and a test observation
 :math:`x_0`, the kNN classifier does the following:
@@ -154,7 +154,7 @@ Training
 
 For a description of the input and output, refer to Usage Model: Training and Prediction.
 
-At the training stage, both Brute Force and K-D tree based kNN classifiesr have the
+At the training stage, both Brute Force and K-D tree based kNN classifier have the
 following parameters:
 
 .. list-table::
@@ -199,7 +199,7 @@ Prediction
 
 For a description of the input and output, refer to Usage Model: Training and Prediction.
 
-At the prediction stage, both Brute Force and K-D tree based kNN classifiesr have the
+At the prediction stage, both Brute Force and K-D tree based kNN classifier have the
 following parameters:
 
 .. list-table::
