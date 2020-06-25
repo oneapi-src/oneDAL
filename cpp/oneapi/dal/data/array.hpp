@@ -19,9 +19,9 @@
 #include <variant>
 #include <algorithm>
 #include <cstring>
+#include <stdexcept> // TODO: change by onedal exceptions
 
-#ifdef ENABLE_DATA_PARALLEL_EXECUTION
-#include <CL/sycl.hpp>
+#ifdef ONEAPI_DAL_DATA_PARALLEL
 #include "oneapi/dal/detail/common_dp.hpp"
 #endif
 
@@ -45,7 +45,7 @@ class array {
 
 public:
     using default_delete = std::default_delete<T[]>;
-#ifdef ENABLE_DATA_PARALLEL_EXECUTION
+#ifdef ONEAPI_DAL_DATA_PARALLEL
     using dp_default_delete = detail::dp_default_delete<T>;
 #endif
 
@@ -67,7 +67,7 @@ public:
         return array<T> { data, count, default_delete{} };
     }
 
-#ifdef ENABLE_DATA_PARALLEL_EXECUTION
+#ifdef ONEAPI_DAL_DATA_PARALLEL
     template <typename K>
     static array<T> full(sycl::queue queue,
                          std::int64_t count, K&& element,
@@ -122,7 +122,7 @@ public:
         reset(data, count, std::forward<Deleter>(deleter));
     }
 
-#ifdef ENABLE_DATA_PARALLEL_EXECUTION
+#ifdef ONEAPI_DAL_DATA_PARALLEL
     explicit array(sycl::queue queue,
                    std::int64_t count,
                    sycl::usm::alloc kind = sycl::usm::alloc::shared)
@@ -170,7 +170,7 @@ public:
         }
     }
 
-#ifdef ENABLE_DATA_PARALLEL_EXECUTION
+#ifdef ONEAPI_DAL_DATA_PARALLEL
     array& unique(sycl::queue queue,
                   sycl::usm::alloc kind = sycl::usm::alloc::shared) {
         if (is_data_owner() || count_ == 0) {
@@ -232,7 +232,7 @@ public:
         capacity_ = count;
     }
 
-#ifdef ENABLE_DATA_PARALLEL_EXECUTION
+#ifdef ONEAPI_DAL_DATA_PARALLEL
     void reset(sycl::queue queue,
                std::int64_t count,
                sycl::usm::alloc kind = sycl::usm::alloc::shared) {
@@ -284,7 +284,7 @@ public:
         }
     }
 
-#ifdef ENABLE_DATA_PARALLEL_EXECUTION
+#ifdef ONEAPI_DAL_DATA_PARALLEL
     void resize(sycl::queue queue,
                 std::int64_t count,
                 sycl::usm::alloc kind = sycl::usm::alloc::shared) {

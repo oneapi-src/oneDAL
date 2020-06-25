@@ -16,7 +16,7 @@
 
 #include "gtest/gtest.h"
 
-#define ENABLE_DATA_PARALLEL_EXECUTION
+#define ONEAPI_DAL_DATA_PARALLEL
 #include "oneapi/dal/data/array.hpp"
 
 using namespace oneapi::dal;

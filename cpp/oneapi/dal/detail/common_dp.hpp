@@ -16,7 +16,7 @@
 
 #pragma once
 
-#ifdef ENABLE_DATA_PARALLEL_EXECUTION
+#ifdef ONEAPI_DAL_DATA_PARALLEL
 
 #include <CL/sycl.hpp>
 
@@ -39,4 +39,4 @@ private:
 } // namespace oneapi::dal::detail
 
 
-#endif // ENABLE_DATA_PARALLEL_EXECUTION
+#endif // ONEAPI_DAL_DATA_PARALLEL
