@@ -29,7 +29,7 @@ struct host_only_alloc{};
 template <typename T>
 class dpc_default_delete {
 public:
-    explicit dp_default_delete(const sycl::queue& queue)
+    explicit dpc_default_delete(const sycl::queue& queue)
         : queue_(queue) {}
 
     void operator()(T* data) {
