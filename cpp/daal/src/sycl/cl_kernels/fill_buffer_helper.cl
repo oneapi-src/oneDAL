@@ -1,3 +1,4 @@
+/* file: fill_buffer_helper.cl */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -14,28 +15,29 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+/*
+//++
+//  Implementation of fill buffer helper OpenCL kernels.
+//--
+*/
 
-#include "oneapi/dal/execution_context.hpp"
+#ifndef ___FILL_BUFFER_HELPER_KERNELS_CL__
+#define ___FILL_BUFFER_HELPER_KERNELS_CL__
 
-namespace oneapi::dal {
+#include <string.h>
 
-namespace detail {
-class data_parallel_execution_context;
-} // namespace detail
+#define DECLARE_SOURCE_DAAL(name, src) static const char *(name) = #src;
 
-class data_parallel_execution_context : public base {
-public:
-    using tag_t                       = detail::execution_context_tag;
-    data_parallel_execution_context() = default;
+DECLARE_SOURCE_DAAL(
+    clFillBufferHelper,
 
-private:
-    dal::detail::pimpl<detail::data_parallel_execution_context> impl_;
-};
+    __kernel void fillBuffer(__global algorithmFPType * buf, algorithmFPType val) {
+        const int id = get_global_id(0);
+        buf[id]      = val;
+    }
 
-template <typename Queue>
-inline auto make_context(const Queue& queue) {
-    return data_parallel_execution_context();
-}
+);
 
-} // namespace oneapi::dal
+#undef DECLARE_SOURCE_DAAL
+
+#endif

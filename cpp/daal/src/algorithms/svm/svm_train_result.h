@@ -59,6 +59,7 @@ public:
     services::Status compute(const NumericTable & xTable, Model & model, const algorithmFPType * cw) const
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(saveResult);
+
         services::Status s;
 
         const algorithmFPType zero(0.0);
@@ -67,6 +68,7 @@ public:
         {
             if (_alpha[i] > zero) nSV++;
         }
+
         model.setNFeatures(xTable.getNumberOfColumns());
         DAAL_CHECK_STATUS(s, setSVCoefficients(nSV, model));
         DAAL_CHECK_STATUS(s, setSVIndices(nSV, model));
@@ -92,8 +94,6 @@ protected:
      */
     services::Status setSVCoefficients(size_t nSV, Model & model) const
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(saveResult.setSVCoefficients);
-
         const algorithmFPType zero(0.0);
         NumericTablePtr svCoeffTable = model.getClassificationCoefficients();
         services::Status s;
@@ -122,8 +122,6 @@ protected:
      */
     services::Status setSVIndices(size_t nSV, Model & model) const
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(saveResult.setSVIndices);
-
         NumericTablePtr svIndicesTable = model.getSupportIndices();
         services::Status s;
         DAAL_CHECK_STATUS(s, svIndicesTable->resize(nSV));
@@ -154,7 +152,6 @@ protected:
      */
     services::Status setSV_Dense(Model & model, const NumericTable & xTable, size_t nSV) const
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(saveResult.setSV_Dense);
         /* Allocate memory for support vectors and coefficients */
         NumericTablePtr svTable = model.getSupportVectors();
         services::Status s;
@@ -194,8 +191,6 @@ protected:
      */
     services::Status setSV_CSR(Model & model, const NumericTable & xTable, size_t nSV) const
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(saveResult.setSV_CSR);
-
         TArray<size_t, cpu> aSvRowOffsets(nSV + 1);
         DAAL_CHECK_MALLOC(aSvRowOffsets.get());
         size_t * const svRowOffsetsBuffer = aSvRowOffsets.get();

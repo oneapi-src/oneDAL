@@ -16,14 +16,13 @@
 
 #pragma once
 
-#include "oneapi/dal/train.hpp"
-#include "oneapi/dal/algo/pca/train_types.hpp"
 #include "oneapi/dal/algo/pca/detail/train_ops.hpp"
+#include "oneapi/dal/algo/pca/train_types.hpp"
+#include "oneapi/dal/train.hpp"
 
 namespace oneapi::dal::detail {
 
 template <typename Descriptor>
-struct train_ops<Descriptor, dal::pca::detail::tag>
-  : dal::pca::detail::train_ops<Descriptor> {};
+struct train_ops<Descriptor, dal::pca::detail::tag> : dal::pca::detail::train_ops<Descriptor> {};
 
 } // namespace oneapi::dal::detail
