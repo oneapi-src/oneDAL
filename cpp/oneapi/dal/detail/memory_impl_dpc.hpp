@@ -24,29 +24,29 @@ namespace oneapi::dal::detail {
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
 template <typename T>
-inline T* malloc(const sycl::queue& queue, std::int64_t count, sycl::usm::alloc kind) {
+inline T* malloc(sycl::queue& queue, std::int64_t count, sycl::usm::alloc kind) {
     auto device = queue.get_device();
     auto context = queue.get_context();
     return sycl::malloc<T>(count, device, context, kind);
 }
 
 template <typename T>
-inline void free(const sycl::queue& queue, T* pointer) {
+inline void free(sycl::queue& queue, T* pointer) {
     sycl::free(pointer, queue);
 }
 
-inline void memset(const sycl::queue& queue, void* dest, std::int32_t value, std::int64_t size) {
+inline void memset(sycl::queue& queue, void* dest, std::int32_t value, std::int64_t size) {
     auto event = queue.memset(dest, value, size);
     event.wait();
 }
 
-inline void memcpy(const sycl::queue& queue, void* dest, const void* src, std::int64_t size) {
+inline void memcpy(sycl::queue& queue, void* dest, const void* src, std::int64_t size) {
     auto event = queue.memcpy(dest, src, size);
     event.wait();
 }
 
 template <typename T>
-inline void fill(const sycl::queue& queue, T* dest, std::int64_t count, const T& value) {
+inline void fill(sycl::queue& queue, T* dest, std::int64_t count, const T& value) {
     auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.parallel_for<class oneapi_dal_memory_fill>(sycl::range<1>(count),
         [=](sycl::id<1> idx) {

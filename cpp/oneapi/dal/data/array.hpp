@@ -52,13 +52,13 @@ public:
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     template <typename K>
-    static array<T> full(sycl::queue queue,
+    static array<T> full(sycl::queue& queue,
                          std::int64_t count, K&& element,
                          sycl::usm::alloc kind = sycl::usm::alloc::shared) {
         return full_impl(queue, count, std::forward<K>(element), kind);
     }
 
-    static array<T> zeros(sycl::queue queue,
+    static array<T> zeros(sycl::queue& queue,
                           std::int64_t count,
                           sycl::usm::alloc kind = sycl::usm::alloc::shared) {
         return zeros_impl(queue, count, kind);
@@ -91,14 +91,14 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    explicit array(sycl::queue queue,
+    explicit array(sycl::queue& queue,
                    std::int64_t count,
                    sycl::usm::alloc kind = sycl::usm::alloc::shared)
         : array() {
         reset(queue, count, kind);
     }
 
-    explicit array(sycl::queue queue,
+    explicit array(sycl::queue& queue,
                    T* data, std::int64_t count,
                    sycl::vector_class<sycl::event> dependencies = {})
         : array() {
@@ -127,7 +127,7 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    array& unique(sycl::queue queue,
+    array& unique(sycl::queue& queue,
                   sycl::usm::alloc kind = sycl::usm::alloc::shared) {
         return unique_impl(queue, kind);
     }
@@ -178,13 +178,13 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    void reset(sycl::queue queue,
+    void reset(sycl::queue& queue,
                std::int64_t count,
                sycl::usm::alloc kind = sycl::usm::alloc::shared) {
         reset_impl(queue, count, kind);
     }
 
-    void reset(sycl::queue queue,
+    void reset(sycl::queue& queue,
                T* data, std::int64_t count,
                sycl::vector_class<sycl::event> dependencies = {}) {
         reset(data, count, detail::default_delete<T, decltype(queue)>{ queue });
@@ -205,7 +205,7 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    void resize(sycl::queue queue,
+    void resize(sycl::queue& queue,
                 std::int64_t count,
                 sycl::usm::alloc kind = sycl::usm::alloc::shared) {
         resize_impl(queue, count, kind);
