@@ -53,16 +53,16 @@ Given a positive integer parameter :math:`k` and a test observation
 #. Assigns the class with the largest probability to the test
    observation :math:`x_0`
 
-The library provides kNN classification with the following methods:
-
-- K-D tree (only suppored on CPU)
-- Brute Force (only suppored on GPU)
+kNN classification on CPU and GPU are based on different approaches. 
+On CPU, kNN classification uses `K-D tree`_, a space-partitioning data structure, to find nearest neighbors,
+while on GPU the `Brute Force`_ search is used.
 
 K-D tree
 --------
 
-K-D tree, or a multidimensional binary search tree, is a space-partitioning data structure, where D is the dimension and K is
-the number of dimensions in the feature space. For more details, see [James2013]_, [Patwary2016]_.
+On CPU, the library provides kNN classification based on multidimensional binary search tree
+(K-D tree, where D means the dimension and K means the number of dimensions in the feature space).
+For more details, see [James2013]_, [Patwary2016]_.
 
 |product| version of the kNN algorithm with K-D trees uses the PANDA algorithm
 [Patwary2016]_.

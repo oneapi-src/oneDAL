@@ -47,7 +47,7 @@ Training Stage
 |short_name| provides two methods to train the SVM model:
 
 - Boser method [Boser92]_
-- Thunder methos [Wen2018]_
+- Thunder method [Wen2018]_
 
 The SVM model is trained to solve the quadratic optimization problem
 
