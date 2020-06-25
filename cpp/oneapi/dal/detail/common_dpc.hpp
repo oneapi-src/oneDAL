@@ -20,27 +20,3 @@
 #include <CL/sycl.hpp>
 #endif // ONEAPI_DAL_DATA_PARALLEL
 
-namespace oneapi::dal::detail {
-
-struct host_policy{};
-struct host_only_alloc{};
-
-#ifdef ONEAPI_DAL_DATA_PARALLEL
-template <typename T>
-class dpc_default_delete {
-public:
-    explicit dpc_default_delete(const sycl::queue& queue)
-        : queue_(queue) {}
-
-    void operator()(T* data) {
-        sycl::free(data, queue_);
-    }
-
-private:
-    sycl::queue queue_;
-};
-
-#endif // ONEAPI_DAL_DATA_PARALLEL
-
-} // namespace oneapi::dal::detail
-

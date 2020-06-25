@@ -18,23 +18,35 @@
 
 #include <cstring>
 
-#include "oneapi/dal/detail/memory_impl_host.hpp"
-#include "oneapi/dal/detail/memory_impl_dpc.hpp"
+#include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::detail {
 
-template <typename T, typename Policy>
-class default_delete {
-public:
-    explicit default_delete(const Policy& policy)
-        : policy_(policy) {}
+struct host_only_alloc{};
 
-    void operator()(T* data) {
-        detail::free(policy_, data);
+template <typename T>
+inline T* malloc(const host_policy&, std::int64_t count, host_only_alloc) {
+    return new T[count];
+}
+
+template <typename T>
+inline void free(const host_policy&, T* pointer) {
+    delete[] pointer;
+}
+
+inline void memset(const host_policy&, void* dest, std::int32_t value, std::int64_t size) {
+    std::memset(dest, value, size);
+}
+
+inline void memcpy(const host_policy&, void* dest, const void* src, std::int64_t size) {
+    std::memcpy(dest, src, size);
+}
+
+template <typename T>
+inline void fill(const host_policy&, T* dest, std::int64_t count, const T& value) {
+    for (std::int64_t i = 0; i < count; i++) {
+        dest[i] = value;
     }
-
-private:
-    Policy policy_;
-};
+}
 
 } // namespace oneapi::dal::detail
