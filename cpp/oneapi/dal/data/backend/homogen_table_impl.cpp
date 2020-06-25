@@ -14,8 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/data/backend/convert.hpp"
 #include "oneapi/dal/data/backend/homogen_table_impl.hpp"
+#include "oneapi/dal/data/backend/convert.hpp"
 
 #include <cstring>
 
@@ -42,10 +42,12 @@ void homogen_table_impl::pull_rows(array<T>& block, const range& rows) const {
         auto row_data = reinterpret_cast<const T*>(data_.get_data());
         auto row_start_pointer = row_data + rows.start_idx * column_count;
         block.reset_not_owning(row_start_pointer, block_size);
-    } else {
+    }
+    else {
         if (!block.is_data_owner() || block.get_capacity() < block_size) {
             block.reset(block_size);
-        } else if (block.get_size() < block_size) {
+        }
+        else if (block.get_size() < block_size) {
             block.resize(block_size);
         }
 
@@ -78,7 +80,8 @@ void homogen_table_impl::push_back_rows(const array<T>& block, const range& rows
 
         if (row_start_pointer == block.get_data()) {
             return;
-        } else {
+        }
+        else {
             std::memcpy(row_start_pointer, block.get_data(), block_size * sizeof(T));
         }
     } else {
@@ -112,7 +115,8 @@ void homogen_table_impl::pull_column(array<T>& block, int64_t idx, const range& 
     } else {
         if (!block.is_data_owner() || block.get_capacity() < block_size) {
             block.reset(block_size);
-        } else if (block.get_size() < block_size) {
+        }
+        else if (block.get_size() < block_size) {
             block.resize(block_size);
         }
 
@@ -139,13 +143,13 @@ void homogen_table_impl::push_back_column(const array<T>& block, int64_t idx, co
     if (block_dtype == feature_type && column_count == 1) {
         if (reinterpret_cast<const void*>(data_.get_data() + row_offset) !=
             reinterpret_cast<const void*>(block.get_data())) {
-
             data_.unique();
             auto dst_ptr = data_.get_mutable_data() + row_offset;
             backend::convert_vector(block.get_data(), dst_ptr,
                                     block_dtype, feature_type, block_size);
         }
-    } else {
+    }
+    else {
         data_.unique();
         auto dst_ptr = data_.get_mutable_data() + row_offset;
         backend::convert_vector(block.get_data(), dst_ptr,
@@ -163,12 +167,24 @@ template void homogen_table_impl::push_back_rows(const array<float>&, const rang
 template void homogen_table_impl::push_back_rows(const array<double>&, const range&);
 template void homogen_table_impl::push_back_rows(const array<int32_t>&, const range&);
 
-template void homogen_table_impl::pull_column(array<float>& a, std::int64_t idx, const range& r) const;
-template void homogen_table_impl::pull_column(array<double>& a, std::int64_t idx, const range& r) const;
-template void homogen_table_impl::pull_column(array<int32_t>& a, std::int64_t idx, const range& r) const;
+template void homogen_table_impl::pull_column(array<float>& a,
+                                              std::int64_t idx,
+                                              const range& r) const;
+template void homogen_table_impl::pull_column(array<double>& a,
+                                              std::int64_t idx,
+                                              const range& r) const;
+template void homogen_table_impl::pull_column(array<int32_t>& a,
+                                              std::int64_t idx,
+                                              const range& r) const;
 
-template void homogen_table_impl::push_back_column(const array<float>& a, std::int64_t idx, const range& r);
-template void homogen_table_impl::push_back_column(const array<double>& a, std::int64_t idx, const range& r);
-template void homogen_table_impl::push_back_column(const array<int32_t>& a, std::int64_t idx, const range& r);
+template void homogen_table_impl::push_back_column(const array<float>& a,
+                                                   std::int64_t idx,
+                                                   const range& r);
+template void homogen_table_impl::push_back_column(const array<double>& a,
+                                                   std::int64_t idx,
+                                                   const range& r);
+template void homogen_table_impl::push_back_column(const array<int32_t>& a,
+                                                   std::int64_t idx,
+                                                   const range& r);
 
 } // namespace oneapi::dal::backend

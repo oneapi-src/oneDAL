@@ -21,11 +21,9 @@
 namespace oneapi::dal::detail {
 
 template <typename TableImpl>
-class table_impl_wrapper : public table_impl_iface,
-                           public base {
+class table_impl_wrapper : public table_impl_iface, public base {
 public:
-    table_impl_wrapper(TableImpl&& obj)
-        : impl_(std::move(obj)) { }
+    table_impl_wrapper(TableImpl&& obj) : impl_(std::move(obj)) {}
 
     virtual std::int64_t get_column_count() const override {
         return impl_.get_column_count();
@@ -67,23 +65,33 @@ public:
         impl_.pull_column(block, idx, r);
     }
 
-    virtual void pull_column(array<double>& block, std::int64_t idx, const range& r) const override {
+    virtual void pull_column(array<double>& block,
+                             std::int64_t idx,
+                             const range& r) const override {
         impl_.pull_column(block, idx, r);
     }
 
-    virtual void pull_column(array<std::int32_t>& block, std::int64_t idx, const range& r) const override {
+    virtual void pull_column(array<std::int32_t>& block,
+                             std::int64_t idx,
+                             const range& r) const override {
         impl_.pull_column(block, idx, r);
     }
 
-    virtual void push_back_column(const array<float>& block, std::int64_t idx, const range& r) override {
+    virtual void push_back_column(const array<float>& block,
+                                  std::int64_t idx,
+                                  const range& r) override {
         impl_.push_back_column(block, idx, r);
     }
 
-    virtual void push_back_column(const array<double>& block, std::int64_t idx, const range& r) override {
+    virtual void push_back_column(const array<double>& block,
+                                  std::int64_t idx,
+                                  const range& r) override {
         impl_.push_back_column(block, idx, r);
     }
 
-    virtual void push_back_column(const array<std::int32_t>& block, std::int64_t idx, const range& r) override {
+    virtual void push_back_column(const array<std::int32_t>& block,
+                                  std::int64_t idx,
+                                  const range& r) override {
         impl_.push_back_column(block, idx, r);
     }
 
@@ -101,8 +109,7 @@ private:
 
 // TODO: avoid duplication inside wrappers?
 template <typename Impl>
-class homogen_table_impl_wrapper : public homogen_table_impl_iface,
-                                   public base {
+class homogen_table_impl_wrapper : public homogen_table_impl_iface, public base {
 public:
     homogen_table_impl_wrapper(Impl&& obj, std::int64_t homogen_table_kind)
         : kind_(homogen_table_kind),
@@ -148,23 +155,33 @@ public:
         impl_.pull_column(block, idx, r);
     }
 
-    virtual void pull_column(array<double>& block, std::int64_t idx, const range& r) const override {
+    virtual void pull_column(array<double>& block,
+                             std::int64_t idx,
+                             const range& r) const override {
         impl_.pull_column(block, idx, r);
     }
 
-    virtual void pull_column(array<std::int32_t>& block, std::int64_t idx, const range& r) const override {
+    virtual void pull_column(array<std::int32_t>& block,
+                             std::int64_t idx,
+                             const range& r) const override {
         impl_.pull_column(block, idx, r);
     }
 
-    virtual void push_back_column(const array<float>& block, std::int64_t idx, const range& r) override {
+    virtual void push_back_column(const array<float>& block,
+                                  std::int64_t idx,
+                                  const range& r) override {
         impl_.push_back_column(block, idx, r);
     }
 
-    virtual void push_back_column(const array<double>& block, std::int64_t idx, const range& r) override {
+    virtual void push_back_column(const array<double>& block,
+                                  std::int64_t idx,
+                                  const range& r) override {
         impl_.push_back_column(block, idx, r);
     }
 
-    virtual void push_back_column(const array<std::int32_t>& block, std::int64_t idx, const range& r) override {
+    virtual void push_back_column(const array<std::int32_t>& block,
+                                  std::int64_t idx,
+                                  const range& r) override {
         impl_.push_back_column(block, idx, r);
     }
 

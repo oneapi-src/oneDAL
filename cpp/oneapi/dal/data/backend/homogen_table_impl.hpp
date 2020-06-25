@@ -53,15 +53,18 @@ public:
         if (data.is_data_owner() && data.has_mutable_data()) {
             data_.reset(reinterpret_cast<byte_t*>(data.get_mutable_data()),
                         size_in_bytes,
-                        [owner = array(data)](auto) mutable { owner.reset(); });
-        } else if (data.has_mutable_data()) {
+                        [owner = array(data)](auto) mutable {
+                            owner.reset();
+                        });
+        }
+        else if (data.has_mutable_data()) {
             data_.reset_not_owning(reinterpret_cast<byte_t*>(data.get_mutable_data()),
                                    size_in_bytes);
-        } else {
+        }
+        else {
             // TODO: the case when data.is_data_owner() == true && data.has_mutable_data() == false
             // is impossible now, but can appear
-            data_.reset_not_owning(reinterpret_cast<const byte_t*>(data.get_data()),
-                                   size_in_bytes);
+            data_.reset_not_owning(reinterpret_cast<const byte_t*>(data.get_data()), size_in_bytes);
         }
     }
 

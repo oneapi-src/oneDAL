@@ -14,20 +14,18 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "oneapi/dal/data/table.hpp"
 #include "oneapi/dal/data/backend/empty_table_impl.hpp"
 #include "oneapi/dal/data/backend/homogen_table_impl.hpp"
-#include "oneapi/dal/data/table.hpp"
 
 using std::int64_t;
 
 namespace oneapi::dal {
 
-table::table()
-    : table(backend::empty_table_impl{}) {}
+table::table() : table(backend::empty_table_impl{}) {}
 
-table::table(table&& t)
-    : impl_(std::move(t.impl_)) {
-    using wrapper = detail::table_impl_wrapper<backend::empty_table_impl>;
+table::table(table&& t) : impl_(std::move(t.impl_)) {
+    using wrapper     = detail::table_impl_wrapper<backend::empty_table_impl>;
     using wrapper_ptr = detail::shared<wrapper>;
 
     t.impl_ = wrapper_ptr(new wrapper(backend::empty_table_impl{}));
@@ -59,7 +57,7 @@ int64_t table::get_kind() const {
 }
 
 void table::init_impl(detail::table_impl_iface* impl) {
-    impl_ = pimpl { impl };
+    impl_ = pimpl{ impl };
 }
 
 int64_t homogen_table::kind() {

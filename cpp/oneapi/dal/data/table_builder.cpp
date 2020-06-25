@@ -14,8 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/data/backend/homogen_table_impl.hpp"
 #include "oneapi/dal/data/table_builder.hpp"
+#include "oneapi/dal/data/backend/homogen_table_impl.hpp"
 
 namespace oneapi::dal {
 namespace backend {
@@ -24,8 +24,7 @@ class table_builder_impl {
     using dense_rw_storage = detail::table_builder_impl_iface::dense_rw_storage;
 
 public:
-    table_builder_impl(table&& t)
-        : table_impl_(detail::pimpl_accessor().get_pimpl(std::move(t))) {}
+    table_builder_impl(table&& t) : table_impl_(detail::pimpl_accessor().get_pimpl(std::move(t))) {}
 
     auto build_table() {
         return detail::pimpl_accessor().make_from_pimpl<table>(table_impl_);
@@ -42,17 +41,16 @@ private:
 class homogen_table_builder_impl {
 public:
     using dense_rw_storage = detail::table_builder_impl_iface::dense_rw_storage;
-    using table_impl_t = detail::homogen_table_impl_iface;
-    using pimpl_t = detail::pimpl<table_impl_t>;
+    using table_impl_t     = detail::homogen_table_impl_iface;
+    using pimpl_t          = detail::pimpl<table_impl_t>;
 
 public:
     homogen_table_builder_impl(homogen_table&& t) {
         auto& base_pimpl = detail::pimpl_accessor().get_pimpl(std::move(t));
-        table_impl_ = std::static_pointer_cast<table_impl_t>(base_pimpl);
+        table_impl_      = std::static_pointer_cast<table_impl_t>(base_pimpl);
     }
 
-    homogen_table_builder_impl(const pimpl_t& table_impl)
-        : table_impl_(table_impl) {}
+    homogen_table_builder_impl(const pimpl_t& table_impl) : table_impl_(table_impl) {}
 
     table build_table() {
         return build_homogen_table();
@@ -73,16 +71,18 @@ private:
 } // namespace backend
 
 table_builder::table_builder(table&& t)
-    : table_builder(backend::table_builder_impl{ std::move(t) }) {}
+        : table_builder(backend::table_builder_impl{ std::move(t) }) {}
 
 template <typename DataType>
-homogen_table_builder::homogen_table_builder(std::int64_t row_count, std::int64_t column_count,
+homogen_table_builder::homogen_table_builder(std::int64_t row_count,
+                                             std::int64_t column_count,
                                              const DataType* data_pointer,
                                              homogen_data_layout layout)
     : homogen_table_builder(homogen_table{ row_count, column_count, data_pointer, layout }) {}
 
 template <typename DataType, typename>
-homogen_table_builder::homogen_table_builder(std::int64_t row_count, std::int64_t column_count,
+homogen_table_builder::homogen_table_builder(std::int64_t row_count,
+                                             std::int64_t column_count,
                                              DataType value,
                                              homogen_data_layout layout)
     : table_builder(backend::homogen_table_builder_impl {
@@ -108,10 +108,10 @@ homogen_table_builder::homogen_table_builder(std::int64_t column_count,
     }) {}
 
 homogen_table_builder::homogen_table_builder(homogen_table&& t)
-    : table_builder(backend::homogen_table_builder_impl{ std::move(t) }) {}
+        : table_builder(backend::homogen_table_builder_impl{ std::move(t) }) {}
 
 homogen_table homogen_table_builder::build() const {
-    using impl_t = backend::homogen_table_builder_impl;
+    using impl_t    = backend::homogen_table_builder_impl;
     using wrapper_t = detail::table_builder_impl_wrapper<impl_t>;
 
     auto& impl = detail::get_impl<wrapper_t>(*this).get();

@@ -14,8 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "gtest/gtest.h"
 #include "oneapi/dal/data/table.hpp"
+#include "gtest/gtest.h"
 #include "oneapi/dal/data/accessor.hpp"
 
 using namespace oneapi::dal;
@@ -65,7 +65,7 @@ TEST(table_test, can_set_custom_implementation) {
         table_metadata m;
     };
 
-    table t { table_impl{} };
+    table t{ table_impl{} };
     ASSERT_TRUE(t.has_data());
     ASSERT_EQ(t.get_kind(), table_impl{}.get_kind());
 }
@@ -107,25 +107,23 @@ TEST(homogen_table_test, can_set_custom_implementation) {
         void push_back_column(const array<double>&, std::int64_t idx, const range&) {}
         void push_back_column(const array<std::int32_t>&, std::int64_t idx, const range&) {}
 
-        const void* get_data() const { return nullptr; }
+        const void* get_data() const {
+            return nullptr;
+        }
 
         homogen_table_metadata m;
     };
 
     ASSERT_TRUE(is_homogen_table_impl_v<homogen_table_impl>);
 
-    homogen_table t { homogen_table_impl{} };
+    homogen_table t{ homogen_table_impl{} };
     ASSERT_TRUE(t.has_data());
 }
 
 TEST(homogen_table_test, can_construct_rowmajor_table_3x2) {
-    float data[] = {
-        1.f, 2.f,
-        3.f, 4.f,
-        5.f, 6.f
-    };
+    float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f };
 
-    homogen_table t { 3, 2, data };
+    homogen_table t{ 3, 2, data };
 
     ASSERT_TRUE(t.has_data());
     ASSERT_EQ(3, t.get_row_count());
@@ -166,13 +164,9 @@ TEST(homogen_table_test, can_construct_colmajor_float64_table) {
 }
 
 TEST(homogen_table_test, can_construct_table_reference) {
-    float data[] = {
-        1.f, 2.f,
-        3.f, 4.f,
-        5.f, 6.f
-    };
+    float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f };
 
-    homogen_table t1 { 3, 2, data };
+    homogen_table t1{ 3, 2, data };
     homogen_table t2 = t1;
 
     ASSERT_TRUE(t1.has_data());
@@ -196,13 +190,9 @@ TEST(homogen_table_test, can_construct_table_reference) {
 }
 
 TEST(homogen_table_test, can_construct_table_with_move) {
-    float data[] = {
-        1.f, 2.f,
-        3.f, 4.f,
-        5.f, 6.f
-    };
+    float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f };
 
-    homogen_table t1 { 3, 2, data };
+    homogen_table t1{ 3, 2, data };
     homogen_table t2 = std::move(t1);
 
     ASSERT_FALSE(t1.has_data());
@@ -221,21 +211,12 @@ TEST(homogen_table_test, can_construct_table_with_move) {
 }
 
 TEST(homogen_table_test, can_assign_two_table_references) {
-    float data_float[] = {
-        1.f, 2.f,
-        3.f, 4.f,
-        5.f, 6.f
-    };
+    float data_float[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f };
 
-    std::int32_t data_int[] = {
-        1, 2, 3,
-        4, 5, 6,
-        7, 8, 9,
-        10, 11, 12
-    };
+    std::int32_t data_int[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
 
-    homogen_table t1 { 3, 2, data_float };
-    homogen_table t2 { 4, 3, data_int };
+    homogen_table t1{ 3, 2, data_float };
+    homogen_table t2{ 4, 3, data_int };
 
     t1 = t2;
 
@@ -254,21 +235,12 @@ TEST(homogen_table_test, can_assign_two_table_references) {
 }
 
 TEST(homogen_table_test, can_move_assigned_table_reference) {
-    float data_float[] = {
-        1.f, 2.f,
-        3.f, 4.f,
-        5.f, 6.f
-    };
+    float data_float[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f };
 
-    std::int32_t data_int[] = {
-        1, 2, 3,
-        4, 5, 6,
-        7, 8, 9,
-        10, 11, 12
-    };
+    std::int32_t data_int[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
 
-    homogen_table t1 { 3, 2, data_float };
-    homogen_table t2 { 4, 3, data_int };
+    homogen_table t1{ 3, 2, data_float };
+    homogen_table t2{ 4, 3, data_int };
 
     t1 = std::move(t2);
 
@@ -280,13 +252,9 @@ TEST(homogen_table_test, can_move_assigned_table_reference) {
 }
 
 TEST(homogen_table_test, can_upcast_table) {
-    float data_float[] = {
-        1.f, 2.f,
-        3.f, 4.f,
-        5.f, 6.f
-    };
+    float data_float[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f };
 
-    table t = homogen_table { 3, 2, data_float };
+    table t = homogen_table{ 3, 2, data_float };
 
     ASSERT_TRUE(t.has_data());
     ASSERT_EQ(3, t.get_row_count());
@@ -296,13 +264,10 @@ TEST(homogen_table_test, can_upcast_table) {
 }
 
 TEST(homogen_table_test, can_read_table_data_via_row_accessor) {
-    double data[] = {
-        1.0, 2.0, 3.0,
-        -1.0, -2.0, -3.0
-    };
+    double data[] = { 1.0, 2.0, 3.0, -1.0, -2.0, -3.0 };
 
-    homogen_table t { 2, 3, data };
-    const auto rows_block = row_accessor<const double>(t).pull({0, -1});
+    homogen_table t{ 2, 3, data };
+    const auto rows_block = row_accessor<const double>(t).pull({ 0, -1 });
 
     ASSERT_EQ(t.get_row_count() * t.get_column_count(), rows_block.get_size());
     ASSERT_EQ(data, rows_block.get_data());
@@ -314,13 +279,10 @@ TEST(homogen_table_test, can_read_table_data_via_row_accessor) {
 }
 
 TEST(homogen_table_test, can_read_table_data_via_row_accessor_with_conversion) {
-    float data[] = {
-         1.0f,  2.0f,  3.0f,
-        -1.0f, -2.0f, -3.0f
-    };
+    float data[] = { 1.0f, 2.0f, 3.0f, -1.0f, -2.0f, -3.0f };
 
-    homogen_table t { 2, 3, data };
-    auto rows_block = row_accessor<const double>(t).pull({0, -1});
+    homogen_table t{ 2, 3, data };
+    auto rows_block = row_accessor<const double>(t).pull({ 0, -1 });
 
     ASSERT_EQ(t.get_row_count() * t.get_column_count(), rows_block.get_size());
     ASSERT_NE((void*)data, (void*)rows_block.get_data());
@@ -332,15 +294,12 @@ TEST(homogen_table_test, can_read_table_data_via_row_accessor_with_conversion) {
 }
 
 TEST(homogen_table_test, can_read_table_data_via_row_accessor_and_array_outside) {
-    float data[] = {
-         1.0f,  2.0f,  3.0f,
-        -1.0f, -2.0f, -3.0f
-    };
+    float data[] = { 1.0f, 2.0f, 3.0f, -1.0f, -2.0f, -3.0f };
 
-    homogen_table t { 2, 3, data };
-    array<float> arr { 10 };
+    homogen_table t{ 2, 3, data };
+    array<float> arr{ 10 };
 
-    auto rows_ptr = row_accessor<const float>(t).pull(arr, {0, -1});
+    auto rows_ptr = row_accessor<const float>(t).pull(arr, { 0, -1 });
 
     ASSERT_EQ(t.get_row_count() * t.get_column_count(), arr.get_size());
     ASSERT_EQ(arr.get_capacity(), 10);
