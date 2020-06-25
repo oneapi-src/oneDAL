@@ -22,7 +22,7 @@
 #include <stdexcept> // TODO: change by onedal exceptions
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-#include "oneapi/dal/detail/common_dp.hpp"
+#include "oneapi/dal/detail/common_dpc.hpp"
 #endif
 
 #include "oneapi/dal/detail/common.hpp"
@@ -46,7 +46,7 @@ class array {
 public:
     using default_delete = std::default_delete<T[]>;
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    using dp_default_delete = detail::dp_default_delete<T>;
+    using dpc_default_delete = detail::dpc_default_delete<T>;
 #endif
 
 public:
@@ -240,13 +240,13 @@ public:
         auto context = queue.get_context();
         auto* new_data = sycl::malloc<T>(count, device, context, kind);
 
-        reset(new_data, count, dp_default_delete{ queue });
+        reset(new_data, count, dpc_default_delete{ queue });
     }
 
     void reset(sycl::queue queue,
                T* data, std::int64_t count,
                sycl::vector_class<sycl::event> dependencies = {}) {
-        reset(data, count, dp_default_delete{ queue });
+        reset(data, count, dpc_default_delete{ queue });
         for (auto& event : dependencies) {
             event.wait();
         }

@@ -23,7 +23,7 @@
 namespace oneapi::dal::detail {
 
 template <typename T>
-class dp_default_delete {
+class dpc_default_delete {
 public:
     explicit dp_default_delete(const sycl::queue& queue)
         : queue_(queue) {}
