@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/algo/svm/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/svm/model.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 namespace oneapi::dal::svm::backend {
@@ -32,26 +33,6 @@ namespace interop              = dal::backend::interop;
 template <typename Float, daal::CpuType Cpu>
 using daal_svm_predict_kernel_t =
     daal_svm::prediction::internal::SVMPredictImpl<daal_svm::prediction::defaultDense, Float, Cpu>;
-
-struct daal_svm_model : public daal_svm::Model {
-    daal_svm_model() = default;
-    virtual ~daal_svm_model() {}
-
-    auto& set_support_vectors(daal::data_management::NumericTablePtr support_vectors) {
-        _SV = support_vectors;
-        return *this;
-    }
-
-    auto& set_coefficients(daal::data_management::NumericTablePtr coefficients) {
-        _SVCoeff = coefficients;
-        return *this;
-    }
-
-    auto& set_bias(double bias) {
-        _bias = bias;
-        return *this;
-    }
-};
 
 template <typename Float>
 static infer_result call_daal_kernel(const context_cpu& ctx,
@@ -76,7 +57,7 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
     const auto daal_coefficients =
         interop::convert_to_daal_homogen_table(arr_coefficients, support_vectors_count, 1);
 
-    auto daal_model = daal_svm_model{}
+    auto daal_model = interop::svm::daal_model{}
                           .set_support_vectors(daal_support_vectors)
                           .set_coefficients(daal_coefficients)
                           .set_bias(trained_model.get_bias());

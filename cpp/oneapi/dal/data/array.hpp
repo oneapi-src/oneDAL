@@ -18,6 +18,7 @@
 
 #include <variant>
 #include <algorithm>
+#include <stdexcept>
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal {
