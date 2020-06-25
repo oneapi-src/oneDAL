@@ -18,7 +18,6 @@
 
 #include <variant>
 #include <algorithm>
-#include <cstring>
 #include <stdexcept> // TODO: change by onedal exceptions
 
 #include "oneapi/dal/detail/common.hpp"
@@ -41,12 +40,6 @@ class array {
     friend array<Y> const_array_cast(const array<U>&);
 
 public:
-    using default_delete = std::default_delete<T[]>;
-#ifdef ONEAPI_DAL_DATA_PARALLEL
-    using dpc_default_delete = detail::dpc_default_delete<T>;
-#endif
-
-public:
     template <typename K>
     static array<T> full(std::int64_t count, K&& element) {
         return full_impl(detail::host_policy{},
@@ -54,9 +47,7 @@ public:
     }
 
     static array<T> zeros(std::int64_t count) {
-        auto* data = new T[count];
-        std::memset(data, 0, sizeof(T)*count);
-        return array<T> { data, count, default_delete{} };
+        return zeros_impl(detail::host_policy{}, count, detail::host_only_alloc{});
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -70,12 +61,7 @@ public:
     static array<T> zeros(sycl::queue queue,
                           std::int64_t count,
                           sycl::usm::alloc kind = sycl::usm::alloc::shared) {
-        auto device = queue.get_device();
-        auto context = queue.get_context();
-        auto* data = sycl::malloc<T>(count, device, context, kind);
-        auto event = queue.memset(data, 0, sizeof(T)*count);
-
-        return array<T> { queue, data, count, {event} };
+        return zeros_impl(queue, count, kind);
     }
 #endif
 
@@ -137,36 +123,13 @@ public:
     }
 
     array& unique() {
-        if (is_data_owner() || count_ == 0) {
-            return *this;
-        } else {
-            auto immutable_data = get_data();
-            auto copy_data = new T[count_];
-
-            for (std::int64_t i = 0; i < count_; i++) {
-                copy_data[i] = immutable_data[i];
-            }
-
-            reset(copy_data, count_, default_delete{});
-            return *this;
-        }
+        return unique_impl(detail::host_policy{}, detail::host_only_alloc{});
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     array& unique(sycl::queue queue,
                   sycl::usm::alloc kind = sycl::usm::alloc::shared) {
-        if (is_data_owner() || count_ == 0) {
-            return *this;
-        } else {
-            auto immutable_data = get_data();
-            auto device = queue.get_device();
-            auto context = queue.get_context();
-            auto* copy_data = sycl::malloc<T>(count_, device, context, kind);
-            auto event = queue.memcpy(copy_data, immutable_data, sizeof(T)*count_);
-
-            reset(queue, copy_data, count_, {event});
-            return *this;
-        }
+        return unique_impl(queue, kind);
     }
 #endif
 
@@ -202,7 +165,7 @@ public:
     }
 
     void reset(std::int64_t count) {
-        reset(new T[count], count, default_delete{});
+        reset_impl(detail::host_policy{}, count, detail::host_only_alloc{});
     }
 
     template <typename Deleter>
@@ -218,17 +181,13 @@ public:
     void reset(sycl::queue queue,
                std::int64_t count,
                sycl::usm::alloc kind = sycl::usm::alloc::shared) {
-        auto device = queue.get_device();
-        auto context = queue.get_context();
-        auto* new_data = sycl::malloc<T>(count, device, context, kind);
-
-        reset(new_data, count, dpc_default_delete{ queue });
+        reset_impl(queue, count, kind);
     }
 
     void reset(sycl::queue queue,
                T* data, std::int64_t count,
                sycl::vector_class<sycl::event> dependencies = {}) {
-        reset(data, count, dpc_default_delete{ queue });
+        reset(data, count, detail::default_delete<T, decltype(queue)>{ queue });
         for (auto& event : dependencies) {
             event.wait();
         }
@@ -242,56 +201,14 @@ public:
     }
 
     void resize(std::int64_t count) {
-        if (is_data_owner() == false) {
-            throw std::runtime_error("cannot resize array with non-owning data");
-        } else if (count <= 0) {
-            reset_not_owning();
-        } else if (get_capacity() < count) {
-            T* new_data = new T[count];
-            std::int64_t min_count = std::min(count, get_count());
-
-            for (std::int64_t i = 0; i < min_count; i++) {
-                new_data[i] = (*this)[i];
-            }
-
-            try {
-                reset(new_data, count, default_delete{});
-            } catch (const std::exception&) {
-                delete[] new_data;
-                throw;
-            }
-
-        } else {
-            count_ = count;
-        }
+        resize_impl(detail::host_policy{}, count, detail::host_only_alloc{});
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     void resize(sycl::queue queue,
                 std::int64_t count,
                 sycl::usm::alloc kind = sycl::usm::alloc::shared) {
-        if (is_data_owner() == false) {
-            throw std::runtime_error("cannot resize array with non-owning data");
-        } else if (count <= 0) {
-            reset_not_owning();
-        } else if (get_capacity() < count) {
-            auto device = queue.get_device();
-            auto context = queue.get_context();
-            auto* new_data = sycl::malloc<T>(count, device, context, kind);
-
-            std::int64_t min_count = std::min(count, get_count());
-            auto event = queue.memcpy(new_data, this->get_data(), sizeof(T)*min_count);
-
-            try {
-                reset(queue, new_data, count, {event});
-            } catch (const std::exception&) {
-                sycl::free(new_data, queue);
-                throw;
-            }
-
-        } else {
-            count_ = count;
-        }
+        resize_impl(queue, count, kind);
     }
 #endif
 
@@ -302,14 +219,66 @@ public:
     T& operator [](std::int64_t index) {
         return get_mutable_data()[index];
     }
+
 private:
+    template <typename Policy, typename AllocKind>
+    static array<T> zeros_impl(Policy&& policy, std::int64_t count, AllocKind&& kind) {
+        auto* data = detail::malloc<T>(policy, count, kind);
+        detail::memset(policy, data, 0, sizeof(T)*count);
+        return array<T> { data, count, detail::default_delete<T, Policy>{ policy } };
+    }
+
     template <typename K, typename Policy, typename AllocKind>
     static array<T> full_impl(Policy&& policy,
                               std::int64_t count, K&& element,
                               AllocKind&& kind) {
         auto* data = detail::malloc<T>(policy, count, kind);
         detail::fill(policy, data, count, element);
-        return array<T> { data, count, [policy](T* pointer) { detail::free(policy, pointer); } };
+        return array<T> { data, count, detail::default_delete<T, Policy>{ policy } };
+    }
+
+private:
+    template <typename Policy, typename AllocKind>
+    array& unique_impl(Policy&& policy, AllocKind&& kind) {
+        if (is_data_owner() || count_ == 0) {
+            return *this;
+        } else {
+            auto immutable_data = get_data();
+            auto copy_data = detail::malloc<T>(policy, count_, kind);
+            detail::memcpy(policy, copy_data, immutable_data, sizeof(T)*count_);
+
+            reset(copy_data, count_, detail::default_delete<T, Policy>{ policy });
+            return *this;
+        }
+    }
+
+    template <typename Policy, typename AllocKind>
+    void reset_impl(Policy&& policy, std::int64_t count, AllocKind&& kind) {
+        auto new_data = detail::malloc<T>(policy, count, kind);
+        reset(new_data, count, detail::default_delete<T, Policy>{ policy });
+    }
+
+    template <typename Policy, typename AllocKind>
+    void resize_impl(Policy&& policy, std::int64_t count, AllocKind&& kind) {
+        if (is_data_owner() == false) {
+            throw std::runtime_error("cannot resize array with non-owning data");
+        } else if (count <= 0) {
+            reset_not_owning();
+        } else if (get_capacity() < count) {
+            auto new_data = detail::malloc<T>(policy, count, kind);
+            std::int64_t min_count = std::min(count, get_count());
+            detail::memcpy(policy, new_data, this->get_data(), sizeof(T)*min_count);
+
+            try {
+                reset(new_data, count, detail::default_delete<T, Policy>{ policy });
+            } catch (const std::exception&) {
+                detail::free<T>(policy, new_data);
+                throw;
+            }
+
+        } else {
+            count_ = count;
+        }
     }
 
 private:
