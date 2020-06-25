@@ -654,12 +654,12 @@ $(WORKDIR.lib)/$(oneapi_a):                   $(daaldep.ipp) $(daaldep.vml) $(da
 $(WORKDIR.lib)/$(oneapi_y): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(oneapi_y): LOPT += $(daaldep.rt.seq)
 $(WORKDIR.lib)/$(oneapi_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.dll=%_dll.lib),)
+$(WORKDIR.lib)/$(oneapi_y): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.dll=%_dll.lib))
 ifdef OS_is_win
 $(WORKDIR.lib)/$(oneapi_y:%.dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y)
 endif
 $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt): $(ONEAPI.objs_y) $(if $(OS_is_win),$(ONEAPI.tmpdir_y)/dll.res,) | $(ONEAPI.tmpdir_y)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(oneapi_y): $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
-    $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.dll=%_dll.lib)) \
     $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
 $(ONEAPI.objs_a): $(ONEAPI_DISPATCHER_CPU_FILE)
@@ -710,8 +710,8 @@ endef
 
 ONEAPI.include_options := $(addprefix -I, $(ONEAPI.incdirs.common)) \
                           $(addprefix $(-isystem), $(ONEAPI.incdirs.thirdp))
-$(ONEAPI.tmpdir_a)/inc_a_folders.txt: makefile.lst | $(ONEAPI.tmpdir_a)/. $(ONEAPI.incdirs) ; $(call WRITE.PREREQS,$(ONEAPI.include_options),$(space))
-$(ONEAPI.tmpdir_y)/inc_y_folders.txt: makefile.lst | $(ONEAPI.tmpdir_y)/. $(ONEAPI.incdirs) ; $(call WRITE.PREREQS,$(ONEAPI.include_options),$(space))
+$(ONEAPI.tmpdir_a)/inc_a_folders.txt: makefile.lst | $(ONEAPI.tmpdir_a)/. ; $(call WRITE.PREREQS,$(ONEAPI.include_options),$(space))
+$(ONEAPI.tmpdir_y)/inc_y_folders.txt: makefile.lst | $(ONEAPI.tmpdir_y)/. ; $(call WRITE.PREREQS,$(ONEAPI.include_options),$(space))
 
 $(foreach a,$(ONEAPI.objs_a),$(eval $(call .compile.template.oneapi.ay,$a,$(ONEAPI.tmpdir_a))))
 $(foreach a,$(ONEAPI.objs_y),$(eval $(call .compile.template.oneapi.ay,$a,$(ONEAPI.tmpdir_y))))
@@ -720,7 +720,7 @@ $(ONEAPI.tmpdir_y)/dll.res: $(VERSION_DATA_FILE)
 $(ONEAPI.tmpdir_y)/dll.res: RCOPT += $(addprefix -I, $(CORE.incdirs.common))
 $(ONEAPI.tmpdir_y)/%.res: %.rc | $(ONEAPI.tmpdir_y)/. ; $(RC.COMPILE)
 
-$(ONEAPI_DISPATCHER_CPU_FILE): $(ONEAPI.srcdir)/backend/dispatcher_cpu.hpp
+$(ONEAPI_DISPATCHER_CPU_FILE): $(ONEAPI.srcdir)/backend/dispatcher_cpu.hpp | $(WORKDIR)/.
 	cp -fp $< $@
 	$(if $(USECPUS.out.defs.filter), $(USECPUS.oneapi.out.defs.filter) $@)
 
@@ -853,15 +853,13 @@ daal: $(if $(CORE.ALGORITHMS.CUSTOM),           \
           _daal _release_c,                     \
           _daal _daal_jj _release _release_doc  \
       )
-
-
-onedal: $(if $(CORE.ALGORITHMS.CUSTOM),                                 \
-          _daal _oneapi _release_c _release_oneapi_c,                   \
-          _daal _oneapi _daal_jj _release _release_oneapi _release_doc  \
-      )
-
 daal_c: _daal _release_c
-onedal_c: daal_c _oneapi _release_oneapi_c
+
+oneapi: _oneapi _release_oneapi_c
+oneapi_c: _oneapi _release_oneapi_c
+
+onedal: oneapi daal
+onedal_c: daal_c oneapi_c
 
 _daal:    _daal_core _daal_thr
 _daal_jj: _daal_jar _daal_jni
@@ -971,7 +969,6 @@ $(foreach d,$(release.SAMPLES.JAVA),  $(eval $(call .release.d,$d,$(subst $(SAMP
 $(foreach d,$(release.SAMPLES.SCALA), $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),_release_jj)))
 
 $(CORE.incdirs): _release_c_h
-$(ONEAPI.incdirs): _release_oneapi_c_h
 
 define .release.dd
 $3: $2
