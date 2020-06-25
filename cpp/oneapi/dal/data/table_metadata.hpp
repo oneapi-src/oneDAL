@@ -21,57 +21,45 @@
 
 namespace oneapi::dal {
 
-enum class data_layout {
-    row_major,
-    column_major
-};
+enum class data_layout { row_major, column_major };
 
-enum class feature_type {
-    nominal,
-    ordinal,
-    contiguous
-};
+enum class feature_type { nominal, ordinal, contiguous };
 
 struct feature_info {
-    feature_info()
-        : dtype(data_type::float32),
-          ftype(feature_type::contiguous) { }
+    feature_info() : dtype(data_type::float32), ftype(feature_type::contiguous) {}
 
-    feature_info(data_type dtype)
-        : dtype(dtype) {
+    feature_info(data_type dtype) : dtype(dtype) {
         if (dtype == data_type::float32 || dtype == data_type::float64) {
             ftype = feature_type::contiguous;
-        } else {
+        }
+        else {
             ftype = feature_type::nominal;
         }
     }
 
-    feature_info(feature_type ftype)
-        : ftype(ftype) {
+    feature_info(feature_type ftype) : ftype(ftype) {
         if (ftype == feature_type::nominal || ftype == feature_type::ordinal) {
             dtype = data_type::int32;
-        } else {
+        }
+        else {
             dtype = data_type::float32;
         }
     }
 
-    feature_info(data_type dtype, feature_type ftype)
-        : dtype(dtype),
-          ftype(ftype) { }
+    feature_info(data_type dtype, feature_type ftype) : dtype(dtype), ftype(ftype) {}
 
     data_type dtype;
     feature_type ftype;
 };
 
 struct table_metadata {
-    table_metadata()
-        : layout(data_layout::row_major) {}
+    table_metadata() : layout(data_layout::row_major) {}
 
     table_metadata(std::int64_t features_count,
                    feature_info feature = {},
-                   data_layout layout = data_layout::row_major)
-        : layout(layout),
-          features(features_count, feature) {}
+                   data_layout layout   = data_layout::row_major)
+            : layout(layout),
+              features(features_count, feature) {}
 
     data_layout layout;
     array<feature_info> features;

@@ -26,7 +26,7 @@ class train_result_impl;
 } // namespace detail
 
 class ONEAPI_DAL_EXPORT train_input : public base {
-  public:
+public:
     train_input(const table& data);
 
     table get_data() const;
@@ -36,14 +36,14 @@ class ONEAPI_DAL_EXPORT train_input : public base {
         return *this;
     }
 
-  private:
+private:
     void set_data_impl(const table& data);
 
     dal::detail::pimpl<detail::train_input_impl> impl_;
 };
 
 class ONEAPI_DAL_EXPORT train_result {
-  public:
+public:
     train_result();
 
     model get_model() const;
@@ -66,7 +66,7 @@ class ONEAPI_DAL_EXPORT train_result {
         return *this;
     }
 
-  private:
+private:
     void set_model_impl(const model&);
     void set_eigenvalues_impl(const table&);
     void set_eigenvectors_impl(const table&);

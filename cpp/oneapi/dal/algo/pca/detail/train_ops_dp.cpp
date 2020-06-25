@@ -14,10 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/dispatcher_dp.hpp"
-#include "oneapi/dal/algo/pca/detail/train_ops.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel.hpp"
+#include "oneapi/dal/algo/pca/detail/train_ops.hpp"
+#include "oneapi/dal/backend/dispatcher_dp.hpp"
 
 namespace oneapi::dal::pca::detail {
 
@@ -26,15 +26,15 @@ struct ONEAPI_DAL_EXPORT train_ops_dispatcher<data_parallel_execution_context, F
     train_result operator()(const data_parallel_execution_context& ctx,
                             const descriptor_base& params,
                             const train_input& input) const {
-        using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
-            backend::train_kernel_cpu<Float, Method>,
-            backend::train_kernel_gpu<Float, Method>>;
+        using kernel_dispatcher_t =
+            dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Method>,
+                                            backend::train_kernel_gpu<Float, Method>>;
         return kernel_dispatcher_t{}(ctx, params, input);
     }
 };
 
 #define INSTANTIATE(F, M) \
-  template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<data_parallel_execution_context, F, M>;
+    template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<data_parallel_execution_context, F, M>;
 
 INSTANTIATE(float, method::cov)
 INSTANTIATE(float, method::svd)

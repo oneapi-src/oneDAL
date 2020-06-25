@@ -29,7 +29,7 @@ using pimpl = shared<T>;
 
 template <typename T>
 struct empty_deleter {
-    void operator() (T*) const noexcept {}
+    void operator()(T*) const noexcept {}
 };
 
 struct pimpl_accessor {
@@ -40,13 +40,13 @@ struct pimpl_accessor {
 
     template <typename Object>
     auto make_from_pimpl(typename Object::pimpl const& impl) {
-        return Object{impl};
+        return Object{ impl };
     }
 
     template <typename Object>
     auto make_from_pointer(typename Object::pimpl::element_type* pointer) {
         using pimpl_t = typename Object::pimpl;
-        return Object{pimpl_t(pointer)};
+        return Object{ pimpl_t(pointer) };
     }
 };
 
@@ -65,4 +65,4 @@ Object make_from_pointer(typename Object::pimpl::element_type* pointer) {
     return pimpl_accessor().template make_from_pointer<Object>(pointer);
 }
 
-}  // namespace oneapi::dal::detail
+} // namespace oneapi::dal::detail

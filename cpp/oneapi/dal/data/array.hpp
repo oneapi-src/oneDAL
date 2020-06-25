@@ -16,16 +16,15 @@
 
 #pragma once
 
-#include <variant>
 #include <algorithm>
+#include <variant>
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal {
 
 template <typename T>
 class array {
-    static_assert(!std::is_const_v<T>,
-                    "array class cannot have const-qualified type of data");
+    static_assert(!std::is_const_v<T>, "array class cannot have const-qualified type of data");
 
     template <typename U>
     friend class array;
@@ -40,16 +39,13 @@ public:
     using default_delete = std::default_delete<T[]>;
 
 public:
-    array()
-        : data_owned_ptr_(nullptr),
-            size_(0),
-            capacity_(0) {}
+    array() : data_owned_ptr_(nullptr), size_(0), capacity_(0) {}
 
     explicit array(std::int64_t element_count, T element = {}) // TODO: Use custom oneDAL allocator
-        : data_owned_ptr_(new T[element_count], default_delete{}),
-            data_(data_owned_ptr_.get()),
-            size_(element_count),
-            capacity_(element_count) {
+            : data_owned_ptr_(new T[element_count], default_delete{}),
+              data_(data_owned_ptr_.get()),
+              size_(element_count),
+              capacity_(element_count) {
         for (std::int64_t i = 0; i < size_; i++) {
             (*this)[i] = element;
         }
@@ -57,10 +53,10 @@ public:
 
     template <typename Deleter>
     explicit array(T* data, std::int64_t size, Deleter&& deleter)
-        : data_owned_ptr_(data, std::forward<Deleter>(deleter)),
-            data_(data),
-            size_(size),
-            capacity_(size) {}
+            : data_owned_ptr_(data, std::forward<Deleter>(deleter)),
+              data_(data),
+              size_(size),
+              capacity_(size) {}
 
     T* get_mutable_data() const {
         return std::get<T*>(data_); // TODO: convert to dal exception
@@ -69,7 +65,8 @@ public:
     const T* get_data() const {
         if (auto ptr_val = std::get_if<T*>(&data_)) {
             return *ptr_val;
-        } else {
+        }
+        else {
             return std::get<const T*>(data_);
         }
     }
@@ -81,9 +78,10 @@ public:
     array& unique() {
         if (is_data_owner() || size_ == 0) {
             return *this;
-        } else {
+        }
+        else {
             auto immutable_data = get_data();
-            auto copy_data = new T[size_];
+            auto copy_data      = new T[size_];
 
             for (std::int64_t i = 0; i < size_; i++) {
                 copy_data[i] = immutable_data[i];
@@ -105,26 +103,29 @@ public:
     bool is_data_owner() const {
         if (data_owned_ptr_ == nullptr) {
             return false;
-        } else if (auto ptr_val = std::get_if<T*>(&data_)) {
+        }
+        else if (auto ptr_val = std::get_if<T*>(&data_)) {
             return *ptr_val == data_owned_ptr_.get();
-        } else if (auto ptr_val = std::get_if<const T*>(&data_)) {
+        }
+        else if (auto ptr_val = std::get_if<const T*>(&data_)) {
             return *ptr_val == data_owned_ptr_.get();
-        } else {
+        }
+        else {
             return false;
         }
     }
 
     void reset() {
         data_owned_ptr_.reset();
-        data_ = std::variant<T*, const T*>();
-        size_ = 0;
+        data_     = std::variant<T*, const T*>();
+        size_     = 0;
         capacity_ = 0;
     }
 
     void reset(std::int64_t size) {
         data_owned_ptr_.reset(new T[size], default_delete{});
-        data_ = data_owned_ptr_.get();
-        size_ = size;
+        data_     = data_owned_ptr_.get();
+        size_     = size;
         capacity_ = size;
     }
 
@@ -132,8 +133,8 @@ public:
     void reset(T* data, std::int64_t size, Deleter&& deleter) {
         // TODO: check input parameters
         data_owned_ptr_.reset(data, std::forward<Deleter>(deleter));
-        data_ = data_owned_ptr_.get();
-        size_ = size;
+        data_     = data_owned_ptr_.get();
+        size_     = size;
         capacity_ = size;
     }
 
@@ -146,10 +147,12 @@ public:
     void resize(std::int64_t size) {
         if (is_data_owner() == false) {
             throw std::runtime_error("cannot resize array with non-owning data");
-        } else if (size <= 0) {
+        }
+        else if (size <= 0) {
             reset_not_owning();
-        } else if (get_capacity() < size) {
-            T* new_data = new T[size];
+        }
+        else if (get_capacity() < size) {
+            T* new_data           = new T[size];
             std::int64_t min_size = std::min(size, get_size());
 
             for (std::int64_t i = 0; i < min_size; i++) {
@@ -158,21 +161,22 @@ public:
 
             try {
                 reset(new_data, size, default_delete{});
-            } catch (const std::exception&) {
+            }
+            catch (const std::exception&) {
                 delete[] new_data;
                 throw;
             }
-
-        } else {
+        }
+        else {
             size_ = size;
         }
     }
 
-    const T& operator [](std::int64_t index) const {
+    const T& operator[](std::int64_t index) const {
         return get_data()[index];
     }
 
-    T& operator [](std::int64_t index) {
+    T& operator[](std::int64_t index) {
         return get_mutable_data()[index];
     }
 

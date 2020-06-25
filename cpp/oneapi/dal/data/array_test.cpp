@@ -14,8 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "gtest/gtest.h"
 #include "oneapi/dal/data/array.hpp"
+#include "gtest/gtest.h"
 
 using namespace oneapi::dal;
 using std::int32_t;
@@ -57,12 +57,14 @@ TEST(array_test, can_construct_array_of_ones) {
 
 TEST(array_test, can_construct_array_from_raw_pointer) {
     constexpr int64_t size = 10;
-    auto ptr = new float[size];
+    auto ptr               = new float[size];
     for (int64_t i = 0; i < size; i++) {
         ptr[i] = float(i);
     }
 
-    array arr(ptr, size, [](auto ptr){ delete[] ptr; });
+    array arr(ptr, size, [](auto ptr) {
+        delete[] ptr;
+    });
 
     ASSERT_EQ(arr.get_size(), size);
     ASSERT_EQ(arr.get_capacity(), size);
@@ -124,8 +126,10 @@ TEST(array_test, can_reset_array_with_raw_pointer) {
     array<float> arr(5);
 
     constexpr int64_t size = 10;
-    auto ptr = new float[size];
-    arr.reset(ptr, size, [](auto ptr){ delete[] ptr; });
+    auto ptr               = new float[size];
+    arr.reset(ptr, size, [](auto ptr) {
+        delete[] ptr;
+    });
 
     ASSERT_EQ(arr.get_size(), size);
     ASSERT_EQ(arr.get_capacity(), size);
@@ -139,7 +143,7 @@ TEST(array_test, can_reset_array_with_non_owning_raw_pointer) {
     array<float> arr(5);
 
     constexpr int64_t size = 10;
-    const float* ptr = new float[size];
+    const float* ptr       = new float[size];
     arr.reset_not_owning(ptr, size);
 
     ASSERT_EQ(arr.get_size(), size);

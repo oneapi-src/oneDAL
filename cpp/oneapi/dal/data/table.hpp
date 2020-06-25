@@ -32,14 +32,13 @@ public:
     table(const table&) = default;
     table(table&&);
 
-    template <typename Impl,
-              typename = std::enable_if_t<is_table_impl_v<std::decay_t<Impl>>>>
+    template <typename Impl, typename = std::enable_if_t<is_table_impl_v<std::decay_t<Impl>>>>
     table(Impl&& impl) {
         init_impl(new detail::table_impl_wrapper(std::forward<Impl>(impl)));
     }
 
     table& operator=(const table&) = default;
-    table& operator=(table&&);
+    table& operator                =(table&&);
 
     bool has_data() const noexcept;
     std::int64_t get_column_count() const;
@@ -47,8 +46,7 @@ public:
     const table_metadata& get_metadata() const;
 
 protected:
-    table(const pimpl& impl)
-        : impl_(impl) {}
+    table(const pimpl& impl) : impl_(impl) {}
 
     void init_impl(pimpl::element_type* impl);
 
@@ -71,9 +69,10 @@ public:
     }
 
     template <typename DataType>
-    homogen_table(
-        std::int64_t row_count, std::int64_t column_count,
-        const DataType* data_pointer, data_layout layout = data_layout::row_major);
+    homogen_table(std::int64_t row_count,
+                  std::int64_t column_count,
+                  const DataType* data_pointer,
+                  data_layout layout = data_layout::row_major);
 
     template <typename DataType>
     const DataType* get_data() const {
@@ -84,8 +83,7 @@ public:
     }
 
 private:
-    homogen_table(const pimpl& impl)
-        : table(impl) {}
+    homogen_table(const pimpl& impl) : table(impl) {}
 };
 
 } // namespace oneapi::dal

@@ -16,15 +16,15 @@
 
 #pragma once
 
-#include "oneapi/dal/data/table_metadata.hpp"
 #include "oneapi/dal/data/detail/storage_iface.hpp"
+#include "oneapi/dal/data/table_metadata.hpp"
 
 namespace oneapi::dal::detail {
 
 class table_impl_iface : public dense_storage_iface<storage_readable_writable> {
 public:
-    virtual std::int64_t get_column_count() const = 0;
-    virtual std::int64_t get_row_count() const = 0;
+    virtual std::int64_t get_column_count() const      = 0;
+    virtual std::int64_t get_row_count() const         = 0;
     virtual const table_metadata& get_metadata() const = 0;
 };
 

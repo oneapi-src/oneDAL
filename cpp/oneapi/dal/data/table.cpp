@@ -14,20 +14,18 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "oneapi/dal/data/table.hpp"
 #include "oneapi/dal/data/backend/empty_table_impl.hpp"
 #include "oneapi/dal/data/backend/homogen_table_impl.hpp"
-#include "oneapi/dal/data/table.hpp"
 
 using std::int64_t;
 
 namespace oneapi::dal {
 
-table::table()
-    : table(backend::empty_table_impl{}) {}
+table::table() : table(backend::empty_table_impl{}) {}
 
-table::table(table&& t)
-    : impl_(std::move(t.impl_)) {
-    using wrapper = detail::table_impl_wrapper<backend::empty_table_impl>;
+table::table(table&& t) : impl_(std::move(t.impl_)) {
+    using wrapper     = detail::table_impl_wrapper<backend::empty_table_impl>;
     using wrapper_ptr = detail::shared<wrapper>;
 
     t.impl_ = wrapper_ptr(new wrapper(backend::empty_table_impl{}));
@@ -55,18 +53,28 @@ const table_metadata& table::get_metadata() const {
 }
 
 void table::init_impl(detail::table_impl_iface* impl) {
-    impl_ = pimpl { impl };
+    impl_ = pimpl{ impl };
 }
 
 template <typename DataType>
-homogen_table::homogen_table(
-        int64_t row_count, int64_t column_count,
-        const DataType* data_pointer,
-        data_layout layout)
-    : homogen_table(backend::homogen_table_impl(row_count, column_count, data_pointer, layout)) {}
+homogen_table::homogen_table(int64_t row_count,
+                             int64_t column_count,
+                             const DataType* data_pointer,
+                             data_layout layout)
+        : homogen_table(
+              backend::homogen_table_impl(row_count, column_count, data_pointer, layout)) {}
 
-template ONEAPI_DAL_EXPORT homogen_table::homogen_table(int64_t, int64_t, const float*, data_layout);
-template ONEAPI_DAL_EXPORT homogen_table::homogen_table(int64_t, int64_t, const double*, data_layout);
-template ONEAPI_DAL_EXPORT homogen_table::homogen_table(int64_t, int64_t, const std::int32_t*, data_layout);
+template ONEAPI_DAL_EXPORT homogen_table::homogen_table(int64_t,
+                                                        int64_t,
+                                                        const float*,
+                                                        data_layout);
+template ONEAPI_DAL_EXPORT homogen_table::homogen_table(int64_t,
+                                                        int64_t,
+                                                        const double*,
+                                                        data_layout);
+template ONEAPI_DAL_EXPORT homogen_table::homogen_table(int64_t,
+                                                        int64_t,
+                                                        const std::int32_t*,
+                                                        data_layout);
 
 } // namespace oneapi::dal

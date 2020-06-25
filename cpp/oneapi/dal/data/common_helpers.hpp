@@ -51,7 +51,7 @@ constexpr std::int64_t get_data_type_size(data_type t) {
 }
 
 template <data_type t>
-struct integral_data_type { };
+struct integral_data_type {};
 
 template <>
 struct integral_data_type<data_type::float32> {

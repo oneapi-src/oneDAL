@@ -25,11 +25,11 @@ class data_parallel_execution_context;
 } // namespace detail
 
 class ONEAPI_DAL_EXPORT data_parallel_execution_context : public base {
-  public:
-    using tag_t = detail::execution_context_tag;
+public:
+    using tag_t                       = detail::execution_context_tag;
     data_parallel_execution_context() = default;
 
-  private:
+private:
     dal::detail::pimpl<detail::data_parallel_execution_context> impl_;
 };
 
