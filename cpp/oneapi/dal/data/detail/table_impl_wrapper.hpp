@@ -87,6 +87,10 @@ public:
         impl_.push_back_column(block, idx, r);
     }
 
+    virtual std::int64_t get_kind() const override {
+        return impl_.get_kind();
+    }
+
     TableImpl& get() {
         return impl_;
     }
@@ -100,8 +104,9 @@ template <typename Impl>
 class homogen_table_impl_wrapper : public homogen_table_impl_iface,
                                    public base {
 public:
-    homogen_table_impl_wrapper(Impl&& obj)
-        : impl_(std::move(obj)) { }
+    homogen_table_impl_wrapper(Impl&& obj, std::int64_t homogen_table_kind)
+        : kind_(homogen_table_kind),
+          impl_(std::move(obj)) { }
 
     virtual std::int64_t get_column_count() const override {
         return impl_.get_column_count();
@@ -111,7 +116,7 @@ public:
         return impl_.get_row_count();
     }
 
-    virtual const table_metadata& get_metadata() const override {
+    virtual const homogen_table_metadata& get_metadata() const override {
         return impl_.get_metadata();
     }
 
@@ -167,11 +172,16 @@ public:
         return impl_.get_data();
     }
 
+    virtual std::int64_t get_kind() const override {
+        return kind_;
+    }
+
     Impl& get() {
         return impl_;
     }
 
 private:
+    const std::int64_t kind_;
     Impl impl_;
 };
 
