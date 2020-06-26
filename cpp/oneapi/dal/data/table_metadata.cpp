@@ -51,7 +51,7 @@ public:
 
 class simple_metadata_impl : public table_metadata_impl {
 public:
-    simple_metadata_impl(array<table_feature> features)
+    simple_metadata_impl(const array<table_feature>& features)
         : features_(features) {}
 
     int64_t get_feature_count() const override {
@@ -137,7 +137,7 @@ table_metadata::table_metadata()
 table_metadata::table_metadata(const table_feature& feature,
                                int64_t feature_count)
     : impl_(new detail::simple_metadata_impl {
-        array<table_feature>(feature_count, feature)
+        array<table_feature>::full(feature_count, feature)
     }) {}
 
 table_metadata::table_metadata(array<table_feature> features)
