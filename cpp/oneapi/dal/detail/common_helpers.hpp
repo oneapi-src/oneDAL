@@ -21,6 +21,9 @@
 
 namespace oneapi::dal::detail {
 
+template <typename T, typename... Args>
+struct is_one_of : public std::disjunction<std::is_same<T, Args>...> {};
+
 template <typename T>
 constexpr auto make_data_type_impl() {
     if constexpr (std::is_same_v<std::int32_t, T>) {
@@ -41,7 +44,12 @@ constexpr auto make_data_type_impl() {
     else if constexpr (std::is_same_v<double, T>) {
         return data_type::float64;
     }
-    throw std::invalid_argument{ "T" };
+
+    static_assert(is_one_of<T,
+                            std::int32_t, std::int64_t, std::uint32_t,
+                            std::uint64_t, float, double>::value,
+                  "unsupported data type");
+    return data_type::float32; // shall never come here
 }
 
 } // namespace oneapi::dal::detail
