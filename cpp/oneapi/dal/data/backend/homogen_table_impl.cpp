@@ -28,18 +28,19 @@ void homogen_table_impl::pull_rows(array<T>& block, const range& rows) const {
     // TODO: check range correctness
     // TODO: check array size if non-zero
 
-    const int64_t N = get_row_count();
-    const int64_t p = get_column_count();
-    const int64_t block_size = rows.get_element_count(N)*p;
+    const int64_t row_count = get_row_count();
+    const int64_t column_count = get_column_count();
+    const int64_t block_size = rows.get_element_count(row_count)*column_count;
     const data_type block_dtype = make_data_type<T>();
 
-    if (meta_.layout != data_layout::row_major) {
+    if (meta_.get_data_layout() != homogen_data_layout::row_major) {
         throw std::runtime_error("unsupported data layout");
     }
 
-    if (block_dtype == finfo_.dtype) {
+    const auto feature_type = meta_.get_feature(0).get_data_type();
+    if (block_dtype == feature_type) {
         auto row_data = reinterpret_cast<const T*>(data_.get_data());
-        auto row_start_pointer = row_data + rows.start_idx * p;
+        auto row_start_pointer = row_data + rows.start_idx * column_count;
         block.reset_not_owning(row_start_pointer, block_size);
     } else {
         if (!block.is_data_owner() || block.get_capacity() < block_size) {
@@ -48,10 +49,10 @@ void homogen_table_impl::pull_rows(array<T>& block, const range& rows) const {
             block.resize(block_size);
         }
 
-        auto type_size = get_data_type_size(finfo_.dtype);
-        auto row_start_pointer = data_.get_data() + rows.start_idx * p * type_size;
+        auto type_size = get_data_type_size(feature_type);
+        auto row_start_pointer = data_.get_data() + rows.start_idx * column_count * type_size;
         backend::convert_vector(row_start_pointer, block.get_mutable_data(),
-                                finfo_.dtype, block_dtype, block_size);
+                                feature_type, block_dtype, block_size);
     }
 }
 
@@ -60,19 +61,20 @@ void homogen_table_impl::push_back_rows(const array<T>& block, const range& rows
     // TODO: check range correctness
     // TODO: check array size if non-zero
 
-    const int64_t N = get_row_count();
-    const int64_t p = get_column_count();
-    const int64_t block_size = rows.get_element_count(N)*p;
+    const int64_t row_count = get_row_count();
+    const int64_t column_count = get_column_count();
+    const int64_t block_size = rows.get_element_count(row_count)*column_count;
     const data_type block_dtype = make_data_type<T>();
 
-    if (meta_.layout != data_layout::row_major) {
+    if (meta_.get_data_layout() != homogen_data_layout::row_major) {
         throw std::runtime_error("unsupported data layout");
     }
 
     data_.unique();
-    if (block_dtype == finfo_.dtype) {
+    const auto feature_type = meta_.get_feature(0).get_data_type();
+    if (block_dtype == feature_type) {
         auto row_data = reinterpret_cast<T*>(data_.get_mutable_data());
-        auto row_start_pointer = row_data + rows.start_idx * p;
+        auto row_start_pointer = row_data + rows.start_idx * column_count;
 
         if (row_start_pointer == block.get_data()) {
             return;
@@ -80,11 +82,11 @@ void homogen_table_impl::push_back_rows(const array<T>& block, const range& rows
             std::memcpy(row_start_pointer, block.get_data(), block_size * sizeof(T));
         }
     } else {
-        auto type_size = get_data_type_size(finfo_.dtype);
-        auto row_start_pointer = data_.get_mutable_data() + rows.start_idx * p * type_size;
+        const auto type_size = get_data_type_size(feature_type);
+        auto row_start_pointer = data_.get_mutable_data() + rows.start_idx * column_count * type_size;
 
         backend::convert_vector(block.get_data(), row_start_pointer,
-                                block_dtype, finfo_.dtype, block_size);
+                                block_dtype, feature_type, block_size);
     }
 }
 
@@ -92,20 +94,21 @@ template <typename T>
 void homogen_table_impl::pull_column(array<T>& block, int64_t idx, const range& rows) const {
     // TODO: check inputs
 
-    const int64_t N = get_row_count();
-    const int64_t p = get_column_count();
-    const int64_t block_size = rows.get_element_count(N);
+    const int64_t row_count = get_row_count();
+    const int64_t column_count = get_column_count();
+    const int64_t block_size = rows.get_element_count(row_count);
     const data_type block_dtype = make_data_type<T>();
 
-    if (meta_.layout != data_layout::row_major) {
+    if (meta_.get_data_layout() != homogen_data_layout::row_major) {
         throw std::runtime_error("unsupported data layout");
     }
 
-    if (block_dtype == finfo_.dtype && p == 1) {
+    const auto feature_type = meta_.get_feature(0).get_data_type();
+    if (block_dtype == feature_type && column_count == 1) {
         // TODO: assert idx == 0
 
         auto col_data = reinterpret_cast<const T*>(data_.get_data());
-        block.reset_not_owning(col_data + rows.start_idx * p, block_size);
+        block.reset_not_owning(col_data + rows.start_idx * column_count, block_size);
     } else {
         if (!block.is_data_owner() || block.get_capacity() < block_size) {
             block.reset(block_size);
@@ -113,10 +116,10 @@ void homogen_table_impl::pull_column(array<T>& block, int64_t idx, const range& 
             block.resize(block_size);
         }
 
-        auto src_ptr = data_.get_data() + get_data_type_size(finfo_.dtype) * (idx + rows.start_idx * p);
+        auto src_ptr = data_.get_data() + get_data_type_size(feature_type) * (idx + rows.start_idx * column_count);
         backend::convert_vector(src_ptr, block.get_mutable_data(),
-                                finfo_.dtype, block_dtype,
-                                get_data_type_size(finfo_.dtype)*p, sizeof(T),
+                                feature_type, block_dtype,
+                                get_data_type_size(feature_type)*column_count, sizeof(T),
                                 block_size);
     }
 }
@@ -125,28 +128,29 @@ template <typename T>
 void homogen_table_impl::push_back_column(const array<T>& block, int64_t idx, const range& rows) {
     // TODO: check inputs
 
-    const int64_t N = get_row_count();
-    const int64_t p = get_column_count();
-    const int64_t block_size = rows.get_element_count(N);
+    const int64_t row_count = get_row_count();
+    const int64_t column_count = get_column_count();
+    const int64_t block_size = rows.get_element_count(row_count);
     const data_type block_dtype = make_data_type<T>();
 
-    const int64_t row_offset = get_data_type_size(finfo_.dtype) * (idx + rows.start_idx * p);
+    auto feature_type = meta_.get_feature(0).get_data_type();
+    const int64_t row_offset = get_data_type_size(feature_type) * (idx + rows.start_idx * column_count);
 
-    if (block_dtype == finfo_.dtype && p == 1) {
+    if (block_dtype == feature_type && column_count == 1) {
         if (reinterpret_cast<const void*>(data_.get_data() + row_offset) !=
             reinterpret_cast<const void*>(block.get_data())) {
 
             data_.unique();
             auto dst_ptr = data_.get_mutable_data() + row_offset;
             backend::convert_vector(block.get_data(), dst_ptr,
-                                    block_dtype, finfo_.dtype, block_size);
+                                    block_dtype, feature_type, block_size);
         }
     } else {
         data_.unique();
         auto dst_ptr = data_.get_mutable_data() + row_offset;
         backend::convert_vector(block.get_data(), dst_ptr,
-                                block_dtype, finfo_.dtype,
-                                sizeof(T), get_data_type_size(finfo_.dtype)*p,
+                                block_dtype, feature_type,
+                                sizeof(T), get_data_type_size(feature_type)*column_count,
                                 block_size);
     }
 }
