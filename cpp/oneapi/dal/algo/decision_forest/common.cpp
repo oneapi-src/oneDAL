@@ -127,6 +127,9 @@ void descriptor_base::set_min_impurity_decrease_in_split_node_impl(const double 
     impl_->min_impurity_decrease_in_split_node = value;
 }    
 
+void descriptor_base::set_n_classes_impl(const std::int64_t value) {
+    impl_->n_classes = value;
+}    
 void descriptor_base::set_n_trees_impl(const std::int64_t value) {
     impl_->n_trees = value;
 }    

@@ -22,6 +22,7 @@
 #include <iostream>
 
 using namespace oneapi;
+namespace df  = oneapi::dal::decision_forest;
 
 std::ostream &operator<<(std::ostream &stream, const dal::table &table) {
   auto arr = dal::row_accessor<const float>(table).pull();
@@ -69,20 +70,20 @@ int main(int argc, char const *argv[]) {
       dal::homogen_table{row_count_train, 1, y_train};
 
   const auto decision_forest_train_desc =
-      dal::decision_forest::descriptor<float, dal::decision_forest::task::classification,
-                           dal::decision_forest::method::default_dense>{}
+      df::descriptor<float, df::task::classification,
+                            df::method::default_dense>{}
           .set_n_classes(n_classes)
           .set_n_trees(n_trees)
           .set_features_per_node(n_features_per_node)
           .set_min_observations_in_leaf_node(min_observations_in_leaf_node)
-          .set_variable_importance_mode(decision_forest::variable_importance_mode::mdi)
-          .set_results_to_compute(decision_forest::result_to_compute_id::compute_out_of_bag_error)
+          .set_variable_importance_mode(df::variable_importance_mode::mdi)
+          .set_results_to_compute((std::uint64_t)df::result_to_compute_id::compute_out_of_bag_error);
 
   const auto result_train = dal::train(decision_forest_train_desc, x_train_table, y_train_table);
 
-  std::cout << "Variable importance results: " << std::endl << result_train.get_variable_importance() << std::endl;
+  std::cout << "Variable importance results: " << std::endl << result_train.get_var_importance() << std::endl;
 
-  std::cout << "OOB error: " << result_train.get_out_of_bag_error() << std::endl;
+  std::cout << "OOB error: " << result_train.get_oob_err() << std::endl;
 
   /* infer part in progress */
 
