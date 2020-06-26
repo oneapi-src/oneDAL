@@ -26,12 +26,12 @@ public:
     virtual std::int64_t get_column_count() const      = 0;
     virtual std::int64_t get_row_count() const         = 0;
     virtual const table_metadata& get_metadata() const = 0;
-    virtual std::int64_t get_kind() const = 0;
+    virtual std::int64_t get_kind() const              = 0;
 };
 
 class homogen_table_impl_iface : public table_impl_iface {
 public:
-    virtual const void* get_data() const = 0;
+    virtual const void* get_data() const                       = 0;
     virtual const homogen_table_metadata& get_metadata() const = 0;
 };
 

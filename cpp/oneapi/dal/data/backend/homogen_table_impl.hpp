@@ -23,26 +23,27 @@ namespace oneapi::dal::backend {
 
 class homogen_table_impl {
 public:
-    homogen_table_impl()
-        : row_count_(0)
-    {}
+    homogen_table_impl() : row_count_(0) {}
 
     template <typename DataType>
-    homogen_table_impl(std::int64_t N, std::int64_t p, const DataType* data_pointer, homogen_data_layout layout)
-        : meta_(homogen_table_metadata{ make_data_type<DataType>(), layout, p }),
-          row_count_(N) {
+    homogen_table_impl(std::int64_t N,
+                       std::int64_t p,
+                       const DataType* data_pointer,
+                       homogen_data_layout layout)
+            : meta_(homogen_table_metadata{ make_data_type<DataType>(), layout, p }),
+              row_count_(N) {
         data_.reset_not_owning(reinterpret_cast<const byte_t*>(data_pointer),
                                N * p * sizeof(DataType));
     }
 
     template <typename DataType, typename = std::enable_if_t<!std::is_pointer_v<DataType>>>
     homogen_table_impl(std::int64_t N, std::int64_t p, DataType value, homogen_data_layout layout)
-        : homogen_table_impl(N, p, fill_data(new DataType[N*p], N*p, value), layout) {}
+            : homogen_table_impl(N, p, fill_data(new DataType[N * p], N * p, value), layout) {}
 
     template <typename DataType>
     homogen_table_impl(std::int64_t p, const array<DataType>& data, homogen_data_layout layout)
-        : meta_(homogen_table_metadata{ make_data_type<DataType>(), layout,  p}),
-          row_count_(data.get_size() / p) {
+            : meta_(homogen_table_metadata{ make_data_type<DataType>(), layout, p }),
+              row_count_(data.get_size() / p) {
         const std::int64_t N = row_count_;
 
         if (N * p != data.get_size()) {

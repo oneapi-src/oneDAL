@@ -76,9 +76,9 @@ public:
                           homogen_data_layout layout = homogen_data_layout::row_major);
 
     template <typename DataType>
-    homogen_table_builder(std::int64_t column_count, const array<DataType>& data,
+    homogen_table_builder(std::int64_t column_count,
+                          const array<DataType>& data,
                           homogen_data_layout layout = homogen_data_layout::row_major);
-
 
     homogen_table_builder(homogen_table&&);
 

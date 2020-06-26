@@ -112,8 +112,8 @@ template <typename Impl>
 class homogen_table_impl_wrapper : public homogen_table_impl_iface, public base {
 public:
     homogen_table_impl_wrapper(Impl&& obj, std::int64_t homogen_table_kind)
-        : kind_(homogen_table_kind),
-          impl_(std::move(obj)) { }
+            : kind_(homogen_table_kind),
+              impl_(std::move(obj)) {}
 
     virtual std::int64_t get_column_count() const override {
         return impl_.get_column_count();

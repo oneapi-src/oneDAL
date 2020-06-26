@@ -142,11 +142,8 @@ TEST(homogen_table_test, can_construct_rowmajor_table_3x2) {
 }
 
 TEST(homogen_table_test, can_construct_colmajor_float64_table) {
-    double data[] = {
-        1., 2., 3.,
-        4., 5., 6.
-    };
-    homogen_table t { 2, 3, data, homogen_data_layout::column_major };
+    double data[] = { 1., 2., 3., 4., 5., 6. };
+    homogen_table t{ 2, 3, data, homogen_data_layout::column_major };
 
     ASSERT_TRUE(t.has_data());
     ASSERT_EQ(2, t.get_row_count());

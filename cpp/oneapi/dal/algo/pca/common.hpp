@@ -35,8 +35,8 @@ using by_default = cov;
 
 class ONEAPI_DAL_EXPORT descriptor_base : public base {
 public:
-    using tag_t = detail::tag;
-    using float_t = float;
+    using tag_t    = detail::tag;
+    using float_t  = float;
     using method_t = method::by_default;
 
     descriptor_base();
@@ -70,6 +70,7 @@ public:
 
 class ONEAPI_DAL_EXPORT model : public base {
     friend dal::detail::pimpl_accessor;
+
 public:
     model();
 
