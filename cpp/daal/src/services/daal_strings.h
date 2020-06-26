@@ -77,6 +77,7 @@
     DECLARE_DAAL_STRING_CONST(minObservationsInSplitNode)        \
     DECLARE_DAAL_STRING_CONST(minWeightFractionInLeafNode)       \
     DECLARE_DAAL_STRING_CONST(minImpurityDecreaseInSplitNode)    \
+    DECLARE_DAAL_STRING_CONST(maxLeafNodes)                      \
     DECLARE_DAAL_STRING_CONST(sum)                               \
     DECLARE_DAAL_STRING_CONST(penaltyL1)                         \
     DECLARE_DAAL_STRING_CONST(penaltyL2)                         \
