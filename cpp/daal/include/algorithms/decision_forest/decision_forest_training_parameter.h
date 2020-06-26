@@ -174,8 +174,8 @@ public:
     double minWeightFractionInLeafNode;    /*!< The minimum weighted fraction of the sum total of weights (of all the input observations)
                                                   required to be at a leaf node, 0.0 to 0.5. Default is 0.0 */
     double minImpurityDecreaseInSplitNode; /*!< A node will be split if this split induces a decrease of the impurity
-                                                  greater than or equal to the value. Default is 0.0 */
-    size_t maxLeafNodes;                   /*!< Maximum number of leaf nodes. Default is 0 (unlimited) */
+                                                  greater than or equal to the value, non-negative. Default is 0.0 */
+    size_t maxLeafNodes;                   /*!< Maximum number of leaf node, 0 or more than 1. Default is 0 (unlimited) */
 };
 /* [Parameter source code] */
 } // namespace interface2

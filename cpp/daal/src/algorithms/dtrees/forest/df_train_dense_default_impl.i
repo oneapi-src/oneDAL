@@ -45,6 +45,112 @@ namespace training
 namespace internal
 {
 //////////////////////////////////////////////////////////////////////////////////////////
+// Service class, it uses to keep information about nodes
+//////////////////////////////////////////////////////////////////////////////////////////
+template <typename WorkItem>
+class WorkQueue
+{
+public:
+    WorkQueue(services::Status & s)
+        : _capacity(1024),
+          _capacityMinus1(_capacity - 1),
+          _first(0),
+          _last(_capacityMinus1),
+          _size(0),
+          _data(new WorkItem[_capacity]) { DAAL_CHECK_COND_ERROR(_data, s, services::ErrorMemoryAllocationFailed) }
+
+          WorkQueue(const WorkQueue &) = delete;
+
+    ~WorkQueue()
+    {
+        delete[] _data;
+        _data = nullptr;
+    }
+
+    size_t size() const { return _size; }
+
+    bool empty() const { return (_size == 0); }
+
+    WorkItem & front()
+    {
+        DAAL_ASSERT(!empty());
+
+        return _data[_first];
+    }
+
+    void pop()
+    {
+        DAAL_ASSERT(!empty());
+
+        ++_first;
+        _first *= (_first != _capacity);
+        --_size;
+    }
+
+    services::Status push(const WorkItem & value)
+    {
+        if (_size == _capacity)
+        {
+            services::Status status = grow();
+            DAAL_CHECK_STATUS_VAR(status)
+        }
+        DAAL_ASSERT(_size < _capacity);
+        DAAL_ASSERT(((_capacityMinus1 + 1) & _capacityMinus1) == 0);
+
+        if (_size && _data[_last].improvement > value.improvement)
+            sort(value);
+        else
+            _data[_last = (_last + 1) & _capacityMinus1] = value;
+        ++_size;
+        return services::Status();
+    }
+
+private:
+    services::Status grow()
+    {
+        const size_t newCapacity = _capacity * 2;
+        DAAL_ASSERT(_size < newCapacity);
+        WorkItem * const newData = new WorkItem[newCapacity];
+        DAAL_CHECK_MALLOC(newData)
+        size_t srcIdx = _first;
+        for (size_t i = 0; i < _size; ++i)
+        {
+            newData[i].moveFrom(_data[srcIdx]);
+            ++srcIdx;
+            srcIdx *= (srcIdx != _capacity);
+        }
+        delete[] _data;
+        _data           = newData;
+        _capacity       = newCapacity;
+        _capacityMinus1 = _capacity - 1;
+        _first          = 0;
+        _last           = _size != 0 ? _size - 1 : _capacityMinus1;
+        return services::Status();
+    }
+
+    void sort(const WorkItem & value)
+    {
+        size_t tail = _last;
+        size_t head = _first ? _first - 1 : _capacityMinus1;
+        while (tail != head)
+        {
+            if (_data[tail].improvement < value.improvement) break;
+            _data[(tail + 1) & _capacityMinus1].moveFrom(_data[tail]);
+            tail = tail ? tail - 1 : _capacityMinus1;
+        }
+        _data[(tail + 1) & _capacityMinus1] = value;
+        _last                               = (_last + 1) & _capacityMinus1;
+    }
+
+    size_t _capacity;
+    size_t _capacityMinus1;
+    size_t _first;
+    size_t _last;
+    size_t _size;
+    WorkItem * _data;
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////
 // Service structure, contains numeric tables to be calculated as result
 //////////////////////////////////////////////////////////////////////////////////////////
 struct ResultData
@@ -371,7 +477,8 @@ protected:
           _accuracy(daal::services::internal::EpsilonVal<algorithmFPType>::get()),
           _minSamplesSplit(2),
           _minWeightLeaf(0.),
-          _minImpurityDecrease(0. - daal::services::internal::EpsilonVal<algorithmFPType>::get() * x->getNumberOfRows())
+          _minImpurityDecrease(-daal::services::internal::EpsilonVal<algorithmFPType>::get() * x->getNumberOfRows()),
+          _remainingSplitNodes(2)
     {
         if (_impurityThreshold < _accuracy) _impurityThreshold = _accuracy;
 
@@ -384,12 +491,16 @@ protected:
             _minWeightLeaf       = par.minWeightFractionInLeafNode * x->getNumberOfRows(); // no sample_weight
             _minImpurityDecrease = par.minImpurityDecreaseInSplitNode * x->getNumberOfRows()
                                    - daal::services::internal::EpsilonVal<algorithmFPType>::get() * x->getNumberOfRows();
+            _remainingSplitNodes = 2;
         }
     }
 
     size_t nFeatures() const { return _data->getNumberOfColumns(); }
     typename DataHelper::NodeType::Base * build(services::Status & s, size_t iStart, size_t n, size_t level,
                                                 typename DataHelper::ImpurityData & curImpurity, bool & bUnorderedFeaturesUsed, size_t nClasses);
+    typename DataHelper::NodeType::Base * buildBF(services::Status & s, size_t iStart, size_t n, size_t level,
+                                                  typename DataHelper::ImpurityData & curImpurity, bool & bUnorderedFeaturesUsed, size_t nClasses);
+
     algorithmFPType * featureBuf(size_t iBuf) const
     {
         DAAL_ASSERT(iBuf < _nFeatureBufs);
@@ -494,6 +605,7 @@ protected:
     size_t _minSamplesSplit;
     double _minWeightLeaf;
     double _minImpurityDecrease;
+    size_t _remainingSplitNodes;
 };
 
 template <typename algorithmFPType, typename DataHelper, CpuType cpu>
@@ -551,7 +663,7 @@ services::Status TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::run(engin
     _helper.calcImpurity(_aSample.get(), _nSamples, initialImpurity);
     bool bUnorderedFeaturesUsed = false;
     services::Status s;
-    typename DataHelper::NodeType::Base * nd = build(s, 0, _nSamples, 0, initialImpurity, bUnorderedFeaturesUsed, _nClasses);
+    typename DataHelper::NodeType::Base * nd = buildBF(s, 0, _nSamples, 0, initialImpurity, bUnorderedFeaturesUsed, _nClasses);
     if (nd)
     {
         //to prevent memory leak in case of general allocator
@@ -590,6 +702,7 @@ typename DataHelper::NodeType::Leaf * TrainBatchTaskBase<algorithmFPType, DataHe
     return pNode;
 }
 
+// Deep-first
 template <typename algorithmFPType, typename DataHelper, CpuType cpu>
 typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::build(services::Status & s, size_t iStart, size_t n,
                                                                                                   size_t level,
@@ -631,6 +744,177 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, DataHe
         return res;
     }
     return makeLeaf(_aSample.get() + iStart, n, curImpurity, nClasses);
+}
+
+// Best-first
+template <typename algorithmFPType, typename DataHelper, CpuType cpu>
+typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::buildBF(services::Status & s, size_t iStart, size_t n,
+                                                                                                    size_t level,
+                                                                                                    typename DataHelper::ImpurityData & curImpurity,
+                                                                                                    bool & bUnorderedFeaturesUsed, size_t nClasses)
+{
+    struct WorkItem
+    {
+        bool featureUnordered;
+        size_t start;
+        size_t n;
+        size_t nLeft;
+        size_t level;
+        double improvement;
+        typename DataHelper::ImpurityData impurityLeft;
+        typename DataHelper::ImpurityData impurityRight;
+        typename DataHelper::NodeType::Split * node;
+
+        WorkItem() {}
+
+        WorkItem(bool featureUnordered, size_t start, size_t n, size_t level)
+            : featureUnordered(featureUnordered), start(start), n(n), nLeft(0), level(level), improvement(0.0), node(nullptr)
+        {}
+
+        void moveFrom(WorkItem & src)
+        {
+            DAAL_ASSERT(this != &src);
+
+            featureUnordered = src.featureUnordered;
+            start            = src.start;
+            n                = src.n;
+            nLeft            = src.nLeft;
+            level            = src.level;
+            improvement      = src.improvement;
+            impurityLeft     = src.impurityLeft;
+            impurityRight    = src.impurityRight;
+            node             = src.node;
+        }
+    };
+
+    if (_hostApp.isCancelled(s, n)) return nullptr;
+    WorkQueue<WorkItem> workQueue(s);
+    if (!s.ok()) return nullptr;
+    --_remainingSplitNodes; //_remainingSplitNodes = maxLeafNodes - 1
+
+    // Create base node
+    typename DataHelper::TSplitData split;
+    IndexType iFeature;
+    WorkItem base(bUnorderedFeaturesUsed, iStart, n, level);
+
+    if (terminateCriteria(n, level, curImpurity)) return makeLeaf(_aSample.get() + iStart, n, curImpurity, nClasses);
+    if (findBestSplit(iStart, n, curImpurity, iFeature, split))
+    {
+        const size_t nLeft   = split.nLeft;
+        const double imp     = curImpurity.var;
+        const double impLeft = split.left.var;
+
+        // check impurity decrease
+        double improvement = imp * n - impLeft * nLeft - (n - nLeft) * (imp - impLeft);
+        if (improvement < _minImpurityDecrease) return makeLeaf(_aSample.get() + iStart, n, curImpurity, nClasses);
+        if (_par.varImportance == training::MDI) addImpurityDecrease(iFeature, n, curImpurity, split);
+
+        base.nLeft        = split.nLeft;
+        base.improvement  = improvement;
+        base.impurityLeft = split.left;
+        _helper.convertLeftImpToRight(n, curImpurity, split);
+        base.impurityRight = split.left;
+        if (!(base.node = makeSplit(iFeature, split.featureValue, split.featureUnordered, nullptr, nullptr, curImpurity.var))) return nullptr;
+        base.featureUnordered |= bool(split.featureUnordered);
+        base.node->count = n;
+
+        s = workQueue.push(base);
+        if (!s.ok()) return nullptr;
+    }
+    else
+        return makeLeaf(_aSample.get() + iStart, n, curImpurity, nClasses);
+
+    while (!workQueue.empty())
+    {
+        WorkItem & src = workQueue.front();
+        workQueue.pop();
+        //_remainingSplitNodes = _remainingSplitNodes ? _remainingSplitNodes - 1 : 0;
+
+        // Create leftChild
+        typename DataHelper::TSplitData splitLeft;
+        IndexType iFeatureLeft;
+
+        if (!_remainingSplitNodes || terminateCriteria(src.nLeft, src.level + 1, src.impurityLeft))
+            src.node->kid[0] = makeLeaf(_aSample.get() + src.start, src.nLeft, src.impurityLeft, nClasses);
+        else if (findBestSplit(src.start, src.nLeft, src.impurityLeft, iFeatureLeft, splitLeft))
+        {
+            const size_t nLeft   = splitLeft.nLeft;
+            const double imp     = src.impurityLeft.var;
+            const double impLeft = splitLeft.left.var;
+
+            // check impurity decrease
+            double improvement = imp * src.nLeft - impLeft * nLeft - (src.nLeft - nLeft) * (imp - impLeft);
+            if (improvement < _minImpurityDecrease)
+                src.node->kid[0] = makeLeaf(_aSample.get() + src.start, src.nLeft, src.impurityLeft, nClasses);
+            else
+            {
+                if (_par.varImportance == training::MDI) addImpurityDecrease(iFeatureLeft, src.nLeft, src.impurityLeft, splitLeft);
+                WorkItem leftChild(src.featureUnordered, src.start, src.nLeft, src.level + 1);
+
+                leftChild.nLeft        = splitLeft.nLeft;
+                leftChild.improvement  = improvement;
+                leftChild.impurityLeft = splitLeft.left;
+                _helper.convertLeftImpToRight(src.nLeft, src.impurityLeft, splitLeft);
+                leftChild.impurityRight = splitLeft.left;
+
+                if (!(leftChild.node =
+                          makeSplit(iFeatureLeft, splitLeft.featureValue, splitLeft.featureUnordered, nullptr, nullptr, src.impurityLeft.var)))
+                    return nullptr;
+
+                src.node->kid[0] = leftChild.node;
+                leftChild.featureUnordered |= bool(splitLeft.featureUnordered);
+                leftChild.node->count = src.nLeft;
+
+                s = workQueue.push(leftChild);
+                if (!s.ok()) return nullptr;
+            }
+        }
+        else
+            src.node->kid[0] = makeLeaf(_aSample.get() + src.start, src.nLeft, src.impurityLeft, nClasses);
+
+        // Create rightChild
+        typename DataHelper::TSplitData splitRight;
+        IndexType iFeatureRight;
+
+        if (!_remainingSplitNodes || terminateCriteria(src.n - src.nLeft, src.level + 1, src.impurityRight))
+            src.node->kid[1] = makeLeaf(_aSample.get() + src.start + src.nLeft, src.n - src.nLeft, src.impurityRight, nClasses);
+        else if (findBestSplit(src.start + src.nLeft, src.n - src.nLeft, src.impurityRight, iFeatureRight, splitRight))
+        {
+            const size_t nLeft   = splitRight.nLeft;
+            const double imp     = src.impurityRight.var;
+            const double impLeft = splitRight.left.var;
+
+            // check impurity decrease
+            double improvement = imp * (src.n - src.nLeft) - impLeft * nLeft - (src.n - src.nLeft - nLeft) * (imp - impLeft);
+            if (improvement < _minImpurityDecrease)
+                src.node->kid[1] = makeLeaf(_aSample.get() + src.start + src.nLeft, src.n - src.nLeft, src.impurityRight, nClasses);
+            else
+            {
+                if (_par.varImportance == training::MDI) addImpurityDecrease(iFeatureRight, src.n - src.nLeft, src.impurityRight, splitRight);
+                WorkItem rightChild(src.featureUnordered, src.start + src.nLeft, src.n - src.nLeft, src.level + 1);
+
+                rightChild.nLeft        = splitRight.nLeft;
+                rightChild.improvement  = improvement;
+                rightChild.impurityLeft = splitRight.left;
+                _helper.convertLeftImpToRight(src.n - src.nLeft, src.impurityRight, splitRight);
+                rightChild.impurityRight = splitRight.left;
+
+                if (!(rightChild.node =
+                          makeSplit(iFeatureRight, splitRight.featureValue, splitRight.featureUnordered, nullptr, nullptr, src.impurityRight.var)))
+                    return nullptr;
+
+                src.node->kid[1] = rightChild.node;
+                rightChild.featureUnordered |= bool(splitRight.featureUnordered);
+                rightChild.node->count = src.n - src.nLeft;
+
+                s = workQueue.push(rightChild);
+                if (!s.ok()) return nullptr;
+            }
+        }
+        else
+            src.node->kid[1] = makeLeaf(_aSample.get() + src.start + src.nLeft, src.n - src.nLeft, src.impurityRight, nClasses);
+    }
+    return base.node;
 }
 
 template <typename algorithmFPType, typename DataHelper, CpuType cpu>
