@@ -14,11 +14,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/svm.hpp"
 #include "oneapi/dal/data/accessor.hpp"
 #include "oneapi/dal/data/table.hpp"
+#include "oneapi/dal/algo/svm.hpp"
 
 #include "example_util/utils.hpp"
+
+using namespace oneapi;
 
 int main(int argc, char const *argv[]) {
 
