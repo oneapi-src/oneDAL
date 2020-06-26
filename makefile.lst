@@ -225,11 +225,12 @@ CORE.SERVICES       := compression            \
 
 # Dependencies between oneAPI and core (CPU-only) algorithms
 ONEAPI.ALGOS.pca := CORE.pca
+ONEAPI.ALGOS.decision_forest := CORE.decision_forest
 
 # List of algorithms in oneAPI part
 ONEAPI.ALGOS := \
-    pca
-
+    pca \
+    decision_forest
 
 JJ.ALGORITHMS       := adaboost                                                  \
                        adaboost/prediction                                       \
