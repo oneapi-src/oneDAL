@@ -67,4 +67,6 @@ void descriptor_base::set_data_use_in_model_impl(bool value) {
 
 model::model() : impl_(new model_impl{}) {}
 
-} // namespace oneapi::dal::pca
+model::model(model_impl * impl) : impl_(impl) {}
+
+} // namespace oneapi::dal::knn

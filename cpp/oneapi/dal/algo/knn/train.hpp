@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/train.hpp"
+#include "oneapi/dal/algo/knn/common.hpp"
 #include "oneapi/dal/algo/knn/train_types.hpp"
 #include "oneapi/dal/algo/knn/detail/train_ops.hpp"
 

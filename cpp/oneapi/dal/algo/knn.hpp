@@ -17,4 +17,4 @@
 #pragma once
 
 #include "oneapi/dal/algo/knn/train.hpp"
-#include "oneapi/dal/algo/knn/infer.hpp"
+//#include "oneapi/dal/algo/knn/infer.hpp"

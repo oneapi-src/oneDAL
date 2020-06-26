@@ -17,7 +17,7 @@
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/algo/knn/train_types.hpp"
 
-namespace oneapi::dal::pca {
+namespace oneapi::dal::knn {
 
 class detail::train_input_impl : public base {
   public:
@@ -66,4 +66,4 @@ void train_result::set_model_impl(const model& value) {
 }
 
 
-} // namespace oneapi::dal::pca
+} // namespace oneapi::dal::knn

@@ -20,10 +20,10 @@ namespace oneapi::dal::knn {
 
 class detail::model_impl: public base {
 public:
-    model_impl() : interop_(nullptr) {}
     class interop_model;
+    model_impl() : interop_(nullptr) {}
+    model_impl(interop_model * interop) : interop_(interop) {}
     const interop_model * get_interop() {return interop_;}
-    void set_interop(interop_model * interop) {interop_ = interop;}
 private:
     interop_model * interop_;
 };

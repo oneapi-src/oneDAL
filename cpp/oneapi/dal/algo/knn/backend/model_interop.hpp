@@ -15,20 +15,19 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/knn/common.hpp"
+#include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
 
-namespace oneapi::dal::knn {
+namespace oneapi::dal::knn::detail {
 
 namespace daal_knn = daal::algorithms::kdtree_knn_classification;
-using daal_knn_classification_model_t = daal_knn::training::internal::KNNClassificationTrainBatchKernel<daal::batch, Float, Cpu>;
 
-
-class interop_model {
+class model_impl::interop_model {
 public:
-    interop_model() : daal_model_(nullptr) {}
-    void set_daal_model(daal_knn_classification_model_t * model) { daal_model_ = model;}
-    daal_knn_classification_model_t * get_daal_model() {return daal_model_;}
+    interop_model(const daal_knn::ModelPtr& daal_model) : daal_model_(daal_model) {}
+    void set_daal_model(const daal_knn::ModelPtr& model) { daal_model_ = model;}
+    daal_knn::ModelPtr get_daal_model() {return daal_model_;}
 private:
-    daal_knn_classification_model_t * daal_model_;
+    daal_knn::ModelPtr daal_model_;
 };
 
 } // namespace oneapi::dal::knn

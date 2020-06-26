@@ -14,22 +14,29 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "data_management/data/numeric_table.h"
 #include <daal/src/algorithms/k_nearest_neighbors/kdtree_knn_classification_train_kernel.h>
+#include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
+#include "algorithms/engines/mcg59/mcg59.h"
 
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/algo/knn/backend/cpu/train_kernel.hpp"
+#include "oneapi/dal/algo/knn/detail/model_impl.hpp"
+#include "oneapi/dal/algo/knn/backend/model_interop.hpp"
 
 namespace oneapi::dal::knn::backend {
 
 using std::int64_t;
 using dal::backend::context_cpu;
+using namespace daal::data_management;
 
 namespace daal_knn = daal::algorithms::kdtree_knn_classification;
 namespace interop  = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
-using daal_knn_kd_tree_kernel_t = daal_knn::training::internal::KNNClassificationTrainBatchKernel<daal::batch, Float, Cpu>;
+using daal_knn_kd_tree_kernel_t = daal_knn::training::internal::KNNClassificationTrainBatchKernel<Float, 
+                    daal_knn::training::defaultDense, Cpu>;
 
 template <typename Float>
 static train_result call_daal_kernel(const context_cpu& ctx,
@@ -50,25 +57,27 @@ static train_result call_daal_kernel(const context_cpu& ctx,
 
 
     daal_knn::Parameter daal_parameter(desc.get_class_count(),
-        desc.get_neighbor_count(), desc.get_seed(), desc.get_data_use_in_model());
+        desc.get_neighbor_count(), desc.get_seed(), desc.get_data_use_in_model() ? daal_knn::doUse : daal_knn::doNotUse);
 
-    auto model_ptr = new daal_knn::Model(column_count);
+    const daal_knn::ModelPtr model_ptr = 
+        daal_knn::ModelPtr(daal_knn::Model::create(column_count, NULL));
     //if(model_ptr == nullptr)
     //    bad alloc
-    model_ptr->impl()->setData<Float>(daal_data, desc.get_data_use_in_model());
-    model_ptr->impl()->setLabels<Float>(daal_labels, desc.get_data_use_in_model());
+
+    model_ptr->impl()->setData<Float>(NumericTablePtr(daal_data.get()), desc.get_data_use_in_model());
+    model_ptr->impl()->setLabels<Float>(NumericTablePtr(daal_labels.get()), desc.get_data_use_in_model());
 
     interop::call_daal_kernel<Float, daal_knn_kd_tree_kernel_t>(
         ctx,
-        daal_data,
-        *daal_labels,
-        model_ptr,
-        &daal_parameter,
-        *(engines::mcg59::Batch<>::create()),
+        daal_data.get(),
+        daal_labels.get(),
+        model_ptr.get(),
+        *(daal::algorithms::engines::mcg59::Batch<>::create())
     );
-
+    auto interop = new detail::model_impl::interop_model(model_ptr);
+    auto impl = new detail::model_impl(interop);
     return train_result()
-        .set_model(model().get_pimpl()->get_interop().set_daal_model(model_ptr));
+        .set_model(model(impl));
 }
 
 template <typename Float>
@@ -90,4 +99,4 @@ struct train_kernel_cpu<Float, method::kd_tree> {
 template struct train_kernel_cpu<float, method::kd_tree>;
 template struct train_kernel_cpu<double, method::kd_tree>;
 
-} // namespace oneapi::dal::pca::backend
+} // namespace oneapi::dal::knn::backend

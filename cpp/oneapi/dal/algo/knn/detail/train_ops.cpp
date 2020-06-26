@@ -18,7 +18,7 @@
 #include "oneapi/dal/algo/knn/detail/train_ops.hpp"
 #include "oneapi/dal/algo/knn/backend/cpu/train_kernel.hpp"
 
-namespace oneapi::dal::pca::detail {
+namespace oneapi::dal::knn::detail {
 
 template <typename Float, typename Method>
 struct train_ops_dispatcher<default_execution_context, Float, Method> {
@@ -34,9 +34,7 @@ struct train_ops_dispatcher<default_execution_context, Float, Method> {
 #define INSTANTIATE(F, M) \
   template struct train_ops_dispatcher<default_execution_context, F, M>;
 
-INSTANTIATE(float, method::brute_force)
 INSTANTIATE(float, method::kd_tree)
-INSTANTIATE(double, method::brute_force)
 INSTANTIATE(double, method::kd_tree)
 
-} // namespace oneapi::dal::pca::detail
+} // namespace oneapi::dal::knn::detail

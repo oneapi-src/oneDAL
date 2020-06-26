@@ -67,4 +67,4 @@ class train_result {
     dal::detail::pimpl<detail::train_result_impl> impl_;
 };
 
-} // namespace oneapi::dal::pca
+} // namespace oneapi::dal::knn

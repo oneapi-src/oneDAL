@@ -87,14 +87,8 @@ class descriptor : public descriptor_base {
 class model : public base {
   friend dal::detail::pimpl_accessor;
   public:
+    model(detail::model_impl *);
     model();
-
-    std::int64_t get_feature_count() const;
-
-    auto& set_feature_count(const table& value) {
-        set_feature_count_impl(value);
-        return *this;
-    }
 
   private:
     void set_feature_count_impl(const table&);
@@ -102,4 +96,4 @@ class model : public base {
     dal::detail::pimpl<detail::model_impl> impl_;
 };
 
-} // namespace oneapi::dal::pca
+} // namespace oneapi::dal::knn
