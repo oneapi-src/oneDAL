@@ -517,6 +517,7 @@ $(WORKDIR.lib)/$(core_y:%.dll=%_dll.lib): $(WORKDIR.lib)/$(core_y)
 endif
 $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt): $(CORE.objs_y) $(if $(OS_is_win),$(CORE.tmpdir_y)/dll.res,) | $(CORE.tmpdir_y)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(core_y):                   $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
+                                            $(if $(PLAT_is_win32e),$(CORE.srcdir)/export_win32e.def) \
                                             $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
 $(CORE.objs_a): $(CORE.tmpdir_a)/inc_a_folders.txt
@@ -660,8 +661,7 @@ $(WORKDIR.lib)/$(oneapi_y:%.dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y)
 endif
 $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt): $(ONEAPI.objs_y) $(if $(OS_is_win),$(ONEAPI.tmpdir_y)/dll.res,) | $(ONEAPI.tmpdir_y)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(oneapi_y): $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
-    $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt) \
-	$(if $(PLAT_is_win32e),$(CORE.srcdir)/export_win32e.def) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
+    $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
 $(ONEAPI.objs_a): $(ONEAPI_DISPATCHER_CPU_FILE)
 $(ONEAPI.objs_a): $(ONEAPI.tmpdir_a)/inc_a_folders.txt
