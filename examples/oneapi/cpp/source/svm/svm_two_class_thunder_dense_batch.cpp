@@ -18,24 +18,7 @@
 #include "oneapi/dal/data/accessor.hpp"
 #include "oneapi/dal/data/table.hpp"
 
-#include <iomanip>
-#include <iostream>
-
-using namespace oneapi;
-
-std::ostream &operator<<(std::ostream &stream, const dal::table &table) {
-  auto arr = dal::row_accessor<const float>(table).pull();
-  const auto x = arr.get_data();
-
-  for (std::int64_t i = 0; i < table.get_row_count(); i++) {
-    for (std::int64_t j = 0; j < table.get_column_count(); j++) {
-      std::cout << std::setw(10) << std::setiosflags(std::ios::fixed)
-                << std::setprecision(3) << x[i * table.get_column_count() + j];
-    }
-    std::cout << std::endl;
-  }
-  return stream;
-}
+#include "example_util/utils.hpp"
 
 int main(int argc, char const *argv[]) {
 
@@ -64,7 +47,6 @@ int main(int argc, char const *argv[]) {
 
   const auto svm_desc = dal::svm::descriptor<>{}
                             .set_c(1.0)
-                            // .set_kernel(NAN) is TODO (?)
                             .set_accuracy_threshold(0.01)
                             .set_max_iteration_count(1000)
                             .set_cache_size(200.0)
