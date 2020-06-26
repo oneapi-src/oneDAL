@@ -36,7 +36,6 @@ namespace pca
 {
 namespace internal
 {
-
 template <typename algorithmFPType>
 class PCADenseBaseIface
 {
