@@ -71,14 +71,13 @@ TEST(homogen_table_builder_test, can_construct_table) {
     ASSERT_EQ(3, t.get_row_count());
     ASSERT_EQ(2, t.get_column_count());
 
-    ASSERT_EQ(data_layout::row_major, t.get_metadata().layout);
+    auto meta = t.get_metadata();
 
-    auto features = t.get_metadata().features;
+    ASSERT_EQ(homogen_data_layout::row_major, meta.get_data_layout());
 
-    ASSERT_EQ(2, features.get_size());
-    for (std::int64_t i = 0; i < features.get_size(); i++) {
-        ASSERT_EQ(data_type::float32, features[i].dtype);
-        ASSERT_EQ(feature_type::contiguous, features[i].ftype);
+    for (std::int64_t i = 0; i < t.get_column_count(); i++) {
+        ASSERT_EQ(data_type::float32, meta.get_feature(i).get_data_type());
+        ASSERT_EQ(feature_type::ratio, meta.get_feature(i).get_type());
     }
 
     ASSERT_EQ(data, t.get_data<float>());

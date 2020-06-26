@@ -16,65 +16,83 @@
 
 #pragma once
 
-#include "oneapi/dal/common.hpp"
 #include "oneapi/dal/data/array.hpp"
+#include "oneapi/dal/data/common_helpers.hpp"
+#include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal {
-
-enum class data_layout {
-    row_major,
-    column_major
-};
 
 enum class feature_type {
     nominal,
     ordinal,
-    contiguous
+    interval,
+    ratio
 };
 
-struct feature_info {
-    feature_info()
-        : dtype(data_type::float32),
-          ftype(feature_type::contiguous) { }
+namespace detail {
+    class table_feature_impl;
+    class table_metadata_impl;
+} // namespace detail
 
-    feature_info(data_type dtype)
-        : dtype(dtype) {
-        if (dtype == data_type::float32 || dtype == data_type::float64) {
-            ftype = feature_type::contiguous;
-        } else {
-            ftype = feature_type::nominal;
-        }
-    }
+class table_feature {
+public:
+    table_feature();
+    table_feature(data_type);
+    table_feature(data_type, feature_type);
 
-    feature_info(feature_type ftype)
-        : ftype(ftype) {
-        if (ftype == feature_type::nominal || ftype == feature_type::ordinal) {
-            dtype = data_type::int32;
-        } else {
-            dtype = data_type::float32;
-        }
-    }
 
-    feature_info(data_type dtype, feature_type ftype)
-        : dtype(dtype),
-          ftype(ftype) { }
+    data_type get_data_type() const;
+    table_feature& set_data_type(data_type);
 
-    data_type dtype;
-    feature_type ftype;
+    feature_type get_type() const;
+    table_feature& set_type(feature_type);
+
+private:
+    detail::pimpl<detail::table_feature_impl> impl_;
 };
 
-struct table_metadata {
-    table_metadata()
-        : layout(data_layout::row_major) {}
+template <typename T>
+table_feature make_table_feature() {
+    return table_feature { make_data_type<T>() };
+}
 
-    table_metadata(std::int64_t features_count,
-                   feature_info feature = {},
-                   data_layout layout = data_layout::row_major)
-        : layout(layout),
-          features(features_count, feature) {}
+class table_metadata {
+    friend detail::pimpl_accessor;
 
-    data_layout layout;
-    array<feature_info> features;
+public:
+    table_metadata();
+
+    table_metadata(const table_feature&,
+                   std::int64_t feature_count = 1);
+
+    table_metadata(array<table_feature> features);
+
+    std::int64_t get_feature_count() const;
+    const table_feature& get_feature(std::int64_t feature_index) const;
+
+protected:
+    table_metadata(const detail::pimpl<detail::table_metadata_impl>& impl)
+        : impl_(impl) {}
+
+private:
+    detail::pimpl<detail::table_metadata_impl> impl_;
+};
+
+enum class homogen_data_layout {
+    row_major,
+    column_major
+};
+
+class homogen_table_metadata : public table_metadata {
+public:
+    homogen_table_metadata();
+
+    homogen_table_metadata(const table_feature&,
+                           homogen_data_layout,
+                           std::int64_t feature_count = 1);
+
+    homogen_data_layout get_data_layout() const;
+    homogen_table_metadata& set_data_layout(homogen_data_layout);
 };
 
 } // namespace oneapi::dal

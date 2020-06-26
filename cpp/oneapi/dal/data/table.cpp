@@ -54,18 +54,39 @@ const table_metadata& table::get_metadata() const {
     return impl_->get_metadata();
 }
 
+int64_t table::get_kind() const {
+    return impl_->get_kind();
+}
+
 void table::init_impl(detail::table_impl_iface* impl) {
     impl_ = pimpl { impl };
 }
 
+int64_t homogen_table::kind() {
+    return 1;
+}
+
+homogen_table::homogen_table()
+    : homogen_table(backend::homogen_table_impl{}) {}
+
 template <typename DataType>
 homogen_table::homogen_table(int64_t row_count, int64_t column_count,
                              const DataType* data_pointer,
-                             data_layout layout)
+                             homogen_data_layout layout)
     : homogen_table(backend::homogen_table_impl(row_count, column_count, data_pointer, layout)) {}
 
-template homogen_table::homogen_table(int64_t, int64_t, const float*, data_layout);
-template homogen_table::homogen_table(int64_t, int64_t, const double*, data_layout);
-template homogen_table::homogen_table(int64_t, int64_t, const std::int32_t*, data_layout);
+const homogen_table_metadata& homogen_table::get_metadata() const {
+    const auto& impl = detail::get_impl<detail::homogen_table_impl_iface>(*this);
+    return impl.get_metadata();
+}
+
+const void* homogen_table::get_data() const {
+    const auto& impl = detail::get_impl<detail::homogen_table_impl_iface>(*this);
+    return impl.get_data();
+}
+
+template homogen_table::homogen_table(int64_t, int64_t, const float*, homogen_data_layout);
+template homogen_table::homogen_table(int64_t, int64_t, const double*, homogen_data_layout);
+template homogen_table::homogen_table(int64_t, int64_t, const std::int32_t*, homogen_data_layout);
 
 } // namespace oneapi::dal

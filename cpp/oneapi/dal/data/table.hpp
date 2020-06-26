@@ -45,6 +45,7 @@ public:
     std::int64_t get_column_count() const;
     std::int64_t get_row_count() const;
     const table_metadata& get_metadata() const;
+    std::int64_t get_kind() const;
 
 protected:
     table(const pimpl& impl)
@@ -61,26 +62,38 @@ class homogen_table : public table {
     using pimpl = detail::pimpl<detail::homogen_table_impl_iface>;
 
 public:
-    homogen_table() = default;
+    static std::int64_t kind();
+
+public:
+    homogen_table();
 
     template <typename Impl,
               typename = std::enable_if_t<is_homogen_table_impl_v<std::decay_t<Impl>>>>
     homogen_table(Impl&& impl) {
         // TODO: usage of protected method of base class: a point to break inheritance?
-        init_impl(new detail::homogen_table_impl_wrapper(std::forward<Impl>(impl)));
+        auto* wrapper = new detail::homogen_table_impl_wrapper{
+            std::forward<Impl>(impl),
+            homogen_table::kind()
+        };
+        init_impl(wrapper);
     }
 
     template <typename DataType>
     homogen_table(std::int64_t row_count, std::int64_t column_count,
                   const DataType* data_pointer,
-                  data_layout layout = data_layout::row_major);
+                  homogen_data_layout layout = homogen_data_layout::row_major);
 
     template <typename DataType>
     const DataType* get_data() const {
-        using impl_t = detail::homogen_table_impl_iface;
+        return reinterpret_cast<const DataType*>(this->get_data());
+    }
 
-        auto& impl = detail::get_impl<impl_t>(*this);
-        return reinterpret_cast<const DataType*>(impl.get_data());
+    const void* get_data() const;
+
+    const homogen_table_metadata& get_metadata() const;
+
+    std::int64_t get_kind() const {
+        return kind();
     }
 
 private:
