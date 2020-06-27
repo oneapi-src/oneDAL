@@ -45,10 +45,10 @@ constexpr auto make_data_type_impl() {
         return data_type::float64;
     }
 
-    static_assert(is_one_of<T,
-                            std::int32_t, std::int64_t, std::uint32_t,
-                            std::uint64_t, float, double>::value,
-                  "unsupported data type");
+    static_assert(
+        is_one_of<T, std::int32_t, std::int64_t, std::uint32_t, std::uint64_t, float, double>::
+            value,
+        "unsupported data type");
     return data_type::float32; // shall never come here
 }
 

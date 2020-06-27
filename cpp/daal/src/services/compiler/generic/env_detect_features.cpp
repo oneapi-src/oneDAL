@@ -251,7 +251,7 @@ static int check_ssse3_features()
     return 1;
 }
 
-int __daal_serv_cpu_detect(int enable)
+DAAL_EXPORT int __daal_serv_cpu_detect(int enable)
 {
     if ((enable & daal::services::Environment::avx512_mic_e1) == daal::services::Environment::avx512_mic_e1)
     {
