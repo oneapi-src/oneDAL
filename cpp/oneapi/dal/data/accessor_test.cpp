@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/accessor.hpp"
+#include "oneapi/dal/data/accessor.hpp"
 #include "gtest/gtest.h"
 
 using namespace oneapi::dal;

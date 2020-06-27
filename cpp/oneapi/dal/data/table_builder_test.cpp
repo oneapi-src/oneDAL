@@ -14,9 +14,9 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/table_builder.hpp"
+#include "oneapi/dal/data/table_builder.hpp"
 #include "gtest/gtest.h"
-#include "oneapi/dal/accessor.hpp"
+#include "oneapi/dal/data/accessor.hpp"
 
 using namespace oneapi::dal;
 
