@@ -21,7 +21,7 @@
 namespace oneapi::dal::pca::detail {
 
 template <typename Float, typename Method>
-struct train_ops_dispatcher<default_execution_context, Float, Method> {
+struct ONEAPI_DAL_EXPORT train_ops_dispatcher<default_execution_context, Float, Method> {
     train_result operator()(const default_execution_context& ctx,
                             const descriptor_base& desc,
                             const train_input& input) const {
@@ -31,7 +31,8 @@ struct train_ops_dispatcher<default_execution_context, Float, Method> {
     }
 };
 
-#define INSTANTIATE(F, M) template struct train_ops_dispatcher<default_execution_context, F, M>;
+#define INSTANTIATE(F, M) \
+    template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<default_execution_context, F, M>;
 
 INSTANTIATE(float, method::cov)
 INSTANTIATE(float, method::svd)

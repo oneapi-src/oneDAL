@@ -16,9 +16,9 @@
 
 #pragma once
 
-#include <variant>
 #include <algorithm>
 #include <stdexcept> // TODO: change by onedal exceptions
+#include <variant>
 
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/memory.hpp"
@@ -27,8 +27,7 @@ namespace oneapi::dal {
 
 template <typename T>
 class array {
-    static_assert(!std::is_const_v<T>,
-                    "array class cannot have const-qualified type of data");
+    static_assert(!std::is_const_v<T>, "array class cannot have const-qualified type of data");
 
     template <typename U>
     friend class array;
@@ -66,10 +65,7 @@ public:
 #endif
 
 public:
-    array()
-        : data_owned_ptr_(nullptr),
-          count_(0),
-          capacity_(0) {}
+    array() : data_owned_ptr_(nullptr), count_(0), capacity_(0) {}
 
     explicit array(std::int64_t count)
         : array() {
@@ -113,7 +109,8 @@ public:
     const T* get_data() const {
         if (auto ptr_val = std::get_if<T*>(&data_)) {
             return *ptr_val;
-        } else {
+        }
+        else {
             return std::get<const T*>(data_);
         }
     }
@@ -148,11 +145,14 @@ public:
     bool is_data_owner() const {
         if (data_owned_ptr_ == nullptr) {
             return false;
-        } else if (auto ptr_val = std::get_if<T*>(&data_)) {
+        }
+        else if (auto ptr_val = std::get_if<T*>(&data_)) {
             return *ptr_val == data_owned_ptr_.get();
-        } else if (auto ptr_val = std::get_if<const T*>(&data_)) {
+        }
+        else if (auto ptr_val = std::get_if<const T*>(&data_)) {
             return *ptr_val == data_owned_ptr_.get();
-        } else {
+        }
+        else {
             return false;
         }
     }

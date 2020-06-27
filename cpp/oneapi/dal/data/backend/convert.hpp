@@ -20,13 +20,18 @@
 
 namespace oneapi::dal::backend {
 
-void convert_vector(const void* src, void* dst,
-                    data_type src_type, data_type dest_type,
+void convert_vector(const void* src,
+                    void* dst,
+                    data_type src_type,
+                    data_type dest_type,
                     std::int64_t size);
 
-void convert_vector(const void* src, void* dst,
-                    data_type src_type, data_type dest_type,
-                    std::int64_t src_stride, std::int64_t dst_stride,
+void convert_vector(const void* src,
+                    void* dst,
+                    data_type src_type,
+                    data_type dest_type,
+                    std::int64_t src_stride,
+                    std::int64_t dst_stride,
                     std::int64_t size);
 
 } // namespace oneapi::dal::backend

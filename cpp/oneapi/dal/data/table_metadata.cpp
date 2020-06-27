@@ -25,16 +25,14 @@ struct table_feature_impl {
     data_type dtype;
     feature_type ftype;
 
-    table_feature_impl(data_type dt, feature_type ft)
-        : dtype(dt),
-          ftype(ft) {}
+    table_feature_impl(data_type dt, feature_type ft) : dtype(dt), ftype(ft) {}
 };
 
 class table_metadata_impl {
 public:
     virtual ~table_metadata_impl() {}
 
-    virtual int64_t get_feature_count() const = 0;
+    virtual int64_t get_feature_count() const                             = 0;
     virtual const table_feature& get_feature(int64_t feature_index) const = 0;
 };
 
@@ -51,8 +49,7 @@ public:
 
 class simple_metadata_impl : public table_metadata_impl {
 public:
-    simple_metadata_impl(const array<table_feature>& features)
-        : features_(features) {}
+    simple_metadata_impl(const array<table_feature>& features) : features_(features) {}
 
     int64_t get_feature_count() const override {
         return features_.get_size();
@@ -68,15 +65,14 @@ private:
 
 class homogen_table_metadata_impl : public table_metadata_impl {
 public:
-    homogen_table_metadata_impl()
-        : feature_count_(0) {}
+    homogen_table_metadata_impl() : feature_count_(0) {}
 
     homogen_table_metadata_impl(const table_feature& feature,
                                 homogen_data_layout layout,
                                 std::int64_t feature_count)
-        : feature_(feature),
-          layout_(layout),
-          feature_count_(feature_count) {}
+            : feature_(feature),
+              layout_(layout),
+              feature_count_(feature_count) {}
 
     homogen_data_layout get_data_layout() const {
         return layout_;
@@ -102,16 +98,14 @@ private:
 
 } // namespace detail
 
-table_feature::table_feature()
-    : table_feature(data_type::float32) {}
+table_feature::table_feature() : table_feature(data_type::float32) {}
 
 table_feature::table_feature(data_type dtype)
-    : table_feature(dtype,
-                    is_floating_point(dtype) ? feature_type::ratio
-                                             : feature_type::ordinal) {}
+        : table_feature(dtype,
+                        is_floating_point(dtype) ? feature_type::ratio : feature_type::ordinal) {}
 
 table_feature::table_feature(data_type dtype, feature_type ftype)
-    : impl_(new detail::table_feature_impl{ dtype, ftype }) {}
+        : impl_(new detail::table_feature_impl{ dtype, ftype }) {}
 
 data_type table_feature::get_data_type() const {
     return impl_->dtype;
@@ -131,19 +125,13 @@ table_feature& table_feature::set_type(feature_type ft) {
     return *this;
 }
 
-table_metadata::table_metadata()
-    : impl_(new detail::empty_metadata_impl()) {}
+table_metadata::table_metadata() : impl_(new detail::empty_metadata_impl()) {}
 
-table_metadata::table_metadata(const table_feature& feature,
-                               int64_t feature_count)
-    : impl_(new detail::simple_metadata_impl {
-        array<table_feature>::full(feature_count, feature)
-    }) {}
+table_metadata::table_metadata(const table_feature& feature, int64_t feature_count)
+    : impl_(new detail::simple_metadata_impl { array<table_feature>::full(feature_count, feature) }) {}
 
 table_metadata::table_metadata(array<table_feature> features)
-    : impl_(new detail::simple_metadata_impl {
-        features
-    }) {}
+        : impl_(new detail::simple_metadata_impl{ features }) {}
 
 int64_t table_metadata::get_feature_count() const {
     return impl_->get_feature_count();
@@ -156,16 +144,14 @@ const table_feature& table_metadata::get_feature(int64_t feature_index) const {
 using hm_impl = detail::homogen_table_metadata_impl;
 
 homogen_table_metadata::homogen_table_metadata()
-    : table_metadata(detail::pimpl<detail::table_metadata_impl>{
-        new detail::homogen_table_metadata_impl()
-    }) {}
+        : table_metadata(detail::pimpl<detail::table_metadata_impl>{
+              new detail::homogen_table_metadata_impl() }) {}
 
 homogen_table_metadata::homogen_table_metadata(const table_feature& feature,
                                                homogen_data_layout layout,
                                                int64_t feature_count)
-    : table_metadata(detail::pimpl<detail::table_metadata_impl>{
-        new detail::homogen_table_metadata_impl(feature, layout, feature_count)
-    }) {}
+        : table_metadata(detail::pimpl<detail::table_metadata_impl>{
+              new detail::homogen_table_metadata_impl(feature, layout, feature_count) }) {}
 
 homogen_data_layout homogen_table_metadata::get_data_layout() const {
     auto& impl = detail::get_impl<hm_impl>(*this);

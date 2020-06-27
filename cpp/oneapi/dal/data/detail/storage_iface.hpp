@@ -33,12 +33,12 @@ class dense_storage_iface<storage_readable> {
 public:
     virtual ~dense_storage_iface<storage_readable>() = default;
 
-    virtual void pull_rows(array<float>&, const range&) const = 0;
-    virtual void pull_rows(array<double>&, const range&) const = 0;
+    virtual void pull_rows(array<float>&, const range&) const        = 0;
+    virtual void pull_rows(array<double>&, const range&) const       = 0;
     virtual void pull_rows(array<std::int32_t>&, const range&) const = 0;
 
-    virtual void pull_column(array<float>&, std::int64_t, const range&) const = 0;
-    virtual void pull_column(array<double>&, std::int64_t, const range&) const = 0;
+    virtual void pull_column(array<float>&, std::int64_t, const range&) const        = 0;
+    virtual void pull_column(array<double>&, std::int64_t, const range&) const       = 0;
     virtual void pull_column(array<std::int32_t>&, std::int64_t, const range&) const = 0;
 };
 
@@ -47,19 +47,19 @@ class dense_storage_iface<storage_writable> {
 public:
     virtual ~dense_storage_iface<storage_writable>() = default;
 
-    virtual void push_back_rows(const array<float>&, const range&) = 0;
-    virtual void push_back_rows(const array<double>&, const range&) = 0;
+    virtual void push_back_rows(const array<float>&, const range&)        = 0;
+    virtual void push_back_rows(const array<double>&, const range&)       = 0;
     virtual void push_back_rows(const array<std::int32_t>&, const range&) = 0;
 
-    virtual void push_back_column(const array<float>&, std::int64_t, const range&) = 0;
-    virtual void push_back_column(const array<double>&, std::int64_t, const range&) = 0;
+    virtual void push_back_column(const array<float>&, std::int64_t, const range&)        = 0;
+    virtual void push_back_column(const array<double>&, std::int64_t, const range&)       = 0;
     virtual void push_back_column(const array<std::int32_t>&, std::int64_t, const range&) = 0;
 };
 
 template <>
-class dense_storage_iface<storage_readable_writable> :
-    public dense_storage_iface<storage_readable>,
-    public dense_storage_iface<storage_writable> {};
+class dense_storage_iface<storage_readable_writable>
+        : public dense_storage_iface<storage_readable>,
+          public dense_storage_iface<storage_writable> {};
 
 template <typename AccessType>
 struct get_dense_storage_iface {
