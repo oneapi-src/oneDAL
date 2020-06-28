@@ -25,9 +25,9 @@ struct compute_ops;
 
 template <typename Context, typename Descriptor, typename Head, typename... Tail>
 auto compute_dispatch_by_input(const Context& ctx,
-                             const Descriptor& desc,
-                             Head&& head,
-                             Tail&&... tail) {
+                               const Descriptor& desc,
+                               Head&& head,
+                               Tail&&... tail) {
     using tag_t   = typename Descriptor::tag_t;
     using ops_t   = compute_ops<Descriptor, tag_t>;
     using input_t = typename ops_t::input_t;
@@ -48,8 +48,8 @@ auto compute_dispatch_by_ctx(Head&& head, Tail&&... tail) {
     }
 
     return compute_dispatch_by_input(default_execution_context(),
-                                   std::forward<Head>(head),
-                                   std::forward<Tail>(tail)...);
+                                     std::forward<Head>(head),
+                                     std::forward<Tail>(tail)...);
 }
 
 } // namespace oneapi::dal::detail

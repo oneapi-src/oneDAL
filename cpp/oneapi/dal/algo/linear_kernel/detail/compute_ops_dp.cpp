@@ -24,8 +24,8 @@ namespace oneapi::dal::linear_kernel::detail {
 template <typename Float, typename Method>
 struct compute_ops_dispatcher<data_parallel_execution_context, Float, Method> {
     compute_result operator()(const data_parallel_execution_context& ctx,
-                            const descriptor_base& params,
-                            const compute_input& input) const {
+                              const descriptor_base& params,
+                              const compute_input& input) const {
         using kernel_dispatcher_t =
             dal::backend::kernel_dispatcher<backend::compute_kernel_cpu<Float, Method>,
                                             backend::compute_kernel_gpu<Float, Method>>;
