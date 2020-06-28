@@ -40,7 +40,7 @@ template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
 namespace internal
 {
-template class KernelImplLinear<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
+DAAL_EXPORT template class KernelImplLinear<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 
 } // namespace internal
 
