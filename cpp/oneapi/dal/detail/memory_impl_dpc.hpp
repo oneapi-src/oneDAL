@@ -27,6 +27,7 @@ template <typename T>
 inline T* malloc(sycl::queue& queue, std::int64_t count, sycl::usm::alloc kind) {
     auto device = queue.get_device();
     auto context = queue.get_context();
+    // TODO: is not safe since sycl::memset accepts count as size_t
     return sycl::malloc<T>(count, device, context, kind);
 }
 
@@ -36,17 +37,20 @@ inline void free(sycl::queue& queue, T* pointer) {
 }
 
 inline void memset(sycl::queue& queue, void* dest, std::int32_t value, std::int64_t size) {
+    // TODO: is not safe since queue.memset accepts size as size_t
     auto event = queue.memset(dest, value, size);
     event.wait();
 }
 
 inline void memcpy(sycl::queue& queue, void* dest, const void* src, std::int64_t size) {
+    // TODO: is not safe since queue.memcpy accepts size as size_t
     auto event = queue.memcpy(dest, src, size);
     event.wait();
 }
 
 template <typename T>
 inline void fill(sycl::queue& queue, T* dest, std::int64_t count, const T& value) {
+    // TODO: can be optimized in future
     auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.parallel_for<class oneapi_dal_memory_fill>(sycl::range<1>(count),
         [=](sycl::id<1> idx) {

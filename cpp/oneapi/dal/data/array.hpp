@@ -20,7 +20,6 @@
 #include <stdexcept> // TODO: change by onedal exceptions
 #include <variant>
 
-#include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/memory.hpp"
 
 namespace oneapi::dal {
@@ -41,12 +40,13 @@ class array {
 public:
     template <typename K>
     static array<T> full(std::int64_t count, K&& element) {
-        return full_impl(detail::host_policy{},
+        return full_impl(detail::host_seq_policy{},
             count, std::forward<K>(element), detail::host_only_alloc{});
     }
 
     static array<T> zeros(std::int64_t count) {
-        return zeros_impl(detail::host_policy{}, count, detail::host_only_alloc{});
+        // TODO: can be optimized in future
+        return full_impl(detail::host_seq_policy{}, count, 0, detail::host_only_alloc{});
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -60,7 +60,8 @@ public:
     static array<T> zeros(sycl::queue& queue,
                           std::int64_t count,
                           sycl::usm::alloc kind = sycl::usm::alloc::shared) {
-        return zeros_impl(queue, count, kind);
+        // TODO: can be optimized in future
+        return full_impl(queue, count, 0, kind);
     }
 #endif
 
@@ -120,7 +121,7 @@ public:
     }
 
     array& unique() {
-        return unique_impl(detail::host_policy{}, detail::host_only_alloc{});
+        return unique_impl(detail::host_seq_policy{}, detail::host_only_alloc{});
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -165,7 +166,7 @@ public:
     }
 
     void reset(std::int64_t count) {
-        reset_impl(detail::host_policy{}, count, detail::host_only_alloc{});
+        reset_impl(detail::host_seq_policy{}, count, detail::host_only_alloc{});
     }
 
     template <typename Deleter>
@@ -201,7 +202,7 @@ public:
     }
 
     void resize(std::int64_t count) {
-        resize_impl(detail::host_policy{}, count, detail::host_only_alloc{});
+        resize_impl(detail::host_seq_policy{}, count, detail::host_only_alloc{});
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -221,13 +222,6 @@ public:
     }
 
 private:
-    template <typename Policy, typename AllocKind>
-    static array<T> zeros_impl(Policy&& policy, std::int64_t count, AllocKind&& kind) {
-        auto* data = detail::malloc<T>(policy, count, kind);
-        detail::memset(policy, data, 0, sizeof(T)*count);
-        return array<T> { data, count, detail::default_delete<T, Policy>{ policy } };
-    }
-
     template <typename K, typename Policy, typename AllocKind>
     static array<T> full_impl(Policy&& policy,
                               std::int64_t count, K&& element,
