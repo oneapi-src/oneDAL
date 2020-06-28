@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/algo/svm/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/svm/model.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 namespace oneapi::dal::svm::backend {
@@ -39,8 +40,8 @@ static train_result call_daal_kernel(const context_cpu& ctx,
                                      const table& data,
                                      const table& labels,
                                      const table& weights) {
-    const std::int64_t row_count    = data.get_row_count();
-    const std::int64_t column_count = data.get_column_count();
+    const int64_t row_count    = data.get_row_count();
+    const int64_t column_count = data.get_column_count();
 
     // TODO: data is table, not a homogen_table. Think better about accessor - is it enough to have just a row_accessor?
     auto arr_data    = row_accessor<const Float>{ data }.pull();
@@ -62,7 +63,7 @@ static train_result call_daal_kernel(const context_cpu& ctx,
         desc.get_accuracy_threshold(),
         desc.get_tau(),
         desc.get_max_iteration_count(),
-        std::int64_t(desc.get_cache_size() * 1024 * 1024), // DAAL get in bytes
+        int64_t(desc.get_cache_size() * 1024 * 1024), // DAAL get in bytes
         desc.get_shrinking());
 
     auto daal_model = daal_svm::Model::create<Float>(column_count);
@@ -72,22 +73,12 @@ static train_result call_daal_kernel(const context_cpu& ctx,
                                                                 *daal_labels,
                                                                 daal_model.get(),
                                                                 &daal_parameter);
-
-    auto table_support_vectors =
-        interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportVectors());
     auto table_support_indices =
         interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
-    auto table_classification_coefficients = interop::convert_from_daal_homogen_table<Float>(
-        daal_model->getClassificationCoefficients());
-    const double bias                        = daal_model->getBias();
-    const std::int64_t support_vectors_count = table_support_vectors.get_row_count();
 
-    auto onedal_model = model()
-                            .set_support_vectors(table_support_vectors)
-                            .set_coefficients(table_classification_coefficients)
-                            .set_bias(bias)
-                            .set_support_vectors_count(support_vectors_count);
-    return train_result().set_model(onedal_model).set_support_indices(table_support_indices);
+    return train_result()
+        .set_model(interop::svm::convert_from_daal_model<Float>(*daal_model))
+        .set_support_indices(table_support_indices);
 }
 
 template <typename Float>

@@ -26,34 +26,34 @@ private:
     using storage_t = detail::get_dense_storage_iface_t<T>;
 
 public:
-    using data_t = std::remove_const_t<T>;
+    using data_t                      = std::remove_const_t<T>;
     static constexpr bool is_readonly = std::is_const_v<T>;
 
     template <typename Q = T, typename = std::enable_if_t<sizeof(Q) && is_readonly>>
-    row_accessor(const table& t)
-        : storage_(detail::get_impl<storage_t>(t)) {}
+    row_accessor(const table& t) : storage_(detail::get_impl<storage_t>(t)) {}
 
     row_accessor(const table_builder& b)
-        : storage_(detail::get_impl<detail::table_builder_impl_iface>(b).get_storage()) {}
+            : storage_(detail::get_impl<detail::table_builder_impl_iface>(b).get_storage()) {}
 
-    array<data_t> pull(const range& rows = {0, -1}) const {
+    array<data_t> pull(const range& rows = { 0, -1 }) const {
         array<data_t> block;
         storage_.pull_rows(block, rows);
         return block;
     }
 
-    T* pull(array<data_t>& block, const range& rows = {0, -1}) const {
+    T* pull(array<data_t>& block, const range& rows = { 0, -1 }) const {
         storage_.pull_rows(block, rows);
         if constexpr (is_readonly) {
             return block.get_data();
-        } else {
+        }
+        else {
             return block.get_mutable_data();
         }
     }
 
     template <typename Q = T>
     std::enable_if_t<sizeof(Q) && !is_readonly> push(const array<data_t>& block,
-                                                     const range& rows = {0, -1}) {
+                                                     const range& rows = { 0, -1 }) {
         storage_.push_back_rows(block, rows);
     }
 
@@ -67,27 +67,27 @@ public:
     using storage_t = detail::get_dense_storage_iface_t<T>;
 
 public:
-    using data_t = std::remove_const_t<T>;
+    using data_t                      = std::remove_const_t<T>;
     static constexpr bool is_readonly = std::is_const_v<T>;
 
     template <typename Q = T, typename = std::enable_if_t<sizeof(Q) && is_readonly>>
-    column_accessor(const table& t)
-        : storage_(detail::get_impl<storage_t>(t)) {}
+    column_accessor(const table& t) : storage_(detail::get_impl<storage_t>(t)) {}
 
     column_accessor(const table_builder& b)
-        : storage_(detail::get_impl<detail::table_builder_impl_iface>(b).get_storage()) {}
+            : storage_(detail::get_impl<detail::table_builder_impl_iface>(b).get_storage()) {}
 
-    array<data_t> pull(std::int64_t column_index, const range& rows = {0, -1}) const {
+    array<data_t> pull(std::int64_t column_index, const range& rows = { 0, -1 }) const {
         array<data_t> block;
         storage_.pull_column(block, column_index, rows);
         return block;
     }
 
-    T* pull(array<data_t>& block, std::int64_t column_index, const range& rows = {0, -1}) const {
+    T* pull(array<data_t>& block, std::int64_t column_index, const range& rows = { 0, -1 }) const {
         storage_.pull_column(block, column_index, rows);
         if constexpr (is_readonly) {
             return block.get_data();
-        } else {
+        }
+        else {
             return block.get_mutable_data();
         }
     }
@@ -95,7 +95,7 @@ public:
     template <typename Q = T>
     std::enable_if_t<sizeof(Q) && !is_readonly> push(const array<data_t>& block,
                                                      std::int64_t column_index,
-                                                     const range& rows = {0, -1}) {
+                                                     const range& rows = { 0, -1 }) {
         storage_.push_back_column(block, column_index, rows);
     }
 

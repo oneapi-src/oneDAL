@@ -89,7 +89,7 @@ y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib fbsd/so))
 -Fo    := $(if $(OS_is_win),-Fo,-o)
 -Q     := $(if $(OS_is_win),$(if $(COMPILER_is_vc),-,-Q),-)
 -cxx11 := $(if $(COMPILER_is_vc),,$(-Q)std=c++11)
--cxx17 := $(if $(COMPILER_is_vc),,$(-Q)std=c++17)
+-cxx17 := $(if $(COMPILER_is_vc),/std:c++17,$(-Q)std=c++17)
 -fPIC  := $(if $(OS_is_win),,-fPIC)
 -Zl    := $(-Zl.$(COMPILER))
 -DEBC  := $(if $(REQDBG),$(-DEBC.$(COMPILER)) -DDEBUG_ASSERT) -DTBB_SUPPRESS_DEPRECATED_MESSAGES -D__TBB_LEGACY_MODE $(if $(REQPRF), -D__DAAL_ITTNOTIFY_ENABLE__)
@@ -516,7 +516,9 @@ ifdef OS_is_win
 $(WORKDIR.lib)/$(core_y:%.dll=%_dll.lib): $(WORKDIR.lib)/$(core_y)
 endif
 $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt): $(CORE.objs_y) $(if $(OS_is_win),$(CORE.tmpdir_y)/dll.res,) | $(CORE.tmpdir_y)/. ; $(WRITE.PREREQS)
-$(WORKDIR.lib)/$(core_y):                   $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt) $(if $(PLAT_is_win32e),$(CORE.srcdir)/export_win32e.def); $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
+$(WORKDIR.lib)/$(core_y):                   $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
+                                            $(if $(PLAT_is_win32e),$(CORE.srcdir)/export_win32e.def) \
+                                            $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
 $(CORE.objs_a): $(CORE.tmpdir_a)/inc_a_folders.txt
 $(CORE.objs_a): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC)
@@ -653,11 +655,13 @@ $(WORKDIR.lib)/$(oneapi_a):                   $(daaldep.ipp) $(daaldep.vml) $(da
 $(WORKDIR.lib)/$(oneapi_y): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(oneapi_y): LOPT += $(daaldep.rt.seq)
 $(WORKDIR.lib)/$(oneapi_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.dll=%_dll.lib),)
+$(WORKDIR.lib)/$(oneapi_y): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.dll=%_dll.lib))
 ifdef OS_is_win
 $(WORKDIR.lib)/$(oneapi_y:%.dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y)
 endif
 $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt): $(ONEAPI.objs_y) $(if $(OS_is_win),$(ONEAPI.tmpdir_y)/dll.res,) | $(ONEAPI.tmpdir_y)/. ; $(WRITE.PREREQS)
-$(WORKDIR.lib)/$(oneapi_y): $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt) $(if $(PLAT_is_win32e),$(CORE.srcdir)/export_win32e.def); $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
+$(WORKDIR.lib)/$(oneapi_y): $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
+    $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
 $(ONEAPI.objs_a): $(ONEAPI_DISPATCHER_CPU_FILE)
 $(ONEAPI.objs_a): $(ONEAPI.tmpdir_a)/inc_a_folders.txt
@@ -678,7 +682,7 @@ $(call containing,_dbl, $(ONEAPI.objs_a)): COPT += -DDAAL_FPTYPE=double
 $(ONEAPI.objs_y): $(ONEAPI_DISPATCHER_CPU_FILE)
 $(ONEAPI.objs_y): $(ONEAPI.tmpdir_y)/inc_y_folders.txt
 $(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic.opts)
-$(ONEAPI.objs_y): COPT += -D__DAAL_IMPLEMENTATION -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG)
+$(ONEAPI.objs_y): COPT += -D__ONEAPI_DAL_ENABLE_DLL_EXPORT__ -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG)
 $(ONEAPI.objs_y): COPT += @$(ONEAPI.tmpdir_y)/inc_y_folders.txt
 $(filter %threading.$o, $(ONEAPI.objs_y)): COPT += -D__DO_TBB_LAYER__
 $(call containing,_nrh, $(ONEAPI.objs_y)): COPT += $(p4_OPT)   -DDAAL_CPU=sse2
@@ -707,17 +711,17 @@ endef
 
 ONEAPI.include_options := $(addprefix -I, $(ONEAPI.incdirs.common)) \
                           $(addprefix $(-isystem), $(ONEAPI.incdirs.thirdp))
-$(ONEAPI.tmpdir_a)/inc_a_folders.txt: makefile.lst | $(ONEAPI.tmpdir_a)/. $(ONEAPI.incdirs) ; $(call WRITE.PREREQS,$(ONEAPI.include_options),$(space))
-$(ONEAPI.tmpdir_y)/inc_y_folders.txt: makefile.lst | $(ONEAPI.tmpdir_y)/. $(ONEAPI.incdirs) ; $(call WRITE.PREREQS,$(ONEAPI.include_options),$(space))
+$(ONEAPI.tmpdir_a)/inc_a_folders.txt: makefile.lst | $(ONEAPI.tmpdir_a)/. ; $(call WRITE.PREREQS,$(ONEAPI.include_options),$(space))
+$(ONEAPI.tmpdir_y)/inc_y_folders.txt: makefile.lst | $(ONEAPI.tmpdir_y)/. ; $(call WRITE.PREREQS,$(ONEAPI.include_options),$(space))
 
 $(foreach a,$(ONEAPI.objs_a),$(eval $(call .compile.template.oneapi.ay,$a,$(ONEAPI.tmpdir_a))))
 $(foreach a,$(ONEAPI.objs_y),$(eval $(call .compile.template.oneapi.ay,$a,$(ONEAPI.tmpdir_y))))
 
 $(ONEAPI.tmpdir_y)/dll.res: $(VERSION_DATA_FILE)
-$(ONEAPI.tmpdir_y)/dll.res: RCOPT += $(addprefix -I, $(ONEAPI.incdirs))
+$(ONEAPI.tmpdir_y)/dll.res: RCOPT += $(addprefix -I, $(CORE.incdirs.common))
 $(ONEAPI.tmpdir_y)/%.res: %.rc | $(ONEAPI.tmpdir_y)/. ; $(RC.COMPILE)
 
-$(ONEAPI_DISPATCHER_CPU_FILE): $(ONEAPI.srcdir)/backend/dispatcher_cpu.hpp
+$(ONEAPI_DISPATCHER_CPU_FILE): $(ONEAPI.srcdir)/backend/dispatcher_cpu.hpp | $(WORKDIR)/.
 	cp -fp $< $@
 	$(if $(USECPUS.out.defs.filter), $(USECPUS.oneapi.out.defs.filter) $@)
 
@@ -850,15 +854,13 @@ daal: $(if $(CORE.ALGORITHMS.CUSTOM),           \
           _daal _release_c,                     \
           _daal _daal_jj _release _release_doc  \
       )
-
-
-onedal: $(if $(CORE.ALGORITHMS.CUSTOM),                                 \
-          _daal _oneapi _release_c _release_oneapi_c,                   \
-          _daal _oneapi _daal_jj _release _release_oneapi _release_doc  \
-      )
-
 daal_c: _daal _release_c
-onedal_c: daal_c _oneapi _release_oneapi_c
+
+oneapi: _oneapi _release_oneapi_c
+oneapi_c: _oneapi _release_oneapi_c
+
+onedal: oneapi daal
+onedal_c: daal_c oneapi_c
 
 _daal:    _daal_core _daal_thr
 _daal_jj: _daal_jar _daal_jni
@@ -917,6 +919,26 @@ $(foreach x,$(release.EXAMPLES.CPP),$(eval $(call .release.x,$x,$(RELEASEDIR.daa
 $(foreach x,$(release.EXAMPLES.JAVA),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_jj)))
 $(foreach x,$(release.ONEAPI.EXAMPLES.CPP),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_c)))
 
+#----- releasing VS solutions
+ifeq ($(OS_is_win),yes)
+# $1: Relative examples directiry
+# $2: Solution filename
+# $3: Target to trigger
+define .release.x.sln
+$3: $(RELEASEDIR.daal)/$1/$2
+$(RELEASEDIR.daal)/$1/$2: \
+        $1/daal_win.vcxproj.tpl \
+        $1/daal_win.vcxproj.filters.tpl \
+        $1/daal_win.vcxproj.user.tpl \
+        $1/daal_win.sln.tpl
+	python ./deploy/local/generate_win_solution.py $1 $(RELEASEDIR.daal)/$1 $2
+endef
+
+$(eval $(call .release.x.sln,examples/daal/cpp,DAALExamples.sln,_release_c))
+$(eval $(call .release.x.sln,examples/daal/cpp_sycl,DAALExamples_sycl.sln,_release_c))
+$(eval $(call .release.x.sln,examples/oneapi/cpp,oneDALExamples.sln,_release_oneapi_c))
+endif
+
 #----- releasing environment scripts
 define .release.x
 $4: $3/$2
@@ -948,7 +970,6 @@ $(foreach d,$(release.SAMPLES.JAVA),  $(eval $(call .release.d,$d,$(subst $(SAMP
 $(foreach d,$(release.SAMPLES.SCALA), $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),_release_jj)))
 
 $(CORE.incdirs): _release_c_h
-$(ONEAPI.incdirs): _release_oneapi_c_h
 
 define .release.dd
 $3: $2

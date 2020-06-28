@@ -15,8 +15,11 @@
 *******************************************************************************/
 
 #include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 namespace oneapi::dal::backend::interop::svm {
+
+namespace daal_svm = daal::algorithms::svm;
 
 struct daal_model : public daal::algorithms::svm::Model {
     daal_model() = default;
@@ -37,5 +40,20 @@ struct daal_model : public daal::algorithms::svm::Model {
         return *this;
     }
 };
+
+template <typename T>
+inline auto convert_from_daal_model(daal_svm::Model& model) {
+    auto table_support_vectors = convert_from_daal_homogen_table<T>(model.getSupportVectors());
+    auto table_classification_coefficients =
+        convert_from_daal_homogen_table<T>(model.getClassificationCoefficients());
+    const double bias                        = model.getBias();
+    const std::int64_t support_vectors_count = table_support_vectors.get_row_count();
+
+    return dal::svm::model()
+        .set_support_vectors(table_support_vectors)
+        .set_coefficients(table_classification_coefficients)
+        .set_bias(bias)
+        .set_support_vectors_count(support_vectors_count);
+}
 
 } // namespace oneapi::dal::backend::interop::svm
