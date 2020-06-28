@@ -22,7 +22,8 @@
 namespace oneapi::dal::svm::detail {
 
 template <typename Float, typename Task, typename Method>
-struct train_ops_dispatcher<data_parallel_execution_context, Float, Task, Method> {
+struct ONEAPI_DAL_EXPORT
+    train_ops_dispatcher<data_parallel_execution_context, Float, Task, Method> {
     train_result operator()(const data_parallel_execution_context& ctx,
                             const descriptor_base& params,
                             const train_input& input) const {
@@ -33,8 +34,9 @@ struct train_ops_dispatcher<data_parallel_execution_context, Float, Task, Method
     }
 };
 
-#define INSTANTIATE(F, T, M) \
-    template struct train_ops_dispatcher<data_parallel_execution_context, F, T, M>;
+#define INSTANTIATE(F, T, M)          \
+    template struct ONEAPI_DAL_EXPORT \
+        train_ops_dispatcher<data_parallel_execution_context, F, T, M>;
 
 INSTANTIATE(float, task::classification, method::smo)
 INSTANTIATE(float, task::classification, method::thunder)

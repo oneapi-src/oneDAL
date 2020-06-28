@@ -21,7 +21,7 @@
 namespace oneapi::dal::svm::detail {
 
 template <typename Context, typename... Options>
-struct infer_ops_dispatcher {
+struct ONEAPI_DAL_EXPORT infer_ops_dispatcher {
     infer_result operator()(const Context&, const descriptor_base&, const infer_input&) const;
 };
 

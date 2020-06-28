@@ -39,7 +39,7 @@ struct regression {};
 using by_default = classification;
 } // namespace task
 
-class descriptor_base : public base {
+class ONEAPI_DAL_EXPORT descriptor_base : public base {
 public:
     using tag_t    = detail::tag;
     using float_t  = float;
@@ -106,7 +106,7 @@ public:
     }
 };
 
-class model : public base {
+class ONEAPI_DAL_EXPORT model : public base {
     friend dal::detail::pimpl_accessor;
 
 public:
