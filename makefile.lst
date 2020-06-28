@@ -225,10 +225,12 @@ CORE.SERVICES       := compression            \
 
 # Dependencies between oneAPI and core (CPU-only) algorithms
 ONEAPI.ALGOS.pca := CORE.pca
+ONEAPI.ALGOS.linear_kernel := CORE.kernel_function
 
 # List of algorithms in oneAPI part
-ONEAPI.ALGOS := \
-    pca
+ONEAPI.ALGOS :=     \
+    linear_kernel   \
+    pca             \
 
 
 JJ.ALGORITHMS       := adaboost                                                  \

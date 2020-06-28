@@ -17,6 +17,7 @@
 #pragma once
 
 #include <algorithm>
+#include <stdexcept>
 #include <variant>
 #include "oneapi/dal/detail/common.hpp"
 
