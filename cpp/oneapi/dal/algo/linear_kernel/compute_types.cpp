@@ -27,7 +27,7 @@ public:
 
 class detail::compute_result_impl : public base {
 public:
-    table data;
+    table values;
 };
 
 using detail::compute_input_impl;
@@ -45,12 +45,12 @@ void compute_input::set_data_impl(const table& value) {
 
 compute_result::compute_result() : impl_(new compute_result_impl{}) {}
 
-table compute_result::get_computed_kernel() const {
-    return impl_->data;
+table compute_result::get_values() const {
+    return impl_->values;
 }
 
-void compute_result::set_computed_kernel_impl(const table& value) {
-    impl_->data = value;
+void compute_result::set_values_impl(const table& value) {
+    impl_->values = value;
 }
 
 } // namespace oneapi::dal::linear_kernel

@@ -14,20 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/pca/backend/gpu/train_kernel.hpp"
+#pragma once
 
-namespace oneapi::dal::pca::backend {
-
-template <typename Float>
-struct train_kernel_gpu<Float, method::svd> {
-    train_result operator()(const dal::backend::context_gpu& ctx,
-                            const descriptor_base& params,
-                            const train_input& input) const {
-        return train_result();
-    }
-};
-
-template struct train_kernel_gpu<float, method::svd>;
-template struct train_kernel_gpu<double, method::svd>;
-
-} // namespace oneapi::dal::pca::backend
+#include "oneapi/dal/algo/linear_kernel/compute.hpp"

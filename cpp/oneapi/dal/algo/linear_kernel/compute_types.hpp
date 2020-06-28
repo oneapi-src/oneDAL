@@ -46,15 +46,15 @@ class compute_result {
 public:
     compute_result();
 
-    table get_computed_kernel() const;
+    table get_values() const;
 
-    auto& set_computed_kernel(const table& value) {
-        set_computed_kernel_impl(value);
+    auto& set_values(const table& value) {
+        set_values_impl(value);
         return *this;
     }
 
 private:
-    void set_computed_kernel_impl(const table&);
+    void set_values_impl(const table&);
 
     dal::detail::pimpl<detail::compute_result_impl> impl_;
 };

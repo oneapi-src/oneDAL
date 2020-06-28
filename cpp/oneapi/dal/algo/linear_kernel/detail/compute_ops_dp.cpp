@@ -14,31 +14,31 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/pca/backend/cpu/train_kernel.hpp"
-#include "oneapi/dal/algo/pca/backend/gpu/train_kernel.hpp"
-#include "oneapi/dal/algo/pca/detail/train_ops.hpp"
+#include "oneapi/dal/algo/linear_kernel/backend/cpu/compute_kernel.hpp"
+#include "oneapi/dal/algo/linear_kernel/backend/gpu/compute_kernel.hpp"
+#include "oneapi/dal/algo/linear_kernel/detail/compute_ops.hpp"
 #include "oneapi/dal/backend/dispatcher_dp.hpp"
 
-namespace oneapi::dal::pca::detail {
+namespace oneapi::dal::linear_kernel::detail {
 
 template <typename Float, typename Method>
-struct train_ops_dispatcher<data_parallel_execution_context, Float, Method> {
-    train_result operator()(const data_parallel_execution_context& ctx,
+struct compute_ops_dispatcher<data_parallel_execution_context, Float, Method> {
+    compute_result operator()(const data_parallel_execution_context& ctx,
                             const descriptor_base& params,
-                            const train_input& input) const {
+                            const compute_input& input) const {
         using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Method>,
-                                            backend::train_kernel_gpu<Float, Method>>;
+            dal::backend::kernel_dispatcher<backend::compute_kernel_cpu<Float, Method>,
+                                            backend::compute_kernel_gpu<Float, Method>>;
         return kernel_dispatcher_t{}(ctx, params, input);
     }
 };
 
 #define INSTANTIATE(F, M) \
-    template struct train_ops_dispatcher<data_parallel_execution_context, F, M>;
+    template struct compute_ops_dispatcher<data_parallel_execution_context, F, M>;
 
-INSTANTIATE(float, method::cov)
-INSTANTIATE(float, method::svd)
-INSTANTIATE(double, method::cov)
-INSTANTIATE(double, method::svd)
+INSTANTIATE(float, method::default_dense)
+INSTANTIATE(float, method::fast_csr)
+INSTANTIATE(double, method::default_dense)
+INSTANTIATE(double, method::fast_csr)
 
-} // namespace oneapi::dal::pca::detail
+} // namespace oneapi::dal::linear_kernel::detail

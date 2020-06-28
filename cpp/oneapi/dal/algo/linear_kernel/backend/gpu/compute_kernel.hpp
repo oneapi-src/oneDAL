@@ -16,16 +16,16 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/pca/train_types.hpp"
-#include "oneapi/dal/backend/dispatcher.hpp"
+#include "oneapi/dal/algo/linear_kernel/compute_types.hpp"
+#include "oneapi/dal/backend/dispatcher_dp.hpp"
 
-namespace oneapi::dal::pca::backend {
+namespace oneapi::dal::linear_kernel::backend {
 
 template <typename Float, typename Method>
-struct train_kernel_cpu {
-    train_result operator()(const dal::backend::context_cpu& ctx,
+struct compute_kernel_gpu {
+    compute_result operator()(const dal::backend::context_gpu& ctx,
                             const descriptor_base& params,
-                            const train_input& input) const;
+                            const compute_input& input) const;
 };
 
-} // namespace oneapi::dal::pca::backend
+} // namespace oneapi::dal::linear_kernel::backend

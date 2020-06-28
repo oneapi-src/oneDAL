@@ -14,20 +14,18 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/pca/backend/cpu/train_kernel.hpp"
+#pragma once
 
-namespace oneapi::dal::pca::backend {
+#include "oneapi/dal/algo/linear_kernel/compute_types.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
-template <typename Float>
-struct train_kernel_cpu<Float, method::svd> {
-    train_result operator()(const dal::backend::context_cpu& ctx,
+namespace oneapi::dal::linear_kernel::backend {
+
+template <typename Float, typename Method>
+struct compute_kernel_cpu {
+    compute_result operator()(const dal::backend::context_cpu& ctx,
                             const descriptor_base& params,
-                            const train_input& input) const {
-        return train_result();
-    }
+                            const compute_input& input) const;
 };
 
-template struct train_kernel_cpu<float, method::svd>;
-template struct train_kernel_cpu<double, method::svd>;
-
-} // namespace oneapi::dal::pca::backend
+} // namespace oneapi::dal::linear_kernel::backend
