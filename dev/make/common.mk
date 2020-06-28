@@ -88,6 +88,10 @@ RC.COMPILE = rc.exe $(RCOPT) -fo$@ $<
 C.COMPILE = $(if $(COMPILER.$(_OS).$(COMPILER)),$(COMPILER.$(_OS).$(COMPILER)),$(error COMPILER.$(_OS).$(COMPILER) must be defined)) \
             -c $(secure.opts.icc.$(_OS)) $(COPT) $(INCLUDES) $1 $(-Fo)$@ $<
 
+DPC.COMPILE = $(if $(COMPILER.$(_OS).dpcpp),$(COMPILER.$(_OS).dpcpp),$(error COMPILER.$(_OS).dpcpp must be defined)) \
+			  $(if $(DPC.COMPILE.gcc_toolchain),--gcc-toolchain=$(DPC.COMPILE.gcc_toolchain)) \
+              -c $(secure.opts.icc.$(_OS)) $(COPT) $(INCLUDES) $1 $(-Fo)$@ $<
+
 # Enable additional options to follow ISO C++ standards
 pedantic.opts = $(pedantic.opts.$(_OS).$(COMPILER))
 
