@@ -46,7 +46,7 @@ public:
 
     static array<T> zeros(std::int64_t count) {
         // TODO: can be optimized in future
-        return full_impl(detail::host_seq_policy{}, count, 0, detail::host_only_alloc{});
+        return full_impl(detail::host_seq_policy{}, count, T{}, detail::host_only_alloc{});
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -61,7 +61,7 @@ public:
                           std::int64_t count,
                           sycl::usm::alloc kind = sycl::usm::alloc::shared) {
         // TODO: can be optimized in future
-        return full_impl(queue, count, 0, kind);
+        return full_impl(queue, count, T{}, kind);
     }
 #endif
 
