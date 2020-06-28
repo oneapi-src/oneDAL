@@ -21,7 +21,7 @@
 namespace oneapi::dal::linear_kernel::detail {
 
 template <typename Float, typename Method>
-struct compute_ops_dispatcher<default_execution_context, Float, Method> {
+struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<default_execution_context, Float, Method> {
     compute_result operator()(const default_execution_context& ctx,
                               const descriptor_base& desc,
                               const compute_input& input) const {
@@ -31,7 +31,8 @@ struct compute_ops_dispatcher<default_execution_context, Float, Method> {
     }
 };
 
-#define INSTANTIATE(F, M) template struct compute_ops_dispatcher<default_execution_context, F, M>;
+#define INSTANTIATE(F, M) \
+    template struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<default_execution_context, F, M>;
 
 INSTANTIATE(float, method::default_dense)
 INSTANTIATE(float, method::fast_csr)
