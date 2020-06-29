@@ -180,7 +180,6 @@ protected:
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < nF; ++i) pf[i] = initValue;
-
     }
 
 public:
@@ -310,7 +309,6 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, cpu>::run(gbt
           });
         }
     }
-
     step(this->_dataHelper.y());
     _nParallelNodes.set(0);
     return buildTrees(aTbl, aTblImp, aTblSmplCnt, GH_SUMS_BUF);
