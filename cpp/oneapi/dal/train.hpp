@@ -17,12 +17,21 @@
 #pragma once
 
 #include "oneapi/dal/detail/train_ops.hpp"
+#include "oneapi/dal/policy.hpp"
 
 namespace oneapi::dal {
 
 template <typename... Args>
 auto train(Args&&... args) {
-    return detail::train_dispatch_by_ctx(std::forward<Args>(args)...);
+    return detail::train_dispatch_by_policy(std::forward<Args>(args)...);
 }
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+template <typename... Args>
+auto train(sycl::queue& queue, Args&&... args) {
+    return detail::train_dispatch_by_policy(data_parallel_policy{ queue },
+                                            std::forward<Args>(args)...);
+}
+#endif
 
 } // namespace oneapi::dal

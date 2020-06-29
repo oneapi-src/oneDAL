@@ -415,6 +415,7 @@ release.EXAMPLES.CPP   := $(filter $(expat),$(shell find examples/daal/cpp  -typ
 release.EXAMPLES.DATA  := $(filter $(expat),$(shell find examples/daal/data -type f))
 release.EXAMPLES.JAVA  := $(filter $(expat),$(shell find examples/daal/java -type f))
 release.ONEAPI.EXAMPLES.CPP := $(filter $(expat),$(shell find examples/oneapi/cpp -type f))
+release.ONEAPI.EXAMPLES.DPC := $(filter $(expat),$(shell find examples/oneapi/dpc -type f))
 
 # List env files to populate release.
 release.ENV = deploy/local/vars_$(_OS).$(scr)
@@ -618,7 +619,7 @@ ONEAPI.srcdirs := $(ONEAPI.srcdirs.base) $(ONEAPI.srcdirs.detail) $(ONEAPI.srcdi
 ONEAPI.srcs.all := $(wildcard $(ONEAPI.srcdirs.base:%=%/*.cpp)) \
                    $(foreach x,$(ONEAPI.srcdirs.detail),$(shell find $x -type f -name "*.cpp")) \
                    $(foreach x,$(ONEAPI.srcdirs.backend),$(shell find $x -type f -name "*.cpp"))
-ONEAPI.srcs.all	:= $(ONEAPI.srcs.all:./$(ONEAPI.srcdir)/%=$(ONEAPI.srcdir)/%)
+ONEAPI.srcs.all	:= $(ONEAPI.srcs.all:./%=%)
 ONEAPI.srcs.dpc := $(filter %_dpc.cpp,$(ONEAPI.srcs.all))
 ONEAPI.srcs     := $(filter-out %_dpc.cpp,$(ONEAPI.srcs.all))
 ONEAPI.srcs     := $(filter-out %_test.cpp,$(ONEAPI.srcs))
@@ -667,17 +668,33 @@ $(ONEAPI.tmpdir_y)/inc_y_folders.txt: | $(ONEAPI.tmpdir_y)/.
 
 # Set compilation options to the object files which are part of STATIC lib
 $(ONEAPI.objs_a.all): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_a)/inc_a_folders.txt
-$(ONEAPI.objs_a.all): COPT := $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic.opts) \
+$(ONEAPI.objs_a): COPT := $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic.opts) \
+                          -DDAAL_NOTHROW_EXCEPTIONS \
+                          -DDAAL_HIDE_DEPRECATED \
+                          -D__TBB_NO_IMPLICIT_LINKAGE \
+                           @$(ONEAPI.tmpdir_a)/inc_a_folders.txt
+
+$(ONEAPI.objs_a.dpc): COPT := $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.opts) \
                               -DDAAL_NOTHROW_EXCEPTIONS \
-							  -DDAAL_HIDE_DEPRECATED \
+                              -DDAAL_HIDE_DEPRECATED \
+							  -DONEAPI_DAL_DATA_PARALLEL \
                               -D__TBB_NO_IMPLICIT_LINKAGE \
                                @$(ONEAPI.tmpdir_a)/inc_a_folders.txt
 
 # Set compilation options to the object files which are part of DYNAMIC lib
 $(ONEAPI.objs_y.all): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_y)/inc_y_folders.txt
-$(ONEAPI.objs_y.all): COPT := $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic.opts) \
+$(ONEAPI.objs_y): COPT := $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic.opts) \
+                          -DDAAL_NOTHROW_EXCEPTIONS \
+                          -DDAAL_HIDE_DEPRECATED \
+                          $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG) \
+                          -D__ONEAPI_DAL_ENABLE_DLL_EXPORT__ \
+                          -D__TBB_NO_IMPLICIT_LINKAGE \
+                          @$(ONEAPI.tmpdir_y)/inc_y_folders.txt
+
+$(ONEAPI.objs_y.dpc): COPT := $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.opts) \
                               -DDAAL_NOTHROW_EXCEPTIONS \
-							  -DDAAL_HIDE_DEPRECATED \
+                              -DDAAL_HIDE_DEPRECATED \
+							  -DONEAPI_DAL_DATA_PARALLEL \
                               $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG) \
                               -D__ONEAPI_DAL_ENABLE_DLL_EXPORT__ \
                               -D__TBB_NO_IMPLICIT_LINKAGE \
@@ -692,22 +709,22 @@ $(foreach x,$(ONEAPI.objs_y.dpc),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdi
 $(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(oneapi_a),$(ONEAPI.objs_a)))
 $(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(oneapi_a.dpc),$(ONEAPI.objs_a.dpc)))
 
-# $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt): \
-#     $(ONEAPI.objs_y) $(if $(OS_is_win),$(ONEAPI.tmpdir_y)/dll.res,) | $(ONEAPI.tmpdir_y)/. ; $(WRITE.PREREQS)
-# $(WORKDIR.lib)/$(oneapi_y): \
-#     $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
-#     $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
-# $(WORKDIR.lib)/$(oneapi_y): LOPT += $(-fPIC)
-# $(WORKDIR.lib)/$(oneapi_y): LOPT += $(daaldep.rt.seq)
-# $(WORKDIR.lib)/$(oneapi_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.dll=%_dll.lib),)
-# $(WORKDIR.lib)/$(oneapi_y): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.dll=%_dll.lib))
-# ifdef OS_is_win
-# $(WORKDIR.lib)/$(oneapi_y:%.dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y)
-# endif
+$(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt): \
+    $(ONEAPI.objs_y) $(if $(OS_is_win),$(ONEAPI.tmpdir_y)/dll.res,) | $(ONEAPI.tmpdir_y)/. ; $(WRITE.PREREQS)
+$(WORKDIR.lib)/$(oneapi_y): \
+    $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
+    $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
+$(WORKDIR.lib)/$(oneapi_y): LOPT += $(-fPIC)
+$(WORKDIR.lib)/$(oneapi_y): LOPT += $(daaldep.rt.seq)
+$(WORKDIR.lib)/$(oneapi_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.dll=%_dll.lib),)
+$(WORKDIR.lib)/$(oneapi_y): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.dll=%_dll.lib))
+ifdef OS_is_win
+$(WORKDIR.lib)/$(oneapi_y:%.dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y)
+endif
 
-# $(ONEAPI.tmpdir_y)/dll.res: $(VERSION_DATA_FILE)
-# $(ONEAPI.tmpdir_y)/dll.res: RCOPT += $(addprefix -I, $(CORE.incdirs.common))
-# $(ONEAPI.tmpdir_y)/%.res: %.rc | $(ONEAPI.tmpdir_y)/. ; $(RC.COMPILE)
+$(ONEAPI.tmpdir_y)/dll.res: $(VERSION_DATA_FILE)
+$(ONEAPI.tmpdir_y)/dll.res: RCOPT += $(addprefix -I, $(CORE.incdirs.common))
+$(ONEAPI.tmpdir_y)/%.res: %.rc | $(ONEAPI.tmpdir_y)/. ; $(RC.COMPILE)
 
 
 #===============================================================================
@@ -841,11 +858,13 @@ daal: $(if $(CORE.ALGORITHMS.CUSTOM),           \
       )
 daal_c: _daal _release_c
 
-oneapi: _oneapi _release_oneapi_c
-oneapi_c: _oneapi _release_oneapi_c
+oneapi: oneapi_c oneapi_dpc
+oneapi_c: _oneapi_c _release_oneapi_c
+oneapi_dpc: _oneapi_dpc _release_oneapi_dpc
 
 onedal: oneapi daal
 onedal_c: daal_c oneapi_c
+onedal_dpc: daal_c oneapi_c oneapi_dpc
 
 _daal:    _daal_core _daal_thr
 _daal_jj: _daal_jar _daal_jni
@@ -864,9 +883,12 @@ _release:    _release_c _release_jj
 _release_c:  _release_c_h _release_common
 _release_jj: _release_common
 
-_oneapi: info.building.oneapi
-_oneapi: $(WORKDIR.lib)/$(oneapi_a) $(WORKDIR.lib)/$(oneapi_y)
-_release_oneapi: _release_oneapi_c
+_oneapi_c: info.building.oneapi.C++.part
+_oneapi_c: $(WORKDIR.lib)/$(oneapi_a) $(WORKDIR.lib)/$(oneapi_y)
+
+_oneapi_dpc: info.building.oneapi.DPC++.part
+_oneapi_dpc: $(WORKDIR.lib)/$(oneapi_a.dpc)
+
 _release_oneapi_c: _release_oneapi_c_h
 _release_oneapi_dpc: _release_oneapi_c
 
@@ -887,7 +909,7 @@ $(foreach a,$(release.LIBS_A),$(eval $(call .release.ay,$a,$(RELEASEDIR.libia),_
 $(foreach y,$(release.LIBS_Y),$(eval $(call .release.ay,$y,$(RELEASEDIR.soia),_release_c)))
 $(foreach j,$(release.LIBS_J),$(eval $(call .release.ay,$j,$(RELEASEDIR.soia),_release_jj)))
 $(foreach a,$(release.ONEAPI.LIBS_A),$(eval $(call .release.ay,$a,$(RELEASEDIR.libia),_release_oneapi_c)))
-# $(foreach y,$(release.ONEAPI.LIBS_Y),$(eval $(call .release.ay,$y,$(RELEASEDIR.soia),_release_oneapi_c)))
+$(foreach y,$(release.ONEAPI.LIBS_Y),$(eval $(call .release.ay,$y,$(RELEASEDIR.soia),_release_oneapi_c)))
 $(foreach a,$(release.ONEAPI.LIBS_A.dpc),$(eval $(call .release.ay,$a,$(RELEASEDIR.libia),_release_oneapi_dpc)))
 # $(foreach y,$(release.ONEAPI.LIBS_Y.dpc),$(eval $(call .release.ay,$y,$(RELEASEDIR.soia),_release_oneapi_dpc)))
 
@@ -906,6 +928,7 @@ $(foreach x,$(release.EXAMPLES.DATA),$(eval $(call .release.x,$x,$(RELEASEDIR.da
 $(foreach x,$(release.EXAMPLES.CPP),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_c)))
 $(foreach x,$(release.EXAMPLES.JAVA),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_jj)))
 $(foreach x,$(release.ONEAPI.EXAMPLES.CPP),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_c)))
+$(foreach x,$(release.ONEAPI.EXAMPLES.DPC),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_dpc)))
 
 #----- releasing VS solutions
 ifeq ($(OS_is_win),yes)

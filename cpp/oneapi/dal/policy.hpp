@@ -16,17 +16,18 @@
 
 #pragma once
 
+#include <type_traits>
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    #include <CL/sycl.hpp>
+#endif
+
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal {
 
-/* Forward declarations */
-class default_execution_context;
-class data_parallel_execution_context;
-
 namespace detail {
-struct execution_context_tag {};
-class default_execution_context_impl;
+class default_policy_impl;
+class data_parallel_policy_impl;
 } // namespace detail
 
 enum class cpu_extension : uint64_t {
@@ -39,25 +40,47 @@ enum class cpu_extension : uint64_t {
     avx512 = 1U << 5
 };
 
-class ONEAPI_DAL_EXPORT default_execution_context : public base {
+class ONEAPI_DAL_EXPORT default_policy : public base {
 public:
-    using tag_t = detail::execution_context_tag;
-    default_execution_context();
+    default_policy();
 
     cpu_extension get_enabled_cpu_extensions() const noexcept;
 
-    auto& set_enabled_cpu_extensions(const cpu_extension& extensions) noexcept {
+    auto& set_enabled_cpu_extensions(const cpu_extension& extensions) {
         set_enabled_cpu_extensions_impl(extensions);
         return *this;
     }
 
 private:
     void set_enabled_cpu_extensions_impl(const cpu_extension& extensions) noexcept;
-    dal::detail::pimpl<detail::default_execution_context_impl> impl_;
+
+    dal::detail::pimpl<detail::default_policy_impl> impl_;
 };
 
-inline auto make_context() {
-    return default_execution_context();
-}
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+class ONEAPI_DAL_EXPORT data_parallel_policy : public base {
+public:
+    data_parallel_policy(const sycl::queue& queue);
+
+    sycl::queue& get_queue() const noexcept;
+
+private:
+    dal::detail::pimpl<detail::data_parallel_policy_impl> impl_;
+};
+#endif
+
+template <typename T>
+struct is_execution_policy : std::bool_constant<false> {};
+
+template <>
+struct is_execution_policy<default_policy> : std::bool_constant<true> {};
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+template <>
+struct is_execution_policy<data_parallel_policy> : std::bool_constant<true> {};
+#endif
+
+template <typename T>
+constexpr bool is_execution_policy_v = is_execution_policy<T>::value;
 
 } // namespace oneapi::dal

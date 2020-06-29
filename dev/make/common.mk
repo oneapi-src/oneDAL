@@ -141,7 +141,7 @@ link.dynamic.post.mac = install_name_tool -change "libtbb.dylib" "@rpath/libtbb.
                         install_name_tool -add_rpath "." $@
 link.dynamic.post.fbsd =
 
-info.building.%:; $(info ========= Building $* =========)
+info.building.%:; $(info ========= Building $(subst ., ,$*) =========)
 %/.:; mkdir -p $*
 
 # symbols dump

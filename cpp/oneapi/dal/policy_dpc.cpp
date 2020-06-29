@@ -14,28 +14,25 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/execution_context.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/policy.hpp"
 
 namespace oneapi::dal {
 
-class detail::default_execution_context_impl : public base {
+class detail::data_parallel_policy_impl : public base {
 public:
-    cpu_extension cpu_extensions_mask = backend::interop::detect_top_cpu_extension();
+    explicit data_parallel_policy_impl(const sycl::queue& queue) : queue(queue) {}
+
+    sycl::queue queue;
 };
 
-using detail::default_execution_context_impl;
+using detail::data_parallel_policy_impl;
 
-default_execution_context::default_execution_context()
-        : impl_(new default_execution_context_impl()) {}
+data_parallel_policy::data_parallel_policy(const sycl::queue& queue)
+        : impl_(new data_parallel_policy_impl(queue)) {}
 
-void default_execution_context::set_enabled_cpu_extensions_impl(
-    const cpu_extension& extensions) noexcept {
-    impl_->cpu_extensions_mask = extensions;
-}
-
-cpu_extension default_execution_context::get_enabled_cpu_extensions() const noexcept {
-    return impl_->cpu_extensions_mask;
+sycl::queue& data_parallel_policy::get_queue() const noexcept {
+    return impl_->queue;
 }
 
 } // namespace oneapi::dal

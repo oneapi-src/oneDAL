@@ -16,15 +16,15 @@
 
 #pragma once
 
-#include "oneapi/dal/execution_context.hpp"
+#include "oneapi/dal/policy.hpp"
 
 namespace oneapi::dal::detail {
 
 template <typename Descriptor, typename Tag>
 struct train_ops;
 
-template <typename Context, typename Descriptor, typename Head, typename... Tail>
-auto train_dispatch_by_input(const Context& ctx,
+template <typename Policy, typename Descriptor, typename Head, typename... Tail>
+auto train_dispatch_by_input(const Policy& policy,
                              const Descriptor& desc,
                              Head&& head,
                              Tail&&... tail) {
@@ -33,23 +33,24 @@ auto train_dispatch_by_input(const Context& ctx,
     using input_t = typename ops_t::input_t;
 
     if constexpr (std::is_same_v<std::decay_t<Head>, input_t>) {
-        return ops_t()(ctx, desc, std::forward<Head>(head), std::forward<Tail>(tail)...);
+        return ops_t{}(policy, desc, std::forward<Head>(head), std::forward<Tail>(tail)...);
     }
-
-    const auto input = input_t{ std::forward<Head>(head), std::forward<Tail>(tail)... };
-    return ops_t()(ctx, desc, input);
+    else {
+        const auto input = input_t{ std::forward<Head>(head), std::forward<Tail>(tail)... };
+        return ops_t{}(policy, desc, input);
+    }
 }
 
 template <typename Head, typename... Tail>
-auto train_dispatch_by_ctx(Head&& head, Tail&&... tail) {
-    using tag_t = typename std::decay_t<Head>::tag_t;
-    if constexpr (std::is_same_v<tag_t, detail::execution_context_tag>) {
-        return train_dispatch_by_input(head, std::forward<Tail>(tail)...);
+auto train_dispatch_by_policy(Head&& head, Tail&&... tail) {
+    if constexpr (is_execution_policy_v<std::decay_t<Head>>) {
+        return train_dispatch_by_input(std::forward<Head>(head), std::forward<Tail>(tail)...);
     }
-
-    return train_dispatch_by_input(default_execution_context(),
-                                   std::forward<Head>(head),
-                                   std::forward<Tail>(tail)...);
+    else {
+        return train_dispatch_by_input(default_policy{},
+                                       std::forward<Head>(head),
+                                       std::forward<Tail>(tail)...);
+    }
 }
 
 } // namespace oneapi::dal::detail

@@ -14,24 +14,26 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "oneapi/dal/policy.hpp"
+#include "oneapi/dal/backend/interop/common.hpp"
 
-#include "oneapi/dal/backend/dispatcher.hpp"
-#include "oneapi/dal/data_parallel.hpp"
+namespace oneapi::dal {
 
-namespace oneapi::dal::backend {
-
-class context_gpu {};
-
-template <typename CpuKernel, typename GpuKernel>
-struct kernel_dispatcher<CpuKernel, GpuKernel> {
-    template <typename... Args>
-    auto operator()(const data_parallel_execution_context& ctx, Args&&... args) const {
-        // TODO: Dispatch to GPU
-        // TODO: Extract context_cpu from data_parallel_execution_context
-        auto cpu_ctx = context_cpu{ default_execution_context{} };
-        return CpuKernel()(cpu_ctx, std::forward<Args>(args)...);
-    }
+class detail::default_policy_impl : public base {
+public:
+    cpu_extension cpu_extensions_mask = backend::interop::detect_top_cpu_extension();
 };
 
-} // namespace oneapi::dal::backend
+using detail::default_policy_impl;
+
+default_policy::default_policy() : impl_(new default_policy_impl()) {}
+
+void default_policy::set_enabled_cpu_extensions_impl(const cpu_extension& extensions) noexcept {
+    impl_->cpu_extensions_mask = extensions;
+}
+
+cpu_extension default_policy::get_enabled_cpu_extensions() const noexcept {
+    return impl_->cpu_extensions_mask;
+}
+
+} // namespace oneapi::dal
