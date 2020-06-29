@@ -14,34 +14,20 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/linear_kernel/common.hpp"
+#include "oneapi/dal/algo/linear_kernel/backend/cpu/compute_kernel.hpp"
 
-namespace oneapi::dal::linear_kernel {
+namespace oneapi::dal::linear_kernel::backend {
 
-class detail::descriptor_impl : public base {
-public:
-    double k = 1.0;
-    double b = 0.0;
+template <typename Float>
+struct compute_kernel_cpu<Float, method::fast_csr> {
+    compute_result operator()(const dal::backend::context_cpu& ctx,
+                              const descriptor_base& desc,
+                              const compute_input& input) const {
+        return compute_result();
+    }
 };
 
-using detail::descriptor_impl;
+template struct compute_kernel_cpu<float, method::fast_csr>;
+template struct compute_kernel_cpu<double, method::fast_csr>;
 
-descriptor_base::descriptor_base() : impl_(new descriptor_impl{}) {}
-
-double descriptor_base::get_k() const {
-    return impl_->k;
-}
-
-double descriptor_base::get_b() const {
-    return impl_->b;
-}
-
-void descriptor_base::set_k_impl(const double value) {
-    impl_->k = value;
-}
-
-void descriptor_base::set_b_impl(const double value) {
-    impl_->b = value;
-}
-
-} // namespace oneapi::dal::linear_kernel
+} // namespace oneapi::dal::linear_kernel::backend

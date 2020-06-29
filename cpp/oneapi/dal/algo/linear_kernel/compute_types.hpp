@@ -25,24 +25,31 @@ class compute_input_impl;
 class compute_result_impl;
 } // namespace detail
 
-class compute_input : public base {
+class ONEAPI_DAL_EXPORT compute_input : public base {
 public:
-    compute_input(const table& data);
+    compute_input(const table& x, const table& y);
 
-    table get_data() const;
+    table get_x() const;
+    table get_y() const;
 
-    auto& set_data(const table& data) {
-        set_data_impl(data);
+    auto& set_x(const table& data) {
+        set_x_impl(data);
+        return *this;
+    }
+
+    auto& set_y(const table& data) {
+        set_y_impl(data);
         return *this;
     }
 
 private:
-    void set_data_impl(const table& data);
+    void set_x_impl(const table& data);
+    void set_y_impl(const table& data);
 
     dal::detail::pimpl<detail::compute_input_impl> impl_;
 };
 
-class compute_result {
+class ONEAPI_DAL_EXPORT compute_result {
 public:
     compute_result();
 

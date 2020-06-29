@@ -14,34 +14,15 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/linear_kernel/common.hpp"
+#pragma once
 
-namespace oneapi::dal::linear_kernel {
+#include "oneapi/dal/detail/compute_ops.hpp"
 
-class detail::descriptor_impl : public base {
-public:
-    double k = 1.0;
-    double b = 0.0;
-};
+namespace oneapi::dal {
 
-using detail::descriptor_impl;
-
-descriptor_base::descriptor_base() : impl_(new descriptor_impl{}) {}
-
-double descriptor_base::get_k() const {
-    return impl_->k;
+template <typename... Args>
+auto compute(Args&&... args) {
+    return detail::compute_dispatch_by_ctx(std::forward<Args>(args)...);
 }
 
-double descriptor_base::get_b() const {
-    return impl_->b;
-}
-
-void descriptor_base::set_k_impl(const double value) {
-    impl_->k = value;
-}
-
-void descriptor_base::set_b_impl(const double value) {
-    impl_->b = value;
-}
-
-} // namespace oneapi::dal::linear_kernel
+} // namespace oneapi::dal

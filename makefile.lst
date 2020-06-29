@@ -225,12 +225,22 @@ CORE.SERVICES       := compression            \
 
 # Dependencies between oneAPI and core (CPU-only) algorithms
 ONEAPI.ALGOS.pca := CORE.pca
+<<<<<<< HEAD
 ONEAPI.ALGOS.svm := CORE.svm
 
 # List of algorithms in oneAPI part
 ONEAPI.ALGOS := \
     pca         \
     svm
+=======
+ONEAPI.ALGOS.linear_kernel := CORE.kernel_function
+
+# List of algorithms in oneAPI part
+ONEAPI.ALGOS :=     \
+    linear_kernel   \
+    pca             \
+
+>>>>>>> dev/dpcpp_linear_kernel
 
 JJ.ALGORITHMS       := adaboost                                                  \
                        adaboost/prediction                                       \

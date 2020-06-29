@@ -33,7 +33,7 @@ struct fast_csr {};
 using by_default = default_dense;
 } // namespace method
 
-class descriptor_base : public base {
+class ONEAPI_DAL_EXPORT descriptor_base : public base {
 public:
     using tag_t    = detail::tag;
     using float_t  = float;

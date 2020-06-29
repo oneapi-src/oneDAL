@@ -21,8 +21,9 @@ namespace oneapi::dal::linear_kernel {
 
 class detail::compute_input_impl : public base {
 public:
-    compute_input_impl(const table& data) : data(data) {}
-    table data;
+    compute_input_impl(const table& x, const table& y) : x(x), y(y) {}
+    table x;
+    table y;
 };
 
 class detail::compute_result_impl : public base {
@@ -33,14 +34,23 @@ public:
 using detail::compute_input_impl;
 using detail::compute_result_impl;
 
-compute_input::compute_input(const table& data) : impl_(new compute_input_impl(data)) {}
+compute_input::compute_input(const table& x, const table& y)
+        : impl_(new compute_input_impl(x, y)) {}
 
-table compute_input::get_data() const {
-    return impl_->data;
+table compute_input::get_x() const {
+    return impl_->x;
 }
 
-void compute_input::set_data_impl(const table& value) {
-    impl_->data = value;
+table compute_input::get_y() const {
+    return impl_->y;
+}
+
+void compute_input::set_x_impl(const table& value) {
+    impl_->x = value;
+}
+
+void compute_input::set_y_impl(const table& value) {
+    impl_->y = value;
 }
 
 compute_result::compute_result() : impl_(new compute_result_impl{}) {}

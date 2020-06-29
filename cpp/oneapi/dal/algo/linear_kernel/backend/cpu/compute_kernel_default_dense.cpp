@@ -36,10 +36,9 @@ static compute_result call_daal_kernel(const context_cpu& ctx,
                                        const descriptor_base& desc,
                                        const table& x,
                                        const table& y) {
-    const int64_t row_count_x     = x.get_row_count();
-    const int64_t row_count_y     = y.get_row_count();
-    const int64_t column_count    = x.get_column_count();
-    const int64_t component_count = desc.get_component_count();
+    const int64_t row_count_x  = x.get_row_count();
+    const int64_t row_count_y  = y.get_row_count();
+    const int64_t column_count = x.get_column_count();
 
     auto arr_x = row_accessor<const Float>{ x }.pull();
     auto arr_y = row_accessor<const Float>{ y }.pull();
@@ -59,14 +58,14 @@ static compute_result call_daal_kernel(const context_cpu& ctx,
                                                            daal_values.get(),
                                                            &daal_parameter);
 
-    return compute_result().set_values(homogen_table_builder{ row_count_y, daal_values }.build());
+    return compute_result().set_values(homogen_table_builder{ row_count_y, arr_values }.build());
 }
 
 template <typename Float>
 static compute_result compute(const context_cpu& ctx,
                               const descriptor_base& desc,
                               const compute_input& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data());
+    return call_daal_kernel<Float>(ctx, desc, input.get_x(), input.get_y());
 }
 
 template <typename Float>
@@ -74,8 +73,7 @@ struct compute_kernel_cpu<Float, method::default_dense> {
     compute_result operator()(const context_cpu& ctx,
                               const descriptor_base& desc,
                               const compute_input& input) const {
-        return compute_result();
-        // return compute<Float>(ctx, desc, input);
+        return compute<Float>(ctx, desc, input);
     }
 };
 
