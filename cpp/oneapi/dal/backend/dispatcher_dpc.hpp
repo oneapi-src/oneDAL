@@ -20,6 +20,7 @@
     #error ONEAPI_DAL_DATA_PARALLEL must be defined to include this file
 #endif
 
+#include <stdexcept> // TODO: change by onedal exceptions
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::backend {
