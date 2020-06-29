@@ -133,10 +133,10 @@ public:
         return *this;
     }
 
-    std::int64_t get_support_vectors_count() const;
+    std::int64_t get_support_vector_count() const;
 
-    auto &set_support_vectors_count(const std::int64_t value) {
-        set_support_vectors_count_impl(value);
+    auto &set_support_vector_count(const std::int64_t value) {
+        set_support_vector_count_impl(value);
         return *this;
     }
 
@@ -144,7 +144,7 @@ private:
     void set_support_vectors_impl(const table &);
     void set_coefficients_impl(const table &);
     void set_bias_impl(const double);
-    void set_support_vectors_count_impl(const std::int64_t);
+    void set_support_vector_count_impl(const std::int64_t);
 
     dal::detail::pimpl<detail::model_impl> impl_;
 };

@@ -17,14 +17,14 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
-namespace oneapi::dal::svm::backend::utils {
+namespace oneapi::dal::svm::backend {
 
 namespace interop  = dal::backend::interop;
 namespace daal_svm = daal::algorithms::svm;
 
-struct daal_model : public daal::algorithms::svm::Model {
-    daal_model() = default;
-    virtual ~daal_model() {}
+struct daal_model_builder : public daal::algorithms::svm::Model {
+    daal_model_builder() = default;
+    virtual ~daal_model_builder() {}
 
     auto& set_support_vectors(daal::data_management::NumericTablePtr support_vectors) {
         _SV = support_vectors;
@@ -55,7 +55,7 @@ inline auto convert_from_daal_model(daal_svm::Model& model) {
         .set_support_vectors(table_support_vectors)
         .set_coefficients(table_classification_coefficients)
         .set_bias(bias)
-        .set_support_vectors_count(support_vectors_count);
+        .set_support_vector_count(support_vectors_count);
 }
 
-} // namespace oneapi::dal::svm::backend::utils
+} // namespace oneapi::dal::svm::backend

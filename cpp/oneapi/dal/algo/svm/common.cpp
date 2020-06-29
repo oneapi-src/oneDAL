@@ -103,7 +103,7 @@ double model::get_bias() const {
     return impl_->bias;
 }
 
-std::int64_t model::get_support_vectors_count() const {
+std::int64_t model::get_support_vector_count() const {
     return impl_->support_vectors_count;
 }
 
@@ -119,7 +119,7 @@ void model::set_bias_impl(const double value) {
     impl_->bias = value;
 }
 
-void model::set_support_vectors_count_impl(const std::int64_t value) {
+void model::set_support_vector_count_impl(const std::int64_t value) {
     impl_->support_vectors_count = value;
 }
 

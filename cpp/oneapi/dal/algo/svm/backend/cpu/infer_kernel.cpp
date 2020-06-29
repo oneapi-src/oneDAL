@@ -17,7 +17,7 @@
 #include <daal/src/algorithms/svm/svm_predict_kernel.h>
 
 #include "oneapi/dal/algo/svm/backend/cpu/infer_kernel.hpp"
-#include "oneapi/dal/algo/svm/backend/utils/model.hpp"
+#include "oneapi/dal/algo/svm/backend/interop_model.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
@@ -41,7 +41,7 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
                                      const table& data) {
     const int64_t row_count             = data.get_row_count();
     const int64_t column_count          = data.get_column_count();
-    const int64_t support_vectors_count = trained_model.get_support_vectors_count();
+    const int64_t support_vectors_count = trained_model.get_support_vector_count();
 
     // TODO: data is table, not a homogen_table. Think better about accessor - is it enough to have just a row_accessor?
     auto arr_data = row_accessor<const Float>{ data }.pull();
@@ -57,7 +57,7 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
     const auto daal_coefficients =
         interop::convert_to_daal_homogen_table(arr_coefficients, support_vectors_count, 1);
 
-    auto daal_model = utils::daal_model{}
+    auto daal_model = daal_model_builder{}
                           .set_support_vectors(daal_support_vectors)
                           .set_coefficients(daal_coefficients)
                           .set_bias(trained_model.get_bias());

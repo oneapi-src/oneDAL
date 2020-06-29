@@ -17,7 +17,7 @@
 #include <daal/src/algorithms/svm/svm_train_thunder_kernel.h>
 
 #include "oneapi/dal/algo/svm/backend/cpu/train_kernel.hpp"
-#include "oneapi/dal/algo/svm/backend/utils/model.hpp"
+#include "oneapi/dal/algo/svm/backend/interop_model.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
@@ -77,7 +77,7 @@ static train_result call_daal_kernel(const context_cpu& ctx,
         interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
 
     return train_result()
-        .set_model(utils::convert_from_daal_model<Float>(*daal_model))
+        .set_model(convert_from_daal_model<Float>(*daal_model))
         .set_support_indices(table_support_indices);
 }
 

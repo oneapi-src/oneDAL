@@ -88,8 +88,8 @@ double train_result::get_bias() const {
     return impl_->trained_model.get_bias();
 }
 
-std::int64_t train_result::get_support_vectors_count() const {
-    return impl_->trained_model.get_support_vectors_count();
+std::int64_t train_result::get_support_vector_count() const {
+    return impl_->trained_model.get_support_vector_count();
 }
 
 void train_result::set_model_impl(const model& value) {
@@ -111,8 +111,8 @@ void train_result::set_bias_impl(const double value) {
     impl_->trained_model.set_bias(value);
 }
 
-void train_result::set_support_vectors_count_impl(const std::int64_t value) {
-    impl_->trained_model.set_support_vectors_count(value);
+void train_result::set_support_vector_count_impl(const std::int64_t value) {
+    impl_->trained_model.set_support_vector_count(value);
 }
 
 } // namespace oneapi::dal::svm
