@@ -82,10 +82,8 @@ int main(int argc, char const *argv[]) {
 
   std::cout << "Decision function result:" << std::endl
             << result_test.get_decision_function() << std::endl;
-
   std::cout << "Labels result:" << std::endl
             << result_test.get_labels() << std::endl;
-
   std::cout << "Labels true:" << std::endl << y_true_table << std::endl;
 
   return 0;

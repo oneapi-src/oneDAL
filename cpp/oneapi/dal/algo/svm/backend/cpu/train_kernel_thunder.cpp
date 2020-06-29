@@ -77,7 +77,7 @@ static train_result call_daal_kernel(const context_cpu& ctx,
         interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
 
     return train_result()
-        .set_model(interop::svm::convert_from_daal_model<Float>(*daal_model))
+        .set_model(utils::convert_from_daal_model<Float>(*daal_model))
         .set_support_indices(table_support_indices);
 }
 

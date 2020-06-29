@@ -57,7 +57,7 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
     const auto daal_coefficients =
         interop::convert_to_daal_homogen_table(arr_coefficients, support_vectors_count, 1);
 
-    auto daal_model = interop::svm::daal_model{}
+    auto daal_model = utils::daal_model{}
                           .set_support_vectors(daal_support_vectors)
                           .set_coefficients(daal_coefficients)
                           .set_bias(trained_model.get_bias());
