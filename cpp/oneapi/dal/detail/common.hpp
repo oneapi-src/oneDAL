@@ -65,6 +65,6 @@ Object make_from_pointer(typename Object::pimpl::element_type* pointer) {
     return pimpl_accessor().template make_from_pointer<Object>(pointer);
 }
 
-struct host_seq_policy{};
+struct host_seq_policy {};
 
-}  // namespace oneapi::dal::detail
+} // namespace oneapi::dal::detail

@@ -128,7 +128,8 @@ table_feature& table_feature::set_type(feature_type ft) {
 table_metadata::table_metadata() : impl_(new detail::empty_metadata_impl()) {}
 
 table_metadata::table_metadata(const table_feature& feature, int64_t feature_count)
-    : impl_(new detail::simple_metadata_impl { array<table_feature>::full(feature_count, feature) }) {}
+        : impl_(new detail::simple_metadata_impl{
+              array<table_feature>::full(feature_count, feature) }) {}
 
 table_metadata::table_metadata(array<table_feature> features)
         : impl_(new detail::simple_metadata_impl{ features }) {}
