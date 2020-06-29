@@ -153,7 +153,8 @@ public:
     bool isInitialized() const { return !!_aBestSplitIdxBuf.get(); }
     virtual services::Status run(gbt::internal::GbtDecisionTree *& pRes, HomogenNumericTable<double> *& pTblImp,
                                  HomogenNumericTable<int> *& pTblSmplCnt, size_t iTree,
-                                 GlobalStorages<algorithmFPType, BinIndexType, cpu> & GH_SUMS_BUF);
+                                 GlobalStorages<algorithmFPType, BinIndexType, cpu> & GH_SUMS_BUF,
+                                 size_t iIteration);
 
     virtual services::Status run(gbt::internal::GbtDecisionTree *& pRes, HomogenNumericTable<double> *& pTblImp,
                                  HomogenNumericTable<int> *& pTblSmplCnt, size_t iTree) DAAL_C11_OVERRIDE
@@ -372,17 +373,18 @@ template <typename algorithmFPType, typename RowIndexType, typename BinIndexType
 services::Status TreeBuilder<algorithmFPType, RowIndexType, BinIndexType, cpu>::run(gbt::internal::GbtDecisionTree *& pRes,
                                                                                     HomogenNumericTable<double> *& pTblImp,
                                                                                     HomogenNumericTable<int> *& pTblSmplCnt, size_t iTree,
-                                                                                    GlobalStorages<algorithmFPType, BinIndexType, cpu> & GH_SUMS_BUF)
+                                                                                    GlobalStorages<algorithmFPType, BinIndexType, cpu> & GH_SUMS_BUF,
+                                                                                    size_t iIteration)
 {
     _tree.destroy();
-    typename NodeType::Base * nd = buildRoot(0, GH_SUMS_BUF);
+    typename NodeType::Base * nd = buildRoot(iTree, GH_SUMS_BUF);
     DAAL_CHECK_MALLOC(nd);
 
     _tree.reset(nd, false);
     services::Status status = gbt::internal::ModelImpl::treeToTable(_tree, &pRes, &pTblImp, &pTblSmplCnt, _ctx.nFeatures());
     DAAL_CHECK_STATUS_VAR(status)
 
-    if (_ctx.isBagging() && _tree.top()) _ctx.updateOOB(iTree, _tree);
+    if (_ctx.isBagging() && _tree.top()) _ctx.updateOOB(iIteration, _tree);
 
     return services::Status();
 }

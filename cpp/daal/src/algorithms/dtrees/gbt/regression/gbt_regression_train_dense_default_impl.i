@@ -152,7 +152,7 @@ protected:
                                         GlobalStorages<algorithmFPType, BinIndexType, cpu> & GH_SUMS_BUF, size_t iIteration) DAAL_C11_OVERRIDE
     {
         this->_nParallelNodes.inc();
-        services::Status s = _builder->run(aTbl[0], aTblImp[0], aTblSmplCnt[0], iIteration, GH_SUMS_BUF);
+        services::Status s = _builder->run(aTbl[0], aTblImp[0], aTblSmplCnt[0], 0, GH_SUMS_BUF, iIteration);
         this->_nParallelNodes.dec();
         return s;
     }

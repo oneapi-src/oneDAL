@@ -276,7 +276,7 @@ protected:
         {
             DAAL_ASSERT(this->_nParallelNodes.get() == 0);
             this->_nParallelNodes.inc();
-            s |= _builder->run(aTbl[i], aTblImp[i], aTblSmplCnt[i], i, GH_SUMS_BUF);
+            s |= _builder->run(aTbl[i], aTblImp[i], aTblSmplCnt[i], i, GH_SUMS_BUF, i);
             this->_nParallelNodes.dec();
             DAAL_ASSERT(this->_nParallelNodes.get() == 0);
         }
@@ -291,7 +291,7 @@ protected:
         DAAL_CHECK_MALLOC(pBuilder);
         services::Status s;
         if ((pBuilder->isInitialized() || (s = pBuilder->init()).ok()) && !algorithms::internal::isCancelled(s, this->_hostApp))
-            s = pBuilder->run(tbl, pTblImp, pTblSmplCnt, iTree, GH_SUMS_BUF);
+            s = pBuilder->run(tbl, pTblImp, pTblSmplCnt, iTree, GH_SUMS_BUF, iTree);
         _ls->release(pBuilder);
         if (s) algorithms::internal::isCancelled(s, this->_hostApp);
         return s;
