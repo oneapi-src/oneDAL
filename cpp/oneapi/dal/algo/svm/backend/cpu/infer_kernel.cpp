@@ -17,8 +17,8 @@
 #include <daal/src/algorithms/svm/svm_predict_kernel.h>
 
 #include "oneapi/dal/algo/svm/backend/cpu/infer_kernel.hpp"
+#include "oneapi/dal/algo/svm/backend/utils/model.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
-#include "oneapi/dal/backend/interop/svm/model.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 namespace oneapi::dal::svm::backend {
