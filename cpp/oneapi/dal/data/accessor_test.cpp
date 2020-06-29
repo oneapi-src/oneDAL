@@ -14,22 +14,17 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "gtest/gtest.h"
 #include "oneapi/dal/accessor.hpp"
+#include "gtest/gtest.h"
 
 using namespace oneapi::dal;
 using std::int32_t;
 
 TEST(column_accessor_test, can_get_first_column_from_homogen_table) {
-    float data[] = {
-        1.f, 2.f,
-        3.f, 4.f,
-        5.f, 6.f,
-        7.f, 8.f
-    };
+    float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f };
 
-    homogen_table t { 4, 2, data };
-    column_accessor<const float> acc { t };
+    homogen_table t{ 4, 2, data };
+    column_accessor<const float> acc{ t };
     auto col = acc.pull(0);
 
     ASSERT_EQ(col.get_size(), t.get_row_count());
@@ -37,20 +32,15 @@ TEST(column_accessor_test, can_get_first_column_from_homogen_table) {
     ASSERT_TRUE(col.has_mutable_data());
 
     for (std::int64_t i = 0; i < col.get_size(); i++) {
-        ASSERT_FLOAT_EQ(col[i], t.get_data<float>()[i*t.get_column_count()]);
+        ASSERT_FLOAT_EQ(col[i], t.get_data<float>()[i * t.get_column_count()]);
     }
 }
 
 TEST(column_accessor_test, can_get_second_column_from_homogen_table_with_conversion) {
-    float data[] = {
-        1.f, 2.f,
-        3.f, 4.f,
-        5.f, 6.f,
-        7.f, 8.f
-    };
+    float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f };
 
-    homogen_table t { 4, 2, data };
-    column_accessor<const double> acc { t };
+    homogen_table t{ 4, 2, data };
+    column_accessor<const double> acc{ t };
     auto col = acc.pull(1);
 
     ASSERT_EQ(col.get_size(), t.get_row_count());
@@ -58,35 +48,30 @@ TEST(column_accessor_test, can_get_second_column_from_homogen_table_with_convers
     ASSERT_TRUE(col.has_mutable_data());
 
     for (std::int64_t i = 0; i < col.get_size(); i++) {
-        ASSERT_DOUBLE_EQ(col[i], double(t.get_data<float>()[i*t.get_column_count() + 1]));
+        ASSERT_DOUBLE_EQ(col[i], double(t.get_data<float>()[i * t.get_column_count() + 1]));
     }
 }
 
 TEST(column_accessor_test, can_get_first_column_from_homogen_table_with_subset_of_rows) {
-    float data[] = {
-        1.f, 2.f,
-        3.f, 4.f,
-        5.f, 6.f,
-        7.f, 8.f
-    };
+    float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f };
 
-    homogen_table t { 4, 2, data };
-    column_accessor<const float> acc { t };
-    auto col = acc.pull(0, {1, 3});
+    homogen_table t{ 4, 2, data };
+    column_accessor<const float> acc{ t };
+    auto col = acc.pull(0, { 1, 3 });
 
     ASSERT_EQ(col.get_size(), 2);
     ASSERT_TRUE(col.is_data_owner());
     ASSERT_TRUE(col.has_mutable_data());
 
     for (std::int64_t i = 0; i < col.get_size(); i++) {
-        ASSERT_FLOAT_EQ(col[i], t.get_data<float>()[2 + i*t.get_column_count()]);
+        ASSERT_FLOAT_EQ(col[i], t.get_data<float>()[2 + i * t.get_column_count()]);
     }
 }
 
 TEST(column_accessor_test, can_get_columns_from_homogen_table_builder) {
-    homogen_table_builder b {3, 2, 0.0f};
+    homogen_table_builder b{ 3, 2, 0.0f };
     {
-        column_accessor<double> acc { b };
+        column_accessor<double> acc{ b };
         for (std::int64_t col_idx = 0; col_idx < 2; col_idx++) {
             auto col = acc.pull(col_idx);
 
@@ -103,7 +88,7 @@ TEST(column_accessor_test, can_get_columns_from_homogen_table_builder) {
 
     auto t = b.build();
     {
-        column_accessor<const float> acc { t };
+        column_accessor<const float> acc{ t };
         for (std::int64_t col_idx = 0; col_idx < 2; col_idx++) {
             const auto col = acc.pull(col_idx);
 

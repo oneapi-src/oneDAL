@@ -75,6 +75,8 @@ struct is_table_impl {
                                    (const array<std::int32_t>&, std::int64_t, const range&),
                                    push_back_column_int32)
 
+    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(std::int64_t, get_kind, () const)
+
     static constexpr bool can_pull_rows = has_method_pull_rows_float_v<T> &&
                                           has_method_pull_rows_double_v<T> &&
                                           has_method_pull_rows_int32_v<T>;
@@ -94,7 +96,7 @@ struct is_table_impl {
     static constexpr bool value = has_method_get_column_count_v<T> &&
                                   has_method_get_row_count_v<T> && has_method_get_metadata_v<T> &&
                                   can_pull_rows && can_push_back_rows && can_pull_column &&
-                                  can_push_back_column;
+                                  can_push_back_column && has_method_get_kind_v<T>;
 };
 
 template <typename T>
@@ -103,8 +105,15 @@ inline constexpr bool is_table_impl_v = is_table_impl<T>::value;
 template <typename T>
 struct is_homogen_table_impl {
     INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(const void*, get_data, () const)
+    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(const homogen_table_metadata&, get_metadata, () const)
 
-    static constexpr bool value = is_table_impl_v<T> && has_method_get_data_v<T>;
+    using base = is_table_impl<T>;
+
+    static constexpr bool value = base::template has_method_get_column_count_v<T> &&
+                                  base::template has_method_get_row_count_v<T> &&
+                                  base::can_pull_rows && base::can_push_back_rows &&
+                                  base::can_pull_column && base::can_push_back_column &&
+                                  has_method_get_metadata_v<T> && has_method_get_data_v<T>;
 };
 
 template <typename T>

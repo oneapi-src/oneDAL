@@ -19,18 +19,22 @@
 echo "Using clang-format version: $(clang-format --version)"
 echo "Starting format check..."
 
-cd cpp/daal
-for filename in $(find . -type f | grep -P ".*\.(c|cpp|h|hpp|cl|i)$"); do clang-format -style=file -i $filename; done
-
 RETURN_CODE=0
-echo $(git status) | grep "nothing to commit" > /dev/null
 
-if [ $? -eq 1 ]; then
-    echo "Clang-format check FAILED! Found not formatted files!"
-    echo "$(git status)"
-    RETURN_CODE=3
-else
-    echo "Clang-format check PASSED! Not formatted files not found..."
-fi
+for sources_path in cpp/daal cpp/oneapi/dal ; do
+    pushd ${sources_path}
+    for filename in $(find . -type f | grep -P ".*\.(c|cpp|h|hpp|cl|i)$"); do clang-format -style=file -i $filename; done
+
+    echo $(git status) | grep "nothing to commit" > /dev/null
+
+    if [ $? -eq 1 ]; then
+        echo "Clang-format check FAILED for ${sources_path}! Found not formatted files!"
+        echo "$(git status)"
+        RETURN_CODE=3
+    else
+        echo "Clang-format check PASSED for ${sources_path}! Not formatted files not found..."
+    fi
+    popd
+done
 
 exit ${RETURN_CODE}

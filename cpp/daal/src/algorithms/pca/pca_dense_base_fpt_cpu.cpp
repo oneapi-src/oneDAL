@@ -1,4 +1,4 @@
-/* file: pca_dense_correlation_batch_kernel_instance.h */
+/* file: pca_dense_base_fpt_cpu.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -15,14 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of PCA calculation functions.
-//--
-*/
-
-#include "src/algorithms/pca/pca_dense_correlation_batch_kernel.h"
-#include "src/algorithms/pca/pca_dense_correlation_batch_impl.i"
+#include "src/algorithms/pca/pca_dense_base_impl.i"
 
 namespace daal
 {
@@ -32,7 +25,7 @@ namespace pca
 {
 namespace internal
 {
-template class DAAL_EXPORT PCACorrelationKernel<batch, DAAL_FPTYPE, DAAL_CPU>;
+template class PCADenseBase<DAAL_FPTYPE, DAAL_CPU>;
 } // namespace internal
 } // namespace pca
 } // namespace algorithms

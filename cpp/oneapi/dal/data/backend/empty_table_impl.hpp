@@ -22,12 +22,19 @@ namespace oneapi::dal::backend {
 
 class empty_table_impl {
 public:
+    static constexpr std::int64_t pure_empty_table_kind = 0;
+
+public:
     std::int64_t get_column_count() const {
         return 0;
     }
 
     std::int64_t get_row_count() const {
         return 0;
+    }
+
+    std::int64_t get_kind() const {
+        return pure_empty_table_kind;
     }
 
     const table_metadata& get_metadata() const {

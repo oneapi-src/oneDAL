@@ -28,8 +28,6 @@
 #include "src/data_management/service_numeric_table.h"
 #include "services/error_handling.h"
 
-using namespace daal::internal;
-
 namespace daal
 {
 namespace algorithms

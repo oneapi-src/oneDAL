@@ -18,6 +18,16 @@
 
 #include <cstdint>
 
+#if defined(_WIN32) || defined(_WIN64)
+    #ifdef __ONEAPI_DAL_ENABLE_DLL_EXPORT__
+        #define ONEAPI_DAL_EXPORT __declspec(dllexport)
+    #else
+        #define ONEAPI_DAL_EXPORT
+    #endif
+#else
+    #define ONEAPI_DAL_EXPORT
+#endif
+
 namespace oneapi::dal {
 
 using byte_t = std::uint8_t;
@@ -27,7 +37,19 @@ public:
     virtual ~base() = default;
 };
 
-enum class data_type { int32, int64, uint32, uint64, float32, float64 };
+enum class data_type {
+    int8,
+    int16,
+    int32,
+    int64,
+    uint8,
+    uint16,
+    uint32,
+    uint64,
+    float32,
+    float64,
+    bfloat16
+};
 
 struct range {
 public:
