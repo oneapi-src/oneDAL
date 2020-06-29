@@ -301,7 +301,7 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, cpu>::run(gbt
 
         if (iIteration == 0)
         {
-          auto pf = f();
+          auto pf          = f();
           const size_t nIt = nRows - _nSamples;
 
           daal::threader_for(nIt, nIt, [&](size_t i) {
