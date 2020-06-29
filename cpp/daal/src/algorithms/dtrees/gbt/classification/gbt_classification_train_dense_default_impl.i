@@ -254,7 +254,7 @@ protected:
 
     virtual services::Status buildTrees(gbt::internal::GbtDecisionTree ** aTbl, HomogenNumericTable<double> ** aTblImp,
                                         HomogenNumericTable<int> ** aTblSmplCnt,
-                                        GlobalStorages<algorithmFPType, BinIndexType, cpu> & GH_SUMS_BUF, size_t iIteration) DAAL_C11_OVERRIDE
+                                        GlobalStorages<algorithmFPType, BinIndexType, cpu> & GH_SUMS_BUF) DAAL_C11_OVERRIDE
     {
         if (this->isParallelTrees())
         {
@@ -276,7 +276,7 @@ protected:
         {
             DAAL_ASSERT(this->_nParallelNodes.get() == 0);
             this->_nParallelNodes.inc();
-            s |= _builder->run(aTbl[i], aTblImp[i], aTblSmplCnt[i], i, GH_SUMS_BUF, i);
+            s |= _builder->run(aTbl[i], aTblImp[i], aTblSmplCnt[i], i, GH_SUMS_BUF);
             this->_nParallelNodes.dec();
             DAAL_ASSERT(this->_nParallelNodes.get() == 0);
         }
@@ -291,7 +291,7 @@ protected:
         DAAL_CHECK_MALLOC(pBuilder);
         services::Status s;
         if ((pBuilder->isInitialized() || (s = pBuilder->init()).ok()) && !algorithms::internal::isCancelled(s, this->_hostApp))
-            s = pBuilder->run(tbl, pTblImp, pTblSmplCnt, iTree, GH_SUMS_BUF, iTree);
+            s = pBuilder->run(tbl, pTblImp, pTblSmplCnt, iTree, GH_SUMS_BUF);
         _ls->release(pBuilder);
         if (s) algorithms::internal::isCancelled(s, this->_hostApp);
         return s;
