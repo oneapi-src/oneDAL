@@ -299,8 +299,9 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, cpu>::run(gbt
         }
         daal::algorithms::internal::qSort<RowIndexType, cpu>(nSamples(), aSampleToF);
 
-        if (iIteration == 0) {
-          auto pf          = f();
+        if (iIteration == 0)
+        {
+          auto pf = f();
           const size_t nIt = nRows - _nSamples;
 
           daal::threader_for(nIt, nIt, [&](size_t i) {
