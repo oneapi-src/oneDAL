@@ -14,9 +14,9 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/table_builder.hpp"
+#include "oneapi/dal/data/table_builder.hpp"
 #include "gtest/gtest.h"
-#include "oneapi/dal/accessor.hpp"
+#include "oneapi/dal/data/accessor.hpp"
 
 using namespace oneapi::dal;
 
@@ -32,7 +32,7 @@ TEST(table_builder_test, can_modify_table) {
         row_accessor<float> acc{ b };
 
         auto arr = acc.pull({ 2, -1 });
-        ASSERT_EQ(arr.get_size(), 2);
+        ASSERT_EQ(arr.get_count(), 2);
         arr.unique();
         arr[0] = data2[2 * 2];
         arr[1] = data2[2 * 2 + 1];
@@ -44,7 +44,7 @@ TEST(table_builder_test, can_modify_table) {
     row_accessor<const float> acc{ t };
     auto arr = acc.pull();
 
-    for (std::int64_t i = 0; i < arr.get_size(); i++) {
+    for(std::int64_t i = 0; i < arr.get_count(); i++) {
         ASSERT_FLOAT_EQ(arr.get_data()[i], data2[i]);
     }
 }
