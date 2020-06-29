@@ -34,6 +34,7 @@
     #include "tbb/scalable_allocator.h"
     #include <tbb/global_control.h>
     #include <tbb/task_arena.h>
+    #include <tbb/task.h>
     #include "services/daal_atomic_int.h"
 
 using namespace daal::services;
@@ -247,8 +248,8 @@ DAAL_EXPORT void _daal_del_mutex(void * mutexPtr)
 DAAL_EXPORT bool _daal_is_in_parallel()
 {
 #if defined(__DO_TBB_LAYER__)
-    #if defined(TBB_INTERFACE_VERSION) && TBB_INTERFACE_VERSION >= 12001
-    return tbb::detail::d1::task::current_execute_data() != nullptr;
+    #if defined(TBB_INTERFACE_VERSION) && TBB_INTERFACE_VERSION >= 12002
+    return tbb::task::current_context() != nullptr;
     #else
     return tbb::task::self().state() == tbb::task::executing;
     #endif
