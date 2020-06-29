@@ -20,23 +20,22 @@ namespace oneapi::dal::svm {
 
 class detail::descriptor_impl : public base {
 public:
-    explicit descriptor_impl(detail::object_wrapper_iface &kernel) : kernel(kernel) {
-        // Пропросить кернела
-    }
+    explicit descriptor_impl(const detail::kf_iface_ptr &kernel) : kernel(kernel) {}
 
-    double c                            = 1.0;
-    double accuracy_threshold           = 0.001;
-    std::int64_t max_iteration_count    = 100000;
-    double cache_size                   = 200.0;
-    double tau                          = 1e-6;
-    bool shrinking                      = true;
-    detail::object_wrapper_iface kernel = ;
+    double c                         = 1.0;
+    double accuracy_threshold        = 0.001;
+    std::int64_t max_iteration_count = 100000;
+    double cache_size                = 200.0;
+    double tau                       = 1e-6;
+    bool shrinking                   = true;
+    detail::kf_iface_ptr kernel;
 };
 
 class detail::model_impl : public base {
 public:
     table support_vectors;
     table coefficients;
+
     double bias;
     std::int64_t support_vectors_count;
 };
@@ -44,7 +43,8 @@ public:
 using detail::descriptor_impl;
 using detail::model_impl;
 
-descriptor_base::descriptor_base() : impl_(new descriptor_impl{ descriptor_base::kernel_t{} }) {}
+descriptor_base::descriptor_base(const detail::kf_iface_ptr &kernel)
+        : impl_(new descriptor_impl{ kernel }) {}
 
 double descriptor_base::get_c() const {
     return impl_->c;
@@ -94,9 +94,11 @@ void descriptor_base::set_shrinking_impl(const bool value) {
     impl_->shrinking = value;
 }
 
-void descriptor_base::set_kernel_impl(detail::object_wrapper_iface &kernel) {}
+void descriptor_base::set_kernel_impl(const detail::kf_iface_ptr &kernel) {
+    impl_->kernel = kernel;
+}
 
-const detail::object_wrapper_iface &descriptor_base::get_kernel_impl() const {
+const detail::kf_iface_ptr &descriptor_base::get_kernel_impl() const {
     return impl_->kernel;
 }
 

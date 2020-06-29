@@ -53,11 +53,13 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     const auto daal_weights = interop::convert_to_daal_homogen_table(arr_weights, row_count, 1);
 
     // TODO: move as parameter onedal SVM
-    auto kernel =
-        daal_kernel_function::KernelIfacePtr(new daal_kernel_function::linear::Batch<Float>());
+    auto kernel = desc.get_kernel();
+
+    auto daal_kernel = daal_kernel_function::KernelIfacePtr(
+        new daal_kernel_function::linear::Batch<Float>(kernel.get_k(), kernel.get_b()));
 
     daal_svm::Parameter daal_parameter(
-        kernel,
+        daal_kernel,
         desc.get_c(),
         desc.get_accuracy_threshold(),
         desc.get_tau(),
