@@ -40,7 +40,7 @@ ARCH=${platform:3:3}
 CPU_OPTIMIZATIONS="avx2"
 
 if [ "${OS}" == "lnx" ]; then
-    make_target="onedal"
+    make_target="onedal_c"
     compiler=${compiler:-gnu}
     export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
     java_os_name="linux"
