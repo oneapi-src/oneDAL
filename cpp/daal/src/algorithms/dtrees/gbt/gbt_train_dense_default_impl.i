@@ -163,7 +163,8 @@ protected:
     virtual void initLossFunc()                                                                           = 0;
     virtual services::Status buildTrees(gbt::internal::GbtDecisionTree ** aTbl, HomogenNumericTable<double> ** aTblImp,
                                         HomogenNumericTable<int> ** aTblSmplCnt,
-                                        GlobalStorages<algorithmFPType, BinIndexType, cpu> & GH_SUMS_BUF) = 0;
+                                        GlobalStorages<algorithmFPType, BinIndexType, cpu> & GH_SUMS_BUF,
+                                        size_t iIteration)                                                = 0;
     virtual void step(const algorithmFPType * y)                                                          = 0;
     virtual bool getInitialF(algorithmFPType & val) { return false; }
 
@@ -180,6 +181,7 @@ protected:
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < nF; ++i) pf[i] = initValue;
+
     }
 
 public:
@@ -301,7 +303,7 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, cpu>::run(gbt
     }
     step(this->_dataHelper.y());
     _nParallelNodes.set(0);
-    return buildTrees(aTbl, aTblImp, aTblSmplCnt, GH_SUMS_BUF);
+    return buildTrees(aTbl, aTblImp, aTblSmplCnt, GH_SUMS_BUF, iIteration);
 }
 
 template <typename algorithmFPType, typename BinIndexType, CpuType cpu>
@@ -317,7 +319,12 @@ void TrainBatchTaskBase<algorithmFPType, BinIndexType, cpu>::updateOOB(size_t iT
         auto pNode = dtrees::prediction::internal::findNode<algorithmFPType, TreeType, cpu>(t, x.get());
         DAAL_ASSERT(pNode);
         algorithmFPType inc = TreeType::NodeType::castLeaf(pNode)->response;
-        pf[iRow * _nTrees + iTree] += inc;
+        if (iTree == 0) {
+          pf[iRow * _nTrees] = inc;
+        }
+        else {
+          pf[iRow * _nTrees] += inc;
+        }
     });
 }
 

@@ -375,7 +375,7 @@ services::Status TreeBuilder<algorithmFPType, RowIndexType, BinIndexType, cpu>::
                                                                                     GlobalStorages<algorithmFPType, BinIndexType, cpu> & GH_SUMS_BUF)
 {
     _tree.destroy();
-    typename NodeType::Base * nd = buildRoot(iTree, GH_SUMS_BUF);
+    typename NodeType::Base * nd = buildRoot(0, GH_SUMS_BUF);
     DAAL_CHECK_MALLOC(nd);
 
     _tree.reset(nd, false);

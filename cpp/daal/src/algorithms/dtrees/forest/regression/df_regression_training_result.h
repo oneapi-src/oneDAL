@@ -51,8 +51,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
                                               const daal::algorithms::decision_forest::regression::training::interface1::Parameter * parameter,
                                               const int method)
 {
-    const daal::algorithms::Parameter * par = static_cast<const daal::algorithms::Parameter *>(parameter);
-    return allocate<algorithmFPType>(input, par, method);
+    return allocate<algorithmFPType>(input, parameter, method);
 }
 
 /**

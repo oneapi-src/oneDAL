@@ -254,7 +254,7 @@ protected:
 
     virtual services::Status buildTrees(gbt::internal::GbtDecisionTree ** aTbl, HomogenNumericTable<double> ** aTblImp,
                                         HomogenNumericTable<int> ** aTblSmplCnt,
-                                        GlobalStorages<algorithmFPType, BinIndexType, cpu> & GH_SUMS_BUF) DAAL_C11_OVERRIDE
+                                        GlobalStorages<algorithmFPType, BinIndexType, cpu> & GH_SUMS_BUF, size_t iIteration) DAAL_C11_OVERRIDE
     {
         if (this->isParallelTrees())
         {
