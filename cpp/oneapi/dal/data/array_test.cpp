@@ -77,7 +77,7 @@ TEST(array_test, can_construct_array_from_raw_pointer) {
 }
 
 TEST(array_test, can_construct_array_reference) {
-    auto arr = array<float>::zeros(5);
+    auto arr          = array<float>::zeros(5);
     array<float> arr2 = arr;
 
     ASSERT_EQ(arr.get_count(), arr2.get_count());
@@ -232,7 +232,7 @@ TEST(array_test, can_make_owning_array_from_non_owning_readonly) {
 
 TEST(array_test, can_construct_non_owning_read_write_array) {
     float data[] = { 1.0f, 2.0f, 3.0f };
-    array<float> arr { data, 3 };
+    array<float> arr{ data, 3 };
 
     ASSERT_EQ(arr.get_count(), 3);
     ASSERT_EQ(arr.get_data(), data);
@@ -242,7 +242,7 @@ TEST(array_test, can_construct_non_owning_read_write_array) {
 
 TEST(array_test, can_construct_non_owning_read_only_array) {
     float data[] = { 1.0f, 2.0f, 3.0f };
-    array<float> arr { static_cast<const float*>(data), 3 };
+    array<float> arr{ static_cast<const float*>(data), 3 };
 
     ASSERT_EQ(arr.get_count(), 3);
     ASSERT_EQ(arr.get_data(), data);
