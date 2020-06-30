@@ -31,11 +31,14 @@
     #include <stdlib.h> // malloc and free
     #include <tbb/tbb.h>
     #include <tbb/spin_mutex.h>
-    #include "tbb/scalable_allocator.h"
+    #include <tbb/scalable_allocator.h>
     #include <tbb/global_control.h>
     #include <tbb/task_arena.h>
-    #include <tbb/task.h>
     #include "services/daal_atomic_int.h"
+
+    #if defined(TBB_INTERFACE_VERSION) && TBB_INTERFACE_VERSION >= 12002
+        #include <tbb/task.h>
+    #endif
 
 using namespace daal::services;
 #else
