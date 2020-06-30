@@ -50,15 +50,24 @@ struct MKLPotrf
 {
     MKLPotrf(cl::sycl::queue & queue) : _queue(queue) {}
 
-    services::Status operator()(const math::UpLo uplo, const size_t n, services::Buffer<algorithmFPType> & a, const size_t lda)
+    services::Status operator()(const math::UpLo uplo, const size_t n, services::Buffer<algorithmFPType> & a, const size_t lda, 
+        std::int64_t scratchpad_size = -1)
     {
         services::Status status;
-
         const fpk::uplo uplomkl                          = uplo == math::UpLo::Upper ? fpk::uplo::upper : fpk::uplo::lower;
         cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a.toSycl();
-        cl::sycl::buffer<int64_t, 1> info(cl::sycl::range<1>(1));
+        
+        {
+            using namespace daal::services;
+            const std::int64_t minimal_scratchpad_size = fpk::lapack::potrf_scratchpad_size(_queue, uplomkl, n, lda);
+            if(scrathpad_size == -1) scratchpad_size = minimal_scratchpad_size;
+            if(scratchpad < minimal_scratchpad_size) return Status(ErrorID::ErrorMemoryAllocationFailed);
+        }
 
-        fpk::lapack::potrf(_queue, uplomkl, n, a_sycl_buff, lda, info);
+        cl::sycl::buffer<algorithmFPType, 1> scratchpad(cl::sycl::range<1>(scratchpad_size));
+
+        //Arguments order: queue, uplo, n, &a, lda, &scratchpad, scratchpad_size
+        fpk::lapack::potrf(_queue, uplomkl, n, a_sycl_buff, lda, scratchpad, scratchpad_size);
 
         _queue.wait();
         /** TODO: Check info buffer for containing errors. Now it is not supported.:
