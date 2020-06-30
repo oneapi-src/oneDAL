@@ -73,7 +73,7 @@ threading = parallel
 !ENDIF
 
 !IFNDEF DAALROOT
-DAALROOT = ..\..
+DAALROOT = ..\..\..
 !ENDIF
 
 DAAL_PATH = "$(DAALROOT)\lib\$(_IA)"

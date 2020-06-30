@@ -21,7 +21,7 @@
 namespace oneapi::dal::pca::detail {
 
 template <typename Context, typename... Options>
-struct train_ops_dispatcher {
+struct ONEAPI_DAL_EXPORT train_ops_dispatcher {
     train_result operator()(const Context&, const descriptor_base&, const train_input&) const;
 };
 

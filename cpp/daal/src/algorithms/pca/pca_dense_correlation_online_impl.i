@@ -37,6 +37,8 @@ namespace pca
 {
 namespace internal
 {
+using namespace daal::internal;
+
 template <typename algorithmFPType, CpuType cpu>
 services::Status PCACorrelationKernel<online, algorithmFPType, cpu>::compute(const data_management::NumericTablePtr & pData,
                                                                              PartialResult<correlationDense> * partialResult,

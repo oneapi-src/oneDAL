@@ -22,16 +22,11 @@
 
 namespace oneapi::dal {
 
-enum class feature_type {
-    nominal,
-    ordinal,
-    interval,
-    ratio
-};
+enum class feature_type { nominal, ordinal, interval, ratio };
 
 namespace detail {
-    class table_feature_impl;
-    class table_metadata_impl;
+class table_feature_impl;
+class table_metadata_impl;
 } // namespace detail
 
 class table_feature {
@@ -39,7 +34,6 @@ public:
     table_feature();
     table_feature(data_type);
     table_feature(data_type, feature_type);
-
 
     data_type get_data_type() const;
     table_feature& set_data_type(data_type);
@@ -53,7 +47,7 @@ private:
 
 template <typename T>
 table_feature make_table_feature() {
-    return table_feature { make_data_type<T>() };
+    return table_feature{ make_data_type<T>() };
 }
 
 class table_metadata {
@@ -62,8 +56,7 @@ class table_metadata {
 public:
     table_metadata();
 
-    table_metadata(const table_feature&,
-                   std::int64_t feature_count = 1);
+    table_metadata(const table_feature&, std::int64_t feature_count = 1);
 
     table_metadata(array<table_feature> features);
 
@@ -71,17 +64,13 @@ public:
     const table_feature& get_feature(std::int64_t feature_index) const;
 
 protected:
-    table_metadata(const detail::pimpl<detail::table_metadata_impl>& impl)
-        : impl_(impl) {}
+    table_metadata(const detail::pimpl<detail::table_metadata_impl>& impl) : impl_(impl) {}
 
 private:
     detail::pimpl<detail::table_metadata_impl> impl_;
 };
 
-enum class homogen_data_layout {
-    row_major,
-    column_major
-};
+enum class homogen_data_layout { row_major, column_major };
 
 class homogen_table_metadata : public table_metadata {
 public:
