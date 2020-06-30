@@ -76,7 +76,7 @@ struct MKLPotrf
     services::Status operator()(const math::UpLo uplo, const size_t n, services::Buffer<algorithmFPType> & a, const size_t lda,
                                 const std::int64_t scratchpad_size)
     {
-        cl::sycl::buffer<algorithmFPType, 1> scratchpad_buffer{cl::sycl::range<1>(scratchpad_size)};
+        cl::sycl::buffer<algorithmFPType, 1> scratchpad_buffer { cl::sycl::range<1>(scratchpad_size) };
         return this->operator()(uplo, n, a, lda, scratchpad_buffer);
     }
 
@@ -126,7 +126,7 @@ struct MKLPotrs
     services::Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, services::Buffer<algorithmFPType> & a, const size_t lda,
                                 services::Buffer<algorithmFPType> & b, const size_t ldb, const std::int64_t scratchpad_size)
     {
-        cl::sycl::buffer<algorithmFPType, 1> scratchpad_buffer{cl::sycl::range<1>(scratchpad_size)};
+        cl::sycl::buffer<algorithmFPType, 1> scratchpad_buffer { cl::sycl::range<1>(scratchpad_size) };
         return this->operator()(uplo, n, ny, a, lda, b, ldb, scratchpad_buffer);
     }
 
