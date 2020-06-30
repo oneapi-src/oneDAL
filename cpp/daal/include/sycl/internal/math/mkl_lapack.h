@@ -74,10 +74,10 @@ struct MKLPotrf
     }
 
     services::Status operator()(const math::UpLo uplo, const size_t n, services::Buffer<algorithmFPType> & a, const size_t lda,
-                                std::int64_t scratchpad_size)
+                                const std::int64_t scratchpad_size)
     {
-        cl::sycl::buffer<algorithmFPType, 1> scratchpad(cl::sycl::range<1>(scratchpad_size));
-        return this->operator()(uplo, n, a, lda, scratchpad);
+        cl::sycl::buffer<algorithmFPType, 1> scratchpad_buffer{cl::sycl::range<1>(scratchpad_size)};
+        return this->operator()(uplo, n, a, lda, scratchpad_buffer);
     }
 
     services::Status operator()(const math::UpLo uplo, const size_t n, services::Buffer<algorithmFPType> & a, const size_t lda)
@@ -104,7 +104,6 @@ struct MKLPotrs
                                 services::Buffer<algorithmFPType> & b, const size_t ldb, cl::sycl::buffer<algorithmFPType, 1> & scratchpad)
     {
         services::Status status;
-
         const fpk::uplo uplomkl                          = uplo == math::UpLo::Upper ? fpk::uplo::upper : fpk::uplo::lower;
         cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a.toSycl();
         cl::sycl::buffer<algorithmFPType, 1> b_sycl_buff = b.toSycl();
@@ -127,8 +126,8 @@ struct MKLPotrs
     services::Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, services::Buffer<algorithmFPType> & a, const size_t lda,
                                 services::Buffer<algorithmFPType> & b, const size_t ldb, const std::int64_t scratchpad_size)
     {
-        cl::sycl::buffer<algorithmFPType, 1> scratchpad(cl::sycl::range<1>(scratchpad_size));
-        return this->operator()(uplo, n, ny, a, lda, b, ldb, scratchpad);
+        cl::sycl::buffer<algorithmFPType, 1> scratchpad_buffer{cl::sycl::range<1>(scratchpad_size)};
+        return this->operator()(uplo, n, ny, a, lda, b, ldb, scratchpad_buffer);
     }
 
     services::Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, services::Buffer<algorithmFPType> & a, const size_t lda,
