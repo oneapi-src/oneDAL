@@ -59,7 +59,7 @@ struct MKLPotrf
 
         {
             using namespace daal::services;
-            const std::int64_t minimal_scratchpad_size = fpk::lapack::potrf_scratchpad_size(_queue, uplomkl, n, lda);
+            const std::int64_t minimal_scratchpad_size = fpk::lapack::potrf_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, lda);
             if (scratchpad.get_count() < minimal_scratchpad_size) return Status(ErrorID::ErrorMemoryAllocationFailed);
         }
 
@@ -83,8 +83,8 @@ struct MKLPotrf
     services::Status operator()(const math::UpLo uplo, const size_t n, services::Buffer<algorithmFPType> & a, const size_t lda)
     {
         const fpk::uplo uplomkl                    = uplo == math::UpLo::Upper ? fpk::uplo::upper : fpk::uplo::lower;
-        const std::int64_t minimal_scratchpad_size = fpk::lapack::potrf_scratchpad_size(_queue, uplomkl, n, lda);
-        return this->operator()(uplo, n, a, lda, minimal_scratch_size);
+        const std::int64_t minimal_scratchpad_size = fpk::lapack::potrf_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, lda);
+        return this->operator()(uplo, n, a, lda, minimal_scratchpad_size);
     }
 
 private:
@@ -111,7 +111,7 @@ struct MKLPotrs
 
         {
             using namespace daal::services;
-            const std::int64_t minimal_scratchpad_size = fpk::lapack::potrs_scratchpad_size(_queue, uplomkl, n, ny, lda, ldb);
+            const std::int64_t minimal_scratchpad_size = fpk::lapack::potrs_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, ny, lda, ldb);
             if (scratchpad.get_count() < minimal_scratchpad_size) return Status(ErrorID::ErrorMemoryAllocationFailed);
         }
 
@@ -136,7 +136,7 @@ struct MKLPotrs
     {
         const fpk::uplo uplomkl = uplo == math::UpLo::Upper ? fpk::uplo::upper : fpk::uplo::lower;
         //Arguments Order: queue, uplo, n, ny, lda, ldb
-        const std::int64_t minimal_scratchpad_size = fpk::lapack::potrs_scratchpad_size(_queue, uplomkl, n, ny, lda, ldb);
+        const std::int64_t minimal_scratchpad_size = fpk::lapack::potrs_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, ny, lda, ldb);
         return this->operator()(uplo, n, ny, a, lda, b, ldb, minimal_scratchpad_size);
     }
 
