@@ -301,13 +301,13 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, cpu>::run(gbt
 
         if (iIteration == 0)
         {
-          auto pf          = f();
-          const size_t nIt = nRows - _nSamples;
+            auto pf          = f();
+            const size_t nIt = nRows - _nSamples;
 
-          daal::threader_for(nIt, nIt, [&](size_t i) {
-            RowIndexType iRow = aSampleToF[i + _nSamples];
-            pf[iRow * _nTrees] = 0;
-          });
+            daal::threader_for(nIt, nIt, [&](size_t i) {
+                RowIndexType iRow  = aSampleToF[i + _nSamples];
+                pf[iRow * _nTrees] = 0;
+            });
         }
     }
     step(this->_dataHelper.y());
