@@ -23,13 +23,9 @@ namespace oneapi::dal {
 
 template <typename T>
 struct is_table_builder_impl {
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(table, build_table, ())
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(
-        detail::dense_storage_iface<detail::storage_readable_writable>&,
-        get_storage,
-        ())
+    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(table, build, ())
 
-    static constexpr bool value = has_method_build_table_v<T> && has_method_get_storage_v<T>;
+    static constexpr bool value = has_method_build_v<T>;
 };
 
 template <typename T>
@@ -37,10 +33,12 @@ inline constexpr bool is_table_builder_impl_v = is_table_builder_impl<T>::value;
 
 class ONEAPI_DAL_EXPORT table_builder {
     friend detail::pimpl_accessor;
+    using pimpl_t = detail::pimpl<detail::table_builder_impl_iface>;
 
 public:
     template <typename BuilderImpl,
-              typename = std::enable_if_t<is_table_builder_impl_v<std::decay_t<BuilderImpl>>>>
+              typename BuilderImplType = std::decay_t<BuilderImpl>,
+              typename = std::enable_if_t<is_table_builder_impl_v<BuilderImplType>>>
     table_builder(BuilderImpl&& impl) {
         init_impl(new detail::table_builder_impl_wrapper(std::forward<BuilderImpl>(impl)));
     }
@@ -48,16 +46,16 @@ public:
     table_builder(table&&);
 
     table build() const {
-        return impl_->build_table();
+        return impl_->build();
     }
 
 private:
     void init_impl(detail::table_builder_impl_iface* obj) {
-        impl_ = detail::pimpl<detail::table_builder_impl_iface>{ obj };
+        impl_ = pimpl_t{ obj };
     }
 
 private:
-    detail::pimpl<detail::table_builder_impl_iface> impl_;
+    pimpl_t impl_;
 };
 
 class ONEAPI_DAL_EXPORT homogen_table_builder : public table_builder {

@@ -62,7 +62,7 @@ void homogen_table_impl::pull_rows(array<T>& block, const range& rows) const {
 }
 
 template <typename T>
-void homogen_table_impl::push_back_rows(const array<T>& block, const range& rows) {
+void homogen_table_impl::push_rows(const array<T>& block, const range& rows) {
     // TODO: check range correctness
     // TODO: check array size if non-zero
 
@@ -142,7 +142,7 @@ void homogen_table_impl::pull_column(array<T>& block, int64_t idx, const range& 
 }
 
 template <typename T>
-void homogen_table_impl::push_back_column(const array<T>& block, int64_t idx, const range& rows) {
+void homogen_table_impl::push_column(const array<T>& block, int64_t idx, const range& rows) {
     // TODO: check inputs
 
     const int64_t row_count     = get_row_count();
@@ -183,28 +183,16 @@ template void homogen_table_impl::pull_rows(array<float>&, const range&) const;
 template void homogen_table_impl::pull_rows(array<double>&, const range&) const;
 template void homogen_table_impl::pull_rows(array<int32_t>&, const range&) const;
 
-template void homogen_table_impl::push_back_rows(const array<float>&, const range&);
-template void homogen_table_impl::push_back_rows(const array<double>&, const range&);
-template void homogen_table_impl::push_back_rows(const array<int32_t>&, const range&);
+template void homogen_table_impl::push_rows(const array<float>&, const range&);
+template void homogen_table_impl::push_rows(const array<double>&, const range&);
+template void homogen_table_impl::push_rows(const array<int32_t>&, const range&);
 
-template void homogen_table_impl::pull_column(array<float>& a,
-                                              std::int64_t idx,
-                                              const range& r) const;
-template void homogen_table_impl::pull_column(array<double>& a,
-                                              std::int64_t idx,
-                                              const range& r) const;
-template void homogen_table_impl::pull_column(array<int32_t>& a,
-                                              std::int64_t idx,
-                                              const range& r) const;
+template void homogen_table_impl::pull_column(array<float>&, std::int64_t, const range&) const;
+template void homogen_table_impl::pull_column(array<double>&, std::int64_t, const range&) const;
+template void homogen_table_impl::pull_column(array<int32_t>&, std::int64_t, const range&) const;
 
-template void homogen_table_impl::push_back_column(const array<float>& a,
-                                                   std::int64_t idx,
-                                                   const range& r);
-template void homogen_table_impl::push_back_column(const array<double>& a,
-                                                   std::int64_t idx,
-                                                   const range& r);
-template void homogen_table_impl::push_back_column(const array<int32_t>& a,
-                                                   std::int64_t idx,
-                                                   const range& r);
+template void homogen_table_impl::push_column(const array<float>&, std::int64_t, const range&);
+template void homogen_table_impl::push_column(const array<double>&, std::int64_t, const range&);
+template void homogen_table_impl::push_column(const array<int32_t>&, std::int64_t, const range&);
 
 } // namespace oneapi::dal::backend

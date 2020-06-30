@@ -89,13 +89,13 @@ public:
     void pull_rows(array<T>& a, const range& r) const;
 
     template <typename T>
-    void push_back_rows(const array<T>& a, const range& r);
+    void push_rows(const array<T>& a, const range& r);
 
     template <typename T>
     void pull_column(array<T>& a, std::int64_t idx, const range& r) const;
 
     template <typename T>
-    void push_back_column(const array<T>& a, std::int64_t idx, const range& r);
+    void push_column(const array<T>& a, std::int64_t idx, const range& r);
 
 private:
     template <typename T>

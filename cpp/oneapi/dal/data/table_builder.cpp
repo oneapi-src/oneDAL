@@ -21,17 +21,15 @@ namespace oneapi::dal {
 namespace backend {
 
 class table_builder_impl {
-    using dense_rw_storage = detail::table_builder_impl_iface::dense_rw_storage;
-
 public:
     table_builder_impl(table&& t) : table_impl_(detail::pimpl_accessor().get_pimpl(std::move(t))) {}
 
-    auto build_table() {
+    auto build() {
         return detail::pimpl_accessor().make_from_pimpl<table>(table_impl_);
     }
 
-    auto get_storage() -> dense_rw_storage& {
-        return *table_impl_;
+    const detail::host_access_iface& get_host_access_iface() const {
+        return table_impl_->get_host_access_iface();
     }
 
 private:
@@ -40,7 +38,6 @@ private:
 
 class homogen_table_builder_impl {
 public:
-    using dense_rw_storage = detail::table_builder_impl_iface::dense_rw_storage;
     using table_impl_t     = detail::homogen_table_impl_iface;
     using pimpl_t          = detail::pimpl<table_impl_t>;
 
@@ -52,7 +49,7 @@ public:
 
     homogen_table_builder_impl(const pimpl_t& table_impl) : table_impl_(table_impl) {}
 
-    table build_table() {
+    table build() {
         return build_homogen_table();
     }
 
@@ -60,8 +57,8 @@ public:
         return detail::pimpl_accessor().make_from_pimpl<homogen_table>(table_impl_);
     }
 
-    dense_rw_storage& get_storage() {
-        return *table_impl_;
+    const detail::host_access_iface& get_host_access_iface() const {
+        return table_impl_->get_host_access_iface();
     }
 
 private:

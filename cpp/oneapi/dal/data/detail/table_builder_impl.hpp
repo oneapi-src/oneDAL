@@ -20,28 +20,32 @@
 
 namespace oneapi::dal::detail {
 
-class table_builder_impl_iface {
+class table_builder_impl_iface : public accessible_iface {
 public:
-    using dense_rw_storage = detail::dense_storage_iface<storage_readable_writable>;
-
-public:
-    virtual ~table_builder_impl_iface() = default;
-
-    virtual table build_table()             = 0;
-    virtual dense_rw_storage& get_storage() = 0;
+    virtual table build() = 0;
 };
 
 template <typename Impl>
 class table_builder_impl_wrapper : public table_builder_impl_iface, public base {
-public:
-    table_builder_impl_wrapper(Impl&& obj) : impl_(std::forward<Impl>(obj)) {}
+private:
+    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(const host_access_iface&, get_host_access_iface, () const)
 
-    virtual table build_table() override {
-        return impl_.build_table();
+public:
+    table_builder_impl_wrapper(Impl&& obj)
+        : impl_(std::move(obj)) {
+        if constexpr (has_method_get_host_access_iface_v<Impl>) {
+            access_iface_ = impl_.get_host_access_iface();
+        } else {
+            access_iface_ = make_host_access_iface(impl_);
+        }
     }
 
-    virtual dense_rw_storage& get_storage() override {
-        return impl_.get_storage();
+    virtual table build() override {
+        return impl_.build();
+    }
+
+    virtual const host_access_iface& get_host_access_iface() const override {
+        return access_iface_;
     }
 
     Impl& get() {
@@ -50,6 +54,7 @@ public:
 
 private:
     Impl impl_;
+    host_access_iface access_iface_;
 };
 
 } // namespace oneapi::dal::detail

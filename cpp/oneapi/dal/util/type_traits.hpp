@@ -25,78 +25,11 @@ struct is_table_impl {
     INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(std::int64_t, get_column_count, () const)
     INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(std::int64_t, get_row_count, () const)
     INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(const table_metadata&, get_metadata, () const)
-
-    INSTANTIATE_HAS_METHOD_CHECKER(void,
-                                   pull_rows,
-                                   (array<float>&, const range&)const,
-                                   pull_rows_float)
-    INSTANTIATE_HAS_METHOD_CHECKER(void,
-                                   pull_rows,
-                                   (array<double>&, const range&)const,
-                                   pull_rows_double)
-    INSTANTIATE_HAS_METHOD_CHECKER(void,
-                                   pull_rows,
-                                   (array<std::int32_t>&, const range&)const,
-                                   pull_rows_int32)
-    INSTANTIATE_HAS_METHOD_CHECKER(void,
-                                   push_back_rows,
-                                   (const array<float>&, const range&),
-                                   push_back_rows_float)
-    INSTANTIATE_HAS_METHOD_CHECKER(void,
-                                   push_back_rows,
-                                   (const array<double>&, const range&),
-                                   push_back_rows_double)
-    INSTANTIATE_HAS_METHOD_CHECKER(void,
-                                   push_back_rows,
-                                   (const array<std::int32_t>&, const range&),
-                                   push_back_rows_int32)
-    INSTANTIATE_HAS_METHOD_CHECKER(void,
-                                   pull_column,
-                                   (array<float>&, std::int64_t, const range&)const,
-                                   pull_column_float)
-    INSTANTIATE_HAS_METHOD_CHECKER(void,
-                                   pull_column,
-                                   (array<double>&, std::int64_t, const range&)const,
-                                   pull_column_double)
-    INSTANTIATE_HAS_METHOD_CHECKER(void,
-                                   pull_column,
-                                   (array<std::int32_t>&, std::int64_t, const range&)const,
-                                   pull_column_int32)
-    INSTANTIATE_HAS_METHOD_CHECKER(void,
-                                   push_back_column,
-                                   (const array<float>&, std::int64_t, const range&),
-                                   push_back_column_float)
-    INSTANTIATE_HAS_METHOD_CHECKER(void,
-                                   push_back_column,
-                                   (const array<double>&, std::int64_t, const range&),
-                                   push_back_column_double)
-    INSTANTIATE_HAS_METHOD_CHECKER(void,
-                                   push_back_column,
-                                   (const array<std::int32_t>&, std::int64_t, const range&),
-                                   push_back_column_int32)
-
     INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(std::int64_t, get_kind, () const)
-
-    static constexpr bool can_pull_rows = has_method_pull_rows_float_v<T> &&
-                                          has_method_pull_rows_double_v<T> &&
-                                          has_method_pull_rows_int32_v<T>;
-
-    static constexpr bool can_push_back_rows = has_method_push_back_rows_float_v<T> &&
-                                               has_method_push_back_rows_double_v<T> &&
-                                               has_method_push_back_rows_int32_v<T>;
-
-    static constexpr bool can_pull_column = has_method_pull_column_float_v<T> &&
-                                            has_method_pull_column_double_v<T> &&
-                                            has_method_pull_column_int32_v<T>;
-
-    static constexpr bool can_push_back_column = has_method_push_back_column_float_v<T> &&
-                                                 has_method_push_back_column_double_v<T> &&
-                                                 has_method_push_back_column_int32_v<T>;
 
     static constexpr bool value = has_method_get_column_count_v<T> &&
                                   has_method_get_row_count_v<T> && has_method_get_metadata_v<T> &&
-                                  can_pull_rows && can_push_back_rows && can_pull_column &&
-                                  can_push_back_column && has_method_get_kind_v<T>;
+                                  has_method_get_kind_v<T>;
 };
 
 template <typename T>
@@ -111,8 +44,6 @@ struct is_homogen_table_impl {
 
     static constexpr bool value = base::template has_method_get_column_count_v<T> &&
                                   base::template has_method_get_row_count_v<T> &&
-                                  base::can_pull_rows && base::can_push_back_rows &&
-                                  base::can_pull_column && base::can_push_back_column &&
                                   has_method_get_metadata_v<T> && has_method_get_data_v<T>;
 };
 

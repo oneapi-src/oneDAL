@@ -18,31 +18,86 @@
 
 #include "oneapi/dal/data/table_builder.hpp"
 
+#include <stdexcept> // TODO: replace by oneDAL error handling
+
 namespace oneapi::dal {
+namespace detail {
 
-template <typename T>
-class row_accessor {
-private:
-    using storage_t = detail::get_dense_storage_iface_t<T>;
-
-public:
+template <typename T, typename BlockIndexType>
+struct accessor_base {
     using data_t                      = std::remove_const_t<T>;
+    using pull_ptr_host_t = host_access_iface::pull_ptr_t<data_t, BlockIndexType>;
+    using push_ptr_host_t = host_access_iface::push_ptr_t<data_t, BlockIndexType>;
+
     static constexpr bool is_readonly = std::is_const_v<T>;
 
-    template <typename Q = T, typename = std::enable_if_t<sizeof(Q) && is_readonly>>
-    row_accessor(const table& t) : storage_(detail::get_impl<storage_t>(t)) {}
+    template <typename K>
+    static pull_ptr_host_t get_pull_access_ptr_host(const K& obj) {
+        auto access_iface = get_impl<accessible_iface>(obj).get_host_access_iface();
+        using pull_access_ptr = pull_access_ptr<data_t, BlockIndexType, decltype(access_iface)>;
 
-    row_accessor(const table_builder& b)
-            : storage_(detail::get_impl<detail::table_builder_impl_iface>(b).get_storage()) {}
+        return pull_access_ptr{}.get_value(access_iface);
+    }
+
+    template <typename K>
+    static push_ptr_host_t get_push_access_ptr_host(const K& obj) {
+        auto access_iface = get_impl<accessible_iface>(obj).get_host_access_iface();
+        using push_access_ptr = push_access_ptr<data_t, BlockIndexType, decltype(access_iface)>;
+
+        return push_access_ptr{}.get_value(access_iface);
+    }
+
+    template <typename K>
+    void init_access_pointers(const K& obj) {
+        pull_host_ = get_pull_access_ptr_host(obj);
+        if (pull_host_ == nullptr) {
+            throw std::runtime_error("object does not support pull() operator");
+        }
+
+        if constexpr (!is_readonly) {
+            push_host_ = get_push_access_ptr_host(obj);
+
+            if (push_host_ == nullptr) {
+                throw std::runtime_error("object does not support push() operator");
+            }
+        }
+    }
+
+    pull_ptr_host_t pull_host_;
+    push_ptr_host_t push_host_;
+};
+
+} // namespace detail
+
+template <typename T>
+class row_accessor : private detail::accessor_base<T, detail::row_block> {
+    using base = detail::accessor_base<T, detail::row_block>;
+
+public:
+    using data_t                      = typename base::data_t;
+    static constexpr bool is_readonly = base::is_readonly;
+
+public:
+
+    template <typename K,
+              typename = std::enable_if_t<is_readonly &&
+                    (std::is_base_of_v<table, K> || std::is_base_of_v<table_builder, K>)>>
+    row_accessor(const K& obj) {
+        base::init_access_pointers(obj);
+    }
+
+    row_accessor(const table_builder& b) {
+        base::init_access_pointers(b);
+    }
 
     array<data_t> pull(const range& rows = { 0, -1 }) const {
         array<data_t> block;
-        storage_.pull_rows(block, rows);
+        base::pull_host_->pull(detail::host_seq_policy{}, block, {rows}, detail::host_only_alloc{});
         return block;
     }
 
     T* pull(array<data_t>& block, const range& rows = { 0, -1 }) const {
-        storage_.pull_rows(block, rows);
+        base::pull_host_->pull(detail::host_seq_policy{}, block, {rows}, detail::host_only_alloc{});
         if constexpr (is_readonly) {
             return block.get_data();
         }
@@ -54,36 +109,42 @@ public:
     template <typename Q = T>
     std::enable_if_t<sizeof(Q) && !is_readonly> push(const array<data_t>& block,
                                                      const range& rows = { 0, -1 }) {
-        storage_.push_back_rows(block, rows);
+        base::push_host_->push(detail::host_seq_policy{}, block, {rows}, detail::host_only_alloc{});
     }
-
-private:
-    storage_t& storage_;
 };
 
 template <typename T>
-class column_accessor {
-public:
-    using storage_t = detail::get_dense_storage_iface_t<T>;
+class column_accessor : private detail::accessor_base<T, detail::column_values_block>{
+    using base = detail::accessor_base<T, detail::column_values_block>;
 
 public:
-    using data_t                      = std::remove_const_t<T>;
-    static constexpr bool is_readonly = std::is_const_v<T>;
+    using data_t                      = typename base::data_t;
+    static constexpr bool is_readonly = base::is_readonly;
 
-    template <typename Q = T, typename = std::enable_if_t<sizeof(Q) && is_readonly>>
-    column_accessor(const table& t) : storage_(detail::get_impl<storage_t>(t)) {}
+public:
+    template <typename K,
+              typename = std::enable_if_t<is_readonly &&
+                    (std::is_base_of_v<table, K> || std::is_base_of_v<table_builder, K>)>>
+    column_accessor(const K& obj) {
+        base::init_access_pointers(obj);
+    }
 
-    column_accessor(const table_builder& b)
-            : storage_(detail::get_impl<detail::table_builder_impl_iface>(b).get_storage()) {}
+    column_accessor(const table_builder& b) {
+        base::init_access_pointers(b);
+    }
 
     array<data_t> pull(std::int64_t column_index, const range& rows = { 0, -1 }) const {
         array<data_t> block;
-        storage_.pull_column(block, column_index, rows);
+        base::pull_host_->pull(detail::host_seq_policy{},
+                               block, {column_index, rows},
+                               detail::host_only_alloc{});
         return block;
     }
 
     T* pull(array<data_t>& block, std::int64_t column_index, const range& rows = { 0, -1 }) const {
-        storage_.pull_column(block, column_index, rows);
+        base::pull_host_->pull(detail::host_seq_policy{},
+                               block, {column_index, rows},
+                               detail::host_only_alloc{});
         if constexpr (is_readonly) {
             return block.get_data();
         }
@@ -96,11 +157,10 @@ public:
     std::enable_if_t<sizeof(Q) && !is_readonly> push(const array<data_t>& block,
                                                      std::int64_t column_index,
                                                      const range& rows = { 0, -1 }) {
-        storage_.push_back_column(block, column_index, rows);
+        base::push_host_->push(detail::host_seq_policy{},
+                               block, {column_index, rows},
+                               detail::host_only_alloc{});
     }
-
-private:
-    storage_t& storage_;
 };
 
 } // namespace oneapi::dal

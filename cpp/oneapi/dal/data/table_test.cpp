@@ -51,16 +51,16 @@ TEST(table_test, can_set_custom_implementation) {
         void pull_rows(array<float>& a, const range& r) const {}
         void pull_rows(array<double>& a, const range& r) const {}
         void pull_rows(array<std::int32_t>& a, const range& r) const {}
-        void push_back_rows(const array<float>&, const range&) {}
-        void push_back_rows(const array<double>&, const range&) {}
-        void push_back_rows(const array<std::int32_t>&, const range&) {}
+        void push_rows(const array<float>&, const range&) {}
+        void push_rows(const array<double>&, const range&) {}
+        void push_rows(const array<std::int32_t>&, const range&) {}
 
         void pull_column(array<float>& a, std::int64_t idx, const range& r) const {}
         void pull_column(array<double>& a, std::int64_t idx, const range& r) const {}
         void pull_column(array<std::int32_t>& a, std::int64_t idx, const range& r) const {}
-        void push_back_column(const array<float>&, std::int64_t idx, const range&) {}
-        void push_back_column(const array<double>&, std::int64_t idx, const range&) {}
-        void push_back_column(const array<std::int32_t>&, std::int64_t idx, const range&) {}
+        void push_column(const array<float>&, std::int64_t idx, const range&) {}
+        void push_column(const array<double>&, std::int64_t idx, const range&) {}
+        void push_column(const array<std::int32_t>&, std::int64_t idx, const range&) {}
 
         table_metadata m;
     };
@@ -96,16 +96,16 @@ TEST(homogen_table_test, can_set_custom_implementation) {
         void pull_rows(array<float>& a, const range& r) const {}
         void pull_rows(array<double>& a, const range& r) const {}
         void pull_rows(array<std::int32_t>& a, const range& r) const {}
-        void push_back_rows(const array<float>&, const range&) {}
-        void push_back_rows(const array<double>&, const range&) {}
-        void push_back_rows(const array<std::int32_t>&, const range&) {}
+        void push_rows(const array<float>&, const range&) {}
+        void push_rows(const array<double>&, const range&) {}
+        void push_rows(const array<std::int32_t>&, const range&) {}
 
         void pull_column(array<float>& a, std::int64_t idx, const range& r) const {}
         void pull_column(array<double>& a, std::int64_t idx, const range& r) const {}
         void pull_column(array<std::int32_t>& a, std::int64_t idx, const range& r) const {}
-        void push_back_column(const array<float>&, std::int64_t idx, const range&) {}
-        void push_back_column(const array<double>&, std::int64_t idx, const range&) {}
-        void push_back_column(const array<std::int32_t>&, std::int64_t idx, const range&) {}
+        void push_column(const array<float>&, std::int64_t idx, const range&) {}
+        void push_column(const array<double>&, std::int64_t idx, const range&) {}
+        void push_column(const array<std::int32_t>&, std::int64_t idx, const range&) {}
 
         const void* get_data() const {
             return nullptr;

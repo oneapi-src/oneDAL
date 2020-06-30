@@ -32,7 +32,10 @@ public:
     table(const table&) = default;
     table(table&&);
 
-    template <typename Impl, typename = std::enable_if_t<is_table_impl_v<std::decay_t<Impl>>>>
+    template <typename Impl,
+              typename ImplType = std::decay_t<Impl>,
+              typename = std::enable_if_t<is_table_impl_v<ImplType> &&
+                         !std::is_base_of_v<table, ImplType>>>
     table(Impl&& impl) {
         init_impl(new detail::table_impl_wrapper(std::forward<Impl>(impl)));
     }
@@ -66,7 +69,9 @@ public:
     homogen_table();
 
     template <typename Impl,
-              typename = std::enable_if_t<is_homogen_table_impl_v<std::decay_t<Impl>>>>
+              typename ImplType = std::decay_t<Impl>,
+              typename = std::enable_if_t<is_homogen_table_impl_v<ImplType> &&
+                                          !std::is_base_of_v<table, ImplType>>>
     homogen_table(Impl&& impl) {
         // TODO: usage of protected method of base class: a point to break inheritance?
         auto* wrapper = new detail::homogen_table_impl_wrapper{ std::forward<Impl>(impl),
