@@ -41,6 +41,7 @@ extern "C"
     DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, daal::functype func);
     DAAL_EXPORT void _daal_threader_for_blocked(int n, int threads_request, const void * a, daal::functype2 func);
     DAAL_EXPORT void _daal_threader_for_optional(int n, int threads_request, const void * a, daal::functype func);
+    DAAL_EXPORT void _daal_break_threader_for();
 
     DAAL_EXPORT void * _daal_get_tls_ptr(void * a, daal::tls_functype func);
     DAAL_EXPORT void * _daal_get_tls_local(void * tlsPtr);
@@ -153,6 +154,11 @@ inline void threader_for_optional(int n, int threads_request, const F & lambda)
     const void * a = static_cast<const void *>(&lambda);
 
     _daal_threader_for_optional(n, threads_request, a, threader_func<F>);
+}
+
+inline void break_threader_for()
+{
+    _daal_break_threader_for();
 }
 
 template <typename lambdaType>

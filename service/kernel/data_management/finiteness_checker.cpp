@@ -84,6 +84,41 @@ DataType computeSum(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** 
     return sum;
 }
 
+template <daal::CpuType cpu>
+double computeSumSOA(NumericTable & table, bool & sumIsFinite)
+{
+    double sum                                  = 0;
+    const size_t nRows                          = table.getNumberOfRows();
+    const size_t nCols                          = table.getNumberOfColumns();
+    NumericTableDictionaryPtr tableFeaturesDict = table.getDictionarySharedPtr();
+
+    for (size_t i = 0; (i < nCols) && sumIsFinite; ++i)
+    {
+        switch ((*tableFeaturesDict)[i].getIndexType())
+        {
+        case daal::data_management::features::IndexNumType::DAAL_FLOAT32:
+        {
+            ReadColumns<float, cpu> colBlock(table, i, 0, nRows);
+            DAAL_CHECK_BLOCK_STATUS(colBlock);
+            const float * colPtr = colBlock.get();
+            sum += computeSum<float, cpu>(1, nRows, &colPtr);
+            break;
+        }
+        case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
+        {
+            ReadColumns<double, cpu> colBlock(table, i, 0, nRows);
+            DAAL_CHECK_BLOCK_STATUS(colBlock);
+            const double * colPtr = colBlock.get();
+            sum += static_cast<double>(computeSum<double, cpu>(1, nRows, &colPtr));
+            break;
+        }
+        }
+        sumIsFinite &= !valuesAreNotFinite(&sum, 1, false);
+    }
+
+    return sum;
+}
+
 template <typename DataType, daal::CpuType cpu>
 bool checkFiniteness(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs, bool allowNaN)
 {
@@ -91,6 +126,40 @@ bool checkFiniteness(const size_t nElements, size_t nDataPtrs, size_t nElementsP
     for (size_t ptrIdx = 0; ptrIdx < nDataPtrs; ++ptrIdx) notFinite = notFinite || valuesAreNotFinite(dataPtrs[ptrIdx], nElementsPerPtr, allowNaN);
 
     return !notFinite;
+}
+
+template <daal::CpuType cpu>
+bool checkFinitenessSOA(NumericTable & table, bool allowNaN)
+{
+    bool valuesAreFinite                        = true;
+    const size_t nRows                          = table.getNumberOfRows();
+    const size_t nCols                          = table.getNumberOfColumns();
+    NumericTableDictionaryPtr tableFeaturesDict = table.getDictionarySharedPtr();
+
+    for (size_t i = 0; (i < nCols) && valuesAreFinite; ++i)
+    {
+        switch ((*tableFeaturesDict)[i].getIndexType())
+        {
+        case daal::data_management::features::IndexNumType::DAAL_FLOAT32:
+        {
+            ReadColumns<float, cpu> colBlock(table, i, 0, nRows);
+            DAAL_CHECK_BLOCK_STATUS(colBlock);
+            const float * colPtr = colBlock.get();
+            valuesAreFinite &= checkFiniteness<float, cpu>(nRows, 1, nRows, &colPtr, allowNaN);
+            break;
+        }
+        case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
+        {
+            ReadColumns<double, cpu> colBlock(table, i, 0, nRows);
+            DAAL_CHECK_BLOCK_STATUS(colBlock);
+            const double * colPtr = colBlock.get();
+            valuesAreFinite &= checkFiniteness<double, cpu>(nRows, 1, nRows, &colPtr, allowNaN);
+            break;
+        }
+        }
+    }
+
+    return valuesAreFinite;
 }
 
 #if defined(__INTEL_COMPILER)
@@ -160,6 +229,68 @@ template <>
 double computeSum<double, avx512>(size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs)
 {
     return computeSumAVX512Impl<double>(nDataPtrs, nElementsPerPtr, dataPtrs);
+}
+
+double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite)
+{
+    SafeStatus safeStat;
+    double sum                                  = 0;
+    bool breakFlag                              = false;
+    const size_t nRows                          = table.getNumberOfRows();
+    const size_t nCols                          = table.getNumberOfColumns();
+    NumericTableDictionaryPtr tableFeaturesDict = table.getDictionarySharedPtr();
+
+    daal::TlsMem<double, avx512, services::internal::ScalableCalloc<double, avx512> > tlsSum(1);
+    daal::TlsMem<bool, avx512, services::internal::ScalableCalloc<bool, avx512> > tlsFinite(1);
+    daal::threader_for(nCols, nCols, [&](size_t i) {
+        double * localSum  = tlsSum.local();
+        bool * localFinite = tlsFinite.local();
+
+        switch ((*tableFeaturesDict)[i].getIndexType())
+        {
+        case daal::data_management::features::IndexNumType::DAAL_FLOAT32:
+        {
+            ReadColumns<float, avx512> colBlock(table, i, 0, nRows);
+            DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
+            const float * colPtr = colBlock.get();
+            *localSum += computeSum<float, avx512>(1, nRows, &colPtr);
+            break;
+        }
+        case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
+        {
+            ReadColumns<double, avx512> colBlock(table, i, 0, nRows);
+            DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
+            const double * colPtr = colBlock.get();
+            *localSum += static_cast<double>(computeSum<double, avx512>(1, nRows, &colPtr));
+            break;
+        }
+        }
+
+        *localFinite |= valuesAreNotFinite(localSum, 1, false);
+        if (*localFinite)
+        {
+            breakFlag = true;
+            daal::break_threader_for();
+        }
+    });
+    tlsSum.reduce([&](double * localSum) { sum += *localSum; });
+
+    if (breakFlag)
+    {
+        sumIsFinite = false;
+    }
+    else
+    {
+        tlsFinite.reduce([&](bool * localFinite) { sumIsFinite &= !*localFinite; });
+    }
+
+    return sum;
+}
+
+template <>
+double computeSumSOA<avx512>(NumericTable & table, bool & sumIsFinite)
+{
+    return computeSumSOAAVX512Impl(table, sumIsFinite);
 }
 
 services::Status checkFinitenessInBlocks(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
@@ -299,6 +430,64 @@ bool checkFiniteness<double, avx512>(const size_t nElements, size_t nDataPtrs, s
     return checkFinitenessAVX512Impl<double>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
 }
 
+bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN)
+{
+    SafeStatus safeStat;
+    bool valuesAreFinite                        = true;
+    bool breakFlag                              = false;
+    const size_t nRows                          = table.getNumberOfRows();
+    const size_t nCols                          = table.getNumberOfColumns();
+    NumericTableDictionaryPtr tableFeaturesDict = table.getDictionarySharedPtr();
+
+    daal::TlsMem<bool, avx512, services::internal::ScalableCalloc<bool, avx512> > tlsFinite(1);
+    daal::threader_for(nCols, nCols, [&](size_t i) {
+        bool * localFinite = tlsFinite.local();
+
+        switch ((*tableFeaturesDict)[i].getIndexType())
+        {
+        case daal::data_management::features::IndexNumType::DAAL_FLOAT32:
+        {
+            ReadColumns<float, avx512> colBlock(table, i, 0, nRows);
+            DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
+            const float * colPtr = colBlock.get();
+            *localFinite |= !checkFiniteness<float, avx512>(nRows, 1, nRows, &colPtr, allowNaN);
+            break;
+        }
+        case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
+        {
+            ReadColumns<double, avx512> colBlock(table, i, 0, nRows);
+            DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
+            const double * colPtr = colBlock.get();
+            *localFinite |= !checkFiniteness<double, avx512>(nRows, 1, nRows, &colPtr, allowNaN);
+            break;
+        }
+        }
+
+        if (*localFinite)
+        {
+            breakFlag = true;
+            daal::break_threader_for();
+        }
+    });
+
+    if (breakFlag)
+    {
+        valuesAreFinite = false;
+    }
+    else
+    {
+        tlsFinite.reduce([&](bool * localFinite) { valuesAreFinite &= !*localFinite; });
+    }
+
+    return valuesAreFinite;
+}
+
+template <>
+bool checkFinitenessSOA<avx512>(NumericTable & table, bool allowNaN)
+{
+    return checkFinitenessSOAAVX512Impl(table, allowNaN);
+}
+
 #endif
 
 template <typename DataType, daal::CpuType cpu>
@@ -328,40 +517,21 @@ services::Status allValuesAreFiniteImpl(NumericTable & table, bool allowNaN, boo
     // first stage: compute sum of all values and check its finiteness
     double sum       = 0;
     bool sumIsFinite = true;
-    for (size_t i = 0; (i < nDataPtrs) && sumIsFinite; ++i)
-    {
-        if (layout == NTLayout::soa)
-        {
-            switch ((*tableFeaturesDict)[i].getIndexType())
-            {
-            case daal::data_management::features::IndexNumType::DAAL_FLOAT32:
-            {
-                ReadColumns<float, cpu> colBlock(table, i, 0, nRows);
-                DAAL_CHECK_BLOCK_STATUS(colBlock);
-                const float * colPtr = colBlock.get();
-                sum += computeSum<float, cpu>(1, nRows, &colPtr);
-                break;
-            }
-            case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
-            {
-                ReadColumns<double, cpu> colBlock(table, i, 0, nRows);
-                DAAL_CHECK_BLOCK_STATUS(colBlock);
-                const double * colPtr = colBlock.get();
-                sum += static_cast<double>(computeSum<double, cpu>(1, nRows, &colPtr));
-                break;
-            }
-            }
-        }
-        else
-        {
-            ReadRows<DataType, cpu> dataBlock(table, 0, nRows);
-            DAAL_CHECK_BLOCK_STATUS(dataBlock);
-            const DataType * dataPtr = dataBlock.get();
 
-            sum += computeSum<DataType, cpu>(1, nElements, &dataPtr);
-        }
-        sumIsFinite &= !valuesAreNotFinite(&sum, 1, false);
+    if (layout == NTLayout::soa)
+    {
+        sum = computeSumSOA<cpu>(table, sumIsFinite);
     }
+    else
+    {
+        ReadRows<DataType, cpu> dataBlock(table, 0, nRows);
+        DAAL_CHECK_BLOCK_STATUS(dataBlock);
+        const DataType * dataPtr = dataBlock.get();
+
+        sum = computeSum<DataType, cpu>(1, nElements, &dataPtr);
+    }
+
+    sumIsFinite &= !valuesAreNotFinite(&sum, 1, false);
 
     if (sumIsFinite)
     {
@@ -371,38 +541,17 @@ services::Status allValuesAreFiniteImpl(NumericTable & table, bool allowNaN, boo
 
     // second stage: check finiteness of all values
     bool valuesAreFinite = true;
-    for (size_t i = 0; (i < nDataPtrs) && valuesAreFinite; ++i)
+    if (layout == NTLayout::soa)
     {
-        if (layout == NTLayout::soa)
-        {
-            switch ((*tableFeaturesDict)[i].getIndexType())
-            {
-            case daal::data_management::features::IndexNumType::DAAL_FLOAT32:
-            {
-                ReadColumns<float, cpu> colBlock(table, i, 0, nRows);
-                DAAL_CHECK_BLOCK_STATUS(colBlock);
-                const float * colPtr = colBlock.get();
-                valuesAreFinite &= checkFiniteness<float, cpu>(nRows, 1, nRows, &colPtr, allowNaN);
-                break;
-            }
-            case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
-            {
-                ReadColumns<double, cpu> colBlock(table, i, 0, nRows);
-                DAAL_CHECK_BLOCK_STATUS(colBlock);
-                const double * colPtr = colBlock.get();
-                valuesAreFinite &= checkFiniteness<double, cpu>(nRows, 1, nRows, &colPtr, allowNaN);
-                break;
-            }
-            }
-        }
-        else
-        {
-            ReadRows<DataType, cpu> dataBlock(table, 0, nRows);
-            DAAL_CHECK_BLOCK_STATUS(dataBlock);
-            const DataType * dataPtr = dataBlock.get();
+        valuesAreFinite = checkFinitenessSOA<cpu>(table, allowNaN);
+    }
+    else
+    {
+        ReadRows<DataType, cpu> dataBlock(table, 0, nRows);
+        DAAL_CHECK_BLOCK_STATUS(dataBlock);
+        const DataType * dataPtr = dataBlock.get();
 
-            valuesAreFinite &= checkFiniteness<DataType, cpu>(nElements, 1, nElements, &dataPtr, allowNaN);
-        }
+        valuesAreFinite = checkFiniteness<DataType, cpu>(nElements, 1, nElements, &dataPtr, allowNaN);
     }
 
     *finiteness = valuesAreFinite;

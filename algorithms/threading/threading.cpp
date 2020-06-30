@@ -127,6 +127,16 @@ DAAL_EXPORT void _daal_threader_for_optional(int n, int threads_request, const v
 #endif
 }
 
+DAAL_EXPORT void _daal_break_threader_for()
+{
+#if defined(__DO_TBB_LAYER__)
+    tbb::task::self().cancel_group_execution();
+    return;
+#elif defined(__DO_SEQ_LAYER__)
+    return;
+#endif
+}
+
 DAAL_EXPORT int _daal_threader_get_max_threads()
 {
 #if defined(__DO_TBB_LAYER__)
