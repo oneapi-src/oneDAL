@@ -26,18 +26,17 @@ struct train_ops;
 template <typename Context, typename Descriptor, typename Head, typename... Tail>
 auto train_dispatch_by_input(const Context& ctx,
                              const Descriptor& desc,
-                             Head&& head, Tail&&... tail) {
-    using tag_t = typename Descriptor::tag_t;
-    using ops_t = train_ops<Descriptor, tag_t>;
+                             Head&& head,
+                             Tail&&... tail) {
+    using tag_t   = typename Descriptor::tag_t;
+    using ops_t   = train_ops<Descriptor, tag_t>;
     using input_t = typename ops_t::input_t;
 
     if constexpr (std::is_same_v<std::decay_t<Head>, input_t>) {
-        return ops_t()(ctx, desc, std::forward<Head>(head),
-                                  std::forward<Tail>(tail)...);
+        return ops_t()(ctx, desc, std::forward<Head>(head), std::forward<Tail>(tail)...);
     }
 
-    const auto input = input_t { std::forward<Head>(head),
-                                 std::forward<Tail>(tail)... };
+    const auto input = input_t{ std::forward<Head>(head), std::forward<Tail>(tail)... };
     return ops_t()(ctx, desc, input);
 }
 

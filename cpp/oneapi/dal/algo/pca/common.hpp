@@ -33,10 +33,10 @@ struct svd {};
 using by_default = cov;
 } // namespace method
 
-class descriptor_base : public base {
-  public:
-    using tag_t = detail::tag;
-    using float_t = float;
+class ONEAPI_DAL_EXPORT descriptor_base : public base {
+public:
+    using tag_t    = detail::tag;
+    using float_t  = float;
     using method_t = method::by_default;
 
     descriptor_base();
@@ -44,17 +44,16 @@ class descriptor_base : public base {
     auto get_component_count() const -> std::int64_t;
     auto get_is_deterministic() const -> bool;
 
-  protected:
+protected:
     void set_component_count_impl(std::int64_t value);
     void set_is_deterministic_impl(bool value);
 
     dal::detail::pimpl<detail::descriptor_impl> impl_;
 };
 
-template <typename Float  = descriptor_base::float_t,
-          typename Method = descriptor_base::method_t>
+template <typename Float = descriptor_base::float_t, typename Method = descriptor_base::method_t>
 class descriptor : public descriptor_base {
-  public:
+public:
     using float_t  = Float;
     using method_t = Method;
 
@@ -69,9 +68,10 @@ class descriptor : public descriptor_base {
     }
 };
 
-class model : public base {
-  friend dal::detail::pimpl_accessor;
-  public:
+class ONEAPI_DAL_EXPORT model : public base {
+    friend dal::detail::pimpl_accessor;
+
+public:
     model();
 
     table get_eigenvectors() const;
@@ -81,7 +81,7 @@ class model : public base {
         return *this;
     }
 
-  private:
+private:
     void set_eigenvectors_impl(const table&);
 
     dal::detail::pimpl<detail::model_impl> impl_;

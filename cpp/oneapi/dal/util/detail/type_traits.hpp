@@ -18,24 +18,28 @@
 
 namespace oneapi::dal::detail {
 
-#define INSTANTIATE_HAS_METHOD_CHECKER(return_value, method_name, params, checker_name)                 \
-template<typename _Type>                                                                                \
-struct has_method_##checker_name {                                                                      \
-private:                                                                                                \
-    using pass = std::true_type;                                                                        \
-    using fail = std::false_type;                                                                       \
-                                                                                                        \
-    template<typename U, return_value (U::*f)params> struct checker_t{};                                \
-                                                                                                        \
-    template<class U> static pass test(checker_t<U,&U::method_name>*);                                  \
-    template<class U> static fail test(...);                                                            \
-                                                                                                        \
-public:                                                                                                 \
-    static constexpr bool value = std::is_same_v<pass, decltype(test<_Type>(nullptr))>;                 \
-};                                                                                                      \
-                                                                                                        \
-template <typename _Type>                                                                               \
-static inline constexpr bool has_method_##checker_name ##_v = has_method_##checker_name<_Type>::value;
+#define INSTANTIATE_HAS_METHOD_CHECKER(return_value, method_name, params, checker_name)     \
+    template <typename _Type>                                                               \
+    struct has_method_##checker_name {                                                      \
+    private:                                                                                \
+        using pass = std::true_type;                                                        \
+        using fail = std::false_type;                                                       \
+                                                                                            \
+        template <typename U, return_value(U::*f) params>                                   \
+        struct checker_t {};                                                                \
+                                                                                            \
+        template <class U>                                                                  \
+        static pass test(checker_t<U, &U::method_name>*);                                   \
+        template <class U>                                                                  \
+        static fail test(...);                                                              \
+                                                                                            \
+    public:                                                                                 \
+        static constexpr bool value = std::is_same_v<pass, decltype(test<_Type>(nullptr))>; \
+    };                                                                                      \
+                                                                                            \
+    template <typename _Type>                                                               \
+    static inline constexpr bool has_method_##checker_name##_v =                            \
+        has_method_##checker_name<_Type>::value;
 
 #define INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(return_value, method_name, params) \
     INSTANTIATE_HAS_METHOD_CHECKER(return_value, method_name, params, method_name)

@@ -27,7 +27,8 @@ CORE.SERV.COMPILER.vc = generic
 -Zl.vc = -Zl
 -DEBC.vc = -DEBUG -Z7
 
-COMPILER.win.vc = cl -nologo -EHsc -WX
+# Disable C4661 because of false positives
+COMPILER.win.vc = cl -nologo -EHsc -wd4661 -WX
 
 p4_OPT.vc   =
 mc_OPT.vc   =

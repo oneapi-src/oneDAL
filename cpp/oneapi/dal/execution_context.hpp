@@ -39,14 +39,14 @@ enum class cpu_extension : uint64_t {
     avx512 = 1U << 5
 };
 
-class default_execution_context : public base {
+class ONEAPI_DAL_EXPORT default_execution_context : public base {
 public:
     using tag_t = detail::execution_context_tag;
     default_execution_context();
 
     cpu_extension get_enabled_cpu_extensions() const noexcept;
 
-    auto &set_enabled_cpu_extensions(const cpu_extension& extensions) noexcept {
+    auto& set_enabled_cpu_extensions(const cpu_extension& extensions) noexcept {
         set_enabled_cpu_extensions_impl(extensions);
         return *this;
     }
