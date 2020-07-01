@@ -43,8 +43,8 @@ private:
             return daal_linear_kernel::Method::defaultDense;
         else if constexpr (std::is_same_v<Method, linear_kernel::method::csr>)
             return daal_linear_kernel::Method::fastCSR;
-        else
-            static_assert(true, "unsupported linear method type in DAAL");
+        static_assert(false, "unsupported linear method type in DAAL");
+        // return daal_linear_kernel::Method::by_default;
     }
 
     double k;

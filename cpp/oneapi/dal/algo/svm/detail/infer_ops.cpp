@@ -21,7 +21,6 @@
 namespace oneapi::dal::svm::detail {
 
 template <typename Float, typename Task, typename Method>
-
 struct ONEAPI_DAL_EXPORT infer_ops_dispatcher<default_execution_context, Float, Task, Method> {
     infer_result operator()(const default_execution_context& ctx,
                             const descriptor_base& desc,

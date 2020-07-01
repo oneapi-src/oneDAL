@@ -20,7 +20,6 @@
 #include "oneapi/dal/backend/dispatcher_dp.hpp"
 
 namespace oneapi::dal::svm::detail {
-
 template <typename Float, typename Task, typename Method>
 struct ONEAPI_DAL_EXPORT
     infer_ops_dispatcher<data_parallel_execution_context, Float, Task, Method> {

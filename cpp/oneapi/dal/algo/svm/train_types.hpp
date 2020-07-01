@@ -105,7 +105,6 @@ private:
     void set_support_indices_impl(const table&);
     void set_coefficients_impl(const table&);
     void set_bias_impl(const double);
-
     void set_support_vector_count_impl(const std::int64_t);
 
     dal::detail::pimpl<detail::train_result_impl> impl_;
