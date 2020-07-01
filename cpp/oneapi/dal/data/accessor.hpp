@@ -24,28 +24,13 @@ namespace oneapi::dal {
 namespace detail {
 
 template <typename T, typename BlockIndexType>
-struct accessor_base {
+class accessor_base {
+public:
     using data_t                      = std::remove_const_t<T>;
     using pull_ptr_host_t = host_access_iface::pull_ptr_t<data_t, BlockIndexType>;
     using push_ptr_host_t = host_access_iface::push_ptr_t<data_t, BlockIndexType>;
 
     static constexpr bool is_readonly = std::is_const_v<T>;
-
-    template <typename K>
-    static pull_ptr_host_t get_pull_access_ptr_host(const K& obj) {
-        auto access_iface = get_impl<accessible_iface>(obj).get_host_access_iface();
-        using pull_access_ptr = pull_access_ptr<data_t, BlockIndexType, decltype(access_iface)>;
-
-        return pull_access_ptr{}.get_value(access_iface);
-    }
-
-    template <typename K>
-    static push_ptr_host_t get_push_access_ptr_host(const K& obj) {
-        auto access_iface = get_impl<accessible_iface>(obj).get_host_access_iface();
-        using push_access_ptr = push_access_ptr<data_t, BlockIndexType, decltype(access_iface)>;
-
-        return push_access_ptr{}.get_value(access_iface);
-    }
 
     template <typename K>
     void init_access_pointers(const K& obj) {
@@ -63,6 +48,52 @@ struct accessor_base {
         }
     }
 
+    template <typename Policy, typename AllocKind>
+    array<data_t> pull(const Policy& policy, const BlockIndexType& idx, const AllocKind& kind) const {
+        array<data_t> block;
+        pull_host_->pull(policy, block, idx, kind);
+        return block;
+    }
+
+    template <typename Policy, typename AllocKind>
+    T* pull(const Policy& policy, array<data_t>& block, const BlockIndexType& idx, const AllocKind& kind) const {
+        pull_host_->pull(policy, block, idx, kind);
+        return get_block_data(block);
+    }
+
+    template <typename Policy, typename AllocKind>
+    void push(const Policy& policy, const array<data_t>& block, const BlockIndexType& idx, const AllocKind& kind) {
+        push_host_->push(policy, block, idx, kind);
+    }
+
+private:
+    template <typename K>
+    static pull_ptr_host_t get_pull_access_ptr_host(const K& obj) {
+        auto access_iface = get_impl<accessible_iface>(obj).get_host_access_iface();
+        using pull_access_ptr = pull_access_ptr<data_t, BlockIndexType, decltype(access_iface)>;
+
+        return pull_access_ptr{}.get_value(access_iface);
+    }
+
+    template <typename K>
+    static push_ptr_host_t get_push_access_ptr_host(const K& obj) {
+        auto access_iface = get_impl<accessible_iface>(obj).get_host_access_iface();
+        using push_access_ptr = push_access_ptr<data_t, BlockIndexType, decltype(access_iface)>;
+
+        return push_access_ptr{}.get_value(access_iface);
+    }
+
+private:
+    T* get_block_data(array<data_t>& block) {
+        if constexpr (is_readonly) {
+            return block.get_data();
+        }
+        else {
+            return block.get_mutable_data();
+        }
+    }
+
+private:
     pull_ptr_host_t pull_host_;
     push_ptr_host_t push_host_;
 };
@@ -91,26 +122,42 @@ public:
     }
 
     array<data_t> pull(const range& rows = { 0, -1 }) const {
-        array<data_t> block;
-        base::pull_host_->pull(detail::host_seq_policy{}, block, {rows}, detail::host_only_alloc{});
-        return block;
+        return base::pull(detail::host_seq_policy{}, {rows}, detail::host_only_alloc{});
     }
 
     T* pull(array<data_t>& block, const range& rows = { 0, -1 }) const {
-        base::pull_host_->pull(detail::host_seq_policy{}, block, {rows}, detail::host_only_alloc{});
-        if constexpr (is_readonly) {
-            return block.get_data();
-        }
-        else {
-            return block.get_mutable_data();
-        }
+        return base::pull(detail::host_seq_policy{}, block, {rows}, detail::host_only_alloc{});
     }
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    array<data_t> pull(sycl::queue& queue,
+                       const range& rows = { 0, -1 },
+                       sycl::usm::alloc kind = sycl::usm::alloc::shared) const {
+        return base::pull(detail::host_seq_policy{}, {rows}, detail::host_only_alloc{});
+    }
+
+    T* pull(sycl::queue& queue,
+            array<data_t>& block, const range& rows = { 0, -1 },
+            sycl::usm::alloc kind = sycl::usm::alloc::shared) const {
+        return base::pull(detail::host_seq_policy{}, block, {rows}, detail::host_only_alloc{});
+    }
+#endif
 
     template <typename Q = T>
     std::enable_if_t<sizeof(Q) && !is_readonly> push(const array<data_t>& block,
                                                      const range& rows = { 0, -1 }) {
-        base::push_host_->push(detail::host_seq_policy{}, block, {rows}, detail::host_only_alloc{});
+        base::push(detail::host_seq_policy{}, block, {rows}, detail::host_only_alloc{});
     }
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    template <typename Q = T>
+    std::enable_if_t<sizeof(Q) && !is_readonly> push(sycl::queue& queue,
+                                                     const array<data_t>& block,
+                                                     const range& rows = { 0, -1 },
+                                                     sycl::usm::alloc kind = sycl::usm::alloc::shared) {
+        base::push(detail::host_seq_policy{}, block, {rows}, detail::host_only_alloc{});
+    }
+#endif
 };
 
 template <typename T>
@@ -134,33 +181,44 @@ public:
     }
 
     array<data_t> pull(std::int64_t column_index, const range& rows = { 0, -1 }) const {
-        array<data_t> block;
-        base::pull_host_->pull(detail::host_seq_policy{},
-                               block, {column_index, rows},
-                               detail::host_only_alloc{});
-        return block;
+        return base::pull(detail::host_seq_policy{}, {column_index, rows}, detail::host_only_alloc{});
     }
 
     T* pull(array<data_t>& block, std::int64_t column_index, const range& rows = { 0, -1 }) const {
-        base::pull_host_->pull(detail::host_seq_policy{},
-                               block, {column_index, rows},
-                               detail::host_only_alloc{});
-        if constexpr (is_readonly) {
-            return block.get_data();
-        }
-        else {
-            return block.get_mutable_data();
-        }
+        return base::pull(detail::host_seq_policy{}, block, {column_index, rows}, detail::host_only_alloc{});
     }
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    array<data_t> pull(sycl::queue& queue,
+                       std::int64_t column_index, const range& rows = { 0, -1 },
+                       sycl::usm::alloc kind = sycl::usm::alloc::shared) const {
+        return base::pull(detail::host_seq_policy{}, {column_index, rows}, detail::host_only_alloc{});
+    }
+
+    T* pull(sycl::queue& queue,
+            array<data_t>& block, std::int64_t column_index, const range& rows = { 0, -1 },
+            sycl::usm::alloc kind = sycl::usm::alloc::shared) const {
+        return base::pull(detail::host_seq_policy{}, block, {column_index, rows}, detail::host_only_alloc{});
+    }
+#endif
 
     template <typename Q = T>
     std::enable_if_t<sizeof(Q) && !is_readonly> push(const array<data_t>& block,
                                                      std::int64_t column_index,
                                                      const range& rows = { 0, -1 }) {
-        base::push_host_->push(detail::host_seq_policy{},
-                               block, {column_index, rows},
-                               detail::host_only_alloc{});
+        base::push(detail::host_seq_policy{}, block, {column_index, rows}, detail::host_only_alloc{});
     }
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    template <typename Q = T>
+    std::enable_if_t<sizeof(Q) && !is_readonly> push(sycl::queue& queue,
+                                                     const array<data_t>& block,
+                                                     std::int64_t column_index,
+                                                     const range& rows = { 0, -1 },
+                                                     sycl::usm::alloc kind = sycl::usm::alloc::shared) {
+        base::push(detail::host_seq_policy{}, block, {column_index, rows}, detail::host_only_alloc{});
+    }
+#endif
 };
 
 } // namespace oneapi::dal
