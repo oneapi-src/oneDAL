@@ -21,7 +21,8 @@
 namespace oneapi::dal::svm::detail {
 
 template <typename Float, typename Task, typename Method>
-struct train_ops_dispatcher<default_execution_context, Float, Task, Method> {
+
+struct ONEAPI_DAL_EXPORT train_ops_dispatcher<default_execution_context, Float, Task, Method> {
     train_result operator()(const default_execution_context& ctx,
                             const descriptor_base& desc,
                             const train_input& input) const {
@@ -32,7 +33,7 @@ struct train_ops_dispatcher<default_execution_context, Float, Task, Method> {
 };
 
 #define INSTANTIATE(F, T, M) \
-    template struct train_ops_dispatcher<default_execution_context, F, T, M>;
+    template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<default_execution_context, F, T, M>;
 
 INSTANTIATE(float, task::classification, method::smo)
 INSTANTIATE(float, task::classification, method::thunder)

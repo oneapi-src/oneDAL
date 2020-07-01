@@ -25,7 +25,7 @@ class infer_input_impl;
 class infer_result_impl;
 } // namespace detail
 
-class infer_input : public base {
+class ONEAPI_DAL_EXPORT infer_input : public base {
 public:
     infer_input(const model& trained_model, const table& data);
 
@@ -50,7 +50,7 @@ private:
     dal::detail::pimpl<detail::infer_input_impl> impl_;
 };
 
-class infer_result {
+class ONEAPI_DAL_EXPORT infer_result {
 public:
     infer_result();
 

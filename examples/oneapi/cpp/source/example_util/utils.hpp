@@ -14,20 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/linear_kernel/backend/cpu/compute_kernel.hpp"
+#pragma once
 
-namespace oneapi::dal::linear_kernel::backend {
-
-template <typename Float>
-struct compute_kernel_cpu<Float, method::fast_csr> {
-    compute_result operator()(const dal::backend::context_cpu& ctx,
-                              const descriptor_base& desc,
-                              const compute_input& input) const {
-        return compute_result();
-    }
-};
-
-template struct compute_kernel_cpu<float, method::fast_csr>;
-template struct compute_kernel_cpu<double, method::fast_csr>;
-
-} // namespace oneapi::dal::linear_kernel::backend
+#include "example_util/output_helpers.hpp"

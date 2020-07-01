@@ -28,9 +28,9 @@ class model_impl;
 } // namespace detail
 
 namespace method {
-struct default_dense {};
-struct fast_csr {};
-using by_default = default_dense;
+struct dense {};
+struct csr {};
+using by_default = dense;
 } // namespace method
 
 class ONEAPI_DAL_EXPORT descriptor_base : public base {

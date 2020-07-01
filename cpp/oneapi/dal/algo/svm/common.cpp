@@ -15,27 +15,81 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/svm/common.hpp"
+#include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
 
 namespace oneapi::dal::svm {
+
+namespace detail {
+
+using daal_kf                = daal::algorithms::kernel_function::KernelIfacePtr;
+namespace daal_linear_kernel = daal::algorithms::kernel_function::linear;
+
+template <typename Float, typename Method>
+class daal_interop_linear_kernel_impl : public kernel_function_impl {
+public:
+    daal_interop_linear_kernel_impl(double k, double b) : k(k), b(b) {}
+
+    daal_kf get_interop_kernel() override {
+        constexpr daal_linear_kernel::Method daal_method = get_daal_method();
+        auto alg         = new daal_linear_kernel::Batch<Float, daal_method>;
+        alg->parameter.k = k;
+        alg->parameter.b = b;
+        return daal_kf(alg);
+    }
+
+private:
+    static constexpr daal_linear_kernel::Method get_daal_method() {
+        if constexpr (std::is_same_v<Method, linear_kernel::method::dense>)
+            return daal_linear_kernel::Method::defaultDense;
+        else if constexpr (std::is_same_v<Method, linear_kernel::method::csr>)
+            return daal_linear_kernel::Method::fastCSR;
+        else
+            static_assert(true, "unsupported linear method type in DAAL");
+    }
+
+    double k;
+    double b;
+};
+
+template <typename F, typename M>
+using linear_kernel_t = linear_kernel::descriptor<F, M>;
+
+template <typename F, typename M>
+kernel_function<linear_kernel_t<F, M>>::kernel_function(const linear_kernel_t<F, M> &kernel)
+        : kernel_(kernel),
+          impl_(new daal_interop_linear_kernel_impl<F, M>{ kernel.get_k(), kernel.get_b() }) {}
+
+template <typename F, typename M>
+kernel_function_impl *kernel_function<linear_kernel_t<F, M>>::get_impl() const {
+    return impl_.get();
+}
+
+#define INSTANTIATE_LINEAR(F, M) template class kernel_function<linear_kernel_t<F, M>>;
+
+INSTANTIATE_LINEAR(float, linear_kernel::method::dense)
+INSTANTIATE_LINEAR(float, linear_kernel::method::csr)
+INSTANTIATE_LINEAR(double, linear_kernel::method::dense)
+INSTANTIATE_LINEAR(double, linear_kernel::method::csr)
+
+} // namespace detail
 
 class detail::descriptor_impl : public base {
 public:
     explicit descriptor_impl(const detail::kf_iface_ptr &kernel) : kernel(kernel) {}
 
+    detail::kf_iface_ptr kernel;
     double c                         = 1.0;
     double accuracy_threshold        = 0.001;
     std::int64_t max_iteration_count = 100000;
     double cache_size                = 200.0;
     double tau                       = 1e-6;
     bool shrinking                   = true;
-    detail::kf_iface_ptr kernel;
 };
 
 class detail::model_impl : public base {
 public:
     table support_vectors;
     table coefficients;
-
     double bias;
     std::int64_t support_vectors_count;
 };
@@ -116,7 +170,7 @@ double model::get_bias() const {
     return impl_->bias;
 }
 
-std::int64_t model::get_support_vectors_count() const {
+std::int64_t model::get_support_vector_count() const {
     return impl_->support_vectors_count;
 }
 
@@ -132,7 +186,7 @@ void model::set_bias_impl(const double value) {
     impl_->bias = value;
 }
 
-void model::set_support_vectors_count_impl(const std::int64_t value) {
+void model::set_support_vector_count_impl(const std::int64_t value) {
     impl_->support_vectors_count = value;
 }
 

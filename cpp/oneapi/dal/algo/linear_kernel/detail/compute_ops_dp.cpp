@@ -36,9 +36,9 @@ struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<data_parallel_execution_context,
 #define INSTANTIATE(F, M) \
     template struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<data_parallel_execution_context, F, M>;
 
-INSTANTIATE(float, method::default_dense)
-INSTANTIATE(float, method::fast_csr)
-INSTANTIATE(double, method::default_dense)
-INSTANTIATE(double, method::fast_csr)
+INSTANTIATE(float, method::dense)
+INSTANTIATE(float, method::csr)
+INSTANTIATE(double, method::dense)
+INSTANTIATE(double, method::csr)
 
 } // namespace oneapi::dal::linear_kernel::detail

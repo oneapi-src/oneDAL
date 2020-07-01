@@ -14,29 +14,20 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/linear_kernel/detail/compute_ops.hpp"
 #include "oneapi/dal/algo/linear_kernel/backend/cpu/compute_kernel.hpp"
-#include "oneapi/dal/backend/dispatcher.hpp"
 
-namespace oneapi::dal::linear_kernel::detail {
+namespace oneapi::dal::linear_kernel::backend {
 
-template <typename Float, typename Method>
-struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<default_execution_context, Float, Method> {
-    compute_result operator()(const default_execution_context& ctx,
+template <typename Float>
+struct compute_kernel_cpu<Float, method::csr> {
+    compute_result operator()(const dal::backend::context_cpu& ctx,
                               const descriptor_base& desc,
                               const compute_input& input) const {
-        using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::compute_kernel_cpu<Float, Method>>;
-        return kernel_dispatcher_t()(ctx, desc, input);
+        return compute_result();
     }
 };
 
-#define INSTANTIATE(F, M) \
-    template struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<default_execution_context, F, M>;
+template struct compute_kernel_cpu<float, method::csr>;
+template struct compute_kernel_cpu<double, method::csr>;
 
-INSTANTIATE(float, method::dense)
-INSTANTIATE(float, method::csr)
-INSTANTIATE(double, method::dense)
-INSTANTIATE(double, method::csr)
-
-} // namespace oneapi::dal::linear_kernel::detail
+} // namespace oneapi::dal::linear_kernel::backend

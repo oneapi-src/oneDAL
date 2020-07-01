@@ -14,20 +14,19 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/linear_kernel/backend/gpu/compute_kernel.hpp"
+#pragma once
 
-namespace oneapi::dal::linear_kernel::backend {
+#include "oneapi/dal/algo/svm/common.hpp"
 
-template <typename Float>
-struct compute_kernel_gpu<Float, method::default_dense> {
-    compute_result operator()(const dal::backend::context_gpu& ctx,
-                              const descriptor_base& params,
-                              const compute_input& input) const {
-        return compute_result();
-    }
+#include <daal/include/algorithms/kernel_function/kernel_function_linear.h>
+
+namespace oneapi::dal::svm::detail {
+
+class kernel_function_impl : public base {
+public:
+    virtual ~kernel_function_impl() = default;
+
+    virtual daal::algorithms::kernel_function::KernelIfacePtr get_interop_kernel() = 0;
 };
 
-template struct compute_kernel_gpu<float, method::default_dense>;
-template struct compute_kernel_gpu<double, method::default_dense>;
-
-} // namespace oneapi::dal::linear_kernel::backend
+} // namespace oneapi::dal::svm::detail

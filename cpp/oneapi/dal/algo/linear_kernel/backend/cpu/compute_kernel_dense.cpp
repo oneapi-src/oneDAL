@@ -69,7 +69,7 @@ static compute_result compute(const context_cpu& ctx,
 }
 
 template <typename Float>
-struct compute_kernel_cpu<Float, method::default_dense> {
+struct compute_kernel_cpu<Float, method::dense> {
     compute_result operator()(const context_cpu& ctx,
                               const descriptor_base& desc,
                               const compute_input& input) const {
@@ -77,7 +77,7 @@ struct compute_kernel_cpu<Float, method::default_dense> {
     }
 };
 
-template struct compute_kernel_cpu<float, method::default_dense>;
-template struct compute_kernel_cpu<double, method::default_dense>;
+template struct compute_kernel_cpu<float, method::dense>;
+template struct compute_kernel_cpu<double, method::dense>;
 
 } // namespace oneapi::dal::linear_kernel::backend

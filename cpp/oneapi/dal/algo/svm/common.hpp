@@ -26,13 +26,12 @@ namespace detail {
 struct tag {};
 class descriptor_impl;
 class model_impl;
-
-enum class kernel_function_kind { linear, rbf, unknown };
+class kernel_function_impl;
 
 class kernel_function_iface {
 public:
     virtual ~kernel_function_iface() {}
-    virtual kernel_function_kind get_kind() const = 0;
+    virtual kernel_function_impl *get_impl() const = 0;
 };
 
 using kf_iface_ptr = std::shared_ptr<kernel_function_iface>;
@@ -42,17 +41,8 @@ class kernel_function : public base, public kernel_function_iface {
 public:
     explicit kernel_function(const Kernel &kernel) : kernel_(kernel) {}
 
-    kernel_function_kind get_kind() const override {
-        using kernel_tag_t = typename Kernel::tag_t;
-        if constexpr (std::is_same_v<kernel_tag_t, linear_kernel::detail::tag>) {
-            return kernel_function_kind::linear;
-        }
-
-        // if constexpr (std::is_same_v<kernel_tag_t, rbf_kernel::detail::tag>) {
-        //     return kernel_function_kind::linear;
-        // }
-
-        return kernel_function_kind::unknown;
+    kernel_function_impl *get_impl() const override {
+        return nullptr;
     }
 
     const Kernel &get_kernel() const {
@@ -61,17 +51,23 @@ public:
 
 private:
     Kernel kernel_;
+    dal::detail::pimpl<kernel_function_impl> impl_;
 };
 
-// template <typename Float, typename Method>
-// class kernel_function<linear_kernel::descriptor<Float, Method>> : public base,
-//                                                                   public kernel_function_iface {
-// public:
-//     explicit kernel_function(const linear_kernel<Float, Method> &kernel) : kernel_(kernel) {}
+template <typename Float, typename Method>
+class kernel_function<linear_kernel::descriptor<Float, Method>> : public base,
+                                                                  public kernel_function_iface {
+public:
+    using kernel_t = linear_kernel::descriptor<Float, Method>;
 
-// private:
-//     linear_kernel::descriptor<Float, Method>> desc_;
-// };
+    explicit kernel_function(const kernel_t &kernel);
+
+    kernel_function_impl *get_impl() const override;
+
+private:
+    kernel_t kernel_;
+    dal::detail::pimpl<kernel_function_impl> impl_;
+};
 
 } // namespace detail
 
@@ -87,7 +83,7 @@ struct regression {};
 using by_default = classification;
 } // namespace task
 
-class descriptor_base : public base {
+class ONEAPI_DAL_EXPORT descriptor_base : public base {
 public:
     using tag_t    = detail::tag;
     using float_t  = float;
@@ -95,16 +91,12 @@ public:
     using method_t = method::by_default;
     using kernel_t = linear_kernel::descriptor<float_t>;
 
-    // descriptor_base();
-    // explicit descriptor_base(detail::object_wrapper_iface &kernel);
-
     double get_c() const;
     double get_accuracy_threshold() const;
     std::int64_t get_max_iteration_count() const;
     double get_cache_size() const;
     double get_tau() const;
     bool get_shrinking() const;
-
     const detail::kf_iface_ptr &get_kernel_impl() const;
 
 protected:
@@ -116,10 +108,7 @@ protected:
     void set_cache_size_impl(const double value);
     void set_tau_impl(const double value);
     void set_shrinking_impl(const bool value);
-
     void set_kernel_impl(const detail::kf_iface_ptr &kernel);
-
-    const detail::kf_iface_ptr &get_kernel() const;
 
     dal::detail::pimpl<detail::descriptor_impl> impl_;
 };
@@ -135,28 +124,21 @@ public:
     using method_t = Method;
     using kernel_t = Kernel;
 
-    const Kernel &get_kernel() const {
-        using kf_t    = detail::kernel_function<Kernel>;
-        const auto kf = std::static_pointer_cast<kf_t>(get_kernel_impl());
-        return kf->get_kernel();
-        // static_cast<detail::kernel_function<Kernel>*>(get_kernel_impl());
-        // return get_kernel_impl().get_ref<Kernel>();
-    }
-
-    // template <typename Kernel = kernel_t>
     explicit descriptor(const Kernel &kernel = kernel_t{})
             : descriptor_base(std::make_shared<detail::kernel_function<Kernel>>(kernel))
 
     {}
-    // {
-    // set_kernel_impl(detail::object_wrapper<Kernel>(value));
-    // set_kernel_impl(kernel);
-    // }
 
-    // descriptor(const Kernel &kernel = kernel_t{}) {
-    //     // set_kernel_impl(detail::object_wrapper<Kernel>(value));
-    //     set_kernel_impl(kernel);
-    // }
+    const Kernel &get_kernel() const {
+        using kf_t    = detail::kernel_function<Kernel>;
+        const auto kf = std::static_pointer_cast<kf_t>(get_kernel_impl());
+        return kf->get_kernel();
+    }
+
+    auto &set_kernel(const Kernel &kernel) {
+        set_kernel_impl(std::make_shared<detail::kernel_function<Kernel>>(kernel));
+        return *this;
+    }
 
     auto &set_c(const double value) {
         set_c_impl(value);
@@ -187,15 +169,9 @@ public:
         set_shrinking_impl(value);
         return *this;
     }
-
-    // template <typename Kernel>
-    auto &set_kernel(const Kernel &kernel) {
-        set_kernel_impl(std::make_shared<detail::kernel_function<Kernel>>(kernel));
-        return *this;
-    }
 };
 
-class model : public base {
+class ONEAPI_DAL_EXPORT model : public base {
     friend dal::detail::pimpl_accessor;
 
 public:
@@ -222,10 +198,10 @@ public:
         return *this;
     }
 
-    std::int64_t get_support_vectors_count() const;
+    std::int64_t get_support_vector_count() const;
 
-    auto &set_support_vectors_count(const std::int64_t value) {
-        set_support_vectors_count_impl(value);
+    auto &set_support_vector_count(const std::int64_t value) {
+        set_support_vector_count_impl(value);
         return *this;
     }
 
@@ -233,7 +209,7 @@ private:
     void set_support_vectors_impl(const table &);
     void set_coefficients_impl(const table &);
     void set_bias_impl(const double);
-    void set_support_vectors_count_impl(const std::int64_t);
+    void set_support_vector_count_impl(const std::int64_t);
 
     dal::detail::pimpl<detail::model_impl> impl_;
 };
