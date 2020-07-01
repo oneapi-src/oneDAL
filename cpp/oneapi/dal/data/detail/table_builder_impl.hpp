@@ -35,10 +35,16 @@ public:
         return impl_.build();
     }
 
-    virtual host_access_iface& get_host_access_iface() const override {
-        return impl_.get_host_access_iface();
+    virtual access_iface_host& get_access_iface_host() const override {
+        return impl_.get_access_iface_host();
         // TODO: need to re-design builder implementations
     }
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    virtual access_iface_dpcpp& get_access_iface_dpcpp() const override {
+        return impl_.get_access_iface_dpc();
+    }
+#endif
 
     Impl& get() {
         return impl_;

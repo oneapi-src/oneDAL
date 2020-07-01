@@ -28,9 +28,15 @@ public:
         return detail::pimpl_accessor().make_from_pimpl<table>(table_impl_);
     }
 
-    detail::host_access_iface& get_host_access_iface() const {
-        return table_impl_->get_host_access_iface();
+    detail::access_iface_host& get_access_iface_host() const {
+        return table_impl_->get_access_iface_host();
     }
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    detail::access_iface_dpcpp& get_access_iface_dpcpp() const {
+        return table_impl_->get_access_iface_dpc();
+    }
+#endif
 
 private:
     detail::pimpl<detail::table_impl_iface> table_impl_;
@@ -57,9 +63,15 @@ public:
         return detail::pimpl_accessor().make_from_pimpl<homogen_table>(table_impl_);
     }
 
-    detail::host_access_iface& get_host_access_iface() const {
-        return table_impl_->get_host_access_iface();
+    detail::access_iface_host& get_access_iface_host() const {
+        return table_impl_->get_access_iface_host();
     }
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    detail::access_iface_dpcpp& get_access_iface_dpcpp() const {
+        return table_impl_->get_access_iface_dpc();
+    }
+#endif
 
 private:
     pimpl_t table_impl_;

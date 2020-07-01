@@ -18,4 +18,19 @@
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     #include <CL/sycl.hpp>
+
+    namespace oneapi::dal::detail {
+    class dpcpp_policy{
+    public:
+        dpcpp_policy(sycl::queue& queue)
+            : queue_(queue) {}
+
+        sycl::queue& get_queue() const {
+            return queue_;
+        }
+    private:
+        mutable sycl::queue& queue_;
+    };
+    }  // namespace oneapi::dal::detail
+
 #endif // ONEAPI_DAL_DATA_PARALLEL

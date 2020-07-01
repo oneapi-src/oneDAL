@@ -17,16 +17,23 @@
 #pragma once
 
 #include "oneapi/dal/data/detail/table_impl_iface.hpp"
-#include "oneapi/dal/data/detail/access_iface_wrappers_host.hpp"
+#include "oneapi/dal/data/detail/access_wrapper_host.hpp"
 
 namespace oneapi::dal::detail {
 
 template <typename Impl>
 class table_impl_wrapper : public table_impl_iface, public base {
 public:
+#ifdef ONEAPI_DAL_DATA_PARALLEL
     table_impl_wrapper(Impl&& obj)
         : impl_(std::move(obj)),
-          host_access_ptr_(new host_access_wrapper<Impl>{impl_}) {}
+          host_access_ptr_(new access_wrapper_host<Impl>{impl_}),
+          dpc_access_ptr_(new access_wrapper_dpc<Impl>{impl_}) {}
+#else
+    table_impl_wrapper(Impl&& obj)
+        : impl_(std::move(obj)),
+          host_access_ptr_(new access_wrapper_host<Impl>{impl_}) {}
+#endif
 
     virtual std::int64_t get_column_count() const override {
         return impl_.get_column_count();
@@ -44,9 +51,15 @@ public:
         return impl_.get_kind();
     }
 
-    virtual host_access_iface& get_host_access_iface() const override {
+    virtual access_iface_host& get_access_iface_host() const override {
         return *host_access_ptr_.get();
     }
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    virtual access_iface_dpcpp& get_access_iface_dpcpp() const override {
+        return *dpc_access_ptr_.get();
+    }
+#endif
 
     Impl& get() {
         return impl_;
@@ -54,16 +67,28 @@ public:
 
 private:
     Impl impl_;
-    unique<host_access_iface> host_access_ptr_;
+
+    unique<access_iface_host> host_access_ptr_;
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    unique<access_iface_dpc> dpc_access_ptr_;
+#endif
 };
 
 template <typename Impl>
 class homogen_table_impl_wrapper : public homogen_table_impl_iface, public base {
 public:
+#ifdef ONEAPI_DAL_DATA_PARALLEL
     homogen_table_impl_wrapper(Impl&& obj, std::int64_t homogen_table_kind)
             : kind_(homogen_table_kind),
               impl_(std::move(obj)),
-              host_access_ptr_(new host_access_wrapper<Impl>{impl_}) {}
+              host_access_ptr_(new access_wrapper_host<Impl>{impl_}),
+              dpc_access_ptr(new access_wrapper_dpc<Impl>{impl_}) {}
+#else
+    homogen_table_impl_wrapper(Impl&& obj, std::int64_t homogen_table_kind)
+            : kind_(homogen_table_kind),
+              impl_(std::move(obj)),
+              host_access_ptr_(new access_wrapper_host<Impl>{impl_}) {}
+#endif
 
     virtual std::int64_t get_column_count() const override {
         return impl_.get_column_count();
@@ -85,9 +110,15 @@ public:
         return kind_;
     }
 
-    virtual host_access_iface& get_host_access_iface() const override {
+    virtual access_iface_host& get_access_iface_host() const override {
         return *host_access_ptr_.get();
     }
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    virtual access_iface_dpcpp& get_access_iface_dpcpp() const override {
+        return *dpc_access_ptr_.get();
+    }
+#endif
 
     Impl& get() {
         return impl_;
@@ -96,7 +127,11 @@ public:
 private:
     const std::int64_t kind_;
     Impl impl_;
-    unique<host_access_iface> host_access_ptr_;
+
+    unique<access_iface_host> host_access_ptr_;
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    unique<access_iface_dpc> dpc_access_ptr_;
+#endif
 };
 
 } // namespace oneapi::dal::detail

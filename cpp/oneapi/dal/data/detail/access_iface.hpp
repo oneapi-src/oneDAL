@@ -51,27 +51,27 @@ struct access_iface {
     virtual void pull(const PolicyType&, array_f64&, const column_values_block&, const AllocKind&) const = 0;
     virtual void pull(const PolicyType&, array_i32&, const column_values_block&, const AllocKind&) const = 0;
 
-    virtual void push(const PolicyType&, const array_f32&, const row_block&, const AllocKind&) = 0;
-    virtual void push(const PolicyType&, const array_f64&, const row_block&, const AllocKind&) = 0;
-    virtual void push(const PolicyType&, const array_i32&, const row_block&, const AllocKind&) = 0;
-    virtual void push(const PolicyType&, const array_f32&, const column_values_block&, const AllocKind&) = 0;
-    virtual void push(const PolicyType&, const array_f64&, const column_values_block&, const AllocKind&) = 0;
-    virtual void push(const PolicyType&, const array_i32&, const column_values_block&, const AllocKind&) = 0;
+    virtual void push(const PolicyType&, const array_f32&, const row_block&) = 0;
+    virtual void push(const PolicyType&, const array_f64&, const row_block&) = 0;
+    virtual void push(const PolicyType&, const array_i32&, const row_block&) = 0;
+    virtual void push(const PolicyType&, const array_f32&, const column_values_block&) = 0;
+    virtual void push(const PolicyType&, const array_f64&, const column_values_block&) = 0;
+    virtual void push(const PolicyType&, const array_i32&, const column_values_block&) = 0;
 };
 
-using host_access_iface = access_iface<host_seq_policy, host_only_alloc>;
+using access_iface_host = access_iface<host_seq_policy, host_only_alloc>;
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-using dpc_access_iface = access_iface<sycl::queue, sycl::usm::alloc>;
+using access_iface_dpcpp = access_iface<dpcpp_policy, sycl::usm::alloc>;
 #endif
 
 class access_provider_iface {
 public:
     virtual ~access_provider_iface() {}
 
-    virtual host_access_iface& get_host_access_iface() const = 0;
+    virtual access_iface_host& get_access_iface_host() const = 0;
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    virtual dpc_access_iface& get_dpc_access_iface() const = 0;
+    virtual access_iface_dpcpp& get_access_iface_dpcpp() const = 0;
 #endif
 };
 
