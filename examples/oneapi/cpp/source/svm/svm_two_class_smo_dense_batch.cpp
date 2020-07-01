@@ -54,7 +54,7 @@ int main(int argc, char const *argv[]) {
                              dal::svm::method::smo>{ kernel_desc }
             .set_c(1.0)
             .set_accuracy_threshold(0.01)
-            .set_max_iteration_count(10000)
+            .set_max_iteration_count(100)
             .set_cache_size(200.0)
             .set_shrinking(false)
             .set_tau(1e-6);

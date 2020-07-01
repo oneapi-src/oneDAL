@@ -132,8 +132,6 @@ services::Status KernelImplLinear<defaultDense, algorithmFPType, cpu>::computeIn
     algorithmFPType beta     = 0.0;
     algorithmFPType b        = (algorithmFPType)(linPar->b);
 
-    printf("alpha %lf b %lf\n", alpha, b);
-
     const services::Status retStat =
         Blas<algorithmFPType, cpu>::xgemm_blocked(&trans, &notrans, (DAAL_INT *)&nVectors2, (DAAL_INT *)&nVectors1, (DAAL_INT *)&nFeatures, &alpha,
                                                   a2, (DAAL_INT *)&nFeatures, a1, (DAAL_INT *)&nFeatures, &beta, r, (DAAL_INT *)&nVectors2);
