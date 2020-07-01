@@ -36,53 +36,27 @@ struct column_values_block {
           rows(rows) {}
 };
 
-template <typename DataType,
-          typename BlockIndexType,
-          typename PolicyType = detail::host_seq_policy,
-          typename AllocKind = detail::host_only_alloc>
-class access_pull_iface {
-public:
-    virtual ~access_pull_iface() {}
-    virtual void pull(const PolicyType& policy,
-                      array<DataType>& block, const BlockIndexType& index,
-                      const AllocKind& kind) const = 0;
-};
-
-template <typename DataType,
-          typename BlockIndexType,
-          typename PolicyType = detail::host_seq_policy,
-          typename AllocKind = detail::host_only_alloc>
-class access_push_iface {
-public:
-    virtual ~access_push_iface() {}
-    virtual void push(const PolicyType& policy,
-                      const array<DataType>& block, const BlockIndexType& index,
-                      const AllocKind& kind) = 0;
-};
-
 template <typename PolicyType, typename AllocKind>
 struct access_iface {
-    template <typename DataType, typename IndexType>
-    using push_ptr_t = shared<access_push_iface<DataType, IndexType, PolicyType, AllocKind>>;
+    using array_f32 = array<float>;
+    using array_f64 = array<double>;
+    using array_i32 = array<std::int32_t>;
 
-    template <typename DataType, typename IndexType>
-    using pull_ptr_t = shared<access_pull_iface<DataType, IndexType, PolicyType, AllocKind>>;
+    virtual ~access_iface() {}
 
-    push_ptr_t<float, row_block>                     push_rows_float32;
-    push_ptr_t<double, row_block>                    push_rows_float64;
-    push_ptr_t<std::int32_t, row_block>              push_rows_int32;
+    virtual void pull(const PolicyType&, array_f32&, const row_block&, const AllocKind&) const = 0;
+    virtual void pull(const PolicyType&, array_f64&, const row_block&, const AllocKind&) const = 0;
+    virtual void pull(const PolicyType&, array_i32&, const row_block&, const AllocKind&) const = 0;
+    virtual void pull(const PolicyType&, array_f32&, const column_values_block&, const AllocKind&) const = 0;
+    virtual void pull(const PolicyType&, array_f64&, const column_values_block&, const AllocKind&) const = 0;
+    virtual void pull(const PolicyType&, array_i32&, const column_values_block&, const AllocKind&) const = 0;
 
-    push_ptr_t<float, column_values_block>           push_column_float32;
-    push_ptr_t<double, column_values_block>          push_column_float64;
-    push_ptr_t<std::int32_t, column_values_block>    push_column_int32;
-
-    pull_ptr_t<float, row_block>                     pull_rows_float32;
-    pull_ptr_t<double, row_block>                    pull_rows_float64;
-    pull_ptr_t<std::int32_t, row_block>              pull_rows_int32;
-
-    pull_ptr_t<float, column_values_block>           pull_column_float32;
-    pull_ptr_t<double, column_values_block>          pull_column_float64;
-    pull_ptr_t<std::int32_t, column_values_block>    pull_column_int32;
+    virtual void push(const PolicyType&, const array_f32&, const row_block&, const AllocKind&) = 0;
+    virtual void push(const PolicyType&, const array_f64&, const row_block&, const AllocKind&) = 0;
+    virtual void push(const PolicyType&, const array_i32&, const row_block&, const AllocKind&) = 0;
+    virtual void push(const PolicyType&, const array_f32&, const column_values_block&, const AllocKind&) = 0;
+    virtual void push(const PolicyType&, const array_f64&, const column_values_block&, const AllocKind&) = 0;
+    virtual void push(const PolicyType&, const array_i32&, const column_values_block&, const AllocKind&) = 0;
 };
 
 using host_access_iface = access_iface<host_seq_policy, host_only_alloc>;
@@ -91,94 +65,14 @@ using host_access_iface = access_iface<host_seq_policy, host_only_alloc>;
 using dpc_access_iface = access_iface<sycl::queue, sycl::usm::alloc>;
 #endif
 
-class accessible_iface {
+class access_provider_iface {
 public:
-    virtual ~accessible_iface() {}
+    virtual ~access_provider_iface() {}
 
-    virtual const host_access_iface& get_host_access_iface() const = 0;
+    virtual host_access_iface& get_host_access_iface() const = 0;
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    virtual const dpc_access_iface& get_dpc_access_iface() const = 0;
+    virtual dpc_access_iface& get_dpc_access_iface() const = 0;
 #endif
-};
-
-template <typename DataType, typename IndexType, typename T>
-struct push_access_ptr {};
-
-template <typename DataType, typename IndexType, typename T>
-struct pull_access_ptr {};
-
-template <typename T>
-struct push_access_ptr<float, row_block, T> {
-    const auto& get_value(const T& obj) {
-        return obj.push_rows_float32;
-    }
-};
-template <typename T>
-struct push_access_ptr<double, row_block, T> {
-    const auto& get_value(const T& obj) {
-        return obj.push_rows_float64;
-    }
-};
-template <typename T>
-struct push_access_ptr<std::int32_t, row_block, T> {
-    const auto& get_value(const T& obj) {
-        return obj.push_rows_int32;
-    }
-};
-template <typename T>
-struct push_access_ptr<float, column_values_block, T> {
-    const auto& get_value(const T& obj) {
-        return obj.push_column_float32;
-    }
-};
-template <typename T>
-struct push_access_ptr<double, column_values_block, T> {
-    const auto& get_value(const T& obj) {
-        return obj.push_column_float64;
-    }
-};
-template <typename T>
-struct push_access_ptr<std::int32_t, column_values_block, T> {
-    const auto& get_value(const T& obj) {
-        return obj.push_column_int32;
-    }
-};
-
-template <typename T>
-struct pull_access_ptr<float, row_block, T> {
-    const auto& get_value(const T& obj) {
-        return obj.pull_rows_float32;
-    }
-};
-template <typename T>
-struct pull_access_ptr<double, row_block, T> {
-    const auto& get_value(const T& obj) {
-        return obj.pull_rows_float64;
-    }
-};
-template <typename T>
-struct pull_access_ptr<std::int32_t, row_block, T> {
-    const auto& get_value(const T& obj) {
-        return obj.pull_rows_int32;
-    }
-};
-template <typename T>
-struct pull_access_ptr<float, column_values_block, T> {
-    const auto& get_value(const T& obj) {
-        return obj.pull_column_float32;
-    }
-};
-template <typename T>
-struct pull_access_ptr<double, column_values_block, T> {
-    const auto& get_value(const T& obj) {
-        return obj.pull_column_float64;
-    }
-};
-template <typename T>
-struct pull_access_ptr<std::int32_t, column_values_block, T> {
-    const auto& get_value(const T& obj) {
-        return obj.pull_column_int32;
-    }
 };
 
 } // namespace oneapi::dal::detail

@@ -19,137 +19,149 @@
 #include "oneapi/dal/data/detail/access_iface.hpp"
 #include "oneapi/dal/data/detail/access_iface_type_traits.hpp"
 
+#include <stdexcept> // TODO: change by oneDAL exceptions
+
 namespace oneapi::dal::detail {
 
-template <typename T, typename DataType>
-class access_pull_rows_wrapper_host :
-    public access_pull_iface<DataType, row_block, host_seq_policy, host_only_alloc> {
+template <typename T>
+class host_access_wrapper_impl {
 public:
-    access_pull_rows_wrapper_host(T& impl)
-        : impl_(impl) {}
+    using policy_t = host_seq_policy;
+    using alloc_kind_t = host_only_alloc;
 
-    virtual void pull(const host_seq_policy& policy,
-                      array<DataType>& block, const row_block& index,
-                      const host_only_alloc& kind) const override {
-        impl_.pull_rows(block, index.rows);
+public:
+    host_access_wrapper_impl(T& obj)
+        : obj_(obj) {}
+
+    template <typename Block>
+    void pull_rows(const policy_t&,
+                   Block& block, const row_block& index,
+                   const alloc_kind_t&) const {
+        if constexpr (has_pull_rows_host<T, typename Block::data_t>::value) {
+            obj_.pull_rows(block, index.rows);
+        } else {
+            throw std::runtime_error("pulling rows is not supported");
+        }
+    }
+
+    template <typename Block>
+    void pull_column(const policy_t&,
+                     Block& block, const column_values_block& index,
+                     const alloc_kind_t&) const {
+        if constexpr (has_pull_column_host<T, typename Block::data_t>::value) {
+            obj_.pull_column(block, index.column_index, index.rows);
+        } else {
+            throw std::runtime_error("pulling column is not supported");
+        }
+    }
+
+    template <typename Block>
+    void push_rows(const policy_t&,
+                   const Block& block, const row_block& index,
+                   const alloc_kind_t&) {
+        if constexpr (has_push_rows_host<T, typename Block::data_t>::value) {
+            obj_.push_rows(block, index.rows);
+        } else {
+            throw std::runtime_error("pushing rows is not supported");
+        }
+    }
+
+    template <typename Block>
+    void push_column(const policy_t&,
+                     const Block& block, const column_values_block& index,
+                     const alloc_kind_t&) {
+        if constexpr (has_push_column_host<T, typename Block::data_t>::value) {
+            obj_.push_column(block, index.column_index, index.rows);
+        } else {
+            throw std::runtime_error("pushing column is not supported");
+        }
     }
 
 private:
-    T& impl_;
+    T& obj_;
 };
 
-template <typename T, typename DataType>
-class access_pull_column_wrapper_host :
-    public access_pull_iface<DataType, column_values_block, host_seq_policy, host_only_alloc> {
+template <typename AccessIface, typename AccessImpl>
+class access_wrapper: public AccessIface,
+                      public base {
 public:
-    access_pull_column_wrapper_host(T& impl)
+    using policy_t     = typename AccessImpl::policy_t;
+    using alloc_kind_t = typename AccessImpl::alloc_kind_t;
+    using array_f32 = array<float>;
+    using array_f64 = array<double>;
+    using array_i32 = array<std::int32_t>;
+
+    access_wrapper(const AccessImpl& impl)
         : impl_(impl) {}
 
-    virtual void pull(const host_seq_policy& policy,
-                      array<DataType>& block, const column_values_block& index,
-                      const host_only_alloc& kind) const override {
-        impl_.pull_column(block, index.column_index, index.rows);
+    virtual void pull(const policy_t& policy,
+                      array_f32& block, const row_block& index,
+                      const alloc_kind_t& kind) const override {
+        impl_.pull_rows(policy, block, index, kind);
+    }
+    virtual void pull(const policy_t& policy,
+                      array_f64& block, const row_block& index,
+                      const alloc_kind_t& kind) const override {
+        impl_.pull_rows(policy, block, index, kind);
+    }
+    virtual void pull(const policy_t& policy,
+                      array_i32& block, const row_block& index,
+                      const alloc_kind_t& kind) const override {
+        impl_.pull_rows(policy, block, index, kind);
     }
 
-private:
-    T& impl_;
-};
-
-template <typename T, typename DataType>
-class access_push_rows_wrapper_host :
-    public access_push_iface<DataType, row_block, host_seq_policy, host_only_alloc> {
-public:
-    access_push_rows_wrapper_host(T& impl)
-        : impl_(impl) {}
-
-    virtual void push(const host_seq_policy& policy,
-                      const array<DataType>& block, const row_block& index,
-                      const host_only_alloc& kind) override {
-        impl_.push_rows(block, index.rows);
+    virtual void push(const policy_t& policy,
+                      const array_f32& block, const row_block& index,
+                      const alloc_kind_t& kind) override {
+        impl_.push_rows(policy, block, index, kind);
+    }
+    virtual void push(const policy_t& policy,
+                      const array_f64& block, const row_block& index,
+                      const alloc_kind_t& kind) override {
+        impl_.push_rows(policy, block, index, kind);
+    }
+    virtual void push(const policy_t& policy,
+                      const array_i32& block, const row_block& index,
+                      const alloc_kind_t& kind) override {
+        impl_.push_rows(policy, block, index, kind);
     }
 
-private:
-    T& impl_;
-};
-
-template <typename T, typename DataType>
-class access_push_column_wrapper_host :
-    public access_push_iface<DataType, column_values_block, host_seq_policy, host_only_alloc> {
-public:
-    access_push_column_wrapper_host(T& impl)
-        : impl_(impl) {}
-
-    virtual void push(const host_seq_policy& policy,
-                      const array<DataType>& block, const column_values_block& index,
-                      const host_only_alloc& kind) override {
-        impl_.push_column(block, index.column_index, index.rows);
+    virtual void pull(const policy_t& policy,
+                      array_f32& block, const column_values_block& index,
+                      const alloc_kind_t& kind) const override {
+        impl_.pull_column(policy, block, index, kind);
+    }
+    virtual void pull(const policy_t& policy,
+                      array_f64& block, const column_values_block& index,
+                      const alloc_kind_t& kind) const override {
+        impl_.pull_column(policy, block, index, kind);
+    }
+    virtual void pull(const policy_t& policy,
+                      array_i32& block, const column_values_block& index,
+                      const alloc_kind_t& kind) const override {
+        impl_.pull_column(policy, block, index, kind);
     }
 
+    virtual void push(const policy_t& policy,
+                      const array_f32& block, const column_values_block& index,
+                      const alloc_kind_t& kind) override {
+        impl_.push_column(policy, block, index, kind);
+    }
+    virtual void push(const policy_t& policy,
+                      const array_f64& block, const column_values_block& index,
+                      const alloc_kind_t& kind) override {
+        impl_.push_column(policy, block, index, kind);
+    }
+    virtual void push(const policy_t& policy,
+                      const array_i32& block, const column_values_block& index,
+                      const alloc_kind_t& kind) override {
+        impl_.push_column(policy, block, index, kind);
+    }
 private:
-    T& impl_;
+    AccessImpl impl_;
 };
-
-template <typename DataType, typename IndexType>
-using host_pull_ptr_t = host_access_iface::pull_ptr_t<DataType, IndexType>;
-
-template <typename DataType, typename IndexType>
-using host_push_ptr_t = host_access_iface::push_ptr_t<DataType, IndexType>;
 
 template <typename T>
-host_access_iface make_host_access_iface(T& obj) {
-    host_access_iface iface;
-
-    if constexpr (has_pull_rows_host<T, float>::value) {
-        iface.pull_rows_float32 = host_pull_ptr_t<float, row_block>(
-            new access_pull_rows_wrapper_host<T, float>(obj));
-    }
-    if constexpr (has_pull_rows_host<T, double>::value) {
-        iface.pull_rows_float64 = host_pull_ptr_t<double, row_block>(
-            new access_pull_rows_wrapper_host<T, double>(obj));
-    }
-    if constexpr (has_pull_rows_host<T, std::int32_t>::value) {
-        iface.pull_rows_int32 = host_pull_ptr_t<std::int32_t, row_block>(
-            new access_pull_rows_wrapper_host<T, std::int32_t>(obj));
-    }
-    if constexpr (has_pull_column_host<T, float>::value) {
-        iface.pull_column_float32 = host_pull_ptr_t<float, column_values_block>(
-            new access_pull_column_wrapper_host<T, float>(obj));
-    }
-    if constexpr (has_pull_column_host<T, double>::value) {
-        iface.pull_column_float64 = host_pull_ptr_t<double, column_values_block>(
-            new access_pull_column_wrapper_host<T, double>(obj));
-    }
-    if constexpr (has_pull_column_host<T, std::int32_t>::value) {
-        iface.pull_column_int32 = host_pull_ptr_t<std::int32_t, column_values_block>(
-            new access_pull_column_wrapper_host<T, std::int32_t>(obj));
-    }
-
-    if constexpr (has_push_rows_host<T, float>::value) {
-        iface.push_rows_float32 = host_push_ptr_t<float, row_block>(
-            new access_push_rows_wrapper_host<T, float>(obj));
-    }
-    if constexpr (has_push_rows_host<T, double>::value) {
-        iface.push_rows_float64 = host_push_ptr_t<double, row_block>(
-            new access_push_rows_wrapper_host<T, double>(obj));
-    }
-    if constexpr (has_push_rows_host<T, std::int32_t>::value) {
-        iface.push_rows_int32 = host_push_ptr_t<std::int32_t, row_block>(
-            new access_push_rows_wrapper_host<T, std::int32_t>(obj));
-    }
-    if constexpr (has_push_column_host<T, float>::value) {
-        iface.push_column_float32 = host_push_ptr_t<float, column_values_block>(
-            new access_push_column_wrapper_host<T, float>(obj));
-    }
-    if constexpr (has_push_column_host<T, double>::value) {
-        iface.push_column_float64 = host_push_ptr_t<double, column_values_block>(
-            new access_push_column_wrapper_host<T, double>(obj));
-    }
-    if constexpr (has_push_column_host<T, std::int32_t>::value) {
-        iface.push_column_int32 = host_push_ptr_t<std::int32_t, column_values_block>(
-            new access_push_column_wrapper_host<T, std::int32_t>(obj));
-    }
-
-    return iface;
-}
+using host_access_wrapper = access_wrapper<host_access_iface, host_access_wrapper_impl<T>>;
 
 } // namespace oneapi::dal::detail

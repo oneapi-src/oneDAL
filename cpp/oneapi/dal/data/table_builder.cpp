@@ -28,7 +28,7 @@ public:
         return detail::pimpl_accessor().make_from_pimpl<table>(table_impl_);
     }
 
-    const detail::host_access_iface& get_host_access_iface() const {
+    detail::host_access_iface& get_host_access_iface() const {
         return table_impl_->get_host_access_iface();
     }
 
@@ -57,7 +57,7 @@ public:
         return detail::pimpl_accessor().make_from_pimpl<homogen_table>(table_impl_);
     }
 
-    const detail::host_access_iface& get_host_access_iface() const {
+    detail::host_access_iface& get_host_access_iface() const {
         return table_impl_->get_host_access_iface();
     }
 

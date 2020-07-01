@@ -38,6 +38,9 @@ class array {
     friend array<Y> const_array_cast(const array<U>&);
 
 public:
+    using data_t = T;
+
+public:
     template <typename K>
     static array<T> full(std::int64_t count, K&& element) {
         return full_impl(detail::host_seq_policy{},

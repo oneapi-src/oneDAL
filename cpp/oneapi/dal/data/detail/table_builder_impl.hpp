@@ -20,32 +20,24 @@
 
 namespace oneapi::dal::detail {
 
-class table_builder_impl_iface : public accessible_iface {
+class table_builder_impl_iface : public access_provider_iface {
 public:
     virtual table build() = 0;
 };
 
 template <typename Impl>
 class table_builder_impl_wrapper : public table_builder_impl_iface, public base {
-private:
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(const host_access_iface&, get_host_access_iface, () const)
-
 public:
     table_builder_impl_wrapper(Impl&& obj)
-        : impl_(std::move(obj)) {
-        if constexpr (has_method_get_host_access_iface_v<Impl>) {
-            access_iface_ = impl_.get_host_access_iface();
-        } else {
-            access_iface_ = make_host_access_iface(impl_);
-        }
-    }
+        : impl_(std::move(obj)) {}
 
     virtual table build() override {
         return impl_.build();
     }
 
-    virtual const host_access_iface& get_host_access_iface() const override {
-        return access_iface_;
+    virtual host_access_iface& get_host_access_iface() const override {
+        return impl_.get_host_access_iface();
+        // TODO: need to re-design builder implementations
     }
 
     Impl& get() {
@@ -54,7 +46,6 @@ public:
 
 private:
     Impl impl_;
-    host_access_iface access_iface_;
 };
 
 } // namespace oneapi::dal::detail

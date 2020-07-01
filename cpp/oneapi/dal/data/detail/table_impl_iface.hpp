@@ -21,7 +21,7 @@
 
 namespace oneapi::dal::detail {
 
-class table_impl_iface : public accessible_iface {
+class table_impl_iface : public access_provider_iface {
 public:
     virtual std::int64_t get_column_count() const      = 0;
     virtual std::int64_t get_row_count() const         = 0;

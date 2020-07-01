@@ -26,65 +26,31 @@ namespace detail {
 template <typename T, typename BlockIndexType>
 class accessor_base {
 public:
-    using data_t                      = std::remove_const_t<T>;
-    using pull_ptr_host_t = host_access_iface::pull_ptr_t<data_t, BlockIndexType>;
-    using push_ptr_host_t = host_access_iface::push_ptr_t<data_t, BlockIndexType>;
-
+    using data_t          = std::remove_const_t<T>;
+public:
     static constexpr bool is_readonly = std::is_const_v<T>;
 
+#ifdef ONEAPI_DAL_DATA_PARALLEL
     template <typename K>
-    void init_access_pointers(const K& obj) {
-        pull_host_ = get_pull_access_ptr_host(obj);
-        if (pull_host_ == nullptr) {
-            throw std::runtime_error("object does not support pull() operator");
-        }
-
-        if constexpr (!is_readonly) {
-            push_host_ = get_push_access_ptr_host(obj);
-
-            if (push_host_ == nullptr) {
-                throw std::runtime_error("object does not support push() operator");
-            }
-        }
-    }
+    accessor_base(const K& obj)
+        : host_access_(get_impl<access_provider_iface>(obj).get_host_access_iface()),
+          dpc_access_(get_impl<access_provider_iface>(obj).get_dpc_access_iface()) {}
+#else
+    template <typename K>
+    accessor_base(const K& obj)
+        : host_access_(get_impl<access_provider_iface>(obj).get_host_access_iface()) {}
+#endif
 
     template <typename Policy, typename AllocKind>
     array<data_t> pull(const Policy& policy, const BlockIndexType& idx, const AllocKind& kind) const {
         array<data_t> block;
-        pull_host_->pull(policy, block, idx, kind);
+        get_access(policy).pull(policy, block, idx, kind);
         return block;
     }
 
     template <typename Policy, typename AllocKind>
     T* pull(const Policy& policy, array<data_t>& block, const BlockIndexType& idx, const AllocKind& kind) const {
-        pull_host_->pull(policy, block, idx, kind);
-        return get_block_data(block);
-    }
-
-    template <typename Policy, typename AllocKind>
-    void push(const Policy& policy, const array<data_t>& block, const BlockIndexType& idx, const AllocKind& kind) {
-        push_host_->push(policy, block, idx, kind);
-    }
-
-private:
-    template <typename K>
-    static pull_ptr_host_t get_pull_access_ptr_host(const K& obj) {
-        auto access_iface = get_impl<accessible_iface>(obj).get_host_access_iface();
-        using pull_access_ptr = pull_access_ptr<data_t, BlockIndexType, decltype(access_iface)>;
-
-        return pull_access_ptr{}.get_value(access_iface);
-    }
-
-    template <typename K>
-    static push_ptr_host_t get_push_access_ptr_host(const K& obj) {
-        auto access_iface = get_impl<accessible_iface>(obj).get_host_access_iface();
-        using push_access_ptr = push_access_ptr<data_t, BlockIndexType, decltype(access_iface)>;
-
-        return push_access_ptr{}.get_value(access_iface);
-    }
-
-private:
-    T* get_block_data(array<data_t>& block) {
+        get_access(policy).pull(policy, block, idx, kind);
         if constexpr (is_readonly) {
             return block.get_data();
         }
@@ -93,9 +59,33 @@ private:
         }
     }
 
+    template <typename Policy, typename AllocKind>
+    void push(const Policy& policy, const array<data_t>& block, const BlockIndexType& idx, const AllocKind& kind) {
+        get_access(policy).push(policy, block, idx, kind);
+    }
+
 private:
-    pull_ptr_host_t pull_host_;
-    push_ptr_host_t push_host_;
+    host_access_iface& get_access(const host_seq_policy&) {
+        return host_access_;
+    }
+    const host_access_iface& get_access(const host_seq_policy&) const {
+        return host_access_;
+    }
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    /*dpc_access_iface& get_access(const host_seq_policy&) {
+        return dpc_access_;
+    }
+    const dpc_access_iface& get_access(const host_seq_policy&) const {
+        return dpc_access_;
+    }*/
+#endif
+
+private:
+    host_access_iface& host_access_;
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    dpc_access_iface& dpc_access_;
+#endif
 };
 
 } // namespace detail
@@ -113,13 +103,11 @@ public:
     template <typename K,
               typename = std::enable_if_t<is_readonly &&
                     (std::is_base_of_v<table, K> || std::is_base_of_v<table_builder, K>)>>
-    row_accessor(const K& obj) {
-        base::init_access_pointers(obj);
-    }
+    row_accessor(const K& obj)
+        : base(obj) {}
 
-    row_accessor(const table_builder& b) {
-        base::init_access_pointers(b);
-    }
+    row_accessor(const table_builder& b)
+        : base(b) {}
 
     array<data_t> pull(const range& rows = { 0, -1 }) const {
         return base::pull(detail::host_seq_policy{}, {rows}, detail::host_only_alloc{});
@@ -172,13 +160,11 @@ public:
     template <typename K,
               typename = std::enable_if_t<is_readonly &&
                     (std::is_base_of_v<table, K> || std::is_base_of_v<table_builder, K>)>>
-    column_accessor(const K& obj) {
-        base::init_access_pointers(obj);
-    }
+    column_accessor(const K& obj)
+        : base(obj) {}
 
-    column_accessor(const table_builder& b) {
-        base::init_access_pointers(b);
-    }
+    column_accessor(const table_builder& b)
+        : base(b) {}
 
     array<data_t> pull(std::int64_t column_index, const range& rows = { 0, -1 }) const {
         return base::pull(detail::host_seq_policy{}, {column_index, rows}, detail::host_only_alloc{});

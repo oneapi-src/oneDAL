@@ -21,12 +21,12 @@
 
 namespace oneapi::dal::detail {
 
-template <typename TableImpl>
+template <typename Impl>
 class table_impl_wrapper : public table_impl_iface, public base {
 public:
-    table_impl_wrapper(TableImpl&& obj)
+    table_impl_wrapper(Impl&& obj)
         : impl_(std::move(obj)),
-          access_iface_(make_host_access_iface(impl_)) {}
+          host_access_ptr_(new host_access_wrapper<Impl>{impl_}) {}
 
     virtual std::int64_t get_column_count() const override {
         return impl_.get_column_count();
@@ -44,27 +44,26 @@ public:
         return impl_.get_kind();
     }
 
-    virtual const host_access_iface& get_host_access_iface() const override {
-        return access_iface_;
+    virtual host_access_iface& get_host_access_iface() const override {
+        return *host_access_ptr_.get();
     }
 
-    TableImpl& get() {
+    Impl& get() {
         return impl_;
     }
 
 private:
-    TableImpl impl_;
-    host_access_iface access_iface_;
+    Impl impl_;
+    unique<host_access_iface> host_access_ptr_;
 };
 
-// TODO: avoid duplication inside wrappers?
 template <typename Impl>
 class homogen_table_impl_wrapper : public homogen_table_impl_iface, public base {
 public:
     homogen_table_impl_wrapper(Impl&& obj, std::int64_t homogen_table_kind)
             : kind_(homogen_table_kind),
               impl_(std::move(obj)),
-              access_iface_(make_host_access_iface(impl_)) {}
+              host_access_ptr_(new host_access_wrapper<Impl>{impl_}) {}
 
     virtual std::int64_t get_column_count() const override {
         return impl_.get_column_count();
@@ -86,8 +85,8 @@ public:
         return kind_;
     }
 
-    virtual const host_access_iface& get_host_access_iface() const override {
-        return access_iface_;
+    virtual host_access_iface& get_host_access_iface() const override {
+        return *host_access_ptr_.get();
     }
 
     Impl& get() {
@@ -97,7 +96,7 @@ public:
 private:
     const std::int64_t kind_;
     Impl impl_;
-    host_access_iface access_iface_;
+    unique<host_access_iface> host_access_ptr_;
 };
 
 } // namespace oneapi::dal::detail
