@@ -16,9 +16,9 @@
 
 #include <daal/src/algorithms/dtrees/forest/classification/df_classification_predict_dense_default_batch.h>
 
+#include "oneapi/dal/algo/decision_forest/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
-#include "oneapi/dal/algo/decision_forest/backend/cpu/infer_kernel.hpp"
 
 #include "oneapi/dal/backend/interop/decision_forest/model_impl.hpp"
 
@@ -26,41 +26,47 @@ namespace oneapi::dal::decision_forest::backend {
 
 using dal::backend::context_cpu;
 
-namespace df  = daal::algorithms::decision_forest;
-namespace cls = daal::algorithms::decision_forest::classification;
-namespace interop  = dal::backend::interop;
+namespace df      = daal::algorithms::decision_forest;
+namespace cls     = daal::algorithms::decision_forest::classification;
+namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
-using cls_default_dense_predict_kernel_t = cls::prediction::internal::PredictKernel<Float, cls::prediction::defaultDense, Cpu>;
+using cls_default_dense_predict_kernel_t =
+    cls::prediction::internal::PredictKernel<Float, cls::prediction::defaultDense, Cpu>;
 
 template <typename Float>
 static infer_result call_daal_kernel(const context_cpu& ctx,
                                      const descriptor_base& desc,
-                                     const model& trained_model, const table& data) {
-    const int64_t row_count = data.get_row_count();
+                                     const model& trained_model,
+                                     const table& data) {
+    const int64_t row_count    = data.get_row_count();
     const int64_t column_count = data.get_column_count();
 
     // TODO: data is table, not a homogen_table. Think better about accessor - is it enough to have just a row_accessor?
     auto arr_data = row_accessor<const Float>{ data }.pull();
 
-    const auto daal_data = interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
+    const auto daal_data =
+        interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
 
     /* init param for daal kernel */
     auto daal_input = daal::algorithms::classifier::prediction::Input();
     daal_input.set(daal::algorithms::classifier::prediction::data, daal_data);
 
     auto model_pimpl = dal::detail::pimpl_accessor().get_pimpl(trained_model);
-    if(!model_pimpl->is_interop()) {
+    if (!model_pimpl->is_interop()) {
         // throw exception
         return infer_result();
     }
 
-    auto pinterop_model = static_cast<backend::interop::decision_forest::interop_model_impl *>(model_pimpl.get());
+    auto pinterop_model =
+        static_cast<backend::interop::decision_forest::interop_model_impl*>(model_pimpl.get());
 
     daal_input.set(daal::algorithms::classifier::prediction::model, pinterop_model->get_model());
 
-    auto voting_method = desc.get_voting_method();
-    auto daal_voting_method = voting_method::weighted == voting_method ? cls::prediction::weighted : cls::prediction::unweighted; 
+    auto voting_method      = desc.get_voting_method();
+    auto daal_voting_method = voting_method::weighted == voting_method
+                                  ? cls::prediction::weighted
+                                  : cls::prediction::unweighted;
 
     auto daal_parameter = cls::prediction::Parameter(desc.get_class_count(), daal_voting_method);
 
@@ -69,17 +75,18 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
     daal::data_management::NumericTablePtr daal_prediction_res;
     daal::data_management::NumericTablePtr daal_prediction_prob_res;
 
-    if(desc.get_infer_results_to_compute() & (std::uint64_t)infer_result_to_compute::compute_class_labels)
-    {
+    if (desc.get_infer_results_to_compute() &
+        (std::uint64_t)infer_result_to_compute::compute_class_labels) {
         daal_prediction_res = interop::allocate_daal_homogen_table<Float>(row_count, 1);
     }
 
-    if(desc.get_infer_results_to_compute() & (std::uint64_t)infer_result_to_compute::compute_class_probabilities)
-    {
-        daal_prediction_prob_res = interop::allocate_daal_homogen_table<Float>(row_count, desc.get_class_count());
+    if (desc.get_infer_results_to_compute() &
+        (std::uint64_t)infer_result_to_compute::compute_class_probabilities) {
+        daal_prediction_prob_res =
+            interop::allocate_daal_homogen_table<Float>(row_count, desc.get_class_count());
     }
-    
-    const cls::Model * const m = static_cast<cls::Model *>(pinterop_model->get_model().get());
+
+    const cls::Model* const m = static_cast<cls::Model*>(pinterop_model->get_model().get());
     interop::call_daal_kernel<Float, cls_default_dense_predict_kernel_t>(
         ctx,
         daal::services::internal::hostApp(daal_input),
@@ -88,20 +95,21 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
         daal_prediction_res.get(),
         daal_prediction_prob_res.get(),
         desc.get_class_count(),
-        daal_voting_method
-    );
+        daal_voting_method);
 
     infer_result res;
 
-    if(desc.get_infer_results_to_compute() & (std::uint64_t)infer_result_to_compute::compute_class_labels)
-    {
-        auto table_class_labels = interop::convert_from_daal_homogen_table<Float>(daal_prediction_res);
+    if (desc.get_infer_results_to_compute() &
+        (std::uint64_t)infer_result_to_compute::compute_class_labels) {
+        auto table_class_labels =
+            interop::convert_from_daal_homogen_table<Float>(daal_prediction_res);
         res.set_prediction(table_class_labels);
     }
 
-    if(desc.get_infer_results_to_compute() & (std::uint64_t)infer_result_to_compute::compute_class_probabilities)
-    {
-        auto table_class_probs = interop::convert_from_daal_homogen_table<Float>(daal_prediction_prob_res);
+    if (desc.get_infer_results_to_compute() &
+        (std::uint64_t)infer_result_to_compute::compute_class_probabilities) {
+        auto table_class_probs =
+            interop::convert_from_daal_homogen_table<Float>(daal_prediction_prob_res);
         res.set_probabilities(table_class_probs);
     }
 

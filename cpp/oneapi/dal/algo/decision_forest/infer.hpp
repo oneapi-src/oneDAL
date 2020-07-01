@@ -16,14 +16,14 @@
 
 #pragma once
 
-#include "oneapi/dal/infer.hpp"
-#include "oneapi/dal/algo/decision_forest/infer_types.hpp"
 #include "oneapi/dal/algo/decision_forest/detail/infer_ops.hpp"
+#include "oneapi/dal/algo/decision_forest/infer_types.hpp"
+#include "oneapi/dal/infer.hpp"
 
 namespace oneapi::dal::detail {
 
 template <typename Descriptor>
 struct infer_ops<Descriptor, dal::decision_forest::detail::tag>
-  : dal::decision_forest::detail::infer_ops<Descriptor> {};
+        : dal::decision_forest::detail::infer_ops<Descriptor> {};
 
 } // namespace oneapi::dal::detail

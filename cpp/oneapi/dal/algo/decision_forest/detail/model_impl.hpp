@@ -21,8 +21,8 @@
 namespace oneapi::dal::decision_forest {
 
 class detail::model_impl : public base {
-  public:
-    model_impl() = default;
+public:
+    model_impl()          = default;
     virtual ~model_impl() = default;
     virtual std::int64_t get_tree_count() const {
         return 0;
@@ -30,9 +30,11 @@ class detail::model_impl : public base {
     virtual std::int64_t get_class_count() const {
         return 0;
     }
-    virtual void clear() { }
+    virtual void clear() {}
 
-    virtual bool is_interop() const { return false; }
+    virtual bool is_interop() const {
+        return false;
+    }
 };
 
 } // namespace oneapi::dal::decision_forest

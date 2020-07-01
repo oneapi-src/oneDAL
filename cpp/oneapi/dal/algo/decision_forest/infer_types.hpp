@@ -27,58 +27,58 @@ class infer_result_impl;
 
 class infer_input : public base {
 public:
-  infer_input(const model& trained_model, const table& data);
+    infer_input(const model& trained_model, const table& data);
 
-  model get_model() const;
+    model get_model() const;
 
-  auto& set_model(const model& value) {
-    set_model_impl(value);
-    return *this;
-  }
+    auto& set_model(const model& value) {
+        set_model_impl(value);
+        return *this;
+    }
 
-  table get_data() const;
+    table get_data() const;
 
-  auto& set_data(const table& value) {
-    set_data_impl(value);
-    return *this;
-  }
+    auto& set_data(const table& value) {
+        set_data_impl(value);
+        return *this;
+    }
 
 private:
-  void set_model_impl(const model& value);
-  void set_data_impl(const table& value);
+    void set_model_impl(const model& value);
+    void set_data_impl(const table& value);
 
-  dal::detail::pimpl<detail::infer_input_impl> impl_;
+    dal::detail::pimpl<detail::infer_input_impl> impl_;
 };
 
 class infer_result {
 public:
-  infer_result();
+    infer_result();
 
-  table get_prediction() const;
-  table get_probabilities() const;
-  //table get_log_probabilities() const;
+    table get_prediction() const;
+    table get_probabilities() const;
+    //table get_log_probabilities() const;
 
-  auto &set_prediction(const table &value) {
-    set_prediction_impl(value);
-    return *this;
-  }
+    auto& set_prediction(const table& value) {
+        set_prediction_impl(value);
+        return *this;
+    }
 
-  auto &set_probabilities(const table &value) {
-    set_probabilities_impl(value);
-    return *this;
-  }
-/*
+    auto& set_probabilities(const table& value) {
+        set_probabilities_impl(value);
+        return *this;
+    }
+    /*
   auto &set_log_probabilities(const table &value) {
     set_log_probabilities_impl(value);
     return *this;
   }
 */
 private:
-  void set_prediction_impl(const table &value);
-  void set_probabilities_impl(const table &value);
-//  void set_log_probabilities_impl(const table &value);
+    void set_prediction_impl(const table& value);
+    void set_probabilities_impl(const table& value);
+    //  void set_log_probabilities_impl(const table &value);
 
-  dal::detail::pimpl<detail::infer_result_impl> impl_;
+    dal::detail::pimpl<detail::infer_result_impl> impl_;
 };
 
 } // namespace oneapi::dal::decision_forest

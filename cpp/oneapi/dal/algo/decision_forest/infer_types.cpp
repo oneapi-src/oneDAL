@@ -14,21 +14,22 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/algo/decision_forest/infer_types.hpp"
+#include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::decision_forest {
 
 class detail::infer_input_impl : public base {
-  public:
+public:
     infer_input_impl(const model& trained_model, const table& data)
-        : trained_model(trained_model), data(data) {}
+            : trained_model(trained_model),
+              data(data) {}
     model trained_model;
     table data;
 };
 
 class detail::infer_result_impl : public base {
-  public:
+public:
     table prediction;
     table probabilities;
     table log_probabilities;
@@ -38,7 +39,7 @@ using detail::infer_input_impl;
 using detail::infer_result_impl;
 
 infer_input::infer_input(const model& trained_model, const table& data)
-    : impl_(new infer_input_impl(trained_model, data)) {}
+        : impl_(new infer_input_impl(trained_model, data)) {}
 
 model infer_input::get_model() const {
     return impl_->trained_model;
@@ -72,13 +73,13 @@ table infer_result::get_log_probabilities() const {
     return impl_->log_probabilities;
 }
 */
-void infer_result::set_prediction_impl(const table &value) {
+void infer_result::set_prediction_impl(const table& value) {
     impl_->prediction = value;
 }
 
-void infer_result::set_probabilities_impl(const table &value) {
+void infer_result::set_probabilities_impl(const table& value) {
     impl_->probabilities = value;
-}    
+}
 /*
 void infer_result::set_log_probabilities_impl(const table &value) {
     impl_->log_probabilities = value;

@@ -16,16 +16,16 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/dispatcher_dp.hpp"
 #include "oneapi/dal/algo/decision_forest/infer_types.hpp"
+#include "oneapi/dal/backend/dispatcher_dp.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
 template <typename Float, typename Task, typename Method>
 struct infer_kernel_gpu {
-  infer_result operator()(const dal::backend::context_gpu& ctx,
-                          const descriptor_base& params,
-                          const infer_input& input) const;
+    infer_result operator()(const dal::backend::context_gpu& ctx,
+                            const descriptor_base& params,
+                            const infer_input& input) const;
 };
 
-} // namespace oneapi::dal::decision_forest::detail
+} // namespace oneapi::dal::decision_forest::backend

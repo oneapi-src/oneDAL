@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once 
+#pragma once
 
 #include "oneapi/dal/algo/decision_forest/common.hpp"
 #include "oneapi/dal/algo/decision_forest/detail/model_impl.hpp"
@@ -30,19 +30,31 @@ namespace df = oneapi::dal::decision_forest;
 
 /* oneDal -> daal model bridge */
 class interop_model_impl : public df::detail::model_impl {
-public:    
+public:
     interop_model_impl() = delete;
-    interop_model_impl(daal_df::classification::ModelPtr pmdl) : pmdl_(pmdl) {};
-    virtual ~interop_model_impl() {};
+    interop_model_impl(daal_df::classification::ModelPtr pmdl) : pmdl_(pmdl){};
+    virtual ~interop_model_impl(){};
 
-    virtual std::int64_t get_tree_count() const { return pmdl_->numberOfTrees(); }
-    virtual std::int64_t get_class_count() const { return pmdl_->getNumberOfClasses(); }
-    void clear() { pmdl_->clear(); }
+    virtual std::int64_t get_tree_count() const {
+        return pmdl_->numberOfTrees();
+    }
+    virtual std::int64_t get_class_count() const {
+        return pmdl_->getNumberOfClasses();
+    }
+    void clear() {
+        pmdl_->clear();
+    }
 
-    virtual bool is_interop() const { return true; }
-    
-    void set_model(daal_df::classification::ModelPtr pmdl) { pmdl_ = pmdl; }
-    daal_df::classification::ModelPtr get_model() { return pmdl_; }
+    virtual bool is_interop() const {
+        return true;
+    }
+
+    void set_model(daal_df::classification::ModelPtr pmdl) {
+        pmdl_ = pmdl;
+    }
+    daal_df::classification::ModelPtr get_model() {
+        return pmdl_;
+    }
 
 private:
     daal_df::classification::ModelPtr pmdl_;

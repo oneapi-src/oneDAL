@@ -41,13 +41,12 @@ struct hist {};
 using by_default = default_dense;
 } // namespace method
 
-enum class variable_importance_mode
-{
-    none,      /* Do not compute */
-    mdi,       /* Mean Decrease Impurity.
+enum class variable_importance_mode {
+    none, /* Do not compute */
+    mdi, /* Mean Decrease Impurity.
                        Computed as the sum of weighted impurity decreases for all nodes where the variable is used,
                        averaged over all trees in the forest */
-    mda_raw,   /* Mean Decrease Accuracy (permutation importance).
+    mda_raw, /* Mean Decrease Accuracy (permutation importance).
                        For each tree, the prediction error on the out-of-bag portion of the data is computed
                        (error rate for classification, MSE for regression).
                        The same is done after permuting each predictor variable.
@@ -56,28 +55,24 @@ enum class variable_importance_mode
                        This is MDA_Raw value scaled by its standard deviation. */
 };
 
-enum class train_result_to_compute
-{
+enum class train_result_to_compute {
     compute_out_of_bag_error                 = 0x00000001ULL,
     compute_out_of_bag_error_per_observation = 0x00000002ULL
 };
 
-enum class infer_result_to_compute
-{
-    compute_class_labels            = 0x00000001ULL, /*!< Numeric table of size n x 1 with the predicted labels >*/
-    compute_class_probabilities     = 0x00000002ULL  /*!< Numeric table of size n x p with the predicted class probabilities for each observation >*/
+enum class infer_result_to_compute {
+    compute_class_labels =
+        0x00000001ULL, /*!< Numeric table of size n x 1 with the predicted labels >*/
+    compute_class_probabilities =
+        0x00000002ULL /*!< Numeric table of size n x p with the predicted class probabilities for each observation >*/
 };
 
-enum class voting_method
-{
-    weighted,
-    unweighted
-};
+enum class voting_method { weighted, unweighted };
 
 class descriptor_base : public base {
-  public:
-    using tag_t = detail::tag;
-    using float_t = float;
+public:
+    using tag_t    = detail::tag;
+    using float_t  = float;
     using task_t   = task::by_default;
     using method_t = method::by_default;
 
@@ -107,7 +102,7 @@ class descriptor_base : public base {
     variable_importance_mode get_variable_importance_mode() const;
     voting_method get_voting_method() const;
 
-  protected:
+protected:
     void set_observations_per_tree_fraction_impl(double value);
     void set_impurity_threshold_impl(double value);
     void set_min_weight_fraction_in_leaf_node_impl(double value);
@@ -217,17 +212,18 @@ public:
 };
 
 class model : public base {
-  friend dal::detail::pimpl_accessor;
-  public:
-      using pimpl = typename dal::detail::pimpl<detail::model_impl>;
-      model();
-      
-      std::int64_t get_tree_count() const;
-      std::int64_t get_class_count() const;
-      void clear();
+    friend dal::detail::pimpl_accessor;
 
-  private:
-      explicit model(const pimpl& impl);
-      pimpl impl_;
+public:
+    using pimpl = typename dal::detail::pimpl<detail::model_impl>;
+    model();
+
+    std::int64_t get_tree_count() const;
+    std::int64_t get_class_count() const;
+    void clear();
+
+private:
+    explicit model(const pimpl& impl);
+    pimpl impl_;
 };
 } // namespace oneapi::dal::decision_forest
