@@ -32,72 +32,71 @@ namespace interop  = dal::backend::interop;
 template <typename Float, daal::CpuType Cpu>
 using daal_pca_cor_kernel_t = daal_pca::internal::PCACorrelationKernel<daal::batch, Float, Cpu>;
 
-// template <typename Float>
-// static train_result call_daal_kernel(const context_cpu& ctx,
-//                                      const descriptor_base& desc,
-//                                      const table& data) {
-//     const int64_t row_count       = data.get_row_count();
-//     const int64_t column_count    = data.get_column_count();
-//     const int64_t component_count = desc.get_component_count();
+template <typename Float>
+static train_result call_daal_kernel(const context_cpu& ctx,
+                                     const descriptor_base& desc,
+                                     const table& data) {
+    const int64_t row_count       = data.get_row_count();
+    const int64_t column_count    = data.get_column_count();
+    const int64_t component_count = desc.get_component_count();
 
-//     auto arr_data = row_accessor<const Float>{ data }.pull();
-//     array<Float> arr_eigvec{ column_count * component_count };
-//     array<Float> arr_eigval{ 1 * component_count };
-//     array<Float> arr_means{ 1 * component_count };
-//     array<Float> arr_vars{ 1 * component_count };
+    auto arr_data = row_accessor<const Float>{ data }.pull();
+    array<Float> arr_eigvec{ column_count * component_count };
+    array<Float> arr_eigval{ 1 * component_count };
+    array<Float> arr_means{ 1 * component_count };
+    array<Float> arr_vars{ 1 * component_count };
 
-//     // TODO: read-only access performed with deep copy of data since daal numeric tables are mutable.
-//     // Need to create special immutable homogen table on daal interop side
+    // TODO: read-only access performed with deep copy of data since daal numeric tables are mutable.
+    // Need to create special immutable homogen table on daal interop side
 
-//     // TODO: data is table, not a homogen_table. Think better about accessor - is it enough to have just a row_accessor?
-//     const auto daal_data =
-//         interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
-//     const auto daal_eigenvectors =
-//         interop::convert_to_daal_homogen_table(arr_eigvec, column_count, component_count);
-//     const auto daal_eigenvalues =
-//         interop::convert_to_daal_homogen_table(arr_eigval, 1, component_count);
-//     const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, component_count);
-//     const auto daal_variances =
-//         interop::convert_to_daal_homogen_table(arr_vars, 1, component_count);
+    // TODO: data is table, not a homogen_table. Think better about accessor - is it enough to have just a row_accessor?
+    const auto daal_data =
+        interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
+    const auto daal_eigenvectors =
+        interop::convert_to_daal_homogen_table(arr_eigvec, column_count, component_count);
+    const auto daal_eigenvalues =
+        interop::convert_to_daal_homogen_table(arr_eigval, 1, component_count);
+    const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, component_count);
+    const auto daal_variances =
+        interop::convert_to_daal_homogen_table(arr_vars, 1, component_count);
 
-//     daal_cov::Batch<Float, daal_cov::defaultDense> covariance_alg;
-//     covariance_alg.input.set(daal_cov::data, daal_data);
+    daal_cov::Batch<Float, daal_cov::defaultDense> covariance_alg;
+    covariance_alg.input.set(daal_cov::data, daal_data);
 
-//     constexpr bool is_correlation = false;
-//     constexpr uint64_t results_to_compute =
-//         int64_t(daal_pca::mean | daal_pca::variance | daal_pca::eigenvalue);
+    constexpr bool is_correlation = false;
+    constexpr uint64_t results_to_compute =
+        int64_t(daal_pca::mean | daal_pca::variance | daal_pca::eigenvalue);
 
-//     interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(ctx,
-//                                                             is_correlation,
-//                                                             desc.get_is_deterministic(),
-//                                                             *daal_data,
-//                                                             &covariance_alg,
-//                                                             results_to_compute,
-//                                                             *daal_eigenvectors,
-//                                                             *daal_eigenvalues,
-//                                                             *daal_means,
-//                                                             *daal_variances);
+    interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(ctx,
+                                                            is_correlation,
+                                                            desc.get_is_deterministic(),
+                                                            *daal_data,
+                                                            &covariance_alg,
+                                                            results_to_compute,
+                                                            *daal_eigenvectors,
+                                                            *daal_eigenvalues,
+                                                            *daal_means,
+                                                            *daal_variances);
 
-//     return train_result()
-//         .set_model(
-//             model().set_eigenvectors(homogen_table_builder{ component_count, arr_eigvec }.build()))
-//         .set_eigenvalues(homogen_table_builder{ component_count, arr_eigval }.build());
-// }
+    return train_result()
+        .set_model(
+            model().set_eigenvectors(homogen_table_builder{ component_count, arr_eigvec }.build()))
+        .set_eigenvalues(homogen_table_builder{ component_count, arr_eigval }.build());
+}
 
-// template <typename Float>
-// static train_result train(const context_cpu& ctx,
-//                           const descriptor_base& desc,
-//                           const train_input& input) {
-//     return call_daal_kernel<Float>(ctx, desc, input.get_data());
-// }
+template <typename Float>
+static train_result train(const context_cpu& ctx,
+                          const descriptor_base& desc,
+                          const train_input& input) {
+    return call_daal_kernel<Float>(ctx, desc, input.get_data());
+}
 
 template <typename Float>
 struct train_kernel_cpu<Float, method::cov> {
     train_result operator()(const context_cpu& ctx,
                             const descriptor_base& desc,
                             const train_input& input) const {
-        return train_result();
-        // return train<Float>(ctx, desc, input);
+        return train<Float>(ctx, desc, input);
     }
 };
 
