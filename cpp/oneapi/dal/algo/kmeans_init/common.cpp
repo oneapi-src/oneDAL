@@ -1,6 +1,5 @@
-/* file: kmeans_dense_lloyd_batch_fpt_cpu.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,30 +14,25 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of Lloyd method for K-means algorithm.
-//--
-*/
+#include "oneapi/dal/algo/kmeans_init/common.hpp"
 
-#include "src/algorithms/kmeans/kmeans_lloyd_kernel.h"
-#include "src/algorithms/kmeans/kmeans_lloyd_batch_impl.i"
-#include "src/algorithms/kmeans/kmeans_container.h"
+namespace oneapi::dal::kmeans_init {
 
-namespace daal
-{
-namespace algorithms
-{
-namespace kmeans
-{
-namespace interface2
-{
-template class BatchContainer<DAAL_FPTYPE, kmeans::lloydDense, DAAL_CPU>;
+class detail::descriptor_impl : public base {
+public:
+    std::int64_t cluster_count = -1;
+};
+
+using detail::descriptor_impl;
+
+descriptor_base::descriptor_base() : impl_(new descriptor_impl{}) {}
+
+std::int64_t descriptor_base::get_cluster_count() const {
+    return impl_->cluster_count;
 }
-namespace internal
-{
-template class DAAL_EXPORT KMeansBatchKernel<lloydDense, DAAL_FPTYPE, DAAL_CPU>;
-} // namespace internal
-} // namespace kmeans
-} // namespace algorithms
-} // namespace daal
+
+void descriptor_base::set_cluster_count_impl(std::int64_t value) {
+    impl_->cluster_count = value;
+}
+
+} // namespace oneapi::dal::kmeans_init

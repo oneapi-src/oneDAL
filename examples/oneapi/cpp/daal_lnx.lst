@@ -21,6 +21,8 @@
 DAAL = homogen_table_builder             \
        df_cls_dense_batch                \
        df_reg_dense_batch                \
+       kmeans_lloyd_dense_batch          \
+       kmeans_init_default_dense         \
        knn_cls_kd_tree_dense_batch       \
        linear_kernel_dense_batch         \
        pca_cor_dense_batch               \

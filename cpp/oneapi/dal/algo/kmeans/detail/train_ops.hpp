@@ -16,9 +16,9 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/pca/train_types.hpp"
+#include "oneapi/dal/algo/kmeans/train_types.hpp"
 
-namespace oneapi::dal::pca::detail {
+namespace oneapi::dal::kmeans::detail {
 
 template <typename Context, typename... Options>
 struct ONEAPI_DAL_EXPORT train_ops_dispatcher {
@@ -33,9 +33,7 @@ struct train_ops {
     using result_t          = train_result;
     using descriptor_base_t = descriptor_base;
 
-    void validate(const Descriptor& params, const train_input& input) const {
-        
-    }
+    void validate(const Descriptor& params, const train_input& input) const {}
 
     template <typename Context>
     auto operator()(const Context& ctx, const Descriptor& desc, const train_input& input) const {
@@ -44,4 +42,4 @@ struct train_ops {
     }
 };
 
-} // namespace oneapi::dal::pca::detail
+} // namespace oneapi::dal::kmeans::detail
