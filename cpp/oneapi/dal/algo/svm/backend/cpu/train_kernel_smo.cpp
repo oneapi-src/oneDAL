@@ -14,26 +14,20 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "oneapi/dal/algo/svm/backend/cpu/train_kernel.hpp"
 
-#include <cstring>
+namespace oneapi::dal::svm::backend {
 
-#include "oneapi/dal/detail/memory_impl_dpc.hpp"
-#include "oneapi/dal/detail/memory_impl_host.hpp"
-
-namespace oneapi::dal::detail {
-
-template <typename T, typename Policy>
-class default_delete {
-public:
-    explicit default_delete(const Policy& policy) : policy_(policy) {}
-
-    void operator()(T* data) {
-        detail::free(policy_, data);
+template <typename Float>
+struct train_kernel_cpu<Float, task::classification, method::smo> {
+    train_result operator()(const dal::backend::context_cpu& ctx,
+                            const descriptor_base& params,
+                            const train_input& input) const {
+        return train_result();
     }
-
-private:
-    Policy policy_;
 };
 
-} // namespace oneapi::dal::detail
+template struct train_kernel_cpu<float, task::classification, method::smo>;
+template struct train_kernel_cpu<double, task::classification, method::smo>;
+
+} // namespace oneapi::dal::svm::backend

@@ -14,26 +14,20 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "oneapi/dal/algo/svm/backend/gpu/infer_kernel.hpp"
 
-#include <cstring>
+namespace oneapi::dal::svm::backend {
 
-#include "oneapi/dal/detail/memory_impl_dpc.hpp"
-#include "oneapi/dal/detail/memory_impl_host.hpp"
-
-namespace oneapi::dal::detail {
-
-template <typename T, typename Policy>
-class default_delete {
-public:
-    explicit default_delete(const Policy& policy) : policy_(policy) {}
-
-    void operator()(T* data) {
-        detail::free(policy_, data);
+template <typename Float>
+struct infer_kernel_gpu<Float, task::classification, method::by_default> {
+    infer_result operator()(const dal::backend::context_gpu& ctx,
+                            const descriptor_base& params,
+                            const infer_input& input) const {
+        return infer_result();
     }
-
-private:
-    Policy policy_;
 };
 
-} // namespace oneapi::dal::detail
+template struct infer_kernel_gpu<float, task::classification, method::by_default>;
+template struct infer_kernel_gpu<double, task::classification, method::by_default>;
+
+} // namespace oneapi::dal::svm::backend

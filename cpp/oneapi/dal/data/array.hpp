@@ -41,7 +41,9 @@ public:
     template <typename K>
     static array<T> full(std::int64_t count, K&& element) {
         return full_impl(detail::host_seq_policy{},
-            count, std::forward<K>(element), detail::host_only_alloc{});
+                         count,
+                         std::forward<K>(element),
+                         detail::host_only_alloc{});
     }
 
     static array<T> zeros(std::int64_t count) {
@@ -52,7 +54,8 @@ public:
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     template <typename K>
     static array<T> full(sycl::queue& queue,
-                         std::int64_t count, K&& element,
+                         std::int64_t count,
+                         K&& element,
                          sycl::usm::alloc kind = sycl::usm::alloc::shared) {
         return full_impl(queue, count, std::forward<K>(element), kind);
     }
@@ -68,22 +71,19 @@ public:
 public:
     array() : data_owned_ptr_(nullptr), count_(0), capacity_(0) {}
 
-    explicit array(std::int64_t count)
-        : array() {
+    explicit array(std::int64_t count) : array() {
         reset(count);
     }
 
-    template <typename U = T*,
-              typename = std::enable_if_t<std::is_pointer_v<U>>>
+    template <typename U = T*, typename = std::enable_if_t<std::is_pointer_v<U>>>
     explicit array(U data, std::int64_t count)
-        : data_owned_ptr_(nullptr),
-          data_(data),
-          count_(count),
-          capacity_(0) {}
+            : data_owned_ptr_(nullptr),
+              data_(data),
+              count_(count),
+              capacity_(0) {}
 
     template <typename Deleter>
-    explicit array(T* data, std::int64_t count, Deleter&& deleter)
-        : array() {
+    explicit array(T* data, std::int64_t count, Deleter&& deleter) : array() {
         reset(data, count, std::forward<Deleter>(deleter));
     }
 
@@ -91,16 +91,17 @@ public:
     explicit array(sycl::queue& queue,
                    std::int64_t count,
                    sycl::usm::alloc kind = sycl::usm::alloc::shared)
-        : array() {
+            : array() {
         reset(queue, count, kind);
     }
 
     explicit array(sycl::queue& queue,
-                   T* data, std::int64_t count,
+                   T* data,
+                   std::int64_t count,
                    sycl::vector_class<sycl::event> dependencies = {})
-        : array() {
-            reset(queue, data, count, dependencies);
-        }
+            : array() {
+        reset(queue, data, count, dependencies);
+    }
 #endif
 
     T* get_mutable_data() const {
@@ -125,8 +126,7 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    array& unique(sycl::queue& queue,
-                  sycl::usm::alloc kind = sycl::usm::alloc::shared) {
+    array& unique(sycl::queue& queue, sycl::usm::alloc kind = sycl::usm::alloc::shared) {
         return unique_impl(queue, kind);
     }
 #endif
@@ -160,8 +160,8 @@ public:
 
     void reset() {
         data_owned_ptr_.reset();
-        data_ = std::variant<T*, const T*>();
-        count_ = 0;
+        data_     = std::variant<T*, const T*>();
+        count_    = 0;
         capacity_ = 0;
     }
 
@@ -173,8 +173,8 @@ public:
     void reset(T* data, std::int64_t count, Deleter&& deleter) {
         // TODO: check input parameters
         data_owned_ptr_.reset(data, std::forward<Deleter>(deleter));
-        data_ = data_owned_ptr_.get();
-        count_ = count;
+        data_     = data_owned_ptr_.get();
+        count_    = count;
         capacity_ = count;
     }
 
@@ -186,7 +186,8 @@ public:
     }
 
     void reset(sycl::queue& queue,
-               T* data, std::int64_t count,
+               T* data,
+               std::int64_t count,
                sycl::vector_class<sycl::event> dependencies = {}) {
         reset(data, count, detail::default_delete<T, decltype(queue)>{ queue });
         for (auto& event : dependencies) {
@@ -197,7 +198,7 @@ public:
 
     template <typename U = T*>
     void reset_not_owning(U data = nullptr, std::int64_t count = 0) {
-        data_ = data;
+        data_  = data;
         count_ = count;
     }
 
@@ -213,22 +214,20 @@ public:
     }
 #endif
 
-    const T& operator [](std::int64_t index) const {
+    const T& operator[](std::int64_t index) const {
         return get_data()[index];
     }
 
-    T& operator [](std::int64_t index) {
+    T& operator[](std::int64_t index) {
         return get_mutable_data()[index];
     }
 
 private:
     template <typename K, typename Policy, typename AllocKind>
-    static array<T> full_impl(Policy&& policy,
-                              std::int64_t count, K&& element,
-                              AllocKind&& kind) {
+    static array<T> full_impl(Policy&& policy, std::int64_t count, K&& element, AllocKind&& kind) {
         auto* data = detail::malloc<T>(policy, count, kind);
         detail::fill(policy, data, count, element);
-        return array<T> { data, count, detail::default_delete<T, Policy>{ policy } };
+        return array<T>{ data, count, detail::default_delete<T, Policy>{ policy } };
     }
 
 private:
@@ -236,10 +235,11 @@ private:
     array& unique_impl(Policy&& policy, AllocKind&& kind) {
         if (is_data_owner() || count_ == 0) {
             return *this;
-        } else {
+        }
+        else {
             auto immutable_data = get_data();
-            auto copy_data = detail::malloc<T>(policy, count_, kind);
-            detail::memcpy(policy, copy_data, immutable_data, sizeof(T)*count_);
+            auto copy_data      = detail::malloc<T>(policy, count_, kind);
+            detail::memcpy(policy, copy_data, immutable_data, sizeof(T) * count_);
 
             reset(copy_data, count_, detail::default_delete<T, Policy>{ policy });
             return *this;
@@ -256,21 +256,24 @@ private:
     void resize_impl(Policy&& policy, std::int64_t count, AllocKind&& kind) {
         if (is_data_owner() == false) {
             throw std::runtime_error("cannot resize array with non-owning data");
-        } else if (count <= 0) {
+        }
+        else if (count <= 0) {
             reset_not_owning();
-        } else if (get_capacity() < count) {
-            auto new_data = detail::malloc<T>(policy, count, kind);
+        }
+        else if (get_capacity() < count) {
+            auto new_data          = detail::malloc<T>(policy, count, kind);
             std::int64_t min_count = std::min(count, get_count());
-            detail::memcpy(policy, new_data, this->get_data(), sizeof(T)*min_count);
+            detail::memcpy(policy, new_data, this->get_data(), sizeof(T) * min_count);
 
             try {
                 reset(new_data, count, detail::default_delete<T, Policy>{ policy });
-            } catch (const std::exception&) {
+            }
+            catch (const std::exception&) {
                 detail::free<T>(policy, new_data);
                 throw;
             }
-
-        } else {
+        }
+        else {
             count_ = count;
         }
     }

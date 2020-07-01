@@ -16,24 +16,23 @@
 
 #pragma once
 
-#include <cstring>
+#include <iomanip>
+#include <iostream>
 
-#include "oneapi/dal/detail/memory_impl_dpc.hpp"
-#include "oneapi/dal/detail/memory_impl_host.hpp"
+#include "oneapi/dal/data/accessor.hpp"
+#include "oneapi/dal/data/table.hpp"
 
-namespace oneapi::dal::detail {
+std::ostream &operator<<(std::ostream &stream,
+                         const oneapi::dal::table &table) {
+  auto arr = oneapi::dal::row_accessor<const float>(table).pull();
+  const auto x = arr.get_data();
 
-template <typename T, typename Policy>
-class default_delete {
-public:
-    explicit default_delete(const Policy& policy) : policy_(policy) {}
-
-    void operator()(T* data) {
-        detail::free(policy_, data);
+  for (std::int64_t i = 0; i < table.get_row_count(); i++) {
+    for (std::int64_t j = 0; j < table.get_column_count(); j++) {
+      std::cout << std::setw(10) << std::setiosflags(std::ios::fixed)
+                << std::setprecision(3) << x[i * table.get_column_count() + j];
     }
-
-private:
-    Policy policy_;
-};
-
-} // namespace oneapi::dal::detail
+    std::cout << std::endl;
+  }
+  return stream;
+}

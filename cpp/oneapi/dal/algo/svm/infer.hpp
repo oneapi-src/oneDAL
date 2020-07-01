@@ -16,24 +16,13 @@
 
 #pragma once
 
-#include <cstring>
-
-#include "oneapi/dal/detail/memory_impl_dpc.hpp"
-#include "oneapi/dal/detail/memory_impl_host.hpp"
+#include "oneapi/dal/algo/svm/detail/infer_ops.hpp"
+#include "oneapi/dal/algo/svm/infer_types.hpp"
+#include "oneapi/dal/infer.hpp"
 
 namespace oneapi::dal::detail {
 
-template <typename T, typename Policy>
-class default_delete {
-public:
-    explicit default_delete(const Policy& policy) : policy_(policy) {}
-
-    void operator()(T* data) {
-        detail::free(policy_, data);
-    }
-
-private:
-    Policy policy_;
-};
+template <typename Descriptor>
+struct infer_ops<Descriptor, dal::svm::detail::tag> : dal::svm::detail::infer_ops<Descriptor> {};
 
 } // namespace oneapi::dal::detail

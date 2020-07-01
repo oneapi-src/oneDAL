@@ -44,7 +44,7 @@ TEST(table_builder_test, can_modify_table) {
     row_accessor<const float> acc{ t };
     auto arr = acc.pull();
 
-    for(std::int64_t i = 0; i < arr.get_count(); i++) {
+    for (std::int64_t i = 0; i < arr.get_count(); i++) {
         ASSERT_FLOAT_EQ(arr.get_data()[i], data2[i]);
     }
 }

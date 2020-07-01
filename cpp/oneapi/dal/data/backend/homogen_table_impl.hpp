@@ -42,8 +42,8 @@ public:
 
     template <typename DataType>
     homogen_table_impl(std::int64_t p, const array<DataType>& data, homogen_data_layout layout)
-        : meta_(homogen_table_metadata{ make_data_type<DataType>(), layout,  p }),
-          row_count_(data.get_count() / p) {
+            : meta_(homogen_table_metadata{ make_data_type<DataType>(), layout, p }),
+              row_count_(data.get_count() / p) {
         const std::int64_t N = row_count_;
 
         if (N * p != data.get_count()) {

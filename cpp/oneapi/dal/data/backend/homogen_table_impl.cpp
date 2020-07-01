@@ -46,7 +46,8 @@ void homogen_table_impl::pull_rows(array<T>& block, const range& rows) const {
     else {
         if (!block.is_data_owner() || block.get_capacity() < block_size) {
             block.reset(block_size);
-        } else if (block.get_count() < block_size) {
+        }
+        else if (block.get_count() < block_size) {
             block.resize(block_size);
         }
 
@@ -123,7 +124,8 @@ void homogen_table_impl::pull_column(array<T>& block, int64_t idx, const range& 
     else {
         if (!block.is_data_owner() || block.get_capacity() < block_size) {
             block.reset(block_size);
-        } else if (block.get_count() < block_size) {
+        }
+        else if (block.get_count() < block_size) {
             block.resize(block_size);
         }
 

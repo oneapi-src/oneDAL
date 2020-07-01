@@ -22,7 +22,7 @@
 
 namespace oneapi::dal::detail {
 
-struct host_only_alloc{};
+struct host_only_alloc {};
 
 template <typename T>
 inline T* malloc(const host_seq_policy&, std::int64_t count, host_only_alloc) {

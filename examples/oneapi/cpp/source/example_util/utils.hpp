@@ -16,24 +16,4 @@
 
 #pragma once
 
-#include <cstring>
-
-#include "oneapi/dal/detail/memory_impl_dpc.hpp"
-#include "oneapi/dal/detail/memory_impl_host.hpp"
-
-namespace oneapi::dal::detail {
-
-template <typename T, typename Policy>
-class default_delete {
-public:
-    explicit default_delete(const Policy& policy) : policy_(policy) {}
-
-    void operator()(T* data) {
-        detail::free(policy_, data);
-    }
-
-private:
-    Policy policy_;
-};
-
-} // namespace oneapi::dal::detail
+#include "example_util/output_helpers.hpp"
