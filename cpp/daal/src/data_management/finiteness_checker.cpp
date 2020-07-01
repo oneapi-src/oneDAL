@@ -100,7 +100,7 @@ double computeSumSOA(NumericTable & table, bool & sumIsFinite)
             ReadColumns<float, cpu> colBlock(table, i, 0, nRows);
             DAAL_CHECK_BLOCK_STATUS(colBlock);
             const float * colPtr = colBlock.get();
-            sum += computeSum<float, cpu>(1, nRows, &colPtr);
+            sum += static_cast<double>(computeSum<float, cpu>(1, nRows, &colPtr));
             break;
         }
         case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
@@ -108,7 +108,7 @@ double computeSumSOA(NumericTable & table, bool & sumIsFinite)
             ReadColumns<double, cpu> colBlock(table, i, 0, nRows);
             DAAL_CHECK_BLOCK_STATUS(colBlock);
             const double * colPtr = colBlock.get();
-            sum += static_cast<double>(computeSum<double, cpu>(1, nRows, &colPtr));
+            sum += computeSum<double, cpu>(1, nRows, &colPtr);
             break;
         }
         }
@@ -240,10 +240,11 @@ double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite)
     NumericTableDictionaryPtr tableFeaturesDict = table.getDictionarySharedPtr();
 
     daal::TlsMem<double, avx512, services::internal::ScalableCalloc<double, avx512> > tlsSum(1);
-    daal::TlsMem<bool, avx512, services::internal::ScalableCalloc<bool, avx512> > tlsFinite(1);
-    daal::threader_for(nCols, nCols, [&](size_t i) {
-        double * localSum  = tlsSum.local();
-        bool * localFinite = tlsFinite.local();
+    daal::TlsMem<bool, avx512, services::internal::ScalableCalloc<bool, avx512> > tlsNotFinite(1);
+
+    daal::threader_for_break(nCols, nCols, [&](size_t i, bool & needBreak) {
+        double * localSum     = tlsSum.local();
+        bool * localNotFinite = tlsNotFinite.local();
 
         switch ((*tableFeaturesDict)[i].getIndexType())
         {
@@ -252,7 +253,7 @@ double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite)
             ReadColumns<float, avx512> colBlock(table, i, 0, nRows);
             DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
             const float * colPtr = colBlock.get();
-            *localSum += computeSum<float, avx512>(1, nRows, &colPtr);
+            *localSum += static_cast<double>(computeSum<float, avx512>(1, nRows, &colPtr));
             break;
         }
         case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
@@ -260,27 +261,28 @@ double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite)
             ReadColumns<double, avx512> colBlock(table, i, 0, nRows);
             DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
             const double * colPtr = colBlock.get();
-            *localSum += static_cast<double>(computeSum<double, avx512>(1, nRows, &colPtr));
+            *localSum += computeSum<double, avx512>(1, nRows, &colPtr);
             break;
         }
         }
 
-        *localFinite |= valuesAreNotFinite(localSum, 1, false);
-        if (*localFinite)
+        *localNotFinite |= valuesAreNotFinite(localSum, 1, false);
+        if (*localNotFinite)
         {
+            needBreak = true;
             breakFlag = true;
-            daal::break_threader_for();
         }
     });
-    tlsSum.reduce([&](double * localSum) { sum += *localSum; });
 
     if (breakFlag)
     {
+        sum         = getInf<double>();
         sumIsFinite = false;
     }
     else
     {
-        tlsFinite.reduce([&](bool * localFinite) { sumIsFinite &= !*localFinite; });
+        tlsSum.reduce([&](double * localSum) { sum += *localSum; });
+        tlsNotFinite.reduce([&](bool * localNotFinite) { sumIsFinite &= !*localNotFinite; });
     }
 
     return sum;
@@ -438,9 +440,10 @@ bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN)
     const size_t nCols                          = table.getNumberOfColumns();
     NumericTableDictionaryPtr tableFeaturesDict = table.getDictionarySharedPtr();
 
-    daal::TlsMem<bool, avx512, services::internal::ScalableCalloc<bool, avx512> > tlsFinite(1);
-    daal::threader_for(nCols, nCols, [&](size_t i) {
-        bool * localFinite = tlsFinite.local();
+    daal::TlsMem<bool, avx512, services::internal::ScalableCalloc<bool, avx512> > tlsNotFinite(1);
+
+    daal::threader_for_break(nCols, nCols, [&](size_t i, bool & needBreak) {
+        bool * localNotFinite = tlsNotFinite.local();
 
         switch ((*tableFeaturesDict)[i].getIndexType())
         {
@@ -449,7 +452,7 @@ bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN)
             ReadColumns<float, avx512> colBlock(table, i, 0, nRows);
             DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
             const float * colPtr = colBlock.get();
-            *localFinite |= !checkFiniteness<float, avx512>(nRows, 1, nRows, &colPtr, allowNaN);
+            *localNotFinite |= !checkFiniteness<float, avx512>(nRows, 1, nRows, &colPtr, allowNaN);
             break;
         }
         case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
@@ -457,15 +460,15 @@ bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN)
             ReadColumns<double, avx512> colBlock(table, i, 0, nRows);
             DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
             const double * colPtr = colBlock.get();
-            *localFinite |= !checkFiniteness<double, avx512>(nRows, 1, nRows, &colPtr, allowNaN);
+            *localNotFinite |= !checkFiniteness<double, avx512>(nRows, 1, nRows, &colPtr, allowNaN);
             break;
         }
         }
 
-        if (*localFinite)
+        if (*localNotFinite)
         {
+            needBreak = true;
             breakFlag = true;
-            daal::break_threader_for();
         }
     });
 
@@ -475,7 +478,7 @@ bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN)
     }
     else
     {
-        tlsFinite.reduce([&](bool * localFinite) { valuesAreFinite &= !*localFinite; });
+        tlsNotFinite.reduce([&](bool * localNotFinite) { valuesAreFinite &= !*localNotFinite; });
     }
 
     return valuesAreFinite;
@@ -498,20 +501,6 @@ services::Status allValuesAreFiniteImpl(NumericTable & table, bool allowNaN, boo
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, nColumns);
     const size_t nElements = nRows * nColumns;
     const NTLayout layout  = table.getDataLayout();
-
-    size_t nDataPtrs;
-    if (layout == NTLayout::soa)
-    {
-        // SOA layout: pointer for each column
-        nDataPtrs = nColumns;
-    }
-    else
-    {
-        // AOS layout: one pointer for all data
-        nDataPtrs = 1;
-    }
-
-    NumericTableDictionaryPtr tableFeaturesDict = table.getDictionarySharedPtr();
 
     // first stage: compute sum of all values and check its finiteness
     double sum       = 0;

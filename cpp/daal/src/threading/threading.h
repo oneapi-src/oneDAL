@@ -32,6 +32,7 @@ typedef void (*functype)(int i, const void * a);
 typedef void (*functype2)(int i, int n, const void * a);
 typedef void * (*tls_functype)(const void * a);
 typedef void (*tls_reduce_functype)(void * p, const void * a);
+typedef void (*functype_break)(int i, bool & needBreak, const void * a);
 class task;
 } // namespace daal
 
@@ -41,7 +42,7 @@ extern "C"
     DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, daal::functype func);
     DAAL_EXPORT void _daal_threader_for_blocked(int n, int threads_request, const void * a, daal::functype2 func);
     DAAL_EXPORT void _daal_threader_for_optional(int n, int threads_request, const void * a, daal::functype func);
-    DAAL_EXPORT void _daal_break_threader_for();
+    DAAL_EXPORT void _daal_threader_for_break(int n, int threads_request, const void * a, daal::functype_break func);
 
     DAAL_EXPORT void * _daal_get_tls_ptr(void * a, daal::tls_functype func);
     DAAL_EXPORT void * _daal_get_tls_local(void * tlsPtr);
@@ -133,6 +134,13 @@ inline void threader_func_b(int i0, int in, const void * a)
 }
 
 template <typename F>
+inline void threader_func_break(int i, bool & needBreak, const void * a)
+{
+    const F & lambda = *static_cast<const F *>(a);
+    lambda(i, needBreak);
+}
+
+template <typename F>
 inline void threader_for(int n, int threads_request, const F & lambda)
 {
     const void * a = static_cast<const void *>(&lambda);
@@ -156,9 +164,12 @@ inline void threader_for_optional(int n, int threads_request, const F & lambda)
     _daal_threader_for_optional(n, threads_request, a, threader_func<F>);
 }
 
-inline void break_threader_for()
+template <typename F>
+inline void threader_for_break(int n, int threads_request, const F & lambda)
 {
-    _daal_break_threader_for();
+    const void * a = static_cast<const void *>(&lambda);
+
+    _daal_threader_for_break(n, threads_request, a, threader_func_break<F>);
 }
 
 template <typename lambdaType>
