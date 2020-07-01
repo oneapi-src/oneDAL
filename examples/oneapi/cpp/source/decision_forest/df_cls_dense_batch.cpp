@@ -38,15 +38,17 @@ std::ostream &operator<<(std::ostream &stream, const dal::table &table) {
   return stream;
 }
 
-const std::int64_t n_classes = 2;
-const std::int64_t n_trees = 10;
-const std::int64_t n_features_per_node = 2;
+const std::int64_t class_count = 2;
+const std::int64_t tree_count = 10;
+const std::int64_t features_per_node = 1;
 const std::int64_t min_observations_in_leaf_node = 1;
 
 int main(int argc, char const *argv[]) {
 
   constexpr std::int64_t row_count_train = 6;
+  constexpr std::int64_t row_count_test  = 3;
   constexpr std::int64_t column_count = 2;
+
   const float x_train[] = {
       -2.f, -1.f,
       -1.f, -1.f,
@@ -64,28 +66,52 @@ int main(int argc, char const *argv[]) {
       1.f,
   };
 
+  const float x_test[] = {
+      -1.f, -1.f,
+       2.f,  2.f,
+       3.f,  2.f,
+  };
+  const float y_test[] = {
+       0.f,
+       1.f,
+       1.f,
+  };
+
   const auto x_train_table =
       dal::homogen_table{row_count_train, column_count, x_train};
   const auto y_train_table =
       dal::homogen_table{row_count_train, 1, y_train};
 
-  const auto decision_forest_train_desc =
+  const auto x_test_table =
+      dal::homogen_table{row_count_test, column_count, x_test};
+  const auto y_test_table =
+      dal::homogen_table{row_count_test, 1, y_test};
+
+  const auto df_desc =
       df::descriptor<float, df::task::classification,
                             df::method::default_dense>{}
-          .set_n_classes(n_classes)
-          .set_n_trees(n_trees)
-          .set_features_per_node(n_features_per_node)
+          .set_class_count(class_count)
+          .set_tree_count(tree_count)
+          .set_features_per_node(features_per_node)
           .set_min_observations_in_leaf_node(min_observations_in_leaf_node)
           .set_variable_importance_mode(df::variable_importance_mode::mdi)
-          .set_results_to_compute((std::uint64_t)df::result_to_compute_id::compute_out_of_bag_error);
+          .set_train_results_to_compute((std::uint64_t)df::train_result_to_compute::compute_out_of_bag_error)
+          .set_infer_results_to_compute((std::uint64_t)df::infer_result_to_compute::compute_class_labels)
+          .set_voting_method(df::voting_method::weighted);
 
-  const auto result_train = dal::train(decision_forest_train_desc, x_train_table, y_train_table);
+  const auto result_train = dal::train(df_desc, x_train_table, y_train_table);
 
-  std::cout << "Variable importance results: " << std::endl << result_train.get_var_importance() << std::endl;
+  std::cout << "---Variable importance results: " << std::endl << result_train.get_var_importance() << std::endl;
 
   std::cout << "OOB error: " << result_train.get_oob_err() << std::endl;
 
   /* infer part in progress */
+
+  const auto result_infer = dal::infer(df_desc, result_train.get_model(), x_test_table);
+
+  std::cout << "Prediction results: " << std::endl << result_infer.get_prediction() << std::endl;
+
+  std::cout << "Ground truth: " << std::endl << y_test_table << std::endl;
 
   return 0;
 }

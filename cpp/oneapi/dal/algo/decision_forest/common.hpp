@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include "_p.hpp"
+
 #include "oneapi/dal/data/table.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
@@ -54,17 +56,22 @@ enum class variable_importance_mode
                        This is MDA_Raw value scaled by its standard deviation. */
 };
 
-enum class result_to_compute_id
+enum class train_result_to_compute
 {
     compute_out_of_bag_error                 = 0x00000001ULL,
     compute_out_of_bag_error_per_observation = 0x00000002ULL
 };
 
+enum class infer_result_to_compute
+{
+    compute_class_labels            = 0x00000001ULL, /*!< Numeric table of size n x 1 with the predicted labels >*/
+    compute_class_probabilities     = 0x00000002ULL  /*!< Numeric table of size n x p with the predicted class probabilities for each observation >*/
+};
+
 enum class voting_method
 {
-    weighted = 0,
-    unweighted,
-    last_result_id = unweighted
+    weighted,
+    unweighted
 };
 
 class descriptor_base : public base {
@@ -83,45 +90,45 @@ class descriptor_base : public base {
     double get_min_weight_fraction_in_leaf_node() const;
     double get_min_impurity_decrease_in_split_node() const;
 
-    std::int64_t get_n_classes() const;
-    std::int64_t get_n_trees() const;
+    std::int64_t get_class_count() const;
+    std::int64_t get_tree_count() const;
     std::int64_t get_features_per_node() const;
     std::int64_t get_max_tree_depth() const;
     std::int64_t get_min_observations_in_leaf_node() const;
-    std::int64_t get_seed() const;
     std::int64_t get_min_observations_in_split_node() const;
     std::int64_t get_max_leaf_nodes() const;
 
     bool get_memory_saving_mode() const;
     bool get_bootstrap() const;
 
-    std::uint64_t get_results_to_compute() const;
+    std::uint64_t get_train_results_to_compute() const;
+    std::uint64_t get_infer_results_to_compute() const;
 
     variable_importance_mode get_variable_importance_mode() const;
     voting_method get_voting_method() const;
 
   protected:
-    void set_observations_per_tree_fraction_impl(const double value);
-    void set_impurity_threshold_impl(const double value);
-    void set_min_weight_fraction_in_leaf_node_impl(const double value);
-    void set_min_impurity_decrease_in_split_node_impl(const double value);
+    void set_observations_per_tree_fraction_impl(double value);
+    void set_impurity_threshold_impl(double value);
+    void set_min_weight_fraction_in_leaf_node_impl(double value);
+    void set_min_impurity_decrease_in_split_node_impl(double value);
 
-    void set_n_classes_impl(const std::int64_t value);
-    void set_n_trees_impl(const std::int64_t value);
-    void set_features_per_node_impl(const std::int64_t value);
-    void set_max_tree_depth_impl(const std::int64_t value);
-    void set_min_observations_in_leaf_node_impl(const std::int64_t value);
-    void set_seed_impl(const std::int64_t value);
-    void set_min_observations_in_split_node_impl(const std::int64_t value);
-    void set_max_leaf_nodes_impl(const std::int64_t value);
+    void set_class_count_impl(std::int64_t value);
+    void set_tree_count_impl(std::int64_t value);
+    void set_features_per_node_impl(std::int64_t value);
+    void set_max_tree_depth_impl(std::int64_t value);
+    void set_min_observations_in_leaf_node_impl(std::int64_t value);
+    void set_min_observations_in_split_node_impl(std::int64_t value);
+    void set_max_leaf_nodes_impl(std::int64_t value);
 
-    void set_results_to_compute_impl(const std::uint64_t value);
+    void set_train_results_to_compute_impl(std::uint64_t value);
+    void set_infer_results_to_compute_impl(std::uint64_t value);
 
-    void set_memory_saving_mode_impl(const bool value);
-    void set_bootstrap_impl(const bool value);
+    void set_memory_saving_mode_impl(bool value);
+    void set_bootstrap_impl(bool value);
 
-    void set_variable_importance_mode_impl(const variable_importance_mode value);
-    void set_voting_method_impl(const voting_method value);
+    void set_variable_importance_mode_impl(variable_importance_mode value);
+    void set_voting_method_impl(voting_method value);
 
     dal::detail::pimpl<detail::descriptor_impl> impl_;
 };
@@ -135,75 +142,75 @@ public:
     using task_t   = Task;
     using method_t = Method;
 
-    auto& set_observations_per_tree_fraction(const double value) {
+    auto& set_observations_per_tree_fraction(double value) {
         set_observations_per_tree_fraction_impl(value);
         return *this;
     }
-    auto& set_impurity_threshold(const double value) {
+    auto& set_impurity_threshold(double value) {
         set_impurity_threshold_impl(value);
         return *this;
     }
-    auto& set_min_weight_fraction_in_leaf_node(const double value) {
+    auto& set_min_weight_fraction_in_leaf_node(double value) {
         set_min_weight_fraction_in_leaf_node_impl(value);
         return *this;
     }
-    auto& set_min_impurity_decrease_in_split_node(const double value) {
+    auto& set_min_impurity_decrease_in_split_node(double value) {
         set_min_impurity_decrease_in_split_node_impl(value);
         return *this;
     }
 
-    auto& set_n_classes(const std::int64_t value) {
-        set_n_classes_impl(value);
+    auto& set_class_count(std::int64_t value) {
+        set_class_count_impl(value);
         return *this;
     }
-    auto& set_n_trees(const std::int64_t value) {
-        set_n_trees_impl(value);
+    auto& set_tree_count(std::int64_t value) {
+        set_tree_count_impl(value);
         return *this;
     }
-    auto& set_features_per_node(const std::int64_t value) {
+    auto& set_features_per_node(std::int64_t value) {
         set_features_per_node_impl(value);
         return *this;
     }
-    auto& set_max_tree_depth(const std::int64_t value) {
+    auto& set_max_tree_depth(std::int64_t value) {
         set_max_tree_depth_impl(value);
         return *this;
     }
-    auto& set_min_observations_in_leaf_node(const std::int64_t value) {
+    auto& set_min_observations_in_leaf_node(std::int64_t value) {
         set_min_observations_in_leaf_node_impl(value);
         return *this;
     }
-    auto& set_seed(const std::int64_t value) {
-        set_seed_impl(value);
-        return *this;
-    }
-    auto& set_min_observations_in_split_node(const std::int64_t value) {
+    auto& set_min_observations_in_split_node(std::int64_t value) {
         set_min_observations_in_split_node_impl(value);
         return *this;
     }
-    auto& set_max_leaf_nodes(const std::int64_t value) {
+    auto& set_max_leaf_nodes(std::int64_t value) {
         set_max_leaf_nodes_impl(value);
         return *this;
     }
 
-    auto& set_results_to_compute(const std::uint64_t value) {
-        set_results_to_compute_impl(value);
+    auto& set_train_results_to_compute(std::uint64_t value) {
+        set_train_results_to_compute_impl(value);
+        return *this;
+    }
+    auto& set_infer_results_to_compute(std::uint64_t value) {
+        set_infer_results_to_compute_impl(value);
         return *this;
     }
 
-    auto& set_memory_saving_mode(const bool value) {
+    auto& set_memory_saving_mode(bool value) {
         set_memory_saving_mode_impl(value);
         return *this;
     }
-    auto& set_bootstrap(const bool value) {
+    auto& set_bootstrap(bool value) {
         set_bootstrap_impl(value);
         return *this;
     }
 
-    auto& set_variable_importance_mode(const variable_importance_mode value) {
+    auto& set_variable_importance_mode(variable_importance_mode value) {
         set_variable_importance_mode_impl(value);
         return *this;
     }
-    auto& set_voting_method(const voting_method value) {
+    auto& set_voting_method(voting_method value) {
         set_voting_method_impl(value);
         return *this;
     }
@@ -212,8 +219,15 @@ public:
 class model : public base {
   friend dal::detail::pimpl_accessor;
   public:
-    model();
+      using pimpl = typename dal::detail::pimpl<detail::model_impl>;
+      model();
+      
+      std::int64_t get_tree_count() const;
+      std::int64_t get_class_count() const;
+      void clear();
 
-    dal::detail::pimpl<detail::model_impl> impl_;
+  private:
+      explicit model(const pimpl& impl);
+      pimpl impl_;
 };
 } // namespace oneapi::dal::decision_forest

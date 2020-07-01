@@ -16,5 +16,23 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/decision_forest/train.hpp"
-#include "oneapi/dal/algo/decision_forest/infer.hpp"
+#include "oneapi/dal/algo/decision_forest/common.hpp"
+
+namespace oneapi::dal::decision_forest {
+
+class detail::model_impl : public base {
+  public:
+    model_impl() = default;
+    virtual ~model_impl() = default;
+    virtual std::int64_t get_tree_count() const {
+        return 0;
+    }
+    virtual std::int64_t get_class_count() const {
+        return 0;
+    }
+    virtual void clear() { }
+
+    virtual bool is_interop() const { return false; }
+};
+
+} // namespace oneapi::dal::decision_forest

@@ -56,6 +56,7 @@ public:
 
   table get_prediction() const;
   table get_probabilities() const;
+  //table get_log_probabilities() const;
 
   auto &set_prediction(const table &value) {
     set_prediction_impl(value);
@@ -66,10 +67,16 @@ public:
     set_probabilities_impl(value);
     return *this;
   }
-
+/*
+  auto &set_log_probabilities(const table &value) {
+    set_log_probabilities_impl(value);
+    return *this;
+  }
+*/
 private:
   void set_prediction_impl(const table &value);
   void set_probabilities_impl(const table &value);
+//  void set_log_probabilities_impl(const table &value);
 
   dal::detail::pimpl<detail::infer_result_impl> impl_;
 };

@@ -16,7 +16,7 @@
 
 #include <daal/include/services/error_handling.h>
 #include <daal/src/services/service_algo_utils.h>
-#include <daal/include/algorithms/decision_forest/decision_forest_classification_model_builder.h>
+#include <daal/src/algorithms/dtrees/forest/classification/df_classification_model_impl.h>
 
 #include <daal/include/algorithms/decision_forest/decision_forest_classification_training_types.h>
 #include <daal/include/algorithms/decision_forest/decision_forest_classification_training_batch.h>
@@ -26,10 +26,15 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/cpu/train_kernel.hpp"
+#include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/decision_forest/model_impl.hpp"
+
+//TODO remove!!!!!!
+#include "oneapi/dal/algo/decision_forest/_p.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
-using std::int64_t;
 using dal::backend::context_cpu;
 
 namespace df  = daal::algorithms::decision_forest;
@@ -58,13 +63,12 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     daal_input.set(daal::algorithms::classifier::training::data, daal_data);
     daal_input.set(daal::algorithms::classifier::training::labels, daal_labels);
 
-    auto daal_parameter = cls::training::Parameter(desc.get_n_classes());
-    daal_parameter.nTrees = desc.get_n_trees();
+    auto daal_parameter = cls::training::Parameter(desc.get_class_count());
+    daal_parameter.nTrees = desc.get_tree_count();
     daal_parameter.observationsPerTreeFraction = desc.get_observations_per_tree_fraction();
     daal_parameter.featuresPerNode = desc.get_features_per_node();
     daal_parameter.maxTreeDepth = desc.get_max_tree_depth();
     daal_parameter.minObservationsInLeafNode = desc.get_min_observations_in_leaf_node();
-    daal_parameter.seed = desc.get_seed();
     // TODO take engines from desc 
     daal_parameter.engine = daal::algorithms::engines::mt2203::Batch<>::create();
     daal_parameter.impurityThreshold = desc.get_impurity_threshold();
@@ -75,7 +79,7 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     daal_parameter.minImpurityDecreaseInSplitNode = desc.get_min_impurity_decrease_in_split_node();
     daal_parameter.maxLeafNodes = desc.get_max_leaf_nodes();
 
-    daal_parameter.resultsToCompute = desc.get_results_to_compute();
+    daal_parameter.resultsToCompute = desc.get_train_results_to_compute();
 
     auto vimp = desc.get_variable_importance_mode();
     daal_parameter.varImportance = variable_importance_mode::mdi == vimp ? df::training::MDI
@@ -83,12 +87,12 @@ static train_result call_daal_kernel(const context_cpu& ctx,
                                    : variable_importance_mode::mda_scaled == vimp ? df::training::MDA_Scaled 
                                    : df::training::none;
 
-    /* allocate result data */
     train_result res;
 
     auto daal_result = cls::training::Result();
 
-    if(desc.get_results_to_compute() & (std::uint64_t)result_to_compute_id::compute_out_of_bag_error)
+    /* init daal result's objects */
+    if(desc.get_train_results_to_compute() & (std::uint64_t)train_result_to_compute::compute_out_of_bag_error)
     {
         array<Float> arr_oob_err{ 1 * 1 };
         res.set_oob_err(homogen_table_builder(1, arr_oob_err).build());
@@ -97,7 +101,7 @@ static train_result call_daal_kernel(const context_cpu& ctx,
         daal_result.set(cls::training::outOfBagError, res_oob_err);
     }
 
-    if(desc.get_results_to_compute() & (std::uint64_t)result_to_compute_id::compute_out_of_bag_error_per_observation)
+    if(desc.get_train_results_to_compute() & (std::uint64_t)train_result_to_compute::compute_out_of_bag_error_per_observation)
     {
         array<Float> arr_oob_per_obs_err{ row_count * 1 };
         res.set_oob_per_observation_err(homogen_table_builder(1, arr_oob_per_obs_err).build());
@@ -114,25 +118,26 @@ static train_result call_daal_kernel(const context_cpu& ctx,
         daal_result.set(cls::training::variableImportance, res_var_imp);
     }
 
-    auto daal_model = cls::ModelBuilder(desc.get_n_classes(), desc.get_n_trees()).getModel();
+    cls::ModelPtr mptr = cls::ModelPtr(new cls::internal::ModelImpl(column_count));
 
     interop::call_daal_kernel<Float, cls_default_dense_kernel_t>(
         ctx,
         daal::services::internal::hostApp(daal_input),
         daal_data.get(),
         daal_labels.get(),
-        *daal_model.get(),
+        *mptr,
         daal_result,
         daal_parameter
     );
+
     /* extract results from daal objects */
-    if(desc.get_results_to_compute() & (std::uint64_t)result_to_compute_id::compute_out_of_bag_error)
+    if(desc.get_train_results_to_compute() & (std::uint64_t)train_result_to_compute::compute_out_of_bag_error)
     {
         auto table_oob_err = interop::convert_from_daal_homogen_table<Float>(daal_result.get(cls::training::outOfBagError));
         res.set_oob_err(table_oob_err );
     }
 
-    if(desc.get_results_to_compute() & (std::uint64_t)result_to_compute_id::compute_out_of_bag_error_per_observation)
+    if(desc.get_train_results_to_compute() & (std::uint64_t)train_result_to_compute::compute_out_of_bag_error_per_observation)
     {
         auto table_oob_per_obs_err = interop::convert_from_daal_homogen_table<Float>(daal_result.get(cls::training::outOfBagErrorPerObservation));
         res.set_oob_per_observation_err(table_oob_per_obs_err);
@@ -144,9 +149,7 @@ static train_result call_daal_kernel(const context_cpu& ctx,
         res.set_var_importance(table_var_imp);
     }
 
-    /* model extraction from daal model isn't implemented yet */
-    auto onedal_model = model();
-    return res.set_model(onedal_model);
+    return res.set_model(dal::detail::pimpl_accessor().make_from_pimpl<model>(std::make_shared<interop::decision_forest::interop_model_impl>(mptr)));
 }
 
 template <typename Float>

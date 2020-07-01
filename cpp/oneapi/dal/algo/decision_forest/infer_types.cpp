@@ -31,6 +31,7 @@ class detail::infer_result_impl : public base {
   public:
     table prediction;
     table probabilities;
+    table log_probabilities;
 };
 
 using detail::infer_input_impl;
@@ -55,6 +56,8 @@ void infer_input::set_data_impl(const table& value) {
     impl_->data = value;
 }
 
+/* infer_result implementation */
+
 infer_result::infer_result() : impl_(new infer_result_impl{}) {}
 
 table infer_result::get_prediction() const {
@@ -64,7 +67,11 @@ table infer_result::get_prediction() const {
 table infer_result::get_probabilities() const {
     return impl_->probabilities;
 }
-
+/*
+table infer_result::get_log_probabilities() const {
+    return impl_->log_probabilities;
+}
+*/
 void infer_result::set_prediction_impl(const table &value) {
     impl_->prediction = value;
 }
@@ -72,5 +79,9 @@ void infer_result::set_prediction_impl(const table &value) {
 void infer_result::set_probabilities_impl(const table &value) {
     impl_->probabilities = value;
 }    
-
+/*
+void infer_result::set_log_probabilities_impl(const table &value) {
+    impl_->log_probabilities = value;
+} 
+*/
 } // namespace oneapi::dal::decision_forest

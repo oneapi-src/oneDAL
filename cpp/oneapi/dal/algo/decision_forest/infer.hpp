@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/infer.hpp"
 #include "oneapi/dal/algo/decision_forest/infer_types.hpp"
-//#include "oneapi/dal/algo/decision_forest/detail/infer_ops.hpp"
+#include "oneapi/dal/algo/decision_forest/detail/infer_ops.hpp"
 
 namespace oneapi::dal::detail {
 
