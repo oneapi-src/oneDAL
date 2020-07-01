@@ -85,7 +85,7 @@ int main(int argc, char const *argv[]) {
 
     const auto result_train = dal::train(df_desc, x_train_table, y_train_table);
 
-    std::cout << "---Variable importance results: " << std::endl
+    std::cout << "Variable importance results: " << std::endl
               << result_train.get_var_importance() << std::endl;
 
     std::cout << "OOB error: " << result_train.get_oob_err() << std::endl;

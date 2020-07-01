@@ -20,17 +20,14 @@
 
 #include <daal/include/algorithms/decision_forest/decision_forest_classification_training_batch.h>
 #include <daal/include/algorithms/decision_forest/decision_forest_classification_training_types.h>
-#include <daal/src/algorithms/dtrees/forest/classification/df_classification_train_dense_default_kernel.h>
 #include <daal/src/algorithms/dtrees/forest/classification/df_classification_train_kernel.h>
+#include <daal/src/algorithms/dtrees/forest/classification/df_classification_train_dense_default_kernel.h>
 
 #include "oneapi/dal/algo/decision_forest/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/decision_forest/model_impl.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/detail/common.hpp"
-
-//TODO remove!!!!!!
-#include "oneapi/dal/algo/decision_forest/_p.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
@@ -52,7 +49,6 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     const int64_t row_count    = data.get_row_count();
     const int64_t column_count = data.get_column_count();
 
-    // TODO: data is table, not a homogen_table. Think better about accessor - is it enough to have just a row_accessor?
     auto arr_data  = row_accessor<const Float>{ data }.pull();
     auto arr_label = row_accessor<const Float>{ labels }.pull();
 
