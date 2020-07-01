@@ -20,11 +20,11 @@ namespace oneapi::dal::decision_forest::backend {
 
 template <typename Float>
 struct train_kernel_gpu<Float, task::classification, method::hist> {
-  train_result operator()(const dal::backend::context_gpu& ctx,
-                          const descriptor_base& params,
-                          const train_input& input) const {
-    return train_result();
-  }
+    train_result operator()(const dal::backend::context_gpu& ctx,
+                            const descriptor_base& params,
+                            const train_input& input) const {
+        return train_result();
+    }
 };
 
 template struct train_kernel_gpu<float, task::classification, method::hist>;

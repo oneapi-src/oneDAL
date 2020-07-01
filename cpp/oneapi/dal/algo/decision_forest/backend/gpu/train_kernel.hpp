@@ -16,16 +16,16 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/dispatcher_dp.hpp"
 #include "oneapi/dal/algo/decision_forest/train_types.hpp"
+#include "oneapi/dal/backend/dispatcher_dp.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
 template <typename Float, typename Task, typename Method>
 struct train_kernel_gpu {
-  train_result operator()(const dal::backend::context_gpu& ctx,
-                          const descriptor_base& params,
-                          const train_input& input) const;
+    train_result operator()(const dal::backend::context_gpu& ctx,
+                            const descriptor_base& params,
+                            const train_input& input) const;
 };
 
-} // namespace oneapi::dal::decision_forest::detail
+} // namespace oneapi::dal::decision_forest::backend

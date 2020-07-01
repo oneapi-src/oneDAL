@@ -16,14 +16,14 @@
 
 #pragma once
 
-#include "oneapi/dal/train.hpp"
-#include "oneapi/dal/algo/decision_forest/train_types.hpp"
 #include "oneapi/dal/algo/decision_forest/detail/train_ops.hpp"
+#include "oneapi/dal/algo/decision_forest/train_types.hpp"
+#include "oneapi/dal/train.hpp"
 
 namespace oneapi::dal::detail {
 
 template <typename Descriptor>
 struct train_ops<Descriptor, dal::decision_forest::detail::tag>
-  : dal::decision_forest::detail::train_ops<Descriptor> {};
+        : dal::decision_forest::detail::train_ops<Descriptor> {};
 
 } // namespace oneapi::dal::detail

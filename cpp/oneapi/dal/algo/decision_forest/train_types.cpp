@@ -14,22 +14,21 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/algo/decision_forest/train_types.hpp"
+#include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::decision_forest {
 
 class detail::train_input_impl : public base {
-  public:
-    train_input_impl(const table& data, const table& labels)
-        : data(data), labels(labels) {}
+public:
+    train_input_impl(const table& data, const table& labels) : data(data), labels(labels) {}
 
     table data;
     table labels;
 };
 
 class detail::train_result_impl : public base {
-  public:
+public:
     model trained_model;
 
     table oob_err;
@@ -41,7 +40,7 @@ using detail::train_input_impl;
 using detail::train_result_impl;
 
 train_input::train_input(const table& data, const table& labels)
-    : impl_(new train_input_impl(data, labels)) {}
+        : impl_(new train_input_impl(data, labels)) {}
 
 table train_input::get_data() const {
     return impl_->data;
@@ -82,15 +81,15 @@ void train_result::set_model_impl(const model& value) {
     impl_->trained_model = value;
 }
 
-void train_result::set_oob_err_impl(const table &value) {
+void train_result::set_oob_err_impl(const table& value) {
     impl_->oob_err = value;
 }
 
-void train_result::set_oob_per_observation_err_impl(const table &value) {
+void train_result::set_oob_per_observation_err_impl(const table& value) {
     impl_->oob_per_observation_err = value;
 }
 
-void train_result::set_var_importance_impl(const table &value) {
+void train_result::set_var_importance_impl(const table& value) {
     impl_->variable_importance = value;
 }
 

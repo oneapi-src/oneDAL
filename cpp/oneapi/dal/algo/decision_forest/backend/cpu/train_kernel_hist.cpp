@@ -23,8 +23,8 @@ struct train_kernel_cpu<Float, task::classification, method::hist> {
     train_result operator()(const dal::backend::context_cpu& ctx,
                             const descriptor_base& params,
                             const train_input& input) const {
-    return train_result();
-  }
+        return train_result();
+    }
 };
 
 template struct train_kernel_cpu<float, task::classification, method::hist>;

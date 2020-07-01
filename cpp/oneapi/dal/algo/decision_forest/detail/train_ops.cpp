@@ -14,9 +14,9 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/algo/decision_forest/detail/train_ops.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/cpu/train_kernel.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::decision_forest::detail {
 
@@ -25,14 +25,14 @@ struct train_ops_dispatcher<default_execution_context, Float, Task, Method> {
     train_result operator()(const default_execution_context& ctx,
                             const descriptor_base& desc,
                             const train_input& input) const {
-        using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
-            backend::train_kernel_cpu<Float, Task, Method>>;
+        using kernel_dispatcher_t =
+            dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Task, Method>>;
         return kernel_dispatcher_t()(ctx, desc, input);
     }
 };
 
 #define INSTANTIATE(F, T, M) \
-  template struct train_ops_dispatcher<default_execution_context, F, T, M>;
+    template struct train_ops_dispatcher<default_execution_context, F, T, M>;
 
 INSTANTIATE(float, task::classification, method::default_dense)
 INSTANTIATE(float, task::classification, method::hist)

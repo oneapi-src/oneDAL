@@ -14,27 +14,27 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/dispatcher_dp.hpp"
-#include "oneapi/dal/algo/decision_forest/detail/train_ops.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_kernel.hpp"
+#include "oneapi/dal/algo/decision_forest/detail/train_ops.hpp"
+#include "oneapi/dal/backend/dispatcher_dp.hpp"
 
 namespace oneapi::dal::decision_forest::detail {
 
 template <typename Float, typename Task, typename Method>
-struct train_ops_dispatcher<data_parallel_execution_context, Float,Task, Method> {
+struct train_ops_dispatcher<data_parallel_execution_context, Float, Task, Method> {
     train_result operator()(const data_parallel_execution_context& ctx,
                             const descriptor_base& params,
                             const train_input& input) const {
-        using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
-            backend::train_kernel_cpu<Float, Task, Method>,
-            backend::train_kernel_gpu<Float, Task, Method>>;
+        using kernel_dispatcher_t =
+            dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Task, Method>,
+                                            backend::train_kernel_gpu<Float, Task, Method>>;
         return kernel_dispatcher_t{}(ctx, params, input);
     }
 };
 
 #define INSTANTIATE(F, T, M) \
-  template struct train_ops_dispatcher<data_parallel_execution_context, F, T, M>;
+    template struct train_ops_dispatcher<data_parallel_execution_context, F, T, M>;
 
 INSTANTIATE(float, task::classification, method::default_dense)
 INSTANTIATE(float, task::classification, method::hist)

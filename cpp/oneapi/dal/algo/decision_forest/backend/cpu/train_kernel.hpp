@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/algo/decision_forest/train_types.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
