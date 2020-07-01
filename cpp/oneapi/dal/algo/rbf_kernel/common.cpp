@@ -14,20 +14,25 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "oneapi/dal/algo/rbf_kernel/common.hpp"
 
-#include "oneapi/dal/algo/svm/common.hpp"
+namespace oneapi::dal::rbf_kernel {
 
-#include <daal/include/algorithms/kernel_function/kernel_function_linear.h>
-#include <daal/include/algorithms/kernel_function/kernel_function_rbf.h>
-
-namespace oneapi::dal::svm::detail {
-
-class kernel_function_impl : public base {
+class detail::descriptor_impl : public base {
 public:
-    virtual ~kernel_function_impl() = default;
-
-    virtual daal::algorithms::kernel_function::KernelIfacePtr get_interop_kernel() = 0;
+    double sigma = 1.0;
 };
 
-} // namespace oneapi::dal::svm::detail
+using detail::descriptor_impl;
+
+descriptor_base::descriptor_base() : impl_(new descriptor_impl{}) {}
+
+double descriptor_base::get_sigma() const {
+    return impl_->sigma;
+}
+
+void descriptor_base::set_sigma_impl(const double value) {
+    impl_->sigma = value;
+}
+
+} // namespace oneapi::dal::rbf_kernel

@@ -16,18 +16,16 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/svm/common.hpp"
+#include "oneapi/dal/algo/rbf_kernel/compute_types.hpp"
+#include "oneapi/dal/backend/dispatcher_dp.hpp"
 
-#include <daal/include/algorithms/kernel_function/kernel_function_linear.h>
-#include <daal/include/algorithms/kernel_function/kernel_function_rbf.h>
+namespace oneapi::dal::rbf_kernel::backend {
 
-namespace oneapi::dal::svm::detail {
-
-class kernel_function_impl : public base {
-public:
-    virtual ~kernel_function_impl() = default;
-
-    virtual daal::algorithms::kernel_function::KernelIfacePtr get_interop_kernel() = 0;
+template <typename Float, typename Method>
+struct compute_kernel_gpu {
+    compute_result operator()(const dal::backend::context_gpu& ctx,
+                              const descriptor_base& params,
+                              const compute_input& input) const;
 };
 
-} // namespace oneapi::dal::svm::detail
+} // namespace oneapi::dal::rbf_kernel::backend

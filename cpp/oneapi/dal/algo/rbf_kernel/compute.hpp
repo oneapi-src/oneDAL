@@ -16,18 +16,14 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/svm/common.hpp"
+#include "oneapi/dal/algo/rbf_kernel/compute_types.hpp"
+#include "oneapi/dal/algo/rbf_kernel/detail/compute_ops.hpp"
+#include "oneapi/dal/compute.hpp"
 
-#include <daal/include/algorithms/kernel_function/kernel_function_linear.h>
-#include <daal/include/algorithms/kernel_function/kernel_function_rbf.h>
+namespace oneapi::dal::detail {
 
-namespace oneapi::dal::svm::detail {
+template <typename Descriptor>
+struct compute_ops<Descriptor, dal::rbf_kernel::detail::tag>
+        : dal::rbf_kernel::detail::compute_ops<Descriptor> {};
 
-class kernel_function_impl : public base {
-public:
-    virtual ~kernel_function_impl() = default;
-
-    virtual daal::algorithms::kernel_function::KernelIfacePtr get_interop_kernel() = 0;
-};
-
-} // namespace oneapi::dal::svm::detail
+} // namespace oneapi::dal::detail

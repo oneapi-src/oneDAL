@@ -20,6 +20,7 @@
 
 DAAL = linear_kernel_dense_batch         \
        pca_cor_dense_batch               \
+       rbf_kernel_dense_batch            \
        svm_two_class_thunder_dense_batch \
        svm_two_class_smo_dense_batch
 

@@ -23,17 +23,18 @@ namespace detail {
 
 using daal_kf                = daal::algorithms::kernel_function::KernelIfacePtr;
 namespace daal_linear_kernel = daal::algorithms::kernel_function::linear;
+namespace daal_rbf_kernel    = daal::algorithms::kernel_function::rbf;
 
 template <typename Float, typename Method>
 class daal_interop_linear_kernel_impl : public kernel_function_impl {
 public:
-    daal_interop_linear_kernel_impl(double k, double b) : k(k), b(b) {}
+    daal_interop_linear_kernel_impl(double k, double b) : k_(k), b_(b) {}
 
     daal_kf get_interop_kernel() override {
         constexpr daal_linear_kernel::Method daal_method = get_daal_method();
         auto alg         = new daal_linear_kernel::Batch<Float, daal_method>;
-        alg->parameter.k = k;
-        alg->parameter.b = b;
+        alg->parameter.k = k_;
+        alg->parameter.b = b_;
         return daal_kf(alg);
     }
 
@@ -46,8 +47,8 @@ private:
         return daal_linear_kernel::Method::defaultDense;
     }
 
-    double k;
-    double b;
+    double k_;
+    double b_;
 };
 
 template <typename F, typename M>
@@ -69,6 +70,54 @@ INSTANTIATE_LINEAR(float, linear_kernel::method::dense)
 INSTANTIATE_LINEAR(float, linear_kernel::method::csr)
 INSTANTIATE_LINEAR(double, linear_kernel::method::dense)
 INSTANTIATE_LINEAR(double, linear_kernel::method::csr)
+
+#undef INSTANTIATE_LINEAR
+
+template <typename F, typename M>
+using rbf_kernel_t = rbf_kernel::descriptor<F, M>;
+
+template <typename Float, typename Method>
+class daal_interop_rbf_kernel_impl : public kernel_function_impl {
+public:
+    daal_interop_rbf_kernel_impl(double sigma) : sigma_(sigma) {}
+
+    daal_kf get_interop_kernel() override {
+        constexpr daal_rbf_kernel::Method daal_method = get_daal_method();
+        auto alg             = new daal_rbf_kernel::Batch<Float, daal_method>;
+        alg->parameter.sigma = sigma_;
+        return daal_kf(alg);
+    }
+
+private:
+    static constexpr daal_rbf_kernel::Method get_daal_method() {
+        if constexpr (std::is_same_v<Method, linear_kernel::method::dense>)
+            return daal_rbf_kernel::Method::defaultDense;
+        else if constexpr (std::is_same_v<Method, linear_kernel::method::csr>)
+            return daal_rbf_kernel::Method::fastCSR;
+        return daal_rbf_kernel::Method::defaultDense;
+    }
+
+    double sigma_;
+};
+
+template <typename F, typename M>
+kernel_function<rbf_kernel_t<F, M>>::kernel_function(const rbf_kernel_t<F, M> &kernel)
+        : kernel_(kernel),
+          impl_(new daal_interop_rbf_kernel_impl<F, M>{ kernel.get_sigma() }) {}
+
+template <typename F, typename M>
+kernel_function_impl *kernel_function<rbf_kernel_t<F, M>>::get_impl() const {
+    return impl_.get();
+}
+
+#define INSTANTIATE_RBF(F, M) template class kernel_function<rbf_kernel_t<F, M>>;
+
+INSTANTIATE_RBF(float, rbf_kernel::method::dense)
+INSTANTIATE_RBF(float, rbf_kernel::method::csr)
+INSTANTIATE_RBF(double, rbf_kernel::method::dense)
+INSTANTIATE_RBF(double, rbf_kernel::method::csr)
+
+#undef INSTANTIATE_RBF
 
 } // namespace detail
 

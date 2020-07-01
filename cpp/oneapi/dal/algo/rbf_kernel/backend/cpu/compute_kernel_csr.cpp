@@ -14,20 +14,20 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "oneapi/dal/algo/rbf_kernel/backend/cpu/compute_kernel.hpp"
 
-#include "oneapi/dal/algo/svm/common.hpp"
+namespace oneapi::dal::rbf_kernel::backend {
 
-#include <daal/include/algorithms/kernel_function/kernel_function_linear.h>
-#include <daal/include/algorithms/kernel_function/kernel_function_rbf.h>
-
-namespace oneapi::dal::svm::detail {
-
-class kernel_function_impl : public base {
-public:
-    virtual ~kernel_function_impl() = default;
-
-    virtual daal::algorithms::kernel_function::KernelIfacePtr get_interop_kernel() = 0;
+template <typename Float>
+struct compute_kernel_cpu<Float, method::csr> {
+    compute_result operator()(const dal::backend::context_cpu& ctx,
+                              const descriptor_base& desc,
+                              const compute_input& input) const {
+        return compute_result();
+    }
 };
 
-} // namespace oneapi::dal::svm::detail
+template struct compute_kernel_cpu<float, method::csr>;
+template struct compute_kernel_cpu<double, method::csr>;
+
+} // namespace oneapi::dal::rbf_kernel::backend
