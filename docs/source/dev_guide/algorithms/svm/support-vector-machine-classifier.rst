@@ -46,7 +46,7 @@ Training Stage
 
 |short_name| provides two methods to train the SVM model:
 
-- Boser method [Boser92]_ that is the Sequential Minimal Optimization algorithm proposed by Platt [Platt98]_
+- Boser method [Boser92]_ - performance-oriented variant of Boser [Boser92] and Platt [Platt98] algorithms.
 - Thunder method [Wen2018]_
 
 The SVM model is trained to solve the quadratic optimization problem
@@ -275,6 +275,5 @@ required to store :math:`n^2` data elements because the algorithm
 does not fully utilize the cache in this case.
 
 .. include:: ../../../opt-notice.rst
-
 
 
