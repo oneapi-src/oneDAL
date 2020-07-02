@@ -175,7 +175,7 @@ following parameters:
 
        For GPU:
 
-       - ``hist`` - :ref:`inexact computation method <df_inexact_method>` (also called `histogram`)
+       - ``hist`` - :ref:`inexact histogram computation method <df_inexact_hist_method>`
 
    * - nClasses
      - Not applicable.

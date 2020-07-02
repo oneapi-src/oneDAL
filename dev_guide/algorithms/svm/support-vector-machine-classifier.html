@@ -606,7 +606,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#prediction">Prediction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id7">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id8">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#performance-considerations">Performance Considerations</a></li>
@@ -913,8 +913,8 @@ belongs, the problem is to build a two-class Support Vector Machine
 <h3>Training Stage<a class="headerlink" href="#training-stage" title="Permalink to this headline">¶</a></h3>
 <p>oneDAL provides two methods to train the SVM model:</p>
 <ul class="simple">
-<li><p>Boser method <a class="reference internal" href="../../../bibliography.html#boser92" id="id1"><span>[Boser92]</span></a></p></li>
-<li><p>Thunder methos <a class="reference internal" href="../../../bibliography.html#wen2018" id="id2"><span>[Wen2018]</span></a></p></li>
+<li><p>Boser method <a class="reference internal" href="../../../bibliography.html#boser92" id="id1"><span>[Boser92]</span></a> that is the Sequential Minimal Optimization algorithm proposed by Platt <a class="reference internal" href="../../../bibliography.html#platt98" id="id2"><span>[Platt98]</span></a></p></li>
+<li><p>Thunder method <a class="reference internal" href="../../../bibliography.html#wen2018" id="id3"><span>[Wen2018]</span></a></p></li>
 </ul>
 <p>The SVM model is trained to solve the quadratic optimization problem</p>
 <div class="math notranslate nohighlight">
@@ -924,7 +924,7 @@ where <span class="math notranslate nohighlight">\(e\)</span> is the vector of o
 coordinates of the vector <span class="math notranslate nohighlight">\(\alpha\)</span>, <span class="math notranslate nohighlight">\(Q\)</span> is a symmetric matrix of size <span class="math notranslate nohighlight">\(n \times n\)</span>
 with <span class="math notranslate nohighlight">\(Q_{ij} = y_i y_j K(x_i, x_j)\)</span>, and <span class="math notranslate nohighlight">\(K(x,y)\)</span> is a kernel function.</p>
 <p>Working subset of α updated on each iteration of the algorithm is
-based on the Working Set Selection (WSS) 3 scheme <a class="reference internal" href="../../../bibliography.html#fan05" id="id3"><span>[Fan05]</span></a>.
+based on the Working Set Selection (WSS) 3 scheme <a class="reference internal" href="../../../bibliography.html#fan05" id="id4"><span>[Fan05]</span></a>.
 The scheme can be optimized using one of these techniques or both:</p>
 <blockquote>
 <div><ul class="simple">
@@ -933,7 +933,7 @@ the implementation can allocate a predefined amount of memory
 to store intermediate results of the kernel computation.</p></li>
 <li><p><strong>Shrinking</strong>:
 the implementation can try to decrease the amount of kernel
-related computations (see <a class="reference internal" href="../../../bibliography.html#joachims99" id="id4"><span>[Joachims99]</span></a>).</p></li>
+related computations (see <a class="reference internal" href="../../../bibliography.html#joachims99" id="id5"><span>[Joachims99]</span></a>).</p></li>
 </ul>
 </div></blockquote>
 <p>The solution of the problem defines the separating hyperplane and
@@ -1041,13 +1041,13 @@ Training and Prediction.</p>
 <p>For CPU:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code> – Boser method <a class="reference internal" href="../../../bibliography.html#boser92" id="id5"><span>[Boser92]</span></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">defaultDense</span></code> – Boser method <a class="reference internal" href="../../../bibliography.html#boser92" id="id6"><span>[Boser92]</span></a></p></li>
 </ul>
 </div></blockquote>
 <p>For GPU:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">thunder</span></code> - Thunder method <a class="reference internal" href="../../../bibliography.html#wen2018" id="id6"><span>[Wen2018]</span></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">thunder</span></code> - Thunder method <a class="reference internal" href="../../../bibliography.html#wen2018" id="id7"><span>[Wen2018]</span></a></p></li>
 </ul>
 </div></blockquote>
 </td>
@@ -1130,16 +1130,21 @@ Training and Prediction.</p>
 </tbody>
 </table>
 </div>
-<div class="section" id="id7">
-<h3>Examples<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id8">
+<h3>Examples<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
 <div class="sphinx-tabs docutils container">
 <div class="ui top attached tabular menu sphinx-menu docutils container">
 <div class="active item sphinx-data-tab-1-0 docutils container">
 <div class="docutils container">
-<p>C++</p>
+<p>DPC++</p>
 </div>
 </div>
 <div class="item sphinx-data-tab-1-1 docutils container">
+<div class="docutils container">
+<p>C++</p>
+</div>
+</div>
+<div class="item sphinx-data-tab-1-2 docutils container">
 <div class="docutils container">
 <p>Java*</p>
 </div>
@@ -1148,15 +1153,25 @@ Training and Prediction.</p>
 <div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-1-0 active docutils container">
 <p>Batch Processing:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/svm/svm_two_class_dense_batch.cpp">svm_two_class_dense_batch.cpp</a></p></li>
-<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/svm/svm_two_class_csr_batch.cpp">svm_two_class_csr_batch.cpp</a></p></li>
+<li><p><a class="reference internal" href="../../../daal/examples_sycl/svm_two_class_dense_batch.html#svm-two-class-dense-batch-cpp"><span class="std std-ref">svm_two_class_dense_batch.cpp</span></a></p></li>
 </ul>
 </div>
 <div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-1-1 docutils container">
 <p>Batch Processing:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/svm/SVMTwoClassDenseBatch.java">SVMTwoClassDenseBatch.java</a></p></li>
-<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/svm/SVMTwoClassCSRBatch.java">SVMTwoClassCSRBatch.java</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/svm/svm_two_class_boser_dense_batch.cpp">svm_two_class_boser_dense_batch.cpp</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/svm/svm_two_class_boser_csr_batch.cpp">svm_two_class_boser_csr_batch.cpp</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/svm/svm_two_class_thunder_dense_batch.cpp">svm_two_class_thunder_dense_batch.cpp</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/svm/svm_two_class_thunder_csr_batch.cpp">svm_two_class_thunder_csr_batch.cpp</a></p></li>
+</ul>
+</div>
+<div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-1-2 docutils container">
+<p>Batch Processing:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/svm/SVMTwoClasBosersDenseBatch.java">SVMTwoClassBoserDenseBatch.java</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/svm/SVMTwoClassBoserCSRBatch.java">SVMTwoClassBoserCSRBatch.java</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/svm/SVMTwoClassThunderDenseBatch.java">SVMTwoClassThunderDenseBatch.java</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/svm/SVMTwoClassThunderCSRBatch.java">SVMTwoClassThunderCSRBatch.java</a></p></li>
 </ul>
 </div>
 </div>

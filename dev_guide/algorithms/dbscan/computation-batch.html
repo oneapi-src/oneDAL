@@ -600,7 +600,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#prediction">Prediction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#id7">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#id8">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#performance-considerations">Performance Considerations</a></li>
@@ -971,7 +971,7 @@ For more details, see <a class="reference internal" href="../../usage/algorithms
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>data</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">data</span></code></p></td>
 <td><p>Pointer to the <span class="math notranslate nohighlight">\(n \times p\)</span> numeric table with the data to be clustered.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -979,13 +979,17 @@ For more details, see <a class="reference internal" href="../../usage/algorithms
 </div>
 </td>
 </tr>
-<tr class="row-odd"><td><p>weights</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">weights</span></code></p></td>
 <td><p>Optional input. Pointer to the <span class="math notranslate nohighlight">\(n \times 1\)</span> numeric table with weights of observations.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The input can be an object of any class derived from <code class="docutils literal notranslate"><span class="pre">NumericTable</span></code>
 except <code class="docutils literal notranslate"><span class="pre">PackedTriangularMatrix</span></code>, <code class="docutils literal notranslate"><span class="pre">PackedSymmetricMatrix</span></code>.</p>
 <p>By default all weights are equal to <span class="math notranslate nohighlight">\(1\)</span>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This parameter is not supported on GPU.</p>
 </div>
 </td>
 </tr>

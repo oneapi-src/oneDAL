@@ -600,7 +600,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#prediction">Prediction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#id7">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#id8">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#performance-considerations">Performance Considerations</a></li>
@@ -915,9 +915,9 @@ the training set <span class="math notranslate nohighlight">\(D\)</span>, with t
 internal nodes <span class="math notranslate nohighlight">\(t\)</span> represent a binary test (split) dividing their
 subset <span class="math notranslate nohighlight">\(X_t\)</span> in two subsets <span class="math notranslate nohighlight">\(X_{t_L}\)</span> and <span class="math notranslate nohighlight">\(X_{t_R}\)</span>,
 corresponding to their children <span class="math notranslate nohighlight">\(t_L\)</span> and <span class="math notranslate nohighlight">\(t_R\)</span>.</p>
-<div class="section" id="inexact-computation-method">
-<span id="df-inexact-method"></span><h4>Inexact Computation Method<a class="headerlink" href="#inexact-computation-method" title="Permalink to this headline">¶</a></h4>
-<p>In inexact method, also called histogram method, only a selected subset of splits is considered for computation of a best split.
+<div class="section" id="inexact-histogram-computation-method">
+<span id="df-inexact-hist-method"></span><h4>Inexact Histogram Computation Method<a class="headerlink" href="#inexact-histogram-computation-method" title="Permalink to this headline">¶</a></h4>
+<p>In inexact histogram method only a selected subset of splits is considered for computation of a best split.
 This subset is computed for each feature at the initialization stage of the algorithm. After the set of splits is computed,
 each value from initially provided data is substituted with the value of the corresponding bin.
 The bins are continuous intervals between the selected splits.</p>
@@ -960,8 +960,8 @@ partitions subset <span class="math notranslate nohighlight">\(D_t\)</span> and 
 <li><p>Apply this procedure recursively to <span class="math notranslate nohighlight">\(t_L\)</span> and <span class="math notranslate nohighlight">\(t_R\)</span>.</p></li>
 </ul>
 </div>
-<div class="section" id="creation-of-a-bootstrap-set">
-<h4>Creation of a Bootstrap Set<a class="headerlink" href="#creation-of-a-bootstrap-set" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="random-numbers-generation">
+<h4>Random Numbers Generation<a class="headerlink" href="#random-numbers-generation" title="Permalink to this headline">¶</a></h4>
 <p>To create a <em>bootstrap</em> set and choose feature indices in the
 performant way, the training algorithm requires the source of
 random numbers, capable to produce sequences of random numbers in

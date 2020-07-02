@@ -36,11 +36,11 @@ multidimensional feature space.
 Details
 =======
 
-The problem is to build a kNN classifier given the following:
-
-- :math:`n` feature vectors :math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})` of size :math:`p` 
-- a vector of class labels :math:`y = (y_1, \ldots, y_n)`, there :math:`C` is the number of classes and 
-  :math:`y_i \in \{0, 1, \ldots, C-1\}` describes the class the feature vector :math:`x_i` belongs to
+Given n feature vectors :math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})` of size :math:`p` and a vector
+of class labels :math:`y = (y_1, \ldots, y_n)`, where :math:`y_i \in \{0, 1, \ldots, C-1\}`
+and :math:`C` is the number of classes, describes the
+class to which the feature vector :math:`x_i` belongs, the problem is
+to build a kNN classifier.
 
 Given a positive integer parameter :math:`k` and a test observation
 :math:`x_0`, the kNN classifier does the following:
@@ -53,18 +53,16 @@ Given a positive integer parameter :math:`k` and a test observation
 #. Assigns the class with the largest probability to the test
    observation :math:`x_0`
 
-The library provides kNN classification with the following methods:
-
-- K-D tree
-- Brute Force 
-
-.. note:: Brute Force method is only supported on GPU.
+kNN classification on CPU and GPU are based on different approaches. 
+On CPU, kNN classification uses `K-D tree`_, a space-partitioning data structure, to find nearest neighbors,
+while on GPU the `Brute Force`_ search is used.
 
 K-D tree
 --------
 
-K-D tree, or a multidimensional binary search tree, is a space-partitioning data structure, where D is the dimension and K is
-the number of dimensions in the feature space. For more details, see [James2013]_, [Patwary2016]_.
+On CPU, the library provides kNN classification based on multidimensional binary search tree
+(K-D tree, where D means the dimension and K means the number of dimensions in the feature space).
+For more details, see [James2013]_, [Patwary2016]_.
 
 |product| version of the kNN algorithm with K-D trees uses the PANDA algorithm
 [Patwary2016]_.
@@ -81,8 +79,9 @@ respective leaf.
 Brute Force
 -----------
 
-Brute Force is a naïve neighbor search that computes distances between all pairs of feature vactors
-in a data set.
+Brute Force algorithm calculates the squared distances from each query feature vector
+to each reference feature vector in the training data set. Then,
+for each query feature vector it selects :math:`k` objects from the training set that are closest to that query feature vector.
 
 Training Stage
 --------------
@@ -123,8 +122,8 @@ respective leaf node.
 Training using Brute Force
 ++++++++++++++++++++++++++
 
-For training with the Brute Force method, the algorithm uses
-all feature vectors from the training data set.
+During training with the Brute Force method, the algorithm copies all feature vectors from the training data set
+to calculate their distances to the query feature vectors.
 
 Prediction Stage
 ----------------
@@ -155,7 +154,7 @@ Training
 
 For a description of the input and output, refer to Usage Model: Training and Prediction.
 
-At the training stage, both Brute Force and K-D tree based kNN classifiesr have the
+At the training stage, both Brute Force and K-D tree based kNN classifier have the
 following parameters:
 
 .. list-table::
@@ -200,7 +199,7 @@ Prediction
 
 For a description of the input and output, refer to Usage Model: Training and Prediction.
 
-At the prediction stage, both Brute Force and K-D tree based kNN classifiesr have the
+At the prediction stage, both Brute Force and K-D tree based kNN classifier have the
 following parameters:
 
 .. list-table::

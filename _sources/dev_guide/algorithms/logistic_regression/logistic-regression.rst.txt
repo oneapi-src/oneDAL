@@ -167,7 +167,7 @@ parameters:
      - :math:`0`
      - L1 regularization coefficient
 
-       .. note:: This parameter is not supported on GPU.
+       .. note:: L1 regularization is not supported on GPU.
 
    * - penaltyL2
      - :math:`0`

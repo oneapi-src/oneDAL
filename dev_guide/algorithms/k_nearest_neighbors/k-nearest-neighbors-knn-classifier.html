@@ -606,7 +606,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#prediction">Prediction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#id7">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#id8">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#performance-considerations">Performance Considerations</a></li>
@@ -905,12 +905,11 @@ by the type of distance (for example, Euclidian) in a
 multidimensional feature space.</p>
 <div class="section" id="details">
 <h2>Details<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h2>
-<p>The problem is to build a kNN classifier given the following:</p>
-<ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(n\)</span> feature vectors <span class="math notranslate nohighlight">\(x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})\)</span> of size <span class="math notranslate nohighlight">\(p\)</span></p></li>
-<li><p>a vector of class labels <span class="math notranslate nohighlight">\(y = (y_1, \ldots, y_n)\)</span>, there <span class="math notranslate nohighlight">\(C\)</span> is the number of classes and
-<span class="math notranslate nohighlight">\(y_i \in \{0, 1, \ldots, C-1\}\)</span> describes the class the feature vector <span class="math notranslate nohighlight">\(x_i\)</span> belongs to</p></li>
-</ul>
+<p>Given n feature vectors <span class="math notranslate nohighlight">\(x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})\)</span> of size <span class="math notranslate nohighlight">\(p\)</span> and a vector
+of class labels <span class="math notranslate nohighlight">\(y = (y_1, \ldots, y_n)\)</span>, where <span class="math notranslate nohighlight">\(y_i \in \{0, 1, \ldots, C-1\}\)</span>
+and <span class="math notranslate nohighlight">\(C\)</span> is the number of classes, describes the
+class to which the feature vector <span class="math notranslate nohighlight">\(x_i\)</span> belongs, the problem is
+to build a kNN classifier.</p>
 <p>Given a positive integer parameter <span class="math notranslate nohighlight">\(k\)</span> and a test observation
 <span class="math notranslate nohighlight">\(x_0\)</span>, the kNN classifier does the following:</p>
 <ol class="arabic simple">
@@ -922,19 +921,14 @@ fraction of vectors in <span class="math notranslate nohighlight">\(N_0\)</span>
 <li><p>Assigns the class with the largest probability to the test
 observation <span class="math notranslate nohighlight">\(x_0\)</span></p></li>
 </ol>
-<p>The library provides kNN classification with the following methods:</p>
-<ul class="simple">
-<li><p>K-D tree</p></li>
-<li><p>Brute Force</p></li>
-</ul>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Brute Force method is only supported on GPU.</p>
-</div>
+<p>kNN classification on CPU and GPU are based on different approaches.
+On CPU, kNN classification uses <a class="reference internal" href="#k-d-tree">K-D tree</a>, a space-partitioning data structure, to find nearest neighbors,
+while on GPU the <a class="reference internal" href="#brute-force">Brute Force</a> search is used.</p>
 <div class="section" id="k-d-tree">
 <h3>K-D tree<a class="headerlink" href="#k-d-tree" title="Permalink to this headline">¶</a></h3>
-<p>K-D tree, or a multidimensional binary search tree, is a space-partitioning data structure, where D is the dimension and K is
-the number of dimensions in the feature space. For more details, see <a class="reference internal" href="../../../bibliography.html#james2013" id="id1"><span>[James2013]</span></a>, <a class="reference internal" href="../../../bibliography.html#patwary2016" id="id2"><span>[Patwary2016]</span></a>.</p>
+<p>On CPU, the library provides kNN classification based on multidimensional binary search tree
+(K-D tree, where D means the dimension and K means the number of dimensions in the feature space).
+For more details, see <a class="reference internal" href="../../../bibliography.html#james2013" id="id1"><span>[James2013]</span></a>, <a class="reference internal" href="../../../bibliography.html#patwary2016" id="id2"><span>[Patwary2016]</span></a>.</p>
 <p>oneDAL version of the kNN algorithm with K-D trees uses the PANDA algorithm
 <a class="reference internal" href="../../../bibliography.html#patwary2016" id="id3"><span>[Patwary2016]</span></a>.</p>
 <p>Each non-leaf node of a tree contains the identifier of a feature along
@@ -948,8 +942,9 @@ respective leaf.</p>
 </div>
 <div class="section" id="brute-force">
 <h3>Brute Force<a class="headerlink" href="#brute-force" title="Permalink to this headline">¶</a></h3>
-<p>Brute Force is a naïve neighbor search that computes distances between all pairs of feature vactors
-in a data set.</p>
+<p>Brute Force algorithm calculates the squared distances from each query feature vector
+to each reference feature vector in the training data set. Then,
+for each query feature vector it selects <span class="math notranslate nohighlight">\(k\)</span> objects from the training set that are closest to that query feature vector.</p>
 </div>
 <div class="section" id="training-stage">
 <h3>Training Stage<a class="headerlink" href="#training-stage" title="Permalink to this headline">¶</a></h3>
@@ -982,8 +977,8 @@ respective leaf node.</p>
 </div>
 <div class="section" id="training-using-brute-force">
 <h4>Training using Brute Force<a class="headerlink" href="#training-using-brute-force" title="Permalink to this headline">¶</a></h4>
-<p>For training with the Brute Force method, the algorithm uses
-all feature vectors from the training data set.</p>
+<p>During training with the Brute Force method, the algorithm copies all feature vectors from the training data set
+to calculate their distances to the query feature vectors.</p>
 </div>
 </div>
 <div class="section" id="prediction-stage">
@@ -1010,7 +1005,7 @@ updated during the tree traverse.</p>
 <div class="section" id="training">
 <h3>Training<a class="headerlink" href="#training" title="Permalink to this headline">¶</a></h3>
 <p>For a description of the input and output, refer to Usage Model: Training and Prediction.</p>
-<p>At the training stage, both Brute Force and K-D tree based kNN classifiesr have the
+<p>At the training stage, both Brute Force and K-D tree based kNN classifier have the
 following parameters:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
@@ -1065,7 +1060,7 @@ perform sampling needed to choose dimensions and cut-points for the K-D tree.</p
 <div class="section" id="prediction">
 <h3>Prediction<a class="headerlink" href="#prediction" title="Permalink to this headline">¶</a></h3>
 <p>For a description of the input and output, refer to Usage Model: Training and Prediction.</p>
-<p>At the prediction stage, both Brute Force and K-D tree based kNN classifiesr have the
+<p>At the prediction stage, both Brute Force and K-D tree based kNN classifier have the
 following parameters:</p>
 <table class="colwidths-given docutils align-left">
 <colgroup>
