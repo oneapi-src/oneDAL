@@ -34,7 +34,7 @@ public:
     template <typename K>
     accessor_base(const K& obj)
         : host_access_(get_impl<access_provider_iface>(obj).get_access_iface_host()),
-          dpc_access_(get_impl<access_provider_iface>(obj).get_access_iface_dpcpp()) {}
+          dpc_access_(get_impl<access_provider_iface>(obj).get_access_iface_dpc()) {}
 #else
     template <typename K>
     accessor_base(const K& obj)
@@ -73,10 +73,10 @@ private:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    access_iface_dpcpp& get_access(const dpcpp_policy&) {
+    access_iface_dpc& get_access(const dpcpp_policy&) {
         return dpc_access_;
     }
-    const access_iface_dpcpp& get_access(const dpcpp_policy&) const {
+    const access_iface_dpc& get_access(const dpcpp_policy&) const {
         return dpc_access_;
     }
 #endif
@@ -84,7 +84,7 @@ private:
 private:
     access_iface_host& host_access_;
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    access_iface_dpcpp& dpc_access_;
+    access_iface_dpc& dpc_access_;
 #endif
 };
 

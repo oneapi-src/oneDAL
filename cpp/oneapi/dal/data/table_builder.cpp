@@ -33,7 +33,7 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    detail::access_iface_dpcpp& get_access_iface_dpcpp() const {
+    detail::access_iface_dpc& get_access_iface_dpc() const {
         return table_impl_->get_access_iface_dpc();
     }
 #endif
@@ -68,7 +68,7 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    detail::access_iface_dpcpp& get_access_iface_dpcpp() const {
+    detail::access_iface_dpc& get_access_iface_dpc() const {
         return table_impl_->get_access_iface_dpc();
     }
 #endif

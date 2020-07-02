@@ -62,7 +62,7 @@ struct access_iface {
 using access_iface_host = access_iface<host_seq_policy, host_only_alloc>;
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-using access_iface_dpcpp = access_iface<dpcpp_policy, sycl::usm::alloc>;
+using access_iface_dpc = access_iface<dpcpp_policy, sycl::usm::alloc>;
 #endif
 
 class access_provider_iface {
@@ -71,7 +71,7 @@ public:
 
     virtual access_iface_host& get_access_iface_host() const = 0;
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    virtual access_iface_dpcpp& get_access_iface_dpcpp() const = 0;
+    virtual access_iface_dpc& get_access_iface_dpc() const = 0;
 #endif
 };
 

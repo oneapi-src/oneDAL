@@ -56,7 +56,7 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    virtual access_iface_dpcpp& get_access_iface_dpcpp() const override {
+    virtual access_iface_dpc& get_access_iface_dpc() const override {
         return *dpc_access_ptr_.get();
     }
 #endif
@@ -115,7 +115,7 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    virtual access_iface_dpcpp& get_access_iface_dpcpp() const override {
+    virtual access_iface_dpc& get_access_iface_dpc() const override {
         return *dpc_access_ptr_.get();
     }
 #endif

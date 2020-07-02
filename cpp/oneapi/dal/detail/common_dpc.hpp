@@ -29,7 +29,7 @@
             return queue_;
         }
     private:
-        mutable sycl::queue& queue_;
+        sycl::queue& queue_;
     };
     }  // namespace oneapi::dal::detail
 
