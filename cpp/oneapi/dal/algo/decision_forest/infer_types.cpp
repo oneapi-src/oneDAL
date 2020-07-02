@@ -83,6 +83,6 @@ void infer_result::set_probabilities_impl(const table& value) {
 /*
 void infer_result::set_log_probabilities_impl(const table &value) {
     impl_->log_probabilities = value;
-} 
+}
 */
 } // namespace oneapi::dal::decision_forest
