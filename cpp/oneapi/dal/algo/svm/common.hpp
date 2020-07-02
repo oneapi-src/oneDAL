@@ -38,7 +38,7 @@ public:
 using kf_iface_ptr = std::shared_ptr<kernel_function_iface>;
 
 template <typename Kernel>
-class kernel_function : public base, public kernel_function_iface {
+class ONEAPI_DAL_EXPORT kernel_function : public base, public kernel_function_iface {
 public:
     explicit kernel_function(const Kernel &kernel) : kernel_(kernel) {}
 
@@ -56,13 +56,11 @@ private:
 };
 
 template <typename Float, typename Method>
-class kernel_function<linear_kernel::descriptor<Float, Method>> : public base,
+class ONEAPI_DAL_EXPORT kernel_function<linear_kernel::descriptor<Float, Method>> : public base,
                                                                   public kernel_function_iface {
 public:
     using kernel_t = linear_kernel::descriptor<Float, Method>;
-
     explicit kernel_function(const kernel_t &kernel);
-
     kernel_function_impl *get_impl() const override;
 
 private:
@@ -71,13 +69,11 @@ private:
 };
 
 template <typename Float, typename Method>
-class kernel_function<rbf_kernel::descriptor<Float, Method>> : public base,
+class ONEAPI_DAL_EXPORT kernel_function<rbf_kernel::descriptor<Float, Method>> : public base,
                                                                public kernel_function_iface {
 public:
     using kernel_t = rbf_kernel::descriptor<Float, Method>;
-
     explicit kernel_function(const kernel_t &kernel);
-
     kernel_function_impl *get_impl() const override;
 
 private:
@@ -142,7 +138,6 @@ public:
 
     explicit descriptor(const Kernel &kernel = kernel_t{})
             : descriptor_base(std::make_shared<detail::kernel_function<Kernel>>(kernel))
-
     {}
 
     const Kernel &get_kernel() const {
