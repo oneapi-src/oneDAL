@@ -20,7 +20,7 @@
 !    C++ example of two-class support vector machine (SVM) classification using
 !    the Thunder method with DPC++ interfaces
 !
-!******************************************************************************
+!******************************************************************************/
 
 /**
  * <a name="DAAL-EXAMPLE-CPP-SVM_TWO_CLASS_THUNDER_DENSE_BATCH"></a>
