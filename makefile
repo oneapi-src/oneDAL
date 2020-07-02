@@ -308,7 +308,7 @@ release.ONEAPI.LIBS_A := $(oneapi_a) \
 release.ONEAPI.LIBS_Y := $(oneapi_y)
 
 release.ONEAPI.LIBS_A.dpc := $(oneapi_a.dpc) \
-                             $(if $(OS_is_win),$(foreach ilib,$(oneapi_a),$(ilib:%.lib=%_dll.lib)),)
+                             $(if $(OS_is_win),$(foreach ilib,$(oneapi_a.dpc),$(ilib:%.lib=%_dll.lib)),)
 release.ONEAPI.LIBS_Y.dpc := $(oneapi_y.dpc)
 
 # Libraries required for building
