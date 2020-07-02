@@ -49,7 +49,7 @@ private:
     dal::detail::pimpl<detail::compute_input_impl> impl_;
 };
 
-class ONEAPI_DAL_EXPORT compute_result {
+class ONEAPI_DAL_EXPORT compute_result : public base {
 public:
     compute_result();
 
