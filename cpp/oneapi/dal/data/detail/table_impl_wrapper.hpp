@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/data/detail/table_impl_iface.hpp"
 #include "oneapi/dal/data/detail/access_wrapper_host.hpp"
+#include "oneapi/dal/data/detail/access_wrapper_dpc.hpp"
 
 namespace oneapi::dal::detail {
 
@@ -82,7 +83,7 @@ public:
             : kind_(homogen_table_kind),
               impl_(std::move(obj)),
               host_access_ptr_(new access_wrapper_host<Impl>{impl_}),
-              dpc_access_ptr(new access_wrapper_dpc<Impl>{impl_}) {}
+              dpc_access_ptr_(new access_wrapper_dpc<Impl>{impl_}) {}
 #else
     homogen_table_impl_wrapper(Impl&& obj, std::int64_t homogen_table_kind)
             : kind_(homogen_table_kind),
