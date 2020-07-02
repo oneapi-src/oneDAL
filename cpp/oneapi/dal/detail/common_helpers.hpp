@@ -18,6 +18,7 @@
 
 #include <stdexcept>
 #include "oneapi/dal/common.hpp"
+#include "oneapi/dal/policy.hpp"
 
 namespace oneapi::dal::detail {
 

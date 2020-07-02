@@ -16,41 +16,20 @@
 
 #pragma once
 
-#include "oneapi/dal/policy.hpp"
+#include "oneapi/dal/detail/ops_dispatcher.hpp"
 
 namespace oneapi::dal::detail {
 
 template <typename Descriptor, typename Tag>
 struct train_ops;
 
-template <typename Policy, typename Descriptor, typename Head, typename... Tail>
-auto train_dispatch_by_input(const Policy& policy,
-                             const Descriptor& desc,
-                             Head&& head,
-                             Tail&&... tail) {
-    using tag_t   = typename Descriptor::tag_t;
-    using ops_t   = train_ops<Descriptor, tag_t>;
-    using input_t = typename ops_t::input_t;
-
-    if constexpr (std::is_same_v<std::decay_t<Head>, input_t>) {
-        return ops_t{}(policy, desc, std::forward<Head>(head), std::forward<Tail>(tail)...);
-    }
-    else {
-        const auto input = input_t{ std::forward<Head>(head), std::forward<Tail>(tail)... };
-        return ops_t{}(policy, desc, input);
-    }
-}
+template <typename Descriptor>
+using tagged_train_ops = train_ops<Descriptor, typename Descriptor::tag_t>;
 
 template <typename Head, typename... Tail>
-auto train_dispatch_by_policy(Head&& head, Tail&&... tail) {
-    if constexpr (is_execution_policy_v<std::decay_t<Head>>) {
-        return train_dispatch_by_input(std::forward<Head>(head), std::forward<Tail>(tail)...);
-    }
-    else {
-        return train_dispatch_by_input(default_policy{},
-                                       std::forward<Head>(head),
-                                       std::forward<Tail>(tail)...);
-    }
+auto train_dispatch(Head&& head, Tail&&... tail) {
+    using dispatcher_t = ops_policy_dispatcher<std::decay_t<Head>, tagged_train_ops>;
+    return dispatcher_t{}(std::forward<Head>(head), std::forward<Tail>(tail)...);
 }
 
 } // namespace oneapi::dal::detail
