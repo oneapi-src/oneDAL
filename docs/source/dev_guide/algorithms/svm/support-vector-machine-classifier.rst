@@ -46,7 +46,7 @@ Training Stage
 
 |short_name| provides two methods to train the SVM model:
 
-- Boser method [Boser92]_ - performance-oriented variant of Boser [Boser92] and Platt [Platt98] algorithms.
+- Boser method [Boser92]_ - performance-oriented variant of Boser [Boser92]_ and Platt [Platt98]_ algorithms
 - Thunder method [Wen2018]_
 
 The SVM model is trained to solve the quadratic optimization problem

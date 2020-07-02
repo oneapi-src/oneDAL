@@ -79,7 +79,7 @@ respective leaf.
 Brute Force
 -----------
 
-Brute Force algorithm calculates the squared distances from each query feature vector
+Brute Force kNN algorithm calculates the squared distances from each query feature vector
 to each reference feature vector in the training data set. Then,
 for each query feature vector it selects :math:`k` objects from the training set that are closest to that query feature vector.
 
@@ -122,7 +122,7 @@ respective leaf node.
 Training using Brute Force
 ++++++++++++++++++++++++++
 
-During training with the Brute Force method, the algorithm copies all feature vectors from the training data set
+During training with the Brute Force approach, the algorithm stores all feature vectors from the training data set
 to calculate their distances to the query feature vectors.
 
 Prediction Stage
