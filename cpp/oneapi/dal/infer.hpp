@@ -1,6 +1,5 @@
-/* file: svm_predict_dense_default_batch_fpt_cpu.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,34 +14,15 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of SVM Fast prediction algorithm.
-//--
-*/
+#pragma once
 
-#include "src/algorithms/svm/svm_predict_batch_container.h"
-#include "src/algorithms/svm/svm_predict_kernel.h"
-#include "src/algorithms/svm/svm_predict_impl.i"
+#include "oneapi/dal/detail/infer_ops.hpp"
 
-namespace daal
-{
-namespace algorithms
-{
-namespace svm
-{
-namespace prediction
-{
-namespace interface2
-{
-template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
+namespace oneapi::dal {
+
+template <typename... Args>
+auto infer(Args&&... args) {
+    return detail::infer_dispatch_by_ctx(std::forward<Args>(args)...);
 }
-namespace internal
-{
-template struct DAAL_EXPORT SVMPredictImpl<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 
-} // namespace internal
-} // namespace prediction
-} // namespace svm
-} // namespace algorithms
-} // namespace daal
+} // namespace oneapi::dal

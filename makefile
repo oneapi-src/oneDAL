@@ -260,8 +260,9 @@ RELEASEDIR.tbb.libia := $(RELEASEDIR.tbb)/lib$(if $(OS_is_mac),,/$(_IA)$(if $(OS
 RELEASEDIR.tbb.soia  := $(if $(OS_is_win),$(RELEASEDIR.tbb)/redist/$(_IA)/vc_mt,$(RELEASEDIR.tbb.libia))
 releasetbb.LIBS_A := $(if $(OS_is_win),$(TBBDIR.libia)/tbb.$(a) $(TBBDIR.libia)/tbbmalloc.$(a))
 releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb.$(y) $(TBBDIR.soia)/$(plib)tbbmalloc.$(y)                                                           \
-                     $(if $(or $(OS_is_lnx),$(OS_is_fbsd)), $(TBBDIR.soia)/$(plib)tbbmalloc.so.2                                                   \
-                                                            $(if $(wildcard $(TBBDIR.soia)/libtbb.so.2),$(wildcard $(TBBDIR.soia)/libtbb.so.2))    \
+                     $(if $(or $(OS_is_lnx),$(OS_is_fbsd)), $(if $(wildcard $(TBBDIR.soia)/libtbbmalloc.so.2),$(wildcard $(TBBDIR.soia)/libtbbmalloc.so.2))\
+                                                            $(if $(wildcard $(TBBDIR.soia)/libtbbmalloc.so.12),$(wildcard $(TBBDIR.soia)/libtbbmalloc.so.12))\
+                                                            $(if $(wildcard $(TBBDIR.soia)/libtbb.so.2),$(wildcard $(TBBDIR.soia)/libtbb.so.2))\
                                                             $(if $(wildcard $(TBBDIR.soia)/libtbb.so.12),$(wildcard $(TBBDIR.soia)/libtbb.so.12))) \
                      $(if $(OS_is_mac),$(if $(wildcard $(TBBDIR.soia)/libtbb.12.dylib),$(wildcard $(TBBDIR.soia)/libtbb.12.dylib)))
 
