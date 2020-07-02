@@ -42,15 +42,14 @@ struct ops_input_dispatcher<T, Ops, /* IsInput = */ false> {
     }
 };
 
-
-template <typename T, template<typename> typename Ops, bool IsPolicy = is_execution_policy_v<T>>
+template <typename T, template <typename> typename Ops, bool IsPolicy = is_execution_policy_v<T>>
 struct ops_policy_dispatcher;
 
-template <typename T, template<typename> typename Ops>
+template <typename T, template <typename> typename Ops>
 struct ops_policy_dispatcher<T, Ops, /* IsPolicy = */ true> {
     template <typename Policy, typename Descriptor, typename Head, typename... Tail>
     auto operator()(Policy&& policy, Descriptor&& desc, Head&& head, Tail&&... tail) {
-        using ops_t = Ops<std::decay_t<Descriptor>>;
+        using ops_t        = Ops<std::decay_t<Descriptor>>;
         using dispatcher_t = ops_input_dispatcher<std::decay_t<Head>, ops_t>;
         return dispatcher_t{}(std::forward<Policy>(policy),
                               std::forward<Descriptor>(desc),
@@ -59,11 +58,11 @@ struct ops_policy_dispatcher<T, Ops, /* IsPolicy = */ true> {
     }
 };
 
-template <typename T, template<typename> typename Ops>
+template <typename T, template <typename> typename Ops>
 struct ops_policy_dispatcher<T, Ops, /* IsPolicy = */ false> {
     template <typename Descriptor, typename Head, typename... Tail>
     auto operator()(Descriptor&& desc, Head&& head, Tail&&... tail) {
-        using ops_t = Ops<std::decay_t<Descriptor>>;
+        using ops_t        = Ops<std::decay_t<Descriptor>>;
         using dispatcher_t = ops_input_dispatcher<std::decay_t<Head>, ops_t>;
         return dispatcher_t{}(default_policy{},
                               std::forward<Descriptor>(desc),
