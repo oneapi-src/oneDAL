@@ -161,6 +161,11 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Scale Parallel K-Nearest Neighbor on Distributed Architectures*,
    2016. Available from https://arxiv.org/abs/1607.08220.
 
+.. [Platt98]
+   Platt, John. "Sequential minimal optimization:
+   A fast algorithm for training support vector machines." (1998).
+   Available from https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/tr-98-14.pdf.
+
 .. [Quinlan86] 
    J. R. Quinlan. *Induction of Decision Trees*. Machine Learning,
    Volume 1 Issue 1, pp. 81-106, 1986.

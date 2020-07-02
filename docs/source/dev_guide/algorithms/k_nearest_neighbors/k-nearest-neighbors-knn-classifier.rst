@@ -79,9 +79,9 @@ respective leaf.
 Brute Force
 -----------
 
-The main idea of the Brute Force method is to calculate all of the distances from each query feature vector
-to each reference feature vector in the training data set and then select :math:`k` objects 
-that are closest to the query point.
+Brute Force algorithm calculates the squared distances from each query feature vector
+to each reference feature vector in the training data set. Then,
+for each query feature vector it selects :math:`k` objects from the training set that are closest to that query feature vector.
 
 Training Stage
 --------------
