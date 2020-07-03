@@ -307,7 +307,7 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, cpu>::run(gbt
 template <typename algorithmFPType, typename BinIndexType, CpuType cpu>
 void TrainBatchTaskBase<algorithmFPType, BinIndexType, cpu>::updateOOB(size_t iTree, TreeType & t)
 {
-    double res            = _initialF;
+    const double res            = _initialF;
     const auto aSampleToF = _aSampleToF.get();
     auto pf               = f();
     const size_t n        = _aSampleToF.size();
