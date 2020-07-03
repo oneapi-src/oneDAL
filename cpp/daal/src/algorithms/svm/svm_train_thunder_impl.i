@@ -71,7 +71,7 @@ namespace internal
 {
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::compute(const NumericTablePtr & xTable, const NumericTablePtr & wTable,
-                                                                                     const NumericTable & yTable, daal::algorithms::Model * r,
+                                                                                     NumericTable & yTable, daal::algorithms::Model * r,
                                                                                      const ParameterType * svmPar)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(COMPUTE);
@@ -118,7 +118,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, ParameterType, cpu>::com
             const size_t startRow     = iBlock * blockSize;
             const size_t nRowsInBlock = (iBlock != nBlocks - 1) ? blockSize : nVectors - iBlock * blockSize;
 
-            ReadColumns<algorithmFPType, cpu> mtY(const_cast<NumericTable &>(yTable), 0, startRow, nRowsInBlock);
+            ReadColumns<algorithmFPType, cpu> mtY(yTable, 0, startRow, nRowsInBlock);
             DAAL_CHECK_BLOCK_STATUS_THR(mtY);
             const algorithmFPType * const yIn = mtY.get();
 

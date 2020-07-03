@@ -50,40 +50,13 @@ constexpr std::int64_t get_data_type_size(data_type t) {
     return 0;
 }
 
-template <data_type t>
-struct integral_data_type { };
-
-template <>
-struct integral_data_type<data_type::float32> {
-    using type = float;
-};
-
-template <>
-struct integral_data_type<data_type::float64> {
-    using type = double;
-};
-
-template <>
-struct integral_data_type<data_type::int32> {
-    using type = int32_t;
-};
-
-template <>
-struct integral_data_type<data_type::int64> {
-    using type = int64_t;
-};
-
-template <>
-struct integral_data_type<data_type::uint32> {
-    using type = uint32_t;
-};
-
-template <>
-struct integral_data_type<data_type::uint64> {
-    using type = uint64_t;
-};
-
-template <data_type t>
-using integral_data_type_t = typename integral_data_type<t>::type;
+constexpr bool is_floating_point(data_type t) {
+    if (t == data_type::bfloat16 || t == data_type::float32 || t == data_type::float64) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
 
 } // namespace oneapi::dal

@@ -30,7 +30,7 @@ GpuSupportChecker & GpuSupportChecker::GetInstance()
     return instance;
 }
 
-bool isImplementedForDevice(const oneapi::internal::InfoDevice & deviceInfo, algorithms::AlgorithmContainerIface * iface)
+DAAL_EXPORT bool isImplementedForDevice(const oneapi::internal::InfoDevice & deviceInfo, algorithms::AlgorithmContainerIface * iface)
 {
     bool ret = true;
     if (!deviceInfo.isCpu)

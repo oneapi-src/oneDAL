@@ -32,8 +32,8 @@ namespace pca
 {
 namespace internal
 {
-template class PCACorrelationKernel<batch, DAAL_FPTYPE, DAAL_CPU>;
-}
+template class DAAL_EXPORT PCACorrelationKernel<batch, DAAL_FPTYPE, DAAL_CPU>;
+} // namespace internal
 } // namespace pca
 } // namespace algorithms
 } // namespace daal

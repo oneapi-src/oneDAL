@@ -27,7 +27,7 @@ public:
 using detail::default_execution_context_impl;
 
 default_execution_context::default_execution_context()
-  : impl_(new default_execution_context_impl()) {}
+        : impl_(new default_execution_context_impl()) {}
 
 void default_execution_context::set_enabled_cpu_extensions_impl(
     const cpu_extension& extensions) noexcept {

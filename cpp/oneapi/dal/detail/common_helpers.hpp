@@ -21,22 +21,35 @@
 
 namespace oneapi::dal::detail {
 
+template <typename T, typename... Args>
+struct is_one_of : public std::disjunction<std::is_same<T, Args>...> {};
+
 template <typename T>
 constexpr auto make_data_type_impl() {
     if constexpr (std::is_same_v<std::int32_t, T>) {
         return data_type::int32;
-    } else if constexpr (std::is_same_v<std::int64_t, T>) {
+    }
+    else if constexpr (std::is_same_v<std::int64_t, T>) {
         return data_type::int64;
-    } else if constexpr (std::is_same_v<std::uint32_t, T>) {
+    }
+    else if constexpr (std::is_same_v<std::uint32_t, T>) {
         return data_type::uint32;
-    } else if constexpr (std::is_same_v<std::uint64_t, T>) {
+    }
+    else if constexpr (std::is_same_v<std::uint64_t, T>) {
         return data_type::uint64;
-    } else if constexpr (std::is_same_v<float, T>) {
+    }
+    else if constexpr (std::is_same_v<float, T>) {
         return data_type::float32;
-    } else if constexpr (std::is_same_v<double, T>) {
+    }
+    else if constexpr (std::is_same_v<double, T>) {
         return data_type::float64;
     }
-    throw std::invalid_argument{"T"};
+
+    static_assert(
+        is_one_of<T, std::int32_t, std::int64_t, std::uint32_t, std::uint64_t, float, double>::
+            value,
+        "unsupported data type");
+    return data_type::float32; // shall never come here
 }
 
 } // namespace oneapi::dal::detail
