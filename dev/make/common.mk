@@ -122,12 +122,24 @@ link.static.mac = libtool -V -static -o $@ $(1:%_link.txt=-filelist %_link.txt)
 # Link dynamic lib
 LINK.DYNAMIC = $(mkdir)$(call rm,$@)$(link.dynamic.cmd)
 link.dynamic.cmd = $(call link.dynamic.$(_OS),$(secure.opts.link.$(_OS)) $(or $1,$(^.no-mkdeps)) $(LOPT))
-link.dynamic.lnx = $(if $(link.dynamic.lnx.$(COMPILER)),$(link.dynamic.lnx.$(COMPILER)),$(error link.dynamic.lnx.$(COMPILER) must be defined)) -shared $(-sGRP) $(patsubst %_link.txt,@%_link.txt,$(patsubst %_link.def,@%_link.def,$1)) $(-eGRP) -o $@
-link.dynamic.win = link $(link.dynamic.win.$(COMPILER)) -WX -nologo -map -dll $(-DEBL) $(patsubst %_link.txt,@%_link.txt,$(patsubst %.def,-DEF:%.def,$1)) -out:$@
+link.dynamic.lnx = $(if $(link.dynamic.lnx.$(COMPILER)),$(link.dynamic.lnx.$(COMPILER)),$(error link.dynamic.lnx.$(COMPILER) must be defined)) \
+                   -shared $(-sGRP) $(patsubst %_link.txt,@%_link.txt,$(patsubst %_link.def,@%_link.def,$1)) $(-eGRP) -o $@
+link.dynamic.win = link $(link.dynamic.win.$(COMPILER)) -WX -nologo -map -dll $(-DEBL) \
+                   $(patsubst %_link.txt,@%_link.txt,$(patsubst %.def,-DEF:%.def,$1)) -out:$@
 link.dynamic.mac = $(if $(link.dynamic.mac.$(COMPILER)),$(link.dynamic.mac.$(COMPILER)),$(error link.dynamic.mac.$(COMPILER) must be defined)) \
-                   -undefined dynamic_lookup -dynamiclib -Wl,-flat_namespace -Wl,-install_name,@rpath/$(@F) -Wl,-current_version,$(MAJOR).$(MINOR).$(UPDATE) -Wl,-compatibility_version,1.0.0 -Wl,-headerpad_max_install_names $(patsubst %_link.txt,-filelist %_link.txt,$(patsubst %_link.def,@%_link.def,$1)) -o $@
-link.dynamic.fbsd = $(if $(link.dynamic.fbsd.$(COMPILER)),$(link.dynamic.fbsd.$(COMPILER)),$(error link.dynamic.fbsd.$(COMPILER) must be defined)) -shared $(-sGRP) $(patsubst %_link.txt,@%_link.txt,$(patsubst %_link.def,@%_link.def,$1)) $(-eGRP) -o $@
+                   -undefined dynamic_lookup -dynamiclib -Wl,-flat_namespace -Wl,-install_name,@rpath/$(@F) \
+                   -Wl,-current_version,$(MAJOR).$(MINOR).$(UPDATE) -Wl,-compatibility_version,1.0.0 \
+                   -Wl,-headerpad_max_install_names $(patsubst %_link.txt,-filelist %_link.txt,$(patsubst %_link.def,@%_link.def,$1)) -o $@
+link.dynamic.fbsd = $(if $(link.dynamic.fbsd.$(COMPILER)),$(link.dynamic.fbsd.$(COMPILER)),$(error link.dynamic.fbsd.$(COMPILER) must be defined)) \
+                    -shared $(-sGRP) $(patsubst %_link.txt,@%_link.txt,$(patsubst %_link.def,@%_link.def,$1)) $(-eGRP) -o $@
 #TODO think on dependence from include sequence for $(if $(link.dynamic.lnx.$(COMPILER)),...)
+
+# Link dynamic DPC++ lib
+DPC.LINK.DYNAMIC = $(mkdir)$(call rm,$@)$(dpc.link.dynamic.cmd)
+dpc.link.dynamic.cmd = $(call dpc.link.dynamic.$(_OS),$(secure.opts.link.$(_OS)) $(or $1,$(^.no-mkdeps)) $(LOPT))
+dpc.link.dynamic.lnx = $(if $(link.dynamic.lnx.dpcpp),$(link.dynamic.lnx.dpcpp),$(error link.dynamic.lnx.dpcpp must be defined)) \
+                       -shared $(-sGRP) $(patsubst %_link.txt,@%_link.txt,$(patsubst %_link.def,@%_link.def,$1)) $(-eGRP) -o $@
+
 
 LINK.DYNAMIC.POST = $(call link.dynamic.post.$(_OS))
 link.dynamic.post.lnx =
