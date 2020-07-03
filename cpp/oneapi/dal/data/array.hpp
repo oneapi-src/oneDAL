@@ -101,7 +101,7 @@ public:
     explicit array(sycl::queue& queue,
                    T* data,
                    std::int64_t count,
-                   sycl::vector_class<sycl::event> dependencies = {})
+                   const sycl::vector_class<sycl::event>& dependencies = {})
             : array() {
         reset(queue, data, count, dependencies);
     }
@@ -191,11 +191,9 @@ public:
     void reset(sycl::queue& queue,
                T* data,
                std::int64_t count,
-               sycl::vector_class<sycl::event> dependencies = {}) {
+               const sycl::vector_class<sycl::event>& dependencies = {}) {
         reset(data, count, detail::default_delete<T, decltype(queue)>{ queue });
-        for (auto& event : dependencies) {
-            event.wait();
-        }
+        detail::wait_and_throw(dependencies);
     }
 #endif
 

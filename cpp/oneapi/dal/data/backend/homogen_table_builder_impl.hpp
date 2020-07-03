@@ -75,11 +75,7 @@ public:
 
     void copy_data(const void* data, std::int64_t row_count, std::int64_t column_count) {
         data_.resize(row_count*column_count*get_data_type_size(feature_.get_data_type()));
-
-        auto data_bytes = reinterpret_cast<const byte_t*>(data);
-        for(std::int64_t i = 0; i < data_.get_count(); i++) {
-            data_[i] = data_bytes[i];
-        }
+        detail::memcpy(detail::host_seq_policy{}, data_.get_mutable_data(), data, data_.get_size());
 
         row_count_ = row_count;
         column_count_ = column_count;
@@ -95,6 +91,29 @@ public:
 
         return new_table;
     }
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    void allocate(sycl::queue& queue,
+                  std::int64_t row_count, std::int64_t column_count,
+                  sycl::usm::alloc kind) {
+        data_.reset(queue, row_count * column_count * get_data_type_size(feature_.get_data_type()), kind);
+        row_count_ = row_count;
+        column_count_ = column_count;
+    }
+
+    void copy_data(sycl::queue& queue,
+                   const void* data,
+                   std::int64_t row_count, std::int64_t column_count,
+                   const sycl::vector_class<sycl::event>& dependencies) {
+        detail::wait_and_throw(dependencies);
+        data_.resize(queue, row_count*column_count*get_data_type_size(feature_.get_data_type()),
+            sycl::get_pointer_type(data_.get_data(), queue.get_context()));
+        detail::memcpy(queue, data_.get_mutable_data(), data, data_.get_size());
+
+        row_count_ = row_count;
+        column_count_ = column_count;
+    }
+#endif
 
     // TODO: for better performance, push_*() methods need to be moved
     // from table implementation to builder.

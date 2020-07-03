@@ -74,6 +74,18 @@ homogen_table::homogen_table(int64_t row_count,
         : homogen_table(
               backend::homogen_table_impl(row_count, column_count, data_pointer, layout)) {}
 
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+template <typename DataType>
+homogen_table(int64_t row_count,
+              int64_t column_count,
+              const DataType* data_pointer,
+              homogen_data_layout layout,
+              const sycl::vector_class<sycl::event>& dependencies) {
+    detail::wait_and_throw(dependencies);
+    init_impl(backend::homogen_table_impl(row_count, column_count, data_pointer, layout));
+}
+#endif
+
 const homogen_table_metadata& homogen_table::get_metadata() const {
     const auto& impl = detail::get_impl<detail::homogen_table_impl_iface>(*this);
     return impl.get_metadata();

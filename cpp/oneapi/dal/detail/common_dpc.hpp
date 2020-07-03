@@ -31,6 +31,11 @@
     private:
         sycl::queue& queue_;
     };
+
+    void wait_and_throw(const sycl::vector_class<sycl::event>& dependencies) {
+        sycl::event::wait_and_throw(dependencies);
+    }
+
     }  // namespace oneapi::dal::detail
 
 #endif // ONEAPI_DAL_DATA_PARALLEL

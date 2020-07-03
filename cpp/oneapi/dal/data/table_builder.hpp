@@ -43,10 +43,24 @@ struct is_homogen_table_builder_impl {
     INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(void, set_layout, (homogen_data_layout layout))
     INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(void, copy_data, (const void* data, std::int64_t row_count, std::int64_t column_count))
 
-    static constexpr bool value = has_method_build_v<T> && has_method_reset_from_table_v<T> &&
+    static constexpr bool value_host = has_method_build_v<T> && has_method_reset_from_table_v<T> &&
         has_method_reset_from_array_v<T>&& has_method_set_data_type_v<T> &&
         has_method_set_feature_type_v<T> && has_method_allocate_v<T> &&
         has_method_set_layout_v<T> && has_method_copy_data_v<T>;
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    INSTANTIATE_HAS_METHOD_CHECKER(void, allocate,
+        (sycl::queue& queue, std::int64_t row_count, std::int64_t column_count,sycl::usm::alloc kind), allocate_dpc);
+    INSTANTIATE_HAS_METHOD_CHECKER(void, copy_data,
+        (sycl::queue& queue, const void* data,
+         std::int64_t row_count, std::int64_t column_count,
+         const sycl::vector_class<sycl::event>& dependencies = {}), copy_data_dpc);
+
+    static constexpr bool value_dpc = has_method_allocate_dpc_v<T> && has_method_copy_data_dpc<T>;
+    static constexpr bool value = value_host && value_dpc;
+#else
+    static constexpr bool value = value_host;
+#endif
 };
 
 template <typename T>
@@ -138,6 +152,24 @@ public:
         impl.copy_data(data, row_count, column_count);
         return *this;
     }
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    auto& allocate(sycl::queue& queue,
+                   std::int64_t row_count, std::int64_t column_count,
+                   sycl::usm::alloc kind) {
+        auto& impl = get_impl();
+        impl.allocate(queue, row_count, column_count, kind);
+        return *this;
+    }
+    auto& copy_data(sycl::queue& queue,
+                    const void* data,
+                    std::int64_t row_count, std::int64_t column_count,
+                    const sycl::vector_class<sycl::event>& dependencies = {}) {
+        auto& impl = get_impl();
+        impl.copy_data(queue, data, row_count, column_count, dependencies);
+        return *this;
+    }
+#endif
 
 private:
     detail::homogen_table_builder_iface& get_impl() {

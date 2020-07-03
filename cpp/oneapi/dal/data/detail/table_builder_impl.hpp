@@ -35,6 +35,16 @@ public:
     virtual void allocate(std::int64_t row_count, std::int64_t column_count) = 0;
     virtual void set_layout(homogen_data_layout layout) = 0;
     virtual void copy_data(const void* data, std::int64_t row_count, std::int64_t column_count) = 0;
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    virtual void allocate(sycl::queue& queue,
+                          std::int64_t row_count, std::int64_t column_count,
+                          sycl::usm::alloc kind) = 0;
+    virtual void copy_data(sycl::queue& queue,
+                           const void* data,
+                           std::int64_t row_count, std::int64_t column_count,
+                           const sycl::vector_class<sycl::event>& dependencies = {}) = 0;
+#endif
 };
 
 template <typename Impl>
@@ -127,6 +137,18 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
+    virtual void allocate(sycl::queue& queue,
+                          std::int64_t row_count, std::int64_t column_count,
+                          sycl::usm::alloc kind) override {
+        impl_.allocate(queue, row_count, column_count, kind);
+    }
+    virtual void copy_data(sycl::queue& queue,
+                           const void* data,
+                           std::int64_t row_count, std::int64_t column_count,
+                           const sycl::vector_class<sycl::event>& dependencies) override {
+        impl_.copy_data(queue, data, row_count, column_count, dependencies);
+    }
+
     virtual access_iface_dpc& get_access_iface_dpc() const override {
         return *dpc_access_ptr_.get();
     }
