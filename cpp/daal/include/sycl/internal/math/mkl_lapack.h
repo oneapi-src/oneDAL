@@ -63,7 +63,6 @@ struct MKLPotrf
             if (scratchpad.get_count() < minimal_scratchpad_size) return Status(ErrorID::ErrorMemoryAllocationFailed);
         }
 
-        //Arguments order: queue, uplo, n, &a, lda, &scratchpad, scratchpad_size
         fpk::lapack::potrf(_queue, uplomkl, n, a_sycl_buff, lda, scratchpad, scratchpad.get_count());
 
         _queue.wait();
@@ -74,17 +73,17 @@ struct MKLPotrf
     }
 
     services::Status operator()(const math::UpLo uplo, const size_t n, services::Buffer<algorithmFPType> & a, const size_t lda,
-                                const std::int64_t scratchpad_size)
+                                const std::int64_t scratchpadSize)
     {
-        cl::sycl::buffer<algorithmFPType, 1> scratchpad_buffer { cl::sycl::range<1>(scratchpad_size) };
+        cl::sycl::buffer<algorithmFPType, 1> scratchpad_buffer { cl::sycl::range<1>(scratchpadSize) };
         return this->operator()(uplo, n, a, lda, scratchpad_buffer);
     }
 
     services::Status operator()(const math::UpLo uplo, const size_t n, services::Buffer<algorithmFPType> & a, const size_t lda)
     {
-        const fpk::uplo uplomkl                    = uplo == math::UpLo::Upper ? fpk::uplo::upper : fpk::uplo::lower;
-        const std::int64_t minimal_scratchpad_size = fpk::lapack::potrf_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, lda);
-        return this->operator()(uplo, n, a, lda, minimal_scratchpad_size);
+        const fpk::uplo uplomkl                  = uplo == math::UpLo::Upper ? fpk::uplo::upper : fpk::uplo::lower;
+        const std::int64_t minimalScratchpadSize = fpk::lapack::potrf_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, lda);
+        return this->operator()(uplo, n, a, lda, minimalScratchpadSize);
     }
 
 private:
@@ -110,8 +109,8 @@ struct MKLPotrs
 
         {
             using namespace daal::services;
-            const std::int64_t minimal_scratchpad_size = fpk::lapack::potrs_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, ny, lda, ldb);
-            if (scratchpad.get_count() < minimal_scratchpad_size) return Status(ErrorID::ErrorMemoryAllocationFailed);
+            const std::int64_t minimalScratchpadSize = fpk::lapack::potrs_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, ny, lda, ldb);
+            if (scratchpad.get_count() < minimalScratchpadSize) return Status(ErrorID::ErrorMemoryAllocationFailed);
         }
 
         fpk::lapack::potrs(_queue, uplomkl, n, ny, a_sycl_buff, lda, b_sycl_buff, ldb, scratchpad, scratchpad.get_count());
@@ -124,19 +123,18 @@ struct MKLPotrs
     }
 
     services::Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, services::Buffer<algorithmFPType> & a, const size_t lda,
-                                services::Buffer<algorithmFPType> & b, const size_t ldb, const std::int64_t scratchpad_size)
+                                services::Buffer<algorithmFPType> & b, const size_t ldb, const std::int64_t scratchpadSize)
     {
-        cl::sycl::buffer<algorithmFPType, 1> scratchpad_buffer { cl::sycl::range<1>(scratchpad_size) };
+        cl::sycl::buffer<algorithmFPType, 1> scratchpad_buffer { cl::sycl::range<1>(scratchpadSize) };
         return this->operator()(uplo, n, ny, a, lda, b, ldb, scratchpad_buffer);
     }
 
     services::Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, services::Buffer<algorithmFPType> & a, const size_t lda,
                                 services::Buffer<algorithmFPType> & b, const size_t ldb)
     {
-        const fpk::uplo uplomkl = uplo == math::UpLo::Upper ? fpk::uplo::upper : fpk::uplo::lower;
-        //Arguments Order: queue, uplo, n, ny, lda, ldb
-        const std::int64_t minimal_scratchpad_size = fpk::lapack::potrs_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, ny, lda, ldb);
-        return this->operator()(uplo, n, ny, a, lda, b, ldb, minimal_scratchpad_size);
+        const fpk::uplo uplomkl                  = uplo == math::UpLo::Upper ? fpk::uplo::upper : fpk::uplo::lower;
+        const std::int64_t minimalScratchpadSize = fpk::lapack::potrs_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, ny, lda, ldb);
+        return this->operator()(uplo, n, ny, a, lda, b, ldb, minimalScratchpadSize);
     }
 
 private:
