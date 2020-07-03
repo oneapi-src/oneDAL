@@ -298,17 +298,6 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, cpu>::run(gbt
             dtrees::training::internal::shuffle<cpu>(_engine.getState(), nRows, aSampleToF, auxBuf.get());
         }
         daal::algorithms::internal::qSort<RowIndexType, cpu>(nSamples(), aSampleToF);
-
-        if (iIteration == 0)
-        {
-            auto pf          = f();
-            const size_t nIt = nRows - _nSamples;
-
-            daal::threader_for(nIt, nIt, [&](size_t i) {
-                RowIndexType iRow  = aSampleToF[i + _nSamples];
-                pf[iRow * _nTrees] = 0;
-            });
-        }
     }
     step(this->_dataHelper.y());
     _nParallelNodes.set(0);
@@ -318,6 +307,7 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, cpu>::run(gbt
 template <typename algorithmFPType, typename BinIndexType, CpuType cpu>
 void TrainBatchTaskBase<algorithmFPType, BinIndexType, cpu>::updateOOB(size_t iTree, TreeType & t)
 {
+    double res            = _initialF;
     const auto aSampleToF = _aSampleToF.get();
     auto pf               = f();
     const size_t n        = _aSampleToF.size();
@@ -328,7 +318,7 @@ void TrainBatchTaskBase<algorithmFPType, BinIndexType, cpu>::updateOOB(size_t iT
         auto pNode = dtrees::prediction::internal::findNode<algorithmFPType, TreeType, cpu>(t, x.get());
         DAAL_ASSERT(pNode);
         algorithmFPType inc = TreeType::NodeType::castLeaf(pNode)->response;
-        pf[iRow * _nTrees + iTree] += inc;
+        pf[iRow * _nTrees + iTree] += inc - res;
     });
 }
 
