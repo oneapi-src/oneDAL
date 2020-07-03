@@ -68,7 +68,7 @@ inline table convert_from_daal_homogen_table(const daal::data_management::Numeri
     array<T> arr(data, row_count * column_count, [nt, block](T* p) mutable {
         nt->releaseBlockOfRows(block);
     });
-    return homogen_table_builder{ column_count, arr }.build();
+    return homogen_table_builder{}.reset(arr, row_count, column_count).build();
 }
 
 } // namespace oneapi::dal::backend::interop

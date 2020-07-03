@@ -25,24 +25,43 @@ public:
     virtual table build() = 0;
 };
 
+class homogen_table_builder_iface : public table_builder_impl_iface {
+public:
+    virtual homogen_table build_homogen() = 0;
+    virtual void reset(homogen_table&& t) = 0;
+    virtual void reset(const array<byte_t>& data, std::int64_t row_count, std::int64_t column_count) = 0;
+    virtual void set_data_type(data_type dt) = 0;
+    virtual void set_feature_type(feature_type ft) = 0;
+    virtual void allocate(std::int64_t row_count, std::int64_t column_count) = 0;
+    virtual void set_layout(homogen_data_layout layout) = 0;
+    virtual void copy_data(const void* data, std::int64_t row_count, std::int64_t column_count) = 0;
+};
+
 template <typename Impl>
 class table_builder_impl_wrapper : public table_builder_impl_iface, public base {
 public:
+#ifdef ONEAPI_DAL_DATA_PARALLEL
     table_builder_impl_wrapper(Impl&& obj)
-        : impl_(std::move(obj)) {}
+        : impl_(std::move(obj)),
+          host_access_ptr_(new access_wrapper_host<Impl>{impl_}),
+          dpc_access_ptr_(new access_wrapper_dpc<Impl>{impl_}) {}
+#else
+    table_builder_impl_wrapper(Impl&& obj)
+        : impl_(std::move(obj)),
+          host_access_ptr_(new access_wrapper_host<Impl>{impl_}) {}
+#endif
 
     virtual table build() override {
         return impl_.build();
     }
 
     virtual access_iface_host& get_access_iface_host() const override {
-        return impl_.get_access_iface_host();
-        // TODO: need to re-design builder implementations
+        return *host_access_ptr_.get();
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     virtual access_iface_dpc& get_access_iface_dpc() const override {
-        return impl_.get_access_iface_dpc();
+        return *dpc_access_ptr_.get();
     }
 #endif
 
@@ -52,6 +71,74 @@ public:
 
 private:
     Impl impl_;
+
+    unique<access_iface_host> host_access_ptr_;
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    unique<access_iface_dpc> dpc_access_ptr_;
+#endif
+};
+
+template <typename Impl>
+class homogen_table_builder_impl_wrapper : public homogen_table_builder_iface, public base {
+public:
+    #ifdef ONEAPI_DAL_DATA_PARALLEL
+    homogen_table_builder_impl_wrapper(Impl&& obj)
+        : impl_(std::move(obj)),
+          host_access_ptr_(new access_wrapper_host<Impl>{impl_}),
+          dpc_access_ptr_(new access_wrapper_dpc<Impl>{impl_}) {}
+#else
+    homogen_table_builder_impl_wrapper(Impl&& obj)
+        : impl_(std::move(obj)),
+          host_access_ptr_(new access_wrapper_host<Impl>{impl_}) {}
+#endif
+
+    virtual table build() override {
+        return impl_.build();
+    }
+
+    virtual homogen_table build_homogen() override {
+        return impl_.build();
+    }
+
+    virtual void reset(homogen_table&& t) override {
+        impl_.reset(std::move(t));
+    }
+    virtual void reset(const array<byte_t>& data, std::int64_t row_count, std::int64_t column_count) override {
+        impl_.reset(data, row_count, column_count);
+    }
+    virtual void set_data_type(data_type dt) override {
+        impl_.set_data_type(dt);
+    }
+    virtual void set_feature_type(feature_type ft) override {
+        impl_.set_feature_type(ft);
+    }
+    virtual void allocate(std::int64_t row_count, std::int64_t column_count) override {
+        impl_.allocate(row_count, column_count);
+    }
+    virtual void set_layout(homogen_data_layout layout) override {
+        impl_.set_layout(layout);
+    }
+    virtual void copy_data(const void* data, std::int64_t row_count, std::int64_t column_count) override {
+        impl_.copy_data(data, row_count, column_count);
+    }
+
+    virtual access_iface_host& get_access_iface_host() const override {
+        return *host_access_ptr_.get();
+    }
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    virtual access_iface_dpc& get_access_iface_dpc() const override {
+        return *dpc_access_ptr_.get();
+    }
+#endif
+
+private:
+    Impl impl_;
+
+    unique<access_iface_host> host_access_ptr_;
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    unique<access_iface_dpc> dpc_access_ptr_;
+#endif
 };
 
 } // namespace oneapi::dal::detail

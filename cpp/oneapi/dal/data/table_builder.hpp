@@ -31,28 +31,46 @@ struct is_table_builder_impl {
 template <typename T>
 inline constexpr bool is_table_builder_impl_v = is_table_builder_impl<T>::value;
 
+template <typename T>
+struct is_homogen_table_builder_impl {
+    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(homogen_table, build, ())
+    INSTANTIATE_HAS_METHOD_CHECKER(void, reset, (homogen_table&& t), reset_from_table)
+    INSTANTIATE_HAS_METHOD_CHECKER(void, reset,
+        (const array<byte_t>& data, std::int64_t row_count, std::int64_t column_count), reset_from_array)
+    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(void, set_data_type, (data_type dt))
+    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(void, set_feature_type, (feature_type ft))
+    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(void, allocate, (std::int64_t row_count, std::int64_t column_count))
+    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(void, set_layout, (homogen_data_layout layout))
+    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(void, copy_data, (const void* data, std::int64_t row_count, std::int64_t column_count))
+
+    static constexpr bool value = has_method_build_v<T> && has_method_reset_from_table_v<T> &&
+        has_method_reset_from_array_v<T>&& has_method_set_data_type_v<T> &&
+        has_method_set_feature_type_v<T> && has_method_allocate_v<T> &&
+        has_method_set_layout_v<T> && has_method_copy_data_v<T>;
+};
+
+template <typename T>
+inline constexpr bool is_homogen_table_builder_impl_v = is_homogen_table_builder_impl<T>::value;
+
 class ONEAPI_DAL_EXPORT table_builder {
     friend detail::pimpl_accessor;
     using pimpl_t = detail::pimpl<detail::table_builder_impl_iface>;
 
 public:
-    template <typename BuilderImpl,
-              typename BuilderImplType = std::decay_t<BuilderImpl>,
-              typename = std::enable_if_t<is_table_builder_impl_v<BuilderImplType>>>
-    table_builder(BuilderImpl&& impl) {
-        init_impl(new detail::table_builder_impl_wrapper(std::forward<BuilderImpl>(impl)));
-    }
-
-    table_builder(table&&);
+    template <typename Impl,
+              typename ImplType = std::decay_t<Impl>,
+              typename = std::enable_if_t<is_table_builder_impl_v<ImplType> &&
+                         !std::is_base_of_v<table_builder, ImplType>>>
+    table_builder(Impl&& impl)
+        : table_builder(new detail::table_builder_impl_wrapper(std::forward<Impl>(impl))) {}
 
     table build() const {
         return impl_->build();
     }
 
-private:
-    void init_impl(detail::table_builder_impl_iface* obj) {
-        impl_ = pimpl_t{ obj };
-    }
+protected:
+    table_builder(detail::table_builder_impl_iface* obj)
+        : impl_(obj) {}
 
 private:
     pimpl_t impl_;
@@ -60,27 +78,71 @@ private:
 
 class ONEAPI_DAL_EXPORT homogen_table_builder : public table_builder {
 public:
-    // TODO: revise - const DataType* or DataType*
+    homogen_table_builder();
+
+    template <typename Impl,
+              typename ImplType = std::decay_t<Impl>,
+              typename = std::enable_if_t<is_homogen_table_builder_impl_v<ImplType> &&
+                         !std::is_base_of_v<table_builder, ImplType>>>
+    homogen_table_builder(Impl&& impl)
+        : table_builder(new detail::homogen_table_builder_impl_wrapper(std::forward<Impl>(impl))) {}
+
+    homogen_table build() {
+        auto& impl = get_impl();
+        return impl.build_homogen();
+    }
+
+    auto& reset(homogen_table&& t) {
+        auto& impl = get_impl();
+        impl.reset(std::move(t));
+        return *this;
+    }
     template <typename DataType>
-    homogen_table_builder(std::int64_t row_count,
-                          std::int64_t column_count,
-                          const DataType* data_pointer,
-                          homogen_data_layout layout = homogen_data_layout::row_major);
+    auto& reset(const array<DataType>& data, std::int64_t row_count, std::int64_t column_count) {
+        array<byte_t> byte_data;
+        if (data.is_data_owner() && data.has_mutable_data()) {
+            byte_data.reset(reinterpret_cast<byte_t*>(data.get_mutable_data()), data.get_size(),
+                [owner = array(data)](auto){});
+        } else {
+            byte_data.reset_not_owning(reinterpret_cast<const byte_t*>(data.get_data()), data.get_size());
+            byte_data.unique();
+        }
 
-    template <typename DataType, typename = std::enable_if_t<!std::is_pointer_v<DataType>>>
-    homogen_table_builder(std::int64_t row_count,
-                          std::int64_t column_count,
-                          DataType value,
-                          homogen_data_layout layout = homogen_data_layout::row_major);
+        auto& impl = get_impl();
+        impl.set_data_type(make_data_type<DataType>());
+        impl.reset(byte_data, row_count, column_count);
+        return *this;
+    }
+    auto& set_data_type(data_type dt) {
+        auto& impl = get_impl();
+        impl.set_data_type(dt);
+        return *this;
+    }
+    auto& set_feature_type(feature_type ft) {
+        auto& impl = get_impl();
+        impl.set_feature_type(ft);
+        return *this;
+    }
+    auto& allocate(std::int64_t row_count, std::int64_t column_count) {
+        auto& impl = get_impl();
+        impl.allocate(row_count, column_count);
+        return *this;
+    }
+    auto& set_layout(homogen_data_layout layout) {
+        auto& impl = get_impl();
+        impl.set_layout(layout);
+        return *this;
+    }
+    auto& copy_data(const void* data, std::int64_t row_count, std::int64_t column_count) {
+        auto& impl = get_impl();
+        impl.copy_data(data, row_count, column_count);
+        return *this;
+    }
 
-    template <typename DataType>
-    homogen_table_builder(std::int64_t column_count,
-                          const array<DataType>& data,
-                          homogen_data_layout layout = homogen_data_layout::row_major);
-
-    homogen_table_builder(homogen_table&&);
-
-    homogen_table build() const;
+private:
+    detail::homogen_table_builder_iface& get_impl() {
+        return detail::get_impl<detail::homogen_table_builder_iface>(*this);
+    }
 };
 
 } // namespace oneapi::dal
