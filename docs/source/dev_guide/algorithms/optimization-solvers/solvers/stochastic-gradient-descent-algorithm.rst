@@ -145,7 +145,7 @@ method parameter method:
 
    * - ``batchIndices``
      - ``defaultDense``, ``miniBatch``, ``momentum``
-     - ``NULL``
+     - Not applicable.
      - The numeric table with 32-bit integer indices of terms in the objective
        function. The method parameter determines the size of the numeric table:
 

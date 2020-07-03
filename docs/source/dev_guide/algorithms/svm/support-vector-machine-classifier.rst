@@ -233,7 +233,7 @@ Examples
 
     Batch Processing:
     
-    -  :ref:`svm_two_class_dense_batch.cpp`
+    -  :ref:`svm_two_class_thunder_dense_batch.cpp`
 
   .. tab:: C++
   
