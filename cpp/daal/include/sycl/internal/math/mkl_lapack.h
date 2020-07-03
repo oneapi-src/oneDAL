@@ -59,8 +59,8 @@ struct MKLPotrf
 
         {
             using namespace daal::services;
-            const std::int64_t minimal_scratchpad_size = fpk::lapack::potrf_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, lda);
-            if (scratchpad.get_count() < minimal_scratchpad_size) return Status(ErrorID::ErrorMemoryAllocationFailed);
+            const std::int64_t minimalSscratchpadSize = fpk::lapack::potrf_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, lda);
+            if (scratchpad.get_count() < minimalScratchpadSize) return Status(ErrorID::ErrorMemoryAllocationFailed);
         }
 
         fpk::lapack::potrf(_queue, uplomkl, n, a_sycl_buff, lda, scratchpad, scratchpad.get_count());
