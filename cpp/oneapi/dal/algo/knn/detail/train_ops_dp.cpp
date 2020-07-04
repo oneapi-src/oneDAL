@@ -22,10 +22,10 @@
 namespace oneapi::dal::knn::detail {
 
 template <typename Float, typename Method>
-struct ONEAPI_DAL_EXPORT train_ops_dispatcher<data_parallel_execution_context, Float, Method> {
-    train_result ONEAPI_DAL_EXPORT operator()(const data_parallel_execution_context& ctx,
-                                              const descriptor_base& params,
-                                              const train_input& input) const {
+struct train_ops_dispatcher<data_parallel_execution_context, Float, Method> {
+    train_result operator()(const data_parallel_execution_context& ctx,
+                            const descriptor_base& params,
+                            const train_input& input) const {
         using kernel_dispatcher_t =
             dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Method>,
                                             backend::train_kernel_gpu<Float, Method>>;

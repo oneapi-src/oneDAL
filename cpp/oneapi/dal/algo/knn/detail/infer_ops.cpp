@@ -21,7 +21,7 @@
 namespace oneapi::dal::knn::detail {
 
 template <typename Float, typename Method>
-struct ONEAPI_DAL_EXPORT infer_ops_dispatcher<default_execution_context, Float, Method> {
+struct infer_ops_dispatcher<default_execution_context, Float, Method> {
     infer_result operator()(const default_execution_context& ctx,
                             const descriptor_base& desc,
                             const infer_input& input) const {
