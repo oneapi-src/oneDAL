@@ -224,11 +224,13 @@ CORE.SERVICES       := compression            \
                        data_management
 
 # Dependencies between oneAPI and core (CPU-only) algorithms
+ONEAPI.ALGOS.knn := CORE.k_nearest_neighbors
 ONEAPI.ALGOS.pca := CORE.pca
 ONEAPI.ALGOS.svm := CORE.svm
 
 # List of algorithms in oneAPI part
 ONEAPI.ALGOS := \
+    knn         \
     pca         \
     svm
 

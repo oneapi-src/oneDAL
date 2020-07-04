@@ -18,5 +18,7 @@
 ##     Intel(R) Data Analytics Acceleration Library examples list
 ##******************************************************************************
 
-DAAL = pca_cor_dense_batch               \
-       svm_two_class_thunder_dense_batch \
+DAAL = knn_cls_kd_tree_dense_batch        \
+       pca_cor_dense_batch                \
+       svm_two_class_thunder_dense_batch  \
+
