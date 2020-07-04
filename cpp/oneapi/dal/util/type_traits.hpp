@@ -22,10 +22,10 @@ namespace oneapi::dal {
 
 template <typename T>
 struct is_table_impl {
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(std::int64_t, get_column_count, () const)
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(std::int64_t, get_row_count, () const)
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(const table_metadata&, get_metadata, () const)
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(std::int64_t, get_kind, () const)
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(std::int64_t, get_column_count, () const)
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(std::int64_t, get_row_count, () const)
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(const table_metadata&, get_metadata, () const)
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(std::int64_t, get_kind, () const)
 
     static constexpr bool value = has_method_get_column_count_v<T> &&
                                   has_method_get_row_count_v<T> && has_method_get_metadata_v<T> &&
@@ -37,8 +37,8 @@ inline constexpr bool is_table_impl_v = is_table_impl<T>::value;
 
 template <typename T>
 struct is_homogen_table_impl {
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(const void*, get_data, () const)
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(const homogen_table_metadata&, get_metadata, () const)
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(const void*, get_data, () const)
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(const homogen_table_metadata&, get_metadata, () const)
 
     using base = is_table_impl<T>;
 

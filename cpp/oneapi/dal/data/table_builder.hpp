@@ -23,7 +23,7 @@ namespace oneapi::dal {
 
 template <typename T>
 struct is_table_builder_impl {
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(table, build, ())
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(table, build, ())
 
     static constexpr bool value = has_method_build_v<T>;
 };
@@ -33,15 +33,15 @@ inline constexpr bool is_table_builder_impl_v = is_table_builder_impl<T>::value;
 
 template <typename T>
 struct is_homogen_table_builder_impl {
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(homogen_table, build, ())
-    INSTANTIATE_HAS_METHOD_CHECKER(void, reset, (homogen_table&& t), reset_from_table)
-    INSTANTIATE_HAS_METHOD_CHECKER(void, reset,
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(homogen_table, build, ())
+    ONEAPI_DAL_HAS_METHOD_TRAIT(void, reset, (homogen_table&& t), reset_from_table)
+    ONEAPI_DAL_HAS_METHOD_TRAIT(void, reset,
         (const array<byte_t>& data, std::int64_t row_count, std::int64_t column_count), reset_from_array)
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(void, set_data_type, (data_type dt))
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(void, set_feature_type, (feature_type ft))
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(void, allocate, (std::int64_t row_count, std::int64_t column_count))
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(void, set_layout, (homogen_data_layout layout))
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(void, copy_data, (const void* data, std::int64_t row_count, std::int64_t column_count))
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void, set_data_type, (data_type dt))
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void, set_feature_type, (feature_type ft))
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void, allocate, (std::int64_t row_count, std::int64_t column_count))
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void, set_layout, (homogen_data_layout layout))
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void, copy_data, (const void* data, std::int64_t row_count, std::int64_t column_count))
 
     static constexpr bool value_host = has_method_build_v<T> && has_method_reset_from_table_v<T> &&
         has_method_reset_from_array_v<T>&& has_method_set_data_type_v<T> &&
@@ -49,9 +49,9 @@ struct is_homogen_table_builder_impl {
         has_method_set_layout_v<T> && has_method_copy_data_v<T>;
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    INSTANTIATE_HAS_METHOD_CHECKER(void, allocate,
+    ONEAPI_DAL_HAS_METHOD_TRAIT(void, allocate,
         (sycl::queue& queue, std::int64_t row_count, std::int64_t column_count,sycl::usm::alloc kind), allocate_dpc);
-    INSTANTIATE_HAS_METHOD_CHECKER(void, copy_data,
+    ONEAPI_DAL_HAS_METHOD_TRAIT(void, copy_data,
         (sycl::queue& queue, const void* data,
          std::int64_t row_count, std::int64_t column_count,
          const sycl::vector_class<sycl::event>& dependencies = {}), copy_data_dpc);

@@ -23,28 +23,28 @@ namespace oneapi::dal::detail {
 
 template <typename T, typename Data>
 struct has_pull_rows_host {
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(void, pull_rows,
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void, pull_rows,
         (array<Data>&, const range&) const)
     static constexpr bool value = has_method_pull_rows_v<T>;
 };
 
 template <typename T, typename Data>
 struct has_push_rows_host {
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(void, push_rows,
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void, push_rows,
         (const array<Data>&, const range&))
     static constexpr bool value = has_method_push_rows_v<T>;
 };
 
 template <typename T, typename Data>
 struct has_pull_column_host {
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(void, pull_column,
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void, pull_column,
         (array<Data>&, std::int64_t, const range&) const)
     static constexpr bool value = has_method_pull_column_v<T>;
 };
 
 template <typename T, typename Data>
 struct has_push_column_host {
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(void, push_column,
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void, push_column,
         (const array<Data>&, std::int64_t, const range&))
     static constexpr bool value = has_method_push_column_v<T>;
 };
@@ -53,28 +53,28 @@ struct has_push_column_host {
 
 template <typename T, typename Data>
 struct has_pull_rows_dpc {
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(void, pull_rows,
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void, pull_rows,
         (sycl::queue&, array<Data>&, const range&, const sycl::usm::alloc&) const)
     static constexpr bool value = has_method_pull_rows_v<T>;
 };
 
 template <typename T, typename Data>
 struct has_push_rows_dpc {
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(void, push_rows,
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void, push_rows,
         (sycl::queue&, const array<Data>&, const range&))
     static constexpr bool value = has_method_push_rows_v<T>;
 };
 
 template <typename T, typename Data>
 struct has_pull_column_dpc {
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(void, pull_column,
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void, pull_column,
         (sycl::queue&, array<Data>&, std::int64_t, const range&, const sycl::usm::alloc&) const)
     static constexpr bool value = has_method_pull_column_v<T>;
 };
 
 template <typename T, typename Data>
 struct has_push_column_dpc {
-    INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(void, push_column,
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void, push_column,
         (sycl::queue&, const array<Data>&, std::int64_t, const range&))
     static constexpr bool value = has_method_push_column_v<T>;
 };
