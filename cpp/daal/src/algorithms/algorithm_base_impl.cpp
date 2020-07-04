@@ -129,7 +129,7 @@ services::HostAppIfacePtr getHostApp(daal::algorithms::Input & inp)
     return services::HostAppIfacePtr();
 }
 
-DAAL_EXPORT services::HostAppIface * hostApp(daal::algorithms::Input & inp)
+services::HostAppIface * hostApp(daal::algorithms::Input & inp)
 {
     auto storage = StorageAccessor::get(inp);
     return storage ? getHostApp(*storage).get() : nullptr;
