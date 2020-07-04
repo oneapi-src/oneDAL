@@ -14,16 +14,16 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/rbf_kernel/backend/cpu/compute_kernel.hpp"
-#include "oneapi/dal/algo/rbf_kernel/backend/gpu/compute_kernel.hpp"
-#include "oneapi/dal/algo/rbf_kernel/detail/compute_ops.hpp"
-#include "oneapi/dal/backend/dispatcher_dp.hpp"
+#include "oneapi/dal/algo/linear_kernel/backend/cpu/compute_kernel.hpp"
+#include "oneapi/dal/algo/linear_kernel/backend/gpu/compute_kernel.hpp"
+#include "oneapi/dal/algo/linear_kernel/detail/compute_ops.hpp"
+#include "oneapi/dal/backend/dispatcher_dpc.hpp"
 
-namespace oneapi::dal::rbf_kernel::detail {
+namespace oneapi::dal::linear_kernel::detail {
 
 template <typename Float, typename Method>
-struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<data_parallel_execution_context, Float, Method> {
-    compute_result operator()(const data_parallel_execution_context& ctx,
+struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<data_parallel_policy, Float, Method> {
+    compute_result operator()(const data_parallel_policy& ctx,
                               const descriptor_base& params,
                               const compute_input& input) const {
         using kernel_dispatcher_t =
@@ -34,11 +34,11 @@ struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<data_parallel_execution_context,
 };
 
 #define INSTANTIATE(F, M) \
-    template struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<data_parallel_execution_context, F, M>;
+    template struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<data_parallel_policy, F, M>;
 
 INSTANTIATE(float, method::dense)
 INSTANTIATE(float, method::csr)
 INSTANTIATE(double, method::dense)
 INSTANTIATE(double, method::csr)
 
-} // namespace oneapi::dal::rbf_kernel::detail
+} // namespace oneapi::dal::linear_kernel::detail

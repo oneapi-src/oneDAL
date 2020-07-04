@@ -21,8 +21,8 @@
 namespace oneapi::dal::rbf_kernel::detail {
 
 template <typename Float, typename Method>
-struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<default_execution_context, Float, Method> {
-    compute_result operator()(const default_execution_context& ctx,
+struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<host_policy, Float, Method> {
+    compute_result operator()(const host_policy& ctx,
                               const descriptor_base& desc,
                               const compute_input& input) const {
         using kernel_dispatcher_t =
@@ -32,7 +32,7 @@ struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<default_execution_context, Float
 };
 
 #define INSTANTIATE(F, M) \
-    template struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<default_execution_context, F, M>;
+    template struct ONEAPI_DAL_EXPORT compute_ops_dispatcher<host_policy, F, M>;
 
 INSTANTIATE(float, method::dense)
 INSTANTIATE(float, method::csr)
