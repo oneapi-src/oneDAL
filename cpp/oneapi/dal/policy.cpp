@@ -19,20 +19,20 @@
 
 namespace oneapi::dal {
 
-class detail::default_policy_impl : public base {
+class detail::host_policy_impl : public base {
 public:
     cpu_extension cpu_extensions_mask = backend::interop::detect_top_cpu_extension();
 };
 
-using detail::default_policy_impl;
+using detail::host_policy_impl;
 
-default_policy::default_policy() : impl_(new default_policy_impl()) {}
+host_policy::host_policy() : impl_(new host_policy_impl()) {}
 
-void default_policy::set_enabled_cpu_extensions_impl(const cpu_extension& extensions) noexcept {
+void host_policy::set_enabled_cpu_extensions_impl(const cpu_extension& extensions) noexcept {
     impl_->cpu_extensions_mask = extensions;
 }
 
-cpu_extension default_policy::get_enabled_cpu_extensions() const noexcept {
+cpu_extension host_policy::get_enabled_cpu_extensions() const noexcept {
     return impl_->cpu_extensions_mask;
 }
 

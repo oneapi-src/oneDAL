@@ -26,7 +26,7 @@
 namespace oneapi::dal {
 
 namespace detail {
-class default_policy_impl;
+class host_policy_impl;
 class data_parallel_policy_impl;
 } // namespace detail
 
@@ -40,9 +40,9 @@ enum class cpu_extension : uint64_t {
     avx512 = 1U << 5
 };
 
-class ONEAPI_DAL_EXPORT default_policy : public base {
+class ONEAPI_DAL_EXPORT host_policy : public base {
 public:
-    default_policy();
+    host_policy();
 
     cpu_extension get_enabled_cpu_extensions() const noexcept;
 
@@ -54,7 +54,7 @@ public:
 private:
     void set_enabled_cpu_extensions_impl(const cpu_extension& extensions) noexcept;
 
-    dal::detail::pimpl<detail::default_policy_impl> impl_;
+    dal::detail::pimpl<detail::host_policy_impl> impl_;
 };
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -73,7 +73,7 @@ template <typename T>
 struct is_execution_policy : std::bool_constant<false> {};
 
 template <>
-struct is_execution_policy<default_policy> : std::bool_constant<true> {};
+struct is_execution_policy<host_policy> : std::bool_constant<true> {};
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
 template <>

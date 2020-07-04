@@ -64,7 +64,7 @@ struct ops_policy_dispatcher<T, Ops, /* IsPolicy = */ false> {
     auto operator()(Descriptor&& desc, Head&& head, Tail&&... tail) {
         using ops_t        = Ops<std::decay_t<Descriptor>>;
         using dispatcher_t = ops_input_dispatcher<std::decay_t<Head>, ops_t>;
-        return dispatcher_t{}(default_policy{},
+        return dispatcher_t{}(host_policy{},
                               std::forward<Descriptor>(desc),
                               std::forward<Head>(head),
                               std::forward<Tail>(tail)...);

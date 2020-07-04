@@ -21,8 +21,8 @@
 namespace oneapi::dal::svm::detail {
 
 template <typename Float, typename Task, typename Method>
-struct ONEAPI_DAL_EXPORT infer_ops_dispatcher<default_policy, Float, Task, Method> {
-    infer_result operator()(const default_policy& ctx,
+struct ONEAPI_DAL_EXPORT infer_ops_dispatcher<host_policy, Float, Task, Method> {
+    infer_result operator()(const host_policy& ctx,
                             const descriptor_base& desc,
                             const infer_input& input) const {
         using kernel_dispatcher_t =
@@ -32,7 +32,7 @@ struct ONEAPI_DAL_EXPORT infer_ops_dispatcher<default_policy, Float, Task, Metho
 };
 
 #define INSTANTIATE(F, T, M) \
-    template struct ONEAPI_DAL_EXPORT infer_ops_dispatcher<default_policy, F, T, M>;
+    template struct ONEAPI_DAL_EXPORT infer_ops_dispatcher<host_policy, F, T, M>;
 
 INSTANTIATE(float, task::classification, method::by_default)
 INSTANTIATE(double, task::classification, method::by_default)

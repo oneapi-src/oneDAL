@@ -37,7 +37,7 @@ struct kernel_dispatcher {};
 
 class context_cpu {
 public:
-    explicit context_cpu(const default_policy& ctx)
+    explicit context_cpu(const host_policy& ctx)
             : cpu_extensions_(ctx.get_enabled_cpu_extensions()) {}
 
     cpu_extension get_enabled_cpu_extensions() const {
@@ -51,7 +51,7 @@ private:
 template <typename CpuKernel>
 struct kernel_dispatcher<CpuKernel> {
     template <typename... Args>
-    auto operator()(const default_policy& ctx, Args&&... args) const {
+    auto operator()(const host_policy& ctx, Args&&... args) const {
         return CpuKernel()(context_cpu{ ctx }, std::forward<Args>(args)...);
     }
 };
