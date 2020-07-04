@@ -85,9 +85,9 @@ public:
 
     template <typename Y, typename K>
     explicit array(const array<Y>& ref, K* data, std::int64_t count)
-        : data_owned_ptr_(ref.data_owned_ptr_, nullptr),
-          data_(data),
-          count_(count) {}
+            : data_owned_ptr_(ref.data_owned_ptr_, nullptr),
+              data_(data),
+              count_(count) {}
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     explicit array(sycl::queue& queue,
@@ -120,8 +120,7 @@ public:
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    array& need_mutable_data(sycl::queue& queue,
-                             sycl::usm::alloc kind = sycl::usm::alloc::shared) {
+    array& need_mutable_data(sycl::queue& queue, sycl::usm::alloc kind = sycl::usm::alloc::shared) {
         return need_mutable_data_impl(queue, kind);
     }
 #endif
@@ -136,8 +135,8 @@ public:
 
     void reset() {
         data_owned_ptr_.reset();
-        data_     = std::variant<T*, const T*>();
-        count_    = 0;
+        data_  = std::variant<T*, const T*>();
+        count_ = 0;
     }
 
     void reset(std::int64_t count) {
@@ -148,15 +147,15 @@ public:
     void reset(T* data, std::int64_t count, Deleter&& deleter) {
         // TODO: check input parameters
         data_owned_ptr_.reset(data, std::forward<Deleter>(deleter));
-        data_     = data_owned_ptr_.get();
-        count_    = count;
+        data_  = data_owned_ptr_.get();
+        count_ = count;
     }
 
     template <typename Y, typename K>
     void reset(const array<Y>& ref, K* data, std::int64_t count) {
         data_owned_ptr_ = detail::shared<T>(ref.data_owned_ptr_, nullptr);
-        data_ = data;
-        count_ = count;
+        data_           = data;
+        count_          = count;
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL

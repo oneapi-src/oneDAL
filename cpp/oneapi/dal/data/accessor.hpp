@@ -26,19 +26,20 @@ namespace detail {
 template <typename T, typename BlockIndex>
 class accessor_base {
 public:
-    using data_t          = std::remove_const_t<T>;
+    using data_t = std::remove_const_t<T>;
+
 public:
     static constexpr bool is_readonly = std::is_const_v<T>;
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     template <typename K>
     accessor_base(const K& obj)
-        : host_access_(get_impl<access_provider_iface>(obj).get_access_iface_host()),
-          dpc_access_(get_impl<access_provider_iface>(obj).get_access_iface_dpc()) {}
+            : host_access_(get_impl<access_provider_iface>(obj).get_access_iface_host()),
+              dpc_access_(get_impl<access_provider_iface>(obj).get_access_iface_dpc()) {}
 #else
     template <typename K>
     accessor_base(const K& obj)
-        : host_access_(get_impl<access_provider_iface>(obj).get_access_iface_host()) {}
+            : host_access_(get_impl<access_provider_iface>(obj).get_access_iface_host()) {}
 #endif
 
     template <typename Policy, typename AllocKind>
@@ -49,7 +50,10 @@ public:
     }
 
     template <typename Policy, typename AllocKind>
-    T* pull(const Policy& policy, array<data_t>& block, const BlockIndex& idx, const AllocKind& kind) const {
+    T* pull(const Policy& policy,
+            array<data_t>& block,
+            const BlockIndex& idx,
+            const AllocKind& kind) const {
         get_access(policy).pull(policy, block, idx, kind);
         if constexpr (is_readonly) {
             return block.get_data();
@@ -99,42 +103,40 @@ public:
     static constexpr bool is_readonly = base::is_readonly;
 
 public:
-
     template <typename K,
-              typename = std::enable_if_t<is_readonly &&
-                    (std::is_base_of_v<table, K> || std::is_base_of_v<table_builder, K>)>>
-    row_accessor(const K& obj)
-        : base(obj) {}
+              typename = std::enable_if_t<is_readonly && (std::is_base_of_v<table, K> ||
+                                                          std::is_base_of_v<table_builder, K>)>>
+    row_accessor(const K& obj) : base(obj) {}
 
-    row_accessor(const table_builder& b)
-        : base(b) {}
+    row_accessor(const table_builder& b) : base(b) {}
 
     array<data_t> pull(const range& rows = { 0, -1 }) const {
-        return base::pull(detail::host_seq_policy{}, {rows}, detail::host_only_alloc{});
+        return base::pull(detail::host_seq_policy{}, { rows }, detail::host_only_alloc{});
     }
 
     T* pull(array<data_t>& block, const range& rows = { 0, -1 }) const {
-        return base::pull(detail::host_seq_policy{}, block, {rows}, detail::host_only_alloc{});
+        return base::pull(detail::host_seq_policy{}, block, { rows }, detail::host_only_alloc{});
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     array<data_t> pull(sycl::queue& queue,
-                       const range& rows = { 0, -1 },
+                       const range& rows     = { 0, -1 },
                        sycl::usm::alloc kind = sycl::usm::alloc::shared) const {
-        return base::pull(detail::dpcpp_policy{queue}, {rows}, kind);
+        return base::pull(detail::dpcpp_policy{ queue }, { rows }, kind);
     }
 
     T* pull(sycl::queue& queue,
-            array<data_t>& block, const range& rows = { 0, -1 },
+            array<data_t>& block,
+            const range& rows     = { 0, -1 },
             sycl::usm::alloc kind = sycl::usm::alloc::shared) const {
-        return base::pull(detail::dpcpp_policy{queue}, block, {rows}, kind);
+        return base::pull(detail::dpcpp_policy{ queue }, block, { rows }, kind);
     }
 #endif
 
     template <typename Q = T>
     std::enable_if_t<sizeof(Q) && !is_readonly> push(const array<data_t>& block,
                                                      const range& rows = { 0, -1 }) {
-        base::push(detail::host_seq_policy{}, block, {rows});
+        base::push(detail::host_seq_policy{}, block, { rows });
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -142,13 +144,13 @@ public:
     std::enable_if_t<sizeof(Q) && !is_readonly> push(sycl::queue& queue,
                                                      const array<data_t>& block,
                                                      const range& rows = { 0, -1 }) {
-        base::push(detail::dpcpp_policy{queue}, block, {rows});
+        base::push(detail::dpcpp_policy{ queue }, block, { rows });
     }
 #endif
 };
 
 template <typename T>
-class column_accessor : private detail::accessor_base<T, detail::column_values_block>{
+class column_accessor : private detail::accessor_base<T, detail::column_values_block> {
     using base = detail::accessor_base<T, detail::column_values_block>;
 
 public:
@@ -157,33 +159,39 @@ public:
 
 public:
     template <typename K,
-              typename = std::enable_if_t<is_readonly &&
-                    (std::is_base_of_v<table, K> || std::is_base_of_v<table_builder, K>)>>
-    column_accessor(const K& obj)
-        : base(obj) {}
+              typename = std::enable_if_t<is_readonly && (std::is_base_of_v<table, K> ||
+                                                          std::is_base_of_v<table_builder, K>)>>
+    column_accessor(const K& obj) : base(obj) {}
 
-    column_accessor(const table_builder& b)
-        : base(b) {}
+    column_accessor(const table_builder& b) : base(b) {}
 
     array<data_t> pull(std::int64_t column_index, const range& rows = { 0, -1 }) const {
-        return base::pull(detail::host_seq_policy{}, {column_index, rows}, detail::host_only_alloc{});
+        return base::pull(detail::host_seq_policy{},
+                          { column_index, rows },
+                          detail::host_only_alloc{});
     }
 
     T* pull(array<data_t>& block, std::int64_t column_index, const range& rows = { 0, -1 }) const {
-        return base::pull(detail::host_seq_policy{}, block, {column_index, rows}, detail::host_only_alloc{});
+        return base::pull(detail::host_seq_policy{},
+                          block,
+                          { column_index, rows },
+                          detail::host_only_alloc{});
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     array<data_t> pull(sycl::queue& queue,
-                       std::int64_t column_index, const range& rows = { 0, -1 },
+                       std::int64_t column_index,
+                       const range& rows     = { 0, -1 },
                        sycl::usm::alloc kind = sycl::usm::alloc::shared) const {
-        return base::pull(detail::dpcpp_policy{queue}, {column_index, rows}, kind);
+        return base::pull(detail::dpcpp_policy{ queue }, { column_index, rows }, kind);
     }
 
     T* pull(sycl::queue& queue,
-            array<data_t>& block, std::int64_t column_index, const range& rows = { 0, -1 },
+            array<data_t>& block,
+            std::int64_t column_index,
+            const range& rows     = { 0, -1 },
             sycl::usm::alloc kind = sycl::usm::alloc::shared) const {
-        return base::pull(detail::dpcpp_policy{queue}, block, {column_index, rows}, kind);
+        return base::pull(detail::dpcpp_policy{ queue }, block, { column_index, rows }, kind);
     }
 #endif
 
@@ -191,7 +199,7 @@ public:
     std::enable_if_t<sizeof(Q) && !is_readonly> push(const array<data_t>& block,
                                                      std::int64_t column_index,
                                                      const range& rows = { 0, -1 }) {
-        base::push(detail::host_seq_policy{}, block, {column_index, rows});
+        base::push(detail::host_seq_policy{}, block, { column_index, rows });
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -200,7 +208,7 @@ public:
                                                      const array<data_t>& block,
                                                      std::int64_t column_index,
                                                      const range& rows = { 0, -1 }) {
-        base::push(detail::dpcpp_policy{queue}, block, {column_index, rows});
+        base::push(detail::dpcpp_policy{ queue }, block, { column_index, rows });
     }
 #endif
 };

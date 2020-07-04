@@ -16,48 +16,46 @@
 
 #pragma once
 
-#include "oneapi/dal/data/table.hpp"
 #include "oneapi/dal/data/backend/homogen_table_impl.hpp"
+#include "oneapi/dal/data/table.hpp"
 
 namespace oneapi::dal::backend {
 
 class homogen_table_builder_impl {
 public:
     homogen_table_builder_impl()
-        : row_count_(0),
-          column_count_(0),
-          layout_(homogen_data_layout::row_major) {}
+            : row_count_(0),
+              column_count_(0),
+              layout_(homogen_data_layout::row_major) {}
 
     void reset(homogen_table&& t) {
         auto& t_impl = detail::get_impl<detail::homogen_table_impl_iface>(t);
-        auto& meta = t_impl.get_metadata();
+        auto& meta   = t_impl.get_metadata();
 
-        layout_ = meta.get_data_layout();
+        layout_  = meta.get_data_layout();
         feature_ = meta.get_feature(0);
 
         std::int64_t data_size = get_data_type_size(feature_.get_data_type()) *
-             t_impl.get_row_count() * t_impl.get_column_count();
+                                 t_impl.get_row_count() * t_impl.get_column_count();
 
         // TODO: make data move without copying
         // now we are accepting const data pointer from table
-        data_.reset(array<byte_t>(),
-                    reinterpret_cast<const byte_t*>(t_impl.get_data()),
-                    data_size);
+        data_.reset(array<byte_t>(), reinterpret_cast<const byte_t*>(t_impl.get_data()), data_size);
         data_.need_mutable_data();
-        row_count_ = t_impl.get_row_count();
+        row_count_    = t_impl.get_row_count();
         column_count_ = t_impl.get_column_count();
     }
 
     void reset(const array<byte_t>& data, std::int64_t row_count, std::int64_t column_count) {
-        data_ = data;
-        row_count_ = row_count;
+        data_         = data;
+        row_count_    = row_count;
         column_count_ = column_count;
     }
 
     void set_data_type(data_type dt) {
         feature_.set_data_type(dt);
         data_.reset();
-        row_count_ = 0;
+        row_count_    = 0;
         column_count_ = 0;
     }
 
@@ -67,7 +65,7 @@ public:
 
     void allocate(std::int64_t row_count, std::int64_t column_count) {
         data_.reset(row_count * column_count * get_data_type_size(feature_.get_data_type()));
-        row_count_ = row_count;
+        row_count_    = row_count;
         column_count_ = column_count;
     }
 
@@ -76,43 +74,48 @@ public:
     }
 
     void copy_data(const void* data, std::int64_t row_count, std::int64_t column_count) {
-        data_.reset(row_count*column_count*get_data_type_size(feature_.get_data_type()));
+        data_.reset(row_count * column_count * get_data_type_size(feature_.get_data_type()));
         detail::memcpy(detail::host_seq_policy{}, data_.get_mutable_data(), data, data_.get_size());
 
-        row_count_ = row_count;
+        row_count_    = row_count;
         column_count_ = column_count;
     }
 
     homogen_table build() {
         homogen_table new_table{ homogen_table_impl{ column_count_, data_, feature_, layout_ } };
         data_.reset();
-        row_count_ = 0;
+        row_count_    = 0;
         column_count_ = 0;
-        layout_ = homogen_data_layout::row_major;
-        feature_ = table_feature();
+        layout_       = homogen_data_layout::row_major;
+        feature_      = table_feature();
 
         return new_table;
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     void allocate(sycl::queue& queue,
-                  std::int64_t row_count, std::int64_t column_count,
+                  std::int64_t row_count,
+                  std::int64_t column_count,
                   sycl::usm::alloc kind) {
-        data_.reset(queue, row_count * column_count * get_data_type_size(feature_.get_data_type()), kind);
-        row_count_ = row_count;
+        data_.reset(queue,
+                    row_count * column_count * get_data_type_size(feature_.get_data_type()),
+                    kind);
+        row_count_    = row_count;
         column_count_ = column_count;
     }
 
     void copy_data(sycl::queue& queue,
                    const void* data,
-                   std::int64_t row_count, std::int64_t column_count,
+                   std::int64_t row_count,
+                   std::int64_t column_count,
                    const sycl::vector_class<sycl::event>& dependencies) {
         detail::wait_and_throw(dependencies);
-        data_.reset(queue, row_count*column_count*get_data_type_size(feature_.get_data_type()),
-            sycl::get_pointer_type(data_.get_data(), queue.get_context()));
+        data_.reset(queue,
+                    row_count * column_count * get_data_type_size(feature_.get_data_type()),
+                    sycl::get_pointer_type(data_.get_data(), queue.get_context()));
         detail::memcpy(queue, data_.get_mutable_data(), data, data_.get_size());
 
-        row_count_ = row_count;
+        row_count_    = row_count;
         column_count_ = column_count;
     }
 #endif
@@ -122,25 +125,25 @@ public:
     // pull_*() methods can be generalized between table and builder
     template <typename T>
     void pull_rows(array<T>& a, const range& r) const {
-        homogen_table_impl impl{column_count_, data_, feature_, layout_};
+        homogen_table_impl impl{ column_count_, data_, feature_, layout_ };
         impl.pull_rows(a, r);
     }
 
     template <typename T>
     void push_rows(const array<T>& a, const range& r) {
-        homogen_table_impl impl{column_count_, data_, feature_, layout_};
+        homogen_table_impl impl{ column_count_, data_, feature_, layout_ };
         impl.push_rows(a, r);
     }
 
     template <typename T>
     void pull_column(array<T>& a, std::int64_t idx, const range& r) const {
-        homogen_table_impl impl{column_count_, data_, feature_, layout_};
+        homogen_table_impl impl{ column_count_, data_, feature_, layout_ };
         impl.pull_column(a, idx, r);
     }
 
     template <typename T>
     void push_column(const array<T>& a, std::int64_t idx, const range& r) {
-        homogen_table_impl impl{column_count_, data_, feature_, layout_};
+        homogen_table_impl impl{ column_count_, data_, feature_, layout_ };
         impl.push_column(a, idx, r);
     }
 

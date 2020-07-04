@@ -21,75 +21,86 @@
 namespace oneapi::dal::detail {
 
 template <typename AccessIface, typename AccessImpl>
-class access_iface_wrapper: public AccessIface,
-                      public base {
+class access_iface_wrapper : public AccessIface, public base {
 public:
     using policy_t     = typename AccessImpl::policy_t;
     using alloc_kind_t = typename AccessImpl::alloc_kind_t;
-    using array_f32 = array<float>;
-    using array_f64 = array<double>;
-    using array_i32 = array<std::int32_t>;
+    using array_f32    = array<float>;
+    using array_f64    = array<double>;
+    using array_i32    = array<std::int32_t>;
 
-    access_iface_wrapper(const AccessImpl& impl)
-        : impl_(impl) {}
+    access_iface_wrapper(const AccessImpl& impl) : impl_(impl) {}
 
     virtual void pull(const policy_t& policy,
-                      array_f32& block, const row_block& index,
+                      array_f32& block,
+                      const row_block& index,
                       const alloc_kind_t& kind) const override {
         impl_.pull_rows(policy, block, index, kind);
     }
     virtual void pull(const policy_t& policy,
-                      array_f64& block, const row_block& index,
+                      array_f64& block,
+                      const row_block& index,
                       const alloc_kind_t& kind) const override {
         impl_.pull_rows(policy, block, index, kind);
     }
     virtual void pull(const policy_t& policy,
-                      array_i32& block, const row_block& index,
+                      array_i32& block,
+                      const row_block& index,
                       const alloc_kind_t& kind) const override {
         impl_.pull_rows(policy, block, index, kind);
     }
 
     virtual void push(const policy_t& policy,
-                      const array_f32& block, const row_block& index) override {
+                      const array_f32& block,
+                      const row_block& index) override {
         impl_.push_rows(policy, block, index);
     }
     virtual void push(const policy_t& policy,
-                      const array_f64& block, const row_block& index) override {
+                      const array_f64& block,
+                      const row_block& index) override {
         impl_.push_rows(policy, block, index);
     }
     virtual void push(const policy_t& policy,
-                      const array_i32& block, const row_block& index) override {
+                      const array_i32& block,
+                      const row_block& index) override {
         impl_.push_rows(policy, block, index);
     }
 
     virtual void pull(const policy_t& policy,
-                      array_f32& block, const column_values_block& index,
+                      array_f32& block,
+                      const column_values_block& index,
                       const alloc_kind_t& kind) const override {
         impl_.pull_column(policy, block, index, kind);
     }
     virtual void pull(const policy_t& policy,
-                      array_f64& block, const column_values_block& index,
+                      array_f64& block,
+                      const column_values_block& index,
                       const alloc_kind_t& kind) const override {
         impl_.pull_column(policy, block, index, kind);
     }
     virtual void pull(const policy_t& policy,
-                      array_i32& block, const column_values_block& index,
+                      array_i32& block,
+                      const column_values_block& index,
                       const alloc_kind_t& kind) const override {
         impl_.pull_column(policy, block, index, kind);
     }
 
     virtual void push(const policy_t& policy,
-                      const array_f32& block, const column_values_block& index) override {
+                      const array_f32& block,
+                      const column_values_block& index) override {
         impl_.push_column(policy, block, index);
     }
     virtual void push(const policy_t& policy,
-                      const array_f64& block, const column_values_block& index) override {
+                      const array_f64& block,
+                      const column_values_block& index) override {
         impl_.push_column(policy, block, index);
     }
     virtual void push(const policy_t& policy,
-                      const array_i32& block, const column_values_block& index) override {
+                      const array_i32& block,
+                      const column_values_block& index) override {
         impl_.push_column(policy, block, index);
     }
+
 private:
     AccessImpl impl_;
 };

@@ -30,7 +30,7 @@ void homogen_table_impl::pull_rows(array<T>& block, const range& rows) const {
 
     const int64_t row_count     = get_row_count();
     const int64_t column_count  = get_column_count();
-    const int64_t range_count    = rows.get_element_count(row_count) * column_count;
+    const int64_t range_count   = rows.get_element_count(row_count) * column_count;
     const data_type block_dtype = make_data_type<T>();
 
     if (meta_.get_data_layout() != homogen_data_layout::row_major) {
@@ -65,7 +65,7 @@ void homogen_table_impl::push_rows(const array<T>& block, const range& rows) {
 
     const int64_t row_count     = get_row_count();
     const int64_t column_count  = get_column_count();
-    const int64_t range_count    = rows.get_element_count(row_count) * column_count;
+    const int64_t range_count   = rows.get_element_count(row_count) * column_count;
     const data_type block_dtype = make_data_type<T>();
 
     if (meta_.get_data_layout() != homogen_data_layout::row_major) {
@@ -104,7 +104,7 @@ void homogen_table_impl::pull_column(array<T>& block, int64_t idx, const range& 
 
     const int64_t row_count     = get_row_count();
     const int64_t column_count  = get_column_count();
-    const int64_t range_count    = rows.get_element_count(row_count);
+    const int64_t range_count   = rows.get_element_count(row_count);
     const data_type block_dtype = make_data_type<T>();
 
     if (meta_.get_data_layout() != homogen_data_layout::row_major) {
@@ -141,7 +141,7 @@ void homogen_table_impl::push_column(const array<T>& block, int64_t idx, const r
 
     const int64_t row_count     = get_row_count();
     const int64_t column_count  = get_column_count();
-    const int64_t range_count    = rows.get_element_count(row_count);
+    const int64_t range_count   = rows.get_element_count(row_count);
     const data_type block_dtype = make_data_type<T>();
 
     auto feature_type = meta_.get_feature(0).get_data_type();

@@ -20,6 +20,7 @@
 namespace oneapi::dal {
 
 homogen_table_builder::homogen_table_builder()
-    : table_builder(new detail::homogen_table_builder_impl_wrapper(backend::homogen_table_builder_impl{})) {}
+        : table_builder(new detail::homogen_table_builder_impl_wrapper(
+              backend::homogen_table_builder_impl{})) {}
 
 } // namespace oneapi::dal

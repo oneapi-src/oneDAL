@@ -23,17 +23,14 @@ namespace oneapi::dal::detail {
 struct row_block {
     range rows;
 
-    row_block(const range& rows)
-        : rows(rows) {}
+    row_block(const range& rows) : rows(rows) {}
 };
 
 struct column_values_block {
     std::int64_t column_index;
     range rows;
 
-    column_values_block(std::int64_t idx, const range& rows)
-        : column_index(idx),
-          rows(rows) {}
+    column_values_block(std::int64_t idx, const range& rows) : column_index(idx), rows(rows) {}
 };
 
 template <typename Policy, typename AllocKind>
@@ -47,13 +44,22 @@ struct access_iface {
     virtual void pull(const Policy&, array_f32&, const row_block&, const AllocKind&) const = 0;
     virtual void pull(const Policy&, array_f64&, const row_block&, const AllocKind&) const = 0;
     virtual void pull(const Policy&, array_i32&, const row_block&, const AllocKind&) const = 0;
-    virtual void pull(const Policy&, array_f32&, const column_values_block&, const AllocKind&) const = 0;
-    virtual void pull(const Policy&, array_f64&, const column_values_block&, const AllocKind&) const = 0;
-    virtual void pull(const Policy&, array_i32&, const column_values_block&, const AllocKind&) const = 0;
+    virtual void pull(const Policy&,
+                      array_f32&,
+                      const column_values_block&,
+                      const AllocKind&) const                                              = 0;
+    virtual void pull(const Policy&,
+                      array_f64&,
+                      const column_values_block&,
+                      const AllocKind&) const                                              = 0;
+    virtual void pull(const Policy&,
+                      array_i32&,
+                      const column_values_block&,
+                      const AllocKind&) const                                              = 0;
 
-    virtual void push(const Policy&, const array_f32&, const row_block&) = 0;
-    virtual void push(const Policy&, const array_f64&, const row_block&) = 0;
-    virtual void push(const Policy&, const array_i32&, const row_block&) = 0;
+    virtual void push(const Policy&, const array_f32&, const row_block&)           = 0;
+    virtual void push(const Policy&, const array_f64&, const row_block&)           = 0;
+    virtual void push(const Policy&, const array_i32&, const row_block&)           = 0;
     virtual void push(const Policy&, const array_f32&, const column_values_block&) = 0;
     virtual void push(const Policy&, const array_f64&, const column_values_block&) = 0;
     virtual void push(const Policy&, const array_i32&, const column_values_block&) = 0;

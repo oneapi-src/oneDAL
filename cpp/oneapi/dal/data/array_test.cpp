@@ -161,7 +161,8 @@ TEST(array_test, can_make_owning_array_from_non_owning_readonly) {
 
 TEST(array_test, can_construct_non_owning_read_write_array) {
     float data[] = { 1.0f, 2.0f, 3.0f };
-    array<float> arr{ data, 3, [](auto){} };
+    array<float> arr{ data, 3, [](auto) {
+                     } };
 
     ASSERT_EQ(arr.get_count(), 3);
     ASSERT_EQ(arr.get_data(), data);

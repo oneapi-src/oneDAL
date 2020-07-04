@@ -40,9 +40,11 @@ public:
     homogen_table_impl(std::int64_t N, std::int64_t p, Data value, homogen_data_layout layout)
             : homogen_table_impl(N, p, fill_data(new Data[N * p], N * p, value), layout) {}
 
-    homogen_table_impl(std::int64_t p, const array<byte_t>& data,
-                       table_feature feature, homogen_data_layout layout)
-            : meta_(homogen_table_metadata{feature, layout, p}),
+    homogen_table_impl(std::int64_t p,
+                       const array<byte_t>& data,
+                       table_feature feature,
+                       homogen_data_layout layout)
+            : meta_(homogen_table_metadata{ feature, layout, p }),
               data_(data),
               row_count_(data.get_count() / p / get_data_type_size(feature.get_data_type())) {}
 
@@ -57,14 +59,10 @@ public:
         }
 
         if (data.has_mutable_data()) {
-            data_.reset(data,
-                        reinterpret_cast<byte_t*>(data.get_mutable_data()),
-                        data.get_size());
+            data_.reset(data, reinterpret_cast<byte_t*>(data.get_mutable_data()), data.get_size());
         }
         else {
-            data_.reset(data,
-                        reinterpret_cast<const byte_t*>(data.get_data()),
-                        data.get_size());
+            data_.reset(data, reinterpret_cast<const byte_t*>(data.get_data()), data.get_size());
         }
     }
 

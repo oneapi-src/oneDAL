@@ -27,22 +27,26 @@ public:
 
 class homogen_table_builder_iface : public table_builder_impl_iface {
 public:
-    virtual homogen_table build_homogen() = 0;
-    virtual void reset(homogen_table&& t) = 0;
-    virtual void reset(const array<byte_t>& data, std::int64_t row_count, std::int64_t column_count) = 0;
-    virtual void set_data_type(data_type dt) = 0;
-    virtual void set_feature_type(feature_type ft) = 0;
-    virtual void allocate(std::int64_t row_count, std::int64_t column_count) = 0;
-    virtual void set_layout(homogen_data_layout layout) = 0;
+    virtual homogen_table build_homogen()                                                       = 0;
+    virtual void reset(homogen_table&& t)                                                       = 0;
+    virtual void reset(const array<byte_t>& data,
+                       std::int64_t row_count,
+                       std::int64_t column_count)                                               = 0;
+    virtual void set_data_type(data_type dt)                                                    = 0;
+    virtual void set_feature_type(feature_type ft)                                              = 0;
+    virtual void allocate(std::int64_t row_count, std::int64_t column_count)                    = 0;
+    virtual void set_layout(homogen_data_layout layout)                                         = 0;
     virtual void copy_data(const void* data, std::int64_t row_count, std::int64_t column_count) = 0;
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     virtual void allocate(sycl::queue& queue,
-                          std::int64_t row_count, std::int64_t column_count,
-                          sycl::usm::alloc kind) = 0;
+                          std::int64_t row_count,
+                          std::int64_t column_count,
+                          sycl::usm::alloc kind)                                     = 0;
     virtual void copy_data(sycl::queue& queue,
                            const void* data,
-                           std::int64_t row_count, std::int64_t column_count,
+                           std::int64_t row_count,
+                           std::int64_t column_count,
                            const sycl::vector_class<sycl::event>& dependencies = {}) = 0;
 #endif
 };
@@ -52,13 +56,13 @@ class table_builder_impl_wrapper : public table_builder_impl_iface, public base 
 public:
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     table_builder_impl_wrapper(Impl&& obj)
-        : impl_(std::move(obj)),
-          host_access_ptr_(new access_wrapper_host<Impl>{impl_}),
-          dpc_access_ptr_(new access_wrapper_dpc<Impl>{impl_}) {}
+            : impl_(std::move(obj)),
+              host_access_ptr_(new access_wrapper_host<Impl>{ impl_ }),
+              dpc_access_ptr_(new access_wrapper_dpc<Impl>{ impl_ }) {}
 #else
     table_builder_impl_wrapper(Impl&& obj)
-        : impl_(std::move(obj)),
-          host_access_ptr_(new access_wrapper_host<Impl>{impl_}) {}
+            : impl_(std::move(obj)),
+              host_access_ptr_(new access_wrapper_host<Impl>{ impl_ }) {}
 #endif
 
     virtual table build() override {
@@ -91,15 +95,15 @@ private:
 template <typename Impl>
 class homogen_table_builder_impl_wrapper : public homogen_table_builder_iface, public base {
 public:
-    #ifdef ONEAPI_DAL_DATA_PARALLEL
+#ifdef ONEAPI_DAL_DATA_PARALLEL
     homogen_table_builder_impl_wrapper(Impl&& obj)
-        : impl_(std::move(obj)),
-          host_access_ptr_(new access_wrapper_host<Impl>{impl_}),
-          dpc_access_ptr_(new access_wrapper_dpc<Impl>{impl_}) {}
+            : impl_(std::move(obj)),
+              host_access_ptr_(new access_wrapper_host<Impl>{ impl_ }),
+              dpc_access_ptr_(new access_wrapper_dpc<Impl>{ impl_ }) {}
 #else
     homogen_table_builder_impl_wrapper(Impl&& obj)
-        : impl_(std::move(obj)),
-          host_access_ptr_(new access_wrapper_host<Impl>{impl_}) {}
+            : impl_(std::move(obj)),
+              host_access_ptr_(new access_wrapper_host<Impl>{ impl_ }) {}
 #endif
 
     virtual table build() override {
@@ -113,7 +117,9 @@ public:
     virtual void reset(homogen_table&& t) override {
         impl_.reset(std::move(t));
     }
-    virtual void reset(const array<byte_t>& data, std::int64_t row_count, std::int64_t column_count) override {
+    virtual void reset(const array<byte_t>& data,
+                       std::int64_t row_count,
+                       std::int64_t column_count) override {
         impl_.reset(data, row_count, column_count);
     }
     virtual void set_data_type(data_type dt) override {
@@ -128,7 +134,9 @@ public:
     virtual void set_layout(homogen_data_layout layout) override {
         impl_.set_layout(layout);
     }
-    virtual void copy_data(const void* data, std::int64_t row_count, std::int64_t column_count) override {
+    virtual void copy_data(const void* data,
+                           std::int64_t row_count,
+                           std::int64_t column_count) override {
         impl_.copy_data(data, row_count, column_count);
     }
 
@@ -138,13 +146,15 @@ public:
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     virtual void allocate(sycl::queue& queue,
-                          std::int64_t row_count, std::int64_t column_count,
+                          std::int64_t row_count,
+                          std::int64_t column_count,
                           sycl::usm::alloc kind) override {
         impl_.allocate(queue, row_count, column_count, kind);
     }
     virtual void copy_data(sycl::queue& queue,
                            const void* data,
-                           std::int64_t row_count, std::int64_t column_count,
+                           std::int64_t row_count,
+                           std::int64_t column_count,
                            const sycl::vector_class<sycl::event>& dependencies) override {
         impl_.copy_data(queue, data, row_count, column_count, dependencies);
     }

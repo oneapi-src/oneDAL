@@ -34,8 +34,8 @@ public:
 
     template <typename Impl,
               typename ImplType = std::decay_t<Impl>,
-              typename = std::enable_if_t<is_table_impl_v<ImplType> &&
-                         !std::is_base_of_v<table, ImplType>>>
+              typename          = std::enable_if_t<is_table_impl_v<ImplType> &&
+                                          !std::is_base_of_v<table, ImplType>>>
     table(Impl&& impl) {
         init_impl(new detail::table_impl_wrapper(std::forward<Impl>(impl)));
     }
@@ -70,7 +70,7 @@ public:
 
     template <typename Impl,
               typename ImplType = std::decay_t<Impl>,
-              typename = std::enable_if_t<is_homogen_table_impl_v<ImplType> &&
+              typename          = std::enable_if_t<is_homogen_table_impl_v<ImplType> &&
                                           !std::is_base_of_v<table, ImplType>>>
     homogen_table(Impl&& impl) {
         init_impl(std::forward<Impl>(impl));

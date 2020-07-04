@@ -40,7 +40,7 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     const int64_t column_count    = data.get_column_count();
     const int64_t component_count = desc.get_component_count();
 
-    auto arr_data = row_accessor<const Float>{ data }.pull();
+    auto arr_data   = row_accessor<const Float>{ data }.pull();
     auto arr_eigvec = array<Float>::empty(column_count * component_count);
     auto arr_eigval = array<Float>::empty(1 * component_count);
     auto arr_means  = array<Float>::empty(1 * component_count);
@@ -79,11 +79,9 @@ static train_result call_daal_kernel(const context_cpu& ctx,
                                                             *daal_variances);
 
     return train_result()
-        .set_model(
-            model().set_eigenvectors(homogen_table_builder{}
-                .reset(arr_eigvec, column_count, component_count).build()))
-        .set_eigenvalues(homogen_table_builder{}
-                .reset(arr_eigval, 1, component_count).build());
+        .set_model(model().set_eigenvectors(
+            homogen_table_builder{}.reset(arr_eigvec, column_count, component_count).build()))
+        .set_eigenvalues(homogen_table_builder{}.reset(arr_eigval, 1, component_count).build());
 }
 
 template <typename Float>

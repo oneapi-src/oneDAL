@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "oneapi/dal/data/detail/access_iface_wrapper.hpp"
 #include "oneapi/dal/data/detail/access_iface_type_traits.hpp"
+#include "oneapi/dal/data/detail/access_iface_wrapper.hpp"
 
 #include <stdexcept> // TODO: change by oneDAL exceptions
 
@@ -26,51 +26,54 @@ namespace oneapi::dal::detail {
 template <typename T>
 class access_wrapper_impl_host {
 public:
-    using policy_t = host_seq_policy;
+    using policy_t     = host_seq_policy;
     using alloc_kind_t = host_only_alloc;
 
 public:
-    access_wrapper_impl_host(T& obj)
-        : obj_(obj) {}
+    access_wrapper_impl_host(T& obj) : obj_(obj) {}
 
     template <typename Block>
     void pull_rows(const policy_t&,
-                   Block& block, const row_block& index,
+                   Block& block,
+                   const row_block& index,
                    const alloc_kind_t&) const {
         if constexpr (has_pull_rows_host<T, typename Block::data_t>::value) {
             obj_.pull_rows(block, index.rows);
-        } else {
+        }
+        else {
             throw std::runtime_error("pulling rows is not supported");
         }
     }
 
     template <typename Block>
     void pull_column(const policy_t&,
-                     Block& block, const column_values_block& index,
+                     Block& block,
+                     const column_values_block& index,
                      const alloc_kind_t&) const {
         if constexpr (has_pull_column_host<T, typename Block::data_t>::value) {
             obj_.pull_column(block, index.column_index, index.rows);
-        } else {
+        }
+        else {
             throw std::runtime_error("pulling column is not supported");
         }
     }
 
     template <typename Block>
-    void push_rows(const policy_t&,
-                   const Block& block, const row_block& index) {
+    void push_rows(const policy_t&, const Block& block, const row_block& index) {
         if constexpr (has_push_rows_host<T, typename Block::data_t>::value) {
             obj_.push_rows(block, index.rows);
-        } else {
+        }
+        else {
             throw std::runtime_error("pushing rows is not supported");
         }
     }
 
     template <typename Block>
-    void push_column(const policy_t&,
-                     const Block& block, const column_values_block& index) {
+    void push_column(const policy_t&, const Block& block, const column_values_block& index) {
         if constexpr (has_push_column_host<T, typename Block::data_t>::value) {
             obj_.push_column(block, index.column_index, index.rows);
-        } else {
+        }
+        else {
             throw std::runtime_error("pushing column is not supported");
         }
     }

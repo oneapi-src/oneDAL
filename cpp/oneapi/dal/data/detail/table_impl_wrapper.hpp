@@ -16,9 +16,9 @@
 
 #pragma once
 
-#include "oneapi/dal/data/detail/table_impl_iface.hpp"
-#include "oneapi/dal/data/detail/access_wrapper_host.hpp"
 #include "oneapi/dal/data/detail/access_wrapper_dpc.hpp"
+#include "oneapi/dal/data/detail/access_wrapper_host.hpp"
+#include "oneapi/dal/data/detail/table_impl_iface.hpp"
 
 namespace oneapi::dal::detail {
 
@@ -27,13 +27,13 @@ class table_impl_wrapper : public table_impl_iface, public base {
 public:
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     table_impl_wrapper(Impl&& obj)
-        : impl_(std::move(obj)),
-          host_access_ptr_(new access_wrapper_host<Impl>{impl_}),
-          dpc_access_ptr_(new access_wrapper_dpc<Impl>{impl_}) {}
+            : impl_(std::move(obj)),
+              host_access_ptr_(new access_wrapper_host<Impl>{ impl_ }),
+              dpc_access_ptr_(new access_wrapper_dpc<Impl>{ impl_ }) {}
 #else
     table_impl_wrapper(Impl&& obj)
-        : impl_(std::move(obj)),
-          host_access_ptr_(new access_wrapper_host<Impl>{impl_}) {}
+            : impl_(std::move(obj)),
+              host_access_ptr_(new access_wrapper_host<Impl>{ impl_ }) {}
 #endif
 
     virtual std::int64_t get_column_count() const override {
@@ -82,13 +82,13 @@ public:
     homogen_table_impl_wrapper(Impl&& obj, std::int64_t homogen_table_kind)
             : kind_(homogen_table_kind),
               impl_(std::move(obj)),
-              host_access_ptr_(new access_wrapper_host<Impl>{impl_}),
-              dpc_access_ptr_(new access_wrapper_dpc<Impl>{impl_}) {}
+              host_access_ptr_(new access_wrapper_host<Impl>{ impl_ }),
+              dpc_access_ptr_(new access_wrapper_dpc<Impl>{ impl_ }) {}
 #else
     homogen_table_impl_wrapper(Impl&& obj, std::int64_t homogen_table_kind)
             : kind_(homogen_table_kind),
               impl_(std::move(obj)),
-              host_access_ptr_(new access_wrapper_host<Impl>{impl_}) {}
+              host_access_ptr_(new access_wrapper_host<Impl>{ impl_ }) {}
 #endif
 
     virtual std::int64_t get_column_count() const override {

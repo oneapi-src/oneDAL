@@ -34,30 +34,50 @@ inline constexpr bool is_table_builder_impl_v = is_table_builder_impl<T>::value;
 template <typename T>
 struct is_homogen_table_builder_impl {
     ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(homogen_table, build, ())
-    ONEAPI_DAL_HAS_METHOD_TRAIT(void, reset, (homogen_table&& t), reset_from_table)
-    ONEAPI_DAL_HAS_METHOD_TRAIT(void, reset,
-        (const array<byte_t>& data, std::int64_t row_count, std::int64_t column_count), reset_from_array)
+    ONEAPI_DAL_HAS_METHOD_TRAIT(void, reset, (homogen_table && t), reset_from_table)
+    ONEAPI_DAL_HAS_METHOD_TRAIT(void,
+                                reset,
+                                (const array<byte_t>& data,
+                                 std::int64_t row_count,
+                                 std::int64_t column_count),
+                                reset_from_array)
     ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void, set_data_type, (data_type dt))
     ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void, set_feature_type, (feature_type ft))
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void, allocate, (std::int64_t row_count, std::int64_t column_count))
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void,
+                                       allocate,
+                                       (std::int64_t row_count, std::int64_t column_count))
     ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void, set_layout, (homogen_data_layout layout))
-    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void, copy_data, (const void* data, std::int64_t row_count, std::int64_t column_count))
+    ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(void,
+                                       copy_data,
+                                       (const void* data,
+                                        std::int64_t row_count,
+                                        std::int64_t column_count))
 
-    static constexpr bool value_host = has_method_build_v<T> && has_method_reset_from_table_v<T> &&
-        has_method_reset_from_array_v<T>&& has_method_set_data_type_v<T> &&
+    static constexpr bool value_host =
+        has_method_build_v<T> && has_method_reset_from_table_v<T> &&
+        has_method_reset_from_array_v<T> && has_method_set_data_type_v<T> &&
         has_method_set_feature_type_v<T> && has_method_allocate_v<T> &&
         has_method_set_layout_v<T> && has_method_copy_data_v<T>;
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    ONEAPI_DAL_HAS_METHOD_TRAIT(void, allocate,
-        (sycl::queue& queue, std::int64_t row_count, std::int64_t column_count,sycl::usm::alloc kind), allocate_dpc);
-    ONEAPI_DAL_HAS_METHOD_TRAIT(void, copy_data,
-        (sycl::queue& queue, const void* data,
-         std::int64_t row_count, std::int64_t column_count,
-         const sycl::vector_class<sycl::event>& dependencies), copy_data_dpc);
+    ONEAPI_DAL_HAS_METHOD_TRAIT(void,
+                                allocate,
+                                (sycl::queue & queue,
+                                 std::int64_t row_count,
+                                 std::int64_t column_count,
+                                 sycl::usm::alloc kind),
+                                allocate_dpc);
+    ONEAPI_DAL_HAS_METHOD_TRAIT(void,
+                                copy_data,
+                                (sycl::queue & queue,
+                                 const void* data,
+                                 std::int64_t row_count,
+                                 std::int64_t column_count,
+                                 const sycl::vector_class<sycl::event>& dependencies),
+                                copy_data_dpc);
 
     static constexpr bool value_dpc = has_method_allocate_dpc_v<T> && has_method_copy_data_dpc_v<T>;
-    static constexpr bool value = value_host && value_dpc;
+    static constexpr bool value     = value_host && value_dpc;
 #else
     static constexpr bool value = value_host;
 #endif
@@ -73,18 +93,17 @@ class ONEAPI_DAL_EXPORT table_builder {
 public:
     template <typename Impl,
               typename ImplType = std::decay_t<Impl>,
-              typename = std::enable_if_t<is_table_builder_impl_v<ImplType> &&
-                         !std::is_base_of_v<table_builder, ImplType>>>
+              typename          = std::enable_if_t<is_table_builder_impl_v<ImplType> &&
+                                          !std::is_base_of_v<table_builder, ImplType>>>
     table_builder(Impl&& impl)
-        : table_builder(new detail::table_builder_impl_wrapper(std::forward<Impl>(impl))) {}
+            : table_builder(new detail::table_builder_impl_wrapper(std::forward<Impl>(impl))) {}
 
     table build() const {
         return impl_->build();
     }
 
 protected:
-    table_builder(detail::table_builder_impl_iface* obj)
-        : impl_(obj) {}
+    table_builder(detail::table_builder_impl_iface* obj) : impl_(obj) {}
 
 private:
     pimpl_t impl_;
@@ -96,10 +115,11 @@ public:
 
     template <typename Impl,
               typename ImplType = std::decay_t<Impl>,
-              typename = std::enable_if_t<is_homogen_table_builder_impl_v<ImplType> &&
-                         !std::is_base_of_v<table_builder, ImplType>>>
+              typename          = std::enable_if_t<is_homogen_table_builder_impl_v<ImplType> &&
+                                          !std::is_base_of_v<table_builder, ImplType>>>
     homogen_table_builder(Impl&& impl)
-        : table_builder(new detail::homogen_table_builder_impl_wrapper(std::forward<Impl>(impl))) {}
+            : table_builder(
+                  new detail::homogen_table_builder_impl_wrapper(std::forward<Impl>(impl))) {}
 
     homogen_table build() {
         auto& impl = get_impl();
@@ -118,7 +138,8 @@ public:
             byte_data.reset(data,
                             reinterpret_cast<byte_t*>(data.get_mutable_data()),
                             data.get_size());
-        } else {
+        }
+        else {
             byte_data.reset(data,
                             reinterpret_cast<const byte_t*>(data.get_data()),
                             data.get_size());
@@ -157,7 +178,8 @@ public:
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     auto& allocate(sycl::queue& queue,
-                   std::int64_t row_count, std::int64_t column_count,
+                   std::int64_t row_count,
+                   std::int64_t column_count,
                    sycl::usm::alloc kind) {
         auto& impl = get_impl();
         impl.allocate(queue, row_count, column_count, kind);
@@ -165,7 +187,8 @@ public:
     }
     auto& copy_data(sycl::queue& queue,
                     const void* data,
-                    std::int64_t row_count, std::int64_t column_count,
+                    std::int64_t row_count,
+                    std::int64_t column_count,
                     const sycl::vector_class<sycl::event>& dependencies = {}) {
         auto& impl = get_impl();
         impl.copy_data(queue, data, row_count, column_count, dependencies);
