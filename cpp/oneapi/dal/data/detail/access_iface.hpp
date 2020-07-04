@@ -36,7 +36,7 @@ struct column_values_block {
           rows(rows) {}
 };
 
-template <typename PolicyType, typename AllocKind>
+template <typename Policy, typename AllocKind>
 struct access_iface {
     using array_f32 = array<float>;
     using array_f64 = array<double>;
@@ -44,19 +44,19 @@ struct access_iface {
 
     virtual ~access_iface() {}
 
-    virtual void pull(const PolicyType&, array_f32&, const row_block&, const AllocKind&) const = 0;
-    virtual void pull(const PolicyType&, array_f64&, const row_block&, const AllocKind&) const = 0;
-    virtual void pull(const PolicyType&, array_i32&, const row_block&, const AllocKind&) const = 0;
-    virtual void pull(const PolicyType&, array_f32&, const column_values_block&, const AllocKind&) const = 0;
-    virtual void pull(const PolicyType&, array_f64&, const column_values_block&, const AllocKind&) const = 0;
-    virtual void pull(const PolicyType&, array_i32&, const column_values_block&, const AllocKind&) const = 0;
+    virtual void pull(const Policy&, array_f32&, const row_block&, const AllocKind&) const = 0;
+    virtual void pull(const Policy&, array_f64&, const row_block&, const AllocKind&) const = 0;
+    virtual void pull(const Policy&, array_i32&, const row_block&, const AllocKind&) const = 0;
+    virtual void pull(const Policy&, array_f32&, const column_values_block&, const AllocKind&) const = 0;
+    virtual void pull(const Policy&, array_f64&, const column_values_block&, const AllocKind&) const = 0;
+    virtual void pull(const Policy&, array_i32&, const column_values_block&, const AllocKind&) const = 0;
 
-    virtual void push(const PolicyType&, const array_f32&, const row_block&) = 0;
-    virtual void push(const PolicyType&, const array_f64&, const row_block&) = 0;
-    virtual void push(const PolicyType&, const array_i32&, const row_block&) = 0;
-    virtual void push(const PolicyType&, const array_f32&, const column_values_block&) = 0;
-    virtual void push(const PolicyType&, const array_f64&, const column_values_block&) = 0;
-    virtual void push(const PolicyType&, const array_i32&, const column_values_block&) = 0;
+    virtual void push(const Policy&, const array_f32&, const row_block&) = 0;
+    virtual void push(const Policy&, const array_f64&, const row_block&) = 0;
+    virtual void push(const Policy&, const array_i32&, const row_block&) = 0;
+    virtual void push(const Policy&, const array_f32&, const column_values_block&) = 0;
+    virtual void push(const Policy&, const array_f64&, const column_values_block&) = 0;
+    virtual void push(const Policy&, const array_i32&, const column_values_block&) = 0;
 };
 
 using access_iface_host = access_iface<host_seq_policy, host_only_alloc>;

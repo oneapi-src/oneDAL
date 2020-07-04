@@ -76,24 +76,24 @@ public:
         init_impl(std::forward<Impl>(impl));
     }
 
-    template <typename DataType>
+    template <typename Data>
     homogen_table(std::int64_t row_count,
                   std::int64_t column_count,
-                  const DataType* data_pointer,
+                  const Data* data_pointer,
                   homogen_data_layout layout = homogen_data_layout::row_major);
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    template <typename DataType>
+    template <typename Data>
     homogen_table(std::int64_t row_count,
                   std::int64_t column_count,
-                  const DataType* data_pointer,
+                  const Data* data_pointer,
                   homogen_data_layout layout = homogen_data_layout::row_major,
                   const sycl::vector_class<sycl::event>& dependencies = {});
 #endif
 
-    template <typename DataType>
-    const DataType* get_data() const {
-        return reinterpret_cast<const DataType*>(this->get_data());
+    template <typename Data>
+    const Data* get_data() const {
+        return reinterpret_cast<const Data*>(this->get_data());
     }
 
     const void* get_data() const;

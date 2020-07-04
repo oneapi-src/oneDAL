@@ -25,20 +25,20 @@ class homogen_table_impl {
 public:
     homogen_table_impl() : row_count_(0) {}
 
-    template <typename DataType>
+    template <typename Data>
     homogen_table_impl(std::int64_t N,
                        std::int64_t p,
-                       const DataType* data_pointer,
+                       const Data* data_pointer,
                        homogen_data_layout layout)
-            : meta_(homogen_table_metadata{ make_data_type<DataType>(), layout, p }),
+            : meta_(homogen_table_metadata{ make_data_type<Data>(), layout, p }),
               row_count_(N) {
         data_.reset_not_owning(reinterpret_cast<const byte_t*>(data_pointer),
-                               N * p * sizeof(DataType));
+                               N * p * sizeof(Data));
     }
 
-    template <typename DataType, typename = std::enable_if_t<!std::is_pointer_v<DataType>>>
-    homogen_table_impl(std::int64_t N, std::int64_t p, DataType value, homogen_data_layout layout)
-            : homogen_table_impl(N, p, fill_data(new DataType[N * p], N * p, value), layout) {}
+    template <typename Data, typename = std::enable_if_t<!std::is_pointer_v<Data>>>
+    homogen_table_impl(std::int64_t N, std::int64_t p, Data value, homogen_data_layout layout)
+            : homogen_table_impl(N, p, fill_data(new Data[N * p], N * p, value), layout) {}
 
     homogen_table_impl(std::int64_t p, const array<byte_t>& data,
                        table_feature feature, homogen_data_layout layout)
@@ -46,9 +46,9 @@ public:
               data_(data),
               row_count_(data.get_count() / p / get_data_type_size(feature.get_data_type())) {}
 
-    template <typename DataType>
-    homogen_table_impl(std::int64_t p, const array<DataType>& data, homogen_data_layout layout)
-            : meta_(homogen_table_metadata{ make_data_type<DataType>(), layout, p }),
+    template <typename Data>
+    homogen_table_impl(std::int64_t p, const array<Data>& data, homogen_data_layout layout)
+            : meta_(homogen_table_metadata{ make_data_type<Data>(), layout, p }),
               row_count_(data.get_count() / p) {
         const std::int64_t N = row_count_;
 

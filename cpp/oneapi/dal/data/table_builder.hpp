@@ -111,8 +111,8 @@ public:
         impl.reset(std::move(t));
         return *this;
     }
-    template <typename DataType>
-    auto& reset(const array<DataType>& data, std::int64_t row_count, std::int64_t column_count) {
+    template <typename Data>
+    auto& reset(const array<Data>& data, std::int64_t row_count, std::int64_t column_count) {
         array<byte_t> byte_data;
         if (data.is_data_owner() && data.has_mutable_data()) {
             byte_data.reset(reinterpret_cast<byte_t*>(data.get_mutable_data()), data.get_size(),
@@ -123,7 +123,7 @@ public:
         }
 
         auto& impl = get_impl();
-        impl.set_data_type(make_data_type<DataType>());
+        impl.set_data_type(make_data_type<Data>());
         impl.reset(byte_data, row_count, column_count);
         return *this;
     }

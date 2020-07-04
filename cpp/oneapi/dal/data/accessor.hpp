@@ -23,7 +23,7 @@
 namespace oneapi::dal {
 namespace detail {
 
-template <typename T, typename BlockIndexType>
+template <typename T, typename BlockIndex>
 class accessor_base {
 public:
     using data_t          = std::remove_const_t<T>;
@@ -42,14 +42,14 @@ public:
 #endif
 
     template <typename Policy, typename AllocKind>
-    array<data_t> pull(const Policy& policy, const BlockIndexType& idx, const AllocKind& kind) const {
+    array<data_t> pull(const Policy& policy, const BlockIndex& idx, const AllocKind& kind) const {
         array<data_t> block;
         get_access(policy).pull(policy, block, idx, kind);
         return block;
     }
 
     template <typename Policy, typename AllocKind>
-    T* pull(const Policy& policy, array<data_t>& block, const BlockIndexType& idx, const AllocKind& kind) const {
+    T* pull(const Policy& policy, array<data_t>& block, const BlockIndex& idx, const AllocKind& kind) const {
         get_access(policy).pull(policy, block, idx, kind);
         if constexpr (is_readonly) {
             return block.get_data();
@@ -60,7 +60,7 @@ public:
     }
 
     template <typename Policy>
-    void push(const Policy& policy, const array<data_t>& block, const BlockIndexType& idx) {
+    void push(const Policy& policy, const array<data_t>& block, const BlockIndex& idx) {
         get_access(policy).push(policy, block, idx);
     }
 
