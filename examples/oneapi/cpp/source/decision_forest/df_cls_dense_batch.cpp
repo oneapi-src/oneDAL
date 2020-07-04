@@ -14,11 +14,8 @@
  * limitations under the License.
  *******************************************************************************/
 
-#include "oneapi/dal/algo/decision_forest.hpp"
-#include "oneapi/dal/data/accessor.hpp"
-#include "oneapi/dal/data/table.hpp"
-
 #include "example_util/utils.hpp"
+#include "oneapi/dal/algo/decision_forest.hpp"
 
 using namespace oneapi;
 namespace df = oneapi::dal::decision_forest;
