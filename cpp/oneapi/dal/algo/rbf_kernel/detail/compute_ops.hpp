@@ -16,32 +16,30 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/svm/train_types.hpp"
+#include "oneapi/dal/algo/rbf_kernel/compute_types.hpp"
 
-namespace oneapi::dal::svm::detail {
+namespace oneapi::dal::rbf_kernel::detail {
 
 template <typename Context, typename... Options>
-struct ONEAPI_DAL_EXPORT train_ops_dispatcher {
-    train_result operator()(const Context&, const descriptor_base&, const train_input&) const;
+struct compute_ops_dispatcher {
+    compute_result operator()(const Context&, const descriptor_base&, const compute_input&) const;
 };
 
 template <typename Descriptor>
-struct train_ops {
+struct compute_ops {
     using float_t           = typename Descriptor::float_t;
-    using task_t            = typename Descriptor::task_t;
     using method_t          = typename Descriptor::method_t;
-    using kernel_t          = typename Descriptor::kernel_t;
-    using input_t           = train_input;
-    using result_t          = train_result;
+    using input_t           = compute_input;
+    using result_t          = compute_result;
     using descriptor_base_t = descriptor_base;
 
-    void validate(const Descriptor& params, const train_input& input) const {}
+    void validate(const Descriptor& params, const compute_input& input) const {}
 
     template <typename Context>
-    auto operator()(const Context& ctx, const Descriptor& desc, const train_input& input) const {
+    auto operator()(const Context& ctx, const Descriptor& desc, const compute_input& input) const {
         validate(desc, input);
-        return train_ops_dispatcher<Context, float_t, task_t, method_t>()(ctx, desc, input);
+        return compute_ops_dispatcher<Context, float_t, method_t>()(ctx, desc, input);
     }
 };
 
-} // namespace oneapi::dal::svm::detail
+} // namespace oneapi::dal::rbf_kernel::detail
