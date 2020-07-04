@@ -64,10 +64,10 @@ public:
         std::enable_if_t<std::is_same_v<T, std::decay_t<task::classification>>>;
     infer_result();
 
-    table get_prediction() const;
+    table get_labels() const;
 
-    auto& set_prediction(const table& value) {
-        set_prediction_impl(value);
+    auto& set_labels(const table& value) {
+        set_labels_impl(value);
         return *this;
     }
 
@@ -85,7 +85,7 @@ public:
 
 private:
     table get_probabilities_impl() const;
-    void set_prediction_impl(const table& value);
+    void set_labels_impl(const table& value);
     void set_probabilities_impl(const table& value);
 
     pimpl impl_;

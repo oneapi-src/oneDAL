@@ -72,17 +72,17 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     auto daal_parameter = cls::prediction::Parameter(desc.get_class_count(), daal_voting_method);
 
-    daal::data_management::NumericTablePtr daal_prediction_res;
-    daal::data_management::NumericTablePtr daal_prediction_prob_res;
+    daal::data_management::NumericTablePtr daal_labels_res;
+    daal::data_management::NumericTablePtr daal_labels_prob_res;
 
     if (desc.get_infer_results_to_compute() &
         static_cast<std::uint64_t>(infer_result_to_compute::compute_class_labels)) {
-        daal_prediction_res = interop::allocate_daal_homogen_table<Float>(row_count, 1);
+        daal_labels_res = interop::allocate_daal_homogen_table<Float>(row_count, 1);
     }
 
     if (desc.get_infer_results_to_compute() &
         static_cast<std::uint64_t>(infer_result_to_compute::compute_class_probabilities)) {
-        daal_prediction_prob_res =
+        daal_labels_prob_res =
             interop::allocate_daal_homogen_table<Float>(row_count, desc.get_class_count());
     }
 
@@ -93,8 +93,8 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
         daal::services::internal::hostApp(daal_input),
         daal_data.get(),
         daal_model,
-        daal_prediction_res.get(),
-        daal_prediction_prob_res.get(),
+        daal_labels_res.get(),
+        daal_labels_prob_res.get(),
         desc.get_class_count(),
         daal_voting_method);
 
@@ -102,15 +102,14 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     if (desc.get_infer_results_to_compute() &
         static_cast<std::uint64_t>(infer_result_to_compute::compute_class_labels)) {
-        auto table_class_labels =
-            interop::convert_from_daal_homogen_table<Float>(daal_prediction_res);
-        res.set_prediction(table_class_labels);
+        auto table_class_labels = interop::convert_from_daal_homogen_table<Float>(daal_labels_res);
+        res.set_labels(table_class_labels);
     }
 
     if (desc.get_infer_results_to_compute() &
         static_cast<std::uint64_t>(infer_result_to_compute::compute_class_probabilities)) {
         auto table_class_probs =
-            interop::convert_from_daal_homogen_table<Float>(daal_prediction_prob_res);
+            interop::convert_from_daal_homogen_table<Float>(daal_labels_prob_res);
         res.set_probabilities(table_class_probs);
     }
 

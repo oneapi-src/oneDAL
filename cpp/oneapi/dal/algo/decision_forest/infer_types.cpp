@@ -32,7 +32,7 @@ public:
 template <typename Task>
 class detail::infer_result_impl : public base {
 public:
-    table prediction;
+    table labels;
     table probabilities;
 };
 
@@ -72,8 +72,8 @@ template <typename Task>
 infer_result<Task>::infer_result() : impl_(new infer_result_impl<Task>{}) {}
 
 template <typename Task>
-table infer_result<Task>::get_prediction() const {
-    return impl_->prediction;
+table infer_result<Task>::get_labels() const {
+    return impl_->labels;
 }
 
 template <typename Task>
@@ -82,8 +82,8 @@ table infer_result<Task>::get_probabilities_impl() const {
 }
 
 template <typename Task>
-void infer_result<Task>::set_prediction_impl(const table& value) {
-    impl_->prediction = value;
+void infer_result<Task>::set_labels_impl(const table& value) {
+    impl_->labels = value;
 }
 
 template <typename Task>

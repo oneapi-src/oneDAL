@@ -66,7 +66,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     daal_input.set(rgr::prediction::model, pinterop_model->get_model());
 
-    daal::data_management::NumericTablePtr daal_prediction_res =
+    daal::data_management::NumericTablePtr daal_labels_res =
         interop::allocate_daal_homogen_table<Float>(row_count, 1);
 
     const rgr::Model* const daal_model =
@@ -76,10 +76,10 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
         daal::services::internal::hostApp(daal_input),
         daal_data.get(),
         daal_model,
-        daal_prediction_res.get());
+        daal_labels_res.get());
 
-    return infer_result<Task>().set_prediction(
-        interop::convert_from_daal_homogen_table<Float>(daal_prediction_res));
+    return infer_result<Task>().set_labels(
+        interop::convert_from_daal_homogen_table<Float>(daal_labels_res));
 }
 
 template <typename Float, typename Task>

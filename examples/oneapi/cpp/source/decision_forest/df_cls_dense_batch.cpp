@@ -82,7 +82,7 @@ int main(int argc, char const *argv[]) {
       dal::infer(df_desc, result_train.get_model(), x_test_table);
 
   std::cout << "Prediction results: " << std::endl
-            << result_infer.get_prediction() << std::endl;
+            << result_infer.get_labels() << std::endl;
 
   std::cout << "Ground truth: " << std::endl << y_test_table << std::endl;
 
