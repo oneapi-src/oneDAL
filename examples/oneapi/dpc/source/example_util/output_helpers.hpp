@@ -16,22 +16,23 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/dispatcher.hpp"
-#include "oneapi/dal/data_parallel.hpp"
+#include <iomanip>
+#include <iostream>
 
-namespace oneapi::dal::backend {
+#include "oneapi/dal/data/accessor.hpp"
+#include "oneapi/dal/data/table.hpp"
 
-class context_gpu {};
+std::ostream &operator<<(std::ostream &stream,
+                         const oneapi::dal::table &table) {
+  auto arr = oneapi::dal::row_accessor<const float>(table).pull();
+  const auto x = arr.get_data();
 
-template <typename CpuKernel, typename GpuKernel>
-struct kernel_dispatcher<CpuKernel, GpuKernel> {
-    template <typename... Args>
-    auto operator()(const data_parallel_execution_context& ctx, Args&&... args) const {
-        // TODO: Dispatch to GPU
-        // TODO: Extract context_cpu from data_parallel_execution_context
-        auto cpu_ctx = context_cpu{ default_execution_context{} };
-        return CpuKernel()(cpu_ctx, std::forward<Args>(args)...);
+  for (std::int64_t i = 0; i < table.get_row_count(); i++) {
+    for (std::int64_t j = 0; j < table.get_column_count(); j++) {
+      std::cout << std::setw(10) << std::setiosflags(std::ios::fixed)
+                << std::setprecision(3) << x[i * table.get_column_count() + j];
     }
-};
-
-} // namespace oneapi::dal::backend
+    std::cout << std::endl;
+  }
+  return stream;
+}

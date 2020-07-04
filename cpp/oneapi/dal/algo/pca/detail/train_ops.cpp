@@ -21,8 +21,8 @@
 namespace oneapi::dal::pca::detail {
 
 template <typename Float, typename Method>
-struct ONEAPI_DAL_EXPORT train_ops_dispatcher<default_execution_context, Float, Method> {
-    train_result operator()(const default_execution_context& ctx,
+struct ONEAPI_DAL_EXPORT train_ops_dispatcher<host_policy, Float, Method> {
+    train_result operator()(const host_policy& ctx,
                             const descriptor_base& desc,
                             const train_input& input) const {
         using kernel_dispatcher_t =
@@ -31,8 +31,7 @@ struct ONEAPI_DAL_EXPORT train_ops_dispatcher<default_execution_context, Float, 
     }
 };
 
-#define INSTANTIATE(F, M) \
-    template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<default_execution_context, F, M>;
+#define INSTANTIATE(F, M) template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<host_policy, F, M>;
 
 INSTANTIATE(float, method::cov)
 INSTANTIATE(float, method::svd)

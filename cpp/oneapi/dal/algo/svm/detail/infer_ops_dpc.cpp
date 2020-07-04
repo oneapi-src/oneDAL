@@ -14,33 +14,29 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/svm/backend/cpu/train_kernel.hpp"
-#include "oneapi/dal/algo/svm/backend/gpu/train_kernel.hpp"
-#include "oneapi/dal/algo/svm/detail/train_ops.hpp"
-#include "oneapi/dal/backend/dispatcher_dp.hpp"
+#include "oneapi/dal/algo/svm/backend/cpu/infer_kernel.hpp"
+#include "oneapi/dal/algo/svm/backend/gpu/infer_kernel.hpp"
+#include "oneapi/dal/algo/svm/detail/infer_ops.hpp"
+#include "oneapi/dal/backend/dispatcher_dpc.hpp"
 
 namespace oneapi::dal::svm::detail {
 
 template <typename Float, typename Task, typename Method>
-struct ONEAPI_DAL_EXPORT
-    train_ops_dispatcher<data_parallel_execution_context, Float, Task, Method> {
-    train_result operator()(const data_parallel_execution_context& ctx,
+struct ONEAPI_DAL_EXPORT infer_ops_dispatcher<data_parallel_policy, Float, Task, Method> {
+    infer_result operator()(const data_parallel_policy& ctx,
                             const descriptor_base& params,
-                            const train_input& input) const {
+                            const infer_input& input) const {
         using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Task, Method>,
-                                            backend::train_kernel_gpu<Float, Task, Method>>;
+            dal::backend::kernel_dispatcher<backend::infer_kernel_cpu<Float, Task, Method>,
+                                            backend::infer_kernel_gpu<Float, Task, Method>>;
         return kernel_dispatcher_t{}(ctx, params, input);
     }
 };
 
-#define INSTANTIATE(F, T, M)          \
-    template struct ONEAPI_DAL_EXPORT \
-        train_ops_dispatcher<data_parallel_execution_context, F, T, M>;
+#define INSTANTIATE(F, T, M) \
+    template struct ONEAPI_DAL_EXPORT infer_ops_dispatcher<data_parallel_policy, F, T, M>;
 
-INSTANTIATE(float, task::classification, method::smo)
-INSTANTIATE(float, task::classification, method::thunder)
-INSTANTIATE(double, task::classification, method::smo)
-INSTANTIATE(double, task::classification, method::thunder)
+INSTANTIATE(float, task::classification, method::by_default)
+INSTANTIATE(double, task::classification, method::by_default)
 
 } // namespace oneapi::dal::svm::detail
