@@ -69,12 +69,13 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     daal::data_management::NumericTablePtr daal_prediction_res =
         interop::allocate_daal_homogen_table<Float>(row_count, 1);
 
-    const rgr::Model* const m = static_cast<rgr::Model*>(pinterop_model->get_model().get());
+    const rgr::Model* const daal_model =
+        static_cast<rgr::Model*>(pinterop_model->get_model().get());
     interop::call_daal_kernel<Float, rgr_default_dense_predict_kernel_t>(
         ctx,
         daal::services::internal::hostApp(daal_input),
         daal_data.get(),
-        m,
+        daal_model,
         daal_prediction_res.get());
 
     return infer_result<Task>().set_prediction(

@@ -88,12 +88,13 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
             interop::allocate_daal_homogen_table<Float>(row_count, desc.get_class_count());
     }
 
-    const cls::Model* const m = static_cast<cls::Model*>(pinterop_model->get_model().get());
+    const cls::Model* const daal_model =
+        static_cast<cls::Model*>(pinterop_model->get_model().get());
     interop::call_daal_kernel<Float, cls_default_dense_predict_kernel_t>(
         ctx,
         daal::services::internal::hostApp(daal_input),
         daal_data.get(),
-        m,
+        daal_model,
         daal_prediction_res.get(),
         daal_prediction_prob_res.get(),
         desc.get_class_count(),
