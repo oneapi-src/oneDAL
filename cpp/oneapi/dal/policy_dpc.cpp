@@ -14,18 +14,25 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/policy.hpp"
 
-#include "oneapi/dal/algo/svm/infer_types.hpp"
-#include "oneapi/dal/backend/dispatcher_dpc.hpp"
+namespace oneapi::dal {
 
-namespace oneapi::dal::svm::backend {
+class detail::data_parallel_policy_impl : public base {
+public:
+    explicit data_parallel_policy_impl(const sycl::queue& queue) : queue(queue) {}
 
-template <typename Float, typename Task, typename Method>
-struct infer_kernel_gpu {
-    infer_result operator()(const dal::backend::context_gpu& ctx,
-                            const descriptor_base& params,
-                            const infer_input& input) const;
+    sycl::queue queue;
 };
 
-} // namespace oneapi::dal::svm::backend
+using detail::data_parallel_policy_impl;
+
+data_parallel_policy::data_parallel_policy(const sycl::queue& queue)
+        : impl_(new data_parallel_policy_impl(queue)) {}
+
+sycl::queue& data_parallel_policy::get_queue() const noexcept {
+    return impl_->queue;
+}
+
+} // namespace oneapi::dal

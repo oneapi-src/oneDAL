@@ -14,25 +14,31 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/data/table.hpp"
-#include "oneapi/dal/data/accessor.hpp"
+#include <iomanip>
+#include <iostream>
+#include <CL/sycl.hpp>
+
+#define ONEAPI_DAL_DATA_PARALLEL
 #include "oneapi/dal/algo/pca.hpp"
+#include "oneapi/dal/data/accessor.hpp"
 
 #include "example_util/utils.hpp"
 
 using namespace oneapi;
 
-int main(int argc, char const *argv[]) {
+void run(sycl::queue& queue) {
     constexpr std::int64_t row_count = 5;
     constexpr std::int64_t column_count = 3;
 
-    const float data[] = {
+    const float data_host[] = {
         1.f,  2.f,  3.f,
         1.f,  -1.f, 0.f,
         4.f,  5.f,  6.f,
         1.f,  2.f,  5.f,
         -4.f, 3.f,  0.f
     };
+    auto data = sycl::malloc_shared<float>(row_count * column_count, queue);
+    queue.memcpy(data, data_host, sizeof(float) * row_count * column_count).wait();
 
     const auto data_table = dal::homogen_table{ row_count, column_count, data };
 
@@ -40,7 +46,7 @@ int main(int argc, char const *argv[]) {
         .set_component_count(3)
         .set_is_deterministic(true);
 
-    const auto result = dal::train(pca_desc, data_table);
+    const auto result = dal::train(queue, pca_desc, data_table);
 
     std::cout << "Eigenvectors:" << std::endl
               << result.get_eigenvectors() << std::endl;
@@ -48,5 +54,13 @@ int main(int argc, char const *argv[]) {
     std::cout << "Eigenvalues:" << std::endl
               << result.get_eigenvalues() << std::endl;
 
+    sycl::free(data, queue);
+}
+
+int main(int argc, char const *argv[]) {
+    for (auto device : list_devices()) {
+        auto queue = sycl::queue{device};
+        run(queue);
+    }
     return 0;
 }

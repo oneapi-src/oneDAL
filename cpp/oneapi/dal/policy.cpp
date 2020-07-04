@@ -14,27 +14,25 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/execution_context.hpp"
+#include "oneapi/dal/policy.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 
 namespace oneapi::dal {
 
-class detail::default_execution_context_impl : public base {
+class detail::host_policy_impl : public base {
 public:
     cpu_extension cpu_extensions_mask = backend::interop::detect_top_cpu_extension();
 };
 
-using detail::default_execution_context_impl;
+using detail::host_policy_impl;
 
-default_execution_context::default_execution_context()
-        : impl_(new default_execution_context_impl()) {}
+host_policy::host_policy() : impl_(new host_policy_impl()) {}
 
-void default_execution_context::set_enabled_cpu_extensions_impl(
-    const cpu_extension& extensions) noexcept {
+void host_policy::set_enabled_cpu_extensions_impl(const cpu_extension& extensions) noexcept {
     impl_->cpu_extensions_mask = extensions;
 }
 
-cpu_extension default_execution_context::get_enabled_cpu_extensions() const noexcept {
+cpu_extension host_policy::get_enabled_cpu_extensions() const noexcept {
     return impl_->cpu_extensions_mask;
 }
 

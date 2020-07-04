@@ -1,5 +1,6 @@
+# file: cmplt.dpcpp.mk
 #===============================================================================
-# Copyright 2020 Intel Corporation
+# Copyright 2012-2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,13 +15,27 @@
 # limitations under the License.
 #===============================================================================
 
-##  Content:
-##     Intel(R) Data Analytics Acceleration Library examples list
-##******************************************************************************
+#++
+#  DPC++ Compiler defenitions for makefile
+#--
 
-DAAL = linear_kernel_dense_batch         \
-       pca_cor_dense_batch               \
-       rbf_kernel_dense_batch            \
-       svm_two_class_thunder_dense_batch \
-       svm_two_class_smo_dense_batch
+PLATs.dpcpp = lnx32e win32e
 
+CMPLRDIRSUFF.dpcpp = _dpcpp
+
+CORE.SERV.COMPILER.dpcpp = generic
+
+-Zl.dpcpp =
+-DEBC.dpcpp = -g
+
+COMPILER.lnx.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64) -stdlib=libstdc++ -fgnu-runtime -fwrapv
+
+link.dynamic.lnx.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64)
+
+p4_OPT.dpcpp   = $(-Q)march=nocona
+mc_OPT.dpcpp   = $(-Q)march=core2
+mc3_OPT.dpcpp  = $(-Q)march=nehalem
+avx_OPT.dpcpp  = $(-Q)march=sandybridge
+avx2_OPT.dpcpp = $(-Q)march=haswell
+knl_OPT.dpcpp  = $(-Q)march=knl
+skx_OPT.dpcpp  = $(-Q)march=skx

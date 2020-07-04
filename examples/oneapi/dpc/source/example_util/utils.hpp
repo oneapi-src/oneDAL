@@ -16,26 +16,5 @@
 
 #pragma once
 
-#include "oneapi/dal/execution_context.hpp"
-
-namespace oneapi::dal {
-
-namespace detail {
-class data_parallel_execution_context;
-} // namespace detail
-
-class ONEAPI_DAL_EXPORT data_parallel_execution_context : public base {
-public:
-    using tag_t                       = detail::execution_context_tag;
-    data_parallel_execution_context() = default;
-
-private:
-    dal::detail::pimpl<detail::data_parallel_execution_context> impl_;
-};
-
-template <typename Queue>
-inline auto make_context(const Queue& queue) {
-    return data_parallel_execution_context();
-}
-
-} // namespace oneapi::dal
+#include "example_util/output_helpers.hpp"
+#include "example_util/dpc_helpers.hpp"
