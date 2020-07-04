@@ -84,7 +84,8 @@ public:
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     template <typename Data>
-    homogen_table(std::int64_t row_count,
+    homogen_table(sycl::queue& queue,
+                  std::int64_t row_count,
                   std::int64_t column_count,
                   const Data* data_pointer,
                   homogen_data_layout layout = homogen_data_layout::row_major,
