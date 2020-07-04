@@ -42,12 +42,12 @@ struct pimpl_accessor {
     auto make_from_pimpl(typename Object::pimpl const& impl) {
         return Object{ impl };
     }
-/*
+
     template <typename Object, typename ... Args>
     static auto make(Args&& ...args) {
         return Object{ std::forward<Args>(args)... };
     }
-*/
+
     template <typename Object>
     auto make_from_pointer(typename Object::pimpl::element_type* pointer) {
         using pimpl_t = typename Object::pimpl;
@@ -69,5 +69,7 @@ template <typename Object, typename Pimpl>
 Object make_from_pointer(typename Object::pimpl::element_type* pointer) {
     return pimpl_accessor().template make_from_pointer<Object>(pointer);
 }
+
+struct host_seq_policy {};
 
 } // namespace oneapi::dal::detail
