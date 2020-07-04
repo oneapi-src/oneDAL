@@ -31,8 +31,7 @@ struct ONEAPI_DAL_EXPORT train_ops_dispatcher<host_policy, Float, Method> {
     }
 };
 
-#define INSTANTIATE(F, M) \
-    template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<host_policy, F, M>;
+#define INSTANTIATE(F, M) template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<host_policy, F, M>;
 
 INSTANTIATE(float, method::cov)
 INSTANTIATE(float, method::svd)
