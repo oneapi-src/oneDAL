@@ -22,39 +22,9 @@
 #include "oneapi/dal/algo/pca.hpp"
 #include "oneapi/dal/data/accessor.hpp"
 
+#include "example_util/utils.hpp"
+
 using namespace oneapi;
-
-std::ostream &operator <<(std::ostream& stream, const dal::table& table) {
-    auto arr = dal::row_accessor<const float>(table).pull();
-    const auto x = arr.get_data();
-
-    for (std::int64_t i = 0; i < table.get_row_count(); i++) {
-        for (std::int64_t j = 0; j < table.get_column_count(); j++) {
-            std::cout << std::setw(10)
-                      << std::setiosflags(std::ios::fixed)
-                      << std::setprecision(3)
-                      << x[i * table.get_column_count() + j];
-        }
-        std::cout << std::endl;
-    }
-    return stream;
-}
-
-template <typename Selector>
-void try_add_device(std::vector<sycl::device>& devices) {
-    try {
-        devices.push_back(Selector{}.select_device());
-    }
-    catch (...) {}
-}
-
-std::vector<sycl::device> list_devices() {
-    std::vector<sycl::device> devices;
-    try_add_device<sycl::host_selector>(devices);
-    try_add_device<sycl::cpu_selector>(devices);
-    try_add_device<sycl::gpu_selector>(devices);
-    return devices;
-}
 
 void run(sycl::queue& queue) {
     constexpr std::int64_t row_count = 5;
