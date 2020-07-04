@@ -19,7 +19,7 @@
 namespace oneapi::dal::decision_forest::backend {
 
 template <typename Float, typename Task>
-struct infer_kernel_gpu<Float, Task, method::default_dense> {
+struct infer_kernel_gpu<Float, Task, method::dense> {
     infer_result<Task> operator()(const dal::backend::context_gpu& ctx,
                                   const descriptor_base<Task>& params,
                                   const infer_input<Task>& input) const {
@@ -27,9 +27,9 @@ struct infer_kernel_gpu<Float, Task, method::default_dense> {
     }
 };
 
-template struct infer_kernel_gpu<float, task::classification, method::default_dense>;
-template struct infer_kernel_gpu<double, task::classification, method::default_dense>;
-template struct infer_kernel_gpu<float, task::regression, method::default_dense>;
-template struct infer_kernel_gpu<double, task::regression, method::default_dense>;
+template struct infer_kernel_gpu<float, task::classification, method::dense>;
+template struct infer_kernel_gpu<double, task::classification, method::dense>;
+template struct infer_kernel_gpu<float, task::regression, method::dense>;
+template struct infer_kernel_gpu<double, task::regression, method::dense>;
 
 } // namespace oneapi::dal::decision_forest::backend

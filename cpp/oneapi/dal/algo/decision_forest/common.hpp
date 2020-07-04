@@ -38,9 +38,9 @@ class model_impl;
 } // namespace detail
 
 namespace method {
-struct default_dense {};
+struct dense {};
 struct hist {};
-using by_default = default_dense;
+using by_default = dense;
 } // namespace method
 
 enum class variable_importance_mode {

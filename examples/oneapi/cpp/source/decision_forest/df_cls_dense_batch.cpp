@@ -55,8 +55,7 @@ int main(int argc, char const *argv[]) {
   const auto y_test_table = dal::homogen_table{row_count_test, 1, y_test};
 
   const auto df_desc =
-      df::descriptor<float, df::task::classification,
-                     df::method::default_dense>{}
+      df::descriptor<float, df::task::classification, df::method::dense>{}
           .set_class_count(class_count)
           .set_tree_count(tree_count)
           .set_features_per_node(features_per_node)

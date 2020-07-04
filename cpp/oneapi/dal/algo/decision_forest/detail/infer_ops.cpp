@@ -34,9 +34,9 @@ struct infer_ops_dispatcher<default_execution_context, Float, Task, Method> {
 #define INSTANTIATE(F, T, M) \
     template struct infer_ops_dispatcher<default_execution_context, F, T, M>;
 
-INSTANTIATE(float, task::classification, method::default_dense)
-INSTANTIATE(double, task::classification, method::default_dense)
+INSTANTIATE(float, task::classification, method::dense)
+INSTANTIATE(double, task::classification, method::dense)
 
-INSTANTIATE(float, task::regression, method::default_dense)
-INSTANTIATE(double, task::regression, method::default_dense)
+INSTANTIATE(float, task::regression, method::dense)
+INSTANTIATE(double, task::regression, method::dense)
 } // namespace oneapi::dal::decision_forest::detail

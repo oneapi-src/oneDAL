@@ -54,7 +54,7 @@ int main(int argc, char const *argv[]) {
   const auto y_test_table = dal::homogen_table{row_count_test, 1, y_test};
 
   const auto df_desc =
-      df::descriptor<float, df::task::regression, df::method::default_dense>{}
+      df::descriptor<float, df::task::regression, df::method::dense>{}
           .set_tree_count(tree_count)
           .set_features_per_node(features_per_node)
           .set_min_observations_in_leaf_node(min_observations_in_leaf_node)

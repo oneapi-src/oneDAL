@@ -32,7 +32,7 @@ namespace rgr     = daal::algorithms::decision_forest::regression;
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
-using rgr_default_dense_predict_kernel_t =
+using rgr_dense_predict_kernel_t =
     rgr::prediction::internal::PredictKernel<Float, rgr::prediction::defaultDense, Cpu>;
 
 using rgr_model_p = rgr::ModelPtr;
@@ -71,7 +71,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     const rgr::Model* const daal_model =
         static_cast<rgr::Model*>(pinterop_model->get_model().get());
-    interop::call_daal_kernel<Float, rgr_default_dense_predict_kernel_t>(
+    interop::call_daal_kernel<Float, rgr_dense_predict_kernel_t>(
         ctx,
         daal::services::internal::hostApp(daal_input),
         daal_data.get(),
@@ -90,7 +90,7 @@ static infer_result<Task> infer(const context_cpu& ctx,
 }
 
 template <typename Float, typename Task>
-struct infer_kernel_cpu<Float, Task, method::default_dense> {
+struct infer_kernel_cpu<Float, Task, method::dense> {
     infer_result<Task> operator()(const context_cpu& ctx,
                                   const descriptor_base<Task>& desc,
                                   const infer_input<Task>& input) const {
@@ -98,7 +98,7 @@ struct infer_kernel_cpu<Float, Task, method::default_dense> {
     }
 };
 
-template struct infer_kernel_cpu<float, task::regression, method::default_dense>;
-template struct infer_kernel_cpu<double, task::regression, method::default_dense>;
+template struct infer_kernel_cpu<float, task::regression, method::dense>;
+template struct infer_kernel_cpu<double, task::regression, method::dense>;
 
 } // namespace oneapi::dal::decision_forest::backend

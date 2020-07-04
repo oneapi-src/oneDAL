@@ -40,7 +40,7 @@ namespace rgr     = daal::algorithms::decision_forest::regression;
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
-using rgr_default_dense_kernel_t =
+using rgr_dense_kernel_t =
     rgr::training::internal::RegressionTrainBatchKernel<Float, rgr::training::defaultDense, Cpu>;
 
 using rgr_model_p = rgr::ModelPtr;
@@ -127,7 +127,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     rgr::ModelPtr mptr = rgr::ModelPtr(new rgr::internal::ModelImpl(column_count));
 
-    interop::call_daal_kernel<Float, rgr_default_dense_kernel_t>(
+    interop::call_daal_kernel<Float, rgr_dense_kernel_t>(
         ctx,
         daal::services::internal::hostApp(daal_input),
         daal_data.get(),
@@ -170,7 +170,7 @@ static train_result<Task> train(const context_cpu& ctx,
 }
 
 template <typename Float, typename Task>
-struct train_kernel_cpu<Float, Task, method::default_dense> {
+struct train_kernel_cpu<Float, Task, method::dense> {
     train_result<Task> operator()(const context_cpu& ctx,
                                   const descriptor_base<Task>& desc,
                                   const train_input<Task>& input) const {
@@ -178,7 +178,7 @@ struct train_kernel_cpu<Float, Task, method::default_dense> {
     }
 };
 
-template struct train_kernel_cpu<float, task::regression, method::default_dense>;
-template struct train_kernel_cpu<double, task::regression, method::default_dense>;
+template struct train_kernel_cpu<float, task::regression, method::dense>;
+template struct train_kernel_cpu<double, task::regression, method::dense>;
 
 } // namespace oneapi::dal::decision_forest::backend
