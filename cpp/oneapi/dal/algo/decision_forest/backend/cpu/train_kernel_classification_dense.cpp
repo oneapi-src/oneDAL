@@ -98,7 +98,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     /* init daal result's objects */
     if (desc.get_train_results_to_compute() &
-        (std::uint64_t)train_result_to_compute::compute_out_of_bag_error) {
+        static_cast<std::uint64_t> train_result_to_compute::compute_out_of_bag_error) {
         array<Float> arr_oob_err{ 1 * 1 };
         res.set_oob_err(homogen_table_builder(1, arr_oob_err).build());
 
@@ -107,7 +107,8 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     }
 
     if (desc.get_train_results_to_compute() &
-        (std::uint64_t)train_result_to_compute::compute_out_of_bag_error_per_observation) {
+        static_cast<std::uint64_t>
+            train_result_to_compute::compute_out_of_bag_error_per_observation) {
         array<Float> arr_oob_per_obs_err{ row_count * 1 };
         res.set_oob_per_observation_err(homogen_table_builder(1, arr_oob_per_obs_err).build());
 
@@ -137,14 +138,15 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     /* extract results from daal objects */
     if (desc.get_train_results_to_compute() &
-        (std::uint64_t)train_result_to_compute::compute_out_of_bag_error) {
+        static_cast<std::uint64_t> train_result_to_compute::compute_out_of_bag_error) {
         auto table_oob_err = interop::convert_from_daal_homogen_table<Float>(
             daal_result.get(cls::training::outOfBagError));
         res.set_oob_err(table_oob_err);
     }
 
     if (desc.get_train_results_to_compute() &
-        (std::uint64_t)train_result_to_compute::compute_out_of_bag_error_per_observation) {
+        static_cast<std::uint64_t>
+            train_result_to_compute::compute_out_of_bag_error_per_observation) {
         auto table_oob_per_obs_err = interop::convert_from_daal_homogen_table<Float>(
             daal_result.get(cls::training::outOfBagErrorPerObservation));
         res.set_oob_per_observation_err(table_oob_per_obs_err);
