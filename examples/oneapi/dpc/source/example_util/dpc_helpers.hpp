@@ -16,16 +16,21 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/svm/infer_types.hpp"
-#include "oneapi/dal/backend/dispatcher_dpc.hpp"
+#include <vector>
+#include <CL/sycl.hpp>
 
-namespace oneapi::dal::svm::backend {
+template <typename Selector>
+void try_add_device(std::vector<sycl::device>& devices) {
+    try {
+        devices.push_back(Selector{}.select_device());
+    }
+    catch (...) {}
+}
 
-template <typename Float, typename Task, typename Method>
-struct infer_kernel_gpu {
-    infer_result operator()(const dal::backend::context_gpu& ctx,
-                            const descriptor_base& params,
-                            const infer_input& input) const;
-};
-
-} // namespace oneapi::dal::svm::backend
+std::vector<sycl::device> list_devices() {
+    std::vector<sycl::device> devices;
+    try_add_device<sycl::host_selector>(devices);
+    try_add_device<sycl::cpu_selector>(devices);
+    try_add_device<sycl::gpu_selector>(devices);
+    return devices;
+}
