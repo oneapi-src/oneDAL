@@ -48,7 +48,7 @@ inline auto convert_to_daal_homogen_table(array<T>& data,
                                           std::int64_t column_count) {
     if (!data.get_size())
         return daal::data_management::HomogenNumericTable<T>::create();
-    data.unique();
+    data.need_mutable_data();
     const auto daal_data =
         daal::services::SharedPtr<T>(data.get_mutable_data(), daal_array_owner<T>{ data });
 

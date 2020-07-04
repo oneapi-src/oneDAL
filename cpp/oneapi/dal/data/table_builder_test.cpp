@@ -35,7 +35,7 @@ using namespace oneapi::dal;
 
 //         auto arr = acc.pull({ 2, -1 });
 //         ASSERT_EQ(arr.get_count(), 2);
-//         arr.unique();
+//         arr.need_mutable_data();
 //         arr[0] = data2[2 * 2];
 //         arr[1] = data2[2 * 2 + 1];
 //         acc.push(arr, { 2, -1 });

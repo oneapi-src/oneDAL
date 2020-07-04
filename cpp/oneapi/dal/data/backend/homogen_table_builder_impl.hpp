@@ -40,8 +40,10 @@ public:
 
         // TODO: make data move without copying
         // now we are accepting const data pointer from table
-        data_.reset_not_owning(reinterpret_cast<const byte_t*>(t_impl.get_data()), data_size);
-        data_.unique();
+        data_.reset(array<byte_t>(),
+                    reinterpret_cast<const byte_t*>(t_impl.get_data()),
+                    data_size);
+        data_.need_mutable_data();
         row_count_ = t_impl.get_row_count();
         column_count_ = t_impl.get_column_count();
     }
@@ -74,7 +76,7 @@ public:
     }
 
     void copy_data(const void* data, std::int64_t row_count, std::int64_t column_count) {
-        data_.resize(row_count*column_count*get_data_type_size(feature_.get_data_type()));
+        data_.reset(row_count*column_count*get_data_type_size(feature_.get_data_type()));
         detail::memcpy(detail::host_seq_policy{}, data_.get_mutable_data(), data, data_.get_size());
 
         row_count_ = row_count;
@@ -106,7 +108,7 @@ public:
                    std::int64_t row_count, std::int64_t column_count,
                    const sycl::vector_class<sycl::event>& dependencies) {
         detail::wait_and_throw(dependencies);
-        data_.resize(queue, row_count*column_count*get_data_type_size(feature_.get_data_type()),
+        data_.reset(queue, row_count*column_count*get_data_type_size(feature_.get_data_type()),
             sycl::get_pointer_type(data_.get_data(), queue.get_context()));
         detail::memcpy(queue, data_.get_mutable_data(), data, data_.get_size());
 

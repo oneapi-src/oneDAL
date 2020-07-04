@@ -114,12 +114,14 @@ public:
     template <typename Data>
     auto& reset(const array<Data>& data, std::int64_t row_count, std::int64_t column_count) {
         array<byte_t> byte_data;
-        if (data.is_data_owner() && data.has_mutable_data()) {
-            byte_data.reset(reinterpret_cast<byte_t*>(data.get_mutable_data()), data.get_size(),
-                [owner = array(data)](auto){});
+        if (data.has_mutable_data()) {
+            byte_data.reset(data,
+                            reinterpret_cast<byte_t*>(data.get_mutable_data()),
+                            data.get_size());
         } else {
-            byte_data.reset_not_owning(reinterpret_cast<const byte_t*>(data.get_data()), data.get_size());
-            byte_data.unique();
+            byte_data.reset(data,
+                            reinterpret_cast<const byte_t*>(data.get_data()),
+                            data.get_size());
         }
 
         auto& impl = get_impl();

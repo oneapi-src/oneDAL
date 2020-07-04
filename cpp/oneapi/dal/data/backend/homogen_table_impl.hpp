@@ -31,10 +31,10 @@ public:
                        const Data* data_pointer,
                        homogen_data_layout layout)
             : meta_(homogen_table_metadata{ make_data_type<Data>(), layout, p }),
-              row_count_(N) {
-        data_.reset_not_owning(reinterpret_cast<const byte_t*>(data_pointer),
-                               N * p * sizeof(Data));
-    }
+              data_(array<Data>(),
+                    reinterpret_cast<const byte_t*>(data_pointer),
+                    N * p * sizeof(Data)),
+              row_count_(N) {}
 
     template <typename Data, typename = std::enable_if_t<!std::is_pointer_v<Data>>>
     homogen_table_impl(std::int64_t N, std::int64_t p, Data value, homogen_data_layout layout)
@@ -56,19 +56,15 @@ public:
             throw std::runtime_error("data size must be power of column count");
         }
 
-        if (data.is_data_owner() && data.has_mutable_data()) {
-            data_.reset(reinterpret_cast<byte_t*>(data.get_mutable_data()),
-                        data.get_size(),
-                        [owner = array(data)](auto) {});
-        }
-        else if (data.has_mutable_data()) {
-            data_.reset_not_owning(reinterpret_cast<byte_t*>(data.get_mutable_data()),
-                                   data.get_size());
+        if (data.has_mutable_data()) {
+            data_.reset(data,
+                        reinterpret_cast<byte_t*>(data.get_mutable_data()),
+                        data.get_size());
         }
         else {
-            // TODO: the case when data.is_data_owner() == true && data.has_mutable_data() == false
-            // is impossible now, but can appear
-            data_.reset_not_owning(reinterpret_cast<const byte_t*>(data.get_data()), data.get_size());
+            data_.reset(data,
+                        reinterpret_cast<const byte_t*>(data.get_data()),
+                        data.get_size());
         }
     }
 

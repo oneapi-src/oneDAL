@@ -28,7 +28,6 @@ TEST(column_accessor_test, can_get_first_column_from_homogen_table) {
     auto col = acc.pull(0);
 
     ASSERT_EQ(col.get_count(), t.get_row_count());
-    ASSERT_TRUE(col.is_data_owner());
     ASSERT_TRUE(col.has_mutable_data());
 
     for (std::int64_t i = 0; i < col.get_count(); i++) {
@@ -44,7 +43,6 @@ TEST(column_accessor_test, can_get_second_column_from_homogen_table_with_convers
     auto col = acc.pull(1);
 
     ASSERT_EQ(col.get_count(), t.get_row_count());
-    ASSERT_TRUE(col.is_data_owner());
     ASSERT_TRUE(col.has_mutable_data());
 
     for (std::int64_t i = 0; i < col.get_count(); i++) {
@@ -60,7 +58,6 @@ TEST(column_accessor_test, can_get_first_column_from_homogen_table_with_subset_o
     auto col = acc.pull(0, { 1, 3 });
 
     ASSERT_EQ(col.get_count(), 2);
-    ASSERT_TRUE(col.is_data_owner());
     ASSERT_TRUE(col.has_mutable_data());
 
     for (std::int64_t i = 0; i < col.get_count(); i++) {
@@ -77,7 +74,7 @@ TEST(column_accessor_test, can_get_columns_from_homogen_table_builder) {
             auto col = acc.pull(col_idx);
 
             ASSERT_EQ(col.get_count(), 3);
-            col.unique();
+            col.need_mutable_data();
             for (std::int64_t i = 0; i < col.get_count(); i++) {
                 ASSERT_DOUBLE_EQ(col[i], 0.0);
                 col[i] = col_idx + 1;

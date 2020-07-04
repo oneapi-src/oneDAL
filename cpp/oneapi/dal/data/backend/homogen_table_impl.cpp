@@ -30,7 +30,7 @@ void homogen_table_impl::pull_rows(array<T>& block, const range& rows) const {
 
     const int64_t row_count     = get_row_count();
     const int64_t column_count  = get_column_count();
-    const int64_t block_size    = rows.get_element_count(row_count) * column_count;
+    const int64_t range_count    = rows.get_element_count(row_count) * column_count;
     const data_type block_dtype = make_data_type<T>();
 
     if (meta_.get_data_layout() != homogen_data_layout::row_major) {
@@ -41,14 +41,11 @@ void homogen_table_impl::pull_rows(array<T>& block, const range& rows) const {
     if (block_dtype == feature_type) {
         auto row_data          = reinterpret_cast<const T*>(data_.get_data());
         auto row_start_pointer = row_data + rows.start_idx * column_count;
-        block.reset_not_owning(row_start_pointer, block_size);
+        block.reset(data_, row_start_pointer, range_count);
     }
     else {
-        if (!block.is_data_owner() || block.get_capacity() < block_size) {
-            block.reset(block_size);
-        }
-        else if (block.get_count() < block_size) {
-            block.resize(block_size);
+        if (block.get_count() < range_count) {
+            block.reset(range_count);
         }
 
         auto type_size         = get_data_type_size(feature_type);
@@ -57,7 +54,7 @@ void homogen_table_impl::pull_rows(array<T>& block, const range& rows) const {
                                 block.get_mutable_data(),
                                 feature_type,
                                 block_dtype,
-                                block_size);
+                                range_count);
     }
 }
 
@@ -68,14 +65,14 @@ void homogen_table_impl::push_rows(const array<T>& block, const range& rows) {
 
     const int64_t row_count     = get_row_count();
     const int64_t column_count  = get_column_count();
-    const int64_t block_size    = rows.get_element_count(row_count) * column_count;
+    const int64_t range_count    = rows.get_element_count(row_count) * column_count;
     const data_type block_dtype = make_data_type<T>();
 
     if (meta_.get_data_layout() != homogen_data_layout::row_major) {
         throw std::runtime_error("unsupported data layout");
     }
 
-    data_.unique();
+    data_.need_mutable_data();
     const auto feature_type = meta_.get_feature(0).get_data_type();
     if (block_dtype == feature_type) {
         auto row_data          = reinterpret_cast<T*>(data_.get_mutable_data());
@@ -85,7 +82,7 @@ void homogen_table_impl::push_rows(const array<T>& block, const range& rows) {
             return;
         }
         else {
-            std::memcpy(row_start_pointer, block.get_data(), block_size * sizeof(T));
+            std::memcpy(row_start_pointer, block.get_data(), range_count * sizeof(T));
         }
     }
     else {
@@ -97,7 +94,7 @@ void homogen_table_impl::push_rows(const array<T>& block, const range& rows) {
                                 row_start_pointer,
                                 block_dtype,
                                 feature_type,
-                                block_size);
+                                range_count);
     }
 }
 
@@ -107,7 +104,7 @@ void homogen_table_impl::pull_column(array<T>& block, int64_t idx, const range& 
 
     const int64_t row_count     = get_row_count();
     const int64_t column_count  = get_column_count();
-    const int64_t block_size    = rows.get_element_count(row_count);
+    const int64_t range_count    = rows.get_element_count(row_count);
     const data_type block_dtype = make_data_type<T>();
 
     if (meta_.get_data_layout() != homogen_data_layout::row_major) {
@@ -119,14 +116,11 @@ void homogen_table_impl::pull_column(array<T>& block, int64_t idx, const range& 
         // TODO: assert idx == 0
 
         auto col_data = reinterpret_cast<const T*>(data_.get_data());
-        block.reset_not_owning(col_data + rows.start_idx * column_count, block_size);
+        block.reset(data_, col_data + rows.start_idx * column_count, range_count);
     }
     else {
-        if (!block.is_data_owner() || block.get_capacity() < block_size) {
-            block.reset(block_size);
-        }
-        else if (block.get_count() < block_size) {
-            block.resize(block_size);
+        if (block.get_count() < range_count) {
+            block.reset(range_count);
         }
 
         auto src_ptr = data_.get_data() +
@@ -137,7 +131,7 @@ void homogen_table_impl::pull_column(array<T>& block, int64_t idx, const range& 
                                 block_dtype,
                                 get_data_type_size(feature_type) * column_count,
                                 sizeof(T),
-                                block_size);
+                                range_count);
     }
 }
 
@@ -147,7 +141,7 @@ void homogen_table_impl::push_column(const array<T>& block, int64_t idx, const r
 
     const int64_t row_count     = get_row_count();
     const int64_t column_count  = get_column_count();
-    const int64_t block_size    = rows.get_element_count(row_count);
+    const int64_t range_count    = rows.get_element_count(row_count);
     const data_type block_dtype = make_data_type<T>();
 
     auto feature_type = meta_.get_feature(0).get_data_type();
@@ -157,17 +151,17 @@ void homogen_table_impl::push_column(const array<T>& block, int64_t idx, const r
     if (block_dtype == feature_type && column_count == 1) {
         if (reinterpret_cast<const void*>(data_.get_data() + row_offset) !=
             reinterpret_cast<const void*>(block.get_data())) {
-            data_.unique();
+            data_.need_mutable_data();
             auto dst_ptr = data_.get_mutable_data() + row_offset;
             backend::convert_vector(block.get_data(),
                                     dst_ptr,
                                     block_dtype,
                                     feature_type,
-                                    block_size);
+                                    range_count);
         }
     }
     else {
-        data_.unique();
+        data_.need_mutable_data();
         auto dst_ptr = data_.get_mutable_data() + row_offset;
         backend::convert_vector(block.get_data(),
                                 dst_ptr,
@@ -175,7 +169,7 @@ void homogen_table_impl::push_column(const array<T>& block, int64_t idx, const r
                                 feature_type,
                                 sizeof(T),
                                 get_data_type_size(feature_type) * column_count,
-                                block_size);
+                                range_count);
     }
 }
 

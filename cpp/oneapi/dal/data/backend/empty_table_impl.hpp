@@ -44,12 +44,12 @@ public:
 
     template <typename T>
     void pull_rows(array<T>& block, const range&) const {
-        block.reset_not_owning();
+        block.reset();
     }
 
     template <typename T>
     void pull_column(array<T>& block, std::int64_t, const range&) const {
-        block.reset_not_owning();
+        block.reset();
     }
 };
 
