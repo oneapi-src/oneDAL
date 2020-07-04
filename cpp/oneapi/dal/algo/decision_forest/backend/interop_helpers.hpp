@@ -23,11 +23,31 @@
 #include <daal/include/algorithms/decision_forest/decision_forest_classification_model.h>
 #include <daal/include/algorithms/decision_forest/decision_forest_regression_model.h>
 
+#include <daal/include/algorithms/decision_forest/decision_forest_training_parameter.h>
+#include <daal/src/algorithms/dtrees/forest/classification/df_classification_predict_dense_default_batch.h>
+
 namespace oneapi::dal::backend::interop::decision_forest {
 
 namespace daal_df = daal::algorithms::decision_forest;
+namespace cls     = daal::algorithms::decision_forest::classification;
 
-namespace df = oneapi::dal::decision_forest;
+namespace df         = dal::decision_forest;
+namespace df_interop = dal::backend::interop::decision_forest;
+
+static inline auto convert_to_daal_voting_method(df::voting_method vm) {
+    return df::voting_method::weighted == vm ? cls::prediction::weighted
+                                             : cls::prediction::unweighted;
+}
+
+static inline auto convert_to_daal_variable_importance_mode(df::variable_importance_mode vimp) {
+    return df::variable_importance_mode::mdi == vimp
+               ? daal_df::training::MDI
+               : df::variable_importance_mode::mda_raw == vimp
+                     ? daal_df::training::MDA_Raw
+                     : df::variable_importance_mode::mda_scaled == vimp
+                           ? daal_df::training::MDA_Scaled
+                           : daal_df::training::none;
+}
 
 /* oneDal -> daal model bridge */
 template <typename T>

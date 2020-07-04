@@ -26,8 +26,8 @@
 #include <daal/src/algorithms/dtrees/forest/regression/df_regression_train_dense_default_kernel.h>
 
 #include "oneapi/dal/algo/decision_forest/backend/cpu/train_kernel.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/interop_helpers.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
-#include "oneapi/dal/backend/interop/decision_forest/model_impl.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
@@ -35,9 +35,11 @@ namespace oneapi::dal::decision_forest::backend {
 
 using dal::backend::context_cpu;
 
-namespace df      = daal::algorithms::decision_forest;
-namespace rgr     = daal::algorithms::decision_forest::regression;
-namespace interop = dal::backend::interop;
+namespace df  = daal::algorithms::decision_forest;
+namespace rgr = daal::algorithms::decision_forest::regression;
+
+namespace interop    = dal::backend::interop;
+namespace df_interop = dal::backend::interop::decision_forest;
 
 template <typename Float, daal::CpuType Cpu>
 using rgr_dense_kernel_t =
@@ -83,14 +85,9 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     daal_parameter.resultsToCompute = desc.get_train_results_to_compute();
 
-    auto vimp                    = desc.get_variable_importance_mode();
-    daal_parameter.varImportance = variable_importance_mode::mdi == vimp
-                                       ? df::training::MDI
-                                       : variable_importance_mode::mda_raw == vimp
-                                             ? df::training::MDA_Raw
-                                             : variable_importance_mode::mda_scaled == vimp
-                                                   ? df::training::MDA_Scaled
-                                                   : df::training::none;
+    auto vimp = desc.get_variable_importance_mode();
+
+    daal_parameter.varImportance = df_interop::convert_to_daal_variable_importance_mode(vimp);
 
     train_result<Task> res;
 

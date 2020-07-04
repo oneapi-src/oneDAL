@@ -21,7 +21,7 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
-#include "oneapi/dal/backend/interop/decision_forest/model_impl.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/interop_helpers.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 

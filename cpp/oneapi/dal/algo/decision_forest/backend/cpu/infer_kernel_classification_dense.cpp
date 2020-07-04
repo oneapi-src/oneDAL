@@ -20,15 +20,17 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
-#include "oneapi/dal/backend/interop/decision_forest/model_impl.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/interop_helpers.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
 using dal::backend::context_cpu;
 
-namespace df      = daal::algorithms::decision_forest;
-namespace cls     = daal::algorithms::decision_forest::classification;
-namespace interop = dal::backend::interop;
+namespace df  = daal::algorithms::decision_forest;
+namespace cls = daal::algorithms::decision_forest::classification;
+
+namespace interop    = dal::backend::interop;
+namespace df_interop = dal::backend::interop::decision_forest;
 
 template <typename Float, daal::CpuType Cpu>
 using cls_dense_predict_kernel_t =
@@ -60,15 +62,16 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     }
 
     auto pinterop_model =
-        static_cast<backend::interop::decision_forest::interop_model_impl<Task, cls_model_p>*>(
-            model_pimpl.get());
+        static_cast<df_interop::interop_model_impl<Task, cls_model_p>*>(model_pimpl.get());
 
     daal_input.set(daal::algorithms::classifier::prediction::model, pinterop_model->get_model());
 
-    auto voting_method      = desc.get_voting_method();
-    auto daal_voting_method = voting_method::weighted == voting_method
-                                  ? cls::prediction::weighted
-                                  : cls::prediction::unweighted;
+    //auto voting_method      = desc.get_voting_method();
+    //auto daal_voting_method = voting_method::weighted == voting_method
+    //                              ? cls::prediction::weighted
+    //                              : cls::prediction::unweighted;
+
+    auto daal_voting_method = df_interop::convert_to_daal_voting_method(desc.get_voting_method());
 
     auto daal_parameter = cls::prediction::Parameter(desc.get_class_count(), daal_voting_method);
 
