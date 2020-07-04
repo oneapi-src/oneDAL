@@ -43,8 +43,8 @@ struct pimpl_accessor {
         return Object{ impl };
     }
 
-    template <typename Object, typename ... Args>
-    static auto make(Args&& ...args) {
+    template <typename Object, typename... Args>
+    static auto make(Args&&... args) {
         return Object{ std::forward<Args>(args)... };
     }
 
