@@ -145,7 +145,7 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
     BlockDescriptor<algorithmFPType> objFunctionRows;
     DAAL_CHECK_STATUS_VAR(ntObjFunction->getBlockOfRows(0, nClusters, readWrite, objFunctionRows));
     auto objFunction = objFunctionRows.getBuffer();
-    if (inCentroids == NULL || outCentroids == NULL || objFunction == NULL)
+    if (!inCentroids || !outCentroids || !objFunction)
     {
         return Status(ErrorNullPtr);
     }
