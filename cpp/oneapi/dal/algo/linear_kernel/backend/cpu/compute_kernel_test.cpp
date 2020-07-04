@@ -46,11 +46,9 @@ TEST(linear_kernel_dense_test, can_compute_unit_matrix) {
     ASSERT_EQ(values_table.get_row_count(), row_count);
     ASSERT_EQ(values_table.get_column_count(), row_count);
 
-    auto values_accessor   = row_accessor<const float>(values_table).pull();
-    const auto values_data = values_accessor.get_data();
-
-    for (size_t i = 0; i < values_accessor.get_count(); i++) {
-        ASSERT_FLOAT_EQ(values_data[i], static_cast<float>(column_count));
+    const auto values = row_accessor<const float>(values_table).pull();
+    for (size_t i = 0; i < values.get_count(); i++) {
+        ASSERT_FLOAT_EQ(values[i], static_cast<float>(column_count));
     }
 }
 
@@ -71,11 +69,9 @@ TEST(linear_kernel_dense_test, can_compute_same_unit_matrix) {
     ASSERT_EQ(values_table.get_row_count(), row_count);
     ASSERT_EQ(values_table.get_column_count(), row_count);
 
-    auto values_accessor   = row_accessor<const float>(values_table).pull();
-    const auto values_data = values_accessor.get_data();
-
-    for (size_t i = 0; i < values_accessor.get_count(); i++) {
-        ASSERT_FLOAT_EQ(values_data[i], static_cast<float>(column_count));
+    const auto values = row_accessor<const float>(values_table).pull();
+    for (size_t i = 0; i < values.get_count(); i++) {
+        ASSERT_FLOAT_EQ(values[i], static_cast<float>(column_count));
     }
 }
 
@@ -97,10 +93,8 @@ TEST(linear_kernel_dense_test, can_compute_one_element) {
     ASSERT_EQ(values_table.get_row_count(), row_count);
     ASSERT_EQ(values_table.get_column_count(), row_count);
 
-    auto values_accessor   = row_accessor<const float>(values_table).pull();
-    const auto values_data = values_accessor.get_data();
-
-    ASSERT_FLOAT_EQ(values_data[0], 5.f);
+    const auto values = row_accessor<const float>(values_table).pull();
+    ASSERT_FLOAT_EQ(values[0], 5.f);
 }
 
 TEST(linear_kernel_dense_test, can_compute_simple_matrix) {
@@ -127,13 +121,11 @@ TEST(linear_kernel_dense_test, can_compute_simple_matrix) {
     ASSERT_EQ(values_table.get_row_count(), row_count);
     ASSERT_EQ(values_table.get_column_count(), row_count);
 
-    auto values_accessor   = row_accessor<const float>(values_table).pull();
-    const auto values_data = values_accessor.get_data();
-
-    ASSERT_FLOAT_EQ(values_data[0], 3.f);
-    ASSERT_FLOAT_EQ(values_data[1], 5.f);
-    ASSERT_FLOAT_EQ(values_data[2], 2.f);
-    ASSERT_FLOAT_EQ(values_data[3], 4.f);
+    const auto values = row_accessor<const float>(values_table).pull();
+    ASSERT_FLOAT_EQ(values[0], 3.f);
+    ASSERT_FLOAT_EQ(values[1], 5.f);
+    ASSERT_FLOAT_EQ(values[2], 2.f);
+    ASSERT_FLOAT_EQ(values[3], 4.f);
 }
 
 TEST(linear_kernel_dense_test, can_compute_same_simple_matrix) {
@@ -153,13 +145,11 @@ TEST(linear_kernel_dense_test, can_compute_same_simple_matrix) {
     ASSERT_EQ(values_table.get_row_count(), row_count);
     ASSERT_EQ(values_table.get_column_count(), row_count);
 
-    auto values_accessor   = row_accessor<const float>(values_table).pull();
-    const auto values_data = values_accessor.get_data();
-
-    ASSERT_FLOAT_EQ(values_data[0], 5.f);
-    ASSERT_FLOAT_EQ(values_data[1], 7.f);
-    ASSERT_FLOAT_EQ(values_data[2], 7.f);
-    ASSERT_FLOAT_EQ(values_data[3], 10.f);
+    const auto values = row_accessor<const float>(values_table).pull();
+    ASSERT_FLOAT_EQ(values[0], 5.f);
+    ASSERT_FLOAT_EQ(values[1], 7.f);
+    ASSERT_FLOAT_EQ(values[2], 7.f);
+    ASSERT_FLOAT_EQ(values[3], 10.f);
 }
 
 TEST(linear_kernel_dense_test, can_compute_diff_matrix) {
@@ -184,13 +174,11 @@ TEST(linear_kernel_dense_test, can_compute_diff_matrix) {
     ASSERT_EQ(values_table.get_row_count(), row_count_x);
     ASSERT_EQ(values_table.get_column_count(), row_count_y);
 
-    auto values_accessor   = row_accessor<const float>(values_table).pull();
-    const auto values_data = values_accessor.get_data();
-
-    ASSERT_FLOAT_EQ(values_data[0], 1.f);
-    ASSERT_FLOAT_EQ(values_data[1], 1.f);
-    ASSERT_FLOAT_EQ(values_data[2], 3.f);
-    ASSERT_FLOAT_EQ(values_data[3], 2.f);
+    const auto values = row_accessor<const float>(values_table).pull();
+    ASSERT_FLOAT_EQ(values[0], 1.f);
+    ASSERT_FLOAT_EQ(values[1], 1.f);
+    ASSERT_FLOAT_EQ(values[2], 3.f);
+    ASSERT_FLOAT_EQ(values[3], 2.f);
 }
 
 TEST(linear_kernel_dense_test, can_compute_diff_matrix_not_default_params) {
@@ -215,11 +203,9 @@ TEST(linear_kernel_dense_test, can_compute_diff_matrix_not_default_params) {
     ASSERT_EQ(values_table.get_row_count(), row_count_x);
     ASSERT_EQ(values_table.get_column_count(), row_count_y);
 
-    auto values_accessor   = row_accessor<const float>(values_table).pull();
-    const auto values_data = values_accessor.get_data();
-
-    ASSERT_FLOAT_EQ(values_data[0], 3.f);
-    ASSERT_FLOAT_EQ(values_data[1], 3.f);
-    ASSERT_FLOAT_EQ(values_data[2], 7.f);
-    ASSERT_FLOAT_EQ(values_data[3], 5.f);
+    const auto values = row_accessor<const float>(values_table).pull();
+    ASSERT_FLOAT_EQ(values[0], 3.f);
+    ASSERT_FLOAT_EQ(values[1], 3.f);
+    ASSERT_FLOAT_EQ(values[2], 7.f);
+    ASSERT_FLOAT_EQ(values[3], 5.f);
 }

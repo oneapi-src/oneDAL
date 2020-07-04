@@ -60,7 +60,7 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     const auto daal_labels  = interop::convert_to_daal_homogen_table(arr_label, row_count, 1);
     const auto daal_weights = interop::convert_to_daal_homogen_table(arr_weights, row_count, 1);
 
-    const auto daal_kernel = desc.get_kernel_impl()->get_impl()->get_interop_kernel();
+    const auto daal_kernel = desc.get_kernel_impl()->get_impl()->get_daal_kernel_function();
     daal_svm::Parameter daal_parameter(
         daal_kernel,
         desc.get_c(),

@@ -63,7 +63,7 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
                           .set_coefficients(daal_coefficients)
                           .set_bias(trained_model.get_bias());
 
-    const auto daal_kernel = desc.get_kernel_impl()->get_impl()->get_interop_kernel();
+    const auto daal_kernel = desc.get_kernel_impl()->get_impl()->get_daal_kernel_function();
     daal_svm::Parameter daal_parameter(daal_kernel);
 
     array<Float> arr_decision_function{ row_count * 1 };

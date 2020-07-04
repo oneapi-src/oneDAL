@@ -27,7 +27,7 @@ class kernel_function_impl : public base {
 public:
     virtual ~kernel_function_impl() = default;
 
-    virtual daal::algorithms::kernel_function::KernelIfacePtr get_interop_kernel() = 0;
+    virtual daal::algorithms::kernel_function::KernelIfacePtr get_daal_kernel_function() = 0;
 };
 
 } // namespace oneapi::dal::svm::detail

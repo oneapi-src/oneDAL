@@ -48,11 +48,9 @@ TEST(rbf_kernel_dense_test, can_compute_unit_matrix) {
     ASSERT_EQ(values_table.get_row_count(), row_count);
     ASSERT_EQ(values_table.get_column_count(), row_count);
 
-    auto values_accessor   = row_accessor<const float>(values_table).pull();
-    const auto values_data = values_accessor.get_data();
-
-    for (size_t i = 0; i < values_accessor.get_count(); i++) {
-        ASSERT_FLOAT_EQ(values_data[i], 1.f);
+    const auto values = row_accessor<const float>(values_table).pull();
+    for (size_t i = 0; i < values.get_count(); i++) {
+        ASSERT_FLOAT_EQ(values[i], 1.f);
     }
 }
 
@@ -73,11 +71,9 @@ TEST(rbf_kernel_dense_test, can_compute_same_unit_matrix) {
     ASSERT_EQ(values_table.get_row_count(), row_count);
     ASSERT_EQ(values_table.get_column_count(), row_count);
 
-    auto values_accessor   = row_accessor<const float>(values_table).pull();
-    const auto values_data = values_accessor.get_data();
-
-    for (size_t i = 0; i < values_accessor.get_count(); i++) {
-        ASSERT_FLOAT_EQ(values_data[i], 1.f);
+    const auto values = row_accessor<const float>(values_table).pull();
+    for (size_t i = 0; i < values.get_count(); i++) {
+        ASSERT_FLOAT_EQ(values[i], 1.f);
     }
 }
 
@@ -99,11 +95,9 @@ TEST(rbf_kernel_dense_test, can_compute_one_element) {
     ASSERT_EQ(values_table.get_row_count(), row_count);
     ASSERT_EQ(values_table.get_column_count(), row_count);
 
-    auto values_accessor   = row_accessor<const float>(values_table).pull();
-    const auto values_data = values_accessor.get_data();
-
+    const auto values      = row_accessor<const float>(values_table).pull();
     const double ref_value = std::exp(-0.5 * (x_data[0] - y_data[0]) * (x_data[0] - y_data[0]));
-    ASSERT_FLOAT_EQ(values_data[0], ref_value);
+    ASSERT_FLOAT_EQ(values[0], ref_value);
 }
 
 TEST(rbf_kernel_dense_test, can_compute_diff_matrix) {
@@ -128,15 +122,13 @@ TEST(rbf_kernel_dense_test, can_compute_diff_matrix) {
     ASSERT_EQ(values_table.get_row_count(), row_count_x);
     ASSERT_EQ(values_table.get_column_count(), row_count_y);
 
-    auto values_accessor   = row_accessor<const float>(values_table).pull();
-    const auto values_data = values_accessor.get_data();
-
+    const auto values = row_accessor<const float>(values_table).pull();
     for (std::int64_t i = 0; i < row_count_x; i++) {
         for (std::int64_t j = 0; j < row_count_y; j++) {
             const double ref_value =
                 std::exp(-0.5 * (x_data[i] - y_data[j]) * (x_data[i] - y_data[j]));
 
-            ASSERT_FLOAT_EQ(values_data[i * row_count_y + j], ref_value);
+            ASSERT_FLOAT_EQ(values[i * row_count_y + j], ref_value);
         }
     }
 }
@@ -163,16 +155,14 @@ TEST(rbf_kernel_dense_test, can_compute_diff_matrix_not_default_params) {
     ASSERT_EQ(values_table.get_row_count(), row_count_x);
     ASSERT_EQ(values_table.get_column_count(), row_count_y);
 
-    auto values_accessor   = row_accessor<const float>(values_table).pull();
-    const auto values_data = values_accessor.get_data();
-
+    const auto values = row_accessor<const float>(values_table).pull();
     for (std::int64_t i = 0; i < row_count_x; i++) {
         for (std::int64_t j = 0; j < row_count_y; j++) {
             const double inv_sigma = 1.0 / (sigma * sigma);
             const double ref_value =
                 std::exp(-0.5 * inv_sigma * (x_data[i] - y_data[j]) * (x_data[i] - y_data[j]));
 
-            ASSERT_FLOAT_EQ(values_data[i * row_count_y + j], ref_value);
+            ASSERT_FLOAT_EQ(values[i * row_count_y + j], ref_value);
         }
     }
 }

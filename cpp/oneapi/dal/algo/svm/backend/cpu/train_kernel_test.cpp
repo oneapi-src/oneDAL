@@ -40,19 +40,17 @@ TEST(svm_thunder_dense_test, can_classify_linear_separable_surface) {
     const auto result_train = train(svm_desc, x_train_table, y_train_table);
     ASSERT_EQ(result_train.get_support_vector_count(), 2);
 
-    auto support_indices_table    = result_train.get_support_indices();
-    auto support_indices_accessor = row_accessor<const float>(support_indices_table).pull();
-    auto support_indices_data     = support_indices_accessor.get_data();
-    ASSERT_EQ(support_indices_data[0], support_index_negative);
-    ASSERT_EQ(support_indices_data[1], support_index_positive);
+    auto support_indices_table = result_train.get_support_indices();
+    const auto support_indices = row_accessor<const float>(support_indices_table).pull();
+    ASSERT_EQ(support_indices[0], support_index_negative);
+    ASSERT_EQ(support_indices[1], support_index_positive);
 
-    const auto result_infer           = infer(svm_desc, result_train.get_model(), x_train_table);
-    auto decision_function_table      = result_infer.get_decision_function();
-    auto decision_function_accessor   = row_accessor<const float>(decision_function_table).pull();
-    const auto decision_function_data = decision_function_accessor.get_data();
+    const auto result_infer      = infer(svm_desc, result_train.get_model(), x_train_table);
+    auto decision_function_table = result_infer.get_decision_function();
+    const auto decision_function = row_accessor<const float>(decision_function_table).pull();
 
-    ASSERT_FLOAT_EQ(decision_function_data[support_index_negative], -1.f);
-    ASSERT_FLOAT_EQ(decision_function_data[support_index_positive], +1.f);
+    ASSERT_FLOAT_EQ(decision_function[support_index_negative], -1.f);
+    ASSERT_FLOAT_EQ(decision_function[support_index_positive], +1.f);
 }
 
 TEST(svm_thunder_dense_test, can_classify_linear_separable_surface_with_not_default_linear_kernel) {
@@ -74,19 +72,16 @@ TEST(svm_thunder_dense_test, can_classify_linear_separable_surface_with_not_defa
     const auto result_train = train(svm_desc, x_train_table, y_train_table);
     ASSERT_EQ(result_train.get_support_vector_count(), 2);
 
-    auto support_indices_table    = result_train.get_support_indices();
-    auto support_indices_accessor = row_accessor<const float>(support_indices_table).pull();
-    auto support_indices_data     = support_indices_accessor.get_data();
-    ASSERT_EQ(support_indices_data[0], support_index_negative);
-    ASSERT_EQ(support_indices_data[1], support_index_positive);
+    auto support_indices_table = result_train.get_support_indices();
+    const auto support_indices = row_accessor<const float>(support_indices_table).pull();
+    ASSERT_EQ(support_indices[0], support_index_negative);
+    ASSERT_EQ(support_indices[1], support_index_positive);
 
     const auto result_infer      = infer(svm_desc, result_train.get_model(), x_train_table);
     auto decision_function_table = result_infer.get_decision_function();
-    auto decision_function       = row_accessor<const float>(decision_function_table).pull();
-
-    const auto decision_function_data = decision_function.get_data();
-    ASSERT_FLOAT_EQ(decision_function_data[support_index_negative], -1.f);
-    ASSERT_FLOAT_EQ(decision_function_data[support_index_positive], +1.f);
+    const auto decision_function = row_accessor<const float>(decision_function_table).pull();
+    ASSERT_FLOAT_EQ(decision_function[support_index_negative], -1.f);
+    ASSERT_FLOAT_EQ(decision_function[support_index_positive], +1.f);
 }
 
 TEST(svm_thunder_dense_test, can_classify_linear_separable_surface_with_big_margin) {
@@ -105,22 +100,20 @@ TEST(svm_thunder_dense_test, can_classify_linear_separable_surface_with_big_marg
     const auto result_train = train(svm_desc, x_train_table, y_train_table);
     ASSERT_EQ(result_train.get_support_vector_count(), row_count_train);
 
-    auto support_indices_table    = result_train.get_support_indices();
-    auto support_indices_accessor = row_accessor<const float>(support_indices_table).pull();
-    auto support_indices_data     = support_indices_accessor.get_data();
-    for (size_t i = 0; i < support_indices_accessor.get_count(); i++)
-        ASSERT_EQ(support_indices_data[i], i);
+    auto support_indices_table = result_train.get_support_indices();
+    const auto support_indices = row_accessor<const float>(support_indices_table).pull();
+    for (size_t i = 0; i < support_indices.get_count(); i++)
+        ASSERT_EQ(support_indices[i], i);
 
     const auto result_infer = infer(svm_desc, result_train.get_model(), x_train_table);
 
-    auto labels_table      = result_infer.get_labels();
-    auto labels_accessor   = row_accessor<const float>(labels_table).pull();
-    const auto labels_data = labels_accessor.get_data();
+    auto labels_table = result_infer.get_labels();
+    const auto labels = row_accessor<const float>(labels_table).pull();
     for (size_t i = 0; i < row_count_train / 2; i++) {
-        ASSERT_FLOAT_EQ(labels_data[i], -1.f);
+        ASSERT_FLOAT_EQ(labels[i], -1.f);
     }
     for (size_t i = row_count_train / 2; i < row_count_train; i++) {
-        ASSERT_FLOAT_EQ(labels_data[i], +1.f);
+        ASSERT_FLOAT_EQ(labels[i], +1.f);
     }
 }
 
@@ -140,13 +133,12 @@ TEST(svm_thunder_dense_test, can_classify_linear_not_separable_surface) {
 
     const auto result_infer = infer(svm_desc, result_train.get_model(), x_train_table);
     auto labels_table       = result_infer.get_labels();
-    auto labels_accessor    = row_accessor<const float>(labels_table).pull();
-    const auto labels_data  = labels_accessor.get_data();
+    const auto labels       = row_accessor<const float>(labels_table).pull();
     for (size_t i = 0; i < 3; i++) {
-        ASSERT_FLOAT_EQ(labels_data[i], -1.f);
+        ASSERT_FLOAT_EQ(labels[i], -1.f);
     }
     for (size_t i = 3; i < 6; i++) {
-        ASSERT_FLOAT_EQ(labels_data[i], +1.f);
+        ASSERT_FLOAT_EQ(labels[i], +1.f);
     }
 }
 
@@ -164,23 +156,21 @@ TEST(svm_thunder_dense_test, can_classify_quadric_separable_surface_with_rbf_ker
     constexpr std::int64_t support_index_positive = 3;
     const auto x_train_table = homogen_table{ row_count_train, column_count, x_train };
     const auto y_train_table = homogen_table{ row_count_train, 1, y_train };
-    const auto kernel_desc   = rbf_kernel::descriptor{}.set_sigma(1.0);
-    const auto svm_desc      = svm::descriptor{ kernel_desc }.set_c(1.0);
-    const auto result_train  = train(svm_desc, x_train_table, y_train_table);
+
+    const auto kernel_desc  = rbf_kernel::descriptor{}.set_sigma(1.0);
+    const auto svm_desc     = svm::descriptor{ kernel_desc }.set_c(1.0);
+    const auto result_train = train(svm_desc, x_train_table, y_train_table);
     ASSERT_EQ(result_train.get_support_vector_count(), row_count_train);
 
-    const auto result_infer         = infer(svm_desc, result_train.get_model(), x_train_table);
-    auto decision_function_table    = result_infer.get_decision_function();
-    auto decision_function_accessor = row_accessor<const float>(decision_function_table).pull();
+    const auto result_infer = infer(svm_desc, result_train.get_model(), x_train_table);
 
-    auto labels_table      = result_infer.get_labels();
-    auto labels_accessor   = row_accessor<const float>(labels_table).pull();
-    const auto labels_data = labels_accessor.get_data();
+    auto labels_table = result_infer.get_labels();
+    const auto labels = row_accessor<const float>(labels_table).pull();
     for (size_t i = 0; i < row_count_train / 2; i++) {
-        ASSERT_FLOAT_EQ(labels_data[i], -1.f);
+        ASSERT_FLOAT_EQ(labels[i], -1.f);
     }
     for (size_t i = row_count_train / 2; i < row_count_train; i++) {
-        ASSERT_FLOAT_EQ(labels_data[i], +1.f);
+        ASSERT_FLOAT_EQ(labels[i], +1.f);
     }
 }
 
@@ -207,12 +197,11 @@ TEST(svm_thunder_dense_test, can_classify_linear_separable_surface_with_equal_we
         -1.f,
         1.f,
     };
-    const auto x_test_table           = homogen_table{ 1, column_count, x_test };
-    const auto result_infer           = infer(svm_desc, result_train.get_model(), x_test_table);
-    auto decision_function_table      = result_infer.get_decision_function();
-    auto decision_function_accessor   = row_accessor<const float>(decision_function_table).pull();
-    const auto decision_function_data = decision_function_accessor.get_data();
-    ASSERT_NEAR(decision_function_data[0], 0.f, 1e-6);
+    const auto x_test_table      = homogen_table{ 1, column_count, x_test };
+    const auto result_infer      = infer(svm_desc, result_train.get_model(), x_test_table);
+    auto decision_function_table = result_infer.get_decision_function();
+    const auto decision_function = row_accessor<const float>(decision_function_table).pull();
+    ASSERT_NEAR(decision_function[0], 0.f, 1e-6);
 }
 
 TEST(svm_thunder_dense_test, can_classify_linear_separable_surface_with_boundary_weights) {
@@ -238,12 +227,11 @@ TEST(svm_thunder_dense_test, can_classify_linear_separable_surface_with_boundary
         -1.f,
         1.f,
     };
-    const auto x_test_table           = homogen_table{ 1, column_count, x_test };
-    const auto result_infer           = infer(svm_desc, result_train.get_model(), x_test_table);
-    auto decision_function_table      = result_infer.get_decision_function();
-    auto decision_function_accessor   = row_accessor<const float>(decision_function_table).pull();
-    const auto decision_function_data = decision_function_accessor.get_data();
-    ASSERT_LT(decision_function_data[0], 0.f);
+    const auto x_test_table      = homogen_table{ 1, column_count, x_test };
+    const auto result_infer      = infer(svm_desc, result_train.get_model(), x_test_table);
+    auto decision_function_table = result_infer.get_decision_function();
+    const auto decision_function = row_accessor<const float>(decision_function_table).pull();
+    ASSERT_LT(decision_function[0], 0.f);
 }
 
 TEST(svm_thunder_dense_test, can_classify_linear_separable_surface_with_center_weights) {
@@ -269,12 +257,11 @@ TEST(svm_thunder_dense_test, can_classify_linear_separable_surface_with_center_w
         -1.f,
         1.f,
     };
-    const auto x_test_table           = homogen_table{ 1, column_count, x_test };
-    const auto result_infer           = infer(svm_desc, result_train.get_model(), x_test_table);
-    auto decision_function_table      = result_infer.get_decision_function();
-    auto decision_function_accessor   = row_accessor<const float>(decision_function_table).pull();
-    const auto decision_function_data = decision_function_accessor.get_data();
-    ASSERT_GT(decision_function_data[0], 0.f);
+    const auto x_test_table      = homogen_table{ 1, column_count, x_test };
+    const auto result_infer      = infer(svm_desc, result_train.get_model(), x_test_table);
+    auto decision_function_table = result_infer.get_decision_function();
+    const auto decision_function = row_accessor<const float>(decision_function_table).pull();
+    ASSERT_GT(decision_function[0], 0.f);
 }
 
 TEST(svm_thunder_dense_test, can_classify_linear_separable_surface_with_different_type_desc) {
@@ -293,22 +280,20 @@ TEST(svm_thunder_dense_test, can_classify_linear_separable_surface_with_differen
     const auto result_train = train(svm_desc_train, x_train_table, y_train_table);
     ASSERT_EQ(result_train.get_support_vector_count(), row_count_train);
 
-    auto support_indices_table    = result_train.get_support_indices();
-    auto support_indices_accessor = row_accessor<const float>(support_indices_table).pull();
-    auto support_indices_data     = support_indices_accessor.get_data();
-    for (size_t i = 0; i < support_indices_accessor.get_count(); i++)
-        ASSERT_EQ(support_indices_data[i], i);
+    auto support_indices_table = result_train.get_support_indices();
+    const auto support_indices = row_accessor<const float>(support_indices_table).pull();
+    for (size_t i = 0; i < support_indices.get_count(); i++)
+        ASSERT_EQ(support_indices[i], i);
 
     const auto svm_desc_infer = svm::descriptor<double>{}.set_c(1e-1);
     const auto result_infer   = infer(svm_desc_infer, result_train.get_model(), x_train_table);
 
-    auto labels_table      = result_infer.get_labels();
-    auto labels_accessor   = row_accessor<const float>(labels_table).pull();
-    const auto labels_data = labels_accessor.get_data();
+    auto labels_table = result_infer.get_labels();
+    const auto labels = row_accessor<const float>(labels_table).pull();
     for (size_t i = 0; i < row_count_train / 2; i++) {
-        ASSERT_FLOAT_EQ(labels_data[i], -1.f);
+        ASSERT_FLOAT_EQ(labels[i], -1.f);
     }
     for (size_t i = row_count_train / 2; i < row_count_train; i++) {
-        ASSERT_FLOAT_EQ(labels_data[i], +1.f);
+        ASSERT_FLOAT_EQ(labels[i], +1.f);
     }
 }

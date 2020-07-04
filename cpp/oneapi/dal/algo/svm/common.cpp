@@ -30,7 +30,7 @@ class daal_interop_linear_kernel_impl : public kernel_function_impl {
 public:
     daal_interop_linear_kernel_impl(double k, double b) : k_(k), b_(b) {}
 
-    daal_kf get_interop_kernel() override {
+    daal_kf get_daal_kernel_function() override {
         constexpr daal_linear_kernel::Method daal_method = get_daal_method();
         auto alg         = new daal_linear_kernel::Batch<Float, daal_method>;
         alg->parameter.k = k_;
@@ -81,7 +81,7 @@ class daal_interop_rbf_kernel_impl : public kernel_function_impl {
 public:
     daal_interop_rbf_kernel_impl(double sigma) : sigma_(sigma) {}
 
-    daal_kf get_interop_kernel() override {
+    daal_kf get_daal_kernel_function() override {
         constexpr daal_rbf_kernel::Method daal_method = get_daal_method();
         auto alg             = new daal_rbf_kernel::Batch<Float, daal_method>;
         alg->parameter.sigma = sigma_;
