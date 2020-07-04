@@ -28,11 +28,13 @@
 #include "data_management/data/soa_numeric_table.h"
 #include "data_management/data/csr_numeric_table.h"
 #include "data_management/data/symmetric_matrix.h"
+#include "data_management/data/internal/conversion.h"
 #include "src/services/service_defines.h"
 #include "src/externals/service_memory.h"
 #include "src/services/service_arrays.h"
 
 using namespace daal::data_management;
+using namespace daal::data_management::internal;
 
 #define DEFINE_TABLE_BLOCK_EX(BlockType, targetVariable, ...)    \
     BlockType<algorithmFPType, cpu> targetVariable(__VA_ARGS__); \
@@ -394,6 +396,75 @@ public:
                                                                 AllocationFlag memoryAllocationFlag = notAllocate, services::Status * stat = NULL)
     {
         DAAL_DEFAULT_CREATE_TEMPLATE_IMPL_EX(SOANumericTableCPU, DAAL_TEMPLATE_ARGUMENTS(cpu), ddict, nRows, memoryAllocationFlag);
+    }
+
+    template <typename T>
+    services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
+    {
+        size_t nobs = getNumberOfRows();
+        block.setDetails(feat_idx, idx, rwFlag);
+
+        if (idx >= nobs)
+        {
+            block.resizeBuffer(1, 0);
+            return services::Status();
+        }
+
+        nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
+
+        const NumericTableFeature & f = (*_ddict)[feat_idx];
+        const int indexType           = f.indexType;
+
+        if (features::internal::getIndexNumType<T>() == f.indexType)
+        {
+            block.setPtr(&(_arrays[feat_idx]), _arrays[feat_idx].get() + idx * f.typeSize, 1, nrows);
+        }
+        else
+        {
+            if (data_management::features::DAAL_OTHER_T == indexType)
+            {
+                block.reset();
+                return services::Status(services::ErrorDataTypeNotSupported);
+            }
+
+            byte * location = _arrays[feat_idx].get() + idx * f.typeSize;
+            if (!block.resizeBuffer(1, nrows))
+            {
+                return services::Status(services::ErrorMemoryAllocationFailed);
+            }
+
+            if (!(block.getRWFlag() & (int)readOnly)) return services::Status();
+
+            getVectorUpCast(indexType, getConversionDataType<T>())(nrows, location, block.getBlockPtr());
+        }
+        return services::Status();
+    }
+
+    template <typename T>
+    services::Status releaseTFeature(BlockDescriptor<T> & block)
+    {
+        if (block.getRWFlag() & (int)writeOnly)
+        {
+            size_t feat_idx = block.getColumnsOffset();
+
+            NumericTableFeature & f = (*_ddict)[feat_idx];
+            const int indexType     = f.indexType;
+
+            if (data_management::features::DAAL_OTHER_T == indexType)
+            {
+                block.reset();
+                return services::Status(services::ErrorDataTypeNotSupported);
+            }
+
+            if (features::internal::getIndexNumType<T>() != indexType)
+            {
+                char * ptr = (char *)_arrays[feat_idx].get() + block.getRowsOffset() * f.typeSize;
+
+                getVectorDownCast(indexType, getConversionDataType<T>())(block.getNumberOfRows(), block.getBlockPtr(), ptr);
+            }
+        }
+        block.reset();
+        return services::Status();
     }
 
     services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
