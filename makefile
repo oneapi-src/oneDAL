@@ -839,11 +839,11 @@ JNI.objs   := $(addprefix $(JNI.tmpdir)/,$(JNI.srcs:%.cpp=%.$o))
 # javac does not generate dependences. Therefore we pass all *.java files to
 # a single launch of javac and let it resolve dependences on its own.
 # TODO: create hierarchy in java/jni temp folders madually
-$(WORKDIR.lib)/$(daal_jar:%.jar=%_link.txt): $(JAVA.srcs.f) | $(WORKDIR.lib)/. ; $(WRITE.PREREQS)
-$(WORKDIR.lib)/$(daal_jar):                  $(WORKDIR.lib)/$(daal_jar:%.jar=%_link.txt)
+$(WORKDIR.lib)/$(daal_jar:%.jar=%_jar_link.txt): $(JAVA.srcs.f) | $(WORKDIR.lib)/. ; $(WRITE.PREREQS)
+$(WORKDIR.lib)/$(daal_jar):                  $(WORKDIR.lib)/$(daal_jar:%.jar=%_jar_link.txt)
 	rm -rf $(JAVA.tmpdir) ; mkdir -p $(JAVA.tmpdir)
 	mkdir -p $(JNI.tmpdir)
-	javac -classpath $(JAVA.tmpdir) $(-DEBJ) -d $(JAVA.tmpdir) -h $(JNI.tmpdir) @$(WORKDIR.lib)/$(daal_jar:%.jar=%_link.txt)
+	javac -classpath $(JAVA.tmpdir) $(-DEBJ) -d $(JAVA.tmpdir) -h $(JNI.tmpdir) @$(WORKDIR.lib)/$(daal_jar:%.jar=%_jar_link.txt)
 	jar cvf $@ -C $(JAVA.tmpdir) .
 
 #----- production of JNI dll
@@ -946,14 +946,29 @@ endif
 # $1: New library name
 # $2: Release directory
 # $3: make target to add dependency
-define .release.add_symlink
+define .release.add_compat_symlink
 $3: $2/$(subst onedal,daal,$1)
 $2/$(subst onedal,daal,$1): $2/$1
 	ln -rsf $2/$1 $2/$(subst onedal,daal,$1)
 endef
 
-$(foreach a,$(release.LIBS_A),$(eval $(call .release.add_symlink,$a,$(RELEASEDIR.libia),_release_c)))
-$(foreach y,$(release.LIBS_Y),$(eval $(call .release.add_symlink,$y,$(RELEASEDIR.soia),_release_c)))
+ifeq ($(if $(or $(OS_is_lnx),$(OS_is_mac)),yes,),yes)
+$(foreach a,$(release.LIBS_A),$(eval $(call .release.add_compat_symlink,$a,$(RELEASEDIR.libia),_release_c)))
+$(foreach y,$(release.LIBS_Y),$(eval $(call .release.add_compat_symlink,$y,$(RELEASEDIR.soia),_release_c)))
+endif
+
+# Adds copy to the old library name
+# $1: New library name
+# $2: Release directory
+# $3: make target to add dependency
+define .release.add_compat_copy
+$3: $2/$(subst onedal,daal,$1)
+$2/$(subst onedal,daal,$1): $(WORKDIR.lib)/$1 ; $(value cpy)
+endef
+
+ifeq ($(OS_is_win),yes)
+$(foreach a,$(filter %_dll.$a,$(release.LIBS_A)),$(eval $(call .release.add_compat_copy,$a,$(RELEASEDIR.libia),_release_c)))
+endif
 
 #----- releasing jar files
 _release_jj: $(addprefix $(RELEASEDIR.jardir)/,$(release.JARS))

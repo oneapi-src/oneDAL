@@ -126,10 +126,10 @@ COPTS=-W3 -EHsc $(COPTS)
 !ENDIF
 
 !IF ("$(threading)"=="sequential")
-DAAL_LIB_T = $(DAAL_PATH)\daal_sequential.lib
+DAAL_LIB_T = $(DAAL_PATH)\onedal_sequential.lib
 !ELSE
 threading = parallel
-DAAL_LIB_T = $(DAAL_PATH)\daal_thread.lib
+DAAL_LIB_T = $(DAAL_PATH)\onedal_thread.lib
 !IF ("$(compiler)"!="clang")
 EXT_LIB = tbb.lib tbbmalloc.lib
 !ELSE
@@ -137,7 +137,7 @@ EXT_LIB = /link /DEFAULTLIB:tbb.lib /DEFAULTLIB:tbbmalloc.lib
 !ENDIF
 !ENDIF
 
-DAAL_LIB = $(DAAL_PATH)\daal_core$(EXT) $(DAAL_LIB_T)
+DAAL_LIB = $(DAAL_PATH)\onedal_core$(EXT) $(DAAL_LIB_T)
 
 COPTS = -Isource\utils $(COPTS) $(OUT_OPTS)
 LOPTS = $(DAAL_LIB) $(EXT_LIB)
