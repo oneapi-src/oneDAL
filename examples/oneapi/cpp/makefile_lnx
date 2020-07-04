@@ -91,10 +91,10 @@ else
 endif
 
 ifeq ($(threading),sequential)
-    THREADING_LIB := daal_sequential
+    THREADING_LIB := onedal_sequential
 else
     override threading = parallel
-    THREADING_LIB := daal_thread
+    THREADING_LIB := onedal_thread
 endif
 
 COPTS := -std=c++17 \
@@ -110,7 +110,7 @@ COPTS := -std=c++17 \
          -I"$(DAALROOT)/include"
 
 LIBS := $(-B) -lonedal \
-        $(-B) -ldaal_core \
+        $(-B) -lonedal_core \
         $(-B) -l$(THREADING_LIB) \
         -Bdynamic -ltbb \
         -Bdynamic -ltbbmalloc \

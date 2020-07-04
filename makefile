@@ -280,19 +280,19 @@ mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl_dal_sycl.hpp $(MKLGPUFPKDIR.inc
 # Release library names
 #===============================================================================
 
-core_a       := $(plib)daal_core.$a
-core_y       := $(plib)daal_core.$y
+core_a       := $(plib)onedal_core.$a
+core_y       := $(plib)onedal_core.$y
 oneapi_a     := $(plib)onedal.$a
 oneapi_y     := $(plib)onedal.$y
 oneapi_a.dpc := $(plib)onedal_dpc.$a
 oneapi_y.dpc := $(plib)onedal_dpc.$y
 
-thr_tbb_a := $(plib)daal_thread.$a
-thr_seq_a := $(plib)daal_sequential.$a
-thr_tbb_y := $(plib)daal_thread.$y
-thr_seq_y := $(plib)daal_sequential.$y
+thr_tbb_a := $(plib)onedal_thread.$a
+thr_seq_a := $(plib)onedal_sequential.$a
+thr_tbb_y := $(plib)onedal_thread.$y
+thr_seq_y := $(plib)onedal_sequential.$y
 
-daal_jar  := daal.jar
+daal_jar  := onedal.jar
 
 jni_so    := $(plib)JavaAPI.$y
 
@@ -708,7 +708,7 @@ $(foreach x,$(ONEAPI.objs_y),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_y)
 $(foreach x,$(ONEAPI.objs_a.dpc),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_a),DPC)))
 $(foreach x,$(ONEAPI.objs_y.dpc),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_y),DPC)))
 
-# Create Host and DPC++ oneapi library
+# Create Host and DPC++ oneapi libraries
 $(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(oneapi_a),$(ONEAPI.objs_a)))
 $(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(oneapi_a.dpc),$(ONEAPI.objs_a.dpc)))
 
@@ -824,8 +824,8 @@ JAVA.srcdirs := $(JAVA.srcdir.full)                                             
 JAVA.srcs.f := $(wildcard $(JAVA.srcdirs:%=%/*.java))
 JAVA.srcs   := $(subst $(JAVA.srcdir)/,,$(JAVA.srcs.f))
 
-JNI.srcdirs := $(JNI.srcdir.full)                                                                                         \
-               $(JNI.srcdir.full)/algorithms $(addprefix $(JNI.srcdir.full)/algorithms/,$(JJ.ALGORITHMS))                 \
+JNI.srcdirs := $(JNI.srcdir.full)                                                                                        \
+               $(JNI.srcdir.full)/algorithms $(addprefix $(JNI.srcdir.full)/algorithms/,$(JJ.ALGORITHMS))                \
                $(JNI.srcdir.full)/data_management $(addprefix $(JNI.srcdir.full)/data_management/,$(JJ.DATA_MANAGEMENT)) \
                $(JNI.srcdir.full)/services \
 			   $(JNI.srcdir.full)/utils
@@ -929,6 +929,32 @@ $(foreach y,$(release.ONEAPI.LIBS_Y),$(eval $(call .release.ay,$y,$(RELEASEDIR.s
 $(foreach a,$(release.ONEAPI.LIBS_A.dpc),$(eval $(call .release.ay,$a,$(RELEASEDIR.libia),_release_oneapi_dpc)))
 $(foreach y,$(release.ONEAPI.LIBS_Y.dpc),$(eval $(call .release.ay,$y,$(RELEASEDIR.soia),_release_oneapi_dpc)))
 
+ifneq ($(MKLGPUFPKDIR),)
+# Copies the file to the destination directory and renames daal -> onedal
+# $1: Path to the file to be copied
+# $2: Destination directory
+define .release.sycl.old
+_release_common: $2/$(subst daal_sycl.$a,onedal_sycl.$a,$(notdir $1))
+$2/$(subst daal_sycl.$a,onedal_sycl.$a,$(notdir $1)): $(call frompf1,$1) | $2/. ; $(value cpy)
+endef
+
+$(foreach t,$(mklgpufpk.HEADERS),$(eval $(call .release.sycl.old,$t,$(RELEASEDIR.include.mklgpufpk))))
+$(foreach t,$(mklgpufpk.LIBS_A), $(eval $(call .release.sycl.old,$t,$(RELEASEDIR.libia))))
+endif
+
+# Adds symlink to the old library name
+# $1: New library name
+# $2: Release directory
+# $3: make target to add dependency
+define .release.add_symlink
+$3: $2/$(subst onedal,daal,$1)
+$2/$(subst onedal,daal,$1): $2/$1
+	ln -rsf $2/$1 $2/$(subst onedal,daal,$1)
+endef
+
+$(foreach a,$(release.LIBS_A),$(eval $(call .release.add_symlink,$a,$(RELEASEDIR.libia),_release_c)))
+$(foreach y,$(release.LIBS_Y),$(eval $(call .release.add_symlink,$y,$(RELEASEDIR.soia),_release_c)))
+
 #----- releasing jar files
 _release_jj: $(addprefix $(RELEASEDIR.jardir)/,$(release.JARS))
 $(RELEASEDIR.jardir)/%.jar: $(WORKDIR.lib)/%.jar | $(RELEASEDIR.jardir)/. ; $(cpy)
@@ -1023,13 +1049,6 @@ $2/$(notdir $1): $(call frompf1,$1) | $2/. ; $(value cpy)
 endef
 $(foreach t,$(releasetbb.LIBS_Y),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.soia))))
 $(foreach t,$(releasetbb.LIBS_A),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.libia))))
-
-#----- releasing MKL GPU FPK libraries
-
-ifneq ($(MKLGPUFPKDIR),)
-$(foreach t,$(mklgpufpk.HEADERS),$(eval $(call .release.t,$t,$(RELEASEDIR.include.mklgpufpk))))
-$(foreach t,$(mklgpufpk.LIBS_A), $(eval $(call .release.t,$t,$(RELEASEDIR.libia))))
-endif
 
 #===============================================================================
 # Miscellaneous stuff
