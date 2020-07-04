@@ -1,4 +1,4 @@
-/* file: svm_two_class_dense_batch.cpp */
+/* file: svm_two_class_thunder_dense_batch.cpp */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -17,13 +17,14 @@
 
 /*
 !  Content:
-!    C++ example of two-class support vector machine (SVM) classification with DPC++ interfaces
+!    C++ example of two-class support vector machine (SVM) classification using
+!    the Thunder method with DPC++ interfaces
 !
 !******************************************************************************/
 
 /**
- * <a name="DAAL-EXAMPLE-CPP-SVM_TWO_CLASS_DENSE_BATCH"></a>
- * \example svm_two_class_dense_batch.cpp
+ * <a name="DAAL-EXAMPLE-CPP-SVM_TWO_CLASS_THUNDER_DENSE_BATCH"></a>
+ * \example svm_two_class_thunder_dense_batch.cpp
  */
 
 #include "daal_sycl.h"
@@ -48,8 +49,7 @@ svm::training::ResultPtr trainingResult;
 classifier::prediction::ResultPtr predictionResult;
 NumericTablePtr testGroundTruth;
 
-template <typename algorithmType>
-void trainModel(algorithmType && algorithm);
+void trainModel();
 void testModel();
 void printResults();
 
@@ -68,7 +68,7 @@ int main(int argc, char * argv[])
         daal::services::SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
-        trainModel(svm::training::Batch<float, svm::training::thunder>());
+        trainModel();
         testModel();
         printResults();
     }
@@ -76,8 +76,7 @@ int main(int argc, char * argv[])
     return 0;
 }
 
-template <typename algorithmType>
-void trainModel(algorithmType && algorithm)
+void trainModel()
 {
     FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
@@ -88,10 +87,12 @@ void trainModel(algorithmType && algorithm)
 
     trainDataSource.loadDataBlock(mergedData.get());
 
+    svm::training::Batch<float, svm::training::thunder> algorithm;
     algorithm.parameter.kernel            = kernel;
     algorithm.parameter.C                 = 1.0;
     algorithm.parameter.accuracyThreshold = 0.01;
     algorithm.parameter.tau               = 1e-6;
+    algorithm.parameter.maxIterations     = 50;
 
     algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainGroundTruth);
@@ -105,7 +106,8 @@ void trainModel(algorithmType && algorithm)
 
 void testModel()
 {
-    /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
+    /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from
+   * a .csv file */
     FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for testing data and labels */
