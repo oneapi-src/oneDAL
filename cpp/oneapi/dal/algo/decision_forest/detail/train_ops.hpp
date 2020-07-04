@@ -21,7 +21,7 @@
 namespace oneapi::dal::decision_forest::detail {
 
 template <typename Context, typename Float, typename Task, typename Method>
-struct train_ops_dispatcher {
+struct ONEAPI_DAL_EXPORT train_ops_dispatcher {
     train_result<Task> operator()(const Context&,
                                   const descriptor_base<Task>&,
                                   const train_input<Task>&) const;

@@ -233,8 +233,8 @@ void descriptor_base<Task>::set_voting_method_impl(voting_method value) {
     impl_->voting_method_value = value;
 }
 
-template class descriptor_base<task::classification>;
-template class descriptor_base<task::regression>;
+template class ONEAPI_DAL_EXPORT descriptor_base<task::classification>;
+template class ONEAPI_DAL_EXPORT descriptor_base<task::regression>;
 
 /* model implementation */
 template <typename Task>
@@ -255,6 +255,6 @@ void model<Task>::clear() {
     impl_->clear();
 }
 
-template class model<task::classification>;
-template class model<task::regression>;
+template class ONEAPI_DAL_EXPORT model<task::classification>;
+template class ONEAPI_DAL_EXPORT model<task::regression>;
 } // namespace oneapi::dal::decision_forest
