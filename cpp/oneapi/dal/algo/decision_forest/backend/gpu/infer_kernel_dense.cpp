@@ -14,20 +14,22 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/decision_forest/backend/gpu/train_kernel.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/infer_kernel.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
-template <typename Float>
-struct train_kernel_gpu<Float, task::classification, method::default_dense> {
-    train_result operator()(const dal::backend::context_gpu& ctx,
-                            const descriptor_base& params,
-                            const train_input& input) const {
-        return train_result();
+template <typename Float, typename Task>
+struct infer_kernel_gpu<Float, Task, method::default_dense> {
+    infer_result<Task> operator()(const dal::backend::context_gpu& ctx,
+                                  const descriptor_base<Task>& params,
+                                  const infer_input<Task>& input) const {
+        return infer_result<Task>();
     }
 };
 
-template struct train_kernel_gpu<float, task::classification, method::default_dense>;
-template struct train_kernel_gpu<double, task::classification, method::default_dense>;
+template struct infer_kernel_gpu<float, task::classification, method::default_dense>;
+template struct infer_kernel_gpu<double, task::classification, method::default_dense>;
+template struct infer_kernel_gpu<float, task::regression, method::default_dense>;
+template struct infer_kernel_gpu<double, task::regression, method::default_dense>;
 
 } // namespace oneapi::dal::decision_forest::backend

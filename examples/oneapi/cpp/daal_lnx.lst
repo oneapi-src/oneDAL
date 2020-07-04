@@ -21,3 +21,4 @@
 DAAL = pca_cor_dense_batch               \
        svm_two_class_thunder_dense_batch \
        df_cls_dense_batch                \
+       df_reg_dense_batch                \

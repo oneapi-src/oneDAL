@@ -14,26 +14,20 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "oneapi/dal/algo/decision_forest/backend/cpu/train_kernel.hpp"
 
-#include "oneapi/dal/algo/decision_forest/common.hpp"
+namespace oneapi::dal::decision_forest::backend {
 
-namespace oneapi::dal::decision_forest {
-
-template <typename Task>
-class detail::model_impl : public base {
-public:
-    virtual std::int64_t get_tree_count() const {
-        return 0;
-    }
-    virtual std::int64_t get_class_count() const {
-        return 0;
-    }
-    virtual void clear() {}
-
-    virtual bool is_interop() const {
-        return false;
+template <typename Float, typename Task>
+struct train_kernel_cpu<Float, Task, method::hist> {
+    train_result<Task> operator()(const dal::backend::context_cpu& ctx,
+                                  const descriptor_base<Task>& params,
+                                  const train_input<Task>& input) const {
+        return train_result<Task>();
     }
 };
 
-} // namespace oneapi::dal::decision_forest
+template struct train_kernel_cpu<float, task::classification, method::hist>;
+template struct train_kernel_cpu<double, task::classification, method::hist>;
+
+} // namespace oneapi::dal::decision_forest::backend

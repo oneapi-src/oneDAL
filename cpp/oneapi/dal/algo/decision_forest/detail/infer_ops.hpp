@@ -20,9 +20,11 @@
 
 namespace oneapi::dal::decision_forest::detail {
 
-template <typename Context, typename... Options>
+template <typename Context, typename Float, typename Task, typename Method>
 struct infer_ops_dispatcher {
-    infer_result operator()(const Context&, const descriptor_base&, const infer_input&) const;
+    infer_result<Task> operator()(const Context&,
+                                  const descriptor_base<Task>&,
+                                  const infer_input<Task>&) const;
 };
 
 template <typename Descriptor>
@@ -30,14 +32,14 @@ struct infer_ops {
     using float_t           = typename Descriptor::float_t;
     using task_t            = typename Descriptor::task_t;
     using method_t          = typename Descriptor::method_t;
-    using input_t           = infer_input;
-    using result_t          = infer_result;
-    using descriptor_base_t = descriptor_base;
+    using input_t           = infer_input<task_t>;
+    using result_t          = infer_result<task_t>;
+    using descriptor_base_t = descriptor_base<task_t>;
 
-    void validate(const Descriptor& params, const infer_input& input) const {}
+    void validate(const Descriptor& params, const input_t& input) const {}
 
     template <typename Context>
-    auto operator()(const Context& ctx, const Descriptor& desc, const infer_input& input) const {
+    auto operator()(const Context& ctx, const Descriptor& desc, const input_t& input) const {
         validate(desc, input);
         return infer_ops_dispatcher<Context, float_t, task_t, method_t>()(ctx, desc, input);
     }

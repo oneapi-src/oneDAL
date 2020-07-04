@@ -21,12 +21,17 @@
 namespace oneapi::dal::decision_forest {
 
 namespace detail {
+template <typename Task = task::by_default>
 class train_input_impl;
+
+template <typename Task = task::by_default>
 class train_result_impl;
 } // namespace detail
 
+template <typename Task = task::by_default>
 class train_input : public base {
 public:
+    using pimpl = dal::detail::pimpl<detail::train_input_impl<Task>>;
     train_input(const table& data, const table& labels);
 
     table get_data() const;
@@ -47,20 +52,22 @@ private:
     void set_data_impl(const table& value);
     void set_labels_impl(const table& value);
 
-    dal::detail::pimpl<detail::train_input_impl> impl_;
+    pimpl impl_;
 };
 
+template <typename Task = task::by_default>
 class train_result {
 public:
+    using pimpl = dal::detail::pimpl<detail::train_result_impl<Task>>;
     train_result();
 
-    model get_model() const;
+    model<Task> get_model() const;
 
     table get_oob_err() const;
     table get_oob_per_observation_err() const;
     table get_var_importance() const;
 
-    auto& set_model(const model& value) {
+    auto& set_model(const model<Task>& value) {
         set_model_impl(value);
         return *this;
     }
@@ -81,13 +88,13 @@ public:
     }
 
 private:
-    void set_model_impl(const model&);
+    void set_model_impl(const model<Task>&);
 
     void set_oob_err_impl(const table&);
     void set_oob_per_observation_err_impl(const table&);
     void set_var_importance_impl(const table&);
 
-    dal::detail::pimpl<detail::train_result_impl> impl_;
+    pimpl impl_;
 };
 
 } // namespace oneapi::dal::decision_forest

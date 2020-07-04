@@ -15,15 +15,15 @@
 *******************************************************************************/
 
 #include <daal/include/services/error_handling.h>
-#include <daal/src/algorithms/dtrees/forest/classification/df_classification_model_impl.h>
+#include <daal/src/algorithms/dtrees/forest/regression/df_regression_model_impl.h>
 #include <daal/src/services/service_algo_utils.h>
 
-#include <daal/include/algorithms/decision_forest/decision_forest_classification_training_batch.h>
-#include <daal/include/algorithms/decision_forest/decision_forest_classification_training_types.h>
+#include <daal/include/algorithms/decision_forest/decision_forest_regression_training_batch.h>
+#include <daal/include/algorithms/decision_forest/decision_forest_regression_training_types.h>
 
-#include <daal/src/algorithms/dtrees/forest/classification/df_classification_train_kernel.h>
+#include <daal/src/algorithms/dtrees/forest/regression/df_regression_train_kernel.h>
 //to prevent reordering by clang-format
-#include <daal/src/algorithms/dtrees/forest/classification/df_classification_train_dense_default_kernel.h>
+#include <daal/src/algorithms/dtrees/forest/regression/df_regression_train_dense_default_kernel.h>
 
 #include "oneapi/dal/algo/decision_forest/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
@@ -36,18 +36,20 @@ namespace oneapi::dal::decision_forest::backend {
 using dal::backend::context_cpu;
 
 namespace df      = daal::algorithms::decision_forest;
-namespace cls     = daal::algorithms::decision_forest::classification;
+namespace rgr     = daal::algorithms::decision_forest::regression;
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
-using cls_default_dense_kernel_t = cls::training::internal::
-    ClassificationTrainBatchKernel<Float, cls::training::defaultDense, Cpu>;
+using rgr_default_dense_kernel_t =
+    rgr::training::internal::RegressionTrainBatchKernel<Float, rgr::training::defaultDense, Cpu>;
 
-template <typename Float>
-static train_result call_daal_kernel(const context_cpu& ctx,
-                                     const descriptor_base& desc,
-                                     const table& data,
-                                     const table& labels) {
+using rgr_model_p = rgr::ModelPtr;
+
+template <typename Float, typename Task>
+static train_result<Task> call_daal_kernel(const context_cpu& ctx,
+                                           const descriptor_base<Task>& desc,
+                                           const table& data,
+                                           const table& labels) {
     const int64_t row_count    = data.get_row_count();
     const int64_t column_count = data.get_column_count();
 
@@ -59,11 +61,11 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     const auto daal_labels = interop::convert_to_daal_homogen_table(arr_label, row_count, 1);
 
     /* init param for daal kernel */
-    auto daal_input = daal::algorithms::classifier::training::Input();
-    daal_input.set(daal::algorithms::classifier::training::data, daal_data);
-    daal_input.set(daal::algorithms::classifier::training::labels, daal_labels);
+    auto daal_input = rgr::training::Input();
+    daal_input.set(rgr::training::data, daal_data);
+    daal_input.set(rgr::training::dependentVariable, daal_labels);
 
-    auto daal_parameter                        = cls::training::Parameter(desc.get_class_count());
+    auto daal_parameter                        = rgr::training::Parameter();
     daal_parameter.nTrees                      = desc.get_tree_count();
     daal_parameter.observationsPerTreeFraction = desc.get_observations_per_tree_fraction();
     daal_parameter.featuresPerNode             = desc.get_features_per_node();
@@ -90,9 +92,9 @@ static train_result call_daal_kernel(const context_cpu& ctx,
                                                    ? df::training::MDA_Scaled
                                                    : df::training::none;
 
-    train_result res;
+    train_result<Task> res;
 
-    auto daal_result = cls::training::Result();
+    auto daal_result = rgr::training::Result();
 
     /* init daal result's objects */
     if (desc.get_train_results_to_compute() &
@@ -101,7 +103,7 @@ static train_result call_daal_kernel(const context_cpu& ctx,
         res.set_oob_err(homogen_table_builder(1, arr_oob_err).build());
 
         const auto res_oob_err = interop::convert_to_daal_homogen_table(arr_oob_err, 1, 1);
-        daal_result.set(cls::training::outOfBagError, res_oob_err);
+        daal_result.set(rgr::training::outOfBagError, res_oob_err);
     }
 
     if (desc.get_train_results_to_compute() &
@@ -111,7 +113,7 @@ static train_result call_daal_kernel(const context_cpu& ctx,
 
         const auto res_oob_per_obs_err =
             interop::convert_to_daal_homogen_table(arr_oob_per_obs_err, row_count, 1);
-        daal_result.set(cls::training::outOfBagErrorPerObservation, res_oob_per_obs_err);
+        daal_result.set(rgr::training::outOfBagErrorPerObservation, res_oob_per_obs_err);
     }
     if (variable_importance_mode::none != vimp) {
         array<Float> arr_var_imp{ 1 * column_count };
@@ -119,12 +121,12 @@ static train_result call_daal_kernel(const context_cpu& ctx,
 
         const auto res_var_imp =
             interop::convert_to_daal_homogen_table(arr_var_imp, 1, column_count);
-        daal_result.set(cls::training::variableImportance, res_var_imp);
+        daal_result.set(rgr::training::variableImportance, res_var_imp);
     }
 
-    cls::ModelPtr mptr = cls::ModelPtr(new cls::internal::ModelImpl(column_count));
+    rgr::ModelPtr mptr = rgr::ModelPtr(new rgr::internal::ModelImpl(column_count));
 
-    interop::call_daal_kernel<Float, cls_default_dense_kernel_t>(
+    interop::call_daal_kernel<Float, rgr_default_dense_kernel_t>(
         ctx,
         daal::services::internal::hostApp(daal_input),
         daal_data.get(),
@@ -137,44 +139,44 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     if (desc.get_train_results_to_compute() &
         (std::uint64_t)train_result_to_compute::compute_out_of_bag_error) {
         auto table_oob_err = interop::convert_from_daal_homogen_table<Float>(
-            daal_result.get(cls::training::outOfBagError));
+            daal_result.get(rgr::training::outOfBagError));
         res.set_oob_err(table_oob_err);
     }
 
     if (desc.get_train_results_to_compute() &
         (std::uint64_t)train_result_to_compute::compute_out_of_bag_error_per_observation) {
         auto table_oob_per_obs_err = interop::convert_from_daal_homogen_table<Float>(
-            daal_result.get(cls::training::outOfBagErrorPerObservation));
+            daal_result.get(rgr::training::outOfBagErrorPerObservation));
         res.set_oob_per_observation_err(table_oob_per_obs_err);
     }
 
     if (variable_importance_mode::none != vimp) {
         auto table_var_imp = interop::convert_from_daal_homogen_table<Float>(
-            daal_result.get(cls::training::variableImportance));
+            daal_result.get(rgr::training::variableImportance));
         res.set_var_importance(table_var_imp);
     }
 
-    return res.set_model(dal::detail::pimpl_accessor().make_from_pimpl<model>(
-        std::make_shared<interop::decision_forest::interop_model_impl>(mptr)));
+    return res.set_model(dal::detail::pimpl_accessor().make_from_pimpl<model<Task>>(
+        std::make_shared<interop::decision_forest::interop_model_impl<Task, rgr_model_p>>(mptr)));
 }
 
-template <typename Float>
-static train_result train(const context_cpu& ctx,
-                          const descriptor_base& desc,
-                          const train_input& input) {
+template <typename Float, typename Task>
+static train_result<Task> train(const context_cpu& ctx,
+                                const descriptor_base<Task>& desc,
+                                const train_input<Task>& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_labels());
 }
 
-template <typename Float>
-struct train_kernel_cpu<Float, task::classification, method::default_dense> {
-    train_result operator()(const context_cpu& ctx,
-                            const descriptor_base& desc,
-                            const train_input& input) const {
-        return train<Float>(ctx, desc, input);
+template <typename Float, typename Task>
+struct train_kernel_cpu<Float, Task, method::default_dense> {
+    train_result<Task> operator()(const context_cpu& ctx,
+                                  const descriptor_base<Task>& desc,
+                                  const train_input<Task>& input) const {
+        return train<Float, Task>(ctx, desc, input);
     }
 };
 
-template struct train_kernel_cpu<float, task::classification, method::default_dense>;
-template struct train_kernel_cpu<double, task::classification, method::default_dense>;
+template struct train_kernel_cpu<float, task::regression, method::default_dense>;
+template struct train_kernel_cpu<double, task::regression, method::default_dense>;
 
 } // namespace oneapi::dal::decision_forest::backend

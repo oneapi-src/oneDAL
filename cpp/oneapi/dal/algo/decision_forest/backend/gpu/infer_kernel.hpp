@@ -23,9 +23,9 @@ namespace oneapi::dal::decision_forest::backend {
 
 template <typename Float, typename Task, typename Method>
 struct infer_kernel_gpu {
-    infer_result operator()(const dal::backend::context_gpu& ctx,
-                            const descriptor_base& params,
-                            const infer_input& input) const;
+    infer_result<Task> operator()(const dal::backend::context_gpu& ctx,
+                                  const descriptor_base<Task>& params,
+                                  const infer_input<Task>& input) const;
 };
 
 } // namespace oneapi::dal::decision_forest::backend

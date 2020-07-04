@@ -19,70 +19,79 @@
 
 namespace oneapi::dal::decision_forest {
 
+template <typename Task>
 class detail::infer_input_impl : public base {
 public:
-    infer_input_impl(const model& trained_model, const table& data)
+    infer_input_impl(const model<Task>& trained_model, const table& data)
             : trained_model(trained_model),
               data(data) {}
-    model trained_model;
+    model<Task> trained_model;
     table data;
 };
 
+template <typename Task>
 class detail::infer_result_impl : public base {
 public:
     table prediction;
     table probabilities;
-    table log_probabilities;
 };
 
 using detail::infer_input_impl;
 using detail::infer_result_impl;
 
-infer_input::infer_input(const model& trained_model, const table& data)
-        : impl_(new infer_input_impl(trained_model, data)) {}
+template <typename Task>
+infer_input<Task>::infer_input(const model<Task>& trained_model, const table& data)
+        : impl_(new infer_input_impl<Task>(trained_model, data)) {}
 
-model infer_input::get_model() const {
+template <typename Task>
+model<Task> infer_input<Task>::get_model() const {
     return impl_->trained_model;
 }
 
-table infer_input::get_data() const {
+template <typename Task>
+table infer_input<Task>::get_data() const {
     return impl_->data;
 }
 
-void infer_input::set_model_impl(const model& value) {
+template <typename Task>
+void infer_input<Task>::set_model_impl(const model<Task>& value) {
     impl_->trained_model = value;
 }
 
-void infer_input::set_data_impl(const table& value) {
+template <typename Task>
+void infer_input<Task>::set_data_impl(const table& value) {
     impl_->data = value;
 }
 
+template class infer_input<task::classification>;
+template class infer_input<task::regression>;
+
 /* infer_result implementation */
 
-infer_result::infer_result() : impl_(new infer_result_impl{}) {}
+template <typename Task>
+infer_result<Task>::infer_result() : impl_(new infer_result_impl<Task>{}) {}
 
-table infer_result::get_prediction() const {
+template <typename Task>
+table infer_result<Task>::get_prediction() const {
     return impl_->prediction;
 }
 
-table infer_result::get_probabilities() const {
+template <typename Task>
+table infer_result<Task>::get_probabilities_impl() const {
     return impl_->probabilities;
 }
-/*
-table infer_result::get_log_probabilities() const {
-    return impl_->log_probabilities;
-}
-*/
-void infer_result::set_prediction_impl(const table& value) {
+
+template <typename Task>
+void infer_result<Task>::set_prediction_impl(const table& value) {
     impl_->prediction = value;
 }
 
-void infer_result::set_probabilities_impl(const table& value) {
+template <typename Task>
+void infer_result<Task>::set_probabilities_impl(const table& value) {
     impl_->probabilities = value;
 }
-/*
-void infer_result::set_log_probabilities_impl(const table &value) {
-    impl_->log_probabilities = value;
-}
-*/
+
+template class infer_result<task::classification>;
+template class infer_result<task::regression>;
+
 } // namespace oneapi::dal::decision_forest

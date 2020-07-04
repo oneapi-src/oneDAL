@@ -147,7 +147,7 @@ sointel64:
 _make_ex: $(RES)
 
 vpath
-vpath %.cpp $(addprefix ./source/,pca decision_forest svm)
+vpath %.cpp $(addprefix ./source/,decision_forest pca svm)
 
 .SECONDARY:
 $(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.

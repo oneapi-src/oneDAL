@@ -22,9 +22,9 @@ namespace oneapi::dal::decision_forest::detail {
 
 template <typename Float, typename Task, typename Method>
 struct infer_ops_dispatcher<default_execution_context, Float, Task, Method> {
-    infer_result operator()(const default_execution_context& ctx,
-                            const descriptor_base& desc,
-                            const infer_input& input) const {
+    infer_result<Task> operator()(const default_execution_context& ctx,
+                                  const descriptor_base<Task>& desc,
+                                  const infer_input<Task>& input) const {
         using kernel_dispatcher_t =
             dal::backend::kernel_dispatcher<backend::infer_kernel_cpu<Float, Task, Method>>;
         return kernel_dispatcher_t()(ctx, desc, input);
@@ -37,4 +37,6 @@ struct infer_ops_dispatcher<default_execution_context, Float, Task, Method> {
 INSTANTIATE(float, task::classification, method::default_dense)
 INSTANTIATE(double, task::classification, method::default_dense)
 
+INSTANTIATE(float, task::regression, method::default_dense)
+INSTANTIATE(double, task::regression, method::default_dense)
 } // namespace oneapi::dal::decision_forest::detail

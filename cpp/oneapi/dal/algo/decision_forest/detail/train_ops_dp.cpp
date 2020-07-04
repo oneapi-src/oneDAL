@@ -23,9 +23,9 @@ namespace oneapi::dal::decision_forest::detail {
 
 template <typename Float, typename Task, typename Method>
 struct train_ops_dispatcher<data_parallel_execution_context, Float, Task, Method> {
-    train_result operator()(const data_parallel_execution_context& ctx,
-                            const descriptor_base& params,
-                            const train_input& input) const {
+    train_result<Task> operator()(const data_parallel_execution_context& ctx,
+                                  const descriptor_base<Task>& params,
+                                  const train_input<Task>& input) const {
         using kernel_dispatcher_t =
             dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Task, Method>,
                                             backend::train_kernel_gpu<Float, Task, Method>>;
@@ -41,4 +41,8 @@ INSTANTIATE(float, task::classification, method::hist)
 INSTANTIATE(double, task::classification, method::default_dense)
 INSTANTIATE(double, task::classification, method::hist)
 
+INSTANTIATE(float, task::regression, method::default_dense)
+INSTANTIATE(float, task::regression, method::hist)
+INSTANTIATE(double, task::regression, method::default_dense)
+INSTANTIATE(double, task::regression, method::hist)
 } // namespace oneapi::dal::decision_forest::detail

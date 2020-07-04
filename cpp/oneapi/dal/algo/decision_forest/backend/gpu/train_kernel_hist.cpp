@@ -18,16 +18,18 @@
 
 namespace oneapi::dal::decision_forest::backend {
 
-template <typename Float>
-struct train_kernel_gpu<Float, task::classification, method::hist> {
-    train_result operator()(const dal::backend::context_gpu& ctx,
-                            const descriptor_base& params,
-                            const train_input& input) const {
-        return train_result();
+template <typename Float, typename Task>
+struct train_kernel_gpu<Float, Task, method::hist> {
+    train_result<Task> operator()(const dal::backend::context_gpu& ctx,
+                                  const descriptor_base<Task>& params,
+                                  const train_input<Task>& input) const {
+        return train_result<Task>();
     }
 };
 
 template struct train_kernel_gpu<float, task::classification, method::hist>;
 template struct train_kernel_gpu<double, task::classification, method::hist>;
+template struct train_kernel_gpu<float, task::regression, method::hist>;
+template struct train_kernel_gpu<double, task::regression, method::hist>;
 
 } // namespace oneapi::dal::decision_forest::backend

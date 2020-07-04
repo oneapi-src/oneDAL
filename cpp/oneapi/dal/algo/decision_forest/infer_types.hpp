@@ -21,17 +21,22 @@
 namespace oneapi::dal::decision_forest {
 
 namespace detail {
+template <typename Task = task::by_default>
 class infer_input_impl;
+
+template <typename Task = task::by_default>
 class infer_result_impl;
 } // namespace detail
 
+template <typename Task = task::by_default>
 class infer_input : public base {
 public:
-    infer_input(const model& trained_model, const table& data);
+    using pimpl = dal::detail::pimpl<detail::infer_input_impl<Task>>;
+    infer_input(const model<Task>& trained_model, const table& data);
 
-    model get_model() const;
+    model<Task> get_model() const;
 
-    auto& set_model(const model& value) {
+    auto& set_model(const model<Task>& value) {
         set_model_impl(value);
         return *this;
     }
@@ -44,41 +49,46 @@ public:
     }
 
 private:
-    void set_model_impl(const model& value);
+    void set_model_impl(const model<Task>& value);
     void set_data_impl(const table& value);
 
-    dal::detail::pimpl<detail::infer_input_impl> impl_;
+    pimpl impl_;
 };
 
-class infer_result {
+template <typename Task = task::by_default>
+class infer_result : public base {
 public:
+    using pimpl = dal::detail::pimpl<detail::infer_result_impl<Task>>;
+    template <typename T>
+    using is_classification_t =
+        std::enable_if_t<std::is_same_v<T, std::decay_t<task::classification>>>;
     infer_result();
 
     table get_prediction() const;
-    table get_probabilities() const;
-    //table get_log_probabilities() const;
 
     auto& set_prediction(const table& value) {
         set_prediction_impl(value);
         return *this;
     }
 
+    /* classification specific methods */
+    template <typename T = Task, typename = is_classification_t<T>>
+    table get_probabilities() const {
+        return get_probabilities_impl();
+    }
+
+    template <typename T = Task, typename = is_classification_t<T>>
     auto& set_probabilities(const table& value) {
         set_probabilities_impl(value);
         return *this;
     }
-    /*
-  auto &set_log_probabilities(const table &value) {
-    set_log_probabilities_impl(value);
-    return *this;
-  }
-*/
+
 private:
+    table get_probabilities_impl() const;
     void set_prediction_impl(const table& value);
     void set_probabilities_impl(const table& value);
-    //  void set_log_probabilities_impl(const table &value);
 
-    dal::detail::pimpl<detail::infer_result_impl> impl_;
+    pimpl impl_;
 };
 
 } // namespace oneapi::dal::decision_forest

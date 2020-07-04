@@ -19,6 +19,7 @@
 
 namespace oneapi::dal::decision_forest {
 
+template <typename Task>
 class detail::train_input_impl : public base {
 public:
     train_input_impl(const table& data, const table& labels) : data(data), labels(labels) {}
@@ -27,9 +28,10 @@ public:
     table labels;
 };
 
+template <typename Task>
 class detail::train_result_impl : public base {
 public:
-    model trained_model;
+    model<Task> trained_model;
 
     table oob_err;
     table oob_per_observation_err;
@@ -39,58 +41,78 @@ public:
 using detail::train_input_impl;
 using detail::train_result_impl;
 
-train_input::train_input(const table& data, const table& labels)
-        : impl_(new train_input_impl(data, labels)) {}
+template <typename Task>
+train_input<Task>::train_input(const table& data, const table& labels)
+        : impl_(new train_input_impl<Task>(data, labels)) {}
 
-table train_input::get_data() const {
+template <typename Task>
+table train_input<Task>::get_data() const {
     return impl_->data;
 }
 
-table train_input::get_labels() const {
+template <typename Task>
+table train_input<Task>::get_labels() const {
     return impl_->labels;
 }
 
-void train_input::set_data_impl(const table& value) {
+template <typename Task>
+void train_input<Task>::set_data_impl(const table& value) {
     impl_->data = value;
 }
 
-void train_input::set_labels_impl(const table& value) {
+template <typename Task>
+void train_input<Task>::set_labels_impl(const table& value) {
     impl_->labels = value;
 }
 
-/* train_result implementation*/
-train_result::train_result() : impl_(new train_result_impl{}) {}
+template class train_input<task::classification>;
+template class train_input<task::regression>;
 
-model train_result::get_model() const {
+/* train_result implementation*/
+template <typename Task>
+train_result<Task>::train_result() : impl_(new train_result_impl<Task>{}) {}
+
+template <typename Task>
+model<Task> train_result<Task>::get_model() const {
     return impl_->trained_model;
 }
 
-table train_result::get_oob_err() const {
+template <typename Task>
+table train_result<Task>::get_oob_err() const {
     return impl_->oob_err;
 }
 
-table train_result::get_oob_per_observation_err() const {
+template <typename Task>
+table train_result<Task>::get_oob_per_observation_err() const {
     return impl_->oob_per_observation_err;
 }
 
-table train_result::get_var_importance() const {
+template <typename Task>
+table train_result<Task>::get_var_importance() const {
     return impl_->variable_importance;
 }
 
-void train_result::set_model_impl(const model& value) {
+template <typename Task>
+void train_result<Task>::set_model_impl(const model<Task>& value) {
     impl_->trained_model = value;
 }
 
-void train_result::set_oob_err_impl(const table& value) {
+template <typename Task>
+void train_result<Task>::set_oob_err_impl(const table& value) {
     impl_->oob_err = value;
 }
 
-void train_result::set_oob_per_observation_err_impl(const table& value) {
+template <typename Task>
+void train_result<Task>::set_oob_per_observation_err_impl(const table& value) {
     impl_->oob_per_observation_err = value;
 }
 
-void train_result::set_var_importance_impl(const table& value) {
+template <typename Task>
+void train_result<Task>::set_var_importance_impl(const table& value) {
     impl_->variable_importance = value;
 }
+
+template class train_result<task::classification>;
+template class train_result<task::regression>;
 
 } // namespace oneapi::dal::decision_forest

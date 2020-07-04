@@ -21,6 +21,7 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 
 #include <daal/include/algorithms/decision_forest/decision_forest_classification_model.h>
+#include <daal/include/algorithms/decision_forest/decision_forest_regression_model.h>
 
 namespace oneapi::dal::backend::interop::decision_forest {
 
@@ -29,17 +30,34 @@ namespace daal_df = daal::algorithms::decision_forest;
 namespace df = oneapi::dal::decision_forest;
 
 /* oneDal -> daal model bridge */
-class interop_model_impl : public df::detail::model_impl {
+template <typename T>
+static inline
+    typename std::enable_if_t<std::is_same_v<T, std::decay_t<daal_df::classification::ModelPtr>>,
+                              std::int64_t>
+    get_number_of_classes(T model) {
+    return model->getNumberOfClasses();
+}
+
+template <typename T>
+static inline
+    typename std::enable_if_t<!std::is_same_v<T, std::decay_t<daal_df::classification::ModelPtr>>,
+                              std::int64_t>
+    get_number_of_classes(T model) {
+    return 0;
+}
+
+template <typename Task, typename ModelP = daal_df::classification::ModelPtr>
+class interop_model_impl : public df::detail::model_impl<Task> {
 public:
     interop_model_impl() = delete;
-    interop_model_impl(daal_df::classification::ModelPtr pmdl) : pmdl_(pmdl){};
+    interop_model_impl(ModelP pmdl) : pmdl_(pmdl){};
     virtual ~interop_model_impl(){};
 
     virtual std::int64_t get_tree_count() const {
         return pmdl_->numberOfTrees();
     }
     virtual std::int64_t get_class_count() const {
-        return pmdl_->getNumberOfClasses();
+        return get_number_of_classes<ModelP>(pmdl_);
     }
     void clear() {
         pmdl_->clear();
@@ -49,15 +67,15 @@ public:
         return true;
     }
 
-    void set_model(daal_df::classification::ModelPtr pmdl) {
+    void set_model(ModelP pmdl) {
         pmdl_ = pmdl;
     }
-    daal_df::classification::ModelPtr get_model() {
+    ModelP get_model() {
         return pmdl_;
     }
 
 private:
-    daal_df::classification::ModelPtr pmdl_;
+    ModelP pmdl_;
 };
 
 } // namespace oneapi::dal::backend::interop::decision_forest

@@ -34,15 +34,16 @@ template <typename Float, daal::CpuType Cpu>
 using cls_default_dense_predict_kernel_t =
     cls::prediction::internal::PredictKernel<Float, cls::prediction::defaultDense, Cpu>;
 
-template <typename Float>
-static infer_result call_daal_kernel(const context_cpu& ctx,
-                                     const descriptor_base& desc,
-                                     const model& trained_model,
-                                     const table& data) {
+using cls_model_p = cls::ModelPtr;
+
+template <typename Float, typename Task>
+static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
+                                           const descriptor_base<Task>& desc,
+                                           const model<Task>& trained_model,
+                                           const table& data) {
     const int64_t row_count    = data.get_row_count();
     const int64_t column_count = data.get_column_count();
 
-    // TODO: data is table, not a homogen_table. Think better about accessor - is it enough to have just a row_accessor?
     auto arr_data = row_accessor<const Float>{ data }.pull();
 
     const auto daal_data =
@@ -55,11 +56,12 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
     auto model_pimpl = dal::detail::pimpl_accessor().get_pimpl(trained_model);
     if (!model_pimpl->is_interop()) {
         // throw exception
-        return infer_result();
+        return infer_result<Task>();
     }
 
     auto pinterop_model =
-        static_cast<backend::interop::decision_forest::interop_model_impl*>(model_pimpl.get());
+        static_cast<backend::interop::decision_forest::interop_model_impl<Task, cls_model_p>*>(
+            model_pimpl.get());
 
     daal_input.set(daal::algorithms::classifier::prediction::model, pinterop_model->get_model());
 
@@ -97,7 +99,7 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
         desc.get_class_count(),
         daal_voting_method);
 
-    infer_result res;
+    infer_result<Task> res;
 
     if (desc.get_infer_results_to_compute() &
         (std::uint64_t)infer_result_to_compute::compute_class_labels) {
@@ -116,19 +118,19 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
     return res;
 }
 
-template <typename Float>
-static infer_result infer(const context_cpu& ctx,
-                          const descriptor_base& desc,
-                          const infer_input& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_model(), input.get_data());
+template <typename Float, typename Task>
+static infer_result<Task> infer(const context_cpu& ctx,
+                                const descriptor_base<Task>& desc,
+                                const infer_input<Task>& input) {
+    return call_daal_kernel<Float, Task>(ctx, desc, input.get_model(), input.get_data());
 }
 
-template <typename Float>
-struct infer_kernel_cpu<Float, task::classification, method::default_dense> {
-    infer_result operator()(const context_cpu& ctx,
-                            const descriptor_base& desc,
-                            const infer_input& input) const {
-        return infer<Float>(ctx, desc, input);
+template <typename Float, typename Task>
+struct infer_kernel_cpu<Float, Task, method::default_dense> {
+    infer_result<Task> operator()(const context_cpu& ctx,
+                                  const descriptor_base<Task>& desc,
+                                  const infer_input<Task>& input) const {
+        return infer<Float, Task>(ctx, desc, input);
     }
 };
 
