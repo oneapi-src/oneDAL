@@ -946,10 +946,12 @@ endif
 # $1: New library name
 # $2: Release directory
 # $3: make target to add dependency
+# Note: The `ln` command does not support `-r` on MacOS, so we
+#       `cd`to the lib directory first and then create symlink.
 define .release.add_compat_symlink
 $3: $2/$(subst onedal,daal,$1)
 $2/$(subst onedal,daal,$1): $2/$1
-	ln -rsf $2/$1 $2/$(subst onedal,daal,$1)
+	cd $2 && ln -sf $1 $(subst onedal,daal,$1)
 endef
 
 ifeq ($(if $(or $(OS_is_lnx),$(OS_is_mac)),yes,),yes)
