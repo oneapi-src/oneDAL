@@ -58,7 +58,8 @@ static compute_result call_daal_kernel(const context_cpu& ctx,
                                                         daal_values.get(),
                                                         &daal_parameter);
 
-    return compute_result().set_values(homogen_table_builder{}.reset(arr_values, row_count_x, row_count_y).build());
+    return compute_result().set_values(
+        homogen_table_builder{}.reset(arr_values, row_count_x, row_count_y).build());
 }
 
 template <typename Float>

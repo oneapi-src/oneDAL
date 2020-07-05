@@ -166,16 +166,11 @@ public:
     column_accessor(const table_builder& b) : base(b) {}
 
     array<data_t> pull(std::int64_t column_index, const range& rows = { 0, -1 }) const {
-        return base::pull(host_policy{},
-                          { column_index, rows },
-                          detail::host_only_alloc{});
+        return base::pull(host_policy{}, { column_index, rows }, detail::host_only_alloc{});
     }
 
     T* pull(array<data_t>& block, std::int64_t column_index, const range& rows = { 0, -1 }) const {
-        return base::pull(host_policy{},
-                          block,
-                          { column_index, rows },
-                          detail::host_only_alloc{});
+        return base::pull(host_policy{}, block, { column_index, rows }, detail::host_only_alloc{});
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL

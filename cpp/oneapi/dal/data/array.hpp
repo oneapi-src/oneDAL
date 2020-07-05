@@ -41,10 +41,7 @@ public:
 
     template <typename K>
     static array<T> full(std::int64_t count, K&& element) {
-        return full_impl(host_policy{},
-                         count,
-                         std::forward<K>(element),
-                         detail::host_only_alloc{});
+        return full_impl(host_policy{}, count, std::forward<K>(element), detail::host_only_alloc{});
     }
 
     static array<T> zeros(std::int64_t count) {

@@ -149,7 +149,10 @@ public:
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     template <typename T>
-    void pull_rows(sycl::queue& q, array<T>& a, const range& r, const sycl::usm::alloc& kind) const {
+    void pull_rows(sycl::queue& q,
+                   array<T>& a,
+                   const range& r,
+                   const sycl::usm::alloc& kind) const {
         homogen_table_impl impl{ column_count_, data_, feature_, layout_ };
         impl.pull_rows(a, r);
     }
@@ -161,7 +164,11 @@ public:
     }
 
     template <typename T>
-    void pull_column(sycl::queue& q, array<T>& a, std::int64_t idx, const range& r, const sycl::usm::alloc& kind) const {
+    void pull_column(sycl::queue& q,
+                     array<T>& a,
+                     std::int64_t idx,
+                     const range& r,
+                     const sycl::usm::alloc& kind) const {
         homogen_table_impl impl{ column_count_, data_, feature_, layout_ };
         impl.pull_column(a, idx, r);
     }

@@ -25,7 +25,7 @@ namespace oneapi::dal::detail {
 #ifdef ONEAPI_DAL_DATA_PARALLEL
 template <typename T>
 inline T* malloc(const data_parallel_policy& policy, std::int64_t count, sycl::usm::alloc kind) {
-    auto& queue = policy.get_queue();
+    auto& queue  = policy.get_queue();
     auto device  = queue.get_device();
     auto context = queue.get_context();
     // TODO: is not safe since sycl::memset accepts count as size_t
@@ -37,13 +37,19 @@ inline void free(const data_parallel_policy& policy, T* pointer) {
     sycl::free(pointer, policy.get_queue());
 }
 
-inline void memset(const data_parallel_policy& policy, void* dest, std::int32_t value, std::int64_t size) {
+inline void memset(const data_parallel_policy& policy,
+                   void* dest,
+                   std::int32_t value,
+                   std::int64_t size) {
     // TODO: is not safe since queue.memset accepts size as size_t
     auto event = policy.get_queue().memset(dest, value, size);
     event.wait();
 }
 
-inline void memcpy(const data_parallel_policy& policy, void* dest, const void* src, std::int64_t size) {
+inline void memcpy(const data_parallel_policy& policy,
+                   void* dest,
+                   const void* src,
+                   std::int64_t size) {
     // TODO: is not safe since queue.memcpy accepts size as size_t
     auto event = policy.get_queue().memcpy(dest, src, size);
     event.wait();
@@ -53,7 +59,7 @@ template <typename T>
 inline void fill(const data_parallel_policy& policy, T* dest, std::int64_t count, const T& value) {
     // TODO: can be optimized in future
     auto& queue = policy.get_queue();
-    auto event = queue.submit([&](sycl::handler& cgh) {
+    auto event  = queue.submit([&](sycl::handler& cgh) {
         cgh.parallel_for<class oneapi_dal_memory_fill>(sycl::range<1>(count), [=](sycl::id<1> idx) {
             dest[idx[0]] = value;
         });

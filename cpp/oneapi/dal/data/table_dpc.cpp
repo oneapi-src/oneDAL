@@ -14,8 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/data/table.hpp"
 #include "oneapi/dal/data/backend/homogen_table_impl.hpp"
+#include "oneapi/dal/data/table.hpp"
 
 using std::int64_t;
 

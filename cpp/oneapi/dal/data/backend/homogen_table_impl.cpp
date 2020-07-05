@@ -175,8 +175,10 @@ void homogen_table_impl::push_column(const array<T>& block, int64_t idx, const r
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
 template <typename T>
-void homogen_table_impl::pull_rows(sycl::queue& q, array<T>& a,
-                                   const range& r, const sycl::usm::alloc& kind) const {
+void homogen_table_impl::pull_rows(sycl::queue& q,
+                                   array<T>& a,
+                                   const range& r,
+                                   const sycl::usm::alloc& kind) const {
     pull_rows(a, r);
 }
 
@@ -186,13 +188,19 @@ void homogen_table_impl::push_rows(sycl::queue& q, const array<T>& a, const rang
 }
 
 template <typename T>
-void homogen_table_impl::pull_column(sycl::queue& q, array<T>& a,
-                                     std::int64_t idx, const range& r, const sycl::usm::alloc& kind) const {
+void homogen_table_impl::pull_column(sycl::queue& q,
+                                     array<T>& a,
+                                     std::int64_t idx,
+                                     const range& r,
+                                     const sycl::usm::alloc& kind) const {
     pull_column(a, idx, r);
 }
 
 template <typename T>
-void homogen_table_impl::push_column(sycl::queue& q, const array<T>& a, std::int64_t idx, const range& r) {
+void homogen_table_impl::push_column(sycl::queue& q,
+                                     const array<T>& a,
+                                     std::int64_t idx,
+                                     const range& r) {
     push_column(a, idx, r);
 }
 #endif
@@ -214,21 +222,51 @@ template void homogen_table_impl::push_column(const array<double>&, std::int64_t
 template void homogen_table_impl::push_column(const array<int32_t>&, std::int64_t, const range&);
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-template void homogen_table_impl::pull_rows(sycl::queue&, array<float>&, const range&, const sycl::usm::alloc&) const;
-template void homogen_table_impl::pull_rows(sycl::queue&, array<double>&, const range&, const sycl::usm::alloc&) const;
-template void homogen_table_impl::pull_rows(sycl::queue&, array<int32_t>&, const range&, const sycl::usm::alloc&) const;
+template void homogen_table_impl::pull_rows(sycl::queue&,
+                                            array<float>&,
+                                            const range&,
+                                            const sycl::usm::alloc&) const;
+template void homogen_table_impl::pull_rows(sycl::queue&,
+                                            array<double>&,
+                                            const range&,
+                                            const sycl::usm::alloc&) const;
+template void homogen_table_impl::pull_rows(sycl::queue&,
+                                            array<int32_t>&,
+                                            const range&,
+                                            const sycl::usm::alloc&) const;
 
 template void homogen_table_impl::push_rows(sycl::queue&, const array<float>&, const range&);
 template void homogen_table_impl::push_rows(sycl::queue&, const array<double>&, const range&);
 template void homogen_table_impl::push_rows(sycl::queue&, const array<int32_t>&, const range&);
 
-template void homogen_table_impl::pull_column(sycl::queue&, array<float>&, std::int64_t, const range&, const sycl::usm::alloc&) const;
-template void homogen_table_impl::pull_column(sycl::queue&, array<double>&, std::int64_t, const range&, const sycl::usm::alloc&) const;
-template void homogen_table_impl::pull_column(sycl::queue&, array<int32_t>&, std::int64_t, const range&, const sycl::usm::alloc&) const;
+template void homogen_table_impl::pull_column(sycl::queue&,
+                                              array<float>&,
+                                              std::int64_t,
+                                              const range&,
+                                              const sycl::usm::alloc&) const;
+template void homogen_table_impl::pull_column(sycl::queue&,
+                                              array<double>&,
+                                              std::int64_t,
+                                              const range&,
+                                              const sycl::usm::alloc&) const;
+template void homogen_table_impl::pull_column(sycl::queue&,
+                                              array<int32_t>&,
+                                              std::int64_t,
+                                              const range&,
+                                              const sycl::usm::alloc&) const;
 
-template void homogen_table_impl::push_column(sycl::queue&, const array<float>&, std::int64_t, const range&);
-template void homogen_table_impl::push_column(sycl::queue&, const array<double>&, std::int64_t, const range&);
-template void homogen_table_impl::push_column(sycl::queue&, const array<int32_t>&, std::int64_t, const range&);
+template void homogen_table_impl::push_column(sycl::queue&,
+                                              const array<float>&,
+                                              std::int64_t,
+                                              const range&);
+template void homogen_table_impl::push_column(sycl::queue&,
+                                              const array<double>&,
+                                              std::int64_t,
+                                              const range&);
+template void homogen_table_impl::push_column(sycl::queue&,
+                                              const array<int32_t>&,
+                                              std::int64_t,
+                                              const range&);
 #endif
 
 } // namespace oneapi::dal::backend

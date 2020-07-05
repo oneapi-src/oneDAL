@@ -25,7 +25,7 @@ using std::int32_t;
 TEST(column_accessor_test, can_get_first_column_from_homogen_table) {
     sycl::queue q;
     constexpr std::int64_t data_size = 8;
-    auto data = sycl::malloc_shared<float>(data_size, q);
+    auto data                        = sycl::malloc_shared<float>(data_size, q);
 
     auto event = q.submit([&](sycl::handler& cgh) {
         cgh.parallel_for(sycl::range<1>(data_size), [=](sycl::id<1> idx) {
@@ -33,7 +33,7 @@ TEST(column_accessor_test, can_get_first_column_from_homogen_table) {
         });
     });
 
-    homogen_table t{ q, 4, 2, data, homogen_data_layout::row_major, {event} };
+    homogen_table t{ q, 4, 2, data, homogen_data_layout::row_major, { event } };
     column_accessor<const float> acc{ t };
     auto col = acc.pull(q, 0);
 
@@ -41,14 +41,14 @@ TEST(column_accessor_test, can_get_first_column_from_homogen_table) {
     ASSERT_TRUE(col.has_mutable_data());
 
     for (std::int64_t i = 0; i < col.get_count(); i++) {
-        ASSERT_FLOAT_EQ(col[i], i*2 + 1);
+        ASSERT_FLOAT_EQ(col[i], i * 2 + 1);
     }
 }
 
 TEST(column_accessor_test, can_get_second_column_from_homogen_table_with_conversion) {
     sycl::queue q;
     constexpr std::int64_t data_size = 8;
-    auto data = sycl::malloc_shared<float>(data_size, q);
+    auto data                        = sycl::malloc_shared<float>(data_size, q);
 
     auto event = q.submit([&](sycl::handler& cgh) {
         cgh.parallel_for(sycl::range<1>(data_size), [=](sycl::id<1> idx) {
@@ -56,7 +56,7 @@ TEST(column_accessor_test, can_get_second_column_from_homogen_table_with_convers
         });
     });
 
-    homogen_table t{ q, 4, 2, data, homogen_data_layout::row_major, {event} };
+    homogen_table t{ q, 4, 2, data, homogen_data_layout::row_major, { event } };
     column_accessor<const double> acc{ t };
     auto col = acc.pull(q, 1);
 
@@ -64,14 +64,14 @@ TEST(column_accessor_test, can_get_second_column_from_homogen_table_with_convers
     ASSERT_TRUE(col.has_mutable_data());
 
     for (std::int64_t i = 0; i < col.get_count(); i++) {
-        ASSERT_DOUBLE_EQ(col[i], i*2 + 2);
+        ASSERT_DOUBLE_EQ(col[i], i * 2 + 2);
     }
 }
 
 TEST(column_accessor_test, can_get_first_column_from_homogen_table_with_subset_of_rows) {
     sycl::queue q;
     constexpr std::int64_t data_size = 8;
-    auto data = sycl::malloc_shared<float>(data_size, q);
+    auto data                        = sycl::malloc_shared<float>(data_size, q);
 
     auto event = q.submit([&](sycl::handler& cgh) {
         cgh.parallel_for(sycl::range<1>(data_size), [=](sycl::id<1> idx) {
@@ -79,7 +79,7 @@ TEST(column_accessor_test, can_get_first_column_from_homogen_table_with_subset_o
         });
     });
 
-    homogen_table t{ q, 4, 2, data, homogen_data_layout::row_major, {event} };
+    homogen_table t{ q, 4, 2, data, homogen_data_layout::row_major, { event } };
     column_accessor<const float> acc{ t };
     auto col = acc.pull(q, 0, { 1, 3 });
 

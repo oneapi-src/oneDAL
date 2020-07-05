@@ -98,7 +98,11 @@ public:
     void push_rows(sycl::queue& q, const array<T>& a, const range& r);
 
     template <typename T>
-    void pull_column(sycl::queue& q, array<T>& a, std::int64_t idx, const range& r, const sycl::usm::alloc& kind) const;
+    void pull_column(sycl::queue& q,
+                     array<T>& a,
+                     std::int64_t idx,
+                     const range& r,
+                     const sycl::usm::alloc& kind) const;
 
     template <typename T>
     void push_column(sycl::queue& q, const array<T>& a, std::int64_t idx, const range& r);
