@@ -40,7 +40,7 @@ void run(sycl::queue& queue) {
             rows.need_mutable_data(queue);
             auto data = rows.get_mutable_data();
             cgh.parallel_for(sycl::range<1>(rows.get_count()), [=](sycl::id<1> idx) {
-                data[idx[0]] = idx;
+                data[idx[0]] = float(idx);
             });
         });
         event.wait();

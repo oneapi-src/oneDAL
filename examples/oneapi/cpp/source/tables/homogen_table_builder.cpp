@@ -36,9 +36,8 @@ int main(int argc, char const *argv[]) {
         auto rows = acc.pull();
 
         rows.need_mutable_data();
-        auto data = rows.get_mutable_data();
         for(std::int64_t i = 0; i < rows.get_count(); i++) {
-            rows[i] = i;
+            rows[i] = float(i);
         }
 
         acc.push(rows);
