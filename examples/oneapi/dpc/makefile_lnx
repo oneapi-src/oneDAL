@@ -111,8 +111,7 @@ COPTS := -std=c++17 \
          -I./source \
          -I"$(DAALROOT)/include"
 
-LIBS := $(-B) -lonedal \
-        $(-B) -lonedal_dpc \
+LIBS := $(-B) -lonedal_dpc \
         $(-B) -ldaal_core \
         $(-B) -l$(THREADING_LIB) \
         -Bdynamic -ltbb \

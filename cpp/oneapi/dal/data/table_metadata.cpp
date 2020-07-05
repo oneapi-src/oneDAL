@@ -21,7 +21,8 @@ using std::int64_t;
 namespace oneapi::dal {
 namespace detail {
 
-struct table_feature_impl {
+class table_feature_impl {
+public:
     data_type dtype;
     feature_type ftype;
 
@@ -42,7 +43,7 @@ public:
         return 0;
     }
 
-    const table_feature& get_feature(int64_t feature_index) const {
+    const table_feature& get_feature(int64_t feature_index) const override {
         throw std::runtime_error("no features in empty table");
     }
 };
