@@ -794,6 +794,10 @@ public:
     BlockDescriptorArray(const BlockDescriptorArray &) = delete;
     BlockDescriptorArray & operator=(const BlockDescriptorArray &) = delete;
 
+    DAAL_FORCEINLINE BlockDescriptor<algorithmFPType> * get() const {
+        return _blocks;
+    }
+
     DAAL_FORCEINLINE BlockDescriptor<algorithmFPType> & operator[](size_t index) {
         return _blocks[index];
     }
@@ -803,7 +807,7 @@ public:
     }
 
 private:
-    BlockDescriptor<algorithmFPType> _blocks;
+    BlockDescriptor<algorithmFPType> * _blocks;
 };
 
 } // namespace internal

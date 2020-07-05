@@ -29,6 +29,7 @@ BlockDescriptorArray<algorithmFPType>::BlockDescriptorArray(size_t nBlocks)
 template <typename algorithmFPType>
 BlockDescriptorArray<algorithmFPType>::~BlockDescriptorArray() {
     delete[] _blocks;
+    _blocks = nullptr;
 }
 
 template class BlockDescriptorArray<float>;
