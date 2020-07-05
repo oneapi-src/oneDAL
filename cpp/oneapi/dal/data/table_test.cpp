@@ -51,16 +51,16 @@ TEST(table_test, can_set_custom_implementation) {
         void pull_rows(array<float>& a, const range& r) const {}
         void pull_rows(array<double>& a, const range& r) const {}
         void pull_rows(array<std::int32_t>& a, const range& r) const {}
-        void push_back_rows(const array<float>&, const range&) {}
-        void push_back_rows(const array<double>&, const range&) {}
-        void push_back_rows(const array<std::int32_t>&, const range&) {}
+        void push_rows(const array<float>&, const range&) {}
+        void push_rows(const array<double>&, const range&) {}
+        void push_rows(const array<std::int32_t>&, const range&) {}
 
         void pull_column(array<float>& a, std::int64_t idx, const range& r) const {}
         void pull_column(array<double>& a, std::int64_t idx, const range& r) const {}
         void pull_column(array<std::int32_t>& a, std::int64_t idx, const range& r) const {}
-        void push_back_column(const array<float>&, std::int64_t idx, const range&) {}
-        void push_back_column(const array<double>&, std::int64_t idx, const range&) {}
-        void push_back_column(const array<std::int32_t>&, std::int64_t idx, const range&) {}
+        void push_column(const array<float>&, std::int64_t idx, const range&) {}
+        void push_column(const array<double>&, std::int64_t idx, const range&) {}
+        void push_column(const array<std::int32_t>&, std::int64_t idx, const range&) {}
 
         table_metadata m;
     };
@@ -96,16 +96,16 @@ TEST(homogen_table_test, can_set_custom_implementation) {
         void pull_rows(array<float>& a, const range& r) const {}
         void pull_rows(array<double>& a, const range& r) const {}
         void pull_rows(array<std::int32_t>& a, const range& r) const {}
-        void push_back_rows(const array<float>&, const range&) {}
-        void push_back_rows(const array<double>&, const range&) {}
-        void push_back_rows(const array<std::int32_t>&, const range&) {}
+        void push_rows(const array<float>&, const range&) {}
+        void push_rows(const array<double>&, const range&) {}
+        void push_rows(const array<std::int32_t>&, const range&) {}
 
         void pull_column(array<float>& a, std::int64_t idx, const range& r) const {}
         void pull_column(array<double>& a, std::int64_t idx, const range& r) const {}
         void pull_column(array<std::int32_t>& a, std::int64_t idx, const range& r) const {}
-        void push_back_column(const array<float>&, std::int64_t idx, const range&) {}
-        void push_back_column(const array<double>&, std::int64_t idx, const range&) {}
-        void push_back_column(const array<std::int32_t>&, std::int64_t idx, const range&) {}
+        void push_column(const array<float>&, std::int64_t idx, const range&) {}
+        void push_column(const array<double>&, std::int64_t idx, const range&) {}
+        void push_column(const array<std::int32_t>&, std::int64_t idx, const range&) {}
 
         const void* get_data() const {
             return nullptr;
@@ -268,7 +268,6 @@ TEST(homogen_table_test, can_read_table_data_via_row_accessor) {
 
     ASSERT_EQ(t.get_row_count() * t.get_column_count(), rows_block.get_count());
     ASSERT_EQ(data, rows_block.get_data());
-    ASSERT_FALSE(rows_block.is_data_owner());
 
     for (std::int64_t i = 0; i < rows_block.get_count(); i++) {
         ASSERT_EQ(rows_block[i], data[i]);
@@ -283,7 +282,6 @@ TEST(homogen_table_test, can_read_table_data_via_row_accessor_with_conversion) {
 
     ASSERT_EQ(t.get_row_count() * t.get_column_count(), rows_block.get_count());
     ASSERT_NE((void*)data, (void*)rows_block.get_data());
-    ASSERT_TRUE(rows_block.is_data_owner());
 
     for (std::int64_t i = 0; i < rows_block.get_count(); i++) {
         ASSERT_DOUBLE_EQ(rows_block[i], static_cast<double>(data[i]));
@@ -294,13 +292,11 @@ TEST(homogen_table_test, can_read_table_data_via_row_accessor_and_array_outside)
     float data[] = { 1.0f, 2.0f, 3.0f, -1.0f, -2.0f, -3.0f };
 
     homogen_table t{ 2, 3, data };
-    array<float> arr{ 10 };
+    auto arr = array<float>::empty(10);
 
     auto rows_ptr = row_accessor<const float>(t).pull(arr, { 0, -1 });
 
     ASSERT_EQ(t.get_row_count() * t.get_column_count(), arr.get_count());
-    ASSERT_EQ(arr.get_capacity(), 10);
-    ASSERT_FALSE(arr.is_data_owner());
 
     ASSERT_EQ(data, rows_ptr);
     ASSERT_EQ(data, arr.get_data());

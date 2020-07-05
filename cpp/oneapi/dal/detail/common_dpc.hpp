@@ -18,4 +18,13 @@
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     #include <CL/sycl.hpp>
+
+namespace oneapi::dal::detail {
+
+inline void wait_and_throw(const sycl::vector_class<sycl::event>& dependencies) {
+    sycl::event::wait_and_throw(dependencies);
+}
+
+} // namespace oneapi::dal::detail
+
 #endif // ONEAPI_DAL_DATA_PARALLEL
