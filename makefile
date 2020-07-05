@@ -602,6 +602,8 @@ $(CORE.tmpdir_y)/%.res: %.rc | $(CORE.tmpdir_y)/. ; $(RC.COMPILE)
 #===============================================================================
 ONEAPI.tmpdir_a := $(WORKDIR)/oneapi_static
 ONEAPI.tmpdir_y := $(WORKDIR)/oneapi_dynamic
+ONEAPI.tmpdir_a.dpc := $(WORKDIR)/oneapi_dpc_static
+ONEAPI.tmpdir_y.dpc := $(WORKDIR)/oneapi_dpc_dynamic
 
 ONEAPI.incdirs.common := $(CPPDIR)
 ONEAPI.incdirs.thirdp := $(CORE.incdirs.common) $(MKLFPKDIR.include) $(TBBDIR.include)
@@ -626,16 +628,19 @@ ONEAPI.srcs.all	:= $(ONEAPI.srcs.all:./%=%)
 ONEAPI.srcs.dpc := $(filter %_dpc.cpp,$(ONEAPI.srcs.all))
 ONEAPI.srcs     := $(filter-out %_dpc.cpp,$(ONEAPI.srcs.all))
 ONEAPI.srcs     := $(filter-out %_test.cpp,$(ONEAPI.srcs))
+ONEAPI.srcs.dpc := $(ONEAPI.srcs) $(ONEAPI.srcs.dpc)
 
 ONEAPI.objs_a     := $(ONEAPI.srcs:%.cpp=$(ONEAPI.tmpdir_a)/%.$o)
 ONEAPI.objs_y     := $(ONEAPI.srcs:%.cpp=$(ONEAPI.tmpdir_y)/%.$o)
-ONEAPI.objs_a.dpc := $(ONEAPI.srcs.dpc:%.cpp=$(ONEAPI.tmpdir_a)/%.$o)
-ONEAPI.objs_y.dpc := $(ONEAPI.srcs.dpc:%.cpp=$(ONEAPI.tmpdir_y)/%.$o)
+ONEAPI.objs_a.dpc := $(ONEAPI.srcs.dpc:%.cpp=$(ONEAPI.tmpdir_a.dpc)/%.$o)
+ONEAPI.objs_y.dpc := $(ONEAPI.srcs.dpc:%.cpp=$(ONEAPI.tmpdir_y.dpc)/%.$o)
 ONEAPI.objs_a.all := $(ONEAPI.objs_a) $(ONEAPI.objs_a.dpc)
 ONEAPI.objs_y.all := $(ONEAPI.objs_y) $(ONEAPI.objs_y.dpc)
 
 -include $(ONEAPI.tmpdir_a)/*.d
 -include $(ONEAPI.tmpdir_y)/*.d
+-include $(ONEAPI.tmpdir_a.dpc)/*.d
+-include $(ONEAPI.tmpdir_y.dpc)/*.d
 
 # Declares target for object file compilation
 # $1: Object file
@@ -669,23 +674,30 @@ $(ONEAPI.tmpdir_a)/inc_a_folders.txt: | $(ONEAPI.tmpdir_a)/.
 $(ONEAPI.tmpdir_y)/inc_y_folders.txt: | $(ONEAPI.tmpdir_y)/.
 	$(call WRITE.PREREQS,$(ONEAPI.include_options),$(space))
 
+$(ONEAPI.tmpdir_a.dpc)/inc_a_folders.txt: | $(ONEAPI.tmpdir_a.dpc)/.
+	$(call WRITE.PREREQS,$(ONEAPI.include_options),$(space))
+
+$(ONEAPI.tmpdir_y.dpc)/inc_y_folders.txt: | $(ONEAPI.tmpdir_y.dpc)/.
+	$(call WRITE.PREREQS,$(ONEAPI.include_options),$(space))
+
 # Set compilation options to the object files which are part of STATIC lib
-$(ONEAPI.objs_a.all): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_a)/inc_a_folders.txt
+$(ONEAPI.objs_a): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_a)/inc_a_folders.txt
 $(ONEAPI.objs_a): COPT := $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic.opts) \
                           -DDAAL_NOTHROW_EXCEPTIONS \
                           -DDAAL_HIDE_DEPRECATED \
                           -D__TBB_NO_IMPLICIT_LINKAGE \
                            @$(ONEAPI.tmpdir_a)/inc_a_folders.txt
 
+$(ONEAPI.objs_a.dpc): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_a.dpc)/inc_a_folders.txt
 $(ONEAPI.objs_a.dpc): COPT := $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.opts) \
                               -DDAAL_NOTHROW_EXCEPTIONS \
                               -DDAAL_HIDE_DEPRECATED \
 							  -DONEAPI_DAL_DATA_PARALLEL \
                               -D__TBB_NO_IMPLICIT_LINKAGE \
-                               @$(ONEAPI.tmpdir_a)/inc_a_folders.txt
+                               @$(ONEAPI.tmpdir_a.dpc)/inc_a_folders.txt
 
 # Set compilation options to the object files which are part of DYNAMIC lib
-$(ONEAPI.objs_y.all): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_y)/inc_y_folders.txt
+$(ONEAPI.objs_y): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_y)/inc_y_folders.txt
 $(ONEAPI.objs_y): COPT := $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic.opts) \
                           -DDAAL_NOTHROW_EXCEPTIONS \
                           -DDAAL_HIDE_DEPRECATED \
@@ -694,6 +706,7 @@ $(ONEAPI.objs_y): COPT := $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic
                           -D__TBB_NO_IMPLICIT_LINKAGE \
                           @$(ONEAPI.tmpdir_y)/inc_y_folders.txt
 
+$(ONEAPI.objs_y.dpc): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_y.dpc)/inc_y_folders.txt
 $(ONEAPI.objs_y.dpc): COPT := $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.opts) \
                               -DDAAL_NOTHROW_EXCEPTIONS \
                               -DDAAL_HIDE_DEPRECATED \
@@ -701,12 +714,12 @@ $(ONEAPI.objs_y.dpc): COPT := $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.op
                               $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG) \
                               -D__ONEAPI_DAL_ENABLE_DLL_EXPORT__ \
                               -D__TBB_NO_IMPLICIT_LINKAGE \
-                              @$(ONEAPI.tmpdir_y)/inc_y_folders.txt
+                              @$(ONEAPI.tmpdir_y.dpc)/inc_y_folders.txt
 
 $(foreach x,$(ONEAPI.objs_a),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_a),C)))
 $(foreach x,$(ONEAPI.objs_y),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_y),C)))
-$(foreach x,$(ONEAPI.objs_a.dpc),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_a),DPC)))
-$(foreach x,$(ONEAPI.objs_y.dpc),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_y),DPC)))
+$(foreach x,$(ONEAPI.objs_a.dpc),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_a.dpc),DPC)))
+$(foreach x,$(ONEAPI.objs_y.dpc),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_y.dpc),DPC)))
 
 # Create Host and DPC++ oneapi library
 $(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(oneapi_a),$(ONEAPI.objs_a)))
@@ -725,11 +738,11 @@ ifdef OS_is_win
 $(WORKDIR.lib)/$(oneapi_y:%.dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y)
 endif
 
-$(ONEAPI.tmpdir_y)/$(oneapi_y.dpc:%.$y=%_link.txt): \
-    $(ONEAPI.objs_y.dpc) $(if $(OS_is_win),$(ONEAPI.tmpdir_y)/dll.res,) | $(ONEAPI.tmpdir_y)/. ; $(WRITE.PREREQS)
+$(ONEAPI.tmpdir_y.dpc)/$(oneapi_y.dpc:%.$y=%_link.txt): \
+    $(ONEAPI.objs_y.dpc) $(if $(OS_is_win),$(ONEAPI.tmpdir_y.dpc)/dll.res,) | $(ONEAPI.tmpdir_y.dpc)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(oneapi_y.dpc): \
     $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
-    $(ONEAPI.tmpdir_y)/$(oneapi_y.dpc:%.$y=%_link.txt) ; $(DPC.LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
+    $(ONEAPI.tmpdir_y.dpc)/$(oneapi_y.dpc:%.$y=%_link.txt) ; $(DPC.LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(daaldep.rt.dpc)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.dll=%_dll.lib),)

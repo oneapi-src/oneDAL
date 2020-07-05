@@ -25,6 +25,9 @@ template <typename T>
 using shared = std::shared_ptr<T>;
 
 template <typename T>
+using unique = std::unique_ptr<T>;
+
+template <typename T>
 using pimpl = shared<T>;
 
 template <typename T>
@@ -69,7 +72,5 @@ template <typename Object, typename Pimpl>
 Object make_from_pointer(typename Object::pimpl::element_type* pointer) {
     return pimpl_accessor().template make_from_pointer<Object>(pointer);
 }
-
-struct host_seq_policy {};
 
 } // namespace oneapi::dal::detail

@@ -14,48 +14,74 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/data/accessor.hpp"
 #include "gtest/gtest.h"
+
+#define ONEAPI_DAL_DATA_PARALLEL
+#include "oneapi/dal/data/accessor.hpp"
 
 using namespace oneapi::dal;
 using std::int32_t;
 
 TEST(column_accessor_test, can_get_first_column_from_homogen_table) {
-    float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f };
+    sycl::queue q;
+    constexpr std::int64_t data_size = 8;
+    auto data                        = sycl::malloc_shared<float>(data_size, q);
 
-    homogen_table t{ 4, 2, data };
+    auto event = q.submit([&](sycl::handler& cgh) {
+        cgh.parallel_for(sycl::range<1>(data_size), [=](sycl::id<1> idx) {
+            data[idx[0]] = idx[0] + 1;
+        });
+    });
+
+    homogen_table t{ q, 4, 2, data, homogen_data_layout::row_major, { event } };
     column_accessor<const float> acc{ t };
-    auto col = acc.pull(0);
+    auto col = acc.pull(q, 0);
 
     ASSERT_EQ(col.get_count(), t.get_row_count());
     ASSERT_TRUE(col.has_mutable_data());
 
     for (std::int64_t i = 0; i < col.get_count(); i++) {
-        ASSERT_FLOAT_EQ(col[i], t.get_data<float>()[i * t.get_column_count()]);
+        ASSERT_FLOAT_EQ(col[i], i * 2 + 1);
     }
 }
 
 TEST(column_accessor_test, can_get_second_column_from_homogen_table_with_conversion) {
-    float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f };
+    sycl::queue q;
+    constexpr std::int64_t data_size = 8;
+    auto data                        = sycl::malloc_shared<float>(data_size, q);
 
-    homogen_table t{ 4, 2, data };
+    auto event = q.submit([&](sycl::handler& cgh) {
+        cgh.parallel_for(sycl::range<1>(data_size), [=](sycl::id<1> idx) {
+            data[idx[0]] = idx[0] + 1;
+        });
+    });
+
+    homogen_table t{ q, 4, 2, data, homogen_data_layout::row_major, { event } };
     column_accessor<const double> acc{ t };
-    auto col = acc.pull(1);
+    auto col = acc.pull(q, 1);
 
     ASSERT_EQ(col.get_count(), t.get_row_count());
     ASSERT_TRUE(col.has_mutable_data());
 
     for (std::int64_t i = 0; i < col.get_count(); i++) {
-        ASSERT_DOUBLE_EQ(col[i], double(t.get_data<float>()[i * t.get_column_count() + 1]));
+        ASSERT_DOUBLE_EQ(col[i], i * 2 + 2);
     }
 }
 
 TEST(column_accessor_test, can_get_first_column_from_homogen_table_with_subset_of_rows) {
-    float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f };
+    sycl::queue q;
+    constexpr std::int64_t data_size = 8;
+    auto data                        = sycl::malloc_shared<float>(data_size, q);
 
-    homogen_table t{ 4, 2, data };
+    auto event = q.submit([&](sycl::handler& cgh) {
+        cgh.parallel_for(sycl::range<1>(data_size), [=](sycl::id<1> idx) {
+            data[idx[0]] = idx[0] + 1;
+        });
+    });
+
+    homogen_table t{ q, 4, 2, data, homogen_data_layout::row_major, { event } };
     column_accessor<const float> acc{ t };
-    auto col = acc.pull(0, { 1, 3 });
+    auto col = acc.pull(q, 0, { 1, 3 });
 
     ASSERT_EQ(col.get_count(), 2);
     ASSERT_TRUE(col.has_mutable_data());
@@ -66,21 +92,23 @@ TEST(column_accessor_test, can_get_first_column_from_homogen_table_with_subset_o
 }
 
 TEST(column_accessor_test, can_get_columns_from_homogen_table_builder) {
+    sycl::queue q;
+
     homogen_table_builder b;
-    b.reset(array<float>::zeros(3 * 2), 3, 2);
+    b.reset(array<float>::zeros(q, 3 * 2), 3, 2);
     {
         column_accessor<double> acc{ b };
         for (std::int64_t col_idx = 0; col_idx < 2; col_idx++) {
-            auto col = acc.pull(col_idx);
+            auto col = acc.pull(q, col_idx);
 
             ASSERT_EQ(col.get_count(), 3);
-            col.need_mutable_data();
+            col.need_mutable_data(q);
             for (std::int64_t i = 0; i < col.get_count(); i++) {
                 ASSERT_DOUBLE_EQ(col[i], 0.0);
                 col[i] = col_idx + 1;
             }
 
-            acc.push(col, col_idx);
+            acc.push(q, col, col_idx);
         }
     }
 
@@ -88,7 +116,7 @@ TEST(column_accessor_test, can_get_columns_from_homogen_table_builder) {
     {
         column_accessor<const float> acc{ t };
         for (std::int64_t col_idx = 0; col_idx < 2; col_idx++) {
-            const auto col = acc.pull(col_idx);
+            const auto col = acc.pull(q, col_idx);
 
             ASSERT_EQ(col.get_count(), 3);
             for (std::int64_t i = 0; i < col.get_count(); i++) {

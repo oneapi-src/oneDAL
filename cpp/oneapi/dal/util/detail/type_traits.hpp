@@ -18,7 +18,7 @@
 
 namespace oneapi::dal::detail {
 
-#define INSTANTIATE_HAS_METHOD_CHECKER(return_value, method_name, params, checker_name)     \
+#define ONEAPI_DAL_HAS_METHOD_TRAIT(return_value, method_name, params, checker_name)        \
     template <typename _Type>                                                               \
     struct has_method_##checker_name {                                                      \
     private:                                                                                \
@@ -41,7 +41,7 @@ namespace oneapi::dal::detail {
     static inline constexpr bool has_method_##checker_name##_v =                            \
         has_method_##checker_name<_Type>::value;
 
-#define INSTANTIATE_HAS_METHOD_DEFAULT_CHECKER(return_value, method_name, params) \
-    INSTANTIATE_HAS_METHOD_CHECKER(return_value, method_name, params, method_name)
+#define ONEAPI_DAL_SIMPLE_HAS_METHOD_TRAIT(return_value, method_name, params) \
+    ONEAPI_DAL_HAS_METHOD_TRAIT(return_value, method_name, params, method_name)
 
 } // namespace oneapi::dal::detail
