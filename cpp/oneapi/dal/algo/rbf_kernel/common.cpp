@@ -14,28 +14,25 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/execution_context.hpp"
-#include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/algo/rbf_kernel/common.hpp"
 
-namespace oneapi::dal {
+namespace oneapi::dal::rbf_kernel {
 
-class detail::default_execution_context_impl : public base {
+class detail::descriptor_impl : public base {
 public:
-    cpu_extension cpu_extensions_mask = backend::interop::detect_top_cpu_extension();
+    double sigma = 1.0;
 };
 
-using detail::default_execution_context_impl;
+using detail::descriptor_impl;
 
-default_execution_context::default_execution_context()
-        : impl_(new default_execution_context_impl()) {}
+descriptor_base::descriptor_base() : impl_(new descriptor_impl{}) {}
 
-void default_execution_context::set_enabled_cpu_extensions_impl(
-    const cpu_extension& extensions) noexcept {
-    impl_->cpu_extensions_mask = extensions;
+double descriptor_base::get_sigma() const {
+    return impl_->sigma;
 }
 
-cpu_extension default_execution_context::get_enabled_cpu_extensions() const noexcept {
-    return impl_->cpu_extensions_mask;
+void descriptor_base::set_sigma_impl(const double value) {
+    impl_->sigma = value;
 }
 
-} // namespace oneapi::dal
+} // namespace oneapi::dal::rbf_kernel

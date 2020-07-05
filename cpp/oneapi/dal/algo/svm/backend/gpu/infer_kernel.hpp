@@ -17,7 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/svm/infer_types.hpp"
-#include "oneapi/dal/backend/dispatcher_dp.hpp"
+#include "oneapi/dal/backend/dispatcher_dpc.hpp"
 
 namespace oneapi::dal::svm::backend {
 

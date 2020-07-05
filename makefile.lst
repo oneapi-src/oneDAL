@@ -225,13 +225,17 @@ CORE.SERVICES       := compression            \
 
 # Dependencies between oneAPI and core (CPU-only) algorithms
 ONEAPI.ALGOS.knn := CORE.k_nearest_neighbors
-ONEAPI.ALGOS.pca := CORE.pca
-ONEAPI.ALGOS.svm := CORE.svm
+ONEAPI.ALGOS.linear_kernel := CORE.kernel_function
+ONEAPI.ALGOS.pca           := CORE.pca
+ONEAPI.ALGOS.rbf_kernel    := CORE.kernel_function
+ONEAPI.ALGOS.svm           := CORE.svm
 
 # List of algorithms in oneAPI part
-ONEAPI.ALGOS := \
-    knn         \
-    pca         \
+ONEAPI.ALGOS :=     \
+    knn             \
+    linear_kernel   \
+    pca             \
+    rbf_kernel      \
     svm
 
 JJ.ALGORITHMS       := adaboost                                                  \

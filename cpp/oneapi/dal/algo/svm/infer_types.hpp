@@ -50,7 +50,7 @@ private:
     dal::detail::pimpl<detail::infer_input_impl> impl_;
 };
 
-class ONEAPI_DAL_EXPORT infer_result {
+class ONEAPI_DAL_EXPORT infer_result : public base {
 public:
     infer_result();
 
