@@ -14,13 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <iomanip>
-#include <iostream>
 #include <CL/sycl.hpp>
 
 #define ONEAPI_DAL_DATA_PARALLEL
-#include "oneapi/dal/algo/pca.hpp"
-#include "oneapi/dal/data/accessor.hpp"
+#include "oneapi/dal/algo/linear_kernel.hpp"
 
 #include "example_util/utils.hpp"
 
@@ -29,36 +26,39 @@ using namespace oneapi;
 void run(sycl::queue& queue) {
     std::cout << "Running on "
               << queue.get_device().get_info<sycl::info::device::name>()
-              << std::endl;
+              << std::endl << std::endl;
 
-    constexpr std::int64_t row_count = 5;
+    constexpr std::int64_t row_count_x = 2;
+    constexpr std::int64_t row_count_y = 3;
     constexpr std::int64_t column_count = 3;
 
-    const float data_host[] = {
-        1.f,  2.f,  3.f,
-        1.f,  -1.f, 0.f,
-        4.f,  5.f,  6.f,
-        1.f,  2.f,  5.f,
-        -4.f, 3.f,  0.f
+    const float x_host[] = {
+        1.f, 2.f, 3.f,
+        1.f, -1.f, 0.f,
     };
-    auto data = sycl::malloc_shared<float>(row_count * column_count, queue);
-    queue.memcpy(data, data_host, sizeof(float) * row_count * column_count).wait();
 
-    const auto data_table = dal::homogen_table{ row_count, column_count, data };
+    const float y_host[] = {
+        1.f, 2.f, 3.f,
+        1.f, -1.f, 0.f,
+        4.f, 5.f, 6.f,
+    };
 
-    const auto pca_desc = dal::pca::descriptor<>()
-        .set_component_count(3)
-        .set_is_deterministic(true);
+    auto x = sycl::malloc_shared<float>(row_count_x * column_count, queue);
+    queue.memcpy(x, x_host, sizeof(float) * row_count_x * column_count).wait();
 
-    const auto result = dal::train(queue, pca_desc, data_table);
+    auto y = sycl::malloc_shared<float>(row_count_y * column_count, queue);
+    queue.memcpy(y, y_host, sizeof(float) * row_count_y * column_count).wait();
 
-    std::cout << "Eigenvectors:" << std::endl
-              << result.get_eigenvectors() << std::endl;
+    const auto x_table = dal::homogen_table{ row_count_x, column_count, x };
+    const auto y_table = dal::homogen_table{ row_count_y, column_count, y };
+    const auto kernel_desc = dal::linear_kernel::descriptor{}.set_k(2.0).set_b(1.0);
 
-    std::cout << "Eigenvalues:" << std::endl
-              << result.get_eigenvalues() << std::endl;
+    const auto result = dal::compute(queue, kernel_desc, x_table, y_table);
 
-    sycl::free(data, queue);
+    std::cout << "Values:" << std::endl << result.get_values() << std::endl;
+
+    sycl::free(x, queue);
+    sycl::free(y, queue);
 }
 
 int main(int argc, char const *argv[]) {

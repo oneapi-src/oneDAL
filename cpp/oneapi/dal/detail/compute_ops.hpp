@@ -20,7 +20,7 @@
 
 namespace oneapi::dal::detail {
 
-template <typename Descriptor, typename Tag>
+template <typename Descriptor, typename Tag = typename Descriptor::tag_t>
 struct compute_ops;
 
 template <typename Descriptor>
