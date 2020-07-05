@@ -17,14 +17,13 @@
 #include "oneapi/dal/algo/svm/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/algo/svm/backend/gpu/train_kernel.hpp"
 #include "oneapi/dal/algo/svm/detail/train_ops.hpp"
-#include "oneapi/dal/backend/dispatcher_dp.hpp"
+#include "oneapi/dal/backend/dispatcher_dpc.hpp"
 
 namespace oneapi::dal::svm::detail {
 
 template <typename Float, typename Task, typename Method>
-struct ONEAPI_DAL_EXPORT
-    train_ops_dispatcher<data_parallel_execution_context, Float, Task, Method> {
-    train_result operator()(const data_parallel_execution_context& ctx,
+struct ONEAPI_DAL_EXPORT train_ops_dispatcher<data_parallel_policy, Float, Task, Method> {
+    train_result operator()(const data_parallel_policy& ctx,
                             const descriptor_base& params,
                             const train_input& input) const {
         using kernel_dispatcher_t =
@@ -34,9 +33,8 @@ struct ONEAPI_DAL_EXPORT
     }
 };
 
-#define INSTANTIATE(F, T, M)          \
-    template struct ONEAPI_DAL_EXPORT \
-        train_ops_dispatcher<data_parallel_execution_context, F, T, M>;
+#define INSTANTIATE(F, T, M) \
+    template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<data_parallel_policy, F, T, M>;
 
 INSTANTIATE(float, task::classification, method::smo)
 INSTANTIATE(float, task::classification, method::thunder)

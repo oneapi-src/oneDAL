@@ -16,22 +16,18 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/dispatcher.hpp"
-#include "oneapi/dal/data_parallel.hpp"
+#include "oneapi/dal/algo/svm/common.hpp"
 
-namespace oneapi::dal::backend {
+#include <daal/include/algorithms/kernel_function/kernel_function_linear.h>
+#include <daal/include/algorithms/kernel_function/kernel_function_rbf.h>
 
-class context_gpu {};
+namespace oneapi::dal::svm::detail {
 
-template <typename CpuKernel, typename GpuKernel>
-struct kernel_dispatcher<CpuKernel, GpuKernel> {
-    template <typename... Args>
-    auto operator()(const data_parallel_execution_context& ctx, Args&&... args) const {
-        // TODO: Dispatch to GPU
-        // TODO: Extract context_cpu from data_parallel_execution_context
-        auto cpu_ctx = context_cpu{ default_execution_context{} };
-        return CpuKernel()(cpu_ctx, std::forward<Args>(args)...);
-    }
+class kernel_function_impl : public base {
+public:
+    virtual ~kernel_function_impl() = default;
+
+    virtual daal::algorithms::kernel_function::KernelIfacePtr get_daal_kernel_function() = 0;
 };
 
-} // namespace oneapi::dal::backend
+} // namespace oneapi::dal::svm::detail

@@ -16,26 +16,14 @@
 
 #pragma once
 
-#include "oneapi/dal/execution_context.hpp"
+#include "oneapi/dal/algo/linear_kernel/compute_types.hpp"
+#include "oneapi/dal/algo/linear_kernel/detail/compute_ops.hpp"
+#include "oneapi/dal/compute.hpp"
 
-namespace oneapi::dal {
+namespace oneapi::dal::detail {
 
-namespace detail {
-class data_parallel_execution_context;
-} // namespace detail
+template <typename Descriptor>
+struct compute_ops<Descriptor, dal::linear_kernel::detail::tag>
+        : dal::linear_kernel::detail::compute_ops<Descriptor> {};
 
-class ONEAPI_DAL_EXPORT data_parallel_execution_context : public base {
-public:
-    using tag_t                       = detail::execution_context_tag;
-    data_parallel_execution_context() = default;
-
-private:
-    dal::detail::pimpl<detail::data_parallel_execution_context> impl_;
-};
-
-template <typename Queue>
-inline auto make_context(const Queue& queue) {
-    return data_parallel_execution_context();
-}
-
-} // namespace oneapi::dal
+} // namespace oneapi::dal::detail

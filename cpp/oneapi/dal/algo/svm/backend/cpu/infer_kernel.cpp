@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/algo/svm/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/svm/backend/interop_model.hpp"
+#include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
@@ -62,10 +63,8 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
                           .set_coefficients(daal_coefficients)
                           .set_bias(trained_model.get_bias());
 
-    // TODO: move as parameter onedal SVM
-    auto kernel =
-        daal_kernel_function::KernelIfacePtr(new daal_kernel_function::linear::Batch<Float>());
-    daal_svm::Parameter daal_parameter(kernel);
+    const auto daal_kernel = desc.get_kernel_impl()->get_impl()->get_daal_kernel_function();
+    daal_svm::Parameter daal_parameter(daal_kernel);
 
     array<Float> arr_decision_function{ row_count * 1 };
     const auto daal_decision_function =

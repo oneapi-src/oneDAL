@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2014-2020 Intel Corporation
+# Copyright 2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,10 @@
 ##     Intel(R) Data Analytics Acceleration Library examples list
 ##******************************************************************************
 
-DAAL = pca_cor_dense_batch               \
-       svm_two_class_thunder_dense_batch \
-       df_cls_dense_batch                \
+DAAL = df_cls_dense_batch                \
        df_reg_dense_batch                \
+       linear_kernel_dense_batch         \
+       pca_cor_dense_batch               \
+       rbf_kernel_dense_batch            \
+       svm_two_class_thunder_dense_batch \
+       svm_two_class_smo_dense_batch

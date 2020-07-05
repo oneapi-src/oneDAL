@@ -14,10 +14,13 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <daal/src/algorithms/svm/svm_train_boser_kernel.h>
 #include <daal/src/algorithms/svm/svm_train_thunder_kernel.h>
 
 #include "oneapi/dal/algo/svm/backend/cpu/train_kernel.hpp"
+
 #include "oneapi/dal/algo/svm/backend/interop_model.hpp"
+#include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
@@ -34,7 +37,11 @@ template <typename Float, daal::CpuType Cpu>
 using daal_svm_thunder_kernel_t = daal_svm::training::internal::
     SVMTrainImpl<daal_svm::training::thunder, Float, daal_svm::Parameter, Cpu>;
 
-template <typename Float>
+template <typename Float, daal::CpuType Cpu>
+using daal_svm_smo_kernel_t = daal_svm::training::internal::
+    SVMTrainImpl<daal_svm::training::boser, Float, daal_svm::Parameter, Cpu>;
+
+template <typename Float, typename Method>
 static train_result call_daal_kernel(const context_cpu& ctx,
                                      const descriptor_base& desc,
                                      const table& data,
@@ -53,12 +60,9 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     const auto daal_labels  = interop::convert_to_daal_homogen_table(arr_label, row_count, 1);
     const auto daal_weights = interop::convert_to_daal_homogen_table(arr_weights, row_count, 1);
 
-    // TODO: move as parameter onedal SVM
-    auto kernel =
-        daal_kernel_function::KernelIfacePtr(new daal_kernel_function::linear::Batch<Float>());
-
+    const auto daal_kernel = desc.get_kernel_impl()->get_impl()->get_daal_kernel_function();
     daal_svm::Parameter daal_parameter(
-        kernel,
+        daal_kernel,
         desc.get_c(),
         desc.get_accuracy_threshold(),
         desc.get_tau(),
@@ -67,12 +71,22 @@ static train_result call_daal_kernel(const context_cpu& ctx,
         desc.get_shrinking());
 
     auto daal_model = daal_svm::Model::create<Float>(column_count);
-    interop::call_daal_kernel<Float, daal_svm_thunder_kernel_t>(ctx,
+
+    if constexpr (std::is_same_v<Method, method::smo>)
+        interop::call_daal_kernel<Float, daal_svm_smo_kernel_t>(ctx,
                                                                 daal_data,
                                                                 daal_weights,
                                                                 *daal_labels,
                                                                 daal_model.get(),
                                                                 &daal_parameter);
+    else if constexpr (std::is_same_v<Method, method::thunder>)
+        interop::call_daal_kernel<Float, daal_svm_thunder_kernel_t>(ctx,
+                                                                    daal_data,
+                                                                    daal_weights,
+                                                                    *daal_labels,
+                                                                    daal_model.get(),
+                                                                    &daal_parameter);
+
     auto table_support_indices =
         interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
 
@@ -81,27 +95,29 @@ static train_result call_daal_kernel(const context_cpu& ctx,
         .set_support_indices(table_support_indices);
 }
 
-template <typename Float>
+template <typename Float, typename Method>
 static train_result train(const context_cpu& ctx,
                           const descriptor_base& desc,
                           const train_input& input) {
-    return call_daal_kernel<Float>(ctx,
-                                   desc,
-                                   input.get_data(),
-                                   input.get_labels(),
-                                   input.get_weights());
+    return call_daal_kernel<Float, Method>(ctx,
+                                           desc,
+                                           input.get_data(),
+                                           input.get_labels(),
+                                           input.get_weights());
 }
 
-template <typename Float>
-struct train_kernel_cpu<Float, task::classification, method::thunder> {
+template <typename Float, typename Method>
+struct train_kernel_cpu<Float, task::classification, Method> {
     train_result operator()(const context_cpu& ctx,
                             const descriptor_base& desc,
                             const train_input& input) const {
-        return train<Float>(ctx, desc, input);
+        return train<Float, Method>(ctx, desc, input);
     }
 };
 
 template struct train_kernel_cpu<float, task::classification, method::thunder>;
+template struct train_kernel_cpu<float, task::classification, method::smo>;
 template struct train_kernel_cpu<double, task::classification, method::thunder>;
+template struct train_kernel_cpu<double, task::classification, method::smo>;
 
 } // namespace oneapi::dal::svm::backend

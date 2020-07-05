@@ -14,20 +14,20 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/svm/backend/cpu/train_kernel.hpp"
+#include "oneapi/dal/algo/rbf_kernel/backend/cpu/compute_kernel.hpp"
 
-namespace oneapi::dal::svm::backend {
+namespace oneapi::dal::rbf_kernel::backend {
 
 template <typename Float>
-struct train_kernel_cpu<Float, task::classification, method::smo> {
-    train_result operator()(const dal::backend::context_cpu& ctx,
-                            const descriptor_base& params,
-                            const train_input& input) const {
-        return train_result();
+struct compute_kernel_cpu<Float, method::csr> {
+    compute_result operator()(const dal::backend::context_cpu& ctx,
+                              const descriptor_base& desc,
+                              const compute_input& input) const {
+        return compute_result();
     }
 };
 
-template struct train_kernel_cpu<float, task::classification, method::smo>;
-template struct train_kernel_cpu<double, task::classification, method::smo>;
+template struct compute_kernel_cpu<float, method::csr>;
+template struct compute_kernel_cpu<double, method::csr>;
 
-} // namespace oneapi::dal::svm::backend
+} // namespace oneapi::dal::rbf_kernel::backend
