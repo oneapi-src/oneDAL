@@ -739,7 +739,7 @@ public:
         typedef daal::services::internal::EpsilonVal<typename SplitCriterion::ValueType> SplitCriterionEpsilon;
         const typename SplitCriterion::ValueType epsilon = SplitCriterionEpsilon::get();
 
-        daal::threader_for(xColumnCount, xColumnCount, [=, &context, &localTLS, &totalDataStatistics, &safeStat](size_t featureIndex) {
+        daal::threader_for(xColumnCount, xColumnCount, [=, &context, &localTLS, &totalDataStatistics, &safeStat, &xBD](size_t featureIndex) {
             const_cast<NumericTable *>(&context.x)->getBlockOfColumnValues(featureIndex, 0, xRowCount, readOnly, xBD[featureIndex]);
             dx[featureIndex] = xBD[featureIndex].getBlockPtr();
 
