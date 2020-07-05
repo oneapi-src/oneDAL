@@ -25,24 +25,28 @@ class homogen_table_impl {
 public:
     homogen_table_impl() : row_count_(0) {}
 
-    template <typename DataType>
+    template <typename Data>
     homogen_table_impl(std::int64_t N,
                        std::int64_t p,
-                       const DataType* data_pointer,
+                       const Data* data_pointer,
                        homogen_data_layout layout)
-            : meta_(homogen_table_metadata{ make_data_type<DataType>(), layout, p }),
-              row_count_(N) {
-        data_.reset_not_owning(reinterpret_cast<const byte_t*>(data_pointer),
-                               N * p * sizeof(DataType));
-    }
+            : meta_(homogen_table_metadata{ make_data_type<Data>(), layout, p }),
+              data_(array<Data>(),
+                    reinterpret_cast<const byte_t*>(data_pointer),
+                    N * p * sizeof(Data)),
+              row_count_(N) {}
 
-    template <typename DataType, typename = std::enable_if_t<!std::is_pointer_v<DataType>>>
-    homogen_table_impl(std::int64_t N, std::int64_t p, DataType value, homogen_data_layout layout)
-            : homogen_table_impl(N, p, fill_data(new DataType[N * p], N * p, value), layout) {}
+    homogen_table_impl(std::int64_t p,
+                       const array<byte_t>& data,
+                       table_feature feature,
+                       homogen_data_layout layout)
+            : meta_(homogen_table_metadata{ feature, layout, p }),
+              data_(data),
+              row_count_(data.get_count() / p / get_data_type_size(feature.get_data_type())) {}
 
-    template <typename DataType>
-    homogen_table_impl(std::int64_t p, const array<DataType>& data, homogen_data_layout layout)
-            : meta_(homogen_table_metadata{ make_data_type<DataType>(), layout, p }),
+    template <typename Data>
+    homogen_table_impl(std::int64_t p, const array<Data>& data, homogen_data_layout layout)
+            : meta_(homogen_table_metadata{ make_data_type<Data>(), layout, p }),
               row_count_(data.get_count() / p) {
         const std::int64_t N = row_count_;
 
@@ -50,22 +54,11 @@ public:
             throw std::runtime_error("data size must be power of column count");
         }
 
-        const std::int64_t size_in_bytes = data.get_count() * sizeof(DataType);
-        if (data.is_data_owner() && data.has_mutable_data()) {
-            data_.reset(reinterpret_cast<byte_t*>(data.get_mutable_data()),
-                        size_in_bytes,
-                        [owner = array(data)](auto) mutable {
-                            owner.reset();
-                        });
-        }
-        else if (data.has_mutable_data()) {
-            data_.reset_not_owning(reinterpret_cast<byte_t*>(data.get_mutable_data()),
-                                   size_in_bytes);
+        if (data.has_mutable_data()) {
+            data_.reset(data, reinterpret_cast<byte_t*>(data.get_mutable_data()), data.get_size());
         }
         else {
-            // TODO: the case when data.is_data_owner() == true && data.has_mutable_data() == false
-            // is impossible now, but can appear
-            data_.reset_not_owning(reinterpret_cast<const byte_t*>(data.get_data()), size_in_bytes);
+            data_.reset(data, reinterpret_cast<const byte_t*>(data.get_data()), data.get_size());
         }
     }
 
@@ -89,23 +82,31 @@ public:
     void pull_rows(array<T>& a, const range& r) const;
 
     template <typename T>
-    void push_back_rows(const array<T>& a, const range& r);
+    void push_rows(const array<T>& a, const range& r);
 
     template <typename T>
     void pull_column(array<T>& a, std::int64_t idx, const range& r) const;
 
     template <typename T>
-    void push_back_column(const array<T>& a, std::int64_t idx, const range& r);
+    void push_column(const array<T>& a, std::int64_t idx, const range& r);
 
-private:
+#ifdef ONEAPI_DAL_DATA_PARALLEL
     template <typename T>
-    static T* fill_data(T* data, std::int64_t size, const T& value) {
-        for (std::int64_t i = 0; i < size; i++) {
-            data[i] = value;
-        }
+    void pull_rows(sycl::queue& q, array<T>& a, const range& r, const sycl::usm::alloc& kind) const;
 
-        return data;
-    }
+    template <typename T>
+    void push_rows(sycl::queue& q, const array<T>& a, const range& r);
+
+    template <typename T>
+    void pull_column(sycl::queue& q,
+                     array<T>& a,
+                     std::int64_t idx,
+                     const range& r,
+                     const sycl::usm::alloc& kind) const;
+
+    template <typename T>
+    void push_column(sycl::queue& q, const array<T>& a, std::int64_t idx, const range& r);
+#endif
 
 private:
     homogen_table_metadata meta_;

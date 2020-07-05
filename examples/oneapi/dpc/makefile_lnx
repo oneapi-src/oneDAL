@@ -111,8 +111,7 @@ COPTS := -std=c++17 \
          -I./source \
          -I"$(DAALROOT)/include"
 
-LIBS := $(-B) -lonedal \
-        $(-B) -lonedal_dpc \
+LIBS := $(-B) -lonedal_dpc \
         $(-B) -ldaal_core \
         $(-B) -l$(THREADING_LIB) \
         -Bdynamic -ltbb \
@@ -142,7 +141,7 @@ so sointel64:
 _make_ex: $(RES)
 
 vpath
-vpath %.cpp $(addprefix ./source/,pca)
+vpath %.cpp $(addprefix ./source/,pca tables)
 
 .SECONDARY:
 $(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.

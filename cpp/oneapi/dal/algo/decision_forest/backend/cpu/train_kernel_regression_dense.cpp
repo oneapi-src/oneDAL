@@ -96,8 +96,8 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     /* init daal result's objects */
     if (desc.get_train_results_to_compute() &
         static_cast<std::uint64_t>(train_result_to_compute::compute_out_of_bag_error)) {
-        array<Float> arr_oob_err{ 1 * 1 };
-        res.set_oob_err(homogen_table_builder(1, arr_oob_err).build());
+        auto arr_oob_err = array<Float>::empty(1 * 1);
+        res.set_oob_err(homogen_table_builder{}.reset(arr_oob_err, 1, 1).build());
 
         const auto res_oob_err = interop::convert_to_daal_homogen_table(arr_oob_err, 1, 1);
         daal_result.set(rgr::training::outOfBagError, res_oob_err);
@@ -106,16 +106,17 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     if (desc.get_train_results_to_compute() &
         static_cast<std::uint64_t>(
             train_result_to_compute::compute_out_of_bag_error_per_observation)) {
-        array<Float> arr_oob_per_obs_err{ row_count * 1 };
-        res.set_oob_per_observation_err(homogen_table_builder(1, arr_oob_per_obs_err).build());
+        auto arr_oob_per_obs_err = array<Float>::empty(row_count * 1);
+        res.set_oob_per_observation_err(
+            homogen_table_builder{}.reset(arr_oob_per_obs_err, row_count, 1).build());
 
         const auto res_oob_per_obs_err =
             interop::convert_to_daal_homogen_table(arr_oob_per_obs_err, row_count, 1);
         daal_result.set(rgr::training::outOfBagErrorPerObservation, res_oob_per_obs_err);
     }
     if (variable_importance_mode::none != vimp) {
-        array<Float> arr_var_imp{ 1 * column_count };
-        res.set_var_importance(homogen_table_builder(column_count, arr_var_imp).build());
+        auto arr_var_imp = array<Float>::empty(1 * column_count);
+        res.set_var_importance(homogen_table_builder{}.reset(arr_var_imp, 1, column_count).build());
 
         const auto res_var_imp =
             interop::convert_to_daal_homogen_table(arr_var_imp, 1, column_count);
