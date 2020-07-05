@@ -786,7 +786,8 @@ template <typename algorithmFPType>
 services::Status createSparseTable(const NumericTablePtr & inputTable, CSRNumericTablePtr & resTable);
 
 template <typename algorithmFPType>
-class BlockDescriptorArray {
+class BlockDescriptorArray
+{
 public:
     explicit BlockDescriptorArray(size_t nBlocks);
     ~BlockDescriptorArray();
@@ -794,17 +795,11 @@ public:
     BlockDescriptorArray(const BlockDescriptorArray &) = delete;
     BlockDescriptorArray & operator=(const BlockDescriptorArray &) = delete;
 
-    DAAL_FORCEINLINE BlockDescriptor<algorithmFPType> * get() const {
-        return _blocks;
-    }
+    DAAL_FORCEINLINE BlockDescriptor<algorithmFPType> * get() const { return _blocks; }
 
-    DAAL_FORCEINLINE BlockDescriptor<algorithmFPType> & operator[](size_t index) {
-        return _blocks[index];
-    }
+    DAAL_FORCEINLINE BlockDescriptor<algorithmFPType> & operator[](size_t index) { return _blocks[index]; }
 
-    DAAL_FORCEINLINE const BlockDescriptor<algorithmFPType> & operator[](size_t index) const {
-        return _blocks[index];
-    }
+    DAAL_FORCEINLINE const BlockDescriptor<algorithmFPType> & operator[](size_t index) const { return _blocks[index]; }
 
 private:
     BlockDescriptor<algorithmFPType> * _blocks;

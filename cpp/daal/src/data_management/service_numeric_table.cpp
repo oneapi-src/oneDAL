@@ -21,13 +21,13 @@ namespace daal
 {
 namespace internal
 {
+template <typename algorithmFPType>
+BlockDescriptorArray<algorithmFPType>::BlockDescriptorArray(size_t nBlocks) : _blocks(new BlockDescriptor<algorithmFPType>[nBlocks])
+{}
 
 template <typename algorithmFPType>
-BlockDescriptorArray<algorithmFPType>::BlockDescriptorArray(size_t nBlocks)
-    : _blocks(new BlockDescriptor<algorithmFPType>[nBlocks]) {}
-
-template <typename algorithmFPType>
-BlockDescriptorArray<algorithmFPType>::~BlockDescriptorArray() {
+BlockDescriptorArray<algorithmFPType>::~BlockDescriptorArray()
+{
     delete[] _blocks;
     _blocks = nullptr;
 }
