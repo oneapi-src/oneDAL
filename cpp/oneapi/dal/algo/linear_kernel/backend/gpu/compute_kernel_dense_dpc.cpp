@@ -22,8 +22,6 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
-
-
 namespace oneapi::dal::linear_kernel::backend {
 
 using dal::backend::context_gpu;
@@ -40,9 +38,6 @@ static compute_result call_daal_kernel(const context_gpu& ctx,
                                        const descriptor_base& desc,
                                        const table& x,
                                        const table& y) {
-
-
-
     const int64_t row_count_x  = x.get_row_count();
     const int64_t row_count_y  = y.get_row_count();
     const int64_t column_count = x.get_column_count();
@@ -63,8 +58,12 @@ static compute_result call_daal_kernel(const context_gpu& ctx,
     auto queue = ctx.get_queue();
     daal::services::SyclExecutionContext daal_ctx(queue);
     daal::services::Environment::getInstance()->setDefaultExecutionContext(daal_ctx);
-    daal_linear_kernel_t<Float>().compute(daal_x.get(), daal_y.get(), daal_values.get(), &daal_parameter);
-    daal::services::Environment::getInstance()->setDefaultExecutionContext(daal::services::CpuExecutionContext());
+    daal_linear_kernel_t<Float>().compute(daal_x.get(),
+                                          daal_y.get(),
+                                          daal_values.get(),
+                                          &daal_parameter);
+    daal::services::Environment::getInstance()->setDefaultExecutionContext(
+        daal::services::CpuExecutionContext());
 
     return compute_result().set_values(homogen_table_builder{ row_count_y, arr_values }.build());
 }
