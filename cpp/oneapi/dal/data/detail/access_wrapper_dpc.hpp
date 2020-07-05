@@ -28,7 +28,7 @@ namespace oneapi::dal::detail {
 template <typename T>
 class access_wrapper_impl_dpc {
 public:
-    using policy_t     = dpcpp_policy;
+    using policy_t     = data_parallel_policy;
     using alloc_kind_t = sycl::usm::alloc;
 
 public:

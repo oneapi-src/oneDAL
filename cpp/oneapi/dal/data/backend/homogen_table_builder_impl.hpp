@@ -75,7 +75,7 @@ public:
 
     void copy_data(const void* data, std::int64_t row_count, std::int64_t column_count) {
         data_.reset(row_count * column_count * get_data_type_size(feature_.get_data_type()));
-        detail::memcpy(detail::host_seq_policy{}, data_.get_mutable_data(), data, data_.get_size());
+        detail::memcpy(host_policy{}, data_.get_mutable_data(), data, data_.get_size());
 
         row_count_    = row_count;
         column_count_ = column_count;

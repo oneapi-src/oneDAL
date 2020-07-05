@@ -18,6 +18,7 @@
 
 #include <cstring>
 
+#include "oneapi/dal/policy.hpp"
 #include "oneapi/dal/detail/memory_impl_dpc.hpp"
 #include "oneapi/dal/detail/memory_impl_host.hpp"
 

@@ -36,12 +36,12 @@ public:
 
 public:
     static array<T> empty(std::int64_t count) {
-        return empty_impl(detail::host_seq_policy{}, count, detail::host_only_alloc{});
+        return empty_impl(host_policy{}, count, detail::host_only_alloc{});
     }
 
     template <typename K>
     static array<T> full(std::int64_t count, K&& element) {
-        return full_impl(detail::host_seq_policy{},
+        return full_impl(host_policy{},
                          count,
                          std::forward<K>(element),
                          detail::host_only_alloc{});
@@ -49,7 +49,7 @@ public:
 
     static array<T> zeros(std::int64_t count) {
         // TODO: can be optimized in future
-        return full_impl(detail::host_seq_policy{}, count, T{}, detail::host_only_alloc{});
+        return full_impl(host_policy{}, count, T{}, detail::host_only_alloc{});
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -116,7 +116,7 @@ public:
     }
 
     array& need_mutable_data() {
-        return need_mutable_data_impl(detail::host_seq_policy{}, detail::host_only_alloc{});
+        return need_mutable_data_impl(host_policy{}, detail::host_only_alloc{});
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -140,7 +140,7 @@ public:
     }
 
     void reset(std::int64_t count) {
-        reset_impl(detail::host_seq_policy{}, count, detail::host_only_alloc{});
+        reset_impl(host_policy{}, count, detail::host_only_alloc{});
     }
 
     template <typename Deleter>

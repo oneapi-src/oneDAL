@@ -69,18 +69,18 @@ public:
     }
 
 private:
-    access_iface_host& get_access(const host_seq_policy&) {
+    access_iface_host& get_access(const host_policy&) {
         return host_access_;
     }
-    const access_iface_host& get_access(const host_seq_policy&) const {
+    const access_iface_host& get_access(const host_policy&) const {
         return host_access_;
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
-    access_iface_dpc& get_access(const dpcpp_policy&) {
+    access_iface_dpc& get_access(const data_parallel_policy&) {
         return dpc_access_;
     }
-    const access_iface_dpc& get_access(const dpcpp_policy&) const {
+    const access_iface_dpc& get_access(const data_parallel_policy&) const {
         return dpc_access_;
     }
 #endif
@@ -111,32 +111,32 @@ public:
     row_accessor(const table_builder& b) : base(b) {}
 
     array<data_t> pull(const range& rows = { 0, -1 }) const {
-        return base::pull(detail::host_seq_policy{}, { rows }, detail::host_only_alloc{});
+        return base::pull(host_policy{}, { rows }, detail::host_only_alloc{});
     }
 
     T* pull(array<data_t>& block, const range& rows = { 0, -1 }) const {
-        return base::pull(detail::host_seq_policy{}, block, { rows }, detail::host_only_alloc{});
+        return base::pull(host_policy{}, block, { rows }, detail::host_only_alloc{});
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
     array<data_t> pull(sycl::queue& queue,
                        const range& rows     = { 0, -1 },
                        sycl::usm::alloc kind = sycl::usm::alloc::shared) const {
-        return base::pull(detail::dpcpp_policy{ queue }, { rows }, kind);
+        return base::pull(queue, { rows }, kind);
     }
 
     T* pull(sycl::queue& queue,
             array<data_t>& block,
             const range& rows     = { 0, -1 },
             sycl::usm::alloc kind = sycl::usm::alloc::shared) const {
-        return base::pull(detail::dpcpp_policy{ queue }, block, { rows }, kind);
+        return base::pull(queue, block, { rows }, kind);
     }
 #endif
 
     template <typename Q = T>
     std::enable_if_t<sizeof(Q) && !is_readonly> push(const array<data_t>& block,
                                                      const range& rows = { 0, -1 }) {
-        base::push(detail::host_seq_policy{}, block, { rows });
+        base::push(host_policy{}, block, { rows });
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -144,7 +144,7 @@ public:
     std::enable_if_t<sizeof(Q) && !is_readonly> push(sycl::queue& queue,
                                                      const array<data_t>& block,
                                                      const range& rows = { 0, -1 }) {
-        base::push(detail::dpcpp_policy{ queue }, block, { rows });
+        base::push(queue, block, { rows });
     }
 #endif
 };
@@ -166,13 +166,13 @@ public:
     column_accessor(const table_builder& b) : base(b) {}
 
     array<data_t> pull(std::int64_t column_index, const range& rows = { 0, -1 }) const {
-        return base::pull(detail::host_seq_policy{},
+        return base::pull(host_policy{},
                           { column_index, rows },
                           detail::host_only_alloc{});
     }
 
     T* pull(array<data_t>& block, std::int64_t column_index, const range& rows = { 0, -1 }) const {
-        return base::pull(detail::host_seq_policy{},
+        return base::pull(host_policy{},
                           block,
                           { column_index, rows },
                           detail::host_only_alloc{});
@@ -183,7 +183,7 @@ public:
                        std::int64_t column_index,
                        const range& rows     = { 0, -1 },
                        sycl::usm::alloc kind = sycl::usm::alloc::shared) const {
-        return base::pull(detail::dpcpp_policy{ queue }, { column_index, rows }, kind);
+        return base::pull(queue, { column_index, rows }, kind);
     }
 
     T* pull(sycl::queue& queue,
@@ -191,7 +191,7 @@ public:
             std::int64_t column_index,
             const range& rows     = { 0, -1 },
             sycl::usm::alloc kind = sycl::usm::alloc::shared) const {
-        return base::pull(detail::dpcpp_policy{ queue }, block, { column_index, rows }, kind);
+        return base::pull(queue, block, { column_index, rows }, kind);
     }
 #endif
 
@@ -199,7 +199,7 @@ public:
     std::enable_if_t<sizeof(Q) && !is_readonly> push(const array<data_t>& block,
                                                      std::int64_t column_index,
                                                      const range& rows = { 0, -1 }) {
-        base::push(detail::host_seq_policy{}, block, { column_index, rows });
+        base::push(host_policy{}, block, { column_index, rows });
     }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -208,7 +208,7 @@ public:
                                                      const array<data_t>& block,
                                                      std::int64_t column_index,
                                                      const range& rows = { 0, -1 }) {
-        base::push(detail::dpcpp_policy{ queue }, block, { column_index, rows });
+        base::push(queue, block, { column_index, rows });
     }
 #endif
 };

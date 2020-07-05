@@ -20,19 +20,8 @@
     #include <CL/sycl.hpp>
 
 namespace oneapi::dal::detail {
-class dpcpp_policy {
-public:
-    dpcpp_policy(sycl::queue& queue) : queue_(queue) {}
 
-    sycl::queue& get_queue() const {
-        return queue_;
-    }
-
-private:
-    sycl::queue& queue_;
-};
-
-void wait_and_throw(const sycl::vector_class<sycl::event>& dependencies) {
+inline void wait_and_throw(const sycl::vector_class<sycl::event>& dependencies) {
     sycl::event::wait_and_throw(dependencies);
 }
 
