@@ -36,10 +36,6 @@ public:
                     N * p * sizeof(Data)),
               row_count_(N) {}
 
-    template <typename Data, typename = std::enable_if_t<!std::is_pointer_v<Data>>>
-    homogen_table_impl(std::int64_t N, std::int64_t p, Data value, homogen_data_layout layout)
-            : homogen_table_impl(N, p, fill_data(new Data[N * p], N * p, value), layout) {}
-
     homogen_table_impl(std::int64_t p,
                        const array<byte_t>& data,
                        table_feature feature,
@@ -94,15 +90,19 @@ public:
     template <typename T>
     void push_column(const array<T>& a, std::int64_t idx, const range& r);
 
-private:
+#ifdef ONEAPI_DAL_DATA_PARALLEL
     template <typename T>
-    static T* fill_data(T* data, std::int64_t size, const T& value) {
-        for (std::int64_t i = 0; i < size; i++) {
-            data[i] = value;
-        }
+    void pull_rows(sycl::queue& q, array<T>& a, const range& r, const sycl::usm::alloc& kind) const;
 
-        return data;
-    }
+    template <typename T>
+    void push_rows(sycl::queue& q, const array<T>& a, const range& r);
+
+    template <typename T>
+    void pull_column(sycl::queue& q, array<T>& a, std::int64_t idx, const range& r, const sycl::usm::alloc& kind) const;
+
+    template <typename T>
+    void push_column(sycl::queue& q, const array<T>& a, std::int64_t idx, const range& r);
+#endif
 
 private:
     homogen_table_metadata meta_;

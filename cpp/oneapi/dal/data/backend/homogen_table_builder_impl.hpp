@@ -147,6 +147,32 @@ public:
         impl.push_column(a, idx, r);
     }
 
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    template <typename T>
+    void pull_rows(sycl::queue& q, array<T>& a, const range& r, const sycl::usm::alloc& kind) const {
+        homogen_table_impl impl{ column_count_, data_, feature_, layout_ };
+        impl.pull_rows(a, r);
+    }
+
+    template <typename T>
+    void push_rows(sycl::queue& q, const array<T>& a, const range& r) {
+        homogen_table_impl impl{ column_count_, data_, feature_, layout_ };
+        impl.push_rows(a, r);
+    }
+
+    template <typename T>
+    void pull_column(sycl::queue& q, array<T>& a, std::int64_t idx, const range& r, const sycl::usm::alloc& kind) const {
+        homogen_table_impl impl{ column_count_, data_, feature_, layout_ };
+        impl.pull_column(a, idx, r);
+    }
+
+    template <typename T>
+    void push_column(sycl::queue& q, const array<T>& a, std::int64_t idx, const range& r) {
+        homogen_table_impl impl{ column_count_, data_, feature_, layout_ };
+        impl.push_column(a, idx, r);
+    }
+#endif
+
 private:
     array<byte_t> data_;
     int64_t row_count_;

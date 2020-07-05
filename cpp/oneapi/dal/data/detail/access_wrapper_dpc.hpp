@@ -39,10 +39,9 @@ public:
                    Block& block,
                    const row_block& index,
                    const alloc_kind_t& kind) const {
-        if constexpr (has_pull_rows_host<T, typename Block::data_t>::
-                          value) { // TODO: change to has_*_dpc_v check
-            // obj_.pull_rows(policy.get_queue(), block, index.rows, kind);
-            obj_.pull_rows(block, index.rows); // TODO: remove callbacks to host implementation
+        if constexpr (has_pull_rows_dpc<T, typename Block::data_t>::
+                          value) {
+            obj_.pull_rows(policy.get_queue(), block, index.rows, kind);
         }
         else {
             throw std::runtime_error("pulling rows is not supported for DPC++");
@@ -54,12 +53,9 @@ public:
                      Block& block,
                      const column_values_block& index,
                      const alloc_kind_t& kind) const {
-        if constexpr (has_pull_column_host<T, typename Block::data_t>::
-                          value) { // TODO: change to has_*_dpc_v check
-            // obj_.pull_column(policy.get_queue(), block, index.column_index, index.rows, kind);
-            obj_.pull_column(block,
-                             index.column_index,
-                             index.rows); // TODO: remove callbacks to host implementation
+        if constexpr (has_pull_column_dpc<T, typename Block::data_t>::
+                          value) {
+            obj_.pull_column(policy.get_queue(), block, index.column_index, index.rows, kind);
         }
         else {
             throw std::runtime_error("pulling column is not supported for DPC++");
@@ -68,10 +64,9 @@ public:
 
     template <typename Block>
     void push_rows(const policy_t& policy, const Block& block, const row_block& index) {
-        if constexpr (has_push_rows_host<T, typename Block::data_t>::
-                          value) { // TODO: change to has_*_dpc_v check
-            // obj_.push_rows(policy.get_queue(), block, index.rows);
-            obj_.push_rows(block, index.rows); // TODO: remove callbacks to host implementation
+        if constexpr (has_push_rows_dpc<T, typename Block::data_t>::
+                          value) {
+            obj_.push_rows(policy.get_queue(), block, index.rows);
         }
         else {
             throw std::runtime_error("pushing rows is not supported for DPC++");
@@ -80,12 +75,9 @@ public:
 
     template <typename Block>
     void push_column(const policy_t& policy, const Block& block, const column_values_block& index) {
-        if constexpr (has_push_column_host<T, typename Block::data_t>::
-                          value) { // TODO: change to has_*_dpc_v check
-            // obj_.push_column(policy.get_queue(), block, index.column_index, index.rows);
-            obj_.push_column(block,
-                             index.column_index,
-                             index.rows); // TODO: remove callbacks to host implementation
+        if constexpr (has_push_column_dpc<T, typename Block::data_t>::
+                          value) {
+            obj_.push_column(policy.get_queue(), block, index.column_index, index.rows);
         }
         else {
             throw std::runtime_error("pushing column is not supported for DPC++");

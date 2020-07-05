@@ -180,7 +180,7 @@ public:
     auto& allocate(sycl::queue& queue,
                    std::int64_t row_count,
                    std::int64_t column_count,
-                   sycl::usm::alloc kind) {
+                   sycl::usm::alloc kind = sycl::usm::alloc::shared) {
         auto& impl = get_impl();
         impl.allocate(queue, row_count, column_count, kind);
         return *this;

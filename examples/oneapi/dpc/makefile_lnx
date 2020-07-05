@@ -141,7 +141,7 @@ so sointel64:
 _make_ex: $(RES)
 
 vpath
-vpath %.cpp $(addprefix ./source/,pca)
+vpath %.cpp $(addprefix ./source/,pca tables)
 
 .SECONDARY:
 $(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.
