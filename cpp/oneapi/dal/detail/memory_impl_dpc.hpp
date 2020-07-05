@@ -25,7 +25,7 @@ namespace oneapi::dal::detail {
 #ifdef ONEAPI_DAL_DATA_PARALLEL
 template <typename T>
 inline T* malloc(const data_parallel_policy& policy, std::int64_t count, sycl::usm::alloc kind) {
-    const auto& queue = policy.get_queue();
+    auto& queue = policy.get_queue();
     auto device  = queue.get_device();
     auto context = queue.get_context();
     // TODO: is not safe since sycl::memset accepts count as size_t
@@ -52,7 +52,7 @@ inline void memcpy(const data_parallel_policy& policy, void* dest, const void* s
 template <typename T>
 inline void fill(const data_parallel_policy& policy, T* dest, std::int64_t count, const T& value) {
     // TODO: can be optimized in future
-    const auto& queue = policy.get_queue();
+    auto& queue = policy.get_queue();
     auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.parallel_for<class oneapi_dal_memory_fill>(sycl::range<1>(count), [=](sycl::id<1> idx) {
             dest[idx[0]] = value;
