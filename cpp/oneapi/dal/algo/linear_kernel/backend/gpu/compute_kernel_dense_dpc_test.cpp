@@ -42,7 +42,7 @@ TEST(linear_kernel_dense_test, can_compute_unit_matrix) {
     };
 
     auto selector = sycl::gpu_selector();
-    auto queue = sycl::queue(selector);
+    auto queue    = sycl::queue(selector);
 
     auto x = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(x, x_host, sizeof(float) * row_count * column_count).wait();
@@ -50,15 +50,16 @@ TEST(linear_kernel_dense_test, can_compute_unit_matrix) {
     auto y = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(y, y_host, sizeof(float) * row_count * column_count).wait();
 
-    const auto x_table = homogen_table{ row_count, column_count, x };
-    const auto y_table = homogen_table{ row_count, column_count, y };
+    const auto x_table = homogen_table{ queue, row_count, column_count, x };
+    const auto y_table = homogen_table{ queue, row_count, column_count, y };
 
-    const auto kernel_desc  = linear_kernel::descriptor{};
-    const auto values_table = compute(queue, kernel_desc, x_table, y_table).get_values();
+    const auto kernel_desc    = linear_kernel::descriptor{};
+    const auto result_compute = compute(queue, kernel_desc, x_table, y_table);
+    const auto values_table   = result_compute.get_values();
     ASSERT_EQ(values_table.get_row_count(), row_count);
     ASSERT_EQ(values_table.get_column_count(), row_count);
 
-    const auto values = row_accessor<const float>(values_table).pull();
+    const auto values = row_accessor<const float>(values_table).pull(queue);
     for (size_t i = 0; i < values.get_count(); i++) {
         ASSERT_FLOAT_EQ(values[i], static_cast<float>(column_count));
     }
@@ -78,7 +79,7 @@ TEST(linear_kernel_dense_test, can_compute_same_unit_matrix) {
     };
 
     auto selector = sycl::gpu_selector();
-    auto queue = sycl::queue(selector);
+    auto queue    = sycl::queue(selector);
 
     auto x = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(x, x_host, sizeof(float) * row_count * column_count).wait();
@@ -90,7 +91,7 @@ TEST(linear_kernel_dense_test, can_compute_same_unit_matrix) {
     ASSERT_EQ(values_table.get_row_count(), row_count);
     ASSERT_EQ(values_table.get_column_count(), row_count);
 
-    const auto values = row_accessor<const float>(values_table).pull();
+    const auto values = row_accessor<const float>(values_table).pull(queue);
     for (size_t i = 0; i < values.get_count(); i++) {
         ASSERT_FLOAT_EQ(values[i], static_cast<float>(column_count));
     }
@@ -109,7 +110,7 @@ TEST(linear_kernel_dense_test, can_compute_one_element) {
     };
 
     auto selector = sycl::gpu_selector();
-    auto queue = sycl::queue(selector);
+    auto queue    = sycl::queue(selector);
 
     auto x = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(x, x_host, sizeof(float) * row_count * column_count).wait();
@@ -125,122 +126,166 @@ TEST(linear_kernel_dense_test, can_compute_one_element) {
     ASSERT_EQ(values_table.get_row_count(), row_count);
     ASSERT_EQ(values_table.get_column_count(), row_count);
 
-    const auto values = row_accessor<const float>(values_table).pull();
+    const auto values = row_accessor<const float>(values_table).pull(queue);
     ASSERT_FLOAT_EQ(values[0], 5.f);
 
     sycl::free(x, queue);
     sycl::free(y, queue);
 }
 
-// TEST(linear_kernel_dense_test, can_compute_simple_matrix) {
-//     constexpr std::int64_t row_count    = 2;
-//     constexpr std::int64_t column_count = 2;
-//     const float x_data[]                = {
-//         1.f,
-//         2.f,
-//         1.f,
-//         1.f,
-//     };
-//     const float y_data[] = {
-//         1.f,
-//         1.f,
-//         3.f,
-//         1.f,
-//     };
+TEST(linear_kernel_dense_test, can_compute_simple_matrix) {
+    constexpr std::int64_t row_count    = 2;
+    constexpr std::int64_t column_count = 2;
+    const float x_host[]                = {
+        1.f,
+        2.f,
+        1.f,
+        1.f,
+    };
+    const float y_host[] = {
+        1.f,
+        1.f,
+        3.f,
+        1.f,
+    };
 
-//     const auto x_table = homogen_table{ row_count, column_count, x_data };
-//     const auto y_table = homogen_table{ row_count, column_count, y_data };
+    auto selector = sycl::gpu_selector();
+    auto queue    = sycl::queue(selector);
 
-//     const auto kernel_desc  = linear_kernel::descriptor{};
-//     const auto values_table = compute(queue_, kernel_desc, x_table, y_table).get_values();
-//     ASSERT_EQ(values_table.get_row_count(), row_count);
-//     ASSERT_EQ(values_table.get_column_count(), row_count);
+    auto x = sycl::malloc_shared<float>(row_count * column_count, queue);
+    queue.memcpy(x, x_host, sizeof(float) * row_count * column_count).wait();
 
-//     const auto values = row_accessor<const float>(values_table).pull();
-//     ASSERT_FLOAT_EQ(values[0], 3.f);
-//     ASSERT_FLOAT_EQ(values[1], 5.f);
-//     ASSERT_FLOAT_EQ(values[2], 2.f);
-//     ASSERT_FLOAT_EQ(values[3], 4.f);
-// }
+    auto y = sycl::malloc_shared<float>(row_count * column_count, queue);
+    queue.memcpy(y, y_host, sizeof(float) * row_count * column_count).wait();
 
-// TEST(linear_kernel_dense_test, can_compute_same_simple_matrix) {
-//     constexpr std::int64_t row_count    = 2;
-//     constexpr std::int64_t column_count = 2;
-//     const float x_data[]                = {
-//         1.f,
-//         2.f,
-//         1.f,
-//         3.f,
-//     };
+    const auto x_table = homogen_table{ queue, row_count, column_count, x };
+    const auto y_table = homogen_table{ queue, row_count, column_count, y };
 
-//     const auto x_table = homogen_table{ row_count, column_count, x_data };
+    const auto kernel_desc  = linear_kernel::descriptor{};
+    const auto values_table = compute(queue, kernel_desc, x_table, y_table).get_values();
+    ASSERT_EQ(values_table.get_row_count(), row_count);
+    ASSERT_EQ(values_table.get_column_count(), row_count);
 
-//     const auto kernel_desc  = linear_kernel::descriptor{};
-//     const auto values_table = compute(queue_, kernel_desc, x_table, x_table).get_values();
-//     ASSERT_EQ(values_table.get_row_count(), row_count);
-//     ASSERT_EQ(values_table.get_column_count(), row_count);
+    const auto values = row_accessor<const float>(values_table).pull(queue);
+    ASSERT_FLOAT_EQ(values[0], 3.f);
+    ASSERT_FLOAT_EQ(values[1], 5.f);
+    ASSERT_FLOAT_EQ(values[2], 2.f);
+    ASSERT_FLOAT_EQ(values[3], 4.f);
 
-//     const auto values = row_accessor<const float>(values_table).pull();
-//     ASSERT_FLOAT_EQ(values[0], 5.f);
-//     ASSERT_FLOAT_EQ(values[1], 7.f);
-//     ASSERT_FLOAT_EQ(values[2], 7.f);
-//     ASSERT_FLOAT_EQ(values[3], 10.f);
-// }
+    sycl::free(x, queue);
+    sycl::free(y, queue);
+}
 
-// TEST(linear_kernel_dense_test, can_compute_diff_matrix) {
-//     constexpr std::int64_t row_count_x  = 2;
-//     constexpr std::int64_t row_count_y  = 3;
-//     constexpr std::int64_t column_count = 1;
-//     const float x_data[]                = {
-//         1.f,
-//         2.f,
-//     };
-//     const float y_data[] = {
-//         1.f,
-//         1.f,
-//         3.f,
-//     };
+TEST(linear_kernel_dense_test, can_compute_same_simple_matrix) {
+    constexpr std::int64_t row_count    = 2;
+    constexpr std::int64_t column_count = 2;
+    const float x_host[]                = {
+        1.f,
+        2.f,
+        1.f,
+        3.f,
+    };
 
-//     const auto x_table = homogen_table{ row_count_x, column_count, x_data };
-//     const auto y_table = homogen_table{ row_count_y, column_count, y_data };
+    auto selector = sycl::gpu_selector();
+    auto queue    = sycl::queue(selector);
 
-//     const auto kernel_desc  = linear_kernel::descriptor{};
-//     const auto values_table = compute(queue_, kernel_desc, x_table, y_table).get_values();
-//     ASSERT_EQ(values_table.get_row_count(), row_count_x);
-//     ASSERT_EQ(values_table.get_column_count(), row_count_y);
+    auto x = sycl::malloc_shared<float>(row_count * column_count, queue);
+    queue.memcpy(x, x_host, sizeof(float) * row_count * column_count).wait();
 
-//     const auto values = row_accessor<const float>(values_table).pull();
-//     ASSERT_FLOAT_EQ(values[0], 1.f);
-//     ASSERT_FLOAT_EQ(values[1], 1.f);
-//     ASSERT_FLOAT_EQ(values[2], 3.f);
-//     ASSERT_FLOAT_EQ(values[3], 2.f);
-// }
+    const auto x_table = homogen_table{ queue, row_count, column_count, x };
 
-// TEST(linear_kernel_dense_test, can_compute_diff_matrix_not_default_params) {
-//     constexpr std::int64_t row_count_x  = 2;
-//     constexpr std::int64_t row_count_y  = 3;
-//     constexpr std::int64_t column_count = 1;
-//     const float x_data[]                = {
-//         1.f,
-//         2.f,
-//     };
-//     const float y_data[] = {
-//         1.f,
-//         1.f,
-//         3.f,
-//     };
+    const auto kernel_desc  = linear_kernel::descriptor{};
+    const auto values_table = compute(queue, kernel_desc, x_table, x_table).get_values();
+    ASSERT_EQ(values_table.get_row_count(), row_count);
+    ASSERT_EQ(values_table.get_column_count(), row_count);
 
-//     const auto x_table = homogen_table{ row_count_x, column_count, x_data };
-//     const auto y_table = homogen_table{ row_count_y, column_count, y_data };
+    const auto values = row_accessor<const float>(values_table).pull(queue);
+    ASSERT_FLOAT_EQ(values[0], 5.f);
+    ASSERT_FLOAT_EQ(values[1], 7.f);
+    ASSERT_FLOAT_EQ(values[2], 7.f);
+    ASSERT_FLOAT_EQ(values[3], 10.f);
 
-//     const auto kernel_desc  = linear_kernel::descriptor{}.set_k(2.0).set_b(1.0);
-//     const auto values_table = compute(queue_, kernel_desc, x_table, y_table).get_values();
-//     ASSERT_EQ(values_table.get_row_count(), row_count_x);
-//     ASSERT_EQ(values_table.get_column_count(), row_count_y);
+    sycl::free(x, queue);
+}
 
-//     const auto values = row_accessor<const float>(values_table).pull();
-//     ASSERT_FLOAT_EQ(values[0], 3.f);
-//     ASSERT_FLOAT_EQ(values[1], 3.f);
-//     ASSERT_FLOAT_EQ(values[2], 7.f);
-//     ASSERT_FLOAT_EQ(values[3], 5.f);
-// }
+TEST(linear_kernel_dense_test, can_compute_diff_matrix) {
+    constexpr std::int64_t row_count_x  = 2;
+    constexpr std::int64_t row_count_y  = 3;
+    constexpr std::int64_t column_count = 1;
+    const float x_host[]                = {
+        1.f,
+        2.f,
+    };
+    const float y_host[] = {
+        1.f,
+        1.f,
+        3.f,
+    };
+
+    auto selector = sycl::gpu_selector();
+    auto queue    = sycl::queue(selector);
+
+    auto x = sycl::malloc_shared<float>(row_count_x * column_count, queue);
+    queue.memcpy(x, x_host, sizeof(float) * row_count_x * column_count).wait();
+
+    auto y = sycl::malloc_shared<float>(row_count_y * column_count, queue);
+    queue.memcpy(y, y_host, sizeof(float) * row_count_y * column_count).wait();
+
+    const auto x_table = homogen_table{ queue, row_count_x, column_count, x };
+    const auto y_table = homogen_table{ queue, row_count_y, column_count, y };
+
+    const auto kernel_desc  = linear_kernel::descriptor{};
+    const auto values_table = compute(queue, kernel_desc, x_table, y_table).get_values();
+    ASSERT_EQ(values_table.get_row_count(), row_count_x);
+    ASSERT_EQ(values_table.get_column_count(), row_count_y);
+
+    const auto values = row_accessor<const float>(values_table).pull(queue);
+    ASSERT_FLOAT_EQ(values[0], 1.f);
+    ASSERT_FLOAT_EQ(values[1], 1.f);
+    ASSERT_FLOAT_EQ(values[2], 3.f);
+    ASSERT_FLOAT_EQ(values[3], 2.f);
+
+    sycl::free(x, queue);
+    sycl::free(y, queue);
+}
+
+TEST(linear_kernel_dense_test, can_compute_diff_matrix_not_default_params) {
+    constexpr std::int64_t row_count_x  = 2;
+    constexpr std::int64_t row_count_y  = 3;
+    constexpr std::int64_t column_count = 1;
+    const float x_host[]                = {
+        1.f,
+        2.f,
+    };
+    const float y_host[] = {
+        1.f,
+        1.f,
+        3.f,
+    };
+
+    auto selector = sycl::gpu_selector();
+    auto queue    = sycl::queue(selector);
+
+    auto x = sycl::malloc_shared<float>(row_count_x * column_count, queue);
+    queue.memcpy(x, x_host, sizeof(float) * row_count_x * column_count).wait();
+
+    auto y = sycl::malloc_shared<float>(row_count_y * column_count, queue);
+    queue.memcpy(y, y_host, sizeof(float) * row_count_y * column_count).wait();
+
+    const auto x_table = homogen_table{ queue, row_count_x, column_count, x };
+    const auto y_table = homogen_table{ queue, row_count_y, column_count, y };
+
+    const auto kernel_desc  = linear_kernel::descriptor{}.set_k(2.0).set_b(1.0);
+    const auto values_table = compute(queue, kernel_desc, x_table, y_table).get_values();
+    ASSERT_EQ(values_table.get_row_count(), row_count_x);
+    ASSERT_EQ(values_table.get_column_count(), row_count_y);
+
+    const auto values = row_accessor<const float>(values_table).pull(queue);
+    ASSERT_FLOAT_EQ(values[0], 3.f);
+    ASSERT_FLOAT_EQ(values[1], 3.f);
+    ASSERT_FLOAT_EQ(values[2], 7.f);
+    ASSERT_FLOAT_EQ(values[3], 5.f);
+
+    sycl::free(x, queue);
+    sycl::free(y, queue);
+}
