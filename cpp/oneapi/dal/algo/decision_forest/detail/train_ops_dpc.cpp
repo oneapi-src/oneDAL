@@ -14,32 +14,35 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/decision_forest/backend/cpu/infer_kernel.hpp"
-#include "oneapi/dal/algo/decision_forest/backend/gpu/infer_kernel.hpp"
-#include "oneapi/dal/algo/decision_forest/detail/infer_ops.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/cpu/train_kernel.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_kernel.hpp"
+#include "oneapi/dal/algo/decision_forest/detail/train_ops.hpp"
 #include "oneapi/dal/backend/dispatcher_dp.hpp"
 
 namespace oneapi::dal::decision_forest::detail {
 
 template <typename Float, typename Task, typename Method>
-struct infer_ops_dispatcher<data_parallel_execution_context, Float, Task, Method> {
-    infer_result<Task> operator()(const data_parallel_execution_context& ctx,
+struct train_ops_dispatcher<data_parallel_policy, Float, Task, Method> {
+    train_result<Task> operator()(const data_parallel_policy& ctx,
                                   const descriptor_base<Task>& params,
-                                  const infer_input<Task>& input) const {
+                                  const train_input<Task>& input) const {
         using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::infer_kernel_cpu<Float, Task, Method>,
-                                            backend::infer_kernel_gpu<Float, Task, Method>>;
+            dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Task, Method>,
+                                            backend::train_kernel_gpu<Float, Task, Method>>;
         return kernel_dispatcher_t{}(ctx, params, input);
     }
 };
 
-#define INSTANTIATE(F, T, M)          \
-    template struct ONEAPI_DAL_EXPORT \
-        infer_ops_dispatcher<data_parallel_execution_context, F, T, M>;
+#define INSTANTIATE(F, T, M) \
+    template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<data_parallel_policy, F, T, M>;
 
 INSTANTIATE(float, task::classification, method::dense)
+INSTANTIATE(float, task::classification, method::hist)
 INSTANTIATE(double, task::classification, method::dense)
+INSTANTIATE(double, task::classification, method::hist)
 
 INSTANTIATE(float, task::regression, method::dense)
+INSTANTIATE(float, task::regression, method::hist)
 INSTANTIATE(double, task::regression, method::dense)
+INSTANTIATE(double, task::regression, method::hist)
 } // namespace oneapi::dal::decision_forest::detail

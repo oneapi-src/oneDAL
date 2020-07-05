@@ -21,8 +21,8 @@
 namespace oneapi::dal::decision_forest::detail {
 
 template <typename Float, typename Task, typename Method>
-struct train_ops_dispatcher<default_execution_context, Float, Task, Method> {
-    train_result<Task> operator()(const default_execution_context& ctx,
+struct train_ops_dispatcher<host_policy, Float, Task, Method> {
+    train_result<Task> operator()(const host_policy& ctx,
                                   const descriptor_base<Task>& desc,
                                   const train_input<Task>& input) const {
         using kernel_dispatcher_t =
@@ -32,7 +32,7 @@ struct train_ops_dispatcher<default_execution_context, Float, Task, Method> {
 };
 
 #define INSTANTIATE(F, T, M) \
-    template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<default_execution_context, F, T, M>;
+    template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<host_policy, F, T, M>;
 
 INSTANTIATE(float, task::classification, method::dense)
 INSTANTIATE(float, task::classification, method::hist)
