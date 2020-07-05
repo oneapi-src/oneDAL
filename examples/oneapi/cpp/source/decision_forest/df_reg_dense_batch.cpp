@@ -20,11 +20,11 @@
 using namespace oneapi;
 namespace df = oneapi::dal::decision_forest;
 
-const std::int64_t tree_count = 10;
-const std::int64_t features_per_node = 1;
-const std::int64_t min_observations_in_leaf_node = 2;
-
 int main(int argc, char const *argv[]) {
+  constexpr std::int64_t tree_count = 10;
+  constexpr std::int64_t features_per_node = 1;
+  constexpr std::int64_t min_observations_in_leaf_node = 2;
+
   constexpr std::int64_t row_count_train = 6;
   constexpr std::int64_t row_count_test = 3;
   constexpr std::int64_t column_count = 2;
