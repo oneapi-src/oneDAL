@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/algo/pca/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 namespace oneapi::dal::pca::backend {
@@ -67,16 +68,17 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     constexpr uint64_t results_to_compute =
         int64_t(daal_pca::mean | daal_pca::variance | daal_pca::eigenvalue);
 
-    interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(ctx,
-                                                            is_correlation,
-                                                            desc.get_is_deterministic(),
-                                                            *daal_data,
-                                                            &covariance_alg,
-                                                            results_to_compute,
-                                                            *daal_eigenvectors,
-                                                            *daal_eigenvalues,
-                                                            *daal_means,
-                                                            *daal_variances);
+    interop::status_to_exception(
+        interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(ctx,
+                                                                is_correlation,
+                                                                desc.get_is_deterministic(),
+                                                                *daal_data,
+                                                                &covariance_alg,
+                                                                results_to_compute,
+                                                                *daal_eigenvectors,
+                                                                *daal_eigenvalues,
+                                                                *daal_means,
+                                                                *daal_variances));
 
     return train_result()
         .set_model(
