@@ -19,6 +19,7 @@
 #include <cstring>
 
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/policy.hpp"
 
 namespace oneapi::dal::detail {
 
