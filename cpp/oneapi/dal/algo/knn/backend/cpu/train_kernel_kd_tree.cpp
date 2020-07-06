@@ -23,8 +23,8 @@
 #include "oneapi/dal/algo/knn/backend/model_interop.hpp"
 #include "oneapi/dal/algo/knn/detail/model_impl.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
+#include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 namespace oneapi::dal::knn::backend {
 
@@ -50,7 +50,7 @@ static train_result call_daal_kernel(const context_cpu& ctx,
 
     auto arr_data   = row_accessor<const Float>{ data }.pull();
     auto arr_labels = row_accessor<const Float>{ labels }.pull();
- 
+
     const auto daal_data =
         interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
     const auto daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
@@ -63,13 +63,13 @@ static train_result call_daal_kernel(const context_cpu& ctx,
         desc.get_data_use_in_model() ? daal_knn::doUse : daal_knn::doNotUse);
 
     Status status;
-    const daal::algorithms::classifier::ModelPtr model_ptr = daal_knn::Model::create(column_count, &status);
+    const daal::algorithms::classifier::ModelPtr model_ptr =
+        daal_knn::Model::create(column_count, &status);
     interop::status_to_exception(status);
 
-    auto knn_model  = static_cast<daal_knn::Model*>(model_ptr.get());
+    auto knn_model = static_cast<daal_knn::Model*>(model_ptr.get());
     knn_model->impl()->setData<Float>(daal_data, desc.get_data_use_in_model());
     knn_model->impl()->setLabels<Float>(daal_labels, desc.get_data_use_in_model());
-
 
     interop::call_daal_kernel<Float, daal_knn_kd_tree_kernel_t>(
         ctx,

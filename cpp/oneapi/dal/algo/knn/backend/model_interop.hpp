@@ -16,9 +16,9 @@
 
 #pragma once
 
+#include "algorithms/classifier/classifier_model.h"
 #include "oneapi/dal/algo/knn/common.hpp"
 #include "oneapi/dal/algo/knn/detail/model_impl.hpp"
-#include "algorithms/classifier/classifier_model.h"
 
 namespace oneapi::dal::knn::detail {
 

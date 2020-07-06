@@ -16,11 +16,11 @@
 
 #define DAAL_SYCL_INTERFACE
 
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
-#include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_train_kernel_ucapi.h"
 #include "algorithms/engines/mcg59/mcg59.h"
 #include "data_management/data/numeric_table.h"
+#include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
+#include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_train_kernel_ucapi.h"
 
 #include "oneapi/dal/algo/knn/backend/gpu/train_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/model_interop.hpp"
@@ -38,8 +38,8 @@ namespace daal_knn = daal::algorithms::bf_knn_classification;
 namespace interop  = dal::backend::interop;
 
 template <typename Float>
-using daal_knn_brute_force_kernel_t = daal_knn::training::internal::
-    KNNClassificationTrainKernelUCAPI<Float>;
+using daal_knn_brute_force_kernel_t =
+    daal_knn::training::internal::KNNClassificationTrainKernelUCAPI<Float>;
 using daal_interop_model_t = detail::model_impl::interop_model;
 
 template <typename Float>
@@ -58,7 +58,7 @@ static train_result call_daal_kernel(const context_gpu& ctx,
 
     const auto daal_data =
         interop::convert_to_daal_sycl_homogen_table(queue, arr_data, row_count, column_count);
-    const auto daal_labels = 
+    const auto daal_labels =
         interop::convert_to_daal_sycl_homogen_table(queue, arr_labels, row_count, 1);
 
     daal_knn::Parameter daal_parameter(
@@ -67,22 +67,21 @@ static train_result call_daal_kernel(const context_gpu& ctx,
         desc.get_data_use_in_model() ? daal_knn::doUse : daal_knn::doNotUse);
 
     daal::algorithms::classifier::ModelPtr model_ptr(new daal_knn::Model(column_count));
-    if(!model_ptr) {
+    if (!model_ptr) {
         throw bad_alloc();
     }
 
-    auto knn_model  = static_cast<daal_knn::Model*>(model_ptr.get());
+    auto knn_model = static_cast<daal_knn::Model*>(model_ptr.get());
 
     knn_model->impl()->setData<Float>(daal_data, desc.get_data_use_in_model());
     knn_model->impl()->setLabels<Float>(daal_labels, desc.get_data_use_in_model());
 
-    interop::status_to_exception(
-        daal_knn_brute_force_kernel_t<Float>().compute(
-            daal_data.get(),
-            daal_labels.get(),
-            knn_model,
-            daal_parameter,
-            *(daal::algorithms::engines::mcg59::Batch<>::create())));
+    interop::status_to_exception(daal_knn_brute_force_kernel_t<Float>().compute(
+        daal_data.get(),
+        daal_labels.get(),
+        knn_model,
+        daal_parameter,
+        *(daal::algorithms::engines::mcg59::Batch<>::create())));
 
     auto interop          = new daal_interop_model_t(model_ptr);
     const auto model_impl = std::make_shared<detail::model_impl>(interop);

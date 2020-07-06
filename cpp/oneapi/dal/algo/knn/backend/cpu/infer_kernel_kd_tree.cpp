@@ -21,9 +21,9 @@
 #include "oneapi/dal/algo/knn/backend/model_interop.hpp"
 #include "oneapi/dal/algo/knn/detail/model_impl.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/detail/common.hpp"
-#include "oneapi/dal/backend/interop/error_converter.hpp"
 
 #define DAAL_SYCL_INTERFACE
 
@@ -40,14 +40,14 @@ using daal_knn_kd_tree_kernel_t = daal_knn::prediction::internal::
     KNNClassificationPredictKernel<Float, daal_knn::prediction::defaultDense, Cpu>;
 
 template <typename Float>
-static infer_result call_daal_kernel(const context_cpu& ctx,
-                                     const descriptor_base& desc,
-                                     const table& data,
+static infer_result call_daal_kernel(const context_cpu &ctx,
+                                     const descriptor_base &desc,
+                                     const table &data,
                                      model m) {
     const std::int64_t row_count    = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
 
-    auto arr_data  = row_accessor<const Float>{ data }.pull();
+    auto arr_data   = row_accessor<const Float>{ data }.pull();
     auto arr_labels = array<Float>::empty(1 * row_count);
 
     const auto daal_data =
@@ -61,29 +61,28 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
         dummy_seed,
         desc.get_data_use_in_model() ? daal_knn::doUse : daal_knn::doNotUse);
 
-    interop::status_to_exception(
-        interop::call_daal_kernel<Float, daal_knn_kd_tree_kernel_t>(
-            ctx,
-            daal_data.get(),
-            dal::detail::get_impl<detail::model_impl>(m).get_interop()->get_daal_model().get(),
-            daal_labels.get(),
-            &daal_parameter));
+    interop::status_to_exception(interop::call_daal_kernel<Float, daal_knn_kd_tree_kernel_t>(
+        ctx,
+        daal_data.get(),
+        dal::detail::get_impl<detail::model_impl>(m).get_interop()->get_daal_model().get(),
+        daal_labels.get(),
+        &daal_parameter));
     return infer_result().set_labels(
         homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
 }
 
 template <typename Float>
-static infer_result infer(const context_cpu& ctx,
-                          const descriptor_base& desc,
-                          const infer_input& input) {
+static infer_result infer(const context_cpu &ctx,
+                          const descriptor_base &desc,
+                          const infer_input &input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_model());
 }
 
 template <typename Float>
 struct infer_kernel_cpu<Float, method::kd_tree> {
-    infer_result operator()(const context_cpu& ctx,
-                            const descriptor_base& desc,
-                            const infer_input& input) const {
+    infer_result operator()(const context_cpu &ctx,
+                            const descriptor_base &desc,
+                            const infer_input &input) const {
         return infer<Float>(ctx, desc, input);
     }
 };

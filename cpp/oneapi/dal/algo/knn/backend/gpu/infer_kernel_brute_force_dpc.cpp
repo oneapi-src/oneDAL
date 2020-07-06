@@ -14,20 +14,20 @@
 * limitations under the License.
 *******************************************************************************/
 
-#define DAAL_SYCL_INTERFACE 
+#define DAAL_SYCL_INTERFACE
 #define ONEAPI_DAL_DATA_PARALLEL 1
 
+#include "data_management/data/numeric_table.h"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_predict_kernel_ucapi.h"
-#include "data_management/data/numeric_table.h"
 
 #include "oneapi/dal/algo/knn/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/model_interop.hpp"
 #include "oneapi/dal/algo/knn/detail/model_impl.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
-#include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
+#include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::knn::backend {
 
@@ -38,8 +38,8 @@ namespace daal_knn = daal::algorithms::bf_knn_classification;
 namespace interop  = dal::backend::interop;
 
 template <typename Float>
-using daal_knn_brute_force_kernel_t = daal_knn::prediction::internal::
-    KNNClassificationPredictKernelUCAPI<Float>;
+using daal_knn_brute_force_kernel_t =
+    daal_knn::prediction::internal::KNNClassificationPredictKernelUCAPI<Float>;
 
 template <typename Float>
 static infer_result call_daal_kernel(const context_gpu& ctx,
@@ -52,12 +52,12 @@ static infer_result call_daal_kernel(const context_gpu& ctx,
     const std::int64_t row_count    = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
 
-    auto arr_data  = row_accessor<const Float>{ data }.pull();
+    auto arr_data   = row_accessor<const Float>{ data }.pull();
     auto arr_labels = array<Float>::empty(1 * row_count);
 
     const auto daal_data =
         interop::convert_to_daal_sycl_homogen_table(queue, arr_data, row_count, column_count);
-    const auto daal_labels = 
+    const auto daal_labels =
         interop::convert_to_daal_sycl_homogen_table(queue, arr_labels, row_count, 1);
 
     daal_knn::Parameter daal_parameter(
@@ -65,12 +65,11 @@ static infer_result call_daal_kernel(const context_gpu& ctx,
         desc.get_neighbor_count(),
         desc.get_data_use_in_model() ? daal_knn::doUse : daal_knn::doNotUse);
 
-    interop::status_to_exception(
-        daal_knn_brute_force_kernel_t<Float>().compute(
-            daal_data.get(),
-            dal::detail::get_impl<detail::model_impl>(m).get_interop()->get_daal_model().get(),
-            daal_labels.get(),
-            &daal_parameter));
+    interop::status_to_exception(daal_knn_brute_force_kernel_t<Float>().compute(
+        daal_data.get(),
+        dal::detail::get_impl<detail::model_impl>(m).get_interop()->get_daal_model().get(),
+        daal_labels.get(),
+        &daal_parameter));
 
     return infer_result().set_labels(
         homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
@@ -79,7 +78,7 @@ static infer_result call_daal_kernel(const context_gpu& ctx,
 template <typename Float>
 static infer_result infer(const context_gpu& ctx,
                           const descriptor_base& desc,
-                          const infer_input& input) {    
+                          const infer_input& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_model());
 }
 
