@@ -20,7 +20,7 @@
 
 namespace oneapi::dal::backend::interop {
 
-void status_to_exception(const daal::services::Status& s) {
+inline void status_to_exception(const daal::services::Status& s) {
     if (s) {
         return;
     }
@@ -261,7 +261,7 @@ void status_to_exception(const daal::services::Status& s) {
 }
 
 template <class StatusConverter>
-void status_to_exception(const daal::services::Status& s, StatusConverter alg_converter) {
+inline void status_to_exception(const daal::services::Status& s, StatusConverter alg_converter) {
     if (s) {
         return;
     }
