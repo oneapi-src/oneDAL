@@ -44,8 +44,9 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
     const std::int64_t row_count    = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
 
-    auto arr_data = row_accessor<const Float>{ data }.pull();
-    array<Float> arr_labels{ 1 * row_count };
+    auto arr_data  = row_accessor<const Float>{ data }.pull();
+    auto arr_labels = array<Float>::empty(1 * row_count);
+
     // TODO: read-only access performed with deep copy of data since daal numeric tables are mutable.
     // Need to create special immutable homogen table on daal interop side
 
@@ -67,7 +68,8 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
         dal::detail::get_impl<detail::model_impl>(m).get_interop()->get_daal_model().get(),
         daal_labels.get(),
         &daal_parameter);
-    return infer_result().set_labels(homogen_table_builder{ 1, arr_labels }.build());
+    return infer_result().set_labels(
+        homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
 }
 
 template <typename Float>

@@ -28,8 +28,6 @@ TEST(array_dpc_test, can_construct_array_of_zeros) {
     auto arr = array<float>::zeros(q, 5);
 
     ASSERT_EQ(arr.get_count(), 5);
-    ASSERT_EQ(arr.get_capacity(), 5);
-    ASSERT_TRUE(arr.is_data_owner());
     ASSERT_TRUE(arr.has_mutable_data());
 
     for (int32_t i = 0; i < arr.get_count(); i++) {
@@ -43,8 +41,6 @@ TEST(array_dpc_test, can_construct_array_of_ones) {
     auto arr = array<float>::full(5, 1.0f);
 
     ASSERT_EQ(arr.get_count(), 5);
-    ASSERT_EQ(arr.get_capacity(), 5);
-    ASSERT_TRUE(arr.is_data_owner());
     ASSERT_TRUE(arr.has_mutable_data());
 
     for (int32_t i = 0; i < arr.get_count(); i++) {
@@ -55,11 +51,9 @@ TEST(array_dpc_test, can_construct_array_of_ones) {
 TEST(array_dpc_test, can_construct_device_array_without_initialization) {
     sycl::queue q{ sycl::gpu_selector() };
 
-    array<float> arr{ q, 10, sycl::usm::alloc::device };
+    auto arr = array<float>::empty(q, 10, sycl::usm::alloc::device);
 
     ASSERT_EQ(arr.get_count(), 10);
-    ASSERT_EQ(arr.get_capacity(), 10);
-    ASSERT_TRUE(arr.is_data_owner());
     ASSERT_TRUE(arr.has_mutable_data());
 
     ASSERT_EQ(sycl::get_pointer_type(arr.get_data(), q.get_context()), sycl::usm::alloc::device);
@@ -80,41 +74,10 @@ TEST(array_dpc_test, can_construct_array_with_events) {
     array<float> arr{ q, data, 10, { event } };
 
     ASSERT_EQ(arr.get_count(), 10);
-    ASSERT_EQ(arr.get_capacity(), 10);
-    ASSERT_TRUE(arr.is_data_owner());
     ASSERT_TRUE(arr.has_mutable_data());
 
     for (int32_t i = 0; i < arr.get_count(); i++) {
         ASSERT_FLOAT_EQ(arr[i], float(i));
-    }
-}
-
-TEST(array_dpc_test, can_make_owning_array_from_non_owning) {
-    sycl::queue q{ sycl::gpu_selector() };
-
-    array<float> arr;
-
-    float data[] = { 1.f, 2.f, 3.f };
-    arr.reset_not_owning(data, 3);
-
-    ASSERT_EQ(arr.get_count(), 3);
-    ASSERT_EQ(arr.get_capacity(), 0);
-    ASSERT_EQ(arr.get_data(), data);
-    ASSERT_EQ(arr.get_mutable_data(), data);
-    ASSERT_TRUE(arr.has_mutable_data());
-    ASSERT_FALSE(arr.is_data_owner());
-
-    arr.unique(q, sycl::usm::alloc::shared);
-
-    ASSERT_EQ(arr.get_count(), 3);
-    ASSERT_EQ(arr.get_capacity(), 3);
-    ASSERT_NE(arr.get_data(), data);
-    ASSERT_NE(arr.get_mutable_data(), data);
-    ASSERT_TRUE(arr.has_mutable_data());
-    ASSERT_TRUE(arr.is_data_owner());
-
-    for (int64_t i = 0; i < arr.get_count(); i++) {
-        ASSERT_FLOAT_EQ(arr[i], data[i]);
     }
 }
 
@@ -125,8 +88,6 @@ TEST(array_dpc_test, can_reset_array_with_bigger_size) {
     arr.reset(q, 10);
 
     ASSERT_EQ(arr.get_count(), 10);
-    ASSERT_EQ(arr.get_capacity(), 10);
-    ASSERT_TRUE(arr.is_data_owner());
     ASSERT_TRUE(arr.has_mutable_data());
 }
 
@@ -137,8 +98,6 @@ TEST(array_dpc_test, can_reset_array_with_smaller_size) {
     arr.reset(q, 4);
 
     ASSERT_EQ(arr.get_count(), 4);
-    ASSERT_EQ(arr.get_capacity(), 4);
-    ASSERT_TRUE(arr.is_data_owner());
     ASSERT_TRUE(arr.has_mutable_data());
 }
 
@@ -159,8 +118,6 @@ TEST(array_dpc_test, can_reset_array_with_raw_pointer) {
 
     ASSERT_EQ(arr.get_size(), count * sizeof(float));
     ASSERT_EQ(arr.get_count(), count);
-    ASSERT_EQ(arr.get_capacity(), count);
-    ASSERT_TRUE(arr.is_data_owner());
     ASSERT_TRUE(arr.has_mutable_data());
     ASSERT_EQ(arr.get_mutable_data(), data);
     ASSERT_EQ(arr.get_data(), data);

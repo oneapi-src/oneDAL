@@ -43,7 +43,7 @@ static compute_result call_daal_kernel(const context_cpu& ctx,
     auto arr_x = row_accessor<const Float>{ x }.pull();
     auto arr_y = row_accessor<const Float>{ y }.pull();
 
-    array<Float> arr_values{ row_count_x * row_count_y };
+    auto arr_values = array<Float>::empty(row_count_x * row_count_y);
 
     const auto daal_x = interop::convert_to_daal_homogen_table(arr_x, row_count_x, column_count);
     const auto daal_y = interop::convert_to_daal_homogen_table(arr_y, row_count_y, column_count);
@@ -58,7 +58,8 @@ static compute_result call_daal_kernel(const context_cpu& ctx,
                                                         daal_values.get(),
                                                         &daal_parameter);
 
-    return compute_result().set_values(homogen_table_builder{ row_count_y, arr_values }.build());
+    return compute_result().set_values(
+        homogen_table_builder{}.reset(arr_values, row_count_x, row_count_y).build());
 }
 
 template <typename Float>

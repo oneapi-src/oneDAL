@@ -621,6 +621,19 @@ services::ErrorCollectionPtr Status::getCollection() const
     return services::ErrorCollectionPtr(new services::ErrorCollection());
 }
 
+namespace internal
+{
+ErrorID get_error_id(const Status & s)
+{
+    if (s._impl)
+    {
+        return static_cast<SharedErrorCollection *>(s._impl)->at(0)->id();
+    }
+    return ErrorID::UnknownError;
+}
+
+} // namespace internal
+
 /////////////////////////////////////////////////////////////////////////////////////////
 
 void ErrorMessageCollection::parseResourceFile()

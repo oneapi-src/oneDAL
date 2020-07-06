@@ -80,9 +80,11 @@ dep-gen-enhanced-common   = $(call $(SELF),$1 $(.copt-gen-deps)) && $(.keep-raw-
 dep-gen-enhanced.icc   = $(dep-gen-enhanced-common)
 dep-gen-enhanced.icl   = $(dep-gen-enhanced-common)
 dep-gen-enhanced.g++   = $(dep-gen-enhanced-common)
+dep-gen-enhanced.dpcpp = $(dep-gen-enhanced-common)
 cmd-enhanced-with-dep-gen = $(or $(dep-gen-enhanced.$(call get-command-name,$($(SELF)))),$($(SELF)))
 
 $(call .inject.dep.gen, C.COMPILE,     $$(cmd-enhanced-with-dep-gen))
+$(call .inject.dep.gen, DPC.COMPILE,   $$(cmd-enhanced-with-dep-gen))
 $(call .inject.dep.gen, JAVAC.COMPILE)
 $(call .inject.dep.gen, JAVAH.COMPILE)
 $(call .inject.dep.gen, LINK.STATIC)  # FIXME. md5 removed because buggy

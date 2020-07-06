@@ -1,3 +1,4 @@
+/* file: status_to_error_id.h */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -14,17 +15,26 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#ifndef __SERVICES_INTERNAL_STATUS_TO_ERROR_ID_H__
+#define __SERVICES_INTERNAL_STATUS_TO_ERROR_ID_H__
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
-    #include <CL/sycl.hpp>
+#include "services/daal_defines.h"
 
-namespace oneapi::dal::detail {
+namespace daal
+{
+namespace services
+{
+namespace interface1
+{
+class Status;
+} // namespace interface1
 
-inline void wait_and_throw(const sycl::vector_class<sycl::event>& dependencies) {
-    sycl::event::wait_and_throw(dependencies);
-}
+namespace internal
+{
+daal::services::ErrorID DAAL_EXPORT get_error_id(const daal::services::interface1::Status & s);
+} // namespace internal
 
-} // namespace oneapi::dal::detail
+} // namespace services
+} // namespace daal
 
-#endif // ONEAPI_DAL_DATA_PARALLEL
+#endif // __SERVICES_INTERNAL_STATUS_TO_ERROR_ID_H__
