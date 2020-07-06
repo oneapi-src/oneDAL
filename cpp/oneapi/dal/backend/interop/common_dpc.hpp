@@ -38,3 +38,4 @@ struct execution_context_guard {
 #endif
 
 } // namespace oneapi::dal::backend::interop
+

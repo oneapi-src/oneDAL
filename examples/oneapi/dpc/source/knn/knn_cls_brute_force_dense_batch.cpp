@@ -74,7 +74,7 @@ int main(int argc, char const *argv[]) {
         if(!device.is_gpu()) continue;
         std::cout << "Running on "
               << queue.get_device().get_info<sycl::info::device::name>()
-              << std::endl  
+              << std::endl
         auto queue = sycl::queue{device};
         run(queue);
     }
