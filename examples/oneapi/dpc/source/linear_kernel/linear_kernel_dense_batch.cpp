@@ -1,18 +1,18 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*******************************************************************************/
+ * Copyright 2020 Intel Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *******************************************************************************/
 
 #include <CL/sycl.hpp>
 
@@ -23,10 +23,11 @@
 
 using namespace oneapi;
 
-void run(sycl::queue& queue) {
+void run(sycl::queue &queue) {
     std::cout << "Running on "
               << queue.get_device().get_info<sycl::info::device::name>()
-              << std::endl << std::endl;
+              << std::endl
+              << std::endl;
 
     constexpr std::int64_t row_count_x = 2;
     constexpr std::int64_t row_count_y = 3;
@@ -49,9 +50,11 @@ void run(sycl::queue& queue) {
     auto y = sycl::malloc_shared<float>(row_count_y * column_count, queue);
     queue.memcpy(y, y_host, sizeof(float) * row_count_y * column_count).wait();
 
-    const auto x_table = dal::homogen_table{ queue, row_count_x, column_count, x };
-    const auto y_table = dal::homogen_table{ queue, row_count_y, column_count, y };
-    const auto kernel_desc = dal::linear_kernel::descriptor{}.set_k(2.0).set_b(1.0);
+    const auto x_table = dal::homogen_table{queue, row_count_x, column_count, x};
+    const auto y_table = dal::homogen_table{queue, row_count_y, column_count, y};
+    const auto kernel_desc = dal::linear_kernel::descriptor{}
+        .set_k(2.0)
+        .set_b(1.0);
 
     const auto result = dal::compute(queue, kernel_desc, x_table, y_table);
 

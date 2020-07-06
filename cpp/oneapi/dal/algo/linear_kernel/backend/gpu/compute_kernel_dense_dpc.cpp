@@ -14,13 +14,14 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
-
 #define DAAL_SYCL_INTERFACE
-#include <daal/src/algorithms/kernel_function/oneapi/kernel_function_linear_dense_default_kernel_oneapi.h>
 
+#include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/algo/linear_kernel/backend/gpu/compute_kernel.hpp"
+#include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
+
+#include <daal/src/algorithms/kernel_function/oneapi/kernel_function_linear_dense_default_kernel_oneapi.h>
 
 namespace oneapi::dal::linear_kernel::backend {
 
@@ -38,18 +39,17 @@ static compute_result call_daal_kernel(const context_gpu& ctx,
                                        const descriptor_base& desc,
                                        const table& x,
                                        const table& y) {
+    auto queue = ctx.get_queue();
+    interop::execution_context_guard guard(queue);
+
     const int64_t row_count_x  = x.get_row_count();
     const int64_t row_count_y  = y.get_row_count();
     const int64_t column_count = x.get_column_count();
 
-    auto queue = ctx.get_queue();
     auto arr_x = row_accessor<const Float>{ x }.pull(queue);
     auto arr_y = row_accessor<const Float>{ y }.pull(queue);
 
     auto arr_values = array<Float>::empty(queue, row_count_x * row_count_y);
-
-    daal::services::SyclExecutionContext daal_ctx(queue);
-    daal::services::Environment::getInstance()->setDefaultExecutionContext(daal_ctx);
 
     const auto daal_x =
         interop::convert_to_daal_sycl_homogen_table(queue, arr_x, row_count_x, column_count);
@@ -59,15 +59,11 @@ static compute_result call_daal_kernel(const context_gpu& ctx,
         interop::convert_to_daal_sycl_homogen_table(queue, arr_values, row_count_x, row_count_y);
 
     daal_linear_kernel::Parameter daal_parameter(desc.get_k(), desc.get_b());
-
-    // TODO: make common interop::call_daal_kernel<Float, daal_linear_kernel_t>
     daal_linear_kernel_t<Float>().compute(daal_x.get(),
                                           daal_y.get(),
                                           daal_values.get(),
                                           &daal_parameter);
-    // TODO: need save global context for caching opencl kernel
-    daal::services::Environment::getInstance()->setDefaultExecutionContext(
-        daal::services::CpuExecutionContext());
+
 
     return compute_result().set_values(
         homogen_table_builder{}.reset(arr_values, row_count_x, row_count_y).build());
