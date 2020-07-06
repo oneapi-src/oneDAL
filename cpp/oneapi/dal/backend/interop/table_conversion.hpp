@@ -48,7 +48,7 @@ inline auto convert_to_daal_homogen_table(array<T>& data,
                                           std::int64_t column_count) {
     if (!data.get_size())
         return daal::data_management::HomogenNumericTable<T>::create();
-    data.unique();
+    data.need_mutable_data();
     const auto daal_data =
         daal::services::SharedPtr<T>(data.get_mutable_data(), daal_array_owner<T>{ data });
 
@@ -68,7 +68,7 @@ inline table convert_from_daal_homogen_table(const daal::data_management::Numeri
     array<T> arr(data, row_count * column_count, [nt, block](T* p) mutable {
         nt->releaseBlockOfRows(block);
     });
-    return homogen_table_builder{ column_count, arr }.build();
+    return homogen_table_builder{}.reset(arr, row_count, column_count).build();
 }
 
 } // namespace oneapi::dal::backend::interop

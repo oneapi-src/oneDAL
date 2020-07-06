@@ -14,20 +14,20 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/svm/backend/cpu/train_kernel.hpp"
+#pragma once
 
-namespace oneapi::dal::svm::backend {
+#include "oneapi/dal/algo/svm/common.hpp"
 
-template <typename Float>
-struct train_kernel_cpu<Float, task::classification, method::smo> {
-    train_result operator()(const dal::backend::context_cpu& ctx,
-                            const descriptor_base& params,
-                            const train_input& input) const {
-        return train_result();
-    }
+#include <daal/include/algorithms/kernel_function/kernel_function_linear.h>
+#include <daal/include/algorithms/kernel_function/kernel_function_rbf.h>
+
+namespace oneapi::dal::svm::detail {
+
+class kernel_function_impl : public base {
+public:
+    virtual ~kernel_function_impl() = default;
+
+    virtual daal::algorithms::kernel_function::KernelIfacePtr get_daal_kernel_function() = 0;
 };
 
-template struct train_kernel_cpu<float, task::classification, method::smo>;
-template struct train_kernel_cpu<double, task::classification, method::smo>;
-
-} // namespace oneapi::dal::svm::backend
+} // namespace oneapi::dal::svm::detail
