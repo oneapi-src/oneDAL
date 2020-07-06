@@ -54,7 +54,9 @@ The DBSCAN clustering algorithm has the following parameters:
        It will require up to :math:`O(|\text{sum of sizes of all observations' neighborhoods}|)` of additional memory, 
        which in worst case can be :math:`O(|\text{number of observations}|^2)`. However, in general, performance may be better.
 
-       .. note:: ``memorySavingMode`` could be ``false`` only on CPU.
+       .. note:: 
+          On GPU, the ``memorySavingMode`` flag can only be set to ``true``.
+          You will get an error if the flag is set to ``false``.
 
    * - ``resultsToCompute``
      - :math:`0`
@@ -96,7 +98,7 @@ For more details, see :ref:`algorithms`.
 
        .. note::
 
-         This parameter is not supported on GPU.
+         This parameter is ignored on GPU.
 
 Algorithm Output
 ****************

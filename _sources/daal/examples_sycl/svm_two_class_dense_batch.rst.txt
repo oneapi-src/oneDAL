@@ -1,7 +1,0 @@
-.. _svm_two_class_dense_batch.cpp:
-
-svm_two_class_dense_batch.cpp
-#############################
-
-.. literalinclude:: ../../../../examples/daal/cpp_sycl/source/svm/svm_two_class_dense_batch.cpp
-  :language: cpp

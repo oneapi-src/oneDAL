@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>svm_two_class_dense_batch.cpp &mdash; Intel&amp;reg; oneAPI Data Analytics Library Documentation (Beta) 1.0 documentation</title>
+  <title>svm_two_class_thunder_dense_batch.cpp &mdash; Intel&amp;reg; oneAPI Data Analytics Library Documentation (Beta) 1.0 documentation</title>
   
 
   
@@ -600,7 +600,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../dev_guide/algorithms/svm/support-vector-machine-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../dev_guide/algorithms/svm/support-vector-machine-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../dev_guide/algorithms/svm/support-vector-machine-classifier.html#prediction">Prediction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../dev_guide/algorithms/svm/support-vector-machine-classifier.html#id8">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dev_guide/algorithms/svm/support-vector-machine-classifier.html#id9">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../dev_guide/algorithms/svm/support-vector-machine-classifier.html#performance-considerations">Performance Considerations</a></li>
@@ -697,7 +697,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pca_cor_dense_online.html">pca_cor_dense_online.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pca_transform_dense_batch.html">pca_transform_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sgd_mini_log_loss_dense_batch.html">sgd_mini_log_loss_dense_batch.cpp</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">svm_two_class_dense_batch.cpp</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">svm_two_class_thunder_dense_batch.cpp</a></li>
 </ul>
 </li>
 </ul>
@@ -866,13 +866,13 @@
         
           <li><a href="../../sycl_examples.html">DPC++ Examples</a> &raquo;</li>
         
-      <li>svm_two_class_dense_batch.cpp</li>
+      <li>svm_two_class_thunder_dense_batch.cpp</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../../_sources/daal/examples_sycl/svm_two_class_dense_batch.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/daal/examples_sycl/svm_two_class_thunder_dense_batch.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -885,9 +885,9 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="svm-two-class-dense-batch-cpp">
-<span id="id1"></span><h1>svm_two_class_dense_batch.cpp<a class="headerlink" href="#svm-two-class-dense-batch-cpp" title="Permalink to this headline">¶</a></h1>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cm">/* file: svm_two_class_dense_batch.cpp */</span>
+  <div class="section" id="svm-two-class-thunder-dense-batch-cpp">
+<span id="id1"></span><h1>svm_two_class_thunder_dense_batch.cpp<a class="headerlink" href="#svm-two-class-thunder-dense-batch-cpp" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cm">/* file: svm_two_class_thunder_dense_batch.cpp */</span>
 <span class="cm">/*******************************************************************************</span>
 <span class="cm">* Copyright 2020 Intel Corporation</span>
 <span class="cm">*</span>
@@ -906,13 +906,14 @@
 
 <span class="cm">/*</span>
 <span class="cm">!  Content:</span>
-<span class="cm">!    C++ example of two-class support vector machine (SVM) classification with DPC++ interfaces</span>
+<span class="cm">!    C++ example of two-class support vector machine (SVM) classification using</span>
+<span class="cm">!    the Thunder method with DPC++ interfaces</span>
 <span class="cm">!</span>
 <span class="cm">!******************************************************************************/</span>
 
 <span class="cm">/**</span>
-<span class="cm"> * &lt;a name=&quot;DAAL-EXAMPLE-CPP-SVM_TWO_CLASS_DENSE_BATCH&quot;&gt;&lt;/a&gt;</span>
-<span class="cm"> * \example svm_two_class_dense_batch.cpp</span>
+<span class="cm"> * &lt;a name=&quot;DAAL-EXAMPLE-CPP-SVM_TWO_CLASS_THUNDER_DENSE_BATCH&quot;&gt;&lt;/a&gt;</span>
+<span class="cm"> * \example svm_two_class_thunder_dense_batch.cpp</span>
 <span class="cm"> */</span>
 
 <span class="cp">#include</span> <span class="cpf">&quot;daal_sycl.h&quot;</span><span class="cp"></span>
@@ -937,8 +938,7 @@
 <span class="n">classifier</span><span class="o">::</span><span class="n">prediction</span><span class="o">::</span><span class="n">ResultPtr</span> <span class="n">predictionResult</span><span class="p">;</span>
 <span class="n">NumericTablePtr</span> <span class="n">testGroundTruth</span><span class="p">;</span>
 
-<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">algorithmType</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">trainModel</span><span class="p">(</span><span class="n">algorithmType</span> <span class="o">&amp;&amp;</span> <span class="n">algorithm</span><span class="p">);</span>
+<span class="kt">void</span> <span class="nf">trainModel</span><span class="p">();</span>
 <span class="kt">void</span> <span class="nf">testModel</span><span class="p">();</span>
 <span class="kt">void</span> <span class="nf">printResults</span><span class="p">();</span>
 
@@ -957,7 +957,7 @@
         <span class="n">daal</span><span class="o">::</span><span class="n">services</span><span class="o">::</span><span class="n">SyclExecutionContext</span> <span class="n">ctx</span><span class="p">(</span><span class="n">queue</span><span class="p">);</span>
         <span class="n">services</span><span class="o">::</span><span class="n">Environment</span><span class="o">::</span><span class="n">getInstance</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">setDefaultExecutionContext</span><span class="p">(</span><span class="n">ctx</span><span class="p">);</span>
 
-        <span class="n">trainModel</span><span class="p">(</span><span class="n">svm</span><span class="o">::</span><span class="n">training</span><span class="o">::</span><span class="n">Batch</span><span class="o">&lt;</span><span class="kt">float</span><span class="p">,</span> <span class="n">svm</span><span class="o">::</span><span class="n">training</span><span class="o">::</span><span class="n">thunder</span><span class="o">&gt;</span><span class="p">());</span>
+        <span class="n">trainModel</span><span class="p">();</span>
         <span class="n">testModel</span><span class="p">();</span>
         <span class="n">printResults</span><span class="p">();</span>
     <span class="p">}</span>
@@ -965,22 +965,23 @@
     <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
 
-<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">algorithmType</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">trainModel</span><span class="p">(</span><span class="n">algorithmType</span> <span class="o">&amp;&amp;</span> <span class="n">algorithm</span><span class="p">)</span>
+<span class="kt">void</span> <span class="nf">trainModel</span><span class="p">()</span>
 <span class="p">{</span>
     <span class="n">FileDataSource</span><span class="o">&lt;</span><span class="n">CSVFeatureManager</span><span class="o">&gt;</span> <span class="n">trainDataSource</span><span class="p">(</span><span class="n">trainDatasetFileName</span><span class="p">,</span> <span class="n">DataSource</span><span class="o">::</span><span class="n">notAllocateNumericTable</span><span class="p">,</span> <span class="n">DataSource</span><span class="o">::</span><span class="n">doDictionaryFromContext</span><span class="p">);</span>
 
     <span class="k">auto</span> <span class="n">trainData</span>        <span class="o">=</span> <span class="n">SyclHomogenNumericTable</span><span class="o">&lt;&gt;::</span><span class="n">create</span><span class="p">(</span><span class="n">nFeatures</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">NumericTable</span><span class="o">::</span><span class="n">doNotAllocate</span><span class="p">);</span>
     <span class="k">auto</span> <span class="n">trainGroundTruth</span> <span class="o">=</span> <span class="n">SyclHomogenNumericTable</span><span class="o">&lt;&gt;::</span><span class="n">create</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">NumericTable</span><span class="o">::</span><span class="n">doNotAllocate</span><span class="p">);</span>
 
-    <span class="n">NumericTablePtr</span> <span class="nf">mergedData</span><span class="p">(</span><span class="k">new</span> <span class="n">MergedNumericTable</span><span class="p">(</span><span class="n">trainData</span><span class="p">,</span> <span class="n">trainGroundTruth</span><span class="p">));</span>
+    <span class="n">NumericTablePtr</span> <span class="n">mergedData</span><span class="p">(</span><span class="k">new</span> <span class="n">MergedNumericTable</span><span class="p">(</span><span class="n">trainData</span><span class="p">,</span> <span class="n">trainGroundTruth</span><span class="p">));</span>
 
     <span class="n">trainDataSource</span><span class="p">.</span><span class="n">loadDataBlock</span><span class="p">(</span><span class="n">mergedData</span><span class="p">.</span><span class="n">get</span><span class="p">());</span>
 
+    <span class="n">svm</span><span class="o">::</span><span class="n">training</span><span class="o">::</span><span class="n">Batch</span><span class="o">&lt;</span><span class="kt">float</span><span class="p">,</span> <span class="n">svm</span><span class="o">::</span><span class="n">training</span><span class="o">::</span><span class="n">thunder</span><span class="o">&gt;</span> <span class="n">algorithm</span><span class="p">;</span>
     <span class="n">algorithm</span><span class="p">.</span><span class="n">parameter</span><span class="p">.</span><span class="n">kernel</span>            <span class="o">=</span> <span class="n">kernel</span><span class="p">;</span>
     <span class="n">algorithm</span><span class="p">.</span><span class="n">parameter</span><span class="p">.</span><span class="n">C</span>                 <span class="o">=</span> <span class="mf">1.0</span><span class="p">;</span>
     <span class="n">algorithm</span><span class="p">.</span><span class="n">parameter</span><span class="p">.</span><span class="n">accuracyThreshold</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">;</span>
     <span class="n">algorithm</span><span class="p">.</span><span class="n">parameter</span><span class="p">.</span><span class="n">tau</span>               <span class="o">=</span> <span class="mf">1e-6</span><span class="p">;</span>
+    <span class="n">algorithm</span><span class="p">.</span><span class="n">parameter</span><span class="p">.</span><span class="n">maxIterations</span>     <span class="o">=</span> <span class="mi">50</span><span class="p">;</span>
 
     <span class="n">algorithm</span><span class="p">.</span><span class="n">input</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">classifier</span><span class="o">::</span><span class="n">training</span><span class="o">::</span><span class="n">data</span><span class="p">,</span> <span class="n">trainData</span><span class="p">);</span>
     <span class="n">algorithm</span><span class="p">.</span><span class="n">input</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">classifier</span><span class="o">::</span><span class="n">training</span><span class="o">::</span><span class="n">labels</span><span class="p">,</span> <span class="n">trainGroundTruth</span><span class="p">);</span>
@@ -992,15 +993,16 @@
     <span class="n">trainingResult</span> <span class="o">=</span> <span class="n">algorithm</span><span class="p">.</span><span class="n">getResult</span><span class="p">();</span>
 <span class="p">}</span>
 
-<span class="kt">void</span> <span class="n">testModel</span><span class="p">()</span>
+<span class="kt">void</span> <span class="nf">testModel</span><span class="p">()</span>
 <span class="p">{</span>
-    <span class="cm">/* Initialize FileDataSource&lt;CSVFeatureManager&gt; to retrieve the test data from a .csv file */</span>
+    <span class="cm">/* Initialize FileDataSource&lt;CSVFeatureManager&gt; to retrieve the test data from</span>
+<span class="cm">   * a .csv file */</span>
     <span class="n">FileDataSource</span><span class="o">&lt;</span><span class="n">CSVFeatureManager</span><span class="o">&gt;</span> <span class="n">testDataSource</span><span class="p">(</span><span class="n">testDatasetFileName</span><span class="p">,</span> <span class="n">DataSource</span><span class="o">::</span><span class="n">notAllocateNumericTable</span><span class="p">,</span> <span class="n">DataSource</span><span class="o">::</span><span class="n">doDictionaryFromContext</span><span class="p">);</span>
 
     <span class="cm">/* Create Numeric Tables for testing data and labels */</span>
     <span class="n">NumericTablePtr</span> <span class="n">testData</span> <span class="o">=</span> <span class="n">SyclHomogenNumericTable</span><span class="o">&lt;&gt;::</span><span class="n">create</span><span class="p">(</span><span class="n">nFeatures</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">NumericTable</span><span class="o">::</span><span class="n">doNotAllocate</span><span class="p">);</span>
     <span class="n">testGroundTruth</span>          <span class="o">=</span> <span class="n">SyclHomogenNumericTable</span><span class="o">&lt;&gt;::</span><span class="n">create</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">NumericTable</span><span class="o">::</span><span class="n">doNotAllocate</span><span class="p">);</span>
-    <span class="n">NumericTablePtr</span> <span class="nf">mergedData</span><span class="p">(</span><span class="k">new</span> <span class="n">MergedNumericTable</span><span class="p">(</span><span class="n">testData</span><span class="p">,</span> <span class="n">testGroundTruth</span><span class="p">));</span>
+    <span class="n">NumericTablePtr</span> <span class="n">mergedData</span><span class="p">(</span><span class="k">new</span> <span class="n">MergedNumericTable</span><span class="p">(</span><span class="n">testData</span><span class="p">,</span> <span class="n">testGroundTruth</span><span class="p">));</span>
 
     <span class="cm">/* Retrieve the data from input file */</span>
     <span class="n">testDataSource</span><span class="p">.</span><span class="n">loadDataBlock</span><span class="p">(</span><span class="n">mergedData</span><span class="p">.</span><span class="n">get</span><span class="p">());</span>
@@ -1021,7 +1023,7 @@
     <span class="n">predictionResult</span> <span class="o">=</span> <span class="n">algorithm</span><span class="p">.</span><span class="n">getResult</span><span class="p">();</span>
 <span class="p">}</span>
 
-<span class="kt">void</span> <span class="n">printResults</span><span class="p">()</span>
+<span class="kt">void</span> <span class="nf">printResults</span><span class="p">()</span>
 <span class="p">{</span>
     <span class="n">printNumericTables</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="n">testGroundTruth</span><span class="p">,</span> <span class="n">predictionResult</span><span class="o">-&gt;</span><span class="n">get</span><span class="p">(</span><span class="n">classifier</span><span class="o">::</span><span class="n">prediction</span><span class="o">::</span><span class="n">prediction</span><span class="p">),</span> <span class="s">&quot;Ground truth</span><span class="se">\t</span><span class="s">&quot;</span><span class="p">,</span>
                                    <span class="s">&quot;Classification results&quot;</span><span class="p">,</span> <span class="s">&quot;SVM classification results (first 20 observations):&quot;</span><span class="p">,</span> <span class="mi">20</span><span class="p">);</span>

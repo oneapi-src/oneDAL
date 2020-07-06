@@ -606,7 +606,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#prediction">Prediction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#id8">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#id9">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../svm/support-vector-machine-classifier.html#performance-considerations">Performance Considerations</a></li>
@@ -703,7 +703,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/pca_cor_dense_online.html">pca_cor_dense_online.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/pca_transform_dense_batch.html">pca_transform_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/sgd_mini_log_loss_dense_batch.html">sgd_mini_log_loss_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/svm_two_class_dense_batch.html">svm_two_class_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../daal/examples_sycl/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
 </ul>
 </li>
 </ul>
@@ -942,7 +942,7 @@ respective leaf.</p>
 </div>
 <div class="section" id="brute-force">
 <h3>Brute Force<a class="headerlink" href="#brute-force" title="Permalink to this headline">¶</a></h3>
-<p>Brute Force algorithm calculates the squared distances from each query feature vector
+<p>Brute Force kNN algorithm calculates the squared distances from each query feature vector
 to each reference feature vector in the training data set. Then,
 for each query feature vector it selects <span class="math notranslate nohighlight">\(k\)</span> objects from the training set that are closest to that query feature vector.</p>
 </div>
@@ -977,7 +977,7 @@ respective leaf node.</p>
 </div>
 <div class="section" id="training-using-brute-force">
 <h4>Training using Brute Force<a class="headerlink" href="#training-using-brute-force" title="Permalink to this headline">¶</a></h4>
-<p>During training with the Brute Force method, the algorithm copies all feature vectors from the training data set
+<p>During training with the Brute Force approach, the algorithm stores all feature vectors from the training data set
 to calculate their distances to the query feature vectors.</p>
 </div>
 </div>

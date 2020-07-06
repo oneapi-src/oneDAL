@@ -92,10 +92,10 @@ Parameters
      - ``doShrinking`` is only supported for ``defaultDense`` method
    * - :ref:`dbscan`
      - 
-       - ``memorySavingMode`` could be ``false`` only on CPU
-       - ``weights`` is not supported on GPU
+       - On GPU, the ``memorySavingMode`` flag can only be set to ``true``.
+       - On GPU, the ``weights`` parameter is not supported.
    * - :ref:`kernel`
-     - On GPU the only supported computation mode (``ComputationMode``) is ``matrixMatrix``.
+     - On GPU, the only supported computation mode (``ComputationMode``) is ``matrixMatrix``.
    * - :ref:`objective_function`
      - 
        - On GPU, only :ref:`logistic_loss` and :ref:`cross_entropy_loss` are supported, :ref:`mse` is not supported.
