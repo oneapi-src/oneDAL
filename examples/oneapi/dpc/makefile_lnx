@@ -111,13 +111,13 @@ COPTS := -std=c++17 \
          -I./source \
          -I"$(DAALROOT)/include"
 
-LIBS := $(-B) -lonedal_dpc \
-        $(-B) -lonedal_core \
-        $(-B) -l$(THREADING_LIB) \
-        -Bdynamic -ltbb \
-        -Bdynamic -ltbbmalloc \
-        -Bdynamic -lpthread \
-        -Bdynamic -ldl
+LIBS := -Wl,$(-B) -lonedal_dpc \
+        -Wl,$(-B) -lonedal_core \
+        -Wl,$(-B) -l$(THREADING_LIB) \
+        -Wl,-Bdynamic -ltbb \
+        -Wl,-Bdynamic -ltbbmalloc \
+        -Wl,-Bdynamic -lpthread \
+        -Wl,-Bdynamic -ldl
 
 LOPTS := -L"$(DAAL_PATH)" \
          -L"$(TBB_PATH)" \
