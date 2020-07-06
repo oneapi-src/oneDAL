@@ -20,6 +20,7 @@
 #include "oneapi/dal/algo/kmeans/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::kmeans::backend {
 
@@ -112,12 +113,30 @@ static train_result call_daal_kernel(const context_cpu& ctx,
 
     interop::call_daal_kernel<Float, daal_kmeans_lloyd_dense_kernel_t>(ctx, input, output, &par);
 
-    return train_result()
-        .set_labels(homogen_table_builder{ row_count, arr_labels }.build())
-        .set_iteration_count(static_cast<std::int64_t>(arr_iteration_count[0]))
-        .set_objective_function_value(static_cast<double>(arr_objective_function_value[0]))
-        .set_model(
-            model().set_centroids(homogen_table_builder{ column_count, arr_centroids }.build()));
+    const auto result =
+        train_result()
+            .set_labels(homogen_table_builder{ row_count, arr_labels }.build())
+            .set_iteration_count(static_cast<std::int64_t>(arr_iteration_count[0]))
+            .set_objective_function_value(static_cast<double>(arr_objective_function_value[0]))
+            .set_model(model().set_centroids(
+                homogen_table_builder{ column_count, arr_centroids }.build()));
+
+    if (!(result.get_labels().has_data())) {
+        throw internal_error("Labels are empty.");
+    }
+    if (result.get_labels().get_row_count() != data.get_row_count()) {
+        throw internal_error("Labels row count is not equal to data row count.");
+    }
+    if (!(result.get_model().get_centroids().has_data())) {
+        throw internal_error("Model doesn't contain centroids.");
+    }
+    if (result.get_model().get_cluster_count() != desc.get_cluster_count()) {
+        throw internal_error("Model's cluster count is not equal to descriptor cluster count.");
+    }
+    if (result.get_iteration_count() > desc.get_max_iteration_count()) {
+        throw internal_error("Max iteration count was exceeded.");
+    }
+    return result;
 }
 
 template <typename Float>
