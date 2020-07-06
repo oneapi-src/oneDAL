@@ -14,7 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 
-#define DAAL_SYCL_INTERFACE
+#define DAAL_SYCL_INTERFACE 
+#define ONEAPI_DAL_DATA_PARALLEL 1
+
+#include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_predict_kernel_ucapi.h"
 #include "data_management/data/numeric_table.h"
 
@@ -22,8 +25,9 @@
 #include "oneapi/dal/algo/knn/backend/model_interop.hpp"
 #include "oneapi/dal/algo/knn/detail/model_impl.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/backend/interop/common_dpc.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
 
 namespace oneapi::dal::knn::backend {
 
@@ -42,35 +46,32 @@ static infer_result call_daal_kernel(const context_gpu& ctx,
                                      const descriptor_base& desc,
                                      const table& data,
                                      model m) {
+    auto queue = ctx.get_queue();
+    interop::execution_context_guard guard(queue);
+
     const std::int64_t row_count    = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
 
     auto arr_data  = row_accessor<const Float>{ data }.pull();
     auto arr_labels = array<Float>::empty(1 * row_count);
-    // TODO: read-only access performed with deep copy of data since daal numeric tables are mutable.
-    // Need to create special immutable homogen table on daal interop side
 
-    // TODO: data is table, not a homogen_table. Think better about accessor - is it enough to have just a row_accessor?
     const auto daal_data =
-        interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
-    const auto daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
+        interop::convert_to_daal_sycl_homogen_table(queue, arr_data, row_count, column_count);
+    const auto daal_labels = 
+        interop::convert_to_daal_sycl_homogen_table(queue, arr_labels, row_count, 1);
 
-    const std::int64_t dummy_seed = 777;
     daal_knn::Parameter daal_parameter(
         desc.get_class_count(),
         desc.get_neighbor_count(),
         desc.get_data_use_in_model() ? daal_knn::doUse : daal_knn::doNotUse);
 
-    auto queue = ctx.get_queue();
-    daal::services::SyclExecutionContext daal_ctx(queue);
-    daal::services::Environment::getInstance()->setDefaultExecutionContext(daal_ctx);
+    interop::status_to_exception(
+        daal_knn_brute_force_kernel_t<Float>().compute(
+            daal_data.get(),
+            dal::detail::get_impl<detail::model_impl>(m).get_interop()->get_daal_model().get(),
+            daal_labels.get(),
+            &daal_parameter));
 
-    daal_knn_brute_force_kernel_t<Float>().compute(
-        daal_data.get(),
-        dal::detail::get_impl<detail::model_impl>(m).get_interop()->get_daal_model().get(),
-        daal_labels.get(),
-        &daal_parameter);
-    daal::services::Environment::getInstance()->setDefaultExecutionContext(daal::services::CpuExecutionContext());
     return infer_result().set_labels(
         homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
 }
@@ -78,7 +79,8 @@ static infer_result call_daal_kernel(const context_gpu& ctx,
 template <typename Float>
 static infer_result infer(const context_gpu& ctx,
                           const descriptor_base& desc,
-                          const infer_input& input) {    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_model());
+                          const infer_input& input) {    
+    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_model());
 }
 
 template <typename Float>

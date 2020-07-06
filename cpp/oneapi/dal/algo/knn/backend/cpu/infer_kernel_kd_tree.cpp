@@ -23,6 +23,9 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
+
+#define DAAL_SYCL_INTERFACE
 
 namespace oneapi::dal::knn::backend {
 
@@ -47,10 +50,6 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
     auto arr_data  = row_accessor<const Float>{ data }.pull();
     auto arr_labels = array<Float>::empty(1 * row_count);
 
-    // TODO: read-only access performed with deep copy of data since daal numeric tables are mutable.
-    // Need to create special immutable homogen table on daal interop side
-
-    // TODO: data is table, not a homogen_table. Think better about accessor - is it enough to have just a row_accessor?
     const auto daal_data =
         interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
     const auto daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
@@ -62,12 +61,13 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
         dummy_seed,
         desc.get_data_use_in_model() ? daal_knn::doUse : daal_knn::doNotUse);
 
-    interop::call_daal_kernel<Float, daal_knn_kd_tree_kernel_t>(
-        ctx,
-        daal_data.get(),
-        dal::detail::get_impl<detail::model_impl>(m).get_interop()->get_daal_model().get(),
-        daal_labels.get(),
-        &daal_parameter);
+    interop::status_to_exception(
+        interop::call_daal_kernel<Float, daal_knn_kd_tree_kernel_t>(
+            ctx,
+            daal_data.get(),
+            dal::detail::get_impl<detail::model_impl>(m).get_interop()->get_daal_model().get(),
+            daal_labels.get(),
+            &daal_parameter));
     return infer_result().set_labels(
         homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
 }

@@ -16,21 +16,25 @@
 
 #pragma once
 
-#include "daal/include/services/error_handling.h"
-#include "daal/include/services/internal/status_to_error_id.h"
-#include "oneapi/dal/exceptions.hpp"
+#include <daal/include/services/env_detect.h>
+#include <daal/src/services/service_defines.h>
 
 namespace oneapi::dal::backend::interop {
 
-void status_to_exception(const daal::services::Status& s);
+#ifdef ONEAPI_DAL_DATA_PARALLEL
 
-template <class StatusConverter>
-void status_to_exception(const daal::services::Status& s, StatusConverter alg_converter) {
-    if (s) {
-        return;
+struct execution_context_guard {
+    explicit execution_context_guard(sycl::queue &queue) {
+        daal::services::SyclExecutionContext ctx(queue);
+        daal::services::Environment::getInstance()->setDefaultExecutionContext(ctx);
     }
-    alg_converter(s);
-    status_to_exception(s);
-}
+
+    ~execution_context_guard() {
+        daal::services::Environment::getInstance()->setDefaultExecutionContext(
+            daal::services::CpuExecutionContext());
+    }
+};
+
+#endif
 
 } // namespace oneapi::dal::backend::interop
