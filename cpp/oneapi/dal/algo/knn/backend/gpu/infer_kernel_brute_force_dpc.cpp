@@ -14,10 +14,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <daal/src/algorithms/k_nearest_neighbors/kdtree_knn_classification_predict_dense_default_batch.h>
+#define DAAL_SYCL_INTERFACE
+#include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_predict_kernel_ucapi.h"
 #include "data_management/data/numeric_table.h"
 
-#include "oneapi/dal/algo/knn/backend/cpu/infer_kernel.hpp"
+#include "oneapi/dal/algo/knn/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/model_interop.hpp"
 #include "oneapi/dal/algo/knn/detail/model_impl.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
@@ -26,18 +27,18 @@
 
 namespace oneapi::dal::knn::backend {
 
-using dal::backend::context_cpu;
+using dal::backend::context_gpu;
 using namespace daal::data_management;
 
-namespace daal_knn = daal::algorithms::kdtree_knn_classification;
+namespace daal_knn = daal::algorithms::bf_knn_classification;
 namespace interop  = dal::backend::interop;
 
-template <typename Float, daal::CpuType Cpu>
-using daal_knn_kd_tree_kernel_t = daal_knn::prediction::internal::
-    KNNClassificationPredictKernel<Float, daal_knn::prediction::defaultDense, Cpu>;
+template <typename Float>
+using daal_knn_brute_force_kernel_t = daal_knn::prediction::internal::
+    KNNClassificationPredictKernelUCAPI<Float>;
 
 template <typename Float>
-static infer_result call_daal_kernel(const context_cpu& ctx,
+static infer_result call_daal_kernel(const context_gpu& ctx,
                                      const descriptor_base& desc,
                                      const table& data,
                                      model m) {
@@ -58,35 +59,37 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
     daal_knn::Parameter daal_parameter(
         desc.get_class_count(),
         desc.get_neighbor_count(),
-        dummy_seed,
         desc.get_data_use_in_model() ? daal_knn::doUse : daal_knn::doNotUse);
 
-    interop::call_daal_kernel<Float, daal_knn_kd_tree_kernel_t>(
-        ctx,
+    auto queue = ctx.get_queue();
+    daal::services::SyclExecutionContext daal_ctx(queue);
+    daal::services::Environment::getInstance()->setDefaultExecutionContext(daal_ctx);
+
+    daal_knn_brute_force_kernel_t<Float>().compute(
         daal_data.get(),
         dal::detail::get_impl<detail::model_impl>(m).get_interop()->get_daal_model().get(),
         daal_labels.get(),
         &daal_parameter);
+    daal::services::Environment::getInstance()->setDefaultExecutionContext(daal::services::CpuExecutionContext());
     return infer_result().set_labels(homogen_table_builder{ 1, arr_labels }.build());
 }
 
 template <typename Float>
-static infer_result infer(const context_cpu& ctx,
+static infer_result infer(const context_gpu& ctx,
                           const descriptor_base& desc,
-                          const infer_input& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_model());
+                          const infer_input& input) {    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_model());
 }
 
 template <typename Float>
-struct infer_kernel_cpu<Float, method::kd_tree> {
-    infer_result operator()(const context_cpu& ctx,
+struct infer_kernel_gpu<Float, method::brute_force> {
+    infer_result operator()(const context_gpu& ctx,
                             const descriptor_base& desc,
                             const infer_input& input) const {
         return infer<Float>(ctx, desc, input);
     }
 };
 
-template struct infer_kernel_cpu<float, method::kd_tree>;
-template struct infer_kernel_cpu<double, method::kd_tree>;
+template struct infer_kernel_gpu<float, method::brute_force>;
+template struct infer_kernel_gpu<double, method::brute_force>;
 
 } // namespace oneapi::dal::knn::backend

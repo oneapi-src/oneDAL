@@ -29,6 +29,7 @@ class model_impl;
 
 namespace method {
 struct kd_tree {};
+struct brute_force {};
 using by_default = kd_tree;
 } // namespace method
 

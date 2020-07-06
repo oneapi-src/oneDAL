@@ -16,26 +16,16 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/knn/common.hpp"
-#include "oneapi/dal/algo/knn/detail/model_impl.hpp"
-#include "algorithms/classifier/classifier_model.h"
+#include "oneapi/dal/algo/knn/infer_types.hpp"
+#include "oneapi/dal/backend/dispatcher_dpc.hpp"
 
-namespace oneapi::dal::knn::detail {
+namespace oneapi::dal::knn::backend {
 
-namespace daal_cls = daal::algorithms::classifier;
-
-class model_impl::interop_model {
-public:
-    interop_model(const daal_cls::ModelPtr& daal_model) : daal_model(daal_model) {}
-    void set_daal_model(const daal_cls::ModelPtr& model) {
-        daal_model = model;
-    }
-    daal_cls::ModelPtr get_daal_model() {
-        return daal_model;
-    }
-
-private:
-    daal_cls::ModelPtr daal_model;
+template <typename Float, typename Method>
+struct infer_kernel_gpu {
+    infer_result operator()(const dal::backend::context_gpu& ctx,
+                            const descriptor_base& params,
+                            const infer_input& input) const;
 };
 
-} // namespace oneapi::dal::knn::detail
+} // namespace oneapi::dal::knn::backend
