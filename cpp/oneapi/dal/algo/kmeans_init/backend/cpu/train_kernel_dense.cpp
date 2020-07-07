@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/algo/kmeans_init/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 namespace oneapi::dal::kmeans_init::backend {
@@ -48,22 +49,23 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     const size_t len_input = 1;
     daal::data_management::NumericTable* input[len_input] = { daal_data.get() };
 
-    array<Float> arr_centroids{ cluster_count * column_count };
+    array<Float> arr_centroids = array<Float>::empty(cluster_count * column_count);
     const auto daal_centroids =
         interop::convert_to_daal_homogen_table(arr_centroids, cluster_count, column_count);
     const size_t len_output                                 = 1;
     daal::data_management::NumericTable* output[len_output] = { daal_centroids.get() };
 
-    interop::call_daal_kernel<Float, daal_kmeans_init_dense_kernel_t>(ctx,
-                                                                      len_input,
-                                                                      input,
-                                                                      len_output,
-                                                                      output,
-                                                                      &par,
-                                                                      *(par.engine));
+    interop::status_to_exception(
+        interop::call_daal_kernel<Float, daal_kmeans_init_dense_kernel_t>(ctx,
+                                                                          len_input,
+                                                                          input,
+                                                                          len_output,
+                                                                          output,
+                                                                          &par,
+                                                                          *(par.engine)));
 
     return train_result().set_centroids(
-        homogen_table_builder{ column_count, arr_centroids }.build());
+        homogen_table_builder{}.reset(arr_centroids, cluster_count, column_count).build());
 }
 
 template <typename Float>

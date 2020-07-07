@@ -19,6 +19,7 @@
 
 #include "oneapi/dal/algo/kmeans/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 namespace oneapi::dal::kmeans::backend {
@@ -50,16 +51,16 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
     auto arr_data              = row_accessor<const Float>{ data }.pull();
     auto arr_initial_centroids = row_accessor<const Float>{ trained_model.get_centroids() }.pull();
 
-    array<int> arr_labels{ row_count };
-    array<Float> arr_objective_function_value{ 1 };
-    array<int> arr_iteration_count{ 1 };
+    array<int> arr_labels                     = array<int>::empty(row_count);
+    array<Float> arr_objective_function_value = array<Float>::empty(1);
+    array<int> arr_iteration_count            = array<int>::empty(1);
 
     const auto daal_data = interop::convert_to_daal_homogen_table(arr_data,
                                                                   data.get_row_count(),
                                                                   data.get_column_count());
     const auto daal_initial_centroids =
         interop::convert_to_daal_homogen_table(arr_initial_centroids, cluster_count, column_count);
-    const auto daal_labels = interop::convert_to_daal_homogen_table(arr_labels, 1, row_count);
+    const auto daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
     const auto daal_objective_function_value =
         interop::convert_to_daal_homogen_table(arr_objective_function_value, 1, 1);
     const auto daal_iteration_count =
@@ -73,10 +74,14 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
                                                        daal_objective_function_value.get(),
                                                        daal_iteration_count.get() };
 
-    interop::call_daal_kernel<Float, daal_kmeans_lloyd_dense_kernel_t>(ctx, input, output, &par);
+    interop::status_to_exception(
+        interop::call_daal_kernel<Float, daal_kmeans_lloyd_dense_kernel_t>(ctx,
+                                                                           input,
+                                                                           output,
+                                                                           &par));
 
     return infer_result()
-        .set_labels(homogen_table_builder{ row_count, arr_labels }.build())
+        .set_labels(homogen_table_builder{}.reset(arr_labels, row_count, 1).build())
         .set_objective_function_value(static_cast<double>(arr_objective_function_value[0]));
 }
 

@@ -15,12 +15,13 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/kmeans_init/common.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::kmeans_init {
 
 class detail::descriptor_impl : public base {
 public:
-    std::int64_t cluster_count = -1;
+    std::int64_t cluster_count = 2;
 };
 
 using detail::descriptor_impl;
@@ -32,6 +33,9 @@ std::int64_t descriptor_base::get_cluster_count() const {
 }
 
 void descriptor_base::set_cluster_count_impl(std::int64_t value) {
+    if (value <= 0) {
+        throw domain_error("cluster_count should be > 0");
+    }
     impl_->cluster_count = value;
 }
 

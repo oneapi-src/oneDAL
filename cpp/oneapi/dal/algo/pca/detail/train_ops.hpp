@@ -17,7 +17,6 @@
 #pragma once
 
 #include "oneapi/dal/algo/pca/train_types.hpp"
-#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::pca::detail {
 
@@ -34,14 +33,7 @@ struct train_ops {
     using result_t          = train_result;
     using descriptor_base_t = descriptor_base;
 
-    void validate(const Descriptor& params, const train_input& input) const {
-        if (!(input.get_data().has_data())) {
-            throw domain_error("Input data is empty.");
-        }
-        if (input.get_data().get_column_count() < params.get_component_count()) {
-            throw invalid_argument("Data column count should be >= component count.");
-        }
-    }
+    void validate(const Descriptor& params, const train_input& input) const {}
 
     template <typename Context>
     auto operator()(const Context& ctx, const Descriptor& desc, const train_input& input) const {

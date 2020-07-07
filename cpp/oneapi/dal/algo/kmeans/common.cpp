@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/kmeans/common.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::kmeans {
 
@@ -28,7 +29,6 @@ public:
 class detail::model_impl : public base {
 public:
     table centroids;
-    std::int64_t cluster_count;
 };
 
 using detail::descriptor_impl;
@@ -49,14 +49,23 @@ double descriptor_base::get_accuracy_threshold() const {
 }
 
 void descriptor_base::set_cluster_count_impl(std::int64_t value) {
+    if (value <= 0) {
+        throw domain_error("cluster_count should be > 0");
+    }
     impl_->cluster_count = value;
 }
 
 void descriptor_base::set_max_iteration_count_impl(std::int64_t value) {
+    if (value < 0) {
+        throw domain_error("max_iteration_count should be >= 0");
+    }
     impl_->max_iteration_count = value;
 }
 
 void descriptor_base::set_accuracy_threshold_impl(double value) {
+    if (value < 0.0) {
+        throw domain_error("accuracy_threshold should be >= 0.0");
+    }
     impl_->accuracy_threshold = value;
 }
 
@@ -67,15 +76,11 @@ table model::get_centroids() const {
 }
 
 std::int64_t model::get_cluster_count() const {
-    return impl_->cluster_count;
+    return impl_->centroids.get_row_count();
 }
 
 void model::set_centroids_impl(const table& value) {
     impl_->centroids = value;
-}
-
-void model::set_cluster_count_impl(std::int64_t value) {
-    impl_->cluster_count = value;
 }
 
 } // namespace oneapi::dal::kmeans

@@ -88,14 +88,8 @@ public:
         return *this;
     }
 
-    auto& set_cluster_count(std::int64_t value) {
-        set_cluster_count_impl(value);
-        return *this;
-    }
-
 private:
     void set_centroids_impl(const table&);
-    void set_cluster_count_impl(std::int64_t);
 
     dal::detail::pimpl<detail::model_impl> impl_;
 };

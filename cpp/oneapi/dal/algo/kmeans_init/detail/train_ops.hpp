@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/kmeans_init/train_types.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::kmeans_init::detail {
 
@@ -33,12 +34,37 @@ struct train_ops {
     using result_t          = train_result;
     using descriptor_base_t = descriptor_base;
 
-    void validate(const Descriptor& params, const train_input& input) const {}
+    void check_preconditions(const Descriptor& params, const train_input& input) const {
+        if (!(input.get_data().has_data())) {
+            throw domain_error("Input data should not be empty");
+        }
+        if (input.get_data().get_row_count() < params.get_cluster_count()) {
+            throw invalid_argument("Input data row_count should be >= descriptor cluster_count");
+        }
+    }
+
+    void check_posrtconditions(const Descriptor& params,
+                               const train_input& input,
+                               const train_result& result) const {
+        if (!(result.get_centroids().has_data())) {
+            throw internal_error("Result centroids should not be empty");
+        }
+        if (result.get_centroids().get_row_count() != params.get_cluster_count()) {
+            throw internal_error(
+                "Result centroids row_count should be equal to descriptor cluster_count");
+        }
+        if (result.get_centroids().get_column_count() != input.get_data().get_column_count()) {
+            throw internal_error(
+                "Result centroids column_count should be equal to input data column_count");
+        }
+    }
 
     template <typename Context>
     auto operator()(const Context& ctx, const Descriptor& desc, const train_input& input) const {
-        validate(desc, input);
-        return train_ops_dispatcher<Context, float_t, method_t>()(ctx, desc, input);
+        check_preconditions(desc, input);
+        const auto result = train_ops_dispatcher<Context, float_t, method_t>()(ctx, desc, input);
+        check_posrtconditions(desc, input, result);
+        return result;
     }
 };
 

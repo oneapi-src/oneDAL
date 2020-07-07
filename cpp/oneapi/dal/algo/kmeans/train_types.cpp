@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/algo/kmeans/train_types.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::kmeans {
 
@@ -34,8 +35,8 @@ class detail::train_result_impl : public base {
 public:
     model trained_model;
     table labels;
-    std::int64_t iteration_count;
-    double objective_function_value;
+    std::int64_t iteration_count    = 0;
+    double objective_function_value = 0.0;
 };
 
 using detail::train_input_impl;
@@ -89,10 +90,16 @@ void train_result::set_labels_impl(const table& value) {
 }
 
 void train_result::set_iteration_count_impl(std::int64_t value) {
+    if (value < 0) {
+        throw domain_error("iteration_count should be >= 0");
+    }
     impl_->iteration_count = value;
 }
 
 void train_result::set_objective_function_value_impl(double value) {
+    if (value < 0.0) {
+        throw domain_error("objective_function_value should be >= 0");
+    }
     impl_->objective_function_value = value;
 }
 

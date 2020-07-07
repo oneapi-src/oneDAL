@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/algo/kmeans/infer_types.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::kmeans {
 
@@ -31,7 +32,7 @@ public:
 class detail::infer_result_impl : public base {
 public:
     table labels;
-    double objective_function_value;
+    double objective_function_value = 0.0;
 };
 
 using detail::infer_input_impl;
@@ -71,6 +72,9 @@ void infer_result::set_labels_impl(const table& value) {
 }
 
 void infer_result::set_objective_function_value_impl(double value) {
+    if (value < 0.0) {
+        throw domain_error("objective_function_value should be >= 0");
+    }
     impl_->objective_function_value = value;
 }
 
