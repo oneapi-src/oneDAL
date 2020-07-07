@@ -79,7 +79,6 @@ echo "Calling make"
 make ${make_target} ${make_op} \
     PLAT=${platform} \
     COMPILER=${compiler} \
-    REQCPU="${CPU_OPTIMIZATIONS}" \
-    REQCOMPAT=yes
+    REQCPU="${CPU_OPTIMIZATIONS}"
 
 exits $?

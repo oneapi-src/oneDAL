@@ -967,11 +967,9 @@ $2/$(subst onedal,daal,$1): $2/$1
 	cd $2 && ln -sf $1 $(subst onedal,daal,$1)
 endef
 
-ifdef REQCOMPAT
 ifeq ($(if $(or $(OS_is_lnx),$(OS_is_mac)),yes,),yes)
 $(foreach a,$(release.LIBS_A),$(eval $(call .release.add_compat_symlink,$a,$(RELEASEDIR.libia),_release_c)))
 $(foreach y,$(release.LIBS_Y),$(eval $(call .release.add_compat_symlink,$y,$(RELEASEDIR.soia),_release_c)))
-endif
 endif
 
 # Adds copy to the old library name
@@ -983,10 +981,8 @@ $3: $2/$(subst onedal,daal,$1)
 $2/$(subst onedal,daal,$1): $(WORKDIR.lib)/$1 ; $(value cpy)
 endef
 
-ifdef REQCOMPAT
 ifeq ($(OS_is_win),yes)
 $(foreach a,$(filter %_dll.$a,$(release.LIBS_A)),$(eval $(call .release.add_compat_copy,$a,$(RELEASEDIR.libia),_release_c)))
-endif
 endif
 
 #----- releasing jar files
@@ -1113,8 +1109,6 @@ Flags:
   REQCPU - list of CPU optimizations to be included into library
       possible values: $(CPUs)
   REQDBG - Flag that enables build in debug mode
-  REQCOMPAT - Flag that enables creation of compatibility symlinks for old
-      library names (daal_core, daal_thread, daal_sequential)
 endef
 
 daal_dbg:
