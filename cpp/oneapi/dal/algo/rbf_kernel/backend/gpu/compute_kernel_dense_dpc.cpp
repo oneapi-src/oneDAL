@@ -39,7 +39,7 @@ static compute_result call_daal_kernel(const context_gpu& ctx,
                                        const descriptor_base& desc,
                                        const table& x,
                                        const table& y) {
-    auto queue = ctx.get_queue();
+    auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
     const int64_t row_count_x  = x.get_row_count();
