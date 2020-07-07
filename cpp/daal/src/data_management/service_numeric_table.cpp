@@ -1,5 +1,6 @@
+/* file: service_numeric_table.cpp */
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,22 +15,26 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "src/data_management/service_numeric_table.h"
 
-#include "oneapi/dal/detail/ops_dispatcher.hpp"
+namespace daal
+{
+namespace internal
+{
+template <typename algorithmFPType>
+BlockDescriptorArray<algorithmFPType>::BlockDescriptorArray(size_t nBlocks) : _blocks(new BlockDescriptor<algorithmFPType>[nBlocks])
+{}
 
-namespace oneapi::dal::detail {
-
-template <typename Descriptor, typename Tag = typename Descriptor::tag_t>
-struct compute_ops;
-
-template <typename Descriptor>
-using tagged_compute_ops = compute_ops<Descriptor, typename Descriptor::tag_t>;
-
-template <typename Head, typename... Tail>
-auto compute_dispatch(Head&& head, Tail&&... tail) {
-    using dispatcher_t = ops_policy_dispatcher<std::decay_t<Head>, tagged_compute_ops>;
-    return dispatcher_t{}(std::forward<Head>(head), std::forward<Tail>(tail)...);
+template <typename algorithmFPType>
+BlockDescriptorArray<algorithmFPType>::~BlockDescriptorArray()
+{
+    delete[] _blocks;
+    _blocks = nullptr;
 }
 
-} // namespace oneapi::dal::detail
+template class BlockDescriptorArray<float>;
+template class BlockDescriptorArray<double>;
+template class BlockDescriptorArray<int>;
+
+} // namespace internal
+} // namespace daal

@@ -16,20 +16,25 @@
 
 #pragma once
 
-#include "oneapi/dal/detail/ops_dispatcher.hpp"
+#include <daal/include/services/env_detect.h>
+#include <daal/src/services/service_defines.h>
 
-namespace oneapi::dal::detail {
+namespace oneapi::dal::backend::interop {
 
-template <typename Descriptor, typename Tag = typename Descriptor::tag_t>
-struct compute_ops;
+#ifdef ONEAPI_DAL_DATA_PARALLEL
 
-template <typename Descriptor>
-using tagged_compute_ops = compute_ops<Descriptor, typename Descriptor::tag_t>;
+struct execution_context_guard {
+    explicit execution_context_guard(sycl::queue &queue) {
+        daal::services::SyclExecutionContext ctx(queue);
+        daal::services::Environment::getInstance()->setDefaultExecutionContext(ctx);
+    }
 
-template <typename Head, typename... Tail>
-auto compute_dispatch(Head&& head, Tail&&... tail) {
-    using dispatcher_t = ops_policy_dispatcher<std::decay_t<Head>, tagged_compute_ops>;
-    return dispatcher_t{}(std::forward<Head>(head), std::forward<Tail>(tail)...);
-}
+    ~execution_context_guard() {
+        daal::services::Environment::getInstance()->setDefaultExecutionContext(
+            daal::services::CpuExecutionContext());
+    }
+};
 
-} // namespace oneapi::dal::detail
+#endif
+
+} // namespace oneapi::dal::backend::interop
