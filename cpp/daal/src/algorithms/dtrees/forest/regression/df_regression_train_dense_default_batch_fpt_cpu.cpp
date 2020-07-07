@@ -40,7 +40,7 @@ template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 } // namespace interface2
 namespace internal
 {
-template class RegressionTrainBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
+template class DAAL_EXPORT RegressionTrainBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 } // namespace internal
 
 } // namespace training
