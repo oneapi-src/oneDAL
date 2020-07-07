@@ -69,13 +69,12 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     knn_model->impl()->setData<Float>(daal_data, desc.get_data_use_in_model());
     knn_model->impl()->setLabels<Float>(daal_labels, desc.get_data_use_in_model());
 
-    interop::status_to_exception(interop::call_daal_kernel<Float, daal_knn_kd_tree_kernel_t>(
-        ctx,
-        daal_data.get(),
-        daal_labels.get(),
-        knn_model,
-        *daal_parameter.engine.get()));
-
+    interop::status_to_exception(
+        interop::call_daal_kernel<Float, daal_knn_kd_tree_kernel_t>(ctx,
+                                                                    daal_data.get(),
+                                                                    daal_labels.get(),
+                                                                    knn_model,
+                                                                    *daal_parameter.engine.get()));
 
     auto interop          = new daal_interop_model_t(model_ptr);
     const auto model_impl = std::make_shared<detail::model_impl>(interop);

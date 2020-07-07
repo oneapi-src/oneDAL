@@ -21,12 +21,12 @@
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_train_kernel_ucapi.h"
 
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/algo/knn/backend/gpu/train_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/model_interop.hpp"
 #include "oneapi/dal/backend/dispatcher_dpc.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
+#include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 namespace oneapi::dal::knn::backend {
 
@@ -75,12 +75,12 @@ static train_result call_daal_kernel(const context_gpu& ctx,
     knn_model->impl()->setData<Float>(daal_data, desc.get_data_use_in_model());
     knn_model->impl()->setLabels<Float>(daal_labels, desc.get_data_use_in_model());
 
-    interop::status_to_exception(daal_knn_brute_force_kernel_t<Float>().compute(
-        daal_data.get(),
-        daal_labels.get(),
-        knn_model,
-        daal_parameter,
-        *daal_parameter.engine.get()));
+    interop::status_to_exception(
+        daal_knn_brute_force_kernel_t<Float>().compute(daal_data.get(),
+                                                       daal_labels.get(),
+                                                       knn_model,
+                                                       daal_parameter,
+                                                       *daal_parameter.engine.get()));
 
     auto interop          = new daal_interop_model_t(model_ptr);
     const auto model_impl = std::make_shared<detail::model_impl>(interop);
