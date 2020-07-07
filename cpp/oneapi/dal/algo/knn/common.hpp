@@ -56,6 +56,7 @@ protected:
 template <typename Float = descriptor_base::float_t, typename Method = descriptor_base::method_t>
 class descriptor : public descriptor_base {
 public:
+    using tag_t    = detail::tag;
     using float_t  = Float;
     using method_t = Method;
 

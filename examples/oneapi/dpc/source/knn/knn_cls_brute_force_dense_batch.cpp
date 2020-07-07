@@ -46,10 +46,10 @@ void run(sycl::queue& queue) {
 
     const auto train_result = dal::train(queue, knn_desc, x_train_table, y_train_table);
 
-    const float x_test[] = {1.f, 2.f, 2.f, 1.f, -1.f, 1.f, 4.f, 6.f,
+    const float x_test_host[] = {1.f, 2.f, 2.f, 1.f, -1.f, 1.f, 4.f, 6.f,
                             6.f, 2.f, 2.f, 5.f, -4.f, 3.f, 1.f};
 
-    const float y_test[] = {0, 1, 0, 1, 1};
+    const float y_test_host[] = {0, 1, 0, 1, 1};
 
     auto x_test = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(x_test , x_test_host, sizeof(float) * row_count * column_count).wait();
@@ -77,7 +77,7 @@ int main(int argc, char const *argv[]) {
         if(!device.is_gpu()) continue;
         std::cout << "Running on "
               << device.get_info<sycl::info::device::name>()
-              << std::endl
+              << std::endl;
         auto queue = sycl::queue{device};
         run(queue);
     }
