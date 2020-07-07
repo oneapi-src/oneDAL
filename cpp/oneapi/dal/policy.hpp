@@ -60,7 +60,7 @@ private:
 #ifdef ONEAPI_DAL_DATA_PARALLEL
 class ONEAPI_DAL_EXPORT data_parallel_policy : public base {
 public:
-    data_parallel_policy(const sycl::queue& queue);
+    data_parallel_policy(sycl::queue& queue);
 
     sycl::queue& get_queue() const noexcept;
 

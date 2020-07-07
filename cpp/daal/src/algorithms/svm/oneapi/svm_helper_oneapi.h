@@ -162,7 +162,7 @@ struct HelperSVM
         const char * const kernelName      = "copyDataByIndices";
         oneapi::internal::KernelPtr kernel = factory.getKernel(kernelName);
 
-        oneapi::internal::KernelArguments args(5);
+        oneapi::internal::KernelArguments args(4);
         args.set(0, x, oneapi::internal::AccessModeIds::read);
         args.set(1, indX, oneapi::internal::AccessModeIds::read);
         args.set(2, p);
@@ -175,7 +175,7 @@ struct HelperSVM
         return status;
     }
 
-    static services::Status copyDataByIndices(const services::Buffer<algorithmFPType> & x, const services::Buffer<int32_t> & indX,
+    static services::Status copyDataByIndices(const services::Buffer<algorithmFPType> & x, const services::Buffer<int> & indX,
                                               services::Buffer<algorithmFPType> & newX, const size_t nWS, const uint32_t p)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(copyDataByIndices);
@@ -189,7 +189,7 @@ struct HelperSVM
         const char * const kernelName      = "copyDataByIndicesInt";
         oneapi::internal::KernelPtr kernel = factory.getKernel(kernelName);
 
-        oneapi::internal::KernelArguments args(5);
+        oneapi::internal::KernelArguments args(4);
         args.set(0, x, oneapi::internal::AccessModeIds::read);
         args.set(1, indX, oneapi::internal::AccessModeIds::read);
         args.set(2, p);
