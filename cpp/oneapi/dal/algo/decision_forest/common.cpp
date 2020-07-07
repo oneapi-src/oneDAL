@@ -258,3 +258,12 @@ void model<Task>::clear() {
 template class ONEAPI_DAL_EXPORT model<task::classification>;
 template class ONEAPI_DAL_EXPORT model<task::regression>;
 } // namespace oneapi::dal::decision_forest
+
+std::uint64_t operator|(oneapi::dal::decision_forest::train_result_to_compute value_left,
+                        oneapi::dal::decision_forest::train_result_to_compute value_right) {
+    return static_cast<std::uint64_t>(value_left) | static_cast<std::uint64_t>(value_right);
+}
+std::uint64_t operator|(oneapi::dal::decision_forest::infer_result_to_compute value_left,
+                        oneapi::dal::decision_forest::infer_result_to_compute value_right) {
+    return static_cast<std::uint64_t>(value_left) | static_cast<std::uint64_t>(value_right);
+}
