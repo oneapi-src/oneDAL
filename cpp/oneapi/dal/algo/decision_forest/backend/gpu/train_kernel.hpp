@@ -14,22 +14,18 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <daal/include/services/error_handling.h>
-#include <daal/include/services/internal/status_to_error_id.h>
+#pragma once
 
-#include "oneapi/dal/exceptions.hpp"
+#include "oneapi/dal/algo/decision_forest/train_types.hpp"
+#include "oneapi/dal/backend/dispatcher_dpc.hpp"
 
-namespace oneapi::dal::backend::interop {
+namespace oneapi::dal::decision_forest::backend {
 
-void status_to_exception(const daal::services::Status& s);
+template <typename Float, typename Task, typename Method>
+struct train_kernel_gpu {
+    train_result<Task> operator()(const dal::backend::context_gpu& ctx,
+                                  const descriptor_base<Task>& params,
+                                  const train_input<Task>& input) const;
+};
 
-template <class StatusConverter>
-inline void status_to_exception(const daal::services::Status& s, StatusConverter alg_converter) {
-    if (s) {
-        return;
-    }
-    alg_converter(s);
-    status_to_exception(s);
-}
-
-} // namespace oneapi::dal::backend::interop
+} // namespace oneapi::dal::decision_forest::backend

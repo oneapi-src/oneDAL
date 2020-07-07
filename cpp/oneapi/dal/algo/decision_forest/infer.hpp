@@ -14,22 +14,16 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <daal/include/services/error_handling.h>
-#include <daal/include/services/internal/status_to_error_id.h>
+#pragma once
 
-#include "oneapi/dal/exceptions.hpp"
+#include "oneapi/dal/algo/decision_forest/detail/infer_ops.hpp"
+#include "oneapi/dal/algo/decision_forest/infer_types.hpp"
+#include "oneapi/dal/infer.hpp"
 
-namespace oneapi::dal::backend::interop {
+namespace oneapi::dal::detail {
 
-void status_to_exception(const daal::services::Status& s);
+template <typename Descriptor>
+struct infer_ops<Descriptor, dal::decision_forest::detail::tag>
+        : dal::decision_forest::detail::infer_ops<Descriptor> {};
 
-template <class StatusConverter>
-inline void status_to_exception(const daal::services::Status& s, StatusConverter alg_converter) {
-    if (s) {
-        return;
-    }
-    alg_converter(s);
-    status_to_exception(s);
-}
-
-} // namespace oneapi::dal::backend::interop
+} // namespace oneapi::dal::detail

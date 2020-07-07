@@ -20,6 +20,7 @@
 #include "oneapi/dal/algo/svm/backend/interop_model.hpp"
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 namespace oneapi::dal::svm::backend {
@@ -70,11 +71,12 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
     const auto daal_decision_function =
         interop::convert_to_daal_homogen_table(arr_decision_function, row_count, 1);
 
-    interop::call_daal_kernel<Float, daal_svm_predict_kernel_t>(ctx,
-                                                                daal_data,
-                                                                &daal_model,
-                                                                *daal_decision_function,
-                                                                &daal_parameter);
+    interop::status_to_exception(
+        interop::call_daal_kernel<Float, daal_svm_predict_kernel_t>(ctx,
+                                                                    daal_data,
+                                                                    &daal_model,
+                                                                    *daal_decision_function,
+                                                                    &daal_parameter));
 
     auto arr_label = array<Float>::empty(row_count * 1);
     for (std::int64_t i = 0; i < row_count; ++i) {

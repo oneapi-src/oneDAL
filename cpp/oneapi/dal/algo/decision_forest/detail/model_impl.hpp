@@ -14,22 +14,26 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <daal/include/services/error_handling.h>
-#include <daal/include/services/internal/status_to_error_id.h>
+#pragma once
 
-#include "oneapi/dal/exceptions.hpp"
+#include "oneapi/dal/algo/decision_forest/common.hpp"
 
-namespace oneapi::dal::backend::interop {
+namespace oneapi::dal::decision_forest {
 
-void status_to_exception(const daal::services::Status& s);
-
-template <class StatusConverter>
-inline void status_to_exception(const daal::services::Status& s, StatusConverter alg_converter) {
-    if (s) {
-        return;
+template <typename Task>
+class detail::model_impl : public base {
+public:
+    virtual std::int64_t get_tree_count() const {
+        return 0;
     }
-    alg_converter(s);
-    status_to_exception(s);
-}
+    virtual std::int64_t get_class_count() const {
+        return 0;
+    }
+    virtual void clear() {}
 
-} // namespace oneapi::dal::backend::interop
+    virtual bool is_interop() const {
+        return false;
+    }
+};
+
+} // namespace oneapi::dal::decision_forest

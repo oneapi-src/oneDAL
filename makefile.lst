@@ -224,6 +224,7 @@ CORE.SERVICES       := compression            \
                        data_management
 
 # Dependencies between oneAPI and core (CPU-only) algorithms
+ONEAPI.ALGOS.decision_forest := CORE.decision_forest
 ONEAPI.ALGOS.knn := CORE.k_nearest_neighbors
 ONEAPI.ALGOS.linear_kernel := CORE.kernel_function
 ONEAPI.ALGOS.pca           := CORE.pca
@@ -232,6 +233,7 @@ ONEAPI.ALGOS.svm           := CORE.svm
 
 # List of algorithms in oneAPI part
 ONEAPI.ALGOS :=     \
+    decision_forest \
     knn             \
     linear_kernel   \
     pca             \
