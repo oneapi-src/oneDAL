@@ -87,8 +87,6 @@ public:
 
     descriptor_base();
 
-    //engines::EnginePtr engine;             /*!< Engine for the random numbers generator used by the algorithms */
-
     double get_observations_per_tree_fraction() const;
     double get_impurity_threshold() const;
     double get_min_weight_fraction_in_leaf_node() const;

@@ -66,11 +66,6 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     daal_input.set(daal::algorithms::classifier::prediction::model, pinterop_model->get_model());
 
-    //auto voting_method      = desc.get_voting_method();
-    //auto daal_voting_method = voting_method::weighted == voting_method
-    //                              ? cls::prediction::weighted
-    //                              : cls::prediction::unweighted;
-
     auto daal_voting_method = df_interop::convert_to_daal_voting_method(desc.get_voting_method());
 
     auto daal_parameter = cls::prediction::Parameter(desc.get_class_count(), daal_voting_method);
