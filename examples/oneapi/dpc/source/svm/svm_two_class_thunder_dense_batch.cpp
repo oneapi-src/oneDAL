@@ -52,14 +52,16 @@ void run(sycl::queue &queue) {
     const auto x_train_table = dal::homogen_table{ queue, row_count_train, column_count, x_train };
     const auto y_train_table = dal::homogen_table{ queue, row_count_train, 1, y_train };
 
-    const auto kernel_desc = dal::linear_kernel::descriptor{}.set_k(1.0).set_b(0.0);
+    const auto kernel_desc = dal::linear_kernel::descriptor{}
+        .set_k(1.0)
+        .set_b(0.0);
 
     const auto svm_desc = dal::svm::descriptor{ kernel_desc }
-                              .set_c(1.0)
-                              .set_accuracy_threshold(0.01)
-                              .set_max_iteration_count(100)
-                              .set_cache_size(200.0)
-                              .set_tau(1e-6);
+        .set_c(1.0)
+        .set_accuracy_threshold(0.01)
+        .set_max_iteration_count(100)
+        .set_cache_size(200.0)
+        .set_tau(1e-6);
 
     const auto result_train = dal::train(queue, svm_desc, x_train_table, y_train_table);
 
@@ -99,9 +101,8 @@ void run(sycl::queue &queue) {
 int main(int argc, char const *argv[]) {
     for (auto device : list_devices()) {
         std::cout << "Running on "
-                  << queue.get_device().get_info<sycl::info::device::name>()
+                  << device.get_info<sycl::info::device::name>()
                   << std::endl << std::endl;
-
         auto queue = sycl::queue{device};
         run(queue);
     }

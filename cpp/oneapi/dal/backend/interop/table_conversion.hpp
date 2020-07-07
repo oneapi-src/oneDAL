@@ -91,21 +91,6 @@ inline auto convert_to_daal_sycl_homogen_table(sycl::queue& queue,
                                                                      cl::sycl::usm::alloc::shared);
 }
 
-// template <typename T>
-// inline table convert_from_daal_sycl_homogen_table(sycl::queue& queue, const daal::data_management::NumericTablePtr& nt) {
-
-//     daal::data_management::BlockDescriptor<T> block;
-//     const std::int64_t row_count    = nt->getNumberOfRows();
-//     const std::int64_t column_count = nt->getNumberOfColumns();
-
-//     nt->getBlockOfRows(0, row_count, daal::data_management::readOnly, block);
-//     T* data = block.getBlockPtr();
-//     array<T> arr(queue, data, row_count * column_count, [nt, block](T* p) mutable {
-//         nt->releaseBlockOfRows(block);
-//     });
-//     return homogen_table_builder{}.reset(arr, row_count, column_count).build();
-// }
-
 #endif
 
 } // namespace oneapi::dal::backend::interop
