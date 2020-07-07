@@ -22,7 +22,14 @@ namespace oneapi::dal {
 
 template <typename... Args>
 auto train(Args&&... args) {
-    return detail::train_dispatch_by_ctx(std::forward<Args>(args)...);
+    return detail::train_dispatch(std::forward<Args>(args)...);
 }
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+template <typename... Args>
+auto train(sycl::queue& queue, Args&&... args) {
+    return detail::train_dispatch(data_parallel_policy{ queue }, std::forward<Args>(args)...);
+}
+#endif
 
 } // namespace oneapi::dal

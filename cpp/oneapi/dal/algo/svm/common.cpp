@@ -15,11 +15,117 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/svm/common.hpp"
+#include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
 
 namespace oneapi::dal::svm {
 
+namespace detail {
+
+using daal_kf                = daal::algorithms::kernel_function::KernelIfacePtr;
+namespace daal_linear_kernel = daal::algorithms::kernel_function::linear;
+namespace daal_rbf_kernel    = daal::algorithms::kernel_function::rbf;
+
+template <typename Float, typename Method>
+class daal_interop_linear_kernel_impl : public kernel_function_impl {
+public:
+    daal_interop_linear_kernel_impl(double k, double b) : k_(k), b_(b) {}
+
+    daal_kf get_daal_kernel_function() override {
+        constexpr daal_linear_kernel::Method daal_method = get_daal_method();
+        auto alg         = new daal_linear_kernel::Batch<Float, daal_method>;
+        alg->parameter.k = k_;
+        alg->parameter.b = b_;
+        return daal_kf(alg);
+    }
+
+private:
+    static constexpr daal_linear_kernel::Method get_daal_method() {
+        if constexpr (std::is_same_v<Method, linear_kernel::method::dense>)
+            return daal_linear_kernel::Method::defaultDense;
+        else if constexpr (std::is_same_v<Method, linear_kernel::method::csr>)
+            return daal_linear_kernel::Method::fastCSR;
+        return daal_linear_kernel::Method::defaultDense;
+    }
+
+    double k_;
+    double b_;
+};
+
+template <typename F, typename M>
+using linear_kernel_t = linear_kernel::descriptor<F, M>;
+
+template <typename F, typename M>
+kernel_function<linear_kernel_t<F, M>>::kernel_function(const linear_kernel_t<F, M> &kernel)
+        : kernel_(kernel),
+          impl_(new daal_interop_linear_kernel_impl<F, M>{ kernel.get_k(), kernel.get_b() }) {}
+
+template <typename F, typename M>
+kernel_function_impl *kernel_function<linear_kernel_t<F, M>>::get_impl() const {
+    return impl_.get();
+}
+
+#define INSTANTIATE_LINEAR(F, M) template class kernel_function<linear_kernel_t<F, M>>;
+
+INSTANTIATE_LINEAR(float, linear_kernel::method::dense)
+INSTANTIATE_LINEAR(float, linear_kernel::method::csr)
+INSTANTIATE_LINEAR(double, linear_kernel::method::dense)
+INSTANTIATE_LINEAR(double, linear_kernel::method::csr)
+
+#undef INSTANTIATE_LINEAR
+
+template <typename F, typename M>
+using rbf_kernel_t = rbf_kernel::descriptor<F, M>;
+
+template <typename Float, typename Method>
+class daal_interop_rbf_kernel_impl : public kernel_function_impl {
+public:
+    daal_interop_rbf_kernel_impl(double sigma) : sigma_(sigma) {}
+
+    daal_kf get_daal_kernel_function() override {
+        constexpr daal_rbf_kernel::Method daal_method = get_daal_method();
+        auto alg             = new daal_rbf_kernel::Batch<Float, daal_method>;
+        alg->parameter.sigma = sigma_;
+        return daal_kf(alg);
+    }
+
+private:
+    static constexpr daal_rbf_kernel::Method get_daal_method() {
+        if constexpr (std::is_same_v<Method, linear_kernel::method::dense>)
+            return daal_rbf_kernel::Method::defaultDense;
+        else if constexpr (std::is_same_v<Method, linear_kernel::method::csr>)
+            return daal_rbf_kernel::Method::fastCSR;
+        return daal_rbf_kernel::Method::defaultDense;
+    }
+
+    double sigma_;
+};
+
+template <typename F, typename M>
+kernel_function<rbf_kernel_t<F, M>>::kernel_function(const rbf_kernel_t<F, M> &kernel)
+        : kernel_(kernel),
+          impl_(new daal_interop_rbf_kernel_impl<F, M>{ kernel.get_sigma() }) {}
+
+template <typename F, typename M>
+kernel_function_impl *kernel_function<rbf_kernel_t<F, M>>::get_impl() const {
+    return impl_.get();
+}
+
+#define INSTANTIATE_RBF(F, M) template class kernel_function<rbf_kernel_t<F, M>>;
+
+INSTANTIATE_RBF(float, rbf_kernel::method::dense)
+INSTANTIATE_RBF(float, rbf_kernel::method::csr)
+INSTANTIATE_RBF(double, rbf_kernel::method::dense)
+INSTANTIATE_RBF(double, rbf_kernel::method::csr)
+
+#undef INSTANTIATE_RBF
+
+} // namespace detail
+
 class detail::descriptor_impl : public base {
 public:
+    explicit descriptor_impl(const detail::kf_iface_ptr &kernel) : kernel(kernel) {}
+
+    detail::kf_iface_ptr kernel;
     double c                         = 1.0;
     double accuracy_threshold        = 0.001;
     std::int64_t max_iteration_count = 100000;
@@ -39,7 +145,8 @@ public:
 using detail::descriptor_impl;
 using detail::model_impl;
 
-descriptor_base::descriptor_base() : impl_(new descriptor_impl{}) {}
+descriptor_base::descriptor_base(const detail::kf_iface_ptr &kernel)
+        : impl_(new descriptor_impl{ kernel }) {}
 
 double descriptor_base::get_c() const {
     return impl_->c;
@@ -87,6 +194,14 @@ void descriptor_base::set_tau_impl(const double value) {
 
 void descriptor_base::set_shrinking_impl(const bool value) {
     impl_->shrinking = value;
+}
+
+void descriptor_base::set_kernel_impl(const detail::kf_iface_ptr &kernel) {
+    impl_->kernel = kernel;
+}
+
+const detail::kf_iface_ptr &descriptor_base::get_kernel_impl() const {
+    return impl_->kernel;
 }
 
 model::model() : impl_(new model_impl{}) {}

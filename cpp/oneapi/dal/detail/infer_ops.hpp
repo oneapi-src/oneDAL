@@ -16,40 +16,20 @@
 
 #pragma once
 
-#include "oneapi/dal/execution_context.hpp"
+#include "oneapi/dal/detail/ops_dispatcher.hpp"
 
 namespace oneapi::dal::detail {
 
-template <typename Descriptor, typename Tag>
+template <typename Descriptor, typename Tag = typename Descriptor::tag_t>
 struct infer_ops;
 
-template <typename Context, typename Descriptor, typename Head, typename... Tail>
-auto infer_dispatch_by_input(const Context& ctx,
-                             const Descriptor& desc,
-                             Head&& head,
-                             Tail&&... tail) {
-    using tag_t   = typename Descriptor::tag_t;
-    using ops_t   = infer_ops<Descriptor, tag_t>;
-    using input_t = typename ops_t::input_t;
-
-    if constexpr (std::is_same_v<std::decay_t<Head>, input_t>) {
-        return ops_t()(ctx, desc, std::forward<Head>(head), std::forward<Tail>(tail)...);
-    }
-
-    const auto input = input_t{ std::forward<Head>(head), std::forward<Tail>(tail)... };
-    return ops_t()(ctx, desc, input);
-}
+template <typename Descriptor>
+using tagged_infer_ops = infer_ops<Descriptor, typename Descriptor::tag_t>;
 
 template <typename Head, typename... Tail>
-auto infer_dispatch_by_ctx(Head&& head, Tail&&... tail) {
-    using tag_t = typename std::decay_t<Head>::tag_t;
-    if constexpr (std::is_same_v<tag_t, detail::execution_context_tag>) {
-        return infer_dispatch_by_input(head, std::forward<Tail>(tail)...);
-    }
-
-    return infer_dispatch_by_input(default_execution_context(),
-                                   std::forward<Head>(head),
-                                   std::forward<Tail>(tail)...);
+auto infer_dispatch(Head&& head, Tail&&... tail) {
+    using dispatcher_t = ops_policy_dispatcher<std::decay_t<Head>, tagged_infer_ops>;
+    return dispatcher_t{}(std::forward<Head>(head), std::forward<Tail>(tail)...);
 }
 
 } // namespace oneapi::dal::detail
