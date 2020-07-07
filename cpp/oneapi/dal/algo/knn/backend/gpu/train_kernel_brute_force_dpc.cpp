@@ -53,8 +53,8 @@ static train_result call_daal_kernel(const context_gpu& ctx,
     const std::int64_t row_count    = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
 
-    auto arr_data   = row_accessor<const Float>{ data }.pull();
-    auto arr_labels = row_accessor<const Float>{ labels }.pull();
+    auto arr_data   = row_accessor<const Float>{ data }.pull(queue);
+    auto arr_labels = row_accessor<const Float>{ labels }.pull(queue);
 
     const auto daal_data =
         interop::convert_to_daal_sycl_homogen_table(queue, arr_data, row_count, column_count);
@@ -81,7 +81,7 @@ static train_result call_daal_kernel(const context_gpu& ctx,
         daal_labels.get(),
         knn_model,
         daal_parameter,
-        *(daal::algorithms::engines::mcg59::Batch<>::create())));
+        daal_parameter.engine));
 
     auto interop          = new daal_interop_model_t(model_ptr);
     const auto model_impl = std::make_shared<detail::model_impl>(interop);

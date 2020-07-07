@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #define DAAL_SYCL_INTERFACE
-#define ONEAPI_DAL_DATA_PARALLEL 1
+#define DAAL_SYCL_INTERFACE_USM
 
 #include "data_management/data/numeric_table.h"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -52,8 +52,8 @@ static infer_result call_daal_kernel(const context_gpu& ctx,
     const std::int64_t row_count    = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
 
-    auto arr_data   = row_accessor<const Float>{ data }.pull();
-    auto arr_labels = array<Float>::empty(1 * row_count);
+    auto arr_data   = row_accessor<const Float>{ data }.pull(queue);
+    auto arr_labels = array<Float>::empty(queue, 1 * row_count);
 
     const auto daal_data =
         interop::convert_to_daal_sycl_homogen_table(queue, arr_data, row_count, column_count);

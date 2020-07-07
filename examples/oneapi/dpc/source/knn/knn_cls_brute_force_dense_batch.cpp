@@ -14,11 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <iomanip>
-#include <iostream>
-
 #include "oneapi/dal/algo/knn.hpp"
-#include "oneapi/dal/data/accessor.hpp"
 #include "oneapi/dal/data/table.hpp"
 
 #include "example_util/utils.hpp"
@@ -53,27 +49,34 @@ void run(sycl::queue& queue) {
     const float x_test[] = {1.f, 2.f, 2.f, 1.f, -1.f, 1.f, 4.f, 6.f,
                             6.f, 2.f, 2.f, 5.f, -4.f, 3.f, 1.f};
 
-    const float y_true[] = {0, 1, 0, 1, 1};
+    const float y_test[] = {0, 1, 0, 1, 1};
 
-    const auto x_test_table = dal::homogen_table{row_count, column_count, x_test};
-    const auto y_true_table = dal::homogen_table{row_count, 1, y_true};
+    auto x_test = sycl::malloc_shared<float>(row_count * column_count, queue);
+    queue.memcpy(x_test , x_test_host, sizeof(float) * row_count * column_count).wait();
+    const auto x_test_table = dal::homogen_table{ row_count, column_count, x_test };
+
+    auto y_test = sycl::malloc_shared<float>(row_count * 1, queue);
+    queue.memcpy(y_test, y_test_host, sizeof(float) * row_count * 1).wait();
+    const auto y_test_table = dal::homogen_table{ row_count, 1, y_test };
 
     const auto test_result =
         dal::infer(queue, knn_desc, x_test_table, train_result.get_model());
 
     std::cout << "Test results:" << std::endl
             << test_result.get_labels() << std::endl;
-    std::cout << "True labels:" << std::endl << y_true_table << std::endl;
+    std::cout << "True labels:" << std::endl << y_test_table << std::endl;
 
     sycl::free(x_train, queue);
     sycl::free(y_train, queue);
+    sycl::free(x_test, queue);
+    sycl::free(y_test, queue);
 }
 
 int main(int argc, char const *argv[]) {
     for (auto device : list_devices()) {
         if(!device.is_gpu()) continue;
         std::cout << "Running on "
-              << queue.get_device().get_info<sycl::info::device::name>()
+              << device.get_info<sycl::info::device::name>()
               << std::endl
         auto queue = sycl::queue{device};
         run(queue);
