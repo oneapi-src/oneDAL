@@ -14,9 +14,11 @@
 * limitations under the License.
 *******************************************************************************/
 
+#define ONEAPI_DAL_DATA_PARALLEL
 #include "oneapi/dal/algo/knn.hpp"
 #include "oneapi/dal/data/table.hpp"
 
+#include "oneapi/dal/exceptions.hpp"
 #include "example_util/utils.hpp"
 
 using namespace oneapi;
@@ -44,8 +46,6 @@ void run(sycl::queue& queue) {
             .set_neighbor_count(1)
             .set_data_use_in_model(false);
 
-    const auto train_result = dal::train(queue, knn_desc, x_train_table, y_train_table);
-
     const float x_test_host[] = {1.f, 2.f, 2.f, 1.f, -1.f, 1.f, 4.f, 6.f,
                             6.f, 2.f, 2.f, 5.f, -4.f, 3.f, 1.f};
 
@@ -59,13 +59,20 @@ void run(sycl::queue& queue) {
     queue.memcpy(y_test, y_test_host, sizeof(float) * row_count * 1).wait();
     const auto y_test_table = dal::homogen_table{ row_count, 1, y_test };
 
-    const auto test_result =
-        dal::infer(queue, knn_desc, x_test_table, train_result.get_model());
+    try {
+        const auto train_result = dal::train(queue, knn_desc, x_train_table, y_train_table);
 
-    std::cout << "Test results:" << std::endl
-            << test_result.get_labels() << std::endl;
-    std::cout << "True labels:" << std::endl << y_test_table << std::endl;
+        const auto test_result =
+            dal::infer(queue, knn_desc, x_test_table, train_result.get_model());
 
+        std::cout << "Test results:" << std::endl
+                << test_result.get_labels() << std::endl;
+        std::cout << "True labels:" << std::endl << y_test_table << std::endl;
+    }
+    catch(oneapi::dal::unimplemented_error& e) {
+        std::cout << "  " << e.what() << std::endl;
+        return;
+    }
     sycl::free(x_train, queue);
     sycl::free(y_train, queue);
     sycl::free(x_test, queue);
@@ -74,7 +81,6 @@ void run(sycl::queue& queue) {
 
 int main(int argc, char const *argv[]) {
     for (auto device : list_devices()) {
-        if(!device.is_gpu()) continue;
         std::cout << "Running on "
               << device.get_info<sycl::info::device::name>()
               << std::endl;
