@@ -27,7 +27,6 @@ namespace oneapi::dal::knn::backend {
 
 using daal::services::Status;
 using dal::backend::context_cpu;
-using namespace daal::data_management;
 
 namespace daal_knn = daal::algorithms::kdtree_knn_classification;
 namespace interop  = dal::backend::interop;

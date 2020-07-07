@@ -28,7 +28,6 @@
 namespace oneapi::dal::knn::backend {
 
 using dal::backend::context_gpu;
-using namespace daal::data_management;
 
 namespace daal_knn = daal::algorithms::bf_knn_classification;
 namespace interop  = dal::backend::interop;
@@ -41,8 +40,8 @@ template <typename Float>
 static infer_result call_daal_kernel(const context_gpu& ctx,
                                      const descriptor_base& desc,
                                      const table& data,
-                                     model m) {
-    auto queue = ctx.get_queue();
+                                     const model& m) {
+    auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
     const std::int64_t row_count    = data.get_row_count();

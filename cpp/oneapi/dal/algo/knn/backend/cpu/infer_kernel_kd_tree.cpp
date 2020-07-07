@@ -22,12 +22,9 @@
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
-#define DAAL_SYCL_INTERFACE
-
 namespace oneapi::dal::knn::backend {
 
 using dal::backend::context_cpu;
-using namespace daal::data_management;
 
 namespace daal_knn = daal::algorithms::kdtree_knn_classification;
 namespace interop  = dal::backend::interop;

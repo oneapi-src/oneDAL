@@ -27,7 +27,7 @@ struct train_kernel_cpu<Float, method::brute_force> {
     train_result operator()(const context_cpu& ctx,
                             const descriptor_base& desc,
                             const train_input& input) const {
-        throw unimplemented_error("kNN Brute Force method is implemented for GPU only!");
+        throw unimplemented_error("k-NN brute force method is not implemented for CPU!");
         return train_result();
     }
 };

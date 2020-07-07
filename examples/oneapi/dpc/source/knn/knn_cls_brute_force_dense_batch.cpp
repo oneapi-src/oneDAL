@@ -33,11 +33,11 @@ void run(sycl::queue& queue) {
 
     auto x_train = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(x_train, x_train_host, sizeof(float) * row_count * column_count).wait();
-    const auto x_train_table = dal::homogen_table{ row_count, column_count, x_train };
+    const auto x_train_table = dal::homogen_table{ queue, row_count, column_count, x_train };
 
     auto y_train = sycl::malloc_shared<float>(row_count * 1, queue);
     queue.memcpy(y_train, y_train_host, sizeof(float) * row_count * 1).wait();
-    const auto y_train_table = dal::homogen_table{ row_count, 1, y_train };
+    const auto y_train_table = dal::homogen_table{ queue, row_count, 1, y_train };
 
     const auto knn_desc =
         dal::knn::descriptor<float, oneapi::dal::knn::method::brute_force>()
@@ -52,11 +52,11 @@ void run(sycl::queue& queue) {
 
     auto x_test = sycl::malloc_shared<float>(row_count * column_count, queue);
     queue.memcpy(x_test , x_test_host, sizeof(float) * row_count * column_count).wait();
-    const auto x_test_table = dal::homogen_table{ row_count, column_count, x_test };
+    const auto x_test_table = dal::homogen_table{ queue, row_count, column_count, x_test };
 
     auto y_test = sycl::malloc_shared<float>(row_count * 1, queue);
     queue.memcpy(y_test, y_test_host, sizeof(float) * row_count * 1).wait();
-    const auto y_test_table = dal::homogen_table{ row_count, 1, y_test };
+    const auto y_test_table = dal::homogen_table{ queue, row_count, 1, y_test };
 
     try {
         const auto train_result = dal::train(queue, knn_desc, x_train_table, y_train_table);
@@ -70,6 +70,10 @@ void run(sycl::queue& queue) {
     }
     catch(oneapi::dal::unimplemented_error& e) {
         std::cout << "  " << e.what() << std::endl;
+        sycl::free(x_train, queue);
+        sycl::free(y_train, queue);
+        sycl::free(x_test, queue);
+        sycl::free(y_test, queue);
         return;
     }
     sycl::free(x_train, queue);

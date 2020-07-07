@@ -30,7 +30,7 @@ struct train_kernel_gpu<Float, method::kd_tree> {
     train_result operator()(const context_gpu& ctx,
                             const descriptor_base& desc,
                             const train_input& input) const {
-        throw unimplemented_error("kNN K-D Tree method is implemented for CPU only!");
+        throw unimplemented_error("k-NN k-d tree method is not implemented for GPU!");
         return train_result();
     }
 };
