@@ -89,9 +89,8 @@ static infer_result call_daal_kernel(const context_gpu& ctx,
 
     auto arr_label = array<Float>::empty(queue, row_count * 1);
     auto event     = queue.submit([&](sycl::handler& cgh) {
-        arr_label.need_mutable_data(queue);
         auto labels            = arr_label.get_mutable_data();
-        auto decision_function = arr_decision_function.get_mutable_data();
+        auto decision_function = arr_decision_function.get_data();
         cgh.parallel_for(sycl::range<1>(arr_label.get_count()), [=](sycl::id<1> idx) {
             labels[idx[0]] = decision_function[idx[0]] >= 0 ? Float(1.0) : Float(-1.0);
         });
