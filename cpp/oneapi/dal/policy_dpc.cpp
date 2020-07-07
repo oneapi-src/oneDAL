@@ -21,10 +21,9 @@ namespace oneapi::dal {
 
 class detail::data_parallel_policy_impl : public base {
 public:
-    explicit data_parallel_policy_impl(const sycl::queue& queue)
-            : queue(const_cast<sycl::queue&>(queue)) {}
+    explicit data_parallel_policy_impl(const sycl::queue& queue) : queue(queue) {}
 
-    sycl::queue& queue;
+    sycl::queue queue;
 };
 
 using detail::data_parallel_policy_impl;
