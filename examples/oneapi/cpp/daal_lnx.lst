@@ -19,11 +19,12 @@
 ##******************************************************************************
 
 DAAL = homogen_table_builder             \
+       df_cls_dense_batch                \
+       df_reg_dense_batch                \
        knn_cls_kd_tree_dense_batch       \
        linear_kernel_dense_batch         \
        pca_cor_dense_batch               \
        rbf_kernel_dense_batch            \
        svm_two_class_thunder_dense_batch \
        svm_two_class_smo_dense_batch     
-
 

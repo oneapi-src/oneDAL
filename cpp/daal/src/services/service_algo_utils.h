@@ -40,7 +40,7 @@ namespace services
 {
 namespace internal
 {
-services::HostAppIface * hostApp(algorithms::interface1::Input & inp);
+DAAL_EXPORT services::HostAppIface * hostApp(algorithms::interface1::Input & inp);
 void setHostApp(const services::SharedPtr<services::HostAppIface> & pHostApp, algorithms::interface1::Input & inp);
 services::HostAppIfacePtr getHostApp(daal::algorithms::interface1::Input & inp);
 bool isCancelled(services::Status & s, services::HostAppIface * pHostApp);

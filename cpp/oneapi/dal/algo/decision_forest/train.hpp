@@ -16,22 +16,14 @@
 
 #pragma once
 
-#include <daal/include/services/error_handling.h>
-#include <daal/include/services/internal/status_to_error_id.h>
+#include "oneapi/dal/algo/decision_forest/detail/train_ops.hpp"
+#include "oneapi/dal/algo/decision_forest/train_types.hpp"
+#include "oneapi/dal/train.hpp"
 
-#include "oneapi/dal/exceptions.hpp"
+namespace oneapi::dal::detail {
 
-namespace oneapi::dal::backend::interop {
+template <typename Descriptor>
+struct train_ops<Descriptor, dal::decision_forest::detail::tag>
+        : dal::decision_forest::detail::train_ops<Descriptor> {};
 
-void status_to_exception(const daal::services::Status& s);
-
-template <class StatusConverter>
-inline void status_to_exception(const daal::services::Status& s, StatusConverter alg_converter) {
-    if (s) {
-        return;
-    }
-    alg_converter(s);
-    status_to_exception(s);
-}
-
-} // namespace oneapi::dal::backend::interop
+} // namespace oneapi::dal::detail

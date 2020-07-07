@@ -40,7 +40,7 @@ template class BatchContainer<DAAL_FPTYPE, hist, DAAL_CPU>;
 } // namespace interface3
 namespace internal
 {
-template class ClassificationTrainBatchKernel<DAAL_FPTYPE, hist, DAAL_CPU>;
+template class DAAL_EXPORT ClassificationTrainBatchKernel<DAAL_FPTYPE, hist, DAAL_CPU>;
 }
 
 } // namespace training
