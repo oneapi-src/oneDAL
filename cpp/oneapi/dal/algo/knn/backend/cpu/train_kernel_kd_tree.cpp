@@ -15,8 +15,7 @@
 *******************************************************************************/
 
 #include <daal/src/algorithms/k_nearest_neighbors/kdtree_knn_classification_train_kernel.h>
-#include "algorithms/engines/mcg59/mcg59.h"
-#include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
+#include <src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h>
 
 #include "oneapi/dal/algo/knn/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/model_interop.hpp"
