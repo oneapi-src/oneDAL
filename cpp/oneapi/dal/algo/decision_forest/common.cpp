@@ -42,8 +42,6 @@ public:
     bool memory_saving_mode = false;
     bool bootstrap          = true;
 
-    // engine field
-
     variable_importance_mode variable_importance_mode_value = variable_importance_mode::none;
     voting_method voting_method_value                       = voting_method::weighted;
 };

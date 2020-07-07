@@ -132,7 +132,9 @@ protected:
     void set_max_leaf_nodes_impl(std::int64_t value);
 
     void set_train_results_to_compute_impl(std::uint64_t value);
+    void set_train_results_to_compute_impl(train_result_to_compute value);
     void set_infer_results_to_compute_impl(std::uint64_t value);
+    void set_infer_results_to_compute_impl(infer_result_to_compute value);
 
     void set_memory_saving_mode_impl(bool value);
     void set_bootstrap_impl(bool value);
@@ -147,7 +149,6 @@ protected:
     void set_voting_method_impl(voting_method value);
 
 private:
-    //explicit descriptor_base(const pimpl& impl);
     pimpl impl_;
 };
 /* task descriptor */
@@ -209,6 +210,14 @@ public:
 
     auto& set_train_results_to_compute(std::uint64_t value) {
         parent::set_train_results_to_compute_impl(value);
+        return *this;
+    }
+    auto& set_train_results_to_compute(train_result_to_compute value) {
+        parent::set_train_results_to_compute_impl(static_cast<std::uint64_t>(value));
+        return *this;
+    }
+    auto& set_infer_results_to_compute(infer_result_to_compute value) {
+        parent::set_infer_results_to_compute_impl(static_cast<std::uint64_t>(value));
         return *this;
     }
     auto& set_infer_results_to_compute(std::uint64_t value) {
@@ -275,3 +284,12 @@ private:
 };
 
 } // namespace oneapi::dal::decision_forest
+
+std::uint64_t operator|(oneapi::dal::decision_forest::train_result_to_compute value_left,
+                        oneapi::dal::decision_forest::train_result_to_compute value_right) {
+    return static_cast<std::uint64_t>(value_left) | static_cast<std::uint64_t>(value_right);
+}
+std::uint64_t operator|(oneapi::dal::decision_forest::infer_result_to_compute value_left,
+                        oneapi::dal::decision_forest::infer_result_to_compute value_right) {
+    return static_cast<std::uint64_t>(value_left) | static_cast<std::uint64_t>(value_right);
+}

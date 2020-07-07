@@ -54,10 +54,9 @@ int main(int argc, char const *argv[]) {
             .set_features_per_node(1)
             .set_min_observations_in_leaf_node(1)
             .set_variable_importance_mode(df::variable_importance_mode::mdi)
-            .set_train_results_to_compute(
-                (std::uint64_t)df::train_result_to_compute::compute_out_of_bag_error)
-            .set_infer_results_to_compute(
-                (std::uint64_t)df::infer_result_to_compute::compute_class_labels)
+            .set_train_results_to_compute(df::train_result_to_compute::compute_out_of_bag_error)
+            .set_infer_results_to_compute(df::infer_result_to_compute::compute_class_labels |
+                                          df::infer_result_to_compute::compute_class_probabilities)
             .set_voting_method(df::voting_method::weighted);
 
     const auto result_train = dal::train(df_desc, x_train_table, y_train_table);
@@ -71,6 +70,8 @@ int main(int argc, char const *argv[]) {
 
     const auto result_infer = dal::infer(df_desc, result_train.get_model(), x_test_table);
 
+    std::cout << "Probabilities results: " << std::endl
+              << result_infer.get_probabilities() << std::endl;
     std::cout << "Prediction results: " << std::endl << result_infer.get_labels() << std::endl;
 
     std::cout << "Ground truth: " << std::endl << y_test_table << std::endl;
