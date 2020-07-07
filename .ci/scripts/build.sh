@@ -81,4 +81,4 @@ make ${make_target} ${make_op} \
     COMPILER=${compiler} \
     REQCPU="${CPU_OPTIMIZATIONS}"
 
-exits $?
+exit $?
