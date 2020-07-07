@@ -54,7 +54,7 @@ set_daal_env() {
             export CPATH=$__daal_tmp_dir/include${CPATH+:${CPATH}}
             export LIBRARY_PATH=$__daal_tmp_dir/lib/${__daal_tmp_target_arch}_fre${LIBRARY_PATH+:${LIBRARY_PATH}}
             export LD_LIBRARY_PATH=$__daal_tmp_dir/lib/${__daal_tmp_target_arch}_fre${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}
-            export CLASSPATH=$__daal_tmp_dir/lib/daal.jar${CLASSPATH+:${CLASSPATH}}
+            export CLASSPATH=$__daal_tmp_dir/lib/onedal.jar${CLASSPATH+:${CLASSPATH}}
             ;;
         *) daal_help
             ;;
