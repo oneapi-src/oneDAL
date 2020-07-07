@@ -18,7 +18,9 @@
 ##     Intel(R) Data Analytics Acceleration Library examples list
 ##******************************************************************************
 
-DAAL =  homogen_table_builder           \
-        knn_cls_brute_force_dense_batch \
-        linear_kernel_dense_batch       \
-        pca_cor_dense_batch
+DAAL =  homogen_table_builder             \
+        knn_cls_brute_force_dense_batch   \
+        linear_kernel_dense_batch         \
+        pca_cor_dense_batch               \
+        rbf_kernel_dense_batch            \
+        svm_two_class_thunder_dense_batch
