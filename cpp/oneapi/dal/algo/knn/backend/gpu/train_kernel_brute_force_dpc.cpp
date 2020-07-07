@@ -18,14 +18,12 @@
 #define DAAL_SYCL_INTERFACE_USM
 
 #include "algorithms/engines/mcg59/mcg59.h"
-#include "data_management/data/numeric_table.h"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_train_kernel_ucapi.h"
 
+#include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/algo/knn/backend/gpu/train_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/model_interop.hpp"
-#include "oneapi/dal/algo/knn/detail/model_impl.hpp"
 #include "oneapi/dal/backend/dispatcher_dpc.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
@@ -82,7 +80,7 @@ static train_result call_daal_kernel(const context_gpu& ctx,
         daal_labels.get(),
         knn_model,
         daal_parameter,
-        *(daal::algorithms::engines::mcg59::Batch<>::create())));
+        *daal_parameter.engine.get()));
 
     auto interop          = new daal_interop_model_t(model_ptr);
     const auto model_impl = std::make_shared<detail::model_impl>(interop);

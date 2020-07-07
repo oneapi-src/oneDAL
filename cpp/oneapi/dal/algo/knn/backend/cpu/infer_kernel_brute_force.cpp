@@ -15,11 +15,8 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/knn/backend/cpu/infer_kernel.hpp"
-#include "oneapi/dal/algo/knn/backend/model_interop.hpp"
-#include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/detail/common.hpp"
-
 
 #define DAAL_SYCL_INTERFACE
 

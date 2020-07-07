@@ -16,12 +16,10 @@
 
 #include <daal/src/algorithms/k_nearest_neighbors/kdtree_knn_classification_train_kernel.h>
 #include "algorithms/engines/mcg59/mcg59.h"
-#include "data_management/data/numeric_table.h"
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
 
 #include "oneapi/dal/algo/knn/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/model_interop.hpp"
-#include "oneapi/dal/algo/knn/detail/model_impl.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -71,12 +69,13 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     knn_model->impl()->setData<Float>(daal_data, desc.get_data_use_in_model());
     knn_model->impl()->setLabels<Float>(daal_labels, desc.get_data_use_in_model());
 
-    interop::call_daal_kernel<Float, daal_knn_kd_tree_kernel_t>(
+    interop::status_to_exception(interop::call_daal_kernel<Float, daal_knn_kd_tree_kernel_t>(
         ctx,
         daal_data.get(),
         daal_labels.get(),
         knn_model,
-        *(daal::algorithms::engines::mcg59::Batch<>::create()));
+        *daal_parameter.engine.get()));
+
 
     auto interop          = new daal_interop_model_t(model_ptr);
     const auto model_impl = std::make_shared<detail::model_impl>(interop);

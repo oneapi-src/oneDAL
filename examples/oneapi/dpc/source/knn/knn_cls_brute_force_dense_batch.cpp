@@ -16,7 +16,6 @@
 
 #define ONEAPI_DAL_DATA_PARALLEL
 #include "oneapi/dal/algo/knn.hpp"
-#include "oneapi/dal/data/table.hpp"
 
 #include "oneapi/dal/exceptions.hpp"
 #include "example_util/utils.hpp"
