@@ -36,7 +36,8 @@ public:
     std::int64_t max_leaf_nodes                 = 0;
 
     std::uint64_t train_results_to_compute = 0;
-    std::uint64_t infer_results_to_compute = 0;
+    std::uint64_t infer_results_to_compute =
+        static_cast<std::uint64_t>(infer_result_to_compute::compute_class_labels);
 
     bool memory_saving_mode = false;
     bool bootstrap          = true;
@@ -64,7 +65,8 @@ public:
     std::int64_t max_leaf_nodes                 = 0;
 
     std::uint64_t train_results_to_compute = 0;
-    std::uint64_t infer_results_to_compute = 0;
+    std::uint64_t infer_results_to_compute =
+        static_cast<std::uint64_t>(infer_result_to_compute::compute_class_labels);
 
     bool memory_saving_mode = false;
     bool bootstrap          = true;
