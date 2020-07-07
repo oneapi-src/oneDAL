@@ -17,13 +17,11 @@
 #define DAAL_SYCL_INTERFACE
 #define DAAL_SYCL_INTERFACE_USM
 
-#include "data_management/data/numeric_table.h"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_predict_kernel_ucapi.h"
 
 #include "oneapi/dal/algo/knn/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/model_interop.hpp"
-#include "oneapi/dal/algo/knn/detail/model_impl.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"

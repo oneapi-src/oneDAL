@@ -113,11 +113,13 @@ COPTS := -std=c++17 \
 
 LIBS := $(-B) -lonedal_dpc \
         $(-B) -ldaal_core \
+        $(-B) -ldaal_sycl \
         $(-B) -l$(THREADING_LIB) \
         -Bdynamic -ltbb \
         -Bdynamic -ltbbmalloc \
         -Bdynamic -lpthread \
-        -Bdynamic -ldl
+        -Bdynamic -ldl \
+        -Bdynamic -lOpenCL
 
 LOPTS := -L"$(DAAL_PATH)" \
          -L"$(TBB_PATH)" \
@@ -141,7 +143,7 @@ so sointel64:
 _make_ex: $(RES)
 
 vpath
-vpath %.cpp $(addprefix ./source/,knn pca tables)
+vpath %.cpp $(addprefix ./source/,knn linear_kernel pca tables)
 
 .SECONDARY:
 $(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.

@@ -35,5 +35,7 @@ struct train_ops_dispatcher<host_policy, Float, Method> {
 
 INSTANTIATE(float, method::kd_tree)
 INSTANTIATE(double, method::kd_tree)
+INSTANTIATE(float, method::brute_force)
+INSTANTIATE(double, method::brute_force)
 
 } // namespace oneapi::dal::knn::detail

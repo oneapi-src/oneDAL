@@ -1,5 +1,6 @@
+/* file: service_numeric_table.cpp */
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,28 +15,26 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "src/data_management/service_numeric_table.h"
 
-#include <daal/include/services/env_detect.h>
-#include <daal/src/services/service_defines.h>
+namespace daal
+{
+namespace internal
+{
+template <typename algorithmFPType>
+BlockDescriptorArray<algorithmFPType>::BlockDescriptorArray(size_t nBlocks) : _blocks(new BlockDescriptor<algorithmFPType>[nBlocks])
+{}
 
-namespace oneapi::dal::backend::interop {
+template <typename algorithmFPType>
+BlockDescriptorArray<algorithmFPType>::~BlockDescriptorArray()
+{
+    delete[] _blocks;
+    _blocks = nullptr;
+}
 
-#ifdef ONEAPI_DAL_DATA_PARALLEL
+template class BlockDescriptorArray<float>;
+template class BlockDescriptorArray<double>;
+template class BlockDescriptorArray<int>;
 
-struct execution_context_guard {
-    explicit execution_context_guard(sycl::queue &queue) {
-        daal::services::SyclExecutionContext ctx(queue);
-        daal::services::Environment::getInstance()->setDefaultExecutionContext(ctx);
-    }
-
-    ~execution_context_guard() {
-        daal::services::Environment::getInstance()->setDefaultExecutionContext(
-            daal::services::CpuExecutionContext());
-    }
-};
-
-#endif
-
-} // namespace oneapi::dal::backend::interop
-
+} // namespace internal
+} // namespace daal

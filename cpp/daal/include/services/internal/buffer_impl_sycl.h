@@ -134,7 +134,8 @@ public:
 
     SyclBuffer<T> * getSubBuffer(size_t offset, size_t size) const DAAL_C11_OVERRIDE
     {
-        DAAL_ASSERT(offset + size <= this->size())
+        DAAL_ASSERT(offset + size <= this->size());
+
         /* Workaround: ComputeCpp does not provide constructor for SYCL* buffer
          * defined in standard 1.2.1:
          *      buffer(buffer<T, dimensions, AllocatorT> b,

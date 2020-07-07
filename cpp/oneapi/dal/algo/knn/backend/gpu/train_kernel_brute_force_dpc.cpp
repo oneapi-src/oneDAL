@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #define DAAL_SYCL_INTERFACE
+#define DAAL_SYCL_INTERFACE_USM
 
 #include "algorithms/engines/mcg59/mcg59.h"
 #include "data_management/data/numeric_table.h"
@@ -81,7 +82,7 @@ static train_result call_daal_kernel(const context_gpu& ctx,
         daal_labels.get(),
         knn_model,
         daal_parameter,
-        daal_parameter.engine));
+        *(daal::algorithms::engines::mcg59::Batch<>::create())));
 
     auto interop          = new daal_interop_model_t(model_ptr);
     const auto model_impl = std::make_shared<detail::model_impl>(interop);

@@ -36,6 +36,8 @@ struct ONEAPI_DAL_EXPORT train_ops_dispatcher<data_parallel_policy, Float, Metho
 #define INSTANTIATE(F, M) \
     template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<data_parallel_policy, F, M>;
 
+INSTANTIATE(float, method::kd_tree)
+INSTANTIATE(double, method::kd_tree)
 INSTANTIATE(float, method::brute_force)
 INSTANTIATE(double, method::brute_force)
 
