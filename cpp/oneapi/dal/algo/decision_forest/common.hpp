@@ -285,7 +285,9 @@ private:
 
 } // namespace oneapi::dal::decision_forest
 
-std::uint64_t operator|(oneapi::dal::decision_forest::train_result_to_compute value_left,
-                        oneapi::dal::decision_forest::train_result_to_compute value_right);
-std::uint64_t operator|(oneapi::dal::decision_forest::infer_result_to_compute value_left,
-                        oneapi::dal::decision_forest::infer_result_to_compute value_right);
+ONEAPI_DAL_EXPORT std::uint64_t operator|(
+    oneapi::dal::decision_forest::train_result_to_compute value_left,
+    oneapi::dal::decision_forest::train_result_to_compute value_right);
+ONEAPI_DAL_EXPORT std::uint64_t operator|(
+    oneapi::dal::decision_forest::infer_result_to_compute value_left,
+    oneapi::dal::decision_forest::infer_result_to_compute value_right);
