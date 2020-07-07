@@ -57,12 +57,12 @@ enum class variable_importance_mode {
                        This is MDA_Raw value scaled by its standard deviation. */
 };
 
-enum class train_result_to_compute {
+enum class train_result_to_compute : std::uint64_t {
     compute_out_of_bag_error                 = 0x00000001ULL,
     compute_out_of_bag_error_per_observation = 0x00000002ULL
 };
 
-enum class infer_result_to_compute {
+enum class infer_result_to_compute : std::uint64_t {
     compute_class_labels =
         0x00000001ULL, /*!< Numeric table of size n x 1 with the predicted labels >*/
     compute_class_probabilities =
