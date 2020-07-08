@@ -106,7 +106,6 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
     if (desc.get_train_results_to_compute() &
         static_cast<std::uint64_t>(train_result_to_compute::compute_out_of_bag_error)) {
         arr_oob_err = array<Float>::empty(1 * 1);
-        //res.set_oob_err(homogen_table_builder{}.reset(arr_oob_err, 1, 1).build());
 
         const auto res_oob_err =
             interop::convert_to_daal_sycl_homogen_table(queue, arr_oob_err, 1, 1);
