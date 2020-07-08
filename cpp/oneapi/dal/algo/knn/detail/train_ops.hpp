@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/knn/train_types.hpp"
+#include "oneapi/dal/data/accessor.hpp"
 
 namespace oneapi::dal::knn::detail {
 
@@ -33,7 +34,7 @@ struct train_ops {
     using result_t          = train_result;
     using descriptor_base_t = descriptor_base;
 
-    void check_preconditions(const Descriptor& params, const infer_input& input) const {
+    void check_preconditions(const Descriptor& params, const train_input& input) const {
         if (!(input.get_data().has_data())) {
             throw domain_error("Input data should not be empty");
         }
@@ -46,18 +47,19 @@ struct train_ops {
         if (!(input.get_labels().get_row_count() == input.get_data().get_row_count())) {
             throw domain_error("Number of labels should match number of rows in data");
         }
-        row_accessor<const float_t> acc{ input.get_labels(); }
-        for(std::int64_t index; index < input.get_labels().get_row_count(); index++) {
+        row_accessor<const float_t> acc {
+            input.get_labels();
+        }
+        for (std::int64_t index; index < input.get_labels().get_row_count(); index++) {
             auto label = acc.pull(index);
-            if(label[0] < 0 || label[0] >= params.get_class_count())
-                throw internal_error("Input label value is invalid");
+            if (label[0] < 0 || label[0] >= params.get_class_count())
+                throw domain_error("Input label value is invalid");
         }
     }
 
     void check_postconditions(const Descriptor& params,
-                              const infer_input& input,
-                              const infer_result& result) const {
-    }
+                              const train_input& input,
+                              const train_result& result) const {}
 
     template <typename Context>
     auto operator()(const Context& ctx, const Descriptor& desc, const train_input& input) const {

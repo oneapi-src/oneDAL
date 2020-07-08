@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/knn/infer_types.hpp"
+#include "oneapi/dal/data/accessor.hpp"
 
 namespace oneapi::dal::knn::detail {
 
@@ -48,10 +49,12 @@ struct infer_ops {
         if (result.get_labels().get_row_count() != input.get_data().get_row_count()) {
             throw internal_error("Number of labels in result should match number of rows in input");
         }
-        row_accessor<const float_t> acc{ result.get_labels(); }
-        for(std::int64_t index; index < result.get_labels().get_row_count(); index++) {
+        row_accessor<const float_t> acc {
+            result.get_labels();
+        }
+        for (std::int64_t index; index < result.get_labels().get_row_count(); index++) {
             auto label = acc.pull(index);
-            if(label[0] < 0 || label[0] >= params.get_class_count())
+            if (label[0] < 0 || label[0] >= params.get_class_count())
                 throw internal_error("Result label value is invalid");
         }
     }
@@ -61,7 +64,7 @@ struct infer_ops {
         check_preconditions(desc, input);
         const auto result = infer_ops_dispatcher<Context, float_t, method_t>()(ctx, desc, input);
         check_postconditions(desc, input, result);
-        return result;  
+        return result;
     }
 };
 
