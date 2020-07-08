@@ -88,15 +88,15 @@ TBB_PATH = "$(TBBROOT)/lib"
 EXT_LIB := -ldl
 
 ifeq ($(threading),sequential)
-    DAAL_LIB_T := $(DAAL_PATH)/libdaal_sequential.$(RES_EXT)
+    DAAL_LIB_T := $(DAAL_PATH)/libonedal_sequential.$(RES_EXT)
     EXT_LIB += -ltbb -ltbbmalloc
 else
     override threading = parallel
-    DAAL_LIB_T := $(DAAL_PATH)/libdaal_thread.$(RES_EXT)
+    DAAL_LIB_T := $(DAAL_PATH)/libonedal_thread.$(RES_EXT)
     EXT_LIB += -ltbb -ltbbmalloc
 endif
 
-DAAL_LIB := $(DAAL_PATH)/libdaal_core.$(RES_EXT) $(DAAL_LIB_T)
+DAAL_LIB := $(DAAL_PATH)/libonedal_core.$(RES_EXT) $(DAAL_LIB_T)
 
 COPTS := -Wall -w -Wl,-w -stdlib=libc++ -I./source/utils
 LOPTS := $(DAAL_LIB) $(EXT_LIB)

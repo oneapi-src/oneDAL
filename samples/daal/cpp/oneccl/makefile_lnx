@@ -87,15 +87,15 @@ else
 endif
 
 ifeq ($(threading),sequential)
-    DAAL_LIB_T := $(DAAL_LIB_EXT),-ldaal_sequential
+    DAAL_LIB_T := $(DAAL_LIB_EXT),-lonedal_sequential
     EXT_LIB += $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
 else
     override threading = parallel
-    DAAL_LIB_T := $(DAAL_LIB_EXT),-ldaal_thread
+    DAAL_LIB_T := $(DAAL_LIB_EXT),-lonedal_thread
     EXT_LIB += $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
 endif
 
-DAAL_LIB := -L$(DAAL_PATH),$(DAAL_LIB_EXT),-ldaal_core,-Bdynamic -Wl,$(DAAL_LIB_T)
+DAAL_LIB := -L$(DAAL_PATH),$(DAAL_LIB_EXT),-lonedal_core,-Bdynamic -Wl,$(DAAL_LIB_T)
 
 COPTS := -Wall -w -I./source/utils
 
@@ -104,7 +104,7 @@ ifeq ($(compiler),clang)
     COPTS += -fsycl
 endif
 
-LOPTS := -Wl,--start-group -Wl,$(DAAL_LIB),$(EXT_LIB) $(DAAL_PATH)/libdaal_sycl.a -Wl,--end-group
+LOPTS := -Wl,--start-group -Wl,$(DAAL_LIB),$(EXT_LIB) $(DAAL_PATH)/libonedal_sycl.a -Wl,--end-group
 
 RES_DIR=_results/$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
