@@ -39,7 +39,7 @@ struct infer_ops {
         }
         // TODO Check that model exists
         // TODO Check that data feature count is equal to model feature count
-        // TODO Check that K is not greater than number of observations in train data
+        // TODO Check that K is not greater than number of observations in data
     }
 
     void check_postconditions(const Descriptor& params,
@@ -48,8 +48,11 @@ struct infer_ops {
         if (!(result.get_labels().has_data())) {
             throw internal_error("Result labels should not be empty!");
         }
-        if (result.get_labels().get_column_count() != input.get_data().get_row_count()) {
-            throw internal_error("Result labels column_count should be equal to data row_count");
+        if (result.get_labels().get_column_count() != 1) {
+            throw internal_error("Result labels column_count should contain a single column");
+        }
+        if (result.get_labels().get_row_count() != input.get_data().get_row_count()) {
+            throw internal_error("Number of labels in result should match number of rows in input");
         }
     }
 

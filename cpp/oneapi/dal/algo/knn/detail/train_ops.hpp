@@ -33,12 +33,32 @@ struct train_ops {
     using result_t          = train_result;
     using descriptor_base_t = descriptor_base;
 
-    void validate(const Descriptor& params, const train_input& input) const {}
+    void check_preconditions(const Descriptor& params, const infer_input& input) const {
+        if (!(input.get_data().has_data())) {
+            throw domain_error("Input data should not be empty");
+        }
+        // TODO Check that K is not greater than number of observations in data
+    }
+
+    void check_postconditions(const Descriptor& params,
+                              const infer_input& input,
+                              const infer_result& result) const {
+        if (!(result.get_labels().has_data())) {
+            throw internal_error("Result labels should not be empty!");
+        }
+        if (result.get_labels().get_column_count() != 1) {
+            throw internal_error("Result labels column_count should contain a single column");
+        }
+        if (result.get_labels().get_row_count() != input.get_data().get_row_count()) {
+            throw internal_error("Number of labels in result should match number of rows in input");
+        }
+    }
 
     template <typename Context>
     auto operator()(const Context& ctx, const Descriptor& desc, const train_input& input) const {
-        validate(desc, input);
-        return train_ops_dispatcher<Context, float_t, method_t>()(ctx, desc, input);
+        check_preconditions(desc, input);
+        const auto result = train_ops_dispatcher<Context, float_t, method_t>()(ctx, desc, input);
+        check_postconditions(desc, input, result);
     }
 };
 
