@@ -143,7 +143,7 @@ so sointel64:
 _make_ex: $(RES)
 
 vpath
-vpath %.cpp $(addprefix ./source/,linear_kernel pca rbf_kernel svm tables)
+vpath %.cpp $(addprefix ./source/,knn linear_kernel pca rbf_kernel svm tables)
 
 .SECONDARY:
 $(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.

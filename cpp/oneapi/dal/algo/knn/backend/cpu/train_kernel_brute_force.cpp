@@ -14,28 +14,25 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/knn/detail/train_ops.hpp"
 #include "oneapi/dal/algo/knn/backend/cpu/train_kernel.hpp"
-#include "oneapi/dal/backend/dispatcher.hpp"
+#include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
 
-namespace oneapi::dal::knn::detail {
+namespace oneapi::dal::knn::backend {
 
-template <typename Float, typename Method>
-struct train_ops_dispatcher<host_policy, Float, Method> {
-    train_result operator()(const host_policy& ctx,
+using dal::backend::context_cpu;
+
+template <typename Float>
+struct train_kernel_cpu<Float, method::brute_force> {
+    train_result operator()(const context_cpu& ctx,
                             const descriptor_base& desc,
                             const train_input& input) const {
-        using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Method>>;
-        return kernel_dispatcher_t()(ctx, desc, input);
+        throw unimplemented_error("k-NN brute force method is not implemented for CPU!");
+        return train_result();
     }
 };
 
-#define INSTANTIATE(F, M) template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<host_policy, F, M>;
+template struct train_kernel_cpu<float, method::brute_force>;
+template struct train_kernel_cpu<double, method::brute_force>;
 
-INSTANTIATE(float, method::kd_tree)
-INSTANTIATE(double, method::kd_tree)
-INSTANTIATE(float, method::brute_force)
-INSTANTIATE(double, method::brute_force)
-
-} // namespace oneapi::dal::knn::detail
+} // namespace oneapi::dal::knn::backend

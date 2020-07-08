@@ -14,28 +14,28 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/knn/detail/train_ops.hpp"
-#include "oneapi/dal/algo/knn/backend/cpu/train_kernel.hpp"
-#include "oneapi/dal/backend/dispatcher.hpp"
+#define DAAL_SYCL_INTERFACE
 
-namespace oneapi::dal::knn::detail {
+#include "oneapi/dal/algo/knn/backend/gpu/train_kernel.hpp"
+#include "oneapi/dal/backend/dispatcher_dpc.hpp"
+#include "oneapi/dal/backend/interop/common_dpc.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
 
-template <typename Float, typename Method>
-struct train_ops_dispatcher<host_policy, Float, Method> {
-    train_result operator()(const host_policy& ctx,
+namespace oneapi::dal::knn::backend {
+
+using dal::backend::context_gpu;
+
+template <typename Float>
+struct train_kernel_gpu<Float, method::kd_tree> {
+    train_result operator()(const context_gpu& ctx,
                             const descriptor_base& desc,
                             const train_input& input) const {
-        using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Method>>;
-        return kernel_dispatcher_t()(ctx, desc, input);
+        throw unimplemented_error("k-NN k-d tree method is not implemented for GPU!");
+        return train_result();
     }
 };
 
-#define INSTANTIATE(F, M) template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<host_policy, F, M>;
+template struct train_kernel_gpu<float, method::kd_tree>;
+template struct train_kernel_gpu<double, method::kd_tree>;
 
-INSTANTIATE(float, method::kd_tree)
-INSTANTIATE(double, method::kd_tree)
-INSTANTIATE(float, method::brute_force)
-INSTANTIATE(double, method::brute_force)
-
-} // namespace oneapi::dal::knn::detail
+} // namespace oneapi::dal::knn::backend

@@ -16,22 +16,16 @@
 
 #pragma once
 
-#include <daal/include/services/error_handling.h>
-#include <daal/include/services/internal/status_to_error_id.h>
+#include "oneapi/dal/algo/knn/infer_types.hpp"
+#include "oneapi/dal/backend/dispatcher_dpc.hpp"
 
-#include "oneapi/dal/exceptions.hpp"
+namespace oneapi::dal::knn::backend {
 
-namespace oneapi::dal::backend::interop {
+template <typename Float, typename Method>
+struct infer_kernel_gpu {
+    infer_result operator()(const dal::backend::context_gpu& ctx,
+                            const descriptor_base& params,
+                            const infer_input& input) const;
+};
 
-void status_to_exception(const daal::services::Status& s);
-
-template <class StatusConverter>
-inline void status_to_exception(const daal::services::Status& s, StatusConverter alg_converter) {
-    if (s) {
-        return;
-    }
-    alg_converter(s);
-    status_to_exception(s);
-}
-
-} // namespace oneapi::dal::backend::interop
+} // namespace oneapi::dal::knn::backend
