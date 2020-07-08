@@ -46,7 +46,7 @@ public:
         ccl_init();
         ccl_get_comm_rank(NULL, &_rank);
         ccl_get_comm_size(NULL, &_size);
-        ccl_stream_create(ccl_stream_sycl, &deviceQueue, &_stream);
+        ccl_stream_create(ccl_stream_cpu, &deviceQueue, &_stream);
     }
     ~CommunicatorOneCclImpl() { ccl_finalize(); }
 
