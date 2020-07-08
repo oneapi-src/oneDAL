@@ -15,11 +15,12 @@
 *******************************************************************************/
 
 #define DAAL_SYCL_INTERFACE
+#define DAAL_SYCL_INTERFACE_USM
+#define DAAL_SYCL_INTERFACE_REVERSED_RANGE
 
 #include "oneapi/dal/algo/svm/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/svm/backend/interop_model.hpp"
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
-#include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -90,15 +91,11 @@ static infer_result call_daal_kernel(const context_gpu& ctx,
                                                                             *daal_decision_function,
                                                                             &daal_parameter));
 
-    auto arr_label = array<Float>::empty(queue, row_count * 1);
-    auto event     = queue.submit([&](sycl::handler& cgh) {
-        auto labels            = arr_label.get_mutable_data();
-        auto decision_function = arr_decision_function.get_data();
-        cgh.parallel_for(sycl::range<1>(arr_label.get_count()), [=](sycl::id<1> idx) {
-            labels[idx[0]] = decision_function[idx[0]] >= 0 ? Float(1.0) : Float(-1.0);
-        });
-    });
-    event.wait();
+    // TODO: rework with help dpcpp code
+    auto arr_label = array<Float>::empty(row_count * 1);
+    for (std::int64_t i = 0; i < row_count; ++i) {
+        arr_label[i] = arr_decision_function[i] >= 0 ? Float(1.0) : Float(-1.0);
+    }
 
     return infer_result()
         .set_decision_function(
