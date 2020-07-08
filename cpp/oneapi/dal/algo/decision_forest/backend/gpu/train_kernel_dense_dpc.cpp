@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_kernel.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
@@ -23,7 +24,7 @@ struct train_kernel_gpu<Float, Task, method::dense> {
     train_result<Task> operator()(const dal::backend::context_gpu& ctx,
                                   const descriptor_base<Task>& params,
                                   const train_input<Task>& input) const {
-        return train_result<Task>();
+        throw unimplemented_error("Decision forest train dense method is not implemented for GPU!");
     }
 };
 
