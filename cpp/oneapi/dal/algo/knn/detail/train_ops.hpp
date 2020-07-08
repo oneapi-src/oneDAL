@@ -49,30 +49,28 @@ struct train_ops {
             throw domain_error("Number of labels should match number of rows in data");
         }
         row_accessor<const float_t> acc{ input.get_labels() };
-    }
-    for (std::int64_t index; index < input.get_labels().get_row_count(); index++) {
-        auto label = acc.pull(index);
-        if (label[0] < 0) {
-            throw domain_error("Input label value should be > 0");
+        for (std::int64_t index; index < input.get_labels().get_row_count(); index++) {
+            auto label = acc.pull(index);
+            if (label[0] < 0) {
+                throw domain_error("Input label value should be > 0");
+            }
+            if (label[0] >= params.get_class_count()) {
+                throw domain_error("Input label value should be < class_count");
+            }
         }
-        if (label[0] >= params.get_class_count()) {
-            throw domain_error("Input label value should be < class_count");
-        }
     }
-}
 
     void check_postconditions(const Descriptor& params,
                               const train_input& input,
-                              const train_result& result) const {
-}
+                              const train_result& result) const {}
 
-template <typename Context>
-auto operator()(const Context& ctx, const Descriptor& desc, const train_input& input) const {
-    check_preconditions(desc, input);
-    const auto result = train_ops_dispatcher<Context, float_t, method_t>()(ctx, desc, input);
-    check_postconditions(desc, input, result);
-    return result;
-}
+    template <typename Context>
+    auto operator()(const Context& ctx, const Descriptor& desc, const train_input& input) const {
+        check_preconditions(desc, input);
+        const auto result = train_ops_dispatcher<Context, float_t, method_t>()(ctx, desc, input);
+        check_postconditions(desc, input, result);
+        return result;
+    }
 }; // namespace oneapi::dal::knn::detail
 
 } // namespace oneapi::dal::knn::detail
