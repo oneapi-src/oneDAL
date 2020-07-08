@@ -27,10 +27,6 @@
 using namespace oneapi;
 
 void run(sycl::queue& queue) {
-    std::cout << "Running on "
-              << queue.get_device().get_info<sycl::info::device::name>()
-              << std::endl;
-
     constexpr std::int64_t row_count = 5;
     constexpr std::int64_t column_count = 3;
 
