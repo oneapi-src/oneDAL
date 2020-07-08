@@ -14,27 +14,48 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "example_util/utils.hpp"
+#include <CL/sycl.hpp>
+#include <iomanip>
+#include <iostream>
+
+#define ONEAPI_DAL_DATA_PARALLEL
 #include "oneapi/dal/algo/kmeans.hpp"
+#include "oneapi/dal/data/accessor.hpp"
+
+#include "example_util/utils.hpp"
 
 using namespace oneapi;
 
-int main(int argc, char const *argv[]) {
+void run(sycl::queue &queue) {
+  std::cout << "Running on "
+            << queue.get_device().get_info<sycl::info::device::name>()
+            << std::endl;
+
   constexpr std::int64_t row_count = 8;
   constexpr std::int64_t column_count = 7;
   constexpr std::int64_t cluster_count = 2;
 
-  const float data[] = {1.f, 2.f,  3.f, 4.f, 5.f, 6.f,  -5.f, 1.f, -1.f, 0.f,
-                        3.f, 1.f,  2.f, 3.f, 4.f, 5.f,  6.f,  1.f, 0.f,  0.f,
-                        0.f, 1.f,  2.f, 5.f, 2.f, 9.f,  3.f,  2.f, -4.f, 3.f,
-                        0.f, 4.f,  2.f, 7.f, 5.f, 4.f,  2.f,  0.f, -4.f, 0.f,
-                        3.f, -8.f, 2.f, 5.f, 5.f, -6.f, 3.f,  0.f, -9.f, 3.f,
-                        1.f, -3.f, 3.f, 5.f, 1.f, 7.f};
+  const float data_host[] = {
+      1.f,  2.f, 3.f,  4.f,  5.f,  6.f,  -5.f, 1.f, -1.f, 0.f,  3.f, 1.f,
+      2.f,  3.f, 4.f,  5.f,  6.f,  1.f,  0.f,  0.f, 0.f,  1.f,  2.f, 5.f,
+      2.f,  9.f, 3.f,  2.f,  -4.f, 3.f,  0.f,  4.f, 2.f,  7.f,  5.f, 4.f,
+      2.f,  0.f, -4.f, 0.f,  3.f,  -8.f, 2.f,  5.f, 5.f,  -6.f, 3.f, 0.f,
+      -9.f, 3.f, 1.f,  -3.f, 3.f,  5.f,  1.f,  7.f};
 
-  const float initial_centroids[] = {1.f, 2.f, 3.f, 4.f, 5.f, 6.f, -5.f,
-                                     1.f, 2.f, 5.f, 2.f, 9.f, 3.f, 2.f};
+  const float initial_centroids_host[] = {1.f, 2.f, 3.f, 4.f, 5.f, 6.f, -5.f,
+                                          1.f, 2.f, 5.f, 2.f, 9.f, 3.f, 2.f};
 
+  auto data = sycl::malloc_shared<float>(row_count * column_count, queue);
+  queue.memcpy(data, data_host, sizeof(float) * row_count * column_count)
+      .wait();
   const auto data_table = dal::homogen_table{row_count, column_count, data};
+
+  auto initial_centroids =
+      sycl::malloc_shared<float>(cluster_count * column_count, queue);
+  queue
+      .memcpy(initial_centroids, initial_centroids_host,
+              sizeof(float) * cluster_count * column_count)
+      .wait();
   const auto initial_centroids_table =
       dal::homogen_table{cluster_count, column_count, initial_centroids};
 
@@ -44,7 +65,7 @@ int main(int argc, char const *argv[]) {
                                .set_accuracy_threshold(0.001);
 
   const auto result_train =
-      dal::train(kmeans_desc, data_table, initial_centroids_table);
+      dal::train(queue, kmeans_desc, data_table, initial_centroids_table);
 
   std::cout << "Iteration count: " << result_train.get_iteration_count()
             << std::endl;
@@ -54,9 +75,12 @@ int main(int argc, char const *argv[]) {
   std::cout << "Centroids:" << std::endl
             << result_train.get_model().get_centroids() << std::endl;
 
-  const float data_test[] = {1.f, 2.f, 5.f, 4.f, 0.f, 3.f, 1.f,
-                             2.f, 3.f, 1.f, 2.f, 9.f, 2.f, 2.f};
+  const float data_test_host[] = {1.f, 2.f, 5.f, 4.f, 0.f, 3.f, 1.f,
+                                  2.f, 3.f, 1.f, 2.f, 9.f, 2.f, 2.f};
 
+  auto data_test = sycl::malloc_shared<float>(2 * column_count, queue);
+  queue.memcpy(data_test, data_test_host, sizeof(float) * 2 * column_count)
+      .wait();
   const auto data_test_table = dal::homogen_table{2, column_count, data_test};
 
   const auto result_test =
@@ -65,5 +89,13 @@ int main(int argc, char const *argv[]) {
   std::cout << "Infer result:" << std::endl
             << result_test.get_labels() << std::endl;
 
+  sycl::free(data, queue);
+}
+
+int main(int argc, char const *argv[]) {
+  for (auto device : list_devices()) {
+    auto queue = sycl::queue{device};
+    run(queue);
+  }
   return 0;
 }
