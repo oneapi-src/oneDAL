@@ -28,6 +28,7 @@
 #include "oneapi/dal/algo/decision_forest/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/interop_helpers.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
@@ -125,14 +126,14 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     reg::ModelPtr mptr = reg::ModelPtr(new reg::internal::ModelImpl(column_count));
 
-    interop::call_daal_kernel<Float, reg_dense_kernel_t>(
+    interop::status_to_exception(interop::call_daal_kernel<Float, reg_dense_kernel_t>(
         ctx,
         daal::services::internal::hostApp(daal_input),
         daal_data.get(),
         daal_labels.get(),
         *mptr,
         daal_result,
-        daal_parameter);
+        daal_parameter));
 
     /* extract results from daal objects */
     if (desc.get_train_results_to_compute() &

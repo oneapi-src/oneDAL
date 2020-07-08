@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/algo/decision_forest/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 #include "oneapi/dal/algo/decision_forest/backend/interop_helpers.hpp"
@@ -86,7 +87,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     const cls::Model* const daal_model =
         static_cast<cls::Model*>(pinterop_model->get_model().get());
-    interop::call_daal_kernel<Float, cls_dense_predict_kernel_t>(
+    interop::status_to_exception(interop::call_daal_kernel<Float, cls_dense_predict_kernel_t>(
         ctx,
         daal::services::internal::hostApp(daal_input),
         daal_data.get(),
@@ -94,7 +95,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
         daal_labels_res.get(),
         daal_labels_prob_res.get(),
         desc.get_class_count(),
-        daal_voting_method);
+        daal_voting_method));
 
     infer_result<Task> res;
 
