@@ -113,7 +113,7 @@ void run(sycl::queue &queue) {
 int main(int argc, char const *argv[]) {
   for (auto device : list_devices()) {
     std::cout << "Running on " << device.get_info<sycl::info::device::name>()
-              << std::endl;
+              << std::endl << std::endl;
     auto queue = sycl::queue{device};
     run(queue);
   }
