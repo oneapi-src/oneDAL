@@ -21,6 +21,7 @@
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 #include <daal/src/algorithms/svm/oneapi/svm_train_thunder_kernel_oneapi.h>
@@ -58,10 +59,7 @@ static train_result call_daal_kernel(const context_gpu& ctx,
     const auto daal_labels =
         interop::convert_to_daal_sycl_homogen_table(queue, arr_label, row_count, 1);
 
-    auto kernel_impl = desc.get_kernel_impl()->get_impl();
-    if (!kernel_impl) {
-        throw;
-    }
+    auto kernel_impl       = desc.get_kernel_impl()->get_impl();
     const auto daal_kernel = kernel_impl->get_daal_kernel_function();
     daal_svm::Parameter daal_parameter(
         daal_kernel,
@@ -73,10 +71,10 @@ static train_result call_daal_kernel(const context_gpu& ctx,
         desc.get_shrinking());
 
     auto daal_model = daal_svm::Model::create<Float>(column_count);
-    daal_svm_thunder_kernel_t<Float>().compute(daal_data,
-                                               *daal_labels,
-                                               daal_model.get(),
-                                               &daal_parameter);
+    interop::status_to_exception(daal_svm_thunder_kernel_t<Float>().compute(daal_data,
+                                                                            *daal_labels,
+                                                                            daal_model.get(),
+                                                                            &daal_parameter));
     auto table_support_indices =
         interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
 
