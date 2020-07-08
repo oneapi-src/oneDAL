@@ -22,67 +22,69 @@
 #include <stdexcept>
 #include <system_error>
 
+#include "oneapi/dal/common.hpp"
+
 namespace oneapi::dal {
 
-class exception {
+class ONEAPI_DAL_EXPORT exception {
 public:
     virtual ~exception()                      = default;
     virtual const char* what() const noexcept = 0;
 };
 
-class logic_error : public exception {};
-class runtime_error : public exception {};
+class ONEAPI_DAL_EXPORT logic_error : public exception {};
+class ONEAPI_DAL_EXPORT runtime_error : public exception {};
 
-class invalid_argument : public logic_error, public std::invalid_argument {
+class ONEAPI_DAL_EXPORT invalid_argument : public logic_error, public std::invalid_argument {
 public:
     using std::invalid_argument::invalid_argument;
     const char* what() const noexcept override;
 };
 
-class domain_error : public logic_error, public std::domain_error {
+class ONEAPI_DAL_EXPORT domain_error : public logic_error, public std::domain_error {
 public:
     using std::domain_error::domain_error;
     const char* what() const noexcept override;
 };
 
-class out_of_range : public logic_error, public std::out_of_range {
+class ONEAPI_DAL_EXPORT out_of_range : public logic_error, public std::out_of_range {
 public:
     using std::out_of_range::out_of_range;
     const char* what() const noexcept override;
 };
 
-class unimplemented_error : public logic_error, public std::logic_error {
+class ONEAPI_DAL_EXPORT unimplemented_error : public logic_error, public std::logic_error {
 public:
     using std::logic_error::logic_error;
     const char* what() const noexcept override;
 };
 
-class unavailable_error : public logic_error, public std::logic_error {
+class ONEAPI_DAL_EXPORT unavailable_error : public logic_error, public std::logic_error {
 public:
     using std::logic_error::logic_error;
     const char* what() const noexcept override;
 };
 
-class range_error : public runtime_error, public std::range_error {
+class ONEAPI_DAL_EXPORT range_error : public runtime_error, public std::range_error {
 public:
     using std::range_error::range_error;
     const char* what() const noexcept override;
 };
 
-class system_error : public runtime_error, public std::system_error {
+class ONEAPI_DAL_EXPORT system_error : public runtime_error, public std::system_error {
 public:
     using std::system_error::system_error;
     const char* what() const noexcept override;
     const std::error_code& code() const noexcept;
 };
 
-class internal_error : public runtime_error, public std::runtime_error {
+class ONEAPI_DAL_EXPORT internal_error : public runtime_error, public std::runtime_error {
 public:
     using std::runtime_error::runtime_error;
     const char* what() const noexcept override;
 };
 
-class bad_alloc : public exception, public std::bad_alloc {
+class ONEAPI_DAL_EXPORT bad_alloc : public exception, public std::bad_alloc {
 public:
     using std::bad_alloc::bad_alloc;
     const char* what() const noexcept override;
