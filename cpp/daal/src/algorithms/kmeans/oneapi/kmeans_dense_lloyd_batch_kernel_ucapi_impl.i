@@ -168,7 +168,7 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
             BlockDescriptor<int> assignmentsRows;
             DAAL_CHECK_STATUS_VAR(ntAssignments->getBlockOfRows(range.startIndex, range.count, writeOnly, assignmentsRows));
             auto assignments = assignmentsRows.getBuffer();
-            if (data == NULL || assignments == NULL)
+            if (!data || !assignments)
             {
                 return Status(ErrorNullPtr);
             }
