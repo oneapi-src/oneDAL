@@ -16,6 +16,11 @@
 
 #pragma once
 
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    #define DAAL_SYCL_INTERFACE
+    #define DAAL_SYCL_INTERFACE_USM
+    #include <daal/include/data_management/data/numeric_table_sycl_homogen.h>
+#endif
 #include <daal/include/data_management/data/homogen_numeric_table.h>
 
 #include "oneapi/dal/data/accessor.hpp"
@@ -46,7 +51,9 @@ template <typename T>
 inline auto convert_to_daal_homogen_table(array<T>& data,
                                           std::int64_t row_count,
                                           std::int64_t column_count) {
-    data.unique();
+    if (!data.get_size())
+        return daal::data_management::HomogenNumericTable<T>::create();
+    data.need_mutable_data();
     const auto daal_data =
         daal::services::SharedPtr<T>(data.get_mutable_data(), daal_array_owner<T>{ data });
 
@@ -54,5 +61,36 @@ inline auto convert_to_daal_homogen_table(array<T>& data,
                                                                  column_count,
                                                                  row_count);
 }
+
+template <typename T>
+inline table convert_from_daal_homogen_table(const daal::data_management::NumericTablePtr& nt) {
+    daal::data_management::BlockDescriptor<T> block;
+    const std::int64_t row_count    = nt->getNumberOfRows();
+    const std::int64_t column_count = nt->getNumberOfColumns();
+
+    nt->getBlockOfRows(0, row_count, daal::data_management::readOnly, block);
+    T* data = block.getBlockPtr();
+    array<T> arr(data, row_count * column_count, [nt, block](T* p) mutable {
+        nt->releaseBlockOfRows(block);
+    });
+    return homogen_table_builder{}.reset(arr, row_count, column_count).build();
+}
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+template <typename T>
+inline auto convert_to_daal_sycl_homogen_table(sycl::queue& queue,
+                                               array<T>& data,
+                                               std::int64_t row_count,
+                                               std::int64_t column_count) {
+    data.need_mutable_data(queue);
+    const auto daal_data =
+        daal::services::SharedPtr<T>(data.get_mutable_data(), daal_array_owner<T>{ data });
+    return daal::data_management::SyclHomogenNumericTable<T>::create(daal_data,
+                                                                     column_count,
+                                                                     row_count,
+                                                                     cl::sycl::usm::alloc::shared);
+}
+
+#endif
 
 } // namespace oneapi::dal::backend::interop

@@ -39,9 +39,9 @@ namespace classification
 {
 namespace internal
 {
-class ModelImpl : public decision_forest::classification::Model,
-                  public algorithms::classifier::internal::ModelInternal,
-                  public dtrees::internal::ModelImpl
+class DAAL_EXPORT ModelImpl : public decision_forest::classification::Model,
+                              public algorithms::classifier::internal::ModelInternal,
+                              public dtrees::internal::ModelImpl
 {
 public:
     friend class decision_forest::classification::interface1::ModelBuilder;

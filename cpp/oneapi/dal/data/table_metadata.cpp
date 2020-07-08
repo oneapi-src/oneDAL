@@ -21,7 +21,8 @@ using std::int64_t;
 namespace oneapi::dal {
 namespace detail {
 
-struct table_feature_impl {
+class table_feature_impl {
+public:
     data_type dtype;
     feature_type ftype;
 
@@ -42,14 +43,14 @@ public:
         return 0;
     }
 
-    const table_feature& get_feature(int64_t feature_index) const {
+    const table_feature& get_feature(int64_t feature_index) const override {
         throw std::runtime_error("no features in empty table");
     }
 };
 
 class simple_metadata_impl : public table_metadata_impl {
 public:
-    simple_metadata_impl(array<table_feature> features) : features_(features) {}
+    simple_metadata_impl(const array<table_feature>& features) : features_(features) {}
 
     int64_t get_feature_count() const override {
         return features_.get_size();
@@ -128,7 +129,8 @@ table_feature& table_feature::set_type(feature_type ft) {
 table_metadata::table_metadata() : impl_(new detail::empty_metadata_impl()) {}
 
 table_metadata::table_metadata(const table_feature& feature, int64_t feature_count)
-        : impl_(new detail::simple_metadata_impl{ array<table_feature>(feature_count, feature) }) {}
+        : impl_(new detail::simple_metadata_impl{
+              array<table_feature>::full(feature_count, feature) }) {}
 
 table_metadata::table_metadata(array<table_feature> features)
         : impl_(new detail::simple_metadata_impl{ features }) {}

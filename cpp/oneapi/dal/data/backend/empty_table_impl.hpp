@@ -44,22 +44,12 @@ public:
 
     template <typename T>
     void pull_rows(array<T>& block, const range&) const {
-        block.reset_not_owning();
-    }
-
-    template <typename T>
-    void push_back_rows(const array<T>&, const range&) {
-        // TODO: LSP violation.
+        block.reset();
     }
 
     template <typename T>
     void pull_column(array<T>& block, std::int64_t, const range&) const {
-        block.reset_not_owning();
-    }
-
-    template <typename T>
-    void push_back_column(const array<T>&, std::int64_t, const range&) {
-        // TODO: LSP violation.
+        block.reset();
     }
 };
 

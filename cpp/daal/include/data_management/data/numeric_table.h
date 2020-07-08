@@ -57,7 +57,9 @@ class DAAL_EXPORT BlockDescriptor
 {
 public:
     /** \private */
-    BlockDescriptor() : _ptr(), _nrows(0), _ncols(0), _colsOffset(0), _rowsOffset(0), _rwFlag(0), _buffer(), _capacity(0), _pPtr(0), _rawPtr(0) {}
+    DAAL_FORCEINLINE BlockDescriptor()
+        : _ptr(), _nrows(0), _ncols(0), _colsOffset(0), _rowsOffset(0), _rwFlag(0), _buffer(), _capacity(0), _pPtr(0), _rawPtr(0)
+    {}
 
     /** \private */
     ~BlockDescriptor() { freeBuffer(); }

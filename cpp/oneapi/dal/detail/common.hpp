@@ -25,6 +25,9 @@ template <typename T>
 using shared = std::shared_ptr<T>;
 
 template <typename T>
+using unique = std::unique_ptr<T>;
+
+template <typename T>
 using pimpl = shared<T>;
 
 template <typename T>
@@ -41,6 +44,11 @@ struct pimpl_accessor {
     template <typename Object>
     auto make_from_pimpl(typename Object::pimpl const& impl) {
         return Object{ impl };
+    }
+
+    template <typename Object, typename... Args>
+    static auto make(Args&&... args) {
+        return Object{ std::forward<Args>(args)... };
     }
 
     template <typename Object>

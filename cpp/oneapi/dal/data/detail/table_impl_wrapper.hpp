@@ -16,14 +16,25 @@
 
 #pragma once
 
+#include "oneapi/dal/data/detail/access_wrapper_dpc.hpp"
+#include "oneapi/dal/data/detail/access_wrapper_host.hpp"
 #include "oneapi/dal/data/detail/table_impl_iface.hpp"
 
 namespace oneapi::dal::detail {
 
-template <typename TableImpl>
+template <typename Impl>
 class table_impl_wrapper : public table_impl_iface, public base {
 public:
-    table_impl_wrapper(TableImpl&& obj) : impl_(std::move(obj)) {}
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    table_impl_wrapper(Impl&& obj)
+            : impl_(std::move(obj)),
+              host_access_ptr_(new access_wrapper_host<Impl>{ impl_ }),
+              dpc_access_ptr_(new access_wrapper_dpc<Impl>{ impl_ }) {}
+#else
+    table_impl_wrapper(Impl&& obj)
+            : impl_(std::move(obj)),
+              host_access_ptr_(new access_wrapper_host<Impl>{ impl_ }) {}
+#endif
 
     virtual std::int64_t get_column_count() const override {
         return impl_.get_column_count();
@@ -37,83 +48,48 @@ public:
         return impl_.get_metadata();
     }
 
-    virtual void pull_rows(array<float>& block, const range& r) const override {
-        impl_.pull_rows(block, r);
-    }
-
-    virtual void pull_rows(array<double>& block, const range& r) const override {
-        impl_.pull_rows(block, r);
-    }
-
-    virtual void pull_rows(array<std::int32_t>& block, const range& r) const override {
-        impl_.pull_rows(block, r);
-    }
-
-    virtual void push_back_rows(const array<float>& block, const range& r) override {
-        impl_.push_back_rows(block, r);
-    }
-
-    virtual void push_back_rows(const array<double>& block, const range& r) override {
-        impl_.push_back_rows(block, r);
-    }
-
-    virtual void push_back_rows(const array<std::int32_t>& block, const range& r) override {
-        impl_.push_back_rows(block, r);
-    }
-
-    virtual void pull_column(array<float>& block, std::int64_t idx, const range& r) const override {
-        impl_.pull_column(block, idx, r);
-    }
-
-    virtual void pull_column(array<double>& block,
-                             std::int64_t idx,
-                             const range& r) const override {
-        impl_.pull_column(block, idx, r);
-    }
-
-    virtual void pull_column(array<std::int32_t>& block,
-                             std::int64_t idx,
-                             const range& r) const override {
-        impl_.pull_column(block, idx, r);
-    }
-
-    virtual void push_back_column(const array<float>& block,
-                                  std::int64_t idx,
-                                  const range& r) override {
-        impl_.push_back_column(block, idx, r);
-    }
-
-    virtual void push_back_column(const array<double>& block,
-                                  std::int64_t idx,
-                                  const range& r) override {
-        impl_.push_back_column(block, idx, r);
-    }
-
-    virtual void push_back_column(const array<std::int32_t>& block,
-                                  std::int64_t idx,
-                                  const range& r) override {
-        impl_.push_back_column(block, idx, r);
-    }
-
     virtual std::int64_t get_kind() const override {
         return impl_.get_kind();
     }
 
-    TableImpl& get() {
+    virtual access_iface_host& get_access_iface_host() const override {
+        return *host_access_ptr_.get();
+    }
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    virtual access_iface_dpc& get_access_iface_dpc() const override {
+        return *dpc_access_ptr_.get();
+    }
+#endif
+
+    Impl& get() {
         return impl_;
     }
 
 private:
-    TableImpl impl_;
+    Impl impl_;
+
+    unique<access_iface_host> host_access_ptr_;
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    unique<access_iface_dpc> dpc_access_ptr_;
+#endif
 };
 
-// TODO: avoid duplication inside wrappers?
 template <typename Impl>
 class homogen_table_impl_wrapper : public homogen_table_impl_iface, public base {
 public:
+#ifdef ONEAPI_DAL_DATA_PARALLEL
     homogen_table_impl_wrapper(Impl&& obj, std::int64_t homogen_table_kind)
             : kind_(homogen_table_kind),
-              impl_(std::move(obj)) {}
+              impl_(std::move(obj)),
+              host_access_ptr_(new access_wrapper_host<Impl>{ impl_ }),
+              dpc_access_ptr_(new access_wrapper_dpc<Impl>{ impl_ }) {}
+#else
+    homogen_table_impl_wrapper(Impl&& obj, std::int64_t homogen_table_kind)
+            : kind_(homogen_table_kind),
+              impl_(std::move(obj)),
+              host_access_ptr_(new access_wrapper_host<Impl>{ impl_ }) {}
+#endif
 
     virtual std::int64_t get_column_count() const override {
         return impl_.get_column_count();
@@ -127,64 +103,6 @@ public:
         return impl_.get_metadata();
     }
 
-    virtual void pull_rows(array<float>& block, const range& r) const override {
-        impl_.pull_rows(block, r);
-    }
-
-    virtual void pull_rows(array<double>& block, const range& r) const override {
-        impl_.pull_rows(block, r);
-    }
-
-    virtual void pull_rows(array<std::int32_t>& block, const range& r) const override {
-        impl_.pull_rows(block, r);
-    }
-
-    virtual void push_back_rows(const array<float>& block, const range& r) override {
-        impl_.push_back_rows(block, r);
-    }
-
-    virtual void push_back_rows(const array<double>& block, const range& r) override {
-        impl_.push_back_rows(block, r);
-    }
-
-    virtual void push_back_rows(const array<std::int32_t>& block, const range& r) override {
-        impl_.push_back_rows(block, r);
-    }
-
-    virtual void pull_column(array<float>& block, std::int64_t idx, const range& r) const override {
-        impl_.pull_column(block, idx, r);
-    }
-
-    virtual void pull_column(array<double>& block,
-                             std::int64_t idx,
-                             const range& r) const override {
-        impl_.pull_column(block, idx, r);
-    }
-
-    virtual void pull_column(array<std::int32_t>& block,
-                             std::int64_t idx,
-                             const range& r) const override {
-        impl_.pull_column(block, idx, r);
-    }
-
-    virtual void push_back_column(const array<float>& block,
-                                  std::int64_t idx,
-                                  const range& r) override {
-        impl_.push_back_column(block, idx, r);
-    }
-
-    virtual void push_back_column(const array<double>& block,
-                                  std::int64_t idx,
-                                  const range& r) override {
-        impl_.push_back_column(block, idx, r);
-    }
-
-    virtual void push_back_column(const array<std::int32_t>& block,
-                                  std::int64_t idx,
-                                  const range& r) override {
-        impl_.push_back_column(block, idx, r);
-    }
-
     virtual const void* get_data() const override {
         return impl_.get_data();
     }
@@ -193,6 +111,16 @@ public:
         return kind_;
     }
 
+    virtual access_iface_host& get_access_iface_host() const override {
+        return *host_access_ptr_.get();
+    }
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    virtual access_iface_dpc& get_access_iface_dpc() const override {
+        return *dpc_access_ptr_.get();
+    }
+#endif
+
     Impl& get() {
         return impl_;
     }
@@ -200,6 +128,11 @@ public:
 private:
     const std::int64_t kind_;
     Impl impl_;
+
+    unique<access_iface_host> host_access_ptr_;
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    unique<access_iface_dpc> dpc_access_ptr_;
+#endif
 };
 
 } // namespace oneapi::dal::detail

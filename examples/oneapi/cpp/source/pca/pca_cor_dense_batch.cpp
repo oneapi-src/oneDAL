@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,30 +14,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <iomanip>
-#include <iostream>
-
 #include "oneapi/dal/data/table.hpp"
 #include "oneapi/dal/data/accessor.hpp"
 #include "oneapi/dal/algo/pca.hpp"
 
+#include "example_util/utils.hpp"
+
 using namespace oneapi;
-
-std::ostream &operator <<(std::ostream& stream, const dal::table& table) {
-    auto arr = dal::row_accessor<const float>(table).pull();
-    const auto x = arr.get_data();
-
-    for (std::int64_t i = 0; i < table.get_row_count(); i++) {
-        for (std::int64_t j = 0; j < table.get_column_count(); j++) {
-            std::cout << std::setw(10)
-                      << std::setiosflags(std::ios::fixed)
-                      << std::setprecision(3)
-                      << x[i * table.get_column_count() + j];
-        }
-        std::cout << std::endl;
-    }
-    return stream;
-}
 
 int main(int argc, char const *argv[]) {
     constexpr std::int64_t row_count = 5;

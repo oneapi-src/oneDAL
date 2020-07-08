@@ -1,0 +1,359 @@
+Intel® oneAPI Data Analytics Library (oneDAL) Third Party Programs File
+
+This file contains the list of third party software (“third party programs”)
+contained in the Intel software and their required notices and/or license terms.
+This third party software, even if included with the distribution of the Intel
+software, may be governed by separate license terms, including without limitation,
+third party license terms, other Intel software license terms, and open source
+software license terms. These separate license terms govern your use of the third
+party programs as set forth in the “third-party-programs.txt” file.
+
+The third party programs and their corresponding required notices and/or license terms are listed below.
+
+-------------------------------------------------------------
+
+1.  Bzip2
+    Copyright (C) 1996-2005 Julian R Seward. All rights reserved.
+
+Bzip2 License
+
+This program, "bzip2", the associated library "libbzip2", and all documentation, are copyright (C) 1996-2005 Julian R Seward. All rights reserved.
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+The name of the author may not be used to endorse or promote products derived from this software without specific prior written permission.
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-------------------------------------------------------------
+
+2.  Zlib
+    Copyright (c) 1995-2013 Jean-loup Gailly and Mark Adler.
+
+The zlib/libpng License
+
+This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
+
+Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+
+3. This notice may not be removed or altered from any source distribution.
+
+-------------------------------------------------------------
+
+3.  Intel® Integrated Performance Primitives (Intel® IPP) Library
+    Copyright 2020 Intel Corporation
+
+    Intel® Math Kernel Library (Intel® MKL)
+    Copyright 2020 Intel Corporation
+
+Intel Simplified Software License (Version April 2018)
+
+Use and Redistribution.  You may use and redistribute the software
+(the “Software”), without modification, provided the following conditions are met:
+
+* Redistributions must reproduce the above copyright notice and the following
+terms of use in the Software and in the documentation and/or other materials
+provided with the distribution.
+
+* Neither the name of Intel nor the names of its suppliers may be used to endorse
+or promote products derived from this Software without specific prior written permission.
+
+* No reverse engineering, decompilation, or disassembly of this Software is permitted.
+
+Limited patent license.  Intel grants you a world-wide, royalty-free, non-exclusive
+license under patents it now or hereafter owns or controls to make, have made, use,
+import, offer to sell and sell (“Utilize”) this Software, but solely to the extent
+that any such patent is necessary to Utilize the Software alone. The patent license
+shall not apply to any combinations which include this software.
+No hardware per se is licensed hereunder.
+
+Third party and other Intel programs.  “Third Party Programs” are the files listed
+in the “third-party-programs.txt” text file that is included with the Software and
+may include Intel programs under separate license terms. Third Party Programs,
+even if included with the distribution of the Materials, are governed by separate
+license terms and those license terms solely govern your use of those programs.
+
+DISCLAIMER.  THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT ARE DISCLAIMED. THIS SOFTWARE IS NOT
+INTENDED FOR USE IN SYSTEMS OR APPLICATIONS WHERE FAILURE OF THE SOFTWARE MAY CAUSE
+PERSONAL INJURY OR DEATH AND YOU AGREE THAT YOU ARE FULLY RESPONSIBLE FOR ANY CLAIMS,
+COSTS, DAMAGES, EXPENSES, AND ATTORNEYS’ FEES ARISING OUT OF ANY SUCH USE, EVEN IF ANY
+CLAIM ALLEGES THAT INTEL WAS NEGLIGENT REGARDING THE DESIGN OR MANUFACTURE OF THE MATERIALS.
+
+LIMITATION OF LIABILITY. IN NO EVENT WILL INTEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. YOU AGREE TO INDEMNIFY
+AND HOLD INTEL HARMLESS AGAINST ANY CLAIMS AND EXPENSES RESULTING FROM YOUR USE OR
+UNAUTHORIZED USE OF THE SOFTWARE.
+
+No support.  Intel may make changes to the Software, at any time without notice, and is not
+obligated to support, update or provide training for the Software.
+
+Termination. Intel may terminate your right to use the Software in the event of your breach
+of this Agreement and you fail to cure the breach within a reasonable period of time.
+
+Feedback.  Should you provide Intel with comments, modifications, corrections, enhancements
+or other input (“Feedback”) related to the Software Intel will be free to use, disclose,
+reproduce, license or otherwise distribute or exploit the Feedback in its sole discretion
+without any obligations or restrictions of any kind, including without limitation,
+intellectual property rights or licensing obligations.
+
+Compliance with laws.  You agree to comply with all relevant laws and regulations governing
+your use, transfer, import or export (or prohibition thereof) of the Software.
+
+Governing law.  All disputes will be governed by the laws of the United States of America and
+the State of Delaware without reference to conflict of law principles and subject to the
+exclusive jurisdiction of the state or federal courts sitting in the State of Delaware, and
+each party agrees that it submits to the personal jurisdiction and venue of those courts and
+waives any objections. The United Nations Convention on Contracts for the International
+Sale of Goods (1980) is specifically excluded and will not apply to the Software.
+
+-------------------------------------------------------------
+
+4.  Sphinx
+Copyright (c) 2007-2019 by the Sphinx team (see AUTHORS file). All rights reserved.
+
+License for Sphinx
+==================
+
+Copyright (c) 2007-2019 by the Sphinx team (see AUTHORS file).
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+* Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright
+  notice, this list of conditions and the following disclaimer in the
+  documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+Licenses for incorporated software
+==================================
+
+The included smartypants module, included as sphinx.util.smartypants,
+is available under the following license:
+
+----------------------------------------------------------------------
+SmartyPants_ license::
+
+    Copyright (c) 2003 John Gruber
+    (https://daringfireball.net/projects/smartypants/)
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+
+    *   Redistributions in binary form must reproduce the above
+        copyright notice, this list of conditions and the following
+        disclaimer in the documentation and/or other materials
+        provided with the distribution.
+
+    *   Neither the name "SmartyPants" nor the names of its
+        contributors may be used to endorse or promote products
+        derived from this software without specific prior written
+        permission.
+
+    This software is provided by the copyright holders and
+    contributors "as is" and any express or implied warranties,
+    including, but not limited to, the implied warranties of
+    merchantability and fitness for a particular purpose are
+    disclaimed. In no event shall the copyright owner or contributors
+    be liable for any direct, indirect, incidental, special,
+    exemplary, or consequential damages (including, but not limited
+    to, procurement of substitute goods or services; loss of use,
+    data, or profits; or business interruption) however caused and on
+    any theory of liability, whether in contract, strict liability, or
+    tort (including negligence or otherwise) arising in any way out of
+    the use of this software, even if advised of the possibility of
+    such damage.
+
+
+smartypants.py license::
+
+    smartypants.py is a derivative work of SmartyPants.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+
+    *   Redistributions in binary form must reproduce the above
+        copyright notice, this list of conditions and the following
+        disclaimer in the documentation and/or other materials
+        provided with the distribution.
+
+    This software is provided by the copyright holders and
+    contributors "as is" and any express or implied warranties,
+    including, but not limited to, the implied warranties of
+    merchantability and fitness for a particular purpose are
+    disclaimed. In no event shall the copyright owner or contributors
+    be liable for any direct, indirect, incidental, special,
+    exemplary, or consequential damages (including, but not limited
+    to, procurement of substitute goods or services; loss of use,
+    data, or profits; or business interruption) however caused and on
+    any theory of liability, whether in contract, strict liability, or
+    tort (including negligence or otherwise) arising in any way out of
+    the use of this software, even if advised of the possibility of
+    such damage.
+----------------------------------------------------------------------
+
+The included JQuery JavaScript library is available under the MIT
+license:
+
+----------------------------------------------------------------------
+Copyright (c) 2008 John Resig, https://jquery.com/
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+----------------------------------------------------------------------
+
+The included Underscore JavaScript library is available under the MIT
+license:
+
+----------------------------------------------------------------------
+Copyright (c) 2009 Jeremy Ashkenas, DocumentCloud
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+-------------------------------------------------------------------------------
+
+The included implementation of NumpyDocstring._parse_numpydoc_see_also_section
+was derived from code under the following license:
+
+-------------------------------------------------------------------------------
+
+Copyright (C) 2008 Stefan van der Walt <stefan@mentat.za.net>, Pauli Virtanen <pav@iki.fi>
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+ 1. Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+ 2. Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in
+    the documentation and/or other materials provided with the
+    distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+-------------------------------------------------------------
+
+5. Intel intel-64-architecture-processor-topology-enumeration
+Copyright 2008-2016 Intel Corporation
+All rights reserved.
+
+3-clause BSD License
+====================
+
+Intel intel-64-architecture-processor-topology-enumeration 
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+    Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimer.
+    Redistributions in binary form must reproduce the above copyright notice,
+    this list of conditions and the following disclaimer in the documentation
+    and/or other materials provided with the distribution.
+    Neither the name of the Intel Corp. nor the names of its contributors
+    may be used to endorse or promote products derived from this software
+    without specific prior written permission.
+
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-------------------------------------------------------------
+
+The following third party programs have their own third party programs. These additional third party program files are as follows:
+    1. Intel® Integrated Performance Primitives (Intel® IPP): third-party-programs-ipp.txt file
+    2. Intel® Math Kernel Library (Intel® MKL): third-party-programs-mkl.txt file
+-------------------------------------------------------------
+
+*Other names and brands may be claimed as the property of others.
+
+-------------------------------------------------------------
