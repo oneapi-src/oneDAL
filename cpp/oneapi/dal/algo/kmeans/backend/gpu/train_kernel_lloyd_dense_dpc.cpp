@@ -1,6 +1,5 @@
-/* file: kmeans_dense_lloyd_batch_fpt_cpu.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,30 +14,20 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of Lloyd method for K-means algorithm.
-//--
-*/
+#include "oneapi/dal/algo/kmeans/backend/gpu/train_kernel.hpp"
 
-#include "src/algorithms/kmeans/kmeans_lloyd_kernel.h"
-#include "src/algorithms/kmeans/kmeans_lloyd_batch_impl.i"
-#include "src/algorithms/kmeans/kmeans_container.h"
+namespace oneapi::dal::kmeans::backend {
 
-namespace daal
-{
-namespace algorithms
-{
-namespace kmeans
-{
-namespace interface2
-{
-template class BatchContainer<DAAL_FPTYPE, kmeans::lloydDense, DAAL_CPU>;
-}
-namespace internal
-{
-template class DAAL_EXPORT KMeansBatchKernel<lloydDense, DAAL_FPTYPE, DAAL_CPU>;
-} // namespace internal
-} // namespace kmeans
-} // namespace algorithms
-} // namespace daal
+template <typename Float>
+struct train_kernel_gpu<Float, method::lloyd_dense> {
+    train_result operator()(const dal::backend::context_gpu& ctx,
+                            const descriptor_base& params,
+                            const train_input& input) const {
+        return train_result();
+    }
+};
+
+template struct train_kernel_gpu<float, method::lloyd_dense>;
+template struct train_kernel_gpu<double, method::lloyd_dense>;
+
+} // namespace oneapi::dal::kmeans::backend
