@@ -18,7 +18,6 @@
 #define DAAL_SYCL_INTERFACE_USM
 #define DAAL_SYCL_INTERFACE_REVERSED_RANGE
 
-#include <daal/include/services/error_handling.h>
 #include <daal/src/algorithms/dtrees/forest/classification/df_classification_model_impl.h>
 #include <daal/src/services/service_algo_utils.h>
 
@@ -30,9 +29,9 @@
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_kernel.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/interop_helpers.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/detail/common.hpp"
-#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
