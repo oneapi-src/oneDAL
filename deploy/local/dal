@@ -89,4 +89,4 @@ setenv          DAALROOT           $daalroot
 prepend-path    LD_LIBRARY_PATH    $daalroot/lib/$daal_target_arch
 prepend-path    LIBRARY_PATH       $daalroot/lib/$daal_target_arch
 prepend-path    CPATH              $daalroot/include
-prepend-path    CLASSPATH          $daalroot/lib/daal.jar
+prepend-path    CLASSPATH          $daalroot/lib/onedal.jar

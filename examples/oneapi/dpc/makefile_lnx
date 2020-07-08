@@ -86,10 +86,10 @@ else
 endif
 
 ifeq ($(threading),sequential)
-    THREADING_LIB := daal_sequential
+    THREADING_LIB := onedal_sequential
 else
     override threading = parallel
-    THREADING_LIB := daal_thread
+    THREADING_LIB := onedal_thread
 endif
 
 COPTS := -std=c++17 \
@@ -104,15 +104,15 @@ COPTS := -std=c++17 \
          -I./source \
          -I"$(DAALROOT)/include"
 
-LIBS := $(-B) -lonedal_dpc \
-        $(-B) -ldaal_core \
-        $(-B) -ldaal_sycl \
-        $(-B) -l$(THREADING_LIB) \
-        -Bdynamic -ltbb \
-        -Bdynamic -ltbbmalloc \
-        -Bdynamic -lpthread \
-        -Bdynamic -ldl \
-        -Bdynamic -lOpenCL
+LIBS := -Wl,$(-B) -lonedal_dpc \
+        -Wl,$(-B) -lonedal_core \
+        -Wl,$(-B) -lonedal_sycl \
+        -Wl,$(-B) -l$(THREADING_LIB) \
+        -Wl,-Bdynamic -ltbb \
+        -Wl,-Bdynamic -ltbbmalloc \
+        -Wl,-Bdynamic -lpthread \
+        -Wl,-Bdynamic -lOpenCL \
+        -Wl,-Bdynamic -ldl
 
 LOPTS := -L"$(DAAL_PATH)" \
          -L"$(TBB_PATH)" \
@@ -136,7 +136,7 @@ so sointel64:
 _make_ex: $(RES)
 
 vpath
-vpath %.cpp $(addprefix ./source/,linear_kernel pca rbf_kernel svm tables)
+vpath %.cpp $(addprefix ./source/,knn linear_kernel pca rbf_kernel svm tables)
 
 .SECONDARY:
 $(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.

@@ -27,13 +27,13 @@ class infer_result_impl;
 
 class ONEAPI_DAL_EXPORT infer_input : public base {
 public:
-    infer_input(const table& query, const model& model);
+    infer_input(const table& data, const model& model);
 
-    table get_query() const;
+    table get_data() const;
     model get_model() const;
 
-    auto& set_query(const table& query) {
-        set_query_impl(query);
+    auto& set_data(const table& data) {
+        set_data_impl(data);
         return *this;
     }
 
@@ -43,7 +43,7 @@ public:
     }
 
 private:
-    void set_query_impl(const table& query);
+    void set_data_impl(const table& data);
     void set_model_impl(const model& model);
 
     dal::detail::pimpl<detail::infer_input_impl> impl_;

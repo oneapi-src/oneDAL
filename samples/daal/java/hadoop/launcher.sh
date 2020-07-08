@@ -49,7 +49,7 @@ if [ "${daal_ia}" != "ia32" -a "${daal_ia}" != "intel64" ]; then
 fi
 
 # Setting CLASSPATH to build jar
-export CLASSPATH=${DAALROOT}/lib/daal.jar:${SCALA_JARS}:$CLASSPATH
+export CLASSPATH=${DAALROOT}/lib/onedal.jar:${SCALA_JARS}:$CLASSPATH
 
 # Creating _results folder
 result_folder=$(command -p cd $(dirname -- "${BASH_SOURCE}"); pwd)/_results/
@@ -90,7 +90,7 @@ elif [ "${os_name}" == "Darwin" ]; then
 fi
 
 # Setting envs
-export LIBJARS=${DAALROOT}/lib/daal.jar
+export LIBJARS=${DAALROOT}/lib/onedal.jar
 export CLASSPATH=${LIBJARS}:${CLASSPATH}
 export HADOOP_CLASSPATH=${LIBJARS}
 

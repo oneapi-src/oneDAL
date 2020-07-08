@@ -90,7 +90,7 @@ RES = $(example:+=.res)
 CC=clang-cl
 COPTS=/clang:-fsycl /EHs
 OUT_OPTS=/Fe$(RES_DIR)
-RT_LIB=/link /ignore:4078 OpenCL.lib $(DAAL_PATH)\daal_sycl.lib
+RT_LIB=/link /ignore:4078 OpenCL.lib $(DAAL_PATH)\onedal_sycl.lib
 CLEAN=
 !ENDIF
 
@@ -102,15 +102,15 @@ COPTS=-m64 $(COPTS)
 
 !IF ("$(RES_EXT)"=="lib")
 !IF ("$(threading)"=="sequential")
-DAAL_LIB_T = $(DAAL_PATH)\daal_sequential.lib
+DAAL_LIB_T = $(DAAL_PATH)\onedal_sequential.lib
 !ELSE
 threading = parallel
-DAAL_LIB_T = $(DAAL_PATH)\daal_thread.lib
+DAAL_LIB_T = $(DAAL_PATH)\onedal_thread.lib
 !ENDIF
 !ENDIF
 EXT_LIB = $(RT_LIB)
 
-DAAL_LIB = $(DAAL_PATH)\daal_core$(EXT) $(DAAL_LIB_T)
+DAAL_LIB = $(DAAL_PATH)\onedal_core$(EXT) $(DAAL_LIB_T)
 
 COPTS = -Isource\utils $(COPTS) $(OUT_OPTS)
 LOPTS = $(DAAL_LIB) $(EXT_LIB)

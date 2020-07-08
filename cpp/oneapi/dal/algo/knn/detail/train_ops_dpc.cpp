@@ -14,24 +14,27 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/knn/detail/train_ops.hpp"
 #include "oneapi/dal/algo/knn/backend/cpu/train_kernel.hpp"
-#include "oneapi/dal/backend/dispatcher.hpp"
+#include "oneapi/dal/algo/knn/backend/gpu/train_kernel.hpp"
+#include "oneapi/dal/algo/knn/detail/train_ops.hpp"
+#include "oneapi/dal/backend/dispatcher_dpc.hpp"
 
 namespace oneapi::dal::knn::detail {
 
 template <typename Float, typename Method>
-struct train_ops_dispatcher<host_policy, Float, Method> {
-    train_result operator()(const host_policy& ctx,
-                            const descriptor_base& desc,
+struct ONEAPI_DAL_EXPORT train_ops_dispatcher<data_parallel_policy, Float, Method> {
+    train_result operator()(const data_parallel_policy& ctx,
+                            const descriptor_base& params,
                             const train_input& input) const {
         using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Method>>;
-        return kernel_dispatcher_t()(ctx, desc, input);
+            dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Method>,
+                                            backend::train_kernel_gpu<Float, Method>>;
+        return kernel_dispatcher_t{}(ctx, params, input);
     }
 };
 
-#define INSTANTIATE(F, M) template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<host_policy, F, M>;
+#define INSTANTIATE(F, M) \
+    template struct ONEAPI_DAL_EXPORT train_ops_dispatcher<data_parallel_policy, F, M>;
 
 INSTANTIATE(float, method::kd_tree)
 INSTANTIATE(double, method::kd_tree)

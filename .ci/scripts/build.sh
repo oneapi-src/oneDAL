@@ -76,6 +76,9 @@ echo "Set Java PATH and CPATH"
 export PATH=$JAVA_HOME/bin:$PATH
 export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/${java_os_name}:$CPATH
 echo "Calling make"
-make ${make_target} ${make_op} PLAT=${platform} COMPILER=${compiler} REQCPU="${CPU_OPTIMIZATIONS}"
+make ${make_target} ${make_op} \
+    PLAT=${platform} \
+    COMPILER=${compiler} \
+    REQCPU="${CPU_OPTIMIZATIONS}"
 
 exit $?
