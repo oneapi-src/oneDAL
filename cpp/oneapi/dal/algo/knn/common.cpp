@@ -53,7 +53,7 @@ void descriptor_base::set_class_count_impl(std::int64_t value) {
 
 void descriptor_base::set_neighbor_count_impl(std::int64_t value) {
     if (value < 1) {
-        throw domain_error("neighbor_count count should be >01");
+        throw domain_error("neighbor_count should be > 0");
     }
     impl_->neighbor_count = value;
 }
