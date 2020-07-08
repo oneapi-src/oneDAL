@@ -62,40 +62,41 @@ struct train_ops {
         if (result.get_support_vector_count() < 0 ||
             result.get_support_vector_count() > input.get_data().get_row_count()) {
             throw internal_error(
-                "Result support_vectors_count shoult be >= 0 and <= input data row_count");
+                "Result support_vectors_count should be >= 0 and <= input data row_count");
         }
         if (!(result.get_support_vectors().has_data())) {
-            throw internal_error("Result support_vectors shoult not be empty");
+            throw internal_error("Result support_vectors should not be empty");
         }
         if (!(result.get_support_indices().has_data())) {
-            throw internal_error("Result support_indices shoult not be empty");
+            throw internal_error("Result support_indices should not be empty");
         }
         if (!(result.get_coefficients().has_data())) {
-            throw internal_error("Result coefficients shoult not be empty");
+            throw internal_error("Result coefficients should not be empty");
         }
         if (result.get_support_vectors().get_column_count() !=
             input.get_data().get_column_count()) {
             throw internal_error(
-                "Result support_vectors column_count shoult be equal input data column_count");
+                "Result support_vectors column_count should be equal to input data column_count");
         }
         if (result.get_support_vectors().get_row_count() != result.get_support_vector_count()) {
             throw internal_error(
-                "Result support_vectors row_count shoult be equal result support_vectors_count");
+                "Result support_vectors row_count should be equal to result support_vectors_count");
         }
         if (result.get_support_indices().get_row_count() != result.get_support_vector_count()) {
             throw internal_error(
-                "Result support_indices row_count shoult be equal result support_vectors_count");
+                "Result support_indices row_count should be equal to result support_vectors_count");
         }
         if (result.get_coefficients().get_row_count() != result.get_support_vector_count()) {
             throw internal_error(
-                "Result coefficients row_count shoult be equal result support_vectors_count");
+                "Result coefficients row_count should be equal to result support_vectors_count");
         }
     }
 
     template <typename Context>
     auto operator()(const Context& ctx, const Descriptor& desc, const train_input& input) const {
         check_preconditions(desc, input);
-        const auto result = train_ops_dispatcher<Context, float_t, task_t, method_t>()(ctx, desc, input);
+        const auto result =
+            train_ops_dispatcher<Context, float_t, task_t, method_t>()(ctx, desc, input);
         check_postconditions(desc, input, result);
         return result;
     }

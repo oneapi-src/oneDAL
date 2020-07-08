@@ -37,34 +37,34 @@ struct infer_ops {
 
     void check_preconditions(const Descriptor& params, const infer_input& input) const {
         if (!(input.get_data().has_data())) {
-            throw invalid_argument("Input data should not be empty");
+            throw domain_error("Input data should not be empty");
         }
         if (input.get_model().get_support_vector_count() < 0) {
-            throw invalid_argument("Input model support_vectors_count shoult be >= 0");
+            throw invalid_argument("Input model support_vectors_count should be >= 0");
         }
         if (!(input.get_model().get_support_vectors().has_data())) {
-            throw invalid_argument("Input model support_vectors shoult not be empty");
+            throw domain_error("Input model support_vectors should not be empty");
         }
         if (!(input.get_model().get_coefficients().has_data())) {
-            throw invalid_argument("Input model coefficients shoult not be empty");
+            throw domain_error("Input model coefficients should not be empty");
         }
         if (input.get_model().get_support_vectors().get_column_count() !=
             input.get_data().get_column_count()) {
             throw invalid_argument(
-                "Input model support_vectors column_count shoult be equal input data column_count");
+                "Input model support_vectors column_count should be equal to input data column_count");
         }
         if (input.get_model().get_support_vectors().get_row_count() !=
             input.get_model().get_support_vector_count()) {
             throw invalid_argument(
-                "Input model support_vectors row_count shoult be equal input model support_vectors_count");
+                "Input model support_vectors row_count should be equal to input model support_vectors_count");
         }
         if (input.get_model().get_coefficients().get_row_count() !=
             input.get_model().get_support_vector_count()) {
             throw invalid_argument(
-                "Input model coefficients row_count shoult be equal input model support_vectors_count");
+                "Input model coefficients row_count should be equal to input model support_vectors_count");
         }
         if (!(params.get_kernel_impl()->get_impl())) {
-            throw invalid_argument("Input kernel should be not be empty");
+            throw domain_error("Input kernel should be not be empty");
         }
     }
 
@@ -72,14 +72,14 @@ struct infer_ops {
                               const infer_input& input,
                               const infer_result& result) const {
         if (!(result.get_labels().has_data())) {
-            throw internal_error("Relult labels should not be empty");
+            throw domain_error("Relult labels should not be empty");
         }
         if (!(result.get_decision_function().has_data())) {
-            throw internal_error("Relult decision_function should not be empty");
+            throw domain_error("Relult decision_function should not be empty");
         }
         if (result.get_decision_function().get_row_count() != result.get_labels().get_row_count()) {
             throw internal_error(
-                "Relult decision_function row_count shoult be equal labels row_count");
+                "Relult decision_function row_count should be equal labels row_count");
         }
     }
 

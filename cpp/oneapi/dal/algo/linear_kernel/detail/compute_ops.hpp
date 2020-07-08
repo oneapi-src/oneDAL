@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/linear_kernel/compute_types.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::linear_kernel::detail {
 
@@ -33,12 +34,38 @@ struct compute_ops {
     using result_t          = compute_result;
     using descriptor_base_t = descriptor_base;
 
-    void validate(const Descriptor& params, const compute_input& input) const {}
+    void check_preconditions(const Descriptor& params, const compute_input& input) const {
+        if (!(input.get_x().has_data())) {
+            throw domain_error("Input x should not be empty");
+        }
+        if (!(input.get_y().has_data())) {
+            throw domain_error("Input y should not be empty");
+        }
+        if (input.get_x().get_column_count() != input.get_y().get_column_count()) {
+            throw invalid_argument("Input x column_count should be equal to y column_count");
+        }
+    }
+
+    void check_postconditions(const Descriptor& params,
+                              const compute_input& input,
+                              const compute_result& result) const {
+        if (!(result.get_values().has_data())) {
+            throw domain_error("Result values should not be empty");
+        }
+        if (input.get_x().get_row_count() != result.get_values().get_row_count()) {
+            throw internal_error("Input x row_count should be equal to values row_count");
+        }
+        if (input.get_y().get_row_count() != result.get_values().get_column_count()) {
+            throw internal_error("Input y row_count should be equal to values col_count");
+        }
+    }
 
     template <typename Context>
     auto operator()(const Context& ctx, const Descriptor& desc, const compute_input& input) const {
-        validate(desc, input);
-        return compute_ops_dispatcher<Context, float_t, method_t>()(ctx, desc, input);
+        check_preconditions(desc, input);
+        const auto result = compute_ops_dispatcher<Context, float_t, method_t>()(ctx, desc, input);
+        check_postconditions(desc, input, result);
+        return result;
     }
 };
 
