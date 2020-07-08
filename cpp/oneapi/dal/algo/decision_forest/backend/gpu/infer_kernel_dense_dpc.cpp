@@ -24,7 +24,7 @@ struct infer_kernel_gpu<Float, Task, method::dense> {
     infer_result<Task> operator()(const dal::backend::context_gpu& ctx,
                                   const descriptor_base<Task>& params,
                                   const infer_input<Task>& input) const {
-        throw unimplemented_error("Decision forest infer dense method is not implemented for GPU!");
+        throw unimplemented_error("Decision forest infer dense method is not implemented for GPU");
     }
 };
 
