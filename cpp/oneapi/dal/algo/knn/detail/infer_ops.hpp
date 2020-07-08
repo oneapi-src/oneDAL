@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/algo/knn/infer_types.hpp"
 #include "oneapi/dal/data/accessor.hpp"
+#include "oneapi/dal/exceptions.hpp
 
 namespace oneapi::dal::knn::detail {
 
@@ -50,7 +51,7 @@ struct infer_ops {
             throw internal_error("Number of labels in result should match number of rows in input");
         }
         row_accessor<const float_t> acc {
-            result.get_labels();
+            result.get_labels()
         }
         for (std::int64_t index; index < result.get_labels().get_row_count(); index++) {
             auto label = acc.pull(index);

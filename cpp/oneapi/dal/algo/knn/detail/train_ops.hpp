@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/algo/knn/train_types.hpp"
 #include "oneapi/dal/data/accessor.hpp"
+#include "oneapi/dal/exceptions.hpp
 
 namespace oneapi::dal::knn::detail {
 
@@ -52,8 +53,12 @@ struct train_ops {
         }
         for (std::int64_t index; index < input.get_labels().get_row_count(); index++) {
             auto label = acc.pull(index);
-            if (label[0] < 0 || label[0] >= params.get_class_count())
-                throw domain_error("Input label value is invalid");
+            if (label[0] < 0 ) {
+                throw domain_error("Input label value should be > 0");
+            }
+            if (label[0] >= params.get_class_count()) {
+                throw domain_error("Input label value should be < class_count");
+            }
         }
     }
 
@@ -66,6 +71,7 @@ struct train_ops {
         check_preconditions(desc, input);
         const auto result = train_ops_dispatcher<Context, float_t, method_t>()(ctx, desc, input);
         check_postconditions(desc, input, result);
+        return result;
     }
 };
 
