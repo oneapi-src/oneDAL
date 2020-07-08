@@ -33,12 +33,32 @@ struct infer_ops {
     using result_t          = infer_result;
     using descriptor_base_t = descriptor_base;
 
-    void validate(const Descriptor& params, const infer_input& input) const {}
+    void check_preconditions(const Descriptor& params, const infer_input& input) const {
+        if (!(input.get_data().has_data())) {
+            throw domain_error("Input data should not be empty");
+        }
+        // TODO Check that model exists
+        // TODO Check that data feature count is equal to model feature count
+        // TODO Check that K is not greater than number of observations in train data
+    }
+
+    void check_postconditions(const Descriptor& params,
+                              const infer_input& input,
+                              const infer_result& result) const {
+        if (!(result.get_labels().has_data())) {
+            throw internal_error("Result labels should not be empty!");
+        }
+        if (result.get_labels().get_column_count() != input.get_data().get_row_count()) {
+            throw internal_error("Result labels column_count should be equal to data row_count");
+        }
+    }
 
     template <typename Context>
     auto operator()(const Context& ctx, const Descriptor& desc, const infer_input& input) const {
-        validate(desc, input);
-        return infer_ops_dispatcher<Context, float_t, method_t>()(ctx, desc, input);
+        check_preconditions(desc, input);
+        const auto result = infer_ops_dispatcher<Context, float_t, method_t>()(ctx, desc, input);
+        check_postconditions(desc, input, result);
+        return result;  
     }
 };
 
