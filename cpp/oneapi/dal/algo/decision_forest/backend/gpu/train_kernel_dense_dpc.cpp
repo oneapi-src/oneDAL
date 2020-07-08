@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_kernel.hpp"
-#include "oneapi/dal/backend/interop/error_converter.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
