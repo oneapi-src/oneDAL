@@ -37,21 +37,26 @@ struct train_ops {
         if (!(input.get_data().has_data())) {
             throw domain_error("Input data should not be empty");
         }
-        // TODO Check that K is not greater than number of observations in data
+        if (!(input.get_labels().has_data())) {
+            throw domain_error("Input labels should not be empty");
+        }
+        if (input.get_labels().get_column_count() != 1) {
+            throw domain_error("Labels should contain a single column");
+        }
+        if (!(input.get_labels().get_row_count() == input.get_data().get_row_count())) {
+            throw domain_error("Number of labels should match number of rows in data");
+        }
+        row_accessor<const float_t> acc{ input.get_labels(); }
+        for(std::int64_t index; index < input.get_labels().get_row_count(); index++) {
+            auto label = acc.pull(index);
+            if(label[0] < 0 || label[0] >= params.get_class_count())
+                throw internal_error("Input label value is invalid");
+        }
     }
 
     void check_postconditions(const Descriptor& params,
                               const infer_input& input,
                               const infer_result& result) const {
-        if (!(result.get_labels().has_data())) {
-            throw internal_error("Result labels should not be empty!");
-        }
-        if (result.get_labels().get_column_count() != 1) {
-            throw internal_error("Result labels column_count should contain a single column");
-        }
-        if (result.get_labels().get_row_count() != input.get_data().get_row_count()) {
-            throw internal_error("Number of labels in result should match number of rows in input");
-        }
     }
 
     template <typename Context>
