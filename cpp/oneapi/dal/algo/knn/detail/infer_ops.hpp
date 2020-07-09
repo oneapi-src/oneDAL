@@ -56,7 +56,6 @@ struct infer_ops {
         check_preconditions(desc, input);
         const auto result = infer_ops_dispatcher<Context, float_t, method_t>()(ctx, desc, input);
         check_postconditions(desc, input, result);
-        return result;
     }
 };
 

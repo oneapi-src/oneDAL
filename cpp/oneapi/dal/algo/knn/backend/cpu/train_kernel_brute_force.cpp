@@ -28,7 +28,6 @@ struct train_kernel_cpu<Float, method::brute_force> {
                             const descriptor_base& desc,
                             const train_input& input) const {
         throw unimplemented_error("k-NN brute force method is not implemented for CPU");
-        return train_result();
     }
 };
 
