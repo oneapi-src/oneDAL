@@ -98,7 +98,7 @@ def write_proj(config, example_name, proj, proj_filters, proj_user):
         write_file(proj_dir, example_name + '.vcxproj.user', proj_user)
 
 def generate_sln(config, examples_info):
-    solution_guid = '{{{uuid.uuid3(uuid.NAMESPACE_URL, config.solution_name)}}}'.upper()
+    solution_guid = '{' + '{}'.format(uuid.uuid3(uuid.NAMESPACE_URL, config.solution_name)).upper() + '}'
     all_project_decls = []
     all_platform_decl = []
     for name, guid in examples_info:
@@ -125,7 +125,7 @@ def generate_sln(config, examples_info):
 def generate_proj(config, relative_example_path):
     example_name = get_example_name(relative_example_path)
     normalized_example_path = relative_example_path.replace('/', '\\')
-    guid = '{{{uuid.uuid3(uuid.NAMESPACE_URL, relative_example_path)}}}'.upper()
+    guid = '{' + '{}'.format(uuid.uuid3(uuid.NAMESPACE_URL, relative_example_path)).upper() + '}'
     proj = get_template(config, 'daal_win.vcxproj').format(
         example_guid = guid,
         example_name = example_name,
