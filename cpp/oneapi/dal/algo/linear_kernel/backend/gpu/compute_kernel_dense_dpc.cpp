@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #define DAAL_SYCL_INTERFACE
+#define DAAL_SYCL_INTERFACE_REVERSED_RANGE
 
 #include "oneapi/dal/algo/linear_kernel/backend/gpu/compute_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
