@@ -17,7 +17,6 @@
 #pragma once
 
 #include "oneapi/dal/algo/knn/train_types.hpp"
-#include "oneapi/dal/data/accessor.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::knn::detail {
@@ -47,16 +46,6 @@ struct train_ops {
         }
         if (!(input.get_labels().get_row_count() == input.get_data().get_row_count())) {
             throw domain_error("Number of labels should match number of rows in data");
-        }
-        row_accessor<const float_t> acc{ input.get_labels() };
-        for (std::int64_t index; index < input.get_labels().get_row_count(); index++) {
-            auto label = acc.pull(index);
-            if (label[0] < 0) {
-                throw domain_error("Input label value should be > 0");
-            }
-            if (label[0] >= params.get_class_count()) {
-                throw domain_error("Input label value should be < class_count");
-            }
         }
     }
 
