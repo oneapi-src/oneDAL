@@ -91,14 +91,14 @@ def get_example_name(relative_example_path):
 def write_proj(config, example_name, proj, proj_filters, proj_user):
     proj_dir = os.path.join(config.output_dir, 'vcproj', example_name)
     os.makedirs(proj_dir, exist_ok=True)
-    print(f'Write {example_name}.vcxproj')
+    print('Write {}.vcxproj'.format(example_name))
     if not config.test:
         write_file(proj_dir, example_name + '.vcxproj', proj)
         write_file(proj_dir, example_name + '.vcxproj.filters', proj_filters)
         write_file(proj_dir, example_name + '.vcxproj.user', proj_user)
 
 def generate_sln(config, examples_info):
-    solution_guid = f'{{{uuid.uuid3(uuid.NAMESPACE_URL, config.solution_name)}}}'.upper()
+    solution_guid = '{{{uuid.uuid3(uuid.NAMESPACE_URL, config.solution_name)}}}'.upper()
     all_project_decls = []
     all_platform_decl = []
     for name, guid in examples_info:
@@ -118,14 +118,14 @@ def generate_sln(config, examples_info):
         project_decl = all_project_decls_str,
         platform_decl = all_platform_decl_str
     )
-    print(f'Write {config.solution_name}')
+    print('Write {}'.format(config.solution_name))
     if not config.test:
         write_file(config.output_dir, config.solution_name, solution)
 
 def generate_proj(config, relative_example_path):
     example_name = get_example_name(relative_example_path)
     normalized_example_path = relative_example_path.replace('/', '\\')
-    guid = f'{{{uuid.uuid3(uuid.NAMESPACE_URL, relative_example_path)}}}'.upper()
+    guid = '{{{uuid.uuid3(uuid.NAMESPACE_URL, relative_example_path)}}}'.upper()
     proj = get_template(config, 'daal_win.vcxproj').format(
         example_guid = guid,
         example_name = example_name,
@@ -141,7 +141,7 @@ def generate_proj(config, relative_example_path):
 def find_all_examples(examples_dir):
     examples = []
     with cd(examples_dir):
-        for relative_path in glob.iglob('**/*.cpp', recursive=True):
+        for relative_path in glob.iglob('**/*.cpp'):
             examples.append(relative_path)
     return examples
 
