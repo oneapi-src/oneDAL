@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/knn/train_types.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::knn::detail {
 
@@ -33,13 +34,32 @@ struct train_ops {
     using result_t          = train_result;
     using descriptor_base_t = descriptor_base;
 
-    void validate(const Descriptor& params, const train_input& input) const {}
+    void check_preconditions(const Descriptor& params, const train_input& input) const {
+        if (!(input.get_data().has_data())) {
+            throw domain_error("Input data should not be empty");
+        }
+        if (!(input.get_labels().has_data())) {
+            throw domain_error("Input labels should not be empty");
+        }
+        if (input.get_labels().get_column_count() != 1) {
+            throw domain_error("Labels should contain a single column");
+        }
+        if (!(input.get_labels().get_row_count() == input.get_data().get_row_count())) {
+            throw domain_error("Number of labels should match number of rows in data");
+        }
+    }
+
+    void check_postconditions(const Descriptor& params,
+                              const train_input& input,
+                              const train_result& result) const {}
 
     template <typename Context>
     auto operator()(const Context& ctx, const Descriptor& desc, const train_input& input) const {
-        validate(desc, input);
-        return train_ops_dispatcher<Context, float_t, method_t>()(ctx, desc, input);
+        check_preconditions(desc, input);
+        const auto result = train_ops_dispatcher<Context, float_t, method_t>()(ctx, desc, input);
+        check_postconditions(desc, input, result);
+        return result;
     }
-};
+}; // namespace oneapi::dal::knn::detail
 
 } // namespace oneapi::dal::knn::detail

@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/knn/infer_types.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::knn::detail {
 
@@ -33,12 +34,29 @@ struct infer_ops {
     using result_t          = infer_result;
     using descriptor_base_t = descriptor_base;
 
-    void validate(const Descriptor& params, const infer_input& input) const {}
+    void check_preconditions(const Descriptor& params, const infer_input& input) const {
+        if (!(input.get_data().has_data())) {
+            throw domain_error("Input data should not be empty");
+        }
+    }
+
+    void check_postconditions(const Descriptor& params,
+                              const infer_input& input,
+                              const infer_result& result) const {
+        if (result.get_labels().get_column_count() != 1) {
+            throw internal_error("Result labels column_count should contain a single column");
+        }
+        if (result.get_labels().get_row_count() != input.get_data().get_row_count()) {
+            throw internal_error("Number of labels in result should match number of rows in input");
+        }
+    }
 
     template <typename Context>
     auto operator()(const Context& ctx, const Descriptor& desc, const infer_input& input) const {
-        validate(desc, input);
-        return infer_ops_dispatcher<Context, float_t, method_t>()(ctx, desc, input);
+        check_preconditions(desc, input);
+        const auto result = infer_ops_dispatcher<Context, float_t, method_t>()(ctx, desc, input);
+        check_postconditions(desc, input, result);
+        return result;
     }
 };
 
