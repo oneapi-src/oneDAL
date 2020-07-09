@@ -29,6 +29,7 @@ struct infer_kernel_cpu<Float, method::brute_force> {
                             const descriptor_base &desc,
                             const infer_input &input) const {
         throw unimplemented_error("k-NN brute force method is not implemented for CPU");
+        return infer_result();
     }
 };
 
