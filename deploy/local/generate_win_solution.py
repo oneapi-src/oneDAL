@@ -140,8 +140,12 @@ def generate_proj(config, relative_example_path):
 
 def find_all_examples(examples_dir):
     examples = []
+
+    print('Walking dir {}'.format(examples_dir))
     for root, dirnames, filenames in os.walk(examples_dir):
+        print('-> checking file: {}{}'.format(root,filenames))
         for filename in fnmatch.filter(filenames, '*.c'):
+            print('--> adding example: {}{}'.format(root,filenames))
             examples.append(os.path.join(root, filename))
     return examples
 
