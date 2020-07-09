@@ -86,7 +86,7 @@ public:
 
 class ONEAPI_DAL_EXPORT bad_alloc : public exception, public std::bad_alloc {
 public:
-    using std::bad_alloc::bad_alloc;
+    bad_alloc() noexcept = default;
     const char* what() const noexcept override;
 };
 
