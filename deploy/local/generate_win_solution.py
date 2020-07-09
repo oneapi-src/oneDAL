@@ -19,7 +19,7 @@
 ##******************************************************************************
 
 import os
-import glob
+import fnmatch
 import uuid
 import argparse
 
@@ -140,9 +140,9 @@ def generate_proj(config, relative_example_path):
 
 def find_all_examples(examples_dir):
     examples = []
-    with cd(examples_dir):
-        for relative_path in glob.iglob('**/*.cpp'):
-            examples.append(relative_path)
+    for root, dirnames, filenames in os.walk(examples_dir):
+        for filename in fnmatch.filter(filenames, '*.c'):
+            examples.append(os.path.join(root, filename))
     return examples
 
 def generate(config):
