@@ -15,9 +15,10 @@
 *******************************************************************************/
 
 #define DAAL_SYCL_INTERFACE
+#define DAAL_SYCL_INTERFACE_USM
+#define DAAL_SYCL_INTERFACE_REVERSED_RANGE
 
 #include "oneapi/dal/algo/rbf_kernel/backend/gpu/compute_kernel.hpp"
-#include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 

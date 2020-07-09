@@ -16,6 +16,7 @@
 
 #define DAAL_SYCL_INTERFACE
 #define DAAL_SYCL_INTERFACE_USM
+#define DAAL_SYCL_INTERFACE_REVERSED_RANGE
 
 #include <src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h>
 #include <src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_train_kernel_ucapi.h>

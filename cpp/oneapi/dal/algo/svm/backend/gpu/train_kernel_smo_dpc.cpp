@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/svm/backend/gpu/train_kernel.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::svm::backend {
 
@@ -23,6 +24,7 @@ struct train_kernel_gpu<Float, task::classification, method::smo> {
     train_result operator()(const dal::backend::context_gpu& ctx,
                             const descriptor_base& params,
                             const train_input& input) const {
+        throw unimplemented_error("SVM smo method is not implemented for GPU");
         return train_result();
     }
 };

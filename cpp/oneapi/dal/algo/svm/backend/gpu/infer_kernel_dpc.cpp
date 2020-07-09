@@ -15,12 +15,14 @@
 *******************************************************************************/
 
 #define DAAL_SYCL_INTERFACE
+#define DAAL_SYCL_INTERFACE_USM
+#define DAAL_SYCL_INTERFACE_REVERSED_RANGE
 
 #include "oneapi/dal/algo/svm/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/svm/backend/interop_model.hpp"
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
-#include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 #include <daal/src/algorithms/svm/oneapi/svm_predict_kernel_oneapi.h>
@@ -75,27 +77,25 @@ static infer_result call_daal_kernel(const context_gpu& ctx,
                           .set_coefficients(daal_coefficients)
                           .set_bias(trained_model.get_bias());
 
-    const auto daal_kernel = desc.get_kernel_impl()->get_impl()->get_daal_kernel_function();
+    auto kernel_impl       = desc.get_kernel_impl()->get_impl();
+    const auto daal_kernel = kernel_impl->get_daal_kernel_function();
+
     daal_svm::Parameter daal_parameter(daal_kernel);
 
     auto arr_decision_function = array<Float>::empty(queue, row_count * 1);
     const auto daal_decision_function =
         interop::convert_to_daal_sycl_homogen_table(queue, arr_decision_function, row_count, 1);
 
-    daal_svm_predict_kernel_t<Float>().compute(daal_data,
-                                               &daal_model,
-                                               *daal_decision_function,
-                                               &daal_parameter);
+    interop::status_to_exception(daal_svm_predict_kernel_t<Float>().compute(daal_data,
+                                                                            &daal_model,
+                                                                            *daal_decision_function,
+                                                                            &daal_parameter));
 
-    auto arr_label = array<Float>::empty(queue, row_count * 1);
-    auto event     = queue.submit([&](sycl::handler& cgh) {
-        auto labels            = arr_label.get_mutable_data();
-        auto decision_function = arr_decision_function.get_data();
-        cgh.parallel_for(sycl::range<1>(arr_label.get_count()), [=](sycl::id<1> idx) {
-            labels[idx[0]] = decision_function[idx[0]] >= 0 ? Float(1.0) : Float(-1.0);
-        });
-    });
-    event.wait();
+    // TODO: rework with help dpcpp code
+    auto arr_label = array<Float>::empty(row_count * 1);
+    for (std::int64_t i = 0; i < row_count; ++i) {
+        arr_label[i] = arr_decision_function[i] >= 0 ? Float(1.0) : Float(-1.0);
+    }
 
     return infer_result()
         .set_decision_function(

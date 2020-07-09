@@ -19,6 +19,7 @@
 
 #include "oneapi/dal/algo/decision_forest/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 #include "oneapi/dal/algo/decision_forest/backend/interop_helpers.hpp"
@@ -71,12 +72,12 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     const rgr::Model* const daal_model =
         static_cast<rgr::Model*>(pinterop_model->get_model().get());
-    interop::call_daal_kernel<Float, rgr_dense_predict_kernel_t>(
+    interop::status_to_exception(interop::call_daal_kernel<Float, rgr_dense_predict_kernel_t>(
         ctx,
         daal::services::internal::hostApp(daal_input),
         daal_data.get(),
         daal_model,
-        daal_labels_res.get());
+        daal_labels_res.get()));
 
     return infer_result<Task>().set_labels(
         interop::convert_from_daal_homogen_table<Float>(daal_labels_res));
