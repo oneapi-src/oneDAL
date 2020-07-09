@@ -55,6 +55,10 @@ private:
     services::Status processNeighborhood(size_t clusterId, int * assignments, const Neighborhood<algorithmFPType, cpu> & neigh,
                                          Queue<size_t, cpu> & qu);
 
+    services::Status processNeighborhoodParallel(size_t clusterId, int * const assignments, const Neighborhood<algorithmFPType, cpu> & neigh,
+                                                 daal::tls<Queue<size_t, cpu> *> & tls, TArray<Neighborhood<algorithmFPType, cpu>, cpu> & neighs,
+                                                 algorithmFPType minObservations, int * const isCore, size_t nestedLevel);
+
     services::Status processResultsToCompute(DAAL_UINT64 resultsToCompute, int * const isCore, const NumericTable * ntData,
                                              NumericTable * ntCoreIndices, NumericTable * ntCoreObservations);
 };
