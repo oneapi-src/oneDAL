@@ -307,6 +307,7 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, cpu>::run(gbt
 template <typename algorithmFPType, typename BinIndexType, CpuType cpu>
 void TrainBatchTaskBase<algorithmFPType, BinIndexType, cpu>::updateOOB(size_t iTree, TreeType & t)
 {
+    const double res      = _initialF;
     const auto aSampleToF = _aSampleToF.get();
     auto pf               = f();
     const size_t n        = _aSampleToF.size();
@@ -317,7 +318,8 @@ void TrainBatchTaskBase<algorithmFPType, BinIndexType, cpu>::updateOOB(size_t iT
         auto pNode = dtrees::prediction::internal::findNode<algorithmFPType, TreeType, cpu>(t, x.get());
         DAAL_ASSERT(pNode);
         algorithmFPType inc = TreeType::NodeType::castLeaf(pNode)->response;
-        pf[iRow * _nTrees + iTree] += inc;
+        // pf buffer was already initialized by _initialF before first iteration
+        pf[iRow * _nTrees + iTree] += inc - res;
     });
 }
 
