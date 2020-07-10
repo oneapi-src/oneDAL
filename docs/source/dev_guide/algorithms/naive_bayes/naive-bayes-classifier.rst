@@ -66,83 +66,17 @@ Given a new feature vector :math:`x_i`, the classifier determines the class the 
 .. math::
 	class\left({x}_{i}\right)=\mathrm{arg}{\mathrm{max}}_{j}\left(\mathrm{log}\left(p\left({\theta }_{j}\right)\right)+{\sum }_{k}\mathrm{log}\left({\theta }_{jk}\right)\right).
 
-Batch Processing
-****************
+Computation
+***********
 
-Naïve Bayes classifier in the batch processing mode follows the general workflow described
-in `Usage Model: Training and Prediction <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction-1>`_.
+The following computation modes are available:
 
-Training
---------
-
-At the training stage, Naïve Bayes classifier has the following parameters:
-
-.. list-table::
-   :widths: 25 25 50
-   :header-rows: 1
-   :align: left
-
-   * - Parameter
-     - Default Value
-     - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
-     - Available computation methods for the Naïve Bayes classifier:
-
-         - defaultDense - default performance-oriented method
-         - fastCSR - performance-oriented method for CSR numeric tables
-
-   * - nClasses
-     - Not applicable
-     - The number of classes. A required parameter.
-   * - priorClassEstimates
-     - :math:`1/\text{nClasses}`
-     - Vector of size nClasses that contains prior class estimates. The default value applies to each vector element.
-   * - alpha
-     - 1
-     - Vector of size :math:`p` that contains the imagined occurrences of features. The default value applies to each vector element.
-
-
-Prediction
-----------
-
-At the prediction stage, Naïve Bayes classifier has the following parameters:
-
-.. list-table::
-   :widths: 25 25 50
-   :header-rows: 1
-   :align: left
-
-   * - Parameter
-     - Default Value
-     - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
-     - Performance-oriented computation method, the only method supported by the algorithm.
-   * - nClasses
-     - Not applicable
-     - The number of classes. A required parameter.
-
-
-Online Processing
-*****************
-
-At this moment, the description of
-`online processing for Naïve Bayes classifier <https://software.intel.com/en-us/daal-programming-guide-online-processing-4>`_
-is only available in Developer Guide for Intel(R) DAAL.
-
-Distributed Processing
-**********************
-
-At this moment, the description of
-`distributed processing for Naïve Bayes classifier <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-8>`_
-is only available in Developer Guide for Intel(R) DAAL.
+.. toctree::
+   :maxdepth: 1
+   
+   computation-batch.rst
+   computation-online.rst
+   computation-distributed.rst
 
 Examples
 ********
@@ -156,12 +90,32 @@ Examples
     -  :cpp_example:`mn_naive_bayes_dense_batch.cpp <naive_bayes/mn_naive_bayes_dense_batch.cpp>`
     -  :cpp_example:`mn_naive_bayes_csr_batch.cpp <naive_bayes/mn_naive_bayes_csr_batch.cpp>`
 
+    Online Processing:  
+
+    - :cpp_example:`mn_naive_bayes_dense_online.cpp <naive_bayes/mn_naive_bayes_dense_online.cpp>`
+    - :cpp_example:`mn_naive_bayes_csr_online.cpp <naive_bayes/mn_naive_bayes_csr_online.cpp>`
+
+    Distributed Processing:
+
+    - :cpp_example:`mn_naive_bayes_dense_distr.cpp <naive_bayes/mn_naive_bayes_dense_distr.cpp>`
+    - :cpp_example:`mn_naive_bayes_csr_distr.cpp <naive_bayes/mn_naive_bayes_csr_distr.cpp>`
+
   .. tab:: Java*
 
     Batch Processing:
     
     -  :java_example:`MnNaiveBayesDenseBatch.java <naive_bayes/MnNaiveBayesDenseBatch.java>`
     -  :java_example:`MnNaiveBayesCSRBatch.java <naive_bayes/MnNaiveBayesCSRBatch.java>`
+    
+    Online Processing:
+
+    - :java_example:`MnlNaiveBayesDenseOnline.java <naive_bayes/MnlNaiveBayesDenseOnline.java>`
+    - :java_example:`MnNaiveBayesCSROnline.java <naive_bayes/MnNaiveBayesCSROnline.java>`
+
+    Distributed Processing:
+
+    - :java_example:`MnNaiveBayesDenseDistr.java <naive_bayes/MnNaiveBayesDenseDistr.java>`
+    - :java_example:`MnNaiveBayesCSRDistr.java <naive_bayes/MnNaiveBayesCSRDistr.java>`
 
 .. Python*:
 
