@@ -42,6 +42,7 @@ A typical workflow with quality metric set is the following:
 Quality metrics are optional. They are computed when the computation is explicitly requested.
 
 .. toctree::
+   :maxdepth: 2
 
    default-metric-set.rst
    user-defined.rst

@@ -19,9 +19,10 @@ Working with the Default Metric Set
 
 For your convenience, |short_name| provides a set of quality metrics for some algorithms.
 
-At this moment, documentation for quality metrics is only available in Developer Guide for Intel(R) DAAL:
+.. toctree::
+    :maxdepth: 1
 
-`Quality Metrics for Binary Classification Algorithms <https://software.intel.com/en-us/daal-programming-guide-quality-metrics-for-binary-classification-algorithms>`_
-`Quality Metrics for Multi-class Classification Algorithms <https://software.intel.com/en-us/daal-programming-guide-quality-metrics-for-multi-class-classification-algorithms>`_
-`Quality Metrics for Linear Regression <https://software.intel.com/en-us/daal-programming-guide-quality-metrics-for-linear-regression>`_
-`Quality Metrics for Principal Components Analysis <https://software.intel.com/en-us/daal-programming-guide-quality-metrics-for-principal-components-analysis>`_
+    default/for-binary-classification.rst
+    default/for-multi-class-classification.rst
+    default/for-linear-regression.rst
+    default/for-pca.rst
