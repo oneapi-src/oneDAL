@@ -43,5 +43,73 @@ In the equations above:
 Batch Processing
 ****************
 
-At this moment, the description of batch processing is only available in
-`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-batch-processing-1>`_.
+Algorithm Input
+---------------
+
+The quantile algorithm accepts the input described below.
+Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
+For more details, see :ref:`algorithms`.
+
+.. list-table::
+   :widths: 10 60
+   :header-rows: 1
+
+   * - Input ID
+     - Input
+   * - ``data``
+     - Pointer to the :math:`n \times p` numeric table that contains the input data set.
+       This table can be an object of any class derived from ``NumericTable``.
+
+Algorithm Parameters
+--------------------
+
+The quantile algorithm has the following parameters:
+
+.. list-table::
+   :header-rows: 1
+   :align: left
+
+   * - Parameter
+     - Default Value
+     - Description
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
+     - Performance-oriented computation method, the only method supported by the algorithm.
+   * - ``quantileOrders``
+     - :math:`0.5`
+     - The :math:`1 \times m` numeric table with quantile orders.
+
+Algorithm Output
+----------------
+
+The quantile algorithm calculates the result described below.
+Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
+For more details, see :ref:`algorithms`.
+
+.. list-table::
+   :widths: 10 60
+   :header-rows: 1
+
+   * - Result ID
+     - Result
+   * - ``quantiles``
+     - Pointer to the :math:`p \times m` numeric table with the quantiles. 
+     
+       By default, this result is an object of the ``HomogenNumericTable`` class, but you can define the result as an object of any class
+       derived from ``NumericTable`` except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
+
+Examples
+********
+
+.. tabs::
+
+  .. tab:: C++
+
+    - :cpp_example:`quantiles_dense_batch.cpp <quantiles/quantiles_dense_batch.cpp>`
+
+  .. tab:: Java
+
+    - :java_example:`QuantilesDenseBatch.java <quantiles/QuantilesDenseBatch.java>`
