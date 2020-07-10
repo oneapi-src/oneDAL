@@ -707,7 +707,7 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::setEmptyClusters(Numer
     auto candidatesIds   = _candidates.template get<int>().toHost(ReadWriteMode::readOnly);
     auto candidatesDists = _candidateDistances.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly);
     auto clusterFeatures = outCentroids.toHost(ReadWriteMode::readWrite);
-    if (!counters.get() || !candidatesIds.get() || !candidatesDists.get() || !clusterFeatures.get() )
+    if (!counters.get() || !candidatesIds.get() || !candidatesDists.get() || !clusterFeatures.get())
     {
         return Status(ErrorNullPtr);
     }
