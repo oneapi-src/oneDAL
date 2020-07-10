@@ -90,7 +90,8 @@ def get_example_name(relative_example_path):
 
 def write_proj(config, example_name, proj, proj_filters, proj_user):
     proj_dir = os.path.join(config.output_dir, 'vcproj', example_name)
-    os.makedirs(proj_dir, exist_ok=True)
+    if not os.path.exists(proj_dir):
+        os.makedirs(proj_dir)
     print('Write {}.vcxproj'.format(example_name))
     if not config.test:
         write_file(proj_dir, example_name + '.vcxproj', proj)
