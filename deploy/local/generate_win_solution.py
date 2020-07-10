@@ -146,7 +146,8 @@ def find_all_examples(examples_dir):
         print('-> checking file: {}{}'.format(root,filenames))
         for filename in fnmatch.filter(filenames, '*.cpp'):
             print('--> adding example: {}{}'.format(root,filenames))
-            examples.append(os.path.join(root, filename))
+            rel_path = os.path.relpath(root, examples_dir)
+            examples.append(os.path.join(rel_path, filename))
     return examples
 
 def generate(config):
