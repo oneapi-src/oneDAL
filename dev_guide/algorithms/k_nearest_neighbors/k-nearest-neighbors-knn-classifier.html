@@ -944,7 +944,8 @@ respective leaf.</p>
 <h3>Brute Force<a class="headerlink" href="#brute-force" title="Permalink to this headline">¶</a></h3>
 <p>Brute Force kNN algorithm calculates the squared distances from each query feature vector
 to each reference feature vector in the training data set. Then,
-for each query feature vector it selects <span class="math notranslate nohighlight">\(k\)</span> objects from the training set that are closest to that query feature vector.</p>
+for each query feature vector it selects <span class="math notranslate nohighlight">\(k\)</span> objects from the training set that are closest to that query feature vector.
+For details, see <a class="reference internal" href="../../../bibliography.html#li2015" id="id4"><span>[Li2015]</span></a>, <a class="reference internal" href="../../../bibliography.html#verma2014" id="id5"><span>[Verma2014]</span></a>.</p>
 </div>
 <div class="section" id="training-stage">
 <h3>Training Stage<a class="headerlink" href="#training-stage" title="Permalink to this headline">¶</a></h3>
@@ -959,7 +960,7 @@ level of the tree deals with ever smaller part of the feature
 space.</p>
 <p>The PANDA algorithm constructs the K-D tree by choosing the
 dimension with the maximum variance for splitting
-<a class="reference internal" href="../../../bibliography.html#patwary2016" id="id4"><span>[Patwary2016]</span></a>.</p>
+<a class="reference internal" href="../../../bibliography.html#patwary2016" id="id6"><span>[Patwary2016]</span></a>.</p>
 <p>Therefore, for each new non-leaf node of the tree, the algorithm
 computes the variance of values that belong to the respective
 region of the space for each of the features and chooses the
