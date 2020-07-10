@@ -73,6 +73,8 @@ The objective function has the following parameters:
 
        .. note:: On GPU, ``resultsToCompute`` only computes ``value``, ``gradient``, and ``hessian``.
 
+.. _objective_function_output:
+
 Output
 ******
 
