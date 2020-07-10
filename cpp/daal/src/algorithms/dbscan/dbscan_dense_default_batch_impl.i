@@ -40,6 +40,7 @@ namespace dbscan
 namespace internal
 {
 #define __DBSCAN_PREFETCHED_NEIGHBORHOODS_COUNT 64
+#define __DBSCAN_MAXIMUM_NESTED_STACK_LEVEL     200
 
 template <typename algorithmFPType, Method method, CpuType cpu>
 Status DBSCANBatchKernel<algorithmFPType, method, cpu>::processNeighborhood(size_t clusterId, int * const assignments,
@@ -60,6 +61,68 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::processNeighborhood(size
     }
 
     return services::Status();
+}
+
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status DBSCANBatchKernel<algorithmFPType, method, cpu>::processNeighborhoodParallel(
+    size_t clusterId, int * const assignments, const Neighborhood<algorithmFPType, cpu> & neigh, daal::tls<Queue<size_t, cpu> *> & tls,
+    TArray<Neighborhood<algorithmFPType, cpu>, cpu> & neighs, algorithmFPType minObservations, int * const isCore, size_t nestedLevel)
+{
+    const size_t nBlocks   = threader_get_max_threads_number();
+    const size_t blockSize = neigh.size() / nBlocks + !!(neigh.size() % nBlocks);
+
+    SafeStatus safeStat;
+
+    daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
+        size_t total_elems = 0;
+
+        size_t begin = iBlock * blockSize;
+        size_t end   = services::internal::min<cpu, size_t>(begin + blockSize, neigh.size());
+
+        total_elems += end - begin;
+
+        auto & qu = *tls.local();
+
+        for (size_t j = begin; j < end; j++)
+        {
+            const size_t nextObs = neigh.get(j);
+            if (assignments[nextObs] == noise)
+            {
+                assignments[nextObs] = clusterId;
+            }
+            else if (assignments[nextObs] == undefined)
+            {
+                assignments[nextObs] = clusterId;
+                DAAL_CHECK_STATUS_THR(qu.push(nextObs));
+            }
+        }
+
+        while (!qu.empty())
+        {
+            const size_t curObs = qu.pop();
+
+            Neighborhood<algorithmFPType, cpu> & curNeigh = neighs[curObs];
+
+            assignments[curObs] = clusterId;
+            if (curNeigh.weight() < minObservations) continue;
+
+            isCore[curObs] = 1;
+
+            total_elems += curNeigh.size();
+
+            if (nestedLevel < __DBSCAN_MAXIMUM_NESTED_STACK_LEVEL)
+            {
+                DAAL_CHECK_STATUS_THR(
+                    processNeighborhoodParallel(clusterId, assignments, curNeigh, tls, neighs, minObservations, isCore, nestedLevel + 1));
+            }
+            else
+            {
+                DAAL_CHECK_STATUS_THR(processNeighborhood(clusterId, assignments, curNeigh, qu));
+            }
+        }
+    });
+
+    return safeStat.detach();
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -144,12 +207,11 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::computeNoMemSave(const N
                                                                          const Parameter * par)
 {
     Status s;
+    const size_t nRows = ntData->getNumberOfRows();
 
     const algorithmFPType epsilon         = par->epsilon;
     const algorithmFPType minObservations = par->minObservations;
     const algorithmFPType minkowskiPower  = (algorithmFPType)2.0;
-
-    const size_t nRows = ntData->getNumberOfRows();
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, sizeof(Neighborhood<algorithmFPType, cpu>));
 
@@ -172,7 +234,8 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::computeNoMemSave(const N
     service_memset<int, cpu>(isCore, 0, nRows);
 
     size_t nClusters = 0;
-    Queue<size_t, cpu> qu;
+
+    daal::tls<Queue<size_t, cpu> *> tls([=]() { return new Queue<size_t, cpu>; });
 
     for (size_t i = 0; i < nRows; i++)
     {
@@ -189,24 +252,10 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::computeNoMemSave(const N
         isCore[i]      = 1;
         assignments[i] = nClusters - 1;
 
-        qu.reset();
-
-        DAAL_CHECK_STATUS_VAR(processNeighborhood(nClusters - 1, assignments, curNeigh, qu));
-
-        while (!qu.empty())
-        {
-            const size_t curObs = qu.pop();
-
-            Neighborhood<algorithmFPType, cpu> & curNeigh = neighs[curObs];
-
-            assignments[curObs] = nClusters - 1;
-            if (curNeigh.weight() < minObservations) continue;
-
-            isCore[curObs] = 1;
-
-            DAAL_CHECK_STATUS_VAR(processNeighborhood(nClusters - 1, assignments, curNeigh, qu));
-        }
+        DAAL_CHECK_STATUS_VAR(processNeighborhoodParallel(nClusters - 1, assignments, curNeigh, tls, neighs, minObservations, isCore, 0));
     }
+
+    tls.reduce([=](Queue<size_t, cpu> * q) { delete q; });
 
     WriteRows<int, cpu> nClustersRows(ntNClusters, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(nClustersRows);
@@ -216,6 +265,18 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::computeNoMemSave(const N
     {
         DAAL_CHECK_STATUS_VAR(processResultsToCompute(par->resultsToCompute, isCore, ntData, ntCoreIndices, ntCoreObservations));
     }
+
+    const size_t nBlocks   = neighs.size();
+    const size_t blockSize = neighs.size() / nBlocks + !!(neighs.size() % nBlocks);
+    daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
+        size_t begin = iBlock * blockSize;
+        size_t end   = services::internal::min<cpu, size_t>(begin + blockSize, neighs.size());
+
+        for (size_t i = begin; i < end; ++i)
+        {
+            neighs[i].clear();
+        }
+    });
 
     return s;
 }

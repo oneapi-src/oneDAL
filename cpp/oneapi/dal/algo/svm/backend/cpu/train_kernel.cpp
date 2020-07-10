@@ -22,6 +22,7 @@
 #include "oneapi/dal/algo/svm/backend/interop_model.hpp"
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 namespace oneapi::dal::svm::backend {
@@ -60,7 +61,9 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     const auto daal_labels  = interop::convert_to_daal_homogen_table(arr_label, row_count, 1);
     const auto daal_weights = interop::convert_to_daal_homogen_table(arr_weights, row_count, 1);
 
-    const auto daal_kernel = desc.get_kernel_impl()->get_impl()->get_daal_kernel_function();
+    auto kernel_impl       = desc.get_kernel_impl()->get_impl();
+    const auto daal_kernel = kernel_impl->get_daal_kernel_function();
+
     daal_svm::Parameter daal_parameter(
         daal_kernel,
         desc.get_c(),
@@ -73,19 +76,21 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     auto daal_model = daal_svm::Model::create<Float>(column_count);
 
     if constexpr (std::is_same_v<Method, method::smo>)
-        interop::call_daal_kernel<Float, daal_svm_smo_kernel_t>(ctx,
-                                                                daal_data,
-                                                                daal_weights,
-                                                                *daal_labels,
-                                                                daal_model.get(),
-                                                                &daal_parameter);
-    else if constexpr (std::is_same_v<Method, method::thunder>)
-        interop::call_daal_kernel<Float, daal_svm_thunder_kernel_t>(ctx,
+        interop::status_to_exception(
+            interop::call_daal_kernel<Float, daal_svm_smo_kernel_t>(ctx,
                                                                     daal_data,
                                                                     daal_weights,
                                                                     *daal_labels,
                                                                     daal_model.get(),
-                                                                    &daal_parameter);
+                                                                    &daal_parameter));
+    else if constexpr (std::is_same_v<Method, method::thunder>)
+        interop::status_to_exception(
+            interop::call_daal_kernel<Float, daal_svm_thunder_kernel_t>(ctx,
+                                                                        daal_data,
+                                                                        daal_weights,
+                                                                        *daal_labels,
+                                                                        daal_model.get(),
+                                                                        &daal_parameter));
 
     auto table_support_indices =
         interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());

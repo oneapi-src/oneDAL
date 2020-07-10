@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/algo/svm/common.hpp"
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::svm {
 
@@ -173,22 +174,37 @@ bool descriptor_base::get_shrinking() const {
 }
 
 void descriptor_base::set_c_impl(const double value) {
+    if (value <= 0.0) {
+        throw domain_error("c should be > 0");
+    }
     impl_->c = value;
 }
 
 void descriptor_base::set_accuracy_threshold_impl(const double value) {
+    if (value < 0.0) {
+        throw domain_error("accuracy_threshold should be >= 0.0");
+    }
     impl_->accuracy_threshold = value;
 }
 
 void descriptor_base::set_max_iteration_count_impl(const std::int64_t value) {
+    if (value <= 0) {
+        throw domain_error("max_iteration_count should be > 0");
+    }
     impl_->max_iteration_count = value;
 }
 
 void descriptor_base::set_cache_size_impl(const double value) {
+    if (value <= 0.0) {
+        throw domain_error("cache_size should be > 0");
+    }
     impl_->cache_size = value;
 }
 
 void descriptor_base::set_tau_impl(const double value) {
+    if (value <= 0.0) {
+        throw domain_error("tau should be > 0");
+    }
     impl_->tau = value;
 }
 

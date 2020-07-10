@@ -28,6 +28,7 @@
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "data_management/data/memory_block.h"
+#include "services/daal_defines.h"
 
 using namespace daal::data_management;
 

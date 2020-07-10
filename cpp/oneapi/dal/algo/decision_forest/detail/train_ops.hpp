@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/decision_forest/train_types.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::decision_forest::detail {
 
@@ -36,12 +37,29 @@ struct train_ops {
     using result_t          = train_result<task_t>;
     using descriptor_base_t = descriptor_base<task_t>;
 
-    void validate(const Descriptor& params, const input_t& input) const {}
+    void check_preconditions(const Descriptor& params, const input_t& input) const {
+        if (!(input.get_data().has_data())) {
+            throw domain_error("Input data should not be empty");
+        }
+        if (!(input.get_labels().has_data())) {
+            throw domain_error("Input labels should not be empty");
+        }
+        if (input.get_data().get_row_count() != input.get_labels().get_row_count()) {
+            throw invalid_argument("Input data row_count should be equal to labels row_count");
+        }
+    }
+
+    void check_postconditions(const Descriptor& params,
+                              const input_t& input,
+                              const result_t& result) const {}
 
     template <typename Context>
     auto operator()(const Context& ctx, const Descriptor& desc, const input_t& input) const {
-        validate(desc, input);
-        return train_ops_dispatcher<Context, float_t, task_t, method_t>()(ctx, desc, input);
+        check_preconditions(desc, input);
+        const auto result =
+            train_ops_dispatcher<Context, float_t, task_t, method_t>()(ctx, desc, input);
+        check_postconditions(desc, input, result);
+        return result;
     }
 };
 

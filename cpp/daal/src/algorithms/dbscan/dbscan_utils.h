@@ -47,9 +47,9 @@ namespace dbscan
 {
 namespace internal
 {
-#define __DBSCAN_DEFAULT_QUEUE_SIZE        8
-#define __DBSCAN_DEFAULT_VECTOR_SIZE       8
-#define __DBSCAN_DEFAULT_NEIGHBORHOOD_SIZE 8
+#define __DBSCAN_DEFAULT_QUEUE_SIZE        32
+#define __DBSCAN_DEFAULT_VECTOR_SIZE       32
+#define __DBSCAN_DEFAULT_NEIGHBORHOOD_SIZE 64
 
 template <typename T, CpuType cpu>
 class Queue
@@ -57,8 +57,6 @@ class Queue
     static const size_t defaultSize = __DBSCAN_DEFAULT_QUEUE_SIZE;
 
 public:
-    DAAL_NEW_DELETE();
-
     Queue() : _data(nullptr), _head(0), _tail(0), _capacity(0) {}
 
     ~Queue() { clear(); }
@@ -70,7 +68,7 @@ public:
     {
         if (_data)
         {
-            services::daal_free(_data);
+            service_free<T, cpu>(_data);
             _data = nullptr;
         }
     }
@@ -120,15 +118,16 @@ public:
 private:
     services::Status grow()
     {
-        int result        = 0;
-        _capacity         = (_capacity == 0 ? defaultSize : _capacity * 2);
-        T * const newData = static_cast<T *>(services::internal::service_calloc<T, cpu>(_capacity * sizeof(T)));
+        int result = 0;
+        _capacity  = (_capacity == 0 ? defaultSize : _capacity * 2);
+
+        T * const newData = service_malloc<T, cpu>(_capacity);
         DAAL_CHECK_MALLOC(newData);
 
         if (_data != nullptr)
         {
             result = services::internal::daal_memcpy_s(newData, _tail * sizeof(T), _data, _tail * sizeof(T));
-            services::daal_free(_data);
+            service_free<T, cpu>(_data);
             _data = nullptr;
         }
 
@@ -230,7 +229,7 @@ public:
     {
         if (_values)
         {
-            services::daal_free(_values);
+            service_scalable_free<size_t, cpu>(_values);
             _values = nullptr;
         }
         _capacity = _size = 0;
@@ -243,19 +242,43 @@ public:
         _weight = 0;
     }
 
-    services::Status add(const size_t & value, FPType w)
+    inline int add(const size_t & value, FPType w)
     {
         if (_size >= _capacity)
         {
-            services::Status status = grow();
-            DAAL_CHECK_STATUS_VAR(status)
+            auto res = grow();
+            if (res)
+            {
+                return res;
+            }
         }
 
         _values[_size] = value;
         _size++;
         _weight += w;
 
-        return services::Status();
+        return 0;
+    }
+
+    int allocateNewEntries(size_t size)
+    {
+        size_t requiredSize = _size + size;
+        int result          = 0;
+
+        while (_capacity < requiredSize)
+        {
+            result += grow();
+        }
+
+        return result;
+    }
+
+    // allocateNewEntries() should be called
+    void fastAdd(const size_t & value, FPType w)
+    {
+        _values[_size] = value;
+        _size++;
+        _weight += w;
     }
 
     void addWeight(FPType w) { _weight += w; }
@@ -267,24 +290,29 @@ public:
     FPType weight() const { return _weight; }
 
 private:
-    services::Status grow()
+    int grow()
     {
-        int result               = 0;
-        _capacity                = (_capacity == 0 ? defaultSize : _capacity * 2);
-        void * ptr               = services::daal_calloc(_capacity * sizeof(size_t));
-        size_t * const newValues = static_cast<size_t *>(ptr);
-        DAAL_CHECK_MALLOC(newValues);
+        size_t scale = 2;
+        scale        = _capacity < 128 ? 64 : scale;
 
+        _capacity                = (_capacity == 0 ? defaultSize : _capacity * scale);
+        size_t * const newValues = service_scalable_malloc<size_t, cpu>(_capacity);
+
+        if (!newValues)
+        {
+            return false;
+        }
+
+        int result = 0;
         if (_values != nullptr)
         {
             result = services::internal::daal_memcpy_s(newValues, _size * sizeof(size_t), _values, _size * sizeof(size_t));
-            services::daal_free(_values);
+            service_scalable_free<size_t, cpu>(_values);
             _values = nullptr;
         }
-
         _values = newValues;
 
-        return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
+        return !!result;
     }
 
     size_t * _values;
@@ -389,30 +417,51 @@ public:
     NeighborhoodEngine(const NeighborhoodEngine &) = delete;
     NeighborhoodEngine & operator=(const NeighborhoodEngine &) = delete;
 
+    size_t getIndex(size_t * idx, FPType * array, size_t size, FPType cmp)
+    {
+        size_t count = 0;
+
+        for (size_t i = 0; i < size; ++i)
+        {
+            if (array[i] <= cmp)
+            {
+                idx[count++] = i;
+            }
+        }
+        return count;
+    }
+
     services::Status queryFull(Neighborhood<FPType, cpu> * neighs, bool doReset = false)
     {
         SafeStatus safeStat;
-        services::Status s;
 
         const size_t inRows  = _inTable->getNumberOfRows();
         const size_t outRows = _outTable->getNumberOfRows();
 
         if (outRows == 0)
         {
-            return s;
+            return services::Status();
         }
 
         const size_t dim    = _inTable->getNumberOfColumns();
         const size_t outDim = _outTable->getNumberOfColumns();
         DAAL_ASSERT(outDim >= dim);
 
+        EuclideanDistances<FPType, cpu> metric(*_inTable, *_outTable);
+        DAAL_CHECK_STATUS_VAR(metric.init());
+
         const FPType epsP = Math<FPType, cpu>::sPowx(_eps, _p);
 
-        const size_t inBlockSize = 256;
+        const size_t inBlockSize = 128;
         const size_t nInBlocks   = inRows / inBlockSize + (inRows % inBlockSize > 0);
 
-        const size_t outBlockSize = 256;
+        const size_t outBlockSize = 128;
         const size_t nOutBlocks   = outRows / outBlockSize + (outRows % outBlockSize > 0);
+
+        TlsMem<FPType, cpu> tls(inBlockSize * outBlockSize);
+
+        DAAL_ALIGNAS(128) FPType onesWeights[outBlockSize];
+        services::internal::service_memset_seq<FPType, cpu>(onesWeights, FPType(1), outBlockSize);
 
         daal::threader_for(nInBlocks, nInBlocks, [&](size_t inBlock) {
             size_t i1    = inBlock * inBlockSize;
@@ -431,6 +480,10 @@ public:
                 }
             }
 
+            FPType * local = tls.local();
+
+            DAAL_ALIGNAS(128) size_t idx[outBlockSize];
+
             for (size_t outBlock = 0; outBlock < nOutBlocks; outBlock++)
             {
                 size_t j1    = outBlock * outBlockSize;
@@ -447,24 +500,24 @@ public:
                     weightsRows.set(const_cast<NumericTable *>(_weights), j1, j2 - j1);
                     DAAL_CHECK_BLOCK_STATUS_THR(weightsRows);
                 }
-                const FPType * const weights = weightsRows.get();
+                const FPType * const weights = weightsRows.get() ? weightsRows.get() : onesWeights;
+
+                metric.computeBatch(inData, outData, i1, iSize, j1, jSize, local);
 
                 for (size_t i = 0; i < iSize; i++)
                 {
-                    for (size_t j = 0; j < jSize; j++)
+                    const size_t indexes = getIndex(idx, local + i * jSize, jSize, epsP);
+                    DAAL_CHECK_MALLOC_THR(!neighs[i + i1].allocateNewEntries(indexes));
+
+                    for (size_t j = 0; j < indexes; j++)
                     {
-                        FPType dist = distancePow2<FPType, cpu>(&inData[i * dim], &outData[j * outDim], dim);
-                        if (dist <= epsP)
-                        {
-                            DAAL_CHECK_STATUS_THR(neighs[i + i1].add(j + j1, (weights ? weights[j] : (FPType)1.0)));
-                        }
+                        neighs[i + i1].fastAdd(idx[j] + j1, weights[idx[j]]);
                     }
                 }
             }
         });
-        s = safeStat.detach();
 
-        return s;
+        return safeStat.detach();
     }
 
     services::Status query(size_t * indices, size_t n, Neighborhood<FPType, cpu> * neighs, bool doReset = false)
@@ -538,7 +591,7 @@ public:
                     FPType dist = distancePow2<FPType, cpu>(queryRows[i].get(), &outData[j * outDim], dim);
                     if (dist <= epsP)
                     {
-                        DAAL_CHECK_STATUS_THR(localNeighs[i].add(j + j1, (weights ? weights[j] : (FPType)1.0)));
+                        DAAL_CHECK_MALLOC_THR(!localNeighs[i].add(j + j1, (weights ? weights[j] : (FPType)1.0)));
                     }
                 }
             }
