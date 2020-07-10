@@ -320,8 +320,12 @@ Examples
 
   .. tab:: C++
 
+    Batch Processing:
+
     - :cpp_example:`lin_reg_quality_metric_set_batch.cpp <quality_metrics/lin_reg_quality_metric_set_batch.cpp>`
 
-  .. tab:: Java
+  .. tab:: Java*
+
+    Batch Processing:
 
     - :java_example:`LinRegQualityMetricSetBatchExample.java <quality_metrics/LinRegQualityMetricSetBatchExample.java>`

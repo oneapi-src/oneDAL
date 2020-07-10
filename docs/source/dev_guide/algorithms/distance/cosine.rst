@@ -103,10 +103,14 @@ Examples
 
   .. tab:: C++
 
+    Batch Processing:
+
     - :cpp_example:`cos_dist_dense_batch.cpp <distance/cos_dist_dense_batch.cpp>`
 
   .. tab:: Java*
 
+    Batch Processing:
+    
     - :java_example:`CosDistDenseBatch.java <distance/CosDistDenseBatch.java>`
 
 

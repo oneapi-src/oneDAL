@@ -131,7 +131,7 @@ Examples
     
     - :cpp_example:`pca_transform_dense_batch.cpp <pca_transform/pca_transform_dense_batch.cpp>`
 
-  .. tab:: Java
+  .. tab:: Java*
 
     Batch Processing:
 

@@ -108,8 +108,12 @@ Examples
 
   .. tab:: C++
 
+    Batch Processing:
+
     - :cpp_example:`quantiles_dense_batch.cpp <quantiles/quantiles_dense_batch.cpp>`
 
-  .. tab:: Java
+  .. tab:: Java*
+
+    Batch Processing:
 
     - :java_example:`QuantilesDenseBatch.java <quantiles/QuantilesDenseBatch.java>`

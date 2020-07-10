@@ -224,8 +224,12 @@ Examples
 
   .. tab:: C++
 
+    Batch Processing:
+
     - :cpp_example:`svm_multi_class_metrics_dense_batch.cpp <quality_metrics/svm_multi_class_metrics_dense_batch.cpp>`
 
-  .. tab:: Java
+  .. tab:: Java*
+
+    Batch Processing:
 
     - :java_example:`SVMMultiClassMetricsDenseBatch.java <quality_metrics/SVMMultiClassMetricsDenseBatch.java>`

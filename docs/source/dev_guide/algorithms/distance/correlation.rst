@@ -109,8 +109,12 @@ Examples
 
   .. tab:: C++
 
+    Batch Processing:
+
     - :cpp_example:`cor_dist_dense_batch.cpp <distance/cor_dist_dense_batch.cpp>`
 
+    Batch Processing:
+    
   .. tab:: Java*
 
     - :java_example:`CorDistDenseBatch.java <distance/CorDistDenseBatch.java>`

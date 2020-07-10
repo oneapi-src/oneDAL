@@ -141,8 +141,12 @@ Examples
 
   .. tab:: C++
 
+    Batch Processing:
+
     - :cpp_example:`pca_metrics_dense_batch.cpp <quality_metrics/pca_metrics_dense_batch.cpp>`
 
-  .. tab:: Java
+  .. tab:: Java*
+
+    Batch Processing:
 
     - :java_example:`PCAMetricsDenseBatch.java <quality_metrics/PCAMetricsDenseBatch.java>`

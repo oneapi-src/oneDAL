@@ -101,10 +101,14 @@ Examples
 
   .. tab:: C++
 
+    Batch Processing:
+
     - :cpp_example:`cholesky_dense_batch.cpp <cholesky/cholesky_dense_batch.cpp>`
 
-  .. tab:: Java
+  .. tab:: Java*
 
+    Batch Processing:
+    
     - :java_example:`CholeskyDenseBatch.java <cholesky/CholeskyDenseBatch.java>`
 
 Performance Considerations
