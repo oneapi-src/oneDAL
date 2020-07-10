@@ -142,6 +142,12 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Schölkopf, C. Burges, and A. Smola (ed.), pp: 169 – 184, MIT Press
    Cambridge, MA, USA 1999.
 
+.. [Li2015]
+   Li, Shengren, and Nina Amenta. 
+   "Brute-force k-nearest neighbors search on the GPU."
+   In International Conference on Similarity Search and Applications, pp. 259-270.
+   Springer, Cham, 2015.
+
 .. [Lloyd82] 
    Stuart P Lloyd. *Least squares quantization in PCM*. IEEE
    Transactions on Information Theory 1982, 28 (2): 1982pp: 129–137.
@@ -189,6 +195,12 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Pang-Ning Tan, Michael Steinbach, Vipin Kumar, Introduction to
    Data Mining, (First Edition) Addison-Wesley Longman Publishing
    Co., Inc. Boston, MA, USA, 2005, ISBN: 032132136.
+
+.. [Verma2014]
+   Verma, Deepika, Namita Kakkar, and Neha Mehan.
+   "Comparison of brute-force and KD tree algorithm."
+   International Journal of Advanced Research in Computer and Communication Engineering 3,
+   no. 1 (2014): 5291-5294.
 
 .. [Wen2018]
     Wen, Zeyi, Jiashuai Shi, Qinbin Li, Bingsheng He, and Jian Chen.
