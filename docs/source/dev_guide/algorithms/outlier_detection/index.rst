@@ -17,6 +17,7 @@
 Outlier Detection
 =================
 
+Outlier detection methods aim to identify observation points that are abnormally distant from other observation points.
 In |short_name|, the following outlier detection methods are implemented:
 
 .. toctree::
