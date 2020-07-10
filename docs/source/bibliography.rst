@@ -39,6 +39,16 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Available from
    http://vldb.org/pvldb/vol5/p622_bahmanbahmani_vldb2012.pdf.
 
+.. [Ben2005]
+   Ben-Gal I. Outlier detection. In: Maimon O. and Rockach L. (Eds.)
+   Data Mining and Knowledge Discovery Handbook: A Complete Guide for Practitioners and Researchers",
+   Kluwer Academic Publishers, 2005, ISBN 0-387-24435-2.
+
+.. [Billor2000]
+   Nedret Billor, Ali S. Hadib, and Paul F. Velleman.
+   BACON: blocked adaptive computationally efficient outlier nominators.
+   Computational Statistics & Data Analysis, 34, 279-298, 2000.
+
 .. [Bishop2006] 
    Christopher M. Bishop. *Pattern Recognition and Machine Learning*,
    p.198, Computational Statistics & Data Analysis, 34, 279-298,
@@ -190,6 +200,11 @@ For more information about algorithms implemented in |short_name|, refer to the 
    David E. Rumelhart, Geoffrey E. Hinton, Ronald J. Williams.
    *Learning representations by back-propagating errors*. Nature
    (323), pp. 533-536, 1986.
+
+.. [Sokolova09]
+   Marina Sokolova, Guy Lapalme. A systematic analysis of performance measures for classification tasks.
+   Information Processing and Management 45 (2009), pp. 427–437.
+   Available from http://atour.iro.umontreal.ca/rali/sites/default/files/publis/SokolovaLapalme-JIPM09.pdf.
 
 .. [Tan2005] 
    Pang-Ning Tan, Michael Steinbach, Vipin Kumar, Introduction to
