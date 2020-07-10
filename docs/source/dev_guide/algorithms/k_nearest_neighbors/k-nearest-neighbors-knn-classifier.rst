@@ -82,7 +82,7 @@ Brute Force
 Brute Force kNN algorithm calculates the squared distances from each query feature vector
 to each reference feature vector in the training data set. Then,
 for each query feature vector it selects :math:`k` objects from the training set that are closest to that query feature vector.
-For details, see [Li2015], [Verma2014]_.
+For details, see [Li2015]_, [Verma2014]_.
 
 Training Stage
 --------------
