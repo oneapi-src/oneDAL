@@ -23,7 +23,8 @@ Normalization may improve computation accuracy and efficiency.
 Different rules can be used to normalize data. 
 In |short_name|, two techniques to normalize data are implemented: z-score and min-max.
 
-At this moment, the documentation for them is only available in Developer Guide for Intel(R) DAAL:
+.. toctree::
+   :maxdepth: 1
 
-- `Z-score <https://software.intel.com/en-us/daal-programming-guide-z-score>`_
-- `Min-max <https://software.intel.com/en-us/daal-programming-guide-min-max>`_
+   z-score.rst
+   min-max.rst
