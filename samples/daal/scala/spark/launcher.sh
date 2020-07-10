@@ -84,6 +84,10 @@ if [ "${os_name}" == "Darwin" ]; then
     #Comma-separated list of shared libs
     export SHAREDLIBS=${DAALROOT}/lib/libJavaAPI.dylib,${TBBLIBS}/libtbb.dylib,${TBBLIBS}/libtbbmalloc.dylib
 else
+    export LIBJAVAAPI=libJavaAPI.so
+    export LIBTBB=
+    export LIBTBBMALLOC=
+
     TBBLIBS=
     if [ -d ${TBBROOT}/lib/${daal_ia}/gcc4.8 ]; then TBBLIBS=${TBBROOT}/lib/${daal_ia}/gcc4.8; fi
     if [ -z ${TBBLIBS} ]; then
@@ -91,8 +95,26 @@ else
         exit 1
     fi
 
+    if [ -f ${TBBLIBS}/libtbb.so.2 ]; then
+        export LIBTBB=libtbb.so.2
+    elif [ -f ${TBBLIBS}/libtbb.so.12 ]; then
+        export LIBTBB=libtbb.so.12
+    else 
+        echo Can not find libtbb.so
+        exit 1
+    fi
+
+    if [ -f ${TBBLIBS}/libtbbmalloc.so.2 ]; then
+        export LIBTBBMALLOC=libtbbmalloc.so.2
+    elif [ -f ${TBBLIBS}/libtbbmalloc.so.12 ]; then
+        export LIBTBBMALLOC=libtbbmalloc.so.12
+    else 
+        echo Can not find libtbbmalloc.so
+        exit 1
+    fi
+
     #Comma-separated list of shared libs
-    export SHAREDLIBS=${DAALROOT}/lib/${daal_ia}/libJavaAPI.so,${TBBLIBS}/libtbb.so.2,${TBBLIBS}/libtbbmalloc.so.2
+    export SHAREDLIBS=${DAALROOT}/lib/${daal_ia}/${LIBJAVAAPI},${TBBLIBS}/${LIBTBB},${TBBLIBS}/${LIBTBBMALLOC}
 fi
 
 # Setting list of Spark samples to process
