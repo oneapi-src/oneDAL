@@ -231,6 +231,15 @@ protected:
 // PredictKernel
 //////////////////////////////////////////////////////////////////////////////////////////
 template <typename algorithmFPType, prediction::Method method, CpuType cpu>
+PredictKernel<algorithmFPType, method, cpu>::~PredictKernel()
+{
+    if (_task)
+    {
+        delete _task;
+    }
+}
+
+template <typename algorithmFPType, prediction::Method method, CpuType cpu>
 services::Status PredictKernel<algorithmFPType, method, cpu>::compute(services::HostAppIface * const pHostApp, const NumericTable * const x,
                                                                       const decision_forest::classification::Model * const m, NumericTable * const r,
                                                                       NumericTable * const prob, const size_t nClasses,

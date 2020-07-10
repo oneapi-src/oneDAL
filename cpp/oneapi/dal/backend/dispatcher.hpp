@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "oneapi/dal/execution_context.hpp"
+#include "oneapi/dal/policy.hpp"
 
 #ifdef __ONEDAL_IDE_MODE__
     // If this file is openned in IDE it will complain about
@@ -37,7 +37,7 @@ struct kernel_dispatcher {};
 
 class context_cpu {
 public:
-    explicit context_cpu(const default_execution_context& ctx)
+    explicit context_cpu(const host_policy& ctx)
             : cpu_extensions_(ctx.get_enabled_cpu_extensions()) {}
 
     cpu_extension get_enabled_cpu_extensions() const {
@@ -51,7 +51,7 @@ private:
 template <typename CpuKernel>
 struct kernel_dispatcher<CpuKernel> {
     template <typename... Args>
-    auto operator()(const default_execution_context& ctx, Args&&... args) const {
+    auto operator()(const host_policy& ctx, Args&&... args) const {
         return CpuKernel()(context_cpu{ ctx }, std::forward<Args>(args)...);
     }
 };

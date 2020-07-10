@@ -24,7 +24,7 @@
 #  export PATH=/usr/local/hadoop/bin:/usr/local/spark/bin:/usr/intel/pkgs/java/1.7.0.45-64/bin:$PATH
 #  export HADOOP_CONF_DIR=/usr/local/hadoop/etc/hadoop/
 #  export DAALROOT=${PWD}/../../../daal
-#  export CLASSPATH=/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-common-2.5.1.jar:/usr/local/hadoop/share/hadoop/common/hadoop-common-2.5.1.jar:/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-core-2.5.1.jar:/usr/local/spark/core/target/spark-core_2.10-1.1.0.jar:/usr/local/spark/mllib/target/spark-mllib_2.10-1.1.0.jar:${DAALROOT}/lib/daal.jar
+#  export CLASSPATH=/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-common-2.5.1.jar:/usr/local/hadoop/share/hadoop/common/hadoop-common-2.5.1.jar:/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-core-2.5.1.jar:/usr/local/spark/core/target/spark-core_2.10-1.1.0.jar:/usr/local/spark/mllib/target/spark-mllib_2.10-1.1.0.jar:${DAALROOT}/lib/onedal.jar
 #  export SCALA_JARS=/tmp/scala-library-2.10.4.jar
 #
 # macOS*:
@@ -32,7 +32,7 @@
 #  export PATH=/usr/local/hadoop/bin:/usr/local/spark-1.1.1/bin:$PATH
 #  export HADOOP_CONF_DIR=/usr/local/hadoop/etc/hadoop/
 #  export DAALROOT=${PWD}/../../../daal
-#  export CLASSPATH=/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-common-2.7.0.jar:/usr/local/hadoop/share/hadoop/common/hadoop-common-2.7.0.jar:/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-core-2.7.0.jar:/usr/local/spark-1.1.1/core/target/spark-core_2.10-1.1.1.jar:/usr/local/spark-1.1.1/mllib/target/spark-mllib_2.10-1.1.1.jar:${DAALROOT}/lib/daal.jar
+#  export CLASSPATH=/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-common-2.7.0.jar:/usr/local/hadoop/share/hadoop/common/hadoop-common-2.7.0.jar:/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-core-2.7.0.jar:/usr/local/spark-1.1.1/core/target/spark-core_2.10-1.1.1.jar:/usr/local/spark-1.1.1/mllib/target/spark-mllib_2.10-1.1.1.jar:${DAALROOT}/lib/onedal.jar
 #  export SCALA_JARS=/usr/local/scala-2.10.4/lib/scala-library.jar
 
 help_message() {
@@ -65,7 +65,7 @@ if [ "${daal_ia}" != "ia32" -a "${daal_ia}" != "intel64" ]; then
 fi
 
 # Setting CLASSPATH to build jar
-export CLASSPATH=${SPARK_HOME}/jars/spark-core_2.11-2.0.0.jar:${SPARK_HOME}/jars/spark-sql_2.11-2.0.0.jar:${SPARK_HOME}/jars/spark-catalyst_2.11-2.0.0.jar:${DAALROOT}/lib/daal.jar:$CLASSPATH
+export CLASSPATH=${SPARK_HOME}/jars/spark-core_2.11-2.0.0.jar:${SPARK_HOME}/jars/spark-sql_2.11-2.0.0.jar:${SPARK_HOME}/jars/spark-catalyst_2.11-2.0.0.jar:${DAALROOT}/lib/onedal.jar:$CLASSPATH
 export CLASSPATH=${SCALA_JARS}:$CLASSPATH
 
 # Setting paths by OS
@@ -122,7 +122,7 @@ for sample in ${Spark_samples_list[@]}; do
     jar -cvfe spark${sample}.jar DAAL.Sample${sample} ./* >> ${sample}.log
 
     # Running samples. Can be run with "--master yarn-cluster --deploy-mode cluster" as well as with "--master yarn-client"
-    cmd="spark-submit --driver-class-path \"${DAALROOT}/lib/daal.jar:${SCALA_JARS}\" --jars ${DAALROOT}/lib/daal.jar --files ${SHAREDLIBS},${DAALROOT}/lib/daal.jar -v --master yarn-cluster --deploy-mode cluster --class DAAL.Sample${sample} spark${sample}.jar"
+    cmd="spark-submit --driver-class-path \"${DAALROOT}/lib/onedal.jar:${SCALA_JARS}\" --jars ${DAALROOT}/lib/onedal.jar --files ${SHAREDLIBS},${DAALROOT}/lib/onedal.jar -v --master yarn-cluster --deploy-mode cluster --class DAAL.Sample${sample} spark${sample}.jar"
     echo $cmd > ${sample}.res
     `${cmd} >> ${sample}.res 2>&1`
 

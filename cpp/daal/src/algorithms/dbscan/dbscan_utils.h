@@ -484,6 +484,7 @@ public:
             }
 
             FPType * local = tls.local();
+
             DAAL_CHECK_MALLOC_THR(local);
 
             size_t * idx = tlsIdx.local();

@@ -32,7 +32,10 @@ public:
     table(const table&) = default;
     table(table&&);
 
-    template <typename Impl, typename = std::enable_if_t<is_table_impl_v<std::decay_t<Impl>>>>
+    template <typename Impl,
+              typename ImplType = std::decay_t<Impl>,
+              typename          = std::enable_if_t<is_table_impl_v<ImplType> &&
+                                          !std::is_base_of_v<table, ImplType>>>
     table(Impl&& impl) {
         init_impl(new detail::table_impl_wrapper(std::forward<Impl>(impl)));
     }
@@ -66,23 +69,32 @@ public:
     homogen_table();
 
     template <typename Impl,
-              typename = std::enable_if_t<is_homogen_table_impl_v<std::decay_t<Impl>>>>
+              typename ImplType = std::decay_t<Impl>,
+              typename          = std::enable_if_t<is_homogen_table_impl_v<ImplType> &&
+                                          !std::is_base_of_v<table, ImplType>>>
     homogen_table(Impl&& impl) {
-        // TODO: usage of protected method of base class: a point to break inheritance?
-        auto* wrapper = new detail::homogen_table_impl_wrapper{ std::forward<Impl>(impl),
-                                                                homogen_table::kind() };
-        init_impl(wrapper);
+        init_impl(std::forward<Impl>(impl));
     }
 
-    template <typename DataType>
+    template <typename Data>
     homogen_table(std::int64_t row_count,
                   std::int64_t column_count,
-                  const DataType* data_pointer,
+                  const Data* data_pointer,
                   homogen_data_layout layout = homogen_data_layout::row_major);
 
-    template <typename DataType>
-    const DataType* get_data() const {
-        return reinterpret_cast<const DataType*>(this->get_data());
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+    template <typename Data>
+    homogen_table(sycl::queue& queue,
+                  std::int64_t row_count,
+                  std::int64_t column_count,
+                  const Data* data_pointer,
+                  homogen_data_layout layout = homogen_data_layout::row_major,
+                  const sycl::vector_class<sycl::event>& dependencies = {});
+#endif
+
+    template <typename Data>
+    const Data* get_data() const {
+        return reinterpret_cast<const Data*>(this->get_data());
     }
 
     const void* get_data() const;
@@ -91,6 +103,15 @@ public:
 
     std::int64_t get_kind() const {
         return kind();
+    }
+
+private:
+    template <typename Impl>
+    void init_impl(Impl&& impl) {
+        // TODO: usage of protected method of base class: a point to break inheritance?
+        auto* wrapper = new detail::homogen_table_impl_wrapper{ std::forward<Impl>(impl),
+                                                                homogen_table::kind() };
+        table::init_impl(wrapper);
     }
 
 private:

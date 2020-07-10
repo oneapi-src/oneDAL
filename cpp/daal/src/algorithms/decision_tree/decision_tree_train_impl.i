@@ -650,11 +650,14 @@ public:
         TreeNodeIndex nodeIndex = pushBack(statusPushBack);
         DAAL_CHECK_STATUS_VAR(statusPushBack)
 
-        BlockDescriptor<IndependentVariableType> * xBD = new BlockDescriptor<IndependentVariableType>[xColumnCount];
-        const IndependentVariableType ** dx            = new const IndependentVariableType *[xColumnCount];
+        daal::internal::BlockDescriptorArray<IndependentVariableType> xBD(xColumnCount);
+        DAAL_CHECK_MALLOC(xBD.get());
+
+        const IndependentVariableType ** dx = new const IndependentVariableType *[xColumnCount];
+        DAAL_CHECK_MALLOC(dx);
+
         BlockDescriptor<DependentVariableType> yBD;
         const_cast<NumericTable *>(&y)->getBlockOfColumnValues(0, 0, xRowCount, readOnly, yBD);
-
         BlockDescriptor<IndependentVariableType> wBD;
         if (w)
         {
@@ -736,7 +739,7 @@ public:
         typedef daal::services::internal::EpsilonVal<typename SplitCriterion::ValueType> SplitCriterionEpsilon;
         const typename SplitCriterion::ValueType epsilon = SplitCriterionEpsilon::get();
 
-        daal::threader_for(xColumnCount, xColumnCount, [=, &context, &localTLS, &totalDataStatistics, &safeStat](size_t featureIndex) {
+        daal::threader_for(xColumnCount, xColumnCount, [=, &context, &localTLS, &totalDataStatistics, &safeStat, &xBD](size_t featureIndex) {
             const_cast<NumericTable *>(&context.x)->getBlockOfColumnValues(featureIndex, 0, xRowCount, readOnly, xBD[featureIndex]);
             dx[featureIndex] = xBD[featureIndex].getBlockPtr();
 
@@ -859,10 +862,8 @@ public:
             const_cast<NumericTable *>(&x)->releaseBlockOfColumnValues(xBD[i]);
         }
         delete[] dx;
-        delete[] xBD;
         daal_free(indexes);
         dx      = nullptr;
-        xBD     = nullptr;
         indexes = nullptr;
         return services::Status();
     }
@@ -891,9 +892,11 @@ public:
 
         clear();
 
-        BlockDescriptor<IndependentVariableType> * xBD = new BlockDescriptor<IndependentVariableType>[xColumnCount];
-        const IndependentVariableType ** dx            = new const IndependentVariableType *[xColumnCount];
-        DAAL_CHECK_MALLOC(xBD && dx)
+        daal::internal::BlockDescriptorArray<IndependentVariableType> xBD(xColumnCount);
+        DAAL_CHECK_MALLOC(xBD.get());
+
+        const IndependentVariableType ** dx = new const IndependentVariableType *[xColumnCount];
+        DAAL_CHECK_MALLOC(dx)
         if (x.getDataLayout() == data_management::NumericTableIface::soa)
         {
             for (size_t i = 0; i < xColumnCount; ++i)
@@ -942,11 +945,9 @@ public:
         }
 
         delete[] dx;
-        delete[] xBD;
         daal_free(indexes);
         indexes = nullptr;
         dx      = nullptr;
-        xBD     = nullptr;
 
         return services::Status();
     }

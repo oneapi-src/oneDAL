@@ -52,7 +52,7 @@ if exist "%DAAL_UP_OLD%\redist" (
 ) else (
     set "PATH=%DAAL%\redist\%DAAL_IA%;%PATH%"
 )
-set "CLASSPATH=%DAAL%\lib\daal.jar;%CLASSPATH%"
+set "CLASSPATH=%DAAL%\lib\onedal.jar;%CLASSPATH%"
 endlocal& ^
 set DAALROOT=%DAALROOT%& ^
 set INCLUDE=%INCLUDE%& ^

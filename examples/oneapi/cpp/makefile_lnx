@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2014-2020 Intel Corporation
+# Copyright 2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 #===============================================================================
 
 ##  Content:
-##     Intel(R) Data Analytics Acceleration Library examples creation and run
+##     oneAPI Data Analytics Library examples build and run
 ##******************************************************************************
 
 help:
@@ -24,8 +24,7 @@ help:
 	@echo
 	@echo "name              - example name. Please see daal.lst file"
 	@echo
-	@echo "compiler_name     - can be intel, gnu or clang. Default value is intel."
-	@echo "                    Intel(R) C++ Compiler as default"
+	@echo "compiler_name     - can be intel, gnu or clang. Default value is gnu."
 	@echo
 	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
 	@echo
@@ -78,27 +77,25 @@ endif
 ifndef DAALROOT
     DAALROOT = ./../../..
 endif
-DAAL_PATH = "$(DAALROOT)/lib/$(_IA)"
+DAAL_PATH = $(DAALROOT)/lib/$(_IA)
 
 ifndef TBBROOT
     TBBROOT = ./../../../../../tbb/latest
 endif
-TBB_PATH = "$(TBBROOT)/lib/$(_IA)/gcc4.8"
+TBB_PATH = $(TBBROOT)/lib/$(_IA)/gcc4.8
 
-EXT_LIB := -lpthread -ldl
-
-ifeq ($(threading),sequential)
-    DAAL_LIB_T := $(DAAL_PATH)/libdaal_sequential.$(RES_EXT)
-    EXT_LIB += $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
+ifeq ($(RES_EXT),so)
+    -B := -Bdynamic
 else
-    override threading = parallel
-    DAAL_LIB_T := $(DAAL_PATH)/libdaal_thread.$(RES_EXT)
-    EXT_LIB += $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
+    -B := -Bstatic
 endif
 
-DAAL_LIB := $(DAAL_PATH)/libonedal.$(RES_EXT) \
-            $(DAAL_PATH)/libdaal_core.$(RES_EXT) \
-			$(DAAL_LIB_T)
+ifeq ($(threading),sequential)
+    THREADING_LIB := onedal_sequential
+else
+    override threading = parallel
+    THREADING_LIB := onedal_thread
+endif
 
 COPTS := -std=c++17 \
          -pedantic \
@@ -109,9 +106,20 @@ COPTS := -std=c++17 \
          -Werror=uninitialized \
          -Werror=unknown-pragmas \
          -Wno-unused-parameter \
-         -I./source
+         -I./source \
+         -I"$(DAALROOT)/include"
 
-LOPTS := -Wl,--start-group $(DAAL_LIB) $(EXT_LIB) -Wl,--end-group
+LIBS := -Wl,$(-B) -lonedal \
+        -Wl,$(-B) -lonedal_core \
+        -Wl,$(-B) -l$(THREADING_LIB) \
+        -Wl,-Bdynamic -ltbb \
+        -Wl,-Bdynamic -ltbbmalloc \
+        -Wl,-Bdynamic -lpthread \
+        -Wl,-Bdynamic -ldl
+
+LOPTS := -L"$(DAAL_PATH)" \
+         -L"$(TBB_PATH)" \
+         $(LIBS)
 
 RES_DIR=_results/$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
@@ -127,12 +135,12 @@ ifeq ($(compiler),gnu)
 endif
 
 ifeq ($(compiler),clang)
-    CC = clang++
+    gcc_toolchain := $(realpath $(dir $(shell which gcc))/..)
+    CC = clang++ --gcc-toolchain=$(gcc_toolchain)
     COPTS += $(if $(filter ia32, $(_IA)), -m32, -m64)
 endif
 
 CC := $(if $(COVFILE), cov01 -1; covc -i  $(CC),$(CC))
-
 
 libia32:
 	$(MAKE) _make_ex _IA=ia32 RES_EXT=a
@@ -147,7 +155,7 @@ sointel64:
 _make_ex: $(RES)
 
 vpath
-vpath %.cpp $(addprefix ./source/,pca svm)
+vpath %.cpp $(addprefix ./source/,decision_forest kmeans kmeans_init knn linear_kernel pca rbf_kernel svm tables)
 
 .SECONDARY:
 $(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.

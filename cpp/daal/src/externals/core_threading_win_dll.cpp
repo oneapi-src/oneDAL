@@ -173,45 +173,45 @@ static void load_daal_thr_dll(void)
     {
     case daal::services::Environment::MultiThreaded:
     {
-        daal_thr_dll_handle = DAAL_LOAD_DLL("daal_thread.dll");
+        daal_thr_dll_handle = DAAL_LOAD_DLL("onedal_thread.dll");
         if (daal_thr_dll_handle != NULL)
         {
             return;
         }
 
-        printf("Intel DAAL FATAL ERROR: Cannot load libdaal_thread.dll.\n");
+        printf("Intel DAAL FATAL ERROR: Cannot load onedal_thread.dll.\n");
         exit(1);
 
         break;
     }
     case daal::services::Environment::SingleThreaded:
     {
-        daal_thr_dll_handle = DAAL_LOAD_DLL("daal_sequential.dll");
+        daal_thr_dll_handle = DAAL_LOAD_DLL("onedal_sequential.dll");
         if (daal_thr_dll_handle != NULL)
         {
             return;
         }
 
-        printf("Intel DAAL FATAL ERROR: Cannot load libdaal_sequential.dll.\n");
+        printf("Intel DAAL FATAL ERROR: Cannot load onedal_sequential.dll.\n");
         exit(1);
 
         break;
     }
     default:
     {
-        daal_thr_dll_handle = DAAL_LOAD_DLL("daal_thread.dll");
+        daal_thr_dll_handle = DAAL_LOAD_DLL("onedal_thread.dll");
         if (daal_thr_dll_handle != NULL)
         {
             return;
         }
 
-        daal_thr_dll_handle = DAAL_LOAD_DLL("daal_sequential.dll");
+        daal_thr_dll_handle = DAAL_LOAD_DLL("onedal_sequential.dll");
         if (daal_thr_dll_handle != NULL)
         {
             return;
         }
 
-        printf("Intel DAAL FATAL ERROR: Cannot load neither libdaal_thread.dll nor libdaal_sequential.dll.\n");
+        printf("Intel DAAL FATAL ERROR: Cannot load neither onedal_thread.dll nor onedal_sequential.dll.\n");
         exit(1);
     }
     }

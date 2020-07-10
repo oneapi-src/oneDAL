@@ -53,13 +53,7 @@ class PredictKernel : public daal::algorithms::Kernel
 {
 public:
     PredictKernel() : _task(nullptr) {};
-    ~PredictKernel()
-    {
-        if (_task)
-        {
-            delete _task;
-        }
-    }
+    ~PredictKernel();
     /**
      *  \brief Compute decision forest prediction results.
      *
