@@ -459,9 +459,12 @@ public:
         const size_t nOutBlocks   = outRows / outBlockSize + (outRows % outBlockSize > 0);
 
         TlsMem<FPType, cpu> tls(inBlockSize * outBlockSize);
+        TlsMem<size_t, cpu> tlsIdx(outBlockSize);
 
-        DAAL_ALIGNAS(128) FPType onesWeights[outBlockSize];
-        services::internal::service_memset_seq<FPType, cpu>(onesWeights, FPType(1), outBlockSize);
+        TArray<FPType, cpu> onesWeightsArray(outBlockSize);
+        FPType * onesWeights = onesWeightsArray.get();
+        DAAL_CHECK_MALLOC(onesWeights);
+        service_memset_seq<FPType, cpu>(onesWeights, FPType(1), outBlockSize);
 
         daal::threader_for(nInBlocks, nInBlocks, [&](size_t inBlock) {
             size_t i1    = inBlock * inBlockSize;
@@ -481,8 +484,10 @@ public:
             }
 
             FPType * local = tls.local();
+            DAAL_CHECK_MALLOC_THR(local);
 
-            DAAL_ALIGNAS(128) size_t idx[outBlockSize];
+            size_t * idx = tlsIdx.local();
+            DAAL_CHECK_MALLOC_THR(idx);
 
             for (size_t outBlock = 0; outBlock < nOutBlocks; outBlock++)
             {
