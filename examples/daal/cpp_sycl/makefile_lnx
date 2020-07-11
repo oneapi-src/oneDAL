@@ -109,13 +109,16 @@ LOPTS := -Wl,--start-group -Wl,$(DAAL_LIB),$(EXT_LIB) $(DAAL_PATH)/libonedal_syc
 RES_DIR=_results/$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
 
+ifeq ($(compiler),clang)
+    gcc_toolchain := $(realpath $(dir $(shell which gcc))/..)
+    CC = clang++ --gcc-toolchain=$(gcc_toolchain)
+endif
 
 CC := $(if $(COVFILE), cov01 -1; covc -i  $(CC),$(CC))
 
-
-libintel64:
+lib libintel64:
 	$(MAKE) _make_ex _IA=intel64 RES_EXT=a
-sointel64:
+so sointel64:
 	$(MAKE) _make_ex _IA=intel64 RES_EXT=so
 
 
