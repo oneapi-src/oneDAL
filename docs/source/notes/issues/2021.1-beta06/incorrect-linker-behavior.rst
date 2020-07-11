@@ -38,16 +38,16 @@ Use linker keys ``-Bstatic`` and ``-Bdynamic`` for linking |short_name| libs. Fo
 - Previous linking approach:
 
   ::
-    
-    -Wl, --start-group 
-    <daal_lib_path>/libdaal_core.a <daal_lib_path>/libdaal_thread.a
+
+    -Wl, --start-group
+    <daal_lib_path>/libonedal_core.a <daal_lib_path>/libonedal_thread.a
 
 - New linking approach:
 
   .. code-block::
     :emphasize-lines: 2,4
-    
-    -Wl, --start-group 
+
+    -Wl, --start-group
     -Wl, -L<daal_lib_path>, -Bstatic,
-    -ldaal_core, -ldaal_thread, 
+    -lonedal_core, -lonedal_thread,
     -Bdynamic

@@ -38,9 +38,9 @@ namespace regression
 {
 namespace internal
 {
-class ModelImpl : public daal::algorithms::decision_forest::regression::Model,
-                  public algorithms::regression::internal::ModelInternal,
-                  public daal::algorithms::dtrees::internal::ModelImpl
+class DAAL_EXPORT ModelImpl : public daal::algorithms::decision_forest::regression::Model,
+                              public algorithms::regression::internal::ModelInternal,
+                              public daal::algorithms::dtrees::internal::ModelImpl
 {
 public:
     typedef dtrees::internal::ModelImpl ImplType;

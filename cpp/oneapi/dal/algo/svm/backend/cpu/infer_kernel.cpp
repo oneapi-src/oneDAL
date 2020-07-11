@@ -18,7 +18,9 @@
 
 #include "oneapi/dal/algo/svm/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/svm/backend/interop_model.hpp"
+#include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 namespace oneapi::dal::svm::backend {
@@ -62,29 +64,31 @@ static infer_result call_daal_kernel(const context_cpu& ctx,
                           .set_coefficients(daal_coefficients)
                           .set_bias(trained_model.get_bias());
 
-    // TODO: move as parameter onedal SVM
-    auto kernel =
-        daal_kernel_function::KernelIfacePtr(new daal_kernel_function::linear::Batch<Float>());
-    daal_svm::Parameter daal_parameter(kernel);
+    auto kernel_impl       = desc.get_kernel_impl()->get_impl();
+    const auto daal_kernel = kernel_impl->get_daal_kernel_function();
 
-    array<Float> arr_decision_function{ row_count * 1 };
+    daal_svm::Parameter daal_parameter(daal_kernel);
+
+    auto arr_decision_function = array<Float>::empty(row_count * 1);
     const auto daal_decision_function =
         interop::convert_to_daal_homogen_table(arr_decision_function, row_count, 1);
 
-    interop::call_daal_kernel<Float, daal_svm_predict_kernel_t>(ctx,
-                                                                daal_data,
-                                                                &daal_model,
-                                                                *daal_decision_function,
-                                                                &daal_parameter);
+    interop::status_to_exception(
+        interop::call_daal_kernel<Float, daal_svm_predict_kernel_t>(ctx,
+                                                                    daal_data,
+                                                                    &daal_model,
+                                                                    *daal_decision_function,
+                                                                    &daal_parameter));
 
-    array<Float> arr_label{ row_count * 1 };
+    auto arr_label = array<Float>::empty(row_count * 1);
     for (std::int64_t i = 0; i < row_count; ++i) {
         arr_label[i] = arr_decision_function[i] >= 0 ? Float(1.0) : Float(-1.0);
     }
 
     return infer_result()
-        .set_decision_function(homogen_table_builder{ 1, arr_decision_function }.build())
-        .set_labels(homogen_table_builder{ 1, arr_label }.build());
+        .set_decision_function(
+            homogen_table_builder{}.reset(arr_decision_function, row_count, 1).build())
+        .set_labels(homogen_table_builder{}.reset(arr_label, row_count, 1).build());
 }
 
 template <typename Float>

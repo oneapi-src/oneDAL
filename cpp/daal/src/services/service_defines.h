@@ -293,6 +293,20 @@ typedef union
 #endif
 
 #if defined(_MSC_VER)
+    #define DAAL_FORCEINLINE   __forceinline
+    #define DAAL_FORCENOINLINE __declspec(noinline)
+#else
+    #define DAAL_FORCEINLINE   inline __attribute__((always_inline))
+    #define DAAL_FORCENOINLINE __attribute__((noinline))
+#endif
+
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
+    #define DAAL_ALIGNAS(n) __declspec(align(n))
+#else
+    #define DAAL_ALIGNAS(n) alignas(n)
+#endif
+
+#if defined(_MSC_VER)
     #define DAAL_PACKED_STRUCT(...) __pragma(pack(push, 1)) __VA_ARGS__ __pragma(pack(pop))
 #else
     #define DAAL_PACKED_STRUCT(...) __VA_ARGS__ __attribute__((packed))

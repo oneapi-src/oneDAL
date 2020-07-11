@@ -66,10 +66,10 @@ int64_t homogen_table::kind() {
 
 homogen_table::homogen_table() : homogen_table(backend::homogen_table_impl{}) {}
 
-template <typename DataType>
+template <typename Data>
 homogen_table::homogen_table(int64_t row_count,
                              int64_t column_count,
-                             const DataType* data_pointer,
+                             const Data* data_pointer,
                              homogen_data_layout layout)
         : homogen_table(
               backend::homogen_table_impl(row_count, column_count, data_pointer, layout)) {}

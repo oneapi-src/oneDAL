@@ -58,7 +58,7 @@ private:
     dal::detail::pimpl<detail::train_input_impl> impl_;
 };
 
-class ONEAPI_DAL_EXPORT train_result {
+class ONEAPI_DAL_EXPORT train_result : public base {
 public:
     train_result();
 

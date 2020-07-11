@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/svm/train_types.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::svm::detail {
 
@@ -30,16 +31,74 @@ struct train_ops {
     using float_t           = typename Descriptor::float_t;
     using task_t            = typename Descriptor::task_t;
     using method_t          = typename Descriptor::method_t;
+    using kernel_t          = typename Descriptor::kernel_t;
     using input_t           = train_input;
     using result_t          = train_result;
     using descriptor_base_t = descriptor_base;
 
-    void validate(const Descriptor& params, const train_input& input) const {}
+    void check_preconditions(const Descriptor& params, const train_input& input) const {
+        if (!(input.get_data().has_data())) {
+            throw invalid_argument("Input data should not be empty");
+        }
+        if (!(input.get_labels().has_data())) {
+            throw invalid_argument("Input labels should not be empty");
+        }
+        if (input.get_data().get_row_count() != input.get_labels().get_row_count()) {
+            throw invalid_argument("Input data row_count should be equal to labels row_count");
+        }
+        if (input.get_weights().has_data()) {
+            if (input.get_data().get_row_count() != input.get_weights().get_row_count()) {
+                throw invalid_argument("Input data row_count should be equal to weights row_count");
+            }
+        }
+        if (!(params.get_kernel_impl()->get_impl())) {
+            throw invalid_argument("Input kernel should be not be empty");
+        }
+    }
+
+    void check_postconditions(const Descriptor& params,
+                              const train_input& input,
+                              const train_result& result) const {
+        if (result.get_support_vector_count() < 0 ||
+            result.get_support_vector_count() > input.get_data().get_row_count()) {
+            throw internal_error(
+                "Result support_vectors_count should be >= 0 and <= input data row_count");
+        }
+        if (!(result.get_support_vectors().has_data())) {
+            throw internal_error("Result support_vectors should not be empty");
+        }
+        if (!(result.get_support_indices().has_data())) {
+            throw internal_error("Result support_indices should not be empty");
+        }
+        if (!(result.get_coefficients().has_data())) {
+            throw internal_error("Result coefficients should not be empty");
+        }
+        if (result.get_support_vectors().get_column_count() !=
+            input.get_data().get_column_count()) {
+            throw internal_error(
+                "Result support_vectors column_count should be equal to input data column_count");
+        }
+        if (result.get_support_vectors().get_row_count() != result.get_support_vector_count()) {
+            throw internal_error(
+                "Result support_vectors row_count should be equal to result support_vectors_count");
+        }
+        if (result.get_support_indices().get_row_count() != result.get_support_vector_count()) {
+            throw internal_error(
+                "Result support_indices row_count should be equal to result support_vectors_count");
+        }
+        if (result.get_coefficients().get_row_count() != result.get_support_vector_count()) {
+            throw internal_error(
+                "Result coefficients row_count should be equal to result support_vectors_count");
+        }
+    }
 
     template <typename Context>
     auto operator()(const Context& ctx, const Descriptor& desc, const train_input& input) const {
-        validate(desc, input);
-        return train_ops_dispatcher<Context, float_t, task_t, method_t>()(ctx, desc, input);
+        check_preconditions(desc, input);
+        const auto result =
+            train_ops_dispatcher<Context, float_t, task_t, method_t>()(ctx, desc, input);
+        check_postconditions(desc, input, result);
+        return result;
     }
 };
 

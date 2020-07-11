@@ -14,8 +14,12 @@
 * limitations under the License.
 *******************************************************************************/
 
+#pragma once
+
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
+
+#include <daal/include/algorithms/svm/svm_model.h>
 
 namespace oneapi::dal::svm::backend {
 

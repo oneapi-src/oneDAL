@@ -280,19 +280,19 @@ mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl_dal_sycl.hpp $(MKLGPUFPKDIR.inc
 # Release library names
 #===============================================================================
 
-core_a       := $(plib)daal_core.$a
-core_y       := $(plib)daal_core.$y
+core_a       := $(plib)onedal_core.$a
+core_y       := $(plib)onedal_core.$y
 oneapi_a     := $(plib)onedal.$a
 oneapi_y     := $(plib)onedal.$y
 oneapi_a.dpc := $(plib)onedal_dpc.$a
 oneapi_y.dpc := $(plib)onedal_dpc.$y
 
-thr_tbb_a := $(plib)daal_thread.$a
-thr_seq_a := $(plib)daal_sequential.$a
-thr_tbb_y := $(plib)daal_thread.$y
-thr_seq_y := $(plib)daal_sequential.$y
+thr_tbb_a := $(plib)onedal_thread.$a
+thr_seq_a := $(plib)onedal_sequential.$a
+thr_tbb_y := $(plib)onedal_thread.$y
+thr_seq_y := $(plib)onedal_sequential.$y
 
-daal_jar  := daal.jar
+daal_jar  := onedal.jar
 
 jni_so    := $(plib)JavaAPI.$y
 
@@ -602,6 +602,8 @@ $(CORE.tmpdir_y)/%.res: %.rc | $(CORE.tmpdir_y)/. ; $(RC.COMPILE)
 #===============================================================================
 ONEAPI.tmpdir_a := $(WORKDIR)/oneapi_static
 ONEAPI.tmpdir_y := $(WORKDIR)/oneapi_dynamic
+ONEAPI.tmpdir_a.dpc := $(WORKDIR)/oneapi_dpc_static
+ONEAPI.tmpdir_y.dpc := $(WORKDIR)/oneapi_dpc_dynamic
 
 ONEAPI.incdirs.common := $(CPPDIR)
 ONEAPI.incdirs.thirdp := $(CORE.incdirs.common) $(MKLFPKDIR.include) $(TBBDIR.include)
@@ -626,16 +628,19 @@ ONEAPI.srcs.all	:= $(ONEAPI.srcs.all:./%=%)
 ONEAPI.srcs.dpc := $(filter %_dpc.cpp,$(ONEAPI.srcs.all))
 ONEAPI.srcs     := $(filter-out %_dpc.cpp,$(ONEAPI.srcs.all))
 ONEAPI.srcs     := $(filter-out %_test.cpp,$(ONEAPI.srcs))
+ONEAPI.srcs.dpc := $(ONEAPI.srcs) $(ONEAPI.srcs.dpc)
 
 ONEAPI.objs_a     := $(ONEAPI.srcs:%.cpp=$(ONEAPI.tmpdir_a)/%.$o)
 ONEAPI.objs_y     := $(ONEAPI.srcs:%.cpp=$(ONEAPI.tmpdir_y)/%.$o)
-ONEAPI.objs_a.dpc := $(ONEAPI.srcs.dpc:%.cpp=$(ONEAPI.tmpdir_a)/%.$o)
-ONEAPI.objs_y.dpc := $(ONEAPI.srcs.dpc:%.cpp=$(ONEAPI.tmpdir_y)/%.$o)
+ONEAPI.objs_a.dpc := $(ONEAPI.srcs.dpc:%.cpp=$(ONEAPI.tmpdir_a.dpc)/%.$o)
+ONEAPI.objs_y.dpc := $(ONEAPI.srcs.dpc:%.cpp=$(ONEAPI.tmpdir_y.dpc)/%.$o)
 ONEAPI.objs_a.all := $(ONEAPI.objs_a) $(ONEAPI.objs_a.dpc)
 ONEAPI.objs_y.all := $(ONEAPI.objs_y) $(ONEAPI.objs_y.dpc)
 
 -include $(ONEAPI.tmpdir_a)/*.d
 -include $(ONEAPI.tmpdir_y)/*.d
+-include $(ONEAPI.tmpdir_a.dpc)/*.d
+-include $(ONEAPI.tmpdir_y.dpc)/*.d
 
 # Declares target for object file compilation
 # $1: Object file
@@ -669,23 +674,30 @@ $(ONEAPI.tmpdir_a)/inc_a_folders.txt: | $(ONEAPI.tmpdir_a)/.
 $(ONEAPI.tmpdir_y)/inc_y_folders.txt: | $(ONEAPI.tmpdir_y)/.
 	$(call WRITE.PREREQS,$(ONEAPI.include_options),$(space))
 
+$(ONEAPI.tmpdir_a.dpc)/inc_a_folders.txt: | $(ONEAPI.tmpdir_a.dpc)/.
+	$(call WRITE.PREREQS,$(ONEAPI.include_options),$(space))
+
+$(ONEAPI.tmpdir_y.dpc)/inc_y_folders.txt: | $(ONEAPI.tmpdir_y.dpc)/.
+	$(call WRITE.PREREQS,$(ONEAPI.include_options),$(space))
+
 # Set compilation options to the object files which are part of STATIC lib
-$(ONEAPI.objs_a.all): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_a)/inc_a_folders.txt
+$(ONEAPI.objs_a): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_a)/inc_a_folders.txt
 $(ONEAPI.objs_a): COPT := $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic.opts) \
                           -DDAAL_NOTHROW_EXCEPTIONS \
                           -DDAAL_HIDE_DEPRECATED \
                           -D__TBB_NO_IMPLICIT_LINKAGE \
                            @$(ONEAPI.tmpdir_a)/inc_a_folders.txt
 
+$(ONEAPI.objs_a.dpc): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_a.dpc)/inc_a_folders.txt
 $(ONEAPI.objs_a.dpc): COPT := $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.opts) \
                               -DDAAL_NOTHROW_EXCEPTIONS \
                               -DDAAL_HIDE_DEPRECATED \
 							  -DONEAPI_DAL_DATA_PARALLEL \
                               -D__TBB_NO_IMPLICIT_LINKAGE \
-                               @$(ONEAPI.tmpdir_a)/inc_a_folders.txt
+                               @$(ONEAPI.tmpdir_a.dpc)/inc_a_folders.txt
 
 # Set compilation options to the object files which are part of DYNAMIC lib
-$(ONEAPI.objs_y.all): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_y)/inc_y_folders.txt
+$(ONEAPI.objs_y): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_y)/inc_y_folders.txt
 $(ONEAPI.objs_y): COPT := $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic.opts) \
                           -DDAAL_NOTHROW_EXCEPTIONS \
                           -DDAAL_HIDE_DEPRECATED \
@@ -694,6 +706,7 @@ $(ONEAPI.objs_y): COPT := $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic
                           -D__TBB_NO_IMPLICIT_LINKAGE \
                           @$(ONEAPI.tmpdir_y)/inc_y_folders.txt
 
+$(ONEAPI.objs_y.dpc): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_y.dpc)/inc_y_folders.txt
 $(ONEAPI.objs_y.dpc): COPT := $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.opts) \
                               -DDAAL_NOTHROW_EXCEPTIONS \
                               -DDAAL_HIDE_DEPRECATED \
@@ -701,14 +714,14 @@ $(ONEAPI.objs_y.dpc): COPT := $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.op
                               $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG) \
                               -D__ONEAPI_DAL_ENABLE_DLL_EXPORT__ \
                               -D__TBB_NO_IMPLICIT_LINKAGE \
-                              @$(ONEAPI.tmpdir_y)/inc_y_folders.txt
+                              @$(ONEAPI.tmpdir_y.dpc)/inc_y_folders.txt
 
 $(foreach x,$(ONEAPI.objs_a),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_a),C)))
 $(foreach x,$(ONEAPI.objs_y),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_y),C)))
-$(foreach x,$(ONEAPI.objs_a.dpc),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_a),DPC)))
-$(foreach x,$(ONEAPI.objs_y.dpc),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_y),DPC)))
+$(foreach x,$(ONEAPI.objs_a.dpc),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_a.dpc),DPC)))
+$(foreach x,$(ONEAPI.objs_y.dpc),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_y.dpc),DPC)))
 
-# Create Host and DPC++ oneapi library
+# Create Host and DPC++ oneapi libraries
 $(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(oneapi_a),$(ONEAPI.objs_a)))
 $(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(oneapi_a.dpc),$(ONEAPI.objs_a.dpc)))
 
@@ -725,11 +738,11 @@ ifdef OS_is_win
 $(WORKDIR.lib)/$(oneapi_y:%.dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y)
 endif
 
-$(ONEAPI.tmpdir_y)/$(oneapi_y.dpc:%.$y=%_link.txt): \
-    $(ONEAPI.objs_y.dpc) $(if $(OS_is_win),$(ONEAPI.tmpdir_y)/dll.res,) | $(ONEAPI.tmpdir_y)/. ; $(WRITE.PREREQS)
+$(ONEAPI.tmpdir_y.dpc)/$(oneapi_y.dpc:%.$y=%_link.txt): \
+    $(ONEAPI.objs_y.dpc) $(if $(OS_is_win),$(ONEAPI.tmpdir_y.dpc)/dll.res,) | $(ONEAPI.tmpdir_y.dpc)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(oneapi_y.dpc): \
     $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
-    $(ONEAPI.tmpdir_y)/$(oneapi_y.dpc:%.$y=%_link.txt) ; $(DPC.LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
+    $(ONEAPI.tmpdir_y.dpc)/$(oneapi_y.dpc:%.$y=%_link.txt) ; $(DPC.LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(daaldep.rt.dpc)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.dll=%_dll.lib),)
@@ -824,8 +837,8 @@ JAVA.srcdirs := $(JAVA.srcdir.full)                                             
 JAVA.srcs.f := $(wildcard $(JAVA.srcdirs:%=%/*.java))
 JAVA.srcs   := $(subst $(JAVA.srcdir)/,,$(JAVA.srcs.f))
 
-JNI.srcdirs := $(JNI.srcdir.full)                                                                                         \
-               $(JNI.srcdir.full)/algorithms $(addprefix $(JNI.srcdir.full)/algorithms/,$(JJ.ALGORITHMS))                 \
+JNI.srcdirs := $(JNI.srcdir.full)                                                                                        \
+               $(JNI.srcdir.full)/algorithms $(addprefix $(JNI.srcdir.full)/algorithms/,$(JJ.ALGORITHMS))                \
                $(JNI.srcdir.full)/data_management $(addprefix $(JNI.srcdir.full)/data_management/,$(JJ.DATA_MANAGEMENT)) \
                $(JNI.srcdir.full)/services \
 			   $(JNI.srcdir.full)/utils
@@ -839,11 +852,11 @@ JNI.objs   := $(addprefix $(JNI.tmpdir)/,$(JNI.srcs:%.cpp=%.$o))
 # javac does not generate dependences. Therefore we pass all *.java files to
 # a single launch of javac and let it resolve dependences on its own.
 # TODO: create hierarchy in java/jni temp folders madually
-$(WORKDIR.lib)/$(daal_jar:%.jar=%_link.txt): $(JAVA.srcs.f) | $(WORKDIR.lib)/. ; $(WRITE.PREREQS)
-$(WORKDIR.lib)/$(daal_jar):                  $(WORKDIR.lib)/$(daal_jar:%.jar=%_link.txt)
+$(WORKDIR.lib)/$(daal_jar:%.jar=%_jar_link.txt): $(JAVA.srcs.f) | $(WORKDIR.lib)/. ; $(WRITE.PREREQS)
+$(WORKDIR.lib)/$(daal_jar):                  $(WORKDIR.lib)/$(daal_jar:%.jar=%_jar_link.txt)
 	rm -rf $(JAVA.tmpdir) ; mkdir -p $(JAVA.tmpdir)
 	mkdir -p $(JNI.tmpdir)
-	javac -classpath $(JAVA.tmpdir) $(-DEBJ) -d $(JAVA.tmpdir) -h $(JNI.tmpdir) @$(WORKDIR.lib)/$(daal_jar:%.jar=%_link.txt)
+	javac -classpath $(JAVA.tmpdir) $(-DEBJ) -d $(JAVA.tmpdir) -h $(JNI.tmpdir) @$(WORKDIR.lib)/$(daal_jar:%.jar=%_jar_link.txt)
 	jar cvf $@ -C $(JAVA.tmpdir) .
 
 #----- production of JNI dll
@@ -928,6 +941,49 @@ $(foreach a,$(release.ONEAPI.LIBS_A),$(eval $(call .release.ay,$a,$(RELEASEDIR.l
 $(foreach y,$(release.ONEAPI.LIBS_Y),$(eval $(call .release.ay,$y,$(RELEASEDIR.soia),_release_oneapi_c)))
 $(foreach a,$(release.ONEAPI.LIBS_A.dpc),$(eval $(call .release.ay,$a,$(RELEASEDIR.libia),_release_oneapi_dpc)))
 $(foreach y,$(release.ONEAPI.LIBS_Y.dpc),$(eval $(call .release.ay,$y,$(RELEASEDIR.soia),_release_oneapi_dpc)))
+
+ifneq ($(MKLGPUFPKDIR),)
+# Copies the file to the destination directory and renames daal -> onedal
+# $1: Path to the file to be copied
+# $2: Destination directory
+define .release.sycl.old
+_release_common: $2/$(subst daal_sycl.$a,onedal_sycl.$a,$(notdir $1))
+$2/$(subst daal_sycl.$a,onedal_sycl.$a,$(notdir $1)): $(call frompf1,$1) | $2/. ; $(value cpy)
+endef
+
+$(foreach t,$(mklgpufpk.HEADERS),$(eval $(call .release.sycl.old,$t,$(RELEASEDIR.include.mklgpufpk))))
+$(foreach t,$(mklgpufpk.LIBS_A), $(eval $(call .release.sycl.old,$t,$(RELEASEDIR.libia))))
+endif
+
+# Adds symlink to the old library name
+# $1: New library name
+# $2: Release directory
+# $3: make target to add dependency
+# Note: The `ln` command does not support `-r` on MacOS, so we
+#       `cd`to the lib directory first and then create symlink.
+define .release.add_compat_symlink
+$3: $2/$(subst onedal,daal,$1)
+$2/$(subst onedal,daal,$1): $2/$1
+	cd $2 && ln -sf $1 $(subst onedal,daal,$1)
+endef
+
+ifeq ($(if $(or $(OS_is_lnx),$(OS_is_mac)),yes,),yes)
+$(foreach a,$(release.LIBS_A),$(eval $(call .release.add_compat_symlink,$a,$(RELEASEDIR.libia),_release_c)))
+$(foreach y,$(release.LIBS_Y),$(eval $(call .release.add_compat_symlink,$y,$(RELEASEDIR.soia),_release_c)))
+endif
+
+# Adds copy to the old library name
+# $1: New library name
+# $2: Release directory
+# $3: make target to add dependency
+define .release.add_compat_copy
+$3: $2/$(subst onedal,daal,$1)
+$2/$(subst onedal,daal,$1): $(WORKDIR.lib)/$1 ; $(value cpy)
+endef
+
+ifeq ($(OS_is_win),yes)
+$(foreach a,$(filter %_dll.$a,$(release.LIBS_A)),$(eval $(call .release.add_compat_copy,$a,$(RELEASEDIR.libia),_release_c)))
+endif
 
 #----- releasing jar files
 _release_jj: $(addprefix $(RELEASEDIR.jardir)/,$(release.JARS))
@@ -1024,13 +1080,6 @@ endef
 $(foreach t,$(releasetbb.LIBS_Y),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.soia))))
 $(foreach t,$(releasetbb.LIBS_A),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.libia))))
 
-#----- releasing MKL GPU FPK libraries
-
-ifneq ($(MKLGPUFPKDIR),)
-$(foreach t,$(mklgpufpk.HEADERS),$(eval $(call .release.t,$t,$(RELEASEDIR.include.mklgpufpk))))
-$(foreach t,$(mklgpufpk.LIBS_A), $(eval $(call .release.t,$t,$(RELEASEDIR.libia))))
-endif
-
 #===============================================================================
 # Miscellaneous stuff
 #===============================================================================
@@ -1059,6 +1108,7 @@ Flags:
       possible values: $(CORE.ALGORITHMS.CUSTOM.AVAILABLE)
   REQCPU - list of CPU optimizations to be included into library
       possible values: $(CPUs)
+  REQDBG - Flag that enables build in debug mode
 endef
 
 daal_dbg:

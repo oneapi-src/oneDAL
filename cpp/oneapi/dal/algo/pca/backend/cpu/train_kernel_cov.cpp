@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/algo/pca/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 namespace oneapi::dal::pca::backend {
@@ -40,11 +41,11 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     const int64_t column_count    = data.get_column_count();
     const int64_t component_count = desc.get_component_count();
 
-    auto arr_data = row_accessor<const Float>{ data }.pull();
-    array<Float> arr_eigvec{ column_count * component_count };
-    array<Float> arr_eigval{ 1 * component_count };
-    array<Float> arr_means{ 1 * component_count };
-    array<Float> arr_vars{ 1 * component_count };
+    auto arr_data   = row_accessor<const Float>{ data }.pull();
+    auto arr_eigvec = array<Float>::empty(column_count * component_count);
+    auto arr_eigval = array<Float>::empty(1 * component_count);
+    auto arr_means  = array<Float>::empty(1 * component_count);
+    auto arr_vars   = array<Float>::empty(1 * component_count);
 
     // TODO: read-only access performed with deep copy of data since daal numeric tables are mutable.
     // Need to create special immutable homogen table on daal interop side
@@ -67,21 +68,22 @@ static train_result call_daal_kernel(const context_cpu& ctx,
     constexpr uint64_t results_to_compute =
         int64_t(daal_pca::mean | daal_pca::variance | daal_pca::eigenvalue);
 
-    interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(ctx,
-                                                            is_correlation,
-                                                            desc.get_is_deterministic(),
-                                                            *daal_data,
-                                                            &covariance_alg,
-                                                            results_to_compute,
-                                                            *daal_eigenvectors,
-                                                            *daal_eigenvalues,
-                                                            *daal_means,
-                                                            *daal_variances);
+    interop::status_to_exception(
+        interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(ctx,
+                                                                is_correlation,
+                                                                desc.get_is_deterministic(),
+                                                                *daal_data,
+                                                                &covariance_alg,
+                                                                results_to_compute,
+                                                                *daal_eigenvectors,
+                                                                *daal_eigenvalues,
+                                                                *daal_means,
+                                                                *daal_variances));
 
     return train_result()
-        .set_model(
-            model().set_eigenvectors(homogen_table_builder{ component_count, arr_eigvec }.build()))
-        .set_eigenvalues(homogen_table_builder{ component_count, arr_eigval }.build());
+        .set_model(model().set_eigenvectors(
+            homogen_table_builder{}.reset(arr_eigvec, column_count, component_count).build()))
+        .set_eigenvalues(homogen_table_builder{}.reset(arr_eigval, 1, component_count).build());
 }
 
 template <typename Float>
