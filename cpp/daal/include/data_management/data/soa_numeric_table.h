@@ -253,21 +253,7 @@ public:
      *  Returns 'true' if all features have the same data type, else 'false'
      *  \return All features have the same data type or not
      */
-    bool isHomogeneousFloatOrDouble() const
-    {
-        const size_t ncols                                      = getNumberOfColumns();
-        const NumericTableFeature & f0                          = (*_ddict)[0];
-        daal::data_management::features::IndexNumType indexType = f0.indexType;
-
-        for (size_t i = 1; i < ncols; ++i)
-        {
-            const NumericTableFeature & f1 = (*_ddict)[i];
-            if (f1.indexType != indexType) return false;
-        }
-
-        return indexType == daal::data_management::features::getIndexNumType<float>()
-               || indexType == daal::data_management::features::getIndexNumType<double>();
-    }
+    bool isHomogeneousFloatOrDouble() const;
 
 protected:
     /**
@@ -347,54 +333,7 @@ protected:
     bool resizePointersArray(size_t nColumns);
     services::Status setNumberOfColumnsImpl(size_t ncol) DAAL_C11_OVERRIDE;
 
-    services::Status allocateDataMemoryImpl(daal::MemType /*type*/ = daal::dram) DAAL_C11_OVERRIDE
-    {
-        freeDataMemoryImpl();
-
-        size_t ncol  = _ddict->getNumberOfFeatures();
-        size_t nrows = getNumberOfRows();
-
-        if (ncol * nrows == 0)
-        {
-            if (nrows == 0)
-            {
-                return services::Status(services::ErrorIncorrectNumberOfObservations);
-            }
-            else
-            {
-                return services::Status(services::ErrorIncorrectNumberOfFeatures);
-            }
-        }
-
-        for (size_t i = 0; i < ncol; i++)
-        {
-            NumericTableFeature f = (*_ddict)[i];
-            if (f.typeSize != 0)
-            {
-                _arrays[i] = services::SharedPtr<byte>((byte *)daal::services::daal_malloc(f.typeSize * nrows), services::ServiceDeleter());
-                _arraysInitialized++;
-            }
-            if (!_arrays[i])
-            {
-                freeDataMemoryImpl();
-                return services::Status(services::ErrorMemoryAllocationFailed);
-            }
-        }
-
-        if (_arraysInitialized > 0)
-        {
-            _partialMemStatus = internallyAllocated;
-        }
-
-        if (_arraysInitialized == ncol)
-        {
-            _memStatus = internallyAllocated;
-        }
-
-        DAAL_CHECK_STATUS_VAR(generatesOffsets())
-
-        return services::Status();
-    }
+    services::Status allocateDataMemoryImpl(daal::MemType /*type*/ = daal::dram) DAAL_C11_OVERRIDE;
 
     void freeDataMemoryImpl() DAAL_C11_OVERRIDE;
 
@@ -433,17 +372,7 @@ protected:
     }
 
 private:
-    bool isAllCompleted() const
-    {
-        const size_t ncols = getNumberOfColumns();
-
-        for (size_t i = 0; i < ncols; ++i)
-        {
-            if (!_arrays[i].get()) return false;
-        }
-
-        return true;
-    }
+    bool isAllCompleted() const;
 
     services::Status searchMinPointer();
 
