@@ -83,8 +83,9 @@ SOANumericTable::SOANumericTable(size_t nColumns, size_t nRows, DictionaryIface:
 SOANumericTable::SOANumericTable(NumericTableDictionaryPtr ddict, size_t nRows, AllocationFlag memoryAllocationFlag, services::Status & st)
     : NumericTable(ddict, st), _arraysInitialized(0), _partialMemStatus(notAllocated)
 {
-    _layout = soa;
-    _index  = 0;
+    _layout     = soa;
+    _arrOffsets = NULL;
+    _index      = 0;
     st |= setNumberOfRowsImpl(nRows);
     if (!resizePointersArray(getNumberOfColumns()))
     {
