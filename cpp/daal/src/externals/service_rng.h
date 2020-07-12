@@ -83,6 +83,11 @@ public:
         return _generators.uniform(n, r, state, a, b, method);
     }
 
+    int uniformBits32(const SizeType n, Type * r, void * state, const int method = __DAAL_RNG_METHOD_UNIFORMBITS32_STD)
+    {
+        return _generators.uniformBits32(n, r, state, method);
+    }
+
     int bernoulli(const SizeType n, Type * r, BaseRNGs<cpu, BaseType> & brng, const double p, const int method = __DAAL_RNG_METHOD_BERNOULLI_ICDF)
     {
         return _generators.bernoulli(n, r, brng.getBrng(), p, method);
