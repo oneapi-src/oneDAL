@@ -45,8 +45,8 @@ namespace interface1
 class DAAL_EXPORT SOANumericTable : public NumericTable
 {
 public:
-    DECLARE_SERIALIZABLE_TAG();
-    DECLARE_SERIALIZABLE_IMPL();
+    DECLARE_SERIALIZABLE_TAG()
+    DECLARE_SERIALIZABLE_IMPL()
 
     /**
      *  Constructor for an empty Numeric Table
@@ -79,9 +79,9 @@ public:
     DAAL_DEPRECATED SOANumericTable(NumericTableDictionary * ddict, size_t nRows, AllocationFlag memoryAllocationFlag = notAllocate)
         : NumericTable(NumericTableDictionaryPtr(ddict, services::EmptyDeleter())), _arraysInitialized(0), _partialMemStatus(notAllocated)
     {
-        _layout     = soa;
-        _arrOffsets = NULL;
-        _index      = 0;
+        _layout = soa;
+        _index  = 0;
+
         this->_status |= setNumberOfRowsImpl(nRows);
         if (!resizePointersArray(getNumberOfColumns()))
         {
@@ -114,15 +114,7 @@ public:
     static services::SharedPtr<SOANumericTable> create(NumericTableDictionaryPtr ddict, size_t nRows,
                                                        AllocationFlag memoryAllocationFlag = notAllocate, services::Status * stat = NULL);
 
-    virtual ~SOANumericTable()
-    {
-        freeDataMemoryImpl();
-        if (_arrOffsets)
-        {
-            daal::services::daal_free(_arrOffsets);
-            _arrOffsets = NULL;
-        }
-    }
+    virtual ~SOANumericTable() { freeDataMemoryImpl(); }
 
     /**
      *  Sets a pointer to an array of values for a given feature
@@ -261,23 +253,73 @@ public:
      *  Returns 'true' if all features have the same data type, else 'false'
      *  \return All features have the same data type or not
      */
-    bool isHomogeneous() const
-    {
-        const size_t ncols                                      = getNumberOfColumns();
-        const NumericTableFeature & f0                          = (*_ddict)[0];
-        daal::data_management::features::IndexNumType indexType = f0.indexType;
-
-        for (size_t i = 1; i < ncols; ++i)
-        {
-            const NumericTableFeature & f1 = (*_ddict)[i];
-
-            if (f1.indexType != indexType) return false;
-        }
-
-        return (int)indexType == (int)internal::getConversionDataType<float>() || (int)indexType == (int)internal::getConversionDataType<double>();
-    }
+    bool isHomogeneousFloatOrDouble() const;
 
 protected:
+    /**
+     *  <a name="DAAL-CLASS-DATA_MANAGEMENT__WRAPPEDRAWPOINTER"></a>
+     *  \brief   Class that provides functionality of deep copy.
+     */
+    class WrappedRawPointer
+    {
+    public:
+        WrappedRawPointer() : _arrOffsets(NULL), _count(0) {};
+        WrappedRawPointer(const WrappedRawPointer & wrapper)
+        {
+            allocate(wrapper._count);
+            const size_t size = _count * sizeof(DAAL_INT64);
+            daal::services::internal::daal_memcpy_s(_arrOffsets, size, wrapper._arrOffsets, size);
+        }
+
+        ~WrappedRawPointer() { deallocate(); }
+
+        WrappedRawPointer & operator=(WrappedRawPointer const & wrapper)
+        {
+            if (this == &wrapper) return *this;
+
+            if (_count < wrapper._count)
+            {
+                if (allocate(wrapper._count) != services::Status()) return *this;
+            }
+            else
+            {
+                _count = wrapper._count;
+            }
+
+            const size_t size = _count * sizeof(DAAL_INT64);
+            daal::services::internal::daal_memcpy_s(_arrOffsets, size, wrapper._arrOffsets, size);
+
+            return *this;
+        }
+
+        services::Status allocate(size_t count)
+        {
+            deallocate();
+            _arrOffsets = (DAAL_INT64 *)daal::services::daal_malloc(count * sizeof(DAAL_INT64));
+            DAAL_CHECK_MALLOC(_arrOffsets)
+            _count = count;
+            return services::Status();
+        }
+
+        void deallocate()
+        {
+            if (_arrOffsets)
+            {
+                daal::services::daal_free(_arrOffsets);
+                _arrOffsets = NULL;
+                _count      = 0;
+            }
+        }
+
+        DAAL_INT64 const * get() const { return _arrOffsets; }
+        DAAL_INT64 * get() { return _arrOffsets; }
+        size_t count() const { return _count; }
+
+    protected:
+        DAAL_INT64 * _arrOffsets;
+        size_t _count;
+    };
+
     SOANumericTable(size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual, services::Status & st);
 
     SOANumericTable(NumericTableDictionaryPtr ddict, size_t nRows, AllocationFlag memoryAllocationFlag, services::Status & st);
@@ -285,59 +327,13 @@ protected:
     services::Collection<services::SharedPtr<byte> > _arrays;
     size_t _arraysInitialized;
     MemoryStatus _partialMemStatus;
-    DAAL_INT64 * _arrOffsets;
+    WrappedRawPointer _wrapOffsets;
     size_t _index;
 
     bool resizePointersArray(size_t nColumns);
-
     services::Status setNumberOfColumnsImpl(size_t ncol) DAAL_C11_OVERRIDE;
 
-    services::Status allocateDataMemoryImpl(daal::MemType type = daal::dram) DAAL_C11_OVERRIDE
-    {
-        freeDataMemoryImpl();
-
-        size_t ncol  = _ddict->getNumberOfFeatures();
-        size_t nrows = getNumberOfRows();
-
-        if (ncol * nrows == 0)
-        {
-            if (nrows == 0)
-            {
-                return services::Status(services::ErrorIncorrectNumberOfObservations);
-            }
-            else
-            {
-                return services::Status(services::ErrorIncorrectNumberOfFeatures);
-            }
-        }
-
-        for (size_t i = 0; i < ncol; i++)
-        {
-            NumericTableFeature f = (*_ddict)[i];
-            if (f.typeSize != 0)
-            {
-                _arrays[i] = services::SharedPtr<byte>((byte *)daal::services::daal_malloc(f.typeSize * nrows), services::ServiceDeleter());
-                _arraysInitialized++;
-            }
-            if (!_arrays[i])
-            {
-                freeDataMemoryImpl();
-                return services::Status(services::ErrorMemoryAllocationFailed);
-            }
-        }
-
-        if (_arraysInitialized > 0)
-        {
-            _partialMemStatus = internallyAllocated;
-        }
-
-        if (_arraysInitialized == ncol)
-        {
-            _memStatus = internallyAllocated;
-        }
-        DAAL_CHECK_STATUS_VAR(generatesOffsets())
-        return services::Status();
-    }
+    services::Status allocateDataMemoryImpl(daal::MemType /*type*/ = daal::dram) DAAL_C11_OVERRIDE;
 
     void freeDataMemoryImpl() DAAL_C11_OVERRIDE;
 
@@ -367,32 +363,22 @@ protected:
 
     services::Status generatesOffsets()
     {
-        if (isHomogeneous())
+        if (isHomogeneousFloatOrDouble() && isAllCompleted())
         {
-            if (isAllCompleted()) DAAL_CHECK_STATUS_VAR(searchMinPointer());
+            DAAL_CHECK_STATUS_VAR(searchMinPointer());
         }
 
         return services::Status();
     }
 
 private:
-    bool isAllCompleted() const
-    {
-        size_t ncols = getNumberOfColumns();
-
-        for (size_t i = 0; i < ncols; ++i)
-        {
-            if (!_arrays[i].get()) return false;
-        }
-
-        return true;
-    }
+    bool isAllCompleted() const;
 
     services::Status searchMinPointer();
 
 protected:
     template <typename T>
-    services::Status getTBlock(size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
+    DAAL_FORCEINLINE services::Status getTBlock(size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
     {
         size_t ncols = getNumberOfColumns();
         size_t nobs  = getNumberOfRows();
@@ -416,15 +402,14 @@ protected:
         T * buffer    = block.getBlockPtr();
         bool computed = false;
 
-        if (isHomogeneous())
+        if (_wrapOffsets.get())
         {
             NumericTableFeature & f = (*_ddict)[0];
 
-            if ((int)internal::getConversionDataType<T>() == (int)f.indexType)
+            if (daal::data_management::features::internal::getIndexNumType<T>() == f.indexType)
             {
-                DAAL_CHECK(_arrOffsets, services::ErrorNullPtr)
                 T const * ptrMin = (T *)(_arrays[_index].get()) + idx;
-                computed         = data_management::internal::getVector<T>()(nrows, ncols, buffer, ptrMin, _arrOffsets);
+                computed         = data_management::internal::getVector<T>()(nrows, ncols, buffer, ptrMin, _wrapOffsets.get());
             }
         }
         if (!computed)
@@ -459,7 +444,7 @@ protected:
     }
 
     template <typename T>
-    services::Status releaseTBlock(BlockDescriptor<T> & block)
+    DAAL_FORCEINLINE services::Status releaseTBlock(BlockDescriptor<T> & block)
     {
         if (block.getRWFlag() & (int)writeOnly)
         {
@@ -499,10 +484,9 @@ protected:
     }
 
     template <typename T>
-    services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
+    DAAL_FORCEINLINE services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
-        size_t ncols = getNumberOfColumns();
-        size_t nobs  = getNumberOfRows();
+        size_t nobs = getNumberOfRows();
         block.setDetails(feat_idx, idx, rwFlag);
 
         if (idx >= nobs)
@@ -513,7 +497,8 @@ protected:
 
         nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
 
-        NumericTableFeature & f = (*_ddict)[feat_idx];
+        const NumericTableFeature & f = (*_ddict)[feat_idx];
+        const int indexType           = f.indexType;
 
         if (features::internal::getIndexNumType<T>() == f.indexType)
         {
@@ -521,8 +506,13 @@ protected:
         }
         else
         {
-            byte * location = _arrays[feat_idx].get() + idx * f.typeSize;
+            if (data_management::features::DAAL_OTHER_T == indexType)
+            {
+                block.reset();
+                return services::Status(services::ErrorDataTypeNotSupported);
+            }
 
+            byte * location = _arrays[feat_idx].get() + idx * f.typeSize;
             if (!block.resizeBuffer(1, nrows))
             {
                 return services::Status(services::ErrorMemoryAllocationFailed);
@@ -530,25 +520,32 @@ protected:
 
             if (!(block.getRWFlag() & (int)readOnly)) return services::Status();
 
-            internal::getVectorUpCast(f.indexType, internal::getConversionDataType<T>())(nrows, location, block.getBlockPtr());
+            internal::getVectorUpCast(indexType, internal::getConversionDataType<T>())(nrows, location, block.getBlockPtr());
         }
         return services::Status();
     }
 
     template <typename T>
-    services::Status releaseTFeature(BlockDescriptor<T> & block)
+    DAAL_FORCEINLINE services::Status releaseTFeature(BlockDescriptor<T> & block)
     {
         if (block.getRWFlag() & (int)writeOnly)
         {
             size_t feat_idx = block.getColumnsOffset();
 
             NumericTableFeature & f = (*_ddict)[feat_idx];
+            const int indexType     = f.indexType;
 
-            if (features::internal::getIndexNumType<T>() != f.indexType)
+            if (data_management::features::DAAL_OTHER_T == indexType)
+            {
+                block.reset();
+                return services::Status(services::ErrorDataTypeNotSupported);
+            }
+
+            if (features::internal::getIndexNumType<T>() != indexType)
             {
                 char * ptr = (char *)_arrays[feat_idx].get() + block.getRowsOffset() * f.typeSize;
 
-                internal::getVectorDownCast(f.indexType, internal::getConversionDataType<T>())(block.getNumberOfRows(), block.getBlockPtr(), ptr);
+                internal::getVectorDownCast(indexType, internal::getConversionDataType<T>())(block.getNumberOfRows(), block.getBlockPtr(), ptr);
             }
         }
         block.reset();

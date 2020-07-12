@@ -33,6 +33,7 @@
 #include "service/kernel/service_arrays.h"
 
 using namespace daal::data_management;
+using namespace daal::data_management::internal;
 
 #define DEFINE_TABLE_BLOCK_EX(BlockType, targetVariable, ...)    \
     BlockType<algorithmFPType, cpu> targetVariable(__VA_ARGS__); \
