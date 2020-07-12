@@ -38,8 +38,8 @@
 #endif
 
 #if defined(__APPLE__)
-    #define __DAAL_MKL_SSE2  ssse3_
-    #define __DAAL_MKL_SSSE3 ssse3_
+    #define __DAAL_MKL_SSE2  sse42_
+    #define __DAAL_MKL_SSSE3 sse42_
 #else
     #define __DAAL_MKL_SSE2  sse2_
     #define __DAAL_MKL_SSSE3 ssse3_
