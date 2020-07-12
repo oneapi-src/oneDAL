@@ -26,8 +26,9 @@ namespace interface1
 SOANumericTable::SOANumericTable(size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual)
     : NumericTable(nColumns, nRows, featuresEqual), _arrays(nColumns), _arraysInitialized(0), _partialMemStatus(notAllocated)
 {
-    _layout = soa;
-    _index  = 0;
+    _layout     = soa;
+    _arrOffsets = NULL;
+    _index      = 0;
 
     if (!resizePointersArray(nColumns))
     {
@@ -45,8 +46,9 @@ services::SharedPtr<SOANumericTable> SOANumericTable::create(size_t nColumns, si
 SOANumericTable::SOANumericTable(NumericTableDictionaryPtr ddict, size_t nRows, AllocationFlag memoryAllocationFlag)
     : NumericTable(ddict), _arraysInitialized(0), _partialMemStatus(notAllocated)
 {
-    _layout = soa;
-    _index  = 0;
+    _layout     = soa;
+    _arrOffsets = NULL;
+    _index      = 0;
     this->_status |= setNumberOfRowsImpl(nRows);
     if (!resizePointersArray(getNumberOfColumns()))
     {
@@ -68,8 +70,9 @@ services::SharedPtr<SOANumericTable> SOANumericTable::create(NumericTableDiction
 SOANumericTable::SOANumericTable(size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual, services::Status & st)
     : NumericTable(nColumns, nRows, featuresEqual, st), _arrays(nColumns), _arraysInitialized(0), _partialMemStatus(notAllocated)
 {
-    _layout = soa;
-    _index  = 0;
+    _layout     = soa;
+    _arrOffsets = NULL;
+    _index      = 0;
     if (!resizePointersArray(nColumns))
     {
         st.add(services::ErrorMemoryAllocationFailed);
@@ -217,49 +220,49 @@ void SOANumericTable::freeDataMemoryImpl()
 
 services::Status SOANumericTable::allocateDataMemoryImpl(daal::MemType /*type*/)
 {
-        freeDataMemoryImpl();
+    freeDataMemoryImpl();
 
-        size_t ncol  = _ddict->getNumberOfFeatures();
-        size_t nrows = getNumberOfRows();
+    size_t ncol  = _ddict->getNumberOfFeatures();
+    size_t nrows = getNumberOfRows();
 
-        if (ncol * nrows == 0)
+    if (ncol * nrows == 0)
+    {
+        if (nrows == 0)
         {
-            if (nrows == 0)
-            {
-                return services::Status(services::ErrorIncorrectNumberOfObservations);
-            }
-            else
-            {
-                return services::Status(services::ErrorIncorrectNumberOfFeatures);
-            }
+            return services::Status(services::ErrorIncorrectNumberOfObservations);
         }
-
-        for (size_t i = 0; i < ncol; i++)
+        else
         {
-            NumericTableFeature f = (*_ddict)[i];
-            if (f.typeSize != 0)
-            {
-                _arrays[i] = services::SharedPtr<byte>((byte *)daal::services::daal_malloc(f.typeSize * nrows), services::ServiceDeleter());
-                _arraysInitialized++;
-            }
-            if (!_arrays[i])
-            {
-                freeDataMemoryImpl();
-                return services::Status(services::ErrorMemoryAllocationFailed);
-            }
+            return services::Status(services::ErrorIncorrectNumberOfFeatures);
         }
+    }
 
-        if (_arraysInitialized > 0)
+    for (size_t i = 0; i < ncol; i++)
+    {
+        NumericTableFeature f = (*_ddict)[i];
+        if (f.typeSize != 0)
         {
-            _partialMemStatus = internallyAllocated;
+            _arrays[i] = services::SharedPtr<byte>((byte *)daal::services::daal_malloc(f.typeSize * nrows), services::ServiceDeleter());
+            _arraysInitialized++;
         }
+        if (!_arrays[i])
+        {
+            freeDataMemoryImpl();
+            return services::Status(services::ErrorMemoryAllocationFailed);
+        }
+    }
 
-        if (_arraysInitialized == ncol)
-        {
-            _memStatus = internallyAllocated;
-        }
-        DAAL_CHECK_STATUS_VAR(generatesOffsets())
-        return services::Status();
+    if (_arraysInitialized > 0)
+    {
+        _partialMemStatus = internallyAllocated;
+    }
+
+    if (_arraysInitialized == ncol)
+    {
+        _memStatus = internallyAllocated;
+    }
+    DAAL_CHECK_STATUS_VAR(generatesOffsets())
+    return services::Status();
 }
 
 } // namespace interface1
