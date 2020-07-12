@@ -124,11 +124,14 @@ bool SOANumericTable::isAllCompleted() const
 
 services::Status SOANumericTable::searchMinPointer()
 {
-    const size_t ncols = getNumberOfColumns();
+    size_t ncols = getNumberOfColumns();
 
-    DAAL_CHECK_MALLOC(_wrapOffsets.allocate(ncols));
-    _index              = 0;
-    char const * ptrMin = (char *)_arrays[0].get();
+    if (_arrOffsets) daal::services::daal_free(_arrOffsets);
+
+    _arrOffsets = (DAAL_INT64 *)daal::services::daal_malloc(ncols * sizeof(DAAL_INT64));
+    DAAL_CHECK_MALLOC(_arrOffsets)
+    _index        = 0;
+    char * ptrMin = (char *)_arrays[0].get();
 
     /* search index for min pointer */
     for (size_t i = 1; i < ncols; ++i)
@@ -140,15 +143,12 @@ services::Status SOANumericTable::searchMinPointer()
         }
     }
 
-    DAAL_ASSERT(_wrapOffsets.count() >= ncols)
-
     /* compute offsets */
     for (size_t i = 0; i < ncols; ++i)
     {
-        char const * const pv = (char *)(_arrays[i].get());
-        /* unsigned long long is equal to DAAL_UINT64 and LLONG_MAX is always fit to unsigned long long */
-        DAAL_ASSERT(static_cast<DAAL_UINT64>(pv - ptrMin) <= static_cast<DAAL_UINT64>(LLONG_MAX))
-        _wrapOffsets.get()[i] = static_cast<DAAL_INT64>(pv - ptrMin);
+        char * pv      = (char *)(_arrays[i].get());
+        _arrOffsets[i] = (DAAL_INT64)(pv - ptrMin);
+        DAAL_ASSERT(_arrOffsets[i] >= 0)
     }
 
     return services::Status();
@@ -173,9 +173,10 @@ bool SOANumericTable::resizePointersArray(size_t nColumns)
         {
             _memStatus = notAllocated;
         }
-
         return true;
     }
+    _arrays.resize(nColumns);
+    _memStatus = notAllocated;
 
     bool is_resized = _arrays.resize(nColumns);
     if (is_resized)
@@ -183,9 +184,12 @@ bool SOANumericTable::resizePointersArray(size_t nColumns)
         _memStatus = notAllocated;
     }
 
-    _wrapOffsets.deallocate();
-    _index = 0;
-
+    if (_arrOffsets)
+    {
+        daal::services::daal_free(_arrOffsets);
+        _arrOffsets = NULL;
+        _index      = 0;
+    }
     return is_resized;
 }
 
@@ -213,51 +217,49 @@ void SOANumericTable::freeDataMemoryImpl()
 
 services::Status SOANumericTable::allocateDataMemoryImpl(daal::MemType /*type*/)
 {
-    freeDataMemoryImpl();
+        freeDataMemoryImpl();
 
-    size_t ncol  = _ddict->getNumberOfFeatures();
-    size_t nrows = getNumberOfRows();
+        size_t ncol  = _ddict->getNumberOfFeatures();
+        size_t nrows = getNumberOfRows();
 
-    if (ncol * nrows == 0)
-    {
-        if (nrows == 0)
+        if (ncol * nrows == 0)
         {
-            return services::Status(services::ErrorIncorrectNumberOfObservations);
+            if (nrows == 0)
+            {
+                return services::Status(services::ErrorIncorrectNumberOfObservations);
+            }
+            else
+            {
+                return services::Status(services::ErrorIncorrectNumberOfFeatures);
+            }
         }
-        else
+
+        for (size_t i = 0; i < ncol; i++)
         {
-            return services::Status(services::ErrorIncorrectNumberOfFeatures);
+            NumericTableFeature f = (*_ddict)[i];
+            if (f.typeSize != 0)
+            {
+                _arrays[i] = services::SharedPtr<byte>((byte *)daal::services::daal_malloc(f.typeSize * nrows), services::ServiceDeleter());
+                _arraysInitialized++;
+            }
+            if (!_arrays[i])
+            {
+                freeDataMemoryImpl();
+                return services::Status(services::ErrorMemoryAllocationFailed);
+            }
         }
-    }
 
-    for (size_t i = 0; i < ncol; i++)
-    {
-        NumericTableFeature f = (*_ddict)[i];
-        if (f.typeSize != 0)
+        if (_arraysInitialized > 0)
         {
-            _arrays[i] = services::SharedPtr<byte>((byte *)daal::services::daal_malloc(f.typeSize * nrows), services::ServiceDeleter());
-            _arraysInitialized++;
+            _partialMemStatus = internallyAllocated;
         }
-        if (!_arrays[i])
+
+        if (_arraysInitialized == ncol)
         {
-            freeDataMemoryImpl();
-            return services::Status(services::ErrorMemoryAllocationFailed);
+            _memStatus = internallyAllocated;
         }
-    }
-
-    if (_arraysInitialized > 0)
-    {
-        _partialMemStatus = internallyAllocated;
-    }
-
-    if (_arraysInitialized == ncol)
-    {
-        _memStatus = internallyAllocated;
-    }
-
-    DAAL_CHECK_STATUS_VAR(generatesOffsets())
-
-    return services::Status();
+        DAAL_CHECK_STATUS_VAR(generatesOffsets())
+        return services::Status();
 }
 
 } // namespace interface1
