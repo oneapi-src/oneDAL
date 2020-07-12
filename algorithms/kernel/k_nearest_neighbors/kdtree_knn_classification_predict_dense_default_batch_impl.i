@@ -219,7 +219,7 @@ DAAL_FORCEINLINE bool checkHomogenSOA(const NumericTable & data, services::inter
 {
     if (data.getDataLayout() & NumericTableIface::soa)
     {
-        if (static_cast<const SOANumericTable &>(data).isHomogeneous())
+        if (static_cast<const SOANumericTable &>(data).isHomogeneousFloatOrDoubleFloatOrDouble())
         {
             auto f = (*const_cast<NumericTable &>(data).getDictionary())[0];
             if ((int)daal::data_management::internal::getConversionDataType<algorithmFpType>() == (int)f.indexType)
