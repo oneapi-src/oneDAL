@@ -80,7 +80,7 @@ threading = parallel
 DAALROOT = ..\..\..
 !ENDIF
 
-DAAL_PATH = "$(DAALROOT)\lib\$(_IA)"
+DAAL_PATH = $(DAALROOT)\lib\$(_IA)
 
 !IF ("$(mode)"=="build")
 RES = $(example:+=.exe)
