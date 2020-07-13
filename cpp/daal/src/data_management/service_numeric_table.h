@@ -28,11 +28,13 @@
 #include "data_management/data/soa_numeric_table.h"
 #include "data_management/data/csr_numeric_table.h"
 #include "data_management/data/symmetric_matrix.h"
+#include "data_management/data/internal/conversion.h"
 #include "src/services/service_defines.h"
 #include "src/externals/service_memory.h"
 #include "src/services/service_arrays.h"
 
 using namespace daal::data_management;
+using namespace daal::data_management::internal;
 
 #define DEFINE_TABLE_BLOCK_EX(BlockType, targetVariable, ...)    \
     BlockType<algorithmFPType, cpu> targetVariable(__VA_ARGS__); \
