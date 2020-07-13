@@ -137,7 +137,7 @@ EXT_LIB = /link /DEFAULTLIB:tbb.lib /DEFAULTLIB:tbbmalloc.lib
 !ENDIF
 !ENDIF
 
-DAAL_LIB = $(DAAL_PATH)\onedal_core$(EXT) $(DAAL_LIB_T)
+DAAL_LIB = "$(DAAL_PATH)\onedal_core$(EXT)" "$(DAAL_LIB_T)"
 
 COPTS = -Isource\utils $(COPTS) $(OUT_OPTS)
 LOPTS = $(DAAL_LIB) $(EXT_LIB)
