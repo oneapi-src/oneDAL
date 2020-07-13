@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/pca/common.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::pca {
 
@@ -43,6 +44,9 @@ bool descriptor_base::get_is_deterministic() const {
 }
 
 void descriptor_base::set_component_count_impl(std::int64_t value) {
+    if (value < 0) {
+        throw domain_error("Descriptor component_count should be >= 0");
+    }
     impl_->component_count = value;
 }
 
