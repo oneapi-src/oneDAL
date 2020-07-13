@@ -136,15 +136,15 @@ Status KMeansOneCclDefaultBatchKernelUCAPI<algorithmFPType>::compute(const Numer
     cachekey.add(build_options.c_str());
 
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(compute.buildProgram);
-        kernel_factory.build(ExecutionTargetIds::device, cachekey.c_str(), kmeans_cl_kernels, build_options.c_str());
-    }
-    {
         BlockDescriptor<int> assignmentsRows;
         ntAssignments->getBlockOfRows(0, nRows, writeOnly, assignmentsRows);
         auto assignments = assignmentsRows.getBuffer();
         context.fill(assignments, 0, &st);
         DAAL_CHECK_STATUS_VAR(st);
+    }
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(compute.buildProgram);
+        kernel_factory.build(ExecutionTargetIds::device, cachekey.c_str(), kmeans_cl_kernels, build_options.c_str());
     }
 
     const uint32_t nPartialCentroids = 128;
