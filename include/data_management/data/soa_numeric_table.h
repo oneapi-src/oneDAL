@@ -261,7 +261,7 @@ public:
      *  Returns 'true' if all features have the same data type, else 'false'
      *  \return All features have the same data type or not
      */
-    bool isHomogeneousFloatOrDouble() const;
+    bool isHomogeneous() const;
 
 protected:
     SOANumericTable(size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual, services::Status & st);
@@ -308,7 +308,7 @@ protected:
 
     services::Status generatesOffsets()
     {
-        if (isHomogeneousFloatOrDouble())
+        if (isHomogeneous())
         {
             if (isAllCompleted()) DAAL_CHECK_STATUS_VAR(searchMinPointer());
         }
@@ -323,7 +323,7 @@ private:
 
 protected:
     template <typename T>
-    DAAL_FORCEINLINE services::Status getTBlock(size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
+    services::Status getTBlock(size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
     {
         size_t ncols = getNumberOfColumns();
         size_t nobs  = getNumberOfRows();
@@ -347,7 +347,7 @@ protected:
         T * buffer    = block.getBlockPtr();
         bool computed = false;
 
-        if (isHomogeneousFloatOrDouble())
+        if (isHomogeneous())
         {
             NumericTableFeature & f = (*_ddict)[0];
 
@@ -390,7 +390,7 @@ protected:
     }
 
     template <typename T>
-    DAAL_FORCEINLINE services::Status releaseTBlock(BlockDescriptor<T> & block)
+    services::Status releaseTBlock(BlockDescriptor<T> & block)
     {
         if (block.getRWFlag() & (int)writeOnly)
         {
@@ -430,7 +430,7 @@ protected:
     }
 
     template <typename T>
-    DAAL_FORCEINLINE services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
+    services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
         size_t ncols = getNumberOfColumns();
         size_t nobs  = getNumberOfRows();
@@ -467,7 +467,7 @@ protected:
     }
 
     template <typename T>
-    DAAL_FORCEINLINE services::Status releaseTFeature(BlockDescriptor<T> & block)
+    services::Status releaseTFeature(BlockDescriptor<T> & block)
     {
         if (block.getRWFlag() & (int)writeOnly)
         {

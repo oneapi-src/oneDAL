@@ -98,7 +98,7 @@ SOANumericTable::SOANumericTable(NumericTableDictionaryPtr ddict, size_t nRows, 
     }
 }
 
-bool SOANumericTable::isHomogeneousFloatOrDouble() const
+bool SOANumericTable::isHomogeneous() const
 {
     const size_t ncols                                      = getNumberOfColumns();
     const NumericTableFeature & f0                          = (*_ddict)[0];
