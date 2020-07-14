@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _moments_low_order:
+
 Moments of Low Order
 ====================
 

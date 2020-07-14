@@ -32,7 +32,7 @@ For more details, :ref:`algorithms`.
      - Pointer to the collection of numeric tables with :math:`2` columns and arbitrary number of rows
        containing clusters assigning queries that should be processed on the local node collected from all nodes.
 
-       .. include:: distributed-steps/includes/input_data_collection_with_exceptions.rst
+       .. include:: ./../../includes/input_data_collection_with_exceptions.rst
 
 Algorithm Output
 ++++++++++++++++
@@ -52,7 +52,7 @@ For more details, :ref:`algorithms`.
        processed on :ref:`step 1 <dbscan_step_1>` on the local node.
        :term:`Noise observations <noise observation>` have the assignment equal to :math:`-1`.
 
-       .. include:: distributed-steps/includes/default_result_numeric_table.rst
+       .. include:: ./../../includes/default_result_numeric_table.rst
 
 .. list-table::
    :widths: 10 60
@@ -64,4 +64,4 @@ For more details, :ref:`algorithms`.
      - Pointer to the numeric table with :math:`2` columns and arbitrary number of rows
        containing clusters assigning queries that should be processed on the local node.
 
-       .. include:: distributed-steps/includes/default_result_numeric_table.rst
+       .. include:: ./../../includes/default_result_numeric_table.rst

@@ -45,6 +45,7 @@ list of features and documentation is available at |daal-docs|_.
 
    getstarted.rst
    build_app/build-application.rst
+   cpu-vs-gpu.rst
    legal.rst
 
 .. toctree::

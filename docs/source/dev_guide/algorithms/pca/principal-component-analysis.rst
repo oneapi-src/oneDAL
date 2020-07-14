@@ -127,8 +127,15 @@ computation method parameter method:
      - defaultDense
      - Available methods for PCA computation:
 
-       - defaultDense - the correlation method
-       - svdDense - the SVD method
+       For CPU:
+
+       - ``defaultDense`` - the correlation method
+       - ``svdDense`` - the SVD method
+
+       For GPU: 
+
+       - ``defaultDense`` - the correlation method
+
 
    * - covariance
      - defaultDense
@@ -234,12 +241,16 @@ At this moment, the description of
 `online processing for Principal Component Analysis <https://software.intel.com/en-us/daal-programming-guide-online-processing-2>`_
 is only available in Developer Guide for Intel(R) DAAL.
 
+.. note:: Online processing mode for Principal Component Analysis is not available on GPU.
+
 Distributed Processing
 **********************
 
 At this moment, the description of
 `distributed processing for Principal Component Analysis <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-4>`_
 is only available in Developer Guide for Intel(R) DAAL.
+
+.. note:: Distributed processing mode for Principal Component Analysis is not available on GPU.
 
 Examples
 ********

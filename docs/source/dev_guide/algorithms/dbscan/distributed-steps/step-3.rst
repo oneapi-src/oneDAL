@@ -31,7 +31,7 @@ For more details, :ref:`algorithms`.
    * - ``partialData``
      - Pointer to the collection of numeric tables with :math:`p` columns and arbitrary number of rows, containing observations to be clustered.
     
-       .. include:: distributed-steps/includes/input_data_collection.rst
+       .. include:: ./../../includes/input_data_collection.rst
 
    * - ``step3PartialBoundingBoxes``
      - Pointer to the collection of the :math:`2 \times p` numeric tables containing bounding boxes computed on :ref:`step 2 <dbscan_step_2>` and collected from all nodes
@@ -58,4 +58,4 @@ For more details, :ref:`algorithms`.
    * - ``split``
      - Pointer to the :math:`1 \times 2` numeric table containing information about split for current iteration of geometric repartitioning.
        
-       .. include:: distributed-steps/includes/default_result_numeric_table.rst
+       .. include:: ./../../includes/default_result_numeric_table.rst

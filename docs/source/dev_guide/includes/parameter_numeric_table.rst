@@ -14,10 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. _logistic_loss:
+.. note::
 
-Logistic Loss
-=============
-
-At this moment, the documentation for Logistic Loss is only available in
-`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-logistic-loss>`_.
+    This parameter can be an object of any class derived from ``NumericTable``
+    except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and
+    ``CSRNumericTable``.

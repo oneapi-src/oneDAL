@@ -31,7 +31,7 @@ For more details, :ref:`algorithms`.
    * - ``partialData``
      - Pointer to the collection of numeric tables with :math:`p` columns and arbitrary number of rows, containing observations to be clustered.
 
-       .. include:: distributed-steps/includes/input_data_collection.rst
+       .. include:: ./../../includes/input_data_collection.rst
 
 Algorithm Output
 ++++++++++++++++
@@ -50,4 +50,4 @@ For more details, :ref:`algorithms`.
      - Pointer to the :math:`2 \times p` numeric table containing bounding box of input observations:
        first row contains minimum value of each feature, second row contains maximum value of each feature.
 
-       .. include:: distributed-steps/includes/default_result_numeric_table.rst
+       .. include:: ./../../includes/default_result_numeric_table.rst

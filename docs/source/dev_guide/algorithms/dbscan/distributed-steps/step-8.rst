@@ -32,18 +32,18 @@ For more details, :ref:`algorithms`.
      - Pointer to the numeric table with :math:`4` columns and arbitrary number of rows containing information about
        current clustering state of observations processed on the local node.
 
-       .. include:: distributed-steps/includes/input_numeric_table.rst
+       .. include:: ./../../includes/input_numeric_table.rst
 
    * - ``step8InputNClusters``
      - Pointer to :math:`1 \times 1` numeric tables containing the current number of clusters found on the local node.
 
-       .. include:: distributed-steps/includes/input_numeric_table.rst
+       .. include:: ./../../includes/input_numeric_table.rst
 
    * - ``step8PartialQueries``
      - Pointer to the collection of numeric tables with :math:`3` columns and arbitrary number of rows containing
        clustering queries that should be processed on the local node collected from all nodes.
 
-       .. include:: distributed-steps/includes/input_data_collection_with_exceptions.rst
+       .. include:: ./../../includes/input_data_collection_with_exceptions.rst
 
 Algorithm Output
 ++++++++++++++++
@@ -62,21 +62,21 @@ For more details, :ref:`algorithms`.
      - Pointer to the numeric table with :math:`4` columns and arbitrary number of rows
        containing information about current clustering state of observations processed on the local node.
 
-       .. include:: distributed-steps/includes/default_result_numeric_table.rst      
+       .. include:: ./../../includes/default_result_numeric_table.rst      
 
    * - ``step8FinishedFlag``
      - Pointer to :math:`1 \times 1` numeric table containing the flag indicating that the clustering process is finished for current node.
 
-       .. include:: distributed-steps/includes/default_result_numeric_table.rst
+       .. include:: ./../../includes/default_result_numeric_table.rst
 
    * - ``step8NClusters``
      - Pointer to :math:`1 \times 1` numeric table containing the current number of clusters found on the local node.
 
-       .. include:: distributed-steps/includes/default_result_numeric_table.rst
+       .. include:: ./../../includes/default_result_numeric_table.rst
 
    * - ``step8Queries``
      - Pointer to the collection of ``nBlocks`` numeric tables with :math:`3` columns and arbitrary number of rows
        containing clustering queries that should be processed on each node. Numeric tables in collection
        ordered by the identifiers of initial block of nodes.
 
-       .. include:: distributed-steps/includes/default_result_data_collection.rst
+       .. include:: ./../../includes/default_result_data_collection.rst

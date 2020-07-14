@@ -28,11 +28,15 @@ You can select the computation mode during initialization of the Algorithm.
 For a list of computation parameters of a specific algorithm in each computation mode, possible input types, and output results,
 refer to the description of an appropriate algorithm.
 
+.. _batch_mode:
+
 Batch processing
 ****************
 
 All |short_name| algorithms support at least the batch processing computation mode.
 In the batch processing mode, the only compute method of a particular algorithm class is used.
+
+.. _online_mode:
 
 Online processing
 *****************
@@ -63,6 +67,8 @@ The following diagram illustrates the computation schema for online processing:
 
 .. image:: ./images/online-4.png
   :width: 600
+
+.. _distributed_mode:
 
 Distributed processing
 **********************

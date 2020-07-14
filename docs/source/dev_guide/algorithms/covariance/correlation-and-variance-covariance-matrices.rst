@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _cor_cov:
+
 Correlation and Variance-Covariance Matrices
 ********************************************
 
@@ -101,17 +103,23 @@ following parameters:
      - defaultDense
      - Available methods for computation of correlation and variance-covariance matrices:
 
-       + defaultDense - default performance-oriented method
-       + singlePassDense - implementation of the single-pass algorithm proposed by D.H.D. West
-       + sumDense - implementation of the algorithm in the cases where the
+       For CPU:
+
+       + ``defaultDense`` - default performance-oriented method
+       + ``singlePassDense`` - implementation of the single-pass algorithm proposed by D.H.D. West
+       + ``sumDense`` - implementation of the algorithm in the cases where the
          basic statistics associated with the numeric table are pre-computed
          sums; returns an error if pre-computed sums are not defined
-       + fastCSR - performance-oriented method for CSR numeric tables
-       + singlePassCSR - implementation of the single-pass algorithm proposed by D.H.D. West; optimized for CSR numeric tables
-       + sumCSR - implementation of the algorithm in the cases where the basic
+       + ``fastCSR`` - performance-oriented method for CSR numeric tables
+       + ``singlePassCSR`` - implementation of the single-pass algorithm proposed by D.H.D. West; optimized for CSR numeric tables
+       + ``sumCSR`` - implementation of the algorithm in the cases where the basic
          statistics associated with the numeric table are pre-computed sums;
          optimized for CSR numeric tables; returns an error if pre-computed
          sums are not defined
+
+       For GPU:
+
+       + ``defaultDense`` - default performance-oriented method
 
    * - outputMatrixType
      - covarianceMatrix
@@ -166,6 +174,8 @@ Distributed Processing
 At this moment, the description of
 `distributed processing for Correlation and Variance-Covariance Matrices <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-1>`_
 is only available in Developer Guide for Intel(R) DAAL.
+
+.. note:: Distributed processing mode for Correlation and Variance-Covariance Matrices is not available on GPU.
 
 Examples
 ========
