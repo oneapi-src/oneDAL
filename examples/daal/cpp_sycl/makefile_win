@@ -76,7 +76,7 @@ threading = parallel
 DAALROOT = ..\..\..
 !ENDIF
 
-DAAL_PATH = "$(DAALROOT)\lib\$(_IA)"
+DAAL_PATH = $(DAALROOT)\lib\$(_IA)
 
 !IF ("$(mode)"=="build")
 RES = $(example:+=.exe)
@@ -110,7 +110,7 @@ DAAL_LIB_T = $(DAAL_PATH)\onedal_thread.lib
 !ENDIF
 EXT_LIB = $(RT_LIB)
 
-DAAL_LIB = $(DAAL_PATH)\onedal_core$(EXT) $(DAAL_LIB_T)
+DAAL_LIB = "$(DAAL_PATH)\onedal_core$(EXT)" "$(DAAL_LIB_T)"
 
 COPTS = -Isource\utils $(COPTS) $(OUT_OPTS)
 LOPTS = $(DAAL_LIB) $(EXT_LIB)
