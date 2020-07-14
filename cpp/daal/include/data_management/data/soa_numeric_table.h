@@ -378,7 +378,7 @@ private:
 
 protected:
     template <typename T>
-    DAAL_FORCEINLINE services::Status getTBlock(size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
+    services::Status getTBlock(size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
     {
         size_t ncols = getNumberOfColumns();
         size_t nobs  = getNumberOfRows();
@@ -444,7 +444,7 @@ protected:
     }
 
     template <typename T>
-    DAAL_FORCEINLINE services::Status releaseTBlock(BlockDescriptor<T> & block)
+    services::Status releaseTBlock(BlockDescriptor<T> & block)
     {
         if (block.getRWFlag() & (int)writeOnly)
         {
@@ -484,7 +484,7 @@ protected:
     }
 
     template <typename T>
-    DAAL_FORCEINLINE services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
+    services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
         size_t nobs = getNumberOfRows();
         block.setDetails(feat_idx, idx, rwFlag);
@@ -526,7 +526,7 @@ protected:
     }
 
     template <typename T>
-    DAAL_FORCEINLINE services::Status releaseTFeature(BlockDescriptor<T> & block)
+    services::Status releaseTFeature(BlockDescriptor<T> & block)
     {
         if (block.getRWFlag() & (int)writeOnly)
         {
