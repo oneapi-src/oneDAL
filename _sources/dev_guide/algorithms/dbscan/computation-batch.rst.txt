@@ -53,6 +53,11 @@ The DBSCAN clustering algorithm has the following parameters:
      - If flag is set to false, all neighborhoods will be computed and stored prior to clustering.
        It will require up to :math:`O(|\text{sum of sizes of all observations' neighborhoods}|)` of additional memory, 
        which in worst case can be :math:`O(|\text{number of observations}|^2)`. However, in general, performance may be better.
+
+       .. note:: 
+          On GPU, the ``memorySavingMode`` flag can only be set to ``true``.
+          You will get an error if the flag is set to ``false``.
+
    * - ``resultsToCompute``
      - :math:`0`
      - The 64-bit integer flag that specifies which extra characteristics of the DBSCAN to compute.
@@ -76,12 +81,12 @@ For more details, see :ref:`algorithms`.
 
    * - Input ID
      - Input
-   * - data
+   * - ``data``
      - Pointer to the :math:`n \times p` numeric table with the data to be clustered.
 
        .. note:: The input can be an object of any class derived from ``NumericTable``.
 
-   * - weights
+   * - ``weights``
      - Optional input. Pointer to the :math:`n \times 1` numeric table with weights of observations.
 
        .. note::
@@ -90,6 +95,10 @@ For more details, see :ref:`algorithms`.
          except ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``.
          
          By default all weights are equal to :math:`1`.
+
+       .. note::
+
+         This parameter is ignored on GPU.
 
 Algorithm Output
 ****************

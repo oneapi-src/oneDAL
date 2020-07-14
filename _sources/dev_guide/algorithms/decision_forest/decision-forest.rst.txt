@@ -49,10 +49,22 @@ internal nodes :math:`t` represent a binary test (split) dividing their
 subset :math:`X_t` in two subsets :math:`X_{t_L}` and :math:`X_{t_R}`,
 corresponding to their children :math:`t_L` and :math:`t_R`.
 
+.. _df_inexact_hist_method:
+
+Inexact Histogram Computation Method
+++++++++++++++++++++++++++++++++++++
+
+In inexact histogram method only a selected subset of splits is considered for computation of a best split.
+This subset is computed for each feature at the initialization stage of the algorithm. After the set of splits is computed,
+each value from initially provided data is substituted with the value of the corresponding bin.
+The bins are continuous intervals between the selected splits.
+
+Split Criteria
+++++++++++++++
+
 The metric for measuring the best split is called *impurity*,
 :math:`i(t)`. It generally reflects the homogeneity of responses within
 the subset :math:`D_t` in the node :math:`t`.
-
 For the detailed definition of :math:`i(t)` metrics, see the description
 of a specific algorithm.
 
@@ -61,6 +73,8 @@ Let the *impurity decrease* in the node :math:`t` be
 .. math::
 	\Delta i\left(t\right)=i\left(t\right)–\frac{|{D}_{t}{}_{{}_{L}}|}{|{D}_{t}|}i\left({t}_{L}\right)–\frac{|{D}_{t}{}_{{}_{R}}|}{|{D}_{t}|}i\left({t}_{R}\right).\text{ }
 
+Termination Criteria
+++++++++++++++++++++
 
 The library supports the following termination criteria of
 decision forest training:
@@ -85,6 +99,9 @@ each terminal node :math:`t`:
 -  Get the best split :math:`s_t` that maximizes impurity decrease
    :math:`\Delta i` in all :math:`s_{j,t}` splits.
 -  Apply this procedure recursively to :math:`t_L` and :math:`t_R`.
+
+Random Numbers Generation
++++++++++++++++++++++++++
 
 To create a *bootstrap* set and choose feature indices in the
 performant way, the training algorithm requires the source of

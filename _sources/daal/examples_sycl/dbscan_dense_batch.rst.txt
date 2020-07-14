@@ -1,0 +1,7 @@
+.. _dbscan_dense_batch.cpp:
+
+dbscan_dense_batch.cpp
+######################
+
+.. literalinclude:: ../../../../examples/daal/cpp_sycl/source/dbscan/dbscan_dense_batch.cpp
+  :language: cpp

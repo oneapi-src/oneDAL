@@ -1,7 +1,0 @@
-.. _low_order_moms_dense_batch.cpp:
-
-low_order_moms_dense_batch.cpp
-##############################
-
-.. literalinclude:: ../../../examples/cpp_sycl/source/moments/low_order_moms_dense_batch.cpp
-  :language: cpp

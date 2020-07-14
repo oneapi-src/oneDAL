@@ -142,6 +142,12 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Schölkopf, C. Burges, and A. Smola (ed.), pp: 169 – 184, MIT Press
    Cambridge, MA, USA 1999.
 
+.. [Li2015]
+   Li, Shengren, and Nina Amenta. 
+   "Brute-force k-nearest neighbors search on the GPU."
+   In International Conference on Similarity Search and Applications, pp. 259-270.
+   Springer, Cham, 2015.
+
 .. [Lloyd82] 
    Stuart P Lloyd. *Least squares quantization in PCM*. IEEE
    Transactions on Information Theory 1982, 28 (2): 1982pp: 129–137.
@@ -160,6 +166,11 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Craig Tull, Wahid Bhimji, Prabhat, Pradeep Dubey. *PANDA: Extreme
    Scale Parallel K-Nearest Neighbor on Distributed Architectures*,
    2016. Available from https://arxiv.org/abs/1607.08220.
+
+.. [Platt98]
+   Platt, John. "Sequential minimal optimization:
+   A fast algorithm for training support vector machines." (1998).
+   Available from https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/tr-98-14.pdf.
 
 .. [Quinlan86] 
    J. R. Quinlan. *Induction of Decision Trees*. Machine Learning,
@@ -184,6 +195,17 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Pang-Ning Tan, Michael Steinbach, Vipin Kumar, Introduction to
    Data Mining, (First Edition) Addison-Wesley Longman Publishing
    Co., Inc. Boston, MA, USA, 2005, ISBN: 032132136.
+
+.. [Verma2014]
+   Verma, Deepika, Namita Kakkar, and Neha Mehan.
+   "Comparison of brute-force and KD tree algorithm."
+   International Journal of Advanced Research in Computer and Communication Engineering 3,
+   no. 1 (2014): 5291-5294.
+
+.. [Wen2018]
+    Wen, Zeyi, Jiashuai Shi, Qinbin Li, Bingsheng He, and Jian Chen.
+    ThunderSVM: A fast SVM library on GPUs and CPUs.
+    The Journal of Machine Learning Research, 19, 1-5 (2018). 
 
 .. [Wu04] 
    Ting-Fan Wu, Chih-Jen Lin, Ruby C. Weng. *Probability Estimates

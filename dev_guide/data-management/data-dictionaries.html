@@ -100,6 +100,12 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../cpu-vs-gpu.html">CPU and GPU Support</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../cpu-vs-gpu.html#computation-modes">Computation modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cpu-vs-gpu.html#methods">Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cpu-vs-gpu.html#parameters">Parameters</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../legal.html">Notices and Disclaimers</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Developer Guide</span></p>
@@ -509,6 +515,8 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html">k-Nearest Neighbors (kNN) Classifier</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#details">Details</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#k-d-tree">K-D tree</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#brute-force">Brute Force</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training-stage">Training Stage</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction-stage">Prediction Stage</a></li>
 </ul>
@@ -592,7 +600,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../algorithms/svm/support-vector-machine-classifier.html#batch-processing">Batch Processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../algorithms/svm/support-vector-machine-classifier.html#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../algorithms/svm/support-vector-machine-classifier.html#prediction">Prediction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/svm/support-vector-machine-classifier.html#id4">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/svm/support-vector-machine-classifier.html#id9">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../algorithms/svm/support-vector-machine-classifier.html#performance-considerations">Performance Considerations</a></li>
@@ -666,24 +674,30 @@
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../sycl_examples.html">DPC++ Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/bf_knn_dense_batch.html">bf_knn_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/cor_dense_batch.html">cor_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/cor_dense_online.html">cor_dense_online.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/datastructures_soa.html">datastructures_soa.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/datastructures_usm.html">datastructures_usm.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/dbscan_dense_batch.html">dbscan_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/gbt_reg_dense_batch.html">gbt_reg_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/kmeans_dense_batch.html">kmeans_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/kmeans_init_dense_batch.html">kmeans_init_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/lin_reg_norm_eq_dense_batch.html">lin_reg_norm_eq_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/lin_reg_norm_eq_dense_online.html">lin_reg_norm_eq_dense_online.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/log_reg_binary_dense_batch.html">log_reg_binary_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/log_reg_dense_batch.html">log_reg_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/low_order_moms_dense_batch.html">low_order_moms_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/low_order_moms_dense_online.html">low_order_moms_dense_online.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/pca_transform_dense_batch.html">pca_transform_dense_batch.cpp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/sgd_mini_log_loss_dense_batch.html">sgd_mini_log_loss_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../daal/examples_sycl/bf_knn_dense_batch.html">bf_knn_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../daal/examples_sycl/cor_dense_batch.html">cor_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../daal/examples_sycl/cor_dense_online.html">cor_dense_online.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../daal/examples_sycl/datastructures_soa.html">datastructures_soa.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../daal/examples_sycl/datastructures_usm.html">datastructures_usm.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../daal/examples_sycl/dbscan_dense_batch.html">dbscan_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../daal/examples_sycl/df_cls_dense_batch.html">df_cls_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../daal/examples_sycl/df_reg_dense_batch.html">df_reg_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../daal/examples_sycl/gbt_reg_dense_batch.html">gbt_reg_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../daal/examples_sycl/kernel_func_lin_dense_batch.html">kernel_func_lin_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../daal/examples_sycl/kernel_func_rbf_dense_batch.html">kernel_func_rbf_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../daal/examples_sycl/kmeans_dense_batch.html">kmeans_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../daal/examples_sycl/kmeans_init_dense_batch.html">kmeans_init_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../daal/examples_sycl/lin_reg_norm_eq_dense_batch.html">lin_reg_norm_eq_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../daal/examples_sycl/lin_reg_norm_eq_dense_online.html">lin_reg_norm_eq_dense_online.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../daal/examples_sycl/log_reg_binary_dense_batch.html">log_reg_binary_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../daal/examples_sycl/log_reg_dense_batch.html">log_reg_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../daal/examples_sycl/low_order_moms_dense_batch.html">low_order_moms_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../daal/examples_sycl/low_order_moms_dense_online.html">low_order_moms_dense_online.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../daal/examples_sycl/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../daal/examples_sycl/pca_cor_dense_online.html">pca_cor_dense_online.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../daal/examples_sycl/pca_transform_dense_batch.html">pca_transform_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../daal/examples_sycl/sgd_mini_log_loss_dense_batch.html">sgd_mini_log_loss_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../daal/examples_sycl/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
 </ul>
 </li>
 </ul>
@@ -908,15 +922,15 @@ constructor.</p></li>
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <p>C++:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/cpp/source/datasource/datastructures_aos.cpp">datasource/datastructures_aos.cpp</a></p></li>
-<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/cpp/source/datasource/datastructures_soa.cpp">datasource/datastructures_soa.cpp</a></p></li>
-<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/cpp/source/datasource/datastructures_homogen.cpp">datasource/datastructures_homogen.cpp</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/datasource/datastructures_aos.cpp">datasource/datastructures_aos.cpp</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/datasource/datastructures_soa.cpp">datasource/datastructures_soa.cpp</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/datasource/datastructures_homogen.cpp">datasource/datastructures_homogen.cpp</a></p></li>
 </ul>
 <p>Java*:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/java/com/intel/daal/examples/datasource/DataStructuresAOS.java">datasource/DataStructuresAOS.java</a></p></li>
-<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/java/com/intel/daal/examples/datasource/DataStructuresSOA.java">datasource/DataStructuresSOA.java</a></p></li>
-<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/java/com/intel/daal/examples/datasource/DataStructuresHomogen.java">datasource/DataStructuresHomogen.java</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/datasource/DataStructuresAOS.java">datasource/DataStructuresAOS.java</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/datasource/DataStructuresSOA.java">datasource/DataStructuresSOA.java</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/datasource/DataStructuresHomogen.java">datasource/DataStructuresHomogen.java</a></p></li>
 </ul>
 </div>
 </div>

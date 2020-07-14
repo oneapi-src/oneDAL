@@ -60,26 +60,26 @@ The low order moments algorithm has the following parameters:
      - ``defaultDense``
      - Available methods for computation of low order moments:
 
-        defaultDense
-            default performance-oriented method
+       For CPU:
 
-        singlePassDense
-            implementation of the single-pass algorithm proposed by D.H.D. West
+       - ``defaultDense`` - default performance-oriented method
 
-        sumDense
-            implementation of the algorithm in the cases where the basic statistics associated with
-            the numeric table are pre-computed sums; returns an error if pre-computed sums are not defined
+       - ``singlePassDense`` - implementation of the single-pass algorithm proposed by D.H.D. West
 
-        fastCSR
-            performance-oriented method for CSR numeric tables
+       - ``sumDense`` - implementation of the algorithm in the cases where the basic statistics associated with
+         the numeric table are pre-computed sums; returns an error if pre-computed sums are not defined
 
-        singlePassCSR
-            implementation of the single-pass algorithm proposed by D.H.D. West; optimized for CSR numeric tables
+       - ``fastCSR`` - performance-oriented method for CSR numeric tables
 
-        sumCSR
-            implementation of the algorithm in the cases where the basic statistics associated with
-            the numeric table are pre-computed sums; optimized for CSR numeric tables;
-            returns an error if pre-computed sums are not defined
+       - ``singlePassCSR`` - implementation of the single-pass algorithm proposed by D.H.D. West; optimized for CSR numeric tables
+
+       - ``sumCSR`` - implementation of the algorithm in the cases where the basic statistics associated with
+         the numeric table are pre-computed sums; optimized for CSR numeric tables;
+         returns an error if pre-computed sums are not defined
+
+       For GPU:
+
+       - ``defaultDense`` - default performance-oriented method
 
    * - ``estimatesToCompute``
      - ``estimatesAll``

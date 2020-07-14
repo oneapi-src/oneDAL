@@ -14,8 +14,12 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _mse:
+
 Mean Squared Error Algorithm
 =============================
 
 At this moment, the documentation for Mean Squared Error Algorithm is only available in
 `Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-mean-squared-error-algorithm>`_.
+
+.. note:: Mean Squared Error Algorithm is not supported on GPU.

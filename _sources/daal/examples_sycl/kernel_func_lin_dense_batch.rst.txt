@@ -1,0 +1,7 @@
+.. _kernel_func_lin_dense_batch.cpp:
+
+kernel_func_lin_dense_batch.cpp
+###############################
+
+.. literalinclude:: ../../../../examples/daal/cpp_sycl/source/kernel_function/kernel_func_lin_dense_batch.cpp
+  :language: cpp

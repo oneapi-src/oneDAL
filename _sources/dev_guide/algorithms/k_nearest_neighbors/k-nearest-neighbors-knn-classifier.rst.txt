@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _knn:
+
 k-Nearest Neighbors (kNN) Classifier
 ************************************
 
@@ -34,11 +36,6 @@ multidimensional feature space.
 Details
 =======
 
-The library provides kNN classification based on multidimensional
-binary search tree (K-D tree, where D means the dimension and K means
-the number of dimensions in the feature space). For more details, see
-[James2013]_, [Patwary2016]_.
-
 Given n feature vectors :math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})` of size :math:`p` and a vector
 of class labels :math:`y = (y_1, \ldots, y_n)`, where :math:`y_i \in \{0, 1, \ldots, C-1\}`
 and :math:`C` is the number of classes, describes the
@@ -56,10 +53,21 @@ Given a positive integer parameter :math:`k` and a test observation
 #. Assigns the class with the largest probability to the test
    observation :math:`x_0`
 
-|product| version of the kNN algorithm uses the PANDA algorithm
-[Patwary2016]
-that uses a space-partitioning data structure known as K-D tree. Each
-non-leaf node of a tree contains the identifier of a feature along
+kNN classification on CPU and GPU are based on different approaches. 
+On CPU, kNN classification uses `K-D tree`_, a space-partitioning data structure, to find nearest neighbors,
+while on GPU the `Brute Force`_ search is used.
+
+K-D tree
+--------
+
+On CPU, the library provides kNN classification based on multidimensional binary search tree
+(K-D tree, where D means the dimension and K means the number of dimensions in the feature space).
+For more details, see [James2013]_, [Patwary2016]_.
+
+|product| version of the kNN algorithm with K-D trees uses the PANDA algorithm
+[Patwary2016]_.
+
+Each non-leaf node of a tree contains the identifier of a feature along
 which to split the feature space and an appropriate feature value (a
 cut-point) that defines the splitting hyperplane to partition the
 feature space into two parts. Each leaf node of the tree has an
@@ -68,8 +76,19 @@ Feature vectors from any bucket belong to the region of the space
 defined by tree nodes on the path from the root node to the
 respective leaf.
 
+Brute Force
+-----------
+
+Brute Force kNN algorithm calculates the squared distances from each query feature vector
+to each reference feature vector in the training data set. Then,
+for each query feature vector it selects :math:`k` objects from the training set that are closest to that query feature vector.
+For details, see [Li2015]_, [Verma2014]_.
+
 Training Stage
 --------------
+
+Training using K-D Tree
++++++++++++++++++++++++
 
 For each non-leaf node, the process of building a K-D tree
 involves the choice of the feature (that is, dimension in the
@@ -81,7 +100,8 @@ space.
 
 The PANDA algorithm constructs the K-D tree by choosing the
 dimension with the maximum variance for splitting
-[Patwary2016].
+[Patwary2016]_.
+
 Therefore, for each new non-leaf node of the tree, the algorithm
 computes the variance of values that belong to the respective
 region of the space for each of the features and chooses the
@@ -99,12 +119,23 @@ threshold. Once the threshold is reached, PANDA stops growing the
 tree and associates the feature vectors with the bucket of the
 respective leaf node.
 
+
+Training using Brute Force
+++++++++++++++++++++++++++
+
+During training with the Brute Force approach, the algorithm stores all feature vectors from the training data set
+to calculate their distances to the query feature vectors.
+
 Prediction Stage
 ----------------
 
 Given kNN classifier and query vectors :math:`x_0, \ldots, x_r`,
-the problem is to calculate the labels for those
-vectors. To solve the problem for each given query vector
+the problem is to calculate the labels for those vectors. 
+
+Prediction using K-D Tree
++++++++++++++++++++++++++
+
+To solve the problem for each given query vector
 :math:`x_i`, the algorithm traverses the K-D tree to find feature
 vectors associated with a leaf node that are closest to
 :math:`x_i`. During the search, the algorithm limits exploration
@@ -112,7 +143,6 @@ of the nodes for which the distance between the query vector and
 respective part of the feature space is not less than the distance
 from the :math:`k^{th}` neighbor. This distance is progressively
 updated during the tree traverse.
-
 
 Batch Processing
 ================
@@ -125,7 +155,7 @@ Training
 
 For a description of the input and output, refer to Usage Model: Training and Prediction.
 
-At the training stage, K-D tree based kNN classifier has the
+At the training stage, both Brute Force and K-D tree based kNN classifier have the
 following parameters:
 
 .. list-table::
@@ -136,31 +166,31 @@ following parameters:
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
-     - The computation method used by the K-D tree based kNN classification.
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
+     - The computation method used by kNN classification.
        The only training method supported so far is the default dense method.
-   * - nClasses
+   * - ``nClasses``
      - :math:`2`
      - The number of classes.
-   * - dataUseInModel
-     - doNotUse
+   * - ``dataUseInModel``
+     - ``doNotUse``
      - A parameter to enable/disable use of the input data set in the kNN
        model. Possible values:
 
-        + doNotUse - the algorithm does not include the input data and labels
+        + ``doNotUse`` - the algorithm does not include the input data and labels
           in the trained kNN model but creates a copy of the input data set.
-        + doUse - the algorithm includes the input data and labels in the trained kNN model.
+        + ``doUse`` - the algorithm includes the input data and labels in the trained kNN model.
 
        The algorithm reorders feature vectors and corresponding labels in the
        input data set or its copy to improve performance at the prediction stage.
 
-       If the value is doUse, do not deallocate the memory for input data and labels.
+       If the value is ``doUse``, do not deallocate the memory for input data and labels.
 
-   * - engine
+   * - ``engine``
      - SharePtr< engines:: mt19937:: Batch>()
      - Pointer to the random number generator engine that is used internally to
        perform sampling needed to choose dimensions and cut-points for the K-D tree.
@@ -170,7 +200,7 @@ Prediction
 
 For a description of the input and output, refer to Usage Model: Training and Prediction.
 
-At the prediction stage, K-D tree based kNN classifier has the
+At the prediction stage, both Brute Force and K-D tree based kNN classifier have the
 following parameters:
 
 .. list-table::
@@ -181,14 +211,14 @@ following parameters:
    * - Parameter
      - Default Value
      - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
-     - The computation method used by the K-D tree based kNN classification.
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
+     - The computation method used kNN classification.
        The only prediction method supported so far is the default dense method.
-   * - nClasses
+   * - ``nClasses``
      - :math:`2`
      - The number of classes.
    * - :math:`k`
