@@ -50,9 +50,11 @@
 #if defined(_WIN64) || defined(__x86_64__)
 
     #if defined(__APPLE__)
-        #define __DAAL_MKLVSL_SSE2 u8
+        #define __DAAL_MKLVSL_SSE2  h8
+        #define __DAAL_MKLVSL_SSSE3 h8
     #else
-        #define __DAAL_MKLVSL_SSE2 ex
+        #define __DAAL_MKLVSL_SSE2  ex
+        #define __DAAL_MKLVSL_SSSE3 u8
     #endif
 
     #if (defined(__x86_64__) && !defined(__APPLE__))
@@ -84,7 +86,7 @@
         }                                                                            \
         if (ssse3 == cpu)                                                            \
         {                                                                            \
-            errcode = __DAAL_VSLFN(u8, f_pref, f_name) f_args;                       \
+            errcode = __DAAL_VSLFN(__DAAL_MKLVSL_SSSE3, f_pref, f_name) f_args;      \
         }                                                                            \
         if (sse2 == cpu)                                                             \
         {                                                                            \

@@ -44,8 +44,10 @@ link.dynamic.mac.icc = icc
 daaldep.lnx32e.rt.icc = -static-intel
 daaldep.lnx32.rt.icc  = -static-intel
 
-p4_OPT.icc   = $(-Q)$(if $(OS_is_mac),xSSSE3,xSSE2)
-mc_OPT.icc   = $(-Q)xSSSE3
+# p4_OPT.icc   = $(-Q)$(if $(OS_is_mac),xSSSE3,xSSE2)
+p4_OPT.icc   = $(-Q)$(if $(OS_is_mac),xSSE4.2,xSSE2)
+# mc_OPT.icc   = $(-Q)xSSSE3
+mc_OPT.icc   = $(-Q)$(if $(OS_is_mac),xSSE4.2,xSSE3)
 mc3_OPT.icc  = $(-Q)xSSE4.2
 avx_OPT.icc  = $(-Q)xAVX
 avx2_OPT.icc = $(-Q)xCORE-AVX2
