@@ -795,7 +795,7 @@ THR_TBB.objs := $(THR_TBB.objs_a) $(THR_TBB.objs_y)
 THR_SEQ.objs := $(THR_SEQ.objs_a) $(THR_SEQ.objs_y)
 THR.objs := $(THR.objs_a) $(THR.objs_y)
 
-$(THR.objs): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC) -DDAAL_HIDE_DEPRECATED
+$(THR.objs): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC) -DDAAL_HIDE_DEPRECATED -DNDEBUG
 $(THR_TBB.objs): COPT += -D__DO_TBB_LAYER__
 $(THR_SEQ.objs): COPT += -D__DO_SEQ_LAYER__
 
@@ -871,7 +871,7 @@ $(WORKDIR.lib)/$(jni_so):                $(JNI.tmpdir)/$(jni_so:%.$y=%_link.txt)
 
 $(JNI.objs): $(JNI.tmpdir)/inc_j_folders.txt
 $(JNI.objs): $(WORKDIR.lib)/$(daal_jar)
-$(JNI.objs): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC) -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED
+$(JNI.objs): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC) -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED -DNDEBUG
 $(JNI.objs): COPT += @$(JNI.tmpdir)/inc_j_folders.txt
 
 $(JNI.tmpdir)/inc_j_folders.txt: makefile.lst | $(JNI.tmpdir)/. ; $(call WRITE.PREREQS,$(addprefix -I,$(JNI.tmpdir) $(CORE.incdirs.common) $(CORE.incdirs.thirdp) $(JNI.srcdir)),$(space))
