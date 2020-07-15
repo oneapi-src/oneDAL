@@ -43,6 +43,24 @@ services::SharedPtr<SOANumericTable> SOANumericTable::create(size_t nColumns, si
     DAAL_DEFAULT_CREATE_IMPL_EX(SOANumericTable, nColumns, nRows, featuresEqual);
 }
 
+SOANumericTable::SOANumericTable(NumericTableDictionary * ddict, size_t nRows, AllocationFlag memoryAllocationFlag)
+    : NumericTable(NumericTableDictionaryPtr(ddict, services::EmptyDeleter())), _arraysInitialized(0), _partialMemStatus(notAllocated)
+{
+    _layout     = soa;
+    _arrOffsets = NULL;
+    _index      = 0;
+    this->_status |= setNumberOfRowsImpl(nRows);
+    if (!resizePointersArray(getNumberOfColumns()))
+    {
+        this->_status.add(services::ErrorMemoryAllocationFailed);
+        return;
+    }
+    if (memoryAllocationFlag == doAllocate)
+    {
+        this->_status |= allocateDataMemoryImpl();
+    }
+}
+
 SOANumericTable::SOANumericTable(NumericTableDictionaryPtr ddict, size_t nRows, AllocationFlag memoryAllocationFlag)
     : NumericTable(ddict), _arraysInitialized(0), _partialMemStatus(notAllocated)
 {
