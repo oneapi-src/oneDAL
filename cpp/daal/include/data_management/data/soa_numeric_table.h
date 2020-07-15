@@ -76,23 +76,7 @@ public:
      *  \param[in]  memoryAllocationFlag  Flag that controls internal memory allocation for data in the numeric table
      *  \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED SOANumericTable(NumericTableDictionary * ddict, size_t nRows, AllocationFlag memoryAllocationFlag = notAllocate)
-        : NumericTable(NumericTableDictionaryPtr(ddict, services::EmptyDeleter())), _arraysInitialized(0), _partialMemStatus(notAllocated)
-    {
-        _layout = soa;
-        _index  = 0;
-
-        this->_status |= setNumberOfRowsImpl(nRows);
-        if (!resizePointersArray(getNumberOfColumns()))
-        {
-            this->_status.add(services::ErrorMemoryAllocationFailed);
-            return;
-        }
-        if (memoryAllocationFlag == doAllocate)
-        {
-            this->_status |= allocateDataMemoryImpl();
-        }
-    }
+    DAAL_DEPRECATED SOANumericTable(NumericTableDictionary * ddict, size_t nRows, AllocationFlag memoryAllocationFlag = notAllocate);
 
     /**
      *  Constructor for an empty Numeric Table with a predefined NumericTableDictionary
@@ -378,7 +362,7 @@ private:
 
 protected:
     template <typename T>
-    services::Status getTBlock(size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
+    DAAL_FORCEINLINE services::Status getTBlock(size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
     {
         size_t ncols = getNumberOfColumns();
         size_t nobs  = getNumberOfRows();
@@ -444,7 +428,7 @@ protected:
     }
 
     template <typename T>
-    services::Status releaseTBlock(BlockDescriptor<T> & block)
+    DAAL_FORCEINLINE services::Status releaseTBlock(BlockDescriptor<T> & block)
     {
         if (block.getRWFlag() & (int)writeOnly)
         {
@@ -484,7 +468,7 @@ protected:
     }
 
     template <typename T>
-    services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
+    DAAL_FORCEINLINE services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
         size_t nobs = getNumberOfRows();
         block.setDetails(feat_idx, idx, rwFlag);
@@ -526,7 +510,7 @@ protected:
     }
 
     template <typename T>
-    services::Status releaseTFeature(BlockDescriptor<T> & block)
+    DAAL_FORCEINLINE services::Status releaseTFeature(BlockDescriptor<T> & block)
     {
         if (block.getRWFlag() & (int)writeOnly)
         {
