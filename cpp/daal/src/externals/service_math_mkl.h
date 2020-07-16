@@ -72,12 +72,12 @@
         }                                                           \
         if (ssse3 == cpu)                                           \
         {                                                           \
-            VMLFN(U8, f_name, f_suff) f_args;                       \
+            VMLFN(H8, f_name, f_suff) f_args;                       \
             return;                                                 \
         }                                                           \
         if (sse2 == cpu)                                            \
         {                                                           \
-            VMLFN(EX, f_name, f_suff) f_args;                       \
+            VMLFN(H8, f_name, f_suff) f_args;                       \
             return;                                                 \
         }
 
