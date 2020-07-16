@@ -119,7 +119,7 @@
         }                                                                      \
         if (ssse3 == cpu)                                                      \
         {                                                                      \
-            retcode = __DAAL_VSLFN(u8, f_pref, f_name) f_args;                 \
+            retcode = __DAAL_VSLFN(__DAAL_MKLVSL_SSSE3, f_pref, f_name) f_args;\
         }                                                                      \
         if (sse2 == cpu)                                                       \
         {                                                                      \
