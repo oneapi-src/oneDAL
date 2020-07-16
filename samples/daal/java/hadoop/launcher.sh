@@ -62,8 +62,6 @@ hdfs dfs -mkdir -p /Hadoop/Libraries                                            
 os_name=`uname`
 if [ "${os_name}" == "Linux" ]; then
     export LIBJAVAAPI=libJavaAPI.so
-    export LIBTBB=
-    export LIBTBBMALLOC=
 
     TBBLIBS=
     if [ -d ${TBBROOT}/lib/${daal_ia}/gcc4.8 ]; then TBBLIBS=${TBBROOT}/lib/${daal_ia}/gcc4.8; fi
@@ -72,29 +70,33 @@ if [ "${os_name}" == "Linux" ]; then
         exit 1
     fi
 
+    #Space-separated string of shared libs
+    export SHAREDLIBS=${DAALROOT}/lib/${daal_ia}/${LIBJAVAAPI}
+
+    if [ -f ${TBBLIBS}/libtbb.so ]; then
+        SHAREDLIBS+=" "${TBBLIBS}/libtbb.so
+    fi
     if [ -f ${TBBLIBS}/libtbb.so.2 ]; then
-        export LIBTBB=libtbb.so.2
-    elif [ -f ${TBBLIBS}/libtbb.so.12 ]; then
-        export LIBTBB=libtbb.so.12
-    else 
-        echo Can not find libtbb.so
-        exit 1
+        SHAREDLIBS+=" "${TBBLIBS}/libtbb.so.2
+    fi
+    if [ -f ${TBBLIBS}/libtbb.so.12 ]; then
+        SHAREDLIBS+=" "${TBBLIBS}/libtbb.so.12
     fi
 
+    if [ -f ${TBBLIBS}/libtbbmalloc.so ]; then
+        SHAREDLIBS+=" "${TBBLIBS}/libtbbmalloc.so
+    fi
     if [ -f ${TBBLIBS}/libtbbmalloc.so.2 ]; then
-        export LIBTBBMALLOC=libtbbmalloc.so.2
-    elif [ -f ${TBBLIBS}/libtbbmalloc.so.12 ]; then
-        export LIBTBBMALLOC=libtbbmalloc.so.12
-    else 
-        echo Can not find libtbbmalloc.so
-        exit 1
+        SHAREDLIBS+=" "${TBBLIBS}/libtbbmalloc.so.2
+    fi
+    if [ -f ${TBBLIBS}/libtbbmalloc.so.12 ]; then
+        SHAREDLIBS+=" "${TBBLIBS}/libtbbmalloc.so.12
     fi
 
-    hdfs dfs -put -f ${DAALROOT}/lib/${daal_ia}/${LIBJAVAAPI} ${TBBLIBS}/${LIBTBB} ${TBBLIBS}/${LIBTBBMALLOC} /Hadoop/Libraries/   >> ${result_folder}/hdfs.log 2>&1
+    hdfs dfs -put -f ${SHAREDLIBS} /Hadoop/Libraries/   >> ${result_folder}/hdfs.log 2>&1
 elif [ "${os_name}" == "Darwin" ]; then
     export LIBJAVAAPI=libJavaAPI.dylib
-    export LIBTBB=libtbb.dylib
-    export LIBTBBMALLOC=libtbbmalloc.dylib
+    
 
     TBBLIBS=
     if [ -d ${TBBROOT}/lib ]; then TBBLIBS=${TBBROOT}/lib; fi
@@ -104,7 +106,30 @@ elif [ "${os_name}" == "Darwin" ]; then
         exit 1
     fi
 
-    hdfs dfs -put -f ${DAALROOT}/lib/${LIBJAVAAPI} ${TBBLIBS}/${LIBTBB} ${TBBLIBS}/${LIBTBBMALLOC} /Hadoop/Libraries/ >> ${result_folder}/hdfs.log 2>&1
+    #Space-separated list of shared libs
+    export SHAREDLIBS=${DAALROOT}/lib/${LIBJAVAAPI}
+
+    if [ -f ${TBBLIBS}/libtbb.dylib ]; then
+        SHAREDLIBS+=" "${TBBLIBS}/libtbb.dylib
+    fi
+    if [ -f ${TBBLIBS}/libtbb.2.dylib ]; then
+        SHAREDLIBS+=" "${TBBLIBS}/libtbb.2.dylib
+    fi
+    if [ -f ${TBBLIBS}/libtbb.12.dylib ]; then
+        SHAREDLIBS+=" "${TBBLIBS}/libtbb.12.dylib
+    fi
+
+    if [ -f ${TBBLIBS}/libtbbmalloc.dylib ]; then
+        SHAREDLIBS+=" "${TBBLIBS}/libtbbmalloc.dylib
+    fi
+    if [ -f ${TBBLIBS}/libtbbmalloc.2.dylib ]; then
+        SHAREDLIBS+=" "${TBBLIBS}/libtbbmalloc.2.dylib
+    fi
+    if [ -f ${TBBLIBS}/libtbbmalloc.12.dylib ]; then
+        SHAREDLIBS+=" "${TBBLIBS}/libtbbmalloc.12.dylib
+    fi
+
+    hdfs dfs -put -f ${SHAREDLIBS} /Hadoop/Libraries/ >> ${result_folder}/hdfs.log 2>&1
 fi
 
 # Setting envs
