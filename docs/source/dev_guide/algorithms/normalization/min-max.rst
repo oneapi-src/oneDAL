@@ -58,7 +58,9 @@ For more details, see :ref:`algorithms`.
    * - Input ID
      - Input
    * - ``data``
-     - Pointer to the numeric table of size :math:`n \times p`. This table can be an object of any class derived from ``NumericTable``.
+     - Pointer to the numeric table of size :math:`n \times p`. 
+     
+       .. note:: This table can be an object of any class derived from ``NumericTable``.
 
 Algorithm Parameters
 --------------------
@@ -89,7 +91,7 @@ The min-max normalization algorithm has the following parameters:
      - `SharedPtr<low_order_moments::Batch<algorithmFPType, low_order_moments::defaultDense> >`
      - Pointer to the low order moments algorithm that computes minimums and maximums
        to be used for min-max normalization with the defaultDense method.
-       For more details, see Moments of Low Order > Batch Processing.
+       For more details, see :ref:`Batch Processing for Moments of Low Order <moments_batch>`.
 
 Algorithm Output
 ----------------

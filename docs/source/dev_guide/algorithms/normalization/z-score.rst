@@ -70,7 +70,9 @@ For more details, see :ref:`algorithms`.
    * - Input ID
      - Input
    * - ``data``
-     - Pointer to the numeric table of size :math:`n \times p`. This table can be an object of any class derived from ``NumericTable``.
+     - Pointer to the numeric table of size :math:`n \times p`. 
+     
+       .. note:: This table can be an object of any class derived from ``NumericTable``.
 
 Algorithm Parameters
 --------------------
@@ -98,7 +100,7 @@ Some of them are required only for specific values of the computation method par
 
       defaultDense
         a performance-oriented method. Mean and variance are computed by low order moments algorithm.
-        For details, see Moments of Low Order > Batch Processing.
+        For details, see :ref:`Batch Processing for Moments of Low Order <moments_batch>`.
       sumDense
         a method that uses the basic statistics associated with the numeric table of pre-computed sums.
         Returns an error if pre-computed sums are not defined.
@@ -106,7 +108,7 @@ Some of them are required only for specific values of the computation method par
     - ``defaultDense``
     - `SharedPtr<low_order_moments::Batch<algorithmFPType, low_order_moments::defaultDense> >`
     - Pointer to the low order moments algorithm that computes means and standard deviations
-      to be used for Z-score normalization with the defaultDense method.
+      to be used for Z-score normalization with the ``defaultDense`` method.
   * - ``doScale``
     - ``defaultDense`` or ``sumDense``
     - ``true``
