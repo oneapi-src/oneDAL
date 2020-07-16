@@ -33,6 +33,7 @@
 #include "service/kernel/service_arrays.h"
 
 using namespace daal::data_management;
+using namespace daal::data_management::internal;
 
 #define DEFINE_TABLE_BLOCK_EX(BlockType, targetVariable, ...)    \
     BlockType<algorithmFPType, cpu> targetVariable(__VA_ARGS__); \
@@ -372,11 +373,9 @@ class SOANumericTableCPU : public SOANumericTable
 {
 public:
     SOANumericTableCPU(size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual, services::Status & st)
-        : SOANumericTable(services::SharedPtr<NumericTableDictionaryCPU<cpu> >(new NumericTableDictionaryCPU<cpu>(nColumns, featuresEqual, st)),
-                          nRows, doNotAllocate)
-    {
-        _arrays = services::Collection<services::SharedPtr<byte> >(nColumns);
-    }
+        : SOANumericTable(nColumns, nRows, featuresEqual, st)
+    {}
+
     static services::SharedPtr<SOANumericTableCPU<cpu> > create(size_t nColumns = 0, size_t nRows = 0,
                                                                 DictionaryIface::FeaturesEqual featuresEqual = DictionaryIface::notEqual,
                                                                 services::Status * stat                      = NULL)
@@ -431,59 +430,174 @@ public:
     services::Status releaseBlockOfColumnValues(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE { return releaseTFeature<float>(block); }
     services::Status releaseBlockOfColumnValues(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE { return releaseTFeature<int>(block); }
 
-    services::SharedPtr<byte> getArraySharedPtr(size_t idx)
-    {
-        if (idx < _ddict->getNumberOfFeatures())
-        {
-            return _arrays[idx];
-        }
-        else
-        {
-            this->_status.add(services::ErrorIncorrectNumberOfFeatures);
-            return services::SharedPtr<byte>();
-        }
-    }
+    virtual ~SOANumericTableCPU() {}
 
+protected:
     template <typename T>
-    services::Status setArray(const services::SharedPtr<T> & ptr, size_t idx)
+    services::Status getTBlock(size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
     {
-        if (_partialMemStatus != notAllocated && _partialMemStatus != userAllocated)
+        size_t ncols = getNumberOfColumns();
+        size_t nobs  = getNumberOfRows();
+        block.setDetails(0, idx, rwFlag);
+
+        if (idx >= nobs)
         {
-            return services::Status(services::ErrorIncorrectNumberOfFeatures);
+            block.resizeBuffer(ncols, 0);
+            return services::Status();
         }
 
-        if (idx < getNumberOfColumns() && idx < _arrays.size())
-        {
-            _ddict->setFeature<T>(idx);
+        nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
 
-            if (!_arrays[idx] && ptr)
+        if (!block.resizeBuffer(ncols, nrows))
+        {
+            return services::Status(services::ErrorMemoryAllocationFailed);
+        }
+
+        if (!(block.getRWFlag() & (int)readOnly)) return services::Status();
+
+        T * buffer    = block.getBlockPtr();
+        bool computed = false;
+
+        if (isHomogeneous())
+        {
+            NumericTableFeature & f = (*_ddict)[0];
+
+            if ((int)data_management::internal::getConversionDataType<T>() == (int)f.indexType)
             {
-                _arraysInitialized++;
+                DAAL_CHECK(_arrOffsets, services::ErrorNullPtr)
+                T const * ptrMin = (T *)(_arrays[_index].get()) + idx;
+                computed         = data_management::internal::getVector<T>()(nrows, ncols, buffer, ptrMin, _arrOffsets);
             }
+        }
+        if (!computed)
+        {
+            size_t di = 32;
+            T lbuf[32];
 
-            if (_arrays[idx] && !ptr)
+            for (size_t i = 0; i < nrows; i += di)
             {
-                _arraysInitialized--;
+                if (i + di > nrows)
+                {
+                    di = nrows - i;
+                }
+
+                for (size_t j = 0; j < ncols; ++j)
+                {
+                    NumericTableFeature & f = (*_ddict)[j];
+
+                    char * ptr = (char *)_arrays[j].get() + (idx + i) * f.typeSize;
+
+                    data_management::internal::getVectorUpCast(f.indexType, data_management::internal::getConversionDataType<T>())(di, ptr, lbuf);
+
+                    for (size_t k = 0; k < di; ++k)
+                    {
+                        buffer[(i + k) * ncols + j] = lbuf[k];
+                    }
+                }
             }
-
-            _arrays[idx] = services::reinterpretPointerCast<byte, T>(ptr);
-        }
-        else
-        {
-            return services::Status(services::ErrorIncorrectNumberOfFeatures);
         }
 
-        _partialMemStatus = userAllocated;
-
-        if (_arraysInitialized == getNumberOfColumns())
-        {
-            _memStatus = userAllocated;
-        }
-        DAAL_CHECK_STATUS_VAR(generatesOffsets())
         return services::Status();
     }
 
-    virtual ~SOANumericTableCPU() {}
+    template <typename T>
+    services::Status releaseTBlock(BlockDescriptor<T> & block)
+    {
+        if (block.getRWFlag() & (int)writeOnly)
+        {
+            size_t ncols = getNumberOfColumns();
+            size_t nrows = block.getNumberOfRows();
+            size_t idx   = block.getRowsOffset();
+            T lbuf[32];
+
+            size_t di = 32;
+
+            T * blockPtr = block.getBlockPtr();
+
+            for (size_t i = 0; i < nrows; i += di)
+            {
+                if (i + di > nrows)
+                {
+                    di = nrows - i;
+                }
+
+                for (size_t j = 0; j < ncols; j++)
+                {
+                    NumericTableFeature & f = (*_ddict)[j];
+
+                    char * ptr = (char *)_arrays[j].get() + (idx + i) * f.typeSize;
+
+                    for (size_t ii = 0; ii < di; ii++)
+                    {
+                        lbuf[ii] = blockPtr[(i + ii) * ncols + j];
+                    }
+
+                    data_management::internal::getVectorDownCast(f.indexType, data_management::internal::getConversionDataType<T>())(di, lbuf, ptr);
+                }
+            }
+        }
+        block.reset();
+        return services::Status();
+    }
+
+    template <typename T>
+    services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
+    {
+        size_t ncols = getNumberOfColumns();
+        size_t nobs  = getNumberOfRows();
+        block.setDetails(feat_idx, idx, rwFlag);
+
+        if (idx >= nobs)
+        {
+            block.resizeBuffer(1, 0);
+            return services::Status();
+        }
+
+        nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
+
+        NumericTableFeature & f = (*_ddict)[feat_idx];
+
+        if (features::internal::getIndexNumType<T>() == f.indexType)
+        {
+            block.setPtr(&(_arrays[feat_idx]), _arrays[feat_idx].get() + idx * f.typeSize, 1, nrows);
+        }
+        else
+        {
+            byte * location = _arrays[feat_idx].get() + idx * f.typeSize;
+
+            if (!block.resizeBuffer(1, nrows))
+            {
+                return services::Status(services::ErrorMemoryAllocationFailed);
+            }
+
+            if (!(block.getRWFlag() & (int)readOnly)) return services::Status();
+
+            data_management::internal::getVectorUpCast(f.indexType, data_management::internal::getConversionDataType<T>())(nrows, location,
+                                                                                                                           block.getBlockPtr());
+        }
+        return services::Status();
+    }
+
+    template <typename T>
+    services::Status releaseTFeature(BlockDescriptor<T> & block)
+    {
+        if (block.getRWFlag() & (int)writeOnly)
+        {
+            size_t feat_idx = block.getColumnsOffset();
+
+            NumericTableFeature & f = (*_ddict)[feat_idx];
+
+            if (features::internal::getIndexNumType<T>() != f.indexType)
+            {
+                char * ptr = (char *)_arrays[feat_idx].get() + block.getRowsOffset() * f.typeSize;
+
+                data_management::internal::getVectorDownCast(f.indexType, data_management::internal::getConversionDataType<T>())(
+                    block.getNumberOfRows(), block.getBlockPtr(), ptr);
+            }
+        }
+        block.reset();
+        return services::Status();
+    }
 };
 
 template <typename algorithmFPType, typename algorithmFPAccessType, CpuType cpu, ReadWriteMode mode, typename NumericTableType>
