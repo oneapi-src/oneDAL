@@ -43,94 +43,16 @@ Singular Value Decomposition (SVD) :math:`X = U \Sigma V^t`, where:
 
 Columns of the matrices :math:`U` and :math:`V` are called left and right singular vectors, respectively.
 
-Batch and Online Processing
-***************************
+Computation
+***********
 
-Online processing computation mode assumes that the data arrives in blocks :math:`i = 1, 2, 3, \ldots \text{nblocks}`.
+The following computation modes are available:
 
-Algorithm Input
----------------
-
-The SVD algorithm accepts the input described below. Pass the Input ID as a parameter to the methods that provide input for your algorithm.
-
-.. list-table::
-   :header-rows: 1
-   :align: left
-
-   * - Input ID
-     - Input
-   * - data
-     - Pointer to the numeric table that represents:
-
-       - For batch processing, the entire :math:`n \times p` matrix :math:`X` to be factorized.
-       - For online processing, the :math:`n_i \times p` submatrix of :math:`X` that represents 
-         the current data block in the online processing mode.
-
-       The input can be an object of any class derived from NumericTable.
-
-
-Algorithm Parameters
---------------------
-
-The SVD algorithm has the following parameters:
-
-.. list-table::
-   :header-rows: 1
-   :align: left
-
-   * - Parameter
-     - Default Value
-     - Description
-   * - algorithmFPType
-     - ``float``
-     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
-   * - method
-     - ``defaultDense``
-     - Performance-oriented computation method, the only method supported by the algorithm.
-   * - leftSingularMatrix
-     - ``requiredInPackedForm``
-     - Specifies whether the matrix of left singular vectors is required. Can be:
-
-       - ``notRequired`` - the matrix is not required
-       - ``requiredInPackedForm`` - the matrix in the packed format is required
-
-   * - rightSingularMatrix
-     - ``requiredInPackedForm``
-     - Specifies whether the matrix of left singular vectors is required. Can be:
-
-       - ``notRequired`` - the matrix is not required
-       - ``requiredInPackedForm`` - the matrix in the packed format is required
-
-Algorithm Output
-----------------
-
-The SVD algorithm calculates the results described below. Pass the Result ID as a parameter to the methods that access the results of your algorithm.
-
-.. list-table::
-   :header-rows: 1
-   :align: left
-
-   * - Result ID
-     - Result
-   * - singularValues
-     - Pointer to the :math:`1 \times p` numeric table with singular values (the diagonal of the matrix :math:`\Sigma`). 
-       By default, this result is an object of the HomogenNumericTable class, but you can define the result as an object of any class 
-       derived from NumericTable except PackedSymmetricMatrix, PackedTriangularMatrix, and CSRNumericTable.
-   * - leftSingularMatrix
-     - Pointer to the :math:`n \times p` numeric table with left singular vectors (matrix :math:`U`). Pass ``NULL`` if left singular vectors are not required. 
-       By default, this result is an object of the HomogenNumericTable class, but you can define the result as an object of any class 
-       derived from NumericTable except PackedSymmetricMatrix, PackedTriangularMatrix, and CSRNumericTable.
-   * - rightSingularMatrix
-     - Pointer to the :math:`p \times p` numeric table with right singular vectors (matrix :math:`V`). Pass ``NULL`` if right singular vectors are not required.
-       By default, this result is an object of the HomogenNumericTable class, but you can define the result as an object of any class 
-       derived from NumericTable except PackedSymmetricMatrix, PackedTriangularMatrix, and CSRNumericTable.
+.. toctree::
+   :maxdepth: 1
    
-
-Distributed Processing
-**********************
-
-At this moment, the description of distributed processing for Singular Value Decomposition
-is only available in `Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-5>`_.
+   computation-batch-online.rst
+   computation-distributed.rst
 
 Examples
 ********
@@ -147,6 +69,10 @@ Examples
 
     - :cpp_example:`svd_dense_online.cpp <svd/svd_dense_online.cpp>`
 
+    Distributed Processing:
+
+    - :cpp_example:`svd_dense_distr.cpp <svd/svd_dense_distr.cpp>`
+
   .. tab:: Java*
 
     Batch Processing:
@@ -157,6 +83,9 @@ Examples
     
     - :java_example:`SVDDenseOnline.java <svd/SVDDenseOnline.java>`
 
+    Distributed Processing:
+
+    - :java_example:`SVDDenseDistr.java <svd/SVDDenseDistr.java>`
 
 Performance Considerations
 **************************
@@ -180,3 +109,14 @@ block in parallel with the compute() method for the current block.
 Online processing mostly benefits SVD when the matrix of left
 singular vectors is not required. In this case, memory
 requirements for storing auxiliary data goes down from :math:`O(p \cdot n)` to :math:`O(p \cdot p \cdot \text{nblocks})`.
+
+Distributed Processing
+----------------------
+
+Using SVD in the distributed processing mode requires gathering local-node :math:`p \times p` numeric tables on the master node.
+When the amount of local-node work is small, that is, when the local-node data set is small, 
+the network data transfer may become a bottleneck.
+To avoid this situation, ensure that local nodes have a sufficient amount of work. 
+For example, distribute input data set across a smaller number of nodes.
+
+.. include:: ../../../opt-notice.rst
