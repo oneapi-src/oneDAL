@@ -46,6 +46,106 @@ and :math:`g(n, \alpha_n)` defines the limits of the region and should be adjust
 Batch Processing
 ****************
 
-At this moment, the description of batch processing for Univariate Outlier Detection is only available in
-`Developer Guide for Intel(R) DAAL
-<https://software.intel.com/content/www/us/en/develop/documentation/daal-programming-guide/top/algorithms/analysis/univariate-outlier-detection/batch-processing-17.html>`_.
+Algorithm Input
+---------------
+
+The univariate outlier detection algorithm accepts the input described below.
+Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
+For more details, see :ref:`algorithms`.
+
+.. list-table::
+   :widths: 10 60
+   :header-rows: 1
+
+   * - Input ID
+     - Input
+   * - ``data``
+     - Pointer to the :math:`n \times p` numeric table with the data for outlier detection.
+     
+       .. note:: The input can be an object of any class derived from the ``NumericTable`` class.
+   * - ``location``
+     - Pointer to the :math:`1 \times p` numeric table with the vector of means.
+
+       .. note:: The input can be an object of any class derived from ``NumericTable`` except ``PackedSymmetricMatrix`` and ``PackedTriangularMatrix``.
+   * - ``scatter``
+     - Pointer to the :math:`1 \times p` numeric table with the vector of standard deviations.
+
+       .. note:: The input can be an object of any class derived from ``NumericTable`` except ``PackedSymmetricMatrix`` and ``PackedTriangularMatrix``.
+   * - ``threshold``
+     - Pointer to the :math:`1 \times p` numeric table with non-negative numbers that define the outlier region. 
+
+       .. note:: The input can be an object of any class derived from ``NumericTable`` except ``PackedSymmetricMatrix`` and ``PackedTriangularMatrix``.
+
+.. note::
+
+    If you do not provide at least one of the ``location``, ``scatter``, ``threshold`` inputs,
+    the library will initialize all of them with the following default values:
+
+    .. list-table::
+        :widths: 10 20
+        
+        * - ``location``
+          - A set of :math:`0.0`
+        * - ``scatter``
+          - A set of :math:`1.0`
+        * - ``threshold``
+          - A set of :math:`3.0`
+
+Algorithm Parameters
+--------------------
+
+The univariate outlier detection algorithm has the following parameters:
+
+.. list-table::
+   :header-rows: 1
+   :align: left
+
+   * - Parameter
+     - Default Value
+     - Description
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``method``
+     - ``defaultDense``
+     - Performance-oriented computation method, the only method supported by the algorithm.
+
+Algorithm Output
+----------------
+
+The univariate outlier detection algorithm calculates the result described below.
+Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
+For more details, see :ref:`algorithms`.
+
+.. list-table::
+   :widths: 10 60
+   :header-rows: 1
+
+   * - Result ID
+     - Result
+   * - ``weights``
+     - Pointer to the :math:`n \times p` numeric table of zeros and ones. 
+       Zero in the position :math:`(i, j)` indicates an outlier in the :math:`i`-th observation of the :math:`j`-th feature. 
+       
+       .. note:: 
+       
+            By default, the result is an object of the ``HomogenNumericTable`` class,
+            but you can define the result as an object of any class derived from ``NumericTable``
+            except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``СSRNumericTable``.
+
+Examples
+********
+
+.. tabs::
+
+    .. tab:: C++
+
+        Batch Processing:
+
+        - :cpp_example:`out_detect_uni_dense_batch.cpp <outlier_detection/out_detect_uni_dense_batch.cpp>`
+
+    .. tab:: Java*
+
+        Batch Processing:
+
+        - :java_example:`OutDetectUniDenseBatch.java <outlier_detection/OutDetectUniDenseBatch.java>`
