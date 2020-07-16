@@ -79,13 +79,51 @@ The following computation modes are available:
    computation-online.rst
    computation-distributed.rst
 
-DPC++ Examples
-**************
+Examples
+********
 
-Batch Processing:
+.. tabs::
 
-- :ref:`low_order_moms_dense_batch.cpp`
+  .. tab:: DPC++
 
-Online Processing:
+    Batch Processing:
 
-- :ref:`low_order_moms_dense_online.cpp`
+    - :ref:`low_order_moms_dense_batch.cpp`
+
+    Online Processing:
+
+    - :ref:`low_order_moms_dense_online.cpp`
+
+  .. tab:: C++
+
+    Batch Processing:
+
+    -  :cpp_example:`low_order_moms_dense_batch.cpp <moments/low_order_moms_dense_batch.cpp>`
+    -  :cpp_example:`low_order_moms_csr_batch.cpp <moments/low_order_moms_csr_batch.cpp>`
+
+    Online Processing:
+
+    -  :cpp_example:`low_order_moms_dense_online.cpp <moments/low_order_moms_dense_online.cpp>`
+    -  :cpp_example:`low_order_moms_csr_online.cpp <moments/low_order_moms_csr_online.cpp>`
+
+    Distributed Processing:
+
+    -  :cpp_example:`low_order_moms_dense_distr.cpp <moments/low_order_moms_dense_distr.cpp>`
+    -  :cpp_example:`low_order_moms_csr_distr.cpp <moments/low_order_moms_csr_distr.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+
+    -  :java_example:`LowOrderMomsDenseBatch.java <moments/LowOrderMomsDenseBatch.java>`
+    -  :java_example:`LowOrderMomsCSRBatch.java <moments/LowOrderMomsCSRBatch.java>`
+
+    Online Processing:
+
+    -  :java_example:`LowOrderMomsDenseOnline.java <moments/LowOrderMomsDenseOnline.java>`
+    -  :java_example:`LowOrderMomsCSROnline.java <moments/LowOrderMomsCSROnline.java>`
+
+    Distributed Processing:
+
+    -  :java_example:`LowOrderMomsDenseDistr.java <moments/LowOrderMomsDenseDistr.java>`
+    -  :java_example:`LowOrderMomsCSRDistr.java <moments/LowOrderMomsCSRDistr.java>`
