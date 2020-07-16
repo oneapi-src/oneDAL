@@ -17,7 +17,7 @@
 .. _cor_cov:
 
 Correlation and Variance-Covariance Matrices
-********************************************
+============================================
 
 .. toctree::
    :glob:
@@ -38,12 +38,11 @@ variables.
 
 
 Details
-=======
+*******
 
 Given a set :math:`X` of :math:`n` feature vectors :math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})` of
 dimension :math:`p`, the problem is to compute the sample means and
 variance-covariance matrix or correlation matrix:
-
 
 .. list-table::
    :widths: 25 25
@@ -58,127 +57,20 @@ variance-covariance matrix or correlation matrix:
    * - Correlation matrix
      - :math:`Cor = (c_{ij})`, where :math:`c_{ij}=\frac{v_{ij}}{\sqrt{v_{ii}\cdot v_{jj}}}`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`
 
+Computation
+***********
 
+The following computation modes are available:
 
-Batch Processing
-================
-
-Algorithm Input
----------------
-
-The correlation and variance-covariance matrices algorithm accepts
-the input described below. Pass the Input ID as a parameter to the
-methods that provide input for your algorithm.
-
-.. list-table::
-   :header-rows: 1
-   :align: left
-
-   * - Input ID
-     - Input
-   * - data
-     - Pointer to the :math:`n \times p` numeric table for which the variance-covariance or
-       correlation matrix :math:`C` is computed. While the input for defaultDense,
-       singlePassDense, or sumDense method can be an object of any class
-       derived from NumericTable, the input for fastCSR, singlePassCSR, or
-       sumCSR method can only be an object of the CSRNumericTable class.
-
-Algorithm Parameters
---------------------
-
-The correlation and variance-covariance matrices algorithm has the
-following parameters:
-
-.. list-table::
-   :header-rows: 1
-   :align: left
-
-   * - Parameter
-     - Default Value
-     - Description
-   * - algorithmFPType
-     - float
-     - The floating-point type that the algorithm uses for intermediate computations. Can be float or double.
-   * - method
-     - defaultDense
-     - Available methods for computation of correlation and variance-covariance matrices:
-
-       For CPU:
-
-       + ``defaultDense`` - default performance-oriented method
-       + ``singlePassDense`` - implementation of the single-pass algorithm proposed by D.H.D. West
-       + ``sumDense`` - implementation of the algorithm in the cases where the
-         basic statistics associated with the numeric table are pre-computed
-         sums; returns an error if pre-computed sums are not defined
-       + ``fastCSR`` - performance-oriented method for CSR numeric tables
-       + ``singlePassCSR`` - implementation of the single-pass algorithm proposed by D.H.D. West; optimized for CSR numeric tables
-       + ``sumCSR`` - implementation of the algorithm in the cases where the basic
-         statistics associated with the numeric table are pre-computed sums;
-         optimized for CSR numeric tables; returns an error if pre-computed
-         sums are not defined
-
-       For GPU:
-
-       + ``defaultDense`` - default performance-oriented method
-
-   * - outputMatrixType
-     - covarianceMatrix
-     - The type of the output matrix. Can be:
-
-       + covarianceMatrix - variance-covariance matrix
-       + correlationMatrix - correlation matrix
-
-Algorithm Output
-----------------
-
-The correlation and variance-covariance matrices algorithm calculates
-the result described below. Pass the Result ID as a parameter to the
-methods that access the results of your algorithm.
-
-.. list-table::
-   :header-rows: 1
-   :align: left
-
-
-   * - Result ID
-     - Result
-   * - covariance
-     - Use when outputMatrixType=covarianceMatrix. Pointer to the numeric table
-       with the :math:`p \times p` variance-covariance matrix. By default, this result is an
-       object of the HomogenNumericTable class, but you can define the result
-       as an object of any class derived from NumericTable except
-       PackedTriangularMatrix and CSRNumericTable.
-   * - correlation
-     - Use when outputMatrixType=correlationMatrix. Pointer to the numeric
-       table with the :math:`p \times p` correlation matrix. By default, this result is an
-       object of the HomogenNumericTable class, but you can define the result
-       as an object of any class derived from NumericTable except
-       PackedTriangularMatrix and CSRNumericTable.
-   * - mean
-     - Pointer to the :math:`1 \times p` numeric table with means. By default, this result
-       is an object of the HomogenNumericTable class, but you can define the
-       result as an object of any class derived from NumericTable except
-       PackedTriangularMatrix, PackedSymmetricMatrix, and CSRNumericTable.
-
-
-Online Processing
-=================
-
-At this moment, the description of
-`online processing for Correlation and Variance-Covariance Matrices <https://software.intel.com/en-us/daal-programming-guide-online-processing-1>`_
-is only available in Developer Guide for Intel(R) DAAL.
-
-Distributed Processing
-======================
-
-At this moment, the description of
-`distributed processing for Correlation and Variance-Covariance Matrices <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-1>`_
-is only available in Developer Guide for Intel(R) DAAL.
-
-.. note:: Distributed processing mode for Correlation and Variance-Covariance Matrices is not available on GPU.
+.. toctree::
+   :maxdepth: 1
+   
+   computation-batch.rst
+   computation-online.rst
+   computation-distributed.rst
 
 Examples
-========
+********
 
 .. tabs::
 
@@ -214,7 +106,7 @@ Examples
 
 
 Performance Considerations
-==========================
+**************************
 
 To get the best overall performance when computing correlation or
 variance-covariance matrices:
