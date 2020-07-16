@@ -91,6 +91,11 @@ For more information about algorithms implemented in |short_name|, refer to the 
    incomplete data via the em algorithm*. J. Royal Statist. Soc. Ser.
    B., 39, 1977.
 
+.. [Duchi2011]
+   Elad Hazan, John Duchi, and Yoram Singer.
+   Adaptive subgradient methods for online learning and stochastic optimization.
+   The Journal of Machine Learning Research, 12:21212159, 2011.
+
 .. [Ester96]
    Martin Ester, Hans-Peter Kriegel, Jörg Sander, and Xiaowei Xu.
    A density-based algorithm for discovering clusters in large spatial databases with noise..

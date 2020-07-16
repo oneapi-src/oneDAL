@@ -14,8 +14,12 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _iterative_solver_computation:
+
 Computation
 ***********
+
+.. _iterative_solver_computation_input:
 
 Algorithm Input
 ---------------
@@ -31,11 +35,13 @@ For more details, see Algorithms.
 
    * - Input ID
      - Input
-   * - inputArgument
+   * - ``inputArgument``
      - Numeric table of size :math:`p \times 1` with the value of start argument :math:`\theta_0`.
-   * - optionalArgument
+   * - ``optionalArgument``
      - Object of the ``OptionalArgument`` class that contains a set of algorithm-specific intrinsic parameters. 
        For a detailed definition of the set, see the problem statement above and the description of a specific algorithm.
+
+.. _iterative_solver_computation_parameters:
 
 Algorithm Parameters
 --------------------
@@ -50,18 +56,20 @@ The iterative solver algorithm has the following parameters:
    * - Parameter
      - Default Value
      - Description
-   * - function
+   * - ``function``
      - Not applicable
      - Objective function represented as a sum of functions.
-   * - nIterations
+   * - ``nIterations``
      - :math:`100`
      - Maximum number of iterations of the algorithm.
-   * - accuracyThreshold
+   * - ``accuracyThreshold``
      - :math:`1.0-e5`
      - Accuracy of the algorithm. The algorithm terminates when this accuracy is achieved.
-   * - optionalResultRequired
+   * - ``optionalResultRequired``
      - ``false``
      - Indicates whether the set of the intrinsic parameters should be returned by the solver.
+
+.. _iterative_solver_computation_output:
 
 Algorithm Output
 ----------------
@@ -77,16 +85,16 @@ For more details, see Algorithms.
 
    * - Result ID
      - Result
-   * - minimum
+   * - ``minimum``
      - Numeric table of size :math:`p \times 1` with argument :math:`\theta_{*}`. 
        By default, the result is an object of the HomogenNumericTable class, but you can define the result as an object of any class
        derived from NumericTable, except for PackedTriangularMatrix and PackedSymmetricMatrix.
 
-   * - nIterations
+   * - ``nIterations``
      - Numeric table of size :math:`1 \times 1` with a 32-bit integer number of iterations done by the algorithm.
        By default, the result is an object of the HomogenNumericTable class, but you can define the result as an object of any class
        derived from NumericTable, except for PackedTriangularMatrix, PackedSymmetricMatrix, and CSRNumericTable.
 
-   * - optionalResult
+   * - ``optionalResult``
      - Object of the OptionalArgument class that contains a set of algorithm-specific intrinsic parameters.
        For a detailed definition of the set, see the problem statement above and the description of a specific algorithm.
