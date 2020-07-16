@@ -87,19 +87,19 @@ if [ "${os_name}" == "Darwin" ]; then
         exit 1
     fi
 
-    if [ -f ${TBBLIBS}/libtbb.dylib.2 ]; then
-        export LIBTBB=libtbb.dylib.2
-    elif [ -f ${TBBLIBS}/libtbb.dylib.12 ]; then
-        export LIBTBB=libtbb.dylib.12
+    if [ -f ${TBBLIBS}/libtbb.2.dylib ]; then
+        export LIBTBB=libtbb.2.dylib
+    elif [ -f ${TBBLIBS}/libtbb.12.dylib ]; then
+        export LIBTBB=libtbb.12.dylib
     else 
         echo Can not find libtbb.dylib
         exit 1
     fi
 
-    if [ -f ${TBBLIBS}/libtbbmalloc.dylib.2 ]; then
-        export LIBTBBMALLOC=libtbbmalloc.dylib.2
-    elif [ -f ${TBBLIBS}/libtbbmalloc.dylib.12 ]; then
-        export LIBTBBMALLOC=libtbbmalloc.dylib.12
+    if [ -f ${TBBLIBS}/libtbbmalloc.2.dylib ]; then
+        export LIBTBBMALLOC=libtbbmalloc.2.dylib
+    elif [ -f ${TBBLIBS}/libtbbmalloc.12.dylib ]; then
+        export LIBTBBMALLOC=libtbbmalloc.12.dylib
     else 
         echo Can not find libtbbmalloc.dylib
         exit 1
