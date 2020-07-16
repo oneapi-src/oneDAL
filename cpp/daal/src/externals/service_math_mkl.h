@@ -44,6 +44,14 @@
         #define __DAAL_MKLVML_AVX512_MIC L9
     #endif
 
+    #if defined(__APPLE__)
+        #define __DAAL_MKLVML_SSE2  H8
+        #define __DAAL_MKLVML_SSSE3 H8
+    #else
+        #define __DAAL_MKLVML_SSE2  EX
+        #define __DAAL_MKLVML_SSSE3 U8
+    #endif
+
     #define VMLFN_CALL1(f_name, f_suff, f_args)                     \
         if (avx512 == cpu)                                          \
         {                                                           \
@@ -72,12 +80,12 @@
         }                                                           \
         if (ssse3 == cpu)                                           \
         {                                                           \
-            VMLFN(H8, f_name, f_suff) f_args;                       \
+            VMLFN(__DAAL_MKLVML_SSSE3, f_name, f_suff) f_args;      \
             return;                                                 \
         }                                                           \
         if (sse2 == cpu)                                            \
         {                                                           \
-            VMLFN(H8, f_name, f_suff) f_args;                       \
+            VMLFN(__DAAL_MKLVML_SSE2, f_name, f_suff) f_args;       \
             return;                                                 \
         }
 
