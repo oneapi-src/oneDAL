@@ -110,23 +110,23 @@ elif [ "${os_name}" == "Darwin" ]; then
     export SHAREDLIBS=${DAALROOT}/lib/${LIBJAVAAPI}
 
     if [ -f ${TBBLIBS}/libtbb.dylib ]; then
-        SHAREDLIBS+=" ",${TBBLIBS}/libtbb.dylib
+        SHAREDLIBS+=" "${TBBLIBS}/libtbb.dylib
     fi
     if [ -f ${TBBLIBS}/libtbb.2.dylib ]; then
-        SHAREDLIBS+=" ",${TBBLIBS}/libtbb.2.dylib
+        SHAREDLIBS+=" "${TBBLIBS}/libtbb.2.dylib
     fi
     if [ -f ${TBBLIBS}/libtbb.12.dylib ]; then
-        SHAREDLIBS+=" ",${TBBLIBS}/libtbb.12.dylib
+        SHAREDLIBS+=" "${TBBLIBS}/libtbb.12.dylib
     fi
 
     if [ -f ${TBBLIBS}/libtbbmalloc.dylib ]; then
-        SHAREDLIBS+=" ",${TBBLIBS}/libtbbmalloc.dylib
+        SHAREDLIBS+=" "${TBBLIBS}/libtbbmalloc.dylib
     fi
     if [ -f ${TBBLIBS}/libtbbmalloc.2.dylib ]; then
-        SHAREDLIBS+=" ",${TBBLIBS}/libtbbmalloc.2.dylib
+        SHAREDLIBS+=" "${TBBLIBS}/libtbbmalloc.2.dylib
     fi
     if [ -f ${TBBLIBS}/libtbbmalloc.12.dylib ]; then
-        SHAREDLIBS+=" ",${TBBLIBS}/libtbbmalloc.12.dylib
+        SHAREDLIBS+=" "${TBBLIBS}/libtbbmalloc.12.dylib
     fi
 
     hdfs dfs -put -f ${SHAREDLIBS} /Hadoop/Libraries/ >> ${result_folder}/hdfs.log 2>&1
