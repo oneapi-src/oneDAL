@@ -72,7 +72,6 @@ export CLASSPATH=${SCALA_JARS}:$CLASSPATH
 os_name=`uname -s`
 if [ "${os_name}" == "Darwin" ]; then
     export DYLD_LIBRARY_PATH=${DAALROOT}/lib/:${TBBROOT}/lib/:$DYLD_LIBRARY_PATH
-
     export LIBJAVAAPI=libJavaAPI.dylib
 
     TBBLIBS=
