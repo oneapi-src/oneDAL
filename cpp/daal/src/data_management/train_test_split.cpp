@@ -41,6 +41,9 @@ typedef daal::data_management::NumericTable::StorageLayout NTLayout;
 const size_t BLOCK_CONST      = 2048;
 const size_t THREADING_BORDER = 8388608;
 
+const size_t MT19937_NUMBERS = 624;
+const size_t MT19937_SIZE    = 630;
+
 size_t genSwapIdx(size_t i, unsigned int * randomNumbers, size_t & rnIdx)
 {
     uint32_t bitMask = i;
@@ -63,13 +66,18 @@ size_t genSwapIdx(size_t i, unsigned int * randomNumbers, size_t & rnIdx)
 template <daal::CpuType cpu>
 services::Status generateRandomNumbers(const int * rngState, unsigned int * randomNumbers, const size_t nSkip, const size_t n)
 {
+    // initialize baseRNG
     daal::internal::mkl::BaseRNG<cpu> baseRng(0, VSL_BRNG_MT19937);
+    // check that it has correct size
+    DAAL_CHECK(baseRng.getStateSize() / 4 == MT19937_SIZE, daal::services::ErrorEngineNotSupported);
     daal::services::internal::TArray<unsigned int, cpu> baseRngStateArr(baseRng.getStateSize() / 4);
     unsigned int * baseRngState = baseRngStateArr.get();
     DAAL_CHECK_MALLOC(baseRngState);
     baseRng.saveState(baseRngState);
-    for (size_t i = 4; i < 628; ++i) baseRngState[i] = rngState[i - 4];
-    baseRngState[628] = 624;
+    // copy input state numbers to baseRNG
+    for (size_t i = 0; i < MT19937_NUMBERS; ++i) baseRngState[i + 4] = rngState[i];
+    // change baseRNG position
+    baseRngState[MT19937_SIZE - 2] = MT19937_NUMBERS;
     baseRng.loadState(baseRngState);
     daal::internal::RNGs<unsigned int, cpu> rng;
 
@@ -78,6 +86,8 @@ services::Status generateRandomNumbers(const int * rngState, unsigned int * rand
     daal::services::internal::TArray<unsigned int, cpu> tmpArr(n + 16);
     unsigned int * tmp = tmpArr.get();
     DAAL_CHECK_MALLOC(tmp);
+    // last 16 generated elements will be different than numpy's elements
+    // workaround: generate n + 16
     rng.uniformBits32(n + 16, tmp, baseRng.getState());
 
     for (size_t i = 0; i < n; ++i) randomNumbers[nSkip + i] = tmp[i];
@@ -89,14 +99,18 @@ template <typename IdxType, daal::CpuType cpu>
 services::Status generateShuffledIndicesImpl(const NumericTablePtr & idxTable, const NumericTablePtr & rngStateTable)
 {
     daal::SafeStatus s;
-    const size_t nThreads     = threader_get_threads_number();
-    const size_t n            = idxTable->getNumberOfRows();
-    const size_t stateSize    = rngStateTable->getNumberOfRows();
+    const size_t nThreads  = threader_get_threads_number();
+    const size_t n         = idxTable->getNumberOfRows();
+    const size_t stateSize = rngStateTable->getNumberOfRows();
+    // number of generated uints: 1.5x of n for reserve
     const size_t nRandomUInts = n * 3 / 2;
 
     daal::internal::WriteColumns<IdxType, cpu> idxBlock(*idxTable, 0, 0, n);
     IdxType * idx = idxBlock.get();
     DAAL_CHECK_MALLOC(idx);
+
+    // check that input RNG state has needed quantity of state numbers
+    DAAL_CHECK(stateSize == MT19937_NUMBERS, daal::services::ErrorIncorrectSizeOfInputNumericTable);
 
     daal::internal::ReadColumns<int, cpu> rngStateBlock(*rngStateTable, 0, 0, stateSize);
     const int * rngState = rngStateBlock.get();
