@@ -73,6 +73,10 @@ os_name=`uname -s`
 if [ "${os_name}" == "Darwin" ]; then
     export DYLD_LIBRARY_PATH=${DAALROOT}/lib/:${TBBROOT}/lib/:$DYLD_LIBRARY_PATH
 
+    export LIBJAVAAPI=libJavaAPI.dylib
+    export LIBTBB=
+    export LIBTBBMALLOC=
+
     TBBLIBS=
     if [ -d ${TBBROOT}/lib ]; then TBBLIBS=${TBBROOT}/lib; fi
     if ! [ -z {$TBBROOT} ] && [ -d ${TBBROOT}/lib ]; then TBBLIBS=${TBBROOT}/lib; fi
@@ -81,8 +85,26 @@ if [ "${os_name}" == "Darwin" ]; then
         exit 1
     fi
 
+    if [ -f ${TBBLIBS}/libtbb.dylib.2 ]; then
+        export LIBTBB=libtbb.dylib.2
+    elif [ -f ${TBBLIBS}/libtbb.dylib.12 ]; then
+        export LIBTBB=libtbb.dylib.12
+    else 
+        echo Can not find libtbb.dylib
+        exit 1
+    fi
+
+    if [ -f ${TBBLIBS}/libtbbmalloc.dylib.2 ]; then
+        export LIBTBBMALLOC=libtbbmalloc.dylib.2
+    elif [ -f ${TBBLIBS}/libtbbmalloc.dylib.12 ]; then
+        export LIBTBBMALLOC=libtbbmalloc.dylib.12
+    else 
+        echo Can not find libtbbmalloc.dylib
+        exit 1
+    fi
+
     #Comma-separated list of shared libs
-    export SHAREDLIBS=${DAALROOT}/lib/libJavaAPI.dylib,${TBBLIBS}/libtbb.dylib,${TBBLIBS}/libtbbmalloc.dylib
+    export SHAREDLIBS=${DAALROOT}/lib/${LIBJAVAAPI},${TBBLIBS}/${LIBTBB},${TBBLIBS}/${LIBTBBMALLOC}
 else
     export LIBJAVAAPI=libJavaAPI.so
     export LIBTBB=
