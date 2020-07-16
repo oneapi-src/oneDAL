@@ -71,8 +71,6 @@ export CLASSPATH=${SCALA_JARS}:$CLASSPATH
 # Setting paths by OS
 os_name=`uname -s`
 if [ "${os_name}" == "Darwin" ]; then
-    os_name=`uname -s`
-if [ "${os_name}" == "Darwin" ]; then
     export DYLD_LIBRARY_PATH=${DAALROOT}/lib/:${TBBROOT}/lib/:$DYLD_LIBRARY_PATH
 
     export LIBJAVAAPI=libJavaAPI.dylib
@@ -89,23 +87,23 @@ if [ "${os_name}" == "Darwin" ]; then
     export SHAREDLIBS=${DAALROOT}/lib/${LIBJAVAAPI}
 
     if [ -f ${TBBLIBS}/libtbb.dylib ]; then
-        SHAREDLIBS=${SHAREDLIBS},libtbb.dylib
+        SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbb.dylib
     fi
     if [ -f ${TBBLIBS}/libtbb.2.dylib ]; then
-        SHAREDLIBS=${SHAREDLIBS},libtbb.2.dylib
+        SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbb.2.dylib
     fi
     if [ -f ${TBBLIBS}/libtbb.12.dylib ]; then
-        SHAREDLIBS=${SHAREDLIBS},libtbb.12.dylib
+        SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbb.12.dylib
     fi
 
     if [ -f ${TBBLIBS}/libtbbmalloc.dylib ]; then
-        SHAREDLIBS=${SHAREDLIBS},libtbbmalloc.dylib
+        SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbbmalloc.dylib
     fi
     if [ -f ${TBBLIBS}/libtbbmalloc.2.dylib ]; then
-        SHAREDLIBS=${SHAREDLIBS},libtbbmalloc.2.dylib
+        SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbbmalloc.2.dylib
     fi
     if [ -f ${TBBLIBS}/libtbbmalloc.12.dylib ]; then
-        SHAREDLIBS=${SHAREDLIBS},libtbbmalloc.12.dylib
+        SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbbmalloc.12.dylib
     fi
 else
     export LIBJAVAAPI=libJavaAPI.so
