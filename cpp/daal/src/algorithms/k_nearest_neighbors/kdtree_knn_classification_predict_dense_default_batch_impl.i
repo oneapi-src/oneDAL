@@ -1,4 +1,3 @@
-
 /* file: kdtree_knn_classification_predict_dense_default_batch_impl.i */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
