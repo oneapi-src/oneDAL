@@ -79,7 +79,8 @@ public:
     {
         _data = static_cast<T *>(services::internal::service_malloc<T, cpu>(size));
         _size = size;
-        _top = _sizeMinus1 = size - 1;
+        _sizeMinus1 = size - 1;
+        _top = -1;
         _count             = 0;
         return _data;
     }
@@ -95,7 +96,7 @@ public:
 
     void reset()
     {
-        _top   = _sizeMinus1;
+        _top   = -1;
         _count = 0;
     }
 
