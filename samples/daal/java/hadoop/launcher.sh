@@ -73,30 +73,25 @@ if [ "${os_name}" == "Linux" ]; then
     #Space-separated string of shared libs
     export SHAREDLIBS=${DAALROOT}/lib/${daal_ia}/${LIBJAVAAPI}
 
-    if [ -f ${TBBLIBS}/libtbb.so ]; then
-        SHAREDLIBS+=" "${TBBLIBS}/libtbb.so
-    fi
-    if [ -f ${TBBLIBS}/libtbb.so.2 ]; then
-        SHAREDLIBS+=" "${TBBLIBS}/libtbb.so.2
-    fi
     if [ -f ${TBBLIBS}/libtbb.so.12 ]; then
         SHAREDLIBS+=" "${TBBLIBS}/libtbb.so.12
+    elif [ -f ${TBBLIBS}/libtbb.so ]; then
+        SHAREDLIBS+=" "${TBBLIBS}/libtbb.so
+    elif [ -f ${TBBLIBS}/libtbb.so.2 ]; then
+        SHAREDLIBS+=" "${TBBLIBS}/libtbb.so.2
     fi
 
-    if [ -f ${TBBLIBS}/libtbbmalloc.so ]; then
-        SHAREDLIBS+=" "${TBBLIBS}/libtbbmalloc.so
-    fi
     if [ -f ${TBBLIBS}/libtbbmalloc.so.2 ]; then
         SHAREDLIBS+=" "${TBBLIBS}/libtbbmalloc.so.2
-    fi
-    if [ -f ${TBBLIBS}/libtbbmalloc.so.12 ]; then
+    elif [ -f ${TBBLIBS}/libtbbmalloc.so ]; then
+        SHAREDLIBS+=" "${TBBLIBS}/libtbbmalloc.so
+    elif [ -f ${TBBLIBS}/libtbbmalloc.so.12 ]; then
         SHAREDLIBS+=" "${TBBLIBS}/libtbbmalloc.so.12
     fi
 
-    hdfs dfs -put -f ${SHAREDLIBS} /Hadoop/Libraries/   >> ${result_folder}/hdfs.log 2>&1
+    hdfs dfs -put -f ${SHAREDLIBS} /Hadoop/Libraries/ >> ${result_folder}/hdfs.log 2>&1
 elif [ "${os_name}" == "Darwin" ]; then
-    export LIBJAVAAPI=libJavaAPI.dylib
-    
+    export LIBJAVAAPI=libJavaAPI.dylib    
 
     TBBLIBS=
     if [ -d ${TBBROOT}/lib ]; then TBBLIBS=${TBBROOT}/lib; fi
@@ -109,23 +104,19 @@ elif [ "${os_name}" == "Darwin" ]; then
     #Space-separated list of shared libs
     export SHAREDLIBS=${DAALROOT}/lib/${LIBJAVAAPI}
 
-    if [ -f ${TBBLIBS}/libtbb.dylib ]; then
+    elif [ -f ${TBBLIBS}/libtbb.12.dylib ]; then
+        SHAREDLIBS+=" "${TBBLIBS}/libtbb.12.dylib
+    elif [ -f ${TBBLIBS}/libtbb.dylib ]; then
         SHAREDLIBS+=" "${TBBLIBS}/libtbb.dylib
-    fi
-    if [ -f ${TBBLIBS}/libtbb.2.dylib ]; then
+    elif [ -f ${TBBLIBS}/libtbb.2.dylib ]; then
         SHAREDLIBS+=" "${TBBLIBS}/libtbb.2.dylib
     fi
-    if [ -f ${TBBLIBS}/libtbb.12.dylib ]; then
-        SHAREDLIBS+=" "${TBBLIBS}/libtbb.12.dylib
-    fi
 
-    if [ -f ${TBBLIBS}/libtbbmalloc.dylib ]; then
-        SHAREDLIBS+=" "${TBBLIBS}/libtbbmalloc.dylib
-    fi
     if [ -f ${TBBLIBS}/libtbbmalloc.2.dylib ]; then
         SHAREDLIBS+=" "${TBBLIBS}/libtbbmalloc.2.dylib
-    fi
-    if [ -f ${TBBLIBS}/libtbbmalloc.12.dylib ]; then
+    elif [ -f ${TBBLIBS}/libtbbmalloc.dylib ]; then
+        SHAREDLIBS+=" "${TBBLIBS}/libtbbmalloc.dylib
+    elif [ -f ${TBBLIBS}/libtbbmalloc.12.dylib ]; then
         SHAREDLIBS+=" "${TBBLIBS}/libtbbmalloc.12.dylib
     fi
 
