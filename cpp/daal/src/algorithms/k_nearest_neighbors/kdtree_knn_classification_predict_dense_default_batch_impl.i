@@ -79,14 +79,14 @@ void pushMaxHeap(RandomAccessIterator first, RandomAccessIterator last)
         auto i = last - first;
         if (i > 0)
         {
-            const auto newItem = *last; // It can be moved instead.
+            const auto newItem = move<cpu>(*last);
             auto prev          = i;
             for (i = heapParentIndex<cpu>(i); i && (*(first + i) < newItem); i = heapParentIndex<cpu>(i))
             {
-                *(first + prev) = *(first + i); // It can be moved instead.
+                *(first + prev) = move<cpu>(*(first + i));
                 prev            = i;
             }
-            *(first + i) = newItem; // It can be moved instead.
+            *(first + i) = move<cpu>(newItem);
         }
     }
 }
@@ -111,9 +111,7 @@ DAAL_FORCEINLINE void internalAdjustMaxHeap(RandomAccessIterator first, RandomAc
         {
             break;
         }
-        auto temp          = *(first + i);
-        *(first + i)       = *(first + largest);
-        *(first + largest) = temp; // Moving can be used instead.
+        iterSwap<cpu>(first + i, first + largest)
     }
 }
 
@@ -123,9 +121,7 @@ void popMaxHeap(RandomAccessIterator first, RandomAccessIterator last)
     if (1 < last - first)
     {
         --last;
-        auto temp = *first;
-        *first    = *last;
-        *last     = temp; // Moving can be used instead.
+        iterSwap<cpu>(first, last);
         internalAdjustMaxHeap<cpu>(first, last, last - first, first - first);
     }
 }
@@ -546,7 +542,7 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
 
     data_management::BlockDescriptor<algorithmFpType> labelBD;
     algorithmFpType * classes =
-        static_cast<algorithmFpType *>(daal::services::internal::service_malloc<algorithmFpType, cpu>(heapSize * sizeof(*classes)));
+        static_cast<algorithmFpType *>(daal::services::internal::service_malloc<algorithmFpType, cpu>(heapSize * sizeof(algorithmFpType)));
     DAAL_CHECK_MALLOC(classes)
     for (size_t i = 0; i < heapSize; ++i)
     {
