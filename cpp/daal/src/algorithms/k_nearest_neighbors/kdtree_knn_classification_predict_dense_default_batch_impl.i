@@ -111,7 +111,7 @@ DAAL_FORCEINLINE void internalAdjustMaxHeap(RandomAccessIterator first, RandomAc
         {
             break;
         }
-        iterSwap<cpu>(first + i, first + largest)
+        iterSwap<cpu>(first + i, first + largest);
     }
 }
 
