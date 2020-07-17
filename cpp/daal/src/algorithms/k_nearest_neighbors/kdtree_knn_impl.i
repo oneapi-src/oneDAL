@@ -69,55 +69,70 @@ class Stack
 public:
     Stack() : _data(nullptr) {}
 
-    ~Stack() { clear(); }
+    ~Stack()
+    {
+        services::daal_free(_data);
+        _data = nullptr;
+    }
+
+    bool init(size_t size)
+    {
+        _data = static_cast<T *>(services::internal::service_malloc<T, cpu>(size));
+        _size = size;
+        _top = _sizeMinus1 = size - 1;
+        _count             = 0;
+        return _data;
+    }
 
     void clear()
     {
-        reset();
-        if (_data != nullptr)
+        if (_data)
         {
             services::daal_free(_data);
             _data = nullptr;
         }
     }
 
-    bool init(size_t size)
+    void reset()
     {
-        setSize(size);
-        _data = static_cast<T *>(services::internal::service_malloc<T, cpu>(_size * sizeof(T)));
-        reset();
-        return (_data != nullptr);
+        _top   = _sizeMinus1;
+        _count = 0;
     }
-
-    void reset() { _top = static_cast<size_t>(-1); }
 
     DAAL_FORCEINLINE services::Status push(const T & value)
     {
         services::Status status;
-        //Check if the pushing value can be written into _data
-        if (_top == _sizeMinus1)
+
+        if (_count >= _size)
         {
-            if (_top > _sizeMinus1) return services::Status(services::ErrorID::ErrorIncorrectIndex);
             status = grow();
             DAAL_CHECK_STATUS_VAR(status)
         }
+
         _data[++_top] = value;
+        ++_count;
+
         return status;
     }
 
-    DAAL_FORCEINLINE T pop() { return _data[_top--]; }
+    DAAL_FORCEINLINE T pop()
+    {
+        const T value = _data[_top--];
+        --_count;
+        return value;
+    }
 
-    bool empty() const { return _top == -1; }
+    bool empty() const { return (_count == 0); }
 
-    size_t size() const { return (_top + 1); }
+    size_t size() const { return _count; }
 
-private:
     services::Status grow()
     {
-        setSize(_size * 2);
-        T * const newData = static_cast<T *>(services::internal::service_malloc<T, cpu>(_size * sizeof(T)));
+        _size *= 2;
+        T * const newData = static_cast<T *>(services::internal::service_malloc<T, cpu>(_size));
         DAAL_CHECK_MALLOC(newData)
-        int result  = services::internal::daal_memcpy_s(newData, _size * sizeof(T), _data, size() * sizeof(T));
+        _sizeMinus1 = _size - 1;
+        int result  = services::internal::daal_memcpy_s(newData, _size * sizeof(T), _data, _count * sizeof(T));
         T * oldData = _data;
         _data       = newData;
         services::daal_free(oldData);
@@ -125,17 +140,12 @@ private:
         return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
     }
 
-    DAAL_FORCEINLINE void setSize(size_t size)
-    {
-        _size       = size;
-        _sizeMinus1 = _size - 1;
-    }
-
 private:
-    T * _data          = nullptr;
-    size_t _top        = -1;
-    size_t _sizeMinus1 = 0;
-    size_t _size       = 1;
+    T * _data;
+    size_t _top;
+    size_t _count;
+    size_t _size;
+    size_t _sizeMinus1;
 };
 
 } // namespace internal
