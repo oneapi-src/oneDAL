@@ -1,4 +1,4 @@
-  
+
 /* file: kdtree_knn_classification_predict_dense_default_batch_impl.i */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
@@ -546,8 +546,7 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
     };
 
     data_management::BlockDescriptor<algorithmFpType> labelBD;
-    algorithmFpType * classes =
-        static_cast<algorithmFpType *>(daal::services::internal::service_malloc<algorithmFpType, cpu>(heapSize));
+    algorithmFpType * classes = static_cast<algorithmFpType *>(daal::services::internal::service_malloc<algorithmFpType, cpu>(heapSize));
     DAAL_CHECK_MALLOC(classes)
     for (size_t i = 0; i < heapSize; ++i)
     {
