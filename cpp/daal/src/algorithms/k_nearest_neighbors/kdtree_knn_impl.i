@@ -77,11 +77,11 @@ public:
 
     bool init(size_t size)
     {
-        _data = static_cast<T *>(services::internal::service_malloc<T, cpu>(size));
-        _size = size;
+        _data       = static_cast<T *>(services::internal::service_malloc<T, cpu>(size));
+        _size       = size;
         _sizeMinus1 = size - 1;
-        _top = -1;
-        _count             = 0;
+        _top        = -1;
+        _count      = 0;
         return _data;
     }
 
