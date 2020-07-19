@@ -41,8 +41,9 @@ typedef daal::data_management::NumericTable::StorageLayout NTLayout;
 const size_t BLOCK_CONST      = 2048;
 const size_t THREADING_BORDER = 8388608;
 
-const size_t MT19937_NUMBERS = 624;
-const size_t MT19937_SIZE    = 630;
+const size_t MT19937_NUMBERS        = 624;
+const size_t MT19937_SIZE           = 631;
+const size_t MT19937_NUMBERS_OFFSET = 5;
 
 size_t genSwapIdx(size_t i, unsigned int * randomNumbers, size_t & rnIdx)
 {
@@ -75,22 +76,13 @@ services::Status generateRandomNumbers(const int * rngState, unsigned int * rand
     DAAL_CHECK_MALLOC(baseRngState);
     baseRng.saveState(baseRngState);
     // copy input state numbers to baseRNG
-    for (size_t i = 0; i < MT19937_NUMBERS; ++i) baseRngState[i + 4] = rngState[i];
-    // change baseRNG position
-    baseRngState[MT19937_SIZE - 2] = MT19937_NUMBERS;
+    for (size_t i = 0; i < MT19937_NUMBERS; ++i) baseRngState[i + MT19937_NUMBERS_OFFSET] = rngState[i];
     baseRng.loadState(baseRngState);
     daal::internal::RNGs<unsigned int, cpu> rng;
 
     if (nSkip != 0) baseRng.skipAhead(nSkip);
 
-    daal::services::internal::TArray<unsigned int, cpu> tmpArr(n + 16);
-    unsigned int * tmp = tmpArr.get();
-    DAAL_CHECK_MALLOC(tmp);
-    // last 16 generated elements will be different than numpy's elements
-    // workaround: generate n + 16
-    rng.uniformBits32(n + 16, tmp, baseRng.getState());
-
-    for (size_t i = 0; i < n; ++i) randomNumbers[nSkip + i] = tmp[i];
+    rng.uniformBits32(n, randomNumbers + nSkip, baseRng.getState());
 
     return services::Status();
 }
