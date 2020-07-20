@@ -122,7 +122,7 @@ elif [ "${os_name}" == "Darwin" ]; then
         exit 1
     fi
 
-    hdfs dfs -put -f ${DAALROOT}/lib/${daal_ia}/${LIBJAVAAPI} ${TBBLIBS}/${LIBTBB} ${TBBLIBS}/${LIBTBBMALLOC} /Hadoop/Libraries/ >> ${result_folder}/hdfs.log 2>&1
+    hdfs dfs -put -f ${DAALROOT}/lib/${LIBJAVAAPI} ${TBBLIBS}/${LIBTBB} ${TBBLIBS}/${LIBTBBMALLOC} /Hadoop/Libraries/ >> ${result_folder}/hdfs.log 2>&1
 fi
 
 # Setting envs
