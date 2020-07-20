@@ -76,7 +76,8 @@ services::Status generateRandomNumbers(const int * rngState, unsigned int * rand
     DAAL_CHECK_MALLOC(baseRngState);
     baseRng.saveState(baseRngState);
     // copy input state numbers to baseRNG
-    for (size_t i = 0; i < MT19937_NUMBERS; ++i) baseRngState[i + MT19937_NUMBERS_OFFSET] = rngState[i];
+    services::internal::daal_memcpy_s(baseRngState + MT19937_NUMBERS_OFFSET, MT19937_NUMBERS * sizeof(unsigned int), rngState,
+                                      MT19937_NUMBERS * sizeof(unsigned int));
     baseRng.loadState(baseRngState);
     daal::internal::RNGs<unsigned int, cpu> rng;
 
@@ -129,7 +130,10 @@ services::Status generateShuffledIndicesImpl(const NumericTablePtr & idxTable, c
         s |= generateRandomNumbers<cpu>(rngState, randomUInts, 0, nRandomUInts);
     }
 
-    for (size_t i = 0; i < n; ++i) idx[i] = i;
+    for (size_t i = 0; i < n; ++i)
+    {
+        idx[i] = i;
+    }
 
     size_t iIdx = 0;
     for (size_t i = n - 1; i > 0; --i)
