@@ -24,6 +24,7 @@
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::kmeans::backend {
 
@@ -42,6 +43,10 @@ struct train_kernel_gpu<Float, method::lloyd_dense> {
     train_result operator()(const dal::backend::context_gpu& ctx,
                             const descriptor_base& params,
                             const train_input& input) const {
+        if (!(input.get_initial_centroids().has_data())) {
+            throw domain_error("Input initial_centroids should not be empty");
+        }
+
         auto& queue = ctx.get_queue();
         interop::execution_context_guard guard(queue);
 
