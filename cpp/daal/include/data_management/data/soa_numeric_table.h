@@ -76,23 +76,7 @@ public:
      *  \param[in]  memoryAllocationFlag  Flag that controls internal memory allocation for data in the numeric table
      *  \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED SOANumericTable(NumericTableDictionary * ddict, size_t nRows, AllocationFlag memoryAllocationFlag = notAllocate)
-        : NumericTable(NumericTableDictionaryPtr(ddict, services::EmptyDeleter())), _arraysInitialized(0), _partialMemStatus(notAllocated)
-    {
-        _layout = soa;
-        _index  = 0;
-
-        this->_status |= setNumberOfRowsImpl(nRows);
-        if (!resizePointersArray(getNumberOfColumns()))
-        {
-            this->_status.add(services::ErrorMemoryAllocationFailed);
-            return;
-        }
-        if (memoryAllocationFlag == doAllocate)
-        {
-            this->_status |= allocateDataMemoryImpl();
-        }
-    }
+    DAAL_DEPRECATED SOANumericTable(NumericTableDictionary * ddict, size_t nRows, AllocationFlag memoryAllocationFlag = notAllocate);
 
     /**
      *  Constructor for an empty Numeric Table with a predefined NumericTableDictionary
