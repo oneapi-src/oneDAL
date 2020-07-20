@@ -90,11 +90,11 @@ if [ "${os_name}" == "Linux" ]; then
         exit 1
     fi
 
-    hdfs dfs -put -f ${DAALROOT}/lib/${daal_ia}/${LIBJAVAAPI} ${TBBLIBS}/${LIBTBB} ${TBBLIBS}/${LIBTBBMALLOC} /Hadoop/Libraries/   >> ${result_folder}/hdfs.log 2>&1
+    hdfs dfs -put -f ${DAALROOT}/lib/${daal_ia}/${LIBJAVAAPI} ${TBBLIBS}/${LIBTBB} ${TBBLIBS}/${LIBTBBMALLOC} /Hadoop/Libraries/ >> ${result_folder}/hdfs.log 2>&1
 elif [ "${os_name}" == "Darwin" ]; then
     export LIBJAVAAPI=libJavaAPI.dylib
-    export LIBTBB=libtbb.dylib
-    export LIBTBBMALLOC=libtbbmalloc.dylib
+    export LIBTBB=
+    export LIBTBBMALLOC=
 
     TBBLIBS=
     if [ -d ${TBBROOT}/lib ]; then TBBLIBS=${TBBROOT}/lib; fi
@@ -104,7 +104,25 @@ elif [ "${os_name}" == "Darwin" ]; then
         exit 1
     fi
 
-    hdfs dfs -put -f ${DAALROOT}/lib/${LIBJAVAAPI} ${TBBLIBS}/${LIBTBB} ${TBBLIBS}/${LIBTBBMALLOC} /Hadoop/Libraries/ >> ${result_folder}/hdfs.log 2>&1
+    if [ -f ${TBBLIBS}/libtbb.2.dylib ]; then
+        export LIBTBB=libtbb.2.dylib
+    elif [ -f ${TBBLIBS}/libtbb.12.dylib ]; then
+        export LIBTBB=libtbb.12.dylib
+    else 
+        echo Can not find libtbb.dylib
+        exit 1
+    fi
+
+    if [ -f ${TBBLIBS}/libtbbmalloc.2.dylib ]; then
+        export LIBTBBMALLOC=libtbbmalloc.2.dylib
+    elif [ -f ${TBBLIBS}/libtbbmalloc.12.dylib ]; then
+        export LIBTBBMALLOC=libtbbmalloc.12.dylib
+    else 
+        echo Can not find libtbbmalloc.dylib
+        exit 1
+    fi
+
+    hdfs dfs -put -f ${DAALROOT}/lib/${daal_ia}/${LIBJAVAAPI} ${TBBLIBS}/${LIBTBB} ${TBBLIBS}/${LIBTBBMALLOC} /Hadoop/Libraries/ >> ${result_folder}/hdfs.log 2>&1
 fi
 
 # Setting envs
