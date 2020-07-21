@@ -78,7 +78,7 @@ size_t Model::getNumberOfFeatures() const
 
 } // namespace interface1
 
-namespace interface2
+namespace interface3
 {
 services::Status Parameter::check() const
 {
@@ -88,7 +88,7 @@ services::Status Parameter::check() const
     DAAL_CHECK_EX(k >= 1, services::ErrorIncorrectParameter, services::ParameterName, kStr());
     return s;
 }
-} // namespace interface2
+} // namespace interface3
 } // namespace kdtree_knn_classification
 } // namespace algorithms
 } // namespace daal

@@ -27,8 +27,6 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kdtree_knn_classification::training::interface1::BatchContainer, batch, DAAL_FPTYPE,
-                                      kdtree_knn_classification::training::defaultDense)
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER(kdtree_knn_classification::training::BatchContainer, batch, DAAL_FPTYPE,
                                       kdtree_knn_classification::training::defaultDense)
 } // namespace algorithms

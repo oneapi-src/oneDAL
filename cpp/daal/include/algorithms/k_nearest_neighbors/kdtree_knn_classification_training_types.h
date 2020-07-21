@@ -96,6 +96,16 @@ public:
      * \param[in] method Computation method for the algorithm
      */
     template <typename algorithmFPType>
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const kdtree_knn_classification::interface2::Parameter * parameter,
+                                          int method);
+
+    /**
+     * Allocates memory to store the result of KD-tree based kNN model-based training
+     * \param[in] input Pointer to an object containing the input data
+     * \param[in] parameter %Parameter of KD-tree based kNN model-based training
+     * \param[in] method Computation method for the algorithm
+     */
+    template <typename algorithmFPType>
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const kdtree_knn_classification::interface1::Parameter * parameter,
                                           int method);
 

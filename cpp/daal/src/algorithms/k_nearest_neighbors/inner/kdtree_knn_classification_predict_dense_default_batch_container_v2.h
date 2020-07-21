@@ -33,7 +33,7 @@ namespace kdtree_knn_classification
 {
 namespace prediction
 {
-namespace interface3
+namespace interface2
 {
 template <typename algorithmFpType, Method method, CpuType cpu>
 BatchContainer<algorithmFpType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
@@ -64,7 +64,7 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
                        r.get(), par);
 }
 
-} // namespace interface3
+} // namespace interface2
 } // namespace prediction
 } // namespace kdtree_knn_classification
 } // namespace algorithms

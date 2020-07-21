@@ -41,7 +41,7 @@ namespace training
 {
 using namespace daal::data_management;
 
-namespace interface3
+namespace interface2
 {
 /**
  *  \brief Initialize list of K-Nearest Neighbors kernels with implementations for supported architectures
@@ -72,7 +72,7 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 
     const kdtree_knn_classification::ModelPtr r = result->get(classifier::training::model);
 
-    const kdtree_knn_classification::Parameter * const par = static_cast<kdtree_knn_classification::Parameter *>(_par);
+    const kdtree_knn_classification::interface2::Parameter * const par = static_cast<kdtree_knn_classification::interface2::Parameter *>(_par);
 
     daal::services::Environment::env & env = *_env;
 
@@ -83,7 +83,7 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     __DAAL_CALL_KERNEL(env, internal::KNNClassificationTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType, method), compute,
                        r->impl()->getData().get(), r->impl()->getLabels().get(), r.get(), *par->engine);
 }
-} // namespace interface3
+} // namespace interface2
 } // namespace training
 } // namespace kdtree_knn_classification
 } // namespace algorithms
