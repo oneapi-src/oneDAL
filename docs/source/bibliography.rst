@@ -118,6 +118,11 @@ For more information about algorithms implemented in |short_name|, refer to the 
    *Additive Logistic Regression: a Statistical View of Boosting.*.
    1998.
 
+.. [Friedman00]
+   Jerome Friedman, Trevor Hastie, and Robert Tibshirani.
+   Additive Logistic regression: a statistical view of boosting.
+   The Annals of Statistics, 28(2), pp: 337-407, 2000.
+
 .. [Friedman2010] 
    Friedman, Jerome, Trevor Hastie, and Rob Tibshirani.
    *Regularization paths for generalized linear models via coordinate
@@ -128,6 +133,9 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Elements of Statistical Learning Data Mining, Inference, and
    Prediction.* Springer.
 
+.. [Freund01]
+   Yoav Freund. An adaptive version of the boost by majority algorithm.
+   Machine Learning (43), pp. 293-318, 2001.
 
 .. [Hastie2009] 
    Trevor Hastie, Robert Tibshirani, Jerome Friedman. *The Elements
@@ -166,6 +174,12 @@ For more information about algorithms implemented in |short_name|, refer to the 
 .. [Lloyd82] 
    Stuart P Lloyd. *Least squares quantization in PCM*. IEEE
    Transactions on Information Theory 1982, 28 (2): 1982pp: 129–137.
+
+.. [Matsumoto98]
+   Matsumoto, M., Nishimura, T. Mersenne Twister:
+   A 623-Dimensionally Equidistributed Uniform Pseudo-Random Number Generator.
+   ACM Transactions on Modeling and Computer Simulation,
+   Vol. 8, No. 1, pp. 3-30, January 1998.
 
 .. [Mitchell97] 
    Tom M. Mitchell. *Machine Learning*. McGraw-Hill Education, 1997.

@@ -58,6 +58,10 @@ Examples
 
     - :cpp_example:`qr_dense_online.cpp <qr/qr_dense_online.cpp>`
 
+    Distributed Processing:
+
+    - :cpp_example:`qr_dense_distr.cpp <qr/qr_dense_distr.cpp>`
+
   .. tab:: Java*
 
     Batch Processing:
@@ -67,3 +71,7 @@ Examples
     Online Processing:
 
     - :java_example:`QRDenseOnline.java <qr/QRDenseOnline.java>`
+
+    Distributed Processing:
+
+    - :java_example:`QRDenseDistr.java <qr/QRDenseDistr.java>`

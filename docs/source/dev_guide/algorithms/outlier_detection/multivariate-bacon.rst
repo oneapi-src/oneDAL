@@ -63,6 +63,88 @@ In the iterative method, each iteration involves several steps:
 Batch Processing
 ****************
 
-At this moment, the description of batch processing for Multivariate BACON Outlier Detection is only available in
-`Developer Guide for Intel(R) DAAL
-<https://software.intel.com/content/www/us/en/develop/documentation/daal-programming-guide/top/algorithms/analysis/multivariate-bacon-outlier-detection/batch-processing-16.html>`_.
+Algorithm Input
+---------------
+
+The multivariate BACON outlier detection algorithm accepts the input described below.
+Pass the Input ID as a parameter to the methods that provide input for your algorithm.
+For more details, see :ref:`algorithms`.
+
+.. list-table::
+   :widths: 10 60
+   :header-rows: 1
+
+   * - Input ID
+     - Input
+   * - ``data``
+     - Pointer to the :math:`n \times p` numeric table with the data for outlier detection.
+     
+       .. note:: The input can be an object of any class derived from the ``NumericTable`` class.
+
+Algorithm Parameters
+--------------------
+
+The multivariate BACON outlier detection algorithm has the following parameters:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 10 10 60
+   :align: left
+
+   * - Parameter
+     - Default Value
+     - Description
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``initializationMethod``
+     - ``baconMedian``
+     - The initialization method, can be:
+
+       - ``baconMedian`` - median-based method
+       - ``defaultDense`` - Mahalanobis distance-based method
+   * - ``alpha``
+     - :math:`0.05`
+     - One-tailed probability that defines the :math:`(1 - \alpha)` quantile of the :math:`\chi^2` distribution with :math:`p` degrees of freedom.
+
+       Recommended value: :math:`\frac{\alpha}{n}`, where :math:`n` is the number of observations.
+   * - ``toleranceToConverge``
+     - :math:`0.005`
+     - The stopping criterion. The algorithm is terminated if the size of the basic subset is changed by less than the threshold.
+
+Algorithm Output
+----------------
+
+The multivariate BACON outlier detection algorithm calculates the result described below.
+Pass the Result ID as a parameter to the methods that access the results of your algorithm.
+For more details, see :ref:`algorithms`.
+
+.. list-table::
+   :widths: 10 60
+   :header-rows: 1
+
+   * - Result ID
+     - Result
+   * - ``weights``
+     - Pointer to the :math:`n \times 1` numeric table of zeros and ones.
+       Zero in the :math:`i`-th position indicates that the :math:`i`-th feature vector is an outlier.
+       
+       .. note::
+          By default, the result is an object of the ``HomogenNumericTable`` class,
+          but you can define the result as an object of any class derived from ``NumericTable``
+          except the ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
+
+Examples
+********
+
+.. tabs::
+
+  .. tab:: C++
+
+    Batch Processing:
+
+    - :cpp_example:`out_detect_bacon_dense_batch.cpp <outlier_detection/out_detect_bacon_dense_batch.cpp>`
+
+  .. tab:: Java
+
+    - :java_example:`OutDetectBaconDenseBatch.java <outlier_detection/OutDetectBaconDenseBatch.java>`
