@@ -891,7 +891,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
         x.releaseBlockOfColumnValues(columnWriteBD);
     }
 
-    service_free(buffer);
+    service_free<algorithmFpType>(buffer);
     buffer = nullptr;
 
     return status;
