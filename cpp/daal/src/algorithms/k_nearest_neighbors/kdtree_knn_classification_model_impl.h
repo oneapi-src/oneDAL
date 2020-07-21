@@ -245,7 +245,7 @@ public:
 
         services::Status status;
 
-        _indices = IndicesNT::create(1, nIndices, data_management::doAllocate, &status);
+        _indices = IndicesNT::create(1, nIndices, data_management::NumericTableIface::doAllocate, &status);
 
         if (status.ok())
         {
