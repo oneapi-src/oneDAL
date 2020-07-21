@@ -43,6 +43,7 @@ case ${ALG_NAME} in
     ;;
     "svm")
         wget -O test_svm.py ${SKLEARN_URL_ROOT}svm/tests/test_svm.py
+        wget -O test_sparse.py ${SKLEARN_URL_ROOT}svm/tests/test_sparse.py
     ;;
     *)
         echo "Unknown algorithm: ${ALG_NAME}"
