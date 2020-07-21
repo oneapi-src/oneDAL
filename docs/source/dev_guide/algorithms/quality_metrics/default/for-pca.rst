@@ -54,9 +54,10 @@ The library uses the following quality metrics:
    * - Noise variance
      - .. math::
            v_\text{noise} = 
-           \lbrace \begin{array}{c}
-           0, & p_r = p;\\
-		   \frac{1}{p - p_r} \sum _{i = p_r + 1}^{p} e_i, & p_r < p \end{array}
+           \begin{cases}
+              0, & p_r = p;\\
+		          \frac{1}{p - p_r} \sum _{i = p_r + 1}^{p} e_i, & p_r < p 
+           \end{cases}
 
 .. note::
     Quality metrics for PCA are correctly calculated only if the eigenvalues vector obtained from the PCA algorithm has not been reduced.

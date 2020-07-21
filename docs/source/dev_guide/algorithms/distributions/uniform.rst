@@ -29,18 +29,19 @@ The probability density is given by:
 
 .. math::
     f_{a, b}(x) = 
-    \lbrace \begin{array}{c}
-            \frac {1}{b - a}, & x \in [a, b)\\
-            0, & x \notin [a, b)\end{array}
+    \begin{cases} 
+      \frac {1}{b - a}, & x \in [a, b)\\
+      0, & x \notin [a, b) 
+    \end{cases}
 
 The cumulative distribution function is as follows:
 
 .. math::
     F_{a, b}(x) = 
-    \lbrace \begin{array}{c}
-            0, & x < a\\
-            \frac {x - a}{b - a}, & a \leq x < b\\
-            1, & x \geq b\end{array}
+    \begin{cases} 0, & x < a \\ 
+      \frac {x - a}{b - a}, & a \leq x < b \\ 
+      1, & x \geq b 
+    \end{cases}
 
 Batch Processing
 ****************

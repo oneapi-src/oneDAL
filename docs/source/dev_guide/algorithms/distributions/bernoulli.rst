@@ -40,10 +40,11 @@ The cumulative distribution function is as follows:
 
 .. math::
     F_p(x) = 
-    \lbrace \begin{array}{c}
-         0, & x < 0\\
-		 1 - p, & 0 \leq x < 1, x \in \mathbb{R} \\
-         1, & x \geq 1\end{array}
+    \begin{cases}
+      0, & x < 0 \\
+		  1 - p, & 0 \leq x < 1, x \in \mathbb{R} \\
+      1, & x \geq 1
+    \end{cases}
 
 Batch Processing
 ****************

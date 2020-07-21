@@ -63,10 +63,12 @@ where :math:`T`-transformation matrix is computed by PCA, :math:`T_i` - :math:`i
 row in the matrix, :math:`j` - column number, :math:`sgn` - signum function:
 
    .. math::
-	   sgn(x) = \lbrace \begin{array}{c}
-         -1, & x < 0,\\
-		 0, & x = 0, \\
-         1, & x > 0.\end{array}
+	   sgn(x) = 
+     \begin{cases}
+        -1, & x < 0,\\
+		    0, & x = 0, \\
+        1, & x > 0
+     \end{cases}
 
 You can provide these types of input data to the PCA algorithms of
 the library:
