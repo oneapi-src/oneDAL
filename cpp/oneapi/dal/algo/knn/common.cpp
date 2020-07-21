@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/algo/knn/common.hpp"
 #include "oneapi/dal/algo/knn/detail/model_impl.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::knn {
 
@@ -44,10 +45,16 @@ bool descriptor_base::get_data_use_in_model() const {
 }
 
 void descriptor_base::set_class_count_impl(std::int64_t value) {
+    if (value < 2) {
+        throw domain_error("class_count should be > 1");
+    }
     impl_->class_count = value;
 }
 
 void descriptor_base::set_neighbor_count_impl(std::int64_t value) {
+    if (value < 1) {
+        throw domain_error("neighbor_count should be > 0");
+    }
     impl_->neighbor_count = value;
 }
 

@@ -50,4 +50,4 @@ For more details, :ref:`algorithms`.
        identifier of initial block and index in initial block. 
        This information will be required to reconstruct initial blocks after transferring observations among nodes.
 
-       .. include:: distributed-steps/includes/default_result_numeric_table.rst
+       .. include:: ./../../includes/default_result_numeric_table.rst

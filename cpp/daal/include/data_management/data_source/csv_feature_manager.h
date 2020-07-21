@@ -318,7 +318,7 @@ public:
     /**
      *  Default constructor
      */
-    CSVFeatureManager() : _delimiter(','), _isHeaderParsed(false), _numberOfTokens(0) {}
+    CSVFeatureManager() : _delimiter(','), _numberOfTokens(0) {}
 
     virtual ~CSVFeatureManager() {}
 
@@ -549,7 +549,6 @@ protected:
     services::Collection<FeatureAuxData> auxVect;
 
 private:
-    bool _isHeaderParsed;
     size_t _numberOfTokens;
     BlockDescriptor<DAAL_DATA_TYPE> _currentRowBlock;
 

@@ -53,10 +53,10 @@ echo %RESULT_DIR%
 
 set CFLAGS=-nologo -w
 set LFLAGS=-nologo
-set LIB_DAAL=daal_core.lib daal_thread.lib
-set LIB_DAAL_DLL=daal_core_dll.lib
+set LIB_DAAL=onedal_core.lib onedal_thread.lib
+set LIB_DAAL_DLL=onedal_core_dll.lib
 set LFLAGS_DAAL=%LIB_DAAL% tbb.lib tbbmalloc.lib impi.lib
-set LFLAGS_DAAL_DLL=daal_core_dll.lib
+set LFLAGS_DAAL_DLL=onedal_core_dll.lib
 set MPI_LOGFILE=.\%RESULT_DIR%\build_mpi.log
 if not "%RMODE%"=="run" (
     if exist %MPI_LOGFILE% del /Q /F %MPI_LOGFILE%
@@ -73,10 +73,8 @@ setlocal enabledelayedexpansion enableextensions
 for %%T in (%MPI_SAMPLE_LIST%) do (
 
     if not "%RMODE%"=="run" (
-        echo call mpiicc -c %CFLAGS% %MPI_CPP_PATH%\%%T.cpp %LIB_DAAL% -Fo%RESULT_DIR%\%%T.obj 2>&1 >> %MPI_LOGFILE%
-        call mpiicc -c %CFLAGS% %MPI_CPP_PATH%\%%T.cpp %LIB_DAAL% -Fo%RESULT_DIR%\%%T.obj 2>&1 >> %MPI_LOGFILE%
-        echo call mpiicc %LFLAGS% %RESULT_DIR%\%%T.obj %LFLAGS_DAAL% -Fe%RESULT_DIR%\%%T.exe 2>&1 >> %MPI_LOGFILE%
-        call mpiicc %LFLAGS% %RESULT_DIR%\%%T.obj %LFLAGS_DAAL% -Fe%RESULT_DIR%\%%T.exe 2>&1 >> %MPI_LOGFILE%
+        echo call mpiicc %CFLAGS% %MPI_CPP_PATH%\%%T.cpp -Fo%RESULT_DIR%\%%T.obj %LFLAGS_DAAL% -Fe%RESULT_DIR%\%%T.exe 2>&1 >> %MPI_LOGFILE%
+        call mpiicc %CFLAGS% %MPI_CPP_PATH%\%%T.cpp -Fo%RESULT_DIR%\%%T.obj %LFLAGS_DAAL% -Fe%RESULT_DIR%\%%T.exe 2>&1 >> %MPI_LOGFILE%
         echo call mpiicc %LFLAGS% %RESULT_DIR%\%%T.obj %LFLAGS_DAAL_DLL% -Fe%RESULT_DIR%\%%T_dll.exe 2>&1 >> %MPI_LOGFILE%
         call mpiicc %LFLAGS% %RESULT_DIR%\%%T.obj %LFLAGS_DAAL_DLL% -Fe%RESULT_DIR%\%%T_dll.exe 2>&1 >> %MPI_LOGFILE%
         del /F /Q %RESULT_DIR%\%%T.obj

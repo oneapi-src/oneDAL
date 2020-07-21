@@ -16,6 +16,6 @@
 
 .. note::
 
-    By default, this result is an object of the ``HomogenNumericTable`` class, 
-    but you can define the result as an object of any class derived from ``NumericTable`` except for ``PackedTriangularMatrix``,
-    ``PackedSymmetricMatrix``, and ``CSRNumericTable``.
+    By default, this result is an object of the ``HomogenNumericTable`` class,
+    but you can define the result as an object of any class derived from ``NumericTable``
+    except for ``PackedTriangularMatrix``, ``PackedSymmetricMatrix``, and ``CSRNumericTable``.

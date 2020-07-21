@@ -51,8 +51,8 @@ template <typename T>
 inline auto convert_to_daal_homogen_table(array<T>& data,
                                           std::int64_t row_count,
                                           std::int64_t column_count) {
-    if (!data.get_size())
-        return daal::data_management::HomogenNumericTable<T>::create();
+    if (!data.get_count())
+        return daal::services::SharedPtr<daal::data_management::HomogenNumericTable<T>>();
     data.need_mutable_data();
     const auto daal_data =
         daal::services::SharedPtr<T>(data.get_mutable_data(), daal_array_owner<T>{ data });
@@ -60,6 +60,20 @@ inline auto convert_to_daal_homogen_table(array<T>& data,
     return daal::data_management::HomogenNumericTable<T>::create(daal_data,
                                                                  column_count,
                                                                  row_count);
+}
+
+template <typename T>
+inline table convert_from_daal_homogen_table(const daal::data_management::NumericTablePtr& nt) {
+    daal::data_management::BlockDescriptor<T> block;
+    const std::int64_t row_count    = nt->getNumberOfRows();
+    const std::int64_t column_count = nt->getNumberOfColumns();
+
+    nt->getBlockOfRows(0, row_count, daal::data_management::readOnly, block);
+    T* data = block.getBlockPtr();
+    array<T> arr(data, row_count * column_count, [nt, block](T* p) mutable {
+        nt->releaseBlockOfRows(block);
+    });
+    return homogen_table_builder{}.reset(arr, row_count, column_count).build();
 }
 
 #ifdef ONEAPI_DAL_DATA_PARALLEL
@@ -76,20 +90,7 @@ inline auto convert_to_daal_sycl_homogen_table(sycl::queue& queue,
                                                                      row_count,
                                                                      cl::sycl::usm::alloc::shared);
 }
+
 #endif
-
-template <typename T>
-inline table convert_from_daal_homogen_table(const daal::data_management::NumericTablePtr& nt) {
-    daal::data_management::BlockDescriptor<T> block;
-    const std::int64_t row_count    = nt->getNumberOfRows();
-    const std::int64_t column_count = nt->getNumberOfColumns();
-
-    nt->getBlockOfRows(0, row_count, daal::data_management::readOnly, block);
-    T* data = block.getBlockPtr();
-    array<T> arr(data, row_count * column_count, [nt, block](T* p) mutable {
-        nt->releaseBlockOfRows(block);
-    });
-    return homogen_table_builder{}.reset(arr, row_count, column_count).build();
-}
 
 } // namespace oneapi::dal::backend::interop

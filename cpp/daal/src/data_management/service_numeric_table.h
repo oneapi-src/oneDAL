@@ -28,11 +28,13 @@
 #include "data_management/data/soa_numeric_table.h"
 #include "data_management/data/csr_numeric_table.h"
 #include "data_management/data/symmetric_matrix.h"
+#include "data_management/data/internal/conversion.h"
 #include "src/services/service_defines.h"
 #include "src/externals/service_memory.h"
 #include "src/services/service_arrays.h"
 
 using namespace daal::data_management;
+using namespace daal::data_management::internal;
 
 #define DEFINE_TABLE_BLOCK_EX(BlockType, targetVariable, ...)    \
     BlockType<algorithmFPType, cpu> targetVariable(__VA_ARGS__); \
@@ -374,11 +376,9 @@ class SOANumericTableCPU : public SOANumericTable
 {
 public:
     SOANumericTableCPU(size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual, services::Status & st)
-        : SOANumericTable(services::SharedPtr<NumericTableDictionaryCPU<cpu> >(new NumericTableDictionaryCPU<cpu>(nColumns, featuresEqual, st)),
-                          nRows, doNotAllocate)
-    {
-        _arrays = services::Collection<services::SharedPtr<byte> >(nColumns);
-    }
+        : SOANumericTable(nColumns, nRows, featuresEqual, st)
+    {}
+
     static services::SharedPtr<SOANumericTableCPU<cpu> > create(size_t nColumns = 0, size_t nRows = 0,
                                                                 DictionaryIface::FeaturesEqual featuresEqual = DictionaryIface::notEqual,
                                                                 services::Status * stat                      = NULL)
@@ -432,58 +432,6 @@ public:
     services::Status releaseBlockOfColumnValues(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE { return releaseTFeature<double>(block); }
     services::Status releaseBlockOfColumnValues(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE { return releaseTFeature<float>(block); }
     services::Status releaseBlockOfColumnValues(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE { return releaseTFeature<int>(block); }
-
-    services::SharedPtr<byte> getArraySharedPtr(size_t idx)
-    {
-        if (idx < _ddict->getNumberOfFeatures())
-        {
-            return _arrays[idx];
-        }
-        else
-        {
-            this->_status.add(services::ErrorIncorrectNumberOfFeatures);
-            return services::SharedPtr<byte>();
-        }
-    }
-
-    template <typename T>
-    services::Status setArray(const services::SharedPtr<T> & ptr, size_t idx)
-    {
-        if (_partialMemStatus != notAllocated && _partialMemStatus != userAllocated)
-        {
-            return services::Status(services::ErrorIncorrectNumberOfFeatures);
-        }
-
-        if (idx < getNumberOfColumns() && idx < _arrays.size())
-        {
-            _ddict->setFeature<T>(idx);
-
-            if (!_arrays[idx] && ptr)
-            {
-                _arraysInitialized++;
-            }
-
-            if (_arrays[idx] && !ptr)
-            {
-                _arraysInitialized--;
-            }
-
-            _arrays[idx] = services::reinterpretPointerCast<byte, T>(ptr);
-        }
-        else
-        {
-            return services::Status(services::ErrorIncorrectNumberOfFeatures);
-        }
-
-        _partialMemStatus = userAllocated;
-
-        if (_arraysInitialized == getNumberOfColumns())
-        {
-            _memStatus = userAllocated;
-        }
-        DAAL_CHECK_STATUS_VAR(generatesOffsets())
-        return services::Status();
-    }
 
     virtual ~SOANumericTableCPU() {}
 };

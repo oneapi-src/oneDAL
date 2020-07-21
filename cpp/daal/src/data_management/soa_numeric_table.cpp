@@ -23,6 +23,24 @@ namespace data_management
 {
 namespace interface1
 {
+SOANumericTable::SOANumericTable(NumericTableDictionary * ddict, size_t nRows, AllocationFlag memoryAllocationFlag)
+    : NumericTable(NumericTableDictionaryPtr(ddict, services::EmptyDeleter())), _arraysInitialized(0), _partialMemStatus(notAllocated)
+{
+    _layout = soa;
+    _index  = 0;
+
+    this->_status |= setNumberOfRowsImpl(nRows);
+    if (!resizePointersArray(getNumberOfColumns()))
+    {
+        this->_status.add(services::ErrorMemoryAllocationFailed);
+        return;
+    }
+    if (memoryAllocationFlag == doAllocate)
+    {
+        this->_status |= allocateDataMemoryImpl();
+    }
+}
+
 SOANumericTable::SOANumericTable(size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual)
     : NumericTable(nColumns, nRows, featuresEqual), _arrays(nColumns), _arraysInitialized(0), _partialMemStatus(notAllocated)
 {
@@ -92,6 +110,34 @@ SOANumericTable::SOANumericTable(NumericTableDictionaryPtr ddict, size_t nRows, 
     {
         st |= allocateDataMemoryImpl();
     }
+}
+
+bool SOANumericTable::isHomogeneousFloatOrDouble() const
+{
+    const size_t ncols                                      = getNumberOfColumns();
+    const NumericTableFeature & f0                          = (*_ddict)[0];
+    daal::data_management::features::IndexNumType indexType = f0.indexType;
+
+    for (size_t i = 1; i < ncols; ++i)
+    {
+        const NumericTableFeature & f1 = (*_ddict)[i];
+        if (f1.indexType != indexType) return false;
+    }
+
+    return indexType == daal::data_management::features::getIndexNumType<float>()
+           || indexType == daal::data_management::features::getIndexNumType<double>();
+}
+
+bool SOANumericTable::isAllCompleted() const
+{
+    const size_t ncols = getNumberOfColumns();
+
+    for (size_t i = 0; i < ncols; ++i)
+    {
+        if (!_arrays[i].get()) return false;
+    }
+
+    return true;
 }
 
 services::Status SOANumericTable::searchMinPointer()
@@ -181,6 +227,55 @@ void SOANumericTable::freeDataMemoryImpl()
 
     _partialMemStatus = notAllocated;
     _memStatus        = notAllocated;
+}
+
+services::Status SOANumericTable::allocateDataMemoryImpl(daal::MemType /*type*/)
+{
+    freeDataMemoryImpl();
+
+    size_t ncol  = _ddict->getNumberOfFeatures();
+    size_t nrows = getNumberOfRows();
+
+    if (ncol * nrows == 0)
+    {
+        if (nrows == 0)
+        {
+            return services::Status(services::ErrorIncorrectNumberOfObservations);
+        }
+        else
+        {
+            return services::Status(services::ErrorIncorrectNumberOfFeatures);
+        }
+    }
+
+    for (size_t i = 0; i < ncol; i++)
+    {
+        NumericTableFeature f = (*_ddict)[i];
+        if (f.typeSize != 0)
+        {
+            _arrays[i] = services::SharedPtr<byte>((byte *)daal::services::daal_malloc(f.typeSize * nrows), services::ServiceDeleter());
+            _arraysInitialized++;
+        }
+        if (!_arrays[i])
+        {
+            freeDataMemoryImpl();
+            return services::Status(services::ErrorMemoryAllocationFailed);
+        }
+    }
+
+    if (_arraysInitialized > 0)
+    {
+        _partialMemStatus = internallyAllocated;
+    }
+
+    if (_arraysInitialized == ncol)
+    {
+        _memStatus = internallyAllocated;
+    }
+
+    DAAL_CHECK_STATUS_VAR(generatesOffsets())
+
+    return services::Status();
 }
 
 } // namespace interface1

@@ -76,23 +76,7 @@ public:
      *  \param[in]  memoryAllocationFlag  Flag that controls internal memory allocation for data in the numeric table
      *  \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED SOANumericTable(NumericTableDictionary * ddict, size_t nRows, AllocationFlag memoryAllocationFlag = notAllocate)
-        : NumericTable(NumericTableDictionaryPtr(ddict, services::EmptyDeleter())), _arraysInitialized(0), _partialMemStatus(notAllocated)
-    {
-        _layout = soa;
-        _index  = 0;
-
-        this->_status |= setNumberOfRowsImpl(nRows);
-        if (!resizePointersArray(getNumberOfColumns()))
-        {
-            this->_status.add(services::ErrorMemoryAllocationFailed);
-            return;
-        }
-        if (memoryAllocationFlag == doAllocate)
-        {
-            this->_status |= allocateDataMemoryImpl();
-        }
-    }
+    DAAL_DEPRECATED SOANumericTable(NumericTableDictionary * ddict, size_t nRows, AllocationFlag memoryAllocationFlag = notAllocate);
 
     /**
      *  Constructor for an empty Numeric Table with a predefined NumericTableDictionary
@@ -253,21 +237,7 @@ public:
      *  Returns 'true' if all features have the same data type, else 'false'
      *  \return All features have the same data type or not
      */
-    bool isHomogeneousFloatOrDouble() const
-    {
-        const size_t ncols                                      = getNumberOfColumns();
-        const NumericTableFeature & f0                          = (*_ddict)[0];
-        daal::data_management::features::IndexNumType indexType = f0.indexType;
-
-        for (size_t i = 1; i < ncols; ++i)
-        {
-            const NumericTableFeature & f1 = (*_ddict)[i];
-            if (f1.indexType != indexType) return false;
-        }
-
-        return indexType == daal::data_management::features::getIndexNumType<float>()
-               || indexType == daal::data_management::features::getIndexNumType<double>();
-    }
+    bool isHomogeneousFloatOrDouble() const;
 
 protected:
     /**
@@ -347,54 +317,7 @@ protected:
     bool resizePointersArray(size_t nColumns);
     services::Status setNumberOfColumnsImpl(size_t ncol) DAAL_C11_OVERRIDE;
 
-    services::Status allocateDataMemoryImpl(daal::MemType /*type*/ = daal::dram) DAAL_C11_OVERRIDE
-    {
-        freeDataMemoryImpl();
-
-        size_t ncol  = _ddict->getNumberOfFeatures();
-        size_t nrows = getNumberOfRows();
-
-        if (ncol * nrows == 0)
-        {
-            if (nrows == 0)
-            {
-                return services::Status(services::ErrorIncorrectNumberOfObservations);
-            }
-            else
-            {
-                return services::Status(services::ErrorIncorrectNumberOfFeatures);
-            }
-        }
-
-        for (size_t i = 0; i < ncol; i++)
-        {
-            NumericTableFeature f = (*_ddict)[i];
-            if (f.typeSize != 0)
-            {
-                _arrays[i] = services::SharedPtr<byte>((byte *)daal::services::daal_malloc(f.typeSize * nrows), services::ServiceDeleter());
-                _arraysInitialized++;
-            }
-            if (!_arrays[i])
-            {
-                freeDataMemoryImpl();
-                return services::Status(services::ErrorMemoryAllocationFailed);
-            }
-        }
-
-        if (_arraysInitialized > 0)
-        {
-            _partialMemStatus = internallyAllocated;
-        }
-
-        if (_arraysInitialized == ncol)
-        {
-            _memStatus = internallyAllocated;
-        }
-
-        DAAL_CHECK_STATUS_VAR(generatesOffsets())
-
-        return services::Status();
-    }
+    services::Status allocateDataMemoryImpl(daal::MemType /*type*/ = daal::dram) DAAL_C11_OVERRIDE;
 
     void freeDataMemoryImpl() DAAL_C11_OVERRIDE;
 
@@ -433,23 +356,13 @@ protected:
     }
 
 private:
-    bool isAllCompleted() const
-    {
-        const size_t ncols = getNumberOfColumns();
-
-        for (size_t i = 0; i < ncols; ++i)
-        {
-            if (!_arrays[i].get()) return false;
-        }
-
-        return true;
-    }
+    bool isAllCompleted() const;
 
     services::Status searchMinPointer();
 
 protected:
     template <typename T>
-    services::Status getTBlock(size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
+    DAAL_FORCEINLINE services::Status getTBlock(size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
     {
         size_t ncols = getNumberOfColumns();
         size_t nobs  = getNumberOfRows();
@@ -515,7 +428,7 @@ protected:
     }
 
     template <typename T>
-    services::Status releaseTBlock(BlockDescriptor<T> & block)
+    DAAL_FORCEINLINE services::Status releaseTBlock(BlockDescriptor<T> & block)
     {
         if (block.getRWFlag() & (int)writeOnly)
         {
@@ -555,7 +468,7 @@ protected:
     }
 
     template <typename T>
-    services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
+    DAAL_FORCEINLINE services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
         size_t nobs = getNumberOfRows();
         block.setDetails(feat_idx, idx, rwFlag);
@@ -597,7 +510,7 @@ protected:
     }
 
     template <typename T>
-    services::Status releaseTFeature(BlockDescriptor<T> & block)
+    DAAL_FORCEINLINE services::Status releaseTFeature(BlockDescriptor<T> & block)
     {
         if (block.getRWFlag() & (int)writeOnly)
         {

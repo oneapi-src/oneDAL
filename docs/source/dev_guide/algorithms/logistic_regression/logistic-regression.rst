@@ -166,17 +166,20 @@ parameters:
    * - penaltyL1
      - :math:`0`
      - L1 regularization coefficient
+
+       .. note:: L1 regularization is not supported on GPU.
+
    * - penaltyL2
      - :math:`0`
      - L2 regularization coefficient
    * - optimizationSolver
      - SGD solver
-     - All iterative solvers are available as optimization procedures to use at
-       the training stage:
-       -  SGD (Stochastic Gradient Descent Algorithm)
-       -  ADAGRAD (Adaptive Subgradient Method)
-       -  LBFGS (Limited-Memory Broyden-Fletcher-Goldfarb-Shanno Algorithm)
-       -  SAGA (Stochastic Average Gradient Accelerated Method)
+     - All iterative solvers are available as optimization procedures to use at the training stage:
+
+       -  :ref:`SGD (Stochastic Gradient Descent Algorithm) <sgd_solver>`
+       -  :ref:`ADAGRAD (Adaptive Subgradient Method) <adagrad_solver>`
+       -  :ref:`LBFGS (Limited-Memory Broyden-Fletcher-Goldfarb-Shanno Algorithm) <lbfgs_solver>`
+       -  :ref:`SAGA (Stochastic Average Gradient Accelerated Method) <saga_solver>`
 
 Prediction
 ----------

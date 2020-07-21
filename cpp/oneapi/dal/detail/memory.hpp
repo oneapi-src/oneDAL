@@ -33,7 +33,7 @@ public:
     }
 
 private:
-    Policy policy_;
+    std::remove_reference_t<Policy> policy_;
 };
 
 } // namespace oneapi::dal::detail

@@ -15,20 +15,18 @@
 *******************************************************************************/
 
 #include <daal/src/algorithms/k_nearest_neighbors/kdtree_knn_classification_train_kernel.h>
-#include "algorithms/engines/mcg59/mcg59.h"
-#include "data_management/data/numeric_table.h"
-#include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
+#include <src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h>
 
 #include "oneapi/dal/algo/knn/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/model_interop.hpp"
-#include "oneapi/dal/algo/knn/detail/model_impl.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 namespace oneapi::dal::knn::backend {
 
+using daal::services::Status;
 using dal::backend::context_cpu;
-using namespace daal::data_management;
 
 namespace daal_knn = daal::algorithms::kdtree_knn_classification;
 namespace interop  = dal::backend::interop;
@@ -48,10 +46,7 @@ static train_result call_daal_kernel(const context_cpu& ctx,
 
     auto arr_data   = row_accessor<const Float>{ data }.pull();
     auto arr_labels = row_accessor<const Float>{ labels }.pull();
-    // TODO: read-only access performed with deep copy of data since daal numeric tables are mutable.
-    // Need to create special immutable homogen table on daal interop side
 
-    // TODO: data is table, not a homogen_table. Think better about accessor - is it enough to have just a row_accessor?
     const auto daal_data =
         interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
     const auto daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
@@ -63,19 +58,21 @@ static train_result call_daal_kernel(const context_cpu& ctx,
         dummy_seed,
         desc.get_data_use_in_model() ? daal_knn::doUse : daal_knn::doNotUse);
 
-    const auto model_ptr = daal_knn::Model::create(column_count, NULL);
-    //if(!model_ptr)
-    //    bad alloc
+    Status status;
+    const daal::algorithms::classifier::ModelPtr model_ptr =
+        daal_knn::Model::create(column_count, &status);
+    interop::status_to_exception(status);
 
-    model_ptr->impl()->setData<Float>(daal_data, desc.get_data_use_in_model());
-    model_ptr->impl()->setLabels<Float>(daal_labels, desc.get_data_use_in_model());
+    auto knn_model = static_cast<daal_knn::Model*>(model_ptr.get());
+    knn_model->impl()->setData<Float>(daal_data, desc.get_data_use_in_model());
+    knn_model->impl()->setLabels<Float>(daal_labels, desc.get_data_use_in_model());
 
-    interop::call_daal_kernel<Float, daal_knn_kd_tree_kernel_t>(
-        ctx,
-        daal_data.get(),
-        daal_labels.get(),
-        model_ptr.get(),
-        *(daal::algorithms::engines::mcg59::Batch<>::create()));
+    interop::status_to_exception(
+        interop::call_daal_kernel<Float, daal_knn_kd_tree_kernel_t>(ctx,
+                                                                    daal_data.get(),
+                                                                    daal_labels.get(),
+                                                                    knn_model,
+                                                                    *daal_parameter.engine.get()));
 
     auto interop          = new daal_interop_model_t(model_ptr);
     const auto model_impl = std::make_shared<detail::model_impl>(interop);

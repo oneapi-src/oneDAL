@@ -125,9 +125,9 @@ protected:
         DAAL_CHECK_STATUS(status, svIndicesTable->getBlockOfRows(0, nSV, ReadWriteMode::writeOnly, svIndicesBlock));
 
         auto svIndices = svIndicesBlock.getBuffer();
-        auto buffIndex = context.allocate(TypeIds::id<uint32_t>(), nSV, &status);
+        auto buffIndex = context.allocate(TypeIds::id<int>(), nSV, &status);
         DAAL_CHECK_STATUS_VAR(status);
-        auto rangeIndex = context.allocate(TypeIds::id<uint32_t>(), _nVectors, &status);
+        auto rangeIndex = context.allocate(TypeIds::id<int>(), _nVectors, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
         DAAL_CHECK_STATUS(status, Helper::makeRange(rangeIndex, _nVectors));

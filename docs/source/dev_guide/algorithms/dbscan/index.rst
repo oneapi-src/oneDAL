@@ -18,6 +18,8 @@
 .. |x| replace:: :math:`x`
 .. |y| replace:: :math:`y`
 
+.. _dbscan:
+
 Density-Based Spatial Clustering of Applications with Noise
 ===========================================================
 

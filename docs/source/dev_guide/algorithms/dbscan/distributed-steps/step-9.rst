@@ -31,7 +31,7 @@ For more details, :ref:`algorithms`.
    * - ``partialNClusters``
      - Pointer to the collection of :math:`1 \times 1` numeric table containing the number of clusters found on each node.
 
-       .. include:: distributed-steps/includes/input_data_collection_with_exceptions.rst
+       .. include:: ./../../includes/input_data_collection_with_exceptions.rst
 
 Algorithm Output
 ++++++++++++++++
@@ -49,7 +49,7 @@ For more details, :ref:`algorithms`.
    * - ``step9NClusters``
      - Pointer to :math:`1 \times 1` numeric table containing the number of clusters found on all nodes.
 
-       .. include:: distributed-steps/includes/default_result_numeric_table.rst
+       .. include:: ./../../includes/default_result_numeric_table.rst
 
 .. list-table::
    :widths: 10 60
@@ -61,4 +61,4 @@ For more details, :ref:`algorithms`.
      - Pointer to the collection of :math:`1 \times 1` numeric tables containing offsets for cluster numeration
        for each node. Numeric tables with offsets are given in the same order as in the collection for ``partialNClusters`` ``Input ID``.
 
-       .. include:: distributed-steps/includes/default_result_data_collection.rst
+       .. include:: ./../../includes/default_result_data_collection.rst

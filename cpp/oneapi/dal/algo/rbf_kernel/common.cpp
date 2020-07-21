@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/rbf_kernel/common.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::rbf_kernel {
 
@@ -32,6 +33,9 @@ double descriptor_base::get_sigma() const {
 }
 
 void descriptor_base::set_sigma_impl(const double value) {
+    if (value <= 0.0) {
+        throw domain_error("sigma should be > 0.0");
+    }
     impl_->sigma = value;
 }
 

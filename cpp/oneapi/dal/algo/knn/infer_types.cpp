@@ -21,9 +21,9 @@ namespace oneapi::dal::knn {
 
 class detail::infer_input_impl : public base {
 public:
-    infer_input_impl(const table& query, const model& m) : query(query), trained_model(m) {}
+    infer_input_impl(const table& data, const model& m) : data(data), trained_model(m) {}
 
-    table query;
+    table data;
     model trained_model;
 };
 
@@ -35,19 +35,19 @@ public:
 using detail::infer_input_impl;
 using detail::infer_result_impl;
 
-infer_input::infer_input(const table& query, const model& m)
-        : impl_(new infer_input_impl(query, m)) {}
+infer_input::infer_input(const table& data, const model& m)
+        : impl_(new infer_input_impl(data, m)) {}
 
-table infer_input::get_query() const {
-    return impl_->query;
+table infer_input::get_data() const {
+    return impl_->data;
 }
 
 model infer_input::get_model() const {
     return impl_->trained_model;
 }
 
-void infer_input::set_query_impl(const table& value) {
-    impl_->query = value;
+void infer_input::set_data_impl(const table& value) {
+    impl_->data = value;
 }
 
 void infer_input::set_model_impl(const model& value) {

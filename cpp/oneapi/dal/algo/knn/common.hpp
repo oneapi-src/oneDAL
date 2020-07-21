@@ -29,6 +29,7 @@ class model_impl;
 
 namespace method {
 struct kd_tree {};
+struct brute_force {};
 using by_default = kd_tree;
 } // namespace method
 
@@ -55,6 +56,7 @@ protected:
 template <typename Float = descriptor_base::float_t, typename Method = descriptor_base::method_t>
 class descriptor : public descriptor_base {
 public:
+    using tag_t    = detail::tag;
     using float_t  = Float;
     using method_t = Method;
 

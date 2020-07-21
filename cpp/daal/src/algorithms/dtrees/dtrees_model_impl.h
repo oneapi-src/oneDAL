@@ -465,7 +465,7 @@ static services::Status addLeafNodeInternal(const data_management::DataCollectio
     return s;
 }
 
-class ModelImpl
+class DAAL_EXPORT ModelImpl
 {
 public:
     ModelImpl();

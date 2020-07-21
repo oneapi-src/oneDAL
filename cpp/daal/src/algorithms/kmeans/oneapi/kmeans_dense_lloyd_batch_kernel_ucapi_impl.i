@@ -168,7 +168,7 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
             BlockDescriptor<int> assignmentsRows;
             DAAL_CHECK_STATUS_VAR(ntAssignments->getBlockOfRows(range.startIndex, range.count, writeOnly, assignmentsRows));
             auto assignments = assignmentsRows.getBuffer();
-            if (data == NULL || assignments == NULL)
+            if (!data || !assignments)
             {
                 return Status(ErrorNullPtr);
             }
@@ -190,7 +190,7 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
                 int numEmpty = 0;
                 {
                     auto num = _numEmptyClusters.get<int>().toHost(ReadWriteMode::readOnly);
-                    if (num.get() == NULL)
+                    if (!num.get())
                     {
                         return Status(ErrorNullPtr);
                     }
@@ -223,7 +223,7 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
         algorithmFPType curObjFunction = (algorithmFPType)0.0;
         {
             auto hostPtr = objFunction.toHost(data_management::readOnly);
-            if (hostPtr == NULL)
+            if (!hostPtr)
             {
                 return Status(ErrorNullPtr);
             }
@@ -257,7 +257,7 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
         BlockDescriptor<int> assignmentsRows;
         DAAL_CHECK_STATUS_VAR(ntAssignments->getBlockOfRows(range.startIndex, range.count, writeOnly, assignmentsRows));
         auto assignments = assignmentsRows.getBuffer();
-        if (data == NULL || assignments == NULL)
+        if (!data || !assignments)
         {
             return Status(ErrorNullPtr);
         }
@@ -284,7 +284,7 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
         DAAL_CHECK_STATUS_VAR(ntNIterations->getBlockOfRows(0, 1, writeOnly, nIterationsRows));
         auto nIterationsHostPtr = nIterationsRows.getBlockSharedPtr();
         int * nIterations       = nIterationsHostPtr.get();
-        if (nIterations == NULL)
+        if (!nIterations)
         {
             return Status(ErrorNullPtr);
         }
@@ -620,7 +620,7 @@ void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::updateObjectiveFunction(
     if (doReset)
     {
         auto hostPtr = objFunction.toHost(data_management::writeOnly);
-        if (hostPtr.get() == NULL)
+        if (!hostPtr.get())
         {
             if (st)
             {
@@ -707,7 +707,7 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::setEmptyClusters(Numer
     auto candidatesIds   = _candidates.template get<int>().toHost(ReadWriteMode::readOnly);
     auto candidatesDists = _candidateDistances.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly);
     auto clusterFeatures = outCentroids.toHost(ReadWriteMode::readWrite);
-    if (counters.get() == NULL || candidatesIds.get() == NULL || candidatesDists.get() == NULL || clusterFeatures.get() == NULL)
+    if (!counters.get() || !candidatesIds.get() || !candidatesDists.get() || !clusterFeatures.get())
     {
         return Status(ErrorNullPtr);
     }
@@ -726,7 +726,7 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::setEmptyClusters(Numer
             BlockDescriptor<algorithmFPType> singleRow;
             DAAL_CHECK_STATUS_VAR(ntData->getBlockOfRows(0, nRows, readOnly, singleRow));
             auto rowData = singleRow.getBlockPtr();
-            if (rowData == NULL)
+            if (!rowData)
             {
                 return Status(ErrorNullPtr);
             }

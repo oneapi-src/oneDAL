@@ -16,26 +16,26 @@
 
 #pragma once
 
+#include "algorithms/classifier/classifier_model.h"
 #include "oneapi/dal/algo/knn/common.hpp"
 #include "oneapi/dal/algo/knn/detail/model_impl.hpp"
-#include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
 
 namespace oneapi::dal::knn::detail {
 
-namespace daal_knn = daal::algorithms::kdtree_knn_classification;
+namespace daal_cls = daal::algorithms::classifier;
 
 class model_impl::interop_model {
 public:
-    interop_model(const daal_knn::ModelPtr& daal_model) : daal_model(daal_model) {}
-    void set_daal_model(const daal_knn::ModelPtr& model) {
+    interop_model(const daal_cls::ModelPtr& daal_model) : daal_model(daal_model) {}
+    void set_daal_model(const daal_cls::ModelPtr& model) {
         daal_model = model;
     }
-    daal_knn::ModelPtr get_daal_model() {
+    daal_cls::ModelPtr get_daal_model() {
         return daal_model;
     }
 
 private:
-    daal_knn::ModelPtr daal_model;
+    daal_cls::ModelPtr daal_model;
 };
 
 } // namespace oneapi::dal::knn::detail

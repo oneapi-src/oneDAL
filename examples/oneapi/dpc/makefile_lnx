@@ -20,7 +20,7 @@
 
 help:
 	@echo "Usage: make {lib|so|libintel64|sointel64|help}"
-	@echo "lib is alias libintel64, so is alias for sointel64"
+	@echo "lib is alias for libintel64, so is alias for sointel64"
 	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
 	@echo
 	@echo "name              - example name. Please see daal.lst file"
@@ -36,29 +36,22 @@ help:
 ##------------------------------------------------------------------------------
 ## examples of using:
 ##
-## make libia32 example=pca_cor_dense_batch -
-##                                  build  by Intel(R) C++ Compiler (as default)
-##                                  and  run  association_rules  example  for 32-bit
-##                                  applications, static linking
+## make lib example=pca_cor_dense_batch - build  by Intel(R) C++ Compiler (as default)
+##                                 and run pca_cor_dense_batch example, static linking
 ##
-## make soia32 compiler=dpc++     - build by GNU C++ compiler and run all examples
-##                                  of Intel(R) DAAL for
-##                                  32-bit applications, dynamic linking
+## make so compiler=gnu          - build by GNU C++ compiler and run all examples,
+##                                 dynamic linking
 ##
-## make libintel64 compiler=dpc++ - build by GNU C++ compiler and run all example
-##                                  of Intel(R) DAAL for
-##                                  Intel(R) 64 processor family applications,
-##                                  static linking
+## make libintel64 compiler=gnu  - build by GNU C++ compiler and run all examples,
+##                                 static linking
 ##
-## make sointel64                 - build by Intel(R) C++ Compiler (as default)
-##                                  and run all examples for Intel(R)64 processor
-##                                  family  applications, dynamic linking
+## make sointel64                - build by Intel(R) C++ Compiler (as default)
+##                                 and run all examples, dynamic linking
 ##
-## make sointel64 mode=build      - build only (not run) by Intel(R) C++ Compiler
-##                                  (as default) all examples for Intel(R)64
-##                                  processor family  applications, dynamic linking
+## make sointel64 mode=build     - build only (not run) by Intel(R) C++ Compiler
+##                                 (as default) all examples, dynamic linking
 ##
-## make help                      - show help
+## make help                     - show help
 ##
 ##------------------------------------------------------------------------------
 
@@ -93,10 +86,10 @@ else
 endif
 
 ifeq ($(threading),sequential)
-    THREADING_LIB := daal_sequential
+    THREADING_LIB := onedal_sequential
 else
     override threading = parallel
-    THREADING_LIB := daal_thread
+    THREADING_LIB := onedal_thread
 endif
 
 COPTS := -std=c++17 \
@@ -111,15 +104,15 @@ COPTS := -std=c++17 \
          -I./source \
          -I"$(DAALROOT)/include"
 
-LIBS := $(-B) -lonedal_dpc \
-        $(-B) -ldaal_core \
-        $(-B) -ldaal_sycl \
-        $(-B) -l$(THREADING_LIB) \
-        -Bdynamic -ltbb \
-        -Bdynamic -ltbbmalloc \
-        -Bdynamic -lpthread \
-        -Bdynamic -ldl \
-        -Bdynamic -lOpenCL
+LIBS := -Wl,$(-B) -lonedal_dpc \
+        -Wl,$(-B) -lonedal_core \
+        -Wl,$(-B) -lonedal_sycl \
+        -Wl,$(-B) -l$(THREADING_LIB) \
+        -Wl,-Bdynamic -ltbb \
+        -Wl,-Bdynamic -ltbbmalloc \
+        -Wl,-Bdynamic -lpthread \
+        -Wl,-Bdynamic -lOpenCL \
+        -Wl,-Bdynamic -ldl
 
 LOPTS := -L"$(DAAL_PATH)" \
          -L"$(TBB_PATH)" \
@@ -143,7 +136,7 @@ so sointel64:
 _make_ex: $(RES)
 
 vpath
-vpath %.cpp $(addprefix ./source/,linear_kernel pca tables)
+vpath %.cpp $(addprefix ./source/,decision_forest knn linear_kernel pca rbf_kernel svm tables)
 
 .SECONDARY:
 $(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.

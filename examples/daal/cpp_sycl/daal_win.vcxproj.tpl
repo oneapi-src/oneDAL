@@ -182,7 +182,7 @@
     <Link>
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
-      <AdditionalDependencies>daal_sycl.lib;daal_core.lib;daal_thread.lib;OpenCL.lib</AdditionalDependencies>
+      <AdditionalDependencies>onedal_sycl.lib;onedal_core.lib;onedal_thread.lib;tbb.lib;tbbmalloc.lib;OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
@@ -199,7 +199,7 @@
     <Link>
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
-      <AdditionalDependencies>daal_sycl.lib;daal_core.lib;daal_sequential.lib;OpenCL.lib</AdditionalDependencies>
+      <AdditionalDependencies>onedal_sycl.lib;onedal_core.lib;onedal_sequential.lib;OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
@@ -216,7 +216,7 @@
     <Link>
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
-      <AdditionalDependencies>daal_sycl.lib;daal_core_dll.lib;OpenCL.lib</AdditionalDependencies>
+      <AdditionalDependencies>onedal_sycl.lib;onedal_core_dll.lib;OpenCL.lib</AdditionalDependencies>
       <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
@@ -233,7 +233,7 @@
     <Link>
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
-      <AdditionalDependencies>daal_sycl.lib;daal_core_dll.lib;OpenCL.lib</AdditionalDependencies>
+      <AdditionalDependencies>onedal_sycl.lib;onedal_core_dll.lib;OpenCL.lib</AdditionalDependencies>
       <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
@@ -250,7 +250,7 @@
     <Link>
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
-      <AdditionalDependencies>daal_sycl.lib;daal_core.lib;daal_thread.lib;OpenCL.lib</AdditionalDependencies>
+      <AdditionalDependencies>onedal_sycl.lib;onedal_core.lib;onedal_thread.lib;tbb.lib;tbbmalloc.lib;OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
@@ -267,7 +267,7 @@
     <Link>
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
-      <AdditionalDependencies>daal_sycl.lib;daal_core.lib;daal_sequential.lib;OpenCL.lib</AdditionalDependencies>
+      <AdditionalDependencies>onedal_sycl.lib;onedal_core.lib;onedal_sequential.lib;OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
@@ -284,7 +284,7 @@
     <Link>
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
-      <AdditionalDependencies>daal_sycl.lib;daal_core_dll.lib;OpenCL.lib</AdditionalDependencies>
+      <AdditionalDependencies>onedal_sycl.lib;onedal_core_dll.lib;OpenCL.lib</AdditionalDependencies>
       <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
@@ -301,7 +301,7 @@
     <Link>
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
-      <AdditionalDependencies>daal_sycl.lib;daal_core_dll.lib;OpenCL.lib</AdditionalDependencies>
+      <AdditionalDependencies>onedal_sycl.lib;onedal_core_dll.lib;OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>

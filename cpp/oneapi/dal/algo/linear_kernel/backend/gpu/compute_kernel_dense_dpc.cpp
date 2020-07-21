@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #define DAAL_SYCL_INTERFACE
+#define DAAL_SYCL_INTERFACE_REVERSED_RANGE
 
 #include "oneapi/dal/algo/linear_kernel/backend/gpu/compute_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
@@ -39,7 +40,7 @@ static compute_result call_daal_kernel(const context_gpu& ctx,
                                        const descriptor_base& desc,
                                        const table& x,
                                        const table& y) {
-    auto queue = ctx.get_queue();
+    auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
     const int64_t row_count_x  = x.get_row_count();

@@ -49,7 +49,7 @@ if [ "${daal_ia}" != "ia32" -a "${daal_ia}" != "intel64" ]; then
 fi
 
 # Setting CLASSPATH to build jar
-export CLASSPATH=${DAALROOT}/lib/daal.jar:${SCALA_JARS}:$CLASSPATH
+export CLASSPATH=${DAALROOT}/lib/onedal.jar:${SCALA_JARS}:$CLASSPATH
 
 # Creating _results folder
 result_folder=$(command -p cd $(dirname -- "${BASH_SOURCE}"); pwd)/_results/
@@ -62,13 +62,31 @@ hdfs dfs -mkdir -p /Hadoop/Libraries                                            
 os_name=`uname`
 if [ "${os_name}" == "Linux" ]; then
     export LIBJAVAAPI=libJavaAPI.so
-    export LIBTBB=libtbb.so.2
-    export LIBTBBMALLOC=libtbbmalloc.so.2
+    export LIBTBB=
+    export LIBTBBMALLOC=
 
     TBBLIBS=
     if [ -d ${TBBROOT}/lib/${daal_ia}/gcc4.8 ]; then TBBLIBS=${TBBROOT}/lib/${daal_ia}/gcc4.8; fi
     if [ -z ${TBBLIBS} ]; then
         echo Can not find TBB runtimes
+        exit 1
+    fi
+
+    if [ -f ${TBBLIBS}/libtbb.so.2 ]; then
+        export LIBTBB=libtbb.so.2
+    elif [ -f ${TBBLIBS}/libtbb.so.12 ]; then
+        export LIBTBB=libtbb.so.12
+    else 
+        echo Can not find libtbb.so
+        exit 1
+    fi
+
+    if [ -f ${TBBLIBS}/libtbbmalloc.so.2 ]; then
+        export LIBTBBMALLOC=libtbbmalloc.so.2
+    elif [ -f ${TBBLIBS}/libtbbmalloc.so.12 ]; then
+        export LIBTBBMALLOC=libtbbmalloc.so.12
+    else 
+        echo Can not find libtbbmalloc.so
         exit 1
     fi
 
@@ -90,7 +108,7 @@ elif [ "${os_name}" == "Darwin" ]; then
 fi
 
 # Setting envs
-export LIBJARS=${DAALROOT}/lib/daal.jar
+export LIBJARS=${DAALROOT}/lib/onedal.jar
 export CLASSPATH=${LIBJARS}:${CLASSPATH}
 export HADOOP_CLASSPATH=${LIBJARS}
 

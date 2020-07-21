@@ -80,7 +80,7 @@ threading = parallel
 DAALROOT = ..\..\..
 !ENDIF
 
-DAAL_PATH = "$(DAALROOT)\lib\$(_IA)"
+DAAL_PATH = $(DAALROOT)\lib\$(_IA)
 
 !IF ("$(mode)"=="build")
 RES = $(example:+=.exe)
@@ -116,10 +116,10 @@ COPTS=$(COMMON_COPTS) -Qstd:c++17 $(ARCH_OPT)
 !ENDIF
 
 !IF ("$(threading)"=="sequential")
-DAAL_LIB_T = $(DAAL_PATH)\daal_sequential.lib
+DAAL_LIB_T = $(DAAL_PATH)\onedal_sequential.lib
 !ELSE
 threading = parallel
-DAAL_LIB_T = $(DAAL_PATH)\daal_thread.lib
+DAAL_LIB_T = $(DAAL_PATH)\onedal_thread.lib
 
 !IF ("$(compiler)"!="clang")
 EXT_LIB = tbb.lib tbbmalloc.lib
@@ -128,10 +128,10 @@ EXT_LIB = /link /DEFAULTLIB:tbb.lib /DEFAULTLIB:tbbmalloc.lib
 !ENDIF
 !ENDIF
 
-DAAL_LIB = $(DAAL_PATH)\onedal$(EXT) $(DAAL_PATH)\daal_core$(EXT) $(DAAL_LIB_T)
+DAAL_LIB = "$(DAAL_PATH)\onedal$(EXT)" "$(DAAL_PATH)\onedal_core$(EXT)" "$(DAAL_LIB_T)"
 
 RES_DIR = _results\$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
-COPTS = /Isource /I$(DAALROOT)\include $(COPTS) /Fe$(RES_DIR)\\
+COPTS = /Isource /I"$(DAALROOT)\include" $(COPTS) /Fe$(RES_DIR)\\
 LOPTS = $(DAAL_LIB) $(EXT_LIB)
 
 libia32:

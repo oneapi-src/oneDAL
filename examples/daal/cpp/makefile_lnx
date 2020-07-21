@@ -88,20 +88,22 @@ TBB_PATH = "$(TBBROOT)/lib/$(_IA)/gcc4.8"
 EXT_LIB := -lpthread -ldl
 
 ifeq ($(threading),sequential)
-    DAAL_LIB_T := $(DAAL_PATH)/libdaal_sequential.$(RES_EXT)
+    DAAL_LIB_T := $(DAAL_PATH)/libonedal_sequential.$(RES_EXT)
     EXT_LIB += $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
 else
     override threading = parallel
-    DAAL_LIB_T := $(DAAL_PATH)/libdaal_thread.$(RES_EXT)
+    DAAL_LIB_T := $(DAAL_PATH)/libonedal_thread.$(RES_EXT)
     EXT_LIB += $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
 endif
 
-DAAL_LIB := $(DAAL_PATH)/libdaal_core.$(RES_EXT) $(DAAL_LIB_T)
+DAAL_LIB := $(DAAL_PATH)/libonedal_core.$(RES_EXT) $(DAAL_LIB_T)
 
 COPTS := -pedantic -Wall -Wextra -Werror \
          -Werror=return-type \
          -Werror=uninitialized \
          -Werror=unknown-pragmas \
+         -Wno-deprecated-declarations \
+         -Wno-unused-parameter \
          -I./source/utils
 
 LOPTS := -Wl,--start-group $(DAAL_LIB) $(EXT_LIB) -Wl,--end-group
@@ -122,7 +124,8 @@ ifeq ($(compiler),gnu)
 endif
 
 ifeq ($(compiler),clang)
-    CC = clang++
+    gcc_toolchain := $(realpath $(dir $(shell which gcc))/..)
+    CC = clang++ --gcc-toolchain=$(gcc_toolchain)
     COPTS += $(if $(filter ia32, $(_IA)), -m32, -m64)
 endif
 
@@ -137,7 +140,6 @@ libintel64:
 	$(MAKE) _make_ex _IA=intel64 RES_EXT=a
 sointel64:
 	$(MAKE) _make_ex _IA=intel64 RES_EXT=so
-
 
 _make_ex: $(RES)
 
@@ -154,7 +156,7 @@ vpath %.cpp $(addprefix ./source/,association_rules boosting cholesky compressio
 $(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.
 	$(CC) $(COPTS) $< -o $@ $(LOPTS)
 
-$(RES_DIR)/%.res:  $(RES_DIR)/%.exe
+$(RES_DIR)/%.res: $(RES_DIR)/%.exe
 	$< > $@
 
 %/.:; mkdir -p $*

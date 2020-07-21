@@ -55,13 +55,13 @@ For more details, :ref:`algorithms`.
    * - ``partialData``
      - Pointer to the collection of numeric tables with :math:`p` columns and arbitrary number of rows, containing observations to be clustered.
 
-       .. include:: distributed-steps/includes/input_data_collection.rst
+       .. include:: ./../../includes/input_data_collection.rst
 
    * - ``step5PartialBoundingBoxes``
      - Pointer to the collection of :math:`2 \times p` numeric table containing bounding boxes computed on :ref:`step 2 <dbscan_step_2>` and collected from all nodes.
        Numeric tables in collection should be ordered by the identifiers of initial block of nodes.
 
-       .. include:: distributed-steps/includes/input_data_collection_with_exceptions.rst
+       .. include:: ./../../includes/input_data_collection_with_exceptions.rst
 
 Algorithm Output
 ++++++++++++++++
@@ -88,4 +88,4 @@ For more details, :ref:`algorithms`.
 
        Numeric tables in the collection are ordered by the identifiers of initial block of nodes.
 
-.. include:: distributed-steps/includes/default_result_data_collection.rst
+.. include:: ./../../includes/default_result_data_collection.rst

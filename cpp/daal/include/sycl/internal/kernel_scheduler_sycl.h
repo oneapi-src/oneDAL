@@ -26,7 +26,11 @@
 
         #ifndef DAAL_DISABLE_LEVEL_ZERO
             #include "sycl/internal/daal_ze_module_helper.h"
-            #include <CL/sycl/backend/Intel_level0.hpp>
+            #if (defined(__SYCL_COMPILER_VERSION) && (__SYCL_COMPILER_VERSION >= 20200701))
+                #include <CL/sycl/backend/level_zero.hpp>
+            #else
+                #include <CL/sycl/backend/Intel_level0.hpp>
+            #endif
         #endif // DAAL_DISABLE_LEVEL_ZERO
 
         #include <cstring>

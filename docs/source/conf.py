@@ -79,7 +79,8 @@ templates_path = ['_templates']
 exclude_patterns = ["opt-notice.rst", 'dev_guide/data-management/numeric-tables/*.rst', 'topics/*.rst',
                     'dev_guide/algorithms/dbscan/distributed-steps/*',
                     'dev_guide/algorithms/kmeans/includes/*',
-                    'notes/issues/2021.1-beta06/includes/*']
+                    'notes/issues/2021.1-beta06/includes/*',
+                    'dev_guide/includes/*']
 
 extlinks = {
     'cpp_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/%s', ''),
