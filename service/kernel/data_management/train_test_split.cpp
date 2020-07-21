@@ -41,8 +41,11 @@ typedef daal::data_management::NumericTable::StorageLayout NTLayout;
 const size_t BLOCK_CONST      = 2048;
 const size_t THREADING_BORDER = 8388608;
 
-const size_t MT19937_NUMBERS        = 624;
-const size_t MT19937_SIZE           = 631;
+// quantity of internal numbers used for generation
+const size_t MT19937_NUMBERS = 624;
+// size of MT19937 RNG stream
+const size_t MT19937_SIZE = 631;
+// start position of internal numbers in stream
 const size_t MT19937_NUMBERS_OFFSET = 5;
 
 size_t genSwapIdx(size_t i, unsigned int * randomNumbers, size_t & rnIdx)
@@ -84,6 +87,8 @@ services::Status generateRandomNumbers(const int * rngState, unsigned int * rand
 
     if (nSkip != 0) baseRng.skipAhead(nSkip);
 
+    // last 16 random numbers are different than from reference algorithm
+    // workaround: generate additional 16 ending elements and drop them later
     daal::services::internal::TArray<unsigned int, cpu> tmpArr(n + 16);
     unsigned int * tmp = tmpArr.get();
     DAAL_CHECK_MALLOC(tmp);
