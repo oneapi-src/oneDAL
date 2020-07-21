@@ -239,7 +239,7 @@ public:
      * Sets a training data original indices
      * \param[in]  value  Training data
      */
-    DAAL_FORCEINLINE services::Status setIndices(size_t nIndices)
+    DAAL_FORCEINLINE services::Status resetIndices(size_t nIndices)
     {
         typedef data_management::HomogenNumericTable<size_t> IndicesNT;
 

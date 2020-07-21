@@ -154,7 +154,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     r->impl()->setKDTreeTable(KDTreeTablePtr(new KDTreeTable(maxKDTreeNodeCount, status)));
     DAAL_CHECK_STATUS_VAR(status);
 
-    status |= r->impl()->setIndices(xRowCount);
+    status |= r->impl()->resetIndices(xRowCount);
     DAAL_CHECK_STATUS_VAR(status);
     size_t * const indexes = static_cast<data_management::HomogenNumericTable<size_t> *>(r->impl()->getIndices().get())->getArray();
 
