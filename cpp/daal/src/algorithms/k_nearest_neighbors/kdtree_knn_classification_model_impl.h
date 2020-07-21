@@ -25,7 +25,7 @@
 #define __KDTREE_KNN_CLASSIFICATION_MODEL_IMPL_
 
 #include "algorithms/k_nearest_neighbors/kdtree_knn_classification_model.h"
-#include "services/service_data_utils.h"
+#include "src/services/service_data_utils.h"
 
 namespace daal
 {
