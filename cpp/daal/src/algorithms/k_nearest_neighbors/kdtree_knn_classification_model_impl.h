@@ -249,7 +249,7 @@ public:
 
         if (status.ok())
         {
-            const auto ptr = static_cast<size_t *>(_indices.get())->getArray();
+            const auto ptr = static_cast<IndicesNT *>(_indices.get())->getArray();
             for (size_t i = 0; i < nIndices; ++i)
             {
                 ptr[i] = i;
