@@ -26,7 +26,6 @@
 
 #include "algorithms/k_nearest_neighbors/kdtree_knn_classification_model.h"
 #include "src/services/service_data_utils.h"
-#include <iostream> // Temporary
 
 namespace daal
 {
@@ -250,16 +249,8 @@ public:
 
         if (status.ok())
         {
-            const auto ptr = static_cast<IndicesNT *>(_indices.get())->getArray();
-            // Temporary
-            if (!(nIndices <= services::internal::MaxVal<IndicesNT::baseDataType>::get()))
-            {
-                std::cout << "nIndices = " << nIndices << std::endl;
-                std::cout << "services::internal::MaxVal<IndicesNT::baseDataType>::get() = "
-                          << services::internal::MaxVal<IndicesNT::baseDataType>::get() << std::endl;
-            }
-            DAAL_ASSERT(nIndices <= services::internal::MaxVal<IndicesNT::baseDataType>::get());
-            for (IndicesNT::baseDataType i = 0; i < static_cast<IndicesNT::baseDataType>(nIndices); ++i)
+            const auto ptr = static_cast<size_t *>(_indices.get())->getArray();
+            for (size_t i = 0; i < nIndices; ++i)
             {
                 ptr[i] = i;
             }
