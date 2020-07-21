@@ -161,6 +161,7 @@ At the training stage, SVM classifier has the following parameters:
        For CPU:
 
         - ``defaultDense`` – Boser method [Boser92]_
+        - ``thunder`` - Thunder method [Wen2018]_
 
        For GPU:
 
@@ -170,7 +171,7 @@ At the training stage, SVM classifier has the following parameters:
      - :math:`2`
      - The number of classes.
    * - ``C``
-     - :math:`1`
+     - :math:`1.0`
      - The upper bound in conditions of the quadratic optimization problem.
    * - ``accuracyThreshold``
      - :math:`0.001`
@@ -248,13 +249,14 @@ Examples
   
     Batch Processing:
 
-    -  :java_example:`SVMTwoClassBoserDenseBatch.java <svm/SVMTwoClasBosersDenseBatch.java>`
+    -  :java_example:`SVMTwoClassBoserDenseBatch.java <svm/SVMTwoClassBoserDenseBatch.java>`
     -  :java_example:`SVMTwoClassBoserCSRBatch.java <svm/SVMTwoClassBoserCSRBatch.java>`
     -  :java_example:`SVMTwoClassThunderDenseBatch.java <svm/SVMTwoClassThunderDenseBatch.java>`
     -  :java_example:`SVMTwoClassThunderCSRBatch.java <svm/SVMTwoClassThunderCSRBatch.java>`
 
 .. Python*:
 
+.. -  sycl/svm_batch.py
 .. -  svm_two_class_dense_batch.py
 .. -  svm_two_class_csr_batch.py
 .. -  svm_two_class_metrics_dense_batch.py
@@ -275,5 +277,3 @@ required to store :math:`n^2` data elements because the algorithm
 does not fully utilize the cache in this case.
 
 .. include:: ../../../opt-notice.rst
-
-
