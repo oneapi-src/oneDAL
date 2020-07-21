@@ -288,7 +288,10 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
         auto par2 = dynamic_cast<const kdtree_knn_classification::interface2::Parameter *>(par);
         if (par2) k = par2->k;
 
-        if (par1 == NULL && par2 == NULL) return Status(ErrorNullParameterNotSupported);
+        const auto par3 = dynamic_cast<const kdtree_knn_classification::interface3::Parameter *>(par);
+        if (par3) k = par3->k;
+
+        if (par1 == NULL && par2 == NULL && par3 == NULL) return Status(ErrorNullParameterNotSupported);
     }
 
     const Model * const model    = static_cast<const Model *>(m);
