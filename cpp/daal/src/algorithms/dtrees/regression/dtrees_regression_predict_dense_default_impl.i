@@ -31,6 +31,7 @@
 #include "src/services/service_environment.h"
 #include "src/algorithms/dtrees/dtrees_predict_dense_default_impl.i"
 #include "src/services/service_algo_utils.h"
+#include <iostream>
 
 using namespace daal::internal;
 using namespace daal::services::internal;
@@ -104,21 +105,25 @@ services::Status PredictRegressionTaskBase<algorithmFPType, cpu>::run(services::
     {
         if (!s || host.isCancelled(s, 1)) return s;
         size_t nTreesToUse = ((iTree + dim.nTreesInBlock) < nTreesTotal ? dim.nTreesInBlock : (nTreesTotal - iTree));
+        std::cout << "LINE 107 (daal::threader_for)" << std::endl;
+        ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), 0, _data->getNumberOfRows());
         daal::threader_for(dim.nDataBlocks, dim.nDataBlocks, [&](size_t iBlock) {
             const size_t iStartRow      = iBlock * dim.nRowsInBlock;
             const size_t nRowsToProcess = (iBlock == dim.nDataBlocks - 1) ? dim.nRowsTotal - iBlock * dim.nRowsInBlock : dim.nRowsInBlock;
-            ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), iStartRow, nRowsToProcess);
+            std::cout << "LINE 110 (xBD)" << std::endl;
             DAAL_CHECK_BLOCK_STATUS_THR(xBD);
+            std::cout << "LINE 112 (resBD.get())" << std::endl;
             algorithmFPType * res = resBD.get() + iStartRow;
             if (nRowsToProcess < 2 * nThreads || cpu == __avx512_mic__)
             {
                 for (size_t iRow = 0; iRow < nRowsToProcess; ++iRow)
-                    res[iRow] += factor * predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols);
+                    res[iRow] += factor * predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols + iStartRow);
             }
             else
             {
+                std::cout << "LINE 120 (daal::threader_for)" << std::endl;
                 daal::threader_for(nRowsToProcess, nRowsToProcess,
-                                   [&](size_t iRow) { res[iRow] += factor * predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols); });
+                                   [&](size_t iRow) { res[iRow] += factor * predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols + iStartRow); });
             }
         });
         s = safeStat.detach();
