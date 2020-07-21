@@ -17,5 +17,89 @@
 Recommendation Systems Usage Model
 ==================================
 
-At this moment, the description the usage model is only available in
-`Developer Guide for Intel(R) DAAL <https://software.intel.com/en-us/daal-programming-guide-usage-model-training-and-prediction-2>`_.
+A typical workflow for methods of recommendation systems includes training and prediction, as explained below.
+
+Algorithm-Specific Parameters
+*****************************
+
+The parameters used by recommender algorithms at each stage depend on a specific algorithm.
+For a list of these parameters, refer to the description of an appropriate recommender algorithm.
+
+Training Stage
+**************
+
+.. image:: images/training-stage-recommendation-systems.png
+    :width: 600
+
+At the training stage, recommender algorithms accept the input described below.
+Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
+For more details, see :ref:`algorithms`.
+
+.. list-table::
+   :widths: 10 60
+   :header-rows: 1
+
+   * - Input ID
+     - Input
+   * - ``data``
+     - Pointer to the :math:`m \times n` numeric table with the mining data. 
+     
+       .. note::
+            
+            This table can be an object of any class derived from ``NumericTable``
+            except ``PackedTriangularMatrix`` and ``PackedSymmetricMatrix``.
+
+At the training stage, recommender algorithms calculate the result described below.
+Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
+For more details, see :ref:`algorithms`.
+
+.. list-table::
+   :widths: 10 60
+   :header-rows: 1
+
+   * - Result ID
+     - Result
+   * - ``model``
+     - Model with initialized item factors. 
+     
+       .. note:: The result can only be an object of the Model class.
+
+Prediction Stage
+****************
+
+.. image:: images/prediction-stage-recommendation-systems.png
+    :width: 600
+
+At the prediction stage, recommender algorithms accept the input described below.
+Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
+For more details, see :ref:`algorithms`.
+
+.. list-table::
+   :widths: 10 60
+   :header-rows: 1
+
+   * - Input ID
+     - Input
+   * - ``model``
+     - Model with initialized item factors. 
+     
+       .. note:: This input can only be an object of the ``Model`` class.
+
+At the prediction stage, recommender algorithms calculate the result described below.
+Pass the ``Result ID`` as a parameter to the methods that access the results of your algorithm.
+For more details, see :ref:`algorithms`.
+
+.. list-table::
+   :widths: 10 60
+   :header-rows: 1
+
+   * - Result ID
+     - Result
+   * - ``prediction``
+     - Pointer to the :math:`m \times n` numeric table with predicted ratings.
+     
+       .. note:: 
+       
+            By default, this table is an object of the ``HomogenNumericTable`` class,
+            but you can define it as an object of any class derived from ``NumericTable``
+            except ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``, and ``CSRNumericTable``.
