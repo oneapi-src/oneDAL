@@ -182,7 +182,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
      *  \param[in] dataUse              The option to enable/disable an usage of the input dataset in kNN model
      *  \param[in] resToCompute         64 bit integer flag that indicates the results to compute
      */
-    Parameter(size_t nClasses = 2, size_t nNeighbors = 1, int randomSeed = 777, DataUseInModel dataUse = doNotUse, resToCompute = 0,
+    Parameter(size_t nClasses = 2, size_t nNeighbors = 1, int randomSeed = 777, DataUseInModel dataUse = doNotUse, DAAL_UINT64 resToCompute = 0,
               VoteWeights vote = voteUniform)
         : daal::algorithms::classifier::Parameter(nClasses),
           k(nNeighbors),
