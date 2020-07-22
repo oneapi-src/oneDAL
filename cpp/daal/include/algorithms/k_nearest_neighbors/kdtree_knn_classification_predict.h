@@ -328,7 +328,7 @@ public:
 
     typedef algorithms::kdtree_knn_classification::prediction::Input InputType;
     typedef algorithms::kdtree_knn_classification::Parameter ParameterType;
-    typedef algorithms::kdtree_knn_classification::Result ResultType;
+    typedef algorithms::kdtree_knn_classification::prediction::Result ResultType;
 
     InputType input;         /*!< %Input data structure */
     ParameterType parameter; /*!< \ref kdtree_knn_classification::interface3::Parameter "Parameters" of prediction */
