@@ -51,19 +51,21 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 
     const size_t nRows = (static_cast<const classifier::prediction::InputIface *>(input))->getNumberOfRows();
 
-    if (par->resultsToEvaluate & computeClassLabels)
+    if (par->resultsToEvaluate & classifier::computeClassLabels)
     {
-        set(prediction, data_management::HomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTableIface::doAllocate, 0, &s));
+        set(prediction,
+            data_management::HomogenNumericTable<algorithmFPType>::create(1, nRows, data_management::NumericTableIface::doAllocate, 0, &s));
     }
 
     if (s.ok() && (par->resultsToCompute & computeIndicesOfNeightbors))
     {
-        set(indices, data_management::HomogenNumericTable<size_t>::create(par->k, nRows, NumericTableIface::doAllocate, 0, &s));
+        set(indices, data_management::HomogenNumericTable<size_t>::create(par->k, nRows, data_management::NumericTableIface::doAllocate, 0, &s));
     }
 
     if (s.ok() && (par->resultsToCompute & computeDistances))
     {
-        set(distances, data_management::HomogenNumericTable<algorithmFPType>::create(par->k, nRows, NumericTableIface::doAllocate, 0, &s));
+        set(distances,
+            data_management::HomogenNumericTable<algorithmFPType>::create(par->k, nRows, data_management::NumericTableIface::doAllocate, 0, &s));
     }
 
     return s;
