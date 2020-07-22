@@ -1,4 +1,4 @@
-/* file: kdtree_knn_classification_predict_dense_default_batch_container.h */
+/* file: kdtree_knn_classification_predict_dense_default_batch_container_v2.h */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -21,6 +21,9 @@
 //  architectures.
 //--
 */
+
+#ifndef __KDTREE_KNN_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_CONTAINER_V2_H__
+#define __KDTREE_KNN_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_CONTAINER_V2_H__
 
 #include "algorithms/k_nearest_neighbors/kdtree_knn_classification_predict.h"
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_predict_dense_default_batch.h"
@@ -69,3 +72,5 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 } // namespace kdtree_knn_classification
 } // namespace algorithms
 } // namespace daal
+
+#endif

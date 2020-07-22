@@ -1,4 +1,4 @@
-/* file: kdtree_knn_classification_model_impl_v1.cpp */
+/* file: kdtree_knn_classification_model_impl_v2.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *

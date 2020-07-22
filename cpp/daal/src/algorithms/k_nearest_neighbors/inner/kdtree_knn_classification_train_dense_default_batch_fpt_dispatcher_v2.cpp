@@ -1,4 +1,4 @@
-/* file: kdtree_knn_classification_train_dense_default_batch_fpt_dispatcher.cpp */
+/* file: kdtree_knn_classification_train_dense_default_batch_fpt_dispatcher_v2.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -21,7 +21,7 @@
 //--
 */
 
-#include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_train_container.h"
+#include "src/algorithms/k_nearest_neighbors/inner/kdtree_knn_classification_train_container_v2.h"
 
 namespace daal
 {

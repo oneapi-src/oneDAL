@@ -1,4 +1,4 @@
-/* file: kdtree_knn_classification_train_container.h */
+/* file: kdtree_knn_classification_train_container_v2.h */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __KDTREE_KNN_CLASSIFICATION_TRAIN_CONTAINER_H__
-#define __KDTREE_KNN_CLASSIFICATION_TRAIN_CONTAINER_H__
+#ifndef __KDTREE_KNN_CLASSIFICATION_TRAIN_CONTAINER_V2_H__
+#define __KDTREE_KNN_CLASSIFICATION_TRAIN_CONTAINER_V2_H__
 
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
