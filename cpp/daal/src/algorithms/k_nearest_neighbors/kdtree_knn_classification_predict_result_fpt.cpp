@@ -31,7 +31,8 @@ namespace kdtree_knn_classification
 {
 namespace prediction
 {
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const Parameter * parameter, int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, int method);
 } // namespace prediction
 } // namespace kdtree_knn_classification
 } // namespace algorithms
