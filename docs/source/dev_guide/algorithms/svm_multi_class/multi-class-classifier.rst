@@ -212,8 +212,8 @@ Examples
     -  :java_example:`SVMMultiClassThunderCSRBatch.java <svm/SVMMultiClassThunderCSRBatch.java>`
     -  :java_example:`SVMMultiClassThunderDenseBatch.java <svm/SVMMultiClassThunderDenseBatch.java>`
 
-.. Python*:
+  .. tab:: Python*:
 
-.. -  svm_multi_class_dense_batch.py
-.. -  svm_multi_class_csr_batch.py
-.. -  svm_multi_class_metrics_dense_batch.py
+    Batch Processing:
+
+    -  :daal4py_example:`svm_multiclass_batch.py`
