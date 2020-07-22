@@ -33,6 +33,7 @@
 #define __DAAL_BRNG_MT19937                   VSL_BRNG_MT19937
 #define __DAAL_BRNG_MCG59                     VSL_BRNG_MCG59
 #define __DAAL_RNG_METHOD_UNIFORM_STD         VSL_RNG_METHOD_UNIFORM_STD
+#define __DAAL_RNG_METHOD_UNIFORMBITS32_STD   0
 #define __DAAL_RNG_METHOD_BERNOULLI_ICDF      VSL_RNG_METHOD_BERNOULLI_ICDF
 #define __DAAL_RNG_METHOD_GAUSSIAN_BOXMULLER  VSL_RNG_METHOD_GAUSSIAN_BOXMULLER
 #define __DAAL_RNG_METHOD_GAUSSIAN_BOXMULLER2 VSL_RNG_METHOD_GAUSSIAN_BOXMULLER2
@@ -189,6 +190,16 @@ int uniformRNG(const size_t n, double * r, void * stream, const double a, const 
     int nn      = (int)n;
     double * rr = r;
     __DAAL_VSLFN_CALL_NR_WHILE(fpk_vsl_kernel, dRngUniform, (method, stream, nn, rr, a, b), errcode);
+    return errcode;
+}
+
+template <CpuType cpu>
+int uniformBits32RNG(const size_t n, unsigned int * r, void * stream, const int method)
+{
+    int errcode       = 0;
+    int nn            = (int)n;
+    unsigned int * rr = r;
+    __DAAL_VSLFN_CALL_NR_WHILE(fpk_vsl_kernel, iRngUniformBits32, (method, stream, nn, rr), errcode);
     return errcode;
 }
 
@@ -360,6 +371,8 @@ public:
     {
         return uniformRNG<cpu>(n, r, state, a, b, method);
     }
+
+    int uniformBits32(const SizeType n, Type * r, void * state, const int method) { return uniformBits32RNG<cpu>(n, r, state, method); }
 
     int bernoulli(const SizeType n, Type * r, BaseType & brng, const double p, const int method)
     {
