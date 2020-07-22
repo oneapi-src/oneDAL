@@ -212,7 +212,7 @@ Examples
     -  :java_example:`SVMMultiClassThunderCSRBatch.java <svm/SVMMultiClassThunderCSRBatch.java>`
     -  :java_example:`SVMMultiClassThunderDenseBatch.java <svm/SVMMultiClassThunderDenseBatch.java>`
 
-  .. tab:: Python*:
+  .. tab:: Python*
 
     Batch Processing:
 

@@ -254,12 +254,12 @@ Examples
     -  :java_example:`SVMTwoClassThunderDenseBatch.java <svm/SVMTwoClassThunderDenseBatch.java>`
     -  :java_example:`SVMTwoClassThunderCSRBatch.java <svm/SVMTwoClassThunderCSRBatch.java>`
 
-  .. tab:: Python*:
+  .. tab:: Python*
 
     Batch Processing:
 
     -  :daal4py_example:`svm_batch.py`
-    -  :daal4py_example:`<sycl/svm_batch.py>`
+    -  :daal4py_example:`sycl/svm_batch.py`
 
 Performance Considerations
 **************************
