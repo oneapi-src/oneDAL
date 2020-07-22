@@ -162,6 +162,8 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
+    using classifier::prediction::Result::check;
+
     /** \private */
     services::Status checkImpl(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter) const;
 
