@@ -49,7 +49,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     const Parameter * const par = static_cast<const Parameter *>(parameter);
     DAAL_CHECK(par, services::ErrorNullParameterNotSupported);
 
-    const size_t nRows = (static_cast<const InputIface *>(input))->getNumberOfRows();
+    const size_t nRows = (static_cast<const classifier::prediction::InputIface *>(input))->getNumberOfRows();
 
     if (par->resultsToEvaluate & computeClassLabels)
     {
