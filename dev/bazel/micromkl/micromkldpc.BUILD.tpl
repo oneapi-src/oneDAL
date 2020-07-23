@@ -3,7 +3,7 @@ load("@onedal//dev/bazel:cc.bzl", "cc_module")
 
 cc_module(
     name = "headers",
-    hdrs = glob(["include/*.h"]),
+    hdrs = glob(["include/*.h", "include/*.hpp"]),
     system_includes = [ "include" ],
 )
 

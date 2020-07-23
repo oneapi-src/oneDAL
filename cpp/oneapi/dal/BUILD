@@ -29,7 +29,7 @@ dal_module(
         "@onedal//cpp/oneapi/dal/data",
         "@onedal//cpp/oneapi/dal/util",
         "@micromkl_dpc//:mkl_dpc",
-    ]
+    ],
 )
 
 dal_static_lib(
@@ -46,8 +46,10 @@ dal_static_lib(
         "@onedal//cpp/oneapi/dal/algo:pca",
         "@onedal//cpp/oneapi/dal/algo:rbf_kernel",
         "@onedal//cpp/oneapi/dal/algo:svm",
+    ],
+    external_deps = [
         "@micromkl//:mkl_seq",
-    ]
+    ],
 )
 
 filegroup(

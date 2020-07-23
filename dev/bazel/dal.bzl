@@ -38,13 +38,13 @@ def dal_module(name, features=[], hdrs=[], srcs=[],
         )
 
 def dal_static_lib(name, lib_name, host=True, dpc=False, deps=[],
-                   lib_tags=["dal"], **kwargs):
+                   lib_tags=["dal"], external_deps=[], **kwargs):
     if host:
         cc_static_lib(
             name = name,
             lib_name = lib_name,
             lib_tags = lib_tags,
-            deps = deps,
+            deps = deps + external_deps,
             **kwargs
         )
     if dpc:
@@ -52,7 +52,7 @@ def dal_static_lib(name, lib_name, host=True, dpc=False, deps=[],
             name = name + "_dpc",
             lib_name = lib_name + "_dpc",
             lib_tags = lib_tags,
-            deps = [ d + "_dpc" for d in deps ],
+            deps = [ d + "_dpc" for d in deps ] + external_deps,
             **kwargs
         )
 
