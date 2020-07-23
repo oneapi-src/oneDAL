@@ -51,17 +51,19 @@ template <typename algorithmFpType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 {
     const classifier::prediction::Input * const input = static_cast<const classifier::prediction::Input *>(_in);
-    classifier::prediction::Result * const result     = static_cast<classifier::prediction::Result *>(_res);
+    Result * const result                             = static_cast<Result *>(_res);
 
-    const data_management::NumericTableConstPtr a = input->get(classifier::prediction::data);
-    const classifier::ModelConstPtr m             = input->get(classifier::prediction::model);
-    const data_management::NumericTablePtr r      = result->get(classifier::prediction::prediction);
+    const data_management::NumericTableConstPtr a    = input->get(classifier::prediction::data);
+    const classifier::ModelConstPtr m                = input->get(classifier::prediction::model);
+    const data_management::NumericTablePtr r         = result->get(classifier::prediction::prediction);
+    const data_management::NumericTablePtr indices   = result->get(classifier::prediction::indices);
+    const data_management::NumericTablePtr distances = result->get(classifier::prediction::distances);
 
     const daal::algorithms::Parameter * const par = _par;
     daal::services::Environment::env & env        = *_env;
 
     __DAAL_CALL_KERNEL(env, internal::KNNClassificationPredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType, method), compute, a.get(), m.get(),
-                       r.get(), par);
+                       r.get(), indices.get(), distances.get(), par);
 }
 
 } // namespace interface3
