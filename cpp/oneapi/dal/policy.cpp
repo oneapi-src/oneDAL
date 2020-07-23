@@ -23,7 +23,6 @@ class detail::host_policy_impl : public base {
 public:
     cpu_extension cpu_extensions_mask = backend::interop::detect_top_cpu_extension();
 };
-
 using detail::host_policy_impl;
 
 host_policy::host_policy() : impl_(new host_policy_impl()) {}
@@ -35,5 +34,22 @@ void host_policy::set_enabled_cpu_extensions_impl(const cpu_extension& extension
 cpu_extension host_policy::get_enabled_cpu_extensions() const noexcept {
     return impl_->cpu_extensions_mask;
 }
+
+#ifdef ONEAPI_DAL_DATA_PARALLEL
+class detail::data_parallel_policy_impl : public base {
+public:
+    explicit data_parallel_policy_impl(const sycl::queue& queue) : queue(queue) {}
+
+    sycl::queue queue;
+};
+using detail::data_parallel_policy_impl;
+
+data_parallel_policy::data_parallel_policy(const sycl::queue& queue)
+        : impl_(new data_parallel_policy_impl(queue)) {}
+
+sycl::queue& data_parallel_policy::get_queue() const noexcept {
+    return impl_->queue;
+}
+#endif
 
 } // namespace oneapi::dal

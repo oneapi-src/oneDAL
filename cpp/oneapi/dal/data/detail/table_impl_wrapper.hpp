@@ -16,8 +16,7 @@
 
 #pragma once
 
-#include "oneapi/dal/data/detail/access_wrapper_dpc.hpp"
-#include "oneapi/dal/data/detail/access_wrapper_host.hpp"
+#include "oneapi/dal/data/detail/access_wrapper.hpp"
 #include "oneapi/dal/data/detail/table_impl_iface.hpp"
 
 namespace oneapi::dal::detail {
