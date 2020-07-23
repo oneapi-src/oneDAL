@@ -55,9 +55,9 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 
     const data_management::NumericTableConstPtr a    = input->get(classifier::prediction::data);
     const classifier::ModelConstPtr m                = input->get(classifier::prediction::model);
-    const data_management::NumericTablePtr r         = result->get(classifier::prediction::prediction);
-    const data_management::NumericTablePtr indices   = result->get(classifier::prediction::indices);
-    const data_management::NumericTablePtr distances = result->get(classifier::prediction::distances);
+    const data_management::NumericTablePtr r         = result->get(prediction);
+    const data_management::NumericTablePtr indices   = result->get(indices);
+    const data_management::NumericTablePtr distances = result->get(distances);
 
     const daal::algorithms::Parameter * const par = _par;
     daal::services::Environment::env & env        = *_env;
