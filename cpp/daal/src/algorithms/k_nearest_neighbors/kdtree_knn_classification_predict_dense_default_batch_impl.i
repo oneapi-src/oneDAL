@@ -593,12 +593,12 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
 
         for (size_t i = 0; i < heapSize; ++i)
         {
-            s |= modelIndices->getBlockOfRows(heap[i].index, 1, readOnly, modelIndicesBD);
+            s |= const_cast<NumericTable *>(modelIndices)->getBlockOfRows(heap[i].index, 1, readOnly, modelIndicesBD);
             DAAL_ASSERT(s.ok());
 
             indicesPtr[i] = *(modelIndicesBD.getBlockPtr());
 
-            s |= modelIndices->releaseBlockOfRows(modelIndicesBD);
+            s |= const_cast<NumericTable *>(modelIndices)->releaseBlockOfRows(modelIndicesBD);
             DAAL_ASSERT(s.ok());
         }
 
@@ -665,7 +665,7 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
     {
         DAAL_ASSERT(voteWeights == voteDistance);
 
-        const algorithmFPType epsilon = daal::services::internal::EpsilonVal<algorithmFPType>::get();
+        const algorithmFpType epsilon = daal::services::internal::EpsilonVal<algorithmFPType>::get();
 
         bool isContainZero = false;
 
