@@ -307,7 +307,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     const NumericTable & data    = *(model->impl()->getData());
     const NumericTable & labels  = *(model->impl()->getLabels());
 
-    const NumericTable * const modelIndices = model->impl()->getIndices();
+    const NumericTable * const modelIndices = model->impl()->getIndices().get();
 
     size_t iSize = 1;
     while (iSize < k)
@@ -400,7 +400,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
             services::Status s;
             if (indices)
             {
-                s | = indices->releaseBlockOfRows(indicesBD);
+                s |= indices->releaseBlockOfRows(indicesBD);
             }
             DAAL_CHECK_STATUS_THR(s);
             if (distances)
@@ -611,7 +611,11 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
     if (distances.getNumberOfRows() != 0)
     {
         services::Status s;
-        algorithmFpType * const distancesPtr = distances.getBlockPtr() + index * distances.getNumberOfColumns();
+
+        const auto nDistances = distances.getNumberOfColumns();
+        DAAL_ASSERT(heapSize <= nDistances);
+
+        algorithmFpType * const distancesPtr = distances.getBlockPtr() + index * nDistances;
         for (size_t i = 0; i < heapSize; ++i)
         {
             distancesPtr[i] = heap[i].distance;
@@ -619,7 +623,7 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
 
         Math::vSqrt(heapSize, distancesPtr, distancesPtr);
 
-        for (size_t i = heapSize; i < nIndices; ++i)
+        for (size_t i = heapSize; i < nDistances; ++i)
         {
             distancesPtr[i] = -1;
         }
@@ -665,7 +669,7 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
     {
         DAAL_ASSERT(voteWeights == voteDistance);
 
-        const algorithmFpType epsilon = daal::services::internal::EpsilonVal<algorithmFPType>::get();
+        const algorithmFpType epsilon = daal::services::internal::EpsilonVal<algorithmFpType>::get();
 
         bool isContainZero = false;
 
