@@ -64,7 +64,7 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     daal::services::Environment::env & env        = *_env;
 
     __DAAL_CALL_KERNEL(env, internal::KNNClassificationPredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType, method), compute, a.get(), m.get(),
-                       r.get(), par);
+                       r.get(), nullptr, nullptr, par);
 }
 
 } // namespace interface1
