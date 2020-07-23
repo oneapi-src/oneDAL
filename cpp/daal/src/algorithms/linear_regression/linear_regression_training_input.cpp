@@ -90,7 +90,7 @@ services::Status Input::check(const daal::algorithms::Parameter * par, int metho
     size_t nColumnsInData     = dataTable->getNumberOfColumns();
     if (method == normEqDense)
     {
-        DAAL_CHECK(nRowsInData >= nColumnsInData + (int)(parameter->interceptFlag == true), ErrorIncorrectNumberOfRows);
+        DAAL_CHECK(nRowsInData >= nColumnsInData, ErrorIncorrectNumberOfRows);
     }
     else
     {
