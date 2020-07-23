@@ -53,14 +53,17 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     const classifier::prediction::Input * const input = static_cast<const classifier::prediction::Input *>(_in);
     Result * const result                             = static_cast<Result *>(_res);
 
-    const data_management::NumericTableConstPtr a    = input->get(classifier::prediction::data);
-    const classifier::ModelConstPtr m                = input->get(classifier::prediction::model);
-    const data_management::NumericTablePtr r         = result->get(prediction::prediction);
-    const data_management::NumericTablePtr indices   = result->get(prediction::indices);
-    const data_management::NumericTablePtr distances = result->get(prediction::distances);
+    const data_management::NumericTableConstPtr a = input->get(classifier::prediction::data);
+    const classifier::ModelConstPtr m             = input->get(classifier::prediction::model);
+    const data_management::NumericTablePtr r      = result->get(prediction::prediction);
 
-    const daal::algorithms::Parameter * const par = _par;
-    daal::services::Environment::env & env        = *_env;
+    const Parameter * const par = _par;
+
+    const data_management::NumericTablePtr indices =
+        (par->resultsToCompute & computeIndicesOfNeightbors) ? result->get(prediction::indices) : nullptr;
+    const data_management::NumericTablePtr distances = (par->resultsToCompute & computeDistances) ? result->get(prediction::distances) : nullptr;
+
+    daal::services::Environment::env & env = *_env;
 
     __DAAL_CALL_KERNEL(env, internal::KNNClassificationPredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType, method), compute, a.get(), m.get(),
                        r.get(), indices.get(), distances.get(), par);
