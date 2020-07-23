@@ -15,3 +15,18 @@
 .. *******************************************************************************/
 
 
+Static debug configuration not working
+**************************************
+
+On Windows*, the static debug configuration of the library does not work. 
+An example of the error you will see:
+
+.. code-block:: text
+
+    onedal_core.lib(apriori_batch_fpt_flt.obj) : : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MT_StaticRelease' doesn't match value 'MTd_StaticDebug' in assoc_rules_apriori_batch.obj
+
+How to Fix
+----------
+
+Use the dynamic version of the library for debug purposes.
+
