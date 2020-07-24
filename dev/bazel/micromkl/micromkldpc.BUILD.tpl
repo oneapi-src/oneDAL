@@ -10,7 +10,7 @@ cc_module(
 cc_module(
     name = "mkl_dpc",
     libs = [
-        "libdaal_sycl.a",
+        "lib/intel64/libdaal_sycl.a",
     ],
     deps = [
         ":headers",

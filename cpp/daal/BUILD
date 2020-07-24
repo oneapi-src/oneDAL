@@ -2,9 +2,9 @@ package(default_visibility = ["//visibility:public"])
 load("@onedal//dev/bazel:cc.bzl", "cc_module")
 
 cc_module(
-    name = "all_headers",
+    name = "includes",
     # TODO: Remove *.i and *.cl
-    hdrs = glob(["**/*.h", "**/*.i", "**/*.cl"]),
+    hdrs = glob(["include/**/*.h"]),
     system_includes = [ ".", "include" ],
     defines = [
         "__TBB_NO_IMPLICIT_LINKAGE",
