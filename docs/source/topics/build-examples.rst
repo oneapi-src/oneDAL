@@ -77,12 +77,11 @@ basic usage scenarios of |short_name| with SYCL*. Go to
 
         /env/vars.bat
 
-2. Copy ``./examples/cpp_sycl`` to a writable directory if necessary:
+2. Copy ``./examples/daal/cpp_sycl`` to a writable directory if necessary (since it creates temporary files):
 
   .. prompt:: bash
 
-    # If necessary, copy ./examples/cpp_sycl to a writable directory (since it creates temporary files)
-    cp –r ./examples/cpp_sycl ${WRITABLE_DIR}
+    cp –r ./examples/daal/cpp_sycl ${WRITABLE_DIR}
 
 3. Set up the compiler environment for |dpcpp|.
    See |dpcpp_gsg|_ for details.
@@ -93,7 +92,7 @@ basic usage scenarios of |short_name| with SYCL*. Go to
 
     You need to have write permissions to the :file:`examples` folder
     to build examples, and execute permissions to run them.
-    Otherwise, you need to copy :file:`cpp_sycl` and :file:`data` folders
+    Otherwise, you need to copy :file:`examples/daal/cpp_sycl` and :file:`examples/daal/data` folders
     to the directory with right permissions. These two folders must be retained
     in the same directory level relative to each other.
 
@@ -104,7 +103,7 @@ basic usage scenarios of |short_name| with SYCL*. Go to
       .. prompt:: bash
 
         # Navigate to DPC++ examples directory and build examples
-        cd /examples/cpp_sycl
+        cd /examples/daal/cpp_sycl
         make sointel64 example=cor_dense_batch # This will compile and run Correlation example using Intel(R) oneAPI DPC++ Compiler
         make sointel64 mode=build			   # This will compile all DPC++ examples
 
@@ -113,7 +112,7 @@ basic usage scenarios of |short_name| with SYCL*. Go to
       .. prompt:: bash
 
         # Navigate to DPC++ examples directory and build examples
-        cd /examples/cpp_sycl
+        cd /examples/daal/cpp_sycl
         nmake libintel64 example=cor_dense_batch+ # This will compile and run Correlation example using Intel(R) oneAPI DPC++ compiler
         nmake libintel64 mode=build			     # This will compile all DPC++ examples
 
@@ -123,10 +122,10 @@ basic usage scenarios of |short_name| with SYCL*. Go to
 
   .. note::
 
-    You should run DPC++ examples from :file:`cpp_sycl` folder, not from :file:`_results` folder.
-    Most examples require data to be stored in :file:`examples\\data` folder and to have a relative link to it
-    started from :file:`cpp_sycl` folder.
+    You should run DPC++ examples from :file:`examples/daal/cpp_sycl` folder, not from :file:`_results` folder.
+    Most examples require data to be stored in :file:`examples/daal/data` folder and to have a relative link to it
+    started from :file:`examples/daal/cpp_sycl` folder.
 
 
-  You can build traditional C++ examples located in ``examples/cpp`` folder in a similar way.
+  You can build traditional C++ examples located in ``examples/daal/cpp`` folder in a similar way.
 
