@@ -136,3 +136,10 @@ Examples
     Batch Processing:
 
     - :java_example:`PCATransformDenseBatch.java <pca_transform/PCATransformDenseBatch.java>`
+
+  .. tab:: Python*
+
+    Batch Processing:
+
+    - :daal4py_example:`sycl/pca_transform_batch.py`
+    - :daal4py_example:`pca_transform_batch.py`
