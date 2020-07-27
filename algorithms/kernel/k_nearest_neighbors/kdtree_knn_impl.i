@@ -71,12 +71,6 @@ inline const T & min(const T & a, const T & b)
     return !(b < a) ? a : b;
 }
 
-template <CpuType cpu, typename T>
-inline const T & max(const T & a, const T & b)
-{
-    return (a < b) ? b : a;
-}
-
 template <typename T, CpuType cpu>
 class Stack
 {
@@ -91,10 +85,11 @@ public:
 
     bool init(size_t size)
     {
-        _data = static_cast<T *>(services::internal::service_malloc<T, cpu>(size * sizeof(T)));
-        _size = size;
-        _top = _sizeMinus1 = size - 1;
-        _count             = 0;
+        _data       = static_cast<T *>(services::internal::service_malloc<T, cpu>(size));
+        _size       = size;
+        _sizeMinus1 = size - 1;
+        _top        = -1;
+        _count      = 0;
         return _data;
     }
 
@@ -109,21 +104,21 @@ public:
 
     void reset()
     {
-        _top   = _sizeMinus1;
+        _top   = -1;
         _count = 0;
     }
 
     DAAL_FORCEINLINE services::Status push(const T & value)
     {
         services::Status status;
+
         if (_count >= _size)
         {
             status = grow();
             DAAL_CHECK_STATUS_VAR(status)
         }
 
-        _top        = (_top + 1) & _sizeMinus1;
-        _data[_top] = value;
+        _data[++_top] = value;
         ++_count;
 
         return status;
@@ -132,7 +127,6 @@ public:
     DAAL_FORCEINLINE T pop()
     {
         const T value = _data[_top--];
-        _top          = _top & _sizeMinus1;
         --_count;
         return value;
     }
@@ -144,12 +138,8 @@ public:
     services::Status grow()
     {
         _size *= 2;
-        T * const newData = static_cast<T *>(services::internal::service_malloc<T, cpu>(_size * sizeof(T)));
+        T * const newData = static_cast<T *>(services::internal::service_malloc<T, cpu>(_size));
         DAAL_CHECK_MALLOC(newData)
-        if (_top == _sizeMinus1)
-        {
-            _top = _size - 1;
-        }
         _sizeMinus1 = _size - 1;
         int result  = services::internal::daal_memcpy_s(newData, _size * sizeof(T), _data, _count * sizeof(T));
         T * oldData = _data;
@@ -166,6 +156,13 @@ private:
     size_t _size;
     size_t _sizeMinus1;
 };
+
+} // namespace internal
+} // namespace kdtree_knn_classification
+} // namespace algorithms
+} // namespace daal
+
+#endif
 
 } // namespace internal
 } // namespace kdtree_knn_classification
