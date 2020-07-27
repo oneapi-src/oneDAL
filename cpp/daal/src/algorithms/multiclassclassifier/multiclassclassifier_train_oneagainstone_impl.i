@@ -165,13 +165,15 @@ Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, ClsType, 
         daal::algorithms::internal::qSort<size_t, size_t, cpu>(nClasses, classDataSize, classIndex);
         const auto idx1 = classIndex[nClasses - 1], idx2 = classIndex[nClasses - 2];
         dataSize = classNonZeroValuesCount[idx1] + classNonZeroValuesCount[idx2];
+        daal::algorithms::internal::qSort<size_t, cpu>(nClasses, classLabelsCount);
+        nSubsetVectors = classLabelsCount[nClasses - 1] + classLabelsCount[nClasses - 2];
     }
     else
     {
-        dataSize = nFeatures * nSubsetVectors;
+        daal::algorithms::internal::qSort<size_t, cpu>(nClasses, classLabelsCount);
+        nSubsetVectors = classLabelsCount[nClasses - 1] + classLabelsCount[nClasses - 2];
+        dataSize       = nFeatures * nSubsetVectors;
     }
-    daal::algorithms::internal::qSort<size_t, cpu>(nClasses, classLabelsCount);
-    nSubsetVectors = classLabelsCount[nClasses - 1] + classLabelsCount[nClasses - 2];
 
     return Status();
 }
