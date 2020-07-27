@@ -97,7 +97,7 @@ protected:
         if (_weights)
         {
             _subsetW.reset(nSubsetVectors);
-            // _subsetWTable = HomogenNT::create(_subsetW.get(), 1, nSubsetVectors, &status);
+            _subsetWTable = HomogenNT::create(_subsetW.get(), 1, nSubsetVectors, &status);
         }
 
         if (!status) return;
