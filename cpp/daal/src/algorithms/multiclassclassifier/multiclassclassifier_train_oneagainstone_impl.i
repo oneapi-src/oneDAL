@@ -133,7 +133,8 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
 
 template <typename algorithmFPType, typename ClsType, typename MccParType, CpuType cpu>
 Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, ClsType, MccParType, cpu>::computeDataSize(
-    size_t nVectors, size_t nFeatures, size_t nClasses, const NumericTable * xTable, const algorithmFPType * y, size_t & nSubsetVectors, size_t & dataSize)
+    size_t nVectors, size_t nFeatures, size_t nClasses, const NumericTable * xTable, const algorithmFPType * y, size_t & nSubsetVectors,
+    size_t & dataSize)
 {
     TArray<size_t, cpu> buffer(4 * nClasses);
     DAAL_CHECK_MALLOC(buffer.get());
@@ -163,11 +164,11 @@ Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, ClsType, 
 
         daal::algorithms::internal::qSort<size_t, size_t, cpu>(nClasses, classDataSize, classIndex);
         const auto idx1 = classIndex[nClasses - 1], idx2 = classIndex[nClasses - 2];
-        dataSize       = classNonZeroValuesCount[idx1] + classNonZeroValuesCount[idx2];
+        dataSize = classNonZeroValuesCount[idx1] + classNonZeroValuesCount[idx2];
     }
     else
     {
-        dataSize       = nFeatures * nSubsetVectors;
+        dataSize = nFeatures * nSubsetVectors;
     }
     daal::algorithms::internal::qSort<size_t, cpu>(nClasses, classLabelsCount);
     nSubsetVectors = classLabelsCount[nClasses - 1] + classLabelsCount[nClasses - 2];

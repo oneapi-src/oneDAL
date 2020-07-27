@@ -52,7 +52,8 @@ public:
     DAAL_NEW_DELETE();
     virtual ~SubTask() {}
 
-    services::Status getDataSubset(size_t nFeatures, size_t nVectors, int classIdxPositive, int classIdxNegative, const algorithmFPType * y, size_t & nRows)
+    services::Status getDataSubset(size_t nFeatures, size_t nVectors, int classIdxPositive, int classIdxNegative, const algorithmFPType * y,
+                                   size_t & nRows)
     {
         nRows = 0;
         /* Prepare "positive" observations of the training subset */
