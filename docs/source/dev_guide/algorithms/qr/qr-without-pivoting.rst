@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2014-2020 Intel Corporation
+.. * Copyright 2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -32,16 +32,46 @@ The library requires :math:`n > p`. In this case:
 
 where the matrix :math:`Q_1` has the size :math:`n \times p` and :math:`R_1` has the size :math:`p \times p`.
 
-Batch and Online Processing
-***************************
+Computation
+***********
 
-At this moment, the description of 
-`batch and online processing for QR Decomposition without Pivoting <https://software.intel.com/en-us/daal-programming-guide-batch-and-online-processing-1>`_
-is only available in Developer Guide for Intel(R) DAAL.
+The following computation modes are available:
 
-Distributed Processing
-**********************
+.. toctree::
+   :maxdepth: 1
+   
+   without-pivoting/computation-batch-online.rst
+   without-pivoting/computation-distributed.rst
 
-At this moment, the description of 
-`distributed processing for QR Decomposition without Pivoting <https://software.intel.com/en-us/daal-programming-guide-distributed-processing-6>`_
-is only available in Developer Guide for Intel(R) DAAL.
+Examples
+********
+
+.. tabs::
+
+  .. tab:: C++
+
+    Batch Processing:
+
+    - :cpp_example:`qr_dense_batch.cpp <qr/qr_dense_batch.cpp>`
+
+    Online Processing:
+
+    - :cpp_example:`qr_dense_online.cpp <qr/qr_dense_online.cpp>`
+
+    Distributed Processing:
+
+    - :cpp_example:`qr_dense_distr.cpp <qr/qr_dense_distr.cpp>`
+
+  .. tab:: Java*
+
+    Batch Processing:
+
+    - :java_example:`QRDenseBatch.java <qr/QRDenseBatch.java>`
+
+    Online Processing:
+
+    - :java_example:`QRDenseOnline.java <qr/QRDenseOnline.java>`
+
+    Distributed Processing:
+
+    - :java_example:`QRDenseDistr.java <qr/QRDenseDistr.java>`
