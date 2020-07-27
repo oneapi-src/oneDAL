@@ -195,8 +195,4 @@ Examples
 
     .. tab:: C++
 
-        - :cpp_example:`sgd_log_loss_dense_batch.cpp <oprimization_solvers/sgd_log_loss_dense_batch.cpp>`
-
-    .. tab:: Java*
-
-        - :java_example:`SgdLogLossDenseBatch.java <optimization_solvers/SgdLogLossDenseBatch.java>`
+        - :cpp_example:`sgd_log_loss_dense_batch.cpp <optimization_solvers/sgd_log_loss_dense_batch.cpp>`

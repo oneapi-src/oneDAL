@@ -226,14 +226,14 @@ Examples
 
     .. tab:: C++
 
-        - :cpp_example:`adaboost_samme_two_class_dense_batch.cpp <boosting/adaboost_samme_two_class_dense_batch.cpp>`
-        - :cpp_example:`adaboost_sammer_two_class_dense_batch.cpp <boosting/adaboost_sammer_two_class_dense_batch.cpp>`
-        - :cpp_example:`adaboost_samme_multi_class_dense_batch.cpp <boosting/adaboost_samme_multi_class_dense_batch.cpp>`
-        - :cpp_example:`adaboost_sammer_multi_class_dense_batch.cpp <boosting/adaboost_sammer_multi_class_dense_batch.cpp>`
+        - :cpp_example:`adaboost_samme_two_class_batch.cpp <boosting/adaboost_samme_two_class_batch.cpp>`
+        - :cpp_example:`adaboost_sammer_two_class_batch.cpp <boosting/adaboost_sammer_two_class_batch.cpp>`
+        - :cpp_example:`adaboost_samme_multi_class_batch.cpp <boosting/adaboost_samme_multi_class_batch.cpp>`
+        - :cpp_example:`adaboost_sammer_multi_class_batch.cpp <boosting/adaboost_sammer_multi_class_batch.cpp>`
 
     .. tab:: Java*
 
-        - :java_example:`AdaBoostSammeTwoClassDenseBatch.java <boosting/AdaBoostSammeTwoClassDenseBatch.java>`
-        - :java_example:`AdaBoostSammerTwoClassDenseBatch.java <boosting/AdaBoostSammerTwoClassDenseBatch.java>`
-        - :java_example:`AdaBoostSammeMultiClassDenseBatch.java <boosting/AdaBoostSammeMultiClassDenseBatch.java>`
-        - :java_example:`AdaBoostSammerMultiClassDenseBatch.java <boosting/AdaBoostSammerMultiClassDenseBatch.java>`
+        - :java_example:`AdaBoostSammeTwoClassBatch.java <boosting/adaboost/AdaBoostSammeTwoClassBatch.java>`
+        - :java_example:`AdaBoostSammerTwoClassBatch.java <boosting/adaboost/AdaBoostSammerTwoClassBatch.java>`
+        - :java_example:`AdaBoostSammeMultiClassBatch.java <boosting/adaboost/AdaBoostSammeMultiClassBatch.java>`
+        - :java_example:`AdaBoostSammerMultiClassBatch.java <boosting/adaboost/AdaBoostSammerMultiClassBatch.java>`

@@ -183,4 +183,4 @@ Examples
     .. tab:: Java*
 
         - :java_example:`SAGADenseBatch.java <optimization_solvers/SAGADenseBatch.java>`
-        - :java_example:`SAGALogLossDenseBatch.java <optimization_solvers/SAGALogLossDenseBatch.java>`
+        - :java_example:`SAGALogisticLossDenseBatch.java <optimization_solvers/SAGALogisticLossDenseBatch.java>`

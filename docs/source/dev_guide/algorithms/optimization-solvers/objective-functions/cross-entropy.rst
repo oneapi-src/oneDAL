@@ -251,10 +251,6 @@ Examples
 
         - :cpp_example:`lbfgs_cr_entr_loss_dense_batch.cpp <optimization_solvers/lbfgs_cr_entr_loss_dense_batch.cpp>`
 
-    .. tab:: Java*
-
-        - :java_example:`LbfgsCrEntrLossDenseBatch.java <optimization_solvers/LbfgsCrEntrLossDenseBatch.java>`
-
     .. tab:: Python*
 
         - :daal4py_example:`lbfgs_cr_entr_loss_batch.py`

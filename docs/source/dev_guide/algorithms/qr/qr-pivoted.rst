@@ -133,10 +133,10 @@ Examples
 
     Batch Processing:
 
-    - :cpp_example:`pivoted_qr_dense_batch.cpp <qr/pivoted_qr_dense_batch.cpp>`
+    - :cpp_example:`pivoted_qr_dense_batch.cpp <pivoted_qr/pivoted_qr_dense_batch.cpp>`
 
   .. tab:: Java
 
     Batch Processing:
 
-    - :java_example:`PivotedQRDenseBatch.java <qr/PivotedQRDenseBatch.java>`
+    - :java_example:`PivotedQRDenseBatch.java <pivoted_qr/PivotedQRDenseBatch.java>`

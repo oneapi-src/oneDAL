@@ -119,4 +119,4 @@ Examples
 
     .. tab:: Java*
 
-        - :java_example:`CdDenseBatch.java <optimization_solvers/CdDenseBatch.java>`
+        - :java_example:`CDDenseBatch.java <optimization_solvers/CDDenseBatch.java>`
