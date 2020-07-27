@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _recommendation_system_usage_model:
+
 Recommendation Systems Usage Model
 ==================================
 
