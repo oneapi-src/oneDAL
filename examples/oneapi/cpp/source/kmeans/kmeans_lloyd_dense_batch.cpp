@@ -20,50 +20,40 @@
 using namespace oneapi;
 
 int main(int argc, char const *argv[]) {
-  constexpr std::int64_t row_count = 8;
-  constexpr std::int64_t column_count = 7;
-  constexpr std::int64_t cluster_count = 2;
+    constexpr std::int64_t row_count     = 8;
+    constexpr std::int64_t column_count  = 2;
+    constexpr std::int64_t cluster_count = 2;
 
-  const float data[] = {1.f, 2.f,  3.f, 4.f, 5.f, 6.f,  -5.f, 1.f, -1.f, 0.f,
-                        3.f, 1.f,  2.f, 3.f, 4.f, 5.f,  6.f,  1.f, 0.f,  0.f,
-                        0.f, 1.f,  2.f, 5.f, 2.f, 9.f,  3.f,  2.f, -4.f, 3.f,
-                        0.f, 4.f,  2.f, 7.f, 5.f, 4.f,  2.f,  0.f, -4.f, 0.f,
-                        3.f, -8.f, 2.f, 5.f, 5.f, -6.f, 3.f,  0.f, -9.f, 3.f,
-                        1.f, -3.f, 3.f, 5.f, 1.f, 7.f};
+    const float data[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
+                           -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
 
-  const float initial_centroids[] = {1.f, 2.f, 3.f, 4.f, 5.f, 6.f, -5.f,
-                                     1.f, 2.f, 5.f, 2.f, 9.f, 3.f, 2.f};
+    const float initial_centroids[] = { 0.0, 0.0, 0.0, 0.0 };
 
-  const auto data_table = dal::homogen_table{row_count, column_count, data};
-  const auto initial_centroids_table =
-      dal::homogen_table{cluster_count, column_count, initial_centroids};
+    const auto data_table = dal::homogen_table{ row_count, column_count, data };
+    const auto initial_centroids_table =
+        dal::homogen_table{ cluster_count, column_count, initial_centroids };
 
-  const auto kmeans_desc = dal::kmeans::descriptor<>()
-                               .set_cluster_count(cluster_count)
-                               .set_max_iteration_count(100)
-                               .set_accuracy_threshold(0.001);
+    const auto kmeans_desc = dal::kmeans::descriptor<>()
+                                 .set_cluster_count(cluster_count)
+                                 .set_max_iteration_count(100)
+                                 .set_accuracy_threshold(0.001);
 
-  const auto result_train =
-      dal::train(kmeans_desc, data_table, initial_centroids_table);
+    const auto result_train = dal::train(kmeans_desc, data_table, initial_centroids_table);
 
-  std::cout << "Iteration count: " << result_train.get_iteration_count()
-            << std::endl;
-  std::cout << "Objective function value: "
-            << result_train.get_objective_function_value() << std::endl;
-  std::cout << "Lables:" << std::endl << result_train.get_labels() << std::endl;
-  std::cout << "Centroids:" << std::endl
-            << result_train.get_model().get_centroids() << std::endl;
+    std::cout << "Iteration count: " << result_train.get_iteration_count() << std::endl;
+    std::cout << "Objective function value: " << result_train.get_objective_function_value()
+              << std::endl;
+    std::cout << "Lables:" << std::endl << result_train.get_labels() << std::endl;
+    std::cout << "Centroids:" << std::endl << result_train.get_model().get_centroids() << std::endl;
 
-  const float data_test[] = {1.f, 2.f, 5.f, 4.f, 0.f, 3.f, 1.f,
-                             2.f, 3.f, 1.f, 2.f, 9.f, 2.f, 2.f};
+    constexpr std::int64_t row_count_test = 2;
+    const float data_test[]               = { 10.0, 10.0, -10.0, -10.0 };
 
-  const auto data_test_table = dal::homogen_table{2, column_count, data_test};
+    const auto data_test_table = dal::homogen_table{ row_count_test, column_count, data_test };
 
-  const auto result_test =
-      dal::infer(kmeans_desc, result_train.get_model(), data_test_table);
+    const auto result_test = dal::infer(kmeans_desc, result_train.get_model(), data_test_table);
 
-  std::cout << "Infer result:" << std::endl
-            << result_test.get_labels() << std::endl;
+    std::cout << "Infer result:" << std::endl << result_test.get_labels() << std::endl;
 
-  return 0;
+    return 0;
 }

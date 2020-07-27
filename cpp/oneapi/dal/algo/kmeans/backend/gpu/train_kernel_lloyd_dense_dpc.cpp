@@ -77,9 +77,10 @@ struct train_kernel_gpu<Float, method::lloyd_dense> {
         array<int> arr_iteration_count            = array<int>::empty(queue, 1);
 
         const auto daal_initial_centroids =
-            interop::convert_to_daal_homogen_table(arr_initial_centroids,
-                                                   cluster_count,
-                                                   column_count);
+            interop::convert_to_daal_sycl_homogen_table(queue,
+                                                        arr_initial_centroids,
+                                                        cluster_count,
+                                                        column_count);
         const auto daal_centroids = interop::convert_to_daal_sycl_homogen_table(queue,
                                                                                 arr_centroids,
                                                                                 cluster_count,

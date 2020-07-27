@@ -27,41 +27,33 @@
 using namespace oneapi;
 
 void run(sycl::queue &queue) {
-  std::cout << "Running on "
-            << queue.get_device().get_info<sycl::info::device::name>()
-            << std::endl;
+    std::cout << "Running on " << queue.get_device().get_info<sycl::info::device::name>()
+              << std::endl;
 
-  constexpr std::int64_t row_count = 8;
-  constexpr std::int64_t column_count = 7;
-  constexpr std::int64_t cluster_count = 2;
+    constexpr std::int64_t row_count     = 8;
+    constexpr std::int64_t column_count  = 2;
+    constexpr std::int64_t cluster_count = 2;
 
-  const float data_host[] = {
-      1.f,  2.f, 3.f,  4.f,  5.f,  6.f,  -5.f, 1.f, -1.f, 0.f,  3.f, 1.f,
-      2.f,  3.f, 4.f,  5.f,  6.f,  1.f,  0.f,  0.f, 0.f,  1.f,  2.f, 5.f,
-      2.f,  9.f, 3.f,  2.f,  -4.f, 3.f,  0.f,  4.f, 2.f,  7.f,  5.f, 4.f,
-      2.f,  0.f, -4.f, 0.f,  3.f,  -8.f, 2.f,  5.f, 5.f,  -6.f, 3.f, 0.f,
-      -9.f, 3.f, 1.f,  -3.f, 3.f,  5.f,  1.f,  7.f};
+    const float data_host[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
+                                -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
 
-  auto data = sycl::malloc_shared<float>(row_count * column_count, queue);
-  queue.memcpy(data, data_host, sizeof(float) * row_count * column_count)
-      .wait();
-  const auto data_table = dal::homogen_table{row_count, column_count, data};
+    auto data = sycl::malloc_shared<float>(row_count * column_count, queue);
+    queue.memcpy(data, data_host, sizeof(float) * row_count * column_count).wait();
+    const auto data_table = dal::homogen_table{ row_count, column_count, data };
 
-  const auto kmeans_init_desc =
-      dal::kmeans_init::descriptor<>().set_cluster_count(cluster_count);
+    const auto kmeans_init_desc = dal::kmeans_init::descriptor<>().set_cluster_count(cluster_count);
 
-  const auto result = dal::train(queue, kmeans_init_desc, data_table);
+    const auto result = dal::train(queue, kmeans_init_desc, data_table);
 
-  std::cout << "Initial cetroids:" << std::endl
-            << result.get_centroids() << std::endl;
+    std::cout << "Initial cetroids:" << std::endl << result.get_centroids() << std::endl;
 
-  sycl::free(data, queue);
+    sycl::free(data, queue);
 }
 
 int main(int argc, char const *argv[]) {
-  for (auto device : list_devices()) {
-    auto queue = sycl::queue{device};
-    run(queue);
-  }
-  return 0;
+    for (auto device : list_devices()) {
+        auto queue = sycl::queue{ device };
+        run(queue);
+    }
+    return 0;
 }

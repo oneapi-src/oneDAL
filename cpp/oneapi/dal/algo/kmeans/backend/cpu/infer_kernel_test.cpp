@@ -20,7 +20,7 @@
 
 using namespace oneapi::dal;
 
-TEST(kmeans_lloyd_dense_cpu, train_results) {
+TEST(kmeans_lloyd_dense_cpu, infer_results) {
     constexpr std::int64_t row_count     = 8;
     constexpr std::int64_t column_count  = 2;
     constexpr std::int64_t cluster_count = 2;
@@ -41,14 +41,17 @@ TEST(kmeans_lloyd_dense_cpu, train_results) {
 
     const auto result_train = train(kmeans_desc, data_table);
 
-    const auto train_labels = row_accessor<const int>(result_train.get_labels()).pull().get_data();
-    for (std::int64_t i = 0; i < row_count; ++i) {
-        ASSERT_EQ(labels[i], train_labels[i]);
-    }
+    constexpr std::int64_t infer_row_count = 9;
+    const float data_infer[]               = { 1.0, 1.0,  0.0, 1.0,  1.0,  0.0,  2.0, 2.0,  7.0,
+                                 0.0, -1.0, 0.0, -5.0, -5.0, -5.0, 0.0, -2.0, 1.0 };
+    const auto data_infer_table = homogen_table{ infer_row_count, column_count, data_infer };
 
-    const auto train_centroids =
-        row_accessor<const float>(result_train.get_model().get_centroids()).pull().get_data();
-    for (std::int64_t i = 0; i < cluster_count * column_count; ++i) {
-        ASSERT_FLOAT_EQ(centroids[i], train_centroids[i]);
+    const int infer_labels[] = { 1, 1, 1, 1, 1, 0, 0, 0, 0 };
+
+    const auto result_test = infer(kmeans_desc, result_train.get_model(), data_infer_table);
+
+    const auto test_labels = row_accessor<const int>(result_test.get_labels()).pull().get_data();
+    for (std::int64_t i = 0; i < infer_row_count; ++i) {
+        ASSERT_EQ(infer_labels[i], test_labels[i]);
     }
 }

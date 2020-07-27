@@ -23,26 +23,20 @@
 using namespace oneapi;
 
 int main(int argc, char const *argv[]) {
-  constexpr std::int64_t row_count = 8;
-  constexpr std::int64_t column_count = 7;
-  constexpr std::int64_t cluster_count = 2;
+    constexpr std::int64_t row_count     = 8;
+    constexpr std::int64_t column_count  = 2;
+    constexpr std::int64_t cluster_count = 2;
 
-  const float data[] = {1.f, 2.f,  3.f, 4.f, 5.f, 6.f,  -5.f, 1.f, -1.f, 0.f,
-                        3.f, 1.f,  2.f, 3.f, 4.f, 5.f,  6.f,  1.f, 0.f,  0.f,
-                        0.f, 1.f,  2.f, 5.f, 2.f, 9.f,  3.f,  2.f, -4.f, 3.f,
-                        0.f, 4.f,  2.f, 7.f, 5.f, 4.f,  2.f,  0.f, -4.f, 0.f,
-                        3.f, -8.f, 2.f, 5.f, 5.f, -6.f, 3.f,  0.f, -9.f, 3.f,
-                        1.f, -3.f, 3.f, 5.f, 1.f, 7.f};
+    const float data[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
+                           -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
 
-  const auto data_table = dal::homogen_table{row_count, column_count, data};
+    const auto data_table = dal::homogen_table{ row_count, column_count, data };
 
-  const auto kmeans_init_desc =
-      dal::kmeans_init::descriptor<>().set_cluster_count(cluster_count);
+    const auto kmeans_init_desc = dal::kmeans_init::descriptor<>().set_cluster_count(cluster_count);
 
-  const auto result = dal::train(kmeans_init_desc, data_table);
+    const auto result = dal::train(kmeans_init_desc, data_table);
 
-  std::cout << "Initial cetroids:" << std::endl
-            << result.get_centroids() << std::endl;
+    std::cout << "Initial cetroids:" << std::endl << result.get_centroids() << std::endl;
 
-  return 0;
+    return 0;
 }

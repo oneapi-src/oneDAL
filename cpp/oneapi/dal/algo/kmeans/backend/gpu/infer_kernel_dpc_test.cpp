@@ -24,7 +24,7 @@
 
 using namespace oneapi::dal;
 
-TEST(kmeans_lloyd_dense_gpu, train_results) {
+TEST(kmeans_lloyd_dense_gpu, infer_results) {
     auto selector = sycl::gpu_selector();
     auto queue    = sycl::queue(selector);
 
@@ -57,18 +57,24 @@ TEST(kmeans_lloyd_dense_gpu, train_results) {
                                  .set_accuracy_threshold(0.001);
 
     const auto result_train = train(queue, kmeans_desc, data_table, initial_centroids_table);
+    constexpr std::int64_t infer_row_count = 9;
+    const float data_infer_host[]          = { 1.0, 1.0,  0.0, 1.0,  1.0,  0.0,  2.0, 2.0,  7.0,
+                                      0.0, -1.0, 0.0, -5.0, -5.0, -5.0, 0.0, -2.0, 1.0 };
+    auto data_infer = sycl::malloc_shared<float>(infer_row_count * column_count, queue);
+    queue.memcpy(data_infer, data_infer_host, sizeof(float) * infer_row_count * column_count)
+        .wait();
+    const auto data_infer_table = homogen_table{ infer_row_count, column_count, data_infer };
 
-    const auto train_labels =
-        row_accessor<const int>(result_train.get_labels()).pull(queue).get_data();
-    for (std::int64_t i = 0; i < row_count; ++i) {
-        ASSERT_EQ(labels[i], train_labels[i]);
-    }
+    const int infer_labels[] = { 1, 1, 1, 1, 1, 0, 0, 0, 0 };
 
-    const auto train_centroids =
-        row_accessor<const float>(result_train.get_model().get_centroids()).pull(queue).get_data();
-    for (std::int64_t i = 0; i < cluster_count * column_count; ++i) {
-        ASSERT_FLOAT_EQ(centroids[i], train_centroids[i]);
+    const auto result_test = infer(queue, kmeans_desc, result_train.get_model(), data_infer_table);
+
+    const auto test_labels =
+        row_accessor<const int>(result_test.get_labels()).pull(queue).get_data();
+    for (std::int64_t i = 0; i < infer_row_count; ++i) {
+        ASSERT_EQ(infer_labels[i], test_labels[i]);
     }
 
     sycl::free(data, queue);
+    sycl::free(data_infer, queue);
 }

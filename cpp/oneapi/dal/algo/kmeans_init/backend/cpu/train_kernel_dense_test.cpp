@@ -39,13 +39,9 @@ TEST(train_kernel_lloyd_dense, test1) {
 
     const auto result_train = train(kmeans_desc, data_table);
 
-    ASSERT_EQ(cluster_count, result_train.get_centroids().get_row_count());
-    ASSERT_EQ(column_count, result_train.get_centroids().get_column_count());
     const auto train_centroids =
         row_accessor<const float>(result_train.get_centroids()).pull().get_data();
     for (std::int64_t i = 0; i < cluster_count * column_count; ++i) {
         ASSERT_FLOAT_EQ(centroids[i], train_centroids[i]);
     }
-
-    sycl::free(data, queue);
 }
