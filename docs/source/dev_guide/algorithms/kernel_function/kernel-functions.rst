@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2014-2020 Intel Corporation
+.. * Copyright 2019-2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ The linear kernel function has the following parameters:
        + defaultDense - default performance-oriented method
        + fastCSR - performance-oriented method for CSR numeric tables
 
-   * - ComputationMode
+   * - computationMode
      - matrixMatrix
      - Computation mode for the kernel function. Can be:
 
@@ -114,10 +114,10 @@ The linear kernel function has the following parameters:
      - :math:`0`
      - Row index in the values numeric table to locate the result of the computation for the vectorVector computation mode.
    * - :math:`k`
-     - :math:`1`
+     - :math:`1.0`
      - The coefficient :math:`k` of the linear kernel.
    * - :math:`b`
-     - :math:`0`
+     - :math:`0.0`
      - The coefficient :math:`b` of the linear kernel.
 
 Algorithm Output
@@ -146,6 +146,10 @@ Examples
 ++++++++
 
 .. tabs::
+
+  .. tab:: DPC++
+    
+    -  :ref:`kernel_func_lin_dense_batch.cpp`
 
   .. tab:: C++
 
@@ -223,7 +227,7 @@ The RBF kernel has the following parameters:
        + defaultDense - default performance-oriented method
        + fastCSR - performance-oriented method for CSR numeric tables
 
-   * - ComputationMode
+   * - computationMode
      - matrixMatrix
      - Computation mode for the kernel function. Can be:
 
@@ -249,7 +253,7 @@ The RBF kernel has the following parameters:
      - :math:`0`
      - Row index in the values numeric table to locate the result of the computation for the vectorVector computation mode.
    * - sigma
-     - :math:`0`
+     - :math:`1.0`
      - The coefficient :math:`\sigma` of the RBF kernel.
 
 Algorithm Output
@@ -277,6 +281,10 @@ Examples
 ********
 
 .. tabs::
+
+  .. tab:: DPC++
+    
+    -  :ref:`kernel_func_rbf_dense_batch.cpp`
 
   .. tab:: C++
 
