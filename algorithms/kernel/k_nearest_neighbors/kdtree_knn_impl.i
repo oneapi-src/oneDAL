@@ -169,10 +169,3 @@ private:
 } // namespace daal
 
 #endif
-
-} // namespace internal
-} // namespace kdtree_knn_classification
-} // namespace algorithms
-} // namespace daal
-
-#endif
