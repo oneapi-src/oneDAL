@@ -261,16 +261,29 @@ protected:
     {
         _xRows.set(dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(a)), startRow, nRows);
         DAAL_CHECK_BLOCK_STATUS(_xRows);
+
+        algorithmFPType * const values = const_cast<algorithmFPType *>(_xRows.values());
+        size_t * const cols            = const_cast<size_t *>(_xRows.cols());
         Status s;
-        xTable = CSRNumericTable::create(const_cast<algorithmFPType *>(_xRows.values()), _xRows.rows(), _xRows.cols(), a->getNumberOfColumns(), nRows,
-                                         CSRNumericTableIface::oneBased, &s);
+        const size_t * const rows = _xRows.rows();
+        if (!values || !cols || !rows) s |= services::Status(services::ErrorMemoryAllocationFailed);
+        _rowOffsets[0] = 1;
+        for (size_t i = 0; i < nRows; i++)
+        {
+            const size_t nNonZeroValuesInRow = rows[i + 1] - rows[i];
+            _rowOffsets[i + 1]               = _rowOffsets[i] + nNonZeroValuesInRow;
+        }
+
+        xTable = CSRNumericTable::create(values, cols, _rowOffsets.get(), a->getNumberOfColumns(), nRows, CSRNumericTableIface::oneBased, &s);
         return s;
     }
 
 private:
     SubTaskVoteBasedCSR(size_t nClasses, size_t nRows, const SharedPtr<ClsType> & simplePrediction, bool & valid)
-        : super(nClasses, nRows, simplePrediction, valid)
+        : super(nClasses, nRows, simplePrediction, valid), _rowOffsets(nRows + 1)
     {}
+
+    TArrayScalable<size_t, cpu> _rowOffsets;
     ReadRowsCSR<algorithmFPType, cpu> _xRows;
 };
 
