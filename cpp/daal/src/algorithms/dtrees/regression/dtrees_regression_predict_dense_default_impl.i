@@ -113,12 +113,12 @@ services::Status PredictRegressionTaskBase<algorithmFPType, cpu>::run(services::
             if (nRowsToProcess < 2 * nThreads || cpu == __avx512_mic__)
             {
                 for (size_t iRow = 0; iRow < nRowsToProcess; ++iRow)
-                    res[iRow] += factor * predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols + iStartRow);
+                    res[iRow] += factor * predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols + iStartRow * _data->getNumberOfColumns());
             }
             else
             {
                 daal::threader_for(nRowsToProcess, nRowsToProcess,
-                                   [&](size_t iRow) { res[iRow] += factor * predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols + iStartRow); });
+                                   [&](size_t iRow) { res[iRow] += factor * predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols + iStartRow * _data->getNumberOfColumns()); });
             }
         });
         s = safeStat.detach();
