@@ -1,11 +1,13 @@
 package(default_visibility = ["//visibility:public"])
-load("@onedal//dev/bazel:daal.bzl", "daal_module")
+load("@onedal//dev/bazel:daal.bzl",
+    "daal_module",
+    "daal_static_lib",
+)
 
 daal_module(
     name = "includes",
-    # TODO: Remove *.i and *.cl
     hdrs = glob(["include/**/*.h"]),
-    system_includes = [ ".", "include" ],
+    includes = [ ".", "include" ],
     defines = [
         "DAAL_NOTHROW_EXCEPTIONS",
         "DAAL_HIDE_DEPRECATED",
@@ -13,5 +15,149 @@ daal_module(
     deps = [
         "@micromkl//:headers",
         "@micromkl_dpc//:headers",
+    ],
+)
+
+daal_module(
+    name = "service_headers",
+    hdrs = glob([
+        "src/services/**/*.h",
+        "src/externals/**/*.h",
+        "src/algorithms/service_*.h",
+    ]),
+    deps = [
+        "@onedal//cpp/daal:includes",
+    ],
+)
+
+daal_module(
+    name = "threading_headers",
+    hdrs = glob(["src/threading/**/*.h"]),
+    deps = [
+        ":service_headers",
+    ],
+)
+
+daal_module(
+    name = "threading_seq",
+    srcs = glob(["src/threading/**/*.cpp"]),
+    local_defines = [
+        "__DO_SEQ_LAYER__",
+    ],
+    deps = [
+        ":threading_headers",
+        "@micromkl//:mkl_seq",
+    ],
+)
+
+daal_module(
+    name = "threading_tbb",
+    srcs = glob(["src/threading/**/*.cpp"]),
+    local_defines = [
+        "__DO_TBB_LAYER__",
+        "TBB_USE_ASSERT=0",
+    ],
+    deps = [
+        ":threading_headers",
+        "@tbb//:tbb",
+        "@tbb//:tbbmalloc",
+        "@micromkl//:mkl_thr",
+        "@micromkl//:mkl_seq",
+    ],
+)
+
+daal_module(
+    name = "services",
+    srcs = glob(
+        ["src/services/**/*.cpp", "src/externals/**/*.cpp"],
+        exclude = ["src/externals/**/*_win_dll.cpp"],
+    ),
+    deps = [
+        ":service_headers",
+        ":threading_headers",
+        "@config//:daal_version_data",
+        "@micromkl//:vml_ipp",
+    ],
+)
+
+daal_module(
+    name = "data_management",
+    hdrs = glob(["src/data_management/**/*.h"]),
+    srcs = glob(["src/data_management/**/*.cpp"]),
+    deps = [
+        ":services",
+    ],
+)
+
+daal_module(
+    name = "algorithms_base",
+    hdrs = glob(["src/algorithms/*.h"], exclude=["src/algorithms/service_*"]),
+    srcs = glob(["src/algorithms/*.cpp"], exclude=["src/algorithms/service_*"]),
+    deps = [
+        ":services",
+    ],
+)
+
+daal_module(
+    name = "sycl",
+    lib_tag = "daal_core",
+    hdrs = glob(["src/sycl/**/*.h", "src/sycl/**/*.cl"]),
+    srcs = glob(["src/sycl/**/*.cpp"]),
+    deps = [
+        ":services",
+        "@onedal//cpp/daal/src/algorithms/engines",
+        "@micromkl_dpc//:headers",
+    ],
+)
+
+daal_module(
+    name = "core",
+    deps = [
+        ":services",
+        ":data_management",
+        ":algorithms_base",
+    ],
+)
+
+daal_module(
+    name = "core_sycl",
+    deps = [
+        ":core",
+        ":sycl",
+    ],
+)
+
+daal_static_lib(
+    name = "core_static",
+    lib_name = "daal_core",
+    deps = [
+        ":core",
+        ":core_sycl",
+        "@onedal//cpp/daal/src/algorithms/kmeans",
+    ],
+)
+
+daal_static_lib(
+    name = "sequential_static",
+    lib_name = "daal_sequential",
+    deps = [
+        ":threading_seq",
+    ],
+)
+
+daal_static_lib(
+    name = "thread_static",
+    lib_name = "daal_thread",
+    deps = [
+        ":threading_tbb",
+    ],
+)
+
+filegroup(
+    name = "all_static",
+    srcs = [
+        ":core_static",
+        ":sequential_static",
+        ":thread_static",
     ],
 )

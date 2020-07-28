@@ -16,17 +16,17 @@ lnx_cc_common_flags = [
     "-fno-delete-null-pointer-checks",
     "-Wformat",
     "-Wformat-security",
-    "-Werror=uninitialized",
-    "-Werror=return-type",
-    "-Wno-unused-parameter",
-    "-Wno-unused-command-line-argument",
 ]
 
 lnx_cc_pedantic_flags = [
     "-pedantic",
     "-Wall",
     "-Wextra",
+    "-Werror=uninitialized",
     "-Werror=unknown-pragmas",
+    "-Werror=return-type",
+    "-Wno-unused-parameter",
+    "-Wno-unused-command-line-argument",
 ]
 
 lnx_cc_flags = {

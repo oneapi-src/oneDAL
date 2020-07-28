@@ -1,8 +1,13 @@
-load("@bazel_skylib//lib:paths.bzl", "paths")
-load("@onedal//dev/bazel:utils.bzl", "utils")
-load("@onedal//dev/bazel/config:config.bzl", "CpuVectorInstructionsProvider")
+load("@onedal//dev/bazel:utils.bzl",
+    "utils",
+    "paths",
+    "sets",
+)
+load("@onedal//dev/bazel/config:config.bzl",
+    "CpuVectorInstructionsProvider"
+)
 
-TransitiveCcInfo = provider(
+ModuleInfo = provider(
     fields=[
         "tagged_linking_contexts",
         "compilation_context",
@@ -12,7 +17,7 @@ TransitiveCcInfo = provider(
 def _collect_compilation_contexts(deps):
     dep_compilation_contexts = []
     for dep in deps:
-        for Info in [CcInfo, TransitiveCcInfo]:
+        for Info in [CcInfo, ModuleInfo]:
             if Info in dep:
                 dep_compilation_contexts.append(dep[Info].compilation_context)
     return dep_compilation_contexts
@@ -20,8 +25,8 @@ def _collect_compilation_contexts(deps):
 def _collect_tagged_linking_contexts(deps):
     dep_tagged_linking_contexts = []
     for dep in deps:
-        if TransitiveCcInfo in dep:
-            dep_tagged_linking_contexts += dep[TransitiveCcInfo].tagged_linking_contexts
+        if ModuleInfo in dep:
+            dep_tagged_linking_contexts += dep[ModuleInfo].tagged_linking_contexts
         if CcInfo in dep:
             linking_context = dep[CcInfo].linking_context
             dep_tagged_linking_contexts.append((None, linking_context))
@@ -29,9 +34,9 @@ def _collect_tagged_linking_contexts(deps):
 
 def _filter_tagged_linking_contexts(tagged_linking_contexts, tags):
     linking_contexts = []
-    tag_set = utils.set(tags)
+    tag_set = sets.make(tags)
     for tag, linking_context in tagged_linking_contexts:
-        if (not tag) or (tag in tag_set):
+        if (not tag) or (not tags) or sets.contains(tag_set, tag):
             linking_contexts.append(linking_context)
     return linking_contexts
 
@@ -96,6 +101,7 @@ def _compile(name, ctx, toolchain, feature_config,
         srcs = srcs,
         actions = ctx.actions,
         public_hdrs = ctx.files.hdrs,
+        private_hdrs = ctx.files.private_hdrs,
         cc_toolchain = toolchain,
         defines = ctx.attr.defines,
         local_defines = ctx.attr.local_defines + local_defines,
@@ -113,7 +119,9 @@ def _compile(name, ctx, toolchain, feature_config,
 
 def _compile_all(name, ctx, toolchain, feature_config, dep_compilation_contexts):
     fpts = ctx.attr._fpts
-    cpus = ctx.attr._cpus[CpuVectorInstructionsProvider].isa_extensions
+    cpus = ctx.attr._cpus[CpuVectorInstructionsProvider].isa_extensions[:]
+    if ctx.attr.disable_mic and "avx512_mic" in cpus:
+        cpus.remove("avx512_mic")
 
     compilation_contexts = []
     compilation_outputs = []
@@ -137,7 +145,7 @@ def _compile_all(name, ctx, toolchain, feature_config, dep_compilation_contexts)
     fpt_defines = {}
     if sources_by_category.fpt_files or sources_by_category.fpt_cpu_files:
         for fpt in fpts:
-            fpt_defines[fpt] = ctx.attr.fpt_defines.get(cpu, [])
+            fpt_defines[fpt] = ctx.attr.fpt_defines.get(fpt, [])
 
     # Compile normal files
     compilation_context, compulation_output = _compile(
@@ -155,15 +163,13 @@ def _compile_all(name, ctx, toolchain, feature_config, dep_compilation_contexts)
                 name + "_" + fpt, ctx, toolchain, feature_config,
                 dep_compilation_contexts,
                 srcs = sources_by_category.fpt_files,
-                local_defines = fpt_defines[cpu]
+                local_defines = fpt_defines[fpt]
             )
             compilation_contexts.append(compilation_context)
             compilation_outputs.append(compulation_output)
 
     # Compile CPU files
     if sources_by_category.cpu_files:
-        print(sources_by_category.cpu_files)
-        print(cpus)
         for cpu in cpus:
             compilation_context, compulation_output = _compile(
                 name + "_" + cpu, ctx, toolchain, cpu_feature_configs[cpu],
@@ -221,14 +227,15 @@ def _cc_module_impl(ctx):
     tagged_linking_contexts.append((ctx.attr.lib_tag, linking_context))
     files_to_build = (compilation_outputs.pic_objects +
                       compilation_outputs.objects)
-    default_info = DefaultInfo(
-        files = depset(files_to_build)
-    )
-    cc_info = TransitiveCcInfo(
+    # default_info = DefaultInfo(
+    #     files = depset(files_to_build)
+    # )
+    module_info = ModuleInfo(
         compilation_context = compilation_context,
         tagged_linking_contexts = tagged_linking_contexts,
     )
-    return [default_info, cc_info]
+    # return [default_info, module_info]
+    return [module_info]
 
 
 _cc_module = rule(
@@ -237,7 +244,7 @@ _cc_module = rule(
         "lib_tag": attr.string(),
         "srcs": attr.label_list(allow_files=True),
         "hdrs": attr.label_list(allow_files=True),
-        "libs": attr.label_list(allow_files=True),
+        "private_hdrs": attr.label_list(allow_files=True),
         "deps": attr.label_list(),
         "copts": attr.string_list(),
         "defines": attr.string_list(),
@@ -247,6 +254,7 @@ _cc_module = rule(
         "includes": attr.string_list(),
         "quote_includes": attr.string_list(),
         "system_includes": attr.string_list(),
+        "disable_mic": attr.bool(default=False),
         "_cpus": attr.label(
             default = "@config//:cpu",
         ),
@@ -299,8 +307,8 @@ def _cc_static_lib_impl(ctx):
         disallow_dynamic_library = True,
     )
     if not linking_outputs.library_to_link:
-        utils.warn("'{}' static library does not contain any object file".format(ctx.attr.lib_name))
-        return
+        return utils.warn("'{}' static library does not contain any " +
+                          "object file".format(ctx.attr.lib_name))
     static_lib = (linking_outputs.library_to_link.static_library or
                   linking_outputs.library_to_link.pic_static_library)
     default_info = DefaultInfo(
@@ -312,7 +320,6 @@ def _cc_static_lib_impl(ctx):
     )
     return [default_info, cc_info]
 
-
 cc_static_lib = rule(
     implementation = _cc_static_lib_impl,
     attrs = {
@@ -322,4 +329,60 @@ cc_static_lib = rule(
     },
     toolchains = ["@bazel_tools//tools/cpp:toolchain_type"],
     fragments = ["cpp"],
+)
+
+def _cc_executable_impl(ctx):
+    toolchain = ctx.toolchains["@bazel_tools//tools/cpp:toolchain_type"]
+    feature_config = cc_common.configure_features(
+        ctx = ctx,
+        cc_toolchain = toolchain,
+        requested_features = ctx.features,
+        unsupported_features = ctx.disabled_features,
+    )
+    tagged_linking_contexts = _collect_tagged_linking_contexts(ctx.attr.deps)
+    linking_contexts = _filter_tagged_linking_contexts(tagged_linking_contexts, ctx.attr.lib_tags)
+    merged_linking_context = _merge_linking_contexts(linking_contexts)
+    object_files = depset(merged_linking_context.objects +
+                          merged_linking_context.pic_objects)
+    compilation_outputs = cc_common.create_compilation_outputs(
+        objects = object_files,
+        pic_objects = object_files,
+    )
+    linker_input = cc_common.create_linker_input(
+        owner = ctx.label,
+        libraries = depset(merged_linking_context.libraries_to_link),
+        user_link_flags = depset(merged_linking_context.user_link_flags),
+    )
+    linking_outputs = cc_common.link(
+        name = ctx.label.name,
+        actions = ctx.actions,
+        cc_toolchain = toolchain,
+        feature_configuration = feature_config,
+        # TODO: Pass compilations outputs via linking contexts
+        #       Individual linking context for each library tag
+        compilation_outputs = compilation_outputs,
+        linking_contexts = [
+            cc_common.create_linking_context(
+                linker_inputs = depset([linker_input]),
+            )
+        ],
+    )
+    if not linking_outputs.executable:
+        return utils.warn("'{}' executable does not contain any " +
+                          "object file".format(ctx.label.name))
+    default_info = DefaultInfo(
+        files = depset([ linking_outputs.executable ]),
+        executable = linking_outputs.executable,
+    )
+    return [default_info]
+
+cc_executable = rule(
+    implementation = _cc_executable_impl,
+    attrs = {
+        "lib_tags": attr.string_list(),
+        "deps": attr.label_list(mandatory=True),
+    },
+    toolchains = ["@bazel_tools//tools/cpp:toolchain_type"],
+    fragments = ["cpp"],
+    executable = True,
 )

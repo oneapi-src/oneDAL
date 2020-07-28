@@ -1,15 +1,24 @@
 package(default_visibility = ["//visibility:public"])
-load("@onedal//dev/bazel:cc.bzl", "cc_module")
 
-cc_module(
+cc_library(
     name = "headers",
     hdrs = glob(["include/*.h", "%{os}/include/*.h"]),
-    system_includes = [ "include", "%{os}/include" ],
+    includes = [ "include", "%{os}/include" ],
 )
 
-cc_module(
+cc_library(
+    name = "vml_ipp",
+    srcs = [
+        "%{os}/lib/intel64/libdaal_vmlipp_core.a",
+    ],
+    deps = [
+        ":headers",
+    ],
+)
+
+cc_library(
     name = "mkl_seq",
-    libs = [
+    srcs = [
         "%{os}/lib/intel64/libdaal_mkl_sequential.a",
     ],
     deps = [
@@ -17,22 +26,16 @@ cc_module(
     ],
 )
 
-cc_module(
+cc_library(
     name = "mkl_thr",
-    libs = [
+    srcs = [
         "%{os}/lib/intel64/libdaal_mkl_thread.a",
     ],
     deps = [
         ":headers",
+        "@tbb//:tbb",
     ],
-)
-
-cc_module(
-    name = "vml_ipp",
-    libs = [
-        "%{os}/lib/intel64/libdaal_vmlipp_core.a",
-    ],
-    deps = [
-        ":headers",
+    linkopts = [
+        "-lm",
     ],
 )

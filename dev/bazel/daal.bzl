@@ -3,9 +3,10 @@ load("@onedal//dev/bazel:cc.bzl",
     "cc_static_lib",
 )
 
-def daal_module(name, features=[], **kwargs):
+def daal_module(name, features=[], lib_tag="daal", **kwargs):
     cc_module(
         name = name,
+        lib_tag = lib_tag,
         features = [ "c++11" ] + features,
         cpu_defines = {
             "sse2":       [ "DAAL_CPU=sse2"       ],
@@ -20,5 +21,13 @@ def daal_module(name, features=[], **kwargs):
             "f32": [ "DAAL_FPTYPE=float"  ],
             "f64": [ "DAAL_FPTYPE=double" ],
         },
+        **kwargs,
+    )
+
+
+def daal_static_lib(name, lib_tags=["daal"], **kwargs):
+    cc_static_lib(
+        name = name,
+        lib_tags = lib_tags,
         **kwargs,
     )

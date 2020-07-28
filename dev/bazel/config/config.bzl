@@ -1,19 +1,33 @@
-load("@onedal//dev/bazel:utils.bzl", "unique")
+load("@onedal//dev/bazel:utils.bzl", "utils", "sets")
 
 CpuVectorInstructionsProvider = provider(
     fields = ["isa_extensions"]
 )
 
 _ISA_EXTENSIONS = ["sse2", "ssse3", "sse42", "avx", "avx2", "avx512", "avx512_mic"]
+_ISA_EXTENSIONS_MODERN = ["sse2", "avx", "avx2", "avx512"]
+
+def _check_extensions(extensions):
+    allowed = sets.make(_ISA_EXTENSIONS)
+    requested = sets.make(extensions)
+    unsupported = sets.to_list(sets.difference(requested, allowed))
+    if unsupported:
+        fail("Unsupported CPU extensions: {}\n".format(unsupported) +
+             "Allowed extensions: {}".format(_ISA_EXTENSIONS))
 
 def _onedal_cpu_isa_extension_config_impl(ctx):
-    # TODO: Transform ctx.build_setting_value -> ISA_EXTENSION_VALUE
-    if ctx.build_setting_value == "auto":
+    if ctx.build_setting_value == "all":
         isa_extensions = _ISA_EXTENSIONS
+    elif ctx.build_setting_value == "modern":
+        isa_extensions = _ISA_EXTENSIONS_MODERN
+    elif ctx.build_setting_value == "auto":
+        # TODO: Determine CPU on build machine
+        isa_extensions = _ISA_EXTENSIONS_MODERN
     else:
         isa_extensions = ctx.build_setting_value.split(" ")
         isa_extensions = [x.strip() for x in isa_extensions]
-        isa_extensions = unique(["sse2"] + isa_extensions)
+        isa_extensions = utils.unique(["sse2"] + isa_extensions)
+    _check_extensions(isa_extensions)
     return CpuVectorInstructionsProvider(
         isa_extensions = isa_extensions
     )
@@ -23,16 +37,13 @@ onedal_cpu_isa_extension_config = rule(
     build_setting = config.string(flag = True)
 )
 
-def _datestamp(repo_ctx):
-    return repo_ctx.execute(["date", "+%Y%m%d"]).stdout.strip()
-
 def _version_info(repo_ctx):
     # TODO: Read version information from file
     return dict(
         major    = "2021",
         minor    = "1",
         update   = "8",
-        build    = _datestamp(repo_ctx),
+        build    = utils.datestamp(repo_ctx),
         buildrev = "work",
         status   = "B",
     )

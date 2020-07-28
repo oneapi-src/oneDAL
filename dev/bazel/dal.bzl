@@ -1,6 +1,7 @@
 load("@onedal//dev/bazel:cc.bzl",
     "cc_module",
     "cc_static_lib",
+    "cc_executable",
 )
 
 def dal_module(name, features=[], hdrs=[], srcs=[],
@@ -10,8 +11,8 @@ def dal_module(name, features=[], hdrs=[], srcs=[],
     hdrs_dpc = []
     srcs_dpc = []
     if auto:
-        hpp_filt = ["*.hpp", "detail/**/*.hpp", "backend/**/*.hpp"]
-        cpp_filt = ["*.cpp", "detail/**/*.cpp", "backend/**/*.cpp"]
+        hpp_filt = ["**/*.hpp"]
+        cpp_filt = ["**/*.cpp"]
         dpc_filt = ["**/*_dpc.cpp"]
         test_filt = ["**/*_test*"]
         hdrs_all = native.glob(hpp_filt, exclude=test_filt)
@@ -56,6 +57,17 @@ def dal_static_lib(name, lib_name, host=True, dpc=False, deps=[],
             **kwargs
         )
 
+def dal_executable(name, lib_tags=[], **kwargs):
+    _dal_module(
+        name = name + "_module",
+        **kwargs,
+    )
+    cc_executable(
+        name = name,
+        deps = [":{}_module".format(name)],
+        lib_tags = lib_tags,
+    )
+
 def dal_algo_shortcuts(*algos):
     for algo in algos:
         _dal_module(
@@ -69,12 +81,13 @@ def dal_algo_shortcuts(*algos):
             deps = [ "@onedal//cpp/oneapi/dal/algo/{0}:{0}_dpc".format(algo) ],
         )
 
-def dal_cpu_dispatcher(name, src):
+def dal_cpu_dispatcher(name, src, out):
     _patch_cpu_dispatcher(
         name = name + "_patch",
-        src = src
+        src = src,
+        out = out,
     )
-    native.cc_library(
+    _dal_module(
         name = name,
         hdrs = [
             ":" + name + "_patch"
@@ -86,12 +99,13 @@ def _dal_module(name, lib_tag="dal", features=[], **kwargs):
         name = name,
         lib_tag = lib_tag,
         features = [ "pedantic", "c++17" ] + features,
+        disable_mic = True,
         **kwargs,
     )
 
 def _patch_cpu_dispatcher_impl(ctx):
     # TODO: Patch source file
-    patched_file = ctx.actions.declare_file("_patched_dispatcher_cpu.hpp")
+    patched_file = ctx.actions.declare_file(ctx.attr.out)
     ctx.actions.run(
         outputs = [ patched_file ],
         inputs = [ ctx.file.src ],
@@ -109,5 +123,6 @@ _patch_cpu_dispatcher = rule(
     output_to_genfiles = True,
     attrs = {
         "src": attr.label(allow_single_file=True, mandatory=True),
+        "out": attr.string(mandatory=True),
     },
 )

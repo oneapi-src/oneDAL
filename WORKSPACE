@@ -37,6 +37,13 @@ micromkl_dpc_repo(
     name = "micromkl_dpc",
 )
 
+load("@onedal//dev/bazel/tbb:tbb.bzl",
+    "tbb_repo",
+)
+tbb_repo(
+    name = "tbb",
+)
+
 http_archive(
     name = "gtest",
     url = "https://github.com/google/googletest/archive/release-1.10.0.tar.gz",
